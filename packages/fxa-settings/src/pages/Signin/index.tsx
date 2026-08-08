@@ -98,6 +98,12 @@ const Signin = ({
   const [passwordTooltipErrorText, setPasswordTooltipErrorText] =
     useState<string>('');
   const [signinLoading, setSigninLoading] = useState<boolean>(false);
+  // Separate from signinLoading (which lingers after an error to keep the
+  // submit button disabled until the field is edited): this tracks only whether
+  // a password attempt is actively in flight, so the alternative-auth options
+  // are released as soon as the attempt fails.
+  const [signinAttemptInFlight, setSigninAttemptInFlight] =
+    useState<boolean>(false);
   const [hasEngaged, setHasEngaged] = useState<boolean>(false);
 
   const isOAuthNative = isOAuthNativeIntegration(integration);
@@ -153,6 +159,7 @@ const Signin = ({
       GleanMetrics.login.submit();
 
       setSigninLoading(true);
+      setSigninAttemptInFlight(true);
       const { data, error } = await beginSigninHandler(email, password);
 
       if (data) {
@@ -187,9 +194,17 @@ const Signin = ({
           setLocalizedBannerError(
             getLocalizedErrorMessage(ftlMsgResolver, navError)
           );
+          // Stay on this page → release the alternative-auth lock so the user
+          // can try another method.
+          setSigninAttemptInFlight(false);
         }
       }
       if (error) {
+        // Release the alternative-auth lock as soon as the attempt fails, so a
+        // wrong password doesn't leave the passkey / third-party options
+        // disabled until the field is edited (signinLoading keeps the submit
+        // button itself disabled by design).
+        setSigninAttemptInFlight(false);
         GleanMetrics.login.error({ event: { reason: error.message } });
         const { errno } = error;
 
@@ -307,8 +322,20 @@ const Signin = ({
   const additionalAccessibilityInfo =
     cmsInfo?.shared.additionalAccessibilityInfo;
 
+  // The password submit stays disabled while its own attempt is settling
+  // (signinLoading lingers after an error until the field is edited) or a
+  // passkey ceremony is running.
+  const signinButtonLocked = signinLoading || passkey.isLoading;
+  // The alternative options lock only while an attempt is actively in flight —
+  // released on error (see signInWithPassword) so a failed password doesn't
+  // strand them — or while a passkey ceremony is running.
+  const alternativesLocked = signinAttemptInFlight || passkey.isLoading;
+
   return (
-    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
+    <AppLayout
+      {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}
+      loading={passkey.isNavigating}
+    >
       {(localizedSuccessBannerHeading || localizedSuccessBannerDescription) && (
         <Banner
           type="success"
@@ -381,7 +408,7 @@ const Signin = ({
           <FtlMsg id="signin-button">
             <CmsButtonWithFallback
               type="submit"
-              disabled={signinLoading}
+              disabled={signinButtonLocked}
               buttonColor={cmsInfo?.shared.buttonColor}
               buttonText={signinPageCms?.primaryButtonText}
             >
@@ -400,6 +427,7 @@ const Signin = ({
             : undefined
         }
         errorBanner={showPasskeySignin ? passkey.errorBanner : undefined}
+        disabled={alternativesLocked}
         {...{ viewName, flowQueryParams }}
       />
 

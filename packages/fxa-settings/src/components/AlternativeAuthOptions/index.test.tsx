@@ -155,6 +155,50 @@ describe('AlternativeAuthOptions', () => {
     });
   });
 
+  describe('disabled prop (form-lock)', () => {
+    it('disables the passkey button without showing its loading spinner', () => {
+      renderWithLocalizationProvider(
+        <Subject
+          showPasskeySignin
+          passkeySignIn={{ onClick: jest.fn() }}
+          disabled
+        />
+      );
+      // Still shows the default label (not the loading label), but disabled.
+      expect(
+        screen.getByRole('button', { name: /sign in with passkey/i })
+      ).toBeDisabled();
+    });
+
+    it('disables the Google and Apple buttons', async () => {
+      renderWithLocalizationProvider(
+        <Subject
+          showPasskeySignin
+          passkeySignIn={{ onClick: jest.fn() }}
+          disabled
+        />
+      );
+      expect(
+        await screen.findByRole('button', { name: 'Continue with Google' })
+      ).toBeDisabled();
+      expect(
+        screen.getByRole('button', { name: 'Continue with Apple' })
+      ).toBeDisabled();
+    });
+
+    it('leaves all options enabled when disabled is false', async () => {
+      renderWithLocalizationProvider(
+        <Subject showPasskeySignin passkeySignIn={{ onClick: jest.fn() }} />
+      );
+      expect(
+        screen.getByRole('button', { name: /sign in with passkey/i })
+      ).toBeEnabled();
+      expect(
+        await screen.findByRole('button', { name: 'Continue with Google' })
+      ).toBeEnabled();
+    });
+  });
+
   describe('showThirdPartyAuth prop', () => {
     it('hides Google/Apple buttons when false', () => {
       renderWithLocalizationProvider(<Subject showThirdPartyAuth={false} />);

@@ -230,6 +230,12 @@ export interface UsePasskeySignInArgs {
 
 export interface UsePasskeySignInResult {
   isLoading: boolean;
+  /**
+   * True once verification has succeeded and navigation/handoff is pending —
+   * raised only on the committed-success path (never on an error), so surfaces
+   * can show a page-level loading state without wiping the form on a failure.
+   */
+  isNavigating: boolean;
   errorBanner: React.ReactNode | undefined;
   onClick: () => Promise<void>;
 }
@@ -258,6 +264,7 @@ export function usePasskeySignIn({
   supportsKeysOptionalLogin,
 }: UsePasskeySignInArgs): UsePasskeySignInResult {
   const [isLoading, setIsLoading] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
   const [banner, setBanner] = useState<PasskeyBannerState | undefined>();
   const inFlight = useRef(false);
   const navigate = useNavigate();
@@ -367,6 +374,7 @@ export function usePasskeySignIn({
     const finish = () => {
       inFlight.current = false;
       setIsLoading(false);
+      setIsNavigating(false);
     };
     const setUnexpectedError = () =>
       setLocalizedError(
@@ -511,6 +519,10 @@ export function usePasskeySignIn({
         const fallbackPath = completion.hasPassword
           ? '/signin_passkey_fallback'
           : '/post_verify/set_password';
+        // Committed navigation to the password step — raise the page-level
+        // loading state so the surface shows a spinner through the soft nav
+        // rather than a reverted button.
+        setIsNavigating(true);
         // Thread the passkey context so the destination page can tag its Glean
         // events with the originating surface.
         navigateWithQuery(fallbackPath, {
@@ -553,13 +565,19 @@ export function usePasskeySignIn({
       });
 
       if (navError) {
+        // No page-level loading state was raised — the button held the
+        // loading state during the await. Re-enable the form and surface the
+        // banner in place; no page swap.
         Sentry.captureException(navError);
         setUnexpectedError();
+        finish();
       } else {
-        // Terminal success for the no-password-needed branch: WebAuthn
-        // ceremony verified, no Sync password step required, navigation
-        // completed cleanly. Fire the consolidated success event with the
-        // appropriate `<surface>_nopassword` reason for Looker funnels.
+        // Navigation completed cleanly. Keep the page-level loading state
+        // raised — deliberately not finish()'d — to cover the possibly-hard
+        // redirect or WebChannel handoff while this component is torn down,
+        // mirroring Signin/index.tsx's success path. Then fire the consolidated
+        // `<surface>_nopassword` success event for Looker.
+        setIsNavigating(true);
         GleanMetrics.passkey.authSuccess({
           event: {
             reason: buildPasskeyAuthSuccessReason(
@@ -569,7 +587,6 @@ export function usePasskeySignIn({
           },
         });
       }
-      finish();
     } catch (err) {
       const errno = (err as { errno?: number })?.errno;
       if (errno === AuthUiErrors.PASSKEY_NOT_FOUND.errno) {
@@ -608,5 +625,5 @@ export function usePasskeySignIn({
     supportsKeysOptionalLogin,
   ]);
 
-  return { isLoading, errorBanner, onClick };
+  return { isLoading, isNavigating, errorBanner, onClick };
 }

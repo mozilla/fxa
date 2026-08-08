@@ -271,6 +271,25 @@ describe('Signin component', () => {
       render({ hasPasskey: true });
       expect(passkeyButton()).not.toBeInTheDocument();
     });
+
+    it('keeps the passkey button enabled after a failed password attempt (only the submit button stays disabled)', async () => {
+      const beginSigninHandler = jest.fn().mockReturnValueOnce(
+        createBeginSigninResponseError({
+          errno: AuthUiErrors.INCORRECT_PASSWORD.errno,
+        })
+      );
+      render({ hasPasskey: true, beginSigninHandler });
+
+      await enterPasswordAndSubmit();
+
+      // The failed password must not strand the alternative option: the passkey
+      // button stays clickable, while the submit button keeps its own disabled
+      // state until the field is edited.
+      await waitFor(() => {
+        expect(passkeyButton()).toBeEnabled();
+      });
+      expect(screen.getByRole('button', { name: 'Sign in' })).toBeDisabled();
+    });
   });
 
   describe('without sessionToken', () => {

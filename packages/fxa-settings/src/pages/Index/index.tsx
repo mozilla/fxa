@@ -76,6 +76,10 @@ export const Index = ({
     passkey.onClick();
   };
 
+  // While a submit or passkey ceremony is in flight, disable the other sign-in
+  // options so a competing attempt can't race the one already running.
+  const authInProgress = isSubmitting || passkey.isLoading;
+
   const legalTerms = integration.getLegalTerms();
 
   const emailEngageEventEmitted = useRef(false);
@@ -133,7 +137,10 @@ export const Index = ({
   const splitLayout = cmsInfo?.EmailFirstPage?.splitLayout;
 
   return (
-    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
+    <AppLayout
+      {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}
+      loading={passkey.isNavigating}
+    >
       {cmsInfo ? (
         <>
           <CmsLogo
@@ -222,7 +229,7 @@ export const Index = ({
               className="cta-primary cta-xl"
               type="submit"
               data-glean-id="email_first_submit"
-              disabled={isSubmitting}
+              disabled={authInProgress}
               buttonColor={cmsInfo?.shared.buttonColor}
               buttonText={cmsInfo?.EmailFirstPage.primaryButtonText}
             >
@@ -252,6 +259,7 @@ export const Index = ({
             : undefined
         }
         errorBanner={showPasskeySignin ? passkey.errorBanner : undefined}
+        disabled={authInProgress}
         viewName="index"
         flowQueryParams={flowQueryParams}
       />
