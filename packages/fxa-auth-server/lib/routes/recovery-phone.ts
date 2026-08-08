@@ -26,7 +26,8 @@ import {
   AuthRequest,
   SessionTokenAuthCredential,
 } from '../types';
-import { E164_NUMBER } from './validators';
+import { E164_NUMBER, maskedPhoneNumber } from './validators';
+import requestHelper from './utils/request_helper';
 import { AppError } from '@fxa/accounts/errors';
 import Localizer from '../l10n';
 import NodeRendererBindings from '../senders/renderer/bindings-node';
@@ -975,29 +976,14 @@ class RecoveryPhoneHandler {
   }
 
   async exists(request: AuthRequest) {
-    // To ensure no data is leaked, we will never expose the full phone number, if
-    // the session is not verified. e.g. The user has entered the correct password,
-    // but failed to provide 2FA.
-    const shouldStripNumber = (() => {
-      if (
-        request.auth.strategy === 'multiStrategySessionToken' ||
-        request.auth.strategy === 'multiStrategySessionTokenBearer'
-      ) {
-        const { emailVerified, mustVerify, tokenVerified } = request.auth
-          .credentials as SessionTokenAuthCredential;
-        return !emailVerified || (mustVerify && !tokenVerified);
-      }
-      return true;
-    })();
-
-    const phoneNumberStrip = shouldStripNumber ? 4 : undefined;
     const { uid } = request.auth.credentials as AuthCredential;
+    // Masked either way; the flag only affects formatting, not digits.
+    const keepFormatting = requestHelper.hasProvenSession(request);
 
     try {
-      return await this.recoveryPhoneService.hasConfirmed(
-        uid,
-        phoneNumberStrip
-      );
+      return await this.recoveryPhoneService.hasConfirmedMasked(uid, {
+        keepFormatting,
+      });
     } catch (error) {
       throw AppError.backendServiceFailure(
         'RecoveryPhoneService',
@@ -1358,6 +1344,13 @@ export const recoveryPhoneRoutes = (
             'multiStrategySessionToken',
             'multiStrategyPasswordForgotToken',
           ],
+        },
+        response: {
+          schema: isA.object({
+            exists: isA.boolean().required(),
+            phoneNumber: maskedPhoneNumber,
+            nationalFormat: maskedPhoneNumber,
+          }),
         },
       },
       handler: function (request: AuthRequest) {

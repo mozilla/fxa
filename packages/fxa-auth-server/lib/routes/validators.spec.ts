@@ -824,4 +824,33 @@ describe('lib/routes/validators:', () => {
     expect(validators.isValidEmailAddress('foo\u200b@example.com')).toBe(false);
     expect(validators.isValidEmailAddress('foo\u200f@example.com')).toBe(false);
   });
+
+  describe('maskedPhoneNumber:', () => {
+    // The rejection cases are the point: this is what enforces the invariant.
+    it.each([
+      { value: '1234', label: 'the last 4 digits' },
+      {
+        value: '(\u2022\u2022\u2022) \u2022\u2022\u2022-1234',
+        label: 'a masked national format',
+      },
+      {
+        value: '+\u2022\u2022\u2022\u2022\u2022\u2022\u20221234',
+        label: 'a masked E.164 number',
+      },
+      { value: null, label: 'null' },
+    ])('accepts $label', ({ value }) => {
+      expect(
+        validators.maskedPhoneNumber.validate(value).error
+      ).toBeUndefined();
+    });
+
+    it.each([
+      { value: '+14155551234', label: 'a full E.164 number' },
+      { value: '(415) 555-1234', label: 'a full national format' },
+      { value: '4155551234', label: 'bare unmasked digits' },
+      { value: '12345', label: 'more than 4 digits' },
+    ])('rejects $label', ({ value }) => {
+      expect(validators.maskedPhoneNumber.validate(value).error).toBeDefined();
+    });
+  });
 });

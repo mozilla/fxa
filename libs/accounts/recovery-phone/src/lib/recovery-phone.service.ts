@@ -372,18 +372,13 @@ export class RecoveryPhoneService {
   }
 
   /**
-   * Checks if the given uid has confirmed a phone number.
-   * @param uid Account id
-   * @param phoneNumberMask When provided will mask the number so the full value is not shown.
-   * @returns If the account has confirmed, returns {exists:true, phoneNumber }. If not returns {exists:false}
+   * Checks if the given uid has confirmed a phone number. Returns the full
+   * number, so anything reaching a client must use {@link hasConfirmedMasked}.
    *
-   * @remarks The value provided for phoneNumberMask will preserve the last N digits of of the phone number.
-   * e.g. If the phone number was +15005551234 and phoneNumberMask was 4, the result would be +*******1234.
+   * @param uid Account id
+   * @returns If the account has confirmed, returns {exists:true, phoneNumber }. If not returns {exists:false}
    */
-  public async hasConfirmed(
-    uid: string,
-    phoneNumberStrip?: number
-  ): Promise<{
+  public async hasConfirmed(uid: string): Promise<{
     exists: boolean;
     phoneNumber?: string;
     nationalFormat?: string;
@@ -394,10 +389,8 @@ export class RecoveryPhoneService {
 
       return {
         exists: true,
-        phoneNumber: this.stripPhoneNumber(phoneNumber, phoneNumberStrip),
-        nationalFormat: nationalFormat
-          ? this.stripPhoneNumber(nationalFormat, phoneNumberStrip)
-          : undefined,
+        phoneNumber,
+        nationalFormat: nationalFormat || undefined,
       };
     } catch (err) {
       if (err instanceof RecoveryNumberNotExistsError) {
@@ -414,6 +407,51 @@ export class RecoveryPhoneService {
   }
 
   /**
+   * Like {@link hasConfirmed}, but never divulges the full phone number: a caller
+   * that has only proven the password must not be able to read the number it
+   * would need to SIM-swap to defeat 2FA.
+   *
+   * Both modes expose the last 4 digits and nothing more. keepFormatting only
+   * decides whether the separators survive, which still reveals length and
+   * region, so it is reserved for callers that have proven more than a password.
+   *
+   * @param uid Account id
+   * @param keepFormatting Keep separators, e.g. `(•••) •••-1234` over `1234`
+   */
+  public async hasConfirmedMasked(
+    uid: string,
+    { keepFormatting = false }: { keepFormatting?: boolean } = {}
+  ): Promise<{
+    exists: boolean;
+    phoneNumber?: string;
+    nationalFormat?: string;
+  }> {
+    const { phoneNumber, nationalFormat } = await this.hasConfirmed(uid);
+
+    if (!phoneNumber) {
+      return { exists: false };
+    }
+
+    if (!keepFormatting) {
+      return {
+        exists: true,
+        phoneNumber: this.stripPhoneNumber(phoneNumber, 4),
+        nationalFormat: nationalFormat
+          ? this.stripPhoneNumber(nationalFormat, 4)
+          : undefined,
+      };
+    }
+
+    return {
+      exists: true,
+      phoneNumber: this.maskPhoneNumber(phoneNumber),
+      nationalFormat: nationalFormat
+        ? this.maskNationalFormat(nationalFormat)
+        : undefined,
+    };
+  }
+
+  /**
    * Masks a phone number so as to not divulge the entire value.
    *
    * @param phoneNumber The actual phone number
@@ -421,7 +459,6 @@ export class RecoveryPhoneService {
    * @returns The last N number of digits of the phone number
    */
   public stripPhoneNumber(phoneNumber: string, lastN?: number) {
-    // No stripping needed, session is verified
     if (lastN === undefined) {
       return phoneNumber;
     }
@@ -453,6 +490,21 @@ export class RecoveryPhoneService {
     const numMasked = Math.max(digits.length - lastN, 0);
     const mask = '•'.repeat(numMasked);
     return `${mask}${visible}`;
+  }
+
+  /**
+   * Masks in place so that, unlike {@link maskPhoneNumber}, Twilio's separators
+   * survive: `(415) 555-1234` becomes `(•••) •••-1234`. Re-masking is a no-op.
+   *
+   * @param nationalFormat The nationally formatted phone number
+   * @param lastN The number of digits at the end of the phone number to show
+   */
+  public maskNationalFormat(nationalFormat: string, lastN = 4): string {
+    const digitCount = nationalFormat.replace(/\D/g, '').length;
+    let remainingToMask = Math.max(digitCount - lastN, 0);
+    return nationalFormat.replace(/\d/g, (digit) =>
+      remainingToMask-- > 0 ? '•' : digit
+    );
   }
 
   /**
