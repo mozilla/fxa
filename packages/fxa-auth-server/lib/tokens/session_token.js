@@ -67,7 +67,14 @@ module.exports = (log, Token, config) => {
     }
 
     lastAuthAt() {
-      return Math.floor((this.authAt || this.createdAt) / 1000);
+      // Source auth_time from the authentication event, not just the password
+      // event: a session with a password at T1 and a second-factor challenge at
+      // T2 authenticated at T2. `verifiedAt` is refreshed by every AAL2 method,
+      // so max(authAt, verifiedAt) reflects the most recent authentication.
+      // Falls back to createdAt when neither is set (legacy/unverified tokens).
+      const authAt =
+        Math.max(this.authAt || 0, this.verifiedAt || 0) || this.createdAt;
+      return Math.floor(authAt / 1000);
     }
 
     get state() {
