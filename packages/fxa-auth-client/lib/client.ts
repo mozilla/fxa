@@ -116,6 +116,11 @@ export type SignInOptions = {
   metricsContext?: MetricsContext;
   postPasswordUpgrade?: boolean;
   skipPasswordUpgrade?: boolean;
+  // Whether the server should send the sign-in verification code email. Defaults
+  // to true when omitted. Pass false only if the caller sends the code itself
+  // (via `sessionResendVerifyCode`) when it presents the code entry screen,
+  // otherwise no code reaches the user.
+  sendSigninVerificationEmail?: boolean;
 };
 
 export type SignedInAccountData = {

@@ -310,6 +310,16 @@ module.exports = (
       const isUnverifiedAccount = !accountRecord.primaryEmail.isVerified;
       const wantsKeys = requestHelper.wantsKeys(request);
 
+      // Defaults to sending. Everyone who omits the flag keeps the server-sent
+      // copy — including the RPs that render their own verification UI against
+      // this API, which is the reason this send exists in the first place. Our
+      // own web front-end passes `false` and sends the code itself via
+      // `/session/resend_code`, so the send is coupled to the navigation that
+      // actually prompts for it. Applies only to the unverified-*session* code
+      // email; see `sendVerifySessionEmail` for why. See FXA-14109.
+      const sendSigninVerificationEmail =
+        request.payload.sendSigninVerificationEmail !== false;
+
       let sessions;
 
       const { deviceId, flowId, flowBeginTime } =
@@ -479,7 +489,19 @@ module.exports = (
             return await sendVerifyLoginEmail();
           case 'email-2fa':
           case 'email-otp':
-            // Sends an email containing a code that can verify a login
+            // Sends an email containing a code that can verify a login.
+            // Scoped to this path deliberately. The unverified-account path
+            // (`sendVerifyAccountEmail`) must keep sending even when the flag is
+            // false, because the client's stand-in — `/session/resend_code` —
+            // sends a *different* template (`verifyShortCode`) when the primary
+            // email is unverified. Turning this off there would silently change
+            // which email a signing-up user receives (FXA-14109).
+            if (!sendSigninVerificationEmail) {
+              log.info('account.token.code.suppressed', {
+                uid: accountRecord.uid,
+              });
+              return;
+            }
             return await sendVerifyLoginCodeEmail();
           case 'email-captcha':
             // `email-captcha` is a custom verification method used only for

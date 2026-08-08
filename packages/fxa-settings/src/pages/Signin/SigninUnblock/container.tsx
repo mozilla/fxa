@@ -82,17 +82,23 @@ export const SigninUnblockContainer = ({
     const service = integration.getService();
     const clientId = integration.getClientId();
 
-    const options: SignInOptions = signInOptions ?? {
-      verificationMethod: VerificationMethods.EMAIL_OTP,
-      keys: integration.wantsKeys(),
-      // See oauth_client_info in the auth-server for details on service/clientId
-      // Sending up the clientId when the user is not signing in to the browser
-      // is used to show the correct service name in emails
-      ...(isFirefoxService(service) ? { service } : { service: clientId }),
-      unblockCode,
-      metricsContext: queryParamsToMetricsContext(
-        flowQueryParams as unknown as Record<string, string>
-      ),
+    const options: SignInOptions = {
+      ...(signInOptions ?? {
+        verificationMethod: VerificationMethods.EMAIL_OTP,
+        keys: integration.wantsKeys(),
+        // See oauth_client_info in the auth-server for details on service/clientId
+        // Sending up the clientId when the user is not signing in to the browser
+        // is used to show the correct service name in emails
+        ...(isFirefoxService(service) ? { service } : { service: clientId }),
+        unblockCode,
+        metricsContext: queryParamsToMetricsContext(
+          flowQueryParams as unknown as Record<string, string>
+        ),
+      }),
+      // We own the verification email in this flow: `handleNavigation` sends it
+      // as it routes to the code screen, so the server must not send its own
+      // copy (FXA-14109).
+      sendSigninVerificationEmail: false,
     };
 
     // Get credentials with the correct key version

@@ -152,6 +152,9 @@ module.exports = function (
             metricsContext: METRICS_CONTEXT_SCHEMA,
             originalLoginEmail: validators.email().optional(),
             verificationMethod: validators.verificationMethod.optional(),
+            // Reauth shares `sendSigninNotifications` with /account/login, so it
+            // honours the same flag for clients that send the code themselves.
+            sendSigninVerificationEmail: isA.boolean().optional(),
           }),
         },
         response: {
