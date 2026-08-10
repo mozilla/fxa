@@ -10,7 +10,7 @@ import {
   useOAuthKeysCheck,
 } from '../../lib/oauth/hooks';
 import AppLayout from '../../components/AppLayout';
-import { MozServices } from '../../lib/types';
+import { MfaReason, MozServices } from '../../lib/types';
 import {
   Integration,
   useAccount,
@@ -19,6 +19,9 @@ import {
   useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../models';
+import { MfaGuardCore } from '../../components/Settings/MfaGuard';
+import { JwtTokenCache } from '../../lib/cache';
+import { clearMfaAndJwtCacheOnInvalidJwt } from '../../lib/mfa-guard-utils';
 import InlineRecoverySetup from './index';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { SigninRecoveryLocationState } from './interfaces';
@@ -150,26 +153,50 @@ export const InlineRecoverySetupContainer = ({
 
   const verifyTotpHandler = useCallback(async () => {
     try {
-      await authClient.completeTotpSetup(
+      // Completing TOTP setup requires the MFA email-OTP proof (JWT), not just
+      // the session token (FXA-14311).
+      const jwt = JwtTokenCache.getToken(
         signinRecoveryLocationState!.sessionToken,
-        { service: serviceName }
+        '2fa'
       );
+      await authClient.completeTotpSetupWithJwt(jwt, {
+        // Send the protocol service value (e.g. `sync`), not the `serviceName`
+        // display label — the server's `service` validator rejects spaces and
+        // strings over 16 chars, which most display names are (FXA-14311).
+        service: integration.getService(),
+      });
       return true;
     } catch (err) {
+      // The short-lived mfa:2fa JWT can expire during the (multi-step) recovery
+      // setup. On a stale/invalid JWT, drop it so MfaGuardCore re-prompts for a
+      // fresh email OTP rather than dead-ending on a generic error.
+      clearMfaAndJwtCacheOnInvalidJwt(
+        err,
+        '2fa',
+        signinRecoveryLocationState!.sessionToken
+      );
       // todo handle this error better
       // auth-server may return more specific errors (including throttling)
       return false;
     }
-  }, [authClient, signinRecoveryLocationState, serviceName]);
+  }, [authClient, signinRecoveryLocationState, integration]);
 
   const [phoneData, setPhoneData] = useState<{
     phoneNumber: string;
     nationalFormat: string | undefined;
   }>({ phoneNumber: '', nationalFormat: '' });
+  // confirmRecoveryPhone consumes a one-time SMS code and finalizes the phone.
+  // If TOTP completion then fails (e.g. a stale MFA JWT triggers a guard
+  // re-prompt), the user retries on the same step — but the code is already
+  // spent. Track that the phone was confirmed so the retry skips
+  // confirmRecoveryPhone and only re-runs the TOTP completion.
+  const phoneConfirmedRef = useRef(false);
   const verifyPhoneNumber = useCallback(
     async (phoneNumberInput: string) => {
       const { nationalFormat } =
         await account.addRecoveryPhone(phoneNumberInput);
+      // A newly entered phone must be re-confirmed.
+      phoneConfirmedRef.current = false;
       setPhoneData({
         phoneNumber: phoneNumberInput,
         nationalFormat,
@@ -184,8 +211,19 @@ export const InlineRecoverySetupContainer = ({
 
   const verifySmsCode = useCallback(
     async (code: string) => {
-      await account.confirmRecoveryPhone(code, phoneData.phoneNumber);
-      await verifyTotpHandler();
+      // Skip on retry — the SMS code is single-use and the phone is already
+      // finalized (see phoneConfirmedRef).
+      if (!phoneConfirmedRef.current) {
+        await account.confirmRecoveryPhone(code, phoneData.phoneNumber);
+        phoneConfirmedRef.current = true;
+      }
+      const success = await verifyTotpHandler();
+      if (!success) {
+        // Completing TOTP failed — don't advance to the success screen with 2FA
+        // still disabled. On a stale MFA JWT the guard re-prompts (the JWT was
+        // cleared); retrying re-runs only verifyTotpHandler with the fresh JWT.
+        throw new Error('cannot enable TOTP');
+      }
     },
     [account, phoneData.phoneNumber, verifyTotpHandler]
   );
@@ -292,29 +330,41 @@ export const InlineRecoverySetupContainer = ({
     return <OAuthDataError error={oAuthKeysCheckError} />;
   }
 
+  // Gate completing TOTP setup behind an MFA email-OTP so a hijacked session
+  // cannot finalize a second factor (FXA-14311).
   return (
-    <InlineRecoverySetup
-      {...{
-        flowHasPhoneChoice: account.recoveryPhone.available,
-        serviceName,
-        email: signinRecoveryLocationState.email,
-        currentStep,
-        backupMethod,
-        backupCodes,
-        generatingCodes,
-        phoneData,
-        navigateForward,
-        navigateBackward,
-        backupChoiceCb,
-        backupCodeError,
-        setBackupCodeError,
-        sendSmsCode,
-        verifyPhoneNumber,
-        verifySmsCode,
-        completeBackupCodeSetup,
-        successfulSetupHandler,
-      }}
-    />
+    <MfaGuardCore
+      requiredScope="2fa"
+      reason={MfaReason.createTotp}
+      email={signinRecoveryLocationState.email}
+      sessionToken={signinRecoveryLocationState.sessionToken}
+      onDismiss={() => navigateWithQuery('/signin')}
+      onSessionInvalid={() => navigateWithQuery('/signin')}
+      onFatalError={() => navigateWithQuery('/signin')}
+    >
+      <InlineRecoverySetup
+        {...{
+          flowHasPhoneChoice: account.recoveryPhone.available,
+          serviceName,
+          email: signinRecoveryLocationState.email,
+          currentStep,
+          backupMethod,
+          backupCodes,
+          generatingCodes,
+          phoneData,
+          navigateForward,
+          navigateBackward,
+          backupChoiceCb,
+          backupCodeError,
+          setBackupCodeError,
+          sendSmsCode,
+          verifyPhoneNumber,
+          verifySmsCode,
+          completeBackupCodeSetup,
+          successfulSetupHandler,
+        }}
+      />
+    </MfaGuardCore>
   );
 };
 

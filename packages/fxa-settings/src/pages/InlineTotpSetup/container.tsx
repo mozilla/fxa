@@ -6,7 +6,7 @@ import { useLocation } from 'react-router';
 import { useNavigateWithQuery } from '../../lib/hooks';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import InlineTotpSetup from '.';
-import { MozServices, TotpInfo } from '../../lib/types';
+import { MfaReason, MozServices, TotpInfo } from '../../lib/types';
 import AppLayout from '../../components/AppLayout';
 import { Integration, useSession, useAuthClient } from '../../models';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
@@ -17,6 +17,118 @@ import { QueryParams } from '../..';
 import { queryParamsToMetricsContext } from '../../lib/metrics';
 import GleanMetrics from '../../lib/glean';
 import * as Sentry from '@sentry/browser';
+import { MfaGuardCore } from '../../components/Settings/MfaGuard';
+import { JwtTokenCache } from '../../lib/cache';
+import { clearMfaAndJwtCacheOnInvalidJwt } from '../../lib/mfa-guard-utils';
+
+type MetricsContext = ReturnType<typeof queryParamsToMetricsContext>;
+
+type NavTo = (
+  uri:
+    | '/'
+    | '/signin_token_code'
+    | '/signin_totp_code'
+    | '/inline_recovery_setup',
+  state?: SigninLocationState | SigninRecoveryLocationState
+) => void;
+
+/**
+ * Runs the actual TOTP enrolment. Rendered as a child of `MfaGuardCore`, so a
+ * `mfa:2fa` JWT is already cached and the enrolment calls use the JWT-guarded
+ * `/mfa/totp/*` routes (FXA-14311).
+ */
+const InlineTotpEnrolment = ({
+  sessionToken,
+  signinState,
+  serviceName,
+  integration,
+  metricsContext,
+  navTo,
+}: {
+  sessionToken: string;
+  signinState: SigninLocationState;
+  serviceName: MozServices;
+  integration: Integration;
+  metricsContext: MetricsContext;
+  navTo: NavTo;
+}) => {
+  const authClient = useAuthClient();
+  const [totp, setTotp] = useState<TotpInfo>();
+  const isTotpCreating = useRef(false);
+
+  // Trigger TOTP setup once the guard has provided the JWT.
+  useEffect(() => {
+    if (totp !== undefined || isTotpCreating.current) {
+      return;
+    }
+    (async () => {
+      isTotpCreating.current = true;
+      try {
+        const jwt = JwtTokenCache.getToken(sessionToken, '2fa');
+        const totpResp = await authClient.createTotpTokenWithJwt(jwt, {
+          metricsContext,
+        });
+        setTotp(totpResp);
+      } catch (error) {
+        // The short-lived mfa:2fa JWT can expire mid-flow. On a stale/invalid
+        // JWT, drop it so MfaGuardCore re-prompts for a fresh email OTP rather
+        // than bouncing the user out. Keyed on the guard's `sessionToken`, not
+        // the global one, since this flow supplies its own.
+        if (clearMfaAndJwtCacheOnInvalidJwt(error, '2fa', sessionToken)) {
+          isTotpCreating.current = false;
+          return;
+        }
+        Sentry.captureException(error);
+        navTo('/');
+      }
+    })();
+  }, [authClient, metricsContext, navTo, totp, sessionToken]);
+
+  const verifyCodeHandler = useCallback(
+    async (code: string) => {
+      try {
+        const jwt = JwtTokenCache.getToken(sessionToken, '2fa');
+        await authClient.verifyTotpSetupCodeWithJwt(jwt, code, {
+          metricsContext,
+        });
+
+        const state = {
+          ...Object.assign({}, signinState),
+          ...(totp ? { totp } : {}),
+        };
+        GleanMetrics.accountPref.twoStepAuthQrCodeSuccess();
+        navTo(
+          '/inline_recovery_setup',
+          Object.keys(state).length > 0 ? state : undefined
+        );
+      } catch (error) {
+        // A stale/expired MFA JWT surfaces here as an invalid-JWT error, not a
+        // bad code. Clearing it drops the cached token so MfaGuardCore
+        // re-prompts for a fresh email OTP; genuine verification failures fall
+        // through to INVALID_TOTP_CODE. (The thrown value is not user-visible —
+        // the parent collapses any rejection into a generic error.)
+        if (clearMfaAndJwtCacheOnInvalidJwt(error, '2fa', sessionToken)) {
+          throw error;
+        }
+        // TODO: handle this error better
+        // auth-server may return more specific errors (including throttling)
+        throw AuthUiErrors.INVALID_TOTP_CODE;
+      }
+    },
+    [authClient, navTo, totp, signinState, sessionToken, metricsContext]
+  );
+
+  if (totp === undefined) {
+    return <AppLayout loading />;
+  }
+
+  return (
+    <InlineTotpSetup
+      {...{ totp, serviceName, verifyCodeHandler, integration }}
+      signedInWithPasskey={!!signinState.isPasskeySession}
+    />
+  );
+};
 
 export const InlineTotpSetupContainer = ({
   isSignedIn,
@@ -29,7 +141,6 @@ export const InlineTotpSetupContainer = ({
   serviceName: MozServices;
   flowQueryParams: QueryParams;
 }) => {
-  const [totp, setTotp] = useState<TotpInfo>();
   const [sessionVerified, setSessionVerified] = useState<boolean | undefined>(
     undefined
   );
@@ -47,20 +158,12 @@ export const InlineTotpSetupContainer = ({
   const metricsContext = queryParamsToMetricsContext(
     flowQueryParams as unknown as Record<string, string>
   );
-  const isTotpCreating = useRef(false);
   const isTotpStatusChecked = useRef(false);
 
   const signinState = getSigninState(location.state);
 
-  const navTo = useCallback(
-    (
-      uri:
-        | '/'
-        | '/signin_token_code'
-        | '/signin_totp_code'
-        | '/inline_recovery_setup',
-      state?: SigninLocationState | SigninRecoveryLocationState
-    ) => {
+  const navTo: NavTo = useCallback(
+    (uri, state) => {
       navigateWithQuery(uri, { state });
     },
     [navigateWithQuery]
@@ -100,40 +203,6 @@ export const InlineTotpSetupContainer = ({
     })();
   }, [session, sessionVerified, setSessionVerified]);
 
-  // Determine if a totp needs to be setup, and if so trigger setup.
-  useEffect(() => {
-    if (
-      totp !== undefined ||
-      totpStatus?.verified ||
-      isTotpCreating.current ||
-      totpStatusLoading ||
-      !signinState?.sessionToken
-    ) {
-      return;
-    }
-    (async () => {
-      isTotpCreating.current = true;
-      try {
-        const totpResp = await authClient.createTotpToken(
-          signinState.sessionToken,
-          { metricsContext }
-        );
-        setTotp(totpResp);
-      } catch (error) {
-        Sentry.captureException(error);
-        navTo('/');
-      }
-    })();
-  }, [
-    authClient,
-    metricsContext,
-    navTo,
-    totpStatus,
-    totpStatusLoading,
-    totp,
-    signinState?.sessionToken,
-  ]);
-
   // Once state has settled, determine if user should be directed to another page
   useEffect(() => {
     if (!isSignedIn || !signinState) {
@@ -164,50 +233,41 @@ export const InlineTotpSetupContainer = ({
     navigateWithQuery,
   ]);
 
-  const verifyCodeHandler = useCallback(
-    async (code: string) => {
-      try {
-        await authClient.verifyTotpSetupCode(signinState!.sessionToken, code, {
-          metricsContext,
-        });
-
-        const state = {
-          ...Object.assign({}, signinState),
-          ...(totp ? { totp } : {}),
-        };
-        GleanMetrics.accountPref.twoStepAuthQrCodeSuccess();
-        navTo(
-          '/inline_recovery_setup',
-          Object.keys(state).length > 0 ? state : undefined
-        );
-      } catch (error) {
-        // TODO: handle this error better
-        // auth-server may return more specific errors (including throttling)
-        throw AuthUiErrors.INVALID_TOTP_CODE;
-      }
-    },
-    [authClient, navTo, totp, signinState, metricsContext]
-  );
-
   if (!isSignedIn || !signinState) {
     return <AppLayout loading />;
   }
 
+  // Still resolving sanity checks, or a redirect effect above is about to fire.
   if (
-    !isSignedIn ||
-    !signinState ||
     totpStatusLoading ||
-    totp === undefined ||
-    sessionVerified === undefined
+    sessionVerified === undefined ||
+    totpStatus?.verified ||
+    sessionVerified === false
   ) {
     return <AppLayout loading />;
   }
 
+  // Gate enrolment behind an MFA email-OTP so a hijacked session cannot silently
+  // add a second factor (FXA-14311).
   return (
-    <InlineTotpSetup
-      {...{ totp, serviceName, verifyCodeHandler, integration }}
-      signedInWithPasskey={!!signinState.isPasskeySession}
-    />
+    <MfaGuardCore
+      requiredScope="2fa"
+      reason={MfaReason.createTotp}
+      email={signinState.email}
+      sessionToken={signinState.sessionToken}
+      onDismiss={() => navTo('/')}
+      onSessionInvalid={() => navigateWithQuery('/signin')}
+      onFatalError={() => navTo('/')}
+    >
+      <InlineTotpEnrolment
+        sessionToken={signinState.sessionToken}
+        signinState={signinState}
+        serviceName={serviceName}
+        integration={integration}
+        metricsContext={metricsContext}
+        navTo={navTo}
+      />
+    </MfaGuardCore>
   );
 };
 
