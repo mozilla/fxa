@@ -338,6 +338,9 @@ subscriptionPaymentExpired-subject-2 = El método de pago para { $productName } 
 subscriptionPaymentExpired-title-2 = Tu método de pago venció o está por vencer
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionPaymentExpired-content-2 = El método de pago que estás utilizando para { $productName } ha caducado o está a punto de caducar.
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionPaymentFailed-subject = Error en el pago de { $productName }
 subscriptionPaymentFailed-title = Lo sentimos, estamos teniendo problemas con tu pago
 # Variables:
