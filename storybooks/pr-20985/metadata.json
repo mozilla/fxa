@@ -1,0 +1,10 @@
+{
+  "commit": "69586dede9e5874c5590d4e03ce72b0fb07f4881",
+  "summary": "feat(settings): add mobile Timeout and cancel card",
+  "description": "Because:\n - We are updating pairing flows and want to land UI components / pages first.\n - Adds the mobile screen shown when pairing times out or is canceled.\n\nThis commit:\n - Adds `packages/fxa-settings/src/pages/Pair2/Supplicant/TimeoutAndCancel/index.tsx`,\n   a presentational card rendering the Firefox brand lockup, the shared pairing\n   interrupted illustration, and the heading and description copy. The Figma frame\n   annotates both states as \"Informational — no on-screen actions\", so the card\n   renders no button and no link; `firefox.com/pair` is plain body text in both the\n   English and the localized frames, so the sentence is not split for emphasis.\n - Models the two states as one component with a `reason: 'timeout' | 'canceled'`\n   prop rather than two components, since they differ only in heading and\n   description. The exported `PairingInterruptionReason` union is named for the\n   cause rather than for the screen, because that is what the caller knows at the\n   point it routes here.\n - Adds `en.ftl` with separate messages per state — the two sentences differ in\n   structure, not just in a word, so they cannot share one parameterised message.\n - Adds `index.stories.tsx` with one story per state, and tests that run both states\n   through the heading, description, image aria-label, and Fluent bundle assertions.\n   The suite also asserts the card exposes no button, so a future change cannot\n   silently add an unwired action.\n\nCloses #FXA-14238",
+  "timestamp": 1786387511000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
