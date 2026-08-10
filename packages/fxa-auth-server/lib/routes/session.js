@@ -514,9 +514,14 @@ module.exports = function (
 
         // If a valid code was sent, this verifies the session using the `email-2fa` method.
         // The assurance level will be ["pwd", "email"] or level 1.
+        // `email-2fa` maps to AAL1, so only refresh the authentication event when it
+        // would not *lower* an already-AAL2 session — otherwise a re-verification here
+        // would downgrade the session's assurance level (now load-bearing for auth_time).
         // **Note** the order of operations, to avoid any race conditions with push
         // notifications, we perform all DB operations first.
-        await db.verifyTokensWithMethod(sessionToken.id, 'email-2fa');
+        if (sessionToken.authenticatorAssuranceLevel <= 1) {
+          await db.verifyTokensWithMethod(sessionToken.id, 'email-2fa');
+        }
 
         // We have a matching code! Let's verify the account, session and send the
         // corresponding email and emit metrics.

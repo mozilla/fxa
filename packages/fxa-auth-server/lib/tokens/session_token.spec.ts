@@ -313,6 +313,53 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
       expect(token.authenticatorAssuranceLevel).toBe(2);
     });
   });
+
+  describe('lastAuthAt', () => {
+    // Deterministic, in ms. verifiedAt is one minute after authAt.
+    const MOCK_CREATED_AT = 1_699_999_000_000;
+    const MOCK_AUTH_AT = 1_700_000_000_000;
+    const MOCK_VERIFIED_AT = 1_700_000_060_000;
+
+    it('returns verifiedAt (in seconds) when the second-factor event is more recent', () => {
+      const token = new SessionToken(
+        {},
+        {
+          createdAt: MOCK_CREATED_AT,
+          authAt: MOCK_AUTH_AT,
+          verifiedAt: MOCK_VERIFIED_AT,
+        }
+      );
+      expect(token.lastAuthAt()).toBe(Math.floor(MOCK_VERIFIED_AT / 1000));
+    });
+
+    it('returns authAt (in seconds) when it is more recent than verifiedAt', () => {
+      const token = new SessionToken(
+        {},
+        {
+          createdAt: MOCK_CREATED_AT,
+          authAt: MOCK_VERIFIED_AT,
+          verifiedAt: MOCK_AUTH_AT,
+        }
+      );
+      expect(token.lastAuthAt()).toBe(Math.floor(MOCK_VERIFIED_AT / 1000));
+    });
+
+    it('uses authAt when verifiedAt is null', () => {
+      const token = new SessionToken(
+        {},
+        { createdAt: MOCK_CREATED_AT, authAt: MOCK_AUTH_AT, verifiedAt: null }
+      );
+      expect(token.lastAuthAt()).toBe(Math.floor(MOCK_AUTH_AT / 1000));
+    });
+
+    it('falls back to createdAt when neither authAt nor verifiedAt is set', () => {
+      const token = new SessionToken(
+        {},
+        { createdAt: MOCK_CREATED_AT, authAt: 0, verifiedAt: null }
+      );
+      expect(token.lastAuthAt()).toBe(Math.floor(MOCK_CREATED_AT / 1000));
+    });
+  });
 });
 
 describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice === 0', () => {

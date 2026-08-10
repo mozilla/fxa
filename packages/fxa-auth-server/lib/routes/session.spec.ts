@@ -1014,6 +1014,8 @@ describe('/session/verify_code', () => {
         ...signupCodeAccount,
         uaBrowser: 'Firefox',
         id: 'sessionTokenId',
+        // A session first reaching /session/verify_code is AAL1 (pwd only).
+        authenticatorAssuranceLevel: 1,
       },
       payload: {
         code: expectedCode,
@@ -1053,6 +1055,19 @@ describe('/session/verify_code', () => {
     expect(fxaMailer.sendPostVerifyEmail).toHaveBeenCalledTimes(1);
     expect(gleanMock.registration.accountVerified).toHaveBeenCalledTimes(1);
     expect(gleanMock.registration.complete).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not refresh the authentication event on an already-AAL2 session (no downgrade)', async () => {
+    // `email-2fa` maps to AAL1. If an already-AAL2 session reaches verify_code,
+    // refreshing the auth event here would lower its assurance level (now
+    // load-bearing for auth_time), so the refresh must be skipped.
+    setup({ emailVerified: true });
+    request.auth.credentials.authenticatorAssuranceLevel = 2;
+    const response = await runTest(route, request);
+    expect(response).toEqual({});
+    // The rest of the handler still runs; only the session-verify is skipped.
+    expect(db.account).toHaveBeenCalledTimes(1);
+    expect(db.verifyTokensWithMethod).not.toHaveBeenCalled();
   });
 
   it('should skip verify account and but still verify session with a valid code', async () => {
