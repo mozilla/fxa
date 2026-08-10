@@ -27,6 +27,11 @@ import { ReactComponent as FallingConfetti } from './graphic_celebrate_confetti.
 import { ReactComponent as VpnWelcome } from './graphic_vpn_welcome.svg';
 import { ReactComponent as SyncDevices } from './graphic_sync_devices.min.svg';
 import { ReactComponent as FirefoxWordmark } from './graphic_firefox_wordmark.min.svg';
+import { ReactComponent as SyncSuccess } from './graphic_sync_success.min.svg';
+import { ReactComponent as PairingInterrupted } from './graphic_pairing_interrupted.min.svg';
+import { ReactComponent as LaptopQrCode } from './graphic_laptop_qr_code.min.svg';
+import { ReactComponent as MobileDevicePairing } from './graphic_mobile_device_pairing.min.svg';
+import { ReactComponent as QrPhoneFrame } from './graphic_qr_phone_frame.min.svg';
 
 function illustrationStyle(
   colors?: IllustrationsTheme
@@ -247,6 +252,57 @@ export const FirefoxWordmarkImage = ({ className, ariaHidden }: ImageProps) => (
     ariaLabel="Firefox logo"
     ariaLabelFtlId="firefox-wordmark-image-aria-label"
     Image={FirefoxWordmark}
+    {...{ className, ariaHidden }}
+  />
+);
+
+export const SyncSuccessImage = ({ className, ariaHidden }: ImageProps) => (
+  <PreparedImage
+    ariaLabel=""
+    ariaLabelFtlId=""
+    Image={SyncSuccess}
+    {...{ className, ariaHidden }}
+  />
+);
+
+export const PairingInterruptedImage = ({
+  className,
+  ariaHidden,
+}: ImageProps) => (
+  <PreparedImage
+    ariaLabel=""
+    ariaLabelFtlId=""
+    Image={PairingInterrupted}
+    {...{ className, ariaHidden }}
+  />
+);
+
+export const LaptopQrCodeImage = ({ className, ariaHidden }: ImageProps) => (
+  <PreparedImage
+    ariaLabel=""
+    ariaLabelFtlId=""
+    Image={LaptopQrCode}
+    {...{ className, ariaHidden }}
+  />
+);
+
+export const MobileDevicePairingImage = ({
+  className,
+  ariaHidden,
+}: ImageProps) => (
+  <PreparedImage
+    ariaLabel=""
+    ariaLabelFtlId=""
+    Image={MobileDevicePairing}
+    {...{ className, ariaHidden }}
+  />
+);
+
+export const QrPhoneFrameImage = ({ className, ariaHidden }: ImageProps) => (
+  <PreparedImage
+    ariaLabel=""
+    ariaLabelFtlId=""
+    Image={QrPhoneFrame}
     {...{ className, ariaHidden }}
   />
 );

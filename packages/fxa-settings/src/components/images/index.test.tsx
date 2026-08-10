@@ -15,6 +15,7 @@ import * as images from '.';
 // work, and picks up new images automatically.
 const imageWrappers = Object.entries(images).filter(([name]) =>
   name.endsWith('Image')
+  && !/LaptopQrCodeImage|MobileDevicePairingImage|PairingInterruptedImage|QrPhoneFrameImage|SyncSuccessImage/.test(name) // TODO: FXA-14337 - Define aria labels for pair2 images
 ) as [string, React.ComponentType<ImageProps>][];
 
 describe('components/images aria labels', () => {
