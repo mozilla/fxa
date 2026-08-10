@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 74e96693a78a4fcab852ccd18513abb08882074e</title>
+  <title>Storybooks for commit af0e4dd23fe16873e5884490bffb09b905dd130b</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 74e96693a78a4fcab852ccd18513abb08882074e</h1>
+  <h1>Storybooks for commit af0e4dd23fe16873e5884490bffb09b905dd130b</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>7/29/2026, 12:34:21 AM UTC</dd>
+    <dd>8/10/2026, 7:45:27 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(settings): show a loading state and lock other options during passkey sign-in</pre></dd>
     <dt>Description</dt>
@@ -49,6 +49,9 @@ This commit:
   submit or passkey ceremony is in flight, via new optional disabled props on
   ButtonPasskeySignin, ThirdPartyAuth, AlternativeAuthOptions, and
   FormVerifyCode.
+- Releases that lock when beginSigninHandler or handleNavigation rejects
+  instead of returning `{ error }`, so an unexpected network or key-stretching
+  failure can&#039;t strand the passkey / third-party options until a reload.
 
 Closes #FXA-14267</pre></dd>
   </dl>

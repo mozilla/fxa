@@ -141,6 +141,9 @@ device-info-block-location-unknown = Vị trí không xác định
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $browserName } trên { $genericOSName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $browserName } trên { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = Địa chỉ IP: { $ipAddress }
@@ -318,6 +321,15 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
     .aria-label = Cửa sổ { -brand-firefox } với huy hiệu hình tròn hiển thị dấu tích màu xanh lá cây và chữ “VPN”, cho thấy VPN đang hoạt động.
+sync-devices-image-aria-label =
+    .aria-label = Một cửa sổ trình duyệt trên máy tính để bàn và một điện thoại di động, cả hai đều đang đồng bộ hóa, với linh vật { -brand-firefox } xuất hiện bên cạnh.
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = Logo { -brand-firefox }
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = Hình minh họa thể hiện việc thay đổi mật khẩu thành công.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -381,6 +393,8 @@ link-expired-new-link-button = Nhận liên kết mới
 
 # immediately before remember-password-signin-link
 remember-password-text = Bạn đã nhớ mật khẩu của bạn?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = Bạn có passkey hoặc nhớ mật khẩu của mình không?
 # link navigates to the sign in page
 remember-password-signin-link = Đăng nhập
 
@@ -492,18 +506,21 @@ flow-recovery-key-hint-char-limit-error = Chuỗi gợi ý phải chứa ít hơ
 flow-recovery-key-hint-unsafe-char-error = Gợi ý không được chứa các ký tự unicode không an toàn. Chỉ cho phép các chữ cái, số, dấu chấm câu và ký hiệu.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Cảnh báo
 password-reset-chevron-expanded = Thu gọn cảnh báo
 password-reset-chevron-collapsed = Mở rộng cảnh báo
-password-reset-data-may-not-be-recovered = Dữ liệu trình duyệt của bạn có thể không được phục hồi
-password-reset-previously-signed-in-device-2 = Bạn có thiết bị nào đã đăng nhập trước đó không?
-password-reset-data-may-be-saved-locally-2 = Dữ liệu trình duyệt của bạn có thể được lưu trên thiết bị đó. Đặt lại mật khẩu của bạn, sau đó đăng nhập vào đó để khôi phục và đồng bộ hóa dữ liệu của bạn.
-password-reset-no-old-device-2 = Bạn có thiết bị mới nhưng không có quyền truy cập vào bất kỳ thiết bị nào trước đây của bạn?
-password-reset-encrypted-data-cannot-be-recovered-2 = Chúng tôi rất tiếc, dữ liệu trình duyệt được mã hóa của bạn trên máy chủ { -brand-firefox } không thể khôi phục được.
+password-reset-warning-review-sign-in-options = Xem lại các tùy chọn đăng nhập để giữ lại dữ liệu trình duyệt
 password-reset-warning-have-key = Bạn đã có khóa khôi phục tài khoản?
-password-reset-warning-use-key-link = Sử dụng nó ngay bây giờ để đặt lại mật khẩu và giữ lại dữ liệu của bạn
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = Sử dụng nó để đặt lại mật khẩu và giữ lại dữ liệu trình duyệt của bạn
+password-reset-warning-signed-in-device = Bạn vẫn đang đăng nhập trên thiết bị khác chứ?
+password-reset-warning-signed-in-device-description = Dữ liệu trình duyệt của bạn có thể vẫn còn. Hãy đặt lại mật khẩu, sau đó đăng nhập trên thiết bị đó để khôi phục và đồng bộ hóa dữ liệu của bạn.
+password-reset-warning-restore-data-link = Tìm hiểu cách khôi phục dữ liệu trình duyệt từ thiết bị đã đăng nhập
+password-reset-warning-new-device = Bạn đang sử dụng thiết bị mới nhưng không thể truy cập vào các thiết bị cũ?
+password-reset-warning-new-device-description = Sau khi bạn đặt lại mật khẩu, dữ liệu trình duyệt được mã hóa trên máy chủ { -brand-firefox } sẽ không khả dụng trên thiết bị này.
 
 ## Alert Bar
 
@@ -1824,6 +1841,17 @@ pair-unsupported-learn-more-link-v2 = Tìm hiểu thêm
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oops! Có gì đó không ổn.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Vui lòng đóng thẻ này và thử lại.
 
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = Một bước nữa để đồng bộ hoá
+pair2-supplicant-approve-sign-in-instruction = Xác nhận đăng nhập trên máy tính của bạn.
+# Dismisses the pairing attempt
+pair2-supplicant-approve-sign-in-cancel-button = Hủy bỏ
+
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
 
@@ -1928,9 +1956,7 @@ confirm-totp-reset-password-use-different-account = Sử dụng một tài kho�
 ## ResetPassword start page
 
 password-reset-flow-heading = Đặt lại mật khẩu của bạn
-password-reset-body-2 =
-    Chúng tôi sẽ yêu cầu một số điều chỉ bạn biết để giữ tài khoản của bạn
-    an toàn.
+password-reset-body-3 = Việc đặt lại mật khẩu có thể ảnh hưởng đến dữ liệu trình duyệt đã được đồng bộ hóa.
 password-reset-email-input =
     .label = Nhập email của bạn
 password-reset-submit-button-2 = Tiếp tục
@@ -2051,6 +2077,7 @@ signin-passkey-fallback-heading = Nhập mật khẩu của bạn để đồng 
 signin-passkey-fallback-body = Để bảo vệ dữ liệu của bạn, bạn cần nhập mật khẩu khi sử dụng passkey này.
 signin-passkey-fallback-password-label = Mật khẩu
 signin-passkey-fallback-continue = Tiếp tục
+signin-passkey-fallback-forgot-password-link = Quên mật khẩu?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

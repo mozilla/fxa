@@ -142,6 +142,9 @@ device-info-block-location-unknown = ਅਣਪਛਾਤਾ ਟਿਕਾਣਾ
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $genericOSName } ਰਾਹੀਂ { $browserName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $deviceName } ਉੱਤੇ { $browserName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP ਸਿਰਨਾਵਾਂ: { $ipAddress }
@@ -297,6 +300,15 @@ backup-authentication-codes-image-aria-label =
     .aria-label = ਕੋਡਾਂ ਨਾਲ ਡਿਵਾਈਸ ਸਕਰੀਨ
 sync-clouds-image-aria-label =
     .aria-label = ਸਿੰਕ ਆਈਕਾਨ ਨਾਲ ਕਲਾਉਡ
+sync-devices-image-aria-label =
+    .aria-label = ਡੈਸਕਟਾਪ ਬਰਾਊਜ਼ਰ ਵਿੰਡੋ ਅਤੇ ਮੋਬਾਈਲ ਫ਼ੋਨ ਦੋਵੇਂ { -brand-firefox } ਮਾਸਕੌਟ ਨਾਲ ਸਿੰਕ ਹੋ ਰਹੇ ਹਨ।
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox } ਲੋਗੋ
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = ਕਿਸੇ ਕਾਮਯਾਬ ਪਾਸਵਰਡ ਤਬਦੀਲੀ ਨੂੰ ਦਰਸਾਉਂਦੀ ਸ਼ਕਲ ਹੈ।
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -447,17 +459,13 @@ flow-recovery-key-hint-cta-text = ਮੁਕੰਮਲ
 flow-recovery-key-hint-char-limit-error = ਇਸ਼ਾਰੇ ਵਿੱਚ 255 ਤੋਂ ਘੱਟ ਅੱਖਰ ਹੋਣੇ ਚਾਹੀਦੇ ਹਨ।
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = ਚੇਤਾਵਨੀ
 password-reset-chevron-expanded = ਸਮੇਟਣ ਦੀ ਚੇਤਾਵਨੀ
 password-reset-chevron-collapsed = ਫੈਲਾਓ ਦੀ ਚੇਤਾਵਨੀ
-password-reset-data-may-not-be-recovered = ਸ਼ਾਇਦ ਤੁਹਾਡੇ ਬਰਾਊਜ਼ਰ ਡਾਟੇ ਨੂੰ ਰਿਕਵਰ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਦਾ
-password-reset-previously-signed-in-device-2 = ਕੋਈ ਡਿਵਾਈਸ ਹੈ, ਜਿਸ ਉੱਤੇ ਤੁਸੀਂ ਪਹਿਲਾਂ ਸਾਈਨ ਇਨ ਕੀਤਾ ਸੀ?
-password-reset-no-old-device-2 = ਨਵਾਂ ਡਿਵਾਈਸ ਤਾਂ ਹੈ, ਪਰ ਤੁਹਾਡੇ ਕੋਲ ਕਿਸੇ ਪੁਰਾਣੇ ਲਈ ਪਹੁੰਚ ਨਹੀਂ ਹੈ?
-password-reset-encrypted-data-cannot-be-recovered-2 = ਸਾਨੂੰ ਅਫ਼ਸੋਸ ਹੈ, ਪਰ { -brand-firefox } ਸਰਵਰਾਂ ਉੱਤੇ ਤੁਹਾਡੇ ਇੰਕ੍ਰਿਪਟ ਹੋਏ ਬਰਾਊਜ਼ਰ ਡਾਟਾ ਨੂੰ ਬਹਾਲ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਦਾ ਹੈ।
 password-reset-warning-have-key = ਖਾਤਾ ਰਿਕਵਰੀ ਕੁੰਜੀ ਹੈ?
-password-reset-warning-use-key-link = ਇਸ ਨੂੰ ਹੁਣ ਆਪਣਾ ਪਾਸਵਰਡ ਮੁੜ-ਸੈੱਟ ਕਰਨ ਅਤੇ ਆਪਣਾ ਡਾਟਾ ਰੱਖਣ ਲਈ ਵਰਤੋਂ
 
 ## Alert Bar
 
@@ -1413,6 +1421,17 @@ pair-wait-for-auth-heading-text = ਹੁਣ <span>ਤੁਹਾਡੇ ਹੋਰ �
 pair-unsupported-header = ਐਪ ਵਰਤ ਕੇ ਪੇਅਰ ਕਰੋ
 pair-unsupported-message = ਕੀ ਤੁਸੀਂ ਸਿਸਟਮ ਕੈਮਰਾ ਵਰਤਿਆ ਸੀ? ਤੁਹਾਨੂੰ { -brand-firefox } ਐਪ ਤੋਂ ਪੇਅਰ ਕਰਨਾ ਪਵੇਗਾ।
 
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = ਸਿੰਕ ਕਰਨ ਲਈ ਆਖਰੀ ਪੜਾਅ
+pair2-supplicant-approve-sign-in-instruction = ਆਪਣੇ ਕੰਪਿਊਟਰ ਤੋਂ ਸਾਈਨ-ਇਨ ਨੂੰ ਮਨਜ਼ੂਰੀ ਦਿਓ।
+# Dismisses the pairing attempt
+pair2-supplicant-approve-sign-in-cancel-button = ਰੱਦ ਕਰੋ
+
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
 
@@ -1494,7 +1513,6 @@ confirm-totp-reset-password-use-different-account = ਵੱਖਰੇ ਖਾਤੇ
 ## ResetPassword start page
 
 password-reset-flow-heading = ਆਪਣਾ ਪਾਸਵਰਡ ਬਦਲੋ
-password-reset-body-2 = ਤੁਹਾਡੇ ਖਾਤੇ ਨੂੰ ਸੁਰੱਖਿਅਤ ਰੱਖਣ ਲਈ ਅਸੀਂ ਕੁਝ ਸਵਾਲ ਪੁੱਛਾਂਗੇ, ਜਿਸੇ ਬਾਰੇ ਸਿਰਫ਼ ਤੁਹਾਨੂੰ ਪਤਾ ਹੈ।
 password-reset-email-input =
     .label = ਆਪਣਾ ਈਮੇਲ ਦਿਓ
 password-reset-submit-button-2 = ਜਾਰੀ ਰੱਖੋ

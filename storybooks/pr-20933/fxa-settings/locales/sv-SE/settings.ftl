@@ -153,6 +153,9 @@ device-info-block-location-unknown = Plats okänd
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $browserName } på { $genericOSName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $browserName } på { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP-adress: { $ipAddress }
@@ -330,6 +333,15 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
     .aria-label = { -brand-firefox } fönster med ett cirkulärt emblem som visar en grön bock och "VPN", som visar att VPN är aktivt.
+sync-devices-image-aria-label =
+    .aria-label = Ett webbläsarfönster för dator och en mobiltelefon, båda synkroniserade, med { -brand-firefox }-maskoten bredvid sig
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox } logotyp
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = Illustration som representerar ett lyckat lösenordsbyte.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -393,6 +405,8 @@ link-expired-new-link-button = Hämta ny länk
 
 # immediately before remember-password-signin-link
 remember-password-text = Kom ihåg ditt lösenord?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = Har du en lösenordsnyckel eller kom ihåg ditt lösenord?
 # link navigates to the sign in page
 remember-password-signin-link = Logga in
 
@@ -504,18 +518,21 @@ flow-recovery-key-hint-char-limit-error = Tipset måste innehålla färre än 25
 flow-recovery-key-hint-unsafe-char-error = Tipset får inte innehålla osäkra unicode-tecken. Endast bokstäver, siffror, skiljetecken och symboler är tillåtna.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Varning
 password-reset-chevron-expanded = Fäll ihop varning
 password-reset-chevron-collapsed = Expandera varning
-password-reset-data-may-not-be-recovered = Din webbläsardata kanske inte kan återställas
-password-reset-previously-signed-in-device-2 = Har du någon enhet där du tidigare loggat in?
-password-reset-data-may-be-saved-locally-2 = Din webbläsardata kan vara sparad på den enheten. Återställ ditt lösenord och logga sedan in där för att återställa och synkronisera din data.
-password-reset-no-old-device-2 = Har du en ny enhet men har inte tillgång till någon av dina tidigare?
-password-reset-encrypted-data-cannot-be-recovered-2 = Vi är ledsna, men din krypterade webbläsardata på { -brand-firefox }-servrar kan inte återställas.
+password-reset-warning-review-sign-in-options = Granska inloggningsalternativ för att spara webbläsardata
 password-reset-warning-have-key = Har du en kontoåterställningsnyckel?
-password-reset-warning-use-key-link = Använd den nu för att återställa ditt lösenord och spara din data
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = Använd den för att återställa ditt lösenord och spara din webbläsardata
+password-reset-warning-signed-in-device = Fortfarande inloggad på en annan enhet?
+password-reset-warning-signed-in-device-description = Din webbläsardata kan vara tillgänglig. Återställ ditt lösenord och logga sedan in på den här enheten för att återställa och synkronisera din data.
+password-reset-warning-restore-data-link = Lär dig hur du återställer webbläsardata från en inloggad enhet
+password-reset-warning-new-device = Använder du en ny enhet men kan inte komma åt dina gamla?
+password-reset-warning-new-device-description = När du har återställt ditt lösenord kommer krypterad webbläsardata på { -brand-firefox } servrar inte att vara tillgängliga på den här enheten.
 
 ## Alert Bar
 
@@ -1850,6 +1867,17 @@ pair-unsupported-learn-more-link-v2 = Läs mer
 pair-unsupported-desktop-firefox-fallback-header-v2 = Hoppsan! Något gick fel.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Stäng den här fliken och försök igen.
 
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = Ett sista steg för att synkronisera
+pair2-supplicant-approve-sign-in-instruction = Godkänn inloggningen på din dator.
+# Dismisses the pairing attempt
+pair2-supplicant-approve-sign-in-cancel-button = Avbryt
+
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
 
@@ -1954,9 +1982,7 @@ confirm-totp-reset-password-use-different-account = Använd ett annat konto
 ## ResetPassword start page
 
 password-reset-flow-heading = Återställ ditt lösenord
-password-reset-body-2 =
-    Vi ber om ett par saker som bara du vet för att behålla ditt konto
-    säkert.
+password-reset-body-3 = Återställning av lösenordet kan påverka synkroniserad webbläsardata.
 password-reset-email-input =
     .label = Ange din e-postadress
 password-reset-submit-button-2 = Fortsätt
@@ -2081,6 +2107,7 @@ signin-passkey-fallback-heading = Ange ditt lösenord för att synkronisera
 signin-passkey-fallback-body = För att skydda din data måste du ange ditt lösenord när du använder denna lösenordsnyckel.
 signin-passkey-fallback-password-label = Lösenord
 signin-passkey-fallback-continue = Fortsätt
+signin-passkey-fallback-forgot-password-link = Glömt lösenordet?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

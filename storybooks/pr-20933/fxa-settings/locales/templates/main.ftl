@@ -178,6 +178,7 @@ device-info-block-location-city-country = { $city }, { $country } (estimated)
 device-info-block-location-country = { $country } (estimated)
 device-info-block-location-unknown = Location unknown
 device-info-browser-os = { $browserName } on { $genericOSName }
+device-info-browser-device = { $browserName } on { $deviceName }
 device-info-ip-address = IP address: { $ipAddress }
 
 
@@ -337,6 +338,12 @@ confetti-falling-image-aria-label =
   .aria-label = Animated falling confetti
 vpn-welcome-image-aria-label =
   .aria-label = { -brand-firefox } window with a circular badge showing a green checkmark and “VPN,” showing the VPN is active.
+sync-devices-image-aria-label =
+  .aria-label = A desktop browser window and a mobile phone, both syncing, with the { -brand-firefox } mascot alongside them
+firefox-wordmark-image-aria-label =
+  .aria-label = { -brand-firefox } logo
+password-success-image-aria-label =
+  .aria-label = Illustration to represent a successful password change.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = You’re signed in to { -brand-firefox }.
@@ -376,6 +383,7 @@ link-expired-new-link-button = Receive new link
 
 
 remember-password-text = Remember your password?
+remember-password-passkey-text = Have a passkey or remember your password?
 remember-password-signin-link = Sign in
 
 
@@ -453,14 +461,17 @@ password-reset-warning-icon = Warning
 password-reset-chevron-expanded = Collapse warning
 password-reset-chevron-collapsed = Expand warning
 
-password-reset-data-may-not-be-recovered = Your browser data may not be recovered
-password-reset-previously-signed-in-device-2 = Have any device where you previously signed in?
-password-reset-data-may-be-saved-locally-2 = Your browser data might be saved on that device. Reset your password, then sign in there to restore and sync your data.
-password-reset-no-old-device-2 = Have a new device but don’t have access to any of your previous ones?
-password-reset-encrypted-data-cannot-be-recovered-2 = We’re sorry, but your encrypted browser data on { -brand-firefox } servers can’t be recovered.
+password-reset-warning-review-sign-in-options = Review sign-in options to keep browser data
 
 password-reset-warning-have-key = Have an account recovery key?
-password-reset-warning-use-key-link = Use it now to reset your password and keep your data
+password-reset-warning-use-key-link-v2 = Use it to reset your password and keep your browser data
+
+password-reset-warning-signed-in-device = Still signed in on another device?
+password-reset-warning-signed-in-device-description = Your browser data may be available. Reset your password, then sign in on that device to restore and sync your data.
+password-reset-warning-restore-data-link = Learn how to restore browser data from a signed-in device
+
+password-reset-warning-new-device = Using a new device but can’t access your old ones?
+password-reset-warning-new-device-description = After you reset your password, encrypted browser data on { -brand-firefox } servers won’t be available on this device.
 
 
 alert-bar-close-message = Close message
@@ -1487,6 +1498,11 @@ pair-unsupported-learn-more-link-v2 = Learn more
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oops! Something went wrong.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Please close this tab and try again.
 
+
+pair2-supplicant-approve-sign-in-heading = One last step to sync
+pair2-supplicant-approve-sign-in-instruction = Approve the sign-in on your computer.
+pair2-supplicant-approve-sign-in-cancel-button = Cancel
+
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmed
 service-welcome-signin-success-banner = Signed in successfully!
 service-welcome-vpn-heading = Next: Turn on VPN
@@ -1555,8 +1571,7 @@ confirm-totp-reset-password-use-different-account = Use a different account
 
 password-reset-flow-heading = Reset your password
 
-password-reset-body-2 = We’ll ask for a couple of things only you know to keep your account
-          safe.
+password-reset-body-3 = Resetting your password may affect synced browser data.
 
 password-reset-email-input =
   .label = Enter your email
@@ -1662,6 +1677,7 @@ signin-passkey-fallback-heading = Enter your password to sync
 signin-passkey-fallback-body = To keep your data safe, you need to enter your password when you use this passkey.
 signin-passkey-fallback-password-label = Password
 signin-passkey-fallback-continue = Continue
+signin-passkey-fallback-forgot-password-link = Forgot password?
 
 
 

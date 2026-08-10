@@ -896,9 +896,6 @@ confirm-totp-reset-password-use-different-account = Usar una cuenta diferente
 
 
 password-reset-flow-heading = Restablecer tu contraseña
-password-reset-body-2 =
-    Te pediremos un par de cosas que solo tú sabes para mantener tu cuenta
-    segura.
 password-reset-email-input =
     .label = Ingresa tu correo electrónico
 password-reset-submit-button-2 = Continuar

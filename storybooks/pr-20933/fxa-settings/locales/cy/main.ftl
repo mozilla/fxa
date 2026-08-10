@@ -160,6 +160,7 @@ device-info-block-location-city-country = { $city }, { $country } (amcan)
 device-info-block-location-country = { $country } (amcan)
 device-info-block-location-unknown = Lleoliad anhysbys
 device-info-browser-os = { $browserName } ar { $genericOSName }
+device-info-browser-device = { $browserName } ar { $deviceName }
 device-info-ip-address = Cyfeiriad IP: { $ipAddress }
 
 
@@ -293,6 +294,12 @@ confetti-falling-image-aria-label =
     .aria-label = Animeiddiad conffeti'n disgyn
 vpn-welcome-image-aria-label =
     .aria-label = Ffenestr { -brand-firefox } gyda bathodyn crwn yn dangos marc gwirio gwyrdd a “VPN,” yn dangos bod y VPN yn weithredol.
+sync-devices-image-aria-label =
+    .aria-label = Ffenestr porwr bwrdd gwaith a ffôn symudol, y ddau yn cydweddu, gyda'r masgot { -brand-firefox } wrth eu hochr
+firefox-wordmark-image-aria-label =
+    .aria-label = Logo { -brand-firefox }
+password-success-image-aria-label =
+    .aria-label = Darlun i gynrychioli newid cyfrinair llwyddiannus.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Rydych wedi mewngofnodi i { -brand-firefox }
@@ -329,6 +336,7 @@ link-expired-new-link-button = Derbyn dolen newydd
 
 
 remember-password-text = Yn cofio eich cyfrinair?
+remember-password-passkey-text = Oes gennych chi gyfrinallwedd neu'n cofio'ch cyfrinair?
 remember-password-signin-link = Mewngofnodi
 
 
@@ -402,13 +410,14 @@ flow-recovery-key-hint-unsafe-char-error = Ni all yr awgrym gynnwys nodau unicod
 password-reset-warning-icon = Rhybudd
 password-reset-chevron-expanded = Cau'r rhybudd
 password-reset-chevron-collapsed = Ehangu'r rhybudd
-password-reset-data-may-not-be-recovered = Mae'n bosibl na fydd data eich porwr yn cael ei adfer
-password-reset-previously-signed-in-device-2 = Oes gennych chi unrhyw ddyfais lle rydych wedi mewngofnodi o'r blaen?
-password-reset-data-may-be-saved-locally-2 = Mae'n bosibl fod data eich porwr wedi'i gadw ar y ddyfais honno. Ailosodwch eich cyfrinair, yna mewngofnodwch yno i adfer a chydweddu eich data.
-password-reset-no-old-device-2 = Oes gennych chi ddyfais newydd ond heb fynediad i unrhyw un o'ch rhai blaenorol?
-password-reset-encrypted-data-cannot-be-recovered-2 = Ymddiheuriadau, ond nid oes modd adfer data eich porwr sydd wedi'i amgryptio ar weinyddion { -brand-firefox }.
+password-reset-warning-review-sign-in-options = Adolygwch ddewisiadau mewngofnodi i gadw data porwr
 password-reset-warning-have-key = Oes gennych chi allwedd adfer cyfrif?
-password-reset-warning-use-key-link = Defnyddiwch ef nawr i ailosod eich cyfrinair a chadw'ch data
+password-reset-warning-use-key-link-v2 = Defnyddiwch ef i ailosod eich cyfrinair a chadw data eich porwr
+password-reset-warning-signed-in-device = Dal wedi mewngofnodi ar ddyfais arall?
+password-reset-warning-signed-in-device-description = Mae'n bosibl bod data eich porwr ar gael. Ailosodwch eich cyfrinair, yna mewngofnodi ar y ddyfais honno i adfer a chydweddu eich data.
+password-reset-warning-restore-data-link = Dysgwch sut i adfer data porwr o ddyfais sydd wedi'i mewngofnodi
+password-reset-warning-new-device = Yn defnyddio dyfais newydd ond methu cael mynediad i'ch hen rai?
+password-reset-warning-new-device-description = Ar ôl i chi ailosod eich cyfrinair, bydd data porwr wedi'i amgryptio ar weinyddion { -brand-firefox } ddim ar gael ar y ddyfais hon.
 
 
 alert-bar-close-message = Cau neges
@@ -1326,6 +1335,11 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Wps! Aeth rhywbeth o'i le.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Caewch y tab hwn a cheisiwch eto.
 
 
+pair2-supplicant-approve-sign-in-heading = Un cam olaf i gydweddu
+pair2-supplicant-approve-sign-in-instruction = Cymeradwyo'r mewngofnodi ar eich cyfrifiadur.
+pair2-supplicant-approve-sign-in-cancel-button = Diddymu
+
+
 service-welcome-signup-success-banner = Cyfrif { -product-mozilla-account } wedi'i gadarnhau
 service-welcome-signin-success-banner = Wedi mewngofnodi'n llwyddiannus!
 service-welcome-vpn-heading = Nesaf: Troi VPN ymlaen
@@ -1387,7 +1401,7 @@ confirm-totp-reset-password-use-different-account = Defnyddiwch gyfrif gwahanol
 
 
 password-reset-flow-heading = Ailosod eich cyfrinair
-password-reset-body-2 = Byddwn yn gofyn am ychydig o bethau dim ond chi sy'n eu gwybod yn i gadw'ch cyfrif yn ddiogel.
+password-reset-body-3 = Gall ailosod eich cyfrinair effeithio ar ddata porwr sydd wedi'i gydweddu.
 password-reset-email-input =
     .label = Rhowch eich e-bost
 password-reset-submit-button-2 = Parhau
@@ -1477,6 +1491,7 @@ signin-passkey-fallback-heading = Rhowch eich cyfrinair i gydweddu
 signin-passkey-fallback-body = Er mwyn cadw'ch data'n ddiogel, mae angen i chi roi'ch cyfrinair pan fyddwch chi'n defnyddio'r cyfrinallwedd hon.
 signin-passkey-fallback-password-label = Cyfrinallwedd
 signin-passkey-fallback-continue = Parhau
+signin-passkey-fallback-forgot-password-link = Wedi anghofio'r cyfrinair?
 
 
 

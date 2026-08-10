@@ -141,6 +141,7 @@ device-info-block-location-city-country = { $city }, { $country } (ਅੰਦਾ�
 device-info-block-location-country = { $country } (ਅੰਦਾਜ਼ਨ)
 device-info-block-location-unknown = ਅਣਪਛਾਤਾ ਟਿਕਾਣਾ
 device-info-browser-os = { $genericOSName } ਰਾਹੀਂ { $browserName }
+device-info-browser-device = { $deviceName } ਉੱਤੇ { $browserName }
 device-info-ip-address = IP ਸਿਰਨਾਵਾਂ: { $ipAddress }
 
 
@@ -258,6 +259,12 @@ backup-authentication-codes-image-aria-label =
     .aria-label = ਕੋਡਾਂ ਨਾਲ ਡਿਵਾਈਸ ਸਕਰੀਨ
 sync-clouds-image-aria-label =
     .aria-label = ਸਿੰਕ ਆਈਕਾਨ ਨਾਲ ਕਲਾਉਡ
+sync-devices-image-aria-label =
+    .aria-label = ਡੈਸਕਟਾਪ ਬਰਾਊਜ਼ਰ ਵਿੰਡੋ ਅਤੇ ਮੋਬਾਈਲ ਫ਼ੋਨ ਦੋਵੇਂ { -brand-firefox } ਮਾਸਕੌਟ ਨਾਲ ਸਿੰਕ ਹੋ ਰਹੇ ਹਨ।
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox } ਲੋਗੋ
+password-success-image-aria-label =
+    .aria-label = ਕਿਸੇ ਕਾਮਯਾਬ ਪਾਸਵਰਡ ਤਬਦੀਲੀ ਨੂੰ ਦਰਸਾਉਂਦੀ ਸ਼ਕਲ ਹੈ।
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = ਤੁਸੀਂ { -brand-firefox } ਵਿੱਚ ਸਾਈਨ ਇਨ ਕਰ ਚੁੱਕੇ ਹੋ।
@@ -353,12 +360,7 @@ flow-recovery-key-hint-char-limit-error = ਇਸ਼ਾਰੇ ਵਿੱਚ 255 ਤ�
 password-reset-warning-icon = ਚੇਤਾਵਨੀ
 password-reset-chevron-expanded = ਸਮੇਟਣ ਦੀ ਚੇਤਾਵਨੀ
 password-reset-chevron-collapsed = ਫੈਲਾਓ ਦੀ ਚੇਤਾਵਨੀ
-password-reset-data-may-not-be-recovered = ਸ਼ਾਇਦ ਤੁਹਾਡੇ ਬਰਾਊਜ਼ਰ ਡਾਟੇ ਨੂੰ ਰਿਕਵਰ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਦਾ
-password-reset-previously-signed-in-device-2 = ਕੋਈ ਡਿਵਾਈਸ ਹੈ, ਜਿਸ ਉੱਤੇ ਤੁਸੀਂ ਪਹਿਲਾਂ ਸਾਈਨ ਇਨ ਕੀਤਾ ਸੀ?
-password-reset-no-old-device-2 = ਨਵਾਂ ਡਿਵਾਈਸ ਤਾਂ ਹੈ, ਪਰ ਤੁਹਾਡੇ ਕੋਲ ਕਿਸੇ ਪੁਰਾਣੇ ਲਈ ਪਹੁੰਚ ਨਹੀਂ ਹੈ?
-password-reset-encrypted-data-cannot-be-recovered-2 = ਸਾਨੂੰ ਅਫ਼ਸੋਸ ਹੈ, ਪਰ { -brand-firefox } ਸਰਵਰਾਂ ਉੱਤੇ ਤੁਹਾਡੇ ਇੰਕ੍ਰਿਪਟ ਹੋਏ ਬਰਾਊਜ਼ਰ ਡਾਟਾ ਨੂੰ ਬਹਾਲ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਦਾ ਹੈ।
 password-reset-warning-have-key = ਖਾਤਾ ਰਿਕਵਰੀ ਕੁੰਜੀ ਹੈ?
-password-reset-warning-use-key-link = ਇਸ ਨੂੰ ਹੁਣ ਆਪਣਾ ਪਾਸਵਰਡ ਮੁੜ-ਸੈੱਟ ਕਰਨ ਅਤੇ ਆਪਣਾ ਡਾਟਾ ਰੱਖਣ ਲਈ ਵਰਤੋਂ
 
 
 alert-bar-close-message = ਸੁਨੇਹਾ ਬੰਦ ਕਰੋ
@@ -1027,6 +1029,11 @@ pair-unsupported-header = ਐਪ ਵਰਤ ਕੇ ਪੇਅਰ ਕਰੋ
 pair-unsupported-message = ਕੀ ਤੁਸੀਂ ਸਿਸਟਮ ਕੈਮਰਾ ਵਰਤਿਆ ਸੀ? ਤੁਹਾਨੂੰ { -brand-firefox } ਐਪ ਤੋਂ ਪੇਅਰ ਕਰਨਾ ਪਵੇਗਾ।
 
 
+pair2-supplicant-approve-sign-in-heading = ਸਿੰਕ ਕਰਨ ਲਈ ਆਖਰੀ ਪੜਾਅ
+pair2-supplicant-approve-sign-in-instruction = ਆਪਣੇ ਕੰਪਿਊਟਰ ਤੋਂ ਸਾਈਨ-ਇਨ ਨੂੰ ਮਨਜ਼ੂਰੀ ਦਿਓ।
+pair2-supplicant-approve-sign-in-cancel-button = ਰੱਦ ਕਰੋ
+
+
 
 
 set-password-heading-v2 = ਸਿੰਕ ਕਰਨ ਲਈ ਪਾਸਵਰਡ ਬਣਾਓ
@@ -1074,7 +1081,6 @@ confirm-totp-reset-password-use-different-account = ਵੱਖਰੇ ਖਾਤੇ
 
 
 password-reset-flow-heading = ਆਪਣਾ ਪਾਸਵਰਡ ਬਦਲੋ
-password-reset-body-2 = ਤੁਹਾਡੇ ਖਾਤੇ ਨੂੰ ਸੁਰੱਖਿਅਤ ਰੱਖਣ ਲਈ ਅਸੀਂ ਕੁਝ ਸਵਾਲ ਪੁੱਛਾਂਗੇ, ਜਿਸੇ ਬਾਰੇ ਸਿਰਫ਼ ਤੁਹਾਨੂੰ ਪਤਾ ਹੈ।
 password-reset-email-input =
     .label = ਆਪਣਾ ਈਮੇਲ ਦਿਓ
 password-reset-submit-button-2 = ਜਾਰੀ ਰੱਖੋ

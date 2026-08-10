@@ -42,7 +42,6 @@ auth-error-page-title = Vi kunne ikke logge dig ind
 checkout-error-boundary-retry-button = Prøv igen
 checkout-error-boundary-basic-error-message = Noget gik galt. Prøv igen eller <contactSupportLink>kontakt support.</contactSupportLink>
 amex-logo-alt-text = { -brand-amex }-logo
-diners-logo-alt-text = { -brand-diner }-logo
 discover-logo-alt-text = { -brand-discover }-logo
 jcb-logo-alt-text = { -brand-jcb }-logo
 mastercard-logo-alt-text = { -brand-mastercard }-logo

@@ -141,6 +141,9 @@ device-info-block-location-unknown = 未知地點
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $genericOSName } 上的 { $browserName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $deviceName } 上的 { $browserName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP 位置：{ $ipAddress }
@@ -318,6 +321,15 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
     .aria-label = 包含圓形徽章，顯示綠色勾勾與「VPN」文字的 { -brand-firefox } 視窗，表示已開啟 VPN。
+sync-devices-image-aria-label =
+    .aria-label = 同步中的桌面版瀏覽器視窗與手機，周圍有 { -brand-firefox } 的吉祥物
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox } 圖示
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = 表示已成功更改密碼的插圖。
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -381,6 +393,8 @@ link-expired-new-link-button = 取得新鏈結
 
 # immediately before remember-password-signin-link
 remember-password-text = 想起密碼了嗎？
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = 之前打過 Passkey，或還記得密碼嗎？
 # link navigates to the sign in page
 remember-password-signin-link = 登入
 
@@ -492,18 +506,21 @@ flow-recovery-key-hint-char-limit-error = 提示不可以超過 255 個字。
 flow-recovery-key-hint-unsafe-char-error = 提示內容不可使用 Unicode 特殊字元，僅接受一般文字、拉丁字母、數字、標點符號。
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = 警告
 password-reset-chevron-expanded = 摺疊警告
 password-reset-chevron-collapsed = 展開警告
-password-reset-data-may-not-be-recovered = 可能無法救回您的上網資料
-password-reset-previously-signed-in-device-2 = 有先前登入過的裝置嗎？
-password-reset-data-may-be-saved-locally-2 = 您的瀏覽器資料可能還保存在該裝置中，請重設密碼，然後到該裝置登入，即可恢復資料並同步回來。
-password-reset-no-old-device-2 = 有新的裝置，但已經沒辦法使用任何先前的裝置了嗎？
-password-reset-encrypted-data-cannot-be-recovered-2 = 很抱歉，無法恢復您在 { -brand-firefox } 伺服器上，已加密過的瀏覽器資料。
+password-reset-warning-review-sign-in-options = 確認登入方式，看看是否有機會保留瀏覽器的資料
 password-reset-warning-have-key = 之前有保存帳號救援金鑰嗎？
-password-reset-warning-use-key-link = 現在即可使用，以重設密碼並保留資料。
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = 請使用那把金鑰來重設密碼，即可保留瀏覽器的資料
+password-reset-warning-signed-in-device = 此帳號還登入在其他裝置上嗎？
+password-reset-warning-signed-in-device-description = 您瀏覽器的資料可能還能取回。請重設密碼，然後到該裝置重新登入，即可恢復資料並同步回來。
+password-reset-warning-restore-data-link = 了解如何從以登入的裝置還原瀏覽器資料
+password-reset-warning-new-device = 改用新裝置，但已經無法使用原本的裝置了嗎？
+password-reset-warning-new-device-description = 重設密碼後，這台裝置就無法繼續使用 { -brand-firefox } 伺服器中加密的瀏覽器資料。
 
 ## Alert Bar
 
@@ -1809,6 +1826,17 @@ pair-unsupported-learn-more-link-v2 = 更多資訊
 pair-unsupported-desktop-firefox-fallback-header-v2 = 喔喔，有些東西不對勁！
 pair-unsupported-desktop-firefox-fallback-message-v2 = 請關閉這個分頁然後再試一次。
 
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = 完成最後一步即可開始同步
+pair2-supplicant-approve-sign-in-instruction = 請到您的電腦上確認登入。
+# Dismisses the pairing attempt
+pair2-supplicant-approve-sign-in-cancel-button = 取消
+
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
 
@@ -1913,7 +1941,7 @@ confirm-totp-reset-password-use-different-account = 使用另一個帳號
 ## ResetPassword start page
 
 password-reset-flow-heading = 重設您的密碼
-password-reset-body-2 = 我們將與您確認一些僅有您知道的問題，來確保您的帳號安全。
+password-reset-body-3 = 重設密碼也可能會影響同步的瀏覽器資料。
 password-reset-email-input =
     .label = 請輸入您的電子郵件地址
 password-reset-submit-button-2 = 繼續
@@ -2031,6 +2059,7 @@ signin-passkey-fallback-heading = 請輸入您的密碼以進行同步
 signin-passkey-fallback-body = 為了確保您的資料安全，使用這把 Passkey 時需要輸入您的密碼。
 signin-passkey-fallback-password-label = 密碼
 signin-passkey-fallback-continue = 繼續
+signin-passkey-fallback-forgot-password-link = 忘記密碼？
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

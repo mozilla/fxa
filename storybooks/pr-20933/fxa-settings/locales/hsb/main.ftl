@@ -154,6 +154,7 @@ device-info-block-location-city-country = { $city }, { $country } (trochowany)
 device-info-block-location-country = { $country } (trochowany)
 device-info-block-location-unknown = Njeznate městno
 device-info-browser-os = { $browserName } na { $genericOSName }
+device-info-browser-device = { $browserName } na { $deviceName }
 device-info-ip-address = IP-adresa: { $ipAddress }
 
 
@@ -287,6 +288,12 @@ confetti-falling-image-aria-label =
     .aria-label = Animěrowany padacy konfetti
 vpn-welcome-image-aria-label =
     .aria-label = Wokno { -brand-firefox } z kulojtym znamješkom ze zelenej hóčku a „VPN“, kotrež  pokazuje, zo VPN je aktiwny.
+sync-devices-image-aria-label =
+    .aria-label = Wokno desktopoweho wobhladowaka a mobilny telefon, kotrejž so wobaj synchronizujetej, z maskotku { -brand-firefox } pódla njeju
+firefox-wordmark-image-aria-label =
+    .aria-label = Logo { -brand-firefox }
+password-success-image-aria-label =
+    .aria-label = Ilustracija wuspěšneje hesłoweje změny.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Sće pola { -brand-firefox } přizjewjeny.
@@ -323,6 +330,7 @@ link-expired-new-link-button = Nowy wotkaz dóstać
 
 
 remember-password-text = Hesło sej spomjatkować?
+remember-password-passkey-text = Maće hesłowy kluč abo wěsće swoje hesło?
 remember-password-signin-link = Přizjewić
 
 
@@ -396,13 +404,14 @@ flow-recovery-key-hint-unsafe-char-error = Pokiw njesmě njewěste znamješka Un
 password-reset-warning-icon = Warnowanje
 password-reset-chevron-expanded = Warnowanje schować
 password-reset-chevron-collapsed = Warnowanje pokazać
-password-reset-data-may-not-be-recovered = Daty wašeho wobhladowaka so snano njewobnowja
-password-reset-previously-signed-in-device-2 = Maće grat, hdźež sće so do toho přizjewił?
-password-reset-data-may-be-saved-locally-2 = Daty wašeho wobhladowaka su snano na tym graće składowane. Stajće swoje hesło wróćo, přizjewće so potom tam, zo byšće swoje daty wobnowił a synchronizował.
-password-reset-no-old-device-2 = Maće nowy grat, ale nimaće přistup k swojim staršim?
-password-reset-encrypted-data-cannot-be-recovered-2 = Je nam žel, ale waše zaklučowane daty wobhladowaka na serwerach { -brand-firefox } njedadźa so wobnowić.
+password-reset-warning-review-sign-in-options = Přepruwujće swoje přizjewjenske nastajenja, zo byšće daty wobhladowaka wobchował
 password-reset-warning-have-key = Maće kontowy wobnowjenski kluč?
-password-reset-warning-use-key-link = Wužiwajće jón nětko, zo byšće swoje hesło wróćo stajił a swoje daty wobchował
+password-reset-warning-use-key-link-v2 = Wužiwajće jón, zo byšće swoje hesło wróćo stajił a daty swojeho wobhladowaka wobchował
+password-reset-warning-signed-in-device = Sće na druhim gracé přizjewjeny?
+password-reset-warning-signed-in-device-description = Daty wašeho wobhladowaka su snano k dispoziciji. Stajće swoje hesło wróćo, přizjewće so potom na tym graće, zo byšće swoje daty wobnowił a synchronizował.
+password-reset-warning-restore-data-link = Zhońće, kak móžeće daty wobhladowaka z přizjewjeneho grata wobnowić
+password-reset-warning-new-device = Wužiwaće nowy grat, ale nimaće přistup k swojim starym?
+password-reset-warning-new-device-description = Po tym zo sće swoje hesło wróćo stajił, njebudu zaklučowane daty wobhladowaka na serwerach { -brand-firefox } na tutym graće k dispoziciji.
 
 
 alert-bar-close-message = Zdźělenku začinić
@@ -1318,6 +1327,11 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Hopla! Něšto je so nimok
 pair-unsupported-desktop-firefox-fallback-message-v2 = Prošu začińće tutón rajtark a spytajće hišće raz.
 
 
+pair2-supplicant-approve-sign-in-heading = Jedyn posledni krok k synchronizaciji
+pair2-supplicant-approve-sign-in-instruction = Zwolće do přizjewjenja na swojim ličaku.
+pair2-supplicant-approve-sign-in-cancel-button = Přetorhnyć
+
+
 service-welcome-signup-success-banner = { -product-mozilla-account } wobkrućene
 service-welcome-signin-success-banner = Wuspěšnje přizjewjeny!
 service-welcome-vpn-heading = Přichodny krok: VPN zmóžnić
@@ -1379,9 +1393,7 @@ confirm-totp-reset-password-use-different-account = Druhe konto wužiwać
 
 
 password-reset-flow-heading = Stajće swoje hesło wróćo
-password-reset-body-2 =
-    Prašamy so za někotrymi wěcami, kotrež jenož wy wěsće, zo bychmy waše konto
-    wěste dźerželi.
+password-reset-body-3 = Hdyž swoje hesło wróćo stajeće, móže to synchronizowane daty wobhladowaka wobwliwować.
 password-reset-email-input =
     .label = Zapodajće swoju e-mejlowu adresu
 password-reset-submit-button-2 = Dale
@@ -1472,6 +1484,7 @@ signin-passkey-fallback-heading = Zapodajće swoje hesło, zo byšće synchroniz
 signin-passkey-fallback-body = Zo byšće swoje daty wěste wobchował, dyrbiće swoje hesło zapodać, hdyž tutón hesłowy kluč wužiwaće.
 signin-passkey-fallback-password-label = Hesło
 signin-passkey-fallback-continue = Dale
+signin-passkey-fallback-forgot-password-link = Sće hesło zabył?
 
 
 

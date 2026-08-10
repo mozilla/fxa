@@ -36,6 +36,7 @@
 -google-play = Google Play
 
 app-something-went-wrong-heading = Bir sorun oluştu
+app-something-went-wrong-message = Sorunu ekibimize bildirdik. Yeniden denemek için sayfayı tazeleyin.
 app-error-id = Hata kimliği: { $errorId }
 app-error-details-summary = Hata ayrıntıları
 app-query-parameter-err-heading = Hatalı istek: Geçersiz sorgu parametresi
@@ -150,6 +151,9 @@ device-info-browser-os = { $browserName } - { $genericOSName }
 device-info-ip-address = IP adresi: { $ipAddress }
 
 
+firefox-promo-banner-mobile-cta = Cihaz bağlayın
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = Parola
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -222,6 +226,8 @@ close-icon-aria-label =
     .aria-label = Mesajı kapat
 code-icon-aria-label =
     .aria-label = Kod
+edit-icon-aria-label =
+    .aria-label = Düzenle
 error-icon-aria-label =
     .aria-label = Hata
 info-icon-aria-label =
@@ -302,6 +308,7 @@ link-expired-new-link-button = Yeni bağlantı iste
 
 
 remember-password-text = Parolanızı hatırladınız mı?
+remember-password-passkey-text = Geçiş anahtarınız var mı veya parolanızı hatırladınız mı?
 remember-password-signin-link = Giriş yap
 
 
@@ -373,13 +380,11 @@ flow-recovery-key-hint-unsafe-char-error = İpucu güvensiz unicode karakterler 
 password-reset-warning-icon = Uyarı
 password-reset-chevron-expanded = Uyarıyı daralt
 password-reset-chevron-collapsed = Uyarıyı genişlet
-password-reset-data-may-not-be-recovered = Tarayıcı verileriniz kurtarılamayabilir
-password-reset-previously-signed-in-device-2 = Daha önce giriş yaptığınız bir cihazınız var mı?
-password-reset-data-may-be-saved-locally-2 = Tarayıcı verileriniz o cihazda kayıtlı olabilir. Parolanızı sıfırlayın, ardından verilerinizi geri yüklemek ve eşitlemek için o cihazdan giriş yapın.
-password-reset-no-old-device-2 = Yeni bir cihazınız var ama eski cihazlarınıza erişemiyor musunuz?
-password-reset-encrypted-data-cannot-be-recovered-2 = Üzgünüz, { -brand-firefox } sunucularındaki şifrelenmiş tarayıcı verileriniz bu durumda maalesef kurtarılamaz.
 password-reset-warning-have-key = Hesap kurtarma anahtarınız var mı?
-password-reset-warning-use-key-link = Parolanızı sıfırlayıp verilerinizi geri yüklemek için şimdi onu kullanabilirsiniz
+password-reset-warning-signed-in-device = Hâlâ başka bir cihazdan giriş yapmış durumda mısınız?
+password-reset-warning-restore-data-link = Giriş yapmış bir cihazdan tarayıcı verilerinizi geri yüklemeyi öğrenin
+password-reset-warning-new-device = Yeni bir cihaza geçtiniz ama eskilerine artık erişemiyor musunuz?
+password-reset-warning-new-device-description = Parolanızı sıfırladıktan sonra { -brand-firefox } sunucularındaki şifrelenmiş tarayıcı verilerinizi bu cihazda kullanamazsınız.
 
 
 alert-bar-close-message = Mesajı kapat
@@ -742,6 +747,7 @@ page-passkey-add-cancel = Vazgeç
 
 
 page-passkey-add-success = Geçiş anahtarı oluşturuldu
+page-passkey-add-error-system-v2 = Geçiş anahtarınız oluşturulurken bir sorun oluştu. Daha sonra yeniden deneyin.
 
 
 recent-activity-title = Son hesap etkinlikleri
@@ -785,6 +791,8 @@ recent-activity-account-two-factor-replace-success = İki aşamalı kimlik doğr
 recent-activity-account-mfa-otp-sent = Hesap değiştirme izni istendi
 recent-activity-account-mfa-otp-verified = Hesap değiştirmeye izin verildi
 recent-activity-account-mfa-otp-failed = Hesap değiştirme yetkilendirmesi başarısız oldu
+recent-activity-account-passkey-registration-success = Geçiş anahtarı eklendi
+recent-activity-account-passkey-removed = Geçiş anahtarı kaldırıldı
 recent-activity-unknown = Diğer hesap etkinlikleri
 
 
@@ -895,6 +903,8 @@ passkey-delete-modal-cancel-button = Vazgeç
 passkey-delete-modal-confirm-button = Geçiş anahtarını sil
 passkey-delete-success = Geçiş anahtarı silindi
 passkey-delete-error = Geçiş anahtarınız silinirken bir sorun oluştu. Birkaç dakika sonra yeniden deneyin.
+passkey-rename-save-button = Kaydet
+passkey-rename-cancel-button = Vazgeç
 
 
 switch-turn-off = Kapat
@@ -1273,7 +1283,6 @@ confirm-totp-reset-password-use-different-account = Farklı bir hesap kullan
 
 
 password-reset-flow-heading = Parolanızı sıfırlayın
-password-reset-body-2 = Hesabınızı güvende tutmak için yalnızca sizin bildiğiniz birkaç şey soracağız.
 password-reset-email-input =
     .label = E-posta adresinizi yazın
 password-reset-submit-button-2 = Devam et
@@ -1357,6 +1366,7 @@ back = Geri dön
 signin-passkey-fallback-header = Girişi tamamla
 signin-passkey-fallback-password-label = Parola
 signin-passkey-fallback-continue = Devam et
+signin-passkey-fallback-forgot-password-link = Parolanızı unuttunuz mu?
 
 
 

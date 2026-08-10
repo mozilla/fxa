@@ -153,6 +153,9 @@ device-info-block-location-unknown = Άγνωστη τοποθεσία
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $browserName } σε { $genericOSName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $browserName } σε { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = Διεύθυνση IP: { $ipAddress }
@@ -330,6 +333,15 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
     .aria-label = Ένα παράθυρο του { -brand-firefox } με κυκλικό σήμα που δείχνει ένα πράσινο σημάδι ελέγχου και το «VPN», που υποδεικνύει ότι το VPN είναι ενεργό.
+sync-devices-image-aria-label =
+    .aria-label = Ένα παράθυρο προγράμματος περιήγησης για υπολογιστή και ένα κινητό τηλέφωνο, συγχρονισμένα, με τη μασκότ του { -brand-firefox } δίπλα τους
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = Λογότυπο { -brand-firefox }
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = Απεικόνιση μιας επιτυχούς αλλαγής κωδικού πρόσβασης.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -393,6 +405,8 @@ link-expired-new-link-button = Λήψη νέου συνδέσμου
 
 # immediately before remember-password-signin-link
 remember-password-text = Απομνημόνευση κωδικού πρόσβασης;
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = Έχετε κλειδί πρόσβασης ή θυμάστε τον κωδικό πρόσβασής σας;
 # link navigates to the sign in page
 remember-password-signin-link = Σύνδεση
 
@@ -504,18 +518,21 @@ flow-recovery-key-hint-char-limit-error = Η υπόδειξη πρέπει να 
 flow-recovery-key-hint-unsafe-char-error = Η υπόδειξη δεν μπορεί να περιέχει μη ασφαλείς χαρακτήρες Unicode. Επιτρέπονται μόνο γράμματα, αριθμοί, σημεία στίξης και σύμβολα.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Προειδοποίηση
 password-reset-chevron-expanded = Σύμπτυξη προειδοποίησης
 password-reset-chevron-collapsed = Ανάπτυξη προειδοποίησης
-password-reset-data-may-not-be-recovered = Τα δεδομένα του προγράμματος περιήγησής σας ενδέχεται να μην ανακτηθούν
-password-reset-previously-signed-in-device-2 = Είχατε συνδεθεί από κάποια συσκευή στο παρελθόν;
-password-reset-data-may-be-saved-locally-2 = Τα δεδομένα του προγράμματος περιήγησής σας ενδέχεται να έχουν αποθηκευτεί σε εκείνη τη συσκευή. Κάντε επαναφορά του κωδικού πρόσβασής σας και συνδεθείτε εκεί για να ανακτήσετε και να συγχρονίσετε τα δεδομένα σας.
-password-reset-no-old-device-2 = Έχετε μια νέα συσκευή, αλλά δεν έχετε πρόσβαση σε καμία από τις προηγούμενες;
-password-reset-encrypted-data-cannot-be-recovered-2 = Λυπούμαστε, αλλά δεν είναι δυνατή η ανάκτηση των κρυπτογραφημένων δεδομένων περιήγησής σας από τους διακομιστές του { -brand-firefox }.
+password-reset-warning-review-sign-in-options = Ελέγξτε τις επιλογές σύνδεσης για να διατηρήσετε τα δεδομένα του προγράμματος περιήγησης
 password-reset-warning-have-key = Διαθέτετε κλειδί ανάκτησης λογαριασμού;
-password-reset-warning-use-key-link = Χρησιμοποιήστε το τώρα για να επαναφέρετε τον κωδικό πρόσβασής σας και να διατηρήσετε τα δεδομένα σας
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = Χρησιμοποιήστε το για να επαναφέρετε τον κωδικό πρόσβασής σας και να διατηρήσετε τα δεδομένα σας του προγράμματος περιήγησης
+password-reset-warning-signed-in-device = Έχετε συνδεθεί και σε μια άλλη συσκευή;
+password-reset-warning-signed-in-device-description = Τα δεδομένα του προγράμματος περιήγησής σας ενδέχεται να είναι διαθέσιμα. Κάντε επαναφορά του κωδικού πρόσβασής σας και συνδεθείτε σε αυτήν τη συσκευή για να ανακτήσετε και να συγχρονίσετε τα δεδομένα σας.
+password-reset-warning-restore-data-link = Μάθετε πώς να κάνετε επαναφορά των δεδομένων του προγράμματος περιήγησης από μια συνδεδεμένη συσκευή
+password-reset-warning-new-device = Χρησιμοποιείτε μια νέα συσκευή, αλλά δεν έχετε πρόσβαση στις παλιές σας;
+password-reset-warning-new-device-description = Αφού κάνετε επαναφορά του κωδικού πρόσβασής σας, τα κρυπτογραφημένα δεδομένα του προγράμματος περιήγησης στους διακομιστές του { -brand-firefox } δεν θα είναι διαθέσιμα σε αυτήν τη συσκευή.
 
 ## Alert Bar
 
@@ -1852,6 +1869,17 @@ pair-unsupported-learn-more-link-v2 = Μάθετε περισσότερα
 pair-unsupported-desktop-firefox-fallback-header-v2 = Ωχ! Κάτι πήγε στραβά.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Κλείστε αυτήν την καρτέλα και δοκιμάστε ξανά.
 
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = Ένα τελευταίο βήμα πριν το συγχρονισμό
+pair2-supplicant-approve-sign-in-instruction = Εγκρίνετε τη σύνδεση στον υπολογιστή σας.
+# Dismisses the pairing attempt
+pair2-supplicant-approve-sign-in-cancel-button = Ακύρωση
+
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
 
@@ -1956,9 +1984,7 @@ confirm-totp-reset-password-use-different-account = Χρήση διαφορετ�
 ## ResetPassword start page
 
 password-reset-flow-heading = Επαναφορά κωδικού πρόσβασης
-password-reset-body-2 =
-    Θα σας ρωτήσουμε μερικά πράγματα που μόνο εσείς γνωρίζετε, προκειμένου
-    να διατηρήσουμε τον λογαριασμό σας ασφαλή.
+password-reset-body-3 = Η επαναφορά του κωδικού πρόσβασής σας ενδέχεται να επηρεάσει τα συγχρονισμένα δεδομένα του προγράμματος περιήγησης.
 password-reset-email-input =
     .label = Εισαγάγετε το email σας
 password-reset-submit-button-2 = Συνέχεια
@@ -2083,6 +2109,7 @@ signin-passkey-fallback-heading = Εισαγάγετε τον κωδικό πρ�
 signin-passkey-fallback-body = Για την προστασία των δεδομένων σας, θα πρέπει να εισάγετε τον κωδικό πρόσβασής σας όταν χρησιμοποιείτε αυτό το κλειδί πρόσβασης.
 signin-passkey-fallback-password-label = Κωδικός πρόσβασης
 signin-passkey-fallback-continue = Συνέχεια
+signin-passkey-fallback-forgot-password-link = Ξεχάσατε τον κωδικό πρόσβασής σας;
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

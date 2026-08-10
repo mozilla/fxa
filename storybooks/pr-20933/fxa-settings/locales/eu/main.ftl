@@ -301,13 +301,7 @@ flow-recovery-key-hint-unsafe-char-error = Aholkuak ezin ditu Unicode karaktere 
 password-reset-warning-icon = Abisua
 password-reset-chevron-expanded = Tolestu abisua
 password-reset-chevron-collapsed = Zabaldu abisua
-password-reset-data-may-not-be-recovered = Baliteke zure nabigatzailearen datuak ez berreskuratzea
-password-reset-previously-signed-in-device-2 = Aurretik saioa hasi zenuen gailurik al duzu?
-password-reset-data-may-be-saved-locally-2 = Baliteke zure arakatzailearen datuak gailu horretan gordetzea. Berrezarri pasahitza eta, ondoren, hasi saioa bertan datuak leheneratu eta sinkronizatzeko.
-password-reset-no-old-device-2 = Gailu berri bat al duzu baina ez duzu aurrekoetarako sarbidea?
-password-reset-encrypted-data-cannot-be-recovered-2 = Sentitzen dugu, baina ezin dira berreskuratu { -brand-firefox } zerbitzarietan enkriptatutako nabigatzailearen datuak.
 password-reset-warning-have-key = Kontua berreskuratzeko gakoa baduzu?
-password-reset-warning-use-key-link = Erabili orain pasahitza berrezartzeko eta datuak gordetzeko
 
 
 alert-bar-close-message = Itxi mezua
@@ -993,9 +987,6 @@ confirm-totp-reset-password-use-different-account = Erabili beste kontu bat
 
 
 password-reset-flow-heading = Berrezarri pasahitza
-password-reset-body-2 =
-    Zuk bakarrik dakizun gauza pare bat eskatuko dizugu 
-    zure kontua seguru mantentzeko.
 password-reset-email-input =
     .label = Idatzi zure helbide elektronikoa
 password-reset-submit-button-2 = Jarraitu

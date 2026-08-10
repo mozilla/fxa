@@ -157,6 +157,12 @@ device-info-browser-os = { $browserName } - { $genericOSName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP adresi: { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-cta = Cihaz bağlayın
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -257,6 +263,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Kod
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Düzenle
 error-icon-aria-label =
     .aria-label = Hata
 # Used as information icon for informative messaging
@@ -373,6 +382,8 @@ link-expired-new-link-button = Yeni bağlantı iste
 
 # immediately before remember-password-signin-link
 remember-password-text = Parolanızı hatırladınız mı?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = Geçiş anahtarınız var mı veya parolanızı hatırladınız mı?
 # link navigates to the sign in page
 remember-password-signin-link = Giriş yap
 
@@ -481,18 +492,17 @@ flow-recovery-key-hint-char-limit-error = İpucu 255 karakterden kısa olmalıd�
 flow-recovery-key-hint-unsafe-char-error = İpucu güvensiz unicode karakterler içeremez. Yalnızca harf, sayı, noktalama işareti ve simge içerebilir.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Uyarı
 password-reset-chevron-expanded = Uyarıyı daralt
 password-reset-chevron-collapsed = Uyarıyı genişlet
-password-reset-data-may-not-be-recovered = Tarayıcı verileriniz kurtarılamayabilir
-password-reset-previously-signed-in-device-2 = Daha önce giriş yaptığınız bir cihazınız var mı?
-password-reset-data-may-be-saved-locally-2 = Tarayıcı verileriniz o cihazda kayıtlı olabilir. Parolanızı sıfırlayın, ardından verilerinizi geri yüklemek ve eşitlemek için o cihazdan giriş yapın.
-password-reset-no-old-device-2 = Yeni bir cihazınız var ama eski cihazlarınıza erişemiyor musunuz?
-password-reset-encrypted-data-cannot-be-recovered-2 = Üzgünüz, { -brand-firefox } sunucularındaki şifrelenmiş tarayıcı verileriniz bu durumda maalesef kurtarılamaz.
 password-reset-warning-have-key = Hesap kurtarma anahtarınız var mı?
-password-reset-warning-use-key-link = Parolanızı sıfırlayıp verilerinizi geri yüklemek için şimdi onu kullanabilirsiniz
+password-reset-warning-signed-in-device = Hâlâ başka bir cihazdan giriş yapmış durumda mısınız?
+password-reset-warning-restore-data-link = Giriş yapmış bir cihazdan tarayıcı verilerinizi geri yüklemeyi öğrenin
+password-reset-warning-new-device = Yeni bir cihaza geçtiniz ama eskilerine artık erişemiyor musunuz?
+password-reset-warning-new-device-description = Parolanızı sıfırladıktan sonra { -brand-firefox } sunucularındaki şifrelenmiş tarayıcı verilerinizi bu cihazda kullanamazsınız.
 
 ## Alert Bar
 
@@ -986,6 +996,7 @@ page-passkey-add-cancel = Vazgeç
 ## Success / Error messages (shown in alert bar after returning to settings)
 
 page-passkey-add-success = Geçiş anahtarı oluşturuldu
+page-passkey-add-error-system-v2 = Geçiş anahtarınız oluşturulurken bir sorun oluştu. Daha sonra yeniden deneyin.
 
 ## Recent account activity
 ## All strings except title indicate an event that occurred from the user's account
@@ -1037,6 +1048,8 @@ recent-activity-account-mfa-otp-sent = Hesap değiştirme izni istendi
 recent-activity-account-mfa-otp-verified = Hesap değiştirmeye izin verildi
 # The user entered an incorrect or expired code when trying to authorize a sensitive account change.
 recent-activity-account-mfa-otp-failed = Hesap değiştirme yetkilendirmesi başarısız oldu
+recent-activity-account-passkey-registration-success = Geçiş anahtarı eklendi
+recent-activity-account-passkey-removed = Geçiş anahtarı kaldırıldı
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Diğer hesap etkinlikleri
 
@@ -1213,6 +1226,8 @@ passkey-delete-modal-cancel-button = Vazgeç
 passkey-delete-modal-confirm-button = Geçiş anahtarını sil
 passkey-delete-success = Geçiş anahtarı silindi
 passkey-delete-error = Geçiş anahtarınız silinirken bir sorun oluştu. Birkaç dakika sonra yeniden deneyin.
+passkey-rename-save-button = Kaydet
+passkey-rename-cancel-button = Vazgeç
 
 ## Switch component
 
@@ -1820,7 +1835,6 @@ confirm-totp-reset-password-use-different-account = Farklı bir hesap kullan
 ## ResetPassword start page
 
 password-reset-flow-heading = Parolanızı sıfırlayın
-password-reset-body-2 = Hesabınızı güvende tutmak için yalnızca sizin bildiğiniz birkaç şey soracağız.
 password-reset-email-input =
     .label = E-posta adresinizi yazın
 password-reset-submit-button-2 = Devam et
@@ -1940,6 +1954,7 @@ back = Geri dön
 signin-passkey-fallback-header = Girişi tamamla
 signin-passkey-fallback-password-label = Parola
 signin-passkey-fallback-continue = Devam et
+signin-passkey-fallback-forgot-password-link = Parolanızı unuttunuz mu?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

@@ -148,6 +148,7 @@ device-info-block-location-city-country = { $city }, { $country } (roeze)
 device-info-block-location-country = { $country } (roeze)
 device-info-block-location-unknown = Lokaasje ûnbekend
 device-info-browser-os = { $browserName } op { $genericOSName }
+device-info-browser-device = { $browserName } op { $deviceName }
 device-info-ip-address = IP-adres: { $ipAddress }
 
 
@@ -281,6 +282,12 @@ confetti-falling-image-aria-label =
     .aria-label = Animearre fallende konfetti
 vpn-welcome-image-aria-label =
     .aria-label = { -brand-firefox }-finster mei in rûne badge mei in grien finkje en ‘VPN’, wat oanjout dat de VPN aktyf is.
+sync-devices-image-aria-label =
+    .aria-label = In desktopbrowser en in mobile telefoan, beide syngronisearjend, mei de { -brand-firefox }-maskotte dernjonken
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox }-logo
+password-success-image-aria-label =
+    .aria-label = Yllustraasje om in suksesfolle wachtwurdwiziging wer te jaan.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Jo binne oanmeld by { -brand-firefox }.
@@ -317,6 +324,7 @@ link-expired-new-link-button = Nije keppeling ûntfange
 
 
 remember-password-text = Wachtwurd ûnthâlde?
+remember-password-passkey-text = Hawwe jo in wachtwurdwurdkaai of witte jo jo wachtwurd noch?
 remember-password-signin-link = Oanmelde
 
 
@@ -390,13 +398,14 @@ flow-recovery-key-hint-unsafe-char-error = De hint mei gjin ûnfeilige Unicode-t
 password-reset-warning-icon = Warskôging
 password-reset-chevron-expanded = Warskôging ynklappe
 password-reset-chevron-collapsed = Warskôging útklappe
-password-reset-data-may-not-be-recovered = Jo browsergegevens wurde mooglik net wersteld
-password-reset-previously-signed-in-device-2 = Hawwe jo in apparaat dêr’t jo earder oanmeld binne?
-password-reset-data-may-be-saved-locally-2 = Jo browsergegevens binne mooglik op dat apparaat bewarre. Stel jo wachtwurd opnij yn en meld jo dêr oan om jo gegevens te werstellen en te syngronisearjen.
-password-reset-no-old-device-2 = Hawwe jo in nij apparaat, mar hawwe jo gjin tagong ta ien fan jo foarige?
-password-reset-encrypted-data-cannot-be-recovered-2 = It spyt ús, mar jo fersifere browsergegevens op { -brand-firefox }-servers kinne net weromhelle wurde.
+password-reset-warning-review-sign-in-options = Oanmeldopsjes besjen om browsergegevens te behâlden
 password-reset-warning-have-key = Hawwe jo in accountwerstelkaai?
-password-reset-warning-use-key-link = Brûk dizze no om jo wachtwurd te opnij yn te stellen en jo gegevens te behâlden
+password-reset-warning-use-key-link-v2 = Brûk dizze om jo wachtwurd opnij yn te stellen en jo browsergegevens te behâlden
+password-reset-warning-signed-in-device = Noch hieltyd oanmeld op in oar apparaat?
+password-reset-warning-signed-in-device-description = Jo browsergegevens binne mooglik noch beskikber. Stel jo wachtwurd opnij yn en meld jo op jo oare apparaat oan om jo gegevens te werstellen en te syngronisearjen.
+password-reset-warning-restore-data-link = Lês hoe’t jo browsergegevens fan in oanmeld apparaat werstelle kinne
+password-reset-warning-new-device = Brûke jo in nij apparaat, mar gjin tagong ta jo âlde?
+password-reset-warning-new-device-description = Neidat jo jo wachtwurd opnij ynsteld hawwe, binne fersifere browsergegevens op { -brand-firefox }-servers net beskikber op dit apparaat.
 
 
 alert-bar-close-message = Berjocht slute
@@ -1308,6 +1317,11 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Oepsie, der is wat misgien
 pair-unsupported-desktop-firefox-fallback-message-v2 = Slút dit ljepblêd en probearje it nochris.
 
 
+pair2-supplicant-approve-sign-in-heading = Ien lêste syngronisaasjestap
+pair2-supplicant-approve-sign-in-instruction = Keur de oanmelding op jo kompjûter goed.
+pair2-supplicant-approve-sign-in-cancel-button = Annulearje
+
+
 service-welcome-signup-success-banner = { -product-mozilla-account } befêstige
 service-welcome-signin-success-banner = Mei sukses oanmeld!
 service-welcome-vpn-heading = Folgjende: VPN ynskeakelje
@@ -1369,9 +1383,7 @@ confirm-totp-reset-password-use-different-account = In oar account brûke
 
 
 password-reset-flow-heading = Jo wachtwurd opnij ynstelle
-password-reset-body-2 =
-    Wy freegje jo in pear dingen dy’t allinnich jo witte om jo account
-    feilich te hâlden.
+password-reset-body-3 = It opnij ynstellen fan jo wachtwurd kin ynfloed hawwe op syngronisearre browsergegevens.
 password-reset-email-input =
     .label = Fier jo e-mailadres yn
 password-reset-submit-button-2 = Trochgean
@@ -1457,6 +1469,7 @@ signin-passkey-fallback-heading = Fier jo wachtwurd yn om te syngronisearjen
 signin-passkey-fallback-body = Om jo gegevens feilich te hâlden, moatte jo jo wachtwurd ynfiere as jo dizze wachtwurdkaai brûke.
 signin-passkey-fallback-password-label = Wachtwurd
 signin-passkey-fallback-continue = Trochgean
+signin-passkey-fallback-forgot-password-link = Wachtwurd ferjitten?
 
 
 

@@ -145,6 +145,9 @@ device-info-block-location-unknown = מיקום לא ידוע
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = ‏{ $browserName } ב־{ $genericOSName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = ‏{ $browserName } ב־{ $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = כתובת IP:‏ { $ipAddress }
@@ -306,6 +309,15 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
     .aria-label = חלון של { -brand-firefox } עם תג עגול המציג סימן וי ירוק ו־״VPN״, המציין שה־VPN פעיל.
+sync-devices-image-aria-label =
+    .aria-label = חלון דפדפן של מחשב שולחני וטלפון נייד, שניהם מסתנכרנים, כשלצידם הקמע של { -brand-firefox }
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = הלוגו של { -brand-firefox }
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = איור המייצג שינוי ססמה מוצלח.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -369,6 +381,8 @@ link-expired-new-link-button = קבלת קישור חדש
 
 # immediately before remember-password-signin-link
 remember-password-text = נזכרת בססמה שלך?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = יש לך מפתח גישה או שנזכרת בססמה שלך?
 # link navigates to the sign in page
 remember-password-signin-link = כניסה
 
@@ -480,18 +494,21 @@ flow-recovery-key-hint-char-limit-error = הרמז חייב להכיל פחות 
 flow-recovery-key-hint-unsafe-char-error = הרמז אינו יכול להכיל תווי יוניקוד שלא בטוחים. רק אותיות, מספרים, סימני פיסוק וסמלים מותרים.
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = אזהרה
 password-reset-chevron-expanded = צמצום האזהרה
 password-reset-chevron-collapsed = הרחבת האזהרה
-password-reset-data-may-not-be-recovered = ייתכן שנתוני הדפדפן שלך לא ישוחזרו
-password-reset-previously-signed-in-device-2 = יש לך מכשיר כלשהו שבו התחברת בעבר?
-password-reset-data-may-be-saved-locally-2 = ייתכן שנתוני הדפדפן שלך שמורים במכשיר ההוא. יש לאפס את הססמה שלך ולאחר מכן להתחבר שם כדי לשחזר ולסנכרן את הנתונים שלך.
-password-reset-no-old-device-2 = יש לך מכשיר חדש אבל אין לך גישה לאף אחד מהקודמים שלך?
-password-reset-encrypted-data-cannot-be-recovered-2 = אנו מצטערים, אך לא ניתן לשחזר את נתוני הדפדפן המוצפנים שלך שנמצאים בשרתי { -brand-firefox }.
+password-reset-warning-review-sign-in-options = כדאי לסקור את אפשרויות הכניסה כדי לשמור על נתוני הדפדפן
 password-reset-warning-have-key = יש לך מפתח לשחזור החשבון?
-password-reset-warning-use-key-link = ניתן להשתמש בו כעת כדי לאפס את הססמה שלך ולשמור את נתונים שלך
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = ניתן להשתמש בו כדי לאפס את הססמה שלך ולשמור על הנתונים שלך
+password-reset-warning-signed-in-device = עדיין מחובר במכשיר אחר?
+password-reset-warning-signed-in-device-description = ייתכן שנתוני הדפדפן שלך עדיין זמינים. יש לאפס את הססמה שלך ולאחר מכן להתחבר במכשיר ההוא כדי לשחזר ולסנכרן את הנתונים שלך.
+password-reset-warning-restore-data-link = מידע נוסף על אופן שחזור נתוני דפדפן ממכשיר המחובר לחשבון
+password-reset-warning-new-device = יש לך מכשיר חדש אבל אין לך גישה לישנים שלך?
+password-reset-warning-new-device-description = לאחר איפוס הססמה שלך, נתוני דפדפן מוצפנים שנמצאים בשרתי { -brand-firefox } לא יהיו זמינים במכשיר זה.
 
 ## Alert Bar
 
@@ -1771,6 +1788,17 @@ pair-unsupported-learn-more-link-v2 = מידע נוסף
 pair-unsupported-desktop-firefox-fallback-header-v2 = אופס! משהו השתבש.
 pair-unsupported-desktop-firefox-fallback-message-v2 = נא לסגור לשונית זו ולנסות שוב.
 
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = שלב אחרון לסנכרון
+pair2-supplicant-approve-sign-in-instruction = אישור הכניסה במחשב שלך.
+# Dismisses the pairing attempt
+pair2-supplicant-approve-sign-in-cancel-button = ביטול
+
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
 
@@ -1869,7 +1897,7 @@ confirm-totp-reset-password-use-different-account = שימוש בחשבון אח
 ## ResetPassword start page
 
 password-reset-flow-heading = איפוס הססמה שלך
-password-reset-body-2 = נשאל אותך כמה שאלות שהתשובות עליהן ידועות רק לך, כדי לשמור על החשבון שלך.
+password-reset-body-3 = איפוס הססמה שלך עשויה להשפיע על נתוני הדפדפן המסונכרנים.
 password-reset-email-input =
     .label = נא להכניס את כתובת הדוא״ל שלך
 password-reset-submit-button-2 = המשך
@@ -1988,6 +2016,7 @@ signin-passkey-fallback-heading = נא להכניס את הססמה שלך כד�
 signin-passkey-fallback-body = כדי לשמור על בטיחות הנתונים שלך, עליך להכניס את הססמה שלך בעת שימוש במפתח גישה זה.
 signin-passkey-fallback-password-label = ססמה
 signin-passkey-fallback-continue = המשך
+signin-passkey-fallback-forgot-password-link = שכחת את הססמה?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

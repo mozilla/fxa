@@ -94,7 +94,7 @@ recovery-key-pdf-support = Læs mere om din genoprettelsesnøgle til kontoen
 recovery-key-pdf-download-error = Der opstod desværre et problem med at hente din genoprettelsesnøgle til kontoen.
 
 
-button-passkey-signin = Log ind med adgangsnøgle
+button-passkey-signin = log ind med adgangsnøgle
 button-passkey-signin-loading = Logger sikkert ind…
 
 
@@ -152,7 +152,7 @@ device-info-ip-address = IP-adresse: { $ipAddress }
 
 
 firefox-promo-banner-mobile-heading = Få { -brand-firefox } uanset hvor du er
-firefox-promo-banner-mobile-description = Synkroniser dine faneblade, bogmærker og adgangskoder på tværs af dine enheder. Alt sikkert bliver sikkert krypteret.
+firefox-promo-banner-mobile-description = Synkroniser dine faneblade, bogmærker og adgangskoder på tværs af dine enheder. Derudover bliver alt sikkert krypteret.
 firefox-promo-banner-mobile-cta = Opret forbindelse til en enhed
 firefox-promo-banner-switch-heading = Hurtig at skifte. Nem at vænne sig til.
 firefox-promo-banner-switch-description = Når du skifter til { -brand-firefox }, kan du medbringe dine bogmærker, adgangskoder, historik og mere, så du kan komme i gang med at browse uden at gå glip af noget.
@@ -388,13 +388,7 @@ flow-recovery-key-hint-unsafe-char-error = Huskereglen kan ikke indeholde usikre
 password-reset-warning-icon = Advarsel
 password-reset-chevron-expanded = Sammenfold advarsel
 password-reset-chevron-collapsed = Fold advarsel ud
-password-reset-data-may-not-be-recovered = Dine browserdata bliver måske ikke gendannet
-password-reset-previously-signed-in-device-2 = Har du en enhed, hvor du tidligere har logget ind?
-password-reset-data-may-be-saved-locally-2 = Dine browserdata er muligvis gemt på den pågældende enhed. Nulstil din adgangskode, og log derefter ind på enheden for at gendanne og synkronisere dine data.
-password-reset-no-old-device-2 = Har du en ny enhed, men ikke adgang til nogen af dine gamle enheder?
-password-reset-encrypted-data-cannot-be-recovered-2 = Vi beklager, men dine krypterede browserdata på { -brand-firefox }' servere kan ikke gendannes.
 password-reset-warning-have-key = Har du en genoprettelsesnøgle til kontoen?
-password-reset-warning-use-key-link = Brug den nu til at nulstille din adgangskode og beholde dine data
 
 
 alert-bar-close-message = Luk besked
@@ -1345,7 +1339,6 @@ confirm-totp-reset-password-use-different-account = Brug en anden konto
 
 
 password-reset-flow-heading = Nulstil din adgangskode
-password-reset-body-2 = For at sikre din konto, spørger vi dig om nogle ting, som kun du kender.
 password-reset-email-input =
     .label = Indtast din mailadresse
 password-reset-submit-button-2 = Fortsæt

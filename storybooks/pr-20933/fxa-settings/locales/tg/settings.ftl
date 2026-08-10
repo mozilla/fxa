@@ -377,7 +377,8 @@ flow-recovery-key-download-storage-ideas-pwd-manager = Мудири ниҳонв
 flow-recovery-key-hint-cta-text = Анҷом додан
 
 ## ResetPasswordWarning component
-## Warning shown to sync users that reset their password without using an account recovery key
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
 
 password-reset-warning-icon = Огоҳӣ
 password-reset-chevron-expanded = Печондани огоҳӣ
