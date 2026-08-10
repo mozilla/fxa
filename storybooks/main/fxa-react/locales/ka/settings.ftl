@@ -155,6 +155,9 @@ device-info-block-location-unknown = მდებარეობა უცნო
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $browserName } სისტემაზე { $genericOSName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $browserName } მოწყობ. { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP-მისამართი: { $ipAddress }
@@ -332,6 +335,15 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
     .aria-label = { -brand-firefox } ფანჯარა წრიული სამკერდით, რომელზეც ჩანს მწვანე მონიშვნა და „VPN“, მიუთითებს, რომ VPN მოქმედია.
+sync-devices-image-aria-label =
+    .aria-label = კომპიუტერის ბრაუზერის ფანჯარა და მობილური ტელეფონი, ორივე დასინქრონებულია და თილისმა { -brand-firefox } მათ გვერდითაა
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox }-ლოგო
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = გამოსახულება, რომლითაც ნაჩვენებია პაროლის წარმატებით შეცვლა.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -395,6 +407,8 @@ link-expired-new-link-button = ახალი ბმულის მიღე�
 
 # immediately before remember-password-signin-link
 remember-password-text = გაგახსენდათ პაროლი?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = გაქვთ საშვი, თუ გაგახსენდათ თქვენი პაროლი?
 # link navigates to the sign in page
 remember-password-signin-link = შესვლა
 
@@ -512,7 +526,15 @@ flow-recovery-key-hint-unsafe-char-error = მინიშნება არ �
 password-reset-warning-icon = გაფრთხილება
 password-reset-chevron-expanded = გაფრთხილების აკეცვა
 password-reset-chevron-collapsed = გაფრთხილების გაშლა
+password-reset-warning-review-sign-in-options = გადახედეთ შესვლის გზებს ბრაუზერის მონაცემთა შესანარჩუნებლად
 password-reset-warning-have-key = გაქვთ ანგარიშის აღდგენის გასაღების?
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = გამოიყენეთ პაროლის გასანულებლად მონაცემების დაკარგვის გარეშე
+password-reset-warning-signed-in-device = ჯერ კიდევ შესულია სხვა მოწყობილობიდან?
+password-reset-warning-signed-in-device-description = თქვენი ბრაუზერის მონაცემები შესაძლოა ჯერ კიდევ იყოს ხელმისაწვდომი. გაანულეთ პაროლი, შემდეგ შედით იმ მოწყობილობაზე მონაცემების აღდგენისა და დასინქრონებისთვის.
+password-reset-warning-restore-data-link = იხილეთ, როგორ უნდა აღდგეს ბრაუზერის მონაცემები შესული მოწყობილობიდან
+password-reset-warning-new-device = ახალ მოწყობილობას იყენებთ, მაგრამ ძველთან წვდომა ვერ ხერხდება?
+password-reset-warning-new-device-description = პაროლის განულების შემდგომ, თქვენი დაშიფრული მონაცემები, რომელსაც { -brand-firefox } ინახავს სერვერებზე, ვეღარ აღდგება.
 
 ## Alert Bar
 
@@ -1846,6 +1868,17 @@ pair-unsupported-learn-more-link-v2 = ვრცლად
 pair-unsupported-desktop-firefox-fallback-header-v2 = უჰ, რაღაც ხარვეზი წარმოიქმნა
 pair-unsupported-desktop-firefox-fallback-message-v2 = გთხოვთ დახუროთ ჩანართი და კვლავ სცადოთ.
 
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = ბოლო ნაბიჯი დასინქრონებისთვის
+pair2-supplicant-approve-sign-in-instruction = დაადასტურეთ შესვლა თქვენს კომპიუტერზე.
+# Dismisses the pairing attempt
+pair2-supplicant-approve-sign-in-cancel-button = გაუქმება
+
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
 
@@ -1950,6 +1983,7 @@ confirm-totp-reset-password-use-different-account = სხვა ანგარ
 ## ResetPassword start page
 
 password-reset-flow-heading = პაროლის განულება
+password-reset-body-3 = პაროლის განულებას შესაძლოა, გავლენა ჰქონდეს ბრაუზერის დასინქრონებულ მონაცემებზე.
 password-reset-email-input =
     .label = შეიყვანეთ თქვენი ელფოსტა
 password-reset-submit-button-2 = განაგრძეთ
@@ -2074,6 +2108,7 @@ signin-passkey-fallback-heading = დასინქრონებისთვ�
 signin-passkey-fallback-body = თქვენი მონაცემების უსაფრთხოებისთვის ამ საშვის გამოყენებისას პაროლი უნდა შეიყვანოთ.
 signin-passkey-fallback-password-label = პაროლი
 signin-passkey-fallback-continue = განაგრძეთ
+signin-passkey-fallback-forgot-password-link = დაგავიწყდათ პაროლი?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

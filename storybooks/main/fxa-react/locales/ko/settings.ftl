@@ -312,6 +312,9 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
     .aria-label = { -brand-firefox } 창에는 녹색 확인 표시를 나타내는 원형 배지와 VPN이 활성화되었음을 나타내는 "VPN"이 표시됩니다.
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox } 로고
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -1176,7 +1179,7 @@ passkey-sub-row-created-date = 생성: { $createdDate }
 # This is a string that shows when the user's passkey was last used.
 # Variables:
 #   $lastUsedDate (String) - a localized date string
-passkey-sub-row-last-used-date = 마지막 사용: { $lastUsedDate }
+passkey-sub-row-last-used-date = 최근 사용: { $lastUsedDate }
 passkey-sub-row-delete-title = 패스키 삭제
 passkey-delete-modal-heading = 패스키를 삭제 하시겠습니까?
 passkey-delete-modal-cancel-button = 취소

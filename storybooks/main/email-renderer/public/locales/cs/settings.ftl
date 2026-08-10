@@ -337,7 +337,7 @@ confetti-falling-image-aria-label =
 vpn-welcome-image-aria-label =
     .aria-label = Okno { -brand-firefox(case: "gen") } s kruhovým odznakem, na kterém je zelená zaškrtávací značka a nápis „VPN“, což signalizuje, že je VPN aktivní.
 sync-devices-image-aria-label =
-    .aria-label = Okno prohlížeče na počítači a mobilním telefonu (oba synchronizované) s maskotem { -brand-firefox } vedle sebe
+    .aria-label = Okno prohlížeče na stolním počítači a mobilní telefon, oba se synchronizují, a vedle nich maskot aplikace { -brand-firefox }
 # Aria label for the Firefox logo and wordmark shown together as a brand lockup
 firefox-wordmark-image-aria-label =
     .aria-label = Logo { -brand-firefox(case: "gen") }
@@ -527,15 +527,15 @@ flow-recovery-key-hint-unsafe-char-error = Nápověda nemůže obsahovat nebezpe
 password-reset-warning-icon = Varování
 password-reset-chevron-expanded = Skrýt varování
 password-reset-chevron-collapsed = Rozbalit varování
-password-reset-warning-review-sign-in-options = Podívejte se na možnosti přihlášení pro uchování dat prohlížeče
+password-reset-warning-review-sign-in-options = Projděte si možnosti přihlášení, abyste si zachovali data prohlížeče
 password-reset-warning-have-key = Máte k účtu obnovovací klíč?
 # "it" refers to the user's account recovery key.
-password-reset-warning-use-key-link-v2 = Použijte jej k obnovení hesla a uchování dat prohlížeče
+password-reset-warning-use-key-link-v2 = Použijte tuto možnost k obnovení hesla a zachování údajů v prohlížeči
 password-reset-warning-signed-in-device = Jste stále přihlášeni na jiném zařízení?
-password-reset-warning-signed-in-device-description = Data o prohlížeči mohou být dostupná. Obnovte heslo a poté se na tomto zařízení přihlaste pro obnovu a synchronizaci svých dat.
-password-reset-warning-restore-data-link = Přečtěte si, jak obnovit data prohlížeče na zařízení, ve kterém jste přihlášeni
+password-reset-warning-signed-in-device-description = Možná jsou k dispozici údaje z vašeho prohlížeče. Obnovte si heslo, a poté se na daném zařízení přihlaste, abyste obnovili a synchronizovali svá data.
+password-reset-warning-restore-data-link = Zjistěte, jak obnovit data prohlížeče ze zařízení, na kterém jste přihlášeni
 password-reset-warning-new-device = Používáte nové zařízení, ale nemáte přístup ke svým starým?
-password-reset-warning-new-device-description = Po obnovení vašeho hesla nebudou na tomto zařízení dostupná šifrovaná data uložená na { -brand-firefox } serverech.
+password-reset-warning-new-device-description = Po obnovení hesla nebudou na tomto zařízení k dispozici šifrovaná data prohlížeče uložená na serverech { -brand-firefox(case: "gen") }.
 
 ## Alert Bar
 
@@ -1567,7 +1567,7 @@ passkey-authentication-error-not-allowed-existing = Nastavení přístupového k
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Vypršel časový limit požadavku na přístupový klíč. Zkuste to prosím znovu.
 # Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
-passkey-authentication-error-timeout-v2 = Vypršel čas přihlášení pomocí hesla. Zkuste to znovu.
+passkey-authentication-error-timeout-v2 = Vypršela časová lhůta pro přihlášení pomocí přístupového klíče. Zkuste to znovu.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Váš prohlížeč nebo zařízení nepodporuje přístupové klíče.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)

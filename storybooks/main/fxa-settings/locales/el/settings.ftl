@@ -153,6 +153,9 @@ device-info-block-location-unknown = Άγνωστη τοποθεσία
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $browserName } σε { $genericOSName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $browserName } σε { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = Διεύθυνση IP: { $ipAddress }
@@ -330,6 +333,15 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
     .aria-label = Ένα παράθυρο του { -brand-firefox } με κυκλικό σήμα που δείχνει ένα πράσινο σημάδι ελέγχου και το «VPN», που υποδεικνύει ότι το VPN είναι ενεργό.
+sync-devices-image-aria-label =
+    .aria-label = Ένα παράθυρο προγράμματος περιήγησης για υπολογιστή και ένα κινητό τηλέφωνο, συγχρονισμένα, με τη μασκότ του { -brand-firefox } δίπλα τους
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = Λογότυπο { -brand-firefox }
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = Απεικόνιση μιας επιτυχούς αλλαγής κωδικού πρόσβασης.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -1856,6 +1868,17 @@ pair-unsupported-learn-more-link-v2 = Μάθετε περισσότερα
 # Matches the legacy Backbone "Oops! Something went wrong." message.
 pair-unsupported-desktop-firefox-fallback-header-v2 = Ωχ! Κάτι πήγε στραβά.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Κλείστε αυτήν την καρτέλα και δοκιμάστε ξανά.
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = Ένα τελευταίο βήμα πριν το συγχρονισμό
+pair2-supplicant-approve-sign-in-instruction = Εγκρίνετε τη σύνδεση στον υπολογιστή σας.
+# Dismisses the pairing attempt
+pair2-supplicant-approve-sign-in-cancel-button = Ακύρωση
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

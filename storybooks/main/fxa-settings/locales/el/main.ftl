@@ -216,6 +216,7 @@ device-info-block-location-city-country = { $city }, { $country } (εκτίμη�
 device-info-block-location-country = { $country } (εκτίμηση)
 device-info-block-location-unknown = Άγνωστη τοποθεσία
 device-info-browser-os = { $browserName } σε { $genericOSName }
+device-info-browser-device = { $browserName } σε { $deviceName }
 device-info-ip-address = Διεύθυνση IP: { $ipAddress }
 
 
@@ -349,6 +350,12 @@ confetti-falling-image-aria-label =
     .aria-label = Κινούμενη πτώση κομφετί
 vpn-welcome-image-aria-label =
     .aria-label = Ένα παράθυρο του { -brand-firefox } με κυκλικό σήμα που δείχνει ένα πράσινο σημάδι ελέγχου και το «VPN», που υποδεικνύει ότι το VPN είναι ενεργό.
+sync-devices-image-aria-label =
+    .aria-label = Ένα παράθυρο προγράμματος περιήγησης για υπολογιστή και ένα κινητό τηλέφωνο, συγχρονισμένα, με τη μασκότ του { -brand-firefox } δίπλα τους
+firefox-wordmark-image-aria-label =
+    .aria-label = Λογότυπο { -brand-firefox }
+password-success-image-aria-label =
+    .aria-label = Απεικόνιση μιας επιτυχούς αλλαγής κωδικού πρόσβασης.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Συνδεθήκατε στο { -brand-firefox }.
@@ -1373,6 +1380,11 @@ pair-unsupported-connecting-mobile-instructions-v2 = Ανοίξτε το { -bran
 pair-unsupported-learn-more-link-v2 = Μάθετε περισσότερα
 pair-unsupported-desktop-firefox-fallback-header-v2 = Ωχ! Κάτι πήγε στραβά.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Κλείστε αυτήν την καρτέλα και δοκιμάστε ξανά.
+
+
+pair2-supplicant-approve-sign-in-heading = Ένα τελευταίο βήμα πριν το συγχρονισμό
+pair2-supplicant-approve-sign-in-instruction = Εγκρίνετε τη σύνδεση στον υπολογιστή σας.
+pair2-supplicant-approve-sign-in-cancel-button = Ακύρωση
 
 
 service-welcome-signup-success-banner = Ο { -product-mozilla-account(case: "nom", capitalization: "lower") } επιβεβαιώθηκε

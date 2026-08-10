@@ -152,6 +152,7 @@ device-info-block-location-city-country = ‏{ $city }, { $country } (משוער
 device-info-block-location-country = { $country } (משוער)
 device-info-block-location-unknown = מיקום לא ידוע
 device-info-browser-os = ‏{ $browserName } ב־{ $genericOSName }
+device-info-browser-device = ‏{ $browserName } ב־{ $deviceName }
 device-info-ip-address = כתובת IP:‏ { $ipAddress }
 
 
@@ -272,6 +273,12 @@ confetti-falling-image-aria-label =
     .aria-label = קונפטי נופל מונפש
 vpn-welcome-image-aria-label =
     .aria-label = חלון של { -brand-firefox } עם תג עגול המציג סימן וי ירוק ו־״VPN״, המציין שה־VPN פעיל.
+sync-devices-image-aria-label =
+    .aria-label = חלון דפדפן של מחשב שולחני וטלפון נייד, שניהם מסתנכרנים, כשלצידם הקמע של { -brand-firefox }
+firefox-wordmark-image-aria-label =
+    .aria-label = הלוגו של { -brand-firefox }
+password-success-image-aria-label =
+    .aria-label = איור המייצג שינוי ססמה מוצלח.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = התחברת ל־{ -brand-firefox }.
@@ -1251,6 +1258,11 @@ pair-unsupported-connecting-mobile-instructions-v2 = יש לפתוח את { -bra
 pair-unsupported-learn-more-link-v2 = מידע נוסף
 pair-unsupported-desktop-firefox-fallback-header-v2 = אופס! משהו השתבש.
 pair-unsupported-desktop-firefox-fallback-message-v2 = נא לסגור לשונית זו ולנסות שוב.
+
+
+pair2-supplicant-approve-sign-in-heading = שלב אחרון לסנכרון
+pair2-supplicant-approve-sign-in-instruction = אישור הכניסה במחשב שלך.
+pair2-supplicant-approve-sign-in-cancel-button = ביטול
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account(case: "the") } אומת

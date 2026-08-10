@@ -206,6 +206,7 @@ freeTrialEndingReminder-content-trial-ending-plaintext = 무료 평가판이 { $
 #   $invoiceTotal (String) - The total amount that will be charged, e.g. $9.99
 #   $serviceLastActiveDateOnly (String) - The date the charge will occur, e.g. January 20, 2016
 freeTrialEndingReminder-content-auto-charge = 그 이전에 취소하지 않으면 구독이 자동으로 시작되며 <strong>{ $serviceLastActiveDateOnly }</strong>에 계정으로 <strong>{ $invoiceTotal }</strong> 금액이 청구됩니다.
+freeTrialEndingReminder-content-auto-charge-plaintext = 그 전에 취소하지 않으면, 구독이 자동으로 시작되며 { $serviceLastActiveDateOnly }에 귀하의 계정으로 { $invoiceTotal }이 청구됩니다.
 freeTrialEndingReminder-content-charge-heading = 상세정보 변경하기
 # Variables:
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
@@ -220,6 +221,22 @@ freeTrialEndingReminder-content-charge-discount-2 = 할인
 #   $invoiceTaxAmount (String) - The tax amount, e.g. $1.20
 freeTrialEndingReminder-content-charge-tax = 세금: { $invoiceTaxAmount }
 freeTrialEndingReminder-content-charge-tax-2 = 세금
+# Variables:
+#   $serviceLastActiveDateOnly (String) - The date the charge will occur, e.g. January 20, 2016
+#   $invoiceTotal (String) - The total amount due, e.g. $9.99
+freeTrialEndingReminder-content-charge-total = { $serviceLastActiveDateOnly }의 총액: { $invoiceTotal }
+freeTrialEndingReminder-content-charge-total-2 = 총액: { $serviceLastActiveDateOnly }
+freeTrialEndingReminder-content-account-link = <a data-l10n-name="freeTrialEndingReminder-update-billing">여기</a>에서 결제 방법과 계정 정보를 검토하거나 업데이트 할 수 있습니다.
+freeTrialEndingReminder-content-account-link-plaintext = 여기에서 지불 방법과 계정 정보를 검토하거나 업데이트 할 수 있습니다:
+# Variables:
+#   $serviceLastActiveDateOnly (String) - The date the trial ends, e.g. January 20, 2016
+freeTrialEndingReminder-content-cancel-link = 요금이 청구되지 않도록 하려면 <strong>{ $serviceLastActiveDateOnly }</strong> 전에 취소하세요: <a data-l10n-name="freeTrialEndingReminder-cancel-subscription">구독 취소</a>
+freeTrialEndingReminder-content-cancel-link-plaintext = 요금이 청구되지 않도록 하려면 { $serviceLastActiveDateOnly } 전에 취소하세요:
+# Variables:
+#   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+freeTrialEndingReminder-content-thanks = { $productName }를 사용해 주셔서 감사합니다. 평가판 또는 구독에 대해 궁금한 점이 있으면 <a data-l10n-name="freeTrialEndingReminder-contact-support">연락</a>을 해주세요.
+freeTrialEndingReminder-content-thanks-plaintext = { $productName }를 사용해 주셔서 감사합니다. 평가판이나 구독에 대해 궁금한 점이 있으면 문의하시기 바랍니다.
+freeTrialEndingReminder-content-closing = 진심으로,
 # Variables:
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 freeTrialEndingReminder-content-signature = { $productName } 팀
@@ -262,6 +279,13 @@ subscriptionCancellation-outstanding-content-2 = { $productName } 구독을 취�
 # Variables
 #   $serviceLastActiveDateOnly (String) - The date of last active service, e.g. 01/20/2016
 subscriptionCancellation-content-continue = 서비스는 현재 청구 기간인 { $serviceLastActiveDateOnly }까지 계속 제공됩니다.
+# Variables
+#   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionCancellation-freeTrial-subject = { $productName } 무료 평가판이 취소되었습니다
+# Variables
+#   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+#   $trialEndDateOnly (String) - The date when the free trial ends, e.g. 01/20/2016
+subscriptionCancellation-freeTrial-content = { $productName } 무료 평가판이 취소되었습니다. 접근이 { $trialEndDateOnly }에 종료됩니다. 요금이 청구되지 않습니다.
 # Variables:
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionDowngrade-subject = { $productName }로 전환 완료
@@ -280,7 +304,26 @@ subscriptionDowngrade-content-charge-info = 다음 청구서부터 청구 금액
 # $productName (String) - The name of the new subscribed product, e.g. Mozilla VPN
 subscriptionDowngrade-content-install = { $productName }를 사용하기 위해 설치할 새 소프트웨어가 있는 경우 다운로드 지침이 포함된 별도의 이메일을 받게 됩니다.
 subscriptionDowngrade-content-auto-renew = 취소를 선택하지 않는 한 구독은 각 청구 기간을 자동으로 갱신합니다.
+# Variables
+#   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionEndingReminder-subject = { $productName } 구독이 곧 만료됩니다.
+subscriptionEndingReminder-title = { $productName } 구독이 곧 만료됩니다.
+# Variables:
+#   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+#   $serviceLastActiveDateOnly (String) - The date of last active service, e.g. 01/20/2016
+subscriptionEndingReminder-content-line1 = { $productName }에 대한 접근이 <strong>{ $serviceLastActiveDateOnly }</strong>에 종료됩니다.
+subscriptionEndingReminder-content-line2-v2 = { $productName }를 계속 사용하려면 <strong>{ $serviceLastActiveDateOnly }</strong> 전에 <a data-l10n-name="subscriptionEndingReminder-subscription-manage">구독 관리</a>에서 구독을 계속할 수 있습니다. 도움이 필요하면 <a data-l10n-name="subscriptionEndingReminder-contact-support">지원 팀에 문의</a>하세요.
+subscriptionEndingReminder-content-line1-plaintext = { $productName }에 대한 접근이 { $serviceLastActiveDateOnly }에 종료됩니다.
+subscriptionEndingReminder-content-line2-plaintext-v2 = { $productName }를 계속 사용하려면 { $serviceLastActiveDateOnly } 전에 구독 관리에서 구독을 계속할 수 있습니다. 도움이 필요하면 지원 팀에 문의하세요.
 subscriptionEndingReminder-content-closing = 구독해 주셔서 감사합니다!
+subscriptionEndingReminder-churn-title = 계속 사용하시겠습니까?
+subscriptionEndingReminder-churn-terms = <a data-l10n-name="subscriptionEndingReminder-churn-terms">제한된 이용 약관과 제한 사항이 적용</a>
+# Variables:
+#  $churnTermsUrlWithUtm (String) - URL to the terms and restrictions page applied to this promotion
+subscriptionEndingReminder-churn-terms-plaintext = 제한된 약관과 제한 사항이 적용됨: { $churnTermsUrlWithUtm }
+# Variables:
+#  $subscriptionSupportUrlWithUtm (String) - URL to the subscription products support page
+subscriptionEndingReminder-content-support-plaintext = 지원팀에 문의: { $subscriptionSupportUrlWithUtm }
 #  Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionFailedPaymentsCancellation-subject = { $productName } 구독이 취소됨
@@ -327,7 +370,16 @@ subscriptionPaymentProviderCancelled-content-detect = { $productName }에 대한
 subscriptionPaymentProviderCancelled-content-reason-1 = 결제 방법이 만료되었거나 현재 결제 방법이 오래되었을 수 있습니다.
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-subject-2 = { $productName } 구독이 재활성화됨
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-freeTrial-subject = { $productName } 평가판이 다시 활성화됨
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = { $productName } 구독을 다시 활성화해 주셔서 감사합니다!
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-freeTrial-title = { $productName } 평가판을 다시 활성화해 주셔서 감사합니다!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20
@@ -339,6 +391,28 @@ subscriptionRenewalReminder-title = 구독이 곧 갱신됩니다
 # Variables
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionRenewalReminder-content-greeting = { $productName } 고객님께,
+# Variables
+#   $reminderLength (String) - The number of days until the current subscription is set to automatically renew, e.g. 14
+subscriptionRenewalReminder-content-intro = 현재 구독은 { $reminderLength }일 후 자동 갱신으로 설정되었습니다.
+subscriptionRenewalReminder-content-discount-change = 이전 할인이 종료되고 새로운 할인이 적용되었기 때문에, 다음 청구서에 가격 변동이 반영됩니다.
+subscriptionRenewalReminder-content-discount-ending = 이전 할인이 종료되어 구독이 표준 가격으로 갱신됩니다.
+# Variables
+#   $invoiceTotalExcludingTax (String) - The amount of the subscription invoice before tax, including currency, e.g. $10.00
+#   $invoiceTax (String) - The tax amount of the subscription invoice, including currency, e.g. $1.29
+subscriptionRenewalReminder-content-charge-with-tax-day = 그때가 되면 { -brand-mozilla }가 일일 구독을 갱신하고 계정에 등록된 결제 수단으로 { $invoiceTotalExducingTax } + { $invoiceTax }의 세금이 부과됩니다.
+subscriptionRenewalReminder-content-charge-with-tax-week = 그때가 되면 { -brand-mozilla }가 주간 구독을 갱신하고 계정에 등록된 결제 수단으로 { $invoiceTotalExducingTax } + { $invoiceTax }의 세금이 부과됩니다.
+subscriptionRenewalReminder-content-charge-with-tax-month = 그 때가 되면 { -brand-mozilla }가 월간 구독을 갱신하고 계정에 등록된 결제 수단으로 { $invoiceTotalExducingTax } + { $invoiceTax }의 세금이 부과됩니다.
+subscriptionRenewalReminder-content-charge-with-tax-halfyear = 그 때가 되면 { -brand-mozilla }가 6개월 구독을 갱신하고 계정에 등록된 결제 수단으로 { $invoiceTotalExducingTax } + { $invoiceTax }의 세금이 부과됩니다.
+subscriptionRenewalReminder-content-charge-with-tax-year = 그때가 되면 { -brand-mozilla }가 연간 구독을 갱신하고 계정에 등록된 결제 수단으로 { $invoiceTotalExducingTax } + { $invoiceTax }의 세금이 부과됩니다.
+subscriptionRenewalReminder-content-charge-with-tax-default = 그때가 되면 { -brand-mozilla }가 구독을 갱신하고 계정에 등록된 결제 수단으로 { $invoiceTotalExhavingTax } + { $invoiceTax }의 세금이 부과됩니다.
+# Variables
+#   $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
+subscriptionRenewalReminder-content-charge-invoice-total-day = 그 때 { -brand-mozilla }가 일일 구독을 갱신하고 계정에 등록된 결제 수단으로 { $invoiceTotal }의 요금이 청구됩니다.
+subscriptionRenewalReminder-content-charge-invoice-total-week = 그 때가 되면 { -brand-mozilla }가 주간 구독을 갱신하고 계정에 등록된 결제 수단으로 { $invoiceTotal }의 요금이 청구됩니다.
+subscriptionRenewalReminder-content-charge-invoice-total-month = 그 때 { -brand-mozilla }가 월간 구독을 갱신하고 계정에 등록된 결제 수단으로 { $invoiceTotal }의 요금이 청구됩니다.
+subscriptionRenewalReminder-content-charge-invoice-total-halfyear = 그 때가 되면 { -brand-mozilla }가 6개월 구독을 갱신하고 계정에 등록된 결제 수단으로 { $invoiceTotal }의 금액을 청구할 예정입니다.
+subscriptionRenewalReminder-content-charge-invoice-total-year = 그 때가 되면 { -brand-mozilla }가 연간 구독을 갱신하고 계정에 등록된 결제 수단으로 { $invoiceTotal }의 금액을 청구할 예정입니다.
+subscriptionRenewalReminder-content-charge-invoice-total-default = 그 때 { -brand-mozilla }가 구독을 갱신하고 계정에 등록된 결제 수단으로 { $invoiceTotal }의 요금이 청구됩니다.
 subscriptionRenewalReminder-content-closing = 진심으로,
 # Variables
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN

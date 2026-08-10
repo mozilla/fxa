@@ -186,6 +186,7 @@ device-info-block-location-city-country = { $city }, { $country } (მიახ�
 device-info-block-location-country = { $country } (მიახლოებით)
 device-info-block-location-unknown = მდებარეობა უცნობია
 device-info-browser-os = { $browserName } სისტემაზე { $genericOSName }
+device-info-browser-device = { $browserName } მოწყობ. { $deviceName }
 device-info-ip-address = IP-მისამართი: { $ipAddress }
 
 
@@ -319,6 +320,12 @@ confetti-falling-image-aria-label =
     .aria-label = მოძრავი ტკბილეულობის ცვენა
 vpn-welcome-image-aria-label =
     .aria-label = { -brand-firefox } ფანჯარა წრიული სამკერდით, რომელზეც ჩანს მწვანე მონიშვნა და „VPN“, მიუთითებს, რომ VPN მოქმედია.
+sync-devices-image-aria-label =
+    .aria-label = კომპიუტერის ბრაუზერის ფანჯარა და მობილური ტელეფონი, ორივე დასინქრონებულია და თილისმა { -brand-firefox } მათ გვერდითაა
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox }-ლოგო
+password-success-image-aria-label =
+    .aria-label = გამოსახულება, რომლითაც ნაჩვენებია პაროლის წარმატებით შეცვლა.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = შესული ხართ, მოგესალმებათ { -brand-firefox }.
@@ -355,6 +362,7 @@ link-expired-new-link-button = ახალი ბმულის მიღე�
 
 
 remember-password-text = გაგახსენდათ პაროლი?
+remember-password-passkey-text = გაქვთ საშვი, თუ გაგახსენდათ თქვენი პაროლი?
 remember-password-signin-link = შესვლა
 
 
@@ -428,7 +436,14 @@ flow-recovery-key-hint-unsafe-char-error = მინიშნება არ �
 password-reset-warning-icon = გაფრთხილება
 password-reset-chevron-expanded = გაფრთხილების აკეცვა
 password-reset-chevron-collapsed = გაფრთხილების გაშლა
+password-reset-warning-review-sign-in-options = გადახედეთ შესვლის გზებს ბრაუზერის მონაცემთა შესანარჩუნებლად
 password-reset-warning-have-key = გაქვთ ანგარიშის აღდგენის გასაღების?
+password-reset-warning-use-key-link-v2 = გამოიყენეთ პაროლის გასანულებლად მონაცემების დაკარგვის გარეშე
+password-reset-warning-signed-in-device = ჯერ კიდევ შესულია სხვა მოწყობილობიდან?
+password-reset-warning-signed-in-device-description = თქვენი ბრაუზერის მონაცემები შესაძლოა ჯერ კიდევ იყოს ხელმისაწვდომი. გაანულეთ პაროლი, შემდეგ შედით იმ მოწყობილობაზე მონაცემების აღდგენისა და დასინქრონებისთვის.
+password-reset-warning-restore-data-link = იხილეთ, როგორ უნდა აღდგეს ბრაუზერის მონაცემები შესული მოწყობილობიდან
+password-reset-warning-new-device = ახალ მოწყობილობას იყენებთ, მაგრამ ძველთან წვდომა ვერ ხერხდება?
+password-reset-warning-new-device-description = პაროლის განულების შემდგომ, თქვენი დაშიფრული მონაცემები, რომელსაც { -brand-firefox } ინახავს სერვერებზე, ვეღარ აღდგება.
 
 
 alert-bar-close-message = შეტყობინების დახურვა
@@ -1334,6 +1349,11 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = უჰ, რაღაც �
 pair-unsupported-desktop-firefox-fallback-message-v2 = გთხოვთ დახუროთ ჩანართი და კვლავ სცადოთ.
 
 
+pair2-supplicant-approve-sign-in-heading = ბოლო ნაბიჯი დასინქრონებისთვის
+pair2-supplicant-approve-sign-in-instruction = დაადასტურეთ შესვლა თქვენს კომპიუტერზე.
+pair2-supplicant-approve-sign-in-cancel-button = გაუქმება
+
+
 service-welcome-signup-success-banner = { -product-mozilla-account } დამოწმებულია
 service-welcome-signin-success-banner = შესვლა წარმატებულია!
 service-welcome-vpn-heading = შემდეგ: ჩართეთ VPN
@@ -1395,6 +1415,7 @@ confirm-totp-reset-password-use-different-account = სხვა ანგარ
 
 
 password-reset-flow-heading = პაროლის განულება
+password-reset-body-3 = პაროლის განულებას შესაძლოა, გავლენა ჰქონდეს ბრაუზერის დასინქრონებულ მონაცემებზე.
 password-reset-email-input =
     .label = შეიყვანეთ თქვენი ელფოსტა
 password-reset-submit-button-2 = განაგრძეთ
@@ -1483,6 +1504,7 @@ signin-passkey-fallback-heading = დასინქრონებისთვ�
 signin-passkey-fallback-body = თქვენი მონაცემების უსაფრთხოებისთვის ამ საშვის გამოყენებისას პაროლი უნდა შეიყვანოთ.
 signin-passkey-fallback-password-label = პაროლი
 signin-passkey-fallback-continue = განაგრძეთ
+signin-passkey-fallback-forgot-password-link = დაგავიწყდათ პაროლი?
 
 
 

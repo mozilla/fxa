@@ -268,6 +268,8 @@ confetti-falling-image-aria-label =
     .aria-label = 움직이며 떨어지는 색종이 조각
 vpn-welcome-image-aria-label =
     .aria-label = { -brand-firefox } 창에는 녹색 확인 표시를 나타내는 원형 배지와 VPN이 활성화되었음을 나타내는 "VPN"이 표시됩니다.
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox } 로고
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = { -brand-firefox }에 로그인했습니다.
@@ -866,7 +868,7 @@ tfa-row-backup-phone-delete-restriction-v2 = 복구 전화번호를 제거하고
 tfa-row-backup-phone-description-v2 = 인증 앱을 사용할 수 없을 때 가장 쉬운 복구 방법입니다.
 tfa-row-backup-phone-sim-swap-risk-link = SIM 교체 위험에 대해 알아보기
 passkey-sub-row-created-date = 생성: { $createdDate }
-passkey-sub-row-last-used-date = 마지막 사용: { $lastUsedDate }
+passkey-sub-row-last-used-date = 최근 사용: { $lastUsedDate }
 passkey-sub-row-delete-title = 패스키 삭제
 passkey-delete-modal-heading = 패스키를 삭제 하시겠습니까?
 passkey-delete-modal-cancel-button = 취소

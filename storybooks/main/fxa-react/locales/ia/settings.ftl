@@ -153,6 +153,9 @@ device-info-block-location-unknown = Loco incognite
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $browserName } sur { $genericOSName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $browserName } sur { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = Adresse IP: { $ipAddress }
@@ -330,6 +333,15 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
     .aria-label = Le fenestra de { -brand-firefox } con un insignia circular monstra un quadrato de controlo verde e “VPN,” monstrante que le VPN es active.
+sync-devices-image-aria-label =
+    .aria-label = Un fenestra de navigator pro scriptorio e un smartphono, ambe synchronisante se con le mascotte de { -brand-firefox } preter illos
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = Logo de { -brand-firefox }
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = Illustration pro representar un modification de contrasigno con successo.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -1858,6 +1870,17 @@ pair-unsupported-learn-more-link-v2 = Pro saper plus
 # Matches the legacy Backbone "Oops! Something went wrong." message.
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oppla! Alco errate eveniva.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Claude iste scheda e reproba.
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = Un ultime passo pro synchronisar
+pair2-supplicant-approve-sign-in-instruction = Approba le accesso sur tu computator.
+# Dismisses the pairing attempt
+pair2-supplicant-approve-sign-in-cancel-button = Cancellar
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

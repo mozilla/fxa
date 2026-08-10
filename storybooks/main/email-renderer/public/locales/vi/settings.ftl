@@ -141,6 +141,9 @@ device-info-block-location-unknown = Vị trí không xác định
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $browserName } trên { $genericOSName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $browserName } trên { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = Địa chỉ IP: { $ipAddress }
@@ -318,6 +321,15 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
     .aria-label = Cửa sổ { -brand-firefox } với huy hiệu hình tròn hiển thị dấu tích màu xanh lá cây và chữ “VPN”, cho thấy VPN đang hoạt động.
+sync-devices-image-aria-label =
+    .aria-label = Một cửa sổ trình duyệt trên máy tính để bàn và một điện thoại di động, cả hai đều đang đồng bộ hóa, với linh vật { -brand-firefox } xuất hiện bên cạnh.
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = Logo { -brand-firefox }
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = Hình minh họa thể hiện việc thay đổi mật khẩu thành công.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -1828,6 +1840,17 @@ pair-unsupported-learn-more-link-v2 = Tìm hiểu thêm
 # Matches the legacy Backbone "Oops! Something went wrong." message.
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oops! Có gì đó không ổn.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Vui lòng đóng thẻ này và thử lại.
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = Một bước nữa để đồng bộ hoá
+pair2-supplicant-approve-sign-in-instruction = Xác nhận đăng nhập trên máy tính của bạn.
+# Dismisses the pairing attempt
+pair2-supplicant-approve-sign-in-cancel-button = Hủy bỏ
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

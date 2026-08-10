@@ -162,7 +162,7 @@ device-info-ip-address = IP-adresse: { $ipAddress }
 ## the user is on Firefox) or switching to Firefox (on other browsers).
 
 firefox-promo-banner-mobile-heading = Få { -brand-firefox } uanset hvor du er
-firefox-promo-banner-mobile-description = Synkroniser dine faneblade, bogmærker og adgangskoder på tværs af dine enheder. Alt sikkert bliver sikkert krypteret.
+firefox-promo-banner-mobile-description = Synkroniser dine faneblade, bogmærker og adgangskoder på tværs af dine enheder. Derudover bliver alt sikkert krypteret.
 firefox-promo-banner-mobile-cta = Opret forbindelse til en enhed
 firefox-promo-banner-switch-heading = Hurtig at skifte. Nem at vænne sig til.
 firefox-promo-banner-switch-description = Når du skifter til { -brand-firefox }, kan du medbringe dine bogmærker, adgangskoder, historik og mere, så du kan komme i gang med at browse uden at gå glip af noget.
