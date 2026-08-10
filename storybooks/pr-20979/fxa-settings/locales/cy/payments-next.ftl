@@ -644,7 +644,6 @@ next-sub-guarantee = Gwarant arian-yn-ôl 30 diwrnod
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = Amodau Gwasanaeth
 next-privacy = Hysbysiad Preifatrwydd
-next-terms-download = Amodau Llwytho i Lawr
 terms-and-privacy-stripe-label = Mae { -brand-mozilla } yn defnyddio { -brand-name-stripe } ar gyfer prosesu taliadau'n ddiogel.
 terms-and-privacy-stripe-link = polisi preifatrwydd { -brand-name-stripe }
 terms-and-privacy-paypal-label = Mae { -brand-mozilla } yn defnyddio { -brand-paypal } ar gyfer prosesu taliadau'n ddiogel.

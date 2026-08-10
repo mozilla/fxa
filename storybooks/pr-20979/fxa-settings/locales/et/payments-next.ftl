@@ -82,4 +82,3 @@ next-sub-guarantee = 30-päevane raha tagasi garantii
 
 next-terms = Teenuse tingimused
 next-privacy = Privaatsusreeglid
-next-terms-download = Laadi tingimused alla

@@ -631,7 +631,6 @@ next-sub-guarantee = החזר כספי מובטח תוך 30 יום
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts }
 next-terms = תנאי השירות
 next-privacy = הצהרת פרטיות
-next-terms-download = תנאי הורדה
 terms-and-privacy-stripe-label = ‏{ -brand-mozilla } משתמש ב־{ -brand-name-stripe } לצורך עיבוד תשלומים מאובטח.
 terms-and-privacy-stripe-link = מדיניות הפרטיות של { -brand-name-stripe }
 terms-and-privacy-paypal-label = ‏{ -brand-mozilla } משתמש ב־{ -brand-paypal } לצורך עיבוד תשלומים מאובטח.

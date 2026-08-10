@@ -161,7 +161,6 @@ next-sub-guarantee = Ṭṭmana n tiririt n yidrimen n 30 n wussan
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = Tiwtilin n useqdec
 next-privacy = Tasertit n tbaḍnit
-next-terms-download = Tiwtilin n usader
 terms-and-privacy-stripe-label = { -brand-mozilla } isseqdac { -brand-name-stripe } i usesfer aɣelsan n yiselliken.
 terms-and-privacy-stripe-link = Tasertit tabaḍnit n { -brand-name-stripe }
 terms-and-privacy-paypal-label = { -brand-mozilla } isseqdac { -brand-paypal } i usesfer aɣelsan n yiselliken.
