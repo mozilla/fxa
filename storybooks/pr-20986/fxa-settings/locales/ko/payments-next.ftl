@@ -41,6 +41,7 @@ auth-error-page-title = 로그인할 수 없습니다.
 checkout-error-boundary-retry-button = 다시 시도
 checkout-error-boundary-basic-error-message = 무언가 잘못되었습니다. 다시 시도하시거나 <contactSupportLink>지원 팀에 문의</contactSupportLink>하세요.
 amex-logo-alt-text = { -brand-amex } 로고
+diners-logo-alt-text2 = { -brand-diners } 로고
 discover-logo-alt-text = { -brand-discover } 로고
 jcb-logo-alt-text = { -brand-jcb } 로고
 mastercard-logo-alt-text = { -brand-mastercard } 로고

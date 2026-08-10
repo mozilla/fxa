@@ -156,6 +156,9 @@ device-info-block-location-unknown = Neznámá poloha
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $browserName } na { $genericOSName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $browserName } na zařízení { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP adresa: { $ipAddress }
@@ -333,6 +336,15 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
     .aria-label = Okno { -brand-firefox(case: "gen") } s kruhovým odznakem, na kterém je zelená zaškrtávací značka a nápis „VPN“, což signalizuje, že je VPN aktivní.
+sync-devices-image-aria-label =
+    .aria-label = Okno prohlížeče na stolním počítači a mobilní telefon, oba se synchronizují, a vedle nich maskot aplikace { -brand-firefox }
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = Logo { -brand-firefox(case: "gen") }
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = Ilustrace znázorňující úspěšnou změnu hesla.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -515,15 +527,15 @@ flow-recovery-key-hint-unsafe-char-error = Nápověda nemůže obsahovat nebezpe
 password-reset-warning-icon = Varování
 password-reset-chevron-expanded = Skrýt varování
 password-reset-chevron-collapsed = Rozbalit varování
-password-reset-warning-review-sign-in-options = Podívejte se na možnosti přihlášení pro uchování dat prohlížeče
+password-reset-warning-review-sign-in-options = Projděte si možnosti přihlášení, abyste si zachovali data prohlížeče
 password-reset-warning-have-key = Máte k účtu obnovovací klíč?
 # "it" refers to the user's account recovery key.
-password-reset-warning-use-key-link-v2 = Použijte jej k obnovení hesla a uchování dat prohlížeče
+password-reset-warning-use-key-link-v2 = Použijte tuto možnost k obnovení hesla a zachování údajů v prohlížeči
 password-reset-warning-signed-in-device = Jste stále přihlášeni na jiném zařízení?
-password-reset-warning-signed-in-device-description = Data o prohlížeči mohou být dostupná. Obnovte heslo a poté se na tomto zařízení přihlaste pro obnovu a synchronizaci svých dat.
-password-reset-warning-restore-data-link = Přečtěte si, jak obnovit data prohlížeče na zařízení, ve kterém jste přihlášeni
+password-reset-warning-signed-in-device-description = Možná jsou k dispozici údaje z vašeho prohlížeče. Obnovte si heslo, a poté se na daném zařízení přihlaste, abyste obnovili a synchronizovali svá data.
+password-reset-warning-restore-data-link = Zjistěte, jak obnovit data prohlížeče ze zařízení, na kterém jste přihlášeni
 password-reset-warning-new-device = Používáte nové zařízení, ale nemáte přístup ke svým starým?
-password-reset-warning-new-device-description = Po obnovení vašeho hesla nebudou na tomto zařízení dostupná šifrovaná data uložená na { -brand-firefox } serverech.
+password-reset-warning-new-device-description = Po obnovení hesla nebudou na tomto zařízení k dispozici šifrovaná data prohlížeče uložená na serverech { -brand-firefox(case: "gen") }.
 
 ## Alert Bar
 
@@ -1555,7 +1567,7 @@ passkey-authentication-error-not-allowed-existing = Nastavení přístupového k
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Vypršel časový limit požadavku na přístupový klíč. Zkuste to prosím znovu.
 # Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
-passkey-authentication-error-timeout-v2 = Vypršel čas přihlášení pomocí hesla. Zkuste to znovu.
+passkey-authentication-error-timeout-v2 = Vypršela časová lhůta pro přihlášení pomocí přístupového klíče. Zkuste to znovu.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Váš prohlížeč nebo zařízení nepodporuje přístupové klíče.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
@@ -1858,6 +1870,17 @@ pair-unsupported-learn-more-link-v2 = Zjistit více
 # Matches the legacy Backbone "Oops! Something went wrong." message.
 pair-unsupported-desktop-firefox-fallback-header-v2 = Jejda! Něco se pokazilo.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Zavřete prosím tento panel a zkuste to znovu.
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = Poslední krok k synchronizaci
+pair2-supplicant-approve-sign-in-instruction = Schvalte přihlášení na svém počítači.
+# Dismisses the pairing attempt
+pair2-supplicant-approve-sign-in-cancel-button = Zrušit
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

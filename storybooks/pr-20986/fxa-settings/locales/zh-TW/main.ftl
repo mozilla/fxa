@@ -136,6 +136,7 @@ device-info-block-location-city-country = { $country } { $city }（估計地點�
 device-info-block-location-country = { $country }（估計地點）
 device-info-block-location-unknown = 未知地點
 device-info-browser-os = { $genericOSName } 上的 { $browserName }
+device-info-browser-device = { $deviceName } 上的 { $browserName }
 device-info-ip-address = IP 位置：{ $ipAddress }
 
 
@@ -269,6 +270,12 @@ confetti-falling-image-aria-label =
     .aria-label = 射出紙花的動畫
 vpn-welcome-image-aria-label =
     .aria-label = 包含圓形徽章，顯示綠色勾勾與「VPN」文字的 { -brand-firefox } 視窗，表示已開啟 VPN。
+sync-devices-image-aria-label =
+    .aria-label = 同步中的桌面版瀏覽器視窗與手機，周圍有 { -brand-firefox } 的吉祥物
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox } 圖示
+password-success-image-aria-label =
+    .aria-label = 表示已成功更改密碼的插圖。
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = 您已登入 { -brand-firefox }。
@@ -1262,6 +1269,11 @@ pair-unsupported-connecting-mobile-instructions-v2 = 於您的電腦使用 { -br
 pair-unsupported-learn-more-link-v2 = 更多資訊
 pair-unsupported-desktop-firefox-fallback-header-v2 = 喔喔，有些東西不對勁！
 pair-unsupported-desktop-firefox-fallback-message-v2 = 請關閉這個分頁然後再試一次。
+
+
+pair2-supplicant-approve-sign-in-heading = 完成最後一步即可開始同步
+pair2-supplicant-approve-sign-in-instruction = 請到您的電腦上確認登入。
+pair2-supplicant-approve-sign-in-cancel-button = 取消
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } 已確認

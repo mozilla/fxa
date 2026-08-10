@@ -437,6 +437,7 @@ device-info-block-location-city-country = { $city }, { $country } (odhad)
 device-info-block-location-country = { $country } (odhad)
 device-info-block-location-unknown = Neznámá poloha
 device-info-browser-os = { $browserName } na { $genericOSName }
+device-info-browser-device = { $browserName } na zařízení { $deviceName }
 device-info-ip-address = IP adresa: { $ipAddress }
 
 
@@ -570,6 +571,12 @@ confetti-falling-image-aria-label =
     .aria-label = Animované padající konfety
 vpn-welcome-image-aria-label =
     .aria-label = Okno { -brand-firefox(case: "gen") } s kruhovým odznakem, na kterém je zelená zaškrtávací značka a nápis „VPN“, což signalizuje, že je VPN aktivní.
+sync-devices-image-aria-label =
+    .aria-label = Okno prohlížeče na stolním počítači a mobilní telefon, oba se synchronizují, a vedle nich maskot aplikace { -brand-firefox }
+firefox-wordmark-image-aria-label =
+    .aria-label = Logo { -brand-firefox(case: "gen") }
+password-success-image-aria-label =
+    .aria-label = Ilustrace znázorňující úspěšnou změnu hesla.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Jste přihlášeni do { -brand-firefox(case: "gen") }.
@@ -680,14 +687,14 @@ flow-recovery-key-hint-unsafe-char-error = Nápověda nemůže obsahovat nebezpe
 password-reset-warning-icon = Varování
 password-reset-chevron-expanded = Skrýt varování
 password-reset-chevron-collapsed = Rozbalit varování
-password-reset-warning-review-sign-in-options = Podívejte se na možnosti přihlášení pro uchování dat prohlížeče
+password-reset-warning-review-sign-in-options = Projděte si možnosti přihlášení, abyste si zachovali data prohlížeče
 password-reset-warning-have-key = Máte k účtu obnovovací klíč?
-password-reset-warning-use-key-link-v2 = Použijte jej k obnovení hesla a uchování dat prohlížeče
+password-reset-warning-use-key-link-v2 = Použijte tuto možnost k obnovení hesla a zachování údajů v prohlížeči
 password-reset-warning-signed-in-device = Jste stále přihlášeni na jiném zařízení?
-password-reset-warning-signed-in-device-description = Data o prohlížeči mohou být dostupná. Obnovte heslo a poté se na tomto zařízení přihlaste pro obnovu a synchronizaci svých dat.
-password-reset-warning-restore-data-link = Přečtěte si, jak obnovit data prohlížeče na zařízení, ve kterém jste přihlášeni
+password-reset-warning-signed-in-device-description = Možná jsou k dispozici údaje z vašeho prohlížeče. Obnovte si heslo, a poté se na daném zařízení přihlaste, abyste obnovili a synchronizovali svá data.
+password-reset-warning-restore-data-link = Zjistěte, jak obnovit data prohlížeče ze zařízení, na kterém jste přihlášeni
 password-reset-warning-new-device = Používáte nové zařízení, ale nemáte přístup ke svým starým?
-password-reset-warning-new-device-description = Po obnovení vašeho hesla nebudou na tomto zařízení dostupná šifrovaná data uložená na { -brand-firefox } serverech.
+password-reset-warning-new-device-description = Po obnovení hesla nebudou na tomto zařízení k dispozici šifrovaná data prohlížeče uložená na serverech { -brand-firefox(case: "gen") }.
 
 
 alert-bar-close-message = Zavřít zprávu
@@ -1422,7 +1429,7 @@ passkey-authentication-trouble-link = Jak používat přístupové klíče
 passkey-authentication-error-not-allowed = Přihlášení pomocí přístupového klíče selhalo nebo je nedostupné. Zkuste to znovu nebo zvolte jiný způsob.
 passkey-authentication-error-not-allowed-existing = Nastavení přístupového klíče není u tohoto zařízení k dispozici. Zkuste to prosím znovu nebo zvolte jinou metodu.
 passkey-authentication-error-timeout = Vypršel časový limit požadavku na přístupový klíč. Zkuste to prosím znovu.
-passkey-authentication-error-timeout-v2 = Vypršel čas přihlášení pomocí hesla. Zkuste to znovu.
+passkey-authentication-error-timeout-v2 = Vypršela časová lhůta pro přihlášení pomocí přístupového klíče. Zkuste to znovu.
 passkey-authentication-error-not-supported-v2 = Váš prohlížeč nebo zařízení nepodporuje přístupové klíče.
 passkey-authentication-error-security = Na této stránce nelze použít přístupové klíče. Zkontrolujte, zda jste na správné zabezpečené stránce, a zkuste to znovu.
 passkey-authentication-error-invalid-state = S vaším přístupovým klíčem se něco pokazilo. Zkuste to znovu nebo použijte jinou metodu přihlášení.
@@ -1593,6 +1600,11 @@ pair-unsupported-connecting-mobile-instructions-v2 = Otevřete { -brand-firefox 
 pair-unsupported-learn-more-link-v2 = Zjistit více
 pair-unsupported-desktop-firefox-fallback-header-v2 = Jejda! Něco se pokazilo.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Zavřete prosím tento panel a zkuste to znovu.
+
+
+pair2-supplicant-approve-sign-in-heading = Poslední krok k synchronizaci
+pair2-supplicant-approve-sign-in-instruction = Schvalte přihlášení na svém počítači.
+pair2-supplicant-approve-sign-in-cancel-button = Zrušit
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } potvrzen

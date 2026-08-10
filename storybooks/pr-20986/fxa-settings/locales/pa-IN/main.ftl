@@ -141,6 +141,7 @@ device-info-block-location-city-country = { $city }, { $country } (ਅੰਦਾ�
 device-info-block-location-country = { $country } (ਅੰਦਾਜ਼ਨ)
 device-info-block-location-unknown = ਅਣਪਛਾਤਾ ਟਿਕਾਣਾ
 device-info-browser-os = { $genericOSName } ਰਾਹੀਂ { $browserName }
+device-info-browser-device = { $deviceName } ਉੱਤੇ { $browserName }
 device-info-ip-address = IP ਸਿਰਨਾਵਾਂ: { $ipAddress }
 
 
@@ -258,6 +259,12 @@ backup-authentication-codes-image-aria-label =
     .aria-label = ਕੋਡਾਂ ਨਾਲ ਡਿਵਾਈਸ ਸਕਰੀਨ
 sync-clouds-image-aria-label =
     .aria-label = ਸਿੰਕ ਆਈਕਾਨ ਨਾਲ ਕਲਾਉਡ
+sync-devices-image-aria-label =
+    .aria-label = ਡੈਸਕਟਾਪ ਬਰਾਊਜ਼ਰ ਵਿੰਡੋ ਅਤੇ ਮੋਬਾਈਲ ਫ਼ੋਨ ਦੋਵੇਂ { -brand-firefox } ਮਾਸਕੌਟ ਨਾਲ ਸਿੰਕ ਹੋ ਰਹੇ ਹਨ।
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox } ਲੋਗੋ
+password-success-image-aria-label =
+    .aria-label = ਕਿਸੇ ਕਾਮਯਾਬ ਪਾਸਵਰਡ ਤਬਦੀਲੀ ਨੂੰ ਦਰਸਾਉਂਦੀ ਸ਼ਕਲ ਹੈ।
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = ਤੁਸੀਂ { -brand-firefox } ਵਿੱਚ ਸਾਈਨ ਇਨ ਕਰ ਚੁੱਕੇ ਹੋ।
@@ -1020,6 +1027,11 @@ pair-wait-for-auth-heading-text = ਹੁਣ <span>ਤੁਹਾਡੇ ਹੋਰ �
 
 pair-unsupported-header = ਐਪ ਵਰਤ ਕੇ ਪੇਅਰ ਕਰੋ
 pair-unsupported-message = ਕੀ ਤੁਸੀਂ ਸਿਸਟਮ ਕੈਮਰਾ ਵਰਤਿਆ ਸੀ? ਤੁਹਾਨੂੰ { -brand-firefox } ਐਪ ਤੋਂ ਪੇਅਰ ਕਰਨਾ ਪਵੇਗਾ।
+
+
+pair2-supplicant-approve-sign-in-heading = ਸਿੰਕ ਕਰਨ ਲਈ ਆਖਰੀ ਪੜਾਅ
+pair2-supplicant-approve-sign-in-instruction = ਆਪਣੇ ਕੰਪਿਊਟਰ ਤੋਂ ਸਾਈਨ-ਇਨ ਨੂੰ ਮਨਜ਼ੂਰੀ ਦਿਓ।
+pair2-supplicant-approve-sign-in-cancel-button = ਰੱਦ ਕਰੋ
 
 
 

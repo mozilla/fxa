@@ -136,6 +136,7 @@ device-info-block-location-city-country = { $city }, { $country } (ước tính)
 device-info-block-location-country = { $country } (ước tính)
 device-info-block-location-unknown = Vị trí không xác định
 device-info-browser-os = { $browserName } trên { $genericOSName }
+device-info-browser-device = { $browserName } trên { $deviceName }
 device-info-ip-address = Địa chỉ IP: { $ipAddress }
 
 
@@ -269,6 +270,12 @@ confetti-falling-image-aria-label =
     .aria-label = Hoạt ảnh những mảnh giấy rơi
 vpn-welcome-image-aria-label =
     .aria-label = Cửa sổ { -brand-firefox } với huy hiệu hình tròn hiển thị dấu tích màu xanh lá cây và chữ “VPN”, cho thấy VPN đang hoạt động.
+sync-devices-image-aria-label =
+    .aria-label = Một cửa sổ trình duyệt trên máy tính để bàn và một điện thoại di động, cả hai đều đang đồng bộ hóa, với linh vật { -brand-firefox } xuất hiện bên cạnh.
+firefox-wordmark-image-aria-label =
+    .aria-label = Logo { -brand-firefox }
+password-success-image-aria-label =
+    .aria-label = Hình minh họa thể hiện việc thay đổi mật khẩu thành công.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Bạn đã đăng nhập vào { -brand-firefox }.
@@ -1277,6 +1284,11 @@ pair-unsupported-connecting-mobile-instructions-v2 = Mở { -brand-firefox } tr�
 pair-unsupported-learn-more-link-v2 = Tìm hiểu thêm
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oops! Có gì đó không ổn.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Vui lòng đóng thẻ này và thử lại.
+
+
+pair2-supplicant-approve-sign-in-heading = Một bước nữa để đồng bộ hoá
+pair2-supplicant-approve-sign-in-instruction = Xác nhận đăng nhập trên máy tính của bạn.
+pair2-supplicant-approve-sign-in-cancel-button = Hủy bỏ
 
 
 service-welcome-signup-success-banner = Đã xác nhận { -product-mozilla-account }

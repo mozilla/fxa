@@ -274,12 +274,14 @@ device-info-block-location-city-country = { $city }, { $country } (ocena)
 device-info-block-location-country = { $country } (ocena)
 device-info-block-location-unknown = Neznana lokacija
 device-info-browser-os = { $browserName } v { $genericOSName }
+device-info-browser-device = { $browserName } dne { $deviceName }
 device-info-ip-address = Naslov IP: { $ipAddress }
 
 
 firefox-promo-banner-mobile-heading = Prenesite { -brand-firefox(sklon: "tozilnik") } ne glede na to, kje ste
 firefox-promo-banner-mobile-description = Sinhronizirajte zavihke, zaznamke in gesla med svojimi napravami. Poleg tega vse ostane varno šifrirano.
 firefox-promo-banner-mobile-cta = Povežite napravo
+firefox-promo-banner-switch-heading = Preklopite hitro. Udobno nadaljujte.
 firefox-promo-banner-switch-description = Ko preklopite na { -brand-firefox }, lahko s seboj prihranite zaznamke, gesla, zgodovino in drugo, tako da lahko brskate, ne da bi zamudili trenutek.
 firefox-promo-banner-switch-cta = Preklopi na { -brand-firefox(sklon: "tozilnik") }
 
@@ -406,6 +408,12 @@ confetti-falling-image-aria-label =
     .aria-label = Animirani padajoči konfeti
 vpn-welcome-image-aria-label =
     .aria-label = Okno { -brand-firefox(sklon: "rodilnik") } z okroglo značko, ki prikazuje zeleno kljukico, in "VPN", ki kaže, da je VPN aktiven.
+sync-devices-image-aria-label =
+    .aria-label = Namizno okno brskalnika in mobilni telefon, oboje sinhronizirano, ob njem pa maskota { -brand-firefox }
+firefox-wordmark-image-aria-label =
+    .aria-label = Logotip { -brand-firefox(sklon: "rodilnik") }
+password-success-image-aria-label =
+    .aria-label = Ilustracija uspešne spremembe gesla.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Prijavljeni ste v { -brand-firefox }.
@@ -1244,6 +1252,7 @@ oauth-error-1000 = Nekaj je šlo narobe. Zaprite ta zavihek in poskusite znova.
 
 
 
+passkey-registration-error-not-allowed = Nastavitev ključa za dostop ni uspela ali ni na voljo. Poskusite znova ali izberite drugo metodo.
 passkey-registration-error-not-allowed-existing = Nastavitev gesla ni na voljo za to napravo. Naprava je že registrirana ali pa je bil postopek nastavitve preklican.
 passkey-registration-error-timeout = Nastavitev ključa za dostop je bila preklicana. Poskusite znova.
 passkey-registration-canceled-v2 = Nastavitev gesla je potekla ali je bila preklicana.
@@ -1436,6 +1445,11 @@ pair-unsupported-connecting-mobile-instructions-v2 = Odprite { -brand-firefox(sk
 pair-unsupported-learn-more-link-v2 = Več o tem
 pair-unsupported-desktop-firefox-fallback-header-v2 = Opla! Prišlo je do napake.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Zaprite ta zavihek in poskusite znova.
+
+
+pair2-supplicant-approve-sign-in-heading = Še zadnji korak do sinhronizacije
+pair2-supplicant-approve-sign-in-instruction = Odobrite prijavo v računalniku.
+pair2-supplicant-approve-sign-in-cancel-button = Prekliči
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account(zacetnica: "velika") } potrjen

@@ -148,6 +148,7 @@ device-info-block-location-city-country = { $city }, { $country } (estimate)
 device-info-block-location-country = { $country } (estimate)
 device-info-block-location-unknown = Loco incognite
 device-info-browser-os = { $browserName } sur { $genericOSName }
+device-info-browser-device = { $browserName } sur { $deviceName }
 device-info-ip-address = Adresse IP: { $ipAddress }
 
 
@@ -281,6 +282,12 @@ confetti-falling-image-aria-label =
     .aria-label = Confectos cadente animate
 vpn-welcome-image-aria-label =
     .aria-label = Le fenestra de { -brand-firefox } con un insignia circular monstra un quadrato de controlo verde e “VPN,” monstrante que le VPN es active.
+sync-devices-image-aria-label =
+    .aria-label = Un fenestra de navigator pro scriptorio e un smartphono, ambe synchronisante se con le mascotte de { -brand-firefox } preter illos
+firefox-wordmark-image-aria-label =
+    .aria-label = Logo de { -brand-firefox }
+password-success-image-aria-label =
+    .aria-label = Illustration pro representar un modification de contrasigno con successo.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Tu ha accedite a { -brand-firefox }.
@@ -1307,6 +1314,11 @@ pair-unsupported-connecting-mobile-instructions-v2 = Aperi { -brand-firefox } su
 pair-unsupported-learn-more-link-v2 = Pro saper plus
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oppla! Alco errate eveniva.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Claude iste scheda e reproba.
+
+
+pair2-supplicant-approve-sign-in-heading = Un ultime passo pro synchronisar
+pair2-supplicant-approve-sign-in-instruction = Approba le accesso sur tu computator.
+pair2-supplicant-approve-sign-in-cancel-button = Cancellar
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmate

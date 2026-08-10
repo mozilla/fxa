@@ -152,6 +152,7 @@ device-info-block-location-city-country = { $city }, { $country } (estimert)
 device-info-block-location-country = { $country } (estimert)
 device-info-block-location-unknown = Ukjend plassering
 device-info-browser-os = { $browserName } på { $genericOSName }
+device-info-browser-device = { $browserName } på { $deviceName }
 device-info-ip-address = IP-adresse: { $ipAddress }
 
 
@@ -285,6 +286,8 @@ confetti-falling-image-aria-label =
     .aria-label = Animert fallande konfetti
 vpn-welcome-image-aria-label =
     .aria-label = { -brand-firefox }-vindauge med eit rundt merke som viser eit grønt hakemerke og «VPN», som viser at VPN-et er aktivt.
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox }-logo
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Du er logga inn på { -brand-firefox }.
@@ -1300,6 +1303,9 @@ pair-unsupported-connecting-mobile-instructions-v2 = Opne { -brand-firefox } på
 pair-unsupported-learn-more-link-v2 = Les meir
 pair-unsupported-desktop-firefox-fallback-header-v2 = Ops! Noko gjekk gale.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Lat att denne fana og prøv på nytt.
+
+
+pair2-supplicant-approve-sign-in-cancel-button = Avbryt
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } stadfesta
