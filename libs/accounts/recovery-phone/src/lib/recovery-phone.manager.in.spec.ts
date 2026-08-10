@@ -221,6 +221,7 @@ describe('RecoveryPhoneManager', () => {
   it('should store and retrieve unconfirmed phone number data in Redis', async () => {
     const mockPhone = RecoveryPhoneFactory();
     const { uid, phoneNumber } = mockPhone;
+    const otherUid = uid.toString('hex').replace(/./g, '1');
     const isSetup = true;
     await recoveryPhoneManager.storeUnconfirmed(
       uid.toString('hex'),
@@ -229,17 +230,11 @@ describe('RecoveryPhoneManager', () => {
       isSetup,
       mockLookUpData
     );
-    await recoveryPhoneManager.storeUnconfirmed(
-      uid.toString('hex'),
-      '222222',
-      phoneNumber,
-      isSetup
-    );
 
-    // Store one item for different accounts to make sure lookup is filtering
+    // Store one item for a different account to make sure lookup is filtering
     // on uid
     await recoveryPhoneManager.storeUnconfirmed(
-      uid.toString('hex').replace(/./g, '1'),
+      otherUid,
       '333333',
       phoneNumber,
       isSetup
@@ -250,9 +245,16 @@ describe('RecoveryPhoneManager', () => {
       '111111'
     );
     expect(firstUnconfirmedCode).toBeDefined();
-    expect(firstUnconfirmedCode?.lookupData).toBeDefined();
     expect(firstUnconfirmedCode?.lookupData).toEqual(
       JSON.stringify(mockLookUpData)
+    );
+
+    // A second store overwrites the first, so only the newest code is live.
+    await recoveryPhoneManager.storeUnconfirmed(
+      uid.toString('hex'),
+      '222222',
+      phoneNumber,
+      isSetup
     );
 
     const secondUnconfirmedCode = await recoveryPhoneManager.getUnconfirmed(
@@ -262,12 +264,73 @@ describe('RecoveryPhoneManager', () => {
     expect(secondUnconfirmedCode).toBeDefined();
     expect(secondUnconfirmedCode?.lookupData).toEqual(null);
 
-    const allUnconfirmedCodes =
-      await recoveryPhoneManager.getAllUnconfirmedCodes(uid.toString('hex'));
-    expect(allUnconfirmedCodes.length).toEqual(2);
-    expect(allUnconfirmedCodes).toContain('111111');
-    expect(allUnconfirmedCodes).toContain('222222');
-    expect(allUnconfirmedCodes).not.toContain('333333');
+    await expect(
+      recoveryPhoneManager.getUnconfirmed(uid.toString('hex'), '111111')
+    ).resolves.toBeNull();
+
+    // The other account keeps its own code.
+    await expect(
+      recoveryPhoneManager.getUnconfirmed(otherUid, '333333')
+    ).resolves.toBeDefined();
+  });
+
+  it('should read a record written under the legacy key shape', async () => {
+    const mockPhone = RecoveryPhoneFactory();
+    const uid = mockPhone.uid.toString('hex');
+    const code = '444444';
+    await redis.set(
+      `${RECOVERY_PHONE_REDIS_PREFIX}:${uid}:${code}`,
+      JSON.stringify({
+        createdAt: Date.now(),
+        phoneNumber: mockPhone.phoneNumber,
+        isSetup: false,
+        lookupData: null,
+      }),
+      'EX',
+      300
+    );
+
+    const result = await recoveryPhoneManager.getUnconfirmed(uid, code);
+    expect(result?.phoneNumber).toEqual(mockPhone.phoneNumber);
+
+    await expect(recoveryPhoneManager.removeCode(uid, code)).resolves.toBe(
+      true
+    );
+    await expect(
+      recoveryPhoneManager.getUnconfirmed(uid, code)
+    ).resolves.toBeNull();
+  });
+
+  it('should read a legacy record when the new key holds a different code', async () => {
+    const mockPhone = RecoveryPhoneFactory();
+    const uid = mockPhone.uid.toString('hex');
+
+    // A distinct number on the legacy record proves which one came back.
+    const legacyPhoneNumber = '+15005550001';
+
+    // An old pod writes a legacy key while a newer record is still live.
+    await recoveryPhoneManager.storeUnconfirmed(
+      uid,
+      '555555',
+      mockPhone.phoneNumber,
+      false
+    );
+    await redis.set(
+      `${RECOVERY_PHONE_REDIS_PREFIX}:${uid}:666666`,
+      JSON.stringify({
+        createdAt: Date.now(),
+        phoneNumber: legacyPhoneNumber,
+        isSetup: false,
+        lookupData: null,
+      }),
+      'EX',
+      300
+    );
+
+    const result = await recoveryPhoneManager.getUnconfirmed(uid, '666666');
+    expect(result?.phoneNumber).toEqual(legacyPhoneNumber);
+
+    await recoveryPhoneManager.removeCode(uid, '666666');
   });
 
   it('should return null if no unconfirmed phone number data is found in Redis', async () => {

@@ -39,14 +39,12 @@ const redisUtil = {
   },
   recoveryPhone: {
     async getCode(uid: string) {
-      const redisKey = `${RECOVERY_PHONE_REDIS_PREFIX}:${uid}:*`;
-      const result = await redis.keys(redisKey);
-      expect(result.length).toBe(1);
-      const parts = result[0].split(':');
-      return parts[parts.length - 1];
+      const result = await redis.get(`${RECOVERY_PHONE_REDIS_PREFIX}:${uid}`);
+      expect(result).toBeTruthy();
+      return JSON.parse(result as string).code;
     },
     async clear(uid: string) {
-      await redisUtil.clearAllKey(`${RECOVERY_PHONE_REDIS_PREFIX}:${uid}:*`);
+      await redis.del(`${RECOVERY_PHONE_REDIS_PREFIX}:${uid}`);
     },
   },
   customs: {

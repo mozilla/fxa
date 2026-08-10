@@ -23,6 +23,7 @@ import {
 } from './recovery-phone.errors';
 import { Redis } from 'ioredis';
 import { PhoneNumberInstance } from 'twilio/lib/rest/lookups/v2/phoneNumber';
+import { bufferEqualsConstantTime } from '@fxa/shared/crypto';
 
 const RECORD_EXPIRATION_SECONDS = 5 * 60;
 
@@ -37,6 +38,19 @@ export type PhoneNumberLookupData = ReturnType<
  * Standard prefix for all recovery phone entries in redis.
  */
 export const RECOVERY_PHONE_REDIS_PREFIX = 'recovery-phone:sms-attempt';
+
+/**
+ * Key for the single live sms code of a user. Keying on the uid alone lets a
+ * write overwrite the previous code, so no keyspace scan is needed.
+ */
+const unconfirmedKey = (uid: string) => `${RECOVERY_PHONE_REDIS_PREFIX}:${uid}`;
+
+/**
+ * Previous key shape, which held the code in the key name. Kept for the
+ * rolling deploy window only.
+ */
+const legacyUnconfirmedKey = (uid: string, code: string) =>
+  `${RECOVERY_PHONE_REDIS_PREFIX}:${uid}:${code}`;
 
 @Injectable()
 export class RecoveryPhoneManager {
@@ -161,16 +175,16 @@ export class RecoveryPhoneManager {
     isSetup: boolean,
     lookupData?: PhoneNumberLookupData
   ): Promise<void> {
-    const redisKey = `${RECOVERY_PHONE_REDIS_PREFIX}:${uid}:${code}`;
     const data = {
       createdAt: Date.now(),
+      code,
       phoneNumber,
       isSetup,
       lookupData: lookupData ? JSON.stringify(lookupData) : null,
     };
 
     await this.redisClient.set(
-      redisKey,
+      unconfirmedKey(uid),
       JSON.stringify(data),
       'EX',
       RECORD_EXPIRATION_SECONDS
@@ -192,55 +206,41 @@ export class RecoveryPhoneManager {
     isSetup: boolean;
     lookupData: Record<string, any> | null;
   } | null> {
-    const redisKey = `${RECOVERY_PHONE_REDIS_PREFIX}:${uid}:${code}`;
-    const data = await this.redisClient.get(redisKey);
+    const data = await this.redisClient.get(unconfirmedKey(uid));
 
-    if (!data) {
-      return null;
+    if (data) {
+      const record = JSON.parse(data);
+      if (bufferEqualsConstantTime(code, record.code)) {
+        return record;
+      }
     }
 
-    return JSON.parse(data);
-  }
-
-  /**
-   * Returns redis keys for all unconfirmed phone numbers for a user.
-   *
-   * @param uid
-   */
-  private async getAllUnconfirmedKeys(uid: string): Promise<string[]> {
-    const pattern = `${RECOVERY_PHONE_REDIS_PREFIX}:${uid}:*`;
-    let cursor = '0';
-    let keys: string[] = [];
-
-    do {
-      const reply = await this.redisClient.scan(cursor, 'MATCH', pattern);
-      cursor = reply[0];
-      keys = keys.concat(reply[1]);
-    } while (cursor !== '0');
-
-    return keys;
-  }
-
-  /**
-   * Returns codes sent out for all unconfirmed phone numbers for a user.
-   * @param uid
-   * @returns
-   */
-  async getAllUnconfirmedCodes(uid: string): Promise<string[]> {
-    const keys = await this.getAllUnconfirmedKeys(uid);
-    return keys.map((x) => x.split(':').pop() || '').filter((x) => !!x);
+    // Fall back to the legacy key shape. During a rolling deploy an older pod
+    // can write one, and its scan does not match the new key, so both shapes
+    // can be live at once. Remove this once train 342 is fully rolled out.
+    const legacyData = await this.redisClient.get(
+      legacyUnconfirmedKey(uid, code)
+    );
+    return legacyData ? JSON.parse(legacyData) : null;
   }
 
   /**
    * Removes a code from redis. Once a code is validated, it's good to proactively remove it from the database
    * so it cannot be used again.
+   *
+   * This drops the user's live record outright, so only call it after
+   * getUnconfirmed has confirmed the code. The return value means "a record was
+   * removed", not "that code existed".
+   *
    * @param uid The user's unique identifier
    * @param code The SMS code associated with this user
    * @returns
    */
   async removeCode(uid: string, code: string) {
-    const redisKey = `${RECOVERY_PHONE_REDIS_PREFIX}:${uid}:${code}`;
-    const count = await this.redisClient.del(redisKey);
+    const count = await this.redisClient.del(
+      unconfirmedKey(uid),
+      legacyUnconfirmedKey(uid, code)
+    );
     return count > 0;
   }
 
