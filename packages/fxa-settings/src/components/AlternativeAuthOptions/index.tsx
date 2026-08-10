@@ -22,6 +22,8 @@ export interface AlternativeAuthOptionsProps {
   /** Required for the passkey button to render, even when `showPasskeySignin` is true. */
   passkeySignIn?: PasskeySignInBinding;
   errorBanner?: React.ReactNode;
+  /** Locks every option; the passkey button keeps its own spinner via `isLoading`. */
+  disabled?: boolean;
   onContinueWithGoogle?: () => void;
   onContinueWithApple?: () => void;
 }
@@ -34,6 +36,7 @@ const AlternativeAuthOptions = ({
   showPasskeySignin = false,
   passkeySignIn,
   errorBanner,
+  disabled = false,
   onContinueWithGoogle,
   onContinueWithApple,
 }: AlternativeAuthOptionsProps) => {
@@ -81,6 +84,7 @@ const AlternativeAuthOptions = ({
         {renderPasskey && (
           <ButtonPasskeySignin
             isLoading={passkeySignIn.isLoading}
+            disabled={disabled}
             onClick={passkeySignIn.onClick}
           />
         )}
@@ -90,6 +94,7 @@ const AlternativeAuthOptions = ({
               variant,
               viewName,
               flowQueryParams,
+              disabled,
               onContinueWithGoogle,
               onContinueWithApple,
             }}

@@ -97,8 +97,13 @@ const SigninAlternativeAuthOptions = ({
     GleanMetrics.login.alternativeAuthView();
   }, []);
 
+  const authInProgress = passkey.isLoading;
+
   return (
-    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
+    <AppLayout
+      {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}
+      loading={passkey.isNavigating}
+    >
       {(localizedSuccessBannerHeading || localizedSuccessBannerDescription) && (
         <Banner
           type="success"
@@ -149,6 +154,7 @@ const SigninAlternativeAuthOptions = ({
             : undefined
         }
         errorBanner={showPasskeySignin ? passkey.errorBanner : undefined}
+        disabled={authInProgress}
         {...{ viewName, flowQueryParams }}
       />
 

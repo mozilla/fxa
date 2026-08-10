@@ -265,6 +265,38 @@ describe('Signin component', () => {
       render({ hasPasskey: true });
       expect(passkeyButton()).not.toBeInTheDocument();
     });
+
+    it('keeps the passkey button enabled after a failed password attempt (only the submit button stays disabled)', async () => {
+      const beginSigninHandler = jest.fn().mockReturnValueOnce(
+        createBeginSigninResponseError({
+          errno: AuthUiErrors.INCORRECT_PASSWORD.errno,
+        })
+      );
+      render({ hasPasskey: true, beginSigninHandler });
+
+      await enterPasswordAndSubmit();
+
+      await waitFor(() => {
+        expect(passkeyButton()).toBeEnabled();
+      });
+      expect(screen.getByRole('button', { name: 'Sign in' })).toBeDisabled();
+    });
+
+    it('releases the passkey lock and surfaces an error when the sign-in handler throws', async () => {
+      const beginSigninHandler = jest
+        .fn()
+        .mockRejectedValueOnce(new Error('network'));
+      render({ hasPasskey: true, beginSigninHandler });
+
+      await enterPasswordAndSubmit();
+
+      await waitFor(() => {
+        expect(passkeyButton()).toBeEnabled();
+      });
+      expect(GleanMetrics.login.error).toHaveBeenCalledWith({
+        event: { reason: 'network' },
+      });
+    });
   });
 
   describe('without sessionToken', () => {
