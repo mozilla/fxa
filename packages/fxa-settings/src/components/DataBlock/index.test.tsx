@@ -22,7 +22,6 @@ const multiValue = [
 Object.defineProperty(window.navigator, 'clipboard', {
   value: { writeText: jest.fn() },
 });
-window.URL.createObjectURL = jest.fn();
 
 it('can render single values', () => {
   renderWithLocalizationProvider(<Subject />);

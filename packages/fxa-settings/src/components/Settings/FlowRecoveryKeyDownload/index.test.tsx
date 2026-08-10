@@ -20,17 +20,7 @@ jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
 }));
 
-jest.mock('@react-pdf/renderer', () => {
-  return {
-    pdf: jest.fn().mockResolvedValue({
-      toBlob: jest.fn().mockResolvedValue(new globalThis.Blob()),
-      updateContainer: jest.fn(),
-    }),
-  };
-});
-
 const renderFlowPage = async () => {
-  window.URL.createObjectURL = jest.fn();
   await act(() => {
     renderWithRouter(
       <FlowRecoveryKeyDownload
@@ -83,16 +73,11 @@ describe('FlowRecoveryKeyDownload', () => {
     );
   });
 
-  it('emits the expected metrics when user downloads the recovery key', async () => {
+  it('advances the flow when the user downloads the recovery key', async () => {
     await renderFlowPage();
     const downloadButton = screen.getByText('Download and continue');
     fireEvent.click(downloadButton);
-    await waitFor(() => {
-      expect(logViewEvent).toHaveBeenCalledWith(
-        `flow.${viewName}`,
-        'recovery-key.download-option'
-      );
-    });
+    await waitFor(() => expect(navigateForward).toHaveBeenCalledTimes(1));
   });
 
   it('emits the expected metrics when user navigates forward', async () => {

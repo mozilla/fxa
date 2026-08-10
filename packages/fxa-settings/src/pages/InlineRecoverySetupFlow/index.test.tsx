@@ -77,10 +77,6 @@ const props = {
 describe('InlineRecoverySetup', () => {
   let user: UserEvent;
 
-  beforeAll(async () => {
-    global.URL.createObjectURL = jest.fn();
-  });
-
   beforeEach(() => {
     user = userEvent.setup();
     navigateForward.mockClear();

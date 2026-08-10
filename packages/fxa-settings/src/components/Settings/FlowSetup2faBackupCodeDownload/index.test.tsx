@@ -34,7 +34,6 @@ const renderFlowSetup2faBackupCodeDownload = () => {
 
 describe('FlowSetup2faBackupCodeDownload', () => {
   beforeEach(() => {
-    window.URL.createObjectURL = jest.fn(() => 'blob:mock-url');
     // set UA to a desktop browser as the default for the tests
     // using a hack to work around userAgent being read-only
     Object.defineProperty(window.navigator, 'userAgent', {

@@ -74,7 +74,6 @@ const pwdlessAccount = {
 
 const session = mockSession(true, false);
 
-window.URL.createObjectURL = jest.fn();
 console.error = jest.fn();
 
 const advanceStep = () => {

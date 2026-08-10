@@ -25,21 +25,9 @@ jest.mock('react-router', () => ({
   useNavigate: () => mockNavigate,
 }));
 
-jest.mock('@react-pdf/renderer', () => ({
-  PDFDownloadLink: jest.fn(),
-  Font: {
-    register: jest.fn(),
-  },
-  StyleSheet: {
-    create: jest.fn(),
-  },
-}));
-
 jest.mock('base32-encode', () =>
   jest.fn().mockReturnValue('00000000000000000000000000000000')
 );
-
-window.URL.createObjectURL = jest.fn();
 
 const accountWithoutKey = {
   ...MOCK_ACCOUNT,

@@ -35,11 +35,16 @@ global.IntersectionObserver = class IntersectionObserver {
   }
 } as any;
 
-// react-pdf required TextEncoder for EncodeStream
-// See https://github.com/diegomura/react-pdf/issues/2054#issue-1407270392
+// jsdom does not provide TextEncoder/TextDecoder; Glean and the passkey
+// WebAuthn helpers both need them.
 global.TextEncoder = TextEncoder;
 // @ts-ignore
 global.TextDecoder = TextDecoder;
+
+// jsdom implements neither. Without them a download throws mid-way and tests
+// silently exercise the failure path.
+global.URL.createObjectURL = jest.fn(() => 'blob:mock-object-url');
+global.URL.revokeObjectURL = jest.fn();
 
 Object.defineProperty(global, 'crypto', {
   value: {
