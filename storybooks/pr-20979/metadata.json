@@ -1,8 +1,8 @@
 {
-  "commit": "eb1785ceeb9986e7a4c799f2f99efd7d4d64dd3a",
+  "commit": "78a19c3678e2eee1002b219613d650d19b44ec21",
   "summary": "feat(settings): add shared pairing illustrations",
   "description": "Because:\n - We are updating pairing flows and want to land UI components / pages first.\n - The Pair2 cards share a handful of illustrations.\n\nThis commit:\n - Adds five illustrations to `packages/fxa-settings/src/components/images`.\n - Adds storybook stories and l10n aria labels for each.\n\nCloses #FXA-12855",
-  "timestamp": 1786401611000,
+  "timestamp": 1786403019000,
   "storybooks": [
     "fxa-settings"
   ],
