@@ -2,10 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import fs from 'fs';
+import path from 'path';
+import { parseConfigRules } from '@fxa/accounts/rate-limit';
 import {
   isPasswordlessEligible,
   isClientAllowedForPasswordless,
   AllowedClientServices,
+  PASSWORDLESS_SEND_OTP_SIGNUP,
+  PASSWORDLESS_SEND_OTP_SIGNIN,
 } from './passwordless';
 
 describe('isPasswordlessEligible', () => {
@@ -174,5 +179,53 @@ describe('isClientAllowedForPasswordless', () => {
         isClientAllowedForPasswordless(undefined as any, 'abc123', 'sync')
       ).toBe(false);
     });
+  });
+});
+
+describe('passwordless rate limit actions', () => {
+  // An action with no matching rule falls back to the report-only `default`
+  // rule instead of erroring, so a typo in the action name would disable the
+  // limit silently. These assertions are the only thing that catches that.
+  const rules = parseConfigRules(
+    fs.readFileSync(
+      path.join(__dirname, '../../../config/rate-limit-rules.txt'),
+      'utf8'
+    )
+  );
+
+  it('resolves the signup action to at least one configured rule', () => {
+    expect(rules[PASSWORDLESS_SEND_OTP_SIGNUP]?.length).toBeGreaterThan(0);
+  });
+
+  it('caps the signup action tighter than the shared action on every key it uses', () => {
+    // A per-flow rule that is not strictly tighter than the shared rule never
+    // receives the increment that would trip it, because the shared check runs
+    // first. Equal values are dead config, and on windows longer than the block
+    // duration they also stack blocks.
+    const shared = rules['passwordlessSendOtp'];
+    expect(shared?.length).toBeGreaterThan(0);
+
+    for (const rule of rules[PASSWORDLESS_SEND_OTP_SIGNUP]) {
+      const sharedPeer = shared.find(
+        (s) =>
+          s.blockingOn === rule.blockingOn &&
+          s.windowDurationInSeconds === rule.windowDurationInSeconds
+      );
+      if (sharedPeer) {
+        expect(rule.maxAttempts).toBeLessThan(sharedPeer.maxAttempts);
+      }
+    }
+  });
+
+  it('keeps every signin rule report-only, so signin enforcement is unchanged', () => {
+    // The signin values match the shared rules. As `block` they would be dead
+    // config at best, and would stack a second block on top of the shared one at
+    // worst, because a tripped rule wipes only its own attempts counter.
+    // `report` never blocks, so it is safe to carry them for the metrics.
+    const signin = rules[PASSWORDLESS_SEND_OTP_SIGNIN];
+    expect(signin?.length).toBeGreaterThan(0);
+    for (const rule of signin) {
+      expect(rule.blockPolicy).toBe('report');
+    }
   });
 });

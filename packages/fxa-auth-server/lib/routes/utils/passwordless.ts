@@ -2,6 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/**
+ * Rate limit actions for the passwordless send endpoints. These must match
+ * action names in config/rate-limit-rules.txt. An action with no matching rule
+ * falls back to the report-only default rule, so a typo disables the limit
+ * without erroring. passwordless.spec.ts asserts the signup action resolves to
+ * real rules.
+ *
+ * Kept here rather than in passwordless.ts so tests can import them without
+ * pulling in the route's dependency graph.
+ */
+export const PASSWORDLESS_SEND_OTP_SIGNUP = 'passwordlessSendOtpForSignup';
+export const PASSWORDLESS_SEND_OTP_SIGNIN = 'passwordlessSendOtpForSignin';
+
 export interface PasswordlessClientConfig {
   allowedServices: string[];
 }

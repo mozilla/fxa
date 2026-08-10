@@ -240,12 +240,18 @@ describe('/account/passwordless/send_code', () => {
     );
 
     return runTest(route, mockRequest, (result) => {
-      expect(mockCustoms.check).toHaveBeenCalledTimes(1);
+      expect(mockCustoms.check).toHaveBeenCalledTimes(2);
       expect(mockCustoms.check).toHaveBeenNthCalledWith(
         1,
         expect.anything(),
         TEST_EMAIL,
         'passwordlessSendOtp'
+      );
+      expect(mockCustoms.check).toHaveBeenNthCalledWith(
+        2,
+        expect.anything(),
+        TEST_EMAIL,
+        'passwordlessSendOtpForSignup'
       );
 
       expect(mockOtpManagerCreate).toHaveBeenCalledTimes(1);
@@ -298,6 +304,21 @@ describe('/account/passwordless/send_code', () => {
 
     return runTest(route, mockRequest, (result) => {
       expect(mockDB.accountRecord).toHaveBeenCalledTimes(1);
+
+      expect(mockCustoms.check).toHaveBeenCalledTimes(2);
+      expect(mockCustoms.check).toHaveBeenNthCalledWith(
+        1,
+        expect.anything(),
+        TEST_EMAIL,
+        'passwordlessSendOtp'
+      );
+      expect(mockCustoms.check).toHaveBeenNthCalledWith(
+        2,
+        expect.anything(),
+        TEST_EMAIL,
+        'passwordlessSendOtpForSignin'
+      );
+
       expect(mockOtpManagerCreate).toHaveBeenCalledTimes(1);
       expect(mockOtpManagerCreate).toHaveBeenNthCalledWith(1, uid);
       expect(result).toEqual({});
@@ -1637,12 +1658,18 @@ describe('/account/passwordless/resend_code', () => {
 
     return runTest(route, mockRequest, (result) => {
       // Verify rate limiting was called
-      expect(mockCustoms.check).toHaveBeenCalledTimes(1);
+      expect(mockCustoms.check).toHaveBeenCalledTimes(2);
       expect(mockCustoms.check).toHaveBeenNthCalledWith(
         1,
         expect.anything(),
         TEST_EMAIL,
         'passwordlessSendOtp'
+      );
+      expect(mockCustoms.check).toHaveBeenNthCalledWith(
+        2,
+        expect.anything(),
+        TEST_EMAIL,
+        'passwordlessSendOtpForSignup'
       );
 
       expect(mockOtpManagerDelete).toHaveBeenCalledTimes(1);
@@ -1668,12 +1695,18 @@ describe('/account/passwordless/resend_code', () => {
 
     return runTest(route, mockRequest, (result) => {
       // Verify rate limiting was called
-      expect(mockCustoms.check).toHaveBeenCalledTimes(1);
+      expect(mockCustoms.check).toHaveBeenCalledTimes(2);
       expect(mockCustoms.check).toHaveBeenNthCalledWith(
         1,
         expect.anything(),
         TEST_EMAIL,
         'passwordlessSendOtp'
+      );
+      expect(mockCustoms.check).toHaveBeenNthCalledWith(
+        2,
+        expect.anything(),
+        TEST_EMAIL,
+        'passwordlessSendOtpForSignin'
       );
 
       expect(mockOtpManagerDelete).toHaveBeenCalledTimes(1);
@@ -1866,7 +1899,7 @@ describe('passwordless service validation', () => {
         (err: any) => {
           expect(err.errno).toBe(error.ERRNO.FEATURE_NOT_ENABLED);
           // Rate limiting runs before allowlist check (which happens after account lookup)
-          expect(mockCustoms.check).toHaveBeenCalledTimes(1);
+          expect(mockCustoms.check).toHaveBeenCalledTimes(2);
           expect(mockOtpManagerCreate).toHaveBeenCalledTimes(0);
         }
       );
@@ -1880,7 +1913,7 @@ describe('passwordless service validation', () => {
         },
         (err: any) => {
           expect(err.errno).toBe(error.ERRNO.FEATURE_NOT_ENABLED);
-          expect(mockCustoms.check).toHaveBeenCalledTimes(1);
+          expect(mockCustoms.check).toHaveBeenCalledTimes(2);
           expect(mockOtpManagerCreate).toHaveBeenCalledTimes(0);
         }
       );
@@ -1918,7 +1951,7 @@ describe('passwordless service validation', () => {
         },
         (err: any) => {
           expect(err.errno).toBe(error.ERRNO.FEATURE_NOT_ENABLED);
-          expect(mockCustoms.check).toHaveBeenCalledTimes(1);
+          expect(mockCustoms.check).toHaveBeenCalledTimes(2);
           expect(mockOtpManagerCreate).toHaveBeenCalledTimes(0);
         }
       );
@@ -1932,7 +1965,7 @@ describe('passwordless service validation', () => {
         },
         (err: any) => {
           expect(err.errno).toBe(error.ERRNO.FEATURE_NOT_ENABLED);
-          expect(mockCustoms.check).toHaveBeenCalledTimes(1);
+          expect(mockCustoms.check).toHaveBeenCalledTimes(2);
           expect(mockOtpManagerCreate).toHaveBeenCalledTimes(0);
         }
       );
@@ -1941,7 +1974,7 @@ describe('passwordless service validation', () => {
     it('should allow requests with allowed clientId (ea3ca969f8c6bb0d)', () => {
       mockRequest.payload.clientId = 'ea3ca969f8c6bb0d';
       return runTest(route, mockRequest, () => {
-        expect(mockCustoms.check).toHaveBeenCalledTimes(1);
+        expect(mockCustoms.check).toHaveBeenCalledTimes(2);
         expect(mockOtpManagerCreate).toHaveBeenCalledTimes(1);
       });
     });
@@ -1949,7 +1982,7 @@ describe('passwordless service validation', () => {
     it('should allow requests with allowed clientId (dcdb5ae7add825d2)', () => {
       mockRequest.payload.clientId = 'dcdb5ae7add825d2';
       return runTest(route, mockRequest, () => {
-        expect(mockCustoms.check).toHaveBeenCalledTimes(1);
+        expect(mockCustoms.check).toHaveBeenCalledTimes(2);
         expect(mockOtpManagerCreate).toHaveBeenCalledTimes(1);
       });
     });
@@ -2081,7 +2114,7 @@ describe('passwordless service validation', () => {
         (err: any) => {
           expect(err.errno).toBe(error.ERRNO.FEATURE_NOT_ENABLED);
           // Rate limiting runs before allowlist check
-          expect(mockCustoms.check).toHaveBeenCalledTimes(1);
+          expect(mockCustoms.check).toHaveBeenCalledTimes(2);
         }
       );
     });
@@ -2094,7 +2127,7 @@ describe('passwordless service validation', () => {
         },
         (err: any) => {
           expect(err.errno).toBe(error.ERRNO.FEATURE_NOT_ENABLED);
-          expect(mockCustoms.check).toHaveBeenCalledTimes(1);
+          expect(mockCustoms.check).toHaveBeenCalledTimes(2);
         }
       );
     });
@@ -2102,7 +2135,7 @@ describe('passwordless service validation', () => {
     it('should allow resend_code with allowed clientId', () => {
       mockRequest.payload.clientId = 'ea3ca969f8c6bb0d';
       return runTest(route, mockRequest, () => {
-        expect(mockCustoms.check).toHaveBeenCalledTimes(1);
+        expect(mockCustoms.check).toHaveBeenCalledTimes(2);
         expect(mockOtpManagerDelete).toHaveBeenCalledTimes(1);
         expect(mockOtpManagerCreate).toHaveBeenCalledTimes(1);
       });

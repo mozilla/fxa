@@ -27,6 +27,8 @@ import type { DB } from '../db';
 import {
   isClientAllowedForPasswordless,
   isPasswordlessEligible,
+  PASSWORDLESS_SEND_OTP_SIGNIN,
+  PASSWORDLESS_SEND_OTP_SIGNUP,
 } from './utils/passwordless';
 import { normalizeEmail } from 'fxa-shared/email/helpers';
 import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
@@ -176,6 +178,7 @@ class PasswordlessHandler {
     await this.customs.check(request, email, 'passwordlessSendOtp');
 
     const { account, isNewAccount } = await this.lookupAccount(email);
+    await this.checkFlowRateLimit(request, email, isNewAccount);
     this.validatePasswordlessAccess(
       account,
       email,
@@ -195,6 +198,24 @@ class PasswordlessHandler {
       account,
       isNewAccount,
       false
+    );
+  }
+
+  /**
+   * Rate limit the send per flow. Signup and signin share these endpoints, so
+   * the flow is only known once the account lookup has run.
+   */
+  private async checkFlowRateLimit(
+    request: AuthRequest,
+    email: string,
+    isNewAccount: boolean
+  ): Promise<void> {
+    await this.customs.check(
+      request,
+      email,
+      isNewAccount
+        ? PASSWORDLESS_SEND_OTP_SIGNUP
+        : PASSWORDLESS_SEND_OTP_SIGNIN
     );
   }
 
@@ -384,6 +405,7 @@ class PasswordlessHandler {
     await this.customs.check(request, email, 'passwordlessSendOtp');
 
     const { account, isNewAccount } = await this.lookupAccount(email);
+    await this.checkFlowRateLimit(request, email, isNewAccount);
     this.validatePasswordlessAccess(
       account,
       email,
