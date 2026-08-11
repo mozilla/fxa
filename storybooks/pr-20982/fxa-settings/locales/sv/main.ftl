@@ -148,6 +148,7 @@ device-info-block-location-city-country = { $city }, { $country } (uppskattad)
 device-info-block-location-country = { $country } (uppskattad)
 device-info-block-location-unknown = Plats okänd
 device-info-browser-os = { $browserName } på { $genericOSName }
+device-info-browser-device = { $browserName } på { $deviceName }
 device-info-ip-address = IP-adress: { $ipAddress }
 
 
@@ -281,6 +282,12 @@ confetti-falling-image-aria-label =
     .aria-label = Animerad fallande konfetti
 vpn-welcome-image-aria-label =
     .aria-label = { -brand-firefox } fönster med ett cirkulärt emblem som visar en grön bock och "VPN", som visar att VPN är aktivt.
+sync-devices-image-aria-label =
+    .aria-label = Ett webbläsarfönster för dator och en mobiltelefon, båda synkroniserade, med { -brand-firefox }-maskoten bredvid sig
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox } logotyp
+password-success-image-aria-label =
+    .aria-label = Illustration som representerar ett lyckat lösenordsbyte.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Du är inloggad på { -brand-firefox }.
@@ -1303,6 +1310,11 @@ pair-unsupported-connecting-mobile-instructions-v2 = Öppna { -brand-firefox } p
 pair-unsupported-learn-more-link-v2 = Läs mer
 pair-unsupported-desktop-firefox-fallback-header-v2 = Hoppsan! Något gick fel.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Stäng den här fliken och försök igen.
+
+
+pair2-supplicant-approve-sign-in-heading = Ett sista steg för att synkronisera
+pair2-supplicant-approve-sign-in-instruction = Godkänn inloggningen på din dator.
+pair2-supplicant-approve-sign-in-cancel-button = Avbryt
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } har bekräftats

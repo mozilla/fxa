@@ -190,7 +190,6 @@ next-sub-guarantee = Garanzia da restituziun da 30 dis
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = Cundiziuns d'utilisaziun
 next-privacy = Infurmaziuns davart la protecziun da datas
-next-terms-download = Telechargiar las cundiziuns
 terms-and-privacy-stripe-label = { -brand-mozilla } utilisescha { -brand-name-stripe } per l’elavuraziun segira da pajaments.
 terms-and-privacy-stripe-link = Decleraziun davart la protecziun da datas da { -brand-name-stripe }
 terms-and-privacy-paypal-label = { -brand-mozilla } utilisescha { -brand-paypal } per l’elavuraziun segira da pajaments.

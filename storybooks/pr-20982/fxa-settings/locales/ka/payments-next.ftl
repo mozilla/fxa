@@ -639,7 +639,6 @@ next-sub-guarantee = 30-დღიანი ვადით თანხის �
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts }
 next-terms = გამოყენების პირობები
 next-privacy = პირადულობის განაცხადი
-next-terms-download = პირობების ჩამოტვირთვა
 terms-and-privacy-stripe-label = { -brand-mozilla } იყენებს { -brand-name-stripe }-ს გადახდების უსაფრთხოდ დასამუშავებლად.
 terms-and-privacy-stripe-link = { -brand-name-stripe } – პირადულობის დაცვის განაცხადი
 terms-and-privacy-paypal-label = { -brand-mozilla } იყენებს { -brand-paypal }-ს გადახდების უსაფრთხოდ დასამუშავებლად.

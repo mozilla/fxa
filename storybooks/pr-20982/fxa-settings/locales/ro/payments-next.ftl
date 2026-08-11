@@ -640,7 +640,6 @@ next-sub-guarantee = Garanție de rambursare a banilor în 30 de zile
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = Condiții de utilizare a serviciilor
 next-privacy = Notificare privind confidențialitatea
-next-terms-download = Descarcă condițiile
 terms-and-privacy-stripe-label = { -brand-mozilla } folosește { -brand-name-stripe } pentru procesarea în siguranță a plăților.
 terms-and-privacy-stripe-link = Politică de confidențialitate { -brand-name-stripe }
 terms-and-privacy-paypal-label = { -brand-mozilla } folosește { -brand-paypal } pentru prelucrarea în siguranță a plăților.
