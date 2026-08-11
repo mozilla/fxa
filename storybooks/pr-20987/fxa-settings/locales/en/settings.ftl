@@ -2086,7 +2086,7 @@ pair2-supplicant-download-firefox-heading = Get { -brand-firefox } on this devic
 # "sync" is a verb here, referring to syncing data between the user's devices.
 # <linkExternal> is an anchor tag linking to a page explaining what sync does.
 pair2-supplicant-download-firefox-description = Download { -brand-firefox } to sync bookmarks, history, and more across devices. <linkExternal>Learn more</linkExternal>
-# Primary action. Sends the user to the { -brand-firefox } download page.
+# Primary action. Sends the user to the Firefox download page.
 pair2-supplicant-download-firefox-continue-button = Continue in { -brand-firefox }
 
 ## ServiceWelcome page

@@ -212,7 +212,6 @@ next-sub-guarantee = Priggiarìa di rifazzioni pi 30 jorna
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = Tèrmini di sirbizzu
 next-privacy = Abbisu di privatizza
-next-terms-download = Scàrrica i tèrmini
 terms-and-privacy-stripe-label = { -brand-mozilla } usa { -brand-name-stripe } pi prucissari i pagamenti di manera sicura.
 terms-and-privacy-stripe-link = Abbisu di privatizza di { -brand-name-stripe }
 terms-and-privacy-paypal-label = { -brand-mozilla } usa { -brand-paypal } pi prucissari i pagamenti di manera sicura.

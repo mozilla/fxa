@@ -148,6 +148,7 @@ device-info-block-location-city-country = { $city }, { $country } (anslået)
 device-info-block-location-country = { $country } (anslået)
 device-info-block-location-unknown = Position ukendt
 device-info-browser-os = { $browserName } på { $genericOSName }
+device-info-browser-device = { $browserName } på { $deviceName }
 device-info-ip-address = IP-adresse: { $ipAddress }
 
 
@@ -233,6 +234,8 @@ close-icon-aria-label =
     .aria-label = Luk besked
 code-icon-aria-label =
     .aria-label = Kode
+edit-icon-aria-label =
+    .aria-label = Rediger
 error-icon-aria-label =
     .aria-label = Fejl
 info-icon-aria-label =
@@ -279,6 +282,12 @@ confetti-falling-image-aria-label =
     .aria-label = Animeret faldende konfetti
 vpn-welcome-image-aria-label =
     .aria-label = { -brand-firefox }-vindue med et rundt mærke, der viser et grønt flueben og "VPN", hvilket viser, at VPN'en er aktiv.
+sync-devices-image-aria-label =
+    .aria-label = Et browservindue og en mobiltelefon, begge synkroniserede, med maskotten { -brand-firefox } ved siden af.
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox }-logo
+password-success-image-aria-label =
+    .aria-label = Illustration, der repræsenterer en vellykket ændring af adgangskode.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Du er logget ind på { -brand-firefox }.
@@ -315,6 +324,7 @@ link-expired-new-link-button = Modtag nyt link
 
 
 remember-password-text = Kan du huske adgangskoden?
+remember-password-passkey-text = Har du en adgangsnøgle, eller kan du huske din adgangskode?
 remember-password-signin-link = Log ind
 
 
@@ -388,7 +398,14 @@ flow-recovery-key-hint-unsafe-char-error = Huskereglen kan ikke indeholde usikre
 password-reset-warning-icon = Advarsel
 password-reset-chevron-expanded = Sammenfold advarsel
 password-reset-chevron-collapsed = Fold advarsel ud
+password-reset-warning-review-sign-in-options = Gennemgå login-indstillinger for at beholde browserdata
 password-reset-warning-have-key = Har du en genoprettelsesnøgle til kontoen?
+password-reset-warning-use-key-link-v2 = Brug den til at nulstille din adgangskode og beholde dine browserdata
+password-reset-warning-signed-in-device = Stadig logget ind på en anden enhed?
+password-reset-warning-signed-in-device-description = Dine browserdata er muligvis tilgængelige. Nulstil din adgangskode, og log derefter ind på den enhed for at gendanne og synkronisere dine data.
+password-reset-warning-restore-data-link = Læs, hvordan du gendanner browserdata fra en enhed, der er logget ind
+password-reset-warning-new-device = Bruger du en ny enhed, men kan ikke få adgang til dine gamle?
+password-reset-warning-new-device-description = Når du har nulstillet din adgangskode, vil krypterede browserdata på { -brand-firefox }' servere ikke være tilgængelige på denne enhed.
 
 
 alert-bar-close-message = Luk besked
@@ -924,6 +941,18 @@ passkey-delete-modal-cancel-button = Annuller
 passkey-delete-modal-confirm-button = Slet adgangsnøgle
 passkey-delete-success = Adgangsnøgle slettet
 passkey-delete-error = Der opstod et problem med at slette din adgangsnøgle. Prøv igen om et par minutter.
+passkey-sub-row-rename-title = Omdøb adgangsnøgle
+passkey-rename-modal-heading = Omdøb adgangsnøgle
+passkey-rename-modal-description = Indtast et nyt navn til denne adgangsnøgle.
+passkey-rename-input-label = Adgangsnøglens navn
+passkey-rename-save-button = Gem
+passkey-rename-cancel-button = Annuller
+passkey-rename-error-empty = Indtast et navn til denne adgangsnøgle
+passkey-rename-error-too-long = Navnet skal indeholde færre end 256 tegn.
+passkey-rename-error-invalid = Kun bogstaver, tal, tegnsætningstegn og symboler er tilladt.
+passkey-rename-error-duplicate = Der eksisterer allerede en adgangsnøgle med dette navn
+passkey-rename-success = Adgangsnøgle omdøbt
+passkey-rename-error = Der opstod et problem med at omdøbe din adgangsnøgle. Prøv igen om et par minutter.
 
 
 switch-turn-off = Slå fra
@@ -1062,6 +1091,7 @@ auth-error-225 = Adgangsnøglen er allerede registreret
 auth-error-226 = Grænsen for adgangsnøgle nået
 auth-error-227 = Godkendelse med adgangsnøgle mislykkedes
 auth-error-228 = Registrering af adgangsnøgle mislykkedes
+auth-error-233 = For at oprette en adgangsnøgle skal du oprette en skærmlås, pinkode, fingeraftryk eller ansigtsgenkendelse på din enhed eller sikkerhedsnøgle. Prøv derefter igen.
 auth-error-238 = Adgangsnøgleudfordring mislykkedes
 auth-error-239 = Vi kunne desværre ikke slette din konto. Prøv igen, eller kontakt support, hvis problemet fortsætter.
 auth-error-999 = Uventet fejl
@@ -1103,9 +1133,13 @@ passkey-registration-error-constraint = Opsætning af adgangsnøgle er ikke tilg
 passkey-registration-error-unexpected = Opsætning af adgangsnøgle mislykkedes. Prøv igen, eller vælg en anden metode.
 
 
+passkey-authentication-trouble-heading = Kunne ikke logge ind med en adgangsnøgle
+passkey-authentication-trouble-description = Prøv igen, eller brug en anden loginmetode.
+passkey-authentication-trouble-link = Sådan bruger du adgangsnøgler
 passkey-authentication-error-not-allowed = Log ind med adgangsnøgle mislykkedes eller er ikke tilgængelig. Prøv igen, eller vælg en anden metode.
 passkey-authentication-error-not-allowed-existing = Opsætning af adgangsnøgle er ikke tilgængelig med denne enhed. Prøv igen eller vælg en anden metode.
 passkey-authentication-error-timeout = Tidsfristen for adgangsnøgleforespørgslen udløb. Prøv igen.
+passkey-authentication-error-timeout-v2 = Tidsfristen for login med adgangsnøgle udløb. Prøv igen.
 passkey-authentication-error-not-supported-v2 = Din browser eller enhed understøtter ikke adgangsnøgler.
 passkey-authentication-error-security = Adgangsnøgler kan ikke bruges på denne side. Kontroller, at du er på det korrekte sikre websted, og prøv igen.
 passkey-authentication-error-invalid-state = Noget gik galt med din adgangsnøgle. Prøv igen, eller brug en anden loginmetode.
@@ -1278,6 +1312,11 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Hov, noget gik galt.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Luk dette faneblad og prøv igen.
 
 
+pair2-supplicant-approve-sign-in-heading = Et sidste trin til synkronisering
+pair2-supplicant-approve-sign-in-instruction = Godkend login på din computer.
+pair2-supplicant-approve-sign-in-cancel-button = Annuller
+
+
 service-welcome-signup-success-banner = { -product-mozilla-account } bekræftet
 service-welcome-signin-success-banner = Du er logget ind!
 service-welcome-vpn-heading = Næste: Slå VPN til
@@ -1339,6 +1378,7 @@ confirm-totp-reset-password-use-different-account = Brug en anden konto
 
 
 password-reset-flow-heading = Nulstil din adgangskode
+password-reset-body-3 = Nulstilling af din adgangskode kan påvirke synkroniserede browserdata.
 password-reset-email-input =
     .label = Indtast din mailadresse
 password-reset-submit-button-2 = Fortsæt
@@ -1427,6 +1467,7 @@ signin-passkey-fallback-heading = Indtast din adgangskode for at synkronisere
 signin-passkey-fallback-body = For at beskytte dine data skal du indtaste din adgangskode, når du bruger denne adgangsnøgle.
 signin-passkey-fallback-password-label = Adgangskode
 signin-passkey-fallback-continue = Fortsæt
+signin-passkey-fallback-forgot-password-link = Glemt adgangskode?
 
 
 
