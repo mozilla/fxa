@@ -1500,7 +1500,7 @@ pair-unsupported-desktop-firefox-fallback-message-v2 = Please close this tab and
 
 
 pair2-authority-approve-sign-in-heading = Approve sign-in?
-pair2-authority-approve-sign-in-confirm-button = Yes, approve sign in
+pair2-authority-approve-sign-in-confirm-button = Yes, approve sign-in
 pair2-authority-approve-sign-in-change-password = Not you? <changePassword>Change your password</changePassword>
 
 

@@ -2075,7 +2075,7 @@ pair-unsupported-desktop-firefox-fallback-message-v2 = Please close this tab and
 pair2-authority-approve-sign-in-heading = Approve sign-in?
 # Submit button confirming that the user started the pairing and approves the
 # other device being added to their account
-pair2-authority-approve-sign-in-confirm-button = Yes, approve sign in
+pair2-authority-approve-sign-in-confirm-button = Yes, approve sign-in
 # "Not you?" asks whether someone other than the user started this sign-in.
 # The text inside <changePassword> links to the page for changing the password.
 pair2-authority-approve-sign-in-change-password = Not you? <changePassword>Change your password</changePassword>

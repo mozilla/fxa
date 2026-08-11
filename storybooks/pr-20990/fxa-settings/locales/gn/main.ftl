@@ -148,6 +148,7 @@ device-info-block-location-city-country = { $city }, { $country } (ojekuaaporã�
 device-info-block-location-country = { $country } (ojekuaaporã’ỹva)
 device-info-block-location-unknown = Tendatee ojekuaa’ỹva
 device-info-browser-os = { $browserName } { $genericOSName }-pe
+device-info-browser-device = { $browserName } { $deviceName }-pe
 device-info-ip-address = IP kundaharape: { $ipAddress }
 
 
@@ -281,6 +282,12 @@ confetti-falling-image-aria-label =
     .aria-label = Kuatia vore’i ho’áva vevépe
 vpn-welcome-image-aria-label =
     .aria-label = { -brand-firefox } rovetã ta’ãngai apu’a reheve ohechaukáva jehechajeykue hovyũva ha "VPN", ohechaukáva VPN hendyha.
+sync-devices-image-aria-label =
+    .aria-label = Kundahára mesa arigua rovetã ha pumbyry popegua, mokõivéva oñembojuehe, { -brand-firefox } mymba ijykerekuéra
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox } ra’ãnga’i
+password-success-image-aria-label =
+    .aria-label = Ñemyesakã mba’éicha emoambuekuaa ñe’ẽñemi apañuai’ỹre.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Emoñepyrũma tembiapo { -brand-firefox }-pe.
@@ -1303,6 +1310,11 @@ pair-unsupported-connecting-mobile-instructions-v2 = Embojuruja { -brand-firefox
 pair-unsupported-learn-more-link-v2 = Eikuaave
 pair-unsupported-desktop-firefox-fallback-header-v2 = ¡Oops! Oĩ mba’e asẽvaíva.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Emboty ko tendayke ha eha’ã jey.
+
+
+pair2-supplicant-approve-sign-in-heading = Ejapova’erã embojuehe hag̃ua
+pair2-supplicant-approve-sign-in-instruction = Emoneĩ jeike ne mohendahápe.
+pair2-supplicant-approve-sign-in-cancel-button = Eheja
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } moneĩmbyre
