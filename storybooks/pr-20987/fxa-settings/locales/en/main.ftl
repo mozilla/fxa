@@ -516,6 +516,8 @@ cs-logged-out-2 = Logged out of { $service }
 cs-refresh-button =
   .title = Refresh connected services
 
+cs-connect-device-button = Connect a device
+
 cs-missing-device-help = Missing or duplicate items?
 
 cs-disconnect-sync-heading = Disconnect from Sync
@@ -1502,6 +1504,11 @@ pair-unsupported-desktop-firefox-fallback-message-v2 = Please close this tab and
 pair2-supplicant-approve-sign-in-heading = One last step to sync
 pair2-supplicant-approve-sign-in-instruction = Approve the sign-in on your computer.
 pair2-supplicant-approve-sign-in-cancel-button = Cancel
+
+
+pair2-supplicant-connect-this-device-heading = Connect this device to your account?
+pair2-supplicant-connect-this-device-connect-button = Connect
+pair2-supplicant-connect-this-device-cancel-button = Cancel
 
 
 pair2-supplicant-download-firefox-heading = Get { -brand-firefox } on this device
