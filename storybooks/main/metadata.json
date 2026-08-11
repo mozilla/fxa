@@ -1,8 +1,8 @@
 {
-  "commit": "057b4282860963365900235954e73866d9b5600e",
-  "summary": "Merge pull request #20865 from mozilla/FXA-14109",
-  "description": "bug(auth-server): Let FxA's front-end turn off the server-sent signin OTP",
-  "timestamp": 1786482212000,
+  "commit": "9975400c66a0eba22978b079e1a783ddf2a5971c",
+  "summary": "Merge pull request #21005 from mozilla/dependabot/npm_and_yarn/nanoid-3.3.18",
+  "description": "chore(deps): bump nanoid from 3.3.11 to 3.3.18",
+  "timestamp": 1786485134000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
