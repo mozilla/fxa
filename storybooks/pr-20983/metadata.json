@@ -1,8 +1,8 @@
 {
-  "commit": "d70c26feef00846dd786df747a13c7aa814d83fd",
+  "commit": "898748ee1ab867f2b74ad8e8fa393b564146221a",
   "summary": "Apply suggestion from @bcolsson",
   "description": "Co-authored-by: Bryan Olsson <bolsson@mozilla.com>",
-  "timestamp": 1786485787000,
+  "timestamp": 1786485795000,
   "storybooks": [
     "fxa-settings"
   ],

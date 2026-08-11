@@ -1500,7 +1500,7 @@ pair-unsupported-desktop-firefox-fallback-message-v2 = Please close this tab and
 
 
 pair2-authority-download-firefox-heading = Open { -brand-firefox } to sync
-pair2-authority-download-firefox-instruction = To set up syncing across devices, open Firefox on this device and visit firefox.com/pair
+pair2-authority-download-firefox-instruction = To set up syncing across devices, open { -brand-firefox } on this device and visit <b>firefox.com/pair</b>
 pair2-authority-download-firefox-cta = Download Firefox
 
 
