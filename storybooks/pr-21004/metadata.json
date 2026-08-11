@@ -1,8 +1,8 @@
 {
-  "commit": "1fc113ca5dc60bffd15db3556a9905d52991ef5b",
+  "commit": "0c28d800b644678631f88df02381fd1b6e7e7a71",
   "summary": "feat(settings): Remove privacy and terms pages Because:",
   "description": "* After https://github.com/mozilla/webservices-infra/pull/12034 landed, the current pages are no longer needed.\n\nThis commit:\n\n* Removes the /legal/terms and /legal/privacy pages and their routes from fxa-settings and content-server.\n* Removes the markdown rendering components and legal-docs fetch helper that existed only to serve those pages.\n* Retires the legal-docs build pipeline (clone-legal-docs.sh, legal-prime) and the now-unread LEGAL_DOCS_URL config.\n\nCloses #[PAY-3877](https://mozilla-hub.atlassian.net/browse/PAY-3877)",
-  "timestamp": 1786485558000,
+  "timestamp": 1786489489000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
