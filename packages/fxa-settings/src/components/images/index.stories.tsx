@@ -22,6 +22,11 @@ import {
   SyncCloudsImage,
   SyncDevicesImage,
   FirefoxWordmarkImage,
+  SyncSuccessImage,
+  PairingInterruptedImage,
+  LaptopQrCodeImage,
+  MobileDevicePairingImage,
+  QrPhoneFrameImage,
   FallingConfettiImage,
 } from '.';
 import { withLocalization } from 'fxa-react/lib/storybooks';
@@ -83,6 +88,16 @@ export const SyncDevices = () => <SyncDevicesImage />;
 export const FirefoxWordmark = () => (
   <FirefoxWordmarkImage className="mx-auto my-4 h-8 w-24 text-black dark:text-white" />
 );
+
+export const SyncSuccess = () => <SyncSuccessImage />;
+
+export const PairingInterrupted = () => <PairingInterruptedImage />;
+
+export const LaptopQrCode = () => <LaptopQrCodeImage />;
+
+export const MobileDevicePairing = () => <MobileDevicePairingImage />;
+
+export const QrPhoneFrame = () => <QrPhoneFrameImage />;
 
 export const ConfettiFallingFullPage = () => <FallingConfettiImage />;
 
