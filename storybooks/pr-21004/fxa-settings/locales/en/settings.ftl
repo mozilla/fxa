@@ -1866,15 +1866,6 @@ tfa-qr-code-alt = Use the code { $code } to set up two-step authentication in su
 
 inline-totp-setup-page-title = Two-step authentication
 
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Legal
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Terms of Service
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Privacy Notice
-
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = Did you just sign in to { -brand-firefox }?

@@ -1387,11 +1387,6 @@ tfa-qr-code-alt = Use the code { $code } to set up two-step authentication in su
 inline-totp-setup-page-title = Two-step authentication
 
 
-legal-header = Legal
-legal-terms-of-service-link = Terms of Service
-legal-privacy-link = Privacy Notice
-
-
 pair-auth-allow-heading-text = Did you just sign in to { -brand-firefox }?
 pair-auth-allow-confirm-button = Yes, approve device
 pair-auth-allow-refuse-device-link = If this wasn’t you, <a>change your password</a>

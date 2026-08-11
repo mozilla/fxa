@@ -153,6 +153,9 @@ device-info-block-location-unknown = Position ukendt
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $browserName } på { $genericOSName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $browserName } på { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP-adresse: { $ipAddress }
@@ -271,6 +274,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Kode
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Rediger
 error-icon-aria-label =
     .aria-label = Fejl
 # Used as information icon for informative messaging
@@ -327,6 +333,15 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
     .aria-label = { -brand-firefox }-vindue med et rundt mærke, der viser et grønt flueben og "VPN", hvilket viser, at VPN'en er aktiv.
+sync-devices-image-aria-label =
+    .aria-label = Et browservindue og en mobiltelefon, begge synkroniserede, med maskotten { -brand-firefox } ved siden af.
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox }-logo
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = Illustration, der repræsenterer en vellykket ændring af adgangskode.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -390,6 +405,8 @@ link-expired-new-link-button = Modtag nyt link
 
 # immediately before remember-password-signin-link
 remember-password-text = Kan du huske adgangskoden?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = Har du en adgangsnøgle, eller kan du huske din adgangskode?
 # link navigates to the sign in page
 remember-password-signin-link = Log ind
 
@@ -507,7 +524,15 @@ flow-recovery-key-hint-unsafe-char-error = Huskereglen kan ikke indeholde usikre
 password-reset-warning-icon = Advarsel
 password-reset-chevron-expanded = Sammenfold advarsel
 password-reset-chevron-collapsed = Fold advarsel ud
+password-reset-warning-review-sign-in-options = Gennemgå login-indstillinger for at beholde browserdata
 password-reset-warning-have-key = Har du en genoprettelsesnøgle til kontoen?
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = Brug den til at nulstille din adgangskode og beholde dine browserdata
+password-reset-warning-signed-in-device = Stadig logget ind på en anden enhed?
+password-reset-warning-signed-in-device-description = Dine browserdata er muligvis tilgængelige. Nulstil din adgangskode, og log derefter ind på den enhed for at gendanne og synkronisere dine data.
+password-reset-warning-restore-data-link = Læs, hvordan du gendanner browserdata fra en enhed, der er logget ind
+password-reset-warning-new-device = Bruger du en ny enhed, men kan ikke få adgang til dine gamle?
+password-reset-warning-new-device-description = Når du har nulstillet din adgangskode, vil krypterede browserdata på { -brand-firefox }' servere ikke være tilgængelige på denne enhed.
 
 ## Alert Bar
 
@@ -1248,6 +1273,18 @@ passkey-delete-modal-cancel-button = Annuller
 passkey-delete-modal-confirm-button = Slet adgangsnøgle
 passkey-delete-success = Adgangsnøgle slettet
 passkey-delete-error = Der opstod et problem med at slette din adgangsnøgle. Prøv igen om et par minutter.
+passkey-sub-row-rename-title = Omdøb adgangsnøgle
+passkey-rename-modal-heading = Omdøb adgangsnøgle
+passkey-rename-modal-description = Indtast et nyt navn til denne adgangsnøgle.
+passkey-rename-input-label = Adgangsnøglens navn
+passkey-rename-save-button = Gem
+passkey-rename-cancel-button = Annuller
+passkey-rename-error-empty = Indtast et navn til denne adgangsnøgle
+passkey-rename-error-too-long = Navnet skal indeholde færre end 256 tegn.
+passkey-rename-error-invalid = Kun bogstaver, tal, tegnsætningstegn og symboler er tilladt.
+passkey-rename-error-duplicate = Der eksisterer allerede en adgangsnøgle med dette navn
+passkey-rename-success = Adgangsnøgle omdøbt
+passkey-rename-error = Der opstod et problem med at omdøbe din adgangsnøgle. Prøv igen om et par minutter.
 
 ## Switch component
 
@@ -1441,6 +1478,7 @@ auth-error-225 = Adgangsnøglen er allerede registreret
 auth-error-226 = Grænsen for adgangsnøgle nået
 auth-error-227 = Godkendelse med adgangsnøgle mislykkedes
 auth-error-228 = Registrering af adgangsnøgle mislykkedes
+auth-error-233 = For at oprette en adgangsnøgle skal du oprette en skærmlås, pinkode, fingeraftryk eller ansigtsgenkendelse på din enhed eller sikkerhedsnøgle. Prøv derefter igen.
 auth-error-238 = Adgangsnøgleudfordring mislykkedes
 auth-error-239 = Vi kunne desværre ikke slette din konto. Prøv igen, eller kontakt support, hvis problemet fortsætter.
 auth-error-999 = Uventet fejl
@@ -1508,12 +1546,24 @@ passkey-registration-error-unexpected = Opsætning af adgangsnøgle mislykkedes.
 
 # Authentication errors
 
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Kunne ikke logge ind med en adgangsnøgle
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Prøv igen, eller brug en anden loginmetode.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = Sådan bruger du adgangsnøgler
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Log ind med adgangsnøgle mislykkedes eller er ikke tilgængelig. Prøv igen, eller vælg en anden metode.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = Opsætning af adgangsnøgle er ikke tilgængelig med denne enhed. Prøv igen eller vælg en anden metode.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Tidsfristen for adgangsnøgleforespørgslen udløb. Prøv igen.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Tidsfristen for login med adgangsnøgle udløb. Prøv igen.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Din browser eller enhed understøtter ikke adgangsnøgler.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
@@ -1817,6 +1867,17 @@ pair-unsupported-learn-more-link-v2 = Læs mere
 pair-unsupported-desktop-firefox-fallback-header-v2 = Hov, noget gik galt.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Luk dette faneblad og prøv igen.
 
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = Et sidste trin til synkronisering
+pair2-supplicant-approve-sign-in-instruction = Godkend login på din computer.
+# Dismisses the pairing attempt
+pair2-supplicant-approve-sign-in-cancel-button = Annuller
+
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
 
@@ -1921,6 +1982,7 @@ confirm-totp-reset-password-use-different-account = Brug en anden konto
 ## ResetPassword start page
 
 password-reset-flow-heading = Nulstil din adgangskode
+password-reset-body-3 = Nulstilling af din adgangskode kan påvirke synkroniserede browserdata.
 password-reset-email-input =
     .label = Indtast din mailadresse
 password-reset-submit-button-2 = Fortsæt
@@ -2045,6 +2107,7 @@ signin-passkey-fallback-heading = Indtast din adgangskode for at synkronisere
 signin-passkey-fallback-body = For at beskytte dine data skal du indtaste din adgangskode, når du bruger denne adgangsnøgle.
 signin-passkey-fallback-password-label = Adgangskode
 signin-passkey-fallback-continue = Fortsæt
+signin-passkey-fallback-forgot-password-link = Glemt adgangskode?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
