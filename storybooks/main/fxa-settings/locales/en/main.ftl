@@ -1505,6 +1505,11 @@ pair2-supplicant-approve-sign-in-heading = One last step to sync
 pair2-supplicant-approve-sign-in-instruction = Approve the sign-in on your computer.
 pair2-supplicant-approve-sign-in-cancel-button = Cancel
 
+
+pair2-supplicant-connect-this-device-heading = Connect this device to your account?
+pair2-supplicant-connect-this-device-connect-button = Connect
+pair2-supplicant-connect-this-device-cancel-button = Cancel
+
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmed
 service-welcome-signin-success-banner = Signed in successfully!
 service-welcome-vpn-heading = Next: Turn on VPN
