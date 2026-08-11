@@ -385,16 +385,6 @@ sync-devices-image-aria-label =
 # Aria label for the Firefox logo and wordmark shown together as a brand lockup
 firefox-wordmark-image-aria-label =
   .aria-label = { -brand-firefox } logo
-sync-success-image-aria-label =
-  .aria-label = The { -brand-firefox } fox mascot looking up at floating cards showing an extension, a shield and a lock, and a list of saved items, representing data synced across devices
-pairing-interrupted-image-aria-label =
-  .aria-label = A browser window with a curled-up fox and a mobile device with the fox peeking out, with an exclamation mark between them, showing the connection was interrupted
-laptop-qr-code-image-aria-label =
-  .aria-label = A laptop showing a QR code next to a mobile device with a scanning frame, with the { -brand-firefox } flame and fox mascot alongside
-mobile-device-pairing-image-aria-label =
-  .aria-label = A mobile device with the { -brand-firefox } flame and the fox mascot alongside it
-qr-phone-frame-image-aria-label =
-  .aria-label = A mobile device with the { -brand-firefox } flame and fox mascot alongside, framing a QR code
 # This id is referenced by `PasswordSuccessImage` but was never added here, so
 # the aria-label has been falling back to English in every locale.
 password-success-image-aria-label =
