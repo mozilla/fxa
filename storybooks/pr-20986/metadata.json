@@ -1,8 +1,8 @@
 {
-  "commit": "d9e9d2ca65516f520691293515a0137b4b527882",
+  "commit": "68c0294f24d3a46e334b2a35bf6c5e37e9551dcd",
   "summary": "feat(settings): add mobile Ready to scan card",
   "description": "Because:\n - We are updating pairing flows and want to land UI components / pages first.\n - Adds the mobile screen telling the user how to start pairing from their computer.\n\nThis commit:\n - Adds `packages/fxa-settings/src/pages/Pair2/Supplicant/ReadyToScan/index.tsx`.\n - Adds storybook stories and tests for the page.\n - Adds l10n files.\n\nCloses #FXA-14237",
-  "timestamp": 1786387814000,
+  "timestamp": 1786467535000,
   "storybooks": [
     "fxa-settings"
   ],

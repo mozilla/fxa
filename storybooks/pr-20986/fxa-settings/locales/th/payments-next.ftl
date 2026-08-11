@@ -624,7 +624,6 @@ next-sub-guarantee = รับประกันคืนเงินภาย�
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = เงื่อนไขการให้บริการ
 next-privacy = ประกาศความเป็นส่วนตัว
-next-terms-download = ดาวน์โหลดข้อกำหนด
 terms-and-privacy-stripe-label = { -brand-mozilla } ใช้ { -brand-name-stripe } สำหรับการทำธุรกรรมชำระเงินอย่างปลอดภัย
 terms-and-privacy-stripe-link = นโยบายความเป็นส่วนตัวของ { -brand-name-stripe }
 terms-and-privacy-paypal-label = { -brand-mozilla } ใช้ { -brand-paypal } สำหรับการทำธุรกรรมชำระเงินอย่างปลอดภัย

@@ -123,4 +123,3 @@ next-sub-guarantee = 30 ദിവസത്തെ പണം മടക്കിന
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = സേവന നിബന്ധനകള്‍
 next-privacy = സ്വകാര്യത അറിയിപ്പ്
-next-terms-download = നിബന്ധനകൾ ഇറക്കിവയ്ക്കുക

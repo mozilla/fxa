@@ -225,7 +225,6 @@ next-sub-guarantee = 30-ਦਿਨ ਦੀ ਰਕਮ ਵਾਪਸੀ ਗਾਰੰ�
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = ਸੇਵਾ ਦੀਆਂ ਸ਼ਰਤਾਂ
 next-privacy = ਪਰਦੇਦਾਰੀ ਸੂਚਨਾ
-next-terms-download = ਡਾਊਨਲੋਡ ਕਰਨ ਦੀਆਂ ਸ਼ਰਤਾਂ
 terms-and-privacy-stripe-label = { -brand-mozilla } ਸੁਰੱਖਿਅਤ ਭੁਗਤਾਨ ਕਾਰਵਾਈ ਲਈ { -brand-name-stripe } ਨੂੰ ਵਰਤਦਾ ਹੈ।
 terms-and-privacy-stripe-link = { -brand-name-stripe } ਪਰਦੇਦਾਰੀ ਨੀਤੀ
 terms-and-privacy-paypal-link = { -brand-paypal } ਪਰਦੇਦਾਰੀ ਨੀਤੀ

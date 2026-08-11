@@ -634,7 +634,6 @@ next-sub-guarantee = 30-дневна гаранција поврата новц�
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = Услови коришћења
 next-privacy = Обавештење о приватности
-next-terms-download = Услови преузимања
 terms-and-privacy-stripe-label = { -brand-mozilla } користи { -brand-name-stripe } за безбедну обраду плаћања.
 terms-and-privacy-stripe-link = { -brand-name-stripe } политика приватности
 terms-and-privacy-paypal-label = { -brand-mozilla } користи { -brand-paypal } за безбедну обраду плаћања.
