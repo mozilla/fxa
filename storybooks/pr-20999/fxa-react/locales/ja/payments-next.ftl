@@ -180,4 +180,3 @@ next-sub-guarantee = 30 日間の返金保証
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = 利用規約
 next-privacy = プライバシー通知
-next-terms-download = 利用規約をダウンロード

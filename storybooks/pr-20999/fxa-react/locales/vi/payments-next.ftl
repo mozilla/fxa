@@ -628,7 +628,6 @@ next-sub-guarantee = Đảm bảo hoàn tiền trong 30 ngày
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = Điều khoản dịch vụ
 next-privacy = Chính sách riêng tư
-next-terms-download = Tải xuống các điều khoản
 terms-and-privacy-stripe-label = { -brand-mozilla } sử dụng { -brand-name-stripe } để xử lý thanh toán an toàn.
 terms-and-privacy-stripe-link = Chính sách riêng tư của { -brand-name-stripe }
 terms-and-privacy-paypal-label = { -brand-mozilla } sử dụng { -brand-paypal } để xử lý thanh toán an toàn.

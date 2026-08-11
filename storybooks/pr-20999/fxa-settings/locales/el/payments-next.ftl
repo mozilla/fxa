@@ -636,7 +636,6 @@ next-sub-guarantee = Εγγύηση επιστροφής χρημάτων 30 η�
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(case: "nom", capitalization: "upper") }
 next-terms = Όροι υπηρεσίας
 next-privacy = Σημείωση απορρήτου
-next-terms-download = Λήψη όρων
 terms-and-privacy-stripe-label = Η { -brand-mozilla } χρησιμοποιεί το { -brand-name-stripe } για την ασφαλή επεξεργασία των πληρωμών.
 terms-and-privacy-stripe-link = Πολιτική απορρήτου του { -brand-name-stripe }
 terms-and-privacy-paypal-label = Η { -brand-mozilla } χρησιμοποιεί το { -brand-paypal } για την ασφαλή επεξεργασία των πληρωμών.

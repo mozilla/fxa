@@ -205,7 +205,6 @@ next-sub-guarantee = Кафолати 30-рӯза барои бозпардох�
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = Шартҳои хизматрасонӣ
 next-privacy = Огоҳномаи махфият
-next-terms-download = Шартҳои боргирӣ
 terms-and-privacy-stripe-link = Сиёсати махфияти «{ -brand-name-stripe }»
 terms-and-privacy-paypal-link = Сиёсати махфияти «{ -brand-paypal }»
 

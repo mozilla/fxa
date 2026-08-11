@@ -638,7 +638,6 @@ next-sub-guarantee = 30 ára haguépe ome’ẽkuaajey viru
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = Mba’epytyvõrã ñemboguata
 next-privacy = Marandu’i ñemiguáva
-next-terms-download = Emboguejy ñemboguatarã
 terms-and-privacy-stripe-label = { -brand-mozilla } oiporu { -brand-name-stripe } ojehepyme’ẽ hag̃ua tekorosãme.
 terms-and-privacy-stripe-link = { -brand-name-stripe } porureko ñemigua
 terms-and-privacy-paypal-label = { -brand-mozilla } oiporu { -brand-paypal } ojehepyme’ẽ hag̃ua tekorosãme.

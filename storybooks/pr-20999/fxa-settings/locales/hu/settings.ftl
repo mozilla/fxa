@@ -155,7 +155,7 @@ device-info-block-location-unknown = Hely ismeretlen
 device-info-browser-os = { $browserName } ezen: { $genericOSName }
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
-device-info-browser-device = { $browserName } ekkor: { $deviceName }
+device-info-browser-device = { $browserName } ezen: { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP-cím: { $ipAddress }
@@ -334,7 +334,7 @@ confetti-falling-image-aria-label =
 vpn-welcome-image-aria-label =
     .aria-label = { -brand-firefox } ablak egy kör alakú kitűzővel, zöld pipával és „VPN” felirattal, jelezve, hogy a VPN aktív.
 sync-devices-image-aria-label =
-    .aria-label = Egy asztali böngészőablak és egy mobiltelefon, mindkettő szinkronizálva, mellettük a(z) { -brand-firefox } kabalafigura
+    .aria-label = Egy asztali böngészőablak és egy mobiltelefon szinkronizál, mellettük a { -brand-firefox } kabalaállata
 # Aria label for the Firefox logo and wordmark shown together as a brand lockup
 firefox-wordmark-image-aria-label =
     .aria-label = { -brand-firefox } logó
@@ -1879,7 +1879,7 @@ pair-unsupported-desktop-firefox-fallback-message-v2 = Zárja be ezt a lapot, é
 
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-supplicant-approve-sign-in-heading = Még egy utolsó lépés a szinkronizáláshoz
-pair2-supplicant-approve-sign-in-instruction = Jóváhagyja a bejelentkezést a számítógépén.
+pair2-supplicant-approve-sign-in-instruction = Hagyja jóvá a bejelentkezést a számítógépén.
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = Mégse
 
