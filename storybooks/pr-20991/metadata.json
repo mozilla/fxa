@@ -1,0 +1,10 @@
+{
+  "commit": "923bd849a69491c2e564f70c1357f2bdd5edffab",
+  "summary": "feat(settings): add desktop Scan QR card",
+  "description": "Because:\n - We are updating pairing flows and want to land UI components / pages first.\n - Adds the desktop screen showing the pairing QR code to scan.\n\nThis commit:\n - Adds `packages/fxa-settings/src/pages/Pair2/Authority/ScanQR/index.tsx`, a\n   presentational card with the heading and instruction copy, the full-bleed\n   pairing artwork, and a \"Get help scanning\" support link. Desktop cards carry\n   no Firefox lockup and this one has no primary button, so that link is the\n   only action on the card.\n - Composites the QR code into the artwork. `QrPhoneFrameImage` is the\n   decorative phone outline and fox surround, drawn with a deliberately blank\n   screen. The Figma artwork frame is reproduced as a 480x346 box bled past the\n   card's padding to its left, right and bottom edges, and the image, the\n   `QRCode` and the help link are each placed as a percentage of that frame, so\n   the composite scales as one with the card. The frame image is exported\n   cropped to its own ink, so it is inset within the frame rather than\n   stretched across it.\n - Takes the encoded string as a required `qrCodeValue` prop, so routing the\n   card cannot leave it showing a QR that scans to nothing. Generating the\n   pairing value and reading the pairing channel land with the flow wiring, as\n   do routing and the page-view/Glean metrics the sibling pairing pages emit.\n - Adds `en.ftl`, `mocks.tsx`, stories for the default and for a denser code,\n   and tests covering the copy, the support link, the value pass-through and\n   the accessible names. `QRCode` takes a plain string for its accessible\n   label, so that one message is resolved with `getMsg`; `testL10n` cannot see\n   those, so its id is asserted against the Fluent bundle directly.\n\nCloses #FXA-14244",
+  "timestamp": 1786467665000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
