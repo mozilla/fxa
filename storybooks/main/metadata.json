@@ -1,8 +1,8 @@
 {
-  "commit": "1f8c441d88172432814f50805f70a1737e827e8d",
-  "summary": "Merge pull request #20982 from mozilla/FXA-14233",
-  "description": "feat(settings): add mobile Connect this device card",
-  "timestamp": 1786485673000,
+  "commit": "3ebb77b1683c4caed279a3596562cbfaa43df574",
+  "summary": "Merge pull request #20992 from mozilla/fxa-12856",
+  "description": "feat(settings): support step-up auth in sign-in flow",
+  "timestamp": 1786486085000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
