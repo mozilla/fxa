@@ -1505,7 +1505,7 @@ pair2-supplicant-approve-sign-in-cancel-button = Cancel
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Looks like we timed out
-pair2-supplicant-timeout-and-cancel-timeout-description = To connect your mobile device and sync your { -brand-firefox } data, visit firefox.com/pair on your computer.
+pair2-supplicant-timeout-and-cancel-timeout-description = To connect your mobile device and sync your { -brand-firefox } data, visit <b>firefox.com/pair</b> on your computer.
 pair2-supplicant-timeout-and-cancel-canceled-heading = Canceled
 pair2-supplicant-timeout-and-cancel-canceled-description = To connect a device anytime, visit firefox.com/pair on your computer.
 
