@@ -123,6 +123,19 @@ export function isMobileOrTabletDevice() {
   return navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
 }
 
+// Whether the pairing flow is supported here: `/pair` is desktop-Firefox only
+// and redirects anything else to /pair/unsupported. It ignores whether the user
+// is signed into the browser because /pair can take the user to sign into Sync.
+export function isPairingSupported({
+  isFirefox,
+  isMobile,
+}: {
+  isFirefox: boolean;
+  isMobile: boolean;
+}) {
+  return isFirefox && !isMobile;
+}
+
 // Crockford base32 Regex. Case insensitive and excludes I, L, O, U
 const B32_STRING = /^[0-9A-HJ-KM-NP-TV-Z]+$/i;
 export function isBase32Crockford(value: string) {

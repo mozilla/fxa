@@ -6,6 +6,7 @@ import { Localized, useLocalization } from '@fluent/react';
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import React, { forwardRef, useCallback, useState } from 'react';
+import { Link, useLocation } from 'react-router';
 import { clearSignedInAccountUid, setSigningOut } from '../../../lib/cache';
 import { logViewEvent } from '../../../lib/metrics';
 import { isMobileDevice } from '../../../lib/utilities';
@@ -26,14 +27,13 @@ const DEVICES_SUPPORT_URL =
 export function sortAndFilterConnectedClients(
   attachedClients: Array<AttachedClient>
 ) {
-  const groupedByName = attachedClients.reduce<Record<string, AttachedClient[]>>(
-    (acc, client) => {
-      const key = String(client.name);
-      acc[key] = acc[key] ? [...acc[key], client] : [client];
-      return acc;
-    },
-    {}
-  );
+  const groupedByName = attachedClients.reduce<
+    Record<string, AttachedClient[]>
+  >((acc, client) => {
+    const key = String(client.name);
+    acc[key] = acc[key] ? [...acc[key], client] : [client];
+    return acc;
+  }, {});
 
   // get a unique (by name) list and sort by time last accessed
   const sortedAndUniqueClients = Object.keys(groupedByName)
@@ -56,9 +56,13 @@ export function sortAndFilterConnectedClients(
   return { groupedByName, sortedAndUniqueClients };
 }
 
-export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
+export const ConnectedServices = forwardRef<
+  HTMLDivElement,
+  { showConnectDeviceButton?: boolean }
+>(({ showConnectDeviceButton = false }, ref) => {
   const alertBar = useAlertBar();
   const account = useAccount();
+  const location = useLocation();
   const attachedClients = account.attachedClients;
   const { groupedByName, sortedAndUniqueClients } =
     sortAndFilterConnectedClients([...attachedClients]);
@@ -218,19 +222,36 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
         <Localized id="cs-heading">Connected Services</Localized>
       </h2>
       <div className="bg-white dark:bg-grey-700 tablet:rounded-xl shadow px-4 tablet:px-6 pt-7 pb-8">
-        <div className="flex justify-between mb-4">
+        <div className="flex justify-between items-center gap-4 mb-4">
           <Localized id="cs-description">
             <p>Everything you are using and signed into.</p>
           </Localized>
-          <Localized id="cs-refresh-button" attrs={{ title: true }}>
-            <ButtonIconReload
-              title="Refresh connected services"
-              classNames="hidden mobileLandscape:inline-block"
-              testId="connected-services-refresh"
-              disabled={isRefreshingClients}
-              onClick={handleRefreshClients}
-            />
-          </Localized>
+          <div className="flex items-center gap-3 shrink-0">
+            <Localized id="cs-refresh-button" attrs={{ title: true }}>
+              <ButtonIconReload
+                title="Refresh connected services"
+                classNames="hidden mobileLandscape:inline-block"
+                testId="connected-services-refresh"
+                disabled={isRefreshingClients}
+                onClick={handleRefreshClients}
+              />
+            </Localized>
+            {/* Permanent pairing CTA, shown to any desktop Firefox user. No
+                browser sign-in check: /pair signs a signed-out user in itself.
+                Broader than the FirefoxPromoBanner's "Connect a device" CTA,
+                which also requires a sign-in and can be dismissed. */}
+            {showConnectDeviceButton && (
+              <Localized id="cs-connect-device-button">
+                <Link
+                  className="cta-primary cta-base-p w-auto py-1 text-sm whitespace-nowrap"
+                  data-glean-id="account_pref_connect_device_submit"
+                  to={`/pair${location.search}`}
+                >
+                  Connect a device
+                </Link>
+              </Localized>
+            )}
+          </div>
         </div>
 
         {!!sortedAndUniqueClients.length &&
