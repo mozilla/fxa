@@ -1,8 +1,8 @@
 {
-  "commit": "d6bf12dc981a6f78a5c71045bc0d20a597c908c6",
-  "summary": "Merge pull request #20958 from mozilla/FXA-13138",
-  "description": "task(db): Add passkeyWraps table",
-  "timestamp": 1786488496000,
+  "commit": "70b8f8f6034011d69c3753d7b6ccfdb54d4599c3",
+  "summary": "Merge pull request #20981 from mozilla/FXA-14240",
+  "description": "feat(settings): add desktop Sync success card",
+  "timestamp": 1786491467000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

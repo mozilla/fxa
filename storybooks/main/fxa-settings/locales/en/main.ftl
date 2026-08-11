@@ -1501,6 +1501,12 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Oops! Something went wrong
 pair-unsupported-desktop-firefox-fallback-message-v2 = Please close this tab and try again.
 
 
+pair2-authority-sync-success-heading = You’re syncing
+pair2-authority-sync-success-description = Your tabs, bookmarks, passwords, and more are ready across your devices.
+pair2-authority-sync-success-view-tabs-button = View synced tabs
+pair2-authority-sync-success-sync-settings-button = Sync settings
+
+
 pair2-supplicant-approve-sign-in-heading = One last step to sync
 pair2-supplicant-approve-sign-in-instruction = Approve the sign-in on your computer.
 pair2-supplicant-approve-sign-in-cancel-button = Cancel
