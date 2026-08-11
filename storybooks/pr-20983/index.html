@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit cf17ce0e15f6e9f49ce2e9e6faf457eb147f4e8e</title>
+  <title>Storybooks for commit d70c26feef00846dd786df747a13c7aa814d83fd</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,44 +23,17 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit cf17ce0e15f6e9f49ce2e9e6faf457eb147f4e8e</h1>
+  <h1>Storybooks for commit d70c26feef00846dd786df747a13c7aa814d83fd</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/10/2026, 6:34:33 PM UTC</dd>
+    <dd>8/11/2026, 10:03:07 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>feat(settings): add desktop Download Firefox card</pre></dd>
+    <dd><pre>Apply suggestion from @bcolsson</pre></dd>
     <dt>Description</dt>
-    <dd><pre>Because:
- - A user who reaches the pairing flow on a computer that is not running
-   Firefox has no way forward — the pairing hand-off is browser-to-browser —
-   so they need to be told to open Firefox and given a way to install it.
- - Adds the desktop screen prompting the user to install Firefox.
-
-This commit:
- - Adds `packages/fxa-settings/src/pages/Pair2/Authority/DownloadFirefox/index.tsx`,
-   a presentational card rendering the heading, the instruction pointing at
-   firefox.com/pair, the desktop/mobile sync illustration, and a full-width
-   &quot;Download Firefox&quot; call to action. It takes no props: the CTA is an external
-   link, so it is wired here rather than left to the route.
- - Follows the desktop element order from Figma — heading, subcopy,
-   illustration, CTA — which is the reverse of the Pair2 mobile cards, and
-   omits the in-card Firefox lockup that the mobile cards carry.
- - Points the CTA at the existing `LINK.FX_DESKTOP` constant, the same
-   destination `Pair/Unsupported` hardcodes today, and styles it with
-   `cta-primary cta-xl` inside a flex wrapper so the link stretches the way a
-   primary button does. `FtlMsg` sits inside `LinkExternal` so translating the
-   label does not clobber the component&#039;s &quot;Opens in new window&quot; screen-reader
-   text.
- - Reuses `AppLayout`&#039;s card surface, which already matches the Figma frame
-   exactly: 480px wide, 32px horizontal and 36px vertical padding.
- - Adds `en.ftl` with the three new strings, `index.stories.tsx`, and tests
-   covering the copy, the illustration&#039;s accessible name, the CTA&#039;s href, and
-   drift between the component&#039;s fallback text and the Fluent bundle.
-
-Closes #FXA-14239</pre></dd>
+    <dd><pre>Co-authored-by: Bryan Olsson &lt;bolsson@mozilla.com&gt;</pre></dd>
   </dl>
 </body>
 </html>
