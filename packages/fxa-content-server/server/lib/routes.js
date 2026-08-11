@@ -25,7 +25,6 @@ module.exports = function (config, i18n, statsd, glean) {
     require('./routes/get-frontend-pairing').default(reactRouteGroups),
     require('./routes/get-frontend').default(reactRouteGroups),
     require('./routes/get-oauth-success').default(reactRouteGroups),
-    require('./routes/get-terms-privacy').default(reactRouteGroups, i18n),
     require('./routes/get-update-firefox')(config),
     require('./routes/get-index').default(reactRouteGroups, config),
     require('./routes/get-ver.json'),

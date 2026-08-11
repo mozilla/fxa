@@ -16,9 +16,7 @@ import { DisplayNamePage } from './settings/displayName';
 import { FourOhFourPage } from './fourOhFour';
 import { FxDesktopV3ForceAuthPage } from './forceAuth/fxDesktopV3';
 import { ForceAuthPage } from './forceAuth';
-import { LegalPage } from './legal';
 import { PostVerifyPage } from './postVerify';
-import { PrivacyPage } from './privacy';
 import { RecoveryKeyPage } from './settings/recoveryKey';
 import { RecoveryPhoneSetupPage } from './settings/recoveryPhone';
 import { RelierPage } from './relier';
@@ -35,7 +33,6 @@ import { SigninTotpCodePage } from './signinTotpCode';
 import { SigninUnblockPage } from './signinUnblock';
 import { SigninPasswordlessCodePage } from './signinPasswordlessCode';
 import { SignupPage } from './signup';
-import { TermsOfService } from './termsOfService';
 import { TotpPage } from './settings/totp';
 import { InlineRecoveryKey } from './inlineRecoveryKey';
 import { SignupConfirmedSyncPage } from './signupConfirmedSync';
@@ -60,10 +57,8 @@ export function create(page: Page, target: BaseTarget) {
     fxDesktopV3ForceAuth: new FxDesktopV3ForceAuthPage(page, target),
     inlineRecoveryKey: new InlineRecoveryKey(page, target),
     inlineTotpSetup: new InlineTotpSetupPage(page, target),
-    legal: new LegalPage(page, target),
     page,
     postVerify: new PostVerifyPage(page, target),
-    privacy: new PrivacyPage(page, target),
     recoveryKey: new RecoveryKeyPage(page, target),
     recoveryPhone: new RecoveryPhoneSetupPage(page, target),
     relier: new RelierPage(page, target),
@@ -81,7 +76,6 @@ export function create(page: Page, target: BaseTarget) {
     signinPasswordlessCode: new SigninPasswordlessCodePage(page, target),
     signup: new SignupPage(page, target),
     signupConfirmedSync: new SignupConfirmedSyncPage(page, target),
-    termsOfService: new TermsOfService(page, target),
     totp: new TotpPage(page, target),
     passkeysExample: new PasskeyExamplePage(page, target),
   };

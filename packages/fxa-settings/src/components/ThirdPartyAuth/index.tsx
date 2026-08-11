@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import { useLocalization } from '@fluent/react';
 
@@ -12,7 +12,6 @@ import { ReactComponent as AppleLogoBoxBlack } from './apple-logo-cropped-black.
 import { ReactComponent as AppleLogoBoxWhite } from './apple-logo-cropped-white.svg';
 
 import { useConfig } from '../../models';
-import { ReactElement } from 'react-markdown/lib/react-markdown';
 import { useMetrics } from '../../lib/metrics';
 import GleanMetrics from '../../lib/glean';
 import { QueryParams } from '../..';

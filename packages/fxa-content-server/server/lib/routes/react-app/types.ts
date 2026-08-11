@@ -28,10 +28,6 @@ export interface GetRouteDefinition {
   (routes: string[]): RouteDefinition;
 }
 
-export interface GetRouteDefinitionSingle {
-  (route: string | RegExp): RouteDefinition;
-}
-
 export interface RouteHelpers {
   addRoute: (routeDefinition: RouteDefinition) => void;
   validationErrorHandler: (

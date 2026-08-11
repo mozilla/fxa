@@ -67,9 +67,6 @@ const InlineRecoverySetupContainer = lazy(
   () => import('../../pages/InlineRecoverySetupFlow/container')
 );
 
-const Legal = lazy(() => import('../../pages/Legal'));
-const LegalPrivacy = lazy(() => import('../../pages/Legal/Privacy'));
-const LegalTerms = lazy(() => import('../../pages/Legal/Terms'));
 const ThirdPartyAuthCallback = lazy(
   () => import('../../pages/PostVerify/ThirdPartyAuthCallback')
 );
@@ -600,13 +597,6 @@ const AuthAndAccountSetupRoutes = ({
             />
           }
         />
-
-        {/* Legal */}
-        <Route path="/legal/*" element={<Legal />} />
-        <Route path="/:locale/legal/privacy/*" element={<LegalPrivacy />} />
-        <Route path="/:locale/legal/terms/*" element={<LegalTerms />} />
-        <Route path="/legal/privacy/*" element={<LegalPrivacy />} />
-        <Route path="/legal/terms/*" element={<LegalTerms />} />
 
         {/* Other */}
         <Route path="/clear/*" element={<Clear />} />

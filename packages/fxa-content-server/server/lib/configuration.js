@@ -486,12 +486,6 @@ const conf = (module.exports = convict({
       format: String,
     },
   },
-  legal_docs_url: {
-    default: 'http://localhost:3030/settings/legal-docs',
-    doc: 'The base URL for fetching legal documents (privacy policy, terms of service)',
-    env: 'LEGAL_DOCS_URL',
-    format: 'url',
-  },
   googleAuthConfig: {
     enabled: {
       default: true,
