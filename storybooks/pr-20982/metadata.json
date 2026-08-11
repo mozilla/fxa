@@ -1,9 +1,10 @@
 {
-  "commit": "7865c7e20689cab3a14bc8370db065cef7f8e0d2",
+  "commit": "43ec4026e60015ce21dc01ed323f746f76aa28ec",
   "summary": "feat(settings): add mobile Connect this device card",
   "description": "Because:\n - We are updating pairing flows and want to land UI components / pages first.\n - Adds the mobile screen asking the user to confirm connecting this device.\n\nThis commit:\n - Adds `packages/fxa-settings/src/pages/Pair2/Supplicant/ConnectThisDevice/index.tsx`.\n - Adds storybook stories for the page.\n - Adds l10n files and tests.\n\nCloses #FXA-14233",
-  "timestamp": 1786467290000,
+  "timestamp": 1786483495000,
   "storybooks": [
+    "fxa-react",
     "fxa-settings"
   ],
   "deployDir": "deploy/"
