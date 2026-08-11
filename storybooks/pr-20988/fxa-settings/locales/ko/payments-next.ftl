@@ -509,7 +509,6 @@ next-sub-guarantee = 30 일 환불 보장
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = 서비스 약관
 next-privacy = 개인정보 보호정책
-next-terms-download = 약관 다운로드
 terms-and-privacy-stripe-label = { -brand-mozilla }는 안전한 결제 처리를 위해 { -brand-name-stripe }를 사용합니다.
 terms-and-privacy-stripe-link = { -brand-name-stripe } 개인 정보 보호 정책
 terms-and-privacy-paypal-label = { -brand-mozilla }는 안전한 결제 처리를 위해 { -brand-paypal }을 사용합니다.

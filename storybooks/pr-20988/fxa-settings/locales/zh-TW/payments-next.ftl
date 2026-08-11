@@ -628,7 +628,6 @@ next-sub-guarantee = 30 天內保證退款
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = 服務條款
 next-privacy = 隱私權公告
-next-terms-download = 下載條款
 terms-and-privacy-stripe-label = { -brand-mozilla } 使用 { -brand-name-stripe } 來安全地處理交易款項。
 terms-and-privacy-stripe-link = { -brand-name-stripe } 隱私權保護政策
 terms-and-privacy-paypal-label = { -brand-mozilla } 使用 { -brand-paypal } 來安全地處理交易款項。

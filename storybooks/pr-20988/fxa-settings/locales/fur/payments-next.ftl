@@ -401,7 +401,6 @@ next-sub-guarantee = Garanzie di rimbors di 30 dîs
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = Tiermins dal servizi
 next-privacy = Informative su la riservatece
-next-terms-download = Discjame i tiermins
 terms-and-privacy-stripe-label = { -brand-mozilla } al dopre { -brand-name-stripe } pe elaborazion sigure dai paiaments.
 terms-and-privacy-stripe-link = Informative su la riservatece di { -brand-name-stripe }
 terms-and-privacy-paypal-label = { -brand-mozilla } al dopre { -brand-paypal } pe elaborazion sigure dai paiaments.

@@ -232,7 +232,6 @@ next-sub-guarantee = 30-daga skilafrestur
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = Þjónustuskilmálar
 next-privacy = Meðferð persónuupplýsinga
-next-terms-download = Sækja skilmála
 terms-and-privacy-stripe-label = { -brand-mozilla } notar { -brand-name-stripe } fyrir örugga vinnslu greiðslna.
 terms-and-privacy-stripe-link = Persónuverndarstefna { -brand-name-stripe }
 terms-and-privacy-paypal-label = { -brand-mozilla } notar { -brand-paypal } fyrir örugga vinnslu greiðslna.

@@ -9,4 +9,3 @@ next-basic-error-message = Aya anu salah. Cobaan deui engké.
 
 next-terms = Katangtuan Layanan
 next-privacy = Wawar Privasi
-next-terms-download = Undeur Katangtuan
