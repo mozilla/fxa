@@ -738,6 +738,10 @@ export async function trySignIn(
         metricsContext: options.metricsContext,
         unblockCode: options.unblockCode,
         originalLoginEmail: options.originalLoginEmail,
+        // We own the verification email in this flow: `handleNavigation` sends it
+        // as it routes to the code screen, so the server must not send its own
+        // copy (FXA-14109).
+        sendSigninVerificationEmail: false,
       }
     );
 

@@ -397,7 +397,9 @@ describe('Signin utils', () => {
         const result = await handleNavigation(navigationOptions);
 
         expect(result.error).toBeUndefined();
-        expect(sessionResendVerifyCode).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
+        expect(sessionResendVerifyCode).toHaveBeenCalledWith(
+          MOCK_SESSION_TOKEN
+        );
         expect(mockNavigate).toHaveBeenCalledWith(
           '/confirm_signup_code',
           expect.any(Object)

@@ -2978,6 +2978,10 @@ export const accountRoutes = (
             verificationMethod: validators.verificationMethod
               .optional()
               .description(DESCRIPTION.verificationMethod),
+            sendSigninVerificationEmail: isA
+              .boolean()
+              .optional()
+              .description(DESCRIPTION.sendSigninVerificationEmail),
           }),
         },
         response: {
