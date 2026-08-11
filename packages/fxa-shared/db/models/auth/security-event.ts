@@ -81,6 +81,9 @@ export const EVENT_NAMES = {
 
 export type SecurityEventNames = keyof typeof EVENT_NAMES;
 
+// Default number of events returned to the account history endpoint.
+export const SECURITY_EVENTS_LIMIT = 100;
+
 export function sanitizeIp(addr: string) {
   addr = addr.trim();
 
@@ -178,7 +181,7 @@ export class SecurityEvent extends BaseAuthModel {
     return !!result;
   }
 
-  static async findByUid(uid: string) {
+  static async findByUid(uid: string, limit = SECURITY_EVENTS_LIMIT) {
     const id = uuidTransformer.to(uid);
     return this.query()
       .select(
@@ -195,7 +198,7 @@ export class SecurityEvent extends BaseAuthModel {
       )
       .where('securityEvents.uid', id)
       .orderBy('securityEvents.createdAt', 'DESC')
-      .limit(20);
+      .limit(limit);
   }
 
   static async findByUidAndIP(uid: string, ipAddr: string, ipHmacKey: string) {

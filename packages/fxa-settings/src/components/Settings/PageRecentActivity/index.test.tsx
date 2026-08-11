@@ -4,8 +4,9 @@
 
 import 'mutationobserver-shim';
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { renderWithRouter, mockAppContext } from '../../../models/mocks';
-import PageRecentActivity from '.';
+import PageRecentActivity, { INITIAL_EVENT_COUNT } from '.';
 import { Account, AppContext } from '../../../models';
 import { MOCK_SECURITY_EVENTS } from './mocks';
 import { HIDDEN_SECURITY_EVENT_NAMES } from './SecurityEvent';
@@ -24,68 +25,69 @@ const render = (acct: Account = account) =>
     </AppContext.Provider>
   );
 
+// One label per mapped event name in SecurityEventName, excluding the
+// events listed in HIDDEN_SECURITY_EVENT_NAMES. The order matches
+// MOCK_SECURITY_EVENTS, which is generated from the same enum.
+const expectedLabels = [
+  'Account created',
+  'Account disabled',
+  'Account enabled',
+  'Account login initiated',
+  'Password reset initiated',
+  'Email bounces cleared',
+  'Account login attempt failed',
+  'Two-step authentication enabled',
+  'Two-step authentication requested',
+  'Two-step authentication failed',
+  'Two-step authentication successful',
+  'Two-step authentication removed',
+  'Password reset requested',
+  'Password reset successful',
+  'Account recovery key enabled',
+  'Account recovery key verification failed',
+  'Account recovery key verification successful',
+  'Account recovery key removed',
+  'New password added',
+  'Password changed',
+  'Secondary email address added',
+  'Secondary email address removed',
+  'Primary and secondary emails swapped',
+  'Logged out of session',
+  'Recovery phone code sent',
+  'Recovery phone setup completed',
+  'Sign-in with recovery phone completed',
+  'Sign-in with recovery phone failed',
+  'Recovery phone removed',
+  'Recovery codes replaced',
+  'Recovery codes created',
+  'Sign-in with recovery codes completed',
+  'Reset password confirmation code sent',
+  'Reset password confirmation code verified',
+  'Password reset required',
+  'Password reset with recovery phone completed',
+  'Password reset with recovery phone failed',
+  'Recovery phone replaced',
+  'Recovery phone replacement failed',
+  'Two-step authentication replaced',
+  'Two-step authentication replacement failed',
+  'Recovery phone setup failed',
+  'Account change authorization requested',
+  'Account change authorized',
+  'Account change authorization failed',
+  'Passkey added',
+  'Passkey registration failed',
+  'Passkey removed',
+  'Sign-in with passkey completed',
+  'Sign-in with passkey failed',
+  'Passwordless sign-in code sent',
+  'Passwordless sign-in code failed',
+  'Passwordless sign-in code verified',
+  'Passwordless account registration completed',
+  'Recovery codes set',
+];
+
 describe('Recent Account Activity', () => {
   it('renders', async () => {
-    // One label per mapped event name in SecurityEventName, excluding the
-    // events listed in HIDDEN_SECURITY_EVENT_NAMES.
-    const expectedLabels = [
-      'Account created',
-      'Account disabled',
-      'Account enabled',
-      'Account login initiated',
-      'Password reset initiated',
-      'Email bounces cleared',
-      'Account login attempt failed',
-      'Two-step authentication enabled',
-      'Two-step authentication requested',
-      'Two-step authentication failed',
-      'Two-step authentication successful',
-      'Two-step authentication removed',
-      'Password reset requested',
-      'Password reset successful',
-      'Account recovery key enabled',
-      'Account recovery key verification failed',
-      'Account recovery key verification successful',
-      'Account recovery key removed',
-      'New password added',
-      'Password changed',
-      'Secondary email address added',
-      'Secondary email address removed',
-      'Primary and secondary emails swapped',
-      'Logged out of session',
-      'Recovery phone code sent',
-      'Recovery phone setup completed',
-      'Sign-in with recovery phone completed',
-      'Sign-in with recovery phone failed',
-      'Recovery phone removed',
-      'Recovery codes replaced',
-      'Recovery codes created',
-      'Sign-in with recovery codes completed',
-      'Reset password confirmation code sent',
-      'Reset password confirmation code verified',
-      'Password reset required',
-      'Password reset with recovery phone completed',
-      'Password reset with recovery phone failed',
-      'Recovery phone replaced',
-      'Recovery phone replacement failed',
-      'Two-step authentication replaced',
-      'Two-step authentication replacement failed',
-      'Recovery phone setup failed',
-      'Account change authorization requested',
-      'Account change authorized',
-      'Account change authorization failed',
-      'Passkey added',
-      'Passkey registration failed',
-      'Passkey removed',
-      'Sign-in with passkey completed',
-      'Sign-in with passkey failed',
-      'Passwordless sign-in code sent',
-      'Passwordless sign-in code failed',
-      'Passwordless sign-in code verified',
-      'Passwordless account registration completed',
-      'Recovery codes set',
-    ];
-
     render();
 
     expect(screen.getByTestId('flow-container')).toBeInTheDocument();
@@ -96,9 +98,54 @@ describe('Recent Account Activity', () => {
 
     expect(await screen.findByText(expectedLabels[0])).toBeInTheDocument();
     expect(account.getSecurityEvents).toHaveBeenCalled();
-    for (const label of expectedLabels.slice(1)) {
+  });
+
+  it(`renders only the first ${INITIAL_EVENT_COUNT} events before "Show more"`, async () => {
+    render();
+
+    expect(await screen.findByText(expectedLabels[0])).toBeInTheDocument();
+    for (const label of expectedLabels.slice(1, INITIAL_EVENT_COUNT)) {
       expect(screen.getByText(label)).toBeInTheDocument();
     }
+    expect(
+      screen.queryByText(expectedLabels[INITIAL_EVENT_COUNT])
+    ).not.toBeInTheDocument();
+    expect(screen.queryAllByRole('listitem')).toHaveLength(INITIAL_EVENT_COUNT);
+  });
+
+  it('renders the remaining events after "Show more" is clicked', async () => {
+    const user = userEvent.setup();
+    render();
+
+    await user.click(await screen.findByRole('button', { name: 'Show more' }));
+
+    for (const label of expectedLabels) {
+      expect(screen.getByText(label)).toBeInTheDocument();
+    }
+    expect(
+      screen.queryByRole('button', { name: 'Show more' })
+    ).not.toBeInTheDocument();
+  });
+
+  it(`omits "Show more" when there are at most ${INITIAL_EVENT_COUNT} events`, async () => {
+    const accountWithFewEvents = {
+      primaryEmail: { email: 'foxy@mozilla.com' },
+      getSecurityEvents: jest
+        .fn()
+        .mockResolvedValue(
+          MOCK_SECURITY_EVENTS.filter(
+            (securityEvent) =>
+              !HIDDEN_SECURITY_EVENT_NAMES.has(securityEvent.name)
+          ).slice(0, INITIAL_EVENT_COUNT)
+        ),
+    } as unknown as Account;
+
+    render(accountWithFewEvents);
+
+    expect(await screen.findByText(expectedLabels[0])).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Show more' })
+    ).not.toBeInTheDocument();
   });
 
   it('filters HIDDEN_SECURITY_EVENT_NAMES before rendering', async () => {
@@ -121,6 +168,18 @@ describe('Recent Account Activity', () => {
     // assertion below would fail.
     expect(await screen.findByText('Account created')).toBeInTheDocument();
     expect(screen.queryAllByRole('listitem')).toHaveLength(1);
+  });
+
+  it('keeps HIDDEN_SECURITY_EVENT_NAMES filtered after "Show more" is clicked', async () => {
+    const user = userEvent.setup();
+    // MOCK_SECURITY_EVENTS covers every event name, hidden ones included.
+    render();
+
+    await user.click(await screen.findByRole('button', { name: 'Show more' }));
+
+    expect(screen.queryAllByRole('listitem')).toHaveLength(
+      expectedLabels.length
+    );
   });
 
   it('falls back to "Other account activity" for unrecognized event names', async () => {
