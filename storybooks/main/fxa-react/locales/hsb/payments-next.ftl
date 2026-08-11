@@ -645,7 +645,6 @@ next-sub-guarantee = 30-dnjowska garantija wróćenja pjenjez
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = Wužiwanske wuměnjenja
 next-privacy = Zdźělenka priwatnosće
-next-terms-download = Sćehnjenske wuměnjenja
 terms-and-privacy-stripe-label = { -brand-mozilla } { -brand-name-stripe } za wěste předźěłowanje płaćenjow wužiwa.
 terms-and-privacy-stripe-link = Prawidła priwatnosće { -brand-name-stripe }
 terms-and-privacy-paypal-label = { -brand-mozilla } { -brand-paypal } za wěste předźěłowanje płaćenjow wužiwa.

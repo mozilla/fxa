@@ -308,7 +308,7 @@ link-expired-new-link-button = Yeni bağlantı iste
 
 
 remember-password-text = Parolanızı hatırladınız mı?
-remember-password-passkey-text = Geniş anahtarınız var mı veya parolanızı hatırladınız mı?
+remember-password-passkey-text = Geçiş anahtarınız var mı veya parolanızı hatırladınız mı?
 remember-password-signin-link = Giriş yap
 
 

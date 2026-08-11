@@ -532,7 +532,6 @@ next-sub-guarantee = 30 gün para iade garantisi
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = Kullanım Koşulları
 next-privacy = Gizlilik Bildirimi
-next-terms-download = İndirme Koşulları
 terms-and-privacy-stripe-label = { -brand-mozilla } güvenli ödeme işlemleri için { -brand-name-stripe } kullanır.
 terms-and-privacy-stripe-link = { -brand-name-stripe } gizlilik ilkeleri
 terms-and-privacy-paypal-label = { -brand-mozilla } güvenli ödeme işlemleri için { -brand-paypal } kullanır.

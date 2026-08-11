@@ -538,7 +538,6 @@ next-sub-guarantee = 30 ditë garanci kthimi parash
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = Kushte Shërbimi
 next-privacy = Shënim Mbi Privatësinë
-next-terms-download = Kushte Shkarkimi
 terms-and-privacy-stripe-label = { -brand-mozilla } përdor { -brand-name-stripe } për përpunim të sigurt të pagesave.
 terms-and-privacy-stripe-link = Rregulla privatësie të { -brand-name-stripe }-it
 terms-and-privacy-paypal-label = { -brand-mozilla } përdor { -brand-paypal } për kryerje të siguruar të pagesave.

@@ -212,7 +212,6 @@ next-sub-guarantee = Гарантоване повернення коштів у
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = Умови надання послуг
 next-privacy = Положення про приватність
-next-terms-download = Завантажити умови
 terms-and-privacy-stripe-label = { -brand-mozilla } використовує { -brand-name-stripe } для безпечної обробки платежів.
 terms-and-privacy-stripe-link = Політика приватності { -brand-name-stripe }
 terms-and-privacy-paypal-label = { -brand-mozilla } використовує { -brand-paypal } для безпечної обробки платежів.

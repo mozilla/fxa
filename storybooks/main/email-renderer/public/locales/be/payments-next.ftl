@@ -145,4 +145,3 @@ next-sub-guarantee = 30-дзённая гарантыя вяртання гро�
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = Умовы абслугоўвання
 next-privacy = Паведамленне аб прыватнасці
-next-terms-download = Умовы сцягвання

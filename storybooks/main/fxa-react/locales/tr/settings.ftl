@@ -383,7 +383,7 @@ link-expired-new-link-button = Yeni bağlantı iste
 # immediately before remember-password-signin-link
 remember-password-text = Parolanızı hatırladınız mı?
 # shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
-remember-password-passkey-text = Geniş anahtarınız var mı veya parolanızı hatırladınız mı?
+remember-password-passkey-text = Geçiş anahtarınız var mı veya parolanızı hatırladınız mı?
 # link navigates to the sign in page
 remember-password-signin-link = Giriş yap
 

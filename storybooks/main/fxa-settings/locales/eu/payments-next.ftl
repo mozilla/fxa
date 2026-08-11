@@ -207,7 +207,6 @@ next-sub-guarantee = 30 eguneko dirua itzultzeko bermea
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = Zerbitzuaren baldintzak
 next-privacy = Pribatutasun-oharra
-next-terms-download = Deskargatu baldintzak
 terms-and-privacy-stripe-label = { -brand-mozilla }-k { -brand-name-stripe } darabil ordainketa seguruak izateko.
 terms-and-privacy-stripe-link = { -brand-name-stripe }en pribatutasun-oharra
 terms-and-privacy-paypal-label = { -brand-mozilla }-k { -brand-paypal } darabil ordainketa seguruak izateko.

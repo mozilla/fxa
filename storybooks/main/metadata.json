@@ -1,8 +1,8 @@
 {
-  "commit": "c5fcc600ad969736ba1fc84b3f49c0c68868e444",
-  "summary": "Merge pull request #20977 from mozilla/fxa-14308",
-  "description": "feat(auth-server): refresh session auth event on 2f challenges",
-  "timestamp": 1786378480000,
+  "commit": "00018364632cf7c058d555e5f95fa4f0b1437d6e",
+  "summary": "Merge pull request #20979 from mozilla/pair2-shared-illustrations",
+  "description": "feat(settings): add shared pairing illustrations",
+  "timestamp": 1786467092000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

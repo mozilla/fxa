@@ -179,7 +179,6 @@ next-sub-guarantee = 30 көн эчендә акчаны кире кайтару
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = Куллану Шартлары
 next-privacy = Хосусыйлык сәясәте
-next-terms-download = Куллану шартларын йөкләп алу
 terms-and-privacy-paypal-link = { -brand-paypal }'ның хосусыйлык сәясәте
 terms-and-privacy-stripe-and-paypal-label = { -brand-mozilla } түләүләрне хәвефсез эшкәртү өчен { -brand-name-stripe } һәм { -brand-paypal } куллана.
 

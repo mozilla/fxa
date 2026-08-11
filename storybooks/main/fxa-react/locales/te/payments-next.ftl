@@ -26,4 +26,3 @@ next-plan-details-show-button = వివరాలను చూపించు
 
 next-terms = సేవా నియమాలు
 next-privacy = గోప్యతా విధానం
-next-terms-download = దింపుకోలు నియమాలు
