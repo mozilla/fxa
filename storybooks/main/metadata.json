@@ -1,8 +1,8 @@
 {
-  "commit": "00018364632cf7c058d555e5f95fa4f0b1437d6e",
-  "summary": "Merge pull request #20979 from mozilla/pair2-shared-illustrations",
-  "description": "feat(settings): add shared pairing illustrations",
-  "timestamp": 1786467092000,
+  "commit": "be478bc95b5eb44406c46f003d4fa4d5047a29d3",
+  "summary": "Merge pull request #20997 from mozilla/FXA-13797",
+  "description": "feat(settings): Add CAD button in Connected Services when signed into Fx Desktop",
+  "timestamp": 1786471236000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

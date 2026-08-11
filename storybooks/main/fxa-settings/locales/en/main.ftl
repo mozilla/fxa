@@ -516,6 +516,8 @@ cs-logged-out-2 = Logged out of { $service }
 cs-refresh-button =
   .title = Refresh connected services
 
+cs-connect-device-button = Connect a device
+
 cs-missing-device-help = Missing or duplicate items?
 
 cs-disconnect-sync-heading = Disconnect from Sync

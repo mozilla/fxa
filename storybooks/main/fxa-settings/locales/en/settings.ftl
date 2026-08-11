@@ -648,6 +648,10 @@ cs-logged-out-2 = Logged out of { $service }
 cs-refresh-button =
   .title = Refresh connected services
 
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = Connect a device
+
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = Missing or duplicate items?
 
