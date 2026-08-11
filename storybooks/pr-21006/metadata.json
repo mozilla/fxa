@@ -1,0 +1,12 @@
+{
+  "commit": "28c132927d83097025a2f0a6838fc40d4beaed83",
+  "summary": "feat(settings): Add passkey HPKE key-wrapping crypto lib",
+  "description": "Because:\n* Passkey PRF-derived keys need an HPKE envelope to wrap account keys\n  client-side.\n\nThis commit:\n* Adds packages/fxa-settings/src/lib/passkey-crypto with HPKE seal/open\n  and key-wrap helpers, the shared ciphersuite in suite.ts, RFC 9180 A.6\n  test vectors, and unit tests.\n* Stores skR as the raw scalar (Nsk 66) rather than a pkcs8 export, so\n  every stored length is a ciphersuite constant. pkcs8's 241 bytes rest\n  on Web Crypto emitting an OPTIONAL public-key field, and a conforming\n  implementation that omitted it would be zero-padded into the\n  fixed-width column and never open again. Serialising is left to the\n  library, which pads short scalars: ~1 P-521 key in 512 has a leading\n  zero byte, so a stripping implementation would corrupt those wraps\n  undetectably. Covered by a regression test.\n* Keeps openKb taking pkR alongside the private key, so the library never\n  derives it via crypto.subtle.getPublicKey, whose fallback needs an\n  extractable key and fails only in browsers lacking the method.\n* Adds the hpke dependency and allows it through Jest's\n  transformIgnorePatterns.",
+  "timestamp": 1786485016000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 28c132927d83097025a2f0a6838fc40d4beaed83</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 28c132927d83097025a2f0a6838fc40d4beaed83</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>8/11/2026, 9:50:16 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(settings): Add passkey HPKE key-wrapping crypto lib</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+* Passkey PRF-derived keys need an HPKE envelope to wrap account keys
+  client-side.
+
+This commit:
+* Adds packages/fxa-settings/src/lib/passkey-crypto with HPKE seal/open
+  and key-wrap helpers, the shared ciphersuite in suite.ts, RFC 9180 A.6
+  test vectors, and unit tests.
+* Stores skR as the raw scalar (Nsk 66) rather than a pkcs8 export, so
+  every stored length is a ciphersuite constant. pkcs8&#039;s 241 bytes rest
+  on Web Crypto emitting an OPTIONAL public-key field, and a conforming
+  implementation that omitted it would be zero-padded into the
+  fixed-width column and never open again. Serialising is left to the
+  library, which pads short scalars: ~1 P-521 key in 512 has a leading
+  zero byte, so a stripping implementation would corrupt those wraps
+  undetectably. Covered by a regression test.
+* Keeps openKb taking pkR alongside the private key, so the library never
+  derives it via crypto.subtle.getPublicKey, whose fallback needs an
+  extractable key and fails only in browsers lacking the method.
+* Adds the hpke dependency and allows it through Jest&#039;s
+  transformIgnorePatterns.</pre></dd>
+  </dl>
+</body>
+</html>
