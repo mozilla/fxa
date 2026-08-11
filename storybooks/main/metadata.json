@@ -1,8 +1,8 @@
 {
-  "commit": "be478bc95b5eb44406c46f003d4fa4d5047a29d3",
-  "summary": "Merge pull request #20997 from mozilla/FXA-13797",
-  "description": "feat(settings): Add CAD button in Connected Services when signed into Fx Desktop",
-  "timestamp": 1786471236000,
+  "commit": "e33bd594841f3a30c641347c67b7f1a6abb90a71",
+  "summary": "Merge pull request #20980 from mozilla/fxa-14309",
+  "description": "feat(oauth): add acr and auth_time to JWT access token and introspect",
+  "timestamp": 1786472413000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
