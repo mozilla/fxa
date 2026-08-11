@@ -312,7 +312,7 @@ subscriptionEndingReminder-title = { $productName } 구독이 곧 만료됩니�
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 #   $serviceLastActiveDateOnly (String) - The date of last active service, e.g. 01/20/2016
 subscriptionEndingReminder-content-line1 = { $productName }에 대한 접근이 <strong>{ $serviceLastActiveDateOnly }</strong>에 종료됩니다.
-subscriptionEndingReminder-content-line2-v2 = { $productName }를 계속 사용하려면 <strong>{ $serviceLastActiveDateOnly }</strong> 전에 <a data-l10n-name="subscriptionEndingReminder-subscription-manage">구독 관리</a>에서 구독을 계속할 수 있습니다. 도움이 필요하면 <a data-l10n-name="subscriptionEndingReminder-contact-support">지원 팀에 문의</a>하세요.
+subscriptionEndingReminder-content-line2-v2 = { $productName }를 계속 사용하려면 <strong>{ $serviceLastActiveDateOnly }</strong> 전에 <a data-l10n-name="subscriptionEndingReminder-subscription-management">구독 관리</a>에서 구독을 계속할 수 있습니다. 도움이 필요하면 <a data-l10n-name="subscriptionEndingReminder-contact-support">지원 팀에 문의</a>하세요.
 subscriptionEndingReminder-content-line1-plaintext = { $productName }에 대한 접근이 { $serviceLastActiveDateOnly }에 종료됩니다.
 subscriptionEndingReminder-content-line2-plaintext-v2 = { $productName }를 계속 사용하려면 { $serviceLastActiveDateOnly } 전에 구독 관리에서 구독을 계속할 수 있습니다. 도움이 필요하면 지원 팀에 문의하세요.
 subscriptionEndingReminder-content-closing = 구독해 주셔서 감사합니다!
@@ -399,12 +399,12 @@ subscriptionRenewalReminder-content-discount-ending = 이전 할인이 종료되
 # Variables
 #   $invoiceTotalExcludingTax (String) - The amount of the subscription invoice before tax, including currency, e.g. $10.00
 #   $invoiceTax (String) - The tax amount of the subscription invoice, including currency, e.g. $1.29
-subscriptionRenewalReminder-content-charge-with-tax-day = 그때가 되면 { -brand-mozilla }가 일일 구독을 갱신하고 계정에 등록된 결제 수단으로 { $invoiceTotalExducingTax } + { $invoiceTax }의 세금이 부과됩니다.
-subscriptionRenewalReminder-content-charge-with-tax-week = 그때가 되면 { -brand-mozilla }가 주간 구독을 갱신하고 계정에 등록된 결제 수단으로 { $invoiceTotalExducingTax } + { $invoiceTax }의 세금이 부과됩니다.
-subscriptionRenewalReminder-content-charge-with-tax-month = 그 때가 되면 { -brand-mozilla }가 월간 구독을 갱신하고 계정에 등록된 결제 수단으로 { $invoiceTotalExducingTax } + { $invoiceTax }의 세금이 부과됩니다.
-subscriptionRenewalReminder-content-charge-with-tax-halfyear = 그 때가 되면 { -brand-mozilla }가 6개월 구독을 갱신하고 계정에 등록된 결제 수단으로 { $invoiceTotalExducingTax } + { $invoiceTax }의 세금이 부과됩니다.
-subscriptionRenewalReminder-content-charge-with-tax-year = 그때가 되면 { -brand-mozilla }가 연간 구독을 갱신하고 계정에 등록된 결제 수단으로 { $invoiceTotalExducingTax } + { $invoiceTax }의 세금이 부과됩니다.
-subscriptionRenewalReminder-content-charge-with-tax-default = 그때가 되면 { -brand-mozilla }가 구독을 갱신하고 계정에 등록된 결제 수단으로 { $invoiceTotalExhavingTax } + { $invoiceTax }의 세금이 부과됩니다.
+subscriptionRenewalReminder-content-charge-with-tax-day = 그때가 되면 { -brand-mozilla }가 일일 구독을 갱신하고 계정에 등록된 결제 수단으로 { $invoiceTotalExcludingTax } + { $invoiceTax }의 세금이 부과됩니다.
+subscriptionRenewalReminder-content-charge-with-tax-week = 그때가 되면 { -brand-mozilla }가 주간 구독을 갱신하고 계정에 등록된 결제 수단으로 { $invoiceTotalExcludingTax } + { $invoiceTax }의 세금이 부과됩니다.
+subscriptionRenewalReminder-content-charge-with-tax-month = 그 때가 되면 { -brand-mozilla }가 월간 구독을 갱신하고 계정에 등록된 결제 수단으로 { $invoiceTotalExcludingTax } + { $invoiceTax }의 세금이 부과됩니다.
+subscriptionRenewalReminder-content-charge-with-tax-halfyear = 그 때가 되면 { -brand-mozilla }가 6개월 구독을 갱신하고 계정에 등록된 결제 수단으로 { $invoiceTotalExcludingTax } + { $invoiceTax }의 세금이 부과됩니다.
+subscriptionRenewalReminder-content-charge-with-tax-year = 그때가 되면 { -brand-mozilla }가 연간 구독을 갱신하고 계정에 등록된 결제 수단으로 { $invoiceTotalExcludingTax } + { $invoiceTax }의 세금이 부과됩니다.
+subscriptionRenewalReminder-content-charge-with-tax-default = 그때가 되면 { -brand-mozilla }가 구독을 갱신하고 계정에 등록된 결제 수단으로 { $invoiceTotalExcludingTax } + { $invoiceTax }의 세금이 부과됩니다.
 # Variables
 #   $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 subscriptionRenewalReminder-content-charge-invoice-total-day = 그 때 { -brand-mozilla }가 일일 구독을 갱신하고 계정에 등록된 결제 수단으로 { $invoiceTotal }의 요금이 청구됩니다.
