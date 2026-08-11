@@ -1,8 +1,8 @@
 {
-  "commit": "3c2b73e8afd7ed6e8e778386516045abf727e827",
-  "summary": "Merge pull request #20974 from mozilla/fxa-14033",
-  "description": "fix(auth): Use `verifiedSessionToken` on sign out",
-  "timestamp": 1786480033000,
+  "commit": "057b4282860963365900235954e73866d9b5600e",
+  "summary": "Merge pull request #20865 from mozilla/FXA-14109",
+  "description": "bug(auth-server): Let FxA's front-end turn off the server-sent signin OTP",
+  "timestamp": 1786482212000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
