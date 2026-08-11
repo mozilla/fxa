@@ -238,7 +238,7 @@ export class StripeClient {
       ...params,
       expand: [
         'confirmation_secret',
-        'discounts',
+        'discounts.source.coupon',
         'lines.data.taxes.tax_rate_details.tax_rate',
         'total_taxes.tax_rate_details.tax_rate',
       ],
@@ -251,7 +251,7 @@ export class StripeClient {
     const result = await this.stripe.invoices.createPreview({
       ...params,
       expand: [
-        'discounts',
+        'discounts.source.coupon',
         'lines.data.taxes.tax_rate_details.tax_rate',
         'total_taxes.tax_rate_details.tax_rate',
       ],

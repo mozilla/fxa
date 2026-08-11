@@ -26,6 +26,7 @@ import {
 import {
   CHARGES_RESOURCE,
   CUSTOMER_RESOURCE,
+  discountsNeedExpansion,
   INVOICES_RESOURCE,
   PAYMENT_METHOD_RESOURCE,
   PLAN_RESOURCE,
@@ -75,12 +76,7 @@ import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { reportSentryError, reportSentryMessage } from '../sentry';
 import { StripeMapperService } from '@fxa/payments/legacy';
 import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
-import {
-  STRIPE_API_VERSION,
-  StripeDiscount,
-  StripeInvoice,
-  StripeResponse,
-} from '@fxa/payments/stripe';
+import { STRIPE_API_VERSION, StripeResponse } from '@fxa/payments/stripe';
 
 // Maintains backwards compatibility. Some type defs hoisted to fxa-shared/payments/stripe
 export * from 'fxa-shared/payments/stripe';
@@ -108,10 +104,6 @@ export function getInvoiceSubscription(
     ).subscription
   );
 }
-
-type StripeInvoiceWithExpandedDiscounts = Omit<Stripe.Invoice, 'discounts'> & {
-  discounts: StripeDiscount[];
-};
 
 export enum STRIPE_CUSTOMER_METADATA {
   PAYPAL_AGREEMENT = 'paypalAgreementId',
@@ -403,7 +395,10 @@ export class StripeHelper extends StripeHelperBase {
   }) {
     return this.stripe.invoices.createPreview({
       subscription: subscriptionId,
-      expand: ['discounts', 'lines.data.taxes.tax_rate_details.tax_rate'],
+      expand: [
+        'discounts.source.coupon',
+        'lines.data.taxes.tax_rate_details.tax_rate',
+      ],
       ...(includeCanceled && {
         subscription_details: { cancel_at_period_end: false },
       }),
@@ -671,17 +666,21 @@ export class StripeHelper extends StripeHelperBase {
   }
 
   /*
-   * Expand the discounts property of an invoice
-   * TODO: We may be able to remove this method in the future if we want to add logic
-   * to expandResource to check if the discounts property is expanded.
+   * Expand the discounts property of an invoice, and the coupon nested under it
    */
   async getInvoiceWithDiscount(
     invoiceId: string
-  ): Promise<StripeResponse<StripeInvoiceWithExpandedDiscounts>> {
+  ): Promise<StripeResponse<Stripe.Invoice>> {
     const invoice = await this.stripe.invoices.retrieve(invoiceId, {
-      expand: ['discounts'],
+      expand: ['discounts.source.coupon'],
     });
-    return invoice as StripeResponse<StripeInvoiceWithExpandedDiscounts>;
+    return invoice;
+  }
+
+  async getSubscriptionWithDiscount(subscriptionId: string) {
+    return this.stripe.subscriptions.retrieve(subscriptionId, {
+      expand: ['discounts.source.coupon'],
+    });
   }
 
   /**
@@ -1752,12 +1751,22 @@ export class StripeHelper extends StripeHelperBase {
         continue;
       }
 
-      let latestInvoice = sub.latest_invoice;
-      if (typeof latestInvoice === 'string') {
+      let latestInvoice: Stripe.Invoice | null;
+      if (typeof sub.latest_invoice === 'string') {
         latestInvoice = await this.expandResource<Stripe.Invoice>(
-          latestInvoice,
+          sub.latest_invoice,
           INVOICES_RESOURCE
         );
+      } else if (
+        sub.latest_invoice &&
+        discountsNeedExpansion(sub.latest_invoice.discounts)
+      ) {
+        latestInvoice = await this.expandResource<Stripe.Invoice>(
+          sub.latest_invoice.id,
+          INVOICES_RESOURCE
+        );
+      } else {
+        latestInvoice = sub.latest_invoice;
       }
 
       if (!latestInvoice) {
@@ -1784,10 +1793,13 @@ export class StripeHelper extends StripeHelperBase {
         }
       }
 
-      const firstDiscount = sub.discounts?.[0];
+      const discounts = discountsNeedExpansion(sub.discounts)
+        ? (await this.getSubscriptionWithDiscount(sub.id)).discounts
+        : sub.discounts;
+      const firstDiscount = discounts?.[0];
       const discount =
         typeof firstDiscount === 'object' ? firstDiscount : undefined;
-      const rawCoupon = discount?.source.coupon;
+      const rawCoupon = discount?.source?.coupon;
       const coupon = typeof rawCoupon === 'object' ? rawCoupon : undefined;
 
       // This type inconsistency runs quite deep, but plan does exist on the subscription here
@@ -1813,9 +1825,8 @@ export class StripeHelper extends StripeHelperBase {
         cancel_at_period_end: sub.cancel_at_period_end,
         end_at: sub.ended_at,
         latest_invoice: latestInvoice.number,
-        latest_invoice_items: stripeInvoiceToLatestInvoiceItemsDTO(
-          latestInvoice as StripeInvoice
-        ),
+        latest_invoice_items:
+          stripeInvoiceToLatestInvoiceItemsDTO(latestInvoice),
         plan_id: plan.id,
         product_name,
         product_id,
@@ -1988,16 +1999,17 @@ export class StripeHelper extends StripeHelperBase {
     let discountDuration: number | null = null;
 
     if (invoice.id && !!invoice.discounts?.length && invoice.discounts.length === 1) {
-      // The discount may arrive as a string id, in which case expand it.
-      let discount = invoice.discounts[0] as string | StripeDiscount;
-      if (typeof discount === 'string') {
+      // The discount, or its coupon, may arrive as an id, in which case expand it.
+      let discount = invoice.discounts[0];
+      if (discountsNeedExpansion(invoice.discounts)) {
         const invoiceWithDiscount = await this.getInvoiceWithDiscount(
           invoice.id
         );
         discount = invoiceWithDiscount.discounts[0];
       }
-      const coupon =
-        typeof discount === 'object' ? discount.source.coupon : undefined;
+      const rawCoupon =
+        typeof discount === 'object' ? discount.source?.coupon : undefined;
+      const coupon = typeof rawCoupon === 'object' ? rawCoupon : undefined;
       discountType = coupon?.duration ?? null;
       discountDuration = coupon?.duration_in_months ?? null;
     }

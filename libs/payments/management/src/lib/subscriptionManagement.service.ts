@@ -561,7 +561,7 @@ export class SubscriptionManagementService {
     } = upcomingInvoice;
 
     const nextPromotionName =
-      subscription.discounts[0]?.source?.coupon.name ?? null;
+      subscription.discounts[0]?.source?.coupon?.name ?? null;
 
     const totalExclusiveTax = taxAmounts
       .filter((tax) => !tax.inclusive)

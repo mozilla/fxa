@@ -31,6 +31,16 @@ import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { StripeMapperService } from '@fxa/payments/legacy';
 import * as Sentry from '@sentry/node';
 
+export function discountsNeedExpansion(
+  discounts?: Array<string | Stripe.Discount | Stripe.DeletedDiscount> | null
+) {
+  return !!discounts?.some(
+    (discount) =>
+      typeof discount === 'string' ||
+      typeof discount.source?.coupon === 'string'
+  );
+}
+
 export const CHARGES_RESOURCE = 'charges';
 export const COUPON_RESOURCE = 'coupons';
 export const CREDIT_NOTE_RESOURCE = 'creditNotes';
@@ -609,16 +619,19 @@ export abstract class StripeHelper {
         );
       case INVOICES_RESOURCE:
         try {
-          // TODO we could remove the getInvoiceWithDiscount method if we add logic
-          // here to check if the discounts field is expanded but it would mean
-          // adding another stipe call to get discounts even when unnecessary
           const invoice = await this.stripeFirestore.retrieveInvoice(resource);
+          if (!discountsNeedExpansion(invoice.discounts)) {
+            // @ts-ignore
+            return invoice;
+          }
           // @ts-ignore
-          return invoice;
+          return this.stripe.invoices.retrieve(resource, {
+            expand: ['discounts.source.coupon'],
+          });
         } catch (err) {
           if (err.name === FirestoreStripeError.FIRESTORE_INVOICE_NOT_FOUND) {
             const invoice = await this.stripe.invoices.retrieve(resource, {
-              expand: ['discounts'],
+              expand: ['discounts.source.coupon'],
             });
             await this.stripeFirestore.retrieveAndFetchCustomer(
               invoice.customer as string,
