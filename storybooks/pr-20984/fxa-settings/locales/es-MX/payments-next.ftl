@@ -155,4 +155,3 @@ next-sub-guarantee = 30 días de garantía de devolución de dinero
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = Términos del servicio
 next-privacy = Aviso de privacidad
-next-terms-download = Descargar términos

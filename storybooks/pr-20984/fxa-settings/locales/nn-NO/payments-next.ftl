@@ -634,7 +634,6 @@ next-sub-guarantee = 30-dagar pengane-tilbake-garanti
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = Tenestevilkår
 next-privacy = Personvernfråsegn
-next-terms-download = Vilkår for nedlasting
 terms-and-privacy-stripe-label = { -brand-mozilla } brukar { -brand-name-stripe } for sikker behandling av betaling.
 terms-and-privacy-stripe-link = { -brand-name-stripe } personvernfråsegn
 terms-and-privacy-paypal-label = { -brand-mozilla } brukar { -brand-paypal } for trygg betalingsbehandling.

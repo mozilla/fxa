@@ -371,7 +371,6 @@ next-sub-guarantee = Garantia de devolução do dinheiro em 30 dias
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = Termos do serviço
 next-privacy = Aviso de privacidade
-next-terms-download = Baixar termos
 terms-and-privacy-stripe-label = A { -brand-mozilla } usa o { -brand-name-stripe } para processamento seguro de pagamentos.
 terms-and-privacy-stripe-link = Política de privacidade do { -brand-name-stripe }
 terms-and-privacy-paypal-label = A { -brand-mozilla } usa o { -brand-paypal } para processamento seguro de pagamentos.
