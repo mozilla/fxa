@@ -648,6 +648,10 @@ cs-logged-out-2 = Logged out of { $service }
 cs-refresh-button =
   .title = Refresh connected services
 
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = Connect a device
+
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = Missing or duplicate items?
 
@@ -2074,8 +2078,9 @@ pair-unsupported-desktop-firefox-fallback-message-v2 = Please close this tab and
 pair2-authority-download-firefox-heading = Open { -brand-firefox } to sync
 # "firefox.com/pair" is a URL and should not be translated
 pair2-authority-download-firefox-instruction = To set up syncing across devices, open { -brand-firefox } on this device and visit <b>firefox.com/pair</b>
+
 # Links out to the Firefox download page
-pair2-authority-download-firefox-cta = Download Firefox
+pair2-authority-download-firefox-cta = Download { -brand-firefox }
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
@@ -2087,6 +2092,20 @@ pair2-supplicant-approve-sign-in-heading = One last step to sync
 pair2-supplicant-approve-sign-in-instruction = Approve the sign-in on your computer.
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = Cancel
+
+## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It asks them to confirm connecting the mobile
+## device to their account, and shows that computer's details so they can
+## verify the request.
+
+# "this device" is the mobile device the user is holding, not the computer
+# whose details are shown below the heading
+pair2-supplicant-connect-this-device-heading = Connect this device to your account?
+# Confirms the pairing attempt
+pair2-supplicant-connect-this-device-connect-button = Connect
+# Dismisses the pairing attempt
+pair2-supplicant-connect-this-device-cancel-button = Cancel
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
