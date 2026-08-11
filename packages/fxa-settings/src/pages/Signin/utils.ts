@@ -223,12 +223,12 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     integration.wantsTwoStepAuthentication();
   const wantsKeys = integration.wantsKeys();
 
-  // If this is an AAL upgrade, the user was redirected from Settings to enter TOTP.
-  // RP redirects won't get into this state since they'll be taken to the RP and
-  // never Settings. This flow doesn't need Sync web channel messages or care about
-  // skipping navigating either because if a Sync user is inside Settings, we probably
-  // don't have the oauth query parameters required to begin a sign-in flow
-  // anyway. Just take all users back to /settings.
+  // Settings-originated AAL upgrades return to /settings. This is the one
+  // carve-out: the user was redirected from Settings to enter TOTP (they don't
+  // have the OAuth query parameters to begin a sign-in flow). Every other
+  // step-up — RP-initiated, i.e. acr_values/max_age — is NOT flagged
+  // isSessionAALUpgrade and falls through to complete the OAuth flow back to the
+  // RP below. This flow also doesn't need Sync web channel messages.
   if (navigationOptions.isSessionAALUpgrade) {
     navigate('/settings');
     return { error: undefined };

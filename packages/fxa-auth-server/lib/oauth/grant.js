@@ -6,7 +6,7 @@ const { Container } = require('typedi');
 
 const { CapabilityService } = require('../payments/capability');
 const { config } = require('../../config');
-const { OauthError } = require('@fxa/accounts/errors');
+const { OauthError, AppError } = require('@fxa/accounts/errors');
 const db = require('./db');
 const util = require('./util');
 const ScopeSet = require('fxa-shared').oauth.scopes;
@@ -15,6 +15,14 @@ const sub = require('./jwt_sub');
 
 const ACR_VALUE_AAL2 = 'AAL2';
 const ACCESS_TYPE_OFFLINE = 'offline';
+
+// Leeway (seconds) applied to the `max_age` freshness comparison. Without it a
+// tight `max_age` (especially 0) could never be satisfied: the challenge →
+// re-authorize round-trip always advances the clock past `auth_time`, so the RP
+// would re-challenge in a loop. A few seconds of grace lets a just-completed
+// challenge satisfy the request while relaxing larger `max_age` values only
+// negligibly.
+const MAX_AGE_LEEWAY_SECONDS = 5;
 
 const SCOPE_OPENID = ScopeSet.fromArray(['openid']);
 const { OAUTH_SCOPE_SESSION_TOKEN } = require('fxa-shared/oauth/constants');
@@ -74,13 +82,30 @@ module.exports.validateRequestedGrant = async function validateRequestedGrant(
   requestedGrant.scope = requestedGrant.scope || ScopeSet.fromArray([]);
 
   // If the grant request is for specific ACR values, do the identity claims support them?
+  // Throw errno 170 (INSUFFICIENT_ACR_VALUES) — the signal the frontend routes to a
+  // second-factor challenge (see pages/Signin/utils.ts, lib/oauth/hooks.tsx).
   if (requestedGrant.acr_values) {
     const acrTokens = requestedGrant.acr_values.trim().split(/\s+/g);
     if (
       acrTokens.includes(ACR_VALUE_AAL2) &&
       !(verifiedClaims['fxa-aal'] >= 2)
     ) {
-      throw OauthError.mismatchAcr(verifiedClaims['fxa-aal']);
+      throw AppError.insufficientACRValues(String(verifiedClaims['fxa-aal']));
+    }
+  }
+
+  // RFC 9470 step-up: if the RP requested a maximum authentication age, require a
+  // fresh challenge when the session's authentication event is older than that.
+  // `fxa-lastAuthAt` is in seconds; MAX_AGE_LEEWAY_SECONDS keeps a just-completed
+  // challenge from being treated as stale. Fail closed if the auth time is missing.
+  if (requestedGrant.max_age != null) {
+    const authAt = verifiedClaims['fxa-lastAuthAt'];
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    if (
+      authAt == null ||
+      nowSeconds - authAt > requestedGrant.max_age + MAX_AGE_LEEWAY_SECONDS
+    ) {
+      throw AppError.insufficientACRValues(String(verifiedClaims['fxa-aal']));
     }
   }
 

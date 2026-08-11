@@ -12,6 +12,8 @@ const DESCRIPTIONS = {
   acrValues:
     'A space-separated list of ACR values specifying acceptable levels of user authentication that the token should have a claim for. Specifying `AAL2` will require the token to have an authentication assuarance level >= 2 which ensures that the user has been authenticated with 2FA before authorizing the requested grant.',
   active: 'Boolean indicator of whether the presented token is active.',
+  maxAge:
+    'The maximum permissible elapsed time in seconds since the user last authenticated. If the session is older, a fresh second-factor challenge (step-up authentication) is required before the grant is authorized.',
   activePrice:
     'Whether the price can be used for new purchases. Defaults to true.',
   amount:

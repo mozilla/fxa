@@ -1036,8 +1036,13 @@ describe('#integration - /v1', function () {
           .then(function (res) {
             expect(res.statusCode).toBe(400);
             assertSecurityHeaders(res);
-            expect(res.result.message).toBe('Mismatch acr value');
-            expect(res.result.errno).toBe(120);
+            // errno 170 (INSUFFICIENT_ACR_VALUES) is the signal the frontend
+            // routes to a second-factor (step-up) challenge; errno 120 was not
+            // recognized by the frontend step-up handlers.
+            expect(res.result.message).toBe(
+              'Required Authentication Context Reference values could not be satisfied'
+            );
+            expect(res.result.errno).toBe(170);
           });
       });
 
