@@ -16,6 +16,7 @@ const REDIS_DOWN = new Error('ECONNREFUSED');
 
 type RedisMock = {
   getAccessToken: jest.Mock;
+  setAccessToken: jest.Mock;
   removeAccessToken: jest.Mock;
   getAccessTokens: jest.Mock;
   removeAccessTokensForUser: jest.Mock;
@@ -25,6 +26,7 @@ type RedisMock = {
 function buildRedisMock(): RedisMock {
   return {
     getAccessToken: jest.fn().mockResolvedValue(MOCK_ACCESS_TOKEN),
+    setAccessToken: jest.fn().mockResolvedValue(undefined),
     removeAccessToken: jest.fn().mockResolvedValue(true),
     getAccessTokens: jest.fn().mockResolvedValue([MOCK_ACCESS_TOKEN]),
     removeAccessTokensForUser: jest.fn().mockResolvedValue(undefined),
@@ -66,6 +68,44 @@ describe('lib/oauth/db - access tokens', () => {
 
       expect(result).toBeUndefined();
       expect(result).not.toBeNull();
+    });
+  });
+
+  describe('generateAccessToken', () => {
+    // The grant carries authAt/amr/aal; they must be persisted on the access
+    // token so introspection can report acr/auth_time/amr (RFC 9470 §6.2).
+    it('persists authAt/amr/aal from the grant onto the access token', async () => {
+      const token = await oauthDb.generateAccessToken({
+        clientId: Buffer.from('deadbeef', 'hex'),
+        name: 'client',
+        canGrant: false,
+        publicClient: false,
+        userId: Buffer.from('feedcafe', 'hex'),
+        scope: 'profile',
+        authAt: 1_700_000_000,
+        amr: ['pwd', 'otp'],
+        aal: 2,
+      });
+
+      expect(token.authAt).toBe(1_700_000_000);
+      expect(token.amr).toEqual(['pwd', 'otp']);
+      expect(token.aal).toBe(2);
+      expect(redis.setAccessToken).toHaveBeenCalledWith(token);
+    });
+
+    it('leaves the metadata undefined when the grant carries none', async () => {
+      const token = await oauthDb.generateAccessToken({
+        clientId: Buffer.from('deadbeef', 'hex'),
+        name: 'client',
+        canGrant: false,
+        publicClient: false,
+        userId: Buffer.from('feedcafe', 'hex'),
+        scope: 'profile',
+      });
+
+      expect(token.authAt).toBeUndefined();
+      expect(token.amr).toBeUndefined();
+      expect(token.aal).toBeUndefined();
     });
   });
 
