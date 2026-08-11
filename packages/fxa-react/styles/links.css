@@ -18,6 +18,11 @@
     active:text-grey-700;
 }
 
+.link-dark-grey {
+  @apply underline text-base text-grey-900 mt-4 py-2
+    dark:text-grey-10
+}
+
 .link-white {
   @apply underline text-white rounded-sm focus:shadow-input-grey-focus focus-visible:shadow-input-grey-focus focus-visible:outline-none active:text-grey-200;
 }
@@ -27,6 +32,9 @@
     @apply text-blue-600 dark:text-blue-300;
   }
   .link-grey:hover {
+    @apply text-grey-600 dark:text-grey-100;
+  }
+  .link-dark-grey:hover {
     @apply text-grey-600 dark:text-grey-100;
   }
   .link-white:hover {
