@@ -638,7 +638,6 @@ next-sub-guarantee = 30 napos pénzvisszafizetési garancia
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts }
 next-terms = A szolgáltatás feltételei
 next-privacy = Adatvédelmi nyilatkozat
-next-terms-download = Letöltési feltételek
 terms-and-privacy-stripe-label = A { -brand-mozilla } a { -brand-name-stripe }-ot használja a biztonságos fizetésfeldolgozáshoz.
 terms-and-privacy-stripe-link = A { -brand-name-stripe } adatvédelmi irányelvei
 terms-and-privacy-paypal-label = A { -brand-mozilla } a { -brand-paypal }t használja a biztonságos fizetésfeldolgozáshoz.

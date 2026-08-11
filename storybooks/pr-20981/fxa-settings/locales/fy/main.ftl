@@ -148,6 +148,7 @@ device-info-block-location-city-country = { $city }, { $country } (roeze)
 device-info-block-location-country = { $country } (roeze)
 device-info-block-location-unknown = Lokaasje ûnbekend
 device-info-browser-os = { $browserName } op { $genericOSName }
+device-info-browser-device = { $browserName } op { $deviceName }
 device-info-ip-address = IP-adres: { $ipAddress }
 
 
@@ -281,6 +282,12 @@ confetti-falling-image-aria-label =
     .aria-label = Animearre fallende konfetti
 vpn-welcome-image-aria-label =
     .aria-label = { -brand-firefox }-finster mei in rûne badge mei in grien finkje en ‘VPN’, wat oanjout dat de VPN aktyf is.
+sync-devices-image-aria-label =
+    .aria-label = In desktopbrowser en in mobile telefoan, beide syngronisearjend, mei de { -brand-firefox }-maskotte dernjonken
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox }-logo
+password-success-image-aria-label =
+    .aria-label = Yllustraasje om in suksesfolle wachtwurdwiziging wer te jaan.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Jo binne oanmeld by { -brand-firefox }.
@@ -1308,6 +1315,11 @@ pair-unsupported-connecting-mobile-instructions-v2 = Iepenje { -brand-firefox } 
 pair-unsupported-learn-more-link-v2 = Mear ynfo
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oepsie, der is wat misgien.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Slút dit ljepblêd en probearje it nochris.
+
+
+pair2-supplicant-approve-sign-in-heading = Ien lêste syngronisaasjestap
+pair2-supplicant-approve-sign-in-instruction = Keur de oanmelding op jo kompjûter goed.
+pair2-supplicant-approve-sign-in-cancel-button = Annulearje
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } befêstige

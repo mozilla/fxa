@@ -531,7 +531,6 @@ next-sub-guarantee = 30 päivän rahat takaisin -takuu
 next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "uppercase") }
 next-terms = Käyttöehdot
 next-privacy = Tietosuojakäytäntö
-next-terms-download = Latausehdot
 terms-and-privacy-stripe-label = { -brand-mozilla } käyttää { -brand-name-stripe }a turvalliseen maksunvälitykseen.
 terms-and-privacy-stripe-link = { -brand-name-stripe }n tietosuojakäytäntö
 terms-and-privacy-paypal-label = { -brand-mozilla } käyttää { -brand-paypal }ia turvalliseen maksunvälitykseen.
