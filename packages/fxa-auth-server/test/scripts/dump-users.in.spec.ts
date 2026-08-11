@@ -4,6 +4,7 @@
 
 const { promisify } = require('util');
 const cp = require('child_process');
+const os = require('os');
 const path = require('path');
 const mocks = require('../../test/mocks');
 const crypto = require('crypto');
@@ -69,47 +70,42 @@ const execOptions = {
 
 describe('#integration - scripts/dump-users', () => {
   let db: any,
+    tmpDir: string,
     oneEmailFilename: string,
     twoEmailsFilename: string,
     oneUidFilename: string,
     twoUidsFilename: string;
 
   beforeAll(async () => {
+    // Write test files outside the repo so no fixtures are left behind.
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'fxa-dump-users-'));
     db = await DB.connect(config);
     await db.createAccount(account1Mock);
     await db.createAccount(account2Mock);
 
     const data = `${account1Mock.email}\n`;
-    oneEmailFilename = `./test/scripts/fixtures/${crypto
-      .randomBytes(16)
-      .toString('hex')}_one_email.txt`;
+    oneEmailFilename = path.join(tmpDir, 'one_email.txt');
     fs.writeFileSync(oneEmailFilename, data);
 
     const data2 = `${account1Mock.uid}\n`;
-    oneUidFilename = `./test/scripts/fixtures/${crypto
-      .randomBytes(16)
-      .toString('hex')}_one_uid.txt`;
+    oneUidFilename = path.join(tmpDir, 'one_uid.txt');
     fs.writeFileSync(oneUidFilename, data2);
 
     const data3 = `${account1Mock.email}\n${account2Mock.email}\n`;
-    twoEmailsFilename = `./test/scripts/fixtures/${crypto
-      .randomBytes(16)
-      .toString('hex')}_two_emails.txt`;
+    twoEmailsFilename = path.join(tmpDir, 'two_emails.txt');
     fs.writeFileSync(twoEmailsFilename, data3);
 
     const data4 = `${account1Mock.uid}\n${account2Mock.uid}\n`;
-    twoUidsFilename = `./test/scripts/fixtures/${crypto
-      .randomBytes(16)
-      .toString('hex')}_two_uids.txt`;
+    twoUidsFilename = path.join(tmpDir, 'two_uids.txt');
     fs.writeFileSync(twoUidsFilename, data4);
   });
 
   afterAll(async () => {
-    await db.close();
-    fs.unlinkSync(oneEmailFilename);
-    fs.unlinkSync(oneUidFilename);
-    fs.unlinkSync(twoEmailsFilename);
-    fs.unlinkSync(twoUidsFilename);
+    try {
+      if (db) await db.close();
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
   });
 
   it('fails if neither --emails nor --uids is specified', async () => {
@@ -201,9 +197,7 @@ describe('#integration - scripts/dump-users', () => {
 
   it('succeeds with --uids and --input containing 1 uid', async () => {
     const { stdout: output } = await cp.execAsync(
-      `node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/dump-users --uids --input ${
-        '../' + oneUidFilename
-      }`,
+      `node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/dump-users --uids --input "${oneUidFilename}"`,
       execOptions
     );
     const result = JSON.parse(output);
@@ -215,9 +209,7 @@ describe('#integration - scripts/dump-users', () => {
 
   it('succeeds with --uids and --input containing 2 uids', async () => {
     const { stdout: output } = await cp.execAsync(
-      `node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/dump-users --uids --input ${
-        '../' + twoUidsFilename
-      }`,
+      `node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/dump-users --uids --input "${twoUidsFilename}"`,
       execOptions
     );
     const result = JSON.parse(output);
@@ -271,9 +263,7 @@ describe('#integration - scripts/dump-users', () => {
 
   it('succeeds with --emails and --input containing 1 email', async () => {
     const { stdout: output } = await cp.execAsync(
-      `node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/dump-users --emails --input ${
-        '../' + oneEmailFilename
-      }`,
+      `node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/dump-users --emails --input "${oneEmailFilename}"`,
       execOptions
     );
     const result = JSON.parse(output);
@@ -285,9 +275,7 @@ describe('#integration - scripts/dump-users', () => {
 
   it('succeeds with --emails and --input containing 2 email', async () => {
     const { stdout: output } = await cp.execAsync(
-      `node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/dump-users --emails --input ${
-        '../' + twoEmailsFilename
-      }`,
+      `node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/dump-users --emails --input "${twoEmailsFilename}"`,
       execOptions
     );
     const result = JSON.parse(output);

@@ -4,6 +4,7 @@
 
 const { promisify } = require('util');
 const cp = require('child_process');
+const os = require('os');
 const path = require('path');
 const mocks = require('../../test/mocks');
 const crypto = require('crypto');
@@ -58,53 +59,48 @@ const DB = createDB(config, log, Token, UnblockCode);
 
 describe('#integration - scripts/must-reset', () => {
   let db: any,
+    tmpDir: string,
     oneEmailFilename: string,
     oneUidFilename: string,
     twoEmailsFilename: string,
     twoUidsFilename: string;
 
   beforeAll(async () => {
+    // Write test files outside the repo so no fixtures are left behind.
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'fxa-must-reset-'));
     db = await DB.connect(config);
     await db.createAccount(account1Mock);
     await db.createAccount(account2Mock);
 
     const data = `${account1Mock.email}\n`;
-    oneEmailFilename = `./test/scripts/fixtures/${crypto
-      .randomBytes(16)
-      .toString('hex')}_one_email.txt`;
+    oneEmailFilename = path.join(tmpDir, 'one_email.txt');
     fs.writeFileSync(oneEmailFilename, data);
 
     const data2 = `${account1Mock.uid}\n`;
-    oneUidFilename = `./test/scripts/fixtures/${crypto
-      .randomBytes(16)
-      .toString('hex')}_one_uid.txt`;
+    oneUidFilename = path.join(tmpDir, 'one_uid.txt');
     fs.writeFileSync(oneUidFilename, data2);
 
     const data3 = `${account1Mock.email}\n${account2Mock.email}\n`;
-    twoEmailsFilename = `./test/scripts/fixtures/${crypto
-      .randomBytes(16)
-      .toString('hex')}_two_emails.txt`;
+    twoEmailsFilename = path.join(tmpDir, 'two_emails.txt');
     fs.writeFileSync(twoEmailsFilename, data3);
 
     const data4 = `${account1Mock.uid}\n${account2Mock.uid}\n`;
-    twoUidsFilename = `./test/scripts/fixtures/${crypto
-      .randomBytes(16)
-      .toString('hex')}_two_uids.txt`;
+    twoUidsFilename = path.join(tmpDir, 'two_uids.txt');
     fs.writeFileSync(twoUidsFilename, data4);
   });
 
   afterAll(async () => {
-    await db.close();
-    fs.unlinkSync(oneEmailFilename);
-    fs.unlinkSync(oneUidFilename);
-    fs.unlinkSync(twoEmailsFilename);
-    fs.unlinkSync(twoUidsFilename);
+    try {
+      if (db) await db.close();
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
   });
 
   it('fails if -i is not specified', async () => {
     try {
       await cp.execAsync(
-        `node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/must-reset ${oneEmailFilename}`,
+        `node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/must-reset "${oneEmailFilename}"`,
         {
           cwd,
         }
@@ -118,7 +114,7 @@ describe('#integration - scripts/must-reset', () => {
   it('fails if neither --emails nor --uids is specified', async () => {
     try {
       await cp.execAsync(
-        `node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/must-reset -i ${oneEmailFilename}`,
+        `node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/must-reset -i "${oneEmailFilename}"`,
         {
           cwd,
         }
@@ -132,7 +128,7 @@ describe('#integration - scripts/must-reset', () => {
   it('fails if both --emails and --uids are specified', async () => {
     try {
       await cp.execAsync(
-        `node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/must-reset --emails --uids -i ${oneEmailFilename}`,
+        `node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/must-reset --emails --uids -i "${oneEmailFilename}"`,
         {
           cwd,
         }
@@ -230,7 +226,7 @@ describe('#integration - scripts/must-reset', () => {
   it('succeeds with --uids and --input containing 1 uid', async () => {
     try {
       await cp.execAsync(
-        `node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/must-reset --uids --input ${oneUidFilename}`,
+        `node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/must-reset --uids --input "${oneUidFilename}"`,
         {
           cwd,
         }
@@ -247,7 +243,7 @@ describe('#integration - scripts/must-reset', () => {
   it('succeeds with --emails and --input containing 1 email', async () => {
     try {
       await cp.execAsync(
-        `node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/must-reset --emails --input ${oneEmailFilename}`,
+        `node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/must-reset --emails --input "${oneEmailFilename}"`,
         {
           cwd,
         }
@@ -264,7 +260,7 @@ describe('#integration - scripts/must-reset', () => {
   it('succeeds with --uids and --input containing 2 uids', async () => {
     try {
       await cp.execAsync(
-        `node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/must-reset --uids --input ${twoUidsFilename}`,
+        `node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/must-reset --uids --input "${twoUidsFilename}"`,
         {
           cwd,
         }
@@ -287,7 +283,7 @@ describe('#integration - scripts/must-reset', () => {
   it('succeeds with --emails and --input containing 2 emails', async () => {
     try {
       await cp.execAsync(
-        `node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/must-reset --emails --input ${twoEmailsFilename}`,
+        `node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/must-reset --emails --input "${twoEmailsFilename}"`,
         {
           cwd,
         }
