@@ -213,6 +213,16 @@ describe('AppErrors', () => {
     }
   );
 
+  it('featureNotEnabled', () => {
+    const result = AppError.featureNotEnabled();
+    expect(result).toBeInstanceOf(AppError);
+    expect(result.errno).toEqual(202);
+    expect(result.message).toEqual('Feature not enabled');
+    expect(result.output.statusCode).toEqual(403);
+    expect(result.output.payload.error).toEqual('Feature not enabled');
+    expect(result.output.payload.errno).toEqual(202);
+  });
+
   it('iapInvalidToken', () => {
     const defaultErrorMessage = 'Invalid IAP token';
     let result = AppError.iapInvalidToken();

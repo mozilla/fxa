@@ -602,7 +602,7 @@ export class AppError extends Error {
     }
     return new AppError(
       {
-        code: 503,
+        code: 403,
         error: 'Feature not enabled',
         errno: ERRNO.FEATURE_NOT_ENABLED,
         message: 'Feature not enabled',
