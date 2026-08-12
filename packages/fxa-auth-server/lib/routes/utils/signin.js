@@ -340,7 +340,13 @@ module.exports = (
         // Otherwise, the login itself is the end of the flow.
         flowCompleteSignal = 'account.login';
       }
-      request.setMetricsFlowCompleteSignal(flowCompleteSignal, 'login');
+      request.setMetricsFlowCompleteSignal(
+        flowCompleteSignal,
+        'login',
+        // A passkey-verified session reaching here is the password step of a
+        // passkey sign-in, not an email login.
+        sessionToken.verificationMethodValue === 'passkey' ? 'passkey' : 'email'
+      );
 
       await stashMetricsContext();
       await checkNumberOfActiveSessions();

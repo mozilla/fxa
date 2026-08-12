@@ -743,6 +743,23 @@ describe('sendSigninNotifications', () => {
     Container.reset();
   });
 
+  it('sets authMethod "passkey" when the session was verified by a passkey', () => {
+    sessionToken.verificationMethodValue = 'passkey';
+
+    return sendSigninNotifications(
+      request,
+      accountRecord,
+      sessionToken,
+      undefined
+    ).then(() => {
+      expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledWith(
+        'account.login',
+        'login',
+        'passkey'
+      );
+    });
+  });
+
   it('emits correct notifications when no verifications are required', () => {
     return sendSigninNotifications(
       request,
@@ -753,7 +770,8 @@ describe('sendSigninNotifications', () => {
       expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledTimes(1);
       expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledWith(
         'account.login',
-        'login'
+        'login',
+        'email'
       );
 
       expect(metricsContext.stash).toHaveBeenCalledTimes(1);
@@ -839,7 +857,8 @@ describe('sendSigninNotifications', () => {
         expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledTimes(1);
         expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledWith(
           'account.login',
-          'login'
+          'login',
+          'email'
         );
 
         expect(metricsContext.stash).toHaveBeenCalledTimes(1);
@@ -905,7 +924,8 @@ describe('sendSigninNotifications', () => {
         expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledTimes(1);
         expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledWith(
           'account.confirmed',
-          'login'
+          'login',
+          'email'
         );
 
         expect(metricsContext.stash).toHaveBeenCalledTimes(2);
@@ -998,7 +1018,8 @@ describe('sendSigninNotifications', () => {
         expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledTimes(1);
         expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledWith(
           'account.login',
-          'login'
+          'login',
+          'email'
         );
 
         expect(metricsContext.stash).toHaveBeenCalledTimes(1);
@@ -1195,7 +1216,8 @@ describe('sendSigninNotifications', () => {
       expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledTimes(1);
       expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledWith(
         'account.confirmed',
-        'login'
+        'login',
+        'email'
       );
 
       expect(metricsContext.stash).toHaveBeenCalledTimes(2);
@@ -1598,7 +1620,8 @@ describe('sendSigninNotifications', () => {
       expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledTimes(1);
       expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledWith(
         'account.signed',
-        'login'
+        'login',
+        'email'
       );
 
       expect(metricsContext.stash).toHaveBeenCalledTimes(1);

@@ -456,15 +456,16 @@ export class PasskeyHandler {
       request
     );
 
+    // Later steps of a keys-required sign-in (password creation, key fetch) send
+    // no metrics context of their own, so stash it against the new session token
+    // to keep them on the same flow.
+    await request.stashMetricsContext(sessionToken);
+
     await recordSecurityEvent('account.passkey.authentication_success', {
       db: this.db,
       request,
       account: { uid },
     });
-
-    // Shared completion signal across sign-in surfaces; mirrors passwordless
-    // (reason: 'otp') and linked-accounts (reason: 'google'|'apple').
-    this.glean.login.complete(request, { uid, reason: 'passkey' });
 
     // A keys-requiring login (Sync, or a non-Sync Firefox service like VPN when
     // the browser hasn't decoupled Sync) completes its key step later, at a
@@ -563,8 +564,14 @@ export class PasskeyHandler {
       // When keys are required the login completes at the later /session/reauth
       // step, which emits these; skip them here to avoid double-counting.
       if (!keysRequired) {
+        // Signal before emitting: emitMetricsEvent only recognises the flow as
+        // complete (and so records login.complete) if the signal is already set.
+        request.setMetricsFlowCompleteSignal(
+          'account.login',
+          'login',
+          'passkey'
+        );
         await request.emitMetricsEvent('account.login', { uid: account.uid });
-        request.setMetricsFlowCompleteSignal('account.login', 'login');
         await recordSecurityEvent('account.login', {
           db: this.db,
           request,

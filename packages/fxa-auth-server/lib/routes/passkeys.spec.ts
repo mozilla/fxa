@@ -118,6 +118,7 @@ describe('passkeys routes', () => {
     };
     request.emitMetricsEvent = jest.fn(() => Promise.resolve({}));
     request.setMetricsFlowCompleteSignal = jest.fn();
+    request.stashMetricsContext = jest.fn(() => Promise.resolve());
     return await route.handler(request);
   }
 
@@ -1237,21 +1238,34 @@ describe('passkeys routes', () => {
       );
     });
 
-    it('emits glean.login.complete with reason "passkey"', async () => {
+    it('stashes the metrics context against the new session token', async () => {
       await runTest('/passkey/authentication/finish', {
         auth: { credentials: {} },
         app: { ua: {} },
         payload,
       });
 
-      expect(glean.login.complete).toHaveBeenCalledTimes(1);
-      expect(glean.login.complete).toHaveBeenCalledWith(expect.anything(), {
-        uid: UID,
-        reason: 'passkey',
-      });
+      // The password-creation and key-fetch steps of a keys-required sign-in
+      // send no metrics context, so they resolve it from this stash.
+      expect(request.stashMetricsContext).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'new-session-token-id' })
+      );
     });
 
-    it('does not emit glean.login.complete when verification fails', async () => {
+    it('does not emit glean.login.complete directly at the ceremony', async () => {
+      await runTest('/passkey/authentication/finish', {
+        auth: { credentials: {} },
+        app: { ua: {} },
+        payload,
+      });
+
+      // login.complete is emitted by the flow-complete machinery, driven by the
+      // signal set below. Emitting here too would double-count every
+      // keys-required sign-in, which also completes at /session/reauth.
+      expect(glean.login.complete).not.toHaveBeenCalled();
+    });
+
+    it('does not set the login flow-complete signal when verification fails', async () => {
       mockPasskeyService.verifyAuthenticationResponse = jest
         .fn()
         .mockRejectedValue(AppError.passkeyAuthenticationFailed());
@@ -1264,6 +1278,7 @@ describe('passkeys routes', () => {
         })
       ).rejects.toThrow();
 
+      expect(request.setMetricsFlowCompleteSignal).not.toHaveBeenCalled();
       expect(glean.login.complete).not.toHaveBeenCalled();
     });
 
@@ -1580,8 +1595,24 @@ describe('passkeys routes', () => {
         });
         expect(request.setMetricsFlowCompleteSignal).toHaveBeenCalledWith(
           'account.login',
-          'login'
+          'login',
+          'passkey'
         );
+      });
+
+      it('sets the flow signal before emitting account.login when keysRequired is false', async () => {
+        await runTest('/passkey/authentication/finish', {
+          auth: { credentials: {} },
+          app: { ua: {} },
+          payload,
+        });
+
+        // emitMetricsEvent only recognises the flow as complete — and so records
+        // login.complete — if the signal is already set. Reversing these two
+        // silently drops the event for keys-optional sign-ins.
+        expect(
+          request.setMetricsFlowCompleteSignal.mock.invocationCallOrder[0]
+        ).toBeLessThan(request.emitMetricsEvent.mock.invocationCallOrder[0]);
       });
 
       it('records the account.login security event when keysRequired is false', async () => {
@@ -1782,14 +1813,32 @@ describe('passkeys routes', () => {
       method: string,
       kind: 'payload' | 'params'
     ): Schema {
-      const all = passkeyRoutes(customs, db, config, statsd, glean, log);
+      const all = passkeyRoutes(
+        customs,
+        db,
+        config,
+        statsd,
+        glean,
+        log,
+        mailer
+      );
       const route = all.find(
         (r: any) => r.path === path && r.method === method
       );
       if (!route) {
         throw new Error(`Route not found: ${method} ${path}`);
       }
-      return route.options.validate[kind];
+      // Not every passkey route declares validation, so the union of route
+      // option types doesn't carry `validate`.
+      const schema = (
+        route.options as {
+          validate?: { payload?: Schema; params?: Schema };
+        }
+      ).validate?.[kind];
+      if (!schema) {
+        throw new Error(`No ${kind} schema on route: ${method} ${path}`);
+      }
+      return schema;
     }
 
     const authPayload = (
