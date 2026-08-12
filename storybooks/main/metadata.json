@@ -1,8 +1,8 @@
 {
-  "commit": "accdd8184134e68727adb0965c4f31a5c7e8989a",
-  "summary": "Merge pull request #20995 from mozilla/dep-reduce-request-3",
-  "description": "chore(profile): replace request with native fetch",
-  "timestamp": 1786557613000,
+  "commit": "d5b7b0e69cf1913af7bf13414ff99aa6469e941c",
+  "summary": "Merge pull request #20990 from mozilla/FXA-14242",
+  "description": "feat(settings): add desktop Approve sign in card",
+  "timestamp": 1786558777000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
