@@ -1,8 +1,8 @@
 {
-  "commit": "2437145df8cdfaafc380edf5cf727da1549c8abb",
+  "commit": "599b3dd15b445ae262be586e65ec25229709e285",
   "summary": "feat(settings): add desktop Timeout and cancel card",
   "description": "Because:\n - We are updating pairing flows and want to land UI components / pages first.\n - Adds the desktop screen shown when pairing times out or is canceled.\n\nThis commit:\n - Adds `packages/fxa-settings/src/pages/Pair2/Authority/TimeoutAndCancel/index.tsx`,\n   one presentational card covering both the `timeout` and `canceled` reasons.\n - Adds per-variant Fluent strings, Storybook stories, and unit tests.\n\nCloses #FXA-14241",
-  "timestamp": 1786490496000,
+  "timestamp": 1786496586000,
   "storybooks": [
     "fxa-settings"
   ],
