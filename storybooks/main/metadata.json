@@ -1,8 +1,8 @@
 {
-  "commit": "e2a42b2524f7ee0babea483d1abd73f167aaa092",
-  "summary": "Merge pull request #21004 from mozilla/PAY-3877-remove-privacy-and-terms-pages",
-  "description": "feat(settings): Remove privacy and terms pages",
-  "timestamp": 1786544049000,
+  "commit": "5082404cf86ebcd1b5b3e37e419ae1ed8f24ce1a",
+  "summary": "Merge pull request #20970 from mozilla/FXA-14302",
+  "description": "fix(metrics): correct login.complete for passkey sign-ins",
+  "timestamp": 1786547603000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
