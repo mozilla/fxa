@@ -1,8 +1,8 @@
 {
-  "commit": "680fd9fa1e79cccced503f8f9411a17c6e81d2fb",
-  "summary": "Revert \"fix(settings): match the timeout description to its Fluent markup\"",
-  "description": "This reverts commit 9cc9b5a3ad9003964f38dd55dc9f4784ea299898.",
-  "timestamp": 1786573984000,
+  "commit": "344c825183cd50febbcb8dd73ccbe959050bcd5f",
+  "summary": "fix(settings): point app download buttons at Bitly link",
+  "description": "",
+  "timestamp": 1786577256000,
   "storybooks": [
     "fxa-settings"
   ],
