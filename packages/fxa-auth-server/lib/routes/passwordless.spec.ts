@@ -4,9 +4,11 @@
 
 import crypto from 'crypto';
 import { createMock } from '@golevelup/ts-jest';
+import { Container } from 'typedi';
 import { StatsD } from 'hot-shots';
 import { AppError as error } from '@fxa/accounts/errors';
 import { AuthLogger } from '../types';
+import { FxaMailer } from '../senders/fxa-mailer';
 import {
   installMockFxaMailer,
   uninstallMockFxaMailer,
@@ -14,6 +16,7 @@ import {
 
 const mocks = require('../../test/mocks');
 const { getRoute } = require('../../test/routes_helpers');
+const authConfig = require('../../config').default.getProperties();
 
 function hexString(bytes: number) {
   return crypto.randomBytes(bytes).toString('hex');
@@ -93,6 +96,10 @@ jest.mock('./utils/account', () => {
       getOptionalCmsEmailConfigStub(...args),
   };
 });
+
+// The real metrics context module is used below to exercise the HMAC check.
+// Its constructor opens a Redis connection, which a unit test must not do.
+jest.mock('../metricsCache', () => ({ MetricsRedis: jest.fn() }));
 
 jest.mock('fxa-shared/db/models/auth', () => ({
   EmailBlocklist: {
@@ -2359,5 +2366,156 @@ describe('existing passwordless accounts bypass flag and allowlist', () => {
         expect(mockOtpManagerCreate).toHaveBeenCalledTimes(1);
       });
     });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// metricsContext validation
+// ---------------------------------------------------------------------------
+
+describe('passwordless metricsContext validation', () => {
+  // The real validate() runs here so the tests cover the HMAC check itself
+  // rather than a stub of it. It never throws: on failure it deletes flowId
+  // and flowBeginTime from the payload and returns false.
+  const realValidate = require('../metrics/context')(
+    createMock<AuthLogger>(),
+    authConfig
+  ).validate;
+
+  const DEVICE_ID = 'b'.repeat(32);
+  const FLOW_ID_RANDOM_HALF = 'a'.repeat(32);
+  const FORGED_FLOW_ID = 'c'.repeat(64);
+
+  /** Sign a flowId the way the content server does, so validate() accepts it. */
+  function signedMetricsContext(flowBeginTime: number) {
+    const signature = crypto
+      .createHmac('sha256', authConfig.metrics.flow_id_key)
+      .update([FLOW_ID_RANDOM_HALF, flowBeginTime.toString(16)].join('\n'))
+      .digest('hex')
+      .substr(0, 32);
+    return {
+      deviceId: DEVICE_ID,
+      flowId: FLOW_ID_RANDOM_HALF + signature,
+      flowBeginTime,
+    };
+  }
+
+  // validate() requires an age greater than zero, so a fresh context is
+  // backdated by a second. Both timestamps are relative to the real clock
+  // because validate() compares them against Date.now().
+  function freshFlowBeginTime() {
+    return Date.now() - 1000;
+  }
+
+  function expiredFlowBeginTime() {
+    return Date.now() - authConfig.metrics.flow_id_expiry - 1000;
+  }
+
+  const CONFIRM_CODE_PATH = '/account/passwordless/confirm_code';
+
+  function setup(path: string, metricsContext: any) {
+    const mockLog = createMock<AuthLogger>();
+    const mockDB = mocks.mockDB({
+      uid: 'f9416ce3703e4916a4cd6b1e665a3f1a',
+      email: TEST_EMAIL,
+      emailVerified: true,
+      verifierSetAt: 0,
+    });
+    const request = mocks.mockRequest({
+      log: mockLog,
+      metricsContext: mocks.mockMetricsContext({ validate: realValidate }),
+      payload: {
+        email: TEST_EMAIL,
+        clientId: 'test-client-id',
+        metricsContext,
+        ...(path === CONFIRM_CODE_PATH ? { code: '123456' } : {}),
+      },
+    });
+
+    const routes = makeRoutes({
+      log: mockLog,
+      db: mockDB,
+      customs: {
+        check: jest.fn(() => Promise.resolve()),
+        v2Enabled: () => true,
+      },
+      config: {
+        passwordlessOtp: {
+          enabled: true,
+          ttl: 300,
+          digits: 6,
+          allowedClientServices: {
+            'test-client-id': { allowedServices: ['*'] },
+          },
+        },
+      },
+    });
+    return { route: getRoute(routes, path, 'POST'), request };
+  }
+
+  afterEach(() => {
+    uninstallMockFxaMailer();
+  });
+
+  describe.each([
+    '/account/passwordless/send_code',
+    CONFIRM_CODE_PATH,
+    '/account/passwordless/resend_code',
+  ])('%s', (path) => {
+    it('keeps a validly signed flowId', async () => {
+      const metricsContext = signedMetricsContext(freshFlowBeginTime());
+      // The handler mutates the payload copy, so assert against a separate one.
+      const { route, request } = setup(path, { ...metricsContext });
+
+      await route.handler(request);
+
+      expect(await request.app.metricsContext).toEqual(metricsContext);
+    });
+
+    it('strips a flowId with a forged signature', async () => {
+      const { route, request } = setup(path, {
+        deviceId: DEVICE_ID,
+        flowId: FORGED_FLOW_ID,
+        flowBeginTime: freshFlowBeginTime(),
+      });
+
+      await route.handler(request);
+
+      expect(await request.app.metricsContext).toEqual({
+        deviceId: DEVICE_ID,
+      });
+    });
+
+    it('strips a flowId with an expired flowBeginTime', async () => {
+      const { route, request } = setup(
+        path,
+        signedMetricsContext(expiredFlowBeginTime())
+      );
+
+      await route.handler(request);
+
+      expect(await request.app.metricsContext).toEqual({
+        deviceId: DEVICE_ID,
+      });
+    });
+  });
+
+  it('does not send a forged flowId to the OTP email', async () => {
+    const { route, request } = setup('/account/passwordless/send_code', {
+      deviceId: DEVICE_ID,
+      flowId: FORGED_FLOW_ID,
+      flowBeginTime: freshFlowBeginTime(),
+    });
+    const mailer = Container.get(FxaMailer);
+
+    await route.handler(request);
+
+    expect(mailer.sendPasswordlessSigninOtpEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        deviceId: DEVICE_ID,
+        flowId: undefined,
+        flowBeginTime: undefined,
+      })
+    );
   });
 });
