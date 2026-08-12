@@ -1,8 +1,8 @@
 {
-  "commit": "26f625376c82ad32a567fffa1b9750c237448f45",
-  "summary": "Merge pull request #20975 from mozilla/fxa-14028",
-  "description": "fix(auth-server): never return the full recovery phone number",
-  "timestamp": 1786552535000,
+  "commit": "30a50c0af6d2d763f8457bcb5868e31a554a45b4",
+  "summary": "Merge pull request #21012 from mozilla/port-train-342-security",
+  "description": "Port train 342 fixes",
+  "timestamp": 1786552659000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
