@@ -77,6 +77,12 @@ export const EVENT_NAMES = {
   'account.passwordless_login_otp_verified': 58,
   'account.passwordless_registration_complete': 59,
   'account.recovery_codes_set': 60,
+  'account.passkey.wrap_created': 61,
+  'account.passkey.wrap_creation_failure': 62,
+  'account.passkey.wrap_retrieved': 63,
+  'account.passkey.wrap_retrieval_failure': 64,
+  'account.passkey.wrap_deleted': 65,
+  'account.passkey.wrap_invalidated': 66,
 } as const satisfies Record<string, number>;
 
 export type SecurityEventNames = keyof typeof EVENT_NAMES;
