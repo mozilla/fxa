@@ -1,8 +1,8 @@
 {
-  "commit": "be9a02aa895f7cff23f2417a301869113edf05d8",
+  "commit": "e97d7f5d18ecf029276f9e33ef1b3243761f50a7",
   "summary": "fix(payments): expand discount coupons on cached invoices and subscriptions",
   "description": "Because:\n* The SDK 22 upgrade rewrote discount reads to `discounts[0].source.coupon`\n  without requesting the expansion, so a cached invoice holding a discount id\n  threw `Cannot read properties of undefined (reading 'coupon')` on\n  `/v1/account`.\n* Expanding `discounts` does not expand the coupon under it, so reads asking\n  only for `discounts` dropped promotion details.\n\nThis commit:\n* Requests `discounts.source.coupon` on the reads and Firestore writes that\n  asked only for `discounts`.\n* Adds discountsNeedExpansion, and re-fetches a discount that arrives as an id\n  rather than dropping it.\n* Reports the discount amount with null coupon fields when a coupon is still\n  unreadable.\n* Types `source.coupon` as expanded or null, never an id.\n\nCloses PAY-3893",
-  "timestamp": 1786491148000,
+  "timestamp": 1786546206000,
   "storybooks": [
     "fxa-react",
     "fxa-settings"
