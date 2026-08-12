@@ -1,8 +1,8 @@
 {
-  "commit": "f2c8c0a8ced84ee35591613dc4d1d0ff0fe76885",
-  "summary": "fix(settings): point app download buttons at Bitly link",
-  "description": "",
-  "timestamp": 1786560419000,
+  "commit": "9cc9b5a3ad9003964f38dd55dc9f4784ea299898",
+  "summary": "fix(settings): match the timeout description to its Fluent markup",
+  "description": "The 'timeout' variant of the Pair2 Supplicant TimeoutAndCancel test expected a\ndescription without the <b> tags that both the component fallback and en.ftl\ncontain. getByText then failed because the markup splits the text node. The\n'canceled' variant in the same table already includes the tags, so this makes\nthe two entries agree.\n\nThe drift guard above these cases is it.skip, so nothing caught the mismatch.",
+  "timestamp": 1786562534000,
   "storybooks": [
     "fxa-settings"
   ],
