@@ -1,0 +1,10 @@
+{
+  "commit": "f2c8c0a8ced84ee35591613dc4d1d0ff0fe76885",
+  "summary": "fix(settings): point app download buttons at Bitly link",
+  "description": "",
+  "timestamp": 1786560419000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
