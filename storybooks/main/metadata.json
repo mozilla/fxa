@@ -1,8 +1,8 @@
 {
-  "commit": "c32ce64b8175631511aa0225b4e9a87e62f4b645",
-  "summary": "Merge pull request #20971 from mozilla/FXA-14281",
-  "description": "test(fxa-shared): Make experiments/base hash tests deterministic",
-  "timestamp": 1786551355000,
+  "commit": "85747f8d02292ee96a8bd057b6f7d28a88336c9b",
+  "summary": "Merge pull request #20984 from mozilla/FXA-14235",
+  "description": "feat(settings): add mobile Sync success card",
+  "timestamp": 1786552170000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

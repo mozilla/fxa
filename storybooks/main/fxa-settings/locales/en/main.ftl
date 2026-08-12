@@ -1507,6 +1507,12 @@ pair2-supplicant-download-firefox-heading = Get { -brand-firefox } on this devic
 pair2-supplicant-download-firefox-description = Download { -brand-firefox } to sync bookmarks, history, and more across devices. <linkExternal>Learn more</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Continue in { -brand-firefox }
 
+
+pair2-supplicant-sync-success-heading = Your device is connected
+pair2-supplicant-sync-success-description = Your bookmarks, tabs, and more will stay synced in { -brand-firefox }.
+pair2-supplicant-sync-success-view-tabs-button = View synced tabs
+pair2-supplicant-sync-success-sync-settings-button = Sync settings
+
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmed
 service-welcome-signin-success-banner = Signed in successfully!
 service-welcome-vpn-heading = Next: Turn on VPN
