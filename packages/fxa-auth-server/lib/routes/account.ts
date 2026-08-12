@@ -2519,7 +2519,10 @@ export class AccountHandler {
       this.db.totpToken(uid),
       Container.get(BackupCodeManager).getCountForUserId(uid),
       this.db.getRecoveryKeyRecordWithHint(uid),
-      Container.get(RecoveryPhoneService).hasConfirmed(uid),
+      // Masked either way; the flag only affects formatting, not digits.
+      Container.get(RecoveryPhoneService).hasConfirmedMasked(uid, {
+        keepFormatting: requestHelper.isPastMustVerifyGate(request),
+      }),
       request.app.geo?.location?.countryCode
         ? Container.get(RecoveryPhoneService).available(
             uid,
@@ -3352,8 +3355,9 @@ export const accountRoutes = (
             recoveryPhone: isA
               .object({
                 exists: isA.boolean().required(),
-                phoneNumber: isA.string().allow(null).optional(),
-                nationalFormat: isA.string().allow(null).optional(),
+                // Masked: at most the last 4 digits survive either field.
+                phoneNumber: validators.maskedPhoneNumber,
+                nationalFormat: validators.maskedPhoneNumber,
                 available: isA.boolean().required(),
               })
               .optional(),

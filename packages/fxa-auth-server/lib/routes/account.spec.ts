@@ -257,7 +257,7 @@ const makeRoutes = function (options: any = {}, requireMocks: any = {}) {
     getCountForUserId: jest.fn().mockResolvedValue(0),
   });
   Container.set(RecoveryPhoneService, {
-    hasConfirmed: jest.fn().mockResolvedValue(false),
+    hasConfirmedMasked: jest.fn().mockResolvedValue({ exists: false }),
     available: jest.fn().mockResolvedValue(false),
   });
 
@@ -4878,7 +4878,7 @@ describe('/account', () => {
 
     it('should pass geo countryCode to the service', () => {
       const mockService = {
-        hasConfirmed: jest
+        hasConfirmedMasked: jest
           .fn()
           .mockResolvedValue({ exists: false, phoneNumber: null }),
         available: jest.fn().mockResolvedValue(true),
@@ -4905,7 +4905,7 @@ describe('/account', () => {
         allowedRegions: ['US'],
       });
       Container.set(RecoveryPhoneService, {
-        hasConfirmed: jest
+        hasConfirmedMasked: jest
           .fn()
           .mockResolvedValue({ exists: false, phoneNumber: null }),
         available: jest.fn().mockResolvedValue(false),
@@ -4921,7 +4921,7 @@ describe('/account', () => {
         allowedRegions: ['US'],
       });
       Container.set(RecoveryPhoneService, {
-        hasConfirmed: jest
+        hasConfirmedMasked: jest
           .fn()
           .mockResolvedValue({ exists: false, phoneNumber: null }),
         available: jest.fn().mockRejectedValue(new Error('service error')),
@@ -4942,13 +4942,40 @@ describe('/account', () => {
         allowedRegions: ['US'],
       });
       Container.set(RecoveryPhoneService, {
-        hasConfirmed: jest
+        hasConfirmedMasked: jest
           .fn()
           .mockResolvedValue({ exists: false, phoneNumber: null }),
         available: jest.fn().mockResolvedValue(false),
       });
       return runTest(route, noGeoRequest, (result: any) => {
         expect(result.recoveryPhone.available).toBe(false);
+      });
+    });
+
+    // Reachable with only a password-derived session.
+    it('delegates to hasConfirmedMasked and merges available into recoveryPhone', () => {
+      const mockService = {
+        hasConfirmed: jest.fn(),
+        hasConfirmedMasked: jest
+          .fn()
+          .mockResolvedValue({ exists: true, phoneNumber: '1234' }),
+        available: jest.fn().mockResolvedValue(false),
+      };
+      const route = buildRouteWithRecoveryPhone({
+        enabled: true,
+        allowedRegions: ['US'],
+      });
+      Container.set(RecoveryPhoneService, mockService);
+      return runTest(route, request, (result: any) => {
+        expect(result.recoveryPhone).toEqual({
+          exists: true,
+          phoneNumber: '1234',
+          available: false,
+        });
+        expect(mockService.hasConfirmedMasked).toHaveBeenCalledWith(uid, {
+          keepFormatting: expect.any(Boolean),
+        });
+        expect(mockService.hasConfirmed).not.toHaveBeenCalled();
       });
     });
   });

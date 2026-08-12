@@ -153,7 +153,10 @@ describe('#integration - recovery phone', () => {
     expect(codeSent).toBeDefined();
     expect(confirmResp.status).toBe('success');
     expect(checkResp.exists).toBe(true);
-    expect(checkResp.phoneNumber).toBe(phoneNumber);
+    // Masked either way; what matters is that it is never dialable.
+    expect(checkResp.phoneNumber).not.toBe(phoneNumber);
+    expect(checkResp.phoneNumber).toContain(phoneNumber.slice(-4));
+    expect(checkResp.phoneNumber).not.toContain('415');
   });
 
   it('can send, confirm code, verify session, and remove totp', async () => {
