@@ -1,8 +1,8 @@
 {
-  "commit": "85747f8d02292ee96a8bd057b6f7d28a88336c9b",
-  "summary": "Merge pull request #20984 from mozilla/FXA-14235",
-  "description": "feat(settings): add mobile Sync success card",
-  "timestamp": 1786552170000,
+  "commit": "0c8422ba25dfc63c8b13ef075485d1246444a9ee",
+  "summary": "Merge pull request #20986 from mozilla/FXA-14237",
+  "description": "feat(settings): add mobile Ready to scan card",
+  "timestamp": 1786552203000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

@@ -1508,6 +1508,11 @@ pair2-supplicant-download-firefox-description = Download { -brand-firefox } to s
 pair2-supplicant-download-firefox-continue-button = Continue in { -brand-firefox }
 
 
+pair2-supplicant-ready-to-scan-heading = To connect a device
+pair2-supplicant-ready-to-scan-instruction = On your computer, open { -brand-firefox } and go to <b>firefox.com/pair</b>, and follow on screen instructions to connect this mobile device.
+pair2-supplicant-ready-to-scan-learn-more-link = Learn more
+
+
 pair2-supplicant-sync-success-heading = Your device is connected
 pair2-supplicant-sync-success-description = Your bookmarks, tabs, and more will stay synced in { -brand-firefox }.
 pair2-supplicant-sync-success-view-tabs-button = View synced tabs
