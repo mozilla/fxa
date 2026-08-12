@@ -24,7 +24,7 @@ module.exports = (
     require('./client/get')({ log, oauthDB }),
     require('./destroy')({ log, oauthDB }),
     require('./id_token_verify')(),
-    require('./introspect')({ oauthDB }),
+    require('./introspect')({ oauthDB, customs }),
     require('./jwks')(),
     require('./key_data')({ log, oauthDB, statsd }),
     require('./token')({

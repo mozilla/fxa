@@ -55,7 +55,7 @@ function copyToClipboard(value) {
 const redis = new Redis(config.redis);
 const usersLastSms = {};
 async function printMatchingKeys(startUp = false) {
-  const redisKeyPattern = `${RECOVERY_PHONE_REDIS_PREFIX}:*:*`;
+  const redisKeyPattern = `${RECOVERY_PHONE_REDIS_PREFIX}:*`;
   try {
     if (redis.status !== 'ready') {
       throw new Error('Redis connection is not ready');
@@ -63,24 +63,31 @@ async function printMatchingKeys(startUp = false) {
 
     const keys = await redis.keys(redisKeyPattern);
 
-    if (keys.length > 0) {
-      for (const key of keys) {
-        const keyParts = key.split(':');
-        const uid = keyParts[2];
-        const code = keyParts[3];
+    for (const key of keys) {
+      const value = await redis.get(key);
+      let code;
+      try {
+        code = value && JSON.parse(value).code;
+      } catch (err) {
+        // Skip a malformed record rather than abort the whole tick.
+      }
+      if (!code) {
+        continue;
+      }
 
-        if (!usersLastSms[uid]) {
-          usersLastSms[uid] = {};
-        }
+      const uid = key.split(':')[2];
 
-        // Check if this code was already printed for this user
-        if (!usersLastSms[uid][code]) {
-          if (!startUp) {
-            console.log('\x1B[36mRecovery Phone Otp:', code, '\x1B[39m');
-            copyToClipboard(code);
-          }
-          usersLastSms[uid][code] = true;
+      if (!usersLastSms[uid]) {
+        usersLastSms[uid] = {};
+      }
+
+      // Check if this code was already printed for this user
+      if (!usersLastSms[uid][code]) {
+        if (!startUp) {
+          console.log('\x1B[36mRecovery Phone Otp:', code, '\x1B[39m');
+          copyToClipboard(code);
         }
+        usersLastSms[uid][code] = true;
       }
     }
   } catch (error) {

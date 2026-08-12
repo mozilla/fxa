@@ -47,6 +47,7 @@ module.exports = (
             recoveryData: validators.recoveryData.description(
               DESCRIPTION.recoveryData
             ),
+            // Deprecated, ignored: keys are always created enabled.
             enabled: isA.boolean().default(true),
             replaceKey: isA.boolean().default(false),
           }),
@@ -58,8 +59,20 @@ module.exports = (
         const sessionToken = request.auth.credentials;
 
         const { uid } = sessionToken;
-        const { recoveryKeyId, recoveryData, enabled, replaceKey } =
-          request.payload;
+        const {
+          recoveryKeyId,
+          recoveryData,
+          enabled: requestedEnabled,
+          replaceKey,
+        } = request.payload;
+
+        // Keys are always created enabled (FXA-14201). `enabled` is ignored
+        // rather than rejected so an out-of-tree client sending `false` gets a
+        // working key instead of a validation error; log it so we know when
+        // the field can go.
+        if (requestedEnabled === false) {
+          log.warn('account.recoveryKey.enabledFalseIgnored', { uid });
+        }
 
         async function sendKeyCreationEmail() {
           const account = await db.account(uid);
@@ -129,37 +142,34 @@ module.exports = (
         async function postKeyCreation() {
           log.info('account.recoveryKey.created', { uid });
 
-          if (enabled) {
-            await request.emitMetricsEvent('recoveryKey.created', { uid });
-            await recordSecurityEvent('account.recovery_key_added', {
-              db,
-              request,
-              account: { uid },
-            });
-            await sendKeyCreationEmail();
-          }
+          await request.emitMetricsEvent('recoveryKey.created', { uid });
+          await recordSecurityEvent('account.recovery_key_added', {
+            db,
+            request,
+            account: { uid },
+          });
+          await sendKeyCreationEmail();
         }
 
         async function postKeyChange() {
           log.info('account.recoveryKey.changed', { uid });
-          if (enabled) {
-            await request.emitMetricsEvent('recoveryKey.changed', { uid });
-            await recordSecurityEvent('account.recovery_key_removed', {
-              db,
-              request,
-            });
-            await recordSecurityEvent('account.recovery_key_added', {
-              db,
-              request,
-              account: { uid },
-            });
-            await sendKeyChangeEmail();
-          }
+
+          await request.emitMetricsEvent('recoveryKey.changed', { uid });
+          await recordSecurityEvent('account.recovery_key_removed', {
+            db,
+            request,
+          });
+          await recordSecurityEvent('account.recovery_key_added', {
+            db,
+            request,
+            account: { uid },
+          });
+          await sendKeyChangeEmail();
         }
 
         async function attemptKeyChange() {
           await db.deleteRecoveryKey(uid);
-          await db.createRecoveryKey(uid, recoveryKeyId, recoveryData, enabled);
+          await db.createRecoveryKey(uid, recoveryKeyId, recoveryData, true);
           await postKeyChange();
         }
 
@@ -179,12 +189,7 @@ module.exports = (
             throw errors.recoveryKeyExists();
           } else {
             // if no key is enabled, attempt to create a new key
-            await db.createRecoveryKey(
-              uid,
-              recoveryKeyId,
-              recoveryData,
-              enabled
-            );
+            await db.createRecoveryKey(uid, recoveryKeyId, recoveryData, true);
             await postKeyCreation();
           }
         } catch (err) {
@@ -227,6 +232,7 @@ module.exports = (
             recoveryData: validators.recoveryData.description(
               DESCRIPTION.recoveryData
             ),
+            // Deprecated, ignored: keys are always created enabled.
             enabled: isA.boolean().default(true),
             replaceKey: isA.boolean().default(false),
           }),
@@ -274,45 +280,11 @@ module.exports = (
 
           const { recoveryKeyId } = request.payload;
 
-          // Attempt to retrieve an account recovery key, if it exists and is not already enabled,
-          // then we enable it.
-          const recoveryKeyData = await db.getRecoveryKey(uid, recoveryKeyId);
+          // Deprecated: this used to enable an unconfirmed key, but nothing
+          // can create one now, so it only validates the id. Remove with
+          // `fxa-auth-client.verifyRecoveryKey`.
+          await db.getRecoveryKey(uid, recoveryKeyId);
 
-          if (!recoveryKeyData.enabled) {
-            await db.updateRecoveryKey(uid, recoveryKeyId, true);
-
-            await request.emitMetricsEvent('recoveryKey.created', { uid });
-
-            const account = await db.account(uid);
-            const { acceptLanguage, clientAddress: geo, ua } = request.app;
-            const emailOptions = {
-              acceptLanguage,
-              timeZone: geo.timeZone,
-              uaBrowser: ua.browser,
-              uaBrowserVersion: ua.browserVersion,
-              uaOS: ua.os,
-              uaOSVersion: ua.osVersion,
-              uaDeviceType: ua.deviceType,
-              uid,
-            };
-
-            if (fxaMailer.canSend('postAddAccountRecovery')) {
-              await fxaMailer.sendPostAddAccountRecoveryEmail({
-                ...FxaMailerFormat.account(account),
-                ...(await FxaMailerFormat.metricsContext(request)),
-                ...FxaMailerFormat.localTime(request),
-                ...FxaMailerFormat.location(request),
-                ...FxaMailerFormat.device(request),
-                ...FxaMailerFormat.sync(false),
-              });
-            } else {
-              await mailer.sendPostAddAccountRecoveryEmail(
-                account.emails,
-                account,
-                emailOptions
-              );
-            }
-          }
           await recordSecurityEvent('account.recovery_key_challenge_success', {
             db,
             request,

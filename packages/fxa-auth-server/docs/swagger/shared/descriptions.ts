@@ -250,8 +250,6 @@ const DESCRIPTIONS = {
     when it presents the code entry screen, as FxA's own web front-end does. Applies
     only to the \`verifyLoginCode\` email; link-based confirmation emails are unaffected.
   `,
-  sendVerifyEmail:
-    'Boolean indicating whether a verification email should be sent.',
   service: 'Opaque alphanumeric token to be included in verification links.',
   serviceRP:
     'Identifies the relying service the user was interacting with that triggered the password reset.',

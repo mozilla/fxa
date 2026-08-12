@@ -293,34 +293,6 @@ const ACCOUNT_FINISH_SETUP_POST = {
   description: '/account/finish_setup',
 };
 
-const ACCOUNT_SET_PASSWORD_POST = {
-  ...TAGS_ACCOUNT,
-  description: '/account/set_password',
-  notes: [
-    dedent`
-      🔒🔓 Authenticated with oauth access token.
-
-      Sets the password on an unverified stub account.
-
-      By default, a verification email will be sent.
-
-      If the user is subscribed to a product, and we find a valid, matching Stripe productId, they will be added to a list to receive verification reminder emails.
-    `,
-  ],
-  plugins: {
-    'hapi-swagger': {
-      responses: {
-        400: {
-          description: dedent`
-            Failing requests may be caused by the following errors (this is not an exhaustive list):
-            - \`errno: 110\` - Invalid token (token already used)
-          `,
-        },
-      },
-    },
-  },
-};
-
 const ACCOUNT_STUB_POST = {
   ...TAGS_ACCOUNT,
   description: '/account/stub',
@@ -348,7 +320,6 @@ const API_DOCS = {
   ACCOUNT_PROFILE_GET,
   ACCOUNT_RESET_POST,
   ACCOUNT_CREDENTIALS_STATUS,
-  ACCOUNT_SET_PASSWORD_POST,
   ACCOUNT_STATUS_GET,
   ACCOUNT_STATUS_POST,
   ACCOUNT_STUB_POST,

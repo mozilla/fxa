@@ -515,6 +515,16 @@ module.exports = function (
           throw error.invalidOrExpiredOtpCode();
         }
 
+        // Mirror resend_code: a TOTP account must not verify its session (and co-minted
+        // keyFetchToken) at AAL1 via an email code, nor downgrade totp-2fa to email-2fa.
+        // Skipped pre-email-verification so signup/email confirmation is never gated.
+        if (
+          account.primaryEmail.isVerified &&
+          (await otpUtils.hasTotpToken({ uid }))
+        ) {
+          throw error.insufficientAal();
+        }
+
         // If a valid code was sent, this verifies the session using the `email-2fa` method.
         // The assurance level will be ["pwd", "email"] or level 1.
         // `email-2fa` maps to AAL1, so only refresh the authentication event when it

@@ -14,7 +14,6 @@ import { OAUTH_SCOPE_OLD_SYNC } from 'fxa-shared/oauth/constants';
 import { list as listAuthorizedClients } from '../oauth/authorized_clients';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
 import isA from 'joi';
-import Stripe from 'stripe';
 import { Container } from 'typedi';
 
 import { ConfigType } from '../../config';
@@ -930,91 +929,6 @@ export class AccountHandler {
           await this.subscriptionAccountReminders.delete(uid);
         }
       }
-
-      throw err;
-    }
-  }
-
-  async setPassword(request: AuthRequest) {
-    this.log.begin('Account.set_password', request);
-
-    const form = request.payload as any;
-    const {
-      authPW,
-      authPWVersion2,
-      wrapKb,
-      wrapKbVersion2,
-      clientSalt,
-      metricsContext,
-    } = form;
-    const { query } = request;
-    const auth = request.auth;
-    const { user: uid } = auth.credentials;
-
-    const account = await this.db.account(uid as string);
-    const email = account.primaryEmail?.email;
-
-    await this.customs.checkAuthenticated(request, uid, email, 'setPassword');
-
-    const response: Record<string, any> = {};
-    response.uid = uid;
-
-    try {
-      await this.setPasswordOnStubAccount({
-        account,
-        authPW,
-        authPWVersion2,
-        wrapKb,
-        wrapKbVersion2,
-        clientSalt,
-      });
-
-      const { emailCode: tokenVerificationId } = account;
-      const sessionToken = await this.createSessionToken({
-        account,
-        request,
-        tokenVerificationId,
-      });
-      response.sessionToken = sessionToken.data;
-
-      if (query.sendVerifyEmail) {
-        await this.sendVerifyCode({
-          account,
-          request,
-          sessionToken,
-          tokenVerificationId,
-          verificationMethod: 'email-otp',
-        });
-      }
-
-      // This is a brand new (unverified) user who just created their first
-      // subscription, so we know we will only have one priceId result here.
-      const priceId = (
-        await this.capabilityService.subscribedPriceIds(uid as string)
-      )[0];
-      const price = (await this.stripeHelper.allPlans()).find(
-        (p) => p.id === priceId
-      );
-      // Cached prices have products expanded already
-      const product = price?.product as Stripe.Product;
-      if (product && product?.id && product?.name) {
-        await this.subscriptionAccountReminders.create(
-          uid,
-          metricsContext.flowId,
-          metricsContext.flowBeginTime,
-          metricsContext.deviceId,
-          product.id,
-          product.name
-        );
-      }
-
-      // TODO (FXA-5557): record flow metrics
-
-      return response;
-    } catch (err) {
-      this.log.error('Account.set_password.error', {
-        err,
-      });
 
       throw err;
     }
@@ -2872,61 +2786,6 @@ export const accountRoutes = (
         },
       },
       handler: (request: AuthRequest) => accountHandler.finishSetup(request),
-    },
-    {
-      method: 'POST',
-      path: '/account/set_password',
-      options: {
-        ...ACCOUNT_DOCS.ACCOUNT_SET_PASSWORD_POST,
-        auth: {
-          mode: 'required',
-          payload: false,
-          strategy: 'oauthToken',
-        },
-        validate: {
-          query: isA.object({
-            sendVerifyEmail: isA
-              .boolean()
-              .optional()
-              .default(true)
-              .description(DESCRIPTION.sendVerifyEmail),
-          }),
-          payload: isA
-            .object({
-              authPW: validators.authPW.description(DESCRIPTION.authPW),
-              authPWVersion2: validators.authPW
-                .optional()
-                .description(DESCRIPTION.authPWVersion2),
-              wrapKb: validators.wrapKb
-                .optional()
-                .description(DESCRIPTION.wrapKb),
-              wrapKbVersion2: validators.wrapKb
-                .optional()
-                .description(DESCRIPTION.wrapKbVersion2),
-              clientSalt: validators.clientSalt
-                .optional()
-                .description(DESCRIPTION.clientSalt),
-              metricsContext: METRICS_CONTEXT_SCHEMA,
-              service: validators.service.description(DESCRIPTION.service),
-            })
-            .and('authPWVersion2', 'wrapKb', 'wrapKbVersion2', 'clientSalt'),
-        },
-        response: {
-          schema: isA.object({
-            sessionToken: isA
-              .string()
-              .regex(HEX_STRING)
-              .required()
-              .description(DESCRIPTION.sessionToken),
-            uid: isA
-              .string()
-              .regex(HEX_STRING)
-              .required()
-              .description(DESCRIPTION.uid),
-          }),
-        },
-      },
-      handler: (request: AuthRequest) => accountHandler.setPassword(request),
     },
     {
       method: 'POST',

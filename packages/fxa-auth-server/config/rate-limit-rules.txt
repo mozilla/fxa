@@ -30,6 +30,9 @@ emailBounceStatusCheck                : ip                : 100         : 15 min
 recoveryKeyExists                     : ip                : 100         : 15 minute       : 15 minute   : block
 getCredentialsStatus                  : ip                : 100         : 15 minute       : 15 minute   : block
 
+# OAuth token introspection (RFC 7662). `report` only for now; flip to `block` after tuning. FXA-13452.
+oauthIntrospect                       : ip                : 300         : 1 minute        : 15 minutes  : report
+
 #
 # Password Reset Email Send Limits
 # Controls the number of emails that can be sent
@@ -194,6 +197,40 @@ passwordlessSendOtp                    : email            : 15          : 24 hou
 passwordlessSendOtp                    : ip               : 50          : 24 hours        : 12 hours     : block
 passwordlessSendOtp                    : ip               : 20          : 15 minutes      : 30 minutes   : block
 passwordlessSendOtp                    : ip               : 100         : 24 hours        : 15 minutes   : ban
+
+# Per-flow send limits. Signup and signin share the send endpoints, so these are
+# checked after the account lookup, in addition to the shared limits above.
+#
+# A per-flow rule must be STRICTLY TIGHTER than the shared rule on the same key.
+# The shared check runs first, so an equal or looser rule never receives the
+# increment that would trip it, and is dead config. Worse, when a rule trips it
+# wipes its own attempts counter (rate-limit.ts addAttempt) while the other
+# rule's counter survives on its own window TTL, so a duplicated rule can trip
+# again as soon as the first block expires and double the lockout.
+#
+# passwordlessSendOtpForSignin is therefore `report` at the current shared values.
+# Report rules never block (determineBlockStatus filters them out), so signin
+# enforcement is unchanged and no duplicate block can stack, but they do emit
+# rate_limit.report tagged with the action and key, which gives signin its own
+# series on the FxA Rate Limiting dashboard. Flip to `block` once the reported
+# volume shows a value that is genuinely tighter than shared, the way
+# oauthIntrospect above is staged.
+#
+# Block durations are kept at or below the shared values. The email key is
+# supplied by an unauthenticated caller with no proof of ownership, so a long
+# block here is a way to deny signup for someone else's address.
+#
+# ip_email is unused: each source address would get its own budget per target.
+#
+# Use block, not ban. A ban applies to every action for that key.
+passwordlessSendOtpForSignup           : email            : 3           : 15 minutes      : 15 minutes   : block
+passwordlessSendOtpForSignup           : email            : 5           : 24 hours        : 15 minutes   : block
+passwordlessSendOtpForSignup           : ip               : 10          : 15 minutes      : 30 minutes   : block
+passwordlessSendOtpForSignup           : ip               : 30          : 24 hours        : 30 minutes   : block
+passwordlessSendOtpForSignin           : email            : 5           : 15 minutes      : 15 minutes   : report
+passwordlessSendOtpForSignin           : email            : 15          : 24 hours        : 15 minutes   : report
+passwordlessSendOtpForSignin           : ip               : 20          : 15 minutes      : 30 minutes   : report
+passwordlessSendOtpForSignin           : ip               : 50          : 24 hours        : 12 hours     : report
 
 # Passwordless OTP Verification Limits
 passwordlessVerifyOtp                  : ip_email         : 5           : 10 minutes      : 15 minutes   : block

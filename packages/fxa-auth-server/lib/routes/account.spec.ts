@@ -515,6 +515,25 @@ describe('/account/reset', () => {
     });
   });
 
+  describe('reset account with a disabled (unconfirmed) account recovery key', () => {
+    beforeEach(() => {
+      // A disabled key must not satisfy 2FA during reset: db.getRecoveryKey
+      // rejects it as if it were missing.
+      mockDB.getRecoveryKey = jest.fn(() =>
+        Promise.reject(error.recoveryKeyNotFound())
+      );
+      mockRequest.payload.wrapKb = hexString(32);
+      mockRequest.payload.recoveryKeyId = hexString(16);
+    });
+
+    it('rejects with recoveryKeyNotFound and does not reset the account', async () => {
+      await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+        errno: error.recoveryKeyNotFound().errno,
+      });
+      expect(mockDB.resetAccount).not.toHaveBeenCalled();
+    });
+  });
+
   describe('reset account with account recovery key, isFirefoxMobileClient=true', () => {
     beforeEach(() => {
       mockRequest.payload.wrapKb = hexString(32);
@@ -2111,212 +2130,6 @@ describe('/account/finish_setup', () => {
       errno: 110,
     });
     expect(subscriptionAccountReminders.delete).toHaveBeenCalledTimes(1);
-  });
-});
-
-describe('/account/set_password', () => {
-  function setup(options: any) {
-    const config = {
-      securityHistory: {
-        enabled: true,
-      },
-    };
-    const mockLog = log('ERROR', 'test');
-    mockLog.activityEvent = jest.fn(() => {
-      return Promise.resolve();
-    });
-    mockLog.flowEvent = jest.fn(() => {
-      return Promise.resolve();
-    });
-    mockLog.error = jest.fn();
-    mockLog.notifier.send = jest.fn();
-
-    const mockMetricsContext = mocks.mockMetricsContext();
-    const email = Math.random() + '_stub@mozilla.com';
-    const emailCode = hexString(16);
-    const uid = crypto.randomBytes(16).toString('hex');
-    const mockRequest = mocks.mockRequest({
-      auth: {
-        credentials: {
-          user: uid,
-          email,
-        },
-      },
-      locale: 'en-GB',
-      log: mockLog,
-      metricsContext: mockMetricsContext,
-      payload: {
-        metricsContext: mockMetricsContext,
-        service: '123Done',
-        uid,
-      },
-      ...(options.query && { query: options.query }),
-      uaBrowser: 'Firefox Mobile',
-      uaBrowserVersion: '9',
-      uaOS: 'iOS',
-      uaOSVersion: '11',
-      uaDeviceType: 'tablet',
-      uaFormFactor: 'iPad',
-    });
-    const clientAddress = mockRequest.app.clientAddress;
-    const mockDB = mocks.mockDB(
-      {
-        email,
-        emailCode,
-        emailVerified: false,
-        locale: 'en',
-        uaBrowser: 'Firefox',
-        uaBrowserVersion: 52,
-        uaOS: 'Mac OS X',
-        uaOSVersion: '10.10',
-        uid,
-        authSalt: '',
-        wrapWrapKb: 'wibble',
-        verifierSetAt: options.verifierSetAt,
-      },
-      {
-        emailRecord: error.unknownAccount(),
-      }
-    );
-    const mockMailer = mocks.mockMailer();
-    const mockFxaMailer = installMockFxaMailer();
-    const mockPush = mocks.mockPush();
-    const verificationReminders = mocks.mockVerificationReminders();
-    const subscriptionAccountReminders = mocks.mockVerificationReminders();
-    const fakeProduct = { id: 'prod_123', name: 'Wow Great Product' };
-    const fakePlan = {
-      id: 'price_123',
-      product: fakeProduct,
-    };
-    const mockStripeHelper = options.mockStripeHelper || {
-      allProducts: jest.fn().mockResolvedValue([fakeProduct]),
-      allPlans: jest.fn().mockResolvedValue([fakePlan]),
-    };
-    const mockCapabilityService = options.mockCapabilityService || {
-      subscribedPriceIds: jest.fn().mockResolvedValue([fakePlan.id]),
-    };
-    const accountRoutes = makeRoutes({
-      config,
-      db: mockDB,
-      log: mockLog,
-      mailer: mockMailer,
-      Password: function () {
-        return {
-          unwrap: function () {
-            return Promise.resolve('wibble');
-          },
-          verifyHash: function () {
-            return Promise.resolve('wibble');
-          },
-        };
-      },
-      push: mockPush,
-      verificationReminders,
-      subscriptionAccountReminders,
-      stripeHelper: mockStripeHelper,
-      capabilityService: mockCapabilityService,
-    });
-    const route = getRoute(accountRoutes, '/account/set_password');
-
-    return {
-      config,
-      clientAddress,
-      email,
-      emailCode,
-      mockDB,
-      mockLog,
-      mockMailer,
-      mockFxaMailer,
-      mockMetricsContext,
-      mockRequest,
-      route,
-      uid,
-      verificationReminders,
-      subscriptionAccountReminders,
-    };
-  }
-
-  it('succeeds when the account is a stub', () => {
-    const {
-      route,
-      mockRequest,
-      mockDB,
-      mockFxaMailer,
-      subscriptionAccountReminders,
-      uid,
-    } = setup({
-      query: {
-        sendVerifyEmail: true,
-      },
-      verifierSetAt: 0,
-    });
-    return runTest(route, mockRequest, (response: any) => {
-      expect(mockDB.resetAccount).toHaveBeenCalledTimes(1);
-      expect(mockFxaMailer.sendVerifyShortCodeEmail).toHaveBeenCalledTimes(1);
-      expect(subscriptionAccountReminders.create).toHaveBeenCalledTimes(1);
-      expect(response.sessionToken).toBeTruthy();
-      expect(response.uid).toBe(uid);
-    });
-  });
-
-  it('returns an unauthorized error when the account is already set up', async () => {
-    const { route, mockRequest } = setup({
-      verifierSetAt: Date.now(),
-    });
-    await expect(runTest(route, mockRequest)).rejects.toMatchObject({
-      errno: 110,
-    });
-  });
-
-  it('does not send the verify email if query parameter is set to false', async () => {
-    const { route, mockRequest, mockMailer, uid } = setup({
-      query: {
-        sendVerifyEmail: false,
-      },
-      verifierSetAt: 0,
-    });
-    return runTest(route, mockRequest, (response: any) => {
-      expect(mockMailer.sendVerifyShortCodeEmail).not.toHaveBeenCalled();
-      expect(response.sessionToken).toBeTruthy();
-      expect(response.uid).toBe(uid);
-    });
-  });
-
-  it('does not create a reminder if product is undefined', () => {
-    const mockStripeHelper = {
-      allProducts: jest.fn().mockResolvedValue([]),
-      allPlans: jest.fn().mockResolvedValue([]),
-    };
-    const { route, mockRequest, subscriptionAccountReminders, uid } = setup({
-      mockStripeHelper,
-      verifierSetAt: 0,
-    });
-    return runTest(route, mockRequest, (response: any) => {
-      expect(subscriptionAccountReminders.create).not.toHaveBeenCalled();
-      expect(response.sessionToken).toBeTruthy();
-      expect(response.uid).toBe(uid);
-    });
-  });
-
-  it('does not create a reminder if product is invalid', () => {
-    const fakeProduct = { otherProp: 'fun' };
-    const fakePlan = {
-      id: 'price_123',
-      product: fakeProduct,
-    };
-    const mockStripeHelper = {
-      allProducts: jest.fn().mockResolvedValue([fakeProduct]),
-      allPlans: jest.fn().mockResolvedValue([fakePlan]),
-    };
-    const { route, mockRequest, subscriptionAccountReminders, uid } = setup({
-      mockStripeHelper,
-      verifierSetAt: 0,
-    });
-    return runTest(route, mockRequest, (response: any) => {
-      expect(subscriptionAccountReminders.create).not.toHaveBeenCalled();
-      expect(response.sessionToken).toBeTruthy();
-      expect(response.uid).toBe(uid);
-    });
   });
 });
 

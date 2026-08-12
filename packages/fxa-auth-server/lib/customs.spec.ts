@@ -477,7 +477,7 @@ describe('Customs', () => {
       expect(global.fetch).not.toHaveBeenCalled();
     });
 
-    it('unblocks the ip and normalized email on reset', async () => {
+    it('unblocks the normalized email and ip_email on reset', async () => {
       const emailWithAlias = 'user+alias@mozilla.com';
       const normalizedEmail = 'user@mozilla.com';
 
@@ -485,10 +485,17 @@ describe('Customs', () => {
 
       expect(mockRateLimit.unblock).toHaveBeenCalledTimes(1);
       expect(mockRateLimit.unblock).toHaveBeenCalledWith({
-        ip,
         email: normalizedEmail,
         ip_email: `${ip}_${normalizedEmail}`,
       });
+    });
+
+    it('does not unblock the raw ip on reset', async () => {
+      await customs.reset(request, 'user@mozilla.com');
+
+      expect(mockRateLimit.unblock).toHaveBeenCalledTimes(1);
+      const opts = mockRateLimit.unblock.mock.calls[0][0];
+      expect(opts).not.toHaveProperty('ip');
     });
   });
 

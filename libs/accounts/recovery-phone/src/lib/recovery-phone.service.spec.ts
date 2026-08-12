@@ -52,7 +52,6 @@ describe('RecoveryPhoneService', () => {
   const mockRecoveryPhoneManager = {
     storeUnconfirmed: jest.fn(),
     getUnconfirmed: jest.fn(),
-    getAllUnconfirmedCodes: jest.fn(),
     registerPhoneNumber: jest.fn(),
     removePhoneNumber: jest.fn(),
     getConfirmedPhoneNumber: jest.fn(),
@@ -118,7 +117,6 @@ describe('RecoveryPhoneService', () => {
       };
     });
     mockRecoveryPhoneManager.hasRecoveryCodes.mockResolvedValue(true);
-    mockRecoveryPhoneManager.getAllUnconfirmedCodes.mockResolvedValue([]);
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -178,49 +176,8 @@ describe('RecoveryPhoneService', () => {
       phoneNumber,
       true
     );
-    expect(
-      mockRecoveryPhoneManager.getAllUnconfirmedCodes
-    ).toHaveBeenCalledWith(uid);
-    expect(result).toBeTruthy();
-  });
-
-  it('Should send new code to set up a phone number', async () => {
-    mockOtpManager.generateCode.mockReturnValue(code);
-    mockRecoveryPhoneManager.getAllUnconfirmedCodes.mockResolvedValue([
-      'code123',
-      'code456',
-    ]);
-
-    const result = await service.setupPhoneNumber(
-      uid,
-      phoneNumber,
-      mockGetFormattedMessage
-    );
-
-    expect(result).toBeTruthy();
-    expect(mockRecoveryPhoneManager.removeCode).toHaveBeenCalledWith(
-      uid,
-      'code123'
-    );
-    expect(mockRecoveryPhoneManager.removeCode).toHaveBeenCalledWith(
-      uid,
-      'code456'
-    );
-    expect(mockOtpManager.generateCode).toHaveBeenCalled();
-    expect(mockSmsManager.sendSMS).toHaveBeenCalledWith({
-      to: phoneNumber,
-      body: (await mockGetFormattedMessage(code)).msg,
-      statusCallback: expect.stringContaining(mockWebhookUrl),
-    });
-    expect(mockRecoveryPhoneManager.storeUnconfirmed).toHaveBeenCalledWith(
-      uid,
-      code,
-      phoneNumber,
-      true
-    );
-    expect(
-      mockRecoveryPhoneManager.getAllUnconfirmedCodes
-    ).toHaveBeenCalledWith(uid);
+    // Storing overwrites the previous record, so no wipe is needed.
+    expect(mockRecoveryPhoneManager.removeCode).not.toHaveBeenCalled();
   });
 
   it('handles message template when provided to set up phone number', async () => {
@@ -245,9 +202,6 @@ describe('RecoveryPhoneService', () => {
       phoneNumber,
       true
     );
-    expect(
-      mockRecoveryPhoneManager.getAllUnconfirmedCodes
-    ).toHaveBeenCalledWith(uid);
   });
 
   it('Will reject a phone number that is not part of launch', async () => {
@@ -640,6 +594,8 @@ describe('RecoveryPhoneService', () => {
         body: (await mockGetFormattedMessage(code)).msg,
         statusCallback: expect.stringContaining(mockWebhookUrl),
       });
+      // Storing overwrites the previous record, so no wipe is needed.
+      expect(mockRecoveryPhoneManager.removeCode).not.toHaveBeenCalled();
     });
 
     it('should fallback to the short message', async () => {
@@ -702,51 +658,6 @@ describe('RecoveryPhoneService', () => {
       expect(service.sendCode(uid, mockGetFormattedMessage)).rejects.toThrow(
         error
       );
-    });
-
-    it('Should send new code for setup phone number', async () => {
-      mockOtpManager.generateCode.mockReturnValue(code);
-      mockRecoveryPhoneManager.getAllUnconfirmedCodes.mockResolvedValue([
-        'code123',
-        'code456',
-      ]);
-
-      mockRecoveryPhoneManager.getConfirmedPhoneNumber.mockResolvedValueOnce({
-        phoneNumber,
-      });
-      mockOtpManager.generateCode.mockResolvedValueOnce(code);
-      mockSmsManager.sendSMS.mockResolvedValue({ status: 'success' });
-
-      const result = await service.sendCode(uid, mockGetFormattedMessage);
-
-      expect(result).toBeTruthy();
-      expect(
-        mockRecoveryPhoneManager.getConfirmedPhoneNumber
-      ).toHaveBeenCalledWith(uid);
-      expect(mockRecoveryPhoneManager.storeUnconfirmed).toHaveBeenCalledWith(
-        uid,
-        code,
-        phoneNumber,
-        false
-      );
-      expect(mockOtpManager.generateCode).toHaveBeenCalled();
-      expect(mockSmsManager.sendSMS).toHaveBeenCalledWith({
-        to: phoneNumber,
-        body: (await mockGetFormattedMessage(code)).msg,
-        statusCallback: expect.stringContaining(mockWebhookUrl),
-      });
-
-      expect(mockRecoveryPhoneManager.removeCode).toHaveBeenCalledWith(
-        uid,
-        'code123'
-      );
-      expect(mockRecoveryPhoneManager.removeCode).toHaveBeenCalledWith(
-        uid,
-        'code456'
-      );
-      expect(
-        mockRecoveryPhoneManager.getAllUnconfirmedCodes
-      ).toHaveBeenCalledWith(uid);
     });
   });
 
