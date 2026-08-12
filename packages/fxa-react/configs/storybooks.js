@@ -122,6 +122,16 @@ const customizeWebpackConfig = ({ config }) => ({
                           overrides: {
                             // disable plugins
                             removeViewBox: false,
+                            // cleanupIds minifies ids to single letters one
+                            // file at a time, with no awareness of the other
+                            // SVGs it will share a page with. Every
+                            // illustration ends up declaring a, b, c... so on
+                            // a Docs page that renders several of them,
+                            // url(#c) resolves to the first match in the
+                            // document and illustrations steal each other's
+                            // gradients, patterns and clip paths. CRA sets
+                            // svgo: false, so this only ever bites Storybook.
+                            cleanupIds: false,
                           },
                         },
                       },
