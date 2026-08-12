@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import AppLayout from '../../../../components/AppLayout';
 import {
@@ -29,23 +29,36 @@ const COPY: Record<
     headingFtlId: string;
     heading: string;
     descriptionFtlId: string;
-    description: string;
+    /**
+     * Fallback markup rather than a string: both sentences emphasise the pairing
+     * URL through a `<b>` the Fluent message wraps, so the fallback has to carry
+     * a real element instead of the tags as text.
+     */
+    description: ReactElement;
   }
 > = {
   timeout: {
     headingFtlId: 'pair2-supplicant-timeout-and-cancel-timeout-heading',
     heading: 'Looks like we timed out',
     descriptionFtlId: 'pair2-supplicant-timeout-and-cancel-timeout-description',
-    description:
-      'To connect your mobile device and sync your Firefox data, visit <b>firefox.com/pair</b> on your computer.',
+    description: (
+      <>
+        To connect your mobile device and sync your Firefox data, visit{' '}
+        <b className="whitespace-nowrap">firefox.com/pair</b> on your computer.
+      </>
+    ),
   },
   canceled: {
     headingFtlId: 'pair2-supplicant-timeout-and-cancel-canceled-heading',
     heading: 'Canceled',
     descriptionFtlId:
       'pair2-supplicant-timeout-and-cancel-canceled-description',
-    description:
-      'To connect a device anytime, visit <b>firefox.com/pair</b> on your computer.',
+    description: (
+      <>
+        To connect a device anytime, visit{' '}
+        <b className="whitespace-nowrap">firefox.com/pair</b> on your computer.
+      </>
+    ),
   },
 };
 
@@ -73,7 +86,10 @@ const TimeoutAndCancel = ({ reason }: TimeoutAndCancelProps) => {
         <FtlMsg id={headingFtlId}>
           <h1 className="card-header mt-6">{heading}</h1>
         </FtlMsg>
-        <FtlMsg id={descriptionFtlId}>
+        <FtlMsg
+          id={descriptionFtlId}
+          elems={{ b: <b className="whitespace-nowrap" /> }}
+        >
           <p className="mt-1 text-base">{description}</p>
         </FtlMsg>
       </div>
