@@ -213,6 +213,7 @@ const ConfirmSignupCode = ({
       if (isSyncDesktopV3Integration(integration)) {
         const { to } = getSyncNavigate(location.search, {
           showSignupConfirmedSync: true,
+          origin: 'signup',
         });
         navigate(to);
       } else if (isOAuthIntegration(integration)) {
@@ -274,6 +275,10 @@ const ConfirmSignupCode = ({
                 {
                   showSignupConfirmedSync: !isSendTab,
                   signupSuccess: isSendTab,
+                  // Needed for the !isSendTab branch: signupSuccess is false
+                  // there, so without this the /pair reason would fall through
+                  // to password_login instead of password_reg.
+                  origin: 'signup',
                 }
               );
               if (shouldHardNavigate) {

@@ -68,7 +68,9 @@ export const choiceSubmit = new EventMetricType<{
  *
  * Generated from `cad_firefox.choice_view`.
  */
-export const choiceView = new EventMetricType(
+export const choiceView = new EventMetricType<{
+  reason?: string;
+}>(
   {
     category: 'cad_firefox',
     name: 'choice_view',
@@ -76,7 +78,7 @@ export const choiceView = new EventMetricType(
     lifetime: 'ping',
     disabled: false,
   },
-  []
+  ['reason']
 );
 
 /**

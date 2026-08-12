@@ -95,7 +95,11 @@ describe('Sign in with TOTP code page', () => {
   });
 
   it('renders as expected', () => {
-    renderWithLocalizationProvider(<MemoryRouter><Subject /></MemoryRouter>);
+    renderWithLocalizationProvider(
+      <MemoryRouter>
+        <Subject />
+      </MemoryRouter>
+    );
 
     const headingEl = screen.getByRole('heading', { level: 2 });
     expect(headingEl).toHaveTextContent('Enter two-step authentication code');
@@ -108,7 +112,11 @@ describe('Sign in with TOTP code page', () => {
   });
 
   it('enables submit button when code entered', async () => {
-    renderWithLocalizationProvider(<MemoryRouter><Subject /></MemoryRouter>);
+    renderWithLocalizationProvider(
+      <MemoryRouter>
+        <Subject />
+      </MemoryRouter>
+    );
 
     const inputEl = screen.getByLabelText('Enter 6-digit code');
     await waitFor(() => userEvent.type(inputEl, '123456'));
@@ -159,7 +167,11 @@ describe('Sign in with TOTP code page', () => {
   });
 
   it('emits a metrics event on render', () => {
-    renderWithLocalizationProvider(<MemoryRouter><Subject /></MemoryRouter>);
+    renderWithLocalizationProvider(
+      <MemoryRouter>
+        <Subject />
+      </MemoryRouter>
+    );
     expect(GleanMetrics.totpForm.view).toHaveBeenCalledTimes(1);
     expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(0);
     expect(GleanMetrics.totpForm.success).toHaveBeenCalledTimes(0);
@@ -205,7 +217,9 @@ describe('Sign in with TOTP code page', () => {
       expect(GleanMetrics.totpForm.view).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.success).toHaveBeenCalledTimes(1);
-      expect(mockNavigate).toHaveBeenCalledWith('/settings', { replace: false });
+      expect(mockNavigate).toHaveBeenCalledWith('/settings', {
+        replace: false,
+      });
     });
 
     describe('fxaLogin webchannel message', () => {
@@ -224,7 +238,7 @@ describe('Sign in with TOTP code page', () => {
         );
         expect(fxaLoginSpy).toHaveBeenCalled();
         expect(hardNavigateSpy).toHaveBeenCalledWith(
-          '/pair?showSuccessMessage=true',
+          '/pair?showSuccessMessage=true&pairReason=password_login',
           undefined,
           undefined,
           true
@@ -576,6 +590,65 @@ describe('Sign in with TOTP code page', () => {
         '/post_verify/set_password',
         expect.anything()
       );
+    });
+
+    // Without this, /pair tags cad_firefox.choice_view as password_login for a
+    // user who actually signed in with an email OTP code.
+    it('forwards isPasswordlessOtpSignin to handleNavigation for an OTP sign-in', async () => {
+      const user = userEvent.setup();
+      const handleNavigationSpy = jest
+        .spyOn(SigninUtils, 'handleNavigation')
+        .mockResolvedValue({ error: undefined });
+      const submitTotpCode = jest.fn().mockResolvedValue({ error: undefined });
+
+      renderWithLocalizationProvider(
+        <MemoryRouter>
+          <Subject
+            integration={vpnIntegration()}
+            submitTotpCode={submitTotpCode}
+            supportsKeysOptionalLogin={true}
+            signinState={{
+              ...MOCK_TOTP_LOCATION_STATE,
+              isPasswordlessOtpSignin: true,
+            }}
+          />
+        </MemoryRouter>
+      );
+      await user.type(screen.getByLabelText('Enter 6-digit code'), '123456');
+      await user.click(screen.getByRole('button', { name: 'Confirm' }));
+
+      await waitFor(() => {
+        expect(handleNavigationSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ isPasswordlessOtpSignin: true })
+        );
+      });
+    });
+
+    it('leaves isPasswordlessOtpSignin unset for a password sign-in', async () => {
+      const user = userEvent.setup();
+      const handleNavigationSpy = jest
+        .spyOn(SigninUtils, 'handleNavigation')
+        .mockResolvedValue({ error: undefined });
+      const submitTotpCode = jest.fn().mockResolvedValue({ error: undefined });
+
+      renderWithLocalizationProvider(
+        <MemoryRouter>
+          <Subject
+            integration={vpnIntegration()}
+            submitTotpCode={submitTotpCode}
+            supportsKeysOptionalLogin={true}
+            signinState={MOCK_TOTP_LOCATION_STATE}
+          />
+        </MemoryRouter>
+      );
+      await user.type(screen.getByLabelText('Enter 6-digit code'), '123456');
+      await user.click(screen.getByRole('button', { name: 'Confirm' }));
+
+      await waitFor(() => {
+        expect(handleNavigationSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ isPasswordlessOtpSignin: undefined })
+        );
+      });
     });
 
     it('redirects a third-party-auth sign-in to set_password when keys are not optional', async () => {

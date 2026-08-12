@@ -2,7 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { isPairGleanReason } from 'fxa-shared/metrics/glean/pair-reasons';
 import { Link, useLocation } from 'react-router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { FtlMsg } from 'fxa-react/lib/utils';
@@ -68,11 +75,7 @@ type PairProps = {
 };
 export const viewName = 'pair';
 
-const Pair = ({
-  error,
-  cmsInfo: cmsInfoProp,
-  integration,
-}: PairProps) => {
+const Pair = ({ error, cmsInfo: cmsInfoProp, integration }: PairProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedQRCodeLabel = ftlMsgResolver.getMsg(
@@ -161,22 +164,41 @@ const Pair = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Banner variant is driven by router state from getSyncNavigate.
+  const { origin: pairOrigin } = (location.state ?? {}) as Pick<
+    SigninLocationState,
+    'origin'
+  >;
+
+  // Router state is the primary channel, but flows that stop at an interstitial
+  // (/signup_confirmed_sync, /inline_recovery_key_setup) reach here through a
+  // hard navigation that carries the query param instead, and a reload drops
+  // router state entirely. Both are validated: `location.state` is untyped at
+  // runtime, and the param is user-controllable.
+  const pairReason = useMemo(() => {
+    const fromState = (location.state as { pairReason?: unknown } | null)
+      ?.pairReason;
+    if (isPairGleanReason(fromState)) {
+      return fromState;
+    }
+    const fromQuery = new URLSearchParams(location.search).get('pairReason');
+    return isPairGleanReason(fromQuery) ? fromQuery : undefined;
+  }, [location.state, location.search]);
+
   // Fire Glean view events only after the bootstrap reveals the page;
   // otherwise users redirected during bootstrap would skew the metric.
   useEffect(() => {
     if (bootstrapping) return;
     if (currentView === 'choice') {
-      GleanMetrics.cadFireFox.choiceView();
+      // Recorded as an empty reason when /pair is reached outside a sign-in or
+      // sign-up flow, or from a flow with no sanctioned bucket (third-party
+      // auth) — the dispatcher coerces a missing reason to ''.
+      GleanMetrics.cadFireFox.choiceView({ event: { reason: pairReason } });
       return;
     }
     GleanMetrics.cadFireFox.view();
-  }, [bootstrapping, currentView]);
+  }, [bootstrapping, currentView, pairReason]);
 
-  // Banner variant is driven by reach-router state from getSyncNavigate.
-  const { origin: pairOrigin } = (location.state ?? {}) as Pick<
-    SigninLocationState,
-    'origin'
-  >;
   const bannerCopy =
     currentView === 'choice' && pairOrigin ? PAIR_BANNER_FTL[pairOrigin] : null;
 

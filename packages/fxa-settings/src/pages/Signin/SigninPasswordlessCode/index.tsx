@@ -370,6 +370,7 @@ const SigninPasswordlessCode = ({
         if (isSyncDesktopV3Integration(integration)) {
           const { to } = getSyncNavigate(location.search, {
             showSignupConfirmedSync: true,
+            origin: 'signup',
           });
           navigate(to);
         } else if (isOAuthIntegration(integration)) {

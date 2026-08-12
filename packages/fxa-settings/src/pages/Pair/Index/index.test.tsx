@@ -13,18 +13,20 @@ import * as ReactUtils from 'fxa-react/lib/utils';
 import { MOCK_ERROR } from './mocks';
 import { MOCK_CMS_INFO } from '../../mocks';
 import Pair, { viewName } from '.';
+import { PAIR_GLEAN_REASONS } from 'fxa-shared/metrics/glean/pair-reasons';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
 }));
 
 let mockLocationState: unknown = null;
+let mockLocationSearch = '';
 const mockNavigate = jest.fn();
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
   useLocation: () => ({
     pathname: '/pair',
-    search: '',
+    search: mockLocationSearch,
     state: mockLocationState,
   }),
   useNavigate: () => mockNavigate,
@@ -105,6 +107,7 @@ describe('Pair', () => {
   afterEach(() => {
     jest.clearAllMocks();
     mockLocationState = null;
+    mockLocationSearch = '';
   });
 
   // Render Pair and wait for the bootstrap spinner to clear before asserting.
@@ -139,9 +142,59 @@ describe('Pair', () => {
       ).toBeInTheDocument();
     });
 
-    it('fires choiceView Glean event on render', async () => {
+    // Helper reads the reason actually handed to Glean rather than pinning the
+    // whole call shape, so a behaviour-preserving change to how the argument is
+    // built doesn't break these.
+    const recordedReason = () =>
+      (GleanMetrics.cadFireFox.choiceView as jest.Mock).mock.calls[0]?.[0]
+        ?.event?.reason;
+
+    it('fires choiceView with no reason when there is no pairReason', async () => {
       await renderPair();
-      expect(GleanMetrics.cadFireFox.choiceView).toHaveBeenCalled();
+      expect(GleanMetrics.cadFireFox.choiceView).toHaveBeenCalledTimes(1);
+      expect(recordedReason()).toBeUndefined();
+    });
+
+    it.each(PAIR_GLEAN_REASONS)(
+      'fires choiceView with reason %s from location state',
+      async (pairReason) => {
+        mockLocationState = { pairReason };
+        await renderPair();
+        expect(recordedReason()).toBe(pairReason);
+      }
+    );
+
+    // Flows that stop at /signup_confirmed_sync or /inline_recovery_key_setup
+    // reach /pair by hard navigation, so the reason arrives as a query param.
+    it.each(PAIR_GLEAN_REASONS)(
+      'fires choiceView with reason %s from the query param',
+      async (pairReason) => {
+        mockLocationSearch = `?pairReason=${pairReason}`;
+        await renderPair();
+        expect(recordedReason()).toBe(pairReason);
+      }
+    );
+
+    it('prefers location state over the query param', async () => {
+      mockLocationState = { pairReason: 'otp_login' };
+      mockLocationSearch = '?pairReason=password_login';
+      await renderPair();
+      expect(recordedReason()).toBe('otp_login');
+    });
+
+    it.each(['not-a-real-flow', '<script>alert(1)</script>', ' otp_login'])(
+      'ignores the unrecognized query param %j',
+      async (pairReason) => {
+        mockLocationSearch = `?pairReason=${encodeURIComponent(pairReason)}`;
+        await renderPair();
+        expect(recordedReason()).toBeUndefined();
+      }
+    );
+
+    it('ignores an unrecognized value in location state', async () => {
+      mockLocationState = { pairReason: 'not-a-real-flow' };
+      await renderPair();
+      expect(recordedReason()).toBeUndefined();
     });
 
     it('enables Continue button after selecting a radio', async () => {

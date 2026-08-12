@@ -157,6 +157,7 @@ const SigninRecoveryPhoneContainer = ({
         handleFxaLogin: true,
         handleFxaOAuthLogin: true,
         performNavigation: !integration.isFirefoxMobileClient(),
+        isPasswordlessOtpSignin: signinState.isPasswordlessOtpSignin,
         authClient,
       };
 

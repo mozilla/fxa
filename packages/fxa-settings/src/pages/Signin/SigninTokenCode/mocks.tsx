@@ -80,6 +80,7 @@ export const Subject = ({
   integration = createMockWebIntegration(),
   verificationReason = undefined,
   onSessionVerified = async () => {},
+  signinState,
 }: Partial<SigninTokenCodeProps> & {
   verificationReason?: VerificationReasons;
 }) => {
@@ -90,10 +91,13 @@ export const Subject = ({
         integration,
         onSessionVerified,
       }}
-      signinState={createMockSigninLocationState(
-        integration.wantsKeys(),
-        verificationReason
-      )}
+      signinState={
+        signinState ??
+        createMockSigninLocationState(
+          integration.wantsKeys(),
+          verificationReason
+        )
+      }
     />
   );
 };

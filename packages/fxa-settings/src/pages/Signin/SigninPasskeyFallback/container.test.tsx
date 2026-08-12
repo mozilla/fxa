@@ -225,6 +225,20 @@ describe('SigninPasskeyFallback container', () => {
       );
     });
 
+    // This is the only producer of isPasskeySession, and therefore the only
+    // source of the passkey_login reason on /pair for accounts that already
+    // have a password (FXA-14133).
+    it('marks the session as passkey-established so /pair attributes passkey_login', async () => {
+      const { getByTestId } = render();
+      submitPassword(getByTestId);
+
+      await waitFor(() => {
+        expect(mockHandleNavigation).toHaveBeenCalledWith(
+          expect.objectContaining({ isPasskeySession: true })
+        );
+      });
+    });
+
     it('passes the flow metricsContext to sessionReauth so the deferred account.login is correlated', async () => {
       const { getByTestId } = render();
       submitPassword(getByTestId);

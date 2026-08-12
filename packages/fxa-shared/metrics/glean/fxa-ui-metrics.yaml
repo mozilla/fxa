@@ -2294,12 +2294,18 @@ cad_firefox:
       - fxa-staff@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-9607
+      - https://mozilla-hub.atlassian.net/browse/FXA-14133
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      reason:
+        description: |
+          The sign-in or registration flow that redirected the user to the choice screen. See PAIR_GLEAN_REASONS in fxa-shared/metrics/glean/pair-reasons.ts for the permitted values. Empty when the screen is reached directly (e.g. the pair link on a success page) or from a flow with no bucket of its own, such as third-party auth.
+        type: string
   choice_engage:
     type: event
     description: |
