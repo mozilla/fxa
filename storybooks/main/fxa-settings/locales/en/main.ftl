@@ -1497,6 +1497,12 @@ pair2-authority-continue-on-mobile-description = Follow the steps on your phone 
 pair2-authority-continue-on-mobile-cancel-button = Cancel
 
 
+pair2-authority-download-firefox-heading = Open { -brand-firefox } to sync
+pair2-authority-download-firefox-instruction = To set up syncing across devices, open { -brand-firefox } on this device and visit <b>firefox.com/pair</b>
+
+pair2-authority-download-firefox-cta = Download { -brand-firefox }
+
+
 pair2-authority-scan-qr-heading = Scan to connect your mobile device
 pair2-authority-scan-qr-instruction = Scan the QR code with your phone or tablet to sync your { -brand-firefox } bookmarks, tabs, and more.
 pair2-authority-scan-qr-code-aria-label = QR code to connect your mobile device

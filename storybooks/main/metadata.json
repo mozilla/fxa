@@ -1,8 +1,8 @@
 {
-  "commit": "d5b7b0e69cf1913af7bf13414ff99aa6469e941c",
-  "summary": "Merge pull request #20990 from mozilla/FXA-14242",
-  "description": "feat(settings): add desktop Approve sign in card",
-  "timestamp": 1786558777000,
+  "commit": "32f7d32e0e309dd22c1b9844323fa9ba5d3113d6",
+  "summary": "Merge pull request #20983 from mozilla/FXA-14239",
+  "description": "feat(settings): add desktop Download Firefox card",
+  "timestamp": 1786558796000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
