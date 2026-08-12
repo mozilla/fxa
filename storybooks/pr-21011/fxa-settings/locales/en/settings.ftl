@@ -424,11 +424,6 @@ input-phone-number-enter-number = Enter phone number
 input-phone-number-country-united-states = United States
 input-phone-number-country-canada = Canada
 
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Back
-# Generic error shown when the legal document fails to load
-app-general-err-message = Something went wrong. Please try again later.
-
 ## LinkDamaged component
 
 # The user followed a password reset link that was received by email
@@ -647,6 +642,10 @@ cs-logged-out-2 = Logged out of { $service }
 
 cs-refresh-button =
   .title = Refresh connected services
+
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = Connect a device
 
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = Missing or duplicate items?
@@ -1871,23 +1870,6 @@ tfa-qr-code-alt = Use the code { $code } to set up two-step authentication in su
 
 inline-totp-setup-page-title = Two-step authentication
 
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Legal
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Terms of Service
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Privacy Notice
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Privacy Notice
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Terms of Service
-
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = Did you just sign in to { -brand-firefox }?
@@ -2066,6 +2048,18 @@ pair-unsupported-learn-more-link-v2 = Learn more
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oops! Something went wrong.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Please close this tab and try again.
 
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and offers the follow-up actions.
+
+# "syncing" here means copying data between the user's devices
+pair2-authority-sync-success-heading = You’re syncing
+pair2-authority-sync-success-description = Your tabs, bookmarks, passwords, and more are ready across your devices.
+# Opens the tabs that are open on the user's other synced devices
+pair2-authority-sync-success-view-tabs-button = View synced tabs
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button = Sync settings
+
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
 ## shown on their computer. It waits for them to approve the sign-in on the
@@ -2076,6 +2070,32 @@ pair2-supplicant-approve-sign-in-heading = One last step to sync
 pair2-supplicant-approve-sign-in-instruction = Approve the sign-in on your computer.
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = Cancel
+
+## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It asks them to confirm connecting the mobile
+## device to their account, and shows that computer's details so they can
+## verify the request.
+
+# "this device" is the mobile device the user is holding, not the computer
+# whose details are shown below the heading
+pair2-supplicant-connect-this-device-heading = Connect this device to your account?
+# Confirms the pairing attempt
+pair2-supplicant-connect-this-device-connect-button = Connect
+# Dismisses the pairing attempt
+pair2-supplicant-connect-this-device-cancel-button = Cancel
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing reaches a device that
+## does not have Firefox installed yet. It explains what syncing gets them and
+## sends them off to install the browser.
+
+pair2-supplicant-download-firefox-heading = Get { -brand-firefox } on this device
+# "sync" is a verb here, referring to syncing data between the user's devices.
+# <linkExternal> is an anchor tag linking to a page explaining what sync does.
+pair2-supplicant-download-firefox-description = Download { -brand-firefox } to sync bookmarks, history, and more across devices. <linkExternal>Learn more</linkExternal>
+# Primary action. Sends the user to the Firefox download page.
+pair2-supplicant-download-firefox-continue-button = Continue in { -brand-firefox }
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
