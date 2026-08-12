@@ -1,0 +1,11 @@
+{
+  "commit": "fa280e8b795e15b4246a646e1727a178cbab9138",
+  "summary": "fix(fxa-settings): prevent CJK button labels breaking one character per line",
+  "description": "Flex-shrink on settings row and modal CTA buttons was squeezing Japanese,\nChinese, and Korean labels to a single character per line. Keep button text\non one line and let paired modal actions wrap as a group when space is tight.\n\nUse child mx-2 margins for modal button spacing instead of gap-2 to avoid\ndoubled horizontal spacing that caused premature wrapping.\n\nFixes mozilla/fxa#18683",
+  "timestamp": 1786555993000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
