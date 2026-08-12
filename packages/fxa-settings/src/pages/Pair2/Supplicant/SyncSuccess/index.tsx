@@ -12,13 +12,11 @@ import {
 
 export type SyncSuccessProps = {
   /**
-   * Opens the browser's synced tabs view. Required so that routing this card
-   * cannot leave its primary action inert.
+   * Opens the browser's synced tabs view.
    */
   onViewSyncedTabs: () => void;
   /**
-   * Opens the browser's sync settings. Required for the same reason as
-   * `onViewSyncedTabs`.
+   * Opens the browser's sync settings.
    */
   onSyncSettings: () => void;
 };
