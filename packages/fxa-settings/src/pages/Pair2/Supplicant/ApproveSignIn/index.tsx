@@ -30,9 +30,6 @@ export type ApproveSignInProps = {
  * The mobile waiting screen shown after the user scans the pairing QR code. It
  * tells them to finish approving the sign-in on their computer and shows the
  * requesting device's details for verification. Cancel is the only action.
- *
- * Presentational only: routing and the page-view/Glean metrics that sibling
- * pairing pages emit land with the flow wiring.
  */
 const ApproveSignIn = ({ remoteMetadata, onCancel }: ApproveSignInProps) => (
   <AppLayout>
