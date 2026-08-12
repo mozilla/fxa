@@ -218,7 +218,9 @@ const ConnectAnotherDevice = ({
         signedInUser?.sessionToken && signedInUser.verified
       );
       if (browserSignedIn && isEligibleForPairing()) {
-        hardNavigate('/pair');
+        // Carry the query params forward so /pair keeps the entrypoint it was
+        // opened with — the pairing flow attributes off it (FXA-14132).
+        hardNavigate('/pair', {}, true);
         return;
       }
       if (browserSignedIn) {

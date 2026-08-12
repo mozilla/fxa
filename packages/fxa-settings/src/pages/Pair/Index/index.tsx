@@ -2,7 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Link, useLocation } from 'react-router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { FtlMsg } from 'fxa-react/lib/utils';
@@ -31,6 +37,11 @@ import {
   buildPairingDownloadUrl,
   isSendTabEntrypoint,
 } from '../../../lib/utilities';
+import {
+  pickPairingAttribution,
+  pickPairingAttributionFromData,
+  stashPairingAttribution,
+} from '../../../lib/pairing-attribution';
 import type { PairOrigin } from '../../Signin/utils';
 import type { SigninLocationState } from '../../Signin/interfaces';
 import type { Integration } from '../../../models';
@@ -68,11 +79,7 @@ type PairProps = {
 };
 export const viewName = 'pair';
 
-const Pair = ({
-  error,
-  cmsInfo: cmsInfoProp,
-  integration,
-}: PairProps) => {
+const Pair = ({ error, cmsInfo: cmsInfoProp, integration }: PairProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedQRCodeLabel = ftlMsgResolver.getMsg(
@@ -96,6 +103,17 @@ const Pair = ({
 
   const choiceHeaderRef = useRef<HTMLHeadingElement>(null);
   const downloadHeaderRef = useRef<HTMLHeadingElement>(null);
+
+  // Attribution params to carry into the pairing flow (FXA-14132). Sourced from
+  // the integration so it matches what this page's own Glean events report;
+  // falls back to the URL when no integration is supplied (tests, stories).
+  const pairingAttribution = useMemo(
+    () =>
+      integration?.data
+        ? pickPairingAttributionFromData(integration.data)
+        : pickPairingAttribution(location.search),
+    [integration, location.search]
+  );
 
   // Focus management after view transitions
   useEffect(() => {
@@ -148,7 +166,14 @@ const Pair = ({
         .catch(() => null);
       if (cancelled) return;
       if (oauthParams) {
-        hardNavigate(`/?${buildSyncOAuthSearch(oauthParams)}`);
+        // buildSyncOAuthSearch emits OAuth params only, so the attribution
+        // params would be lost across the sign-in round trip and /pair would
+        // come back without an entrypoint (FXA-14132).
+        const search = buildSyncOAuthSearch(oauthParams);
+        for (const [key, value] of Object.entries(pairingAttribution)) {
+          search.set(key, value);
+        }
+        hardNavigate(`/?${search}`);
         return;
       }
       // WebChannel didn't reply; reveal the page so the user isn't stuck.
@@ -158,6 +183,9 @@ const Pair = ({
     return () => {
       cancelled = true;
     };
+    // Run-once bootstrap: `pairingAttribution` and `navigateWithQuery` are
+    // intentionally captured at mount. Re-running on a new attribution value
+    // would re-ask the WebChannel and could double-navigate.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -184,8 +212,13 @@ const Pair = ({
 
   // Tells Firefox to open about:preferences#sync and start pairing.
   const openPairPreferences = useCallback(() => {
+    // Firefox takes over from here and later opens a brand-new
+    // /oauth?…redirect_uri=…pair-auth-webchannel navigation that carries none of
+    // this page's attribution params (FXA-14132). Stash them so the approval page
+    // can restore them.
+    stashPairingAttribution(pairingAttribution);
     firefox.send(FirefoxCommand.PairPreferences, {});
-  }, []);
+  }, [pairingAttribution]);
 
   const handleRadioChange = useCallback((value: MobileChoice) => {
     setSelectedRadio(value);

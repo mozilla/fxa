@@ -16,6 +16,7 @@ import { searchParams } from './lib/utilities';
 import { AppContext, initializeAppContext } from './models';
 import { ThemeProvider } from './models/contexts/ThemeContext';
 import Storage from './lib/storage';
+import { restorePairingAttribution } from './lib/pairing-attribution';
 import CookiesDisabled from './pages/CookiesDisabled';
 import { BrowserRouter } from 'react-router';
 import { DynamicLocalizationProvider } from './contexts/DynamicLocalizationContext';
@@ -46,6 +47,11 @@ export interface QueryParams extends FlowQueryParams {
 }
 
 try {
+  // Fx Desktop opens the pairing-authority page with none of the attribution
+  // params it gave /pair. Restore them from the hand-off stash before
+  // the router and every UrlQueryData reads the URL.
+  restorePairingAttribution();
+
   const flowQueryParams = searchParams(window.location.search) as QueryParams;
 
   // Populate config
