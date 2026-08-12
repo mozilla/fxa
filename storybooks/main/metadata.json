@@ -1,8 +1,8 @@
 {
-  "commit": "a0d44de6d125473fa7b03faaaa8e89a5423394ad",
-  "summary": "Merge pull request #21002 from mozilla/fxa-14299",
-  "description": "fix(auth-server): stop check-users spec from leaving fixture files in the repo",
-  "timestamp": 1786552961000,
+  "commit": "7ae747440cfd68f2de229c97dcdfd9fbe43e278c",
+  "summary": "Merge pull request #20991 from mozilla/FXA-14244",
+  "description": "feat(settings): add desktop Scan QR card",
+  "timestamp": 1786555170000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

@@ -1492,6 +1492,12 @@ pair2-authority-continue-on-mobile-description = Follow the steps on your phone 
 pair2-authority-continue-on-mobile-cancel-button = Cancel
 
 
+pair2-authority-scan-qr-heading = Scan to connect your mobile device
+pair2-authority-scan-qr-instruction = Scan the QR code with your phone or tablet to sync your { -brand-firefox } bookmarks, tabs, and more.
+pair2-authority-scan-qr-code-aria-label = QR code to connect your mobile device
+pair2-authority-scan-qr-help-link = Get help scanning
+
+
 pair2-authority-sync-success-heading = You’re syncing
 pair2-authority-sync-success-description = Your tabs, bookmarks, passwords, and more are ready across your devices.
 pair2-authority-sync-success-view-tabs-button = View synced tabs
