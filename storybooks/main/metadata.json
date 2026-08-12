@@ -1,8 +1,8 @@
 {
-  "commit": "5082404cf86ebcd1b5b3e37e419ae1ed8f24ce1a",
-  "summary": "Merge pull request #20970 from mozilla/FXA-14302",
-  "description": "fix(metrics): correct login.complete for passkey sign-ins",
-  "timestamp": 1786547603000,
+  "commit": "0b1b6550ddd89baf106e6de9ff6bbf1989ab1f01",
+  "summary": "Merge pull request #21009 from mozilla/fix-svgr-webpack-config",
+  "description": "Fix svgr webpack config",
+  "timestamp": 1786548813000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
