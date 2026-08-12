@@ -69,6 +69,7 @@ describe('/recovery_phone', () => {
     removePhoneNumber: jest.fn(),
     stripPhoneNumber: jest.fn(),
     hasConfirmed: jest.fn(),
+    hasConfirmedMasked: jest.fn(),
     onMessageStatusUpdate: jest.fn(),
     validateTwilioWebhookCallback: jest.fn(),
     validateSetupCode: jest.fn(),
@@ -1048,31 +1049,50 @@ describe('/recovery_phone', () => {
   });
 
   describe('GET /recovery_phone', () => {
-    it('gets a recovery phone', async () => {
-      mockRecoveryPhoneService.hasConfirmed = jest.fn().mockReturnValue({
-        exists: true,
-        phoneNumber,
-      });
+    const maskedPhone = { exists: true, phoneNumber: '1234' };
 
-      const resp = await makeRequest({
-        method: 'GET',
-        path: '/recovery_phone',
-        credentials: { uid, emailVerified: true },
-      });
+    // Masking itself is asserted in the service spec; this covers the wiring.
+    it.each([
+      {
+        name: 'a session still owing confirmation',
+        credentials: { emailVerified: true, mustVerify: true },
+        keepFormatting: false,
+      },
+      {
+        name: 'an unverified session',
+        credentials: { emailVerified: false },
+        keepFormatting: false,
+      },
+      {
+        name: 'a confirmed session',
+        credentials: { emailVerified: true, tokenVerified: true },
+        keepFormatting: true,
+      },
+    ])(
+      'delegates to hasConfirmedMasked with keepFormatting $keepFormatting for $name',
+      async ({ credentials, keepFormatting }) => {
+        mockRecoveryPhoneService.hasConfirmedMasked = jest
+          .fn()
+          .mockResolvedValue(maskedPhone);
 
-      expect(resp).toBeDefined();
-      expect(mockRecoveryPhoneService.hasConfirmed).toHaveBeenCalledTimes(1);
-      expect(mockRecoveryPhoneService.hasConfirmed).toHaveBeenNthCalledWith(
-        1,
-        uid,
-        expect.anything()
-      );
-    });
+        const resp = await makeRequest({
+          method: 'GET',
+          path: '/recovery_phone',
+          credentials: { uid, ...credentials },
+        });
 
-    it('indicates  error', async () => {
-      mockRecoveryPhoneService.hasConfirmed = jest
+        expect(resp).toEqual(maskedPhone);
+        expect(
+          mockRecoveryPhoneService.hasConfirmedMasked
+        ).toHaveBeenCalledWith(uid, { keepFormatting });
+        expect(mockRecoveryPhoneService.hasConfirmed).not.toHaveBeenCalled();
+      }
+    );
+
+    it('wraps a hasConfirmedMasked rejection in backendServiceFailure', async () => {
+      mockRecoveryPhoneService.hasConfirmedMasked = jest
         .fn()
-        .mockReturnValue(Promise.reject(new Error('BOOM')));
+        .mockRejectedValue(new Error('BOOM'));
       const promise = makeRequest({
         method: 'GET',
         path: '/recovery_phone',
@@ -1083,27 +1103,6 @@ describe('/recovery_phone', () => {
         'System unavailable, try again soon'
       );
       expect(mockGlean.twoStepAuthPhoneRemove.success).toHaveBeenCalledTimes(0);
-    });
-
-    it('returns masked phone number for unverified session', async () => {
-      mockRecoveryPhoneService.hasConfirmed = jest.fn().mockReturnValue({
-        exists: true,
-        phoneNumber,
-      });
-      const resp = await makeRequest({
-        method: 'GET',
-        path: '/recovery_phone',
-        credentials: { uid, mustVerify: true },
-      });
-      expect(resp).toBeDefined();
-      expect(resp.exists).toBeDefined();
-      expect(resp.phoneNumber).toBeDefined();
-      expect(mockRecoveryPhoneService.hasConfirmed).toHaveBeenCalledTimes(1);
-      expect(mockRecoveryPhoneService.hasConfirmed).toHaveBeenNthCalledWith(
-        1,
-        uid,
-        4
-      );
     });
   });
 
