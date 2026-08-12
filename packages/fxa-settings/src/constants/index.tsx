@@ -16,6 +16,8 @@ export const MOZILLA_ACCOUNTS_TOS_URL =
   'https://www.mozilla.org/about/legal/terms/services/';
 export const MOZILLA_ACCOUNTS_PRIVACY_URL =
   'https://www.mozilla.org/privacy/mozilla-accounts/';
+export const SYNC_SUPPORT_URL =
+  'https://support.mozilla.org/kb/how-do-i-set-sync-my-computer';
 
 export enum ENTRYPOINTS {
   FIREFOX_IOS_OAUTH_ENTRYPOINT = 'ios_settings_manage',
