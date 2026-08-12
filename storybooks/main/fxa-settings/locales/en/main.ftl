@@ -1498,6 +1498,15 @@ pair2-authority-sync-success-view-tabs-button = View synced tabs
 pair2-authority-sync-success-sync-settings-button = Sync settings
 
 
+pair2-authority-timeout-and-cancel-timeout-heading = Still want to connect a device?
+pair2-authority-timeout-and-cancel-timeout-description = Looks like we timed out. Try again if you still want to connect your mobile device and sync your { -brand-firefox } data.
+pair2-authority-timeout-and-cancel-canceled-heading = Canceled
+pair2-authority-timeout-and-cancel-canceled-description = If you change your mind or want to connect a different device, try again.
+pair2-authority-timeout-and-cancel-try-again-button = Try again
+pair2-authority-timeout-and-cancel-cancel-button = Cancel
+pair2-authority-timeout-and-cancel-sync-settings-button = Sync settings
+
+
 pair2-supplicant-approve-sign-in-heading = One last step to sync
 pair2-supplicant-approve-sign-in-instruction = Approve the sign-in on your computer.
 pair2-supplicant-approve-sign-in-cancel-button = Cancel

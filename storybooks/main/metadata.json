@@ -1,8 +1,8 @@
 {
-  "commit": "e97dddf4ce3a3f47bdfcc8452ffad6dd51e00bf6",
-  "summary": "Merge pull request #20988 from mozilla/FXA-14243",
-  "description": "feat(settings): add desktop Continue on mobile card",
-  "timestamp": 1786552311000,
+  "commit": "3f89bfdf9618606e919a0ea5de613663171a019e",
+  "summary": "Merge pull request #20989 from mozilla/FXA-14241",
+  "description": "feat(settings): add desktop Timeout and cancel card",
+  "timestamp": 1786552458000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
