@@ -1487,6 +1487,11 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Oops! Something went wrong
 pair-unsupported-desktop-firefox-fallback-message-v2 = Please close this tab and try again.
 
 
+pair2-authority-continue-on-mobile-heading = Continue on your mobile device
+pair2-authority-continue-on-mobile-description = Follow the steps on your phone or tablet.
+pair2-authority-continue-on-mobile-cancel-button = Cancel
+
+
 pair2-authority-sync-success-heading = You’re syncing
 pair2-authority-sync-success-description = Your tabs, bookmarks, passwords, and more are ready across your devices.
 pair2-authority-sync-success-view-tabs-button = View synced tabs
