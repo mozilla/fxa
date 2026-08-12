@@ -1516,6 +1516,11 @@ pair2-supplicant-connect-this-device-heading = Connect this device to your accou
 pair2-supplicant-connect-this-device-connect-button = Connect
 pair2-supplicant-connect-this-device-cancel-button = Cancel
 
+
+pair2-supplicant-download-firefox-heading = Get { -brand-firefox } on this device
+pair2-supplicant-download-firefox-description = Download { -brand-firefox } to sync bookmarks, history, and more across devices. <linkExternal>Learn more</linkExternal>
+pair2-supplicant-download-firefox-continue-button = Continue in { -brand-firefox }
+
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmed
 service-welcome-signin-success-banner = Signed in successfully!
 service-welcome-vpn-heading = Next: Turn on VPN
