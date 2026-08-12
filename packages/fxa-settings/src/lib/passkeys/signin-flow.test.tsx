@@ -888,6 +888,90 @@ describe('usePasskeySignIn', () => {
     expect(Sentry.captureException as jest.Mock).toHaveBeenCalledWith(navError);
   });
 
+  describe('isNavigating (page-level loading state)', () => {
+    it('starts false before any sign-in attempt', () => {
+      const { args } = buildArgs();
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+      expect(result.current.isNavigating).toBe(false);
+    });
+
+    it('is raised and left set on the no-password committed-success path', async () => {
+      const { args } = buildArgs();
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+      await act(async () => {
+        await result.current.onClick();
+      });
+      expect(result.current.isNavigating).toBe(true);
+    });
+
+    it('is not raised when handleNavigation returns an error, so the form stays rendered', async () => {
+      (handleNavigation as jest.Mock).mockResolvedValue({
+        error: new Error('OAuth completion failed'),
+      });
+      const { args } = buildArgs();
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+      await act(async () => {
+        await result.current.onClick();
+      });
+      expect(result.current.isNavigating).toBe(false);
+      expect(result.current.errorBanner).toBeDefined();
+    });
+
+    it('is raised before routing to the password step when keys are required', async () => {
+      const { args, spies } = buildArgs({
+        integration: {
+          isSync: () => true,
+          isFirefoxNonSync: () => false,
+          requiresPasswordForLogin: () => true,
+          getService: () => 'sync',
+          type: IntegrationType.OAuthNative,
+          data: {},
+        } as unknown as PasskeySignInIntegration,
+      });
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+      await act(async () => {
+        await result.current.onClick();
+      });
+      expect(spies.navigateWithQuery).toHaveBeenCalledWith(
+        '/signin_passkey_fallback',
+        { state: { passkeySurface: 'emailfirst' } }
+      );
+      expect(result.current.isNavigating).toBe(true);
+    });
+
+    it('stays raised on the Firefox mobile WebChannel handoff, where no navigation is performed', async () => {
+      const { args } = buildArgs({
+        integration: {
+          isSync: () => false,
+          isFirefoxNonSync: () => true,
+          requiresPasswordForLogin: () => false,
+          getService: () => 'vpn',
+          getClientId: () => 'service-id',
+          isFirefoxMobileClient: () => true,
+          type: IntegrationType.OAuthNative,
+          data: {},
+        } as unknown as PasskeySignInIntegration,
+      });
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+      await act(async () => {
+        await result.current.onClick();
+      });
+      expect(result.current.isNavigating).toBe(true);
+    });
+
+    it('is not raised when the ceremony is cancelled', async () => {
+      (getCredential as jest.Mock).mockRejectedValue(
+        new DOMException('cancelled', 'NotAllowedError')
+      );
+      const { args } = buildArgs();
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+      await act(async () => {
+        await result.current.onClick();
+      });
+      expect(result.current.isNavigating).toBe(false);
+    });
+  });
+
   it('shows the "passkey not recognized" banner on errno PASSKEY_NOT_FOUND', async () => {
     const { args, spies } = buildArgs();
     spies.completePasskeyAuthentication.mockRejectedValue(

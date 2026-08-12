@@ -113,6 +113,8 @@ const SigninPasswordlessCode = ({
   const [resendCountdown, setResendCountdown] = useState<number>(
     resendCountdownSeconds
   );
+  // Mirrors FormVerifyCode's internal submit state, which it doesn't expose.
+  const [otpSubmitting, setOtpSubmitting] = useState<boolean>(false);
   const throttle = useThrottle();
 
   const gleanOtp = isSignup
@@ -480,6 +482,17 @@ const SigninPasswordlessCode = ({
     }
   };
 
+  const handleVerifyCode = async (code: string) => {
+    setOtpSubmitting(true);
+    try {
+      await onSubmit(code);
+    } finally {
+      setOtpSubmitting(false);
+    }
+  };
+
+  const authInProgress = otpSubmitting || passkey.isLoading;
+
   const cmsInfo = integration?.getCmsInfo();
   //TODO: Signup/SigninPasswordlessCodePage to be added as part of FXA-13020
   const {
@@ -519,7 +532,10 @@ const SigninPasswordlessCode = ({
   };
 
   return (
-    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
+    <AppLayout
+      {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}
+      loading={passkey.isNavigating}
+    >
       <CardHeader
         headingText="Enter confirmation code"
         headingAndSubheadingFtlId="signin-passwordless-code-heading"
@@ -593,7 +609,7 @@ const SigninPasswordlessCode = ({
         {...{
           formAttributes,
           viewName,
-          verifyCode: onSubmit,
+          verifyCode: handleVerifyCode,
           localizedCustomCodeRequiredMessage,
           codeErrorMessage,
           setCodeErrorMessage,
@@ -609,6 +625,7 @@ const SigninPasswordlessCode = ({
           },
           className: `flex flex-col gap-4 mt-6 ${showPasskeySignin ? 'mb-2' : 'mb-6'}`,
           isThrottled: throttle.isThrottled,
+          disabled: authInProgress,
         }}
       />
 
@@ -637,7 +654,9 @@ const SigninPasswordlessCode = ({
             <button
               className="link-blue"
               onClick={handleResendCode}
-              disabled={resendCodeLoading || throttle.isThrottled}
+              disabled={
+                resendCodeLoading || throttle.isThrottled || authInProgress
+              }
             >
               Email new code.
             </button>
@@ -654,6 +673,7 @@ const SigninPasswordlessCode = ({
             onClick: passkey.onClick,
           }}
           errorBanner={passkey.errorBanner}
+          disabled={authInProgress}
           {...{ viewName, flowQueryParams }}
         />
       )}

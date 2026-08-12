@@ -25,6 +25,7 @@ export type ThirdPartyAuthProps = {
   viewName?: string;
   flowQueryParams?: QueryParams;
   variant?: ThirdPartyAuthVariant;
+  disabled?: boolean;
 };
 
 /**
@@ -38,6 +39,7 @@ const ThirdPartyAuth = ({
   viewName = 'unknown',
   flowQueryParams,
   variant = 'icon',
+  disabled = false,
 }: ThirdPartyAuthProps) => {
   const config = useConfig();
 
@@ -57,6 +59,7 @@ const ThirdPartyAuth = ({
           viewName,
           flowQueryParams,
           variant,
+          disabled,
           onSubmit: onContinueWithGoogle,
           buttonText: (
             <>
@@ -77,6 +80,7 @@ const ThirdPartyAuth = ({
           responseMode: 'form_post',
           flowQueryParams,
           variant,
+          disabled,
           onSubmit: onContinueWithApple,
           buttonText: (
             <>
@@ -104,6 +108,7 @@ const ThirdPartySignInButton = ({
   viewName,
   flowQueryParams,
   variant = 'icon',
+  disabled = false,
 }: {
   party: 'google' | 'apple';
   authorizationEndpoint: string;
@@ -119,6 +124,7 @@ const ThirdPartySignInButton = ({
   viewName?: string;
   flowQueryParams?: QueryParams;
   variant?: ThirdPartyAuthVariant;
+  disabled?: boolean;
 }) => {
   const { logViewEventOnce } = useMetrics();
   const { l10n } = useLocalization();
@@ -233,6 +239,7 @@ const ThirdPartySignInButton = ({
         onClick={handleClick}
         aria-label={getLoginAriaLabel()}
         leadingIcon={leadingIcon}
+        disabled={disabled}
       >
         <FtlMsg id={labelFtlId}>{labelDefault}</FtlMsg>
       </BoxButton>
@@ -242,7 +249,9 @@ const ThirdPartySignInButton = ({
   return (
     <button
       type="button"
+      disabled={disabled}
       className={`w-[60px] h-[60px] p-4 flex items-center justify-center rounded-full border focus-visible-default outline-offset-2
+      disabled:opacity-50 disabled:cursor-not-allowed
       ${
         party === 'google'
           ? 'bg-[#F9F4F4] border-[#747775] border-[1px]'

@@ -14,6 +14,8 @@ export const Subject = ({
   verifyCode = onFormSubmit,
   submitFormOnPaste = true,
   formAttributes: customFormAttributes,
+  isThrottled,
+  disabled,
 }: Partial<FormVerifyCodeProps> & { formAttributes?: FormAttributes }) => {
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
 
@@ -36,6 +38,8 @@ export const Subject = ({
         submitFormOnPaste,
         codeErrorMessage,
         setCodeErrorMessage,
+        isThrottled,
+        disabled,
       }}
     />
   );

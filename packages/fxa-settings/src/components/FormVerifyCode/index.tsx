@@ -53,6 +53,8 @@ export type FormVerifyCodeProps = {
   className?: string;
   /** Disables the submit button during a server-side throttle window. */
   isThrottled?: boolean;
+  /** Locks submit independently of the internal empty/invalid-code state. */
+  disabled?: boolean;
 };
 
 type FormData = {
@@ -74,6 +76,7 @@ const FormVerifyCode = ({
   onChangeCb,
   className = 'flex flex-col gap-4 my-6',
   isThrottled = false,
+  disabled = false,
 }: FormVerifyCodeProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -127,6 +130,10 @@ const FormVerifyCode = ({
   ]);
 
   const onSubmit = async ({ code }: FormData) => {
+    // The onPaste auto-submit bypasses the button's disabled attribute.
+    if (disabled || isThrottled) {
+      return;
+    }
     setIsSubmitting(true);
     await verifyCode(code.trim());
     setIsSubmitting(false);
@@ -183,7 +190,7 @@ const FormVerifyCode = ({
         <CmsButtonWithFallback
           type="submit"
           className="cta-primary cta-xl"
-          disabled={isSubmitting || isDisabled || isThrottled}
+          disabled={isSubmitting || isDisabled || isThrottled || disabled}
           data-glean-id={gleanDataAttrs?.id}
           data-glean-label={gleanDataAttrs?.label}
           data-glean-type={gleanDataAttrs?.type}
