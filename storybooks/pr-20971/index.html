@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 901a72c779c7f8c37dce72ef4e0400d306eabc68</title>
+  <title>Storybooks for commit 9d9d6a4f6c606a4b45f34522524fde6df701bd26</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,14 +23,14 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 901a72c779c7f8c37dce72ef4e0400d306eabc68</h1>
+  <h1>Storybooks for commit 9d9d6a4f6c606a4b45f34522524fde6df701bd26</h1>
   <ul>
     <li><a href="./fxa-react/">fxa-react</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/12/2026, 3:29:37 PM UTC</dd>
+    <dd>8/12/2026, 3:41:47 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>test(fxa-shared): Make experiments/base tests deterministic</pre></dd>
     <dt>Description</dt>
@@ -40,14 +40,17 @@
   asserted every result was unique. The hash is 32 bits, so by the
   birthday paradox a collision occurred roughly 1% of the time.
 * Every other statistical assertion in the file was fed Math.random()
-  or uuid.v4() too, so they can fail on a run where nothing changed.
+  or crypto.randomUUID() too, so they can fail on a run where nothing
+  changed.
 * The shared experiment instance is mutated by the deprecated test,
   and hash() mixes in this.name, so the hashing tests were order
   dependent.
 
 This commit:
 
-* Uses fixed keys instead of Math.random() and uuid.v4() throughout.
+* Replaces the random input with a fixed key set, derived once with
+  sha256 so the sample keeps the entropy of a real uid and shares no
+  structure with the md5 under test.
 * Replaces the uniqueness assertions with the behaviour actually under
   test: output range, stability for a given key, and spread across the
   output range.
