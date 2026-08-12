@@ -1,8 +1,8 @@
 {
-  "commit": "b38e6f0c8eca4a84066b5e1544591cbf5f9f3121",
+  "commit": "77f6079ff61f5446b9b3b444aee1182fa0805049",
   "summary": "feat(settings): add mobile Sync success card",
   "description": "Because:\n - We are updating pairing flows and want to land UI components / pages first.\n - Adds the mobile screen confirming the device connected.\n\nThis commit:\n - Adds `packages/fxa-settings/src/pages/Pair2/Supplicant/SyncSuccess/index.tsx`,\n   a presentational card rendering the Firefox brand lockup, the shared sync\n   success illustration, the heading and description copy, a primary \"View\n   synced tabs\" button, and a link-styled \"Sync settings\" button.\n - Takes `onViewSyncedTabs` and `onSyncSettings` as required callback props so\n   that routing the card cannot leave either action inert. Neither action is an\n   external URL, so no `LinkExternal`; the WebChannel messages, navigation, and\n   Glean metrics land with the route.\n - Adds `en.ftl` with the `pair2-supplicant-sync-success-` strings, a storybook\n   story, and tests covering the copy, the image aria labels, both callbacks,\n   and drift between the fallback text and the Fluent bundle.\n\nCloses #FXA-14235",
-  "timestamp": 1786488891000,
+  "timestamp": 1786496023000,
   "storybooks": [
     "fxa-settings"
   ],
