@@ -1,0 +1,76 @@
+subscriptionUpgrade-subject = "You have upgraded to <%- productName %>"
+
+subscriptionUpgrade-title = "Thank you for upgrading!"
+
+subscriptionUpgrade-upgrade-info-2 = "You have successfully upgraded to <%- productName %>."
+
+<% if (locals.paymentProratedInCents < 0) { %>
+subscriptionUpgrade-content-charge-credit = "You have received an account credit in the amount of <%- paymentProrated %>."
+<% } else if (locals.paymentProratedInCents > 0) { %>
+subscriptionUpgrade-content-charge-prorated-1 = "You have been charged a one-time fee of <%- invoiceAmountDue %> to reflect your subscription’s higher price for the remainder of this billing period (<%- productPaymentCycleOld %>)."
+<% } %>
+subscriptionUpgrade-content-subscription-will-change = "Starting with your next bill, the price of your subscription will change."
+<% if (locals.paymentTaxOldInCents) { %>
+<% if (locals.productPaymentCycleOld === 'day') { %>
+subscriptionUpgrade-content-old-price-day-tax = "The previous rate was <%- paymentAmountOld %> + <%- paymentTaxOld %> tax per day."
+<% } else if (locals.productPaymentCycleOld === 'week') { %>
+subscriptionUpgrade-content-old-price-week-tax = "The previous rate was <%- paymentAmountOld %> + <%- paymentTaxOld %> tax per week."
+<% } else if (locals.productPaymentCycleOld === 'month') { %>
+subscriptionUpgrade-content-old-price-month-tax = "The previous rate was <%- paymentAmountOld %> + <%- paymentTaxOld %> tax per month."
+<% } else if (locals.productPaymentCycleOld === 'halfyear') { %>
+subscriptionUpgrade-content-old-price-halfyear-tax = "The previous rate was <%- paymentAmountOld %> + <%- paymentTaxOld %> tax per six months."
+<% } else if (locals.productPaymentCycleOld === 'year') { %>
+subscriptionUpgrade-content-old-price-year-tax = "The previous rate was <%- paymentAmountOld %> + <%- paymentTaxOld %> tax per year."
+<% } else { %>
+subscriptionUpgrade-content-old-price-default-tax = "The previous rate was <%- paymentAmountOld %> + <%- paymentTaxOld %> tax per billing interval."
+<% } %>
+<% } else { %>
+<% if (locals.productPaymentCycleOld === 'day') { %>
+subscriptionUpgrade-content-old-price-day = "The previous rate was <%- paymentAmountOld %> per day."
+<% } else if (locals.productPaymentCycleOld === 'week') { %>
+subscriptionUpgrade-content-old-price-week = "The previous rate was <%- paymentAmountOld %> per week."
+<% } else if (locals.productPaymentCycleOld === 'month') { %>
+subscriptionUpgrade-content-old-price-month = "The previous rate was <%- paymentAmountOld %> per month."
+<% } else if (locals.productPaymentCycleOld === 'halfyear') { %>
+subscriptionUpgrade-content-old-price-halfyear = "The previous rate was <%- paymentAmountOld %> per six months."
+<% } else if (locals.productPaymentCycleOld === 'year') { %>
+subscriptionUpgrade-content-old-price-year = "The previous rate was <%- paymentAmountOld %> per year."
+<% } else { %>
+subscriptionUpgrade-content-old-price-default = "The previous rate was <%- paymentAmountOld %> per billing interval."
+<% } %>
+<% } %>
+<% if (locals.paymentTaxNewInCents) { %>
+<% if (locals.productPaymentCycleNew === 'day') { %>
+subscriptionUpgrade-content-new-price-day-tax = "Going forward, you will be charged <%- paymentAmountNew %> + <%- paymentTaxNew %> tax per day."
+<% } else if (locals.productPaymentCycleNew === 'week') { %>
+subscriptionUpgrade-content-new-price-week-tax = "Going forward, you will be charged <%- paymentAmountNew %> + <%- paymentTaxNew %> tax per week."
+<% } else if (locals.productPaymentCycleNew === 'month') { %>
+subscriptionUpgrade-content-new-price-month-tax = "Going forward, you will be charged <%- paymentAmountNew %> + <%- paymentTaxNew %> tax per month."
+<% } else if (locals.productPaymentCycleNew === 'halfyear') { %>
+subscriptionUpgrade-content-new-price-halfyear-tax = "Going forward, you will be charged <%- paymentAmountNew %> + <%- paymentTaxNew %> tax per six months."
+<% } else if (locals.productPaymentCycleNew === 'year') { %>
+subscriptionUpgrade-content-new-price-year-tax = "Going forward, you will be charged <%- paymentAmountNew %> + <%- paymentTaxNew %> tax per year."
+<% } else { %>
+subscriptionUpgrade-content-new-price-default-tax = "Going forward, you will be charged <%- paymentAmountNew %> + <%- paymentTaxNew %> tax per billing interval."
+<% } %>
+<% } else { %>
+<% if (locals.productPaymentCycleNew === 'day') { %>
+subscriptionUpgrade-content-new-price-day = "Going forward, you will be charged <%- paymentAmountNew %> per day."
+<% } else if (locals.productPaymentCycleNew === 'week') { %>
+subscriptionUpgrade-content-new-price-week = "Going forward, you will be charged <%- paymentAmountNew %> per week."
+<% } else if (locals.productPaymentCycleNew === 'month') { %>
+subscriptionUpgrade-content-new-price-month = "Going forward, you will be charged <%- paymentAmountNew %> per month."
+<% } else if (locals.productPaymentCycleNew === 'halfyear') { %>
+subscriptionUpgrade-content-new-price-halfyear = "Going forward, you will be charged <%- paymentAmountNew %> per six months."
+<% } else if (locals.productPaymentCycleNew === 'year') { %>
+subscriptionUpgrade-content-new-price-year = "Going forward, you will be charged <%- paymentAmountNew %> per year."
+<% } else { %>
+subscriptionUpgrade-content-new-price-default = "Going forward, you will be charged <%- paymentAmountNew %> per billing interval."
+<% } %>
+<% } %>
+
+subscriptionUpgrade-existing = "If any of your existing subscriptions overlap with this upgrade, we’ll handle them and send you a separate email with the details. If your new plan includes products that require installation, we’ll send you a separate email with setup instructions."
+
+subscriptionUpgrade-auto-renew = "Your subscription will automatically renew each billing period unless you choose to cancel."
+
+<%- include ('/partials/subscriptionSupport/index.txt') %>
