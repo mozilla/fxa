@@ -1,8 +1,8 @@
 {
-  "commit": "7ae747440cfd68f2de229c97dcdfd9fbe43e278c",
-  "summary": "Merge pull request #20991 from mozilla/FXA-14244",
-  "description": "feat(settings): add desktop Scan QR card",
-  "timestamp": 1786555170000,
+  "commit": "83c1318c50791237fbc021cf98c43197e981b783",
+  "summary": "Merge pull request #20985 from mozilla/FXA-14238",
+  "description": "feat(settings): add mobile Timeout and cancel card",
+  "timestamp": 1786555389000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

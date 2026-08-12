@@ -1538,6 +1538,12 @@ pair2-supplicant-sync-success-description = Your bookmarks, tabs, and more will 
 pair2-supplicant-sync-success-view-tabs-button = View synced tabs
 pair2-supplicant-sync-success-sync-settings-button = Sync settings
 
+
+pair2-supplicant-timeout-and-cancel-timeout-heading = Looks like we timed out
+pair2-supplicant-timeout-and-cancel-timeout-description = To connect your mobile device and sync your { -brand-firefox } data, visit <b>firefox.com/pair</b> on your computer.
+pair2-supplicant-timeout-and-cancel-canceled-heading = Canceled
+pair2-supplicant-timeout-and-cancel-canceled-description = To connect a device anytime, visit <b>firefox.com/pair</b> on your computer.
+
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmed
 service-welcome-signin-success-banner = Signed in successfully!
 service-welcome-vpn-heading = Next: Turn on VPN
