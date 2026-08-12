@@ -220,4 +220,6 @@ export const Constants = {
     'https://www.mozilla.org/firefox/browsers/mobile/',
 
   STORAGE_REACT_EXPERIMENT: 'experiment.generalizedReactApp',
+
+  SYNC_SUMO_URL: 'https://support.mozilla.org/kb/how-do-i-set-sync-my-computer'
 };
