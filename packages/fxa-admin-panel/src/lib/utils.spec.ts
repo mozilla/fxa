@@ -2,7 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { getFormattedDuration } from './utils';
+import { getEventBrokerTfPath, getFormattedDuration } from './utils';
+
+const setHost = (host: string) => {
+  Object.defineProperty(window, 'location', {
+    value: { host },
+    writable: true,
+  });
+};
 
 describe('utils', () => {
   describe('formatDuration', () => {
@@ -22,6 +29,35 @@ describe('utils', () => {
       expect(getFormattedDuration(25 * 60 * 60 + 59 * 60 + 59)).toBe(
         '25h 59m 59s'
       );
+    });
+  });
+
+  describe('getEventBrokerTfPath', () => {
+    const originalLocation = window.location;
+
+    afterEach(() => {
+      Object.defineProperty(window, 'location', {
+        value: originalLocation,
+        writable: true,
+      });
+    });
+
+    it.each([
+      {
+        host: 'fxa-admin-panel.prod.mozaws.net',
+        expected: 'fxa-legacy/tf/prod/locals.tf',
+      },
+      {
+        host: 'fxa-admin-panel.prod.mozgcp.net',
+        expected: 'fxa-legacy/tf/prod/locals.tf',
+      },
+      {
+        host: 'fxa-admin-panel.stage.mozaws.net',
+        expected: 'fxa-legacy/tf/stage/locals.tf',
+      },
+    ])('should return $expected on $host', ({ host, expected }) => {
+      setHost(host);
+      expect(getEventBrokerTfPath()).toBe(expected);
     });
   });
 });
