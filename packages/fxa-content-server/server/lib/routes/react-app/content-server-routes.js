@@ -27,7 +27,6 @@ const FRONTEND_ROUTES = [
   'inline_totp_setup',
   'inline_recovery_setup',
   'inline_recovery_key_setup', // React app only
-  'legal',
   'oauth',
   'oauth/force_auth',
   'oauth/signin',
@@ -108,12 +107,8 @@ const PAIRING_ROUTES = [
 
 const OAUTH_SUCCESS_ROUTES = ['/oauth/success/:clientId'];
 
-const TERMS_PRIVACY_REGEX =
-  /^\/(?:([a-zA-Z-\_]*)\/)?legal\/(terms|privacy)(?:\/)?$/;
-
 module.exports = {
   FRONTEND_ROUTES,
   PAIRING_ROUTES,
   OAUTH_SUCCESS_ROUTES,
-  TERMS_PRIVACY_REGEX,
 };

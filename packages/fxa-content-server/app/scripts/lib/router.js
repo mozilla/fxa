@@ -267,29 +267,6 @@ Router = Router.extend({
         InlineRecoverySetupView
       );
     },
-    'legal(/)': function () {
-      this.createReactViewHandler('legal');
-    },
-    'legal/privacy(/)': function () {
-      this.createReactViewHandler('legal/privacy', 'pp', {
-        contentRedirect: true,
-      });
-    },
-    ':lang/legal/privacy(/)': function () {
-      this.createReactViewHandler('legal/privacy', 'pp', {
-        contentRedirect: true,
-      });
-    },
-    'legal/terms(/)': function () {
-      this.createReactViewHandler('legal/terms', 'tos', {
-        contentRedirect: true,
-      });
-    },
-    ':lang/legal/terms(/)': function () {
-      this.createReactViewHandler('legal/terms', 'tos', {
-        contentRedirect: true,
-      });
-    },
     'oauth(/)': function () {
       this.createReactOrBackboneViewHandler('oauth', IndexView);
     },

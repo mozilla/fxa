@@ -94,9 +94,6 @@ jest.mock('../../models', () => ({
   })),
 }));
 
-jest.mock('react-markdown', () => {});
-jest.mock('rehype-raw', () => {});
-
 jest.mock('../Settings/ScrollToTop', () => ({
   __esModule: true,
   ScrollToTop: ({ children }: { children: ReactNode }) => (

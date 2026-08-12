@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { TERMS_PRIVACY_REGEX } = require('./content-server-routes');
-
 /**
  * When you're ready to serve the React version of a page, identify which feature flag
  * group object it should go in and add a new object in `routes` by calling `.getRoute`
@@ -39,17 +37,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
     },
     simpleRoutes: {
       featureFlagOn: showReactApp.simpleRoutes,
-      routes: reactRoute.getRoutes([
-        'clear',
-        'cookies_disabled',
-        'legal',
-        // Match (allow for optional trailing slash):
-        // * /legal/terms
-        // * /<locale>/legal/terms
-        // * /legal/privacy
-        // * /<locale>/legal/privacy
-        TERMS_PRIVACY_REGEX,
-      ]),
+      routes: reactRoute.getRoutes(['clear', 'cookies_disabled']),
       fullProdRollout: true,
     },
 
