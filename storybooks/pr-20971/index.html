@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 901a72c779c7f8c37dce72ef4e0400d306eabc68</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 901a72c779c7f8c37dce72ef4e0400d306eabc68</h1>
+  <ul>
+    <li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>8/12/2026, 3:29:37 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>test(fxa-shared): Make experiments/base tests deterministic</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+* The hash and luckyNumber tests hashed 1000 Math.random() values and
+  asserted every result was unique. The hash is 32 bits, so by the
+  birthday paradox a collision occurred roughly 1% of the time.
+* Every other statistical assertion in the file was fed Math.random()
+  or uuid.v4() too, so they can fail on a run where nothing changed.
+* The shared experiment instance is mutated by the deprecated test,
+  and hash() mixes in this.name, so the hashing tests were order
+  dependent.
+
+This commit:
+
+* Uses fixed keys instead of Math.random() and uuid.v4() throughout.
+* Replaces the uniqueness assertions with the behaviour actually under
+  test: output range, stability for a given key, and spread across the
+  output range.
+* Asserts hash() returns an integer and luckyNumber() a non-NaN number,
+  which the range checks alone did not cover.
+* Pins golden hash values, since a change there re-buckets every user.
+* Builds a fresh experiment per test.
+
+Fixes FXA-14281</pre></dd>
+  </dl>
+</body>
+</html>
