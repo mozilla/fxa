@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit a257bb16074f67503a557f8c0bc7525164ee0b99</title>
+  <title>Storybooks for commit 162785e364c4fe4597ee5b62599b87ce9455d113</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,14 +23,14 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit a257bb16074f67503a557f8c0bc7525164ee0b99</h1>
+  <h1>Storybooks for commit 162785e364c4fe4597ee5b62599b87ce9455d113</h1>
   <ul>
     <li><a href="./fxa-react/">fxa-react</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/11/2026, 8:25:37 PM UTC</dd>
+    <dd>8/12/2026, 1:22:46 AM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(pair): add reason to the /pair choice screen view event</pre></dd>
     <dt>Description</dt>
@@ -45,7 +45,7 @@ This commit:
  - Adds a `reason` extra key to cad_firefox.choice_view and regenerates the Glean
    bindings. The permitted values live in one place,
    fxa-shared/metrics/glean/pair-reasons.ts, which also exports the runtime guard
-   both /pair implementations validate with.
+   /pair validates with.
  - Derives the reason in getSyncNavigate. `passwordCreationReason` is the primary
    signal: Sync always requires encryption keys, so every passwordless OTP or
    passkey sign-in is routed through /post_verify/set_password before it can
@@ -54,8 +54,8 @@ This commit:
    isPasswordlessOtpSignin) cover the flows that skip it.
  - Resolves the reason before the interstitial early returns so it rides along on
    /signup_confirmed_sync and /inline_recovery_key_setup, which reach /pair via
-   hardNavigate(&#039;/pair&#039;, {}, true). Without this the reason was lost for every
-   flow that stops at an interstitial, and password_reg was unreachable outside
+   hardNavigate(&#039;/pair&#039;, {}, true). Without this the reason is lost for every
+   flow that stops at an interstitial, and password_reg is unreachable outside
    Send Tab.
  - Declares origin: &#039;signup&#039; at the sign-up callers that set
    showSignupConfirmedSync, which otherwise fell through to password_login.
@@ -65,16 +65,12 @@ This commit:
    for the interstitial hand-off, validating both. The reason is deliberately
    kept out of the soft-nav URL so an account-level attribute is not written to
    history or server access logs on every pair visit.
- - Validates the Backbone query param against the shared allowlist before
-   recording it, since that value arrives from the URL.
  - Adds handleNavigation-level tests asserting the reason that actually reaches
    /pair. The pass-through had no coverage, so the derivation could be wired to
    signals no Sync flow carries and the suite would still pass.
- - Parses app/scripts/lib/glean/*.ts with @typescript-eslint/parser in
-   fxa-content-server (precedent: fxa-profile-server). That directory is
-   TypeScript while the app is otherwise babel-eslint, so the dispatcher could
-   not be linted at all; scoped to that directory to avoid surfacing pre-existing
-   violations in unrelated .ts files.
+
+Only the React /pair page records the reason, so the metric populates once
+`showReactApp.pairRoutes` is enabled. Backbone /pair is left untouched.
 
 Closes #FXA-14133</pre></dd>
   </dl>
