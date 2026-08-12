@@ -1,8 +1,8 @@
 {
-  "commit": "32f7d32e0e309dd22c1b9844323fa9ba5d3113d6",
-  "summary": "Merge pull request #20983 from mozilla/FXA-14239",
-  "description": "feat(settings): add desktop Download Firefox card",
-  "timestamp": 1786558796000,
+  "commit": "228f0125eb6086915e2c9e9af94a21c13353eeb7",
+  "summary": "Merge pull request #20933 from mozilla/FXA-14267",
+  "description": "feat(settings): show a loading state and lock other options during passkey sign-in",
+  "timestamp": 1786561956000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
