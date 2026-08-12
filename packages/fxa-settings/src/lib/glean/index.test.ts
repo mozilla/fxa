@@ -412,6 +412,26 @@ describe('lib/glean', () => {
         );
       });
 
+      // The dispatcher case arm is the only thing deciding what reaches Glean
+      // for this event, so both the populated and empty reason are pinned here
+      // (FXA-14133).
+      it('submits a ping with the cad_firefox_choice_view event name and a reason', async () => {
+        GleanMetrics.cadFireFox.choiceView({
+          event: { reason: 'otp_login' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'cad_firefox_choice_view');
+        sinon.assert.calledWith(setEventReasonStub, 'otp_login');
+      });
+
+      it('submits a ping with the cad_firefox_choice_view event name and no reason', async () => {
+        GleanMetrics.cadFireFox.choiceView();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'cad_firefox_choice_view');
+      });
+
       it('submits a ping with the email_first_passkey_submit_success event name', async () => {
         GleanMetrics.emailFirst.passkeySubmitSuccess();
         await GleanMetrics.isDone();

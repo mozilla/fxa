@@ -253,7 +253,7 @@ describe('Sign in with TOTP code page', () => {
         );
         expect(fxaLoginSpy).toHaveBeenCalled();
         expect(hardNavigateSpy).toHaveBeenCalledWith(
-          '/pair?showSuccessMessage=true',
+          '/pair?showSuccessMessage=true&pairReason=password_login',
           undefined,
           undefined,
           true
@@ -605,6 +605,65 @@ describe('Sign in with TOTP code page', () => {
         '/post_verify/set_password',
         expect.anything()
       );
+    });
+
+    // Without this, /pair tags cad_firefox.choice_view as password_login for a
+    // user who actually signed in with an email OTP code.
+    it('forwards isPasswordlessOtpSignin to handleNavigation for an OTP sign-in', async () => {
+      const user = userEvent.setup();
+      const handleNavigationSpy = jest
+        .spyOn(SigninUtils, 'handleNavigation')
+        .mockResolvedValue({ error: undefined });
+      const submitTotpCode = jest.fn().mockResolvedValue({ error: undefined });
+
+      renderWithLocalizationProvider(
+        <MemoryRouter>
+          <Subject
+            integration={vpnIntegration()}
+            submitTotpCode={submitTotpCode}
+            supportsKeysOptionalLogin={true}
+            signinState={{
+              ...MOCK_TOTP_LOCATION_STATE,
+              isPasswordlessOtpSignin: true,
+            }}
+          />
+        </MemoryRouter>
+      );
+      await user.type(screen.getByLabelText('Enter 6-digit code'), '123456');
+      await user.click(screen.getByRole('button', { name: 'Confirm' }));
+
+      await waitFor(() => {
+        expect(handleNavigationSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ isPasswordlessOtpSignin: true })
+        );
+      });
+    });
+
+    it('leaves isPasswordlessOtpSignin unset for a password sign-in', async () => {
+      const user = userEvent.setup();
+      const handleNavigationSpy = jest
+        .spyOn(SigninUtils, 'handleNavigation')
+        .mockResolvedValue({ error: undefined });
+      const submitTotpCode = jest.fn().mockResolvedValue({ error: undefined });
+
+      renderWithLocalizationProvider(
+        <MemoryRouter>
+          <Subject
+            integration={vpnIntegration()}
+            submitTotpCode={submitTotpCode}
+            supportsKeysOptionalLogin={true}
+            signinState={MOCK_TOTP_LOCATION_STATE}
+          />
+        </MemoryRouter>
+      );
+      await user.type(screen.getByLabelText('Enter 6-digit code'), '123456');
+      await user.click(screen.getByRole('button', { name: 'Confirm' }));
+
+      await waitFor(() => {
+        expect(handleNavigationSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ isPasswordlessOtpSignin: undefined })
+        );
+      });
     });
 
     it('redirects a third-party-auth sign-in to set_password when keys are not optional', async () => {

@@ -113,6 +113,10 @@ const SigninPasskeyFallbackContainer = ({
         // messages; navigating the WebView away would interrupt it and leave
         // Sync paused. Desktop finishes by navigating.
         performNavigation: !integration.isFirefoxMobileClient(),
+        // The session was established by the passkey assertion; the password
+        // entered here only unwraps keys. Keeps /pair's `choice_view` reason
+        // attributed to the passkey flow rather than password sign-in.
+        isPasskeySession: true,
         authClient,
       });
       if (navError) {

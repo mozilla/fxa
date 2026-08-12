@@ -114,7 +114,7 @@ describe('InlineRecoveryKeySetupContainer', () => {
     );
 
     expect(hardNavigateSpy).toHaveBeenCalledWith(
-      '/pair?showSuccessMessage=true'
+      '/pair?showSuccessMessage=true&pairReason=password_login'
     );
     expect(InlineRecoveryKeySetupModule.default).not.toHaveBeenCalled();
   });
