@@ -1,0 +1,10 @@
+{
+  "commit": "18c512149dc39a3b53c647cf546031eeb8f3a4e6",
+  "summary": "bug(settings): Fix broken integration tests",
+  "description": "Because:\n- TimeoutAndCancel page had broken tests\n\nThis Commit:\n- Fixes tests",
+  "timestamp": 1786565136000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
