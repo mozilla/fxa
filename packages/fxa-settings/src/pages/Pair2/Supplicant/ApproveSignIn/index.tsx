@@ -58,7 +58,7 @@ const ApproveSignIn = ({ remoteMetadata, onCancel }: ApproveSignInProps) => (
         <button
           type="button"
           onClick={onCancel}
-          className="mt-6 py-2 text-base text-grey-900 underline dark:text-grey-10"
+          className="link-dark-grey"
         >
           Cancel
         </button>
