@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 9084dfec1bd568ea5981111fd68d78b39ef95a4c</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 9084dfec1bd568ea5981111fd68d78b39ef95a4c</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>8/13/2026, 7:13:30 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>chore(deps): replace camelcase with a local helper in SVG transforms</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- We pull in `camelcase` for one job: turning an SVG basename into a PascalCase component name, in two Jest transforms.
+- FXA-13929, part of the dependency reduction work.
+
+## This pull request
+
+- Adds a local `toPascalCase` helper to `svg-transform.js` (fxa-react) and `fileTransform.js` (fxa-settings).
+- Drops `camelcase` from both `package.json` files and updates `yarn.lock`.
+- Leaves the two helpers as copies. Sharing one means a new cross-package export, which this does not justify. A follow-up can merge them if anyone wants that.
+
+## Issue that this pull request solves
+
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-13929</pre></dd>
+  </dl>
+</body>
+</html>

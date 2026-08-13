@@ -1,0 +1,12 @@
+{
+  "commit": "9084dfec1bd568ea5981111fd68d78b39ef95a4c",
+  "summary": "chore(deps): replace camelcase with a local helper in SVG transforms",
+  "description": "## Because\n\n- We pull in `camelcase` for one job: turning an SVG basename into a PascalCase component name, in two Jest transforms.\n- FXA-13929, part of the dependency reduction work.\n\n## This pull request\n\n- Adds a local `toPascalCase` helper to `svg-transform.js` (fxa-react) and `fileTransform.js` (fxa-settings).\n- Drops `camelcase` from both `package.json` files and updates `yarn.lock`.\n- Leaves the two helpers as copies. Sharing one means a new cross-package export, which this does not justify. A follow-up can merge them if anyone wants that.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-13929",
+  "timestamp": 1786648410000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
