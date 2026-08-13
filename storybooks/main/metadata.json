@@ -1,8 +1,8 @@
 {
-  "commit": "e17a5aceae6b537909da8daccbe3a6e5f21101b5",
-  "summary": "Merge pull request #21020 from mozilla/concise-claude",
-  "description": "chore(docs): Add conciseness rules for Claude",
-  "timestamp": 1786646407000,
+  "commit": "9f4333ca68a880b943997df8dc3d3a05d0033606",
+  "summary": "Merge pull request #21030 from mozilla/concise-claude2",
+  "description": "chore(docs): Trim CLAUDE.md sections 7 and 9",
+  "timestamp": 1786651270000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
