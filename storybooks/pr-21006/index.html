@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 28c132927d83097025a2f0a6838fc40d4beaed83</title>
+  <title>Storybooks for commit a0df7f382804c3f1ccaad5377b8bc633a6d29808</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 28c132927d83097025a2f0a6838fc40d4beaed83</h1>
+  <h1>Storybooks for commit a0df7f382804c3f1ccaad5377b8bc633a6d29808</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,30 +31,33 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/11/2026, 9:50:16 PM UTC</dd>
+    <dd>8/13/2026, 9:17:59 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(settings): Add passkey HPKE key-wrapping crypto lib</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 * Passkey PRF-derived keys need an HPKE envelope to wrap account keys
   client-side.
+* The format is frozen once the first wrap exists in production — there
+  is no version field — so the primitives and their sizes must be pinned
+  before anything composes them.
 
 This commit:
 * Adds packages/fxa-settings/src/lib/passkey-crypto with HPKE seal/open
   and key-wrap helpers, the shared ciphersuite in suite.ts, RFC 9180 A.6
-  test vectors, and unit tests.
+  test vectors, and tests against real Web Crypto.
 * Stores skR as the raw scalar (Nsk 66) rather than a pkcs8 export, so
   every stored length is a ciphersuite constant. pkcs8&#039;s 241 bytes rest
-  on Web Crypto emitting an OPTIONAL public-key field, and a conforming
-  implementation that omitted it would be zero-padded into the
-  fixed-width column and never open again. Serialising is left to the
-  library, which pads short scalars: ~1 P-521 key in 512 has a leading
-  zero byte, so a stripping implementation would corrupt those wraps
-  undetectably. Covered by a regression test.
+  on Web Crypto emitting an OPTIONAL public-key field; an implementation
+  that omitted it would be zero-padded into the fixed-width column and
+  never open again. Serialising is left to the library, which pads short
+  scalars — roughly 1 P-521 key in 512 has a leading zero byte.
 * Keeps openKb taking pkR alongside the private key, so the library never
   derives it via crypto.subtle.getPublicKey, whose fallback needs an
   extractable key and fails only in browsers lacking the method.
-* Adds the hpke dependency and allows it through Jest&#039;s
+* Guards the kB length in sealKb, since a wrong size seals to the wrong
+  width and would otherwise only fail server-side.
+* Adds the hpke dependency, pinned exactly, and allows it through Jest&#039;s
   transformIgnorePatterns.</pre></dd>
   </dl>
 </body>

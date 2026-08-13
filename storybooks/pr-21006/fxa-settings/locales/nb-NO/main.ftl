@@ -152,6 +152,7 @@ device-info-block-location-city-country = { $city }, { $country } (anslått)
 device-info-block-location-country = { $country } (anslått)
 device-info-block-location-unknown = Ukjent plassering
 device-info-browser-os = { $browserName } på { $genericOSName }
+device-info-browser-device = { $browserName } på { $deviceName }
 device-info-ip-address = IP-adresse: { $ipAddress }
 
 
@@ -285,6 +286,10 @@ confetti-falling-image-aria-label =
     .aria-label = Animert fallende konfetti
 vpn-welcome-image-aria-label =
     .aria-label = { -brand-firefox }-vindu med et rundt merke som viser et grønt hakemerke og «VPN», som viser at VPN-et er aktivt.
+sync-devices-image-aria-label =
+    .aria-label = Et nettleservindu på en datamaskin og en mobiltelefon, begge synkroniseres, med { -brand-firefox }-maskoten ved siden av.
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox }-logo
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Du er logget inn på { -brand-firefox }.
@@ -396,6 +401,7 @@ password-reset-warning-icon = Advarsel
 password-reset-chevron-expanded = Skjul advarsel
 password-reset-chevron-collapsed = Vis advarsel
 password-reset-warning-have-key = Har du en kontogjenopprettingsnøkkel?
+password-reset-warning-signed-in-device = Fortsatt logget inn på en annen enhet?
 
 
 alert-bar-close-message = Lukk melding
@@ -1290,6 +1296,11 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Ups! Noe gikk galt.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Lukk denne fanen og prøv igjen.
 
 
+pair2-supplicant-approve-sign-in-heading = Et siste trinn for å synkronisere
+pair2-supplicant-approve-sign-in-instruction = Godkjenn innloggingen på datamaskinen din.
+pair2-supplicant-approve-sign-in-cancel-button = Avbryt
+
+
 service-welcome-signup-success-banner = { -product-mozilla-account } bekreftet
 service-welcome-signin-success-banner = Du er logget inn!
 service-welcome-vpn-heading = Neste: Slå på VPN
@@ -1351,6 +1362,7 @@ confirm-totp-reset-password-use-different-account = Bruk en annen konto
 
 
 password-reset-flow-heading = Tilbakestill passordet ditt
+password-reset-body-3 = Tilbakestilling av passordet kan påvirke synkroniserte nettleserdata.
 password-reset-email-input =
     .label = Skriv inn e-postadressen din
 password-reset-submit-button-2 = Fortsett
