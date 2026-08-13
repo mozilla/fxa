@@ -1,8 +1,8 @@
 {
-  "commit": "b8c7908f75ccd50b46993a532f884bdc623356c2",
-  "summary": "feat(settings): wire the passkey signal into FlowSetup2faPrompt",
-  "description": "Because:\n\n- The passkey copy added to FlowSetup2faPrompt sat behind a prop nothing\n  set, so the new strings could never render for a user.\n- handleNavigation already receives isPasskeySession from the passkey\n  sign-in flow, but createSigninLocationState dropped it before the\n  AAL2-RP divert to /inline_totp_setup.\n\nThis commit:\n\n- Forwards isPasskeySession from NavigationOptions into\n  SigninLocationState.\n- Passes it from the InlineTotpSetup container through the page to\n  FlowSetup2faPrompt.\n- Gives the success banner a stable id, and lets an error banner replace\n  it rather than stack with it.\n- Rewords the passkey FTL comment so it stands alone for localizers.\n- Covers the propagation in unit tests and asserts the banner in the two\n  AAL2 passkey functional tests.",
-  "timestamp": 1786648653000,
+  "commit": "dbd6df347caed2a25716579e30281b25ebdd231d",
+  "summary": "feat(settings): add passkey-context copy to FlowSetup2faPrompt",
+  "description": "Because:\n\n* Telling a passkey user the service \"requires you to set up two-step\n  authentication to keep your account safe\" is misleading. The passkey\n  already authenticated them; the setup protects the other sign-in\n  methods.\n* UX has finalized the replacement copy.\n\nThis commit:\n\n* Swaps the body copy and adds a success banner on FlowSetup2faPrompt\n  when the session came from a passkey.\n* Adds two FTL ids, reusing the shared -product-mozilla-account term.\n* Forwards isPasskeySession into SigninLocationState and on through the\n  InlineTotpSetup container, so the copy actually renders.\n* Lets an error banner replace the success banner rather than stack.\n* Covers both paths in unit tests, a Storybook story, and the two AAL2\n  passkey functional tests.\n\nCloses #FXA-13822",
+  "timestamp": 1786649184000,
   "storybooks": [
     "fxa-settings"
   ],
