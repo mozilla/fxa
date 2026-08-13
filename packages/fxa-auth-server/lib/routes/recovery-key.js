@@ -77,66 +77,26 @@ module.exports = (
         async function sendKeyCreationEmail() {
           const account = await db.account(uid);
 
-          if (fxaMailer.canSend('postAddAccountRecovery')) {
-            await fxaMailer.sendPostAddAccountRecoveryEmail({
-              ...FxaMailerFormat.account(account),
-              ...(await FxaMailerFormat.metricsContext(request)),
-              ...FxaMailerFormat.localTime(request),
-              ...FxaMailerFormat.location(request),
-              ...FxaMailerFormat.device(request),
-              ...FxaMailerFormat.sync(false),
-            });
-          } else {
-            const { acceptLanguage, clientAddress: geo, ua } = request.app;
-            const emailOptions = {
-              acceptLanguage,
-              location: geo.location,
-              timeZone: geo.timeZone,
-              uaBrowser: ua.browser,
-              uaBrowserVersion: ua.browserVersion,
-              uaOS: ua.os,
-              uaOSVersion: ua.osVersion,
-              uaDeviceType: ua.deviceType,
-              uid,
-            };
-            await mailer.sendPostAddAccountRecoveryEmail(
-              account.emails,
-              account,
-              emailOptions
-            );
-          }
+          await fxaMailer.sendPostAddAccountRecoveryEmail({
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(false),
+          });
         }
 
         async function sendKeyChangeEmail() {
           const account = await db.account(uid);
-          if (fxaMailer.canSend('postChangeAccountRecovery')) {
-            await fxaMailer.sendPostChangeAccountRecoveryEmail({
-              ...FxaMailerFormat.account(account),
-              ...(await FxaMailerFormat.metricsContext(request)),
-              ...FxaMailerFormat.localTime(request),
-              ...FxaMailerFormat.location(request),
-              ...FxaMailerFormat.device(request),
-              ...FxaMailerFormat.sync(false),
-            });
-          } else {
-            const { acceptLanguage, clientAddress: geo, ua } = request.app;
-            const emailOptions = {
-              acceptLanguage,
-              location: geo.location,
-              timeZone: geo.timeZone,
-              uaBrowser: ua.browser,
-              uaBrowserVersion: ua.browserVersion,
-              uaOS: ua.os,
-              uaOSVersion: ua.osVersion,
-              uaDeviceType: ua.deviceType,
-              uid,
-            };
-            await mailer.sendPostChangeAccountRecoveryEmail(
-              account.emails,
-              account,
-              emailOptions
-            );
-          }
+          await fxaMailer.sendPostChangeAccountRecoveryEmail({
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(false),
+          });
         }
 
         async function postKeyCreation() {
@@ -442,34 +402,14 @@ module.exports = (
 
         const account = await db.account(uid);
 
-        if (fxaMailer.canSend('postRemoveAccountRecovery')) {
-          await fxaMailer.sendPostRemoveAccountRecoveryEmail({
-            ...FxaMailerFormat.account(account),
-            ...(await FxaMailerFormat.metricsContext(request)),
-            ...FxaMailerFormat.localTime(request),
-            ...FxaMailerFormat.location(request),
-            ...FxaMailerFormat.device(request),
-            ...FxaMailerFormat.sync(false),
-          });
-        } else {
-          const { acceptLanguage, clientAddress: geo, ua } = request.app;
-          const emailOptions = {
-            acceptLanguage,
-            location: geo.location,
-            timeZone: geo.timeZone,
-            uaBrowser: ua.browser,
-            uaBrowserVersion: ua.browserVersion,
-            uaOS: ua.os,
-            uaOSVersion: ua.osVersion,
-            uaDeviceType: ua.deviceType,
-            uid,
-          };
-          await mailer.sendPostRemoveAccountRecoveryEmail(
-            account.emails,
-            account,
-            emailOptions
-          );
-        }
+        await fxaMailer.sendPostRemoveAccountRecoveryEmail({
+          ...FxaMailerFormat.account(account),
+          ...(await FxaMailerFormat.metricsContext(request)),
+          ...FxaMailerFormat.localTime(request),
+          ...FxaMailerFormat.location(request),
+          ...FxaMailerFormat.device(request),
+          ...FxaMailerFormat.sync(false),
+        });
 
         return {};
       },

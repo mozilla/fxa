@@ -22,7 +22,7 @@ module.exports = (log, db, mailer, push, verificationReminders, glean) => {
      */
     verifyAccount: async (request, account, options) => {
       const { uid } = account;
-      const { newsletters, service, reminder, style, scopes } = options;
+      const { newsletters, service, reminder, scopes } = options;
       await db.verifyEmail(account, account.primaryEmail.emailCode);
 
       const geoData = request.app.geo;
@@ -87,29 +87,15 @@ module.exports = (log, db, mailer, push, verificationReminders, glean) => {
         (scopeSet.intersects(NOTIFICATION_SCOPES) && !service)
       ) {
         const onMobileDevice = request.app.ua.deviceType === 'mobile';
-        const mailOptions = {
-          acceptLanguage: request.app.acceptLanguage,
-          service: 'sync',
-          uid,
-          onMobileDevice,
-        };
 
-        if (style) {
-          mailOptions.style = style;
-        }
-
-        if (fxaMailer.canSend('postVerify')) {
-          return await fxaMailer.sendPostVerifyEmail({
-            ...FxaMailerFormat.account(account),
-            ...(await FxaMailerFormat.metricsContext(request)),
-            ...FxaMailerFormat.localTime(request),
-            ...FxaMailerFormat.sync(service),
-            productName: 'Firefox',
-            onDesktopOrTabletDevice: !onMobileDevice,
-          });
-        } else {
-          return mailer.sendPostVerifyEmail([], account, mailOptions);
-        }
+        return await fxaMailer.sendPostVerifyEmail({
+          ...FxaMailerFormat.account(account),
+          ...(await FxaMailerFormat.metricsContext(request)),
+          ...FxaMailerFormat.localTime(request),
+          ...FxaMailerFormat.sync(service),
+          productName: 'Firefox',
+          onDesktopOrTabletDevice: !onMobileDevice,
+        });
       }
 
       return {};

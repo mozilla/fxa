@@ -237,47 +237,17 @@ module.exports = (
         throw error.emailExists();
       }
 
-      const geoData = request.app.geo;
       try {
-        if (fxaMailer.canSend('verifySecondaryCode')) {
-          await fxaMailer.sendVerifySecondaryCodeEmail({
-            ...FxaMailerFormat.account(account),
-            ...(await FxaMailerFormat.metricsContext(request)),
-            ...FxaMailerFormat.localTime(request),
-            ...FxaMailerFormat.location(request),
-            ...FxaMailerFormat.device(request),
-            ...FxaMailerFormat.sync(false),
-            code: otpUtils.generateOtpCode(secret, otpOptions),
-            email,
-          });
-        } else {
-          await mailer.sendVerifySecondaryCodeEmail(
-            [
-              {
-                email,
-                normalizedEmail,
-                isVerified: false,
-                isPrimary: false,
-                uid,
-              },
-            ],
-            sessionToken,
-            {
-              code: otpUtils.generateOtpCode(secret, otpOptions),
-              deviceId: sessionToken.deviceId,
-              acceptLanguage: request.app.acceptLanguage,
-              email,
-              primaryEmail,
-              location: geoData.location,
-              timeZone: geoData.timeZone,
-              uaBrowser: sessionToken.uaBrowser,
-              uaBrowserVersion: sessionToken.uaBrowserVersion,
-              uaOS: sessionToken.uaOS,
-              uaOSVersion: sessionToken.uaOSVersion,
-              uid,
-            }
-          );
-        }
+        await fxaMailer.sendVerifySecondaryCodeEmail({
+          ...FxaMailerFormat.account(account),
+          ...(await FxaMailerFormat.metricsContext(request)),
+          ...FxaMailerFormat.localTime(request),
+          ...FxaMailerFormat.location(request),
+          ...FxaMailerFormat.device(request),
+          ...FxaMailerFormat.sync(false),
+          code: otpUtils.generateOtpCode(secret, otpOptions),
+          email,
+        });
       } catch (err) {
         log.error('secondary_email.sendVerifySecondaryCodeEmail.error', {
           err: err,
@@ -530,20 +500,12 @@ module.exports = (
       }
 
       try {
-        if (fxaMailer.canSend('postVerifySecondary')) {
-          await fxaMailer.sendPostVerifySecondaryEmail({
-            ...FxaMailerFormat.account(account),
-            ...FxaMailerFormat.localTime(request),
-            ...FxaMailerFormat.sync(false),
-            secondaryEmail: email,
-          });
-        } else {
-          await mailer.sendPostVerifySecondaryEmail([], account, {
-            acceptLanguage: request.app.acceptLanguage,
-            secondaryEmail: email,
-            uid,
-          });
-        }
+        await fxaMailer.sendPostVerifySecondaryEmail({
+          ...FxaMailerFormat.account(account),
+          ...FxaMailerFormat.localTime(request),
+          ...FxaMailerFormat.sync(false),
+          secondaryEmail: email,
+        });
       } catch (e) {
         log.error('secondary_email.sendPostVerifySecondaryEmail.error', {
           uid,
@@ -779,14 +741,10 @@ module.exports = (
         const sessionToken = request.auth.credentials;
         const service = request.payload.service || request.query.service;
         const type = request.payload.type || request.query.type;
-        const ip = request.app.clientAddress;
-        const geoData = request.app.geo;
-        const style = request.payload.style;
 
         // This endpoint can resend multiple types of codes, set these values once it
         // is known what is being verified.
         let code;
-        let emails = [];
 
         // Return immediately if this session or token is already verified. Only exception
         // is if the email param has been specified, which means that this is
@@ -810,92 +768,53 @@ module.exports = (
           return {};
         }
 
-        const { flowId, flowBeginTime } = await request.app.metricsContext;
         const account = await db.account(sessionToken.uid);
 
-        const mailerOpts = {
-          code,
-          deviceId: sessionToken.deviceId,
-          flowId,
-          flowBeginTime,
-          service,
-          ip,
-          location: geoData.location,
-          timeZone: geoData.timeZone,
-          timestamp: Date.now(),
-          redirectTo: request.payload.redirectTo,
-          resume: request.payload.resume,
-          acceptLanguage: request.app.acceptLanguage,
-          uaBrowser: sessionToken.uaBrowser,
-          uaBrowserVersion: sessionToken.uaBrowserVersion,
-          uaOS: sessionToken.uaOS,
-          uaOSVersion: sessionToken.uaOSVersion,
-          uaDeviceType: sessionToken.uaDeviceType,
-          uid: sessionToken.uid,
-          style,
-        };
-
         if (type && type === 'upgradeSession') {
-          if (fxaMailer.canSend('verifyPrimary')) {
-            await fxaMailer.sendVerifyPrimaryEmail({
-              ...FxaMailerFormat.account(account),
-              ...(await FxaMailerFormat.metricsContext(request)),
-              ...FxaMailerFormat.localTime(request),
-              ...FxaMailerFormat.location(request),
-              ...FxaMailerFormat.device(request),
-              ...FxaMailerFormat.sync(service),
-              code,
-              service,
-              redirectTo: request.payload.redirectTo,
-              resume: request.payload.resume,
-            });
-          } else {
-            await mailer.sendVerifyPrimaryEmail(
-              emails,
-              sessionToken,
-              mailerOpts
-            );
-          }
+          await fxaMailer.sendVerifyPrimaryEmail({
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(service),
+            code,
+            service,
+            redirectTo: request.payload.redirectTo,
+            resume: request.payload.resume,
+          });
           await request.emitMetricsEvent(
             `email.verification_email_primary.resent`
           );
         } else if (!sessionToken.emailVerified) {
-          if (fxaMailer.canSend('verify')) {
-            await fxaMailer.sendVerifyEmail({
-              ...FxaMailerFormat.account(account),
-              ...(await FxaMailerFormat.metricsContext(request)),
-              ...FxaMailerFormat.sync(service),
-              ...FxaMailerFormat.localTime(request),
-              ...FxaMailerFormat.location(request),
-              ...FxaMailerFormat.device(request),
-              code,
-              service,
-              redirectTo: request.payload.redirectTo,
-              resume: request.payload.resume,
-            });
-          } else {
-            await mailer.sendVerifyEmail(emails, sessionToken, mailerOpts);
-          }
+          await fxaMailer.sendVerifyEmail({
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.sync(service),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            code,
+            service,
+            redirectTo: request.payload.redirectTo,
+            resume: request.payload.resume,
+          });
           await request.emitMetricsEvent(`email.verification.resent`);
         } else {
-          if (fxaMailer.canSend('verifyLogin')) {
-            const clientInfo = await oauthClientInfoService.fetch(service);
-            await fxaMailer.sendVerifyLoginEmail({
-              ...FxaMailerFormat.account(account),
-              ...(await FxaMailerFormat.metricsContext(request)),
-              ...FxaMailerFormat.localTime(request),
-              ...FxaMailerFormat.location(request),
-              ...FxaMailerFormat.device(request),
-              ...FxaMailerFormat.sync(service),
-              code,
-              service,
-              clientName: clientInfo.name,
-              redirectTo: request.payload.redirectTo,
-              resume: request.payload.resume,
-            });
-          } else {
-            await mailer.sendVerifyLoginEmail(emails, sessionToken, mailerOpts);
-          }
+          const clientInfo = await oauthClientInfoService.fetch(service);
+          await fxaMailer.sendVerifyLoginEmail({
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(service),
+            code,
+            service,
+            clientName: clientInfo.name,
+            redirectTo: request.payload.redirectTo,
+            resume: request.payload.resume,
+          });
           await request.emitMetricsEvent(`email.confirmation.resent`);
         }
 
@@ -917,11 +836,9 @@ module.exports = (
               throw error.cannotResendEmailCodeToUnownedEmail();
             }
 
-            emails = [foundEmail];
             code = foundEmail.emailCode;
             return !foundEmail.isVerified;
           } else if (!sessionToken.tokenVerified) {
-            emails = emailData;
             code = sessionToken.tokenVerificationId;
 
             // Check to see if this account has a verified TOTP token. If so, then it should
@@ -1209,29 +1126,15 @@ module.exports = (
         }
 
         // Notify any verified email address associated with the account of the deletion.
-        const emails = account.emails.filter((item) => {
-          if (!emailsMatch(item.normalizedEmail, email)) {
-            return item;
-          }
+        const accountData = FxaMailerFormat.account(account);
+        accountData.cc = accountData.cc.filter((e) => e !== email);
+        await fxaMailer.sendPostRemoveSecondaryEmail({
+          ...accountData,
+          ...FxaMailerFormat.localTime(request),
+          ...(await FxaMailerFormat.metricsContext(request)),
+          ...FxaMailerFormat.sync(false),
+          secondaryEmail: email,
         });
-
-        if (fxaMailer.canSend('postRemoveSecondary')) {
-          const accountData = FxaMailerFormat.account(account);
-          accountData.cc = accountData.cc.filter((e) => e !== email);
-          await fxaMailer.sendPostRemoveSecondaryEmail({
-            ...accountData,
-            ...FxaMailerFormat.localTime(request),
-            ...(await FxaMailerFormat.metricsContext(request)),
-            ...FxaMailerFormat.sync(false),
-            secondaryEmail: email,
-          });
-        } else {
-          await mailer.sendPostRemoveSecondaryEmail(emails, account, {
-            deviceId: sessionToken.deviceId,
-            secondaryEmail: email,
-            uid,
-          });
-        }
 
         return {};
       },
@@ -1323,20 +1226,13 @@ module.exports = (
           }
 
           const account = await db.account(uid);
-          if (fxaMailer.canSend('postVerifySecondary')) {
-            await fxaMailer.sendPostChangePrimaryEmail({
-              ...FxaMailerFormat.account(account),
-              ...FxaMailerFormat.sync(false),
-              ...FxaMailerFormat.localTime(request),
-              ...(await FxaMailerFormat.metricsContext(request)),
-              email: FxaMailerFormat.account(account).to,
-            });
-          } else {
-            await mailer.sendPostChangePrimaryEmail(account.emails, account, {
-              acceptLanguage: request.app.acceptLanguage,
-              uid,
-            });
-          }
+          await fxaMailer.sendPostChangePrimaryEmail({
+            ...FxaMailerFormat.account(account),
+            ...FxaMailerFormat.sync(false),
+            ...FxaMailerFormat.localTime(request),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            email: FxaMailerFormat.account(account).to,
+          });
 
           await recordSecurityEvent('account.primary_secondary_swapped', {
             db,
@@ -1482,57 +1378,17 @@ module.exports = (
         // Generate a new OTP code using the secret and resend the email.
         const code = otpUtils.generateOtpCode(secret, otpOptions);
 
-        const {
-          deviceId,
-          uaBrowser,
-          uaBrowserVersion,
-          uaOS,
-          uaOSVersion,
-          uaDeviceType,
-        } = sessionToken;
-
-        const geoData = request.app.geo;
         try {
-          if (fxaMailer.canSend('verifySecondaryCode')) {
-            await fxaMailer.sendVerifySecondaryCodeEmail({
-              ...FxaMailerFormat.account(account),
-              ...(await FxaMailerFormat.metricsContext(request)),
-              ...FxaMailerFormat.localTime(request),
-              ...FxaMailerFormat.location(request),
-              ...FxaMailerFormat.device(request),
-              ...FxaMailerFormat.sync(false),
-              code,
-              email,
-            });
-          } else {
-            await mailer.sendVerifySecondaryCodeEmail(
-              [
-                {
-                  email,
-                  normalizedEmail,
-                  isVerified: false,
-                  isPrimary: false,
-                  uid,
-                },
-              ],
-              sessionToken,
-              {
-                code,
-                deviceId,
-                acceptLanguage: request.app.acceptLanguage,
-                email,
-                primaryEmail: sessionToken.email,
-                location: geoData.location,
-                timeZone: geoData.timeZone,
-                uaBrowser,
-                uaBrowserVersion,
-                uaOS,
-                uaOSVersion,
-                uaDeviceType,
-                uid,
-              }
-            );
-          }
+          await fxaMailer.sendVerifySecondaryCodeEmail({
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(false),
+            code,
+            email,
+          });
         } catch (err) {
           log.error('secondary_email.resendVerifySecondaryCodeEmail.error', {
             err: err,
