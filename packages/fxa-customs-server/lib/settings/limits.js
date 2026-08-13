@@ -4,7 +4,7 @@
 
 'use strict';
 
-const deepEqual = require('deep-equal');
+const { isDeepStrictEqual } = require('util');
 const { initialCapital } = require('../utils');
 
 module.exports = (config, Settings, log) => {
@@ -87,7 +87,7 @@ module.exports = (config, Settings, log) => {
             message: 'types do not match',
           });
           settings[key] = current;
-        } else if (!deepEqual(current, future)) {
+        } else if (!isDeepStrictEqual(current, future)) {
           log.info({
             op: 'limits.validate.changed',
             key,
