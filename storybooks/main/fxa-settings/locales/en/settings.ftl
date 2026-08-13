@@ -1174,6 +1174,8 @@ page-passkey-add-error-system-v2 = There was a problem creating your passkey. Tr
 ## These are displayed as a list with the date when the event occured
 
 recent-activity-title = Recent account activity
+# Clicking this button reveals the older account activity that is hidden at first.
+recent-activity-show-more-button = Show more
 
 recent-activity-account-create-v2 = Account created
 recent-activity-account-disable-v2 = Account disabled

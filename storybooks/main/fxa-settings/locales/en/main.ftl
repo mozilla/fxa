@@ -906,6 +906,7 @@ page-passkey-add-error-system-v2 = There was a problem creating your passkey. Tr
 
 
 recent-activity-title = Recent account activity
+recent-activity-show-more-button = Show more
 
 recent-activity-account-create-v2 = Account created
 recent-activity-account-disable-v2 = Account disabled

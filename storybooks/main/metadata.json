@@ -1,8 +1,8 @@
 {
-  "commit": "aeb243af432bcc14c04778b75b90c1d4f6096e7b",
-  "summary": "Merge pull request #21017 from mozilla/fix-broken-integration-tests",
-  "description": "bug(settings): Fix broken integration tests",
-  "timestamp": 1786571384000,
+  "commit": "30c2c7ecf1fb53602e7d81f12806076a581d52ed",
+  "summary": "Merge pull request #21007 from mozilla/fxa-14318",
+  "description": "feat(settings): show more account history events",
+  "timestamp": 1786636256000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
