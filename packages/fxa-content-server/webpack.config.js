@@ -62,7 +62,6 @@ const webpackConfig = {
       cocktail: require.resolve('./app/scripts/lib/cocktail'),
       draggable: require.resolve('jquery-ui/ui/widgets/draggable'),
       duration: require.resolve('duration-js/duration'),
-      'fast-text-encoding': require.resolve('fast-text-encoding'),
       fxaCryptoDeriver: path.resolve(
         __dirname,
         '../../dist/libs/vendored/crypto-relier/src/index.js'
