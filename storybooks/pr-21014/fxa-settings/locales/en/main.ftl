@@ -906,6 +906,7 @@ page-passkey-add-error-system-v2 = There was a problem creating your passkey. Tr
 
 
 recent-activity-title = Recent account activity
+recent-activity-show-more-button = Show more
 
 recent-activity-account-create-v2 = Account created
 recent-activity-account-disable-v2 = Account disabled
@@ -1487,9 +1488,20 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Oops! Something went wrong
 pair-unsupported-desktop-firefox-fallback-message-v2 = Please close this tab and try again.
 
 
+pair2-authority-approve-sign-in-heading = Approve sign-in?
+pair2-authority-approve-sign-in-confirm-button = Yes, approve sign-in
+pair2-authority-approve-sign-in-change-password = Not you? <changePassword>Change your password</changePassword>
+
+
 pair2-authority-continue-on-mobile-heading = Continue on your mobile device
 pair2-authority-continue-on-mobile-description = Follow the steps on your phone or tablet.
 pair2-authority-continue-on-mobile-cancel-button = Cancel
+
+
+pair2-authority-download-firefox-heading = Open { -brand-firefox } to sync
+pair2-authority-download-firefox-instruction = To set up syncing across devices, open { -brand-firefox } on this device and visit <b>firefox.com/pair</b>
+
+pair2-authority-download-firefox-cta = Download { -brand-firefox }
 
 
 pair2-authority-scan-qr-heading = Scan to connect your mobile device

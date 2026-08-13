@@ -1174,6 +1174,8 @@ page-passkey-add-error-system-v2 = There was a problem creating your passkey. Tr
 ## These are displayed as a list with the date when the event occured
 
 recent-activity-title = Recent account activity
+# Clicking this button reveals the older account activity that is hidden at first.
+recent-activity-show-more-button = Show more
 
 recent-activity-account-create-v2 = Account created
 recent-activity-account-disable-v2 = Account disabled
@@ -2048,6 +2050,20 @@ pair-unsupported-learn-more-link-v2 = Learn more
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oops! Something went wrong.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Please close this tab and try again.
 
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer, which is already signed in, after their
+## mobile device scans the pairing QR code. It asks them to approve the
+## sign-in, and shows the requesting device's details so they can verify it.
+
+# Asks the user to confirm the sign-in that another one of their devices just started
+pair2-authority-approve-sign-in-heading = Approve sign-in?
+# Submit button confirming that the user started the pairing and approves the
+# other device being added to their account
+pair2-authority-approve-sign-in-confirm-button = Yes, approve sign-in
+# "Not you?" asks whether someone other than the user started this sign-in.
+# The text inside <changePassword> links to the page for changing the password.
+pair2-authority-approve-sign-in-change-password = Not you? <changePassword>Change your password</changePassword>
+
 ## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer after scanning the pairing QR code with
 ## their phone. It confirms the flow has moved to the mobile device and waits
@@ -2057,6 +2073,18 @@ pair2-authority-continue-on-mobile-heading = Continue on your mobile device
 pair2-authority-continue-on-mobile-description = Follow the steps on your phone or tablet.
 # Dismisses the pairing attempt
 pair2-authority-continue-on-mobile-cancel-button = Cancel
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when Firefox is needed to continue pairing.
+## It points them at firefox.com/pair and offers a download link for Firefox.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-download-firefox-heading = Open { -brand-firefox } to sync
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction = To set up syncing across devices, open { -brand-firefox } on this device and visit <b>firefox.com/pair</b>
+
+# Links out to the Firefox download page
+pair2-authority-download-firefox-cta = Download { -brand-firefox }
 
 ## ScanQR page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer. It shows a QR code that they scan with
