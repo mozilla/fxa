@@ -868,7 +868,8 @@ flow-setup-2fa-prompt-description = { $serviceName } requires you to set up two-
 # Success banner shown at the top of the page when the user signed in with a passkey.
 flow-setup-2fa-prompt-passkey-success-banner = Successfully signed in with passkey
 
-# Shown instead of flow-setup-2fa-prompt-description when the user signed in with a passkey.
+# Body copy shown when the user signed in with a passkey and the service still
+# requires two-step authentication setup.
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
 flow-setup-2fa-prompt-passkey-description = { $serviceName } also requires two-step authentication for your { -product-mozilla-account }. After setup, you’ll no longer need it when you sign in with a passkey.

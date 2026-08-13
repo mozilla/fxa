@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 4a755e7b68c961695c1f52064d7a8467ccd42816</title>
+  <title>Storybooks for commit b8c7908f75ccd50b46993a532f884bdc623356c2</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,15 +23,35 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 4a755e7b68c961695c1f52064d7a8467ccd42816</h1>
+  <h1>Storybooks for commit b8c7908f75ccd50b46993a532f884bdc623356c2</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/13/2026, 4:59:57 PM UTC</dd>
+    <dd>8/13/2026, 7:17:33 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>feat(settings): add passkey-context copy to FlowSetup2faPrompt</pre></dd>
+    <dd><pre>feat(settings): wire the passkey signal into FlowSetup2faPrompt</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+- The passkey copy added to FlowSetup2faPrompt sat behind a prop nothing
+  set, so the new strings could never render for a user.
+- handleNavigation already receives isPasskeySession from the passkey
+  sign-in flow, but createSigninLocationState dropped it before the
+  AAL2-RP divert to /inline_totp_setup.
+
+This commit:
+
+- Forwards isPasskeySession from NavigationOptions into
+  SigninLocationState.
+- Passes it from the InlineTotpSetup container through the page to
+  FlowSetup2faPrompt.
+- Gives the success banner a stable id, and lets an error banner replace
+  it rather than stack with it.
+- Rewords the passkey FTL comment so it stands alone for localizers.
+- Covers the propagation in unit tests and asserts the banner in the two
+  AAL2 passkey functional tests.</pre></dd>
   </dl>
 </body>
 </html>
