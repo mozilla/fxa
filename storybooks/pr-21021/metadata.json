@@ -1,0 +1,10 @@
+{
+  "commit": "4a755e7b68c961695c1f52064d7a8467ccd42816",
+  "summary": "feat(settings): add passkey-context copy to FlowSetup2faPrompt",
+  "description": "",
+  "timestamp": 1786640397000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
