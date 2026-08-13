@@ -219,7 +219,7 @@ describe('/account/device', () => {
         throw new Error('should have thrown');
       },
       (err: any) => {
-        expect(err.output.statusCode).toBe(503);
+        expect(err.output.statusCode).toBe(403);
         expect(err.errno).toBe(error.ERRNO.FEATURE_NOT_ENABLED);
       }
     );
@@ -504,7 +504,7 @@ describe('/account/devices/notify', () => {
         throw new Error('should have thrown');
       },
       (err: any) => {
-        expect(err.output.statusCode).toBe(503);
+        expect(err.output.statusCode).toBe(403);
         expect(err.errno).toBe(error.ERRNO.FEATURE_NOT_ENABLED);
       }
     );
@@ -821,7 +821,7 @@ describe('/account/device/commands', () => {
     mockRequest.auth.credentials.refreshTokenId = 'aaabbbccc';
 
     await expect(route.handler(mockRequest)).rejects.toMatchObject({
-      output: { statusCode: 503 },
+      output: { statusCode: 403 },
       errno: error.ERRNO.FEATURE_NOT_ENABLED,
     });
     expect(mockPushbox.retrieve).not.toHaveBeenCalled();
@@ -1310,7 +1310,7 @@ describe('/account/devices/invoke_command', () => {
     mockRequest.auth.credentials.refreshTokenId = 'aaabbbccc';
 
     await expect(route.handler(mockRequest)).rejects.toMatchObject({
-      output: { statusCode: 503 },
+      output: { statusCode: 403 },
       errno: error.ERRNO.FEATURE_NOT_ENABLED,
     });
     expect(mockPushbox.store).not.toHaveBeenCalled();
@@ -1673,7 +1673,7 @@ describe('/account/devices', () => {
     });
 
     await expect(route.handler(mockRequest)).rejects.toMatchObject({
-      output: { statusCode: 503 },
+      output: { statusCode: 403 },
       errno: error.ERRNO.FEATURE_NOT_ENABLED,
     });
   });
