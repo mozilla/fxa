@@ -22,12 +22,18 @@ Order of operations: gather state → ask the user up front → align ticket/com
 
 ## Step 1 — Pre-flight
 
-Run these in parallel:
-- `git fetch origin main --quiet` — refresh the base ref so the diff is against current `main` (tolerate failure if offline)
+### Fetch the base first, and wait for it
+
+`git fetch "${FXA_REMOTE:-origin}" main --quiet` — run this alone and let it finish before anything reads the base. `origin` is `mozilla/fxa` on most clones; set `FXA_REMOTE` when `origin` is a personal fork. This is the remote the base branch is read from — not necessarily where the feature branch gets pushed (see Step 5).
+
+Compare against `"${FXA_REMOTE:-origin}"/main`, not local `main`, for the rest of the skill; local `main` is often behind and would silently narrow the diff. If the fetch fails (offline), fall back to local `main` and say so in the 3a summary.
+
+### Then run these in parallel
+
 - `git rev-parse --abbrev-ref HEAD` — current branch name
-- `git log --format=%B main..HEAD` — full commit messages on this branch
-- `git diff main...HEAD --name-only` — changed files
-- `git diff main...HEAD --stat` — files/lines summary
+- `git log --format=%B "${FXA_REMOTE:-origin}"/main..HEAD` — full commit messages on this branch
+- `git diff "${FXA_REMOTE:-origin}"/main...HEAD --name-only` — changed files
+- `git diff "${FXA_REMOTE:-origin}"/main...HEAD --stat` — files/lines summary
 - `git status -sb` — confirm clean tree and check ahead/behind vs upstream
 - `gh pr view --json url,state 2>/dev/null` — confirm no PR exists yet
 
@@ -114,11 +120,17 @@ Title guidance:
 - Otherwise, summarize the cumulative change — do not just use the latest commit subject.
 
 Body drafting guidance:
-- **"Because"** bullets describe motivation/user impact in complete sentences — derive from the Jira ticket and the intake answers, not from the file list. Reference the user need, bug, or requirement, not the code change.
-- **"This pull request"** bullets describe what the code now does in complete sentences — be specific (e.g. "Adds `signinFlow.ts` to handle passkey discovery before falling back to password sign-in"), not vague ("Refactors the sign-in page"). Refer to files with backticks (e.g. `` `packages/fxa-settings/src/pages/Index/index.tsx` ``).
+- **"Because"** bullets describe motivation/user impact — derive from the Jira ticket and the intake answers, not from the file list. Reference the user need, bug, or requirement, not the code change. Up to 3 bullets.
+- **"This pull request"** bullets describe what the code now does. Up to 7 bullets, one line each. Be specific ("Adds `signinFlow.ts` to handle passkey discovery before falling back to password sign-in"), not vague ("Refactors the sign-in page") — but name the behaviour and stop. No trailing rationale clause ("so that…", "without this…", "which avoids…", "the reason being…"); if a decision genuinely needs defending, it goes in "Other information" or a review comment, not appended to every bullet. Fold related edits into one bullet rather than adding bullets. Backtick a path only when the reviewer needs to open that file.
 - **"How to review"** — fill in only when the diff is non-trivial (>~5 files or any risky path). Otherwise leave the three sub-bullets empty.
 - **"Screenshots"** — if the user captured some in Step 3, reference them here (markdown image syntax once attached) or leave the placeholder line for the user to drop attachments into. Leave untouched if no UI changed.
 - **"Other information"** — feature-flag rollout notes, follow-up tickets, deploy ordering caveats, related PRs from intake. Leave placeholder if none.
+
+### Before presenting: one cut pass
+
+Reread the drafted body once and shorten it (see `CLAUDE.md` section 9). Drop any bullet a reviewer would skip. Where a "This pull request" bullet runs to a second sentence, cut it unless it carries something the diff cannot show — a constraint, a caveat, a deliberate omission. Rationale the reviewer can read off the code goes. Cut whole bullets rather than compressing every bullet into a fragment. The finished body should be readable in well under a minute.
+
+Also check accuracy, not just length: every bullet should describe what the diff actually does, and locate the change where it really lives.
 
 ## Step 5 — Confirm and open as draft
 
@@ -127,7 +139,7 @@ Present **both the proposed title and the full draft body** to the user. Ask:
 2. Ready to open the PR? (From Step 1's `git status -sb`: if the branch isn't pushed or is ahead of upstream, the push will run first.)
 
 Only after the user explicitly approves:
-1. Push the branch if not yet pushed, or if local is ahead of upstream (use upstream tracking on first push).
+1. Push the branch if not yet pushed, or if local is ahead of its tracking branch. Use the branch's configured upstream when it has one; otherwise `"${FXA_REMOTE:-origin}"`, setting tracking on that first push. The push target is not always the base remote from Step 1 — a contributor with write access only to their fork pushes there and opens the PR across forks.
 2. Open the PR as a draft against `main` with the approved title and body.
 3. Print the PR URL.
 
