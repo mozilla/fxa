@@ -228,7 +228,7 @@ interface AuthenticationExtensionsJSON {
 interface PublicKeyCredentialDescriptorJSON {
   id: Base64URLString;
   type: 'public-key';
-  transports?: (AuthenticatorTransport | 'smart-card')[];
+  transports?: string[];
 }
 
 export interface PublicKeyCredentialCreationOptionsJSON {

@@ -724,22 +724,10 @@ export const passkeyRoutes = (
                 isA.object({
                   id: isA.string().required(),
                   type: isA.string().valid('public-key').required(),
-                  transports: isA
-                    .array()
-                    .items(
-                      isA
-                        .string()
-                        .valid(
-                          'ble',
-                          'cable',
-                          'hybrid',
-                          'internal',
-                          'nfc',
-                          'smart-card',
-                          'usb'
-                        )
-                    )
-                    .optional(),
+                  // Any string: stored transports come from the browser, which
+                  // may report values outside the spec's enum.
+                  // https://www.w3.org/TR/webauthn-3/#enum-transport
+                  transports: isA.array().items(isA.string()).optional(),
                 })
               )
               .optional(),

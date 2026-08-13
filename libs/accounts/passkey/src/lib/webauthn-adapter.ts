@@ -134,7 +134,12 @@ export interface VerifiedRegistrationData {
   credentialId: string;
   publicKey: Buffer;
   signCount: number;
-  transports: AuthenticatorTransportFuture[];
+  /**
+   * Browser-reported transports, stored as-is. Not a closed set — the spec
+   * directs RPs to accept and store values they don't recognize:
+   * https://www.w3.org/TR/webauthn-3/#dom-authenticatorattestationresponse-gettransports
+   */
+  transports: string[];
   /** aaguid as a hyphenated-UUID string, forwarded unchanged from SimpleWebAuthn. */
   aaguid: string;
   backupEligible: boolean;

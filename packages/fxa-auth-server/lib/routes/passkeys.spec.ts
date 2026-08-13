@@ -300,6 +300,31 @@ describe('passkeys routes', () => {
       ).rejects.toThrow('Client has sent too many requests');
     });
 
+    it('accepts an unknown transport in excludeCredentials', async () => {
+      mockPasskeyService.generateRegistrationChallenge.mockResolvedValue({
+        ...mockRegistrationOptions,
+        excludeCredentials: [
+          {
+            id: CREDENTIAL_ID_B64,
+            type: 'public-key',
+            transports: ['internal', 'unknown'],
+          },
+        ],
+      });
+
+      const result = await runTest('/passkey/registration/start', {
+        auth: {
+          credentials: { uid: UID, id: SESSION_TOKEN_ID, email: TEST_EMAIL },
+        },
+      });
+
+      await expect(
+        route.options.response.schema.validateAsync(result)
+      ).resolves.toMatchObject({
+        excludeCredentials: [{ transports: ['internal', 'unknown'] }],
+      });
+    });
+
     describe('when the primary email differs from the signup email', () => {
       // A user who changed their primary email: the immutable signup address
       // on accounts.email diverges from the current primary in the emails table.

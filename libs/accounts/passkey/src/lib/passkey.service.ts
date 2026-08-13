@@ -337,7 +337,7 @@ export class PasskeyService {
    */
   private generatePasskeyName(
     aaguid: string,
-    transports: AuthenticatorTransportFuture[],
+    transports: string[],
     existingPasskeys: PasskeyRecord[]
   ): string {
     const baseName = this.getBasePasskeyName(aaguid, transports);
@@ -352,10 +352,7 @@ export class PasskeyService {
    * 2. Transport-based fallback
    * 3. Generic fallback: "Passkey"
    */
-  private getBasePasskeyName(
-    aaguid: string,
-    transports: AuthenticatorTransportFuture[]
-  ): string {
+  private getBasePasskeyName(aaguid: string, transports: string[]): string {
     const allZeros = aaguid === '00000000-0000-0000-0000-000000000000';
 
     if (!allZeros) {
