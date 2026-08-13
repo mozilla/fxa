@@ -7,10 +7,11 @@
 
 'use strict';
 
-const R = require('ramda');
+const { isDeepStrictEqual } = require('util');
 
-const isDefined = R.complement(R.isNil);
-const isCallExpression = R.both(isDefined, R.propEq('type', 'CallExpression'));
+const isDefined = (value) => value !== null && value !== undefined;
+const isCallExpression = (node) =>
+  isDefined(node) && node.type === 'CallExpression';
 
 const describeAliases = [
   'describe',
@@ -59,7 +60,7 @@ function getNodeName(node) {
   return node.name;
 }
 
-function isDescribe(node, additionalSuiteNames) {
+function isDescribe(node, additionalSuiteNames = []) {
   return (
     isCallExpression(node) &&
     describeAliases
@@ -84,9 +85,9 @@ function isTestCase(node) {
 }
 
 function findReference(scope, node) {
-  const hasSameRangeAsNode = R.pathEq(['identifier', 'range'], node.range);
-
-  return R.find(hasSameRangeAsNode, scope.references);
+  return scope.references.find((reference) =>
+    isDeepStrictEqual(reference.identifier.range, node.range)
+  );
 }
 
 function isShadowed(scope, identifier) {
