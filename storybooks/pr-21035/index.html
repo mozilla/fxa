@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit ce831e7a38d8139bcb473c11e0d9ff1501335e5b</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit ce831e7a38d8139bcb473c11e0d9ff1501335e5b</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>8/13/2026, 8:56:44 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>test(oauth): cover the PKCE guards on code redemption</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+- The pairing security review turns on two claims: FxA never sees the
+  code_verifier Firefox generates, and a code cannot be redeemed without it.
+- Only the wrong-verifier case was covered. The /oauth/token xor that Firefox&#039;s
+  redemption depends on had no tests, nor did any PKCE reject branch.
+
+This commit:
+
+- Adds three tests for the /oauth/token authorization_code xor, the guard a
+  public client cannot sidestep with a client_secret.
+- Adds five tests driving the handler&#039;s PKCE gate directly, reaching branches
+  that are unreachable over HTTP.
+- Adds an integration test that refuses to redeem a real code without the
+  verifier, sending grant_type explicitly as Firefox does.
+- Adds two tests pinning buildSyncOAuthSearch to its allowlist, so no extra
+  web-channel field can reach /authorization.
+- Hoists the /oauth/token payload validation helper so both describes share it.</pre></dd>
+  </dl>
+</body>
+</html>
