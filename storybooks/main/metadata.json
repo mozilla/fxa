@@ -1,8 +1,8 @@
 {
-  "commit": "742291b373ef8ab3ea76f8c007e619034b79566b",
-  "summary": "Merge pull request #21024 from mozilla/fxa-13623",
-  "description": "fix(auth-server): validate credentialId and aaguid formats in passkey responses",
-  "timestamp": 1786652061000,
+  "commit": "8c812edefcc860e3a889f7f3e9b14a926ab056cb",
+  "summary": "Merge pull request #21033 from mozilla/fxa-14150",
+  "description": "fix(emails): update the Mozilla postal address in email footers",
+  "timestamp": 1786657606000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
