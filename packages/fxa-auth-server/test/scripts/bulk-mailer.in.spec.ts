@@ -7,7 +7,6 @@ const cp = require('child_process');
 const fs = require('fs');
 const mocks = require('../../test/mocks');
 const path = require('path');
-const rimraf = require('rimraf');
 const crypto = require('crypto');
 
 const ROOT_DIR = '../..';
@@ -77,7 +76,7 @@ describe('#integration - scripts/bulk-mailer', () => {
   let db: any;
 
   beforeAll(async () => {
-    rimraf.sync(OUTPUT_DIRECTORY);
+    fs.rmSync(OUTPUT_DIRECTORY, { recursive: true, force: true });
     fs.mkdirSync(OUTPUT_DIRECTORY, { recursive: true });
 
     db = await DB.connect(config);
@@ -100,7 +99,7 @@ describe('#integration - scripts/bulk-mailer', () => {
     ]);
     await db.close();
 
-    rimraf.sync(OUTPUT_DIRECTORY);
+    fs.rmSync(OUTPUT_DIRECTORY, { recursive: true, force: true });
   });
 
   it('fails if --input missing', async () => {
