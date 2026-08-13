@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { createMock } from '@golevelup/ts-jest';
+import type { Schema } from 'joi';
 import { StatsD } from 'hot-shots';
 import { AuthLogger as AuthLoggerType } from '../types';
 import {
@@ -5029,5 +5030,46 @@ describe('/account/emails', () => {
       originalEmail: 'signup@example.com',
       primaryEmail: 'signup+1@example.com',
     });
+  });
+});
+
+describe('/account response schema - passkeys', () => {
+  const VALID_PASSKEY = {
+    credentialId: 'A_z-09Aa',
+    name: 'Work laptop',
+    createdAt: 1700000000000,
+    lastUsedAt: null,
+    transports: ['internal'],
+    aaguid: 'adce0002-35bc-c60a-648b-0b25f1f05503',
+    backupEligible: true,
+    backupState: true,
+    prfEnabled: false,
+  };
+
+  let schema: Schema;
+
+  beforeEach(() => {
+    const routes = makeRoutes({});
+    schema = getRoute(routes, '/account', 'GET').options.response.schema;
+  });
+
+  it('accepts a well-formed passkey', () => {
+    const { error } = schema.validate({ passkeys: [VALID_PASSKEY] });
+    expect(error).toBeUndefined();
+  });
+
+  // The shared schema itself is covered in passkeys.spec.ts; this checks wiring.
+  it('rejects an aaguid that is not a hyphenated UUID', () => {
+    const { error } = schema.validate({
+      passkeys: [
+        { ...VALID_PASSKEY, aaguid: 'adce000235bcc60a648b0b25f1f05503' },
+      ],
+    });
+    expect(error?.details).toEqual([
+      expect.objectContaining({
+        context: expect.objectContaining({ key: 'aaguid' }),
+        type: 'string.pattern.base',
+      }),
+    ]);
   });
 });

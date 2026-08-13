@@ -64,6 +64,7 @@ import {
 import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
 import { OtpUtils } from './utils/otp';
 import { getExistingSecondaryEmailRecord } from './emails';
+import { passkeyResponseSchema } from './passkeys';
 import { Redis } from 'ioredis';
 import { FxaMailer } from '../senders/fxa-mailer';
 import { FxaMailerFormat } from '../senders/fxa-mailer-format';
@@ -3234,22 +3235,7 @@ export const accountRoutes = (
                 })
               )
               .optional(),
-            passkeys: isA
-              .array()
-              .items(
-                isA.object({
-                  credentialId: isA.string().required(),
-                  name: isA.string().required(),
-                  createdAt: isA.number().required(),
-                  lastUsedAt: isA.number().allow(null).required(),
-                  transports: isA.array().items(isA.string()).required(),
-                  aaguid: isA.string().required(),
-                  backupEligible: isA.boolean().required(),
-                  backupState: isA.boolean().required(),
-                  prfEnabled: isA.boolean().required(),
-                })
-              )
-              .optional(),
+            passkeys: isA.array().items(passkeyResponseSchema).optional(),
             subscriptions: isA
               .array()
               .items(
