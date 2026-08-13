@@ -249,7 +249,7 @@ const CreateRelyingParty = ({ onExit }: { onExit: () => void }) => {
             </a>{' '}
             (webservices-infra). One entry provisions the topic, the push
             subscription, and the Firestore webhook document.
-            <pre className="p-2">{`"${rpId}" = {
+            <pre className="p-2">{`"${rpId}" = { # pragma: allowlist secret
   endpoint        = "<webhook url>",
   resource_server = <bool>,
 },`}</pre>
