@@ -11,7 +11,11 @@ import {
   isPasskeyRegistrationEnabled,
   isPasskeyAuthenticationEnabled,
 } from '../passkey-utils';
-import { passkeyRoutes, PasskeyHandler } from './passkeys';
+import {
+  passkeyRoutes,
+  passkeyResponseSchema,
+  PasskeyHandler,
+} from './passkeys';
 import { ConfigType } from '../../config';
 import { FxaMailer } from '../senders/fxa-mailer';
 import { OAuthClientInfoServiceName } from '../senders/oauth_client_info';
@@ -2115,5 +2119,92 @@ describe('passkeys routes', () => {
         ]);
       });
     });
+  });
+
+  describe('passkeyResponseSchema', () => {
+    const VALID_PASSKEY = {
+      credentialId: 'A_z-09Aa',
+      name: 'Work laptop',
+      createdAt: 1700000000000,
+      lastUsedAt: null,
+      transports: ['internal'],
+      aaguid: 'adce0002-35bc-c60a-648b-0b25f1f05503',
+      backupEligible: true,
+      backupState: true,
+      prfEnabled: false,
+    };
+    const BAD_AAGUID_PASSKEY = {
+      ...VALID_PASSKEY,
+      aaguid: 'adce000235bcc60a648b0b25f1f05503',
+    };
+
+    function getResponseSchema(method: string, path: string): Schema {
+      const all = passkeyRoutes(
+        customs,
+        db,
+        config,
+        statsd,
+        glean,
+        log,
+        mailer
+      );
+      const route = all.find(
+        (r: any) => r.path === path && r.method === method
+      );
+      const schema = (route?.options as { response?: { schema?: Schema } })
+        ?.response?.schema;
+      if (!schema) {
+        throw new Error(`No response schema on route: ${method} ${path}`);
+      }
+      return schema;
+    }
+
+    it('accepts a well-formed passkey', () => {
+      const { error } = passkeyResponseSchema.validate(VALID_PASSKEY);
+      expect(error).toBeUndefined();
+    });
+
+    it('rejects a non-base64url credentialId', () => {
+      const { error } = passkeyResponseSchema.validate({
+        ...VALID_PASSKEY,
+        credentialId: 'has/slash',
+      });
+      expect(error?.details).toEqual([
+        expect.objectContaining({
+          context: expect.objectContaining({ key: 'credentialId' }),
+          type: 'string.pattern.base',
+        }),
+      ]);
+    });
+
+    it('rejects an aaguid that is not a hyphenated UUID', () => {
+      const { error } = passkeyResponseSchema.validate(BAD_AAGUID_PASSKEY);
+      expect(error?.details).toEqual([
+        expect.objectContaining({
+          context: expect.objectContaining({ key: 'aaguid' }),
+          type: 'string.pattern.base',
+        }),
+      ]);
+    });
+
+    // `GET /passkeys` returns an array, the other two a single object.
+    const routeCases: Array<[string, string, unknown]> = [
+      ['POST', '/passkey/registration/finish', BAD_AAGUID_PASSKEY],
+      ['GET', '/passkeys', [BAD_AAGUID_PASSKEY]],
+      ['PATCH', '/passkey/{credentialId}', BAD_AAGUID_PASSKEY],
+    ];
+
+    it.each(routeCases)(
+      '%s %s validates its response against the schema',
+      (method, path, response) => {
+        const { error } = getResponseSchema(method, path).validate(response);
+        expect(error?.details[0]).toEqual(
+          expect.objectContaining({
+            context: expect.objectContaining({ key: 'aaguid' }),
+            type: 'string.pattern.base',
+          })
+        );
+      }
+    );
   });
 });

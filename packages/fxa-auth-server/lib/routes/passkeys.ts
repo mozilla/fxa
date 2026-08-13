@@ -38,6 +38,24 @@ const base64urlString = (maxLen: number) =>
 const base64urlCredentialId = () => base64urlString(1364);
 const base64urlChallenge = () => base64urlString(64);
 
+// Mirrors `AAGUID_RE` in libs/accounts/passkey, which rejects the same
+// values at the DB boundary.
+const AAGUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Shape of a passkey as returned by the passkey and `/account` routes. */
+export const passkeyResponseSchema = isA.object({
+  credentialId: base64urlCredentialId().required(),
+  name: isA.string().required(),
+  createdAt: isA.number().required(),
+  lastUsedAt: isA.number().allow(null).required(),
+  transports: isA.array().items(isA.string()).required(),
+  aaguid: isA.string().regex(AAGUID_PATTERN).required(),
+  backupEligible: isA.boolean().required(),
+  backupState: isA.boolean().required(),
+  prfEnabled: isA.boolean().required(),
+});
+
 /** Subset of the Customs service used by passkey routes. */
 interface Customs {
   /**
@@ -844,17 +862,7 @@ export const passkeyRoutes = (
           }),
         },
         response: {
-          schema: isA.object({
-            credentialId: isA.string().required(),
-            name: isA.string().required(),
-            createdAt: isA.number().required(),
-            lastUsedAt: isA.number().allow(null).required(),
-            transports: isA.array().items(isA.string()).required(),
-            aaguid: isA.string().required(),
-            backupEligible: isA.boolean().required(),
-            backupState: isA.boolean().required(),
-            prfEnabled: isA.boolean().required(),
-          }),
+          schema: passkeyResponseSchema,
         },
       },
       handler: async function (request: AuthRequest) {
@@ -874,19 +882,7 @@ export const passkeyRoutes = (
           payload: false,
         },
         response: {
-          schema: isA.array().items(
-            isA.object({
-              credentialId: isA.string().required(),
-              name: isA.string().required(),
-              createdAt: isA.number().required(),
-              lastUsedAt: isA.number().allow(null).required(),
-              transports: isA.array().items(isA.string()).required(),
-              aaguid: isA.string().required(),
-              backupEligible: isA.boolean().required(),
-              backupState: isA.boolean().required(),
-              prfEnabled: isA.boolean().required(),
-            })
-          ),
+          schema: isA.array().items(passkeyResponseSchema),
         },
       },
       handler: function (request: AuthRequest) {
@@ -1022,17 +1018,7 @@ export const passkeyRoutes = (
           }),
         },
         response: {
-          schema: isA.object({
-            credentialId: isA.string().required(),
-            name: isA.string().required(),
-            createdAt: isA.number().required(),
-            lastUsedAt: isA.number().allow(null).required(),
-            transports: isA.array().items(isA.string()).required(),
-            aaguid: isA.string().required(),
-            backupEligible: isA.boolean().required(),
-            backupState: isA.boolean().required(),
-            prfEnabled: isA.boolean().required(),
-          }),
+          schema: passkeyResponseSchema,
         },
       },
       handler: function (request: AuthRequest) {
