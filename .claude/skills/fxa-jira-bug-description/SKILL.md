@@ -69,8 +69,8 @@ Where in the code the bug originates. Reference specific file and function if id
 - Regression test added covering the broken path
 - *(add any additional observable outcomes)*
 
-**Key Reference Files:**
-Specific files relevant to investigation or fix. One line each.
+**Key Reference Files:** *(accurate as of drafting; verify before starting, since files get moved and renamed)*
+Specific files relevant to investigation or fix. One line each, no more than 6.
 
 **Out of Scope:** *(omit if not needed)*
 
@@ -103,4 +103,5 @@ Surface the returned `FXA-N` key and the issue URL. That key is this skill's ret
 - Do not speculate on root cause unless there is clear evidence — use Open Questions instead
 - Severity should reflect user impact, not code complexity
 - Always include a regression test in Acceptance Criteria
+- Follow `CLAUDE.md` section 9 on writing style, and make one cut pass before presenting the draft. Steps to Reproduce and Actual Behaviour carry the weight here — trim everything else before trimming those
 - If the bug has security implications (auth bypass, data exposure, token leakage), flag severity as Critical and note it explicitly in Background

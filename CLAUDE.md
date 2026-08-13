@@ -80,9 +80,22 @@ Follow the commit message format defined in [CONTRIBUTING.md — Git Commit Guid
 
 Key points: `type(scope): subject` format; imperative present tense subject; `Because:` / `This commit:` body sections; `Fixes #N` footer for issues.
 
+**Never add a `Co-Authored-By: Claude ...` trailer** to any commit message.
+
+Length budget — these are read at `git blame` speed, so keep them scannable:
+
+- Subject ≤72 chars.
+- `Because:` — up to 3 bullets. Motivation only.
+- `This commit:` — up to 5 bullets, one line each. What changed; the why belongs in `Because:`.
+- If the change genuinely won't fit in 5 bullets, say the commit is too big rather than adding more bullets.
+
+See section 9 for phrasing.
+
 ## 7) Available Skills
 
 Suggest these proactively when the task matches — do not wait to be asked.
+
+Invoke the skill even when the ask arrives mid-task. "File a ticket for this" in the middle of implementation work should still run `/fxa-jira-feature-description` or `/fxa-jira-bug-description` — a freehand description written inline is how tickets end up unreadable.
 
 | Skill                           | Use when                                                                                    |
 | ------------------------------- | ------------------------------------------------------------------------------------------- |
@@ -110,6 +123,16 @@ Suggest these proactively when the task matches — do not wait to be asked.
 **Shift-left is a golden goal.** Prefer testing business logic at the lowest layer that exercises it. FXA has three layers, cheapest to costliest: unit (`nx test-unit`), integration (`nx test-integration`), functional/E2E (Playwright in `packages/functional-tests`). Route handlers and React components should be thin shells; their tests cover wiring (auth, request/response shape, error propagation, rendering), not business branches. When a route or component has more than ~3 tests differing only in input shape, that's the signal to extract the rule into a pure function or hook and unit-test it directly. Shifting left is not required for every change — but always strive for it, and flag the opportunities to improve.
 
 Skills: `/fxa-test-draft` (draft tests for changes), `/fxa-test-repair` (audit a test file), `/fxa-test-independence` (verify isolation).
+
+## 9) Conciseness & Writing Style
+
+**Be concise.** Applies to commit messages, PR bodies, Jira tickets, and code comments. Length is earned by the reader needing it, not by how much you know.
+
+- **Cut items before compressing sentences.** The first way to shorten is to drop a point that didn't need making, or fold two related ones together. Tightening a point that does need making is fine. What's not fine is keeping every point and squeezing each into a semicolon-spliced fragment — whatever survives should read like prose a person wrote.
+- **One claim per bullet.** State what changed. Add the reason when it isn't inferable and lives nowhere else, not by default on every bullet.
+- **Meta-commentary needs to save the reader work.** Noting what's out of scope, or why an obvious-looking alternative was rejected, earns its place when a reviewer would otherwise ask. It doesn't when it's just narrating the boundaries of the diff.
+- **Ticket refs in code: only where the history is the answer.** Default to putting the why in the comment. An `FXA-12345` pointer is right when the code reads as complex, confusing, or non-standard and the explanation is bigger than a comment can hold — a workaround, an external constraint, a large fix where the ticket discussion is the real context. Not in test names or `describe` blocks. Leave existing refs alone.
+- **File paths earn their place.** Name a file when the reader needs to open it. In Jira, paths belong in the reference section, not woven through the prose.
 
 ## BLEnder
 

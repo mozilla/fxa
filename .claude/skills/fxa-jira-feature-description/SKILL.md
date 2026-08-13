@@ -36,13 +36,13 @@ Incorporate findings directly into the draft — do not list them separately or 
 **Design:** *(Figma link if applicable. Note that all copy, strings, and visual specs should be taken from the latest Figma file — do not reproduce design details here as they may change before implementation. Omit if no design involved.)*
 
 **Background:**
-Why this is needed and what it enables. 2–4 sentences.
+Why this is needed and what it enables. 3 sentences at most.
 
 **Acceptance Criteria:**
-Observable, testable outcomes. Each item verifiable without reading the code. Include criteria for tests, metrics emission, and security events where applicable to this task.
+Observable, testable outcomes. Each item verifiable without reading the code. One line each. Include criteria for tests, metrics emission, and security events where applicable to this task.
 
 **Implementation Steps:**
-Numbered steps with file paths, method names, and structural guidance. Reference the nearest existing pattern for each step. No code snippets — file locations, types, and patterns only.
+Up to 7 numbered steps, one or two lines each. Describe what must be true when the step is done and name the nearest existing pattern to follow — not a keystroke-level plan. Keep file paths out of these steps; they belong in **Key Reference Files**, and code moves between drafting and pickup. No code snippets.
 
 **Tests:**
 What needs to be tested. Unit, integration, and snapshot coverage expectations. Reference the nearest existing test file as a pattern. Omit if covered inline above.
@@ -50,8 +50,8 @@ What needs to be tested. Unit, integration, and snapshot coverage expectations. 
 **Metrics & Security Events:** *(omit if not applicable)*
 Any StatsD metrics or security events (`log.info`, `request.emitMetricsEvent`, `customs` checks) that should be emitted. Reference the nearest equivalent for naming conventions.
 
-**Key Reference Files:**
-Specific files the implementer should read before starting. One line each.
+**Key Reference Files:** *(accurate as of drafting; verify before starting, since files get moved and renamed)*
+Specific files the implementer should read before starting. One line each, no more than 6.
 
 **Out of Scope:** *(omit if not needed)*
 
@@ -80,8 +80,9 @@ Surface the returned `FXA-N` key and the issue URL. That key is this skill's ret
 ## Guidelines
 
 - Do not create, edit, or suggest changes to any source files. Filing a Jira ticket via the MCP (Step 4) is not a source file change.
-- Implementation Steps should give enough detail to start work without follow-up questions — file paths and patterns, not prose
+- Implementation Steps should give enough detail to start work without follow-up questions — patterns to follow and outcomes to hit, not prose and not a file-by-file script
 - Do not include design details (copy, colours, layout, component specifics) — note that the implementer should refer to the latest Figma file
 - Omit redundant or obvious acceptance criteria
+- Follow `CLAUDE.md` section 9 on writing style, and make one cut pass before presenting the draft. A ticket the assignee skims and understands beats a complete one they don't read; when in doubt, drop the section rather than shortening every line in it
 - Include Tests, Metrics & Security Events sections only when relevant to the task type
 - If motivation or scope remain unclear after asking, flag as an Open Question rather than assuming
