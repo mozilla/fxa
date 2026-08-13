@@ -102,7 +102,7 @@
             title="Mozilla">
           </mj-image>
 
-          <mj-text css-class="footer-text-bottom-margin">149 New Montgomery St, 4th Floor, San Francisco, CA 94105</mj-text>
+          <mj-text css-class="footer-text-bottom-margin">1875 Mission Street, Suite 103, San Francisco, CA 94103</mj-text>
 
           <mj-text css-class="footer-text">
             <a href="https://www.mozilla.org/about/legal/terms/services/" class="footer-link" data-l10n-id="subplat-legal">Legal</a>
