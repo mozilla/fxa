@@ -101,7 +101,7 @@ button-back-aria-label = Back
 button-back-title = Back
 
 
-recovery-key-download-button-v3 = Download and continue
+recovery-key-download-button-v4 = Download and continue
 
 recovery-key-pdf-download-error = Sorry, there was a problem downloading your account recovery key.
 
@@ -893,6 +893,7 @@ page-passkey-add-error-system-v2 = There was a problem creating your passkey. Tr
 
 
 recent-activity-title = Recent account activity
+recent-activity-show-more-button = Show more
 
 recent-activity-account-create-v2 = Account created
 recent-activity-account-disable-v2 = Account disabled
@@ -1474,10 +1475,41 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Oops! Something went wrong
 pair-unsupported-desktop-firefox-fallback-message-v2 = Please close this tab and try again.
 
 
+pair2-authority-approve-sign-in-heading = Approve sign-in?
+pair2-authority-approve-sign-in-confirm-button = Yes, approve sign-in
+pair2-authority-approve-sign-in-change-password = Not you? <changePassword>Change your password</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = Continue on your mobile device
+pair2-authority-continue-on-mobile-description = Follow the steps on your phone or tablet.
+pair2-authority-continue-on-mobile-cancel-button = Cancel
+
+
+pair2-authority-download-firefox-heading = Open { -brand-firefox } to sync
+pair2-authority-download-firefox-instruction = To set up syncing across devices, open { -brand-firefox } on this device and visit <b>firefox.com/pair</b>
+
+pair2-authority-download-firefox-cta = Download { -brand-firefox }
+
+
+pair2-authority-scan-qr-heading = Scan to connect your mobile device
+pair2-authority-scan-qr-instruction = Scan the QR code with your phone or tablet to sync your { -brand-firefox } bookmarks, tabs, and more.
+pair2-authority-scan-qr-code-aria-label = QR code to connect your mobile device
+pair2-authority-scan-qr-help-link = Get help scanning
+
+
 pair2-authority-sync-success-heading = You’re syncing
 pair2-authority-sync-success-description = Your tabs, bookmarks, passwords, and more are ready across your devices.
 pair2-authority-sync-success-view-tabs-button = View synced tabs
 pair2-authority-sync-success-sync-settings-button = Sync settings
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = Still want to connect a device?
+pair2-authority-timeout-and-cancel-timeout-description = Looks like we timed out. Try again if you still want to connect your mobile device and sync your { -brand-firefox } data.
+pair2-authority-timeout-and-cancel-canceled-heading = Canceled
+pair2-authority-timeout-and-cancel-canceled-description = If you change your mind or want to connect a different device, try again.
+pair2-authority-timeout-and-cancel-try-again-button = Try again
+pair2-authority-timeout-and-cancel-cancel-button = Cancel
+pair2-authority-timeout-and-cancel-sync-settings-button = Sync settings
 
 
 pair2-supplicant-approve-sign-in-heading = One last step to sync
@@ -1493,6 +1525,23 @@ pair2-supplicant-connect-this-device-cancel-button = Cancel
 pair2-supplicant-download-firefox-heading = Get { -brand-firefox } on this device
 pair2-supplicant-download-firefox-description = Download { -brand-firefox } to sync bookmarks, history, and more across devices. <linkExternal>Learn more</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Continue in { -brand-firefox }
+
+
+pair2-supplicant-ready-to-scan-heading = To connect a device
+pair2-supplicant-ready-to-scan-instruction = On your computer, open { -brand-firefox } and go to <b>firefox.com/pair</b>, and follow on screen instructions to connect this mobile device.
+pair2-supplicant-ready-to-scan-learn-more-link = Learn more
+
+
+pair2-supplicant-sync-success-heading = Your device is connected
+pair2-supplicant-sync-success-description = Your bookmarks, tabs, and more will stay synced in { -brand-firefox }.
+pair2-supplicant-sync-success-view-tabs-button = View synced tabs
+pair2-supplicant-sync-success-sync-settings-button = Sync settings
+
+
+pair2-supplicant-timeout-and-cancel-timeout-heading = Looks like we timed out
+pair2-supplicant-timeout-and-cancel-timeout-description = To connect your mobile device and sync your { -brand-firefox } data, visit <b>firefox.com/pair</b> on your computer.
+pair2-supplicant-timeout-and-cancel-canceled-heading = Canceled
+pair2-supplicant-timeout-and-cancel-canceled-description = To connect a device anytime, visit <b>firefox.com/pair</b> on your computer.
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmed
 service-welcome-signin-success-banner = Signed in successfully!
