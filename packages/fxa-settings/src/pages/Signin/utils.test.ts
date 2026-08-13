@@ -610,6 +610,39 @@ describe('Signin utils', () => {
         );
       });
 
+      it('forwards isPasskeySession into the location state so the page can show the passkey copy', async () => {
+        const navigationOptions = buildPasskeyOAuthOptions({
+          accountHasTotp: false,
+          finishOAuthFlowHandler: jest.fn(),
+        });
+
+        await handleNavigation(navigationOptions);
+
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/inline_totp_setup?client_id=abc',
+          expect.objectContaining({
+            state: expect.objectContaining({ isPasskeySession: true }),
+          })
+        );
+      });
+
+      it('forwards isPasskeySession as false for a cached session', async () => {
+        const navigationOptions = buildPasskeyOAuthOptions({
+          isPasskeySession: false,
+          accountHasTotp: false,
+          finishOAuthFlowHandler: jest.fn(),
+        });
+
+        await handleNavigation(navigationOptions);
+
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/inline_totp_setup?client_id=abc',
+          expect.objectContaining({
+            state: expect.objectContaining({ isPasskeySession: false }),
+          })
+        );
+      });
+
       it('diverts a cached session (not a fresh passkey ceremony) when the account has no TOTP', async () => {
         // A cached passkey session is session-AAL2 without isPasskeySession set.
         // The divert must still fire so an AAL2 RP does not bounce indefinitely.

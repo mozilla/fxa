@@ -10,6 +10,7 @@ export interface InlineTotpSetupProps {
   serviceName: MozServices;
   verifyCodeHandler: (code: string) => void;
   integration?: Integration;
+  signedInWithPasskey?: boolean;
 }
 
 export interface InlineTotpSetupPropsOld {

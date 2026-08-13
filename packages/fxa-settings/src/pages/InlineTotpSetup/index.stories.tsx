@@ -30,6 +30,15 @@ export const Default = () => (
   />
 );
 
+export const SignedInWithPasskey = () => (
+  <InlineTotpSetup
+    totp={MOCK_TOTP_TOKEN}
+    serviceName={MozServices.Addons}
+    verifyCodeHandler={verifyCodeHandler}
+    signedInWithPasskey
+  />
+);
+
 export const onError = () => (
   <InlineTotpSetup
     totp={MOCK_TOTP_TOKEN}

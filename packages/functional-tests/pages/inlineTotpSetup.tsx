@@ -13,6 +13,12 @@ export class InlineTotpSetupPage extends BaseLayout {
     });
   }
 
+  // Structural, not copy — the banner id is guarded in the FlowSetup2faPrompt
+  // unit test, which is also where the wording is asserted.
+  get passkeySuccessBanner() {
+    return this.page.locator('#passkey-signin-success');
+  }
+
   get continueButton() {
     return this.page.getByRole('button', { name: 'Continue' });
   }

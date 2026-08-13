@@ -15,6 +15,7 @@ import {
   MOCK_TOTP_TOKEN,
   MOCK_QUERY_PARAMS,
   MOCK_SIGNIN_LOCATION_STATE,
+  MOCK_SIGNIN_LOCATION_STATE_PASSKEY,
   MOCK_SIGNIN_RECOVERY_LOCATION_STATE,
 } from './mocks';
 import { screen, waitFor } from '@testing-library/react';
@@ -80,7 +81,10 @@ function setMocks() {
     sendVerificationCode: mockSendVerificationCode,
   });
   // Default: TOTP doesn't exist, so we need to create one
-  mockCheckTotpTokenExists.mockResolvedValue({ exists: false, verified: false });
+  mockCheckTotpTokenExists.mockResolvedValue({
+    exists: false,
+    verified: false,
+  });
   mockCreateTotpToken.mockResolvedValue(MOCK_TOTP_TOKEN);
   jest.spyOn(InlineTotpSetupModule, 'default');
   (InlineTotpSetupModule.default as jest.Mock).mockReset();
@@ -182,7 +186,10 @@ describe('InlineTotpSetupContainer', () => {
       mockSessionHook.mockImplementationOnce(() => ({
         isSessionVerified: async () => true,
       }));
-      mockCheckTotpTokenExists.mockResolvedValue({ exists: true, verified: true });
+      mockCheckTotpTokenExists.mockResolvedValue({
+        exists: true,
+        verified: true,
+      });
       render();
       const location = mockLocationHook();
       await waitFor(() => {
@@ -197,7 +204,10 @@ describe('InlineTotpSetupContainer', () => {
       mockSessionHook.mockImplementationOnce(() => ({
         isSessionVerified: async () => false,
       }));
-      mockCheckTotpTokenExists.mockResolvedValue({ exists: true, verified: true });
+      mockCheckTotpTokenExists.mockResolvedValue({
+        exists: true,
+        verified: true,
+      });
       render();
       const location = mockLocationHook();
       await waitFor(() => {
@@ -223,7 +233,10 @@ describe('InlineTotpSetupContainer', () => {
       mockSessionHook.mockImplementationOnce(() => ({
         isSessionVerified: async () => true,
       }));
-      mockCheckTotpTokenExists.mockResolvedValue({ exists: true, verified: true });
+      mockCheckTotpTokenExists.mockResolvedValue({
+        exists: true,
+        verified: true,
+      });
 
       render();
 
@@ -253,6 +266,34 @@ describe('InlineTotpSetupContainer', () => {
         expect(args.totp).toEqual(MOCK_TOTP_TOKEN);
         expect(args.serviceName).toBe(MozServices.Default);
       });
+    });
+
+    it('passes signedInWithPasskey when the signin state came from a passkey ceremony', async () => {
+      mockLocationHook.mockReturnValue({
+        pathname: '/inline_totp_setup',
+        search: '?' + new URLSearchParams(MOCK_QUERY_PARAMS),
+        state: MOCK_SIGNIN_LOCATION_STATE_PASSKEY,
+      });
+
+      render();
+
+      await waitFor(() => {
+        expect(InlineTotpSetupModule.default).toHaveBeenCalled();
+      });
+      const args = (InlineTotpSetupModule.default as jest.Mock).mock
+        .calls[0][0];
+      expect(args.signedInWithPasskey).toBe(true);
+    });
+
+    it('passes signedInWithPasskey as false for a non-passkey signin state', async () => {
+      render();
+
+      await waitFor(() => {
+        expect(InlineTotpSetupModule.default).toHaveBeenCalled();
+      });
+      const args = (InlineTotpSetupModule.default as jest.Mock).mock
+        .calls[0][0];
+      expect(args.signedInWithPasskey).toBe(false);
     });
 
     describe('callbacks', () => {
