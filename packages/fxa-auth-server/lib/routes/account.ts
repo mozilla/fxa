@@ -1909,19 +1909,20 @@ export class AccountHandler {
         // for mobile users, due to the web view automatically closing after a
         // successful login. The `isFirefoxMobileClient` option matches the
         // client-side check against `integration.isFirefoxMobileClient()`.
+        // No `return` here: the caller discards the value, and returning from
+        // only some branches trips TS7030 now that the untyped old-mailer
+        // fallback, which widened the return type to `any`, is gone.
         if (hasTotpToken || isFirefoxMobileClient) {
-          return await this.fxaMailer.sendPasswordResetWithRecoveryKeyPromptEmail(
-            {
-              ...FxaMailerFormat.account(account),
-              ...(await FxaMailerFormat.metricsContext(request)),
-              ...FxaMailerFormat.localTime(request),
-              ...FxaMailerFormat.location(request),
-              ...FxaMailerFormat.device(request),
-              ...FxaMailerFormat.sync(false),
-            }
-          );
+          await this.fxaMailer.sendPasswordResetWithRecoveryKeyPromptEmail({
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(false),
+          });
         } else {
-          return await this.fxaMailer.sendPasswordResetAccountRecoveryEmail({
+          await this.fxaMailer.sendPasswordResetAccountRecoveryEmail({
             ...FxaMailerFormat.account(account),
             ...(await FxaMailerFormat.metricsContext(request)),
             ...FxaMailerFormat.localTime(request),
