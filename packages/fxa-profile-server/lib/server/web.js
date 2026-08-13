@@ -78,6 +78,14 @@ exports.create = async function createServer() {
         noOpen: false,
         noSniff: true,
       },
+      // This is a bearer-token API and reads no cookies, but browsers still
+      // attach any `.firefox.com`-scoped cookie to same-site requests such as
+      // the monogram avatar `<img>`. Hapi parses cookies in `onPreAuth` and
+      // rejects RFC 6265 violations with a 400 before routing, so a single
+      // third-party cookie holding unencoded JSON takes down every route.
+      state: {
+        parse: false,
+      },
       validate: {
         options: {
           stripUnknown: true,
