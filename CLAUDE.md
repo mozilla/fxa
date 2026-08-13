@@ -93,28 +93,11 @@ See section 9 for phrasing.
 
 ## 7) Available Skills
 
-Suggest these proactively when the task matches — do not wait to be asked.
+Every skill's name and description loads automatically — this section only covers when to reach for one unprompted. Suggest proactively when the task matches.
 
-Invoke the skill even when the ask arrives mid-task. "File a ticket for this" in the middle of implementation work should still run `/fxa-jira-feature-description` or `/fxa-jira-bug-description` — a freehand description written inline is how tickets end up unreadable.
-
-| Skill                           | Use when                                                                                    |
-| ------------------------------- | ------------------------------------------------------------------------------------------- |
-| `/fxa-review`                   | Before merging — thorough parallel review covering security, TS, logic, tests, architecture |
-| `/fxa-review-quick`             | Quick pre-merge check, single pass, no subagents                                            |
-| `/fxa-security-review`          | Landing auth, session, crypto, or payment changes                                           |
-| `/fxa-jira-feature-description` | Writing a Jira description for a new feature or enhancement                                 |
-| `/fxa-jira-bug-description`     | Filing a bug report                                                                         |
-| `/fxa-check-smells`             | Suspecting code quality issues in changed files                                             |
-| `/fxa-check-react`              | Reviewing React/TSX component changes                                                       |
-| `/fxa-check-docs`               | Improving docs, JSDoc, or README in changed files                                           |
-| `/fxa-explain-code`             | Understanding what changed and why                                                          |
-| `/fxa-simplify`                 | Cleaning up recently written code                                                           |
-| `/fxa-check-githistory`         | Checking for regressions or conflicts with past fixes                                       |
-| `/fxa-pr-open`                  | Opening a new pull request from a feature branch                                            |
-| `/fxa-test-draft`               | Drafting Jest tests for staged/unstaged changes or recent commits                           |
-| `/fxa-test-independence`        | Validating tests pass both as a full suite and individually in isolation                    |
-| `/fxa-test-repair`              | Auditing a test file for guideline violations and producing a prioritized repair plan       |
-| `/fxa-pr-status`                | Listing open PRs with file/line counts, draft state, review activity, and approval status   |
+- **Before merging:** `/fxa-review` for auth, payments, crypto, migrations, or multi-package changes; `/fxa-review-quick` otherwise. `/fxa-security-review` on top when the change touches auth, sessions, tokens, or payments.
+- **Filing a ticket:** `/fxa-jira-feature-description` or `/fxa-jira-bug-description`, even when the ask arrives mid-task.
+- **Opening a PR:** `/fxa-pr-open`. It handles the template, the alignment pass against Jira, and the draft-only rule.
 
 ## 8) Testing Guidelines
 
@@ -126,13 +109,13 @@ Skills: `/fxa-test-draft` (draft tests for changes), `/fxa-test-repair` (audit a
 
 ## 9) Conciseness & Writing Style
 
-**Be concise.** Applies to commit messages, PR bodies, Jira tickets, and code comments. Length is earned by the reader needing it, not by how much you know.
+**Be concise.** Applies to commit messages, PR bodies, Jira tickets, and code comments.
 
-- **Cut items before compressing sentences.** The first way to shorten is to drop a point that didn't need making, or fold two related ones together. Tightening a point that does need making is fine. What's not fine is keeping every point and squeezing each into a semicolon-spliced fragment — whatever survives should read like prose a person wrote.
-- **One claim per bullet.** State what changed. Add the reason when it isn't inferable and lives nowhere else, not by default on every bullet.
-- **Meta-commentary needs to save the reader work.** Noting what's out of scope, or why an obvious-looking alternative was rejected, earns its place when a reviewer would otherwise ask. It doesn't when it's just narrating the boundaries of the diff.
-- **Ticket refs in code: only where the history is the answer.** Default to putting the why in the comment. An `FXA-12345` pointer is right when the code reads as complex, confusing, or non-standard and the explanation is bigger than a comment can hold — a workaround, an external constraint, a large fix where the ticket discussion is the real context. Not in test names or `describe` blocks. Leave existing refs alone.
-- **File paths earn their place.** Name a file when the reader needs to open it. In Jira, paths belong in the reference section, not woven through the prose.
+- **Cut items before compressing sentences.** Shorten by dropping a point or folding two together; tightening a point worth keeping is fine, but don't squeeze every point into a semicolon-spliced fragment. What survives should read like a person wrote it.
+- **One claim per bullet.** State what changed. Give the reason only when it isn't inferable and lives nowhere else.
+- **Meta-commentary must save the reader work.** Out-of-scope notes and rejected alternatives earn their place when a reviewer would otherwise ask; narrating the diff's boundaries doesn't.
+- **Ticket refs in code only where the history is the answer.** Put the why in the comment. An `FXA-12345` pointer fits when the code reads as complex or non-standard and the explanation outgrows a comment — a workaround, an external constraint. Not in test names. Leave existing refs alone.
+- **Paths earn their place.** Name a file when it saves the reader a search. Skip it when the diff or a reference section already points there.
 
 ## BLEnder
 

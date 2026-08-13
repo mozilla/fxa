@@ -62,7 +62,7 @@ Which users, flows, account states, browsers, or environments are affected. Note
 - Low — cosmetic, edge case, minor inconvenience
 
 **Root Cause:** *(if known or suspected — omit if unknown)*
-Where in the code the bug originates. Reference specific file and function if identified.
+Where in the code the bug originates. Name the specific file and function when identified — this is the one path worth putting in the prose. Every other path belongs in **Key Reference Files**.
 
 **Acceptance Criteria:**
 - Bug is no longer reproducible following the steps above
