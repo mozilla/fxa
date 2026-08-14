@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 7e592e324b1e8025f6382c30fdea31598af31ed9</title>
+  <title>Storybooks for commit 3100c53ec290589e882b61e3a954bbaa1cc0eca3</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 7e592e324b1e8025f6382c30fdea31598af31ed9</h1>
+  <h1>Storybooks for commit 3100c53ec290589e882b61e3a954bbaa1cc0eca3</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/14/2026, 2:29:01 PM UTC</dd>
+    <dd>8/14/2026, 2:37:20 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>test(oauth): cover the PKCE guards on code redemption</pre></dd>
     <dt>Description</dt>
@@ -37,20 +37,18 @@
 
 - The pairing security review turns on two claims: FxA never sees the
   code_verifier Firefox generates, and a code cannot be redeemed without it.
-- Nothing proved the first claim, and only the wrong-verifier case covered the
-  second. The /oauth/token xor that Firefox&#039;s redemption depends on had no
-  tests, nor did any PKCE reject branch.
+- Nothing proved the first claim, and the handler PKCE gate had no tests at all.
+  The /oauth/token xor that Firefox&#039;s redemption depends on had none either.
 
 This commit:
 
-- Adds eight tests for the /oauth/token guards: the authorization_code xor a
-  public client cannot sidestep with a client_secret, and the handler PKCE
-  branches that are unreachable over HTTP.
+- Adds six tests for the /oauth/token guards: the authorization_code xor a
+  public client cannot sidestep with a client_secret, and the handler PKCE gate.
 - Adds an integration test that refuses to redeem a real code without the
   verifier, sending grant_type explicitly as Firefox does.
 - Adds a functional test driving real Firefox over Marionette, proving the
   verifier reaches neither the params Firefox hands to content nor page script.
-- Adds two tests pinning buildSyncOAuthSearch to its allowlist, so no extra
+- Adds a test pinning buildSyncOAuthSearch to its allowlist, so no extra
   web-channel field can reach /authorization.
 - Hoists the /oauth/token payload validation helper so both describes share it.</pre></dd>
   </dl>
