@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit d8d38b811f53e7e7a657d9d54ca718494f3c46e7</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit d8d38b811f53e7e7a657d9d54ca718494f3c46e7</h1>
+  <ul>
+    <li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>8/14/2026, 8:28:26 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(l10n): report whole-bundle l10n load failures to Sentry</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+- A build regression shipped a manifest with no main.ftl entries, and every
+  locale silently fell back to English for several releases.
+- Nothing surfaced it: the client logs one console warning per string and
+  emits no telemetry, so it had to be spotted by eye.
+
+This commit:
+
+- Adds a reportBundleError prop to AppLocalizationProvider, fired when a
+  bundle has no manifest entry, returns a non-OK status, or the manifest
+  itself cannot be loaded.
+- Sends those to Sentry tagged area:l10n, deduped by message and capped per
+  page load. Individual missing string ids stay with Fluent&#039;s reporter.
+- Buffers reports until sentryMetrics.enable() runs, since bundles resolve
+  before App mounts and Sentry drops events until then.
+- Returns an empty bundle rather than a non-OK response body, which Fluent
+  would otherwise parse as junk.
+- Fixes the test manifest fixture, which was invalid JSON with keys that
+  never matched the computed path.
+
+Closes #FXA-14362</pre></dd>
+  </dl>
+</body>
+</html>
