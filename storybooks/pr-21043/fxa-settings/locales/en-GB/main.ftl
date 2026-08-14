@@ -444,6 +444,7 @@ cs-cannot-disconnect = Client not found, unable to disconnect
 cs-logged-out-2 = Logged out of { $service }
 cs-refresh-button =
     .title = Refresh connected services
+cs-connect-device-button = Connect a device
 cs-missing-device-help = Missing or duplicate items?
 cs-disconnect-sync-heading = Disconnect from Sync
 
@@ -773,6 +774,7 @@ page-passkey-add-error-system-v2 = There was a problem creating your passkey. Tr
 
 
 recent-activity-title = Recent account activity
+recent-activity-show-more-button = Show more
 recent-activity-account-create-v2 = Account created
 recent-activity-account-disable-v2 = Account disabled
 recent-activity-account-enable-v2 = Account enabled
@@ -1297,6 +1299,42 @@ pair-unsupported-connecting-mobile-instructions-v2 = Open { -brand-firefox } on 
 pair-unsupported-learn-more-link-v2 = Learn more
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oops! Something went wrong.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Please close this tab and try again.
+
+
+pair2-authority-approve-sign-in-heading = Approve sign-in?
+pair2-authority-approve-sign-in-confirm-button = Yes, approve sign-in
+pair2-authority-approve-sign-in-change-password = Not you? <changePassword>Change your password</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = Continue on your mobile device
+pair2-authority-continue-on-mobile-description = Follow the steps on your phone or tablet.
+pair2-authority-continue-on-mobile-cancel-button = Cancel
+
+
+pair2-authority-download-firefox-heading = Open { -brand-firefox } to synchronise
+pair2-authority-download-firefox-instruction = To set up synchronisation across devices, open { -brand-firefox } on this device and visit <b>firefox.com/pair</b>
+pair2-authority-download-firefox-cta = Download { -brand-firefox }
+
+
+pair2-authority-scan-qr-heading = Scan to connect your mobile device
+pair2-authority-scan-qr-instruction = Scan the QR code with your phone or tablet to synchronise your { -brand-firefox } bookmarks, tabs and more.
+pair2-authority-scan-qr-code-aria-label = QR code to connect your mobile device
+pair2-authority-scan-qr-help-link = Get help scanning
+
+
+pair2-authority-sync-success-heading = You’re synchronising
+pair2-authority-sync-success-description = Your tabs, bookmarks, passwords and more are ready across your devices.
+pair2-authority-sync-success-view-tabs-button = View synchronised tabs
+pair2-authority-sync-success-sync-settings-button = Synchronisation settings
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = Still want to connect a device?
+pair2-authority-timeout-and-cancel-timeout-description = Looks like we timed out. Try again if you still want to connect your mobile device and synchronise your { -brand-firefox } data.
+pair2-authority-timeout-and-cancel-canceled-heading = Cancelled
+pair2-authority-timeout-and-cancel-canceled-description = If you change your mind or want to connect a different device, try again.
+pair2-authority-timeout-and-cancel-try-again-button = Try again
+pair2-authority-timeout-and-cancel-cancel-button = Cancel
+pair2-authority-timeout-and-cancel-sync-settings-button = Synchronisation settings
 
 
 pair2-supplicant-approve-sign-in-heading = One last step to synchronise
