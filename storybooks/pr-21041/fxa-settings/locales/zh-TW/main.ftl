@@ -430,6 +430,7 @@ cs-cannot-disconnect = 找不到客戶端，無法取消連線
 cs-logged-out-2 = 已登出 { $service }
 cs-refresh-button =
     .title = 重新整理連結的服務
+cs-connect-device-button = 連結裝置
 cs-missing-device-help = 少了什麼東西，或有重複項目嗎？
 cs-disconnect-sync-heading = 中斷與 Sync 的連結
 
@@ -749,6 +750,7 @@ page-passkey-add-error-system-v2 = 建立您的 Passkey 時發生問題，請稍
 
 
 recent-activity-title = 近期帳號活動
+recent-activity-show-more-button = 顯示更多
 recent-activity-account-create-v2 = 建立帳號
 recent-activity-account-disable-v2 = 停用帳號
 recent-activity-account-enable-v2 = 啟用帳號
@@ -1258,9 +1260,51 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = 喔喔，有些東西不�
 pair-unsupported-desktop-firefox-fallback-message-v2 = 請關閉這個分頁然後再試一次。
 
 
+pair2-authority-approve-sign-in-heading = 要允許登入嗎？
+pair2-authority-approve-sign-in-confirm-button = 好，允許登入
+
+
+pair2-authority-continue-on-mobile-heading = 到您的行動裝置繼續
+pair2-authority-continue-on-mobile-cancel-button = 取消
+
+
+pair2-authority-download-firefox-heading = 開啟 { -brand-firefox } 即可同步
+pair2-authority-download-firefox-cta = 下載 { -brand-firefox }
+
+
+pair2-authority-scan-qr-heading = 掃描後即可連結您的行動裝置
+
+
+pair2-authority-sync-success-heading = 正在同步中
+pair2-authority-sync-success-view-tabs-button = 檢視同步的分頁
+pair2-authority-sync-success-sync-settings-button = 同步設定
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = 還想要連結其他裝置嗎？
+pair2-authority-timeout-and-cancel-canceled-heading = 已取消
+pair2-authority-timeout-and-cancel-try-again-button = 重試
+pair2-authority-timeout-and-cancel-cancel-button = 取消
+pair2-authority-timeout-and-cancel-sync-settings-button = 同步設定
+
+
 pair2-supplicant-approve-sign-in-heading = 完成最後一步即可開始同步
 pair2-supplicant-approve-sign-in-instruction = 請到您的電腦上確認登入。
 pair2-supplicant-approve-sign-in-cancel-button = 取消
+
+
+pair2-supplicant-connect-this-device-connect-button = 連線
+pair2-supplicant-connect-this-device-cancel-button = 取消
+
+
+pair2-supplicant-ready-to-scan-learn-more-link = 更多資訊
+
+
+pair2-supplicant-sync-success-heading = 已連結您的裝置
+pair2-supplicant-sync-success-view-tabs-button = 檢視同步的分頁
+pair2-supplicant-sync-success-sync-settings-button = 同步設定
+
+
+pair2-supplicant-timeout-and-cancel-canceled-heading = 已取消
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } 已確認

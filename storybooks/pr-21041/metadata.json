@@ -1,8 +1,8 @@
 {
-  "commit": "3bcb8ca88be6bf9c11f32e3cbce3a6aa7c13bd48",
+  "commit": "e08e00a6f70f05b9687514696fdfb2e196b6d5ae",
   "summary": "task(setings): Validate that new wc commands and pref activate",
-  "description": "Because:\n- We want to do a preliminary check that the new paring.version pref added to Firefox works\n- We want to do a preliminary check that the new `fxaccounts:pair_oauth_start` wc cmd works\n- We want to do a preliminary check that the new `fxaccounts:pair_oauth_finish` wc cmd works\n\nThis Commit:\n- Wires up the `/pair2/authority/scan_qr` code route for testing purposes.\n- Checks for the `v=2` query param on CAD and navigates users to `/pair2/authority/scan_qr`.\n- Tries to have the launcher set 'identity.fxaccounts.pairing.version' to 2 by default\n- Adds support for the new web-channel command to `firefox.ts`\n- Excercises the new wc commands on `/poc_pair_start`.",
-  "timestamp": 1786674303000,
+  "description": "Because:\n- We want to do a preliminary check that the new paring.version pref added to Firefox works\n- We want to do a preliminary check that the new `fxaccounts:pair_oauth_start` wc cmd works\n- We want to do a preliminary check that the new `fxaccounts:pair_oauth_finish` wc cmd works\n\nThis Commit:\n- Wires pair2 routes!\n- Adds config to signal desired pairing version in fxa, `config.pairing.version`. Default to 1 for now.\n- Checks fxaStatus webchannel message for pairing.version == 2 and that FxA has paring.version == 2. If so routes to the scan_qr page.\n- Alternatively, checks for the `v=2` query param on CAD and navigates users to the scan qr page.\n- Adds support for the new web-channel command to `firefox.ts`\n- Excercises the new web channel commands in `/poc_pair_start` as a sanity check that they stuck.",
+  "timestamp": 1786735527000,
   "storybooks": [
     "fxa-settings"
   ],

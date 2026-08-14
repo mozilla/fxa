@@ -1891,7 +1891,7 @@ pair2-authority-download-firefox-cta = { -brand-firefox } herunterladen
 
 pair2-authority-scan-qr-heading = Zum Verbinden mit Ihrem Mobilgerät scannen
 # "sync" is a verb here, referring to syncing data between the user's devices
-pair2-authority-scan-qr-instruction = Scannen Sie den QR-Code mit Ihrem Handy oder Tablet, um Ihre { -brand-firefox }-Lesezeichen, Tabs und mehr zu synchronisieren.
+pair2-authority-scan-qr-instruction = Scannen Sie den QR-Code mit Ihrem Handy oder Tablet, um Ihre Lesezeichen, Tabs und mehr von { -brand-firefox } zu synchronisieren.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR-Code zum Verbinden Ihres Mobilgeräts
 # Link to a support article for users having trouble scanning the QR code
@@ -1916,7 +1916,7 @@ pair2-authority-sync-success-sync-settings-button = Synchronisationseinstellunge
 
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Möchten Sie trotzdem ein Gerät verbinden?
-pair2-authority-timeout-and-cancel-timeout-description = Zeitüberschreitung anscheinend. Versuchen Sie es erneut, wenn Sie Ihr Mobilgerät weiterhin verbinden und Ihre Daten von { -brand-firefox } synchronisieren möchten.
+pair2-authority-timeout-and-cancel-timeout-description = Anscheinend trat eine Zeitüberschreitung auf. Versuchen Sie es erneut, wenn Sie Ihr Mobilgerät weiterhin verbinden und Ihre Daten von { -brand-firefox } synchronisieren möchten.
 # Shown when the pairing attempt was canceled, on either device
 pair2-authority-timeout-and-cancel-canceled-heading = Abgebrochen
 pair2-authority-timeout-and-cancel-canceled-description = Wenn Sie Ihre Meinung ändern oder ein anderes Gerät verbinden möchten, versuchen Sie es erneut.

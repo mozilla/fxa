@@ -786,7 +786,7 @@ page-passkey-add-error-system-v2 = Un problème est survenu lors de la création
 
 
 recent-activity-title = Activité récente du compte
-recent-activity-show-more-button = Afficher plus
+recent-activity-show-more-button = Afficher plus d’informations
 recent-activity-account-create-v2 = Compte créé
 recent-activity-account-disable-v2 = Compte désactivé
 recent-activity-account-enable-v2 = Compte activé

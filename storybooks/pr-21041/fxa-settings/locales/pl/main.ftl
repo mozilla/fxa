@@ -559,6 +559,7 @@ cs-cannot-disconnect = Nie odnaleziono klienta, nie można rozłączyć
 cs-logged-out-2 = Wylogowano z usługi { $service }
 cs-refresh-button =
     .title = Odśwież połączone usługi
+cs-connect-device-button = Połącz urządzenie
 cs-missing-device-help = Brak elementu lub jakieś są podwójne?
 cs-disconnect-sync-heading = Rozłącz synchronizację
 
@@ -881,6 +882,7 @@ page-passkey-add-cancel = Anuluj
 
 
 recent-activity-title = Ostatnie działania na koncie
+recent-activity-show-more-button = Pokaż więcej
 recent-activity-account-create-v2 = Utworzono konto
 recent-activity-account-disable-v2 = Wyłączono konto
 recent-activity-account-enable-v2 = Włączono konto
@@ -1309,6 +1311,32 @@ pair-unsupported-connecting-mobile-instructions-v2 = Włącz { -brand-firefox(ca
 pair-unsupported-learn-more-link-v2 = Więcej informacji
 pair-unsupported-desktop-firefox-fallback-header-v2 = Ups! Coś poszło nie tak.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Proszę zamknąć tę kartę i spróbować ponownie.
+
+
+pair2-authority-approve-sign-in-heading = Czy zatwierdzić logowanie?
+pair2-authority-approve-sign-in-confirm-button = Tak, zatwierdź logowanie
+pair2-authority-approve-sign-in-change-password = To nie ty? <changePassword>Zmień hasło</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = Kontynuuj na urządzeniu mobilnym
+pair2-authority-continue-on-mobile-description = Postępuj zgodnie z instrukcjami wyświetlanymi na ekranie telefonu lub tabletu.
+pair2-authority-continue-on-mobile-cancel-button = Anuluj
+
+
+pair2-authority-download-firefox-heading = Otwórz { -brand-firefox(case: "acc") }, aby zsynchronizować
+pair2-authority-download-firefox-instruction = Aby skonfigurować synchronizację między urządzeniami, otwórz { -brand-firefox(case: "acc") } na tym urządzeniu i przejdź na stronę <b>firefox.com/pair</b>
+pair2-authority-download-firefox-cta = Pobierz przeglądarkę { -brand-firefox }
+
+
+pair2-authority-timeout-and-cancel-canceled-heading = Anulowano
+pair2-authority-timeout-and-cancel-try-again-button = Spróbuj ponownie
+pair2-authority-timeout-and-cancel-cancel-button = Anuluj
+
+
+pair2-supplicant-connect-this-device-cancel-button = Anuluj
+
+
+pair2-supplicant-timeout-and-cancel-canceled-heading = Anulowano
 
 
 service-welcome-signup-success-banner = Potwierdzono { -product-mozilla-account(case: "acc", capitalization: "lower") }
