@@ -105,26 +105,6 @@ function ipHmac(key: Buffer, uid: Buffer, addr: string) {
 
   return hmac.digest();
 }
-/**
- * This is used during lookups only to match records written before we
- * stopped prefixing ipv4 addresses; FXA-13433.
- *
- * After some amount of time, we will have more recent login records with the new HMAC than
- * the old, and we can remove this legacy HMAC function and the associated tests.
- *
- * Cleanup ticket: https://mozilla-hub.atlassian.net/browse/FXA-13667
- */
-function ipHmacLegacy(key: Buffer, uid: Buffer, addr: string) {
-  addr = sanitizeIp(addr);
-  if (ip.isV4Format(addr)) {
-    addr = '::' + addr;
-  }
-  const hmac = crypto.createHmac('sha256', key);
-  hmac.update(uid);
-  hmac.update(ip.toBuffer(addr));
-
-  return hmac.digest();
-}
 
 export class SecurityEvent extends BaseAuthModel {
   public static tableName = 'securityEvents';
@@ -203,8 +183,7 @@ export class SecurityEvent extends BaseAuthModel {
 
   static async findByUidAndIP(uid: string, ipAddr: string, ipHmacKey: string) {
     const id = uuidTransformer.to(uid);
-    const key = Buffer.from(ipHmacKey);
-    const hmacs = [ipHmac(key, id, ipAddr), ipHmacLegacy(key, id, ipAddr)];
+    const hmac = ipHmac(Buffer.from(ipHmacKey), id, ipAddr);
     return SecurityEvent.query()
       .select(
         'securityEventNames.name as name',
@@ -219,7 +198,7 @@ export class SecurityEvent extends BaseAuthModel {
         'securityEventNames.id'
       )
       .where('securityEvents.uid', id)
-      .whereIn('securityEvents.ipAddrHmac', hmacs)
+      .andWhere('securityEvents.ipAddrHmac', hmac)
       .orderBy('securityEvents.createdAt', 'DESC')
       .limit(20);
   }
@@ -230,8 +209,7 @@ export class SecurityEvent extends BaseAuthModel {
     ipHmacKey: string
   ) {
     const id = uuidTransformer.to(uid);
-    const key = Buffer.from(ipHmacKey);
-    const hmacs = [ipHmac(key, id, ipAddr), ipHmacLegacy(key, id, ipAddr)];
+    const hmac = ipHmac(Buffer.from(ipHmacKey), id, ipAddr);
     return SecurityEvent.query()
       .select(
         'securityEventNames.name as name',
@@ -248,7 +226,7 @@ export class SecurityEvent extends BaseAuthModel {
       .where('securityEvents.uid', id)
       .where('securityEvents.verified', 1)
       .where('securityEvents.nameId', EVENT_NAMES['account.login'])
-      .whereIn('securityEvents.ipAddrHmac', hmacs)
+      .andWhere('securityEvents.ipAddrHmac', hmac)
       .orderBy('securityEvents.createdAt', 'DESC')
       .limit(20);
   }
