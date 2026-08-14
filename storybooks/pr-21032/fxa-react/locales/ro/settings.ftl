@@ -380,10 +380,6 @@ input-phone-number-country-list-aria-label = Selectează țara
 input-phone-number-enter-number = Introdu numărul de telefon
 input-phone-number-country-united-states = Statele Unite
 input-phone-number-country-canada = Canada
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Înapoi
-# Generic error shown when the legal document fails to load
-app-general-err-message = Ceva nu a funcționat. Te rugăm să încerci din nou mai târziu.
 
 ## LinkDamaged component
 
@@ -1686,23 +1682,6 @@ inline-totp-setup-security-code-placeholder = Cod de autentificare
 inline-totp-setup-code-required-error = Necesită cod de autentificare
 tfa-qr-code-alt = Folosește codul { $code } și configurează autentificarea în doi pași în aplicațiile acceptate.
 inline-totp-setup-page-title = Autentificare în doi pași
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Mențiuni legale
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Condiții de utilizare a serviciilor
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Notificare privind confidențialitatea
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Notificare privind confidențialitatea
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Condiții de utilizare a serviciilor
 
 ## AuthAllow page - Part of the device pairing flow
 

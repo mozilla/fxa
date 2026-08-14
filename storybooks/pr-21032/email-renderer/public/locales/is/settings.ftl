@@ -295,8 +295,6 @@ input-phone-number-country-list-aria-label = Veldu land
 input-phone-number-enter-number = Settu inn símanúmer
 input-phone-number-country-united-states = Bandaríkin
 input-phone-number-country-canada = Kanada
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Til baka
 
 ## LinkDamaged component
 
@@ -1256,23 +1254,6 @@ inline-totp-setup-security-code-placeholder = Auðkenningarkóði
 # The "authentication code" here refers to the code provided by an authentication app.
 inline-totp-setup-code-required-error = Auðkenningarkóði er nauðsynlegur
 tfa-qr-code-alt = Notaðu kóðann { $code } til að setja upp tveggja-þrepa auðkenningu í þeim forritum sem styðja slíkt.
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Lagalegur fyrirvari
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Þjónustuskilmálar
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Meðferð persónuupplýsinga
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Meðferð persónuupplýsinga
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Þjónustuskilmálar
 
 ## AuthAllow page - Part of the device pairing flow
 

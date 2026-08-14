@@ -351,8 +351,6 @@ input-phone-number-country-list-aria-label = Selectează țara
 input-phone-number-enter-number = Introdu numărul de telefon
 input-phone-number-country-united-states = Statele Unite
 input-phone-number-country-canada = Canada
-legal-back-button = Înapoi
-app-general-err-message = Ceva nu a funcționat. Te rugăm să încerci din nou mai târziu.
 
 
 reset-pwd-link-damaged-header = Link de resetare a parolei corupt
@@ -1254,17 +1252,6 @@ inline-totp-setup-security-code-placeholder = Cod de autentificare
 inline-totp-setup-code-required-error = Necesită cod de autentificare
 tfa-qr-code-alt = Folosește codul { $code } și configurează autentificarea în doi pași în aplicațiile acceptate.
 inline-totp-setup-page-title = Autentificare în doi pași
-
-
-legal-header = Mențiuni legale
-legal-terms-of-service-link = Condiții de utilizare a serviciilor
-legal-privacy-link = Notificare privind confidențialitatea
-
-
-legal-privacy-heading = Notificare privind confidențialitatea
-
-
-legal-terms-heading = Condiții de utilizare a serviciilor
 
 
 pair-auth-allow-heading-text = Tocmai te-ai autentificat în { -brand-firefox }?

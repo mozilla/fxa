@@ -383,10 +383,6 @@ input-phone-number-country-list-aria-label = Izberite državo
 input-phone-number-enter-number = Vnesite telefonsko številko
 input-phone-number-country-united-states = Združene države Amerike
 input-phone-number-country-canada = Kanada
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Nazaj
-# Generic error shown when the legal document fails to load
-app-general-err-message = Prišlo je do napake. Poskusite znova pozneje.
 
 ## LinkDamaged component
 
@@ -591,6 +587,9 @@ cs-cannot-disconnect = Odjemalec ni najden, povezave ni bilo mogoče prekiniti
 cs-logged-out-2 = Odjavljeno iz storitve { $service }
 cs-refresh-button =
     .title = Osveži povezane storitve
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = Povežite napravo
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = Manjkajoči ali podvojeni elementi?
 cs-disconnect-sync-heading = Odklopi od Synca
@@ -1046,6 +1045,8 @@ page-passkey-add-error-system-v2 = Pri ustvarjanju ključa za dostop je prišlo 
 ## These are displayed as a list with the date when the event occured
 
 recent-activity-title = Nedavna dejavnost v računu
+# Clicking this button reveals the older account activity that is hidden at first.
+recent-activity-show-more-button = Prikaži več
 recent-activity-account-create-v2 = Račun ustvarjen
 recent-activity-account-disable-v2 = Račun onemogočen
 recent-activity-account-enable-v2 = Račun omogočen
@@ -1694,23 +1695,6 @@ inline-totp-setup-code-required-error = Zahtevana je overitvena koda
 tfa-qr-code-alt = S pomočjo kode { $code } nastavite dvostopenjsko overjanje v podprtih aplikacijah.
 inline-totp-setup-page-title = Overitev v dveh korakih
 
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Pravno obvestilo
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Pogoji uporabe
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Obvestilo o zasebnosti
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Obvestilo o zasebnosti
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Pogoji uporabe
-
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = Ste se pravkar prijavili v { -brand-firefox }?
@@ -1883,6 +1867,83 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Opla! Prišlo je do napake
 pair-unsupported-desktop-firefox-fallback-message-v2 = Zaprite ta zavihek in poskusite znova.
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer, which is already signed in, after their
+## mobile device scans the pairing QR code. It asks them to approve the
+## sign-in, and shows the requesting device's details so they can verify it.
+
+# Asks the user to confirm the sign-in that another one of their devices just started
+pair2-authority-approve-sign-in-heading = Odobrim prijavo?
+# Submit button confirming that the user started the pairing and approves the
+# other device being added to their account
+pair2-authority-approve-sign-in-confirm-button = Da, odobri prijavo
+# "Not you?" asks whether someone other than the user started this sign-in.
+# The text inside <changePassword> links to the page for changing the password.
+pair2-authority-approve-sign-in-change-password = Ali niste vi? <changePassword>Spremenite geslo</changePassword>
+
+## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer after scanning the pairing QR code with
+## their phone. It confirms the flow has moved to the mobile device and waits
+## for the remaining steps to be completed there.
+
+pair2-authority-continue-on-mobile-heading = Nadaljujte na mobilni napravi
+pair2-authority-continue-on-mobile-description = Sledite korakom na telefonu ali tablici.
+# Dismisses the pairing attempt
+pair2-authority-continue-on-mobile-cancel-button = Prekliči
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when Firefox is needed to continue pairing.
+## It points them at firefox.com/pair and offers a download link for Firefox.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-download-firefox-heading = Odprite { -brand-firefox } za sinhronizacijo
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction = Če želite nastaviti sinhronizacijo med napravami, v tej napravi odprite { -brand-firefox } in obiščite <b>firefox.com/pair</b>
+# Links out to the Firefox download page
+pair2-authority-download-firefox-cta = Prenesi { -brand-firefox }
+
+## ScanQR page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer. It shows a QR code that they scan with
+## their phone or tablet to connect the two devices and start syncing.
+
+pair2-authority-scan-qr-heading = Skenirajte za povezavo mobilne naprave
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-scan-qr-instruction = Skenirajte kodo QR s telefonom ali tablico za sinhronizacijo zaznamkov, zavihkov in drugih podatkov v storitvi { -brand-firefox }.
+# Accessible label describing the QR code image shown on this page
+pair2-authority-scan-qr-code-aria-label = QR koda za povezavo vaše mobilne naprave
+# Link to a support article for users having trouble scanning the QR code
+pair2-authority-scan-qr-help-link = Pridobite pomoč pri branju
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and offers the follow-up actions.
+
+# "syncing" here means copying data between the user's devices
+pair2-authority-sync-success-heading = Izvajate sinhronizacijo
+pair2-authority-sync-success-description = Vaši zavihki, zaznamki, gesla in drugo so pripravljeni v vaših napravah.
+# Opens the tabs that are open on the user's other synced devices
+pair2-authority-sync-success-view-tabs-button = Ogled sinhroniziranih zavihkov
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button = Nastavitve sinhronizacije
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when pairing stopped without succeeding,
+## either because it timed out or because it was canceled. Both cases offer to
+## start pairing over again.
+
+# Shown when the pairing attempt expired before it was approved
+pair2-authority-timeout-and-cancel-timeout-heading = Še vedno želite povezati napravo?
+pair2-authority-timeout-and-cancel-timeout-description = Kaže, da nam je potekla časovna omejitev. Poskusite znova, če še vedno želite povezati mobilno napravo in sinhronizirati podatke v storitvi { -brand-firefox }.
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-canceled-heading = Preklican
+pair2-authority-timeout-and-cancel-canceled-description = Če si premislite ali želite povezati drugo napravo, poskusite znova.
+# Restarts the pairing flow
+pair2-authority-timeout-and-cancel-try-again-button = Poskusi znova
+# Abandons pairing without retrying
+pair2-authority-timeout-and-cancel-cancel-button = Prekliči
+# Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
+pair2-authority-timeout-and-cancel-sync-settings-button = Nastavitve sinhronizacije
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
 ## shown on their computer. It waits for them to approve the sign-in on the
 ## computer, and shows that computer's details so they can verify the request.
@@ -1892,6 +1953,70 @@ pair2-supplicant-approve-sign-in-heading = Še zadnji korak do sinhronizacije
 pair2-supplicant-approve-sign-in-instruction = Odobrite prijavo v računalniku.
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = Prekliči
+
+## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It asks them to confirm connecting the mobile
+## device to their account, and shows that computer's details so they can
+## verify the request.
+
+# "this device" is the mobile device the user is holding, not the computer
+# whose details are shown below the heading
+pair2-supplicant-connect-this-device-heading = Želite to napravo povezati z računom?
+# Confirms the pairing attempt
+pair2-supplicant-connect-this-device-connect-button = Poveži
+# Dismisses the pairing attempt
+pair2-supplicant-connect-this-device-cancel-button = Prekliči
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing reaches a device that
+## does not have Firefox installed yet. It explains what syncing gets them and
+## sends them off to install the browser.
+
+pair2-supplicant-download-firefox-heading = Prejmite { -brand-firefox } za to napravo
+# "sync" is a verb here, referring to syncing data between the user's devices.
+# <linkExternal> is an anchor tag linking to a page explaining what sync does.
+pair2-supplicant-download-firefox-description = Prenesite { -brand-firefox } in sinhronizirajte zaznamke, zgodovino in drugo med napravami. <linkExternal>Več o tem</linkExternal>
+# Primary action. Sends the user to the Firefox download page.
+pair2-supplicant-download-firefox-continue-button = Nadaljuj čez { -brand-firefox }
+
+## ReadyToScan page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device before pairing starts. It tells them
+## to open firefox.com/pair on their computer, which is where the QR code they
+## scan with the mobile device comes from.
+
+pair2-supplicant-ready-to-scan-heading = Za povezavo naprave
+# <b> emphasises the address the user types on their computer. It is not a link,
+# and the address itself must not be translated.
+pair2-supplicant-ready-to-scan-instruction = V računalniku odprite { -brand-firefox } in obiščite <b>firefox.com/pair</b> ter sledite navodilom na zaslonu za povezavo te mobilne naprave.
+# Opens a Mozilla support article about setting up sync
+pair2-supplicant-ready-to-scan-learn-more-link = Več o tem
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device once pairing has completed: the device
+## is signed in and syncing with the computer they paired it with.
+
+pair2-supplicant-sync-success-heading = Vaša naprava je povezana
+pair2-supplicant-sync-success-description = Vaši zaznamki, zavihki in drugo bo v { -brand-firefox } ostalo sinhronizirano.
+# Opens the view listing tabs open on the user's other synced devices
+pair2-supplicant-sync-success-view-tabs-button = Ogled sinhroniziranih zavihkov
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button = Nastavitve sinhronizacije
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing ends without connecting,
+## either because the attempt timed out or because it was canceled. Both states
+## are informational and offer no on-screen action, so the copy points the user
+## back to their computer to start again.
+
+# Shown when the pairing attempt expired before it completed. "we" is Firefox.
+pair2-supplicant-timeout-and-cancel-timeout-heading = Kaže, da nam je potekla časovna omejitev
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-timeout-description = Če želite povezati mobilno napravo in sinhronizirati vaše podatke v storitvi { -brand-firefox }, v računalniku obiščite <b>firefox.com/pair</b>.
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-canceled-heading = Preklican
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-canceled-description = Če želite kadarkoli povezati napravo, v računalniku obiščite <b>firefox.com/pair</b>.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

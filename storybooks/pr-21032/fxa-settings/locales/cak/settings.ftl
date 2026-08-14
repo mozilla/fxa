@@ -61,11 +61,6 @@ input-password-hide = Tewäx ewan tzij
 # Tooltip displayed on a password input visibility toggle. Expresses the toggle action, where clicking on the toggle will show the password.
 input-password-show = Tik'ut ewan tzij
 
-## Phone number component
-
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Chi rij
-
 ## LinkDamaged component
 
 # The user followed a password reset link that was received by email
@@ -460,23 +455,6 @@ inline-totp-setup-continue-button = Titikïr chik el
 inline-totp-setup-ready-button = Ütz chik
 # The "authentication code" here refers to the code provided by an authentication app.
 inline-totp-setup-security-code-placeholder = Rujikib'axik b'itz'ib'
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Taqanel rutzijol
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Taq Rojqanem Samaj
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Ichinan na'oj
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Ichinan na'oj
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Taq Rojqanem Samaj
 
 ## PairAuthComplete page - part of the device pairing flow
 

@@ -122,9 +122,6 @@ input-password-sr-only-now-visible = O teu contrasinal está sendo visible na pa
 input-password-sr-only-now-hidden = O teu contrasinal agora está oculto.
 
 
-legal-back-button = Atrás
-
-
 reset-pwd-link-damaged-header = Danouse a ligazón de restabelecer o contrasinal
 signin-link-damaged-header = A ligazón de confirmación está danada
 report-signin-link-damaged-header = A ligazón está danada

@@ -1,8 +1,8 @@
 {
-  "commit": "a438acb109706baad42c0dd1028bc707d8ab7959",
-  "summary": "fix(eslint): replace ramda with native JS in ast utils",
-  "description": "## Because\n\n- `packages/eslint-plugin-fxa` was the last package that depended on ramda, for six calls in one 126-line file.\n- Those six calls have been broken since the 0.30 bump. Ramda 0.29 swapped the argument order of `propEq` and `pathEq` to put the expected value first, and `lib/util/ast.js` still passed the old order. So `isCallExpression` always returned `false` and `findReference` always returned `undefined`, which left `isDescribe`, `isTestCase`, `isHookCall`, and `isMochaFunctionCall` dead.\n- None of those helpers had a test, so nothing caught it.\n\n## This pull request\n\n- Rewrites the six ramda calls in `lib/util/ast.js` in native JS. The rewrite does what the function names say, rather than copying the broken behaviour.\n- Removes `ramda` from `packages/eslint-plugin-fxa/package.json` and updates `yarn.lock`.\n- Defaults `additionalSuiteNames` to an empty array in `isDescribe`. Without it, `isMochaFunctionCall` appended a literal `undefined` to the alias list, and any callee with no name matched. That path was unreachable while `isCallExpression` was broken, so the repair is what makes it live.\n- Adds `test/ast.js` for the helpers that regressed, including the case `isCallExpression` used to reject.\n- Keeps every exported name and signature unchanged.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-13932",
-  "timestamp": 1786650318000,
+  "commit": "13c7088a55ce6e63d8363aa3fda4583300c2b465",
+  "summary": "refactor(eslint): remove unused mocha ast helpers",
+  "description": "Because:\n\n- The mocha detection helpers have no callers; `no-exclusive-tests` only uses\n  `getNodeName` and `getPropertyName`.\n- Ramda 0.30 flipped the `propEq`/`pathEq` argument order, so\n  `isCallExpression` and `findReference` had been returning false anyway.\n\nThis commit:\n\n- Deletes the unused helpers from `util/ast`.\n- Narrows the new unit tests to the two helpers the rule uses.",
+  "timestamp": 1786736012000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

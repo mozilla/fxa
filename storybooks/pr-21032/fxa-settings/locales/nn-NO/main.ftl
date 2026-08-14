@@ -310,8 +310,6 @@ input-phone-number-country-list-aria-label = Vel land
 input-phone-number-enter-number = Skriv inn telefonnummer
 input-phone-number-country-united-states = USA
 input-phone-number-country-canada = Canada
-legal-back-button = Tilbake
-app-general-err-message = Noko gjekk gale. Prøv igjen seinare.
 
 
 reset-pwd-link-damaged-header = Passordlenke for tilbakestilling er skada
@@ -439,6 +437,7 @@ cs-cannot-disconnect = Fann ikkje klienten, klarte ikkje å kople frå
 cs-logged-out-2 = Logga ut frå { $service }
 cs-refresh-button =
     .title = Oppdater tilkopla tenester
+cs-connect-device-button = Kople til ei eining
 cs-missing-device-help = Manglande- eller duplikatelement?
 cs-disconnect-sync-heading = Kople frå Sync
 
@@ -768,6 +767,7 @@ page-passkey-add-error-system-v2 = Det oppstod eit problem med å opprette passn
 
 
 recent-activity-title = Nyleg kontoaktivitet
+recent-activity-show-more-button = Vis meir
 recent-activity-account-create-v2 = Konto opretta
 recent-activity-account-disable-v2 = Konto deaktivert
 recent-activity-account-enable-v2 = Konto aktivert
@@ -1203,17 +1203,6 @@ tfa-qr-code-alt = Bruk koden { $code } or å stille inn tostegs-autentisering i 
 inline-totp-setup-page-title = Tostegs-autentisering
 
 
-legal-header = Juridisk
-legal-terms-of-service-link = Tenestevilkår
-legal-privacy-link = Personvernpraksis
-
-
-legal-privacy-heading = Personvernpraksis
-
-
-legal-terms-heading = Tenestevilkår
-
-
 pair-auth-allow-heading-text = Logga du nettopp på { -brand-firefox }?
 pair-auth-allow-confirm-button = Ja, godkjenn eininga
 pair-auth-allow-refuse-device-link = Viss dette ikkje var deg, <a>endre passordet ditt</a>
@@ -1305,7 +1294,52 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Ops! Noko gjekk gale.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Lat att denne fana og prøv på nytt.
 
 
+pair2-authority-approve-sign-in-heading = Godkjenne innlogging?
+pair2-authority-approve-sign-in-confirm-button = Ja, godkjenn innlogging
+
+
+pair2-authority-continue-on-mobile-heading = Hald fram på mobileininga di
+pair2-authority-continue-on-mobile-cancel-button = Avbryt
+
+
+pair2-authority-download-firefox-heading = Opne { -brand-firefox } for å synkronisere
+pair2-authority-download-firefox-cta = Last ned { -brand-firefox }
+
+
+pair2-authority-scan-qr-heading = Skann for å kople til mobileininga di
+
+
+pair2-authority-sync-success-heading = Du synkroniserer
+pair2-authority-sync-success-view-tabs-button = Vis synkroniserte faner
+pair2-authority-sync-success-sync-settings-button = Synkroniseringsinnstillingar
+
+
+pair2-authority-timeout-and-cancel-canceled-heading = Avbrote
+pair2-authority-timeout-and-cancel-try-again-button = Prøv igjen
+pair2-authority-timeout-and-cancel-cancel-button = Avbryt
+pair2-authority-timeout-and-cancel-sync-settings-button = Synkroniseringsinnstillingar
+
+
 pair2-supplicant-approve-sign-in-cancel-button = Avbryt
+
+
+pair2-supplicant-connect-this-device-heading = Kople denne eininga til kontoen din?
+pair2-supplicant-connect-this-device-connect-button = Kople til
+pair2-supplicant-connect-this-device-cancel-button = Avbryt
+
+
+pair2-supplicant-download-firefox-heading = Få { -brand-firefox } på denne eininga
+
+
+pair2-supplicant-ready-to-scan-learn-more-link = Les meir
+
+
+pair2-supplicant-sync-success-heading = Eininga di er tilkopla
+pair2-supplicant-sync-success-view-tabs-button = Vis synkroniserte faner
+pair2-supplicant-sync-success-sync-settings-button = Synkroniseringsinnstillingar
+
+
+pair2-supplicant-timeout-and-cancel-canceled-heading = Avbrote
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } stadfesta

@@ -310,8 +310,6 @@ input-phone-number-country-list-aria-label = Land selecteren
 input-phone-number-enter-number = Voer telefoonnummer in
 input-phone-number-country-united-states = Verenigde Staten
 input-phone-number-country-canada = Canada
-legal-back-button = Terug
-app-general-err-message = Er is iets misgegaan. Probeer het later opnieuw.
 
 
 reset-pwd-link-damaged-header = Herinitialisatiekoppeling beschadigd
@@ -1209,17 +1207,6 @@ inline-totp-setup-security-code-placeholder = Authenticatiecode
 inline-totp-setup-code-required-error = Authenticatiecode vereist
 tfa-qr-code-alt = Gebruik de code { $code } om authenticatie in twee stappen in ondersteunde toepassingen in te schakelen.
 inline-totp-setup-page-title = Authenticatie in twee stappen
-
-
-legal-header = Juridisch
-legal-terms-of-service-link = Servicevoorwaarden
-legal-privacy-link = Privacyverklaring
-
-
-legal-privacy-heading = Privacyverklaring
-
-
-legal-terms-heading = Servicevoorwaarden
 
 
 pair-auth-allow-heading-text = Hebt u zich zojuist aangemeld bij { -brand-firefox }?

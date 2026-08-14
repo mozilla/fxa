@@ -310,8 +310,6 @@ input-phone-number-country-list-aria-label = Lân selektearje
 input-phone-number-enter-number = Fier telefoannûmer yn
 input-phone-number-country-united-states = Ferienige Steaten
 input-phone-number-country-canada = Kanada
-legal-back-button = Tebek
-app-general-err-message = Der is wat misgien. Probearje it letter opnij.
 
 
 reset-pwd-link-damaged-header = Keppeling foar opnij ynstellen skansearre
@@ -1213,17 +1211,6 @@ inline-totp-setup-security-code-placeholder = Autentikaasjekoade
 inline-totp-setup-code-required-error = Autentikaasjekoade fereaske
 tfa-qr-code-alt = Brûk de koade { $code } om autentikaasje yn twa stappen yn stipe tapassingen yn te skeakeljen.
 inline-totp-setup-page-title = Autentikaasje yn twa stappen
-
-
-legal-header = Juridysk
-legal-terms-of-service-link = Tsjinstbetingsten
-legal-privacy-link = Privacyferklearring
-
-
-legal-privacy-heading = Privacyferklearring
-
-
-legal-terms-heading = Tsjinstbetingsten
 
 
 pair-auth-allow-heading-text = Hawwe jo jo krekt oanmeld by { -brand-firefox }?

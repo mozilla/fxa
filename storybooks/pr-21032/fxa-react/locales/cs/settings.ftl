@@ -380,10 +380,6 @@ input-phone-number-country-list-aria-label = Vyberte zemi
 input-phone-number-enter-number = Zadejte telefonní číslo
 input-phone-number-country-united-states = Spojené státy
 input-phone-number-country-canada = Kanada
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Zpět
-# Generic error shown when the legal document fails to load
-app-general-err-message = Něco se pokazilo. Zkuste to prosím znovu později.
 
 ## LinkDamaged component
 
@@ -586,6 +582,9 @@ cs-cannot-disconnect = Klient nebyl nalezen, nelze se odpojit
 cs-logged-out-2 = Byli jste odhlášeni ze služby { $service }
 cs-refresh-button =
     .title = Aktualizovat propojené služby
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = Připojit zařízení
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = Chybějící nebo duplicitní položky?
 cs-disconnect-sync-heading = Odpojit od Syncu
@@ -1043,6 +1042,8 @@ page-passkey-add-error-system-v2 = Při vytváření vašeho přístupového kl�
 ## These are displayed as a list with the date when the event occured
 
 recent-activity-title = Nedávná aktivita účtu
+# Clicking this button reveals the older account activity that is hidden at first.
+recent-activity-show-more-button = Zobrazit více
 recent-activity-account-create-v2 = Účet vytvořen
 recent-activity-account-disable-v2 = Účet deaktivován
 recent-activity-account-enable-v2 = Účet povolen
@@ -1683,23 +1684,6 @@ inline-totp-setup-code-required-error = Je vyžadován ověřovací kód
 tfa-qr-code-alt = Pro nastavení dvoufázového ověřování v podporovaných aplikacích použijte kód { $code }.
 inline-totp-setup-page-title = Dvoufázové ověřování
 
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Právní informace
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Podmínky služby
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Zásady ochrany osobních údajů
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Zásady ochrany osobních údajů
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Podmínky služby
-
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = Přihlásili jste se právě do { -brand-firefox(case: "gen") }?
@@ -1872,6 +1856,83 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Jejda! Něco se pokazilo.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Zavřete prosím tento panel a zkuste to znovu.
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer, which is already signed in, after their
+## mobile device scans the pairing QR code. It asks them to approve the
+## sign-in, and shows the requesting device's details so they can verify it.
+
+# Asks the user to confirm the sign-in that another one of their devices just started
+pair2-authority-approve-sign-in-heading = Schválit přihlášení?
+# Submit button confirming that the user started the pairing and approves the
+# other device being added to their account
+pair2-authority-approve-sign-in-confirm-button = Ano, schválit přihlášení
+# "Not you?" asks whether someone other than the user started this sign-in.
+# The text inside <changePassword> links to the page for changing the password.
+pair2-authority-approve-sign-in-change-password = Nejste to vy? <changePassword>Změňte si své heslo</changePassword>
+
+## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer after scanning the pairing QR code with
+## their phone. It confirms the flow has moved to the mobile device and waits
+## for the remaining steps to be completed there.
+
+pair2-authority-continue-on-mobile-heading = Pokračujte na svém mobilním zařízení
+pair2-authority-continue-on-mobile-description = Postupujte podle pokynů na telefonu či tabletu.
+# Dismisses the pairing attempt
+pair2-authority-continue-on-mobile-cancel-button = Zrušit
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when Firefox is needed to continue pairing.
+## It points them at firefox.com/pair and offers a download link for Firefox.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-download-firefox-heading = Otevřete { -brand-firefox } pro synchronizaci
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction = Pro nastavení synchronizace mezi zařízeními otevřete { -brand-firefox } na tomto zařízení a navštivte <b>firefox.com/pair</b>
+# Links out to the Firefox download page
+pair2-authority-download-firefox-cta = Stáhnout { -brand-firefox }
+
+## ScanQR page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer. It shows a QR code that they scan with
+## their phone or tablet to connect the two devices and start syncing.
+
+pair2-authority-scan-qr-heading = Naskenujte a připojte své mobilní zařízení
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-scan-qr-instruction = Naskenujte QR kód svým telefonem nebo tabletem a synchronizujte své záložky, panely a další data v aplikaci { -brand-firefox }.
+# Accessible label describing the QR code image shown on this page
+pair2-authority-scan-qr-code-aria-label = QR kód pro připojení vašeho mobilního zařízení
+# Link to a support article for users having trouble scanning the QR code
+pair2-authority-scan-qr-help-link = Získat pomoc s skenováním
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and offers the follow-up actions.
+
+# "syncing" here means copying data between the user's devices
+pair2-authority-sync-success-heading = Probíhá synchronizace
+pair2-authority-sync-success-description = Vaše panely, záložky, hesla a další budete mít po ruce na všech zařízeních.
+# Opens the tabs that are open on the user's other synced devices
+pair2-authority-sync-success-view-tabs-button = Zobrazit synchronizované panely
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button = Nastavení synchronizace
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when pairing stopped without succeeding,
+## either because it timed out or because it was canceled. Both cases offer to
+## start pairing over again.
+
+# Shown when the pairing attempt expired before it was approved
+pair2-authority-timeout-and-cancel-timeout-heading = Stále chcete připojit zařízení?
+pair2-authority-timeout-and-cancel-timeout-description = Zdá se, že vypršel časový limit. Zkuste to znovu, pokud stále chcete připojit své mobilní zařízení a synchronizovat svá data { -brand-firefox }.
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-canceled-heading = Zrušeno
+pair2-authority-timeout-and-cancel-canceled-description = Pokud změníte názor nebo chcete připojit jiné zařízení, zkuste to znovu.
+# Restarts the pairing flow
+pair2-authority-timeout-and-cancel-try-again-button = Zkusit znovu
+# Abandons pairing without retrying
+pair2-authority-timeout-and-cancel-cancel-button = Zrušit
+# Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
+pair2-authority-timeout-and-cancel-sync-settings-button = Nastavení synchronizace
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
 ## shown on their computer. It waits for them to approve the sign-in on the
 ## computer, and shows that computer's details so they can verify the request.
@@ -1881,6 +1942,70 @@ pair2-supplicant-approve-sign-in-heading = Poslední krok k synchronizaci
 pair2-supplicant-approve-sign-in-instruction = Schvalte přihlášení na svém počítači.
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = Zrušit
+
+## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It asks them to confirm connecting the mobile
+## device to their account, and shows that computer's details so they can
+## verify the request.
+
+# "this device" is the mobile device the user is holding, not the computer
+# whose details are shown below the heading
+pair2-supplicant-connect-this-device-heading = Připojit toto zařízení k vašemu účtu?
+# Confirms the pairing attempt
+pair2-supplicant-connect-this-device-connect-button = Připojit
+# Dismisses the pairing attempt
+pair2-supplicant-connect-this-device-cancel-button = Zrušit
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing reaches a device that
+## does not have Firefox installed yet. It explains what syncing gets them and
+## sends them off to install the browser.
+
+pair2-supplicant-download-firefox-heading = Získejte { -brand-firefox } na tomto zařízení
+# "sync" is a verb here, referring to syncing data between the user's devices.
+# <linkExternal> is an anchor tag linking to a page explaining what sync does.
+pair2-supplicant-download-firefox-description = Stáhněte si aplikaci { -brand-firefox } pro synchronizaci záložek, historie a dalšího data mezi zařízeními. <linkExternal>Zjistit více</linkExternal>
+# Primary action. Sends the user to the Firefox download page.
+pair2-supplicant-download-firefox-continue-button = Pokračujte za { -brand-firefox }
+
+## ReadyToScan page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device before pairing starts. It tells them
+## to open firefox.com/pair on their computer, which is where the QR code they
+## scan with the mobile device comes from.
+
+pair2-supplicant-ready-to-scan-heading = Pro připojení zařízení
+# <b> emphasises the address the user types on their computer. It is not a link,
+# and the address itself must not be translated.
+pair2-supplicant-ready-to-scan-instruction = Na počítači otevřete { -brand-firefox }, přejděte na <b>firefox.com/pair</b> a postupujte podle pokynů na obrazovce pro připojení tohoto mobilního zařízení.
+# Opens a Mozilla support article about setting up sync
+pair2-supplicant-ready-to-scan-learn-more-link = Zjistit více
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device once pairing has completed: the device
+## is signed in and syncing with the computer they paired it with.
+
+pair2-supplicant-sync-success-heading = Vaše zařízení je připojeno
+pair2-supplicant-sync-success-description = Vaše záložky, panely a další obsah zůstanou synchronizované i přes aplikaci { -brand-firefox }.
+# Opens the view listing tabs open on the user's other synced devices
+pair2-supplicant-sync-success-view-tabs-button = Zobrazit synchronizované panely
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button = Nastavení synchronizace
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing ends without connecting,
+## either because the attempt timed out or because it was canceled. Both states
+## are informational and offer no on-screen action, so the copy points the user
+## back to their computer to start again.
+
+# Shown when the pairing attempt expired before it completed. "we" is Firefox.
+pair2-supplicant-timeout-and-cancel-timeout-heading = Zdá se, že vypršel časový limit
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-timeout-description = Pro připojení svého mobilního zařízení a synchronizaci dat o aplikaci { -brand-firefox } navštivte na svém počítači <b>firefox.com/pair</b>.
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-canceled-heading = Zrušeno
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-canceled-description = Pro připojení svého zařízení prosím navštivte <b>firefox.com/pair</b> na vašem počítači.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

@@ -298,8 +298,6 @@ input-phone-number-country-list-aria-label = Chọn quốc gia
 input-phone-number-enter-number = Nhập số điện thoại
 input-phone-number-country-united-states = Hoa Kỳ
 input-phone-number-country-canada = Canada
-legal-back-button = Quay lại
-app-general-err-message = Có gì đó không ổn. Vui lòng thử lại sau.
 
 
 reset-pwd-link-damaged-header = Liên kết đặt lại mật khẩu đã bị hỏng
@@ -1182,17 +1180,6 @@ inline-totp-setup-security-code-placeholder = Mã xác thực
 inline-totp-setup-code-required-error = Yêu cầu mã xác thực
 tfa-qr-code-alt = Sử dụng mã { $code } để thiết lập xác thực hai bước trong các ứng dụng được hỗ trợ.
 inline-totp-setup-page-title = Xác thực hai bước
-
-
-legal-header = Pháp lý
-legal-terms-of-service-link = Điều khoản dịch vụ
-legal-privacy-link = Thông báo bảo mật
-
-
-legal-privacy-heading = Thông báo bảo mật
-
-
-legal-terms-heading = Điều khoản dịch vụ
 
 
 pair-auth-allow-heading-text = Bạn vừa đăng nhập vào { -brand-firefox } phải không?

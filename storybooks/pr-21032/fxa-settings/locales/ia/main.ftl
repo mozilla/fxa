@@ -310,8 +310,6 @@ input-phone-number-country-list-aria-label = Elige le pais
 input-phone-number-enter-number = Inserer numero de telephono
 input-phone-number-country-united-states = Statos Unite
 input-phone-number-country-canada = Canada
-legal-back-button = Retro
-app-general-err-message = Alco errate eveniva. Reproba plus tarde.
 
 
 reset-pwd-link-damaged-header = Ligamine pro reinitialisar contrasigno damnificate
@@ -1212,17 +1210,6 @@ inline-totp-setup-security-code-placeholder = Codices de authentication
 inline-totp-setup-code-required-error = Codice de authentication requirite
 tfa-qr-code-alt = Usa le codice { $code } pro configurar le authentication a duo passos in applicationes que lo supporta.
 inline-totp-setup-page-title = Authentication a duo passos
-
-
-legal-header = Legal
-legal-terms-of-service-link = Terminos de servicio
-legal-privacy-link = Aviso de confidentialitate
-
-
-legal-privacy-heading = Aviso de confidentialitate
-
-
-legal-terms-heading = Terminos de servicio
 
 
 pair-auth-allow-heading-text = Ha tu justo ora aperite session a { -brand-firefox }?

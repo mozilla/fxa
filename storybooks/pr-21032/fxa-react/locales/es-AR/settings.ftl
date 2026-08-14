@@ -377,10 +377,6 @@ input-phone-number-country-list-aria-label = Elegí el país
 input-phone-number-enter-number = Ingresar número telefónico
 input-phone-number-country-united-states = Estados Unidos
 input-phone-number-country-canada = Canadá
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Atrás
-# Generic error shown when the legal document fails to load
-app-general-err-message = Algo salió mal. Probá de nuevo más tarde.
 
 ## LinkDamaged component
 
@@ -585,6 +581,9 @@ cs-cannot-disconnect = Cliente no encontrado, no se puede desconectar
 cs-logged-out-2 = Desconectado de { $service }
 cs-refresh-button =
     .title = Refrescar servicios conectados
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = Conectar un dispositivo
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = ¿Ítems faltantes o duplicados?
 cs-disconnect-sync-heading = Desconectar de Sync
@@ -1034,6 +1033,8 @@ page-passkey-add-error-system-v2 = Hubo un problema creando tu clave de acceso. 
 ## These are displayed as a list with the date when the event occured
 
 recent-activity-title = Actividad reciente de la cuenta
+# Clicking this button reveals the older account activity that is hidden at first.
+recent-activity-show-more-button = Mostrar más
 recent-activity-account-create-v2 = Cuenta creada
 recent-activity-account-disable-v2 = Cuenta deshabilitada
 recent-activity-account-enable-v2 = Cuenta habilitada
@@ -1678,23 +1679,6 @@ inline-totp-setup-code-required-error = Código de autenticación requerido
 tfa-qr-code-alt = Usá el código { $code } para configurar la autenticación de dos pasos en las aplicaciones soportadas.
 inline-totp-setup-page-title = Autenticación de dos pasos
 
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Legales
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Términos del servicio
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Nota de privacidad
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Nota de privacidad
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Términos del servicio
-
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = ¿Recién iniciaste sesión en { -brand-firefox }?
@@ -1867,6 +1851,83 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Algo salió mal.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Cerrá esta pestaña y probá de nuevo.
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer, which is already signed in, after their
+## mobile device scans the pairing QR code. It asks them to approve the
+## sign-in, and shows the requesting device's details so they can verify it.
+
+# Asks the user to confirm the sign-in that another one of their devices just started
+pair2-authority-approve-sign-in-heading = ¿Aprobar inicio de sesión?
+# Submit button confirming that the user started the pairing and approves the
+# other device being added to their account
+pair2-authority-approve-sign-in-confirm-button = Sí, aprobar el inicio de sesión
+# "Not you?" asks whether someone other than the user started this sign-in.
+# The text inside <changePassword> links to the page for changing the password.
+pair2-authority-approve-sign-in-change-password = ¿No fuiste vos? <changePassword>Cambiá tu contraseña</changePassword>
+
+## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer after scanning the pairing QR code with
+## their phone. It confirms the flow has moved to the mobile device and waits
+## for the remaining steps to be completed there.
+
+pair2-authority-continue-on-mobile-heading = Continuar en tu dispositivo móvil
+pair2-authority-continue-on-mobile-description = Seguí los pasos en tu teléfono o tablet.
+# Dismisses the pairing attempt
+pair2-authority-continue-on-mobile-cancel-button = Cancelar
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when Firefox is needed to continue pairing.
+## It points them at firefox.com/pair and offers a download link for Firefox.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-download-firefox-heading = Abrir { -brand-firefox } para sincronizar
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction = Para configurar la sincronización entre dispositivos, abrí { -brand-firefox } en este dispositivo y visitá <b>firefox.com/pair</b>
+# Links out to the Firefox download page
+pair2-authority-download-firefox-cta = Descargar { -brand-firefox }
+
+## ScanQR page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer. It shows a QR code that they scan with
+## their phone or tablet to connect the two devices and start syncing.
+
+pair2-authority-scan-qr-heading = Escanear para conectar su dispositivo móvil
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-scan-qr-instruction = Escaneá el código QR con tu teléfono o tablet para sincronizar tus { -brand-firefox } marcadores, pestañas y más.
+# Accessible label describing the QR code image shown on this page
+pair2-authority-scan-qr-code-aria-label = Código QR para conectar tu dispositivo móvil
+# Link to a support article for users having trouble scanning the QR code
+pair2-authority-scan-qr-help-link = Obtener ayuda para escanear
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and offers the follow-up actions.
+
+# "syncing" here means copying data between the user's devices
+pair2-authority-sync-success-heading = Estás sincronizando
+pair2-authority-sync-success-description = Tus pestañas, marcadores, contraseñas y más están listos en todos tus dispositivos.
+# Opens the tabs that are open on the user's other synced devices
+pair2-authority-sync-success-view-tabs-button = Ver pestañas sincronizadas
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button = Configuración de Sync
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when pairing stopped without succeeding,
+## either because it timed out or because it was canceled. Both cases offer to
+## start pairing over again.
+
+# Shown when the pairing attempt expired before it was approved
+pair2-authority-timeout-and-cancel-timeout-heading = ¿Todavía querés conectar un dispositivo?
+pair2-authority-timeout-and-cancel-timeout-description = Parece que se agotó el tiempo. Intente nuevamente si aún quiere conectar su dispositivo móvil y sincronizar sus datos de { -brand-firefox }.
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-canceled-heading = Cancelado
+pair2-authority-timeout-and-cancel-canceled-description = Si cambia de opinión o quiere conectar un dispositivo diferente, intente nuevamente.
+# Restarts the pairing flow
+pair2-authority-timeout-and-cancel-try-again-button = Intentar nuevamente
+# Abandons pairing without retrying
+pair2-authority-timeout-and-cancel-cancel-button = Cancelar
+# Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
+pair2-authority-timeout-and-cancel-sync-settings-button = Configuración de Sync
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
 ## shown on their computer. It waits for them to approve the sign-in on the
 ## computer, and shows that computer's details so they can verify the request.
@@ -1876,6 +1937,70 @@ pair2-supplicant-approve-sign-in-heading = Un último paso para sincronizar
 pair2-supplicant-approve-sign-in-instruction = Aprobá el inicio de sesión en tu computadora.
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = Cancelar
+
+## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It asks them to confirm connecting the mobile
+## device to their account, and shows that computer's details so they can
+## verify the request.
+
+# "this device" is the mobile device the user is holding, not the computer
+# whose details are shown below the heading
+pair2-supplicant-connect-this-device-heading = ¿Conectar este dispositivo a tu cuenta?
+# Confirms the pairing attempt
+pair2-supplicant-connect-this-device-connect-button = Conectar
+# Dismisses the pairing attempt
+pair2-supplicant-connect-this-device-cancel-button = Cancelar
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing reaches a device that
+## does not have Firefox installed yet. It explains what syncing gets them and
+## sends them off to install the browser.
+
+pair2-supplicant-download-firefox-heading = Conseguí { -brand-firefox } en este dispositivo
+# "sync" is a verb here, referring to syncing data between the user's devices.
+# <linkExternal> is an anchor tag linking to a page explaining what sync does.
+pair2-supplicant-download-firefox-description = Descargá { -brand-firefox } para sincronizar marcadores, historial y más entre dispositivos. <linkExternal>Conocer más</linkExternal>
+# Primary action. Sends the user to the Firefox download page.
+pair2-supplicant-download-firefox-continue-button = Continuar en { -brand-firefox }
+
+## ReadyToScan page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device before pairing starts. It tells them
+## to open firefox.com/pair on their computer, which is where the QR code they
+## scan with the mobile device comes from.
+
+pair2-supplicant-ready-to-scan-heading = Para conectar un dispositivo
+# <b> emphasises the address the user types on their computer. It is not a link,
+# and the address itself must not be translated.
+pair2-supplicant-ready-to-scan-instruction = En tu computadora, abrí { -brand-firefox }, andá a <b>firefox.com/pair</b> y seguí las instrucciones en pantalla para conectar este dispositivo móvil.
+# Opens a Mozilla support article about setting up sync
+pair2-supplicant-ready-to-scan-learn-more-link = Conocer más
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device once pairing has completed: the device
+## is signed in and syncing with the computer they paired it with.
+
+pair2-supplicant-sync-success-heading = Tu dispositivo está conectado
+pair2-supplicant-sync-success-description = Tus marcadores, pestañas y más permanecerán sincronizados en { -brand-firefox }.
+# Opens the view listing tabs open on the user's other synced devices
+pair2-supplicant-sync-success-view-tabs-button = Ver pestañas sincronizadas
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button = Configuración de Sync
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing ends without connecting,
+## either because the attempt timed out or because it was canceled. Both states
+## are informational and offer no on-screen action, so the copy points the user
+## back to their computer to start again.
+
+# Shown when the pairing attempt expired before it completed. "we" is Firefox.
+pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que se agotó el tiempo de espera
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-timeout-description = Para conectar tu dispositivo móvil y sincronizar tus datos de { -brand-firefox }, visitá <b>firefox.com/pair</b> en tu computadora.
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-canceled-heading = Cancelado
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-canceled-description = Para conectar un dispositivo en cualquier momento, visitá <b>firefox.com/pair</b> en tu computadora.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

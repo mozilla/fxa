@@ -296,7 +296,6 @@ input-phone-number-country-list-aria-label = Изаберите државу
 input-phone-number-enter-number = Унесите број телефона
 input-phone-number-country-united-states = Сједињене Америчке Државе
 input-phone-number-country-canada = Канада
-legal-back-button = Назад
 
 
 reset-pwd-link-damaged-header = Веза за ресетовање лозинке је оштећена
@@ -1144,17 +1143,6 @@ inline-totp-setup-security-code-placeholder = Приступни код
 inline-totp-setup-code-required-error = Потребна је шифра за потврду идентитета
 tfa-qr-code-alt = Користите шифру { $code } да бисте подесили потврду идентитета у два корака у подржаним програмима.
 inline-totp-setup-page-title = Потврда идентитета у два корака
-
-
-legal-header = Правно
-legal-terms-of-service-link = Услови коришћења
-legal-privacy-link = Обавештење о приватности
-
-
-legal-privacy-heading = Обавештење о приватности
-
-
-legal-terms-heading = Услови коришћења
 
 
 pair-auth-allow-heading-text = Јесте ли се управо пријавили у { -brand-firefox }?

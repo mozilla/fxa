@@ -264,7 +264,6 @@ input-phone-number-country-list-aria-label = Selecione um país
 input-phone-number-enter-number = Insira o número do celular
 input-phone-number-country-united-states = Estados Unidos
 input-phone-number-country-canada = Canadá
-legal-back-button = Voltar
 
 
 reset-pwd-link-damaged-header = Link para redefinir senha danificado
@@ -929,17 +928,6 @@ inline-totp-setup-on-completion-description = Após concluir, ele começa a gera
 inline-totp-setup-security-code-placeholder = Código de autenticação
 inline-totp-setup-code-required-error = Necessário código de autenticação
 tfa-qr-code-alt = Use o código { $code } para configurar a autenticação em duas etapas em aplicativos suportados.
-
-
-legal-header = Jurídico
-legal-terms-of-service-link = Termos do serviço
-legal-privacy-link = Política de privacidade
-
-
-legal-privacy-heading = Aviso de privacidade
-
-
-legal-terms-heading = Termos do serviço
 
 
 pair-auth-allow-heading-text = Você acabou de entrar na sua conta no { -brand-firefox }?

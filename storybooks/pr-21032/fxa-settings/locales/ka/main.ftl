@@ -348,8 +348,6 @@ input-phone-number-country-list-aria-label = ქვეყნის არჩე�
 input-phone-number-enter-number = მიუთითეთ ტელეფონის ნომერი
 input-phone-number-country-united-states = შეერთებული შტატები
 input-phone-number-country-canada = კანადა
-legal-back-button = უკან
-app-general-err-message = რაღაც ხარვეზი წარმოიქმნა. გთხოვთ, სცადოთ მოგვიანებით.
 
 
 reset-pwd-link-damaged-header = პაროლის გასანულებელი ბმული დაზიანებულია
@@ -1245,17 +1243,6 @@ inline-totp-setup-security-code-placeholder = შესვლის დამო
 inline-totp-setup-code-required-error = საჭიროა დამოწმების კოდი
 tfa-qr-code-alt = გამოიყენეთ კოდი { $code } ორბიჯიანი დამოწმების გასამართად მხარდაჭერილ პროგრამებში.
 inline-totp-setup-page-title = ორბიჯიანი დამოწმება
-
-
-legal-header = სამართლებრივი
-legal-terms-of-service-link = მომსახურების პირობები
-legal-privacy-link = პირადულობის დაცვის განაცხადი
-
-
-legal-privacy-heading = პირადულობის დაცვის განაცხადი
-
-
-legal-terms-heading = მომსახურების პირობები
 
 
 pair-auth-allow-heading-text = ახლახან თქვენ შეხვედით { -brand-firefox }-ში?

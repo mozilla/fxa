@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit a438acb109706baad42c0dd1028bc707d8ab7959</title>
+  <title>Storybooks for commit 13c7088a55ce6e63d8363aa3fda4583300c2b465</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit a438acb109706baad42c0dd1028bc707d8ab7959</h1>
+  <h1>Storybooks for commit 13c7088a55ce6e63d8363aa3fda4583300c2b465</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,27 +31,21 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/13/2026, 7:45:18 PM UTC</dd>
+    <dd>8/14/2026, 7:33:32 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(eslint): replace ramda with native JS in ast utils</pre></dd>
+    <dd><pre>refactor(eslint): remove unused mocha ast helpers</pre></dd>
     <dt>Description</dt>
-    <dd><pre>## Because
+    <dd><pre>Because:
 
-- `packages/eslint-plugin-fxa` was the last package that depended on ramda, for six calls in one 126-line file.
-- Those six calls have been broken since the 0.30 bump. Ramda 0.29 swapped the argument order of `propEq` and `pathEq` to put the expected value first, and `lib/util/ast.js` still passed the old order. So `isCallExpression` always returned `false` and `findReference` always returned `undefined`, which left `isDescribe`, `isTestCase`, `isHookCall`, and `isMochaFunctionCall` dead.
-- None of those helpers had a test, so nothing caught it.
+- The mocha detection helpers have no callers; `no-exclusive-tests` only uses
+  `getNodeName` and `getPropertyName`.
+- Ramda 0.30 flipped the `propEq`/`pathEq` argument order, so
+  `isCallExpression` and `findReference` had been returning false anyway.
 
-## This pull request
+This commit:
 
-- Rewrites the six ramda calls in `lib/util/ast.js` in native JS. The rewrite does what the function names say, rather than copying the broken behaviour.
-- Removes `ramda` from `packages/eslint-plugin-fxa/package.json` and updates `yarn.lock`.
-- Defaults `additionalSuiteNames` to an empty array in `isDescribe`. Without it, `isMochaFunctionCall` appended a literal `undefined` to the alias list, and any callee with no name matched. That path was unreachable while `isCallExpression` was broken, so the repair is what makes it live.
-- Adds `test/ast.js` for the helpers that regressed, including the case `isCallExpression` used to reject.
-- Keeps every exported name and signature unchanged.
-
-## Issue that this pull request solves
-
-Closes: https://mozilla-hub.atlassian.net/browse/FXA-13932</pre></dd>
+- Deletes the unused helpers from `util/ast`.
+- Narrows the new unit tests to the two helpers the rule uses.</pre></dd>
   </dl>
 </body>
 </html>

@@ -377,10 +377,6 @@ input-phone-number-country-list-aria-label = Lân selektearje
 input-phone-number-enter-number = Fier telefoannûmer yn
 input-phone-number-country-united-states = Ferienige Steaten
 input-phone-number-country-canada = Kanada
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Tebek
-# Generic error shown when the legal document fails to load
-app-general-err-message = Der is wat misgien. Probearje it letter opnij.
 
 ## LinkDamaged component
 
@@ -1683,23 +1679,6 @@ inline-totp-setup-security-code-placeholder = Autentikaasjekoade
 inline-totp-setup-code-required-error = Autentikaasjekoade fereaske
 tfa-qr-code-alt = Brûk de koade { $code } om autentikaasje yn twa stappen yn stipe tapassingen yn te skeakeljen.
 inline-totp-setup-page-title = Autentikaasje yn twa stappen
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Juridysk
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Tsjinstbetingsten
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Privacyferklearring
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Privacyferklearring
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Tsjinstbetingsten
 
 ## AuthAllow page - Part of the device pairing flow
 

@@ -310,8 +310,6 @@ input-phone-number-country-list-aria-label = Eiporavo tetã
 input-phone-number-enter-number = Ehai pumbyry papapy
 input-phone-number-country-united-states = Estados Unidos
 input-phone-number-country-canada = Canadá
-legal-back-button = Tapykue
-app-general-err-message = Oĩ osẽvaíva. Ikatúpiko eha’ã jey ag̃amieve.
 
 
 reset-pwd-link-damaged-header = Juajuha eguerujey hag̃ua ñe’ẽñemi oñembyai
@@ -1208,17 +1206,6 @@ inline-totp-setup-security-code-placeholder = Ayvu ñemoneĩgua
 inline-totp-setup-code-required-error = Ayvu ñemoneĩgua jerurepyre
 tfa-qr-code-alt = Eiporu { $code } ayvu emboheko hag̃ua ñemoneĩ mokõi jeku’épe tembiporu’i moneĩmbyre.
 inline-totp-setup-page-title = Ñemoneĩ mokõi jeku’épe
-
-
-legal-header = Añetegua
-legal-terms-of-service-link = Mba’epytyvõrã ñemboguata
-legal-privacy-link = Marandu’i ñemiguáva
-
-
-legal-privacy-heading = Marandu’i ñemiguáva
-
-
-legal-terms-heading = Mba’epytyvõrã ñemboguata
 
 
 pair-auth-allow-heading-text = ¿Eikeramoite { -brand-firefox } ndive?

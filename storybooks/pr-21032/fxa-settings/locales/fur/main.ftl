@@ -271,7 +271,6 @@ input-phone-number-country-list-aria-label = Selezione la nazion
 input-phone-number-enter-number = Inserî il numar di telefon
 input-phone-number-country-united-states = Stâts Unîts
 input-phone-number-country-canada = Canadà
-legal-back-button = Indaûr
 
 
 reset-pwd-link-damaged-header = Chest colegament par ristabilî la password al è danezât
@@ -1037,17 +1036,6 @@ inline-totp-setup-security-code-placeholder = Codiç di autenticazion
 inline-totp-setup-code-required-error = Codiç di autenticazion necessari
 tfa-qr-code-alt = Dopre il codiç { $code } par configurâ la autenticazion in doi passaçs tes aplicazions supuartadis.
 inline-totp-setup-page-title = Autenticazion in doi passaçs
-
-
-legal-header = Notis legâls
-legal-terms-of-service-link = Cundizions di utilizazion dal servizi
-legal-privacy-link = Informative su la riservatece
-
-
-legal-privacy-heading = Informative su la riservatece
-
-
-legal-terms-heading = Tiermins dal servizi
 
 
 pair-auth-allow-heading-text = Âstu a pene fat l’acès a { -brand-firefox }?

@@ -350,8 +350,6 @@ input-phone-number-country-list-aria-label = 국가 선택
 input-phone-number-enter-number = 전화번호 입력
 input-phone-number-country-united-states = 미국
 input-phone-number-country-canada = 캐나다
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = 뒤로
 
 ## LinkDamaged component
 
@@ -1550,23 +1548,6 @@ inline-totp-setup-security-code-placeholder = 인증 코드
 inline-totp-setup-code-required-error = 인증 코드 필요함
 tfa-qr-code-alt = 지원되는 애플리케이션에서 2단계 인증을 설정하려면 { $code } 코드를 사용하세요.
 inline-totp-setup-page-title = 2단계 인증
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = 법적 고지
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = 이용 약관
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = 개인정보 보호정책
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = 개인정보 보호정책
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = 이용 약관
 
 ## AuthAllow page - Part of the device pairing flow
 
