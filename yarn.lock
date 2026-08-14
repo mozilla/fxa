@@ -30897,7 +30897,6 @@ __metadata:
     eslint: "npm:6.6.0"
     eslint-config-prettier: "npm:9.1.0"
     mocha: "npm:^10.4.0"
-    ramda: "npm:^0.30.0"
   peerDependencies:
     eslint: ">=6.6.0"
   languageName: unknown
@@ -48988,13 +48987,6 @@ __metadata:
   version: 0.26.1
   resolution: "ramda@npm:0.26.1"
   checksum: 10c0/af591bdb593a7bd4c715af306f9a1c591ed0eccabc9bb5166dd17e68b182e6ff313b35c057f9dc300715d060c3ed2f56e424a42499fe2b27b40446fb447838ba
-  languageName: node
-  linkType: hard
-
-"ramda@npm:^0.30.0":
-  version: 0.30.1
-  resolution: "ramda@npm:0.30.1"
-  checksum: 10c0/3ea3e35c80e1a1b78c23de0c72d3382c3446f42052b113b851f1b7fc421e33a45ce92e7aef3c705cc6de3812a209d03417af5c264f67126cda539fd66c8bea71
   languageName: node
   linkType: hard
 
