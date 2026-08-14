@@ -8,7 +8,7 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 import FlowContainer from '../FlowContainer';
 import { GleanClickEventType2FA } from '../../../lib/types';
 import Banner from '../../Banner';
-import { RelierCmsInfo } from '../../../models';
+import { RelierCmsInfo, useFtlMsgResolver } from '../../../models';
 import CmsButtonWithFallback from '../../CmsButtonWithFallback';
 
 export type FlowSetup2faPromptProps = {
@@ -19,6 +19,7 @@ export type FlowSetup2faPromptProps = {
   serviceName: string;
   localizedErrorMessage?: string;
   cmsInfo?: RelierCmsInfo;
+  signedInWithPasskey?: boolean;
 };
 
 export const FlowSetup2faPrompt = ({
@@ -29,18 +30,36 @@ export const FlowSetup2faPrompt = ({
   serviceName,
   localizedErrorMessage,
   cmsInfo,
+  signedInWithPasskey = false,
 }: FlowSetup2faPromptProps) => {
+  const ftlMsgResolver = useFtlMsgResolver();
+
   return (
     <FlowContainer
       onBackButtonClick={onBackButtonClick}
       hideBackButton={hideBackButton}
       title={localizedPageTitle}
     >
-      {localizedErrorMessage && (
+      {/* An error is the more urgent message, so it replaces the success banner
+          rather than stacking with it. */}
+      {localizedErrorMessage ? (
         <Banner
           type="error"
           content={{ localizedHeading: localizedErrorMessage }}
         />
+      ) : (
+        signedInWithPasskey && (
+          <Banner
+            type="success"
+            bannerId="passkey-signin-success"
+            content={{
+              localizedHeading: ftlMsgResolver.getMsg(
+                'flow-setup-2fa-prompt-passkey-success-banner',
+                'Successfully signed in with passkey'
+              ),
+            }}
+          />
+        )
       )}
       <BackupRecoveryPhoneCodeImage ariaHidden />
       <FtlMsg id="flow-setup-2fa-prompt-heading">
@@ -48,12 +67,25 @@ export const FlowSetup2faPrompt = ({
           Set up two-step authentication
         </h2>
       </FtlMsg>
-      <FtlMsg id="flow-setup-2fa-prompt-description" vars={{ serviceName }}>
-        <p className="text-base mb-4">
-          {serviceName} requires you to set up two-step authentication to keep
-          your account safe.
-        </p>
-      </FtlMsg>
+      {signedInWithPasskey ? (
+        <FtlMsg
+          id="flow-setup-2fa-prompt-passkey-description"
+          vars={{ serviceName }}
+        >
+          <p className="text-base mb-4">
+            {serviceName} also requires two-step authentication for your Mozilla
+            account. After setup, you’ll no longer need it when you sign in with
+            a passkey.
+          </p>
+        </FtlMsg>
+      ) : (
+        <FtlMsg id="flow-setup-2fa-prompt-description" vars={{ serviceName }}>
+          <p className="text-base mb-4">
+            {serviceName} requires you to set up two-step authentication to keep
+            your account safe.
+          </p>
+        </FtlMsg>
+      )}
       <FtlMsg
         id="flow-setup-2fa-prompt-use-authenticator-apps"
         elems={{

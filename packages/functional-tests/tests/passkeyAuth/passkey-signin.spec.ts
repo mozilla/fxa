@@ -248,6 +248,10 @@ test.describe('severity-1 #smoke', () => {
         await page.waitForURL(/inline_totp_setup/);
       });
 
+      // The passkey context must survive the divert, so the page explains why
+      // 2FA is still needed rather than implying the passkey was insufficient.
+      await expect(inlineTotpSetup.passkeySuccessBanner).toBeVisible();
+
       // Force TOTP enrollment so non-passkey sign-ins also satisfy AMR.
       const { available: recoveryPhoneAvailable } =
         await target.authClient.recoveryPhoneAvailable(
@@ -354,6 +358,7 @@ test.describe('severity-1 #smoke', () => {
       target,
       pages: {
         page,
+        inlineTotpSetup,
         signin,
         signinPasswordlessCode,
         settings,
@@ -402,6 +407,8 @@ test.describe('severity-1 #smoke', () => {
         await signin.passkeySigninButton.click();
         await page.waitForURL(/inline_totp_setup/);
       });
+
+      await expect(inlineTotpSetup.passkeySuccessBanner).toBeVisible();
     });
 
     test('AMO-style profile AAL2: cached passkey session (no fresh ceremony) without TOTP is diverted to inline TOTP setup, not looped', async ({

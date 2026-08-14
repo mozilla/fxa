@@ -17,6 +17,7 @@ export const InlineTotpSetup = ({
   serviceName,
   verifyCodeHandler,
   integration,
+  signedInWithPasskey,
 }: InlineTotpSetupProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const [currentStep, setCurrentStep] = useState<number>(0);
@@ -51,6 +52,7 @@ export const InlineTotpSetup = ({
           localizedPageTitle={localizedPageTitle}
           serviceName={serviceName}
           cmsInfo={cmsInfo}
+          signedInWithPasskey={signedInWithPasskey}
         />
       )}
       {currentStep === 1 && (

@@ -53,6 +53,24 @@ describe('InlineTotpSetup', () => {
     ).toBeInTheDocument();
   });
 
+  it('renders the passkey intro when signedInWithPasskey is set', () => {
+    renderWithLocalizationProvider(
+      <InlineTotpSetup {...mockProps} signedInWithPasskey />
+    );
+
+    expect(
+      screen.getByText('Successfully signed in with passkey')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/also requires two-step authentication for your/)
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(
+        'Add-ons requires you to set up two-step authentication to keep your account safe.'
+      )
+    ).not.toBeInTheDocument();
+  });
+
   it('renders step 1 as expected, showing the QR code by default', async () => {
     renderWithLocalizationProvider(<InlineTotpSetup {...mockProps} />);
     await clickContinue();

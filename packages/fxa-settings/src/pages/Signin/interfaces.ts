@@ -314,6 +314,9 @@ export interface SigninLocationState {
   isSessionAALUpgrade?: boolean;
   isSignInWithThirdPartyAuth?: boolean;
   isPasswordlessOtpSignin?: boolean;
+  // True when this session was established by a passkey assertion. Only set on
+  // a fresh ceremony, so a cached passkey session arrives here undefined.
+  isPasskeySession?: boolean;
   /**
    * Sign-in surface the user came from before reaching SigninPasskeyFallback.
    * Used to populate the `reason` extra on `passkey_enter_password.*` Glean

@@ -206,6 +206,7 @@ export const InlineTotpSetupContainer = ({
   return (
     <InlineTotpSetup
       {...{ totp, serviceName, verifyCodeHandler, integration }}
+      signedInWithPasskey={!!signinState.isPasskeySession}
     />
   );
 };

@@ -23,6 +23,10 @@ export const MOCK_SIGNIN_LOCATION_STATE = {
   uid: MOCK_UID,
   verified: true,
 };
+export const MOCK_SIGNIN_LOCATION_STATE_PASSKEY = {
+  ...MOCK_SIGNIN_LOCATION_STATE,
+  isPasskeySession: true,
+};
 export const MOCK_SIGNIN_RECOVERY_LOCATION_STATE = {
   ...MOCK_SIGNIN_LOCATION_STATE,
   totp: MOCK_TOTP_TOKEN,

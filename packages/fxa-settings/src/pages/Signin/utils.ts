@@ -448,6 +448,7 @@ const createSigninLocationState = (
     showInlineRecoveryKeySetup,
     isSignInWithThirdPartyAuth,
     isPasswordlessOtpSignin,
+    isPasskeySession,
     origin,
   } = navigationOptions;
   return {
@@ -461,6 +462,7 @@ const createSigninLocationState = (
     showInlineRecoveryKeySetup,
     isSignInWithThirdPartyAuth,
     isPasswordlessOtpSignin,
+    isPasskeySession,
     origin,
   };
 };
