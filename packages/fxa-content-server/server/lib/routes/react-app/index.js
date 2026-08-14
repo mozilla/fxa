@@ -180,6 +180,25 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       ]),
       fullProdRollout: true,
     },
+    pair2Routes: {
+      featureFlagOn: showReactApp.pair2Routes,
+      routes: reactRoute.getRoutes([
+        'pair/authority/approve_signin',
+        'pair/authority/continue_on_mobile',
+        'pair/authority/download_firefox',
+        'pair/authority/download_firefox',
+        'pair/authority/scan_qr',
+        'pair/authority/sync_success',
+        'pair/authority/timeout_and_cacnel',
+        'pair/supplicant/approve_signin',
+        'pair/supplicant/connect_this_device',
+        'pair/supplicant/download_firefox',
+        'pair/supplicant/ready_to_scan',
+        'pair/supplicant/sync_success',
+        'pair/supplicant/timeout_and_cacnel',
+      ]),
+      fullProdRollout: true,
+    },
   };
 };
 

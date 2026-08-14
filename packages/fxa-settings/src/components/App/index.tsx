@@ -176,6 +176,47 @@ const PairSuppWaitForAuth = lazy(
   () => import('../../pages/Pair/SuppWaitForAuth')
 );
 
+const PairAuthorityApproveSignIn = lazy(
+  () => import('../../pages/Pair2/Authority/ApproveSignIn')
+);
+const PairAuthorityContinueOnMobile = lazy(
+  () => import('../../pages/Pair2/Authority/ContinueOnMobile')
+);
+const PairAuthorityDownloadFirefox = lazy(
+  () => import('../../pages/Pair2/Authority/DownloadFirefox')
+);
+const PairAuthorityScanQR = lazy(
+  () => import('../../pages/Pair2/Authority/ScanQR')
+);
+const PairAuthoritySyncSuccess = lazy(
+  () => import('../../pages/Pair2/Authority/SyncSuccess')
+);
+const PairAuthorityTimeoutAndCancel = lazy(
+  () => import('../../pages/Pair2/Authority/TimeoutAndCancel')
+);
+
+
+const PairSupplicantApproveSignIn = lazy(
+  () => import('../../pages/Pair2/Supplicant/ApproveSignIn')
+);
+const PairSupplicantConnectThisDevice = lazy(
+  () => import('../../pages/Pair2/Supplicant/ConnectThisDevice')
+);
+const PairSupplicantDownloadFirefox = lazy(
+  () => import('../../pages/Pair2/Supplicant/DownloadFirefox')
+);
+const PairSupplicantReadyToScan = lazy(
+  () => import('../../pages/Pair2/Supplicant/ReadyToScan')
+);
+const PairSupplicantSyncSuccess = lazy(
+  () => import('../../pages/Pair2/Supplicant/SyncSuccess')
+);
+const PairSupplicantTimeoutAndCancel = lazy(
+  () => import('../../pages/Pair2/Supplicant/TimeoutAndCancel')
+);
+
+
+
 const AuthorizationContainer = lazy(
   () => import('../../pages/Authorization/container')
 );
@@ -1026,6 +1067,69 @@ const AuthAndAccountSetupRoutes = ({
         <Route
           path="/pair/*"
           element={<PairIndex integration={integration} />}
+        />
+        <Route
+          path="/pair/authority/approve_signin/*"
+          element={<PairAuthorityApproveSignIn {...{
+            email: 'foo@mozilla.com',
+            remoteMetadata: {
+              deviceFamily: 'Mobile',
+              deviceOS: 'iOS',
+              ipAddress: '127.0.0.1',
+            },
+            onApprove: () => {
+              console.log('TBD!')
+            },
+            onChangePassword: () => {
+              console.log('TBD!')
+            }
+          }} />}
+        />
+        <Route
+          path="/pair/authority/continue_on_mobile/*"
+          element={<PairAuthorityContinueOnMobile {...{
+            onCancel: () => console.log('TBD')
+          }} />}
+        />
+        <Route
+          path="/pair/authority/download_firefox/*"
+          element={<PairAuthorityDownloadFirefox />}
+        />
+        <Route
+          path="/pair/authority/scan_qr/*"
+          element={<PairAuthorityScanQR { ...{integration}} />}
+        />
+        <Route
+          path="/pair/authority/sync_success/*"
+          element={<PairAuthoritySyncSuccess {...{}} />}
+        />
+        <Route
+          path="/pair/authority/timeout_and_cancel/*"
+          element={<PairAuthorityTimeoutAndCancel />}
+        />
+        <Route
+          path="/pair/supplicant/approve_signin/*"
+          element={<PairSupplicantApproveSignIn />}
+        />
+        <Route
+          path="/pair/supplicant/connect_this_device/*"
+          element={<PairSupplicantConnectThisDevice />}
+        />
+        <Route
+          path="/pair/supplicant/download_firefox/*"
+          element={<PairSupplicantDownloadFirefox />}
+        />
+        <Route
+          path="/pair/supplicant/ready_to_scan/*"
+          element={<PairSupplicantReadyToScan />}
+        />
+        <Route
+          path="/pair/supplicant/sync_success/*"
+          element={<PairSupplicantSyncSuccess />}
+        />
+        <Route
+          path="/pair/supplicant/timeout_and_cancel/*"
+          element={<PairSupplicantTimeoutAndCancel />}
         />
         <Route path="/oauth/success/:clientId/*" element={<PairSuccess />} />
       </Routes>

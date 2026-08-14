@@ -17,22 +17,22 @@ export type ConnectThisDeviceProps = {
    * The account this device would be connected to, shown so the user can
    * confirm it is the one they meant to pair with.
    */
-  email: string;
+  email?: string;
   /**
    * Details of the device that started pairing, shown so the user can confirm
    * the request came from their own computer. Supplied by the caller — this
    * component does not read the pairing channel itself.
    */
-  remoteMetadata: RemoteMetadata;
+  remoteMetadata?: RemoteMetadata;
   /**
    * Completes pairing. Required so that routing this card cannot leave an
    * action inert — the flow logic itself lands with the route.
    */
-  onConnect: () => void;
+  onConnect?: () => void;
   /**
    * Aborts pairing. Required for the same reason as `onConnect`.
    */
-  onCancel: () => void;
+  onCancel?: () => void;
 };
 
 /**
@@ -45,8 +45,21 @@ const ConnectThisDevice = ({
   remoteMetadata,
   onConnect,
   onCancel,
-}: ConnectThisDeviceProps) => (
-  <AppLayout>
+}: ConnectThisDeviceProps) => {
+
+  // TODO: Wire up props
+  email = email ?? 'foo@mozilla.com';
+  remoteMetadata = remoteMetadata ?? {
+    deviceName: 'name-foo',
+    deviceFamily: 'family-foo',
+    deviceOS: 'os-foo',
+    ipAddress: 'ip-foo',
+    country: 'country-foo',
+    region: 'region-foo',
+    city: 'city-foo',
+  }
+
+  return <AppLayout>
     <div className="flex flex-col items-center text-center">
       <FirefoxWordmarkImage className="h-8 w-24 text-black dark:text-white" />
 
@@ -86,6 +99,6 @@ const ConnectThisDevice = ({
       </FtlMsg>
     </div>
   </AppLayout>
-);
+};
 
 export default ConnectThisDevice;
