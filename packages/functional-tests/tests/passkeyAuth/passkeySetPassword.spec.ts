@@ -89,7 +89,7 @@ test.describe('severity-1 #smoke', () => {
         await testAccountTracker.signUpPasswordless();
 
       // Enrol TOTP and mirror onto the tracker so cleanup can elevate AAL.
-      const secret = await enableTotpOnAccount(target.authClient, sessionToken);
+      const secret = await enableTotpOnAccount(target, sessionToken, email);
       const account = findPasswordlessAccount(testAccountTracker, email);
       account.secret = secret;
       account.sessionToken = sessionToken;
