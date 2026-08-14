@@ -82,5 +82,40 @@ module.exports = function (grunt) {
   grunt.registerTask('merge-ftl:test', ['concat:ftl-test']);
   grunt.registerTask('watch-ftl', ['watch:ftl']);
 
-  grunt.registerTask('hash-static', ['hash']);
+  // `main.ftl` is the only bundle the client ever requests, and it is written by
+  // `l10n-bundle` rather than shipped by the l10n repo. If hashing runs before that,
+  // the manifest has no `main.ftl` key, AppLocalizationProvider skips the fetch
+  // entirely, and every locale silently falls back to the English JSX defaults.
+  grunt.registerTask('verify-hashed-locales', function () {
+    const mapping = grunt.config('hash.options.mapping');
+    if (!grunt.file.exists(mapping)) {
+      grunt.fail.fatal(`${mapping} was not generated.`);
+    }
+
+    const hashed = grunt.file.readJSON(mapping);
+    const locales = grunt.file.expand(
+      { cwd: 'public/locales', filter: 'isDirectory' },
+      '*'
+    );
+
+    // Otherwise an empty public/locales would pass the check below vacuously.
+    if (!locales.includes('en')) {
+      grunt.fail.fatal(
+        'public/locales has no en directory. Run the l10n-prime and l10n-merge targets first.'
+      );
+    }
+
+    const missing = locales.filter(
+      (locale) => !hashed[`locales/${locale}/main.ftl`]
+    );
+
+    if (missing.length) {
+      grunt.fail.fatal(
+        `${mapping} is missing main.ftl for: ${missing.join(', ')}. ` +
+          'Run the l10n-bundle target before hash-static.'
+      );
+    }
+  });
+
+  grunt.registerTask('hash-static', ['hash', 'verify-hashed-locales']);
 };
