@@ -1,8 +1,8 @@
 {
-  "commit": "13c7088a55ce6e63d8363aa3fda4583300c2b465",
+  "commit": "b10a75170cf220ffbfbbf5db98e9f539e4bc7df5",
   "summary": "refactor(eslint): remove unused mocha ast helpers",
-  "description": "Because:\n\n- The mocha detection helpers have no callers; `no-exclusive-tests` only uses\n  `getNodeName` and `getPropertyName`.\n- Ramda 0.30 flipped the `propEq`/`pathEq` argument order, so\n  `isCallExpression` and `findReference` had been returning false anyway.\n\nThis commit:\n\n- Deletes the unused helpers from `util/ast`.\n- Narrows the new unit tests to the two helpers the rule uses.",
-  "timestamp": 1786736012000,
+  "description": "Because:\n\n- The mocha detection helpers have no callers; `no-exclusive-tests` only uses\n  `getNodeName` and `getPropertyName`.\n- Ramda 0.30 flipped the `propEq`/`pathEq` argument order, so\n  `isCallExpression` and `findReference` had been returning false anyway.\n\nThis commit:\n\n- Deletes the unused helpers from `util/ast`.\n- Adds a rule test for computed `it['only']()` access.",
+  "timestamp": 1786736573000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
