@@ -1,8 +1,8 @@
 {
-  "commit": "65f2ab461623473a5093ea11c6dafd6db590bd8a",
+  "commit": "1b415617cf4b49ed396c9244040a145082e80ecd",
   "summary": "feat(settings): require OTP for inline TOTP enroll",
   "description": "Because:\n\n* step-up requires no password, so inline TOTP enrolment on a live\n  session had no proof beyond the session token — a hijacked session\n  could add a second factor and satisfy step-up\n\nThis commit:\n\n* extracts a host-agnostic MfaGuardCore from the Settings MfaGuard\n  (context + core + thin wrapper; public API unchanged)\n* routes inline TOTP enrolment (InlineTotpSetup, InlineRecoverySetupFlow)\n  through the email-OTP mfa:2fa JWT path (/mfa/totp/*) via the guard\n* adds `service` to completeTotpSetupWithJwt in fxa-auth-client\n* covers the guard's block-without-JWT behavior and updates the\n  container tests\n\nCloses #FXA-14311",
-  "timestamp": 1786719313000,
+  "timestamp": 1786727944000,
   "storybooks": [
     "fxa-settings"
   ],

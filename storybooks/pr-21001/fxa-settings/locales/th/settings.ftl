@@ -339,8 +339,6 @@ input-phone-number-country-list-aria-label = เลือกประเทศ
 input-phone-number-enter-number = กรอกหมายเลขโทรศัพท์
 input-phone-number-country-united-states = สหรัฐอเมริกา
 input-phone-number-country-canada = แคนาดา
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = ย้อนกลับ
 
 ## LinkDamaged component
 
@@ -1536,23 +1534,6 @@ inline-totp-setup-security-code-placeholder = รหัสยืนยันต�
 inline-totp-setup-code-required-error = ต้องใส่รหัสยืนยันตัวตน
 tfa-qr-code-alt = ใช้รหัส { $code } เพื่อตั้งค่าการยืนยันตัวตนสองขั้นตอนในแอปพลิเคชันที่รองรับ
 inline-totp-setup-page-title = การยืนยันตัวตนสองขั้นตอน
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = ข้อกฎหมาย
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = เงื่อนไขการให้บริการ
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = ประกาศความเป็นส่วนตัว
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = ประกาศความเป็นส่วนตัว
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = เงื่อนไขการให้บริการ
 
 ## AuthAllow page - Part of the device pairing flow
 

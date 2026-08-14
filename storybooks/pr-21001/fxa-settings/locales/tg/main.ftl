@@ -267,7 +267,6 @@ input-phone-number-country-list-aria-label = Интихоби кишвар
 input-phone-number-enter-number = Рақами телефонро ворид намоед
 input-phone-number-country-united-states = Иёлоти Муттаҳидаи Амрико
 input-phone-number-country-canada = Канада
-legal-back-button = Ба қафо
 
 
 reset-pwd-link-damaged-header = Пайванди барқарорсозии ниҳонвожа вайрон шуд
@@ -714,17 +713,6 @@ inline-totp-setup-continue-button = Идома додан
 inline-totp-setup-ready-button = Омода аст
 inline-totp-setup-security-code-placeholder = Рамзи санҷиши ҳаққоният
 inline-totp-setup-code-required-error = Рамзи санҷиши ҳаққоният лозим аст
-
-
-legal-header = Маълумоти ҳуқуқӣ
-legal-terms-of-service-link = Шартҳои хизматрасонӣ
-legal-privacy-link = Огоҳномаи махфият
-
-
-legal-privacy-heading = Огоҳномаи махфият
-
-
-legal-terms-heading = Шартҳои хизматрасонӣ
 
 
 pair-auth-allow-confirm-button = Бале, дастгоҳро тасдиқ кунед

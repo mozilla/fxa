@@ -310,8 +310,6 @@ input-phone-number-country-list-aria-label = Vælg land
 input-phone-number-enter-number = Indtast telefonnummer
 input-phone-number-country-united-states = USA
 input-phone-number-country-canada = Canada
-legal-back-button = Tilbage
-app-general-err-message = Noget gik galt. Prøv igen senere.
 
 
 reset-pwd-link-damaged-header = Link til nulstilling af adgangskode beskadiget
@@ -1208,17 +1206,6 @@ inline-totp-setup-security-code-placeholder = Godkendelseskode
 inline-totp-setup-code-required-error = Godkendelseskode påkrævet
 tfa-qr-code-alt = Brug koden { $code } til at opsætte totrinsgodkendelse i understøttede applikationer.
 inline-totp-setup-page-title = Totrinsgodkendelse
-
-
-legal-header = Juridisk
-legal-terms-of-service-link = Tjenestevilkår
-legal-privacy-link = Privatlivserklæring
-
-
-legal-privacy-heading = Privatlivserklæring
-
-
-legal-terms-heading = Tjenestevilkår
 
 
 pair-auth-allow-heading-text = Har du lige logget ind på { -brand-firefox }?

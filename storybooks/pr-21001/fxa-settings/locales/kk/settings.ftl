@@ -377,10 +377,6 @@ input-phone-number-country-list-aria-label = Елді таңдаңыз
 input-phone-number-enter-number = Телефон нөмірін енгізіңіз
 input-phone-number-country-united-states = АҚШ
 input-phone-number-country-canada = Канада
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Артқа
-# Generic error shown when the legal document fails to load
-app-general-err-message = Бірнәрсе қате кетті. Кейінірек қайталап көріңіз.
 
 ## LinkDamaged component
 
@@ -1680,23 +1676,6 @@ inline-totp-setup-security-code-placeholder = Аутентификация ко�
 inline-totp-setup-code-required-error = Аутентификация коды керек
 tfa-qr-code-alt = Қолдауы бар қолданбаларда екі қадамды аутентификацияны орнату үшін { $code } кодын пайдаланыңыз.
 inline-totp-setup-page-title = Екі сатылы аутентификация
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Құқықтық ақпарат
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Қолдану шарттары
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Жекелік ескертуі
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Жекелік ескертуі
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Қолдану шарттары
 
 ## AuthAllow page - Part of the device pairing flow
 

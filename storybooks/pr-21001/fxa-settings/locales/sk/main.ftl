@@ -462,8 +462,6 @@ input-phone-number-country-list-aria-label = Zvoľte krajinu
 input-phone-number-enter-number = Zadajte telefónne číslo
 input-phone-number-country-united-states = Spojené štáty americké
 input-phone-number-country-canada = Kanada
-legal-back-button = Naspäť
-app-general-err-message = Niečo sa pokazilo. Skúste to znova neskôr.
 
 
 reset-pwd-link-damaged-header = Odkaz na zmenu hesla je poškodený
@@ -1364,17 +1362,6 @@ inline-totp-setup-security-code-placeholder = Overovací kód
 inline-totp-setup-code-required-error = Vyžaduje sa overovací kód
 tfa-qr-code-alt = Pomocou kódu { $code } nastavte dvojstupňové overenie v podporovaných aplikáciách.
 inline-totp-setup-page-title = Dvojstupňové overenie
-
-
-legal-header = Právne informácie
-legal-terms-of-service-link = Podmienky používania služby
-legal-privacy-link = Vyhlásenie o ochrane osobných údajov
-
-
-legal-privacy-heading = Vyhlásenie o ochrane osobných údajov
-
-
-legal-terms-heading = Podmienky používania služby
 
 
 pair-auth-allow-heading-text = Prihlásili ste sa do { -brand-firefox(case: "gen") }?

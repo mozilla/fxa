@@ -78,9 +78,6 @@ input-password-hide = Թաքցնել գաղտնաբառը
 input-password-show = Ցուցադրել գաղտնաբառը
 
 
-legal-back-button = Ետ
-
-
 reset-pwd-link-damaged-header = Վերականգնված գաղտնաբառի հղումը վնասված է
 
 

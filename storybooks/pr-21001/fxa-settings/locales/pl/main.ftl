@@ -435,8 +435,6 @@ input-phone-number-country-list-aria-label = Wybierz kraj
 input-phone-number-enter-number = Wpisz numer telefonu
 input-phone-number-country-united-states = Stany Zjednoczone
 input-phone-number-country-canada = Kanada
-legal-back-button = Wstecz
-app-general-err-message = Coś się nie powiodło. Spróbuj ponownie później.
 
 
 reset-pwd-link-damaged-header = Odnośnik do zmiany hasła jest uszkodzony
@@ -1225,17 +1223,6 @@ inline-totp-setup-security-code-placeholder = Kod uwierzytelniania
 inline-totp-setup-code-required-error = Wymagany jest kod uwierzytelniania
 tfa-qr-code-alt = Użyj kodu { $code }, aby skonfigurować uwierzytelnianie dwuetapowe w obsługiwanych aplikacjach.
 inline-totp-setup-page-title = Uwierzytelnianie dwuetapowe
-
-
-legal-header = Podstawa prawna
-legal-terms-of-service-link = Regulamin usługi
-legal-privacy-link = Zasady ochrony prywatności
-
-
-legal-privacy-heading = Zasady ochrony prywatności
-
-
-legal-terms-heading = Regulamin usługi
 
 
 pair-auth-allow-heading-text = Czy właśnie zalogowano się do { -brand-firefox(case: "gen") }?

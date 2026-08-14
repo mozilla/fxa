@@ -353,10 +353,6 @@ input-phone-number-country-list-aria-label = בחירת מדינה
 input-phone-number-enter-number = נא להכניס מספר טלפון
 input-phone-number-country-united-states = ארצות הברית
 input-phone-number-country-canada = קנדה
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = חזרה
-# Generic error shown when the legal document fails to load
-app-general-err-message = משהו השתבש. נא לנסות שוב מאוחר יותר.
 
 ## LinkDamaged component
 
@@ -1599,23 +1595,6 @@ inline-totp-setup-security-code-placeholder = קוד אימות
 inline-totp-setup-code-required-error = נדרש קוד אימות
 tfa-qr-code-alt = ניתן להשתמש בקוד { $code } כדי להגדיר אימות דו־שלבי ביישומים נתמכים.
 inline-totp-setup-page-title = אימות דו־שלבי
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = מידע משפטי
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = תנאי השירות
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = הצהרת פרטיות
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = הצהרת פרטיות
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = תנאי השירות
 
 ## AuthAllow page - Part of the device pairing flow
 

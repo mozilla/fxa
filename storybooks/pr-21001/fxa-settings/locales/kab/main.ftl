@@ -168,7 +168,6 @@ input-phone-number-country-list-aria-label = Fren tamurt
 input-phone-number-enter-number = Sekcem uṭṭun n tiliɣṛi
 input-phone-number-country-united-states = Marikan
 input-phone-number-country-canada = Kanada
-legal-back-button = Ɣer deffir
 
 
 reset-pwd-link-damaged-header = Wennez aseɣwen n wawal uffir ixeṣṛen
@@ -648,17 +647,6 @@ inline-totp-setup-cancel-setup-button = Sefsex asebeddi
 inline-totp-setup-continue-button = Kemmel
 inline-totp-setup-ready-button = Yewjed
 inline-totp-setup-security-code-placeholder = Tangalt n usesteb
-
-
-legal-header = Usḍif
-legal-terms-of-service-link = Tiwtilin n useqdec
-legal-privacy-link = Tasertit n tbaḍnit
-
-
-legal-privacy-heading = Tasertit n tbaḍnit
-
-
-legal-terms-heading = Tiwtilin n useqdec
 
 
 pair-auth-allow-heading-text = Teqqneḍ tura kan akka ɣer { -brand-firefox }?
