@@ -63,7 +63,22 @@ function checkAuth(req, res, next) {
 // auth status reports who the currently logged in user is on this
 // session
 app.get('/api/auth_status', function (req, res) {
-  console.log(req.session); //eslint-disable-line no-console
+  // Logged field by field rather than spreading the session: this runs on every page
+  // load, and the session carries the access and refresh tokens. A list of what to
+  // print cannot leak a credential added to the session later, the way a list of what
+  // to redact would. Presence is what helps when debugging a flow, not the value.
+  console.log({
+    email: req.session.email,
+    uid: req.session.uid,
+    acr: req.session.acr,
+    amr: req.session.amr,
+    auth_time: req.session.auth_time,
+    account_aal2: req.session.account_aal2,
+    scopes: req.session.scopes,
+    hasToken: !!req.session.token,
+    hasRefreshToken: !!req.session.refresh_token,
+    hasKeysJwe: !!req.session.keys_jwe,
+  }); //eslint-disable-line no-console
 
   res.send(
     JSON.stringify({
@@ -81,6 +96,18 @@ app.get('/api/auth_status', function (req, res) {
   );
 });
 
+// Resolve an endpoint from the issuer's discovery document, keyed off trusted
+// config. Deliberately not read back off the session: the cookie is signed but not
+// encrypted, so a session-supplied URL would be an attacker-influenced target for
+// requests that carry our access token or client_secret. Doing the lookup per call
+// also means sessions minted before this route existed keep working.
+async function discoverEndpoint(name) {
+  const response = await fetch(
+    `${config.get('issuer_uri')}/.well-known/openid-configuration`
+  );
+  return (await response.json())[name];
+}
+
 // The resource-server half of RFC 9470: introspect our own access token and report
 // the authentication level and event the authorization server sees. This is the
 // check an RP would run before allowing a sensitive action, as opposed to trusting
@@ -88,17 +115,19 @@ app.get('/api/auth_status', function (req, res) {
 //
 // Called once per page load, never polled — /v1/introspect is rate-limited per IP.
 app.get('/api/token_claims', checkAuth, async function (req, res) {
-  const endpoint = req.session.introspection_endpoint;
-  if (!endpoint || !req.session.token) {
+  if (!req.session.token) {
     return res.status(409).json({ error: 'no access token on this session' });
   }
 
   let response, text;
   try {
-    response = await fetch(endpoint, {
+    response = await fetch(await discoverEndpoint('introspection_endpoint'), {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ token: req.session.token }),
+      body: JSON.stringify({
+        token: req.session.token,
+        token_type_hint: 'access_token',
+      }),
     });
     text = await response.text();
   } catch (err) {
@@ -132,6 +161,46 @@ app.get('/api/token_claims', checkAuth, async function (req, res) {
     iat: body.iat || null,
     exp: body.exp || null,
   });
+});
+
+// Exchange the refresh token for a fresh access token, replacing the one on the
+// session. Test-only, so there is no UI for it: the point it exists to demonstrate
+// is that a refreshed access token carries no `acr` and no `auth_time`, because the
+// refresh grant never re-evaluates acr_values/max_age and the stored refresh token
+// holds no authentication event. An RP must therefore treat a refreshed token as
+// unelevated and run step-up again, rather than assuming elevation persists.
+app.post('/api/refresh_token', checkAuth, async function (req, res) {
+  if (!req.session.refresh_token) {
+    return res.status(409).json({ error: 'no refresh token on this session' });
+  }
+
+  let response, body;
+  try {
+    response = await fetch(await discoverEndpoint('token_endpoint'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        grant_type: 'refresh_token',
+        client_id: config.get('client_id'),
+        client_secret: config.get('client_secret'),
+        refresh_token: req.session.refresh_token,
+      }),
+    });
+    body = await response.json();
+  } catch (err) {
+    return res.status(502).json({ error: String(err) });
+  }
+  if (response.status >= 400) {
+    return res.status(response.status).json(body);
+  }
+
+  // Only the access token is replaced. `acr`/`auth_time` on the session describe
+  // the id_token handed over at redirect time and are deliberately left alone, so
+  // /api/token_claims can be compared against them to show the two diverging.
+  req.session.token = body.access_token;
+  req.session.token_type = body.token_type;
+
+  res.json({ token_type: body.token_type, expires_in: body.expires_in });
 });
 
 // logout clears the current authenticated user

@@ -327,6 +327,9 @@ module.exports = function (app, db, checkAuth) {
       req.session.keys_jwe = body.keys_jwe;
       var token = (req.session.token = body.access_token);
       var id_token = body.id_token;
+      // Only issued because setupOAuthFlow requests access_type=offline. Kept so
+      // /api/refresh_token can exchange it for a fresh access token.
+      req.session.refresh_token = body.refresh_token;
 
       try {
         // Verify signature and extract claims from id_token
@@ -338,9 +341,6 @@ module.exports = function (app, db, checkAuth) {
         // advances on every second-factor challenge, so it — not acr — is what
         // shows whether a step-up actually re-authenticated the user.
         req.session.auth_time = claims.auth_time;
-        // Stashed on the session because /api/token_claims runs on a later request,
-        // which has no oauthFlows entry left to read the endpoint from.
-        req.session.introspection_endpoint = oauthConfig.introspection_endpoint;
 
         // Fetch additional profile data.
         var profileRes = await fetch(oauthConfig.userinfo_endpoint, {

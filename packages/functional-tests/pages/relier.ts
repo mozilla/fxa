@@ -136,6 +136,7 @@ export class RelierPage extends BaseLayout {
    * parameter. The request carries no `prompt=none`, so the flow stops at the cached
    * signin page for confirmation; the caller drives that and whatever follows — a
    * satisfied `max_age` returns to the relier, a stale one adds a second factor.
+   * `startStepUp` in tests/oauth/stepUpAuth.spec.ts wraps both cases.
    */
   async clickStepUpAuth(maxAge: number) {
     await this.page.locator('#step-up-max-age').fill(String(maxAge));
@@ -166,6 +167,11 @@ export class RelierPage extends BaseLayout {
    * The claims the authorization server reports for 123Done's current access token,
    * via `POST /v1/introspect`. This is the resource-server view of the elevation, as
    * opposed to the id_token 123Done was handed at redirect time.
+   *
+   * The route also returns `iat`/`exp`, deliberately not surfaced here: they are in
+   * milliseconds while `auth_time` is in seconds, and at second granularity they
+   * cannot tell two tokens issued in the same second apart, so they have no
+   * assertion value. Add them back only with a use.
    */
   async getTokenClaims(): Promise<{
     active: boolean;
@@ -177,6 +183,24 @@ export class RelierPage extends BaseLayout {
       `${this.target.relierUrl}/api/token_claims`
     );
     expect(response.ok()).toBe(true);
+    return response.json();
+  }
+
+  /**
+   * Exchange 123Done's refresh token for a fresh access token. The refresh grant
+   * never re-evaluates `acr_values`/`max_age` and the stored refresh token holds no
+   * authentication event, so the token this installs carries no `acr` and no
+   * `auth_time` — read it back with `getTokenClaims()` to assert that elevation does
+   * not survive a refresh.
+   */
+  async refreshAccessToken() {
+    const response = await this.page.request.post(
+      `${this.target.relierUrl}/api/refresh_token`
+    );
+    // Body in the message: the route answers 409 when the session holds no refresh
+    // token and mirrors the authorization server's status otherwise, so a bare
+    // ok()-is-true assertion would hide which of those happened.
+    expect(response.status(), await response.text()).toBe(200);
     return response.json();
   }
 

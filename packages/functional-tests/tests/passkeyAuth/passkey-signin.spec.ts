@@ -266,6 +266,75 @@ test.describe('severity-1 #smoke', () => {
       expect(await relier.isLoggedIn()).toBe(true);
     });
 
+    // Step-up counterpart to the test above: same divert, reached by an RP
+    // re-authorizing an already signed-in session rather than by a fresh sign-in.
+    // The rest of the step-up suite lives in tests/oauth/stepUpAuth.spec.ts; this
+    // one is here for the passkey helpers.
+    test('diverts a passkey user without TOTP to inline TOTP setup on RP step-up', async ({
+      target,
+      pages: {
+        page,
+        inlineTotpSetup,
+        relier,
+        settings,
+        settingsPasskeyAdd,
+        signin,
+        totp,
+      },
+      testAccountTracker,
+    }) => {
+      test.skip(
+        target.name !== 'local',
+        'requires the local 123done /api/step_up toggle'
+      );
+
+      // Sign in to the RP with the passkey, so the session is already session-AAL2
+      // (AMR {pwd, webauthn}) while the account itself has no TOTP.
+      const credentials = await setUpAccountWithPasskey({
+        target,
+        page,
+        settings,
+        settingsPasskeyAdd,
+        signin,
+        testAccountTracker,
+      });
+      await settings.signOut();
+
+      await relier.goto();
+      await relier.clickEmailFirst();
+      await settingsPasskeyAdd.passkeyAuth.assertion(async () => {
+        await signin.passkeySigninButton.click();
+        await page.waitForURL((url) => url.href.startsWith(target.relierUrl));
+      });
+      expect(await relier.isLoggedIn()).toBe(true);
+
+      await relier.clickStepUpAuth(0);
+      // Step-up reuses the signed-in session, so FxA asks the user to confirm it
+      // before re-authorizing anything.
+      await expect(signin.cachedSigninSubmitButton).toBeVisible();
+      await signin.cachedSigninSubmitButton.click();
+
+      // Current behaviour, not desired behaviour. A passkey assertion is itself
+      // AAL2, but the divert in Signin/utils.ts keys on `accountHasTotp === false`
+      // and does not count a passkey, so these users are made to enrol a TOTP app
+      // they do not need. FXA-12861 specified fixing this and shipped without it;
+      // when that is fixed, this becomes an assertion that no divert happens.
+      await page.waitForURL(/inline_totp_setup/);
+
+      // Enrolling does satisfy the step-up and return to the RP, so the divert is
+      // a detour rather than a dead end.
+      const { available: recoveryPhoneAvailable } =
+        await target.authClient.recoveryPhoneAvailable(credentials.sessionToken);
+      await totp.completeInlineSetupWithBackupCodes(
+        inlineTotpSetup,
+        credentials,
+        recoveryPhoneAvailable
+      );
+
+      expect(await relier.isLoggedIn()).toBe(true);
+      expect((await relier.getAuthStatus()).acr).toBe('AAL2');
+    });
+
     test('AMO-style profile AAL2: passkey-only user is diverted to TOTP setup before the RP grant', async ({
       target,
       pages: {
