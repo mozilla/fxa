@@ -20,6 +20,7 @@ import { restorePairingAttribution } from './lib/pairing-attribution';
 import CookiesDisabled from './pages/CookiesDisabled';
 import { BrowserRouter } from 'react-router';
 import { DynamicLocalizationProvider } from './contexts/DynamicLocalizationContext';
+import { reportL10nError } from './lib/l10n-error-reporter';
 
 export interface FlowQueryParams {
   broker?: string;
@@ -105,7 +106,10 @@ try {
   root.render(
     <StrictMode>
       <BrowserRouter>
-        <DynamicLocalizationProvider baseDir={config.l10n.baseUrl}>
+        <DynamicLocalizationProvider
+          baseDir={config.l10n.baseUrl}
+          reportBundleError={reportL10nError}
+        >
           <AppErrorBoundary>
             <AppContext.Provider value={appContext}>
               <NimbusProvider>
