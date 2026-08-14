@@ -1331,8 +1331,11 @@ pair2-authority-download-firefox-cta = Pobierz przeglądarkę { -brand-firefox }
 pair2-authority-timeout-and-cancel-canceled-heading = Anulowano
 pair2-authority-timeout-and-cancel-try-again-button = Spróbuj ponownie
 pair2-authority-timeout-and-cancel-cancel-button = Anuluj
+pair2-authority-timeout-and-cancel-sync-settings-button = Ustawienia synchronizacji
 
 
+pair2-supplicant-connect-this-device-heading = Czy połączyć to urządzenie z Twoim kontem?
+pair2-supplicant-connect-this-device-connect-button = Połącz
 pair2-supplicant-connect-this-device-cancel-button = Anuluj
 
 

@@ -1682,6 +1682,8 @@ pair2-authority-timeout-and-cancel-canceled-heading = Anulowano
 pair2-authority-timeout-and-cancel-try-again-button = Spróbuj ponownie
 # Abandons pairing without retrying
 pair2-authority-timeout-and-cancel-cancel-button = Anuluj
+# Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
+pair2-authority-timeout-and-cancel-sync-settings-button = Ustawienia synchronizacji
 
 ## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
@@ -1689,6 +1691,11 @@ pair2-authority-timeout-and-cancel-cancel-button = Anuluj
 ## device to their account, and shows that computer's details so they can
 ## verify the request.
 
+# "this device" is the mobile device the user is holding, not the computer
+# whose details are shown below the heading
+pair2-supplicant-connect-this-device-heading = Czy połączyć to urządzenie z Twoim kontem?
+# Confirms the pairing attempt
+pair2-supplicant-connect-this-device-connect-button = Połącz
 # Dismisses the pairing attempt
 pair2-supplicant-connect-this-device-cancel-button = Anuluj
 
