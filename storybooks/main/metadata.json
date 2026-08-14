@@ -1,8 +1,8 @@
 {
-  "commit": "4eb22b42de8c1e7004d2dd8e94773eaa5086f749",
-  "summary": "Merge pull request #21036 from mozilla/profile-400-fix",
-  "description": "fix(profile-server): disable cookie parsing to avoid spurious 400s",
-  "timestamp": 1786727170000,
+  "commit": "b81ccc49c65ef004052b5a1c989abfeb741178ef",
+  "summary": "Merge pull request #21031 from mozilla/fxa-13931",
+  "description": "chore(customs): replace deep-equal with util.isDeepStrictEqual",
+  "timestamp": 1786737824000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

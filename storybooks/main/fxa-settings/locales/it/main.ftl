@@ -1304,7 +1304,7 @@ pair-unsupported-desktop-firefox-fallback-message-v2 = Chiudi questa scheda e ri
 
 pair2-authority-approve-sign-in-heading = Approvare l’accesso?
 pair2-authority-approve-sign-in-confirm-button = Sì, approva l’accesso
-pair2-authority-approve-sign-in-change-password = Non sei tu? <changePassword>Cambia la tua password</changePassword>
+pair2-authority-approve-sign-in-change-password = Non sei stato tu? <changePassword>Cambia la password</changePassword>
 
 
 pair2-authority-continue-on-mobile-heading = Continua sul tuo dispositivo mobile
@@ -1318,21 +1318,21 @@ pair2-authority-download-firefox-cta = Scarica { -brand-firefox }
 
 
 pair2-authority-scan-qr-heading = Scansiona per connettere il tuo dispositivo mobile
-pair2-authority-scan-qr-instruction = Scansiona il codice QR con il tuo telefono o tablet per sincronizzare { -brand-firefox } segnalibri, schede e altro ancora.
+pair2-authority-scan-qr-instruction = Scansiona il codice QR con il telefono o il tablet per sincronizzare segnalibri, schede e altri dati di { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = Codice QR per connettere il tuo dispositivo mobile
-pair2-authority-scan-qr-help-link = Ottieni assistenza per la scansione
+pair2-authority-scan-qr-help-link = Aiuto per la scansione
 
 
-pair2-authority-sync-success-heading = Sincronizzazione in corso
-pair2-authority-sync-success-description = Schede, segnalibri, password e altro ancora sono disponibili su tutti i tuoi dispositivi.
+pair2-authority-sync-success-heading = La sincronizzazione è attiva
+pair2-authority-sync-success-description = Schede, segnalibri, password e altri dati sono disponibili su tutti i tuoi dispositivi.
 pair2-authority-sync-success-view-tabs-button = Visualizza le schede sincronizzate
 pair2-authority-sync-success-sync-settings-button = Sincronizza impostazioni
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Vuoi ancora connettere un dispositivo?
-pair2-authority-timeout-and-cancel-timeout-description = Sembra che il timeout sia scaduto. Riprova se vuoi comunque connettere il tuo dispositivo mobile e sincronizzare i tuoi dati { -brand-firefox }.
-pair2-authority-timeout-and-cancel-canceled-heading = Cancellata
-pair2-authority-timeout-and-cancel-canceled-description = Se cambi idea o desideri connettere un altro dispositivo, riprova.
+pair2-authority-timeout-and-cancel-timeout-description = Sembra che il tempo a disposizione sia scaduto. Riprova se vuoi ancora connettere il tuo dispositivo mobile e sincronizzare i dati di { -brand-firefox }.
+pair2-authority-timeout-and-cancel-canceled-heading = Annullata
+pair2-authority-timeout-and-cancel-canceled-description = Se cambi idea o vuoi connettere un altro dispositivo, riprova.
 pair2-authority-timeout-and-cancel-try-again-button = Riprova
 pair2-authority-timeout-and-cancel-cancel-button = Annulla
 pair2-authority-timeout-and-cancel-sync-settings-button = Sincronizza impostazioni
@@ -1349,25 +1349,25 @@ pair2-supplicant-connect-this-device-cancel-button = Annulla
 
 
 pair2-supplicant-download-firefox-heading = Ottieni { -brand-firefox } su questo dispositivo
-pair2-supplicant-download-firefox-description = Scarica { -brand-firefox } per sincronizzare segnalibri, cronologia e altro ancora su tutti i dispositivi. <linkExternal>Ulteriori informazioni</linkExternal>
-pair2-supplicant-download-firefox-continue-button = Continua tra { -brand-firefox }
+pair2-supplicant-download-firefox-description = Scarica { -brand-firefox } per sincronizzare segnalibri, cronologia e altri dati su tutti i tuoi dispositivi. <linkExternal>Ulteriori informazioni</linkExternal>
+pair2-supplicant-download-firefox-continue-button = Continua in { -brand-firefox }
 
 
 pair2-supplicant-ready-to-scan-heading = Per connettere un dispositivo
-pair2-supplicant-ready-to-scan-instruction = Sul computer, apri { -brand-firefox } e vai su <b>firefox.com/pair</b> e segui le istruzioni sullo schermo per connettere questo dispositivo mobile.
+pair2-supplicant-ready-to-scan-instruction = Sul computer, apri { -brand-firefox }, vai su <b>firefox.com/pair</b> e segui le istruzioni sullo schermo per connettere questo dispositivo mobile.
 pair2-supplicant-ready-to-scan-learn-more-link = Ulteriori informazioni
 
 
 pair2-supplicant-sync-success-heading = Il dispositivo è connesso
-pair2-supplicant-sync-success-description = I segnalibri, le schede e altro ancora rimarranno sincronizzati tra { -brand-firefox }.
+pair2-supplicant-sync-success-description = I segnalibri, le schede e altri dati rimarranno sincronizzati in { -brand-firefox }.
 pair2-supplicant-sync-success-view-tabs-button = Visualizza le schede sincronizzate
 pair2-supplicant-sync-success-sync-settings-button = Sincronizza impostazioni
 
 
-pair2-supplicant-timeout-and-cancel-timeout-heading = Sembra che il timeout sia scaduto
-pair2-supplicant-timeout-and-cancel-timeout-description = Per connettere il tuo dispositivo mobile e sincronizzare i tuoi dati { -brand-firefox }, visita <b>firefox.com/pair</b> sul tuo computer.
-pair2-supplicant-timeout-and-cancel-canceled-heading = Cancellata
-pair2-supplicant-timeout-and-cancel-canceled-description = Per connettere un dispositivo in qualsiasi momento, visita <b>firefox.com/pair</b> dal computer.
+pair2-supplicant-timeout-and-cancel-timeout-heading = Sembra che il tempo a disposizione sia scaduto
+pair2-supplicant-timeout-and-cancel-timeout-description = Per connettere il dispositivo mobile e sincronizzare i dati di { -brand-firefox }, visita <b>firefox.com/pair</b> sul computer.
+pair2-supplicant-timeout-and-cancel-canceled-heading = Annullata
+pair2-supplicant-timeout-and-cancel-canceled-description = Per connettere un dispositivo in qualsiasi momento, visita <b>firefox.com/pair</b> sul computer.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confermato
