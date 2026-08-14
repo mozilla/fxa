@@ -16,11 +16,11 @@ describe('Connect another device Promo', () => {
     await screen.findByText('Find Firefox in the Google Play and App Store.');
     expect(screen.getByTestId('play-store-link')).toHaveAttribute(
       'href',
-      'https://app.adjust.com/2uo1qc?redirect=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dorg.mozilla.firefox'
+      'https://mzl.la/setting-appdownload'
     );
     expect(screen.getByTestId('app-store-link')).toHaveAttribute(
       'href',
-      'https://app.adjust.com/2uo1qc?redirect=https%3A%2F%2Fitunes.apple.com%2Fus%2Fapp%2Ffirefox-private-safe-browser%2Fid989804926'
+      'https://mzl.la/setting-appdownload'
     );
   });
 });

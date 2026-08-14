@@ -9,6 +9,9 @@ import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import GleanMetrics from '../../../lib/glean';
 import { FtlMsg } from 'fxa-react/lib/utils';
 
+// Bitly smart link. It detects the platform and redirects to the correct store.
+const APP_DOWNLOAD_LINK = 'https://mzl.la/setting-appdownload';
+
 export function ConnectAnotherDevicePromo() {
   const { navigatorLanguages } = useContext(SettingsContext);
   const GooglePlayBadge = getStoreImageByLanguages(
@@ -39,7 +42,7 @@ export function ConnectAnotherDevicePromo() {
         <LinkExternal
           className="self-center rounded focus-visible-default outline-offset-2"
           data-testid="play-store-link"
-          href="https://app.adjust.com/2uo1qc?redirect=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dorg.mozilla.firefox"
+          href={APP_DOWNLOAD_LINK}
           onClick={() => GleanMetrics.accountPref.googlePlaySubmit()}
         >
           {GooglePlayBadge}
@@ -47,7 +50,7 @@ export function ConnectAnotherDevicePromo() {
         <LinkExternal
           className="self-center m-2 rounded focus-visible-default outline-offset-2"
           data-testid="app-store-link"
-          href="https://app.adjust.com/2uo1qc?redirect=https%3A%2F%2Fitunes.apple.com%2Fus%2Fapp%2Ffirefox-private-safe-browser%2Fid989804926"
+          href={APP_DOWNLOAD_LINK}
           onClick={() => GleanMetrics.accountPref.appleSubmit()}
         >
           {AppStoreBadge}
