@@ -1,8 +1,8 @@
 {
-  "commit": "5cbca589375f4b3a05b6a8c5dc441a8c98ef1b00",
+  "commit": "7e592e324b1e8025f6382c30fdea31598af31ed9",
   "summary": "test(oauth): cover the PKCE guards on code redemption",
   "description": "Because:\n\n- The pairing security review turns on two claims: FxA never sees the\n  code_verifier Firefox generates, and a code cannot be redeemed without it.\n- Nothing proved the first claim, and only the wrong-verifier case covered the\n  second. The /oauth/token xor that Firefox's redemption depends on had no\n  tests, nor did any PKCE reject branch.\n\nThis commit:\n\n- Adds eight tests for the /oauth/token guards: the authorization_code xor a\n  public client cannot sidestep with a client_secret, and the handler PKCE\n  branches that are unreachable over HTTP.\n- Adds an integration test that refuses to redeem a real code without the\n  verifier, sending grant_type explicitly as Firefox does.\n- Adds a functional test driving real Firefox over Marionette, proving the\n  verifier reaches neither the params Firefox hands to content nor page script.\n- Adds two tests pinning buildSyncOAuthSearch to its allowlist, so no extra\n  web-channel field can reach /authorization.\n- Hoists the /oauth/token payload validation helper so both describes share it.",
-  "timestamp": 1786716282000,
+  "timestamp": 1786717741000,
   "storybooks": [
     "fxa-settings"
   ],
