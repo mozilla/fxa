@@ -1,0 +1,10 @@
+{
+  "commit": "a346538a0626a8521980b2e0d55c12a8b5687980",
+  "summary": "feat(auth): require MFA JWT for TOTP enrolment",
+  "description": "Because:\n - Step-up auth re-enters no password, so a hijacked session could enrol\n   an AAL2 factor and trigger the destructive recovery-method clear with\n   only a session token — no proof of email possession.\n\nThis commit:\n - Consolidates the TOTP enrolment routes onto /mfa/totp/{create,setup/verify,\n   setup/complete}, guarded by the `mfa` strategy + `mfa:2fa` scope, and removes\n   the ungated session-token routes so enrolment always requires an email-OTP JWT.\n - Removes the now-dead session-token TOTP methods (create/verify/complete and\n   the replace pair) from fxa-auth-client; only the *WithJwt variants remain.\n - Migrates the auth-server test client to mint an mfa:2fa JWT for TOTP setup,\n   and updates the functional-test enableTotpOnAccount helper and its call sites\n   to the email-OTP/JWT flow.\n - Adds route-guard unit assertions and an integration test proving a bare\n   session token is rejected (401/223) before reaching the enrolment handlers.\n\nCloses FXA-14311",
+  "timestamp": 1786713084000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
