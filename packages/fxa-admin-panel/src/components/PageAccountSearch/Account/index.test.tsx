@@ -514,3 +514,60 @@ it('displays key-stretch-version', async () => {
 
   expect(getByTestId('key-stretch-version')).toBeInTheDocument();
 });
+
+describe('account history', () => {
+  const buildSecurityEvents = (count: number) =>
+    Array.from({ length: count }, (_, index) => ({
+      uid: accountResponse.uid,
+      name: `event-${index}`,
+      createdAt: 1589467100316 + index,
+      ipAddr: '127.0.0.1',
+      additionalInfo: '',
+      verified: true,
+    }));
+
+  it('shows a message when there are no events', () => {
+    const { getByTestId } = render(
+      <Account {...accountResponse} securityEvents={[]} />
+    );
+
+    expect(getByTestId('account-security-events')).toHaveTextContent(
+      "This account doesn't have any account history."
+    );
+  });
+
+  it('shows the first ten events and hides the rest', () => {
+    const { getByText, queryByText } = render(
+      <Account {...accountResponse} securityEvents={buildSecurityEvents(25)} />
+    );
+
+    expect(getByText('event-0')).toBeInTheDocument();
+    expect(getByText('event-9')).toBeInTheDocument();
+    expect(queryByText('event-10')).not.toBeInTheDocument();
+  });
+
+  it('shows the remaining events when "Show more" is clicked', async () => {
+    const user = userEvent.setup();
+    const { getByRole, getByText, queryByRole } = render(
+      <Account {...accountResponse} securityEvents={buildSecurityEvents(25)} />
+    );
+
+    await user.click(getByRole('button', { name: 'Show more' }));
+
+    expect(getByText('event-24')).toBeInTheDocument();
+    expect(
+      queryByRole('button', { name: 'Show more' })
+    ).not.toBeInTheDocument();
+  });
+
+  it('hides "Show more" when there are ten or fewer events', () => {
+    const { getByText, queryByRole } = render(
+      <Account {...accountResponse} securityEvents={buildSecurityEvents(10)} />
+    );
+
+    expect(getByText('event-9')).toBeInTheDocument();
+    expect(
+      queryByRole('button', { name: 'Show more' })
+    ).not.toBeInTheDocument();
+  });
+});

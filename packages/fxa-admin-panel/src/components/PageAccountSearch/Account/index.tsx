@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import { useState } from 'react';
 import {
   Account as AccountType,
   SecurityEvents as SecurityEventsType,
@@ -26,6 +27,8 @@ import ResultBoolean from '../../ResultBoolean';
 import { HIDE_ROW } from '../../../../constants';
 import { adminApi } from '../../../lib/api';
 import { Carts } from '../Cart';
+
+const INITIAL_SECURITY_EVENT_COUNT = 10;
 
 export type AccountProps = AccountType & {
   onCleared: () => void;
@@ -97,6 +100,7 @@ export const Account = ({
   passkeys,
   accountAuthorizations,
 }: AccountProps) => {
+  const [showAllSecurityEvents, setShowAllSecurityEvents] = useState(false);
   const createdAtDate = getFormattedDate(createdAt);
   const disabledAtDate = getFormattedDate(disabledAt);
   const lockedAtDate = getFormattedDate(lockedAt);
@@ -474,20 +478,36 @@ export const Account = ({
 
         <h3 className="header-lg">Account History</h3>
         {securityEvents && securityEvents.length > 0 ? (
-          <TableXHeaders
-            rowHeaders={['Event', 'Timestamp', 'IP', 'Additional Info']}
-          >
-            {securityEvents.map((securityEvent: SecurityEventsType) => {
-              return (
-                <TableRowXHeader key={securityEvent.uid}>
-                  <>{securityEvent.name}</>
-                  <>{getFormattedDate(securityEvent.createdAt)}</>
-                  <>{securityEvent.ipAddr}</>
-                  <>{securityEvent.additionalInfo}</>
-                </TableRowXHeader>
-              );
-            })}
-          </TableXHeaders>
+          <>
+            <TableXHeaders
+              rowHeaders={['Event', 'Timestamp', 'IP', 'Additional Info']}
+            >
+              {(showAllSecurityEvents
+                ? securityEvents
+                : securityEvents.slice(0, INITIAL_SECURITY_EVENT_COUNT)
+              ).map((securityEvent: SecurityEventsType, index: number) => {
+                return (
+                  // Every event carries the same uid, so pair it with the index.
+                  <TableRowXHeader key={`${securityEvent.uid}-${index}`}>
+                    <>{securityEvent.name}</>
+                    <>{getFormattedDate(securityEvent.createdAt)}</>
+                    <>{securityEvent.ipAddr}</>
+                    <>{securityEvent.additionalInfo}</>
+                  </TableRowXHeader>
+                );
+              })}
+            </TableXHeaders>
+            {!showAllSecurityEvents &&
+              securityEvents.length > INITIAL_SECURITY_EVENT_COUNT && (
+                <button
+                  type="button"
+                  className="bg-grey-10 border-2 border-grey-100 mt-2 px-4 py-2 rounded hover:bg-grey-50 hover:border-grey-10"
+                  onClick={() => setShowAllSecurityEvents(true)}
+                >
+                  Show more
+                </button>
+              )}
+          </>
         ) : (
           <p data-testid="account-security-events" className="result-none">
             This account doesn't have any account history.
