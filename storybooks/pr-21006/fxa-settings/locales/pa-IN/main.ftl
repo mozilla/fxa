@@ -286,7 +286,6 @@ input-phone-number-country-list-aria-label = ਦੇਸ਼ ਚੁਣੋ
 input-phone-number-enter-number = ਫ਼ੋਨ ਨੰਬਰ ਦਿਓ
 input-phone-number-country-united-states = ਸੰਯਕੁਤ ਰਾਜ ਅਮਰੀਕਾ
 input-phone-number-country-canada = ਕੈਨੇਡਾ
-legal-back-button = ਪਿੱਛੇ
 
 
 reset-pwd-link-damaged-header = ਪਾਸਵਰਡ ਮੁੜ-ਸੈੱਟ ਲਿੰਕ ਖ਼ਰਾਬ ਹੋ ਗਿਆ
@@ -967,17 +966,6 @@ inline-totp-setup-security-code-placeholder = ਪਰਮਾਣੀਕਰਨ ਕੋ
 inline-totp-setup-code-required-error = ਪਰਮਾਣੀਕਰਨ ਕੋਡ ਚਾਹੀਦਾ ਹੈ
 tfa-qr-code-alt = ਸਹਾਇਕ ਐਪਲੀਕੇਸ਼ਨਾਂ ਵਿੱਚ ਦੋ-ਪੜਾਵੀਂ ਪਰਮਾਣਿਕਤਾ ਨੂੰ ਸੈੱਟਅੱਪ ਕਰਨ ਲਈ { $code } ਕੋਡ ਦੀ ਵਰਤੋਂ ਕਰੋ।
 inline-totp-setup-page-title = ਦੋ-ਪੜ੍ਹਾਵੀਂ ਪਰਮਾਣੀਕਰਨ
-
-
-legal-header = ਕਨੂੰਨੀ
-legal-terms-of-service-link = ਸੇਵਾ ਦੀਆਂ ਸ਼ਰਤਾਂ
-legal-privacy-link = ਪਰਦੇਦਾਰੀ ਸੂਚਨਾ
-
-
-legal-privacy-heading = ਪਰਦੇਦਾਰੀ ਸੂਚਨਾ
-
-
-legal-terms-heading = ਸੇਵਾ ਦੀਆਂ ਸ਼ਰਤਾਂ
 
 
 pair-auth-allow-heading-text = ਕੀ ਤੁਸੀਂ ਹੁਣੇ ਹੀ { -brand-firefox } ਵਿੱਚ ਸਾਈਨ ਇਨ ਕੀਤਾ ਸੀ?

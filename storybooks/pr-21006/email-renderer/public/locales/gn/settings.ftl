@@ -377,10 +377,6 @@ input-phone-number-country-list-aria-label = Eiporavo tetã
 input-phone-number-enter-number = Ehai pumbyry papapy
 input-phone-number-country-united-states = Estados Unidos
 input-phone-number-country-canada = Canadá
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Tapykue
-# Generic error shown when the legal document fails to load
-app-general-err-message = Oĩ osẽvaíva. Ikatúpiko eha’ã jey ag̃amieve.
 
 ## LinkDamaged component
 
@@ -1678,23 +1674,6 @@ inline-totp-setup-security-code-placeholder = Ayvu ñemoneĩgua
 inline-totp-setup-code-required-error = Ayvu ñemoneĩgua jerurepyre
 tfa-qr-code-alt = Eiporu { $code } ayvu emboheko hag̃ua ñemoneĩ mokõi jeku’épe tembiporu’i moneĩmbyre.
 inline-totp-setup-page-title = Ñemoneĩ mokõi jeku’épe
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Añetegua
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Mba’epytyvõrã ñemboguata
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Marandu’i ñemiguáva
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Marandu’i ñemiguáva
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Mba’epytyvõrã ñemboguata
 
 ## AuthAllow page - Part of the device pairing flow
 

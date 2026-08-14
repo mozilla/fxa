@@ -380,10 +380,6 @@ input-phone-number-country-list-aria-label = Выберите страну
 input-phone-number-enter-number = Введите номер телефона
 input-phone-number-country-united-states = США
 input-phone-number-country-canada = Канада
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Назад
-# Generic error shown when the legal document fails to load
-app-general-err-message = Что-то пошло не так. Пожалуйста, попробуйте позже.
 
 ## LinkDamaged component
 
@@ -1682,23 +1678,6 @@ inline-totp-setup-security-code-placeholder = Код аутентификаци�
 inline-totp-setup-code-required-error = Требуется код аутентификации
 tfa-qr-code-alt = Используйте код { $code } для настройки двухэтапной аутентификации в поддерживаемых приложениях.
 inline-totp-setup-page-title = Двухэтапная аутентификация
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Юридическая информация
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Условия использования
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Уведомление о конфиденциальности
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Уведомление о конфиденциальности
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Условия использования
 
 ## AuthAllow page - Part of the device pairing flow
 

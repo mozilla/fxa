@@ -377,10 +377,6 @@ input-phone-number-country-list-aria-label = Επιλογή χώρας
 input-phone-number-enter-number = Εισαγάγετε τον αριθμό τηλεφώνου
 input-phone-number-country-united-states = Ηνωμένες Πολιτείες
 input-phone-number-country-canada = Καναδάς
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Πίσω
-# Generic error shown when the legal document fails to load
-app-general-err-message = Κάτι πήγε στραβά. Δοκιμάστε ξανά αργότερα.
 
 ## LinkDamaged component
 
@@ -1680,23 +1676,6 @@ inline-totp-setup-security-code-placeholder = Κωδικός ταυτοποίη�
 inline-totp-setup-code-required-error = Απαιτείται κωδικός ταυτοποίησης
 tfa-qr-code-alt = Χρησιμοποιήστε τον κωδικό { $code } για να ρυθμίσετε την ταυτοποίηση δύο παραγόντων στις υποστηριζόμενες εφαρμογές.
 inline-totp-setup-page-title = Ταυτοποίηση δύο παραγόντων
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Νομικά
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Όροι υπηρεσίας
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Σημείωση απορρήτου
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Σημείωση απορρήτου
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Όροι υπηρεσίας
 
 ## AuthAllow page - Part of the device pairing flow
 

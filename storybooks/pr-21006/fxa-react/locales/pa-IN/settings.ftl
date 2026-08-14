@@ -343,8 +343,6 @@ input-phone-number-country-list-aria-label = ਦੇਸ਼ ਚੁਣੋ
 input-phone-number-enter-number = ਫ਼ੋਨ ਨੰਬਰ ਦਿਓ
 input-phone-number-country-united-states = ਸੰਯਕੁਤ ਰਾਜ ਅਮਰੀਕਾ
 input-phone-number-country-canada = ਕੈਨੇਡਾ
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = ਪਿੱਛੇ
 
 ## LinkDamaged component
 
@@ -1311,23 +1309,6 @@ inline-totp-setup-security-code-placeholder = ਪਰਮਾਣੀਕਰਨ ਕੋ
 inline-totp-setup-code-required-error = ਪਰਮਾਣੀਕਰਨ ਕੋਡ ਚਾਹੀਦਾ ਹੈ
 tfa-qr-code-alt = ਸਹਾਇਕ ਐਪਲੀਕੇਸ਼ਨਾਂ ਵਿੱਚ ਦੋ-ਪੜਾਵੀਂ ਪਰਮਾਣਿਕਤਾ ਨੂੰ ਸੈੱਟਅੱਪ ਕਰਨ ਲਈ { $code } ਕੋਡ ਦੀ ਵਰਤੋਂ ਕਰੋ।
 inline-totp-setup-page-title = ਦੋ-ਪੜ੍ਹਾਵੀਂ ਪਰਮਾਣੀਕਰਨ
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = ਕਨੂੰਨੀ
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = ਸੇਵਾ ਦੀਆਂ ਸ਼ਰਤਾਂ
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = ਪਰਦੇਦਾਰੀ ਸੂਚਨਾ
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = ਪਰਦੇਦਾਰੀ ਸੂਚਨਾ
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = ਸੇਵਾ ਦੀਆਂ ਸ਼ਰਤਾਂ
 
 ## AuthAllow page - Part of the device pairing flow
 

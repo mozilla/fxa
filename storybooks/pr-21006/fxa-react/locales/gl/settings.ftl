@@ -162,11 +162,6 @@ input-password-sr-only-now-visible = O teu contrasinal está sendo visible na pa
 # Message read by screen readers after clicking on a password input visibility toggle to hide the password. Expresses the new (hidden) state of the textbox content.
 input-password-sr-only-now-hidden = O teu contrasinal agora está oculto.
 
-## Phone number component
-
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Atrás
-
 ## LinkDamaged component
 
 # The user followed a password reset link that was received by email

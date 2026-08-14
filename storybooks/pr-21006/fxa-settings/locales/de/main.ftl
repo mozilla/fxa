@@ -310,8 +310,6 @@ input-phone-number-country-list-aria-label = Land auswählen
 input-phone-number-enter-number = Telefonnummer eingeben
 input-phone-number-country-united-states = Vereinigte Staaten
 input-phone-number-country-canada = Kanada
-legal-back-button = Zurück
-app-general-err-message = Etwas ist schiefgegangen. Bitte versuchen Sie es später erneut.
 
 
 reset-pwd-link-damaged-header = Link zum Zurücksetzen des Passworts beschädigt
@@ -446,6 +444,7 @@ cs-cannot-disconnect = Client nicht gefunden, Verbindung kann nicht getrennt wer
 cs-logged-out-2 = Von { $service } abgemeldet
 cs-refresh-button =
     .title = Verbundene Dienste aktualisieren
+cs-connect-device-button = Ein Gerät verbinden
 cs-missing-device-help = Fehlende oder doppelte Elemente?
 cs-disconnect-sync-heading = Von Sync trennen
 
@@ -773,6 +772,7 @@ page-passkey-add-error-system-v2 = Beim Erstellen Ihres Zugangsschlüssels ist e
 
 
 recent-activity-title = Letzte Kontoaktivität
+recent-activity-show-more-button = Mehr anzeigen
 recent-activity-account-create-v2 = Konto erstellt
 recent-activity-account-disable-v2 = Konto deaktiviert
 recent-activity-account-enable-v2 = Konto aktiviert
@@ -1209,17 +1209,6 @@ tfa-qr-code-alt = Verwenden Sie den Code { $code } zum Einrichten der Zwei-Schri
 inline-totp-setup-page-title = Zwei-Schritt-Authentifizierung
 
 
-legal-header = Rechtliches
-legal-terms-of-service-link = Nutzungsbedingungen
-legal-privacy-link = Datenschutzhinweis
-
-
-legal-privacy-heading = Datenschutzhinweis
-
-
-legal-terms-heading = Nutzungsbedingungen
-
-
 pair-auth-allow-heading-text = Haben Sie sich gerade bei { -brand-firefox } angemeldet?
 pair-auth-allow-confirm-button = Ja, Gerät freischalten
 pair-auth-allow-refuse-device-link = Wenn Sie das nicht waren, <a>ändern Sie Ihr Passwort</a>
@@ -1311,9 +1300,72 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Hoppla, etwas ist schiefge
 pair-unsupported-desktop-firefox-fallback-message-v2 = Bitte schließen Sie diesen Tab und versuchen Sie es erneut.
 
 
+pair2-authority-approve-sign-in-heading = Anmeldung annehmen?
+pair2-authority-approve-sign-in-confirm-button = Ja, Anmeldung annehmen
+pair2-authority-approve-sign-in-change-password = Sind Sie das nicht? <changePassword>Ändern Sie Ihr Passwort</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = Auf Ihrem Mobilgerät weitermachen
+pair2-authority-continue-on-mobile-description = Befolgen Sie die Schritte auf Ihrem Handy oder Tablet.
+pair2-authority-continue-on-mobile-cancel-button = Abbrechen
+
+
+pair2-authority-download-firefox-heading = { -brand-firefox } zum Synchronisieren öffnen
+pair2-authority-download-firefox-instruction = Um die geräteübergreifende Synchronisation einzurichten, öffnen Sie { -brand-firefox } auf diesem Gerät und besuchen Sie <b>firefox.com/pair</b>
+pair2-authority-download-firefox-cta = { -brand-firefox } herunterladen
+
+
+pair2-authority-scan-qr-heading = Zum Verbinden mit Ihrem Mobilgerät scannen
+pair2-authority-scan-qr-instruction = Scannen Sie den QR-Code mit Ihrem Handy oder Tablet, um Ihre Lesezeichen, Tabs und mehr von { -brand-firefox } zu synchronisieren.
+pair2-authority-scan-qr-code-aria-label = QR-Code zum Verbinden Ihres Mobilgeräts
+pair2-authority-scan-qr-help-link = Hilfe beim Scannen
+
+
+pair2-authority-sync-success-heading = Sie synchronisieren
+pair2-authority-sync-success-description = Ihre Tabs, Lesezeichen, Passwörter und mehr sind auf Ihren Geräten verfügbar.
+pair2-authority-sync-success-view-tabs-button = Synchronisierte Tabs anzeigen
+pair2-authority-sync-success-sync-settings-button = Synchronisationseinstellungen
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = Möchten Sie trotzdem ein Gerät verbinden?
+pair2-authority-timeout-and-cancel-timeout-description = Anscheinend trat eine Zeitüberschreitung auf. Versuchen Sie es erneut, wenn Sie Ihr Mobilgerät weiterhin verbinden und Ihre Daten von { -brand-firefox } synchronisieren möchten.
+pair2-authority-timeout-and-cancel-canceled-heading = Abgebrochen
+pair2-authority-timeout-and-cancel-canceled-description = Wenn Sie Ihre Meinung ändern oder ein anderes Gerät verbinden möchten, versuchen Sie es erneut.
+pair2-authority-timeout-and-cancel-try-again-button = Erneut versuchen
+pair2-authority-timeout-and-cancel-cancel-button = Abbrechen
+pair2-authority-timeout-and-cancel-sync-settings-button = Synchronisationseinstellungen
+
+
 pair2-supplicant-approve-sign-in-heading = Ein letzter Schritt zur Synchronisation
 pair2-supplicant-approve-sign-in-instruction = Gestatten Sie die Anmeldung auf Ihrem Computer.
 pair2-supplicant-approve-sign-in-cancel-button = Abbrechen
+
+
+pair2-supplicant-connect-this-device-heading = Dieses Gerät mit Ihrem Konto verbinden?
+pair2-supplicant-connect-this-device-connect-button = Verbinden
+pair2-supplicant-connect-this-device-cancel-button = Abbrechen
+
+
+pair2-supplicant-download-firefox-heading = Holen Sie sich { -brand-firefox } auf dieses Gerät
+pair2-supplicant-download-firefox-description = Laden Sie { -brand-firefox } herunter, um Lesezeichen, Chronik und mehr zwischen Geräten zu synchronisieren. <linkExternal>Weitere Informationen</linkExternal>
+pair2-supplicant-download-firefox-continue-button = Auf { -brand-firefox } fortfahren
+
+
+pair2-supplicant-ready-to-scan-heading = Um ein Gerät zu verbinden
+pair2-supplicant-ready-to-scan-instruction = Öffnen Sie auf Ihrem Computer { -brand-firefox } und besuchen Sie <b>firefox.com/pair</b> und befolgen Sie die Anweisungen auf dem Bildschirm, um das Mobilgerät zu verbinden.
+pair2-supplicant-ready-to-scan-learn-more-link = Weitere Informationen
+
+
+pair2-supplicant-sync-success-heading = Ihr Gerät ist verbunden
+pair2-supplicant-sync-success-description = Ihre Lesezeichen, Tabs und mehr bleiben in { -brand-firefox } synchronisiert.
+pair2-supplicant-sync-success-view-tabs-button = Synchronisierte Tabs anzeigen
+pair2-supplicant-sync-success-sync-settings-button = Synchronisationseinstellungen
+
+
+pair2-supplicant-timeout-and-cancel-timeout-heading = Zeitüberschreitung
+pair2-supplicant-timeout-and-cancel-timeout-description = Um Ihr Mobilgerät zu verbinden und Ihre { -brand-firefox }-Daten zu synchronisieren, besuchen Sie <b>firefox.com/pair</b> auf Ihrem Computer.
+pair2-supplicant-timeout-and-cancel-canceled-heading = Abgebrochen
+pair2-supplicant-timeout-and-cancel-canceled-description = Um jederzeit ein Gerät zu verbinden, besuchen Sie <b>firefox.com/pair</b> auf Ihrem Computer.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } bestätigt

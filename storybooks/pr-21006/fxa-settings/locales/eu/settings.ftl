@@ -289,8 +289,6 @@ input-phone-number-country-list-aria-label = Hautatu herrialdea
 input-phone-number-enter-number = Idatzi telefono zenbakia
 input-phone-number-country-united-states = Estatu Batuak
 input-phone-number-country-canada = Kanada
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Atzera
 
 ## LinkDamaged component
 
@@ -1217,23 +1215,6 @@ inline-totp-setup-security-code-placeholder = autentifikazio-kode
 # The "authentication code" here refers to the code provided by an authentication app.
 inline-totp-setup-code-required-error = Autentifikazioa kodea beharrezkoa
 tfa-qr-code-alt = Erabili { $code } kodea onartzen diren aplikazioetan bi urratseko autentifikazioa konfiguratzeko.
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Legala
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Zerbitzuaren baldintzak
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Pribatutasun-oharra
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Pribatutasun-oharra
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Zerbitzuaren baldintzak
 
 ## AuthAllow page - Part of the device pairing flow
 

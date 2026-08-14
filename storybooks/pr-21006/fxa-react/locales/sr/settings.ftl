@@ -354,8 +354,6 @@ input-phone-number-country-list-aria-label = Изаберите државу
 input-phone-number-enter-number = Унесите број телефона
 input-phone-number-country-united-states = Сједињене Америчке Државе
 input-phone-number-country-canada = Канада
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Назад
 
 ## LinkDamaged component
 
@@ -1577,23 +1575,6 @@ inline-totp-setup-security-code-placeholder = Приступни код
 inline-totp-setup-code-required-error = Потребна је шифра за потврду идентитета
 tfa-qr-code-alt = Користите шифру { $code } да бисте подесили потврду идентитета у два корака у подржаним програмима.
 inline-totp-setup-page-title = Потврда идентитета у два корака
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Правно
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Услови коришћења
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Обавештење о приватности
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Обавештење о приватности
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Услови коришћења
 
 ## AuthAllow page - Part of the device pairing flow
 

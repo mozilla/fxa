@@ -343,8 +343,6 @@ input-phone-number-country-list-aria-label = Valitse maa
 input-phone-number-enter-number = Kirjoita puhelinnumero
 input-phone-number-country-united-states = Yhdysvallat
 input-phone-number-country-canada = Kanada
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Takaisin
 
 ## LinkDamaged component
 
@@ -1399,23 +1397,6 @@ inline-totp-setup-security-code-placeholder = Toodennuskoodi
 inline-totp-setup-code-required-error = Todennuskoodi vaaditaan
 tfa-qr-code-alt = Ota käyttöön kaksivaiheinen todennus tuetuissa sovelluksissa käyttämällä koodia { $code }.
 inline-totp-setup-page-title = Kaksivaiheinen todennus
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Juridiset asiat
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Käyttöehdot
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Tietosuojakäytäntö
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Tietosuojakäytäntö
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Käyttöehdot
 
 ## AuthAllow page - Part of the device pairing flow
 

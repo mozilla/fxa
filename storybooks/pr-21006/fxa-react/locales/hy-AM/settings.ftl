@@ -76,11 +76,6 @@ input-password-hide = Թաքցնել գաղտնաբառը
 # Tooltip displayed on a password input visibility toggle. Expresses the toggle action, where clicking on the toggle will show the password.
 input-password-show = Ցուցադրել գաղտնաբառը
 
-## Phone number component
-
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Ետ
-
 ## LinkDamaged component
 
 # The user followed a password reset link that was received by email

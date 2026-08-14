@@ -190,7 +190,6 @@ input-phone-number-country-list-aria-label = രാജ്യം തിരഞ്�
 input-phone-number-enter-number = ഫോൺ അക്കം നല്കുക
 input-phone-number-country-united-states = യുണൈറ്റഡ്‌ സ്റ്റേറ്റ്‌സ്‌
 input-phone-number-country-canada = കാനട
-legal-back-button = പുറകോട്ടു്
 
 
 reset-pwd-link-damaged-header = ഒളിവാക്ക് പുനസജ്ജീകരണ കണ്ണി കേടായി

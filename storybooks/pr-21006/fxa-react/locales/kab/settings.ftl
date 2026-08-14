@@ -183,8 +183,6 @@ input-phone-number-country-list-aria-label = Fren tamurt
 input-phone-number-enter-number = Sekcem uṭṭun n tiliɣṛi
 input-phone-number-country-united-states = Marikan
 input-phone-number-country-canada = Kanada
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Ɣer deffir
 
 ## LinkDamaged component
 
@@ -830,23 +828,6 @@ inline-totp-setup-continue-button = Kemmel
 inline-totp-setup-ready-button = Yewjed
 # The "authentication code" here refers to the code provided by an authentication app.
 inline-totp-setup-security-code-placeholder = Tangalt n usesteb
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Usḍif
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Tiwtilin n useqdec
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Tasertit n tbaḍnit
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Tasertit n tbaḍnit
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Tiwtilin n useqdec
 
 ## AuthAllow page - Part of the device pairing flow
 

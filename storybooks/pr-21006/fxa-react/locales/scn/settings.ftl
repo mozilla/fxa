@@ -297,8 +297,6 @@ input-phone-number-country-list-aria-label = Scarta u pajisi
 input-phone-number-enter-number = Metti u nùmmaru di tilèfunu
 input-phone-number-country-united-states = Stati Junciuti
 input-phone-number-country-canada = Cànada
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Nn’arrè
 
 ## LinkDamaged component
 
@@ -1244,23 +1242,6 @@ inline-totp-setup-security-code-placeholder = Còdici d’autinticazzioni
 # The "authentication code" here refers to the code provided by an authentication app.
 inline-totp-setup-code-required-error = È nicissariu un còdici d’autinticazzioni
 tfa-qr-code-alt = Usa u còdici { $code } pi cunfijurari l’autinticazzioni a du’ fattura nni l’applicazzioni suppurtati.
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Noti ligali
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Tèrmini di sirbizzu
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Abbisu di privatizza
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Abbisu di privatizza
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Tèrmini di sirbizzu
 
 ## AuthAllow page - Part of the device pairing flow
 
