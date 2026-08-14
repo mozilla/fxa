@@ -567,6 +567,9 @@ cs-cannot-disconnect = Fann ikkje klienten, klarte ikkje å kople frå
 cs-logged-out-2 = Logga ut frå { $service }
 cs-refresh-button =
     .title = Oppdater tilkopla tenester
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = Kople til ei eining
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = Manglande- eller duplikatelement?
 cs-disconnect-sync-heading = Kople frå Sync
@@ -1018,6 +1021,8 @@ page-passkey-add-error-system-v2 = Det oppstod eit problem med å opprette passn
 ## These are displayed as a list with the date when the event occured
 
 recent-activity-title = Nyleg kontoaktivitet
+# Clicking this button reveals the older account activity that is hidden at first.
+recent-activity-show-more-button = Vis meir
 recent-activity-account-create-v2 = Konto opretta
 recent-activity-account-disable-v2 = Konto deaktivert
 recent-activity-account-enable-v2 = Konto aktivert
@@ -1833,12 +1838,120 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Ops! Noko gjekk gale.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Lat att denne fana og prøv på nytt.
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer, which is already signed in, after their
+## mobile device scans the pairing QR code. It asks them to approve the
+## sign-in, and shows the requesting device's details so they can verify it.
+
+# Asks the user to confirm the sign-in that another one of their devices just started
+pair2-authority-approve-sign-in-heading = Godkjenne innlogging?
+# Submit button confirming that the user started the pairing and approves the
+# other device being added to their account
+pair2-authority-approve-sign-in-confirm-button = Ja, godkjenn innlogging
+
+## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer after scanning the pairing QR code with
+## their phone. It confirms the flow has moved to the mobile device and waits
+## for the remaining steps to be completed there.
+
+pair2-authority-continue-on-mobile-heading = Hald fram på mobileininga di
+# Dismisses the pairing attempt
+pair2-authority-continue-on-mobile-cancel-button = Avbryt
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when Firefox is needed to continue pairing.
+## It points them at firefox.com/pair and offers a download link for Firefox.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-download-firefox-heading = Opne { -brand-firefox } for å synkronisere
+# Links out to the Firefox download page
+pair2-authority-download-firefox-cta = Last ned { -brand-firefox }
+
+## ScanQR page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer. It shows a QR code that they scan with
+## their phone or tablet to connect the two devices and start syncing.
+
+pair2-authority-scan-qr-heading = Skann for å kople til mobileininga di
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and offers the follow-up actions.
+
+# "syncing" here means copying data between the user's devices
+pair2-authority-sync-success-heading = Du synkroniserer
+# Opens the tabs that are open on the user's other synced devices
+pair2-authority-sync-success-view-tabs-button = Vis synkroniserte faner
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button = Synkroniseringsinnstillingar
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when pairing stopped without succeeding,
+## either because it timed out or because it was canceled. Both cases offer to
+## start pairing over again.
+
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-canceled-heading = Avbrote
+# Restarts the pairing flow
+pair2-authority-timeout-and-cancel-try-again-button = Prøv igjen
+# Abandons pairing without retrying
+pair2-authority-timeout-and-cancel-cancel-button = Avbryt
+# Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
+pair2-authority-timeout-and-cancel-sync-settings-button = Synkroniseringsinnstillingar
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
 ## shown on their computer. It waits for them to approve the sign-in on the
 ## computer, and shows that computer's details so they can verify the request.
 
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = Avbryt
+
+## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It asks them to confirm connecting the mobile
+## device to their account, and shows that computer's details so they can
+## verify the request.
+
+# "this device" is the mobile device the user is holding, not the computer
+# whose details are shown below the heading
+pair2-supplicant-connect-this-device-heading = Kople denne eininga til kontoen din?
+# Confirms the pairing attempt
+pair2-supplicant-connect-this-device-connect-button = Kople til
+# Dismisses the pairing attempt
+pair2-supplicant-connect-this-device-cancel-button = Avbryt
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing reaches a device that
+## does not have Firefox installed yet. It explains what syncing gets them and
+## sends them off to install the browser.
+
+pair2-supplicant-download-firefox-heading = Få { -brand-firefox } på denne eininga
+
+## ReadyToScan page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device before pairing starts. It tells them
+## to open firefox.com/pair on their computer, which is where the QR code they
+## scan with the mobile device comes from.
+
+# Opens a Mozilla support article about setting up sync
+pair2-supplicant-ready-to-scan-learn-more-link = Les meir
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device once pairing has completed: the device
+## is signed in and syncing with the computer they paired it with.
+
+pair2-supplicant-sync-success-heading = Eininga di er tilkopla
+# Opens the view listing tabs open on the user's other synced devices
+pair2-supplicant-sync-success-view-tabs-button = Vis synkroniserte faner
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button = Synkroniseringsinnstillingar
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing ends without connecting,
+## either because the attempt timed out or because it was canceled. Both states
+## are informational and offer no on-screen action, so the copy points the user
+## back to their computer to start again.
+
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-canceled-heading = Avbrote
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
