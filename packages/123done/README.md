@@ -8,6 +8,33 @@
 1. Visit it in your browser: `http://localhost:8080/`
 1. Hack and reload! (web resources don't require a server restart)
 
+## Step-up authentication
+
+The **Step-Up Auth** button, visible only once you are signed in, re-authorizes the
+existing session with `acr_values=AAL2` and a `max_age`, per
+[RFC 9470](https://www.rfc-editor.org/rfc/rfc9470.html). It sends no `action` and no
+`prompt=login`, so the cached FxA session is reused: you confirm on the signin page with
+no email or password to re-enter, then get a second-factor challenge only if `max_age`
+says the session is stale. Step-up never asks for a password.
+
+`max_age` is the relying party's dial for how per-transaction the elevation is: a tight
+value re-challenges on nearly every action, a loose one creates a sudo window. The input
+next to the button sets it per click, starting from `STEP_UP_MAX_AGE` (default 300
+seconds); clear the box to fall back to that default. A `max_age` on the 123Done page URL
+seeds the box, so it survives a click. Hitting the route directly works too —
+`/api/step_up?max_age=0`, or `?acr_values=` (empty) to make the request freshness-only.
+
+The page shows `acr` and `auth_time` twice: from the `id_token` received at redirect
+time, and from `POST /v1/introspect` against the current access token (via
+`/api/token_claims`). Both should agree. `auth_time` is the value that proves a challenge
+actually happened, since `acr` stays `AAL2` whether or not the session was
+re-authenticated.
+
+To watch a re-challenge, set `max_age` to 0 and click twice. The authorization server
+allows a few seconds of leeway on the comparison (`MAX_AGE_LEEWAY_SECONDS` in
+`fxa-auth-server/lib/oauth/grant.js`), so a click straight after a challenge is satisfied
+silently and one a little later re-challenges.
+
 ### Ansible Deployment
 
 See [fxa-dev 123done](https://github.com/mozilla/fxa-dev/tree/docker/roles/rp) Ansible configuration for details.
@@ -70,6 +97,7 @@ or `heroku config:set`); never commit secret values to the repo.
 - `REDIRECT_URI`, `ISSUER_URI`, `SCOPES`
 - `PKCE_CLIENT_ID`, `PKCE_REDIRECT_URI`
 - `COOKIE_SECRET`, `COOKIE_NAME`
+- `STEP_UP_MAX_AGE` — default `max_age` (seconds) for the step-up flow; optional, defaults to 300
 - `PORT` is provided by Heroku automatically.
 
 Heads up on older apps: some set the client secret as `CLIENT_SECRET` and omit `SCOPES` /

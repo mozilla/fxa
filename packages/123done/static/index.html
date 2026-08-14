@@ -208,6 +208,37 @@
       </section>
     </div>
 
+    <!-- Step-up auth (RFC 9470). Lives outside .banner because the banner is the
+         logged-out affordance (.logged-in .banner is display:none); this section is
+         shown only when logged in, via .logged-in .step-up-data. -->
+    <section class="step-up-data">
+      <div class="step-up-controls">
+        <button
+          class="btn btn-large btn-info btn-persona step-up-auth"
+          type="submit"
+        >
+          Step-Up Auth
+        </button>
+        <label for="step-up-max-age">
+          max_age (seconds)
+          <input type="number" id="step-up-max-age" min="0" />
+        </label>
+      </div>
+      <div class="step-up-claims">
+        <div>
+          <h4>From the id_token</h4>
+          <div id="id-token-acr"></div>
+          <div id="id-token-auth-time"></div>
+        </div>
+        <div>
+          <h4>From introspection</h4>
+          <div id="introspect-acr"></div>
+          <div id="introspect-auth-time"></div>
+          <div id="introspect-amr"></div>
+        </div>
+      </div>
+    </section>
+
     <section class="keys-data">
       <div id="keys"></div>
     </section>

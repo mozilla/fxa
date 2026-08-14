@@ -90,6 +90,37 @@ button::-moz-focus-inner {
   display: block;
   margin: 20px 0px;
 }
+
+/* Step-up auth is only meaningful for an already-authenticated session. */
+.step-up-data {
+  display: none;
+}
+.logged-in .step-up-data {
+  display: block;
+  padding: 20px;
+}
+.step-up-data .step-up-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+/* Green pill, as #logout and .sign-in-button use, sized for the controls row. */
+.step-up-data .step-up-auth {
+  background: #5fad47;
+  border-radius: 50px;
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  padding: 10px 24px;
+}
+.step-up-data .step-up-claims {
+  display: flex;
+  gap: 48px;
+  font-family: monospace;
+}
+.step-up-data h4 {
+  margin-bottom: 4px;
+}
 .logged-in.is-subscribed #footer-main .subscription-buttons {
   display: none;
 }

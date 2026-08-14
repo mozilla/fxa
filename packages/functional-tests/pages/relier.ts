@@ -127,6 +127,59 @@ export class RelierPage extends BaseLayout {
     return this.waitForOauthPage();
   }
 
+  get stepUpAuthButton() {
+    return this.page.locator('button.step-up-auth');
+  }
+
+  /**
+   * Start a step-up flow, forwarding `maxAge` as the `max_age` authorization
+   * parameter. The request carries no `prompt=none`, so the flow stops at the cached
+   * signin page for confirmation; the caller drives that and whatever follows — a
+   * satisfied `max_age` returns to the relier, a stale one adds a second factor.
+   */
+  async clickStepUpAuth(maxAge: number) {
+    await this.page.locator('#step-up-max-age').fill(String(maxAge));
+    await this.stepUpAuthButton.click();
+  }
+
+  /**
+   * The claims 123Done captured from the id_token at redirect time, plus its
+   * configured step-up default. Read over HTTP rather than scraped from the DOM so
+   * assertions are on claim values, not on rendering.
+   */
+  async getAuthStatus(): Promise<{
+    email: string | null;
+    acr: string;
+    amr: string[] | null;
+    auth_time: number | null;
+    account_aal2: boolean;
+    step_up_max_age: number;
+  }> {
+    const response = await this.page.request.get(
+      `${this.target.relierUrl}/api/auth_status`
+    );
+    expect(response.ok()).toBe(true);
+    return response.json();
+  }
+
+  /**
+   * The claims the authorization server reports for 123Done's current access token,
+   * via `POST /v1/introspect`. This is the resource-server view of the elevation, as
+   * opposed to the id_token 123Done was handed at redirect time.
+   */
+  async getTokenClaims(): Promise<{
+    active: boolean;
+    acr: string | null;
+    amr: string[] | null;
+    auth_time: number | null;
+  }> {
+    const response = await this.page.request.get(
+      `${this.target.relierUrl}/api/token_claims`
+    );
+    expect(response.ok()).toBe(true);
+    return response.json();
+  }
+
   async hasAccountAAL2Badge() {
     const text = await this.page.locator('#loggedin span').innerText();
     return text.includes(String.fromCodePoint(0x1f6e1));

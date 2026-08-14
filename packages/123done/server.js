@@ -47,8 +47,9 @@ app.use(function (req, res, next) {
   }
 });
 
-// add oauth endpoints
-oauth(app, db);
+// add oauth endpoints. checkAuth is declared below and hoisted; /api/step_up needs
+// it to enforce the signed-in session it re-authorizes.
+oauth(app, db, checkAuth);
 
 // a function to verify that the current user is authenticated
 function checkAuth(req, res, next) {
@@ -72,8 +73,65 @@ app.get('/api/auth_status', function (req, res) {
       acr: req.session.acr || '0',
       account_aal2: req.session.account_aal2 || false,
       keys_jwe: req.session.keys_jwe || null,
+      // Authentication event from the id_token, in seconds since the epoch.
+      auth_time: req.session.auth_time || null,
+      // Default for the step-up max_age input, so the UI can't drift from config.
+      step_up_max_age: config.get('step_up_max_age'),
     })
   );
+});
+
+// The resource-server half of RFC 9470: introspect our own access token and report
+// the authentication level and event the authorization server sees. This is the
+// check an RP would run before allowing a sensitive action, as opposed to trusting
+// the id_token it received at redirect time.
+//
+// Called once per page load, never polled — /v1/introspect is rate-limited per IP.
+app.get('/api/token_claims', checkAuth, async function (req, res) {
+  const endpoint = req.session.introspection_endpoint;
+  if (!endpoint || !req.session.token) {
+    return res.status(409).json({ error: 'no access token on this session' });
+  }
+
+  let response, text;
+  try {
+    response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ token: req.session.token }),
+    });
+    text = await response.text();
+  } catch (err) {
+    // Logged rather than returned: the message names the introspection host.
+    console.log('token_claims', err); //eslint-disable-line no-console
+    return res.status(502).json({ error: 'introspection request failed' });
+  }
+
+  // Check the status before parsing. A proxy or the rate-limiter can answer with
+  // HTML, and parsing first would report that as a 502 and lose the real status.
+  if (response.status >= 400) {
+    return res.status(response.status).send(text);
+  }
+
+  let body;
+  try {
+    body = JSON.parse(text);
+  } catch (err) {
+    return res
+      .status(502)
+      .json({ error: 'introspection response was not JSON' });
+  }
+
+  res.json({
+    active: body.active,
+    acr: body.acr || null,
+    // Seconds, while iat/exp below are milliseconds. Intentional upstream, for RP
+    // back-compat — see lib/routes/oauth/introspect.js in fxa-auth-server.
+    auth_time: body.auth_time || null,
+    amr: body.amr || null,
+    iat: body.iat || null,
+    exp: body.exp || null,
+  });
 });
 
 // logout clears the current authenticated user
