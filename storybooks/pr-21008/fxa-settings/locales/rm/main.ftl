@@ -225,7 +225,6 @@ input-phone-number-country-list-aria-label = Tscherna in pajais
 input-phone-number-enter-number = Endatar il numer da telefon
 input-phone-number-country-united-states = Stadis Unids da l’America
 input-phone-number-country-canada = Canada
-legal-back-button = Enavos
 
 
 reset-pwd-link-damaged-header = La colliaziun per redefinir il pled-clav è donnegiada
@@ -876,17 +875,6 @@ inline-totp-setup-on-completion-description = Uschespert ch'il process è termin
 inline-totp-setup-security-code-placeholder = Code d'autentificaziun
 inline-totp-setup-code-required-error = Code d’autentificaziun necessari
 tfa-qr-code-alt = Utilisescha il code { $code } per configurar l’autentificaziun en dus pass en las applicaziuns sustegnidas.
-
-
-legal-header = Infurmaziuns giuridicas
-legal-terms-of-service-link = Cundiziuns d'utilisaziun
-legal-privacy-link = Infurmaziuns davart la protecziun da datas
-
-
-legal-privacy-heading = Infurmaziuns davart la protecziun da datas
-
-
-legal-terms-heading = Cundiziuns d'utilisaziun
 
 
 pair-auth-allow-heading-text = Es ti gist t'annunzià en { -brand-firefox }?

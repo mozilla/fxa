@@ -301,8 +301,6 @@ input-phone-number-country-list-aria-label = בחירת מדינה
 input-phone-number-enter-number = נא להכניס מספר טלפון
 input-phone-number-country-united-states = ארצות הברית
 input-phone-number-country-canada = קנדה
-legal-back-button = חזרה
-app-general-err-message = משהו השתבש. נא לנסות שוב מאוחר יותר.
 
 
 reset-pwd-link-damaged-header = קישור לאיפוס ססמה פגום
@@ -1156,17 +1154,6 @@ inline-totp-setup-security-code-placeholder = קוד אימות
 inline-totp-setup-code-required-error = נדרש קוד אימות
 tfa-qr-code-alt = ניתן להשתמש בקוד { $code } כדי להגדיר אימות דו־שלבי ביישומים נתמכים.
 inline-totp-setup-page-title = אימות דו־שלבי
-
-
-legal-header = מידע משפטי
-legal-terms-of-service-link = תנאי השירות
-legal-privacy-link = הצהרת פרטיות
-
-
-legal-privacy-heading = הצהרת פרטיות
-
-
-legal-terms-heading = תנאי השירות
 
 
 pair-auth-allow-heading-text = האם זה עתה התחברת ל־{ -brand-firefox }?

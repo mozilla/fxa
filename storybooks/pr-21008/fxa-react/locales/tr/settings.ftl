@@ -354,10 +354,6 @@ input-phone-number-country-list-aria-label = Ülke seçin
 input-phone-number-enter-number = Telefon numarasını yazın
 input-phone-number-country-united-states = Amerika Birleşik Devletleri
 input-phone-number-country-canada = Kanada
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Geri
-# Generic error shown when the legal document fails to load
-app-general-err-message = Bir şeyler yanlış gitti. Lütfen daha sonra yeniden deneyin.
 
 ## LinkDamaged component
 
@@ -1553,23 +1549,6 @@ inline-totp-setup-security-code-placeholder = Kimlik doğrulama kodu
 inline-totp-setup-code-required-error = Kimlik doğrulama kodu gerekli
 tfa-qr-code-alt = Desteklenen uygulamalarda iki aşamalı doğrulamayı kurmak için { $code } kodunu kullanın.
 inline-totp-setup-page-title = İki aşamalı doğrulama
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Hukuki Bilgiler
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Hizmet Koşulları
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Gizlilik Bildirimi
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Gizlilik Bildirimi
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Hizmet Koşulları
 
 ## AuthAllow page - Part of the device pairing flow
 

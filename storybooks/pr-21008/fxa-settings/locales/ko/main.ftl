@@ -292,7 +292,6 @@ input-phone-number-country-list-aria-label = 국가 선택
 input-phone-number-enter-number = 전화번호 입력
 input-phone-number-country-united-states = 미국
 input-phone-number-country-canada = 캐나다
-legal-back-button = 뒤로
 
 
 reset-pwd-link-damaged-header = 비밀번호 재설정 링크가 손상됨
@@ -1124,17 +1123,6 @@ inline-totp-setup-security-code-placeholder = 인증 코드
 inline-totp-setup-code-required-error = 인증 코드 필요함
 tfa-qr-code-alt = 지원되는 애플리케이션에서 2단계 인증을 설정하려면 { $code } 코드를 사용하세요.
 inline-totp-setup-page-title = 2단계 인증
-
-
-legal-header = 법적 고지
-legal-terms-of-service-link = 이용 약관
-legal-privacy-link = 개인정보 보호정책
-
-
-legal-privacy-heading = 개인정보 보호정책
-
-
-legal-terms-heading = 이용 약관
 
 
 pair-auth-allow-heading-text = 방금 { -brand-firefox }에 로그인하셨나요?

@@ -294,8 +294,6 @@ input-phone-number-country-list-aria-label = Ülke seçin
 input-phone-number-enter-number = Telefon numarasını yazın
 input-phone-number-country-united-states = Amerika Birleşik Devletleri
 input-phone-number-country-canada = Kanada
-legal-back-button = Geri
-app-general-err-message = Bir şeyler yanlış gitti. Lütfen daha sonra yeniden deneyin.
 
 
 reset-pwd-link-damaged-header = Parolayı sıfırlama bağlantısı hasarlı
@@ -1124,17 +1122,6 @@ inline-totp-setup-security-code-placeholder = Kimlik doğrulama kodu
 inline-totp-setup-code-required-error = Kimlik doğrulama kodu gerekli
 tfa-qr-code-alt = Desteklenen uygulamalarda iki aşamalı doğrulamayı kurmak için { $code } kodunu kullanın.
 inline-totp-setup-page-title = İki aşamalı doğrulama
-
-
-legal-header = Hukuki Bilgiler
-legal-terms-of-service-link = Hizmet Koşulları
-legal-privacy-link = Gizlilik Bildirimi
-
-
-legal-privacy-heading = Gizlilik Bildirimi
-
-
-legal-terms-heading = Hizmet Koşulları
 
 
 pair-auth-allow-heading-text = Az önce { -brand-firefox }’a giriş yaptınız mı?

@@ -316,8 +316,6 @@ input-phone-number-country-list-aria-label = Wubjerće kraj
 input-phone-number-enter-number = Telefonowe čisło zapodać
 input-phone-number-country-united-states = Zjednoćene staty
 input-phone-number-country-canada = Kanada
-legal-back-button = Wróćo
-app-general-err-message = Něšto je so nimokuliło. Prošu spytajće pozdźišo hišće raz.
 
 
 reset-pwd-link-damaged-header = Wotkaz k wróćostajenju hesła wobškodźeny
@@ -452,6 +450,7 @@ cs-cannot-disconnect = Klient njeje so namakał, zwisk njeda so dźělić
 cs-logged-out-2 = Wot { $service } wotzjewjeny
 cs-refresh-button =
     .title = Zwjazane słužby aktualizować
+cs-connect-device-button = Grat zwjazać
 cs-missing-device-help = Falowace abo dwójne elementy?
 cs-disconnect-sync-heading = Ze Sync dźělić
 
@@ -785,6 +784,7 @@ page-passkey-add-error-system-v2 = Při wutworjenju wašeho hesłoweho kluča je
 
 
 recent-activity-title = Najnowša kontowa aktiwita
+recent-activity-show-more-button = Wjace pokazać
 recent-activity-account-create-v2 = Konto załožene
 recent-activity-account-disable-v2 = Konto znjemóžnjene
 recent-activity-account-enable-v2 = Konto zmóžnjene
@@ -1225,17 +1225,6 @@ tfa-qr-code-alt = Wužiwajće kod { $code }, zo byšće dwukročelowu awtentifik
 inline-totp-setup-page-title = Dwukročelowa awtentifikacija
 
 
-legal-header = Prawniske
-legal-terms-of-service-link = Wužiwanske wuměnjenja
-legal-privacy-link = Zdźělenka priwatnosće
-
-
-legal-privacy-heading = Zdźělenka priwatnosće
-
-
-legal-terms-heading = Wužiwanske wuměnjenja
-
-
 pair-auth-allow-heading-text = Sće so runje pola { -brand-firefox } přizjewił?
 pair-auth-allow-confirm-button = Haj, grat schwalić
 pair-auth-allow-refuse-device-link = Jeli njejsće to był wy, <a>změńće swoje hesło</a>
@@ -1327,9 +1316,34 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Hopla! Něšto je so nimok
 pair-unsupported-desktop-firefox-fallback-message-v2 = Prošu začińće tutón rajtark a spytajće hišće raz.
 
 
+pair2-authority-continue-on-mobile-cancel-button = Přetorhnyć
+
+
+pair2-authority-download-firefox-cta = { -brand-firefox } scahnyć
+
+
+pair2-authority-timeout-and-cancel-canceled-heading = Přetorhnjeny
+pair2-authority-timeout-and-cancel-try-again-button = Hišće raz spytać
+pair2-authority-timeout-and-cancel-cancel-button = Přetorhnyć
+
+
 pair2-supplicant-approve-sign-in-heading = Jedyn posledni krok k synchronizaciji
 pair2-supplicant-approve-sign-in-instruction = Zwolće do přizjewjenja na swojim ličaku.
 pair2-supplicant-approve-sign-in-cancel-button = Přetorhnyć
+
+
+pair2-supplicant-connect-this-device-connect-button = Zwjazać
+pair2-supplicant-connect-this-device-cancel-button = Přetorhnyć
+
+
+pair2-supplicant-ready-to-scan-heading = Grat zwjazać
+pair2-supplicant-ready-to-scan-learn-more-link = Dalše informacije
+
+
+pair2-supplicant-sync-success-heading = Waš grat je zwjazany
+
+
+pair2-supplicant-timeout-and-cancel-canceled-heading = Přetorhnjeny
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } wobkrućene

@@ -234,7 +234,6 @@ input-phone-number-country-list-aria-label = 国を選択してください
 input-phone-number-enter-number = 電話番号を入力してください
 input-phone-number-country-united-states = アメリカ合衆国
 input-phone-number-country-canada = カナダ
-legal-back-button = 戻る
 
 
 reset-pwd-link-damaged-header = パスワードをリセットするリンクが壊れています
@@ -899,17 +898,6 @@ inline-totp-setup-security-code-placeholder = 認証コード
 inline-totp-setup-code-required-error = 認証コードが必要です
 tfa-qr-code-alt = コード { $code } を使って対応アプリケーション内で 2 段階認証を設定してください。
 inline-totp-setup-page-title = 2 段階認証
-
-
-legal-header = 法的通知
-legal-terms-of-service-link = サービス利用規約
-legal-privacy-link = プライバシー通知
-
-
-legal-privacy-heading = プライバシー通知
-
-
-legal-terms-heading = サービス利用規約
 
 
 pair-auth-allow-heading-text = 今 { -brand-firefox } にログインしましたか？

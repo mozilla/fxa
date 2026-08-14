@@ -349,8 +349,6 @@ input-phone-number-country-list-aria-label = Выберите страну
 input-phone-number-enter-number = Введите номер телефона
 input-phone-number-country-united-states = США
 input-phone-number-country-canada = Канада
-legal-back-button = Назад
-app-general-err-message = Что-то пошло не так. Пожалуйста, попробуйте позже.
 
 
 reset-pwd-link-damaged-header = Ссылка для сброса пароля повреждена
@@ -1248,17 +1246,6 @@ inline-totp-setup-security-code-placeholder = Код аутентификаци�
 inline-totp-setup-code-required-error = Требуется код аутентификации
 tfa-qr-code-alt = Используйте код { $code } для настройки двухэтапной аутентификации в поддерживаемых приложениях.
 inline-totp-setup-page-title = Двухэтапная аутентификация
-
-
-legal-header = Юридическая информация
-legal-terms-of-service-link = Условия использования
-legal-privacy-link = Уведомление о конфиденциальности
-
-
-legal-privacy-heading = Уведомление о конфиденциальности
-
-
-legal-terms-heading = Условия использования
 
 
 pair-auth-allow-heading-text = Вы только что вошли в { -brand-firefox }?

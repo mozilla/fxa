@@ -271,8 +271,6 @@ input-phone-number-country-list-aria-label = کشور را انتخاب کنید
 input-phone-number-enter-number = شماره تلفن را وارد کنید
 input-phone-number-country-united-states = ایالات متحده
 input-phone-number-country-canada = کانادا
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = بازگشت
 
 ## LinkRememberPassword component
 

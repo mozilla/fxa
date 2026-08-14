@@ -310,8 +310,6 @@ input-phone-number-country-list-aria-label = Елді таңдаңыз
 input-phone-number-enter-number = Телефон нөмірін енгізіңіз
 input-phone-number-country-united-states = АҚШ
 input-phone-number-country-canada = Канада
-legal-back-button = Артқа
-app-general-err-message = Бірнәрсе қате кетті. Кейінірек қайталап көріңіз.
 
 
 reset-pwd-link-damaged-header = Парольді тастау сілтемесі зақымдалған
@@ -1210,17 +1208,6 @@ inline-totp-setup-security-code-placeholder = Аутентификация ко�
 inline-totp-setup-code-required-error = Аутентификация коды керек
 tfa-qr-code-alt = Қолдауы бар қолданбаларда екі қадамды аутентификацияны орнату үшін { $code } кодын пайдаланыңыз.
 inline-totp-setup-page-title = Екі сатылы аутентификация
-
-
-legal-header = Құқықтық ақпарат
-legal-terms-of-service-link = Қолдану шарттары
-legal-privacy-link = Жекелік ескертуі
-
-
-legal-privacy-heading = Жекелік ескертуі
-
-
-legal-terms-heading = Қолдану шарттары
 
 
 pair-auth-allow-heading-text = { -brand-firefox } ішіне жаңа кірдіңіз бе?

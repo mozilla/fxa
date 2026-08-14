@@ -284,7 +284,6 @@ input-phone-number-country-list-aria-label = Odaberi zemlju
 input-phone-number-enter-number = Upiši broj telefona
 input-phone-number-country-united-states = Sjedinjene Američke Države
 input-phone-number-country-canada = Kanada
-legal-back-button = Natrag
 
 
 reset-pwd-link-damaged-header = Poveznica za resetiranje lozinke je oštećena
@@ -862,17 +861,6 @@ inline-totp-setup-continue-button = Nastavi
 inline-totp-setup-ready-button = Spremno
 inline-totp-setup-security-code-placeholder = Kod za autentifikaciju
 inline-totp-setup-code-required-error = Potreban je kod autentifikacije
-
-
-legal-header = Pravno
-legal-terms-of-service-link = Uvjeti usluge
-legal-privacy-link = Napomena o privatnosti
-
-
-legal-privacy-heading = Napomena o privatnosti
-
-
-legal-terms-heading = Uvjeti usluge
 
 
 pair-auth-allow-confirm-button = Da, odobri uređaj
