@@ -1,8 +1,8 @@
 {
-  "commit": "b61cedaaf7e75409d19583da3118f89dab0c6e36",
-  "summary": "Merge pull request #21043 from mozilla/l10n-prod-bug",
-  "description": "fix(settings): order l10n bundling before static asset hashing",
-  "timestamp": 1786741044000,
+  "commit": "b26b4d84e1ec1215c235ffedfd9588c68d2b3e5a",
+  "summary": "Merge pull request #21032 from mozilla/fxa-13932",
+  "description": "fix(eslint): replace ramda with native JS in ast utils",
+  "timestamp": 1786742276000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
