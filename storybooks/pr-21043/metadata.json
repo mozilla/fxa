@@ -1,8 +1,8 @@
 {
-  "commit": "3354fdce03a642938d930ffd0bb680a3abd90f3c",
+  "commit": "efdbd68f3746a765bf01c6d6bda32dca6475f554",
   "summary": "fix(settings): order l10n bundling before static asset hashing",
   "description": "Because:\n- The nx upgrade in v1.342.0 replaced a sequential build chain with sibling\n  dependsOn entries, letting hash-static race l10n-bundle.\n- Prod shipped a manifest with no main.ftl keys, so the settings app fetched\n  no FTL at all and every locale fell back to English.\n- The failure was silent in both the build and the browser.\n\nThis commit:\n- Adds build-l10n to build-static's dependsOn.\n- Fails hash-static when a locale has no main.ftl in the manifest.\n- Reports whole-bundle l10n load failures to Sentry.\n- Buffers those reports until metrics are enabled, since they happen before\n  App can mount.",
-  "timestamp": 1786735848000,
+  "timestamp": 1786738291000,
   "storybooks": [
     "fxa-react",
     "fxa-settings"
