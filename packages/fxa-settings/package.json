@@ -373,7 +373,8 @@
       "build-static": {
         "cache": true,
         "dependsOn": [
-          "prebuild"
+          "prebuild",
+          "build-l10n"
         ],
         "inputs": [
           "production",
