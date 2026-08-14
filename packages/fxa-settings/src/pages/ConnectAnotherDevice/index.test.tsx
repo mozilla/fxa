@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
+import * as ReactUtils from 'fxa-react/lib/utils';
+import firefox from '../../lib/channels/firefox';
 import { MOCK_ACCOUNT, renderWithRouter } from '../../models/mocks';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
@@ -30,11 +32,31 @@ jest.mock('../../lib/glean', () => ({
   },
 }));
 
+jest.mock('../../lib/channels/firefox', () => ({
+  __esModule: true,
+  default: {
+    requestSignedInUser: jest.fn().mockResolvedValue(undefined),
+    fxaOAuthFlowBegin: jest.fn().mockResolvedValue(null),
+  },
+  buildSyncOAuthSearch: jest.requireActual('../../lib/channels/firefox')
+    .buildSyncOAuthSearch,
+}));
+
 describe('ConnectAnotherDevice', () => {
+  const requestSignedInUserMock = jest.mocked(firefox.requestSignedInUser);
+
   // let bundle: FluentBundle;
   beforeAll(async () => {
     global.URL.createObjectURL = jest.fn();
     //   bundle = await getFtlBundle('settings');
+  });
+
+  // This package sets neither `clearMocks` nor `resetMocks`, so re-establish the
+  // WebChannel default here rather than relying on the module factory surviving
+  // whatever a previous test did to the mock.
+  beforeEach(() => {
+    requestSignedInUserMock.mockReset();
+    requestSignedInUserMock.mockResolvedValue(undefined);
   });
   it('renders default content as expected', () => {
     renderWithRouter(
@@ -154,5 +176,52 @@ describe('ConnectAnotherDevice', () => {
   it('emits the expected metrics on render', () => {
     renderWithRouter(<ConnectAnotherDevice {...MOCK_DEVICE_BASIC_PROPS} />);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+  });
+
+  // FXA-14132: /pair attributes off its entrypoint, so the redirect must not
+  // drop the query params CAD was opened with.
+  describe('redirect to /pair', () => {
+    let hardNavigateSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      hardNavigateSpy = jest
+        .spyOn(ReactUtils, 'hardNavigate')
+        .mockImplementation(() => {});
+      requestSignedInUserMock.mockResolvedValue({
+        uid: MOCK_ACCOUNT.uid,
+        email: MOCK_ACCOUNT.primaryEmail.email,
+        sessionToken: 'a'.repeat(64),
+        verified: true,
+      });
+    });
+
+    afterEach(() => {
+      hardNavigateSpy.mockRestore();
+    });
+
+    it('passes includeCurrentQueryParams when redirecting an eligible browser', async () => {
+      renderWithRouter(<ConnectAnotherDevice />, {
+        route:
+          '/connect_another_device?context=fx_desktop_v3&entrypoint=fxa_app_menu',
+      });
+
+      await waitFor(() =>
+        expect(hardNavigateSpy).toHaveBeenCalledWith('/pair', {}, true)
+      );
+    });
+
+    it('does not redirect to /pair when the entrypoint is not a pairing entrypoint', async () => {
+      renderWithRouter(<ConnectAnotherDevice />, {
+        route:
+          '/connect_another_device?context=fx_desktop_v3&entrypoint=ios_settings_manage',
+      });
+
+      await waitFor(() => expect(requestSignedInUserMock).toHaveBeenCalled());
+      // Assert on the destination only: a regression to hardNavigate('/pair')
+      // would still satisfy a not.toHaveBeenCalledWith('/pair', {}, true).
+      expect(hardNavigateSpy.mock.calls.map((call) => call[0])).not.toContain(
+        '/pair'
+      );
+    });
   });
 });

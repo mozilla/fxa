@@ -4,11 +4,13 @@
 
 import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { renderWithRouter } from '../../../models/mocks';
+import { readPairingAttribution } from '../../../lib/pairing-attribution';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
-import firefox from '../../../lib/channels/firefox';
+import firefox, { type SignedInUser } from '../../../lib/channels/firefox';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import { MOCK_ERROR } from './mocks';
 import { MOCK_CMS_INFO } from '../../mocks';
@@ -19,12 +21,13 @@ jest.mock('../../../lib/metrics', () => ({
 }));
 
 let mockLocationState: unknown = null;
+let mockLocationSearch = '';
 const mockNavigate = jest.fn();
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
   useLocation: () => ({
     pathname: '/pair',
-    search: '',
+    search: mockLocationSearch,
     state: mockLocationState,
   }),
   useNavigate: () => mockNavigate,
@@ -34,13 +37,9 @@ jest.mock('../../../lib/channels/firefox', () => ({
   __esModule: true,
   default: {
     send: jest.fn(),
-    requestSignedInUser: jest.fn().mockResolvedValue({
-      uid: 'sync-uid',
-      email: 'sync@example.com',
-      sessionToken: 'token',
-      verified: true,
-    }),
-    fxaOAuthFlowBegin: jest.fn().mockResolvedValue(null),
+    // No defaults here on purpose — `beforeEach` owns them; see the note there.
+    requestSignedInUser: jest.fn(),
+    fxaOAuthFlowBegin: jest.fn(),
   },
   buildSyncOAuthSearch: jest.requireActual('../../../lib/channels/firefox')
     .buildSyncOAuthSearch,
@@ -76,6 +75,14 @@ jest.mock('../../../components/QRCode', () => ({
   }) => <img alt={localizedLabel} data-testid="pair-qr" data-value={value} />,
 }));
 
+/** The signed-in browser every test starts from; see the `beforeEach` below. */
+const MOCK_SYNC_SIGNED_IN_USER: SignedInUser = {
+  uid: 'sync-uid',
+  email: 'sync@example.com',
+  sessionToken: 'token',
+  verified: true,
+};
+
 const sendTabIntegration = {
   data: { entrypoint: 'send-tab-toolbar-icon' },
 } as unknown as React.ComponentProps<typeof Pair>['integration'];
@@ -102,9 +109,25 @@ describe('Pair', () => {
     });
   });
 
+  beforeEach(() => {
+    localStorage.clear();
+    // `jest.clearAllMocks()` clears calls but neither implementations nor queued
+    // `mockResolvedValueOnce` values, and this package sets neither `clearMocks`
+    // nor `resetMocks` — so WebChannel overrides would otherwise leak into later
+    // tests. Reset fully, then re-establish the defaults here; this hook is the
+    // single source of truth for them, so the module factory declares none.
+    jest.mocked(firefox.requestSignedInUser).mockReset();
+    jest.mocked(firefox.fxaOAuthFlowBegin).mockReset();
+    jest
+      .mocked(firefox.requestSignedInUser)
+      .mockResolvedValue(MOCK_SYNC_SIGNED_IN_USER);
+    jest.mocked(firefox.fxaOAuthFlowBegin).mockResolvedValue(null);
+  });
+
   afterEach(() => {
     jest.clearAllMocks();
     mockLocationState = null;
+    mockLocationSearch = '';
   });
 
   // Render Pair and wait for the bootstrap spinner to clear before asserting.
@@ -399,8 +422,10 @@ describe('Pair', () => {
     });
 
     it('reveals the choice screen when WebChannel never replies', async () => {
-      requestSignedInUserMock.mockResolvedValueOnce(undefined);
-      fxaOAuthFlowBeginMock.mockResolvedValueOnce(null);
+      // The bootstrap asks twice (initial + one retry), so both replies must be
+      // empty to reach the OAuth branch this test is about.
+      requestSignedInUserMock.mockResolvedValue(undefined);
+      fxaOAuthFlowBeginMock.mockResolvedValue(null);
       await renderPair();
       expect(
         screen.getByLabelText(/I already have Firefox for mobile/)
@@ -408,8 +433,8 @@ describe('Pair', () => {
     });
 
     it('reveals the choice screen when fxa_status throws and OAuth never replies', async () => {
-      requestSignedInUserMock.mockRejectedValueOnce(new Error('boom'));
-      fxaOAuthFlowBeginMock.mockResolvedValueOnce(null);
+      requestSignedInUserMock.mockRejectedValue(new Error('boom'));
+      fxaOAuthFlowBeginMock.mockResolvedValue(null);
       await renderPair();
       expect(
         screen.getByLabelText(/I already have Firefox for mobile/)
@@ -485,6 +510,110 @@ describe('Pair', () => {
       expect(
         screen.queryByText(/View your saved passwords/)
       ).not.toBeInTheDocument();
+    });
+  });
+
+  // FXA-14132: Firefox opens the pairing-authority approval page as a fresh
+  // navigation carrying none of this page's attribution params, so they are
+  // stashed here at the moment control passes to the browser.
+  describe('pairing attribution hand-off', () => {
+    const attributionIntegration = {
+      data: {
+        entrypoint: 'send-tab-toolbar-icon',
+        utmSource: 'firefox-browser',
+      },
+    } as unknown as React.ComponentProps<typeof Pair>['integration'];
+
+    it('stashes the integration attribution when Continue is clicked with "has mobile"', async () => {
+      const user = userEvent.setup();
+      await renderPair({ integration: attributionIntegration });
+
+      await user.click(
+        screen.getByLabelText(/I already have Firefox for mobile/)
+      );
+      await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+      expect(readPairingAttribution()).toEqual({
+        entrypoint: 'send-tab-toolbar-icon',
+        utm_source: 'firefox-browser',
+      });
+    });
+
+    it('stashes the integration attribution when "Continue to sync" is clicked', async () => {
+      const user = userEvent.setup();
+      await renderPair({ integration: attributionIntegration });
+
+      await user.click(
+        screen.getByLabelText(/I don’t have Firefox for mobile/)
+      );
+      await user.click(screen.getByRole('button', { name: 'Continue' }));
+      await user.click(
+        screen.getByRole('button', { name: 'Continue to sync' })
+      );
+
+      expect(readPairingAttribution()).toEqual({
+        entrypoint: 'send-tab-toolbar-icon',
+        utm_source: 'firefox-browser',
+      });
+    });
+
+    it('falls back to the URL when no integration is supplied', async () => {
+      const user = userEvent.setup();
+      mockLocationSearch = '?entrypoint=fxa_app_menu';
+      await renderPair();
+
+      await user.click(
+        screen.getByLabelText(/I already have Firefox for mobile/)
+      );
+      await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+      expect(readPairingAttribution()).toEqual({
+        entrypoint: 'fxa_app_menu',
+      });
+    });
+
+    it('stashes nothing when the user only advances to the download screen', async () => {
+      const user = userEvent.setup();
+      await renderPair({ integration: attributionIntegration });
+
+      await user.click(
+        screen.getByLabelText(/I don’t have Firefox for mobile/)
+      );
+      await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+      expect(readPairingAttribution()).toEqual({});
+    });
+
+    it('carries the attribution into the sync OAuth handoff URL', async () => {
+      const hardNavigateSpy = jest
+        .spyOn(ReactUtils, 'hardNavigate')
+        .mockImplementation(() => {});
+      try {
+        jest.mocked(firefox.requestSignedInUser).mockResolvedValue(undefined);
+        jest.mocked(firefox.fxaOAuthFlowBegin).mockResolvedValueOnce({
+          action: 'signin',
+          response_type: 'code',
+          access_type: 'offline',
+          scope: 'profile https://identity.mozilla.com/apps/oldsync',
+          client_id: 'cid-abc',
+          state: 'state-xyz',
+          code_challenge: 'cc',
+          code_challenge_method: 'S256',
+        });
+        renderWithRouter(<Pair integration={attributionIntegration} />);
+
+        await waitFor(() => expect(hardNavigateSpy).toHaveBeenCalled());
+        const url = new URL(
+          hardNavigateSpy.mock.calls[0][0],
+          'http://localhost'
+        );
+        expect(url.searchParams.get('entrypoint')).toBe(
+          'send-tab-toolbar-icon'
+        );
+        expect(url.searchParams.get('utm_source')).toBe('firefox-browser');
+      } finally {
+        hardNavigateSpy.mockRestore();
+      }
     });
   });
 
