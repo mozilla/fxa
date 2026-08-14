@@ -213,9 +213,7 @@ class PasswordlessHandler {
     await this.customs.check(
       request,
       email,
-      isNewAccount
-        ? PASSWORDLESS_SEND_OTP_SIGNUP
-        : PASSWORDLESS_SEND_OTP_SIGNIN
+      isNewAccount ? PASSWORDLESS_SEND_OTP_SIGNUP : PASSWORDLESS_SEND_OTP_SIGNIN
     );
   }
 
@@ -346,6 +344,14 @@ class PasswordlessHandler {
       db: this.db,
       request,
       account: { uid: account.uid },
+    });
+
+    await recordSecurityEvent('account.login', {
+      db: this.db,
+      request,
+      account: { uid: account.uid },
+      tokenId: sessionToken.id,
+      method: 'passwordless.otp',
     });
 
     // Mirror the SNS notifications that AccountHandler.createAccount

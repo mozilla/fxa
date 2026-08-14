@@ -1300,10 +1300,10 @@ describe('passwordless security events', () => {
     route = getRoute(routes, '/account/passwordless/confirm_code', 'POST');
 
     return runTest(route, mockRequest, () => {
-      // Should record three events: account.create (so the generic
+      // Should record four events: account.create (so the generic
       // account-creation metric fires for OTP signups too), then
-      // registration_complete and otp_verified.
-      expect(mockRecordSecurityEvent).toHaveBeenCalledTimes(3);
+      // registration_complete, otp_verified and account.login.
+      expect(mockRecordSecurityEvent).toHaveBeenCalledTimes(4);
       expect(mockRecordSecurityEvent).toHaveBeenNthCalledWith(
         1,
         'account.create',
@@ -1318,6 +1318,61 @@ describe('passwordless security events', () => {
         3,
         'account.passwordless_login_otp_verified',
         expect.objectContaining({ account: { uid } })
+      );
+      expect(mockRecordSecurityEvent).toHaveBeenNthCalledWith(
+        4,
+        'account.login',
+        expect.objectContaining({
+          account: { uid },
+          method: 'passwordless.otp',
+        })
+      );
+    });
+  });
+
+  it('should pass the new session token id on the account.login event', () => {
+    // The stored proc derives `verified` from the token id, so the new session
+    // token id has to reach the event. Without it a TOTP-gated sign-in is
+    // recorded as a verified login.
+    const SESSION_TOKEN_ID = 'sessiontokenid';
+    mockDB.createSessionToken = jest.fn(() =>
+      Promise.resolve({
+        id: SESSION_TOKEN_ID,
+        data: 'sessiontoken123',
+        emailVerified: true,
+        tokenVerified: false,
+        lastAuthAt: () => 1234567890,
+      })
+    );
+
+    mockRequest.payload.code = '123456';
+
+    routes = makeRoutes({
+      log: mockLog,
+      db: mockDB,
+      customs: mockCustoms,
+      recordSecurityEvent: mockRecordSecurityEvent,
+      config: {
+        passwordlessOtp: {
+          enabled: true,
+          ttl: 300,
+          digits: 6,
+          allowedClientServices: {
+            'test-client-id': { allowedServices: ['*'] },
+          },
+        },
+      },
+    });
+    route = getRoute(routes, '/account/passwordless/confirm_code', 'POST');
+
+    return runTest(route, mockRequest, () => {
+      expect(mockRecordSecurityEvent).toHaveBeenCalledWith(
+        'account.login',
+        expect.objectContaining({
+          account: { uid },
+          tokenId: SESSION_TOKEN_ID,
+          method: 'passwordless.otp',
+        })
       );
     });
   });
@@ -1362,6 +1417,7 @@ describe('passwordless security events', () => {
       expect(recordedEvents).not.toContain('account.create');
       expect(recordedEvents).toEqual([
         'account.passwordless_login_otp_verified',
+        'account.login',
       ]);
     });
   });

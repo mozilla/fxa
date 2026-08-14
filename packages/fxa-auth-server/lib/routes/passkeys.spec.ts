@@ -1628,7 +1628,10 @@ describe('passkeys routes', () => {
 
         expect(recordSecurityEvent).toHaveBeenCalledWith(
           'account.login',
-          expect.objectContaining({ account: { uid: UID } })
+          expect.objectContaining({
+            account: { uid: UID },
+            method: 'passkey',
+          })
         );
       });
 
