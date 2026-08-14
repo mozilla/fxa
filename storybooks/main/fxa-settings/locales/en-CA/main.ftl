@@ -314,8 +314,6 @@ input-phone-number-country-list-aria-label = Select country
 input-phone-number-enter-number = Enter phone number
 input-phone-number-country-united-states = United States
 input-phone-number-country-canada = Canada
-legal-back-button = Back
-app-general-err-message = Something went wrong. Please try again later.
 
 
 reset-pwd-link-damaged-header = Reset password link damaged
@@ -1208,17 +1206,6 @@ inline-totp-setup-security-code-placeholder = Authentication code
 inline-totp-setup-code-required-error = Authentication code required
 tfa-qr-code-alt = Use the code { $code } to set up two-step authentication in supported applications.
 inline-totp-setup-page-title = Two-step authentication
-
-
-legal-header = Legal
-legal-terms-of-service-link = Terms of Service
-legal-privacy-link = Privacy Notice
-
-
-legal-privacy-heading = Privacy Notice
-
-
-legal-terms-heading = Terms of Service
 
 
 pair-auth-allow-heading-text = Did you just sign in to { -brand-firefox }?

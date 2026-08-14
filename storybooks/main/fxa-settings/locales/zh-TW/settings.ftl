@@ -365,10 +365,6 @@ input-phone-number-country-list-aria-label = 選擇國家
 input-phone-number-enter-number = 請輸入手機號碼
 input-phone-number-country-united-states = 美國
 input-phone-number-country-canada = 加拿大
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = 上一頁
-# Generic error shown when the legal document fails to load
-app-general-err-message = 某些東西不對勁，請稍候再試一次。
 
 ## LinkDamaged component
 
@@ -571,6 +567,9 @@ cs-cannot-disconnect = 找不到客戶端，無法取消連線
 cs-logged-out-2 = 已登出 { $service }
 cs-refresh-button =
     .title = 重新整理連結的服務
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = 連結裝置
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = 少了什麼東西，或有重複項目嗎？
 cs-disconnect-sync-heading = 中斷與 Sync 的連結
@@ -1012,6 +1011,8 @@ page-passkey-add-error-system-v2 = 建立您的 Passkey 時發生問題，請稍
 ## These are displayed as a list with the date when the event occured
 
 recent-activity-title = 近期帳號活動
+# Clicking this button reveals the older account activity that is hidden at first.
+recent-activity-show-more-button = 顯示更多
 recent-activity-account-create-v2 = 建立帳號
 recent-activity-account-disable-v2 = 停用帳號
 recent-activity-account-enable-v2 = 啟用帳號
@@ -1638,23 +1639,6 @@ inline-totp-setup-code-required-error = 需要輸入驗證碼
 tfa-qr-code-alt = 使用代碼 { $code } 在支援的應用程式中設定兩階段驗證。
 inline-totp-setup-page-title = 兩階段驗證
 
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = 法律資訊
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = 服務條款
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = 隱私權公告
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = 隱私權公告
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = 服務條款
-
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = 您剛登入 { -brand-firefox } 嗎？
@@ -1827,6 +1811,68 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = 喔喔，有些東西不�
 pair-unsupported-desktop-firefox-fallback-message-v2 = 請關閉這個分頁然後再試一次。
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer, which is already signed in, after their
+## mobile device scans the pairing QR code. It asks them to approve the
+## sign-in, and shows the requesting device's details so they can verify it.
+
+# Asks the user to confirm the sign-in that another one of their devices just started
+pair2-authority-approve-sign-in-heading = 要允許登入嗎？
+# Submit button confirming that the user started the pairing and approves the
+# other device being added to their account
+pair2-authority-approve-sign-in-confirm-button = 好，允許登入
+
+## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer after scanning the pairing QR code with
+## their phone. It confirms the flow has moved to the mobile device and waits
+## for the remaining steps to be completed there.
+
+pair2-authority-continue-on-mobile-heading = 到您的行動裝置繼續
+# Dismisses the pairing attempt
+pair2-authority-continue-on-mobile-cancel-button = 取消
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when Firefox is needed to continue pairing.
+## It points them at firefox.com/pair and offers a download link for Firefox.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-download-firefox-heading = 開啟 { -brand-firefox } 即可同步
+# Links out to the Firefox download page
+pair2-authority-download-firefox-cta = 下載 { -brand-firefox }
+
+## ScanQR page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer. It shows a QR code that they scan with
+## their phone or tablet to connect the two devices and start syncing.
+
+pair2-authority-scan-qr-heading = 掃描後即可連結您的行動裝置
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and offers the follow-up actions.
+
+# "syncing" here means copying data between the user's devices
+pair2-authority-sync-success-heading = 正在同步中
+# Opens the tabs that are open on the user's other synced devices
+pair2-authority-sync-success-view-tabs-button = 檢視同步的分頁
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button = 同步設定
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when pairing stopped without succeeding,
+## either because it timed out or because it was canceled. Both cases offer to
+## start pairing over again.
+
+# Shown when the pairing attempt expired before it was approved
+pair2-authority-timeout-and-cancel-timeout-heading = 還想要連結其他裝置嗎？
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-canceled-heading = 已取消
+# Restarts the pairing flow
+pair2-authority-timeout-and-cancel-try-again-button = 重試
+# Abandons pairing without retrying
+pair2-authority-timeout-and-cancel-cancel-button = 取消
+# Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
+pair2-authority-timeout-and-cancel-sync-settings-button = 同步設定
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
 ## shown on their computer. It waits for them to approve the sign-in on the
 ## computer, and shows that computer's details so they can verify the request.
@@ -1836,6 +1882,44 @@ pair2-supplicant-approve-sign-in-heading = 完成最後一步即可開始同步
 pair2-supplicant-approve-sign-in-instruction = 請到您的電腦上確認登入。
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = 取消
+
+## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It asks them to confirm connecting the mobile
+## device to their account, and shows that computer's details so they can
+## verify the request.
+
+# Confirms the pairing attempt
+pair2-supplicant-connect-this-device-connect-button = 連線
+# Dismisses the pairing attempt
+pair2-supplicant-connect-this-device-cancel-button = 取消
+
+## ReadyToScan page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device before pairing starts. It tells them
+## to open firefox.com/pair on their computer, which is where the QR code they
+## scan with the mobile device comes from.
+
+# Opens a Mozilla support article about setting up sync
+pair2-supplicant-ready-to-scan-learn-more-link = 更多資訊
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device once pairing has completed: the device
+## is signed in and syncing with the computer they paired it with.
+
+pair2-supplicant-sync-success-heading = 已連結您的裝置
+# Opens the view listing tabs open on the user's other synced devices
+pair2-supplicant-sync-success-view-tabs-button = 檢視同步的分頁
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button = 同步設定
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing ends without connecting,
+## either because the attempt timed out or because it was canceled. Both states
+## are informational and offer no on-screen action, so the copy points the user
+## back to their computer to start again.
+
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-canceled-heading = 已取消
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

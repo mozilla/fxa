@@ -230,7 +230,6 @@ input-phone-number-country-list-aria-label = کشور را انتخاب کنید
 input-phone-number-enter-number = شماره تلفن را وارد کنید
 input-phone-number-country-united-states = ایالات متحده
 input-phone-number-country-canada = کانادا
-legal-back-button = بازگشت
 
 
 remember-password-signin-link = ورود

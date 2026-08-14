@@ -64,9 +64,6 @@ input-password-hide = Tewäx ewan tzij
 input-password-show = Tik'ut ewan tzij
 
 
-legal-back-button = Chi rij
-
-
 reset-pwd-link-damaged-header = Titzolïx ruwäch ri man ütz ta ruximonel ewan tzij
 reset-pwd-link-damaged-message = K'a k'o na taq tz'ib' nrajo' ri ximonel xapïtz' ruma ri' toq rik'in jub'a' xq'at ruma ri ataqoya'l richin winäq. Tachajij ruwachib'enik ri ochochib'äl richin natojtob'ej chik.
 
@@ -370,17 +367,6 @@ inline-totp-setup-cancel-setup-button = Tiq'at runuk'ulem
 inline-totp-setup-continue-button = Titikïr chik el
 inline-totp-setup-ready-button = Ütz chik
 inline-totp-setup-security-code-placeholder = Rujikib'axik b'itz'ib'
-
-
-legal-header = Taqanel rutzijol
-legal-terms-of-service-link = Taq Rojqanem Samaj
-legal-privacy-link = Ichinan na'oj
-
-
-legal-privacy-heading = Ichinan na'oj
-
-
-legal-terms-heading = Taq Rojqanem Samaj
 
 
 pair-auth-complete-heading = Okisan okisaxel

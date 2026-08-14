@@ -229,7 +229,6 @@ input-phone-number-country-list-aria-label = Veldu land
 input-phone-number-enter-number = Settu inn símanúmer
 input-phone-number-country-united-states = Bandaríkin
 input-phone-number-country-canada = Kanada
-legal-back-button = Til baka
 
 
 reset-pwd-link-damaged-header = Tengill til að endurstilla lykilorð er skemmdur
@@ -908,17 +907,6 @@ inline-totp-setup-on-completion-description = Eftir að því er lokið, mun þa
 inline-totp-setup-security-code-placeholder = Auðkenningarkóði
 inline-totp-setup-code-required-error = Auðkenningarkóði er nauðsynlegur
 tfa-qr-code-alt = Notaðu kóðann { $code } til að setja upp tveggja-þrepa auðkenningu í þeim forritum sem styðja slíkt.
-
-
-legal-header = Lagalegur fyrirvari
-legal-terms-of-service-link = Þjónustuskilmálar
-legal-privacy-link = Meðferð persónuupplýsinga
-
-
-legal-privacy-heading = Meðferð persónuupplýsinga
-
-
-legal-terms-heading = Þjónustuskilmálar
 
 
 pair-auth-allow-heading-text = Varstu að skrá þig inn á { -brand-firefox }?

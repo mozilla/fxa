@@ -200,10 +200,6 @@ input-phone-number-country-list-aria-label = Выбар краіны
 input-phone-number-enter-number = Увядзіце нумар тэлефона
 input-phone-number-country-united-states = Злучаныя Штаты
 input-phone-number-country-canada = Канада
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Назад
-# Generic error shown when the legal document fails to load
-app-general-err-message = Нешта пайшло не так. Калі ласка, паспрабуйце зноў пазней.
 
 ## LinkDamaged component
 
@@ -971,23 +967,6 @@ inline-totp-setup-use-qr-or-enter-key-instructions = Адскануйце QR-к�
 inline-totp-setup-on-completion-description = Пасля завяршэння яна пачне генераваць коды аўтарызацыі для ўвядзення.
 # The "authentication code" here refers to the code provided by an authentication app.
 inline-totp-setup-security-code-placeholder = Код аўтарызацыі
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Прававыя звесткі
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Умовы абслугоўвання
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Паведамленне аб прыватнасці
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Паведамленне аб прыватнасці
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Умовы абслугоўвання
 
 ## AuthAllow page - Part of the device pairing flow
 

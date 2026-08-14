@@ -287,8 +287,6 @@ input-phone-number-country-list-aria-label = 选择国家/地区
 input-phone-number-enter-number = 请输入电话号码
 input-phone-number-country-united-states = 美国
 input-phone-number-country-canada = 加拿大
-legal-back-button = 后退
-app-general-err-message = 出了点问题，请稍后再试。
 
 
 reset-pwd-link-damaged-header = 重置密码链接已损坏
@@ -1133,17 +1131,6 @@ inline-totp-setup-security-code-placeholder = 验证码
 inline-totp-setup-code-required-error = 请输入验证码
 tfa-qr-code-alt = 使用安全码 { $code } 在支持的应用程序中设置两步验证。
 inline-totp-setup-page-title = 两步验证
-
-
-legal-header = 法律
-legal-terms-of-service-link = 服务条款
-legal-privacy-link = 隐私声明
-
-
-legal-privacy-heading = 隐私声明
-
-
-legal-terms-heading = 服务条款
 
 
 pair-auth-allow-heading-text = 您刚刚登录了 { -brand-firefox } 吗？

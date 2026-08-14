@@ -436,8 +436,6 @@ input-phone-number-country-list-aria-label = Izberite državo
 input-phone-number-enter-number = Vnesite telefonsko številko
 input-phone-number-country-united-states = Združene države Amerike
 input-phone-number-country-canada = Kanada
-legal-back-button = Nazaj
-app-general-err-message = Prišlo je do napake. Poskusite znova pozneje.
 
 
 reset-pwd-link-damaged-header = Povezava za ponastavitev gesla je poškodovana
@@ -572,6 +570,7 @@ cs-cannot-disconnect = Odjemalec ni najden, povezave ni bilo mogoče prekiniti
 cs-logged-out-2 = Odjavljeno iz storitve { $service }
 cs-refresh-button =
     .title = Osveži povezane storitve
+cs-connect-device-button = Povežite napravo
 cs-missing-device-help = Manjkajoči ali podvojeni elementi?
 cs-disconnect-sync-heading = Odklopi od Synca
 
@@ -905,6 +904,7 @@ page-passkey-add-error-system-v2 = Pri ustvarjanju ključa za dostop je prišlo 
 
 
 recent-activity-title = Nedavna dejavnost v računu
+recent-activity-show-more-button = Prikaži več
 recent-activity-account-create-v2 = Račun ustvarjen
 recent-activity-account-disable-v2 = Račun onemogočen
 recent-activity-account-enable-v2 = Račun omogočen
@@ -1345,17 +1345,6 @@ tfa-qr-code-alt = S pomočjo kode { $code } nastavite dvostopenjsko overjanje v 
 inline-totp-setup-page-title = Overitev v dveh korakih
 
 
-legal-header = Pravno obvestilo
-legal-terms-of-service-link = Pogoji uporabe
-legal-privacy-link = Obvestilo o zasebnosti
-
-
-legal-privacy-heading = Obvestilo o zasebnosti
-
-
-legal-terms-heading = Pogoji uporabe
-
-
 pair-auth-allow-heading-text = Ste se pravkar prijavili v { -brand-firefox }?
 pair-auth-allow-confirm-button = Da, odobri napravo
 pair-auth-allow-refuse-device-link = Če to niste bili vi, <a>spremenite geslo</a>
@@ -1447,9 +1436,72 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Opla! Prišlo je do napake
 pair-unsupported-desktop-firefox-fallback-message-v2 = Zaprite ta zavihek in poskusite znova.
 
 
+pair2-authority-approve-sign-in-heading = Odobrim prijavo?
+pair2-authority-approve-sign-in-confirm-button = Da, odobri prijavo
+pair2-authority-approve-sign-in-change-password = Ali niste vi? <changePassword>Spremenite geslo</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = Nadaljujte na mobilni napravi
+pair2-authority-continue-on-mobile-description = Sledite korakom na telefonu ali tablici.
+pair2-authority-continue-on-mobile-cancel-button = Prekliči
+
+
+pair2-authority-download-firefox-heading = Odprite { -brand-firefox } za sinhronizacijo
+pair2-authority-download-firefox-instruction = Če želite nastaviti sinhronizacijo med napravami, v tej napravi odprite { -brand-firefox } in obiščite <b>firefox.com/pair</b>
+pair2-authority-download-firefox-cta = Prenesi { -brand-firefox }
+
+
+pair2-authority-scan-qr-heading = Skenirajte za povezavo mobilne naprave
+pair2-authority-scan-qr-instruction = Skenirajte kodo QR s telefonom ali tablico za sinhronizacijo zaznamkov, zavihkov in drugih podatkov v storitvi { -brand-firefox }.
+pair2-authority-scan-qr-code-aria-label = QR koda za povezavo vaše mobilne naprave
+pair2-authority-scan-qr-help-link = Pridobite pomoč pri branju
+
+
+pair2-authority-sync-success-heading = Izvajate sinhronizacijo
+pair2-authority-sync-success-description = Vaši zavihki, zaznamki, gesla in drugo so pripravljeni v vaših napravah.
+pair2-authority-sync-success-view-tabs-button = Ogled sinhroniziranih zavihkov
+pair2-authority-sync-success-sync-settings-button = Nastavitve sinhronizacije
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = Še vedno želite povezati napravo?
+pair2-authority-timeout-and-cancel-timeout-description = Kaže, da nam je potekla časovna omejitev. Poskusite znova, če še vedno želite povezati mobilno napravo in sinhronizirati podatke v storitvi { -brand-firefox }.
+pair2-authority-timeout-and-cancel-canceled-heading = Preklican
+pair2-authority-timeout-and-cancel-canceled-description = Če si premislite ali želite povezati drugo napravo, poskusite znova.
+pair2-authority-timeout-and-cancel-try-again-button = Poskusi znova
+pair2-authority-timeout-and-cancel-cancel-button = Prekliči
+pair2-authority-timeout-and-cancel-sync-settings-button = Nastavitve sinhronizacije
+
+
 pair2-supplicant-approve-sign-in-heading = Še zadnji korak do sinhronizacije
 pair2-supplicant-approve-sign-in-instruction = Odobrite prijavo v računalniku.
 pair2-supplicant-approve-sign-in-cancel-button = Prekliči
+
+
+pair2-supplicant-connect-this-device-heading = Želite to napravo povezati z računom?
+pair2-supplicant-connect-this-device-connect-button = Poveži
+pair2-supplicant-connect-this-device-cancel-button = Prekliči
+
+
+pair2-supplicant-download-firefox-heading = Prejmite { -brand-firefox } za to napravo
+pair2-supplicant-download-firefox-description = Prenesite { -brand-firefox } in sinhronizirajte zaznamke, zgodovino in drugo med napravami. <linkExternal>Več o tem</linkExternal>
+pair2-supplicant-download-firefox-continue-button = Nadaljuj čez { -brand-firefox }
+
+
+pair2-supplicant-ready-to-scan-heading = Za povezavo naprave
+pair2-supplicant-ready-to-scan-instruction = V računalniku odprite { -brand-firefox } in obiščite <b>firefox.com/pair</b> ter sledite navodilom na zaslonu za povezavo te mobilne naprave.
+pair2-supplicant-ready-to-scan-learn-more-link = Več o tem
+
+
+pair2-supplicant-sync-success-heading = Vaša naprava je povezana
+pair2-supplicant-sync-success-description = Vaši zaznamki, zavihki in drugo bo v { -brand-firefox } ostalo sinhronizirano.
+pair2-supplicant-sync-success-view-tabs-button = Ogled sinhroniziranih zavihkov
+pair2-supplicant-sync-success-sync-settings-button = Nastavitve sinhronizacije
+
+
+pair2-supplicant-timeout-and-cancel-timeout-heading = Kaže, da nam je potekla časovna omejitev
+pair2-supplicant-timeout-and-cancel-timeout-description = Če želite povezati mobilno napravo in sinhronizirati vaše podatke v storitvi { -brand-firefox }, v računalniku obiščite <b>firefox.com/pair</b>.
+pair2-supplicant-timeout-and-cancel-canceled-heading = Preklican
+pair2-supplicant-timeout-and-cancel-canceled-description = Če želite kadarkoli povezati napravo, v računalniku obiščite <b>firefox.com/pair</b>.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account(zacetnica: "velika") } potrjen

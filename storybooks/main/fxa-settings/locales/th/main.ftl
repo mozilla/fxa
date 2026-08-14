@@ -281,7 +281,6 @@ input-phone-number-country-list-aria-label = เลือกประเทศ
 input-phone-number-enter-number = กรอกหมายเลขโทรศัพท์
 input-phone-number-country-united-states = สหรัฐอเมริกา
 input-phone-number-country-canada = แคนาดา
-legal-back-button = ย้อนกลับ
 
 
 reset-pwd-link-damaged-header = ลิงก์สำหรับตั้งรหัสผ่านใหม่เสียหาย
@@ -1103,17 +1102,6 @@ inline-totp-setup-security-code-placeholder = รหัสยืนยันต�
 inline-totp-setup-code-required-error = ต้องใส่รหัสยืนยันตัวตน
 tfa-qr-code-alt = ใช้รหัส { $code } เพื่อตั้งค่าการยืนยันตัวตนสองขั้นตอนในแอปพลิเคชันที่รองรับ
 inline-totp-setup-page-title = การยืนยันตัวตนสองขั้นตอน
-
-
-legal-header = ข้อกฎหมาย
-legal-terms-of-service-link = เงื่อนไขการให้บริการ
-legal-privacy-link = ประกาศความเป็นส่วนตัว
-
-
-legal-privacy-heading = ประกาศความเป็นส่วนตัว
-
-
-legal-terms-heading = เงื่อนไขการให้บริการ
 
 
 pair-auth-allow-heading-text = คุณเพิ่งลงชื่อเข้าใช้ { -brand-firefox } หรือเปล่า?

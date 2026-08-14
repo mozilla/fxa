@@ -235,8 +235,6 @@ input-phone-number-country-list-aria-label = രാജ്യം തിരഞ്�
 input-phone-number-enter-number = ഫോൺ അക്കം നല്കുക
 input-phone-number-country-united-states = യുണൈറ്റഡ്‌ സ്റ്റേറ്റ്‌സ്‌
 input-phone-number-country-canada = കാനട
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = പുറകോട്ടു്
 
 ## LinkDamaged component
 

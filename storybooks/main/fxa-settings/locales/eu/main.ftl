@@ -232,7 +232,6 @@ input-phone-number-country-list-aria-label = Hautatu herrialdea
 input-phone-number-enter-number = Idatzi telefono zenbakia
 input-phone-number-country-united-states = Estatu Batuak
 input-phone-number-country-canada = Kanada
-legal-back-button = Atzera
 
 
 reset-pwd-link-damaged-header = Pasahitza berrezartzeko lotura hondatuta
@@ -883,17 +882,6 @@ inline-totp-setup-on-completion-description = Amaitutakoan, autentifikazio-kodea
 inline-totp-setup-security-code-placeholder = autentifikazio-kode
 inline-totp-setup-code-required-error = Autentifikazioa kodea beharrezkoa
 tfa-qr-code-alt = Erabili { $code } kodea onartzen diren aplikazioetan bi urratseko autentifikazioa konfiguratzeko.
-
-
-legal-header = Legala
-legal-terms-of-service-link = Zerbitzuaren baldintzak
-legal-privacy-link = Pribatutasun-oharra
-
-
-legal-privacy-heading = Pribatutasun-oharra
-
-
-legal-terms-heading = Zerbitzuaren baldintzak
 
 
 pair-auth-allow-heading-text = { -brand-firefox }en saioa hasi berri duzu?

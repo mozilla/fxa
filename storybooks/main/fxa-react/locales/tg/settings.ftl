@@ -315,8 +315,6 @@ input-phone-number-country-list-aria-label = Интихоби кишвар
 input-phone-number-enter-number = Рақами телефонро ворид намоед
 input-phone-number-country-united-states = Иёлоти Муттаҳидаи Амрико
 input-phone-number-country-canada = Канада
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Ба қафо
 
 ## LinkDamaged component
 
@@ -933,23 +931,6 @@ inline-totp-setup-ready-button = Омода аст
 inline-totp-setup-security-code-placeholder = Рамзи санҷиши ҳаққоният
 # The "authentication code" here refers to the code provided by an authentication app.
 inline-totp-setup-code-required-error = Рамзи санҷиши ҳаққоният лозим аст
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Маълумоти ҳуқуқӣ
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Шартҳои хизматрасонӣ
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Огоҳномаи махфият
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Огоҳномаи махфият
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Шартҳои хизматрасонӣ
 
 ## AuthAllow page - Part of the device pairing flow
 

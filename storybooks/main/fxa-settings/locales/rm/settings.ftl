@@ -289,8 +289,6 @@ input-phone-number-country-list-aria-label = Tscherna in pajais
 input-phone-number-enter-number = Endatar il numer da telefon
 input-phone-number-country-united-states = Stadis Unids da l’America
 input-phone-number-country-canada = Canada
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Enavos
 
 ## LinkDamaged component
 
@@ -1217,23 +1215,6 @@ inline-totp-setup-security-code-placeholder = Code d'autentificaziun
 # The "authentication code" here refers to the code provided by an authentication app.
 inline-totp-setup-code-required-error = Code d’autentificaziun necessari
 tfa-qr-code-alt = Utilisescha il code { $code } per configurar l’autentificaziun en dus pass en las applicaziuns sustegnidas.
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Infurmaziuns giuridicas
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Cundiziuns d'utilisaziun
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Infurmaziuns davart la protecziun da datas
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Infurmaziuns davart la protecziun da datas
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Cundiziuns d'utilisaziun
 
 ## AuthAllow page - Part of the device pairing flow
 

@@ -310,8 +310,6 @@ input-phone-number-country-list-aria-label = Vel land
 input-phone-number-enter-number = Skriv inn telefonnummer
 input-phone-number-country-united-states = USA
 input-phone-number-country-canada = Canada
-legal-back-button = Tilbake
-app-general-err-message = Noko gjekk gale. Prøv igjen seinare.
 
 
 reset-pwd-link-damaged-header = Passordlenke for tilbakestilling er skada
@@ -1201,17 +1199,6 @@ inline-totp-setup-security-code-placeholder = Autentiseringskode
 inline-totp-setup-code-required-error = Autentiseringskode påkravd
 tfa-qr-code-alt = Bruk koden { $code } or å stille inn tostegs-autentisering i støtta appar.
 inline-totp-setup-page-title = Tostegs-autentisering
-
-
-legal-header = Juridisk
-legal-terms-of-service-link = Tenestevilkår
-legal-privacy-link = Personvernpraksis
-
-
-legal-privacy-heading = Personvernpraksis
-
-
-legal-terms-heading = Tenestevilkår
 
 
 pair-auth-allow-heading-text = Logga du nettopp på { -brand-firefox }?

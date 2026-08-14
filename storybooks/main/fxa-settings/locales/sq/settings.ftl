@@ -341,8 +341,6 @@ input-phone-number-country-list-aria-label = Përzgjidhni vendin
 input-phone-number-enter-number = Jepni numër telefoni
 input-phone-number-country-united-states = Shtetet e Bashkuara
 input-phone-number-country-canada = Kanada
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Mbrapsht
 
 ## LinkDamaged component
 
@@ -1504,23 +1502,6 @@ inline-totp-setup-security-code-placeholder = Kod mirëfilltësimi
 inline-totp-setup-code-required-error = Lypset kod mirëfilltësimi
 tfa-qr-code-alt = Përdoreni kodin { $code } që të rregulloni mirëfilltësim dyhapësh te aplikacione që e mbulojnë.
 inline-totp-setup-page-title = Mirëfilltësim dyhapësh
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Ligjore
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Kushte Shërbimi
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Shënim Mbi Privatësinë
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Shënim Mbi Privatësinë
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Kushte Shërbimi
 
 ## AuthAllow page - Part of the device pairing flow
 

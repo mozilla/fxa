@@ -322,8 +322,6 @@ input-phone-number-country-list-aria-label = Dewis gwlad
 input-phone-number-enter-number = Rhowch rif ffôn
 input-phone-number-country-united-states = Yr Unol Daleithiau
 input-phone-number-country-canada = Canada
-legal-back-button = Nôl
-app-general-err-message = Aeth rhywbeth o'i le. Ceisiwch eto.
 
 
 reset-pwd-link-damaged-header = Mae dolen ailosod y cyfrinair wedi ei difrodi
@@ -456,6 +454,7 @@ cs-cannot-disconnect = Cleient heb ei ddarganfod, yn methu â datgysylltu
 cs-logged-out-2 = Wedi allgofnodi o { $service }.
 cs-refresh-button =
     .title = Adnewyddu gwasanaethau cysylltiedig
+cs-connect-device-button = Cysylltu dyfais
 cs-missing-device-help = Eitemau coll neu ddyblyg?
 cs-disconnect-sync-heading = Datgysylltu o Sync
 
@@ -793,6 +792,7 @@ page-passkey-add-error-system-v2 = Bu problem wrth greu eich cyfrinair. Ceisiwch
 
 
 recent-activity-title = Gweithgaredd Cyfrif Diweddar
+recent-activity-show-more-button = Dangos rhagor
 recent-activity-account-create-v2 = Cyfrif wedi'i greu
 recent-activity-account-disable-v2 = Analluogwyd y cyfrif
 recent-activity-account-enable-v2 = Galluogwyd y cyfrif
@@ -1233,17 +1233,6 @@ tfa-qr-code-alt = Defnyddiwch y cod { $code } i osod dilysiad dau gam mewn rhagl
 inline-totp-setup-page-title = Dilysu dau gam
 
 
-legal-header = Cyfreithiol
-legal-terms-of-service-link = Amodau Gwasanaeth
-legal-privacy-link = Hysbysiad Preifatrwydd
-
-
-legal-privacy-heading = Hysbysiad Preifatrwydd
-
-
-legal-terms-heading = Amodau Gwasanaeth
-
-
 pair-auth-allow-heading-text = Ydych chi newydd fewngofnodi i { -brand-firefox }?
 pair-auth-allow-confirm-button = Iawn, yn cymeradwyo'r ddyfais
 pair-auth-allow-refuse-device-link = Os nad chi oedd hwn, <a>newidiwch eich cyfrinair</a>
@@ -1335,9 +1324,72 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Wps! Aeth rhywbeth o'i le.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Caewch y tab hwn a cheisiwch eto.
 
 
+pair2-authority-approve-sign-in-heading = Cymeradwyo mewngofnodi?
+pair2-authority-approve-sign-in-confirm-button = Ie, cymeradwyo mewngofnodi
+pair2-authority-approve-sign-in-change-password = Nid chi? <changePassword>Newid eich cyfrinair</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = Parhewch ar eich dyfais symudol
+pair2-authority-continue-on-mobile-description = Dilynwch y camau ar eich ffôn neu dabled.
+pair2-authority-continue-on-mobile-cancel-button = Diddymu
+
+
+pair2-authority-download-firefox-heading = Agor { -brand-firefox } i gysoni
+pair2-authority-download-firefox-instruction = I osod cysoni ar draws dyfeisiau, agorwch { -brand-firefox } ar y ddyfais hon ac ewch i <b>firefox.com/pair</b>
+pair2-authority-download-firefox-cta = Lawrlwytho { -brand-firefox }
+
+
+pair2-authority-scan-qr-heading = Sganiwch i gysylltu eich dyfais symudol
+pair2-authority-scan-qr-instruction = Sganiwch y cod QR gyda'ch ffôn neu dabled i gysoni eich { -brand-firefox } nodau tudalen, tabiau a mwy.
+pair2-authority-scan-qr-code-aria-label = Cod QR i gysylltu eich dyfais symudol
+pair2-authority-scan-qr-help-link = Cael help sganio
+
+
+pair2-authority-sync-success-heading = Rydych chi'n cysoni
+pair2-authority-sync-success-description = Mae eich tabiau, nodau tudalen, cyfrineiriau, a mwy yn barod ar draws eich dyfeisiau.
+pair2-authority-sync-success-view-tabs-button = Gweld tabiau wedi'u cysoni
+pair2-authority-sync-success-sync-settings-button = Gosodiadau cysoni
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = Dal eisiau cysylltu dyfais?
+pair2-authority-timeout-and-cancel-timeout-description = Mae'n edrych fel ein bod ni wedi dod i amser. Ceisiwch eto os ydych dal eisiau cysylltu eich dyfais symudol a chysoni eich { -brand-firefox } data.
+pair2-authority-timeout-and-cancel-canceled-heading = Diddymwyd
+pair2-authority-timeout-and-cancel-canceled-description = Os ydych chi'n newid eich meddwl neu eisiau cysylltu dyfais wahanol, ceisiwch eto.
+pair2-authority-timeout-and-cancel-try-again-button = Ceisiwch eto
+pair2-authority-timeout-and-cancel-cancel-button = Diddymu
+pair2-authority-timeout-and-cancel-sync-settings-button = Gosodiadau cysoni
+
+
 pair2-supplicant-approve-sign-in-heading = Un cam olaf i gydweddu
 pair2-supplicant-approve-sign-in-instruction = Cymeradwyo'r mewngofnodi ar eich cyfrifiadur.
 pair2-supplicant-approve-sign-in-cancel-button = Diddymu
+
+
+pair2-supplicant-connect-this-device-heading = Cysylltu'r ddyfais hon â'ch cyfrif?
+pair2-supplicant-connect-this-device-connect-button = Cysylltu
+pair2-supplicant-connect-this-device-cancel-button = Diddymu
+
+
+pair2-supplicant-download-firefox-heading = Cael { -brand-firefox } ar y ddyfais hon
+pair2-supplicant-download-firefox-description = Lawrlwythwch { -brand-firefox } i gysoni nodau tudalen, hanes, a mwy ar draws dyfeisiau. <linkExternal>Dysgu rhagor</linkExternal>
+pair2-supplicant-download-firefox-continue-button = Parhau yn { -brand-firefox }
+
+
+pair2-supplicant-ready-to-scan-heading = I gysylltu dyfais
+pair2-supplicant-ready-to-scan-instruction = Ar eich cyfrifiadur, agorwch { -brand-firefox } ac ewch i <b>firefox.com/pair</b>, a dilynwch y cyfarwyddiadau ar y sgrin i gysylltu'r ddyfais symudol hon.
+pair2-supplicant-ready-to-scan-learn-more-link = Dysgu rhagor
+
+
+pair2-supplicant-sync-success-heading = Mae eich dyfais wedi'i gysylltu
+pair2-supplicant-sync-success-description = Bydd eich nodau tudalen, tabiau a mwy yn aros wedi'u cysoni yn { -brand-firefox }.
+pair2-supplicant-sync-success-view-tabs-button = Gweld tabiau wedi'u cysoni
+pair2-supplicant-sync-success-sync-settings-button = Gosodiadau cysoni
+
+
+pair2-supplicant-timeout-and-cancel-timeout-heading = Mae'n edrych fel ein bod ni wedi dod i amser
+pair2-supplicant-timeout-and-cancel-timeout-description = I gysylltu eich dyfais symudol a chysoni eich data { -brand-firefox }, ewch i <b>firefox.com/pair</b> ar eich cyfrifiadur.
+pair2-supplicant-timeout-and-cancel-canceled-heading = Diddymwyd
+pair2-supplicant-timeout-and-cancel-canceled-description = I gysylltu dyfais unrhyw bryd, ewch i <b>firefox.com/pair</b> ar eich cyfrifiadur.
 
 
 service-welcome-signup-success-banner = Cyfrif { -product-mozilla-account } wedi'i gadarnhau

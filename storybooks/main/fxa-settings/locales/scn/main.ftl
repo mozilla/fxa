@@ -248,7 +248,6 @@ input-phone-number-country-list-aria-label = Scarta u pajisi
 input-phone-number-enter-number = Metti u nùmmaru di tilèfunu
 input-phone-number-country-united-states = Stati Junciuti
 input-phone-number-country-canada = Cànada
-legal-back-button = Nn’arrè
 
 
 reset-pwd-link-damaged-header = A lijami pi risittari a chiavi è rutta
@@ -915,17 +914,6 @@ inline-totp-setup-on-completion-description = Na vota chi cumplitasti, accuminci
 inline-totp-setup-security-code-placeholder = Còdici d’autinticazzioni
 inline-totp-setup-code-required-error = È nicissariu un còdici d’autinticazzioni
 tfa-qr-code-alt = Usa u còdici { $code } pi cunfijurari l’autinticazzioni a du’ fattura nni l’applicazzioni suppurtati.
-
-
-legal-header = Noti ligali
-legal-terms-of-service-link = Tèrmini di sirbizzu
-legal-privacy-link = Abbisu di privatizza
-
-
-legal-privacy-heading = Abbisu di privatizza
-
-
-legal-terms-heading = Tèrmini di sirbizzu
 
 
 pair-auth-allow-heading-text = Trasisti ora nne { -brand-firefox }?

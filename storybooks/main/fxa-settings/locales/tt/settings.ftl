@@ -207,8 +207,6 @@ input-password-sr-only-now-hidden = Серсүзегез хәзер яшерел
 input-phone-number-enter-number = Телефон номерын кертегез
 input-phone-number-country-united-states = Америка Кушма Штатлары
 input-phone-number-country-canada = Канада
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Кире
 
 ## LinkDamaged component
 
@@ -897,23 +895,6 @@ inline-totp-setup-security-code-placeholder = Аутентификация ко�
 # The "authentication code" here refers to the code provided by an authentication app.
 inline-totp-setup-code-required-error = Аутентификация коды таләп ителә
 tfa-qr-code-alt = Тәэмин ителгән кушымталарда ике адымлы аутентификацияне көйләү өчен { $code } кодын кулланыгыз.
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Хокукый мәсьәләләр
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Куллану шартлары
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Хосусыйлык аңлатмасы
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Хосусыйлык аңлатмасы
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Куллану шартлары
 
 ## AuthAllow page - Part of the device pairing flow
 

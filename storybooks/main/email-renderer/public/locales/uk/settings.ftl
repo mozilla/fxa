@@ -295,8 +295,6 @@ input-phone-number-country-list-aria-label = Виберіть країну
 input-phone-number-enter-number = Введіть номер телефону
 input-phone-number-country-united-states = США
 input-phone-number-country-canada = Канада
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Назад
 
 ## LinkDamaged component
 
@@ -1285,23 +1283,6 @@ inline-totp-setup-security-code-placeholder = Код автентифікаці�
 # The "authentication code" here refers to the code provided by an authentication app.
 inline-totp-setup-code-required-error = Потрібно ввести код автентифікації
 tfa-qr-code-alt = Скористайтеся кодом { $code } для налаштування двоетапної перевірки в підтримуваних програмах.
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Правові положення
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Умови надання послуг
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Положення про приватність
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Положення про приватність
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Умови надання послуг
 
 ## AuthAllow page - Part of the device pairing flow
 

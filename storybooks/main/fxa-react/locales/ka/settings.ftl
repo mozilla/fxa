@@ -379,10 +379,6 @@ input-phone-number-country-list-aria-label = ქვეყნის არჩე�
 input-phone-number-enter-number = მიუთითეთ ტელეფონის ნომერი
 input-phone-number-country-united-states = შეერთებული შტატები
 input-phone-number-country-canada = კანადა
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = უკან
-# Generic error shown when the legal document fails to load
-app-general-err-message = რაღაც ხარვეზი წარმოიქმნა. გთხოვთ, სცადოთ მოგვიანებით.
 
 ## LinkDamaged component
 
@@ -1679,23 +1675,6 @@ inline-totp-setup-security-code-placeholder = შესვლის დამო
 inline-totp-setup-code-required-error = საჭიროა დამოწმების კოდი
 tfa-qr-code-alt = გამოიყენეთ კოდი { $code } ორბიჯიანი დამოწმების გასამართად მხარდაჭერილ პროგრამებში.
 inline-totp-setup-page-title = ორბიჯიანი დამოწმება
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = სამართლებრივი
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = მომსახურების პირობები
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = პირადულობის დაცვის განაცხადი
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = პირადულობის დაცვის განაცხადი
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = მომსახურების პირობები
 
 ## AuthAllow page - Part of the device pairing flow
 

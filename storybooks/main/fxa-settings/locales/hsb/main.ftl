@@ -316,8 +316,6 @@ input-phone-number-country-list-aria-label = Wubjerće kraj
 input-phone-number-enter-number = Telefonowe čisło zapodać
 input-phone-number-country-united-states = Zjednoćene staty
 input-phone-number-country-canada = Kanada
-legal-back-button = Wróćo
-app-general-err-message = Něšto je so nimokuliło. Prošu spytajće pozdźišo hišće raz.
 
 
 reset-pwd-link-damaged-header = Wotkaz k wróćostajenju hesła wobškodźeny
@@ -1223,17 +1221,6 @@ inline-totp-setup-security-code-placeholder = Awtentifikaciski kod
 inline-totp-setup-code-required-error = Awtentifikaciski kod trěbny
 tfa-qr-code-alt = Wužiwajće kod { $code }, zo byšće dwukročelowu awtentifikaciju w podpěranych nałoženjach připrawił.
 inline-totp-setup-page-title = Dwukročelowa awtentifikacija
-
-
-legal-header = Prawniske
-legal-terms-of-service-link = Wužiwanske wuměnjenja
-legal-privacy-link = Zdźělenka priwatnosće
-
-
-legal-privacy-heading = Zdźělenka priwatnosće
-
-
-legal-terms-heading = Wužiwanske wuměnjenja
 
 
 pair-auth-allow-heading-text = Sće so runje pola { -brand-firefox } přizjewił?

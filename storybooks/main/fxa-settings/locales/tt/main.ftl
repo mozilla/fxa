@@ -185,7 +185,6 @@ input-password-sr-only-now-hidden = Серсүзегез хәзер яшерел
 input-phone-number-enter-number = Телефон номерын кертегез
 input-phone-number-country-united-states = Америка Кушма Штатлары
 input-phone-number-country-canada = Канада
-legal-back-button = Кире
 
 
 reset-pwd-link-damaged-header = Паролны алыштыру сылтамасына зыян килгән
@@ -680,17 +679,6 @@ inline-totp-setup-ready-button = Әзер
 inline-totp-setup-security-code-placeholder = Аутентификация коды
 inline-totp-setup-code-required-error = Аутентификация коды таләп ителә
 tfa-qr-code-alt = Тәэмин ителгән кушымталарда ике адымлы аутентификацияне көйләү өчен { $code } кодын кулланыгыз.
-
-
-legal-header = Хокукый мәсьәләләр
-legal-terms-of-service-link = Куллану шартлары
-legal-privacy-link = Хосусыйлык аңлатмасы
-
-
-legal-privacy-heading = Хосусыйлык аңлатмасы
-
-
-legal-terms-heading = Куллану шартлары
 
 
 pair-auth-allow-heading-text = Сез { -brand-firefox }-ка гына кердегезме?

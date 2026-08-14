@@ -371,10 +371,6 @@ input-phone-number-country-list-aria-label = Vel land
 input-phone-number-enter-number = Skriv inn telefonnummer
 input-phone-number-country-united-states = USA
 input-phone-number-country-canada = Canada
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Tilbake
-# Generic error shown when the legal document fails to load
-app-general-err-message = Noko gjekk gale. Prøv igjen seinare.
 
 ## LinkDamaged component
 
@@ -1664,23 +1660,6 @@ inline-totp-setup-security-code-placeholder = Autentiseringskode
 inline-totp-setup-code-required-error = Autentiseringskode påkravd
 tfa-qr-code-alt = Bruk koden { $code } or å stille inn tostegs-autentisering i støtta appar.
 inline-totp-setup-page-title = Tostegs-autentisering
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Juridisk
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Tenestevilkår
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Personvernpraksis
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Personvernpraksis
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Tenestevilkår
 
 ## AuthAllow page - Part of the device pairing flow
 

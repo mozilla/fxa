@@ -285,7 +285,6 @@ input-phone-number-country-list-aria-label = Përzgjidhni vendin
 input-phone-number-enter-number = Jepni numër telefoni
 input-phone-number-country-united-states = Shtetet e Bashkuara
 input-phone-number-country-canada = Kanada
-legal-back-button = Mbrapsht
 
 
 reset-pwd-link-damaged-header = Lidhja e ricaktimit të fjalëkalimit është e dëmtuar
@@ -1093,17 +1092,6 @@ inline-totp-setup-security-code-placeholder = Kod mirëfilltësimi
 inline-totp-setup-code-required-error = Lypset kod mirëfilltësimi
 tfa-qr-code-alt = Përdoreni kodin { $code } që të rregulloni mirëfilltësim dyhapësh te aplikacione që e mbulojnë.
 inline-totp-setup-page-title = Mirëfilltësim dyhapësh
-
-
-legal-header = Ligjore
-legal-terms-of-service-link = Kushte Shërbimi
-legal-privacy-link = Shënim Mbi Privatësinë
-
-
-legal-privacy-heading = Shënim Mbi Privatësinë
-
-
-legal-terms-heading = Kushte Shërbimi
 
 
 pair-auth-allow-heading-text = Mos sapo hytë në { -brand-firefox }?

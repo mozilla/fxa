@@ -383,10 +383,6 @@ input-phone-number-country-list-aria-label = Wubjeŕśo kraj
 input-phone-number-enter-number = Zapódajśo telefonowy numer
 input-phone-number-country-united-states = Zjadnośone staty
 input-phone-number-country-canada = Kanada
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Slědk
-# Generic error shown when the legal document fails to load
-app-general-err-message = Něco jo se mimo kuliło. Pšosym wopytajśo pózdźej hyšći raz.
 
 ## LinkDamaged component
 
@@ -1693,23 +1689,6 @@ inline-totp-setup-security-code-placeholder = Awtentificěrowański kod
 inline-totp-setup-code-required-error = Awtentifikaciski kod trjebny
 tfa-qr-code-alt = Wužywajśo kod { $code }, aby zarědował dwukšacowu awtentifikaciju w pódpěranych nałoženjach.
 inline-totp-setup-page-title = Dwójokšacowa awtentifikacija
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Pšawniske
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Wužywańske wuměnjenja
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Powěźeńka priwatnosći
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Powěźeńka priwatnosći
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Wužywańske wuměnjenja
 
 ## AuthAllow page - Part of the device pairing flow
 

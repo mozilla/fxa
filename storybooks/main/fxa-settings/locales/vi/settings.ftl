@@ -365,10 +365,6 @@ input-phone-number-country-list-aria-label = Chọn quốc gia
 input-phone-number-enter-number = Nhập số điện thoại
 input-phone-number-country-united-states = Hoa Kỳ
 input-phone-number-country-canada = Canada
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Quay lại
-# Generic error shown when the legal document fails to load
-app-general-err-message = Có gì đó không ổn. Vui lòng thử lại sau.
 
 ## LinkDamaged component
 
@@ -1652,23 +1648,6 @@ inline-totp-setup-security-code-placeholder = Mã xác thực
 inline-totp-setup-code-required-error = Yêu cầu mã xác thực
 tfa-qr-code-alt = Sử dụng mã { $code } để thiết lập xác thực hai bước trong các ứng dụng được hỗ trợ.
 inline-totp-setup-page-title = Xác thực hai bước
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Pháp lý
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Điều khoản dịch vụ
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Thông báo bảo mật
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Thông báo bảo mật
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Điều khoản dịch vụ
 
 ## AuthAllow page - Part of the device pairing flow
 
