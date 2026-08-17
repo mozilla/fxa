@@ -70,8 +70,6 @@ jest.mock('react-router', () => ({
   useNavigate: () => mockNavigate,
 }));
 
-window.URL.createObjectURL = jest.fn();
-
 async function renderPage2faReplaceBackupCodes(
   account = accountWithExistingCodes
 ) {

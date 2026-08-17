@@ -14,7 +14,6 @@ const url = 'https://mozilla.org';
 const setTooltipVisible = jest.fn();
 
 it('renders Trio as expected', () => {
-  window.URL.createObjectURL = jest.fn();
   renderWithLocalizationProvider(
     <GetDataTrio
       {...{ value, contentType, url, setTooltipVisible }}
@@ -32,7 +31,6 @@ it('renders Trio as expected', () => {
 });
 
 it('renders single Copy button as expected', () => {
-  window.URL.createObjectURL = jest.fn();
   renderWithLocalizationProvider(
     <GetDataTrio
       {...{ value, contentType, url, setTooltipVisible }}

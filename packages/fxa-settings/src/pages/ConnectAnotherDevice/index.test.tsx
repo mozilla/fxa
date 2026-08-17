@@ -32,10 +32,10 @@ jest.mock('../../lib/glean', () => ({
 
 describe('ConnectAnotherDevice', () => {
   // let bundle: FluentBundle;
-  beforeAll(async () => {
-    global.URL.createObjectURL = jest.fn();
-    //   bundle = await getFtlBundle('settings');
-  });
+  // beforeAll(async () => {
+  //   bundle = await getFtlBundle('settings');
+  // });
+
   it('renders default content as expected', () => {
     renderWithRouter(
       <ConnectAnotherDevice isSignIn isSignUp={false} {...MOCK_BASIC_PROPS} />

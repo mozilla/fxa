@@ -26,10 +26,6 @@ describe('InlineTotpSetup', () => {
     await user.click(await screen.findByRole('button', { name: 'Continue' }));
   };
 
-  beforeAll(async () => {
-    global.URL.createObjectURL = jest.fn();
-  });
-
   beforeEach(() => {
     user = userEvent.setup();
   });

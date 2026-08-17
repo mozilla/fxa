@@ -4,25 +4,22 @@
 
 import { Meta } from '@storybook/react';
 import AppLayout from '../AppLayout';
-import ButtonDownloadRecoveryKeyPDF from '.';
+import ButtonDownloadRecoveryKey from '.';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { MOCK_EMAIL } from '../../pages/mocks';
 
 export default {
-  title: 'Components/ButtonDownloadRecoveryKeyPDF',
-  component: ButtonDownloadRecoveryKeyPDF,
+  title: 'Components/ButtonDownloadRecoveryKey',
+  component: ButtonDownloadRecoveryKey,
   decorators: [withLocalization],
 } as Meta;
 
 const recoveryKeyValue = 'ABCD 1234 ABCD 1234 ABCD 1234 ABCD O0O0';
-const viewName = 'settings.recovery-key';
 
 const storyWithAccount = (email = MOCK_EMAIL) => {
   const story = () => (
     <AppLayout>
-      <ButtonDownloadRecoveryKeyPDF
-        {...{ recoveryKeyValue, viewName, email }}
-      />
+      <ButtonDownloadRecoveryKey {...{ recoveryKeyValue, email }} />
     </AppLayout>
   );
   return story;

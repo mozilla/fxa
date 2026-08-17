@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { Suspense, lazy } from 'react';
 import {
   FolderIconListItem,
   GlobeIconListItem,
@@ -11,8 +10,8 @@ import {
 } from '../IconListItem';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { logViewEvent } from '../../lib/metrics';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import DataBlockInline from '../DataBlockInline';
+import ButtonDownloadRecoveryKey from '../ButtonDownloadRecoveryKey';
 import { RelierCmsInfo } from '../../models';
 
 export interface RecoveryKeySetupDownloadProps {
@@ -22,14 +21,6 @@ export interface RecoveryKeySetupDownloadProps {
   email: string;
   cmsInfo?: RelierCmsInfo;
 }
-
-const spinner = (
-  <LoadingSpinner className="bg-grey-20 flex items-center flex-col justify-center select-none" />
-);
-
-const ButtonDownloadRecoveryKeyPDF = lazy(
-  () => import('../ButtonDownloadRecoveryKeyPDF')
-);
 
 export const InlineRecoveryKeySetupDownload = ({
   recoveryKeyValue,
@@ -81,11 +72,9 @@ export const InlineRecoveryKeySetupDownload = ({
         </div>
       </div>
 
-      <Suspense fallback={spinner}>
-        <ButtonDownloadRecoveryKeyPDF
-          {...{ navigateForward, recoveryKeyValue, viewName, email, cmsInfo }}
-        />
-      </Suspense>
+      <ButtonDownloadRecoveryKey
+        {...{ navigateForward, recoveryKeyValue, email, cmsInfo }}
+      />
 
       <FtlMsg id="flow-recovery-key-download-next-link-v2">
         <button
