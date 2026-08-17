@@ -1,8 +1,8 @@
 {
-  "commit": "483f3ccef882ba8e70d9517bc56907cecd945b38",
-  "summary": "Merge pull request #21046 from mozilla/fxa-14344",
-  "description": "chore(recovery-phone): remove legacy redis key fallback",
-  "timestamp": 1787006831000,
+  "commit": "cf6204d8c29c1c50e9f3eaad5e4aa4e944b28e00",
+  "summary": "Merge pull request #21022 from mozilla/FXA-13139",
+  "description": "feat(db): add passkey wrap security event names",
+  "timestamp": 1787006850000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
