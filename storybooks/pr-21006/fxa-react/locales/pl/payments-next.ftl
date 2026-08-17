@@ -17,6 +17,7 @@ next-payment-method-first-approve = Najpierw musisz zatwierdzić subskrypcję
 
 ## Error page
 
+error-page-account-not-found-heading = Nie odnaleziono konta
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = Wybierz swój kraj i wprowadź kod pocztowy, <p>aby przejść do zapłaty za { $productName }</p>
 location-banner-info = Nie udało nam się automatycznie wykryć Twojej lokalizacji
@@ -35,6 +36,7 @@ auth-error-page-title = Nie można się zalogować
 checkout-error-boundary-retry-button = Spróbuj ponownie
 checkout-error-boundary-basic-error-message = Coś się nie powiodło. Proszę spróbować ponownie lub <contactSupportLink>skontaktować się z zespołem wsparcia</contactSupportLink>.
 amex-logo-alt-text = Logo { -brand-amex }
+diners-logo-alt-text2 = Logo { -brand-diners }
 discover-logo-alt-text = Logo { -brand-discover }
 jcb-logo-alt-text = Logo { -brand-jcb }
 mastercard-logo-alt-text = Logo { -brand-mastercard }
@@ -122,6 +124,7 @@ not-found-loyalty-discount-button-back-to-subscriptions = Wróć do subskrypcji
 ## Error page
 
 interstitial-offer-error-button-back-to-subscriptions = Wróć do subskrypcji
+interstitial-offer-error-button-contact-support = Skontaktuj się z pomocą
 
 ## Page - Subscription Management
 
@@ -223,6 +226,7 @@ next-pay-with-heading-paypal = Zapłać za pomocą serwisu { -brand-paypal }
 ## Churn flow - cancel
 
 churn-cancel-flow-action-error = Wystąpił nieoczekiwany błąd. Spróbuj ponownie.
+churn-cancel-flow-button-cancel-subscription = Anuluj subskrypcję
 churn-cancel-flow-button-manage-subscriptions = Zarządzanie subskrypcjami
 churn-cancel-flow-button-contact-support = Skontaktuj się z pomocą
 

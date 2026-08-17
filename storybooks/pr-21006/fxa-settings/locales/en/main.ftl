@@ -101,20 +101,7 @@ button-back-aria-label = Back
 button-back-title = Back
 
 
-recovery-key-download-button-v3 = Download and continue
-  .title = Download and continue
-
-recovery-key-pdf-heading = Account Recovery Key
-
-recovery-key-pdf-download-date = Generated: { $date }
-
-recovery-key-pdf-key-legend = Account Recovery Key
-
-recovery-key-pdf-instructions = This key allows you to recover your encrypted browser data (including passwords, bookmarks, and history) if you forget your password. Store it in a place you’ll remember.
-
-recovery-key-pdf-storage-ideas-heading = Places to store your key
-
-recovery-key-pdf-support = Learn more about your account recovery key
+recovery-key-download-button-v4 = Download and continue
 
 recovery-key-pdf-download-error = Sorry, there was a problem downloading your account recovery key.
 

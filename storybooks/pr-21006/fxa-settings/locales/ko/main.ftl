@@ -416,6 +416,7 @@ cs-cannot-disconnect = 클라이언트를 찾지 못해 연결할 수 없음
 cs-logged-out-2 = { $service }에서 로그아웃하였습니다.
 cs-refresh-button =
     .title = 연결된 서비스 새로 고침
+cs-connect-device-button = 기기 연결
 cs-missing-device-help = 없거나 중복된 항목이 있나요?
 cs-disconnect-sync-heading = Sync 연결 끊기
 
@@ -733,6 +734,7 @@ page-passkey-add-success = 패스키 생성됨
 
 
 recent-activity-title = 최근 계정 활동
+recent-activity-show-more-button = 더 보기
 recent-activity-account-create-v2 = 계정 생성됨
 recent-activity-account-disable-v2 = 계정 비활성화됨
 recent-activity-account-enable-v2 = 계정 활성화됨
@@ -1203,6 +1205,50 @@ pair-unsupported-message = 기본 카메라를 쓰셨습니까? { -brand-firefox
 pair-unsupported-learn-more-link-v2 = 더 알아보기
 pair-unsupported-desktop-firefox-fallback-header-v2 = 앗! 무엇인가 잘못되었습니다.
 pair-unsupported-desktop-firefox-fallback-message-v2 = 이 탭을 닫고 다시 시도하세요.
+
+
+pair2-authority-approve-sign-in-heading = 로그인을 승인하시겠습니까?
+pair2-authority-approve-sign-in-confirm-button = 예, 로그인을 승인합니다.
+
+
+pair2-authority-continue-on-mobile-heading = 모바일 기기에서 계속하기
+pair2-authority-continue-on-mobile-cancel-button = 취소
+
+
+pair2-authority-download-firefox-heading = 동기화를 위해 { -brand-firefox } 열기
+pair2-authority-download-firefox-cta = { -brand-firefox } 다운로드
+
+
+pair2-authority-scan-qr-code-aria-label = 모바일 기기와 연결하기 위한 QR 코드
+
+
+pair2-authority-sync-success-heading = 동기화 중
+pair2-authority-sync-success-view-tabs-button = 동기화된 탭 보기
+pair2-authority-sync-success-sync-settings-button = 동기화 설정
+
+
+pair2-authority-timeout-and-cancel-canceled-heading = 취소됨
+pair2-authority-timeout-and-cancel-try-again-button = 다시 시도
+pair2-authority-timeout-and-cancel-cancel-button = 취소
+pair2-authority-timeout-and-cancel-sync-settings-button = 동기화 설정
+
+
+pair2-supplicant-connect-this-device-heading = 이 기기를 계정에 연결하시겠습니까?
+pair2-supplicant-connect-this-device-cancel-button = 취소
+
+
+pair2-supplicant-download-firefox-heading = 이 기기에 { -brand-firefox } 다운로드
+
+
+pair2-supplicant-ready-to-scan-learn-more-link = 더 알아보기
+
+
+pair2-supplicant-sync-success-heading = 기기가 연결되었습니다
+pair2-supplicant-sync-success-view-tabs-button = 동기화된 탭 보기
+pair2-supplicant-sync-success-sync-settings-button = 동기화 설정
+
+
+pair2-supplicant-timeout-and-cancel-canceled-heading = 취소됨
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } 확인됨

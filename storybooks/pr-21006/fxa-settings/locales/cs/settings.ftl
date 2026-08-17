@@ -1884,7 +1884,7 @@ pair2-authority-continue-on-mobile-cancel-button = Zrušit
 ## It points them at firefox.com/pair and offers a download link for Firefox.
 
 # "sync" is a verb here, referring to syncing data between the user's devices
-pair2-authority-download-firefox-heading = Otevřete { -brand-firefox } pro synchronizaci
+pair2-authority-download-firefox-heading = Otevřete { -brand-firefox(case: "acc") } pro synchronizaci
 # "firefox.com/pair" is a URL and should not be translated
 pair2-authority-download-firefox-instruction = Pro nastavení synchronizace mezi zařízeními otevřete { -brand-firefox } na tomto zařízení a navštivte <b>firefox.com/pair</b>
 # Links out to the Firefox download page
@@ -1900,7 +1900,7 @@ pair2-authority-scan-qr-instruction = Naskenujte QR kód svým telefonem nebo ta
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR kód pro připojení vašeho mobilního zařízení
 # Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Získat pomoc s skenováním
+pair2-authority-scan-qr-help-link = Získat pomoc se skenováním
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
@@ -1967,7 +1967,7 @@ pair2-supplicant-download-firefox-heading = Získejte { -brand-firefox } na tomt
 # <linkExternal> is an anchor tag linking to a page explaining what sync does.
 pair2-supplicant-download-firefox-description = Stáhněte si aplikaci { -brand-firefox } pro synchronizaci záložek, historie a dalšího data mezi zařízeními. <linkExternal>Zjistit více</linkExternal>
 # Primary action. Sends the user to the Firefox download page.
-pair2-supplicant-download-firefox-continue-button = Pokračujte za { -brand-firefox }
+pair2-supplicant-download-firefox-continue-button = Pokračujte za { -brand-firefox(case: "gen") }
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them

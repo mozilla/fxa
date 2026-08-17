@@ -584,6 +584,9 @@ cs-cannot-disconnect = Clientul nu a fost găsit, imposibil de deconectat
 cs-logged-out-2 = Deconectat de la { $service }
 cs-refresh-button =
     .title = Reîmprospătează serviciile conectate
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = Conectează un dispozitiv
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = Obiecte lipsă sau duplicate?
 cs-disconnect-sync-heading = Deconectare de la Sync
@@ -1037,6 +1040,8 @@ page-passkey-add-error-system-v2 = A apărut o problemă la crearea cheii de acc
 ## These are displayed as a list with the date when the event occured
 
 recent-activity-title = Activitate recentă în cont
+# Clicking this button reveals the older account activity that is hidden at first.
+recent-activity-show-more-button = Afișează mai mult
 recent-activity-account-create-v2 = Cont creat
 recent-activity-account-disable-v2 = Cont dezactivat
 recent-activity-account-enable-v2 = Cont activat
@@ -1855,6 +1860,83 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Ups! Ceva nu a funcționat
 pair-unsupported-desktop-firefox-fallback-message-v2 = Te rugăm să închizi această filă și să încerci din nou.
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer, which is already signed in, after their
+## mobile device scans the pairing QR code. It asks them to approve the
+## sign-in, and shows the requesting device's details so they can verify it.
+
+# Asks the user to confirm the sign-in that another one of their devices just started
+pair2-authority-approve-sign-in-heading = Aprobi conectarea?
+# Submit button confirming that the user started the pairing and approves the
+# other device being added to their account
+pair2-authority-approve-sign-in-confirm-button = Da, aprobă conectarea
+# "Not you?" asks whether someone other than the user started this sign-in.
+# The text inside <changePassword> links to the page for changing the password.
+pair2-authority-approve-sign-in-change-password = Nu ești tu? <changePassword>Schimbă-ți parola</changePassword>
+
+## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer after scanning the pairing QR code with
+## their phone. It confirms the flow has moved to the mobile device and waits
+## for the remaining steps to be completed there.
+
+pair2-authority-continue-on-mobile-heading = Continuă pe dispozitivul mobil
+pair2-authority-continue-on-mobile-description = Urmează pașii de pe telefon sau tabletă.
+# Dismisses the pairing attempt
+pair2-authority-continue-on-mobile-cancel-button = Anulează
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when Firefox is needed to continue pairing.
+## It points them at firefox.com/pair and offers a download link for Firefox.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-download-firefox-heading = Deschide { -brand-firefox } pentru sincronizare
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction = Pentru a configura sincronizarea pe toate dispozitivele, deschide { -brand-firefox } pe acest dispozitiv și accesează<b>firefox.com/pair</b>
+# Links out to the Firefox download page
+pair2-authority-download-firefox-cta = Descarcă { -brand-firefox }
+
+## ScanQR page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer. It shows a QR code that they scan with
+## their phone or tablet to connect the two devices and start syncing.
+
+pair2-authority-scan-qr-heading = Scanează pentru conectarea dispozitivului mobil
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-scan-qr-instruction = Scanează codul QR cu telefonul sau tableta pentru a-ți sincroniza marcajele, filele și multe altele din { -brand-firefox }.
+# Accessible label describing the QR code image shown on this page
+pair2-authority-scan-qr-code-aria-label = Cod QR pentru conectarea dispozitivului mobil
+# Link to a support article for users having trouble scanning the QR code
+pair2-authority-scan-qr-help-link = Obține ajutor la scanare
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and offers the follow-up actions.
+
+# "syncing" here means copying data between the user's devices
+pair2-authority-sync-success-heading = Te sincronizezi
+pair2-authority-sync-success-description = Filele, marcajele, parolele și multe altele sunt disponibile pe toate dispozitivele tale.
+# Opens the tabs that are open on the user's other synced devices
+pair2-authority-sync-success-view-tabs-button = Vezi filele sincronizate
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button = Setări de sincronizare
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when pairing stopped without succeeding,
+## either because it timed out or because it was canceled. Both cases offer to
+## start pairing over again.
+
+# Shown when the pairing attempt expired before it was approved
+pair2-authority-timeout-and-cancel-timeout-heading = Încă vrei să conectezi un dispozitiv?
+pair2-authority-timeout-and-cancel-timeout-description = Se pare că timpul de conectare a expirat. Încercă din nou dacă dorești în continuare să-ți conectezi dispozitivul mobil și să-ți sincronizezi datele { -brand-firefox }.
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-canceled-heading = Anulat
+pair2-authority-timeout-and-cancel-canceled-description = Dacă te-ai răzgândit sau dorești să conectezi un alt dispozitiv, încercă din nou.
+# Restarts the pairing flow
+pair2-authority-timeout-and-cancel-try-again-button = Încearcă din nou
+# Abandons pairing without retrying
+pair2-authority-timeout-and-cancel-cancel-button = Anulează
+# Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
+pair2-authority-timeout-and-cancel-sync-settings-button = Setări de sincronizare
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
 ## shown on their computer. It waits for them to approve the sign-in on the
 ## computer, and shows that computer's details so they can verify the request.
@@ -1864,6 +1946,70 @@ pair2-supplicant-approve-sign-in-heading = Un ultim pas pentru sincronizare
 pair2-supplicant-approve-sign-in-instruction = Aprobă autentificarea pe calculator.
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = Anulează
+
+## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It asks them to confirm connecting the mobile
+## device to their account, and shows that computer's details so they can
+## verify the request.
+
+# "this device" is the mobile device the user is holding, not the computer
+# whose details are shown below the heading
+pair2-supplicant-connect-this-device-heading = Conectezi acest dispozitiv la contul tău?
+# Confirms the pairing attempt
+pair2-supplicant-connect-this-device-connect-button = Conectează
+# Dismisses the pairing attempt
+pair2-supplicant-connect-this-device-cancel-button = Anulează
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing reaches a device that
+## does not have Firefox installed yet. It explains what syncing gets them and
+## sends them off to install the browser.
+
+pair2-supplicant-download-firefox-heading = Instalează { -brand-firefox } pe acest dispozitiv
+# "sync" is a verb here, referring to syncing data between the user's devices.
+# <linkExternal> is an anchor tag linking to a page explaining what sync does.
+pair2-supplicant-download-firefox-description = Descarcă { -brand-firefox } pentru a-ți sincroniza marcajele, istoricul și multe altele pe toate dispozitivele. <linkExternal>Află mai multe</linkExternal>
+# Primary action. Sends the user to the Firefox download page.
+pair2-supplicant-download-firefox-continue-button = Continuă în { -brand-firefox }
+
+## ReadyToScan page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device before pairing starts. It tells them
+## to open firefox.com/pair on their computer, which is where the QR code they
+## scan with the mobile device comes from.
+
+pair2-supplicant-ready-to-scan-heading = Pentru a conecta un dispozitiv
+# <b> emphasises the address the user types on their computer. It is not a link,
+# and the address itself must not be translated.
+pair2-supplicant-ready-to-scan-instruction = Pe calculator, deschide { -brand-firefox } și accesează <b>firefox.com/pair</b> și urmează instrucțiunile de pe ecran pentru a conecta acest dispozitiv mobil.
+# Opens a Mozilla support article about setting up sync
+pair2-supplicant-ready-to-scan-learn-more-link = Află mai multe
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device once pairing has completed: the device
+## is signed in and syncing with the computer they paired it with.
+
+pair2-supplicant-sync-success-heading = Dispozitivul tău este conectat
+pair2-supplicant-sync-success-description = Marcajele, filele și altele vor rămâne sincronizate în { -brand-firefox }.
+# Opens the view listing tabs open on the user's other synced devices
+pair2-supplicant-sync-success-view-tabs-button = Vezi filele sincronizate
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button = Setări de sincronizare
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing ends without connecting,
+## either because the attempt timed out or because it was canceled. Both states
+## are informational and offer no on-screen action, so the copy points the user
+## back to their computer to start again.
+
+# Shown when the pairing attempt expired before it completed. "we" is Firefox.
+pair2-supplicant-timeout-and-cancel-timeout-heading = Se pare că timpul de conectare a expirat
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-timeout-description = Pentru a-ți conecta dispozitivul mobil și a-ți sincroniza datele { -brand-firefox }, accesează <b>firefox.com/pair</b> pe calculator.
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-canceled-heading = Anulat
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-canceled-description = Pentru a conecta un dispozitiv oricând, accesează <b>firefox.com/pair</b> pe calculator.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

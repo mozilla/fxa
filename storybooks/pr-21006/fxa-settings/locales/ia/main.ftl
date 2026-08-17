@@ -442,6 +442,7 @@ cs-cannot-disconnect = Cliente non trovate, impossibile disconnecter
 cs-logged-out-2 = Session { $service } claudite.
 cs-refresh-button =
     .title = Actualisar le servicios connectite
+cs-connect-device-button = Connecter un apparato
 cs-missing-device-help = Elementos mancante o duplicate?
 cs-disconnect-sync-heading = Disconnecter se de Sync
 
@@ -775,6 +776,7 @@ page-passkey-add-error-system-v2 = Il habeva un problema a crear tu clave-contra
 
 
 recent-activity-title = Activitate de conto recente
+recent-activity-show-more-button = Monstrar plus
 recent-activity-account-create-v2 = Conto create.
 recent-activity-account-disable-v2 = Conto disactivate.
 recent-activity-account-enable-v2 = Conto activate.
@@ -1303,9 +1305,72 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Oppla! Alco errate eveniva
 pair-unsupported-desktop-firefox-fallback-message-v2 = Claude iste scheda e reproba.
 
 
+pair2-authority-approve-sign-in-heading = Approbar authentication?
+pair2-authority-approve-sign-in-confirm-button = Si, approbar authentication
+pair2-authority-approve-sign-in-change-password = Non tu? <changePassword>Cambia tu contrasigno</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = Continua sur tu apparato mobile
+pair2-authority-continue-on-mobile-description = Seque le passos sur tu telephono o tabletta.
+pair2-authority-continue-on-mobile-cancel-button = Cancellar
+
+
+pair2-authority-download-firefox-heading = Aperi { -brand-firefox } pro synchronisar
+pair2-authority-download-firefox-instruction = Pro configurar synchronisation a transverso apparatos, aperi { -brand-firefox } sur iste apparato e visita <b>firefox.com/par</b>
+pair2-authority-download-firefox-cta = Discarga { -brand-firefox }
+
+
+pair2-authority-scan-qr-heading = Scande pro connecter tu apparato mobile
+pair2-authority-scan-qr-instruction = Scande le codice QR con tu telephono o tabletta pro synchronisar marcapaginas, schedas, e plus de tu { -brand-firefox }.
+pair2-authority-scan-qr-code-aria-label = Codice QR pro connecter tu apparato mobile
+pair2-authority-scan-qr-help-link = Obtener auxilio per le scansion
+
+
+pair2-authority-sync-success-heading = Tu te sta a synchronisar
+pair2-authority-sync-success-description = Tu schedas, marcapaginas, contrasignos, e plus es preste a transverso tu apparatos.
+pair2-authority-sync-success-view-tabs-button = Vider schedas synchronisate
+pair2-authority-sync-success-sync-settings-button = Configurationes del synchronisation
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = Ancora vole tu connecter un apparato?
+pair2-authority-timeout-and-cancel-timeout-description = Il pare que nos exiva foras tempore limite. Retenta si tu ancora vole connecter tu apparato mobile e synchronisar tu datos de { -brand-firefox }.
+pair2-authority-timeout-and-cancel-canceled-heading = Cancellate
+pair2-authority-timeout-and-cancel-canceled-description = Si tu cambia opinion o vole connecter un apparato differente, retenta.
+pair2-authority-timeout-and-cancel-try-again-button = Retentar
+pair2-authority-timeout-and-cancel-cancel-button = Cancellar
+pair2-authority-timeout-and-cancel-sync-settings-button = Configurationes del synchronisation
+
+
 pair2-supplicant-approve-sign-in-heading = Un ultime passo pro synchronisar
 pair2-supplicant-approve-sign-in-instruction = Approba le accesso sur tu computator.
 pair2-supplicant-approve-sign-in-cancel-button = Cancellar
+
+
+pair2-supplicant-connect-this-device-heading = Connecter iste apparato a tu conto?
+pair2-supplicant-connect-this-device-connect-button = Connecter
+pair2-supplicant-connect-this-device-cancel-button = Cancellar
+
+
+pair2-supplicant-download-firefox-heading = Installar { -brand-firefox } sur iste apparato
+pair2-supplicant-download-firefox-description = Discarga { -brand-firefox } pro synchronisar marcapaginas, chronologia, e plus a transverso apparatos. <linkExternal>Pro saper plus</linkExternal>
+pair2-supplicant-download-firefox-continue-button = Continuar in { -brand-firefox }
+
+
+pair2-supplicant-ready-to-scan-heading = Connecter un apparato
+pair2-supplicant-ready-to-scan-instruction = Sur tu computator, aperi { -brand-firefox } e va a <b>firefox.com/par</b>, e seque le instructiones sur le schermo pro connecter iste apparato mobile.
+pair2-supplicant-ready-to-scan-learn-more-link = Pro saper plus
+
+
+pair2-supplicant-sync-success-heading = Tu apparato es connexe
+pair2-supplicant-sync-success-description = Tu marcapaginas, schedas, e plus stara synchronisate in { -brand-firefox }.
+pair2-supplicant-sync-success-view-tabs-button = Vider schedas synchronisate
+pair2-supplicant-sync-success-sync-settings-button = Configurationes del synchronisation
+
+
+pair2-supplicant-timeout-and-cancel-timeout-heading = Il pare que nos exiva foras tempore limite.
+pair2-supplicant-timeout-and-cancel-timeout-description = Pro connecter tu apparato mobile e synchronisar tu datos de { -brand-firefox }, visita <b>firefox.com/par</b> sur tu computator.
+pair2-supplicant-timeout-and-cancel-canceled-heading = Cancellate
+pair2-supplicant-timeout-and-cancel-canceled-description = Pro connecter un apparato quandocunque, visita <b>firefox.com/par</b> sur tu computator.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmate

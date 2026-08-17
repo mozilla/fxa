@@ -1889,9 +1889,9 @@ pair2-authority-download-firefox-cta = Descargar { -brand-firefox }
 ## Users see this on their computer. It shows a QR code that they scan with
 ## their phone or tablet to connect the two devices and start syncing.
 
-pair2-authority-scan-qr-heading = Escanear para conectar su dispositivo móvil
+pair2-authority-scan-qr-heading = Escanear para conectar tu dispositivo móvil
 # "sync" is a verb here, referring to syncing data between the user's devices
-pair2-authority-scan-qr-instruction = Escaneá el código QR con tu teléfono o tablet para sincronizar tus { -brand-firefox } marcadores, pestañas y más.
+pair2-authority-scan-qr-instruction = Escaneá el código QR con tu teléfono o tablet para sincronizar tus marcadores de{ -brand-firefox }, pestañas y más.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = Código QR para conectar tu dispositivo móvil
 # Link to a support article for users having trouble scanning the QR code
@@ -1916,10 +1916,10 @@ pair2-authority-sync-success-sync-settings-button = Configuración de Sync
 
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = ¿Todavía querés conectar un dispositivo?
-pair2-authority-timeout-and-cancel-timeout-description = Parece que se agotó el tiempo. Intente nuevamente si aún quiere conectar su dispositivo móvil y sincronizar sus datos de { -brand-firefox }.
+pair2-authority-timeout-and-cancel-timeout-description = Parece que se agotó el tiempo. Probá de nuevo si todavía querés conectar tu dispositivo móvil y sincronizar tus datos de { -brand-firefox }.
 # Shown when the pairing attempt was canceled, on either device
 pair2-authority-timeout-and-cancel-canceled-heading = Cancelado
-pair2-authority-timeout-and-cancel-canceled-description = Si cambia de opinión o quiere conectar un dispositivo diferente, intente nuevamente.
+pair2-authority-timeout-and-cancel-canceled-description = Si cambiás de opinión o querés conectar un dispositivo diferente, probá de nuevo.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Intentar nuevamente
 # Abandons pairing without retrying

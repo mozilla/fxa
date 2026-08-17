@@ -485,6 +485,7 @@ cs-cannot-disconnect = Clientul nu a fost găsit, imposibil de deconectat
 cs-logged-out-2 = Deconectat de la { $service }
 cs-refresh-button =
     .title = Reîmprospătează serviciile conectate
+cs-connect-device-button = Conectează un dispozitiv
 cs-missing-device-help = Obiecte lipsă sau duplicate?
 cs-disconnect-sync-heading = Deconectare de la Sync
 
@@ -816,6 +817,7 @@ page-passkey-add-error-system-v2 = A apărut o problemă la crearea cheii de acc
 
 
 recent-activity-title = Activitate recentă în cont
+recent-activity-show-more-button = Afișează mai mult
 recent-activity-account-create-v2 = Cont creat
 recent-activity-account-disable-v2 = Cont dezactivat
 recent-activity-account-enable-v2 = Cont activat
@@ -1345,9 +1347,72 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Ups! Ceva nu a funcționat
 pair-unsupported-desktop-firefox-fallback-message-v2 = Te rugăm să închizi această filă și să încerci din nou.
 
 
+pair2-authority-approve-sign-in-heading = Aprobi conectarea?
+pair2-authority-approve-sign-in-confirm-button = Da, aprobă conectarea
+pair2-authority-approve-sign-in-change-password = Nu ești tu? <changePassword>Schimbă-ți parola</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = Continuă pe dispozitivul mobil
+pair2-authority-continue-on-mobile-description = Urmează pașii de pe telefon sau tabletă.
+pair2-authority-continue-on-mobile-cancel-button = Anulează
+
+
+pair2-authority-download-firefox-heading = Deschide { -brand-firefox } pentru sincronizare
+pair2-authority-download-firefox-instruction = Pentru a configura sincronizarea pe toate dispozitivele, deschide { -brand-firefox } pe acest dispozitiv și accesează<b>firefox.com/pair</b>
+pair2-authority-download-firefox-cta = Descarcă { -brand-firefox }
+
+
+pair2-authority-scan-qr-heading = Scanează pentru conectarea dispozitivului mobil
+pair2-authority-scan-qr-instruction = Scanează codul QR cu telefonul sau tableta pentru a-ți sincroniza marcajele, filele și multe altele din { -brand-firefox }.
+pair2-authority-scan-qr-code-aria-label = Cod QR pentru conectarea dispozitivului mobil
+pair2-authority-scan-qr-help-link = Obține ajutor la scanare
+
+
+pair2-authority-sync-success-heading = Te sincronizezi
+pair2-authority-sync-success-description = Filele, marcajele, parolele și multe altele sunt disponibile pe toate dispozitivele tale.
+pair2-authority-sync-success-view-tabs-button = Vezi filele sincronizate
+pair2-authority-sync-success-sync-settings-button = Setări de sincronizare
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = Încă vrei să conectezi un dispozitiv?
+pair2-authority-timeout-and-cancel-timeout-description = Se pare că timpul de conectare a expirat. Încercă din nou dacă dorești în continuare să-ți conectezi dispozitivul mobil și să-ți sincronizezi datele { -brand-firefox }.
+pair2-authority-timeout-and-cancel-canceled-heading = Anulat
+pair2-authority-timeout-and-cancel-canceled-description = Dacă te-ai răzgândit sau dorești să conectezi un alt dispozitiv, încercă din nou.
+pair2-authority-timeout-and-cancel-try-again-button = Încearcă din nou
+pair2-authority-timeout-and-cancel-cancel-button = Anulează
+pair2-authority-timeout-and-cancel-sync-settings-button = Setări de sincronizare
+
+
 pair2-supplicant-approve-sign-in-heading = Un ultim pas pentru sincronizare
 pair2-supplicant-approve-sign-in-instruction = Aprobă autentificarea pe calculator.
 pair2-supplicant-approve-sign-in-cancel-button = Anulează
+
+
+pair2-supplicant-connect-this-device-heading = Conectezi acest dispozitiv la contul tău?
+pair2-supplicant-connect-this-device-connect-button = Conectează
+pair2-supplicant-connect-this-device-cancel-button = Anulează
+
+
+pair2-supplicant-download-firefox-heading = Instalează { -brand-firefox } pe acest dispozitiv
+pair2-supplicant-download-firefox-description = Descarcă { -brand-firefox } pentru a-ți sincroniza marcajele, istoricul și multe altele pe toate dispozitivele. <linkExternal>Află mai multe</linkExternal>
+pair2-supplicant-download-firefox-continue-button = Continuă în { -brand-firefox }
+
+
+pair2-supplicant-ready-to-scan-heading = Pentru a conecta un dispozitiv
+pair2-supplicant-ready-to-scan-instruction = Pe calculator, deschide { -brand-firefox } și accesează <b>firefox.com/pair</b> și urmează instrucțiunile de pe ecran pentru a conecta acest dispozitiv mobil.
+pair2-supplicant-ready-to-scan-learn-more-link = Află mai multe
+
+
+pair2-supplicant-sync-success-heading = Dispozitivul tău este conectat
+pair2-supplicant-sync-success-description = Marcajele, filele și altele vor rămâne sincronizate în { -brand-firefox }.
+pair2-supplicant-sync-success-view-tabs-button = Vezi filele sincronizate
+pair2-supplicant-sync-success-sync-settings-button = Setări de sincronizare
+
+
+pair2-supplicant-timeout-and-cancel-timeout-heading = Se pare că timpul de conectare a expirat
+pair2-supplicant-timeout-and-cancel-timeout-description = Pentru a-ți conecta dispozitivul mobil și a-ți sincroniza datele { -brand-firefox }, accesează <b>firefox.com/pair</b> pe calculator.
+pair2-supplicant-timeout-and-cancel-canceled-heading = Anulat
+pair2-supplicant-timeout-and-cancel-canceled-description = Pentru a conecta un dispozitiv oricând, accesează <b>firefox.com/pair</b> pe calculator.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmat

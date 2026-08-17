@@ -444,6 +444,7 @@ cs-cannot-disconnect = Joguahára ndojejuhúi, ndaikatúi osẽ
 cs-logged-out-2 = Osẽma { $service }-gui.
 cs-refresh-button =
     .title = Embohekopyahu mba’epytyvõrã mbojuajupyre
+cs-connect-device-button = Embojuaju mba’e’oka
 cs-missing-device-help = ¿Mba’eporu oĩ’ỹva térã ikõiva?
 cs-disconnect-sync-heading = Sync-gui ñesẽ
 
@@ -773,6 +774,7 @@ page-passkey-add-error-system-v2 = Oiko apañuái emoheñoinguévo ne ñe’ẽ 
 
 
 recent-activity-title = Mba’ete rembiapo ramoguavéva
+recent-activity-show-more-button = Ehechaukave
 recent-activity-account-create-v2 = Mba’ete moheñoimbyre
 recent-activity-account-disable-v2 = Mba’ete pe’apyre
 recent-activity-account-enable-v2 = Mba’ete mbojurujapyre
@@ -1299,9 +1301,64 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = ¡Oops! Oĩ mba’e asẽv
 pair-unsupported-desktop-firefox-fallback-message-v2 = Emboty ko tendayke ha eha’ã jey.
 
 
+pair2-authority-approve-sign-in-heading = ¿Emoneĩ jeike?
+pair2-authority-approve-sign-in-confirm-button = Héẽ, emoneĩ jeike ñepyrũ
+pair2-authority-approve-sign-in-change-password = ¿Ndaha’éi nde? <changePassword>Emoambue ne ñe’ẽñemi</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = Eime ne mba’e’oka oku’évape
+pair2-authority-continue-on-mobile-description = Esegi jeku’e nde pumbyry térã tablétape.
+pair2-authority-continue-on-mobile-cancel-button = Eheja
+
+
+pair2-authority-download-firefox-heading = Embojuruja { -brand-firefox } embojuehe hag̃ua
+pair2-authority-download-firefox-cta = Emboguejy { -brand-firefox }
+
+
+pair2-authority-scan-qr-heading = Emoha’ãnga eike hag̃ua ambue mba’e’okápe
+pair2-authority-scan-qr-code-aria-label = QR ayvu eike hag̃ua ne mba’e’okápe
+pair2-authority-scan-qr-help-link = Eñepytyvõta emoha’ãnga hag̃ua
+
+
+pair2-authority-sync-success-heading = Embojuajuhína
+pair2-authority-sync-success-view-tabs-button = Ehecha tendayke mbojuajupyre
+pair2-authority-sync-success-sync-settings-button = Sync ñemboheko
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = ¿Embojuajuse gueteri ne mba’e’oka?
+pair2-authority-timeout-and-cancel-canceled-heading = Hejapyre
+pair2-authority-timeout-and-cancel-try-again-button = Eha’ã jey
+pair2-authority-timeout-and-cancel-cancel-button = Eheja
+pair2-authority-timeout-and-cancel-sync-settings-button = Sync ñemboheko
+
+
 pair2-supplicant-approve-sign-in-heading = Ejapova’erã embojuehe hag̃ua
 pair2-supplicant-approve-sign-in-instruction = Emoneĩ jeike ne mohendahápe.
 pair2-supplicant-approve-sign-in-cancel-button = Eheja
+
+
+pair2-supplicant-connect-this-device-heading = ¿Embojuaju ko mba’e’oka ne mba’etére?
+pair2-supplicant-connect-this-device-connect-button = Jeike
+pair2-supplicant-connect-this-device-cancel-button = Eheja
+
+
+pair2-supplicant-download-firefox-heading = Ereko { -brand-firefox } ko mba’e’okápe
+pair2-supplicant-download-firefox-continue-button = Eku’ejey { -brand-firefox } ndive
+
+
+pair2-supplicant-ready-to-scan-heading = Embojuaju hag̃ua mba’e’oka
+pair2-supplicant-ready-to-scan-learn-more-link = Eikuaave
+
+
+pair2-supplicant-sync-success-heading = Ne mba’e’oka ojuajuhína
+pair2-supplicant-sync-success-description = Techaukahaita, tendayke a hetave ojuehepaite { -brand-firefox } ndive.
+pair2-supplicant-sync-success-view-tabs-button = Ehecha tendayke mbojuajupyre
+pair2-supplicant-sync-success-sync-settings-button = Sync ñemboheko
+
+
+pair2-supplicant-timeout-and-cancel-timeout-heading = Ha’ete opámava ñeha’ãrõ
+pair2-supplicant-timeout-and-cancel-canceled-heading = Hejapyre
+pair2-supplicant-timeout-and-cancel-canceled-description = Eike hag̃ua mba’e’okápe eikese vove, eho <b>firefox.com/pair</b> ne mohendaha guive.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } moneĩmbyre

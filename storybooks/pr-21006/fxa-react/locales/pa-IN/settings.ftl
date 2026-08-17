@@ -514,6 +514,9 @@ cs-cannot-disconnect = ਕਲਾਈਂਟ ਨਹੀਂ ਲੱਭਿਆ, ਡਿ�
 cs-logged-out-2 = { $service } ਚੋਂ ਲਾਗ ਆਉਟ ਕੀਤਾ
 cs-refresh-button =
     .title = ਕਨੈਕਟ ਹੋਈਆਂ ਸੇਵਾਵਾਂ ਨੂੰ ਤਾਜ਼ਾ ਕਰੋ
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = ਡਿਵਾਈਸ ਨੂੰ ਕਨੈਕਟ ਕਰੋ
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = ਗੁੰਮ ਜਾਂ ਡੁਪਲੀਕੇਟ ਚੀਜ਼ਾਂ ਹਨ?
 cs-disconnect-sync-heading = ਸਿੰਕ ਤੋਂ ਡਿਸ-ਕਨੈਕਟ ਕਰੋ
@@ -884,6 +887,8 @@ display-name-success-alert-2 = ਦਿਖਾਉਣ ਵਾਲਾ ਨਾਂ ਅੱ�
 ## These are displayed as a list with the date when the event occured
 
 recent-activity-title = ਸੱਜੀ ਖਾਤਾ ਸਰਗਰਮੀ
+# Clicking this button reveals the older account activity that is hidden at first.
+recent-activity-show-more-button = ਹੋਰ ਵੇਖਾਓ
 recent-activity-account-create-v2 = ਖਾਤਾ ਬਣਾਇਆ
 recent-activity-account-disable-v2 = ਖਾਤਾ ਅਸਮਰੱਥ ਕੀਤਾ
 recent-activity-account-enable-v2 = ਖਾਤਾ ਸਮਰੱਥ ਕੀਤਾ
@@ -1403,6 +1408,83 @@ pair-unsupported-header = ਐਪ ਵਰਤ ਕੇ ਪੇਅਰ ਕਰੋ
 pair-unsupported-message = ਕੀ ਤੁਸੀਂ ਸਿਸਟਮ ਕੈਮਰਾ ਵਰਤਿਆ ਸੀ? ਤੁਹਾਨੂੰ { -brand-firefox } ਐਪ ਤੋਂ ਪੇਅਰ ਕਰਨਾ ਪਵੇਗਾ।
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer, which is already signed in, after their
+## mobile device scans the pairing QR code. It asks them to approve the
+## sign-in, and shows the requesting device's details so they can verify it.
+
+# Asks the user to confirm the sign-in that another one of their devices just started
+pair2-authority-approve-sign-in-heading = ਸਾਈਨ ਇਨ ਨੂੰ ਮਨਜ਼ੂਰ ਕਰਨਾ ਹੈ?
+# Submit button confirming that the user started the pairing and approves the
+# other device being added to their account
+pair2-authority-approve-sign-in-confirm-button = ਹਾਂ, ਸਾਈਨ ਇਨ ਮਨਜ਼ੂਰ ਹੈ
+# "Not you?" asks whether someone other than the user started this sign-in.
+# The text inside <changePassword> links to the page for changing the password.
+pair2-authority-approve-sign-in-change-password = ਤੁਸੀਂ ਨਹੀ ਸੀ?<changePassword>ਆਪਣੇ ਪਾਸਵਰਡ ਨੂੰ ਬਦਲੋ</changePassword>
+
+## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer after scanning the pairing QR code with
+## their phone. It confirms the flow has moved to the mobile device and waits
+## for the remaining steps to be completed there.
+
+pair2-authority-continue-on-mobile-heading = ਆਪਣੇ ਮੋਬਾਈਲ ਡਿਵਾਈਸ ਨਾਲ ਜਾਰੀ ਰੱਖੋ
+pair2-authority-continue-on-mobile-description = ਆਪਣੇ ਫ਼ੋਨ ਜਾਂ ਟੈਬਲੇਟ ਉੱਤੇ ਅਗਲੇਰੀ ਕਾਰਵਾਈ ਜਾਰੀ ਰੱਖੋ।
+# Dismisses the pairing attempt
+pair2-authority-continue-on-mobile-cancel-button = ਰੱਦ ਕਰੋ
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when Firefox is needed to continue pairing.
+## It points them at firefox.com/pair and offers a download link for Firefox.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-download-firefox-heading = ਸਿੰਕ ਲਈ { -brand-firefox } ਨੂੰ ਖੋਲ੍ਹੋ
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction = ਡਿਵਾਈਸ ਵਿਚਾਲੇ ਸਿੰਕ ਨੂੰ ਸੈਟਅੱਪ ਕਰਨ ਲਈ, ਇਸ ਡਿਵਾਈਸ ਉੱਤੇ { -brand-firefox } ਨੂੰ ਖੋਲ੍ਹੋ ਅਤੇ <b>firefox.com/pair</b> ਨੂੰ ਖੋਲ੍ਹੋ
+# Links out to the Firefox download page
+pair2-authority-download-firefox-cta = { -brand-firefox } ਨੂੰ ਡਾਊਨਲੋਡ ਕਰੋ
+
+## ScanQR page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer. It shows a QR code that they scan with
+## their phone or tablet to connect the two devices and start syncing.
+
+pair2-authority-scan-qr-heading = ਆਪਣੇ ਮੋਬਾਈਲ ਡਿਵਾਈਸ ਨੂੰ ਕਨੈਕਟ ਕਰਨ ਲਈ ਸਕੈਨ ਕਰੋ
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-scan-qr-instruction = ਆਪਣੇ { -brand-firefox } ਬੁੱਕਮਾਰਕਾਂ, ਟੈਬਾਂ ਅਤੇ ਹੋਰ ਚੀਜ਼ਾਂ ਨੂੰ ਸਿੰਕ ਕਰਨ ਵਾਸਤੇ ਆਪਣੇ ਫ਼ੋਨ ਜਾਂ ਟੈਬਲੇਟ ਨਾਲ QR ਕੋਡ ਨੂੰ ਸਕੈਨ ਕਰੋ।
+# Accessible label describing the QR code image shown on this page
+pair2-authority-scan-qr-code-aria-label = ਤੁਹਾਡੇ ਮੋਬਾਈਲ ਡਿਵਾਈਸ ਨੂੰ ਕਨੈਕਟ ਕਰਨ ਲਈ QR ਕੋਡ
+# Link to a support article for users having trouble scanning the QR code
+pair2-authority-scan-qr-help-link = ਸਕੈਨ ਕਰਨ ਲਈ ਮਦਦ ਲਵੋ
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and offers the follow-up actions.
+
+# "syncing" here means copying data between the user's devices
+pair2-authority-sync-success-heading = ਤੁਸੀਂ ਸਿੰਕ ਕਰ ਰਹੇ ਹੋ
+pair2-authority-sync-success-description = ਤੁਹਾਡੀਆਂ ਟੈਬਾਂ , ਬੁੱਕਮਾਰਕ, ਪਾਸਵਰਡ ਅਤੇ ਹੋਰ ਚੀਜ਼ਾਂ ਤੁਹਾਡੇ ਡਿਵਾਈਸਾਂ ਲਈ ਤਿਆਰ ਹਨ।
+# Opens the tabs that are open on the user's other synced devices
+pair2-authority-sync-success-view-tabs-button = ਸਿੰਕ ਕੀਤੀਆਂ ਟੈਬਾਂ ਨੂੰ ਵੇਖੋ
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button = ਸਿੰਕ ਸੈਟਿੰਗਾਂ
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when pairing stopped without succeeding,
+## either because it timed out or because it was canceled. Both cases offer to
+## start pairing over again.
+
+# Shown when the pairing attempt expired before it was approved
+pair2-authority-timeout-and-cancel-timeout-heading = ਹਾਲੇ ਵੀ ਕਿਸੇ ਡਿਵਾਈਸ ਨੂੰ ਕਨੈਕਟ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ?
+pair2-authority-timeout-and-cancel-timeout-description = ਲੱਗਦਾ ਹੈ ਕਿ ਅਸੀਂ ਟਾਈਮ-ਆਉਟ ਹੋ ਗਏ ਹਨ। ਜੇ ਤੁਸੀ ਹਾਲੇ ਵੀ ਮੋਬਾਈਲ ਡਿਵਾਈਸ ਨਾਲ ਕਨੈਕਟ ਕਰਕੇ ਆਪਣੇ { -brand-firefox } ਡਾਟੇ ਨੂੰ ਸਿੰਕ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ ਤਾਂ ਫੇਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ।
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-canceled-heading = ਰੱਦ ਕੀਤਾ
+pair2-authority-timeout-and-cancel-canceled-description = ਜੇ ਤੁਸੀਂ ਆਪਣਾ ਮਨ ਬਦਲਿਆ ਜਾਂ ਵੱਖਰੇ ਡਿਵਾਈਸ ਨਾਲ ਕਨੈਕਟ ਕਰਨਾ ਹੋਇਆ ਤਾਂ ਫੇਰ ਕੋਸ਼ਿਸ਼ ਕਰਿਓ।
+# Restarts the pairing flow
+pair2-authority-timeout-and-cancel-try-again-button = ਫੇਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ
+# Abandons pairing without retrying
+pair2-authority-timeout-and-cancel-cancel-button = ਰੱਦ ਕਰੋ
+# Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
+pair2-authority-timeout-and-cancel-sync-settings-button = ਸਿੰਕ ਸੈਟਿੰਗਾਂ
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
 ## shown on their computer. It waits for them to approve the sign-in on the
 ## computer, and shows that computer's details so they can verify the request.
@@ -1412,6 +1494,60 @@ pair2-supplicant-approve-sign-in-heading = ਸਿੰਕ ਕਰਨ ਲਈ ਆਖ�
 pair2-supplicant-approve-sign-in-instruction = ਆਪਣੇ ਕੰਪਿਊਟਰ ਤੋਂ ਸਾਈਨ-ਇਨ ਨੂੰ ਮਨਜ਼ੂਰੀ ਦਿਓ।
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = ਰੱਦ ਕਰੋ
+
+## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It asks them to confirm connecting the mobile
+## device to their account, and shows that computer's details so they can
+## verify the request.
+
+# "this device" is the mobile device the user is holding, not the computer
+# whose details are shown below the heading
+pair2-supplicant-connect-this-device-heading = ਕੀ ਇਡ ਡਿਵਾਈਸ ਨੂੰ ਤੁਹਾਡੇ ਖਾਤੇ ਨਾਲ ਕਨੈਕਟ ਕਰਨਾ ਹੈ?
+# Confirms the pairing attempt
+pair2-supplicant-connect-this-device-connect-button = ਕਨੈਕਟ ਕਰੋ
+# Dismisses the pairing attempt
+pair2-supplicant-connect-this-device-cancel-button = ਰੱਦ ਕਰੋ
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing reaches a device that
+## does not have Firefox installed yet. It explains what syncing gets them and
+## sends them off to install the browser.
+
+pair2-supplicant-download-firefox-heading = ਇਸ ਡਿਵਾਈਸ ਲਈ { -brand-firefox } ਲਵੋ
+# "sync" is a verb here, referring to syncing data between the user's devices.
+# <linkExternal> is an anchor tag linking to a page explaining what sync does.
+pair2-supplicant-download-firefox-description = ਬੁੱਕਮਾਰਕਾਂ, ਅਤੀਤ ਅਤੇ ਹੋਰ ਚੀਜ਼ਾਂ ਨੂੰ ਡਿਵਾਈਸ ਨਾਲ ਕਨੈਕਟ ਕਰਨ ਲਈ { -brand-firefox } ਨੂੰ ਡਾਊਨਲੋਡ ਕਰੋ। <linkExternal>ਹੋਰ ਜਾਣੋ</linkExternal>
+# Primary action. Sends the user to the Firefox download page.
+pair2-supplicant-download-firefox-continue-button = { -brand-firefox } ਨਾਲ ਜਾਰੀ ਰੱਖੋ
+
+## ReadyToScan page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device before pairing starts. It tells them
+## to open firefox.com/pair on their computer, which is where the QR code they
+## scan with the mobile device comes from.
+
+pair2-supplicant-ready-to-scan-heading = ਕਿਸੇ ਡਿਵਾਈਸ ਨਾਲ ਕਨੈਕਟ ਕਰੋ
+# Opens a Mozilla support article about setting up sync
+pair2-supplicant-ready-to-scan-learn-more-link = ਹੋਰ ਜਾਣੋ
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device once pairing has completed: the device
+## is signed in and syncing with the computer they paired it with.
+
+pair2-supplicant-sync-success-heading = ਤੁਹਾਡਾ ਡਿਵਾਈਸ ਕਨੈਕਟ ਹੈ
+# Opens the view listing tabs open on the user's other synced devices
+pair2-supplicant-sync-success-view-tabs-button = ਸਿੰਕ ਕੀਤੀਆਂ ਟੈਬਾਂ ਨੂੰ ਵੇਖੋ
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button = ਸਿੰਕ ਸੈਟਿੰਗਾਂ
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing ends without connecting,
+## either because the attempt timed out or because it was canceled. Both states
+## are informational and offer no on-screen action, so the copy points the user
+## back to their computer to start again.
+
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-canceled-heading = ਰੱਦ ਕੀਤਾ
 
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a

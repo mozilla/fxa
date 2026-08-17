@@ -1315,8 +1315,8 @@ pair2-authority-download-firefox-instruction = Para configurar la sincronizació
 pair2-authority-download-firefox-cta = Descargar { -brand-firefox }
 
 
-pair2-authority-scan-qr-heading = Escanear para conectar su dispositivo móvil
-pair2-authority-scan-qr-instruction = Escaneá el código QR con tu teléfono o tablet para sincronizar tus { -brand-firefox } marcadores, pestañas y más.
+pair2-authority-scan-qr-heading = Escanear para conectar tu dispositivo móvil
+pair2-authority-scan-qr-instruction = Escaneá el código QR con tu teléfono o tablet para sincronizar tus marcadores de{ -brand-firefox }, pestañas y más.
 pair2-authority-scan-qr-code-aria-label = Código QR para conectar tu dispositivo móvil
 pair2-authority-scan-qr-help-link = Obtener ayuda para escanear
 
@@ -1328,9 +1328,9 @@ pair2-authority-sync-success-sync-settings-button = Configuración de Sync
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = ¿Todavía querés conectar un dispositivo?
-pair2-authority-timeout-and-cancel-timeout-description = Parece que se agotó el tiempo. Intente nuevamente si aún quiere conectar su dispositivo móvil y sincronizar sus datos de { -brand-firefox }.
+pair2-authority-timeout-and-cancel-timeout-description = Parece que se agotó el tiempo. Probá de nuevo si todavía querés conectar tu dispositivo móvil y sincronizar tus datos de { -brand-firefox }.
 pair2-authority-timeout-and-cancel-canceled-heading = Cancelado
-pair2-authority-timeout-and-cancel-canceled-description = Si cambia de opinión o quiere conectar un dispositivo diferente, intente nuevamente.
+pair2-authority-timeout-and-cancel-canceled-description = Si cambiás de opinión o querés conectar un dispositivo diferente, probá de nuevo.
 pair2-authority-timeout-and-cancel-try-again-button = Intentar nuevamente
 pair2-authority-timeout-and-cancel-cancel-button = Cancelar
 pair2-authority-timeout-and-cancel-sync-settings-button = Configuración de Sync

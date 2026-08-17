@@ -1021,6 +1021,7 @@ tfa-row-backup-phone-sim-swap-risk-link = Więcej informacji o ryzyku zamiany k
 passkey-sub-row-created-date = Utworzono: { $createdDate }
 passkey-sub-row-last-used-date = Ostatnio użyto: { $lastUsedDate }
 passkey-delete-modal-cancel-button = Anuluj
+passkey-rename-cancel-button = Anuluj
 
 
 switch-turn-off = Wyłącz
