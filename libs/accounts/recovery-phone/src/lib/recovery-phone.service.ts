@@ -269,7 +269,7 @@ export class RecoveryPhoneService {
     );
 
     // The code was valid. Remove entry. It cannot be used again.
-    await this.recoveryPhoneManager.removeCode(uid, code);
+    await this.recoveryPhoneManager.removeCode(uid);
 
     // There was a record matching, the uid / code. The confirmation was successful.
     return true;
@@ -299,7 +299,7 @@ export class RecoveryPhoneService {
     }
 
     // The code was valid. Remove entry. It cannot be used again.
-    await this.recoveryPhoneManager.removeCode(uid, code);
+    await this.recoveryPhoneManager.removeCode(uid);
 
     return true;
   }
@@ -359,7 +359,7 @@ export class RecoveryPhoneService {
     );
 
     // after we're done, remove code from redis.
-    await this.recoveryPhoneManager.removeCode(uid, code);
+    await this.recoveryPhoneManager.removeCode(uid);
 
     return true;
   }

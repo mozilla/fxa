@@ -45,13 +45,6 @@ export const RECOVERY_PHONE_REDIS_PREFIX = 'recovery-phone:sms-attempt';
  */
 const unconfirmedKey = (uid: string) => `${RECOVERY_PHONE_REDIS_PREFIX}:${uid}`;
 
-/**
- * Previous key shape, which held the code in the key name. Kept for the
- * rolling deploy window only.
- */
-const legacyUnconfirmedKey = (uid: string, code: string) =>
-  `${RECOVERY_PHONE_REDIS_PREFIX}:${uid}:${code}`;
-
 @Injectable()
 export class RecoveryPhoneManager {
   constructor(
@@ -160,7 +153,8 @@ export class RecoveryPhoneManager {
   }
 
   /**
-   * Store phone number data and SMS code for a user.
+   * Store phone number data and SMS code for a user. Overwrites any existing
+   * record, so a uid only ever has one code live at a time.
    *
    * @param uid The user's unique identifier
    * @param code The SMS code to associate with this UID
@@ -215,32 +209,17 @@ export class RecoveryPhoneManager {
       }
     }
 
-    // Fall back to the legacy key shape. During a rolling deploy an older pod
-    // can write one, and its scan does not match the new key, so both shapes
-    // can be live at once. Remove this once train 342 is fully rolled out.
-    const legacyData = await this.redisClient.get(
-      legacyUnconfirmedKey(uid, code)
-    );
-    return legacyData ? JSON.parse(legacyData) : null;
+    return null;
   }
 
   /**
-   * Removes a code from redis. Once a code is validated, it's good to proactively remove it from the database
-   * so it cannot be used again.
-   *
-   * This drops the user's live record outright, so only call it after
-   * getUnconfirmed has confirmed the code. The return value means "a record was
-   * removed", not "that code existed".
+   * Removes the user's unconfirmed code record so it cannot be used again.
    *
    * @param uid The user's unique identifier
-   * @param code The SMS code associated with this user
-   * @returns
+   * @returns True if a record was removed
    */
-  async removeCode(uid: string, code: string) {
-    const count = await this.redisClient.del(
-      unconfirmedKey(uid),
-      legacyUnconfirmedKey(uid, code)
-    );
+  async removeCode(uid: string) {
+    const count = await this.redisClient.del(unconfirmedKey(uid));
     return count > 0;
   }
 
