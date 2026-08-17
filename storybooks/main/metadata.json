@@ -1,8 +1,8 @@
 {
-  "commit": "74d0cd22f3146dcc8a031341ccc78be9e911bb71",
-  "summary": "Merge pull request #21003 from mozilla/FXA-14334-switch-to-text-file-recovery-key",
-  "description": "fix(settings): serve the account recovery key as a plain text file",
-  "timestamp": 1786989825000,
+  "commit": "4a568173e8e2cf8c8fcb18283de4efdae6a7b645",
+  "summary": "Merge pull request #21010 from mozilla/FXA-14133",
+  "description": "feat(pair): add reason to the /pair choice screen view event",
+  "timestamp": 1786993623000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
