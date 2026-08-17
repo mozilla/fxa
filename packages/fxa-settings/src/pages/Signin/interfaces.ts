@@ -15,6 +15,8 @@ import { Integration } from '../../models';
 import { QueryParams } from '../..';
 import { UseFxAStatusResult } from '../../lib/hooks/useFxAStatus';
 import AuthClient from 'fxa-auth-client/browser';
+import type { PairGleanReason } from 'fxa-shared/metrics/glean/pair-reasons';
+import type { PasswordCreationReason } from '../PostVerify/SetPassword/interfaces';
 
 export interface AvatarResponse {
   account: {
@@ -292,6 +294,11 @@ export interface NavigationOptions {
   // True when the session was established by a passkey assertion; pairs
   // with accountHasTotp to drive the AAL2-RP TOTP redirect in utils.ts.
   isPasskeySession?: boolean;
+  // Set by PostVerify/SetPassword. Because Sync always needs encryption keys,
+  // passwordless OTP and passkey sign-ins are routed through that page before
+  // they can reach /pair, so this is the only surviving record of how the
+  // session was established. Drives the /pair `choice_view` reason.
+  passwordCreationReason?: PasswordCreationReason;
   accountHasTotp?: boolean;
   authClient: Pick<AuthClient, 'sessionResendVerifyCode'>;
 }
@@ -317,6 +324,11 @@ export interface SigninLocationState {
   // True when this session was established by a passkey assertion. Only set on
   // a fresh ceremony, so a cached passkey session arrives here undefined.
   isPasskeySession?: boolean;
+  /**
+   * Set by `getSyncNavigate` when routing to the React /pair choice screen.
+   * Read there to tag `cad_firefox.choice_view` with the originating flow.
+   */
+  pairReason?: PairGleanReason;
   /**
    * Sign-in surface the user came from before reaching SigninPasskeyFallback.
    * Used to populate the `reason` extra on `passkey_enter_password.*` Glean

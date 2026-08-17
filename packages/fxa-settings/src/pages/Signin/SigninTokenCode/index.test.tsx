@@ -15,7 +15,11 @@ import { mockAppContext, mockSession } from '../../../models/mocks';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { Session, AppContext } from '../../../models';
 import { SigninTokenCodeProps } from './interfaces';
-import { createOAuthNativeIntegration, Subject } from './mocks';
+import {
+  createMockSigninLocationState,
+  createOAuthNativeIntegration,
+  Subject,
+} from './mocks';
 import { MOCK_SIGNUP_CODE } from '../../Signup/ConfirmSignupCode/mocks';
 import {
   MOCK_CMS_INFO,
@@ -455,6 +459,49 @@ describe('SigninTokenCode page', () => {
             expect.objectContaining({
               performNavigation: false,
             })
+          );
+        });
+      });
+
+      // Keeps /pair's cad_firefox.choice_view reason accurate when this page is
+      // reached with an OTP session via the unverified_session OAuth error
+      // branch, matching the other post-2FA pages.
+      it('forwards isPasswordlessOtpSignin to handleNavigation for an OTP sign-in', async () => {
+        const handleNavigationSpy = jest.spyOn(SigninUtils, 'handleNavigation');
+        session = mockSession();
+        const integration = createMockSigninOAuthNativeSyncIntegration();
+        render({
+          finishOAuthFlowHandler: jest
+            .fn()
+            .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE),
+          integration,
+          signinState: {
+            ...createMockSigninLocationState(integration.wantsKeys()),
+            isPasswordlessOtpSignin: true,
+          },
+        });
+        await submitCode();
+        await waitFor(() => {
+          expect(handleNavigationSpy).toHaveBeenCalledWith(
+            expect.objectContaining({ isPasswordlessOtpSignin: true })
+          );
+        });
+      });
+
+      it('leaves isPasswordlessOtpSignin unset for a password sign-in', async () => {
+        const handleNavigationSpy = jest.spyOn(SigninUtils, 'handleNavigation');
+        session = mockSession();
+        const integration = createMockSigninOAuthNativeSyncIntegration();
+        render({
+          finishOAuthFlowHandler: jest
+            .fn()
+            .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE),
+          integration,
+        });
+        await submitCode();
+        await waitFor(() => {
+          expect(handleNavigationSpy).toHaveBeenCalledWith(
+            expect.objectContaining({ isPasswordlessOtpSignin: undefined })
           );
         });
       });

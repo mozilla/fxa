@@ -189,6 +189,11 @@ const SetPasswordContainer = ({
             handleFxaOAuthLogin: true,
             showSignupConfirmedSync: true,
             origin: 'post-verify-set-password',
+            // Sync needs keys, so every passwordless OTP/passkey sign-in lands
+            // here before it can reach /pair. This is the only place that still
+            // knows how the session was established, so it drives the /pair
+            // `choice_view` reason.
+            passwordCreationReason,
             syncEngines: {
               offeredEngines: offeredSyncEngines,
               declinedEngines: declinedSyncEngines,

@@ -658,7 +658,9 @@ describe('Signin component', () => {
             await enterPasswordAndSubmit();
             await waitFor(() => {
               expect(navigate).toHaveBeenCalledWith(
-                '/inline_recovery_key_setup?',
+                // pairReason rides along so it survives the later hard
+                // navigation from this interstitial to /pair.
+                '/inline_recovery_key_setup?pairReason=password_login',
                 {
                   replace: true,
                   state: {
@@ -725,7 +727,7 @@ describe('Signin component', () => {
                 });
               });
               expect(hardNavigateSpy).toHaveBeenCalledWith(
-                '/pair?showSuccessMessage=true',
+                '/pair?showSuccessMessage=true&pairReason=password_login',
                 undefined,
                 undefined,
                 false
@@ -896,7 +898,7 @@ describe('Signin component', () => {
                 expect(fxaLoginCallOrder).toBeLessThan(fxaOAuthLoginCallOrder);
 
                 expect(hardNavigateSpy).toHaveBeenCalledWith(
-                  '/pair?showSuccessMessage=true',
+                  '/pair?showSuccessMessage=true&pairReason=password_login',
                   undefined,
                   undefined,
                   true

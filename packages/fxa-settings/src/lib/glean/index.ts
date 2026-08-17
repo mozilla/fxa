@@ -510,7 +510,9 @@ const recordEventMetric = (
       cadFirefox.view.record();
       break;
     case 'cad_firefox_choice_view':
-      cadFirefox.choiceView.record();
+      cadFirefox.choiceView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
     case 'cad_firefox_choice_engage':
       cadFirefox.choiceEngage.record({

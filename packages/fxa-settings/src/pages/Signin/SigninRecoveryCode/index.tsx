@@ -138,6 +138,7 @@ const SigninRecoveryCode = ({
       handleFxaLogin: true,
       handleFxaOAuthLogin: true,
       performNavigation: !integration.isFirefoxMobileClient(),
+      isPasswordlessOtpSignin: signinState.isPasswordlessOtpSignin,
       authClient,
     };
 

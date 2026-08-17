@@ -6,7 +6,11 @@ import type { NavigateFunction } from 'react-router';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { NavigationOptions, SigninLocationState } from './interfaces';
-import type { SetPasswordLocationState } from '../PostVerify/SetPassword/interfaces';
+import type { PairGleanReason } from 'fxa-shared/metrics/glean/pair-reasons';
+import type {
+  PasswordCreationReason,
+  SetPasswordLocationState,
+} from '../PostVerify/SetPassword/interfaces';
 import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import {
   isOAuthIntegration,
@@ -51,6 +55,59 @@ interface SyncNavigateOptions {
   syncHidePromoAfterLogin?: boolean;
   signupSuccess?: boolean;
   origin?: PairOrigin;
+  isPasswordlessOtpSignin?: boolean;
+  isPasskeySession?: boolean;
+  passwordCreationReason?: PasswordCreationReason;
+}
+
+/**
+ * Resolves the flow that landed the user on the /pair choice screen so
+ * `cad_firefox.choice_view` can be split by originating flow.
+ *
+ * `passwordCreationReason` is the authoritative signal for anything arriving
+ * via /post_verify/set_password. Sync always requires encryption keys, so a
+ * passwordless OTP or passkey sign-in is routed through that page to create a
+ * password before it can ever reach /pair — meaning the raw session flags below
+ * are only observable on the flows that skip it.
+ *
+ * Registration wins over the method flags: a Sync sign-up always ends with a
+ * password, and there the method flags describe a step *inside* registration.
+ *
+ * Returns undefined for flows with no sanctioned bucket (third-party auth), so
+ * they record an empty reason rather than inflating `password_login`.
+ */
+function getPairGleanReason({
+  signupSuccess,
+  origin,
+  isPasskeySession,
+  isPasswordlessOtpSignin,
+  isSignInWithThirdPartyAuth,
+  passwordCreationReason,
+}: Pick<
+  SyncNavigateOptions,
+  | 'signupSuccess'
+  | 'origin'
+  | 'isPasskeySession'
+  | 'isPasswordlessOtpSignin'
+  | 'isSignInWithThirdPartyAuth'
+  | 'passwordCreationReason'
+>): PairGleanReason | undefined {
+  if (signupSuccess || origin === 'signup') {
+    return 'password_reg';
+  }
+  if (passwordCreationReason === 'passkey' || isPasskeySession) {
+    return 'passkey_login';
+  }
+  if (passwordCreationReason === 'otp' || isPasswordlessOtpSignin) {
+    return 'otp_login';
+  }
+  if (
+    passwordCreationReason === 'third_party_auth' ||
+    isSignInWithThirdPartyAuth
+  ) {
+    return undefined;
+  }
+  return 'password_login';
 }
 
 export function getSyncNavigate(
@@ -62,14 +119,40 @@ export function getSyncNavigate(
     syncHidePromoAfterLogin,
     signupSuccess,
     origin,
+    isPasswordlessOtpSignin,
+    isPasskeySession,
+    passwordCreationReason,
   }: SyncNavigateOptions = {}
 ): {
   to: string;
   shouldHardNavigate: boolean;
-  locationState?: Pick<SigninLocationState, 'origin'> &
+  locationState?: Pick<SigninLocationState, 'origin' | 'pairReason'> &
     Pick<SetPasswordLocationState, 'passwordCreationReason'>;
 } {
   const searchParams = new URLSearchParams(queryParams);
+
+  // This is used for pages that reach /pair via `hardNavigate('/pair', {}, true)`,
+  // which forwards the current query string — without this the reason would be lost.
+  const pairReason = getPairGleanReason({
+    signupSuccess,
+    origin,
+    isPasskeySession,
+    isPasswordlessOtpSignin,
+    isSignInWithThirdPartyAuth,
+    passwordCreationReason,
+  });
+
+  // Only applied to destinations that /pair reaches by hard navigation, where
+  // router state cannot survive. The React /pair soft-nav deliberately keeps the
+  // reason out of the URL.
+  const withPairReason = () => {
+    if (!pairReason) {
+      return searchParams;
+    }
+    const params = new URLSearchParams(searchParams);
+    params.set('pairReason', pairReason);
+    return params;
+  };
 
   if (isSignInWithThirdPartyAuth) {
     return {
@@ -84,14 +167,14 @@ export function getSyncNavigate(
 
   if (showInlineRecoveryKeySetup) {
     return {
-      to: `/inline_recovery_key_setup?${searchParams}`,
+      to: `/inline_recovery_key_setup?${withPairReason()}`,
       shouldHardNavigate: false,
     };
   }
 
   if (showSignupConfirmedSync) {
     return {
-      to: `/signup_confirmed_sync?${searchParams}`,
+      to: `/signup_confirmed_sync?${withPairReason()}`,
       shouldHardNavigate: false,
     };
   }
@@ -117,7 +200,7 @@ export function getSyncNavigate(
     return {
       to,
       shouldHardNavigate: false,
-      locationState: { origin: pairOrigin },
+      locationState: { origin: pairOrigin, pairReason },
     };
   }
 
@@ -127,6 +210,9 @@ export function getSyncNavigate(
   }
   if (origin === 'post-verify-set-password') {
     searchParams.set('passwordCreated', 'true');
+  }
+  if (pairReason) {
+    searchParams.set('pairReason', pairReason);
   }
   return {
     to: `/pair?${searchParams}`,
@@ -551,6 +637,9 @@ const getNonOAuthNavigationTarget = async (
     isSignInWithThirdPartyAuth,
     showSignupConfirmedSync,
     origin,
+    isPasswordlessOtpSignin,
+    isPasskeySession,
+    passwordCreationReason,
   } = navigationOptions;
   if (integration.isSync()) {
     const syncNav = getSyncNavigate(queryParams, {
@@ -558,6 +647,9 @@ const getNonOAuthNavigationTarget = async (
       isSignInWithThirdPartyAuth,
       showSignupConfirmedSync,
       origin,
+      isPasswordlessOtpSignin,
+      isPasskeySession,
+      passwordCreationReason,
     });
     const locationState = createSigninLocationState(navigationOptions);
     return {
@@ -666,6 +758,9 @@ const getOAuthNavigationTarget = async (
       showSignupConfirmedSync: navigationOptions.showSignupConfirmedSync,
       syncHidePromoAfterLogin: navigationOptions.syncHidePromoAfterLogin,
       origin: navigationOptions.origin,
+      isPasswordlessOtpSignin: navigationOptions.isPasswordlessOtpSignin,
+      isPasskeySession: navigationOptions.isPasskeySession,
+      passwordCreationReason: navigationOptions.passwordCreationReason,
     });
     return {
       ...syncNav,

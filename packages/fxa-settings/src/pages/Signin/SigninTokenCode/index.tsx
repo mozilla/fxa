@@ -53,6 +53,7 @@ const SigninTokenCode = ({
     sessionToken,
     verificationReason,
     showInlineRecoveryKeySetup,
+    isPasswordlessOtpSignin,
   } = signinState;
 
   const [localizedErrorBannerMessage, setLocalizedErrorBannerMessage] =
@@ -190,6 +191,7 @@ const SigninTokenCode = ({
           handleFxaLogin: false,
           handleFxaOAuthLogin: true,
           performNavigation: !integration.isFirefoxMobileClient(),
+          isPasswordlessOtpSignin,
           authClient,
         };
 
@@ -232,6 +234,7 @@ const SigninTokenCode = ({
       unwrapBKey,
       verificationReason,
       showInlineRecoveryKeySetup,
+      isPasswordlessOtpSignin,
       onSessionVerified,
       startThrottle,
       authClient,
