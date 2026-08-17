@@ -169,6 +169,32 @@ export async function findPasskeyByCredentialId(
 }
 
 /**
+ * Find a passkey by credential ID, scoped to its owner.
+ *
+ * Similar to `findPasskeyByCredentialId`, but requires the user ID, so the
+ * returned passkey is guaranteed to belong to that user without a further
+ * ownership check by the caller.
+ *
+ * @param db - Database instance
+ * @param uid - Owning user's ID as a hex string
+ * @param credentialId - Credential ID, base64url-encoded
+ * @returns The passkey, or undefined when this user has no such credential
+ */
+export async function findPasskeyByUidAndCredentialId(
+  db: AccountDatabase,
+  uid: string,
+  credentialId: string
+): Promise<PasskeyRecord | undefined> {
+  const row = await db
+    .selectFrom('passkeys')
+    .selectAll()
+    .where('uid', '=', uuidTransformer.to(uid))
+    .where('credentialId', '=', base64urlToBuffer(credentialId))
+    .executeTakeFirst();
+  return row && toPasskeyRecord(row);
+}
+
+/**
  * Insert a new passkey record.
  *
  * @param db - Database instance

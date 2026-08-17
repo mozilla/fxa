@@ -6,6 +6,7 @@ import { Inject, Injectable, LoggerService } from '@nestjs/common';
 import {
   AccountDatabase,
   AccountDbProvider,
+  PasskeyWrap,
 } from '@fxa/shared/db/mysql/account';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsD, StatsDService } from '@fxa/shared/metrics/statsd';
@@ -14,6 +15,7 @@ import {
   deleteAllPasskeysForUser as repositoryDeleteAllPasskeysForUser,
   deletePasskey as repositoryDeletePasskey,
   findPasskeyByCredentialId as repositoryFindPasskeyByCredentialId,
+  findPasskeyByUidAndCredentialId as repositoryFindPasskeyByUidAndCredentialId,
   findPasskeysByUid,
   insertPasskey,
   isMysqlDupEntry,
@@ -23,6 +25,12 @@ import {
   updatePasskeyName,
   updatePasskeyPrfEnabled,
 } from './passkey.repository';
+import {
+  deleteAllPasskeyWrapsForUser as repositoryDeleteAllPasskeyWrapsForUser,
+  findPasskeyWrap as repositoryFindPasskeyWrap,
+  insertPasskeyWrap,
+  NewPasskeyWrapData,
+} from './passkey.wrap.repository';
 import { PasskeyConfig, MAX_PASSKEY_NAME_LENGTH } from './passkey.config';
 import { AppError } from '@fxa/accounts/errors';
 
@@ -122,6 +130,8 @@ export class PasskeyManager {
    * SECURITY: The caller is responsible for verifying that the returned
    * passkey's uid matches the authenticated session uid before acting on
    * the result. Do not use the returned uid as proof of identity.
+   * However, if the caller has access to the uid, prefer using
+   * {@link findPasskeyByUidAndCredentialId}.
    *
    * @param credentialId - WebAuthn credential ID as a base64url string
    * @returns Passkey if found, undefined otherwise
@@ -130,6 +140,26 @@ export class PasskeyManager {
     credentialId: string
   ): Promise<PasskeyRecord | undefined> {
     return repositoryFindPasskeyByCredentialId(this.db, credentialId);
+  }
+
+  /**
+   * Find a passkey by credential ID, scoped to its owner.
+   *
+   * Prefer this over {@link findPasskeyByCredentialId} when caller knows `UID`.
+   *
+   * @param uid - User ID as a hex string
+   * @param credentialId - WebAuthn credential ID as a base64url string
+   * @returns Passkey if this user owns it, undefined otherwise
+   */
+  async findPasskeyByUidAndCredentialId(
+    uid: string,
+    credentialId: string
+  ): Promise<PasskeyRecord | undefined> {
+    return repositoryFindPasskeyByUidAndCredentialId(
+      this.db,
+      uid,
+      credentialId
+    );
   }
 
   /**
@@ -239,5 +269,35 @@ export class PasskeyManager {
       });
       throw AppError.passkeyLimitReached(this.maxPasskeysPerUser);
     }
+  }
+
+  /** Find the wrap envelope for one credential. */
+  async findPasskeyWrap(
+    uid: string,
+    credentialId: string
+  ): Promise<PasskeyWrap | undefined> {
+    return repositoryFindPasskeyWrap(this.db, uid, credentialId);
+  }
+
+  /**
+   * Store a wrap envelope. Callers resolve conflicts first; a duplicate reaching
+   * here surfaces as ER_DUP_ENTRY.
+   */
+  async createPasskeyWrap(
+    uid: string,
+    data: NewPasskeyWrapData,
+    createdAt: number
+  ): Promise<void> {
+    await insertPasskeyWrap(this.db, uid, data, createdAt);
+  }
+
+  /**
+   * Delete every wrap for a user, leaving their passkeys registered — the
+   * password-reset path, where kB changes but the credentials stay usable.
+   *
+   * @returns Number of wraps deleted
+   */
+  async deleteAllPasskeyWrapsForUser(uid: string): Promise<number> {
+    return repositoryDeleteAllPasskeyWrapsForUser(this.db, uid);
   }
 }
