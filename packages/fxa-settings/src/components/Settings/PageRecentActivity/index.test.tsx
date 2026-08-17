@@ -84,6 +84,9 @@ const expectedLabels = [
   'Passwordless sign-in code verified',
   'Passwordless account registration completed',
   'Recovery codes set',
+  'Passkey enabled for syncing',
+  'Sync setup with passkey failed',
+  'Passkey sync access removed after password reset',
 ];
 
 describe('Recent Account Activity', () => {
@@ -146,6 +149,23 @@ describe('Recent Account Activity', () => {
     expect(
       screen.queryByRole('button', { name: 'Show more' })
     ).not.toBeInTheDocument();
+  });
+
+  // Guards the hand-maintained list above: a new SecurityEventName with no
+  // case in getSecurityEventNameL10n renders the unknown fallback, which
+  // adding a label to expectedLabels would not catch. MOCK_SECURITY_EVENTS
+  // covers every enum member, so an unlabelled one surfaces here.
+  it('renders a real label, not the unknown fallback, for every event name that is not hidden', async () => {
+    const user = userEvent.setup();
+    render();
+
+    // Without this, only the first INITIAL_EVENT_COUNT events are in the DOM
+    // and an unlabelled name later in the enum would go unnoticed.
+    await user.click(await screen.findByRole('button', { name: 'Show more' }));
+
+    // queryAll, not query: queryByText throws on multiple matches, which would
+    // mask the count when more than one name is missing a label.
+    expect(screen.queryAllByText('Other account activity')).toHaveLength(0);
   });
 
   it('filters HIDDEN_SECURITY_EVENT_NAMES before rendering', async () => {

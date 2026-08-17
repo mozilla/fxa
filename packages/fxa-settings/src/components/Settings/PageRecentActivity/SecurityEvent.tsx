@@ -64,18 +64,28 @@ export enum SecurityEventName {
   PasswordlessLoginOtpVerified = 'account.passwordless_login_otp_verified',
   PasswordlessRegistrationComplete = 'account.passwordless_registration_complete',
   RecoveryCodesSet = 'account.recovery_codes_set',
+  PasskeyWrapCreated = 'account.passkey.wrap_created',
+  PasskeyWrapCreationFailure = 'account.passkey.wrap_creation_failure',
+  PasskeyWrapRetrieved = 'account.passkey.wrap_retrieved',
+  PasskeyWrapRetrievalFailure = 'account.passkey.wrap_retrieval_failure',
+  PasskeyWrapDeleted = 'account.passkey.wrap_deleted',
+  PasskeyWrapInvalidated = 'account.passkey.wrap_invalidated',
 }
 
-// Internal server decisions, not user-triggered actions. Filtered before
-// rendering so they don't clutter the security audit log or duplicate
-// account.login (the signin_confirm_bypass_* trio fires on every login
-// where confirmation was skipped).
-export const HIDDEN_SECURITY_EVENT_NAMES: ReadonlySet<string> = new Set([
-  SecurityEventName.PasswordUpgradeSuccess,
-  SecurityEventName.SigninConfirmBypassKnownIp,
-  SecurityEventName.SigninConfirmBypassNewAccount,
-  SecurityEventName.SigninConfirmBypassKnownDevice,
-]);
+// Recorded for the audit trail but not shown: each either restates a row the
+// user already has (signin_confirm_bypass_* duplicates account.login,
+// wrap_retrieved restates passkey.authentication_success) or is a side effect
+// they did not take (wrap_deleted rides the passkey-deletion cascade).
+export const HIDDEN_SECURITY_EVENT_NAMES: ReadonlySet<string> =
+  new Set<SecurityEventName>([
+    SecurityEventName.PasswordUpgradeSuccess,
+    SecurityEventName.SigninConfirmBypassKnownIp,
+    SecurityEventName.SigninConfirmBypassNewAccount,
+    SecurityEventName.SigninConfirmBypassKnownDevice,
+    SecurityEventName.PasskeyWrapDeleted,
+    SecurityEventName.PasskeyWrapRetrieved,
+    SecurityEventName.PasskeyWrapRetrievalFailure,
+  ]);
 
 const getSecurityEventNameL10n = (name: string) => {
   switch (name) {
@@ -407,6 +417,24 @@ const getSecurityEventNameL10n = (name: string) => {
       return {
         ftlId: 'recent-activity-account-recovery-codes-set',
         fallbackText: 'Recovery codes set',
+      };
+    }
+    case SecurityEventName.PasskeyWrapCreated: {
+      return {
+        ftlId: 'recent-activity-account-passkey-wrap-created',
+        fallbackText: 'Passkey enabled for syncing',
+      };
+    }
+    case SecurityEventName.PasskeyWrapCreationFailure: {
+      return {
+        ftlId: 'recent-activity-account-passkey-wrap-creation-failure',
+        fallbackText: 'Sync setup with passkey failed',
+      };
+    }
+    case SecurityEventName.PasskeyWrapInvalidated: {
+      return {
+        ftlId: 'recent-activity-account-passkey-wrap-invalidated',
+        fallbackText: 'Passkey sync access removed after password reset',
       };
     }
     default: {
