@@ -1270,6 +1270,7 @@ pair2-authority-scan-qr-code-aria-label = קוד QR לחיבור המכשיר ה
 pair2-authority-scan-qr-help-link = קבלת עזרה בסריקה
 
 
+pair2-authority-sync-success-heading = הסנכרון פעיל
 pair2-authority-sync-success-description = הלשוניות, הסימניות, הססמאות שלך ועוד מוכנים בכל המכשירים שלך.
 pair2-authority-sync-success-view-tabs-button = הצגת הלשוניות המסונכרנות
 pair2-authority-sync-success-sync-settings-button = הגדרות סנכרון

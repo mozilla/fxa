@@ -1823,6 +1823,8 @@ pair2-authority-scan-qr-help-link = קבלת עזרה בסריקה
 ## Users see this on their computer once the mobile device has been paired.
 ## It confirms that sync is on and offers the follow-up actions.
 
+# "syncing" here means copying data between the user's devices
+pair2-authority-sync-success-heading = הסנכרון פעיל
 pair2-authority-sync-success-description = הלשוניות, הסימניות, הססמאות שלך ועוד מוכנים בכל המכשירים שלך.
 # Opens the tabs that are open on the user's other synced devices
 pair2-authority-sync-success-view-tabs-button = הצגת הלשוניות המסונכרנות

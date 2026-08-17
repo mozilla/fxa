@@ -1,8 +1,8 @@
 {
-  "commit": "4a568173e8e2cf8c8fcb18283de4efdae6a7b645",
-  "summary": "Merge pull request #21010 from mozilla/FXA-14133",
-  "description": "feat(pair): add reason to the /pair choice screen view event",
-  "timestamp": 1786993623000,
+  "commit": "483f3ccef882ba8e70d9517bc56907cecd945b38",
+  "summary": "Merge pull request #21046 from mozilla/fxa-14344",
+  "description": "chore(recovery-phone): remove legacy redis key fallback",
+  "timestamp": 1787006831000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
