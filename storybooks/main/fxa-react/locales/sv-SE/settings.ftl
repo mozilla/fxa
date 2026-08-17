@@ -1908,7 +1908,7 @@ pair2-authority-sync-success-description = Dina flikar, bokmärken, lösenord oc
 # Opens the tabs that are open on the user's other synced devices
 pair2-authority-sync-success-view-tabs-button = Visa synkroniserade flikar
 # Opens the browser settings that control what is synced
-pair2-authority-sync-success-sync-settings-button = Synkinställningar
+pair2-authority-sync-success-sync-settings-button = Synkroniseringsinställningar
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1917,7 +1917,7 @@ pair2-authority-sync-success-sync-settings-button = Synkinställningar
 
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Vill du fortfarande ansluta en enhet?
-pair2-authority-timeout-and-cancel-timeout-description = Vi gjorde timeout. Försök igen om du fortfarande vill ansluta din mobila enhet och synkronisera din { -brand-firefox }-data.
+pair2-authority-timeout-and-cancel-timeout-description = Anslutningen gjorde timeout. Försök igen om du fortfarande vill ansluta din mobila enhet och synkronisera din { -brand-firefox }-data.
 # Shown when the pairing attempt was canceled, on either device
 pair2-authority-timeout-and-cancel-canceled-heading = Avbruten
 pair2-authority-timeout-and-cancel-canceled-description = Om du ångrar dig eller vill ansluta en annan enhet, försök igen.
@@ -1926,7 +1926,7 @@ pair2-authority-timeout-and-cancel-try-again-button = Försök igen
 # Abandons pairing without retrying
 pair2-authority-timeout-and-cancel-cancel-button = Avbryt
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
-pair2-authority-timeout-and-cancel-sync-settings-button = Synkinställningar
+pair2-authority-timeout-and-cancel-sync-settings-button = Sync-inställningar
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
@@ -1958,12 +1958,12 @@ pair2-supplicant-connect-this-device-cancel-button = Avbryt
 ## does not have Firefox installed yet. It explains what syncing gets them and
 ## sends them off to install the browser.
 
-pair2-supplicant-download-firefox-heading = Hämta { -brand-firefox } på den här enheten
+pair2-supplicant-download-firefox-heading = Hämta { -brand-firefox } till den här enheten
 # "sync" is a verb here, referring to syncing data between the user's devices.
 # <linkExternal> is an anchor tag linking to a page explaining what sync does.
 pair2-supplicant-download-firefox-description = Hämta { -brand-firefox } för att synkronisera bokmärken, historik och mer mellan enheter. <linkExternal>Läs mer</linkExternal>
 # Primary action. Sends the user to the Firefox download page.
-pair2-supplicant-download-firefox-continue-button = Fortsätt om { -brand-firefox }
+pair2-supplicant-download-firefox-continue-button = Fortsätt i { -brand-firefox }
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -1986,7 +1986,7 @@ pair2-supplicant-sync-success-description = Dina bokmärken, flikar och mer för
 # Opens the view listing tabs open on the user's other synced devices
 pair2-supplicant-sync-success-view-tabs-button = Visa synkroniserade flikar
 # Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button = Synkinställningar
+pair2-supplicant-sync-success-sync-settings-button = Synkroniseringsinställningar
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2001,7 +2001,7 @@ pair2-supplicant-timeout-and-cancel-timeout-description = För att ansluta din m
 # Shown after the pairing attempt was canceled
 pair2-supplicant-timeout-and-cancel-canceled-heading = Avbruten
 # "firefox.com/pair" is a URL and should not be translated
-pair2-supplicant-timeout-and-cancel-canceled-description = Om du vill ansluta en enhet när som helst besöker du <b>firefox.com/pair</b> på din dator.
+pair2-supplicant-timeout-and-cancel-canceled-description = När du vill ansluta en enhet besöker du <b>firefox.com/pair</b> på din dator.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

@@ -329,6 +329,7 @@ postRemoveAccountRecovery-title-3 = Usunięto klucz odzyskiwania konta
 postRemoveAccountRecovery-body-part1 = Twój klucz odzyskiwania konta jest wymagany do przywrócenia zaszyfrowanych danych logowania, jeśli zapomnisz hasła.
 postRemoveAccountRecovery-body-part2 = Jeśli jeszcze go nie masz, utwórz nowy klucz odzyskiwania konta w ustawieniach konta, aby zapobiec utracie zachowanych haseł, zakładek, historii przeglądania i innych danych.
 postRemoveAccountRecovery-action = Zarządzaj kontem
+postRemovePasskey-action = Zarządzaj kontem
 postRemoveRecoveryPhone-subject = Usunięto telefon odzyskiwania
 postRemoveRecoveryPhone-preview = Konto chronione przez uwierzytelnianie dwuetapowe
 postRemoveRecoveryPhone-title = Usunięto telefon odzyskiwania

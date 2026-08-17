@@ -444,6 +444,7 @@ cs-cannot-disconnect = Клиент табылмады, ажырату мүмк�
 cs-logged-out-2 = { $service } жүйесінен шықтыңыз
 cs-refresh-button =
     .title = Байланыстырылған қызметтерді жаңарту
+cs-connect-device-button = Құрылғыны байланыстыру
 cs-missing-device-help = Жоқ немесе қайталанған элемент?
 cs-disconnect-sync-heading = Синхрондаумен байланысты үзу
 
@@ -775,6 +776,7 @@ page-passkey-add-error-system-v2 = Рұқсат кілтіңізді жасау 
 
 
 recent-activity-title = Тіркелгінің жуырдағы белсенділігі
+recent-activity-show-more-button = Көбірек көрсету
 recent-activity-account-create-v2 = Тіркелгі жасалды
 recent-activity-account-disable-v2 = Тіркелгі сөндірілді
 recent-activity-account-enable-v2 = Тіркелгі іске қосылды
@@ -1301,9 +1303,72 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Бірнәрсе қате 
 pair-unsupported-desktop-firefox-fallback-message-v2 = Бұл бетті жауып, әрекетті қайталап көріңіз.
 
 
+pair2-authority-approve-sign-in-heading = Кіруді растау керек пе?
+pair2-authority-approve-sign-in-confirm-button = Иә, кіруді растау
+pair2-authority-approve-sign-in-change-password = Сіз емессіз бе? <changePassword>Пароліңізді өзгертіңіз</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = Мобильді құрылғыңызда жалғастырыңыз
+pair2-authority-continue-on-mobile-description = Телефоныңыз немесе планшетіңізде қадамдарды орындаңыз.
+pair2-authority-continue-on-mobile-cancel-button = Бас тарту
+
+
+pair2-authority-download-firefox-heading = Синхрондау үшін { -brand-firefox } ашыңыз
+pair2-authority-download-firefox-instruction = Құрылғылар арасында синхрондауды баптау үшін осы құрылғыда { -brand-firefox } ашып, <b>firefox.com/pair</b> сайтына кіріңіз.
+pair2-authority-download-firefox-cta = { -brand-firefox } жүктеп алу
+
+
+pair2-authority-scan-qr-heading = Мобильді құрылғыңызды байланыстыру үшін сканерлеңіз
+pair2-authority-scan-qr-instruction = { -brand-firefox } бетбелгілер, беттер және т.б. синхрондау үшін QR кодын телефоныңызбен немесе планшетіңізбен сканерлеңіз.
+pair2-authority-scan-qr-code-aria-label = Мобильді құрылғыңызды байланыстыру үшін QR коды
+pair2-authority-scan-qr-help-link = Сканерлеу бойынша көмек алыңыз
+
+
+pair2-authority-sync-success-heading = Сіз синхрондаудасыз
+pair2-authority-sync-success-description = Сіздің браузер беттері, бетбелгілер, парольдер және т.б. барлық құрылғыларыңызда дайын.
+pair2-authority-sync-success-view-tabs-button = Синхрондалған беттерді қарау
+pair2-authority-sync-success-sync-settings-button = Синхрондау баптаулары
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = Әлі де құрылғыны қосқыңыз келе ме?
+pair2-authority-timeout-and-cancel-timeout-description = Байланыс орнатуға бөлінген уақыт өтіп кеткен сияқты. Мобильді құрылғыңызды қосып, { -brand-firefox } деректеріңізді синхрондағыңыз келсе, қайталап көріңіз.
+pair2-authority-timeout-and-cancel-canceled-heading = Бас тартылған
+pair2-authority-timeout-and-cancel-canceled-description = Егер ойыңызды өзгертсеңіз немесе басқа құрылғыны қосқыңыз келсе, қайталап көріңіз.
+pair2-authority-timeout-and-cancel-try-again-button = Қайтадан көру
+pair2-authority-timeout-and-cancel-cancel-button = Бас тарту
+pair2-authority-timeout-and-cancel-sync-settings-button = Синхрондау баптаулары
+
+
 pair2-supplicant-approve-sign-in-heading = Синхрондауға дейін соңғы қадам
 pair2-supplicant-approve-sign-in-instruction = Компьютеріңізде кіруді мақұлдаңыз.
 pair2-supplicant-approve-sign-in-cancel-button = Бас тарту
+
+
+pair2-supplicant-connect-this-device-heading = Бұл құрылғыны тіркелгіңізге байланыстыру керек пе?
+pair2-supplicant-connect-this-device-connect-button = Байланысу
+pair2-supplicant-connect-this-device-cancel-button = Бас тарту
+
+
+pair2-supplicant-download-firefox-heading = Бұл құрылғыда { -brand-firefox } алу
+pair2-supplicant-download-firefox-description = Құрылғылар арасында бетбелгілерді, тарихты және т.б. синхрондау үшін { -brand-firefox } жүктеп алыңыз. <linkExternal>Көбірек білу</linkExternal>
+pair2-supplicant-download-firefox-continue-button = { -brand-firefox } ішінде жалғастыру
+
+
+pair2-supplicant-ready-to-scan-heading = Құрылғыны байланыстыру үшін
+pair2-supplicant-ready-to-scan-instruction = Компьютеріңізде { -brand-firefox } ашып, <b>firefox.com/pair</b> сайтына өтіп, осы мобильді құрылғыны байланыстыру үшін экрандағы нұсқауларды орындаңыз.
+pair2-supplicant-ready-to-scan-learn-more-link = Көбірек білу
+
+
+pair2-supplicant-sync-success-heading = Сіздің құрылғыңыз байланысқан
+pair2-supplicant-sync-success-description = Сіздің бетбелгілер, беттер және т.б. { -brand-firefox } ішінде синхрондалған күйінде қалады.
+pair2-supplicant-sync-success-view-tabs-button = Синхрондалған беттерді қарау
+pair2-supplicant-sync-success-sync-settings-button = Синхрондау баптаулары
+
+
+pair2-supplicant-timeout-and-cancel-timeout-heading = Бөлінген уақыт өтіп кеткен сияқты
+pair2-supplicant-timeout-and-cancel-timeout-description = Мобильді құрылғыңызды қосу және { -brand-firefox } деректеріңізді синхрондау үшін компьютеріңізден <b>firefox.com/pair</b> сайтына кіріңіз.
+pair2-supplicant-timeout-and-cancel-canceled-heading = Бас тартылған
+pair2-supplicant-timeout-and-cancel-canceled-description = Құрылғыны кез келген уақытта қосу үшін компьютеріңізден <b>firefox.com/pair</b> сайтына кіріңіз.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } расталды

@@ -1176,6 +1176,7 @@ passkey-sub-row-created-date = Utworzono: { $createdDate }
 #   $lastUsedDate (String) - a localized date string
 passkey-sub-row-last-used-date = Ostatnio użyto: { $lastUsedDate }
 passkey-delete-modal-cancel-button = Anuluj
+passkey-rename-cancel-button = Anuluj
 
 ## Switch component
 

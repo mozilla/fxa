@@ -450,6 +450,7 @@ cs-cannot-disconnect = Klient njejo sr namakał, zwisk njedajo se źěliś
 cs-logged-out-2 = Wót { $service } wótzjawjony
 cs-refresh-button =
     .title = Zwězane słužby aktualizěrowaś
+cs-connect-device-button = Rěd zwězaś
 cs-missing-device-help = Felujuce abo dwójne elementy?
 cs-disconnect-sync-heading = Ze Sync źěliś
 
@@ -783,6 +784,7 @@ page-passkey-add-error-system-v2 = Pśi napóranju wašogo gronidłowego kluca j
 
 
 recent-activity-title = Nejnowša kontowa aktiwita
+recent-activity-show-more-button = Wěcej pokazaś
 recent-activity-account-create-v2 = Konto załožone
 recent-activity-account-disable-v2 = Konto znjemóžnjone
 recent-activity-account-enable-v2 = Konto zmóžnjone
@@ -1314,9 +1316,72 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Hopla! Něco njejo se raź
 pair-unsupported-desktop-firefox-fallback-message-v2 = Pšosym zacyńśo toś ten rejtarik a wopytajśo hyšći raz.
 
 
+pair2-authority-approve-sign-in-heading = Pśizjawjenje pśizwóliś?
+pair2-authority-approve-sign-in-confirm-button = Jo, pśizjawjenje pśizwóliś
+pair2-authority-approve-sign-in-change-password = To njejsćo wy? <changePassword>Změńśo swójo gronidło</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = Na swójom mobilnem rěźe pókšacowaś
+pair2-authority-continue-on-mobile-description = Slědujśo kšacam na swójom telefonje abo tableśe.
+pair2-authority-continue-on-mobile-cancel-button = Pśetergnuś
+
+
+pair2-authority-download-firefox-heading = { -brand-firefox } za synchronizaciju wócyniś
+pair2-authority-download-firefox-instruction = Aby synchronizaciju na rědach konfigurěrował, wócyńśo { -brand-firefox } na toś tom rěźe a woglědajśo se k <b>firefox.com/pair</b>
+pair2-authority-download-firefox-cta = { -brand-firefox } ześěgnuś
+
+
+pair2-authority-scan-qr-heading = Za zwězowanje ze swójom rědom scannowaś
+pair2-authority-scan-qr-instruction = Scannujśo QR-kod ze swójom telefonom abo tabletom, aby swóje cytańske znamjenja, rejtariki { -brand-firefox } a wěcej synchronizěrował.
+pair2-authority-scan-qr-code-aria-label = QR-kod za zwězowanje z wašym mobilnym rědom
+pair2-authority-scan-qr-help-link = Pomoc za scannowanje dostaś
+
+
+pair2-authority-sync-success-heading = Synchronizěrujośo
+pair2-authority-sync-success-description = Waše rejtariki, cytańske znamjenja, gronidła a wěcej su gótowe na wašych rědach.
+pair2-authority-sync-success-view-tabs-button = Synchronizěrowane rejtariki pokazaś
+pair2-authority-sync-success-sync-settings-button = Nastajenja synchronizacije
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = Cośo hyšći rěd zwězaś?
+pair2-authority-timeout-and-cancel-timeout-description = Zda se, až smy cas pśekšocyli. Wopytajśo hyšći raz, jolic hyšći cośo swój mobilny rěd zwězaś a swóje daty { -brand-firefox } synchronizěrowaś.
+pair2-authority-timeout-and-cancel-canceled-heading = Pśetergnjony
+pair2-authority-timeout-and-cancel-canceled-description = Jolic swójo měnjenje změnjaśo abo cośo drugi rěd zwězaś, wopytajśo hyšći raz.
+pair2-authority-timeout-and-cancel-try-again-button = Hyšći raz wopytaś
+pair2-authority-timeout-and-cancel-cancel-button = Pśetergnuś
+pair2-authority-timeout-and-cancel-sync-settings-button = Nastajenja synchronizacije
+
+
 pair2-supplicant-approve-sign-in-heading = Jaden slědny kšac k synchronizaciji
 pair2-supplicant-approve-sign-in-instruction = Zwólśo do pśizjawjenja na swójom licadle.
 pair2-supplicant-approve-sign-in-cancel-button = Pśetergnuś
+
+
+pair2-supplicant-connect-this-device-heading = Toś ten rěd z wašym kontom zwězaś?
+pair2-supplicant-connect-this-device-connect-button = Zwězaś
+pair2-supplicant-connect-this-device-cancel-button = Pśetergnuś
+
+
+pair2-supplicant-download-firefox-heading = Wobstarajśo se { -brand-firefox } na toś tom rěźe
+pair2-supplicant-download-firefox-description = Ześěgniśo { -brand-firefox }, aby cytańske znamjenja, historiju a wěcej na swójich rědach synchronizěrował. <linkExternal>Dalšne informacije</linkExternal>
+pair2-supplicant-download-firefox-continue-button = Z { -brand-firefox } pókšacowaś
+
+
+pair2-supplicant-ready-to-scan-heading = Rěd zwězaś
+pair2-supplicant-ready-to-scan-instruction = Wócyńśo { -brand-firefox } na swójom licadle a woglědajśo se k <b>firefox.com/pair</b> a slědujśo instrukcijam na wobrazowce, aby swój mobilny rěd zwězał.
+pair2-supplicant-ready-to-scan-learn-more-link = Dalšne informacije
+
+
+pair2-supplicant-sync-success-heading = Waš rěd jo zwězany
+pair2-supplicant-sync-success-description = Waše cytańske znamjenja, rejtariki a wěcej w { -brand-firefox } synchronizěrowane wóstanu.
+pair2-supplicant-sync-success-view-tabs-button = Synchronizěrowane rejtariki pokazaś
+pair2-supplicant-sync-success-sync-settings-button = Nastajenja synchronizacije
+
+
+pair2-supplicant-timeout-and-cancel-timeout-heading = Zda se, až smy cas pśekšocyli
+pair2-supplicant-timeout-and-cancel-timeout-description = Aby swój mobilny rěd zwězał a swóje daty { -brand-firefox } synchronizěrował, woglědajśo se k <b>firefox.com/pair</b> na swójo licadle.
+pair2-supplicant-timeout-and-cancel-canceled-heading = Pśetergnjony
+pair2-supplicant-timeout-and-cancel-canceled-description = Aby rěd kuždy cas zwězał, woglědujśo se k <b>firefox.com/pair</b> na swójom licadle.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } wobkšuśone

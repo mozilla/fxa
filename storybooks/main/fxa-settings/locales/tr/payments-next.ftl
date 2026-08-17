@@ -40,6 +40,7 @@ auth-error-page-title = Girişinizi yapamadık
 checkout-error-boundary-retry-button = Yeniden dene
 checkout-error-boundary-basic-error-message = Bir sorun oluştu. Lütfen yeniden deneyin veya <contactSupportLink>destek ekibiyle iletişime geçin.</contactSupportLink>
 amex-logo-alt-text = { -brand-amex } logosu
+diners-logo-alt-text2 = { -brand-diners } logosu
 discover-logo-alt-text = { -brand-discover } logosu
 jcb-logo-alt-text = { -brand-jcb } logosu
 mastercard-logo-alt-text = { -brand-mastercard } logosu
@@ -153,6 +154,7 @@ subscription-management-credit-balance-label = Kredi bakiyesi
 subscription-management-payment-method-label = Ödeme yöntemi
 subscription-management-button-add-payment-method-aria = Ödeme yöntemi ekle
 subscription-management-button-add-payment-method = Ekle
+subscription-management-page-warning-message-no-payment-method = Aboneliklerinizin kesintiye uğramaması için lütfen bir ödeme yöntemi ekleyin.
 subscription-management-button-manage-payment-method-aria = Ödeme yöntemini yönet
 subscription-management-button-manage-payment-method = Yönet
 # $last4 (String) - Last four numbers of credit card

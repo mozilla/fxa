@@ -1601,7 +1601,7 @@ pair2-authority-continue-on-mobile-description = Postupujte podle pokynů na tel
 pair2-authority-continue-on-mobile-cancel-button = Zrušit
 
 
-pair2-authority-download-firefox-heading = Otevřete { -brand-firefox } pro synchronizaci
+pair2-authority-download-firefox-heading = Otevřete { -brand-firefox(case: "acc") } pro synchronizaci
 pair2-authority-download-firefox-instruction = Pro nastavení synchronizace mezi zařízeními otevřete { -brand-firefox } na tomto zařízení a navštivte <b>firefox.com/pair</b>
 pair2-authority-download-firefox-cta = Stáhnout { -brand-firefox }
 
@@ -1609,7 +1609,7 @@ pair2-authority-download-firefox-cta = Stáhnout { -brand-firefox }
 pair2-authority-scan-qr-heading = Naskenujte a připojte své mobilní zařízení
 pair2-authority-scan-qr-instruction = Naskenujte QR kód svým telefonem nebo tabletem a synchronizujte své záložky, panely a další data v aplikaci { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = QR kód pro připojení vašeho mobilního zařízení
-pair2-authority-scan-qr-help-link = Získat pomoc s skenováním
+pair2-authority-scan-qr-help-link = Získat pomoc se skenováním
 
 
 pair2-authority-sync-success-heading = Probíhá synchronizace
@@ -1639,7 +1639,7 @@ pair2-supplicant-connect-this-device-cancel-button = Zrušit
 
 pair2-supplicant-download-firefox-heading = Získejte { -brand-firefox } na tomto zařízení
 pair2-supplicant-download-firefox-description = Stáhněte si aplikaci { -brand-firefox } pro synchronizaci záložek, historie a dalšího data mezi zařízeními. <linkExternal>Zjistit více</linkExternal>
-pair2-supplicant-download-firefox-continue-button = Pokračujte za { -brand-firefox }
+pair2-supplicant-download-firefox-continue-button = Pokračujte za { -brand-firefox(case: "gen") }
 
 
 pair2-supplicant-ready-to-scan-heading = Pro připojení zařízení

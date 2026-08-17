@@ -581,6 +581,9 @@ cs-cannot-disconnect = Client net fûn, ferbining kin net ferbrutsen wurde
 cs-logged-out-2 = Ofmeld by { $service }
 cs-refresh-button =
     .title = Ferbûne tsjinsten fernije
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = In apparaat ferbine
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = Untbrekkende of dûbele items?
 cs-disconnect-sync-heading = Ferbining mei Sync ferbrekke
@@ -1036,6 +1039,8 @@ page-passkey-add-error-system-v2 = Der is in probleem bard by it oanmeitsjen fan
 ## These are displayed as a list with the date when the event occured
 
 recent-activity-title = Resinte accountaktiveit
+# Clicking this button reveals the older account activity that is hidden at first.
+recent-activity-show-more-button = Mear toane
 recent-activity-account-create-v2 = Account oanmakke
 recent-activity-account-disable-v2 = Account útskeakele
 recent-activity-account-enable-v2 = Account ynskeakele
@@ -1850,6 +1855,30 @@ pair-unsupported-learn-more-link-v2 = Mear ynfo
 # Matches the legacy Backbone "Oops! Something went wrong." message.
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oepsie, der is wat misgien.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Slút dit ljepblêd en probearje it nochris.
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer, which is already signed in, after their
+## mobile device scans the pairing QR code. It asks them to approve the
+## sign-in, and shows the requesting device's details so they can verify it.
+
+# Asks the user to confirm the sign-in that another one of their devices just started
+pair2-authority-approve-sign-in-heading = Oanmelden goedkarre?
+# Submit button confirming that the user started the pairing and approves the
+# other device being added to their account
+pair2-authority-approve-sign-in-confirm-button = Ja, oanmelding goedkarre
+# "Not you?" asks whether someone other than the user started this sign-in.
+# The text inside <changePassword> links to the page for changing the password.
+pair2-authority-approve-sign-in-change-password = Binne jo dit net? <changePassword>Wizigje jo wachtwurd</changePassword>
+
+## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer after scanning the pairing QR code with
+## their phone. It confirms the flow has moved to the mobile device and waits
+## for the remaining steps to be completed there.
+
+pair2-authority-continue-on-mobile-heading = Trochgean op jo mobile apparaat
+pair2-authority-continue-on-mobile-description = Folgje de stappen op jo telefoan of tablet.
+# Dismisses the pairing attempt
+pair2-authority-continue-on-mobile-cancel-button = Annulearje
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
