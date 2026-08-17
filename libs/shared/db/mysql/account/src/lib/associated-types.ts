@@ -11,6 +11,7 @@ import {
   Accounts,
   Carts,
   Passkeys,
+  PasskeyWraps,
   PaypalCustomers,
   SessionTokens,
   UnverifiedTokens,
@@ -48,3 +49,17 @@ export type RecoveryPhoneUpdate = Updateable<RecoveryPhones>;
 export type Passkey = Selectable<Passkeys>;
 export type NewPasskey = Insertable<Passkeys>;
 export type PasskeyUpdate = Updateable<Passkeys>;
+
+export type PasskeyWrap = Selectable<PasskeyWraps>;
+export type NewPasskeyWrap = Insertable<PasskeyWraps>;
+/**
+ * Narrowed rather than `Updateable<PasskeyWraps>`: re-sealing kB to the existing
+ * `pkR` must not overwrite `pkR`, `prfWrappedSkR` or `keyWrapIv`, which protect
+ * `skR` and a kB rotation leaves untouched.
+ */
+export type PasskeyWrapUpdate = Required<
+  Pick<
+    Updateable<PasskeyWraps>,
+    'hpkeEncapsulatedSecret' | 'hpkeSealedKb' | 'updatedAt'
+  >
+>;

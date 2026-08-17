@@ -537,5 +537,69 @@ describe('AppErrors', () => {
         },
       });
     });
+
+    it('creates passkeyWrapNotFound', () => {
+      const result = AppError.passkeyWrapNotFound();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 234,
+        message: 'Passkey wrap not found',
+        output: {
+          statusCode: 404,
+          payload: {
+            error: 'Not Found',
+            errno: 234,
+          },
+        },
+      });
+    });
+
+    it('creates passkeyWrapConflict', () => {
+      const result = AppError.passkeyWrapConflict();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 235,
+        message: 'Passkey wrap already exists with a different payload',
+        output: {
+          statusCode: 409,
+          payload: {
+            error: 'Conflict',
+            errno: 235,
+          },
+        },
+      });
+    });
+
+    it('creates passkeyPrfNotEnabled', () => {
+      const result = AppError.passkeyPrfNotEnabled();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 236,
+        message: 'Passkey does not have PRF enabled',
+        output: {
+          statusCode: 400,
+          payload: {
+            error: 'Bad Request',
+            errno: 236,
+          },
+        },
+      });
+    });
+
+    it('creates passkeyVerificationProofInvalid', () => {
+      const result = AppError.passkeyVerificationProofInvalid();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 237,
+        message: 'Passkey verification proof is invalid',
+        output: {
+          statusCode: 400,
+          payload: {
+            error: 'Bad Request',
+            errno: 237,
+          },
+        },
+      });
+    });
   });
 });

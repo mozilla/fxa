@@ -18,8 +18,13 @@ export type ACCOUNT_TABLES =
   | 'recoveryCodes'
   | 'recoveryPhones'
   | 'emails'
-  | 'passkeys';
+  | 'passkeys'
+  | 'passkeyWraps';
 
+/**
+ * Creates a throwaway database and loads the given fixtures **in order** — list
+ * a table after any table its foreign keys reference.
+ */
 export async function testAccountDatabaseSetup(
   tables: ACCOUNT_TABLES[]
 ): Promise<Kysely<DB>> {
@@ -54,11 +59,14 @@ export async function testAccountDatabaseSetup(
   return db;
 }
 
+/**
+ * Sequential, not Promise.all: a table with a foreign key must be created after
+ * the table it references, or MySQL fails with "Failed to open the referenced
+ * table".
+ */
 async function runSql(db: Kysely<DB>, filePaths: string[]) {
-  return Promise.all(
-    filePaths
-      .map((x) => path.join(__dirname, x))
-      .map((x) => fs.readFileSync(x, 'utf8'))
-      .map((x) => sql`${sql.raw(x)}`.execute(db))
-  );
+  for (const filePath of filePaths) {
+    const contents = fs.readFileSync(path.join(__dirname, filePath), 'utf8');
+    await sql`${sql.raw(contents)}`.execute(db);
+  }
 }

@@ -13,6 +13,7 @@ import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { PasskeyManager } from './passkey.manager';
 import { PasskeyConfig, MAX_PASSKEY_NAME_LENGTH } from './passkey.config';
 import * as PasskeyRepository from './passkey.repository';
+import * as PasskeyWrapRepository from './passkey.wrap.repository';
 import { bufferToAaguid } from './passkey.repository';
 import { AppError } from '../../../errors/src';
 
@@ -32,8 +33,14 @@ jest.mock('./passkey.repository', () => ({
   updatePasskeyPrfEnabled: jest.fn(),
 }));
 
+jest.mock('./passkey.wrap.repository', () => ({
+  ...jest.requireActual('./passkey.wrap.repository'),
+  updatePasskeyWrapSeal: jest.fn(),
+}));
+
 const mockDb = {} as unknown as AccountDatabase;
 const MOCK_MAX_PASSKEYS_PER_USER = 3;
+const MOCK_NOW = 1_700_000_000_000;
 const CHALLENGE_TIMEOUT_MS = 1000 * 60 * 5;
 
 const mockConfig = new PasskeyConfig({
@@ -277,6 +284,47 @@ describe('PasskeyManager', () => {
       const result = await manager.setPasskeyPrfEnabled(uid, credentialId);
 
       expect(result).toBe(false);
+    });
+  });
+
+  describe('updatePasskeyWrapSeal', () => {
+    const uid = Buffer.alloc(16, 1).toString('hex');
+    const credentialId = Buffer.alloc(32, 2).toString('base64url');
+    const seal = {
+      hpkeEncapsulatedSecret: Buffer.alloc(133, 0x44),
+      hpkeSealedKb: Buffer.alloc(48, 0x55),
+    };
+
+    it('returns true when the repository re-sealed a row', async () => {
+      (
+        PasskeyWrapRepository.updatePasskeyWrapSeal as jest.Mock
+      ).mockResolvedValue(1);
+
+      const result = await manager.updatePasskeyWrapSeal(
+        uid,
+        credentialId,
+        seal,
+        MOCK_NOW
+      );
+
+      expect(result).toBe(true);
+      expect(PasskeyWrapRepository.updatePasskeyWrapSeal).toHaveBeenCalledWith(
+        mockDb,
+        uid,
+        credentialId,
+        seal,
+        MOCK_NOW
+      );
+    });
+
+    it('returns false when no row was updated (no wrap, or wrong user)', async () => {
+      (
+        PasskeyWrapRepository.updatePasskeyWrapSeal as jest.Mock
+      ).mockResolvedValue(0);
+
+      await expect(
+        manager.updatePasskeyWrapSeal(uid, credentialId, seal, MOCK_NOW)
+      ).resolves.toBe(false);
     });
   });
 });

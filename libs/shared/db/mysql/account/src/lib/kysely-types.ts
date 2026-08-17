@@ -261,6 +261,28 @@ export interface Passkeys {
   prfEnabled: Generated<ColumnType<boolean, number, number>>;
 }
 
+/**
+ * Per-passkey envelope holding the PRF-wrapped recovery keypair and the
+ * HPKE-sealed kB. Widths are fixed by the v1 ciphersuite; see the client-side
+ * `passkey-crypto` module, which produces these values.
+ */
+export interface PasskeyWraps {
+  uid: Buffer;
+  credentialId: Buffer;
+  /**
+   * Envelope format version. `Generated` because the column defaults to 1, but
+   * writers set it explicitly — see `ENVELOPE_VERSION`.
+   */
+  version: Generated<number>;
+  pkR: Buffer;
+  prfWrappedSkR: Buffer;
+  keyWrapIv: Buffer;
+  hpkeEncapsulatedSecret: Buffer;
+  hpkeSealedKb: Buffer;
+  createdAt: number;
+  updatedAt: number;
+}
+
 export interface SecurityEventNames {
   id: Generated<number>;
   name: string;
@@ -355,6 +377,7 @@ export interface DB {
   keyFetchTokens: KeyFetchTokens;
   linkedAccounts: LinkedAccounts;
   passkeys: Passkeys;
+  passkeyWraps: PasskeyWraps;
   passwordChangeTokens: PasswordChangeTokens;
   passwordForgotTokens: PasswordForgotTokens;
   paypalCustomers: PaypalCustomers;
