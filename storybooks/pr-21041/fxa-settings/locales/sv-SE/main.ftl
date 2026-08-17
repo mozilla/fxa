@@ -1325,16 +1325,16 @@ pair2-authority-scan-qr-help-link = Få hjälp med att skanna
 pair2-authority-sync-success-heading = Du synkroniserar
 pair2-authority-sync-success-description = Dina flikar, bokmärken, lösenord och mer är tillgängliga på dina enheter.
 pair2-authority-sync-success-view-tabs-button = Visa synkroniserade flikar
-pair2-authority-sync-success-sync-settings-button = Synkinställningar
+pair2-authority-sync-success-sync-settings-button = Synkroniseringsinställningar
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Vill du fortfarande ansluta en enhet?
-pair2-authority-timeout-and-cancel-timeout-description = Vi gjorde timeout. Försök igen om du fortfarande vill ansluta din mobila enhet och synkronisera din { -brand-firefox }-data.
+pair2-authority-timeout-and-cancel-timeout-description = Anslutningen gjorde timeout. Försök igen om du fortfarande vill ansluta din mobila enhet och synkronisera din { -brand-firefox }-data.
 pair2-authority-timeout-and-cancel-canceled-heading = Avbruten
 pair2-authority-timeout-and-cancel-canceled-description = Om du ångrar dig eller vill ansluta en annan enhet, försök igen.
 pair2-authority-timeout-and-cancel-try-again-button = Försök igen
 pair2-authority-timeout-and-cancel-cancel-button = Avbryt
-pair2-authority-timeout-and-cancel-sync-settings-button = Synkinställningar
+pair2-authority-timeout-and-cancel-sync-settings-button = Sync-inställningar
 
 
 pair2-supplicant-approve-sign-in-heading = Ett sista steg för att synkronisera
@@ -1347,9 +1347,9 @@ pair2-supplicant-connect-this-device-connect-button = Anslut
 pair2-supplicant-connect-this-device-cancel-button = Avbryt
 
 
-pair2-supplicant-download-firefox-heading = Hämta { -brand-firefox } på den här enheten
+pair2-supplicant-download-firefox-heading = Hämta { -brand-firefox } till den här enheten
 pair2-supplicant-download-firefox-description = Hämta { -brand-firefox } för att synkronisera bokmärken, historik och mer mellan enheter. <linkExternal>Läs mer</linkExternal>
-pair2-supplicant-download-firefox-continue-button = Fortsätt om { -brand-firefox }
+pair2-supplicant-download-firefox-continue-button = Fortsätt i { -brand-firefox }
 
 
 pair2-supplicant-ready-to-scan-heading = För att ansluta en enhet
@@ -1360,13 +1360,13 @@ pair2-supplicant-ready-to-scan-learn-more-link = Läs mer
 pair2-supplicant-sync-success-heading = Din enhet är ansluten
 pair2-supplicant-sync-success-description = Dina bokmärken, flikar och mer förblir synkroniserade i { -brand-firefox }.
 pair2-supplicant-sync-success-view-tabs-button = Visa synkroniserade flikar
-pair2-supplicant-sync-success-sync-settings-button = Synkinställningar
+pair2-supplicant-sync-success-sync-settings-button = Synkroniseringsinställningar
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Vi gjorde timeout
 pair2-supplicant-timeout-and-cancel-timeout-description = För att ansluta din mobila enhet och synkronisera din { -brand-firefox }-data, besök <b>firefox.com/pair</b> på din dator.
 pair2-supplicant-timeout-and-cancel-canceled-heading = Avbruten
-pair2-supplicant-timeout-and-cancel-canceled-description = Om du vill ansluta en enhet när som helst besöker du <b>firefox.com/pair</b> på din dator.
+pair2-supplicant-timeout-and-cancel-canceled-description = När du vill ansluta en enhet besöker du <b>firefox.com/pair</b> på din dator.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } har bekräftats
