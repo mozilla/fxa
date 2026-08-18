@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 9a3c2b5eab955d412a8ce027ed0bceb6c2e559b4</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 9a3c2b5eab955d412a8ce027ed0bceb6c2e559b4</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>8/18/2026, 8:12:34 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>chore(tests): upgrade chai to version 5</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- `chai` was pinned at `^4.5.0` in four packages, three majors behind.
+- `sinon-chai@4.0.0` declares `chai: ^5.0.0` as its peer, so `main` carries a broken peer dependency today. This bump resolves it.
+
+## This pull request
+
+- Bumps `chai` to `^5.3.3` in `fxa-content-server`, `fxa-shared`, `fxa-customs-server` and `fxa-geodb`. The lockfile resolves one version, 5.3.3.
+- Rewrites 38 files in `fxa-content-server/app/tests/` from `import chai from &#039;chai&#039;` to `import { assert } from &#039;chai&#039;`. chai 5 removed the default export.
+- Adds a `transformIgnorePatterns` entry to the jest configs in `libs/shared/guards` and `fxa-admin-server`, so jest transforms chai instead of skipping it.
+- Moves the five assertions in `fxa-settings/src/lib/random.test.ts` to jest&#039;s own `expect`.
+
+On the harness: it needs no change. The mocha suites run transpiled to CommonJS, so the expectation was that `require(&#039;chai&#039;)` would throw `ERR_REQUIRE_ESM`. It does not. This repo pins Node `^24.15.0`, and Node has supported `require()` of a synchronous ESM graph since 22.12. chai 5 has no top-level await, so every existing `require(&#039;chai&#039;)` and every ts-node-transpiled `import` keeps working untouched.
+
+I rejected two alternatives. Loading chai through a dynamic `import()` in a mocha root hook would touch all ~52 node test files, because each one would have to read `expect` and `assert` off globals. Moving these mocha runs to ESM would pull ts-node loader and tsconfig changes into three packages. The approach here touches no test file in those packages at all.
+
+`fxa-settings` is the one place that answer does not hold. Its babel transform cannot parse chai 5&#039;s static class blocks, and the fix would be `@babel/plugin-transform-class-static-block`, a new dependency in a package this ticket should not touch. That file had five assertions, in a package that never declared chai and uses jest&#039;s `expect` everywhere else, so the assertions move to `expect`. All five compare same-typed primitives, so chai&#039;s loose `==` and `toBe` agree here. No assertion is weakened.
+
+## Issue that this pull request solves
+
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-9095</pre></dd>
+  </dl>
+</body>
+</html>

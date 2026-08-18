@@ -1,0 +1,12 @@
+{
+  "commit": "9a3c2b5eab955d412a8ce027ed0bceb6c2e559b4",
+  "summary": "chore(tests): upgrade chai to version 5",
+  "description": "## Because\n\n- `chai` was pinned at `^4.5.0` in four packages, three majors behind.\n- `sinon-chai@4.0.0` declares `chai: ^5.0.0` as its peer, so `main` carries a broken peer dependency today. This bump resolves it.\n\n## This pull request\n\n- Bumps `chai` to `^5.3.3` in `fxa-content-server`, `fxa-shared`, `fxa-customs-server` and `fxa-geodb`. The lockfile resolves one version, 5.3.3.\n- Rewrites 38 files in `fxa-content-server/app/tests/` from `import chai from 'chai'` to `import { assert } from 'chai'`. chai 5 removed the default export.\n- Adds a `transformIgnorePatterns` entry to the jest configs in `libs/shared/guards` and `fxa-admin-server`, so jest transforms chai instead of skipping it.\n- Moves the five assertions in `fxa-settings/src/lib/random.test.ts` to jest's own `expect`.\n\nOn the harness: it needs no change. The mocha suites run transpiled to CommonJS, so the expectation was that `require('chai')` would throw `ERR_REQUIRE_ESM`. It does not. This repo pins Node `^24.15.0`, and Node has supported `require()` of a synchronous ESM graph since 22.12. chai 5 has no top-level await, so every existing `require('chai')` and every ts-node-transpiled `import` keeps working untouched.\n\nI rejected two alternatives. Loading chai through a dynamic `import()` in a mocha root hook would touch all ~52 node test files, because each one would have to read `expect` and `assert` off globals. Moving these mocha runs to ESM would pull ts-node loader and tsconfig changes into three packages. The approach here touches no test file in those packages at all.\n\n`fxa-settings` is the one place that answer does not hold. Its babel transform cannot parse chai 5's static class blocks, and the fix would be `@babel/plugin-transform-class-static-block`, a new dependency in a package this ticket should not touch. That file had five assertions, in a package that never declared chai and uses jest's `expect` everywhere else, so the assertions move to `expect`. All five compare same-typed primitives, so chai's loose `==` and `toBe` agree here. No assertion is weakened.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-9095",
+  "timestamp": 1787083954000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
