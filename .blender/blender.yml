@@ -4,21 +4,8 @@ repo_name: "Firefox Accounts (mozilla/fxa)"
 node_version: "24.15.0"
 install_command: "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 yarn install --immutable --inline-builds"
 
-automerge:
-  # Dry-run to stop endless re-approvals: fxa has no required status checks,
-  # so an approved PR goes "clean" immediately and GitHub refuses to arm
-  # auto-merge — BLEnder then re-approves every sweep and approvals pile up as
-  # noise. Re-enable once mozilla/blender#120 (idempotent approval + direct
-  # merge when clean) lands.
-  dry_run: true
-
 investigate:
-  # Disabled: BLEnder's alert remediation is npm-only (npm audit fix +
-  # package-lock.json). fxa is a yarn repo, so remediate always fails, the
-  # alert is never tagged "investigated", and the ~30-min sweep re-investigates
-  # it forever — a runaway cost loop with zero result. Off until BLEnder
-  # supports yarn (see upstream bugs).
-  enabled: false
+  enabled: true
   dismiss_unaffected: true
   max_claude_turns: 100
   max_budget_usd: 6.00
