@@ -194,14 +194,6 @@ button-back-aria-label = Назад
 button-back-title = Назад
 
 
-recovery-key-download-button-v3 = Завантажити та продовжити
-    .title = Завантажити та продовжити
-recovery-key-pdf-heading = Ключ відновлення облікового запису
-recovery-key-pdf-download-date = Згенеровано: { $date }
-recovery-key-pdf-key-legend = Ключ відновлення облікового запису
-recovery-key-pdf-instructions = Цей ключ дає змогу відновити зашифровані дані браузера (паролі, закладки, історію тощо) у разі втрати пароля. Збережіть його в надійному місці.
-recovery-key-pdf-storage-ideas-heading = Місця для зберігання ключа
-recovery-key-pdf-support = Дізнайтеся більше про ключ відновлення облікового запису
 recovery-key-pdf-download-error = На жаль, виникла проблема із завантаженням ключа відновлення облікового запису.
 
 
@@ -360,7 +352,6 @@ input-phone-number-country-list-aria-label = Виберіть країну
 input-phone-number-enter-number = Введіть номер телефону
 input-phone-number-country-united-states = США
 input-phone-number-country-canada = Канада
-legal-back-button = Назад
 
 
 reset-pwd-link-damaged-header = Посилання для відновлення пароля пошкоджене
@@ -1056,17 +1047,6 @@ inline-totp-setup-on-completion-description = Після завершення н
 inline-totp-setup-security-code-placeholder = Код автентифікації
 inline-totp-setup-code-required-error = Потрібно ввести код автентифікації
 tfa-qr-code-alt = Скористайтеся кодом { $code } для налаштування двоетапної перевірки в підтримуваних програмах.
-
-
-legal-header = Правові положення
-legal-terms-of-service-link = Умови надання послуг
-legal-privacy-link = Положення про приватність
-
-
-legal-privacy-heading = Положення про приватність
-
-
-legal-terms-heading = Умови надання послуг
 
 
 pair-auth-allow-heading-text = Ви щойно ввійшли до { -brand-firefox }?

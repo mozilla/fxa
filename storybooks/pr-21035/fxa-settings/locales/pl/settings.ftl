@@ -39,31 +39,12 @@ brand-m-logo =
 button-back-aria-label = Wstecz
 button-back-title = Wstecz
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
-# The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = Pobierz i kontynuuj
-    .title = Pobierz i kontynuuj
-recovery-key-pdf-heading = Klucz odzyskiwania konta
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = Utworzono: { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = Klucz odzyskiwania konta
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = Ten klucz umożliwia odzyskanie zaszyfrowanych danych przeglądarki (w tym haseł, zakładek i historii), jeśli zapomnisz hasła. Przechowuj go w miejscu, które zapamiętasz.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = Miejsca, w których można zachować klucz
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = Więcej informacji o kluczu odzyskiwania konta
-# Error message displayed in an alert bar if the PDF download failed.
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Przepraszamy, wystąpił problem podczas pobierania klucza odzyskiwania konta.
 
 ## ButtonPasskeySignin
@@ -338,10 +319,6 @@ input-phone-number-country-list-aria-label = Wybierz kraj
 input-phone-number-enter-number = Wpisz numer telefonu
 input-phone-number-country-united-states = Stany Zjednoczone
 input-phone-number-country-canada = Kanada
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Wstecz
-# Generic error shown when the legal document fails to load
-app-general-err-message = Coś się nie powiodło. Spróbuj ponownie później.
 
 ## LinkDamaged component
 
@@ -533,6 +510,9 @@ cs-cannot-disconnect = Nie odnaleziono klienta, nie można rozłączyć
 cs-logged-out-2 = Wylogowano z usługi { $service }
 cs-refresh-button =
     .title = Odśwież połączone usługi
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = Połącz urządzenie
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = Brak elementu lub jakieś są podwójne?
 cs-disconnect-sync-heading = Rozłącz synchronizację
@@ -970,6 +950,8 @@ page-passkey-add-cancel = Anuluj
 ## These are displayed as a list with the date when the event occured
 
 recent-activity-title = Ostatnie działania na koncie
+# Clicking this button reveals the older account activity that is hidden at first.
+recent-activity-show-more-button = Pokaż więcej
 recent-activity-account-create-v2 = Utworzono konto
 recent-activity-account-disable-v2 = Wyłączono konto
 recent-activity-account-enable-v2 = Włączono konto
@@ -1175,6 +1157,7 @@ passkey-sub-row-created-date = Utworzono: { $createdDate }
 #   $lastUsedDate (String) - a localized date string
 passkey-sub-row-last-used-date = Ostatnio użyto: { $lastUsedDate }
 passkey-delete-modal-cancel-button = Anuluj
+passkey-rename-cancel-button = Anuluj
 
 ## Switch component
 
@@ -1473,23 +1456,6 @@ inline-totp-setup-code-required-error = Wymagany jest kod uwierzytelniania
 tfa-qr-code-alt = Użyj kodu { $code }, aby skonfigurować uwierzytelnianie dwuetapowe w obsługiwanych aplikacjach.
 inline-totp-setup-page-title = Uwierzytelnianie dwuetapowe
 
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Podstawa prawna
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Regulamin usługi
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Zasady ochrony prywatności
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Zasady ochrony prywatności
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Regulamin usługi
-
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = Czy właśnie zalogowano się do { -brand-firefox(case: "gen") }?
@@ -1651,6 +1617,78 @@ pair-unsupported-learn-more-link-v2 = Więcej informacji
 # Matches the legacy Backbone "Oops! Something went wrong." message.
 pair-unsupported-desktop-firefox-fallback-header-v2 = Ups! Coś poszło nie tak.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Proszę zamknąć tę kartę i spróbować ponownie.
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer, which is already signed in, after their
+## mobile device scans the pairing QR code. It asks them to approve the
+## sign-in, and shows the requesting device's details so they can verify it.
+
+# Asks the user to confirm the sign-in that another one of their devices just started
+pair2-authority-approve-sign-in-heading = Czy zatwierdzić logowanie?
+# Submit button confirming that the user started the pairing and approves the
+# other device being added to their account
+pair2-authority-approve-sign-in-confirm-button = Tak, zatwierdź logowanie
+# "Not you?" asks whether someone other than the user started this sign-in.
+# The text inside <changePassword> links to the page for changing the password.
+pair2-authority-approve-sign-in-change-password = To nie ty? <changePassword>Zmień hasło</changePassword>
+
+## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer after scanning the pairing QR code with
+## their phone. It confirms the flow has moved to the mobile device and waits
+## for the remaining steps to be completed there.
+
+pair2-authority-continue-on-mobile-heading = Kontynuuj na urządzeniu mobilnym
+pair2-authority-continue-on-mobile-description = Postępuj zgodnie z instrukcjami wyświetlanymi na ekranie telefonu lub tabletu.
+# Dismisses the pairing attempt
+pair2-authority-continue-on-mobile-cancel-button = Anuluj
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when Firefox is needed to continue pairing.
+## It points them at firefox.com/pair and offers a download link for Firefox.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-download-firefox-heading = Otwórz { -brand-firefox(case: "acc") }, aby zsynchronizować
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction = Aby skonfigurować synchronizację między urządzeniami, otwórz { -brand-firefox(case: "acc") } na tym urządzeniu i przejdź na stronę <b>firefox.com/pair</b>
+# Links out to the Firefox download page
+pair2-authority-download-firefox-cta = Pobierz przeglądarkę { -brand-firefox }
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when pairing stopped without succeeding,
+## either because it timed out or because it was canceled. Both cases offer to
+## start pairing over again.
+
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-canceled-heading = Anulowano
+# Restarts the pairing flow
+pair2-authority-timeout-and-cancel-try-again-button = Spróbuj ponownie
+# Abandons pairing without retrying
+pair2-authority-timeout-and-cancel-cancel-button = Anuluj
+# Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
+pair2-authority-timeout-and-cancel-sync-settings-button = Ustawienia synchronizacji
+
+## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It asks them to confirm connecting the mobile
+## device to their account, and shows that computer's details so they can
+## verify the request.
+
+# "this device" is the mobile device the user is holding, not the computer
+# whose details are shown below the heading
+pair2-supplicant-connect-this-device-heading = Czy połączyć to urządzenie z Twoim kontem?
+# Confirms the pairing attempt
+pair2-supplicant-connect-this-device-connect-button = Połącz
+# Dismisses the pairing attempt
+pair2-supplicant-connect-this-device-cancel-button = Anuluj
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing ends without connecting,
+## either because the attempt timed out or because it was canceled. Both states
+## are informational and offer no on-screen action, so the copy points the user
+## back to their computer to start again.
+
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-canceled-heading = Anulowano
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

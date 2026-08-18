@@ -83,14 +83,6 @@ button-back-aria-label = Назад
 button-back-title = Назад
 
 
-recovery-key-download-button-v3 = Преузми и настави
-    .title = Преузми и настави
-recovery-key-pdf-heading = Кључ за опоравак налога
-recovery-key-pdf-download-date = Направљено: { $date }
-recovery-key-pdf-key-legend = Кључ за опоравак налога
-recovery-key-pdf-instructions = Овај кључ вам омогућава да опоравите своје шифроване податке прегледача (укључујући лозинке, обележиваче и историјат) ако заборавите лозинку. Чувајте га на месту које ћете запамтити.
-recovery-key-pdf-storage-ideas-heading = Места за чување кључа
-recovery-key-pdf-support = Сазнајте више о свом кључу за опоравак налога
 recovery-key-pdf-download-error = Нажалост, дошло је до проблема при преузимању вашег кључа за опоравак налога.
 
 
@@ -296,7 +288,6 @@ input-phone-number-country-list-aria-label = Изаберите државу
 input-phone-number-enter-number = Унесите број телефона
 input-phone-number-country-united-states = Сједињене Америчке Државе
 input-phone-number-country-canada = Канада
-legal-back-button = Назад
 
 
 reset-pwd-link-damaged-header = Веза за ресетовање лозинке је оштећена
@@ -1144,17 +1135,6 @@ inline-totp-setup-security-code-placeholder = Приступни код
 inline-totp-setup-code-required-error = Потребна је шифра за потврду идентитета
 tfa-qr-code-alt = Користите шифру { $code } да бисте подесили потврду идентитета у два корака у подржаним програмима.
 inline-totp-setup-page-title = Потврда идентитета у два корака
-
-
-legal-header = Правно
-legal-terms-of-service-link = Услови коришћења
-legal-privacy-link = Обавештење о приватности
-
-
-legal-privacy-heading = Обавештење о приватности
-
-
-legal-terms-heading = Услови коришћења
 
 
 pair-auth-allow-heading-text = Јесте ли се управо пријавили у { -brand-firefox }?

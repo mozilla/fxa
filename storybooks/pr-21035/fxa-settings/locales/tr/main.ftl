@@ -83,14 +83,6 @@ button-back-aria-label = Geri
 button-back-title = Geri
 
 
-recovery-key-download-button-v3 = İndir ve devam et
-    .title = İndir ve devam et
-recovery-key-pdf-heading = Hesap kurtarma anahtarı
-recovery-key-pdf-download-date = Oluşturma: { $date }
-recovery-key-pdf-key-legend = Hesap kurtarma anahtarı
-recovery-key-pdf-instructions = Parolanızı unutursanız şifrelenmiş tarayıcı verilerinizi (parolalar, yer imleri ve geçmiş dahil) bu anahtarla kurtarabilirsiniz. Anahtarınızı unutmayacağınız bir yerde saklayın.
-recovery-key-pdf-storage-ideas-heading = Anahtarınızı saklayabileceğiniz yerler
-recovery-key-pdf-support = Hesap kurtarma anahtarınız hakkında daha fazla bilgi alın
 recovery-key-pdf-download-error = Hesap kurtarma anahtarınız indirilirken bir sorun oluştu.
 
 
@@ -294,8 +286,6 @@ input-phone-number-country-list-aria-label = Ülke seçin
 input-phone-number-enter-number = Telefon numarasını yazın
 input-phone-number-country-united-states = Amerika Birleşik Devletleri
 input-phone-number-country-canada = Kanada
-legal-back-button = Geri
-app-general-err-message = Bir şeyler yanlış gitti. Lütfen daha sonra yeniden deneyin.
 
 
 reset-pwd-link-damaged-header = Parolayı sıfırlama bağlantısı hasarlı
@@ -425,6 +415,7 @@ cs-cannot-disconnect = İstemci bulunamadı, bağlantı kesilemiyor
 cs-logged-out-2 = { $service } oturumu kapatıldı
 cs-refresh-button =
     .title = Bağlı hizmetleri yenile
+cs-connect-device-button = Cihaz bağla
 cs-missing-device-help = Eksik veya çift kayıtlar mı var?
 cs-disconnect-sync-heading = Sync bağlantısını kes
 
@@ -751,6 +742,7 @@ page-passkey-add-error-system-v2 = Geçiş anahtarınız oluşturulurken bir sor
 
 
 recent-activity-title = Son hesap etkinlikleri
+recent-activity-show-more-button = Daha fazla göster
 recent-activity-account-create-v2 = Hesap oluşturuldu
 recent-activity-account-disable-v2 = Hesap devre dışı bırakıldı
 recent-activity-account-enable-v2 = Hesap etkinleştirildi
@@ -1126,17 +1118,6 @@ tfa-qr-code-alt = Desteklenen uygulamalarda iki aşamalı doğrulamayı kurmak i
 inline-totp-setup-page-title = İki aşamalı doğrulama
 
 
-legal-header = Hukuki Bilgiler
-legal-terms-of-service-link = Hizmet Koşulları
-legal-privacy-link = Gizlilik Bildirimi
-
-
-legal-privacy-heading = Gizlilik Bildirimi
-
-
-legal-terms-heading = Hizmet Koşulları
-
-
 pair-auth-allow-heading-text = Az önce { -brand-firefox }’a giriş yaptınız mı?
 pair-auth-allow-confirm-button = Evet, cihazı onayla
 pair-auth-allow-refuse-device-link = Giriş yapan siz değilseniz <a>parolanızı değiştirin</a>
@@ -1226,6 +1207,47 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Ne yazık ki bir hata olu�
 pair-unsupported-desktop-firefox-fallback-message-v2 = Lütfen bu sekmeyi kapatıp yeniden deneyin.
 
 
+pair2-authority-continue-on-mobile-heading = Mobil cihazınızdan devam edin
+pair2-authority-continue-on-mobile-description = Telefonunuzda veya tabletinizde gösterilen adımları izleyin.
+pair2-authority-continue-on-mobile-cancel-button = Vazgeç
+
+
+pair2-authority-download-firefox-heading = Eşitlemek için { -brand-firefox } tarayıcısını açın
+pair2-authority-download-firefox-cta = { -brand-firefox }’u indir
+
+
+pair2-authority-sync-success-view-tabs-button = Eşitlenen sekmeleri göster
+pair2-authority-sync-success-sync-settings-button = Eşitleme ayarları
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = Hâlâ cihaz bağlamak istiyor musunuz?
+pair2-authority-timeout-and-cancel-canceled-heading = Vazgeçildi
+pair2-authority-timeout-and-cancel-canceled-description = Fikrinizi değiştirirseniz veya başka bir cihaz bağlamak isterseniz yeniden deneyin.
+pair2-authority-timeout-and-cancel-try-again-button = Yeniden dene
+pair2-authority-timeout-and-cancel-cancel-button = Vazgeç
+pair2-authority-timeout-and-cancel-sync-settings-button = Eşitleme ayarları
+
+
+pair2-supplicant-approve-sign-in-cancel-button = Vazgeç
+
+
+pair2-supplicant-connect-this-device-heading = Bu cihaz hesabınıza bağlansın mı?
+pair2-supplicant-connect-this-device-connect-button = Bağla
+pair2-supplicant-connect-this-device-cancel-button = Vazgeç
+
+
+pair2-supplicant-download-firefox-continue-button = { -brand-firefox } ile devam et
+
+
+pair2-supplicant-sync-success-heading = Cihazınız bağlandı
+pair2-supplicant-sync-success-view-tabs-button = Eşitlenen sekmeleri göster
+pair2-supplicant-sync-success-sync-settings-button = Eşitleme ayarları
+
+
+pair2-supplicant-timeout-and-cancel-timeout-heading = Zaman aşımına uğradık
+pair2-supplicant-timeout-and-cancel-canceled-heading = Vazgeçildi
+
+
 service-welcome-signup-success-banner = { -product-mozilla-account } onaylandı
 service-welcome-signin-success-banner = Başarıyla giriş yapıldı!
 service-welcome-vpn-heading = Sonraki: VPN’i açın
@@ -1235,6 +1257,9 @@ service-welcome-vpn-heading = Sonraki: VPN’i açın
 
 set-password-heading-v2 = Eşitleme için parola oluşturun
 set-password-info-v2 = Bu işlem verilerinizi şifreler. { -brand-google } veya { -brand-apple } hesabınızın parolasından farklı olmalıdır.
+
+
+set-password-passwordless-info = Bu parola, eşitlenen verilerinizi şifreleyerek güvende tutar.
 
 
 third-party-auth-callback-message = Lütfen bekleyin, yetkili uygulamaya yönlendiriliyorsunuz.
@@ -1364,6 +1389,7 @@ back = Geri dön
 
 
 signin-passkey-fallback-header = Girişi tamamla
+signin-passkey-fallback-heading = Eşitlemek için parolanızı yazın
 signin-passkey-fallback-password-label = Parola
 signin-passkey-fallback-continue = Devam et
 signin-passkey-fallback-forgot-password-link = Parolanızı unuttunuz mu?

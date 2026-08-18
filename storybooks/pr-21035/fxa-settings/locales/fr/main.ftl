@@ -99,14 +99,7 @@ button-back-aria-label = Retour
 button-back-title = Retour
 
 
-recovery-key-download-button-v3 = Télécharger et continuer
-    .title = Télécharger et continuer
-recovery-key-pdf-heading = Clé de récupération du compte
-recovery-key-pdf-download-date = Générée le : { $date }
-recovery-key-pdf-key-legend = Clé de récupération du compte
-recovery-key-pdf-instructions = Cette clé vous permet de récupérer les données chiffrées de votre navigateur (y compris les mots de passe, les marque-pages et l’historique) si vous oubliez votre mot de passe. Conservez-la à un endroit dont vous vous souviendrez.
-recovery-key-pdf-storage-ideas-heading = Où conserver votre clé :
-recovery-key-pdf-support = En savoir plus sur la clé de récupération de compte
+recovery-key-download-button-v4 = Télécharger et continuer
 recovery-key-pdf-download-error = Un problème est survenu lors du téléchargement de la clé de récupération de votre compte.
 
 
@@ -326,8 +319,6 @@ input-phone-number-country-list-aria-label = Sélectionnez un pays
 input-phone-number-enter-number = Saisissez un numéro de téléphone
 input-phone-number-country-united-states = États-Unis
 input-phone-number-country-canada = Canada
-legal-back-button = Retour
-app-general-err-message = Une erreur est survenue. Merci de réessayer plus tard.
 
 
 reset-pwd-link-damaged-header = Le lien de réinitialisation du mot de passe est endommagé
@@ -460,6 +451,7 @@ cs-cannot-disconnect = Client introuvable, impossible de se déconnecter
 cs-logged-out-2 = Déconnecté·e de { $service }.
 cs-refresh-button =
     .title = Actualiser les services connectés
+cs-connect-device-button = Connecter un appareil
 cs-missing-device-help = Éléments manquants ou dupliqués ?
 cs-disconnect-sync-heading = Se déconnecter de Sync
 
@@ -581,6 +573,8 @@ flow-setup-2fa-inline-complete-learn-more-link = En quoi cela protège votre com
 flow-setup-2fa-inline-complete-continue-button = Continuer vers { $serviceName }
 flow-setup-2fa-prompt-heading = Configurer l’authentification en deux étapes
 flow-setup-2fa-prompt-description = { $serviceName } vous demande de configurer l’authentification en deux étapes pour protéger votre compte.
+flow-setup-2fa-prompt-passkey-success-banner = Connecté·e avec la clé d’accès avec succès
+flow-setup-2fa-prompt-passkey-description = { $serviceName } nécessite également une authentification en deux étapes pour votre { -product-mozilla-account }. Une fois la configuration terminée, vous n’en aurez plus besoin lorsque vous vous connecterez avec une clé d’accès.
 flow-setup-2fa-prompt-use-authenticator-apps = Vous pouvez utiliser <authenticationAppsLink>n’importe laquelle de ces applications d’authentification</authenticationAppsLink> pour continuer.
 flow-setup-2fa-prompt-continue-button = Continuer
 
@@ -787,6 +781,7 @@ page-passkey-add-error-system-v2 = Un problème est survenu lors de la création
 
 
 recent-activity-title = Activité récente du compte
+recent-activity-show-more-button = Afficher plus d’informations
 recent-activity-account-create-v2 = Compte créé
 recent-activity-account-disable-v2 = Compte désactivé
 recent-activity-account-enable-v2 = Compte activé
@@ -1219,17 +1214,6 @@ tfa-qr-code-alt = Utilisez le code { $code } pour configurer l’authentificatio
 inline-totp-setup-page-title = Authentification en deux étapes
 
 
-legal-header = Mentions légales
-legal-terms-of-service-link = Conditions d’utilisation
-legal-privacy-link = Politique de confidentialité
-
-
-legal-privacy-heading = Politique de confidentialité
-
-
-legal-terms-heading = Conditions d’utilisation
-
-
 pair-auth-allow-heading-text = Venez-vous de vous connecter à { -brand-firefox } ?
 pair-auth-allow-confirm-button = Oui, approuver l’appareil
 pair-auth-allow-refuse-device-link = S’il ne s’agissait pas de vous, <a>changez de mot de passe</a>
@@ -1321,9 +1305,72 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Oups, une erreur s’est p
 pair-unsupported-desktop-firefox-fallback-message-v2 = Veuillez fermer cet onglet puis réessayer.
 
 
+pair2-authority-approve-sign-in-heading = Approuver la connexion ?
+pair2-authority-approve-sign-in-confirm-button = Oui, approuver la connexion
+pair2-authority-approve-sign-in-change-password = Ce n’est pas vous ? <changePassword>Changez votre mot de passe</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = Continuer sur votre appareil mobile
+pair2-authority-continue-on-mobile-description = Suivez les étapes sur votre téléphone ou votre tablette.
+pair2-authority-continue-on-mobile-cancel-button = Annuler
+
+
+pair2-authority-download-firefox-heading = Ouvrir { -brand-firefox } à synchroniser
+pair2-authority-download-firefox-instruction = Pour configurer la synchronisation entre les appareils, ouvrez { -brand-firefox } sur cet appareil et visitez <b>firefox.com/pair</b>
+pair2-authority-download-firefox-cta = Télécharger { -brand-firefox }
+
+
+pair2-authority-scan-qr-heading = Scannez pour connecter votre appareil mobile
+pair2-authority-scan-qr-instruction = Scannez le code QR avec votre téléphone ou votre tablette pour synchroniser vos { -brand-firefox } marque-pages, onglets et plus encore.
+pair2-authority-scan-qr-code-aria-label = Code QR pour connecter votre appareil mobile
+pair2-authority-scan-qr-help-link = Obtenir de l’aide sur l’analyse
+
+
+pair2-authority-sync-success-heading = Synchronisation synchronisée
+pair2-authority-sync-success-description = Vos onglets, marque-pages, mots de passe et bien plus sont prêts sur tous vos appareils.
+pair2-authority-sync-success-view-tabs-button = Afficher les onglets synchronisés
+pair2-authority-sync-success-sync-settings-button = Paramètres de synchronisation
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = Vous souhaitez toujours connecter un appareil ?
+pair2-authority-timeout-and-cancel-timeout-description = Il semblerait que le délai d’attente ait expiré. Réessayez si vous souhaitez toujours connecter votre appareil mobile et synchroniser vos { -brand-firefox } données.
+pair2-authority-timeout-and-cancel-canceled-heading = Annulé
+pair2-authority-timeout-and-cancel-canceled-description = Si vous changez d’avis ou si vous souhaitez connecter un autre appareil, réessayez.
+pair2-authority-timeout-and-cancel-try-again-button = Réessayer
+pair2-authority-timeout-and-cancel-cancel-button = Annuler
+pair2-authority-timeout-and-cancel-sync-settings-button = Paramètres de synchronisation
+
+
 pair2-supplicant-approve-sign-in-heading = Une dernière étape pour lancer la synchronisation
 pair2-supplicant-approve-sign-in-instruction = Approuvez la connexion sur votre ordinateur.
 pair2-supplicant-approve-sign-in-cancel-button = Annuler
+
+
+pair2-supplicant-connect-this-device-heading = Connecter cet appareil à votre compte ?
+pair2-supplicant-connect-this-device-connect-button = Se connecter
+pair2-supplicant-connect-this-device-cancel-button = Annuler
+
+
+pair2-supplicant-download-firefox-heading = Obtenir { -brand-firefox } sur cet appareil
+pair2-supplicant-download-firefox-description = Téléchargez { -brand-firefox } pour synchroniser les marque-pages, l’historique et d’autres informations entre vos appareils. <linkExternal>En savoir plus</linkExternal>
+pair2-supplicant-download-firefox-continue-button = Continuer dans { -brand-firefox }
+
+
+pair2-supplicant-ready-to-scan-heading = Pour connecter un appareil
+pair2-supplicant-ready-to-scan-instruction = Sur votre ordinateur, ouvrez { -brand-firefox } et accédez à <b>firefox.com/pair</b>, et suivez les instructions à l’écran pour connecter cet appareil mobile.
+pair2-supplicant-ready-to-scan-learn-more-link = En savoir plus
+
+
+pair2-supplicant-sync-success-heading = Votre appareil est connecté
+pair2-supplicant-sync-success-description = Vos marque-pages, onglets et autres resteront synchronisés en { -brand-firefox }.
+pair2-supplicant-sync-success-view-tabs-button = Afficher les onglets synchronisés
+pair2-supplicant-sync-success-sync-settings-button = Paramètres de synchronisation
+
+
+pair2-supplicant-timeout-and-cancel-timeout-heading = Il semble que le délai d’attente ait expiré
+pair2-supplicant-timeout-and-cancel-timeout-description = Pour connecter votre appareil mobile et synchroniser vos { -brand-firefox } données, visitez <b>firefox.com/pair</b> sur votre ordinateur.
+pair2-supplicant-timeout-and-cancel-canceled-heading = Annulé
+pair2-supplicant-timeout-and-cancel-canceled-description = Pour connecter un appareil à tout moment, visitez <b>firefox.com/pair</b> sur votre ordinateur.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account(capitalization: "uppercase") } confirmé

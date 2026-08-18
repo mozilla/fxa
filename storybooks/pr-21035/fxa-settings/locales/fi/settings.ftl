@@ -39,31 +39,12 @@ brand-m-logo =
 button-back-aria-label = Takaisin
 button-back-title = Takaisin
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
-# The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = Lataa ja jatka
-    .title = Lataa ja jatka
-recovery-key-pdf-heading = Tilin palautusavain
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = Luotu: { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = Tilin palautusavain
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = Tämän avaimen avulla voit palauttaa salatut selaintietosi (mukaan lukien salasanat, kirjanmerkit ja historian), jos unohdat salasanasi. Säilytä avainta paikassa, jonka muistat.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = Avaimen säilytyspaikkoja
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = Lue lisää tilin palautusavaimesta
-# Error message displayed in an alert bar if the PDF download failed.
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Valitettavasti tilin palautusavaimen lataamisessa oli ongelma.
 
 ## ButtonPasskeySignin
@@ -343,8 +324,6 @@ input-phone-number-country-list-aria-label = Valitse maa
 input-phone-number-enter-number = Kirjoita puhelinnumero
 input-phone-number-country-united-states = Yhdysvallat
 input-phone-number-country-canada = Kanada
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Takaisin
 
 ## LinkDamaged component
 
@@ -1399,23 +1378,6 @@ inline-totp-setup-security-code-placeholder = Toodennuskoodi
 inline-totp-setup-code-required-error = Todennuskoodi vaaditaan
 tfa-qr-code-alt = Ota käyttöön kaksivaiheinen todennus tuetuissa sovelluksissa käyttämällä koodia { $code }.
 inline-totp-setup-page-title = Kaksivaiheinen todennus
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Juridiset asiat
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Käyttöehdot
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Tietosuojakäytäntö
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Tietosuojakäytäntö
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Käyttöehdot
 
 ## AuthAllow page - Part of the device pairing flow
 

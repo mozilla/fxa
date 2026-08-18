@@ -63,14 +63,6 @@ button-back-aria-label = Назад
 button-back-title = Назад
 
 
-recovery-key-download-button-v3 = Сцягнуць і працягваць
-    .title = Сцягнуць і працягваць
-recovery-key-pdf-heading = Ключ аднаўлення ўліковага запісу
-recovery-key-pdf-download-date = Згенераваны: { $date }
-recovery-key-pdf-key-legend = Ключ аднаўлення ўліковага запісу
-recovery-key-pdf-instructions = Гэты ключ дазваляе аднавіць зашыфраваныя звесткі браўзера (уключаючы паролі, закладкі і гісторыю), калі вы забудзеце пароль. Захоўвайце яго ў месцы, якое вы запомніце.
-recovery-key-pdf-storage-ideas-heading = Месцы для захоўвання вашага ключа
-recovery-key-pdf-support = Даведайцеся больш пра ключ аднаўлення ўліковага запісу
 recovery-key-pdf-download-error = На жаль, узнікла праблема пры сцягванні ключа аднаўлення ўліковага запісу.
 
 
@@ -170,8 +162,6 @@ input-phone-number-country-list-aria-label = Выбар краіны
 input-phone-number-enter-number = Увядзіце нумар тэлефона
 input-phone-number-country-united-states = Злучаныя Штаты
 input-phone-number-country-canada = Канада
-legal-back-button = Назад
-app-general-err-message = Нешта пайшло не так. Калі ласка, паспрабуйце зноў пазней.
 
 
 reset-pwd-link-damaged-header = Спасылка для скіду пароля пашкоджана
@@ -713,17 +703,6 @@ inline-totp-setup-enter-key-or-use-qr-instructions = Увядзіце гэты �
 inline-totp-setup-use-qr-or-enter-key-instructions = Адскануйце QR-код у сваёй праграме аўтэнтыфікацыі, а затым увядзіце код аўтарызацыі, які яна выдае. <toggleToManualModeButton>Не можаце сканаваць код?</toggleToManualModeButton>
 inline-totp-setup-on-completion-description = Пасля завяршэння яна пачне генераваць коды аўтарызацыі для ўвядзення.
 inline-totp-setup-security-code-placeholder = Код аўтарызацыі
-
-
-legal-header = Прававыя звесткі
-legal-terms-of-service-link = Умовы абслугоўвання
-legal-privacy-link = Паведамленне аб прыватнасці
-
-
-legal-privacy-heading = Паведамленне аб прыватнасці
-
-
-legal-terms-heading = Умовы абслугоўвання
 
 
 pair-auth-allow-heading-text = Вы толькі што ўвайшлі ў { -brand-firefox }?

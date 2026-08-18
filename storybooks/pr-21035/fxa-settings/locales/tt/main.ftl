@@ -71,15 +71,6 @@ button-back-aria-label = Кире
 button-back-title = Кире
 
 
-recovery-key-download-button-v3 = Иңдерү һәм дәвам итү
-    .title = Иңдерү һәм дәвам итү
-recovery-key-pdf-heading = Хисапны Коткару Ачкычы
-recovery-key-pdf-download-date = Төзелгән: { $date }
-recovery-key-pdf-key-legend = Хисапны Коткару Ачкычы
-recovery-key-pdf-storage-ideas-heading = Ачкычыгызны саклау өчен урыннар
-recovery-key-pdf-support = Хисапны коткару ачкычыгыз турында күбрәк белү
-
-
 choose-newsletters-prompt-2 = { -brand-mozilla } хәбәрләренә язылыгыз:
 choose-newsletters-option-latest-news =
     .label = Иң соңгы яңалыкларыбыз һәм продукт яңартуларыбыз турында хәбәрдар булыгыз
@@ -185,7 +176,6 @@ input-password-sr-only-now-hidden = Серсүзегез хәзер яшерел
 input-phone-number-enter-number = Телефон номерын кертегез
 input-phone-number-country-united-states = Америка Кушма Штатлары
 input-phone-number-country-canada = Канада
-legal-back-button = Кире
 
 
 reset-pwd-link-damaged-header = Паролны алыштыру сылтамасына зыян килгән
@@ -680,17 +670,6 @@ inline-totp-setup-ready-button = Әзер
 inline-totp-setup-security-code-placeholder = Аутентификация коды
 inline-totp-setup-code-required-error = Аутентификация коды таләп ителә
 tfa-qr-code-alt = Тәэмин ителгән кушымталарда ике адымлы аутентификацияне көйләү өчен { $code } кодын кулланыгыз.
-
-
-legal-header = Хокукый мәсьәләләр
-legal-terms-of-service-link = Куллану шартлары
-legal-privacy-link = Хосусыйлык аңлатмасы
-
-
-legal-privacy-heading = Хосусыйлык аңлатмасы
-
-
-legal-terms-heading = Куллану шартлары
 
 
 pair-auth-allow-heading-text = Сез { -brand-firefox }-ка гына кердегезме?

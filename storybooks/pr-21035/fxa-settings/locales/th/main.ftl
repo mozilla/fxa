@@ -83,14 +83,6 @@ button-back-aria-label = ย้อนกลับ
 button-back-title = ย้อนกลับ
 
 
-recovery-key-download-button-v3 = ดาวน์โหลดและดำเนินการต่อ
-    .title = ดาวน์โหลดและดำเนินการต่อ
-recovery-key-pdf-heading = คีย์กู้คืนบัญชี
-recovery-key-pdf-download-date = สร้างเมื่อ: { $date }
-recovery-key-pdf-key-legend = คีย์กู้คืนบัญชี
-recovery-key-pdf-instructions = คีย์นี้ช่วยให้คุณสามารถกู้คืนข้อมูลเบราว์เซอร์ที่มีการเข้ารหัสลับไว้ (รวมถึงรหัสผ่าน ที่คั่นหน้า และประวัติ) ในกรณีที่คุณลืมรหัสผ่านได้ โปรดเก็บคีย์นี้ไว้ในตำแหน่งที่คุณสามารถจำได้
-recovery-key-pdf-storage-ideas-heading = ตำแหน่งที่จะเก็บคีย์ของคุณ
-recovery-key-pdf-support = เรียนรู้เพิ่มเติมเกี่ยวกับคีย์กู้คืนบัญชีของคุณ
 recovery-key-pdf-download-error = ขออภัย เกิดปัญหาในการดาวน์โหลดคีย์กู้คืนบัญชีของคุณ
 
 
@@ -281,7 +273,6 @@ input-phone-number-country-list-aria-label = เลือกประเทศ
 input-phone-number-enter-number = กรอกหมายเลขโทรศัพท์
 input-phone-number-country-united-states = สหรัฐอเมริกา
 input-phone-number-country-canada = แคนาดา
-legal-back-button = ย้อนกลับ
 
 
 reset-pwd-link-damaged-header = ลิงก์สำหรับตั้งรหัสผ่านใหม่เสียหาย
@@ -1103,17 +1094,6 @@ inline-totp-setup-security-code-placeholder = รหัสยืนยันต�
 inline-totp-setup-code-required-error = ต้องใส่รหัสยืนยันตัวตน
 tfa-qr-code-alt = ใช้รหัส { $code } เพื่อตั้งค่าการยืนยันตัวตนสองขั้นตอนในแอปพลิเคชันที่รองรับ
 inline-totp-setup-page-title = การยืนยันตัวตนสองขั้นตอน
-
-
-legal-header = ข้อกฎหมาย
-legal-terms-of-service-link = เงื่อนไขการให้บริการ
-legal-privacy-link = ประกาศความเป็นส่วนตัว
-
-
-legal-privacy-heading = ประกาศความเป็นส่วนตัว
-
-
-legal-terms-heading = เงื่อนไขการให้บริการ
 
 
 pair-auth-allow-heading-text = คุณเพิ่งลงชื่อเข้าใช้ { -brand-firefox } หรือเปล่า?

@@ -83,14 +83,7 @@ button-back-aria-label = Tillbaka
 button-back-title = Tillbaka
 
 
-recovery-key-download-button-v3 = Ladda ner och fortsätt
-    .title = Ladda ner och fortsätt
-recovery-key-pdf-heading = Nyckel för kontoåterställning
-recovery-key-pdf-download-date = Skapad: { $date }
-recovery-key-pdf-key-legend = Nyckel för kontoåterställning
-recovery-key-pdf-instructions = Den här nyckeln låter dig återställa dina krypterade webbläsardata (inklusive lösenord, bokmärken och historik) om du glömmer ditt lösenord. Förvara den på en plats du kommer ihåg.
-recovery-key-pdf-storage-ideas-heading = Platser att förvara din nyckel
-recovery-key-pdf-support = Läs mer om din kontoåterställningsnyckel
+recovery-key-download-button-v4 = Ladda ner och fortsätt
 recovery-key-pdf-download-error = Det gick tyvärr inte att ladda ned din kontoåterställningsnyckel.
 
 
@@ -310,8 +303,6 @@ input-phone-number-country-list-aria-label = Välj land
 input-phone-number-enter-number = Ange telefonnummer
 input-phone-number-country-united-states = USA
 input-phone-number-country-canada = Kanada
-legal-back-button = Tillbaka
-app-general-err-message = Något gick fel. Försök igen senare.
 
 
 reset-pwd-link-damaged-header = Länken för att återställa lösenordet fungerar inte
@@ -446,6 +437,7 @@ cs-cannot-disconnect = Klienten hittades inte, kunde inte koppla ifrån
 cs-logged-out-2 = Loggade ut från { $service }
 cs-refresh-button =
     .title = Uppdatera anslutna tjänster
+cs-connect-device-button = Anslut en enhet
 cs-missing-device-help = Saknas något eller finns dubbletter?
 cs-disconnect-sync-heading = Koppla från Sync
 
@@ -569,6 +561,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Hur detta skyddar ditt konto
 flow-setup-2fa-inline-complete-continue-button = Fortsätt till { $serviceName }
 flow-setup-2fa-prompt-heading = Ställ in tvåstegsautentisering
 flow-setup-2fa-prompt-description = { $serviceName } kräver att du konfigurerar tvåstegsautentisering för att skydda ditt konto.
+flow-setup-2fa-prompt-passkey-success-banner = Inloggad med lösenordsnyckel
+flow-setup-2fa-prompt-passkey-description = { $serviceName } kräver också tvåstegsautentisering för din { -product-mozilla-account }. Efter installationen behöver du inte längre den när du loggar in med en lösenordsnyckel.
 flow-setup-2fa-prompt-use-authenticator-apps = Du kan använda någon av <authenticationAppsLink>dessa autentiseringsappar</authenticationAppsLink> för att fortsätta.
 flow-setup-2fa-prompt-continue-button = Fortsätt
 
@@ -775,6 +769,7 @@ page-passkey-add-error-system-v2 = Det gick inte att skapa din lösenordsnyckel.
 
 
 recent-activity-title = Senaste kontoaktivitet
+recent-activity-show-more-button = Visa mer
 recent-activity-account-create-v2 = Konto skapat
 recent-activity-account-disable-v2 = Konto inaktiverat
 recent-activity-account-enable-v2 = Konto aktiverat
@@ -1210,17 +1205,6 @@ tfa-qr-code-alt = Använd koden { $code } för att ställa in tvåstegsautentise
 inline-totp-setup-page-title = Tvåstegsautentisering
 
 
-legal-header = Juridisk information
-legal-terms-of-service-link = Användarvillkor
-legal-privacy-link = Sekretesspolicy
-
-
-legal-privacy-heading = Sekretesspolicy
-
-
-legal-terms-heading = Användarvillkor
-
-
 pair-auth-allow-heading-text = Loggade du precis in på { -brand-firefox }?
 pair-auth-allow-confirm-button = Ja, godkänn enhet
 pair-auth-allow-refuse-device-link = Om det inte var du, <a>ändra du ditt lösenord</a>
@@ -1312,9 +1296,72 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Hoppsan! Något gick fel.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Stäng den här fliken och försök igen.
 
 
+pair2-authority-approve-sign-in-heading = Godkänn inloggning?
+pair2-authority-approve-sign-in-confirm-button = Ja, godkänn inloggning
+pair2-authority-approve-sign-in-change-password = Inte du? <changePassword>Ändra ditt lösenord</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = Fortsätt på din mobila enhet
+pair2-authority-continue-on-mobile-description = Följ stegen på din telefon eller surfplatta.
+pair2-authority-continue-on-mobile-cancel-button = Avbryt
+
+
+pair2-authority-download-firefox-heading = Öppna { -brand-firefox } för att synkronisera
+pair2-authority-download-firefox-instruction = För att konfigurera synkronisering mellan enheter, öppna { -brand-firefox } på den här enheten och besök <b>firefox.com/pair</b>
+pair2-authority-download-firefox-cta = Hämta { -brand-firefox }
+
+
+pair2-authority-scan-qr-heading = Skanna för att ansluta din mobila enhet
+pair2-authority-scan-qr-instruction = Skanna QR-koden med din telefon eller surfplatta för att synkronisera dina { -brand-firefox }-bokmärken, flikar och mer.
+pair2-authority-scan-qr-code-aria-label = QR-kod för att ansluta din mobila enhet
+pair2-authority-scan-qr-help-link = Få hjälp med att skanna
+
+
+pair2-authority-sync-success-heading = Du synkroniserar
+pair2-authority-sync-success-description = Dina flikar, bokmärken, lösenord och mer är tillgängliga på dina enheter.
+pair2-authority-sync-success-view-tabs-button = Visa synkroniserade flikar
+pair2-authority-sync-success-sync-settings-button = Synkroniseringsinställningar
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = Vill du fortfarande ansluta en enhet?
+pair2-authority-timeout-and-cancel-timeout-description = Anslutningen gjorde timeout. Försök igen om du fortfarande vill ansluta din mobila enhet och synkronisera din { -brand-firefox }-data.
+pair2-authority-timeout-and-cancel-canceled-heading = Avbruten
+pair2-authority-timeout-and-cancel-canceled-description = Om du ångrar dig eller vill ansluta en annan enhet, försök igen.
+pair2-authority-timeout-and-cancel-try-again-button = Försök igen
+pair2-authority-timeout-and-cancel-cancel-button = Avbryt
+pair2-authority-timeout-and-cancel-sync-settings-button = Sync-inställningar
+
+
 pair2-supplicant-approve-sign-in-heading = Ett sista steg för att synkronisera
 pair2-supplicant-approve-sign-in-instruction = Godkänn inloggningen på din dator.
 pair2-supplicant-approve-sign-in-cancel-button = Avbryt
+
+
+pair2-supplicant-connect-this-device-heading = Anslut den här enheten till ditt konto?
+pair2-supplicant-connect-this-device-connect-button = Anslut
+pair2-supplicant-connect-this-device-cancel-button = Avbryt
+
+
+pair2-supplicant-download-firefox-heading = Hämta { -brand-firefox } till den här enheten
+pair2-supplicant-download-firefox-description = Hämta { -brand-firefox } för att synkronisera bokmärken, historik och mer mellan enheter. <linkExternal>Läs mer</linkExternal>
+pair2-supplicant-download-firefox-continue-button = Fortsätt i { -brand-firefox }
+
+
+pair2-supplicant-ready-to-scan-heading = För att ansluta en enhet
+pair2-supplicant-ready-to-scan-instruction = På din dator, öppna { -brand-firefox } och gå till <b>firefox.com/pair</b> och följ instruktionerna på skärmen för att ansluta den här mobila enheten.
+pair2-supplicant-ready-to-scan-learn-more-link = Läs mer
+
+
+pair2-supplicant-sync-success-heading = Din enhet är ansluten
+pair2-supplicant-sync-success-description = Dina bokmärken, flikar och mer förblir synkroniserade i { -brand-firefox }.
+pair2-supplicant-sync-success-view-tabs-button = Visa synkroniserade flikar
+pair2-supplicant-sync-success-sync-settings-button = Synkroniseringsinställningar
+
+
+pair2-supplicant-timeout-and-cancel-timeout-heading = Vi gjorde timeout
+pair2-supplicant-timeout-and-cancel-timeout-description = För att ansluta din mobila enhet och synkronisera din { -brand-firefox }-data, besök <b>firefox.com/pair</b> på din dator.
+pair2-supplicant-timeout-and-cancel-canceled-heading = Avbruten
+pair2-supplicant-timeout-and-cancel-canceled-description = När du vill ansluta en enhet besöker du <b>firefox.com/pair</b> på din dator.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } har bekräftats

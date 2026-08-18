@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 42a4612e48108facdd5e672d1c077042b9de72b9</title>
+  <title>Storybooks for commit 4c58f8f8c34f0786aca41597a0eeac8e8cfb3282</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 42a4612e48108facdd5e672d1c077042b9de72b9</h1>
+  <h1>Storybooks for commit 4c58f8f8c34f0786aca41597a0eeac8e8cfb3282</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/14/2026, 3:30:55 PM UTC</dd>
+    <dd>8/18/2026, 6:55:45 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>test(oauth): cover the PKCE guards on code redemption</pre></dd>
     <dt>Description</dt>
@@ -44,8 +44,8 @@ This commit:
 
 - Adds six tests for the /oauth/token guards: the authorization_code xor a
   public client cannot sidestep with a client_secret, and the handler PKCE gate.
-- Adds an integration test that refuses to redeem a real code without the
-  verifier, sending grant_type explicitly as Firefox does.
+- Adds two integration tests refusing to redeem a real code: one with no
+  verifier, one with a well-formed verifier that hashes to something else.
 - Adds a functional test driving real Firefox over Marionette, proving the
   verifier reaches neither the params Firefox hands to content nor page script.
 - Adds a test pinning buildSyncOAuthSearch to its allowlist, so no extra

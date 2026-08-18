@@ -63,14 +63,6 @@ button-back-aria-label = Til baka
 button-back-title = Til baka
 
 
-recovery-key-download-button-v3 = Sækja og halda áfram
-    .title = Sækja og halda áfram
-recovery-key-pdf-heading = Endurheimtulykill reiknings
-recovery-key-pdf-download-date = Útbúinn: { $date }
-recovery-key-pdf-key-legend = Endurheimtulykill reiknings
-recovery-key-pdf-instructions = Þessi lykill gerir þér kleift að endurheimta dulrituð vafragögn (þar á meðal lykilorð, bókamerki og vafurferil) ef þú gleymir lykilorðinu þínu. Geymdu hann á stað sem þú manst eftir.
-recovery-key-pdf-storage-ideas-heading = Staðir til að geyma lykilinn þinn
-recovery-key-pdf-support = Frekari upplýsingar um endurheimtulykilinn þinn
 recovery-key-pdf-download-error = Því miður kom upp vandamál við að sækja endurheimtulykilinn þinn.
 
 
@@ -229,7 +221,6 @@ input-phone-number-country-list-aria-label = Veldu land
 input-phone-number-enter-number = Settu inn símanúmer
 input-phone-number-country-united-states = Bandaríkin
 input-phone-number-country-canada = Kanada
-legal-back-button = Til baka
 
 
 reset-pwd-link-damaged-header = Tengill til að endurstilla lykilorð er skemmdur
@@ -908,17 +899,6 @@ inline-totp-setup-on-completion-description = Eftir að því er lokið, mun þa
 inline-totp-setup-security-code-placeholder = Auðkenningarkóði
 inline-totp-setup-code-required-error = Auðkenningarkóði er nauðsynlegur
 tfa-qr-code-alt = Notaðu kóðann { $code } til að setja upp tveggja-þrepa auðkenningu í þeim forritum sem styðja slíkt.
-
-
-legal-header = Lagalegur fyrirvari
-legal-terms-of-service-link = Þjónustuskilmálar
-legal-privacy-link = Meðferð persónuupplýsinga
-
-
-legal-privacy-heading = Meðferð persónuupplýsinga
-
-
-legal-terms-heading = Þjónustuskilmálar
 
 
 pair-auth-allow-heading-text = Varstu að skrá þig inn á { -brand-firefox }?

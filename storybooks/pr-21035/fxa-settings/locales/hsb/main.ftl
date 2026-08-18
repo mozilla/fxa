@@ -83,14 +83,6 @@ button-back-aria-label = Wróćo
 button-back-title = Wróćo
 
 
-recovery-key-download-button-v3 = Sćahnyć a pokročować
-    .title = Sćahnyć a pokročować
-recovery-key-pdf-heading = Kontowy wobnowjenski kluč
-recovery-key-pdf-download-date = Generowany: { $date }
-recovery-key-pdf-key-legend = Kontowy wobnowjenski kluč
-recovery-key-pdf-instructions = Tutón kluč wam zmóžnja, waše zaklučowane daty wobhladowaka (mjez nimi hesła, zapołožki a historiju) wobnowić, jeli swoje hesło zabywaće. Składujće jo na městnje, kotrež móžeće sej spomjatkować.
-recovery-key-pdf-storage-ideas-heading = Městna za składowanje wašeho kluča
-recovery-key-pdf-support = Zhońće wjace wo swojim kontowym wobnowjenskim kluču
 recovery-key-pdf-download-error = Bohužel je při sćahowanju  kontoweho wobnowjenskeho kluča problem nastał.
 
 
@@ -316,8 +308,6 @@ input-phone-number-country-list-aria-label = Wubjerće kraj
 input-phone-number-enter-number = Telefonowe čisło zapodać
 input-phone-number-country-united-states = Zjednoćene staty
 input-phone-number-country-canada = Kanada
-legal-back-button = Wróćo
-app-general-err-message = Něšto je so nimokuliło. Prošu spytajće pozdźišo hišće raz.
 
 
 reset-pwd-link-damaged-header = Wotkaz k wróćostajenju hesła wobškodźeny
@@ -452,6 +442,7 @@ cs-cannot-disconnect = Klient njeje so namakał, zwisk njeda so dźělić
 cs-logged-out-2 = Wot { $service } wotzjewjeny
 cs-refresh-button =
     .title = Zwjazane słužby aktualizować
+cs-connect-device-button = Grat zwjazać
 cs-missing-device-help = Falowace abo dwójne elementy?
 cs-disconnect-sync-heading = Ze Sync dźělić
 
@@ -785,6 +776,7 @@ page-passkey-add-error-system-v2 = Při wutworjenju wašeho hesłoweho kluča je
 
 
 recent-activity-title = Najnowša kontowa aktiwita
+recent-activity-show-more-button = Wjace pokazać
 recent-activity-account-create-v2 = Konto załožene
 recent-activity-account-disable-v2 = Konto znjemóžnjene
 recent-activity-account-enable-v2 = Konto zmóžnjene
@@ -1225,17 +1217,6 @@ tfa-qr-code-alt = Wužiwajće kod { $code }, zo byšće dwukročelowu awtentifik
 inline-totp-setup-page-title = Dwukročelowa awtentifikacija
 
 
-legal-header = Prawniske
-legal-terms-of-service-link = Wužiwanske wuměnjenja
-legal-privacy-link = Zdźělenka priwatnosće
-
-
-legal-privacy-heading = Zdźělenka priwatnosće
-
-
-legal-terms-heading = Wužiwanske wuměnjenja
-
-
 pair-auth-allow-heading-text = Sće so runje pola { -brand-firefox } přizjewił?
 pair-auth-allow-confirm-button = Haj, grat schwalić
 pair-auth-allow-refuse-device-link = Jeli njejsće to był wy, <a>změńće swoje hesło</a>
@@ -1327,9 +1308,72 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Hopla! Něšto je so nimok
 pair-unsupported-desktop-firefox-fallback-message-v2 = Prošu začińće tutón rajtark a spytajće hišće raz.
 
 
+pair2-authority-approve-sign-in-heading = Přizjewjenje schwalić?
+pair2-authority-approve-sign-in-confirm-button = Haj, přizjewjenje schwalić
+pair2-authority-approve-sign-in-change-password = To wy njejsće? <changePassword>Změńće swoje hesło</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = Na swojim mobilnym graće pokročować
+pair2-authority-continue-on-mobile-description = Slědujće krokam na swojim telefonje abo tableće.
+pair2-authority-continue-on-mobile-cancel-button = Přetorhnyć
+
+
+pair2-authority-download-firefox-heading = { -brand-firefox } za synchronizaciju wočinić
+pair2-authority-download-firefox-instruction = Zo byšće synchronizaciju na gratach konfigurował, wočińće { -brand-firefox } na tutym graće a wopytajće <b>firefox.com/pair</b>
+pair2-authority-download-firefox-cta = { -brand-firefox } scahnyć
+
+
+pair2-authority-scan-qr-heading = Skenujće, zo byšće ze swojim mobilnym gratom zwjazał
+pair2-authority-scan-qr-instruction = Skenujće QR-kod ze swojim telefonom abo tabletom, zo byšće swoje zapołožki, rajtarki { -brand-firefox } a wjace synchronizował.
+pair2-authority-scan-qr-code-aria-label = QR-kod za zwjazowanje z wašim mobilnym gratom
+pair2-authority-scan-qr-help-link = Pomoc za skenowanje dóstać
+
+
+pair2-authority-sync-success-heading = Synchronizujeće
+pair2-authority-sync-success-description = Waše rajtarki, zapołožki, hesła a wjace su hotowe na wašich gratach.
+pair2-authority-sync-success-view-tabs-button = Synchronizowane rajtarki pokazać
+pair2-authority-sync-success-sync-settings-button = Nastajenja synchronizacije
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = Chceće hišće grat zwjazać?
+pair2-authority-timeout-and-cancel-timeout-description = Zda so, zo smy čas překročili. Spytajće hišće raz, jeli hišće chceće swój mobilny grat zwjazać a swoje daty { -brand-firefox } synchronizować.
+pair2-authority-timeout-and-cancel-canceled-heading = Přetorhnjeny
+pair2-authority-timeout-and-cancel-canceled-description = Jeli swoje měnjenje měnjeće abo chceće druhi grat zwjazać, spytajće hišće raz.
+pair2-authority-timeout-and-cancel-try-again-button = Hišće raz spytać
+pair2-authority-timeout-and-cancel-cancel-button = Přetorhnyć
+pair2-authority-timeout-and-cancel-sync-settings-button = Nastajenja synchronizacije
+
+
 pair2-supplicant-approve-sign-in-heading = Jedyn posledni krok k synchronizaciji
 pair2-supplicant-approve-sign-in-instruction = Zwolće do přizjewjenja na swojim ličaku.
 pair2-supplicant-approve-sign-in-cancel-button = Přetorhnyć
+
+
+pair2-supplicant-connect-this-device-heading = Tutón grat z wašim kontom zwjazać?
+pair2-supplicant-connect-this-device-connect-button = Zwjazać
+pair2-supplicant-connect-this-device-cancel-button = Přetorhnyć
+
+
+pair2-supplicant-download-firefox-heading = Wobstarajće sej { -brand-firefox } na tutym graće
+pair2-supplicant-download-firefox-description = Sćehńće { -brand-firefox }, zo byšće zapołožki, historiju a wjace na swojich gratach synchronizował. <linkExternal>Dalše informacije</linkExternal>
+pair2-supplicant-download-firefox-continue-button = Z { -brand-firefox } pokročować
+
+
+pair2-supplicant-ready-to-scan-heading = Grat zwjazać
+pair2-supplicant-ready-to-scan-instruction = Wočińće { -brand-firefox } na swojim ličaku a wopytajće <b>firefox.com/pair</b> a slědujće instrukcijam na wobrazowce, zo byšće swój mobilny grat zwjazał.
+pair2-supplicant-ready-to-scan-learn-more-link = Dalše informacije
+
+
+pair2-supplicant-sync-success-heading = Waš grat je zwjazany
+pair2-supplicant-sync-success-description = Waše zapołožki, rajtarki a wjace w { -brand-firefox } synchronizowane wostanu.
+pair2-supplicant-sync-success-view-tabs-button = Synchronizowane rajtarki pokazać
+pair2-supplicant-sync-success-sync-settings-button = Nastajenja synchronizacije
+
+
+pair2-supplicant-timeout-and-cancel-timeout-heading = Zda so, zo smy čas překročili
+pair2-supplicant-timeout-and-cancel-timeout-description = Zo byšće swój mobilny grat zwjazał a swoje daty { -brand-firefox } synchronizował, wopytajće <b>firefox.com/pair</b> na swojim ličaku.
+pair2-supplicant-timeout-and-cancel-canceled-heading = Přetorhnjeny
+pair2-supplicant-timeout-and-cancel-canceled-description = Zo byšće grat kóždy čas zwjazał, wopytajće <b>firefox.com/pair</b> na swojim ličaku.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } wobkrućene

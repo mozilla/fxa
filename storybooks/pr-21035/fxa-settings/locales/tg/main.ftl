@@ -83,14 +83,6 @@ button-back-aria-label = Ба қафо
 button-back-title = Ба қафо
 
 
-recovery-key-download-button-v3 = Боргирӣ кунед ва идома диҳед
-    .title = Боргирӣ кунед ва идома диҳед
-recovery-key-pdf-heading = Калиди барқарорсозии ҳисоб
-recovery-key-pdf-download-date = Эҷодшуда: { $date }
-recovery-key-pdf-key-legend = Калиди барқарорсозии ҳисоб
-recovery-key-pdf-instructions = Агар шумо ниҳонвожаи худро фаромӯш кунед, ин калид ба шумо имкон медиҳад, ки маълумоти рамзгузоришудаи браузерро (аз он ҷумла, ниҳонвожаҳо, хатбаракҳо ва таърихи тамошобинӣ) барқарор кунед. Онро дар ҷойе нигоҳ доред, ки ба ёд меоред.
-recovery-key-pdf-storage-ideas-heading = Ҷойҳо барои нигоҳ доштани калиди шумо
-recovery-key-pdf-support = Маълумоти бештар дар бораи калиди барқарорсозии ҳисоби худ
 recovery-key-pdf-download-error = Мутаассифона, ҳангоми боргирӣ кардани калиди барқарорсозии ҳисоби шумо мушкилие ба миён омад.
 
 
@@ -267,7 +259,6 @@ input-phone-number-country-list-aria-label = Интихоби кишвар
 input-phone-number-enter-number = Рақами телефонро ворид намоед
 input-phone-number-country-united-states = Иёлоти Муттаҳидаи Амрико
 input-phone-number-country-canada = Канада
-legal-back-button = Ба қафо
 
 
 reset-pwd-link-damaged-header = Пайванди барқарорсозии ниҳонвожа вайрон шуд
@@ -714,17 +705,6 @@ inline-totp-setup-continue-button = Идома додан
 inline-totp-setup-ready-button = Омода аст
 inline-totp-setup-security-code-placeholder = Рамзи санҷиши ҳаққоният
 inline-totp-setup-code-required-error = Рамзи санҷиши ҳаққоният лозим аст
-
-
-legal-header = Маълумоти ҳуқуқӣ
-legal-terms-of-service-link = Шартҳои хизматрасонӣ
-legal-privacy-link = Огоҳномаи махфият
-
-
-legal-privacy-heading = Огоҳномаи махфият
-
-
-legal-terms-heading = Шартҳои хизматрасонӣ
 
 
 pair-auth-allow-confirm-button = Бале, дастгоҳро тасдиқ кунед

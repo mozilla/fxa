@@ -83,14 +83,6 @@ button-back-aria-label = Natrag
 button-back-title = Natrag
 
 
-recovery-key-download-button-v3 = Preuzmi i nastavi
-    .title = Preuzmi i nastavi
-recovery-key-pdf-heading = Ključ za obnavljanje računa
-recovery-key-pdf-download-date = Stvoreno: { $date }
-recovery-key-pdf-key-legend = Ključ za obnavljanje računa
-recovery-key-pdf-instructions = Ovaj ključ omogućuje obnavljanje šifriranih podataka preglednika (uključujući lozinke, zabilješke i povijest) ako zaboraviš lozinku. Spremi ga na mjesto kojeg ćeš se sjećati.
-recovery-key-pdf-storage-ideas-heading = Mjesta za spremanje tvog ključa
-recovery-key-pdf-support = Saznaj više o ključu za obnavljanje računa
 recovery-key-pdf-download-error = Žao nam je. Došlo je do greške prilikom preuzimanja ključa za obnavljanje računa.
 
 
@@ -284,7 +276,6 @@ input-phone-number-country-list-aria-label = Odaberi zemlju
 input-phone-number-enter-number = Upiši broj telefona
 input-phone-number-country-united-states = Sjedinjene Američke Države
 input-phone-number-country-canada = Kanada
-legal-back-button = Natrag
 
 
 reset-pwd-link-damaged-header = Poveznica za resetiranje lozinke je oštećena
@@ -862,17 +853,6 @@ inline-totp-setup-continue-button = Nastavi
 inline-totp-setup-ready-button = Spremno
 inline-totp-setup-security-code-placeholder = Kod za autentifikaciju
 inline-totp-setup-code-required-error = Potreban je kod autentifikacije
-
-
-legal-header = Pravno
-legal-terms-of-service-link = Uvjeti usluge
-legal-privacy-link = Napomena o privatnosti
-
-
-legal-privacy-heading = Napomena o privatnosti
-
-
-legal-terms-heading = Uvjeti usluge
 
 
 pair-auth-allow-confirm-button = Da, odobri uređaj

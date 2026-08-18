@@ -151,14 +151,6 @@ button-back-aria-label = Πίσω
 button-back-title = Πίσω
 
 
-recovery-key-download-button-v3 = Λήψη και συνέχεια
-    .title = Λήψη και συνέχεια
-recovery-key-pdf-heading = Κλειδί ανάκτησης λογαριασμού
-recovery-key-pdf-download-date = Δημιουργία: { $date }
-recovery-key-pdf-key-legend = Κλειδί ανάκτησης λογαριασμού
-recovery-key-pdf-instructions = Αυτό το κλειδί σάς επιτρέπει να ανακτήσετε τα κρυπτογραφημένα δεδομένα του προγράμματος περιήγησής σας (συμπεριλαμβανομένων των κωδικών πρόσβασης, των σελιδοδεικτών και του ιστορικού) εάν ξεχάσετε τον κωδικό πρόσβασής σας. Αποθηκεύστε το σε ένα μέρος που θα θυμάστε.
-recovery-key-pdf-storage-ideas-heading = Τοποθεσίες αποθήκευσης του κλειδιού σας
-recovery-key-pdf-support = Μάθετε περισσότερα σχετικά με το κλειδί ανάκτησης του λογαριασμού σας
 recovery-key-pdf-download-error = Δυστυχώς, προέκυψε πρόβλημα κατά τη λήψη του κλειδιού ανάκτησης του λογαριασμού σας.
 
 
@@ -378,8 +370,6 @@ input-phone-number-country-list-aria-label = Επιλογή χώρας
 input-phone-number-enter-number = Εισαγάγετε τον αριθμό τηλεφώνου
 input-phone-number-country-united-states = Ηνωμένες Πολιτείες
 input-phone-number-country-canada = Καναδάς
-legal-back-button = Πίσω
-app-general-err-message = Κάτι πήγε στραβά. Δοκιμάστε ξανά αργότερα.
 
 
 reset-pwd-link-damaged-header = Ο σύνδεσμος επαναφοράς κωδικού πρόσβασης είναι κατεστραμμένος
@@ -1278,17 +1268,6 @@ inline-totp-setup-security-code-placeholder = Κωδικός ταυτοποίη�
 inline-totp-setup-code-required-error = Απαιτείται κωδικός ταυτοποίησης
 tfa-qr-code-alt = Χρησιμοποιήστε τον κωδικό { $code } για να ρυθμίσετε την ταυτοποίηση δύο παραγόντων στις υποστηριζόμενες εφαρμογές.
 inline-totp-setup-page-title = Ταυτοποίηση δύο παραγόντων
-
-
-legal-header = Νομικά
-legal-terms-of-service-link = Όροι υπηρεσίας
-legal-privacy-link = Σημείωση απορρήτου
-
-
-legal-privacy-heading = Σημείωση απορρήτου
-
-
-legal-terms-heading = Όροι υπηρεσίας
 
 
 pair-auth-allow-heading-text = Συνδεθήκατε μόλις στο { -brand-firefox };

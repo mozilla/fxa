@@ -21,6 +21,7 @@ next-payment-method-first-approve = 먼저 구독을 승인해야 합니다.
 ## Error page
 
 error-page-account-not-found-heading = 계정을 찾을 수 없음
+error-page-account-not-found-message = 세션에 연결된 계정이 존재하지 않습니다. 구독하려면 다른 계정을 사용하거나 새 계정을 만드세요.
 error-page-account-not-found-continue-button = 계속
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = { $productName }에 대한 결제를 계속하려면 <p>국가와 우편 번호를 입력하세요.</p>

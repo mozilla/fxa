@@ -70,14 +70,6 @@ button-back-aria-label = Atzera
 button-back-title = Atzera
 
 
-recovery-key-download-button-v3 = Gorde eta jarraitu
-    .title = Gorde eta jarraitu
-recovery-key-pdf-heading = Kontua berreskuratzeko gakoa
-recovery-key-pdf-download-date = Sortze-data: { $date }
-recovery-key-pdf-key-legend = Kontua berreskuratzeko gakoa
-recovery-key-pdf-instructions = Gako honi esker, zifratutako nabigatzailearen datuak (pasahitzak, laster-markak eta historia barne) berreskura ditzakezu pasahitza ahazten baduzu. Gorde ezazu gogoratuko duzun leku batean.
-recovery-key-pdf-storage-ideas-heading = Zure gakoa gordetzeko tokiak
-recovery-key-pdf-support = Lortu informazio gehiago kontua berreskuratzeko gakoari buruz
 recovery-key-pdf-download-error = Arazo bat izan da kontua berreskuratzeko gakoa deskargatzean.
 
 
@@ -232,7 +224,6 @@ input-phone-number-country-list-aria-label = Hautatu herrialdea
 input-phone-number-enter-number = Idatzi telefono zenbakia
 input-phone-number-country-united-states = Estatu Batuak
 input-phone-number-country-canada = Kanada
-legal-back-button = Atzera
 
 
 reset-pwd-link-damaged-header = Pasahitza berrezartzeko lotura hondatuta
@@ -883,17 +874,6 @@ inline-totp-setup-on-completion-description = Amaitutakoan, autentifikazio-kodea
 inline-totp-setup-security-code-placeholder = autentifikazio-kode
 inline-totp-setup-code-required-error = Autentifikazioa kodea beharrezkoa
 tfa-qr-code-alt = Erabili { $code } kodea onartzen diren aplikazioetan bi urratseko autentifikazioa konfiguratzeko.
-
-
-legal-header = Legala
-legal-terms-of-service-link = Zerbitzuaren baldintzak
-legal-privacy-link = Pribatutasun-oharra
-
-
-legal-privacy-heading = Pribatutasun-oharra
-
-
-legal-terms-heading = Zerbitzuaren baldintzak
 
 
 pair-auth-allow-heading-text = { -brand-firefox }en saioa hasi berri duzu?

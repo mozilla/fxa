@@ -235,14 +235,6 @@ button-back-aria-label = Wstecz
 button-back-title = Wstecz
 
 
-recovery-key-download-button-v3 = Pobierz i kontynuuj
-    .title = Pobierz i kontynuuj
-recovery-key-pdf-heading = Klucz odzyskiwania konta
-recovery-key-pdf-download-date = Utworzono: { $date }
-recovery-key-pdf-key-legend = Klucz odzyskiwania konta
-recovery-key-pdf-instructions = Ten klucz umożliwia odzyskanie zaszyfrowanych danych przeglądarki (w tym haseł, zakładek i historii), jeśli zapomnisz hasła. Przechowuj go w miejscu, które zapamiętasz.
-recovery-key-pdf-storage-ideas-heading = Miejsca, w których można zachować klucz
-recovery-key-pdf-support = Więcej informacji o kluczu odzyskiwania konta
 recovery-key-pdf-download-error = Przepraszamy, wystąpił problem podczas pobierania klucza odzyskiwania konta.
 
 
@@ -435,8 +427,6 @@ input-phone-number-country-list-aria-label = Wybierz kraj
 input-phone-number-enter-number = Wpisz numer telefonu
 input-phone-number-country-united-states = Stany Zjednoczone
 input-phone-number-country-canada = Kanada
-legal-back-button = Wstecz
-app-general-err-message = Coś się nie powiodło. Spróbuj ponownie później.
 
 
 reset-pwd-link-damaged-header = Odnośnik do zmiany hasła jest uszkodzony
@@ -561,6 +551,7 @@ cs-cannot-disconnect = Nie odnaleziono klienta, nie można rozłączyć
 cs-logged-out-2 = Wylogowano z usługi { $service }
 cs-refresh-button =
     .title = Odśwież połączone usługi
+cs-connect-device-button = Połącz urządzenie
 cs-missing-device-help = Brak elementu lub jakieś są podwójne?
 cs-disconnect-sync-heading = Rozłącz synchronizację
 
@@ -883,6 +874,7 @@ page-passkey-add-cancel = Anuluj
 
 
 recent-activity-title = Ostatnie działania na koncie
+recent-activity-show-more-button = Pokaż więcej
 recent-activity-account-create-v2 = Utworzono konto
 recent-activity-account-disable-v2 = Wyłączono konto
 recent-activity-account-enable-v2 = Włączono konto
@@ -1021,6 +1013,7 @@ tfa-row-backup-phone-sim-swap-risk-link = Więcej informacji o ryzyku zamiany k
 passkey-sub-row-created-date = Utworzono: { $createdDate }
 passkey-sub-row-last-used-date = Ostatnio użyto: { $lastUsedDate }
 passkey-delete-modal-cancel-button = Anuluj
+passkey-rename-cancel-button = Anuluj
 
 
 switch-turn-off = Wyłącz
@@ -1227,17 +1220,6 @@ tfa-qr-code-alt = Użyj kodu { $code }, aby skonfigurować uwierzytelnianie dwue
 inline-totp-setup-page-title = Uwierzytelnianie dwuetapowe
 
 
-legal-header = Podstawa prawna
-legal-terms-of-service-link = Regulamin usługi
-legal-privacy-link = Zasady ochrony prywatności
-
-
-legal-privacy-heading = Zasady ochrony prywatności
-
-
-legal-terms-heading = Regulamin usługi
-
-
 pair-auth-allow-heading-text = Czy właśnie zalogowano się do { -brand-firefox(case: "gen") }?
 pair-auth-allow-confirm-button = Tak, zatwierdź urządzenie
 pair-auth-allow-refuse-device-link = Jeśli to nie Ty, <a>zmień hasło</a>
@@ -1322,6 +1304,35 @@ pair-unsupported-connecting-mobile-instructions-v2 = Włącz { -brand-firefox(ca
 pair-unsupported-learn-more-link-v2 = Więcej informacji
 pair-unsupported-desktop-firefox-fallback-header-v2 = Ups! Coś poszło nie tak.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Proszę zamknąć tę kartę i spróbować ponownie.
+
+
+pair2-authority-approve-sign-in-heading = Czy zatwierdzić logowanie?
+pair2-authority-approve-sign-in-confirm-button = Tak, zatwierdź logowanie
+pair2-authority-approve-sign-in-change-password = To nie ty? <changePassword>Zmień hasło</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = Kontynuuj na urządzeniu mobilnym
+pair2-authority-continue-on-mobile-description = Postępuj zgodnie z instrukcjami wyświetlanymi na ekranie telefonu lub tabletu.
+pair2-authority-continue-on-mobile-cancel-button = Anuluj
+
+
+pair2-authority-download-firefox-heading = Otwórz { -brand-firefox(case: "acc") }, aby zsynchronizować
+pair2-authority-download-firefox-instruction = Aby skonfigurować synchronizację między urządzeniami, otwórz { -brand-firefox(case: "acc") } na tym urządzeniu i przejdź na stronę <b>firefox.com/pair</b>
+pair2-authority-download-firefox-cta = Pobierz przeglądarkę { -brand-firefox }
+
+
+pair2-authority-timeout-and-cancel-canceled-heading = Anulowano
+pair2-authority-timeout-and-cancel-try-again-button = Spróbuj ponownie
+pair2-authority-timeout-and-cancel-cancel-button = Anuluj
+pair2-authority-timeout-and-cancel-sync-settings-button = Ustawienia synchronizacji
+
+
+pair2-supplicant-connect-this-device-heading = Czy połączyć to urządzenie z Twoim kontem?
+pair2-supplicant-connect-this-device-connect-button = Połącz
+pair2-supplicant-connect-this-device-cancel-button = Anuluj
+
+
+pair2-supplicant-timeout-and-cancel-canceled-heading = Anulowano
 
 
 service-welcome-signup-success-banner = Potwierdzono { -product-mozilla-account(case: "acc", capitalization: "lower") }

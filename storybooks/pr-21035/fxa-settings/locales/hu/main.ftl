@@ -120,14 +120,7 @@ button-back-aria-label = Vissza
 button-back-title = Vissza
 
 
-recovery-key-download-button-v3 = Letöltés és folytatás
-    .title = Letöltés és folytatás
-recovery-key-pdf-heading = Fiók-helyreállítási kulcs
-recovery-key-pdf-download-date = Előállítva: { $date }
-recovery-key-pdf-key-legend = Fiók-helyreállítási kulcs
-recovery-key-pdf-instructions = Ez a kulcs lehetővé teszi a titkosított böngészőadatok (beleértve a jelszavakat, könyvjelzőket és az előzményeket) helyreállítását, ha elfelejti a jelszavát. Tárolja olyan helyen, amelyre emlékezni fog.
-recovery-key-pdf-storage-ideas-heading = Helyek a kulcsok tárolására
-recovery-key-pdf-support = Tudjon meg többet a fiók-helyreállítási kulcsról
+recovery-key-download-button-v4 = Letöltés és folytatás
 recovery-key-pdf-download-error = Sajnos probléma merült fel a fiók-helyreállítási kulcs letöltése során.
 
 
@@ -347,8 +340,6 @@ input-phone-number-country-list-aria-label = Válasszon országot
 input-phone-number-enter-number = Adja meg a telefonszámot
 input-phone-number-country-united-states = Egyesült Államok
 input-phone-number-country-canada = Kanada
-legal-back-button = Vissza
-app-general-err-message = Hiba történt, próbálja újra később.
 
 
 reset-pwd-link-damaged-header = A jelszó-visszaállítási hivatkozás sérült
@@ -483,6 +474,7 @@ cs-cannot-disconnect = A kliens nem található, a leválasztás sikertelen
 cs-logged-out-2 = Kijelentkezett innen: { $service }
 cs-refresh-button =
     .title = Kapcsolódó szolgáltatások frissítése
+cs-connect-device-button = Csatlakoztasson egy eszközt
 cs-missing-device-help = Hiányzó vagy ismétlődő elemek?
 cs-disconnect-sync-heading = Leválás a Syncről
 
@@ -610,6 +602,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Hogyan védi ez a fiókját
 flow-setup-2fa-inline-complete-continue-button = Tovább erre: { $serviceName }
 flow-setup-2fa-prompt-heading = Állítsa be a kétlépcsős hitelesítést
 flow-setup-2fa-prompt-description = A(z) { $serviceName } szolgáltatáshoz be kell állítania a kétlépcsős hitelesítést, hogy biztonságban tartsa a fiókját.
+flow-setup-2fa-prompt-passkey-success-banner = Sikeresen bejelentkezett a jelkulccsal
+flow-setup-2fa-prompt-passkey-description = A(z) { $serviceName } is kétlépcsős hitelesítést igényel a(z) { -product-mozilla-account } eszközéhez. A beállítás után nem lesz rá szüksége, ha jelkulccsal jelentkezik be.
 flow-setup-2fa-prompt-use-authenticator-apps = A folytatáshoz <authenticationAppsLink>ezen hitelesítő alkalmazások</authenticationAppsLink> bármelyikét használhatja.
 flow-setup-2fa-prompt-continue-button = Folytatás
 
@@ -816,6 +810,7 @@ page-passkey-add-error-system-v2 = Hiba történt a jelkulcs létrehozásakor. P
 
 
 recent-activity-title = Legutóbbi fióktevékenység
+recent-activity-show-more-button = Több megjelenítése
 recent-activity-account-create-v2 = Fiók létrehozva
 recent-activity-account-disable-v2 = Fiók letiltva
 recent-activity-account-enable-v2 = Fiók engedélyezve
@@ -1252,17 +1247,6 @@ tfa-qr-code-alt = Használja a(z) { $code } kódot a kétlépcsős hitelesítés
 inline-totp-setup-page-title = Kétlépcsős hitelesítés
 
 
-legal-header = Jogi információk
-legal-terms-of-service-link = Szolgáltatási feltételek
-legal-privacy-link = Adatvédelmi nyilatkozat
-
-
-legal-privacy-heading = Adatvédelmi nyilatkozat
-
-
-legal-terms-heading = Szolgáltatási feltételek
-
-
 pair-auth-allow-heading-text = Most jelentkezett be a { -brand-firefox }ba?
 pair-auth-allow-confirm-button = Igen, jóváhagyom az eszközt
 pair-auth-allow-refuse-device-link = Ha nem Ön volt az, <a>változtassa meg jelszavát</a>
@@ -1354,9 +1338,72 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Hoppá, hiba történt.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Zárja be ezt a lapot, és próbálja újra.
 
 
+pair2-authority-approve-sign-in-heading = Jóváhagyja a bejelentkezést?
+pair2-authority-approve-sign-in-confirm-button = Igen, jóváhagyom a bejelentkezést
+pair2-authority-approve-sign-in-change-password = Nem Ön az? <changePassword>Változtassa meg a jelszavát</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = Folytatás a mobileszközén
+pair2-authority-continue-on-mobile-description = Kövesse a lépéseket a telefonján vagy táblagépén.
+pair2-authority-continue-on-mobile-cancel-button = Mégse
+
+
+pair2-authority-download-firefox-heading = { -brand-firefox } megnyitása a szinkronizáláshoz
+pair2-authority-download-firefox-instruction = Az eszközök közti szinkronizálás beállításához nyissa meg a(z) { -brand-firefox } böngészőt ezen az eszközön, és keresse fel a <b>firefox.com/pair</b> oldalt
+pair2-authority-download-firefox-cta = { -brand-firefox } letöltése
+
+
+pair2-authority-scan-qr-heading = Beolvasás a mobileszközhöz csatlakozáshoz
+pair2-authority-scan-qr-instruction = Olvassa le a QR-kódot telefonjával vagy táblagépével, és szinkronizálja a(z) { -brand-firefox } könyvjelzőit, lapjait és egyebeit.
+pair2-authority-scan-qr-code-aria-label = QR-kód a mobileszköz csatlakoztatásához
+pair2-authority-scan-qr-help-link = Segítség a beolvasáshoz
+
+
+pair2-authority-sync-success-heading = Szinkronizál
+pair2-authority-sync-success-description = Lapjai, könyvjelzői, jelszavai és egyebek készen állnak az összes eszközén.
+pair2-authority-sync-success-view-tabs-button = Szinkronizált lapok megtekintése
+pair2-authority-sync-success-sync-settings-button = Szinkronizálási beállítások
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = Még mindig csatlakoztatni szeretne egy eszközt?
+pair2-authority-timeout-and-cancel-timeout-description = Úgy tűnik, túlléptük az időkorlátot. Próbálja újra, ha továbbra is csatlakoztatni szeretné mobileszközét, és szinkronizálni szeretné az adatait: { -brand-firefox }.
+pair2-authority-timeout-and-cancel-canceled-heading = Megszakítva
+pair2-authority-timeout-and-cancel-canceled-description = Ha meggondolja magát vagy egy másik eszközt szeretne csatlakoztatni, próbálja újra.
+pair2-authority-timeout-and-cancel-try-again-button = Újrapróbálkozás
+pair2-authority-timeout-and-cancel-cancel-button = Mégse
+pair2-authority-timeout-and-cancel-sync-settings-button = Szinkronizálási beállítások
+
+
 pair2-supplicant-approve-sign-in-heading = Még egy utolsó lépés a szinkronizáláshoz
 pair2-supplicant-approve-sign-in-instruction = Hagyja jóvá a bejelentkezést a számítógépén.
 pair2-supplicant-approve-sign-in-cancel-button = Mégse
+
+
+pair2-supplicant-connect-this-device-heading = Összekapcsolja ezt az eszközt a fiókjával?
+pair2-supplicant-connect-this-device-connect-button = Kapcsolódás
+pair2-supplicant-connect-this-device-cancel-button = Mégse
+
+
+pair2-supplicant-download-firefox-heading = { -brand-firefox } erre az eszközre
+pair2-supplicant-download-firefox-description = Töltse le a(z) { -brand-firefox } programot, és szinkronizálja a könyvjelzőket, előzményeket és egyebeket az eszközök között. <linkExternal>Tudjon meg többet</linkExternal>
+pair2-supplicant-download-firefox-continue-button = Folytatás { -brand-firefox } múlva
+
+
+pair2-supplicant-ready-to-scan-heading = Eszköz csatlakoztatásához
+pair2-supplicant-ready-to-scan-instruction = Nyissa meg a(z) { -brand-firefox } böngészőt a számítógépén, és menjen a <b>firefox.com/pair</b> oldalra, és kövesse a képernyőn megjelenő utasításokat a mobileszköz csatlakoztatásához.
+pair2-supplicant-ready-to-scan-learn-more-link = További tudnivalók
+
+
+pair2-supplicant-sync-success-heading = Az eszköz csatlakoztatva van
+pair2-supplicant-sync-success-description = A könyvjelzői, lapjai és egyebei szinkronizálva maradnak { -brand-firefox }ban.
+pair2-supplicant-sync-success-view-tabs-button = Szinkronizált lapok megtekintése
+pair2-supplicant-sync-success-sync-settings-button = Szinkronizálási beállítások
+
+
+pair2-supplicant-timeout-and-cancel-timeout-heading = Úgy tűnik, túlléptük az időkorlátot
+pair2-supplicant-timeout-and-cancel-timeout-description = A mobileszköz csatlakoztatásához és a(z) { -brand-firefox } adatainak szinkronizálásához keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén.
+pair2-supplicant-timeout-and-cancel-canceled-heading = Megszakítva
+pair2-supplicant-timeout-and-cancel-canceled-description = Eszköz csatlakoztatásához keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén.
 
 
 service-welcome-signup-success-banner = A { -product-mozilla-account } megerősítve
