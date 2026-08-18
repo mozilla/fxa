@@ -107,7 +107,10 @@ export type StripeDiscount = NegotiateExpanded<
   DeepOverride<
     Stripe.Discount,
     {
-      source: DeepOverride<Stripe.Discount.Source, { coupon: StripeCoupon }>;
+      source: DeepOverride<
+        Stripe.Discount.Source,
+        { coupon: StripeCoupon | null }
+      >;
     }
   >,
   'customer' | 'promotion_code'

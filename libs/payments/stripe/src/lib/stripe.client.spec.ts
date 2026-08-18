@@ -317,7 +317,7 @@ describe('StripeClient', () => {
       expect(result).toEqual(mockResponse);
     });
 
-    it('expands confirmation_secret, discounts, and nested tax rates', async () => {
+    it('expands confirmation_secret, discount coupons, and nested tax rates', async () => {
       const mockInvoice = StripeInvoiceFactory();
       const mockResponse = StripeResponseFactory(mockInvoice);
 
@@ -328,7 +328,7 @@ describe('StripeClient', () => {
       expect(mockStripeInvoicesRetrieve).toHaveBeenCalledWith(mockInvoice.id, {
         expand: [
           'confirmation_secret',
-          'discounts',
+          'discounts.source.coupon',
           'lines.data.taxes.tax_rate_details.tax_rate',
           'total_taxes.tax_rate_details.tax_rate',
         ],
@@ -349,6 +349,25 @@ describe('StripeClient', () => {
       });
 
       expect(result).toEqual(mockResponse);
+    });
+
+    it('expands discount coupons and nested tax rates', async () => {
+      const mockCustomer = StripeCustomerFactory();
+      const mockInvoice = StripeUpcomingInvoiceFactory();
+      const mockResponse = StripeResponseFactory(mockInvoice);
+
+      mockStripeCreatePreviewInvoice.mockResolvedValue(mockResponse);
+
+      await stripeClient.invoicesCreatePreview({ customer: mockCustomer.id });
+
+      expect(mockStripeCreatePreviewInvoice).toHaveBeenCalledWith({
+        customer: mockCustomer.id,
+        expand: [
+          'discounts.source.coupon',
+          'lines.data.taxes.tax_rate_details.tax_rate',
+          'total_taxes.tax_rate_details.tax_rate',
+        ],
+      });
     });
   });
 

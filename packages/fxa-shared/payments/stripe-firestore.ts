@@ -514,7 +514,9 @@ export class StripeFirestore {
     eventTime: number,
     ignoreErrors: boolean = false,
   ) {
-    const invoice = await this.stripe.invoices.retrieve(invoiceId);
+    const invoice = await this.stripe.invoices.retrieve(invoiceId, {
+      expand: ['discounts.source.coupon'],
+    });
     const subscriptionId = invoice.parent?.subscription_details?.subscription;
     if (subscriptionId == null) {
       // We can only insert invoices with a subscription for caching, but we
