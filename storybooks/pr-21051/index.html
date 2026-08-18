@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit bf25280ceac9da9ae9ac04218bc1aba1a62f75c5</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit bf25280ceac9da9ae9ac04218bc1aba1a62f75c5</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>8/18/2026, 7:03:46 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>chore(deps): remove node-fetch in favor of the built-in global fetch</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- The ticket asks for a `node-fetch` 3.x upgrade, but 3.x is ESM-only and this repo is mostly CommonJS. That is the breakage the ticket reports.
+- The root `engines` field now requires Node `^24.15.0`, and Node has supplied a global `fetch` since version 18.
+
+## This pull request
+
+- Removes `node-fetch` and `@types/node-fetch` from the root `package.json`. That was the only place either one was declared.
+- Deletes the import in `basket.service.ts`, `cancel-jobs.mjs`, and `modules-to-test.js`. Nothing replaces it, no polyfill and no wrapper.
+- Updates `yarn.lock` to match, because CI installs with `--immutable`.
+
+## Issue that this pull request solves
+
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-6107</pre></dd>
+  </dl>
+</body>
+</html>
