@@ -121,14 +121,7 @@ button-back-aria-label = უკან
 button-back-title = უკან
 
 
-recovery-key-download-button-v3 = ჩამოტვირთეთ და განაგრძეთ
-    .title = ჩამოტვირთეთ და განაგრძეთ
-recovery-key-pdf-heading = ანგარიშის აღდგენის გასაღები
-recovery-key-pdf-download-date = შედგენილი: { $date }
-recovery-key-pdf-key-legend = ანგარიშის აღდგენის გასაღები
-recovery-key-pdf-instructions = ამ გასაღების მეშვეობით, შეძლებთ აღადგინოთ ბრაუზერის დაშიფრული მონაცემები (მათ შორის ანგარიშები, სანიშნები და ისტორი), თუ პაროლი დაგავიწყდებათ. შეინახეთ ადვილად დასამახსოვრებელ ადგილას.
-recovery-key-pdf-storage-ideas-heading = სათანადო ადგილი გასაღების შესანახად
-recovery-key-pdf-support = ვრცლად ანგარიშის აღდგენის გასაღების შესახებ
+recovery-key-download-button-v4 = ჩამოტვირთეთ და განაგრძეთ
 recovery-key-pdf-download-error = სამწუხაროდ, ხარვეზი წარმოიშვა ანგარიშის აღდგენის გასაღების ჩამოტვირთვისას.
 
 
@@ -348,8 +341,6 @@ input-phone-number-country-list-aria-label = ქვეყნის არჩე�
 input-phone-number-enter-number = მიუთითეთ ტელეფონის ნომერი
 input-phone-number-country-united-states = შეერთებული შტატები
 input-phone-number-country-canada = კანადა
-legal-back-button = უკან
-app-general-err-message = რაღაც ხარვეზი წარმოიქმნა. გთხოვთ, სცადოთ მოგვიანებით.
 
 
 reset-pwd-link-damaged-header = პაროლის გასანულებელი ბმული დაზიანებულია
@@ -484,6 +475,7 @@ cs-cannot-disconnect = კლიენტი ვერ მოიძებნა,
 cs-logged-out-2 = გამოთიშულია { $service }
 cs-refresh-button =
     .title = დაკავშირებული მომსახურებების განახლება
+cs-connect-device-button = მოწყობილობის დაკავშირება
 cs-missing-device-help = აკლია რამე ან გამეორებულია?
 cs-disconnect-sync-heading = გამოთიშვა სინქრონიზაციიდან
 
@@ -607,6 +599,8 @@ flow-setup-2fa-inline-complete-learn-more-link = როგორ იცავს
 flow-setup-2fa-inline-complete-continue-button = გაიხსნება { $serviceName }
 flow-setup-2fa-prompt-heading = ორბიჯიანი დამოწმების გამართვა
 flow-setup-2fa-prompt-description = { $serviceName } ითხოვს ორბიჯიანი დამოწმების გამართვას შესვლისას ანგარიშის უსაფრთხოებისთვის.
+flow-setup-2fa-prompt-passkey-success-banner = წარმატებით შევიდა მოცემული საშვით
+flow-setup-2fa-prompt-passkey-description = { $serviceName } ასევე საჭიროებს ორბიჯიან დამოწმებას თქვენი { -product-mozilla-account(case: "gen") }. გამართვის შემდეგ აღარ დაგჭირდებათ მისი გამოყენება საშვით შესვლისას.
 flow-setup-2fa-prompt-use-authenticator-apps = გასაგრძელებლად შეგიძლიათ გამოიყენოთ ნებისმიერი <authenticationAppsLink>ამ დამმოწმებელი პროგრამებიდან</authenticationAppsLink>.
 flow-setup-2fa-prompt-continue-button = განაგრძეთ
 
@@ -813,6 +807,7 @@ page-passkey-add-error-system-v2 = ხარვეზს წააწყდა �
 
 
 recent-activity-title = ანგარიშის ბოლო მოქმედებები
+recent-activity-show-more-button = ვრცლად
 recent-activity-account-create-v2 = ანგარიში შეიქმნა
 recent-activity-account-disable-v2 = ანგარიში გაითიშა
 recent-activity-account-enable-v2 = ანგარიში ამოქმედდა
@@ -1247,17 +1242,6 @@ tfa-qr-code-alt = გამოიყენეთ კოდი { $code } ორ�
 inline-totp-setup-page-title = ორბიჯიანი დამოწმება
 
 
-legal-header = სამართლებრივი
-legal-terms-of-service-link = მომსახურების პირობები
-legal-privacy-link = პირადულობის დაცვის განაცხადი
-
-
-legal-privacy-heading = პირადულობის დაცვის განაცხადი
-
-
-legal-terms-heading = მომსახურების პირობები
-
-
 pair-auth-allow-heading-text = ახლახან თქვენ შეხვედით { -brand-firefox }-ში?
 pair-auth-allow-confirm-button = დიახ, დადასტურდეს მოწყობილობა
 pair-auth-allow-refuse-device-link = თუ თქვენ არ ყოფილხართ, <a>შეცვალეთ პაროლი</a>
@@ -1347,6 +1331,30 @@ pair-unsupported-connecting-mobile-instructions-v2 = გაუშვით { -br
 pair-unsupported-learn-more-link-v2 = ვრცლად
 pair-unsupported-desktop-firefox-fallback-header-v2 = უჰ, რაღაც ხარვეზი წარმოიქმნა
 pair-unsupported-desktop-firefox-fallback-message-v2 = გთხოვთ დახუროთ ჩანართი და კვლავ სცადოთ.
+
+
+pair2-authority-approve-sign-in-heading = დამოწმებულია ეს შესვლა?
+pair2-authority-approve-sign-in-confirm-button = დიახ, დამოწმებულია შესვლა
+pair2-authority-approve-sign-in-change-password = თქვენ არ ყოფილხართ? <changePassword>შეცვალეთ პაროლი</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = განაგრძეთ მობილურ მოწყობილობაზე
+pair2-authority-continue-on-mobile-description = მიჰყევით ნაბიჯებს ტელეფონზე ან პლანშეტზე.
+pair2-authority-continue-on-mobile-cancel-button = გაუქმება
+
+
+pair2-authority-download-firefox-heading = გახსენით { -brand-firefox } დასინქრონებისთვის
+pair2-authority-download-firefox-instruction = მოწყობილობებს შორის სინქრონიზაციისთვის გაუშვით { -brand-firefox } ამ მოწყობილობაზე და გახსენით <b>firefox.com/pair</b>
+pair2-authority-download-firefox-cta = ჩამოტვირთეთ { -brand-firefox }
+
+
+pair2-authority-scan-qr-heading = წააკითხეთ მობილურ მოწყობილობასთან დასაკავშირებლად
+pair2-authority-scan-qr-instruction = წააკითხეთ QR-კოდი ტელეფონით ან პლანშეტით, რომ დაასინქრონოთ { -brand-firefox } არსებული სანიშნებით, ჩანართებითა თუ სხვ.
+pair2-authority-scan-qr-code-aria-label = QR-კოდი მობილურ მოწყობილობასთან დასაკავშირებლად
+pair2-authority-scan-qr-help-link = დახმარება წაკითხვის ხარვეზისას
+
+
+pair2-authority-sync-success-heading = დასინქრონებულია
 
 
 pair2-supplicant-approve-sign-in-heading = ბოლო ნაბიჯი დასინქრონებისთვის

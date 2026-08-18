@@ -80,14 +80,6 @@ button-back-aria-label = Nn’arrè
 button-back-title = Nn’arrè
 
 
-recovery-key-download-button-v3 = Scàrrica e cuntinua
-    .title = Scàrrica e cuntinua
-recovery-key-pdf-heading = Chiavi di ricùpiru dû cuntu
-recovery-key-pdf-download-date = Ginirata: { $date }
-recovery-key-pdf-key-legend = Chiavi di ricùpiru dû cuntu
-recovery-key-pdf-instructions = Sta chiavi ti pirmetti di ricupigghiari i dati crittati dû navicaturi (chiavi, nzingalibbra e crunuluggìa) si ti scordi a chiavi dû cuntu. Sàrbala nnôn postu chi t’arricordi.
-recovery-key-pdf-storage-ideas-heading = Unni sarbari sta chiavi
-recovery-key-pdf-support = Cchiù nfurmazzioni ncapu a chiavi di ricùpiru dû cuntu
 recovery-key-pdf-download-error = Ni dispiaci, cci fu un prubblema nnô scarricamentu dâ to chiavi di ricùpiru dû cuntu.
 
 
@@ -248,7 +240,6 @@ input-phone-number-country-list-aria-label = Scarta u pajisi
 input-phone-number-enter-number = Metti u nùmmaru di tilèfunu
 input-phone-number-country-united-states = Stati Junciuti
 input-phone-number-country-canada = Cànada
-legal-back-button = Nn’arrè
 
 
 reset-pwd-link-damaged-header = A lijami pi risittari a chiavi è rutta
@@ -915,17 +906,6 @@ inline-totp-setup-on-completion-description = Na vota chi cumplitasti, accuminci
 inline-totp-setup-security-code-placeholder = Còdici d’autinticazzioni
 inline-totp-setup-code-required-error = È nicissariu un còdici d’autinticazzioni
 tfa-qr-code-alt = Usa u còdici { $code } pi cunfijurari l’autinticazzioni a du’ fattura nni l’applicazzioni suppurtati.
-
-
-legal-header = Noti ligali
-legal-terms-of-service-link = Tèrmini di sirbizzu
-legal-privacy-link = Abbisu di privatizza
-
-
-legal-privacy-heading = Abbisu di privatizza
-
-
-legal-terms-heading = Tèrmini di sirbizzu
 
 
 pair-auth-allow-heading-text = Trasisti ora nne { -brand-firefox }?

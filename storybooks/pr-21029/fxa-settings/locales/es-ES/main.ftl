@@ -83,14 +83,6 @@ button-back-aria-label = Atrás
 button-back-title = Atrás
 
 
-recovery-key-download-button-v3 = Descargar y continuar
-    .title = Descargar y continuar
-recovery-key-pdf-heading = Clave de recuperación de cuenta
-recovery-key-pdf-download-date = Generada: { $date }
-recovery-key-pdf-key-legend = Clave de recuperación de cuenta
-recovery-key-pdf-instructions = Esta clave te permite recuperar los datos cifrados de tu navegador (incluidas las contraseñas, los marcadores y el historial) en caso de que olvides tu contraseña. Guárdala en un lugar que recordarás.
-recovery-key-pdf-storage-ideas-heading = Lugares para guardar la clave
-recovery-key-pdf-support = Saber más acerca de tu clave de recuperación de cuenta
 recovery-key-pdf-download-error = Lo sentimos, ha surgido un problema al descargar la clave de recuperación de cuenta.
 
 
@@ -275,7 +267,6 @@ input-phone-number-country-list-aria-label = Elige un país
 input-phone-number-enter-number = Introduce el número de teléfono
 input-phone-number-country-united-states = Estados Unidos
 input-phone-number-country-canada = Canadá
-legal-back-button = Atrás
 
 
 reset-pwd-link-damaged-header = El enlace para restablecer la contraseña está dañado
@@ -1021,17 +1012,6 @@ inline-totp-setup-security-code-placeholder = Código de autenticación
 inline-totp-setup-code-required-error = Código de autenticación requerido
 tfa-qr-code-alt = Usa el código { $code } para configurar la autenticación en dos pasos en las aplicaciones admitidas.
 inline-totp-setup-page-title = Autenticación en dos pasos
-
-
-legal-header = Legal
-legal-terms-of-service-link = Términos del servicio
-legal-privacy-link = Aviso de privacidad
-
-
-legal-privacy-heading = Aviso de privacidad
-
-
-legal-terms-heading = Términos del servicio
 
 
 pair-auth-allow-heading-text = ¿Acabas de iniciar sesión en { -brand-firefox }?

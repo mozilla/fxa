@@ -39,31 +39,12 @@ brand-m-logo =
 button-back-aria-label = Terug
 button-back-title = Terug
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
-# The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = Downloaden en doorgaan
-    .title = Downloaden en doorgaan
-recovery-key-pdf-heading = Accountherstelsleutel
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = Aangemaakt: { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = Accountherstelsleutel
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = Met deze sleutel kunt u uw versleutelde browsergegevens (inclusief wachtwoorden, bladwijzers en geschiedenis) herstellen als u uw wachtwoord vergeet. Bewaar hem op een plek die u kunt onthouden.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = Plaatsen om uw sleutel op te slaan
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = Meer info over uw accountherstelsleutel
-# Error message displayed in an alert bar if the PDF download failed.
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Sorry, er is een probleem opgetreden bij het downloaden van uw accountherstelsleutel.
 
 ## ButtonPasskeySignin
@@ -377,10 +358,6 @@ input-phone-number-country-list-aria-label = Land selecteren
 input-phone-number-enter-number = Voer telefoonnummer in
 input-phone-number-country-united-states = Verenigde Staten
 input-phone-number-country-canada = Canada
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Terug
-# Generic error shown when the legal document fails to load
-app-general-err-message = Er is iets misgegaan. Probeer het later opnieuw.
 
 ## LinkDamaged component
 
@@ -585,6 +562,9 @@ cs-cannot-disconnect = Client niet gevonden, verbinding kan niet worden verbroke
 cs-logged-out-2 = Afgemeld bij { $service }
 cs-refresh-button =
     .title = Verbonden services vernieuwen
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = Een apparaat verbinden
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = Ontbrekende of dubbele items?
 cs-disconnect-sync-heading = Verbinding met Sync verbreken
@@ -1036,6 +1016,8 @@ page-passkey-add-error-system-v2 = Er is een probleem opgetreden bij het aanmake
 ## These are displayed as a list with the date when the event occured
 
 recent-activity-title = Recente accountactiviteit
+# Clicking this button reveals the older account activity that is hidden at first.
+recent-activity-show-more-button = Meer tonen
 recent-activity-account-create-v2 = Account aangemaakt
 recent-activity-account-disable-v2 = Account uitgeschakeld
 recent-activity-account-enable-v2 = Account ingeschakeld
@@ -1680,23 +1662,6 @@ inline-totp-setup-code-required-error = Authenticatiecode vereist
 tfa-qr-code-alt = Gebruik de code { $code } om authenticatie in twee stappen in ondersteunde toepassingen in te schakelen.
 inline-totp-setup-page-title = Authenticatie in twee stappen
 
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Juridisch
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Servicevoorwaarden
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Privacyverklaring
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Privacyverklaring
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Servicevoorwaarden
-
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = Hebt u zich zojuist aangemeld bij { -brand-firefox }?
@@ -1869,6 +1834,40 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Oeps, er is iets misgegaan
 pair-unsupported-desktop-firefox-fallback-message-v2 = Sluit dit tabblad en probeer het opnieuw.
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer, which is already signed in, after their
+## mobile device scans the pairing QR code. It asks them to approve the
+## sign-in, and shows the requesting device's details so they can verify it.
+
+# Asks the user to confirm the sign-in that another one of their devices just started
+pair2-authority-approve-sign-in-heading = Aanmelding goedkeuren?
+# Submit button confirming that the user started the pairing and approves the
+# other device being added to their account
+pair2-authority-approve-sign-in-confirm-button = Ja, aanmelding goedkeuren
+# "Not you?" asks whether someone other than the user started this sign-in.
+# The text inside <changePassword> links to the page for changing the password.
+pair2-authority-approve-sign-in-change-password = Bent u dit niet? <changePassword>Wijzig uw wachtwoord</changePassword>
+
+## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer after scanning the pairing QR code with
+## their phone. It confirms the flow has moved to the mobile device and waits
+## for the remaining steps to be completed there.
+
+# Dismisses the pairing attempt
+pair2-authority-continue-on-mobile-cancel-button = Annuleren
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when pairing stopped without succeeding,
+## either because it timed out or because it was canceled. Both cases offer to
+## start pairing over again.
+
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-canceled-heading = Geannuleerd
+# Restarts the pairing flow
+pair2-authority-timeout-and-cancel-try-again-button = Opnieuw proberen
+# Abandons pairing without retrying
+pair2-authority-timeout-and-cancel-cancel-button = Annuleren
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
 ## shown on their computer. It waits for them to approve the sign-in on the
 ## computer, and shows that computer's details so they can verify the request.
@@ -1878,6 +1877,48 @@ pair2-supplicant-approve-sign-in-heading = Een laatste synchronisatiestap
 pair2-supplicant-approve-sign-in-instruction = Keur de aanmelding op uw computer goed.
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = Annuleren
+
+## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It asks them to confirm connecting the mobile
+## device to their account, and shows that computer's details so they can
+## verify the request.
+
+# Confirms the pairing attempt
+pair2-supplicant-connect-this-device-connect-button = Verbinden
+# Dismisses the pairing attempt
+pair2-supplicant-connect-this-device-cancel-button = Annuleren
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing reaches a device that
+## does not have Firefox installed yet. It explains what syncing gets them and
+## sends them off to install the browser.
+
+# Primary action. Sends the user to the Firefox download page.
+pair2-supplicant-download-firefox-continue-button = Doorgaan in { -brand-firefox }
+
+## ReadyToScan page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device before pairing starts. It tells them
+## to open firefox.com/pair on their computer, which is where the QR code they
+## scan with the mobile device comes from.
+
+# Opens a Mozilla support article about setting up sync
+pair2-supplicant-ready-to-scan-learn-more-link = Meer info
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device once pairing has completed: the device
+## is signed in and syncing with the computer they paired it with.
+
+pair2-supplicant-sync-success-heading = Uw apparaat is verbonden
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing ends without connecting,
+## either because the attempt timed out or because it was canceled. Both states
+## are informational and offer no on-screen action, so the copy points the user
+## back to their computer to start again.
+
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-canceled-heading = Geannuleerd
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

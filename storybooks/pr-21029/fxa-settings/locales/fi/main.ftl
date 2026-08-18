@@ -83,14 +83,6 @@ button-back-aria-label = Takaisin
 button-back-title = Takaisin
 
 
-recovery-key-download-button-v3 = Lataa ja jatka
-    .title = Lataa ja jatka
-recovery-key-pdf-heading = Tilin palautusavain
-recovery-key-pdf-download-date = Luotu: { $date }
-recovery-key-pdf-key-legend = Tilin palautusavain
-recovery-key-pdf-instructions = Tämän avaimen avulla voit palauttaa salatut selaintietosi (mukaan lukien salasanat, kirjanmerkit ja historian), jos unohdat salasanasi. Säilytä avainta paikassa, jonka muistat.
-recovery-key-pdf-storage-ideas-heading = Avaimen säilytyspaikkoja
-recovery-key-pdf-support = Lue lisää tilin palautusavaimesta
 recovery-key-pdf-download-error = Valitettavasti tilin palautusavaimen lataamisessa oli ongelma.
 
 
@@ -286,7 +278,6 @@ input-phone-number-country-list-aria-label = Valitse maa
 input-phone-number-enter-number = Kirjoita puhelinnumero
 input-phone-number-country-united-states = Yhdysvallat
 input-phone-number-country-canada = Kanada
-legal-back-button = Takaisin
 
 
 reset-pwd-link-damaged-header = Salasanan nollauslinkki on vaurioitunut
@@ -1025,17 +1016,6 @@ inline-totp-setup-security-code-placeholder = Toodennuskoodi
 inline-totp-setup-code-required-error = Todennuskoodi vaaditaan
 tfa-qr-code-alt = Ota käyttöön kaksivaiheinen todennus tuetuissa sovelluksissa käyttämällä koodia { $code }.
 inline-totp-setup-page-title = Kaksivaiheinen todennus
-
-
-legal-header = Juridiset asiat
-legal-terms-of-service-link = Käyttöehdot
-legal-privacy-link = Tietosuojakäytäntö
-
-
-legal-privacy-heading = Tietosuojakäytäntö
-
-
-legal-terms-heading = Käyttöehdot
 
 
 pair-auth-allow-heading-text = Kirjauduitko juuri { -brand-firefox }iin?

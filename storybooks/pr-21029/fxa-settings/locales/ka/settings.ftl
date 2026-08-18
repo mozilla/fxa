@@ -41,31 +41,15 @@ brand-m-logo =
 button-back-aria-label = უკან
 button-back-title = უკან
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
+# Button to download the account recovery key as a plain text file and navigate to the next step
 # The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = ჩამოტვირთეთ და განაგრძეთ
-    .title = ჩამოტვირთეთ და განაგრძეთ
-recovery-key-pdf-heading = ანგარიშის აღდგენის გასაღები
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = შედგენილი: { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = ანგარიშის აღდგენის გასაღები
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = ამ გასაღების მეშვეობით, შეძლებთ აღადგინოთ ბრაუზერის დაშიფრული მონაცემები (მათ შორის ანგარიშები, სანიშნები და ისტორი), თუ პაროლი დაგავიწყდებათ. შეინახეთ ადვილად დასამახსოვრებელ ადგილას.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = სათანადო ადგილი გასაღების შესანახად
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = ვრცლად ანგარიშის აღდგენის გასაღების შესახებ
-# Error message displayed in an alert bar if the PDF download failed.
+recovery-key-download-button-v4 = ჩამოტვირთეთ და განაგრძეთ
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = სამწუხაროდ, ხარვეზი წარმოიშვა ანგარიშის აღდგენის გასაღების ჩამოტვირთვისას.
 
 ## ButtonPasskeySignin
@@ -379,10 +363,6 @@ input-phone-number-country-list-aria-label = ქვეყნის არჩე�
 input-phone-number-enter-number = მიუთითეთ ტელეფონის ნომერი
 input-phone-number-country-united-states = შეერთებული შტატები
 input-phone-number-country-canada = კანადა
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = უკან
-# Generic error shown when the legal document fails to load
-app-general-err-message = რაღაც ხარვეზი წარმოიქმნა. გთხოვთ, სცადოთ მოგვიანებით.
 
 ## LinkDamaged component
 
@@ -587,6 +567,9 @@ cs-cannot-disconnect = კლიენტი ვერ მოიძებნა,
 cs-logged-out-2 = გამოთიშულია { $service }
 cs-refresh-button =
     .title = დაკავშირებული მომსახურებების განახლება
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = მოწყობილობის დაკავშირება
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = აკლია რამე ან გამეორებულია?
 cs-disconnect-sync-heading = გამოთიშვა სინქრონიზაციიდან
@@ -776,6 +759,13 @@ flow-setup-2fa-prompt-heading = ორბიჯიანი დამოწმ�
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
 flow-setup-2fa-prompt-description = { $serviceName } ითხოვს ორბიჯიანი დამოწმების გამართვას შესვლისას ანგარიშის უსაფრთხოებისთვის.
+# Success banner shown at the top of the page when the user signed in with a passkey.
+flow-setup-2fa-prompt-passkey-success-banner = წარმატებით შევიდა მოცემული საშვით
+# Body copy shown when the user signed in with a passkey and the service still
+# requires two-step authentication setup.
+# Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
+# that requests two-step authentication setup.
+flow-setup-2fa-prompt-passkey-description = { $serviceName } ასევე საჭიროებს ორბიჯიან დამოწმებას თქვენი { -product-mozilla-account(case: "gen") }. გამართვის შემდეგ აღარ დაგჭირდებათ მისი გამოყენება საშვით შესვლისას.
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = გასაგრძელებლად შეგიძლიათ გამოიყენოთ ნებისმიერი <authenticationAppsLink>ამ დამმოწმებელი პროგრამებიდან</authenticationAppsLink>.
 flow-setup-2fa-prompt-continue-button = განაგრძეთ
@@ -1038,6 +1028,8 @@ page-passkey-add-error-system-v2 = ხარვეზს წააწყდა �
 ## These are displayed as a list with the date when the event occured
 
 recent-activity-title = ანგარიშის ბოლო მოქმედებები
+# Clicking this button reveals the older account activity that is hidden at first.
+recent-activity-show-more-button = ვრცლად
 recent-activity-account-create-v2 = ანგარიში შეიქმნა
 recent-activity-account-disable-v2 = ანგარიში გაითიშა
 recent-activity-account-enable-v2 = ანგარიში ამოქმედდა
@@ -1680,23 +1672,6 @@ inline-totp-setup-code-required-error = საჭიროა დამოწმ
 tfa-qr-code-alt = გამოიყენეთ კოდი { $code } ორბიჯიანი დამოწმების გასამართად მხარდაჭერილ პროგრამებში.
 inline-totp-setup-page-title = ორბიჯიანი დამოწმება
 
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = სამართლებრივი
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = მომსახურების პირობები
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = პირადულობის დაცვის განაცხადი
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = პირადულობის დაცვის განაცხადი
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = მომსახურების პირობები
-
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = ახლახან თქვენ შეხვედით { -brand-firefox }-ში?
@@ -1867,6 +1842,60 @@ pair-unsupported-learn-more-link-v2 = ვრცლად
 # Matches the legacy Backbone "Oops! Something went wrong." message.
 pair-unsupported-desktop-firefox-fallback-header-v2 = უჰ, რაღაც ხარვეზი წარმოიქმნა
 pair-unsupported-desktop-firefox-fallback-message-v2 = გთხოვთ დახუროთ ჩანართი და კვლავ სცადოთ.
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer, which is already signed in, after their
+## mobile device scans the pairing QR code. It asks them to approve the
+## sign-in, and shows the requesting device's details so they can verify it.
+
+# Asks the user to confirm the sign-in that another one of their devices just started
+pair2-authority-approve-sign-in-heading = დამოწმებულია ეს შესვლა?
+# Submit button confirming that the user started the pairing and approves the
+# other device being added to their account
+pair2-authority-approve-sign-in-confirm-button = დიახ, დამოწმებულია შესვლა
+# "Not you?" asks whether someone other than the user started this sign-in.
+# The text inside <changePassword> links to the page for changing the password.
+pair2-authority-approve-sign-in-change-password = თქვენ არ ყოფილხართ? <changePassword>შეცვალეთ პაროლი</changePassword>
+
+## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer after scanning the pairing QR code with
+## their phone. It confirms the flow has moved to the mobile device and waits
+## for the remaining steps to be completed there.
+
+pair2-authority-continue-on-mobile-heading = განაგრძეთ მობილურ მოწყობილობაზე
+pair2-authority-continue-on-mobile-description = მიჰყევით ნაბიჯებს ტელეფონზე ან პლანშეტზე.
+# Dismisses the pairing attempt
+pair2-authority-continue-on-mobile-cancel-button = გაუქმება
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when Firefox is needed to continue pairing.
+## It points them at firefox.com/pair and offers a download link for Firefox.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-download-firefox-heading = გახსენით { -brand-firefox } დასინქრონებისთვის
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction = მოწყობილობებს შორის სინქრონიზაციისთვის გაუშვით { -brand-firefox } ამ მოწყობილობაზე და გახსენით <b>firefox.com/pair</b>
+# Links out to the Firefox download page
+pair2-authority-download-firefox-cta = ჩამოტვირთეთ { -brand-firefox }
+
+## ScanQR page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer. It shows a QR code that they scan with
+## their phone or tablet to connect the two devices and start syncing.
+
+pair2-authority-scan-qr-heading = წააკითხეთ მობილურ მოწყობილობასთან დასაკავშირებლად
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-scan-qr-instruction = წააკითხეთ QR-კოდი ტელეფონით ან პლანშეტით, რომ დაასინქრონოთ { -brand-firefox } არსებული სანიშნებით, ჩანართებითა თუ სხვ.
+# Accessible label describing the QR code image shown on this page
+pair2-authority-scan-qr-code-aria-label = QR-კოდი მობილურ მოწყობილობასთან დასაკავშირებლად
+# Link to a support article for users having trouble scanning the QR code
+pair2-authority-scan-qr-help-link = დახმარება წაკითხვის ხარვეზისას
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and offers the follow-up actions.
+
+# "syncing" here means copying data between the user's devices
+pair2-authority-sync-success-heading = დასინქრონებულია
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code

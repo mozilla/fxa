@@ -71,13 +71,6 @@ button-back-aria-label = Uɣal
 button-back-title = Uɣal
 
 
-recovery-key-download-button-v3 = Sader syen kemmel
-    .title = Sader syen kemmel
-recovery-key-pdf-heading = Tasarut n tririt n umiḍan
-recovery-key-pdf-download-date = Yettusirew: { $date }
-recovery-key-pdf-key-legend = Tasarut n tririt n umiḍan
-
-
 choose-newsletters-prompt-2 = Awi ugar seg { -brand-mozilla }:
 
 
@@ -168,7 +161,6 @@ input-phone-number-country-list-aria-label = Fren tamurt
 input-phone-number-enter-number = Sekcem uṭṭun n tiliɣṛi
 input-phone-number-country-united-states = Marikan
 input-phone-number-country-canada = Kanada
-legal-back-button = Ɣer deffir
 
 
 reset-pwd-link-damaged-header = Wennez aseɣwen n wawal uffir ixeṣṛen
@@ -648,17 +640,6 @@ inline-totp-setup-cancel-setup-button = Sefsex asebeddi
 inline-totp-setup-continue-button = Kemmel
 inline-totp-setup-ready-button = Yewjed
 inline-totp-setup-security-code-placeholder = Tangalt n usesteb
-
-
-legal-header = Usḍif
-legal-terms-of-service-link = Tiwtilin n useqdec
-legal-privacy-link = Tasertit n tbaḍnit
-
-
-legal-privacy-heading = Tasertit n tbaḍnit
-
-
-legal-terms-heading = Tiwtilin n useqdec
 
 
 pair-auth-allow-heading-text = Teqqneḍ tura kan akka ɣer { -brand-firefox }?

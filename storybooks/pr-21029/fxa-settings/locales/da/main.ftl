@@ -83,14 +83,6 @@ button-back-aria-label = Tilbage
 button-back-title = Tilbage
 
 
-recovery-key-download-button-v3 = Hent og fortsæt
-    .title = Hent og fortsæt
-recovery-key-pdf-heading = Genoprettelsesnøgle til kontoen
-recovery-key-pdf-download-date = Oprettet: { $date }
-recovery-key-pdf-key-legend = Genoprettelsesnøgle til kontoen
-recovery-key-pdf-instructions = Med denne nøgle kan du gendanne dine krypterede browserdata (herunder adgangskoder, bogmærker og historik), hvis du glemmer din adgangskode. Gem den et sted, du kan huske.
-recovery-key-pdf-storage-ideas-heading = Steder du kan gemme din nøgle
-recovery-key-pdf-support = Læs mere om din genoprettelsesnøgle til kontoen
 recovery-key-pdf-download-error = Der opstod desværre et problem med at hente din genoprettelsesnøgle til kontoen.
 
 
@@ -310,8 +302,6 @@ input-phone-number-country-list-aria-label = Vælg land
 input-phone-number-enter-number = Indtast telefonnummer
 input-phone-number-country-united-states = USA
 input-phone-number-country-canada = Canada
-legal-back-button = Tilbage
-app-general-err-message = Noget gik galt. Prøv igen senere.
 
 
 reset-pwd-link-damaged-header = Link til nulstilling af adgangskode beskadiget
@@ -1208,17 +1198,6 @@ inline-totp-setup-security-code-placeholder = Godkendelseskode
 inline-totp-setup-code-required-error = Godkendelseskode påkrævet
 tfa-qr-code-alt = Brug koden { $code } til at opsætte totrinsgodkendelse i understøttede applikationer.
 inline-totp-setup-page-title = Totrinsgodkendelse
-
-
-legal-header = Juridisk
-legal-terms-of-service-link = Tjenestevilkår
-legal-privacy-link = Privatlivserklæring
-
-
-legal-privacy-heading = Privatlivserklæring
-
-
-legal-terms-heading = Tjenestevilkår
 
 
 pair-auth-allow-heading-text = Har du lige logget ind på { -brand-firefox }?

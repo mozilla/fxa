@@ -39,31 +39,15 @@ brand-m-logo =
 button-back-aria-label = Retour
 button-back-title = Retour
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
+# Button to download the account recovery key as a plain text file and navigate to the next step
 # The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = Télécharger et continuer
-    .title = Télécharger et continuer
-recovery-key-pdf-heading = Clé de récupération du compte
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = Générée le : { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = Clé de récupération du compte
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = Cette clé vous permet de récupérer les données chiffrées de votre navigateur (y compris les mots de passe, les marque-pages et l’historique) si vous oubliez votre mot de passe. Conservez-la à un endroit dont vous vous souviendrez.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = Où conserver votre clé :
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = En savoir plus sur la clé de récupération de compte
-# Error message displayed in an alert bar if the PDF download failed.
+recovery-key-download-button-v4 = Télécharger et continuer
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Un problème est survenu lors du téléchargement de la clé de récupération de votre compte.
 
 ## ButtonPasskeySignin
@@ -377,10 +361,6 @@ input-phone-number-country-list-aria-label = Sélectionnez un pays
 input-phone-number-enter-number = Saisissez un numéro de téléphone
 input-phone-number-country-united-states = États-Unis
 input-phone-number-country-canada = Canada
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Retour
-# Generic error shown when the legal document fails to load
-app-general-err-message = Une erreur est survenue. Merci de réessayer plus tard.
 
 ## LinkDamaged component
 
@@ -583,6 +563,9 @@ cs-cannot-disconnect = Client introuvable, impossible de se déconnecter
 cs-logged-out-2 = Déconnecté·e de { $service }.
 cs-refresh-button =
     .title = Actualiser les services connectés
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = Connecter un appareil
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = Éléments manquants ou dupliqués ?
 cs-disconnect-sync-heading = Se déconnecter de Sync
@@ -770,6 +753,13 @@ flow-setup-2fa-prompt-heading = Configurer l’authentification en deux étapes
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
 flow-setup-2fa-prompt-description = { $serviceName } vous demande de configurer l’authentification en deux étapes pour protéger votre compte.
+# Success banner shown at the top of the page when the user signed in with a passkey.
+flow-setup-2fa-prompt-passkey-success-banner = Connecté·e avec la clé d’accès avec succès
+# Body copy shown when the user signed in with a passkey and the service still
+# requires two-step authentication setup.
+# Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
+# that requests two-step authentication setup.
+flow-setup-2fa-prompt-passkey-description = { $serviceName } nécessite également une authentification en deux étapes pour votre { -product-mozilla-account }. Une fois la configuration terminée, vous n’en aurez plus besoin lorsque vous vous connecterez avec une clé d’accès.
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = Vous pouvez utiliser <authenticationAppsLink>n’importe laquelle de ces applications d’authentification</authenticationAppsLink> pour continuer.
 flow-setup-2fa-prompt-continue-button = Continuer
@@ -1032,6 +1022,8 @@ page-passkey-add-error-system-v2 = Un problème est survenu lors de la création
 ## These are displayed as a list with the date when the event occured
 
 recent-activity-title = Activité récente du compte
+# Clicking this button reveals the older account activity that is hidden at first.
+recent-activity-show-more-button = Afficher plus d’informations
 recent-activity-account-create-v2 = Compte créé
 recent-activity-account-disable-v2 = Compte désactivé
 recent-activity-account-enable-v2 = Compte activé
@@ -1672,23 +1664,6 @@ inline-totp-setup-code-required-error = Code d’authentification requis
 tfa-qr-code-alt = Utilisez le code { $code } pour configurer l’authentification en deux étapes dans les applications prises en charge.
 inline-totp-setup-page-title = Authentification en deux étapes
 
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Mentions légales
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Conditions d’utilisation
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Politique de confidentialité
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Politique de confidentialité
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Conditions d’utilisation
-
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = Venez-vous de vous connecter à { -brand-firefox } ?
@@ -1861,6 +1836,83 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Oups, une erreur s’est p
 pair-unsupported-desktop-firefox-fallback-message-v2 = Veuillez fermer cet onglet puis réessayer.
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer, which is already signed in, after their
+## mobile device scans the pairing QR code. It asks them to approve the
+## sign-in, and shows the requesting device's details so they can verify it.
+
+# Asks the user to confirm the sign-in that another one of their devices just started
+pair2-authority-approve-sign-in-heading = Approuver la connexion ?
+# Submit button confirming that the user started the pairing and approves the
+# other device being added to their account
+pair2-authority-approve-sign-in-confirm-button = Oui, approuver la connexion
+# "Not you?" asks whether someone other than the user started this sign-in.
+# The text inside <changePassword> links to the page for changing the password.
+pair2-authority-approve-sign-in-change-password = Ce n’est pas vous ? <changePassword>Changez votre mot de passe</changePassword>
+
+## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer after scanning the pairing QR code with
+## their phone. It confirms the flow has moved to the mobile device and waits
+## for the remaining steps to be completed there.
+
+pair2-authority-continue-on-mobile-heading = Continuer sur votre appareil mobile
+pair2-authority-continue-on-mobile-description = Suivez les étapes sur votre téléphone ou votre tablette.
+# Dismisses the pairing attempt
+pair2-authority-continue-on-mobile-cancel-button = Annuler
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when Firefox is needed to continue pairing.
+## It points them at firefox.com/pair and offers a download link for Firefox.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-download-firefox-heading = Ouvrir { -brand-firefox } à synchroniser
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction = Pour configurer la synchronisation entre les appareils, ouvrez { -brand-firefox } sur cet appareil et visitez <b>firefox.com/pair</b>
+# Links out to the Firefox download page
+pair2-authority-download-firefox-cta = Télécharger { -brand-firefox }
+
+## ScanQR page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer. It shows a QR code that they scan with
+## their phone or tablet to connect the two devices and start syncing.
+
+pair2-authority-scan-qr-heading = Scannez pour connecter votre appareil mobile
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-scan-qr-instruction = Scannez le code QR avec votre téléphone ou votre tablette pour synchroniser vos { -brand-firefox } marque-pages, onglets et plus encore.
+# Accessible label describing the QR code image shown on this page
+pair2-authority-scan-qr-code-aria-label = Code QR pour connecter votre appareil mobile
+# Link to a support article for users having trouble scanning the QR code
+pair2-authority-scan-qr-help-link = Obtenir de l’aide sur l’analyse
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and offers the follow-up actions.
+
+# "syncing" here means copying data between the user's devices
+pair2-authority-sync-success-heading = Synchronisation synchronisée
+pair2-authority-sync-success-description = Vos onglets, marque-pages, mots de passe et bien plus sont prêts sur tous vos appareils.
+# Opens the tabs that are open on the user's other synced devices
+pair2-authority-sync-success-view-tabs-button = Afficher les onglets synchronisés
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button = Paramètres de synchronisation
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when pairing stopped without succeeding,
+## either because it timed out or because it was canceled. Both cases offer to
+## start pairing over again.
+
+# Shown when the pairing attempt expired before it was approved
+pair2-authority-timeout-and-cancel-timeout-heading = Vous souhaitez toujours connecter un appareil ?
+pair2-authority-timeout-and-cancel-timeout-description = Il semblerait que le délai d’attente ait expiré. Réessayez si vous souhaitez toujours connecter votre appareil mobile et synchroniser vos { -brand-firefox } données.
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-canceled-heading = Annulé
+pair2-authority-timeout-and-cancel-canceled-description = Si vous changez d’avis ou si vous souhaitez connecter un autre appareil, réessayez.
+# Restarts the pairing flow
+pair2-authority-timeout-and-cancel-try-again-button = Réessayer
+# Abandons pairing without retrying
+pair2-authority-timeout-and-cancel-cancel-button = Annuler
+# Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
+pair2-authority-timeout-and-cancel-sync-settings-button = Paramètres de synchronisation
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
 ## shown on their computer. It waits for them to approve the sign-in on the
 ## computer, and shows that computer's details so they can verify the request.
@@ -1870,6 +1922,70 @@ pair2-supplicant-approve-sign-in-heading = Une dernière étape pour lancer la s
 pair2-supplicant-approve-sign-in-instruction = Approuvez la connexion sur votre ordinateur.
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = Annuler
+
+## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It asks them to confirm connecting the mobile
+## device to their account, and shows that computer's details so they can
+## verify the request.
+
+# "this device" is the mobile device the user is holding, not the computer
+# whose details are shown below the heading
+pair2-supplicant-connect-this-device-heading = Connecter cet appareil à votre compte ?
+# Confirms the pairing attempt
+pair2-supplicant-connect-this-device-connect-button = Se connecter
+# Dismisses the pairing attempt
+pair2-supplicant-connect-this-device-cancel-button = Annuler
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing reaches a device that
+## does not have Firefox installed yet. It explains what syncing gets them and
+## sends them off to install the browser.
+
+pair2-supplicant-download-firefox-heading = Obtenir { -brand-firefox } sur cet appareil
+# "sync" is a verb here, referring to syncing data between the user's devices.
+# <linkExternal> is an anchor tag linking to a page explaining what sync does.
+pair2-supplicant-download-firefox-description = Téléchargez { -brand-firefox } pour synchroniser les marque-pages, l’historique et d’autres informations entre vos appareils. <linkExternal>En savoir plus</linkExternal>
+# Primary action. Sends the user to the Firefox download page.
+pair2-supplicant-download-firefox-continue-button = Continuer dans { -brand-firefox }
+
+## ReadyToScan page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device before pairing starts. It tells them
+## to open firefox.com/pair on their computer, which is where the QR code they
+## scan with the mobile device comes from.
+
+pair2-supplicant-ready-to-scan-heading = Pour connecter un appareil
+# <b> emphasises the address the user types on their computer. It is not a link,
+# and the address itself must not be translated.
+pair2-supplicant-ready-to-scan-instruction = Sur votre ordinateur, ouvrez { -brand-firefox } et accédez à <b>firefox.com/pair</b>, et suivez les instructions à l’écran pour connecter cet appareil mobile.
+# Opens a Mozilla support article about setting up sync
+pair2-supplicant-ready-to-scan-learn-more-link = En savoir plus
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device once pairing has completed: the device
+## is signed in and syncing with the computer they paired it with.
+
+pair2-supplicant-sync-success-heading = Votre appareil est connecté
+pair2-supplicant-sync-success-description = Vos marque-pages, onglets et autres resteront synchronisés en { -brand-firefox }.
+# Opens the view listing tabs open on the user's other synced devices
+pair2-supplicant-sync-success-view-tabs-button = Afficher les onglets synchronisés
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button = Paramètres de synchronisation
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing ends without connecting,
+## either because the attempt timed out or because it was canceled. Both states
+## are informational and offer no on-screen action, so the copy points the user
+## back to their computer to start again.
+
+# Shown when the pairing attempt expired before it completed. "we" is Firefox.
+pair2-supplicant-timeout-and-cancel-timeout-heading = Il semble que le délai d’attente ait expiré
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-timeout-description = Pour connecter votre appareil mobile et synchroniser vos { -brand-firefox } données, visitez <b>firefox.com/pair</b> sur votre ordinateur.
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-canceled-heading = Annulé
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-canceled-description = Pour connecter un appareil à tout moment, visitez <b>firefox.com/pair</b> sur votre ordinateur.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

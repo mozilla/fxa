@@ -99,14 +99,7 @@ button-back-aria-label = Indietro
 button-back-title = Indietro
 
 
-recovery-key-download-button-v3 = Scarica e continua
-    .title = Scarica e continua
-recovery-key-pdf-heading = Chiave di recupero dell’account
-recovery-key-pdf-download-date = Generata: { $date }
-recovery-key-pdf-key-legend = Chiave di recupero dell’account
-recovery-key-pdf-instructions = Questa chiave ti consente di recuperare i dati crittati del browser (inclusi password, segnalibri e cronologia) se dimentichi la password dell’account. Conservala in un posto facile da ricordare.
-recovery-key-pdf-storage-ideas-heading = Luoghi in cui conservare la chiave
-recovery-key-pdf-support = Ulteriori informazioni sulla chiave di recupero dell’account
+recovery-key-download-button-v4 = Scarica e continua
 recovery-key-pdf-download-error = Siamo spiacenti, si è verificato un problema durante il download della chiave di recupero dell’account.
 
 
@@ -326,8 +319,6 @@ input-phone-number-country-list-aria-label = Scegli il Paese
 input-phone-number-enter-number = Inserisci il numero di telefono
 input-phone-number-country-united-states = Stati Uniti
 input-phone-number-country-canada = Canada
-legal-back-button = Indietro
-app-general-err-message = Si è verificato un problema. Riprova più tardi.
 
 
 reset-pwd-link-damaged-header = Link per la reimpostazione della password danneggiato
@@ -460,6 +451,7 @@ cs-cannot-disconnect = Client non trovato, impossibile effettuare la disconnessi
 cs-logged-out-2 = Disconnesso da { $service }
 cs-refresh-button =
     .title = Aggiorna i servizi connessi
+cs-connect-device-button = Connetti un dispositivo
 cs-missing-device-help = Elementi duplicati o mancanti?
 cs-disconnect-sync-heading = Disconnetti da Sync
 
@@ -581,6 +573,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Come aiuta a proteggere il tuo 
 flow-setup-2fa-inline-complete-continue-button = Continua su { $serviceName }
 flow-setup-2fa-prompt-heading = Configura l’autenticazione in due passaggi
 flow-setup-2fa-prompt-description = { $serviceName } richiede la configurazione dell’autenticazione in due passaggi per mantenere il tuo account al sicuro.
+flow-setup-2fa-prompt-passkey-success-banner = Accesso con passkey effettuato correttamente
+flow-setup-2fa-prompt-passkey-description = { $serviceName } richiede l’autenticazione in due passaggi anche per il tuo { -product-mozilla-account }. Una volta configurata, non sarà più necessaria quando accedi con una passkey.
 flow-setup-2fa-prompt-use-authenticator-apps = Per procedere puoi utilizzare una di <authenticationAppsLink>queste app di autenticazione</authenticationAppsLink>.
 flow-setup-2fa-prompt-continue-button = Continua
 
@@ -787,6 +781,7 @@ page-passkey-add-error-system-v2 = Si è verificato un problema durante la creaz
 
 
 recent-activity-title = Attività recente dell’account
+recent-activity-show-more-button = Mostra dettagli
 recent-activity-account-create-v2 = Account creato
 recent-activity-account-disable-v2 = Account disattivato
 recent-activity-account-enable-v2 = Account attivato
@@ -1211,17 +1206,6 @@ tfa-qr-code-alt = Utilizza il codice { $code } per impostare l’autenticazione 
 inline-totp-setup-page-title = Autenticazione in due passaggi
 
 
-legal-header = Note legali
-legal-terms-of-service-link = Condizioni di utilizzo del servizio
-legal-privacy-link = Informativa sulla privacy
-
-
-legal-privacy-heading = Informativa sulla privacy
-
-
-legal-terms-heading = Condizioni di utilizzo del servizio
-
-
 pair-auth-allow-heading-text = Hai appena effettuato l’accesso a { -brand-firefox }?
 pair-auth-allow-confirm-button = Sì, approva il dispositivo
 pair-auth-allow-refuse-device-link = Se questa operazione non è stata eseguita da te, <a>cambia la password</a>
@@ -1313,9 +1297,72 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Oops, si è verificato un 
 pair-unsupported-desktop-firefox-fallback-message-v2 = Chiudi questa scheda e riprova.
 
 
+pair2-authority-approve-sign-in-heading = Approvare l’accesso?
+pair2-authority-approve-sign-in-confirm-button = Sì, approva l’accesso
+pair2-authority-approve-sign-in-change-password = Non sei stato tu? <changePassword>Cambia la password</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = Continua sul tuo dispositivo mobile
+pair2-authority-continue-on-mobile-description = Segui i passaggi sul tuo telefono o tablet.
+pair2-authority-continue-on-mobile-cancel-button = Annulla
+
+
+pair2-authority-download-firefox-heading = Apri { -brand-firefox } per sincronizzare
+pair2-authority-download-firefox-instruction = Per configurare la sincronizzazione tra più dispositivi, apri { -brand-firefox } su questo dispositivo e visita <b>firefox.com/pair</b>
+pair2-authority-download-firefox-cta = Scarica { -brand-firefox }
+
+
+pair2-authority-scan-qr-heading = Scansiona per connettere il tuo dispositivo mobile
+pair2-authority-scan-qr-instruction = Scansiona il codice QR con il telefono o il tablet per sincronizzare segnalibri, schede e altri dati di { -brand-firefox }.
+pair2-authority-scan-qr-code-aria-label = Codice QR per connettere il tuo dispositivo mobile
+pair2-authority-scan-qr-help-link = Aiuto per la scansione
+
+
+pair2-authority-sync-success-heading = La sincronizzazione è attiva
+pair2-authority-sync-success-description = Schede, segnalibri, password e altri dati sono disponibili su tutti i tuoi dispositivi.
+pair2-authority-sync-success-view-tabs-button = Visualizza le schede sincronizzate
+pair2-authority-sync-success-sync-settings-button = Sincronizza impostazioni
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = Vuoi ancora connettere un dispositivo?
+pair2-authority-timeout-and-cancel-timeout-description = Sembra che il tempo a disposizione sia scaduto. Riprova se vuoi ancora connettere il tuo dispositivo mobile e sincronizzare i dati di { -brand-firefox }.
+pair2-authority-timeout-and-cancel-canceled-heading = Annullata
+pair2-authority-timeout-and-cancel-canceled-description = Se cambi idea o vuoi connettere un altro dispositivo, riprova.
+pair2-authority-timeout-and-cancel-try-again-button = Riprova
+pair2-authority-timeout-and-cancel-cancel-button = Annulla
+pair2-authority-timeout-and-cancel-sync-settings-button = Sincronizza impostazioni
+
+
 pair2-supplicant-approve-sign-in-heading = Un ultimo passaggio per la sincronizzazione
 pair2-supplicant-approve-sign-in-instruction = Approva l’accesso sul tuo computer.
 pair2-supplicant-approve-sign-in-cancel-button = Annulla
+
+
+pair2-supplicant-connect-this-device-heading = Connettere questo dispositivo al tuo account?
+pair2-supplicant-connect-this-device-connect-button = Connetti
+pair2-supplicant-connect-this-device-cancel-button = Annulla
+
+
+pair2-supplicant-download-firefox-heading = Ottieni { -brand-firefox } su questo dispositivo
+pair2-supplicant-download-firefox-description = Scarica { -brand-firefox } per sincronizzare segnalibri, cronologia e altri dati su tutti i tuoi dispositivi. <linkExternal>Ulteriori informazioni</linkExternal>
+pair2-supplicant-download-firefox-continue-button = Continua in { -brand-firefox }
+
+
+pair2-supplicant-ready-to-scan-heading = Per connettere un dispositivo
+pair2-supplicant-ready-to-scan-instruction = Sul computer, apri { -brand-firefox }, vai su <b>firefox.com/pair</b> e segui le istruzioni sullo schermo per connettere questo dispositivo mobile.
+pair2-supplicant-ready-to-scan-learn-more-link = Ulteriori informazioni
+
+
+pair2-supplicant-sync-success-heading = Il dispositivo è connesso
+pair2-supplicant-sync-success-description = I segnalibri, le schede e altri dati rimarranno sincronizzati in { -brand-firefox }.
+pair2-supplicant-sync-success-view-tabs-button = Visualizza le schede sincronizzate
+pair2-supplicant-sync-success-sync-settings-button = Sincronizza impostazioni
+
+
+pair2-supplicant-timeout-and-cancel-timeout-heading = Sembra che il tempo a disposizione sia scaduto
+pair2-supplicant-timeout-and-cancel-timeout-description = Per connettere il dispositivo mobile e sincronizzare i dati di { -brand-firefox }, visita <b>firefox.com/pair</b> sul computer.
+pair2-supplicant-timeout-and-cancel-canceled-heading = Annullata
+pair2-supplicant-timeout-and-cancel-canceled-description = Per connettere un dispositivo in qualsiasi momento, visita <b>firefox.com/pair</b> sul computer.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confermato

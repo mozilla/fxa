@@ -89,14 +89,6 @@ button-back-aria-label = חזרה
 button-back-title = חזרה
 
 
-recovery-key-download-button-v3 = הורדה והמשך
-    .title = הורדה והמשך
-recovery-key-pdf-heading = מפתח שחזור חשבון
-recovery-key-pdf-download-date = נוצר בתאריך: { $date }
-recovery-key-pdf-key-legend = מפתח שחזור חשבון
-recovery-key-pdf-instructions = מפתח זה מאפשר לך לשחזר את נתוני הדפדפן המוצפנים שלך (הכוללים ססמאות, סימניות והיסטוריה) למקרה שהססמה שלך תישכח. יש לאחסן אותו במקום שקל לזכור.
-recovery-key-pdf-storage-ideas-heading = מקומות לאחסון המפתח שלך
-recovery-key-pdf-support = מידע נוסף על מפתח שחזור החשבון שלך
 recovery-key-pdf-download-error = אירעה שגיאה בהורדת מפתח שחזור החשבון, עמך הסליחה.
 
 
@@ -154,6 +146,11 @@ device-info-block-location-unknown = מיקום לא ידוע
 device-info-browser-os = ‏{ $browserName } ב־{ $genericOSName }
 device-info-browser-device = ‏{ $browserName } ב־{ $deviceName }
 device-info-ip-address = כתובת IP:‏ { $ipAddress }
+
+
+firefox-promo-banner-mobile-cta = חיבור מכשיר
+firefox-promo-banner-switch-description = בעת המעבר ל־{ -brand-firefox }, ניתן להביא את הסימניות, הססמאות, ההיסטוריה שלך ועוד, כך שאפשר לגלוש בלי לפספס פעימה.
+firefox-promo-banner-switch-cta = מעבר ל־{ -brand-firefox }
 
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -301,8 +298,6 @@ input-phone-number-country-list-aria-label = בחירת מדינה
 input-phone-number-enter-number = נא להכניס מספר טלפון
 input-phone-number-country-united-states = ארצות הברית
 input-phone-number-country-canada = קנדה
-legal-back-button = חזרה
-app-general-err-message = משהו השתבש. נא לנסות שוב מאוחר יותר.
 
 
 reset-pwd-link-damaged-header = קישור לאיפוס ססמה פגום
@@ -435,6 +430,7 @@ cs-cannot-disconnect = הלקוח לא נמצא, לא ניתן להתנתק
 cs-logged-out-2 = נותקת מ־{ $service }
 cs-refresh-button =
     .title = ריענון שירותים מחוברים
+cs-connect-device-button = חיבור מכשיר
 cs-missing-device-help = פריטים חסרים או כפולים?
 cs-disconnect-sync-heading = ניתוק מ־Sync
 
@@ -748,6 +744,7 @@ page-passkey-add-error-system-v2 = הייתה בעיה ביצירת מפתח ה�
 
 
 recent-activity-title = פעילות אחרונה בחשבון
+recent-activity-show-more-button = להציג יותר
 recent-activity-account-create-v2 = החשבון נוצר
 recent-activity-account-disable-v2 = החשבון הושבת
 recent-activity-account-enable-v2 = החשבון הופעל
@@ -899,6 +896,7 @@ passkey-sub-row-created-date = תאריך יצירה: { $createdDate }
 passkey-sub-row-last-used-date = בשימוש אחרון: { $lastUsedDate }
 passkey-sub-row-delete-title = מחיקת מפתח גישה
 passkey-delete-modal-heading = למחוק את מפתח הגישה שלך?
+passkey-delete-modal-content-v2 = מפתח גישה זה יימחק מהחשבון שלך. יהיה עליך להתחבר באמצעות שיטה אחרת (ססמה, מפתח גישה נוסף או חשבון מקושר).
 passkey-delete-modal-cancel-button = ביטול
 passkey-delete-modal-confirm-button = מחיקת מפתח גישה
 passkey-delete-success = מפתח הגישה נמחק
@@ -1158,17 +1156,6 @@ tfa-qr-code-alt = ניתן להשתמש בקוד { $code } כדי להגדיר �
 inline-totp-setup-page-title = אימות דו־שלבי
 
 
-legal-header = מידע משפטי
-legal-terms-of-service-link = תנאי השירות
-legal-privacy-link = הצהרת פרטיות
-
-
-legal-privacy-heading = הצהרת פרטיות
-
-
-legal-terms-heading = תנאי השירות
-
-
 pair-auth-allow-heading-text = האם זה עתה התחברת ל־{ -brand-firefox }?
 pair-auth-allow-confirm-button = כן, לאשר את המכשיר
 pair-auth-allow-refuse-device-link = אם לא ביצעת פעולה זו, <a>יש לשנות את הססמה שלך</a>
@@ -1260,9 +1247,72 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = אופס! משהו השת�
 pair-unsupported-desktop-firefox-fallback-message-v2 = נא לסגור לשונית זו ולנסות שוב.
 
 
+pair2-authority-approve-sign-in-heading = לאשר את הכניסה?
+pair2-authority-approve-sign-in-confirm-button = כן, לאשר את הכניסה
+pair2-authority-approve-sign-in-change-password = פעולה זו לא בוצעה על ידך? <changePassword>יש לשנות את הססמה שלך</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = המשך במכשיר הנייד שלך
+pair2-authority-continue-on-mobile-description = יש לבצע את השלבים בטלפון או במחשב הלוח שלך.
+pair2-authority-continue-on-mobile-cancel-button = ביטול
+
+
+pair2-authority-download-firefox-heading = יש לפתוח את { -brand-firefox } כדי לסנכרן
+pair2-authority-download-firefox-instruction = כדי להגדיר סנכרון בין מכשירים, יש לפתוח את { -brand-firefox } במכשיר זה ולבקר באתר <b>firefox.com/pair</b>
+pair2-authority-download-firefox-cta = הורדת { -brand-firefox }
+
+
+pair2-authority-scan-qr-heading = יש לסרוק כדי לחבר את המכשיר הנייד שלך
+pair2-authority-scan-qr-instruction = יש לסרוק את קוד ה־QR באמצעות הטלפון או מחשב הלוח שלך כדי לסנכרן את הסימניות, הלשוניות שלך ועוד ב־{ -brand-firefox }.
+pair2-authority-scan-qr-code-aria-label = קוד QR לחיבור המכשיר הנייד שלך
+pair2-authority-scan-qr-help-link = קבלת עזרה בסריקה
+
+
+pair2-authority-sync-success-heading = הסנכרון פעיל
+pair2-authority-sync-success-description = הלשוניות, הסימניות, הססמאות שלך ועוד מוכנים בכל המכשירים שלך.
+pair2-authority-sync-success-view-tabs-button = הצגת הלשוניות המסונכרנות
+pair2-authority-sync-success-sync-settings-button = הגדרות סנכרון
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = עדיין רוצה לחבר מכשיר?
+pair2-authority-timeout-and-cancel-timeout-description = נראה שזמן הפעולה פג. יש לנסות שוב אם עדיין ברצונך לחבר את המכשיר הנייד שלך ולסנכרן את נתוני ה־{ -brand-firefox } שלך.
+pair2-authority-timeout-and-cancel-canceled-heading = בוטל
+pair2-authority-timeout-and-cancel-canceled-description = אם תשנה את דעתך או שתרצה לחבר מכשיר אחר, ניתן לנסות שוב.
+pair2-authority-timeout-and-cancel-try-again-button = ניסיון חוזר
+pair2-authority-timeout-and-cancel-cancel-button = ביטול
+pair2-authority-timeout-and-cancel-sync-settings-button = הגדרות סנכרון
+
+
 pair2-supplicant-approve-sign-in-heading = שלב אחרון לסנכרון
 pair2-supplicant-approve-sign-in-instruction = אישור הכניסה במחשב שלך.
 pair2-supplicant-approve-sign-in-cancel-button = ביטול
+
+
+pair2-supplicant-connect-this-device-heading = לחבר את המכשיר הזה לחשבון שלך?
+pair2-supplicant-connect-this-device-connect-button = חיבור
+pair2-supplicant-connect-this-device-cancel-button = ביטול
+
+
+pair2-supplicant-download-firefox-heading = קבלת { -brand-firefox } במכשיר זה
+pair2-supplicant-download-firefox-description = ניתן להוריד את { -brand-firefox } כדי לסנכרן סימניות, היסטוריה ועוד בין מכשירים. <linkExternal>מידע נוסף</linkExternal>
+pair2-supplicant-download-firefox-continue-button = המשך ב־{ -brand-firefox }
+
+
+pair2-supplicant-ready-to-scan-heading = כדי לחבר מכשיר
+pair2-supplicant-ready-to-scan-instruction = במחשב שלך, יש לפתוח את { -brand-firefox } ולבקר ב־<b>firefox.com/pair</b>, ולעקוב אחרי ההנחיות שמופיעות על המסך כדי לחבר את המכשיר הנייד הזה.
+pair2-supplicant-ready-to-scan-learn-more-link = מידע נוסף
+
+
+pair2-supplicant-sync-success-heading = המכשיר שלך מחובר
+pair2-supplicant-sync-success-description = הסימניות, הלשוניות ועוד שלך יישארו מסונכרנים ב־{ -brand-firefox }.
+pair2-supplicant-sync-success-view-tabs-button = הצגת הלשוניות המסונכרנות
+pair2-supplicant-sync-success-sync-settings-button = הגדרות סנכרון
+
+
+pair2-supplicant-timeout-and-cancel-timeout-heading = נראה שזמן הפעולה פג
+pair2-supplicant-timeout-and-cancel-timeout-description = כדי לחבר את המכשיר הנייד שלך ולסנכרן את נתוני ה־{ -brand-firefox } שלך, יש לבקר באתר <b>firefox.com/pair</b> במחשב שלך.
+pair2-supplicant-timeout-and-cancel-canceled-heading = בוטל
+pair2-supplicant-timeout-and-cancel-canceled-description = כדי לחבר מכשיר בכל עת, יש לבקר באתר <b>firefox.com/pair</b> במחשב שלך.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account(case: "the") } אומת

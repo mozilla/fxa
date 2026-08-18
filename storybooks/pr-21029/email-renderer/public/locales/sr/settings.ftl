@@ -39,31 +39,12 @@ brand-m-logo =
 button-back-aria-label = Назад
 button-back-title = Назад
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
-# The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = Преузми и настави
-    .title = Преузми и настави
-recovery-key-pdf-heading = Кључ за опоравак налога
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = Направљено: { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = Кључ за опоравак налога
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = Овај кључ вам омогућава да опоравите своје шифроване податке прегледача (укључујући лозинке, обележиваче и историјат) ако заборавите лозинку. Чувајте га на месту које ћете запамтити.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = Места за чување кључа
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = Сазнајте више о свом кључу за опоравак налога
-# Error message displayed in an alert bar if the PDF download failed.
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Нажалост, дошло је до проблема при преузимању вашег кључа за опоравак налога.
 
 ## ButtonPasskeySignin
@@ -354,8 +335,6 @@ input-phone-number-country-list-aria-label = Изаберите државу
 input-phone-number-enter-number = Унесите број телефона
 input-phone-number-country-united-states = Сједињене Америчке Државе
 input-phone-number-country-canada = Канада
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Назад
 
 ## LinkDamaged component
 
@@ -1577,23 +1556,6 @@ inline-totp-setup-security-code-placeholder = Приступни код
 inline-totp-setup-code-required-error = Потребна је шифра за потврду идентитета
 tfa-qr-code-alt = Користите шифру { $code } да бисте подесили потврду идентитета у два корака у подржаним програмима.
 inline-totp-setup-page-title = Потврда идентитета у два корака
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Правно
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Услови коришћења
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Обавештење о приватности
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Обавештење о приватности
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Услови коришћења
 
 ## AuthAllow page - Part of the device pairing flow
 

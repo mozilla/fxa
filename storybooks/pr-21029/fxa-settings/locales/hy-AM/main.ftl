@@ -38,9 +38,6 @@ app-loading-spinner-aria-label-loading = Բեռնում…
 brand-learn-more = Իմանալ ավելին
 
 
-recovery-key-pdf-key-legend = Հաշվի վերականգնման բանալի
-
-
 datablock-download =
     .message = Ներբեռնված
 datablock-copy =
@@ -76,9 +73,6 @@ get-data-trio-print-2 =
 
 input-password-hide = Թաքցնել գաղտնաբառը
 input-password-show = Ցուցադրել գաղտնաբառը
-
-
-legal-back-button = Ետ
 
 
 reset-pwd-link-damaged-header = Վերականգնված գաղտնաբառի հղումը վնասված է

@@ -87,14 +87,7 @@ button-back-aria-label = Retroceder
 button-back-title = Retroceder
 
 
-recovery-key-download-button-v3 = Transferir e continuar
-    .title = Transferir e continuar
-recovery-key-pdf-heading = Chave de recuperação da conta
-recovery-key-pdf-download-date = Gerado: { $date }
-recovery-key-pdf-key-legend = Chave de recuperação da conta
-recovery-key-pdf-instructions = Esta chave permite que recupere os seus dados encriptados do navegador (incluindo palavras-passe, marcadores e histórico) se se esquecer da sua palavra-passe. Guarde-a num local que se lembre.
-recovery-key-pdf-storage-ideas-heading = Locais para guardar a sua chave
-recovery-key-pdf-support = Saber mais sobre a sua chave de recuperação da conta
+recovery-key-download-button-v4 = Transferir e continuar
 recovery-key-pdf-download-error = Pedimos desculpa, mas ocorreu um problema ao transferir a sua chave de recuperação da conta.
 
 
@@ -314,8 +307,6 @@ input-phone-number-country-list-aria-label = Selecione o país
 input-phone-number-enter-number = Inserir número de telefone
 input-phone-number-country-united-states = Estados Unidos da América
 input-phone-number-country-canada = Canadá
-legal-back-button = Voltar
-app-general-err-message = Algo correu mal. Tente novamente mais tarde.
 
 
 reset-pwd-link-damaged-header = A ligação de redefinição da palavra-passe está danificada
@@ -450,6 +441,7 @@ cs-cannot-disconnect = Cliente não encontrado, não foi possível desassociar
 cs-logged-out-2 = Desligado de { $service }
 cs-refresh-button =
     .title = Atualizar serviços associados
+cs-connect-device-button = Ligar um dispositivo
 cs-missing-device-help = Itens em falta ou duplicados?
 cs-disconnect-sync-heading = Desassociar do Sync
 
@@ -571,6 +563,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Como isto protege a sua conta
 flow-setup-2fa-inline-complete-continue-button = Continuar para { $serviceName }
 flow-setup-2fa-prompt-heading = Configurar autenticação em duas etapas
 flow-setup-2fa-prompt-description = { $serviceName } requer que configure a autenticação de dois passos para manter a sua conta segura.
+flow-setup-2fa-prompt-passkey-success-banner = Sessão iniciada com sucesso com a chave
+flow-setup-2fa-prompt-passkey-description = { $serviceName } também requer autenticação de dois passos para o seu { -product-mozilla-account }. Depois da configuração, deixará de precisar da mesma quando iniciar sessão com uma chave de acesso.
 flow-setup-2fa-prompt-use-authenticator-apps = Pode utilizar qualquer uma das <authenticationAppsLink>estas aplicações de autenticação</authenticationAppsLink> para continuar.
 flow-setup-2fa-prompt-continue-button = Continuar
 
@@ -777,6 +771,7 @@ page-passkey-add-error-system-v2 = Ocorreu um problema ao criar a sua chave. Ten
 
 
 recent-activity-title = Atividade Recente da Conta
+recent-activity-show-more-button = Mostrar mais
 recent-activity-account-create-v2 = Conta criada
 recent-activity-account-disable-v2 = Conta desativada
 recent-activity-account-enable-v2 = Conta ativada
@@ -1213,17 +1208,6 @@ tfa-qr-code-alt =
 inline-totp-setup-page-title = Autenticação de dois passos
 
 
-legal-header = Informação legal
-legal-terms-of-service-link = Termos do Serviço
-legal-privacy-link = Informação de Privacidade
-
-
-legal-privacy-heading = Informação de privacidade
-
-
-legal-terms-heading = Termos do Serviço
-
-
 pair-auth-allow-heading-text = Acabou de iniciar a sessão no { -brand-firefox }?
 pair-auth-allow-confirm-button = Sim, aprovar dispositivo
 pair-auth-allow-refuse-device-link = Se não foi você, <a>altere a sua palavra-passe</a>
@@ -1315,9 +1299,72 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Ups! Algo correu mal.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Por favor, feche este separador e tente novamente.
 
 
+pair2-authority-approve-sign-in-heading = Aprovar início de sessão?
+pair2-authority-approve-sign-in-confirm-button = Sim, aprovar início de sessão
+pair2-authority-approve-sign-in-change-password = Não é você? <changePassword>Altere a sua palavra-passe</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = Continue no seu dispositivo móvel
+pair2-authority-continue-on-mobile-description = Siga os passos no seu telemóvel ou tablet.
+pair2-authority-continue-on-mobile-cancel-button = Cancelar
+
+
+pair2-authority-download-firefox-heading = Abrir { -brand-firefox } para sincronizar
+pair2-authority-download-firefox-instruction = Para configurar a sincronização entre dispositivos, abra { -brand-firefox } neste dispositivo e visite <b>firefox.com/pair</b>
+pair2-authority-download-firefox-cta = Transferir { -brand-firefox }
+
+
+pair2-authority-scan-qr-heading = Digitalize para associar o seu dispositivo móvel
+pair2-authority-scan-qr-instruction = Digitalize o código QR com o seu telemóvel ou tablet para sincronizar os seus { -brand-firefox } marcadores, separadores, e mais.
+pair2-authority-scan-qr-code-aria-label = Código QR para ligar o seu dispositivo móvel
+pair2-authority-scan-qr-help-link = Obter ajuda para digitalizar
+
+
+pair2-authority-sync-success-heading = Está a sincronizar
+pair2-authority-sync-success-description = Os seus separadores, marcadores, palavras-passe e muito mais estão prontos nos seus dispositivos.
+pair2-authority-sync-success-view-tabs-button = Ver separadores sincronizados
+pair2-authority-sync-success-sync-settings-button = Definições de sincronização
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = Ainda pretende ligar um dispositivo?
+pair2-authority-timeout-and-cancel-timeout-description = Parece que expirámos. Tente novamente se ainda quiser ligar o seu dispositivo móvel e sincronizar os seus { -brand-firefox } dados.
+pair2-authority-timeout-and-cancel-canceled-heading = Cancelado
+pair2-authority-timeout-and-cancel-canceled-description = Se mudar de ideias ou quiser ligar um dispositivo diferente, tente novamente.
+pair2-authority-timeout-and-cancel-try-again-button = Tentar novamente
+pair2-authority-timeout-and-cancel-cancel-button = Cancelar
+pair2-authority-timeout-and-cancel-sync-settings-button = Definições de sincronização
+
+
 pair2-supplicant-approve-sign-in-heading = Um último passo para sincronizar
 pair2-supplicant-approve-sign-in-instruction = Aprove o início de sessão no seu computador.
 pair2-supplicant-approve-sign-in-cancel-button = Cancelar
+
+
+pair2-supplicant-connect-this-device-heading = Ligar este dispositivo à sua conta?
+pair2-supplicant-connect-this-device-connect-button = Ligar
+pair2-supplicant-connect-this-device-cancel-button = Cancelar
+
+
+pair2-supplicant-download-firefox-heading = Obtenha { -brand-firefox } neste dispositivo
+pair2-supplicant-download-firefox-description = Transfira o { -brand-firefox } para sincronizar os marcadores, histórico e muito mais entre dispositivos. <linkExternal>Saber mais</linkExternal>
+pair2-supplicant-download-firefox-continue-button = Continuar em { -brand-firefox }
+
+
+pair2-supplicant-ready-to-scan-heading = Para ligar um dispositivo
+pair2-supplicant-ready-to-scan-instruction = No seu computador, abra o { -brand-firefox } e aceda a <b>firefox.com/pair</b>. Siga as instruções no ecrã para ligar este dispositivo móvel.
+pair2-supplicant-ready-to-scan-learn-more-link = Saber mais
+
+
+pair2-supplicant-sync-success-heading = O seu dispositivo está ligado
+pair2-supplicant-sync-success-description = Os seus marcadores, separadores e muito mais irão ficar sincronizados em { -brand-firefox }.
+pair2-supplicant-sync-success-view-tabs-button = Ver separadores sincronizados
+pair2-supplicant-sync-success-sync-settings-button = Definições de sincronização
+
+
+pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que expirámos
+pair2-supplicant-timeout-and-cancel-timeout-description = Para ligar o seu dispositivo móvel e sincronizar os seus dados de { -brand-firefox }, visite <b>firefox.com/pair</b> no seu computador.
+pair2-supplicant-timeout-and-cancel-canceled-heading = Cancelado
+pair2-supplicant-timeout-and-cancel-canceled-description = Para ligar um dispositivo a qualquer momento, visite <b>firefox.com/pair</b> no seu computador.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmados

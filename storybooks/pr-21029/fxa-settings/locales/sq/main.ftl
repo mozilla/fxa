@@ -83,14 +83,6 @@ button-back-aria-label = Mbrapsht
 button-back-title = Mbrapsht
 
 
-recovery-key-download-button-v3 = Shkarkoje dhe vazhdo
-    .title = Shkarkoje dhe vazhdo
-recovery-key-pdf-heading = Kyç Rimarrjeje Llogarie
-recovery-key-pdf-download-date = Prodhuar më: { $date }
-recovery-key-pdf-key-legend = Kyç Rimarrjeje Llogarie
-recovery-key-pdf-instructions = Ky kyç ju lejon të rimerrni të dhëna shfletuesi tuajat të fshehtëzuara (përfshi fjalëkalime, faqerojtës dhe historik), nëse harroni fjalëkalimin tuaj. Depozitojeni diku ku do ta mbani mend.
-recovery-key-pdf-storage-ideas-heading = Vende ku të depozitoni kyçin tuaj
-recovery-key-pdf-support = Mësoni më tepër mbi kyçin tuaj të rimarrjes së llogarisë
 recovery-key-pdf-download-error = Na ndjeni, pati një problem me shkarkimin e kyçit tuaj të rimarrjes së llogarisë.
 
 
@@ -285,7 +277,6 @@ input-phone-number-country-list-aria-label = Përzgjidhni vendin
 input-phone-number-enter-number = Jepni numër telefoni
 input-phone-number-country-united-states = Shtetet e Bashkuara
 input-phone-number-country-canada = Kanada
-legal-back-button = Mbrapsht
 
 
 reset-pwd-link-damaged-header = Lidhja e ricaktimit të fjalëkalimit është e dëmtuar
@@ -1093,17 +1084,6 @@ inline-totp-setup-security-code-placeholder = Kod mirëfilltësimi
 inline-totp-setup-code-required-error = Lypset kod mirëfilltësimi
 tfa-qr-code-alt = Përdoreni kodin { $code } që të rregulloni mirëfilltësim dyhapësh te aplikacione që e mbulojnë.
 inline-totp-setup-page-title = Mirëfilltësim dyhapësh
-
-
-legal-header = Ligjore
-legal-terms-of-service-link = Kushte Shërbimi
-legal-privacy-link = Shënim Mbi Privatësinë
-
-
-legal-privacy-heading = Shënim Mbi Privatësinë
-
-
-legal-terms-heading = Kushte Shërbimi
 
 
 pair-auth-allow-heading-text = Mos sapo hytë në { -brand-firefox }?

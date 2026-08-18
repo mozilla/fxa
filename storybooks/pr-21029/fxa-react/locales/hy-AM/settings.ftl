@@ -9,13 +9,6 @@
 # This is an extra link element, that directs users to a page where they can learn more about the branding changes.
 brand-learn-more = Իմանալ ավելին
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
-## The account recovery key can be used to recover data when users forget their account password
-
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = Հաշվի վերականգնման բանալի
-
 ## Tooltip notifications for actions performed on account recovery keys or one-time use codes
 
 datablock-download =
@@ -75,11 +68,6 @@ get-data-trio-print-2 =
 input-password-hide = Թաքցնել գաղտնաբառը
 # Tooltip displayed on a password input visibility toggle. Expresses the toggle action, where clicking on the toggle will show the password.
 input-password-show = Ցուցադրել գաղտնաբառը
-
-## Phone number component
-
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Ետ
 
 ## LinkDamaged component
 

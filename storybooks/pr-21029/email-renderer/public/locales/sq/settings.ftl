@@ -39,31 +39,12 @@ brand-m-logo =
 button-back-aria-label = Mbrapsht
 button-back-title = Mbrapsht
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
-# The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = Shkarkoje dhe vazhdo
-    .title = Shkarkoje dhe vazhdo
-recovery-key-pdf-heading = Kyç Rimarrjeje Llogarie
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = Prodhuar më: { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = Kyç Rimarrjeje Llogarie
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = Ky kyç ju lejon të rimerrni të dhëna shfletuesi tuajat të fshehtëzuara (përfshi fjalëkalime, faqerojtës dhe historik), nëse harroni fjalëkalimin tuaj. Depozitojeni diku ku do ta mbani mend.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = Vende ku të depozitoni kyçin tuaj
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = Mësoni më tepër mbi kyçin tuaj të rimarrjes së llogarisë
-# Error message displayed in an alert bar if the PDF download failed.
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Na ndjeni, pati një problem me shkarkimin e kyçit tuaj të rimarrjes së llogarisë.
 
 ## ButtonPasskeySignin
@@ -341,8 +322,6 @@ input-phone-number-country-list-aria-label = Përzgjidhni vendin
 input-phone-number-enter-number = Jepni numër telefoni
 input-phone-number-country-united-states = Shtetet e Bashkuara
 input-phone-number-country-canada = Kanada
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Mbrapsht
 
 ## LinkDamaged component
 
@@ -1504,23 +1483,6 @@ inline-totp-setup-security-code-placeholder = Kod mirëfilltësimi
 inline-totp-setup-code-required-error = Lypset kod mirëfilltësimi
 tfa-qr-code-alt = Përdoreni kodin { $code } që të rregulloni mirëfilltësim dyhapësh te aplikacione që e mbulojnë.
 inline-totp-setup-page-title = Mirëfilltësim dyhapësh
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Ligjore
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Kushte Shërbimi
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Shënim Mbi Privatësinë
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Shënim Mbi Privatësinë
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Kushte Shërbimi
 
 ## AuthAllow page - Part of the device pairing flow
 

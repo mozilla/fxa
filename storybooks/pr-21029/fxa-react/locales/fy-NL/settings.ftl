@@ -39,31 +39,12 @@ brand-m-logo =
 button-back-aria-label = Tebek
 button-back-title = Tebek
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
-# The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = Downloade en trochgean
-    .title = Downloade en trochgean
-recovery-key-pdf-heading = Accountwerstelkaai
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = Oanmakke: { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = Accountwerstelkaai
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = Mei dizze kaai kinne jo jo fersifere browsergegevens (ynklusyf wachtwurden, blêdwizers en skiednis) weromhelje as jo jo wachtwurd ferjitte. Bewarje it op in plak dat jo ûnthâlde kinne.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = Plakken om jo kaai te bewarjen
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = Mear ynfo oer jo accountwerstelkaai
-# Error message displayed in an alert bar if the PDF download failed.
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Sorry, der is in probleem bard by it downloaden fan de accountwerstelkaai.
 
 ## ButtonPasskeySignin
@@ -377,10 +358,6 @@ input-phone-number-country-list-aria-label = Lân selektearje
 input-phone-number-enter-number = Fier telefoannûmer yn
 input-phone-number-country-united-states = Ferienige Steaten
 input-phone-number-country-canada = Kanada
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Tebek
-# Generic error shown when the legal document fails to load
-app-general-err-message = Der is wat misgien. Probearje it letter opnij.
 
 ## LinkDamaged component
 
@@ -585,6 +562,9 @@ cs-cannot-disconnect = Client net fûn, ferbining kin net ferbrutsen wurde
 cs-logged-out-2 = Ofmeld by { $service }
 cs-refresh-button =
     .title = Ferbûne tsjinsten fernije
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = In apparaat ferbine
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = Untbrekkende of dûbele items?
 cs-disconnect-sync-heading = Ferbining mei Sync ferbrekke
@@ -1040,6 +1020,8 @@ page-passkey-add-error-system-v2 = Der is in probleem bard by it oanmeitsjen fan
 ## These are displayed as a list with the date when the event occured
 
 recent-activity-title = Resinte accountaktiveit
+# Clicking this button reveals the older account activity that is hidden at first.
+recent-activity-show-more-button = Mear toane
 recent-activity-account-create-v2 = Account oanmakke
 recent-activity-account-disable-v2 = Account útskeakele
 recent-activity-account-enable-v2 = Account ynskeakele
@@ -1684,23 +1666,6 @@ inline-totp-setup-code-required-error = Autentikaasjekoade fereaske
 tfa-qr-code-alt = Brûk de koade { $code } om autentikaasje yn twa stappen yn stipe tapassingen yn te skeakeljen.
 inline-totp-setup-page-title = Autentikaasje yn twa stappen
 
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Juridysk
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Tsjinstbetingsten
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Privacyferklearring
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Privacyferklearring
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Tsjinstbetingsten
-
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = Hawwe jo jo krekt oanmeld by { -brand-firefox }?
@@ -1871,6 +1836,30 @@ pair-unsupported-learn-more-link-v2 = Mear ynfo
 # Matches the legacy Backbone "Oops! Something went wrong." message.
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oepsie, der is wat misgien.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Slút dit ljepblêd en probearje it nochris.
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer, which is already signed in, after their
+## mobile device scans the pairing QR code. It asks them to approve the
+## sign-in, and shows the requesting device's details so they can verify it.
+
+# Asks the user to confirm the sign-in that another one of their devices just started
+pair2-authority-approve-sign-in-heading = Oanmelden goedkarre?
+# Submit button confirming that the user started the pairing and approves the
+# other device being added to their account
+pair2-authority-approve-sign-in-confirm-button = Ja, oanmelding goedkarre
+# "Not you?" asks whether someone other than the user started this sign-in.
+# The text inside <changePassword> links to the page for changing the password.
+pair2-authority-approve-sign-in-change-password = Binne jo dit net? <changePassword>Wizigje jo wachtwurd</changePassword>
+
+## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer after scanning the pairing QR code with
+## their phone. It confirms the flow has moved to the mobile device and waits
+## for the remaining steps to be completed there.
+
+pair2-authority-continue-on-mobile-heading = Trochgean op jo mobile apparaat
+pair2-authority-continue-on-mobile-description = Folgje de stappen op jo telefoan of tablet.
+# Dismisses the pairing attempt
+pair2-authority-continue-on-mobile-cancel-button = Annulearje
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code

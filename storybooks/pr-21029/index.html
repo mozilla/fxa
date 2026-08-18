@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 9084dfec1bd568ea5981111fd68d78b39ef95a4c</title>
+  <title>Storybooks for commit 76efbbfefb92615a3ed98b572ea2af60b29352e7</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 9084dfec1bd568ea5981111fd68d78b39ef95a4c</h1>
+  <h1>Storybooks for commit 76efbbfefb92615a3ed98b572ea2af60b29352e7</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,20 +31,20 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/13/2026, 7:13:30 PM UTC</dd>
+    <dd>8/18/2026, 6:31:17 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>chore(deps): replace camelcase with a local helper in SVG transforms</pre></dd>
+    <dd><pre>test(jest-transforms): cover the SVG component name helper</pre></dd>
     <dt>Description</dt>
     <dd><pre>## Because
 
-- We pull in `camelcase` for one job: turning an SVG basename into a PascalCase component name, in two Jest transforms.
-- FXA-13929, part of the dependency reduction work.
+- The `toPascalCase` helper that replaced `camelcase` has no direct test in either copy.
+- Coverage today is indirect. `LoadingSpinner` and `ButtonIcon` render an SVG and never assert the generated name, so the separator, camelCase and digit rules can break without a test failing.
 
 ## This pull request
 
-- Adds a local `toPascalCase` helper to `svg-transform.js` (fxa-react) and `fileTransform.js` (fxa-settings).
-- Drops `camelcase` from both `package.json` files and updates `yarn.lock`.
-- Leaves the two helpers as copies. Sharing one means a new cross-package export, which this does not justify. A follow-up can merge them if anyone wants that.
+- Adds `packages/fxa-react/lib/svg-transform.test.ts`. It asserts the generated component name for six basename shapes.
+- Adds `packages/fxa-settings/src/lib/jest-file-transform.test.ts` with the same six shapes, against the second copy of the helper.
+- Touches no helper logic. This is a test-only follow-up to review comments on the original change.
 
 ## Issue that this pull request solves
 

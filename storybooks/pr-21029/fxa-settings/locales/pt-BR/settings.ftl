@@ -39,31 +39,12 @@ brand-m-logo =
 button-back-aria-label = Voltar
 button-back-title = Voltar
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
-# The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = Baixar e continuar
-    .title = Baixar e continuar
-recovery-key-pdf-heading = Chave de recuperação de conta
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = Gerada em: { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = Chave de recuperação de conta
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = Essa chave permite recuperar seus dados criptografados no navegador (incluindo senhas, favoritos e histórico) caso você esqueça sua senha. Guarde em um lugar que você vai lembrar.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = Lugares onde guardar a chave
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = Saiba mais sobre chave de recuperação de conta
-# Error message displayed in an alert bar if the PDF download failed.
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Desculpe, houve um problema ao baixar a chave de recuperação de conta.
 
 ## ChooseNewsletters component
@@ -299,8 +280,6 @@ input-phone-number-country-list-aria-label = Selecione um país
 input-phone-number-enter-number = Insira o número do celular
 input-phone-number-country-united-states = Estados Unidos
 input-phone-number-country-canada = Canadá
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Voltar
 
 ## LinkDamaged component
 
@@ -1251,23 +1230,6 @@ inline-totp-setup-security-code-placeholder = Código de autenticação
 # The "authentication code" here refers to the code provided by an authentication app.
 inline-totp-setup-code-required-error = Necessário código de autenticação
 tfa-qr-code-alt = Use o código { $code } para configurar a autenticação em duas etapas em aplicativos suportados.
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Jurídico
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Termos do serviço
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Política de privacidade
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Aviso de privacidade
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Termos do serviço
 
 ## AuthAllow page - Part of the device pairing flow
 

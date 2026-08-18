@@ -83,14 +83,7 @@ button-back-aria-label = Atrás
 button-back-title = Atrás
 
 
-recovery-key-download-button-v3 = Descargar y continuar
-    .title = Descargar y continuar
-recovery-key-pdf-heading = Clave de recuperación de la cuenta
-recovery-key-pdf-download-date = Generada: { $date }
-recovery-key-pdf-key-legend = Clave de recuperación de la cuenta
-recovery-key-pdf-instructions = Esta clave te permite recuperar los datos cifrados del navegador (incluidas las contraseñas, los marcadores y el historial) si te olvidás de tu contraseña. Guardala en un lugar que recordarás.
-recovery-key-pdf-storage-ideas-heading = Lugares para guardar la clave
-recovery-key-pdf-support = Conocer más sobre la clave de recuperación de tu cuenta
+recovery-key-download-button-v4 = Descargar y continuar
 recovery-key-pdf-download-error = Disculpá, hubo un problema al actualizar la clave de la recuperación de la cuenta.
 
 
@@ -310,8 +303,6 @@ input-phone-number-country-list-aria-label = Elegí el país
 input-phone-number-enter-number = Ingresar número telefónico
 input-phone-number-country-united-states = Estados Unidos
 input-phone-number-country-canada = Canadá
-legal-back-button = Atrás
-app-general-err-message = Algo salió mal. Probá de nuevo más tarde.
 
 
 reset-pwd-link-damaged-header = El enlace para restablecer la contraseña está dañado
@@ -446,6 +437,7 @@ cs-cannot-disconnect = Cliente no encontrado, no se puede desconectar
 cs-logged-out-2 = Desconectado de { $service }
 cs-refresh-button =
     .title = Refrescar servicios conectados
+cs-connect-device-button = Conectar un dispositivo
 cs-missing-device-help = ¿Ítems faltantes o duplicados?
 cs-disconnect-sync-heading = Desconectar de Sync
 
@@ -567,6 +559,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Cómo esto protege tu cuenta
 flow-setup-2fa-inline-complete-continue-button = Continuar a { $serviceName }
 flow-setup-2fa-prompt-heading = Configurar la autenticación de dos pasos
 flow-setup-2fa-prompt-description = { $serviceName } requiere que configurés la autenticación de dos pasos para mantener tu cuenta segura.
+flow-setup-2fa-prompt-passkey-success-banner = Se inició sesión correctamente con la clave de acceso
+flow-setup-2fa-prompt-passkey-description = { $serviceName } también requiere autenticación de dos pasos para tu { -product-mozilla-account }. Después de la configuración, ya no la necesitarás cuando inicies sesión con una clave de acceso.
 flow-setup-2fa-prompt-use-authenticator-apps = Podés usar cualquiera de <authenticationAppsLink>estas aplicaciones de autenticación</authenticationAppsLink> para continuar.
 flow-setup-2fa-prompt-continue-button = Continuar
 
@@ -773,6 +767,7 @@ page-passkey-add-error-system-v2 = Hubo un problema creando tu clave de acceso. 
 
 
 recent-activity-title = Actividad reciente de la cuenta
+recent-activity-show-more-button = Mostrar más
 recent-activity-account-create-v2 = Cuenta creada
 recent-activity-account-disable-v2 = Cuenta deshabilitada
 recent-activity-account-enable-v2 = Cuenta habilitada
@@ -1209,17 +1204,6 @@ tfa-qr-code-alt = Usá el código { $code } para configurar la autenticación de
 inline-totp-setup-page-title = Autenticación de dos pasos
 
 
-legal-header = Legales
-legal-terms-of-service-link = Términos del servicio
-legal-privacy-link = Nota de privacidad
-
-
-legal-privacy-heading = Nota de privacidad
-
-
-legal-terms-heading = Términos del servicio
-
-
 pair-auth-allow-heading-text = ¿Recién iniciaste sesión en { -brand-firefox }?
 pair-auth-allow-confirm-button = Sí, aprobar dispositivo
 pair-auth-allow-refuse-device-link = Si no fuiste vos, <a>cambiá tu contraseña</a>
@@ -1311,9 +1295,72 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Algo salió mal.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Cerrá esta pestaña y probá de nuevo.
 
 
+pair2-authority-approve-sign-in-heading = ¿Aprobar inicio de sesión?
+pair2-authority-approve-sign-in-confirm-button = Sí, aprobar el inicio de sesión
+pair2-authority-approve-sign-in-change-password = ¿No fuiste vos? <changePassword>Cambiá tu contraseña</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = Continuar en tu dispositivo móvil
+pair2-authority-continue-on-mobile-description = Seguí los pasos en tu teléfono o tablet.
+pair2-authority-continue-on-mobile-cancel-button = Cancelar
+
+
+pair2-authority-download-firefox-heading = Abrir { -brand-firefox } para sincronizar
+pair2-authority-download-firefox-instruction = Para configurar la sincronización entre dispositivos, abrí { -brand-firefox } en este dispositivo y visitá <b>firefox.com/pair</b>
+pair2-authority-download-firefox-cta = Descargar { -brand-firefox }
+
+
+pair2-authority-scan-qr-heading = Escanear para conectar tu dispositivo móvil
+pair2-authority-scan-qr-instruction = Escaneá el código QR con tu teléfono o tablet para sincronizar tus marcadores de{ -brand-firefox }, pestañas y más.
+pair2-authority-scan-qr-code-aria-label = Código QR para conectar tu dispositivo móvil
+pair2-authority-scan-qr-help-link = Obtener ayuda para escanear
+
+
+pair2-authority-sync-success-heading = Estás sincronizando
+pair2-authority-sync-success-description = Tus pestañas, marcadores, contraseñas y más están listos en todos tus dispositivos.
+pair2-authority-sync-success-view-tabs-button = Ver pestañas sincronizadas
+pair2-authority-sync-success-sync-settings-button = Configuración de Sync
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = ¿Todavía querés conectar un dispositivo?
+pair2-authority-timeout-and-cancel-timeout-description = Parece que se agotó el tiempo. Probá de nuevo si todavía querés conectar tu dispositivo móvil y sincronizar tus datos de { -brand-firefox }.
+pair2-authority-timeout-and-cancel-canceled-heading = Cancelado
+pair2-authority-timeout-and-cancel-canceled-description = Si cambiás de opinión o querés conectar un dispositivo diferente, probá de nuevo.
+pair2-authority-timeout-and-cancel-try-again-button = Intentar nuevamente
+pair2-authority-timeout-and-cancel-cancel-button = Cancelar
+pair2-authority-timeout-and-cancel-sync-settings-button = Configuración de Sync
+
+
 pair2-supplicant-approve-sign-in-heading = Un último paso para sincronizar
 pair2-supplicant-approve-sign-in-instruction = Aprobá el inicio de sesión en tu computadora.
 pair2-supplicant-approve-sign-in-cancel-button = Cancelar
+
+
+pair2-supplicant-connect-this-device-heading = ¿Conectar este dispositivo a tu cuenta?
+pair2-supplicant-connect-this-device-connect-button = Conectar
+pair2-supplicant-connect-this-device-cancel-button = Cancelar
+
+
+pair2-supplicant-download-firefox-heading = Conseguí { -brand-firefox } en este dispositivo
+pair2-supplicant-download-firefox-description = Descargá { -brand-firefox } para sincronizar marcadores, historial y más entre dispositivos. <linkExternal>Conocer más</linkExternal>
+pair2-supplicant-download-firefox-continue-button = Continuar en { -brand-firefox }
+
+
+pair2-supplicant-ready-to-scan-heading = Para conectar un dispositivo
+pair2-supplicant-ready-to-scan-instruction = En tu computadora, abrí { -brand-firefox }, andá a <b>firefox.com/pair</b> y seguí las instrucciones en pantalla para conectar este dispositivo móvil.
+pair2-supplicant-ready-to-scan-learn-more-link = Conocer más
+
+
+pair2-supplicant-sync-success-heading = Tu dispositivo está conectado
+pair2-supplicant-sync-success-description = Tus marcadores, pestañas y más permanecerán sincronizados en { -brand-firefox }.
+pair2-supplicant-sync-success-view-tabs-button = Ver pestañas sincronizadas
+pair2-supplicant-sync-success-sync-settings-button = Configuración de Sync
+
+
+pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que se agotó el tiempo de espera
+pair2-supplicant-timeout-and-cancel-timeout-description = Para conectar tu dispositivo móvil y sincronizar tus datos de { -brand-firefox }, visitá <b>firefox.com/pair</b> en tu computadora.
+pair2-supplicant-timeout-and-cancel-canceled-heading = Cancelado
+pair2-supplicant-timeout-and-cancel-canceled-description = Para conectar un dispositivo en cualquier momento, visitá <b>firefox.com/pair</b> en tu computadora.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmada

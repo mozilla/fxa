@@ -39,31 +39,12 @@ brand-m-logo =
 button-back-aria-label = Nn’arrè
 button-back-title = Nn’arrè
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
-# The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = Scàrrica e cuntinua
-    .title = Scàrrica e cuntinua
-recovery-key-pdf-heading = Chiavi di ricùpiru dû cuntu
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = Ginirata: { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = Chiavi di ricùpiru dû cuntu
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = Sta chiavi ti pirmetti di ricupigghiari i dati crittati dû navicaturi (chiavi, nzingalibbra e crunuluggìa) si ti scordi a chiavi dû cuntu. Sàrbala nnôn postu chi t’arricordi.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = Unni sarbari sta chiavi
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = Cchiù nfurmazzioni ncapu a chiavi di ricùpiru dû cuntu
-# Error message displayed in an alert bar if the PDF download failed.
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Ni dispiaci, cci fu un prubblema nnô scarricamentu dâ to chiavi di ricùpiru dû cuntu.
 
 ## ChooseNewsletters component
@@ -297,8 +278,6 @@ input-phone-number-country-list-aria-label = Scarta u pajisi
 input-phone-number-enter-number = Metti u nùmmaru di tilèfunu
 input-phone-number-country-united-states = Stati Junciuti
 input-phone-number-country-canada = Cànada
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Nn’arrè
 
 ## LinkDamaged component
 
@@ -1244,23 +1223,6 @@ inline-totp-setup-security-code-placeholder = Còdici d’autinticazzioni
 # The "authentication code" here refers to the code provided by an authentication app.
 inline-totp-setup-code-required-error = È nicissariu un còdici d’autinticazzioni
 tfa-qr-code-alt = Usa u còdici { $code } pi cunfijurari l’autinticazzioni a du’ fattura nni l’applicazzioni suppurtati.
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Noti ligali
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Tèrmini di sirbizzu
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Abbisu di privatizza
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Abbisu di privatizza
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Tèrmini di sirbizzu
 
 ## AuthAllow page - Part of the device pairing flow
 

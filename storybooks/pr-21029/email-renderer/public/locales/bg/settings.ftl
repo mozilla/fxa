@@ -9,13 +9,6 @@
 # This is an extra link element, that directs users to a page where they can learn more about the branding changes.
 brand-learn-more = Научете повече
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
-## The account recovery key can be used to recover data when users forget their account password
-
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = Научете повече за ключа за възстановяване на профила
-
 ## Ready component
 
 ready-continue = Продължаване

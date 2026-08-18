@@ -39,31 +39,12 @@ brand-m-logo =
 button-back-aria-label = Tilbage
 button-back-title = Tilbage
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
-# The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = Hent og fortsæt
-    .title = Hent og fortsæt
-recovery-key-pdf-heading = Genoprettelsesnøgle til kontoen
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = Oprettet: { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = Genoprettelsesnøgle til kontoen
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = Med denne nøgle kan du gendanne dine krypterede browserdata (herunder adgangskoder, bogmærker og historik), hvis du glemmer din adgangskode. Gem den et sted, du kan huske.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = Steder du kan gemme din nøgle
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = Læs mere om din genoprettelsesnøgle til kontoen
-# Error message displayed in an alert bar if the PDF download failed.
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Der opstod desværre et problem med at hente din genoprettelsesnøgle til kontoen.
 
 ## ButtonPasskeySignin
@@ -377,10 +358,6 @@ input-phone-number-country-list-aria-label = Vælg land
 input-phone-number-enter-number = Indtast telefonnummer
 input-phone-number-country-united-states = USA
 input-phone-number-country-canada = Canada
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Tilbage
-# Generic error shown when the legal document fails to load
-app-general-err-message = Noget gik galt. Prøv igen senere.
 
 ## LinkDamaged component
 
@@ -1678,23 +1655,6 @@ inline-totp-setup-security-code-placeholder = Godkendelseskode
 inline-totp-setup-code-required-error = Godkendelseskode påkrævet
 tfa-qr-code-alt = Brug koden { $code } til at opsætte totrinsgodkendelse i understøttede applikationer.
 inline-totp-setup-page-title = Totrinsgodkendelse
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Juridisk
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Tjenestevilkår
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Privatlivserklæring
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Privatlivserklæring
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Tjenestevilkår
 
 ## AuthAllow page - Part of the device pairing flow
 

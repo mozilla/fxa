@@ -39,31 +39,12 @@ brand-m-logo =
 button-back-aria-label = Назад
 button-back-title = Назад
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
-# The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = Завантажити та продовжити
-    .title = Завантажити та продовжити
-recovery-key-pdf-heading = Ключ відновлення облікового запису
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = Згенеровано: { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = Ключ відновлення облікового запису
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = Цей ключ дає змогу відновити зашифровані дані браузера (паролі, закладки, історію тощо) у разі втрати пароля. Збережіть його в надійному місці.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = Місця для зберігання ключа
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = Дізнайтеся більше про ключ відновлення облікового запису
-# Error message displayed in an alert bar if the PDF download failed.
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = На жаль, виникла проблема із завантаженням ключа відновлення облікового запису.
 
 ## ChooseNewsletters component
@@ -295,8 +276,6 @@ input-phone-number-country-list-aria-label = Виберіть країну
 input-phone-number-enter-number = Введіть номер телефону
 input-phone-number-country-united-states = США
 input-phone-number-country-canada = Канада
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Назад
 
 ## LinkDamaged component
 
@@ -1285,23 +1264,6 @@ inline-totp-setup-security-code-placeholder = Код автентифікаці�
 # The "authentication code" here refers to the code provided by an authentication app.
 inline-totp-setup-code-required-error = Потрібно ввести код автентифікації
 tfa-qr-code-alt = Скористайтеся кодом { $code } для налаштування двоетапної перевірки в підтримуваних програмах.
-
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Правові положення
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Умови надання послуг
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Положення про приватність
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Положення про приватність
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Умови надання послуг
 
 ## AuthAllow page - Part of the device pairing flow
 
