@@ -1,0 +1,10 @@
+{
+  "commit": "e89550d08fe75659fcaa3213ed0f5b78b908714d",
+  "summary": "fix(settings): reject a whitespace-only new password",
+  "description": "## Because\n\n- The change-password form checked the length of the new password only, so eight spaces passed.\n- A user who saved a space-only password could not sign in again. The sign-in form rejects it.\n\n## This pull request\n\n- Adds a trim check to the `length` validator in `FormPassword`. It is the predicate `FormPasswordWithInlineCriteria` already uses.\n- Adds two tests: a space-only password is rejected, and a space-padded password with real content still works.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-9473",
+  "timestamp": 1787092514000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
