@@ -1,0 +1,10 @@
+{
+  "commit": "8eec4f5cb03ae97f0110c673613cf44cb6df97dd",
+  "summary": "refactor(settings): move remaining hooks into lib/hooks/[name]",
+  "description": "## Because\n\n- The hooks in `fxa-settings` were being split into `lib/hooks/[name]/index.tsx`, one directory each. Most of that work already shipped, but three hooks were left behind in `lib/hooks.tsx`.\n- The ticket also asks for a `lib/hooks` barrel, so callers can write `import { useHookName } from '../../lib/hooks'`.\n\n## This pull request\n\n- Moves `useFocusOnTriggeringElementOnClose`, `useEscKeydownEffect` and `useChangeFocusEffect` into `lib/hooks/[name]/index.tsx`, following the nine hook directories that moved earlier.\n- Splits `lib/hooks.test.tsx` into an `index.test.tsx` beside each hook. All five cases carry over as they were.\n- Adds the `lib/hooks/index.ts` barrel that re-exports the three hooks.\n- Deletes `lib/hooks.tsx` and `lib/hooks.test.tsx`.\n\nThis is a move, so there is no behaviour change. The five importing components still say `from '../../../lib/hooks'`, which now resolves to the barrel instead of `hooks.tsx`. That means no import churn, and the other imports under `lib/hooks/` are untouched.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-7097",
+  "timestamp": 1787091794000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
