@@ -152,6 +152,14 @@ device-info-browser-device = ‏{ $browserName } ב־{ $deviceName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = כתובת IP:‏ { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-cta = חיבור מכשיר
+firefox-promo-banner-switch-description = בעת המעבר ל־{ -brand-firefox }, ניתן להביא את הסימניות, הססמאות, ההיסטוריה שלך ועוד, כך שאפשר לגלוש בלי לפספס פעימה.
+firefox-promo-banner-switch-cta = מעבר ל־{ -brand-firefox }
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -1206,6 +1214,7 @@ passkey-sub-row-created-date = תאריך יצירה: { $createdDate }
 passkey-sub-row-last-used-date = בשימוש אחרון: { $lastUsedDate }
 passkey-sub-row-delete-title = מחיקת מפתח גישה
 passkey-delete-modal-heading = למחוק את מפתח הגישה שלך?
+passkey-delete-modal-content-v2 = מפתח גישה זה יימחק מהחשבון שלך. יהיה עליך להתחבר באמצעות שיטה אחרת (ססמה, מפתח גישה נוסף או חשבון מקושר).
 passkey-delete-modal-cancel-button = ביטול
 passkey-delete-modal-confirm-button = מחיקת מפתח גישה
 passkey-delete-success = מפתח הגישה נמחק

@@ -1881,6 +1881,8 @@ pair2-authority-continue-on-mobile-cancel-button = Eheja
 
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = Embojuruja { -brand-firefox } embojuehe hag̃ua
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction = Emboheko hag̃ua ñembojuehe mba’e’oka pa’ũme, embojuruja { -brand-firefox } ko mba’e’okápe ha eike <b>firefox.com/pair</b>-pe
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Emboguejy { -brand-firefox }
 
@@ -1889,6 +1891,8 @@ pair2-authority-download-firefox-cta = Emboguejy { -brand-firefox }
 ## their phone or tablet to connect the two devices and start syncing.
 
 pair2-authority-scan-qr-heading = Emoha’ãnga eike hag̃ua ambue mba’e’okápe
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-scan-qr-instruction = Emoha’ãnga QR ayvu ne pumbyry térã tablétape embojuehe hag̃ua { -brand-firefox } rechaukaha ha hetave.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR ayvu eike hag̃ua ne mba’e’okápe
 # Link to a support article for users having trouble scanning the QR code
@@ -1914,6 +1918,7 @@ pair2-authority-sync-success-sync-settings-button = Sync ñemboheko
 pair2-authority-timeout-and-cancel-timeout-heading = ¿Embojuajuse gueteri ne mba’e’oka?
 # Shown when the pairing attempt was canceled, on either device
 pair2-authority-timeout-and-cancel-canceled-heading = Hejapyre
+pair2-authority-timeout-and-cancel-canceled-description = Remoambuérõ ne remiandu térã embojoajusérõ ambue mba’e’oka, eha’ã jey.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Eha’ã jey
 # Abandons pairing without retrying
@@ -1952,6 +1957,9 @@ pair2-supplicant-connect-this-device-cancel-button = Eheja
 ## sends them off to install the browser.
 
 pair2-supplicant-download-firefox-heading = Ereko { -brand-firefox } ko mba’e’okápe
+# "sync" is a verb here, referring to syncing data between the user's devices.
+# <linkExternal> is an anchor tag linking to a page explaining what sync does.
+pair2-supplicant-download-firefox-description = Emboguejy { -brand-firefox } embojuehe hag̃ua techaukaha, tembiasakue ha hetave mba’e’oka pa’ũme. <linkExternal>Eikuaave</linkExternal>
 # Primary action. Sends the user to the Firefox download page.
 pair2-supplicant-download-firefox-continue-button = Eku’ejey { -brand-firefox } ndive
 
@@ -1961,6 +1969,9 @@ pair2-supplicant-download-firefox-continue-button = Eku’ejey { -brand-firefox 
 ## scan with the mobile device comes from.
 
 pair2-supplicant-ready-to-scan-heading = Embojuaju hag̃ua mba’e’oka
+# <b> emphasises the address the user types on their computer. It is not a link,
+# and the address itself must not be translated.
+pair2-supplicant-ready-to-scan-instruction = Ne mohendahápe embojuruja { -brand-firefox }, eike <b>firefox.com/pair</b>-pe ha ejapo oĩva mba’erechahápe embojoaju hag̃ua ne pumbyry.
 # Opens a Mozilla support article about setting up sync
 pair2-supplicant-ready-to-scan-learn-more-link = Eikuaave
 
@@ -1983,6 +1994,8 @@ pair2-supplicant-sync-success-sync-settings-button = Sync ñemboheko
 
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
 pair2-supplicant-timeout-and-cancel-timeout-heading = Ha’ete opámava ñeha’ãrõ
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-timeout-description = Embojoaju hag̃ua ne pumbyry ha embojuehe ne mba’ekuaarãita { -brand-firefox }, eike <b>firefox.com/pair</b> ne mohendahápe.
 # Shown after the pairing attempt was canceled
 pair2-supplicant-timeout-and-cancel-canceled-heading = Hejapyre
 # "firefox.com/pair" is a URL and should not be translated

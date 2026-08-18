@@ -1312,10 +1312,12 @@ pair2-authority-continue-on-mobile-cancel-button = Eheja
 
 
 pair2-authority-download-firefox-heading = Embojuruja { -brand-firefox } embojuehe hag̃ua
+pair2-authority-download-firefox-instruction = Emboheko hag̃ua ñembojuehe mba’e’oka pa’ũme, embojuruja { -brand-firefox } ko mba’e’okápe ha eike <b>firefox.com/pair</b>-pe
 pair2-authority-download-firefox-cta = Emboguejy { -brand-firefox }
 
 
 pair2-authority-scan-qr-heading = Emoha’ãnga eike hag̃ua ambue mba’e’okápe
+pair2-authority-scan-qr-instruction = Emoha’ãnga QR ayvu ne pumbyry térã tablétape embojuehe hag̃ua { -brand-firefox } rechaukaha ha hetave.
 pair2-authority-scan-qr-code-aria-label = QR ayvu eike hag̃ua ne mba’e’okápe
 pair2-authority-scan-qr-help-link = Eñepytyvõta emoha’ãnga hag̃ua
 
@@ -1327,6 +1329,7 @@ pair2-authority-sync-success-sync-settings-button = Sync ñemboheko
 
 pair2-authority-timeout-and-cancel-timeout-heading = ¿Embojuajuse gueteri ne mba’e’oka?
 pair2-authority-timeout-and-cancel-canceled-heading = Hejapyre
+pair2-authority-timeout-and-cancel-canceled-description = Remoambuérõ ne remiandu térã embojoajusérõ ambue mba’e’oka, eha’ã jey.
 pair2-authority-timeout-and-cancel-try-again-button = Eha’ã jey
 pair2-authority-timeout-and-cancel-cancel-button = Eheja
 pair2-authority-timeout-and-cancel-sync-settings-button = Sync ñemboheko
@@ -1343,10 +1346,12 @@ pair2-supplicant-connect-this-device-cancel-button = Eheja
 
 
 pair2-supplicant-download-firefox-heading = Ereko { -brand-firefox } ko mba’e’okápe
+pair2-supplicant-download-firefox-description = Emboguejy { -brand-firefox } embojuehe hag̃ua techaukaha, tembiasakue ha hetave mba’e’oka pa’ũme. <linkExternal>Eikuaave</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Eku’ejey { -brand-firefox } ndive
 
 
 pair2-supplicant-ready-to-scan-heading = Embojuaju hag̃ua mba’e’oka
+pair2-supplicant-ready-to-scan-instruction = Ne mohendahápe embojuruja { -brand-firefox }, eike <b>firefox.com/pair</b>-pe ha ejapo oĩva mba’erechahápe embojoaju hag̃ua ne pumbyry.
 pair2-supplicant-ready-to-scan-learn-more-link = Eikuaave
 
 
@@ -1357,6 +1362,7 @@ pair2-supplicant-sync-success-sync-settings-button = Sync ñemboheko
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Ha’ete opámava ñeha’ãrõ
+pair2-supplicant-timeout-and-cancel-timeout-description = Embojoaju hag̃ua ne pumbyry ha embojuehe ne mba’ekuaarãita { -brand-firefox }, eike <b>firefox.com/pair</b> ne mohendahápe.
 pair2-supplicant-timeout-and-cancel-canceled-heading = Hejapyre
 pair2-supplicant-timeout-and-cancel-canceled-description = Eike hag̃ua mba’e’okápe eikese vove, eho <b>firefox.com/pair</b> ne mohendaha guive.
 

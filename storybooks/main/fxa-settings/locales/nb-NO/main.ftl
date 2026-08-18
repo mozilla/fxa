@@ -290,6 +290,8 @@ sync-devices-image-aria-label =
     .aria-label = Et nettleservindu på en datamaskin og en mobiltelefon, begge synkroniseres, med { -brand-firefox }-maskoten ved siden av.
 firefox-wordmark-image-aria-label =
     .aria-label = { -brand-firefox }-logo
+password-success-image-aria-label =
+    .aria-label = Illustrasjon som representerer en vellykket passordendring.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Du er logget inn på { -brand-firefox }.
@@ -398,6 +400,7 @@ flow-recovery-key-hint-unsafe-char-error = Hintet kan ikke inneholde usikre unic
 password-reset-warning-icon = Advarsel
 password-reset-chevron-expanded = Skjul advarsel
 password-reset-chevron-collapsed = Vis advarsel
+password-reset-warning-review-sign-in-options = Se gjennom påloggingsalternativer for å beholde nettleserdata
 password-reset-warning-have-key = Har du en kontogjenopprettingsnøkkel?
 password-reset-warning-signed-in-device = Fortsatt logget inn på en annen enhet?
 

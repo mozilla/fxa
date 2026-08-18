@@ -338,6 +338,10 @@ sync-devices-image-aria-label =
 # Aria label for the Firefox logo and wordmark shown together as a brand lockup
 firefox-wordmark-image-aria-label =
     .aria-label = { -brand-firefox }-logo
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = Illustrasjon som representerer en vellykket passordendring.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -516,6 +520,7 @@ flow-recovery-key-hint-unsafe-char-error = Hintet kan ikke inneholde usikre unic
 password-reset-warning-icon = Advarsel
 password-reset-chevron-expanded = Skjul advarsel
 password-reset-chevron-collapsed = Vis advarsel
+password-reset-warning-review-sign-in-options = Se gjennom påloggingsalternativer for å beholde nettleserdata
 password-reset-warning-have-key = Har du en kontogjenopprettingsnøkkel?
 password-reset-warning-signed-in-device = Fortsatt logget inn på en annen enhet?
 

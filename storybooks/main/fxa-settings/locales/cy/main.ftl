@@ -1325,8 +1325,8 @@ pair-unsupported-desktop-firefox-fallback-message-v2 = Caewch y tab hwn a cheisi
 
 
 pair2-authority-approve-sign-in-heading = Cymeradwyo mewngofnodi?
-pair2-authority-approve-sign-in-confirm-button = Ie, cymeradwyo mewngofnodi
-pair2-authority-approve-sign-in-change-password = Nid chi? <changePassword>Newid eich cyfrinair</changePassword>
+pair2-authority-approve-sign-in-confirm-button = Iawn, cymeradwyo'r mewngofnodi
+pair2-authority-approve-sign-in-change-password = Nid chi? <changePassword>Newidiwch eich cyfrinair</changePassword>
 
 
 pair2-authority-continue-on-mobile-heading = Parhewch ar eich dyfais symudol
@@ -1334,30 +1334,30 @@ pair2-authority-continue-on-mobile-description = Dilynwch y camau ar eich ffôn 
 pair2-authority-continue-on-mobile-cancel-button = Diddymu
 
 
-pair2-authority-download-firefox-heading = Agor { -brand-firefox } i gysoni
-pair2-authority-download-firefox-instruction = I osod cysoni ar draws dyfeisiau, agorwch { -brand-firefox } ar y ddyfais hon ac ewch i <b>firefox.com/pair</b>
-pair2-authority-download-firefox-cta = Lawrlwytho { -brand-firefox }
+pair2-authority-download-firefox-heading = Agor { -brand-firefox } i gydweddu
+pair2-authority-download-firefox-instruction = I allu cydweddu ar draws dyfeisiau, agorwch { -brand-firefox } ar y ddyfais hon ac ewch i <b>firefox.com/pair</b>
+pair2-authority-download-firefox-cta = Llwytho { -brand-firefox } i lawr
 
 
 pair2-authority-scan-qr-heading = Sganiwch i gysylltu eich dyfais symudol
-pair2-authority-scan-qr-instruction = Sganiwch y cod QR gyda'ch ffôn neu dabled i gysoni eich { -brand-firefox } nodau tudalen, tabiau a mwy.
+pair2-authority-scan-qr-instruction = Sganiwch y cod QR gyda'ch ffôn neu dabled i gydweddu nodau tudalen, tabiau a nodweddion eraill eich { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = Cod QR i gysylltu eich dyfais symudol
-pair2-authority-scan-qr-help-link = Cael help sganio
+pair2-authority-scan-qr-help-link = Cael help i sganio
 
 
-pair2-authority-sync-success-heading = Rydych chi'n cysoni
+pair2-authority-sync-success-heading = Rydych wrthi'n cydweddu
 pair2-authority-sync-success-description = Mae eich tabiau, nodau tudalen, cyfrineiriau, a mwy yn barod ar draws eich dyfeisiau.
-pair2-authority-sync-success-view-tabs-button = Gweld tabiau wedi'u cysoni
-pair2-authority-sync-success-sync-settings-button = Gosodiadau cysoni
+pair2-authority-sync-success-view-tabs-button = Gweld tabiau wedi'u cydweddu
+pair2-authority-sync-success-sync-settings-button = Gosodiadau cydweddu
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Dal eisiau cysylltu dyfais?
-pair2-authority-timeout-and-cancel-timeout-description = Mae'n edrych fel ein bod ni wedi dod i amser. Ceisiwch eto os ydych dal eisiau cysylltu eich dyfais symudol a chysoni eich { -brand-firefox } data.
+pair2-authority-timeout-and-cancel-timeout-description = Mae'n edrych fel bod ein amser wedi dod i ben. Ceisiwch eto os ydych dal eisiau cysylltu eich dyfais symudol a chydweddu eich data { -brand-firefox }.
 pair2-authority-timeout-and-cancel-canceled-heading = Diddymwyd
 pair2-authority-timeout-and-cancel-canceled-description = Os ydych chi'n newid eich meddwl neu eisiau cysylltu dyfais wahanol, ceisiwch eto.
 pair2-authority-timeout-and-cancel-try-again-button = Ceisiwch eto
 pair2-authority-timeout-and-cancel-cancel-button = Diddymu
-pair2-authority-timeout-and-cancel-sync-settings-button = Gosodiadau cysoni
+pair2-authority-timeout-and-cancel-sync-settings-button = Gosodiadau cydweddu
 
 
 pair2-supplicant-approve-sign-in-heading = Un cam olaf i gydweddu
@@ -1371,7 +1371,7 @@ pair2-supplicant-connect-this-device-cancel-button = Diddymu
 
 
 pair2-supplicant-download-firefox-heading = Cael { -brand-firefox } ar y ddyfais hon
-pair2-supplicant-download-firefox-description = Lawrlwythwch { -brand-firefox } i gysoni nodau tudalen, hanes, a mwy ar draws dyfeisiau. <linkExternal>Dysgu rhagor</linkExternal>
+pair2-supplicant-download-firefox-description = Llwythwch { -brand-firefox } i lawr i gydweddu nodau tudalen, hanes, a mwy ar draws dyfeisiau. <linkExternal>Dysgu rhagor</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Parhau yn { -brand-firefox }
 
 
@@ -1381,13 +1381,13 @@ pair2-supplicant-ready-to-scan-learn-more-link = Dysgu rhagor
 
 
 pair2-supplicant-sync-success-heading = Mae eich dyfais wedi'i gysylltu
-pair2-supplicant-sync-success-description = Bydd eich nodau tudalen, tabiau a mwy yn aros wedi'u cysoni yn { -brand-firefox }.
-pair2-supplicant-sync-success-view-tabs-button = Gweld tabiau wedi'u cysoni
-pair2-supplicant-sync-success-sync-settings-button = Gosodiadau cysoni
+pair2-supplicant-sync-success-description = Bydd eich nodau tudalen, tabiau a mwy yn aros wedi'u cydweddu yn { -brand-firefox }.
+pair2-supplicant-sync-success-view-tabs-button = Gweld tabiau wedi'u cydweddu
+pair2-supplicant-sync-success-sync-settings-button = Gosodiadau cydweddu
 
 
-pair2-supplicant-timeout-and-cancel-timeout-heading = Mae'n edrych fel ein bod ni wedi dod i amser
-pair2-supplicant-timeout-and-cancel-timeout-description = I gysylltu eich dyfais symudol a chysoni eich data { -brand-firefox }, ewch i <b>firefox.com/pair</b> ar eich cyfrifiadur.
+pair2-supplicant-timeout-and-cancel-timeout-heading = Mae'n edrych fel bod ein amser wedi dod i ben
+pair2-supplicant-timeout-and-cancel-timeout-description = I gysylltu eich dyfais symudol a chydweddu eich data { -brand-firefox }, ewch i <b>firefox.com/pair</b> ar eich cyfrifiadur.
 pair2-supplicant-timeout-and-cancel-canceled-heading = Diddymwyd
 pair2-supplicant-timeout-and-cancel-canceled-description = I gysylltu dyfais unrhyw bryd, ewch i <b>firefox.com/pair</b> ar eich cyfrifiadur.
 

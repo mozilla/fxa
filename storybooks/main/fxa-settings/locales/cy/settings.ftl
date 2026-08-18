@@ -1883,10 +1883,10 @@ pair-unsupported-desktop-firefox-fallback-message-v2 = Caewch y tab hwn a cheisi
 pair2-authority-approve-sign-in-heading = Cymeradwyo mewngofnodi?
 # Submit button confirming that the user started the pairing and approves the
 # other device being added to their account
-pair2-authority-approve-sign-in-confirm-button = Ie, cymeradwyo mewngofnodi
+pair2-authority-approve-sign-in-confirm-button = Iawn, cymeradwyo'r mewngofnodi
 # "Not you?" asks whether someone other than the user started this sign-in.
 # The text inside <changePassword> links to the page for changing the password.
-pair2-authority-approve-sign-in-change-password = Nid chi? <changePassword>Newid eich cyfrinair</changePassword>
+pair2-authority-approve-sign-in-change-password = Nid chi? <changePassword>Newidiwch eich cyfrinair</changePassword>
 
 ## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer after scanning the pairing QR code with
@@ -1903,11 +1903,11 @@ pair2-authority-continue-on-mobile-cancel-button = Diddymu
 ## It points them at firefox.com/pair and offers a download link for Firefox.
 
 # "sync" is a verb here, referring to syncing data between the user's devices
-pair2-authority-download-firefox-heading = Agor { -brand-firefox } i gysoni
+pair2-authority-download-firefox-heading = Agor { -brand-firefox } i gydweddu
 # "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = I osod cysoni ar draws dyfeisiau, agorwch { -brand-firefox } ar y ddyfais hon ac ewch i <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction = I allu cydweddu ar draws dyfeisiau, agorwch { -brand-firefox } ar y ddyfais hon ac ewch i <b>firefox.com/pair</b>
 # Links out to the Firefox download page
-pair2-authority-download-firefox-cta = Lawrlwytho { -brand-firefox }
+pair2-authority-download-firefox-cta = Llwytho { -brand-firefox } i lawr
 
 ## ScanQR page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer. It shows a QR code that they scan with
@@ -1915,23 +1915,23 @@ pair2-authority-download-firefox-cta = Lawrlwytho { -brand-firefox }
 
 pair2-authority-scan-qr-heading = Sganiwch i gysylltu eich dyfais symudol
 # "sync" is a verb here, referring to syncing data between the user's devices
-pair2-authority-scan-qr-instruction = Sganiwch y cod QR gyda'ch ffôn neu dabled i gysoni eich { -brand-firefox } nodau tudalen, tabiau a mwy.
+pair2-authority-scan-qr-instruction = Sganiwch y cod QR gyda'ch ffôn neu dabled i gydweddu nodau tudalen, tabiau a nodweddion eraill eich { -brand-firefox }.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = Cod QR i gysylltu eich dyfais symudol
 # Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Cael help sganio
+pair2-authority-scan-qr-help-link = Cael help i sganio
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
 ## It confirms that sync is on and offers the follow-up actions.
 
 # "syncing" here means copying data between the user's devices
-pair2-authority-sync-success-heading = Rydych chi'n cysoni
+pair2-authority-sync-success-heading = Rydych wrthi'n cydweddu
 pair2-authority-sync-success-description = Mae eich tabiau, nodau tudalen, cyfrineiriau, a mwy yn barod ar draws eich dyfeisiau.
 # Opens the tabs that are open on the user's other synced devices
-pair2-authority-sync-success-view-tabs-button = Gweld tabiau wedi'u cysoni
+pair2-authority-sync-success-view-tabs-button = Gweld tabiau wedi'u cydweddu
 # Opens the browser settings that control what is synced
-pair2-authority-sync-success-sync-settings-button = Gosodiadau cysoni
+pair2-authority-sync-success-sync-settings-button = Gosodiadau cydweddu
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1940,7 +1940,7 @@ pair2-authority-sync-success-sync-settings-button = Gosodiadau cysoni
 
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Dal eisiau cysylltu dyfais?
-pair2-authority-timeout-and-cancel-timeout-description = Mae'n edrych fel ein bod ni wedi dod i amser. Ceisiwch eto os ydych dal eisiau cysylltu eich dyfais symudol a chysoni eich { -brand-firefox } data.
+pair2-authority-timeout-and-cancel-timeout-description = Mae'n edrych fel bod ein amser wedi dod i ben. Ceisiwch eto os ydych dal eisiau cysylltu eich dyfais symudol a chydweddu eich data { -brand-firefox }.
 # Shown when the pairing attempt was canceled, on either device
 pair2-authority-timeout-and-cancel-canceled-heading = Diddymwyd
 pair2-authority-timeout-and-cancel-canceled-description = Os ydych chi'n newid eich meddwl neu eisiau cysylltu dyfais wahanol, ceisiwch eto.
@@ -1949,7 +1949,7 @@ pair2-authority-timeout-and-cancel-try-again-button = Ceisiwch eto
 # Abandons pairing without retrying
 pair2-authority-timeout-and-cancel-cancel-button = Diddymu
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
-pair2-authority-timeout-and-cancel-sync-settings-button = Gosodiadau cysoni
+pair2-authority-timeout-and-cancel-sync-settings-button = Gosodiadau cydweddu
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
@@ -1984,7 +1984,7 @@ pair2-supplicant-connect-this-device-cancel-button = Diddymu
 pair2-supplicant-download-firefox-heading = Cael { -brand-firefox } ar y ddyfais hon
 # "sync" is a verb here, referring to syncing data between the user's devices.
 # <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = Lawrlwythwch { -brand-firefox } i gysoni nodau tudalen, hanes, a mwy ar draws dyfeisiau. <linkExternal>Dysgu rhagor</linkExternal>
+pair2-supplicant-download-firefox-description = Llwythwch { -brand-firefox } i lawr i gydweddu nodau tudalen, hanes, a mwy ar draws dyfeisiau. <linkExternal>Dysgu rhagor</linkExternal>
 # Primary action. Sends the user to the Firefox download page.
 pair2-supplicant-download-firefox-continue-button = Parhau yn { -brand-firefox }
 
@@ -2005,11 +2005,11 @@ pair2-supplicant-ready-to-scan-learn-more-link = Dysgu rhagor
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Mae eich dyfais wedi'i gysylltu
-pair2-supplicant-sync-success-description = Bydd eich nodau tudalen, tabiau a mwy yn aros wedi'u cysoni yn { -brand-firefox }.
+pair2-supplicant-sync-success-description = Bydd eich nodau tudalen, tabiau a mwy yn aros wedi'u cydweddu yn { -brand-firefox }.
 # Opens the view listing tabs open on the user's other synced devices
-pair2-supplicant-sync-success-view-tabs-button = Gweld tabiau wedi'u cysoni
+pair2-supplicant-sync-success-view-tabs-button = Gweld tabiau wedi'u cydweddu
 # Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button = Gosodiadau cysoni
+pair2-supplicant-sync-success-sync-settings-button = Gosodiadau cydweddu
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2018,9 +2018,9 @@ pair2-supplicant-sync-success-sync-settings-button = Gosodiadau cysoni
 ## back to their computer to start again.
 
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
-pair2-supplicant-timeout-and-cancel-timeout-heading = Mae'n edrych fel ein bod ni wedi dod i amser
+pair2-supplicant-timeout-and-cancel-timeout-heading = Mae'n edrych fel bod ein amser wedi dod i ben
 # "firefox.com/pair" is a URL and should not be translated
-pair2-supplicant-timeout-and-cancel-timeout-description = I gysylltu eich dyfais symudol a chysoni eich data { -brand-firefox }, ewch i <b>firefox.com/pair</b> ar eich cyfrifiadur.
+pair2-supplicant-timeout-and-cancel-timeout-description = I gysylltu eich dyfais symudol a chydweddu eich data { -brand-firefox }, ewch i <b>firefox.com/pair</b> ar eich cyfrifiadur.
 # Shown after the pairing attempt was canceled
 pair2-supplicant-timeout-and-cancel-canceled-heading = Diddymwyd
 # "firefox.com/pair" is a URL and should not be translated
