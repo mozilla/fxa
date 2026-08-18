@@ -109,7 +109,7 @@ function redirectUrl(params, oauthConfig) {
   return oauthConfig.authorization_endpoint + toQueryString(params);
 }
 
-module.exports = function (app, db) {
+module.exports = function (app, db, checkAuth) {
   // begin a new oauth log in flow
   app.get('/api/login', function (req, res) {
     setupOAuthFlow(req, 'signin', {}, function (err, params, oauthConfig) {
@@ -218,6 +218,32 @@ module.exports = function (app, db) {
     );
   });
 
+  // RFC 9470 step-up: re-authorize an already signed-in session at AAL2 with a
+  // freshness bound. Passes no `action`, so the cached FxA session is reused instead of
+  // going back through email-first, and no `prompt=login`, so step-up never asks for a
+  // password. The user still confirms on the signin page — there is no `prompt=none` —
+  // and is challenged for a second factor only when `max_age` says it is stale. See the
+  // README for how `max_age` behaves and how to drive it.
+  //
+  // Gated on checkAuth, unlike the sign-in routes above: without a session there is
+  // nothing to step up, and an unguarded direct hit would start a cold AAL2 sign-in.
+  app.get('/api/step_up', checkAuth, function (req, res) {
+    setupOAuthFlow(
+      req,
+      null,
+      { acrValues: 'AAL2', max_age: config.step_up_max_age },
+      function (err, params, oauthConfig) {
+        if (err) {
+          // Logged rather than returned: these errors come from fetching the
+          // discovery document, so they carry internal URLs.
+          console.log('step_up', err);
+          return res.status(400).send('could not start the step-up flow');
+        }
+        return res.redirect(redirectUrl(params, oauthConfig));
+      }
+    );
+  });
+
   app.get('/api/prompt_login', function (req, res) {
     setupOAuthFlow(
       req,
@@ -308,6 +334,13 @@ module.exports = function (app, db) {
         req.session.uid = claims.sub;
         req.session.amr = claims.amr;
         req.session.acr = claims.acr;
+        // auth_time is the authentication event in seconds since the epoch. It
+        // advances on every second-factor challenge, so it — not acr — is what
+        // shows whether a step-up actually re-authenticated the user.
+        req.session.auth_time = claims.auth_time;
+        // Stashed on the session because /api/token_claims runs on a later request,
+        // which has no oauthFlows entry left to read the endpoint from.
+        req.session.introspection_endpoint = oauthConfig.introspection_endpoint;
 
         // Fetch additional profile data.
         var profileRes = await fetch(oauthConfig.userinfo_endpoint, {
