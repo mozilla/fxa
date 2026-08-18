@@ -79,14 +79,6 @@ button-back-aria-label = Indaûr
 button-back-title = Indaûr
 
 
-recovery-key-download-button-v3 = Discjame e continue
-    .title = Discjame e continue
-recovery-key-pdf-heading = Clâf di recupar dal account
-recovery-key-pdf-download-date = Gjenerade: { $date }
-recovery-key-pdf-key-legend = Clâf di recupar dal account
-recovery-key-pdf-instructions = Cheste clâf ti permet di recuperâ i tiei dâts cifrâts dal browser (includudis passwords, segnelibris e cronologjie), tal câs che tu dismenteis la password. Archivile intun puest là che tu ti impensis.
-recovery-key-pdf-storage-ideas-heading = Puescj dulà archiviâ la clâf
-recovery-key-pdf-support = Altris informazions su la clâf di recupar dal account
 recovery-key-pdf-download-error = Nus displâs, al è vignût fûr un probleme tal discjariâ la tô clâf di recupar dal account.
 
 

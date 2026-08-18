@@ -194,14 +194,6 @@ button-back-aria-label = Назад
 button-back-title = Назад
 
 
-recovery-key-download-button-v3 = Завантажити та продовжити
-    .title = Завантажити та продовжити
-recovery-key-pdf-heading = Ключ відновлення облікового запису
-recovery-key-pdf-download-date = Згенеровано: { $date }
-recovery-key-pdf-key-legend = Ключ відновлення облікового запису
-recovery-key-pdf-instructions = Цей ключ дає змогу відновити зашифровані дані браузера (паролі, закладки, історію тощо) у разі втрати пароля. Збережіть його в надійному місці.
-recovery-key-pdf-storage-ideas-heading = Місця для зберігання ключа
-recovery-key-pdf-support = Дізнайтеся більше про ключ відновлення облікового запису
 recovery-key-pdf-download-error = На жаль, виникла проблема із завантаженням ключа відновлення облікового запису.
 
 

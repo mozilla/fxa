@@ -235,14 +235,6 @@ button-back-aria-label = Wstecz
 button-back-title = Wstecz
 
 
-recovery-key-download-button-v3 = Pobierz i kontynuuj
-    .title = Pobierz i kontynuuj
-recovery-key-pdf-heading = Klucz odzyskiwania konta
-recovery-key-pdf-download-date = Utworzono: { $date }
-recovery-key-pdf-key-legend = Klucz odzyskiwania konta
-recovery-key-pdf-instructions = Ten klucz umożliwia odzyskanie zaszyfrowanych danych przeglądarki (w tym haseł, zakładek i historii), jeśli zapomnisz hasła. Przechowuj go w miejscu, które zapamiętasz.
-recovery-key-pdf-storage-ideas-heading = Miejsca, w których można zachować klucz
-recovery-key-pdf-support = Więcej informacji o kluczu odzyskiwania konta
 recovery-key-pdf-download-error = Przepraszamy, wystąpił problem podczas pobierania klucza odzyskiwania konta.
 
 
@@ -1021,6 +1013,7 @@ tfa-row-backup-phone-sim-swap-risk-link = Więcej informacji o ryzyku zamiany k
 passkey-sub-row-created-date = Utworzono: { $createdDate }
 passkey-sub-row-last-used-date = Ostatnio użyto: { $lastUsedDate }
 passkey-delete-modal-cancel-button = Anuluj
+passkey-rename-cancel-button = Anuluj
 
 
 switch-turn-off = Wyłącz

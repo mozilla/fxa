@@ -369,14 +369,7 @@ button-back-aria-label = Zpět
 button-back-title = Zpět
 
 
-recovery-key-download-button-v3 = Stáhnout a pokračovat
-    .title = Stáhnout a pokračovat
-recovery-key-pdf-heading = Obnovovací klíč k účtu
-recovery-key-pdf-download-date = Vytvořen: { $date }
-recovery-key-pdf-key-legend = Obnovovací klíč k účtu
-recovery-key-pdf-instructions = Tento klíč umožňuje obnovit zašifrovaná data prohlížeče (včetně hesel, záložek a historie), pokud zapomenete heslo. Uložte jej na místo, které si budete pamatovat.
-recovery-key-pdf-storage-ideas-heading = Místa pro uložení vašeho klíče
-recovery-key-pdf-support = Další informace o obnovovacím klíči k účtu
+recovery-key-download-button-v4 = Stáhnout a pokračovat
 recovery-key-pdf-download-error = Je nám líto, ale při stahování klíče pro obnovení účtu došlo k problému.
 
 
@@ -860,6 +853,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Jak tato funkce chrání váš 
 flow-setup-2fa-inline-complete-continue-button = Pokračovat do služby { $serviceName }
 flow-setup-2fa-prompt-heading = Nastavení dvoufázového ověřování
 flow-setup-2fa-prompt-description = { $serviceName } vyžaduje, abyste si nastavili dvoufázové ověřování, aby byl váš účet v bezpečí.
+flow-setup-2fa-prompt-passkey-success-banner = Přihlášení pomocí klíče bylo úspěšné
+flow-setup-2fa-prompt-passkey-description = { $serviceName } také vyžaduje dvoufázové ověření pro vaše { -product-mozilla-account }. Po nastavení už ho nebudete potřebovat pro přihlašování pomocí hesla.
 flow-setup-2fa-prompt-use-authenticator-apps = Pro pokračování můžete použít kteroukoliv z <authenticationAppsLink>těchto ověřovacích aplikací</authenticationAppsLink>.
 flow-setup-2fa-prompt-continue-button = Pokračovat
 
@@ -1601,7 +1596,7 @@ pair2-authority-continue-on-mobile-description = Postupujte podle pokynů na tel
 pair2-authority-continue-on-mobile-cancel-button = Zrušit
 
 
-pair2-authority-download-firefox-heading = Otevřete { -brand-firefox } pro synchronizaci
+pair2-authority-download-firefox-heading = Otevřete { -brand-firefox(case: "acc") } pro synchronizaci
 pair2-authority-download-firefox-instruction = Pro nastavení synchronizace mezi zařízeními otevřete { -brand-firefox } na tomto zařízení a navštivte <b>firefox.com/pair</b>
 pair2-authority-download-firefox-cta = Stáhnout { -brand-firefox }
 
@@ -1609,7 +1604,7 @@ pair2-authority-download-firefox-cta = Stáhnout { -brand-firefox }
 pair2-authority-scan-qr-heading = Naskenujte a připojte své mobilní zařízení
 pair2-authority-scan-qr-instruction = Naskenujte QR kód svým telefonem nebo tabletem a synchronizujte své záložky, panely a další data v aplikaci { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = QR kód pro připojení vašeho mobilního zařízení
-pair2-authority-scan-qr-help-link = Získat pomoc s skenováním
+pair2-authority-scan-qr-help-link = Získat pomoc se skenováním
 
 
 pair2-authority-sync-success-heading = Probíhá synchronizace
@@ -1639,7 +1634,7 @@ pair2-supplicant-connect-this-device-cancel-button = Zrušit
 
 pair2-supplicant-download-firefox-heading = Získejte { -brand-firefox } na tomto zařízení
 pair2-supplicant-download-firefox-description = Stáhněte si aplikaci { -brand-firefox } pro synchronizaci záložek, historie a dalšího data mezi zařízeními. <linkExternal>Zjistit více</linkExternal>
-pair2-supplicant-download-firefox-continue-button = Pokračujte za { -brand-firefox }
+pair2-supplicant-download-firefox-continue-button = Pokračujte za { -brand-firefox(case: "gen") }
 
 
 pair2-supplicant-ready-to-scan-heading = Pro připojení zařízení

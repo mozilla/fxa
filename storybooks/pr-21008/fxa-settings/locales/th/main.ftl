@@ -83,14 +83,6 @@ button-back-aria-label = ย้อนกลับ
 button-back-title = ย้อนกลับ
 
 
-recovery-key-download-button-v3 = ดาวน์โหลดและดำเนินการต่อ
-    .title = ดาวน์โหลดและดำเนินการต่อ
-recovery-key-pdf-heading = คีย์กู้คืนบัญชี
-recovery-key-pdf-download-date = สร้างเมื่อ: { $date }
-recovery-key-pdf-key-legend = คีย์กู้คืนบัญชี
-recovery-key-pdf-instructions = คีย์นี้ช่วยให้คุณสามารถกู้คืนข้อมูลเบราว์เซอร์ที่มีการเข้ารหัสลับไว้ (รวมถึงรหัสผ่าน ที่คั่นหน้า และประวัติ) ในกรณีที่คุณลืมรหัสผ่านได้ โปรดเก็บคีย์นี้ไว้ในตำแหน่งที่คุณสามารถจำได้
-recovery-key-pdf-storage-ideas-heading = ตำแหน่งที่จะเก็บคีย์ของคุณ
-recovery-key-pdf-support = เรียนรู้เพิ่มเติมเกี่ยวกับคีย์กู้คืนบัญชีของคุณ
 recovery-key-pdf-download-error = ขออภัย เกิดปัญหาในการดาวน์โหลดคีย์กู้คืนบัญชีของคุณ
 
 

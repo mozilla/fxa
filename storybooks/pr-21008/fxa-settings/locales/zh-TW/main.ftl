@@ -83,14 +83,6 @@ button-back-aria-label = 上一頁
 button-back-title = 上一頁
 
 
-recovery-key-download-button-v3 = 下載並繼續
-    .title = 下載並繼續
-recovery-key-pdf-heading = 帳號救援金鑰
-recovery-key-pdf-download-date = 產生於：{ $date }
-recovery-key-pdf-key-legend = 帳號救援金鑰
-recovery-key-pdf-instructions = 若您忘記密碼，此金鑰可讓您救回瀏覽器的加密資料（包含網站密碼、書籤、瀏覽紀錄）。請將此金鑰保存於可找回的地方。
-recovery-key-pdf-storage-ideas-heading = 金鑰存放位置
-recovery-key-pdf-support = 了解帳號救援金鑰的更多資訊
 recovery-key-pdf-download-error = 很抱歉，下載帳號救援金鑰時發生問題。
 
 
@@ -1262,26 +1254,35 @@ pair-unsupported-desktop-firefox-fallback-message-v2 = 請關閉這個分頁然�
 
 pair2-authority-approve-sign-in-heading = 要允許登入嗎？
 pair2-authority-approve-sign-in-confirm-button = 好，允許登入
+pair2-authority-approve-sign-in-change-password = 不是您操作的？<changePassword>請更改密碼</changePassword>
 
 
 pair2-authority-continue-on-mobile-heading = 到您的行動裝置繼續
+pair2-authority-continue-on-mobile-description = 請到手機或平板電腦上進行下列操作。
 pair2-authority-continue-on-mobile-cancel-button = 取消
 
 
 pair2-authority-download-firefox-heading = 開啟 { -brand-firefox } 即可同步
+pair2-authority-download-firefox-instruction = 若要與其他裝置同步，請在此裝置開啟 { -brand-firefox }，然後造訪 <b>firefox.com/pair</b>
 pair2-authority-download-firefox-cta = 下載 { -brand-firefox }
 
 
 pair2-authority-scan-qr-heading = 掃描後即可連結您的行動裝置
+pair2-authority-scan-qr-instruction = 使用您的手機或平板電腦掃描 QR Code，即可同步您的 { -brand-firefox } 書籤、分頁與更多資料。
+pair2-authority-scan-qr-code-aria-label = 連結您行動裝置的 QR Code
+pair2-authority-scan-qr-help-link = 獲得掃描協助
 
 
 pair2-authority-sync-success-heading = 正在同步中
+pair2-authority-sync-success-description = 您的分頁、書籤、網站密碼與更多資料已經準備好可以同步到其他裝置。
 pair2-authority-sync-success-view-tabs-button = 檢視同步的分頁
 pair2-authority-sync-success-sync-settings-button = 同步設定
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = 還想要連結其他裝置嗎？
+pair2-authority-timeout-and-cancel-timeout-description = 看來動作超出時間限制了。若您還想要連結行動裝置，並且同步 { -brand-firefox } 資料的話，請重試。
 pair2-authority-timeout-and-cancel-canceled-heading = 已取消
+pair2-authority-timeout-and-cancel-canceled-description = 若您改變心意，或想要連結另一台裝置，請重試。
 pair2-authority-timeout-and-cancel-try-again-button = 重試
 pair2-authority-timeout-and-cancel-cancel-button = 取消
 pair2-authority-timeout-and-cancel-sync-settings-button = 同步設定
@@ -1292,19 +1293,31 @@ pair2-supplicant-approve-sign-in-instruction = 請到您的電腦上確認登入
 pair2-supplicant-approve-sign-in-cancel-button = 取消
 
 
+pair2-supplicant-connect-this-device-heading = 要將此裝置連結到您的帳號嗎？
 pair2-supplicant-connect-this-device-connect-button = 連線
 pair2-supplicant-connect-this-device-cancel-button = 取消
 
 
+pair2-supplicant-download-firefox-heading = 在此裝置安裝 { -brand-firefox }
+pair2-supplicant-download-firefox-description = 下載 { -brand-firefox } 即可在不同裝置間同步書籤、瀏覽紀錄與更多資料。 <linkExternal>了解更多資訊</linkExternal>
+pair2-supplicant-download-firefox-continue-button = 到 { -brand-firefox } 繼續
+
+
+pair2-supplicant-ready-to-scan-heading = 連結裝置
+pair2-supplicant-ready-to-scan-instruction = 於您的電腦使用 { -brand-firefox }，造訪 <b>firefox.com/pair</b>，然後依照畫面上的指示連結您的行動裝置。
 pair2-supplicant-ready-to-scan-learn-more-link = 更多資訊
 
 
 pair2-supplicant-sync-success-heading = 已連結您的裝置
+pair2-supplicant-sync-success-description = 您的書籤、分頁與更多資料將與 { -brand-firefox } 同步。
 pair2-supplicant-sync-success-view-tabs-button = 檢視同步的分頁
 pair2-supplicant-sync-success-sync-settings-button = 同步設定
 
 
+pair2-supplicant-timeout-and-cancel-timeout-heading = 看來超出時間限制了。
+pair2-supplicant-timeout-and-cancel-timeout-description = 若要連結您的行動裝置並同步 { -brand-firefox } 資料，請在您的電腦造訪 <b>firefox.com/pair</b>。
 pair2-supplicant-timeout-and-cancel-canceled-heading = 已取消
+pair2-supplicant-timeout-and-cancel-canceled-description = 歡迎隨時在您的電腦開啟 <b>firefox.com/pair</b> 連結其他裝置。
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } 已確認

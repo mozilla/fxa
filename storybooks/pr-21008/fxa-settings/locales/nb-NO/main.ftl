@@ -87,14 +87,6 @@ button-back-aria-label = Tilbake
 button-back-title = Tilbake
 
 
-recovery-key-download-button-v3 = Last ned og fortsett
-    .title = Last ned og fortsett
-recovery-key-pdf-heading = Kontogjenopprettingsnøkkel
-recovery-key-pdf-download-date = Opprettet den { $date }
-recovery-key-pdf-key-legend = Kontogjenopprettingsnøkkel
-recovery-key-pdf-instructions = Denne nøkkelen lar deg gjenopprette krypterte nettleserdata (inkludert passord, bokmerker og historikk) hvis du glemmer passordet. Oppbevar det på et sted du husker.
-recovery-key-pdf-storage-ideas-heading = Steder å oppbevare nøkkelen din
-recovery-key-pdf-support = Les mer om kontogjenopprettingsnøkkel
 recovery-key-pdf-download-error = Beklager, det oppstod et problem da kontogjenopprettingsnøkkelen skulle lastes ned.
 
 
@@ -290,6 +282,8 @@ sync-devices-image-aria-label =
     .aria-label = Et nettleservindu på en datamaskin og en mobiltelefon, begge synkroniseres, med { -brand-firefox }-maskoten ved siden av.
 firefox-wordmark-image-aria-label =
     .aria-label = { -brand-firefox }-logo
+password-success-image-aria-label =
+    .aria-label = Illustrasjon som representerer en vellykket passordendring.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Du er logget inn på { -brand-firefox }.
@@ -398,6 +392,7 @@ flow-recovery-key-hint-unsafe-char-error = Hintet kan ikke inneholde usikre unic
 password-reset-warning-icon = Advarsel
 password-reset-chevron-expanded = Skjul advarsel
 password-reset-chevron-collapsed = Vis advarsel
+password-reset-warning-review-sign-in-options = Se gjennom påloggingsalternativer for å beholde nettleserdata
 password-reset-warning-have-key = Har du en kontogjenopprettingsnøkkel?
 password-reset-warning-signed-in-device = Fortsatt logget inn på en annen enhet?
 

@@ -119,14 +119,6 @@ button-back-aria-label = Назад
 button-back-title = Назад
 
 
-recovery-key-download-button-v3 = Скачать и продолжить
-    .title = Скачать и продолжить
-recovery-key-pdf-heading = Ключ восстановления аккаунта
-recovery-key-pdf-download-date = Создан { $date }
-recovery-key-pdf-key-legend = Ключ восстановления аккаунта
-recovery-key-pdf-instructions = Этот ключ позволит вам восстановить зашифрованные данные браузера (включая пароли, закладки и историю), если вы забудете свой пароль. Храните его в месте, о котором вы помните.
-recovery-key-pdf-storage-ideas-heading = Места для хранения вашего ключа:
-recovery-key-pdf-support = Узнать больше о ключе восстановления аккаунта
 recovery-key-pdf-download-error = К сожалению, при скачивании ключа восстановления аккаунта произошла ошибка.
 
 
@@ -483,6 +475,7 @@ cs-cannot-disconnect = Клиент не найден, отключить не �
 cs-logged-out-2 = Вы вышли из { $service }.
 cs-refresh-button =
     .title = Обновить подключённые службы
+cs-connect-device-button = Подключить устройство
 cs-missing-device-help = Отсутствующие или повторяющиеся элементы?
 cs-disconnect-sync-heading = Отсоединиться от Синхронизации
 
@@ -812,6 +805,7 @@ page-passkey-add-error-system-v2 = При создании вашего ключ
 
 
 recent-activity-title = Недавняя активность аккаунта
+recent-activity-show-more-button = Показать больше
 recent-activity-account-create-v2 = Аккаунт создан
 recent-activity-account-disable-v2 = Аккаунт отключён
 recent-activity-account-enable-v2 = Аккаунт включён
@@ -1339,9 +1333,72 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Ой! Что-то пошл
 pair-unsupported-desktop-firefox-fallback-message-v2 = Пожалуйста, закройте эту вкладку и попробуйте ещё раз.
 
 
+pair2-authority-approve-sign-in-heading = Подтвердить вход?
+pair2-authority-approve-sign-in-confirm-button = Да, подтвердить вход
+pair2-authority-approve-sign-in-change-password = Не вы? <changePassword>Смените свой пароль</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = Продолжите на вашем мобильном устройстве
+pair2-authority-continue-on-mobile-description = Следуйте инструкциям на вашем телефоне или планшете.
+pair2-authority-continue-on-mobile-cancel-button = Отмена
+
+
+pair2-authority-download-firefox-heading = Откройте { -brand-firefox } для синхронизации
+pair2-authority-download-firefox-instruction = Чтобы настроить синхронизацию между устройствами, откройте { -brand-firefox } на этом устройстве и посетите <b>firefox.com/pair</b>
+pair2-authority-download-firefox-cta = Скачать { -brand-firefox }
+
+
+pair2-authority-scan-qr-heading = Отсканируйте для подключения мобильного устройства
+pair2-authority-scan-qr-instruction = Отсканируйте QR-код своим телефоном или планшетом, чтобы синхронизировать ваши закладки { -brand-firefox }, вкладки и многое другое.
+pair2-authority-scan-qr-code-aria-label = QR-код для подключения мобильного устройства
+pair2-authority-scan-qr-help-link = Получите помощь по сканированию
+
+
+pair2-authority-sync-success-heading = Вы синхронизируетесь
+pair2-authority-sync-success-description = Ваши вкладки, закладки, пароли и многое другое готовы для всех ваших устройств.
+pair2-authority-sync-success-view-tabs-button = Просмотреть синхронизированные вкладки
+pair2-authority-sync-success-sync-settings-button = Настройки синхронизации
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = Всё ещё хотите подключить устройство?
+pair2-authority-timeout-and-cancel-timeout-description = Похоже, у нас истекло время ожидания. Попробуйте ещё раз, если вы по-прежнему хотите подключить свое мобильное устройство и синхронизировать данные { -brand-firefox }.
+pair2-authority-timeout-and-cancel-canceled-heading = Отменено
+pair2-authority-timeout-and-cancel-canceled-description = Если вы передумаете или захотите подключить другое устройство, попробуйте ещё раз.
+pair2-authority-timeout-and-cancel-try-again-button = Попробовать снова
+pair2-authority-timeout-and-cancel-cancel-button = Отмена
+pair2-authority-timeout-and-cancel-sync-settings-button = Настройки синхронизации
+
+
 pair2-supplicant-approve-sign-in-heading = Последний шаг до синхронизации
 pair2-supplicant-approve-sign-in-instruction = Подтвердите вход на вашем компьютере.
 pair2-supplicant-approve-sign-in-cancel-button = Отмена
+
+
+pair2-supplicant-connect-this-device-heading = Подключить это устройство к вашему аккаунту?
+pair2-supplicant-connect-this-device-connect-button = Подключить
+pair2-supplicant-connect-this-device-cancel-button = Отменить
+
+
+pair2-supplicant-download-firefox-heading = Установите { -brand-firefox } на это устройство
+pair2-supplicant-download-firefox-description = Скачайте { -brand-firefox }, чтобы синхронизировать закладки, историю и многое другое между устройствами. <linkExternal>Подробнее</linkExternal>
+pair2-supplicant-download-firefox-continue-button = Продолжить в { -brand-firefox }
+
+
+pair2-supplicant-ready-to-scan-heading = Чтобы подключить устройство
+pair2-supplicant-ready-to-scan-instruction = Откройте { -brand-firefox } на своём компьютере, посетите <b>firefox.com/pair</b> и следуйте инструкциям на экране, чтобы подключить мобильное устройство.
+pair2-supplicant-ready-to-scan-learn-more-link = Подробнее
+
+
+pair2-supplicant-sync-success-heading = Ваше устройство подключено
+pair2-supplicant-sync-success-description = Ваши закладки, вкладки и другое будут синхронизироваться в { -brand-firefox }.
+pair2-supplicant-sync-success-view-tabs-button = Просмотреть синхронизированные вкладки
+pair2-supplicant-sync-success-sync-settings-button = Настройки синхронизации
+
+
+pair2-supplicant-timeout-and-cancel-timeout-heading = Похоже, у нас истекло время ожидания
+pair2-supplicant-timeout-and-cancel-timeout-description = Чтобы подключить мобильное устройство и синхронизировать данные { -brand-firefox }, посетите <b>firefox.com/pair</b> на вашем компьютере.
+pair2-supplicant-timeout-and-cancel-canceled-heading = Отменено
+pair2-supplicant-timeout-and-cancel-canceled-description = Чтобы подключить устройство в любое время, посетите <b>firefox.com/pair</b> на вашем компьютере.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account(case: "nominative_uppercase") } подтверждён

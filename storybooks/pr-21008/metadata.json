@@ -1,8 +1,8 @@
 {
-  "commit": "3c4c54f46405c6388b39f2db3bdbc49b77c07578",
+  "commit": "e0acde17d6ec099ac3e86123ea52dc00c0f45340",
   "summary": "fix(payments): expand discount coupons on cached invoices and subscriptions",
-  "description": "Because:\n* The SDK 22 upgrade rewrote discount reads to `discounts[0].source.coupon`\n  without requesting the expansion, so a cached invoice holding a discount id\n  threw `Cannot read properties of undefined (reading 'coupon')` on\n  `/v1/account`.\n* Expanding `discounts` does not expand the coupon under it, so reads asking\n  only for `discounts` dropped promotion details.\n\nThis commit:\n* Requests `discounts.source.coupon` on the reads and Firestore writes that\n  asked only for `discounts`.\n* Adds discountsNeedExpansion, and re-fetches a discount that arrives as an id\n  rather than dropping it.\n* Reports the discount amount with null coupon fields when a coupon is still\n  unreadable.\n* Types `source.coupon` as expanded or null, never an id.\n\nCloses PAY-3893",
-  "timestamp": 1786741198000,
+  "description": "Because:\n* The SDK 22 upgrade rewrote discount reads to `discounts[0].source.coupon`\n  without requesting the expansion, so a cached invoice holding a discount id\n  threw `Cannot read properties of undefined (reading 'coupon')` on\n  `/v1/account`.\n* Expanding `discounts` does not expand the coupon under it, so reads asking\n  only for `discounts` dropped promotion details.\n* Asserting the `libs/payments/stripe` expanded types inside `fxa-auth-server`\n  hid the id case from tsc; those types only hold for objects fetched through\n  StripeClient, not for the Firestore mirror.\n\nThis commit:\n* Requests `discounts.source.coupon` on the reads and Firestore writes that\n  asked only for `discounts`.\n* Adds discountsNeedExpansion, and re-fetches a discount that arrives as an id\n  rather than dropping it.\n* Reports the discount amount with null coupon fields when a coupon is still\n  unreadable.\n* Types `source.coupon` as expanded or null, never an id.\n* Carries `Stripe.Invoice` through StripeHelper and the invoice formatter,\n  narrowing expandable fields at the consumer instead of casting.\n\nCloses PAY-3893",
+  "timestamp": 1787078228000,
   "storybooks": [
     "fxa-react",
     "fxa-settings"

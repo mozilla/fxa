@@ -83,14 +83,6 @@ button-back-aria-label = Quay lại
 button-back-title = Quay lại
 
 
-recovery-key-download-button-v3 = Tải xuống và tiếp tục
-    .title = Tải xuống và tiếp tục
-recovery-key-pdf-heading = Khóa khôi phục tài khoản
-recovery-key-pdf-download-date = Đã tạo: { $date }
-recovery-key-pdf-key-legend = Khóa khôi phục tài khoản
-recovery-key-pdf-instructions = Khóa này cho phép bạn khôi phục dữ liệu trình duyệt đã mã hóa (bao gồm mật khẩu, dấu trang và lịch sử) nếu bạn quên mật khẩu. Lưu trữ nó ở một nơi bạn sẽ nhớ.
-recovery-key-pdf-storage-ideas-heading = Nơi lưu trữ khóa của bạn
-recovery-key-pdf-support = Tìm hiểu thêm về khóa khôi phục tài khoản của bạn
 recovery-key-pdf-download-error = Rất tiếc, đã xảy ra sự cố khi tải xuống khóa khôi phục tài khoản của bạn.
 
 
@@ -432,6 +424,7 @@ cs-cannot-disconnect = Không tìm thấy ứng dụng khách, không ngắt k�
 cs-logged-out-2 = Đã đăng xuất khỏi { $service }
 cs-refresh-button =
     .title = Tải lại dịch vụ đã kết nối
+cs-connect-device-button = Kết nối thiết bị
 cs-missing-device-help = Các mục bị thiếu hoặc trùng lặp?
 cs-disconnect-sync-heading = Ngắt kết nối khỏi đồng bộ hóa
 
@@ -753,6 +746,7 @@ page-passkey-add-error-system-v2 = Đã xảy ra lỗi khi tạo passkey cho b�
 
 
 recent-activity-title = Hoạt động tài khoản gần đây
+recent-activity-show-more-button = Hiển thị thêm
 recent-activity-account-create-v2 = Đã tạo tài khoản
 recent-activity-account-disable-v2 = Tài khoản đã bị vô hiệu hóa
 recent-activity-account-enable-v2 = Đã kích hoạt tài khoản
@@ -1273,9 +1267,72 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Oops! Có gì đó không 
 pair-unsupported-desktop-firefox-fallback-message-v2 = Vui lòng đóng thẻ này và thử lại.
 
 
+pair2-authority-approve-sign-in-heading = Xác nhận đăng nhập?
+pair2-authority-approve-sign-in-confirm-button = Đúng, hãy xác nhận đăng nhập
+pair2-authority-approve-sign-in-change-password = Không phải bạn? <changePassword>Đổi mật khẩu của bạn</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = Tiếp tục trên thiết bị di động của bạn
+pair2-authority-continue-on-mobile-description = Hãy làm theo các bước hướng dẫn trên điện thoại hoặc máy tính bảng của bạn.
+pair2-authority-continue-on-mobile-cancel-button = Hủy bỏ
+
+
+pair2-authority-download-firefox-heading = Mở { -brand-firefox } để đồng bộ hoá
+pair2-authority-download-firefox-instruction = Để thiết lập đồng bộ hoá trên các thiết bị, hãy mở { -brand-firefox } trên thiết bị này và truy cập <b>firefox.com/pair</b>
+pair2-authority-download-firefox-cta = Tải xuống { -brand-firefox }
+
+
+pair2-authority-scan-qr-heading = Quét để kết nối thiết bị di động của bạn
+pair2-authority-scan-qr-instruction = Quét mã QR bằng điện thoại hoặc máy tính bảng của bạn để đồng bộ hoá dấu trang, thẻ và nhiều nội dung khác của { -brand-firefox }.
+pair2-authority-scan-qr-code-aria-label = Mã QR để kết nối thiết bị di động của bạn
+pair2-authority-scan-qr-help-link = Nhận trợ giúp về quét
+
+
+pair2-authority-sync-success-heading = Bạn đang đồng bộ hoá
+pair2-authority-sync-success-description = Các thẻ, dấu trang, mật khẩu và nhiều thứ khác của bạn đã sẵn sàng trên tất cả các thiết bị.
+pair2-authority-sync-success-view-tabs-button = Xem các thẻ đã đồng bộ hoá
+pair2-authority-sync-success-sync-settings-button = Cài đặt đồng bộ hoá
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = Bạn vẫn muốn kết nối thiết bị chứ?
+pair2-authority-timeout-and-cancel-timeout-description = Có vẻ như đã hết thời gian chờ. Hãy thử lại nếu bạn vẫn muốn kết nối thiết bị di động và đồng bộ hoá dữ liệu { -brand-firefox } của mình.
+pair2-authority-timeout-and-cancel-canceled-heading = Đã huỷ bỏ
+pair2-authority-timeout-and-cancel-canceled-description = Nếu bạn đổi ý hoặc muốn kết nối thiết bị khác, hãy thử lại.
+pair2-authority-timeout-and-cancel-try-again-button = Thử lại
+pair2-authority-timeout-and-cancel-cancel-button = Huỷ bỏ
+pair2-authority-timeout-and-cancel-sync-settings-button = Cài đặt đồng bộ hoá
+
+
 pair2-supplicant-approve-sign-in-heading = Một bước nữa để đồng bộ hoá
 pair2-supplicant-approve-sign-in-instruction = Xác nhận đăng nhập trên máy tính của bạn.
 pair2-supplicant-approve-sign-in-cancel-button = Hủy bỏ
+
+
+pair2-supplicant-connect-this-device-heading = Kết nối thiết bị này với tài khoản của bạn?
+pair2-supplicant-connect-this-device-connect-button = Kết nối
+pair2-supplicant-connect-this-device-cancel-button = Huỷ bỏ
+
+
+pair2-supplicant-download-firefox-heading = Tải { -brand-firefox } trên thiết bị này
+pair2-supplicant-download-firefox-description = Tải xuống { -brand-firefox } để đồng bộ dấu trang, lịch sử và nhiều hơn nữa trên các thiết bị. <linkExternal>Tìm hiểu thêm</linkExternal>
+pair2-supplicant-download-firefox-continue-button = Tiếp tục trong { -brand-firefox }
+
+
+pair2-supplicant-ready-to-scan-heading = Để kết nối thiết bị
+pair2-supplicant-ready-to-scan-instruction = Trên máy tính của bạn, hãy mở { -brand-firefox } và truy cập <b>firefox.com/pair</b>, rồi làm theo hướng dẫn trên màn hình để kết nối thiết bị di động này.
+pair2-supplicant-ready-to-scan-learn-more-link = Tìm hiểu thêm
+
+
+pair2-supplicant-sync-success-heading = Thiết bị của bạn đã được kết nối
+pair2-supplicant-sync-success-description = Dấu trang, thẻ và nhiều nội dung khác của bạn sẽ luôn được đồng bộ hoá trong { -brand-firefox }.
+pair2-supplicant-sync-success-view-tabs-button = Xem các thẻ đã đồng bộ hoá
+pair2-supplicant-sync-success-sync-settings-button = Cài đặt đồng bộ hoá
+
+
+pair2-supplicant-timeout-and-cancel-timeout-heading = Có vẻ như đã hết thời gian chờ
+pair2-supplicant-timeout-and-cancel-timeout-description = Để kết nối thiết bị di động và đồng bộ hoá dữ liệu { -brand-firefox } của bạn, hãy truy cập <b>firefox.com/pair</b> trên máy tính của bạn.
+pair2-supplicant-timeout-and-cancel-canceled-heading = Đã huỷ bỏ
+pair2-supplicant-timeout-and-cancel-canceled-description = Để kết nối thiết bị bất cứ lúc nào, hãy truy cập <b>firefox.com/pair</b> trên máy tính của bạn.
 
 
 service-welcome-signup-success-banner = Đã xác nhận { -product-mozilla-account }

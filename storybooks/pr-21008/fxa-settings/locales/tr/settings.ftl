@@ -39,31 +39,12 @@ brand-m-logo =
 button-back-aria-label = Geri
 button-back-title = Geri
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
-# The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = İndir ve devam et
-    .title = İndir ve devam et
-recovery-key-pdf-heading = Hesap kurtarma anahtarı
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = Oluşturma: { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = Hesap kurtarma anahtarı
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = Parolanızı unutursanız şifrelenmiş tarayıcı verilerinizi (parolalar, yer imleri ve geçmiş dahil) bu anahtarla kurtarabilirsiniz. Anahtarınızı unutmayacağınız bir yerde saklayın.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = Anahtarınızı saklayabileceğiniz yerler
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = Hesap kurtarma anahtarınız hakkında daha fazla bilgi alın
-# Error message displayed in an alert bar if the PDF download failed.
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Hesap kurtarma anahtarınız indirilirken bir sorun oluştu.
 
 ## ButtonPasskeySignin
@@ -551,6 +532,9 @@ cs-cannot-disconnect = İstemci bulunamadı, bağlantı kesilemiyor
 cs-logged-out-2 = { $service } oturumu kapatıldı
 cs-refresh-button =
     .title = Bağlı hizmetleri yenile
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = Cihaz bağla
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = Eksik veya çift kayıtlar mı var?
 cs-disconnect-sync-heading = Sync bağlantısını kes
@@ -999,6 +983,8 @@ page-passkey-add-error-system-v2 = Geçiş anahtarınız oluşturulurken bir sor
 ## These are displayed as a list with the date when the event occured
 
 recent-activity-title = Son hesap etkinlikleri
+# Clicking this button reveals the older account activity that is hidden at first.
+recent-activity-show-more-button = Daha fazla göster
 recent-activity-account-create-v2 = Hesap oluşturuldu
 recent-activity-account-disable-v2 = Hesap devre dışı bırakıldı
 recent-activity-account-enable-v2 = Hesap etkinleştirildi
@@ -1716,6 +1702,102 @@ pair-unsupported-learn-more-link-v2 = Daha fazla bilgi al
 pair-unsupported-desktop-firefox-fallback-header-v2 = Ne yazık ki bir hata oluştu.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Lütfen bu sekmeyi kapatıp yeniden deneyin.
 
+## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer after scanning the pairing QR code with
+## their phone. It confirms the flow has moved to the mobile device and waits
+## for the remaining steps to be completed there.
+
+pair2-authority-continue-on-mobile-heading = Mobil cihazınızdan devam edin
+pair2-authority-continue-on-mobile-description = Telefonunuzda veya tabletinizde gösterilen adımları izleyin.
+# Dismisses the pairing attempt
+pair2-authority-continue-on-mobile-cancel-button = Vazgeç
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when Firefox is needed to continue pairing.
+## It points them at firefox.com/pair and offers a download link for Firefox.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-download-firefox-heading = Eşitlemek için { -brand-firefox } tarayıcısını açın
+# Links out to the Firefox download page
+pair2-authority-download-firefox-cta = { -brand-firefox }’u indir
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and offers the follow-up actions.
+
+# Opens the tabs that are open on the user's other synced devices
+pair2-authority-sync-success-view-tabs-button = Eşitlenen sekmeleri göster
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button = Eşitleme ayarları
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when pairing stopped without succeeding,
+## either because it timed out or because it was canceled. Both cases offer to
+## start pairing over again.
+
+# Shown when the pairing attempt expired before it was approved
+pair2-authority-timeout-and-cancel-timeout-heading = Hâlâ cihaz bağlamak istiyor musunuz?
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-canceled-heading = Vazgeçildi
+pair2-authority-timeout-and-cancel-canceled-description = Fikrinizi değiştirirseniz veya başka bir cihaz bağlamak isterseniz yeniden deneyin.
+# Restarts the pairing flow
+pair2-authority-timeout-and-cancel-try-again-button = Yeniden dene
+# Abandons pairing without retrying
+pair2-authority-timeout-and-cancel-cancel-button = Vazgeç
+# Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
+pair2-authority-timeout-and-cancel-sync-settings-button = Eşitleme ayarları
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# Dismisses the pairing attempt
+pair2-supplicant-approve-sign-in-cancel-button = Vazgeç
+
+## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It asks them to confirm connecting the mobile
+## device to their account, and shows that computer's details so they can
+## verify the request.
+
+# "this device" is the mobile device the user is holding, not the computer
+# whose details are shown below the heading
+pair2-supplicant-connect-this-device-heading = Bu cihaz hesabınıza bağlansın mı?
+# Confirms the pairing attempt
+pair2-supplicant-connect-this-device-connect-button = Bağla
+# Dismisses the pairing attempt
+pair2-supplicant-connect-this-device-cancel-button = Vazgeç
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing reaches a device that
+## does not have Firefox installed yet. It explains what syncing gets them and
+## sends them off to install the browser.
+
+# Primary action. Sends the user to the Firefox download page.
+pair2-supplicant-download-firefox-continue-button = { -brand-firefox } ile devam et
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device once pairing has completed: the device
+## is signed in and syncing with the computer they paired it with.
+
+pair2-supplicant-sync-success-heading = Cihazınız bağlandı
+# Opens the view listing tabs open on the user's other synced devices
+pair2-supplicant-sync-success-view-tabs-button = Eşitlenen sekmeleri göster
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button = Eşitleme ayarları
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing ends without connecting,
+## either because the attempt timed out or because it was canceled. Both states
+## are informational and offer no on-screen action, so the copy points the user
+## back to their computer to start again.
+
+# Shown when the pairing attempt expired before it completed. "we" is Firefox.
+pair2-supplicant-timeout-and-cancel-timeout-heading = Zaman aşımına uğradık
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-canceled-heading = Vazgeçildi
+
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
 
@@ -1733,6 +1815,11 @@ service-welcome-vpn-heading = Sonraki: VPN’i açın
 set-password-heading-v2 = Eşitleme için parola oluşturun
 # "This" refers to the heading, "Create password to sync"
 set-password-info-v2 = Bu işlem verilerinizi şifreler. { -brand-google } veya { -brand-apple } hesabınızın parolasından farklı olmalıdır.
+
+## SetPassword page for passwordless flow
+## Users who signed in via passwordless OTP and need to create a password for Sync
+
+set-password-passwordless-info = Bu parola, eşitlenen verilerinizi şifreleyerek güvende tutar.
 
 ## ThirdPartyAuthCallback Page
 ## This page is called after a user completes the third party authentication flow from Google or Apple.
@@ -1931,6 +2018,7 @@ back = Geri dön
 ## Users who authenticate with a passkey to access Sync must also enter their password.
 
 signin-passkey-fallback-header = Girişi tamamla
+signin-passkey-fallback-heading = Eşitlemek için parolanızı yazın
 signin-passkey-fallback-password-label = Parola
 signin-passkey-fallback-continue = Devam et
 signin-passkey-fallback-forgot-password-link = Parolanızı unuttunuz mu?

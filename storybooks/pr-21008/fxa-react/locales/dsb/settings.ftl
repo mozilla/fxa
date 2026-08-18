@@ -39,31 +39,12 @@ brand-m-logo =
 button-back-aria-label = Slědk
 button-back-title = Slědk
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
-# The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = Ześěgnuś a pókšacowaś
-    .title = Ześěgnuś a pókšacowaś
-recovery-key-pdf-heading = Kontowy wótnowjeński kluc
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = Generěrowany: { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = Kontowy wótnowjeński kluc
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = Toś ten kluc wam zmóžnja, waše skoděrowane daty wobglědowaka (mjazy nimi gronidła, cytańske znamjenja a historiju) wótnowiś, jolic swój gronidło zabywaśo. Składujśo jo na městnje, kótarež móžośo se spomnjeś.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = Městna za składowanje wašogo kluca
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = Zgóńśo wěcej wó swójom kontowem wótnowjeńskem klucu
-# Error message displayed in an alert bar if the PDF download failed.
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Bóžko jo pśi ześěgowanju kontowego wótnowjeńskego kluca problem nastał
 
 ## ButtonPasskeySignin
@@ -587,6 +568,9 @@ cs-cannot-disconnect = Klient njejo sr namakał, zwisk njedajo se źěliś
 cs-logged-out-2 = Wót { $service } wótzjawjony
 cs-refresh-button =
     .title = Zwězane słužby aktualizěrowaś
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = Rěd zwězaś
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = Felujuce abo dwójne elementy?
 cs-disconnect-sync-heading = Ze Sync źěliś
@@ -1042,6 +1026,8 @@ page-passkey-add-error-system-v2 = Pśi napóranju wašogo gronidłowego kluca j
 ## These are displayed as a list with the date when the event occured
 
 recent-activity-title = Nejnowša kontowa aktiwita
+# Clicking this button reveals the older account activity that is hidden at first.
+recent-activity-show-more-button = Wěcej pokazaś
 recent-activity-account-create-v2 = Konto załožone
 recent-activity-account-disable-v2 = Konto znjemóžnjone
 recent-activity-account-enable-v2 = Konto zmóžnjone
@@ -1862,6 +1848,83 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Hopla! Něco njejo se raź
 pair-unsupported-desktop-firefox-fallback-message-v2 = Pšosym zacyńśo toś ten rejtarik a wopytajśo hyšći raz.
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer, which is already signed in, after their
+## mobile device scans the pairing QR code. It asks them to approve the
+## sign-in, and shows the requesting device's details so they can verify it.
+
+# Asks the user to confirm the sign-in that another one of their devices just started
+pair2-authority-approve-sign-in-heading = Pśizjawjenje pśizwóliś?
+# Submit button confirming that the user started the pairing and approves the
+# other device being added to their account
+pair2-authority-approve-sign-in-confirm-button = Jo, pśizjawjenje pśizwóliś
+# "Not you?" asks whether someone other than the user started this sign-in.
+# The text inside <changePassword> links to the page for changing the password.
+pair2-authority-approve-sign-in-change-password = To njejsćo wy? <changePassword>Změńśo swójo gronidło</changePassword>
+
+## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer after scanning the pairing QR code with
+## their phone. It confirms the flow has moved to the mobile device and waits
+## for the remaining steps to be completed there.
+
+pair2-authority-continue-on-mobile-heading = Na swójom mobilnem rěźe pókšacowaś
+pair2-authority-continue-on-mobile-description = Slědujśo kšacam na swójom telefonje abo tableśe.
+# Dismisses the pairing attempt
+pair2-authority-continue-on-mobile-cancel-button = Pśetergnuś
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when Firefox is needed to continue pairing.
+## It points them at firefox.com/pair and offers a download link for Firefox.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-download-firefox-heading = { -brand-firefox } za synchronizaciju wócyniś
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction = Aby synchronizaciju na rědach konfigurěrował, wócyńśo { -brand-firefox } na toś tom rěźe a woglědajśo se k <b>firefox.com/pair</b>
+# Links out to the Firefox download page
+pair2-authority-download-firefox-cta = { -brand-firefox } ześěgnuś
+
+## ScanQR page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer. It shows a QR code that they scan with
+## their phone or tablet to connect the two devices and start syncing.
+
+pair2-authority-scan-qr-heading = Za zwězowanje ze swójom rědom scannowaś
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-scan-qr-instruction = Scannujśo QR-kod ze swójom telefonom abo tabletom, aby swóje cytańske znamjenja, rejtariki { -brand-firefox } a wěcej synchronizěrował.
+# Accessible label describing the QR code image shown on this page
+pair2-authority-scan-qr-code-aria-label = QR-kod za zwězowanje z wašym mobilnym rědom
+# Link to a support article for users having trouble scanning the QR code
+pair2-authority-scan-qr-help-link = Pomoc za scannowanje dostaś
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and offers the follow-up actions.
+
+# "syncing" here means copying data between the user's devices
+pair2-authority-sync-success-heading = Synchronizěrujośo
+pair2-authority-sync-success-description = Waše rejtariki, cytańske znamjenja, gronidła a wěcej su gótowe na wašych rědach.
+# Opens the tabs that are open on the user's other synced devices
+pair2-authority-sync-success-view-tabs-button = Synchronizěrowane rejtariki pokazaś
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button = Nastajenja synchronizacije
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when pairing stopped without succeeding,
+## either because it timed out or because it was canceled. Both cases offer to
+## start pairing over again.
+
+# Shown when the pairing attempt expired before it was approved
+pair2-authority-timeout-and-cancel-timeout-heading = Cośo hyšći rěd zwězaś?
+pair2-authority-timeout-and-cancel-timeout-description = Zda se, až smy cas pśekšocyli. Wopytajśo hyšći raz, jolic hyšći cośo swój mobilny rěd zwězaś a swóje daty { -brand-firefox } synchronizěrowaś.
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-canceled-heading = Pśetergnjony
+pair2-authority-timeout-and-cancel-canceled-description = Jolic swójo měnjenje změnjaśo abo cośo drugi rěd zwězaś, wopytajśo hyšći raz.
+# Restarts the pairing flow
+pair2-authority-timeout-and-cancel-try-again-button = Hyšći raz wopytaś
+# Abandons pairing without retrying
+pair2-authority-timeout-and-cancel-cancel-button = Pśetergnuś
+# Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
+pair2-authority-timeout-and-cancel-sync-settings-button = Nastajenja synchronizacije
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
 ## shown on their computer. It waits for them to approve the sign-in on the
 ## computer, and shows that computer's details so they can verify the request.
@@ -1871,6 +1934,70 @@ pair2-supplicant-approve-sign-in-heading = Jaden slědny kšac k synchronizaciji
 pair2-supplicant-approve-sign-in-instruction = Zwólśo do pśizjawjenja na swójom licadle.
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = Pśetergnuś
+
+## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It asks them to confirm connecting the mobile
+## device to their account, and shows that computer's details so they can
+## verify the request.
+
+# "this device" is the mobile device the user is holding, not the computer
+# whose details are shown below the heading
+pair2-supplicant-connect-this-device-heading = Toś ten rěd z wašym kontom zwězaś?
+# Confirms the pairing attempt
+pair2-supplicant-connect-this-device-connect-button = Zwězaś
+# Dismisses the pairing attempt
+pair2-supplicant-connect-this-device-cancel-button = Pśetergnuś
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing reaches a device that
+## does not have Firefox installed yet. It explains what syncing gets them and
+## sends them off to install the browser.
+
+pair2-supplicant-download-firefox-heading = Wobstarajśo se { -brand-firefox } na toś tom rěźe
+# "sync" is a verb here, referring to syncing data between the user's devices.
+# <linkExternal> is an anchor tag linking to a page explaining what sync does.
+pair2-supplicant-download-firefox-description = Ześěgniśo { -brand-firefox }, aby cytańske znamjenja, historiju a wěcej na swójich rědach synchronizěrował. <linkExternal>Dalšne informacije</linkExternal>
+# Primary action. Sends the user to the Firefox download page.
+pair2-supplicant-download-firefox-continue-button = Z { -brand-firefox } pókšacowaś
+
+## ReadyToScan page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device before pairing starts. It tells them
+## to open firefox.com/pair on their computer, which is where the QR code they
+## scan with the mobile device comes from.
+
+pair2-supplicant-ready-to-scan-heading = Rěd zwězaś
+# <b> emphasises the address the user types on their computer. It is not a link,
+# and the address itself must not be translated.
+pair2-supplicant-ready-to-scan-instruction = Wócyńśo { -brand-firefox } na swójom licadle a woglědajśo se k <b>firefox.com/pair</b> a slědujśo instrukcijam na wobrazowce, aby swój mobilny rěd zwězał.
+# Opens a Mozilla support article about setting up sync
+pair2-supplicant-ready-to-scan-learn-more-link = Dalšne informacije
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device once pairing has completed: the device
+## is signed in and syncing with the computer they paired it with.
+
+pair2-supplicant-sync-success-heading = Waš rěd jo zwězany
+pair2-supplicant-sync-success-description = Waše cytańske znamjenja, rejtariki a wěcej w { -brand-firefox } synchronizěrowane wóstanu.
+# Opens the view listing tabs open on the user's other synced devices
+pair2-supplicant-sync-success-view-tabs-button = Synchronizěrowane rejtariki pokazaś
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button = Nastajenja synchronizacije
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing ends without connecting,
+## either because the attempt timed out or because it was canceled. Both states
+## are informational and offer no on-screen action, so the copy points the user
+## back to their computer to start again.
+
+# Shown when the pairing attempt expired before it completed. "we" is Firefox.
+pair2-supplicant-timeout-and-cancel-timeout-heading = Zda se, až smy cas pśekšocyli
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-timeout-description = Aby swój mobilny rěd zwězał a swóje daty { -brand-firefox } synchronizěrował, woglědajśo se k <b>firefox.com/pair</b> na swójo licadle.
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-canceled-heading = Pśetergnjony
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-canceled-description = Aby rěd kuždy cas zwězał, woglědujśo se k <b>firefox.com/pair</b> na swójom licadle.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

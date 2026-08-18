@@ -39,31 +39,15 @@ brand-m-logo =
 button-back-aria-label = Nazaj
 button-back-title = Nazaj
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
+# Button to download the account recovery key as a plain text file and navigate to the next step
 # The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = Prenesi in nadaljuj
-    .title = Prenesi in nadaljuj
-recovery-key-pdf-heading = Ključ za obnovitev računa
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = Ustvarjen: { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = Ključ za obnovitev računa
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = Ta ključ vam omogoča obnovitev šifriranih podatkov brskalnika (vključno z gesli, zaznamki in zgodovino), če pozabite geslo. Shranite ga na mesto, ki si ga boste zapomnili.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = Mesta za shranjevanje ključev
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = Preberite več o ključu za obnovitev računa
-# Error message displayed in an alert bar if the PDF download failed.
+recovery-key-download-button-v4 = Prenesi in nadaljuj
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Pri prenosu ključa za obnovitev računa je prišlo do težave.
 
 ## ButtonPasskeySignin
@@ -161,7 +145,7 @@ device-info-block-location-unknown = Neznana lokacija
 device-info-browser-os = { $browserName } v { $genericOSName }
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
-device-info-browser-device = { $browserName } dne { $deviceName }
+device-info-browser-device = { $browserName } na napravi { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = Naslov IP: { $ipAddress }
@@ -408,7 +392,7 @@ link-expired-new-link-button = Prejmi novo povezavo
 # immediately before remember-password-signin-link
 remember-password-text = Se spomnite gesla?
 # shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
-remember-password-passkey-text = Imate ključ ali si ga spomnite?
+remember-password-passkey-text = Imate ključ za dostop ali se spomnite gesla?
 # link navigates to the sign in page
 remember-password-signin-link = Prijava
 
@@ -462,7 +446,7 @@ account-recovery-notification-header-value = Ne izgubite podatkov, če pozabite 
 account-recovery-notification-header-description = Ustvarite ključ, ki omogoča obnovitev sinhroniziranih podatkov iz računa v primeru, da kadarkoli pozabite geslo.
 recovery-phone-promo-cta = Dodaj telefonsko številko za obnovitev
 recovery-phone-promo-heading = Dodatno zavarujte svoj račun s telefonsko številko za obnovitev
-recovery-phone-promo-description = Zdaj se lahko prijavite z enkratnim geslom preko sporočila SMS, če ne morete uporabiti aplikacije za overjanje v dveh korakih.
+recovery-phone-promo-description = Zdaj se lahko, če ne morete uporabiti aplikacije za overjanje v dveh korakih, prijavite z enkratnim geslom prek sporočila SMS.
 recovery-phone-promo-info-link = Preberite več o tveganju pri obnovi in zamenjavi SIM-kartice
 promo-banner-dismiss-button =
     .aria-label = Skrij pasico
@@ -532,9 +516,9 @@ password-reset-warning-have-key = Imate ključ za obnovitev računa?
 password-reset-warning-use-key-link-v2 = Uporabite ga za ponastavitev gesla in ohranitev podatkov brskalnika
 password-reset-warning-signed-in-device = Ste še vedno prijavljeni v drugi napravi?
 password-reset-warning-signed-in-device-description = Podatki brskalnika so morda na voljo. Ponastavite geslo in se prijavite v tej napravi za obnovitev in sinhronizacijo podatkov.
-password-reset-warning-restore-data-link = Naučite se, kako obnoviti podatke brskalnika iz prijavljene naprave
+password-reset-warning-restore-data-link = Naučite se, kako obnoviti podatke brskalnika iz naprave, v kateri ste prijavljeni
 password-reset-warning-new-device = Uporabljate novo napravo, vendar nimate dostopa do starih?
-password-reset-warning-new-device-description = Ko ponastavite geslo, šifrirani podatki brskalnika v strežnikih { -brand-firefox } ne bodo na voljo v tej napravi.
+password-reset-warning-new-device-description = Po ponastavitvi gesla šifrirani podatki brskalnika iz { -brand-firefox }ovih strežnikov ne bodo na voljo v tej napravi.
 
 ## Alert Bar
 
@@ -589,7 +573,7 @@ cs-refresh-button =
     .title = Osveži povezane storitve
 # Button under the "Connected services" header that starts the flow to pair
 # another device to the user's account.
-cs-connect-device-button = Povežite napravo
+cs-connect-device-button = Poveži napravo
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = Manjkajoči ali podvojeni elementi?
 cs-disconnect-sync-heading = Odklopi od Synca
@@ -781,6 +765,13 @@ flow-setup-2fa-prompt-heading = Nastavite overjanje v dveh korakih
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
 flow-setup-2fa-prompt-description = { $serviceName } zahteva, da za varnost računa nastavite overjanje v dveh korakih.
+# Success banner shown at the top of the page when the user signed in with a passkey.
+flow-setup-2fa-prompt-passkey-success-banner = Prijava z geslom uspešna
+# Body copy shown when the user signed in with a passkey and the service still
+# requires two-step authentication setup.
+# Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
+# that requests two-step authentication setup.
+flow-setup-2fa-prompt-passkey-description = { $serviceName } zahteva tudi overjanje v dveh korakih za vašega { -product-mozilla-account }. Po nastavitvi ga ne boste več potrebovali ob prijavi z geslom.
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = Za nadaljevanje lahko uporabite katerokoli od <authenticationAppsLink>naslednjih aplikacij za overjanje</authenticationAppsLink>.
 flow-setup-2fa-prompt-continue-button = Nadaljuj
@@ -849,7 +840,7 @@ modal-default-confirm-button = Potrdi
 ## ModalMfaProtected
 
 modal-mfa-protected-title = Vnesite potrditveno kodo
-modal-mfa-protected-subtitle = Pomagajte nam preveriti, da ste vi spremenili podatke o računu
+modal-mfa-protected-subtitle = Pomagajte se nam prepričati, da ste podatke o računu spremenili vi
 # This string is used to show a notification to the user for them to enter
 # email confirmation code to update their multi-factor-authentication-protected
 # account settings
@@ -1088,8 +1079,8 @@ recent-activity-account-recovery-phone-replace-complete = Telefonska številka z
 recent-activity-account-recovery-phone-replace-failure = Menjava telefonske številke za obnovitev ni uspela
 recent-activity-account-two-factor-replace-success = Overitev v dveh korakih je zamenjana
 recent-activity-account-two-factor-replace-failure = Zamenjava overjanja v dveh korakih ni uspela
-recent-activity-account-recovery-phone-setup-failed = Nastavitev obnovitvene telefonske številke ni uspela
-recent-activity-account-recovery-phone-reset-password-complete = Ponastavitev gesla s številko za obnovitev končana
+recent-activity-account-recovery-phone-setup-failed = Nastavitev telefonske številke za obnovitev ni uspela
+recent-activity-account-recovery-phone-reset-password-complete = Ponastavitev gesla s telefonsko številko za obnovitev dokončana
 recent-activity-account-recovery-phone-reset-password-failed = Ponastavitev gesla s telefonsko številko za obnovitev ni uspela
 # A code was emailed to the user to authorize a sensitive account change (e.g. removing 2FA, deleting the account).
 recent-activity-account-mfa-otp-sent = Zahtevano je pooblastilo za spremembe računa
@@ -1585,7 +1576,7 @@ passkey-authentication-error-not-supported-v2 = Vaš brskalnik ali naprava ne po
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
 passkey-authentication-error-security = Gesli na tej strani ni mogoče uporabiti. Preverite, ali ste na pravem varnem spletnem mestu, in poskusite znova.
 # Unexpected credential state during authentication
-passkey-authentication-error-invalid-state = Prišlo je do napake z vašim geslom. Poskusite znova ali uporabite drug način prijave.
+passkey-authentication-error-invalid-state = Pri uporabi ključa za dostop je prišlo do napake. Poskusite znova ali uporabite drug način prijave.
 # Authenticator I/O failure (e.g., security key disconnected mid-ceremony)
 passkey-authentication-error-not-readable = Nismo mogli dostopati do overitelja. Poskusite znova ali uporabite drug način prijave.
 # Catch-all for unexpected errors during authentication (TypeError, DataError, EncodingError, ConstraintError, OperationError, UnknownError)
@@ -1724,7 +1715,7 @@ pair-auth-complete-send-tab-heading = Pripravljeni ste na pošiljanje zavihkov
 # Variable { $deviceFamily } is generally a browser name, for example "Firefox"
 # Variable { $deviceOS } is an operating system short name, for example "iOS", "Android"
 pair-auth-complete-send-tab-device-connected = { $deviceFamily } za { $deviceOS } je povezan.
-pair-auth-complete-send-tab-benefits = Brezplačno lahko takojšnje pošiljanje odprtih zavihkov, gesel in zaznamkov med napravami.
+pair-auth-complete-send-tab-benefits = Takoj lahko začnete pošiljati odprte zavihke, gesla in zaznamke med napravami.
 
 ## AuthTotp page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
@@ -1781,21 +1772,21 @@ pair-qr-code-aria-label = Koda QR
 ## Choice screen — "Do you have Firefox for mobile?"
 
 # Subheader shown on the choice screen
-pair-choice-subheader = Sinhronizirajte svojo izkušnjo s { -brand-firefox }
+pair-choice-subheader = Sinhronizirajte svojo izkušnjo s { -brand-firefox(sklon: "orodnik") }
 # Description shown on the choice screen
 pair-choice-description = Oglejte si shranjena gesla, zavihke, zgodovino brskanja in drugo – v vseh svojih napravah.
 # Heading shown on the choice screen when the user arrived via a Send Tab entrypoint
-pair-choice-header-send-tab = Prenesite ali odprite { -brand-firefox } na napravi, v katero želite pošiljati zavihke
+pair-choice-header-send-tab = Prenesite ali odprite { -brand-firefox(sklon: "tozilnik") } na napravi, na katero želite pošiljati zavihke
 # Legend for the radio button fieldset
 pair-choice-legend = Izberite možnost, s katero želite nadaljevati:
 # Radio option: user already has Firefox for mobile — title
-pair-choice-has-mobile-title = { -brand-firefox } za mobilno napravo že imam
+pair-choice-has-mobile-title = { -brand-firefox(sklon: "tozilnik") } za mobilne naprave že imam
 # Radio option: user already has Firefox for mobile — description
-pair-choice-has-mobile-description = Začnite sinhronizacijo zdaj, če { -brand-firefox } že uporabljate na mobilni napravi.
+pair-choice-has-mobile-description = Če že imate { -brand-firefox(sklon: "tozilnik") } na mobilni napravi, kar začnite s sinhronizacijo.
 # Radio option: user does not have Firefox for mobile — title
-pair-choice-needs-mobile-title = Nimam { -brand-firefox } za mobilno napravo
+pair-choice-needs-mobile-title = Nimam { -brand-firefox(sklon: "rodilnik") } za mobilno napravo
 # Radio option: user does not have Firefox for mobile — description
-pair-choice-needs-mobile-description = Prenesite { -brand-firefox } na mobilno napravo in zaženite sinhronizacijo.
+pair-choice-needs-mobile-description = Prenesite { -brand-firefox(sklon: "tozilnik") } na svojo mobilno napravo, nato pa zaženite sinhronizacijo.
 # Continue button on choice screen (disabled until a radio option is selected)
 pair-choice-continue-button = Nadaljuj
 # Success banner shown after signing in
@@ -1872,13 +1863,13 @@ pair-unsupported-desktop-firefox-fallback-message-v2 = Zaprite ta zavihek in pos
 ## sign-in, and shows the requesting device's details so they can verify it.
 
 # Asks the user to confirm the sign-in that another one of their devices just started
-pair2-authority-approve-sign-in-heading = Odobrim prijavo?
+pair2-authority-approve-sign-in-heading = Ali želite odobriti prijavo?
 # Submit button confirming that the user started the pairing and approves the
 # other device being added to their account
 pair2-authority-approve-sign-in-confirm-button = Da, odobri prijavo
 # "Not you?" asks whether someone other than the user started this sign-in.
 # The text inside <changePassword> links to the page for changing the password.
-pair2-authority-approve-sign-in-change-password = Ali niste vi? <changePassword>Spremenite geslo</changePassword>
+pair2-authority-approve-sign-in-change-password = Niste bili vi? <changePassword>Spremenite geslo</changePassword>
 
 ## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer after scanning the pairing QR code with
@@ -1886,7 +1877,7 @@ pair2-authority-approve-sign-in-change-password = Ali niste vi? <changePassword>
 ## for the remaining steps to be completed there.
 
 pair2-authority-continue-on-mobile-heading = Nadaljujte na mobilni napravi
-pair2-authority-continue-on-mobile-description = Sledite korakom na telefonu ali tablici.
+pair2-authority-continue-on-mobile-description = Sledite navodilom na telefonu ali tablici.
 # Dismisses the pairing attempt
 pair2-authority-continue-on-mobile-cancel-button = Prekliči
 
@@ -1899,7 +1890,7 @@ pair2-authority-download-firefox-heading = Odprite { -brand-firefox } za sinhron
 # "firefox.com/pair" is a URL and should not be translated
 pair2-authority-download-firefox-instruction = Če želite nastaviti sinhronizacijo med napravami, v tej napravi odprite { -brand-firefox } in obiščite <b>firefox.com/pair</b>
 # Links out to the Firefox download page
-pair2-authority-download-firefox-cta = Prenesi { -brand-firefox }
+pair2-authority-download-firefox-cta = Prenesi { -brand-firefox(sklon: "tozilnik") }
 
 ## ScanQR page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer. It shows a QR code that they scan with
@@ -1921,7 +1912,7 @@ pair2-authority-scan-qr-help-link = Pridobite pomoč pri branju
 pair2-authority-sync-success-heading = Izvajate sinhronizacijo
 pair2-authority-sync-success-description = Vaši zavihki, zaznamki, gesla in drugo so pripravljeni v vaših napravah.
 # Opens the tabs that are open on the user's other synced devices
-pair2-authority-sync-success-view-tabs-button = Ogled sinhroniziranih zavihkov
+pair2-authority-sync-success-view-tabs-button = Prikaži sinhronizirane zavihke
 # Opens the browser settings that control what is synced
 pair2-authority-sync-success-sync-settings-button = Nastavitve sinhronizacije
 
@@ -1934,7 +1925,7 @@ pair2-authority-sync-success-sync-settings-button = Nastavitve sinhronizacije
 pair2-authority-timeout-and-cancel-timeout-heading = Še vedno želite povezati napravo?
 pair2-authority-timeout-and-cancel-timeout-description = Kaže, da nam je potekla časovna omejitev. Poskusite znova, če še vedno želite povezati mobilno napravo in sinhronizirati podatke v storitvi { -brand-firefox }.
 # Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-canceled-heading = Preklican
+pair2-authority-timeout-and-cancel-canceled-heading = Preklicano
 pair2-authority-timeout-and-cancel-canceled-description = Če si premislite ali želite povezati drugo napravo, poskusite znova.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Poskusi znova
@@ -1949,8 +1940,8 @@ pair2-authority-timeout-and-cancel-sync-settings-button = Nastavitve sinhronizac
 ## computer, and shows that computer's details so they can verify the request.
 
 # "sync" is a verb here, referring to syncing data between the user's devices
-pair2-supplicant-approve-sign-in-heading = Še zadnji korak do sinhronizacije
-pair2-supplicant-approve-sign-in-instruction = Odobrite prijavo v računalniku.
+pair2-supplicant-approve-sign-in-heading = Še zadnji korak pred sinhronizacijo
+pair2-supplicant-approve-sign-in-instruction = Odobrite prijavo na računalniku.
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = Prekliči
 
@@ -1978,7 +1969,7 @@ pair2-supplicant-download-firefox-heading = Prejmite { -brand-firefox } za to na
 # <linkExternal> is an anchor tag linking to a page explaining what sync does.
 pair2-supplicant-download-firefox-description = Prenesite { -brand-firefox } in sinhronizirajte zaznamke, zgodovino in drugo med napravami. <linkExternal>Več o tem</linkExternal>
 # Primary action. Sends the user to the Firefox download page.
-pair2-supplicant-download-firefox-continue-button = Nadaljuj čez { -brand-firefox }
+pair2-supplicant-download-firefox-continue-button = Nadaljuj v { -brand-firefox(sklon: "mestnik") }
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -1999,7 +1990,7 @@ pair2-supplicant-ready-to-scan-learn-more-link = Več o tem
 pair2-supplicant-sync-success-heading = Vaša naprava je povezana
 pair2-supplicant-sync-success-description = Vaši zaznamki, zavihki in drugo bo v { -brand-firefox } ostalo sinhronizirano.
 # Opens the view listing tabs open on the user's other synced devices
-pair2-supplicant-sync-success-view-tabs-button = Ogled sinhroniziranih zavihkov
+pair2-supplicant-sync-success-view-tabs-button = Prikaži sinhronizirane zavihke
 # Opens the browser's sync settings, where the user chooses what to sync
 pair2-supplicant-sync-success-sync-settings-button = Nastavitve sinhronizacije
 
@@ -2014,7 +2005,7 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Kaže, da nam je potekla �
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = Če želite povezati mobilno napravo in sinhronizirati vaše podatke v storitvi { -brand-firefox }, v računalniku obiščite <b>firefox.com/pair</b>.
 # Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-canceled-heading = Preklican
+pair2-supplicant-timeout-and-cancel-canceled-heading = Preklicano
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Če želite kadarkoli povezati napravo, v računalniku obiščite <b>firefox.com/pair</b>.
 
@@ -2249,7 +2240,7 @@ signin-passkey-fallback-heading = Vnesite geslo za sinhronizacijo
 signin-passkey-fallback-body = Da ohranite svoje podatke varne, morate pri uporabi tega gesla vnesti svoje geslo.
 signin-passkey-fallback-password-label = Geslo
 signin-passkey-fallback-continue = Nadaljuj
-signin-passkey-fallback-forgot-password-link = Pozabljeno geslo?
+signin-passkey-fallback-forgot-password-link = Ste pozabili geslo?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this

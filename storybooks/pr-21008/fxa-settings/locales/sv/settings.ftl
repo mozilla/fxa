@@ -377,10 +377,6 @@ input-phone-number-country-list-aria-label = Välj land
 input-phone-number-enter-number = Ange telefonnummer
 input-phone-number-country-united-states = USA
 input-phone-number-country-canada = Kanada
-# Back button on legal/terms or legal/privacy that takes users to the previous page
-legal-back-button = Tillbaka
-# Generic error shown when the legal document fails to load
-app-general-err-message = Något gick fel. Försök igen senare.
 
 ## LinkDamaged component
 
@@ -585,6 +581,9 @@ cs-cannot-disconnect = Klienten hittades inte, kunde inte koppla ifrån
 cs-logged-out-2 = Loggade ut från { $service }
 cs-refresh-button =
     .title = Uppdatera anslutna tjänster
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = Anslut en enhet
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = Saknas något eller finns dubbletter?
 cs-disconnect-sync-heading = Koppla från Sync
@@ -1036,6 +1035,8 @@ page-passkey-add-error-system-v2 = Det gick inte att skapa din lösenordsnyckel.
 ## These are displayed as a list with the date when the event occured
 
 recent-activity-title = Senaste kontoaktivitet
+# Clicking this button reveals the older account activity that is hidden at first.
+recent-activity-show-more-button = Visa mer
 recent-activity-account-create-v2 = Konto skapat
 recent-activity-account-disable-v2 = Konto inaktiverat
 recent-activity-account-enable-v2 = Konto aktiverat
@@ -1679,23 +1680,6 @@ inline-totp-setup-code-required-error = Autentiseringskod krävs
 tfa-qr-code-alt = Använd koden { $code } för att ställa in tvåstegsautentisering i applikationer som stöds.
 inline-totp-setup-page-title = Tvåstegsautentisering
 
-## Legal page. This page contains simply a header and links to pages that display
-## content from https://github.com/mozilla/legal-docs
-
-legal-header = Juridisk information
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-terms-of-service-link = Användarvillkor
-# Links to our internal "Firefox Cloud" /legal/terms page
-legal-privacy-link = Sekretesspolicy
-
-## Legal privacy notice page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-privacy-heading = Sekretesspolicy
-
-## Legal terms of service page. Most content comes from https://github.com/mozilla/legal-docs
-
-legal-terms-heading = Användarvillkor
-
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = Loggade du precis in på { -brand-firefox }?
@@ -1868,6 +1852,83 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Hoppsan! Något gick fel.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Stäng den här fliken och försök igen.
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer, which is already signed in, after their
+## mobile device scans the pairing QR code. It asks them to approve the
+## sign-in, and shows the requesting device's details so they can verify it.
+
+# Asks the user to confirm the sign-in that another one of their devices just started
+pair2-authority-approve-sign-in-heading = Godkänn inloggning?
+# Submit button confirming that the user started the pairing and approves the
+# other device being added to their account
+pair2-authority-approve-sign-in-confirm-button = Ja, godkänn inloggning
+# "Not you?" asks whether someone other than the user started this sign-in.
+# The text inside <changePassword> links to the page for changing the password.
+pair2-authority-approve-sign-in-change-password = Inte du? <changePassword>Ändra ditt lösenord</changePassword>
+
+## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer after scanning the pairing QR code with
+## their phone. It confirms the flow has moved to the mobile device and waits
+## for the remaining steps to be completed there.
+
+pair2-authority-continue-on-mobile-heading = Fortsätt på din mobila enhet
+pair2-authority-continue-on-mobile-description = Följ stegen på din telefon eller surfplatta.
+# Dismisses the pairing attempt
+pair2-authority-continue-on-mobile-cancel-button = Avbryt
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when Firefox is needed to continue pairing.
+## It points them at firefox.com/pair and offers a download link for Firefox.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-download-firefox-heading = Öppna { -brand-firefox } för att synkronisera
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction = För att konfigurera synkronisering mellan enheter, öppna { -brand-firefox } på den här enheten och besök <b>firefox.com/pair</b>
+# Links out to the Firefox download page
+pair2-authority-download-firefox-cta = Hämta { -brand-firefox }
+
+## ScanQR page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer. It shows a QR code that they scan with
+## their phone or tablet to connect the two devices and start syncing.
+
+pair2-authority-scan-qr-heading = Skanna för att ansluta din mobila enhet
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-scan-qr-instruction = Skanna QR-koden med din telefon eller surfplatta för att synkronisera dina { -brand-firefox }-bokmärken, flikar och mer.
+# Accessible label describing the QR code image shown on this page
+pair2-authority-scan-qr-code-aria-label = QR-kod för att ansluta din mobila enhet
+# Link to a support article for users having trouble scanning the QR code
+pair2-authority-scan-qr-help-link = Få hjälp med att skanna
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and offers the follow-up actions.
+
+# "syncing" here means copying data between the user's devices
+pair2-authority-sync-success-heading = Du synkroniserar
+pair2-authority-sync-success-description = Dina flikar, bokmärken, lösenord och mer är tillgängliga på dina enheter.
+# Opens the tabs that are open on the user's other synced devices
+pair2-authority-sync-success-view-tabs-button = Visa synkroniserade flikar
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button = Synkroniseringsinställningar
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when pairing stopped without succeeding,
+## either because it timed out or because it was canceled. Both cases offer to
+## start pairing over again.
+
+# Shown when the pairing attempt expired before it was approved
+pair2-authority-timeout-and-cancel-timeout-heading = Vill du fortfarande ansluta en enhet?
+pair2-authority-timeout-and-cancel-timeout-description = Anslutningen gjorde timeout. Försök igen om du fortfarande vill ansluta din mobila enhet och synkronisera din { -brand-firefox }-data.
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-canceled-heading = Avbruten
+pair2-authority-timeout-and-cancel-canceled-description = Om du ångrar dig eller vill ansluta en annan enhet, försök igen.
+# Restarts the pairing flow
+pair2-authority-timeout-and-cancel-try-again-button = Försök igen
+# Abandons pairing without retrying
+pair2-authority-timeout-and-cancel-cancel-button = Avbryt
+# Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
+pair2-authority-timeout-and-cancel-sync-settings-button = Sync-inställningar
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
 ## shown on their computer. It waits for them to approve the sign-in on the
 ## computer, and shows that computer's details so they can verify the request.
@@ -1877,6 +1938,70 @@ pair2-supplicant-approve-sign-in-heading = Ett sista steg för att synkronisera
 pair2-supplicant-approve-sign-in-instruction = Godkänn inloggningen på din dator.
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = Avbryt
+
+## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It asks them to confirm connecting the mobile
+## device to their account, and shows that computer's details so they can
+## verify the request.
+
+# "this device" is the mobile device the user is holding, not the computer
+# whose details are shown below the heading
+pair2-supplicant-connect-this-device-heading = Anslut den här enheten till ditt konto?
+# Confirms the pairing attempt
+pair2-supplicant-connect-this-device-connect-button = Anslut
+# Dismisses the pairing attempt
+pair2-supplicant-connect-this-device-cancel-button = Avbryt
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing reaches a device that
+## does not have Firefox installed yet. It explains what syncing gets them and
+## sends them off to install the browser.
+
+pair2-supplicant-download-firefox-heading = Hämta { -brand-firefox } till den här enheten
+# "sync" is a verb here, referring to syncing data between the user's devices.
+# <linkExternal> is an anchor tag linking to a page explaining what sync does.
+pair2-supplicant-download-firefox-description = Hämta { -brand-firefox } för att synkronisera bokmärken, historik och mer mellan enheter. <linkExternal>Läs mer</linkExternal>
+# Primary action. Sends the user to the Firefox download page.
+pair2-supplicant-download-firefox-continue-button = Fortsätt i { -brand-firefox }
+
+## ReadyToScan page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device before pairing starts. It tells them
+## to open firefox.com/pair on their computer, which is where the QR code they
+## scan with the mobile device comes from.
+
+pair2-supplicant-ready-to-scan-heading = För att ansluta en enhet
+# <b> emphasises the address the user types on their computer. It is not a link,
+# and the address itself must not be translated.
+pair2-supplicant-ready-to-scan-instruction = På din dator, öppna { -brand-firefox } och gå till <b>firefox.com/pair</b> och följ instruktionerna på skärmen för att ansluta den här mobila enheten.
+# Opens a Mozilla support article about setting up sync
+pair2-supplicant-ready-to-scan-learn-more-link = Läs mer
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device once pairing has completed: the device
+## is signed in and syncing with the computer they paired it with.
+
+pair2-supplicant-sync-success-heading = Din enhet är ansluten
+pair2-supplicant-sync-success-description = Dina bokmärken, flikar och mer förblir synkroniserade i { -brand-firefox }.
+# Opens the view listing tabs open on the user's other synced devices
+pair2-supplicant-sync-success-view-tabs-button = Visa synkroniserade flikar
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button = Synkroniseringsinställningar
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing ends without connecting,
+## either because the attempt timed out or because it was canceled. Both states
+## are informational and offer no on-screen action, so the copy points the user
+## back to their computer to start again.
+
+# Shown when the pairing attempt expired before it completed. "we" is Firefox.
+pair2-supplicant-timeout-and-cancel-timeout-heading = Vi gjorde timeout
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-timeout-description = För att ansluta din mobila enhet och synkronisera din { -brand-firefox }-data, besök <b>firefox.com/pair</b> på din dator.
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-canceled-heading = Avbruten
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-canceled-description = När du vill ansluta en enhet besöker du <b>firefox.com/pair</b> på din dator.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

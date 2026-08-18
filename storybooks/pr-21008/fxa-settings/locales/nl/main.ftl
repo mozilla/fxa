@@ -83,14 +83,6 @@ button-back-aria-label = Terug
 button-back-title = Terug
 
 
-recovery-key-download-button-v3 = Downloaden en doorgaan
-    .title = Downloaden en doorgaan
-recovery-key-pdf-heading = Accountherstelsleutel
-recovery-key-pdf-download-date = Aangemaakt: { $date }
-recovery-key-pdf-key-legend = Accountherstelsleutel
-recovery-key-pdf-instructions = Met deze sleutel kunt u uw versleutelde browsergegevens (inclusief wachtwoorden, bladwijzers en geschiedenis) herstellen als u uw wachtwoord vergeet. Bewaar hem op een plek die u kunt onthouden.
-recovery-key-pdf-storage-ideas-heading = Plaatsen om uw sleutel op te slaan
-recovery-key-pdf-support = Meer info over uw accountherstelsleutel
 recovery-key-pdf-download-error = Sorry, er is een probleem opgetreden bij het downloaden van uw accountherstelsleutel.
 
 
@@ -444,6 +436,7 @@ cs-cannot-disconnect = Client niet gevonden, verbinding kan niet worden verbroke
 cs-logged-out-2 = Afgemeld bij { $service }
 cs-refresh-button =
     .title = Verbonden services vernieuwen
+cs-connect-device-button = Een apparaat verbinden
 cs-missing-device-help = Ontbrekende of dubbele items?
 cs-disconnect-sync-heading = Verbinding met Sync verbreken
 
@@ -773,6 +766,7 @@ page-passkey-add-error-system-v2 = Er is een probleem opgetreden bij het aanmake
 
 
 recent-activity-title = Recente accountactiviteit
+recent-activity-show-more-button = Meer tonen
 recent-activity-account-create-v2 = Account aangemaakt
 recent-activity-account-disable-v2 = Account uitgeschakeld
 recent-activity-account-enable-v2 = Account ingeschakeld
@@ -1300,9 +1294,38 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Oeps, er is iets misgegaan
 pair-unsupported-desktop-firefox-fallback-message-v2 = Sluit dit tabblad en probeer het opnieuw.
 
 
+pair2-authority-approve-sign-in-heading = Aanmelding goedkeuren?
+pair2-authority-approve-sign-in-confirm-button = Ja, aanmelding goedkeuren
+pair2-authority-approve-sign-in-change-password = Bent u dit niet? <changePassword>Wijzig uw wachtwoord</changePassword>
+
+
+pair2-authority-continue-on-mobile-cancel-button = Annuleren
+
+
+pair2-authority-timeout-and-cancel-canceled-heading = Geannuleerd
+pair2-authority-timeout-and-cancel-try-again-button = Opnieuw proberen
+pair2-authority-timeout-and-cancel-cancel-button = Annuleren
+
+
 pair2-supplicant-approve-sign-in-heading = Een laatste synchronisatiestap
 pair2-supplicant-approve-sign-in-instruction = Keur de aanmelding op uw computer goed.
 pair2-supplicant-approve-sign-in-cancel-button = Annuleren
+
+
+pair2-supplicant-connect-this-device-connect-button = Verbinden
+pair2-supplicant-connect-this-device-cancel-button = Annuleren
+
+
+pair2-supplicant-download-firefox-continue-button = Doorgaan in { -brand-firefox }
+
+
+pair2-supplicant-ready-to-scan-learn-more-link = Meer info
+
+
+pair2-supplicant-sync-success-heading = Uw apparaat is verbonden
+
+
+pair2-supplicant-timeout-and-cancel-canceled-heading = Geannuleerd
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } bevestigd

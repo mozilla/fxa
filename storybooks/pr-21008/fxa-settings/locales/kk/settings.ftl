@@ -39,31 +39,12 @@ brand-m-logo =
 button-back-aria-label = Артқа
 button-back-title = Артқа
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
-# The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = Жүктеп алу және жалғастыру
-    .title = Жүктеп алу және жалғастыру
-recovery-key-pdf-heading = Тіркелгіні қалпына келтіру кілті
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = Жасалған: { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = Тіркелгіні қалпына келтіру кілті
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = Бұл кілт парольді ұмытып қалсаңыз, браузердің шифрленген деректерін (соның ішінде парольдер, бетбелгілер және тарих) қалпына келтіруге мүмкіндік береді. Оны есте сақтайтын жерде сақтаңыз.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = Кілтіңізді сақтайтын орындар
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = Тіркелгіңізді қалпына келтіру кілті туралы көбірек білу
-# Error message displayed in an alert bar if the PDF download failed.
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Кешіріңіз, тіркелгіні қалпына келтіру кілтін жүктеп алу кезінде мәселе орын алды.
 
 ## ButtonPasskeySignin
@@ -581,6 +562,9 @@ cs-cannot-disconnect = Клиент табылмады, ажырату мүмк�
 cs-logged-out-2 = { $service } жүйесінен шықтыңыз
 cs-refresh-button =
     .title = Байланыстырылған қызметтерді жаңарту
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = Құрылғыны байланыстыру
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = Жоқ немесе қайталанған элемент?
 cs-disconnect-sync-heading = Синхрондаумен байланысты үзу
@@ -1034,6 +1018,8 @@ page-passkey-add-error-system-v2 = Рұқсат кілтіңізді жасау 
 ## These are displayed as a list with the date when the event occured
 
 recent-activity-title = Тіркелгінің жуырдағы белсенділігі
+# Clicking this button reveals the older account activity that is hidden at first.
+recent-activity-show-more-button = Көбірек көрсету
 recent-activity-account-create-v2 = Тіркелгі жасалды
 recent-activity-account-disable-v2 = Тіркелгі сөндірілді
 recent-activity-account-enable-v2 = Тіркелгі іске қосылды
@@ -1849,6 +1835,83 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Бірнәрсе қате 
 pair-unsupported-desktop-firefox-fallback-message-v2 = Бұл бетті жауып, әрекетті қайталап көріңіз.
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer, which is already signed in, after their
+## mobile device scans the pairing QR code. It asks them to approve the
+## sign-in, and shows the requesting device's details so they can verify it.
+
+# Asks the user to confirm the sign-in that another one of their devices just started
+pair2-authority-approve-sign-in-heading = Кіруді растау керек пе?
+# Submit button confirming that the user started the pairing and approves the
+# other device being added to their account
+pair2-authority-approve-sign-in-confirm-button = Иә, кіруді растау
+# "Not you?" asks whether someone other than the user started this sign-in.
+# The text inside <changePassword> links to the page for changing the password.
+pair2-authority-approve-sign-in-change-password = Сіз емессіз бе? <changePassword>Пароліңізді өзгертіңіз</changePassword>
+
+## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer after scanning the pairing QR code with
+## their phone. It confirms the flow has moved to the mobile device and waits
+## for the remaining steps to be completed there.
+
+pair2-authority-continue-on-mobile-heading = Мобильді құрылғыңызда жалғастырыңыз
+pair2-authority-continue-on-mobile-description = Телефоныңыз немесе планшетіңізде қадамдарды орындаңыз.
+# Dismisses the pairing attempt
+pair2-authority-continue-on-mobile-cancel-button = Бас тарту
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when Firefox is needed to continue pairing.
+## It points them at firefox.com/pair and offers a download link for Firefox.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-download-firefox-heading = Синхрондау үшін { -brand-firefox } ашыңыз
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction = Құрылғылар арасында синхрондауды баптау үшін осы құрылғыда { -brand-firefox } ашып, <b>firefox.com/pair</b> сайтына кіріңіз.
+# Links out to the Firefox download page
+pair2-authority-download-firefox-cta = { -brand-firefox } жүктеп алу
+
+## ScanQR page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer. It shows a QR code that they scan with
+## their phone or tablet to connect the two devices and start syncing.
+
+pair2-authority-scan-qr-heading = Мобильді құрылғыңызды байланыстыру үшін сканерлеңіз
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-scan-qr-instruction = { -brand-firefox } бетбелгілер, беттер және т.б. синхрондау үшін QR кодын телефоныңызбен немесе планшетіңізбен сканерлеңіз.
+# Accessible label describing the QR code image shown on this page
+pair2-authority-scan-qr-code-aria-label = Мобильді құрылғыңызды байланыстыру үшін QR коды
+# Link to a support article for users having trouble scanning the QR code
+pair2-authority-scan-qr-help-link = Сканерлеу бойынша көмек алыңыз
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and offers the follow-up actions.
+
+# "syncing" here means copying data between the user's devices
+pair2-authority-sync-success-heading = Сіз синхрондаудасыз
+pair2-authority-sync-success-description = Сіздің браузер беттері, бетбелгілер, парольдер және т.б. барлық құрылғыларыңызда дайын.
+# Opens the tabs that are open on the user's other synced devices
+pair2-authority-sync-success-view-tabs-button = Синхрондалған беттерді қарау
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button = Синхрондау баптаулары
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when pairing stopped without succeeding,
+## either because it timed out or because it was canceled. Both cases offer to
+## start pairing over again.
+
+# Shown when the pairing attempt expired before it was approved
+pair2-authority-timeout-and-cancel-timeout-heading = Әлі де құрылғыны қосқыңыз келе ме?
+pair2-authority-timeout-and-cancel-timeout-description = Байланыс орнатуға бөлінген уақыт өтіп кеткен сияқты. Мобильді құрылғыңызды қосып, { -brand-firefox } деректеріңізді синхрондағыңыз келсе, қайталап көріңіз.
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-canceled-heading = Бас тартылған
+pair2-authority-timeout-and-cancel-canceled-description = Егер ойыңызды өзгертсеңіз немесе басқа құрылғыны қосқыңыз келсе, қайталап көріңіз.
+# Restarts the pairing flow
+pair2-authority-timeout-and-cancel-try-again-button = Қайтадан көру
+# Abandons pairing without retrying
+pair2-authority-timeout-and-cancel-cancel-button = Бас тарту
+# Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
+pair2-authority-timeout-and-cancel-sync-settings-button = Синхрондау баптаулары
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
 ## shown on their computer. It waits for them to approve the sign-in on the
 ## computer, and shows that computer's details so they can verify the request.
@@ -1858,6 +1921,70 @@ pair2-supplicant-approve-sign-in-heading = Синхрондауға дейін �
 pair2-supplicant-approve-sign-in-instruction = Компьютеріңізде кіруді мақұлдаңыз.
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = Бас тарту
+
+## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It asks them to confirm connecting the mobile
+## device to their account, and shows that computer's details so they can
+## verify the request.
+
+# "this device" is the mobile device the user is holding, not the computer
+# whose details are shown below the heading
+pair2-supplicant-connect-this-device-heading = Бұл құрылғыны тіркелгіңізге байланыстыру керек пе?
+# Confirms the pairing attempt
+pair2-supplicant-connect-this-device-connect-button = Байланысу
+# Dismisses the pairing attempt
+pair2-supplicant-connect-this-device-cancel-button = Бас тарту
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing reaches a device that
+## does not have Firefox installed yet. It explains what syncing gets them and
+## sends them off to install the browser.
+
+pair2-supplicant-download-firefox-heading = Бұл құрылғыда { -brand-firefox } алу
+# "sync" is a verb here, referring to syncing data between the user's devices.
+# <linkExternal> is an anchor tag linking to a page explaining what sync does.
+pair2-supplicant-download-firefox-description = Құрылғылар арасында бетбелгілерді, тарихты және т.б. синхрондау үшін { -brand-firefox } жүктеп алыңыз. <linkExternal>Көбірек білу</linkExternal>
+# Primary action. Sends the user to the Firefox download page.
+pair2-supplicant-download-firefox-continue-button = { -brand-firefox } ішінде жалғастыру
+
+## ReadyToScan page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device before pairing starts. It tells them
+## to open firefox.com/pair on their computer, which is where the QR code they
+## scan with the mobile device comes from.
+
+pair2-supplicant-ready-to-scan-heading = Құрылғыны байланыстыру үшін
+# <b> emphasises the address the user types on their computer. It is not a link,
+# and the address itself must not be translated.
+pair2-supplicant-ready-to-scan-instruction = Компьютеріңізде { -brand-firefox } ашып, <b>firefox.com/pair</b> сайтына өтіп, осы мобильді құрылғыны байланыстыру үшін экрандағы нұсқауларды орындаңыз.
+# Opens a Mozilla support article about setting up sync
+pair2-supplicant-ready-to-scan-learn-more-link = Көбірек білу
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device once pairing has completed: the device
+## is signed in and syncing with the computer they paired it with.
+
+pair2-supplicant-sync-success-heading = Сіздің құрылғыңыз байланысқан
+pair2-supplicant-sync-success-description = Сіздің бетбелгілер, беттер және т.б. { -brand-firefox } ішінде синхрондалған күйінде қалады.
+# Opens the view listing tabs open on the user's other synced devices
+pair2-supplicant-sync-success-view-tabs-button = Синхрондалған беттерді қарау
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button = Синхрондау баптаулары
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing ends without connecting,
+## either because the attempt timed out or because it was canceled. Both states
+## are informational and offer no on-screen action, so the copy points the user
+## back to their computer to start again.
+
+# Shown when the pairing attempt expired before it completed. "we" is Firefox.
+pair2-supplicant-timeout-and-cancel-timeout-heading = Бөлінген уақыт өтіп кеткен сияқты
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-timeout-description = Мобильді құрылғыңызды қосу және { -brand-firefox } деректеріңізді синхрондау үшін компьютеріңізден <b>firefox.com/pair</b> сайтына кіріңіз.
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-canceled-heading = Бас тартылған
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-canceled-description = Құрылғыны кез келген уақытта қосу үшін компьютеріңізден <b>firefox.com/pair</b> сайтына кіріңіз.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

@@ -76,14 +76,6 @@ button-back-aria-label = 戻る
 button-back-title = 戻る
 
 
-recovery-key-download-button-v3 = ダウンロードして続ける
-    .title = ダウンロードして続ける
-recovery-key-pdf-heading = アカウント回復用キー
-recovery-key-pdf-download-date = 作成日: { $date }
-recovery-key-pdf-key-legend = アカウント回復用キー
-recovery-key-pdf-instructions = パスワードを忘れた場合、暗号化されたブラウジングデータ (パスワード、ブックマーク、閲覧履歴など) をこのキーで復元できます。このキーを思い出しやすい場所に保管してください。
-recovery-key-pdf-storage-ideas-heading = キーを保管する場所
-recovery-key-pdf-support = アカウント回復用キーの詳細
 recovery-key-pdf-download-error = 申し訳ありませんが、アカウント回復用キーのダウンロード中に問題が発生しました。
 
 

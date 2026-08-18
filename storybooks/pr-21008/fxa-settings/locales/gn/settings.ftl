@@ -39,31 +39,12 @@ brand-m-logo =
 button-back-aria-label = Tapykue
 button-back-title = Tapykue
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
-# The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = Emboguejy ha eku’ejey
-    .title = Emboguejy ha eku’ejey
-recovery-key-pdf-heading = Mba’ete mba’eñemi jeguerujeyrã
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = Heñoipyre: { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = Mba’ete mba’eñemi jeguerujeyrã
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = Ko ñe’ẽñemi omoneĩ eguerujey hag̃ua kundahára mba’ekuaarã ipapapýva (oĩhápe ñe’ẽñemi, techaukaha ha tembiasakue) nanemandu’áiramo ñe’ẽñemíre. Eñongatu eikuaa hag̃uáme.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = Eñongatukuaaha mba’eñemi
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = Eikuaave ne mba’ete mba’eñemi guerujeyrã rehegua
-# Error message displayed in an alert bar if the PDF download failed.
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Ore ñyro, oĩ apañuái hekopyahúvo ne mba’ete mba’eñemi jeguerujeyrã.
 
 ## ButtonPasskeySignin
@@ -581,6 +562,9 @@ cs-cannot-disconnect = Joguahára ndojejuhúi, ndaikatúi osẽ
 cs-logged-out-2 = Osẽma { $service }-gui.
 cs-refresh-button =
     .title = Embohekopyahu mba’epytyvõrã mbojuajupyre
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = Embojuaju mba’e’oka
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = ¿Mba’eporu oĩ’ỹva térã ikõiva?
 cs-disconnect-sync-heading = Sync-gui ñesẽ
@@ -1032,6 +1016,8 @@ page-passkey-add-error-system-v2 = Oiko apañuái emoheñoinguévo ne ñe’ẽ 
 ## These are displayed as a list with the date when the event occured
 
 recent-activity-title = Mba’ete rembiapo ramoguavéva
+# Clicking this button reveals the older account activity that is hidden at first.
+recent-activity-show-more-button = Ehechaukave
 recent-activity-account-create-v2 = Mba’ete moheñoimbyre
 recent-activity-account-disable-v2 = Mba’ete pe’apyre
 recent-activity-account-enable-v2 = Mba’ete mbojurujapyre
@@ -1847,6 +1833,81 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = ¡Oops! Oĩ mba’e asẽv
 pair-unsupported-desktop-firefox-fallback-message-v2 = Emboty ko tendayke ha eha’ã jey.
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer, which is already signed in, after their
+## mobile device scans the pairing QR code. It asks them to approve the
+## sign-in, and shows the requesting device's details so they can verify it.
+
+# Asks the user to confirm the sign-in that another one of their devices just started
+pair2-authority-approve-sign-in-heading = ¿Emoneĩ jeike?
+# Submit button confirming that the user started the pairing and approves the
+# other device being added to their account
+pair2-authority-approve-sign-in-confirm-button = Héẽ, emoneĩ jeike ñepyrũ
+# "Not you?" asks whether someone other than the user started this sign-in.
+# The text inside <changePassword> links to the page for changing the password.
+pair2-authority-approve-sign-in-change-password = ¿Ndaha’éi nde? <changePassword>Emoambue ne ñe’ẽñemi</changePassword>
+
+## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer after scanning the pairing QR code with
+## their phone. It confirms the flow has moved to the mobile device and waits
+## for the remaining steps to be completed there.
+
+pair2-authority-continue-on-mobile-heading = Eime ne mba’e’oka oku’évape
+pair2-authority-continue-on-mobile-description = Esegi jeku’e nde pumbyry térã tablétape.
+# Dismisses the pairing attempt
+pair2-authority-continue-on-mobile-cancel-button = Eheja
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when Firefox is needed to continue pairing.
+## It points them at firefox.com/pair and offers a download link for Firefox.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-download-firefox-heading = Embojuruja { -brand-firefox } embojuehe hag̃ua
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction = Emboheko hag̃ua ñembojuehe mba’e’oka pa’ũme, embojuruja { -brand-firefox } ko mba’e’okápe ha eike <b>firefox.com/pair</b>-pe
+# Links out to the Firefox download page
+pair2-authority-download-firefox-cta = Emboguejy { -brand-firefox }
+
+## ScanQR page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer. It shows a QR code that they scan with
+## their phone or tablet to connect the two devices and start syncing.
+
+pair2-authority-scan-qr-heading = Emoha’ãnga eike hag̃ua ambue mba’e’okápe
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-scan-qr-instruction = Emoha’ãnga QR ayvu ne pumbyry térã tablétape embojuehe hag̃ua { -brand-firefox } rechaukaha ha hetave.
+# Accessible label describing the QR code image shown on this page
+pair2-authority-scan-qr-code-aria-label = QR ayvu eike hag̃ua ne mba’e’okápe
+# Link to a support article for users having trouble scanning the QR code
+pair2-authority-scan-qr-help-link = Eñepytyvõta emoha’ãnga hag̃ua
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and offers the follow-up actions.
+
+# "syncing" here means copying data between the user's devices
+pair2-authority-sync-success-heading = Embojuajuhína
+# Opens the tabs that are open on the user's other synced devices
+pair2-authority-sync-success-view-tabs-button = Ehecha tendayke mbojuajupyre
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button = Sync ñemboheko
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when pairing stopped without succeeding,
+## either because it timed out or because it was canceled. Both cases offer to
+## start pairing over again.
+
+# Shown when the pairing attempt expired before it was approved
+pair2-authority-timeout-and-cancel-timeout-heading = ¿Embojuajuse gueteri ne mba’e’oka?
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-canceled-heading = Hejapyre
+pair2-authority-timeout-and-cancel-canceled-description = Remoambuérõ ne remiandu térã embojoajusérõ ambue mba’e’oka, eha’ã jey.
+# Restarts the pairing flow
+pair2-authority-timeout-and-cancel-try-again-button = Eha’ã jey
+# Abandons pairing without retrying
+pair2-authority-timeout-and-cancel-cancel-button = Eheja
+# Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
+pair2-authority-timeout-and-cancel-sync-settings-button = Sync ñemboheko
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
 ## shown on their computer. It waits for them to approve the sign-in on the
 ## computer, and shows that computer's details so they can verify the request.
@@ -1856,6 +1917,70 @@ pair2-supplicant-approve-sign-in-heading = Ejapova’erã embojuehe hag̃ua
 pair2-supplicant-approve-sign-in-instruction = Emoneĩ jeike ne mohendahápe.
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = Eheja
+
+## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It asks them to confirm connecting the mobile
+## device to their account, and shows that computer's details so they can
+## verify the request.
+
+# "this device" is the mobile device the user is holding, not the computer
+# whose details are shown below the heading
+pair2-supplicant-connect-this-device-heading = ¿Embojuaju ko mba’e’oka ne mba’etére?
+# Confirms the pairing attempt
+pair2-supplicant-connect-this-device-connect-button = Jeike
+# Dismisses the pairing attempt
+pair2-supplicant-connect-this-device-cancel-button = Eheja
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing reaches a device that
+## does not have Firefox installed yet. It explains what syncing gets them and
+## sends them off to install the browser.
+
+pair2-supplicant-download-firefox-heading = Ereko { -brand-firefox } ko mba’e’okápe
+# "sync" is a verb here, referring to syncing data between the user's devices.
+# <linkExternal> is an anchor tag linking to a page explaining what sync does.
+pair2-supplicant-download-firefox-description = Emboguejy { -brand-firefox } embojuehe hag̃ua techaukaha, tembiasakue ha hetave mba’e’oka pa’ũme. <linkExternal>Eikuaave</linkExternal>
+# Primary action. Sends the user to the Firefox download page.
+pair2-supplicant-download-firefox-continue-button = Eku’ejey { -brand-firefox } ndive
+
+## ReadyToScan page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device before pairing starts. It tells them
+## to open firefox.com/pair on their computer, which is where the QR code they
+## scan with the mobile device comes from.
+
+pair2-supplicant-ready-to-scan-heading = Embojuaju hag̃ua mba’e’oka
+# <b> emphasises the address the user types on their computer. It is not a link,
+# and the address itself must not be translated.
+pair2-supplicant-ready-to-scan-instruction = Ne mohendahápe embojuruja { -brand-firefox }, eike <b>firefox.com/pair</b>-pe ha ejapo oĩva mba’erechahápe embojoaju hag̃ua ne pumbyry.
+# Opens a Mozilla support article about setting up sync
+pair2-supplicant-ready-to-scan-learn-more-link = Eikuaave
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device once pairing has completed: the device
+## is signed in and syncing with the computer they paired it with.
+
+pair2-supplicant-sync-success-heading = Ne mba’e’oka ojuajuhína
+pair2-supplicant-sync-success-description = Techaukahaita, tendayke a hetave ojuehepaite { -brand-firefox } ndive.
+# Opens the view listing tabs open on the user's other synced devices
+pair2-supplicant-sync-success-view-tabs-button = Ehecha tendayke mbojuajupyre
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button = Sync ñemboheko
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing ends without connecting,
+## either because the attempt timed out or because it was canceled. Both states
+## are informational and offer no on-screen action, so the copy points the user
+## back to their computer to start again.
+
+# Shown when the pairing attempt expired before it completed. "we" is Firefox.
+pair2-supplicant-timeout-and-cancel-timeout-heading = Ha’ete opámava ñeha’ãrõ
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-timeout-description = Embojoaju hag̃ua ne pumbyry ha embojuehe ne mba’ekuaarãita { -brand-firefox }, eike <b>firefox.com/pair</b> ne mohendahápe.
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-canceled-heading = Hejapyre
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-canceled-description = Eike hag̃ua mba’e’okápe eikese vove, eho <b>firefox.com/pair</b> ne mohendaha guive.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

@@ -39,31 +39,12 @@ brand-m-logo =
 button-back-aria-label = 뒤로
 button-back-title = 뒤로
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
-# The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = 다운로드 및 계속
-    .title = 다운로드 및 계속
-recovery-key-pdf-heading = 계정 복구 키
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = 생성됨: { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = 계정 복구 키
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = 이 키를 사용하면 비밀번호를 잊어버렸을 때 암호화된 브라우저 데이터(비밀번호, 북마크 및 기록 포함)를 복구할 수 있습니다. 기억할 수 있는 곳에 보관하세요.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = 키를 저장할 장소
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = 계정 복구 키에 대해 더 알아보기
-# Error message displayed in an alert bar if the PDF download failed.
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = 죄송합니다. 계정 복구 키를 다운로드하는 중 문제가 발생했습니다.
 
 ## ButtonPasskeySignin
@@ -542,6 +523,9 @@ cs-cannot-disconnect = 클라이언트를 찾지 못해 연결할 수 없음
 cs-logged-out-2 = { $service }에서 로그아웃하였습니다.
 cs-refresh-button =
     .title = 연결된 서비스 새로 고침
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = 기기 연결
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = 없거나 중복된 항목이 있나요?
 cs-disconnect-sync-heading = Sync 연결 끊기
@@ -975,6 +959,8 @@ page-passkey-add-success = 패스키 생성됨
 ## These are displayed as a list with the date when the event occured
 
 recent-activity-title = 최근 계정 활동
+# Clicking this button reveals the older account activity that is hidden at first.
+recent-activity-show-more-button = 더 보기
 recent-activity-account-create-v2 = 계정 생성됨
 recent-activity-account-disable-v2 = 계정 비활성화됨
 recent-activity-account-enable-v2 = 계정 활성화됨
@@ -1696,6 +1682,113 @@ pair-unsupported-learn-more-link-v2 = 더 알아보기
 # Matches the legacy Backbone "Oops! Something went wrong." message.
 pair-unsupported-desktop-firefox-fallback-header-v2 = 앗! 무엇인가 잘못되었습니다.
 pair-unsupported-desktop-firefox-fallback-message-v2 = 이 탭을 닫고 다시 시도하세요.
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer, which is already signed in, after their
+## mobile device scans the pairing QR code. It asks them to approve the
+## sign-in, and shows the requesting device's details so they can verify it.
+
+# Asks the user to confirm the sign-in that another one of their devices just started
+pair2-authority-approve-sign-in-heading = 로그인을 승인하시겠습니까?
+# Submit button confirming that the user started the pairing and approves the
+# other device being added to their account
+pair2-authority-approve-sign-in-confirm-button = 예, 로그인을 승인합니다.
+
+## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer after scanning the pairing QR code with
+## their phone. It confirms the flow has moved to the mobile device and waits
+## for the remaining steps to be completed there.
+
+pair2-authority-continue-on-mobile-heading = 모바일 기기에서 계속하기
+# Dismisses the pairing attempt
+pair2-authority-continue-on-mobile-cancel-button = 취소
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when Firefox is needed to continue pairing.
+## It points them at firefox.com/pair and offers a download link for Firefox.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-download-firefox-heading = 동기화를 위해 { -brand-firefox } 열기
+# Links out to the Firefox download page
+pair2-authority-download-firefox-cta = { -brand-firefox } 다운로드
+
+## ScanQR page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer. It shows a QR code that they scan with
+## their phone or tablet to connect the two devices and start syncing.
+
+# Accessible label describing the QR code image shown on this page
+pair2-authority-scan-qr-code-aria-label = 모바일 기기와 연결하기 위한 QR 코드
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and offers the follow-up actions.
+
+# "syncing" here means copying data between the user's devices
+pair2-authority-sync-success-heading = 동기화 중
+# Opens the tabs that are open on the user's other synced devices
+pair2-authority-sync-success-view-tabs-button = 동기화된 탭 보기
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button = 동기화 설정
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when pairing stopped without succeeding,
+## either because it timed out or because it was canceled. Both cases offer to
+## start pairing over again.
+
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-canceled-heading = 취소됨
+# Restarts the pairing flow
+pair2-authority-timeout-and-cancel-try-again-button = 다시 시도
+# Abandons pairing without retrying
+pair2-authority-timeout-and-cancel-cancel-button = 취소
+# Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
+pair2-authority-timeout-and-cancel-sync-settings-button = 동기화 설정
+
+## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It asks them to confirm connecting the mobile
+## device to their account, and shows that computer's details so they can
+## verify the request.
+
+# "this device" is the mobile device the user is holding, not the computer
+# whose details are shown below the heading
+pair2-supplicant-connect-this-device-heading = 이 기기를 계정에 연결하시겠습니까?
+# Dismisses the pairing attempt
+pair2-supplicant-connect-this-device-cancel-button = 취소
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing reaches a device that
+## does not have Firefox installed yet. It explains what syncing gets them and
+## sends them off to install the browser.
+
+pair2-supplicant-download-firefox-heading = 이 기기에 { -brand-firefox } 다운로드
+
+## ReadyToScan page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device before pairing starts. It tells them
+## to open firefox.com/pair on their computer, which is where the QR code they
+## scan with the mobile device comes from.
+
+# Opens a Mozilla support article about setting up sync
+pair2-supplicant-ready-to-scan-learn-more-link = 더 알아보기
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device once pairing has completed: the device
+## is signed in and syncing with the computer they paired it with.
+
+pair2-supplicant-sync-success-heading = 기기가 연결되었습니다
+# Opens the view listing tabs open on the user's other synced devices
+pair2-supplicant-sync-success-view-tabs-button = 동기화된 탭 보기
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button = 동기화 설정
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing ends without connecting,
+## either because the attempt timed out or because it was canceled. Both states
+## are informational and offer no on-screen action, so the copy points the user
+## back to their computer to start again.
+
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-canceled-heading = 취소됨
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

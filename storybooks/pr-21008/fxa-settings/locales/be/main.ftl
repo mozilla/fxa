@@ -63,14 +63,6 @@ button-back-aria-label = Назад
 button-back-title = Назад
 
 
-recovery-key-download-button-v3 = Сцягнуць і працягваць
-    .title = Сцягнуць і працягваць
-recovery-key-pdf-heading = Ключ аднаўлення ўліковага запісу
-recovery-key-pdf-download-date = Згенераваны: { $date }
-recovery-key-pdf-key-legend = Ключ аднаўлення ўліковага запісу
-recovery-key-pdf-instructions = Гэты ключ дазваляе аднавіць зашыфраваныя звесткі браўзера (уключаючы паролі, закладкі і гісторыю), калі вы забудзеце пароль. Захоўвайце яго ў месцы, якое вы запомніце.
-recovery-key-pdf-storage-ideas-heading = Месцы для захоўвання вашага ключа
-recovery-key-pdf-support = Даведайцеся больш пра ключ аднаўлення ўліковага запісу
 recovery-key-pdf-download-error = На жаль, узнікла праблема пры сцягванні ключа аднаўлення ўліковага запісу.
 
 

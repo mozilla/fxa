@@ -83,14 +83,6 @@ button-back-aria-label = Ба қафо
 button-back-title = Ба қафо
 
 
-recovery-key-download-button-v3 = Боргирӣ кунед ва идома диҳед
-    .title = Боргирӣ кунед ва идома диҳед
-recovery-key-pdf-heading = Калиди барқарорсозии ҳисоб
-recovery-key-pdf-download-date = Эҷодшуда: { $date }
-recovery-key-pdf-key-legend = Калиди барқарорсозии ҳисоб
-recovery-key-pdf-instructions = Агар шумо ниҳонвожаи худро фаромӯш кунед, ин калид ба шумо имкон медиҳад, ки маълумоти рамзгузоришудаи браузерро (аз он ҷумла, ниҳонвожаҳо, хатбаракҳо ва таърихи тамошобинӣ) барқарор кунед. Онро дар ҷойе нигоҳ доред, ки ба ёд меоред.
-recovery-key-pdf-storage-ideas-heading = Ҷойҳо барои нигоҳ доштани калиди шумо
-recovery-key-pdf-support = Маълумоти бештар дар бораи калиди барқарорсозии ҳисоби худ
 recovery-key-pdf-download-error = Мутаассифона, ҳангоми боргирӣ кардани калиди барқарорсозии ҳисоби шумо мушкилие ба миён омад.
 
 

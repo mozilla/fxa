@@ -42,14 +42,6 @@ brand-m-logo =
     .alt = Logotipo do m de { -brand-mozilla }
 
 
-recovery-key-download-button-v3 = Descargar e continuar
-    .title = Descargar e continuar
-recovery-key-pdf-heading = Clave de recuperación da conta
-recovery-key-pdf-download-date = Xerada: { $date }
-recovery-key-pdf-key-legend = Clave de recuperación da conta
-recovery-key-pdf-instructions = Esta chave permítelle recuperar os datos cifrados do seu navegador (incluídos contrasinais, marcadores e historial) se esqueceu o contrasinal. Gárdea e non esqueza onde.
-recovery-key-pdf-storage-ideas-heading = Lugares para gardar a clave
-recovery-key-pdf-support = Máis información sobre a clave de recuperación da conta
 recovery-key-pdf-download-error = Produciuse un problema ao descargar a chave de recuperación da súa conta.
 
 

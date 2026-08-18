@@ -39,31 +39,12 @@ brand-m-logo =
 button-back-aria-label = 上一頁
 button-back-title = 上一頁
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
-# The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = 下載並繼續
-    .title = 下載並繼續
-recovery-key-pdf-heading = 帳號救援金鑰
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = 產生於：{ $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = 帳號救援金鑰
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = 若您忘記密碼，此金鑰可讓您救回瀏覽器的加密資料（包含網站密碼、書籤、瀏覽紀錄）。請將此金鑰保存於可找回的地方。
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = 金鑰存放位置
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = 了解帳號救援金鑰的更多資訊
-# Error message displayed in an alert bar if the PDF download failed.
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = 很抱歉，下載帳號救援金鑰時發生問題。
 
 ## ButtonPasskeySignin
@@ -1820,6 +1801,9 @@ pair2-authority-approve-sign-in-heading = 要允許登入嗎？
 # Submit button confirming that the user started the pairing and approves the
 # other device being added to their account
 pair2-authority-approve-sign-in-confirm-button = 好，允許登入
+# "Not you?" asks whether someone other than the user started this sign-in.
+# The text inside <changePassword> links to the page for changing the password.
+pair2-authority-approve-sign-in-change-password = 不是您操作的？<changePassword>請更改密碼</changePassword>
 
 ## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer after scanning the pairing QR code with
@@ -1827,6 +1811,7 @@ pair2-authority-approve-sign-in-confirm-button = 好，允許登入
 ## for the remaining steps to be completed there.
 
 pair2-authority-continue-on-mobile-heading = 到您的行動裝置繼續
+pair2-authority-continue-on-mobile-description = 請到手機或平板電腦上進行下列操作。
 # Dismisses the pairing attempt
 pair2-authority-continue-on-mobile-cancel-button = 取消
 
@@ -1836,6 +1821,8 @@ pair2-authority-continue-on-mobile-cancel-button = 取消
 
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = 開啟 { -brand-firefox } 即可同步
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction = 若要與其他裝置同步，請在此裝置開啟 { -brand-firefox }，然後造訪 <b>firefox.com/pair</b>
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = 下載 { -brand-firefox }
 
@@ -1844,6 +1831,12 @@ pair2-authority-download-firefox-cta = 下載 { -brand-firefox }
 ## their phone or tablet to connect the two devices and start syncing.
 
 pair2-authority-scan-qr-heading = 掃描後即可連結您的行動裝置
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-scan-qr-instruction = 使用您的手機或平板電腦掃描 QR Code，即可同步您的 { -brand-firefox } 書籤、分頁與更多資料。
+# Accessible label describing the QR code image shown on this page
+pair2-authority-scan-qr-code-aria-label = 連結您行動裝置的 QR Code
+# Link to a support article for users having trouble scanning the QR code
+pair2-authority-scan-qr-help-link = 獲得掃描協助
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
@@ -1851,6 +1844,7 @@ pair2-authority-scan-qr-heading = 掃描後即可連結您的行動裝置
 
 # "syncing" here means copying data between the user's devices
 pair2-authority-sync-success-heading = 正在同步中
+pair2-authority-sync-success-description = 您的分頁、書籤、網站密碼與更多資料已經準備好可以同步到其他裝置。
 # Opens the tabs that are open on the user's other synced devices
 pair2-authority-sync-success-view-tabs-button = 檢視同步的分頁
 # Opens the browser settings that control what is synced
@@ -1863,8 +1857,10 @@ pair2-authority-sync-success-sync-settings-button = 同步設定
 
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = 還想要連結其他裝置嗎？
+pair2-authority-timeout-and-cancel-timeout-description = 看來動作超出時間限制了。若您還想要連結行動裝置，並且同步 { -brand-firefox } 資料的話，請重試。
 # Shown when the pairing attempt was canceled, on either device
 pair2-authority-timeout-and-cancel-canceled-heading = 已取消
+pair2-authority-timeout-and-cancel-canceled-description = 若您改變心意，或想要連結另一台裝置，請重試。
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = 重試
 # Abandons pairing without retrying
@@ -1889,16 +1885,35 @@ pair2-supplicant-approve-sign-in-cancel-button = 取消
 ## device to their account, and shows that computer's details so they can
 ## verify the request.
 
+# "this device" is the mobile device the user is holding, not the computer
+# whose details are shown below the heading
+pair2-supplicant-connect-this-device-heading = 要將此裝置連結到您的帳號嗎？
 # Confirms the pairing attempt
 pair2-supplicant-connect-this-device-connect-button = 連線
 # Dismisses the pairing attempt
 pair2-supplicant-connect-this-device-cancel-button = 取消
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing reaches a device that
+## does not have Firefox installed yet. It explains what syncing gets them and
+## sends them off to install the browser.
+
+pair2-supplicant-download-firefox-heading = 在此裝置安裝 { -brand-firefox }
+# "sync" is a verb here, referring to syncing data between the user's devices.
+# <linkExternal> is an anchor tag linking to a page explaining what sync does.
+pair2-supplicant-download-firefox-description = 下載 { -brand-firefox } 即可在不同裝置間同步書籤、瀏覽紀錄與更多資料。 <linkExternal>了解更多資訊</linkExternal>
+# Primary action. Sends the user to the Firefox download page.
+pair2-supplicant-download-firefox-continue-button = 到 { -brand-firefox } 繼續
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
 ## to open firefox.com/pair on their computer, which is where the QR code they
 ## scan with the mobile device comes from.
 
+pair2-supplicant-ready-to-scan-heading = 連結裝置
+# <b> emphasises the address the user types on their computer. It is not a link,
+# and the address itself must not be translated.
+pair2-supplicant-ready-to-scan-instruction = 於您的電腦使用 { -brand-firefox }，造訪 <b>firefox.com/pair</b>，然後依照畫面上的指示連結您的行動裝置。
 # Opens a Mozilla support article about setting up sync
 pair2-supplicant-ready-to-scan-learn-more-link = 更多資訊
 
@@ -1907,6 +1922,7 @@ pair2-supplicant-ready-to-scan-learn-more-link = 更多資訊
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = 已連結您的裝置
+pair2-supplicant-sync-success-description = 您的書籤、分頁與更多資料將與 { -brand-firefox } 同步。
 # Opens the view listing tabs open on the user's other synced devices
 pair2-supplicant-sync-success-view-tabs-button = 檢視同步的分頁
 # Opens the browser's sync settings, where the user chooses what to sync
@@ -1918,8 +1934,14 @@ pair2-supplicant-sync-success-sync-settings-button = 同步設定
 ## are informational and offer no on-screen action, so the copy points the user
 ## back to their computer to start again.
 
+# Shown when the pairing attempt expired before it completed. "we" is Firefox.
+pair2-supplicant-timeout-and-cancel-timeout-heading = 看來超出時間限制了。
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-timeout-description = 若要連結您的行動裝置並同步 { -brand-firefox } 資料，請在您的電腦造訪 <b>firefox.com/pair</b>。
 # Shown after the pairing attempt was canceled
 pair2-supplicant-timeout-and-cancel-canceled-heading = 已取消
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-canceled-description = 歡迎隨時在您的電腦開啟 <b>firefox.com/pair</b> 連結其他裝置。
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

@@ -83,13 +83,6 @@ button-back-aria-label = ਪਿੱਛੇ
 button-back-title = ਪਿੱਛੇ
 
 
-recovery-key-download-button-v3 = ਡਾਊਨਲੋਡ ਅਤੇ ਜਾਰੀ ਰੱਖੋ
-    .title = ਡਾਊਨਲੋਡ ਅਤੇ ਜਾਰੀ ਰੱਖੋ
-recovery-key-pdf-heading = ਖਾਤਾ ਰਿਕਵਰੀ ਕੁੰਜੀ
-recovery-key-pdf-download-date = ਤਿਆਰ ਕੀਤੀ: { $date }
-recovery-key-pdf-key-legend = ਖਾਤਾ ਰਿਕਵਰੀ ਕੁੰਜੀ
-recovery-key-pdf-storage-ideas-heading = ਤੁਹਾਡੀ ਕੁੰਜੀ ਨੂੰ ਸੰਭਾਲਣ ਲਈ ਥਾਵਾਂ
-recovery-key-pdf-support = ਆਪਣੀ ਖਾਤਾ ਰਿਕਵਰੀ ਕੁੰਜੀ ਬਾਰੇ ਹੋਰ ਜਾਣੋ
 recovery-key-pdf-download-error = ਅਫ਼ਸੋਸ, ਤੁਹਾਡੀ ਖਾਤਾ ਰਿਕਵਰੀ ਕੁੰਜੀ ਡਾਊਨਲੋਡ ਕਰਨ ਦੌਰਾਨ ਸਮੱਸਿਆ ਆਈ ਸੀ।
 
 
@@ -398,6 +391,7 @@ cs-cannot-disconnect = ਕਲਾਈਂਟ ਨਹੀਂ ਲੱਭਿਆ, ਡਿ�
 cs-logged-out-2 = { $service } ਚੋਂ ਲਾਗ ਆਉਟ ਕੀਤਾ
 cs-refresh-button =
     .title = ਕਨੈਕਟ ਹੋਈਆਂ ਸੇਵਾਵਾਂ ਨੂੰ ਤਾਜ਼ਾ ਕਰੋ
+cs-connect-device-button = ਡਿਵਾਈਸ ਨੂੰ ਕਨੈਕਟ ਕਰੋ
 cs-missing-device-help = ਗੁੰਮ ਜਾਂ ਡੁਪਲੀਕੇਟ ਚੀਜ਼ਾਂ ਹਨ?
 cs-disconnect-sync-heading = ਸਿੰਕ ਤੋਂ ਡਿਸ-ਕਨੈਕਟ ਕਰੋ
 
@@ -672,6 +666,7 @@ display-name-success-alert-2 = ਦਿਖਾਉਣ ਵਾਲਾ ਨਾਂ ਅੱ�
 
 
 recent-activity-title = ਸੱਜੀ ਖਾਤਾ ਸਰਗਰਮੀ
+recent-activity-show-more-button = ਹੋਰ ਵੇਖਾਓ
 recent-activity-account-create-v2 = ਖਾਤਾ ਬਣਾਇਆ
 recent-activity-account-disable-v2 = ਖਾਤਾ ਅਸਮਰੱਥ ਕੀਤਾ
 recent-activity-account-enable-v2 = ਖਾਤਾ ਸਮਰੱਥ ਕੀਤਾ
@@ -1017,9 +1012,67 @@ pair-unsupported-header = ਐਪ ਵਰਤ ਕੇ ਪੇਅਰ ਕਰੋ
 pair-unsupported-message = ਕੀ ਤੁਸੀਂ ਸਿਸਟਮ ਕੈਮਰਾ ਵਰਤਿਆ ਸੀ? ਤੁਹਾਨੂੰ { -brand-firefox } ਐਪ ਤੋਂ ਪੇਅਰ ਕਰਨਾ ਪਵੇਗਾ।
 
 
+pair2-authority-approve-sign-in-heading = ਸਾਈਨ ਇਨ ਨੂੰ ਮਨਜ਼ੂਰ ਕਰਨਾ ਹੈ?
+pair2-authority-approve-sign-in-confirm-button = ਹਾਂ, ਸਾਈਨ ਇਨ ਮਨਜ਼ੂਰ ਹੈ
+pair2-authority-approve-sign-in-change-password = ਤੁਸੀਂ ਨਹੀ ਸੀ?<changePassword>ਆਪਣੇ ਪਾਸਵਰਡ ਨੂੰ ਬਦਲੋ</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = ਆਪਣੇ ਮੋਬਾਈਲ ਡਿਵਾਈਸ ਨਾਲ ਜਾਰੀ ਰੱਖੋ
+pair2-authority-continue-on-mobile-description = ਆਪਣੇ ਫ਼ੋਨ ਜਾਂ ਟੈਬਲੇਟ ਉੱਤੇ ਅਗਲੇਰੀ ਕਾਰਵਾਈ ਜਾਰੀ ਰੱਖੋ।
+pair2-authority-continue-on-mobile-cancel-button = ਰੱਦ ਕਰੋ
+
+
+pair2-authority-download-firefox-heading = ਸਿੰਕ ਲਈ { -brand-firefox } ਨੂੰ ਖੋਲ੍ਹੋ
+pair2-authority-download-firefox-instruction = ਡਿਵਾਈਸ ਵਿਚਾਲੇ ਸਿੰਕ ਨੂੰ ਸੈਟਅੱਪ ਕਰਨ ਲਈ, ਇਸ ਡਿਵਾਈਸ ਉੱਤੇ { -brand-firefox } ਨੂੰ ਖੋਲ੍ਹੋ ਅਤੇ <b>firefox.com/pair</b> ਨੂੰ ਖੋਲ੍ਹੋ
+pair2-authority-download-firefox-cta = { -brand-firefox } ਨੂੰ ਡਾਊਨਲੋਡ ਕਰੋ
+
+
+pair2-authority-scan-qr-heading = ਆਪਣੇ ਮੋਬਾਈਲ ਡਿਵਾਈਸ ਨੂੰ ਕਨੈਕਟ ਕਰਨ ਲਈ ਸਕੈਨ ਕਰੋ
+pair2-authority-scan-qr-instruction = ਆਪਣੇ { -brand-firefox } ਬੁੱਕਮਾਰਕਾਂ, ਟੈਬਾਂ ਅਤੇ ਹੋਰ ਚੀਜ਼ਾਂ ਨੂੰ ਸਿੰਕ ਕਰਨ ਵਾਸਤੇ ਆਪਣੇ ਫ਼ੋਨ ਜਾਂ ਟੈਬਲੇਟ ਨਾਲ QR ਕੋਡ ਨੂੰ ਸਕੈਨ ਕਰੋ।
+pair2-authority-scan-qr-code-aria-label = ਤੁਹਾਡੇ ਮੋਬਾਈਲ ਡਿਵਾਈਸ ਨੂੰ ਕਨੈਕਟ ਕਰਨ ਲਈ QR ਕੋਡ
+pair2-authority-scan-qr-help-link = ਸਕੈਨ ਕਰਨ ਲਈ ਮਦਦ ਲਵੋ
+
+
+pair2-authority-sync-success-heading = ਤੁਸੀਂ ਸਿੰਕ ਕਰ ਰਹੇ ਹੋ
+pair2-authority-sync-success-description = ਤੁਹਾਡੀਆਂ ਟੈਬਾਂ , ਬੁੱਕਮਾਰਕ, ਪਾਸਵਰਡ ਅਤੇ ਹੋਰ ਚੀਜ਼ਾਂ ਤੁਹਾਡੇ ਡਿਵਾਈਸਾਂ ਲਈ ਤਿਆਰ ਹਨ।
+pair2-authority-sync-success-view-tabs-button = ਸਿੰਕ ਕੀਤੀਆਂ ਟੈਬਾਂ ਨੂੰ ਵੇਖੋ
+pair2-authority-sync-success-sync-settings-button = ਸਿੰਕ ਸੈਟਿੰਗਾਂ
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = ਹਾਲੇ ਵੀ ਕਿਸੇ ਡਿਵਾਈਸ ਨੂੰ ਕਨੈਕਟ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ?
+pair2-authority-timeout-and-cancel-timeout-description = ਲੱਗਦਾ ਹੈ ਕਿ ਅਸੀਂ ਟਾਈਮ-ਆਉਟ ਹੋ ਗਏ ਹਨ। ਜੇ ਤੁਸੀ ਹਾਲੇ ਵੀ ਮੋਬਾਈਲ ਡਿਵਾਈਸ ਨਾਲ ਕਨੈਕਟ ਕਰਕੇ ਆਪਣੇ { -brand-firefox } ਡਾਟੇ ਨੂੰ ਸਿੰਕ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ ਤਾਂ ਫੇਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ।
+pair2-authority-timeout-and-cancel-canceled-heading = ਰੱਦ ਕੀਤਾ
+pair2-authority-timeout-and-cancel-canceled-description = ਜੇ ਤੁਸੀਂ ਆਪਣਾ ਮਨ ਬਦਲਿਆ ਜਾਂ ਵੱਖਰੇ ਡਿਵਾਈਸ ਨਾਲ ਕਨੈਕਟ ਕਰਨਾ ਹੋਇਆ ਤਾਂ ਫੇਰ ਕੋਸ਼ਿਸ਼ ਕਰਿਓ।
+pair2-authority-timeout-and-cancel-try-again-button = ਫੇਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ
+pair2-authority-timeout-and-cancel-cancel-button = ਰੱਦ ਕਰੋ
+pair2-authority-timeout-and-cancel-sync-settings-button = ਸਿੰਕ ਸੈਟਿੰਗਾਂ
+
+
 pair2-supplicant-approve-sign-in-heading = ਸਿੰਕ ਕਰਨ ਲਈ ਆਖਰੀ ਪੜਾਅ
 pair2-supplicant-approve-sign-in-instruction = ਆਪਣੇ ਕੰਪਿਊਟਰ ਤੋਂ ਸਾਈਨ-ਇਨ ਨੂੰ ਮਨਜ਼ੂਰੀ ਦਿਓ।
 pair2-supplicant-approve-sign-in-cancel-button = ਰੱਦ ਕਰੋ
+
+
+pair2-supplicant-connect-this-device-heading = ਕੀ ਇਡ ਡਿਵਾਈਸ ਨੂੰ ਤੁਹਾਡੇ ਖਾਤੇ ਨਾਲ ਕਨੈਕਟ ਕਰਨਾ ਹੈ?
+pair2-supplicant-connect-this-device-connect-button = ਕਨੈਕਟ ਕਰੋ
+pair2-supplicant-connect-this-device-cancel-button = ਰੱਦ ਕਰੋ
+
+
+pair2-supplicant-download-firefox-heading = ਇਸ ਡਿਵਾਈਸ ਲਈ { -brand-firefox } ਲਵੋ
+pair2-supplicant-download-firefox-description = ਬੁੱਕਮਾਰਕਾਂ, ਅਤੀਤ ਅਤੇ ਹੋਰ ਚੀਜ਼ਾਂ ਨੂੰ ਡਿਵਾਈਸ ਨਾਲ ਕਨੈਕਟ ਕਰਨ ਲਈ { -brand-firefox } ਨੂੰ ਡਾਊਨਲੋਡ ਕਰੋ। <linkExternal>ਹੋਰ ਜਾਣੋ</linkExternal>
+pair2-supplicant-download-firefox-continue-button = { -brand-firefox } ਨਾਲ ਜਾਰੀ ਰੱਖੋ
+
+
+pair2-supplicant-ready-to-scan-heading = ਕਿਸੇ ਡਿਵਾਈਸ ਨਾਲ ਕਨੈਕਟ ਕਰੋ
+pair2-supplicant-ready-to-scan-learn-more-link = ਹੋਰ ਜਾਣੋ
+
+
+pair2-supplicant-sync-success-heading = ਤੁਹਾਡਾ ਡਿਵਾਈਸ ਕਨੈਕਟ ਹੈ
+pair2-supplicant-sync-success-view-tabs-button = ਸਿੰਕ ਕੀਤੀਆਂ ਟੈਬਾਂ ਨੂੰ ਵੇਖੋ
+pair2-supplicant-sync-success-sync-settings-button = ਸਿੰਕ ਸੈਟਿੰਗਾਂ
+
+
+pair2-supplicant-timeout-and-cancel-canceled-heading = ਰੱਦ ਕੀਤਾ
 
 
 
