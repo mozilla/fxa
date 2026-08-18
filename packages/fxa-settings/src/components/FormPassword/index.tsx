@@ -197,7 +197,9 @@ export const FormPassword = ({
             registration={register('newPassword', {
               required: true,
               validate: {
-                length: (value: string) => value.length > 7,
+                // Whitespace-only passwords reuse the 8-character row.
+                length: (value: string) =>
+                  value.length > 7 && value.trim() !== '',
                 notEmail: (value: string) => {
                   return !passwordValidator.isSameAsEmail(value.toLowerCase());
                 },
