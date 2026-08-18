@@ -30,22 +30,6 @@ brand-m-logo =
 button-back-aria-label = Uɣal
 button-back-title = Uɣal
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
-## The account recovery key can be used to recover data when users forget their account password
-
-# Button to download the account recovery key as a PDF file and navigate to the next step
-# The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = Sader syen kemmel
-    .title = Sader syen kemmel
-recovery-key-pdf-heading = Tasarut n tririt n umiḍan
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = Yettusirew: { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = Tasarut n tririt n umiḍan
-
 ## ChooseNewsletters component
 ## Checklist of newsletters that the user can choose to sign up to
 

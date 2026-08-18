@@ -41,31 +41,15 @@ brand-m-logo =
 button-back-aria-label = უკან
 button-back-title = უკან
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
+# Button to download the account recovery key as a plain text file and navigate to the next step
 # The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = ჩამოტვირთეთ და განაგრძეთ
-    .title = ჩამოტვირთეთ და განაგრძეთ
-recovery-key-pdf-heading = ანგარიშის აღდგენის გასაღები
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = შედგენილი: { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = ანგარიშის აღდგენის გასაღები
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = ამ გასაღების მეშვეობით, შეძლებთ აღადგინოთ ბრაუზერის დაშიფრული მონაცემები (მათ შორის ანგარიშები, სანიშნები და ისტორი), თუ პაროლი დაგავიწყდებათ. შეინახეთ ადვილად დასამახსოვრებელ ადგილას.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = სათანადო ადგილი გასაღების შესანახად
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = ვრცლად ანგარიშის აღდგენის გასაღების შესახებ
-# Error message displayed in an alert bar if the PDF download failed.
+recovery-key-download-button-v4 = ჩამოტვირთეთ და განაგრძეთ
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = სამწუხაროდ, ხარვეზი წარმოიშვა ანგარიშის აღდგენის გასაღების ჩამოტვირთვისას.
 
 ## ButtonPasskeySignin
@@ -583,6 +567,9 @@ cs-cannot-disconnect = კლიენტი ვერ მოიძებნა,
 cs-logged-out-2 = გამოთიშულია { $service }
 cs-refresh-button =
     .title = დაკავშირებული მომსახურებების განახლება
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = მოწყობილობის დაკავშირება
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = აკლია რამე ან გამეორებულია?
 cs-disconnect-sync-heading = გამოთიშვა სინქრონიზაციიდან
@@ -772,6 +759,13 @@ flow-setup-2fa-prompt-heading = ორბიჯიანი დამოწმ�
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
 flow-setup-2fa-prompt-description = { $serviceName } ითხოვს ორბიჯიანი დამოწმების გამართვას შესვლისას ანგარიშის უსაფრთხოებისთვის.
+# Success banner shown at the top of the page when the user signed in with a passkey.
+flow-setup-2fa-prompt-passkey-success-banner = წარმატებით შევიდა მოცემული საშვით
+# Body copy shown when the user signed in with a passkey and the service still
+# requires two-step authentication setup.
+# Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
+# that requests two-step authentication setup.
+flow-setup-2fa-prompt-passkey-description = { $serviceName } ასევე საჭიროებს ორბიჯიან დამოწმებას თქვენი { -product-mozilla-account(case: "gen") }. გამართვის შემდეგ აღარ დაგჭირდებათ მისი გამოყენება საშვით შესვლისას.
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = გასაგრძელებლად შეგიძლიათ გამოიყენოთ ნებისმიერი <authenticationAppsLink>ამ დამმოწმებელი პროგრამებიდან</authenticationAppsLink>.
 flow-setup-2fa-prompt-continue-button = განაგრძეთ
@@ -1034,6 +1028,8 @@ page-passkey-add-error-system-v2 = ხარვეზს წააწყდა �
 ## These are displayed as a list with the date when the event occured
 
 recent-activity-title = ანგარიშის ბოლო მოქმედებები
+# Clicking this button reveals the older account activity that is hidden at first.
+recent-activity-show-more-button = ვრცლად
 recent-activity-account-create-v2 = ანგარიში შეიქმნა
 recent-activity-account-disable-v2 = ანგარიში გაითიშა
 recent-activity-account-enable-v2 = ანგარიში ამოქმედდა
@@ -1848,6 +1844,83 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = უჰ, რაღაც �
 pair-unsupported-desktop-firefox-fallback-message-v2 = გთხოვთ დახუროთ ჩანართი და კვლავ სცადოთ.
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer, which is already signed in, after their
+## mobile device scans the pairing QR code. It asks them to approve the
+## sign-in, and shows the requesting device's details so they can verify it.
+
+# Asks the user to confirm the sign-in that another one of their devices just started
+pair2-authority-approve-sign-in-heading = დამოწმებულია ეს შესვლა?
+# Submit button confirming that the user started the pairing and approves the
+# other device being added to their account
+pair2-authority-approve-sign-in-confirm-button = დიახ, დამოწმებულია შესვლა
+# "Not you?" asks whether someone other than the user started this sign-in.
+# The text inside <changePassword> links to the page for changing the password.
+pair2-authority-approve-sign-in-change-password = თქვენ არ ყოფილხართ? <changePassword>შეცვალეთ პაროლი</changePassword>
+
+## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer after scanning the pairing QR code with
+## their phone. It confirms the flow has moved to the mobile device and waits
+## for the remaining steps to be completed there.
+
+pair2-authority-continue-on-mobile-heading = განაგრძეთ მობილურ მოწყობილობაზე
+pair2-authority-continue-on-mobile-description = მიჰყევით ნაბიჯებს ტელეფონზე ან პლანშეტზე.
+# Dismisses the pairing attempt
+pair2-authority-continue-on-mobile-cancel-button = გაუქმება
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when Firefox is needed to continue pairing.
+## It points them at firefox.com/pair and offers a download link for Firefox.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-download-firefox-heading = გახსენით { -brand-firefox } დასინქრონებისთვის
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction = მოწყობილობებს შორის სინქრონიზაციისთვის გახსენით { -brand-firefox } ამ მოწყობილობაზე და ინახულეთ გვერდი <b>firefox.com/pair</b>
+# Links out to the Firefox download page
+pair2-authority-download-firefox-cta = ჩამოტვირთეთ { -brand-firefox }
+
+## ScanQR page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer. It shows a QR code that they scan with
+## their phone or tablet to connect the two devices and start syncing.
+
+pair2-authority-scan-qr-heading = წააკითხეთ მობილურ მოწყობილობასთან დასაკავშირებლად
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-scan-qr-instruction = წააკითხეთ QR-კოდი ტელეფონით ან პლანშეტით, რომ დაასინქრონოთ { -brand-firefox } არსებული სანიშნებით, ჩანართებითა თუ სხვ.
+# Accessible label describing the QR code image shown on this page
+pair2-authority-scan-qr-code-aria-label = QR-კოდი მობილურ მოწყობილობასთან დასაკავშირებლად
+# Link to a support article for users having trouble scanning the QR code
+pair2-authority-scan-qr-help-link = დახმარება წაკითხვის ხარვეზისას
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and offers the follow-up actions.
+
+# "syncing" here means copying data between the user's devices
+pair2-authority-sync-success-heading = დასინქრონებულია
+pair2-authority-sync-success-description = თქვენი ჩანართები, სანიშნები, პაროლები თუ სხვ. მზადაა სარგებლობისთვის თქვენს მოწყობილობებზე.
+# Opens the tabs that are open on the user's other synced devices
+pair2-authority-sync-success-view-tabs-button = დასინქ. ჩანართების ნახვა
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button = სინქრონიზაციის პარამეტრები
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when pairing stopped without succeeding,
+## either because it timed out or because it was canceled. Both cases offer to
+## start pairing over again.
+
+# Shown when the pairing attempt expired before it was approved
+pair2-authority-timeout-and-cancel-timeout-heading = კიდევ გსურთ მოწყობილობის დაკავშირება?
+pair2-authority-timeout-and-cancel-timeout-description = როგორც ჩანს, დრო ამოიწურა. სცადეთ ხელახლა, თუ კვლავ გსურთ თქვენი მობილური მოწყობილობის დაკავშირება, რომ დაასინქრონოთ { -brand-firefox } მონაცემებიანად.
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-canceled-heading = გაუქმდა
+pair2-authority-timeout-and-cancel-canceled-description = თუ გადაიფიქრებთ ან გსურთ სხვა მოწყობილობის დაკავშირება, კვლავ სცადეთ.
+# Restarts the pairing flow
+pair2-authority-timeout-and-cancel-try-again-button = ხელახლა ცდა
+# Abandons pairing without retrying
+pair2-authority-timeout-and-cancel-cancel-button = გაუქმება
+# Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
+pair2-authority-timeout-and-cancel-sync-settings-button = სინქრონიზაციის პარამეტრები
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
 ## shown on their computer. It waits for them to approve the sign-in on the
 ## computer, and shows that computer's details so they can verify the request.
@@ -1857,6 +1930,70 @@ pair2-supplicant-approve-sign-in-heading = ბოლო ნაბიჯი დ�
 pair2-supplicant-approve-sign-in-instruction = დაადასტურეთ შესვლა თქვენს კომპიუტერზე.
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = გაუქმება
+
+## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It asks them to confirm connecting the mobile
+## device to their account, and shows that computer's details so they can
+## verify the request.
+
+# "this device" is the mobile device the user is holding, not the computer
+# whose details are shown below the heading
+pair2-supplicant-connect-this-device-heading = დაუკავშირდეს ეს მოწყობილობა თქვენს ანგარიშს?
+# Confirms the pairing attempt
+pair2-supplicant-connect-this-device-connect-button = დაკავშირება
+# Dismisses the pairing attempt
+pair2-supplicant-connect-this-device-cancel-button = გაუქმება
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing reaches a device that
+## does not have Firefox installed yet. It explains what syncing gets them and
+## sends them off to install the browser.
+
+pair2-supplicant-download-firefox-heading = გადმოწერეთ { -brand-firefox } ამ მოწყობილობაზე
+# "sync" is a verb here, referring to syncing data between the user's devices.
+# <linkExternal> is an anchor tag linking to a page explaining what sync does.
+pair2-supplicant-download-firefox-description = ჩამოტვირთეთ { -brand-firefox } სანიშნების, ისტორიისა თუ სხვა მონაცემების დასინქრონებისთვის სხვადასხვა მოწყობილობებზე. <linkExternal>ვრცლად</linkExternal>
+# Primary action. Sends the user to the Firefox download page.
+pair2-supplicant-download-firefox-continue-button = გასაგრძელებლად გამოიყენეთ { -brand-firefox }
+
+## ReadyToScan page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device before pairing starts. It tells them
+## to open firefox.com/pair on their computer, which is where the QR code they
+## scan with the mobile device comes from.
+
+pair2-supplicant-ready-to-scan-heading = რომ დაკავშირდეს მოწყობილობა
+# <b> emphasises the address the user types on their computer. It is not a link,
+# and the address itself must not be translated.
+pair2-supplicant-ready-to-scan-instruction = თქვენს კომპიუტერზე, გახსენით { -brand-firefox }, მოინახულეთ გვერდი <b>firefox.com/pair</b> და მიჰყევით ეკრანზე მითითებებს ამ მობილური მოწყობილობის დასაკავშირებლად.
+# Opens a Mozilla support article about setting up sync
+pair2-supplicant-ready-to-scan-learn-more-link = ვრცლად
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device once pairing has completed: the device
+## is signed in and syncing with the computer they paired it with.
+
+pair2-supplicant-sync-success-heading = მოწყობილობა დაკავშირებულია
+pair2-supplicant-sync-success-description = თქვენს სანიშნებს, ჩანართებს თუ სხვა მონაცემებს ასინქრონებს { -brand-firefox }.
+# Opens the view listing tabs open on the user's other synced devices
+pair2-supplicant-sync-success-view-tabs-button = დასინქ. ჩანართების ნახვა
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button = სინქრონიზაციის პარამეტრები
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing ends without connecting,
+## either because the attempt timed out or because it was canceled. Both states
+## are informational and offer no on-screen action, so the copy points the user
+## back to their computer to start again.
+
+# Shown when the pairing attempt expired before it completed. "we" is Firefox.
+pair2-supplicant-timeout-and-cancel-timeout-heading = როგორც ჩანს, დრო ამოიწურა
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-timeout-description = მობილური მოწყობილობის დასაკავშირებლად, რომ დასინქრონდეს { -brand-firefox } მონაცემებიანად, ინახულეთ გვერდი <b>firefox.com/pair</b> თქვენს კომპიუტერში.
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-canceled-heading = გაუქმებული
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-canceled-description = მოწყობილობის დასაკავშირებლად ნებისმიერ დროს, ინახულეთ გვერდი <b>firefox.com/pair</b> თქვენს კომპიუტერში.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

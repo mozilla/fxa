@@ -71,13 +71,6 @@ button-back-aria-label = Uɣal
 button-back-title = Uɣal
 
 
-recovery-key-download-button-v3 = Sader syen kemmel
-    .title = Sader syen kemmel
-recovery-key-pdf-heading = Tasarut n tririt n umiḍan
-recovery-key-pdf-download-date = Yettusirew: { $date }
-recovery-key-pdf-key-legend = Tasarut n tririt n umiḍan
-
-
 choose-newsletters-prompt-2 = Awi ugar seg { -brand-mozilla }:
 
 

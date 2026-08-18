@@ -39,31 +39,12 @@ brand-m-logo =
 button-back-aria-label = Slědk
 button-back-title = Slědk
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
-# The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = Ześěgnuś a pókšacowaś
-    .title = Ześěgnuś a pókšacowaś
-recovery-key-pdf-heading = Kontowy wótnowjeński kluc
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = Generěrowany: { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = Kontowy wótnowjeński kluc
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = Toś ten kluc wam zmóžnja, waše skoděrowane daty wobglědowaka (mjazy nimi gronidła, cytańske znamjenja a historiju) wótnowiś, jolic swój gronidło zabywaśo. Składujśo jo na městnje, kótarež móžośo se spomnjeś.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = Městna za składowanje wašogo kluca
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = Zgóńśo wěcej wó swójom kontowem wótnowjeńskem klucu
-# Error message displayed in an alert bar if the PDF download failed.
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Bóžko jo pśi ześěgowanju kontowego wótnowjeńskego kluca problem nastał
 
 ## ButtonPasskeySignin

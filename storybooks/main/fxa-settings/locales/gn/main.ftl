@@ -83,14 +83,6 @@ button-back-aria-label = Tapykue
 button-back-title = Tapykue
 
 
-recovery-key-download-button-v3 = Emboguejy ha eku’ejey
-    .title = Emboguejy ha eku’ejey
-recovery-key-pdf-heading = Mba’ete mba’eñemi jeguerujeyrã
-recovery-key-pdf-download-date = Heñoipyre: { $date }
-recovery-key-pdf-key-legend = Mba’ete mba’eñemi jeguerujeyrã
-recovery-key-pdf-instructions = Ko ñe’ẽñemi omoneĩ eguerujey hag̃ua kundahára mba’ekuaarã ipapapýva (oĩhápe ñe’ẽñemi, techaukaha ha tembiasakue) nanemandu’áiramo ñe’ẽñemíre. Eñongatu eikuaa hag̃uáme.
-recovery-key-pdf-storage-ideas-heading = Eñongatukuaaha mba’eñemi
-recovery-key-pdf-support = Eikuaave ne mba’ete mba’eñemi guerujeyrã rehegua
 recovery-key-pdf-download-error = Ore ñyro, oĩ apañuái hekopyahúvo ne mba’ete mba’eñemi jeguerujeyrã.
 
 

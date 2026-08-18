@@ -38,9 +38,6 @@ app-loading-spinner-aria-label-loading = Բեռնում…
 brand-learn-more = Իմանալ ավելին
 
 
-recovery-key-pdf-key-legend = Հաշվի վերականգնման բանալի
-
-
 datablock-download =
     .message = Ներբեռնված
 datablock-copy =
