@@ -24,15 +24,6 @@ app-footer-terms-of-service = Teenuse tingimused
 
 
 
-recovery-key-download-button-v3 = Laadi alla ja jätka
-    .title = Laadi alla ja jätka
-recovery-key-pdf-heading = Konto taastevõti
-recovery-key-pdf-key-legend = Konto taastevõti
-recovery-key-pdf-instructions = See võti võimaldab sul parooli unustamisel taastada krüptitud brauseriandmed (sh paroolid, järjehoidjad ja ajaloo). Hoia seda kohas, mida mäletad.
-recovery-key-pdf-storage-ideas-heading = Kohad võtme hoidmiseks
-recovery-key-pdf-support = Rohkem teavet konto taastevõtmest
-
-
 datablock-download =
     .message = Alla laaditud
 datablock-copy =

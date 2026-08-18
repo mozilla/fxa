@@ -83,14 +83,6 @@ button-back-aria-label = Terug
 button-back-title = Terug
 
 
-recovery-key-download-button-v3 = Downloaden en doorgaan
-    .title = Downloaden en doorgaan
-recovery-key-pdf-heading = Accountherstelsleutel
-recovery-key-pdf-download-date = Aangemaakt: { $date }
-recovery-key-pdf-key-legend = Accountherstelsleutel
-recovery-key-pdf-instructions = Met deze sleutel kunt u uw versleutelde browsergegevens (inclusief wachtwoorden, bladwijzers en geschiedenis) herstellen als u uw wachtwoord vergeet. Bewaar hem op een plek die u kunt onthouden.
-recovery-key-pdf-storage-ideas-heading = Plaatsen om uw sleutel op te slaan
-recovery-key-pdf-support = Meer info over uw accountherstelsleutel
 recovery-key-pdf-download-error = Sorry, er is een probleem opgetreden bij het downloaden van uw accountherstelsleutel.
 
 

@@ -121,14 +121,6 @@ button-back-aria-label = Înapoi
 button-back-title = Înapoi
 
 
-recovery-key-download-button-v3 = Descarcă și continuă
-    .title = Descarcă și continuă
-recovery-key-pdf-heading = Cheie de recuperare a contului
-recovery-key-pdf-download-date = Generată la: { $date }
-recovery-key-pdf-key-legend = Cheie de recuperare a contului
-recovery-key-pdf-instructions = Această cheie îți permite să îți recuperezi datele criptate din browser (inclusiv parole, marcaje și istoric) în cazul în care îți uiți parola. Păstreaz-o într-un loc de care îți aduci aminte.
-recovery-key-pdf-storage-ideas-heading = Unde să-ți păstrezi cheia
-recovery-key-pdf-support = Află mai multe despre cheia ta de recuperare a contului
 recovery-key-pdf-download-error = Ne pare rău, a apărut o problemă la descărcarea cheii tale de recuperare a contului
 
 

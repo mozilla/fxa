@@ -83,14 +83,6 @@ button-back-aria-label = Назад
 button-back-title = Назад
 
 
-recovery-key-download-button-v3 = Преузми и настави
-    .title = Преузми и настави
-recovery-key-pdf-heading = Кључ за опоравак налога
-recovery-key-pdf-download-date = Направљено: { $date }
-recovery-key-pdf-key-legend = Кључ за опоравак налога
-recovery-key-pdf-instructions = Овај кључ вам омогућава да опоравите своје шифроване податке прегледача (укључујући лозинке, обележиваче и историјат) ако заборавите лозинку. Чувајте га на месту које ћете запамтити.
-recovery-key-pdf-storage-ideas-heading = Места за чување кључа
-recovery-key-pdf-support = Сазнајте више о свом кључу за опоравак налога
 recovery-key-pdf-download-error = Нажалост, дошло је до проблема при преузимању вашег кључа за опоравак налога.
 
 

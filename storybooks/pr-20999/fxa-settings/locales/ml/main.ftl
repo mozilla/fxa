@@ -66,13 +66,6 @@ button-back-aria-label = പുറകോട്ടു്
 button-back-title = പുറകോട്ടു്
 
 
-recovery-key-download-button-v3 = കരുതിവച്ചിട്ടു് തുടരുക
-    .title = കരുതിവച്ചിട്ടു് തുടരുക
-recovery-key-pdf-heading = അക്കൌണ്ടു് വീണ്ടെടുപ്പു് സങ്കേതം
-recovery-key-pdf-download-date = ഉണ്ടാക്കിയതു്: { $date }
-recovery-key-pdf-key-legend = അക്കൌണ്ടു് വീണ്ടെടുപ്പു് സങ്കേതം
-recovery-key-pdf-storage-ideas-heading = താക്കോൽ സൂക്ഷിച്ചു് വയ്ക്കാനാവുന്ന ഇടങ്ങൾ
-recovery-key-pdf-support = അക്കൌണ്ടു് വീണ്ടെടുപ്പു് സങ്കേതം പറ്റി കൂടുതൽ അറിയുക
 recovery-key-pdf-download-error = അക്കൌണ്ടു് വീണ്ടെടുപ്പു് സങ്കേതം ഇറക്കിവയ്ക്കുന്നതിലു് എന്തോ കുഴപ്പമുണ്ടായി.
 
 

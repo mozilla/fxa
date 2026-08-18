@@ -83,14 +83,6 @@ button-back-aria-label = Slědk
 button-back-title = Slědk
 
 
-recovery-key-download-button-v3 = Ześěgnuś a pókšacowaś
-    .title = Ześěgnuś a pókšacowaś
-recovery-key-pdf-heading = Kontowy wótnowjeński kluc
-recovery-key-pdf-download-date = Generěrowany: { $date }
-recovery-key-pdf-key-legend = Kontowy wótnowjeński kluc
-recovery-key-pdf-instructions = Toś ten kluc wam zmóžnja, waše skoděrowane daty wobglědowaka (mjazy nimi gronidła, cytańske znamjenja a historiju) wótnowiś, jolic swój gronidło zabywaśo. Składujśo jo na městnje, kótarež móžośo se spomnjeś.
-recovery-key-pdf-storage-ideas-heading = Městna za składowanje wašogo kluca
-recovery-key-pdf-support = Zgóńśo wěcej wó swójom kontowem wótnowjeńskem klucu
 recovery-key-pdf-download-error = Bóžko jo pśi ześěgowanju kontowego wótnowjeńskego kluca problem nastał
 
 

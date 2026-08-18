@@ -83,14 +83,6 @@ button-back-aria-label = Mbrapsht
 button-back-title = Mbrapsht
 
 
-recovery-key-download-button-v3 = Shkarkoje dhe vazhdo
-    .title = Shkarkoje dhe vazhdo
-recovery-key-pdf-heading = Kyç Rimarrjeje Llogarie
-recovery-key-pdf-download-date = Prodhuar më: { $date }
-recovery-key-pdf-key-legend = Kyç Rimarrjeje Llogarie
-recovery-key-pdf-instructions = Ky kyç ju lejon të rimerrni të dhëna shfletuesi tuajat të fshehtëzuara (përfshi fjalëkalime, faqerojtës dhe historik), nëse harroni fjalëkalimin tuaj. Depozitojeni diku ku do ta mbani mend.
-recovery-key-pdf-storage-ideas-heading = Vende ku të depozitoni kyçin tuaj
-recovery-key-pdf-support = Mësoni më tepër mbi kyçin tuaj të rimarrjes së llogarisë
 recovery-key-pdf-download-error = Na ndjeni, pati një problem me shkarkimin e kyçit tuaj të rimarrjes së llogarisë.
 
 

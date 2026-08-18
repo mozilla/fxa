@@ -83,14 +83,6 @@ button-back-aria-label = 返回
 button-back-title = 返回
 
 
-recovery-key-download-button-v3 = 下载并继续
-    .title = 下载并继续
-recovery-key-pdf-heading = 账户恢复密钥
-recovery-key-pdf-download-date = 创建日期：{ $date }
-recovery-key-pdf-key-legend = 账户恢复密钥
-recovery-key-pdf-instructions = 如果您忘记了密码，可以使用此密钥来恢复加密的浏览器数据（包括密码、书签和历史记录）。请妥善保管密钥。
-recovery-key-pdf-storage-ideas-heading = 密钥存放位置
-recovery-key-pdf-support = 详细了解账户恢复密钥
 recovery-key-pdf-download-error = 很抱歉，下载您的账户恢复密钥时出现问题。
 
 

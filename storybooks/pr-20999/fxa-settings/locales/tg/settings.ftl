@@ -39,31 +39,12 @@ brand-m-logo =
 button-back-aria-label = Ба қафо
 button-back-title = Ба қафо
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
-# The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = Боргирӣ кунед ва идома диҳед
-    .title = Боргирӣ кунед ва идома диҳед
-recovery-key-pdf-heading = Калиди барқарорсозии ҳисоб
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = Эҷодшуда: { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = Калиди барқарорсозии ҳисоб
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = Агар шумо ниҳонвожаи худро фаромӯш кунед, ин калид ба шумо имкон медиҳад, ки маълумоти рамзгузоришудаи браузерро (аз он ҷумла, ниҳонвожаҳо, хатбаракҳо ва таърихи тамошобинӣ) барқарор кунед. Онро дар ҷойе нигоҳ доред, ки ба ёд меоред.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = Ҷойҳо барои нигоҳ доштани калиди шумо
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = Маълумоти бештар дар бораи калиди барқарорсозии ҳисоби худ
-# Error message displayed in an alert bar if the PDF download failed.
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Мутаассифона, ҳангоми боргирӣ кардани калиди барқарорсозии ҳисоби шумо мушкилие ба миён омад.
 
 ## ChooseNewsletters component

@@ -83,14 +83,6 @@ button-back-aria-label = Артқа
 button-back-title = Артқа
 
 
-recovery-key-download-button-v3 = Жүктеп алу және жалғастыру
-    .title = Жүктеп алу және жалғастыру
-recovery-key-pdf-heading = Тіркелгіні қалпына келтіру кілті
-recovery-key-pdf-download-date = Жасалған: { $date }
-recovery-key-pdf-key-legend = Тіркелгіні қалпына келтіру кілті
-recovery-key-pdf-instructions = Бұл кілт парольді ұмытып қалсаңыз, браузердің шифрленген деректерін (соның ішінде парольдер, бетбелгілер және тарих) қалпына келтіруге мүмкіндік береді. Оны есте сақтайтын жерде сақтаңыз.
-recovery-key-pdf-storage-ideas-heading = Кілтіңізді сақтайтын орындар
-recovery-key-pdf-support = Тіркелгіңізді қалпына келтіру кілті туралы көбірек білу
 recovery-key-pdf-download-error = Кешіріңіз, тіркелгіні қалпына келтіру кілтін жүктеп алу кезінде мәселе орын алды.
 
 

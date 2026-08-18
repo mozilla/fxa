@@ -369,14 +369,7 @@ button-back-aria-label = Zpět
 button-back-title = Zpět
 
 
-recovery-key-download-button-v3 = Stáhnout a pokračovat
-    .title = Stáhnout a pokračovat
-recovery-key-pdf-heading = Obnovovací klíč k účtu
-recovery-key-pdf-download-date = Vytvořen: { $date }
-recovery-key-pdf-key-legend = Obnovovací klíč k účtu
-recovery-key-pdf-instructions = Tento klíč umožňuje obnovit zašifrovaná data prohlížeče (včetně hesel, záložek a historie), pokud zapomenete heslo. Uložte jej na místo, které si budete pamatovat.
-recovery-key-pdf-storage-ideas-heading = Místa pro uložení vašeho klíče
-recovery-key-pdf-support = Další informace o obnovovacím klíči k účtu
+recovery-key-download-button-v4 = Stáhnout a pokračovat
 recovery-key-pdf-download-error = Je nám líto, ale při stahování klíče pro obnovení účtu došlo k problému.
 
 
@@ -860,6 +853,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Jak tato funkce chrání váš 
 flow-setup-2fa-inline-complete-continue-button = Pokračovat do služby { $serviceName }
 flow-setup-2fa-prompt-heading = Nastavení dvoufázového ověřování
 flow-setup-2fa-prompt-description = { $serviceName } vyžaduje, abyste si nastavili dvoufázové ověřování, aby byl váš účet v bezpečí.
+flow-setup-2fa-prompt-passkey-success-banner = Přihlášení pomocí klíče bylo úspěšné
+flow-setup-2fa-prompt-passkey-description = { $serviceName } také vyžaduje dvoufázové ověření pro vaše { -product-mozilla-account }. Po nastavení už ho nebudete potřebovat pro přihlašování pomocí hesla.
 flow-setup-2fa-prompt-use-authenticator-apps = Pro pokračování můžete použít kteroukoliv z <authenticationAppsLink>těchto ověřovacích aplikací</authenticationAppsLink>.
 flow-setup-2fa-prompt-continue-button = Pokračovat
 

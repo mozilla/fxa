@@ -89,14 +89,7 @@ button-back-aria-label = חזרה
 button-back-title = חזרה
 
 
-recovery-key-download-button-v3 = הורדה והמשך
-    .title = הורדה והמשך
-recovery-key-pdf-heading = מפתח שחזור חשבון
-recovery-key-pdf-download-date = נוצר בתאריך: { $date }
-recovery-key-pdf-key-legend = מפתח שחזור חשבון
-recovery-key-pdf-instructions = מפתח זה מאפשר לך לשחזר את נתוני הדפדפן המוצפנים שלך (הכוללים ססמאות, סימניות והיסטוריה) למקרה שהססמה שלך תישכח. יש לאחסן אותו במקום שקל לזכור.
-recovery-key-pdf-storage-ideas-heading = מקומות לאחסון המפתח שלך
-recovery-key-pdf-support = מידע נוסף על מפתח שחזור החשבון שלך
+recovery-key-download-button-v4 = הורדה והמשך
 recovery-key-pdf-download-error = אירעה שגיאה בהורדת מפתח שחזור החשבון, עמך הסליחה.
 
 
@@ -556,6 +549,8 @@ flow-setup-2fa-inline-complete-learn-more-link = כיצד זה מגן על הח�
 flow-setup-2fa-inline-complete-continue-button = המשך אל { $serviceName }
 flow-setup-2fa-prompt-heading = הגדרת אימות דו־שלבי
 flow-setup-2fa-prompt-description = ‏{ $serviceName } דורש שיוגדר אימות דו־שלבי כדי לשמור על אבטחת החשבון שלך.
+flow-setup-2fa-prompt-passkey-success-banner = ההתחברות בוצעה בהצלחה באמצעות מפתח גישה
+flow-setup-2fa-prompt-passkey-description = ‏{ $serviceName } דורש גם אימות דו־שלבי עבור { -product-mozilla-account(case: "the") } שלך. לאחר ההגדרה, לא יהיה בו צורך יותר בעת כניסה באמצעות מפתח גישה.
 flow-setup-2fa-prompt-use-authenticator-apps = באפשרותך להשתמש בכל אחת מ<authenticationAppsLink>יישומוני האימות האלו</authenticationAppsLink> כדי להמשיך.
 flow-setup-2fa-prompt-continue-button = המשך
 

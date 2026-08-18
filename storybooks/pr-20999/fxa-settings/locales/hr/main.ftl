@@ -83,14 +83,6 @@ button-back-aria-label = Natrag
 button-back-title = Natrag
 
 
-recovery-key-download-button-v3 = Preuzmi i nastavi
-    .title = Preuzmi i nastavi
-recovery-key-pdf-heading = Ključ za obnavljanje računa
-recovery-key-pdf-download-date = Stvoreno: { $date }
-recovery-key-pdf-key-legend = Ključ za obnavljanje računa
-recovery-key-pdf-instructions = Ovaj ključ omogućuje obnavljanje šifriranih podataka preglednika (uključujući lozinke, zabilješke i povijest) ako zaboraviš lozinku. Spremi ga na mjesto kojeg ćeš se sjećati.
-recovery-key-pdf-storage-ideas-heading = Mjesta za spremanje tvog ključa
-recovery-key-pdf-support = Saznaj više o ključu za obnavljanje računa
 recovery-key-pdf-download-error = Žao nam je. Došlo je do greške prilikom preuzimanja ključa za obnavljanje računa.
 
 
