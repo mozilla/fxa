@@ -35,6 +35,12 @@ allows a few seconds of leeway on the comparison (`MAX_AGE_LEEWAY_SECONDS` in
 `fxa-auth-server/lib/oauth/grant.js`), so a click straight after a challenge is satisfied
 silently and one a little later re-challenges.
 
+Elevation does not survive a token refresh. `POST /api/refresh_token` (no UI, used by the
+functional tests) swaps in a fresh access token, and introspecting it reports no `acr` and
+no `auth_time` — the refresh grant never re-evaluates `acr_values`/`max_age` and the stored
+refresh token holds no authentication event. A relying party has to run step-up again
+rather than assume the elevation carried over.
+
 ### Ansible Deployment
 
 See [fxa-dev 123done](https://github.com/mozilla/fxa-dev/tree/docker/roles/rp) Ansible configuration for details.
