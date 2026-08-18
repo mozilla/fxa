@@ -18,7 +18,7 @@
 
     a[class*='cta-'],
     button[class*='cta-'] {
-      @apply shrink-0 whitespace-nowrap;
+      @apply shrink-0 break-keep;
     }
   }
 
