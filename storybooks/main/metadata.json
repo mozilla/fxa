@@ -1,8 +1,8 @@
 {
-  "commit": "6482999350a84480eeb666e7afb3b7e174339584",
-  "summary": "Merge pull request #21027 from mozilla/fxa-13920",
-  "description": "refactor(deps): replace rimraf with native fs.rmSync",
-  "timestamp": 1787074429000,
+  "commit": "98bdd4722e0760f96f6b7e87b1e7053353a02ae5",
+  "summary": "Merge pull request #21028 from mozilla/fxa-13921",
+  "description": "chore(deps): remove the fast-text-encoding polyfill",
+  "timestamp": 1787076390000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
