@@ -186,6 +186,7 @@ describe('/session/status', () => {
           accountEmailVerified: false,
           sessionVerificationMeetsMinimumAAL: true,
           sessionVerificationMethod: 'totp-2fa',
+          sessionVerificationReason: 'signup',
           sessionVerified: false,
           verified: false,
         },
@@ -223,6 +224,7 @@ describe('/session/status', () => {
       details: {
         accountEmailVerified: false,
         sessionVerificationMethod: 'email',
+        sessionVerificationReason: 'signup',
         sessionVerified: false,
         verified: false,
         sessionVerificationMeetsMinimumAAL: true,
@@ -259,6 +261,7 @@ describe('/session/status', () => {
       details: {
         accountEmailVerified: false,
         sessionVerificationMethod: 'email',
+        sessionVerificationReason: 'signup',
         sessionVerified: false,
         verified: false,
         sessionVerificationMeetsMinimumAAL: true,
@@ -295,6 +298,7 @@ describe('/session/status', () => {
       details: {
         accountEmailVerified: true,
         sessionVerificationMethod: 'email',
+        sessionVerificationReason: 'login',
         sessionVerified: false,
         verified: false,
         sessionVerificationMeetsMinimumAAL: false,
@@ -371,6 +375,31 @@ describe('/session/status', () => {
         sessionVerificationMeetsMinimumAAL: true,
       },
     });
+  });
+
+  it('omits sessionVerificationReason when the session is verified', async () => {
+    db.account = jest.fn().mockResolvedValue({
+      uid: 'account-123',
+      primaryEmail: {
+        isVerified: true,
+      },
+    });
+    db.totpToken = jest.fn().mockResolvedValue({
+      enabled: false,
+    });
+
+    const request = mocks.mockRequest({
+      credentials: {
+        uid: 'account-123',
+        state: 'verified',
+        tokenVerified: true,
+        verificationMethodValue: 'email',
+        authenticatorAssuranceLevel: 1,
+      },
+    });
+    const resp = await runTest(route, request);
+
+    expect(resp.details).not.toHaveProperty('sessionVerificationReason');
   });
 
   it('has verified AAL 2', async () => {
