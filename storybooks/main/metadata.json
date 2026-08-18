@@ -1,8 +1,8 @@
 {
-  "commit": "eb4fded0793ee55220477b9a5f94a82d0d3ee0a5",
-  "summary": "Merge pull request #21048 from mozilla/20260818-skill",
-  "description": "chore: adjust triage skill",
-  "timestamp": 1787073475000,
+  "commit": "7450ba8db9a350c57a18c1bdb07987dab29fe2dd",
+  "summary": "Merge pull request #21026 from mozilla/fxa-13919",
+  "description": "chore(content-server): replace mkdirp with native fs.mkdirSync",
+  "timestamp": 1787073601000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
