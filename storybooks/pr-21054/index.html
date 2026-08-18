@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit d2ca2a0353e36349ef7094f704cfcc0c00398d6e</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit d2ca2a0353e36349ef7094f704cfcc0c00398d6e</h1>
+  <ul>
+    <li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>8/18/2026, 8:23:56 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>refactor(shared): remove the fxa-shared/monitoring wrapper</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- `fxa-shared/monitoring` is a 30-line wrapper that only calls `initTracing` then `initSentry`.
+- `fxa-admin-server` already dropped the wrapper and calls both directly, so the target shape is settled.
+- Every consumer already owns a small `monitoring` module, so the wrapper buys nothing.
+
+## This pull request
+
+- Replaces `initMonitoring` with direct `initTracing` then `initSentry` calls in `fxa-admin-panel`, `fxa-auth-server`, `fxa-customs-server` and `fxa-profile-server`. The `tracing.sentry.enabled` and `sentry.skipOpenTelemetrySetup` cross-wiring the wrapper did is kept, in the same order.
+- Deletes `packages/fxa-shared/monitoring` and its `package.json` export.
+- Repoints `fxa-auth-server`, `fxa-admin-panel` and `fxa-event-broker` at `@fxa/shared/otel` for tracing. Boot order in `key_server.js` does not move; only the specifier changes.
+- Adds `@fxa/shared/log`, `@fxa/shared/otel` and `@fxa/shared/sentry-utils` to `fxa-event-broker/tsconfig.build.json`, whose `paths` block overrides the base one.
+- Rewrites `fxa-auth-server/lib/monitoring.spec.ts` to assert the two direct calls, their order and the flag cross-wiring.
+
+Sentry stays where it is on purpose. `fxa-shared/sentry/*` has about 30 importers and is a separate migration, so every `fxa-shared/sentry/...` import here is byte-identical to before.
+
+## Issue that this pull request solves
+
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-10645
+
+Partly addresses https://mozilla-hub.atlassian.net/browse/FXA-10646. See &quot;Other information&quot; for why `fxa-shared/tracing` cannot go yet.</pre></dd>
+  </dl>
+</body>
+</html>
