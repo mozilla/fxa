@@ -6,9 +6,7 @@
 
 import AuthErrors from 'lib/auth-errors';
 import OAuthErrors from 'lib/oauth-errors';
-import chai from 'chai';
-
-var assert = chai.assert;
+import { assert } from 'chai';
 
 describe('lib/auth-errors', function () {
   describe('toError', function () {

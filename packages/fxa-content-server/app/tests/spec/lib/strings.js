@@ -4,10 +4,8 @@
 
 // test the interpolated library
 
-import chai from 'chai';
+import { assert } from 'chai';
 import Strings from 'lib/strings';
-
-var assert = chai.assert;
 
 describe('lib/strings', function () {
   describe('interpolate', function () {

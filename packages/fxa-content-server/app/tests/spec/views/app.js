@@ -6,13 +6,11 @@ import $ from 'jquery';
 import AppView from 'views/app';
 import AuthErrors from 'lib/auth-errors';
 import Backbone from 'backbone';
-import chai from 'chai';
+import { assert } from 'chai';
 import Environment from 'lib/environment';
 import Notifier from 'lib/channels/notifier';
 import sinon from 'sinon';
 import WindowMock from '../../mocks/window';
-
-var assert = chai.assert;
 
 describe('views/app', function () {
   var environment;

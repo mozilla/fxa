@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { assert } from 'chai';
 import random from './random';
 
 jest.mock('./random', () => {
@@ -72,21 +71,21 @@ describe('lib/random', () => {
     describe(`${name} checks`, () => {
       it('takes 1 integer argument, returns a function', () => {
         const gen = generate(10);
-        assert.equal(typeof gen, 'function');
-        assert.equal(gen.length, 0);
+        expect(typeof gen).toBe('function');
+        expect(gen.length).toBe(0);
       });
 
       it('should have correct output', () => {
         const code = generate(10)();
-        assert.equal(code.length, 10, 'matches length');
+        expect(code.length).toBe(10);
       });
 
       it('should check code with regex', async () => {
-        assert.isTrue(regexBase.test(validCode), 'valid code for ' + name);
+        expect(regexBase.test(validCode)).toBe(true);
       });
 
       it('should detect invalid code with regex', () => {
-        assert.isFalse(regexBase.test(invalidCode), 'invalid code for ' + name);
+        expect(regexBase.test(invalidCode)).toBe(false);
       });
     });
   }

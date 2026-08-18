@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import chai from 'chai';
+import { assert } from 'chai';
 import OAuthClient from 'lib/oauth-client';
 import OAuthErrors from 'lib/oauth-errors';
 import sinon from 'sinon';
 import Xhr from 'lib/xhr';
 
 var OAUTH_URL = 'http://localhost:9000';
-var assert = chai.assert;
 var client;
 var server;
 var xhr;

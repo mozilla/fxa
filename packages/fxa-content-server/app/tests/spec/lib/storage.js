@@ -2,13 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import chai from 'chai';
+import { assert } from 'chai';
 import NullStorage from 'lib/null-storage';
 import sinon from 'sinon';
 import Storage from 'lib/storage';
 import WindowMock from '../../mocks/window';
-
-var assert = chai.assert;
 
 describe('lib/storage', function () {
   var storage;

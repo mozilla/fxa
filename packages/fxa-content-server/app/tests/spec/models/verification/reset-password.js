@@ -2,12 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import chai from 'chai';
+import { assert } from 'chai';
 import Constants from 'lib/constants';
 import Model from 'models/verification/reset-password';
 import TestHelpers from '../../../lib/helpers';
-
-var assert = chai.assert;
 
 describe('models/verification/reset-password', function () {
   var invalidCode = TestHelpers.createRandomHexString(

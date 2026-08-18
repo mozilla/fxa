@@ -4,10 +4,9 @@
 
 // test the metrics library
 
-import chai from 'chai';
+import { assert } from 'chai';
 import ImageLoader from 'lib/image-loader';
 
-var assert = chai.assert;
 var pngSrc =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 

@@ -4,11 +4,9 @@
 
 // test the metrics library
 
-import chai from 'chai';
+import { assert } from 'chai';
 import Metrics from 'lib/metrics';
 import NullMetrics from 'lib/null-metrics';
-
-var assert = chai.assert;
 
 describe('lib/null-metrics', function () {
   var nullMetrics;
