@@ -7,14 +7,23 @@
 // https://github.com/facebook/create-react-app/blob/master/packages/react-scripts/config/jest/fileTransform.js
 
 const path = require('path');
-const camelcase = require('camelcase');
+
+// Turns an SVG basename into PascalCase. Twin of the helper in
+// packages/fxa-settings/config/jest/fileTransform.js.
+function toPascalCase(name) {
+  return name
+    .replace(/([a-z])([A-Z])/g, '$1-$2')
+    .split(/[_.\- ]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join('')
+    .replace(/\d[a-z]/g, (match) => match.toUpperCase());
+}
 
 module.exports = {
   process(src, filename) {
     const assetFilename = JSON.stringify(path.basename(filename));
-    const pascalCaseFilename = camelcase(path.parse(filename).name, {
-      pascalCase: true,
-    });
+    const pascalCaseFilename = toPascalCase(path.parse(filename).name);
     const componentName = `Svg${pascalCaseFilename}`;
     return `const React = require('react');
     module.exports = {
