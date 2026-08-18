@@ -8,7 +8,6 @@ const cp = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const rimraf = require('rimraf');
 process.env.NODE_ENV = 'development';
 
 var childServer = cp.fork(path.join(__dirname, '..', 'bin', 'server.js'));
@@ -30,5 +29,8 @@ process.on('exit', function () {
   } catch (e) {
     console.log(e); // eslint-disable-line no-console
   }
-  rimraf.sync(path.join(__dirname, '..', 'var', 'public'));
+  fs.rmSync(path.join(__dirname, '..', 'var', 'public'), {
+    recursive: true,
+    force: true,
+  });
 });

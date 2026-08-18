@@ -7,7 +7,6 @@ const os = require('os');
 const path = require('path');
 const { execFileSync } = require('child_process');
 const crypto = require('crypto');
-const rimraf = require('rimraf');
 
 describe('the signing-key management scripts', () => {
   let runScript: (name: string) => Buffer;
@@ -47,7 +46,7 @@ describe('the signing-key management scripts', () => {
   });
 
   afterEach(() => {
-    rimraf.sync(workDir);
+    fs.rmSync(workDir, { recursive: true, force: true });
   });
 
   it('work as intended', () => {

@@ -9,7 +9,6 @@ var fs = require('fs');
 var MaxmindDbDownloader = require('../lib/maxmind-db-downloader');
 var path = require('path');
 var Promise = require('bluebird');
-var rimraf = require('rimraf');
 var sinon = require('sinon');
 var assert = chai.assert;
 
@@ -28,7 +27,7 @@ describe('maxmind-db-downloader', function () {
     downloadPromiseFunctions = null;
     // cleanup, remove the created directory
     if (fs.statSync(expectedTargetDirPath).isDirectory()) {
-      rimraf.sync(expectedTargetDirPath);
+      fs.rmSync(expectedTargetDirPath, { recursive: true, force: true });
     }
     targetDirPath = '';
     maxmindDbDownloader.stop();
