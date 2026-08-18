@@ -1,8 +1,8 @@
 {
-  "commit": "eb218a354b7401f66c6f15fbc883f3dadb2a9a67",
-  "summary": "Merge pull request #21029 from mozilla/fxa-13929",
-  "description": "test(jest-transforms): cover the SVG component name helper",
-  "timestamp": 1787079296000,
+  "commit": "9c7836b85f3388c6fdfb316de53f28e399132546",
+  "summary": "Merge pull request #21042 from mozilla/fxa-12863",
+  "description": "test(functional): cover the remaining step-up auth scenarios",
+  "timestamp": 1787083323000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
