@@ -1,0 +1,27 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="postRemovePasskey-title">You deleted your passkey</span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="postRemovePasskey-description">You’ll need to use another method to sign in.</span>
+    </mj-text>
+
+    <mj-text css-class="text-body-no-margin">
+      <span data-l10n-id="postRemovePasskey-requested-from">You requested this from:</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+<%- include('/partials/userInfo/index.mjml') %>
+
+<%- include('/partials/button/index.mjml', {
+  buttonL10nId: "postRemovePasskey-action",
+  buttonText: "Manage account"
+}) %>
+
+<%- include('/partials/automatedEmailChangePassword/index.mjml') %>

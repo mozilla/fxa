@@ -1,0 +1,23 @@
+postAddTwoStepAuthentication-title-2 = "You turned on two-step authentication"
+
+postAddTwoStepAuthentication-code-required-v4 = "Security codes from your authenticator app are now required every time you sign in."
+
+<% if (locals.recoveryMethod === 'codes') { %>
+postAddTwoStepAuthentication-recovery-method-codes = "You also added backup authentication codes as your recovery method."
+<% } %>
+
+<% if (locals.recoveryMethod === 'phone' && locals.maskedPhoneNumber) { %>
+postAddTwoStepAuthentication-recovery-method-phone = "You also added <%- maskedPhoneNumber %> as your recovery phone number."
+<% } %>
+
+postAddTwoStepAuthentication-how-protects-plaintext = "How this protects your account:"
+<%- twoFactorSupportLink %>
+
+postAddTwoStepAuthentication-device-sign-out-message = "To protect all your connected devices, you should sign out everywhere youʼre using this account, and then sign back in using two-step authentication."
+
+postAddTwoStepAuthentication-from-device-v2 = "You requested this from:"
+<%- include('/partials/userInfo/index.txt') %>
+
+<%- include('/partials/manageAccount/index.txt') %>
+
+<%- include('/partials/automatedEmailChangePassword/index.txt') %>

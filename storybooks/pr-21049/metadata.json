@@ -1,0 +1,12 @@
+{
+  "commit": "8217d47b6cbaf1a249aff4194346d7465e8c01c2",
+  "summary": "chore(content-server): replace deprecated node-uuid with uuid",
+  "description": "## Because\n\n- `node-uuid` is deprecated. Its own README tells you to use `uuid` instead.\n- `fxa-content-server` was the last package pinning it, at `1.4.8`.\n\n## This pull request\n\n- Replaces `node-uuid` with `uuid` at `^11.1.1`. That is the version the root already resolves, so yarn does not pull a second copy.\n- Drops the `uuid: require.resolve('node-uuid/uuid')` alias from `webpack.config.js`. That alias is why browser code importing `'uuid'` got `node-uuid`.\n- Switches all five call sites to a named import. `uuid` v11 has no default export, so `uuid.v4()` on a default import throws at runtime.\n- Names the binding `uuidv4`, which is the name `server/lib/glean/server_events.js` already uses.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-4894",
+  "timestamp": 1787075928000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
