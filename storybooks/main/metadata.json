@@ -1,8 +1,8 @@
 {
-  "commit": "7450ba8db9a350c57a18c1bdb07987dab29fe2dd",
-  "summary": "Merge pull request #21026 from mozilla/fxa-13919",
-  "description": "chore(content-server): replace mkdirp with native fs.mkdirSync",
-  "timestamp": 1787073601000,
+  "commit": "6482999350a84480eeb666e7afb3b7e174339584",
+  "summary": "Merge pull request #21027 from mozilla/fxa-13920",
+  "description": "refactor(deps): replace rimraf with native fs.rmSync",
+  "timestamp": 1787074429000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
