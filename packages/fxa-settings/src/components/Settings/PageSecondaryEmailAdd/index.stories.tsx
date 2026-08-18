@@ -7,7 +7,7 @@ import { PageSecondaryEmailAdd } from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import SettingsLayout from '../SettingsLayout';
-import { MfaContext } from '../MfaGuard';
+import { MfaContext } from '../../../lib/hooks';
 import { AppContext } from '../../../models';
 import { mockAppContext } from '../../../models/mocks';
 

@@ -24,7 +24,7 @@ import GleanMetrics from '../../lib/glean';
 import Banner from '../../components/Banner';
 import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
 import CmsLogo from '../../components/CmsLogo';
-import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../lib/hooks';
 import { usePasskeySignIn } from '../../lib/passkeys/signin-flow';
 import { passkeySigninFeatureEnabled } from '../../lib/passkeys';
 

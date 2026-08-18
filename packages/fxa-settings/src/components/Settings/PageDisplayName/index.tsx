@@ -10,7 +10,7 @@ import InputText from '../../InputText';
 import { SETTINGS_PATH } from '../../../constants';
 import { Localized, useLocalization } from '@fluent/react';
 import { useAccount, useAlertBar } from '../../../models';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 
 const validateDisplayName =
   (currentDisplayName: string) => (newDisplayName: string) =>

@@ -10,7 +10,7 @@ import CardHeader from '../../../../components/CardHeader';
 import TermsPrivacyAgreement from '../../../../components/TermsPrivacyAgreement';
 import AlternativeAuthOptions from '../../../../components/AlternativeAuthOptions';
 import GleanMetrics from '../../../../lib/glean';
-import { useNavigateWithQuery } from '../../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../../lib/hooks';
 import Banner from '../../../../components/Banner';
 import { SigninAlternativeAuthOptionsProps } from '../../interfaces';
 import SigninUserLockup from '../SigninUserLockup';

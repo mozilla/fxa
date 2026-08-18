@@ -14,7 +14,7 @@ import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
 import FlowContainer from '../FlowContainer';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import { MfaGuard } from '../MfaGuard';
 import { MfaReason } from '../../../lib/types';
 

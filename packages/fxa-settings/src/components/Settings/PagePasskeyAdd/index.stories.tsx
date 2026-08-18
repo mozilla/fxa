@@ -12,7 +12,7 @@ import { AppContext } from '../../../models';
 import { AlertBarInfo } from '../../../models/AlertBarInfo';
 import { mockAppContext, mockSettingsContext } from '../../../models/mocks';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
-import { MfaContext } from '../MfaGuard';
+import { MfaContext } from '../../../lib/hooks';
 import { getDefault } from '../../../lib/config';
 
 export default {

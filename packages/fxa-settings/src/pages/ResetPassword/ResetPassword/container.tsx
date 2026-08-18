@@ -8,7 +8,7 @@ import { useAuthClient, useConfig, useFtlMsgResolver } from '../../../models';
 import { ResetPasswordContainerProps } from './interfaces';
 import { queryParamsToMetricsContext } from '../../../lib/metrics';
 import ResetPassword from '.';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { shouldShowPasskeyResetOption } from '../../../lib/passkeys';
 

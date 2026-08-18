@@ -16,7 +16,7 @@ import Banner from '../../../components/Banner';
 import { PairingAuthorityIntegration } from '../../../models/integrations/pairing-authority-integration';
 import { Integration, useAuthClient } from '../../../models';
 import { firefox } from '../../../lib/channels/firefox';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import { getBasicAccountData } from '../../../lib/account-storage';
 import { getPairingErrorMessage } from '../../../lib/utilities';
 import AuthenticationMethods from '../../../constants/authentication-methods';

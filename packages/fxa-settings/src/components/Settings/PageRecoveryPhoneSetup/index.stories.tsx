@@ -11,7 +11,7 @@ import { Account, AppContext } from '../../../models';
 import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { RecoveryPhoneSetupReason } from '../../../lib/types';
-import { MfaContext } from '../MfaGuard';
+import { MfaContext } from '../../../lib/hooks';
 
 export default {
   title: 'Pages/Settings/RecoveryPhoneSetup',
@@ -51,7 +51,14 @@ export const ChangeWithSuccess = () => {
   };
 
   return (
-    <MemoryRouter initialEntries={[{ pathname: locationWithState.pathname, state: locationWithState.state }]}>
+    <MemoryRouter
+      initialEntries={[
+        {
+          pathname: locationWithState.pathname,
+          state: locationWithState.state,
+        },
+      ]}
+    >
       <SettingsLayout>
         <AppContext.Provider
           value={mockAppContext({

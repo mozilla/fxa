@@ -9,7 +9,7 @@ import { Page2faSetup } from '.';
 import { Config } from '../../../lib/config';
 import { Account, AppContext } from '../../../models';
 import { mockAppContext } from '../../../models/mocks';
-import { MfaContext } from '../MfaGuard';
+import { MfaContext } from '../../../lib/hooks';
 import {
   MOCK_BACKUP_CODES,
   MOCK_FULL_PHONE_NUMBER,

@@ -18,7 +18,7 @@ import { SETTINGS_PATH } from '../../../constants';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { formatRecoveryKey } from '../../../lib/utilities';
 import Banner from '../../Banner';
-import { useMfaErrorHandler } from '../MfaGuard';
+import { useMfaErrorHandler } from '../../../lib/hooks';
 
 type FormData = {
   password: string;

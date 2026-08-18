@@ -6,7 +6,7 @@ import AuthClient from 'fxa-auth-client/browser';
 import { MozServices } from '../../lib/types';
 import { Integration } from '../../models';
 import { QueryParams } from '../../index';
-import { UseFxAStatusResult } from '../../lib/hooks/useFxAStatus';
+import { UseFxAStatusResult } from '../../lib/hooks';
 import { FinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 
 export type IndexIntegration = Pick<

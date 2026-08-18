@@ -13,7 +13,7 @@ import {
   useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../../models';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery, useWebRedirect } from '../../../lib/hooks';
 import { getHandledError } from '../../../lib/error-utils';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import {
@@ -23,7 +23,6 @@ import {
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { storeAccountData } from '../../../lib/storage-utils';
-import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import {
   SigninRecoveryPhoneContainerProps,
   SigninRecoveryPhoneLocationState,

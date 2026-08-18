@@ -5,8 +5,9 @@
 import React, { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { MfaGuard } from '../MfaGuard';
+import { useMfaErrorHandler } from '../../../lib/hooks';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import { SETTINGS_PATH } from '../../../constants';
 import {
   logViewEvent,

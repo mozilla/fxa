@@ -12,7 +12,7 @@ import {
   RecoveryKeyCheckResult,
 } from './interfaces';
 import { ResendStatus } from '../../../lib/types';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
 import { shouldShowPasskeyResetOption } from '../../../lib/passkeys';

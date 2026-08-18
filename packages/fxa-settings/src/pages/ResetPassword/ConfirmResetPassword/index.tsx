@@ -15,7 +15,7 @@ import { EmailCodeImage } from '../../../components/images';
 import GleanMetrics from '../../../lib/glean';
 import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
 import { HeadingPrimary } from '../../../components/HeadingPrimary';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 
 const ConfirmResetPassword = ({
   clearBanners,

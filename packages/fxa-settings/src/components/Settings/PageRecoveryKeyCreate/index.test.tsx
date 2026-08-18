@@ -12,7 +12,7 @@ import {
   mockSession,
 } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
-import { MfaContext } from '../MfaGuard';
+import { MfaContext } from '../../../lib/hooks';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),

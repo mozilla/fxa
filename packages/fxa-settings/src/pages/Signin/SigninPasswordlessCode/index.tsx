@@ -36,7 +36,11 @@ import {
   setCurrentAccount,
   storeAccountData,
 } from '../../../lib/storage-utils';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import {
+  useNavigateWithQuery,
+  useWebRedirect,
+  useThrottle,
+} from '../../../lib/hooks';
 import {
   isOAuthIntegration,
   isSyncDesktopV3Integration,
@@ -48,11 +52,9 @@ import {
   ensureCanLinkAcountOrRedirect,
 } from '../utils';
 import firefox from '../../../lib/channels/firefox';
-import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import VerificationMethods from '../../../constants/verification-methods';
 import VerificationReasons from '../../../constants/verification-reasons';
 import GleanMetrics from '../../../lib/glean';
-import useThrottle from '../../../lib/hooks/useThrottle';
 
 export const viewName = 'signin-passwordless-code';
 

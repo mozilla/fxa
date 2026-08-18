@@ -9,7 +9,7 @@ import { Modal } from '../Modal';
 import { useAccount, useFtlMsgResolver } from '../../../models';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { useLocation } from 'react-router';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import { SETTINGS_PATH } from '../../../constants';
 import {
   LinkedAccountProviderIds,

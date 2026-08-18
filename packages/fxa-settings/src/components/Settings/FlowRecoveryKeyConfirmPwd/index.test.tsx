@@ -11,7 +11,7 @@ import {
   renderWithRouter,
 } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
-import { MfaContext } from '../MfaGuard';
+import { MfaContext } from '../../../lib/hooks';
 import {
   AuthUiError,
   AuthUiErrors,

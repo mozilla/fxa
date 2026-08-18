@@ -18,7 +18,7 @@ import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import firefox from '../../lib/channels/firefox';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import GleanMetrics from '../../lib/glean';
-import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../lib/hooks';
 import {
   logViewEvent,
   settingsViewName,

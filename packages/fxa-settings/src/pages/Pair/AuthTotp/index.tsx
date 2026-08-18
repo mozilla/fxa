@@ -14,7 +14,7 @@ import FormVerifyCode, {
 } from '../../../components/FormVerifyCode';
 import { MozServices } from '../../../lib/types';
 import { REACT_ENTRYPOINT } from '../../../constants';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import { Integration } from '../../../models';
 import { getBasicAccountData } from '../../../lib/account-storage';
 import AppLayout from '../../../components/AppLayout';
@@ -28,11 +28,7 @@ export type AuthTotpProps = {
 
 export const viewName = 'pair.auth.totp';
 
-const AuthTotp = ({
-  email,
-  serviceName,
-  onVerified,
-}: AuthTotpProps) => {
+const AuthTotp = ({ email, serviceName, onVerified }: AuthTotpProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const navigateWithQuery = useNavigateWithQuery();
   const authClient = useAuthClient();

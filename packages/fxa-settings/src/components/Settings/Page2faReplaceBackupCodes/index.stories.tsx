@@ -13,7 +13,7 @@ import { Meta } from '@storybook/react';
 import { MemoryRouter } from 'react-router';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import SettingsLayout from '../SettingsLayout';
-import { MfaContext } from '../MfaGuard';
+import { MfaContext } from '../../../lib/hooks';
 
 const session = mockSession(true);
 

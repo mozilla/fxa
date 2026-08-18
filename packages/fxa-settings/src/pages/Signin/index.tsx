@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useNavigate, Link, useLocation } from 'react-router';
-import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery, useWebRedirect } from '../../lib/hooks';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -27,7 +27,6 @@ import { shouldShowPasskeySignin } from '../../lib/passkeys';
 import { isWebAuthnSupported } from '../../lib/passkeys/webauthn';
 import { SigninFormData, SigninProps } from './interfaces';
 import { handleNavigation } from './utils';
-import { useWebRedirect } from '../../lib/hooks/useWebRedirect';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import Banner from '../../components/Banner';
 import { SensitiveData } from '../../lib/sensitive-data-client';

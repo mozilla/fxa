@@ -2,13 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useRef } from 'react';
-import { screen, fireEvent } from '@testing-library/react';
-import {
-  useFocusOnTriggeringElementOnClose,
-  useEscKeydownEffect,
-  useChangeFocusEffect,
-} from './hooks';
+import { useRef } from 'react';
+import { useFocusOnTriggeringElementOnClose } from '.';
 import {
   renderWithLocalizationProvider,
   withLocalizationProvider,
@@ -61,36 +56,5 @@ describe('useFocusOnTriggeringElementOnClose', () => {
     rerender(withLocalizationProvider(<Subject />));
 
     expect(document.activeElement).not.toBe(getByTestId('trigger-element'));
-  });
-});
-
-describe('useEscKeydownEffect', () => {
-  const onEscKeydown = jest.fn();
-  const Subject = () => {
-    useEscKeydownEffect(onEscKeydown);
-    return <div>Hi mom</div>;
-  };
-  it('calls onEscKeydown on esc key press', () => {
-    renderWithLocalizationProvider(<Subject />);
-    expect(onEscKeydown).not.toHaveBeenCalled();
-    fireEvent.keyDown(window, { key: 'Escape' });
-    expect(onEscKeydown).toHaveBeenCalled();
-  });
-});
-
-describe('useChangeFocusEffect', () => {
-  const Subject = () => {
-    const elToFocusRef = useChangeFocusEffect();
-    return (
-      <div>
-        <a href="#top">some other focusable thing</a>
-        <div ref={elToFocusRef} tabIndex={0} data-testid="el-to-focus" />
-      </div>
-    );
-  };
-
-  it('changes focus as expected', () => {
-    renderWithLocalizationProvider(<Subject />);
-    expect(document.activeElement).toBe(screen.getByTestId('el-to-focus'));
   });
 });

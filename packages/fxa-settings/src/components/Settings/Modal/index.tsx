@@ -4,7 +4,7 @@
 
 import React, { ReactNode } from 'react';
 import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
-import { useEscKeydownEffect, useChangeFocusEffect } from '../../../lib/hooks';
+import { useChangeFocusEffect, useEscKeydownEffect } from '../../../lib/hooks';
 import classNames from 'classnames';
 import Portal from 'fxa-react/components/Portal';
 import { ReactComponent as CloseIcon } from '@fxa/shared/assets/images/close.svg';

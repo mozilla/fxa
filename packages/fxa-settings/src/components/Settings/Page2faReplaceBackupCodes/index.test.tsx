@@ -19,7 +19,7 @@ import {
 
 import { Page2faReplaceBackupCodes } from '.';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
-import { MfaContext } from '../MfaGuard';
+import { MfaContext } from '../../../lib/hooks';
 
 const mockRecoveryCodes = ['0123456789'];
 

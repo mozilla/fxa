@@ -11,7 +11,8 @@ import { useAccount, useAuthClient, useConfig, useSession } from '../../models';
 import {
   useAccountData,
   InvalidTokenError,
-} from '../../lib/hooks/useAccountData';
+  useNavigateWithQuery,
+} from '../../lib/hooks';
 import { Routes, Route, Navigate, useLocation } from 'react-router';
 import PageSettings from './PageSettings';
 import MfaGuardedPageChangePassword from './PageChangePassword';
@@ -34,7 +35,6 @@ import Head from 'fxa-react/components/Head';
 import { PageMfaGuardRecoveryPhoneRemove } from './PageRecoveryPhoneRemove';
 import { MfaGuardPagePasskeyAdd } from './PagePasskeyAdd';
 import { SettingsIntegration } from './interfaces';
-import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 
 import PageMfaGuardTestWithAuthClient from './PageMfaGuardTest';
 
@@ -196,37 +196,76 @@ export const Settings = ({
         <Route path="avatar" element={<PageAvatar />} />
         {/* MfaPageCreatePassword internally redirects to /change_password if password exists */}
         <Route path="create_password" element={<MfaPageCreatePassword />} />
-        <Route path="two_step_authentication" element={<MfaGuardPage2faSetup />} />
-        <Route path="two_step_authentication/change" element={<MfaGuardPage2faChange />} />
-        <Route path="two_step_authentication/replace_codes" element={<MfaGuardPage2faReplaceBackupCodes />} />
+        <Route
+          path="two_step_authentication"
+          element={<MfaGuardPage2faSetup />}
+        />
+        <Route
+          path="two_step_authentication/change"
+          element={<MfaGuardPage2faChange />}
+        />
+        <Route
+          path="two_step_authentication/replace_codes"
+          element={<MfaGuardPage2faReplaceBackupCodes />}
+        />
         {hasPassword ? (
           <>
-            <Route path="account_recovery" element={<MfaGuardPageRecoveryKeyCreate />} />
-            <Route path="change_password" element={<MfaGuardedPageChangePassword />} />
+            <Route
+              path="account_recovery"
+              element={<MfaGuardPageRecoveryKeyCreate />}
+            />
+            <Route
+              path="change_password"
+              element={<MfaGuardedPageChangePassword />}
+            />
           </>
         ) : (
           <>
-            <Route path="change_password" element={<Navigate to="/settings/create_password" replace />} />
-            <Route path="account_recovery" element={<Navigate to="/settings" replace />} />
+            <Route
+              path="change_password"
+              element={<Navigate to="/settings/create_password" replace />}
+            />
+            <Route
+              path="account_recovery"
+              element={<Navigate to="/settings" replace />}
+            />
           </>
         )}
         <Route path="emails" element={<MfaGuardPageSecondaryEmailAdd />} />
-        <Route path="emails/verify" element={<MfaGuardPageSecondaryEmailVerify />} />
+        <Route
+          path="emails/verify"
+          element={<MfaGuardPageSecondaryEmailVerify />}
+        />
         <Route path="recent_activity" element={<PageRecentActivity />} />
         <Route path="delete_account" element={<PageDeleteAccount />} />
-        <Route path="clients" element={<Navigate to="/settings#connected-services" replace />} />
+        <Route
+          path="clients"
+          element={<Navigate to="/settings#connected-services" replace />}
+        />
         {/* NOTE: `/settings/avatar/change` is used to link directly to the avatar page within Sync preferences settings on Firefox browsers */}
-        <Route path="avatar/change" element={<Navigate to="/settings/avatar/" replace />} />
+        <Route
+          path="avatar/change"
+          element={<Navigate to="/settings/avatar/" replace />}
+        />
 
-        <Route path="recovery_phone/setup" element={<MfaGuardPageRecoveryPhoneSetup />} />
-        <Route path="recovery_phone/remove" element={<PageMfaGuardRecoveryPhoneRemove />} />
+        <Route
+          path="recovery_phone/setup"
+          element={<MfaGuardPageRecoveryPhoneSetup />}
+        />
+        <Route
+          path="recovery_phone/remove"
+          element={<PageMfaGuardRecoveryPhoneRemove />}
+        />
 
         {config.featureFlags?.passkeysEnabled &&
           config.featureFlags?.passkeyRegistrationEnabled && (
             <Route path="passkeys/add" element={<MfaGuardPagePasskeyAdd />} />
           )}
 
-        <Route path="mfa_guard/test/auth_client" element={<PageMfaGuardTestWithAuthClient />} />
+        <Route
+          path="mfa_guard/test/auth_client"
+          element={<PageMfaGuardTestWithAuthClient />}
+        />
       </Routes>
     </SettingsLayout>
   );

@@ -217,12 +217,6 @@ function applyDefaultMocks() {
   mockFetchModule();
 }
 
-let mockUseCheckReactEmailFirst = jest.fn().mockReturnValue(true);
-jest.mock('../../lib/hooks', () => ({
-  __esModule: true,
-  ...jest.requireActual('../../lib/hooks'),
-  useCheckReactEmailFirst: () => mockUseCheckReactEmailFirst(),
-}));
 jest.mock('../../models', () => {
   return {
     ...jest.requireActual('../../models'),

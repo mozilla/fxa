@@ -4,7 +4,10 @@
 
 import { useLocation } from 'react-router';
 
-import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
+import {
+  useValidatedQueryParams,
+  useNavigateWithQuery,
+} from '../../../lib/hooks';
 import {
   Integration,
   isOAuthIntegration,
@@ -25,7 +28,6 @@ import {
 import GleanMetrics from '../../../lib/glean';
 import firefox from '../../../lib/channels/firefox';
 import { useState } from 'react';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { storeAccountData } from '../../../lib/storage-utils';
 import { SETTINGS_PATH } from '../../../constants';

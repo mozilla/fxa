@@ -11,7 +11,7 @@ import React, {
 } from 'react';
 import { isPairGleanReason } from 'fxa-shared/metrics/glean/pair-reasons';
 import { Link, useLocation } from 'react-router';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { useFtlMsgResolver } from '../../../models';

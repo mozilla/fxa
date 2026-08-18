@@ -34,13 +34,13 @@ import config from '../../lib/config';
 import { currentAccount } from '../../lib/cache';
 import { MozServices } from '../../lib/types';
 import mockUseFxAStatus from '../../lib/hooks/useFxAStatus/mocks';
-import useFxAStatus from '../../lib/hooks/useFxAStatus';
+import { useFxAStatus } from '../../lib/hooks';
 import sentryMetrics from 'fxa-shared/sentry/browser';
 import { OAuthError, OAUTH_ERRORS } from '../../lib/oauth';
 
 jest.mock('../../lib/hooks/useFxAStatus', () => ({
   __esModule: true,
-  default: jest.fn(),
+  useFxAStatus: jest.fn(),
 }));
 
 jest.mock('fxa-shared/sentry/browser', () => ({
@@ -770,9 +770,7 @@ describe('Integration serviceName error handling', () => {
     expect(
       screen.getByText('Unexpected Application Error!')
     ).toBeInTheDocument();
-    expect(
-      screen.getByText('Non-OAuth integration error')
-    ).toBeInTheDocument();
+    expect(screen.getByText('Non-OAuth integration error')).toBeInTheDocument();
 
     consoleSpy.mockRestore();
   });

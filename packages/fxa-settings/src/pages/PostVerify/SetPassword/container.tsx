@@ -6,7 +6,8 @@ import { useNavigate, useLocation } from 'react-router';
 import SetPassword from '.';
 import { currentAccount } from '../../../lib/cache';
 import { persistAccount } from '../../../lib/storage-utils';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import type { UseFxAStatusResult } from '../../../lib/hooks';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import { Integration, useAuthClient } from '../../../models';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { CreatePasswordHandler, SetPasswordLocationState } from './interfaces';
@@ -23,7 +24,6 @@ import { buildPasskeyAuthSuccessReason } from '../../../lib/passkeys/signin-flow
 import GleanMetrics from '../../../lib/glean';
 import { QueryParams } from '../../..';
 import { queryParamsToMetricsContext } from '../../../lib/metrics';
-import type { UseFxAStatusResult } from '../../../lib/hooks/useFxAStatus';
 import AppLayout from '../../../components/AppLayout';
 
 const SetPasswordContainer = ({

@@ -3,7 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useLocation } from 'react-router';
-import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
+import {
+  useNavigateWithQuery,
+  UseFxAStatusResult,
+  useValidatedQueryParams,
+} from '../../lib/hooks';
 import SigninDecider from './components/SigninDecider';
 import {
   Integration,
@@ -16,9 +20,7 @@ import {
   isOAuthNativeIntegrationSync,
   isOAuthNativeIntegration,
 } from '../../models';
-import { UseFxAStatusResult } from '../../lib/hooks/useFxAStatus';
 import { MozServices } from '../../lib/types';
-import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import {
   SigninQueryParams,
   OAuthNativeQueryParameters,

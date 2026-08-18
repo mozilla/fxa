@@ -4,25 +4,29 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import AuthClient from 'fxa-auth-client/browser';
-import { sessionToken as getSessionToken } from '../cache';
+import { sessionToken as getSessionToken } from '../../cache';
 import {
   AccountState,
   RecoveryKeyStatus,
   RecoveryPhoneStatus,
   useAccountState,
-} from '../../models/contexts/AccountStateContext';
+} from '../../../models/contexts/AccountStateContext';
 import {
   Email,
   LinkedAccount,
   SecurityEvent,
   mapAttachedClient,
-} from '../../models/Account';
-import { AccountTotp, AccountBackupCodes, AccountAvatar } from '../interfaces';
-import config from '../config';
+} from '../../../models/Account';
+import {
+  AccountTotp,
+  AccountBackupCodes,
+  AccountAvatar,
+} from '../../interfaces';
+import config from '../../config';
 import { ERRNO } from '@fxa/accounts/errors';
 import * as Sentry from '@sentry/browser';
 import type { Passkey } from 'fxa-auth-client/browser';
-import { PROFILE_OAUTH_TOKEN_TTL_SECONDS } from '../oauth';
+import { PROFILE_OAUTH_TOKEN_TTL_SECONDS } from '../../oauth';
 
 /**
  * Error thrown when the session token is invalid (errno 110).

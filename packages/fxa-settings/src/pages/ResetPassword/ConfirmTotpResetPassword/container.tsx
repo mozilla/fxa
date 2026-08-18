@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 import { useLocation } from 'react-router';
 import { useAuthClient, useConfig, useFtlMsgResolver } from '../../../models';
 import ConfirmTotpResetPassword from '.';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import { CompleteResetPasswordLocationState } from '../CompleteResetPassword/interfaces';
 import { ResetPasswordIntegration } from '../interfaces';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';

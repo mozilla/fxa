@@ -14,7 +14,7 @@ import { PageSecondaryEmailVerify, MfaGuardPageSecondaryEmailVerify } from '.';
 
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
-import { MfaContext } from '../MfaGuard';
+import { MfaContext } from '../../../lib/hooks';
 import { JwtTokenCache } from '../../../lib/cache';
 import AuthClient from 'fxa-auth-client/lib/client';
 import userEvent, { UserEvent } from '@testing-library/user-event';
