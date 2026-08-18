@@ -512,11 +512,18 @@ If Slack MCP is available, query the configured team channels (`slack.read` from
 
 **Step 1 — Channel read in detailed mode.** Call `mcp__slack__slack_read_channel` per channel with `response_format="detailed"`. The default `concise` mode does **not** include reply counts or `message_ts` values, which makes step 2 impossible.
 
-For each top-level message returned, capture: `message_ts`, author, posted time, reply count, and the latest-reply timestamp (the detailed response includes these as `Thread: N replies (latest: TIMESTAMP)`).
+For each message returned, capture: `message_ts`, author, posted time, reply count, `thread_ts`, and the latest-reply timestamp (the detailed response includes these as `Thread: N replies (latest: TIMESTAMP)`).
 
-**Step 2 — Read every thread you'd cite.** For any thread you plan to mention in Section A/B/C — and especially any thread you might describe as "no FxA reply" or "awaiting response" — call `mcp__slack__slack_read_thread` with the parent's `message_ts` and read the reply bodies. **Do not infer reply state from the channel read alone.** `slack_read_channel` returns only top-level messages; threaded replies live behind `slack_read_thread`. A thread with `reply_count > 0` may already have FxA engagement that the channel read cannot show.
+**Step 1.5 — Reply-vs-parent disambiguation (do NOT skip).** A message's `reply_count` describes *its own* child thread, not whether it sits inside someone else's. A message that is itself a **reply inside another thread** shows `reply_count = 0` and no child-thread indicator — yet it can belong to a parent thread that FxA has already answered at length. So before judging reply state:
 
-**Hard rule:** never say "no FxA reply," "awaiting response," or "still no answer" about a thread without having called `slack_read_thread` on it first. The only safe "no reply" claims are threads where the channel read explicitly shows `reply_count = 0` (and no quiet-window caveats apply).
+- If a message carries a `thread_ts` that **differs from its own `message_ts`**, it is a threaded reply, not a standalone post. Its `reply_count = 0` means nothing. **Resolve the parent** (`thread_ts`) and treat the whole parent thread as the unit to evaluate.
+- A permalink containing `?thread_ts=...` (different from the message's ts) is the same tell — it's a reply, trace it to the parent.
+- Search results (`slack_search_public`) especially return individual replies out of thread context; always map a hit back to its `thread_ts` parent before citing it.
+- Only a message with **no `thread_ts`, or `thread_ts == message_ts`**, is a genuine top-level post whose own `reply_count` describes its thread.
+
+**Step 2 — Read every thread you'd cite.** For any thread you plan to mention in Section A/B/C — and especially any thread you might describe as "no FxA reply" or "awaiting response" — call `mcp__slack__slack_read_thread` with the **parent's** `message_ts` (the `thread_ts`, per Step 1.5) and read the reply bodies. **Do not infer reply state from the channel read alone.** `slack_read_channel` returns only top-level messages; threaded replies live behind `slack_read_thread`. A thread with `reply_count > 0` may already have FxA engagement that the channel read cannot show.
+
+**Hard rule:** never say "no FxA reply," "awaiting response," or "still no answer" about a thread without having called `slack_read_thread` on the **parent** first. A channel-read `reply_count = 0` is a safe "no reply" signal **only** for a genuine top-level message (no `thread_ts`, or `thread_ts == message_ts`) — never for a message that is itself a reply inside another thread (see Step 1.5). When in doubt, resolve the parent and read the thread; do not treat a bare `reply_count = 0` as conclusive.
 
 **Channel snapshot freshness:** the channel read is a point-in-time snapshot. For a day-of incident or active-window report, re-read the channel late in the run (right before producing output) so a message posted between fetch and output doesn't get missed.
 
