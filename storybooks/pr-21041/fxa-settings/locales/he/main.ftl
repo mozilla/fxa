@@ -156,6 +156,11 @@ device-info-browser-device = ‏{ $browserName } ב־{ $deviceName }
 device-info-ip-address = כתובת IP:‏ { $ipAddress }
 
 
+firefox-promo-banner-mobile-cta = חיבור מכשיר
+firefox-promo-banner-switch-description = בעת המעבר ל־{ -brand-firefox }, ניתן להביא את הסימניות, הססמאות, ההיסטוריה שלך ועוד, כך שאפשר לגלוש בלי לפספס פעימה.
+firefox-promo-banner-switch-cta = מעבר ל־{ -brand-firefox }
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = ססמה
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -899,6 +904,7 @@ passkey-sub-row-created-date = תאריך יצירה: { $createdDate }
 passkey-sub-row-last-used-date = בשימוש אחרון: { $lastUsedDate }
 passkey-sub-row-delete-title = מחיקת מפתח גישה
 passkey-delete-modal-heading = למחוק את מפתח הגישה שלך?
+passkey-delete-modal-content-v2 = מפתח גישה זה יימחק מהחשבון שלך. יהיה עליך להתחבר באמצעות שיטה אחרת (ססמה, מפתח גישה נוסף או חשבון מקושר).
 passkey-delete-modal-cancel-button = ביטול
 passkey-delete-modal-confirm-button = מחיקת מפתח גישה
 passkey-delete-success = מפתח הגישה נמחק
