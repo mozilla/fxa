@@ -1,0 +1,11 @@
+{
+  "commit": "a60fc8603288b7c64af3d5dfedab42161eba9cd5",
+  "summary": "perf(settings): embed the l10n asset map in index.html",
+  "description": "## Because\n\n- Settings fetches `static-asset-manifest.json` before it can load any strings. That is a round trip before the first localized render.\n- The manifest is the one unhashed object in the bundle, and it ships with `max-age=1209600`. During FXA-14361 production served a stale copy for days after the build fix landed, and every non-English locale rendered English until someone purged the cache by hand.\n\n## This pull request\n\n- Embeds the map of each locale's `main.ftl` to its hashed file name into Settings' `index.html`, as a `fxa-l10n-asset-map` meta tag.\n- Adds `scripts/l10n-asset-map.js`. It filters the manifest down to the 88 `locales/*/main.ftl` entries the client reads, out of 678.\n- Reads that meta tag in `AppLocalizationProvider` and drops the manifest fetch. An absent, empty, or malformed map stays non-fatal: the client falls back to the unhashed paths rather than throwing.\n- Makes the `build-react` targets cache-correct for the manifest, with a `dependentTasksOutputFiles` input and `build-static` in the `dependsOn` of the three per-env targets. `public/static` is gitignored, so ordinary file inputs cannot see the manifest, and a cache hit could otherwise reuse a stale map.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-11871",
+  "timestamp": 1787097003000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
