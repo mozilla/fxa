@@ -7,7 +7,6 @@
 
 var fs = require('fs');
 var path = require('path');
-var mkdirp = require('mkdirp');
 var extract = require('jsxgettext-recursive-next');
 var execSync = require('child_process').execSync;
 
@@ -31,7 +30,7 @@ module.exports = function (grunt) {
       var done = this.async();
 
       if (!fs.existsSync(messagesOutputPath)) {
-        mkdirp.sync(messagesOutputPath);
+        fs.mkdirSync(messagesOutputPath, { recursive: true });
       }
       // jsxgettext does not support ES2015, only ES5. Run babel to convert
       // then run the extractor on the ES5 files.
