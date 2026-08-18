@@ -398,12 +398,6 @@ export default class AuthClient {
   }
 
   static async create(authServerUri: string, options?: AuthClientOptions) {
-    if (typeof TextEncoder === 'undefined') {
-      await import(
-        // @ts-ignore
-        /* webpackChunkName: "fast-text-encoding" */ 'fast-text-encoding'
-      );
-    }
     await crypto.checkWebCrypto();
     return new AuthClient(authServerUri, options);
   }

@@ -20283,13 +20283,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/fast-text-encoding@npm:^1":
-  version: 1.0.3
-  resolution: "@types/fast-text-encoding@npm:1.0.3"
-  checksum: 10c0/9ec0ca8f2461202ac3321160b0e7b8d07a4728b1b3197fa68c672d792cb7cdfff08924f81b3564d21db9bcb9c90e47680f7ff7b73195192776baecc17293c9c2
-  languageName: node
-  linkType: hard
-
 "@types/file-loader@npm:^5.0.0":
   version: 5.0.4
   resolution: "@types/file-loader@npm:5.0.4"
@@ -31929,13 +31922,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-text-encoding@npm:^1.0.4":
-  version: 1.0.6
-  resolution: "fast-text-encoding@npm:1.0.6"
-  checksum: 10c0/e1d0381bda229c92c7906f63308f3b9caca8c78b732768b1ee16f560089ed21bc159bbe1434138ccd3815931ec8d4785bdade1ad1c45accfdf27ac6606ac67d2
-  languageName: node
-  linkType: hard
-
 "fast-uri@npm:^3.0.1":
   version: 3.1.5
   resolution: "fast-uri@npm:3.1.5"
@@ -33295,13 +33281,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "fxa-auth-client@workspace:packages/fxa-auth-client"
   dependencies:
-    "@types/fast-text-encoding": "npm:^1"
     "@types/mocha": "npm:^10"
     "@types/node": "npm:^22.13.5"
     "@types/prettier": "npm:^2"
     eslint: "npm:^8.38.0"
     eslint-config-react-app: "npm:^7.0.1"
-    fast-text-encoding: "npm:^1.0.4"
     mocha: "npm:^10.4.0"
     prettier: "npm:^3.5.3"
     typescript: "npm:5.5.3"
@@ -33465,7 +33449,6 @@ __metadata:
     eslint: "npm:^7.32.0"
     expose-loader: "npm:5.0.0"
     express: "npm:^4.21.2"
-    fast-text-encoding: "npm:^1.0.4"
     firefox-profile: "npm:4.7.0"
     fxa-auth-client: "workspace:*"
     fxa-auth-server: "workspace:*"
