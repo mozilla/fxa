@@ -98,7 +98,6 @@
     "morgan": "^1.11.0",
     "mozlog": "^3.0.2",
     "mustache": "4.2.0",
-    "node-uuid": "1.4.8",
     "node-vat": "0.0.9",
     "normalize.css": "8.0.1",
     "on-headers": "1.1.0",
@@ -113,6 +112,7 @@
     "time-grunt": "2.0.0",
     "ua-parser-js": "1.0.35",
     "underscore": "^1.13.8",
+    "uuid": "^11.1.1",
     "verror": "1.10.1",
     "webpack": "^5.104.1"
   },
