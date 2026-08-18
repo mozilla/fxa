@@ -30,7 +30,10 @@ import {
   Email,
   getAccountCustomerByUid,
 } from 'fxa-shared/db/models/auth';
-import { SecurityEventNames } from 'fxa-shared/db/models/auth/security-event';
+import {
+  SecurityEventNames,
+  SECURITY_EVENTS_LIMIT,
+} from 'fxa-shared/db/models/auth/security-event';
 import { AdminPanelFeature } from '@fxa/shared/guards';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
@@ -850,7 +853,7 @@ export class AccountController {
   }
 
   @Features(AdminPanelFeature.AccountSearch)
-  public async securityEvents(account: Account) {
+  public async securityEvents(account: Account, limit = SECURITY_EVENTS_LIMIT) {
     const uidBuffer = uuidTransformer.to(account.uid);
     return await this.db.securityEvents
       .query()
@@ -861,7 +864,7 @@ export class AccountController {
         'securityEventNames.id'
       )
       .where('uid', uidBuffer)
-      .limit(10)
+      .limit(limit)
       .orderBy('createdAt', 'DESC');
   }
 
