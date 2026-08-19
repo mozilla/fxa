@@ -1,8 +1,8 @@
 {
-  "commit": "bb63f89e779e594568611bb58c3e038838f487a4",
-  "summary": "Merge pull request #20965 from mozilla/PAY-3841",
-  "description": "fix(apple-iap): fall back to cached IAP records on App Store failures",
-  "timestamp": 1787177407000,
+  "commit": "b6ca6250f0622312bfd5123526cd0e11f573562f",
+  "summary": "Merge pull request #21059 from mozilla/fxa-12499",
+  "description": "fix(tsconfig): stop functional-tests build config overriding base paths",
+  "timestamp": 1787180248000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
