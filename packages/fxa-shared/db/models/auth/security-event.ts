@@ -88,7 +88,7 @@ export const EVENT_NAMES = {
 export type SecurityEventNames = keyof typeof EVENT_NAMES;
 
 // Default number of events returned to the account history endpoint.
-export const SECURITY_EVENTS_LIMIT = 100;
+export const SECURITY_EVENTS_LIMIT = 200;
 
 export function sanitizeIp(addr: string) {
   addr = addr.trim();
