@@ -658,9 +658,7 @@ describe('SubscriptionManagementService', () => {
       expect(result.defaultPaymentMethod?.type).toBe(
         SubPlatPaymentMethodType.PayPal
       );
-      expect(
-        result.defaultPaymentMethod?.hasPaymentMethodError
-      ).toBeDefined();
+      expect(result.defaultPaymentMethod?.hasPaymentMethodError).toBeDefined();
       expect(
         result.defaultPaymentMethod?.hasPaymentMethodError?.bannerType
       ).toBe(BannerVariant.Error);
@@ -1191,7 +1189,9 @@ describe('SubscriptionManagementService', () => {
         trial_start: trialStart,
         items: {
           object: 'list',
-          data: [StripeSubscriptionItemFactory({ current_period_start: trialEnd })],
+          data: [
+            StripeSubscriptionItemFactory({ current_period_start: trialEnd }),
+          ],
           has_more: false,
           url: '',
         },
@@ -1383,9 +1383,7 @@ describe('SubscriptionManagementService', () => {
       const mockPrice = StripePriceFactory({ recurring: null });
 
       await expect(
-        (
-          subscriptionManagementService as any
-        ).getTrialSubscriptionContent(
+        (subscriptionManagementService as any).getTrialSubscriptionContent(
           mockSubscription,
           mockCustomer,
           mockPrice,
@@ -1619,9 +1617,7 @@ describe('SubscriptionManagementService', () => {
         .mockResolvedValue(mockUpcomingInvoice);
       const previewSpy = jest.spyOn(invoiceManager, 'preview');
 
-      await (
-        subscriptionManagementService as any
-      ).getTrialSubscriptionContent(
+      await (subscriptionManagementService as any).getTrialSubscriptionContent(
         mockSubscription,
         mockCustomer,
         mockPrice,
@@ -1776,6 +1772,7 @@ describe('SubscriptionManagementService', () => {
             email: null,
             name: null,
             phone: null,
+            tax_id: null,
           },
         })
       );
@@ -1946,6 +1943,9 @@ describe('SubscriptionManagementService', () => {
       jest
         .spyOn(customerManager, 'retrieve')
         .mockResolvedValue(customerWithShipping());
+      jest
+        .spyOn(invoiceManager, 'retryPaymentForOpenInvoices')
+        .mockResolvedValue();
     });
 
     it('updates the stripe customer payment method details', async () => {
@@ -2146,6 +2146,7 @@ describe('SubscriptionManagementService', () => {
             address: null,
             email: null,
             phone: null,
+            tax_id: null,
           },
         })
       );
@@ -2265,6 +2266,58 @@ describe('SubscriptionManagementService', () => {
       );
     });
 
+    it('retries payment for open invoices with the newly confirmed payment method', async () => {
+      const mockPaymentMethod = StripeResponseFactory(
+        StripePaymentMethodFactory()
+      );
+      const mockCustomer = StripeResponseFactory(
+        StripeCustomerFactory({
+          currency: faker.finance.currencyCode().toLowerCase(),
+          invoice_settings: {
+            custom_fields: null,
+            default_payment_method: mockPaymentMethod.id,
+            footer: null,
+            rendering_options: null,
+          },
+        })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        stripeCustomerId: mockCustomer.id,
+      });
+      const mockSetupIntent = StripeResponseFactory(
+        StripeSetupIntentFactory({
+          customer: mockCustomer.id,
+          payment_method: mockPaymentMethod.id,
+          status: 'succeeded',
+        })
+      );
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(setupIntentManager, 'createAndConfirm')
+        .mockResolvedValue(mockSetupIntent);
+      jest
+        .spyOn(paymentMethodManager, 'retrieve')
+        .mockResolvedValue(mockPaymentMethod);
+      jest.spyOn(customerManager, 'update').mockResolvedValue(mockCustomer);
+      const retrySpy = jest
+        .spyOn(invoiceManager, 'retryPaymentForOpenInvoices')
+        .mockResolvedValue();
+
+      await subscriptionManagementService.updateStripePaymentDetails(
+        mockAccountCustomer.uid,
+        '123',
+        mockIp
+      );
+
+      expect(retrySpy).toHaveBeenCalledWith(
+        mockCustomer.id,
+        mockPaymentMethod.id
+      );
+    });
+
     it('throws ManagePaymentMethodTaxAddressRequiredError when tax address is unresolvable', async () => {
       const mockCustomerWithoutShipping = StripeResponseFactory(
         StripeCustomerFactory({ shipping: null })
@@ -2317,10 +2370,16 @@ describe('SubscriptionManagementService', () => {
       jest
         .spyOn(customerManager, 'retrieve')
         .mockResolvedValue(customerWithShipping());
+      jest
+        .spyOn(invoiceManager, 'retryPaymentForOpenInvoices')
+        .mockResolvedValue();
     });
 
     it("updates the customer's payment details", async () => {
-      const mockAccountCustomer = ResultAccountCustomerFactory();
+      const mockStripeCustomerId = 'cus_setdefault123';
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        stripeCustomerId: mockStripeCustomerId,
+      });
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
       const mockPaymentMethod = StripeResponseFactory(
         StripePaymentMethodFactory()
@@ -2332,13 +2391,16 @@ describe('SubscriptionManagementService', () => {
       jest.spyOn(customerManager, 'update').mockResolvedValue(mockCustomer);
 
       await subscriptionManagementService.setDefaultStripePaymentDetails(
-        mockCustomer.id,
+        mockAccountCustomer.uid,
         mockPaymentMethod.id,
         mockIp
       );
 
+      expect(
+        accountCustomerManager.getAccountCustomerByUid
+      ).toHaveBeenCalledWith(mockAccountCustomer.uid);
       expect(customerManager.update).toHaveBeenCalledWith(
-        mockAccountCustomer.stripeCustomerId,
+        mockStripeCustomerId,
         {
           invoice_settings: {
             default_payment_method: mockPaymentMethod.id,
@@ -2447,6 +2509,59 @@ describe('SubscriptionManagementService', () => {
       ).rejects.toBeInstanceOf(ManagePaymentMethodTaxAddressRequiredError);
       expect(customerManager.update).not.toHaveBeenCalled();
     });
+
+    it('retries payment for open invoices with the newly authenticated payment method', async () => {
+      const mockStripeCustomerId = 'cus_setdefaultretry123';
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        stripeCustomerId: mockStripeCustomerId,
+      });
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockPaymentMethod = StripeResponseFactory(
+        StripePaymentMethodFactory()
+      );
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest.spyOn(customerManager, 'update').mockResolvedValue(mockCustomer);
+
+      await subscriptionManagementService.setDefaultStripePaymentDetails(
+        mockAccountCustomer.uid,
+        mockPaymentMethod.id,
+        mockIp
+      );
+
+      expect(invoiceManager.retryPaymentForOpenInvoices).toHaveBeenCalledWith(
+        mockStripeCustomerId,
+        mockPaymentMethod.id
+      );
+    });
+
+    it('does not retry payment for open invoices when the tax address is unresolvable', async () => {
+      const mockCustomerWithoutShipping = StripeResponseFactory(
+        StripeCustomerFactory({ shipping: null })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        stripeCustomerId: mockCustomerWithoutShipping.id,
+      });
+
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(mockCustomerWithoutShipping);
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest.spyOn(taxService, 'getTaxAddress').mockResolvedValue(undefined);
+
+      await expect(
+        subscriptionManagementService.setDefaultStripePaymentDetails(
+          mockAccountCustomer.uid,
+          'pm_12345',
+          mockIp
+        )
+      ).rejects.toBeInstanceOf(ManagePaymentMethodTaxAddressRequiredError);
+      expect(invoiceManager.retryPaymentForOpenInvoices).not.toHaveBeenCalled();
+    });
   });
 
   describe('getCurrencyForCustomer', () => {
@@ -2536,6 +2651,7 @@ describe('SubscriptionManagementService', () => {
             email: '',
             name: '',
             phone: '',
+            tax_id: '',
           },
         })
       );

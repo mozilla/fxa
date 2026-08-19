@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { Logger } from '@nestjs/common';
+import type { LoggerService } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { StatsD } from 'hot-shots';
 import { MockLoggerProvider } from '@fxa/shared/log';
 
 import {
@@ -36,7 +39,7 @@ import {
   MockCurrencyConfigProvider,
 } from '@fxa/payments/currency';
 import { STRIPE_CUSTOMER_METADATA, STRIPE_INVOICE_METADATA } from './types';
-import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
+import { MockStatsDProvider, StatsDService } from '@fxa/shared/metrics/statsd';
 import { UpgradeCustomerMissingCurrencyInvoiceError } from './customer.error';
 
 jest.mock('../lib/util/stripeInvoiceToFirstInvoicePreviewDTO');
@@ -53,6 +56,8 @@ describe('InvoiceManager', () => {
   let invoiceManager: InvoiceManager;
   let stripeClient: StripeClient;
   let paypalClient: PayPalClient;
+  let mockLogger: LoggerService;
+  let mockStatsd: StatsD;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -72,6 +77,12 @@ describe('InvoiceManager', () => {
     invoiceManager = module.get(InvoiceManager);
     stripeClient = module.get(StripeClient);
     paypalClient = module.get(PayPalClient);
+    mockLogger = module.get(Logger);
+    mockStatsd = module.get(StatsDService);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   describe('finalizeWithoutAutoAdvance', () => {
@@ -202,9 +213,12 @@ describe('InvoiceManager', () => {
         StripeUpcomingInvoiceFactory()
       );
       const mockPromotionCode = StripePromotionCodeFactory({
-        coupon: StripeCouponFactory({
-          valid: true,
-        }),
+        promotion: {
+          type: 'coupon',
+          coupon: StripeCouponFactory({
+            valid: true,
+          }),
+        },
       });
 
       const mockTaxAddress = TaxAddressFactory();
@@ -993,6 +1007,142 @@ describe('InvoiceManager', () => {
       );
 
       expect(callOrder).toEqual(['invoicesFinalizeInvoice', 'chargeCustomer']);
+    });
+  });
+
+  describe('retryPaymentForOpenInvoices', () => {
+    const mockCustomerId = 'cus_retry123';
+    const mockPaymentMethodId = 'pm_retry123';
+
+    const openInvoice = () =>
+      StripeInvoiceFactory({ status: 'open', customer: mockCustomerId });
+
+    let payChargeAttemptSpy: jest.SpyInstance;
+    let incrementSpy: jest.SpyInstance;
+    let warnSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      payChargeAttemptSpy = jest
+        .spyOn(stripeClient, 'invoicesPayChargeAttempt')
+        .mockImplementation((invoiceId) =>
+          Promise.resolve(
+            StripeResponseFactory(StripeInvoiceFactory({ id: invoiceId }))
+          )
+        );
+      incrementSpy = jest.spyOn(mockStatsd, 'increment');
+      warnSpy = jest.spyOn(mockLogger, 'warn');
+    });
+
+    const stubOpenInvoices = (invoices: ReturnType<typeof openInvoice>[]) =>
+      jest
+        .spyOn(stripeClient, 'invoicesList')
+        .mockResolvedValue(StripeApiListFactory(invoices));
+
+    it('lists only open invoices collected automatically for the customer', async () => {
+      stubOpenInvoices([]);
+
+      await invoiceManager.retryPaymentForOpenInvoices(
+        mockCustomerId,
+        mockPaymentMethodId
+      );
+
+      expect(stripeClient.invoicesList).toHaveBeenCalledWith({
+        customer: mockCustomerId,
+        status: 'open',
+        collection_method: 'charge_automatically',
+      });
+    });
+
+    it('attempts payment on each open invoice with the supplied payment method', async () => {
+      const invoice1 = openInvoice();
+      const invoice2 = openInvoice();
+      stubOpenInvoices([invoice1, invoice2]);
+
+      await invoiceManager.retryPaymentForOpenInvoices(
+        mockCustomerId,
+        mockPaymentMethodId
+      );
+
+      expect(payChargeAttemptSpy).toHaveBeenCalledTimes(2);
+      expect(payChargeAttemptSpy).toHaveBeenNthCalledWith(1, invoice1.id, {
+        payment_method: mockPaymentMethodId,
+      });
+      expect(payChargeAttemptSpy).toHaveBeenNthCalledWith(2, invoice2.id, {
+        payment_method: mockPaymentMethodId,
+      });
+    });
+
+    it('counts a successful charge', async () => {
+      stubOpenInvoices([openInvoice()]);
+
+      await invoiceManager.retryPaymentForOpenInvoices(
+        mockCustomerId,
+        mockPaymentMethodId
+      );
+
+      expect(incrementSpy).toHaveBeenCalledWith(
+        'invoice_retry_payment_success'
+      );
+    });
+
+    it('does not attempt payment when there are no open invoices', async () => {
+      stubOpenInvoices([]);
+
+      await invoiceManager.retryPaymentForOpenInvoices(
+        mockCustomerId,
+        mockPaymentMethodId
+      );
+
+      expect(payChargeAttemptSpy).not.toHaveBeenCalled();
+    });
+
+    it('does not reject when the charge attempt is declined', async () => {
+      stubOpenInvoices([openInvoice()]);
+      payChargeAttemptSpy.mockRejectedValue(
+        new Error('Your card was declined')
+      );
+
+      await expect(
+        invoiceManager.retryPaymentForOpenInvoices(
+          mockCustomerId,
+          mockPaymentMethodId
+        )
+      ).resolves.toBeUndefined();
+    });
+
+    it('counts and logs a failed charge attempt', async () => {
+      stubOpenInvoices([openInvoice()]);
+      payChargeAttemptSpy.mockRejectedValue(
+        new Error('Your card was declined')
+      );
+
+      await invoiceManager.retryPaymentForOpenInvoices(
+        mockCustomerId,
+        mockPaymentMethodId
+      );
+
+      expect(incrementSpy).toHaveBeenCalledWith(
+        'invoice_retry_payment_failure'
+      );
+      expect(warnSpy).toHaveBeenCalledWith('retryPaymentForOpenInvoices', {
+        message: 'Failed to retry payment for open invoices',
+        customerId: mockCustomerId,
+        error: 'Your card was declined',
+      });
+    });
+
+    it('does not reject when listing invoices fails', async () => {
+      jest
+        .spyOn(stripeClient, 'invoicesList')
+        .mockRejectedValue(new Error('Stripe API error'));
+
+      await expect(
+        invoiceManager.retryPaymentForOpenInvoices(
+          mockCustomerId,
+          mockPaymentMethodId
+        )
+      ).resolves.toBeUndefined();
+      expect(payChargeAttemptSpy).not.toHaveBeenCalled();
     });
   });
 });

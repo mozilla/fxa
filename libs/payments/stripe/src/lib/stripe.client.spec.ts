@@ -41,6 +41,10 @@ const mockStripeInvoicesFinalizeInvoice =
   mockJestFnGenerator<typeof Stripe.prototype.invoices.finalizeInvoice>();
 const mockStripeInvoicesRetrieve =
   mockJestFnGenerator<typeof Stripe.prototype.invoices.retrieve>();
+const mockStripeInvoicesList =
+  mockJestFnGenerator<typeof Stripe.prototype.invoices.list>();
+const mockStripeInvoicesPay =
+  mockJestFnGenerator<typeof Stripe.prototype.invoices.pay>();
 const mockStripePaymentMethodsAttach =
   mockJestFnGenerator<typeof Stripe.prototype.paymentMethods.attach>();
 const mockStripePricesRetrieve =
@@ -85,6 +89,8 @@ jest.mock('stripe', () => {
         finalizeInvoice: mockStripeInvoicesFinalizeInvoice,
         retrieve: mockStripeInvoicesRetrieve,
         createPreview: mockStripeCreatePreviewInvoice,
+        list: mockStripeInvoicesList,
+        pay: mockStripeInvoicesPay,
       },
       paymentMethods: {
         attach: mockStripePaymentMethodsAttach,
@@ -332,6 +338,103 @@ describe('StripeClient', () => {
           'lines.data.taxes.tax_rate_details.tax_rate',
           'total_taxes.tax_rate_details.tax_rate',
         ],
+      });
+    });
+  });
+
+  describe('invoicesList', () => {
+    const mockCustomerId = 'cus_list123';
+
+    it('returns the matching invoices from Stripe', async () => {
+      const mockResponse = StripeResponseFactory(
+        StripeApiListFactory([StripeInvoiceFactory()])
+      );
+
+      mockStripeInvoicesList.mockResolvedValue(mockResponse);
+
+      const result = await stripeClient.invoicesList({
+        customer: mockCustomerId,
+      });
+
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('passes the caller filters through to Stripe', async () => {
+      mockStripeInvoicesList.mockResolvedValue(
+        StripeResponseFactory(StripeApiListFactory([]))
+      );
+
+      // `limit` is a plain pass-through -- nothing defaults, clamps or rejects
+      // it -- so this pins that the wrapper forwards params untouched.
+      await stripeClient.invoicesList({
+        customer: mockCustomerId,
+        status: 'open',
+        collection_method: 'charge_automatically',
+        limit: 3,
+      });
+
+      expect(mockStripeInvoicesList).toHaveBeenCalledWith({
+        customer: mockCustomerId,
+        status: 'open',
+        collection_method: 'charge_automatically',
+        limit: 3,
+      });
+    });
+
+    it('propagates a Stripe error to the caller', async () => {
+      mockStripeInvoicesList.mockRejectedValueOnce(
+        new Error('Stripe is unavailable')
+      );
+
+      await expect(
+        stripeClient.invoicesList({ customer: mockCustomerId })
+      ).rejects.toThrow('Stripe is unavailable');
+    });
+  });
+
+  describe('invoicesPayChargeAttempt', () => {
+    it('returns the paid invoice from Stripe', async () => {
+      const mockInvoice = StripeInvoiceFactory({ status: 'paid' });
+      const mockResponse = StripeResponseFactory(mockInvoice);
+
+      mockStripeInvoicesPay.mockResolvedValueOnce(mockResponse);
+
+      const result = await stripeClient.invoicesPayChargeAttempt(
+        mockInvoice.id
+      );
+
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('forwards the payment method to Stripe', async () => {
+      const mockInvoice = StripeInvoiceFactory({ status: 'paid' });
+      const mockPaymentMethodId = 'pm_charge123';
+
+      mockStripeInvoicesPay.mockResolvedValueOnce(
+        StripeResponseFactory(mockInvoice)
+      );
+
+      await stripeClient.invoicesPayChargeAttempt(mockInvoice.id, {
+        payment_method: mockPaymentMethodId,
+      });
+
+      expect(mockStripeInvoicesPay).toHaveBeenCalledWith(mockInvoice.id, {
+        off_session: true,
+        payment_method: mockPaymentMethodId,
+      });
+    });
+
+    it('charges off-session by default', async () => {
+      const mockInvoice = StripeInvoiceFactory({ status: 'paid' });
+
+      mockStripeInvoicesPay.mockResolvedValueOnce(
+        StripeResponseFactory(mockInvoice)
+      );
+
+      await stripeClient.invoicesPayChargeAttempt(mockInvoice.id);
+
+      expect(mockStripeInvoicesPay).toHaveBeenCalledWith(mockInvoice.id, {
+        off_session: true,
       });
     });
   });
