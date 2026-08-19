@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 4b26a1a371d5a5dc78f37f1f92fdac17fcca88e9</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 4b26a1a371d5a5dc78f37f1f92fdac17fcca88e9</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>8/19/2026, 1:47:30 AM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): report unlocalizable errors to Sentry with their message</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- `getErrorFtlId` reported unlocalizable errors to Sentry as `JSON.stringify(err)`. An `Error` stringifies to `{}`, because `name`, `message` and `stack` are not own enumerable properties, so every report reads `error: {}`.
+- Sentry issue FXA-CONTENT-1HZT collects under 10 of these a day, on `/`, `/settings` and `/settings/emails`, and not one of them names the error.
+
+## This pull request
+
+- Replaces `Sentry.captureMessage` with `Sentry.captureException` in `error-utils.ts`, so a real `Error` reaches Sentry with its message and stack.
+- Wraps a non-`Error` input in `new Error(err.message || reason)`, and sends `errno`, `code` and `retryAfter` as extra context.
+- Keeps `errno` out of the tags. `beforeSend` in `fxa-shared/sentry/browser.ts` fingerprints a tagged errno into one group and drops the level to `info`.
+- Fixes the sibling &quot;not found in auth-errors or oauth-errors&quot; branch the same way. It had the identical bug.
+- Updates the two message assertions in `auth-errors.test.ts` and adds cases that pass a real `Error`.
+
+## Issue that this pull request solves
+
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-13366</pre></dd>
+  </dl>
+</body>
+</html>
