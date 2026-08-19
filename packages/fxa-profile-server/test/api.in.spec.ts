@@ -15,6 +15,7 @@ const testServer = require('./lib/server');
 const Static = require('./lib/static');
 const img = require('../lib/img');
 const mockFactory = require('./lib/mock');
+const avatarShared = require('../lib/routes/avatar/_shared');
 
 function randomHex(bytes: number): string {
   return crypto.randomBytes(bytes).toString('hex');
@@ -445,6 +446,123 @@ describe('#integration - api', () => {
       expect(res.result.email).toBe('user@example.domain');
       expect(res.result.sub).toBe(USERID);
       expect(Object.keys(res.result)).toHaveLength(2);
+      assertSecurityHeaders(res);
+    });
+
+    const MONOGRAM = `${PUBLIC_URL}/v1/avatar/u`;
+
+    describe('token that cannot read the email', () => {
+      it('should return the default avatar when no avatar is stored', async () => {
+        const scopedUser = uid();
+        mock.token({
+          user: scopedUser,
+          scope: ['profile:avatar'],
+        });
+        const res = await Server.api.get({
+          url: '/profile',
+          headers: {
+            authorization: 'Bearer ' + tok,
+          },
+        });
+        expect(res.statusCode).toBe(200);
+        expect(res.result.avatar).toBe(avatarShared.DEFAULT_AVATAR.avatar);
+        expect(res.result.avatarDefault).toBe(true);
+        expect(Object.keys(res.result)).toHaveLength(2);
+        assertSecurityHeaders(res);
+      });
+
+      it('should keep the stored avatar', async () => {
+        const scopedUser = uid();
+        await db.addAvatar(avatarId(), scopedUser, MONOGRAM, 'fxa');
+        mock.token({
+          user: scopedUser,
+          scope: ['profile:avatar'],
+        });
+        const res = await Server.api.get({
+          url: '/profile',
+          headers: {
+            authorization: 'Bearer ' + tok,
+          },
+        });
+        expect(res.statusCode).toBe(200);
+        expect(res.result.avatar).toBe(MONOGRAM);
+        const selected = await db.getSelectedAvatar(scopedUser);
+        expect(selected.url).toBe(MONOGRAM);
+        assertSecurityHeaders(res);
+      });
+
+      it('should keep the stored avatar for a non-ASCII display name', async () => {
+        const scopedUser = uid();
+        await db.addAvatar(avatarId(), scopedUser, MONOGRAM, 'fxa');
+        await db.setDisplayName(scopedUser, 'Álvaro');
+        mock.token({
+          user: scopedUser,
+          scope: ['profile:display_name', 'profile:avatar'],
+        });
+        const res = await Server.api.get({
+          url: '/profile',
+          headers: {
+            authorization: 'Bearer ' + tok,
+          },
+        });
+        expect(res.statusCode).toBe(200);
+        expect(res.result.displayName).toBe('Álvaro');
+        expect(res.result.avatar).toBe(MONOGRAM);
+        const selected = await db.getSelectedAvatar(scopedUser);
+        expect(selected.url).toBe(MONOGRAM);
+        assertSecurityHeaders(res);
+      });
+    });
+
+    it('should delete the stored avatar when the email starts with a non-alphanumeric character', async () => {
+      const plainUser = uid();
+      const otherUser = uid();
+      await db.addAvatar(avatarId(), plainUser, MONOGRAM, 'fxa');
+      await db.addAvatar(avatarId(), otherUser, MONOGRAM, 'fxa');
+      mock.token({
+        user: plainUser,
+        scope: ['profile'],
+      });
+      mock.email('_user@example.com');
+      mock.email('_user@example.com'); // a second time for the refetch
+      const res = await Server.api.get({
+        url: '/profile',
+        headers: {
+          authorization: 'Bearer ' + tok,
+        },
+      });
+      expect(res.statusCode).toBe(200);
+      expect(res.result.avatar).toBe(avatarShared.DEFAULT_AVATAR.avatar);
+      expect(res.result.avatarDefault).toBe(true);
+      expect(await db.getSelectedAvatar(plainUser)).toBeUndefined();
+      const otherSelected = await db.getSelectedAvatar(otherUser);
+      expect(otherSelected.url).toBe(MONOGRAM);
+      assertSecurityHeaders(res);
+    });
+
+    it('should delete the monogram row it supersedes when the initial changes', async () => {
+      const monogramUser = 'a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1';
+      const staleAvatarId = 'b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2';
+      const staleMonogram = `${PUBLIC_URL}/v1/avatar/a`;
+      const freshMonogram = `${PUBLIC_URL}/v1/avatar/b`;
+      await db.addAvatar(staleAvatarId, monogramUser, staleMonogram, 'fxa');
+      mock.token({
+        user: monogramUser,
+        scope: ['profile'],
+      });
+      mock.email('bob@example.com');
+      mock.email('bob@example.com'); // a second time for the refetch
+      const res = await Server.api.get({
+        url: '/profile',
+        headers: {
+          authorization: 'Bearer ' + tok,
+        },
+      });
+      expect(res.statusCode).toBe(200);
+      expect(res.result.avatar).toBe(freshMonogram);
+      const selected = await db.getSelectedAvatar(monogramUser);
+      expect(selected.url).toBe(freshMonogram);
+      expect(await db.getAvatar(staleAvatarId)).toBeUndefined();
       assertSecurityHeaders(res);
     });
   });
