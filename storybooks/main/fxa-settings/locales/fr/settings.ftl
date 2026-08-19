@@ -754,7 +754,7 @@ flow-setup-2fa-prompt-heading = Configurer l’authentification en deux étapes
 # that requests two-step authentication setup.
 flow-setup-2fa-prompt-description = { $serviceName } vous demande de configurer l’authentification en deux étapes pour protéger votre compte.
 # Success banner shown at the top of the page when the user signed in with a passkey.
-flow-setup-2fa-prompt-passkey-success-banner = Connecté·e avec la clé d’accès avec succès
+flow-setup-2fa-prompt-passkey-success-banner = Connexion réussie avec la clé d’accès
 # Body copy shown when the user signed in with a passkey and the service still
 # requires two-step authentication setup.
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
@@ -1880,17 +1880,17 @@ pair2-authority-scan-qr-instruction = Scannez le code QR avec votre téléphone 
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = Code QR pour connecter votre appareil mobile
 # Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Obtenir de l’aide sur l’analyse
+pair2-authority-scan-qr-help-link = Obtenir de l’aide pour scanner le code QR
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
 ## It confirms that sync is on and offers the follow-up actions.
 
 # "syncing" here means copying data between the user's devices
-pair2-authority-sync-success-heading = Synchronisation synchronisée
+pair2-authority-sync-success-heading = La synchronisation est activée
 pair2-authority-sync-success-description = Vos onglets, marque-pages, mots de passe et bien plus sont prêts sur tous vos appareils.
 # Opens the tabs that are open on the user's other synced devices
-pair2-authority-sync-success-view-tabs-button = Afficher les onglets synchronisés
+pair2-authority-sync-success-view-tabs-button = Voir les onglets synchronisés
 # Opens the browser settings that control what is synced
 pair2-authority-sync-success-sync-settings-button = Paramètres de synchronisation
 
@@ -1933,7 +1933,7 @@ pair2-supplicant-approve-sign-in-cancel-button = Annuler
 # whose details are shown below the heading
 pair2-supplicant-connect-this-device-heading = Connecter cet appareil à votre compte ?
 # Confirms the pairing attempt
-pair2-supplicant-connect-this-device-connect-button = Se connecter
+pair2-supplicant-connect-this-device-connect-button = Connexion
 # Dismisses the pairing attempt
 pair2-supplicant-connect-this-device-cancel-button = Annuler
 
@@ -1966,9 +1966,9 @@ pair2-supplicant-ready-to-scan-learn-more-link = En savoir plus
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Votre appareil est connecté
-pair2-supplicant-sync-success-description = Vos marque-pages, onglets et autres resteront synchronisés en { -brand-firefox }.
+pair2-supplicant-sync-success-description = Vos marque-pages, onglets et autres données resteront synchronisés dans { -brand-firefox }.
 # Opens the view listing tabs open on the user's other synced devices
-pair2-supplicant-sync-success-view-tabs-button = Afficher les onglets synchronisés
+pair2-supplicant-sync-success-view-tabs-button = Voir les onglets synchronisés
 # Opens the browser's sync settings, where the user chooses what to sync
 pair2-supplicant-sync-success-sync-settings-button = Paramètres de synchronisation
 

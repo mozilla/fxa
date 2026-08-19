@@ -83,6 +83,7 @@ button-back-aria-label = 上一頁
 button-back-title = 上一頁
 
 
+recovery-key-download-button-v4 = 下載並繼續
 recovery-key-pdf-download-error = 很抱歉，下載帳號救援金鑰時發生問題。
 
 
@@ -540,6 +541,8 @@ flow-setup-2fa-inline-complete-learn-more-link = 此功能如何保護您的帳�
 flow-setup-2fa-inline-complete-continue-button = 繼續前往 { $serviceName }
 flow-setup-2fa-prompt-heading = 設定兩階段驗證
 flow-setup-2fa-prompt-description = { $serviceName } 要求您設定兩階段驗證，以確保帳號安全。
+flow-setup-2fa-prompt-passkey-success-banner = 成功使用 Passkey 登入
+flow-setup-2fa-prompt-passkey-description = { $serviceName } 要求對您的 { -product-mozilla-account }進行兩階段驗證。設定完成後，如果使用 Passkey 登入則不需要再進行兩階段驗證。
 flow-setup-2fa-prompt-use-authenticator-apps = 您可以使用<authenticationAppsLink>下列驗證程式</authenticationAppsLink>當中的任一種來設定。
 flow-setup-2fa-prompt-continue-button = 繼續
 

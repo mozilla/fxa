@@ -1,8 +1,8 @@
 {
-  "commit": "b0e118473e305026abdd5cd5b070f1000e4652c9",
-  "summary": "Merge pull request #21008 from mozilla/PAY-3893",
-  "description": "fix(payments): expand discount coupons on cached invoices and subscriptions",
-  "timestamp": 1787087919000,
+  "commit": "3ce9967cc6e87cf0c9918bb7ce833ace2c16997c",
+  "summary": "Merge pull request #21035 from mozilla/fxa-14316",
+  "description": "test(oauth): cover the PKCE guards on code redemption",
+  "timestamp": 1787145535000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
