@@ -135,10 +135,9 @@ export const MfaGuard = ({
           return;
         }
 
-        // INSUFFICIENT_AAL is handled by the auth client's global error
-        // handler (AppContext), which redirects to /signin_totp_code.
-        // Don't call onDismiss here — it navigates to /settings, which
-        // in React 19's batched updates would override the redirect.
+        // The auth client's global error handler (AppContext) already
+        // redirects to /signin_totp_code for this. Returning early keeps
+        // onDismiss from navigating to /settings and clobbering it.
         if (err?.errno === ERRNO.INSUFFICIENT_AAL) {
           Sentry.addBreadcrumb({
             category: 'mfa',

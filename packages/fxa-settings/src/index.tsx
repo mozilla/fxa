@@ -72,12 +72,23 @@ try {
 
   const appContext = initializeAppContext();
 
-  const View = Storage.isLocalStorageEnabled(window)
+  const localStorageEnabled = Storage.isLocalStorageEnabled(window);
+
+  // Redirect before rendering rather than during it. A concurrent root commits
+  // asynchronously, so a render-phase navigation races the commit and can tear
+  // the page down before CookiesDisabled ever paints. The pathname check keeps
+  // a browser with genuinely disabled storage from replacing onto this route in
+  // a loop.
+  if (
+    !localStorageEnabled &&
+    window.location.pathname !== '/cookies_disabled'
+  ) {
+    window.location.replace('/cookies_disabled');
+  }
+
+  const View = localStorageEnabled
     ? () => <App {...{ flowQueryParams }} />
-    : () => {
-        window.location.replace('/cookies_disabled');
-        return <CookiesDisabled />;
-      };
+    : () => <CookiesDisabled />;
 
   const root = createRoot(document.getElementById('root') as HTMLElement);
   // StrictMode disabled: PagePasskeyAdd auto-starts the ceremony in a

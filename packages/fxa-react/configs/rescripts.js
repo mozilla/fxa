@@ -116,7 +116,7 @@ const setModuleNameMapper = (tsconfigBase) => (config) => {
     // which is incompatible with React 19's element format.
     '^(?!.*\\.(js|jsx|mjs|cjs|ts|tsx|css|json)$)': resolve(
       __dirname,
-      '../../fxa-settings/config/jest/fileTransform.js'
+      '../file-transform.js'
     ),
   };
 

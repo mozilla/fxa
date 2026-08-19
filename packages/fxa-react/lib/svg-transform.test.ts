@@ -6,7 +6,7 @@ const svgTransform = require('../svg-transform');
 
 // The transform emits `React.forwardRef(function <ComponentName>(props, ref)`.
 function componentNameFor(basename: string): string {
-  const code = svgTransform.process('', `/icons/${basename}.svg`);
+  const { code } = svgTransform.process('', `/icons/${basename}.svg`);
   const match = /function (\w+)\(props, ref\)/.exec(code);
   return match![1];
 }
@@ -21,5 +21,10 @@ describe('svg-transform', () => {
     ['close', 'SvgClose'],
   ])('names the component for %s.svg', (basename, expected) => {
     expect(componentNameFor(basename)).toEqual(expected);
+  });
+
+  it('exports the basename as the default', () => {
+    const { code } = svgTransform.process('', '/icons/close.svg');
+    expect(code).toContain('default: "close.svg"');
   });
 });

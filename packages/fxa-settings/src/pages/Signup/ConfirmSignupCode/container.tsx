@@ -195,6 +195,57 @@ const SignupConfirmCodeContainer = ({
     }
   }, [hasHardBounce, origin, navigateWithQuery, email]);
 
+  // Redirect from an effect rather than during render. A concurrent root
+  // commits asynchronously, so a render-phase navigation races the commit.
+  // Each guard below mirrors the early-return chain in the render body so the
+  // two effects stay mutually exclusive, as the sequential returns were.
+  useEffect(() => {
+    if (
+      integration &&
+      !isRecovering &&
+      (!uid || !sessionToken || !email) &&
+      !isOAuthNativeIntegration(integration)
+    ) {
+      // For OAuth Native flows, recovery is attempted instead.
+      navigateWithQuery('/');
+    }
+  }, [integration, isRecovering, uid, sessionToken, email, navigateWithQuery]);
+
+  useEffect(() => {
+    if (
+      integration &&
+      !isRecovering &&
+      uid &&
+      sessionToken &&
+      email &&
+      !oAuthDataError &&
+      oAuthKeysCheckError &&
+      !isOAuthNativeIntegration(integration) &&
+      (!keyFetchToken || !unwrapBKey)
+    ) {
+      navigateWithQuery('/signin', {
+        state: {
+          localizedErrorMessage: ftlMsg.getMsg(
+            'signin-code-expired-error',
+            'Code expired. Please sign in again.'
+          ),
+        },
+      });
+    }
+  }, [
+    integration,
+    isRecovering,
+    uid,
+    sessionToken,
+    email,
+    oAuthDataError,
+    oAuthKeysCheckError,
+    keyFetchToken,
+    unwrapBKey,
+    ftlMsg,
+    navigateWithQuery,
+  ]);
+
   const cmsInfo = integration?.getCmsInfo();
   const splitLayout = cmsInfo?.SignupConfirmCodePage?.splitLayout;
 
@@ -216,11 +267,8 @@ const SignupConfirmCodeContainer = ({
   }
 
   if (!uid || !sessionToken || !email) {
-    // For non-OAuth Native flows, navigate to root
-    // For OAuth Native flows, recovery was already attempted above
-    if (!isOAuthNativeIntegration(integration)) {
-      navigateWithQuery('/');
-    }
+    // Redirect (non-OAuth Native) and recovery (OAuth Native) both run from
+    // effects above; render loading until one of them lands.
     return (
       <AppLayout
         {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
@@ -247,15 +295,7 @@ const SignupConfirmCodeContainer = ({
       );
     }
     if (!keyFetchToken || !unwrapBKey) {
-      const localizedErrorMessage = ftlMsg.getMsg(
-        'signin-code-expired-error',
-        'Code expired. Please sign in again.'
-      );
-      navigateWithQuery('/signin', {
-        state: {
-          localizedErrorMessage,
-        },
-      });
+      // Redirect to /signin runs from an effect above.
       return (
         <AppLayout
           {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}

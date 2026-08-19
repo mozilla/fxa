@@ -148,6 +148,9 @@ packages/fxa-react/**/*.js
 !packages/fxa-react/**/gruntfile.js
 packages/fxa-react/**/*.d.ts
 !packages/fxa-react/pm2.config.js
+# Jest transformers: source, not build output
+!packages/fxa-react/svg-transform.js
+!packages/fxa-react/file-transform.js
 packages/fxa-react/fxa-content-server-l10n/
 packages/fxa-react/public/locales
 packages/fxa-react/test/

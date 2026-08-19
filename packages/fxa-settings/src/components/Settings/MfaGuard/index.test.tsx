@@ -280,6 +280,30 @@ describe('MfaGuard', () => {
     });
   });
 
+  it('stays put on INSUFFICIENT_AAL so the global redirect is not clobbered', async () => {
+    mockAuthClient.mfaRequestOtp.mockRejectedValueOnce(
+      AuthUiErrors.INSUFFICIENT_AAL
+    );
+
+    renderWithRouter(
+      <AppContext.Provider value={mockAppContext()}>
+        <MfaGuard
+          requiredScope={mockScope}
+          debounceIntervalMs={0}
+          reason={MfaReason.test}
+        >
+          <div>secured</div>
+        </MfaGuard>
+      </AppContext.Provider>
+    );
+
+    await waitFor(() => {
+      expect(mockAuthClient.mfaRequestOtp).toHaveBeenCalled();
+    });
+    expect(mockNavigate).not.toHaveBeenCalledWith('/settings');
+    expect(mockAlertBar.error).not.toHaveBeenCalled();
+  });
+
   it('invokes onDismiss when dialog is dismissed', async () => {
     const mockOnDismiss = jest.fn().mockResolvedValue(undefined);
 

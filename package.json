@@ -296,8 +296,6 @@
     "packages/*"
   ],
   "resolutions": {
-    "@react-pdf/layout": "3.9.1",
-    "@react-pdf/textkit": "4.3.0",
     "@types/react": "19.2.18",
     "asn1.js": ">=5.4.1",
     "axios": "^1.13.4",

@@ -125,18 +125,24 @@ export const SigninTotpCodeContainer = ({
     }
   };
 
-  // React 19 forbids calling navigate() during render. Freeze the redirect
-  // decision at mount so that mid-flow cache writes (e.g. after successful
-  // TOTP verification) can't transiently clear signinState and trigger an
-  // unwanted redirect to '/'.  The toPass retry in fillOutCodeForm handles
-  // the case where a Suspense remount creates a fresh ref.
-  const shouldRedirectFromTotpRef = useRef(
-    !signinState ||
-      (signinState.isSessionAALUpgrade !== true &&
-        signinState.verificationMethod &&
-        signinState.verificationMethod !== VerificationMethods.TOTP_2FA)
-  );
-  const shouldRedirectFromTotp = shouldRedirectFromTotpRef.current;
+  // Only bounce users who arrived here without usable state. Latching on the
+  // first valid signinState matters because the cache write that follows a
+  // successful TOTP verification briefly clears it, and a live check would
+  // read that as "no state" and redirect out of a flow that just succeeded.
+  const hasValidSigninState =
+    !!signinState &&
+    (signinState.isSessionAALUpgrade === true ||
+      !signinState.verificationMethod ||
+      signinState.verificationMethod === VerificationMethods.TOTP_2FA);
+  const hasHadValidSigninState = useRef(false);
+  if (hasValidSigninState) {
+    hasHadValidSigninState.current = true;
+  }
+
+  // Navigate from an effect: a concurrent root commits asynchronously, so a
+  // render-phase navigation races the commit.
+  const shouldRedirectFromTotp =
+    !hasValidSigninState && !hasHadValidSigninState.current;
   useEffect(() => {
     if (shouldRedirectFromTotp) {
       navigateWithQuery('/');
@@ -168,7 +174,7 @@ export const SigninTotpCodeContainer = ({
         finishOAuthFlowHandler,
         integration,
         redirectTo,
-        signinState: signinState!,
+        signinState,
         submitTotpCode,
         serviceName,
         keyFetchToken,
