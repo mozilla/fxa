@@ -646,8 +646,11 @@ export class CMSLocalization {
 
       for (const collection of collectionTypes) {
         try {
+          // Without an explicit pageSize, Strapi applies its rest.defaultLimit
+          // of 25 and drops the remaining entries without an error. 100 is
+          // rest.maxLimit, so this is the most a single request can return.
           const response = await fetch(
-            `${strapiBaseUrl}/api/${collection}?populate=*`,
+            `${strapiBaseUrl}/api/${collection}?populate=*&pagination[pageSize]=100`,
             { headers }
           );
 
