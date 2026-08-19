@@ -43,6 +43,9 @@ button-back-title = Retro
 ## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
+# Button to download the account recovery key as a plain text file and navigate to the next step
+# The next (and final) step is an optional prompt to save a storage hint
+recovery-key-download-button-v4 = Discargar e continuar
 # Error message shown in a banner if the account recovery key download failed.
 # The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Desolate, il habeva un problema discargante tu clave de recuperation del conto.
@@ -756,6 +759,8 @@ flow-setup-2fa-prompt-heading = Configurar authentication a duo passos
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
 flow-setup-2fa-prompt-description = { $serviceName } te require le authentication a duo passos pro tener secur tu conto.
+# Success banner shown at the top of the page when the user signed in with a passkey.
+flow-setup-2fa-prompt-passkey-success-banner = Firmate con sucesso con clave-contrasigno
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = Tu pote usar qualcunque de <authenticationAppsLink>iste applicationes de authentication</authenticationAppsLink> pro proceder.
 flow-setup-2fa-prompt-continue-button = Continuar
