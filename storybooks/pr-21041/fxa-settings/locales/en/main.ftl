@@ -101,20 +101,7 @@ button-back-aria-label = Back
 button-back-title = Back
 
 
-recovery-key-download-button-v3 = Download and continue
-  .title = Download and continue
-
-recovery-key-pdf-heading = Account Recovery Key
-
-recovery-key-pdf-download-date = Generated: { $date }
-
-recovery-key-pdf-key-legend = Account Recovery Key
-
-recovery-key-pdf-instructions = This key allows you to recover your encrypted browser data (including passwords, bookmarks, and history) if you forget your password. Store it in a place you’ll remember.
-
-recovery-key-pdf-storage-ideas-heading = Places to store your key
-
-recovery-key-pdf-support = Learn more about your account recovery key
+recovery-key-download-button-v4 = Download and continue
 
 recovery-key-pdf-download-error = Sorry, there was a problem downloading your account recovery key.
 
@@ -663,6 +650,10 @@ flow-setup-2fa-prompt-heading = Set up two-step authentication
 
 flow-setup-2fa-prompt-description = { $serviceName } requires you to set up two-step authentication to keep your account safe.
 
+flow-setup-2fa-prompt-passkey-success-banner = Successfully signed in with passkey
+
+flow-setup-2fa-prompt-passkey-description = { $serviceName } also requires two-step authentication for your { -product-mozilla-account }. After setup, you’ll no longer need it when you sign in with a passkey.
+
 flow-setup-2fa-prompt-use-authenticator-apps = You can use any of <authenticationAppsLink>these authenticator apps</authenticationAppsLink> to proceed.
 
 flow-setup-2fa-prompt-continue-button = Continue
@@ -963,6 +954,9 @@ recent-activity-account-passwordless-login-otp-failed = Passwordless sign-in cod
 recent-activity-account-passwordless-login-otp-verified = Passwordless sign-in code verified
 recent-activity-account-passwordless-registration-complete = Passwordless account registration completed
 recent-activity-account-recovery-codes-set = Recovery codes set
+recent-activity-account-passkey-wrap-created = Passkey enabled for syncing
+recent-activity-account-passkey-wrap-creation-failure = Sync setup with passkey failed
+recent-activity-account-passkey-wrap-invalidated = Passkey sync access removed after password reset
 
 recent-activity-unknown = Other account activity
 

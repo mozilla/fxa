@@ -83,6 +83,7 @@ button-back-aria-label = Terug
 button-back-title = Terug
 
 
+recovery-key-download-button-v4 = Downloaden en doorgaan
 recovery-key-pdf-download-error = Sorry, er is een probleem opgetreden bij het downloaden van uw accountherstelsleutel.
 
 
@@ -560,6 +561,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Hoe dit uw account beschermt
 flow-setup-2fa-inline-complete-continue-button = Doorgaan naar { $serviceName }
 flow-setup-2fa-prompt-heading = Authenticatie in twee stappen instellen
 flow-setup-2fa-prompt-description = { $serviceName } vereist dat u authenticatie in twee stappen instelt om uw account veilig te houden.
+flow-setup-2fa-prompt-passkey-success-banner = Met succes aangemeld met wachtwoordsleutel
+flow-setup-2fa-prompt-passkey-description = { $serviceName } vereist ook authenticatie in twee stappen voor uw { -product-mozilla-account }. Na het instellen hebt u deze niet meer nodig als u zich aanmeldt met een wachtwoordsleutel.
 flow-setup-2fa-prompt-use-authenticator-apps = U kunt elk van <authenticationAppsLink>deze authenticator-apps</authenticationAppsLink> gebruiken om verder te gaan.
 flow-setup-2fa-prompt-continue-button = Doorgaan
 
@@ -1299,12 +1302,35 @@ pair2-authority-approve-sign-in-confirm-button = Ja, aanmelding goedkeuren
 pair2-authority-approve-sign-in-change-password = Bent u dit niet? <changePassword>Wijzig uw wachtwoord</changePassword>
 
 
+pair2-authority-continue-on-mobile-heading = Doorgaan op uw mobiele apparaat
+pair2-authority-continue-on-mobile-description = Volg de stappen op uw telefoon of tablet.
 pair2-authority-continue-on-mobile-cancel-button = Annuleren
 
 
+pair2-authority-download-firefox-heading = Open { -brand-firefox } om te synchroniseren
+pair2-authority-download-firefox-instruction = Open { -brand-firefox } op dit apparaat en bezoek <b>firefox.com/pair</b> om synchronisatie tussen apparaten in te stellen
+pair2-authority-download-firefox-cta = { -brand-firefox } downloaden
+
+
+pair2-authority-scan-qr-heading = Scan om uw mobiele apparaat te verbinden
+pair2-authority-scan-qr-instruction = Scan de QR-code met uw telefoon of tablet om uw { -brand-firefox }-bladwijzers, tabbladen en meer te synchroniseren.
+pair2-authority-scan-qr-code-aria-label = QR-code om uw mobiele apparaat te verbinden
+pair2-authority-scan-qr-help-link = Hulp bij scannen ontvangen
+
+
+pair2-authority-sync-success-heading = U synchroniseert
+pair2-authority-sync-success-description = Uw tabbladen, bladwijzers, wachtwoorden en meer staan klaar op al uw apparaten.
+pair2-authority-sync-success-view-tabs-button = Gesynchroniseerde tabbladen bekijken
+pair2-authority-sync-success-sync-settings-button = Synchronisatie-instellingen
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = Wilt u toch een apparaat verbinden?
+pair2-authority-timeout-and-cancel-timeout-description = Het lijkt erop dat er een time-out is opgetreden. Probeer het opnieuw als u nog steeds verbinding wilt maken met uw mobiele apparaat en uw { -brand-firefox }-gegevens wilt synchroniseren.
 pair2-authority-timeout-and-cancel-canceled-heading = Geannuleerd
+pair2-authority-timeout-and-cancel-canceled-description = Als u van gedachten verandert of een ander apparaat wilt verbinden, probeer het dan opnieuw.
 pair2-authority-timeout-and-cancel-try-again-button = Opnieuw proberen
 pair2-authority-timeout-and-cancel-cancel-button = Annuleren
+pair2-authority-timeout-and-cancel-sync-settings-button = Synchronisatie-instellingen
 
 
 pair2-supplicant-approve-sign-in-heading = Een laatste synchronisatiestap
@@ -1312,20 +1338,31 @@ pair2-supplicant-approve-sign-in-instruction = Keur de aanmelding op uw computer
 pair2-supplicant-approve-sign-in-cancel-button = Annuleren
 
 
+pair2-supplicant-connect-this-device-heading = Dit apparaat met uw account verbinden?
 pair2-supplicant-connect-this-device-connect-button = Verbinden
 pair2-supplicant-connect-this-device-cancel-button = Annuleren
 
 
+pair2-supplicant-download-firefox-heading = Download { -brand-firefox } op dit apparaat
+pair2-supplicant-download-firefox-description = Download { -brand-firefox } om bladwijzers, geschiedenis en meer tussen apparaten te synchroniseren. <linkExternal>Meer info</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Doorgaan in { -brand-firefox }
 
 
+pair2-supplicant-ready-to-scan-heading = Een apparaat verbinden
+pair2-supplicant-ready-to-scan-instruction = Open { -brand-firefox } op uw computer, bezoek <b>firefox.com/pair</b> en volg de instructies op het scherm om dit mobiele apparaat te verbinden.
 pair2-supplicant-ready-to-scan-learn-more-link = Meer info
 
 
 pair2-supplicant-sync-success-heading = Uw apparaat is verbonden
+pair2-supplicant-sync-success-description = Uw bladwijzers, tabbladen en meer blijven in { -brand-firefox } gesynchroniseerd.
+pair2-supplicant-sync-success-view-tabs-button = Gesynchroniseerde tabbladen bekijken
+pair2-supplicant-sync-success-sync-settings-button = Synchronisatie-instellingen
 
 
+pair2-supplicant-timeout-and-cancel-timeout-heading = Het lijkt erop dat er een time-out is opgetreden
+pair2-supplicant-timeout-and-cancel-timeout-description = Bezoek <b>firefox.com/pair</b> op uw computer om uw mobiele apparaat te verbinden en uw { -brand-firefox }-gegevens te synchroniseren.
 pair2-supplicant-timeout-and-cancel-canceled-heading = Geannuleerd
+pair2-supplicant-timeout-and-cancel-canceled-description = Bezoek <b>firefox.com/pair</b> op uw computer om op elk gewenst moment een apparaat te verbinden.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } bevestigd
