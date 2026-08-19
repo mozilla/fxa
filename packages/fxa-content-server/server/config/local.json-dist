@@ -65,7 +65,6 @@
   },
   "showReactApp": {
     "simpleRoutes": true,
-    "resetPasswordRoutes": true,
     "signUpRoutes": true,
     "signInRoutes": true,
     "emailFirstRoutes": true,

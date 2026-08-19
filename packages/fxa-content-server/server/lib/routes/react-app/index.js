@@ -41,8 +41,9 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       fullProdRollout: true,
     },
 
+    // The Backbone reset password views are gone, so React is the only option.
     resetPasswordRoutes: {
-      featureFlagOn: showReactApp.resetPasswordRoutes,
+      featureFlagOn: true,
       routes: reactRoute.getRoutes([
         'reset_password',
         'complete_reset_password',
