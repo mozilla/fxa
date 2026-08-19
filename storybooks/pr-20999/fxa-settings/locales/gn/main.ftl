@@ -83,6 +83,7 @@ button-back-aria-label = Tapykue
 button-back-title = Tapykue
 
 
+recovery-key-download-button-v4 = Emboguejy ha eku’ejey
 recovery-key-pdf-download-error = Ore ñyro, oĩ apañuái hekopyahúvo ne mba’ete mba’eñemi jeguerujeyrã.
 
 
@@ -560,6 +561,7 @@ flow-setup-2fa-inline-complete-learn-more-link = Mba’éichapa omo’ãta ne mb
 flow-setup-2fa-inline-complete-continue-button = Eku’ejey { $serviceName } ndive
 flow-setup-2fa-prompt-heading = Emboheko ñemoneĩ mokõi jeku’épe
 flow-setup-2fa-prompt-description = { $serviceName } ojerure emohenda hag̃ua mokõi tape ñemoneĩrã ereko hag̃ua ne mba’ete tekorosãme.
+flow-setup-2fa-prompt-passkey-success-banner = Hendýma ñe’ẽ ñemi jeikerã ndive
 flow-setup-2fa-prompt-use-authenticator-apps = Eiporukuaa oimeraẽva <authenticationAppsLink>ko’ã tembiporu’i ñemoneĩrã</authenticationAppsLink> eku’ejey hag̃ua.
 flow-setup-2fa-prompt-continue-button = Ku’ejey
 
@@ -1315,6 +1317,7 @@ pair2-authority-scan-qr-help-link = Eñepytyvõta emoha’ãnga hag̃ua
 
 
 pair2-authority-sync-success-heading = Embojuajuhína
+pair2-authority-sync-success-description = Nde rendayke, techaukaha, ñe’ẽñemi ha hetave ojeporukuaáma opaite mba’e’okápe.
 pair2-authority-sync-success-view-tabs-button = Ehecha tendayke mbojuajupyre
 pair2-authority-sync-success-sync-settings-button = Sync ñemboheko
 
