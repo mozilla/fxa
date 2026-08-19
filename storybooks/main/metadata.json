@@ -1,8 +1,8 @@
 {
-  "commit": "e25b157befb97977877e8e4a62e1d3988f743527",
-  "summary": "Merge pull request #21065 from mozilla/fxa-14367",
-  "description": "fix(cms):  request 100 entries when extracting CMS l10n strings",
-  "timestamp": 1787145745000,
+  "commit": "a87e6a5fa24402ece7361dd132d12a2be92bb8aa",
+  "summary": "Merge pull request #21015 from mozilla/fxa-14340",
+  "description": "fix(auth): validate metricsContext on passwordless OTP routes",
+  "timestamp": 1787153055000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

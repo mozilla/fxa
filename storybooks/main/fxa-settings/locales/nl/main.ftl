@@ -561,8 +561,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Hoe dit uw account beschermt
 flow-setup-2fa-inline-complete-continue-button = Doorgaan naar { $serviceName }
 flow-setup-2fa-prompt-heading = Authenticatie in twee stappen instellen
 flow-setup-2fa-prompt-description = { $serviceName } vereist dat u authenticatie in twee stappen instelt om uw account veilig te houden.
-flow-setup-2fa-prompt-passkey-success-banner = Met succes aangemeld met toegangssleutel
-flow-setup-2fa-prompt-passkey-description = { $serviceName } vereist ook authenticatie in twee stappen voor uw { -product-mozilla-account }. Na het instellen hebt u deze niet meer nodig als u zich aanmeldt met een toegangssleutel.
+flow-setup-2fa-prompt-passkey-success-banner = Met succes aangemeld met wachtwoordsleutel
+flow-setup-2fa-prompt-passkey-description = { $serviceName } vereist ook authenticatie in twee stappen voor uw { -product-mozilla-account }. Na het instellen hebt u deze niet meer nodig als u zich aanmeldt met een wachtwoordsleutel.
 flow-setup-2fa-prompt-use-authenticator-apps = U kunt elk van <authenticationAppsLink>deze authenticator-apps</authenticationAppsLink> gebruiken om verder te gaan.
 flow-setup-2fa-prompt-continue-button = Doorgaan
 
@@ -1324,7 +1324,7 @@ pair2-authority-sync-success-view-tabs-button = Gesynchroniseerde tabbladen beki
 pair2-authority-sync-success-sync-settings-button = Synchronisatie-instellingen
 
 
-pair2-authority-timeout-and-cancel-timeout-heading = Wilt u toch een apparaat koppelen?
+pair2-authority-timeout-and-cancel-timeout-heading = Wilt u toch een apparaat verbinden?
 pair2-authority-timeout-and-cancel-timeout-description = Het lijkt erop dat er een time-out is opgetreden. Probeer het opnieuw als u nog steeds verbinding wilt maken met uw mobiele apparaat en uw { -brand-firefox }-gegevens wilt synchroniseren.
 pair2-authority-timeout-and-cancel-canceled-heading = Geannuleerd
 pair2-authority-timeout-and-cancel-canceled-description = Als u van gedachten verandert of een ander apparaat wilt verbinden, probeer het dan opnieuw.

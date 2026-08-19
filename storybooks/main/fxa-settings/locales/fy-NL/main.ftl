@@ -83,6 +83,7 @@ button-back-aria-label = Tebek
 button-back-title = Tebek
 
 
+recovery-key-download-button-v4 = Downloade en trochgean
 recovery-key-pdf-download-error = Sorry, der is in probleem bard by it downloaden fan de accountwerstelkaai.
 
 
@@ -564,6 +565,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Hoe dit jo account beskermet
 flow-setup-2fa-inline-complete-continue-button = Trochgean nei { $serviceName }
 flow-setup-2fa-prompt-heading = Autentikaasje yn twa stappen ynstelle
 flow-setup-2fa-prompt-description = { $serviceName } fereasket dat jo twa-stapsautentikaasje ynstelle om jo account feilich te hâlden.
+flow-setup-2fa-prompt-passkey-success-banner = Mei sukses oanmeld mei wachtwurdkaai
+flow-setup-2fa-prompt-passkey-description = { $serviceName } fereasket ek twa-stapsautentikaasje foar jo { -product-mozilla-account }. Nei it ynstellen hawwe jo dizze net mear nedich as jo jo oanmelde mei in wachtwurdkaai.
 flow-setup-2fa-prompt-use-authenticator-apps = Jo kinne elk fan <authenticationAppsLink>dizze autentikaasje-apps</authenticationAppsLink> brûke om troch te gean.
 flow-setup-2fa-prompt-continue-button = Trochgean
 
@@ -1308,9 +1311,62 @@ pair2-authority-continue-on-mobile-description = Folgje de stappen op jo telefoa
 pair2-authority-continue-on-mobile-cancel-button = Annulearje
 
 
+pair2-authority-download-firefox-heading = Iepenje { -brand-firefox } om te syngronisearjen
+pair2-authority-download-firefox-instruction = Iepenje { -brand-firefox } op dit apparaat en besykje <b>firefox.com/pair</b> om syngronisaasje tusken apparaten yn te stellen
+pair2-authority-download-firefox-cta = { -brand-firefox } downloade
+
+
+pair2-authority-scan-qr-heading = Scan om jo mobile apparaat te ferbinen
+pair2-authority-scan-qr-instruction = Scan de QR-koade mei jo telefoan of tablet om jo { -brand-firefox }-blêdwizers, ljepblêden en mear te syngronisearjen.
+pair2-authority-scan-qr-code-aria-label = QR-koade om jo mobile apparaat te ferbinen
+pair2-authority-scan-qr-help-link = Help by scannen ûntfange
+
+
+pair2-authority-sync-success-heading = Jo syngronisearje
+pair2-authority-sync-success-description = Jo ljepblêden, blêdwizers, wachtwurden en mear binne klear op al jo apparaten.
+pair2-authority-sync-success-view-tabs-button = Syngronisearre ljepblêden besjen
+pair2-authority-sync-success-sync-settings-button = Syngronisaasje-ynstellingen
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = Wolle jo dochs in apparaat ferbine?
+pair2-authority-timeout-and-cancel-timeout-description = It liket derop dat de tiid ferrûn is. Probearje it nochris as jo jo mobyl apparaat noch ferbine wolle en jo { -brand-firefox }-gegevens syngronisearje wolle.
+pair2-authority-timeout-and-cancel-canceled-heading = Annulearre
+pair2-authority-timeout-and-cancel-canceled-description = As jo fan gedachten feroarje of in oar apparaat ferbine wolle, probearje it dan opnij.
+pair2-authority-timeout-and-cancel-try-again-button = Opnij probearje
+pair2-authority-timeout-and-cancel-cancel-button = Annulearje
+pair2-authority-timeout-and-cancel-sync-settings-button = Syngronisaasje-ynstellingen
+
+
 pair2-supplicant-approve-sign-in-heading = Ien lêste syngronisaasjestap
 pair2-supplicant-approve-sign-in-instruction = Keur de oanmelding op jo kompjûter goed.
 pair2-supplicant-approve-sign-in-cancel-button = Annulearje
+
+
+pair2-supplicant-connect-this-device-heading = Dit apparaat mei jo account ferbine?
+pair2-supplicant-connect-this-device-connect-button = Ferbine
+pair2-supplicant-connect-this-device-cancel-button = Annulearje
+
+
+pair2-supplicant-download-firefox-heading = Download { -brand-firefox } op dit apparaat
+pair2-supplicant-download-firefox-description = Download { -brand-firefox } om blêdwizers, skiednis en mear op ferskate apparaten te syngronisearjen. <linkExternal>Mear ynfo</linkExternal>
+pair2-supplicant-download-firefox-continue-button = Trochgean yn { -brand-firefox }
+
+
+pair2-supplicant-ready-to-scan-heading = In apparaat ferbine
+pair2-supplicant-ready-to-scan-instruction = Iepenje { -brand-firefox } op jo kompjûter, besykje <b>firefox.com/pair</b> en folgje de ynstruksjes op it skerm om jo mobile apparaat te ferbinen.
+pair2-supplicant-ready-to-scan-learn-more-link = Mear ynfo
+
+
+pair2-supplicant-sync-success-heading = Jo apparaat is ferbûn
+pair2-supplicant-sync-success-description = Jo blêdwizers, ljepblêden en mear bliuwe yn { -brand-firefox } syngronisearre.
+pair2-supplicant-sync-success-view-tabs-button = Syngronisearre ljepblêden besjen
+pair2-supplicant-sync-success-sync-settings-button = Syngronisaasje-ynstellingen
+
+
+pair2-supplicant-timeout-and-cancel-timeout-heading = It liket derop dat der in time-out bard is
+pair2-supplicant-timeout-and-cancel-timeout-description = Besykje <b>firefox.com/pair</b> op jo kompjûter om jo mobile apparaat te ferbinen en jo { -brand-firefox }-gegevens te syngronisearjen.
+pair2-supplicant-timeout-and-cancel-canceled-heading = Annulearre
+pair2-supplicant-timeout-and-cancel-canceled-description = Besykje <b>firefox.com/pair</b> op jo kompjûter om op elk winske momint in apparaat te ferbinen.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } befêstige
