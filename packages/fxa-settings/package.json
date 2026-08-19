@@ -281,6 +281,9 @@
       },
       "build-react-dev": {
         "cache": true,
+        "dependsOn": [
+          "build-static"
+        ],
         "inputs": [
           "production",
           "^production",
@@ -289,6 +292,9 @@
           },
           {
             "env": "PUBLIC_URL"
+          },
+          {
+            "dependentTasksOutputFiles": "**/static-asset-manifest.json"
           }
         ],
         "outputs": [
@@ -297,6 +303,9 @@
       },
       "build-react-stage": {
         "cache": true,
+        "dependsOn": [
+          "build-static"
+        ],
         "inputs": [
           "production",
           "^production",
@@ -305,6 +314,9 @@
           },
           {
             "env": "PUBLIC_URL"
+          },
+          {
+            "dependentTasksOutputFiles": "**/static-asset-manifest.json"
           }
         ],
         "outputs": [
@@ -313,6 +325,9 @@
       },
       "build-react-prod": {
         "cache": true,
+        "dependsOn": [
+          "build-static"
+        ],
         "inputs": [
           "production",
           "^production",
@@ -321,6 +336,9 @@
           },
           {
             "env": "PUBLIC_URL"
+          },
+          {
+            "dependentTasksOutputFiles": "**/static-asset-manifest.json"
           }
         ],
         "outputs": [
@@ -344,6 +362,9 @@
           },
           {
             "env": "PUBLIC_URL"
+          },
+          {
+            "dependentTasksOutputFiles": "**/static-asset-manifest.json"
           }
         ],
         "outputs": [
