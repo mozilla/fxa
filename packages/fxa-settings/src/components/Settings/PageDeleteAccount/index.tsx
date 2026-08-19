@@ -5,7 +5,7 @@
 import React, { useCallback, useState, ChangeEvent, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import { useAccount, useAlertBar } from '../../../models';
 import InputPassword from '../../InputPassword';
 import FlowContainer from '../FlowContainer';

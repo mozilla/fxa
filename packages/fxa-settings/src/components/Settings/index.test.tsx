@@ -93,6 +93,9 @@ const mockMfaErrorHandler = jest.fn().mockReturnValue(false);
 jest.mock('./MfaGuard', () => ({
   __esModule: true,
   MfaGuard: (props: any) => mockMfaGuard(props),
+}));
+jest.mock('../../lib/hooks/useMfaErrorHandler', () => ({
+  ...jest.requireActual('../../lib/hooks/useMfaErrorHandler'),
   useMfaErrorHandler: () => mockMfaErrorHandler,
 }));
 

@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { renderHook, act } from '@testing-library/react';
-import { useLocalStorageSync } from './useLocalStorageSync';
-import Storage from '../storage';
+import { useLocalStorageSync } from '.';
+import Storage from '../../storage';
 
-jest.mock('../storage');
+jest.mock('../../storage');
 
 const mockStorage = {
   get: jest.fn(),

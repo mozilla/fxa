@@ -7,7 +7,7 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import * as Sentry from '@sentry/browser';
 
 import { SETTINGS_PATH } from '../../../constants';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import { MfaReason } from '../../../lib/types';
 import {
   useAccount,
@@ -21,7 +21,8 @@ import {
   handleWebAuthnError,
   WebAuthnErrorType,
 } from '../../../lib/passkeys/webauthn-errors';
-import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
+import { MfaGuard } from '../MfaGuard';
+import { useMfaErrorHandler } from '../../../lib/hooks';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import GleanMetrics from '../../../lib/glean';

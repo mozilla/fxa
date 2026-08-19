@@ -4,7 +4,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useLocation } from 'react-router';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery, useOAuthFlowRecovery } from '../../../lib/hooks';
 import { currentAccount } from '../../../lib/cache';
 import {
   useFinishOAuthFlowHandler,
@@ -24,7 +24,6 @@ import { QueryParams } from '../../..';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 import GleanMetrics from '../../../lib/glean';
 import AppLayout from '../../../components/AppLayout';
-import { useOAuthFlowRecovery } from '../../../lib/hooks/useOAuthFlowRecovery';
 
 export const POLL_INTERVAL = 5000;
 

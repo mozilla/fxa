@@ -36,8 +36,8 @@ jest.mock('../../../lib/glean', () => ({
 }));
 
 const mockErrorHandler = jest.fn();
-jest.mock('../MfaGuard', () => ({
-  ...jest.requireActual('../MfaGuard'),
+jest.mock('../../../lib/hooks/useMfaErrorHandler', () => ({
+  ...jest.requireActual('../../../lib/hooks/useMfaErrorHandler'),
   useMfaErrorHandler: () => mockErrorHandler,
 }));
 

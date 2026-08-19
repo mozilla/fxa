@@ -42,19 +42,6 @@ jest.mock('../../../models', () => ({
   },
 }));
 
-const mockFinishOAuthFlowHandler = jest
-  .fn()
-  .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
-
-jest.mock('../../../lib/hooks', () => ({
-  useFinishOAuthFlowHandler: jest.fn(() => ({
-    finishOAuthFlowHandler: mockFinishOAuthFlowHandler,
-    oAuthDataError: null,
-  })),
-  useNavigateWithQuery: jest.fn(),
-  useWebRedirect: jest.fn(),
-}));
-
 jest.mock('../../../lib/error-utils', () => ({
   getHandledError: jest.fn().mockImplementation((err) => ({
     error: {

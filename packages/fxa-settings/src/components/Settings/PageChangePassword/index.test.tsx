@@ -18,7 +18,7 @@ import {
   usePageViewEvent,
 } from '../../../lib/metrics';
 import { AppContext, Account } from '../../../models';
-import { MfaContext } from '../MfaGuard';
+import { MfaContext } from '../../../lib/hooks';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import {
   inputCurrentPassword,

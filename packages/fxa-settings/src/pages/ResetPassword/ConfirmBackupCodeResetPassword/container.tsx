@@ -7,7 +7,7 @@ import { useLocation } from 'react-router';
 import { useAuthClient, useConfig, useFtlMsgResolver } from '../../../models';
 import { ResetPasswordIntegration } from '../interfaces';
 import ConfirmBackupCodeResetPassword from '.';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import { CompleteResetPasswordLocationState } from '../CompleteResetPassword/interfaces';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { shouldShowPasskeyResetOption } from '../../../lib/passkeys';

@@ -9,14 +9,15 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import { useAccount, Email, useAlertBar } from '../../../models';
 import UnitRow from '../UnitRow';
 import { ButtonIconTrash, ButtonIconReload } from '../ButtonIcon';
 import { Localized, useLocalization } from '@fluent/react';
 import { SETTINGS_PATH } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
-import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
+import { MfaGuard } from '../MfaGuard';
+import { useMfaErrorHandler } from '../../../lib/hooks';
 import ModalVerifySession from '../ModalVerifySession';
 import { MfaReason } from '../../../lib/types';
 

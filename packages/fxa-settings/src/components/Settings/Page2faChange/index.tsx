@@ -8,15 +8,15 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 import { SETTINGS_PATH } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import { useTotpReplace } from '../../../lib/hooks/useTotpReplace';
+import { useNavigateWithQuery, useTotpReplace } from '../../../lib/hooks';
 import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
 
 import FlowSetup2faApp from '../FlowSetup2faApp';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { GleanClickEventType2FA, MfaReason } from '../../../lib/types';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
+import { MfaGuard } from '../MfaGuard';
+import { useMfaErrorHandler } from '../../../lib/hooks';
 
 export const MfaGuardPage2faChange = () => {
   return (

@@ -5,7 +5,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useLocation } from 'react-router';
 import ResetPasswordRecoveryChoice from '.';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import {
   AuthUiErrorNos,
   AuthUiErrors,
@@ -16,8 +16,7 @@ import { useAuthClient, useFtlMsgResolver } from '../../../models';
 import { formatPhoneNumber } from '../../../lib/recovery-phone-utils';
 import AppLayout from '../../../components/AppLayout';
 
-export const ResetPasswordRecoveryChoiceContainer = (
-) => {
+export const ResetPasswordRecoveryChoiceContainer = () => {
   const authClient = useAuthClient();
   const locationState = useLocation() as ReturnType<typeof useLocation> & {
     state: CompleteResetPasswordLocationState;

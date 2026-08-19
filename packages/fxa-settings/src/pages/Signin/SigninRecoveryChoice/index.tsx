@@ -17,7 +17,7 @@ import {
   BackupRecoveryPhoneSmsImage,
 } from '../../../components/images';
 import ButtonBack from '../../../components/ButtonBack';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import Banner from '../../../components/Banner';
 import { SigninIntegration, SigninLocationState } from '../interfaces';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';

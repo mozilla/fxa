@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useLocation } from 'react-router';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery, useOAuthFlowRecovery } from '../../../lib/hooks';
 import SigninTokenCode from '.';
 import AppLayout from '../../../components/AppLayout';
 import {
@@ -23,7 +23,6 @@ import OAuthDataError from '../../../components/OAuthDataError';
 import { useEffect, useState } from 'react';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { tryFinalizeUpgrade } from '../../../lib/auth-key-stretch-upgrade';
-import { useOAuthFlowRecovery } from '../../../lib/hooks/useOAuthFlowRecovery';
 
 // The email with token code (verifyLoginCodeEmail) is sent on `/signin`
 // submission if conditions are met.

@@ -4,9 +4,7 @@
 
 import React, {
   ReactNode,
-  createContext,
   useCallback,
-  useContext,
   useEffect,
   useState,
   useSyncExternalStore,
@@ -31,29 +29,7 @@ import { useNavigate } from 'react-router';
 import * as Sentry from '@sentry/react';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
-import { clearMfaAndJwtCacheOnInvalidJwt } from '../../../lib/mfa-guard-utils';
-
-export const MfaContext = createContext<MfaScope | undefined>(undefined);
-
-/**
- * Hook to handle MFA-related errors in child components.
- * The returned function returns true if the error was handled, false otherwise.
- */
-export const useMfaErrorHandler = () => {
-  const scope = useContext(MfaContext);
-
-  if (!scope) {
-    throw new Error('useMfaErrorHandler must be used within an MfaGuard');
-  }
-
-  // Memoize to prevent unnecessary re-renders
-  return useCallback(
-    (error: unknown) => {
-      return clearMfaAndJwtCacheOnInvalidJwt(error, scope);
-    },
-    [scope]
-  );
-};
+import { MfaContext } from '../../../lib/hooks';
 
 /**
  * This is a guard component designed to wrap around components that perform
@@ -249,8 +225,6 @@ export const MfaGuard = ({
 
   // Provide the scope via context so child components can use useMfaErrorHandler
   return (
-    <MfaContext.Provider value={requiredScope}>
-      {children}
-    </MfaContext.Provider>
+    <MfaContext.Provider value={requiredScope}>{children}</MfaContext.Provider>
   );
 };

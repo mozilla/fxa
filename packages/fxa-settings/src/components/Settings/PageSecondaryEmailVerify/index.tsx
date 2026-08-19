@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import { Localized, useLocalization } from '@fluent/react';
 
 import { useLocation } from 'react-router';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import { SETTINGS_PATH } from '../../../constants';
 import { logViewEvent } from '../../../lib/metrics';
 import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
@@ -15,7 +15,8 @@ import InputText from '../../InputText';
 import FlowContainer from '../FlowContainer';
 import { useForm } from 'react-hook-form';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
-import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
+import { MfaGuard } from '../MfaGuard';
+import { useMfaErrorHandler } from '../../../lib/hooks';
 import { MfaReason } from '../../../lib/types';
 import Banner, { ResendCodeSuccessBanner } from '../../Banner';
 

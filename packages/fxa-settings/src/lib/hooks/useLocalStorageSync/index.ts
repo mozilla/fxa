@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useSyncExternalStore } from 'react';
-import Storage from '../storage';
+import Storage from '../../storage';
 
 /**
  * Hook to monitor a specific localStorage key and reactively update when it changes.
@@ -35,10 +35,16 @@ export function useLocalStorageSync(key: string) {
       }
     };
 
-    window.addEventListener('localStorageChange' as any, handleCustomStorage as EventListener);
+    window.addEventListener(
+      'localStorageChange' as any,
+      handleCustomStorage as EventListener
+    );
 
     return () => {
-      window.removeEventListener('localStorageChange' as any, handleCustomStorage as EventListener);
+      window.removeEventListener(
+        'localStorageChange' as any,
+        handleCustomStorage as EventListener
+      );
     };
   };
 

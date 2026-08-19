@@ -3,7 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useLocation } from 'react-router';
-import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
+import type { UseFxAStatusResult } from '../../../lib/hooks';
+import {
+  useValidatedQueryParams,
+  useWebRedirect,
+  useNavigateWithQuery,
+} from '../../../lib/hooks';
 import { SigninQueryParams } from '../../../models/pages/signin';
 import { SigninTotpCode } from './index';
 import { MozServices } from '../../../lib/types';
@@ -21,14 +26,11 @@ import {
   useFinishOAuthFlowHandler,
   useOAuthKeysCheck,
 } from '../../../lib/oauth/hooks';
-import type { UseFxAStatusResult } from '../../../lib/hooks/useFxAStatus';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { getHandledError, HandledError } from '../../../lib/error-utils';
-import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { tryFinalizeUpgrade } from '../../../lib/auth-key-stretch-upgrade';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import AppLayout from '../../../components/AppLayout';
 
 export type SigninTotpCodeContainerProps = {

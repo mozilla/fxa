@@ -4,7 +4,7 @@
 
 import React, { ChangeEvent, useCallback, useRef, useState } from 'react';
 
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import { Localized, useLocalization } from '@fluent/react';
 import Webcam from 'react-webcam';
 import Cropper, { Area } from 'react-easy-crop';

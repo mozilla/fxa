@@ -44,7 +44,7 @@ import sentryMetrics from 'fxa-shared/sentry/browser';
 // Components
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { ScrollToTop } from '../Settings/ScrollToTop';
-import useFxAStatus from '../../lib/hooks/useFxAStatus';
+import { useFxAStatus } from '../../lib/hooks';
 import AppLayout from '../AppLayout';
 import { PromoQrMobile } from '../PromoQrMobile';
 import { hardNavigate } from 'fxa-react/lib/utils';

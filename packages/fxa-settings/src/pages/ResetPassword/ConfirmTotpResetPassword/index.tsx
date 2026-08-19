@@ -8,7 +8,7 @@ import { useFtlMsgResolver } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import protectionShieldIcon from '@fxa/shared/assets/images/protection-shield.svg';
 import { HeadingPrimary } from '../../../components/HeadingPrimary';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import Banner from '../../../components/Banner';
 import FormVerifyTotp from '../../../components/FormVerifyTotp';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';

@@ -5,7 +5,7 @@
 import { useEffect, useState } from 'react';
 import { useAccount } from '../../../models';
 import { TotpInfo } from '../../types';
-import { useMfaErrorHandler } from '../../../components/Settings/MfaGuard';
+import { useMfaErrorHandler } from '../useMfaErrorHandler';
 
 export const useTotpReplace = () => {
   const account = useAccount();

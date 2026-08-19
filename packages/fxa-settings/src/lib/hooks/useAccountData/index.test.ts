@@ -3,16 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { renderHook, act } from '@testing-library/react';
-import { useAccountData } from './useAccountData';
-import { sessionToken as getSessionToken } from '../cache';
+import { useAccountData } from '.';
+import { sessionToken as getSessionToken } from '../../cache';
 
 const mockSetAccountData = jest.fn();
 
-jest.mock('../cache', () => ({ sessionToken: jest.fn() }));
-jest.mock('../../models/contexts/AccountStateContext', () => ({
+jest.mock('../../cache', () => ({ sessionToken: jest.fn() }));
+jest.mock('../../../models/contexts/AccountStateContext', () => ({
   useAccountState: () => ({ setAccountData: mockSetAccountData }),
 }));
-jest.mock('../config', () => ({
+jest.mock('../../config', () => ({
   oauth: { clientId: 'test' },
   servers: { profile: { url: 'http://localhost' } },
 }));

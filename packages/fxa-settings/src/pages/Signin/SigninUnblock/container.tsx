@@ -12,7 +12,7 @@ import {
   useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../../models';
-import { UseFxAStatusResult } from '../../../lib/hooks/useFxAStatus';
+import { UseFxAStatusResult, useNavigateWithQuery } from '../../../lib/hooks';
 
 import { SigninUnblockIntegration } from '../interfaces';
 
@@ -36,7 +36,6 @@ import { SignInOptions } from 'fxa-auth-client/browser';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { isFirefoxService } from '../../../models/integrations/utils';
 import { tryFinalizeUpgrade } from '../../../lib/auth-key-stretch-upgrade';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import AppLayout from '../../../components/AppLayout';
 import { ensureCanLinkAcountOrRedirect } from '../utils';
 
@@ -104,7 +103,9 @@ export const SigninUnblockContainer = ({
     // Get credentials with the correct key version
     const status = await (async () => {
       try {
-        const result = await authClient.getCredentialStatusV2({ primary: email });
+        const result = await authClient.getCredentialStatusV2({
+          primary: email,
+        });
         return result;
       } catch (err) {
         // In the event there's a downstream error, this could be useful a breadcrumb to capture.
@@ -179,8 +180,10 @@ export const SigninUnblockContainer = ({
                 metricsEnabled: response.metricsEnabled ?? true,
                 emailVerified: response.emailVerified ?? false,
                 sessionVerified: response.sessionVerified ?? false,
-                verificationMethod: (response.verificationMethod || VerificationMethods.EMAIL_OTP) as VerificationMethods,
-                verificationReason: response.verificationReason as VerificationReasons,
+                verificationMethod: (response.verificationMethod ||
+                  VerificationMethods.EMAIL_OTP) as VerificationMethods,
+                verificationReason:
+                  response.verificationReason as VerificationReasons,
                 keyFetchToken: response.keyFetchToken,
               },
               unwrapBKey: credentials.unwrapBKey,

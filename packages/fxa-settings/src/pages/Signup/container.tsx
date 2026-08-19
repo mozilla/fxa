@@ -3,10 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useLocation } from 'react-router';
-import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
+import {
+  useNavigateWithQuery,
+  useValidatedQueryParams,
+  UseFxAStatusResult,
+} from '../../lib/hooks';
 import { useAuthClient, useConfig } from '../../models';
 import { Signup } from '.';
-import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { SignupQueryParams } from '../../models/pages/signup';
 import { BeginSignupHandler, SignupIntegration } from './interfaces';
 import { useCallback, useEffect, useRef } from 'react';
@@ -23,7 +26,6 @@ import VerificationMethods from '../../constants/verification-methods';
 import { queryParamsToMetricsContext } from '../../lib/metrics';
 import { QueryParams } from '../..';
 import { isFirefoxService } from '../../models/integrations/utils';
-import { UseFxAStatusResult } from '../../lib/hooks/useFxAStatus';
 import { isMobileDevice } from '../../lib/utilities';
 import AppLayout from '../../components/AppLayout';
 

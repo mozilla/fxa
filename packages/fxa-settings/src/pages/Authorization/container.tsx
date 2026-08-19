@@ -26,7 +26,7 @@ import {
 } from '../../lib/oauth/oauth-errors';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { hardNavigate } from 'fxa-react/lib/utils';
-import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../lib/hooks';
 
 const convertToRelierAccount = (
   account: ReturnType<typeof currentAccount>,

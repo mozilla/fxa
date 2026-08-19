@@ -5,7 +5,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { hardNavigate } from 'fxa-react/lib/utils';
-import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
+import { useValidatedQueryParams } from '../../../lib/hooks';
 import { CompleteSigninQueryParams } from '../../../models/pages/signin';
 import { SigninLinkDamaged } from '../../../components/LinkDamaged';
 import { useAuthClient, useFtlMsgResolver } from '../../../models';

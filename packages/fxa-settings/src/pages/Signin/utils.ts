@@ -20,7 +20,7 @@ import {
 } from '../../models';
 import { isSendTabEntrypoint } from '../../lib/utilities';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
-import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../lib/hooks';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { currentAccount, discardSessionToken } from '../../lib/cache';
 import firefox from '../../lib/channels/firefox';

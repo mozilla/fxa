@@ -17,7 +17,7 @@ import { AccountRecoveryConfirmKeyLocationState } from './interfaces';
 import { ResetPasswordIntegration } from '../interfaces';
 
 import AccountRecoveryConfirmKey from '.';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { shouldShowPasskeyResetOption } from '../../../lib/passkeys';

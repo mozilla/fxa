@@ -22,7 +22,7 @@ import { act, fireEvent, screen } from '@testing-library/react';
 import { SETTINGS_PATH } from '../../../constants';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import { LinkedAccountProviderIds } from '../../../lib/types';
-import { MfaContext } from '../MfaGuard';
+import { MfaContext } from '../../../lib/hooks';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useLocation } from 'react-router';
-import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../lib/hooks';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import InlineTotpSetup from '.';
 import { MozServices, TotpInfo } from '../../lib/types';
