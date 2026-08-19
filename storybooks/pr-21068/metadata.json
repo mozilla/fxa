@@ -1,0 +1,11 @@
+{
+  "commit": "5c1c7a5c80cb4810bb4e2d14a28b1851630df402",
+  "summary": "feat(shared): raise the security events limit to 200",
+  "description": "## Because\n\n- The account history query returned at most 100 events. The ticket asks for the most recent 200.\n\n## This pull request\n\n- Raises `SECURITY_EVENTS_LIMIT` from 100 to 200 in `security-event.ts`.\n- No call site changed. `SecurityEvent.findByUid` and the admin server `securityEvents` handler both default to this constant, so the admin panel returns 200 events now too.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-6766",
+  "timestamp": 1787159397000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
