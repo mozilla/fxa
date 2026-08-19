@@ -1,0 +1,10 @@
+{
+  "commit": "1a29cb59972cfbdd49a3dc45dcae1e4fb36a0869",
+  "summary": "wip",
+  "description": "",
+  "timestamp": 1787162191000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
