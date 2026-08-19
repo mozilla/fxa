@@ -11,10 +11,19 @@ import * as CacheModule from '../../../lib/cache';
 import * as SentryModule from 'fxa-shared/sentry/browser';
 import * as ReactUtils from 'fxa-react/lib/utils';
 
-import { screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  render as rtlRender,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { StoredAccountData } from '../../../lib/storage-utils';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import SignupConfirmCodeContainer from './container';
+import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
+import SignupConfirmCodeContainer, {
+  POLL_INTERVAL,
+  POLL_TIMEOUT,
+} from './container';
 import { Integration } from '../../../models';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
 import GleanMetrics from '../../../lib/glean';
@@ -157,8 +166,8 @@ function applyMocks() {
   });
 }
 
-async function render() {
-  renderWithLocalizationProvider(
+function containerTree() {
+  return (
     <MemoryRouter>
       <SignupConfirmCodeContainer
         {...{
@@ -167,6 +176,23 @@ async function render() {
         flowQueryParams={{ flowId: MOCK_FLOW_ID }}
       />
     </MemoryRouter>
+  );
+}
+
+async function render() {
+  renderWithLocalizationProvider(containerTree());
+}
+
+// Same provider renderWithLocalizationProvider sets up, as a wrapper, so a
+// rerender keeps it in place.
+function LocalizationWrapper({ children }: { children: React.ReactNode }) {
+  return (
+    <AppLocalizationProvider
+      messages={{ en: ['testo: lol'] }}
+      reportError={() => {}}
+    >
+      {children}
+    </AppLocalizationProvider>
   );
 }
 
@@ -247,6 +273,129 @@ describe('confirm-signup-container', () => {
       await waitFor(() =>
         expect(mockNavigate).toHaveBeenCalledWith('/signin_bounced')
       );
+    });
+  });
+
+  describe('email bounce polling', () => {
+    // 120 calls: the initial check, plus one per 5 second tick, until the 10
+    // minute deadline. Pinned rather than derived from the constants.
+    const EXPECTED_POLL_COUNT = 120;
+
+    beforeEach(() => {
+      jest.useFakeTimers();
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+      mockAuthClient.emailBounceStatus.mockResolvedValue({
+        hasHardBounce: false,
+      });
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    // Fake timers do not settle promises, so each advance runs inside act() to
+    // let the pending emailBounceStatus calls resolve. Pass 0 to only settle.
+    async function advanceTimers(ms: number) {
+      await act(async () => {
+        jest.advanceTimersByTime(ms);
+      });
+    }
+
+    it('stops polling once the timeout has elapsed', async () => {
+      render();
+      await advanceTimers(POLL_TIMEOUT);
+      expect(mockAuthClient.emailBounceStatus).toHaveBeenCalledTimes(
+        EXPECTED_POLL_COUNT
+      );
+
+      await advanceTimers(POLL_TIMEOUT);
+      expect(mockAuthClient.emailBounceStatus).toHaveBeenCalledTimes(
+        EXPECTED_POLL_COUNT
+      );
+    });
+
+    it('stops polling on elapsed time rather than on a tick count', async () => {
+      render();
+      await advanceTimers(0);
+
+      // A backgrounded tab throttles the interval, so the clock passes the
+      // deadline after far fewer than 120 ticks.
+      jest.setSystemTime(Date.now() + POLL_TIMEOUT);
+      await advanceTimers(POLL_INTERVAL * 2);
+      expect(mockAuthClient.emailBounceStatus).toHaveBeenCalledTimes(1);
+    });
+
+    it.each([
+      { code: 429, errno: 114 },
+      { code: 500, errno: 999 },
+    ])('stops polling when the request fails with a $code', async (error) => {
+      mockAuthClient.emailBounceStatus.mockRejectedValue(error);
+      render();
+      await advanceTimers(0);
+
+      await advanceTimers(POLL_INTERVAL * 3);
+      expect(mockAuthClient.emailBounceStatus).toHaveBeenCalledTimes(1);
+    });
+
+    it('keeps polling when the request fails without a status code', async () => {
+      mockAuthClient.emailBounceStatus.mockRejectedValue(
+        new Error('Network error')
+      );
+      render();
+      await advanceTimers(0);
+
+      await advanceTimers(POLL_INTERVAL * 3);
+      expect(mockAuthClient.emailBounceStatus).toHaveBeenCalledTimes(4);
+    });
+
+    it('keeps polling after a stale check from an earlier effect run fails', async () => {
+      let failStaleCheck!: (error: unknown) => void;
+      mockAuthClient.emailBounceStatus.mockReturnValueOnce(
+        new Promise((_resolve, reject) => {
+          failStaleCheck = reject;
+        })
+      );
+      // rerender re-applies the wrapper, so the provider stays put and the
+      // effect re-runs on the same component instance instead of remounting.
+      const { rerender } = rtlRender(containerTree(), {
+        wrapper: LocalizationWrapper,
+      });
+      await advanceTimers(0);
+      expect(mockAuthClient.emailBounceStatus).toHaveBeenCalledTimes(1);
+
+      // A new auth client re-runs the effect, so the check still in flight
+      // belongs to the run that just ended.
+      const nextAuthClient = {
+        emailBounceStatus: jest
+          .fn()
+          .mockResolvedValue({ hasHardBounce: false }),
+      };
+      (ModelsModule.useAuthClient as jest.Mock).mockImplementation(
+        () => nextAuthClient
+      );
+      await act(async () => {
+        rerender(containerTree());
+      });
+
+      // The stale check fails with a 4xx, which stops the run that owns it.
+      await act(async () => {
+        failStaleCheck({ code: 429, errno: 114 });
+      });
+
+      await advanceTimers(POLL_INTERVAL * 2);
+      expect(nextAuthClient.emailBounceStatus).toHaveBeenCalledTimes(3);
+      expect(mockAuthClient.emailBounceStatus).toHaveBeenCalledTimes(1);
+    });
+
+    it('stops polling once a hard bounce is found', async () => {
+      mockAuthClient.emailBounceStatus.mockResolvedValue({
+        hasHardBounce: true,
+      });
+      render();
+      await advanceTimers(0);
+
+      await advanceTimers(POLL_INTERVAL * 3);
+      expect(mockAuthClient.emailBounceStatus).toHaveBeenCalledTimes(1);
     });
   });
 
