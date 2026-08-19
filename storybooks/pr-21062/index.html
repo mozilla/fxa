@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 4b26a1a371d5a5dc78f37f1f92fdac17fcca88e9</title>
+  <title>Storybooks for commit da13cbf980450fed5c58a92b242b26ef9f04ded2</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 4b26a1a371d5a5dc78f37f1f92fdac17fcca88e9</h1>
+  <h1>Storybooks for commit da13cbf980450fed5c58a92b242b26ef9f04ded2</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/19/2026, 1:47:30 AM UTC</dd>
+    <dd>8/19/2026, 2:19:14 AM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(settings): report unlocalizable errors to Sentry with their message</pre></dd>
     <dt>Description</dt>
@@ -45,6 +45,11 @@
 - Keeps `errno` out of the tags. `beforeSend` in `fxa-shared/sentry/browser.ts` fingerprints a tagged errno into one group and drops the level to `info`.
 - Fixes the sibling &quot;not found in auth-errors or oauth-errors&quot; branch the same way. It had the identical bug.
 - Updates the two message assertions in `auth-errors.test.ts` and adds cases that pass a real `Error`.
+
+From review round 2:
+
+- Types the `getErrorFtlId` parameter as `Partial&lt;GenericError&gt;`. `code` and `retryAfter` are now part of the declared contract, so the `as GenericError` assertion is gone.
+- Adds a test that passes `code: 429` and `retryAfter: 900`, and asserts both reach the Sentry `extra` payload.
 
 ## Issue that this pull request solves
 
