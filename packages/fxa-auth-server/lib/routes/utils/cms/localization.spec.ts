@@ -553,14 +553,20 @@ describe('CMSLocalization', () => {
 
       const originalFetch = global.fetch;
       global.fetch = jest.fn().mockImplementation((url: string) => {
-        if (url === 'http://localhost:1337/api/relying-parties?populate=*') {
+        if (
+          url ===
+          'http://localhost:1337/api/relying-parties?populate=*&pagination[pageSize]=100'
+        ) {
           return Promise.resolve({
             ok: true,
             status: 200,
             json: () => Promise.resolve({ data: relyingPartyEntries }),
           });
         }
-        if (url === 'http://localhost:1337/api/legal-notices?populate=*') {
+        if (
+          url ===
+          'http://localhost:1337/api/legal-notices?populate=*&pagination[pageSize]=100'
+        ) {
           return Promise.resolve({
             ok: true,
             status: 200,
@@ -574,7 +580,7 @@ describe('CMSLocalization', () => {
         const result = await localization.fetchAllStrapiEntries();
 
         expect(global.fetch as any).toHaveBeenCalledWith(
-          'http://localhost:1337/api/relying-parties?populate=*',
+          'http://localhost:1337/api/relying-parties?populate=*&pagination[pageSize]=100',
           {
             headers: {
               Authorization: 'Bearer test-api-key',
@@ -584,7 +590,7 @@ describe('CMSLocalization', () => {
         );
 
         expect(global.fetch as any).toHaveBeenCalledWith(
-          'http://localhost:1337/api/legal-notices?populate=*',
+          'http://localhost:1337/api/legal-notices?populate=*&pagination[pageSize]=100',
           {
             headers: {
               Authorization: 'Bearer test-api-key',
@@ -613,14 +619,20 @@ describe('CMSLocalization', () => {
 
       const originalFetch = global.fetch;
       global.fetch = jest.fn().mockImplementation((url: string) => {
-        if (url === 'http://localhost:1337/api/relying-parties?populate=*') {
+        if (
+          url ===
+          'http://localhost:1337/api/relying-parties?populate=*&pagination[pageSize]=100'
+        ) {
           return Promise.resolve({
             ok: true,
             status: 200,
             json: () => Promise.resolve({ data: relyingPartyEntries }),
           });
         }
-        if (url === 'http://localhost:1337/api/legal-notices?populate=*') {
+        if (
+          url ===
+          'http://localhost:1337/api/legal-notices?populate=*&pagination[pageSize]=100'
+        ) {
           return Promise.resolve({
             ok: false,
             status: 500,
@@ -667,14 +679,20 @@ describe('CMSLocalization', () => {
 
       const originalFetch = global.fetch;
       global.fetch = jest.fn().mockImplementation((url: string) => {
-        if (url === 'http://localhost:1337/api/relying-parties?populate=*') {
+        if (
+          url ===
+          'http://localhost:1337/api/relying-parties?populate=*&pagination[pageSize]=100'
+        ) {
           return Promise.resolve({
             ok: true,
             status: 200,
             json: () => Promise.resolve({ data: relyingPartyEntries }),
           });
         }
-        if (url === 'http://localhost:1337/api/legal-notices?populate=*') {
+        if (
+          url ===
+          'http://localhost:1337/api/legal-notices?populate=*&pagination[pageSize]=100'
+        ) {
           return Promise.resolve({
             ok: true,
             status: 200,
