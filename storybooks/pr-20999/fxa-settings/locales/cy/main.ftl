@@ -575,8 +575,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Sut mae hyn yn diogelu eich cyf
 flow-setup-2fa-inline-complete-continue-button = Parhau i { $serviceName }
 flow-setup-2fa-prompt-heading = Gosod dilysu dau gam
 flow-setup-2fa-prompt-description = Mae { $serviceName } yn gofyn i chi osod dilysiad dau gam i gadw'ch cyfrif yn ddiogel.
-flow-setup-2fa-prompt-passkey-success-banner = Wedi mewngofnodi'n llwyddiannus gyda'r allwedd
-flow-setup-2fa-prompt-passkey-description = Mae { $serviceName } hefyd angen dilysiad dau gam ar gyfer eich { -product-mozilla-account }. Ar ôl gosod, ni fydd ei angen arnoch mwyach pan fyddwch yn mewngofnodi gyda chyfrinair.
+flow-setup-2fa-prompt-passkey-success-banner = Wedi mewngofnodi'n llwyddiannus gyda chyfrinallwedd
+flow-setup-2fa-prompt-passkey-description = Mae { $serviceName } hefyd angen dilysiad dau gam ar gyfer eich { -product-mozilla-account }. Ar ôl gosod, fydd ddim ei angen arnoch eto wrth fewngofnodi gyda chyfrinair.
 flow-setup-2fa-prompt-use-authenticator-apps = Gallwch ddefnyddio unrhyw un o'r <authenticationAppsLink>apiau dilysu hyn</authenticationAppsLink> i barhau.
 flow-setup-2fa-prompt-continue-button = Parhau
 

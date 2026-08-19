@@ -87,6 +87,7 @@ button-back-aria-label = 뒤로
 button-back-title = 뒤로
 
 
+recovery-key-download-button-v4 = 다운로드 및 계속
 recovery-key-pdf-download-error = 죄송합니다. 계정 복구 키를 다운로드하는 중 문제가 발생했습니다.
 
 

@@ -772,12 +772,12 @@ flow-setup-2fa-prompt-heading = Gosod dilysu dau gam
 # that requests two-step authentication setup.
 flow-setup-2fa-prompt-description = Mae { $serviceName } yn gofyn i chi osod dilysiad dau gam i gadw'ch cyfrif yn ddiogel.
 # Success banner shown at the top of the page when the user signed in with a passkey.
-flow-setup-2fa-prompt-passkey-success-banner = Wedi mewngofnodi'n llwyddiannus gyda'r allwedd
+flow-setup-2fa-prompt-passkey-success-banner = Wedi mewngofnodi'n llwyddiannus gyda chyfrinallwedd
 # Body copy shown when the user signed in with a passkey and the service still
 # requires two-step authentication setup.
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
-flow-setup-2fa-prompt-passkey-description = Mae { $serviceName } hefyd angen dilysiad dau gam ar gyfer eich { -product-mozilla-account }. Ar ôl gosod, ni fydd ei angen arnoch mwyach pan fyddwch yn mewngofnodi gyda chyfrinair.
+flow-setup-2fa-prompt-passkey-description = Mae { $serviceName } hefyd angen dilysiad dau gam ar gyfer eich { -product-mozilla-account }. Ar ôl gosod, fydd ddim ei angen arnoch eto wrth fewngofnodi gyda chyfrinair.
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = Gallwch ddefnyddio unrhyw un o'r <authenticationAppsLink>apiau dilysu hyn</authenticationAppsLink> i barhau.
 flow-setup-2fa-prompt-continue-button = Parhau

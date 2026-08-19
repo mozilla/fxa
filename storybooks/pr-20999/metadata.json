@@ -1,8 +1,8 @@
 {
-  "commit": "e2c2dda2b0431e2264f6c61148bf38d970c7f82e",
+  "commit": "5a69e32657b5d10c713c0c004250c4367f34d91f",
   "summary": "fix(payments-next): Reinforce subgroup order Because:",
   "description": "* While the subgroup order appeared correct in Strapi, query showed it out-or-order, which happens from time to time\n\nThis commit:\n\n* Updates codebase to reinforce the order in the subgroup by adding Integer field\n\nCloses #[PAY-3844](https://mozilla-hub.atlassian.net/browse/PAY-3844)",
-  "timestamp": 1787087218000,
+  "timestamp": 1787150968000,
   "storybooks": [
     "fxa-react",
     "fxa-settings"

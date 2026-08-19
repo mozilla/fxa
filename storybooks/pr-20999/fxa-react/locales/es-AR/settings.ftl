@@ -756,12 +756,12 @@ flow-setup-2fa-prompt-heading = Configurar la autenticación de dos pasos
 # that requests two-step authentication setup.
 flow-setup-2fa-prompt-description = { $serviceName } requiere que configurés la autenticación de dos pasos para mantener tu cuenta segura.
 # Success banner shown at the top of the page when the user signed in with a passkey.
-flow-setup-2fa-prompt-passkey-success-banner = Se inició sesión correctamente con la clave de acceso
+flow-setup-2fa-prompt-passkey-success-banner = Se inició sesión exitosamente con la clave de acceso
 # Body copy shown when the user signed in with a passkey and the service still
 # requires two-step authentication setup.
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
-flow-setup-2fa-prompt-passkey-description = { $serviceName } también requiere autenticación de dos pasos para tu { -product-mozilla-account }. Después de la configuración, ya no la necesitarás cuando inicies sesión con una clave de acceso.
+flow-setup-2fa-prompt-passkey-description = { $serviceName } también requiere autenticación de dos pasos para tu { -product-mozilla-account }. Después de la configuración, ya no la vas a necesitar cuando iniciés sesión con una clave de acceso.
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = Podés usar cualquiera de <authenticationAppsLink>estas aplicaciones de autenticación</authenticationAppsLink> para continuar.
 flow-setup-2fa-prompt-continue-button = Continuar
@@ -1948,7 +1948,7 @@ pair2-supplicant-connect-this-device-cancel-button = Cancelar
 ## does not have Firefox installed yet. It explains what syncing gets them and
 ## sends them off to install the browser.
 
-pair2-supplicant-download-firefox-heading = Conseguí { -brand-firefox } en este dispositivo
+pair2-supplicant-download-firefox-heading = Instalá { -brand-firefox } en este dispositivo
 # "sync" is a verb here, referring to syncing data between the user's devices.
 # <linkExternal> is an anchor tag linking to a page explaining what sync does.
 pair2-supplicant-download-firefox-description = Descargá { -brand-firefox } para sincronizar marcadores, historial y más entre dispositivos. <linkExternal>Conocer más</linkExternal>
