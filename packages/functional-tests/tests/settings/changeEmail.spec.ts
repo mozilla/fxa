@@ -27,6 +27,9 @@ test.describe('severity-1 #smoke', () => {
 
       await changePrimaryEmail(target, settings, secondaryEmail, newEmail);
 
+      // Update which email to use for account cleanup
+      credentials.email = newEmail;
+
       await settings.signOut();
 
       // Sign in with old primary email fails
@@ -43,9 +46,6 @@ test.describe('severity-1 #smoke', () => {
       await signin.fillOutPasswordForm(credentials.password);
 
       await expect(settings.primaryEmail.status).toHaveText(newEmail);
-
-      // Update which email to use for account cleanup
-      credentials.email = newEmail;
     });
 
     test('change primary email, password and login', async ({
@@ -65,6 +65,9 @@ test.describe('severity-1 #smoke', () => {
 
       await changePrimaryEmail(target, settings, secondaryEmail, newEmail);
 
+      // Update which email to use for account cleanup
+      credentials.email = newEmail;
+
       await setNewPassword(
         settings,
         changePassword,
@@ -74,6 +77,7 @@ test.describe('severity-1 #smoke', () => {
         newEmail
       );
 
+      // Update which password to use for account cleanup
       credentials.password = newPassword;
 
       await settings.signOut();
@@ -89,10 +93,6 @@ test.describe('severity-1 #smoke', () => {
       await signin.fillOutPasswordForm(newPassword);
 
       await expect(settings.primaryEmail.status).toHaveText(newEmail);
-
-      // Update credentials to use for account cleanup
-      credentials.email = newEmail;
-      credentials.password = newPassword;
     });
 
     test('change primary email, change password, login, change email and login', async ({
@@ -112,6 +112,9 @@ test.describe('severity-1 #smoke', () => {
       await settings.goto();
 
       await changePrimaryEmail(target, settings, secondaryEmail, secondEmail);
+
+      // Update which email to use for account cleanup
+      credentials.email = secondEmail;
 
       await setNewPassword(
         settings,
@@ -140,6 +143,10 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.alertBar).toHaveText(
         new RegExp(`${initialEmail}.*is now your primary email`)
       );
+
+      // The primary email is back to the initial one, so cleanup needs it again
+      credentials.email = initialEmail;
+
       await settings.signOut();
 
       // Login with primary email and new password
@@ -177,6 +184,9 @@ test.describe('severity-1 #smoke', () => {
       await changePrimaryEmail(target, settings, secondaryEmail, newEmail);
       await expect(settings.primaryEmail.status).toHaveText(newEmail);
 
+      // Update which email to use for account cleanup
+      credentials.email = newEmail;
+
       // Click delete account
       await settings.deleteAccountButton.click();
       await deleteAccount.deleteAccount(credentials.password);
@@ -189,6 +199,10 @@ test.describe('severity-1 #smoke', () => {
       await signup.goto();
       await signup.fillOutEmailForm(newEmail);
       await signup.fillOutSignupForm(newPassword);
+
+      // The new account exists from here on, so cleanup needs its password
+      credentials.password = newPassword;
+
       await expect(page).toHaveURL(/confirm_signup_code/);
       const code = await target.emailClient.getVerifyShortCode(newEmail);
       await confirmSignupCode.fillOutCodeForm(code);
@@ -197,10 +211,6 @@ test.describe('severity-1 #smoke', () => {
         'Account confirmed successfully'
       );
       await expect(settings.primaryEmail.status).toHaveText(newEmail);
-
-      // Update credentials to use for account cleanup
-      credentials.email = newEmail;
-      credentials.password = newPassword;
     });
 
     test('removing secondary emails', async ({

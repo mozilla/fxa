@@ -79,10 +79,7 @@ test.describe('severity-2 #smoke', () => {
         These tests will be removed as part of https://mozilla-hub.atlassian.net/browse/FXA-11426"
       );
 
-      const accountDetails = {
-        email: testAccountTracker.generateEmail(),
-        password: testAccountTracker.generatePassword(),
-      };
+      const accountDetails = testAccountTracker.generateAccountDetails();
       const newPassword = testAccountTracker.generatePassword();
       await page.goto(
         `${target.contentServerUrl}/?force_passwordless=false&forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signupVersion.query}`
