@@ -1,0 +1,25 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public # License, v. 2.0. If a copy of the MPL was not
+  distributed with this # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column css-class="<%= locals.cssClass || undefined %>">
+    <mj-text css-class="text-title-link">
+      <span data-l10n-id="subscription-support-get-help">
+        Get help with your subscription
+      </span>
+    </mj-text>
+
+    <mj-text css-class="text-body-link">
+      <span data-l10n-id="subscription-support-manage-your-subscription">
+        <a data-l10n-name="manageSubscriptionUrl"
+          href="<%- manageSubscriptionUrl %>">Manage your subscription</a>
+      </span>
+    </mj-text>
+
+    <mj-text css-class="text-body-bottom-link">
+      <span data-l10n-id="subscription-support-contact-support">
+        <a data-l10n-name="subscriptionSupportUrl" href="<%- subscriptionSupportUrl %>">Contact support</a>
+      </span>
+    </mj-text>
+  </mj-column>
+</mj-section>

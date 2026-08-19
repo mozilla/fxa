@@ -1,0 +1,12 @@
+{
+  "commit": "09eb980decce7d33cec457920a208c57c991e917",
+  "summary": "Revisions based on PR feedback",
+  "description": "",
+  "timestamp": 1787166604000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
