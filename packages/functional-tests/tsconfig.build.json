@@ -1,8 +1,4 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": ["node_modules", "dist"],
-  "compilerOptions": {
-    "paths": {
-    }
-  }
+  "exclude": ["node_modules", "dist"]
 }
