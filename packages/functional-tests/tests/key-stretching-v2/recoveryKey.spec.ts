@@ -69,7 +69,6 @@ test.describe('severity-2 #smoke', () => {
         recoveryKey,
         resetPassword,
         confirmSignupCode,
-        deleteAccount,
       },
       testAccountTracker,
     }) => {
@@ -168,8 +167,10 @@ test.describe('severity-2 #smoke', () => {
       );
       expect(keys2.kB).toEqual(keys.kB);
 
-      await settings.deleteAccountButton.click();
-      await deleteAccount.deleteAccount(accountDetails.password);
+      // No in-test delete. The account is registered with the tracker, so
+      // teardown destroys it. Deleting it here as well raced that teardown:
+      // accountStatusByEmail still reported the account, then destroyAccount
+      // failed with "Unknown account".
     });
   }
 });
