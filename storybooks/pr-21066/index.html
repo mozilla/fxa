@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 5c5e9a3cb9f2d2a784ec727d81cca11aed7e9b85</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 5c5e9a3cb9f2d2a784ec727d81cca11aed7e9b85</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>8/19/2026, 4:38:26 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): cap email bounce polling and stop it on a 4xx or 5xx</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- The signup confirmation page polls `account/email_bounce_status` every 5 seconds for as long as the page stays open. There is no cap.
+- The `catch` block only logs, so the 429s that stage returns do not stop it. The page keeps calling an endpoint that is already rate-limiting it.
+
+## This pull request
+
+- Stops polling 10 minutes after the effect starts, measured by wall-clock time rather than a tick count, because a backgrounded tab throttles timers.
+- Stops polling as soon as a request fails with a 4xx or a 5xx. An error with no `code`, such as a network failure, keeps polling.
+- Stops polling once a hard bounce is found.
+- Clears the interval on all of those paths. Each effect run now holds its own interval id, so a check left in flight by a previous run cannot stop the current one. That made `pollIntervalRef` write-only, so it is gone.
+- Adds tests for the stop conditions in `container.test.tsx`, including one that separates a wall-clock deadline from a tick count.
+
+## Issue that this pull request solves
+
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-13188</pre></dd>
+  </dl>
+</body>
+</html>

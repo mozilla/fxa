@@ -1,0 +1,10 @@
+{
+  "commit": "5c5e9a3cb9f2d2a784ec727d81cca11aed7e9b85",
+  "summary": "fix(settings): cap email bounce polling and stop it on a 4xx or 5xx",
+  "description": "## Because\n\n- The signup confirmation page polls `account/email_bounce_status` every 5 seconds for as long as the page stays open. There is no cap.\n- The `catch` block only logs, so the 429s that stage returns do not stop it. The page keeps calling an endpoint that is already rate-limiting it.\n\n## This pull request\n\n- Stops polling 10 minutes after the effect starts, measured by wall-clock time rather than a tick count, because a backgrounded tab throttles timers.\n- Stops polling as soon as a request fails with a 4xx or a 5xx. An error with no `code`, such as a network failure, keeps polling.\n- Stops polling once a hard bounce is found.\n- Clears the interval on all of those paths. Each effect run now holds its own interval id, so a check left in flight by a previous run cannot stop the current one. That made `pollIntervalRef` write-only, so it is gone.\n- Adds tests for the stop conditions in `container.test.tsx`, including one that separates a wall-clock deadline from a tick count.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-13188",
+  "timestamp": 1787157506000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
