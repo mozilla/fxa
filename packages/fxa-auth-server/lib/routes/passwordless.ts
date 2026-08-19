@@ -168,6 +168,7 @@ class PasswordlessHandler {
 
   async sendCode(request: AuthRequest) {
     this.log.begin('Passwordless.sendCode', request);
+    request.validateMetricsContext();
 
     const { email, clientId, service } = request.payload as {
       email: string;
@@ -213,9 +214,7 @@ class PasswordlessHandler {
     await this.customs.check(
       request,
       email,
-      isNewAccount
-        ? PASSWORDLESS_SEND_OTP_SIGNUP
-        : PASSWORDLESS_SEND_OTP_SIGNIN
+      isNewAccount ? PASSWORDLESS_SEND_OTP_SIGNUP : PASSWORDLESS_SEND_OTP_SIGNIN
     );
   }
 
@@ -226,6 +225,7 @@ class PasswordlessHandler {
 
   async confirmCode(request: AuthRequest) {
     this.log.begin('Passwordless.confirmCode', request);
+    request.validateMetricsContext();
 
     const { email, code, clientId, service } = request.payload as {
       email: string;
@@ -395,6 +395,7 @@ class PasswordlessHandler {
 
   async resendCode(request: AuthRequest) {
     this.log.begin('Passwordless.resendCode', request);
+    request.validateMetricsContext();
 
     const { email, clientId, service } = request.payload as {
       email: string;
