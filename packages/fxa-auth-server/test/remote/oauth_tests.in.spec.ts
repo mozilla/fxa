@@ -186,6 +186,70 @@ describe.each(testVersions)(
       expect(devices.length).toBe(1);
     });
 
+    // Same flow as above, minus the verifier. Firefox holds the verifier in the
+    // parent process and never hands it to the web content, so this is the shape
+    // a caller without it is stuck with: a public client cannot fall back to a
+    // client_secret, so the payload fails the /oauth/token xor and the code is
+    // never redeemed.
+    //
+    // grant_type is sent explicitly, as Firefox does. Omit it and the payload no
+    // longer matches the authorization_code alternative, so it falls through to
+    // fxa-credentials (which defaults its own grant_type) and fails later with a
+    // confusing 401 instead of this 400.
+    it('refuses to redeem an authorization code without the code_verifier', async () => {
+      const res = await client.createAuthorizationCode({
+        client_id: PUBLIC_CLIENT_ID,
+        state: 'abc',
+        code_challenge: MOCK_CODE_CHALLENGE,
+        code_challenge_method: 'S256',
+        scope: OAUTH_SCOPE_OLD_SYNC,
+        access_type: 'offline',
+      });
+      expect(res.code).toBeTruthy();
+
+      try {
+        await client.grantOAuthTokens({
+          client_id: PUBLIC_CLIENT_ID,
+          grant_type: 'authorization_code',
+          code: res.code,
+        });
+        throw new Error('should have thrown');
+      } catch (err: any) {
+        expect(err.errno).toBe(error.ERRNO.INVALID_PARAMETER);
+        expect(err.code).toBe(400);
+        expect(err.validation.source).toBe('payload');
+      }
+    });
+
+    // token.spec covers this branch against a mocked code row. Here the stored
+    // challenge is the one /authorization wrote, so the S256 comparison runs on
+    // real data.
+    it('refuses to redeem an authorization code with an incorrect code_verifier', async () => {
+      const res = await client.createAuthorizationCode({
+        client_id: PUBLIC_CLIENT_ID,
+        state: 'abc',
+        code_challenge: MOCK_CODE_CHALLENGE,
+        code_challenge_method: 'S256',
+        scope: OAUTH_SCOPE_OLD_SYNC,
+        access_type: 'offline',
+      });
+      expect(res.code).toBeTruthy();
+
+      try {
+        await client.grantOAuthTokens({
+          client_id: PUBLIC_CLIENT_ID,
+          code: res.code,
+          // Valid per RFC 7636, wrong value, so the payload passes validation
+          // and the PKCE gate is what rejects it.
+          code_verifier: 'b'.repeat(43),
+        });
+        throw new Error('should have thrown');
+      } catch (err: any) {
+        expect(err.errno).toBe(error.ERRNO.INVALID_PKCE_CHALLENGE);
+        expect(err.code).toBe(400);
+      }
+    });
+
     describe('exclude_dau', () => {
       // The exclude_dau tagging itself is asserted at the unit layer (token.spec
       // via mockGlean); here we confirm the option is accepted end-to-end and does

@@ -5,7 +5,7 @@
 const crypto = require('crypto');
 const Joi = require('joi');
 const { Container } = require('typedi');
-const { AppError: AuthError } = require('@fxa/accounts/errors');
+const { AppError: AuthError, OAUTH_ERRNO } = require('@fxa/accounts/errors');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
 const {
@@ -160,6 +160,16 @@ function joiNotAllowed(err: any, param: string) {
   expect(err.isJoi).toBe(true);
   expect(err.name).toBe('ValidationError');
   expect(err.details[0].message).toBe(`"${param}" is not allowed`);
+}
+
+// The /oauth/token payload is a Joi.alternatives(), so a rejection always
+// surfaces the generic "does not match any of the allowed types" at the top
+// level. authorization_code is the first alternative; its own failure reason is
+// nested, and that is what these tests need to assert on.
+function authorizationCodeAlternativeError(err: any) {
+  expect(err.isJoi).toBe(true);
+  expect(err.details[0].type).toBe('alternatives.match');
+  return err.details[0].context.details[0];
 }
 
 function resetAndMockDeps() {
@@ -776,13 +786,13 @@ describe('token exchange grant_type', () => {
 });
 
 describe('/oauth/token POST', () => {
-  describe('exclude_dau input validation', () => {
-    // tokenRoutes[1] is the POST /oauth/token route (tokenRoutes[0] is /token).
-    function v(req: any) {
-      const oauthTokenRoute = tokenRoutes[1];
-      return oauthTokenRoute.config.validate.payload.validate(req);
-    }
+  // tokenRoutes[1] is the POST /oauth/token route (tokenRoutes[0] is /token).
+  function v(req: any) {
+    const oauthTokenRoute = tokenRoutes[1];
+    return oauthTokenRoute.config.validate.payload.validate(req);
+  }
 
+  describe('exclude_dau input validation', () => {
     it('accepts exclude_dau=true for the authorization_code grant', () => {
       const res = v({
         client_id: CLIENT_ID,
@@ -812,6 +822,51 @@ describe('/oauth/token POST', () => {
       });
       expect(res.error).toBeUndefined();
       expect(res.value.exclude_dau).toBe(false);
+    });
+  });
+
+  // Firefox redeems a pairing/sign-in code here, sending
+  // {grant_type, code, client_id, code_verifier} (FxAccountsClient.oauthToken).
+  // It holds the verifier in the parent process and never gives it to the web
+  // page, so the xor on this alternative is what makes a redemption without a
+  // known verifier fail: a public client cannot substitute a client_secret.
+  describe('authorization_code grant requires exactly one client credential', () => {
+    it('accepts a code_verifier alone, the shape Firefox sends', () => {
+      const res = v({
+        client_id: CLIENT_ID,
+        grant_type: 'authorization_code',
+        code: CODE,
+        code_verifier: PKCE_CODE_VERIFIER,
+      });
+      expect(res.error).toBeUndefined();
+      expect(res.value.code_verifier).toBe(PKCE_CODE_VERIFIER);
+    });
+
+    it('rejects a code redemption carrying neither code_verifier nor client_secret', () => {
+      const res = v({
+        client_id: CLIENT_ID,
+        grant_type: 'authorization_code',
+        code: CODE,
+      });
+      const detail = authorizationCodeAlternativeError(res.error);
+      expect(detail.type).toBe('object.missing');
+      expect(detail.context.peers).toEqual(['client_secret', 'code_verifier']);
+    });
+
+    it('rejects a code redemption carrying both code_verifier and client_secret', () => {
+      const res = v({
+        client_id: CLIENT_ID,
+        grant_type: 'authorization_code',
+        code: CODE,
+        code_verifier: PKCE_CODE_VERIFIER,
+        client_secret: CLIENT_SECRET,
+      });
+      const detail = authorizationCodeAlternativeError(res.error);
+      expect(detail.type).toBe('object.xor');
+      expect(detail.context.present).toEqual([
+        'client_secret',
+        'code_verifier',
+      ]);
     });
   });
 
@@ -1758,5 +1813,100 @@ describe('exclude_dau carried on the authorization code', () => {
 
       expect(redis.get).not.toHaveBeenCalled();
     });
+  });
+});
+
+// The handler is the last thing between a code and a token, so the gate is
+// covered by driving it directly. Two of its branches are left out on purpose:
+// a stored method other than S256, and a verifier for a challenge-less code.
+// Neither can arrive over HTTP, because /authorization pins the method to S256
+// and writes a challenge if and only if the client is public.
+describe('PKCE gate on the authorization_code grant', () => {
+  // Matches the route's pkceHash(): sha256 of the verifier, URL-safe base64,
+  // unpadded. oauth/util's base64URLEncode is a Buffer.toString('base64url').
+  const CODE_CHALLENGE = crypto
+    .createHash('sha256')
+    .update(PKCE_CODE_VERIFIER)
+    .digest('base64url');
+
+  const CHALLENGED_CODE = {
+    codeChallenge: CODE_CHALLENGE,
+    codeChallengeMethod: 'S256',
+  };
+
+  async function redeem(
+    codeOverrides: Record<string, unknown>,
+    payloadOverrides: Record<string, unknown> = {}
+  ) {
+    resetAndMockDeps();
+    // The shared oauth/util stub only carries makeAssertionJWT, but computing a
+    // pkceHash needs the real base64URLEncode.
+    jest.doMock('../../oauth/util', () => ({
+      ...jest.requireActual('../../oauth/util'),
+      makeAssertionJWT: async () => ({}),
+    }));
+    // The code row carries a real ScopeSet, so match what production's
+    // generateTokens emits or the route throws while building the response.
+    jest.doMock('../../oauth/grant', () => ({
+      ...tokenRoutesDepMocks['../../oauth/grant'],
+      generateTokens: (grant: any) => ({
+        ...grant,
+        scope: grant.scope.toString(),
+      }),
+    }));
+    // The gate throws before the code is consumed, so removeCode having been
+    // called is the observable signal that a redemption cleared it.
+    const removeCode = jest.fn().mockResolvedValue(null);
+    const routes = require('./token')({
+      ...tokenRoutesArgMocks,
+      oauthDB: {
+        ...tokenRoutesArgMocks.oauthDB,
+        removeCode,
+        async getCode() {
+          return {
+            userId: buf(UID),
+            clientId: buf(CLIENT_ID),
+            createdAt: Date.now(),
+            scope: ScopeSet.fromArray(['profile']),
+            ...codeOverrides,
+          };
+        },
+      },
+    });
+    await routes[1].handler({
+      app: {},
+      auth: { credentials: undefined },
+      headers: {},
+      payload: {
+        client_id: CLIENT_ID,
+        grant_type: 'authorization_code',
+        code: CODE,
+        ...payloadOverrides,
+      },
+      emitMetricsEvent: () => {},
+    });
+    return { removeCode };
+  }
+
+  it('consumes the code when the verifier matches the stored challenge', async () => {
+    const { removeCode } = await redeem(CHALLENGED_CODE, {
+      code_verifier: PKCE_CODE_VERIFIER,
+    });
+
+    expect(removeCode).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects a redemption with no verifier when the code carries a challenge', async () => {
+    await expect(redeem(CHALLENGED_CODE)).rejects.toMatchObject({
+      errno: OAUTH_ERRNO.MISSING_PKCE_PARAMETERS,
+    });
+  });
+
+  it('rejects a verifier that does not hash to the stored challenge', async () => {
+    await expect(
+      redeem(CHALLENGED_CODE, {
+        code_verifier: 'w'.repeat(PKCE_CODE_VERIFIER.length),
+      })
+    ).rejects.toMatchObject({ errno: OAUTH_ERRNO.INCORRECT_CODE_CHALLENGE });
   });
 });
