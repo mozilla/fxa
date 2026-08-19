@@ -61,16 +61,50 @@ function fetchAllMessages(
   );
 }
 
-async function fetchL10nHashedMappings(mappingUrl: string) {
-  try {
-    // These mappigns are currently generated with grunt. See grunt task hash-static
-    // in fxa-settings for an example of how the mappings are generated.
-    const mappingsResponse = await fetch(mappingUrl);
-    const json = await mappingsResponse.json();
-    return json;
-  } catch (err) {
+export const L10N_ASSET_MAP_META = 'fxa-l10n-asset-map';
+
+/**
+ * Reads the map of l10n file paths to their hashed file names. The mappings are
+ * generated with grunt, see the hash-static task in fxa-settings, and the build
+ * embeds them into index.html as URI encoded JSON.
+ * @returns The mappings, or undefined if the map is absent, empty or malformed
+ */
+function readL10nHashedMappings(): Record<string, string> | undefined {
+  const content = document
+    .querySelector(`meta[name="${L10N_ASSET_MAP_META}"]`)
+    ?.getAttribute('content');
+
+  if (!content) {
     return undefined;
   }
+
+  try {
+    const mappings = JSON.parse(decodeURIComponent(content));
+
+    // Every value must be a path we can fetch, so anything other than a plain
+    // object of non-empty strings falls through to the warning below.
+    if (
+      typeof mappings === 'object' &&
+      mappings !== null &&
+      !Array.isArray(mappings) &&
+      Object.keys(mappings).length > 0 &&
+      Object.values(mappings).every(
+        (path) => typeof path === 'string' && path !== ''
+      )
+    ) {
+      return mappings;
+    }
+  } catch (err) {
+    // Fall through to the warning below.
+  }
+
+  // A map we cannot use is a build problem, so warn, then fall back to the
+  // unhashed paths. Only consumers that do not hash their l10n files serve
+  // those, so fxa-settings renders English until the build is fixed.
+  console.warn(
+    `<meta name="${L10N_ASSET_MAP_META}"> is present but unusable, falling back to unhashed l10n paths`
+  );
+  return undefined;
 }
 
 async function createFluentBundleGenerator(
@@ -78,9 +112,7 @@ async function createFluentBundleGenerator(
   currentLocales: Array<string>,
   bundles: Array<string>
 ) {
-  const mappings = await fetchL10nHashedMappings(
-    `${baseDir}/static-asset-manifest.json`
-  );
+  const mappings = readL10nHashedMappings();
   const fetched = await Promise.all(
     currentLocales
       .filter((l) => !EN_GB_LOCALES.includes(l))
