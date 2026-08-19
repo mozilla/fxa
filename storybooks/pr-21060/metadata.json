@@ -1,8 +1,8 @@
 {
-  "commit": "5ede7aabb0e816c8b74cc57ffcd84073b607ee0b",
-  "summary": "fix(settings): stop the dev server compressing index.html",
-  "description": "## Because\n\n- The functional suite went red on this branch after the manifest embedding landed. Every spec timed out on its first navigation, which means Settings never booted.\n- The `fxa-l10n-asset-map` meta tag adds 6,563 characters to `index.html`. That takes the file from 1.4 KB to roughly 8 KB, past the 4 KB gzip threshold on the Settings dev server.\n- Once the dev server compressed the HTML, `modifyProxyRes` in `beta-settings.js` copied `content-encoding: br` onto the response, then ran `body.toString()` and the token replacement over the compressed bytes. The browser got a body that no longer matched the header, `__SERVER_CONFIG__` never resolved, and nothing rendered.\n\n## This pull request\n\n- Exempts `text/html` from the compression middleware in `webpackDevServer.config.js`, so the dev server serves `index.html` uncompressed.\n- Keeps the 4 KB threshold and the default compressible-type check for everything else, so JS and CSS still compress.\n- Leaves the asset map, `AppLocalizationProvider`, and the nx cache inputs alone.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-11871",
-  "timestamp": 1787100907000,
+  "commit": "3bb0bd29f273bf63f61cfcb64e4fa9b33d93c021",
+  "summary": "fix(react): reject unusable l10n asset maps",
+  "description": "## Because\n\n- The guard in `readL10nHashedMappings` accepted any non-null object with at least one key. A JSON array got through, and so did an object whose values were empty strings or nested objects.\n- `fetchMessages` then treated that map as real. Every lookup missed, each bundle came back empty, and the page ended up with no l10n resources at all rather than the unhashed-path fallback the comment promises.\n- The warning did not fire either, so nothing said why the strings were missing.\n\n## This pull request\n\n- Rejects arrays and requires every mapped value to be a non-empty string. Anything else falls through to the warning that is already there and returns `undefined`.\n- Adds three rows to the fallback table in `AppLocalizationProvider.test.tsx`: an array, an empty string value, and a non-string value. I reverted the guard and re-ran to check that all three fail without it.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-11871",
+  "timestamp": 1787106640000,
   "storybooks": [
     "fxa-react",
     "fxa-settings"

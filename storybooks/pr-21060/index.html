@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 5ede7aabb0e816c8b74cc57ffcd84073b607ee0b</title>
+  <title>Storybooks for commit 3bb0bd29f273bf63f61cfcb64e4fa9b33d93c021</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,28 +23,27 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 5ede7aabb0e816c8b74cc57ffcd84073b607ee0b</h1>
+  <h1>Storybooks for commit 3bb0bd29f273bf63f61cfcb64e4fa9b33d93c021</h1>
   <ul>
     <li><a href="./fxa-react/">fxa-react</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/19/2026, 12:55:07 AM UTC</dd>
+    <dd>8/19/2026, 2:30:40 AM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(settings): stop the dev server compressing index.html</pre></dd>
+    <dd><pre>fix(react): reject unusable l10n asset maps</pre></dd>
     <dt>Description</dt>
     <dd><pre>## Because
 
-- The functional suite went red on this branch after the manifest embedding landed. Every spec timed out on its first navigation, which means Settings never booted.
-- The `fxa-l10n-asset-map` meta tag adds 6,563 characters to `index.html`. That takes the file from 1.4 KB to roughly 8 KB, past the 4 KB gzip threshold on the Settings dev server.
-- Once the dev server compressed the HTML, `modifyProxyRes` in `beta-settings.js` copied `content-encoding: br` onto the response, then ran `body.toString()` and the token replacement over the compressed bytes. The browser got a body that no longer matched the header, `__SERVER_CONFIG__` never resolved, and nothing rendered.
+- The guard in `readL10nHashedMappings` accepted any non-null object with at least one key. A JSON array got through, and so did an object whose values were empty strings or nested objects.
+- `fetchMessages` then treated that map as real. Every lookup missed, each bundle came back empty, and the page ended up with no l10n resources at all rather than the unhashed-path fallback the comment promises.
+- The warning did not fire either, so nothing said why the strings were missing.
 
 ## This pull request
 
-- Exempts `text/html` from the compression middleware in `webpackDevServer.config.js`, so the dev server serves `index.html` uncompressed.
-- Keeps the 4 KB threshold and the default compressible-type check for everything else, so JS and CSS still compress.
-- Leaves the asset map, `AppLocalizationProvider`, and the nx cache inputs alone.
+- Rejects arrays and requires every mapped value to be a non-empty string. Anything else falls through to the warning that is already there and returns `undefined`.
+- Adds three rows to the fallback table in `AppLocalizationProvider.test.tsx`: an array, an empty string value, and a non-string value. I reverted the guard and re-ran to check that all three fail without it.
 
 ## Issue that this pull request solves
 
