@@ -83,6 +83,7 @@ button-back-aria-label = Retro
 button-back-title = Retro
 
 
+recovery-key-download-button-v4 = Discargar e continuar
 recovery-key-pdf-download-error = Desolate, il habeva un problema discargante tu clave de recuperation del conto.
 
 
@@ -562,6 +563,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Como isto protege tu conto
 flow-setup-2fa-inline-complete-continue-button = Continuar a { $serviceName }
 flow-setup-2fa-prompt-heading = Configurar authentication a duo passos
 flow-setup-2fa-prompt-description = { $serviceName } te require le authentication a duo passos pro tener secur tu conto.
+flow-setup-2fa-prompt-passkey-success-banner = Firmate con sucesso con clave-contrasigno
+flow-setup-2fa-prompt-passkey-description = { $serviceName } alsi require le authentication a duo passos pro tu { -product-mozilla-account }. Post le installation, tu non plus lo debera accedente con un clave-contrasigno.
 flow-setup-2fa-prompt-use-authenticator-apps = Tu pote usar qualcunque de <authenticationAppsLink>iste applicationes de authentication</authenticationAppsLink> pro proceder.
 flow-setup-2fa-prompt-continue-button = Continuar
 

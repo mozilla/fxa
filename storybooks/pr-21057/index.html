@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 8eec4f5cb03ae97f0110c673613cf44cb6df97dd</title>
+  <title>Storybooks for commit ca307dc77c1b0f57e0611bba82ce8f32c6ba025b</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,31 +23,37 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 8eec4f5cb03ae97f0110c673613cf44cb6df97dd</h1>
+  <h1>Storybooks for commit ca307dc77c1b0f57e0611bba82ce8f32c6ba025b</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/18/2026, 10:23:14 PM UTC</dd>
+    <dd>8/19/2026, 4:12:22 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>refactor(settings): move remaining hooks into lib/hooks/[name]</pre></dd>
+    <dd><pre>refactor(settings): move all hooks into lib/hooks and add a barrel</pre></dd>
     <dt>Description</dt>
-    <dd><pre>## Because
+    <dd><pre>Because:
 
-- The hooks in `fxa-settings` were being split into `lib/hooks/[name]/index.tsx`, one directory each. Most of that work already shipped, but three hooks were left behind in `lib/hooks.tsx`.
-- The ticket also asks for a `lib/hooks` barrel, so callers can write `import { useHookName } from &#039;../../lib/hooks&#039;`.
+* The React style guide says to move `lib/hooks.tsx` into a `hooks/` directory
+  once it grows, and six hooks still sat outside that layout.
+* The node style guide asks for an index.ts per folder, imported from the folder
+  rather than the file; callers used a different specifier per hook.
+* `useTotpSetup` reached `useMfaErrorHandler` through a component, so a barrel
+  covering every hook would import `lib/hooks` back into itself.
 
-## This pull request
+This commit:
 
-- Moves `useFocusOnTriggeringElementOnClose`, `useEscKeydownEffect` and `useChangeFocusEffect` into `lib/hooks/[name]/index.tsx`, following the nine hook directories that moved earlier.
-- Splits `lib/hooks.test.tsx` into an `index.test.tsx` beside each hook. All five cases carry over as they were.
-- Adds the `lib/hooks/index.ts` barrel that re-exports the three hooks.
-- Deletes `lib/hooks.tsx` and `lib/hooks.test.tsx`.
-
-This is a move, so there is no behaviour change. The five importing components still say `from &#039;../../../lib/hooks&#039;`, which now resolves to the barrel instead of `hooks.tsx`. That means no import churn, and the other imports under `lib/hooks/` are untouched.
-
-## Issue that this pull request solves
+* Moves the last six hooks into `lib/hooks/[name]/index.*` and splits
+  `lib/hooks.test.tsx` into a test beside each hook.
+* Exports all 17 hooks from `lib/hooks/index.ts`, naming `useThrottle` and
+  `useNavigateWithoutRerender` because `export *` skips defaults.
+* Extracts `MfaContext` and `useMfaErrorHandler` out of `Settings/MfaGuard` into
+  `lib/hooks/useMfaErrorHandler`.
+* Points 109 files at the barrel; `src/models` keeps direct paths, as the barrel
+  documents.
+* Drops two dead `jest.mock(&#039;lib/hooks&#039;)` factories that mocked hooks the barrel
+  never exported.
 
 Closes: https://mozilla-hub.atlassian.net/browse/FXA-7097</pre></dd>
   </dl>
