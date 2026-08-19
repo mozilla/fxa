@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Constants } from "../constants";
+import { Constants } from '../constants';
 
 export enum FirefoxCommand {
   AccountDeleted = 'fxaccounts:delete',
@@ -95,7 +95,6 @@ export type FxAStatusResponse = {
   };
   clientId?: string;
   signedInUser?: SignedInUser;
-
 };
 
 export type SignedInUser = {
@@ -108,15 +107,15 @@ export type SignedInUser = {
 };
 
 export type PairOAuthStartState = {
-  state:string,
-  scope:string,
-  code_challenge: string,
-  keys_jwk:string
-}
+  state: string;
+  scope: string;
+  code_challenge: string;
+  keys_jwk: string;
+};
 export type PairOAuthFinishState = {
-  state:string,
-  code:string
-}
+  state: string;
+  code: string;
+};
 
 export type FxALoginRequest = {
   email: string;
@@ -643,15 +642,14 @@ export class Firefox extends EventTarget {
   }
 
   /** Requests that a pairing oauth operation begin. This is the first half of pairing dance. */
-  async pairOauthStart(msg:{
-    scopes?: string[]
-  }):Promise<PairOAuthStartState|undefined> {
-
+  async pairOauthStart(msg: {
+    scopes?: string[];
+  }): Promise<PairOAuthStartState | undefined> {
     // Default sync scopes
     if (msg.scopes == null) {
       msg.scopes = [
         Constants.OAUTH_OLDSYNC_SCOPE,
-        Constants.OAUTH_TRUSTED_PROFILE_SCOPE
+        Constants.OAUTH_TRUSTED_PROFILE_SCOPE,
       ];
     }
 
@@ -659,52 +657,69 @@ export class Firefox extends EventTarget {
       FirefoxCommand.PairOauthStart,
       msg,
       (event) => {
-        console.log('!!! event', event)
+        console.log('!!! event', event);
         if (event?.detail?.state == null) {
-          throw new Error(`${FirefoxCommand.PairOauthFinish} missing state from event.details`);
+          throw new Error(
+            `${FirefoxCommand.PairOauthFinish} missing state from event.details`
+          );
         }
         if (event?.detail?.scope == null) {
-          throw new Error(`${FirefoxCommand.PairOauthFinish} missing code from event.details`);
+          throw new Error(
+            `${FirefoxCommand.PairOauthFinish} missing code from event.details`
+          );
         }
         if (event?.detail?.code_challenge == null) {
-          throw new Error(`${FirefoxCommand.PairOauthFinish} missing code_challenge from event.details`);
+          throw new Error(
+            `${FirefoxCommand.PairOauthFinish} missing code_challenge from event.details`
+          );
         }
         if (event?.detail?.keys_jwk == null) {
-          throw new Error(`${FirefoxCommand.PairOauthFinish} missing keys_jwk from event.details`);
+          throw new Error(
+            `${FirefoxCommand.PairOauthFinish} missing keys_jwk from event.details`
+          );
         }
         return event.detail as PairOAuthStartState;
       }
-    )
+    );
   }
 
   /** Requests that a pairing oauth operation be finished. This is the second half of pairing dance. */
-  async pairOauthFinish(msg:{
-    client_id:string,
-    state:string,
-    scope:string,
-    code_challenge:string,
-  }):Promise<PairOAuthFinishState|undefined> {
+  async pairOauthFinish(msg: {
+    client_id: string;
+    state: string;
+    scope: string;
+    code_challenge: string;
+    // Forwarded so chrome can wrap the scoped Sync keys into a keys_jwe for the
+    // supplicant; without it no keys are delivered. code_challenge_method
+    // defaults to S256 in chrome when omitted.
+    keys_jwk?: string;
+    code_challenge_method?: string;
+  }): Promise<PairOAuthFinishState | undefined> {
     return this._executeCommandWithResponse<PairOAuthFinishState>(
       FirefoxCommand.PairOauthFinish,
       msg,
       (event) => {
         if (event?.detail?.code == null) {
-          throw new Error(`${FirefoxCommand.PairOauthFinish} missing code from event.details`);
+          throw new Error(
+            `${FirefoxCommand.PairOauthFinish} missing code from event.details`
+          );
         }
         if (event?.detail?.state == null) {
-          throw new Error(`${FirefoxCommand.PairOauthFinish} missing code from event.details`);
+          throw new Error(
+            `${FirefoxCommand.PairOauthFinish} missing code from event.details`
+          );
         }
-        return event.detail as PairOAuthFinishState
+        return event.detail as PairOAuthFinishState;
       }
-    )
+    );
   }
 
   /** Utility method to help inovke web-channel commands with an expected. */
   private async _executeCommandWithResponse<TResp>(
     cmd: FirefoxCommand,
     msg: any,
-    handleResp:(event:any) => TResp)
-  {
+    handleResp: (event: any) => TResp
+  ) {
     let timeoutId: number;
     return Promise.race<undefined | TResp>([
       new Promise<undefined | TResp>((resolve, reject) => {
@@ -722,13 +737,13 @@ export class Firefox extends EventTarget {
           // The handler might throw an error and fail fast if the data looks wrong. Handle error
           // and reject if this happens.
           try {
-            const resp = handleResp(event)
+            const resp = handleResp(event);
 
             resolve(resp);
           } catch (err) {
             reject(err);
           }
-        }
+        };
         this.addEventListener(cmd, onResp);
         requestAnimationFrame(() => {
           console.log(`[[Firefox WebChannel] ${cmd} sent msg`, msg);
@@ -746,9 +761,6 @@ export class Firefox extends EventTarget {
       }),
     ]);
   }
-
-
-
 
   /*
    * Sends an fxa_status and returns the signed in user if available.

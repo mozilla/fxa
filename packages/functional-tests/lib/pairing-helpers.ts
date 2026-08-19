@@ -473,6 +473,113 @@ export function extractChannelId(pairUrl: string): string {
 }
 
 /**
+ * Build the supplicant navigation URL for the v2 pairing flow.
+ *
+ * v2 differs from v1: the supplicant's OAuth params (state, scope,
+ * code_challenge, keys_jwk) are NOT carried in the URL. They are produced by the
+ * `fxaccounts:pair_oauth_start` web-channel command and sent to the authority
+ * over the pairing channel as `pair:supp:request`. So the only thing the URL
+ * carries is the channel fragment, exactly what a native camera scan of the v2
+ * QR opens: `/pair#channel_id=<id>&channel_key=<key>&v=2`. FxA forwards a v=2
+ * URL to `/pair/supplicant/approve_signin` (see FXA-13865).
+ *
+ * This validates the fragment and rebases it on the test's content server, so a
+ * QR minted against one origin can be opened against localhost.
+ */
+export function buildSupplicantUrlV2(
+  contentServerUrl: string,
+  pairUrl: string
+): string {
+  const fragment = pairUrl.split('#')[1];
+  if (!fragment) {
+    throw new Error(`v2 pair URL has no fragment: ${pairUrl}`);
+  }
+  const params = new URLSearchParams(fragment);
+  const channelId = params.get('channel_id');
+  const channelKey = params.get('channel_key');
+  if (!channelId || !channelKey) {
+    throw new Error(
+      `v2 pair URL fragment missing channel_id or channel_key: ${fragment}`
+    );
+  }
+  if (params.get('v') !== '2') {
+    throw new Error(`v2 pair URL fragment missing v=2 marker: ${fragment}`);
+  }
+
+  const hashParams = new URLSearchParams({
+    channel_id: channelId,
+    channel_key: channelKey,
+    v: '2',
+  });
+  return `${contentServerUrl}/pair#${hashParams}`;
+}
+
+/**
+ * Drive a signed-in Marionette authority through the v2 entrypoint to the
+ * scan_qr page and return the encoded pairing URL from the rendered QR.
+ *
+ * v2 has no chrome-side pairing flow (contrast v1 `startPairingFlow`, which calls
+ * `FxAccountsPairingFlow.start()`). The authority mints the channel in web
+ * content on `/pair/authority/scan_qr` (FXA-13868) and encodes it into the QR.
+ * The test reads the encoded URL back from the page.
+ *
+ * CONTRACT (FXA-13868): scan_qr must expose the encoded pairing URL to tests via
+ * `data-testid="pairing-qr"` with a `data-pairing-url` attribute. The QR value
+ * itself is not otherwise present in the DOM as text. Update the selector here if
+ * 13868 exposes it differently.
+ *
+ * Requires an eligible entrypoint (Sync context + a pairing entrypoint), so the
+ * caller passes the same query string the real Firefox menu entrypoint sends.
+ */
+export async function startPairingFlowV2(
+  client: MarionetteClient,
+  contentServerUrl: string,
+  eligibleEntrypointQs: string
+): Promise<string> {
+  await client.setContext('content');
+  await client.navigate(
+    `${contentServerUrl}/connect_another_device?${eligibleEntrypointQs}&v=2`
+  );
+  await waitForUrlContaining(client, '/pair/authority/scan_qr');
+
+  const pairUrl = await pollUntil(
+    async () => {
+      const url = await client.executeScript(
+        `const el = document.querySelector('[data-testid="pairing-qr"]');
+         return el ? el.getAttribute('data-pairing-url') : null;`,
+        { sandbox: 'system' }
+      );
+      return typeof url === 'string' && url.includes('channel_id=')
+        ? url
+        : undefined;
+    },
+    TIMEOUTS.ASYNC_SCRIPT,
+    'scan_qr did not expose a v2 pairing URL (needs FXA-13868 data-testid="pairing-qr")'
+  );
+
+  return pairUrl as string;
+}
+
+/**
+ * Extract channel_id from a v2 pairing QR URL, asserting the v=2 marker is
+ * present. Use this over {@link extractChannelId} when the test must prove the
+ * QR is a v2 QR and not a v1 one.
+ */
+export function extractChannelIdV2(pairUrl: string): string {
+  const hash = pairUrl.split('#')[1];
+  if (!hash) throw new Error('No fragment in v2 pair URL');
+
+  const params = new URLSearchParams(hash);
+  if (params.get('v') !== '2') {
+    throw new Error(`v2 pair URL missing v=2 marker: ${hash}`);
+  }
+  const channelId = params.get('channel_id');
+  if (!channelId) throw new Error('No channel_id in v2 pair URL');
+
+  return channelId;
+}
+
+/**
  * Build the authority OAuth URL that navigates the authority to the
  * pairing approval page.
  *

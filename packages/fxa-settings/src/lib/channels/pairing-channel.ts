@@ -161,6 +161,56 @@ export class PairingChannelClient extends EventTarget {
     }
   }
 
+  /**
+   * Create a new pairing channel as the authority.
+   *
+   * Unlike {@link open}, which joins an existing channel as the supplicant, this
+   * mints a fresh channel: the underlying library generates a random 32-byte
+   * key locally and the channelserver assigns the id. The returned
+   * `{ channelId, channelKey }` are what the authority encodes into the v2 QR so
+   * the supplicant can join. Wires the same message/error/close listeners as
+   * `open`, so `remote:<message>` events fire identically on both sides.
+   */
+  async create(
+    channelServerUri: string
+  ): Promise<{ channelId: string; channelKey: string }> {
+    if (this.channel || this._opening) {
+      throw new PairingChannelError('ALREADY_CONNECTED');
+    }
+    if (!channelServerUri) {
+      throw new PairingChannelError('INVALID_CONFIGURATION');
+    }
+
+    this._opening = true;
+    try {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore — no types for this legacy UMD package
+      const FxAccountsPairingChannel = await import(
+        /* webpackChunkName: "fxaPairingChannel" */
+        'fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js'
+      );
+
+      const channel =
+        await FxAccountsPairingChannel.PairingChannel.create(channelServerUri);
+
+      this.channel = channel;
+      this.dispatchEvent(new CustomEvent('connected'));
+
+      channel.addEventListener('message', this.handleMessage);
+      channel.addEventListener('error', this.handleError);
+      channel.addEventListener('close', this.handleClose);
+
+      // channelKey is a Uint8Array from the library; the QR fragment carries it
+      // base64url-encoded, matching what `open` decodes on the supplicant side.
+      const channelKey = FxAccountsPairingChannel.bytesToBase64url(
+        channel.channelKey
+      );
+      return { channelId: channel.channelId, channelKey };
+    } finally {
+      this._opening = false;
+    }
+  }
+
   async send(
     message: string,
     data: Record<string, unknown> = {}

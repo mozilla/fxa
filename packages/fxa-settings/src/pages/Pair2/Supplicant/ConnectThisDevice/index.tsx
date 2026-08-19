@@ -46,7 +46,6 @@ const ConnectThisDevice = ({
   onConnect,
   onCancel,
 }: ConnectThisDeviceProps) => {
-
   // TODO: Wire up props
   email = email ?? 'foo@mozilla.com';
   remoteMetadata = remoteMetadata ?? {
@@ -57,48 +56,52 @@ const ConnectThisDevice = ({
     country: 'country-foo',
     region: 'region-foo',
     city: 'city-foo',
-  }
+  };
 
-  return <AppLayout>
-    <div className="flex flex-col items-center text-center">
-      <FirefoxWordmarkImage className="h-8 w-24 text-black dark:text-white" />
+  return (
+    <AppLayout>
+      <div className="flex flex-col items-center text-center">
+        <FirefoxWordmarkImage className="h-8 w-24 text-black dark:text-white" />
 
-      <SyncDevicesImage className="mt-10 h-[120px] w-auto" />
+        <SyncDevicesImage className="mt-10 h-[120px] w-auto" />
 
-      <FtlMsg id="pair2-supplicant-connect-this-device-heading">
-        <h1 className="card-header mt-4">
-          Connect this device to your account?
-        </h1>
-      </FtlMsg>
-      {/* Raw user data, so it is deliberately not wrapped in FtlMsg. */}
-      <p className="break-word mt-1 text-base">{email}</p>
+        <FtlMsg id="pair2-supplicant-connect-this-device-heading">
+          <h1 className="card-header mt-4">
+            Connect this device to your account?
+          </h1>
+        </FtlMsg>
+        {/* Raw user data, so it is deliberately not wrapped in FtlMsg. */}
+        <p className="break-word mt-1 text-base">{email}</p>
 
-      <DeviceInfoBlock
-        {...{ remoteMetadata }}
-        deviceNameDisplay="inline"
-        className="mt-4 w-full rounded-md border border-grey-100 px-4 py-3 text-grey-500 dark:border-grey-500 dark:text-grey-300"
-      />
+        <DeviceInfoBlock
+          {...{ remoteMetadata }}
+          deviceNameDisplay="inline"
+          className="mt-4 w-full rounded-md border border-grey-100 px-4 py-3 text-grey-500 dark:border-grey-500 dark:text-grey-300"
+        />
 
-      <FtlMsg id="pair2-supplicant-connect-this-device-connect-button">
-        <button
-          type="button"
-          onClick={onConnect}
-          className="cta-primary cta-xl mt-6 w-full"
-        >
-          Connect
-        </button>
-      </FtlMsg>
-      <FtlMsg id="pair2-supplicant-connect-this-device-cancel-button">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="link-dark-grey"
-        >
-          Cancel
-        </button>
-      </FtlMsg>
-    </div>
-  </AppLayout>
+        <FtlMsg id="pair2-supplicant-connect-this-device-connect-button">
+          <button
+            type="button"
+            data-testid="pair2-supp-connect-btn"
+            onClick={onConnect}
+            className="cta-primary cta-xl mt-6 w-full"
+          >
+            Connect
+          </button>
+        </FtlMsg>
+        <FtlMsg id="pair2-supplicant-connect-this-device-cancel-button">
+          <button
+            type="button"
+            data-testid="pair2-supp-cancel-btn"
+            onClick={onCancel}
+            className="link-dark-grey"
+          >
+            Cancel
+          </button>
+        </FtlMsg>
+      </div>
+    </AppLayout>
+  );
 };
 
 export default ConnectThisDevice;

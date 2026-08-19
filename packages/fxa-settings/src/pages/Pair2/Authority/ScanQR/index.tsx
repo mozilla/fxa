@@ -11,7 +11,6 @@ import { QrPhoneFrameImage } from '../../../../components/images';
 import { Integration, useFtlMsgResolver } from '../../../../models';
 import { Constants } from '../../../../lib/constants';
 
-
 export type ScanQRProps = {
   /**
    * The string encoded into the QR code. Required so that routing this card
@@ -39,14 +38,7 @@ const ScanQR = ({ qrCodeValue, integration }: ScanQRProps) => {
   );
 
   if (integration && integration.isFirefoxMobileClient()) {
-    throw new Error('Mobile to desktop not supported!')
-  }
-
-  function createQrCodeUrl() {
-    // TODO: Create new pairing channel and create URL
-    const key = `000000000`;
-    const id = `111111111`;
-    return qrCodeValue || `${window.location.origin}/pair#channel_id=${id}&channel_key=${key}&v=2`;
+    throw new Error('Mobile to desktop not supported!');
   }
 
   return (
@@ -81,9 +73,16 @@ const ScanQR = ({ qrCodeValue, integration }: ScanQRProps) => {
                 size and drift out of the phone as the card resizes. `QRCode`'s
                 own `p-4` stays a fixed quiet zone, which only ever grows in
                 proportion as the card narrows. */}
-            <div className="w-[41%]">
+            {/* `data-pairing-url` exposes the encoded value to functional
+                tests, which cannot read it out of the rendered SVG. */}
+            <div
+              className="w-[41%]"
+              data-testid="pairing-qr"
+              data-pairing-url={qrCodeValue || ''}
+            >
               <QRCode
-                value={createQrCodeUrl()}
+                value={qrCodeValue || ''}
+                loading={!qrCodeValue}
                 localizedLabel={localizedQrCodeLabel}
                 className="w-full border-none [&_svg]:h-auto [&_svg]:w-full"
               />

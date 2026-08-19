@@ -69,7 +69,6 @@ const TimeoutAndCancel = ({
   onCancel,
   onSyncSettings,
 }: TimeoutAndCancelProps) => {
-
   // TODO: Wire up props
   reason = reason ?? 'timeout';
 

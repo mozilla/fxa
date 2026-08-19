@@ -272,12 +272,15 @@ export class AndroidSupplicant {
    * authority approves the new device, then the supplicant confirms here.
    * (uiautomator can read GeckoView web content.)
    */
-  async confirmPairing(timeoutMs = 45_000): Promise<void> {
+  async confirmPairing(
+    timeoutMs = 45_000,
+    // v1 uses "Confirm"/"Confirm pairing"; the v2 supplicant card uses "Connect".
+    re = /^Confirm pairing$|^Confirm$/i
+  ): Promise<void> {
     // The confirm button lives in GeckoView web content, read via uiautomator's
     // accessibility tree — which GeckoView populates lazily, so a dump can miss
     // it transiently. Poll, and periodically nudge the page with a tiny scroll
     // to force the a11y tree to repopulate.
-    const re = /^Confirm pairing$|^Confirm$/i;
     const deadline = Date.now() + timeoutMs;
     let attempt = 0;
     while (Date.now() < deadline) {

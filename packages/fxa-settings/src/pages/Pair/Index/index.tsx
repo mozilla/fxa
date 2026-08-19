@@ -68,11 +68,7 @@ type PairProps = {
 };
 export const viewName = 'pair';
 
-const Pair = ({
-  error,
-  cmsInfo: cmsInfoProp,
-  integration,
-}: PairProps) => {
+const Pair = ({ error, cmsInfo: cmsInfoProp, integration }: PairProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedQRCodeLabel = ftlMsgResolver.getMsg(
@@ -96,6 +92,15 @@ const Pair = ({
 
   const choiceHeaderRef = useRef<HTMLHeadingElement>(null);
   const downloadHeaderRef = useRef<HTMLHeadingElement>(null);
+
+  // v2 supplicant entry: a native-camera scan opens /pair#...&v=2. Forward into
+  // the v2 supplicant flow, preserving the channel fragment. (FXA-13865)
+  useEffect(() => {
+    const params = new URLSearchParams(location.hash.replace(/^#/, ''));
+    if (params.get('v') === '2') {
+      navigateWithQuery(`/pair/supplicant/approve_signin${location.hash}`);
+    }
+  }, [location.hash, navigateWithQuery]);
 
   // Focus management after view transitions
   useEffect(() => {

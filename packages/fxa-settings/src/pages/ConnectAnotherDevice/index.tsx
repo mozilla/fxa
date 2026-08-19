@@ -208,11 +208,6 @@ const ConnectAnotherDevice = ({
 
     let cancelled = false;
     (async () => {
-      const fxaStatus = await firefox.fxaStatus({
-        context: 'oauth',
-        service: 'sync',
-        isPairing: true
-      });
       const signedInUser = await firefox
         .requestSignedInUser(
           Constants.OAUTH_CONTEXT,
@@ -225,16 +220,18 @@ const ConnectAnotherDevice = ({
         signedInUser?.sessionToken && signedInUser.verified
       );
       if (browserSignedIn && isEligibleForPairing()) {
-
         // Check that FxA has pairing version 2 supported. And that the current Firefox
         // instance also supports version 2. If so send user into the v2 pairing flow!
         if (config.pairing.version === 2) {
           const fxaStatus = await firefox.fxaStatus({
             context: 'oauth',
             service: 'sync',
-            isPairing: true
+            isPairing: true,
           });
-          if (fxaStatus.capabilities.pairing && fxaStatus.capabilities.pairingVersion === 2) {
+          if (
+            fxaStatus.capabilities.pairing &&
+            fxaStatus.capabilities.pairingVersion === 2
+          ) {
             navigateWithQuery('/pair/authority/scan_qr');
             return;
           }

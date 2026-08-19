@@ -59,6 +59,7 @@ const ApproveSignIn = ({
       <FtlMsg id="pair2-authority-approve-sign-in-confirm-button">
         <button
           type="button"
+          data-testid="pair2-auth-approve-btn"
           onClick={onApprove}
           className="cta-primary cta-xl mt-6 w-full"
         >

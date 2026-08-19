@@ -27,15 +27,22 @@ type SuppProps = {
   error?: string;
 };
 
-const Supp = ({
-  integration,
-  error: errorProp,
-}: SuppProps) => {
+const Supp = ({ integration, error: errorProp }: SuppProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const navigateWithQuery = useNavigateWithQuery();
   const [error, setError] = useState<string | undefined>(errorProp);
 
   useEffect(() => {
+    // v2 supplicant entry: Firefox mobile opens /pair/supp?...#...&v=2. Forward
+    // into the v2 supplicant flow before the v1 channel opens, keeping the OAuth
+    // query and the channel fragment.
+    if (
+      new URLSearchParams(window.location.hash.substring(1)).get('v') === '2'
+    ) {
+      navigateWithQuery('/pair/supplicant/approve_signin');
+      return;
+    }
+
     if (!(integration instanceof PairingSupplicantIntegration)) {
       return;
     }
