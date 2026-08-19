@@ -1,8 +1,8 @@
 {
-  "commit": "b1ef1c362a81c89256c64c17f1cbf51168e25e9d",
-  "summary": "Merge pull request #21057 from mozilla/fxa-7097",
-  "description": "refactor(settings): move all hooks into lib/hooks and add a barrel",
-  "timestamp": 1787158114000,
+  "commit": "59d0713f60344493b8de298dff25cd51d7560d78",
+  "summary": "Merge pull request #21055 from mozilla/blender/reenable",
+  "description": "chore(blender): re-enable investigations and auto-merge",
+  "timestamp": 1787161287000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
