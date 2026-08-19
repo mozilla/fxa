@@ -229,14 +229,6 @@ button-back-aria-label = Naspäť
 button-back-title = Naspäť
 
 
-recovery-key-download-button-v3 = Stiahnuť a pokračovať
-    .title = Stiahnuť a pokračovať
-recovery-key-pdf-heading = Kľúč na obnovenie účtu
-recovery-key-pdf-download-date = Vygenerovaný: { $date }
-recovery-key-pdf-key-legend = Kľúč na obnovenie účtu
-recovery-key-pdf-instructions = Tento kľúč vám umožňuje obnoviť zašifrované údaje prehliadača (vrátane hesiel, záložiek a histórie), ak zabudnete heslo. Uložte ho na mieste, ktoré si zapamätáte.
-recovery-key-pdf-storage-ideas-heading = Miesta na uloženie kľúča
-recovery-key-pdf-support = Ďalšie informácie o kľúči na obnovenie účtu
 recovery-key-pdf-download-error = Ľutujeme, pri sťahovaní kľúča na obnovenie účtu sa vyskytol problém.
 
 

@@ -87,14 +87,7 @@ button-back-aria-label = 뒤로
 button-back-title = 뒤로
 
 
-recovery-key-download-button-v3 = 다운로드 및 계속
-    .title = 다운로드 및 계속
-recovery-key-pdf-heading = 계정 복구 키
-recovery-key-pdf-download-date = 생성됨: { $date }
-recovery-key-pdf-key-legend = 계정 복구 키
-recovery-key-pdf-instructions = 이 키를 사용하면 비밀번호를 잊어버렸을 때 암호화된 브라우저 데이터(비밀번호, 북마크 및 기록 포함)를 복구할 수 있습니다. 기억할 수 있는 곳에 보관하세요.
-recovery-key-pdf-storage-ideas-heading = 키를 저장할 장소
-recovery-key-pdf-support = 계정 복구 키에 대해 더 알아보기
+recovery-key-download-button-v4 = 다운로드 및 계속
 recovery-key-pdf-download-error = 죄송합니다. 계정 복구 키를 다운로드하는 중 문제가 발생했습니다.
 
 

@@ -39,31 +39,15 @@ brand-m-logo =
 button-back-aria-label = Terug
 button-back-title = Terug
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
+# Button to download the account recovery key as a plain text file and navigate to the next step
 # The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = Downloaden en doorgaan
-    .title = Downloaden en doorgaan
-recovery-key-pdf-heading = Accountherstelsleutel
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = Aangemaakt: { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = Accountherstelsleutel
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = Met deze sleutel kunt u uw versleutelde browsergegevens (inclusief wachtwoorden, bladwijzers en geschiedenis) herstellen als u uw wachtwoord vergeet. Bewaar hem op een plek die u kunt onthouden.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = Plaatsen om uw sleutel op te slaan
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = Meer info over uw accountherstelsleutel
-# Error message displayed in an alert bar if the PDF download failed.
+recovery-key-download-button-v4 = Downloaden en doorgaan
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Sorry, er is een probleem opgetreden bij het downloaden van uw accountherstelsleutel.
 
 ## ButtonPasskeySignin
@@ -773,6 +757,13 @@ flow-setup-2fa-prompt-heading = Authenticatie in twee stappen instellen
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
 flow-setup-2fa-prompt-description = { $serviceName } vereist dat u authenticatie in twee stappen instelt om uw account veilig te houden.
+# Success banner shown at the top of the page when the user signed in with a passkey.
+flow-setup-2fa-prompt-passkey-success-banner = Met succes aangemeld met wachtwoordsleutel
+# Body copy shown when the user signed in with a passkey and the service still
+# requires two-step authentication setup.
+# Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
+# that requests two-step authentication setup.
+flow-setup-2fa-prompt-passkey-description = { $serviceName } vereist ook authenticatie in twee stappen voor uw { -product-mozilla-account }. Na het instellen hebt u deze niet meer nodig als u zich aanmeldt met een wachtwoordsleutel.
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = U kunt elk van <authenticationAppsLink>deze authenticator-apps</authenticationAppsLink> gebruiken om verder te gaan.
 flow-setup-2fa-prompt-continue-button = Doorgaan
@@ -1871,20 +1862,63 @@ pair2-authority-approve-sign-in-change-password = Bent u dit niet? <changePasswo
 ## their phone. It confirms the flow has moved to the mobile device and waits
 ## for the remaining steps to be completed there.
 
+pair2-authority-continue-on-mobile-heading = Doorgaan op uw mobiele apparaat
+pair2-authority-continue-on-mobile-description = Volg de stappen op uw telefoon of tablet.
 # Dismisses the pairing attempt
 pair2-authority-continue-on-mobile-cancel-button = Annuleren
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when Firefox is needed to continue pairing.
+## It points them at firefox.com/pair and offers a download link for Firefox.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-download-firefox-heading = Open { -brand-firefox } om te synchroniseren
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction = Open { -brand-firefox } op dit apparaat en bezoek <b>firefox.com/pair</b> om synchronisatie tussen apparaten in te stellen
+# Links out to the Firefox download page
+pair2-authority-download-firefox-cta = { -brand-firefox } downloaden
+
+## ScanQR page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer. It shows a QR code that they scan with
+## their phone or tablet to connect the two devices and start syncing.
+
+pair2-authority-scan-qr-heading = Scan om uw mobiele apparaat te verbinden
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-scan-qr-instruction = Scan de QR-code met uw telefoon of tablet om uw { -brand-firefox }-bladwijzers, tabbladen en meer te synchroniseren.
+# Accessible label describing the QR code image shown on this page
+pair2-authority-scan-qr-code-aria-label = QR-code om uw mobiele apparaat te verbinden
+# Link to a support article for users having trouble scanning the QR code
+pair2-authority-scan-qr-help-link = Hulp bij scannen ontvangen
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and offers the follow-up actions.
+
+# "syncing" here means copying data between the user's devices
+pair2-authority-sync-success-heading = U synchroniseert
+pair2-authority-sync-success-description = Uw tabbladen, bladwijzers, wachtwoorden en meer staan klaar op al uw apparaten.
+# Opens the tabs that are open on the user's other synced devices
+pair2-authority-sync-success-view-tabs-button = Gesynchroniseerde tabbladen bekijken
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button = Synchronisatie-instellingen
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
 ## either because it timed out or because it was canceled. Both cases offer to
 ## start pairing over again.
 
+# Shown when the pairing attempt expired before it was approved
+pair2-authority-timeout-and-cancel-timeout-heading = Wilt u toch een apparaat verbinden?
+pair2-authority-timeout-and-cancel-timeout-description = Het lijkt erop dat er een time-out is opgetreden. Probeer het opnieuw als u nog steeds verbinding wilt maken met uw mobiele apparaat en uw { -brand-firefox }-gegevens wilt synchroniseren.
 # Shown when the pairing attempt was canceled, on either device
 pair2-authority-timeout-and-cancel-canceled-heading = Geannuleerd
+pair2-authority-timeout-and-cancel-canceled-description = Als u van gedachten verandert of een ander apparaat wilt verbinden, probeer het dan opnieuw.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Opnieuw proberen
 # Abandons pairing without retrying
 pair2-authority-timeout-and-cancel-cancel-button = Annuleren
+# Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
+pair2-authority-timeout-and-cancel-sync-settings-button = Synchronisatie-instellingen
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
@@ -1903,6 +1937,9 @@ pair2-supplicant-approve-sign-in-cancel-button = Annuleren
 ## device to their account, and shows that computer's details so they can
 ## verify the request.
 
+# "this device" is the mobile device the user is holding, not the computer
+# whose details are shown below the heading
+pair2-supplicant-connect-this-device-heading = Dit apparaat met uw account verbinden?
 # Confirms the pairing attempt
 pair2-supplicant-connect-this-device-connect-button = Verbinden
 # Dismisses the pairing attempt
@@ -1913,6 +1950,10 @@ pair2-supplicant-connect-this-device-cancel-button = Annuleren
 ## does not have Firefox installed yet. It explains what syncing gets them and
 ## sends them off to install the browser.
 
+pair2-supplicant-download-firefox-heading = Download { -brand-firefox } op dit apparaat
+# "sync" is a verb here, referring to syncing data between the user's devices.
+# <linkExternal> is an anchor tag linking to a page explaining what sync does.
+pair2-supplicant-download-firefox-description = Download { -brand-firefox } om bladwijzers, geschiedenis en meer tussen apparaten te synchroniseren. <linkExternal>Meer info</linkExternal>
 # Primary action. Sends the user to the Firefox download page.
 pair2-supplicant-download-firefox-continue-button = Doorgaan in { -brand-firefox }
 
@@ -1921,6 +1962,10 @@ pair2-supplicant-download-firefox-continue-button = Doorgaan in { -brand-firefox
 ## to open firefox.com/pair on their computer, which is where the QR code they
 ## scan with the mobile device comes from.
 
+pair2-supplicant-ready-to-scan-heading = Een apparaat verbinden
+# <b> emphasises the address the user types on their computer. It is not a link,
+# and the address itself must not be translated.
+pair2-supplicant-ready-to-scan-instruction = Open { -brand-firefox } op uw computer, bezoek <b>firefox.com/pair</b> en volg de instructies op het scherm om dit mobiele apparaat te verbinden.
 # Opens a Mozilla support article about setting up sync
 pair2-supplicant-ready-to-scan-learn-more-link = Meer info
 
@@ -1929,6 +1974,11 @@ pair2-supplicant-ready-to-scan-learn-more-link = Meer info
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Uw apparaat is verbonden
+pair2-supplicant-sync-success-description = Uw bladwijzers, tabbladen en meer blijven in { -brand-firefox } gesynchroniseerd.
+# Opens the view listing tabs open on the user's other synced devices
+pair2-supplicant-sync-success-view-tabs-button = Gesynchroniseerde tabbladen bekijken
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button = Synchronisatie-instellingen
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -1936,8 +1986,14 @@ pair2-supplicant-sync-success-heading = Uw apparaat is verbonden
 ## are informational and offer no on-screen action, so the copy points the user
 ## back to their computer to start again.
 
+# Shown when the pairing attempt expired before it completed. "we" is Firefox.
+pair2-supplicant-timeout-and-cancel-timeout-heading = Het lijkt erop dat er een time-out is opgetreden
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-timeout-description = Bezoek <b>firefox.com/pair</b> op uw computer om uw mobiele apparaat te verbinden en uw { -brand-firefox }-gegevens te synchroniseren.
 # Shown after the pairing attempt was canceled
 pair2-supplicant-timeout-and-cancel-canceled-heading = Geannuleerd
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-canceled-description = Bezoek <b>firefox.com/pair</b> op uw computer om op elk gewenst moment een apparaat te verbinden.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

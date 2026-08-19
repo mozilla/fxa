@@ -39,31 +39,12 @@ brand-m-logo =
 button-back-aria-label = Tapykue
 button-back-title = Tapykue
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
-# The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = Emboguejy ha eku’ejey
-    .title = Emboguejy ha eku’ejey
-recovery-key-pdf-heading = Mba’ete mba’eñemi jeguerujeyrã
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = Heñoipyre: { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = Mba’ete mba’eñemi jeguerujeyrã
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = Ko ñe’ẽñemi omoneĩ eguerujey hag̃ua kundahára mba’ekuaarã ipapapýva (oĩhápe ñe’ẽñemi, techaukaha ha tembiasakue) nanemandu’áiramo ñe’ẽñemíre. Eñongatu eikuaa hag̃uáme.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = Eñongatukuaaha mba’eñemi
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = Eikuaave ne mba’ete mba’eñemi guerujeyrã rehegua
-# Error message displayed in an alert bar if the PDF download failed.
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Ore ñyro, oĩ apañuái hekopyahúvo ne mba’ete mba’eñemi jeguerujeyrã.
 
 ## ButtonPasskeySignin
@@ -1881,6 +1862,8 @@ pair2-authority-continue-on-mobile-cancel-button = Eheja
 
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = Embojuruja { -brand-firefox } embojuehe hag̃ua
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction = Emboheko hag̃ua ñembojuehe mba’e’oka pa’ũme, embojuruja { -brand-firefox } ko mba’e’okápe ha eike <b>firefox.com/pair</b>-pe
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Emboguejy { -brand-firefox }
 
@@ -1889,6 +1872,8 @@ pair2-authority-download-firefox-cta = Emboguejy { -brand-firefox }
 ## their phone or tablet to connect the two devices and start syncing.
 
 pair2-authority-scan-qr-heading = Emoha’ãnga eike hag̃ua ambue mba’e’okápe
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-scan-qr-instruction = Emoha’ãnga QR ayvu ne pumbyry térã tablétape embojuehe hag̃ua { -brand-firefox } rechaukaha ha hetave.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR ayvu eike hag̃ua ne mba’e’okápe
 # Link to a support article for users having trouble scanning the QR code
@@ -1914,6 +1899,7 @@ pair2-authority-sync-success-sync-settings-button = Sync ñemboheko
 pair2-authority-timeout-and-cancel-timeout-heading = ¿Embojuajuse gueteri ne mba’e’oka?
 # Shown when the pairing attempt was canceled, on either device
 pair2-authority-timeout-and-cancel-canceled-heading = Hejapyre
+pair2-authority-timeout-and-cancel-canceled-description = Remoambuérõ ne remiandu térã embojoajusérõ ambue mba’e’oka, eha’ã jey.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Eha’ã jey
 # Abandons pairing without retrying
@@ -1952,6 +1938,9 @@ pair2-supplicant-connect-this-device-cancel-button = Eheja
 ## sends them off to install the browser.
 
 pair2-supplicant-download-firefox-heading = Ereko { -brand-firefox } ko mba’e’okápe
+# "sync" is a verb here, referring to syncing data between the user's devices.
+# <linkExternal> is an anchor tag linking to a page explaining what sync does.
+pair2-supplicant-download-firefox-description = Emboguejy { -brand-firefox } embojuehe hag̃ua techaukaha, tembiasakue ha hetave mba’e’oka pa’ũme. <linkExternal>Eikuaave</linkExternal>
 # Primary action. Sends the user to the Firefox download page.
 pair2-supplicant-download-firefox-continue-button = Eku’ejey { -brand-firefox } ndive
 
@@ -1961,6 +1950,9 @@ pair2-supplicant-download-firefox-continue-button = Eku’ejey { -brand-firefox 
 ## scan with the mobile device comes from.
 
 pair2-supplicant-ready-to-scan-heading = Embojuaju hag̃ua mba’e’oka
+# <b> emphasises the address the user types on their computer. It is not a link,
+# and the address itself must not be translated.
+pair2-supplicant-ready-to-scan-instruction = Ne mohendahápe embojuruja { -brand-firefox }, eike <b>firefox.com/pair</b>-pe ha ejapo oĩva mba’erechahápe embojoaju hag̃ua ne pumbyry.
 # Opens a Mozilla support article about setting up sync
 pair2-supplicant-ready-to-scan-learn-more-link = Eikuaave
 
@@ -1983,6 +1975,8 @@ pair2-supplicant-sync-success-sync-settings-button = Sync ñemboheko
 
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
 pair2-supplicant-timeout-and-cancel-timeout-heading = Ha’ete opámava ñeha’ãrõ
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-timeout-description = Embojoaju hag̃ua ne pumbyry ha embojuehe ne mba’ekuaarãita { -brand-firefox }, eike <b>firefox.com/pair</b> ne mohendahápe.
 # Shown after the pairing attempt was canceled
 pair2-supplicant-timeout-and-cancel-canceled-heading = Hejapyre
 # "firefox.com/pair" is a URL and should not be translated

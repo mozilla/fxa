@@ -39,31 +39,15 @@ brand-m-logo =
 button-back-aria-label = Tilbake
 button-back-title = Tilbake
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
+# Button to download the account recovery key as a plain text file and navigate to the next step
 # The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = Last ned og fortsett
-    .title = Last ned og fortsett
-recovery-key-pdf-heading = Kontogjenopprettingsnøkkel
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = Opprettet den { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = Kontogjenopprettingsnøkkel
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = Denne nøkkelen lar deg gjenopprette krypterte nettleserdata (inkludert passord, bokmerker og historikk) hvis du glemmer passordet. Oppbevar det på et sted du husker.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = Steder å oppbevare nøkkelen din
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = Les mer om kontogjenopprettingsnøkkel
-# Error message displayed in an alert bar if the PDF download failed.
+recovery-key-download-button-v4 = Last ned og fortsett
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Beklager, det oppstod et problem da kontogjenopprettingsnøkkelen skulle lastes ned.
 
 ## ButtonPasskeySignin
@@ -338,6 +322,10 @@ sync-devices-image-aria-label =
 # Aria label for the Firefox logo and wordmark shown together as a brand lockup
 firefox-wordmark-image-aria-label =
     .aria-label = { -brand-firefox }-logo
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = Illustrasjon som representerer en vellykket passordendring.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -516,7 +504,10 @@ flow-recovery-key-hint-unsafe-char-error = Hintet kan ikke inneholde usikre unic
 password-reset-warning-icon = Advarsel
 password-reset-chevron-expanded = Skjul advarsel
 password-reset-chevron-collapsed = Vis advarsel
+password-reset-warning-review-sign-in-options = Se gjennom påloggingsalternativer for å beholde nettleserdata
 password-reset-warning-have-key = Har du en kontogjenopprettingsnøkkel?
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = Bruk den for å tilbakestille passordet ditt og beholde dine nettleserdata
 password-reset-warning-signed-in-device = Fortsatt logget inn på en annen enhet?
 
 ## Alert Bar
@@ -568,6 +559,9 @@ cs-cannot-disconnect = Klienten ble ikke funnet, kan ikke koble fra
 cs-logged-out-2 = Logget ut av { $service }
 cs-refresh-button =
     .title = Oppdater tilkoblede tjenester
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = Koble til en enhet
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = Manglende eller duplikatelement?
 cs-disconnect-sync-heading = Koble fra Sync
@@ -1019,6 +1013,8 @@ page-passkey-add-error-system-v2 = Det oppstod et problem med å opprette passn�
 ## These are displayed as a list with the date when the event occured
 
 recent-activity-title = Nylig kontoaktivitet
+# Clicking this button reveals the older account activity that is hidden at first.
+recent-activity-show-more-button = Vis mer
 recent-activity-account-create-v2 = Konto opprettet
 recent-activity-account-disable-v2 = Konto deaktivert
 recent-activity-account-enable-v2 = Konto aktivert
@@ -1822,6 +1818,45 @@ pair-unsupported-learn-more-link-v2 = Les mer
 # Matches the legacy Backbone "Oops! Something went wrong." message.
 pair-unsupported-desktop-firefox-fallback-header-v2 = Ups! Noe gikk galt.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Lukk denne fanen og prøv igjen.
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer, which is already signed in, after their
+## mobile device scans the pairing QR code. It asks them to approve the
+## sign-in, and shows the requesting device's details so they can verify it.
+
+# Asks the user to confirm the sign-in that another one of their devices just started
+pair2-authority-approve-sign-in-heading = Godkjenn pålogging?
+# Submit button confirming that the user started the pairing and approves the
+# other device being added to their account
+pair2-authority-approve-sign-in-confirm-button = Ja, godkjenn pålogging
+# "Not you?" asks whether someone other than the user started this sign-in.
+# The text inside <changePassword> links to the page for changing the password.
+pair2-authority-approve-sign-in-change-password = Ikke deg? <changePassword>Endre passordet ditt</changePassword>
+
+## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer after scanning the pairing QR code with
+## their phone. It confirms the flow has moved to the mobile device and waits
+## for the remaining steps to be completed there.
+
+pair2-authority-continue-on-mobile-heading = Fortsett på mobilenheten din
+pair2-authority-continue-on-mobile-description = Følg stegene på telefonen eller nettbrettet ditt.
+# Dismisses the pairing attempt
+pair2-authority-continue-on-mobile-cancel-button = Avbryt
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when Firefox is needed to continue pairing.
+## It points them at firefox.com/pair and offers a download link for Firefox.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-download-firefox-heading = Åpne { -brand-firefox } for å synkronisere
+# Links out to the Firefox download page
+pair2-authority-download-firefox-cta = Last ned { -brand-firefox }
+
+## ScanQR page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer. It shows a QR code that they scan with
+## their phone or tablet to connect the two devices and start syncing.
+
+pair2-authority-scan-qr-heading = Skann for å koble til mobilenheten din
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code

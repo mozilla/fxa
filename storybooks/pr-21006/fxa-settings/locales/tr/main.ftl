@@ -83,14 +83,6 @@ button-back-aria-label = Geri
 button-back-title = Geri
 
 
-recovery-key-download-button-v3 = İndir ve devam et
-    .title = İndir ve devam et
-recovery-key-pdf-heading = Hesap kurtarma anahtarı
-recovery-key-pdf-download-date = Oluşturma: { $date }
-recovery-key-pdf-key-legend = Hesap kurtarma anahtarı
-recovery-key-pdf-instructions = Parolanızı unutursanız şifrelenmiş tarayıcı verilerinizi (parolalar, yer imleri ve geçmiş dahil) bu anahtarla kurtarabilirsiniz. Anahtarınızı unutmayacağınız bir yerde saklayın.
-recovery-key-pdf-storage-ideas-heading = Anahtarınızı saklayabileceğiniz yerler
-recovery-key-pdf-support = Hesap kurtarma anahtarınız hakkında daha fazla bilgi alın
 recovery-key-pdf-download-error = Hesap kurtarma anahtarınız indirilirken bir sorun oluştu.
 
 

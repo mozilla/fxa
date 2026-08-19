@@ -83,14 +83,7 @@ button-back-aria-label = Артқа
 button-back-title = Артқа
 
 
-recovery-key-download-button-v3 = Жүктеп алу және жалғастыру
-    .title = Жүктеп алу және жалғастыру
-recovery-key-pdf-heading = Тіркелгіні қалпына келтіру кілті
-recovery-key-pdf-download-date = Жасалған: { $date }
-recovery-key-pdf-key-legend = Тіркелгіні қалпына келтіру кілті
-recovery-key-pdf-instructions = Бұл кілт парольді ұмытып қалсаңыз, браузердің шифрленген деректерін (соның ішінде парольдер, бетбелгілер және тарих) қалпына келтіруге мүмкіндік береді. Оны есте сақтайтын жерде сақтаңыз.
-recovery-key-pdf-storage-ideas-heading = Кілтіңізді сақтайтын орындар
-recovery-key-pdf-support = Тіркелгіңізді қалпына келтіру кілті туралы көбірек білу
+recovery-key-download-button-v4 = Жүктеп алу және жалғастыру
 recovery-key-pdf-download-error = Кешіріңіз, тіркелгіні қалпына келтіру кілтін жүктеп алу кезінде мәселе орын алды.
 
 
@@ -570,6 +563,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Бұл сіздің тірке�
 flow-setup-2fa-inline-complete-continue-button = { $serviceName } қызметіне жалғастыру
 flow-setup-2fa-prompt-heading = Екі қадамды аутентификацияны орнату
 flow-setup-2fa-prompt-description = { $serviceName } тіркелгіңіздің қауіпсіздігін қамтамасыз ету үшін екі сатылы аутентификацияны орнатуды талап етеді.
+flow-setup-2fa-prompt-passkey-success-banner = Рұқсат кілтімен кіру сәтті орындалды
+flow-setup-2fa-prompt-passkey-description = { $serviceName } сонымен қатар { -product-mozilla-account } үшін екі сатылы аутентификацияны қажет етеді. Баптағаннан кейін, рұқсат кілтімен кірген кезде ол енді қажет болмайды.
 flow-setup-2fa-prompt-use-authenticator-apps = Жалғастыру үшін <authenticationAppsLink>осы аутентификация қолданбаларының</authenticationAppsLink> кез келгенін пайдалана аласыз.
 flow-setup-2fa-prompt-continue-button = Жалғастыру
 

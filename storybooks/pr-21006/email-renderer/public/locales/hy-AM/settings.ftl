@@ -9,13 +9,6 @@
 # This is an extra link element, that directs users to a page where they can learn more about the branding changes.
 brand-learn-more = Իմանալ ավելին
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
-## The account recovery key can be used to recover data when users forget their account password
-
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = Հաշվի վերականգնման բանալի
-
 ## Tooltip notifications for actions performed on account recovery keys or one-time use codes
 
 datablock-download =

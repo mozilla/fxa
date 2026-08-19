@@ -87,14 +87,7 @@ button-back-aria-label = Tilbake
 button-back-title = Tilbake
 
 
-recovery-key-download-button-v3 = Last ned og fortsett
-    .title = Last ned og fortsett
-recovery-key-pdf-heading = Kontogjenopprettingsnøkkel
-recovery-key-pdf-download-date = Opprettet den { $date }
-recovery-key-pdf-key-legend = Kontogjenopprettingsnøkkel
-recovery-key-pdf-instructions = Denne nøkkelen lar deg gjenopprette krypterte nettleserdata (inkludert passord, bokmerker og historikk) hvis du glemmer passordet. Oppbevar det på et sted du husker.
-recovery-key-pdf-storage-ideas-heading = Steder å oppbevare nøkkelen din
-recovery-key-pdf-support = Les mer om kontogjenopprettingsnøkkel
+recovery-key-download-button-v4 = Last ned og fortsett
 recovery-key-pdf-download-error = Beklager, det oppstod et problem da kontogjenopprettingsnøkkelen skulle lastes ned.
 
 
@@ -290,6 +283,8 @@ sync-devices-image-aria-label =
     .aria-label = Et nettleservindu på en datamaskin og en mobiltelefon, begge synkroniseres, med { -brand-firefox }-maskoten ved siden av.
 firefox-wordmark-image-aria-label =
     .aria-label = { -brand-firefox }-logo
+password-success-image-aria-label =
+    .aria-label = Illustrasjon som representerer en vellykket passordendring.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Du er logget inn på { -brand-firefox }.
@@ -398,7 +393,9 @@ flow-recovery-key-hint-unsafe-char-error = Hintet kan ikke inneholde usikre unic
 password-reset-warning-icon = Advarsel
 password-reset-chevron-expanded = Skjul advarsel
 password-reset-chevron-collapsed = Vis advarsel
+password-reset-warning-review-sign-in-options = Se gjennom påloggingsalternativer for å beholde nettleserdata
 password-reset-warning-have-key = Har du en kontogjenopprettingsnøkkel?
+password-reset-warning-use-key-link-v2 = Bruk den for å tilbakestille passordet ditt og beholde dine nettleserdata
 password-reset-warning-signed-in-device = Fortsatt logget inn på en annen enhet?
 
 
@@ -438,6 +435,7 @@ cs-cannot-disconnect = Klienten ble ikke funnet, kan ikke koble fra
 cs-logged-out-2 = Logget ut av { $service }
 cs-refresh-button =
     .title = Oppdater tilkoblede tjenester
+cs-connect-device-button = Koble til en enhet
 cs-missing-device-help = Manglende eller duplikatelement?
 cs-disconnect-sync-heading = Koble fra Sync
 
@@ -767,6 +765,7 @@ page-passkey-add-error-system-v2 = Det oppstod et problem med å opprette passn�
 
 
 recent-activity-title = Nylig kontoaktivitet
+recent-activity-show-more-button = Vis mer
 recent-activity-account-create-v2 = Konto opprettet
 recent-activity-account-disable-v2 = Konto deaktivert
 recent-activity-account-enable-v2 = Konto aktivert
@@ -1281,6 +1280,23 @@ pair-unsupported-connecting-mobile-instructions-v2 = Åpne { -brand-firefox } p�
 pair-unsupported-learn-more-link-v2 = Les mer
 pair-unsupported-desktop-firefox-fallback-header-v2 = Ups! Noe gikk galt.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Lukk denne fanen og prøv igjen.
+
+
+pair2-authority-approve-sign-in-heading = Godkjenn pålogging?
+pair2-authority-approve-sign-in-confirm-button = Ja, godkjenn pålogging
+pair2-authority-approve-sign-in-change-password = Ikke deg? <changePassword>Endre passordet ditt</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = Fortsett på mobilenheten din
+pair2-authority-continue-on-mobile-description = Følg stegene på telefonen eller nettbrettet ditt.
+pair2-authority-continue-on-mobile-cancel-button = Avbryt
+
+
+pair2-authority-download-firefox-heading = Åpne { -brand-firefox } for å synkronisere
+pair2-authority-download-firefox-cta = Last ned { -brand-firefox }
+
+
+pair2-authority-scan-qr-heading = Skann for å koble til mobilenheten din
 
 
 pair2-supplicant-approve-sign-in-heading = Et siste trinn for å synkronisere

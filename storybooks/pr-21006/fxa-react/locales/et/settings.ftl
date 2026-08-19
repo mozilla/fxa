@@ -3,28 +3,6 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
-## The account recovery key can be used to recover data when users forget their account password
-
-# Button to download the account recovery key as a PDF file and navigate to the next step
-# The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = Laadi alla ja jätka
-    .title = Laadi alla ja jätka
-recovery-key-pdf-heading = Konto taastevõti
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = Konto taastevõti
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = See võti võimaldab sul parooli unustamisel taastada krüptitud brauseriandmed (sh paroolid, järjehoidjad ja ajaloo). Hoia seda kohas, mida mäletad.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = Kohad võtme hoidmiseks
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = Rohkem teavet konto taastevõtmest
-
 ## Tooltip notifications for actions performed on account recovery keys or one-time use codes
 
 datablock-download =

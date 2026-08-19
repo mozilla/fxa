@@ -39,31 +39,15 @@ brand-m-logo =
 button-back-aria-label = 뒤로
 button-back-title = 뒤로
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
+# Button to download the account recovery key as a plain text file and navigate to the next step
 # The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = 다운로드 및 계속
-    .title = 다운로드 및 계속
-recovery-key-pdf-heading = 계정 복구 키
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = 생성됨: { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = 계정 복구 키
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = 이 키를 사용하면 비밀번호를 잊어버렸을 때 암호화된 브라우저 데이터(비밀번호, 북마크 및 기록 포함)를 복구할 수 있습니다. 기억할 수 있는 곳에 보관하세요.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = 키를 저장할 장소
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = 계정 복구 키에 대해 더 알아보기
-# Error message displayed in an alert bar if the PDF download failed.
+recovery-key-download-button-v4 = 다운로드 및 계속
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = 죄송합니다. 계정 복구 키를 다운로드하는 중 문제가 발생했습니다.
 
 ## ButtonPasskeySignin

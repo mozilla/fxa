@@ -39,31 +39,15 @@ brand-m-logo =
 button-back-aria-label = 上一頁
 button-back-title = 上一頁
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
+# Button to download the account recovery key as a plain text file and navigate to the next step
 # The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = 下載並繼續
-    .title = 下載並繼續
-recovery-key-pdf-heading = 帳號救援金鑰
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = 產生於：{ $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = 帳號救援金鑰
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = 若您忘記密碼，此金鑰可讓您救回瀏覽器的加密資料（包含網站密碼、書籤、瀏覽紀錄）。請將此金鑰保存於可找回的地方。
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = 金鑰存放位置
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = 了解帳號救援金鑰的更多資訊
-# Error message displayed in an alert bar if the PDF download failed.
+recovery-key-download-button-v4 = 下載並繼續
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = 很抱歉，下載帳號救援金鑰時發生問題。
 
 ## ButtonPasskeySignin
@@ -753,6 +737,13 @@ flow-setup-2fa-prompt-heading = 設定兩階段驗證
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
 flow-setup-2fa-prompt-description = { $serviceName } 要求您設定兩階段驗證，以確保帳號安全。
+# Success banner shown at the top of the page when the user signed in with a passkey.
+flow-setup-2fa-prompt-passkey-success-banner = 成功使用 Passkey 登入
+# Body copy shown when the user signed in with a passkey and the service still
+# requires two-step authentication setup.
+# Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
+# that requests two-step authentication setup.
+flow-setup-2fa-prompt-passkey-description = { $serviceName } 要求對您的 { -product-mozilla-account }進行兩階段驗證。設定完成後，如果使用 Passkey 登入則不需要再進行兩階段驗證。
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = 您可以使用<authenticationAppsLink>下列驗證程式</authenticationAppsLink>當中的任一種來設定。
 flow-setup-2fa-prompt-continue-button = 繼續

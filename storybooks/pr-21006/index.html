@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit f8af2ddb864021e9c107ab1c14f2e623e025d6cb</title>
+  <title>Storybooks for commit 1d572d471fe727131c5ed65b89d4c521e2ee9cdf</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit f8af2ddb864021e9c107ab1c14f2e623e025d6cb</h1>
+  <h1>Storybooks for commit 1d572d471fe727131c5ed65b89d4c521e2ee9cdf</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,7 +31,7 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/17/2026, 7:09:38 PM UTC</dd>
+    <dd>8/19/2026, 4:26:29 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(settings): Add passkey HPKE key-wrapping crypto lib</pre></dd>
     <dt>Description</dt>
@@ -46,12 +46,12 @@ This commit:
   AES-GCM key-wrap layers over hpke@1.1.3, pinned exactly.
 * Stores skR as the raw scalar (Nsk 66) rather than pkcs8, left-padded
   here because the library&#039;s serialiser does not pad.
-* Prefixes a module-owned domain-separation label to each layer&#039;s info
-  and aad.
-* Guards every fixed-width field, and requires pkR alongside the private
-  key when opening.
-* Adds tests against real Web Crypto, including the RFC 9180 A.6 vectors
-  and a frozen envelope fixture.</pre></dd>
+* Derives the wrap key from prfOut with HKDF-SHA512 instead of using the
+  PRF output as the AES key.
+* Builds info and aad in context.ts, binding keysChangedAt to the HPKE
+  layer alone so rotation needs no authenticator.
+* Rebuilds the recipient keypair from the stored pkR, skipping the
+  library&#039;s pure-JS scalar multiply over the secret.</pre></dd>
   </dl>
 </body>
 </html>

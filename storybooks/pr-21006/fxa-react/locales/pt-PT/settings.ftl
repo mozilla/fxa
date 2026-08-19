@@ -39,31 +39,15 @@ brand-m-logo =
 button-back-aria-label = Retroceder
 button-back-title = Retroceder
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
+# Button to download the account recovery key as a plain text file and navigate to the next step
 # The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = Transferir e continuar
-    .title = Transferir e continuar
-recovery-key-pdf-heading = Chave de recuperação da conta
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = Gerado: { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = Chave de recuperação da conta
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = Esta chave permite que recupere os seus dados encriptados do navegador (incluindo palavras-passe, marcadores e histórico) se se esquecer da sua palavra-passe. Guarde-a num local que se lembre.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = Locais para guardar a sua chave
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = Saber mais sobre a sua chave de recuperação da conta
-# Error message displayed in an alert bar if the PDF download failed.
+recovery-key-download-button-v4 = Transferir e continuar
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Pedimos desculpa, mas ocorreu um problema ao transferir a sua chave de recuperação da conta.
 
 ## ButtonPasskeySignin
@@ -771,6 +755,13 @@ flow-setup-2fa-prompt-heading = Configurar autenticação em duas etapas
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
 flow-setup-2fa-prompt-description = { $serviceName } requer que configure a autenticação de dois passos para manter a sua conta segura.
+# Success banner shown at the top of the page when the user signed in with a passkey.
+flow-setup-2fa-prompt-passkey-success-banner = Sessão iniciada com sucesso com a chave
+# Body copy shown when the user signed in with a passkey and the service still
+# requires two-step authentication setup.
+# Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
+# that requests two-step authentication setup.
+flow-setup-2fa-prompt-passkey-description = { $serviceName } também requer autenticação de dois passos para o seu { -product-mozilla-account }. Depois da configuração, deixará de precisar da mesma quando iniciar sessão com uma chave de acesso.
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = Pode utilizar qualquer uma das <authenticationAppsLink>estas aplicações de autenticação</authenticationAppsLink> para continuar.
 flow-setup-2fa-prompt-continue-button = Continuar

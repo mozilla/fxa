@@ -83,14 +83,7 @@ button-back-aria-label = Quay lại
 button-back-title = Quay lại
 
 
-recovery-key-download-button-v3 = Tải xuống và tiếp tục
-    .title = Tải xuống và tiếp tục
-recovery-key-pdf-heading = Khóa khôi phục tài khoản
-recovery-key-pdf-download-date = Đã tạo: { $date }
-recovery-key-pdf-key-legend = Khóa khôi phục tài khoản
-recovery-key-pdf-instructions = Khóa này cho phép bạn khôi phục dữ liệu trình duyệt đã mã hóa (bao gồm mật khẩu, dấu trang và lịch sử) nếu bạn quên mật khẩu. Lưu trữ nó ở một nơi bạn sẽ nhớ.
-recovery-key-pdf-storage-ideas-heading = Nơi lưu trữ khóa của bạn
-recovery-key-pdf-support = Tìm hiểu thêm về khóa khôi phục tài khoản của bạn
+recovery-key-download-button-v4 = Tải xuống và tiếp tục
 recovery-key-pdf-download-error = Rất tiếc, đã xảy ra sự cố khi tải xuống khóa khôi phục tài khoản của bạn.
 
 
@@ -552,6 +545,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Tìm hiểu cách mà nó bảo
 flow-setup-2fa-inline-complete-continue-button = Tiếp tục đến { $serviceName }
 flow-setup-2fa-prompt-heading = Thiết lập xác thực hai bước
 flow-setup-2fa-prompt-description = { $serviceName } yêu cầu bạn thiết lập xác thực hai bước để giữ an toàn cho tài khoản của bạn.
+flow-setup-2fa-prompt-passkey-success-banner = Đăng nhập thành công bằng passkey
+flow-setup-2fa-prompt-passkey-description = { $serviceName } cũng yêu cầu xác thực hai bước cho { -product-mozilla-account } của bạn. Sau khi thiết lập, bạn sẽ không cần xác thực hai bước nữa khi đăng nhập bằng passkey.
 flow-setup-2fa-prompt-use-authenticator-apps = Bạn có thể sử dụng bất kỳ <authenticationAppsLink>ứng dụng xác thực nào</authenticationAppsLink> để tiếp tục.
 flow-setup-2fa-prompt-continue-button = Tiếp tục
 

@@ -83,14 +83,7 @@ button-back-aria-label = Wróćo
 button-back-title = Wróćo
 
 
-recovery-key-download-button-v3 = Sćahnyć a pokročować
-    .title = Sćahnyć a pokročować
-recovery-key-pdf-heading = Kontowy wobnowjenski kluč
-recovery-key-pdf-download-date = Generowany: { $date }
-recovery-key-pdf-key-legend = Kontowy wobnowjenski kluč
-recovery-key-pdf-instructions = Tutón kluč wam zmóžnja, waše zaklučowane daty wobhladowaka (mjez nimi hesła, zapołožki a historiju) wobnowić, jeli swoje hesło zabywaće. Składujće jo na městnje, kotrež móžeće sej spomjatkować.
-recovery-key-pdf-storage-ideas-heading = Městna za składowanje wašeho kluča
-recovery-key-pdf-support = Zhońće wjace wo swojim kontowym wobnowjenskim kluču
+recovery-key-download-button-v4 = Sćahnyć a pokročować
 recovery-key-pdf-download-error = Bohužel je při sćahowanju  kontoweho wobnowjenskeho kluča problem nastał.
 
 
@@ -576,6 +569,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Kak to waše konto škita
 flow-setup-2fa-inline-complete-continue-button = Dale k { $serviceName }
 flow-setup-2fa-prompt-heading = Dwukročelowu awtentifikaciju konfigurować
 flow-setup-2fa-prompt-description = { $serviceName } žada, zo dwukročelowu awtentifikaciju konfigurujeće, zo by waše konto wěste wostało.
+flow-setup-2fa-prompt-passkey-success-banner = Wuspěšnje z hesłowym klučom přizjewjeny
+flow-setup-2fa-prompt-passkey-description = { $serviceName } sej tež dwukročelowu awtentifikaciju za waše { -product-mozilla-account } wužaduje. Po konfiguraciji njetrjebaće ju, hdyž so z hesłowym klučom přizjewjeće.
 flow-setup-2fa-prompt-use-authenticator-apps = Móžeće <authenticationAppsLink>tute awtentifikaciske nałoženja</authenticationAppsLink> wužiwać, zo byšće pokročował.
 flow-setup-2fa-prompt-continue-button = Dale
 

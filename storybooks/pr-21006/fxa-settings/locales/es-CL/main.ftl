@@ -83,14 +83,6 @@ button-back-aria-label = Atrás
 button-back-title = Atrás
 
 
-recovery-key-download-button-v3 = Descargar y continuar
-    .title = Descargar y continuar
-recovery-key-pdf-heading = Clave de recuperación de cuenta
-recovery-key-pdf-download-date = Generada: { $date }
-recovery-key-pdf-key-legend = Clave de recuperación de cuenta
-recovery-key-pdf-instructions = Esta clave te permite recuperar los datos cifrados de tu navegador (incluidas las contraseñas, los marcadores y el historial) en caso de que olvides tu contraseña. Guárdala en un lugar que recordarás.
-recovery-key-pdf-storage-ideas-heading = Lugares para guardar la clave
-recovery-key-pdf-support = Aprender más acerca de tu clave de recuperación de cuenta
 recovery-key-pdf-download-error = Lo sentimos, hubo un problema al descargar tu clave de recuperación de cuenta.
 
 

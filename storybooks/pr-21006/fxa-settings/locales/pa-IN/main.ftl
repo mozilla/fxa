@@ -83,13 +83,6 @@ button-back-aria-label = ਪਿੱਛੇ
 button-back-title = ਪਿੱਛੇ
 
 
-recovery-key-download-button-v3 = ਡਾਊਨਲੋਡ ਅਤੇ ਜਾਰੀ ਰੱਖੋ
-    .title = ਡਾਊਨਲੋਡ ਅਤੇ ਜਾਰੀ ਰੱਖੋ
-recovery-key-pdf-heading = ਖਾਤਾ ਰਿਕਵਰੀ ਕੁੰਜੀ
-recovery-key-pdf-download-date = ਤਿਆਰ ਕੀਤੀ: { $date }
-recovery-key-pdf-key-legend = ਖਾਤਾ ਰਿਕਵਰੀ ਕੁੰਜੀ
-recovery-key-pdf-storage-ideas-heading = ਤੁਹਾਡੀ ਕੁੰਜੀ ਨੂੰ ਸੰਭਾਲਣ ਲਈ ਥਾਵਾਂ
-recovery-key-pdf-support = ਆਪਣੀ ਖਾਤਾ ਰਿਕਵਰੀ ਕੁੰਜੀ ਬਾਰੇ ਹੋਰ ਜਾਣੋ
 recovery-key-pdf-download-error = ਅਫ਼ਸੋਸ, ਤੁਹਾਡੀ ਖਾਤਾ ਰਿਕਵਰੀ ਕੁੰਜੀ ਡਾਊਨਲੋਡ ਕਰਨ ਦੌਰਾਨ ਸਮੱਸਿਆ ਆਈ ਸੀ।
 
 

@@ -89,14 +89,7 @@ button-back-aria-label = חזרה
 button-back-title = חזרה
 
 
-recovery-key-download-button-v3 = הורדה והמשך
-    .title = הורדה והמשך
-recovery-key-pdf-heading = מפתח שחזור חשבון
-recovery-key-pdf-download-date = נוצר בתאריך: { $date }
-recovery-key-pdf-key-legend = מפתח שחזור חשבון
-recovery-key-pdf-instructions = מפתח זה מאפשר לך לשחזר את נתוני הדפדפן המוצפנים שלך (הכוללים ססמאות, סימניות והיסטוריה) למקרה שהססמה שלך תישכח. יש לאחסן אותו במקום שקל לזכור.
-recovery-key-pdf-storage-ideas-heading = מקומות לאחסון המפתח שלך
-recovery-key-pdf-support = מידע נוסף על מפתח שחזור החשבון שלך
+recovery-key-download-button-v4 = הורדה והמשך
 recovery-key-pdf-download-error = אירעה שגיאה בהורדת מפתח שחזור החשבון, עמך הסליחה.
 
 
@@ -154,6 +147,11 @@ device-info-block-location-unknown = מיקום לא ידוע
 device-info-browser-os = ‏{ $browserName } ב־{ $genericOSName }
 device-info-browser-device = ‏{ $browserName } ב־{ $deviceName }
 device-info-ip-address = כתובת IP:‏ { $ipAddress }
+
+
+firefox-promo-banner-mobile-cta = חיבור מכשיר
+firefox-promo-banner-switch-description = בעת המעבר ל־{ -brand-firefox }, ניתן להביא את הסימניות, הססמאות, ההיסטוריה שלך ועוד, כך שאפשר לגלוש בלי לפספס פעימה.
+firefox-promo-banner-switch-cta = מעבר ל־{ -brand-firefox }
 
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -551,6 +549,8 @@ flow-setup-2fa-inline-complete-learn-more-link = כיצד זה מגן על הח�
 flow-setup-2fa-inline-complete-continue-button = המשך אל { $serviceName }
 flow-setup-2fa-prompt-heading = הגדרת אימות דו־שלבי
 flow-setup-2fa-prompt-description = ‏{ $serviceName } דורש שיוגדר אימות דו־שלבי כדי לשמור על אבטחת החשבון שלך.
+flow-setup-2fa-prompt-passkey-success-banner = ההתחברות בוצעה בהצלחה באמצעות מפתח גישה
+flow-setup-2fa-prompt-passkey-description = ‏{ $serviceName } דורש גם אימות דו־שלבי עבור { -product-mozilla-account(case: "the") } שלך. לאחר ההגדרה, לא יהיה בו צורך יותר בעת כניסה באמצעות מפתח גישה.
 flow-setup-2fa-prompt-use-authenticator-apps = באפשרותך להשתמש בכל אחת מ<authenticationAppsLink>יישומוני האימות האלו</authenticationAppsLink> כדי להמשיך.
 flow-setup-2fa-prompt-continue-button = המשך
 
@@ -899,6 +899,7 @@ passkey-sub-row-created-date = תאריך יצירה: { $createdDate }
 passkey-sub-row-last-used-date = בשימוש אחרון: { $lastUsedDate }
 passkey-sub-row-delete-title = מחיקת מפתח גישה
 passkey-delete-modal-heading = למחוק את מפתח הגישה שלך?
+passkey-delete-modal-content-v2 = מפתח גישה זה יימחק מהחשבון שלך. יהיה עליך להתחבר באמצעות שיטה אחרת (ססמה, מפתח גישה נוסף או חשבון מקושר).
 passkey-delete-modal-cancel-button = ביטול
 passkey-delete-modal-confirm-button = מחיקת מפתח גישה
 passkey-delete-success = מפתח הגישה נמחק
@@ -1270,6 +1271,7 @@ pair2-authority-scan-qr-code-aria-label = קוד QR לחיבור המכשיר ה
 pair2-authority-scan-qr-help-link = קבלת עזרה בסריקה
 
 
+pair2-authority-sync-success-heading = הסנכרון פעיל
 pair2-authority-sync-success-description = הלשוניות, הסימניות, הססמאות שלך ועוד מוכנים בכל המכשירים שלך.
 pair2-authority-sync-success-view-tabs-button = הצגת הלשוניות המסונכרנות
 pair2-authority-sync-success-sync-settings-button = הגדרות סנכרון

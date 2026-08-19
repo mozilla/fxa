@@ -203,14 +203,7 @@ button-back-aria-label = Nazaj
 button-back-title = Nazaj
 
 
-recovery-key-download-button-v3 = Prenesi in nadaljuj
-    .title = Prenesi in nadaljuj
-recovery-key-pdf-heading = Ključ za obnovitev računa
-recovery-key-pdf-download-date = Ustvarjen: { $date }
-recovery-key-pdf-key-legend = Ključ za obnovitev računa
-recovery-key-pdf-instructions = Ta ključ vam omogoča obnovitev šifriranih podatkov brskalnika (vključno z gesli, zaznamki in zgodovino), če pozabite geslo. Shranite ga na mesto, ki si ga boste zapomnili.
-recovery-key-pdf-storage-ideas-heading = Mesta za shranjevanje ključev
-recovery-key-pdf-support = Preberite več o ključu za obnovitev računa
+recovery-key-download-button-v4 = Prenesi in nadaljuj
 recovery-key-pdf-download-error = Pri prenosu ključa za obnovitev računa je prišlo do težave.
 
 
@@ -696,6 +689,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Kako to ščiti vaš račun
 flow-setup-2fa-inline-complete-continue-button = Nadaljuj v { $serviceName }
 flow-setup-2fa-prompt-heading = Nastavite overjanje v dveh korakih
 flow-setup-2fa-prompt-description = { $serviceName } zahteva, da za varnost računa nastavite overjanje v dveh korakih.
+flow-setup-2fa-prompt-passkey-success-banner = Prijava z geslom uspešna
+flow-setup-2fa-prompt-passkey-description = { $serviceName } zahteva tudi overjanje v dveh korakih za vašega { -product-mozilla-account }. Po nastavitvi ga ne boste več potrebovali ob prijavi z geslom.
 flow-setup-2fa-prompt-use-authenticator-apps = Za nadaljevanje lahko uporabite katerokoli od <authenticationAppsLink>naslednjih aplikacij za overjanje</authenticationAppsLink>.
 flow-setup-2fa-prompt-continue-button = Nadaljuj
 

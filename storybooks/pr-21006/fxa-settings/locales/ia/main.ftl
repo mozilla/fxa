@@ -83,14 +83,7 @@ button-back-aria-label = Retro
 button-back-title = Retro
 
 
-recovery-key-download-button-v3 = Discargar e continuar
-    .title = Discargar e continuar
-recovery-key-pdf-heading = Clave de recuperation del conto
-recovery-key-pdf-download-date = Generate: { $date }
-recovery-key-pdf-key-legend = Clave de recuperation del conto
-recovery-key-pdf-instructions = Iste clave te permitte de recuperar tu datos de navigator cryptate (includite contrasignos, marcapaginas, e historia) si tu oblida tu contrasigno.
-recovery-key-pdf-storage-ideas-heading = Ubi conservar tu claves
-recovery-key-pdf-support = Saper plus re le clave de recuperation de tu conto
+recovery-key-download-button-v4 = Discargar e continuar
 recovery-key-pdf-download-error = Desolate, il habeva un problema discargante tu clave de recuperation del conto.
 
 
@@ -570,6 +563,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Como isto protege tu conto
 flow-setup-2fa-inline-complete-continue-button = Continuar a { $serviceName }
 flow-setup-2fa-prompt-heading = Configurar authentication a duo passos
 flow-setup-2fa-prompt-description = { $serviceName } te require le authentication a duo passos pro tener secur tu conto.
+flow-setup-2fa-prompt-passkey-success-banner = Firmate con sucesso con clave-contrasigno
+flow-setup-2fa-prompt-passkey-description = { $serviceName } alsi require le authentication a duo passos pro tu { -product-mozilla-account }. Post le installation, tu non plus lo debera accedente con un clave-contrasigno.
 flow-setup-2fa-prompt-use-authenticator-apps = Tu pote usar qualcunque de <authenticationAppsLink>iste applicationes de authentication</authenticationAppsLink> pro proceder.
 flow-setup-2fa-prompt-continue-button = Continuar
 
