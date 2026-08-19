@@ -79,7 +79,9 @@ const ApproveSignInContainer = () => {
         // An unexpected channel close (authority cancelled or connection
         // dropped) sends the supplicant to the timeout screen.
         pairingFlow.wireAbort(() =>
-          navigateWithQuery('/pair/supplicant/timeout_and_cancel')
+          navigateWithQuery(
+            '/pair/supplicant/timeout_and_cancel?reason=timeout'
+          )
         );
 
         // Firefox mobile (app-services) already ran OAuth-start and passed the
@@ -153,7 +155,7 @@ const ApproveSignInContainer = () => {
   const onCancel = () => {
     // Closing the channel signals the authority to abort too.
     pairingFlow.reset();
-    navigateWithQuery('/pair/supplicant/timeout_and_cancel');
+    navigateWithQuery('/pair/supplicant/timeout_and_cancel?reason=canceled');
   };
 
   return (

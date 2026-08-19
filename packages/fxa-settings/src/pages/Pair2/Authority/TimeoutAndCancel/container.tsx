@@ -3,16 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
+import { useLocation } from 'react-router';
 import { pairingFlow } from '../../../../lib/channels/pairing-flow';
 import { navigateWithQuery } from '../../../../lib/utilities';
-import TimeoutAndCancel from '.';
+import TimeoutAndCancel, { TimeoutAndCancelReason } from '.';
 
 /**
  * Authority timeout/cancel container (FXA-13869). The dead-end screen after a
- * pairing attempt ends without connecting. "Try again" resets the flow and
- * re-mints a channel from scan_qr.
+ * pairing attempt ends without connecting. The caller sets `?reason=timeout` on
+ * a disconnect and `?reason=canceled` on cancel; anything but an explicit cancel
+ * falls back to `timeout`. "Try again" resets the flow and re-mints from scan_qr.
  */
 const TimeoutAndCancelContainer = () => {
+  const raw = new URLSearchParams(useLocation().search).get('reason');
+  const reason: TimeoutAndCancelReason =
+    raw === 'canceled' ? 'canceled' : 'timeout';
+
   const onTryAgain = () => {
     pairingFlow.reset();
     navigateWithQuery('/pair/authority/scan_qr');
@@ -20,7 +26,9 @@ const TimeoutAndCancelContainer = () => {
   const onSyncSettings = () => navigateWithQuery('/settings');
   const onCancel = () => navigateWithQuery('/settings');
 
-  return <TimeoutAndCancel {...{ onTryAgain, onSyncSettings, onCancel }} />;
+  return (
+    <TimeoutAndCancel {...{ reason, onTryAgain, onSyncSettings, onCancel }} />
+  );
 };
 
 export default TimeoutAndCancelContainer;

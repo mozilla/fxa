@@ -84,11 +84,15 @@ const ScanQRContainer = ({ integration }: { integration?: Integration }) => {
           // Once the channel is up, an unexpected close (supplicant cancelled or
           // the connection dropped) sends the authority to the timeout screen.
           pairingFlow.wireAbort(() =>
-            navigateWithQuery('/pair/authority/timeout_and_cancel')
+            navigateWithQuery(
+              '/pair/authority/timeout_and_cancel?reason=timeout'
+            )
           );
           inactivityTimer = setTimeout(() => {
             if (!cancelled) {
-              navigateWithQuery('/pair/authority/timeout_and_cancel');
+              navigateWithQuery(
+                '/pair/authority/timeout_and_cancel?reason=timeout'
+              );
             }
           }, SCAN_QR_TIMEOUT_MS);
           setQrCodeValue(

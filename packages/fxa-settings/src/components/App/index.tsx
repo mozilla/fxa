@@ -211,7 +211,7 @@ const PairSupplicantSyncSuccess = lazy(
   () => import('../../pages/Pair2/Supplicant/SyncSuccess')
 );
 const PairSupplicantTimeoutAndCancel = lazy(
-  () => import('../../pages/Pair2/Supplicant/TimeoutAndCancel')
+  () => import('../../pages/Pair2/Supplicant/TimeoutAndCancel/container')
 );
 
 const AuthorizationContainer = lazy(

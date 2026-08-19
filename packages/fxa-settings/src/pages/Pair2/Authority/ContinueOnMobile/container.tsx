@@ -18,7 +18,7 @@ import ContinueOnMobile from '.';
 const ContinueOnMobileContainer = () => {
   const onCancel = () => {
     pairingFlow.reset();
-    navigateWithQuery('/pair/authority/timeout_and_cancel');
+    navigateWithQuery('/pair/authority/timeout_and_cancel?reason=canceled');
   };
 
   return <ContinueOnMobile {...{ onCancel }} />;

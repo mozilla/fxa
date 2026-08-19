@@ -37,7 +37,9 @@ const ConnectThisDeviceContainer = () => {
         plog('supp state mismatch; abort');
         off();
         pairingFlow.reset();
-        navigateWithQuery('/pair/supplicant/timeout_and_cancel');
+        navigateWithQuery(
+          '/pair/supplicant/timeout_and_cancel?reason=canceled'
+        );
         return;
       }
 
@@ -74,7 +76,7 @@ const ConnectThisDeviceContainer = () => {
   const onCancel = () => {
     // Closing the channel signals the authority to abort too.
     pairingFlow.reset();
-    navigateWithQuery('/pair/supplicant/timeout_and_cancel');
+    navigateWithQuery('/pair/supplicant/timeout_and_cancel?reason=canceled');
   };
 
   return (
