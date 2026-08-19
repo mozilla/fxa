@@ -83,14 +83,7 @@ button-back-aria-label = Atrás
 button-back-title = Atrás
 
 
-recovery-key-download-button-v3 = Descargar y continuar
-    .title = Descargar y continuar
-recovery-key-pdf-heading = Clave de recuperación de la cuenta
-recovery-key-pdf-download-date = Generada: { $date }
-recovery-key-pdf-key-legend = Clave de recuperación de la cuenta
-recovery-key-pdf-instructions = Esta clave te permite recuperar los datos cifrados del navegador (incluidas las contraseñas, los marcadores y el historial) si te olvidás de tu contraseña. Guardala en un lugar que recordarás.
-recovery-key-pdf-storage-ideas-heading = Lugares para guardar la clave
-recovery-key-pdf-support = Conocer más sobre la clave de recuperación de tu cuenta
+recovery-key-download-button-v4 = Descargar y continuar
 recovery-key-pdf-download-error = Disculpá, hubo un problema al actualizar la clave de la recuperación de la cuenta.
 
 
@@ -566,6 +559,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Cómo esto protege tu cuenta
 flow-setup-2fa-inline-complete-continue-button = Continuar a { $serviceName }
 flow-setup-2fa-prompt-heading = Configurar la autenticación de dos pasos
 flow-setup-2fa-prompt-description = { $serviceName } requiere que configurés la autenticación de dos pasos para mantener tu cuenta segura.
+flow-setup-2fa-prompt-passkey-success-banner = Se inició sesión correctamente con la clave de acceso
+flow-setup-2fa-prompt-passkey-description = { $serviceName } también requiere autenticación de dos pasos para tu { -product-mozilla-account }. Después de la configuración, ya no la necesitarás cuando inicies sesión con una clave de acceso.
 flow-setup-2fa-prompt-use-authenticator-apps = Podés usar cualquiera de <authenticationAppsLink>estas aplicaciones de autenticación</authenticationAppsLink> para continuar.
 flow-setup-2fa-prompt-continue-button = Continuar
 

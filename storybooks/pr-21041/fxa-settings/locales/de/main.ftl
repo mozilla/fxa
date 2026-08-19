@@ -83,14 +83,7 @@ button-back-aria-label = Zurück
 button-back-title = Zurück
 
 
-recovery-key-download-button-v3 = Herunterladen und fortfahren
-    .title = Herunterladen und fortfahren
-recovery-key-pdf-heading = Kontowiederherstellungsschlüssel
-recovery-key-pdf-download-date = Erzeugt: { $date }
-recovery-key-pdf-key-legend = Kontowiederherstellungsschlüssel
-recovery-key-pdf-instructions = Mit diesem Schlüssel können Sie Ihre verschlüsselten Browser-Daten (einschließlich Passwörter, Lesezeichen und Chronik) wiederherstellen, wenn Sie Ihr Passwort vergessen. Bewahren Sie es ihm einem Ort auf, den Sie sich merken können.
-recovery-key-pdf-storage-ideas-heading = Orte zum Speichern Ihres Schlüssels
-recovery-key-pdf-support = Weitere Informationen zu Ihrem Kontowiederherstellungsschlüssel
+recovery-key-download-button-v4 = Herunterladen und fortfahren
 recovery-key-pdf-download-error = Beim Herunterladen Ihres Kontowiederherstellungsschlüssels ist ein Fehler aufgetreten.
 
 
@@ -566,6 +559,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Wie dies Ihr Konto schützt
 flow-setup-2fa-inline-complete-continue-button = Weiter zu { $serviceName }
 flow-setup-2fa-prompt-heading = Zwei-Schritt-Authentifizierung einrichten
 flow-setup-2fa-prompt-description = { $serviceName } erfordert, dass Sie die Zwei-Schritt-Authentifizierung einrichten, um Ihr Konto zu schützen.
+flow-setup-2fa-prompt-passkey-success-banner = Erfolgreich mit Zugangsschlüssel angemeldet
+flow-setup-2fa-prompt-passkey-description = { $serviceName } benötigt auch eine Zwei-Schritt-Authentifizierung für Ihren { -product-mozilla-account }. Nach der Einrichtung benötigen Sie diese nicht mehr, wenn Sie sich mit einem Zugangsschlüssel anmelden.
 flow-setup-2fa-prompt-use-authenticator-apps = Sie können eine von <authenticationAppsLink>diesen Authentifizierungs-Apps</authenticationAppsLink> verwenden, um fortzufahren.
 flow-setup-2fa-prompt-continue-button = Weiter
 

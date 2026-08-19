@@ -83,14 +83,6 @@ button-back-aria-label = Tebek
 button-back-title = Tebek
 
 
-recovery-key-download-button-v3 = Downloade en trochgean
-    .title = Downloade en trochgean
-recovery-key-pdf-heading = Accountwerstelkaai
-recovery-key-pdf-download-date = Oanmakke: { $date }
-recovery-key-pdf-key-legend = Accountwerstelkaai
-recovery-key-pdf-instructions = Mei dizze kaai kinne jo jo fersifere browsergegevens (ynklusyf wachtwurden, blêdwizers en skiednis) weromhelje as jo jo wachtwurd ferjitte. Bewarje it op in plak dat jo ûnthâlde kinne.
-recovery-key-pdf-storage-ideas-heading = Plakken om jo kaai te bewarjen
-recovery-key-pdf-support = Mear ynfo oer jo accountwerstelkaai
 recovery-key-pdf-download-error = Sorry, der is in probleem bard by it downloaden fan de accountwerstelkaai.
 
 

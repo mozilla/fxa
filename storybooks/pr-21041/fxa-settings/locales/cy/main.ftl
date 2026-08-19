@@ -83,14 +83,7 @@ button-back-aria-label = Nôl
 button-back-title = Nôl
 
 
-recovery-key-download-button-v3 = Llwytho i lawr a pharhau
-    .title = Llwytho i lawr a pharhau
-recovery-key-pdf-heading = Allwedd Adfer Cyfrif
-recovery-key-pdf-download-date = Cynhyrchwyd: { $date }
-recovery-key-pdf-key-legend = Allwedd Adfer Cyfrif
-recovery-key-pdf-instructions = Mae'r allwedd hon yn caniatáu ichi adfer data eich porwr wedi'i amgryptio (gan gynnwys cyfrineiriau, nodau tudalen, a hanes) os byddwch yn anghofio eich cyfrinair. Cadwch ef mewn man y byddwch yn ei gofio.
-recovery-key-pdf-storage-ideas-heading = Lleoedd i gadw'ch allwedd
-recovery-key-pdf-support = Dysgwch fwy am allwedd adfer eich cyfrif
+recovery-key-download-button-v4 = Llwytho i lawr a pharhau
 recovery-key-pdf-download-error = Mae'n ddrwg gennym, roedd problem wrth lwytho allwedd adfer eich cyfrif.
 
 
@@ -582,6 +575,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Sut mae hyn yn diogelu eich cyf
 flow-setup-2fa-inline-complete-continue-button = Parhau i { $serviceName }
 flow-setup-2fa-prompt-heading = Gosod dilysu dau gam
 flow-setup-2fa-prompt-description = Mae { $serviceName } yn gofyn i chi osod dilysiad dau gam i gadw'ch cyfrif yn ddiogel.
+flow-setup-2fa-prompt-passkey-success-banner = Wedi mewngofnodi'n llwyddiannus gyda'r allwedd
+flow-setup-2fa-prompt-passkey-description = Mae { $serviceName } hefyd angen dilysiad dau gam ar gyfer eich { -product-mozilla-account }. Ar ôl gosod, ni fydd ei angen arnoch mwyach pan fyddwch yn mewngofnodi gyda chyfrinair.
 flow-setup-2fa-prompt-use-authenticator-apps = Gallwch ddefnyddio unrhyw un o'r <authenticationAppsLink>apiau dilysu hyn</authenticationAppsLink> i barhau.
 flow-setup-2fa-prompt-continue-button = Parhau
 

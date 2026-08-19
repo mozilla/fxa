@@ -83,14 +83,6 @@ button-back-aria-label = Tilbage
 button-back-title = Tilbage
 
 
-recovery-key-download-button-v3 = Hent og fortsæt
-    .title = Hent og fortsæt
-recovery-key-pdf-heading = Genoprettelsesnøgle til kontoen
-recovery-key-pdf-download-date = Oprettet: { $date }
-recovery-key-pdf-key-legend = Genoprettelsesnøgle til kontoen
-recovery-key-pdf-instructions = Med denne nøgle kan du gendanne dine krypterede browserdata (herunder adgangskoder, bogmærker og historik), hvis du glemmer din adgangskode. Gem den et sted, du kan huske.
-recovery-key-pdf-storage-ideas-heading = Steder du kan gemme din nøgle
-recovery-key-pdf-support = Læs mere om din genoprettelsesnøgle til kontoen
 recovery-key-pdf-download-error = Der opstod desværre et problem med at hente din genoprettelsesnøgle til kontoen.
 
 

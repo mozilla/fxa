@@ -17,9 +17,6 @@
 brand-learn-more = Научете повече
 
 
-recovery-key-pdf-support = Научете повече за ключа за възстановяване на профила
-
-
 ready-continue = Продължаване
 
 

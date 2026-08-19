@@ -39,31 +39,15 @@ brand-m-logo =
 button-back-aria-label = Nôl
 button-back-title = Nôl
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
+# Button to download the account recovery key as a plain text file and navigate to the next step
 # The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = Llwytho i lawr a pharhau
-    .title = Llwytho i lawr a pharhau
-recovery-key-pdf-heading = Allwedd Adfer Cyfrif
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = Cynhyrchwyd: { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = Allwedd Adfer Cyfrif
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = Mae'r allwedd hon yn caniatáu ichi adfer data eich porwr wedi'i amgryptio (gan gynnwys cyfrineiriau, nodau tudalen, a hanes) os byddwch yn anghofio eich cyfrinair. Cadwch ef mewn man y byddwch yn ei gofio.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = Lleoedd i gadw'ch allwedd
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = Dysgwch fwy am allwedd adfer eich cyfrif
-# Error message displayed in an alert bar if the PDF download failed.
+recovery-key-download-button-v4 = Llwytho i lawr a pharhau
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Mae'n ddrwg gennym, roedd problem wrth lwytho allwedd adfer eich cyfrif.
 
 ## ButtonPasskeySignin
@@ -787,6 +771,13 @@ flow-setup-2fa-prompt-heading = Gosod dilysu dau gam
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
 flow-setup-2fa-prompt-description = Mae { $serviceName } yn gofyn i chi osod dilysiad dau gam i gadw'ch cyfrif yn ddiogel.
+# Success banner shown at the top of the page when the user signed in with a passkey.
+flow-setup-2fa-prompt-passkey-success-banner = Wedi mewngofnodi'n llwyddiannus gyda'r allwedd
+# Body copy shown when the user signed in with a passkey and the service still
+# requires two-step authentication setup.
+# Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
+# that requests two-step authentication setup.
+flow-setup-2fa-prompt-passkey-description = Mae { $serviceName } hefyd angen dilysiad dau gam ar gyfer eich { -product-mozilla-account }. Ar ôl gosod, ni fydd ei angen arnoch mwyach pan fyddwch yn mewngofnodi gyda chyfrinair.
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = Gallwch ddefnyddio unrhyw un o'r <authenticationAppsLink>apiau dilysu hyn</authenticationAppsLink> i barhau.
 flow-setup-2fa-prompt-continue-button = Parhau

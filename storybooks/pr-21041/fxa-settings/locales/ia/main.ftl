@@ -83,14 +83,6 @@ button-back-aria-label = Retro
 button-back-title = Retro
 
 
-recovery-key-download-button-v3 = Discargar e continuar
-    .title = Discargar e continuar
-recovery-key-pdf-heading = Clave de recuperation del conto
-recovery-key-pdf-download-date = Generate: { $date }
-recovery-key-pdf-key-legend = Clave de recuperation del conto
-recovery-key-pdf-instructions = Iste clave te permitte de recuperar tu datos de navigator cryptate (includite contrasignos, marcapaginas, e historia) si tu oblida tu contrasigno.
-recovery-key-pdf-storage-ideas-heading = Ubi conservar tu claves
-recovery-key-pdf-support = Saper plus re le clave de recuperation de tu conto
 recovery-key-pdf-download-error = Desolate, il habeva un problema discargante tu clave de recuperation del conto.
 
 

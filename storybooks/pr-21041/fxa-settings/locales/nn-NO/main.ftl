@@ -87,14 +87,6 @@ button-back-aria-label = Tilbake
 button-back-title = Tilbake
 
 
-recovery-key-download-button-v3 = Last ned og hald fram
-    .title = Last ned og hald fram
-recovery-key-pdf-heading = Kontogjenopprettingsnøkkel
-recovery-key-pdf-download-date = Generert: { $date }
-recovery-key-pdf-key-legend = Kontogjenopprettingsnøkkel
-recovery-key-pdf-instructions = Denne nøkkelen lèt deg rette opp igjen dei krypterte nettlesardataa dine (inkludert passord, bokmerke og historikk) viss du gløymer passordet ditt. Oppbevar han på ein stad du vil hugse.
-recovery-key-pdf-storage-ideas-heading = Plassar å lagre nøkkelen din
-recovery-key-pdf-support = Les meir om kontogjenopprettingsnøkkelen din
 recovery-key-pdf-download-error = Klarte ikkje å laste ned kontogjenopprettingsnøkkelen din.
 
 

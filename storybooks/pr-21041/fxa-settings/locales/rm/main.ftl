@@ -63,14 +63,6 @@ button-back-aria-label = Enavos
 button-back-title = Enavos
 
 
-recovery-key-download-button-v3 = Telechargiar e cuntinuar
-    .title = Telechargiar e cuntinuar
-recovery-key-pdf-heading = Clav da recuperaziun dal conto
-recovery-key-pdf-download-date = Generà: { $date }
-recovery-key-pdf-key-legend = Clav da recuperaziun dal conto
-recovery-key-pdf-instructions = Questa clav ta permetta da recuperar tias datas da navigaziun criptadas (inclusivamain ils pleds-clav, ils segnapaginas e la cronologia) sche ti emblidas tes pled-clav. La tegna en salv en in lieu che ti tegnas endament.
-recovery-key-pdf-storage-ideas-heading = Lieus per tegnair en salv la clav
-recovery-key-pdf-support = Ve a savair dapli davart tia clav da recuperaziun dal conto
 recovery-key-pdf-download-error = Perstgisa, igl ha dà in problem cun telechargiar tia clav da recuperaziun dal conto.
 
 

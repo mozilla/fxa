@@ -80,14 +80,6 @@ button-back-aria-label = بازگشت
 button-back-title = بازگشت
 
 
-recovery-key-download-button-v3 = بارگیری و ادامه
-    .title = بارگیری و ادامه
-recovery-key-pdf-heading = کلید بازیابی حساب کاربری
-recovery-key-pdf-download-date = تولید شده: { $date }
-recovery-key-pdf-key-legend = کلید بازیابی حساب کاربری
-recovery-key-pdf-instructions = این کلید به شما اجازه می‌دهد تا در صورت فراموشی گذرواژه‌ها، داده‌های رمزگذاری‌شده مرورگر خود (شامل گذرواژه‌ها، نشانک‌ها و تاریخچه) را بازیابی کنید. آن را در محلی نگه‌دارید که به خاطر می‌آورید.
-recovery-key-pdf-storage-ideas-heading = مکان‌هایی برای نگه‌داری کلید شما
-recovery-key-pdf-support = بیشتر در مورد کلید بازیابی حساب خود بدانید
 recovery-key-pdf-download-error = متاسفیم، مشکلی در بارگیری کلید بازیابی حساب شما وجود داشت.
 
 

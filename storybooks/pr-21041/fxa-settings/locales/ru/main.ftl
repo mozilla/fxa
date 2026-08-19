@@ -119,14 +119,6 @@ button-back-aria-label = Назад
 button-back-title = Назад
 
 
-recovery-key-download-button-v3 = Скачать и продолжить
-    .title = Скачать и продолжить
-recovery-key-pdf-heading = Ключ восстановления аккаунта
-recovery-key-pdf-download-date = Создан { $date }
-recovery-key-pdf-key-legend = Ключ восстановления аккаунта
-recovery-key-pdf-instructions = Этот ключ позволит вам восстановить зашифрованные данные браузера (включая пароли, закладки и историю), если вы забудете свой пароль. Храните его в месте, о котором вы помните.
-recovery-key-pdf-storage-ideas-heading = Места для хранения вашего ключа:
-recovery-key-pdf-support = Узнать больше о ключе восстановления аккаунта
 recovery-key-pdf-download-error = К сожалению, при скачивании ключа восстановления аккаунта произошла ошибка.
 
 

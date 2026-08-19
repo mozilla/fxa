@@ -70,14 +70,6 @@ button-back-aria-label = Atzera
 button-back-title = Atzera
 
 
-recovery-key-download-button-v3 = Gorde eta jarraitu
-    .title = Gorde eta jarraitu
-recovery-key-pdf-heading = Kontua berreskuratzeko gakoa
-recovery-key-pdf-download-date = Sortze-data: { $date }
-recovery-key-pdf-key-legend = Kontua berreskuratzeko gakoa
-recovery-key-pdf-instructions = Gako honi esker, zifratutako nabigatzailearen datuak (pasahitzak, laster-markak eta historia barne) berreskura ditzakezu pasahitza ahazten baduzu. Gorde ezazu gogoratuko duzun leku batean.
-recovery-key-pdf-storage-ideas-heading = Zure gakoa gordetzeko tokiak
-recovery-key-pdf-support = Lortu informazio gehiago kontua berreskuratzeko gakoari buruz
 recovery-key-pdf-download-error = Arazo bat izan da kontua berreskuratzeko gakoa deskargatzean.
 
 

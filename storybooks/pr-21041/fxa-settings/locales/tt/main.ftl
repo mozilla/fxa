@@ -71,15 +71,6 @@ button-back-aria-label = Кире
 button-back-title = Кире
 
 
-recovery-key-download-button-v3 = Иңдерү һәм дәвам итү
-    .title = Иңдерү һәм дәвам итү
-recovery-key-pdf-heading = Хисапны Коткару Ачкычы
-recovery-key-pdf-download-date = Төзелгән: { $date }
-recovery-key-pdf-key-legend = Хисапны Коткару Ачкычы
-recovery-key-pdf-storage-ideas-heading = Ачкычыгызны саклау өчен урыннар
-recovery-key-pdf-support = Хисапны коткару ачкычыгыз турында күбрәк белү
-
-
 choose-newsletters-prompt-2 = { -brand-mozilla } хәбәрләренә язылыгыз:
 choose-newsletters-option-latest-news =
     .label = Иң соңгы яңалыкларыбыз һәм продукт яңартуларыбыз турында хәбәрдар булыгыз

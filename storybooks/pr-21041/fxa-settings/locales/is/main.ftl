@@ -63,14 +63,6 @@ button-back-aria-label = Til baka
 button-back-title = Til baka
 
 
-recovery-key-download-button-v3 = Sækja og halda áfram
-    .title = Sækja og halda áfram
-recovery-key-pdf-heading = Endurheimtulykill reiknings
-recovery-key-pdf-download-date = Útbúinn: { $date }
-recovery-key-pdf-key-legend = Endurheimtulykill reiknings
-recovery-key-pdf-instructions = Þessi lykill gerir þér kleift að endurheimta dulrituð vafragögn (þar á meðal lykilorð, bókamerki og vafurferil) ef þú gleymir lykilorðinu þínu. Geymdu hann á stað sem þú manst eftir.
-recovery-key-pdf-storage-ideas-heading = Staðir til að geyma lykilinn þinn
-recovery-key-pdf-support = Frekari upplýsingar um endurheimtulykilinn þinn
 recovery-key-pdf-download-error = Því miður kom upp vandamál við að sækja endurheimtulykilinn þinn.
 
 

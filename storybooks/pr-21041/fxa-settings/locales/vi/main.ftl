@@ -83,14 +83,6 @@ button-back-aria-label = Quay lại
 button-back-title = Quay lại
 
 
-recovery-key-download-button-v3 = Tải xuống và tiếp tục
-    .title = Tải xuống và tiếp tục
-recovery-key-pdf-heading = Khóa khôi phục tài khoản
-recovery-key-pdf-download-date = Đã tạo: { $date }
-recovery-key-pdf-key-legend = Khóa khôi phục tài khoản
-recovery-key-pdf-instructions = Khóa này cho phép bạn khôi phục dữ liệu trình duyệt đã mã hóa (bao gồm mật khẩu, dấu trang và lịch sử) nếu bạn quên mật khẩu. Lưu trữ nó ở một nơi bạn sẽ nhớ.
-recovery-key-pdf-storage-ideas-heading = Nơi lưu trữ khóa của bạn
-recovery-key-pdf-support = Tìm hiểu thêm về khóa khôi phục tài khoản của bạn
 recovery-key-pdf-download-error = Rất tiếc, đã xảy ra sự cố khi tải xuống khóa khôi phục tài khoản của bạn.
 
 

@@ -83,14 +83,6 @@ button-back-aria-label = 上一頁
 button-back-title = 上一頁
 
 
-recovery-key-download-button-v3 = 下載並繼續
-    .title = 下載並繼續
-recovery-key-pdf-heading = 帳號救援金鑰
-recovery-key-pdf-download-date = 產生於：{ $date }
-recovery-key-pdf-key-legend = 帳號救援金鑰
-recovery-key-pdf-instructions = 若您忘記密碼，此金鑰可讓您救回瀏覽器的加密資料（包含網站密碼、書籤、瀏覽紀錄）。請將此金鑰保存於可找回的地方。
-recovery-key-pdf-storage-ideas-heading = 金鑰存放位置
-recovery-key-pdf-support = 了解帳號救援金鑰的更多資訊
 recovery-key-pdf-download-error = 很抱歉，下載帳號救援金鑰時發生問題。
 
 

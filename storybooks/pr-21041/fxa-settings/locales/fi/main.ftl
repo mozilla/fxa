@@ -83,14 +83,6 @@ button-back-aria-label = Takaisin
 button-back-title = Takaisin
 
 
-recovery-key-download-button-v3 = Lataa ja jatka
-    .title = Lataa ja jatka
-recovery-key-pdf-heading = Tilin palautusavain
-recovery-key-pdf-download-date = Luotu: { $date }
-recovery-key-pdf-key-legend = Tilin palautusavain
-recovery-key-pdf-instructions = Tämän avaimen avulla voit palauttaa salatut selaintietosi (mukaan lukien salasanat, kirjanmerkit ja historian), jos unohdat salasanasi. Säilytä avainta paikassa, jonka muistat.
-recovery-key-pdf-storage-ideas-heading = Avaimen säilytyspaikkoja
-recovery-key-pdf-support = Lue lisää tilin palautusavaimesta
 recovery-key-pdf-download-error = Valitettavasti tilin palautusavaimen lataamisessa oli ongelma.
 
 

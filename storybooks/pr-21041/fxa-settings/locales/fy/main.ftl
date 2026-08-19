@@ -310,8 +310,6 @@ input-phone-number-country-list-aria-label = Lân selektearje
 input-phone-number-enter-number = Fier telefoannûmer yn
 input-phone-number-country-united-states = Ferienige Steaten
 input-phone-number-country-canada = Kanada
-legal-back-button = Tebek
-app-general-err-message = Der is wat misgien. Probearje it letter opnij.
 
 
 reset-pwd-link-damaged-header = Keppeling foar opnij ynstellen skansearre
@@ -446,6 +444,7 @@ cs-cannot-disconnect = Client net fûn, ferbining kin net ferbrutsen wurde
 cs-logged-out-2 = Ofmeld by { $service }
 cs-refresh-button =
     .title = Ferbûne tsjinsten fernije
+cs-connect-device-button = In apparaat ferbine
 cs-missing-device-help = Untbrekkende of dûbele items?
 cs-disconnect-sync-heading = Ferbining mei Sync ferbrekke
 
@@ -779,6 +778,7 @@ page-passkey-add-error-system-v2 = Der is in probleem bard by it oanmeitsjen fan
 
 
 recent-activity-title = Resinte accountaktiveit
+recent-activity-show-more-button = Mear toane
 recent-activity-account-create-v2 = Account oanmakke
 recent-activity-account-disable-v2 = Account útskeakele
 recent-activity-account-enable-v2 = Account ynskeakele
@@ -1215,17 +1215,6 @@ tfa-qr-code-alt = Brûk de koade { $code } om autentikaasje yn twa stappen yn st
 inline-totp-setup-page-title = Autentikaasje yn twa stappen
 
 
-legal-header = Juridysk
-legal-terms-of-service-link = Tsjinstbetingsten
-legal-privacy-link = Privacyferklearring
-
-
-legal-privacy-heading = Privacyferklearring
-
-
-legal-terms-heading = Tsjinstbetingsten
-
-
 pair-auth-allow-heading-text = Hawwe jo jo krekt oanmeld by { -brand-firefox }?
 pair-auth-allow-confirm-button = Ja, apparaat goedkarre
 pair-auth-allow-refuse-device-link = As dit jo net wiene, <a>wizigje dan jo wachtwurd</a>
@@ -1315,6 +1304,16 @@ pair-unsupported-connecting-mobile-instructions-v2 = Iepenje { -brand-firefox } 
 pair-unsupported-learn-more-link-v2 = Mear ynfo
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oepsie, der is wat misgien.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Slút dit ljepblêd en probearje it nochris.
+
+
+pair2-authority-approve-sign-in-heading = Oanmelden goedkarre?
+pair2-authority-approve-sign-in-confirm-button = Ja, oanmelding goedkarre
+pair2-authority-approve-sign-in-change-password = Binne jo dit net? <changePassword>Wizigje jo wachtwurd</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = Trochgean op jo mobile apparaat
+pair2-authority-continue-on-mobile-description = Folgje de stappen op jo telefoan of tablet.
+pair2-authority-continue-on-mobile-cancel-button = Annulearje
 
 
 pair2-supplicant-approve-sign-in-heading = Ien lêste syngronisaasjestap

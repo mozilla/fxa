@@ -120,14 +120,7 @@ button-back-aria-label = Vissza
 button-back-title = Vissza
 
 
-recovery-key-download-button-v3 = Letöltés és folytatás
-    .title = Letöltés és folytatás
-recovery-key-pdf-heading = Fiók-helyreállítási kulcs
-recovery-key-pdf-download-date = Előállítva: { $date }
-recovery-key-pdf-key-legend = Fiók-helyreállítási kulcs
-recovery-key-pdf-instructions = Ez a kulcs lehetővé teszi a titkosított böngészőadatok (beleértve a jelszavakat, könyvjelzőket és az előzményeket) helyreállítását, ha elfelejti a jelszavát. Tárolja olyan helyen, amelyre emlékezni fog.
-recovery-key-pdf-storage-ideas-heading = Helyek a kulcsok tárolására
-recovery-key-pdf-support = Tudjon meg többet a fiók-helyreállítási kulcsról
+recovery-key-download-button-v4 = Letöltés és folytatás
 recovery-key-pdf-download-error = Sajnos probléma merült fel a fiók-helyreállítási kulcs letöltése során.
 
 
@@ -609,6 +602,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Hogyan védi ez a fiókját
 flow-setup-2fa-inline-complete-continue-button = Tovább erre: { $serviceName }
 flow-setup-2fa-prompt-heading = Állítsa be a kétlépcsős hitelesítést
 flow-setup-2fa-prompt-description = A(z) { $serviceName } szolgáltatáshoz be kell állítania a kétlépcsős hitelesítést, hogy biztonságban tartsa a fiókját.
+flow-setup-2fa-prompt-passkey-success-banner = Sikeresen bejelentkezett a jelkulccsal
+flow-setup-2fa-prompt-passkey-description = A(z) { $serviceName } is kétlépcsős hitelesítést igényel a(z) { -product-mozilla-account } eszközéhez. A beállítás után nem lesz rá szüksége, ha jelkulccsal jelentkezik be.
 flow-setup-2fa-prompt-use-authenticator-apps = A folytatáshoz <authenticationAppsLink>ezen hitelesítő alkalmazások</authenticationAppsLink> bármelyikét használhatja.
 flow-setup-2fa-prompt-continue-button = Folytatás
 
