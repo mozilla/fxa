@@ -43,6 +43,9 @@ button-back-title = Назад
 ## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
+# Button to download the account recovery key as a plain text file and navigate to the next step
+# The next (and final) step is an optional prompt to save a storage hint
+recovery-key-download-button-v4 = Скачать и продолжить
 # Error message shown in a banner if the account recovery key download failed.
 # The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = К сожалению, при скачивании ключа восстановления аккаунта произошла ошибка.
@@ -756,6 +759,13 @@ flow-setup-2fa-prompt-heading = Настроить двухэтапную аут
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
 flow-setup-2fa-prompt-description = { $serviceName } требует настройки двухэтапной аутентификации, чтобы обеспечить безопасность вашего аккаунта.
+# Success banner shown at the top of the page when the user signed in with a passkey.
+flow-setup-2fa-prompt-passkey-success-banner = Вы успешно вошли с ключом доступа
+# Body copy shown when the user signed in with a passkey and the service still
+# requires two-step authentication setup.
+# Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
+# that requests two-step authentication setup.
+flow-setup-2fa-prompt-passkey-description = { $serviceName } также требует двухэтапную аутентификацию для вашего { -product-mozilla-account }. После настройки она больше не понадобится для входа с ключом доступа
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = Для продолжения вы можете использовать любое из <authenticationAppsLink>этих приложений для аутентификации</authenticationAppsLink>.
 flow-setup-2fa-prompt-continue-button = Продолжить

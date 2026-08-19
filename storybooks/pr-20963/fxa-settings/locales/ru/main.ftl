@@ -119,6 +119,7 @@ button-back-aria-label = Назад
 button-back-title = Назад
 
 
+recovery-key-download-button-v4 = Скачать и продолжить
 recovery-key-pdf-download-error = К сожалению, при скачивании ключа восстановления аккаунта произошла ошибка.
 
 
@@ -598,6 +599,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Как это защищает 
 flow-setup-2fa-inline-complete-continue-button = Перейти в { $serviceName }
 flow-setup-2fa-prompt-heading = Настроить двухэтапную аутентификацию
 flow-setup-2fa-prompt-description = { $serviceName } требует настройки двухэтапной аутентификации, чтобы обеспечить безопасность вашего аккаунта.
+flow-setup-2fa-prompt-passkey-success-banner = Вы успешно вошли с ключом доступа
+flow-setup-2fa-prompt-passkey-description = { $serviceName } также требует двухэтапную аутентификацию для вашего { -product-mozilla-account }. После настройки она больше не понадобится для входа с ключом доступа
 flow-setup-2fa-prompt-use-authenticator-apps = Для продолжения вы можете использовать любое из <authenticationAppsLink>этих приложений для аутентификации</authenticationAppsLink>.
 flow-setup-2fa-prompt-continue-button = Продолжить
 
