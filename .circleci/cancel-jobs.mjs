@@ -1,5 +1,3 @@
-import fetch from 'node-fetch';
-
 const baseUrl = 'https://circleci.com/api/v2';
 
 async function getJobs() {
