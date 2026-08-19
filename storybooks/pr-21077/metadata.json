@@ -1,0 +1,10 @@
+{
+  "commit": "299a1671853885598d94b763102cdc15f6927865",
+  "summary": "feat(pairing): handle v2 pairing timeouts and cancellations",
+  "description": "Because:\n- FXA-13869 needs the v2 pairing flow to end cleanly on a timeout or a\n  cancel, close the channel, and tell the user why.\n\nThis commit:\n- adds a supplicant timeout_and_cancel container and passes the reason to\n  the authority container, so both dead-end screens show timeout or canceled.\n- sends reason=canceled from cancel buttons and reason=timeout from channel\n  disconnects and the no-scan inactivity timeout.\n- adds Jest tests for both containers and for the channel teardown on reset.",
+  "timestamp": 1787172520000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
