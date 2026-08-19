@@ -88,13 +88,13 @@ describe('BillingAndSubscriptionsService', () => {
   let freeAccessProgramService: FreeAccessProgramService;
   let appleIapPurchaseManager: AppleIapPurchaseManager;
   let googleIapPurchaseManager: GoogleIapPurchaseManager;
-  let logger: { log: jest.Mock; error: jest.Mock };
+  let logger: { log: jest.Mock; warn: jest.Mock; error: jest.Mock };
 
   // Mutable so individual tests can toggle the feature flag; reset in beforeEach.
   const mockFreeAccessProgramConfig = { enabled: true };
 
   beforeEach(async () => {
-    logger = { log: jest.fn(), error: jest.fn() };
+    logger = { log: jest.fn(), warn: jest.fn(), error: jest.fn() };
     mockFreeAccessProgramConfig.enabled = true;
 
     const moduleRef = await Test.createTestingModule({
@@ -268,6 +268,25 @@ describe('BillingAndSubscriptionsService', () => {
       await expect(
         service.get({ uid: UID, clientId: CLIENT_ID })
       ).rejects.toBeInstanceOf(NotFoundException);
+    });
+
+    it('reads the Apple IAP purchases with getForUserOrStaleCached', async () => {
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockRejectedValue(
+          new AccountCustomerNotFoundError(UID, new Error('not found'))
+        );
+      jest
+        .spyOn(freeAccessProgramService, 'findFreeAccessForUid')
+        .mockResolvedValue({ isMember: true, grantsByClient: {} });
+      const getForUserOrStaleCached = jest.spyOn(
+        appleIapPurchaseManager,
+        'getForUserOrStaleCached'
+      );
+
+      await service.get({ uid: UID, clientId: CLIENT_ID });
+
+      expect(getForUserOrStaleCached).toHaveBeenCalledWith(UID);
     });
 
     it('falls back to IAP-only flow when AccountCustomer is missing', async () => {

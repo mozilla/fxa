@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import type { AppStoreError } from 'app-store-server-api';
+
 import { BaseError } from '@fxa/shared/error';
 
 /**
@@ -57,6 +59,17 @@ export class GetFromAppStoreIapUnknownError extends AppleIapUnknownError {
   constructor(cause: Error) {
     super('Unknown Apple IAP error occured when retrieving purchase', cause);
     this.name = 'GetFromAppStoreIapUnknownError';
+  }
+}
+
+export class AppleIapServiceUnavailableError extends AppleIapError {
+  constructor(cause: AppStoreError) {
+    super(
+      'Apple IAP service unavailable',
+      { errorCode: cause.errorCode, retryAfter: cause.retryAfter },
+      cause
+    );
+    this.name = 'AppleIapServiceUnavailableError';
   }
 }
 

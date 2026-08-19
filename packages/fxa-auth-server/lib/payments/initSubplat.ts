@@ -120,7 +120,8 @@ export async function initSubplat({
     appleClientConfig,
     firestore,
     appleIapClient,
-    legacyLog
+    legacyLog,
+    statsd
   );
   const priceManager = new PriceManager(stripeClient);
   const productConfigurationManager = new ProductConfigurationManager(

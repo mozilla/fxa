@@ -5,6 +5,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import type { CollectionReference, Firestore } from '@google-cloud/firestore';
 import { FirestoreService } from '@fxa/shared/db/firestore';
+import { StatsDService, type StatsD } from '@fxa/shared/metrics/statsd';
 import {
   createPurchase,
   deletePurchasesByUserId,
@@ -27,6 +28,7 @@ import { AppleIapClient } from './apple-iap.client';
 import {
   AppleIapNotFoundError,
   AppleIapNoTransactionsFoundError,
+  AppleIapServiceUnavailableError,
   GetFromAppStoreIapUnknownError,
 } from './apple-iap.error';
 
@@ -36,7 +38,8 @@ export class AppleIapPurchaseManager {
     private config: AppleIapClientConfig,
     @Inject(FirestoreService) private firestore: Firestore,
     private appleIapClient: AppleIapClient,
-    private log: Logger
+    private log: Logger,
+    @Inject(StatsDService) private statsd: StatsD
   ) {}
 
   get collectionRef(): CollectionReference {
@@ -111,6 +114,29 @@ export class AppleIapPurchaseManager {
     }
 
     return purchaseList;
+  }
+
+  async getForUserOrStaleCached(
+    userId: string
+  ): Promise<AppStoreSubscriptionPurchase[]> {
+    try {
+      return await this.getForUser(userId);
+    } catch (error) {
+      if (!(error instanceof AppleIapServiceUnavailableError)) {
+        throw error;
+      }
+
+      this.log.warn('getForUserOrStaleCached.appStoreUnavailable', {
+        userId,
+        errorMessage: error.message,
+      });
+      this.statsd.increment('apple_iap_stale_cache_fallback');
+
+      const cachedPurchases = await this.getStaleCachedForUser(userId);
+      return cachedPurchases.filter((purchase) =>
+        purchase.isEntitlementActive()
+      );
+    }
   }
 
   /*
@@ -238,6 +264,27 @@ export class AppleIapPurchaseManager {
     await updatePurchase(this.collectionRef, originalTransactionId, {
       userId,
     });
+  }
+
+  /**
+   * Return the user's purchases as they are cached in Firestore, without
+   * refreshing them against the App Store Server API.
+   *
+   * Intended for callers that still have to make a decision when Apple is
+   * unreachable. Since the records can be stale, an inactive entitlement here
+   * is not proof that the subscription has lapsed.
+   */
+  async getStaleCachedForUser(
+    userId: string
+  ): Promise<AppStoreSubscriptionPurchase[]> {
+    const firestorePurchaseRecords = await getActivePurchasesForUserId(
+      this.collectionRef,
+      userId
+    );
+
+    return firestorePurchaseRecords.map((firestorePurchaseRecord) =>
+      AppStoreSubscriptionPurchase.fromFirestoreObject(firestorePurchaseRecord)
+    );
   }
 
   async getStaleCached(

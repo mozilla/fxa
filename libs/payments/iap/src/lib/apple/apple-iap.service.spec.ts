@@ -12,6 +12,7 @@ import {
 } from 'app-store-server-api';
 
 import { FirestoreService } from '@fxa/shared/db/firestore';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { AppleIapClient } from './apple-iap.client';
 import { MockAppleIapClientConfigProvider } from './apple-iap.client.config';
 import {
@@ -58,6 +59,7 @@ describe('AppleIapService', () => {
           provide: Logger,
           useValue: mockLogger,
         },
+        MockStatsDProvider,
       ],
     }).compile();
 

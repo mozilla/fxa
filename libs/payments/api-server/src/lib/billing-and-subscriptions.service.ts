@@ -112,7 +112,7 @@ export class BillingAndSubscriptionsService {
         ? this.subscriptionManager.listActiveForCustomer(stripeCustomer.id)
         : Promise.resolve<StripeSubscription[]>([]),
       this.googleIapPurchaseManager.getForUser(uid),
-      this.appleIapPurchaseManager.getForUser(uid),
+      this.appleIapPurchaseManager.getForUserOrStaleCached(uid),
       // Only resolve Free Access Program data when the feature is enabled.
       this.freeAccessProgramConfig.enabled
         ? this.freeAccessProgramService.findFreeAccessForUid(uid)
