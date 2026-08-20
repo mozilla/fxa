@@ -74,7 +74,7 @@ exports.jwe = Joi.string()
   );
 
 exports.jwt = Joi.string()
-  .max(1024)
+  .max(2048)
   // JWT format: 'header.payload.signature'
   .regex(/^([a-zA-Z0-9\-_]+)\.([a-zA-Z0-9\-_]+)\.([a-zA-Z0-9\-_]+)$/);
 
