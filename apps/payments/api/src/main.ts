@@ -7,6 +7,7 @@
 import './monitoring';
 
 import { Logger } from '@nestjs/common';
+import type { LogLevel } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
@@ -16,9 +17,20 @@ import { AppModule } from './app/app.module';
 import { RootConfig } from './config';
 import { annotateWebhookRoutes, stripInternalRoutes } from './swagger.utils';
 
+const NEST_LOG_LEVELS: Record<string, LogLevel> = {
+  verbose: 'verbose',
+  debug: 'debug',
+  info: 'log',
+  log: 'log',
+  warn: 'warn',
+  error: 'error',
+  fatal: 'fatal',
+};
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     rawBody: true,
+    logger: [NEST_LOG_LEVELS[process.env.LOG_LEVEL ?? ''] ?? 'log'],
   });
 
   app.use(
