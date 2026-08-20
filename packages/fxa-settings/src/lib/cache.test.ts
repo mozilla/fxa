@@ -7,8 +7,13 @@ import {
   JwtNotFoundError,
   MfaOtpRequestCache,
   JwtPayload,
+  accounts,
+  currentAccount,
+  getAccountByUid,
 } from './cache';
 import { AuthUiErrors } from './auth-errors/auth-errors';
+import Storage from './storage';
+import { StoredAccountData } from './storage-utils';
 
 // Fixed clock so `exp`/`Date.now()` comparisons are deterministic.
 const MOCK_NOW_MS = 1_700_000_000_000;
@@ -18,6 +23,17 @@ const MOCK_NOW_SEC = MOCK_NOW_MS / 1000;
 // prefix of another. These distinct, equal-length values mirror that.
 const SESSION_A = 'a'.repeat(64);
 const SESSION_B = 'b'.repeat(64);
+
+/** Real uids are 32 hex characters. */
+const UID = 'c'.repeat(32);
+const ACCOUNT = {
+  uid: UID,
+  email: 'user@example.com',
+} as StoredAccountData;
+const POLLUTING_ACCOUNT = {
+  uid: '__proto__',
+  sessionToken: 'token',
+} as unknown as StoredAccountData;
 
 /**
  * Builds a fake JWT (`header.payload.signature`) whose middle segment is the
@@ -96,7 +112,11 @@ describe('cache', () => {
         'throws when the %s is missing',
         (_label, session, scope, jwt, message) => {
           expect(() =>
-            JwtTokenCache.setToken(session as string, scope as any, jwt as string)
+            JwtTokenCache.setToken(
+              session as string,
+              scope as any,
+              jwt as string
+            )
           ).toThrow(message as string);
         }
       );
@@ -229,11 +249,11 @@ describe('cache', () => {
       });
 
       it.each([
-        ['setToken', () => JwtTokenCache.setToken(SESSION_A, 'password', VALID_JWT)],
         [
-          'removeToken',
-          () => JwtTokenCache.removeToken(SESSION_A, 'password'),
+          'setToken',
+          () => JwtTokenCache.setToken(SESSION_A, 'password', VALID_JWT),
         ],
+        ['removeToken', () => JwtTokenCache.removeToken(SESSION_A, 'password')],
         ['clearTokens', () => JwtTokenCache.clearTokens(SESSION_A)],
       ])('notifies subscribers on %s', (_label, mutate) => {
         const listener = jest.fn();
@@ -281,9 +301,7 @@ describe('cache', () => {
       });
 
       it('returns undefined when no request was recorded', () => {
-        expect(
-          MfaOtpRequestCache.get(SESSION_A, 'password')
-        ).toBeUndefined();
+        expect(MfaOtpRequestCache.get(SESSION_A, 'password')).toBeUndefined();
       });
     });
 
@@ -291,9 +309,7 @@ describe('cache', () => {
       it('clears a single recorded request', () => {
         MfaOtpRequestCache.set(SESSION_A, 'password');
         MfaOtpRequestCache.remove(SESSION_A, 'password');
-        expect(
-          MfaOtpRequestCache.get(SESSION_A, 'password')
-        ).toBeUndefined();
+        expect(MfaOtpRequestCache.get(SESSION_A, 'password')).toBeUndefined();
       });
     });
 
@@ -304,9 +320,7 @@ describe('cache', () => {
 
         MfaOtpRequestCache.clear(SESSION_A);
 
-        expect(
-          MfaOtpRequestCache.get(SESSION_A, 'password')
-        ).toBeUndefined();
+        expect(MfaOtpRequestCache.get(SESSION_A, 'password')).toBeUndefined();
         expect(MfaOtpRequestCache.get(SESSION_A, 'email')).toBeUndefined();
       });
 
@@ -330,5 +344,64 @@ describe('cache', () => {
         expect(MfaOtpRequestCache.get(SESSION_A, 'password')).toBe(MOCK_NOW_MS);
       });
     });
+  });
+
+  describe('currentAccount', () => {
+    const storage = Storage.factory('localStorage');
+
+    it('returns the account named by the stored uid', () => {
+      accounts({ [UID]: ACCOUNT });
+      storage.set('currentAccountUid', UID);
+
+      expect(currentAccount()).toEqual(ACCOUNT);
+    });
+
+    // A user who visited `?uid=constructor` before uid validation existed
+    // already has the bad value in localStorage, so only the read path can
+    // catch it. Without the guard this returns `Object.prototype.constructor`.
+    it('returns undefined when the stored uid is a prototype key', () => {
+      storage.set('currentAccountUid', 'constructor');
+
+      expect(currentAccount()).toBeUndefined();
+    });
+
+    it('leaves an invalid stored uid in place rather than writing during a read', () => {
+      storage.set('currentAccountUid', '__proto__');
+
+      currentAccount();
+
+      expect(storage.get('currentAccountUid')).toBe('__proto__');
+    });
+
+    it('returns undefined for an account whose uid is a prototype key', () => {
+      expect(currentAccount(POLLUTING_ACCOUNT)).toBeUndefined();
+    });
+
+    it('does not store an account whose uid is a prototype key', () => {
+      currentAccount(POLLUTING_ACCOUNT);
+
+      expect(accounts()).toBeUndefined();
+    });
+
+    it('does not reach Object.prototype when storing a polluting uid', () => {
+      currentAccount(POLLUTING_ACCOUNT);
+
+      expect(({} as any).sessionToken).toBeUndefined();
+    });
+  });
+
+  describe('getAccountByUid', () => {
+    it('returns the account for a valid uid', () => {
+      accounts({ [UID]: ACCOUNT });
+
+      expect(getAccountByUid(UID)).toEqual(ACCOUNT);
+    });
+
+    it.each(['constructor', '__proto__', 'not-hex', ''])(
+      'returns undefined for the uid %p',
+      (uid) => {
+        expect(getAccountByUid(uid)).toBeUndefined();
+      }
+    );
   });
 });
