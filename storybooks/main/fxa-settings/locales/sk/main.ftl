@@ -229,6 +229,7 @@ button-back-aria-label = Naspäť
 button-back-title = Naspäť
 
 
+recovery-key-download-button-v4 = Stiahnuť a pokračovať
 recovery-key-pdf-download-error = Ľutujeme, pri sťahovaní kľúča na obnovenie účtu sa vyskytol problém.
 
 
@@ -588,6 +589,7 @@ cs-cannot-disconnect = Klient sa nenašiel, nedá sa odpojiť
 cs-logged-out-2 = Odhlásené zo služby { $service }
 cs-refresh-button =
     .title = Obnoviť pripojené služby
+cs-connect-device-button = Pripojiť zariadenie
 cs-missing-device-help = Chýbajúce alebo duplicitné položky?
 cs-disconnect-sync-heading = Odpojiť zo služby Sync
 
@@ -711,6 +713,7 @@ flow-setup-2fa-inline-complete-learn-more-link = Ako to chráni váš účet
 flow-setup-2fa-inline-complete-continue-button = A pokračovať do služby { $serviceName }
 flow-setup-2fa-prompt-heading = Nastavenie dvojstupňového overenia
 flow-setup-2fa-prompt-description = { $serviceName } vyžaduje nastavenie dvojstupňového overenia, aby bol váš účet v bezpečí.
+flow-setup-2fa-prompt-passkey-success-banner = Úspešné prihlásenie pomocou prístupového kľúča
 flow-setup-2fa-prompt-use-authenticator-apps = Na pokračovanie môžete použiť ktorúkoľvek z <authenticationAppsLink>týchto overovacích aplikácií</authenticationAppsLink>.
 flow-setup-2fa-prompt-continue-button = Pokračovať
 

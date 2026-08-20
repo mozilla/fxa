@@ -43,6 +43,9 @@ button-back-title = Naspäť
 ## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
+# Button to download the account recovery key as a plain text file and navigate to the next step
+# The next (and final) step is an optional prompt to save a storage hint
+recovery-key-download-button-v4 = Stiahnuť a pokračovať
 # Error message shown in a banner if the account recovery key download failed.
 # The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Ľutujeme, pri sťahovaní kľúča na obnovenie účtu sa vyskytol problém.
@@ -568,6 +571,9 @@ cs-cannot-disconnect = Klient sa nenašiel, nedá sa odpojiť
 cs-logged-out-2 = Odhlásené zo služby { $service }
 cs-refresh-button =
     .title = Obnoviť pripojené služby
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = Pripojiť zariadenie
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = Chýbajúce alebo duplicitné položky?
 cs-disconnect-sync-heading = Odpojiť zo služby Sync
@@ -757,6 +763,8 @@ flow-setup-2fa-prompt-heading = Nastavenie dvojstupňového overenia
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
 flow-setup-2fa-prompt-description = { $serviceName } vyžaduje nastavenie dvojstupňového overenia, aby bol váš účet v bezpečí.
+# Success banner shown at the top of the page when the user signed in with a passkey.
+flow-setup-2fa-prompt-passkey-success-banner = Úspešné prihlásenie pomocou prístupového kľúča
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = Na pokračovanie môžete použiť ktorúkoľvek z <authenticationAppsLink>týchto overovacích aplikácií</authenticationAppsLink>.
 flow-setup-2fa-prompt-continue-button = Pokračovať
