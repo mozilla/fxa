@@ -570,4 +570,40 @@ describe('account history', () => {
       queryByRole('button', { name: 'Show more' })
     ).not.toBeInTheDocument();
   });
+
+  const renderWithAdditionalInfo = (additionalInfo?: string) => {
+    const [securityEvent] = buildSecurityEvents(1);
+    return render(
+      <Account
+        {...accountResponse}
+        securityEvents={[{ ...securityEvent, additionalInfo }]}
+      />
+    );
+  };
+
+  it('indents valid JSON additional info', () => {
+    const { container } = renderWithAdditionalInfo(
+      '{"userAgent":"Firefox","location":{"city":"Toronto"}}'
+    );
+
+    expect(container.querySelector('pre')?.textContent).toBe(
+      '{\n  "userAgent": "Firefox",\n  "location": {\n    "city": "Toronto"\n  }\n}'
+    );
+  });
+
+  it('shows the original string when additional info is not JSON', () => {
+    const { container } = renderWithAdditionalInfo('not json at all');
+
+    expect(container.querySelector('pre')?.textContent).toBe('not json at all');
+  });
+
+  it('shows nothing when there is no additional info', () => {
+    const { container, getByText } = renderWithAdditionalInfo(undefined);
+
+    expect(container.querySelector('pre')).toBeNull();
+    // The empty cell must stay, or the row loses a column.
+    expect(
+      getByText('event-0').closest('tr')?.querySelectorAll('td')
+    ).toHaveLength(4);
+  });
 });
