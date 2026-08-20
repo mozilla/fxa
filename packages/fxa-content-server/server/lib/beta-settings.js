@@ -114,6 +114,7 @@ const settingsConfig = {
   pairing: {
     clients: config.get('pairing.clients'),
     serverBaseUri: config.get('pairing.server_base_uri'),
+    version: config.get('pairing.version'),
   },
   mobileStoreLinks: {
     ios: config.get('mobileStoreLinks.ios'),

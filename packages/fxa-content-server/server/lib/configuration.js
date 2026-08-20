@@ -381,6 +381,12 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'REACT_CONVERSION_POC_PAIRING_ROUTES',
     },
+    pair2Routes: {
+      default: false,
+      doc: 'Enable users to visit the in-progress React "pair2" pairing rewrite routes',
+      format: Boolean,
+      env: 'REACT_CONVERSION_PAIR2_ROUTES',
+    },
   },
   brandMessagingMode: {
     default: 'none',
@@ -794,6 +800,12 @@ const conf = (module.exports = convict({
       doc: 'The url of the Pairing channel server.',
       env: 'PAIRING_SERVER_BASE_URI',
     },
+    version: {
+      default: 1,
+      doc: 'The pairing flow version to use. 1 is the legacy content-server flow, 2 is the React "pair2" rewrite.',
+      env: 'PAIRING_VERSION',
+      format: Number,
+    },
   },
   mobileStoreLinks: {
     ios: {
@@ -1175,6 +1187,10 @@ if (conf.get('env') === 'development') {
   // are available for development/testing. They remain gated (default off) in
   // stage/prod unless REACT_CONVERSION_POC_PAIRING_ROUTES is set.
   conf.set('showReactApp.pocPairingRoutes', true);
+  // Enable the in-progress React "pair2" pairing rewrite locally so it is
+  // available for development/testing. It remains gated (default off) in
+  // stage/prod unless REACT_CONVERSION_PAIR2_ROUTES is set.
+  conf.set('showReactApp.pair2Routes', true);
 }
 
 const DEV_CONFIG_PATH = path.join(__dirname, '..', 'config', 'local.json');

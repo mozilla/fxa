@@ -4,7 +4,10 @@
 
 import { Devices } from '.';
 import { ENTRYPOINTS } from '../../constants';
-import { MOCK_ACCOUNT } from '../../models/mocks';
+import { getDefault } from '../../lib/config';
+import { SignedInUser } from '../../lib/channels/firefox';
+import { AppContextValue } from '../../models';
+import { MOCK_ACCOUNT, mockAppContext } from '../../models/mocks';
 
 export const MOCK_DEFAULTS = {
   email: MOCK_ACCOUNT.primaryEmail.email,
@@ -28,3 +31,29 @@ export const MOCK_DEVICE_BASIC_PROPS = {
   isSignedIn: true,
   canSignIn: false,
 };
+
+/**
+ * A route that satisfies `isEligibleForPairing`: a Sync web channel context
+ * plus a Firefox-chrome entrypoint. Without both, the bootstrap effect never
+ * reaches the pairing branch.
+ */
+export const MOCK_PAIRING_ELIGIBLE_ROUTE = `/connect_another_device?context=oauth_webchannel_v1&entrypoint=${ENTRYPOINTS.FIREFOX_FX_VIEW_ENTRYPOINT}`;
+
+/** A browser account that `isEligibleForPairing` treats as signed in. */
+export const MOCK_BROWSER_SIGNED_IN_USER: SignedInUser = {
+  email: MOCK_ACCOUNT.primaryEmail.email,
+  sessionToken: 'a'.repeat(64),
+  uid: MOCK_ACCOUNT.uid,
+  verified: true,
+};
+
+/** App context with the FxA-side pairing version pinned to `version`. */
+export function mockPairingAppContext(version: number): AppContextValue {
+  const config = getDefault();
+  return mockAppContext({
+    config: {
+      ...config,
+      pairing: { ...config.pairing, version },
+    },
+  } as AppContextValue);
+}

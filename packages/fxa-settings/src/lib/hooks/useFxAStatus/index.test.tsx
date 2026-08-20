@@ -149,6 +149,121 @@ describe('useFxAStatus', () => {
     });
   });
 
+  describe('pairing capabilities', () => {
+    const integration = {
+      type: IntegrationType.OAuthNative,
+      isSync: () => true,
+      isFirefoxNonSync: () => false,
+    };
+
+    const mockCapabilities = (
+      capabilities: Record<string, unknown> | undefined
+    ) => {
+      (firefox.fxaStatus as jest.Mock).mockResolvedValue({ capabilities });
+    };
+
+    it('returns pairingEnabled: true when the browser reports the pairing capability', async () => {
+      mockCapabilities({ engines: [], pairing: true });
+
+      const { result, waitForNextUpdate } = renderHook(() =>
+        useFxAStatus(integration)
+      );
+      await waitForNextUpdate();
+
+      expect(result.current.pairingEnabled).toBe(true);
+    });
+
+    it('returns pairingEnabled: false when the pairing capability is absent', async () => {
+      mockCapabilities({ engines: [] });
+
+      const { result, waitForNextUpdate } = renderHook(() =>
+        useFxAStatus(integration)
+      );
+      await waitForNextUpdate();
+
+      expect(result.current.pairingEnabled).toBe(false);
+    });
+
+    it('returns the pairingVersion reported by the browser', async () => {
+      mockCapabilities({ engines: [], pairing: true, pairingVersion: 2 });
+
+      const { result, waitForNextUpdate } = renderHook(() =>
+        useFxAStatus(integration)
+      );
+      await waitForNextUpdate();
+
+      expect(result.current.pairingVersion).toBe(2);
+    });
+
+    it('defaults pairingVersion to 1 when the browser omits it', async () => {
+      mockCapabilities({ engines: [], pairing: true });
+
+      const { result, waitForNextUpdate } = renderHook(() =>
+        useFxAStatus(integration)
+      );
+      await waitForNextUpdate();
+
+      expect(result.current.pairingVersion).toBe(1);
+    });
+
+    it('defaults pairingVersion to 1 when the browser reports version 0', async () => {
+      mockCapabilities({ engines: [], pairing: true, pairingVersion: 0 });
+
+      const { result, waitForNextUpdate } = renderHook(() =>
+        useFxAStatus(integration)
+      );
+      await waitForNextUpdate();
+
+      expect(result.current.pairingVersion).toBe(1);
+    });
+
+    it('returns the hasSyncKeys when browser reports true', async () => {
+      mockCapabilities({ engines: [], hasSyncKeys:true });
+
+      const { result, waitForNextUpdate } = renderHook(() =>
+        useFxAStatus(integration)
+      );
+      await waitForNextUpdate();
+
+      expect(result.current.hasSyncKeys).toBe(true);
+    });
+
+    it('returns the hasSyncKeys when browser reports false', async () => {
+      mockCapabilities({ engines: [], hasSyncKeys:false });
+
+      const { result, waitForNextUpdate } = renderHook(() =>
+        useFxAStatus(integration)
+      );
+      await waitForNextUpdate();
+
+      expect(result.current.hasSyncKeys).toBe(false);
+    });
+
+    it('returns the hasSyncKeys when browser does not report', async () => {
+      mockCapabilities({ engines: [] });
+
+      const { result, waitForNextUpdate } = renderHook(() =>
+        useFxAStatus(integration)
+      );
+      await waitForNextUpdate();
+
+      expect(result.current.hasSyncKeys).toBe(undefined);
+    });
+
+    // Very old versions of Firefox iOS omit `capabilities` entirely.
+    it('returns the pairing defaults when the response has no capabilities', async () => {
+      mockCapabilities(undefined);
+
+      const { result, waitForNextUpdate } = renderHook(() =>
+        useFxAStatus(integration)
+      );
+      await waitForNextUpdate();
+
+      expect(result.current.pairingEnabled).toBe(false);
+      expect(result.current.pairingVersion).toBe(1);
+    });
+  });
+
   describe('Web integration', () => {
     it('does not call fxaStatus', () => {
       const integration = {
@@ -160,6 +275,19 @@ describe('useFxAStatus', () => {
       renderHook(() => useFxAStatus(integration));
 
       expect(firefox.fxaStatus).not.toHaveBeenCalled();
+    });
+
+    it('returns the pairing defaults without querying the browser', () => {
+      const integration = {
+        type: IntegrationType.Web,
+        isSync: () => false,
+        isFirefoxNonSync: () => false,
+      };
+
+      const { result } = renderHook(() => useFxAStatus(integration));
+
+      expect(result.current.pairingEnabled).toBe(false);
+      expect(result.current.pairingVersion).toBe(1);
     });
   });
 

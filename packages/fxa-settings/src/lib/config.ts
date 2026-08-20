@@ -98,6 +98,7 @@ export interface Config {
   pairing: {
     clients: string[];
     serverBaseUri: string;
+    version: number;
   };
   mobileStoreLinks: {
     ios: string;
@@ -222,6 +223,7 @@ export function getDefault() {
     pairing: {
       clients: [],
       serverBaseUri: 'wss://channelserver.services.mozilla.com',
+      version: 1,
     },
     mobileStoreLinks: {
       ios: 'https://apps.apple.com/app/firefox-private-safe-browser/id989804926',

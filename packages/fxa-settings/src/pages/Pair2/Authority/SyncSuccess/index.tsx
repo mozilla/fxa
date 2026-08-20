@@ -13,9 +13,9 @@ export type SyncSuccessProps = {
    * that routing this card cannot leave the primary action inert — the browser
    * channel call itself lands with the flow wiring.
    */
-  onViewSyncedTabs: () => void;
+  onViewSyncedTabs?: () => void;
   /** Opens sync settings. Required for the same reason as `onViewSyncedTabs`. */
-  onSyncSettings: () => void;
+  onSyncSettings?: () => void;
 };
 
 /**

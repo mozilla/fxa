@@ -15,13 +15,13 @@ import { PairingInterruptedImage } from '../../../../components/images';
 export type TimeoutAndCancelReason = 'timeout' | 'canceled';
 
 export type TimeoutAndCancelProps = {
-  reason: TimeoutAndCancelReason;
+  reason?: TimeoutAndCancelReason;
   /** Restarts pairing. The only action shared by both reasons. */
-  onTryAgain: () => void;
+  onTryAgain?: () => void;
   /** Abandons pairing. The secondary action when `reason` is `timeout`. */
-  onCancel: () => void;
+  onCancel?: () => void;
   /** Sends the user to sync settings. The secondary action when `reason` is `canceled`. */
-  onSyncSettings: () => void;
+  onSyncSettings?: () => void;
 };
 
 type VariantContent = {
@@ -69,7 +69,8 @@ const TimeoutAndCancel = ({
   onCancel,
   onSyncSettings,
 }: TimeoutAndCancelProps) => {
-  const content = variantContent[reason];
+  reason = reason ?? 'timeout';
+  const content = variantContent[reason || 'timeout'];
   const onSecondary = { onCancel, onSyncSettings }[content.secondaryHandler];
 
   return (

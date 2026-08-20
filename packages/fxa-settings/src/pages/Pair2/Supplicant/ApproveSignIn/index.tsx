@@ -18,12 +18,12 @@ export type ApproveSignInProps = {
    * the request came from their own computer. Supplied by the caller — this
    * component does not read the pairing channel itself.
    */
-  remoteMetadata: RemoteMetadata;
+  remoteMetadata?: RemoteMetadata;
   /**
    * Aborts pairing. Required so that routing this card cannot leave the only
    * available action inert — the flow logic itself lands with the route.
    */
-  onCancel: () => void;
+  onCancel?: () => void;
 };
 
 /**
@@ -31,8 +31,17 @@ export type ApproveSignInProps = {
  * tells them to finish approving the sign-in on their computer and shows the
  * requesting device's details for verification. Cancel is the only action.
  */
-const ApproveSignIn = ({ remoteMetadata, onCancel }: ApproveSignInProps) => (
-  <AppLayout>
+const ApproveSignIn = ({ remoteMetadata, onCancel }: ApproveSignInProps) => {
+  remoteMetadata = remoteMetadata ?? {
+      deviceName: 'name-foo',
+      deviceFamily: 'family-foo',
+      deviceOS: 'os-foo',
+      ipAddress: 'ip-foo',
+      country: 'country-foo',
+      region: 'region-foo',
+      city: 'city-foo',
+  };
+  return <AppLayout>
     <div className="flex flex-col items-center text-center">
       <FirefoxWordmarkImage className="h-8 w-24 text-black dark:text-white" />
 
@@ -62,6 +71,6 @@ const ApproveSignIn = ({ remoteMetadata, onCancel }: ApproveSignInProps) => (
       </FtlMsg>
     </div>
   </AppLayout>
-);
+};
 
 export default ApproveSignIn;

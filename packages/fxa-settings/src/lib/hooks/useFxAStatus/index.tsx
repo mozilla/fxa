@@ -47,6 +47,11 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
     boolean | undefined
   >(undefined);
 
+  const [pairingEnabled,setPairingEnabled] = useState(false);
+  const [pairingVersion,setPairingVersion] = useState(1);
+  const [hasSyncKeys, setHasSyncKeys] = useState<boolean|undefined>(undefined);
+
+
   useEffect(() => {
     // This sends a web channel message to the browser to prompt a response
     // that we listen for.
@@ -93,6 +98,9 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
         } else {
           setSupportsCanLinkAccountUid(false);
         }
+        setPairingEnabled(capabilities.pairing || false);
+        setPairingVersion(capabilities.pairingVersion || 1);
+        setHasSyncKeys(capabilities.hasSyncKeys);
       })();
     }
   }, [
@@ -150,6 +158,9 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
   }, [isSync, declinedSyncEngines, offeredSyncEngines]);
 
   return {
+    pairingVersion,
+    pairingEnabled,
+    hasSyncKeys,
     offeredSyncEngines,
     offeredSyncEngineConfigs,
     declinedSyncEngines,
