@@ -1,8 +1,8 @@
 {
-  "commit": "ce304656e8a0bdf80b33a1e17cd8ac67f8146614",
+  "commit": "db8d7c05142459ebd68c9ecaef7bc14eabe7778f",
   "summary": "feat(pairing): complete v2 pairing flow and add functional tests",
   "description": "Because:\n- FXA-13870 needs functional tests for the v2 pairing flow, and the v2\n  supplicant flow did not complete end to end on Firefox for Android.\n\nThis commit:\n- forwards /pair/supp with the v2 marker into the v2 supplicant pages,\n  the route Firefox opens on the device.\n- consumes the OAuth params from the URL when the browser already ran\n  OAuth-start, and falls back to pair_oauth_start otherwise.\n- restores scope spaces the router encodes as \"+\" so the authority\n  delivers the oldsync scoped key and a session token.\n- reads the pairing capabilities from the fxa_status that\n  ConnectAnotherDevice already awaits, so version-2 negotiation no longer\n  races the hook that used to supply them as props.\n- adds v2 pairing functional tests (desktop, Android, negative, version\n  gating, web-channel) with Marionette and supplicant harnesses. The\n  Android test decodes the rendered QR rather than reading the encoded\n  value from the page, so scan_qr no longer ships an attribute for tests.",
-  "timestamp": 1787265425000,
+  "timestamp": 1787265649000,
   "storybooks": [
     "fxa-settings"
   ],
