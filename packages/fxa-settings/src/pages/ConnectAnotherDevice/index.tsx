@@ -10,12 +10,13 @@ import { HeartsVerifiedImage } from '../../components/images';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import Banner from '../../components/Banner';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import { useFtlMsgResolver } from '../../models';
+import { useConfig, useFtlMsgResolver } from '../../models';
 import { Constants } from '../../lib/constants';
 import { getBasicAccountData } from '../../lib/account-storage';
 import firefox, { buildSyncOAuthSearch } from '../../lib/channels/firefox';
 import GleanMetrics from '../../lib/glean';
 import AppLayout from '../../components/AppLayout';
+import { navigateWithQuery } from '../../lib/utilities';
 
 export type ConnectAnotherDeviceProps = {
   email?: string;
@@ -26,6 +27,8 @@ export type ConnectAnotherDeviceProps = {
   isSignIn?: boolean;
   canSignIn?: boolean;
   device?: Devices;
+  pairingEnabled?: boolean;
+  pairingVersion?: number;
 };
 
 export enum Devices {
@@ -103,9 +106,12 @@ const ConnectAnotherDevice = ({
   isSignIn: isSignInProp,
   canSignIn: canSignInProp,
   device: deviceProp,
+  pairingEnabled: pairingEnabledProp,
+  pairingVersion: pairingVersionProp,
 }: ConnectAnotherDeviceProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
+  const config = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
   const searchParams = useMemo(
@@ -218,6 +224,23 @@ const ConnectAnotherDevice = ({
         signedInUser?.sessionToken && signedInUser.verified
       );
       if (browserSignedIn && isEligibleForPairing()) {
+
+        // Check that FxA has pairing version 2 supported. And that the current Firefox
+        // instance also supports version 2. If so send user into the v2 pairing flow!
+        if (config.pairing.version === 2) {
+          if (pairingEnabledProp === true && pairingVersionProp === 2) {
+            navigateWithQuery('/pair/authority/scan_qr');
+            return;
+          }
+        }
+
+        // Escape hatch. Allow the query params to force a v2 pairing flow. Useuful initially for testing, probably
+        // won't stick around forever...
+        if (searchParams.get('v') === '2') {
+          navigateWithQuery('/pair/authority/scan_qr');
+          return;
+        }
+
         hardNavigate('/pair');
         return;
       }

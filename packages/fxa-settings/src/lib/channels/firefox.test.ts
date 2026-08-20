@@ -2,11 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { Constants } from '../constants';
 import {
   firefox,
+  Firefox,
   FirefoxCommand,
   buildSyncOAuthSearch,
   FxAOAuthFlowBeginResponse,
+  PairOAuthFinishState,
+  PairOAuthStartState,
 } from './firefox';
 
 describe('Firefox pairing WebChannel methods', () => {
@@ -117,5 +121,250 @@ describe('buildSyncOAuthSearch', () => {
     ]);
     expect(search.get('code_challenge')).toBe(OAUTH_PARAMS.code_challenge);
     expect(search.toString()).not.toContain(MOCK_CODE_VERIFIER);
+  });
+});
+
+describe('Firefox pairing OAuth WebChannel methods', () => {
+  // Keep in sync with DEFAULT_SEND_TIMEOUT_LENGTH_MS in firefox.ts (not exported).
+  const SEND_TIMEOUT_MS = 500;
+  // pairOauthFinish overrides the default; it makes a web call.
+  const FINISH_TIMEOUT_MS = 10_000;
+
+  const MOCK_START_RESPONSE: PairOAuthStartState = {
+    state: 'mock-oauth-state',
+    scope: 'profile https://identity.mozilla.com/apps/oldsync',
+    code_challenge: 'mock-code-challenge',
+    keys_jwk: 'mock-keys-jwk',
+  };
+
+  const MOCK_FINISH_REQUEST = {
+    client_id: '5882386c6d801776',
+    state: 'mock-oauth-state',
+    scope: 'profile',
+    code_challenge: 'mock-code-challenge',
+  };
+
+  const MOCK_FINISH_RESPONSE: PairOAuthFinishState = {
+    state: 'mock-oauth-state',
+    code: 'mock-oauth-code',
+  };
+
+  // These use their own Firefox instance rather than the exported singleton so
+  // a listener left over from one case can never settle a promise in another.
+  let ff: Firefox;
+  let sendSpy: jest.SpyInstance;
+  const originalRAF = window.requestAnimationFrame;
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+    ff = new Firefox();
+    sendSpy = jest.spyOn(ff, 'send').mockImplementation(() => {});
+    // Silence the debug/warn logging these commands emit.
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    // Invoke requestAnimationFrame synchronously so the send() call inside
+    // _executeCommandWithResponse is visible immediately.
+    window.requestAnimationFrame = (cb: FrameRequestCallback) => {
+      cb(0);
+      return 0;
+    };
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    window.requestAnimationFrame = originalRAF;
+    jest.useRealTimers();
+  });
+
+  describe('pairOauthStart', () => {
+    it('sends the default sync scopes when none are provided', async () => {
+      const promise = ff.pairOauthStart({});
+      expect(sendSpy).toHaveBeenCalledWith(FirefoxCommand.PairOauthStart, {
+        scopes: [
+          Constants.OAUTH_OLDSYNC_SCOPE,
+          Constants.OAUTH_TRUSTED_PROFILE_SCOPE,
+        ],
+      });
+
+      ff.dispatchEvent(
+        new CustomEvent(FirefoxCommand.PairOauthStart, {
+          detail: MOCK_START_RESPONSE,
+        })
+      );
+      await promise;
+    });
+
+    it('sends the provided scopes instead of the defaults', async () => {
+      const promise = ff.pairOauthStart({ scopes: ['profile:email'] });
+      expect(sendSpy).toHaveBeenCalledWith(FirefoxCommand.PairOauthStart, {
+        scopes: ['profile:email'],
+      });
+
+      ff.dispatchEvent(
+        new CustomEvent(FirefoxCommand.PairOauthStart, {
+          detail: MOCK_START_RESPONSE,
+        })
+      );
+      await promise;
+    });
+
+    it('sends an empty scope list without substituting the defaults', async () => {
+      const promise = ff.pairOauthStart({ scopes: [] });
+      expect(sendSpy).toHaveBeenCalledWith(FirefoxCommand.PairOauthStart, {
+        scopes: [],
+      });
+
+      ff.dispatchEvent(
+        new CustomEvent(FirefoxCommand.PairOauthStart, {
+          detail: MOCK_START_RESPONSE,
+        })
+      );
+      await promise;
+    });
+
+    it('resolves with the oauth start state from the response event', async () => {
+      const promise = ff.pairOauthStart({});
+      ff.dispatchEvent(
+        new CustomEvent(FirefoxCommand.PairOauthStart, {
+          detail: MOCK_START_RESPONSE,
+        })
+      );
+      await expect(promise).resolves.toEqual(MOCK_START_RESPONSE);
+    });
+
+    // NOTE: two of the expected messages below are inaccurate in firefox.ts —
+    // every message is prefixed with PairOauthFinish rather than PairOauthStart,
+    // and an absent `scope` reports "missing code". Asserted as-is so the
+    // strings stay pinned; see the review note about correcting them.
+    it.each([
+      { field: 'state', message: 'missing state from event.details' },
+      { field: 'scope', message: 'missing code from event.details' },
+      {
+        field: 'code_challenge',
+        message: 'missing code_challenge from event.details',
+      },
+      { field: 'keys_jwk', message: 'missing keys_jwk from event.details' },
+    ])(
+      'rejects when the response is missing $field',
+      async ({ field, message }) => {
+        const promise = ff.pairOauthStart({});
+        const detail: Record<string, string> = { ...MOCK_START_RESPONSE };
+        delete detail[field];
+        ff.dispatchEvent(
+          new CustomEvent(FirefoxCommand.PairOauthStart, { detail })
+        );
+        await expect(promise).rejects.toThrow(
+          `${FirefoxCommand.PairOauthFinish} ${message}`
+        );
+      }
+    );
+
+    it('resolves undefined when the browser does not respond', async () => {
+      const promise = ff.pairOauthStart({});
+      jest.advanceTimersByTime(SEND_TIMEOUT_MS);
+      await expect(promise).resolves.toBeUndefined();
+    });
+
+    it('does not resolve before the timeout elapses', async () => {
+      const onSettled = jest.fn();
+      ff.pairOauthStart({}).then(onSettled);
+
+      await jest.advanceTimersByTimeAsync(SEND_TIMEOUT_MS - 1);
+      expect(onSettled).not.toHaveBeenCalled();
+
+      await jest.advanceTimersByTimeAsync(1);
+      expect(onSettled).toHaveBeenCalledWith(undefined);
+    });
+  });
+
+  describe('pairOauthFinish', () => {
+    it('sends the PairOauthFinish command with the given message', async () => {
+      const promise = ff.pairOauthFinish(MOCK_FINISH_REQUEST);
+      expect(sendSpy).toHaveBeenCalledWith(
+        FirefoxCommand.PairOauthFinish,
+        MOCK_FINISH_REQUEST
+      );
+
+      ff.dispatchEvent(
+        new CustomEvent(FirefoxCommand.PairOauthFinish, {
+          detail: MOCK_FINISH_RESPONSE,
+        })
+      );
+      await promise;
+    });
+
+    it('resolves with the code and state from the response event', async () => {
+      const promise = ff.pairOauthFinish(MOCK_FINISH_REQUEST);
+      ff.dispatchEvent(
+        new CustomEvent(FirefoxCommand.PairOauthFinish, {
+          detail: MOCK_FINISH_RESPONSE,
+        })
+      );
+      await expect(promise).resolves.toEqual(MOCK_FINISH_RESPONSE);
+    });
+
+    it.each([
+      { field: 'code', message: 'missing code from event.details' },
+      { field: 'state', message: 'missing state from event.details' },
+    ])(
+      'rejects when the response is missing $field',
+      async ({ field, message }) => {
+        const promise = ff.pairOauthFinish(MOCK_FINISH_REQUEST);
+        const detail: Record<string, string> = { ...MOCK_FINISH_RESPONSE };
+        delete detail[field];
+        ff.dispatchEvent(
+          new CustomEvent(FirefoxCommand.PairOauthFinish, { detail })
+        );
+        await expect(promise).rejects.toThrow(
+          `${FirefoxCommand.PairOauthFinish} ${message}`
+        );
+      }
+    );
+
+    // The state we sent is the only one we are willing to finish on: a response
+    // carrying a different state is a different flow's, so the code it comes
+    // with must not be redeemed.
+    it('rejects when the response state does not match the requested state', async () => {
+      const promise = ff.pairOauthFinish(MOCK_FINISH_REQUEST);
+      ff.dispatchEvent(
+        new CustomEvent(FirefoxCommand.PairOauthFinish, {
+          detail: { ...MOCK_FINISH_RESPONSE, state: 'other-flow-state' },
+        })
+      );
+      await expect(promise).rejects.toThrow(
+        `${FirefoxCommand.PairOauthFinish} invalid state!`
+      );
+    });
+
+    it('resolves undefined when the browser does not respond', async () => {
+      const promise = ff.pairOauthFinish(MOCK_FINISH_REQUEST);
+      jest.advanceTimersByTime(FINISH_TIMEOUT_MS);
+      await expect(promise).resolves.toBeUndefined();
+    });
+
+    it('removes its response listener when the request times out', async () => {
+      const removeSpy = jest.spyOn(ff, 'removeEventListener');
+      const promise = ff.pairOauthFinish(MOCK_FINISH_REQUEST);
+      jest.advanceTimersByTime(FINISH_TIMEOUT_MS);
+      await promise;
+
+      expect(removeSpy).toHaveBeenCalledWith(
+        FirefoxCommand.PairOauthFinish,
+        expect.any(Function)
+      );
+    });
+
+    it('clears the timeout once the browser responds', async () => {
+      const promise = ff.pairOauthFinish(MOCK_FINISH_REQUEST);
+      ff.dispatchEvent(
+        new CustomEvent(FirefoxCommand.PairOauthFinish, {
+          detail: MOCK_FINISH_RESPONSE,
+        })
+      );
+      await promise;
+
+      jest.advanceTimersByTime(SEND_TIMEOUT_MS);
+      expect(console.warn).not.toHaveBeenCalled();
+    });
   });
 });

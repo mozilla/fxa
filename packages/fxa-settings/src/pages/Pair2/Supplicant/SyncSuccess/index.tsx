@@ -14,11 +14,11 @@ export type SyncSuccessProps = {
   /**
    * Opens the browser's synced tabs view.
    */
-  onViewSyncedTabs: () => void;
+  onViewSyncedTabs?: () => void;
   /**
    * Opens the browser's sync settings.
    */
-  onSyncSettings: () => void;
+  onSyncSettings?: () => void;
 };
 
 /**
@@ -29,8 +29,8 @@ export type SyncSuccessProps = {
 const SyncSuccess = ({
   onViewSyncedTabs,
   onSyncSettings,
-}: SyncSuccessProps) => (
-  <AppLayout>
+}: SyncSuccessProps) => {
+  return <AppLayout>
     <div className="flex flex-col items-center text-center">
       <FirefoxWordmarkImage className="h-8 w-24 text-black dark:text-white" />
 
@@ -65,6 +65,6 @@ const SyncSuccess = ({
       </FtlMsg>
     </div>
   </AppLayout>
-);
+};
 
 export default SyncSuccess;

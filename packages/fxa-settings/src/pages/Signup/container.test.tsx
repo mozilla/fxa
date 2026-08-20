@@ -188,6 +188,9 @@ async function render(text?: string) {
           serviceName,
         }}
         useFxAStatusResult={{
+          pairingEnabled: true,
+          pairingVersion: 1,
+          hasSyncKeys: true,
           offeredSyncEngines: [],
           offeredSyncEngineConfigs: [],
           selectedEnginesForGlean: {},

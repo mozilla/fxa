@@ -6,10 +6,16 @@ import { getSyncEngineIds, syncEngineConfigs } from '../../sync-engines';
 import type { UseFxAStatusResult } from '.';
 
 export function mockUseFxAStatus({
+  pairingEnabled = true,
+  pairingVersion = 1,
+  hasSyncKeys = undefined,
   offeredSyncEnginesOverride,
   supportsKeysOptionalLogin = false,
   supportsCanLinkAccountUid,
 }: {
+  pairingEnabled?:boolean,
+  pairingVersion?: 1,
+  hasSyncKeys?: undefined,
   offeredSyncEnginesOverride?: ReturnType<typeof getSyncEngineIds>;
   supportsKeysOptionalLogin?: boolean;
   supportsCanLinkAccountUid?: boolean | undefined;
@@ -31,6 +37,9 @@ export function mockUseFxAStatus({
   );
 
   return {
+    pairingEnabled,
+    pairingVersion,
+    hasSyncKeys,
     offeredSyncEngines,
     offeredSyncEngineConfigs,
     declinedSyncEngines,

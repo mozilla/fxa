@@ -64,7 +64,7 @@ const COPY: Record<
 
 export type TimeoutAndCancelProps = {
   /** Which of the two dead-end states to show. */
-  reason: PairingInterruptionReason;
+  reason?: PairingInterruptionReason;
 };
 
 /**
@@ -74,6 +74,7 @@ export type TimeoutAndCancelProps = {
  * restarts from `firefox.com/pair` on their computer.
  */
 const TimeoutAndCancel = ({ reason }: TimeoutAndCancelProps) => {
+  reason = reason ?? 'timeout';
   const { headingFtlId, heading, descriptionFtlId, description } = COPY[reason];
 
   return (

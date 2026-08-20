@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { MOCK_ACCOUNT, renderWithRouter } from '../../models/mocks';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
@@ -10,13 +10,34 @@ import ConnectAnotherDevice, { Devices, viewName } from '.';
 import { usePageViewEvent } from '../../lib/metrics';
 import {
   MOCK_BASIC_PROPS,
+  MOCK_BROWSER_SIGNED_IN_USER,
   MOCK_DEVICE_BASIC_PROPS,
   MOCK_DEFAULTS,
+  MOCK_PAIRING_ELIGIBLE_ROUTE,
+  mockPairingAppContext,
 } from './mocks';
 import { ENTRYPOINTS, REACT_ENTRYPOINT } from '../../constants';
+import firefox from '../../lib/channels/firefox';
+import * as ReactUtils from 'fxa-react/lib/utils';
+import { navigateWithQuery } from '../../lib/utilities';
 
 jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
+}));
+
+jest.mock('../../lib/channels/firefox', () => ({
+  ...jest.requireActual('../../lib/channels/firefox'),
+  __esModule: true,
+  default: {
+    requestSignedInUser: jest.fn(),
+    fxaOAuthFlowBegin: jest.fn(),
+    fxaStatus: jest.fn(),
+  },
+}));
+
+jest.mock('../../lib/utilities', () => ({
+  ...jest.requireActual('../../lib/utilities'),
+  navigateWithQuery: jest.fn(),
 }));
 
 jest.mock('../../lib/glean', () => ({
@@ -154,5 +175,140 @@ describe('ConnectAnotherDevice', () => {
   it('emits the expected metrics on render', () => {
     renderWithRouter(<ConnectAnotherDevice {...MOCK_DEVICE_BASIC_PROPS} />);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+  });
+
+  // The pairing version the browser supports now arrives as props (sourced from
+  // the App-level useFxAStatus web channel call) instead of being requested by
+  // this page. These tests cover the resulting v1/v2 routing decision.
+  describe('pairing bootstrap', () => {
+    const FXA_PAIRING_V1 = 1;
+    const FXA_PAIRING_V2 = 2;
+
+    const renderPairingEligible = (
+      props: {
+        pairingEnabled?: boolean;
+        pairingVersion?: number;
+      },
+      fxaPairingVersion: number,
+      route: string = MOCK_PAIRING_ELIGIBLE_ROUTE
+    ) =>
+      renderWithRouter(
+        <ConnectAnotherDevice {...props} />,
+        { route },
+        mockPairingAppContext(fxaPairingVersion)
+      );
+
+    let hardNavigate: jest.SpyInstance;
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+      hardNavigate = jest
+        .spyOn(ReactUtils, 'hardNavigate')
+        .mockImplementation(() => {});
+      (firefox.requestSignedInUser as jest.Mock).mockResolvedValue(
+        MOCK_BROWSER_SIGNED_IN_USER
+      );
+      (firefox.fxaOAuthFlowBegin as jest.Mock).mockResolvedValue(null);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('navigates to the v2 pairing flow when FxA and the browser both support version 2', async () => {
+      renderPairingEligible(
+        { pairingEnabled: true, pairingVersion: 2 },
+        FXA_PAIRING_V2
+      );
+
+      await waitFor(() =>
+        expect(navigateWithQuery).toHaveBeenCalledWith(
+          '/pair/authority/scan_qr'
+        )
+      );
+      expect(hardNavigate).not.toHaveBeenCalled();
+    });
+
+    it('reads the browser pairing capabilities from props instead of requesting fxaStatus', async () => {
+      renderPairingEligible(
+        { pairingEnabled: true, pairingVersion: 2 },
+        FXA_PAIRING_V2
+      );
+
+      await waitFor(() =>
+        expect(navigateWithQuery).toHaveBeenCalledWith(
+          '/pair/authority/scan_qr'
+        )
+      );
+      expect(firefox.fxaStatus).not.toHaveBeenCalled();
+    });
+
+    it('navigates to the v1 pairing flow when the browser only supports pairing version 1', async () => {
+      renderPairingEligible(
+        { pairingEnabled: true, pairingVersion: 1 },
+        FXA_PAIRING_V2
+      );
+
+      await waitFor(() => expect(hardNavigate).toHaveBeenCalledWith('/pair'));
+      expect(navigateWithQuery).not.toHaveBeenCalled();
+    });
+
+    it('navigates to the v1 pairing flow when the browser has pairing disabled', async () => {
+      renderPairingEligible(
+        { pairingEnabled: false, pairingVersion: 2 },
+        FXA_PAIRING_V2
+      );
+
+      await waitFor(() => expect(hardNavigate).toHaveBeenCalledWith('/pair'));
+      expect(navigateWithQuery).not.toHaveBeenCalled();
+    });
+
+    it('navigates to the v1 pairing flow when FxA pairing version is 1', async () => {
+      renderPairingEligible(
+        { pairingEnabled: true, pairingVersion: 2 },
+        FXA_PAIRING_V1
+      );
+
+      await waitFor(() => expect(hardNavigate).toHaveBeenCalledWith('/pair'));
+      expect(navigateWithQuery).not.toHaveBeenCalled();
+    });
+
+    it('navigates to the v1 pairing flow when no pairing props are supplied', async () => {
+      renderPairingEligible({}, FXA_PAIRING_V2);
+
+      await waitFor(() => expect(hardNavigate).toHaveBeenCalledWith('/pair'));
+      expect(navigateWithQuery).not.toHaveBeenCalled();
+    });
+
+    it('navigates to the v2 pairing flow when the v=2 query param forces it, despite a v1 browser', async () => {
+      renderPairingEligible(
+        { pairingEnabled: true, pairingVersion: 1 },
+        FXA_PAIRING_V2,
+        `${MOCK_PAIRING_ELIGIBLE_ROUTE}&v=2`
+      );
+
+      await waitFor(() =>
+        expect(navigateWithQuery).toHaveBeenCalledWith(
+          '/pair/authority/scan_qr'
+        )
+      );
+      expect(hardNavigate).not.toHaveBeenCalled();
+    });
+
+    it('renders the page without pairing when the flow is not pairing-eligible', async () => {
+      renderPairingEligible(
+        { pairingEnabled: true, pairingVersion: 2 },
+        FXA_PAIRING_V2,
+        '/connect_another_device'
+      );
+
+      expect(
+        await screen.findByRole('img', {
+          name: 'A computer and a mobile phone and a tablet with a pulsing heart on each',
+        })
+      ).toBeInTheDocument();
+      expect(navigateWithQuery).not.toHaveBeenCalled();
+      expect(hardNavigate).not.toHaveBeenCalled();
+    });
   });
 });
