@@ -1,8 +1,8 @@
 {
-  "commit": "d11695c12f31374d1b27e70eab7f8b0a80dbcb2b",
+  "commit": "1282979e261c76763f83680897dd9356f9a8026a",
   "summary": "feat(pairing): complete v2 pairing flow and add functional tests",
-  "description": "Because:\n- FXA-13870 needs functional tests for the v2 pairing flow, and the v2\n  supplicant flow did not complete end to end on Firefox for Android.\n\nThis commit:\n- forwards /pair/supp with the v2 marker into the v2 supplicant pages,\n  the route Firefox opens on the device.\n- consumes the OAuth params from the URL when the browser already ran\n  OAuth-start, and falls back to pair_oauth_start otherwise.\n- restores scope spaces the router encodes as \"+\" so the authority\n  delivers the oldsync scoped key and a session token.\n- adds v2 pairing functional tests (desktop, Android, negative, version\n  gating, web-channel) with Marionette and supplicant harnesses.\n- resets the Android supplicant to a cold state before each run, because\n  a stored account sends Fenix into a re-auth flow instead of pairing.",
-  "timestamp": 1787251581000,
+  "description": "Because:\n- FXA-13870 needs functional tests for the v2 pairing flow, and the v2\n  supplicant flow did not complete end to end on Firefox for Android.\n\nThis commit:\n- forwards /pair/supp with the v2 marker into the v2 supplicant pages,\n  the route Firefox opens on the device.\n- consumes the OAuth params from the URL when the browser already ran\n  OAuth-start, and falls back to pair_oauth_start otherwise.\n- restores scope spaces the router encodes as \"+\" so the authority\n  delivers the oldsync scoped key and a session token.\n- reads the pairing capabilities from the fxa_status that\n  ConnectAnotherDevice already awaits, so version-2 negotiation no longer\n  races the hook that used to supply them as props.\n- adds v2 pairing functional tests (desktop, Android, negative, version\n  gating, web-channel) with Marionette and supplicant harnesses.",
+  "timestamp": 1787255969000,
   "storybooks": [
     "fxa-settings"
   ],
