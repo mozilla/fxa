@@ -52,3 +52,27 @@ describe('Test simple server routes', () => {
     expect(response.text).toStrictEqual('Ok');
   });
 });
+
+// Each route the client router declares must serve index.html, or a refresh returns a 404.
+describe('Test client routes', () => {
+  it.each([
+    '/',
+    '/account-search',
+    '/account-delete',
+    '/account-reset',
+    '/relying-parties',
+    '/rate-limiting',
+    '/waf-tokens',
+    '/permissions',
+    '/domain-blocklist',
+    '/email-blocklist',
+    '/oauth-scopes',
+  ])('%s serves index.html', async (route) => {
+    const response = await request(app).get(route);
+    expect(response.status).toStrictEqual(200);
+    expect(response.header['content-type']).toStrictEqual(
+      'text/html; charset=utf-8'
+    );
+    expect(response.text).toContain('<div id="root">');
+  });
+});
