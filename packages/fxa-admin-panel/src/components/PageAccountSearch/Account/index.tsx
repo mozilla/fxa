@@ -30,6 +30,15 @@ import { Carts } from '../Cart';
 
 const INITIAL_SECURITY_EVENT_COUNT = 10;
 
+// The column holds a raw database value, so indent it only when it parses.
+const formatAdditionalInfo = (additionalInfo: string) => {
+  try {
+    return JSON.stringify(JSON.parse(additionalInfo), null, 2);
+  } catch {
+    return additionalInfo;
+  }
+};
+
 export type AccountProps = AccountType & {
   onCleared: () => void;
   query: string;
@@ -492,7 +501,13 @@ export const Account = ({
                     <>{securityEvent.name}</>
                     <>{getFormattedDate(securityEvent.createdAt)}</>
                     <>{securityEvent.ipAddr}</>
-                    <>{securityEvent.additionalInfo}</>
+                    <>
+                      {securityEvent.additionalInfo && (
+                        <pre className="whitespace-pre-wrap">
+                          {formatAdditionalInfo(securityEvent.additionalInfo)}
+                        </pre>
+                      )}
+                    </>
                   </TableRowXHeader>
                 );
               })}
