@@ -1,8 +1,8 @@
 {
-  "commit": "a895c8e39e31c6101471ca3c7e03a81091176cc5",
-  "summary": "Merge pull request #21062 from mozilla/fxa-13366",
-  "description": "fix(settings): report unlocalizable errors to Sentry with their message",
-  "timestamp": 1787243171000,
+  "commit": "0f2b7a431857c6213901a1e2c87eaea3742c3ec2",
+  "summary": "Merge pull request #21081 from mozilla/fxa-14386",
+  "description": "feat(admin-panel): format the account history additional info",
+  "timestamp": 1787243824000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

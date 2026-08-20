@@ -291,11 +291,11 @@ subscriptionCancellation-outstanding-content-2 = Мы отменили вашу 
 subscriptionCancellation-content-continue = Ваше обслуживание будет продолжаться до конца текущего расчётного периода, то есть { $serviceLastActiveDateOnly }.
 # Variables
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionCancellation-freeTrial-subject = Ваш бесплатный период для { $productName } был отменен
+subscriptionCancellation-freeTrial-subject = Ваш бесплатный период для { $productName } был отменён
 # Variables
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 #   $trialEndDateOnly (String) - The date when the free trial ends, e.g. 01/20/2016
-subscriptionCancellation-freeTrial-content = Ваш бесплатный период для { $productName } был отменен. Ваш доступ закончится { $trialEndDateOnly }. С вас не будет взиматься плата.
+subscriptionCancellation-freeTrial-content = Ваш бесплатный период для { $productName } был отменён. Ваш доступ закончится { $trialEndDateOnly }. С вас не будет взиматься плата.
 # Variables:
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionDowngrade-subject = Вы перешли на { $productName }
