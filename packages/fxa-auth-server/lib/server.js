@@ -53,6 +53,46 @@ function logValidationError(response, log) {
   reportValidationError(response.stack, response);
 }
 
+// Token exchange mints a replacement refresh token and retires the subject
+// token. Retiring it is held back until the response has passed schema
+// validation and been written: revoking inline means any later failure leaves
+// the client holding a refresh token we already deleted, with no replacement,
+// which reads to the user as a silent forced re-authentication (Sync
+// disconnects, /account/device 401s, no VPN or Relay token).
+//
+// The token route stashes the pending revocation on `request.app`. Nothing
+// awaits this, so it must never reject.
+async function revokeExchangedRefreshToken(oauthDb, log, request) {
+  const pending = request.app?.pendingRefreshTokenRevocation;
+  if (!pending) {
+    return;
+  }
+  try {
+    const statusCode =
+      request.response?.statusCode ?? request.response?.output?.statusCode;
+    if (!(statusCode >= 200 && statusCode < 300)) {
+      // The client never got the replacement, so leave it the one it has.
+      log.warn('token_exchange.revocation_skipped', {
+        statusCode,
+        userId: pending.userId,
+        clientId: pending.clientId,
+      });
+      return;
+    }
+    await oauthDb.removeRefreshToken({ tokenId: pending.tokenId });
+    log.info('token_exchange.original_token_revoked', {
+      userId: pending.userId,
+      clientId: pending.clientId,
+    });
+  } catch (err) {
+    log.warn('token_exchange.revocation_failed', {
+      userId: pending.userId,
+      clientId: pending.clientId,
+      error: err.message,
+    });
+  }
+}
+
 function logEndpointErrors(response, log) {
   // When requests to DB timeout and fail for unknown reason they are an 'EndpointError'.
   // The error response hides error information from the user, but we log it here
@@ -431,6 +471,9 @@ async function create(
   server.events.on('response', (request) => {
     log.summary(request, request.response);
     metricReporter(request);
+    // Fires after response validation, so a token exchange whose response
+    // failed leaves the client's existing refresh token intact.
+    revokeExchangedRefreshToken(oauthDb, log, request);
   });
 
   // Configure Sentry... Note, Sentry will already be initialized by this point,
@@ -836,5 +879,6 @@ module.exports = {
   _configureSentry: configureSentry,
   _logEndpointErrors: logEndpointErrors,
   _logValidationError: logValidationError,
+  _revokeExchangedRefreshToken: revokeExchangedRefreshToken,
   _trimLocale: trimLocale,
 };

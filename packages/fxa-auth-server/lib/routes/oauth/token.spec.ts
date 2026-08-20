@@ -654,7 +654,6 @@ describe('token exchange grant_type', () => {
     });
 
     it('returns combined scopes on success', async () => {
-      let removedTokenId: any = null;
       jest.resetModules();
       jest.doMock('../../oauth/assertion', () => async () => true);
       jest.doMock('../../oauth/client', () => ({
@@ -702,13 +701,11 @@ describe('token exchange grant_type', () => {
               profileChangedAt: Date.now(),
             };
           },
-          async removeRefreshToken({ tokenId }: any) {
-            removedTokenId = tokenId;
-          },
+          async removeRefreshToken() {},
         },
       });
 
-      const request = {
+      const request: any = {
         app: {},
         headers: {},
         payload: {
@@ -726,7 +723,80 @@ describe('token exchange grant_type', () => {
       expect(result.refresh_token).toBe('new_refresh_token');
       expect(result.scope).toContain(OAUTH_SCOPE_OLD_SYNC);
       expect(result.scope).toContain(OAUTH_SCOPE_RELAY);
-      expect(hex(removedTokenId)).toBe('1234567890abcdef');
+    });
+
+    // The subject token has to outlive the handler: it is only retired once the
+    // response has passed validation, by the 'response' hook in lib/server.js.
+    // Revoking inline strands the client when anything downstream fails.
+    it('stashes the subject token for deferred revocation rather than revoking inline', async () => {
+      let removeRefreshTokenCalls = 0;
+      jest.resetModules();
+      jest.doMock('../../oauth/assertion', () => async () => true);
+      jest.doMock('../../oauth/client', () => ({
+        authenticateClient: (_: any, params: any) => ({
+          id: buf(params.client_id),
+          canGrant: true,
+          publicClient: true,
+        }),
+        clientAuthValidators:
+          tokenRoutesDepMocks['../../oauth/client'].clientAuthValidators,
+      }));
+      jest.doMock('../../oauth/grant', () => ({
+        generateTokens: (grant: any) => ({
+          access_token: 'new_access_token',
+          token_type: 'bearer',
+          scope: grant.scope.toString(),
+          expires_in: 3600,
+          refresh_token: 'new_refresh_token',
+        }),
+        validateRequestedGrant: () => ({ offline: true, scope: 'testo' }),
+      }));
+      jest.doMock('../../oauth/util', () => ({
+        makeAssertionJWT: async () => ({}),
+      }));
+      const routes = require('./token')({
+        ...tokenRoutesArgMocks,
+        db: {
+          ...tokenRoutesArgMocks.db,
+          async deviceFromRefreshTokenId() {
+            return null;
+          },
+        },
+        oauthDB: {
+          ...tokenRoutesArgMocks.oauthDB,
+          async getRefreshToken() {
+            return {
+              userId: buf(UID),
+              clientId: buf(FIREFOX_IOS_CLIENT_ID),
+              tokenId: buf('1234567890abcdef'),
+              scope: ScopeSet.fromString(OAUTH_SCOPE_OLD_SYNC),
+              profileChangedAt: Date.now(),
+            };
+          },
+          async removeRefreshToken() {
+            removeRefreshTokenCalls += 1;
+          },
+        },
+      });
+
+      const request: any = {
+        app: {},
+        headers: {},
+        payload: {
+          grant_type: GRANT_TOKEN_EXCHANGE,
+          subject_token: REFRESH_TOKEN,
+          subject_token_type: SUBJECT_TOKEN_TYPE_REFRESH,
+          scope: OAUTH_SCOPE_RELAY,
+        },
+        emitMetricsEvent: () => {},
+      };
+
+      await routes[0].config.handler(request);
+
+      expect(removeRefreshTokenCalls).toBe(0);
+      expect(hex(request.app.pendingRefreshTokenRevocation.tokenId)).toBe(
+        '1234567890abcdef'
+      );
     });
   });
 

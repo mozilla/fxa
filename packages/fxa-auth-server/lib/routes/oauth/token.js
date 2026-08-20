@@ -658,27 +658,20 @@ module.exports = ({
 
     const tokens = await generateTokens(grant);
 
-    // For token exchange, revoke the original refresh token after successful generation
+    // For token exchange, retire the original refresh token — but not until the
+    // response is known good. Anything failing between here and the client
+    // receiving the payload would otherwise leave the device holding a refresh
+    // token we already deleted, with no replacement, forcing a re-auth. The
+    // revocation runs from the 'response' hook in lib/server.js.
     if (
       params.grant_type === GRANT_TOKEN_EXCHANGE &&
       grant.originalRefreshTokenId
     ) {
-      try {
-        await oauthDB.removeRefreshToken({
-          tokenId: grant.originalRefreshTokenId,
-        });
-        log.info('token_exchange.original_token_revoked', {
-          userId: hex(grant.userId),
-          clientId: hex(grant.clientId),
-        });
-      } catch (err) {
-        // Log but don't fail the request if revocation fails
-        log.warn('token_exchange.revocation_failed', {
-          userId: hex(grant.userId),
-          clientId: hex(grant.clientId),
-          error: err.message,
-        });
-      }
+      req.app.pendingRefreshTokenRevocation = {
+        tokenId: grant.originalRefreshTokenId,
+        userId: hex(grant.userId),
+        clientId: hex(grant.clientId),
+      };
     }
 
     const uid = hex(grant.userId);

@@ -107,6 +107,102 @@ describe('lib/server', () => {
     });
   });
 
+  describe('revokeExchangedRefreshToken', () => {
+    const TOKEN_ID = Buffer.from('1234567890abcdef', 'hex');
+    const PENDING = {
+      tokenId: TOKEN_ID,
+      userId: 'f9416ce3703e4916a4cd6b1e665a3f1a',
+      clientId: 'a2270f727f45f648',
+    };
+
+    let oauthDb: { removeRefreshToken: jest.Mock };
+    let log: { info: jest.Mock; warn: jest.Mock };
+
+    beforeEach(() => {
+      oauthDb = { removeRefreshToken: jest.fn().mockResolvedValue(undefined) };
+      log = { info: jest.fn(), warn: jest.fn() };
+    });
+
+    const request = (overrides: any = {}) => ({
+      app: { pendingRefreshTokenRevocation: PENDING },
+      response: { statusCode: 200 },
+      ...overrides,
+    });
+
+    it('revokes the subject token when the response succeeded', async () => {
+      await server._revokeExchangedRefreshToken(oauthDb, log, request());
+
+      expect(oauthDb.removeRefreshToken).toHaveBeenCalledWith({
+        tokenId: TOKEN_ID,
+      });
+      expect(log.info).toHaveBeenCalledWith(
+        'token_exchange.original_token_revoked',
+        { userId: PENDING.userId, clientId: PENDING.clientId }
+      );
+    });
+
+    // The regression this whole change exists for: a 500 must leave the
+    // client's existing refresh token usable.
+    it('leaves the subject token alone when the response failed', async () => {
+      await server._revokeExchangedRefreshToken(
+        oauthDb,
+        log,
+        request({ response: { output: { statusCode: 500 } } })
+      );
+
+      expect(oauthDb.removeRefreshToken).not.toHaveBeenCalled();
+      expect(log.warn).toHaveBeenCalledWith(
+        'token_exchange.revocation_skipped',
+        {
+          statusCode: 500,
+          userId: PENDING.userId,
+          clientId: PENDING.clientId,
+        }
+      );
+    });
+
+    it('reads the status code off a Boom response', async () => {
+      await server._revokeExchangedRefreshToken(
+        oauthDb,
+        log,
+        request({ response: { output: { statusCode: 429 } } })
+      );
+
+      expect(oauthDb.removeRefreshToken).not.toHaveBeenCalled();
+    });
+
+    it('does nothing when the request stashed no revocation', async () => {
+      await server._revokeExchangedRefreshToken(
+        oauthDb,
+        log,
+        request({ app: {} })
+      );
+
+      expect(oauthDb.removeRefreshToken).not.toHaveBeenCalled();
+      expect(log.warn).not.toHaveBeenCalled();
+      expect(log.info).not.toHaveBeenCalled();
+    });
+
+    // Nothing awaits this from the 'response' hook, so a rejection would
+    // surface as an unhandled rejection.
+    it('swallows and logs a revocation failure', async () => {
+      oauthDb.removeRefreshToken.mockRejectedValue(new Error('redis down'));
+
+      await expect(
+        server._revokeExchangedRefreshToken(oauthDb, log, request())
+      ).resolves.toBeUndefined();
+
+      expect(log.warn).toHaveBeenCalledWith(
+        'token_exchange.revocation_failed',
+        {
+          userId: PENDING.userId,
+          clientId: PENDING.clientId,
+          error: 'redis down',
+        }
+      );
+    });
+  });
+
   describe('set up mocks:', () => {
     let config: any, log: any, routes: any, response: any, statsd: any;
 
