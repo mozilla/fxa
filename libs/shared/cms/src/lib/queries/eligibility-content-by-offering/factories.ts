@@ -8,6 +8,7 @@ import { EligibilityContentByOfferingQuery } from '../../../__generated__/graphq
 import {
   EligibilityContentOfferingResult,
   EligibilityContentSubgroupOfferingResult,
+  EligibilityContentSubgroupRankedOfferingResult,
   EligibilityContentSubgroupResult,
   EligibilityContentByOfferingResult,
 } from '.';
@@ -48,9 +49,30 @@ export const EligibilityContentOfferingResultFactory = (
 
 export const EligibilityContentSubgroupResultFactory = (
   override?: Partial<EligibilityContentSubgroupResult>
-): EligibilityContentSubgroupResult => ({
-  groupName: faker.string.sample(),
-  offerings: [EligibilityContentSubgroupOfferingResultFactory()],
+): EligibilityContentSubgroupResult => {
+  const offerings = override?.offerings ?? [
+    EligibilityContentSubgroupOfferingResultFactory(),
+  ];
+  return {
+    groupName: faker.string.sample(),
+    offerings,
+    rankedOfferings: offerings.map((offering, position) =>
+      EligibilityContentSubgroupRankedOfferingResultFactory({
+        position,
+        offering: { apiIdentifier: offering.apiIdentifier },
+      })
+    ),
+    ...override,
+  };
+};
+
+export const EligibilityContentSubgroupRankedOfferingResultFactory = (
+  override?: Partial<EligibilityContentSubgroupRankedOfferingResult>
+): EligibilityContentSubgroupRankedOfferingResult => ({
+  position: faker.number.int({ min: 0, max: 100 }),
+  offering: {
+    apiIdentifier: faker.string.sample(),
+  },
   ...override,
 });
 

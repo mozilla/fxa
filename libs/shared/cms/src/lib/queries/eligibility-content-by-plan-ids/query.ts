@@ -39,6 +39,12 @@ export const eligibilityContentByPlanIdsQuery = graphql(`
             }
             countries
           }
+          rankedOfferings(pagination: { limit: 200 }) {
+            position
+            offering {
+              apiIdentifier
+            }
+          }
         }
       }
     }
