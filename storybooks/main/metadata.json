@@ -1,8 +1,8 @@
 {
-  "commit": "b6ca6250f0622312bfd5123526cd0e11f573562f",
-  "summary": "Merge pull request #21059 from mozilla/fxa-12499",
-  "description": "fix(tsconfig): stop functional-tests build config overriding base paths",
-  "timestamp": 1787180248000,
+  "commit": "206bc8bdb91fb46bbe1e5548357f0970778e8517",
+  "summary": "Merge pull request #20999 from mozilla/PAY-3844-reinforce-subgroup-order",
+  "description": "fix(payments-next): Reinforce subgroup order",
+  "timestamp": 1787238695000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
