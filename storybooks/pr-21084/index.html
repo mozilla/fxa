@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 27fed65c4f5ee60fe40efe78acd989af5f991ed1</title>
+  <title>Storybooks for commit d5ec1306aa22eaae10cb068485b3acdfa20296d9</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,28 +23,28 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 27fed65c4f5ee60fe40efe78acd989af5f991ed1</h1>
+  <h1>Storybooks for commit d5ec1306aa22eaae10cb068485b3acdfa20296d9</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/20/2026, 4:58:49 PM UTC</dd>
+    <dd>8/20/2026, 7:59:56 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(settings): validate uid before using it as an accounts key</pre></dd>
+    <dd><pre>fix(settings): validate uid before using it as an accounts map key</pre></dd>
     <dt>Description</dt>
     <dd><pre>## Because
 
-- A code scan raised a prototype pollution warning on `legacyLocalStorageAccount.email = email` in `Account.ts`. That line is not the sink. Its key is a literal, so it can only ever write a property called `email`. It is where the tainted value enters the object.
-- The writes that matter are one call deeper, in `currentAccount()` in `cache.ts`. `all` is the accounts object parsed from localStorage. `uid` is only asserted to be a `hexstring` (`as hexstring`), never checked at run time.
-- The URL supplies one of those uids. With `?uid=constructor`, `all[&#039;constructor&#039;]` is truthy through the prototype chain, so `constructor` becomes the stored account uid. `currentAccount()` then returns the global `Object`, and the next call to `sessionToken(newToken)` writes the session token onto it.
+- A uid is typed `hexstring`. That is a TypeScript assertion, not a runtime check. The `?uid=` query parameter and the stored `currentAccountUid` both reach `cache.ts` unvalidated.
+- `cache.ts` uses the uid as a key into the accounts object, a plain object parsed from localStorage. `?uid=constructor` passes the old `all[forceUid]` truthiness test, because `all[&#039;constructor&#039;]` resolves to `Object`. The value gets persisted. A later `sessionToken(newToken)` call then writes `Object.prototype.sessionToken`.
+- The scan reported this against `Account.ts`, on `legacyLocalStorageAccount.email = email`. That is where the tainted value enters the object, but the key there is a literal, so it cannot pollute anything. The sink is one call deeper.
 
 ## This pull request
 
-- Adds an `isValidUid` guard to `cache.ts`. It tests a uid against `/^[0-9a-f]{32}$/`.
-- Applies the guard to the `uid` query parameter that `currentAccount()` reads from the URL.
-- Makes `currentAccount()` return `undefined` and write nothing when the uid of the given account fails the check. That keeps the existing `StoredAccountData | undefined` return type, so no caller changes.
-- Adds tests to `cache.test.ts` for the rejected uids, for the round trip of a valid uid, and for the `?uid=constructor` chain above.
+- Adds `isValidUid()` to `cache.ts`. It checks for 32 hex characters, matching `DEVICE_ID_REGEX` in `fxa-shared`.
+- Guards the writes: the `?uid=` query parameter, and `account.uid` before it becomes a key.
+- Guards the reads: `currentAccount()`, `getAccountByUid()`, and the delete in `clearSignedInAccountUid()`.
+- Adds `currentAccount` and `getAccountByUid` tests to `cache.test.ts`.
 
 ## Issue that this pull request solves
 
