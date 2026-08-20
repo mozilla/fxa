@@ -1,8 +1,8 @@
 {
-  "commit": "1a29cb59972cfbdd49a3dc45dcae1e4fb36a0869",
-  "summary": "wip",
+  "commit": "ceb24bd027c7a01d47ee4cd8d8ac6bebbed7d2a2",
+  "summary": "isDevicePairingAsSupplicant",
   "description": "",
-  "timestamp": 1787162191000,
+  "timestamp": 1787253818000,
   "storybooks": [
     "fxa-settings"
   ],

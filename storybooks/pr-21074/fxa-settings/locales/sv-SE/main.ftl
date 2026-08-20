@@ -562,7 +562,7 @@ flow-setup-2fa-inline-complete-continue-button = Fortsätt till { $serviceName }
 flow-setup-2fa-prompt-heading = Ställ in tvåstegsautentisering
 flow-setup-2fa-prompt-description = { $serviceName } kräver att du konfigurerar tvåstegsautentisering för att skydda ditt konto.
 flow-setup-2fa-prompt-passkey-success-banner = Inloggad med lösenordsnyckel
-flow-setup-2fa-prompt-passkey-description = { $serviceName } kräver också tvåstegsautentisering för din { -product-mozilla-account }. Efter installationen behöver du inte längre den när du loggar in med en lösenordsnyckel.
+flow-setup-2fa-prompt-passkey-description = { $serviceName } kräver också tvåstegsautentisering för ditt { -product-mozilla-account }. Efter installationen behöver du inte längre den när du loggar in med en lösenordsnyckel.
 flow-setup-2fa-prompt-use-authenticator-apps = Du kan använda någon av <authenticationAppsLink>dessa autentiseringsappar</authenticationAppsLink> för att fortsätta.
 flow-setup-2fa-prompt-continue-button = Fortsätt
 
