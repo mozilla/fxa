@@ -1,8 +1,8 @@
 {
-  "commit": "e23da08c885548a2b075cd45126bd14fa969c3f5",
-  "summary": "Merge pull request #21061 from mozilla/fxa-13194",
-  "description": "fix(rate-limit): match ignoreEmails against the non-normalized email",
-  "timestamp": 1787244494000,
+  "commit": "845cd9d4ea86a6a68b18728082906937e614a7a8",
+  "summary": "Merge pull request #21083 from mozilla/vpn-500-fix",
+  "description": "fix(auth-server): raise the JWT bound so /oauth/token stops 500ing",
+  "timestamp": 1787246750000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
