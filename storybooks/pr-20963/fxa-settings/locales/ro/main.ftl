@@ -121,6 +121,7 @@ button-back-aria-label = Înapoi
 button-back-title = Înapoi
 
 
+recovery-key-download-button-v4 = Descarcă și continuă
 recovery-key-pdf-download-error = Ne pare rău, a apărut o problemă la descărcarea cheii tale de recuperare a contului
 
 
@@ -602,6 +603,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Cum îți protejează contul
 flow-setup-2fa-inline-complete-continue-button = Continuă cu { $serviceName }
 flow-setup-2fa-prompt-heading = Configurează autentificarea în doi pași
 flow-setup-2fa-prompt-description = { $serviceName } necesită configurarea autentificării în doi pași ca să îți menții contul în siguranță.
+flow-setup-2fa-prompt-passkey-success-banner = Te-ai conectat cu succes folosind cheia de acces
+flow-setup-2fa-prompt-passkey-description = { $serviceName } necesită și autentificarea în doi pași pentru contul tău { -product-mozilla-account }. După configurare, nu vei mai avea nevoie de ea când te conectezi cu o cheie de acces.
 flow-setup-2fa-prompt-use-authenticator-apps = Poți folosi oricare dintre <authenticationAppsLink>aceste aplicații de autentificare</authenticationAppsLink> pentru a continua.
 flow-setup-2fa-prompt-continue-button = Continuă
 
