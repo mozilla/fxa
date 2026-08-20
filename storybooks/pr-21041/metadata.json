@@ -1,8 +1,8 @@
 {
-  "commit": "3fd31cc0f9ea1d4567d41452ed723192c2637069",
+  "commit": "e7556e1aaf53fa9121d765e26a60244cb6943dee",
   "summary": "task(setings): Validate that new wc commands and pref activate",
   "description": "Because:\n- We want to do a preliminary check that the new paring.version pref added to Firefox works\n- We want to do a preliminary check that the new `fxaccounts:pair_oauth_start` wc cmd works\n- We want to do a preliminary check that the new `fxaccounts:pair_oauth_finish` wc cmd works\n\nThis Commit:\n- Wires pair v2 routes! And gates with a feature flag.\n- Adds config to to content server and passes this along to fxa-setting's `config.pairing.version`.\n- Augments the useFxaStatus webhook to:\n  - return the current pairing version set in firefox\n   - return if pairing is enabled in firefox\n   - if the user currently has sync keys\n- Routes to the new scan_qr page from /connect_another_device page when:\n  - fxaStatu's pairingEnabled is true and pairngVersion is 2 and FxA's config also has pairing.version of 2.\n  - The `&v=2` query param is present on the /connect_another_device page.\n- Adds support and tests for the new web-channel command to `firefox.ts`.\n- Excercises the new web channel commands in `/poc_pair_start` as a sanity check that they work.",
-  "timestamp": 1787162706000,
+  "timestamp": 1787253462000,
   "storybooks": [
     "fxa-settings"
   ],
