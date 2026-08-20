@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 27fed65c4f5ee60fe40efe78acd989af5f991ed1</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 27fed65c4f5ee60fe40efe78acd989af5f991ed1</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>8/20/2026, 4:58:49 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): validate uid before using it as an accounts key</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- A code scan raised a prototype pollution warning on `legacyLocalStorageAccount.email = email` in `Account.ts`. That line is not the sink. Its key is a literal, so it can only ever write a property called `email`. It is where the tainted value enters the object.
+- The writes that matter are one call deeper, in `currentAccount()` in `cache.ts`. `all` is the accounts object parsed from localStorage. `uid` is only asserted to be a `hexstring` (`as hexstring`), never checked at run time.
+- The URL supplies one of those uids. With `?uid=constructor`, `all[&#039;constructor&#039;]` is truthy through the prototype chain, so `constructor` becomes the stored account uid. `currentAccount()` then returns the global `Object`, and the next call to `sessionToken(newToken)` writes the session token onto it.
+
+## This pull request
+
+- Adds an `isValidUid` guard to `cache.ts`. It tests a uid against `/^[0-9a-f]{32}$/`.
+- Applies the guard to the `uid` query parameter that `currentAccount()` reads from the URL.
+- Makes `currentAccount()` return `undefined` and write nothing when the uid of the given account fails the check. That keeps the existing `StoredAccountData | undefined` return type, so no caller changes.
+- Adds tests to `cache.test.ts` for the rejected uids, for the round trip of a valid uid, and for the `?uid=constructor` chain above.
+
+## Issue that this pull request solves
+
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-12450</pre></dd>
+  </dl>
+</body>
+</html>
