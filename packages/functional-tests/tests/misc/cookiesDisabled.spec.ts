@@ -53,10 +53,8 @@ test.describe('cookies disabled', () => {
     await page.waitForURL(/\/cookies_disabled/);
 
     // Verify the Cookies disabled header
-    // Updated in FXA-9323 as waitForTimeOut tests can be flaky in production:
-    // https://playwright.dev/docs/api/class-page#page-wait-for-timeout
-    await expect(cookiesDisabled.cookiesDisabledHeader()).resolves.toBeVisible({
-      timeout: 500,
-    });
+    // FXA-9323 replaced waitForTimeout here, but its 500ms budget was too short
+    // for CI. The page object already waits, so let its waitFor() govern.
+    await expect(await cookiesDisabled.cookiesDisabledHeader()).toBeVisible();
   });
 });
