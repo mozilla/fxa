@@ -3,9 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import BaseRelier from 'models/reliers/base';
-import chai from 'chai';
-
-var assert = chai.assert;
+import { assert } from 'chai';
 
 describe('models/reliers/base', function () {
   var relier;

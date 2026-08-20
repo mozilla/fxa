@@ -14,6 +14,8 @@ module.exports = {
       },
     ],
   },
+  // chai 5 is ESM-only, so jest has to transform it rather than skip it
+  transformIgnorePatterns: ['/node_modules/(?!chai/)'],
   coverageDirectory: './coverage',
   testEnvironment: 'node',
 };

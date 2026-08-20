@@ -3,11 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import $ from 'jquery';
-import chai from 'chai';
+import { assert } from 'chai';
 import ProgressIndicator from 'views/progress_indicator';
 import sinon from 'sinon';
 
-var assert = chai.assert;
 var progressIndicator;
 
 describe('views/progress_indicator', function () {

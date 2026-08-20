@@ -5,7 +5,7 @@
 import $ from 'jquery';
 import Backbone from 'backbone';
 import Broker from 'models/auth_brokers/base';
-import chai from 'chai';
+import { assert } from 'chai';
 import Metrics from 'lib/metrics';
 import OAuthErrors from 'lib/oauth-errors';
 import Relier from 'models/reliers/relier';
@@ -16,8 +16,6 @@ import User from 'models/user';
 import VerificationReasons from 'lib/verification-reasons';
 import View from 'views/permissions';
 import WindowMock from '../../mocks/window';
-
-var assert = chai.assert;
 
 describe('views/permissions', function () {
   var account;

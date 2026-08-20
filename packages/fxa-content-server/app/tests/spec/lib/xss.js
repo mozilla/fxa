@@ -3,11 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import _ from 'underscore';
-import chai from 'chai';
+import { assert } from 'chai';
 import Constants from 'lib/constants';
 import XSS from 'lib/xss';
-
-var assert = chai.assert;
 
 describe('lib/xss', function () {
   describe('href', function () {
