@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit d11695c12f31374d1b27e70eab7f8b0a80dbcb2b</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit d11695c12f31374d1b27e70eab7f8b0a80dbcb2b</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>8/20/2026, 6:46:21 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(pairing): complete v2 pairing flow and add functional tests</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- FXA-13870 needs functional tests for the v2 pairing flow, and the v2
+  supplicant flow did not complete end to end on Firefox for Android.
+
+This commit:
+- forwards /pair/supp with the v2 marker into the v2 supplicant pages,
+  the route Firefox opens on the device.
+- consumes the OAuth params from the URL when the browser already ran
+  OAuth-start, and falls back to pair_oauth_start otherwise.
+- restores scope spaces the router encodes as &quot;+&quot; so the authority
+  delivers the oldsync scoped key and a session token.
+- adds v2 pairing functional tests (desktop, Android, negative, version
+  gating, web-channel) with Marionette and supplicant harnesses.
+- resets the Android supplicant to a cold state before each run, because
+  a stored account sends Fenix into a re-auth flow instead of pairing.</pre></dd>
+  </dl>
+</body>
+</html>
