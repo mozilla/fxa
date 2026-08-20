@@ -954,6 +954,9 @@ recent-activity-account-passwordless-login-otp-failed = Passwordless sign-in cod
 recent-activity-account-passwordless-login-otp-verified = Passwordless sign-in code verified
 recent-activity-account-passwordless-registration-complete = Passwordless account registration completed
 recent-activity-account-recovery-codes-set = Recovery codes set
+recent-activity-account-passkey-wrap-created = Passkey enabled for syncing
+recent-activity-account-passkey-wrap-creation-failure = Sync setup with passkey failed
+recent-activity-account-passkey-wrap-invalidated = Passkey sync access removed after password reset
 
 recent-activity-unknown = Other account activity
 

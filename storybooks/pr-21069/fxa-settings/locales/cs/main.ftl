@@ -1118,6 +1118,9 @@ recent-activity-account-passwordless-login-otp-failed = Selhal kód pro přihlá
 recent-activity-account-passwordless-login-otp-verified = Ověřen kód pro přihlášení bez hesla
 recent-activity-account-passwordless-registration-complete = Registrace účtu bez hesla byla dokončena
 recent-activity-account-recovery-codes-set = Obnovovací kódy jsou nastaveny
+recent-activity-account-passkey-wrap-created = Přístupový klíč pro synchronizaci povolen
+recent-activity-account-passkey-wrap-creation-failure = Nastavení synchronizace s přístupovým klíčem selhalo
+recent-activity-account-passkey-wrap-invalidated = Přístup k synchronizaci hesla byl po obnovení hesla odebrán
 recent-activity-unknown = Jiná aktivita u účtu
 
 
