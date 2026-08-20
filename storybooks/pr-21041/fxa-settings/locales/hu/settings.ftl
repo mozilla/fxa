@@ -1092,6 +1092,12 @@ recent-activity-account-passwordless-login-otp-failed = A jelszó nélküli beje
 recent-activity-account-passwordless-login-otp-verified = Jelszó nélküli bejelentkezési kód ellenőrizve
 recent-activity-account-passwordless-registration-complete = Jelszó nélküli fiókregisztráció befejezve
 recent-activity-account-recovery-codes-set = Helyreállítási kódok beállítva
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
+recent-activity-account-passkey-wrap-created = A jelszó engedélyezve a szinkronizáláshoz
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-creation-failure = A jelkulcsos szinkronizálás beállítása sikertelen
+# A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
+recent-activity-account-passkey-wrap-invalidated = A jelkulcs szinkronizálási hozzáférés eltávolítva a jelszó-visszaállítás után
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Egyéb fióktevékenység
 
