@@ -835,6 +835,9 @@ recent-activity-account-passwordless-login-otp-failed = Přizjewjenski kod bjez 
 recent-activity-account-passwordless-login-otp-verified = Přizjewjenski kod bjez hesła přepruwowany
 recent-activity-account-passwordless-registration-complete = Kontowa registracija bjez hesła dokónčena
 recent-activity-account-recovery-codes-set = Wobnowjenske kody nastajene
+recent-activity-account-passkey-wrap-created = Hesłowy kluč je so za synchronizaciju zmóžnił
+recent-activity-account-passkey-wrap-creation-failure = Konfiguracija synchronizacije z hesłowym klučom je so nimokuliła
+recent-activity-account-passkey-wrap-invalidated = Synchronizaciski přistup z hesłowym klučom je so po wróćostajenju hesła wotstronił
 recent-activity-unknown = Druha kontowa aktiwita
 
 

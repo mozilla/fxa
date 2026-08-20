@@ -1,8 +1,8 @@
 {
-  "commit": "87fd1057b04f4cf5f6a5d01a18c50a71f8c889ec",
-  "summary": "Merge pull request #21085 from mozilla/blender/reenable-investigations",
-  "description": "chore(blender): re-enable BLEnder investigations",
-  "timestamp": 1787252465000,
+  "commit": "e856cffdbf261c0b73ff51cde86045f77d26044b",
+  "summary": "Merge pull request #21041 from mozilla/FXA-14354",
+  "description": "task(setings): Validate that new wc commands and pref activate",
+  "timestamp": 1787265645000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

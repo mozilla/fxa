@@ -83,6 +83,7 @@ button-back-aria-label = Slědk
 button-back-title = Slědk
 
 
+recovery-key-download-button-v4 = Ześěgnuś a pókšacowaś
 recovery-key-pdf-download-error = Bóžko jo pśi ześěgowanju kontowego wótnowjeńskego kluca problem nastał
 
 
@@ -568,6 +569,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Kak to wašo konto šćita
 flow-setup-2fa-inline-complete-continue-button = Dalej k { $serviceName }
 flow-setup-2fa-prompt-heading = Dwójokšacowu awtentifikaciju konfigurěrowaś
 flow-setup-2fa-prompt-description = { $serviceName } pomina, až dwójokšacowu awtentifikaciju konfigurěrujośo, aby wašo konto wěste wóstało.
+flow-setup-2fa-prompt-passkey-success-banner = Wuspěšnje z gronidłowym klucom pśizjawjony
+flow-setup-2fa-prompt-passkey-description = { $serviceName } se teke dwójokšacowu awtentifikaciju za wašo { -product-mozilla-account } pomina. Pó konfiguraciji njetrjebaśo ju, gaž se z gronidłowym klucom pśizjawjaśo.
 flow-setup-2fa-prompt-use-authenticator-apps = Móžośo <authenticationAppsLink>toś te awtentifikaciske nałoženja</authenticationAppsLink> wužywaś, aby pókšacował.
 flow-setup-2fa-prompt-continue-button = Dalej
 
@@ -832,6 +835,9 @@ recent-activity-account-passwordless-login-otp-failed = Pśizjawjeński kod bźe
 recent-activity-account-passwordless-login-otp-verified = Pśizjawjeński kod bźez gronidła jo se pśeglědał
 recent-activity-account-passwordless-registration-complete = Kontowa registracija bźez gronidła dokóńcona
 recent-activity-account-recovery-codes-set = Wótnowjeńske kody nastajone
+recent-activity-account-passkey-wrap-created = Gronidłowy kluc jo se za synchronizaciju zmóžnił
+recent-activity-account-passkey-wrap-creation-failure = Konfiguracija synchronizacije z gronidłowym klucom njejo se raźiła
+recent-activity-account-passkey-wrap-invalidated = Synchronizaciski pśistup z gronidłowym klucom jo se pó slědkstajenju gronidła wótwónoźeł
 recent-activity-unknown = Druga kontowa aktiwita
 
 
