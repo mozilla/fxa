@@ -17,24 +17,117 @@ const errorWithAnInvalidErrorNumber = {
 } as AuthUiError;
 
 jest.mock('@sentry/browser', () => ({
-  captureMessage: jest.fn(),
+  captureException: jest.fn(),
 }));
 
+const missingErrnoReason =
+  "An error occurred that we attempted to localize and render, but 'errno' is missing.";
+const unknownErrnoReason =
+  'An error occurred that we attempted to localize and render, but this error was not found in auth-errors or oauth-errors. We should either add this error to our list or not display it.';
+
+const capturedException = () => {
+  const [error, context] = (
+    Sentry.captureException as jest.MockedFunction<
+      typeof Sentry.captureException
+    >
+  ).mock.calls[0];
+  return { error: error as Error, context };
+};
+
 describe('getErrorFtlId', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('logs an informative error to sentry if passed an error with no errno', () => {
     getErrorFtlId(errorWithNoErrorNumber);
-    const errorMessage = `WARNING: An error occurred that we attempted to localize and render, but 'errno' is missing. error: ${JSON.stringify(
-      errorWithNoErrorNumber
-    )}`;
-    expect(Sentry.captureMessage).toHaveBeenCalledWith(errorMessage);
+    const { error, context } = capturedException();
+    expect(error.message).toEqual("I'm an error with no error number!");
+    expect(context).toEqual({
+      tags: { source: 'getErrorFtlId' },
+      extra: {
+        reason: missingErrnoReason,
+        errno: undefined,
+        code: undefined,
+        retryAfter: undefined,
+      },
+      level: 'warning',
+    });
   });
 
   it('logs to sentry if an error does not match an entry in AuthUiErrors object or OAuth errors array', () => {
     getErrorFtlId(errorWithAnInvalidErrorNumber);
-    const errorMessage = `WARNING: An error occurred that we attempted to localize and render, but this error was not found in auth-errors or oauth-errors. We should either add this error to our list or not display it. error: ${JSON.stringify(
-      errorWithAnInvalidErrorNumber
-    )}`;
-    expect(Sentry.captureMessage).toHaveBeenCalledWith(errorMessage);
+    const { error, context } = capturedException();
+    expect(error.message).toEqual('This is an error with an invalid errno!');
+    expect(context).toEqual({
+      tags: { source: 'getErrorFtlId' },
+      extra: {
+        reason: unknownErrnoReason,
+        errno: notAnExistingErrorNumber,
+        code: undefined,
+        retryAfter: undefined,
+      },
+      level: 'warning',
+    });
+  });
+
+  it('sends the code and retryAfter of an unrecognized error to sentry', () => {
+    getErrorFtlId({
+      errno: notAnExistingErrorNumber,
+      message: 'This is a rate limited error with an invalid errno!',
+      code: 429,
+      retryAfter: 900,
+    });
+    const { context } = capturedException();
+    expect(context).toEqual({
+      tags: { source: 'getErrorFtlId' },
+      extra: {
+        reason: unknownErrnoReason,
+        errno: notAnExistingErrorNumber,
+        code: 429,
+        retryAfter: 900,
+      },
+      level: 'warning',
+    });
+  });
+
+  it('sends a real Error with no errno to sentry with its message and stack intact', () => {
+    const err = new Error('A real Error with no errno');
+    getErrorFtlId(err);
+    const { error } = capturedException();
+    expect(error).toBe(err);
+    expect(error.message).toEqual('A real Error with no errno');
+  });
+
+  it('sends a real Error with an unrecognized errno to sentry with its message and stack intact', () => {
+    const err = Object.assign(new Error('A real Error with an invalid errno'), {
+      errno: notAnExistingErrorNumber,
+    });
+    getErrorFtlId(err);
+    const { error, context } = capturedException();
+    expect(error).toBe(err);
+    expect(error.message).toEqual('A real Error with an invalid errno');
+    expect(context).toEqual({
+      tags: { source: 'getErrorFtlId' },
+      extra: {
+        reason: unknownErrnoReason,
+        errno: notAnExistingErrorNumber,
+        code: undefined,
+        retryAfter: undefined,
+      },
+      level: 'warning',
+    });
+  });
+
+  it('falls back to the reason when the error carries no message', () => {
+    getErrorFtlId({});
+    const { error } = capturedException();
+    expect(error.message).toEqual(missingErrnoReason);
+  });
+
+  it('does not log to sentry for a known errno', () => {
+    getErrorFtlId({ message: 'I am valid', errno: 106 });
+    expect(Sentry.captureException).not.toHaveBeenCalled();
   });
 
   it('returns an empty string if passed no error number', () => {
