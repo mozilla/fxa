@@ -866,6 +866,9 @@ recent-activity-account-passwordless-login-otp-failed = A jelszó nélküli beje
 recent-activity-account-passwordless-login-otp-verified = Jelszó nélküli bejelentkezési kód ellenőrizve
 recent-activity-account-passwordless-registration-complete = Jelszó nélküli fiókregisztráció befejezve
 recent-activity-account-recovery-codes-set = Helyreállítási kódok beállítva
+recent-activity-account-passkey-wrap-created = A jelszó engedélyezve a szinkronizáláshoz
+recent-activity-account-passkey-wrap-creation-failure = A jelkulcsos szinkronizálás beállítása sikertelen
+recent-activity-account-passkey-wrap-invalidated = A jelkulcs szinkronizálási hozzáférés eltávolítva a jelszó-visszaállítás után
 recent-activity-unknown = Egyéb fióktevékenység
 
 

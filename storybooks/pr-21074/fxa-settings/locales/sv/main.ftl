@@ -83,14 +83,7 @@ button-back-aria-label = Tillbaka
 button-back-title = Tillbaka
 
 
-recovery-key-download-button-v3 = Ladda ner och fortsätt
-    .title = Ladda ner och fortsätt
-recovery-key-pdf-heading = Nyckel för kontoåterställning
-recovery-key-pdf-download-date = Skapad: { $date }
-recovery-key-pdf-key-legend = Nyckel för kontoåterställning
-recovery-key-pdf-instructions = Den här nyckeln låter dig återställa dina krypterade webbläsardata (inklusive lösenord, bokmärken och historik) om du glömmer ditt lösenord. Förvara den på en plats du kommer ihåg.
-recovery-key-pdf-storage-ideas-heading = Platser att förvara din nyckel
-recovery-key-pdf-support = Läs mer om din kontoåterställningsnyckel
+recovery-key-download-button-v4 = Ladda ner och fortsätt
 recovery-key-pdf-download-error = Det gick tyvärr inte att ladda ned din kontoåterställningsnyckel.
 
 
@@ -568,6 +561,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Hur detta skyddar ditt konto
 flow-setup-2fa-inline-complete-continue-button = Fortsätt till { $serviceName }
 flow-setup-2fa-prompt-heading = Ställ in tvåstegsautentisering
 flow-setup-2fa-prompt-description = { $serviceName } kräver att du konfigurerar tvåstegsautentisering för att skydda ditt konto.
+flow-setup-2fa-prompt-passkey-success-banner = Inloggad med lösenordsnyckel
+flow-setup-2fa-prompt-passkey-description = { $serviceName } kräver också tvåstegsautentisering för ditt { -product-mozilla-account }. Efter installationen behöver du inte längre den när du loggar in med en lösenordsnyckel.
 flow-setup-2fa-prompt-use-authenticator-apps = Du kan använda någon av <authenticationAppsLink>dessa autentiseringsappar</authenticationAppsLink> för att fortsätta.
 flow-setup-2fa-prompt-continue-button = Fortsätt
 

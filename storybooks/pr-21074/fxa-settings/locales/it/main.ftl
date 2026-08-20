@@ -837,6 +837,9 @@ recent-activity-account-passwordless-login-otp-failed = Codice di accesso senza 
 recent-activity-account-passwordless-login-otp-verified = Codice di accesso senza password verificato
 recent-activity-account-passwordless-registration-complete = Completata registrazione dell’account senza password
 recent-activity-account-recovery-codes-set = Impostati codici di recupero
+recent-activity-account-passkey-wrap-created = Chiave di accesso attivata per la sincronizzazione
+recent-activity-account-passkey-wrap-creation-failure = Sincronizzazione configurazione con passkey non riuscita
+recent-activity-account-passkey-wrap-invalidated = L’accesso per la sincronizzazione con passkey è stato rimosso dopo la reimpostazione della password
 recent-activity-unknown = Altre attività dell’account
 
 

@@ -837,6 +837,9 @@ recent-activity-account-passwordless-login-otp-failed = Échec de la connexion s
 recent-activity-account-passwordless-login-otp-verified = Code de connexion sans mot de passe vérifié
 recent-activity-account-passwordless-registration-complete = Enregistrement du compte sans mot de passe terminé
 recent-activity-account-recovery-codes-set = Codes de secours définis
+recent-activity-account-passkey-wrap-created = Clé d’accès activée pour la synchronisation
+recent-activity-account-passkey-wrap-creation-failure = Échec de la synchronisation de la configuration avec la clé d’accès
+recent-activity-account-passkey-wrap-invalidated = Accès à la synchronisation par clé d’accès supprimé après la réinitialisation du mot de passe
 recent-activity-unknown = Autre activité du compte
 
 

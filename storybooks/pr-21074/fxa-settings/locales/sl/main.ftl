@@ -955,6 +955,9 @@ recent-activity-account-passwordless-login-otp-failed = Koda za prijavo brez ges
 recent-activity-account-passwordless-login-otp-verified = Koda za prijavo brez gesla je preverjena
 recent-activity-account-passwordless-registration-complete = Registracija računa brez gesla končana
 recent-activity-account-recovery-codes-set = Kode za obnovitev so nastavljene
+recent-activity-account-passkey-wrap-created = Geslo je omogočeno za sinhronizacijo
+recent-activity-account-passkey-wrap-creation-failure = Nastavitev sinhronizacije z geslom ni uspela
+recent-activity-account-passkey-wrap-invalidated = Dostop za sinhronizacijo gesel je bil po ponastavitvi gesla odstranjen
 recent-activity-unknown = Drugačna dejavnost v računu
 
 
