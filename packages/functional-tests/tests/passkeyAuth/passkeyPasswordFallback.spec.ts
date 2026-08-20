@@ -181,8 +181,9 @@ test.describe('severity-1 #smoke', () => {
       });
       const { email, password } = credentials;
       credentials.secret = await enableTotpOnAccount(
-        target.authClient,
-        credentials.sessionToken
+        target,
+        credentials.sessionToken,
+        credentials.email
       );
 
       await settings.signOut();

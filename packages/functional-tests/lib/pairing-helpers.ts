@@ -612,26 +612,47 @@ export async function setInputValueByScript(
  * Returns the hex-encoded secret for later code generation.
  */
 export async function enableTotpOnAccount(
-  authClient: {
-    createTotpToken: (
-      sessionToken: string,
-      options: object
-    ) => Promise<{ secret: string }>;
-    verifyTotpSetupCode: (
-      sessionToken: string,
-      code: string
-    ) => Promise<{ success: boolean }>;
-    completeTotpSetup: (
-      sessionToken: string,
-      options?: object
-    ) => Promise<{ success: boolean }>;
+  target: {
+    authClient: {
+      mfaRequestOtp: (
+        sessionToken: string,
+        action: string
+      ) => Promise<{ status: string }>;
+      mfaOtpVerify: (
+        sessionToken: string,
+        code: string,
+        action: string
+      ) => Promise<{ accessToken: string }>;
+      createTotpTokenWithJwt: (
+        jwt: string,
+        options: object
+      ) => Promise<{ secret: string }>;
+      verifyTotpSetupCodeWithJwt: (
+        jwt: string,
+        code: string,
+        options?: object
+      ) => Promise<{ success: boolean }>;
+      completeTotpSetupWithJwt: (
+        jwt: string,
+        options?: object
+      ) => Promise<{ success: boolean }>;
+    };
+    emailClient: {
+      getVerifyAccountChangeCode: (email: string) => Promise<string>;
+    };
   },
-  sessionToken: string
+  sessionToken: string,
+  email: string
 ): Promise<string> {
-  const { secret } = await authClient.createTotpToken(sessionToken, {});
+  const { authClient, emailClient } = target;
+  await authClient.mfaRequestOtp(sessionToken, '2fa');
+  const otp = await emailClient.getVerifyAccountChangeCode(email);
+  const { accessToken } = await authClient.mfaOtpVerify(sessionToken, otp, '2fa');
+
+  const { secret } = await authClient.createTotpTokenWithJwt(accessToken, {});
   const code = await getTotpCode(secret);
-  await authClient.verifyTotpSetupCode(sessionToken, code);
-  await authClient.completeTotpSetup(sessionToken);
+  await authClient.verifyTotpSetupCodeWithJwt(accessToken, code);
+  await authClient.completeTotpSetupWithJwt(accessToken);
   return secret;
 }
 

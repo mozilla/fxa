@@ -9,6 +9,7 @@ import {
   syncDesktopOAuthQueryParams,
 } from '../../lib/query-params';
 import { getTotpCode } from '../../lib/totp';
+import { enableTotpOnAccount } from '../../lib/pairing-helpers';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('Passwordless authentication', () => {
@@ -155,13 +156,7 @@ test.describe('severity-1 #smoke', () => {
         );
         const password = account?.password || '';
 
-        const { secret } = await target.authClient.createTotpToken(
-          sessionToken,
-          {}
-        );
-        const totpCode = await getTotpCode(secret);
-        await target.authClient.verifyTotpSetupCode(sessionToken, totpCode);
-        await target.authClient.completeTotpSetup(sessionToken);
+        const secret = await enableTotpOnAccount(target, sessionToken, email);
 
         if (account) {
           account.secret = secret;
@@ -267,13 +262,7 @@ test.describe('severity-1 #smoke', () => {
         );
         const password = account?.password || '';
 
-        const { secret } = await target.authClient.createTotpToken(
-          sessionToken,
-          {}
-        );
-        const totpCode = await getTotpCode(secret);
-        await target.authClient.verifyTotpSetupCode(sessionToken, totpCode);
-        await target.authClient.completeTotpSetup(sessionToken);
+        const secret = await enableTotpOnAccount(target, sessionToken, email);
 
         account.secret = secret;
         account.sessionToken = sessionToken;
@@ -722,16 +711,7 @@ test.describe('severity-1 #smoke', () => {
         );
         const password = account?.password || '';
 
-        // Set up TOTP via API using the passwordless session token
-        const { secret } = await target.authClient.createTotpToken(
-          sessionToken,
-          {}
-        );
-
-        // Verify TOTP setup with a generated code
-        const totpCode = await getTotpCode(secret);
-        await target.authClient.verifyTotpSetupCode(sessionToken, totpCode);
-        await target.authClient.completeTotpSetup(sessionToken);
+        const secret = await enableTotpOnAccount(target, sessionToken, email);
 
         // Store secret and sessionToken in account for cleanup
         if (account) {
@@ -1244,13 +1224,7 @@ test.describe('severity-2', () => {
       );
       const password = account?.password || '';
 
-      const { secret } = await target.authClient.createTotpToken(
-        sessionToken,
-        {}
-      );
-      const totpCode = await getTotpCode(secret);
-      await target.authClient.verifyTotpSetupCode(sessionToken, totpCode);
-      await target.authClient.completeTotpSetup(sessionToken);
+      const secret = await enableTotpOnAccount(target, sessionToken, email);
 
       if (account) {
         account.secret = secret;
@@ -1378,13 +1352,7 @@ test.describe('severity-2', () => {
       }
       const password = account.password;
 
-      const { secret } = await target.authClient.createTotpToken(
-        sessionToken,
-        {}
-      );
-      const totpCode = await getTotpCode(secret);
-      await target.authClient.verifyTotpSetupCode(sessionToken, totpCode);
-      await target.authClient.completeTotpSetup(sessionToken);
+      const secret = await enableTotpOnAccount(target, sessionToken, email);
 
       if (account) {
         account.secret = secret;
