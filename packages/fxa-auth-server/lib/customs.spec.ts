@@ -356,12 +356,26 @@ describe('Customs', () => {
 
       await customs.check(request, email, 'accountStatusCheck');
 
-      expect(mockRateLimit.skip).toHaveBeenCalledWith('accountStatusCheck', {
-        ip,
-        email,
-        ip_email,
-      });
+      expect(mockRateLimit.skip).toHaveBeenCalledWith(
+        'accountStatusCheck',
+        { ip, email, ip_email },
+        email
+      );
       expect(mockRateLimit.check).toHaveBeenCalledTimes(0);
+    });
+
+    it('passes the non-normalized email to skip', async () => {
+      mockRateLimit.check = jest.fn(async () => Promise.resolve(null));
+
+      const emailWithAlias = 'user+srl1@mozilla.com';
+
+      await customs.check(request, emailWithAlias, 'accountStatusCheck');
+
+      expect(mockRateLimit.skip).toHaveBeenCalledWith(
+        'accountStatusCheck',
+        expect.objectContaining({ email: 'user@mozilla.com' }),
+        emailWithAlias
+      );
     });
 
     it('normalizes emails with plus aliases for configured domains', async () => {

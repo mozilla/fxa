@@ -190,6 +190,101 @@ describe('rate-limit', () => {
     expect(statsd.increment).toHaveBeenCalledWith('rate_limit.ignore.email');
   });
 
+  it('matches ignored emails against the non-normalized email when given', () => {
+    rateLimit = new RateLimit(
+      {
+        rules: {},
+        ignoreEmails: ['^.*\\+srl\\d{0,4}@mozilla\\.com$'],
+      },
+      redis,
+      statsd
+    );
+
+    // Callers strip the +suffix from opts.email, so only the raw email can match.
+    expect(
+      rateLimit.skip(
+        'test',
+        { email: 'user@mozilla.com' },
+        'user+srl1@mozilla.com'
+      )
+    ).toBeTruthy();
+    expect(
+      rateLimit.skip(
+        'test',
+        { email: 'user@mozilla.com' },
+        'user+other@mozilla.com'
+      )
+    ).toBeFalsy();
+    expect(rateLimit.skip('test', { email: 'user@mozilla.com' })).toBeFalsy();
+  });
+
+  it('matches ignored emails against a mixed-case non-normalized email', () => {
+    rateLimit = new RateLimit(
+      {
+        rules: {},
+        ignoreEmails: ['^.*\\+srl\\d{0,4}@mozilla\\.com$'],
+      },
+      redis,
+      statsd
+    );
+
+    // The raw email keeps the case, opts.email loses the +suffix. Only the
+    // lowercased raw email has both.
+    expect(
+      rateLimit.skip(
+        'test',
+        { email: 'user@mozilla.com' },
+        'User+srl1@Mozilla.com'
+      )
+    ).toBeTruthy();
+    expect(
+      rateLimit.skip(
+        'test',
+        { email: 'user@mozilla.com' },
+        'User+other@Mozilla.com'
+      )
+    ).toBeFalsy();
+  });
+
+  it('still matches ignored emails against the normalized email', () => {
+    rateLimit = new RateLimit(
+      {
+        rules: {},
+        ignoreEmails: ['^qa@mozilla\\.com$'],
+      },
+      redis,
+      statsd
+    );
+
+    // Normalization lowercases and trims, so only opts.email can match here.
+    expect(
+      rateLimit.skip('test', { email: 'qa@mozilla.com' }, ' QA@Mozilla.com ')
+    ).toBeTruthy();
+  });
+
+  it('keeps the normalized email on the BQ row when a raw email is given', () => {
+    const bqWriter = { write: jest.fn() };
+    rateLimit = new RateLimit(
+      {
+        rules: {},
+        ignoreEmails: ['^.*\\+srl\\d{0,4}@mozilla\\.com$'],
+      },
+      redis,
+      statsd,
+      bqWriter
+    );
+
+    rateLimit.skip(
+      'test',
+      { email: 'user@mozilla.com' },
+      'user+srl1@mozilla.com'
+    );
+
+    expect(bqWriter.write).toHaveBeenCalledWith(
+      expect.objectContaining({ email: 'user@mozilla.com', wasSkipped: true })
+    );
+  });
+
   it('can ignore certain ips', () => {
     rateLimit = new RateLimit(
       {

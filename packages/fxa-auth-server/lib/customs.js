@@ -115,7 +115,7 @@ class CustomsClient {
 
   async check(request, email, action) {
     const opts = toOpts(request?.app?.clientAddress, email, undefined);
-    const checked = await this.checkV2(request, 'check', action, opts);
+    const checked = await this.checkV2(request, 'check', action, opts, email);
     if (checked) {
       return;
     }
@@ -146,7 +146,8 @@ class CustomsClient {
       request,
       'checkAuthenticated',
       action,
-      opts
+      opts,
+      email
     );
     if (checked) {
       return;
@@ -291,7 +292,7 @@ class CustomsClient {
    * customs action being checked. If there is, we will call into this code instead of calling
    * the legacy customs service.
    */
-  async checkV2(request, type, action, opts) {
+  async checkV2(request, type, action, opts, nonNormalizedEmail) {
     // Short circuit if rate limit wasn't provided.
     if (this.rateLimit == null) {
       return false;
@@ -309,8 +310,9 @@ class CustomsClient {
     }
 
     // The config can specify that certain ips, emails, or uids should be excluded
-    // from rate limit checks.
-    const skip = this.rateLimit.skip(action, opts);
+    // from rate limit checks. Pass the raw email so an ignoreEmails pattern can
+    // match a +suffix that opts.email no longer carries.
+    const skip = this.rateLimit.skip(action, opts, nonNormalizedEmail);
     if (skip) {
       this.statsd.increment(`${serviceName}.check.v2.skip`, [
         opts.ip_email ? 'ip_email' : '',

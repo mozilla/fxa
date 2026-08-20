@@ -109,16 +109,25 @@ export class RateLimit {
    * certain users.
    * @param action - The action being checked. Required so BQ events include context.
    * @param opts - The current properties being checked.
+   * @param nonNormalizedEmail - The email as the user supplied it. Matched against
+   *        ignoreEmails in addition to opts.email.
    * @returns True if the check should be skipped.
    */
-  skip(action: string, opts: BlockOnOpts) {
+  skip(action: string, opts: BlockOnOpts, nonNormalizedEmail?: string) {
     const ignoredIp =
       opts.ip != null && this.config.ignoreIPs?.some((x) => opts.ip === x);
     const ignoredUid =
       opts.uid != null && this.config.ignoreUIDs?.some((x) => opts.uid === x);
-    const ignoredEmail =
-      opts.email != null &&
-      this.config.ignoreEmails?.some((x) => opts.email?.match(x));
+    // Match every form: the raw email keeps the +suffix, the normalized one keeps
+    // the trim and lowercase, and the lowercased raw email keeps both.
+    const emails = [
+      nonNormalizedEmail,
+      nonNormalizedEmail?.trim().toLocaleLowerCase(),
+      opts.email,
+    ].filter((x): x is string => x != null);
+    const ignoredEmail = this.config.ignoreEmails?.some((x) =>
+      emails.some((email) => email.match(x))
+    );
     const skipped = ignoredIp || ignoredUid || ignoredEmail;
 
     if (ignoredIp) this.statsd?.increment('rate_limit.ignore.ip');
