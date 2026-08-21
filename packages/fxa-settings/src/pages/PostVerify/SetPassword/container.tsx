@@ -230,18 +230,23 @@ const SetPasswordContainer = ({
     ]
   );
 
-  // Users must be already authenticated on this page.
-  // This page only applies applies to flows where a passwordless account must
-  // set a password for key derivation, including non-Sync Firefox flows that
-  // that require keys because the browser hasn't decoupled Sync (desktop before
-  // Fx 147, and Mobile presently as of Fx 153).
-  if (
+  // React 19 forbids calling navigate() during render. Compute redirect
+  // conditions and perform the actual navigation in a useEffect.
+  const missingAuthState =
     !email ||
     !sessionToken ||
     !uid ||
-    !integration.requiresPasswordForLogin(supportsKeysOptionalLogin)
-  ) {
-    navigateWithQuery('/signin', { replace: true });
+    !integration.requiresPasswordForLogin(supportsKeysOptionalLogin);
+  const shouldRedirectToSignin =
+    missingAuthState ||
+    (!passwordStatus.isLoading && passwordStatus.hasPassword);
+  useEffect(() => {
+    if (shouldRedirectToSignin) {
+      navigateWithQuery('/signin', { replace: true });
+    }
+  }, [shouldRedirectToSignin, navigateWithQuery]);
+
+  if (missingAuthState) {
     return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }
   if (oAuthDataError) {
@@ -256,7 +261,6 @@ const SetPasswordContainer = ({
 
   // Already has a password (re-entry): sign in instead.
   if (passwordStatus.hasPassword) {
-    navigateWithQuery('/signin', { replace: true });
     return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }
 

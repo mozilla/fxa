@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act } from '@testing-library/react';
 import { useOAuthFlowRecovery } from '.';
 import firefox from '../../channels/firefox';
 import * as ReactUtils from 'fxa-react/lib/utils';
@@ -36,7 +36,10 @@ const mockIntegration = (isOAuthNative: boolean = true) => {
     type: IntegrationType.OAuthNative,
     getPermissions: jest
       .fn()
-      .mockReturnValue(['profile', 'https://identity.mozilla.com/apps/oldsync']),
+      .mockReturnValue([
+        'profile',
+        'https://identity.mozilla.com/apps/oldsync',
+      ]),
   };
 };
 

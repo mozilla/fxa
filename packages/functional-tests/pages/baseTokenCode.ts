@@ -17,7 +17,7 @@ export abstract class BaseTokenCodePage extends BaseLayout {
 
   get codeInput() {
     this.checkPath();
-    return this.page.getByRole('textbox');
+    return this.page.getByRole('textbox', { name: /code/i });
   }
 
   get resendCodeButton() {

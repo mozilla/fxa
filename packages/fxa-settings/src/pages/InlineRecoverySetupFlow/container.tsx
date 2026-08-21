@@ -43,13 +43,24 @@ export const InlineRecoverySetupContainer = ({
   const [loadingAccount, setLoadingAccount] = useState<boolean>(true);
 
   useEffect(() => {
+    let cancelled = false;
     async function acctRefresh() {
-      // Refresh to get recoveryPhone.available (not populated during sign-in)
-      await account.refresh('account');
-      setLoadingAccount(false);
+      try {
+        // Refresh to get recoveryPhone.available (not populated during sign-in)
+        await account.refresh('account');
+      } catch {
+        // Fall through — read whatever localStorage already has.
+      }
+      if (!cancelled) {
+        setLoadingAccount(false);
+      }
     }
     acctRefresh();
-  }, [account]);
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const navigateWithQuery = useNavigateWithQuery();
 
@@ -255,25 +266,36 @@ export const InlineRecoverySetupContainer = ({
     unwrapBKey,
   ]);
 
-  if (currentStep === 0) {
-    navigateWithQuery('/inline_totp_setup', { state: signinLocationState });
-    return;
-  }
+  // React 19 forbids calling navigate() during render.
+  const shouldRedirectToTotpSetup = currentStep === 0;
+  const shouldRedirectToSignup =
+    !shouldRedirectToTotpSetup &&
+    (!isSignedIn || !signinRecoveryLocationState?.email || !totp);
+  const shouldRedirectToTotpCode =
+    !shouldRedirectToTotpSetup &&
+    !shouldRedirectToSignup &&
+    !!totpStatus?.verified;
+  useEffect(() => {
+    if (shouldRedirectToTotpSetup) {
+      navigateWithQuery('/inline_totp_setup', { state: signinLocationState });
+    } else if (shouldRedirectToSignup) {
+      navigateWithQuery('/signup');
+    } else if (shouldRedirectToTotpCode) {
+      navigateWithQuery('/signin_totp_code', { state: signinLocationState });
+    }
+  }, [
+    shouldRedirectToTotpSetup,
+    shouldRedirectToSignup,
+    shouldRedirectToTotpCode,
+    signinLocationState,
+    navigateWithQuery,
+  ]);
 
-  // Some basic sanity checks
-  if (!isSignedIn || !signinRecoveryLocationState?.email || !totp) {
-    navigateWithQuery('/signup');
+  if (shouldRedirectToTotpSetup || shouldRedirectToSignup) {
     return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }
 
-  // we only care about "verified" here, not "exists"
-  // because "exists" only tells us that totp setup was started.
-  // Prior to using Redis during setup, tokens were directly stored in the database,
-  // but may never be marked as enabled/verified if setup is aborted or unsuccessful.
-  if (totpStatus?.verified) {
-    navigateWithQuery('/signin_totp_code', {
-      state: signinLocationState,
-    });
+  if (shouldRedirectToTotpCode) {
     return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }
 

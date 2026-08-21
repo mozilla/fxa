@@ -135,6 +135,29 @@ export const MfaGuard = ({
           return;
         }
 
+        // The auth client's global error handler (AppContext) already
+        // redirects to /signin_totp_code for this. Returning early keeps
+        // onDismiss from navigating to /settings and clobbering it.
+        if (err?.errno === ERRNO.INSUFFICIENT_AAL) {
+          Sentry.addBreadcrumb({
+            category: 'mfa',
+            message:
+              'INSUFFICIENT_AAL — expecting global redirect to /signin_totp_code',
+            level: 'info',
+          });
+          // If the global handler's redirect hasn't fired after a short
+          // delay, show an error banner so the user isn't stuck silently.
+          setTimeout(() => {
+            setLocalizedErrorBannerMessage(
+              ftlMsgResolver.getMsg(
+                'mfa-guard-session-expired',
+                'Session verification required. Please sign in again.'
+              )
+            );
+          }, 3000);
+          return;
+        }
+
         Sentry.captureException(err);
         alertBar.error(getLocalizedErrorMessage(ftlMsgResolver, err));
         onDismiss();

@@ -248,7 +248,9 @@ describe('sign-up-container', () => {
       await render('loading spinner mock');
 
       // TODO: Determine if email is valid: https://github.com/mozilla/fxa/pull/16131#discussion_r1418122670
-      expect(mockNavigate).toHaveBeenCalledWith('/');
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/');
+      });
     });
 
     it('handles empty email', async () => {
@@ -268,7 +270,9 @@ describe('sign-up-container', () => {
       await render('loading spinner mock');
 
       // TODO: Show that email is invalid: https://github.com/mozilla/fxa/pull/16131#discussion_r1418122670
-      expect(mockNavigate).toHaveBeenCalledWith('/');
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/');
+      });
     });
   });
 
