@@ -682,6 +682,7 @@ module.exports = (
             location: request.app.geo.location,
             ...(clientId && { client_id: clientId }),
             ...(service && { service }),
+            method: 'password',
           },
         });
       }
