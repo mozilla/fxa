@@ -1,0 +1,13 @@
+verifyAccountChange-title = "Are you changing your account info?"
+
+verifyAccountChange-safe = "Help us keep your account safe by approving this change on:"
+
+<%- include('/partials/userInfo/index.txt') %>
+
+verifyAccountChange-prompt = "If yes, here is your authorization code:"
+
+<%- code %>
+
+verifyAccountChange-expiry-notice = "It expires in <%- expirationTime === 1 ? '1 minute' : expirationTime + ' minutes' %>."
+
+<%- include('/partials/automatedEmailChangePassword/index.txt') %>
