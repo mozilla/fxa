@@ -326,6 +326,7 @@ module.exports = function (
             details: isA.object({
               accountEmailVerified: isA.boolean(),
               sessionVerificationMethod: isA.string().allow(null),
+              sessionVerificationReason: isA.string().optional(),
               sessionVerified: isA.boolean(),
               sessionVerificationMeetsMinimumAAL: isA.boolean(),
               verified: isA.boolean(), // Deprecated!
@@ -363,12 +364,22 @@ module.exports = function (
         // Legacy verified flag. Keep for backwards compatibility.
         const verified = accountEmailVerified && sessionVerified;
 
+        // Take the reason from the shared login helper so both endpoints agree
+        // on it. Pass the values above, not the token, so the reason follows the
+        // freshly read account email rather than the token's snapshot of it.
+        const { verificationReason: sessionVerificationReason } =
+          signinUtils.getSessionVerificationStatus({
+            emailVerified: accountEmailVerified,
+            tokenVerified: sessionVerified,
+          });
+
         return {
           state: sessionToken.state,
           uid: sessionToken.uid,
           details: {
             accountEmailVerified,
             sessionVerificationMethod,
+            ...(sessionVerificationReason && { sessionVerificationReason }),
             sessionVerified,
             sessionVerificationMeetsMinimumAAL,
             verified,

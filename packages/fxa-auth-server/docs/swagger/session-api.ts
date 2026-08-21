@@ -89,6 +89,7 @@ const SESSION_STATUS_GET = {
       - \`uid\`: Account id
       - \`details.accountEmailVerified\`: Whether the account's primary email is verified
       - \`details.sessionVerificationMethod\`: The verification method used for the session (e.g., 'email-2fa', 'totp-2fa'), or null if not verified
+      - \`details.sessionVerificationReason\`: What is unverified: 'signup' if the account email is unverified, 'login' if only the session token is unverified. Absent when both are verified.
       - \`details.sessionVerified\`: Whether the session token itself is verified (no pending token verification)
       - \`details.sessionVerificationMeetsMinimumAAL\`: Whether the session's Authentication Assurance Level (AAL) meets or exceeds the account's maximum AAL
       - \`details.verified\`: Deprecated! Use accountEmailVerified and sessionVerified instead.
