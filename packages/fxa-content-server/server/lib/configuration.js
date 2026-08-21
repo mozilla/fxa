@@ -321,12 +321,6 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'REACT_CONVERSION_SIMPLE_ROUTES',
     },
-    resetPasswordRoutes: {
-      default: false,
-      doc: 'Enable users to visit the React version of "reset_password" routes',
-      format: Boolean,
-      env: 'REACT_CONVERSION_RESET_PASSWORD_ROUTES',
-    },
     oauthRoutes: {
       default: false,
       doc: 'Enable users to visit the React version of routes requiring oauth',

@@ -3,13 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import _ from 'underscore';
-import AccountRecoveryConfirmKey from '../views/account_recovery_confirm_key';
 import Backbone from 'backbone';
 import ChooseWhatToSyncView from '../views/choose_what_to_sync';
 import Cocktail from 'cocktail';
-import CompleteResetPasswordView from '../views/complete_reset_password';
 import CompleteSignUpView from '../views/complete_sign_up';
-import ConfirmResetPasswordView from '../views/confirm_reset_password';
 import ConfirmView from '../views/confirm';
 import ConfirmSignupCodeView from '../views/confirm_signup_code';
 import ConnectAnotherDeviceView from '../views/connect_another_device';
@@ -21,7 +18,6 @@ import PermissionsView from '../views/permissions';
 import ReadyView from '../views/ready';
 import RedirectAuthView from '../views/authorization';
 import ReportSignInView from '../views/report_sign_in';
-import ResetPasswordView from '../views/reset_password';
 import SignInBouncedView from '../views/sign_in_bounced';
 import SignInPasswordView from '../views/sign_in_password';
 import SignInRecoveryCodeView from '../views/sign_in_recovery_code';
@@ -121,33 +117,12 @@ Router = Router.extend({
         }),
       });
     },
-    'account_recovery_confirm_key(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'account_recovery_confirm_key',
-        AccountRecoveryConfirmKey
-      );
-    },
-    'account_recovery_reset_password(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'account_recovery_reset_password',
-        CompleteResetPasswordView
-      );
-    },
     'authorization(/)': function () {
       this.createReactOrBackboneViewHandler('authorization', RedirectAuthView);
     },
     'choose_what_to_sync(/)': createViewHandler(ChooseWhatToSyncView),
     'clear(/)': function () {
       this.createReactViewHandler('clear');
-    },
-    'complete_reset_password(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'complete_reset_password',
-        CompleteResetPasswordView,
-        {
-          ...Url.searchParams(this.window.location.search),
-        }
-      );
     },
     // NOTE - complete_signin must be maintained for backwards compatibility with FF <122
     // With the react conversion, we should only land on the /complete_signin view
@@ -171,12 +146,6 @@ Router = Router.extend({
     'confirm(/)': createViewHandler(ConfirmView, {
       type: VerificationReasons.SIGN_UP,
     }),
-    'confirm_reset_password(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'confirm_reset_password',
-        ConfirmResetPasswordView
-      );
-    },
     // We will not be porting the Confirm view to React, see FXA-9054
     'confirm_signin(/)': createViewHandler(ConfirmView, {
       type: VerificationReasons.SIGN_IN,
@@ -389,47 +358,11 @@ Router = Router.extend({
       });
     },
 
+    // The Backbone view is gone, but Backbone views still link here.
     'reset_password(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'reset_password',
-        ResetPasswordView,
-        {
-          ...Url.searchParams(this.window.location.search),
-        }
-      );
-    },
-
-    'reset_password_confirmed(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'reset_password_verified',
-        ReadyView,
-        null,
-        {
-          type: VerificationReasons.PASSWORD_RESET,
-        }
-      );
-    },
-
-    'reset_password_with_recovery_key_verified(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'reset_password_with_recovery_key_verified',
-        ReadyView,
-        null,
-        {
-          type: VerificationReasons.PASSWORD_RESET_WITH_RECOVERY_KEY,
-        }
-      );
-    },
-
-    'reset_password_verified(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'reset_password_verified',
-        ReadyView,
-        null,
-        {
-          type: VerificationReasons.PASSWORD_RESET,
-        }
-      );
+      this.createReactViewHandler('reset_password', {
+        ...Url.searchParams(this.window.location.search),
+      });
     },
 
     'secondary_email_verified(/)': createViewHandler(ReadyView, {

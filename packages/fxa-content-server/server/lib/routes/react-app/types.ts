@@ -45,7 +45,6 @@ export interface AddRoutes {
 type ShowReactApp = {
   emailFirstRoutes: boolean;
   simpleRoutes: boolean;
-  resetPasswordRoutes: boolean;
   oauthRoutes: boolean;
   signInRoutes: boolean;
   signUpRoutes: boolean;
@@ -67,7 +66,10 @@ export interface GetReactRouteGroups {
 }
 
 export interface GetRoute {
-  (name: string, definition: RouteDefinition): {
+  (
+    name: string,
+    definition: RouteDefinition
+  ): {
     name: string;
     definition?: RouteDefinition;
   };

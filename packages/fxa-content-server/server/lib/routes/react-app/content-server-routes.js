@@ -67,7 +67,6 @@ const FRONTEND_ROUTES = [
   'signup_confirmed_sync', // React app only
   'report_signin',
   'reset_password',
-  'reset_password_confirmed',
   'reset_password_verified',
   'reset_password_with_recovery_key_verified',
   'reset_password_totp_recovery_choice',
