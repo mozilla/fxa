@@ -151,6 +151,7 @@ button-back-aria-label = Πίσω
 button-back-title = Πίσω
 
 
+recovery-key-download-button-v4 = Λήψη και συνέχεια
 recovery-key-pdf-download-error = Δυστυχώς, προέκυψε πρόβλημα κατά τη λήψη του κλειδιού ανάκτησης του λογαριασμού σας.
 
 
@@ -835,6 +836,7 @@ page-passkey-add-error-system-v2 = Προέκυψε πρόβλημα κατά τ
 
 
 recent-activity-title = Πρόσφατη δραστηριότητα λογαριασμού
+recent-activity-show-more-button = Εμφάνιση περισσότερων
 recent-activity-account-create-v2 = Ο λογαριασμός δημιουργήθηκε
 recent-activity-account-disable-v2 = Ο λογαριασμός απενεργοποιήθηκε
 recent-activity-account-enable-v2 = Ο λογαριασμός ενεργοποιήθηκε
@@ -1361,9 +1363,30 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Ωχ! Κάτι πήγε σ
 pair-unsupported-desktop-firefox-fallback-message-v2 = Κλείστε αυτήν την καρτέλα και δοκιμάστε ξανά.
 
 
+pair2-authority-approve-sign-in-heading = Έγκριση σύνδεσης;
+pair2-authority-approve-sign-in-confirm-button = Ναι, έγκριση σύνδεσης
+
+
+pair2-authority-continue-on-mobile-cancel-button = Ακύρωση
+
+
+pair2-authority-download-firefox-cta = Λήψη του { -brand-firefox }
+
+
+pair2-authority-timeout-and-cancel-try-again-button = Δοκιμή ξανά
+pair2-authority-timeout-and-cancel-cancel-button = Ακύρωση
+pair2-authority-timeout-and-cancel-sync-settings-button = Ρυθμίσεις συγχρονισμού
+
+
 pair2-supplicant-approve-sign-in-heading = Ένα τελευταίο βήμα πριν το συγχρονισμό
 pair2-supplicant-approve-sign-in-instruction = Εγκρίνετε τη σύνδεση στον υπολογιστή σας.
 pair2-supplicant-approve-sign-in-cancel-button = Ακύρωση
+
+
+pair2-supplicant-connect-this-device-connect-button = Σύνδεση
+
+
+pair2-supplicant-sync-success-sync-settings-button = Ρυθμίσεις συγχρονισμού
 
 
 service-welcome-signup-success-banner = Ο { -product-mozilla-account(case: "nom", capitalization: "lower") } επιβεβαιώθηκε

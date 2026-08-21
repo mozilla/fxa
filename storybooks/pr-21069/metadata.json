@@ -1,8 +1,8 @@
 {
-  "commit": "f84bd5dc7ea8170702bf6d7dfabdb8efd56f8392",
-  "summary": "feat(pairing): complete v2 pairing flow and add functional tests",
-  "description": "Because:\n- FXA-13870 needs functional tests for the v2 pairing flow, and the v2\n  supplicant flow did not complete end to end on Firefox for Android.\n\nThis commit:\n- forwards /pair/supp with the v2 marker into the v2 supplicant pages,\n  the route Firefox opens on the device.\n- consumes the OAuth params from the URL when the browser already ran\n  OAuth-start, and falls back to pair_oauth_start otherwise.\n- restores scope spaces the router encodes as \"+\" so the authority\n  delivers the oldsync scoped key and a session token.\n- reads the pairing capabilities from the fxa_status that\n  ConnectAnotherDevice already awaits, so version-2 negotiation no longer\n  races the hook that used to supply them as props.\n- adds v2 pairing functional tests (desktop, Android, negative, version\n  gating, web-channel) with Marionette and supplicant harnesses. The\n  Android test decodes the rendered QR rather than reading the encoded\n  value from the page, so scan_qr no longer ships an attribute for tests.",
-  "timestamp": 1787322148000,
+  "commit": "46271c20d51bd50cf3b1986675e49a6914c6c4aa",
+  "summary": "test(pairing): open the Android v2 QR in a regular tab",
+  "description": "Because:\n- The Sync Debug hook runs app-services' own OAuth-start, so the test\n  covered the URL-params fallback rather than pair_oauth_start.\n- A real v2 device scans with the native camera, which reaches Firefox\n  as a plain VIEW intent.\n\nThis commit:\n- adds AndroidSupplicant.openPairingUrl and points the v2 spec at it.\n- restricts dialog dismissal to native widgets, so it cannot tap the\n  supplicant card's own Cancel button and abort the flow.\n- asserts the paired device appears in Connected Services.\n- reports the last seen URL when waitForUrlContaining times out.",
+  "timestamp": 1787322144000,
   "storybooks": [
     "fxa-settings"
   ],

@@ -43,6 +43,9 @@ button-back-title = Πίσω
 ## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
+# Button to download the account recovery key as a plain text file and navigate to the next step
+# The next (and final) step is an optional prompt to save a storage hint
+recovery-key-download-button-v4 = Λήψη και συνέχεια
 # Error message shown in a banner if the account recovery key download failed.
 # The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Δυστυχώς, προέκυψε πρόβλημα κατά τη λήψη του κλειδιού ανάκτησης του λογαριασμού σας.
@@ -1015,6 +1018,8 @@ page-passkey-add-error-system-v2 = Προέκυψε πρόβλημα κατά τ
 ## These are displayed as a list with the date when the event occured
 
 recent-activity-title = Πρόσφατη δραστηριότητα λογαριασμού
+# Clicking this button reveals the older account activity that is hidden at first.
+recent-activity-show-more-button = Εμφάνιση περισσότερων
 recent-activity-account-create-v2 = Ο λογαριασμός δημιουργήθηκε
 recent-activity-account-disable-v2 = Ο λογαριασμός απενεργοποιήθηκε
 recent-activity-account-enable-v2 = Ο λογαριασμός ενεργοποιήθηκε
@@ -1830,6 +1835,44 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Ωχ! Κάτι πήγε σ
 pair-unsupported-desktop-firefox-fallback-message-v2 = Κλείστε αυτήν την καρτέλα και δοκιμάστε ξανά.
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer, which is already signed in, after their
+## mobile device scans the pairing QR code. It asks them to approve the
+## sign-in, and shows the requesting device's details so they can verify it.
+
+# Asks the user to confirm the sign-in that another one of their devices just started
+pair2-authority-approve-sign-in-heading = Έγκριση σύνδεσης;
+# Submit button confirming that the user started the pairing and approves the
+# other device being added to their account
+pair2-authority-approve-sign-in-confirm-button = Ναι, έγκριση σύνδεσης
+
+## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer after scanning the pairing QR code with
+## their phone. It confirms the flow has moved to the mobile device and waits
+## for the remaining steps to be completed there.
+
+# Dismisses the pairing attempt
+pair2-authority-continue-on-mobile-cancel-button = Ακύρωση
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when Firefox is needed to continue pairing.
+## It points them at firefox.com/pair and offers a download link for Firefox.
+
+# Links out to the Firefox download page
+pair2-authority-download-firefox-cta = Λήψη του { -brand-firefox }
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when pairing stopped without succeeding,
+## either because it timed out or because it was canceled. Both cases offer to
+## start pairing over again.
+
+# Restarts the pairing flow
+pair2-authority-timeout-and-cancel-try-again-button = Δοκιμή ξανά
+# Abandons pairing without retrying
+pair2-authority-timeout-and-cancel-cancel-button = Ακύρωση
+# Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
+pair2-authority-timeout-and-cancel-sync-settings-button = Ρυθμίσεις συγχρονισμού
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
 ## shown on their computer. It waits for them to approve the sign-in on the
 ## computer, and shows that computer's details so they can verify the request.
@@ -1839,6 +1882,22 @@ pair2-supplicant-approve-sign-in-heading = Ένα τελευταίο βήμα π
 pair2-supplicant-approve-sign-in-instruction = Εγκρίνετε τη σύνδεση στον υπολογιστή σας.
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = Ακύρωση
+
+## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It asks them to confirm connecting the mobile
+## device to their account, and shows that computer's details so they can
+## verify the request.
+
+# Confirms the pairing attempt
+pair2-supplicant-connect-this-device-connect-button = Σύνδεση
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device once pairing has completed: the device
+## is signed in and syncing with the computer they paired it with.
+
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button = Ρυθμίσεις συγχρονισμού
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
