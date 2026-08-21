@@ -5,6 +5,7 @@
 import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { renderWithRouter } from '../../../models/mocks';
+import { mockPairingAppContext } from '../../ConnectAnotherDevice/mocks';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
@@ -36,11 +37,14 @@ jest.mock('../../../lib/channels/firefox', () => ({
   __esModule: true,
   default: {
     send: jest.fn(),
-    requestSignedInUser: jest.fn().mockResolvedValue({
-      uid: 'sync-uid',
-      email: 'sync@example.com',
-      sessionToken: 'token',
-      verified: true,
+    requestFxAStatus: jest.fn().mockResolvedValue({
+      signedInUser: {
+        uid: 'sync-uid',
+        email: 'sync@example.com',
+        sessionToken: 'token',
+        verified: true,
+      },
+      capabilities: { pairing: true },
     }),
     fxaOAuthFlowBegin: jest.fn().mockResolvedValue(null),
   },
@@ -345,16 +349,34 @@ describe('Pair', () => {
   });
 
   describe('sync bootstrap on mount', () => {
-    const requestSignedInUserMock = jest.mocked(firefox.requestSignedInUser);
+    const requestFxAStatusMock = jest.mocked(firefox.requestFxAStatus);
+    // v1 capabilities: pairing is supported but not at version 2, so these
+    // cases stay on the choice screen.
+    const capabilities = { engines: [], multiService: false, pairing: true };
+    // navigateWithQuery carries the current query string along, so match the
+    // path rather than the whole argument.
+    // The v2 entry is a hard navigation so the integration factory builds a
+    // PairingAuthorityIntegration from the authority URL.
+    let hardNavigateSpy: jest.SpyInstance;
+    beforeEach(() => {
+      hardNavigateSpy = jest
+        .spyOn(ReactUtils, 'hardNavigate')
+        .mockImplementation(() => {});
+    });
+    afterEach(() => {
+      hardNavigateSpy.mockRestore();
+    });
+
+    const navigatedToScanQr = () =>
+      hardNavigateSpy.mock.calls.some(
+        ([to]: [string]) =>
+          typeof to === 'string' && to.startsWith('/pair/authority/scan_qr')
+      );
     const fxaOAuthFlowBeginMock = jest.mocked(firefox.fxaOAuthFlowBegin);
 
     it('renders the choice screen when Firefox has a verified Sync user', async () => {
       await renderPair();
-      expect(requestSignedInUserMock).toHaveBeenCalledWith(
-        'oauth',
-        true,
-        'sync'
-      );
+      expect(requestFxAStatusMock).toHaveBeenCalledWith('oauth', true, 'sync');
       expect(fxaOAuthFlowBeginMock).not.toHaveBeenCalled();
     });
 
@@ -381,7 +403,9 @@ describe('Pair', () => {
     ])(
       'starts an OAuth flow when fxa_status returns %s on every attempt',
       async (_, response) => {
-        requestSignedInUserMock.mockResolvedValue(response);
+        requestFxAStatusMock.mockResolvedValue(
+          response ? { signedInUser: response, capabilities } : undefined
+        );
         renderWithRouter(<Pair />);
         await waitFor(() =>
           expect(fxaOAuthFlowBeginMock).toHaveBeenCalledWith([
@@ -392,25 +416,75 @@ describe('Pair', () => {
       }
     );
 
-    it('retries fxa_status once when the first reply is empty, then reveals on success', async () => {
-      requestSignedInUserMock
-        .mockResolvedValueOnce(undefined)
-        .mockResolvedValueOnce({
+    // /pair is the other authority entry point - Settings "Connect a device"
+    // and the post-signin handoffs land here - so it must negotiate v2 the same
+    // way ConnectAnotherDevice does instead of always showing the v1 choice.
+    it('navigates to the v2 pairing flow when FxA and the browser both support version 2', async () => {
+      requestFxAStatusMock.mockResolvedValue({
+        signedInUser: {
           uid: 'sync-uid',
           email: 'sync@example.com',
           sessionToken: 'token',
           verified: true,
+        },
+        capabilities: { ...capabilities, pairingVersion: 2 },
+      });
+      renderWithRouter(<Pair />, {}, mockPairingAppContext(2));
+      await waitFor(() => expect(navigatedToScanQr()).toBe(true));
+    });
+
+    it('stays on the v1 choice screen when FxA is on version 2 but the browser is not', async () => {
+      requestFxAStatusMock.mockResolvedValue({
+        signedInUser: {
+          uid: 'sync-uid',
+          email: 'sync@example.com',
+          sessionToken: 'token',
+          verified: true,
+        },
+        capabilities: { ...capabilities, pairingVersion: 1 },
+      });
+      renderWithRouter(<Pair />, {}, mockPairingAppContext(2));
+      await screen.findByLabelText(/I already have Firefox for mobile/);
+      expect(navigatedToScanQr()).toBe(false);
+    });
+
+    it('stays on the v1 choice screen when the browser is on version 2 but FxA is not', async () => {
+      requestFxAStatusMock.mockResolvedValue({
+        signedInUser: {
+          uid: 'sync-uid',
+          email: 'sync@example.com',
+          sessionToken: 'token',
+          verified: true,
+        },
+        capabilities: { ...capabilities, pairingVersion: 2 },
+      });
+      renderWithRouter(<Pair />, {}, mockPairingAppContext(1));
+      await screen.findByLabelText(/I already have Firefox for mobile/);
+      expect(navigatedToScanQr()).toBe(false);
+    });
+
+    it('retries fxa_status once when the first reply is empty, then reveals on success', async () => {
+      requestFxAStatusMock
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce({
+          signedInUser: {
+            uid: 'sync-uid',
+            email: 'sync@example.com',
+            sessionToken: 'token',
+            verified: true,
+          },
+          capabilities,
         });
       await renderPair();
-      expect(requestSignedInUserMock).toHaveBeenCalledTimes(2);
+      expect(requestFxAStatusMock).toHaveBeenCalledTimes(2);
       expect(fxaOAuthFlowBeginMock).not.toHaveBeenCalled();
     });
 
     it('caps fxa_status at two asks before falling through to OAuth', async () => {
-      requestSignedInUserMock.mockResolvedValue(undefined);
+      requestFxAStatusMock.mockResolvedValue(undefined);
       renderWithRouter(<Pair />);
       await waitFor(() => expect(fxaOAuthFlowBeginMock).toHaveBeenCalled());
-      expect(requestSignedInUserMock).toHaveBeenCalledTimes(2);
+      expect(requestFxAStatusMock).toHaveBeenCalledTimes(2);
     });
 
     it('hard-navigates to / with the OAuth params Firefox returned', async () => {
@@ -418,7 +492,7 @@ describe('Pair', () => {
         .spyOn(ReactUtils, 'hardNavigate')
         .mockImplementation(() => {});
       try {
-        requestSignedInUserMock.mockResolvedValue(undefined);
+        requestFxAStatusMock.mockResolvedValue(undefined);
         fxaOAuthFlowBeginMock.mockResolvedValueOnce({
           action: 'signin',
           response_type: 'code',
@@ -452,7 +526,7 @@ describe('Pair', () => {
     });
 
     it('reveals the choice screen when WebChannel never replies', async () => {
-      requestSignedInUserMock.mockResolvedValueOnce(undefined);
+      requestFxAStatusMock.mockResolvedValueOnce(undefined);
       fxaOAuthFlowBeginMock.mockResolvedValueOnce(null);
       await renderPair();
       expect(
@@ -461,7 +535,7 @@ describe('Pair', () => {
     });
 
     it('reveals the choice screen when fxa_status throws and OAuth never replies', async () => {
-      requestSignedInUserMock.mockRejectedValueOnce(new Error('boom'));
+      requestFxAStatusMock.mockRejectedValueOnce(new Error('boom'));
       fxaOAuthFlowBeginMock.mockResolvedValueOnce(null);
       await renderPair();
       expect(

@@ -13,7 +13,10 @@
  * characters (e.g. em dashes), causing parse failures.
  */
 
+import { writeFileSync } from 'fs';
 import crypto from 'crypto';
+import jsQR from 'jsqr';
+import UPNG from 'upng-js';
 import { Browser, expect, Page } from '@playwright/test';
 import { ConfigPage } from '../pages/config';
 import { BaseTarget } from './targets/base';
@@ -22,6 +25,7 @@ import {
   PAIRING_CLIENT_ID,
   PAIRING_REDIRECT_URI,
   PAIRING_SCOPE,
+  PAIRING_VERSION_PREF,
   SELECTORS,
   TIMEOUTS,
 } from './pairing-constants';
@@ -74,7 +78,8 @@ export async function isPairRoutesReact(
 async function pollUntil<T>(
   check: () => Promise<T | undefined>,
   timeoutMs: number,
-  label: string
+  // A thunk lets the caller include state it only knows after the last poll.
+  label: string | (() => string)
 ): Promise<T> {
   const start = Date.now();
   let interval: number = TIMEOUTS.POLL_INTERVAL;
@@ -92,7 +97,8 @@ async function pollUntil<T>(
   }
 
   const suffix = lastError ? ` Last error: ${lastError.message}` : '';
-  throw new Error(`${label} after ${timeoutMs}ms.${suffix}`);
+  const text = typeof label === 'function' ? label() : label;
+  throw new Error(`${text} after ${timeoutMs}ms.${suffix}`);
 }
 
 /**
@@ -103,13 +109,15 @@ export async function waitForUrlContaining(
   substring: string,
   timeoutMs: number = TIMEOUTS.AUTHORITY_COMPLETE
 ): Promise<string> {
+  let lastUrl = '';
   return pollUntil(
     async () => {
-      const url = await client.getUrl();
-      return url.includes(substring) ? url : undefined;
+      lastUrl = await client.getUrl();
+      return lastUrl.includes(substring) ? lastUrl : undefined;
     },
     timeoutMs,
-    `URL did not contain "${substring}"`
+    // The URL it stalled on is the first thing you need when this fails.
+    () => `URL did not contain "${substring}" (last seen: ${lastUrl})`
   );
 }
 
@@ -151,10 +159,14 @@ export async function waitForSignedInState(
 /**
  * Sign in to FxA Sync via the content server web UI using Marionette.
  *
- * Uses Firefox's internal beginOAuthFlow() to generate PKCE + keys_jwk
- * and register the OAuth flow, then signs in through the content server UI.
- * After sign-in, Firefox processes the fxaccounts:oauth_login WebChannel
- * message and completes the key exchange automatically.
+ * Drives /pair, which asks Firefox for the OAuth params over the web channel
+ * and redirects to the sign-in form carrying them, then fills that form. After
+ * sign-in, Firefox processes the fxaccounts:oauth_login WebChannel message and
+ * completes the key exchange automatically.
+ *
+ * Every step runs in content, so Marionette is only the remoting protocol here.
+ * Playwright cannot replace it while the authority must be a custom Firefox
+ * build: Playwright drives its own Juggler-patched builds only.
  */
 export async function signInAuthorityViaMarionette(
   client: MarionetteClient,
@@ -164,61 +176,13 @@ export async function signInAuthorityViaMarionette(
   totpSecret?: string,
   useReact = false
 ): Promise<void> {
-  // Use Firefox's internal beginOAuthFlow() to generate PKCE + keys_jwk
-  // and register the OAuth flow so Firefox can complete the key exchange
-  // when the content server sends fxaccounts:oauth_login via WebChannel.
-  // Requires Playwright's bundled Firefox (125+).
-  await client.setContext('chrome');
-  const oauthResult = await client.executeAsyncScript(
-    `
-    const [resolve] = arguments;
-    (async () => {
-      try {
-        const { getFxAccountsSingleton } = ChromeUtils.importESModule(
-          "resource://gre/modules/FxAccounts.sys.mjs"
-        );
-        const fxAccounts = getFxAccountsSingleton();
-        const scopes = ["profile", "https://identity.mozilla.com/apps/oldsync"];
-        const result = await fxAccounts._internal.beginOAuthFlow(scopes);
-        resolve(JSON.stringify({ success: true, ...result }));
-      } catch (e) {
-        resolve(JSON.stringify({
-          success: false,
-          error: e.message,
-          stack: (e.stack || "").substring(0, 500),
-        }));
-      }
-    })();
-    `,
-    { sandbox: 'system', timeoutMs: TIMEOUTS.ASYNC_SCRIPT }
-  );
-
-  if (typeof oauthResult !== 'string') {
-    throw new Error(
-      `Expected string from beginOAuthFlow, got ${typeof oauthResult}`
-    );
-  }
-  const oauthData = JSON.parse(oauthResult);
-  if (!oauthData.success) {
-    throw new Error(`beginOAuthFlow failed: ${oauthData.error}`);
-  }
-
-  // Build the sign-in URL from the OAuth params Firefox generated
-  const params = new URLSearchParams({
-    context: 'oauth_webchannel_v1',
-    entrypoint: 'fxa_discoverability_native',
-    action: 'email',
-    service: 'sync',
-    client_id: oauthData.client_id,
-    scope: oauthData.scope || PAIRING_SCOPE,
-    state: oauthData.state,
-    code_challenge: oauthData.code_challenge,
-    code_challenge_method: oauthData.code_challenge_method || 'S256',
-    keys_jwk: oauthData.keys_jwk,
-    access_type: 'offline',
-    response_type: 'code',
-  });
-  const signinUrl = `${contentServerUrl}/?${params}${useReact ? '&showReactApp=true' : ''}`;
+  // Navigating to /pair is enough to start a Sync sign-in: the page sends
+  // fxaccounts:oauth_flow_begin over the web channel, Firefox answers with the
+  // OAuth params, and the page redirects to the sign-in form already carrying
+  // them. Building that URL here from a chrome-context beginOAuthFlow() call
+  // duplicated what the page does, and was the only part of this flow that
+  // needed chrome privileges.
+  const signinUrl = `${contentServerUrl}/pair${useReact ? '?showReactApp=true' : ''}`;
 
   try {
     await client.setContext('content');
@@ -473,6 +437,123 @@ export function extractChannelId(pairUrl: string): string {
 }
 
 /**
+ * Build the supplicant navigation URL for the v2 pairing flow.
+ *
+ * v2 differs from v1: the supplicant's OAuth params (state, scope,
+ * code_challenge, keys_jwk) are NOT carried in the URL. They are produced by the
+ * `fxaccounts:pair_oauth_start` web-channel command and sent to the authority
+ * over the pairing channel as `pair:supp:request`. So the only thing the URL
+ * carries is the channel fragment, exactly what a native camera scan of the v2
+ * QR opens: `/pair#channel_id=<id>&channel_key=<key>&v=2`. FxA forwards a v=2
+ * URL to `/pair/supplicant/approve_signin` (see FXA-13865).
+ *
+ * This validates the fragment and rebases it on the test's content server, so a
+ * QR minted against one origin can be opened against localhost.
+ */
+export function buildSupplicantUrlV2(
+  contentServerUrl: string,
+  pairUrl: string
+): string {
+  const fragment = pairUrl.split('#')[1];
+  if (!fragment) {
+    throw new Error(`v2 pair URL has no fragment: ${pairUrl}`);
+  }
+  const params = new URLSearchParams(fragment);
+  const channelId = params.get('channel_id');
+  const channelKey = params.get('channel_key');
+  if (!channelId || !channelKey) {
+    throw new Error(
+      `v2 pair URL fragment missing channel_id or channel_key: ${fragment}`
+    );
+  }
+  if (params.get('v') !== '2') {
+    throw new Error(`v2 pair URL fragment missing v=2 marker: ${fragment}`);
+  }
+
+  const hashParams = new URLSearchParams({
+    channel_id: channelId,
+    channel_key: channelKey,
+    v: '2',
+  });
+  return `${contentServerUrl}/pair#${hashParams}`;
+}
+
+/**
+ * Drive a signed-in Marionette authority through the v2 entrypoint to the
+ * scan_qr page and return the encoded pairing URL from the rendered QR.
+ *
+ * v2 has no chrome-side pairing flow (contrast v1 `startPairingFlow`, which calls
+ * `FxAccountsPairingFlow.start()`). The authority mints the channel in web
+ * content on `/pair/authority/scan_qr` (FXA-13868) and encodes it into the QR.
+ * The test screenshots that QR and decodes it, so it reads the same value a
+ * user's phone would, not one the page reports about itself.
+ *
+ * CONTRACT: scan_qr must render the code inside `data-testid="pairing-qr"`, and
+ * that element must include the quiet zone around the code. Decoding fails
+ * without the quiet zone.
+ *
+ * Requires an eligible entrypoint (Sync context + a pairing entrypoint), so the
+ * caller passes the same query string the real Firefox menu entrypoint sends.
+ */
+export async function startPairingFlowV2(
+  client: MarionetteClient,
+  contentServerUrl: string,
+  eligibleEntrypointQs: string
+): Promise<string> {
+  await client.setContext('content');
+  await client.navigate(
+    `${contentServerUrl}/connect_another_device?${eligibleEntrypointQs}&v=2`
+  );
+  await waitForUrlContaining(client, '/pair/authority/scan_qr');
+
+  // Decode the QR the page actually renders, rather than reading the value
+  // out of a test-only attribute. A side channel would still agree with the
+  // page when the rendered code encodes something else, which is the one
+  // thing this card can get wrong.
+  //
+  // Shoot the wrapper, not the svg inside it: the wrapper carries the quiet
+  // zone the QR spec requires, and jsQR cannot find the finder patterns
+  // without it.
+  return pollUntil(
+    async () => {
+      const el = await client
+        .findElement('css selector', '[data-testid="pairing-qr"]')
+        .catch(() => undefined);
+      if (!el) return undefined;
+      const png = Buffer.from(await client.screenshotElement(el), 'base64');
+      const img = UPNG.decode(png);
+      const decoded = jsQR(
+        new Uint8ClampedArray(UPNG.toRGBA8(img)[0]),
+        img.width,
+        img.height
+      );
+      return decoded?.data.includes('channel_id=') ? decoded.data : undefined;
+    },
+    TIMEOUTS.ASYNC_SCRIPT,
+    'scan_qr did not render a decodable v2 pairing QR'
+  );
+}
+
+/**
+ * Extract channel_id from a v2 pairing QR URL, asserting the v=2 marker is
+ * present. Use this over {@link extractChannelId} when the test must prove the
+ * QR is a v2 QR and not a v1 one.
+ */
+export function extractChannelIdV2(pairUrl: string): string {
+  const hash = pairUrl.split('#')[1];
+  if (!hash) throw new Error('No fragment in v2 pair URL');
+
+  const params = new URLSearchParams(hash);
+  if (params.get('v') !== '2') {
+    throw new Error(`v2 pair URL missing v=2 marker: ${hash}`);
+  }
+  const channelId = params.get('channel_id');
+  if (!channelId) throw new Error('No channel_id in v2 pair URL');
+
+  return channelId;
+}
+
+/**
  * Build the authority OAuth URL that navigates the authority to the
  * pairing approval page.
  *
@@ -660,33 +741,6 @@ export function sleep(ms: number): Promise<void> {
 }
 
 /**
- * Take a screenshot of the authority browser via Marionette and write it
- * to the artifacts directory for debugging. Only writes when PAIRING_DEBUG=1.
- */
-export async function screenshotAuthority(
-  client: MarionetteClient,
-  prefix: string,
-  step: string
-): Promise<void> {
-  if (!process.env.PAIRING_DEBUG) {
-    return;
-  }
-  try {
-    const fs = await import('fs');
-    const path = await import('path');
-    const base64 = await client.takeScreenshot();
-    const dir = path.join(process.cwd(), '..', '..', 'artifacts', 'functional');
-    fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(
-      path.join(dir, `${prefix}-${step}.png`),
-      Buffer.from(base64, 'base64')
-    );
-  } catch {
-    // best-effort
-  }
-}
-
-/**
  * Verify the /pair index choice screen renders correctly after sign-in.
  *
  * The authority should already be on /pair after signInAuthorityViaMarionette.
@@ -818,4 +872,95 @@ export async function completeSupplicantApproval(
     TIMEOUTS.AUTHORITY_COMPLETE
   );
   expect(finalAuthUrl).not.toContain('pair/failure');
+}
+
+/**
+ * Set the pairing version pref in the running browser.
+ *
+ * `FxAccountsWebChannel` reads this through `defineLazyPreferenceGetter`, which
+ * observes changes, so flipping it at runtime takes effect on the next command
+ * and there is no need for a second browser with different prefs.
+ */
+export async function setPairingVersion(
+  client: MarionetteClient,
+  version: number
+): Promise<void> {
+  await client.setContext('chrome');
+  await client.executeScript(
+    `Services.prefs.setIntPref(arguments[0], arguments[1]);`,
+    { sandbox: 'system', args: [PAIRING_VERSION_PREF, version] }
+  );
+}
+
+/**
+ * Read `config.pairing.version` as the content server serves it.
+ *
+ * The value comes from convict (`PAIRING_VERSION`) and is baked into the page
+ * at server boot, so a test cannot change it. Tests that need version 2 read
+ * it to decide whether to run. Uses a real page for the same WAF reason as
+ * `isPairRoutesReact`; defaults to 1 when the config omits the value.
+ */
+
+/**
+ * Attach the authority's URL, a full-page screenshot and the page's own
+ * `[pair2]` console trace when a test fails.
+ *
+ * The authority runs in a Marionette-driven Firefox, so Playwright's own
+ * failure artifacts capture nothing from it — without this a failure only says
+ * which URL it did not reach, not what the page was doing.
+ */
+export async function attachAuthorityDiagnostics(
+  client: MarionetteClient,
+  testInfo: {
+    status?: string;
+    expectedStatus?: string;
+    attach: Function;
+    outputPath: (name: string) => string;
+  }
+): Promise<void> {
+  if (testInfo.status === testInfo.expectedStatus) {
+    return;
+  }
+  try {
+    await client.setContext('content');
+    const url = await client.getUrl();
+    const urlPath = testInfo.outputPath('authority-url.txt');
+    writeFileSync(urlPath, url);
+    await testInfo.attach('authority-url.txt', {
+      path: urlPath,
+      contentType: 'text/plain',
+    });
+
+    // The containers log their channel traffic with a `[pair2]` prefix; that
+    // trace is what says whether pair:supp:request ever arrived.
+    const logs = await client
+      // `wrappedJSObject`: Marionette's sandbox gets Xray vision into the page,
+      // which hides properties the page's own JS defined.
+      .executeScript(
+        'return ((window.wrappedJSObject && window.wrappedJSObject.__pair2Log) || []).join("\\n");'
+      )
+      .then((r) => (r ? String(r) : '(buffer empty)'))
+      .catch((err) => `(could not read buffer: ${err?.message ?? err})`);
+    if (logs) {
+      const logPath = testInfo.outputPath('authority-pair2-log.txt');
+      writeFileSync(logPath, String(logs));
+      await testInfo.attach('authority-pair2-log.txt', {
+        path: logPath,
+        contentType: 'text/plain',
+      });
+    }
+
+    const body = await client.findElement('css selector', 'body');
+    const shotPath = testInfo.outputPath('authority-page.png');
+    writeFileSync(
+      shotPath,
+      Buffer.from(await client.screenshotElement(body), 'base64')
+    );
+    await testInfo.attach('authority-page.png', {
+      path: shotPath,
+      contentType: 'image/png',
+    });
+  } catch {
+    // Diagnostics must never mask the real failure.
+  }
 }

@@ -67,7 +67,10 @@ export interface GetReactRouteGroups {
 }
 
 export interface GetRoute {
-  (name: string, definition: RouteDefinition): {
+  (
+    name: string,
+    definition: RouteDefinition
+  ): {
     name: string;
     definition?: RouteDefinition;
   };
