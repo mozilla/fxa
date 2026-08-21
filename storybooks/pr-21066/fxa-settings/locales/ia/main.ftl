@@ -827,6 +827,9 @@ recent-activity-account-passwordless-login-otp-failed = Codice de accesso sin co
 recent-activity-account-passwordless-login-otp-verified = Codice de accesso sin contrasigno verificate
 recent-activity-account-passwordless-registration-complete = Registration de conto sin contrasigno completate
 recent-activity-account-recovery-codes-set = Codices de recuperation configurate
+recent-activity-account-passkey-wrap-created = Clave-contrasigno activate pro synchronisar
+recent-activity-account-passkey-wrap-creation-failure = Configuration del accesso con clave-contrasigno fallite
+recent-activity-account-passkey-wrap-invalidated = Clave-contrasigno de accesso al synchronisation removite post le redefinition del contrasigno
 recent-activity-unknown = Altere activitate de conto
 
 

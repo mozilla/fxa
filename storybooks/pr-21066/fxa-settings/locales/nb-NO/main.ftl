@@ -559,6 +559,7 @@ flow-setup-2fa-inline-complete-learn-more-link = Slik beskytter dette kontoen di
 flow-setup-2fa-inline-complete-continue-button = Fortsett til { $serviceName }
 flow-setup-2fa-prompt-heading = Konfigurer totrinns-autentisering
 flow-setup-2fa-prompt-description = { $serviceName } krever at du konfigurerer totrinns-autentisering for å holde kontoen din trygg.
+flow-setup-2fa-prompt-passkey-success-banner = Vellykket pålogging med passnøkkel
 flow-setup-2fa-prompt-use-authenticator-apps = Du kan bruke hvilken som helst av <authenticationAppsLink>disse autentiseringsappene</authenticationAppsLink> for å fortsette.
 flow-setup-2fa-prompt-continue-button = Fortsett
 
@@ -1297,11 +1298,43 @@ pair2-authority-download-firefox-cta = Last ned { -brand-firefox }
 
 
 pair2-authority-scan-qr-heading = Skann for å koble til mobilenheten din
+pair2-authority-scan-qr-code-aria-label = QR-kode for å koble til mobilenheten din
+pair2-authority-scan-qr-help-link = Få hjelp med skanning
+
+
+pair2-authority-sync-success-heading = Du synkroniserer
+pair2-authority-sync-success-view-tabs-button = Vis synkroniserte faner
+pair2-authority-sync-success-sync-settings-button = Synkroniseringsinnstillinger
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = Vil du fortsatt koble til en enhet?
+pair2-authority-timeout-and-cancel-canceled-heading = Avbrutt
+pair2-authority-timeout-and-cancel-canceled-description = Hvis du ombestemmer deg eller vil koble til en annen enhet, kan du prøve på nytt.
+pair2-authority-timeout-and-cancel-try-again-button = Prøv på nytt
+pair2-authority-timeout-and-cancel-cancel-button = Avbryt
+pair2-authority-timeout-and-cancel-sync-settings-button = Synkroniseringsinnstillinger
 
 
 pair2-supplicant-approve-sign-in-heading = Et siste trinn for å synkronisere
 pair2-supplicant-approve-sign-in-instruction = Godkjenn innloggingen på datamaskinen din.
 pair2-supplicant-approve-sign-in-cancel-button = Avbryt
+
+
+pair2-supplicant-connect-this-device-heading = Koble denne enheten til kontoen din?
+pair2-supplicant-connect-this-device-connect-button = Koble til
+pair2-supplicant-connect-this-device-cancel-button = Avbryt
+
+
+pair2-supplicant-download-firefox-heading = Få { -brand-firefox } på denne enheten
+pair2-supplicant-download-firefox-continue-button = Fortsett i { -brand-firefox }
+
+
+pair2-supplicant-ready-to-scan-heading = For å koble til en enhet
+pair2-supplicant-ready-to-scan-learn-more-link = Les mer
+
+
+pair2-supplicant-sync-success-heading = Enheten din er tilkoblet
+pair2-supplicant-sync-success-view-tabs-button = Vis synkroniserte faner
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } bekreftet

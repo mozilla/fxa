@@ -801,6 +801,9 @@ recent-activity-account-passwordless-login-otp-failed = 無密碼登入代碼驗
 recent-activity-account-passwordless-login-otp-verified = 無密碼登入代碼驗證成功
 recent-activity-account-passwordless-registration-complete = 無密碼帳號註冊成功
 recent-activity-account-recovery-codes-set = 設定救援碼
+recent-activity-account-passkey-wrap-created = 已啟用 Passkey 進行同步
+recent-activity-account-passkey-wrap-creation-failure = 使用 Passkey 設定同步失敗
+recent-activity-account-passkey-wrap-invalidated = 密碼重設完成後，移除 Passkey 同步存取權限
 recent-activity-unknown = 其他帳號活動
 
 

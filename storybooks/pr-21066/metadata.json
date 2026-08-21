@@ -1,8 +1,8 @@
 {
-  "commit": "8cfe126805bc8be6189a8e8ff3000e3c2bee8524",
-  "summary": "test(settings): cover per-run interval ownership in bounce polling",
-  "description": "## Because\n\n- The signup confirmation page polled `account/email_bounce_status` every 5 seconds for as long as the page stayed open. There was no cap.\n- The `catch` block only logged, so the 429s that stage returns did not stop it. The page kept calling an endpoint that was already rate-limiting it.\n\n## This pull request\n\n- Stops polling 10 minutes after the effect starts, measured by wall-clock time rather than a tick count, because a backgrounded tab throttles timers.\n- Stops polling as soon as a request fails with a 4xx or a 5xx. An error with no `code`, such as a network failure, keeps polling.\n- Stops polling once a hard bounce is found.\n- Clears the interval on all of those paths. Each effect run holds its own interval id, so a check left in flight by a previous run cannot stop the current one. That made `pollIntervalRef` write-only, so it is gone.\n- Adds a test that leaves a check in flight, re-runs the effect with a new auth client, then fails the stale check, and asserts the new run keeps polling and the old run stays stopped.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-13188",
-  "timestamp": 1787164628000,
+  "commit": "6266d1f49e21f46dca407251dfea18b3249185d9",
+  "summary": "fix(settings): fit bounce polling under the server rate limit",
+  "description": "Because:\n\n- A fixed 5s poll makes 120 requests over the 10 minute cap, but the server\n  allows 100 per IP per 15 minutes, so the deadline was never reachable.\n- That rule is keyed on IP and blocks for 15 minutes, so one signup tab took\n  bounce detection down for everyone behind the same address.\n\nThis commit:\n\n- Backs the interval off to 30s after the first minute, for 30 requests total.\n- Skips the effect when there is no email to check.\n- Replaces the interval with a timeout chain owned by the effect run.",
+  "timestamp": 1787335028000,
   "storybooks": [
     "fxa-settings"
   ],

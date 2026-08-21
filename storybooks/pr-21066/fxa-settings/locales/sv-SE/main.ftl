@@ -562,7 +562,7 @@ flow-setup-2fa-inline-complete-continue-button = Fortsätt till { $serviceName }
 flow-setup-2fa-prompt-heading = Ställ in tvåstegsautentisering
 flow-setup-2fa-prompt-description = { $serviceName } kräver att du konfigurerar tvåstegsautentisering för att skydda ditt konto.
 flow-setup-2fa-prompt-passkey-success-banner = Inloggad med lösenordsnyckel
-flow-setup-2fa-prompt-passkey-description = { $serviceName } kräver också tvåstegsautentisering för din { -product-mozilla-account }. Efter installationen behöver du inte längre den när du loggar in med en lösenordsnyckel.
+flow-setup-2fa-prompt-passkey-description = { $serviceName } kräver också tvåstegsautentisering för ditt { -product-mozilla-account }. Efter installationen behöver du inte längre den när du loggar in med en lösenordsnyckel.
 flow-setup-2fa-prompt-use-authenticator-apps = Du kan använda någon av <authenticationAppsLink>dessa autentiseringsappar</authenticationAppsLink> för att fortsätta.
 flow-setup-2fa-prompt-continue-button = Fortsätt
 
@@ -825,6 +825,9 @@ recent-activity-account-passwordless-login-otp-failed = Lösenordslös inloggnin
 recent-activity-account-passwordless-login-otp-verified = Lösenordslös inloggningskod verifierad
 recent-activity-account-passwordless-registration-complete = Lösenordslös kontoregistrering slutförd
 recent-activity-account-recovery-codes-set = Återställningskoder inställda
+recent-activity-account-passkey-wrap-created = Lösenordsnyckel aktiverad för synkronisering
+recent-activity-account-passkey-wrap-creation-failure = Synkroniseringsinstallationen med lösenordsnyckel misslyckades
+recent-activity-account-passkey-wrap-invalidated = Åtkomst till synkronisering av lösenordsnyckel borttagen efter lösenordsåterställning
 recent-activity-unknown = Annan kontoaktivitet
 
 
@@ -1329,7 +1332,7 @@ pair2-authority-timeout-and-cancel-canceled-heading = Avbruten
 pair2-authority-timeout-and-cancel-canceled-description = Om du ångrar dig eller vill ansluta en annan enhet, försök igen.
 pair2-authority-timeout-and-cancel-try-again-button = Försök igen
 pair2-authority-timeout-and-cancel-cancel-button = Avbryt
-pair2-authority-timeout-and-cancel-sync-settings-button = Sync-inställningar
+pair2-authority-timeout-and-cancel-sync-settings-button = Synkroniseringsinställningar
 
 
 pair2-supplicant-approve-sign-in-heading = Ett sista steg för att synkronisera
