@@ -55,14 +55,9 @@ module.exports = ({ oauthDB, customs }) => ({
         // MILLISECONDS (`.getTime()`). They therefore differ in magnitude by
         // ~1000x; this is intentional to preserve backwards compatibility for
         // RPs that already parse iat/exp as milliseconds.
-        acr: Joi.string().optional(),
-        auth_time: Joi.number()
-          .optional()
-          .description(
-            'The authentication event time in seconds since the epoch (OIDC). ' +
-              'Note: iat/exp on this endpoint are in milliseconds.'
-          ),
-        amr: Joi.array().items(Joi.string()).optional(),
+        acr: Joi.string().optional().description(DESCRIPTION.acr),
+        auth_time: Joi.number().optional().description(DESCRIPTION.authTime),
+        amr: Joi.array().items(Joi.string()).optional().description(DESCRIPTION.amr),
       }),
     },
     handler: async function introspectEndpoint(req) {
