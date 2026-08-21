@@ -23,8 +23,12 @@ const VPN_ALLOWED_CLIENT_ID: string =
   exchangeCfg.allowedClientsForService?.vpn?.[0];
 // Synthetic clientId that is NOT on any allowlist, for the negative test.
 const UNRELATED_CLIENT_ID = 'aa01000000000009';
-// Smartwindow has no allowlist; any clientId works.
-const SMART_CLIENT_ID = UNRELATED_CLIENT_ID;
+// Every service is allowlisted, so smartwindow needs a listed clientId too.
+const SMART_CLIENT_ID: string =
+  exchangeCfg.allowedClientsForService?.smartwindow?.[0];
+// Second VPN-allowlisted clientId, for the one-row-per-clientId test.
+const VPN_ALLOWED_CLIENT_ID_2: string =
+  exchangeCfg.allowedClientsForService?.vpn?.[1];
 
 // Test fixture UIDs use the 0xCC prefix so they don't collide with
 // seed-test-data.ts (0xAA deterministic, 0xBB volume noise).
@@ -163,26 +167,25 @@ describe('#integration - scripts/backfill-account-authorizations', () => {
   });
 
   it('writes one row per clientId when the same (uid, scope, service) appears with different clientIds', async () => {
-    // Smartwindow has no allowlist gate, so this exercise focuses on the
-    // PK-includes-clientId property: same scope, same service, two
-    // different clientIds → two distinct rows.
+    // Two clientIds on the same service allowlist, to isolate the
+    // PK-includes-clientId property: same scope, same service → two rows.
     const userId = uid('02');
     const createdAt = new Date('2024-06-15T00:00:00Z');
-    const clientA = SMART_CLIENT_ID;
-    const clientB = 'aa01000000000010';
+    const clientA = VPN_ALLOWED_CLIENT_ID;
+    const clientB = VPN_ALLOWED_CLIENT_ID_2;
 
     await insertRefreshToken({
       label: 'multi-client-a',
       userId,
       clientId: clientA,
-      scope: SMARTWINDOW_SCOPE,
+      scope: VPN_SCOPE,
       createdAt,
     });
     await insertRefreshToken({
       label: 'multi-client-b',
       userId,
       clientId: clientB,
-      scope: SMARTWINDOW_SCOPE,
+      scope: VPN_SCOPE,
       createdAt,
     });
 
@@ -191,7 +194,7 @@ describe('#integration - scripts/backfill-account-authorizations', () => {
     const rows = await query<Array<{ clientId: Buffer }>>(
       'SELECT clientId FROM accountAuthorizations WHERE uid = ? AND service = ? ' +
         'ORDER BY clientId',
-      [userId, 'smartwindow']
+      [userId, 'vpn']
     );
     const hexClientIds = rows.map((r) => r.clientId.toString('hex')).sort();
     expect(hexClientIds).toEqual([clientA, clientB].sort());

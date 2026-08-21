@@ -199,7 +199,7 @@ class OauthDB extends ConnectedServicesDb {
 
     const tokens = await (async () => {
       if (Object.keys(extraMetadata)) {
-       return await getTokens; // CALLS MYSQL
+        return await getTokens; // CALLS MYSQL
       }
       return {};
     })();
@@ -265,10 +265,18 @@ class OauthDB extends ConnectedServicesDb {
     // `getRefreshToken` for lazy cleanup.
   }
 
+  // Resolves to the number of refresh tokens deleted. Consent revocation needs
+  // that count: refresh-token absence only means "disconnected" for a client
+  // that had one, so a client with zero tokens (Firefox Desktop today) must not
+  // have its consent revoked on the strength of finding none.
   async deleteClientAuthorization(clientId, uid) {
     await this.ready();
     await this.redis.removeAccessTokensForUserAndClient(uid, clientId);
-    return await this.mysql._deleteClientAuthorization(clientId, uid);
+    const [, refreshTokens] = await this.mysql._deleteClientAuthorization(
+      clientId,
+      uid
+    );
+    return refreshTokens?.affectedRows ?? 0;
     // Note that we do not clear metadata for deleted refresh tokens from redis,
     // because it's awkward to enumerate the list of deleted refresh token ids.
     // Instead we rely on a future call to `getRefreshTokensByUid` or
@@ -424,6 +432,22 @@ class OauthDB extends ConnectedServicesDb {
   async deleteAllConsentsForUser(uid) {
     await this.ready();
     return this.mysql._deleteAllAccountConsentsForUser(uid);
+  }
+
+  // (clientId, scope) for every refresh token the user has. Deliberately not
+  // getRefreshTokensByUid: that hydrates Redis metadata and can issue a prune
+  // write, neither of which affects a revocation decision.
+  async getRefreshTokenScopesByUid(uid) {
+    await this.ready();
+    return this.mysql._getRefreshTokenScopesByUid(uid);
+  }
+
+  // Deletes an explicit set of consent rows on sign-out / disconnect, resolving
+  // to the number of v1 rows removed. lib/oauth/revoke-consents-on-disconnect.ts
+  // chooses the set and owns the best-effort contract.
+  async deleteAccountConsentRows(uid, rows) {
+    await this.ready();
+    return this.mysql._deleteAccountConsentRows(uid, rows);
   }
 
   async listAccountConsentsByUid(uid) {

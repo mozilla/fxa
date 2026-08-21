@@ -18,6 +18,11 @@ const { getOptionalCmsEmailConfig } = require('./utils/account');
 const { Container } = require('typedi');
 const { RelyingPartyConfigurationManager } = require('@fxa/shared/cms');
 const authMethods = require('../authMethods');
+const oauthDB = require('../oauth/db');
+const {
+  revokeConsentsOnDisconnect,
+} = require('../oauth/revoke-consents-on-disconnect');
+const { resolveStatsD } = require('../container-deps');
 const { FxaMailer } = require('../senders/fxa-mailer');
 const { FxaMailerFormat } = require('../senders/fxa-mailer-format');
 const { OAuthClientInfoServiceName } = require('../senders/oauth_client_info');
@@ -98,6 +103,13 @@ module.exports = function (
         }
 
         await db.deleteSessionToken(sessionToken);
+        // Signing out of Settings is a withdrawal too. Firefox Desktop's consent
+        // is backed by a session rather than a refresh token, so this is the only
+        // thing that can retire it once the last session goes.
+        await revokeConsentsOnDisconnect(
+          { oauthDB, log, statsd: resolveStatsD() },
+          { uid, remainingSessions: (await db.sessions(uid)).length }
+        );
         await recordSecurityEvent('session.destroy', {
           db,
           request,

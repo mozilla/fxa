@@ -62,6 +62,10 @@ module.exports = ({ log, oauthDB }) => {
         client_id: token.clientId.toString('hex'),
       });
     }
+    // Deliberately does not revoke accountAuthorizations rows, unlike the
+    // Settings and device disconnect paths: Firefox destroys its sync refresh
+    // token here right after sign-in, so treating this as a withdrawal would
+    // clear consent the user just granted.
     await oauthDB[removeToken](token);
     return {};
   }

@@ -5,6 +5,10 @@
 const { OauthError } = require('@fxa/accounts/errors');
 const oauthDB = require('./db');
 const ScopeSet = require('fxa-shared').oauth.scopes;
+const { resolveAuthLogger, resolveStatsD } = require('../container-deps');
+const {
+  revokeConsentsOnDisconnect,
+} = require('./revoke-consents-on-disconnect');
 
 // Helper function to render each returned record in the expected form.
 function serialize(clientIdHex, token) {
@@ -115,17 +119,36 @@ function processRefreshTokens(refreshTokens) {
 }
 
 module.exports = {
-  async destroy(clientId, uid, refreshTokenId) {
+  /**
+   * `remainingSessions` is how many session tokens the account has left. Only
+   * callers with an fxa-db handle can count them; omitting it makes revocation
+   * treat a native client as still signed in, which is the safe reading.
+   */
+  async destroy(clientId, uid, refreshTokenId, remainingSessions) {
     await oauthDB.ready();
+    let destroyedRefreshTokens = 0;
     if (refreshTokenId) {
       if (
         !(await oauthDB.deleteClientRefreshToken(refreshTokenId, clientId, uid))
       ) {
+        // Not this user's token, so nothing was revoked and the rows stay. The
+        // route swallows this errno and still returns {}, so a stale id reads as
+        // disconnected in Settings with consent intact.
         throw OauthError.unknownToken();
       }
+      destroyedRefreshTokens = 1;
     } else {
-      await oauthDB.deleteClientAuthorization(clientId, uid);
+      destroyedRefreshTokens = await oauthDB.deleteClientAuthorization(
+        clientId,
+        uid
+      );
     }
+    // Drop any consent row whose own client has nothing left. After the deletes
+    // above, so the evaluation sees the new state.
+    await revokeConsentsOnDisconnect(
+      { oauthDB, log: resolveAuthLogger(), statsd: resolveStatsD() },
+      { uid, clientId, destroyedRefreshTokens, remainingSessions }
+    );
   },
   /**
    * Fetches all authorized clients for a given user ID,

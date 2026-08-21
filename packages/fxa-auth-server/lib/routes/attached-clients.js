@@ -15,6 +15,11 @@ const DEVICES_AND_SESSIONS_DOC =
   require('../../docs/swagger/devices-and-sessions-api').default;
 
 const { ConnectedServicesFactory } = require('fxa-shared/connected-services');
+const oauthDB = require('../oauth/db');
+const {
+  revokeConsentsOnDisconnect,
+} = require('../oauth/revoke-consents-on-disconnect');
+const { resolveAuthLogger, resolveStatsD } = require('../container-deps');
 const DESCRIPTIONS = require('../../docs/swagger/shared/descriptions').default;
 
 module.exports = (log, db, devices, clientUtils) => {
@@ -243,7 +248,8 @@ module.exports = (log, db, devices, clientUtils) => {
             await authorizedClients.destroy(
               payload.clientId,
               credentials.uid,
-              payload.refreshTokenId
+              payload.refreshTokenId,
+              (await db.sessions(credentials.uid)).length
             );
           } catch (err) {
             if (err.errno !== error.ERRNO.REFRESH_TOKEN_UNKNOWN) {
@@ -257,7 +263,12 @@ module.exports = (log, db, devices, clientUtils) => {
               'sessionTokenId cannot be present for non-device OAuth client'
             );
           }
-          await authorizedClients.destroy(payload.clientId, credentials.uid);
+          await authorizedClients.destroy(
+            payload.clientId,
+            credentials.uid,
+            undefined,
+            (await db.sessions(credentials.uid)).length
+          );
         } else if (payload.sessionTokenId) {
           // We've got a plain web session on our hands.
           // Need to check that it actually belongs to this user, unless it's the current session.
@@ -270,6 +281,19 @@ module.exports = (log, db, devices, clientUtils) => {
             }
             await db.deleteSessionToken(sessionToken);
           }
+          // Read after our own delete, so Settings' parallel sign-outs resolve
+          // to whichever request commits last.
+          await revokeConsentsOnDisconnect(
+            {
+              oauthDB,
+              log: resolveAuthLogger(),
+              statsd: resolveStatsD(),
+            },
+            {
+              uid: credentials.uid,
+              remainingSessions: (await db.sessions(credentials.uid)).length,
+            }
+          );
         }
 
         return {};

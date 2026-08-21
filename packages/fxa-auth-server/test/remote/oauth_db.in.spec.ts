@@ -338,13 +338,34 @@ describe('db', () => {
   });
 
   describe('client-tokens', () => {
+    // Resolves to the number of refresh tokens deleted. Consent revocation reads
+    // that count as its evidence the client was refresh-token backed, so the zero
+    // case has to stay distinguishable.
     describe('deleteClientAuthorization', () => {
       const clientId = buf(randomString(8));
       const userId = buf(randomString(16));
 
-      it('should delete client tokens', async () => {
+      it('reports zero when the client had no refresh tokens', async () => {
         const result = await db.deleteClientAuthorization(clientId, userId);
-        expect(result).toBeTruthy();
+        expect(result).toBe(0);
+      });
+
+      it('reports how many refresh tokens it deleted', async () => {
+        const tokenClientId = buf(randomString(8));
+        const tokenUserId = buf(randomString(16));
+        await db.generateRefreshToken({
+          clientId: tokenClientId,
+          userId: tokenUserId,
+          email: 'delete-client-authorization@example.com',
+          scope: ScopeSet.fromArray(['profile']),
+        });
+
+        const result = await db.deleteClientAuthorization(
+          tokenClientId,
+          tokenUserId
+        );
+
+        expect(result).toBe(1);
       });
     });
   });

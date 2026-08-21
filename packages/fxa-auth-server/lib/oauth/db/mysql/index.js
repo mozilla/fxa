@@ -9,9 +9,7 @@ const { ScopeIdCache } = require('../../scopes-cache');
 
 // Shared base class
 const { MysqlOAuthShared } = require('fxa-shared/db/mysql');
-const { Container } = require('typedi');
-const { AuthLogger } = require('../../../types');
-const { StatsD } = require('hot-shots');
+const { resolveAuthLogger, resolveStatsD } = require('../../../container-deps');
 
 const REQUIRED_SQL_MODES = ['STRICT_ALL_TABLES', 'NO_ENGINE_SUBSTITUTION'];
 
@@ -150,6 +148,12 @@ const QUERY_LIST_UNIQUE_REFRESH_TOKENS_BY_UID =
   'LEFT OUTER JOIN clients ON clients.id = rt.clientId ' +
   'WHERE rt.userId=?';
 
+// Just what consent revocation needs to decide whether a peer still sustains a
+// row. Skips the clients join and the Redis metadata hydration that
+// getRefreshTokensByUid does, neither of which affects the decision.
+const QUERY_LIST_REFRESH_TOKEN_SCOPES_BY_UID =
+  'SELECT clientId, scope FROM refreshTokens FORCE INDEX (tokens_user_id) ' +
+  'WHERE userId=?';
 const QUERY_LIST_REFRESH_TOKENS_BY_CLIENT_ID =
   'SELECT refreshTokens.createdAt, refreshTokens.userId FROM refreshTokens WHERE refreshTokens.clientId=?';
 const DELETE_ACTIVE_CODES_BY_CLIENT_AND_UID =
@@ -199,6 +203,26 @@ const QUERY_HAS_CONSENT_FOR_CLIENT =
   'SELECT 1 FROM accountAuthorizations WHERE uid=? AND clientId=? LIMIT 1';
 const QUERY_ACCOUNT_CONSENT_DELETE_BY_UID =
   'DELETE FROM accountAuthorizations WHERE uid=?';
+// Sign-out / disconnect revocation. Deletes an explicit set of rows by full PK,
+// one statement per table via a row-constructor IN list.
+//
+// Which rows to drop is decided in JS, not SQL: a row survives if a client on
+// its service's allowlist still holds a token whose scope set *contains* the
+// row's scope, and scopes are hierarchical, so that needs ScopeSet rather than a
+// string match on the space-separated refreshTokens.scope column. See
+// lib/oauth/revoke-consents-on-disconnect.ts.
+//
+// v1 matches lastAuthorizedTosAt as an optimistic guard, so a row re-earned by a
+// concurrent /oauth/authorization survives. v2 matches its PK only: its
+// dual-write is best-effort, so a swallowed failure diverges the timestamps and
+// guarding on v1's value would strand a v2 row that readV2 later reads as
+// consent. Over-deleting from v2 is safe — reads fall back to authoritative v1.
+const QUERY_ACCOUNT_CONSENT_DELETE_ROWS_PREFIX =
+  'DELETE FROM accountAuthorizations WHERE uid=? AND ' +
+  '(scope, service, clientId, lastAuthorizedTosAt) IN (';
+const QUERY_ACCOUNT_CONSENT_V2_DELETE_ROWS_PREFIX =
+  'DELETE FROM accountAuthorizations_v2 WHERE uid=? AND ' +
+  '(scopeId, service, clientId) IN (';
 const QUERY_ACCOUNT_CONSENT_LIST_BY_UID =
   'SELECT uid, scope, service, clientId, firstAuthorizedTosAt, lastAuthorizedTosAt ' +
   'FROM accountAuthorizations WHERE uid=?';
@@ -235,24 +259,30 @@ const QUERY_SCOPES_INSERT =
   'INSERT INTO scopes (scope, hasScopedKeys) ' + 'VALUES (?, ?);';
 // Bulk scope-string -> id resolution backing the scopes cache. The IN list is
 // built at call time from the uncached scopes.
-const QUERY_SCOPES_RESOLVE_IDS_PREFIX = 'SELECT id, scope FROM scopes WHERE scope IN (';
+const QUERY_SCOPES_RESOLVE_IDS_PREFIX =
+  'SELECT id, scope FROM scopes WHERE scope IN (';
 
 const buf = (v) => (Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex'));
+
+// Consent deletes are batched so one statement never scales with the whole
+// ledger. Well under any placeholder or packet limit, and a user's revocable
+// row count is normally a handful.
+const CONSENT_DELETE_BATCH_SIZE = 200;
+const chunk = (items, size) => {
+  const batches = [];
+  for (let i = 0; i < items.length; i += size) {
+    batches.push(items.slice(i, i + size));
+  }
+  return batches;
+};
 
 function firstRow(rows) {
   return rows[0];
 }
 
-function resolveLogger() {
-  if (Container.has(AuthLogger)) return Container.get(AuthLogger);
-}
-function resolveMetrics() {
-  if (Container.has(StatsD)) return Container.get(StatsD);
-}
-
 class MysqlStore extends MysqlOAuthShared {
   constructor(config) {
-    super(config, undefined, resolveLogger(), resolveMetrics());
+    super(config, undefined, resolveAuthLogger(), resolveStatsD());
   }
 
   // Process-lifetime scope-string -> scopes.id cache for the
@@ -485,6 +515,16 @@ class MysqlStore extends MysqlOAuthShared {
     return refreshTokens;
   }
 
+  async _getRefreshTokenScopesByUid(uid) {
+    const rows = await this._read(QUERY_LIST_REFRESH_TOKEN_SCOPES_BY_UID, [
+      buf(uid),
+    ]);
+    return rows.map((r) => ({
+      clientId: r.clientId,
+      scope: ScopeSet.fromString(r.scope),
+    }));
+  }
+
   /**
    * Get a unique list of refresh tokens for a given user.
    * @param {String} uid
@@ -636,7 +676,14 @@ class MysqlStore extends MysqlOAuthShared {
   // keyed by scopeId. Resolve-only: scopes absent from the scopes table are
   // skipped (v1 stays authoritative, so nothing is dropped), and the v2 write
   // is isolated so a v2 failure never affects the v1 write.
-  async _upsertAccountConsents(uid, scopes, service, clientId, now, dualWriteV2) {
+  async _upsertAccountConsents(
+    uid,
+    scopes,
+    service,
+    clientId,
+    now,
+    dualWriteV2
+  ) {
     if (!Array.isArray(scopes) || scopes.length === 0) {
       return;
     }
@@ -817,6 +864,67 @@ class MysqlStore extends MysqlOAuthShared {
     const uidBuf = buf(uid);
     await this._write(QUERY_ACCOUNT_CONSENT_V2_DELETE_BY_UID, [uidBuf]);
     return this._write(QUERY_ACCOUNT_CONSENT_DELETE_BY_UID, [uidBuf]);
+  }
+
+  // Deletes the exact rows chosen by consentRowsToRevoke(). Returns how many v1
+  // rows went, which can be fewer than rows.length when the lastAuthorizedTosAt
+  // guard spares one that was concurrently re-earned.
+  //
+  // Ungated by the v2 flags, like _deleteAllAccountConsentsForUser, since rows
+  // outlive them. v2 goes first because _hasConsentForScope short-circuits on a
+  // v2 hit, so a v1-first partial failure would leave a v2-only row — the one
+  // state where the readV2 and non-readV2 answers disagree. v2 is isolated in its
+  // own try/catch so a v2 fault cannot stop the authoritative v1 delete, which
+  // the caller would swallow into a silently dropped withdrawal.
+  async _deleteAccountConsentRows(uid, rows) {
+    if (!Array.isArray(rows) || rows.length === 0) {
+      return 0;
+    }
+    const uidBuf = buf(uid);
+
+    try {
+      // v2 keys on scopeId, so scopes resolve first; an unseeded scope has no v2
+      // row to delete. The resolved map is keyed by the input's original case.
+      const { resolved } = await this._scopeIdCache.resolve(
+        rows.map((r) => r.scope)
+      );
+      const v2Rows = rows.filter((r) => resolved.has(r.scope));
+      for (const batch of chunk(v2Rows, CONSENT_DELETE_BATCH_SIZE)) {
+        const params = [uidBuf];
+        for (const r of batch) {
+          params.push(resolved.get(r.scope), r.service, buf(r.clientId));
+        }
+        await this._write(
+          QUERY_ACCOUNT_CONSENT_V2_DELETE_ROWS_PREFIX +
+            batch.map(() => '(?, ?, ?)').join(', ') +
+            ')',
+          params
+        );
+      }
+    } catch (err) {
+      // Log only code/errno — the driver decorates errors with connection
+      // options that can include credentials.
+      this.log?.error('accountAuthorizations.v2.revoke_failed', {
+        code: err?.code,
+        errno: err?.errno,
+      });
+    }
+
+    let affectedRows = 0;
+    for (const batch of chunk(rows, CONSENT_DELETE_BATCH_SIZE)) {
+      const params = [uidBuf];
+      for (const r of batch) {
+        params.push(r.scope, r.service, buf(r.clientId), r.lastAuthorizedTosAt);
+      }
+      const result = await this._write(
+        QUERY_ACCOUNT_CONSENT_DELETE_ROWS_PREFIX +
+          batch.map(() => '(?, ?, ?, ?)').join(', ') +
+          ')',
+        params
+      );
+      affectedRows += result.affectedRows;
+    }
+    return affectedRows;
   }
 
   _listAccountConsentsByUid(uid) {
