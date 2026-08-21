@@ -1,8 +1,8 @@
 {
-  "commit": "6266d1f49e21f46dca407251dfea18b3249185d9",
-  "summary": "fix(settings): fit bounce polling under the server rate limit",
-  "description": "Because:\n\n- A fixed 5s poll makes 120 requests over the 10 minute cap, but the server\n  allows 100 per IP per 15 minutes, so the deadline was never reachable.\n- That rule is keyed on IP and blocks for 15 minutes, so one signup tab took\n  bounce detection down for everyone behind the same address.\n\nThis commit:\n\n- Backs the interval off to 30s after the first minute, for 30 requests total.\n- Skips the effect when there is no email to check.\n- Replaces the interval with a timeout chain owned by the effect run.",
-  "timestamp": 1787335028000,
+  "commit": "26c0587da0654c380a91d5b748812cbd218f431b",
+  "summary": "fix(settings): cap bounce polling at 5 minutes",
+  "description": "Because:\n\n- Ten minutes at the 5s interval is 120 requests, but the server allows 100\n  emailBounceStatusCheck per IP per 15 minutes and blocks on breach.\n- The rule keys on IP, so one signup tab took bounce detection down for\n  everyone behind the same address.\n\nThis commit:\n\n- Shortens the cap to 5 minutes, for 60 requests.\n- Skips the effect when there is no email to check.",
+  "timestamp": 1787335903000,
   "storybooks": [
     "fxa-settings"
   ],
