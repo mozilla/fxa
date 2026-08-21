@@ -31,6 +31,7 @@ import { MarionetteClient } from '../../lib/marionette';
 import { SELECTORS, TIMEOUTS } from '../../lib/pairing-constants';
 import {
   signInAuthorityViaMarionette,
+  setPairingVersion,
   getSignedInUser,
   startPairingFlow,
   buildSupplicantUrl,
@@ -112,6 +113,11 @@ test.describe('severity-2 #smoke', () => {
       marionetteAuthority,
     }) => {
       const client = marionetteAuthority.client;
+      // /pair negotiates into the v2 flow when FxA and the browser both report
+      // version 2, which this stack does. Opt the browser down so this spec
+      // still exercises v1.
+      await setPairingVersion(client, 1);
+
 
       const credentials = await test.step('Create test account', async () => {
         return await testAccountTracker.signUp();
@@ -184,6 +190,11 @@ test.describe('severity-2 #smoke', () => {
       marionetteAuthority,
     }) => {
       const client = marionetteAuthority.client;
+      // /pair negotiates into the v2 flow when FxA and the browser both report
+      // version 2, which this stack does. Opt the browser down so this spec
+      // still exercises v1.
+      await setPairingVersion(client, 1);
+
 
       const { credentials, secret } =
         await test.step('Create test account with TOTP', async () => {

@@ -6,6 +6,7 @@ import { GenericData } from '../../lib/model-data';
 import {
   AuthorityState,
   PairingAuthorityIntegration,
+  resetAuthoritySession,
 } from './pairing-authority-integration';
 
 const CHANNEL_SERVER_URI = 'wss://channel.example.com';
@@ -90,6 +91,7 @@ function createIntegration(
 
 describe('PairingAuthorityIntegration', () => {
   beforeEach(() => {
+    resetAuthoritySession();
     jest.clearAllMocks();
     jest.useFakeTimers();
     mockListeners = {};
@@ -586,6 +588,7 @@ describe('PairingAuthorityIntegration', () => {
         'close',
         'error',
         'remote:pair:supp:request',
+        'remote:pair:supp:complete',
         'remote:pair:supp:authorize',
       ]);
     });

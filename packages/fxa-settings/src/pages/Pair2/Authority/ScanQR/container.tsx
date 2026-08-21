@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react';
 import * as Sentry from '@sentry/react';
 import { useNavigate } from 'react-router';
 import ScanQR from '.';
+import { plog } from '../../../../lib/channels/pairing-flow';
 import {
   AuthorityState,
   Integration,
@@ -21,17 +22,22 @@ const ScanQRContainer = ({ integration }: { integration: Integration }) => {
   const navigate = useNavigate();
   const [qrCodeValue, setQrCodeValue] = useState('');
 
-  if (!(integration instanceof PairingAuthorityIntegration)) {
-    throw new Error(
-      'Invalid integration type. Expected PairingAuthorityIntegration.'
-    );
-  }
-  if (integration.isFirefoxMobileClient()) {
+  // `useIntegration` rebuilds on navigation, and the rebuild is not synchronous
+  // with the route change: arriving here client-side, the first render still
+  // holds the previous page's integration. Throwing on that would kill the page
+  // before the correct one ever arrives, so wait for it instead.
+  const authority =
+    integration instanceof PairingAuthorityIntegration ? integration : null;
+
+  if (authority?.isFirefoxMobileClient()) {
     throw new Error('Mobile to desktop not supported!');
   }
 
   useEffect(() => {
-    integration.onStateChange = (state: AuthorityState) => {
+    if (!authority) {
+      return;
+    }
+    authority.onStateChange = (state: AuthorityState) => {
       switch (state) {
         case AuthorityState.WaitingForAuthorizations:
           navigate('/pair/authority/approve_signin');
@@ -47,8 +53,10 @@ const ScanQRContainer = ({ integration }: { integration: Integration }) => {
 
     (async () => {
       try {
-        await integration.createChannel();
-        setQrCodeValue(integration.getPairUrl('2'));
+        await authority.createChannel();
+        const pairUrl = authority.getPairUrl('2');
+        plog('auth QR minted', pairUrl.split('#')[1] ?? '');
+        setQrCodeValue(pairUrl);
       } catch (err) {
         setQrCodeValue('');
         Sentry.captureException(err);
@@ -56,11 +64,15 @@ const ScanQRContainer = ({ integration }: { integration: Integration }) => {
     })();
 
     return () => {
-      // `destroy` is async and effect cleanup cannot await it; catch so a
-      // failed socket close does not surface as an unhandled rejection.
-      integration.destroy().catch((err) => Sentry.captureException(err));
+      // Deliberately no `destroy()` here. The channel has to outlive this page
+      // for the rest of the v2 flow, and tearing down on unmount also loses the
+      // channel under StrictMode's double-invoked effect: cleanup's async
+      // destroy resolves after the second mount's createChannel() has already
+      // returned early, leaving a QR that advertises a closed channel. The
+      // terminal screens (sync_success, timeout_and_cancel) own teardown.
+      authority.onStateChange = null;
     };
-  }, [integration, navigate]);
+  }, [authority, navigate]);
 
   return <ScanQR {...{ qrCodeValue }} />;
 };

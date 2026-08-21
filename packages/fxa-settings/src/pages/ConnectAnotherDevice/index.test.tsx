@@ -225,11 +225,10 @@ describe('ConnectAnotherDevice', () => {
       );
 
       await waitFor(() =>
-        expect(navigateWithQuery).toHaveBeenCalledWith(
-          '/pair/authority/scan_qr'
+        expect(hardNavigate).toHaveBeenCalledWith(
+          expect.stringContaining('/pair/authority/scan_qr')
         )
       );
-      expect(hardNavigate).not.toHaveBeenCalled();
     });
 
     it('reads the browser pairing capabilities from props instead of requesting fxaStatus', async () => {
@@ -239,8 +238,8 @@ describe('ConnectAnotherDevice', () => {
       );
 
       await waitFor(() =>
-        expect(navigateWithQuery).toHaveBeenCalledWith(
-          '/pair/authority/scan_qr'
+        expect(hardNavigate).toHaveBeenCalledWith(
+          expect.stringContaining('/pair/authority/scan_qr')
         )
       );
       expect(firefox.fxaStatus).not.toHaveBeenCalled();
@@ -291,11 +290,10 @@ describe('ConnectAnotherDevice', () => {
       );
 
       await waitFor(() =>
-        expect(navigateWithQuery).toHaveBeenCalledWith(
-          '/pair/authority/scan_qr'
+        expect(hardNavigate).toHaveBeenCalledWith(
+          expect.stringContaining('/pair/authority/scan_qr')
         )
       );
-      expect(hardNavigate).not.toHaveBeenCalled();
     });
 
     it('renders the loading spinner while the browser capabilities are unresolved', async () => {
