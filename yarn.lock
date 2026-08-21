@@ -29411,6 +29411,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dotenv@npm:^17.4.2":
+  version: 17.4.2
+  resolution: "dotenv@npm:17.4.2"
+  checksum: 10c0/164f8e77a646c8446867d5b588d26ea6005c8ea7c5eb41cf926f6113d23f2191355f6e0cfd95ea9bab98394a5b0a3f1e51a8399711b666fe55cc7b0bd745f942
+  languageName: node
+  linkType: hard
+
 "dset@npm:^3.1.4":
   version: 3.1.4
   resolution: "dset@npm:3.1.4"
@@ -33666,7 +33673,7 @@ __metadata:
     crypto-browserify: "npm:^3.12.0"
     css-loader: "npm:^6.8.1"
     css-minimizer-webpack-plugin: "npm:^7.0.0"
-    dotenv: "npm:^16.4.5"
+    dotenv: "npm:^17.4.2"
     dotenv-expand: "npm:^12.0.1"
     eslint: "npm:^8.57.1"
     eslint-config-react-app: "npm:^7.0.1"
@@ -33926,7 +33933,7 @@ __metadata:
     clsx: "npm:^2.1.1"
     copyfiles: "npm:^2.4.1"
     diffparser: "npm:^2.0.1"
-    dotenv: "npm:^16.4.5"
+    dotenv: "npm:^17.4.2"
     eslint: "npm:^8.57.1"
     eslint-config-next: "npm:15.5.14"
     eslint-config-prettier: "npm:^10.1.5"
