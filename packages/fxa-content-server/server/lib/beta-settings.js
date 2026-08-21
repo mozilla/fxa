@@ -12,21 +12,12 @@ const {
 const config = require('./configuration');
 const FLOW_ID_KEY = config.get('flow_id_key');
 const flowMetrics = require('./flow-metrics');
+const { settingsStaticDirectory } = require('./static-paths');
+const { CANARY_PATH } = require('./routes/get-waict-canary');
 
 const env = config.get('env');
 
-const settingsStaticPath = (() => {
-  const static_directory = config.get('static_directory');
-  const static_settings_directory = config.get('static_settings_directory');
-  return join(
-    __dirname,
-    '..',
-    '..',
-    static_directory,
-    'settings',
-    static_settings_directory
-  );
-})();
+const settingsStaticPath = settingsStaticDirectory(config);
 
 let settingsIndexFile;
 function getSettingsIndexFile() {
@@ -176,6 +167,23 @@ function swapBetaMeta(html, tmplContent = {}) {
   return result;
 }
 
+// The canary is deliberately absent from the WAICT integrity manifest, so
+// referencing it from a page yields a guaranteed missing_from_manifest report
+// on every load - proving the reporting pipeline is live. Served from the
+// origin root by get-waict-canary.js; gated by the same config as the route.
+const waictCanaryTag =
+  config.get('waict.enabled') && config.get('waict.canaryEnabled')
+    ? `<script defer src="${CANARY_PATH}"></script>`
+    : '';
+
+// Inject the WAICT canary script before </head>, if enabled.
+function injectWaictCanary(html) {
+  if (!waictCanaryTag) {
+    return html;
+  }
+  return html.replace('</head>', waictCanaryTag + '</head>');
+}
+
 const preconnectLinks = [];
 function preconnect(val) {
   if (!val) {
@@ -240,12 +248,14 @@ function modifyProxyRes(proxyRes, req, res) {
     ) {
       let html = body.toString();
       const flowEventData = flowMetrics.create(FLOW_ID_KEY);
-      html = swapBetaMeta(html, {
-        __SERVER_CONFIG__: settingsConfig,
-        __FLOW_ID__: flowEventData.flowId,
-        __FLOW_BEGIN_TIME__: flowEventData.flowBeginTime,
-        ...resolvePreConnectDirectives(settingsConfig),
-      });
+      html = injectWaictCanary(
+        swapBetaMeta(html, {
+          __SERVER_CONFIG__: settingsConfig,
+          __FLOW_ID__: flowEventData.flowId,
+          __FLOW_BEGIN_TIME__: flowEventData.flowBeginTime,
+          ...resolvePreConnectDirectives(settingsConfig),
+        })
+      );
       res.send(new Buffer.from(html));
     } else {
       // remove transfer-encoding header, a Content-Length header will be added
@@ -289,12 +299,14 @@ const modifySettingsStatic = function (req, res) {
 
   const flowEventData = flowMetrics.create(FLOW_ID_KEY);
   return res.send(
-    swapBetaMeta(indexFile, {
-      __SERVER_CONFIG__: settingsConfig,
-      __FLOW_ID__: flowEventData.flowId,
-      __FLOW_BEGIN_TIME__: flowEventData.flowBeginTime,
-      ...resolvePreConnectDirectives(settingsConfig),
-    })
+    injectWaictCanary(
+      swapBetaMeta(indexFile, {
+        __SERVER_CONFIG__: settingsConfig,
+        __FLOW_ID__: flowEventData.flowId,
+        __FLOW_BEGIN_TIME__: flowEventData.flowBeginTime,
+        ...resolvePreConnectDirectives(settingsConfig),
+      })
+    )
   );
 };
 
