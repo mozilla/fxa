@@ -14,7 +14,7 @@ import { Link, useLocation } from 'react-router';
 import { useNavigateWithQuery } from '../../../lib/hooks';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { usePageViewEvent } from '../../../lib/metrics';
-import { useFtlMsgResolver } from '../../../models';
+import { useConfig, useFtlMsgResolver } from '../../../models';
 import { useCmsInfoState } from '../../../models/hooks';
 import { RelierCmsInfo } from '../../../models/integrations';
 import AppLayout from '../../../components/AppLayout';
@@ -84,6 +84,7 @@ const Pair = ({ error, cmsInfo: cmsInfoProp, integration }: PairProps) => {
   );
   const navigateWithQuery = useNavigateWithQuery();
   const location = useLocation();
+  const config = useConfig();
 
   // CMS theming — mirrors the Backbone pair/index.js fetchCmsConfig() flow.
   // Strict parity with Backbone: only Pair/Index is themed; the rest of
@@ -100,6 +101,18 @@ const Pair = ({ error, cmsInfo: cmsInfoProp, integration }: PairProps) => {
   const choiceHeaderRef = useRef<HTMLHeadingElement>(null);
   const downloadHeaderRef = useRef<HTMLHeadingElement>(null);
 
+  // v2 supplicant entry: a native-camera scan opens /pair#...&v=2. Forward into
+  // the v2 supplicant flow, preserving the channel fragment. (FXA-13865)
+  const locationHash = location.hash ?? '';
+  const isV2SupplicantEntry =
+    new URLSearchParams(locationHash.replace(/^#/, '')).get('v') === '2';
+
+  useEffect(() => {
+    if (isV2SupplicantEntry) {
+      navigateWithQuery(`/pair/supplicant/approve_signin${locationHash}`);
+    }
+  }, [isV2SupplicantEntry, locationHash, navigateWithQuery]);
+
   // Focus management after view transitions
   useEffect(() => {
     if (currentView === 'download') {
@@ -108,6 +121,12 @@ const Pair = ({ error, cmsInfo: cmsInfoProp, integration }: PairProps) => {
   }, [currentView]);
 
   useEffect(() => {
+    // The v2 entry is handled above. Mobile reaches /pair by design there - a
+    // native-camera scan - so the desktop-only gate below must not claim it.
+    if (isV2SupplicantEntry) {
+      return;
+    }
+
     const ua = navigator.userAgent;
     const isFirefoxDesktop =
       /Firefox/i.test(ua) && !/FxiOS/i.test(ua) && !/Android/i.test(ua);
@@ -119,9 +138,12 @@ const Pair = ({ error, cmsInfo: cmsInfoProp, integration }: PairProps) => {
 
     let cancelled = false;
     (async () => {
+      // fxa_status carries the pairing capabilities alongside the signed-in
+      // user, so one round trip answers both "are we signed in?" and "can this
+      // browser pair over v2?".
       const askFirefox = () =>
         firefox
-          .requestSignedInUser(
+          .requestFxAStatus(
             Constants.OAUTH_CONTEXT,
             true,
             Constants.SYNC_SERVICE
@@ -130,19 +152,36 @@ const Pair = ({ error, cmsInfo: cmsInfoProp, integration }: PairProps) => {
 
       // Retry on empty replies so a slow fxaLogin handoff doesn't bail to /signin.
       const MAX_RETRIES = 1;
-      let signedInUser = await askFirefox();
+      let fxaStatus = await askFirefox();
       for (
         let attempt = 0;
         !cancelled &&
         attempt < MAX_RETRIES &&
-        (!signedInUser?.sessionToken || !signedInUser?.verified);
+        (!fxaStatus?.signedInUser?.sessionToken ||
+          !fxaStatus?.signedInUser?.verified);
         attempt++
       ) {
-        signedInUser = await askFirefox();
+        fxaStatus = await askFirefox();
       }
       if (cancelled) return;
+      const signedInUser = fxaStatus?.signedInUser;
 
       if (signedInUser?.sessionToken && signedInUser.verified) {
+        // Same negotiation ConnectAnotherDevice runs. /pair is the other
+        // authority entry - Settings "Connect a device" and the post-signin
+        // handoffs land here - so it must not strand a v2-capable pair on the
+        // v1 choice screen.
+        const capabilities = fxaStatus?.capabilities;
+        if (
+          config.pairing.version === 2 &&
+          capabilities?.pairing &&
+          capabilities.pairingVersion === 2
+        ) {
+          // Hard navigation so the factory builds the authority integration
+          // from this URL; see ConnectAnotherDevice for the same reasoning.
+          hardNavigate(`/pair/authority/scan_qr${window.location.search}`);
+          return;
+        }
         setBootstrapping(false);
         return;
       }

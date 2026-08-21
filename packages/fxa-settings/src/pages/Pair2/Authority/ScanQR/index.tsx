@@ -66,7 +66,9 @@ const ScanQR = ({ qrCodeValue }: ScanQRProps) => {
                 size and drift out of the phone as the card resizes. `QRCode`'s
                 own `p-4` stays a fixed quiet zone, which only ever grows in
                 proportion as the card narrows. */}
-            <div className="w-[41%]">
+            {/* `data-testid` scopes the functional tests' screenshot to the
+                quiet zone as well as the code, which a QR decoder needs. */}
+            <div className="w-[41%]" data-testid="pairing-qr">
               <QRCode
                 value={qrCodeValue ?? ''}
                 loading={!qrCodeValue}

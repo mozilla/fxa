@@ -67,5 +67,41 @@ test.describe('severity-2 #smoke', () => {
       await settings.checkWebChannelMessage(FirefoxCommand.FxAStatus);
       await settings.checkWebChannelMessage(FirefoxCommand.OAuthFlowBegin);
     });
+
+    // v2 removes the supplicant choice screen: a native-camera scan opens
+    // /pair#...&v=2, which forwards straight into the single-QR v2 supplicant
+    // flow instead of the has-mobile / needs-mobile choice (FXA-13865). No
+    // sign-in is needed on the supplicant, so this is deterministic.
+    test('v2 supplicant URL bypasses the choice screen', async ({
+      target,
+      syncOAuthBrowserPages: { page },
+    }) => {
+      await page.goto(
+        `${target.contentServerUrl}/pair#channel_id=testchannelid&channel_key=testchannelkey&v=2`
+      );
+
+      await page.waitForURL(/\/pair\/supplicant\/approve_signin/);
+      // The v1 choice screen must not appear in the v2 flow.
+      await expect(page.getByTestId('has-mobile')).toBeHidden();
+    });
+
+    // Firefox mobile does not open /pair; app-services opens /pair/supp with the
+    // OAuth params in the query and the channel + v=2 marker in the fragment.
+    // That entry must also forward into the v2 supplicant flow, preserving both
+    // the query and the fragment. (FXA-13865 — the on-device entry point.)
+    test('v2 /pair/supp entry forwards to the v2 supplicant flow', async ({
+      target,
+      syncOAuthBrowserPages: { page },
+    }) => {
+      await page.goto(
+        `${target.contentServerUrl}/pair/supp?client_id=a2270f727f45f648&scope=profile#channel_id=testchannelid&channel_key=testchannelkey&v=2`
+      );
+
+      await page.waitForURL(/\/pair\/supplicant\/approve_signin/);
+      // The OAuth query and the channel fragment must survive the forward.
+      expect(page.url()).toContain('client_id=a2270f727f45f648');
+      expect(page.url()).toContain('channel_id=testchannelid');
+      expect(page.url()).toContain('v=2');
+    });
   });
 });

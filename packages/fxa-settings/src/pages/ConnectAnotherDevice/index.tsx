@@ -16,7 +16,6 @@ import { getBasicAccountData } from '../../lib/account-storage';
 import firefox, { buildSyncOAuthSearch } from '../../lib/channels/firefox';
 import GleanMetrics from '../../lib/glean';
 import AppLayout from '../../components/AppLayout';
-import { navigateWithQuery } from '../../lib/utilities';
 import { UseFxAStatusResult } from '../../lib/hooks';
 
 export type ConnectAnotherDeviceProps = {
@@ -241,14 +240,17 @@ const ConnectAnotherDevice = ({
           fxaStatus.pairingEnabled === true &&
           fxaStatus.pairingVersion === 2
         ) {
-          navigateWithQuery('/pair/authority/scan_qr');
+          // Hard navigation, as the v1 `/pair` entry below already does: the
+          // integration is built from the URL at page load, so the authority
+          // pages only get a PairingAuthorityIntegration on a real load.
+          hardNavigate(`/pair/authority/scan_qr${window.location.search}`);
           return;
         }
 
         // Escape hatch. Allow the query params to force a v2 pairing flow. Useuful initially for testing, probably
         // won't stick around forever...
         if (searchParams.get('v') === '2') {
-          navigateWithQuery('/pair/authority/scan_qr');
+          hardNavigate(`/pair/authority/scan_qr${window.location.search}`);
           return;
         }
 

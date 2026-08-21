@@ -241,6 +241,7 @@ export class PairingChannelClient extends EventTarget {
     }
   }
 
+
   async send(
     message: string,
     data: Record<string, unknown> = {}

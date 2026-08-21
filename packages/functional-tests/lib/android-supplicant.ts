@@ -68,6 +68,8 @@ const KEY_PAIRING_URL = 'pref_key_sync_debug_pairing_url';
 interface UiNode {
   text: string;
   desc: string;
+  /** Empty for GeckoView web content; set for native Android widgets. */
+  resourceId: string;
   cx: number;
   cy: number;
 }
@@ -164,6 +166,20 @@ export class AndroidSupplicant {
   }
 
   /**
+   * Wipe all app data so pairing starts from a signed-out, first-run state.
+   *
+   * `forceStop` only kills the process; the FxA account in `shared_prefs`
+   * survives it, and a Fenix that already has an account takes a re-auth web
+   * flow instead of the pairing flow. Call this before `ensureReady`, which
+   * re-grants the permissions and rewrites the server override that
+   * `pm clear` removes.
+   */
+  resetToColdState(): void {
+    this.adb(['shell', 'pm', 'clear', this.pkg]);
+    debug('Cleared app data; supplicant is in a cold, signed-out state');
+  }
+
+  /**
    * Verify a device is attached and the Fenix debug build is installed. Grants
    * camera/notification permissions and points the FxA server override at the
    * given content server. Cold-starts once so the prefs files exist.
@@ -247,6 +263,43 @@ export class AndroidSupplicant {
   }
 
   /**
+   * Open the pairing URL as a normal tab, the way a native QR scan does on a
+   * v2 device: `VIEW <pair url>` with no OAuth params in the URL. The page then
+   * asks the browser for them over the web channel (`fxaccounts:pair_oauth_start`).
+   *
+   * The Sync Debug hook takes the other branch - app-services runs OAuth-start
+   * itself and hands the page a URL that already carries the params - so this
+   * is the path that exercises the v2 web-channel command. The web channel is
+   * live in normal tabs: `FxaWebChannelIntegration` is installed by
+   * `BaseBrowserFragment`, the parent of both the browser and custom-tab
+   * fragments.
+   *
+   * Returns the pairing URL as seen in logcat once the tab has loaded it.
+   */
+  async openPairingUrl(
+    pairingUrl: string,
+    timeoutMs = 60_000
+  ): Promise<string> {
+    this.forceStop();
+    this.adb(['logcat', '-c']);
+    // `adb shell` re-tokenizes argv and the URL carries `#` and `&`, so the
+    // device command goes over as one single-quoted string.
+    this.adb([
+      'shell',
+      `am start -a android.intent.action.VIEW -d '${pairingUrl}' ${this.pkg}`,
+    ]);
+    await this.waitForProcess(30_000);
+    await sleep(6_000); // first-run init before dialogs are dismissable
+    this.dismissBlockingDialogs();
+
+    const line = await this.waitForLog(/url=[^,]*\/pair(\?|#|,|\s)/, timeoutMs);
+    debug(
+      `Supplicant opened the pairing URL in a normal tab: ${line.slice(0, 120)}`
+    );
+    return line;
+  }
+
+  /**
    * Wait until the supplicant custom tab has loaded its pairing page and is
    * connecting to the channel. Distinguishes the real pairing flow (/pair/supp
    * or a pairing authorization URL) from the FXA-13611 email fallback that a
@@ -272,12 +325,15 @@ export class AndroidSupplicant {
    * authority approves the new device, then the supplicant confirms here.
    * (uiautomator can read GeckoView web content.)
    */
-  async confirmPairing(timeoutMs = 45_000): Promise<void> {
+  async confirmPairing(
+    timeoutMs = 45_000,
+    // v1 uses "Confirm"/"Confirm pairing"; the v2 supplicant card uses "Connect".
+    re = /^Confirm pairing$|^Confirm$/i
+  ): Promise<void> {
     // The confirm button lives in GeckoView web content, read via uiautomator's
     // accessibility tree — which GeckoView populates lazily, so a dump can miss
     // it transiently. Poll, and periodically nudge the page with a tiny scroll
     // to force the a11y tree to repopulate.
-    const re = /^Confirm pairing$|^Confirm$/i;
     const deadline = Date.now() + timeoutMs;
     let attempt = 0;
     while (Date.now() < deadline) {
@@ -418,10 +474,15 @@ export class AndroidSupplicant {
     ];
     for (let pass = 0; pass < 3; pass++) {
       const nodes = this.dumpUi();
-      const hit = nodes.find((n) => dismissers.some((re) => re.test(n.text)));
+      // Native widgets only. uiautomator also reads GeckoView web content, and
+      // the v2 supplicant card has its own Cancel button - tapping that would
+      // close the pairing channel and abort the flow on both sides.
+      const hit = nodes.find(
+        (n) => n.resourceId && dismissers.some((re) => re.test(n.text))
+      );
       if (!hit) return;
       this.tap(hit.cx, hit.cy);
-      debug(`Dismissed dialog button: ${hit.text}`);
+      debug(`Dismissed dialog button: ${hit.text} (${hit.resourceId})`);
     }
   }
 
@@ -471,12 +532,13 @@ export class AndroidSupplicant {
       const tag = m[0];
       const text = attr(tag, 'text');
       const desc = attr(tag, 'content-desc');
+      const resourceId = attr(tag, 'resource-id');
       const bounds = attr(tag, 'bounds');
       const b = bounds.match(/\[(\d+),(\d+)\]\[(\d+),(\d+)\]/);
       if (!b) continue;
       const cx = Math.floor((Number(b[1]) + Number(b[3])) / 2);
       const cy = Math.floor((Number(b[2]) + Number(b[4])) / 2);
-      nodes.push({ text, desc, cx, cy });
+      nodes.push({ text, desc, resourceId, cx, cy });
     }
     return nodes;
   }
