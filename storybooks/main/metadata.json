@@ -1,8 +1,8 @@
 {
-  "commit": "d419ea383b8cd8c80fbb720e640a2147b657f918",
-  "summary": "Merge pull request #21082 from mozilla/fxa-14387",
-  "description": "fix(admin-panel): serve index.html for three missing client routes",
-  "timestamp": 1787328223000,
+  "commit": "b6afc44df7bcdd132e9427813f5a7550d513c508",
+  "summary": "Merge pull request #21049 from mozilla/fxa-4894",
+  "description": "chore(content-server): replace deprecated node-uuid with uuid",
+  "timestamp": 1787329315000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

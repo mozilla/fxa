@@ -1923,7 +1923,7 @@ pair2-authority-timeout-and-cancel-try-again-button = Försök igen
 # Abandons pairing without retrying
 pair2-authority-timeout-and-cancel-cancel-button = Avbryt
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
-pair2-authority-timeout-and-cancel-sync-settings-button = Sync-inställningar
+pair2-authority-timeout-and-cancel-sync-settings-button = Synkroniseringsinställningar
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
