@@ -41,6 +41,7 @@ import {
 import { AccountStateProvider } from '../../models/contexts/AccountStateContext';
 
 import sentryMetrics from 'fxa-shared/sentry/browser';
+import { flushL10nErrorReports } from '../../lib/l10n-error-reporter';
 // Components
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { ScrollToTop } from '../Settings/ScrollToTop';
@@ -418,6 +419,9 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
   useEffect(() => {
     if (metricsEnabled || isSignedIn === false) {
       sentryMetrics.enable();
+      // l10n bundles are fetched before this component can mount, so any
+      // failure there is buffered until Sentry will accept it.
+      flushL10nErrorReports();
     } else {
       sentryMetrics.disable();
     }
