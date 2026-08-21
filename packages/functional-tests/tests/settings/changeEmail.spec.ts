@@ -25,7 +25,13 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
 
-      await changePrimaryEmail(target, settings, secondaryEmail, newEmail);
+      await changePrimaryEmail(
+        target,
+        settings,
+        secondaryEmail,
+        newEmail,
+        credentials
+      );
 
       await settings.signOut();
 
@@ -43,9 +49,6 @@ test.describe('severity-1 #smoke', () => {
       await signin.fillOutPasswordForm(credentials.password);
 
       await expect(settings.primaryEmail.status).toHaveText(newEmail);
-
-      // Update which email to use for account cleanup
-      credentials.email = newEmail;
     });
 
     test('change primary email, password and login', async ({
@@ -63,7 +66,13 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
 
-      await changePrimaryEmail(target, settings, secondaryEmail, newEmail);
+      await changePrimaryEmail(
+        target,
+        settings,
+        secondaryEmail,
+        newEmail,
+        credentials
+      );
 
       await setNewPassword(
         settings,
@@ -71,10 +80,9 @@ test.describe('severity-1 #smoke', () => {
         initialPassword,
         newPassword,
         target,
-        newEmail
+        newEmail,
+        credentials
       );
-
-      credentials.password = newPassword;
 
       await settings.signOut();
 
@@ -89,10 +97,6 @@ test.describe('severity-1 #smoke', () => {
       await signin.fillOutPasswordForm(newPassword);
 
       await expect(settings.primaryEmail.status).toHaveText(newEmail);
-
-      // Update credentials to use for account cleanup
-      credentials.email = newEmail;
-      credentials.password = newPassword;
     });
 
     test('change primary email, change password, login, change email and login', async ({
@@ -111,7 +115,13 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
 
-      await changePrimaryEmail(target, settings, secondaryEmail, secondEmail);
+      await changePrimaryEmail(
+        target,
+        settings,
+        secondaryEmail,
+        secondEmail,
+        credentials
+      );
 
       await setNewPassword(
         settings,
@@ -119,10 +129,9 @@ test.describe('severity-1 #smoke', () => {
         initialPassword,
         newPassword,
         target,
-        secondEmail
+        secondEmail,
+        credentials
       );
-
-      credentials.password = newPassword;
 
       await settings.signOut();
 
@@ -137,9 +146,15 @@ test.describe('severity-1 #smoke', () => {
       // After sign-out + sign-in, the JWT cache is cleared, so the MFA modal appears.
       await settings.secondaryEmail.makePrimaryButton.click();
       await settings.confirmMfaGuard(secondEmail);
+
+      // The primary email is back to the initial one, so cleanup needs it
+      // again. Set it before the assertion, not after.
+      credentials.email = initialEmail;
+
       await expect(settings.alertBar).toHaveText(
         new RegExp(`${initialEmail}.*is now your primary email`)
       );
+
       await settings.signOut();
 
       // Login with primary email and new password
@@ -147,9 +162,6 @@ test.describe('severity-1 #smoke', () => {
       await signin.fillOutPasswordForm(newPassword);
 
       await expect(settings.settingsHeading).toBeVisible();
-
-      // Update which password to use for account cleanup
-      credentials.password = newPassword;
     });
 
     test('can change primary email, delete account', async ({
@@ -174,7 +186,13 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
 
-      await changePrimaryEmail(target, settings, secondaryEmail, newEmail);
+      await changePrimaryEmail(
+        target,
+        settings,
+        secondaryEmail,
+        newEmail,
+        credentials
+      );
       await expect(settings.primaryEmail.status).toHaveText(newEmail);
 
       // Click delete account
@@ -189,6 +207,10 @@ test.describe('severity-1 #smoke', () => {
       await signup.goto();
       await signup.fillOutEmailForm(newEmail);
       await signup.fillOutSignupForm(newPassword);
+
+      // The new account exists from here on, so cleanup needs its password
+      credentials.password = newPassword;
+
       await expect(page).toHaveURL(/confirm_signup_code/);
       const code = await target.emailClient.getVerifyShortCode(newEmail);
       await confirmSignupCode.fillOutCodeForm(code);
@@ -197,10 +219,6 @@ test.describe('severity-1 #smoke', () => {
         'Account confirmed successfully'
       );
       await expect(settings.primaryEmail.status).toHaveText(newEmail);
-
-      // Update credentials to use for account cleanup
-      credentials.email = newEmail;
-      credentials.password = newPassword;
     });
 
     test('removing secondary emails', async ({
@@ -277,13 +295,19 @@ async function changePrimaryEmail(
   target: BaseTarget,
   settings: SettingsPage,
   secondaryEmail: SecondaryEmailPage,
-  email: string
+  email: string,
+  credentials: Credentials
 ): Promise<void> {
   await settings.secondaryEmail.addButton.click();
   await secondaryEmail.fillOutEmail(email);
   const code: string = await target.emailClient.getVerifySecondaryCode(email);
   await secondaryEmail.fillOutVerificationCode(code);
   await settings.secondaryEmail.makePrimaryButton.click();
+
+  // Re-point cleanup before the assertions below. The server has already
+  // promoted this address, so a failing assertion would otherwise leave the
+  // tracker on an address that is now a secondary.
+  credentials.email = email;
 
   await expect(settings.settingsHeading).toBeVisible();
   await expect(settings.alertBar).toHaveText(
@@ -297,7 +321,8 @@ async function setNewPassword(
   oldPassword: string,
   newPassword: string,
   target: BaseTarget,
-  email: string
+  email: string,
+  credentials: Credentials
 ): Promise<void> {
   await settings.password.changeButton.click();
 
@@ -307,6 +332,10 @@ async function setNewPassword(
   await settings.confirmMfaGuard(email);
 
   await changePassword.fillOutChangePassword(oldPassword, newPassword);
+
+  // Re-point cleanup before the assertions below, for the same reason as in
+  // changePrimaryEmail: the password has already changed server-side.
+  credentials.password = newPassword;
 
   await expect(settings.settingsHeading).toBeVisible();
   await expect(settings.alertBar).toHaveText('Password updated');
