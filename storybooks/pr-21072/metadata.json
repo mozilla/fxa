@@ -1,8 +1,8 @@
 {
-  "commit": "f1d3e22bcb3aec36801f08cef0eb569bea63d465",
+  "commit": "52434295976a50f306d96457310263ea8a800020",
   "summary": "task(passkey): Add passkeyWraps model, repository and service",
-  "description": "Because:\n* The wrap endpoints (FXA-13142) need to read and write passkeyWraps.\n* A wrap's fixed-width binary fields have to round-trip untouched, since a\n  corrupted envelope cannot be reconstructed.\n* The envelope format has no discriminator, and adding one costs nothing\n  only while no rows exist.\n\nThis commit:\n* Adds patch 196-197, a version column on passkeyWraps, so a row can be\n  classified without decrypting it.\n* Adds the PasskeyWraps kysely type, a factory and an integration-test\n  fixture, with version stamped from ENVELOPE_VERSION.\n* Narrows PasskeyWrapUpdate to the two hpke fields and updatedAt, so a kB\n  re-seal cannot overwrite what protects skR.\n* Adds errnos 234-237 with AppError factories, filling the reserved gap.\n* Adds the wrap repository, manager pass-throughs, and service methods\n  with ownership, PRF and idempotency checks.",
-  "timestamp": 1787163955000,
+  "description": "Because:\n* The wrap endpoints (FXA-13142) need to read and write passkeyWraps.\n* A wrap's fixed-width binary fields have to round-trip untouched, since a\n  corrupted envelope cannot be reconstructed.\n* The envelope format has no discriminator, and adding one costs nothing\n  only while no rows exist.\n\nThis commit:\n* Adds patch 196-197, a version column on passkeyWraps, so a row can be\n  classified without decrypting it.\n* Adds the PasskeyWraps kysely type, a factory and an integration-test\n  fixture, with version stamped from ENVELOPE_VERSION.\n* Narrows PasskeyWrapUpdate to the two hpke fields and updatedAt, so a kB\n  re-seal cannot overwrite what protects skR.\n* Adds errnos 234-237 with AppError factories, filling the reserved gap.\n* Adds the wrap repository and service store/get/update, with ownership\n  scoped in SQL and idempotency by full-envelope compare.",
+  "timestamp": 1787351017000,
   "storybooks": [
     "fxa-react",
     "fxa-settings"
