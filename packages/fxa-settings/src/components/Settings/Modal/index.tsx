@@ -98,7 +98,7 @@ export const Modal = ({
               {children}
 
               {hasButtons && (
-                <div className="flex justify-center mx-auto mt-6 max-w-64">
+                <div className="flex flex-wrap justify-center mx-auto mt-6 max-w-64">
                   {hasCancelButton && (
                     <FtlMsg id="modal-cancel-button">
                       <button
