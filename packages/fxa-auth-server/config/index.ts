@@ -702,12 +702,6 @@ const convictConf = convict({
       default: true,
       env: 'SMTP_METRICS_ENABLED',
     },
-    fxaMailerDisableSend: {
-      doc: 'Array of templates that should not be supported by fxa mailer. Used to fallback to previous email sending if in a pinch.',
-      format: Array,
-      default: [''],
-      env: 'SMTP_FXA_MAILER_DISABLE_SEND',
-    },
   },
   maxEventLoopDelay: {
     doc: 'Max event-loop delay before which incoming requests are rejected',

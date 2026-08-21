@@ -439,42 +439,15 @@ export class LinkedAccountHandler {
           await this.updateProfileDisplayName(accountRecord.uid, name);
         }
 
-        const geoData = request.app.geo;
-        const ip = request.app.clientAddress;
-
-        if (this.fxaMailer.canSend('postAddLinkedAccount')) {
-          await this.fxaMailer.sendPostAddLinkedAccountEmail({
-            ...FxaMailerFormat.account(accountRecord),
-            ...(await FxaMailerFormat.metricsContext(request)),
-            ...FxaMailerFormat.localTime(request),
-            ...FxaMailerFormat.location(request),
-            ...FxaMailerFormat.device(request),
-            ...FxaMailerFormat.sync(service),
-            providerName: PROVIDER_NAME[provider],
-          });
-        } else {
-          const emailOptions = {
-            acceptLanguage: request.app.acceptLanguage,
-            deviceId,
-            flowId,
-            flowBeginTime,
-            ip,
-            location: geoData.location,
-            providerName: PROVIDER_NAME[provider],
-            timeZone: geoData.timeZone,
-            uaBrowser: request.app.ua.browser,
-            uaBrowserVersion: request.app.ua.browserVersion,
-            uaOS: request.app.ua.os,
-            uaOSVersion: request.app.ua.osVersion,
-            uaDeviceType: request.app.ua.deviceType,
-            uid: accountRecord.uid,
-          };
-          await this.mailer.sendPostAddLinkedAccountEmail(
-            accountRecord.emails,
-            accountRecord,
-            emailOptions
-          );
-        }
+        await this.fxaMailer.sendPostAddLinkedAccountEmail({
+          ...FxaMailerFormat.account(accountRecord),
+          ...(await FxaMailerFormat.metricsContext(request)),
+          ...FxaMailerFormat.localTime(request),
+          ...FxaMailerFormat.location(request),
+          ...FxaMailerFormat.device(request),
+          ...FxaMailerFormat.sync(service),
+          providerName: PROVIDER_NAME[provider],
+        });
         request.setMetricsFlowCompleteSignal('account.login', 'login');
         switch (provider) {
           case 'google':

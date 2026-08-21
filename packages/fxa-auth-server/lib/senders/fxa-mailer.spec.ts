@@ -62,7 +62,6 @@ describe('lib/senders/fxa-mailer', () => {
 
     mockConfig = {
       sender: 'Firefox Accounts <accounts@firefox.com>',
-      fxaMailerDisableSend: [],
     };
 
     fxaMailer = new FxaMailer(
@@ -176,37 +175,6 @@ describe('lib/senders/fxa-mailer', () => {
         const sendArgs = mockEmailSender.send.mock.calls[0][0];
         expect(sendArgs.from).toBe('Mozilla Monitor <noreply@firefox.com>');
       });
-    });
-  });
-
-  describe('canSend', () => {
-    it('should return true when template is not in disable list', () => {
-      expect(fxaMailer.canSend('newDeviceLogin')).toBe(true);
-    });
-
-    it('should return false when template is in disable list', () => {
-      mockConfig.fxaMailerDisableSend = ['newDeviceLogin'];
-      fxaMailer = new FxaMailer(
-        mockEmailSender as any,
-        mockLinkBuilder as any,
-        mockConfig,
-        mockBindings,
-        mockAccountEventsManager as any
-      );
-      expect(fxaMailer.canSend('newDeviceLogin')).toBe(false);
-    });
-
-    it('should return true for different template when one is disabled', () => {
-      mockConfig.fxaMailerDisableSend = ['verifyLogin'];
-      fxaMailer = new FxaMailer(
-        mockEmailSender as any,
-        mockLinkBuilder as any,
-        mockConfig,
-        mockBindings,
-        mockAccountEventsManager as any
-      );
-      expect(fxaMailer.canSend('verifyLogin')).toBe(false);
-      expect(fxaMailer.canSend('newDeviceLogin')).toBe(true);
     });
   });
 

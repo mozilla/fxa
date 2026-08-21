@@ -41,49 +41,22 @@ module.exports = (log, db, mailer, config, customs) => {
 
         request.validateMetricsContext();
 
-        const { flowId, flowBeginTime } = await request.app.metricsContext;
-
         await customs.check(request, email, 'sendUnblockCode');
 
         const emailRecord = await db.accountRecord(email);
         const { uid } = emailRecord;
 
         const unblockCode = await db.createUnblockCode(uid);
-        const emails = await db.accountEmails(uid);
 
-        const {
-          browser: uaBrowser,
-          browserVersion: uaBrowserVersion,
-          os: uaOS,
-          osVersion: uaOSVersion,
-          deviceType: uaDeviceType,
-        } = request.app.ua;
-        if (fxaMailer.canSend('unblockCode')) {
-          await fxaMailer.sendUnblockCodeEmail({
-            ...FxaMailerFormat.account(emailRecord),
-            ...(await FxaMailerFormat.metricsContext(request)),
-            ...FxaMailerFormat.localTime(request),
-            ...FxaMailerFormat.location(request),
-            ...FxaMailerFormat.device(request),
-            ...FxaMailerFormat.sync(false),
-            unblockCode,
-          });
-        } else {
-          await mailer.sendUnblockCodeEmail(emails, emailRecord, {
-            acceptLanguage: request.app.acceptLanguage,
-            unblockCode,
-            flowId,
-            flowBeginTime,
-            location: request.app.geo.location,
-            timeZone: request.app.geo.timeZone,
-            uaBrowser,
-            uaBrowserVersion,
-            uaOS,
-            uaOSVersion,
-            uaDeviceType,
-            uid,
-          });
-        }
+        await fxaMailer.sendUnblockCodeEmail({
+          ...FxaMailerFormat.account(emailRecord),
+          ...(await FxaMailerFormat.metricsContext(request)),
+          ...FxaMailerFormat.localTime(request),
+          ...FxaMailerFormat.location(request),
+          ...FxaMailerFormat.device(request),
+          ...FxaMailerFormat.sync(false),
+          unblockCode,
+        });
 
         await request.emitMetricsEvent('account.login.sentUnblockCode');
 
