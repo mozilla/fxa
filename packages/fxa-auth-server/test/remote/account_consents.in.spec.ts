@@ -24,6 +24,10 @@ const IOS = '1b1a3e44c54fbb58';
 const E2E_PUBLIC_CLIENT_ID = '3c49430b43dfba77';
 const PKCE_CODE_CHALLENGE = 'YPhkZqm08uTfwjNSiYcx80-NPT9Zn94kHboQW97KyV0';
 
+const T0 = 1_700_000_000_000;
+const T1 = T0 + 86_400_000;
+const REVOKED_AT = T0 + 3_600_000;
+
 const newUid = () => crypto.randomBytes(16).toString('hex');
 
 let server: TestServerInstance;
@@ -349,6 +353,241 @@ describe('hasConsentForExchange decision matrix', () => {
       result: 'fall-through',
     });
   });
+});
+
+describe('revokeAccountAuthorizations', () => {
+  // Revoking needs the row as the caller read it: the PK plus the
+  // lastAuthorizedTosAt that the optimistic guard matches on.
+  async function revokeAll(uid: string, revokedAt = REVOKED_AT) {
+    const rows = await db.listAccountConsentsByUid(uid);
+    return db.revokeAccountAuthorizations(uid, rows, revokedAt);
+  }
+
+  it('marks the row revoked instead of deleting it', async () => {
+    const id = track(newUid());
+    await seed({ uid: id, scope: VPN_SCOPE, service: 'vpn', now: T0 });
+    await revokeAll(id);
+    const rows = await db.listAccountConsentsByUid(id);
+    expect(rows).toHaveLength(1);
+    expect(Number(rows[0].revokedAt)).toBe(REVOKED_AT);
+  });
+
+  it('preserves both ToS timestamps through a revoke', async () => {
+    const id = track(newUid());
+    await seed({ uid: id, scope: VPN_SCOPE, service: 'vpn', now: T0 });
+    await revokeAll(id);
+    const [row] = await db.listAccountConsentsByUid(id);
+    expect(Number(row.firstAuthorizedTosAt)).toBe(T0);
+    expect(Number(row.lastAuthorizedTosAt)).toBe(T0);
+  });
+
+  it('returns the number of rows revoked', async () => {
+    const id = track(newUid());
+    await seed({ uid: id, scope: VPN_SCOPE, service: 'vpn', now: T0 });
+    await seed({ uid: id, scope: OLDSYNC_SCOPE, service: 'sync', now: T0 });
+    expect(await revokeAll(id)).toBe(2);
+  });
+
+  it('returns 0 when given no rows', async () => {
+    expect(await db.revokeAccountAuthorizations(newUid(), [], REVOKED_AT)).toBe(
+      0
+    );
+  });
+
+  it('revokes only the rows named, leaving the others active', async () => {
+    const id = track(newUid());
+    await seed({ uid: id, scope: VPN_SCOPE, service: 'vpn', now: T0 });
+    await seed({ uid: id, scope: OLDSYNC_SCOPE, service: 'sync', now: T0 });
+    const rows = await db.listAccountConsentsByUid(id);
+    const vpnRow = rows.find((r: any) => r.scope === VPN_SCOPE);
+    expect(await db.revokeAccountAuthorizations(id, [vpnRow], REVOKED_AT)).toBe(
+      1
+    );
+    const after = await db.listAccountConsentsByUid(id);
+    expect(
+      after.find((r: any) => r.scope === OLDSYNC_SCOPE).revokedAt
+    ).toBeNull();
+  });
+
+  it('scopes to one user', async () => {
+    const a = track(newUid());
+    const b = track(newUid());
+    await seed({ uid: a, scope: VPN_SCOPE, service: 'vpn', now: T0 });
+    await seed({ uid: b, scope: VPN_SCOPE, service: 'vpn', now: T0 });
+    await revokeAll(a);
+    const [rowB] = await db.listAccountConsentsByUid(b);
+    expect(rowB.revokedAt).toBeNull();
+  });
+
+  it('leaves a row re-authorized since the caller read it', async () => {
+    // The disconnect decided to revoke based on rows read at T0. A sign-in
+    // lands at T1 before the write, bumping lastAuthorizedTosAt out of the
+    // guard's IN list. Revoking here would withdraw what the user just granted.
+    const id = track(newUid());
+    await seed({ uid: id, scope: VPN_SCOPE, service: 'vpn', now: T0 });
+    const stale = await db.listAccountConsentsByUid(id);
+    await seed({ uid: id, scope: VPN_SCOPE, service: 'vpn', now: T1 });
+
+    expect(await db.revokeAccountAuthorizations(id, stale, REVOKED_AT)).toBe(0);
+    const [row] = await db.listAccountConsentsByUid(id);
+    expect(row.revokedAt).toBeNull();
+  });
+
+  it('keeps the first timestamp when the same row is revoked twice', async () => {
+    // Connected Services collapses entries by display name and fires its
+    // destroys in parallel, so a row can be targeted twice concurrently.
+    const id = track(newUid());
+    await seed({ uid: id, scope: VPN_SCOPE, service: 'vpn', now: T0 });
+    const rows = await db.listAccountConsentsByUid(id);
+    await db.revokeAccountAuthorizations(id, rows, REVOKED_AT);
+
+    expect(
+      await db.revokeAccountAuthorizations(id, rows, REVOKED_AT + 5_000)
+    ).toBe(0);
+    const [row] = await db.listAccountConsentsByUid(id);
+    expect(Number(row.revokedAt)).toBe(REVOKED_AT);
+  });
+
+  it('revokes a row count spanning more than one batch', async () => {
+    const id = track(newUid());
+    const scopes = Array.from(
+      { length: 250 },
+      (_, i) => `https://identity.mozilla.com/apps/batch-${i}`
+    );
+    await db.recordSignInConsents({
+      uid: id,
+      scopes,
+      service: 'vpn',
+      clientId: DESKTOP,
+      now: T0,
+    });
+    expect(await revokeAll(id)).toBe(250);
+  });
+});
+
+describe('token exchange after revocation', () => {
+  async function revokeAll(uid: string) {
+    const rows = await db.listAccountConsentsByUid(uid);
+    return db.revokeAccountAuthorizations(uid, rows, REVOKED_AT);
+  }
+
+  it('denies the exchange as no-consent once the row is revoked', async () => {
+    const id = track(newUid());
+    await seed({ uid: id, scope: VPN_SCOPE, service: 'vpn', now: T0 });
+    await revokeAll(id);
+    expect(await db.hasConsentForExchange(id, VPN_SCOPE)).toMatchObject({
+      result: 'denied',
+      service: 'vpn',
+      reason: 'no-consent',
+    });
+  });
+
+  it('still allows the exchange while another client holds an active row', async () => {
+    // (uid, scope, service) is a PK prefix, so it matches one row per client.
+    // Revoking Desktop must not deny a user still authorized through iOS.
+    const id = track(newUid());
+    await seed({
+      uid: id,
+      scope: VPN_SCOPE,
+      service: 'vpn',
+      clientId: DESKTOP,
+      now: T0,
+    });
+    await seed({
+      uid: id,
+      scope: VPN_SCOPE,
+      service: 'vpn',
+      clientId: IOS,
+      now: T0,
+    });
+    const rows = await db.listAccountConsentsByUid(id);
+    const desktopRow = rows.find(
+      (r: any) => r.clientId.toString('hex') === DESKTOP
+    );
+    await db.revokeAccountAuthorizations(id, [desktopRow], REVOKED_AT);
+
+    expect(await db.hasConsentForExchange(id, VPN_SCOPE)).toMatchObject({
+      result: 'allowed',
+      service: 'vpn',
+    });
+  });
+
+  it('restores the exchange when the user re-authorizes', async () => {
+    const id = track(newUid());
+    await seed({ uid: id, scope: VPN_SCOPE, service: 'vpn', now: T0 });
+    await revokeAll(id);
+    await seed({ uid: id, scope: VPN_SCOPE, service: 'vpn', now: T1 });
+
+    expect(await db.hasConsentForExchange(id, VPN_SCOPE)).toMatchObject({
+      result: 'allowed',
+      service: 'vpn',
+    });
+  });
+
+  it('carries firstAuthorizedTosAt across a revoke and re-authorization', async () => {
+    // The point of revoking rather than deleting: the ToS record survives, so
+    // re-authorizing is a reactivation and not a fresh agreement to terms.
+    const id = track(newUid());
+    await seed({ uid: id, scope: VPN_SCOPE, service: 'vpn', now: T0 });
+    await revokeAll(id);
+    await seed({ uid: id, scope: VPN_SCOPE, service: 'vpn', now: T1 });
+
+    const rows = await db.listAccountConsentsByUid(id);
+    expect(rows).toHaveLength(1);
+    expect(Number(rows[0].firstAuthorizedTosAt)).toBe(T0);
+    expect(Number(rows[0].lastAuthorizedTosAt)).toBe(T1);
+    expect(rows[0].revokedAt).toBeNull();
+  });
+});
+
+describe('reads and revocation', () => {
+  async function seedAndRevoke(uid: string) {
+    await seed({
+      uid,
+      scope: VPN_SCOPE,
+      service: 'vpn',
+      clientId: DESKTOP,
+      now: T0,
+    });
+    const rows = await db.listAccountConsentsByUid(uid);
+    await db.revokeAccountAuthorizations(uid, rows, REVOKED_AT);
+  }
+
+  it('hasConsentForSignIn re-prompts after a revoke', async () => {
+    const id = track(newUid());
+    await seedAndRevoke(id);
+    expect(await db.hasConsentForSignIn(id, VPN_SCOPE, 'vpn')).toBe(false);
+  });
+
+  it('hasConsentForScopeAndClient stops counting a revoked row', async () => {
+    // FXA-14159 tags a token as DAU-eligible only when the client is
+    // authorized; a withdrawn authorization must stop qualifying.
+    const id = track(newUid());
+    await seedAndRevoke(id);
+    expect(
+      await db.hasConsentForScopeAndClient(id, VPN_SCOPE, 'vpn', DESKTOP)
+    ).toBe(false);
+  });
+
+  it.each([
+    [
+      'hasConsentForService',
+      (id: string) => db.hasConsentForService(id, 'vpn'),
+    ],
+    [
+      'hasConsentForClient',
+      (id: string) => db.hasConsentForClient(id, DESKTOP),
+    ],
+  ])(
+    '%s still reports the historical authorization after a revoke',
+    async (_label, read) => {
+      // These drive the first-authorization signal, which asks "has this user
+      // ever authorized?" — a revoked user is not authorizing for the first time.
+      const id = track(newUid());
+      await seedAndRevoke(id);
+      expect(await read(id)).toBe(true);
+    }
+  );
 });
 
 describe('#integration - /authorization writes accountAuthorizations rows', () => {

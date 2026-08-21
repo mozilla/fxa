@@ -165,43 +165,84 @@ const PRUNE_AUTHZ_CODES =
 // preserve firstAuthorizedTosAt and bump lastAuthorizedTosAt via GREATEST,
 // guarding against clock skew or reordered writes moving it backwards.
 // The VALUES list is built at call time so all scopes are recorded in one query.
+//
+// Clearing revokedAt is what makes re-authorization a reactivation rather than
+// a new grant: the row keeps its firstAuthorizedTosAt, so the ToS record spans
+// the revoke. firstAuthorizedTosAt is deliberately absent from the UPDATE list.
 const QUERY_ACCOUNT_CONSENT_UPSERT_PREFIX =
   'INSERT INTO accountAuthorizations ' +
   '(uid, scope, service, clientId, firstAuthorizedTosAt, lastAuthorizedTosAt) ' +
   'VALUES ';
 const QUERY_ACCOUNT_CONSENT_UPSERT_SUFFIX =
   ' ON DUPLICATE KEY UPDATE ' +
-  'lastAuthorizedTosAt = GREATEST(lastAuthorizedTosAt, VALUES(lastAuthorizedTosAt))';
+  'lastAuthorizedTosAt = GREATEST(lastAuthorizedTosAt, VALUES(lastAuthorizedTosAt)), ' +
+  'revokedAt = NULL';
+// Active-authorization lookup for the /authorization pre-prompt check: a
+// revoked row must re-prompt so the user can re-consent (which clears
+// revokedAt above), not be waved through on the strength of the row existing.
 const QUERY_ACCOUNT_CONSENT_FIND_SIGNIN =
   'SELECT uid, scope, service, clientId, firstAuthorizedTosAt, lastAuthorizedTosAt ' +
-  'FROM accountAuthorizations WHERE uid=? AND scope=? AND service=?';
+  'FROM accountAuthorizations ' +
+  'WHERE uid=? AND scope=? AND service=? AND revokedAt IS NULL';
 // Direct lookup for the token-exchange gate after the caller has
 // resolved scope -> service via config. PK left-prefix on
 // (uid, scope, service); no secondary index required. The scope is
 // part of the WHERE so a consent recorded for one scope under a
 // service cannot silently authorize a different scope under the
 // same service.
+//
+// revokedAt IS NULL has to be in the statement rather than applied to the
+// result. (uid, scope, service) is a PK prefix, not the whole key, so it can
+// match one row per client; filtering afterwards would let LIMIT 1 return a
+// revoked row and deny a user still authorized through another client. The
+// column is in no index, so this costs a check on rows the seek already read.
 const QUERY_HAS_CONSENT_FOR_SCOPE =
-  'SELECT 1 FROM accountAuthorizations WHERE uid=? AND scope=? AND service=? LIMIT 1';
+  'SELECT 1 FROM accountAuthorizations ' +
+  'WHERE uid=? AND scope=? AND service=? AND revokedAt IS NULL LIMIT 1';
 // Full-PK existence check for the VPN-in-Desktop DAU bandaid (FXA-14159).
 // Adds clientId to QUERY_HAS_CONSENT_FOR_SCOPE so a VPN consent recorded for a
 // different client (e.g. Mobile or the standalone VPN app) does not count as
 // Desktop authorization. A complete PK match — the fastest lookup this table
-// supports.
+// supports. Revoked rows are excluded for the same reason the gate excludes
+// them: a withdrawn authorization must stop counting toward VPN DAU.
 const QUERY_HAS_CONSENT_FOR_SCOPE_AND_CLIENT =
-  'SELECT 1 FROM accountAuthorizations WHERE uid=? AND scope=? AND service=? AND clientId=? LIMIT 1';
+  'SELECT 1 FROM accountAuthorizations ' +
+  'WHERE uid=? AND scope=? AND service=? AND clientId=? AND revokedAt IS NULL LIMIT 1';
 // Existence checks for the first-authorization signal (FXA-13784). Bounded by
 // the user's rows (PK prefix on uid) with a LIMIT 1 early-out — cheaper than
 // fetching all of a user's consents and filtering in JS.
+//
+// These two intentionally do not filter on revokedAt. They answer "has this
+// user ever authorized this?", and isFirstAuthorization negates them — a user
+// who authorized and later revoked is not authorizing for the first time, so
+// the historical row is exactly what should be matched.
 const QUERY_HAS_CONSENT_FOR_SERVICE =
   'SELECT 1 FROM accountAuthorizations WHERE uid=? AND service=? LIMIT 1';
 const QUERY_HAS_CONSENT_FOR_CLIENT =
   'SELECT 1 FROM accountAuthorizations WHERE uid=? AND clientId=? LIMIT 1';
 const QUERY_ACCOUNT_CONSENT_DELETE_BY_UID =
   'DELETE FROM accountAuthorizations WHERE uid=?';
+// Unfiltered: callers get every row and decide what revokedAt means to them.
 const QUERY_ACCOUNT_CONSENT_LIST_BY_UID =
-  'SELECT uid, scope, service, clientId, firstAuthorizedTosAt, lastAuthorizedTosAt ' +
+  'SELECT uid, scope, service, clientId, firstAuthorizedTosAt, lastAuthorizedTosAt, revokedAt ' +
   'FROM accountAuthorizations WHERE uid=?';
+// Row-constructor IN list over the full PK, so a revoke can never widen past
+// the rows the caller identified.
+//
+// lastAuthorizedTosAt is matched as an optimistic guard: a row re-earned by a
+// concurrent /oauth/authorization between the caller's read and this write has
+// a newer timestamp, falls out of the IN list, and survives. Without it, a
+// sign-in racing a disconnect would be revoked immediately after the user
+// granted it.
+//
+// revokedAt IS NULL keeps the first revocation's timestamp authoritative when
+// concurrent disconnects target the same row. Connected Services collapses
+// entries by display name and fires its destroys in parallel, so this is a
+// normal case rather than an edge one.
+const QUERY_ACCOUNT_AUTHORIZATION_REVOKE_ROWS_PREFIX =
+  'UPDATE accountAuthorizations SET revokedAt=? ' +
+  'WHERE uid=? AND revokedAt IS NULL AND ' +
+  '(scope, service, clientId, lastAuthorizedTosAt) IN (';
 
 // accountAuthorizations_v2 shadow table (FXA-14169). Same rows as v1 but
 // `scope` is replaced by an integer `scopeId` FK to scopes(id). Written
@@ -238,6 +279,18 @@ const QUERY_SCOPES_INSERT =
 const QUERY_SCOPES_RESOLVE_IDS_PREFIX = 'SELECT id, scope FROM scopes WHERE scope IN (';
 
 const buf = (v) => (Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex'));
+
+// Revokes are batched so one statement never scales with the whole ledger.
+// Well under any placeholder or packet limit, and a user's revocable row count
+// is normally a handful.
+const AUTHORIZATION_REVOKE_BATCH_SIZE = 200;
+const chunk = (items, size) => {
+  const batches = [];
+  for (let i = 0; i < items.length; i += size) {
+    batches.push(items.slice(i, i + size));
+  }
+  return batches;
+};
 
 function firstRow(rows) {
   return rows[0];
@@ -821,6 +874,36 @@ class MysqlStore extends MysqlOAuthShared {
 
   _listAccountConsentsByUid(uid) {
     return this._read(QUERY_ACCOUNT_CONSENT_LIST_BY_UID, [buf(uid)]);
+  }
+
+  // Marks the given rows revoked as of `revokedAt`, leaving the row and its ToS
+  // timestamps in place. Each row needs scope, service, clientId and the
+  // lastAuthorizedTosAt the caller read, which together form the optimistic
+  // guard described on the query.
+  //
+  // Returns the number of rows actually revoked, which can be lower than
+  // rows.length: rows re-authorized since the caller's read, or already
+  // revoked, are skipped by design.
+  async _revokeAccountAuthorizations(uid, rows, revokedAt) {
+    if (!Array.isArray(rows) || rows.length === 0) {
+      return 0;
+    }
+    const uidBuf = buf(uid);
+    let affectedRows = 0;
+    for (const batch of chunk(rows, AUTHORIZATION_REVOKE_BATCH_SIZE)) {
+      const params = [revokedAt, uidBuf];
+      for (const r of batch) {
+        params.push(r.scope, r.service, buf(r.clientId), r.lastAuthorizedTosAt);
+      }
+      const result = await this._write(
+        QUERY_ACCOUNT_AUTHORIZATION_REVOKE_ROWS_PREFIX +
+          batch.map(() => '(?, ?, ?, ?)').join(', ') +
+          ')',
+        params
+      );
+      affectedRows += result.affectedRows;
+    }
+    return affectedRows;
   }
 
   getEncodingInfo() {

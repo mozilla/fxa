@@ -431,6 +431,19 @@ class OauthDB extends ConnectedServicesDb {
     return this.mysql._listAccountConsentsByUid(uid);
   }
 
+  // Withdraws the given authorizations without discarding them: the rows and
+  // their ToS timestamps stay, and the token-exchange gate stops treating them
+  // as consent. Re-authorizing through /oauth/authorization reactivates the
+  // same row (see the upsert's revokedAt = NULL).
+  //
+  // Each row must carry the scope, service, clientId and lastAuthorizedTosAt as
+  // read, so a row re-authorized in the meantime is left alone. The returned
+  // count is rows actually revoked, which may be fewer than were passed in.
+  async revokeAccountAuthorizations(uid, rows, revokedAt = Date.now()) {
+    await this.ready();
+    return this.mysql._revokeAccountAuthorizations(uid, rows, revokedAt);
+  }
+
   // True iff the (service, clientId) pair is permitted to record a consent
   // row. Services not configured in allowedClientsForService are
   // unrestricted. Configured services require the clientId to be on the
