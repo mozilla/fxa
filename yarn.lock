@@ -33364,7 +33364,6 @@ __metadata:
     morgan: "npm:^1.11.0"
     mozlog: "npm:^3.0.2"
     mustache: "npm:4.2.0"
-    node-uuid: "npm:1.4.8"
     node-vat: "npm:0.0.9"
     normalize.css: "npm:8.0.1"
     on-headers: "npm:1.1.0"
@@ -33393,6 +33392,7 @@ __metadata:
     underscore: "npm:^1.13.8"
     upng-js: "npm:2.1.0"
     url-loader: "npm:4.1.1"
+    uuid: "npm:^11.1.1"
     verror: "npm:1.10.1"
     webpack: "npm:^5.104.1"
     webpack-dev-middleware: "npm:^7.4.0"
@@ -43696,15 +43696,6 @@ __metadata:
     uap-ref-impl: "npm:0.2.0"
     yamlparser: "npm:0.0.2"
   checksum: 10c0/9f786ea10b12c72f8217cd0099d0a16a2b41a4110c43b68e87b8891040777cd27a553dfe52076edf44f1d5faca6be9322bf39f6b9442181fcb41563ac8fc49a0
-  languageName: node
-  linkType: hard
-
-"node-uuid@npm:1.4.8":
-  version: 1.4.8
-  resolution: "node-uuid@npm:1.4.8"
-  bin:
-    uuid: ./bin/uuid
-  checksum: 10c0/c87d0806292d40a7aaffa457c062407c176edbfef974dde32c34cb1db1cb6a686c141c8a34ed49a4602365e92dcf6dd2d3ce476d275e679f1ac746aebd3600c1
   languageName: node
   linkType: hard
 

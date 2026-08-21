@@ -78,7 +78,6 @@ const webpackConfig = {
         'jquery-ui-touch-punch-amd/jquery.ui.touch-punch'
       ),
       'ua-parser-js': require.resolve('ua-parser-js/src/ua-parser'),
-      uuid: require.resolve('node-uuid/uuid'),
       vat: require.resolve('node-vat/vat'),
       'fxa-auth-client/browser': require.resolve('fxa-auth-client/browser'),
       '@fxa/vendored/common-password-list': path.resolve(
