@@ -1,8 +1,8 @@
 {
-  "commit": "c62ed6b8d97f267041738a4c750f3040dec4a99f",
-  "summary": "Merge pull request #21050 from mozilla/fxa-4896",
-  "description": "chore(deps): replace babel-eslint with @babel/eslint-parser",
-  "timestamp": 1787329428000,
+  "commit": "19fc2d9b50cf326d7e0f0083f7e3072e82d9536a",
+  "summary": "Merge pull request #21066 from mozilla/fxa-13188",
+  "description": "fix(settings): bound email bounce polling and extract it to a hook",
+  "timestamp": 1787340130000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
