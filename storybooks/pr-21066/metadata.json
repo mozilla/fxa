@@ -1,8 +1,8 @@
 {
-  "commit": "26c0587da0654c380a91d5b748812cbd218f431b",
+  "commit": "24cd5341b1fd475e790bf4ec1af8490b8d6403dd",
   "summary": "fix(settings): cap bounce polling at 5 minutes",
-  "description": "Because:\n\n- Ten minutes at the 5s interval is 120 requests, but the server allows 100\n  emailBounceStatusCheck per IP per 15 minutes and blocks on breach.\n- The rule keys on IP, so one signup tab took bounce detection down for\n  everyone behind the same address.\n\nThis commit:\n\n- Shortens the cap to 5 minutes, for 60 requests.\n- Skips the effect when there is no email to check.",
-  "timestamp": 1787335903000,
+  "description": "Because:\n\n- Ten minutes at the 5s interval is 120 requests, but the server allows 100\n  emailBounceStatusCheck per IP per 15 minutes and blocks on breach.\n- The rule keys on IP, so one signup tab took bounce detection down for\n  everyone behind the same address.\n- A check left in flight by a previous run could report its bounce against\n  whichever email the page had moved on to.\n\nThis commit:\n\n- Shortens the cap to 5 minutes, for 60 requests.\n- Skips the effect when there is no email to check.\n- Ignores a bounce result that arrives after its run was cleaned up.",
+  "timestamp": 1787336599000,
   "storybooks": [
     "fxa-settings"
   ],

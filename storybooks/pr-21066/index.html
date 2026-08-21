@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 26c0587da0654c380a91d5b748812cbd218f431b</title>
+  <title>Storybooks for commit 24cd5341b1fd475e790bf4ec1af8490b8d6403dd</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 26c0587da0654c380a91d5b748812cbd218f431b</h1>
+  <h1>Storybooks for commit 24cd5341b1fd475e790bf4ec1af8490b8d6403dd</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/21/2026, 6:11:43 PM UTC</dd>
+    <dd>8/21/2026, 6:23:19 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(settings): cap bounce polling at 5 minutes</pre></dd>
     <dt>Description</dt>
@@ -39,11 +39,14 @@
   emailBounceStatusCheck per IP per 15 minutes and blocks on breach.
 - The rule keys on IP, so one signup tab took bounce detection down for
   everyone behind the same address.
+- A check left in flight by a previous run could report its bounce against
+  whichever email the page had moved on to.
 
 This commit:
 
 - Shortens the cap to 5 minutes, for 60 requests.
-- Skips the effect when there is no email to check.</pre></dd>
+- Skips the effect when there is no email to check.
+- Ignores a bounce result that arrives after its run was cleaned up.</pre></dd>
   </dl>
 </body>
 </html>
