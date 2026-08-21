@@ -4,7 +4,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
-import { useNavigateWithQuery, useOAuthFlowRecovery } from '../../../lib/hooks';
+import {
+  useEmailBouncePolling,
+  useNavigateWithQuery,
+  useOAuthFlowRecovery,
+} from '../../../lib/hooks';
 import { currentAccount } from '../../../lib/cache';
 import {
   useFinishOAuthFlowHandler,
@@ -24,9 +28,6 @@ import { QueryParams } from '../../..';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 import GleanMetrics from '../../../lib/glean';
 import AppLayout from '../../../components/AppLayout';
-
-export const POLL_INTERVAL = 5000;
-export const POLL_TIMEOUT = 10 * 60 * 1000;
 
 function getAccountInfo(
   emailFromLocationState?: string,
@@ -101,59 +102,7 @@ const SignupConfirmCodeContainer = ({
   // Poll for hard bounces registered in database for the entered email.
   // Previously, we checked if the account was deleted, and assumed
   // that implied the email bounced/was invalid.
-  const [hasHardBounce, setHasHardBounce] = useState(false);
-
-  useEffect(() => {
-    // A deadline rather than a tick count: a backgrounded tab throttles timers,
-    // so 120 ticks can span much longer than 10 minutes.
-    const pollDeadline = Date.now() + POLL_TIMEOUT;
-    // Local to this effect run, so a check left in flight by an earlier run
-    // cannot stop the interval the current run owns.
-    let intervalId: NodeJS.Timeout | undefined;
-
-    const stopPolling = () => {
-      clearInterval(intervalId);
-    };
-
-    const checkEmailBounceStatus = async () => {
-      if (!email) return;
-      if (Date.now() >= pollDeadline) {
-        stopPolling();
-        return;
-      }
-      try {
-        // Type assertion needed until fxa-auth-client is rebuilt with new method
-        const result = await (
-          authClient as typeof authClient & {
-            emailBounceStatus: (
-              email: string
-            ) => Promise<{ hasHardBounce: boolean }>;
-          }
-        ).emailBounceStatus(email);
-        if (result.hasHardBounce) {
-          setHasHardBounce(true);
-          // The answer is known, so there is nothing left to poll for.
-          stopPolling();
-        }
-      } catch (error) {
-        // Stop on any 4xx or 5xx. A network failure carries no code, so
-        // polling continues in that case.
-        const code = (error as { code?: number })?.code;
-        if (code !== undefined && code >= 400 && code < 600) {
-          stopPolling();
-        }
-        console.error('Error checking email bounce status:', error);
-      }
-    };
-
-    // Set up polling before the initial check so that check can stop it
-    intervalId = setInterval(checkEmailBounceStatus, POLL_INTERVAL);
-
-    // Initial check
-    checkEmailBounceStatus();
-
-    return stopPolling;
-  }, [authClient, email]);
+  const hasHardBounce = useEmailBouncePolling(email, authClient);
 
   const [recoveryAttempted, setRecoveryAttempted] = useState<boolean>(false);
 

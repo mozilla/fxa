@@ -4,6 +4,7 @@
 
 export * from './useAccountData';
 export * from './useChangeFocusEffect';
+export * from './useEmailBouncePolling';
 export * from './useEscKeydownEffect';
 export * from './useFocusOnTriggeringElementOnClose';
 export * from './useFxAStatus';
