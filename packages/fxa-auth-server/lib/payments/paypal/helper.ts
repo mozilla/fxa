@@ -373,9 +373,22 @@ export class PayPalHelper {
     billingAgreementId: string
   ): Promise<Stripe.Customer> {
     this.metrics.increment('paypal.updateStripeNameFromBA');
-    const agreementDetails = await this.agreementDetails({
-      billingAgreementId,
-    });
+    let agreementDetails: AgreementDetails;
+    try {
+      agreementDetails = await this.agreementDetails({
+        billingAgreementId,
+      });
+    } catch (err) {
+      if (
+        PayPalClientError.hasPayPalNVPError(err) &&
+        err.getPrimaryError().errorCode === PAYPAL_BILLING_AGREEMENT_INVALID
+      ) {
+        throw error.internalValidationError('updateStripeNameFromBA', {
+          message: 'Billing agreement was cancelled.',
+        });
+      }
+      throw err;
+    }
     if (agreementDetails.status === 'cancelled') {
       throw error.internalValidationError('updateStripeNameFromBA', {
         message: 'Billing agreement was cancelled.',
