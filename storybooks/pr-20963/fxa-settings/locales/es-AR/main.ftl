@@ -823,6 +823,9 @@ recent-activity-account-passwordless-login-otp-failed = Falló el código de ini
 recent-activity-account-passwordless-login-otp-verified = Código de inicio de sesión sin contraseña verificado
 recent-activity-account-passwordless-registration-complete = Se completó el registro de la cuenta sin contraseña
 recent-activity-account-recovery-codes-set = Códigos de recuperación establecidos
+recent-activity-account-passkey-wrap-created = Clave de acceso habilitada para sincronización
+recent-activity-account-passkey-wrap-creation-failure = Falló la configuración de Sync con la clave de acceso
+recent-activity-account-passkey-wrap-invalidated = Se eliminó el acceso a Sync con clave de acceso después de restablecer la contraseña
 recent-activity-unknown = Otra actividad de la cuenta
 
 

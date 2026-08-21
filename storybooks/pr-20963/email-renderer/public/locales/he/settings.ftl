@@ -1040,6 +1040,10 @@ recent-activity-account-passwordless-login-otp-failed = קוד כניסה ללא
 recent-activity-account-passwordless-login-otp-verified = קוד כניסה ללא ססמה אומת
 recent-activity-account-passwordless-registration-complete = רישום חשבון ללא סיסמה הושלם
 recent-activity-account-recovery-codes-set = הוגדרו קודים לשחזור
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
+recent-activity-account-passkey-wrap-created = מפתח גישה הופעל עבור סנכרון
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-creation-failure = הגדרת הסנכרון באמצעות מפתח גישה נכשלה
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = פעילות אחרת בחשבון
 

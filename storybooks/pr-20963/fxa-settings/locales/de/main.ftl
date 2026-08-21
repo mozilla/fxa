@@ -823,6 +823,9 @@ recent-activity-account-passwordless-login-otp-failed = Passwortloser Anmeldecod
 recent-activity-account-passwordless-login-otp-verified = Passwortloser Anmeldecode verifiziert
 recent-activity-account-passwordless-registration-complete = Registrierung des passwortlosen Kontos abgeschlossen
 recent-activity-account-recovery-codes-set = Wiederherstellungscodes erstellt
+recent-activity-account-passkey-wrap-created = Zugangsschlüssel für Synchronisation aktiviert
+recent-activity-account-passkey-wrap-creation-failure = Einrichtung der Synchronisation mit Zugangsschlüssel fehlgeschlagen
+recent-activity-account-passkey-wrap-invalidated = Zugriffsschlüssel-Synchronisation nach Zurücksetzen des Passworts entfernt
 recent-activity-unknown = Andere Kontoaktivitäten
 
 
