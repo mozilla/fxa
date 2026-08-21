@@ -2,9 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
-import { useNavigateWithQuery, useOAuthFlowRecovery } from '../../../lib/hooks';
+import {
+  useEmailBouncePolling,
+  useNavigateWithQuery,
+  useOAuthFlowRecovery,
+} from '../../../lib/hooks';
 import { currentAccount } from '../../../lib/cache';
 import {
   useFinishOAuthFlowHandler,
@@ -24,8 +28,6 @@ import { QueryParams } from '../../..';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 import GleanMetrics from '../../../lib/glean';
 import AppLayout from '../../../components/AppLayout';
-
-export const POLL_INTERVAL = 5000;
 
 function getAccountInfo(
   emailFromLocationState?: string,
@@ -100,45 +102,7 @@ const SignupConfirmCodeContainer = ({
   // Poll for hard bounces registered in database for the entered email.
   // Previously, we checked if the account was deleted, and assumed
   // that implied the email bounced/was invalid.
-  const [hasHardBounce, setHasHardBounce] = useState(false);
-  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    const checkEmailBounceStatus = async () => {
-      if (!email) return;
-      try {
-        // Type assertion needed until fxa-auth-client is rebuilt with new method
-        const result = await (
-          authClient as typeof authClient & {
-            emailBounceStatus: (
-              email: string
-            ) => Promise<{ hasHardBounce: boolean }>;
-          }
-        ).emailBounceStatus(email);
-        if (result.hasHardBounce) {
-          setHasHardBounce(true);
-        }
-      } catch (error) {
-        // Silently fail - we don't want to block the user flow on errors
-        console.error('Error checking email bounce status:', error);
-      }
-    };
-
-    // Initial check
-    checkEmailBounceStatus();
-
-    // Set up polling
-    pollIntervalRef.current = setInterval(
-      checkEmailBounceStatus,
-      POLL_INTERVAL
-    );
-
-    return () => {
-      if (pollIntervalRef.current) {
-        clearInterval(pollIntervalRef.current);
-      }
-    };
-  }, [authClient, email]);
+  const hasHardBounce = useEmailBouncePolling(email, authClient);
 
   const [recoveryAttempted, setRecoveryAttempted] = useState<boolean>(false);
 
