@@ -1,8 +1,8 @@
 {
-  "commit": "b6afc44df7bcdd132e9427813f5a7550d513c508",
-  "summary": "Merge pull request #21049 from mozilla/fxa-4894",
-  "description": "chore(content-server): replace deprecated node-uuid with uuid",
-  "timestamp": 1787329315000,
+  "commit": "c62ed6b8d97f267041738a4c750f3040dec4a99f",
+  "summary": "Merge pull request #21050 from mozilla/fxa-4896",
+  "description": "chore(deps): replace babel-eslint with @babel/eslint-parser",
+  "timestamp": 1787329428000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
