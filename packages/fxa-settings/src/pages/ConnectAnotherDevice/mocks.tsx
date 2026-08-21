@@ -7,7 +7,29 @@ import { ENTRYPOINTS } from '../../constants';
 import { getDefault } from '../../lib/config';
 import { SignedInUser } from '../../lib/channels/firefox';
 import { AppContextValue } from '../../models';
+import { UseFxAStatusResult } from '../../lib/hooks';
 import { MOCK_ACCOUNT, mockAppContext } from '../../models/mocks';
+
+/**
+ * The browser capabilities `useFxAStatus` resolves to, as the page receives
+ * them. Defaults to a v1-pairing browser; pass overrides for the v2 cases.
+ */
+export function mockFxAStatus(
+  overrides: Partial<UseFxAStatusResult> = {}
+): UseFxAStatusResult {
+  return {
+    pairingEnabled: false,
+    pairingVersion: 1,
+    hasSyncKeys: undefined,
+    offeredSyncEngines: [],
+    offeredSyncEngineConfigs: undefined,
+    declinedSyncEngines: [],
+    selectedEnginesForGlean: {},
+    supportsKeysOptionalLogin: false,
+    supportsCanLinkAccountUid: undefined,
+    ...overrides,
+  };
+}
 
 export const MOCK_DEFAULTS = {
   email: MOCK_ACCOUNT.primaryEmail.email,
@@ -20,6 +42,7 @@ export const MOCK_BASIC_PROPS = {
   showSuccessMessage: true,
   isSignedIn: true,
   canSignIn: false,
+  fxaStatus: mockFxAStatus(),
 };
 
 export const MOCK_DEVICE_BASIC_PROPS = {
@@ -30,6 +53,7 @@ export const MOCK_DEVICE_BASIC_PROPS = {
   isSignUp: true,
   isSignedIn: true,
   canSignIn: false,
+  fxaStatus: mockFxAStatus(),
 };
 
 /**

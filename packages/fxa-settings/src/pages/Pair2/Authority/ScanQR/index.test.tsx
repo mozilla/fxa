@@ -7,7 +7,7 @@ import { FluentBundle } from '@fluent/bundle';
 import { getFtlBundle, testL10n } from 'fxa-react/lib/test-utils';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { MOCK_QR_CODE_VALUE, Subject } from './mocks';
-import { Constants } from '../../../../lib/constants'
+import { Constants } from '../../../../lib/constants';
 
 // Stub QRCode so the test can read the encoded value without decoding an SVG;
 // the real rendering is covered in its own test. The stub keeps the accessible
@@ -17,11 +17,18 @@ jest.mock('../../../../components/QRCode', () => ({
   default: ({
     value,
     localizedLabel,
+    loading,
   }: {
     value: string;
     localizedLabel: string;
+    loading?: boolean;
   }) => (
-    <img alt={localizedLabel} data-testid="scan-qr-code" data-value={value} />
+    <img
+      alt={localizedLabel}
+      data-testid="scan-qr-code"
+      data-value={value}
+      data-loading={String(!!loading)}
+    />
   ),
 }));
 
@@ -91,6 +98,21 @@ describe('Pair2/Authority/ScanQR page', () => {
     expect(screen.getByTestId('scan-qr-code')).toHaveAttribute(
       'data-value',
       MOCK_QR_CODE_VALUE
+    );
+    expect(screen.getByTestId('scan-qr-code')).toHaveAttribute(
+      'data-loading',
+      'false'
+    );
+  });
+
+  // Until the channel exists there is nothing to encode, and a QR built from an
+  // empty string would scan to the bare origin.
+  it('marks the QR as loading while there is no value to encode', () => {
+    renderWithLocalizationProvider(<Subject qrCodeValue="" />);
+
+    expect(screen.getByTestId('scan-qr-code')).toHaveAttribute(
+      'data-loading',
+      'true'
     );
   });
 

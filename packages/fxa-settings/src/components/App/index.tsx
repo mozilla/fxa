@@ -186,7 +186,7 @@ const PairAuthorityDownloadFirefox = lazy(
   () => import('../../pages/Pair2/Authority/DownloadFirefox')
 );
 const PairAuthorityScanQR = lazy(
-  () => import('../../pages/Pair2/Authority/ScanQR')
+  () => import('../../pages/Pair2/Authority/ScanQR/container')
 );
 const PairAuthoritySyncSuccess = lazy(
   () => import('../../pages/Pair2/Authority/SyncSuccess')
@@ -1031,9 +1031,7 @@ const AuthAndAccountSetupRoutes = ({
         {/* Pairing */}
         <Route
           path="/connect_another_device/*"
-          element={<ConnectAnotherDevice
-            pairingEnabled={useFxAStatusResult.pairingEnabled}
-            pairingVersion={useFxAStatusResult.pairingVersion} />}
+          element={<ConnectAnotherDevice fxaStatus={useFxAStatusResult} />}
         />
         <Route
           path="/pair/supp/allow/*"
@@ -1099,7 +1097,7 @@ const AuthAndAccountSetupRoutes = ({
         />
         <Route
           path="/pair/authority/scan_qr/*"
-          element={<PairAuthorityScanQR { ...{integration}} />}
+          element={<PairAuthorityScanQR integration={integration} />}
         />
         <Route
           path="/pair/authority/sync_success/*"

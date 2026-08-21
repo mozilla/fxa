@@ -14,8 +14,10 @@ import {
   MOCK_DEVICE_BASIC_PROPS,
   MOCK_DEFAULTS,
   MOCK_PAIRING_ELIGIBLE_ROUTE,
+  mockFxAStatus,
   mockPairingAppContext,
 } from './mocks';
+import { UseFxAStatusResult } from '../../lib/hooks';
 import { ENTRYPOINTS, REACT_ENTRYPOINT } from '../../constants';
 import firefox from '../../lib/channels/firefox';
 import * as ReactUtils from 'fxa-react/lib/utils';
@@ -90,6 +92,7 @@ describe('ConnectAnotherDevice', () => {
         isSignedIn
         canSignIn={false}
         {...MOCK_DEFAULTS}
+        fxaStatus={mockFxAStatus()}
       />
     );
     // testAllL10n(screen, bundle);
@@ -107,6 +110,7 @@ describe('ConnectAnotherDevice', () => {
         isSignedIn={false}
         canSignIn
         {...MOCK_DEFAULTS}
+        fxaStatus={mockFxAStatus()}
       />
     );
 
@@ -124,6 +128,7 @@ describe('ConnectAnotherDevice', () => {
         isSignedIn={false}
         canSignIn
         {...MOCK_DEFAULTS}
+        fxaStatus={mockFxAStatus()}
       />
     );
     // testAllL10n(screen, bundle);
@@ -141,6 +146,7 @@ describe('ConnectAnotherDevice', () => {
         device={Devices.FIREFOX_DESKTOP}
         isSignedIn={false}
         canSignIn
+        fxaStatus={mockFxAStatus()}
       />
     );
     // testAllL10n(screen, bundle);
@@ -185,15 +191,12 @@ describe('ConnectAnotherDevice', () => {
     const FXA_PAIRING_V2 = 2;
 
     const renderPairingEligible = (
-      props: {
-        pairingEnabled?: boolean;
-        pairingVersion?: number;
-      },
+      fxaStatus: Partial<UseFxAStatusResult>,
       fxaPairingVersion: number,
       route: string = MOCK_PAIRING_ELIGIBLE_ROUTE
     ) =>
       renderWithRouter(
-        <ConnectAnotherDevice {...props} />,
+        <ConnectAnotherDevice fxaStatus={mockFxAStatus(fxaStatus)} />,
         { route },
         mockPairingAppContext(fxaPairingVersion)
       );
@@ -273,7 +276,7 @@ describe('ConnectAnotherDevice', () => {
       expect(navigateWithQuery).not.toHaveBeenCalled();
     });
 
-    it('navigates to the v1 pairing flow when no pairing props are supplied', async () => {
+    it('navigates to the v1 pairing flow when the browser reports no pairing capability', async () => {
       renderPairingEligible({}, FXA_PAIRING_V2);
 
       await waitFor(() => expect(hardNavigate).toHaveBeenCalledWith('/pair'));
@@ -292,6 +295,17 @@ describe('ConnectAnotherDevice', () => {
           '/pair/authority/scan_qr'
         )
       );
+      expect(hardNavigate).not.toHaveBeenCalled();
+    });
+
+    it('renders the loading spinner while the browser capabilities are unresolved', async () => {
+      renderPairingEligible(
+        { pairingEnabled: undefined, pairingVersion: undefined },
+        FXA_PAIRING_V2
+      );
+
+      expect(await screen.findByLabelText('Loading…')).toBeInTheDocument();
+      expect(navigateWithQuery).not.toHaveBeenCalled();
       expect(hardNavigate).not.toHaveBeenCalled();
     });
 
