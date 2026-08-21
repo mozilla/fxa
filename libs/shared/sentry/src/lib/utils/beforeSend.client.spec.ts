@@ -4,6 +4,7 @@
 
 import { SentryConfigOpts } from '../models/SentryConfigOpts';
 import { beforeSend } from './beforeSend.client';
+import { applyCommonTags, SentryTags } from './tags';
 import * as Sentry from '@sentry/nextjs';
 
 const config: SentryConfigOpts = {
@@ -63,5 +64,72 @@ describe('beforeSend', () => {
     } as unknown as Sentry.ErrorEvent;
     const resultData = beforeSend(config, data);
     expect(data).toEqual(resultData);
+  });
+
+  it('tags the client name', () => {
+    const data = { key: 'value' } as unknown as Sentry.ErrorEvent;
+
+    const resultData = beforeSend(config, data);
+
+    expect(resultData?.tags?.[SentryTags.NAME]).toEqual('fxa-shared-testing');
+  });
+
+  it('tags the runtime as browser', () => {
+    const data = { key: 'value' } as unknown as Sentry.ErrorEvent;
+
+    const resultData = beforeSend(config, data);
+
+    expect(resultData?.tags?.[SentryTags.RUNTIME]).toEqual('browser');
+  });
+
+  it('tags an event with an errno as a known error', () => {
+    const data = { tags: { errno: '100' } } as unknown as Sentry.ErrorEvent;
+
+    const resultData = beforeSend(config, data);
+
+    expect(resultData?.tags?.[SentryTags.KNOWN_ERROR]).toBe(true);
+  });
+
+  it('tags an event without an errno as not a known error', () => {
+    const data = { key: 'value' } as unknown as Sentry.ErrorEvent;
+
+    const resultData = beforeSend(config, data);
+
+    expect(resultData?.tags?.[SentryTags.KNOWN_ERROR]).toBe(false);
+  });
+});
+
+describe('applyCommonTags', () => {
+  it('tags the runtime as server', () => {
+    const event = applyCommonTags(
+      {},
+      { name: 'fxa-auth-server', runtime: 'server' }
+    );
+
+    expect(event.tags[SentryTags.RUNTIME]).toEqual('server');
+  });
+
+  it('tags the given name', () => {
+    const event = applyCommonTags(
+      {},
+      { name: 'fxa-auth-server', runtime: 'server' }
+    );
+
+    expect(event.tags[SentryTags.NAME]).toEqual('fxa-auth-server');
+  });
+
+  it('tags the name as unknown when no name is given', () => {
+    const event = applyCommonTags({}, { runtime: 'server' });
+
+    expect(event.tags[SentryTags.NAME]).toEqual('unknown');
+  });
+
+  it('keeps tags that are already set', () => {
+    const event = applyCommonTags(
+      { tags: { errno: 100 } },
+      { name: 'fxa-settings', runtime: 'browser' }
+    );
+
+    expect(event.tags.errno).toEqual(100);
   });
 });
