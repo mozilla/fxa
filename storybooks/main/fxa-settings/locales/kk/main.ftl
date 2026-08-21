@@ -827,6 +827,9 @@ recent-activity-account-passwordless-login-otp-failed = Парольсіз кі�
 recent-activity-account-passwordless-login-otp-verified = Парольсіз кіру коды расталды
 recent-activity-account-passwordless-registration-complete = Парольсіз тіркелгіні тіркеу аяқталды
 recent-activity-account-recovery-codes-set = Қалпына келтіру кодтары орнатылды
+recent-activity-account-passkey-wrap-created = Рұқсат кілті синхрондау үшін іске қосылды
+recent-activity-account-passkey-wrap-creation-failure = Рұқсат кілтімен синхрондауды баптау сәтсіз аяқталды
+recent-activity-account-passkey-wrap-invalidated = Парольді қалпына келтіруден кейін рұқсат кілтімен синхрондауға қол жеткізу өшірілген
 recent-activity-unknown = Тіркелгінің басқа белсенділігі
 
 
