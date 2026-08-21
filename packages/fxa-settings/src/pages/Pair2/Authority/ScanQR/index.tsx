@@ -8,9 +8,8 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 import AppLayout from '../../../../components/AppLayout';
 import QRCode from '../../../../components/QRCode';
 import { QrPhoneFrameImage } from '../../../../components/images';
-import { Integration, useFtlMsgResolver } from '../../../../models';
+import { useFtlMsgResolver } from '../../../../models';
 import { Constants } from '../../../../lib/constants';
-
 
 export type ScanQRProps = {
   /**
@@ -19,9 +18,6 @@ export type ScanQRProps = {
    * pairing value lands with the flow wiring, and this card only renders it.
    */
   qrCodeValue?: string;
-
-  /** The active integraiton state. */
-  integration?: Integration;
 };
 
 /**
@@ -29,7 +25,7 @@ export type ScanQRProps = {
  * their phone or tablet to start syncing; there is no button to press, so the
  * only action is the link out to scanning help.
  */
-const ScanQR = ({ qrCodeValue, integration }: ScanQRProps) => {
+const ScanQR = ({ qrCodeValue }: ScanQRProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   // `QRCode` takes a plain string, so this is the one label on the card that
   // cannot be resolved with `FtlMsg`.
@@ -37,17 +33,6 @@ const ScanQR = ({ qrCodeValue, integration }: ScanQRProps) => {
     'pair2-authority-scan-qr-code-aria-label',
     'QR code to connect your mobile device'
   );
-
-  if (integration && integration.isFirefoxMobileClient()) {
-    throw new Error('Mobile to desktop not supported!')
-  }
-
-  function createQrCodeUrl() {
-    // TODO: Create new pairing channel and create URL
-    const key = `000000000`;
-    const id = `111111111`;
-    return qrCodeValue || `${window.location.origin}/pair#channel_id=${id}&channel_key=${key}&v=2`;
-  }
 
   return (
     <AppLayout>
@@ -83,7 +68,8 @@ const ScanQR = ({ qrCodeValue, integration }: ScanQRProps) => {
                 proportion as the card narrows. */}
             <div className="w-[41%]">
               <QRCode
-                value={createQrCodeUrl()}
+                value={qrCodeValue ?? ''}
+                loading={!qrCodeValue}
                 localizedLabel={localizedQrCodeLabel}
                 className="w-full border-none [&_svg]:h-auto [&_svg]:w-full"
               />

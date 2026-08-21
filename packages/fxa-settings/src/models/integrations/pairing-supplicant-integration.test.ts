@@ -15,7 +15,10 @@ const mockSend = jest.fn().mockResolvedValue(undefined);
 const mockClose = jest.fn().mockResolvedValue(undefined);
 const listeners: Record<string, Function[]> = {};
 
+// Only the client is stubbed; `toRemoteMetadata` is a pure helper the
+// integration relies on for the device details it shows the user.
 jest.mock('../../lib/channels/pairing-channel', () => ({
+  ...jest.requireActual('../../lib/channels/pairing-channel'),
   PairingChannelClient: jest.fn().mockImplementation(() => ({
     open: mockOpen,
     send: mockSend,
@@ -334,6 +337,12 @@ describe('PairingSupplicantIntegration', () => {
       await integration.openChannel('wss://ch.example.com', 'c', 'k');
       expect(integration.state).toBe(SupplicantState.Failed);
       expect(onError).toHaveBeenCalled();
+    });
+  });
+
+  describe('isPairing', () => {
+    it('returns true', () => {
+      expect(createIntegration().isPairing()).toBe(true);
     });
   });
 

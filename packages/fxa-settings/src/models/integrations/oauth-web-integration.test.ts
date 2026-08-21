@@ -5,6 +5,7 @@
 import { ModelDataStore, GenericData } from '../../lib/model-data';
 import {
   OAuthWebIntegration,
+  normalizeError,
   replaceItemInArray,
 } from './oauth-web-integration';
 import * as Sentry from '@sentry/browser';
@@ -512,6 +513,41 @@ describe('models/integrations/oauth-relier', function () {
 
     it('handles empty replacement', () => {
       expect(replaceItemInArray(['a', 'b', 'c'], 'a', [])).toEqual(['b', 'c']);
+    });
+  });
+
+  // The pairing integrations surface whatever the channel handed them, which
+  // may be a DOM error, a channel-server errno object, or a bare string.
+  describe('normalizeError', () => {
+    it('passes an Error through unchanged', () => {
+      const err = new Error('boom');
+
+      expect(normalizeError(err)).toBe(err);
+    });
+
+    it('passes an errno object through unchanged', () => {
+      const err = { errno: 1006, message: 'Connection closed' };
+
+      expect(normalizeError(err)).toBe(err);
+    });
+
+    it('preserves an Error subclass', () => {
+      const err = new OAuthError(OAUTH_ERRORS.INVALID_TOKEN.errno);
+
+      expect(normalizeError(err)).toBe(err);
+    });
+
+    it.each([
+      ['a string', 'something went wrong', 'something went wrong'],
+      ['null', null, 'null'],
+      ['undefined', undefined, 'undefined'],
+      ['a number', 42, '42'],
+      ['an object with no errno', { foo: 'bar' }, '[object Object]'],
+    ])('wraps %s in an Error', (_label, input, expected) => {
+      const result = normalizeError(input);
+
+      expect(result).toBeInstanceOf(Error);
+      expect((result as Error).message).toBe(expected);
     });
   });
 
