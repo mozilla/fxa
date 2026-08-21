@@ -17,7 +17,16 @@ import type {
 } from '@simplewebauthn/server';
 import { PasskeyConfig } from './passkey.config';
 import { PasskeyManager } from './passkey.manager';
-import { NewPasskeyData, PasskeyRecord } from './passkey.repository';
+import {
+  isMysqlDupEntry,
+  NewPasskeyData,
+  PasskeyRecord,
+} from './passkey.repository';
+import {
+  PasskeyWrapEnvelope,
+  PasskeyWrapSealUpdate,
+} from './passkey.wrap.repository';
+import type { PasskeyWrap } from '@fxa/shared/db/mysql/account';
 import { PasskeyChallengeManager } from './passkey.challenge.manager';
 import {
   generateWebauthnRegistrationOptions,
@@ -76,6 +85,32 @@ const DISPLAY_SAFE_UNICODE_WITH_NON_BMP =
  * - **backupEligible/backupState**: Extract from authenticator data flags (BE/BS bits)
  *
  */
+
+/**
+ * The three wrap operations, used to namespace their StatsD counters.
+ */
+type WrapOperation = 'store' | 'get' | 'update';
+
+/**
+ * Whether a stored wrap already holds exactly this envelope, which makes a
+ * repeated POST idempotent rather than a conflict.
+ *
+ * A plain comparison is fine: every field is a public ciphertext or public key
+ * the caller just supplied, so there is no secret for a timing oracle to reveal.
+ */
+function isSameEnvelope(
+  stored: PasskeyWrap,
+  envelope: PasskeyWrapEnvelope
+): boolean {
+  return (
+    stored.pkR.equals(envelope.pkR) &&
+    stored.prfWrappedSkR.equals(envelope.prfWrappedSkR) &&
+    stored.keyWrapIv.equals(envelope.keyWrapIv) &&
+    stored.hpkeEncapsulatedSecret.equals(envelope.hpkeEncapsulatedSecret) &&
+    stored.hpkeSealedKb.equals(envelope.hpkeSealedKb)
+  );
+}
+
 @Injectable()
 export class PasskeyService {
   /**
@@ -571,5 +606,172 @@ export class PasskeyService {
     }
 
     return { uid };
+  }
+
+  /**
+   * Store a wrap envelope for a credential.
+   *
+   * Idempotent: an identical payload is a no-op reported as `unchanged`, so the
+   * route answers 200 without emitting an event. A different payload is a
+   * conflict — replacing goes through the PUT path.
+   *
+   * Deliberately does not gate on `passkeys.prfEnabled`. That column is a
+   * signal, not an authority: it is written best-effort after an assertion, so
+   * a swallowed DB error leaves it false for a passkey that does support PRF,
+   * and rejecting here would block a legitimate upgrade. The opposite error
+   * costs one unopenable row in the caller's own account. The authoritative
+   * check — and any roll-forward of the flag — belongs to the route that saw
+   * the ceremony and knows whether PRF output came back (FXA-13142), which is
+   * what `AppError.passkeyPrfNotEnabled` (errno 236) is reserved for.
+   *
+   * @returns `created` when a row was inserted, `unchanged` when one already
+   *   matched
+   */
+  async storePasskeyWrap(
+    uid: string,
+    credentialId: string,
+    envelope: PasskeyWrapEnvelope,
+    now: number
+  ): Promise<'created' | 'unchanged'> {
+    await this.requireOwnedPasskey(uid, credentialId, 'store');
+
+    const existing = await this.passkeyManager.findPasskeyWrap(
+      uid,
+      credentialId
+    );
+    if (existing) {
+      if (!isSameEnvelope(existing, envelope)) {
+        throw this.wrapFailure(
+          'store',
+          'conflict',
+          AppError.passkeyWrapConflict()
+        );
+      }
+      this.metrics.increment('passkey.wrap.store.unchanged');
+      return 'unchanged';
+    }
+
+    try {
+      await this.passkeyManager.createPasskeyWrap(
+        uid,
+        { credentialId, ...envelope },
+        now
+      );
+    } catch (err: unknown) {
+      // Two requests can both read no wrap before either commits, and the loser
+      // hits the primary key. Report it as the conflict it is rather than a 500;
+      // the winner's row is stored, so a retry succeeds.
+      if (!isMysqlDupEntry(err)) {
+        throw err;
+      }
+      throw this.wrapFailure(
+        'store',
+        'conflict',
+        AppError.passkeyWrapConflict()
+      );
+    }
+
+    this.metrics.increment('passkey.wrap.store.success');
+    this.log?.log('passkey.wrap.stored', { uid });
+
+    return 'created';
+  }
+
+  /**
+   * Fetch the wrap envelope for a credential.
+   *
+   * A missing passkey and a missing wrap are different conditions with the same
+   * 404, so they carry different errnos.
+   */
+  async getPasskeyWrap(
+    uid: string,
+    credentialId: string
+  ): Promise<PasskeyWrap> {
+    await this.requireOwnedPasskey(uid, credentialId, 'get');
+
+    const wrap = await this.passkeyManager.findPasskeyWrap(uid, credentialId);
+    if (!wrap) {
+      throw this.wrapFailure(
+        'get',
+        'wrapNotFound',
+        AppError.passkeyWrapNotFound()
+      );
+    }
+
+    this.metrics.increment('passkey.wrap.get.success');
+    return wrap;
+  }
+
+  /**
+   * Re-seal kB to the credential's existing pkR.
+   *
+   * Overwrites in place with no staleness guard, so every protection is the
+   * route's (FXA-13142): a caller that reaches here can replace the sealed kB
+   * for any credential the account owns. That is only safe if the route demands
+   * a session, the password — holding kB at all requires it — and an
+   * authenticator ceremony. Stated as the requirement it is, not a fact this
+   * layer can check.
+   */
+  async updatePasskeyWrap(
+    uid: string,
+    credentialId: string,
+    seal: PasskeyWrapSealUpdate,
+    now: number
+  ): Promise<void> {
+    await this.requireOwnedPasskey(uid, credentialId, 'update');
+
+    const updated = await this.passkeyManager.updatePasskeyWrapSeal(
+      uid,
+      credentialId,
+      seal,
+      now
+    );
+    if (!updated) {
+      throw this.wrapFailure(
+        'update',
+        'wrapNotFound',
+        AppError.passkeyWrapNotFound()
+      );
+    }
+
+    this.metrics.increment('passkey.wrap.update.success');
+    this.log?.log('passkey.wrap.updated', { uid });
+  }
+
+  /**
+   * Increments the failure counter for a wrap operation and returns the error
+   * to throw, so each guard reads as one line instead of four.
+   */
+  private wrapFailure(
+    operation: WrapOperation,
+    reason: string,
+    error: AppError
+  ): AppError {
+    this.metrics.increment(`passkey.wrap.${operation}.failed`, { reason });
+    return error;
+  }
+
+  /**
+   * Load a passkey the account owns, or throw.
+   *
+   * The uid scoping is the query's, not this method's: a credential that does
+   * not exist and one owned by someone else come back as the same `undefined`,
+   * so there is one answer to act on and no comparison for a caller to forget.
+   */
+  private async requireOwnedPasskey(
+    uid: string,
+    credentialId: string,
+    operation: WrapOperation
+  ): Promise<PasskeyRecord> {
+    const passkey = await this.passkeyManager.findPasskeyByUidAndCredentialId(
+      uid,
+      credentialId
+    );
+
+    if (!passkey) {
+      throw this.wrapFailure(operation, 'notFound', AppError.passkeyNotFound());
+    }
+
+    return passkey;
   }
 }
