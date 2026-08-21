@@ -799,6 +799,8 @@ recent-activity-account-passwordless-login-otp-failed = קוד כניסה ללא
 recent-activity-account-passwordless-login-otp-verified = קוד כניסה ללא ססמה אומת
 recent-activity-account-passwordless-registration-complete = רישום חשבון ללא סיסמה הושלם
 recent-activity-account-recovery-codes-set = הוגדרו קודים לשחזור
+recent-activity-account-passkey-wrap-created = מפתח גישה הופעל עבור סנכרון
+recent-activity-account-passkey-wrap-creation-failure = הגדרת הסנכרון באמצעות מפתח גישה נכשלה
 recent-activity-unknown = פעילות אחרת בחשבון
 
 

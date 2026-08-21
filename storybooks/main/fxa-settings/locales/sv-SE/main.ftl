@@ -826,8 +826,8 @@ recent-activity-account-passwordless-login-otp-verified = Lösenordslös inloggn
 recent-activity-account-passwordless-registration-complete = Lösenordslös kontoregistrering slutförd
 recent-activity-account-recovery-codes-set = Återställningskoder inställda
 recent-activity-account-passkey-wrap-created = Lösenordsnyckel aktiverad för synkronisering
-recent-activity-account-passkey-wrap-creation-failure = Synkroniseringsinställningar med lösenord misslyckades
-recent-activity-account-passkey-wrap-invalidated = Synkåtkomst för lösenordsnyckel togs bort efter lösenordsåterställning
+recent-activity-account-passkey-wrap-creation-failure = Synkroniseringsinstallationen med lösenordsnyckel misslyckades
+recent-activity-account-passkey-wrap-invalidated = Åtkomst till synkronisering av lösenordsnyckel borttagen efter lösenordsåterställning
 recent-activity-unknown = Annan kontoaktivitet
 
 

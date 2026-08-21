@@ -1,8 +1,8 @@
 {
-  "commit": "59b193170691a391071604949ff8e943f9332d22",
-  "summary": "Merge pull request #21089 from mozilla/dependabot/npm_and_yarn/opentelemetry-packages-48675e7370",
-  "description": "chore(deps): bump the opentelemetry-packages group with 2 updates",
-  "timestamp": 1787297137000,
+  "commit": "d419ea383b8cd8c80fbb720e640a2147b657f918",
+  "summary": "Merge pull request #21082 from mozilla/fxa-14387",
+  "description": "fix(admin-panel): serve index.html for three missing client routes",
+  "timestamp": 1787328223000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
