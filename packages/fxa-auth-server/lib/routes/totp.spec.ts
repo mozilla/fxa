@@ -666,6 +666,35 @@ describe('totp', () => {
     });
   });
 
+  describe('/mfa/totp/setup/complete', () => {
+    function getPayloadSchema() {
+      const builtRoutes = makeRoutes({});
+      return getRoute(builtRoutes, '/mfa/totp/setup/complete').options.validate
+        .payload;
+    }
+
+    // The auth server validates payloads with stripUnknown:true (see server.js),
+    // so any field not declared in the schema is silently dropped before the
+    // handler reads it. `service` must therefore be declared to reach the
+    // shared completion handler (which uses it for the confirmation email).
+    it('keeps an optional service in the payload under stripUnknown validation', () => {
+      const { error, value } = getPayloadSchema().validate(
+        { service: 'sync' },
+        { stripUnknown: true }
+      );
+      expect(error).toBeUndefined();
+      expect(value.service).toBe('sync');
+    });
+
+    it('rejects a service that violates the service validator', () => {
+      const { error } = getPayloadSchema().validate(
+        { service: 'not a valid service!' },
+        { stripUnknown: true }
+      );
+      expect(error).toBeDefined();
+    });
+  });
+
   // This endpoint is used for password reset only
   describe('/totp/verify', () => {
     it('should verify a valid totp code', async () => {

@@ -33,6 +33,17 @@ import {
 } from '../../lib/oauth/hooks';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import { mockWindowLocation } from 'fxa-react/lib/test-utils/mockWindowLocation';
+import { ReactNode } from 'react';
+import { JwtTokenCache } from '../../lib/cache';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+
+// The MFA email-OTP guard is unit-tested separately (MfaGuardCore); here it is a
+// pass-through so the recovery setup (its children) renders directly. A mfa:2fa
+// JWT is seeded in setMocks so the JWT-guarded completion call resolves.
+jest.mock('../../components/Settings/MfaGuard', () => ({
+  __esModule: true,
+  MfaGuardCore: ({ children }: { children: ReactNode }) => children,
+}));
 
 let mockLocationState = {};
 const search = '?' + new URLSearchParams(MOCK_QUERY_PARAMS);
@@ -131,7 +142,7 @@ jest.mock('./index', () => {
   };
 });
 
-let mockCompleteTotpSetup = jest.fn().mockResolvedValue({ success: true });
+let mockCompleteTotpSetupWithJwt = jest.fn().mockResolvedValue({ success: true });
 let mockCheckTotpTokenExists = jest.fn();
 
 function setMocks() {
@@ -144,10 +155,17 @@ function setMocks() {
   mockCheckTotpTokenExists.mockResolvedValue({ exists: false, verified: false });
   (InlineRecoverySetupModule.default as jest.Mock).mockReset();
   mockNavigateHook.mockReset();
-  mockCompleteTotpSetup.mockClear();
+  mockCompleteTotpSetupWithJwt.mockClear();
   mockCheckTotpTokenExists.mockClear();
-  (mockAuthClient as any).completeTotpSetup = mockCompleteTotpSetup;
+  (mockAuthClient as any).completeTotpSetupWithJwt = mockCompleteTotpSetupWithJwt;
   (mockAuthClient as any).checkTotpTokenExists = mockCheckTotpTokenExists;
+  // Seed the mfa:2fa JWT the completion reads (obtained by the guard via email
+  // OTP; pre-seeded here so the guard pass-through renders the flow).
+  JwtTokenCache.setToken(
+    MOCK_SIGNIN_RECOVERY_LOCATION_STATE.sessionToken,
+    '2fa',
+    'test-jwt'
+  );
   (useFinishOAuthFlowHandler as jest.Mock).mockImplementation(() => ({
     finishOAuthFlowHandler: jest
       .fn()
@@ -161,6 +179,7 @@ function setMocks() {
     oAuthKeysCheckError: null,
   }));
   recoveryPhoneFn.mockClear();
+  confirmRecoveryPhoneFn.mockClear();
 }
 
 const defaultProps = {
@@ -303,6 +322,35 @@ describe('InlineRecoverySetupContainer', () => {
       });
     });
 
+    it('completes setup with the protocol service value, not the display serviceName', async () => {
+      // The server's `service` validator rejects display labels like
+      // "Firefox Sync" (spaces, > 16 chars); the protocol value from
+      // getService() ("sync") must be sent instead.
+      render({
+        integration: {
+          ...defaultProps.integration,
+          getService: () => 'sync',
+        },
+        serviceName: MozServices.FirefoxSync,
+      });
+      const latestArgs = () =>
+        (InlineRecoverySetupModule.default as jest.Mock).mock.calls.slice(
+          -1
+        )[0][0];
+      await waitFor(() => {
+        expect(InlineRecoverySetupModule.default).toHaveBeenCalled();
+      });
+      await waitFor(async () => {
+        await latestArgs().backupChoiceCb('code');
+      });
+      await waitFor(async () => {
+        await latestArgs().completeBackupCodeSetup('wibble');
+      });
+      expect(mockCompleteTotpSetupWithJwt).toHaveBeenCalledWith('test-jwt', {
+        service: 'sync',
+      });
+    });
+
     describe('callbacks', () => {
       let args: any;
 
@@ -347,7 +395,49 @@ describe('InlineRecoverySetupContainer', () => {
             '010431',
             '12345678900'
           );
-          expect(mockCompleteTotpSetup).toHaveBeenCalledTimes(1);
+          expect(mockCompleteTotpSetupWithJwt).toHaveBeenCalledTimes(1);
+        });
+
+        it('rejects (so the flow does not advance) when TOTP completion fails', async () => {
+          // If completion fails the confirm-code step must not navigate forward
+          // to the success screen while 2FA is still disabled.
+          mockCompleteTotpSetupWithJwt.mockRejectedValueOnce(
+            new Error('server error')
+          );
+          await waitFor(async () => {
+            await args.verifyPhoneNumber('12345678900');
+          });
+          args = (InlineRecoverySetupModule.default as jest.Mock).mock.calls[
+            (InlineRecoverySetupModule.default as jest.Mock).mock.calls.length - 1
+          ][0];
+
+          await expect(args.verifySmsCode('010431')).rejects.toThrow(
+            'cannot enable TOTP'
+          );
+        });
+
+        it('does not re-consume the SMS code when retrying after a failed completion', async () => {
+          await waitFor(async () => {
+            await args.verifyPhoneNumber('12345678900');
+          });
+          args = (InlineRecoverySetupModule.default as jest.Mock).mock.calls[
+            (InlineRecoverySetupModule.default as jest.Mock).mock.calls.length - 1
+          ][0];
+
+          // First attempt: phone confirms, then TOTP completion fails.
+          mockCompleteTotpSetupWithJwt.mockRejectedValueOnce(
+            new Error('server error')
+          );
+          await expect(args.verifySmsCode('010431')).rejects.toThrow(
+            'cannot enable TOTP'
+          );
+
+          // Retry (fresh JWT): completion succeeds. The single-use SMS code must
+          // not be submitted again, or the phone confirm would fail.
+          await args.verifySmsCode('010431');
+
+          expect(confirmRecoveryPhoneFn).toHaveBeenCalledTimes(1);
+          expect(mockCompleteTotpSetupWithJwt).toHaveBeenCalledTimes(2);
         });
       });
 
@@ -364,7 +454,40 @@ describe('InlineRecoverySetupContainer', () => {
             await args.completeBackupCodeSetup('wibble');
           });
           expect(setRecoveryCodesFn).toHaveBeenCalledWith(['wibble', 'quux']);
-          expect(mockCompleteTotpSetup).toHaveBeenCalledTimes(1);
+          expect(mockCompleteTotpSetupWithJwt).toHaveBeenCalledTimes(1);
+        });
+
+        it('clears the cached JWT when completion fails with an invalid MFA token', async () => {
+          const invalidJwtError = Object.assign(new Error('invalid mfa token'), {
+            errno: AuthUiErrors.INVALID_MFA_TOKEN.errno,
+          });
+          mockCompleteTotpSetupWithJwt.mockRejectedValueOnce(invalidJwtError);
+
+          expect(
+            JwtTokenCache.hasToken(
+              MOCK_SIGNIN_RECOVERY_LOCATION_STATE.sessionToken,
+              '2fa'
+            )
+          ).toBe(true);
+
+          await waitFor(async () => {
+            await args.backupChoiceCb('code');
+          });
+          args = (InlineRecoverySetupModule.default as jest.Mock).mock.calls[
+            (InlineRecoverySetupModule.default as jest.Mock).mock.calls.length - 1
+          ][0];
+          await waitFor(async () => {
+            await args.completeBackupCodeSetup('wibble');
+          });
+
+          // Stale JWT dropped so MfaGuardCore can re-prompt for a fresh email OTP
+          // instead of dead-ending the recovery step.
+          expect(
+            JwtTokenCache.hasToken(
+              MOCK_SIGNIN_RECOVERY_LOCATION_STATE.sessionToken,
+              '2fa'
+            )
+          ).toBe(false);
         });
       });
 

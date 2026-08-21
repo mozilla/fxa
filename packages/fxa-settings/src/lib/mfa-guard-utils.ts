@@ -16,13 +16,18 @@ import { MfaScope } from './types';
  * Use this when checking the response from the auth server for an invalid JWT.
  * @param e - The error to check, must have code and errno properties.
  * @param scope - The scope to clear from the MFA and JWT cache.
+ * @param sessionTokenOverride - Session token whose cache entries should be
+ *   cleared. Defaults to the globally-cached session token. Pass this in hosts
+ *   (e.g. the Signin inline flows) whose guard is keyed on an injected session
+ *   token rather than the global one.
  * @returns true if the cache was cleared, false otherwise.
  */
 export const clearMfaAndJwtCacheOnInvalidJwt = (
   e: any,
-  scope: MfaScope
+  scope: MfaScope,
+  sessionTokenOverride?: string
 ): boolean => {
-  const sessionToken = getSessionToken();
+  const sessionToken = sessionTokenOverride ?? getSessionToken();
   if (!sessionToken) {
     // noop - we can't do anything without a session token
     return false;

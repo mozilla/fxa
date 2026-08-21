@@ -21,6 +21,8 @@ import {
 import { screen, waitFor } from '@testing-library/react';
 import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { MOCK_FLOW_ID } from '../Signin/mocks';
+import { ReactNode } from 'react';
+import { JwtTokenCache } from '../../lib/cache';
 
 const mockLocationHook = jest.fn();
 const mockNavigateHook = jest.fn();
@@ -33,9 +35,9 @@ jest.mock('react-router', () => {
 });
 
 const mockSessionHook = jest.fn();
-const mockVerifyTotpSetupCode = jest.fn();
+const mockVerifyTotpSetupCodeWithJwt = jest.fn();
 const mockSendVerificationCode = jest.fn();
-const mockCreateTotpToken = jest.fn();
+const mockCreateTotpTokenWithJwt = jest.fn();
 const mockCheckTotpTokenExists = jest.fn();
 
 jest.mock('../../models', () => {
@@ -43,12 +45,20 @@ jest.mock('../../models', () => {
     ...jest.requireActual('../../models'),
     useSession: () => mockSessionHook(),
     useAuthClient: () => ({
-      verifyTotpSetupCode: mockVerifyTotpSetupCode,
-      createTotpToken: mockCreateTotpToken,
+      verifyTotpSetupCodeWithJwt: mockVerifyTotpSetupCodeWithJwt,
+      createTotpTokenWithJwt: mockCreateTotpTokenWithJwt,
       checkTotpTokenExists: mockCheckTotpTokenExists,
     }),
   };
 });
+
+// The MFA email-OTP guard is unit-tested separately (MfaGuardCore); here it is a
+// pass-through so the enrolment (its children) renders directly. A mfa:2fa JWT
+// is seeded in setMocks so the JWT-guarded enrolment calls resolve.
+jest.mock('../../components/Settings/MfaGuard', () => ({
+  __esModule: true,
+  MfaGuardCore: ({ children }: { children: ReactNode }) => children,
+}));
 
 jest.mock('../../lib/glean', () => ({
   __esModule: true,
@@ -72,20 +82,24 @@ function setMocks() {
     search,
     state: MOCK_SIGNIN_LOCATION_STATE,
   });
-  mockVerifyTotpSetupCode.mockReset();
+  mockVerifyTotpSetupCodeWithJwt.mockReset();
   mockSendVerificationCode.mockReset();
-  mockCreateTotpToken.mockReset();
+  mockCreateTotpTokenWithJwt.mockReset();
   mockCheckTotpTokenExists.mockReset();
   mockSessionHook.mockReturnValue({
     isSessionVerified: async () => true,
     sendVerificationCode: mockSendVerificationCode,
   });
   // Default: TOTP doesn't exist, so we need to create one
-  mockCheckTotpTokenExists.mockResolvedValue({
-    exists: false,
-    verified: false,
-  });
-  mockCreateTotpToken.mockResolvedValue(MOCK_TOTP_TOKEN);
+  mockCheckTotpTokenExists.mockResolvedValue({ exists: false, verified: false });
+  mockCreateTotpTokenWithJwt.mockResolvedValue(MOCK_TOTP_TOKEN);
+  // Seed the mfa:2fa JWT the enrolment reads (the guard would have obtained it
+  // via email OTP; here it's pre-seeded so the guard pass-through renders).
+  JwtTokenCache.setToken(
+    MOCK_SIGNIN_LOCATION_STATE.sessionToken,
+    '2fa',
+    'test-jwt'
+  );
   jest.spyOn(InlineTotpSetupModule, 'default');
   (InlineTotpSetupModule.default as jest.Mock).mockReset();
   mockNavigateHook.mockReset();
@@ -226,7 +240,7 @@ describe('InlineTotpSetupContainer', () => {
 
       // Wait a bit to ensure the component has mounted
       await new Promise((resolve) => setTimeout(resolve, 100));
-      expect(mockCreateTotpToken).not.toHaveBeenCalled();
+      expect(mockCreateTotpTokenWithJwt).not.toHaveBeenCalled();
     });
 
     it('does not call createTotpToken when TOTP is already verified', async () => {
@@ -243,7 +257,7 @@ describe('InlineTotpSetupContainer', () => {
       await waitFor(() => {
         expect(mockNavigateHook).toHaveBeenCalled();
       });
-      expect(mockCreateTotpToken).not.toHaveBeenCalled();
+      expect(mockCreateTotpTokenWithJwt).not.toHaveBeenCalled();
     });
   });
 
@@ -299,7 +313,7 @@ describe('InlineTotpSetupContainer', () => {
     describe('callbacks', () => {
       describe('verifyCodeHandler', () => {
         it('throws an error when the server rejects the code', async () => {
-          mockVerifyTotpSetupCode.mockRejectedValue(new Error('bad'));
+          mockVerifyTotpSetupCodeWithJwt.mockRejectedValue(new Error('bad'));
           render();
           await waitFor(() => {
             expect(InlineTotpSetupModule.default).toHaveBeenCalled();
@@ -320,7 +334,7 @@ describe('InlineTotpSetupContainer', () => {
         });
 
         it('throws an error when checking the code errors', async () => {
-          mockVerifyTotpSetupCode.mockRejectedValue(new Error('err'));
+          mockVerifyTotpSetupCodeWithJwt.mockRejectedValue(new Error('err'));
           render();
           await waitFor(() => {
             expect(InlineTotpSetupModule.default).toHaveBeenCalled();
@@ -340,8 +354,35 @@ describe('InlineTotpSetupContainer', () => {
           }
         });
 
+        it('clears the cached JWT and rethrows the original error when the MFA token is invalid', async () => {
+          const invalidJwtError = Object.assign(new Error('invalid mfa token'), {
+            errno: AuthUiErrors.INVALID_MFA_TOKEN.errno,
+          });
+          mockVerifyTotpSetupCodeWithJwt.mockRejectedValue(invalidJwtError);
+          render();
+          await waitFor(() => {
+            expect(InlineTotpSetupModule.default).toHaveBeenCalled();
+          });
+          const args = (InlineTotpSetupModule.default as jest.Mock).mock
+            .calls[0][0];
+          const verifyCodeHandler = args.verifyCodeHandler;
+
+          expect(
+            JwtTokenCache.hasToken(MOCK_SIGNIN_LOCATION_STATE.sessionToken, '2fa')
+          ).toBe(true);
+
+          // Rethrown as-is, not mislabeled as INVALID_TOTP_CODE.
+          await expect(verifyCodeHandler('1010')).rejects.toBe(invalidJwtError);
+
+          // Token dropped so MfaGuardCore re-prompts for a fresh email OTP
+          // instead of retrying the dead JWT.
+          expect(
+            JwtTokenCache.hasToken(MOCK_SIGNIN_LOCATION_STATE.sessionToken, '2fa')
+          ).toBe(false);
+        });
+
         it('redirects to inline_recovery_setup when the code is valid', async () => {
-          mockVerifyTotpSetupCode.mockResolvedValue({ success: true });
+          mockVerifyTotpSetupCodeWithJwt.mockResolvedValue({ success: true });
           render();
           await waitFor(() => {
             expect(InlineTotpSetupModule.default).toHaveBeenCalled();
