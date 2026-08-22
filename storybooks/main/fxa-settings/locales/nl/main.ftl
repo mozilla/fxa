@@ -825,6 +825,9 @@ recent-activity-account-passwordless-login-otp-failed = Code voor aanmelden zond
 recent-activity-account-passwordless-login-otp-verified = Code voor aanmelden zonder wachtwoord geverifieerd
 recent-activity-account-passwordless-registration-complete = Wachtwoordloze accountregistratie voltooid
 recent-activity-account-recovery-codes-set = Herstelcodes ingesteld
+recent-activity-account-passkey-wrap-created = Wachtwoordsleutel voor synchronisatie ingeschakeld
+recent-activity-account-passkey-wrap-creation-failure = Synchronisatie instellen met wachtwoordsleutel mislukt
+recent-activity-account-passkey-wrap-invalidated = Wachtwoordsleutel-synchronisatietoegang verwijderd na opnieuw instellen wachtwoord
 recent-activity-unknown = Overige accountactiviteit
 
 

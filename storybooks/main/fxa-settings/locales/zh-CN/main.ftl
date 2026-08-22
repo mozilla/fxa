@@ -128,6 +128,7 @@ device-info-block-location-city-country = { $country }, { $city }（估计）
 device-info-block-location-country = { $country }（估计）
 device-info-block-location-unknown = 位置未知
 device-info-browser-os = { $genericOSName } 上的 { $browserName }
+device-info-browser-device = { $deviceName } 上的 { $browserName }
 device-info-ip-address = IP 地址：{ $ipAddress }
 
 
@@ -257,6 +258,10 @@ confetti-falling-image-aria-label =
     .aria-label = 五彩纸屑飘落动画
 vpn-welcome-image-aria-label =
     .aria-label = 带有圆形标记的 { -brand-firefox } 窗口，标记中显示绿色勾号和“VPN”，表示 VPN 已启用。
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox } 徽标
+password-success-image-aria-label =
+    .aria-label = 密码更改成功的图案。
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = 您已登录 { -brand-firefox }。
@@ -1220,6 +1225,9 @@ pair-unsupported-connecting-mobile-instructions-v2 = 在您的计算机上打开
 pair-unsupported-learn-more-link-v2 = 详细了解
 pair-unsupported-desktop-firefox-fallback-header-v2 = 哎呀！出了点问题。
 pair-unsupported-desktop-firefox-fallback-message-v2 = 请关闭此标签页并重试。
+
+
+pair2-supplicant-approve-sign-in-cancel-button = 取消
 
 
 service-welcome-signup-success-banner = 已确认 { -product-mozilla-account }
