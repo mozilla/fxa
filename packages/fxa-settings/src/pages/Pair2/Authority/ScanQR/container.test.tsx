@@ -191,31 +191,37 @@ describe('Pair2/Authority/ScanQR container', () => {
     }
   );
 
-  it('destroys the integration on unmount so leaving cannot leak a socket', async () => {
+  // The v2 flow keeps pairing on this channel after leaving the QR page, so
+  // unmount must not close it. Tearing down here also loses the channel under
+  // StrictMode: the cleanup's async destroy resolves after the remount's
+  // createChannel() has already returned early, leaving the QR advertising a
+  // closed channel. sync_success and timeout_and_cancel own teardown instead.
+  it('leaves the channel open on unmount so the rest of the flow can use it', async () => {
     const { unmount } = renderContainer();
     await waitFor(() => expect(integration.createChannel).toHaveBeenCalled());
 
     unmount();
 
-    expect(integration.destroy).toHaveBeenCalled();
+    expect(integration.destroy).not.toHaveBeenCalled();
   });
 
-  // Effect cleanup cannot await, so a rejected close has to be caught rather
-  // than escaping as an unhandled rejection.
-  it('reports a failed teardown to Sentry', async () => {
-    const err = new Error('close failed');
-    integration.destroy.mockRejectedValue(err);
+  it('drops its state handler on unmount so a later state change cannot route', async () => {
     const { unmount } = renderContainer();
     await waitFor(() => expect(integration.createChannel).toHaveBeenCalled());
 
     unmount();
 
-    await waitFor(() => expect(captureException).toHaveBeenCalledWith(err));
+    expect(integration.onStateChange).toBeNull();
   });
 
-  it('throws when handed an integration that is not the pairing authority', () => {
-    expect(() => renderContainer(MOCK_NON_PAIRING_INTEGRATION)).toThrow(
-      'Invalid integration type. Expected PairingAuthorityIntegration.'
+  // `useIntegration` recomputes on route change, and that rebuild is not
+  // synchronous with the navigation: the first render after arriving here still
+  // holds the previous page's integration. Throwing on it would kill the page
+  // before the right one lands, so the container waits instead.
+  it('waits rather than throwing when the integration is not yet the authority', () => {
+    expect(() => renderContainer(MOCK_NON_PAIRING_INTEGRATION)).not.toThrow();
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+      'Scan to connect your mobile device'
     );
   });
 

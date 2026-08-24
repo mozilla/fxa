@@ -366,12 +366,14 @@ export class MarionetteClient {
   }
 
   /**
-   * Take a screenshot of the current page.
-   * Returns the screenshot as a base64-encoded PNG string.
+   * Screenshot a single element, returned as a base64-encoded PNG.
+   *
+   * Scoped to the element rather than the viewport so the caller gets just
+   * that node's pixels, which is what an image decoder needs.
    */
-  async takeScreenshot(): Promise<string> {
+  async screenshotElement(elementId: string): Promise<string> {
     const result = await this.sendCommandWithRetry('WebDriver:TakeScreenshot', {
-      full: true,
+      id: elementId,
     });
     return this.extractValue(result) as string;
   }

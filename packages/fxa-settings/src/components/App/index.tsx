@@ -177,10 +177,10 @@ const PairSuppWaitForAuth = lazy(
 );
 
 const PairAuthorityApproveSignIn = lazy(
-  () => import('../../pages/Pair2/Authority/ApproveSignIn')
+  () => import('../../pages/Pair2/Authority/ApproveSignIn/container')
 );
 const PairAuthorityContinueOnMobile = lazy(
-  () => import('../../pages/Pair2/Authority/ContinueOnMobile')
+  () => import('../../pages/Pair2/Authority/ContinueOnMobile/container')
 );
 const PairAuthorityDownloadFirefox = lazy(
   () => import('../../pages/Pair2/Authority/DownloadFirefox')
@@ -192,15 +192,15 @@ const PairAuthoritySyncSuccess = lazy(
   () => import('../../pages/Pair2/Authority/SyncSuccess')
 );
 const PairAuthorityTimeoutAndCancel = lazy(
-  () => import('../../pages/Pair2/Authority/TimeoutAndCancel')
+  () => import('../../pages/Pair2/Authority/TimeoutAndCancel/container')
 );
 
 
 const PairSupplicantApproveSignIn = lazy(
-  () => import('../../pages/Pair2/Supplicant/ApproveSignIn')
+  () => import('../../pages/Pair2/Supplicant/ApproveSignIn/container')
 );
 const PairSupplicantConnectThisDevice = lazy(
-  () => import('../../pages/Pair2/Supplicant/ConnectThisDevice')
+  () => import('../../pages/Pair2/Supplicant/ConnectThisDevice/container')
 );
 const PairSupplicantDownloadFirefox = lazy(
   () => import('../../pages/Pair2/Supplicant/DownloadFirefox')
@@ -1070,26 +1070,11 @@ const AuthAndAccountSetupRoutes = ({
         />
         <Route
           path="/pair/authority/approve_signin/*"
-          element={<PairAuthorityApproveSignIn {...{
-            email: 'foo@mozilla.com',
-            remoteMetadata: {
-              deviceFamily: 'Mobile',
-              deviceOS: 'iOS',
-              ipAddress: '127.0.0.1',
-            },
-            onApprove: () => {
-              console.log('TBD!')
-            },
-            onChangePassword: () => {
-              console.log('TBD!')
-            }
-          }} />}
+          element={<PairAuthorityApproveSignIn integration={integration} />}
         />
         <Route
           path="/pair/authority/continue_on_mobile/*"
-          element={<PairAuthorityContinueOnMobile {...{
-            onCancel: () => console.log('TBD')
-          }} />}
+          element={<PairAuthorityContinueOnMobile integration={integration} />}
         />
         <Route
           path="/pair/authority/download_firefox/*"
@@ -1105,7 +1090,7 @@ const AuthAndAccountSetupRoutes = ({
         />
         <Route
           path="/pair/authority/timeout_and_cancel/*"
-          element={<PairAuthorityTimeoutAndCancel />}
+          element={<PairAuthorityTimeoutAndCancel integration={integration} />}
         />
         <Route
           path="/pair/supplicant/approve_signin/*"

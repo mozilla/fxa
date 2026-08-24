@@ -240,6 +240,9 @@ const ConnectAnotherDevice = ({
           fxaStatus.pairingEnabled === true &&
           fxaStatus.pairingVersion === 2
         ) {
+          // Hard navigation, as the v1 `/pair` entry below already does: the
+          // integration is built from the URL at page load, so the authority
+          // pages only get a PairingAuthorityIntegration on a real load.
           hardNavigate('/pair/authority/scan_qr', {}, true);
           return;
         }

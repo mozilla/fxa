@@ -15,6 +15,10 @@ import {
   PairSupplicantMetadataResponse,
 } from '../../lib/channels/firefox';
 import { RemoteMetadata } from '../../lib/types';
+import {
+  plog,
+  SupplicantOAuthRequest,
+} from '../../lib/channels/pairing-flow';
 import UAParser from 'ua-parser-js';
 import { toGenericOSName } from '../../lib/utilities';
 import config from '../../lib/config';
@@ -63,26 +67,121 @@ export enum AuthorityState {
  *
  * Ported from: fxa-content-server/app/scripts/models/auth_brokers/pairing/authority.js
  */
+/**
+ * Live authority pairing session, shared across PairingAuthorityIntegration
+ * instances. See the note on `_channel` for why it cannot be instance state.
+ *
+ * Built by a factory so the fields are declared once: `resetAuthoritySession`
+ * cannot then miss one that is added later.
+ */
+function newAuthoritySession() {
+  return {
+    channel: null as PairingChannelClient | null,
+    state: null as AuthorityState | null,
+    remoteMetadata: null as RemoteMetadata | null,
+    supplicantOAuth: null as SupplicantOAuthRequest | null,
+    suppAuthorized: false,
+    authAuthorized: false,
+    completing: false,
+    pendingGrant: false,
+    onSuppComplete: null as (() => void) | null,
+    onSuppAuthorized: null as (() => void) | null,
+    onError: null as ((error: unknown) => void) | null,
+    onStateChange: null as ((state: AuthorityState) => void) | null,
+  };
+}
+
+const authoritySession = newAuthoritySession();
+
+/** Clear the session, so one test's channel cannot leak into the next. */
+export function resetAuthoritySession(): void {
+  Object.assign(authoritySession, newAuthoritySession());
+}
+
 export class PairingAuthorityIntegration extends OAuthWebIntegration {
   private static readonly TERMINAL_STATES = new Set([
     AuthorityState.Complete,
     AuthorityState.Failed,
   ]);
 
-  private _channel: PairingChannelClient | null = null;
-  private _state: AuthorityState | null = null;
+  // Session state lives at module scope because `useIntegration` rebuilds the
+  // integration on navigation. Instance state would be dropped between scan_qr
+  // and approve_signin, taking the handshake with it.
+  private get _channel(): PairingChannelClient | null {
+    return authoritySession.channel;
+  }
+  private set _channel(v: PairingChannelClient | null) {
+    authoritySession.channel = v;
+  }
+  private get _state(): AuthorityState | null {
+    return authoritySession.state;
+  }
+  private set _state(v: AuthorityState | null) {
+    authoritySession.state = v;
+  }
 
   private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
-  private _remoteMetadata: RemoteMetadata | null = null;
+  private get _remoteMetadata(): RemoteMetadata | null {
+    return authoritySession.remoteMetadata;
+  }
+  private set _remoteMetadata(v: RemoteMetadata | null) {
+    authoritySession.remoteMetadata = v;
+  }
   private _metadataPromise: Promise<RemoteMetadata> | null = null;
-  private _suppAuthorized = false;
-  private _authAuthorized = false;
+  private get _suppAuthorized(): boolean {
+    return authoritySession.suppAuthorized;
+  }
+  private set _suppAuthorized(v: boolean) {
+    authoritySession.suppAuthorized = v;
+  }
+  private get _authAuthorized(): boolean {
+    return authoritySession.authAuthorized;
+  }
+  private set _authAuthorized(v: boolean) {
+    authoritySession.authAuthorized = v;
+  }
   private _cachedChannelId: string | null = null;
 
-  public onSuppAuthorized: (() => void) | null = null;
+  // v2 mints the code here via pair_oauth_finish rather than in Firefox, so the
+  // authority needs the supplicant's OAuth params and its own channel send.
+  private get _supplicantOAuth(): SupplicantOAuthRequest | null {
+    return authoritySession.supplicantOAuth;
+  }
+  private set _supplicantOAuth(v: SupplicantOAuthRequest | null) {
+    authoritySession.supplicantOAuth = v;
+  }
+  private get _completing(): boolean {
+    return authoritySession.completing;
+  }
+  private set _completing(v: boolean) {
+    authoritySession.completing = v;
+  }
+
+  public get onSuppComplete(): (() => void) | null {
+    return authoritySession.onSuppComplete;
+  }
+  public set onSuppComplete(v: (() => void) | null) {
+    authoritySession.onSuppComplete = v;
+  }
+  public get onSuppAuthorized(): (() => void) | null {
+    return authoritySession.onSuppAuthorized;
+  }
+  public set onSuppAuthorized(v: (() => void) | null) {
+    authoritySession.onSuppAuthorized = v;
+  }
   public onHeartbeatError: ((err: unknown) => void) | null = null;
-  public onError: ((error: unknown) => void) | null = null;
-  public onStateChange: ((state: AuthorityState) => void) | null = null;
+  public get onError(): ((error: unknown) => void) | null {
+    return authoritySession.onError;
+  }
+  public set onError(v: ((error: unknown) => void) | null) {
+    authoritySession.onError = v;
+  }
+  public get onStateChange(): ((state: AuthorityState) => void) | null {
+    return authoritySession.onStateChange;
+  }
+  public set onStateChange(v: ((state: AuthorityState) => void) | null) {
+    authoritySession.onStateChange = v;
+  }
 
   constructor(
     data: ModelDataStore,
@@ -144,6 +243,10 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
       'remote:pair:supp:authorize',
       this.handleSuppAuthorize
     );
+    channel.addEventListener(
+      'remote:pair:supp:complete',
+      this.handleSuppComplete
+    );
 
     try {
       await channel.create(config.pairing.serverBaseUri);
@@ -161,6 +264,10 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
    * guard here.
    */
   private handleClose = () => {
+    // A close during completion is the supplicant finishing, not an abort.
+    if (this._completing) {
+      return;
+    }
     this.fail({
       errno: 1006,
       message: 'Connection to remote device closed, please try again',
@@ -172,11 +279,13 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
   };
 
   private setState(state: AuthorityState): void {
+    plog('auth state ->', state);
     this._state = state;
     this.onStateChange?.(state);
   }
 
   private fail(err: unknown): void {
+    plog('auth fail', (err as { message?: string })?.message ?? String(err));
     if (
       this._state &&
       PairingAuthorityIntegration.TERMINAL_STATES.has(this._state)
@@ -188,6 +297,7 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
   }
 
   private handleConnected = () => {
+    plog('auth channel connected');
     this.setState(AuthorityState.WaitingForMetadata);
   };
 
@@ -208,9 +318,23 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
    *    asking, and the only field of the message we consume.
    */
   private handleSuppRequest = (event: Event) => {
+    plog('auth recv <- pair:supp:request');
     const data = (event as CustomEvent).detail as PairingChannelIncomingMessage;
     if (data?.remoteMetaData) {
       this._remoteMetadata = toRemoteMetadata(data.remoteMetaData);
+    }
+    // pair_oauth_finish needs these to mint a code bound to the supplicant's
+    // own PKCE verifier and keys_jwk.
+    const req = data as unknown as Partial<SupplicantOAuthRequest>;
+    if (req?.client_id && req?.state) {
+      this._supplicantOAuth = {
+        client_id: req.client_id,
+        state: req.state,
+        scope: req.scope ?? '',
+        code_challenge: req.code_challenge ?? '',
+        code_challenge_method: req.code_challenge_method,
+        keys_jwk: req.keys_jwk ?? '',
+      };
     }
     this.setState(AuthorityState.WaitingForAuthorizations);
   };
@@ -226,10 +350,21 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
    * rejected anything without a well-formed envelope and sender, so the detail
    * is deliberately not read here.
    */
+  /** v2: the supplicant finished its OAuth exchange and is signed in. */
+  private handleSuppComplete = () => {
+    this._completing = true;
+    this.onSuppComplete?.();
+  };
+
   private handleSuppAuthorize = () => {
     if (!this._suppAuthorized) {
       this._suppAuthorized = true;
       this.onSuppAuthorized?.();
+    }
+
+    // The authority already approved and was waiting on this.
+    if (authoritySession.pendingGrant) {
+      this.grantOAuthCode().catch((err) => Sentry.captureException(err));
     }
 
     if (this._state === AuthorityState.WaitingForAuthorizations) {
@@ -409,6 +544,90 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
     }
   }
 
+  /** The OAuth params the supplicant sent, needed by pair_oauth_finish. */
+  get supplicantOAuth(): SupplicantOAuthRequest | null {
+    return this._supplicantOAuth;
+  }
+
+  /**
+   * v2 authority approval. Where `authorize()` hands the channel work to
+   * Firefox via `fxaccounts:pair_authorize`, v2 mints the code here through
+   * `pair_oauth_finish` and relays it over the channel FxA owns.
+   *
+   * Returns false when there is nothing to authorize, so the caller can stay on
+   * the approval screen rather than navigate into a dead flow.
+   */
+  async authorizeV2(): Promise<boolean> {
+    const req = this._supplicantOAuth;
+    if (!req || !this._channel) {
+      return false;
+    }
+    this._authAuthorized = true;
+
+    // The supplicant only listens for `pair:auth:authorize` once its user taps
+    // Connect, so sending before then is lost. Approving first is normal:
+    // defer the grant until `pair:supp:authorize` arrives.
+    if (!this._suppAuthorized) {
+      plog('auth approved first; waiting for the supplicant');
+      authoritySession.pendingGrant = true;
+      this.setState(AuthorityState.WaitingForSupplicant);
+      return true;
+    }
+    return this.grantOAuthCode();
+  }
+
+  /**
+   * Reply to `pair:supp:request` with the details the supplicant shows on its
+   * confirmation card. It waits for this before advancing, so omitting it
+   * stalls the handshake with both sides connected.
+   *
+   * A page passes them in: the supplicant is not signed in, so these are the
+   * authority's own account fields.
+   */
+  async sendAuthorityMetadata(meta: {
+    email?: string;
+    displayName?: string;
+    avatar?: string;
+  }): Promise<void> {
+    if (!this._channel) {
+      return;
+    }
+    plog('auth send -> pair:auth:metadata');
+    await this._channel.send('pair:auth:metadata', {
+      email: meta.email,
+      displayName: meta.displayName,
+      avatar: meta.avatar,
+      deviceName: undefined,
+    });
+  }
+
+  /** Mint the code and relay it over the channel. */
+  private async grantOAuthCode(): Promise<boolean> {
+    const req = this._supplicantOAuth;
+    if (!req || !this._channel) {
+      return false;
+    }
+    authoritySession.pendingGrant = false;
+    const finished = await firefox.pairOauthFinish({
+      client_id: req.client_id,
+      state: req.state,
+      scope: req.scope,
+      code_challenge: req.code_challenge,
+      code_challenge_method: req.code_challenge_method,
+      keys_jwk: req.keys_jwk,
+    });
+    if (!finished) {
+      plog('auth pair_oauth_finish returned nothing');
+      return false;
+    }
+    plog('auth send -> pair:auth:authorize');
+    await this._channel.send('pair:auth:authorize', {
+      code: finished.code,
+      state: finished.state,
+    });
+    return true;
+  }
+
   /** Authority user declined the pairing request. */
   async decline(): Promise<void> {
     this.stopHeartbeat();
@@ -425,6 +644,7 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
   async destroy() {
     this.stopHeartbeat();
     this.onSuppAuthorized = null;
+    this.onSuppComplete = null;
     this.onHeartbeatError = null;
 
     this.onStateChange = null;
@@ -437,6 +657,10 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
       this._channel.removeEventListener(
         'remote:pair:supp:request',
         this.handleSuppRequest
+      );
+      this._channel.removeEventListener(
+        'remote:pair:supp:complete',
+        this.handleSuppComplete
       );
       this._channel.removeEventListener(
         'remote:pair:supp:authorize',

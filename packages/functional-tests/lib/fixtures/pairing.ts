@@ -10,7 +10,7 @@
  * (desktop) side of the pairing flow.
  */
 
-import { firefox } from 'playwright';
+import { resolveAuthorityBinary } from '../firefox-binary';
 import { MarionetteFirefox } from '../marionette-firefox';
 import { test as standardTest, TestOptions } from './standard';
 
@@ -20,10 +20,7 @@ export type PairingTestOptions = TestOptions & {
 
 export const test = standardTest.extend<PairingTestOptions>({
   marionetteAuthority: async ({ target }, use, testInfo) => {
-    // Use Playwright's bundled Firefox by default — it's already downloaded
-    // in CI and locally. Override with FIREFOX_BINARY env if needed.
-    const firefoxBinary =
-      process.env.FIREFOX_BINARY || firefox.executablePath();
+    const firefoxBinary = resolveAuthorityBinary();
     const channelServerUri =
       process.env.CHANNEL_SERVER_URI ||
       (await fetchChannelServerUri(target.contentServerUrl));
