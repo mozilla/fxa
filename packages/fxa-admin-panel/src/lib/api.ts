@@ -18,6 +18,7 @@ import type {
   WafBypassTokenDto,
   WafBypassTokenCreateDto,
   DomainBlocklistEntry,
+  DomainBlocklistSyncResult,
   OAuthScopeDto,
   OAuthScopeCreateDto,
 } from 'fxa-admin-server/src/types';
@@ -341,6 +342,13 @@ export const adminApi = {
 
   deleteAllDomainBlocklistEntries(): Promise<{ ok: boolean }> {
     return apiFetch('/api/domain-blocklist/all', { method: 'DELETE' });
+  },
+
+  syncDomainBlocklist(url: string): Promise<DomainBlocklistSyncResult> {
+    return apiFetch('/api/domain-blocklist/sync', {
+      method: 'POST',
+      body: JSON.stringify({ url }),
+    });
   },
 
   // ---- OAuth scopes ----
