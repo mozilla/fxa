@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit a916dc39410cf0e484693f4b438660496a728ca7</title>
+  <title>Storybooks for commit e726cbb4c8694d8157961f867354de69cc2dd377</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,27 +23,25 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit a916dc39410cf0e484693f4b438660496a728ca7</h1>
+  <h1>Storybooks for commit e726cbb4c8694d8157961f867354de69cc2dd377</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/24/2026, 7:47:34 PM UTC</dd>
+    <dd>8/24/2026, 8:48:26 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>refactor(settings): scope inline TOTP MFA guard to enrolment step</pre></dd>
+    <dd><pre>test(functional): reorder inline TOTP guard to after Continue</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-- The email-OTP was demanded on page load, before the user saw the
-  &quot;set up two-step authentication&quot; prompt.
-- Guarding the intro forced an OTP round-trip even for users who never
-  proceed to enrolment.
+- The MFA email-OTP guard now gates only the enrolment step, so it
+  appears after Continue rather than on page load (FXA-14407).
 
 This commit:
-- Move MfaGuardCore into index.tsx so it wraps only the enrolment step.
-- Move InlineTotpEnrolment (JWT-guarded createTotp/verify) into index.tsx.
-- Reshape InlineTotpSetup props; container becomes a sanity-check wrapper.
-- Update stories and split the guard/enrolment tests into index.test.tsx.</pre></dd>
+- Reorder completeInlineSetupWithBackupCodes: intro, Continue, then guard.
+- Reorder the inline TOTP OAuth specs to confirm the guard after Continue.
+- Assert the passkey banner/intro before the guard in passkey-signin specs.
+- Remove the orphaned inlineTotpSetup.confirmMfaGuardIfVisible helper.</pre></dd>
   </dl>
 </body>
 </html>
