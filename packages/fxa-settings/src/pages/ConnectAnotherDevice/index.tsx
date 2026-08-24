@@ -16,7 +16,7 @@ import { getBasicAccountData } from '../../lib/account-storage';
 import firefox, { buildSyncOAuthSearch } from '../../lib/channels/firefox';
 import GleanMetrics from '../../lib/glean';
 import AppLayout from '../../components/AppLayout';
-import { navigateWithQuery } from '../../lib/utilities';
+import { UseFxAStatusResult } from '../../lib/hooks';
 
 export type ConnectAnotherDeviceProps = {
   email?: string;
@@ -27,8 +27,7 @@ export type ConnectAnotherDeviceProps = {
   isSignIn?: boolean;
   canSignIn?: boolean;
   device?: Devices;
-  pairingEnabled?: boolean;
-  pairingVersion?: number;
+  fxaStatus: UseFxAStatusResult;
 };
 
 export enum Devices {
@@ -106,8 +105,7 @@ const ConnectAnotherDevice = ({
   isSignIn: isSignInProp,
   canSignIn: canSignInProp,
   device: deviceProp,
-  pairingEnabled: pairingEnabledProp,
-  pairingVersion: pairingVersionProp,
+  fxaStatus
 }: ConnectAnotherDeviceProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
@@ -194,7 +192,18 @@ const ConnectAnotherDevice = ({
     );
   }, [entrypoint, searchParams]);
 
+  // The browser's pairing capabilities arrive asynchronously over the web
+  // channel, so they start out undefined.
+  const capabilitiesResolved = fxaStatus.pairingVersion !== undefined;
+
   useEffect(() => {
+    // Deciding the pairing route before the capabilities land would read an
+    // unresolved v2 browser as v1 and hard-navigate out of the v2 flow, so the
+    // whole bootstrap waits rather than just the render below.
+    if (!capabilitiesResolved) {
+      return;
+    }
+
     if (propsDriveRender) {
       GleanMetrics.cad.view();
       return;
@@ -225,19 +234,20 @@ const ConnectAnotherDevice = ({
       );
       if (browserSignedIn && isEligibleForPairing()) {
 
-        // Check that FxA has pairing version 2 supported. And that the current Firefox
-        // instance also supports version 2. If so send user into the v2 pairing flow!
-        if (config.pairing.version === 2) {
-          if (pairingEnabledProp === true && pairingVersionProp === 2) {
-            navigateWithQuery('/pair/authority/scan_qr');
-            return;
-          }
+        // Both FxA and Firefox have to signal that pairing v2 is enabled!
+        if (
+          config.pairing.version === 2 &&
+          fxaStatus.pairingEnabled === true &&
+          fxaStatus.pairingVersion === 2
+        ) {
+          hardNavigate('/pair/authority/scan_qr', {}, true);
+          return;
         }
 
         // Escape hatch. Allow the query params to force a v2 pairing flow. Useuful initially for testing, probably
         // won't stick around forever...
         if (searchParams.get('v') === '2') {
-          navigateWithQuery('/pair/authority/scan_qr');
+          hardNavigate('/pair/authority/scan_qr', {}, true);
           return;
         }
 
@@ -260,9 +270,9 @@ const ConnectAnotherDevice = ({
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [capabilitiesResolved]);
 
-  if (bootstrapping) {
+  if (bootstrapping || !capabilitiesResolved) {
     return <LoadingSpinner fullScreen />;
   }
 

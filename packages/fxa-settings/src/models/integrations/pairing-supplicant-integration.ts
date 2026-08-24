@@ -11,11 +11,10 @@ import {
 import {
   PairingChannelClient,
   PairingChannelIncomingMessage,
+  toRemoteMetadata,
 } from '../../lib/channels/pairing-channel';
 import { firefox } from '../../lib/channels/firefox';
 import { RemoteMetadata } from '../../lib/types';
-import UAParser from 'ua-parser-js';
-import { toGenericOSName } from '../../lib/utilities';
 import config from '../../lib/config';
 
 /** Redirect URI used by OAuth WebChannel reliers (matches Backbone Constants.OAUTH_WEBCHANNEL_REDIRECT) */
@@ -108,6 +107,13 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
   }
 
   /**
+   * Signals that the integration supports pairing. Which in this case will always be true.
+   */
+  isPairing(): boolean {
+    return true;
+  }
+
+  /**
    * Validate that the client_id is in the pairing allowlist.
    * Matches Backbone supplicant.js behavior which throws INVALID_PAIRING_CLIENT.
    * Called by the integration factory after construction.
@@ -196,6 +202,7 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     channelKey: string
   ): Promise<void> {
     if (this._channel) {
+      console.warn('Pairing channel already open!');
       return; // already open
     }
 
@@ -270,19 +277,10 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     this._email = data.email || '';
 
     if (data.remoteMetaData) {
-      const parser = new UAParser(data.remoteMetaData.ua || '');
-      const browser = parser.getBrowser();
-      const os = parser.getOS();
-
-      this._remoteMetadata = {
-        city: data.remoteMetaData.city,
-        country: data.remoteMetaData.country,
-        region: data.remoteMetaData.region,
-        ipAddress: data.remoteMetaData.ipAddress || '',
-        deviceFamily: browser.name || 'Unknown',
-        deviceOS: toGenericOSName(os.name || ''),
-        deviceName: data.deviceName || browser.name || 'Unknown',
-      };
+      this._remoteMetadata = toRemoteMetadata(
+        data.remoteMetaData,
+        data.deviceName
+      );
     }
 
     this.setState(SupplicantState.WaitingForAuthorizations);
