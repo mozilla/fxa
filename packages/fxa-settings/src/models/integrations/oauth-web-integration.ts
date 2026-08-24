@@ -379,6 +379,23 @@ export class OAuthWebIntegration extends GenericIntegration<
   }
 }
 
+export function normalizeError(
+    err: unknown
+  ): Error | { errno: number; message: string } {
+    if (err instanceof Error) {
+      return err;
+    }
+    if (
+      typeof err === 'object' &&
+      err !== null &&
+      'errno' in err &&
+      'message' in err
+    ) {
+      return err as { errno: number; message: string };
+    }
+    return new Error(String(err));
+  }
+
 export function scopeStrToArray(scopes: string) {
   const arrScopes = scopes
     .trim()

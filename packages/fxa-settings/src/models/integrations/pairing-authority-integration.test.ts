@@ -3,7 +3,41 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { GenericData } from '../../lib/model-data';
-import { PairingAuthorityIntegration } from './pairing-authority-integration';
+import {
+  AuthorityState,
+  PairingAuthorityIntegration,
+} from './pairing-authority-integration';
+
+const CHANNEL_SERVER_URI = 'wss://channel.example.com';
+
+const mockCreate = jest.fn().mockResolvedValue(undefined);
+const mockChannelClose = jest.fn().mockResolvedValue(undefined);
+const mockRemoveEventListener = jest.fn();
+let mockListeners: Record<string, Function[]> = {};
+
+jest.mock('../../lib/channels/pairing-channel', () => {
+  const actual = jest.requireActual('../../lib/channels/pairing-channel');
+  return {
+    ...actual,
+    PairingChannelClient: jest.fn().mockImplementation(() => ({
+      create: mockCreate,
+      close: mockChannelClose,
+      channelId: 'chan-1',
+      channelKey: 'key-1',
+      addEventListener: jest.fn((type: string, handler: Function) => {
+        (mockListeners[type] ||= []).push(handler);
+      }),
+      removeEventListener: mockRemoveEventListener,
+    })),
+  };
+});
+
+/** Deliver a channel event the way `PairingChannelClient` would. */
+function emit(type: string, detail?: unknown) {
+  (mockListeners[type] || []).forEach((handler) =>
+    handler(new CustomEvent(type, { detail }))
+  );
+}
 
 const mockPairSupplicantMetadata = jest.fn();
 const mockPairHeartbeat = jest.fn();
@@ -24,7 +58,9 @@ jest.mock('../../lib/channels/firefox', () => ({
 
 jest.mock('../../lib/config', () => ({
   __esModule: true,
-  default: { pairing: { clients: [] } },
+  default: {
+    pairing: { clients: [], serverBaseUri: 'wss://channel.example.com' },
+  },
 }));
 
 function createIntegration(
@@ -56,6 +92,9 @@ describe('PairingAuthorityIntegration', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
+    mockListeners = {};
+    mockCreate.mockResolvedValue(undefined);
+    mockChannelClose.mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -179,7 +218,7 @@ describe('PairingAuthorityIntegration', () => {
       await Promise.resolve();
 
       expect(onHeartbeatError).toHaveBeenCalled();
-      integration.destroy();
+      await integration.destroy();
     });
 
     it('does not start twice', () => {
@@ -190,7 +229,7 @@ describe('PairingAuthorityIntegration', () => {
       integration.stopHeartbeat();
     });
 
-    it('calls onHeartbeatError when channelId is missing', () => {
+    it('calls onHeartbeatError when channelId is missing', async () => {
       // No channel_id in URL or channelData
       Object.defineProperty(window, 'location', {
         value: { search: '' },
@@ -204,7 +243,7 @@ describe('PairingAuthorityIntegration', () => {
 
       expect(onHeartbeatError).toHaveBeenCalled();
       expect(mockPairHeartbeat).not.toHaveBeenCalled();
-      integration.destroy();
+      await integration.destroy();
     });
 
     it('stops heartbeat when pairHeartbeat rejects', async () => {
@@ -219,7 +258,7 @@ describe('PairingAuthorityIntegration', () => {
       await Promise.resolve();
 
       expect(onHeartbeatError).toHaveBeenCalled();
-      integration.destroy();
+      await integration.destroy();
     });
 
     it('skips overlapping heartbeat ticks', async () => {
@@ -281,17 +320,289 @@ describe('PairingAuthorityIntegration', () => {
     });
   });
 
+  describe('isPairing', () => {
+    it('returns true', () => {
+      expect(createIntegration().isPairing()).toBe(true);
+    });
+  });
+
+  describe('pairing channel', () => {
+    let integration: PairingAuthorityIntegration;
+    let onStateChange: jest.Mock;
+    let onError: jest.Mock;
+
+    beforeEach(() => {
+      integration = createIntegration();
+      onStateChange = jest.fn();
+      onError = jest.fn();
+      integration.onStateChange = onStateChange;
+      integration.onError = onError;
+    });
+
+    describe('createChannel', () => {
+      it('creates a channel against the configured channel server', async () => {
+        await integration.createChannel();
+
+        expect(mockCreate).toHaveBeenCalledWith(CHANNEL_SERVER_URI);
+        expect(integration.hasChannel()).toBe(true);
+      });
+
+      it('does not create a second channel', async () => {
+        await integration.createChannel();
+        await integration.createChannel();
+
+        expect(mockCreate).toHaveBeenCalledTimes(1);
+      });
+
+      it('rethrows and fails when the channel cannot be created', async () => {
+        const err = new Error('channel server unreachable');
+        mockCreate.mockRejectedValueOnce(err);
+
+        await expect(integration.createChannel()).rejects.toThrow(
+          'channel server unreachable'
+        );
+        expect(integration.state).toBe(AuthorityState.Failed);
+        expect(onError).toHaveBeenCalledWith(err);
+      });
+
+      it('drops the channel after a failed create so it can be retried', async () => {
+        mockCreate.mockRejectedValueOnce(new Error('nope'));
+        await expect(integration.createChannel()).rejects.toThrow('nope');
+
+        expect(integration.hasChannel()).toBe(false);
+
+        await integration.createChannel();
+        expect(mockCreate).toHaveBeenCalledTimes(2);
+      });
+    });
+
+    describe('getPairUrl', () => {
+      it('encodes the channel credentials in the fragment', async () => {
+        await integration.createChannel();
+
+        expect(integration.getPairUrl('2')).toBe(
+          `${window.location.origin}/pair#channel_id=chan-1&channel_key=key-1&v=2`
+        );
+      });
+
+      // Better to fail loudly than to render a QR that scans to a channel the
+      // supplicant cannot join.
+      it('throws before the channel exists', () => {
+        expect(() => integration.getPairUrl('2')).toThrow(
+          'Cannot build a pair URL before the channel is created.'
+        );
+      });
+    });
+
+    describe('state machine', () => {
+      beforeEach(async () => {
+        await integration.createChannel();
+      });
+
+      it('waits for metadata once connected', () => {
+        emit('connected');
+
+        expect(integration.state).toBe(AuthorityState.WaitingForMetadata);
+        expect(onStateChange).toHaveBeenCalledWith(
+          AuthorityState.WaitingForMetadata
+        );
+      });
+
+      // The supplicant's request carries no email or device name — it is not
+      // signed in yet — so only the sender envelope is consumed.
+      it('records the supplicant device details from its request', () => {
+        emit('connected');
+
+        emit('remote:pair:supp:request', {
+          remoteMetaData: {
+            city: 'Vancouver',
+            country: 'Canada',
+            region: 'British Columbia',
+            ipAddress: '127.0.0.1',
+            ua: 'Mozilla/5.0 (Android 14; Mobile; rv:120.0) Gecko/120.0 Firefox/120.0',
+          },
+        });
+
+        expect(integration.remoteMetadata).toEqual({
+          city: 'Vancouver',
+          country: 'Canada',
+          region: 'British Columbia',
+          ipAddress: '127.0.0.1',
+          deviceFamily: 'Firefox',
+          deviceOS: 'Android',
+          deviceName: 'Firefox',
+        });
+        expect(integration.state).toBe(AuthorityState.WaitingForAuthorizations);
+      });
+
+      it('still advances when the request carries no sender metadata', () => {
+        emit('connected');
+
+        emit('remote:pair:supp:request', {});
+
+        expect(integration.remoteMetadata).toBeNull();
+        expect(integration.state).toBe(AuthorityState.WaitingForAuthorizations);
+      });
+
+      it('supplicant first: waits for the authority, then completes', async () => {
+        emit('connected');
+        emit('remote:pair:supp:request', {});
+
+        emit('remote:pair:supp:authorize');
+        expect(integration.state).toBe(AuthorityState.WaitingForAuthority);
+
+        await integration.authorize();
+        expect(integration.state).toBe(AuthorityState.Complete);
+      });
+
+      it('authority first: waits for the supplicant, then completes', async () => {
+        emit('connected');
+        emit('remote:pair:supp:request', {});
+
+        await integration.authorize();
+        expect(integration.state).toBe(AuthorityState.WaitingForSupplicant);
+
+        emit('remote:pair:supp:authorize');
+        expect(integration.state).toBe(AuthorityState.Complete);
+      });
+
+      // The v1 heartbeat reports the same fact, so the two sources must not
+      // each fire the callback.
+      it('signals supplicant approval once', () => {
+        const onSuppAuthorized = jest.fn();
+        integration.onSuppAuthorized = onSuppAuthorized;
+        emit('connected');
+        emit('remote:pair:supp:request', {});
+
+        emit('remote:pair:supp:authorize');
+        emit('remote:pair:supp:authorize');
+
+        expect(onSuppAuthorized).toHaveBeenCalledTimes(1);
+        expect(integration.suppAuthorized).toBe(true);
+      });
+    });
+
+    describe('failures', () => {
+      beforeEach(async () => {
+        await integration.createChannel();
+        emit('connected');
+      });
+
+      it('fails with errno 1006 when the channel closes before completion', () => {
+        emit('close');
+
+        expect(integration.state).toBe(AuthorityState.Failed);
+        expect(onError).toHaveBeenCalledWith({
+          errno: 1006,
+          message: 'Connection to remote device closed, please try again',
+        });
+      });
+
+      it('fails with the channel error detail', () => {
+        const err = new Error('socket exploded');
+
+        emit('error', err);
+
+        expect(integration.state).toBe(AuthorityState.Failed);
+        expect(onError).toHaveBeenCalledWith(err);
+      });
+
+      it('normalizes a non-Error channel failure', () => {
+        emit('error', 'something went wrong');
+
+        expect(onError).toHaveBeenCalledWith(
+          expect.objectContaining({ message: 'something went wrong' })
+        );
+      });
+
+      // A close after the handshake is the expected teardown, not a failure.
+      it('ignores a close once the flow has completed', async () => {
+        emit('remote:pair:supp:request', {});
+        emit('remote:pair:supp:authorize');
+        await integration.authorize();
+        expect(integration.state).toBe(AuthorityState.Complete);
+
+        emit('close');
+
+        expect(integration.state).toBe(AuthorityState.Complete);
+        expect(onError).not.toHaveBeenCalled();
+      });
+
+      it('does not re-fail once already failed', () => {
+        emit('close');
+        emit('error', new Error('and again'));
+
+        expect(onError).toHaveBeenCalledTimes(1);
+      });
+    });
+  });
+
   describe('destroy', () => {
-    it('cleans up timers and callbacks', () => {
+    it('cleans up timers and callbacks', async () => {
       const integration = createIntegration();
       integration.onSuppAuthorized = jest.fn();
       integration.onHeartbeatError = jest.fn();
       integration.startHeartbeat();
 
-      integration.destroy();
+      await integration.destroy();
 
       expect(integration.onSuppAuthorized).toBeNull();
       expect(integration.onHeartbeatError).toBeNull();
+    });
+
+    it('clears the pairing callbacks', async () => {
+      const integration = createIntegration();
+      integration.onStateChange = jest.fn();
+      integration.onError = jest.fn();
+
+      await integration.destroy();
+
+      expect(integration.onStateChange).toBeNull();
+      expect(integration.onError).toBeNull();
+    });
+
+    it('closes the channel and drops it', async () => {
+      const integration = createIntegration();
+      await integration.createChannel();
+
+      await integration.destroy();
+
+      expect(mockChannelClose).toHaveBeenCalled();
+      expect(integration.hasChannel()).toBe(false);
+    });
+
+    // A listener left on a closed channel would keep the integration alive and
+    // able to fire callbacks the page has already torn down.
+    it('removes every channel listener it registered', async () => {
+      const integration = createIntegration();
+      await integration.createChannel();
+
+      await integration.destroy();
+
+      expect(
+        mockRemoveEventListener.mock.calls.map(([type]: [string]) => type)
+      ).toEqual([
+        'connected',
+        'close',
+        'error',
+        'remote:pair:supp:request',
+        'remote:pair:supp:authorize',
+      ]);
+    });
+
+    // Callers tear down in effect cleanup and cannot handle a rejection.
+    it('reports a failed close rather than rejecting', async () => {
+      const integration = createIntegration();
+      await integration.createChannel();
+      mockChannelClose.mockRejectedValueOnce(new Error('close failed'));
+
+      await expect(integration.destroy()).resolves.toBeUndefined();
+      expect(integration.hasChannel()).toBe(false);
+    });
+
+    it('is safe to call when no channel was ever created', async () => {
+      await expect(createIntegration().destroy()).resolves.toBeUndefined();
+      expect(mockChannelClose).not.toHaveBeenCalled();
     });
   });
 });

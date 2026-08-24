@@ -21,7 +21,7 @@ import { Constants } from '../../constants';
 
 type FxAStatusIntegration = Pick<
   Integration,
-  'type' | 'isSync' | 'isFirefoxNonSync'
+  'type' | 'isSync' | 'isFirefoxNonSync' | 'isPairing'
 >;
 
 /**
@@ -32,6 +32,7 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
   const isSyncOAuth = isOAuthIntegration(integration) && integration.isSync();
   const isSyncDesktopV3 = isSyncDesktopV3Integration(integration);
   const isSync = integration.isSync();
+  const isPairing = integration.isPairing();
   const isOAuthNative = isOAuthNativeIntegration(integration);
 
   const [webChannelEngines, setWebChannelEngines] = useState<
@@ -47,10 +48,17 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
     boolean | undefined
   >(undefined);
 
-  const [pairingEnabled,setPairingEnabled] = useState(false);
-  const [pairingVersion,setPairingVersion] = useState(1);
-  const [hasSyncKeys, setHasSyncKeys] = useState<boolean|undefined>(undefined);
-
+  // Undefined until the browser answers, so callers can tell "not yet known"
+  // from "no pairing support" rather than routing on an unresolved default.
+  const [pairingEnabled, setPairingEnabled] = useState<boolean | undefined>(
+    undefined
+  );
+  const [pairingVersion, setPairingVersion] = useState<number | undefined>(
+    undefined
+  );
+  const [hasSyncKeys, setHasSyncKeys] = useState<boolean | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     // This sends a web channel message to the browser to prompt a response
@@ -62,7 +70,7 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
           context: isSyncDesktopV3
             ? Constants.FX_DESKTOP_V3_CONTEXT
             : Constants.OAUTH_CONTEXT,
-          isPairing: false,
+          isPairing,
           service: Constants.SYNC_SERVICE,
         });
 
@@ -98,13 +106,17 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
         } else {
           setSupportsCanLinkAccountUid(false);
         }
-        setPairingEnabled(capabilities.pairing || false);
+        setPairingEnabled(!!capabilities.pairing);
         setPairingVersion(capabilities.pairingVersion || 1);
         setHasSyncKeys(capabilities.hasSyncKeys);
       })();
+    } else {
+      setPairingEnabled(false);
+      setPairingVersion(1);
     }
   }, [
     isSync,
+    isPairing,
     isOAuthNative,
     isSyncDesktopV3,
     isSyncOAuth,

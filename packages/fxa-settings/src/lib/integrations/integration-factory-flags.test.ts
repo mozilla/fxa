@@ -35,6 +35,15 @@ describe('lib/integrations/integration-factory-flags', function () {
     expect(integrationFlags.isDevicePairingAsAuthority()).toBeTruthy();
   });
 
+  it('isDevicePairingAsAuthority from the v2 authority pathname', () => {
+    sandbox.replaceGetter(
+      queryData,
+      'pathName',
+      () => '/pair/authority/scan_qr'
+    );
+    expect(integrationFlags.isDevicePairingAsAuthority()).toBeTruthy();
+  });
+
   it('isDevicePairingAsSupplicant', () => {
     expect(integrationFlags.isDevicePairingAsSupplicant()).toBeFalsy();
     sandbox.replaceGetter(queryData, 'pathName', () => '/pair/supplicant');
@@ -48,6 +57,25 @@ describe('lib/integrations/integration-factory-flags', function () {
     queryData.set('context', Constants.OAUTH_WEBCHANNEL_CONTEXT);
     expect(integrationFlags.isDevicePairingAsSupplicant()).toBeTruthy();
   });
+
+  it.each([
+    '/pair/supp',
+    '/pair/supp/',
+    '/pair/supp/allow',
+    '/pair/supplicant',
+    '/pair/supplicant/connect_this_device',
+  ])('isDevicePairingAsSupplicant for the pathname %s', (pathName) => {
+    sandbox.replaceGetter(queryData, 'pathName', () => pathName);
+    expect(integrationFlags.isDevicePairingAsSupplicant()).toBe(true);
+  });
+
+  it.each(['/pair', '/pair/auth/allow', '/supp'])(
+    'isDevicePairingAsSupplicant is false for the pathname %s',
+    (pathName) => {
+      sandbox.replaceGetter(queryData, 'pathName', () => pathName);
+      expect(integrationFlags.isDevicePairingAsSupplicant()).toBe(false);
+    }
+  );
 
   describe('isOAuth', () => {
     beforeEach(() => {

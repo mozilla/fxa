@@ -86,6 +86,8 @@ declare module 'fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js' 
     close(): Promise<void>;
     addEventListener(type: string, listener: EventListener): void;
     removeEventListener(type: string, listener: EventListener): void;
+    _channelId:string|undefined;
+    _channelKey:Uint8Array|undefined;
   }
 
   export const PairingChannel: {
@@ -94,5 +96,7 @@ declare module 'fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js' 
       channelId: string,
       psk: Uint8Array
     ): Promise<FxaPairingChannelSocket>;
+
+    create(channelServerUri: string): Promise<FxaPairingChannelSocket>;
   };
 }

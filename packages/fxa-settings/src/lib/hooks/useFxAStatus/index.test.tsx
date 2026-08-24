@@ -42,6 +42,7 @@ describe('useFxAStatus', () => {
         type: IntegrationType.SyncDesktopV3,
         isSync: () => true,
         isFirefoxNonSync: () => false,
+        isPairing: () => false,
       };
 
       const { waitForNextUpdate } = renderHook(() => useFxAStatus(integration));
@@ -68,6 +69,7 @@ describe('useFxAStatus', () => {
         type: IntegrationType.OAuthNative,
         isSync: () => true,
         isFirefoxNonSync: () => false,
+        isPairing: () => false,
       };
 
       const { waitForNextUpdate } = renderHook(() => useFxAStatus(integration));
@@ -76,6 +78,30 @@ describe('useFxAStatus', () => {
       expect(firefox.fxaStatus).toHaveBeenCalledWith({
         context: Constants.OAUTH_CONTEXT,
         isPairing: false,
+        service: Constants.SYNC_SERVICE,
+      });
+    });
+
+    // The browser answers a pairing request differently, so the flag has to
+    // reach it rather than being hardcoded false as it was before pairing v2.
+    it('sends isPairing: true for a pairing integration', async () => {
+      (firefox.fxaStatus as jest.Mock).mockResolvedValue({
+        capabilities: { engines: [] },
+      });
+
+      const integration = {
+        type: IntegrationType.PairingAuthority,
+        isSync: () => true,
+        isFirefoxNonSync: () => false,
+        isPairing: () => true,
+      };
+
+      const { waitForNextUpdate } = renderHook(() => useFxAStatus(integration));
+      await waitForNextUpdate();
+
+      expect(firefox.fxaStatus).toHaveBeenCalledWith({
+        context: Constants.OAUTH_CONTEXT,
+        isPairing: true,
         service: Constants.SYNC_SERVICE,
       });
     });
@@ -92,6 +118,7 @@ describe('useFxAStatus', () => {
         type: IntegrationType.OAuthNative,
         isSync: () => true,
         isFirefoxNonSync: () => false,
+        isPairing: () => false,
       };
 
       const { result, waitForNextUpdate } = renderHook(() =>
@@ -125,6 +152,7 @@ describe('useFxAStatus', () => {
           type: IntegrationType.OAuthNative,
           isSync: () => false,
           isFirefoxNonSync: () => true,
+          isPairing: () => false,
         };
         const { result, waitForNextUpdate } = renderHook(() =>
           useFxAStatus(integration)
@@ -139,6 +167,7 @@ describe('useFxAStatus', () => {
           type: IntegrationType.OAuthNative,
           isSync: () => true,
           isFirefoxNonSync: () => false,
+          isPairing: () => false,
         };
         const { result, waitForNextUpdate } = renderHook(() =>
           useFxAStatus(integration)
@@ -154,6 +183,7 @@ describe('useFxAStatus', () => {
       type: IntegrationType.OAuthNative,
       isSync: () => true,
       isFirefoxNonSync: () => false,
+      isPairing: () => false,
     };
 
     const mockCapabilities = (
@@ -270,6 +300,7 @@ describe('useFxAStatus', () => {
         type: IntegrationType.Web,
         isSync: () => false,
         isFirefoxNonSync: () => false,
+        isPairing: () => false,
       };
 
       renderHook(() => useFxAStatus(integration));
@@ -282,6 +313,7 @@ describe('useFxAStatus', () => {
         type: IntegrationType.Web,
         isSync: () => false,
         isFirefoxNonSync: () => false,
+        isPairing: () => false,
       };
 
       const { result } = renderHook(() => useFxAStatus(integration));
@@ -299,6 +331,7 @@ describe('useFxAStatus', () => {
         type: IntegrationType.SyncDesktopV3,
         isSync: () => true,
         isFirefoxNonSync: () => false,
+        isPairing: () => false,
       };
 
       renderHook(() => useFxAStatus(integration));
