@@ -83,8 +83,6 @@ const makeRoutes = function (options: any = {}, requireMocks?: any) {
   }
 
   // Reset FxaMailer mocks
-  mockFxaMailer.canSend.mockClear();
-  mockFxaMailer.canSend.mockReturnValue(true);
   mockFxaMailer.sendPostAddLinkedAccountEmail.mockClear();
   mockFxaMailer.sendPostAddLinkedAccountEmail.mockResolvedValue(undefined);
 

@@ -157,36 +157,22 @@ async function run() {
           }
 
           const account = await db.account(uid);
-          // NOTE: If we need to disable these for any reason, the `method` names will
-          // be the old mailer style `verificationReminderFirstEmail`, not just the template
-          // name `verificationReminderFirst`.
-          if (fxaMailer.canSend(method)) {
-            // because of how verification-reminders keys are defined, we need to additionally
-            // prepend 'send' and capitalize the first letter to match the full method name in fxa-mailer
-            const fxaMailerMethod = `send${method[0].toUpperCase()}${method.substring(1)}`;
-            await fxaMailer[fxaMailerMethod]({
-              ...FxaMailerFormat.account(account),
-              ...(await FxaMailerFormat.metricsContext(request)),
-              ...FxaMailerFormat.localTime(request),
-              ...FxaMailerFormat.location(request),
-              ...FxaMailerFormat.device(request),
-              ...FxaMailerFormat.sync(false),
-              email: account.email,
-              code: account.emailCode,
-              flowBeginTime,
-              flowId,
-              uid,
-            });
-          } else {
-            await mailer[method]({
-              acceptLanguage: account.locale,
-              code: account.emailCode,
-              email: account.email,
-              flowBeginTime,
-              flowId,
-              uid,
-            });
-          }
+          // because of how verification-reminders keys are defined, we need to additionally
+          // prepend 'send' and capitalize the first letter to match the full method name in fxa-mailer
+          const fxaMailerMethod = `send${method[0].toUpperCase()}${method.substring(1)}`;
+          await fxaMailer[fxaMailerMethod]({
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(false),
+            email: account.email,
+            code: account.emailCode,
+            flowBeginTime,
+            flowId,
+            uid,
+          });
           // eslint-disable-next-line require-atomic-updates
           sent[uid] = true;
         } catch (err) {
@@ -360,27 +346,16 @@ async function run() {
           }
 
           const account = await db.account(uid);
-          if (fxaMailer.canSend(method)) {
-            const fxaMailerMethod = `send${method[0].toUpperCase()}${method.substring(1)}`;
-            await fxaMailer[fxaMailerMethod]({
-              ...FxaMailerFormat.account(account),
-              ...(await FxaMailerFormat.metricsContext(request)),
-              ...FxaMailerFormat.localTime(request),
-              ...FxaMailerFormat.location(request),
-              ...FxaMailerFormat.device(request),
-              ...FxaMailerFormat.sync('sync'),
-              productName: 'Firefox',
-            });
-          } else {
-            await mailer[method]({
-              acceptLanguage: account.locale,
-              code: account.emailCode,
-              email: account.email,
-              flowBeginTime,
-              flowId,
-              uid,
-            });
-          }
+          const fxaMailerMethod = `send${method[0].toUpperCase()}${method.substring(1)}`;
+          await fxaMailer[fxaMailerMethod]({
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync('sync'),
+            productName: 'Firefox',
+          });
           // eslint-disable-next-line require-atomic-updates
           sent[uid] = true;
         } catch (err) {

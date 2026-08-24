@@ -194,7 +194,6 @@ describe('passkeys routes', () => {
     };
 
     mockFxaMailer = {
-      canSend: jest.fn().mockReturnValue(true),
       sendPostAddPasskeyEmail: jest.fn().mockResolvedValue(undefined),
       sendPostRemovePasskeyEmail: jest.fn().mockResolvedValue(undefined),
       sendNewDeviceLoginEmail: jest.fn().mockResolvedValue(undefined),
@@ -561,7 +560,6 @@ describe('passkeys routes', () => {
         payload,
       });
 
-      expect(mockFxaMailer.canSend).toHaveBeenCalledWith('postAddPasskey');
       expect(mockFxaMailer.sendPostAddPasskeyEmail).toHaveBeenCalledTimes(1);
       expect(mockFxaMailer.sendPostAddPasskeyEmail).toHaveBeenCalledWith(
         expect.objectContaining({ showSyncPasswordNote: true })
@@ -593,23 +591,6 @@ describe('passkeys routes', () => {
       expect(mockFxaMailer.sendPostAddPasskeyEmail).toHaveBeenCalledWith(
         expect.objectContaining({ showSyncPasswordNote: false })
       );
-    });
-
-    it('skips email when canSend returns false', async () => {
-      mockFxaMailer.canSend.mockReturnValue(false);
-
-      await runTest('/passkey/registration/finish', {
-        auth: {
-          credentials: {
-            uid: UID,
-            id: SESSION_TOKEN_ID,
-            email: TEST_EMAIL,
-          },
-        },
-        payload,
-      });
-
-      expect(mockFxaMailer.sendPostAddPasskeyEmail).not.toHaveBeenCalled();
     });
 
     it('swallows email send errors and still returns passkey data', async () => {
@@ -895,32 +876,10 @@ describe('passkeys routes', () => {
         'DELETE'
       );
 
-      expect(mockFxaMailer.canSend).toHaveBeenCalledWith('postRemovePasskey');
       expect(mockFxaMailer.sendPostRemovePasskeyEmail).toHaveBeenCalledTimes(1);
       expect(mockFxaMailer.sendPostRemovePasskeyEmail).toHaveBeenCalledWith(
         expect.objectContaining({ to: TEST_EMAIL })
       );
-    });
-
-    it('skips email when canSend returns false', async () => {
-      mockFxaMailer.canSend.mockReturnValue(false);
-
-      await runTest(
-        '/passkey/{credentialId}',
-        {
-          auth: {
-            credentials: {
-              uid: UID,
-              id: SESSION_TOKEN_ID,
-              email: TEST_EMAIL,
-            },
-          },
-          params: { credentialId: CREDENTIAL_ID_B64 },
-        },
-        'DELETE'
-      );
-
-      expect(mockFxaMailer.sendPostRemovePasskeyEmail).not.toHaveBeenCalled();
     });
 
     it('swallows email send errors and still returns empty object', async () => {
@@ -1550,24 +1509,6 @@ describe('passkeys routes', () => {
         expect(mockFxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(1);
         expect(mockFxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledWith(
           expect.objectContaining({ clientName: 'Mozilla' })
-        );
-      });
-
-      it('falls back to the legacy mailer when fxaMailer cannot send newDeviceLogin', async () => {
-        mockFxaMailer.canSend.mockReturnValue(false);
-
-        await runTest('/passkey/authentication/finish', {
-          auth: { credentials: {} },
-          app: { ua: {} },
-          payload,
-        });
-
-        expect(mockFxaMailer.sendNewDeviceLoginEmail).not.toHaveBeenCalled();
-        expect(mailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(1);
-        expect(mailer.sendNewDeviceLoginEmail).toHaveBeenCalledWith(
-          [{ email: TEST_EMAIL, isPrimary: true, isVerified: true }],
-          expect.objectContaining({ uid: UID }),
-          expect.objectContaining({ uid: UID })
         );
       });
 

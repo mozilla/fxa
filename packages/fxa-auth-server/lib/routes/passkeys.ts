@@ -209,17 +209,15 @@ export class PasskeyHandler {
       this.glean.passkey.createComplete(request);
 
       try {
-        if (this.fxaMailer.canSend('postAddPasskey')) {
-          await this.fxaMailer.sendPostAddPasskeyEmail({
-            ...FxaMailerFormat.account({ ...account, uid }),
-            ...(await FxaMailerFormat.metricsContext(request)),
-            ...FxaMailerFormat.localTime(request),
-            ...FxaMailerFormat.location(request),
-            ...FxaMailerFormat.device(request),
-            ...FxaMailerFormat.sync(false),
-            showSyncPasswordNote: account.verifierSetAt > 0,
-          });
-        }
+        await this.fxaMailer.sendPostAddPasskeyEmail({
+          ...FxaMailerFormat.account({ ...account, uid }),
+          ...(await FxaMailerFormat.metricsContext(request)),
+          ...FxaMailerFormat.localTime(request),
+          ...FxaMailerFormat.location(request),
+          ...FxaMailerFormat.device(request),
+          ...FxaMailerFormat.sync(false),
+          showSyncPasswordNote: account.verifierSetAt > 0,
+        });
       } catch (err) {
         this.log.error('passkeys.registrationFinish.sendEmail', { err });
         reportSentryError(err, request);
@@ -336,16 +334,14 @@ export class PasskeyHandler {
     this.glean.passkey.deleteSuccess(request);
 
     try {
-      if (this.fxaMailer.canSend('postRemovePasskey')) {
-        await this.fxaMailer.sendPostRemovePasskeyEmail({
-          ...FxaMailerFormat.account({ ...account, uid }),
-          ...(await FxaMailerFormat.metricsContext(request)),
-          ...FxaMailerFormat.localTime(request),
-          ...FxaMailerFormat.location(request),
-          ...FxaMailerFormat.device(request),
-          ...FxaMailerFormat.sync(false),
-        });
-      }
+      await this.fxaMailer.sendPostRemovePasskeyEmail({
+        ...FxaMailerFormat.account({ ...account, uid }),
+        ...(await FxaMailerFormat.metricsContext(request)),
+        ...FxaMailerFormat.localTime(request),
+        ...FxaMailerFormat.location(request),
+        ...FxaMailerFormat.device(request),
+        ...FxaMailerFormat.sync(false),
+      });
     } catch (err) {
       this.log.error('passkeys.deletePasskey.sendEmail', { err });
       reportSentryError(err, request);
@@ -526,35 +522,17 @@ export class PasskeyHandler {
     // yet, so service framing would be premature.
     const emailService = keysRequired ? undefined : service;
     try {
-      const geoData = request.app.geo;
-      if (this.fxaMailer.canSend('newDeviceLogin')) {
-        const clientInfo =
-          await this.oauthClientInfoService.fetch(emailService);
-        await this.fxaMailer.sendNewDeviceLoginEmail({
-          ...FxaMailerFormat.account(account),
-          ...FxaMailerFormat.device(request),
-          ...FxaMailerFormat.localTime(request),
-          ...FxaMailerFormat.location(request),
-          ...(await FxaMailerFormat.metricsContext(request)),
-          ...FxaMailerFormat.sync(false),
-          clientName: clientInfo.name,
-          showBannerWarning: false,
-        });
-      } else {
-        await this.mailer.sendNewDeviceLoginEmail(account.emails, account, {
-          acceptLanguage: request.app.acceptLanguage,
-          ip: request.app.clientAddress,
-          location: geoData.location,
-          service: emailService,
-          timeZone: geoData.timeZone,
-          uaBrowser: request.app.ua.browser,
-          uaBrowserVersion: request.app.ua.browserVersion,
-          uaOS: request.app.ua.os,
-          uaOSVersion: request.app.ua.osVersion,
-          uaDeviceType: request.app.ua.deviceType,
-          uid: account.uid,
-        });
-      }
+      const clientInfo = await this.oauthClientInfoService.fetch(emailService);
+      await this.fxaMailer.sendNewDeviceLoginEmail({
+        ...FxaMailerFormat.account(account),
+        ...FxaMailerFormat.device(request),
+        ...FxaMailerFormat.localTime(request),
+        ...FxaMailerFormat.location(request),
+        ...(await FxaMailerFormat.metricsContext(request)),
+        ...FxaMailerFormat.sync(false),
+        clientName: clientInfo.name,
+        showBannerWarning: false,
+      });
     } catch (err) {
       this.log.trace(
         'passkeys.authenticationFinish.sendNewDeviceLoginEmail.error',

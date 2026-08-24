@@ -90,28 +90,16 @@ class MfaHandler {
       // is valid for 30s.
       // For specifics see: https://www.npmjs.com/package/otplib
       const expirationTime = (options.step * options.window) / 60;
-      if (this.fxaMailer.canSend('verifyAccountChange')) {
-        await this.fxaMailer.sendVerifyAccountChangeEmail({
-          ...FxaMailerFormat.account(account),
-          ...(await FxaMailerFormat.metricsContext(request)),
-          ...FxaMailerFormat.localTime(request),
-          ...FxaMailerFormat.location(request),
-          ...FxaMailerFormat.device(request),
-          ...FxaMailerFormat.sync(false),
-          code,
-          expirationTime,
-        });
-      } else {
-        await this.mailer.sendVerifyAccountChangeEmail(
-          account.emails,
-          account,
-          {
-            code,
-            uid,
-            expirationTime,
-          }
-        );
-      }
+      await this.fxaMailer.sendVerifyAccountChangeEmail({
+        ...FxaMailerFormat.account(account),
+        ...(await FxaMailerFormat.metricsContext(request)),
+        ...FxaMailerFormat.localTime(request),
+        ...FxaMailerFormat.location(request),
+        ...FxaMailerFormat.device(request),
+        ...FxaMailerFormat.sync(false),
+        code,
+        expirationTime,
+      });
 
       success = true;
     } catch (error) {

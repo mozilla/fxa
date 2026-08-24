@@ -186,9 +186,7 @@ describe('IP Profiling', () => {
       ],
     });
     jest.clearAllMocks();
-    mockFxaMailerInstance = installMockFxaMailer({
-      canSend: jest.fn().mockResolvedValue(true),
-    });
+    mockFxaMailerInstance = installMockFxaMailer();
     mocks.mockOAuthClientInfo();
     mockDBInstance = mocks.mockDB({
       email: TEST_EMAIL,

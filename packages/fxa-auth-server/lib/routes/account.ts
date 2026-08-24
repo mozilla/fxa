@@ -345,20 +345,11 @@ export class AccountHandler {
     tokenVerificationId: any;
     verificationMethod: string;
   }) {
-    const {
-      request,
-      account,
-      sessionToken,
-      tokenVerificationId,
-      verificationMethod,
-    } = options;
-    const { deviceId, flowId, flowBeginTime, productId, planId } =
-      await request.app.metricsContext;
-    const locale = request.app.acceptLanguage;
+    const { request, account, tokenVerificationId, verificationMethod } =
+      options;
+    const { flowId, flowBeginTime } = await request.app.metricsContext;
     const form = request.payload as any;
     const query = request.query;
-    const ip = request.app.clientAddress;
-    const style = form.style;
 
     if (account.emailVerified) {
       return;
@@ -369,24 +360,6 @@ export class AccountHandler {
         case 'email-otp': {
           const secret = account.emailCode;
           const code = this.otpUtils.generateOtpCode(secret, this.otpOptions);
-          const emailContext = {
-            acceptLanguage: locale,
-            code,
-            deviceId,
-            flowId,
-            flowBeginTime,
-            productId,
-            planId,
-            ip,
-            location: request.app.geo.location,
-            timeZone: request.app.geo.timeZone,
-            uaBrowser: sessionToken.uaBrowser,
-            uaBrowserVersion: sessionToken.uaBrowserVersion,
-            uaOS: sessionToken.uaOS,
-            uaOSVersion: sessionToken.uaOSVersion,
-            uaDeviceType: sessionToken.uaDeviceType,
-            uid: sessionToken.uid,
-          };
 
           const rpCmsConfig = await fetchRpCmsData(
             request,
@@ -395,99 +368,46 @@ export class AccountHandler {
           );
 
           if (!rpCmsConfig || !rpCmsConfig.VerifyShortCodeEmail) {
-            if (this.fxaMailer.canSend('verifyShortCode')) {
-              await this.fxaMailer.sendVerifyShortCodeEmail({
-                ...FxaMailerFormat.account(account),
-                ...(await FxaMailerFormat.metricsContext(request)),
-                ...FxaMailerFormat.localTime(request),
-                ...FxaMailerFormat.location(request),
-                ...FxaMailerFormat.device(request),
-                ...FxaMailerFormat.sync(form.service || query.service || false),
-                code,
-              });
-            } else {
-              await this.mailer.sendVerifyShortCodeEmail(
-                [],
-                account,
-                emailContext
-              );
-            }
+            await this.fxaMailer.sendVerifyShortCodeEmail({
+              ...FxaMailerFormat.account(account),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.sync(form.service || query.service || false),
+              code,
+            });
           } else {
-            const metricsContext = await request.app.metricsContext;
-            const rpEmailContext = {
-              ...emailContext,
-              target: 'strapi',
-              cmsRpClientId: rpCmsConfig.clientId,
-              cmsRpFromName: rpCmsConfig.shared?.emailFromName,
-              entrypoint: metricsContext.entrypoint,
-              logoUrl: rpCmsConfig?.shared?.emailLogoUrl,
-              logoAltText: rpCmsConfig?.shared?.emailLogoAltText,
-              logoWidth: rpCmsConfig?.shared?.emailLogoWidth,
-              ...rpCmsConfig.VerifyShortCodeEmail,
-            };
-            if (this.fxaMailer.canSend('verifyShortCode')) {
-              await this.fxaMailer.sendVerifyShortCodeEmail({
-                ...FxaMailerFormat.account(account),
-                ...(await FxaMailerFormat.metricsContext(request)),
-                ...FxaMailerFormat.localTime(request),
-                ...FxaMailerFormat.location(request),
-                ...FxaMailerFormat.device(request),
-                ...FxaMailerFormat.sync(form.service || query.service || false),
-                ...FxaMailerFormat.cmsLogo(rpCmsConfig.shared),
-                ...FxaMailerFormat.cmsEmailSubject(
-                  rpCmsConfig.VerifyShortCodeEmail
-                ),
-                ...FxaMailerFormat.cmsRpInfo(rpCmsConfig),
-                code,
-              });
-            } else {
-              await this.mailer.sendVerifyShortCodeEmail(
-                [],
-                account,
-                rpEmailContext
-              );
-            }
+            await this.fxaMailer.sendVerifyShortCodeEmail({
+              ...FxaMailerFormat.account(account),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.sync(form.service || query.service || false),
+              ...FxaMailerFormat.cmsLogo(rpCmsConfig.shared),
+              ...FxaMailerFormat.cmsEmailSubject(
+                rpCmsConfig.VerifyShortCodeEmail
+              ),
+              ...FxaMailerFormat.cmsRpInfo(rpCmsConfig),
+              code,
+            });
           }
           break;
         }
         default: {
-          if (this.fxaMailer.canSend('verify')) {
-            await this.fxaMailer.sendVerifyEmail({
-              ...FxaMailerFormat.account(account),
-              ...(await FxaMailerFormat.metricsContext(request)),
-              ...FxaMailerFormat.sync(form.service || query.service),
-              ...FxaMailerFormat.localTime(request),
-              ...FxaMailerFormat.location(request),
-              ...FxaMailerFormat.device(request),
-              code: account.emailCode,
-              resume: form.resume,
-              redirectTo: form.redirectTo,
-              service: form.service || query.service,
-            });
-          } else {
-            await this.mailer.sendVerifyEmail([], account, {
-              code: account.emailCode,
-              service: form.service || query.service,
-              redirectTo: form.redirectTo,
-              resume: form.resume,
-              acceptLanguage: locale,
-              deviceId,
-              flowId,
-              flowBeginTime,
-              productId,
-              planId,
-              ip,
-              location: request.app.geo.location,
-              timeZone: request.app.geo.timeZone,
-              style,
-              uaBrowser: sessionToken.uaBrowser,
-              uaBrowserVersion: sessionToken.uaBrowserVersion,
-              uaOS: sessionToken.uaOS,
-              uaOSVersion: sessionToken.uaOSVersion,
-              uaDeviceType: sessionToken.uaDeviceType,
-              uid: sessionToken.uid,
-            });
-          }
+          await this.fxaMailer.sendVerifyEmail({
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.sync(form.service || query.service),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            code: account.emailCode,
+            resume: form.resume,
+            redirectTo: form.redirectTo,
+            service: form.service || query.service,
+          });
         }
       }
 
@@ -1351,12 +1271,8 @@ export class AccountHandler {
       // successful verification — sending it here too would result in a duplicate.
       if (accountRecord.primaryEmail.isVerified) {
         if (sessionToken.tokenVerified) {
-          const geoData = request.app.geo;
           const service =
             (request.payload as any).service || request.query.service;
-          const ip = request.app.clientAddress;
-          const { deviceId, flowId, flowBeginTime, entrypoint } =
-            await request.app.metricsContext;
 
           const rpCmsConfig = await fetchRpCmsData(
             request,
@@ -1365,81 +1281,38 @@ export class AccountHandler {
           );
 
           try {
-            const emailContext = {
-              acceptLanguage: request.app.acceptLanguage,
-              deviceId,
-              flowId,
-              flowBeginTime,
-              ip,
-              location: geoData.location,
-              service,
-              timeZone: geoData.timeZone,
-              uaBrowser: request.app.ua.browser,
-              uaBrowserVersion: request.app.ua.browserVersion,
-              uaOS: request.app.ua.os,
-              uaOSVersion: request.app.ua.osVersion,
-              uaDeviceType: request.app.ua.deviceType,
-              uid: sessionToken.uid,
-            };
             if (!rpCmsConfig || !rpCmsConfig.NewDeviceLoginEmail) {
-              if (this.fxaMailer.canSend('newDeviceLogin')) {
-                const clientInfo =
-                  await this.oauthClientInfoService.fetch(service);
-                await this.fxaMailer.sendNewDeviceLoginEmail({
-                  ...FxaMailerFormat.account(accountRecord),
-                  ...FxaMailerFormat.device(request),
-                  ...FxaMailerFormat.localTime(request),
-                  ...FxaMailerFormat.location(request),
-                  ...(await FxaMailerFormat.metricsContext(request)),
-                  ...FxaMailerFormat.sync(service),
-                  clientName: clientInfo.name,
-                  showBannerWarning: false,
-                });
-              } else {
-                await this.mailer.sendNewDeviceLoginEmail(
-                  accountRecord.emails,
-                  accountRecord,
-                  emailContext
-                );
-              }
+              const clientInfo =
+                await this.oauthClientInfoService.fetch(service);
+              await this.fxaMailer.sendNewDeviceLoginEmail({
+                ...FxaMailerFormat.account(accountRecord),
+                ...FxaMailerFormat.device(request),
+                ...FxaMailerFormat.localTime(request),
+                ...FxaMailerFormat.location(request),
+                ...(await FxaMailerFormat.metricsContext(request)),
+                ...FxaMailerFormat.sync(service),
+                clientName: clientInfo.name,
+                showBannerWarning: false,
+              });
             } else {
-              if (this.fxaMailer.canSend('newDeviceLogin')) {
-                const clientInfo =
-                  await this.oauthClientInfoService.fetch(service);
-                await this.fxaMailer.sendNewDeviceLoginEmail({
-                  ...FxaMailerFormat.account(accountRecord),
-                  ...FxaMailerFormat.device(request),
-                  ...FxaMailerFormat.localTime(request),
-                  ...FxaMailerFormat.location(request),
-                  ...(await FxaMailerFormat.metricsContext(request)),
-                  ...FxaMailerFormat.sync(service),
-                  ...FxaMailerFormat.cmsLogo(rpCmsConfig.shared),
-                  ...FxaMailerFormat.cmsEmailSubject(
-                    rpCmsConfig.NewDeviceLoginEmail
-                  ),
-                  ...FxaMailerFormat.cmsRpInfo(rpCmsConfig),
-                  clientName: clientInfo.name,
-                  showBannerWarning: false,
-                  target: 'strapi',
-                });
-              } else {
-                const rpEmailContext = {
-                  ...emailContext,
-                  target: 'strapi',
-                  cmsRpClientId: rpCmsConfig.clientId,
-                  cmsRpFromName: rpCmsConfig.shared?.emailFromName,
-                  entrypoint,
-                  logoUrl: rpCmsConfig?.shared?.emailLogoUrl,
-                  logoAltText: rpCmsConfig?.shared?.emailLogoAltText,
-                  logoWidth: rpCmsConfig?.shared?.emailLogoWidth,
-                  ...rpCmsConfig.NewDeviceLoginEmail,
-                };
-                await this.mailer.sendNewDeviceLoginEmail(
-                  accountRecord.emails,
-                  accountRecord,
-                  rpEmailContext
-                );
-              }
+              const clientInfo =
+                await this.oauthClientInfoService.fetch(service);
+              await this.fxaMailer.sendNewDeviceLoginEmail({
+                ...FxaMailerFormat.account(accountRecord),
+                ...FxaMailerFormat.device(request),
+                ...FxaMailerFormat.localTime(request),
+                ...FxaMailerFormat.location(request),
+                ...(await FxaMailerFormat.metricsContext(request)),
+                ...FxaMailerFormat.sync(service),
+                ...FxaMailerFormat.cmsLogo(rpCmsConfig.shared),
+                ...FxaMailerFormat.cmsEmailSubject(
+                  rpCmsConfig.NewDeviceLoginEmail
+                ),
+                ...FxaMailerFormat.cmsRpInfo(rpCmsConfig),
+                clientName: clientInfo.name,
+                showBannerWarning: false,
+                target: 'strapi',
+              });
             }
           } catch (err) {
             // If we couldn't email them, no big deal. Log
@@ -2033,62 +1906,32 @@ export class AccountHandler {
       if (recoveryKeyId) {
         await this.db.deleteRecoveryKey(account.uid);
 
-        const geoData = request.app.geo;
-        const ip = request.app.clientAddress;
-        const emailOptions = {
-          acceptLanguage: request.app.acceptLanguage,
-          ip: ip,
-          location: geoData.location,
-          timeZone: geoData.timeZone,
-          uaBrowser: request.app.ua.browser,
-          uaBrowserVersion: request.app.ua.browserVersion,
-          uaOS: request.app.ua.os,
-          uaOSVersion: request.app.ua.osVersion,
-          uaDeviceType: request.app.ua.deviceType,
-          uid: account.uid,
-        };
-
         // a new key won't be autogenerated for users with 2FA enabled or currently,
         // for mobile users, due to the web view automatically closing after a
         // successful login. The `isFirefoxMobileClient` option matches the
         // client-side check against `integration.isFirefoxMobileClient()`.
+        // No `return` here: the caller discards the value, and returning from
+        // only some branches trips TS7030 now that the untyped old-mailer
+        // fallback, which widened the return type to `any`, is gone.
         if (hasTotpToken || isFirefoxMobileClient) {
-          if (this.fxaMailer.canSend('passwordResetWithRecoveryKeyPrompt')) {
-            return await this.fxaMailer.sendPasswordResetWithRecoveryKeyPromptEmail(
-              {
-                ...FxaMailerFormat.account(account),
-                ...(await FxaMailerFormat.metricsContext(request)),
-                ...FxaMailerFormat.localTime(request),
-                ...FxaMailerFormat.location(request),
-                ...FxaMailerFormat.device(request),
-                ...FxaMailerFormat.sync(false),
-              }
-            );
-          } else {
-            return await this.mailer.sendPasswordResetWithRecoveryKeyPromptEmail(
-              account.emails,
-              account,
-              emailOptions
-            );
-          }
+          await this.fxaMailer.sendPasswordResetWithRecoveryKeyPromptEmail({
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(false),
+          });
         } else {
-          if (this.fxaMailer.canSend('passwordResetAccountRecovery')) {
-            return await this.fxaMailer.sendPasswordResetAccountRecoveryEmail({
-              ...FxaMailerFormat.account(account),
-              ...(await FxaMailerFormat.metricsContext(request)),
-              ...FxaMailerFormat.localTime(request),
-              ...FxaMailerFormat.location(request),
-              ...FxaMailerFormat.device(request),
-              ...FxaMailerFormat.sync(false),
-              productName: 'Firefox',
-            });
-          } else {
-            return await this.mailer.sendPasswordResetAccountRecoveryEmail(
-              account.emails,
-              account,
-              emailOptions
-            );
-          }
+          await this.fxaMailer.sendPasswordResetAccountRecoveryEmail({
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(false),
+            productName: 'Firefox',
+          });
         }
       }
     };

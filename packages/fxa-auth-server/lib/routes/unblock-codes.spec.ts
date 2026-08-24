@@ -61,8 +61,7 @@ describe('/account/login/send_unblock_code', () => {
       },
     },
   });
-  // Mock the modern FxaMailer (the legacy `mailer` else-branch is not exercised:
-  // canSend defaults to true, so makeRoutes leaves `mailer` as the default stub).
+  // Mock the modern FxaMailer; `makeRoutes` leaves `mailer` as the default stub.
   const mockFxaMailer = installMockFxaMailer();
   const mockDb = mocks.mockDB({
     uid: uid,

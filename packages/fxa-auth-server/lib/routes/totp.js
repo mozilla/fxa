@@ -232,40 +232,17 @@ module.exports = (
 
     async function sendEmailNotification() {
       const account = await db.account(uid);
-      const geoData = request.app.geo;
-      const ip = request.app.clientAddress;
       const service = request.payload.service || request.query.service;
 
       try {
-        if (fxaMailer.canSend('postChangeTwoStepAuthentication')) {
-          await fxaMailer.sendPostChangeTwoStepAuthenticationEmail({
-            ...FxaMailerFormat.account(account),
-            ...FxaMailerFormat.metricsContext(request),
-            ...FxaMailerFormat.device(request),
-            ...FxaMailerFormat.sync(service),
-            ...FxaMailerFormat.location(request),
-            ...FxaMailerFormat.localTime(request),
-          });
-        } else {
-          const emailOptions = {
-            acceptLanguage: request.app.acceptLanguage,
-            ip: ip,
-            location: geoData.location,
-            service: service,
-            timeZone: geoData.timeZone,
-            uaBrowser: request.app.ua.browser,
-            uaBrowserVersion: request.app.ua.browserVersion,
-            uaOS: request.app.ua.os,
-            uaOSVersion: request.app.ua.osVersion,
-            uaDeviceType: request.app.ua.deviceType,
-            uid: uid,
-          };
-          await mailer.sendPostChangeTwoStepAuthenticationEmail(
-            account.emails,
-            account,
-            emailOptions
-          );
-        }
+        await fxaMailer.sendPostChangeTwoStepAuthenticationEmail({
+          ...FxaMailerFormat.account(account),
+          ...FxaMailerFormat.metricsContext(request),
+          ...FxaMailerFormat.device(request),
+          ...FxaMailerFormat.sync(service),
+          ...FxaMailerFormat.location(request),
+          ...FxaMailerFormat.localTime(request),
+        });
       } catch (error) {
         log.error('mailer.sendPostChangeTwoStepAuthenticationEmail', {
           error,
@@ -301,34 +278,14 @@ module.exports = (
       const account = await db.account(uid);
 
       try {
-        if (fxaMailer.canSend('postRemoveTwoStepAuthentication')) {
-          await fxaMailer.sendPostRemoveTwoStepAuthenticationEmail({
-            ...FxaMailerFormat.account(account),
-            ...FxaMailerFormat.localTime(request),
-            ...FxaMailerFormat.device(request),
-            ...(await FxaMailerFormat.metricsContext(request)),
-            ...FxaMailerFormat.location(request),
-            ...FxaMailerFormat.sync(service),
-          });
-        } else {
-          const geoData = request.app.geo;
-          const emailOptions = {
-            acceptLanguage: request.app.acceptLanguage,
-            location: geoData.location,
-            timeZone: geoData.timeZone,
-            uaBrowser: request.app.ua.browser,
-            uaBrowserVersion: request.app.ua.browserVersion,
-            uaOS: request.app.ua.os,
-            uaOSVersion: request.app.ua.osVersion,
-            uaDeviceType: request.app.ua.deviceType,
-            uid,
-          };
-          await mailer.sendPostRemoveTwoStepAuthenticationEmail(
-            account.emails,
-            account,
-            emailOptions
-          );
-        }
+        await fxaMailer.sendPostRemoveTwoStepAuthenticationEmail({
+          ...FxaMailerFormat.account(account),
+          ...FxaMailerFormat.localTime(request),
+          ...FxaMailerFormat.device(request),
+          ...(await FxaMailerFormat.metricsContext(request)),
+          ...FxaMailerFormat.location(request),
+          ...FxaMailerFormat.sync(service),
+        });
       } catch (err) {
         // If email fails, log the error without aborting the operation.
         log.error('mailer.sendPostRemoveTwoStepAuthenticationEmail', {
@@ -745,8 +702,6 @@ module.exports = (
 
         async function sendEmailNotification() {
           const account = await db.account(uid);
-          const geoData = request.app.geo;
-          const ip = request.app.clientAddress;
           const service = request.payload?.service || request.query?.service;
 
           // include recovery method context if available
@@ -759,41 +714,16 @@ module.exports = (
           const recoveryMethod = maskedPhoneNumber ? 'phone' : 'codes';
 
           try {
-            if (fxaMailer.canSend('postAddTwoStepAuthentication')) {
-              await fxaMailer.sendPostAddTwoStepAuthenticationEmail({
-                ...FxaMailerFormat.account(account),
-                ...FxaMailerFormat.localTime(request),
-                ...FxaMailerFormat.device(request),
-                ...(await FxaMailerFormat.metricsContext(request)),
-                ...FxaMailerFormat.sync(service),
-                ...FxaMailerFormat.location(request),
-                recoveryMethod,
-                maskedPhoneNumber,
-              });
-            } else {
-              const emailOptions = {
-                acceptLanguage: request.app.acceptLanguage,
-                ip,
-                location: geoData.location,
-                service,
-                timeZone: geoData.timeZone,
-                uaBrowser: request.app.ua.browser,
-                uaBrowserVersion: request.app.ua.browserVersion,
-                uaOS: request.app.ua.os,
-                uaOSVersion: request.app.ua.osVersion,
-                uaDeviceType: request.app.ua.deviceType,
-                uid,
-              };
-              await mailer.sendPostAddTwoStepAuthenticationEmail(
-                account.emails,
-                account,
-                {
-                  ...emailOptions,
-                  recoveryMethod,
-                  maskedPhoneNumber,
-                }
-              );
-            }
+            await fxaMailer.sendPostAddTwoStepAuthenticationEmail({
+              ...FxaMailerFormat.account(account),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.device(request),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.sync(service),
+              ...FxaMailerFormat.location(request),
+              recoveryMethod,
+              maskedPhoneNumber,
+            });
           } catch (error) {
             log.error('mailer.sendPostAddTwoStepAuthenticationEmail', {
               error,
@@ -1009,63 +939,35 @@ module.exports = (
         );
 
         const account = await db.account(uid);
-        const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
 
         const { remaining } = await db.consumeRecoveryCode(uid, code);
 
         const mailerPromises = [];
 
-        if (fxaMailer.canSend('postConsumeRecoveryCode')) {
-          mailerPromises.push(
-            fxaMailer.sendPostConsumeRecoveryCodeEmail({
-              ...FxaMailerFormat.account(account),
-              ...FxaMailerFormat.localTime(request),
-              ...FxaMailerFormat.device(request),
-              ...(await FxaMailerFormat.metricsContext(request)),
-              ...FxaMailerFormat.location(request),
-              ...FxaMailerFormat.sync(service),
-            })
-          );
-        } else {
-          mailerPromises.push(
-            mailer.sendPostConsumeRecoveryCodeEmail(account.emails, account, {
-              acceptLanguage,
-              ip,
-              location: geo.location,
-              timeZone: geo.timeZone,
-              uaBrowser: ua.browser,
-              uaBrowserVersion: ua.browserVersion,
-              uaOS: ua.os,
-              uaOSVersion: ua.osVersion,
-              uaDeviceType: ua.deviceType,
-              uid,
-            })
-          );
-        }
+        mailerPromises.push(
+          fxaMailer.sendPostConsumeRecoveryCodeEmail({
+            ...FxaMailerFormat.account(account),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.device(request),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.sync(service),
+          })
+        );
 
         if (remaining <= codeConfig.notifyLowCount) {
           log.info('account.recoveryCode.notifyLowCount', { uid, remaining });
 
-          if (fxaMailer.canSend('lowRecoveryCodes')) {
-            mailerPromises.push(
-              fxaMailer.sendLowRecoveryCodesEmail({
-                ...FxaMailerFormat.account(account),
-                ...FxaMailerFormat.localTime(request),
-                ...FxaMailerFormat.device(request),
-                ...(await FxaMailerFormat.metricsContext(request)),
-                ...FxaMailerFormat.sync(service),
-                numberRemaining: remaining,
-              })
-            );
-          } else {
-            mailerPromises.push(
-              mailer.sendLowRecoveryCodesEmail(account.emails, account, {
-                acceptLanguage,
-                numberRemaining: remaining,
-                uid,
-              })
-            );
-          }
+          mailerPromises.push(
+            fxaMailer.sendLowRecoveryCodesEmail({
+              ...FxaMailerFormat.account(account),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.device(request),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.sync(service),
+              numberRemaining: remaining,
+            })
+          );
         }
 
         await Promise.all(mailerPromises);
@@ -1200,42 +1102,19 @@ module.exports = (
         async function sendEmailNotification() {
           if (!isValidCode) return;
           const account = await db.account(sessionToken.uid);
-          const geoData = request.app.geo;
-          const ip = request.app.clientAddress;
           const service = request.payload.service || request.query.service;
-          const emailOptions = {
-            acceptLanguage: request.app.acceptLanguage,
-            ip: ip,
-            location: geoData.location,
-            service: service,
-            timeZone: geoData.timeZone,
-            uaBrowser: request.app.ua.browser,
-            uaBrowserVersion: request.app.ua.browserVersion,
-            uaOS: request.app.ua.os,
-            uaOSVersion: request.app.ua.osVersion,
-            uaDeviceType: request.app.ua.deviceType,
-            uid: sessionToken.uid,
-          };
 
-          if (fxaMailer.canSend('newDeviceLogin')) {
-            const clientInfo = await oauthClientInfoService.fetch(service);
-            return await fxaMailer.sendNewDeviceLoginEmail({
-              ...FxaMailerFormat.account(account),
-              ...FxaMailerFormat.device(request),
-              ...FxaMailerFormat.localTime(request),
-              ...FxaMailerFormat.location(request),
-              ...(await FxaMailerFormat.metricsContext(request)),
-              ...FxaMailerFormat.sync(service),
-              clientName: clientInfo.name,
-              showBannerWarning: false,
-            });
-          } else {
-            return mailer.sendNewDeviceLoginEmail(
-              account.emails,
-              account,
-              emailOptions
-            );
-          }
+          const clientInfo = await oauthClientInfoService.fetch(service);
+          return await fxaMailer.sendNewDeviceLoginEmail({
+            ...FxaMailerFormat.account(account),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.sync(service),
+            clientName: clientInfo.name,
+            showBannerWarning: false,
+          });
         }
       },
     },
