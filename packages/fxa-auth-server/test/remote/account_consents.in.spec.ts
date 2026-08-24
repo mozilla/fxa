@@ -878,10 +878,12 @@ describe('#integration - lifecycle: account deletion vs connected-services revok
     expect(await db.listAccountConsentsByUid(uid)).toHaveLength(0);
   });
 
-  it('revoking via authorized-clients (connected services) leaves consent rows intact', async () => {
-    // Revoking an OAuth client in the Settings "Connected Services" UI
-    // sweeps tokens/codes but must NOT clear the consent ledger; the
-    // user has not withdrawn their ToS authorization.
+  it('revoking via authorized-clients (connected services) keeps the row and its ToS history', async () => {
+    // Disconnecting in the Settings "Connected Services" UI sweeps tokens and
+    // codes, and may withdraw the active authorization, but the row itself
+    // survives until account deletion: it is the ToS record. Whether revokedAt
+    // ends up set depends on what the client still holds, which
+    // authorization-revocation.spec.ts covers directly.
     const authorizedClients = require('../../lib/oauth/authorized_clients');
     const uid = testClient.uid;
     await writeConsent();
@@ -892,6 +894,9 @@ describe('#integration - lifecycle: account deletion vs connected-services revok
 
     const after = await db.listAccountConsentsByUid(uid);
     expect(after).toHaveLength(before.length);
+    expect(after.map((r: any) => Number(r.firstAuthorizedTosAt))).toEqual(
+      before.map((r: any) => Number(r.firstAuthorizedTosAt))
+    );
   });
 });
 

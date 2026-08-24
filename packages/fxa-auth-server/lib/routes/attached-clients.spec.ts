@@ -20,6 +20,14 @@ const mockAuthorizedClients: any = {
 
 jest.mock('../oauth/authorized_clients', () => mockAuthorizedClients);
 
+// The session branch of /account/attached_client/destroy evaluates
+// authorization revocation, which would otherwise reach a real oauth db.
+jest.mock('../oauth/db', () => ({
+  listAccountConsentsByUid: jest.fn().mockResolvedValue([]),
+  getRefreshTokenScopesByUid: jest.fn().mockResolvedValue([]),
+  revokeAccountAuthorizations: jest.fn().mockResolvedValue(0),
+}));
+
 function makeRoutes(options: any = {}) {
   const config = options.config || {};
   config.smtp = config.smtp || {};

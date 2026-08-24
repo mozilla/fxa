@@ -431,6 +431,14 @@ class OauthDB extends ConnectedServicesDb {
     return this.mysql._listAccountConsentsByUid(uid);
   }
 
+  // (clientId, scope) for every refresh token the user has. Deliberately not
+  // getRefreshTokensByUid: that hydrates Redis metadata and can issue a prune
+  // write, neither of which affects a revocation decision.
+  async getRefreshTokenScopesByUid(uid) {
+    await this.ready();
+    return this.mysql._getRefreshTokenScopesByUid(uid);
+  }
+
   // Withdraws the given authorizations without discarding them: the rows and
   // their ToS timestamps stay, and the token-exchange gate stops treating them
   // as consent. Re-authorizing through /oauth/authorization reactivates the

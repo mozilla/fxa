@@ -126,6 +126,13 @@ const QUERY_LIST_REFRESH_TOKENS_BY_UID =
   '  refreshTokens.scope, clients.name as clientName, clients.canGrant AS clientCanGrant ' +
   'FROM refreshTokens LEFT OUTER JOIN clients ON clients.id = refreshTokens.clientId ' +
   'WHERE refreshTokens.userId=?';
+// Just what revocation needs to decide whether a peer still sustains a row.
+// Skips the clients join and the Redis metadata hydration that
+// QUERY_LIST_REFRESH_TOKENS_BY_UID drives, neither of which affects the
+// decision.
+const QUERY_LIST_REFRESH_TOKEN_SCOPES_BY_UID =
+  'SELECT clientId, scope FROM refreshTokens FORCE INDEX (tokens_user_id) ' +
+  'WHERE userId=?';
 
 /**
  * Gets a unique list of refresh tokens for a given user.
@@ -536,6 +543,16 @@ class MysqlStore extends MysqlOAuthShared {
       t.scope = ScopeSet.fromString(t.scope);
     });
     return refreshTokens;
+  }
+
+  async _getRefreshTokenScopesByUid(uid) {
+    const rows = await this._read(QUERY_LIST_REFRESH_TOKEN_SCOPES_BY_UID, [
+      buf(uid),
+    ]);
+    return rows.map((r) => ({
+      clientId: r.clientId,
+      scope: ScopeSet.fromString(r.scope),
+    }));
   }
 
   /**
