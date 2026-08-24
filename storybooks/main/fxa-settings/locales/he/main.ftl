@@ -801,6 +801,7 @@ recent-activity-account-passwordless-registration-complete = רישום חשבו
 recent-activity-account-recovery-codes-set = הוגדרו קודים לשחזור
 recent-activity-account-passkey-wrap-created = מפתח גישה הופעל עבור סנכרון
 recent-activity-account-passkey-wrap-creation-failure = הגדרת הסנכרון באמצעות מפתח גישה נכשלה
+recent-activity-account-passkey-wrap-invalidated = הגישה של מפתח הגישה לסנכרון הוסרה לאחר איפוס הססמה
 recent-activity-unknown = פעילות אחרת בחשבון
 
 

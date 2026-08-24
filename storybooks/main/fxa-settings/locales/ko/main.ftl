@@ -763,6 +763,7 @@ recent-activity-account-recovery-codes-signin-complete = 복구 코드를 사용
 recent-activity-password-reset-otp-sent = 비밀번호 재설정 확인 코드가 전송됨
 recent-activity-password-reset-otp-verified = 비밀번호 재설정 확인 코드가 확인됨
 recent-activity-must-reset-password = 비밀번호 재설정 필요
+recent-activity-account-passkey-wrap-creation-failure = 패스키로 동기화 설정 실패
 recent-activity-unknown = 기타 계정 활동
 
 

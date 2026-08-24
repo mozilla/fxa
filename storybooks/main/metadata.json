@@ -1,8 +1,8 @@
 {
-  "commit": "b522aa57dddaf6e8d851f05b5103e5e3c4b4a6bf",
-  "summary": "Merge pull request #21093 from mozilla/fxa-14399",
-  "description": "feat(content-server): add __heartbeat__ endpoint",
-  "timestamp": 1787431572000,
+  "commit": "d3c2877733baee726a24411ed03dc8bc056f1e78",
+  "summary": "Merge pull request #21023 from mozilla/fxa-13034",
+  "description": "refactor(auth-server): remove the canSend feature flag from the mailer",
+  "timestamp": 1787586663000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

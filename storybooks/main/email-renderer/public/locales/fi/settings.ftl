@@ -43,6 +43,9 @@ button-back-title = Takaisin
 ## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
+# Button to download the account recovery key as a plain text file and navigate to the next step
+# The next (and final) step is an optional prompt to save a storage hint
+recovery-key-download-button-v4 = Lataa ja jatka
 # Error message shown in a banner if the account recovery key download failed.
 # The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Valitettavasti tilin palautusavaimen lataamisessa oli ongelma.
@@ -134,6 +137,9 @@ device-info-block-location-unknown = Tuntematon sijainti
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $browserName } alustalla { $genericOSName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $browserName } laitteella { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP-osoite: { $ipAddress }
@@ -238,6 +244,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Koodi
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Muokkaa
 error-icon-aria-label =
     .aria-label = Virhe
 # Used as information icon for informative messaging
@@ -289,6 +298,9 @@ backup-authentication-codes-image-aria-label =
     .aria-label = Laitteen näyttö ja koodeja
 sync-clouds-image-aria-label =
     .aria-label = Pilviä, joissa on synkronointikuvake
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox }in logo
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -510,6 +522,9 @@ cs-cannot-disconnect = Asiakasta ei löydy, yhteyttä ei voi katkaista
 cs-logged-out-2 = Kirjautunut ulos palvelusta { $service }
 cs-refresh-button =
     .title = Päivitä yhdistetyt palvelut
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = Yhdistä laite
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = Puuttuuko jokin tai onko jokin kahteen kertaan?
 cs-disconnect-sync-heading = Katkaise yhteys Sync-palveluun
@@ -885,6 +900,8 @@ page-passkey-add-error-system-v2 = Todentamisavaimen luomisessa oli ongelma. Yri
 ## These are displayed as a list with the date when the event occured
 
 recent-activity-title = Viimeaikaiset tilitapahtumat
+# Clicking this button reveals the older account activity that is hidden at first.
+recent-activity-show-more-button = Näytä lisää
 recent-activity-account-create-v2 = Tili luotu
 recent-activity-account-disable-v2 = Tili poistettu käytöstä
 recent-activity-account-enable-v2 = Tili otettu käyttöön
@@ -1069,6 +1086,8 @@ passkey-delete-modal-heading = Poistetaanko todennusavain?
 passkey-delete-modal-cancel-button = Peruuta
 passkey-delete-modal-confirm-button = Poista todentamisavain
 passkey-delete-success = Todentamisavain poistettu
+passkey-rename-save-button = Tallenna
+passkey-rename-cancel-button = Peruuta
 
 ## Switch component
 
@@ -1231,6 +1250,7 @@ auth-error-216 = Tekstiviestien raja saavutettu
 auth-error-224 = Todentamisavainta ei löytynyt
 auth-error-225 = Todentamisavain on jo rekisteröity
 auth-error-228 = Todentamisavaimen rekisteröinti epäonnistui
+auth-error-239 = Tiliäsi ei voitu poistaa. Yritä uudelleen tai ota yhteyttä tukeen, jos ongelma jatkuu.
 auth-error-999 = Odottamaton virhe
 auth-error-1001 = Kirjautumisyritys peruttu
 auth-error-1002 = Istunto vanhentui. Kirjaudu sisään uudelleen.
@@ -1238,6 +1258,8 @@ auth-error-1003 = Paikallinen tallennustila tai evästeet ovat edelleen poissa k
 auth-error-1008 = Uuden salasanan pitää erota vanhasta
 auth-error-1010 = Salasanan täytyy olla kelvollinen
 auth-error-1011 = Sähköpostiosoitteen täytyy olla kelvollinen
+auth-error-1018 = Vahvistussähköpostisi palautui juuri. Kirjoititko sähköpostiosoitteesi väärin?
+auth-error-1020 = Kirjoititko sähköpostiosoitteen väärin? firefox.com ei ole kelvollinen sähköpostipalvelu
 auth-error-1031 = Ikä täytyy antaa rekisteröitymistä varten
 auth-error-1032 = Sinun tulee antaa kelvollinen ikä rekisteröityäksesi
 auth-error-1054 = Virheellinen kaksivaiheisen todennuksen koodi
@@ -1276,6 +1298,8 @@ passkey-registration-error-could-not-complete-link = Lue lisää
 passkey-authentication-error-timeout = Todentamisavainpyyntö aikakatkaistiin. Yritä uudelleen.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Selaimesi tai laitteesi ei tue todentamisavaimia.
+# Catch-all for unexpected errors during authentication (TypeError, DataError, EncodingError, ConstraintError, OperationError, UnknownError)
+passkey-authentication-error-unexpected = Jotain meni pieleen. Yritä uudelleen tai valitse toinen kirjautumismenetelmä.
 # Server returned 404 PASSKEY_NOT_FOUND — the assertion was for a credential
 # that no longer exists on the account (e.g., the user deleted the passkey
 # from their account but the authenticator still has the credential).
@@ -1403,9 +1427,12 @@ pair-auth-complete-manage-devices-link = Hallinnoi laitteita
 
 ## Alternate "Send Tab" variant — shown when the pair was initiated from a Send Tab entrypoint (toolbar icon, app menu, etc.)
 
+# Heading
+pair-auth-complete-send-tab-heading = Olet valmis lähettämään välilehtiä
 # Variable { $deviceFamily } is generally a browser name, for example "Firefox"
 # Variable { $deviceOS } is an operating system short name, for example "iOS", "Android"
 pair-auth-complete-send-tab-device-connected = { $deviceFamily } käyttöjärjestelmälle { $deviceOS } on yhdistetty.
+pair-auth-complete-send-tab-benefits = Voit lähettää avoimia välilehtiä, salasanoja ja kirjanmerkkejä laitteiden välillä välittömästi.
 
 ## AuthTotp page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
@@ -1435,6 +1462,9 @@ pair-wait-for-supp-heading-text = Hyväksyntä vaaditaan nyt <span>joltakin muul
 
 ## PairFailure - a view which displays on failure of the device pairing process
 
+# v2: Updated wording to align with the legacy Backbone pair/failure copy.
+pair-failure-header-v2 = Laitteen pariliitos epäonnistui
+pair-failure-message-v2 = Määritystä ei voitu suorittaa loppuun. Kirjaudu sisään sähköpostiosoitteellasi.
 pair-failure-try-again-link = Yritä uudelleen
 
 ## Pair index page
@@ -1462,12 +1492,18 @@ pair-qr-code-aria-label = QR-koodi
 pair-choice-subheader = Synkronoi { -brand-firefox }-kokemuksesi
 # Description shown on the choice screen
 pair-choice-description = Tarkastele tallennettuja salasanoja, välilehtiä, selaushistoriaa ja muuta – kaikilla laitteillasi.
+# Heading shown on the choice screen when the user arrived via a Send Tab entrypoint
+pair-choice-header-send-tab = Lataa tai avaa { -brand-firefox } laitteella, jolle haluat lähettää välilehtiä
 # Legend for the radio button fieldset
 pair-choice-legend = Jatka valitsemalla vaihtoehto:
 # Radio option: user already has Firefox for mobile — title
 pair-choice-has-mobile-title = Minulla on jo { -brand-firefox } mobiililaitteille
+# Radio option: user already has Firefox for mobile — description
+pair-choice-has-mobile-description = Aloita synkronointi nyt, jos sinulla on jo { -brand-firefox } mobiililaitteellasi.
 # Radio option: user does not have Firefox for mobile — title
 pair-choice-needs-mobile-title = Minulla ei ole { -brand-firefox }ia mobiililaitteille
+# Radio option: user does not have Firefox for mobile — description
+pair-choice-needs-mobile-description = Lataa { -brand-firefox } mobiililaitteellesi ja aloita synkronointi.
 # Continue button on choice screen (disabled until a radio option is selected)
 pair-choice-continue-button = Jatka
 # Success banner shown after signing in
@@ -1481,6 +1517,12 @@ pair-password-created-now-syncing = Salasana luotu. Synkronoit nyt.
 
 # Subheader for the download screen
 pair-download-subheader = Lataa { -brand-firefox } mobiililaitteille
+# Description for the download screen
+pair-download-description = Synkronoi { -brand-firefox } puhelimeesi tai tablettiisi lataamalla ensin { -brand-firefox } mobiililaitteille. Toimi näin:
+# Step 1: scan QR code. $stepNumber is the step number (1)
+pair-download-step-scan-qr = <b>Vaihe { $stepNumber }</b>: Lataa { -brand-firefox } skannaamalla tämä QR-koodi mobiililaitteesi kameralla:
+# Step 2: continue to sync. $stepNumber is the step number (2)
+pair-download-step-continue-sync = <b>Vaihe { $stepNumber }</b>: Valitse ”Jatka synkronointia” synkronoidaksesi { -brand-firefox }in mobiililaitteellasi.
 # Button on the download screen that opens about:preferences for pairing
 pair-continue-to-sync-button = Jatka synkronointiin
 
@@ -1488,6 +1530,7 @@ pair-continue-to-sync-button = Jatka synkronointiin
 
 pair-success-header-2 = Laite yhdistetty
 pair-success-message-2 = Parin muodostaminen onnistui.
+pair-success-tab-close-message = { -brand-firefox } sulkee tämän välilehden automaattisesti.
 
 ## SuppAllow page - Part of the device pairing flow
 ## Users see this page when they have started to pair a second (or more) device to their account
@@ -1513,14 +1556,112 @@ pair-unsupported-header = Muodosta pari sovelluksella
 pair-unsupported-message = Käytitkö järjestelmän kameraa? Parin muodostaminen tulee tehdä { -brand-firefox }-sovelluksesta.
 # Shown as heading when a desktop user visits from a non-Firefox browser
 pair-unsupported-oops-header = Oho! Vaikuttaa siltä, ettet käytä { -brand-firefox }ia.
+# Shown below the heading on desktop non-Firefox, prompting the user to switch browsers
+pair-unsupported-switch-to-firefox = Vaihda { -brand-firefox }iin ja avaa tämä sivu yhdistääksesi toisen laitteen.
 # Shown inline on mobile non-Firefox browsers before the download link
 pair-unsupported-oops-mobile = Oho! Vaikuttaa siltä, ettet käytä { -brand-firefox }ia.
+# v2: Heading for the mobile instructional message, shown on all mobile devices
+# (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
+# Aligned with legacy Backbone copy (see templates/partial/unsupported-pair.mustache).
+pair-unsupported-connecting-mobile-header-v2 = Yhdistetään { -product-mozilla-account } ja mobiililaitteesi
+# v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
+# URL so the domain does not wrap to a new line on narrow screens.
+pair-unsupported-connecting-mobile-instructions-v2 = Avaa { -brand-firefox } tietokoneellasi, siirry osoitteeseen <b>firefox.com/pair</b> ja seuraa näytön ohjeita yhdistääksesi mobiililaitteesi.
 # v2: "Learn more" link below the mobile instructions; links to a Mozilla support article.
 pair-unsupported-learn-more-link-v2 = Lue lisää
 # v2: Fallback shown to a desktop Firefox user who somehow reaches /pair/unsupported.
 # Matches the legacy Backbone "Oops! Something went wrong." message.
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oho! Jotain meni pieleen.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Sulje tämä välilehti ja yritä uudelleen.
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer, which is already signed in, after their
+## mobile device scans the pairing QR code. It asks them to approve the
+## sign-in, and shows the requesting device's details so they can verify it.
+
+# Asks the user to confirm the sign-in that another one of their devices just started
+pair2-authority-approve-sign-in-heading = Hyväksytäänkö sisäänkirjautuminen?
+# Submit button confirming that the user started the pairing and approves the
+# other device being added to their account
+pair2-authority-approve-sign-in-confirm-button = Kyllä, hyväksy kirjautuminen
+# "Not you?" asks whether someone other than the user started this sign-in.
+# The text inside <changePassword> links to the page for changing the password.
+pair2-authority-approve-sign-in-change-password = Etkö se ollut sinä? <changePassword>Vaihda salasanasi</changePassword>
+
+## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer after scanning the pairing QR code with
+## their phone. It confirms the flow has moved to the mobile device and waits
+## for the remaining steps to be completed there.
+
+pair2-authority-continue-on-mobile-heading = Jatka mobiililaitteellasi
+pair2-authority-continue-on-mobile-description = Noudata puhelimesi tai tabletin ohjeita.
+# Dismisses the pairing attempt
+pair2-authority-continue-on-mobile-cancel-button = Peruuta
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when Firefox is needed to continue pairing.
+## It points them at firefox.com/pair and offers a download link for Firefox.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-download-firefox-heading = Avaa { -brand-firefox } synkronointia varten
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction = Määritä synkronointi laitteiden välillä avaamalla { -brand-firefox } tällä laitteella, ja siirry osoitteeseen <b>firefox.com/pair</b>.
+# Links out to the Firefox download page
+pair2-authority-download-firefox-cta = Lataa { -brand-firefox }
+
+## ScanQR page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer. It shows a QR code that they scan with
+## their phone or tablet to connect the two devices and start syncing.
+
+pair2-authority-scan-qr-heading = Skannaa yhdistääksesi mobiililaitteesi
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-scan-qr-instruction = Skannaa QR-koodi puhelimellasi tai tabletillasi synkronoidaksesi { -brand-firefox }in kirjanmerkit, välilehdet ja paljon muuta.
+# Accessible label describing the QR code image shown on this page
+pair2-authority-scan-qr-code-aria-label = QR-koodi mobiililaitteen yhdistämiseksi
+# Link to a support article for users having trouble scanning the QR code
+pair2-authority-scan-qr-help-link = Apua skannaukseen
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and offers the follow-up actions.
+
+# "syncing" here means copying data between the user's devices
+pair2-authority-sync-success-heading = Synkronointi on muodostettu
+pair2-authority-sync-success-description = Välilehdet, kirjanmerkit, salasanat ja paljon muuta ovat valmiina kaikilla laitteillasi.
+# Opens the tabs that are open on the user's other synced devices
+pair2-authority-sync-success-view-tabs-button = Näytä synkronoidut välilehdet
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button = Synkronoinnin asetukset
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when pairing stopped without succeeding,
+## either because it timed out or because it was canceled. Both cases offer to
+## start pairing over again.
+
+# Shown when the pairing attempt expired before it was approved
+pair2-authority-timeout-and-cancel-timeout-heading = Haluatko yhdistää lisää laitteita?
+# Restarts the pairing flow
+pair2-authority-timeout-and-cancel-try-again-button = Yritä uudestaan
+# Abandons pairing without retrying
+pair2-authority-timeout-and-cancel-cancel-button = Peruuta
+# Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
+pair2-authority-timeout-and-cancel-sync-settings-button = Synkronoinnin asetukset
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = Vielä yksi vaihe ennen synkronointia
+pair2-supplicant-approve-sign-in-instruction = Hyväksy kirjautuminen tietokoneellasi.
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device once pairing has completed: the device
+## is signed in and syncing with the computer they paired it with.
+
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button = Synkronoinnin asetukset
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -1717,6 +1858,7 @@ signin-passkey-fallback-heading = Kirjoita salasanasi synkronoidaksesi
 signin-passkey-fallback-body = Tietojesi suojaamiseksi sinun on annettava salasanasi, kun käytät tätä todentamisavainta.
 signin-passkey-fallback-password-label = Salasana
 signin-passkey-fallback-continue = Jatka
+signin-passkey-fallback-forgot-password-link = Unohditko salasanan?
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
