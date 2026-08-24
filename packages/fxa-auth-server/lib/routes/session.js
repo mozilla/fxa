@@ -20,8 +20,8 @@ const { RelyingPartyConfigurationManager } = require('@fxa/shared/cms');
 const authMethods = require('../authMethods');
 const oauthDB = require('../oauth/db');
 const {
-  revokeAuthorizationsOnDisconnect,
-} = require('../oauth/revoke-authorizations-on-disconnect');
+  deauthorizeOnDisconnect,
+} = require('../oauth/deauthorize-on-disconnect');
 const { resolveStatsD } = require('../container-deps');
 const { FxaMailer } = require('../senders/fxa-mailer');
 const { FxaMailerFormat } = require('../senders/fxa-mailer-format');
@@ -105,10 +105,10 @@ module.exports = function (
         await db.deleteSessionToken(sessionToken);
         // Destroying the session by signing out should behave the same as
         // signing out from Connected Services: check whether any authorization
-        // should be revoked. Firefox Desktop is backed by a session rather than
+        // should be deauthorized. Firefox Desktop is backed by a session rather than
         // a refresh token until bz2053654, so for it this is the only path that
         // can retire one.
-        await revokeAuthorizationsOnDisconnect(
+        await deauthorizeOnDisconnect(
           { oauthDB, log, statsd: resolveStatsD() },
           { uid, remainingSessions: (await db.sessions(uid)).length }
         );

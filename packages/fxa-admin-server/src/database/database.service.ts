@@ -163,7 +163,8 @@ export class DatabaseService implements OnModuleDestroy {
         'service',
         'clientId',
         'firstAuthorizedTosAt',
-        'lastAuthorizedTosAt'
+        'lastAuthorizedTosAt',
+        'deauthorizedAt'
       )
       .where('uid', uidBuffer)
       .orderBy([
@@ -179,12 +180,15 @@ export class DatabaseService implements OnModuleDestroy {
         clientId: Buffer;
         firstAuthorizedTosAt: number | string;
         lastAuthorizedTosAt: number | string;
+        deauthorizedAt: number | string | null;
       }) => ({
         scope: row.scope,
         service: row.service,
         clientId: row.clientId.toString('hex'),
         firstAuthorizedTosAt: Number(row.firstAuthorizedTosAt),
         lastAuthorizedTosAt: Number(row.lastAuthorizedTosAt),
+        deauthorizedAt:
+          row.deauthorizedAt === null ? null : Number(row.deauthorizedAt),
       })
     );
   }

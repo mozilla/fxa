@@ -7,18 +7,18 @@
 -- delete the row, which also discards the ToS record the row exists to hold.
 --
 -- The row plus firstAuthorizedTosAt / lastAuthorizedTosAt answers "has this
--- user ever authorized this?" and survives until account deletion. revokedAt
--- IS NULL answers "is the authorization active?", which is what the token
--- exchange gate reads. Re-authorizing through the interactive flow clears
--- revokedAt on the existing row, so the ToS timestamps carry across a
--- revoke/re-auth cycle.
+-- user ever authorized this?" and survives until account deletion.
+-- deauthorizedAt IS NULL answers "is the authorization active?", which is what
+-- the token exchange gate reads. Re-authorizing through the interactive flow
+-- clears deauthorizedAt on the existing row, so the ToS timestamps carry
+-- across a deauthorize/re-auth cycle.
 --
 -- Nullable, no default, appended to the end of the row and part of no index or
 -- key, so this is a metadata-only change. INSTANT keeps it off the live
 -- ~15-20M row table entirely; gh-ost/pt-osc are unavailable in this
 -- environment, so a rebuilding ALTER is not an option here.
 ALTER TABLE accountAuthorizations
-  ADD COLUMN revokedAt BIGINT UNSIGNED DEFAULT NULL,
+  ADD COLUMN deauthorizedAt BIGINT UNSIGNED DEFAULT NULL,
   ALGORITHM = INSTANT;
 
 UPDATE dbMetadata SET value = '40' WHERE name = 'schema-patch-level';

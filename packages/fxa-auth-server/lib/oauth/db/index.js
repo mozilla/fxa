@@ -199,7 +199,7 @@ class OauthDB extends ConnectedServicesDb {
 
     const tokens = await (async () => {
       if (Object.keys(extraMetadata)) {
-       return await getTokens; // CALLS MYSQL
+        return await getTokens; // CALLS MYSQL
       }
       return {};
     })();
@@ -433,7 +433,7 @@ class OauthDB extends ConnectedServicesDb {
 
   // (clientId, scope) for every refresh token the user has. Deliberately not
   // getRefreshTokensByUid: that hydrates Redis metadata and can issue a prune
-  // write, neither of which affects a revocation decision.
+  // write, neither of which affects a deauthorization decision.
   async getRefreshTokenScopesByUid(uid) {
     await this.ready();
     return this.mysql._getRefreshTokenScopesByUid(uid);
@@ -442,14 +442,22 @@ class OauthDB extends ConnectedServicesDb {
   // Withdraws the given authorizations without discarding them: the rows and
   // their ToS timestamps stay, and the token-exchange gate stops treating them
   // as consent. Re-authorizing through /oauth/authorization reactivates the
-  // same row (see the upsert's revokedAt = NULL).
+  // same row (see the upsert's deauthorizedAt = NULL).
   //
   // Each row must carry the scope, service, clientId and lastAuthorizedTosAt as
   // read, so a row re-authorized in the meantime is left alone. The returned
-  // count is rows actually revoked, which may be fewer than were passed in.
-  async revokeAccountAuthorizations(uid, rows, revokedAt = Date.now()) {
+  // count is rows actually deauthorized, which may be fewer than were passed in.
+  async deauthorizeAccountAuthorizations(
+    uid,
+    rows,
+    deauthorizedAt = Date.now()
+  ) {
     await this.ready();
-    return this.mysql._revokeAccountAuthorizations(uid, rows, revokedAt);
+    return this.mysql._deauthorizeAccountAuthorizations(
+      uid,
+      rows,
+      deauthorizedAt
+    );
   }
 
   // True iff the (service, clientId) pair is permitted to record a consent

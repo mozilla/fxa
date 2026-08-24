@@ -18,7 +18,7 @@ export interface RemainingRefreshToken {
   scope: { contains(scope: string): boolean };
 }
 
-export interface AuthorizationRowsToRevokeParams {
+export interface AuthorizationRowsToDeauthorizeParams {
   /** Every authorization row the user has. */
   rows: AuthorizationRow[];
   /** The user's refresh tokens after the disconnect's deletes committed. */
@@ -49,7 +49,7 @@ export interface AuthorizationRowsToRevokeParams {
  * with that scope should not impact the original client's row. Authorization
  * sharing happens on read instead, at the token exchange, by (scope, service):
  * while any row for that pair is active every client benefits, and once the
- * last one is revoked the next exchange is denied and the user re-authorizes
+ * last one is deauthorized the next exchange is denied and the user re-authorizes
  * through whichever client asked, reactivating a row there.
  *
  * A client is still connected while it holds a refresh token covering the
@@ -60,14 +60,14 @@ export interface AuthorizationRowsToRevokeParams {
  * That session fallback lifts for the client this disconnect acted on.
  * Without the exception a native client's row would outlive every disconnect
  * for as long as the browser stayed signed in. With it, a destroyed refresh
- * token still doesn't revoke anything on its own: it only decides rows whose
+ * token still doesn't deauthorize anything on its own: it only decides rows whose
  * owner is the client that lost it.
  *
  * Client ids are compared lowercased, since callers source them from both hex
  * DB columns and request payloads.
  */
-export function authorizationRowsToRevoke(
-  params: AuthorizationRowsToRevokeParams
+export function authorizationRowsToDeauthorize(
+  params: AuthorizationRowsToDeauthorizeParams
 ): AuthorizationRow[] {
   const {
     rows,
@@ -106,7 +106,7 @@ export function authorizationRowsToRevoke(
     } catch {
       // ScopeSet.contains throws on an unparseable scope, and the column is NOT
       // NULL DEFAULT ''. Keep the row rather than let one bad value abort the
-      // batch and leave this account permanently un-revocable.
+      // batch and leave nothing on this account deauthorizable.
       onUnparsableScope?.(row.scope);
       return false;
     }

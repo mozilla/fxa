@@ -17,7 +17,7 @@ jest.mock('./oauth/db', () => ({
   removeRefreshToken: jest.fn(),
   listAccountConsentsByUid: jest.fn(),
   getRefreshTokenScopesByUid: jest.fn(),
-  revokeAccountAuthorizations: jest.fn(),
+  deauthorizeAccountAuthorizations: jest.fn(),
 }));
 
 const oauthDB = require('./oauth/db');
@@ -73,11 +73,11 @@ describe('lib/devices:', () => {
       glean = mocks.mockGlean();
       oauthDB.getRefreshToken.mockReset();
       oauthDB.removeRefreshToken.mockReset();
-      // An account with nothing authorized, so revocation is a no-op for the
+      // An account with nothing authorized, so deauthorization is a no-op for the
       // tests that are not about it.
       oauthDB.listAccountConsentsByUid.mockResolvedValue([]);
       oauthDB.getRefreshTokenScopesByUid.mockResolvedValue([]);
-      oauthDB.revokeAccountAuthorizations.mockResolvedValue(0);
+      oauthDB.deauthorizeAccountAuthorizations.mockResolvedValue(0);
       statsd = { increment: jest.fn() };
       devices = devicesModule(log, db, push, pushbox, glean, statsd);
     });
@@ -652,7 +652,7 @@ describe('lib/devices:', () => {
         expect(log.error).toHaveBeenCalledTimes(0);
       });
 
-      it('should evaluate authorization revocation after the device is deleted', async () => {
+      it('should evaluate deauthorization after the device is deleted', async () => {
         oauthDB.getRefreshToken.mockResolvedValue(undefined);
 
         await devices.destroy(request, deviceId);

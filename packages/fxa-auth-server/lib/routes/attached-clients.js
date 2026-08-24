@@ -17,8 +17,8 @@ const DEVICES_AND_SESSIONS_DOC =
 const { ConnectedServicesFactory } = require('fxa-shared/connected-services');
 const oauthDB = require('../oauth/db');
 const {
-  revokeAuthorizationsOnDisconnect,
-} = require('../oauth/revoke-authorizations-on-disconnect');
+  deauthorizeOnDisconnect,
+} = require('../oauth/deauthorize-on-disconnect');
 const { resolveAuthLogger, resolveStatsD } = require('../container-deps');
 const DESCRIPTIONS = require('../../docs/swagger/shared/descriptions').default;
 
@@ -283,7 +283,7 @@ module.exports = (log, db, devices, clientUtils) => {
           }
           // Read after our own delete, so Settings' parallel sign-outs resolve
           // to whichever request commits last.
-          await revokeAuthorizationsOnDisconnect(
+          await deauthorizeOnDisconnect(
             {
               oauthDB,
               log: resolveAuthLogger(),

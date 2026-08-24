@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// The revocation policy itself lives in @fxa/accounts/oauth and is tested there
-// (authorization-revocation.spec.ts). This file covers the orchestration around
+// The deauthorization policy itself lives in @fxa/accounts/oauth and is tested there
+// (deauthorization.spec.ts). This file covers the orchestration around
 // it: the gate, read ordering, metrics, the single retry, and error swallowing.
 import { OAuthNativeClients } from '@fxa/accounts/oauth';
 import ScopeSet from 'fxa-shared/oauth/scopes';
 
 import {
-  revokeAuthorizationsOnDisconnect,
-  RevokeAuthorizationsOnDisconnectOauthDB,
-} from './revoke-authorizations-on-disconnect';
+  deauthorizeOnDisconnect,
+  DeauthorizeOnDisconnectOauthDB,
+} from './deauthorize-on-disconnect';
 
 const UID = 'a'.repeat(32);
 const DESKTOP = OAuthNativeClients.FirefoxDesktop;
@@ -21,8 +21,8 @@ const VPN_SCOPE = 'https://identity.mozilla.com/apps/vpn';
 const TOS_AT = 1_700_000_000_000;
 
 function mockDb(
-  over: Partial<jest.Mocked<RevokeAuthorizationsOnDisconnectOauthDB>> = {}
-): jest.Mocked<RevokeAuthorizationsOnDisconnectOauthDB> {
+  over: Partial<jest.Mocked<DeauthorizeOnDisconnectOauthDB>> = {}
+): jest.Mocked<DeauthorizeOnDisconnectOauthDB> {
   return {
     listAccountConsentsByUid: jest.fn().mockResolvedValue([
       {
@@ -33,12 +33,12 @@ function mockDb(
       },
     ]),
     getRefreshTokenScopesByUid: jest.fn().mockResolvedValue([]),
-    revokeAccountAuthorizations: jest.fn().mockResolvedValue(1),
+    deauthorizeAccountAuthorizations: jest.fn().mockResolvedValue(1),
     ...over,
-  } as jest.Mocked<RevokeAuthorizationsOnDisconnectOauthDB>;
+  } as jest.Mocked<DeauthorizeOnDisconnectOauthDB>;
 }
 
-function mockDeps(db: jest.Mocked<RevokeAuthorizationsOnDisconnectOauthDB>) {
+function mockDeps(db: jest.Mocked<DeauthorizeOnDisconnectOauthDB>) {
   return {
     oauthDB: db,
     statsd: { increment: jest.fn() },
@@ -46,7 +46,7 @@ function mockDeps(db: jest.Mocked<RevokeAuthorizationsOnDisconnectOauthDB>) {
   };
 }
 
-describe('revokeAuthorizationsOnDisconnect', () => {
+describe('deauthorizeOnDisconnect', () => {
   // A refresh-token disconnect of the row's own client, with no session left.
   const destroyed = {
     uid: UID,
@@ -55,13 +55,13 @@ describe('revokeAuthorizationsOnDisconnect', () => {
     remainingSessions: 0,
   };
 
-  it('revokes the rows nothing sustains, normalizing the buffer clientId', async () => {
+  it('deauthorizes the rows nothing sustains, normalizing the buffer clientId', async () => {
     const db = mockDb();
     const deps = mockDeps(db);
 
-    await revokeAuthorizationsOnDisconnect(deps, destroyed);
+    await deauthorizeOnDisconnect(deps, destroyed);
 
-    expect(db.revokeAccountAuthorizations).toHaveBeenCalledWith(
+    expect(db.deauthorizeAccountAuthorizations).toHaveBeenCalledWith(
       UID,
       [
         {
@@ -74,7 +74,7 @@ describe('revokeAuthorizationsOnDisconnect', () => {
       expect.any(Number)
     );
     expect(deps.statsd.increment).toHaveBeenCalledWith(
-      'accountAuthorization.revoked',
+      'accountAuthorization.deauthorized',
       { client_type: 'native' }
     );
   });
@@ -82,7 +82,7 @@ describe('revokeAuthorizationsOnDisconnect', () => {
   it('reads the rows before the refresh tokens', async () => {
     // Not in parallel: an authorization committing between the two must show up
     // as a refresh token with no row (inert) rather than a row whose sustaining
-    // refresh token we missed (revokes what the user just granted).
+    // refresh token we missed (deauthorizes what the user just granted).
     const order: string[] = [];
     const db = mockDb({
       listAccountConsentsByUid: jest.fn().mockImplementation(async () => {
@@ -95,7 +95,7 @@ describe('revokeAuthorizationsOnDisconnect', () => {
       }),
     });
 
-    await revokeAuthorizationsOnDisconnect(mockDeps(db), destroyed);
+    await deauthorizeOnDisconnect(mockDeps(db), destroyed);
 
     expect(order).toEqual(['rows', 'tokens']);
   });
@@ -103,13 +103,13 @@ describe('revokeAuthorizationsOnDisconnect', () => {
   it('tags a disconnect with no clientId as a session sign-out', async () => {
     const deps = mockDeps(mockDb());
 
-    await revokeAuthorizationsOnDisconnect(deps, {
+    await deauthorizeOnDisconnect(deps, {
       uid: UID,
       remainingSessions: 0,
     });
 
     expect(deps.statsd.increment).toHaveBeenCalledWith(
-      'accountAuthorization.revoked',
+      'accountAuthorization.deauthorized',
       { client_type: 'session' }
     );
   });
@@ -127,7 +127,7 @@ describe('revokeAuthorizationsOnDisconnect', () => {
     });
     const deps = mockDeps(db);
 
-    await revokeAuthorizationsOnDisconnect(deps, {
+    await deauthorizeOnDisconnect(deps, {
       uid: UID,
       clientId: WEB_RP,
       destroyedRefreshTokens: 1,
@@ -135,23 +135,23 @@ describe('revokeAuthorizationsOnDisconnect', () => {
     });
 
     expect(deps.statsd.increment).toHaveBeenCalledWith(
-      'accountAuthorization.revoked',
+      'accountAuthorization.deauthorized',
       { client_type: 'other' }
     );
   });
 
-  it('counts a no-op when the revoke matched nothing', async () => {
+  it('counts a no-op when the deauthorize matched nothing', async () => {
     // The optimistic guard dropped the row: it was re-authorized between the
     // read and the write.
     const db = mockDb({
-      revokeAccountAuthorizations: jest.fn().mockResolvedValue(0),
+      deauthorizeAccountAuthorizations: jest.fn().mockResolvedValue(0),
     });
     const deps = mockDeps(db);
 
-    await revokeAuthorizationsOnDisconnect(deps, destroyed);
+    await deauthorizeOnDisconnect(deps, destroyed);
 
     expect(deps.statsd.increment).toHaveBeenCalledWith(
-      'accountAuthorization.revoke_noop',
+      'accountAuthorization.deauthorize_noop',
       { client_type: 'native' }
     );
   });
@@ -159,10 +159,10 @@ describe('revokeAuthorizationsOnDisconnect', () => {
   it('does not touch the db when uid is absent', async () => {
     const db = mockDb();
 
-    await revokeAuthorizationsOnDisconnect(mockDeps(db), { uid: '' });
+    await deauthorizeOnDisconnect(mockDeps(db), { uid: '' });
 
     expect(db.listAccountConsentsByUid).not.toHaveBeenCalled();
-    expect(db.revokeAccountAuthorizations).not.toHaveBeenCalled();
+    expect(db.deauthorizeAccountAuthorizations).not.toHaveBeenCalled();
   });
 
   it('counts a row whose scope will not parse', async () => {
@@ -184,7 +184,7 @@ describe('revokeAuthorizationsOnDisconnect', () => {
     });
     const deps = mockDeps(db);
 
-    await revokeAuthorizationsOnDisconnect(deps, destroyed);
+    await deauthorizeOnDisconnect(deps, destroyed);
 
     expect(deps.statsd.increment).toHaveBeenCalledWith(
       'accountAuthorization.unparsable_scope',
@@ -192,23 +192,23 @@ describe('revokeAuthorizationsOnDisconnect', () => {
     );
   });
 
-  it('tags a session sign-out that revokes nothing as a session no-op', async () => {
+  it('tags a session sign-out that deauthorizes nothing as a session no-op', async () => {
     const db = mockDb();
     const deps = mockDeps(db);
 
-    await revokeAuthorizationsOnDisconnect(deps, {
+    await deauthorizeOnDisconnect(deps, {
       uid: UID,
       remainingSessions: 1,
     });
 
     expect(deps.statsd.increment).toHaveBeenCalledWith(
-      'accountAuthorization.revoke_noop',
+      'accountAuthorization.deauthorize_noop',
       { client_type: 'session' }
     );
   });
 
   describe('when the first attempt fails', () => {
-    it('retries once and revokes on the second attempt', async () => {
+    it('retries once and deauthorizes on the second attempt', async () => {
       const db = mockDb({
         listAccountConsentsByUid: jest
           .fn()
@@ -224,11 +224,11 @@ describe('revokeAuthorizationsOnDisconnect', () => {
       });
       const deps = mockDeps(db);
 
-      await revokeAuthorizationsOnDisconnect(deps, destroyed);
+      await deauthorizeOnDisconnect(deps, destroyed);
 
-      expect(db.revokeAccountAuthorizations).toHaveBeenCalledTimes(1);
+      expect(db.deauthorizeAccountAuthorizations).toHaveBeenCalledTimes(1);
       expect(deps.statsd.increment).toHaveBeenCalledWith(
-        'accountAuthorization.revoke_retried',
+        'accountAuthorization.deauthorize_retried',
         { client_type: 'native' }
       );
     });
@@ -241,7 +241,7 @@ describe('revokeAuthorizationsOnDisconnect', () => {
           .mockResolvedValue([]),
       });
 
-      await revokeAuthorizationsOnDisconnect(mockDeps(db), destroyed);
+      await deauthorizeOnDisconnect(mockDeps(db), destroyed);
 
       expect(db.listAccountConsentsByUid).toHaveBeenCalledTimes(2);
     });
@@ -255,10 +255,10 @@ describe('revokeAuthorizationsOnDisconnect', () => {
       });
       const deps = mockDeps(db);
 
-      await revokeAuthorizationsOnDisconnect(deps, destroyed);
+      await deauthorizeOnDisconnect(deps, destroyed);
 
       expect(deps.statsd.increment).not.toHaveBeenCalledWith(
-        'accountAuthorization.revoke_failed',
+        'accountAuthorization.deauthorize_failed',
         expect.anything()
       );
       expect(deps.log.warn).not.toHaveBeenCalled();
@@ -275,14 +275,14 @@ describe('revokeAuthorizationsOnDisconnect', () => {
 
     it('does not reject, so the disconnect still succeeds', async () => {
       await expect(
-        revokeAuthorizationsOnDisconnect(mockDeps(failing()), destroyed)
+        deauthorizeOnDisconnect(mockDeps(failing()), destroyed)
       ).resolves.toBeUndefined();
     });
 
     it('gives up after two attempts', async () => {
       const db = failing();
 
-      await revokeAuthorizationsOnDisconnect(mockDeps(db), destroyed);
+      await deauthorizeOnDisconnect(mockDeps(db), destroyed);
 
       expect(db.listAccountConsentsByUid).toHaveBeenCalledTimes(2);
     });
@@ -290,10 +290,10 @@ describe('revokeAuthorizationsOnDisconnect', () => {
     it('counts the failure', async () => {
       const deps = mockDeps(failing());
 
-      await revokeAuthorizationsOnDisconnect(deps, destroyed);
+      await deauthorizeOnDisconnect(deps, destroyed);
 
       expect(deps.statsd.increment).toHaveBeenCalledWith(
-        'accountAuthorization.revoke_failed',
+        'accountAuthorization.deauthorize_failed',
         { client_type: 'native' }
       );
     });
@@ -301,10 +301,10 @@ describe('revokeAuthorizationsOnDisconnect', () => {
     it('logs the error message only, never the error object', async () => {
       const deps = mockDeps(failing());
 
-      await revokeAuthorizationsOnDisconnect(deps, destroyed);
+      await deauthorizeOnDisconnect(deps, destroyed);
 
       expect(deps.log.warn).toHaveBeenCalledWith(
-        'accountAuthorization.revoke_failed',
+        'accountAuthorization.deauthorize_failed',
         { err: 'ECONNREFUSED' }
       );
     });
@@ -316,22 +316,22 @@ describe('revokeAuthorizationsOnDisconnect', () => {
         })
       );
 
-      await revokeAuthorizationsOnDisconnect(deps, destroyed);
+      await deauthorizeOnDisconnect(deps, destroyed);
 
       expect(deps.log.warn).toHaveBeenCalledWith(
-        'accountAuthorization.revoke_failed',
+        'accountAuthorization.deauthorize_failed',
         { err: 'boom' }
       );
     });
   });
 
   describe('without optional collaborators', () => {
-    it('still revokes when statsd and log are absent', async () => {
+    it('still deauthorizes when statsd and log are absent', async () => {
       const db = mockDb();
 
-      await revokeAuthorizationsOnDisconnect({ oauthDB: db }, destroyed);
+      await deauthorizeOnDisconnect({ oauthDB: db }, destroyed);
 
-      expect(db.revokeAccountAuthorizations).toHaveBeenCalled();
+      expect(db.deauthorizeAccountAuthorizations).toHaveBeenCalled();
     });
 
     it('swallows a db failure when statsd and log are absent', async () => {
@@ -342,7 +342,7 @@ describe('revokeAuthorizationsOnDisconnect', () => {
       });
 
       await expect(
-        revokeAuthorizationsOnDisconnect({ oauthDB: db }, destroyed)
+        deauthorizeOnDisconnect({ oauthDB: db }, destroyed)
       ).resolves.toBeUndefined();
     });
   });

@@ -19,8 +19,8 @@ const { synthesizeClientName } = require('fxa-shared/connected-services');
 const { platformFromOS } = require('fxa-shared/lib/user-agent');
 const { reportSentryError } = require('./sentry');
 const {
-  revokeAuthorizationsOnDisconnect,
-} = require('./oauth/revoke-authorizations-on-disconnect');
+  deauthorizeOnDisconnect,
+} = require('./oauth/deauthorize-on-disconnect');
 
 const SCHEMA = {
   id: isA.string().length(32).regex(HEX_STRING),
@@ -214,12 +214,12 @@ module.exports = (log, db, push, pushbox, glean, statsd) => {
       }
     }
 
-    // Revoke any row whose own client has nothing left. deleteDevice cascades
+    // Deauthorize any row whose own client has nothing left. deleteDevice cascades
     // to the device's session token, so reading sessions now yields what
     // actually remains. Skipped when the lookup above failed, since the client
     // identity it produces would be incomplete.
     if (deletedDevice && !failed) {
-      await revokeAuthorizationsOnDisconnect(
+      await deauthorizeOnDisconnect(
         { oauthDB, log, statsd },
         {
           uid,

@@ -1,2 +1,2 @@
 export * from './lib/oauth';
-export * from './lib/authorization-revocation';
+export * from './lib/deauthorization';

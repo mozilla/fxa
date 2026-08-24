@@ -6,9 +6,7 @@ const { OauthError } = require('@fxa/accounts/errors');
 const oauthDB = require('./db');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const { resolveAuthLogger, resolveStatsD } = require('../container-deps');
-const {
-  revokeAuthorizationsOnDisconnect,
-} = require('./revoke-authorizations-on-disconnect');
+const { deauthorizeOnDisconnect } = require('./deauthorize-on-disconnect');
 
 // Helper function to render each returned record in the expected form.
 function serialize(clientIdHex, token) {
@@ -121,7 +119,7 @@ function processRefreshTokens(refreshTokens) {
 module.exports = {
   /**
    * `remainingSessions` is how many session tokens the account has left. Only
-   * callers with an fxa-db handle can count them; omitting it makes revocation
+   * callers with an fxa-db handle can count them; omitting it makes deauthorization
    * treat a native client as still signed in, which is the safe reading.
    */
   async destroy(clientId, uid, refreshTokenId, remainingSessions) {
@@ -139,16 +137,16 @@ module.exports = {
       destroyedRefreshTokens = 1;
     } else {
       // Resolves to [codesResult, refreshTokensResult]; only the second is
-      // evidence that this client held a refresh token worth revoking against.
+      // evidence that this client held a refresh token worth deauthorizing against.
       const [, refreshTokens] = await oauthDB.deleteClientAuthorization(
         clientId,
         uid
       );
       destroyedRefreshTokens = refreshTokens?.affectedRows ?? 0;
     }
-    // Revoke any row whose own client has nothing left. After the deletes
+    // Deauthorize any row whose own client has nothing left. After the deletes
     // above, so the evaluation sees the new state.
-    await revokeAuthorizationsOnDisconnect(
+    await deauthorizeOnDisconnect(
       { oauthDB, log: resolveAuthLogger(), statsd: resolveStatsD() },
       { uid, clientId, destroyedRefreshTokens, remainingSessions }
     );

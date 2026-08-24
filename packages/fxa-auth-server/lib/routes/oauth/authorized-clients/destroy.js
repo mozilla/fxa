@@ -31,7 +31,7 @@ module.exports = () => ({
     handler: async function (req) {
       const claims = await verifyAssertion(req.payload.assertion);
       // No remainingSessions: this route has no fxa-db handle to count them.
-      // Revocation reads that as "one remains", so a native client's row
+      // Deauthorization reads that as "one remains", so a native client's row
       // survives here unless its own refresh token was the one destroyed.
       await authorizedClients.destroy(
         req.payload.client_id,

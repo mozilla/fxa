@@ -118,6 +118,9 @@ export interface AccountAuthorization {
   clientId: string;
   firstAuthorizedTosAt: number;
   lastAuthorizedTosAt: number;
+  // Null while the authorization is active. Deauthorized rows are kept for the ToS
+  // record, so without this an admin cannot tell the two apart.
+  deauthorizedAt: number | null;
 }
 
 export interface LinkedAccount {

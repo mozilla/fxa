@@ -5,9 +5,9 @@
 import ScopeSet from 'fxa-shared/oauth/scopes';
 
 import {
-  authorizationRowsToRevoke,
+  authorizationRowsToDeauthorize,
   AuthorizationRow,
-} from './authorization-revocation';
+} from './deauthorization';
 import { OAuthNativeClients } from './oauth';
 
 const DESKTOP = OAuthNativeClients.FirefoxDesktop;
@@ -37,11 +37,11 @@ const disconnect = (clientId: string) => ({
   destroyedRefreshTokens: 1,
 });
 
-describe('authorizationRowsToRevoke', () => {
+describe('authorizationRowsToDeauthorize', () => {
   describe('a client that still holds a covering refresh token', () => {
     it('keeps its row', () => {
       expect(
-        authorizationRowsToRevoke({
+        authorizationRowsToDeauthorize({
           rows: [row({ clientId: FENIX })],
           remainingTokens: [token(FENIX, ['profile', VPN_SCOPE])],
           remainingSessions: 0,
@@ -49,9 +49,9 @@ describe('authorizationRowsToRevoke', () => {
       ).toEqual([]);
     });
 
-    it('revokes when its remaining refresh token does not carry the scope', () => {
+    it('deauthorizes when its remaining refresh token does not carry the scope', () => {
       expect(
-        authorizationRowsToRevoke({
+        authorizationRowsToDeauthorize({
           rows: [row({ clientId: FENIX })],
           remainingTokens: [token(FENIX, ['profile', OLDSYNC_SCOPE])],
           remainingSessions: 0,
@@ -62,9 +62,9 @@ describe('authorizationRowsToRevoke', () => {
     it('ignores another client’s refresh token entirely', () => {
       // A row belongs to the client that authorized the scope. A Fenix refresh
       // token is not evidence about Desktop's row; if Desktop is gone the row
-      // is revoked and Fenix re-authorizes on its next exchange.
+      // is deauthorized and Fenix re-authorizes on its next exchange.
       expect(
-        authorizationRowsToRevoke({
+        authorizationRowsToDeauthorize({
           rows: [row({ clientId: DESKTOP })],
           remainingTokens: [token(FENIX, [VPN_SCOPE])],
           remainingSessions: 0,
@@ -78,7 +78,7 @@ describe('authorizationRowsToRevoke', () => {
       // Firefox Desktop is backed by a session rather than a refresh token
       // until bz2053654.
       expect(
-        authorizationRowsToRevoke({
+        authorizationRowsToDeauthorize({
           rows: [row()],
           remainingTokens: [],
           remainingSessions: 1,
@@ -86,9 +86,9 @@ describe('authorizationRowsToRevoke', () => {
       ).toEqual([]);
     });
 
-    it('revokes its row once no session remains', () => {
+    it('deauthorizes its row once no session remains', () => {
       expect(
-        authorizationRowsToRevoke({
+        authorizationRowsToDeauthorize({
           rows: [row()],
           remainingTokens: [],
           remainingSessions: 0,
@@ -100,7 +100,7 @@ describe('authorizationRowsToRevoke', () => {
       // Callers without an fxa-db handle cannot count sessions; assuming one
       // remains is the safe reading.
       expect(
-        authorizationRowsToRevoke({
+        authorizationRowsToDeauthorize({
           rows: [row()],
           remainingTokens: [],
         })
@@ -111,7 +111,7 @@ describe('authorizationRowsToRevoke', () => {
       // Otherwise disconnecting a mobile client would never withdraw anything
       // while the user's browser stayed signed in.
       expect(
-        authorizationRowsToRevoke({
+        authorizationRowsToDeauthorize({
           rows: [row({ clientId: FENIX })],
           remainingTokens: [],
           remainingSessions: 1,
@@ -125,7 +125,7 @@ describe('authorizationRowsToRevoke', () => {
       const desktopRow = row();
 
       expect(
-        authorizationRowsToRevoke({
+        authorizationRowsToDeauthorize({
           rows: [desktopRow, row({ clientId: FENIX })],
           remainingTokens: [],
           remainingSessions: 1,
@@ -138,7 +138,7 @@ describe('authorizationRowsToRevoke', () => {
       // The vacuous case: finding no refresh token is not evidence for a client
       // that never had one.
       expect(
-        authorizationRowsToRevoke({
+        authorizationRowsToDeauthorize({
           rows: [row()],
           remainingTokens: [],
           remainingSessions: 1,
@@ -149,11 +149,11 @@ describe('authorizationRowsToRevoke', () => {
   });
 
   describe('a non-native client', () => {
-    it('gets no session protection, so a row with no refresh token is revoked', () => {
+    it('gets no session protection, so a row with no refresh token is deauthorized', () => {
       // A web RP is not session backed, so a live session says nothing about it
       // and its row cannot be exchanged without a refresh token anyway.
       expect(
-        authorizationRowsToRevoke({
+        authorizationRowsToDeauthorize({
           rows: [row({ scope: 'profile', service: '', clientId: WEB_RP })],
           remainingTokens: [],
           remainingSessions: 5,
@@ -163,7 +163,7 @@ describe('authorizationRowsToRevoke', () => {
 
     it('keeps its row while it holds a covering refresh token', () => {
       expect(
-        authorizationRowsToRevoke({
+        authorizationRowsToDeauthorize({
           rows: [row({ scope: 'profile', service: '', clientId: WEB_RP })],
           remainingTokens: [token(WEB_RP, ['profile'])],
           remainingSessions: 0,
@@ -175,7 +175,7 @@ describe('authorizationRowsToRevoke', () => {
   it('keeps a narrow row covered by a broader remaining scope', () => {
     // Coverage is a ScopeSet question, not a string comparison.
     expect(
-      authorizationRowsToRevoke({
+      authorizationRowsToDeauthorize({
         rows: [row({ scope: 'profile:uid', clientId: FENIX })],
         remainingTokens: [token(FENIX, ['profile'])],
         remainingSessions: 0,
@@ -187,7 +187,7 @@ describe('authorizationRowsToRevoke', () => {
     it('keeps a row whose scope ScopeSet cannot parse', () => {
       // The column is NOT NULL DEFAULT '' and ScopeSet.contains('') throws.
       expect(
-        authorizationRowsToRevoke({
+        authorizationRowsToDeauthorize({
           rows: [row({ scope: '', clientId: FENIX })],
           remainingTokens: [token(FENIX, [VPN_SCOPE])],
           remainingSessions: 0,
@@ -195,11 +195,11 @@ describe('authorizationRowsToRevoke', () => {
       ).toEqual([]);
     });
 
-    it('still revokes the other rows in the batch', () => {
+    it('still deauthorizes the other rows in the batch', () => {
       const unsustained = row({ scope: OLDSYNC_SCOPE, clientId: FENIX });
 
       expect(
-        authorizationRowsToRevoke({
+        authorizationRowsToDeauthorize({
           rows: [row({ scope: '', clientId: FENIX }), unsustained],
           remainingTokens: [token(FENIX, [VPN_SCOPE])],
           remainingSessions: 0,
@@ -210,7 +210,7 @@ describe('authorizationRowsToRevoke', () => {
     it('reports the offending scope so the caller can count it', () => {
       const onUnparsableScope = jest.fn();
 
-      authorizationRowsToRevoke({
+      authorizationRowsToDeauthorize({
         rows: [row({ scope: '', clientId: FENIX })],
         remainingTokens: [token(FENIX, [VPN_SCOPE])],
         remainingSessions: 0,
@@ -227,7 +227,7 @@ describe('authorizationRowsToRevoke', () => {
     const rpRow = row({ scope: 'profile', service: '', clientId: WEB_RP });
 
     expect(
-      authorizationRowsToRevoke({
+      authorizationRowsToDeauthorize({
         rows: [sustained, desktopRow, rpRow],
         remainingTokens: [token(FENIX, [VPN_SCOPE])],
         remainingSessions: 1,
@@ -239,7 +239,7 @@ describe('authorizationRowsToRevoke', () => {
     // Row ids come back as hex from the DB and payload ids are caller supplied,
     // so neither side is guaranteed lowercase. A mismatch would silently skip.
     expect(
-      authorizationRowsToRevoke({
+      authorizationRowsToDeauthorize({
         rows: [row({ clientId: FENIX.toUpperCase() })],
         remainingTokens: [token(FENIX.toUpperCase(), [VPN_SCOPE])],
         remainingSessions: 0,
@@ -249,7 +249,7 @@ describe('authorizationRowsToRevoke', () => {
 
   it('returns nothing when there are no rows', () => {
     expect(
-      authorizationRowsToRevoke({
+      authorizationRowsToDeauthorize({
         rows: [],
         remainingTokens: [],
         remainingSessions: 0,

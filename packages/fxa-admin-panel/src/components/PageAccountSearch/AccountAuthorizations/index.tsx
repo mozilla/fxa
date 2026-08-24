@@ -27,6 +27,7 @@ export const AccountAuthorizations = ({
         'Client ID',
         'First Authorized',
         'Last Authorized',
+        'Deauthorized',
       ]}
     >
       {authorizations.map(
@@ -36,6 +37,7 @@ export const AccountAuthorizations = ({
           clientId,
           firstAuthorizedTosAt,
           lastAuthorizedTosAt,
+          deauthorizedAt,
         }) => (
           <TableRowXHeader key={`${service}-${scope}-${clientId}`}>
             <td data-testid="account-authorization-service">{service}</td>
@@ -46,6 +48,10 @@ export const AccountAuthorizations = ({
             </td>
             <td data-testid="account-authorization-last-authorized-at">
               {getFormattedDate(lastAuthorizedTosAt)}
+            </td>
+            <td data-testid="account-authorization-deauthorized-at">
+              {/* Not getFormattedDate: it renders a null as the epoch. */}
+              {deauthorizedAt ? getFormattedDate(deauthorizedAt) : '—'}
             </td>
           </TableRowXHeader>
         )
