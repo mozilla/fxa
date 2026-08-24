@@ -1,8 +1,8 @@
 {
-  "commit": "f87b36d0b92435869d2419993b1b5176b322b871",
-  "summary": "Merge pull request #21058 from mozilla/fxa-9473",
-  "description": "fix(settings): reject a whitespace-only new password",
-  "timestamp": 1787586778000,
+  "commit": "96341efb4fbfc8f582427bdd5c62a0014747c496",
+  "summary": "Merge pull request #21001 from mozilla/fxa-14311",
+  "description": "feat(settings): require OTP for inline TOTP enroll",
+  "timestamp": 1787595084000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
