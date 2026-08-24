@@ -13,7 +13,7 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useConfig, useFtlMsgResolver } from '../../models';
 import { Constants } from '../../lib/constants';
 import { getBasicAccountData } from '../../lib/account-storage';
-import firefox, { buildSyncOAuthSearch } from '../../lib/channels/firefox';
+import firefox, { buildOAuthSearch } from '../../lib/channels/firefox';
 import GleanMetrics from '../../lib/glean';
 import AppLayout from '../../components/AppLayout';
 import { UseFxAStatusResult } from '../../lib/hooks';
@@ -105,7 +105,7 @@ const ConnectAnotherDevice = ({
   isSignIn: isSignInProp,
   canSignIn: canSignInProp,
   device: deviceProp,
-  fxaStatus
+  fxaStatus,
 }: ConnectAnotherDeviceProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
@@ -150,10 +150,10 @@ const ConnectAnotherDevice = ({
   // App re-instantiates with an oauth_webchannel_v1 Sync integration.
   const startSyncOAuthFlow = useCallback(async (): Promise<boolean> => {
     const oauthParams = await firefox
-      .fxaOAuthFlowBegin(['profile', Constants.OAUTH_OLDSYNC_SCOPE])
+      .fxaOAuthFlowBegin(['profile', Constants.OAUTH_OLDSYNC_SCOPE], 'sync')
       .catch(() => null);
     if (!oauthParams) return false;
-    const params = buildSyncOAuthSearch(oauthParams);
+    const params = buildOAuthSearch(oauthParams, 'sync');
     // Underscore form: the CMS endpoint validator rejects ':' in entrypoint.
     params.set('entrypoint', 'fxa_connect_another_device');
     if (email) params.set('email', email);
@@ -233,7 +233,6 @@ const ConnectAnotherDevice = ({
         signedInUser?.sessionToken && signedInUser.verified
       );
       if (browserSignedIn && isEligibleForPairing()) {
-
         // Both FxA and Firefox have to signal that pairing v2 is enabled!
         if (
           config.pairing.version === 2 &&

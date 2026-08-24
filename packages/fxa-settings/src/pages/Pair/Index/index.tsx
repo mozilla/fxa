@@ -26,7 +26,7 @@ import Banner from '../../../components/Banner';
 import ButtonBack from '../../../components/ButtonBack';
 import { Constants } from '../../../lib/constants';
 import firefox, {
-  buildSyncOAuthSearch,
+  buildOAuthSearch,
   FirefoxCommand,
 } from '../../../lib/channels/firefox';
 import { hardNavigate } from 'fxa-react/lib/utils';
@@ -147,11 +147,11 @@ const Pair = ({ error, cmsInfo: cmsInfoProp, integration }: PairProps) => {
         return;
       }
       const oauthParams = await firefox
-        .fxaOAuthFlowBegin(['profile', Constants.OAUTH_OLDSYNC_SCOPE])
+        .fxaOAuthFlowBegin(['profile', Constants.OAUTH_OLDSYNC_SCOPE], 'sync')
         .catch(() => null);
       if (cancelled) return;
       if (oauthParams) {
-        hardNavigate(`/?${buildSyncOAuthSearch(oauthParams)}`);
+        hardNavigate(`/?${buildOAuthSearch(oauthParams, 'sync')}`);
         return;
       }
       // WebChannel didn't reply; reveal the page so the user isn't stuck.
