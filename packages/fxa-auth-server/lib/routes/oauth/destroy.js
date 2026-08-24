@@ -62,6 +62,9 @@ module.exports = ({ log, oauthDB }) => {
         client_id: token.clientId.toString('hex'),
       });
     }
+    // Deliberately no deauthorization pass, unlike the Connected Services and
+    // device disconnect paths: Firefox Desktop destroys its sync refresh token
+    // here right after sign-in, so it would deauthorize a fresh grant.
     await oauthDB[removeToken](token);
     return {};
   }
