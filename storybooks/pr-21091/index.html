@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit ae81895548895aea6bbd3a3c88b83e5347ac4006</title>
+  <title>Storybooks for commit 46e110be96ef8639b549a8ad9b97a44cab5a4d5e</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit ae81895548895aea6bbd3a3c88b83e5347ac4006</h1>
+  <h1>Storybooks for commit 46e110be96ef8639b549a8ad9b97a44cab5a4d5e</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/24/2026, 5:21:21 PM UTC</dd>
+    <dd>8/24/2026, 5:51:33 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(pairing): complete the v2 pairing flow and add functional tests</pre></dd>
     <dt>Description</dt>
@@ -46,11 +46,10 @@ This commit:
   and forwards the v2 supplicant entry from /pair and /pair/supp.
 - falls back to the known mobile pairing client id when fxa_status omits
   it, which Firefox for Android does.
-- adds v2 functional tests for desktop, Android, negative paths, version
-  gating and web channels, with authority and supplicant harnesses.
-- runs the desktop v2 test on two Playwright browsers, so it needs no
-  Marionette or custom build; skipped in CI until the runner image can
-  build a v2-capable Firefox.</pre></dd>
+- adds v2 functional tests for desktop, Android and the pair choice
+  screen, covering every entry path into v2 and the version gate.
+- resolves the Marionette authority to Firefox Nightly, which carries the
+  v2 chrome commands, so the v2 specs skip rather than fail without it.</pre></dd>
   </dl>
 </body>
 </html>
