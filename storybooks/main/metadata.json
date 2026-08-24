@@ -1,8 +1,8 @@
 {
-  "commit": "d3c2877733baee726a24411ed03dc8bc056f1e78",
-  "summary": "Merge pull request #21023 from mozilla/fxa-13034",
-  "description": "refactor(auth-server): remove the canSend feature flag from the mailer",
-  "timestamp": 1787586663000,
+  "commit": "f87b36d0b92435869d2419993b1b5176b322b871",
+  "summary": "Merge pull request #21058 from mozilla/fxa-9473",
+  "description": "fix(settings): reject a whitespace-only new password",
+  "timestamp": 1787586778000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
