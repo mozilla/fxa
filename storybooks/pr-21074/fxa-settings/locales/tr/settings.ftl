@@ -43,6 +43,9 @@ button-back-title = Geri
 ## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
+# Button to download the account recovery key as a plain text file and navigate to the next step
+# The next (and final) step is an optional prompt to save a storage hint
+recovery-key-download-button-v4 = İndir ve devam et
 # Error message shown in a banner if the account recovery key download failed.
 # The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Hesap kurtarma anahtarınız indirilirken bir sorun oluştu.
@@ -300,6 +303,9 @@ sync-clouds-image-aria-label =
     .aria-label = Eşitleme simgesi olan bulutlar
 confetti-falling-image-aria-label =
     .aria-label = Düşen konfeti animasyonu
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox } logosu
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -724,6 +730,8 @@ flow-setup-2fa-prompt-heading = İki aşamalı kimlik doğrulamayı ayarla
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
 flow-setup-2fa-prompt-description = { $serviceName }, hesabınızı güvende tutmak için iki aşamalı kimlik doğrulamasını ayarlamanızı gerektiriyor.
+# Success banner shown at the top of the page when the user signed in with a passkey.
+flow-setup-2fa-prompt-passkey-success-banner = Geçiş anahtarıyla başarıyla giriş yapıldı
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = Devam etmek için <authenticationAppsLink>bu kimlik doğrulama uygulamalarından</authenticationAppsLink> herhangi birini kullanabilirsiniz.
 flow-setup-2fa-prompt-continue-button = Devam et
@@ -1023,7 +1031,12 @@ recent-activity-password-reset-otp-sent = Parola sıfırlama onay kodu gönderil
 recent-activity-password-reset-otp-verified = Parola sıfırlama onay kodu doğrulandı
 recent-activity-must-reset-password = Parola sıfırlama gerekli
 recent-activity-account-recovery-phone-replace-complete = Kurtarma telefonu değiştirildi
+recent-activity-account-recovery-phone-replace-failure = Kurtarma telefonu değiştirilemedi
 recent-activity-account-two-factor-replace-success = İki aşamalı kimlik doğrulama değiştirildi
+recent-activity-account-two-factor-replace-failure = İki aşamalı kimlik doğrulama değiştirilemedi
+recent-activity-account-recovery-phone-setup-failed = Kurtarma telefonu kurulumu başarısız oldu
+recent-activity-account-recovery-phone-reset-password-complete = Kurtarma telefonu kullanılarak parola sıfırlandı
+recent-activity-account-recovery-phone-reset-password-failed = Kurtarma telefonu kullanılarak parola sıfırlanamadı
 # A code was emailed to the user to authorize a sensitive account change (e.g. removing 2FA, deleting the account).
 recent-activity-account-mfa-otp-sent = Hesap değiştirme izni istendi
 # The user successfully entered the code emailed to authorize a sensitive account change.
@@ -1031,7 +1044,10 @@ recent-activity-account-mfa-otp-verified = Hesap değiştirmeye izin verildi
 # The user entered an incorrect or expired code when trying to authorize a sensitive account change.
 recent-activity-account-mfa-otp-failed = Hesap değiştirme yetkilendirmesi başarısız oldu
 recent-activity-account-passkey-registration-success = Geçiş anahtarı eklendi
+recent-activity-account-passkey-registration-failure = Geçiş anahtarı kaydı başarısız
 recent-activity-account-passkey-removed = Geçiş anahtarı kaldırıldı
+recent-activity-account-passkey-authentication-success = Geçiş anahtarıyla giriş tamamlandı
+recent-activity-account-passkey-authentication-failure = Geçiş anahtarıyla giriş başarısız oldu
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Diğer hesap etkinlikleri
 

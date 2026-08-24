@@ -1064,6 +1064,12 @@ recent-activity-account-passwordless-login-otp-failed = 無密碼登入代碼驗
 recent-activity-account-passwordless-login-otp-verified = 無密碼登入代碼驗證成功
 recent-activity-account-passwordless-registration-complete = 無密碼帳號註冊成功
 recent-activity-account-recovery-codes-set = 設定救援碼
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
+recent-activity-account-passkey-wrap-created = 已啟用 Passkey 進行同步
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-creation-failure = 使用 Passkey 設定同步失敗
+# A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
+recent-activity-account-passkey-wrap-invalidated = 密碼重設完成後，移除 Passkey 同步存取權限
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = 其他帳號活動
 

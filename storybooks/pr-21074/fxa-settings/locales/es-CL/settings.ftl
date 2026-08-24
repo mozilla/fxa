@@ -43,6 +43,9 @@ button-back-title = Atrás
 ## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
+# Button to download the account recovery key as a plain text file and navigate to the next step
+# The next (and final) step is an optional prompt to save a storage hint
+recovery-key-download-button-v4 = Descargar y continuar
 # Error message shown in a banner if the account recovery key download failed.
 # The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Lo sentimos, hubo un problema al descargar tu clave de recuperación de cuenta.
@@ -562,6 +565,9 @@ cs-cannot-disconnect = Cliente no encontrado, no se pudo desconectar
 cs-logged-out-2 = Desconectado de { $service }
 cs-refresh-button =
     .title = Actualizar servicios conectados
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = Conecta un dispositivo
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = ¿Faltan elementos o están duplicados?
 cs-disconnect-sync-heading = Desconectarse de Sync
