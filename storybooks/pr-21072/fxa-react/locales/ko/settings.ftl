@@ -1001,6 +1001,8 @@ recent-activity-account-recovery-codes-signin-complete = 복구 코드를 사용
 recent-activity-password-reset-otp-sent = 비밀번호 재설정 확인 코드가 전송됨
 recent-activity-password-reset-otp-verified = 비밀번호 재설정 확인 코드가 확인됨
 recent-activity-must-reset-password = 비밀번호 재설정 필요
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-creation-failure = 패스키로 동기화 설정 실패
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = 기타 계정 활동
 

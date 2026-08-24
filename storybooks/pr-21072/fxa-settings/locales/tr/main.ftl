@@ -83,6 +83,7 @@ button-back-aria-label = Geri
 button-back-title = Geri
 
 
+recovery-key-download-button-v4 = İndir ve devam et
 recovery-key-pdf-download-error = Hesap kurtarma anahtarınız indirilirken bir sorun oluştu.
 
 
@@ -264,6 +265,8 @@ sync-clouds-image-aria-label =
     .aria-label = Eşitleme simgesi olan bulutlar
 confetti-falling-image-aria-label =
     .aria-label = Düşen konfeti animasyonu
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox } logosu
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = { -brand-firefox }’a giriş yaptınız.
@@ -539,6 +542,7 @@ flow-setup-2fa-inline-complete-learn-more-link = İki aşamalı kimlik doğrulam
 flow-setup-2fa-inline-complete-continue-button = { $serviceName } hizmetine devam et
 flow-setup-2fa-prompt-heading = İki aşamalı kimlik doğrulamayı ayarla
 flow-setup-2fa-prompt-description = { $serviceName }, hesabınızı güvende tutmak için iki aşamalı kimlik doğrulamasını ayarlamanızı gerektiriyor.
+flow-setup-2fa-prompt-passkey-success-banner = Geçiş anahtarıyla başarıyla giriş yapıldı
 flow-setup-2fa-prompt-use-authenticator-apps = Devam etmek için <authenticationAppsLink>bu kimlik doğrulama uygulamalarından</authenticationAppsLink> herhangi birini kullanabilirsiniz.
 flow-setup-2fa-prompt-continue-button = Devam et
 
@@ -779,12 +783,20 @@ recent-activity-password-reset-otp-sent = Parola sıfırlama onay kodu gönderil
 recent-activity-password-reset-otp-verified = Parola sıfırlama onay kodu doğrulandı
 recent-activity-must-reset-password = Parola sıfırlama gerekli
 recent-activity-account-recovery-phone-replace-complete = Kurtarma telefonu değiştirildi
+recent-activity-account-recovery-phone-replace-failure = Kurtarma telefonu değiştirilemedi
 recent-activity-account-two-factor-replace-success = İki aşamalı kimlik doğrulama değiştirildi
+recent-activity-account-two-factor-replace-failure = İki aşamalı kimlik doğrulama değiştirilemedi
+recent-activity-account-recovery-phone-setup-failed = Kurtarma telefonu kurulumu başarısız oldu
+recent-activity-account-recovery-phone-reset-password-complete = Kurtarma telefonu kullanılarak parola sıfırlandı
+recent-activity-account-recovery-phone-reset-password-failed = Kurtarma telefonu kullanılarak parola sıfırlanamadı
 recent-activity-account-mfa-otp-sent = Hesap değiştirme izni istendi
 recent-activity-account-mfa-otp-verified = Hesap değiştirmeye izin verildi
 recent-activity-account-mfa-otp-failed = Hesap değiştirme yetkilendirmesi başarısız oldu
 recent-activity-account-passkey-registration-success = Geçiş anahtarı eklendi
+recent-activity-account-passkey-registration-failure = Geçiş anahtarı kaydı başarısız
 recent-activity-account-passkey-removed = Geçiş anahtarı kaldırıldı
+recent-activity-account-passkey-authentication-success = Geçiş anahtarıyla giriş tamamlandı
+recent-activity-account-passkey-authentication-failure = Geçiş anahtarıyla giriş başarısız oldu
 recent-activity-unknown = Diğer hesap etkinlikleri
 
 

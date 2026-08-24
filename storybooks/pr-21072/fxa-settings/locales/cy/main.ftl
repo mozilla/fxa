@@ -843,9 +843,9 @@ recent-activity-account-passwordless-login-otp-failed = Methodd y cod mewngofnod
 recent-activity-account-passwordless-login-otp-verified = Cod mewngofnodi heb gyfrinair wedi'i ddilysu
 recent-activity-account-passwordless-registration-complete = Cwblhau cofrestriad cyfrif heb gyfrinair
 recent-activity-account-recovery-codes-set = Gosod codau adfer
-recent-activity-account-passkey-wrap-created = Passkey wedi'i alluogi ar gyfer cysoni
-recent-activity-account-passkey-wrap-creation-failure = Methodd y gosodiad cysoni gyda'r allwedd
-recent-activity-account-passkey-wrap-invalidated = Mynediad cysoni passkey wedi'i dynnu ar ôl ailosod cyfrinair
+recent-activity-account-passkey-wrap-created = Cyfrinallwedd wedi'i alluogi ar gyfer cydweddu
+recent-activity-account-passkey-wrap-creation-failure = Methodd gosodiad cydweddu gyda'r cyfrinallwedd
+recent-activity-account-passkey-wrap-invalidated = Mynediad cydweddu drwy cyfrinallwedd wedi'i dynnu ar ôl ailosod cyfrinair
 recent-activity-unknown = Gweithgarwch cyfrif arall
 
 
