@@ -18,6 +18,9 @@ const PUSH_SERVER_REGEX = require('../config').default.get(
 const { synthesizeClientName } = require('fxa-shared/connected-services');
 const { platformFromOS } = require('fxa-shared/lib/user-agent');
 const { reportSentryError } = require('./sentry');
+const {
+  deauthorizeOnDisconnect,
+} = require('./oauth/deauthorize-on-disconnect');
 
 const SCHEMA = {
   id: isA.string().length(32).regex(HEX_STRING),
@@ -48,7 +51,7 @@ const SCHEMA = {
     .pattern(validators.DEVICE_COMMAND_NAME, isA.string().max(2048)),
 };
 
-module.exports = (log, db, push, pushbox, glean) => {
+module.exports = (log, db, push, pushbox, glean, statsd) => {
   return { isSpuriousUpdate, upsert, destroy, synthesizeName };
 
   // Clients have been known to send spurious device updates,
@@ -179,12 +182,21 @@ module.exports = (log, db, push, pushbox, glean) => {
 
     const uid = request.auth.credentials.uid;
     const deletedDevice = await db.deleteDevice(uid, deviceId);
+
+    // A device is only refresh-token backed if that refresh token still exists.
+    // Firefox Desktop registers its device with the refresh token it was just
+    // issued and then destroys it, leaving refreshTokenId dangling, so the
+    // lookup can come back empty.
+    let clientId;
     if (deletedDevice && deletedDevice.refreshTokenId) {
       try {
         const token = await oauthDB.getRefreshToken(
           deletedDevice.refreshTokenId
         );
-        await oauthDB.removeRefreshToken(token);
+        if (token) {
+          await oauthDB.removeRefreshToken(token);
+          clientId = token.clientId?.toString('hex');
+        }
       } catch (err) {
         // The refresh token might already have been deleted, because distributed state.
         // We don't want errors here to fail the deletion request, because the caller
@@ -195,6 +207,16 @@ module.exports = (log, db, push, pushbox, glean) => {
           });
         }
       }
+
+      // Deauthorize any row whose own client has no refresh token left. Only
+      // reached for a refresh-token backed device: deleting a session-backed
+      // one leaves fxa_oauth.refreshTokens untouched, so nothing can change.
+      // Runs even if the removal above threw — the policy re-reads, so a token
+      // that survived keeps its row and one already gone releases it.
+      await deauthorizeOnDisconnect(
+        { oauthDB, log, statsd },
+        { uid, clientId }
+      );
     }
 
     // No need to await and block the notifications below.  If the records

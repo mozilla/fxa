@@ -5,6 +5,8 @@
 const { OauthError } = require('@fxa/accounts/errors');
 const oauthDB = require('./db');
 const ScopeSet = require('fxa-shared').oauth.scopes;
+const { resolveAuthLogger, resolveStatsD } = require('../container-deps');
+const { deauthorizeOnDisconnect } = require('./deauthorize-on-disconnect');
 
 // Helper function to render each returned record in the expected form.
 function serialize(clientIdHex, token) {
@@ -121,11 +123,20 @@ module.exports = {
       if (
         !(await oauthDB.deleteClientRefreshToken(refreshTokenId, clientId, uid))
       ) {
+        // Not this user's refresh token, so nothing was disconnected and the
+        // rows stay. The route swallows this errno and still returns {}, so a
+        // stale id reads as disconnected in Settings with the row intact.
         throw OauthError.unknownToken();
       }
     } else {
       await oauthDB.deleteClientAuthorization(clientId, uid);
     }
+    // Deauthorize any row whose own client has no refresh token left. After the
+    // deletes above, so the evaluation sees the new state.
+    await deauthorizeOnDisconnect(
+      { oauthDB, log: resolveAuthLogger(), statsd: resolveStatsD() },
+      { uid, clientId }
+    );
   },
   /**
    * Fetches all authorized clients for a given user ID,

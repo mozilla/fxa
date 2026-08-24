@@ -62,6 +62,11 @@ module.exports = ({ log, oauthDB }) => {
         client_id: token.clientId.toString('hex'),
       });
     }
+    // Deliberately does not deauthorize accountAuthorizations rows, unlike the
+    // Connected Services and device disconnect paths: Firefox Desktop destroys
+    // its sync refresh token here right after sign-in, so treating this as a
+    // withdrawal would deauthorize the authorization the user just granted.
+    // Firefox Mobile does not do this.
     await oauthDB[removeToken](token);
     return {};
   }

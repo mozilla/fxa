@@ -24,6 +24,10 @@ const IOS = '1b1a3e44c54fbb58';
 const E2E_PUBLIC_CLIENT_ID = '3c49430b43dfba77';
 const PKCE_CODE_CHALLENGE = 'YPhkZqm08uTfwjNSiYcx80-NPT9Zn94kHboQW97KyV0';
 
+const T0 = 1_700_000_000_000;
+const T1 = T0 + 86_400_000;
+const DEAUTHORIZED_AT = T0 + 3_600_000;
+
 const newUid = () => crypto.randomBytes(16).toString('hex');
 
 let server: TestServerInstance;
@@ -351,6 +355,254 @@ describe('hasConsentForExchange decision matrix', () => {
   });
 });
 
+describe('deauthorizeAccountAuthorizations', () => {
+  // Deauthorizing needs the row as the caller read it: the PK plus the
+  // lastAuthorizedTosAt that the optimistic guard matches on.
+  async function deauthorizeAll(uid: string, deauthorizedAt = DEAUTHORIZED_AT) {
+    const rows = await db.listAccountConsentsByUid(uid);
+    return db.deauthorizeAccountAuthorizations(uid, rows, deauthorizedAt);
+  }
+
+  it('marks the row deauthorized instead of deleting it', async () => {
+    const id = track(newUid());
+    await seed({ uid: id, scope: VPN_SCOPE, service: 'vpn', now: T0 });
+    await deauthorizeAll(id);
+    const rows = await db.listAccountConsentsByUid(id);
+    expect(rows).toHaveLength(1);
+    expect(Number(rows[0].deauthorizedAt)).toBe(DEAUTHORIZED_AT);
+  });
+
+  it('preserves both ToS timestamps through a deauthorize', async () => {
+    const id = track(newUid());
+    await seed({ uid: id, scope: VPN_SCOPE, service: 'vpn', now: T0 });
+    await deauthorizeAll(id);
+    const [row] = await db.listAccountConsentsByUid(id);
+    expect(Number(row.firstAuthorizedTosAt)).toBe(T0);
+    expect(Number(row.lastAuthorizedTosAt)).toBe(T0);
+  });
+
+  it('returns the number of rows deauthorized', async () => {
+    const id = track(newUid());
+    await seed({ uid: id, scope: VPN_SCOPE, service: 'vpn', now: T0 });
+    await seed({ uid: id, scope: OLDSYNC_SCOPE, service: 'sync', now: T0 });
+    expect(await deauthorizeAll(id)).toBe(2);
+  });
+
+  it('returns 0 when given no rows', async () => {
+    expect(
+      await db.deauthorizeAccountAuthorizations(newUid(), [], DEAUTHORIZED_AT)
+    ).toBe(0);
+  });
+
+  it('deauthorizes only the rows named, leaving the others active', async () => {
+    const id = track(newUid());
+    await seed({ uid: id, scope: VPN_SCOPE, service: 'vpn', now: T0 });
+    await seed({ uid: id, scope: OLDSYNC_SCOPE, service: 'sync', now: T0 });
+    const rows = await db.listAccountConsentsByUid(id);
+    const vpnRow = rows.find((r: any) => r.scope === VPN_SCOPE);
+    expect(
+      await db.deauthorizeAccountAuthorizations(id, [vpnRow], DEAUTHORIZED_AT)
+    ).toBe(1);
+    const after = await db.listAccountConsentsByUid(id);
+    expect(
+      after.find((r: any) => r.scope === OLDSYNC_SCOPE).deauthorizedAt
+    ).toBeNull();
+  });
+
+  it('scopes to one user', async () => {
+    const a = track(newUid());
+    const b = track(newUid());
+    await seed({ uid: a, scope: VPN_SCOPE, service: 'vpn', now: T0 });
+    await seed({ uid: b, scope: VPN_SCOPE, service: 'vpn', now: T0 });
+    await deauthorizeAll(a);
+    const [rowB] = await db.listAccountConsentsByUid(b);
+    expect(rowB.deauthorizedAt).toBeNull();
+  });
+
+  it('leaves a row re-authorized since the caller read it', async () => {
+    // The disconnect decided to deauthorize based on rows read at T0. A sign-in
+    // lands at T1 before the write, bumping lastAuthorizedTosAt out of the
+    // guard's IN list. Deauthorizing here would withdraw what the user just granted.
+    const id = track(newUid());
+    await seed({ uid: id, scope: VPN_SCOPE, service: 'vpn', now: T0 });
+    const stale = await db.listAccountConsentsByUid(id);
+    await seed({ uid: id, scope: VPN_SCOPE, service: 'vpn', now: T1 });
+
+    expect(
+      await db.deauthorizeAccountAuthorizations(id, stale, DEAUTHORIZED_AT)
+    ).toBe(0);
+    const [row] = await db.listAccountConsentsByUid(id);
+    expect(row.deauthorizedAt).toBeNull();
+  });
+
+  it('keeps the first timestamp when the same row is deauthorized twice', async () => {
+    // Connected Services collapses entries by display name and fires its
+    // destroys in parallel, so a row can be targeted twice concurrently.
+    const id = track(newUid());
+    await seed({ uid: id, scope: VPN_SCOPE, service: 'vpn', now: T0 });
+    const rows = await db.listAccountConsentsByUid(id);
+    await db.deauthorizeAccountAuthorizations(id, rows, DEAUTHORIZED_AT);
+
+    expect(
+      await db.deauthorizeAccountAuthorizations(
+        id,
+        rows,
+        DEAUTHORIZED_AT + 5_000
+      )
+    ).toBe(0);
+    const [row] = await db.listAccountConsentsByUid(id);
+    expect(Number(row.deauthorizedAt)).toBe(DEAUTHORIZED_AT);
+  });
+
+  // Proves no row is silently dropped once the write splits, and that the
+  // generated SQL stays inside MySQL's placeholder and packet limits. It does
+  // not prove batching happened: the count is the same either way.
+  it('loses no rows when the deauthorize spans more than one batch', async () => {
+    const id = track(newUid());
+    const scopes = Array.from(
+      { length: 250 },
+      (_, i) => `https://identity.mozilla.com/apps/batch-${i}`
+    );
+    await db.recordSignInConsents({
+      uid: id,
+      scopes,
+      service: 'vpn',
+      clientId: DESKTOP,
+      now: T0,
+    });
+    expect(await deauthorizeAll(id)).toBe(250);
+  });
+});
+
+describe('token exchange after deauthorization', () => {
+  async function deauthorizeAll(uid: string) {
+    const rows = await db.listAccountConsentsByUid(uid);
+    return db.deauthorizeAccountAuthorizations(uid, rows, DEAUTHORIZED_AT);
+  }
+
+  it('denies the exchange as no-consent once the row is deauthorized', async () => {
+    const id = track(newUid());
+    await seed({ uid: id, scope: VPN_SCOPE, service: 'vpn', now: T0 });
+    await deauthorizeAll(id);
+    expect(await db.hasConsentForExchange(id, VPN_SCOPE)).toMatchObject({
+      result: 'denied',
+      service: 'vpn',
+      reason: 'no-consent',
+    });
+  });
+
+  it('still allows the exchange while another client holds an active row', async () => {
+    // (uid, scope, service) is a PK prefix, so it matches one row per client.
+    // Deauthorizing Desktop must not deny a user still authorized through iOS.
+    const id = track(newUid());
+    await seed({
+      uid: id,
+      scope: VPN_SCOPE,
+      service: 'vpn',
+      clientId: DESKTOP,
+      now: T0,
+    });
+    await seed({
+      uid: id,
+      scope: VPN_SCOPE,
+      service: 'vpn',
+      clientId: IOS,
+      now: T0,
+    });
+    const rows = await db.listAccountConsentsByUid(id);
+    const desktopRow = rows.find(
+      (r: any) => r.clientId.toString('hex') === DESKTOP
+    );
+    await db.deauthorizeAccountAuthorizations(
+      id,
+      [desktopRow],
+      DEAUTHORIZED_AT
+    );
+
+    expect(await db.hasConsentForExchange(id, VPN_SCOPE)).toMatchObject({
+      result: 'allowed',
+      service: 'vpn',
+    });
+  });
+
+  it('restores the exchange when the user re-authorizes', async () => {
+    const id = track(newUid());
+    await seed({ uid: id, scope: VPN_SCOPE, service: 'vpn', now: T0 });
+    await deauthorizeAll(id);
+    await seed({ uid: id, scope: VPN_SCOPE, service: 'vpn', now: T1 });
+
+    expect(await db.hasConsentForExchange(id, VPN_SCOPE)).toMatchObject({
+      result: 'allowed',
+      service: 'vpn',
+    });
+  });
+
+  it('carries firstAuthorizedTosAt across a deauthorize and re-authorization', async () => {
+    // The point of deauthorizing rather than deleting: the ToS record survives, so
+    // re-authorizing is a reactivation and not a fresh agreement to terms.
+    const id = track(newUid());
+    await seed({ uid: id, scope: VPN_SCOPE, service: 'vpn', now: T0 });
+    await deauthorizeAll(id);
+    await seed({ uid: id, scope: VPN_SCOPE, service: 'vpn', now: T1 });
+
+    const rows = await db.listAccountConsentsByUid(id);
+    expect(rows).toHaveLength(1);
+    expect(Number(rows[0].firstAuthorizedTosAt)).toBe(T0);
+    expect(Number(rows[0].lastAuthorizedTosAt)).toBe(T1);
+    expect(rows[0].deauthorizedAt).toBeNull();
+  });
+});
+
+describe('reads and deauthorization', () => {
+  async function seedAndDeauthorize(uid: string) {
+    await seed({
+      uid,
+      scope: VPN_SCOPE,
+      service: 'vpn',
+      clientId: DESKTOP,
+      now: T0,
+    });
+    const rows = await db.listAccountConsentsByUid(uid);
+    await db.deauthorizeAccountAuthorizations(uid, rows, DEAUTHORIZED_AT);
+  }
+
+  it('hasConsentForSignIn re-prompts after a deauthorize', async () => {
+    const id = track(newUid());
+    await seedAndDeauthorize(id);
+    expect(await db.hasConsentForSignIn(id, VPN_SCOPE, 'vpn')).toBe(false);
+  });
+
+  it('hasConsentForScopeAndClient stops counting a deauthorized row', async () => {
+    // The VPN-in-Desktop DAU check tags a token as eligible only when the
+    // client is authorized; a withdrawn authorization must stop qualifying.
+    const id = track(newUid());
+    await seedAndDeauthorize(id);
+    expect(
+      await db.hasConsentForScopeAndClient(id, VPN_SCOPE, 'vpn', DESKTOP)
+    ).toBe(false);
+  });
+
+  it.each([
+    [
+      'hasConsentForService',
+      (id: string) => db.hasConsentForService(id, 'vpn'),
+    ],
+    [
+      'hasConsentForClient',
+      (id: string) => db.hasConsentForClient(id, DESKTOP),
+    ],
+  ])(
+    '%s still reports the historical authorization after a deauthorize',
+    async (_label, read) => {
+      // These drive the first-authorization signal, which asks "has this user
+      // ever authorized?" — a deauthorized user is not authorizing for the first time.
+      const id = track(newUid());
+      await seedAndDeauthorize(id);
+      expect(await read(id)).toBe(true);
+    }
+  );
+});
+
 describe('#integration - /authorization writes accountAuthorizations rows', () => {
   let testClient: any;
 
@@ -604,7 +856,7 @@ describe('#integration - allowlist downstream token-exchange consequences', () =
   });
 });
 
-describe('#integration - lifecycle: account deletion vs connected-services revoke', () => {
+describe('#integration - lifecycle: account deletion vs connected-services deauthorize', () => {
   let testClient: any;
 
   beforeEach(async () => {
@@ -639,10 +891,12 @@ describe('#integration - lifecycle: account deletion vs connected-services revok
     expect(await db.listAccountConsentsByUid(uid)).toHaveLength(0);
   });
 
-  it('revoking via authorized-clients (connected services) leaves consent rows intact', async () => {
-    // Revoking an OAuth client in the Settings "Connected Services" UI
-    // sweeps tokens/codes but must NOT clear the consent ledger; the
-    // user has not withdrawn their ToS authorization.
+  it('deauthorizing via authorized-clients (connected services) keeps the row and its ToS history', async () => {
+    // Disconnecting in the Settings "Connected Services" UI sweeps tokens and
+    // codes, and may withdraw the active authorization, but the row itself
+    // survives until account deletion: it is the ToS record. Whether deauthorizedAt
+    // ends up set depends on what the client still holds, which
+    // deauthorization.spec.ts covers directly.
     const authorizedClients = require('../../lib/oauth/authorized_clients');
     const uid = testClient.uid;
     await writeConsent();
@@ -653,6 +907,9 @@ describe('#integration - lifecycle: account deletion vs connected-services revok
 
     const after = await db.listAccountConsentsByUid(uid);
     expect(after).toHaveLength(before.length);
+    expect(after.map((r: any) => Number(r.firstAuthorizedTosAt))).toEqual(
+      before.map((r: any) => Number(r.firstAuthorizedTosAt))
+    );
   });
 });
 

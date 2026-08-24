@@ -485,6 +485,7 @@ it('displays authorized browser services', () => {
         clientId: '5882386c6d801776',
         firstAuthorizedTosAt: 1589467100316,
         lastAuthorizedTosAt: 1589467100316,
+        deauthorizedAt: null,
       },
       {
         service: 'relay',
@@ -492,6 +493,7 @@ it('displays authorized browser services', () => {
         clientId: '9ebfe2c2f9ea3c58',
         firstAuthorizedTosAt: 1589467200000,
         lastAuthorizedTosAt: 1589467200000,
+        deauthorizedAt: null,
       },
     ],
   };

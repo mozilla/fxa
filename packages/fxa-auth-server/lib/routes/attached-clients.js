@@ -270,6 +270,8 @@ module.exports = (log, db, devices, clientUtils) => {
             }
             await db.deleteSessionToken(sessionToken);
           }
+          // No deauthorization pass: deleting a session token does not touch
+          // fxa_oauth.refreshTokens, so no row's outcome can have changed.
         }
 
         return {};

@@ -13,6 +13,7 @@ const AUTHORIZATIONS: AccountAuthorization[] = [
     clientId: '5882386c6d801776',
     firstAuthorizedTosAt: new Date('2026-01-01T00:00:00Z').getTime(),
     lastAuthorizedTosAt: new Date('2026-01-15T00:00:00Z').getTime(),
+    deauthorizedAt: null,
   },
   {
     service: 'relay',
@@ -20,6 +21,7 @@ const AUTHORIZATIONS: AccountAuthorization[] = [
     clientId: '9ebfe2c2f9ea3c58',
     firstAuthorizedTosAt: new Date('2026-02-01T00:00:00Z').getTime(),
     lastAuthorizedTosAt: new Date('2026-02-20T00:00:00Z').getTime(),
+    deauthorizedAt: new Date('2026-03-01T00:00:00Z').getTime(),
   },
 ];
 
@@ -60,4 +62,14 @@ it('renders one row per authorization', () => {
   expect(clientIds[0]).toHaveTextContent('5882386c6d801776');
   expect(services[1]).toHaveTextContent('relay');
   expect(clientIds[1]).toHaveTextContent('9ebfe2c2f9ea3c58');
+});
+
+it('distinguishes a deauthorized row from an active one', () => {
+  render(<AccountAuthorizations authorizations={AUTHORIZATIONS} />);
+  const deauthorized = screen.getAllByTestId(
+    'account-authorization-deauthorized-at'
+  );
+
+  expect(deauthorized[0]).toHaveTextContent('—');
+  expect(deauthorized[1]).toHaveTextContent('2026');
 });
