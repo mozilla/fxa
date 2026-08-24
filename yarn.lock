@@ -33258,7 +33258,7 @@ __metadata:
     tsc-alias: "npm:^1.8.8"
     type-fest: "npm:^4.38.0"
     typescript: "npm:5.5.3"
-    uuid: "npm:^11.1.1"
+    uuid: "npm:^13.0.2"
     verror: "npm:^1.10.1"
     web-push: "npm:3.4.4"
     webpack: "npm:^5.104.1"
@@ -33390,7 +33390,7 @@ __metadata:
     underscore: "npm:^1.13.8"
     upng-js: "npm:2.1.0"
     url-loader: "npm:4.1.1"
-    uuid: "npm:^11.1.1"
+    uuid: "npm:^13.0.2"
     verror: "npm:1.10.1"
     webpack: "npm:^5.104.1"
     webpack-dev-middleware: "npm:^7.4.0"
@@ -34017,7 +34017,7 @@ __metadata:
     twilio: "npm:5.3.5"
     typedi: "npm:^0.8.0"
     typescript: "npm:5.5.3"
-    uuid: "npm:^11.1.1"
+    uuid: "npm:^13.0.2"
     webpack-cli: "npm:^6.0.1"
     winston: "npm:^3.17.0"
     zod: "npm:^4.3.6"
@@ -55784,12 +55784,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:^11.1.1":
-  version: 11.1.1
-  resolution: "uuid@npm:11.1.1"
+"uuid@npm:^13.0.2":
+  version: 13.0.2
+  resolution: "uuid@npm:13.0.2"
   bin:
-    uuid: dist/esm/bin/uuid
-  checksum: 10c0/9e3af58eba872ece5a5e76f4773a94fc78a0ef2c2444c38dbe6b42f41dadf76c01850fd783604f27986f6195e6286aef064d45987d401b2a33127b98ddf7c0c5
+    uuid: dist-node/bin/uuid
+  checksum: 10c0/32c7ee84fa7c7966cc09b3a1514a752a8e2f609f15c00033fbaedc0255d577d1877b839f11ee537f37e587bbc620bbb98c3b3a1482931b8ed47d79497cd7a7cd
   languageName: node
   linkType: hard
 
