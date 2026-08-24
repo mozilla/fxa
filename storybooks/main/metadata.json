@@ -1,8 +1,8 @@
 {
-  "commit": "ea7dbe8b9ad68fe7d0070503316f3ee121f80af9",
-  "summary": "Merge pull request #21074 from mozilla/FXA-13868",
-  "description": "task(settings): Display v2 QR code",
-  "timestamp": 1787603862000,
+  "commit": "5035a5549c781833dfc1263217371b147b3f8be0",
+  "summary": "Merge pull request #21064 from mozilla/fxa-14285",
+  "description": "fix(functional-tests): register recoveryKey accounts with the tracker",
+  "timestamp": 1787609799000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
