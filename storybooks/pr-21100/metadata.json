@@ -1,0 +1,10 @@
+{
+  "commit": "c81793095dac9119b24c26ad87af88460a033256",
+  "summary": "task(settings): Implement pairing v2 flow",
+  "description": "Because:\n- We want to implement the new and improved pairing v2 flows:\n  - We want to support the new v2 QR format\n  - We want to support navite camera scanning\n  - We want to adhere to new figma designs.\n\nThis Commit:\n- Ensures the /pair page sends users into the pairing v2 flows when appropriate.\n- Uses the new `/Pair2/*` components\n- Creates container components to handle pairing state changes and subsequent navigations.\n- Updates pairing integrations to handle the pairing channel events.\n- Enforces the correct integration is provdided per pairing component.\n- Fixes in firefox promo banner. The redirect to pair must force a new integration be created.",
+  "timestamp": 1787611624000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
