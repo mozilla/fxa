@@ -2667,7 +2667,7 @@ export default class AuthClient {
    */
   async completeTotpSetupWithJwt(
     jwt: string,
-    options: { metricsContext?: MetricsContext } = {},
+    options: { service?: string; metricsContext?: MetricsContext } = {},
     headers?: Headers
   ): Promise<{ success: boolean }> {
     return this.jwtPost(
