@@ -1,0 +1,10 @@
+{
+  "commit": "e76a52ec2d1db15e7ddae74dcb225fbc05a4085f",
+  "summary": "task(fxa-settings): Enable v2 pairing flows",
+  "description": "",
+  "timestamp": 1787598486000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
