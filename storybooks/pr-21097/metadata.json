@@ -1,0 +1,10 @@
+{
+  "commit": "a916dc39410cf0e484693f4b438660496a728ca7",
+  "summary": "refactor(settings): scope inline TOTP MFA guard to enrolment step",
+  "description": "Because:\n- The email-OTP was demanded on page load, before the user saw the\n  \"set up two-step authentication\" prompt.\n- Guarding the intro forced an OTP round-trip even for users who never\n  proceed to enrolment.\n\nThis commit:\n- Move MfaGuardCore into index.tsx so it wraps only the enrolment step.\n- Move InlineTotpEnrolment (JWT-guarded createTotp/verify) into index.tsx.\n- Reshape InlineTotpSetup props; container becomes a sanity-check wrapper.\n- Update stories and split the guard/enrolment tests into index.test.tsx.",
+  "timestamp": 1787600854000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
