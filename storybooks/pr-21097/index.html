@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit e726cbb4c8694d8157961f867354de69cc2dd377</title>
+  <title>Storybooks for commit 1c59842387c667b1ce1c0339f50d5d43948a5a4b</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,25 +23,26 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit e726cbb4c8694d8157961f867354de69cc2dd377</h1>
+  <h1>Storybooks for commit 1c59842387c667b1ce1c0339f50d5d43948a5a4b</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/24/2026, 8:48:26 PM UTC</dd>
+    <dd>8/25/2026, 1:39:10 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>test(functional): reorder inline TOTP guard to after Continue</pre></dd>
+    <dd><pre>refactor(settings): move inline TOTP step state and guard to container</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-- The MFA email-OTP guard now gates only the enrolment step, so it
-  appears after Continue rather than on page load (FXA-14407).
+- Review feedback: keep currentStep and the MFA guard in the container so
+  the page component stays presentational.
 
 This commit:
-- Reorder completeInlineSetupWithBackupCodes: intro, Continue, then guard.
-- Reorder the inline TOTP OAuth specs to confirm the guard after Continue.
-- Assert the passkey banner/intro before the guard in passkey-signin specs.
-- Remove the orphaned inlineTotpSetup.confirmMfaGuardIfVisible helper.</pre></dd>
+- Move currentStep + navigateBackward + MfaGuardCore into container.tsx.
+- Extract InlineTotpEnrolment to its own file (stays under the guard).
+- Reduce index.tsx to a presentational AppLayout + step-dispatch shell.
+- Return to the intro on guard dismiss; use CardLoadingSpinner while loading.
+- Split enrolment tests into InlineTotpEnrolment.test.tsx; trim comments.</pre></dd>
   </dl>
 </body>
 </html>

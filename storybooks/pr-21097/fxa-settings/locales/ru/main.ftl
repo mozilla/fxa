@@ -864,6 +864,9 @@ recent-activity-account-passwordless-login-otp-failed = Код беспарол�
 recent-activity-account-passwordless-login-otp-verified = Код беспарольного входа подтверждён
 recent-activity-account-passwordless-registration-complete = Беспарольная регистрация аккаунта завершена
 recent-activity-account-recovery-codes-set = Набор кодов восстановления
+recent-activity-account-passkey-wrap-created = Ключ доступа включён для синхронизации
+recent-activity-account-passkey-wrap-creation-failure = Не удалось синхронизировать настройки с ключом доступа
+recent-activity-account-passkey-wrap-invalidated = После сброса ключа доступа удалён доступ к синхронизации паролей
 recent-activity-unknown = Другая активность аккаунта
 
 

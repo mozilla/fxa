@@ -603,7 +603,7 @@ flow-setup-2fa-inline-complete-continue-button = Tovább erre: { $serviceName }
 flow-setup-2fa-prompt-heading = Állítsa be a kétlépcsős hitelesítést
 flow-setup-2fa-prompt-description = A(z) { $serviceName } szolgáltatáshoz be kell állítania a kétlépcsős hitelesítést, hogy biztonságban tartsa a fiókját.
 flow-setup-2fa-prompt-passkey-success-banner = Sikeresen bejelentkezett a jelkulccsal
-flow-setup-2fa-prompt-passkey-description = A(z) { $serviceName } is kétlépcsős hitelesítést igényel a(z) { -product-mozilla-account } eszközéhez. A beállítás után nem lesz rá szüksége, ha jelkulccsal jelentkezik be.
+flow-setup-2fa-prompt-passkey-description = A(z) { $serviceName } is kétlépcsős hitelesítést igényel a { -product-mozilla-account }jához. A beállítás után már nem lesz rá szüksége, ha jelkulccsal jelentkezik be.
 flow-setup-2fa-prompt-use-authenticator-apps = A folytatáshoz <authenticationAppsLink>ezen hitelesítő alkalmazások</authenticationAppsLink> bármelyikét használhatja.
 flow-setup-2fa-prompt-continue-button = Folytatás
 
@@ -866,9 +866,9 @@ recent-activity-account-passwordless-login-otp-failed = A jelszó nélküli beje
 recent-activity-account-passwordless-login-otp-verified = Jelszó nélküli bejelentkezési kód ellenőrizve
 recent-activity-account-passwordless-registration-complete = Jelszó nélküli fiókregisztráció befejezve
 recent-activity-account-recovery-codes-set = Helyreállítási kódok beállítva
-recent-activity-account-passkey-wrap-created = A jelszó engedélyezve a szinkronizáláshoz
+recent-activity-account-passkey-wrap-created = A jelkulcs engedélyezve a szinkronizáláshoz
 recent-activity-account-passkey-wrap-creation-failure = A jelkulcsos szinkronizálás beállítása sikertelen
-recent-activity-account-passkey-wrap-invalidated = A jelkulcs szinkronizálási hozzáférés eltávolítva a jelszó-visszaállítás után
+recent-activity-account-passkey-wrap-invalidated = A jelkulcsos szinkronizálás hozzáférése eltávolítva a jelszó-visszaállítás után
 recent-activity-unknown = Egyéb fióktevékenység
 
 
@@ -1342,7 +1342,7 @@ pair-unsupported-desktop-firefox-fallback-message-v2 = Zárja be ezt a lapot, é
 
 
 pair2-authority-approve-sign-in-heading = Jóváhagyja a bejelentkezést?
-pair2-authority-approve-sign-in-confirm-button = Igen, jóváhagyom a bejelentkezést
+pair2-authority-approve-sign-in-confirm-button = Igen, a bejelentkezés jóváhagyása
 pair2-authority-approve-sign-in-change-password = Nem Ön az? <changePassword>Változtassa meg a jelszavát</changePassword>
 
 
@@ -1351,27 +1351,27 @@ pair2-authority-continue-on-mobile-description = Kövesse a lépéseket a telefo
 pair2-authority-continue-on-mobile-cancel-button = Mégse
 
 
-pair2-authority-download-firefox-heading = { -brand-firefox } megnyitása a szinkronizáláshoz
-pair2-authority-download-firefox-instruction = Az eszközök közti szinkronizálás beállításához nyissa meg a(z) { -brand-firefox } böngészőt ezen az eszközön, és keresse fel a <b>firefox.com/pair</b> oldalt
-pair2-authority-download-firefox-cta = { -brand-firefox } letöltése
+pair2-authority-download-firefox-heading = A { -brand-firefox } megnyitása a szinkronizáláshoz
+pair2-authority-download-firefox-instruction = Az eszközök közti szinkronizálás beállításához nyissa meg a { -brand-firefox } böngészőt ezen az eszközön, és keresse fel a <b>firefox.com/pair</b> oldalt
+pair2-authority-download-firefox-cta = A { -brand-firefox } letöltése
 
 
-pair2-authority-scan-qr-heading = Beolvasás a mobileszközhöz csatlakozáshoz
-pair2-authority-scan-qr-instruction = Olvassa le a QR-kódot telefonjával vagy táblagépével, és szinkronizálja a(z) { -brand-firefox } könyvjelzőit, lapjait és egyebeit.
+pair2-authority-scan-qr-heading = Olvassa le a mobileszköze csatlakoztatásához
+pair2-authority-scan-qr-instruction = Olvassa le a QR-kódot telefonjával vagy táblagépével, és szinkronizálja a { -brand-firefox } könyvjelzőit, lapjait és egyebeit.
 pair2-authority-scan-qr-code-aria-label = QR-kód a mobileszköz csatlakoztatásához
-pair2-authority-scan-qr-help-link = Segítség a beolvasáshoz
+pair2-authority-scan-qr-help-link = Segítség a leolvasáshoz
 
 
-pair2-authority-sync-success-heading = Szinkronizál
+pair2-authority-sync-success-heading = Ön már szinkronizál
 pair2-authority-sync-success-description = Lapjai, könyvjelzői, jelszavai és egyebek készen állnak az összes eszközén.
 pair2-authority-sync-success-view-tabs-button = Szinkronizált lapok megtekintése
 pair2-authority-sync-success-sync-settings-button = Szinkronizálási beállítások
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Még mindig csatlakoztatni szeretne egy eszközt?
-pair2-authority-timeout-and-cancel-timeout-description = Úgy tűnik, túlléptük az időkorlátot. Próbálja újra, ha továbbra is csatlakoztatni szeretné mobileszközét, és szinkronizálni szeretné az adatait: { -brand-firefox }.
+pair2-authority-timeout-and-cancel-timeout-description = Úgy tűnik, túlléptük az időkorlátot. Próbálja újra, ha továbbra is csatlakoztatni szeretné mobileszközét, és szinkronizálni szeretné a { -brand-firefox } adatait:.
 pair2-authority-timeout-and-cancel-canceled-heading = Megszakítva
-pair2-authority-timeout-and-cancel-canceled-description = Ha meggondolja magát vagy egy másik eszközt szeretne csatlakoztatni, próbálja újra.
+pair2-authority-timeout-and-cancel-canceled-description = Ha meggondolja magát, vagy egy másik eszközt szeretne csatlakoztatni, próbálja újra.
 pair2-authority-timeout-and-cancel-try-again-button = Újrapróbálkozás
 pair2-authority-timeout-and-cancel-cancel-button = Mégse
 pair2-authority-timeout-and-cancel-sync-settings-button = Szinkronizálási beállítások
@@ -1387,24 +1387,24 @@ pair2-supplicant-connect-this-device-connect-button = Kapcsolódás
 pair2-supplicant-connect-this-device-cancel-button = Mégse
 
 
-pair2-supplicant-download-firefox-heading = { -brand-firefox } erre az eszközre
-pair2-supplicant-download-firefox-description = Töltse le a(z) { -brand-firefox } programot, és szinkronizálja a könyvjelzőket, előzményeket és egyebeket az eszközök között. <linkExternal>Tudjon meg többet</linkExternal>
-pair2-supplicant-download-firefox-continue-button = Folytatás { -brand-firefox } múlva
+pair2-supplicant-download-firefox-heading = A { -brand-firefox } beszerzése erre az eszközre
+pair2-supplicant-download-firefox-description = Töltse le a { -brand-firefox }ot, és szinkronizálja a könyvjelzőket, előzményeket és egyebeket az eszközök között. <linkExternal>Tudjon meg többet</linkExternal>
+pair2-supplicant-download-firefox-continue-button = Folytatás a { -brand-firefox }ban
 
 
-pair2-supplicant-ready-to-scan-heading = Eszköz csatlakoztatásához
-pair2-supplicant-ready-to-scan-instruction = Nyissa meg a(z) { -brand-firefox } böngészőt a számítógépén, és menjen a <b>firefox.com/pair</b> oldalra, és kövesse a képernyőn megjelenő utasításokat a mobileszköz csatlakoztatásához.
+pair2-supplicant-ready-to-scan-heading = Eszköz csatlakoztatása
+pair2-supplicant-ready-to-scan-instruction = Nyissa meg a { -brand-firefox }ot a számítógépén, lépjen a <b>firefox.com/pair</b> oldalra, és kövesse a képernyőn megjelenő utasításokat a mobileszköze csatlakoztatásához.
 pair2-supplicant-ready-to-scan-learn-more-link = További tudnivalók
 
 
-pair2-supplicant-sync-success-heading = Az eszköz csatlakoztatva van
-pair2-supplicant-sync-success-description = A könyvjelzői, lapjai és egyebei szinkronizálva maradnak { -brand-firefox }ban.
+pair2-supplicant-sync-success-heading = Az eszköze csatlakoztatva van
+pair2-supplicant-sync-success-description = A könyvjelzői, lapjai és egyebei szinkronizálva maradnak a { -brand-firefox }ban.
 pair2-supplicant-sync-success-view-tabs-button = Szinkronizált lapok megtekintése
 pair2-supplicant-sync-success-sync-settings-button = Szinkronizálási beállítások
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Úgy tűnik, túlléptük az időkorlátot
-pair2-supplicant-timeout-and-cancel-timeout-description = A mobileszköz csatlakoztatásához és a(z) { -brand-firefox } adatainak szinkronizálásához keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén.
+pair2-supplicant-timeout-and-cancel-timeout-description = A mobileszköz csatlakoztatásához és a { -brand-firefox } adatainak szinkronizálásához keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén.
 pair2-supplicant-timeout-and-cancel-canceled-heading = Megszakítva
 pair2-supplicant-timeout-and-cancel-canceled-description = Eszköz csatlakoztatásához keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén.
 

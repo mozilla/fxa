@@ -854,7 +854,7 @@ flow-setup-2fa-inline-complete-continue-button = Pokračovat do služby { $servi
 flow-setup-2fa-prompt-heading = Nastavení dvoufázového ověřování
 flow-setup-2fa-prompt-description = { $serviceName } vyžaduje, abyste si nastavili dvoufázové ověřování, aby byl váš účet v bezpečí.
 flow-setup-2fa-prompt-passkey-success-banner = Přihlášení pomocí klíče bylo úspěšné
-flow-setup-2fa-prompt-passkey-description = { $serviceName } také vyžaduje dvoufázové ověření pro vaše { -product-mozilla-account }. Po nastavení už ho nebudete potřebovat pro přihlašování pomocí hesla.
+flow-setup-2fa-prompt-passkey-description = Služba { $serviceName } také vyžaduje dvoufázové ověření pro váš { -product-mozilla-account(case: "acc", capitalization: "lower") }. Po dokončení nastavení už ho nebudete potřebovat, když se přihlásíte pomocí přístupového klíče.
 flow-setup-2fa-prompt-use-authenticator-apps = Pro pokračování můžete použít kteroukoliv z <authenticationAppsLink>těchto ověřovacích aplikací</authenticationAppsLink>.
 flow-setup-2fa-prompt-continue-button = Pokračovat
 
@@ -1118,9 +1118,9 @@ recent-activity-account-passwordless-login-otp-failed = Selhal kód pro přihlá
 recent-activity-account-passwordless-login-otp-verified = Ověřen kód pro přihlášení bez hesla
 recent-activity-account-passwordless-registration-complete = Registrace účtu bez hesla byla dokončena
 recent-activity-account-recovery-codes-set = Obnovovací kódy jsou nastaveny
-recent-activity-account-passkey-wrap-created = Přístupový klíč pro synchronizaci povolen
+recent-activity-account-passkey-wrap-created = Přístupový klíč byl povolen pro synchronizaci
 recent-activity-account-passkey-wrap-creation-failure = Nastavení synchronizace s přístupovým klíčem selhalo
-recent-activity-account-passkey-wrap-invalidated = Přístup k synchronizaci hesla byl po obnovení hesla odebrán
+recent-activity-account-passkey-wrap-invalidated = Po resetování hesla byl zrušen přístup k synchronizaci pomocí přístupového klíče
 recent-activity-unknown = Jiná aktivita u účtu
 
 
@@ -1605,7 +1605,7 @@ pair2-authority-download-firefox-cta = Stáhnout { -brand-firefox }
 
 
 pair2-authority-scan-qr-heading = Naskenujte a připojte své mobilní zařízení
-pair2-authority-scan-qr-instruction = Naskenujte QR kód svým telefonem nebo tabletem a synchronizujte své záložky, panely a další data v aplikaci { -brand-firefox }.
+pair2-authority-scan-qr-instruction = Naskenujte QR kód svým telefonem nebo tabletem a synchronizujte své záložky, panely a další data ve { -brand-firefox(case: "loc") }.
 pair2-authority-scan-qr-code-aria-label = QR kód pro připojení vašeho mobilního zařízení
 pair2-authority-scan-qr-help-link = Získat pomoc se skenováním
 
@@ -1617,7 +1617,7 @@ pair2-authority-sync-success-sync-settings-button = Nastavení synchronizace
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Stále chcete připojit zařízení?
-pair2-authority-timeout-and-cancel-timeout-description = Zdá se, že vypršel časový limit. Zkuste to znovu, pokud stále chcete připojit své mobilní zařízení a synchronizovat svá data { -brand-firefox }.
+pair2-authority-timeout-and-cancel-timeout-description = Zdá se, že vypršel časový limit. Zkuste to znovu, pokud stále chcete připojit své mobilní zařízení a synchronizovat svá data { -brand-firefox(case: "gen") }.
 pair2-authority-timeout-and-cancel-canceled-heading = Zrušeno
 pair2-authority-timeout-and-cancel-canceled-description = Pokud změníte názor nebo chcete připojit jiné zařízení, zkuste to znovu.
 pair2-authority-timeout-and-cancel-try-again-button = Zkusit znovu
@@ -1635,26 +1635,26 @@ pair2-supplicant-connect-this-device-connect-button = Připojit
 pair2-supplicant-connect-this-device-cancel-button = Zrušit
 
 
-pair2-supplicant-download-firefox-heading = Získejte { -brand-firefox } na tomto zařízení
-pair2-supplicant-download-firefox-description = Stáhněte si aplikaci { -brand-firefox } pro synchronizaci záložek, historie a dalšího data mezi zařízeními. <linkExternal>Zjistit více</linkExternal>
+pair2-supplicant-download-firefox-heading = Získejte { -brand-firefox(case: "acc") } na tomto zařízení
+pair2-supplicant-download-firefox-description = Stáhněte si { -brand-firefox(case: "acc") } pro synchronizaci záložek, historie a dalšího dat mezi zařízeními. <linkExternal>Zjistit více</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Pokračujte za { -brand-firefox(case: "gen") }
 
 
 pair2-supplicant-ready-to-scan-heading = Pro připojení zařízení
-pair2-supplicant-ready-to-scan-instruction = Na počítači otevřete { -brand-firefox }, přejděte na <b>firefox.com/pair</b> a postupujte podle pokynů na obrazovce pro připojení tohoto mobilního zařízení.
+pair2-supplicant-ready-to-scan-instruction = Na počítači otevřete { -brand-firefox(case: "acc") }, přejděte na <b>firefox.com/pair</b> a podle pokynů na obrazovce připojte toto mobilní zařízení.
 pair2-supplicant-ready-to-scan-learn-more-link = Zjistit více
 
 
 pair2-supplicant-sync-success-heading = Vaše zařízení je připojeno
-pair2-supplicant-sync-success-description = Vaše záložky, panely a další obsah zůstanou synchronizované i přes aplikaci { -brand-firefox }.
+pair2-supplicant-sync-success-description = Vaše záložky, panely a další obsah zůstanou synchronizované i ve { -brand-firefox(case: "loc") }.
 pair2-supplicant-sync-success-view-tabs-button = Zobrazit synchronizované panely
 pair2-supplicant-sync-success-sync-settings-button = Nastavení synchronizace
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zdá se, že vypršel časový limit
-pair2-supplicant-timeout-and-cancel-timeout-description = Pro připojení svého mobilního zařízení a synchronizaci dat o aplikaci { -brand-firefox } navštivte na svém počítači <b>firefox.com/pair</b>.
+pair2-supplicant-timeout-and-cancel-timeout-description = Chcete-li připojit své mobilní zařízení a synchronizovat data { -brand-firefox(case: "gen") }, přejděte na svém počítači na stránku <b>firefox.com/pair</b>.
 pair2-supplicant-timeout-and-cancel-canceled-heading = Zrušeno
-pair2-supplicant-timeout-and-cancel-canceled-description = Pro připojení svého zařízení prosím navštivte <b>firefox.com/pair</b> na vašem počítači.
+pair2-supplicant-timeout-and-cancel-canceled-description = Pro připojení svého zařízení prosím navštivte <b>firefox.com/pair</b> na svém počítači.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } potvrzen
