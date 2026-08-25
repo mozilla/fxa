@@ -5,7 +5,11 @@
 import { faker } from '@faker-js/faker';
 import { Kysely } from 'kysely';
 
-import { DB, testAccountDatabaseSetup } from '@fxa/shared/db/mysql/account';
+import {
+  DB,
+  testAccountDatabaseSetup,
+  testAccountDatabaseTeardown,
+} from '@fxa/shared/db/mysql/account';
 
 import {
   AccountCustomerDeleteAccountError,
@@ -26,18 +30,15 @@ describe('AccountCustomer Manager', () => {
   });
 
   afterAll(async () => {
-    if (kyselyDb) {
-      await kyselyDb.destroy();
-    }
+    await testAccountDatabaseTeardown(kyselyDb);
   });
 
   describe('createAccountCustomer', () => {
     it('creates an accountCustomer successfully', async () => {
       const mockAccountCustomer = CreateAccountCustomerFactory();
 
-      const result = await accountCustomerManager.createAccountCustomer(
-        mockAccountCustomer
-      );
+      const result =
+        await accountCustomerManager.createAccountCustomer(mockAccountCustomer);
 
       expect(result).toEqual({
         ...mockAccountCustomer,

@@ -9,6 +9,7 @@ import {
   AccountCustomerFactory,
   DB,
   testAccountDatabaseSetup,
+  testAccountDatabaseTeardown,
 } from '@fxa/shared/db/mysql/account';
 
 import { AccountCustomerUpdatedNoEffectError } from './accountCustomer.error';
@@ -27,9 +28,7 @@ describe('AccountCustomer Repository', () => {
   });
 
   afterAll(async () => {
-    if (kyselyDb) {
-      await kyselyDb.destroy();
-    }
+    await testAccountDatabaseTeardown(kyselyDb);
   });
 
   describe('createAccountCustomer', () => {

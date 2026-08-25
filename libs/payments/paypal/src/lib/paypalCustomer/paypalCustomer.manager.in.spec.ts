@@ -3,7 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Kysely } from 'kysely';
 
-import { DB, testAccountDatabaseSetup } from '@fxa/shared/db/mysql/account';
+import {
+  DB,
+  testAccountDatabaseSetup,
+  testAccountDatabaseTeardown,
+} from '@fxa/shared/db/mysql/account';
 
 import { CreatePaypalCustomerFactory } from './paypalCustomer.factories';
 import { PaypalCustomerManager } from './paypalCustomer.manager';
@@ -25,18 +29,15 @@ describe('PaypalCustomerManager', () => {
   });
 
   afterAll(async () => {
-    if (kyselyDb) {
-      await kyselyDb.destroy();
-    }
+    await testAccountDatabaseTeardown(kyselyDb);
   });
 
   describe('createPaypalCustomer', () => {
     it('creates a paypalCustomer successfully', async () => {
       const paypalCustomer = CreatePaypalCustomerFactory();
 
-      const result = await paypalCustomerManager.createPaypalCustomer(
-        paypalCustomer
-      );
+      const result =
+        await paypalCustomerManager.createPaypalCustomer(paypalCustomer);
 
       expect(result).toEqual({
         ...paypalCustomer,
@@ -184,9 +185,8 @@ describe('PaypalCustomerManager', () => {
       const resultPaypalCustomer =
         await paypalCustomerManager.createPaypalCustomer(paypalCustomer);
 
-      const result = await paypalCustomerManager.deletePaypalCustomer(
-        resultPaypalCustomer
-      );
+      const result =
+        await paypalCustomerManager.deletePaypalCustomer(resultPaypalCustomer);
 
       expect(result).toEqual(true);
     });

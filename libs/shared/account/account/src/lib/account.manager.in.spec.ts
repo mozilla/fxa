@@ -4,7 +4,11 @@
 import { Kysely } from 'kysely';
 
 import { faker } from '@faker-js/faker';
-import { DB, testAccountDatabaseSetup } from '@fxa/shared/db/mysql/account';
+import {
+  DB,
+  testAccountDatabaseSetup,
+  testAccountDatabaseTeardown,
+} from '@fxa/shared/db/mysql/account';
 
 import { AccountAlreadyExistsError } from './account.error';
 import { AccountManager } from './account.manager';
@@ -19,9 +23,7 @@ describe('accountManager', () => {
   });
 
   afterAll(async () => {
-    if (kyselyDb) {
-      await kyselyDb.destroy();
-    }
+    await testAccountDatabaseTeardown(kyselyDb);
   });
 
   describe('createAccountStub', () => {
