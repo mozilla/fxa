@@ -1,8 +1,8 @@
 {
-  "commit": "77a6f7293bc6ad4423f6ea9170b0af6538bb526c",
+  "commit": "9d7d9b8aaccfd2d9aea5014d57dd1254ab3b9339",
   "summary": "do not limit to local",
   "description": "",
-  "timestamp": 1787697368000,
+  "timestamp": 1787698628000,
   "storybooks": [
     "fxa-settings"
   ],
