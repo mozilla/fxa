@@ -1,0 +1,10 @@
+{
+  "commit": "0c49c2c64cd9412159c2f36d3f4b0447d762b42d",
+  "summary": "do not limit to local",
+  "description": "",
+  "timestamp": 1787689896000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
