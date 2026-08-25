@@ -22,6 +22,7 @@ import { StripeHelper } from '../stripe';
 import { CurrencyHelper } from '../currencies';
 import {
   PAYPAL_BILLING_AGREEMENT_INVALID,
+  PAYPAL_BILLING_TRANSACTION_WRONG_ACCOUNT,
   PAYPAL_APP_ERRORS,
   PAYPAL_RETRY_ERRORS,
 } from './error-codes';
@@ -839,6 +840,18 @@ describe('PayPalHelper', () => {
   });
 
   describe('updateStripeNameFromBA', () => {
+    function makeNVPErr(errorCode: number) {
+      const failedResponse = deepCopy(failedDoReferenceTransactionResponse);
+      failedResponse.L_ERRORCODE0 = errorCode;
+      const rawString = objectToNVP(failedResponse);
+      const parsedNvpObject = nvpToObject(rawString) as NVPErrorResponse;
+      const nvpError = new PayPalNVPError(rawString, parsedNvpObject, {
+        message: (parsedNvpObject.L as any[])[0].LONGMESSAGE,
+        errorCode: parseInt((parsedNvpObject.L as any[])[0].ERRORCODE),
+      });
+      return new PayPalClientError([nvpError], rawString, parsedNvpObject);
+    }
+
     it('updates the name on the stripe customer', async () => {
       mockStripeHelper.updateCustomerBillingAddress = jest
         .fn()
@@ -881,6 +894,47 @@ describe('PayPalHelper', () => {
           message: 'Billing agreement was cancelled.',
         })
       );
+    });
+
+    it('throws an internal validation error if the billing agreement is invalid', async () => {
+      mockStripeHelper.updateCustomerBillingAddress = jest
+        .fn()
+        .mockResolvedValue({});
+      const throwErr = makeNVPErr(PAYPAL_BILLING_AGREEMENT_INVALID);
+      paypalHelper.agreementDetails = jest.fn().mockRejectedValue(throwErr);
+
+      const caughtError = await paypalHelper
+        .updateStripeNameFromBA(mockCustomer, 'mock-agreement-id')
+        .catch((err: any) => err);
+
+      expect(caughtError.errno).toBe(error.ERRNO.INTERNAL_VALIDATION_ERROR);
+      expect(caughtError.output.payload.op).toBe('updateStripeNameFromBA');
+      expect(caughtError.output.payload.data.message).toBe(
+        'Billing agreement was cancelled.'
+      );
+      expect(caughtError.jse_cause).toBe(throwErr);
+      expect(paypalHelper.agreementDetails).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.agreementDetails).toHaveBeenCalledWith({
+        billingAgreementId: 'mock-agreement-id',
+      });
+      expect(
+        mockStripeHelper.updateCustomerBillingAddress
+      ).not.toHaveBeenCalled();
+    });
+
+    it('rethrows an unrecognized PayPal error', async () => {
+      const throwErr = makeNVPErr(PAYPAL_BILLING_TRANSACTION_WRONG_ACCOUNT);
+      mockStripeHelper.updateCustomerBillingAddress = jest
+        .fn()
+        .mockResolvedValue({});
+      paypalHelper.agreementDetails = jest.fn().mockRejectedValue(throwErr);
+
+      await expect(
+        paypalHelper.updateStripeNameFromBA(mockCustomer, 'mock-agreement-id')
+      ).rejects.toBe(throwErr);
+      expect(
+        mockStripeHelper.updateCustomerBillingAddress
+      ).not.toHaveBeenCalled();
     });
   });
 
