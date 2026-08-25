@@ -145,6 +145,7 @@ device-info-ip-address = IP adresi: { $ipAddress }
 
 
 firefox-promo-banner-mobile-cta = Cihaz bağlayın
+firefox-promo-banner-switch-cta = { -brand-firefox }’a geçin
 
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -175,20 +176,18 @@ form-verify-code-default-error = Bu alanı doldurmalısınız
 
 form-verify-totp-disabled-button-title-numeric = Devam etmek için { $codeLength } haneli kodu yazın
 form-verify-totp-disabled-button-title-alphanumeric = Devam etmek için { $codeLength } karakterlik kodu yazın
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } hesap kurtarma anahtarı
 get-data-trio-title-backup-verification-codes = Yedek kimlik doğrulama kodları
 get-data-trio-download-2 =
-    .title = İndir
     .aria-label = İndir
+    .title = İndir
 get-data-trio-copy-2 =
-    .title = Kopyala
     .aria-label = Kopyala
+    .title = Kopyala
 get-data-trio-print-2 =
-    .title = Yazdır
     .aria-label = Yazdır
+    .title = Yazdır
 
 
 alert-icon-aria-label =
@@ -231,8 +230,6 @@ icon-loading-arrow-aria-label =
     .aria-label = Yükleniyor
 icon-passkey-aria-label =
     .aria-label = Geçiş anahtarı
-
-
 hearts-broken-image-aria-label =
     .aria-label = Her birinde kırık bir kalp olan bir bilgisayar ve bir cep telefonu
 hearts-verified-image-aria-label =
@@ -267,6 +264,8 @@ confetti-falling-image-aria-label =
     .aria-label = Düşen konfeti animasyonu
 firefox-wordmark-image-aria-label =
     .aria-label = { -brand-firefox } logosu
+password-success-image-aria-label =
+    .aria-label = Parolanın başarıyla değiştirildiğini gösteren çizim.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = { -brand-firefox }’a giriş yaptınız.
@@ -389,8 +388,6 @@ avatar-default-avatar =
     .alt = Varsayılan avatar
 
 
-
-
 bento-menu-title-3 = { -brand-mozilla } ürünleri
 bento-menu-tagline = Gizliliğinizi koruyan diğer { -brand-mozilla } ürünleri
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -457,8 +454,6 @@ dc-opt-out-success-2 = Ayrılma işlemi başarılı. { -product-mozilla-accounts
 dc-opt-in-success-2 = Teşekkürler! Bu verileri paylaşmanız { -product-mozilla-accounts }nı geliştirmemize yardımcı oluyor.
 dc-opt-in-out-error-2 = Üzgünüz, veri toplama tercihiniz değiştirilirken bir sorun oluştu
 dc-learn-more = Daha fazla bilgi al
-
-
 drop-down-menu-title-2 = { -product-mozilla-account } menüsü
 drop-down-menu-signed-in-as-v2 = Giriş yapan kullanıcı
 drop-down-menu-sign-out = Çıkış yap
@@ -556,8 +551,6 @@ flow-setup-phone-confirm-code-resend-code-button = Kodu yeniden gönder
 flow-setup-phone-confirm-code-resend-code-success = Kod gönderildi
 flow-setup-phone-confirm-code-success-message-v2 = Kurtarma telefonu eklendi
 flow-change-phone-confirm-code-success-message = Kurtarma telefonu değiştirildi
-
-
 flow-setup-phone-submit-number-heading = Telefon numaranızı doğrulayın
 flow-setup-phone-verify-number-instruction = { -brand-mozilla }’dan numaranızı doğrulamak için bir kod içeren bir SMS alacaksınız. Bu kodu kimseyle paylaşmayın.
 flow-setup-phone-submit-number-info-message-v2 = Kurtarma telefonu yalnızca Amerika Birleşik Devletleri ve Kanada’da kullanılabilir. VoIP numaraları ve telefon maskeleri önerilmez.
@@ -1055,15 +1048,11 @@ recovery-phone-number-ending-digits = { $lastFourPhoneNumber } ile biten numara
 oauth-error-1000 = Bir şeyler yanlış gitti. Lütfen bu sekmeyi kapatıp yeniden deneyin.
 
 
-
-
 passkey-registration-error-timeout = Geçiş anahtarı kurulumu iptal edildi. Yeniden deneyin.
 passkey-registration-canceled-link = Daha fazla bilgi alın
 passkey-registration-error-not-supported-v2 = Tarayıcınız veya cihazınız geçiş anahtarlarını desteklemiyor.
 passkey-registration-error-not-supported-link = Daha fazla bilgi al
 passkey-registration-error-could-not-complete-link = Daha fazla bilgi alın
-
-
 passkey-authentication-error-timeout = Geçiş anahtarı isteği zaman aşımına uğradı. Lütfen yeniden deneyin.
 passkey-authentication-error-not-supported-v2 = Tarayıcınız veya cihazınız geçiş anahtarlarını desteklemiyor.
 
@@ -1251,6 +1240,9 @@ pair2-supplicant-connect-this-device-cancel-button = Vazgeç
 pair2-supplicant-download-firefox-continue-button = { -brand-firefox } ile devam et
 
 
+pair2-supplicant-ready-to-scan-learn-more-link = Daha fazla bilgi al
+
+
 pair2-supplicant-sync-success-heading = Cihazınız bağlandı
 pair2-supplicant-sync-success-view-tabs-button = Eşitlenen sekmeleri göster
 pair2-supplicant-sync-success-sync-settings-button = Eşitleme ayarları
@@ -1263,8 +1255,6 @@ pair2-supplicant-timeout-and-cancel-canceled-heading = Vazgeçildi
 service-welcome-signup-success-banner = { -product-mozilla-account } onaylandı
 service-welcome-signin-success-banner = Başarıyla giriş yapıldı!
 service-welcome-vpn-heading = Sonraki: VPN’i açın
-
-
 
 
 set-password-heading-v2 = Eşitleme için parola oluşturun
@@ -1293,8 +1283,6 @@ complete-reset-pw-recovery-key-link = Hesap kurtarma anahtarını kullan
 reset-password-complete-banner-heading = Parolanız sıfırlandı.
 reset-password-complete-banner-message = Gelecekte sorun yaşamamak için { -product-mozilla-account } ayarlarınızdan yeni bir hesap kurtarma anahtarı oluşturmayı unutmayın.
 complete-reset-password-desktop-relay = { -brand-firefox }, giriş yaptıktan sonra sizi e-posta maskesi kullanmaya yönlendirecektir.
-
-
 confirm-backup-code-reset-password-input-label = 10 karakterli kodu yazın
 confirm-backup-code-reset-password-confirm-button = Onayla
 confirm-backup-code-reset-password-subheader = Yedek kimlik doğrulama kodunu yazın
@@ -1320,6 +1308,7 @@ confirm-totp-reset-password-use-different-account = Farklı bir hesap kullan
 
 
 password-reset-flow-heading = Parolanızı sıfırlayın
+password-reset-body-3 = Parolanızı sıfırlamanız eşitlenmiş tarayıcı verilerini etkileyebilir.
 password-reset-email-input =
     .label = E-posta adresinizi yazın
 password-reset-submit-button-2 = Devam et
@@ -1327,8 +1316,6 @@ password-reset-submit-button-2 = Devam et
 
 reset-password-complete-header = Parolanız sıfırlandı
 reset-password-confirmed-cta = { $serviceName } hizmetine devam et
-
-
 
 
 password-reset-recovery-method-header = Parolanızı sıfırlayın
@@ -1405,8 +1392,6 @@ signin-passkey-fallback-heading = Eşitlemek için parolanızı yazın
 signin-passkey-fallback-password-label = Parola
 signin-passkey-fallback-continue = Devam et
 signin-passkey-fallback-forgot-password-link = Parolanızı unuttunuz mu?
-
-
 
 
 signin-passwordless-code-heading = Onay kodunu girin
@@ -1506,8 +1491,6 @@ signin-unblock-code-incorrect-format-2 = Yetkilendirme kodu yalnızca harf ve ra
 signin-unblock-resend-code-button = Gelen kutusunda ve spam klasöründe göremediniz mi? Yeniden gönderin
 signin-unblock-support-link = Neden böyle bir şey oldu?
 signin-unblock-desktop-relay = { -brand-firefox }, giriş yaptıktan sonra sizi e-posta maskesi kullanmaya yönlendirecektir.
-
-
 
 
 confirm-signup-code-page-title = Onay kodunu girin
