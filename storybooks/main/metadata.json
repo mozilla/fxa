@@ -1,8 +1,8 @@
 {
-  "commit": "e6666d9efecc1063497573e279365f0923874572",
-  "summary": "Merge pull request #21092 from mozilla/PAY-3778",
-  "description": "fix(auth-server): handle cancelled billing agreement NVP error",
-  "timestamp": 1787618095000,
+  "commit": "aebc82d006b0e9ae9c7c5a2af1674a6e9f1e9ac1",
+  "summary": "Merge pull request #21102 from mozilla/fxa-14398",
+  "description": "fix(auth-server): raise the routes jwt bound to 2048 and define idToken",
+  "timestamp": 1787671153000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

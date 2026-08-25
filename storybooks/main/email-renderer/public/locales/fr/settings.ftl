@@ -197,21 +197,18 @@ form-verify-totp-disabled-button-title-numeric = Saisissez le code à { $codeLen
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Saisissez le code de { $codeLength } caractères pour continuer
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Clé de récupération du compte { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Codes d’authentification de secours
 get-data-trio-download-2 =
-    .title = Télécharger
     .aria-label = Télécharger
+    .title = Télécharger
 get-data-trio-copy-2 =
-    .title = Copier
     .aria-label = Copier
+    .title = Copier
 get-data-trio-print-2 =
-    .title = Imprimer
     .aria-label = Imprimer
+    .title = Imprimer
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -275,10 +272,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = Clé d’accès
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Un ordinateur, un téléphone portable et une image d’un cœur brisé sur chacun d’eux
 hearts-verified-image-aria-label =
@@ -527,9 +520,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = Produits { -brand-mozilla }
 bento-menu-tagline = Autres produits de { -brand-mozilla } qui protègent votre vie privée
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -618,9 +608,6 @@ dc-opt-out-success-2 = Désactivation réussie. Les { -product-mozilla-accounts 
 dc-opt-in-success-2 = Merci ! Le partage de ces données nous aide à améliorer les { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Un problème est survenu lors de la modification de vos préférences en matière de collecte de données
 dc-learn-more = En savoir plus
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = Menu { -product-mozilla-account(capitalization: "uppercase") }
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -781,9 +768,6 @@ flow-setup-phone-confirm-code-resend-code-button = Renvoyer le code
 flow-setup-phone-confirm-code-resend-code-success = Code envoyé
 flow-setup-phone-confirm-code-success-message-v2 = Numéro de téléphone de secours ajouté
 flow-change-phone-confirm-code-success-message = Numéro de téléphone de secours modifié
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Vérifiez votre numéro de téléphone
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = Vous recevrez un SMS de { -brand-mozilla } avec un code pour vérifier votre numéro. Ne partagez pas ce code avec qui que ce soit.
@@ -1087,7 +1071,7 @@ recent-activity-account-recovery-codes-set = Codes de secours définis
 # A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
 recent-activity-account-passkey-wrap-created = Clé d’accès activée pour la synchronisation
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
-recent-activity-account-passkey-wrap-creation-failure = Échec de la synchronisation de la configuration avec la clé d’accès
+recent-activity-account-passkey-wrap-creation-failure = Échec de la configuration de la synchronisation avec une clé d’accès
 # A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
 recent-activity-account-passkey-wrap-invalidated = Accès à la synchronisation par clé d’accès supprimé après la réinitialisation du mot de passe
 # Security event was recorded, but the activity details are unknown or not shown to user
@@ -1500,9 +1484,6 @@ oauth-error-1000 = Une erreur s’est produite. Veuillez fermer cet onglet et r�
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = La configuration de la clé d’accès a échoué ou n’est pas disponible. Réessayez ou choisissez une autre méthode.
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
@@ -1534,9 +1515,6 @@ passkey-registration-error-not-readable = Nous n’avons pas pu accéder à l’
 passkey-registration-error-constraint = La configuration de la clé d’accès n’est pas disponible avec cet appareil. Essayez une autre méthode ou un autre appareil.
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = La configuration de la clé d’accès a échoué. Réessayez ou choisissez une autre méthode.
-
-# Authentication errors
-
 # Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
 # available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
 # points the user to another way to sign in.
@@ -1870,9 +1848,9 @@ pair2-authority-continue-on-mobile-cancel-button = Annuler
 ## It points them at firefox.com/pair and offers a download link for Firefox.
 
 # "sync" is a verb here, referring to syncing data between the user's devices
-pair2-authority-download-firefox-heading = Ouvrir { -brand-firefox } à synchroniser
+pair2-authority-download-firefox-heading = Ouvrez { -brand-firefox } pour synchroniser vos données
 # "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = Pour configurer la synchronisation entre les appareils, ouvrez { -brand-firefox } sur cet appareil et visitez <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction = Pour configurer la synchronisation entre des appareils, ouvrez { -brand-firefox } sur cet appareil et consultez <b>firefox.com/pair</b>
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Télécharger { -brand-firefox }
 
@@ -1880,9 +1858,9 @@ pair2-authority-download-firefox-cta = Télécharger { -brand-firefox }
 ## Users see this on their computer. It shows a QR code that they scan with
 ## their phone or tablet to connect the two devices and start syncing.
 
-pair2-authority-scan-qr-heading = Scannez pour connecter votre appareil mobile
+pair2-authority-scan-qr-heading = Scannez le code QR pour connecter votre appareil mobile
 # "sync" is a verb here, referring to syncing data between the user's devices
-pair2-authority-scan-qr-instruction = Scannez le code QR avec votre téléphone ou votre tablette pour synchroniser vos { -brand-firefox } marque-pages, onglets et plus encore.
+pair2-authority-scan-qr-instruction = Scannez le code QR avec votre téléphone ou votre tablette pour synchroniser vos marque-pages, vos onglets et d’autres données de { -brand-firefox }.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = Code QR pour connecter votre appareil mobile
 # Link to a support article for users having trouble scanning the QR code
@@ -1894,7 +1872,7 @@ pair2-authority-scan-qr-help-link = Obtenir de l’aide pour scanner le code QR
 
 # "syncing" here means copying data between the user's devices
 pair2-authority-sync-success-heading = La synchronisation est activée
-pair2-authority-sync-success-description = Vos onglets, marque-pages, mots de passe et bien plus sont prêts sur tous vos appareils.
+pair2-authority-sync-success-description = Vos onglets, marque-pages, mots de passe et autres données sont désormais disponibles sur tous vos appareils.
 # Opens the tabs that are open on the user's other synced devices
 pair2-authority-sync-success-view-tabs-button = Voir les onglets synchronisés
 # Opens the browser settings that control what is synced
@@ -1907,7 +1885,7 @@ pair2-authority-sync-success-sync-settings-button = Paramètres de synchronisati
 
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Vous souhaitez toujours connecter un appareil ?
-pair2-authority-timeout-and-cancel-timeout-description = Il semblerait que le délai d’attente ait expiré. Réessayez si vous souhaitez toujours connecter votre appareil mobile et synchroniser vos { -brand-firefox } données.
+pair2-authority-timeout-and-cancel-timeout-description = Le délai d’attente semble avoir expiré. Réessayez si vous souhaitez toujours connecter votre appareil mobile et synchroniser vos données { -brand-firefox }.
 # Shown when the pairing attempt was canceled, on either device
 pair2-authority-timeout-and-cancel-canceled-heading = Annulé
 pair2-authority-timeout-and-cancel-canceled-description = Si vous changez d’avis ou si vous souhaitez connecter un autre appareil, réessayez.
@@ -1939,7 +1917,7 @@ pair2-supplicant-approve-sign-in-cancel-button = Annuler
 # whose details are shown below the heading
 pair2-supplicant-connect-this-device-heading = Connecter cet appareil à votre compte ?
 # Confirms the pairing attempt
-pair2-supplicant-connect-this-device-connect-button = Connexion
+pair2-supplicant-connect-this-device-connect-button = Connecter
 # Dismisses the pairing attempt
 pair2-supplicant-connect-this-device-cancel-button = Annuler
 
@@ -1948,10 +1926,10 @@ pair2-supplicant-connect-this-device-cancel-button = Annuler
 ## does not have Firefox installed yet. It explains what syncing gets them and
 ## sends them off to install the browser.
 
-pair2-supplicant-download-firefox-heading = Obtenir { -brand-firefox } sur cet appareil
+pair2-supplicant-download-firefox-heading = Installer { -brand-firefox } sur cet appareil
 # "sync" is a verb here, referring to syncing data between the user's devices.
 # <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = Téléchargez { -brand-firefox } pour synchroniser les marque-pages, l’historique et d’autres informations entre vos appareils. <linkExternal>En savoir plus</linkExternal>
+pair2-supplicant-download-firefox-description = Téléchargez { -brand-firefox } pour synchroniser les marque-pages, l’historique et d’autres données entre vos appareils. <linkExternal>En savoir plus</linkExternal>
 # Primary action. Sends the user to the Firefox download page.
 pair2-supplicant-download-firefox-continue-button = Continuer dans { -brand-firefox }
 
@@ -1960,10 +1938,10 @@ pair2-supplicant-download-firefox-continue-button = Continuer dans { -brand-fire
 ## to open firefox.com/pair on their computer, which is where the QR code they
 ## scan with the mobile device comes from.
 
-pair2-supplicant-ready-to-scan-heading = Pour connecter un appareil
+pair2-supplicant-ready-to-scan-heading = Comment connecter un appareil
 # <b> emphasises the address the user types on their computer. It is not a link,
 # and the address itself must not be translated.
-pair2-supplicant-ready-to-scan-instruction = Sur votre ordinateur, ouvrez { -brand-firefox } et accédez à <b>firefox.com/pair</b>, et suivez les instructions à l’écran pour connecter cet appareil mobile.
+pair2-supplicant-ready-to-scan-instruction = Sur votre ordinateur, ouvrez { -brand-firefox } et consultez <b>firefox.com/pair</b> puis suivez les instructions à l’écran pour connecter cet appareil mobile.
 # Opens a Mozilla support article about setting up sync
 pair2-supplicant-ready-to-scan-learn-more-link = En savoir plus
 
@@ -1985,13 +1963,13 @@ pair2-supplicant-sync-success-sync-settings-button = Paramètres de synchronisat
 ## back to their computer to start again.
 
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
-pair2-supplicant-timeout-and-cancel-timeout-heading = Il semble que le délai d’attente ait expiré
+pair2-supplicant-timeout-and-cancel-timeout-heading = Le délai de connexion a expiré
 # "firefox.com/pair" is a URL and should not be translated
-pair2-supplicant-timeout-and-cancel-timeout-description = Pour connecter votre appareil mobile et synchroniser vos { -brand-firefox } données, visitez <b>firefox.com/pair</b> sur votre ordinateur.
+pair2-supplicant-timeout-and-cancel-timeout-description = Pour connecter votre appareil mobile et synchroniser vos données { -brand-firefox }, consultez <b>firefox.com/pair</b> sur votre ordinateur.
 # Shown after the pairing attempt was canceled
 pair2-supplicant-timeout-and-cancel-canceled-heading = Annulé
 # "firefox.com/pair" is a URL and should not be translated
-pair2-supplicant-timeout-and-cancel-canceled-description = Pour connecter un appareil à tout moment, visitez <b>firefox.com/pair</b> sur votre ordinateur.
+pair2-supplicant-timeout-and-cancel-canceled-description = Pour connecter un appareil à tout moment, consultez <b>firefox.com/pair</b> sur votre ordinateur.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -2004,9 +1982,6 @@ service-welcome-vpn-description = Plus qu’une étape pour renforcer la confide
 
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
-
-
-# password to complete their sign-in when they want to login to a service requiring it.
 
 set-password-heading-v2 = Créez un mot de passe pour la synchronisation
 # "This" refers to the heading, "Create password to sync"
@@ -2057,9 +2032,6 @@ reset-password-complete-banner-message = N’oubliez pas de générer une nouvel
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = Une fois connecté·e, { -brand-firefox } tentera de vous renvoyer vers l’onglet d’origine pour utiliser un alias de messagerie.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = Saisissez le code de 10 caractères
 confirm-backup-code-reset-password-confirm-button = Confirmer
 confirm-backup-code-reset-password-subheader = Saisissez un code d’authentification de secours
@@ -2110,9 +2082,6 @@ reset-password-confirmed-cta = Continuer vers { $serviceName }
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Réinitialisez votre mot de passe
 password-reset-recovery-method-subheader = Choisissez une méthode de récupération
@@ -2220,11 +2189,6 @@ signin-passkey-fallback-body = Pour protéger vos données, vous devez saisir vo
 signin-passkey-fallback-password-label = Mot de passe
 signin-passkey-fallback-continue = Continuer
 signin-passkey-fallback-forgot-password-link = Mot de passe oublié ?
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2417,9 +2381,6 @@ signin-unblock-desktop-relay = Une fois connecté·e, { -brand-firefox } tentera
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Saisissez le code de confirmation
