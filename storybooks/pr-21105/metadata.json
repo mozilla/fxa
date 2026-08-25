@@ -1,0 +1,11 @@
+{
+  "commit": "200f73c16a5e169dd917a7e2e10b5832b574854a",
+  "summary": "fix(cms): inject LoggerService in the CMS configuration managers",
+  "description": "## Because\n\n- Self-hosted `fxa-auth-server` did not start. typedi threw `SyntaxError: Unexpected identifier 'Object'` while `CMSHandler` resolved the CMS managers.\n- The two CMS configuration managers annotated the injected logger with the winston `Logger` type. The seven other `LOGGER_PROVIDER` injection sites use `LoggerService`.\n\n## This pull request\n\n- Injects `LoggerService` from `@nestjs/common` in `default-configuration.manager.ts` and `relying-party-configuration.manager.ts`.\n- Removes the unused `import type { Logger } from '@fxa/shared/log'` from both files. `LOGGER_PROVIDER` stays.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-14400",
+  "timestamp": 1787669423000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
