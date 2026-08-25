@@ -868,6 +868,9 @@ recent-activity-account-passwordless-login-otp-failed = Codul de autentificare f
 recent-activity-account-passwordless-login-otp-verified = Cod de autentificare fără parolă verificat
 recent-activity-account-passwordless-registration-complete = Înregistrarea contului fără parolă a fost finalizată
 recent-activity-account-recovery-codes-set = Coduri de recuperare setate
+recent-activity-account-passkey-wrap-created = Cheie de acces activată pentru sincronizare
+recent-activity-account-passkey-wrap-creation-failure = Configurarea sincronizării cu cheia de acces a eșuat
+recent-activity-account-passkey-wrap-invalidated = Accesul la sincronizare cu cheie de acces a fost eliminat după resetarea parolei
 recent-activity-unknown = Alte activități din cont
 
 

@@ -83,6 +83,7 @@ button-back-aria-label = Atrás
 button-back-title = Atrás
 
 
+recovery-key-download-button-v4 = Descargar y continuar
 recovery-key-pdf-download-error = Lo sentimos, hubo un problema al descargar tu clave de recuperación de cuenta.
 
 
@@ -436,6 +437,7 @@ cs-cannot-disconnect = Cliente no encontrado, no se pudo desconectar
 cs-logged-out-2 = Desconectado de { $service }
 cs-refresh-button =
     .title = Actualizar servicios conectados
+cs-connect-device-button = Conecta un dispositivo
 cs-missing-device-help = ¿Faltan elementos o están duplicados?
 cs-disconnect-sync-heading = Desconectarse de Sync
 

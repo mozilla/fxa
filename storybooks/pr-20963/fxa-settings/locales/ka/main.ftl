@@ -863,6 +863,9 @@ recent-activity-account-passwordless-login-otp-failed = უპაროლო �
 recent-activity-account-passwordless-login-otp-verified = უპაროლო შესვლის კოდი დამოწმდა
 recent-activity-account-passwordless-registration-complete = უპაროლო ანგარიშის შექმნა შესრულდა
 recent-activity-account-recovery-codes-set = აღდგენის კოდთა ნაკრები
+recent-activity-account-passkey-wrap-created = საშვი ამოქმედებულია დასინქრონებისთვის
+recent-activity-account-passkey-wrap-creation-failure = დასინქრონების გამართვა საშვით ვერ მოხერხდა
+recent-activity-account-passkey-wrap-invalidated = საშვით დასინქრონებასთან წვდომა გაუქმებულია პაროლის განულების შემდეგ
 recent-activity-unknown = სხვა მოქმედებები ანგარიშზე
 
 

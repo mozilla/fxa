@@ -824,6 +824,9 @@ recent-activity-account-passwordless-login-otp-failed = Ndoikói ayvu jeikerã �
 recent-activity-account-passwordless-login-otp-verified = Ayvu jeikerã ñe’ẽñemi’ỹre hechajeypyre
 recent-activity-account-passwordless-registration-complete = Oĩmbáma mba’ete mboheraguapy ñe’ẽñemi’ỹre
 recent-activity-account-recovery-codes-set = Ayvu guerujeyrãva mboajepyre
+recent-activity-account-passkey-wrap-created = Ñe’ẽ ñemi oikóva embojuehe hag̃ua
+recent-activity-account-passkey-wrap-creation-failure = Ndoikói Sync ñemboheko ñe’ẽ ñemi ndive
+recent-activity-account-passkey-wrap-invalidated = Ojepe’a ñembojuehe ñe’ẽ ñemi ndive ñe’ẽñemi oikojey rire
 recent-activity-unknown = Mba’ete rembiapo ambuéva
 
 

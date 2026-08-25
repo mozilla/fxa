@@ -1370,7 +1370,7 @@ pair2-supplicant-sync-success-view-tabs-button = Voir les onglets synchronisés
 pair2-supplicant-sync-success-sync-settings-button = Paramètres de synchronisation
 
 
-pair2-supplicant-timeout-and-cancel-timeout-heading = Il semble que le délai d’attente ait expiré
+pair2-supplicant-timeout-and-cancel-timeout-heading = Le délai de connexion a expiré
 pair2-supplicant-timeout-and-cancel-timeout-description = Pour connecter votre appareil mobile et synchroniser vos { -brand-firefox } données, visitez <b>firefox.com/pair</b> sur votre ordinateur.
 pair2-supplicant-timeout-and-cancel-canceled-heading = Annulé
 pair2-supplicant-timeout-and-cancel-canceled-description = Pour connecter un appareil à tout moment, visitez <b>firefox.com/pair</b> sur votre ordinateur.

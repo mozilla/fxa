@@ -1985,7 +1985,7 @@ pair2-supplicant-sync-success-sync-settings-button = Paramètres de synchronisat
 ## back to their computer to start again.
 
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
-pair2-supplicant-timeout-and-cancel-timeout-heading = Il semble que le délai d’attente ait expiré
+pair2-supplicant-timeout-and-cancel-timeout-heading = Le délai de connexion a expiré
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = Pour connecter votre appareil mobile et synchroniser vos { -brand-firefox } données, visitez <b>firefox.com/pair</b> sur votre ordinateur.
 # Shown after the pairing attempt was canceled
