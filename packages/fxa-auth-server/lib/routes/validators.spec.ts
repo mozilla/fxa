@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const isA = require('joi');
 const validators = require('./validators');
 const plan1 = require('../../test/local/payments/fixtures/stripe/plan1.json');
 const validProductMetadata = plan1.product.metadata;
@@ -851,6 +852,55 @@ describe('lib/routes/validators:', () => {
       { value: '12345', label: 'more than 4 digits' },
     ])('rejects $label', ({ value }) => {
       expect(validators.maskedPhoneNumber.validate(value).error).toBeDefined();
+    });
+  });
+
+  describe('jwt:', () => {
+    // Shaped like a real Google id_token: a base64url header and an RS256
+    // signature, with the payload making up the rest.
+    const HEADER_LENGTH = 75;
+    const SIGNATURE_LENGTH = 342;
+    const jwtOfLength = (length: number) =>
+      [
+        'h'.repeat(HEADER_LENGTH),
+        'p'.repeat(length - HEADER_LENGTH - SIGNATURE_LENGTH - 2),
+        's'.repeat(SIGNATURE_LENGTH),
+      ].join('.');
+
+    // A Google id_token passes 1024 characters once the name, picture and hd
+    // claims are long, which the previous bound rejected as a 400 on sign-in.
+    it('accepts a 1500 character token', () => {
+      expect(validators.jwt.validate(jwtOfLength(1500)).error).toBeUndefined();
+    });
+
+    it('accepts a token at the 2048 character bound', () => {
+      expect(validators.jwt.validate(jwtOfLength(2048)).error).toBeUndefined();
+    });
+
+    it('rejects a token longer than 2048 characters', () => {
+      expect(validators.jwt.validate(jwtOfLength(2049)).error).toBeDefined();
+    });
+
+    it('rejects a string that is not JWT shaped', () => {
+      expect(validators.jwt.validate('not.a@token').error).toBeDefined();
+    });
+
+    // thirdPartyIdToken is the route that a long Google id_token failed on.
+    it('accepts a 1500 character token as thirdPartyIdToken', () => {
+      expect(
+        validators.thirdPartyIdToken.validate(jwtOfLength(1500)).error
+      ).toBeUndefined();
+    });
+
+    // idToken aliases jwt. It was assigned before jwt, so the export was undefined.
+    it('exports idToken as a Joi schema', () => {
+      expect(isA.isSchema(validators.idToken)).toBe(true);
+    });
+
+    it('accepts a 1500 character token as idToken', () => {
+      expect(
+        validators.idToken.validate(jwtOfLength(1500)).error
+      ).toBeUndefined();
     });
   });
 });

@@ -124,7 +124,6 @@ module.exports.hexString = isA.string().regex(HEX_STRING);
 module.exports.uid = module.exports.hexString.length(32);
 module.exports.clientId = module.exports.hexString.length(16);
 module.exports.clientSecret = module.exports.hexString;
-module.exports.idToken = module.exports.jwt;
 module.exports.reasonForAccountDeletion = isA
   .string()
   .valid(...Object.values(ReasonForDeletion));
@@ -162,11 +161,14 @@ module.exports.jwe = isA
     /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/
   );
 
+// lib/oauth/validators.js has a separate jwt validator; keep the bounds in sync.
 module.exports.jwt = isA
   .string()
-  .max(1024)
+  .max(2048)
   // JWT format: 'header.payload.signature'
   .regex(/^([a-zA-Z0-9\-_]+)\.([a-zA-Z0-9\-_]+)\.([a-zA-Z0-9\-_]+)$/);
+
+module.exports.idToken = module.exports.jwt;
 
 module.exports.accessToken = isA
   .alternatives()
