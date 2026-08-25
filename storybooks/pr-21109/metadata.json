@@ -1,0 +1,10 @@
+{
+  "commit": "34a02dfdef8cd6018b2eb5fcd05503f9724d13e1",
+  "summary": "test(functional-tests): add v2 pairing specs and a Marionette harness",
+  "description": "Because:\n- The v2 pairing flow had no end-to-end coverage.\n- The v2 supplicant runs real chrome commands, so it cannot be a Playwright page.\n\nThis commit:\n- Adds pairingFlowV2Android, driving a Marionette authority and a real Fenix\n  supplicant with nothing stubbed.\n- Adds pairingFlowV2, driving both halves over Marionette and standing in only\n  for the oauth_login that desktop chrome does not implement.\n- Adds a marionetteSupplicant fixture and a v2-capable Firefox resolver.\n- Extends pairChoice with v2 version negotiation.",
+  "timestamp": 1787694888000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
