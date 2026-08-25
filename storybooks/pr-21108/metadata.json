@@ -1,0 +1,12 @@
+{
+  "commit": "e8740c2c0adbdf86e2b41b1cf5ee4e9de5f92935",
+  "summary": "chore(deps): Upgrade to React 19",
+  "description": "",
+  "timestamp": 1787683914000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
