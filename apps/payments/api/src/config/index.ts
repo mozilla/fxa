@@ -1,5 +1,12 @@
 import { Transform, Type } from 'class-transformer';
-import { IsBoolean, IsDefined, ValidateNested } from 'class-validator';
+import {
+  IsBoolean,
+  IsDefined,
+  IsIn,
+  IsOptional,
+  ValidateNested,
+} from 'class-validator';
+import type { LogLevel } from '@nestjs/common';
 
 import { CurrencyConfig } from '@fxa/payments/currency';
 import { MeteringConfig } from '@fxa/entitlements/metering';
@@ -15,6 +22,16 @@ import { StatsDConfig } from '@fxa/shared/metrics/statsd';
 import { FirestoreConfig } from '@fxa/shared/db/firestore';
 import { FxaOAuthConfig } from '@fxa/payments/auth';
 import { SentryConfig } from './sentry.config';
+
+export const NEST_LOG_LEVELS: Record<string, LogLevel> = {
+  verbose: 'verbose',
+  debug: 'debug',
+  info: 'log',
+  log: 'log',
+  warn: 'warn',
+  error: 'error',
+  fatal: 'fatal',
+};
 
 export class RootConfig {
   @Type(() => MySQLConfig)
@@ -100,6 +117,10 @@ export class RootConfig {
   @IsBoolean()
   @IsDefined()
   public readonly swaggerUi!: boolean;
+
+  @IsOptional()
+  @IsIn(Object.keys(NEST_LOG_LEVELS))
+  public readonly logLevel?: string;
 
   @Type(() => FreeAccessProgramConfig)
   @ValidateNested()
