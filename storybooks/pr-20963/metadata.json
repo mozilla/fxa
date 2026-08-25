@@ -1,8 +1,8 @@
 {
-  "commit": "62724ff2aa1eafb82122929f002af82d7e8f17dd",
+  "commit": "a3fe028e1e9956c7a0790f3e16a8ec49172bc9f1",
   "summary": "Fix failing tests (fxa-react, fxa-admin-panel, fxa-settings)",
   "description": "",
-  "timestamp": 1787668683000,
+  "timestamp": 1787692870000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
