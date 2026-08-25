@@ -1,8 +1,8 @@
 {
-  "commit": "f86f67bc3b7fd467cb515c4c0104b52a152d9163",
-  "summary": "Merge pull request #21086 from mozilla/PAY-3816",
-  "description": "feat(payments-api): control Nest log verbosity with LOG_LEVEL",
-  "timestamp": 1787684482000,
+  "commit": "4334e583668ef6da737f8301815541d04f283ef0",
+  "summary": "Merge pull request #21105 from mozilla/fxa-14400",
+  "description": "fix(cms): inject LoggerService in the CMS configuration managers",
+  "timestamp": 1787685042000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
