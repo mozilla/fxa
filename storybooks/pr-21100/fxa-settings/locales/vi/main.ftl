@@ -805,6 +805,9 @@ recent-activity-account-passwordless-login-otp-failed = Mã đăng nhập không
 recent-activity-account-passwordless-login-otp-verified = Đã xác minh mã đăng nhập không cần mật khẩu
 recent-activity-account-passwordless-registration-complete = Đã hoàn tất đăng ký tài khoản không cần mật khẩu
 recent-activity-account-recovery-codes-set = Đã thiết lập mã khôi phục
+recent-activity-account-passkey-wrap-created = Đã bật passkey cho đồng bộ hoá
+recent-activity-account-passkey-wrap-creation-failure = Thiết lập đồng bộ hoá bằng passkey không thành công
+recent-activity-account-passkey-wrap-invalidated = Quyền truy cập đồng bộ passkey đã bị xóa sau khi đặt lại mật khẩu
 recent-activity-unknown = Hoạt động tài khoản khác
 
 

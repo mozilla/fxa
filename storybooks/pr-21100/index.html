@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit c81793095dac9119b24c26ad87af88460a033256</title>
+  <title>Storybooks for commit 07f9cb8675e7e723650c25bd0d39b6a07b469d15</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,29 +23,29 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit c81793095dac9119b24c26ad87af88460a033256</h1>
+  <h1>Storybooks for commit 07f9cb8675e7e723650c25bd0d39b6a07b469d15</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/24/2026, 10:47:04 PM UTC</dd>
+    <dd>8/25/2026, 2:40:18 AM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>task(settings): Implement pairing v2 flow</pre></dd>
+    <dd><pre>task(settings): Display v2 QR code</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-- We want to implement the new and improved pairing v2 flows:
-  - We want to support the new v2 QR format
-  - We want to support navite camera scanning
-  - We want to adhere to new figma designs.
+- When v2 pairing is enabled we want to take the user directly to the scan_qr page
+- We want the authority to render QR code and open the web-channel.
 
 This Commit:
-- Ensures the /pair page sends users into the pairing v2 flows when appropriate.
-- Uses the new `/Pair2/*` components
-- Creates container components to handle pairing state changes and subsequent navigations.
-- Updates pairing integrations to handle the pairing channel events.
-- Enforces the correct integration is provdided per pairing component.
-- Fixes in firefox promo banner. The redirect to pair must force a new integration be created.</pre></dd>
+- Exposes pairingVersion and pairingEnabled from the useFxaStatus hook.
+- Adds a new isPairing flag to our integrations, which is then relied on in the useFxaStatus hook.
+- Adds ability to pairing-channel.ts to create a new pairing channel.
+- Updates the pairing-authority-integration providing the ability to create a new pairing channel.
+- Updates the integration factory to return the correct pairing integration type given the new pairing path names.
+- Updates the ConnectAnotherDevice page to route the user to the ScanQR page when pairing version 2 is flipped on.
+- Hoists toRemoteMetaData to the parent class
+- ScanQR now creates and renders a v2 pairing QR code!</pre></dd>
   </dl>
 </body>
 </html>
