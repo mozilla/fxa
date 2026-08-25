@@ -36,18 +36,4 @@ export class InlineTotpSetupPage extends BaseLayout {
       .fill(code);
     await this.page.getByRole('button', { name: 'Confirm' }).click();
   }
-
-  async confirmMfaGuardIfVisible(email: string) {
-    // The guard modal and the setup UI are mutually exclusive on this route.
-    // Wait for whichever renders first so this doesn't race a not-yet-shown
-    // modal (a bare isVisible() check can skip a guard that is still mounting),
-    // then confirm only when it is the guard.
-    await Promise.race([
-      this.mfaGuardHeading.waitFor({ state: 'visible' }),
-      this.introHeading.waitFor({ state: 'visible' }),
-    ]);
-    if (await this.mfaGuardHeading.isVisible()) {
-      await this.confirmMfaGuard(email);
-    }
-  }
 }

@@ -81,9 +81,9 @@ test.describe('severity-1 #smoke', () => {
 
       await page.waitForURL(/inline_totp_setup/);
 
-      await inlineTotpSetup.confirmMfaGuard(credentials.email);
       await expect(inlineTotpSetup.introHeading).toBeVisible();
       await inlineTotpSetup.continueButton.click();
+      await inlineTotpSetup.confirmMfaGuard(credentials.email);
       await expect(totp.setup2faAppHeading).toBeVisible();
       await totp.setUp2faAppWithManualCode(credentials);
 
@@ -119,9 +119,9 @@ test.describe('OAuth totp with recovery phone (local only)', () => {
 
     await page.waitForURL(/inline_totp_setup/);
 
-    await inlineTotpSetup.confirmMfaGuard(credentials.email);
     await expect(inlineTotpSetup.introHeading).toBeVisible();
     await inlineTotpSetup.continueButton.click();
+    await inlineTotpSetup.confirmMfaGuard(credentials.email);
     await expect(totp.setup2faAppHeading).toBeVisible();
     await totp.setUp2faAppWithManualCode(credentials);
 
