@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 3f574ee1f8ca022ad560533949eec2ef3d28ff1f</title>
+  <title>Storybooks for commit acd97e49e424e205d1f4913a68ed66cb00dd212c</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,23 +23,28 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 3f574ee1f8ca022ad560533949eec2ef3d28ff1f</h1>
+  <h1>Storybooks for commit acd97e49e424e205d1f4913a68ed66cb00dd212c</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/25/2026, 2:44:16 PM UTC</dd>
+    <dd>8/25/2026, 5:31:01 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>chore(settings): trim inline TOTP comments</pre></dd>
+    <dd><pre>refactor(settings): scope inline TOTP MFA guard to enrolment step</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-- Review feedback: several comments restated the code or were verbose.
+- The inline TOTP flow requested an email OTP on page load, before the
+  user saw the &quot;set up two-step authentication&quot; intro.
+- Users who never proceed past the intro were forced through an
+  unnecessary email-OTP round-trip.
 
 This commit:
-- Condense the enrolment header and stale-JWT catch comments.
-- Trim the container guard comment and drop redundant test comments.
-- Fix a stale mock comment referencing the old structure.</pre></dd>
+- Container owns currentStep and MfaGuardCore; index.tsx is presentational.
+- InlineTotpEnrolment (JWT createTotp/verify) runs under the guard at step 1.
+- OTP appears after Continue; dismiss returns to intro; card spinner while loading.
+- Reorder functional inline TOTP specs to confirm the guard after Continue.
+- Split unit tests into enrolment, presentational shell, and container wiring.</pre></dd>
   </dl>
 </body>
 </html>

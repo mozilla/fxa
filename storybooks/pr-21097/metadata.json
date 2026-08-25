@@ -1,8 +1,8 @@
 {
-  "commit": "3f574ee1f8ca022ad560533949eec2ef3d28ff1f",
-  "summary": "chore(settings): trim inline TOTP comments",
-  "description": "Because:\n- Review feedback: several comments restated the code or were verbose.\n\nThis commit:\n- Condense the enrolment header and stale-JWT catch comments.\n- Trim the container guard comment and drop redundant test comments.\n- Fix a stale mock comment referencing the old structure.",
-  "timestamp": 1787669056000,
+  "commit": "acd97e49e424e205d1f4913a68ed66cb00dd212c",
+  "summary": "refactor(settings): scope inline TOTP MFA guard to enrolment step",
+  "description": "Because:\n- The inline TOTP flow requested an email OTP on page load, before the\n  user saw the \"set up two-step authentication\" intro.\n- Users who never proceed past the intro were forced through an\n  unnecessary email-OTP round-trip.\n\nThis commit:\n- Container owns currentStep and MfaGuardCore; index.tsx is presentational.\n- InlineTotpEnrolment (JWT createTotp/verify) runs under the guard at step 1.\n- OTP appears after Continue; dismiss returns to intro; card spinner while loading.\n- Reorder functional inline TOTP specs to confirm the guard after Continue.\n- Split unit tests into enrolment, presentational shell, and container wiring.",
+  "timestamp": 1787679061000,
   "storybooks": [
     "fxa-settings"
   ],
