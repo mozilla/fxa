@@ -248,11 +248,9 @@ export class TotpPage extends SettingsLayout {
     recoveryPhoneAvailable: boolean
   ): Promise<string> {
     await this.page.waitForURL(/inline_totp_setup/);
-    // Conditional: some callers confirm the guard themselves (e.g. to assert
-    // the passkey banner) before reaching this helper.
-    await inlineTotpSetup.confirmMfaGuardIfVisible(credentials.email);
     await expect(inlineTotpSetup.introHeading).toBeVisible();
     await inlineTotpSetup.continueButton.click();
+    await inlineTotpSetup.confirmMfaGuard(credentials.email);
     const secret = await this.setUp2faAppWithManualCode(credentials);
     await this.page.waitForURL(/inline_recovery_setup/);
     if (recoveryPhoneAvailable) {

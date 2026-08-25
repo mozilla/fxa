@@ -5,11 +5,11 @@
 import InlineTotpSetup from '.';
 import { Meta } from '@storybook/react';
 import { MozServices } from '../../lib/types';
-import { MOCK_TOTP_TOKEN } from './mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { action } from '@storybook/addon-actions';
-import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { createMockIntegrationWithCms } from '../mocks';
+import { Integration } from '../../models';
+import FlowSetup2faApp from '../../components/Settings/FlowSetup2faApp';
+import { MOCK_TOTP_TOKEN } from './mocks';
 
 export default {
   title: 'Pages/InlineTotpSetup',
@@ -17,44 +17,34 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-const verifyCodeHandler = (code: string) => {
-  action('verifyCodeHandler')(code);
-  return Promise.resolve();
+const commonProps = {
+  onContinue: () => action('onContinue')(),
+  serviceName: MozServices.Addons,
+  integration: {} as Integration,
+  enrolment: null,
 };
 
+// Step 0: the intro the container renders before gating enrolment behind the guard.
 export const Default = () => (
-  <InlineTotpSetup
-    totp={MOCK_TOTP_TOKEN}
-    serviceName={MozServices.Addons}
-    verifyCodeHandler={verifyCodeHandler}
-  />
+  <InlineTotpSetup {...commonProps} currentStep={0} />
 );
 
-export const SignedInWithPasskey = () => (
+// Step 1: what the user sees once the guard passes and the TOTP token is created.
+// The real page composes this behind MfaGuardCore; here we render FlowSetup2faApp
+// directly for a visual reference (see its own stories for more variants).
+export const EnrolmentStep = () => (
   <InlineTotpSetup
-    totp={MOCK_TOTP_TOKEN}
-    serviceName={MozServices.Addons}
-    verifyCodeHandler={verifyCodeHandler}
-    signedInWithPasskey
-  />
-);
-
-export const onError = () => (
-  <InlineTotpSetup
-    totp={MOCK_TOTP_TOKEN}
-    serviceName={MozServices.Addons}
-    verifyCodeHandler={(code) => {
-      action('verifyCodeHandler')(code);
-      return Promise.reject(AuthUiErrors.INVALID_TOTP_CODE);
-    }}
-  />
-);
-
-export const WithCms = () => (
-  <InlineTotpSetup
-    totp={MOCK_TOTP_TOKEN}
-    serviceName={MozServices.Addons}
-    verifyCodeHandler={verifyCodeHandler}
-    integration={createMockIntegrationWithCms()}
+    {...commonProps}
+    currentStep={1}
+    enrolment={
+      <FlowSetup2faApp
+        localizedPageTitle="Two-step authentication"
+        totpInfo={MOCK_TOTP_TOKEN}
+        verifyCode={async () => ({})}
+        showProgressBar
+        currentStep={1}
+        numberOfSteps={4}
+      />
+    }
   />
 );

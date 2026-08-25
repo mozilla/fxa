@@ -6,36 +6,39 @@ import { screen } from '@testing-library/react';
 import { UserEvent, userEvent } from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import InlineTotpSetup from '.';
-import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { MOCK_TOTP_TOKEN } from './mocks';
 import { MozServices } from '../../lib/types';
+import { Integration } from '../../models';
+import { InlineTotpSetupProps } from './interfaces';
 
-const cancelSetupHandler = jest.fn();
-const verifyCodeHandler = jest.fn();
-const mockProps = {
-  totp: MOCK_TOTP_TOKEN,
+const onContinue = jest.fn();
+
+const ENROLMENT_TESTID = 'enrolment-step';
+const enrolment = <div data-testid={ENROLMENT_TESTID}>enrolment</div>;
+
+const buildProps = (
+  overrides: Partial<InlineTotpSetupProps> = {}
+): InlineTotpSetupProps => ({
+  currentStep: 0,
+  onContinue,
   serviceName: MozServices.Addons,
-  cancelSetupHandler,
-  verifyCodeHandler,
-};
+  integration: {} as Integration,
+  signedInWithPasskey: false,
+  enrolment,
+  ...overrides,
+});
 
 describe('InlineTotpSetup', () => {
   let user: UserEvent;
 
-  const clickContinue = async () => {
-    await user.click(await screen.findByRole('button', { name: 'Continue' }));
-  };
-
   beforeEach(() => {
     user = userEvent.setup();
+    onContinue.mockReset();
   });
 
-  it('renders the intro as expected', () => {
-    renderWithLocalizationProvider(<InlineTotpSetup {...mockProps} />);
+  it('renders the intro at step 0', () => {
+    renderWithLocalizationProvider(<InlineTotpSetup {...buildProps()} />);
 
-    screen.getByRole('heading', {
-      name: 'Two-step authentication',
-    });
+    screen.getByRole('heading', { name: 'Two-step authentication' });
     expect(
       screen.getByText('Set up two-step authentication')
     ).toBeInTheDocument();
@@ -44,21 +47,16 @@ describe('InlineTotpSetup', () => {
         'Add-ons requires you to set up two-step authentication to keep your account safe.'
       )
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'Continue' })
-    ).toBeInTheDocument();
+    expect(screen.queryByTestId(ENROLMENT_TESTID)).not.toBeInTheDocument();
   });
 
   it('renders the passkey intro when signedInWithPasskey is set', () => {
     renderWithLocalizationProvider(
-      <InlineTotpSetup {...mockProps} signedInWithPasskey />
+      <InlineTotpSetup {...buildProps({ signedInWithPasskey: true })} />
     );
 
     expect(
       screen.getByText('Successfully signed in with passkey')
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/also requires two-step authentication for your/)
     ).toBeInTheDocument();
     expect(
       screen.queryByText(
@@ -67,62 +65,20 @@ describe('InlineTotpSetup', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('renders step 1 as expected, showing the QR code by default', async () => {
-    renderWithLocalizationProvider(<InlineTotpSetup {...mockProps} />);
-    await clickContinue();
-    expect(
-      await screen.findByRole('progressbar', {
-        name: 'Step 1 of 4.',
-      })
-    ).toBeInTheDocument();
-    expect(await screen.findByText(/Scan this QR code/)).toBeInTheDocument();
+  it('calls onContinue when the intro Continue button is clicked', async () => {
+    renderWithLocalizationProvider(<InlineTotpSetup {...buildProps()} />);
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    expect(onContinue).toHaveBeenCalled();
   });
 
-  it('can go back to intro from step 1', async () => {
-    renderWithLocalizationProvider(<InlineTotpSetup {...mockProps} />);
-    await clickContinue();
-    expect(
-      await screen.findByText('Connect to your authenticator app')
-    ).toBeInTheDocument();
-    user.click(screen.getByRole('button', { name: 'Back' }));
-    expect(
-      await screen.findByText('Set up two-step authentication')
-    ).toBeInTheDocument();
-  });
-
-  it('calls verifyCodeHandler on code submission', async () => {
-    renderWithLocalizationProvider(<InlineTotpSetup {...mockProps} />);
-    await clickContinue();
-    await user.type(
-      await screen.findByLabelText('Enter 6-digit code'),
-      '123456'
-    );
-    await clickContinue();
-    expect(verifyCodeHandler).toHaveBeenCalledWith('123456');
-  });
-
-  it('shows error on incorrect totp submission', async () => {
-    const verifyCodeHandler = jest
-      .fn()
-      .mockRejectedValue(AuthUiErrors.INVALID_TOTP_CODE);
+  it('renders the enrolment step at step 1', () => {
     renderWithLocalizationProvider(
-      <InlineTotpSetup
-        {...{
-          ...mockProps,
-          verifyCodeHandler,
-        }}
-      />
+      <InlineTotpSetup {...buildProps({ currentStep: 1 })} />
     );
 
-    await clickContinue();
-    await user.type(
-      await screen.findByLabelText('Enter 6-digit code'),
-      '000000'
-    );
-    await clickContinue();
-    expect(verifyCodeHandler).toHaveBeenCalledWith('000000');
+    expect(screen.getByTestId(ENROLMENT_TESTID)).toBeInTheDocument();
     expect(
-      await screen.findByText(/Invalid or expired code/)
-    ).toBeInTheDocument();
+      screen.queryByText('Set up two-step authentication')
+    ).not.toBeInTheDocument();
   });
 });

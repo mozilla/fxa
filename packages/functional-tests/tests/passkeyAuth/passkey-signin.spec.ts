@@ -248,11 +248,8 @@ test.describe('severity-1 #smoke', () => {
         await page.waitForURL(/inline_totp_setup/);
       });
 
-      // Inline TOTP enrolment is gated by an MFA email-OTP (FXA-14311); the
-      // setup UI (incl. the passkey banner) only renders once the guard passes.
-      await inlineTotpSetup.confirmMfaGuard(credentials.email);
-      // The passkey context must survive the divert, so the page explains why
-      // 2FA is still needed rather than implying the passkey was insufficient.
+      // The passkey context survives the divert: the intro explains why 2FA is
+      // still needed rather than implying the passkey was insufficient.
       await expect(inlineTotpSetup.passkeySuccessBanner).toBeVisible();
 
       // Force TOTP enrollment so non-passkey sign-ins also satisfy AMR.
@@ -480,9 +477,6 @@ test.describe('severity-1 #smoke', () => {
         await page.waitForURL(/inline_totp_setup/);
       });
 
-      // The setup UI renders only after the MFA email-OTP guard is satisfied
-      // (FXA-14311).
-      await inlineTotpSetup.confirmMfaGuard(email);
       await expect(inlineTotpSetup.passkeySuccessBanner).toBeVisible();
     });
 
@@ -658,10 +652,7 @@ test.describe('severity-1 #smoke', () => {
       await signin.fillOutPasswordForm(credentials.password);
 
       await page.waitForURL(/inline_totp_setup/);
-      await inlineTotpSetup.confirmMfaGuard(credentials.email);
-      await expect(
-        page.getByRole('heading', { name: /Set up two-step authentication/i })
-      ).toBeVisible();
+      await expect(inlineTotpSetup.introHeading).toBeVisible();
     });
 
     test('shows the passkey button on prompt=login re-auth and completes sign-in via passkey', async ({
