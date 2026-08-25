@@ -1088,6 +1088,12 @@ recent-activity-account-passwordless-login-otp-failed = Lösenordslös inloggnin
 recent-activity-account-passwordless-login-otp-verified = Lösenordslös inloggningskod verifierad
 recent-activity-account-passwordless-registration-complete = Lösenordslös kontoregistrering slutförd
 recent-activity-account-recovery-codes-set = Återställningskoder inställda
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
+recent-activity-account-passkey-wrap-created = Lösenordsnyckel aktiverad för synkronisering
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-creation-failure = Synkroniseringsinstallationen med lösenordsnyckel misslyckades
+# A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
+recent-activity-account-passkey-wrap-invalidated = Åtkomst till synkronisering av lösenordsnyckel borttagen efter lösenordsåterställning
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Annan kontoaktivitet
 
@@ -1917,7 +1923,7 @@ pair2-authority-timeout-and-cancel-try-again-button = Försök igen
 # Abandons pairing without retrying
 pair2-authority-timeout-and-cancel-cancel-button = Avbryt
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
-pair2-authority-timeout-and-cancel-sync-settings-button = Sync-inställningar
+pair2-authority-timeout-and-cancel-sync-settings-button = Synkroniseringsinställningar
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code

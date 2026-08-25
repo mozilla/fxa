@@ -1086,6 +1086,12 @@ recent-activity-account-passwordless-login-otp-failed = O código de início de 
 recent-activity-account-passwordless-login-otp-verified = Código de início de sessão sem palavra-passe verificado
 recent-activity-account-passwordless-registration-complete = Registo de conta sem palavra-passe concluído
 recent-activity-account-recovery-codes-set = Códigos de recuperação definidos
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
+recent-activity-account-passkey-wrap-created = Chave de acesso ativada para sincronização
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-creation-failure = A configuração da sincronização com a chave de acesso falhou
+# A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
+recent-activity-account-passkey-wrap-invalidated = Acesso à sincronização da chave removido após a reposição da palavra-passe
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Outra atividade da conta
 
