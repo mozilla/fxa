@@ -4,6 +4,7 @@
 
 import { getOperationName } from '@apollo/client/utilities';
 import { Inject, Injectable } from '@nestjs/common';
+import type { LoggerService } from '@nestjs/common';
 import { StatsD } from 'hot-shots';
 import { Firestore } from '@google-cloud/firestore';
 
@@ -20,7 +21,6 @@ import {
 import * as Sentry from '@sentry/node';
 import { FirestoreService } from '@fxa/shared/db/firestore';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
-import type { Logger } from '@fxa/shared/log';
 
 const CMS_FTL_CACHE_KEY = 'cmsFtlCache';
 
@@ -33,7 +33,7 @@ export class RelyingPartyConfigurationManager {
     @Inject(StatsDService)
     private statsd: StatsD,
     @Inject(FirestoreService) private firestore: Firestore,
-    @Inject(LOGGER_PROVIDER) private readonly log: Logger,
+    @Inject(LOGGER_PROVIDER) private readonly log: LoggerService
   ) {
     if (this.strapiClient.on) {
       this.strapiClient.on('response', this.onStrapiClientResponse.bind(this));
@@ -103,18 +103,26 @@ export class RelyingPartyConfigurationManager {
         (err) => {
           const errorMessage = err instanceof Error ? err.message : String(err);
           if (context.log) {
-            context.log.error('cms.ftl.cache.error', { error: errorMessage, locale: args[0] });
+            context.log.error('cms.ftl.cache.error', {
+              error: errorMessage,
+              locale: args[0],
+            });
           }
           Sentry.captureException(err);
         },
         (startTime, endTime, result) => {
           // Report cache hits for memory cache
           if (result === 'cache') {
-            context.statsd.timing('cms_ftl_cache_hit', endTime - startTime, undefined, {
-              method: 'getFtlContent',
-              cacheType: 'memory',
-              locale: args[0],
-            });
+            context.statsd.timing(
+              'cms_ftl_cache_hit',
+              endTime - startTime,
+              undefined,
+              {
+                method: 'getFtlContent',
+                cacheType: 'memory',
+                locale: args[0],
+              }
+            );
           }
         },
         context.log
@@ -124,30 +132,40 @@ export class RelyingPartyConfigurationManager {
       const config = args[1];
       return config?.cmsl10n?.ftlCache?.memoryTtlSeconds || 300;
     },
-    client: (_, context: RelyingPartyConfigurationManager) => context.memoryCacheAdapter,
+    client: (_, context: RelyingPartyConfigurationManager) =>
+      context.memoryCacheAdapter,
   })
   @Cacheable({
     cacheKey: (args: any) => `ftl:${args[0]}`,
     strategy: (args: any, context: RelyingPartyConfigurationManager) => {
       // Get TTL from config, fallback to 30 minutes if not specified
       const config = args[1];
-      const firestoreTtl = config?.cmsl10n?.ftlCache?.firestoreTtlSeconds || 1800;
+      const firestoreTtl =
+        config?.cmsl10n?.ftlCache?.firestoreTtlSeconds || 1800;
 
       return new StaleWhileRevalidateWithFallbackStrategy(
         firestoreTtl,
         (err) => {
           const errorMessage = err instanceof Error ? err.message : String(err);
           if (context.log) {
-            context.log.error('cms.ftl.cache.error', { error: errorMessage, locale: args[0] });
+            context.log.error('cms.ftl.cache.error', {
+              error: errorMessage,
+              locale: args[0],
+            });
           }
           Sentry.captureException(err);
         },
         (startTime, endTime, result) => {
-          context.statsd.timing('cms_ftl_cache_hit', endTime - startTime, undefined, {
-            method: 'getFtlContent',
-            cacheType: result,
-            locale: args[0],
-          });
+          context.statsd.timing(
+            'cms_ftl_cache_hit',
+            endTime - startTime,
+            undefined,
+            {
+              method: 'getFtlContent',
+              cacheType: result,
+              locale: args[0],
+            }
+          );
         },
         context.log
       );
@@ -157,7 +175,8 @@ export class RelyingPartyConfigurationManager {
       const config = args[1];
       return config?.cmsl10n?.ftlCache?.firestoreOfflineTtlSeconds || 604800;
     },
-    client: (_, context: RelyingPartyConfigurationManager) => context.firestoreCacheAdapter,
+    client: (_, context: RelyingPartyConfigurationManager) =>
+      context.firestoreCacheAdapter,
   })
   async getFtlContent(locale: string, config: any): Promise<string> {
     const requestStartTime = Date.now();
@@ -174,7 +193,7 @@ export class RelyingPartyConfigurationManager {
       const resolvedUrl = urlTemplate.replace('{locale}', locale);
 
       const headers: Record<string, string> = {
-        'Accept': 'text/plain'
+        Accept: 'text/plain',
       };
 
       const controller = new AbortController();
@@ -201,12 +220,17 @@ export class RelyingPartyConfigurationManager {
       }
     } catch (error) {
       const requestEndTime = Date.now();
-      this.statsd.timing('cms_ftl_request', requestEndTime - requestStartTime, undefined, {
-        method: 'getFtlContent',
-        error: 'true',
-        cache: 'false',
-        locale,
-      });
+      this.statsd.timing(
+        'cms_ftl_request',
+        requestEndTime - requestStartTime,
+        undefined,
+        {
+          method: 'getFtlContent',
+          error: 'true',
+          cache: 'false',
+          locale,
+        }
+      );
       throw error;
     }
   }
@@ -216,14 +240,15 @@ export class RelyingPartyConfigurationManager {
    */
   @CacheClear({
     cacheKey: (args: any) => `ftl:${args[0]}`,
-    client: (_, context: RelyingPartyConfigurationManager) => context.memoryCacheAdapter,
+    client: (_, context: RelyingPartyConfigurationManager) =>
+      context.memoryCacheAdapter,
   })
   @CacheClear({
     cacheKey: (args: any) => `ftl:${args[0]}`,
-    client: (_, context: RelyingPartyConfigurationManager) => context.firestoreCacheAdapter,
+    client: (_, context: RelyingPartyConfigurationManager) =>
+      context.firestoreCacheAdapter,
   })
   async invalidateFtlCache(locale: string): Promise<void> {
     // Method body is not needed as the decorators handle the cache clearing
   }
-
 }

@@ -4,13 +4,13 @@
 
 import { getOperationName } from '@apollo/client/utilities';
 import { Inject, Injectable } from '@nestjs/common';
+import type { LoggerService } from '@nestjs/common';
 import { StatsD } from 'hot-shots';
 
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { defaultCmsQuery } from '@fxa/shared/cms';
 import { StrapiClient, StrapiClientEventResponse } from './strapi.client';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
-import type { Logger } from '@fxa/shared/log';
 
 @Injectable()
 export class DefaultCmsConfigurationManager {
@@ -18,7 +18,7 @@ export class DefaultCmsConfigurationManager {
     private strapiClient: StrapiClient,
     @Inject(StatsDService)
     private statsd: StatsD,
-    @Inject(LOGGER_PROVIDER) private readonly log: Logger
+    @Inject(LOGGER_PROVIDER) private readonly log: LoggerService
   ) {
     if (this.strapiClient.on) {
       this.strapiClient.on('response', this.onStrapiClientResponse.bind(this));
