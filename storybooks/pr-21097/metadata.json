@@ -1,8 +1,8 @@
 {
-  "commit": "1c59842387c667b1ce1c0339f50d5d43948a5a4b",
-  "summary": "refactor(settings): move inline TOTP step state and guard to container",
-  "description": "Because:\n- Review feedback: keep currentStep and the MFA guard in the container so\n  the page component stays presentational.\n\nThis commit:\n- Move currentStep + navigateBackward + MfaGuardCore into container.tsx.\n- Extract InlineTotpEnrolment to its own file (stays under the guard).\n- Reduce index.tsx to a presentational AppLayout + step-dispatch shell.\n- Return to the intro on guard dismiss; use CardLoadingSpinner while loading.\n- Split enrolment tests into InlineTotpEnrolment.test.tsx; trim comments.",
-  "timestamp": 1787665150000,
+  "commit": "3f574ee1f8ca022ad560533949eec2ef3d28ff1f",
+  "summary": "chore(settings): trim inline TOTP comments",
+  "description": "Because:\n- Review feedback: several comments restated the code or were verbose.\n\nThis commit:\n- Condense the enrolment header and stale-JWT catch comments.\n- Trim the container guard comment and drop redundant test comments.\n- Fix a stale mock comment referencing the old structure.",
+  "timestamp": 1787669056000,
   "storybooks": [
     "fxa-settings"
   ],
