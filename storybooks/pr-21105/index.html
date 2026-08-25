@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 200f73c16a5e169dd917a7e2e10b5832b574854a</title>
+  <title>Storybooks for commit 39201907904614c2ed9b279f04a001f4de6aa246</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,26 +23,28 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 200f73c16a5e169dd917a7e2e10b5832b574854a</h1>
+  <h1>Storybooks for commit 39201907904614c2ed9b279f04a001f4de6aa246</h1>
   <ul>
     <li><a href="./fxa-react/">fxa-react</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/25/2026, 2:50:23 PM UTC</dd>
+    <dd>8/25/2026, 3:35:16 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(cms): inject LoggerService in the CMS configuration managers</pre></dd>
+    <dd><pre>fix(cms): import LoggerService as a type in the CMS configuration managers</pre></dd>
     <dt>Description</dt>
     <dd><pre>## Because
 
-- Self-hosted `fxa-auth-server` did not start. typedi threw `SyntaxError: Unexpected identifier &#039;Object&#039;` while `CMSHandler` resolved the CMS managers.
-- The two CMS configuration managers annotated the injected logger with the winston `Logger` type. The seven other `LOGGER_PROVIDER` injection sites use `LoggerService`.
+- Self-hosted `fxa-auth-server` will not start. typedi throws `SyntaxError: Unexpected identifier &#039;Object&#039;` while `CMSHandler` resolves the CMS managers.
+- typedi never reads the NestJS `@Inject(LOGGER_PROVIDER)` decorator. It resolves each constructor parameter from `design:paramtypes` instead. Both CMS managers typed the logger as the winston `Logger`, and TypeScript serializes that to `Function`. typedi treats `Function` as constructible, so it calls `new Function(containerInstance)`. The container stringifies to `[object Object]`, which does not parse as JavaScript.
+- The first attempt on this branch changed the type but imported `LoggerService` as a value. That broke the build with TS1272, because `apps/payments/next` sets `isolatedModules`.
 
 ## This pull request
 
-- Injects `LoggerService` from `@nestjs/common` in `default-configuration.manager.ts` and `relying-party-configuration.manager.ts`.
-- Removes the unused `import type { Logger } from &#039;@fxa/shared/log&#039;` from both files. `LOGGER_PROVIDER` stays.
+- Types the injected logger as `LoggerService` in both managers. The emitted paramtype becomes `Object`, and typedi skips it as a primitive.
+- Imports `LoggerService` with `import type`. `isolatedModules` requires that form for a type used in a decorated signature.
+- Removes the now unused `Logger` import from `@fxa/shared/log`. `LOGGER_PROVIDER` stays.
 
 ## Issue that this pull request solves
 
