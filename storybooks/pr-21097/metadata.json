@@ -1,8 +1,8 @@
 {
-  "commit": "acd97e49e424e205d1f4913a68ed66cb00dd212c",
+  "commit": "3893c2d90875d30e5b20713d1409d893d34004b5",
   "summary": "refactor(settings): scope inline TOTP MFA guard to enrolment step",
-  "description": "Because:\n- The inline TOTP flow requested an email OTP on page load, before the\n  user saw the \"set up two-step authentication\" intro.\n- Users who never proceed past the intro were forced through an\n  unnecessary email-OTP round-trip.\n\nThis commit:\n- Container owns currentStep and MfaGuardCore; index.tsx is presentational.\n- InlineTotpEnrolment (JWT createTotp/verify) runs under the guard at step 1.\n- OTP appears after Continue; dismiss returns to intro; card spinner while loading.\n- Reorder functional inline TOTP specs to confirm the guard after Continue.\n- Split unit tests into enrolment, presentational shell, and container wiring.",
-  "timestamp": 1787679061000,
+  "description": "Because:\n- The inline TOTP flow requested an email OTP on page load, before the\n  user saw the \"set up two-step authentication\" intro.\n- Users who never proceed past the intro were forced through an\n  unnecessary email-OTP round-trip.\n\nThis commit:\n- Container owns currentStep and MfaGuardCore; index.tsx is presentational.\n- InlineTotpEnrolment runs under the guard, using useMfaErrorHandler to\n  re-prompt on a stale JWT (createTotp/verify at step 1).\n- OTP appears after Continue; dismiss returns to intro; card spinner while loading.\n- Reorder functional inline TOTP specs to confirm the guard after Continue.\n- Split unit tests into enrolment, presentational shell, and container wiring.",
+  "timestamp": 1787686313000,
   "storybooks": [
     "fxa-settings"
   ],
