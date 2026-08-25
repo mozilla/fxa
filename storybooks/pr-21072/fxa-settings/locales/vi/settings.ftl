@@ -1068,6 +1068,12 @@ recent-activity-account-passwordless-login-otp-failed = Mã đăng nhập không
 recent-activity-account-passwordless-login-otp-verified = Đã xác minh mã đăng nhập không cần mật khẩu
 recent-activity-account-passwordless-registration-complete = Đã hoàn tất đăng ký tài khoản không cần mật khẩu
 recent-activity-account-recovery-codes-set = Đã thiết lập mã khôi phục
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
+recent-activity-account-passkey-wrap-created = Đã bật passkey cho đồng bộ hoá
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-creation-failure = Thiết lập đồng bộ hoá bằng passkey không thành công
+# A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
+recent-activity-account-passkey-wrap-invalidated = Quyền truy cập đồng bộ passkey đã bị xóa sau khi đặt lại mật khẩu
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Hoạt động tài khoản khác
 

@@ -769,7 +769,7 @@ flow-setup-2fa-prompt-passkey-success-banner = Přihlášení pomocí klíče by
 # requires two-step authentication setup.
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
-flow-setup-2fa-prompt-passkey-description = { $serviceName } také vyžaduje dvoufázové ověření pro vaše { -product-mozilla-account }. Po nastavení už ho nebudete potřebovat pro přihlašování pomocí hesla.
+flow-setup-2fa-prompt-passkey-description = Služba { $serviceName } také vyžaduje dvoufázové ověření pro váš { -product-mozilla-account(case: "acc", capitalization: "lower") }. Po dokončení nastavení už ho nebudete potřebovat, když se přihlásíte pomocí přístupového klíče.
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = Pro pokračování můžete použít kteroukoliv z <authenticationAppsLink>těchto ověřovacích aplikací</authenticationAppsLink>.
 flow-setup-2fa-prompt-continue-button = Pokračovat
@@ -1096,11 +1096,11 @@ recent-activity-account-passwordless-login-otp-verified = Ověřen kód pro při
 recent-activity-account-passwordless-registration-complete = Registrace účtu bez hesla byla dokončena
 recent-activity-account-recovery-codes-set = Obnovovací kódy jsou nastaveny
 # A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
-recent-activity-account-passkey-wrap-created = Přístupový klíč pro synchronizaci povolen
+recent-activity-account-passkey-wrap-created = Přístupový klíč byl povolen pro synchronizaci
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
 recent-activity-account-passkey-wrap-creation-failure = Nastavení synchronizace s přístupovým klíčem selhalo
 # A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
-recent-activity-account-passkey-wrap-invalidated = Přístup k synchronizaci hesla byl po obnovení hesla odebrán
+recent-activity-account-passkey-wrap-invalidated = Po resetování hesla byl zrušen přístup k synchronizaci pomocí přístupového klíče
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Jiná aktivita u účtu
 
@@ -1893,7 +1893,7 @@ pair2-authority-download-firefox-cta = Stáhnout { -brand-firefox }
 
 pair2-authority-scan-qr-heading = Naskenujte a připojte své mobilní zařízení
 # "sync" is a verb here, referring to syncing data between the user's devices
-pair2-authority-scan-qr-instruction = Naskenujte QR kód svým telefonem nebo tabletem a synchronizujte své záložky, panely a další data v aplikaci { -brand-firefox }.
+pair2-authority-scan-qr-instruction = Naskenujte QR kód svým telefonem nebo tabletem a synchronizujte své záložky, panely a další data ve { -brand-firefox(case: "loc") }.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR kód pro připojení vašeho mobilního zařízení
 # Link to a support article for users having trouble scanning the QR code
@@ -1918,7 +1918,7 @@ pair2-authority-sync-success-sync-settings-button = Nastavení synchronizace
 
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Stále chcete připojit zařízení?
-pair2-authority-timeout-and-cancel-timeout-description = Zdá se, že vypršel časový limit. Zkuste to znovu, pokud stále chcete připojit své mobilní zařízení a synchronizovat svá data { -brand-firefox }.
+pair2-authority-timeout-and-cancel-timeout-description = Zdá se, že vypršel časový limit. Zkuste to znovu, pokud stále chcete připojit své mobilní zařízení a synchronizovat svá data { -brand-firefox(case: "gen") }.
 # Shown when the pairing attempt was canceled, on either device
 pair2-authority-timeout-and-cancel-canceled-heading = Zrušeno
 pair2-authority-timeout-and-cancel-canceled-description = Pokud změníte názor nebo chcete připojit jiné zařízení, zkuste to znovu.
@@ -1959,10 +1959,10 @@ pair2-supplicant-connect-this-device-cancel-button = Zrušit
 ## does not have Firefox installed yet. It explains what syncing gets them and
 ## sends them off to install the browser.
 
-pair2-supplicant-download-firefox-heading = Získejte { -brand-firefox } na tomto zařízení
+pair2-supplicant-download-firefox-heading = Získejte { -brand-firefox(case: "acc") } na tomto zařízení
 # "sync" is a verb here, referring to syncing data between the user's devices.
 # <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = Stáhněte si aplikaci { -brand-firefox } pro synchronizaci záložek, historie a dalšího data mezi zařízeními. <linkExternal>Zjistit více</linkExternal>
+pair2-supplicant-download-firefox-description = Stáhněte si { -brand-firefox(case: "acc") } pro synchronizaci záložek, historie a dalšího dat mezi zařízeními. <linkExternal>Zjistit více</linkExternal>
 # Primary action. Sends the user to the Firefox download page.
 pair2-supplicant-download-firefox-continue-button = Pokračujte za { -brand-firefox(case: "gen") }
 
@@ -1974,7 +1974,7 @@ pair2-supplicant-download-firefox-continue-button = Pokračujte za { -brand-fire
 pair2-supplicant-ready-to-scan-heading = Pro připojení zařízení
 # <b> emphasises the address the user types on their computer. It is not a link,
 # and the address itself must not be translated.
-pair2-supplicant-ready-to-scan-instruction = Na počítači otevřete { -brand-firefox }, přejděte na <b>firefox.com/pair</b> a postupujte podle pokynů na obrazovce pro připojení tohoto mobilního zařízení.
+pair2-supplicant-ready-to-scan-instruction = Na počítači otevřete { -brand-firefox(case: "acc") }, přejděte na <b>firefox.com/pair</b> a podle pokynů na obrazovce připojte toto mobilní zařízení.
 # Opens a Mozilla support article about setting up sync
 pair2-supplicant-ready-to-scan-learn-more-link = Zjistit více
 
@@ -1983,7 +1983,7 @@ pair2-supplicant-ready-to-scan-learn-more-link = Zjistit více
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Vaše zařízení je připojeno
-pair2-supplicant-sync-success-description = Vaše záložky, panely a další obsah zůstanou synchronizované i přes aplikaci { -brand-firefox }.
+pair2-supplicant-sync-success-description = Vaše záložky, panely a další obsah zůstanou synchronizované i ve { -brand-firefox(case: "loc") }.
 # Opens the view listing tabs open on the user's other synced devices
 pair2-supplicant-sync-success-view-tabs-button = Zobrazit synchronizované panely
 # Opens the browser's sync settings, where the user chooses what to sync
@@ -1998,11 +1998,11 @@ pair2-supplicant-sync-success-sync-settings-button = Nastavení synchronizace
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zdá se, že vypršel časový limit
 # "firefox.com/pair" is a URL and should not be translated
-pair2-supplicant-timeout-and-cancel-timeout-description = Pro připojení svého mobilního zařízení a synchronizaci dat o aplikaci { -brand-firefox } navštivte na svém počítači <b>firefox.com/pair</b>.
+pair2-supplicant-timeout-and-cancel-timeout-description = Chcete-li připojit své mobilní zařízení a synchronizovat data { -brand-firefox(case: "gen") }, přejděte na svém počítači na stránku <b>firefox.com/pair</b>.
 # Shown after the pairing attempt was canceled
 pair2-supplicant-timeout-and-cancel-canceled-heading = Zrušeno
 # "firefox.com/pair" is a URL and should not be translated
-pair2-supplicant-timeout-and-cancel-canceled-description = Pro připojení svého zařízení prosím navštivte <b>firefox.com/pair</b> na vašem počítači.
+pair2-supplicant-timeout-and-cancel-canceled-description = Pro připojení svého zařízení prosím navštivte <b>firefox.com/pair</b> na svém počítači.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
