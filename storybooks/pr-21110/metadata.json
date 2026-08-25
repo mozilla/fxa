@@ -1,0 +1,12 @@
+{
+  "commit": "689f94cf5de5b715a06a357e76e4b4a3b4e24547",
+  "summary": "fix(deps): next from 15.5.21 to 15.5.24 Because:",
+  "description": "* https://nextjs.org/blog/august-2026-security-release\n\nThis commit:\n\n* Updates the next package to 15.5.24\n* Includes yarn.lock changes derived from this package.json change\n\nCloses #PAY-3906",
+  "timestamp": 1787695429000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
