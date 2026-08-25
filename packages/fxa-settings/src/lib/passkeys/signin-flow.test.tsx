@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react';
 import * as Sentry from '@sentry/browser';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import { MemoryRouter } from 'react-router';
@@ -13,6 +13,10 @@ import {
   type PasskeySignInAuthClient,
   type PasskeySignInIntegration,
 } from './signin-flow';
+import {
+  type BannerProps,
+  type ExternalLinkProps,
+} from '../../components/Banner/interfaces';
 import { getCredential, isWebAuthnSupported } from './webauthn';
 import { PASSKEY_SUPPORT_URL, PASSKEY_TROUBLESHOOT_URL } from './constants';
 import { storeAccountData } from '../storage-utils';
@@ -192,6 +196,13 @@ const buildArgs = (
 
 const wrapper = ({ children }: { children: React.ReactNode }) =>
   React.createElement(MemoryRouter, null, children);
+
+// @types/react 19 defaults ReactElement's props to `unknown`, so introspecting
+// the banner element requires naming its prop shape at the cast.
+type BannerElement = React.ReactElement<BannerProps>;
+type ExternalLinkBannerElement = React.ReactElement<
+  BannerProps & { link: ExternalLinkProps }
+>;
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -652,7 +663,7 @@ describe('usePasskeySignIn', () => {
       });
 
       expect(handleNavigation).not.toHaveBeenCalled();
-      const banner = result.current.errorBanner as React.ReactElement;
+      const banner = result.current.errorBanner as BannerElement;
       expect(banner.props.type).toBe('error');
       expect(spies.ftlMsgResolver.getMsg).toHaveBeenCalledWith(
         expectedFtlId,
@@ -682,13 +693,13 @@ describe('usePasskeySignIn', () => {
 
       // The core contract: a neutral warning banner (not the red error banner)
       // carrying the help link.
-      const banner = result.current.errorBanner as React.ReactElement;
+      const banner = result.current.errorBanner as BannerElement;
       expect(banner.props.type).toBe('warning');
       expect(banner.props.content).toEqual({
         localizedHeading: 'Couldn’t sign in with a passkey',
         localizedDescription: 'Try again or use another sign-in option.',
       });
-      expect(banner.props.link.localizedText).toBe('How to use passkeys');
+      expect(banner.props.link?.localizedText).toBe('How to use passkeys');
       // Never routed to the red error banner copy, and never reported to Sentry.
       expect(spies.ftlMsgResolver.getMsg).not.toHaveBeenCalledWith(
         'passkey-authentication-error-not-allowed',
@@ -710,7 +721,7 @@ describe('usePasskeySignIn', () => {
       await result.current.onClick();
     });
 
-    const banner = result.current.errorBanner as React.ReactElement;
+    const banner = result.current.errorBanner as BannerElement;
     expect(banner.props.type).toBe('warning');
     expect(banner.props.content).toEqual({
       localizedHeading: 'Passkey sign-in timed out. Try again.',
@@ -740,10 +751,10 @@ describe('usePasskeySignIn', () => {
         await result.current.onClick();
       });
 
-      const banner = result.current.errorBanner as React.ReactElement;
+      const banner = result.current.errorBanner as ExternalLinkBannerElement;
       expect(banner.props.link.url).toBe(expectedUrl);
 
-      banner.props.link.onClick();
+      banner.props.link.onClick?.();
       expect(GleanMetrics.passkey.getHelpLinkClick).toHaveBeenCalledWith({
         event: { reason: expectedReason },
       });

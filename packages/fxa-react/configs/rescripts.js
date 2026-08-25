@@ -106,6 +106,11 @@ const configureDevServerCompression = (devServerConfig) => {
 
 const setModuleNameMapper = (tsconfigBase) => (config) => {
   config.transform = {
+    // Must precede the spread: CRA's catch-all fileTransform also matches .svg,
+    // and it hand-rolls a React element with the pre-19 `react.element` brand,
+    // which React 19 rejects ("element from an older version of React").
+    // Jest takes the first matching pattern, so ordering is what routes SVGs here.
+    '^.+\\.svg$': require.resolve('../svg-transform.js'),
     ...config.transform,
     '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true }],
   };

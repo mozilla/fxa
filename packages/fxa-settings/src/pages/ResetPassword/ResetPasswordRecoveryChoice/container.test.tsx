@@ -145,7 +145,9 @@ describe('ResetPasswordRecoveryChoice container', () => {
             numBackupCodes: 3,
             completeResetPasswordLocationState: { token: 'tok' },
           },
-          {}
+          // React passes a legacy second argument to function components. It
+          // was `{}` through React 18 and is `undefined` from React 19 on.
+          undefined
         );
       });
     });

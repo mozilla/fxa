@@ -11,6 +11,21 @@ import { Constants } from './constants';
 // Various utilities that don't fit in a standalone lib
 
 /**
+ * Creates an instance of type T lazily. This can be useful for mocking.
+ * @param factory Produces instance of T
+ * @returns Single instance of type T
+ */
+export function lazy<T>(factory: () => T): () => T {
+  let value: T | undefined;
+  return () => {
+    if (value === undefined) {
+      value = factory();
+    }
+    return value;
+  };
+}
+
+/**
  * Recursively merge an object
  **/
 export function deepMerge(

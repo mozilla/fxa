@@ -8,22 +8,9 @@ import userEvent from '@testing-library/user-event';
 jest.mock('@radix-ui/react-form');
 
 jest.mock('react-dom', () => {
-  const React = jest.requireActual('react');
   const actual = jest.requireActual('react-dom');
   return {
     ...actual,
-    useFormState: <S, P>(
-      action: (state: S, payload: P) => Promise<S> | S,
-      initial: S
-    ) => {
-      const [state, setState] = React.useState<S>(initial);
-      const formAction = async (payload: P) => {
-        const result = await action(state, payload);
-        setState(result);
-        return result;
-      };
-      return [state, formAction];
-    },
     useFormStatus: () => ({
       pending: false,
       data: null,

@@ -91,8 +91,8 @@ function mockModelsModule() {
   });
   mockAuthClient.accountEmails = jest.fn().mockResolvedValue({
     primary: MOCK_EMAIL,
-    original: MOCK_EMAIL
-  })
+    original: MOCK_EMAIL,
+  });
   mockAuthClient.sessionReauthWithAuthPW = jest
     .fn()
     .mockResolvedValue({ keyFetchToken: MOCK_KEY_FETCH_TOKEN });
@@ -131,6 +131,10 @@ function mockSetPasswordModule() {
 }
 
 function applyDefaultMocks() {
+  // Must be cleared per-test: otherwise `waitFor(() => expect(props).toBeDefined())`
+  // resolves instantly against the previous test's props and the test then drives
+  // that stale handler instead of its own.
+  currentSetPasswordProps = undefined;
   jest.resetAllMocks();
   jest.restoreAllMocks();
   mockModelsModule();

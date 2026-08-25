@@ -174,7 +174,9 @@ describe('SigninRecoveryChoice container', () => {
             numBackupCodes: 3,
             signinState: mockSigninLocationState,
           }),
-          {}
+          // React passes a legacy second argument to function components. It
+          // was `{}` through React 18 and is `undefined` from React 19 on.
+          undefined
         );
       });
     });
@@ -198,7 +200,7 @@ describe('SigninRecoveryChoice container', () => {
           expect.objectContaining({
             loading: true,
           }),
-          expect.anything()
+          undefined
         );
         expect(mockNavigate).toHaveBeenCalledWith('/signin_recovery_code', {
           replace: true,

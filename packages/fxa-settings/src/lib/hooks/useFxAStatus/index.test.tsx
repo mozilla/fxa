@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { renderHook } from '@testing-library/react-hooks';
-import { useFxAStatus } from '.';
+import { renderHook, waitFor } from '@testing-library/react';
+import { useFxAStatus, UseFxAStatusResult } from '.';
 import { Constants } from '../../constants';
 import firefox from '../../channels/firefox';
 import { IntegrationType, isProbablyFirefox } from '../../../models';
@@ -22,6 +22,13 @@ jest.mock('../../../models', () => {
     isProbablyFirefox: jest.fn(() => true),
   };
 });
+
+// `pairingEnabled` is undefined until the fxa_status response is processed, so it
+// doubles as the signal that the hook has consumed the browser's answer. Tests
+// whose expected value equals the hook's initial state need this — waiting on the
+// assertion itself would pass before the browser ever replied.
+const waitForBrowserResponse = (result: { current: UseFxAStatusResult }) =>
+  waitFor(() => expect(result.current.pairingEnabled).toBeDefined());
 
 describe('useFxAStatus', () => {
   beforeEach(() => {
@@ -45,14 +52,15 @@ describe('useFxAStatus', () => {
         isPairing: () => false,
       };
 
-      const { waitForNextUpdate } = renderHook(() => useFxAStatus(integration));
-      await waitForNextUpdate();
+      renderHook(() => useFxAStatus(integration));
 
-      expect(firefox.fxaStatus).toHaveBeenCalledWith({
-        context: Constants.FX_DESKTOP_V3_CONTEXT,
-        isPairing: false,
-        service: Constants.SYNC_SERVICE,
-      });
+      await waitFor(() =>
+        expect(firefox.fxaStatus).toHaveBeenCalledWith({
+          context: Constants.FX_DESKTOP_V3_CONTEXT,
+          isPairing: false,
+          service: Constants.SYNC_SERVICE,
+        })
+      );
     });
   });
 
@@ -72,14 +80,15 @@ describe('useFxAStatus', () => {
         isPairing: () => false,
       };
 
-      const { waitForNextUpdate } = renderHook(() => useFxAStatus(integration));
-      await waitForNextUpdate();
+      renderHook(() => useFxAStatus(integration));
 
-      expect(firefox.fxaStatus).toHaveBeenCalledWith({
-        context: Constants.OAUTH_CONTEXT,
-        isPairing: false,
-        service: Constants.SYNC_SERVICE,
-      });
+      await waitFor(() =>
+        expect(firefox.fxaStatus).toHaveBeenCalledWith({
+          context: Constants.OAUTH_CONTEXT,
+          isPairing: false,
+          service: Constants.SYNC_SERVICE,
+        })
+      );
     });
 
     // The browser answers a pairing request differently, so the flag has to
@@ -96,14 +105,15 @@ describe('useFxAStatus', () => {
         isPairing: () => true,
       };
 
-      const { waitForNextUpdate } = renderHook(() => useFxAStatus(integration));
-      await waitForNextUpdate();
+      renderHook(() => useFxAStatus(integration));
 
-      expect(firefox.fxaStatus).toHaveBeenCalledWith({
-        context: Constants.OAUTH_CONTEXT,
-        isPairing: true,
-        service: Constants.SYNC_SERVICE,
-      });
+      await waitFor(() =>
+        expect(firefox.fxaStatus).toHaveBeenCalledWith({
+          context: Constants.OAUTH_CONTEXT,
+          isPairing: true,
+          service: Constants.SYNC_SERVICE,
+        })
+      );
     });
 
     it('returns expected data', async () => {
@@ -121,13 +131,12 @@ describe('useFxAStatus', () => {
         isPairing: () => false,
       };
 
-      const { result, waitForNextUpdate } = renderHook(() =>
-        useFxAStatus(integration)
-      );
+      const { result } = renderHook(() => useFxAStatus(integration));
 
-      await waitForNextUpdate();
-      expect(result.current.offeredSyncEngines).toEqual(
-        expect.arrayContaining(['tabs', 'bookmarks', 'addons'])
+      await waitFor(() =>
+        expect(result.current.offeredSyncEngines).toEqual(
+          expect.arrayContaining(['tabs', 'bookmarks', 'addons'])
+        )
       );
 
       expect(result.current.selectedEnginesForGlean).toEqual({
@@ -154,12 +163,11 @@ describe('useFxAStatus', () => {
           isFirefoxNonSync: () => true,
           isPairing: () => false,
         };
-        const { result, waitForNextUpdate } = renderHook(() =>
-          useFxAStatus(integration)
-        );
+        const { result } = renderHook(() => useFxAStatus(integration));
 
-        await waitForNextUpdate();
-        expect(result.current.supportsKeysOptionalLogin).toBe(true);
+        await waitFor(() =>
+          expect(result.current.supportsKeysOptionalLogin).toBe(true)
+        );
       });
 
       it('returns supportsKeysOptionalLogin: false for Sync', async () => {
@@ -169,10 +177,9 @@ describe('useFxAStatus', () => {
           isFirefoxNonSync: () => false,
           isPairing: () => false,
         };
-        const { result, waitForNextUpdate } = renderHook(() =>
-          useFxAStatus(integration)
-        );
-        await waitForNextUpdate();
+        const { result } = renderHook(() => useFxAStatus(integration));
+
+        await waitForBrowserResponse(result);
         expect(result.current.supportsKeysOptionalLogin).toBe(false);
       });
     });
@@ -195,88 +202,65 @@ describe('useFxAStatus', () => {
     it('returns pairingEnabled: true when the browser reports the pairing capability', async () => {
       mockCapabilities({ engines: [], pairing: true });
 
-      const { result, waitForNextUpdate } = renderHook(() =>
-        useFxAStatus(integration)
-      );
-      await waitForNextUpdate();
+      const { result } = renderHook(() => useFxAStatus(integration));
 
-      expect(result.current.pairingEnabled).toBe(true);
+      await waitFor(() => expect(result.current.pairingEnabled).toBe(true));
     });
 
     it('returns pairingEnabled: false when the pairing capability is absent', async () => {
       mockCapabilities({ engines: [] });
 
-      const { result, waitForNextUpdate } = renderHook(() =>
-        useFxAStatus(integration)
-      );
-      await waitForNextUpdate();
+      const { result } = renderHook(() => useFxAStatus(integration));
 
-      expect(result.current.pairingEnabled).toBe(false);
+      await waitFor(() => expect(result.current.pairingEnabled).toBe(false));
     });
 
     it('returns the pairingVersion reported by the browser', async () => {
       mockCapabilities({ engines: [], pairing: true, pairingVersion: 2 });
 
-      const { result, waitForNextUpdate } = renderHook(() =>
-        useFxAStatus(integration)
-      );
-      await waitForNextUpdate();
+      const { result } = renderHook(() => useFxAStatus(integration));
 
-      expect(result.current.pairingVersion).toBe(2);
+      await waitFor(() => expect(result.current.pairingVersion).toBe(2));
     });
 
     it('defaults pairingVersion to 1 when the browser omits it', async () => {
       mockCapabilities({ engines: [], pairing: true });
 
-      const { result, waitForNextUpdate } = renderHook(() =>
-        useFxAStatus(integration)
-      );
-      await waitForNextUpdate();
+      const { result } = renderHook(() => useFxAStatus(integration));
 
-      expect(result.current.pairingVersion).toBe(1);
+      await waitFor(() => expect(result.current.pairingVersion).toBe(1));
     });
 
     it('defaults pairingVersion to 1 when the browser reports version 0', async () => {
       mockCapabilities({ engines: [], pairing: true, pairingVersion: 0 });
 
-      const { result, waitForNextUpdate } = renderHook(() =>
-        useFxAStatus(integration)
-      );
-      await waitForNextUpdate();
+      const { result } = renderHook(() => useFxAStatus(integration));
 
-      expect(result.current.pairingVersion).toBe(1);
+      await waitFor(() => expect(result.current.pairingVersion).toBe(1));
     });
 
     it('returns the hasSyncKeys when browser reports true', async () => {
-      mockCapabilities({ engines: [], hasSyncKeys:true });
+      mockCapabilities({ engines: [], hasSyncKeys: true });
 
-      const { result, waitForNextUpdate } = renderHook(() =>
-        useFxAStatus(integration)
-      );
-      await waitForNextUpdate();
+      const { result } = renderHook(() => useFxAStatus(integration));
 
-      expect(result.current.hasSyncKeys).toBe(true);
+      await waitFor(() => expect(result.current.hasSyncKeys).toBe(true));
     });
 
     it('returns the hasSyncKeys when browser reports false', async () => {
-      mockCapabilities({ engines: [], hasSyncKeys:false });
+      mockCapabilities({ engines: [], hasSyncKeys: false });
 
-      const { result, waitForNextUpdate } = renderHook(() =>
-        useFxAStatus(integration)
-      );
-      await waitForNextUpdate();
+      const { result } = renderHook(() => useFxAStatus(integration));
 
-      expect(result.current.hasSyncKeys).toBe(false);
+      await waitFor(() => expect(result.current.hasSyncKeys).toBe(false));
     });
 
     it('returns the hasSyncKeys when browser does not report', async () => {
       mockCapabilities({ engines: [] });
 
-      const { result, waitForNextUpdate } = renderHook(() =>
-        useFxAStatus(integration)
-      );
-      await waitForNextUpdate();
+      const { result } = renderHook(() => useFxAStatus(integration));
 
+      await waitForBrowserResponse(result);
       expect(result.current.hasSyncKeys).toBe(undefined);
     });
 
@@ -284,12 +268,9 @@ describe('useFxAStatus', () => {
     it('returns the pairing defaults when the response has no capabilities', async () => {
       mockCapabilities(undefined);
 
-      const { result, waitForNextUpdate } = renderHook(() =>
-        useFxAStatus(integration)
-      );
-      await waitForNextUpdate();
+      const { result } = renderHook(() => useFxAStatus(integration));
 
-      expect(result.current.pairingEnabled).toBe(false);
+      await waitFor(() => expect(result.current.pairingEnabled).toBe(false));
       expect(result.current.pairingVersion).toBe(1);
     });
   });

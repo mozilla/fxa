@@ -30,15 +30,13 @@ module.exports = {
       __esModule: true,
       default: ${assetFilename},
       ReactComponent: React.forwardRef(function ${componentName}(props, ref) {
-        return {
-          $$typeof: Symbol.for('react.element'),
-          type: 'svg',
+        // Build the element via createElement rather than a hand-rolled object
+        // literal: React 19 renamed the element brand from 'react.element' to
+        // 'react.transitional.element', and a literal pins us to one version.
+        return React.createElement('svg', Object.assign({}, props, {
           ref: ref,
-          key: null,
-          props: Object.assign({}, props, {
-            children: ${assetFilename}
-          })
-        };
+          children: ${assetFilename}
+        }));
       }),
     };`;
   },
