@@ -194,8 +194,6 @@ const DESCRIPTIONS = {
   promotionPercentOff:
     'Percent that will be taken off the subtotal of any invoices for this customer for the duration of the coupon. For example, a coupon with percent_off of 50 will make a $100 invoice $50 instead.',
   providerUid: 'The user id associated with a particular third party provider.',
-  publicKey:
-    'The key to sign (run bin/generate-keypair from [**browserid-crypto**](https://github.com/mozilla/browserid-crypto)).',
   pushPayload:
     'Push payload, validated against [**pushpayloads.schema.json**](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/lib/pushpayloads.schema.json).',
   reason:

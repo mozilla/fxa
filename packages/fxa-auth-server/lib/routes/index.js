@@ -56,7 +56,7 @@ module.exports = function (
   );
   // The routing modules themselves.
   const defaults = require('./defaults')(log, config, db);
-  const idp = require('./idp')(log, serverPublicKeys);
+  const idp = require('./idp')(serverPublicKeys);
   const grant = require('../oauth/grant');
   const oauthRawDB = require('../oauth/db');
   grant.setStripeHelper(stripeHelper);

@@ -1295,17 +1295,6 @@ const convictConf = convict({
         env: 'ISSUER',
         default: 'api.accounts.firefox.com',
       },
-      maxSockets: {
-        doc: 'The maximum number of connections that the pool can use at once.',
-        env: 'BROWSERID_MAX_SOCKETS',
-        default: 10,
-      },
-      verificationUrl: {
-        doc: 'URL to the remote verifier we will use for fxa-assertions',
-        format: 'url',
-        env: 'VERIFICATION_URL',
-        default: 'https://verifier.accounts.firefox.com/v2',
-      },
     },
     clients: {
       doc: 'Some pre-defined clients that will be inserted into the DB',

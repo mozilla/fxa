@@ -3,7 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import path from 'path';
-import { createTestServer, TestServerInstance } from '../support/helpers/test-server';
+import {
+  createTestServer,
+  TestServerInstance,
+} from '../support/helpers/test-server';
 
 const superagent = require('superagent');
 
@@ -22,15 +25,11 @@ afterAll(async () => {
 });
 
 describe('#integration - remote sign key', () => {
-  it('.well-known/browserid has keys', async () => {
+  it('.well-known/public-keys serves the primary and old keys', async () => {
     const res = await superagent.get(
-      `${server.publicUrl}/.well-known/browserid`
+      `${server.publicUrl}/.well-known/public-keys`
     );
     expect(res.statusCode).toBe(200);
-    const json = res.body;
-    expect(json.authentication).toBe(
-      '/.well-known/browserid/nonexistent.html'
-    );
-    expect(json.keys.length).toBe(2);
+    expect(res.body.keys.length).toBe(2);
   });
 });

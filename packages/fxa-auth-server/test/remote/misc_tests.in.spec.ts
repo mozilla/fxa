@@ -246,26 +246,6 @@ describe.each(testVersions)(
       expect(x.data.length).toBe(64);
     });
 
-    it('fetch /.well-known/browserid support document', async () => {
-      const client = new Client(server.publicUrl, testOptions);
-      const doc = await client.api.doRequest(
-        'GET',
-        server.publicUrl + '/.well-known/browserid'
-      );
-      expect(Object.prototype.hasOwnProperty.call(doc, 'public-key')).toBe(
-        true
-      );
-      expect(/^[0-9]+$/.test(doc['public-key'].n)).toBe(true);
-      expect(/^[0-9]+$/.test(doc['public-key'].e)).toBe(true);
-      expect(Object.prototype.hasOwnProperty.call(doc, 'authentication')).toBe(
-        true
-      );
-      expect(Object.prototype.hasOwnProperty.call(doc, 'provisioning')).toBe(
-        true
-      );
-      expect(doc.keys.length).toBe(1);
-    });
-
     it('ignores fail on hawk payload mismatch', async () => {
       const email = server.uniqueEmail();
       const password = 'allyourbasearebelongtous';
