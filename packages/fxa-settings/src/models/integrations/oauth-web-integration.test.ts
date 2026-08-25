@@ -551,5 +551,51 @@ describe('models/integrations/oauth-relier', function () {
     });
   });
 
+  describe('getRedirectWithErrorUrl', () => {
+    function getIntegration(params: Record<string, unknown>) {
+      const integration = new OAuthWebIntegration(
+        new GenericData({ scope: 'profile', ...params }),
+        new GenericData({ scope: 'profile' }),
+        {
+          scopedKeysEnabled: true,
+          scopedKeysValidation: {},
+          isPromptNoneEnabled: true,
+          isPromptNoneEnabledClientIds: [],
+        }
+      );
+      // The registered URI the server handed back, not the RP-supplied param.
+      integration.clientInfo = { redirectUri: 'https://amo.test/oauth' } as any;
+      return integration;
+    }
+
+    it('returns the RFC 9470 error code and echoes state', () => {
+      const integration = getIntegration({ state: 'rp-state-123' });
+
+      const url = new URL(
+        integration.getRedirectWithErrorUrl(
+          new OAuthError('UNMET_AUTHENTICATION_REQUIREMENTS')
+        )
+      );
+
+      expect(url.origin + url.pathname).toBe('https://amo.test/oauth');
+      expect(url.searchParams.get('error')).toBe(
+        'unmet_authentication_requirements'
+      );
+      expect(url.searchParams.get('state')).toBe('rp-state-123');
+    });
+
+    it('falls back to the errno when the error carries no OAuth code', () => {
+      const integration = getIntegration({ state: 'rp-state-123' });
+
+      const url = new URL(
+        integration.getRedirectWithErrorUrl(OAUTH_ERRORS.TRY_AGAIN)
+      );
+
+      expect(url.searchParams.get('error')).toBe(
+        String(OAUTH_ERRORS.TRY_AGAIN.errno)
+      );
+    });
+  });
+
   // TODO: OAuth Relier Model Test Coverage
 });

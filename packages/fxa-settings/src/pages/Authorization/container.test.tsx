@@ -6,7 +6,7 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import { screen, waitFor } from '@testing-library/react';
 import AuthorizationContainer from './container';
 import { Config } from '../../lib/config';
-import { OAUTH_ERRORS } from '../../lib/oauth/oauth-errors';
+import { OAUTH_ERRORS, OAuthError } from '../../lib/oauth/oauth-errors';
 import { Integration } from '../../models';
 import AuthClient from 'fxa-auth-client/browser';
 import VerificationMethods from '../../constants/verification-methods';
@@ -187,6 +187,39 @@ describe('AuthorizationContainer', () => {
         'https://mozilla.com/error'
       );
     });
+  });
+
+  it('redirects to the RP with unmet_authentication_requirements when step-up cannot be satisfied', async () => {
+    mockHandleNavigation.mockResolvedValue({
+      error: new OAuthError('UNMET_AUTHENTICATION_REQUIREMENTS'),
+    });
+
+    const getRedirectWithErrorUrl = jest
+      .fn()
+      .mockReturnValue(
+        'https://amo.test/oauth?error=unmet_authentication_requirements'
+      );
+    const mockIntegration = {
+      data: {},
+      wantsPromptNone: jest.fn().mockReturnValue(true),
+      returnOnError: jest.fn().mockReturnValue(true),
+      getRedirectWithErrorUrl,
+      validatePromptNoneRequest: jest.fn().mockResolvedValue(undefined),
+      getClientId: jest.fn().mockReturnValue('some-client-id'),
+    };
+
+    render(mockIntegration);
+
+    await waitFor(() => {
+      expect(ReactUtilsModule.hardNavigate).toHaveBeenCalledWith(
+        'https://amo.test/oauth?error=unmet_authentication_requirements'
+      );
+    });
+    expect(getRedirectWithErrorUrl).toHaveBeenCalledWith(
+      expect.objectContaining({
+        response_error_code: 'unmet_authentication_requirements',
+      })
+    );
   });
 
   it('navigates to /oauth if cached signed in returns PROMPT_NONE_NOT_SIGNED_IN error', async () => {

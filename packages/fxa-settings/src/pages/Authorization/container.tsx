@@ -121,6 +121,10 @@ const AuthorizationContainer = ({
           finishOAuthFlowHandler,
           queryParams: location.search,
           authClient,
+          canRelayPromptNoneError:
+            isOAuthWebIntegration(integration) &&
+            integration.wantsPromptNone() &&
+            integration.returnOnError(),
         };
 
         const { error: navError } = await handleNavigation(navigationOptions);

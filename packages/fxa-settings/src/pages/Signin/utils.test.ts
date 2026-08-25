@@ -27,6 +27,8 @@ import * as ReactUtils from 'fxa-react/lib/utils';
 import firefox from '../../lib/channels/firefox';
 import config from '../../lib/config';
 import { OAuthNativeServices } from '@fxa/accounts/oauth';
+import { OAUTH_ERRORS, OAuthError } from '../../lib/oauth';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
@@ -792,6 +794,152 @@ describe('Signin utils', () => {
           undefined,
           true
         );
+      });
+
+      describe('prompt=none', () => {
+        const buildPromptNoneOptions = (
+          overrides: Partial<NavigationOptions> = {}
+        ) => {
+          const integration = createMockSigninOAuthIntegration();
+          integration.wantsTwoStepAuthentication = jest
+            .fn()
+            .mockReturnValue(true);
+          return createBaseNavigationOptions({
+            integration,
+            queryParams: '?client_id=abc',
+            canRelayPromptNoneError: true,
+            ...overrides,
+          });
+        };
+
+        it('fails the request instead of challenging when the server reports errno 170', async () => {
+          const finishOAuthFlowHandler = jest.fn().mockResolvedValue({
+            error: AuthUiErrors.INSUFFICIENT_ACR_VALUES,
+          });
+          const navigationOptions = buildPromptNoneOptions({
+            // Has TOTP, so the enrolment divert is skipped and the grant
+            // attempt is what surfaces the unmet level.
+            accountHasTotp: true,
+            finishOAuthFlowHandler,
+          });
+
+          const result = await handleNavigation(navigationOptions);
+
+          expect(finishOAuthFlowHandler).toHaveBeenCalledTimes(1);
+          expect(result.error).toBeInstanceOf(OAuthError);
+          expect(result.error).toEqual(
+            expect.objectContaining({
+              errno: OAUTH_ERRORS.UNMET_AUTHENTICATION_REQUIREMENTS.errno,
+              response_error_code: 'unmet_authentication_requirements',
+            })
+          );
+          expect(mockNavigate).not.toHaveBeenCalled();
+          expect(hardNavigateSpy).not.toHaveBeenCalled();
+        });
+
+        it('does not reclassify an unverified session as an unmet level', async () => {
+          // Same errno branch, different meaning — interaction_required, not an
+          // unmet level. Pins that it is not mislabelled (FXA-14408).
+          const finishOAuthFlowHandler = jest.fn().mockResolvedValue({
+            error: AuthUiErrors.UNVERIFIED_SESSION,
+          });
+          const navigationOptions = buildPromptNoneOptions({
+            accountHasTotp: true,
+            finishOAuthFlowHandler,
+          });
+
+          const result = await handleNavigation(navigationOptions);
+
+          expect(result.error).toBeUndefined();
+          expect(mockNavigate).toHaveBeenCalledWith(
+            '/signin_token_code?client_id=abc',
+            expect.objectContaining({ replace: true })
+          );
+        });
+
+        it('still diverts to enrolment when the account has no TOTP', async () => {
+          // The server is authoritative: a passkey session is already
+          // fxa-aal>=2, so it would grant what a client-side check would refuse.
+          const finishOAuthFlowHandler = jest.fn();
+          const navigationOptions = buildPromptNoneOptions({
+            accountHasTotp: false,
+            finishOAuthFlowHandler,
+          });
+
+          const result = await handleNavigation(navigationOptions);
+
+          expect(result.error).toBeUndefined();
+          expect(mockNavigate).toHaveBeenCalledWith(
+            '/inline_totp_setup?client_id=abc',
+            expect.objectContaining({ replace: true })
+          );
+        });
+
+        it('does not fail the request when the RP opted out of error redirects', async () => {
+          // return_on_error=false means the container renders in-FxA rather than
+          // redirecting, so failing here would dead-end the user instead of
+          // letting enrolment complete the flow.
+          const finishOAuthFlowHandler = jest.fn().mockResolvedValue({
+            error: AuthUiErrors.INSUFFICIENT_ACR_VALUES,
+          });
+          const navigationOptions = buildPromptNoneOptions({
+            accountHasTotp: true,
+            canRelayPromptNoneError: false,
+            finishOAuthFlowHandler,
+          });
+
+          const result = await handleNavigation(navigationOptions);
+
+          expect(result.error).toBeUndefined();
+          expect(mockNavigate).toHaveBeenCalledWith(
+            '/inline_totp_setup?client_id=abc',
+            expect.objectContaining({ replace: true })
+          );
+        });
+
+        it('does not fail the request for callers that cannot relay it to the RP', async () => {
+          const finishOAuthFlowHandler = jest.fn().mockResolvedValue({
+            error: AuthUiErrors.INSUFFICIENT_ACR_VALUES,
+          });
+          const navigationOptions = buildPromptNoneOptions({
+            accountHasTotp: true,
+            canRelayPromptNoneError: false,
+            finishOAuthFlowHandler,
+          });
+
+          const result = await handleNavigation(navigationOptions);
+
+          expect(result.error).toBeUndefined();
+          expect(mockNavigate).toHaveBeenCalledWith(
+            '/inline_totp_setup?client_id=abc',
+            expect.objectContaining({ replace: true })
+          );
+        });
+
+        it('still challenges interactively when prompt=none was not requested', async () => {
+          const integration = createMockSigninOAuthIntegration();
+          integration.wantsTwoStepAuthentication = jest
+            .fn()
+            .mockReturnValue(true);
+          const finishOAuthFlowHandler = jest.fn().mockResolvedValue({
+            error: AuthUiErrors.INSUFFICIENT_ACR_VALUES,
+          });
+
+          const navigationOptions = createBaseNavigationOptions({
+            integration,
+            queryParams: '?client_id=abc',
+            accountHasTotp: true,
+            finishOAuthFlowHandler,
+          });
+
+          const result = await handleNavigation(navigationOptions);
+
+          expect(result.error).toBeUndefined();
+          expect(mockNavigate).toHaveBeenCalledWith(
+            '/inline_totp_setup?client_id=abc',
+            expect.objectContaining({ replace: true })
+          );
+        });
       });
 
       it('returns a Settings-originated AAL upgrade to /settings', async () => {
