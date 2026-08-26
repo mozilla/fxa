@@ -1,8 +1,8 @@
 {
-  "commit": "48e03d97c5db3fa81e82d7ec2106d2c1a86775a5",
+  "commit": "0899253e8e966c36687358a412061c787311c9b9",
   "summary": "test(functional-tests): add end-to-end v2 pairing coverage",
-  "description": "Because:\n- The v2 pairing flow shipped without end-to-end coverage.\n- The v2 supplicant runs real chrome commands, so it cannot be a Playwright page.\n\nThis commit:\n- Adds pairingFlowV2Android, driving a Marionette authority and a real Fenix\n  supplicant with nothing stubbed.\n- Adds pairingFlowV2, driving both halves over Marionette, standing in only for\n  the supplicant's user agent and its oauth_login handler, which desktop chrome\n  does not implement for a supplicant.\n- Adds a marionetteSupplicant fixture and a v2-capable Firefox resolver.\n- Extends pairChoice with v2 version negotiation.\n- Adds the data-testid hooks these specs drive.",
-  "timestamp": 1787750717000,
+  "description": "Because:\n- The v2 pairing flow shipped without end-to-end coverage.\n- The v2 supplicant runs real web-channel commands, so it cannot be a Playwright\n  page.\n\nThis commit:\n- Adds pairingFlowV2Android, driving a Marionette authority and a real Fenix\n  supplicant with nothing stubbed.\n- Adds pairingFlowV2, driving both halves over Marionette, standing in only for\n  the supplicant's user agent and its oauth_login handler, which desktop chrome\n  does not implement for a supplicant.\n- Adds a marionetteSupplicant fixture and a v2-capable Firefox resolver.\n- Extends pairChoice with v2 version negotiation.\n- Adds the data-testid hooks these specs drive.",
+  "timestamp": 1787755158000,
   "storybooks": [
     "fxa-settings"
   ],
