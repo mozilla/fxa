@@ -779,6 +779,12 @@ const conf = (module.exports = convict({
     },
   },
   pairing: {
+    browser_build: {
+      default: 'firefox',
+      doc: 'Android package suffix (org.mozilla.<build>) the pairing deep link is pinned to. "fenix" targets pre-release builds.',
+      env: 'PAIRING_BROWSER_BUILD',
+      format: ['firefox', 'fenix'],
+    },
     clients: {
       default: [
         '3c49430b43dfba77', // Reference browser

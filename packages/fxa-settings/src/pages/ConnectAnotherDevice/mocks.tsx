@@ -30,6 +30,7 @@ export function mockFxAStatus({
     selectedEnginesForGlean: {},
     supportsKeysOptionalLogin: false,
     supportsCanLinkAccountUid: undefined,
+    fxaStatusState: 'answered',
     fxaStatus: {
       capabilities: {
         engines: [],

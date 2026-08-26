@@ -36,8 +36,17 @@ import mobileFirefoxIcon from './mobile-ff.svg';
 import mobileDownloadIcon from './mobile-download.svg';
 import {
   buildPairingDownloadUrl,
+  detectDevice,
+  Devices,
   isSendTabEntrypoint,
 } from '../../../lib/utilities';
+import { buildPairUrl, parsePairingHash } from '../../../lib/pairing/pair-url';
+import {
+  getAttemptStorage,
+  HandoffPlan,
+  planPairingHandoff,
+} from '../../../lib/pairing/handoff';
+import ContinueInFirefox from '../../../components/ContinueInFirefox';
 import type { PairOrigin } from '../../Signin/utils';
 import type { SigninLocationState } from '../../Signin/interfaces';
 import type { Integration } from '../../../models';
@@ -69,33 +78,7 @@ export type PairingChannelInfo = {
   version: '1'|'2';
 };
 
-/**
- * Read a v2 pairing channel out of a URL hash, as produced by the authority's
- * QR code: `/pair#channel_id=...&channel_key=...&v=2`. The channel lives in the
- * hash rather than the query string so the key is never sent to the server.
- *
- * Returns undefined unless the hash names version 2 and carries both halves of
- * the channel — half a channel cannot be opened, so it is treated as no hand-off
- * at all rather than as a broken one.
- */
-export function parsePairingHash(
-  hash?: string
-): PairingChannelInfo | undefined {
-  const params = new URLSearchParams((hash ?? '').replace(/^#/, ''));
 
-  if (params.get('v') !== '2') {
-    return undefined;
-  }
-
-  const version = params.get('v') === '2' ? '2':'1';
-  const channelId = params.get('channel_id');
-  const channelKey = params.get('channel_key');
-  if (!channelId || !channelKey) {
-    return undefined;
-  }
-
-  return { channelId, channelKey, version };
-}
 
 type MobileChoice = 'has-mobile' | 'needs-mobile';
 
@@ -160,11 +143,78 @@ const Pair = ({
     [location.hash]
   );
 
+  const device = detectDevice();
+  const isFirefoxDesktop = device === Devices.FIREFOX_DESKTOP;
+
+  // A phone that scanned the QR with its system camera opens this page in
+  // whatever browser it defaults to, which is might not be Firefox.
+  // When the browser never answered fxa_status there is no WebChannel here to
+  // carry the flow, so we will hand the pairing URL to the Firefox app instead,
+  // falling back to the app store when it is not installed.
+  //
+  // Read-only, so it is safe to evaluate during render; the auto-attempt token
+  // is only spent by ContinueInFirefox.
+  const handoffPlan: HandoffPlan = useMemo(
+    () => {
+      if (pairingChannelInfo && fxaStatusResult.fxaStatusState === 'unanswered') {
+        return planPairingHandoff({
+            device,
+            targetUrl: buildPairUrl(pairingChannelInfo),
+            storeLinks: config.mobileStoreLinks,
+            storage: getAttemptStorage(),
+            build: config.pairing.browserBuild,
+          })
+      }
+
+      // This indicates no handoff is needed. and we can continue as normal.
+      return { kind: 'none' }
+    }, [pairingChannelInfo, fxaStatusResult.fxaStatusState, device, config]
+  );
 
   useEffect(() => {
-    const ua = navigator.userAgent;
-    const isFirefoxDesktop =
-      /Firefox/i.test(ua) && !/FxiOS/i.test(ua) && !/Android/i.test(ua);
+    // This is a signal that the initial fxa_status message is still pending.
+    // Don't move forwards with other evaluations until we have a definitive
+    // answer here. 'unanswered' is a definitive answer: no reply is coming.
+    if (fxaStatusResult.fxaStatusState === 'pending') {
+      return;
+    }
+
+    // Handled by rendering the hand-off card below. It must be checked before
+    // the !isFirefoxDesktop branch, which would otherwise send every mobile
+    // browser to /pair/unsupported.
+    if (handoffPlan.kind !== 'none') {
+      return;
+    }
+
+    // Switch on pairing version 2! Both FxA and Firefox have to signal that it
+    // is enabled, same gate as ConnectAnotherDevice.
+    const pairingVersion = fxaStatusResult.fxaStatus?.capabilities.pairingVersion;
+
+    if (
+      config.pairing.version === 2 &&
+      pairingVersion &&
+      pairingVersion === 2 &&
+      pairingChannelInfo?.version === '2'
+    ) {
+      navigateWithQuery(
+        '/pair/supplicant/connect_this_device',
+        { state: pairingChannelInfo },
+        false
+      );
+      return;
+    }
+
+    if (
+      isFirefoxDesktop &&
+      config.pairing.version === 2 &&
+      pairingVersion &&
+      pairingVersion === 2
+    ) {
+      // Full reload: `useIntegration` is not keyed on location, so only a
+      // fresh page load rebuilds it as a PairingAuthorityIntegration.
+      hardNavigate('/pair/authority/scan_qr', {}, true);
+      return;
+    }
 
     // This is a signal that the initial fxa_status message is still pending.
     // Don't move forwards with other evaluations until we have a definitive
@@ -175,7 +225,6 @@ const Pair = ({
 
     // Switch on pairing version 2! Both FxA and Firefox have to signal that it
     // is enabled, same gate as ConnectAnotherDevice.
-    const { pairingVersion } = fxaStatusResult.fxaStatus.capabilities;
     if(
       config.pairing.version === 2 &&
       pairingVersion && pairingVersion === 2 &&
@@ -252,7 +301,7 @@ const Pair = ({
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pairingChannelInfo, fxaStatusResult, navigateWithQuery]);
+  }, [pairingChannelInfo, fxaStatusResult, handoffPlan, navigateWithQuery]);
 
   // Banner variant is driven by router state from getSyncNavigate.
   const { origin: pairOrigin } = (location.state ?? {}) as Pick<
@@ -333,7 +382,11 @@ const Pair = ({
     openPairPreferences();
   }, [openPairPreferences]);
 
-  if (bootstrapping || !fxaStatusResult.fxaStatus) {
+  if (handoffPlan.kind !== 'none') {
+    return <ContinueInFirefox plan={handoffPlan} />;
+  }
+
+  if (bootstrapping || fxaStatusResult.fxaStatusState === 'pending') {
     return <LoadingSpinner fullScreen />;
   }
 

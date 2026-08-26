@@ -26,6 +26,10 @@ type FxAStatusIntegration = Pick<
 
 type SyncEngineConfigs = typeof syncEngineConfigs | undefined;
 
+export type FxAStatusState = 'pending' | 'unanswered' | 'answered';
+
+export const PAIRING_FXA_STATUS_TIMEOUT_MS = 500;
+
 /**
  * `pairing` is optional in the fxa_status response, and very old versions of
  * Firefox iOS omit `capabilities` entirely. Normalizing here means callers can
@@ -72,6 +76,8 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
   // Undefined until the browser answers, so callers can tell "not yet known"
   // from "settled, no pairing" rather than routing on an unresolved default.
   const [fxaStatus, setFxaStatus] = useState<FxAStatusResponse>();
+  const [fxaStatusState, setFxaStatusState] =
+    useState<FxAStatusState>('pending');
 
   useEffect(() => {
     // This sends a web channel message to the browser to prompt a response
@@ -95,6 +101,9 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
           ...status?.capabilities,
         };
 
+        // Unconditional, and deliberately not guarded on the current state: a
+        // reply that arrives after the deadline below must still win, so a slow
+        // but genuine Firefox is never left on the fabricated defaults.
         setFxaStatus({
           ...status,
           capabilities: {
@@ -105,6 +114,7 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
               DEFAULT_PAIRING_CAPABILITIES.pairingVersion,
           },
         });
+        setFxaStatusState('answered');
 
         if (!webChannelEngines && capabilities.engines) {
           // choose_what_to_sync may be disabled for mobile sync, see:
@@ -139,6 +149,7 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
       // No fxa_status is coming, so settle on the defaults rather than leaving
       // callers waiting on a reply that will never arrive.
       setFxaStatus(DEFAULT_FXA_STATUS);
+      setFxaStatusState('unanswered');
     }
   }, [
     isSync,
@@ -149,6 +160,28 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
     webChannelEngines,
     integration,
   ]);
+
+  // Give up waiting on a browser that looks like Firefox but never answers —
+  // an in-app WebView, or a spoofed user agent. Pairing only: see
+  // PAIRING_FXA_STATUS_TIMEOUT_MS.
+  //
+  // Keyed on the pending state rather than on "did we send the message", so the
+  // timer exists only while a reply is genuinely outstanding: when we never
+  // asked, the effect above has already settled on 'unanswered' and this clears
+  // itself. A reply that lands after the deadline still wins, because the effect
+  // above sets both values unconditionally.
+  useEffect(() => {
+    if (!isPairing || fxaStatusState !== 'pending') {
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      setFxaStatus((current) => current ?? DEFAULT_FXA_STATUS);
+      setFxaStatusState((current) =>
+        current === 'pending' ? 'unanswered' : current
+      );
+    }, PAIRING_FXA_STATUS_TIMEOUT_MS);
+    return () => window.clearTimeout(timer);
+  }, [isPairing, fxaStatusState]);
 
   useEffect(() => {
     if (webChannelEngines) {
@@ -203,6 +236,7 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
     supportsKeysOptionalLogin,
     supportsCanLinkAccountUid,
     fxaStatus,
+    fxaStatusState,
   };
 }
 

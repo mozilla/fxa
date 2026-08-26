@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { renderHook } from '@testing-library/react-hooks';
-import { useFxAStatus } from '.';
+import { act, renderHook } from '@testing-library/react-hooks';
+import { PAIRING_FXA_STATUS_TIMEOUT_MS, useFxAStatus } from '.';
 import { Constants } from '../../constants';
 import firefox from '../../channels/firefox';
 import { IntegrationType, isProbablyFirefox } from '../../../models';
@@ -248,7 +248,7 @@ describe('useFxAStatus', () => {
     });
 
     it('returns the hasSyncKeys when browser reports true', async () => {
-      mockCapabilities({ engines: [], hasSyncKeys:true });
+      mockCapabilities({ engines: [], hasSyncKeys: true });
 
       const { result, waitForNextUpdate } = renderHook(() =>
         useFxAStatus(integration)
@@ -259,7 +259,7 @@ describe('useFxAStatus', () => {
     });
 
     it('returns the hasSyncKeys when browser reports false', async () => {
-      mockCapabilities({ engines: [], hasSyncKeys:false });
+      mockCapabilities({ engines: [], hasSyncKeys: false });
 
       const { result, waitForNextUpdate } = renderHook(() =>
         useFxAStatus(integration)
@@ -368,6 +368,118 @@ describe('useFxAStatus', () => {
 
       renderHook(() => useFxAStatus(integration));
       expect(firefox.fxaStatus).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('fxaStatusState', () => {
+    const pairingIntegration = {
+      type: IntegrationType.PairingSupplicant,
+      isSync: () => false,
+      isFirefoxNonSync: () => false,
+      isPairing: () => true,
+    };
+    const syncIntegration = {
+      type: IntegrationType.SyncDesktopV3,
+      isSync: () => true,
+      isFirefoxNonSync: () => false,
+      isPairing: () => false,
+    };
+
+    it('settles on unanswered without asking a browser that is not Firefox', () => {
+      (isProbablyFirefox as jest.Mock).mockImplementation(() => false);
+
+      const { result } = renderHook(() => useFxAStatus(pairingIntegration));
+
+      expect(result.current.fxaStatusState).toBe('unanswered');
+      expect(firefox.fxaStatus).not.toHaveBeenCalled();
+    });
+
+    it('reports answered once the browser replies', async () => {
+      (firefox.fxaStatus as jest.Mock).mockResolvedValue({
+        capabilities: { engines: [], pairing: true, pairingVersion: 2 },
+      });
+
+      const { result, waitForNextUpdate } = renderHook(() =>
+        useFxAStatus(pairingIntegration)
+      );
+      await waitForNextUpdate();
+
+      expect(result.current.fxaStatusState).toBe('answered');
+    });
+
+    describe('when the browser looks like Firefox but never answers', () => {
+      beforeEach(() => {
+        jest.useFakeTimers();
+        // Never settles — an in-app WebView or a spoofed user agent.
+        (firefox.fxaStatus as jest.Mock).mockReturnValue(new Promise(() => {}));
+      });
+
+      afterEach(() => {
+        jest.useRealTimers();
+      });
+
+      it('stays pending until the deadline passes', () => {
+        const { result } = renderHook(() => useFxAStatus(pairingIntegration));
+
+        act(() => {
+          jest.advanceTimersByTime(PAIRING_FXA_STATUS_TIMEOUT_MS - 1);
+        });
+
+        expect(result.current.fxaStatusState).toBe('pending');
+      });
+
+      it('settles on unanswered with the defaults once the deadline passes', () => {
+        const { result } = renderHook(() => useFxAStatus(pairingIntegration));
+
+        act(() => {
+          jest.advanceTimersByTime(PAIRING_FXA_STATUS_TIMEOUT_MS);
+        });
+
+        expect(result.current.fxaStatusState).toBe('unanswered');
+        expect(result.current.fxaStatus?.capabilities.pairingVersion).toBe(1);
+      });
+
+      // The deadline must never cost a real Firefox its capabilities, which is
+      // why it lives here rather than as a race inside firefox.fxaStatus().
+      it('lets a reply that lands after the deadline win', async () => {
+        let reply: (value: unknown) => void = () => {};
+        (firefox.fxaStatus as jest.Mock).mockReturnValue(
+          new Promise((resolve) => {
+            reply = resolve;
+          })
+        );
+
+        const { result, waitForNextUpdate } = renderHook(() =>
+          useFxAStatus(pairingIntegration)
+        );
+
+        act(() => {
+          jest.advanceTimersByTime(PAIRING_FXA_STATUS_TIMEOUT_MS);
+        });
+        expect(result.current.fxaStatusState).toBe('unanswered');
+
+        reply({
+          capabilities: { engines: [], pairing: true, pairingVersion: 2 },
+        });
+        await waitForNextUpdate();
+
+        expect(result.current.fxaStatusState).toBe('answered');
+        expect(result.current.fxaStatus?.capabilities.pairingVersion).toBe(2);
+      });
+
+      // Only pairing blocks the page on the reply, so only pairing pays a
+      // deadline. Everywhere else a discarded reply would be a regression.
+      it('never schedules a deadline for a non-pairing sync flow', () => {
+        const { result } = renderHook(() => useFxAStatus(syncIntegration));
+
+        expect(jest.getTimerCount()).toBe(0);
+
+        act(() => {
+          jest.advanceTimersByTime(PAIRING_FXA_STATUS_TIMEOUT_MS * 10);
+        });
+
+        expect(result.current.fxaStatusState).toBe('pending');
+      });
     });
   });
 });
