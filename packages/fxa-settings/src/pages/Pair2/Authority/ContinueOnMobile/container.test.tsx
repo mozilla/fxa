@@ -116,7 +116,8 @@ describe('Pair2/Authority/ContinueOnMobile container', () => {
 
       await waitFor(() => expect(integration.destroy).toHaveBeenCalled());
       expect(mockNavigate).toHaveBeenCalledWith(
-        '/pair/authority/timeout_and_cancel'
+        '/pair/authority/timeout_and_cancel',
+        { state: { reason: 'canceled' } }
       );
     });
 
@@ -131,7 +132,8 @@ describe('Pair2/Authority/ContinueOnMobile container', () => {
 
       await waitFor(() => expect(captureException).toHaveBeenCalledWith(err));
       expect(mockNavigate).toHaveBeenCalledWith(
-        '/pair/authority/timeout_and_cancel'
+        '/pair/authority/timeout_and_cancel',
+        { state: { reason: 'canceled' } }
       );
     });
   });

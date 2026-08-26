@@ -5,23 +5,31 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import * as Sentry from '@sentry/browser';
-import { AuthorityState, Integration, PairingAuthorityIntegration } from '../../../../models';
+import {
+  AuthorityState,
+  Integration,
+  PairingAuthorityIntegration,
+} from '../../../../models';
 import ContinueOnMobile from '.';
 import { navigateWithQuery } from '../../../../lib/utilities';
 
 export type ContinueOnMobileContainerProps = {
-  integration?: Integration|PairingAuthorityIntegration
+  integration?: Integration | PairingAuthorityIntegration;
 };
 
-const ContinueOnMobileContainer = ({ integration }: ContinueOnMobileContainerProps) => {
+const ContinueOnMobileContainer = ({
+  integration,
+}: ContinueOnMobileContainerProps) => {
   if (!(integration instanceof PairingAuthorityIntegration)) {
-    throw new Error('Invalid integration. Expecting instance of PairingAuthorityIntegration.');
+    throw new Error(
+      'Invalid integration. Expecting instance of PairingAuthorityIntegration.'
+    );
   }
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    integration.onStateChange = (state:AuthorityState) => {
+    integration.onStateChange = (state: AuthorityState) => {
       switch (state) {
         case AuthorityState.WaitingForAuthority:
           navigateWithQuery('/pair/authority/approve_signin', {}, true);
@@ -35,7 +43,7 @@ const ContinueOnMobileContainer = ({ integration }: ContinueOnMobileContainerPro
           console.warn('Unexpected state change: ' + state);
           break;
       }
-    }
+    };
 
     return () => {
       // Unsubscribe only — the channel outlives this page for approve_signin.
@@ -43,18 +51,19 @@ const ContinueOnMobileContainer = ({ integration }: ContinueOnMobileContainerPro
     };
   }, [integration]);
 
-  const onCancel = () => {
-    integration.destroy()
-      .then(() => {
-        navigate('/pair/authority/timeout_and_cancel')
-      })
-      .catch((err) => {
-        Sentry.captureException(err);
-        navigate('/pair/authority/timeout_and_cancel');
-      });
+  // Leave even if the channel will not close; the user asked to stop.
+  const onCancel = async () => {
+    try {
+      await integration.destroy();
+    } catch (err) {
+      Sentry.captureException(err);
+    }
+    navigate('/pair/authority/timeout_and_cancel', {
+      state: { reason: 'canceled' },
+    });
   };
 
-  return <ContinueOnMobile {...{onCancel}}/>
+  return <ContinueOnMobile {...{ onCancel }} />;
 };
 
 export default ContinueOnMobileContainer;
