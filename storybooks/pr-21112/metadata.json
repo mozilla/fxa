@@ -1,0 +1,11 @@
+{
+  "commit": "1baa046de110b41d15317c6f4573bdae02d3f29e",
+  "summary": "feat(settings): run the QR promo value proposition experiment",
+  "description": "Add the first FxA Nimbus A/B test. Test 8 value proposition headings against\nthe current control on the desktop QR promo in the authentication flow, and\nship the updated promo design that makes room for the longer strings.\n\nDeclare the promo-qr-mobile feature in the FML with two variables, enabled\nand branch. A single branch slug drives the heading and the QR code\ntogether, because each QR scans to its own Bitly link and a mismatched pair\nwould misattribute the download. Every channel defaults to the control, so a\nCirrus failure is a no-op, and an unknown slug falls back to the control, so\na typo in Experimenter cannot break the promo.\n\nDeclare all 9 headings as literal FTL ids so the l10n extraction finds them,\nand pick one at runtime with useFtlMsgResolver. The CTA moves below the QR\nand changes wording, so it takes a new -v2 id and translators re-translate\nrather than keep the old string.\n\nRebuild the component to the updated design. The logo above the heading is\ngone, because the Bitly QR already embeds the Firefox glyph in its centre.\nThe 230KB qr-mobile-kit.svg gives way to real fox vectors and a per-branch\nQR, about a 10x reduction. The heading used text-md, which is not in the\nfont scale and so set no size at all; it is now text-sm font-bold.\n\nReport branch and nimbus_user_id on promo_qr_mobile.view. Cirrus reports\nenrollment itself, so the app must stamp nimbus_user_id on its own events\nfor the analysis to join them. A CMS-supplied image carries no branch, so\nthose users get the control copy and report no branch. The render waits on\nNimbus so the control does not paint and then swap.",
+  "timestamp": 1787754310000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
