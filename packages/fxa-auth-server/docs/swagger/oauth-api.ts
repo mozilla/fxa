@@ -18,7 +18,7 @@ const OAUTH_AUTHORIZATION_POST = {
 
       Authorize a new OAuth client connection to the user's account, returning a short-lived authentication code that the client can exchange for access tokens at the OAuth token endpoint.
 
-      This route behaves like the oauth-server /authorization endpoint except that it is authenticated directly with a sessionToken rather than with a BrowserID assertion.
+      This route behaves like the oauth-server /authorization endpoint except that it is authenticated directly with a sessionToken.
     `,
   ],
 };
@@ -82,7 +82,7 @@ const OAUTH_TOKEN_POST = {
         - \`grant_type=refresh_token\`: A refresh token issued by a previous call to this endpoint.
         - \`grant_type=fxa-credentials\`: Directly grant tokens using an FxA sessionToken.
 
-      This is the "token endpoint" as defined in RFC6749, and behaves like the [oauth-server /token endpoint](#tag/OAuth-Server-API-Overview/operation/postToken) except that the \`fxa-credentials\` grant can be authenticated directly with a sessionToken rather than with a BrowserID assertion.
+      This is the "token endpoint" as defined in RFC6749, and behaves like the [oauth-server /token endpoint](#tag/OAuth-Server-API-Overview/operation/postToken) except that the \`fxa-credentials\` grant can be authenticated directly with a sessionToken.
     `,
   ],
   plugins: {

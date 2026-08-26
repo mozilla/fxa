@@ -33,7 +33,7 @@ from loads import TestCase
 #        * 5% of flows will generate some random bytes
 #    * 3% of tests exercise the password reset flow
 #    * 1% of tests exercise are the password change flow
-#    * 1% of are simple requests for the browserid support document
+#    * 1% of are simple requests for the public keys document
 
 PERCENT_TEST_LOGIN = 95
 PERCENT_TEST_RESET = 3
@@ -308,7 +308,7 @@ class LoadTest(TestCase):
 
     def test_support_doc_flow(self):
         base_url = self.server_url[:-3]
-        self.session.get(base_url + "/.well-known/browserid")
+        self.session.get(base_url + "/.well-known/public-keys")
 
     def _get_code_from_email(self, emailAcct, header):
         # Due to possible race conditions, and previous test runs

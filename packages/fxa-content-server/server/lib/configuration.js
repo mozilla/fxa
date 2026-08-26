@@ -1169,9 +1169,7 @@ const conf = (module.exports = convict({
   },
 }));
 
-// At the time this file is required, we'll determine the "process name" for this proc
-// if we can determine what type of process it is (browserid or verifier) based
-// on the path, we'll use that, otherwise we'll name it 'ephemeral'.
+// Name this process after the script that started it.
 conf.set('process_type', path.basename(process.argv[1], '.js'));
 
 // Always send CSP headers in development mode
@@ -1215,7 +1213,6 @@ if (!conf.has('static_resource_url')) {
   conf.set('static_resource_url', conf.get('public_url'));
 }
 
-// For ops consistency with Browserid, we support HTTP_PROXY
 // special handling of HTTP_PROXY env var
 if (process.env.HTTP_PROXY) {
   const p = process.env.HTTP_PROXY.split(':');

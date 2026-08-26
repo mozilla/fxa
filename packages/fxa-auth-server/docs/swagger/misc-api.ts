@@ -51,18 +51,6 @@ const SUPPORT_TICKET_POST = {
   ],
 };
 
-const WELLKNOWN_BROWSERID_GET = {
-  ...TAGS_MISC,
-  description: '/.well-known/browserid',
-  notes: [
-    dedent`
-      Verifies a user is who they say they are using [BrowserID](https://hacks.mozilla.org/2011/07/introducing-browserid-easier-and-safer-authentication-on-the-web/).
-
-      It has been deprecated in newer version of Firefox desktop, though some clients still use it.
-    `,
-  ],
-};
-
 const WELLKNOWN_PUBLIC_KEYS = {
   ...TAGS_MISC,
   description: '/.well-known/public-keys',
@@ -99,7 +87,6 @@ const API_DOCS = {
   NEWSLETTERS_POST,
   OAUTH_ID_TOKEN_VERIFY_POST,
   SUPPORT_TICKET_POST,
-  WELLKNOWN_BROWSERID_GET,
   WELLKNOWN_PUBLIC_KEYS,
 };
 
