@@ -829,6 +829,9 @@ recent-activity-account-passwordless-login-otp-failed = Koade foar oanmelden sû
 recent-activity-account-passwordless-login-otp-verified = Koade foar oanmelden sûnder wachtwurd ferifiearre
 recent-activity-account-passwordless-registration-complete = Wachtwurdleaze accountregistraasje foltôge
 recent-activity-account-recovery-codes-set = Werstelkoaden ynsteld
+recent-activity-account-passkey-wrap-created = Wachtwurdkaai foar syngronisaasje ynskeakele
+recent-activity-account-passkey-wrap-creation-failure = Syngronisaasje ynstelle mei wachtwurdkaai mislearre
+recent-activity-account-passkey-wrap-invalidated = Wachtwurdkaai-syngronisaasjetagong fuortsmiten nei opnij ynstellen wachtwurd
 recent-activity-unknown = Oare accountaktiviteit
 
 

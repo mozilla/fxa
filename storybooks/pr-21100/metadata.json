@@ -1,8 +1,8 @@
 {
-  "commit": "1cb3ecbcdce07db9651d23f2a3914c1c6ccacc18",
+  "commit": "5277afbc11875bbc64ca3185afe303e50958bb15",
   "summary": "task(settings): Display v2 QR code",
   "description": "Because:\n- When v2 pairing is enabled we want to take the user directly to the scan_qr page\n- We want the authority to render QR code and open the web-channel.\n\nThis Commit:\n- Exposes pairingVersion and pairingEnabled from the useFxaStatus hook.\n- Adds a new isPairing flag to our integrations, which is then relied on in the useFxaStatus hook.\n- Adds ability to pairing-channel.ts to create a new pairing channel.\n- Updates the pairing-authority-integration providing the ability to create a new pairing channel.\n- Updates the integration factory to return the correct pairing integration type given the new pairing path names.\n- Updates the ConnectAnotherDevice page to route the user to the ScanQR page when pairing version 2 is flipped on.\n- Hoists toRemoteMetaData to the parent class\n- ScanQR now creates and renders a v2 pairing QR code!",
-  "timestamp": 1787639346000,
+  "timestamp": 1787708716000,
   "storybooks": [
     "fxa-settings"
   ],
