@@ -1,0 +1,10 @@
+{
+  "commit": "a183e0f918c50e37e966a63f713ac0e8b59306f8",
+  "summary": "task(fxa-settings): Support QR code scanning when firefox is not the default or installed",
+  "description": "",
+  "timestamp": 1787712600000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
