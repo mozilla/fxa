@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 001e3157f340cdc6c2bc96aef038a98fa650cb01</title>
+  <title>Storybooks for commit 48e03d97c5db3fa81e82d7ec2106d2c1a86775a5</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 001e3157f340cdc6c2bc96aef038a98fa650cb01</h1>
+  <h1>Storybooks for commit 48e03d97c5db3fa81e82d7ec2106d2c1a86775a5</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/26/2026, 2:24:32 AM UTC</dd>
+    <dd>8/26/2026, 1:25:17 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>test(functional-tests): add end-to-end v2 pairing coverage</pre></dd>
     <dt>Description</dt>
@@ -40,8 +40,9 @@
 This commit:
 - Adds pairingFlowV2Android, driving a Marionette authority and a real Fenix
   supplicant with nothing stubbed.
-- Adds pairingFlowV2, driving both halves over Marionette and standing in only
-  for the oauth_login that desktop chrome does not implement.
+- Adds pairingFlowV2, driving both halves over Marionette, standing in only for
+  the supplicant&#039;s user agent and its oauth_login handler, which desktop chrome
+  does not implement for a supplicant.
 - Adds a marionetteSupplicant fixture and a v2-capable Firefox resolver.
 - Extends pairChoice with v2 version negotiation.
 - Adds the data-testid hooks these specs drive.</pre></dd>
