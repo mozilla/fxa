@@ -1,8 +1,8 @@
 {
-  "commit": "174952f5c00250dcf4f9e9cdbc6bef8de174a75f",
-  "summary": "Merge pull request #21107 from mozilla/fxa-13791",
-  "description": "chore(auth-server): remove browserid route, config, and docs",
-  "timestamp": 1787763303000,
+  "commit": "edc78d944dc72c80fca59be116be56aa24103f74",
+  "summary": "Merge pull request #21078 from mozilla/fxa-13869",
+  "description": "feat(pairing): handle v2 pairing timeouts and cancellations",
+  "timestamp": 1787766480000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
