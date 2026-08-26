@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit e73aff24904ddc57d0d8122a6af5062a2c881644</title>
+  <title>Storybooks for commit 534ff91e85bb8e2e7e59ae6cf7d2aa804fd121e8</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,28 +23,27 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit e73aff24904ddc57d0d8122a6af5062a2c881644</h1>
+  <h1>Storybooks for commit 534ff91e85bb8e2e7e59ae6cf7d2aa804fd121e8</h1>
   <ul>
-    <li><a href="./email-renderer/">email-renderer</a></li>
-<li><a href="./fxa-react/">fxa-react</a></li>
-<li><a href="./fxa-settings/">fxa-settings</a></li>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/26/2026, 4:58:18 PM UTC</dd>
+    <dd>8/26/2026, 5:12:53 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(pairing): handle v2 pairing timeouts and cancellations</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-- FXA-13869 needs the v2 pairing flow to end cleanly on a timeout or a
-  cancel, close the channel, and tell the user why.
+- A QR nobody scanned left the user on a code that had quietly expired.
+- The screens that end pairing did not say why the flow ended, and did not
+  guarantee the pairing channel was closed.
 
 This commit:
-- adds a supplicant timeout_and_cancel container and passes the reason to
-  the authority container, so both dead-end screens show timeout or canceled.
-- sends reason=canceled from cancel buttons and reason=timeout from channel
-  disconnects and the no-scan inactivity timeout.
-- adds Jest tests for both containers and for the channel teardown on reset.</pre></dd>
+- Gives up on the authority&#039;s QR after two minutes of no scan, clearing the
+  timer when a device scans, when the flow fails, and on unmount.
+- Passes the reason through router state so each screen shows the right variant.
+- Adds a supplicant timeout and cancel container.
+- Closes the pairing channel on the terminal screens, so none outlives the flow.</pre></dd>
   </dl>
 </body>
 </html>

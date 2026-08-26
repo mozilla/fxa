@@ -1,11 +1,9 @@
 {
-  "commit": "e73aff24904ddc57d0d8122a6af5062a2c881644",
+  "commit": "534ff91e85bb8e2e7e59ae6cf7d2aa804fd121e8",
   "summary": "feat(pairing): handle v2 pairing timeouts and cancellations",
-  "description": "Because:\n- FXA-13869 needs the v2 pairing flow to end cleanly on a timeout or a\n  cancel, close the channel, and tell the user why.\n\nThis commit:\n- adds a supplicant timeout_and_cancel container and passes the reason to\n  the authority container, so both dead-end screens show timeout or canceled.\n- sends reason=canceled from cancel buttons and reason=timeout from channel\n  disconnects and the no-scan inactivity timeout.\n- adds Jest tests for both containers and for the channel teardown on reset.",
-  "timestamp": 1787763498000,
+  "description": "Because:\n- A QR nobody scanned left the user on a code that had quietly expired.\n- The screens that end pairing did not say why the flow ended, and did not\n  guarantee the pairing channel was closed.\n\nThis commit:\n- Gives up on the authority's QR after two minutes of no scan, clearing the\n  timer when a device scans, when the flow fails, and on unmount.\n- Passes the reason through router state so each screen shows the right variant.\n- Adds a supplicant timeout and cancel container.\n- Closes the pairing channel on the terminal screens, so none outlives the flow.",
+  "timestamp": 1787764373000,
   "storybooks": [
-    "email-renderer",
-    "fxa-react",
     "fxa-settings"
   ],
   "deployDir": "deploy/"
