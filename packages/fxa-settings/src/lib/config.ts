@@ -96,6 +96,7 @@ export interface Config {
     pairRoutes: boolean;
   };
   pairing: {
+    browserBuild: 'firefox' | 'fenix';
     clients: string[];
     serverBaseUri: string;
     version: number;
@@ -221,6 +222,7 @@ export function getDefault() {
       pairRoutes: false,
     },
     pairing: {
+      browserBuild: 'firefox',
       clients: [],
       serverBaseUri: 'wss://channelserver.services.mozilla.com',
       version: 1,

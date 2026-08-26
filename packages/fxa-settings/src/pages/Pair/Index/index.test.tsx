@@ -12,11 +12,12 @@ import firefox from '../../../lib/channels/firefox';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import { MOCK_ERROR } from './mocks';
 import { MOCK_CMS_INFO } from '../../mocks';
-import Pair, { parsePairingHash, viewName } from '.';
+import Pair, { viewName } from '.';
 import { mockUseFxAStatus } from '../../../lib/hooks/useFxAStatus/mocks';
 import { getDefault } from '../../../lib/config';
 import { PAIR_GLEAN_REASONS } from 'fxa-shared/metrics/glean/pair-reasons';
 import { Integration } from '../../../models';
+import { parsePairingHash } from '../../../lib/pairing/pair-url';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -712,5 +713,129 @@ describe('parseV2PairingHash', () => {
     ['an empty channel_key', '#channel_id=chan-1&channel_key=&v=2'],
   ])('returns undefined for %s', (_label, hash) => {
     expect(parsePairingHash(hash)).toBeUndefined();
+  });
+
+  // A phone that scans the pairing QR with its system camera opens this page in
+  // its default browser, which is often not Firefox. Those browsers never answer
+  // fxa_status, so the page hands the pairing URL to the Firefox app instead of
+  // dead-ending on /pair/unsupported.
+  describe('hand-off when the browser never answers fxa_status', () => {
+    const V2_HASH = '#channel_id=chan-1&channel_key=key-1&v=2';
+    const IOS_SAFARI =
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 ' +
+      '(KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1';
+    const ANDROID_CHROME =
+      'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) ' +
+      'Chrome/124.0.0.0 Mobile Safari/537.36';
+    const DESKTOP_CHROME =
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 ' +
+      '(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
+    const FIREFOX_ANDROID =
+      'Mozilla/5.0 (Android 14; Mobile; rv:124.0) Gecko/124.0 Firefox/124.0';
+
+    const setUserAgent = (value: string) =>
+      Object.defineProperty(navigator, 'userAgent', {
+        value,
+        configurable: true,
+      });
+
+    const unansweredProps = {
+      fxaStatusResult: mockUseFxAStatus({ fxaStatusState: 'unanswered' }),
+    };
+
+    const v2AppContext = () => {
+      const config = getDefault();
+      config.pairing.version = 2;
+      return mockAppContext({ config } as Parameters<typeof mockAppContext>[0]);
+    };
+
+    beforeEach(() => {
+      mockLocationHash = V2_HASH;
+    });
+
+    it.each([
+      ['iOS Safari', IOS_SAFARI],
+      ['Android Chrome', ANDROID_CHROME],
+    ])('offers to continue in Firefox on %s', async (_label, ua) => {
+      setUserAgent(ua);
+      renderWithRouter(<Pair {...unansweredProps} />, {}, v2AppContext());
+
+      expect(
+        await screen.findByRole('heading', { name: 'Continue in Firefox' })
+      ).toBeInTheDocument();
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
+
+    // The channel key is what the deep link exists to carry; without it Firefox
+    // opens on a /pair page with nothing to pair.
+    it('hands Firefox the pairing URL the QR encoded', async () => {
+      setUserAgent(IOS_SAFARI);
+      renderWithRouter(<Pair {...unansweredProps} />, {}, v2AppContext());
+
+      const cta = await screen.findByRole('link', {
+        name: 'Continue in Firefox',
+      });
+      const target = new URL(
+        decodeURIComponent(
+          cta.getAttribute('href')!.replace('firefox://open-url?url=', '')
+        )
+      );
+      expect(target.pathname).toBe('/pair');
+      expect(target.hash).toBe(V2_HASH);
+    });
+
+    // There is no Firefox app to hand off to on desktop.
+    it('sends a non-Firefox desktop browser to /pair/unsupported', async () => {
+      setUserAgent(DESKTOP_CHROME);
+      renderWithRouter(<Pair {...unansweredProps} />, {}, v2AppContext());
+
+      // The hash rides along, which is what lets /pair/unsupported recognise a
+      // system-camera scan.
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith(`/pair/unsupported${V2_HASH}`)
+      );
+      expect(
+        screen.queryByRole('heading', { name: 'Continue in Firefox' })
+      ).not.toBeInTheDocument();
+    });
+
+    // firefox:// inside Firefox is a no-op, so a hand-off here would strand the
+    // user rather than help them.
+    it('does not offer the hand-off inside Firefox for Android', async () => {
+      setUserAgent(FIREFOX_ANDROID);
+      renderWithRouter(<Pair {...unansweredProps} />, {}, v2AppContext());
+
+      await waitFor(() => expect(mockNavigate).toHaveBeenCalled());
+      expect(
+        screen.queryByRole('heading', { name: 'Continue in Firefox' })
+      ).not.toBeInTheDocument();
+    });
+
+    it('does not offer the hand-off when the URL carries no pairing channel', async () => {
+      mockLocationHash = '';
+      setUserAgent(IOS_SAFARI);
+      renderWithRouter(<Pair {...unansweredProps} />, {}, v2AppContext());
+
+      await waitFor(() => expect(mockNavigate).toHaveBeenCalled());
+      expect(
+        screen.queryByRole('heading', { name: 'Continue in Firefox' })
+      ).not.toBeInTheDocument();
+    });
+
+    // A browser that answered is telling us something; only silence means the
+    // WebChannel is absent.
+    it('does not offer the hand-off when the browser answered with v1', async () => {
+      setUserAgent(IOS_SAFARI);
+      renderWithRouter(
+        <Pair fxaStatusResult={mockUseFxAStatus({ pairingVersion: 1 })} />,
+        {},
+        v2AppContext()
+      );
+
+      await waitFor(() => expect(mockNavigate).toHaveBeenCalled());
+      expect(
+        screen.queryByRole('heading', { name: 'Continue in Firefox' })
+      ).not.toBeInTheDocument();
+    });
   });
 });

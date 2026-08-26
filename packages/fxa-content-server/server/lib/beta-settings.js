@@ -112,6 +112,7 @@ const settingsConfig = {
     pairRoutes: config.get('showReactApp.pairRoutes'),
   },
   pairing: {
+    browserBuild: config.get('pairing.browser_build'),
     clients: config.get('pairing.clients'),
     serverBaseUri: config.get('pairing.server_base_uri'),
     version: config.get('pairing.version'),

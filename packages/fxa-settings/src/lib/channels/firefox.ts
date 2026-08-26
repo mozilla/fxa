@@ -96,7 +96,6 @@ export type FxAStatusResponse = {
   };
   clientId?: string;
   signedInUser?: SignedInUser;
-
 };
 
 export type SignedInUser = {

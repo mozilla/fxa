@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { getSyncEngineIds, syncEngineConfigs } from '../../sync-engines';
-import type { UseFxAStatusResult } from '.';
+import type { FxAStatusState, UseFxAStatusResult } from '.';
 
 export function mockUseFxAStatus({
   pairingEnabled = true,
@@ -11,12 +11,16 @@ export function mockUseFxAStatus({
   offeredSyncEnginesOverride,
   supportsKeysOptionalLogin = false,
   supportsCanLinkAccountUid,
+  // Defaults to a browser that replied, since that is what most callers assume.
+  // Pass 'unanswered' for a browser with no WebChannel.
+  fxaStatusState = 'answered',
 }: {
   pairingEnabled?: boolean;
   pairingVersion?: number;
   offeredSyncEnginesOverride?: ReturnType<typeof getSyncEngineIds>;
   supportsKeysOptionalLogin?: boolean;
   supportsCanLinkAccountUid?: boolean | undefined;
+  fxaStatusState?: FxAStatusState;
 } = {}) {
   const offeredSyncEngineConfigs = syncEngineConfigs;
   const offeredSyncEngines =
@@ -41,6 +45,7 @@ export function mockUseFxAStatus({
     selectedEnginesForGlean,
     supportsKeysOptionalLogin,
     supportsCanLinkAccountUid,
+    fxaStatusState,
     fxaStatus: {
       capabilities: {
         engines: [],

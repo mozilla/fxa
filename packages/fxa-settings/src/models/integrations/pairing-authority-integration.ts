@@ -28,6 +28,7 @@ import {
   validateSupplicantRequest,
 } from './pairing-request-validation';
 import * as Sentry from '@sentry/browser';
+import { buildPairUrl } from '../../lib/pairing/pair-url';
 
 const PAIR_HEARTBEAT_INTERVAL = 1000;
 
@@ -125,12 +126,13 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
     if (!this._channel?.channelId || !this._channel?.channelKey) {
       throw new Error('Cannot build a pair URL before the channel is created.');
     }
-    return (
-      `${window.location.origin}/pair` +
-      `#channel_id=${this._channel.channelId}` +
-      `&channel_key=${this._channel.channelKey}` +
-      `&v=${v}`
-    );
+    // Shared with the supplicant's deep link back into Firefox, so the URL we
+    // encode and the URL we hand off can never disagree.
+    return buildPairUrl({
+      channelId: this._channel.channelId,
+      channelKey: this._channel.channelKey,
+      version: v,
+    });
   }
 
   async createChannel(): Promise<void> {
