@@ -22,6 +22,7 @@
 export * from './lib/passkey.service';
 export * from './lib/passkey.manager';
 export * from './lib/passkey.repository';
+export * from './lib/passkey.wrap.repository';
 export * from './lib/passkey.config';
 export * from './lib/passkey.provider';
 export * from './lib/passkey.challenge.manager';

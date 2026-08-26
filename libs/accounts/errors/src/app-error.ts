@@ -1743,6 +1743,24 @@ export class AppError extends Error {
     });
   }
 
+  static passkeyWrapNotFound() {
+    return new AppError({
+      code: 404,
+      error: 'Not Found',
+      errno: ERRNO.PASSKEY_WRAP_NOT_FOUND,
+      message: 'Passkey wrap not found',
+    });
+  }
+
+  static passkeyWrapConflict() {
+    return new AppError({
+      code: 409,
+      error: 'Conflict',
+      errno: ERRNO.PASSKEY_WRAP_CONFLICT,
+      message: 'Passkey wrap already exists with a different payload',
+    });
+  }
+
   static passkeyAlreadyRegistered() {
     return new AppError({
       code: 409,

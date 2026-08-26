@@ -42,12 +42,9 @@ This library follows the layered architecture pattern used across `libs/accounts
    - No business logic, just data access
    - Called by Manager layer
 
-4. **Error Layer** (`passkey.errors.ts`)
-   - Domain-specific error classes extending `PasskeyError`
-   - Used in service/manager layers for business logic
-   - Structured error information for logging (uid, credentialId, etc.)
-   - Errno range: 224-238 (6 allocated, 9 reserved)
-   - HTTP responses use `AppError.passkey*()` methods in route handlers
+4. **Errors** (`@fxa/accounts/errors`)
+   - No error layer in this library: the service throws `AppError` factories directly
+   - Errno range 224-238, allocated in `libs/accounts/errors/src/constants.ts`
 
 5. **Configuration** (`passkey.config.ts`)
    - Type-safe configuration interface
@@ -101,49 +98,21 @@ Key WebAuthn concepts:
 
 ## Error Handling
 
-Passkey errors follow a two-layer architecture:
-
-### Internal Layer (Service/Manager)
-
-Use specific error classes extending `PasskeyError` for business logic:
-
-```typescript
-import { PasskeyNotFoundError } from '@fxa/accounts/passkey';
-
-// In service layer
-if (!passkey) {
-  throw new PasskeyNotFoundError({ uid, credentialId });
-}
-```
-
-**Available error classes** (errno 224-238):
-If there is an errno here, it aligns with an AppError ERRNO constant. However, not all AppError passkey errors have an internal match here.
-
-- `PasskeyNotFoundError` (224)
-- `PasskeyAlreadyRegisteredError` (225)
-- `PasskeyLimitReachedError` (226)
-- `PasskeyAuthenticationFailedError` (227)
-- `PasskeyRegistrationFailedError` (228)
-- `PasskeyChallengeExpiredError` (238)
-
-### HTTP Layer (Route Handlers)
-
-Convert internal errors to HTTP responses using `AppError`:
+The service throws `AppError` factories directly — there is no intermediate error
+class.
 
 ```typescript
 import { AppError } from '@fxa/accounts/errors';
-import { PasskeyNotFoundError } from '@fxa/accounts/passkey';
 
-try {
-  await passkeyService.getPasskey(uid, credentialId);
-} catch (err) {
-  if (err instanceof PasskeyNotFoundError) {
-    throw AppError.passkeyNotFound(); // 404 with errno 224
-  }
-  // alternitively, you can check the ERRNO
-  if (err.errno === ERRNO.PASSKEY_NOT_FOUND) {
-    throw AppError.passkeyNotFound();
-  }
-  throw err;
+// In the service layer
+if (!passkey) {
+  throw AppError.passkeyNotFound(); // 404, errno 224
 }
 ```
+
+Route handlers do not translate: they let the `AppError` propagate, since it
+already carries the status code, errno and message.
+
+`404` is overloaded across two conditions, so clients branch on errno rather than
+status: `PASSKEY_NOT_FOUND` (224) means the credential does not exist or is not
+the caller's, and `PASSKEY_WRAP_NOT_FOUND` (234) means it exists but has no wrap.

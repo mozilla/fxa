@@ -9,6 +9,7 @@ import {
   AccountCustomer,
   NewCart,
   Passkey,
+  PasskeyWrap,
   PaypalCustomer,
   SessionToken,
   UnverifiedToken,
@@ -211,5 +212,29 @@ export const PasskeyFactory = (override?: Partial<Passkey>): Passkey => ({
   backupEligible: faker.datatype.boolean(),
   backupState: faker.datatype.boolean(),
   prfEnabled: faker.datatype.boolean(),
+  ...override,
+});
+
+/**
+ * Random bytes, not real keys, but at the v1 ciphersuite widths the migration
+ * uses — that is what makes the fixed-width BINARY round-trip worth asserting.
+ * `getHexBuffer` lengths are hex characters, so half the byte width, plus any
+ * prefix on top: `getHexBuffer(264, '04')` is 133 bytes, not 132.
+ */
+export const PasskeyWrapFactory = (
+  override?: Partial<PasskeyWrap>
+): PasskeyWrap => ({
+  uid: getHexBuffer(32),
+  // Even length: getHexBuffer counts hex characters, and an odd count is
+  // silently truncated by Buffer.from.
+  credentialId: getHexBuffer(faker.number.int({ min: 16, max: 64 }) * 2),
+  // 0x04 || x || y, the uncompressed point tag the client writes.
+  pkR: getHexBuffer(264, '04'),
+  prfWrappedSkR: getHexBuffer(164),
+  keyWrapIv: getHexBuffer(24),
+  hpkeEncapsulatedSecret: getHexBuffer(264, '04'),
+  hpkeSealedKb: getHexBuffer(96),
+  createdAt: faker.date.recent().getTime(),
+  updatedAt: faker.date.recent().getTime(),
   ...override,
 });

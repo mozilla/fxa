@@ -537,5 +537,37 @@ describe('AppErrors', () => {
         },
       });
     });
+
+    it('creates passkeyWrapNotFound', () => {
+      const result = AppError.passkeyWrapNotFound();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 234,
+        message: 'Passkey wrap not found',
+        output: {
+          statusCode: 404,
+          payload: {
+            error: 'Not Found',
+            errno: 234,
+          },
+        },
+      });
+    });
+
+    it('creates passkeyWrapConflict', () => {
+      const result = AppError.passkeyWrapConflict();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 235,
+        message: 'Passkey wrap already exists with a different payload',
+        output: {
+          statusCode: 409,
+          payload: {
+            error: 'Conflict',
+            errno: 235,
+          },
+        },
+      });
+    });
   });
 });
