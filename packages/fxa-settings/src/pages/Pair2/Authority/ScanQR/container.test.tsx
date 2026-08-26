@@ -182,8 +182,11 @@ describe('Pair2/Authority/ScanQR container', () => {
 
     emitState(integration, AuthorityState.Failed);
 
+    // The channel is closed before leaving, so the navigation trails it.
+    await waitFor(() => expect(integration.destroy).toHaveBeenCalled());
     expect(mockNavigate).toHaveBeenCalledWith(
-      '/pair/authority/timeout_and_cancel'
+      '/pair/authority/timeout_and_cancel',
+      { state: { reason: 'timeout' } }
     );
   });
 
