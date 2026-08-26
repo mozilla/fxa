@@ -9,6 +9,17 @@ import { Octokit } from '@octokit/rest';
 import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
 import { StatsD } from 'hot-shots';
 
+/**
+ * Decode the base64 payload GitHub returns for a file. Undefined when the
+ * response carries no base64 content, which makes the caller commit rather
+ * than compare against a body it cannot read.
+ */
+function decodeFileContent(fileData: any): string | undefined {
+  return fileData.encoding === 'base64' && typeof fileData.content === 'string'
+    ? Buffer.from(fileData.content, 'base64').toString('utf8')
+    : undefined;
+}
+
 export class CMSLocalization {
   private octokit: Octokit;
 
@@ -133,13 +144,13 @@ export class CMSLocalization {
    * Convert Strapi JSON to FTL format using hash-only IDs
    * Each string field gets a unique hash ID based on its content.
    * Identical English strings will share the same translation across all contexts.
+   *
+   * The output is deterministic, so callers can compare it with the committed
+   * file and skip a no-op commit.
    */
   strapiToFtl(strapiData: any[]): string {
     const ftlLines: string[] = [];
 
-    // Add generation timestamp and description
-    const timestamp = new Date().toISOString();
-    ftlLines.push(`### Generated on ${timestamp}`);
     ftlLines.push(`### FTL file for CMS localization`);
     ftlLines.push('');
 
@@ -444,6 +455,7 @@ export class CMSLocalization {
 
       // Try to get the current file content to get the SHA
       let fileSha: string | undefined;
+      let committedContent: string | undefined;
       try {
         const { data: fileData } = await this.octokit.repos.getContent({
           owner: github.owner,
@@ -452,9 +464,10 @@ export class CMSLocalization {
           ref: pr.head.ref,
         });
 
-        // If file exists, get its SHA
+        // If file exists, get its SHA and content
         if (fileData && !Array.isArray(fileData)) {
           fileSha = (fileData as any).sha;
+          committedContent = decodeFileContent(fileData);
         }
       } catch (fileError) {
         // File doesn't exist, that's okay - we'll create it
@@ -462,6 +475,15 @@ export class CMSLocalization {
           path: filePath,
           branch: pr.head.ref,
         });
+      }
+
+      if (committedContent === ftlContent) {
+        this.log.info('cms.integrations.github.pr.unchanged', {
+          prNumber,
+          fileName,
+          branch: pr.head.ref,
+        });
+        return;
       }
 
       // Create or update the file
@@ -517,37 +539,30 @@ export class CMSLocalization {
       const { github } = this.config.cmsl10n;
       const fileName = 'cms.ftl';
 
-      // Create new branch
-      const branchName = `cms-localization-${Date.now()}`;
-
-      // Get the latest commit SHA
+      // The file read and the new branch share this SHA, so a push to the base
+      // branch mid-run cannot make them disagree.
       const { data: refData } = await this.octokit.git.getRef({
         owner: github.owner,
         repo: github.repo,
         ref: `heads/${github.branch}`,
       });
+      const baseSha = refData.object.sha;
 
-      // Create new branch
-      await this.octokit.git.createRef({
-        owner: github.owner,
-        repo: github.repo,
-        ref: `refs/heads/${branchName}`,
-        sha: refData.object.sha,
-      });
-
-      // Check if file exists in the base branch to get its SHA
+      // Check if file exists at that commit to get its SHA and content
       let fileSha: string | undefined;
+      let committedContent: string | undefined;
       try {
         const { data: fileData } = await this.octokit.repos.getContent({
           owner: github.owner,
           repo: github.repo,
           path: `locales/en/${fileName}`,
-          ref: github.branch,
+          ref: baseSha,
         });
 
-        // If file exists, get its SHA
+        // If file exists, get its SHA and content
         if (fileData && !Array.isArray(fileData)) {
           fileSha = (fileData as any).sha;
+          committedContent = decodeFileContent(fileData);
         }
       } catch (fileError) {
         // File doesn't exist in base branch, that's okay - we'll create it
@@ -556,6 +571,25 @@ export class CMSLocalization {
           branch: github.branch,
         });
       }
+
+      // Check before creating the branch so a no-op run leaves no stray branch.
+      if (committedContent === ftlContent) {
+        this.log.info('cms.integrations.github.pr.unchanged', {
+          fileName,
+          branch: github.branch,
+        });
+        return;
+      }
+
+      // Create new branch
+      const branchName = `cms-localization-${Date.now()}`;
+
+      await this.octokit.git.createRef({
+        owner: github.owner,
+        repo: github.repo,
+        ref: `refs/heads/${branchName}`,
+        sha: baseSha,
+      });
 
       // Create the file in the new branch
       await this.octokit.repos.createOrUpdateFileContents({
