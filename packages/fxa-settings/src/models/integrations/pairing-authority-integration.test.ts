@@ -7,11 +7,13 @@ import {
   AuthorityState,
   PairingAuthorityIntegration,
 } from './pairing-authority-integration';
+import { OAUTH_ERRORS } from '../../lib/oauth';
 
 const CHANNEL_SERVER_URI = 'wss://channel.example.com';
 
 const mockCreate = jest.fn().mockResolvedValue(undefined);
 const mockChannelClose = jest.fn().mockResolvedValue(undefined);
+const mockChannelSend = jest.fn().mockResolvedValue(undefined);
 const mockRemoveEventListener = jest.fn();
 let mockListeners: Record<string, Function[]> = {};
 
@@ -22,6 +24,7 @@ jest.mock('../../lib/channels/pairing-channel', () => {
     PairingChannelClient: jest.fn().mockImplementation(() => ({
       create: mockCreate,
       close: mockChannelClose,
+      send: mockChannelSend,
       channelId: 'chan-1',
       channelKey: 'key-1',
       addEventListener: jest.fn((type: string, handler: Function) => {
@@ -32,6 +35,47 @@ jest.mock('../../lib/channels/pairing-channel', () => {
   };
 });
 
+/**
+ * Derived by `PairingChannelClient` from the channel server's `sender`
+ * envelope rather than read out of the payload — it is what the authority
+ * shows so the user can confirm which device is asking.
+ */
+const MOCK_REMOTE_METADATA = {
+  city: 'Vancouver',
+  country: 'Canada',
+  region: 'British Columbia',
+  ipAddress: '127.0.0.1',
+  ua: 'Mozilla/5.0 (Android 14; Mobile; rv:120.0) Gecko/120.0 Firefox/120.0',
+};
+
+/**
+ * The OAuth params a supplicant sends in `pair:supp:request`. `keys_jwk` is the
+ * one Firefox needs to wrap the scoped keys, so it has to survive the hop to
+ * `pairOauthFinish`.
+ */
+const MOCK_SUPP_OAUTH_PARAMS = {
+  client_id: 'a2270f727f45f648',
+  scope: 'profile https://identity.mozilla.com/apps/oldsync',
+  state: 'mock-supp-state',
+  // A real S256 challenge is 43 base64url characters, which the validator
+  // enforces — a placeholder short enough to be obviously fake would be
+  // rejected before it ever reached `pairOauthFinish`.
+  code_challenge: 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM',
+  code_challenge_method: 'S256',
+  keys_jwk: 'mock-keys-jwk',
+};
+
+/** A complete v2 supplicant request — nothing the authority needs is absent. */
+const MOCK_SUPP_REQUEST = {
+  ...MOCK_SUPP_OAUTH_PARAMS,
+  remoteMetaData: MOCK_REMOTE_METADATA,
+};
+
+const MOCK_OAUTH_CODE = {
+  code: 'mock-oauth-code',
+  state: MOCK_SUPP_OAUTH_PARAMS.state,
+};
+
 /** Deliver a channel event the way `PairingChannelClient` would. */
 function emit(type: string, detail?: unknown) {
   (mockListeners[type] || []).forEach((handler) =>
@@ -39,9 +83,27 @@ function emit(type: string, detail?: unknown) {
   );
 }
 
+/**
+ * The authority acks a supplicant request with `pair:auth:metadata` and only
+ * advances once that send resolves, so state assertions have to wait a
+ * microtask past the emit.
+ */
+async function emitSuppRequest(detail: unknown = MOCK_SUPP_REQUEST) {
+  emit('remote:pair:supp:request', detail);
+  await Promise.resolve();
+}
+
+/** A copy of the request with one required field left out. */
+function suppRequestWithout(field: string) {
+  const partial: Record<string, unknown> = { ...MOCK_SUPP_REQUEST };
+  delete partial[field];
+  return partial;
+}
+
 const mockPairSupplicantMetadata = jest.fn();
 const mockPairHeartbeat = jest.fn();
 const mockPairAuthorize = jest.fn();
+const mockPairOauthFinish = jest.fn();
 const mockPairDecline = jest.fn();
 const mockPairComplete = jest.fn();
 
@@ -51,6 +113,7 @@ jest.mock('../../lib/channels/firefox', () => ({
       mockPairSupplicantMetadata(...args),
     pairHeartbeat: (...args: unknown[]) => mockPairHeartbeat(...args),
     pairAuthorize: (...args: unknown[]) => mockPairAuthorize(...args),
+    pairOauthFinish: (...args: unknown[]) => mockPairOauthFinish(...args),
     pairDecline: (...args: unknown[]) => mockPairDecline(...args),
     pairComplete: (...args: unknown[]) => mockPairComplete(...args),
   },
@@ -95,6 +158,8 @@ describe('PairingAuthorityIntegration', () => {
     mockListeners = {};
     mockCreate.mockResolvedValue(undefined);
     mockChannelClose.mockResolvedValue(undefined);
+    mockChannelSend.mockResolvedValue(undefined);
+    mockPairOauthFinish.mockResolvedValue(MOCK_OAUTH_CODE);
   });
 
   afterEach(() => {
@@ -298,24 +363,24 @@ describe('PairingAuthorityIntegration', () => {
   });
 
   describe('actions', () => {
-    it('authorize sends WebChannel command', () => {
+    it('authorize sends WebChannel command', async () => {
       const integration = createIntegration();
-      integration.authorize();
+      await integration.authorize();
       expect(integration.authAuthorized).toBe(true);
       expect(mockPairAuthorize).toHaveBeenCalledWith('test-channel-id');
     });
 
-    it('decline stops heartbeat and sends command', () => {
+    it('decline stops heartbeat and sends command', async () => {
       const integration = createIntegration();
       integration.startHeartbeat();
-      integration.decline();
+      await integration.decline();
       expect(mockPairDecline).toHaveBeenCalledWith('test-channel-id');
     });
 
-    it('complete stops heartbeat and sends command', () => {
+    it('complete stops heartbeat and sends command', async () => {
       const integration = createIntegration();
       integration.startHeartbeat();
-      integration.complete();
+      await integration.complete();
       expect(mockPairComplete).toHaveBeenCalledWith('test-channel-id');
     });
   });
@@ -410,18 +475,10 @@ describe('PairingAuthorityIntegration', () => {
 
       // The supplicant's request carries no email or device name — it is not
       // signed in yet — so only the sender envelope is consumed.
-      it('records the supplicant device details from its request', () => {
+      it('records the supplicant device details from its request', async () => {
         emit('connected');
 
-        emit('remote:pair:supp:request', {
-          remoteMetaData: {
-            city: 'Vancouver',
-            country: 'Canada',
-            region: 'British Columbia',
-            ipAddress: '127.0.0.1',
-            ua: 'Mozilla/5.0 (Android 14; Mobile; rv:120.0) Gecko/120.0 Firefox/120.0',
-          },
-        });
+        await emitSuppRequest();
 
         expect(integration.remoteMetadata).toEqual({
           city: 'Vancouver',
@@ -432,21 +489,37 @@ describe('PairingAuthorityIntegration', () => {
           deviceOS: 'Android',
           deviceName: 'Firefox',
         });
+      });
+
+      it('acks the request so the supplicant can approve', async () => {
+        emit('connected');
+
+        await emitSuppRequest();
+
+        expect(mockChannelSend).toHaveBeenCalledWith('pair:auth:metadata', {});
+      });
+
+      it('waits for both approvals once the request is acked', async () => {
+        emit('connected');
+
+        await emitSuppRequest();
+
         expect(integration.state).toBe(AuthorityState.WaitingForAuthorizations);
       });
 
-      it('still advances when the request carries no sender metadata', () => {
+      // Until the ack lands the supplicant has nothing to approve, so showing
+      // the approval screen would invite the user to act on a dead channel.
+      it('does not advance until the ack resolves', () => {
         emit('connected');
 
-        emit('remote:pair:supp:request', {});
+        emit('remote:pair:supp:request', MOCK_SUPP_REQUEST);
 
-        expect(integration.remoteMetadata).toBeNull();
-        expect(integration.state).toBe(AuthorityState.WaitingForAuthorizations);
+        expect(integration.state).toBe(AuthorityState.WaitingForMetadata);
       });
 
       it('supplicant first: waits for the authority, then completes', async () => {
         emit('connected');
-        emit('remote:pair:supp:request', {});
+        await emitSuppRequest();
 
         emit('remote:pair:supp:authorize');
         expect(integration.state).toBe(AuthorityState.WaitingForAuthority);
@@ -455,30 +528,116 @@ describe('PairingAuthorityIntegration', () => {
         expect(integration.state).toBe(AuthorityState.Complete);
       });
 
-      it('authority first: waits for the supplicant, then completes', async () => {
+      // Firefox only wraps the scoped keys into `keys_jwe` when it is handed a
+      // `keys_jwk`. Drop it and the supplicant gets a code granting the sync
+      // scope with no sync key behind it, which fails silently long after
+      // pairing looks like it worked.
+      it('forwards the whole supplicant OAuth request', async () => {
         emit('connected');
-        emit('remote:pair:supp:request', {});
+        await emitSuppRequest();
 
         await integration.authorize();
-        expect(integration.state).toBe(AuthorityState.WaitingForSupplicant);
 
-        emit('remote:pair:supp:authorize');
-        expect(integration.state).toBe(AuthorityState.Complete);
+        expect(mockPairOauthFinish).toHaveBeenCalledWith(
+          MOCK_SUPP_OAUTH_PARAMS
+        );
+      });
+
+      it('relays the granted code and state to the supplicant', async () => {
+        emit('connected');
+        await emitSuppRequest();
+
+        await integration.authorize();
+
+        expect(mockChannelSend).toHaveBeenCalledWith(
+          'pair:auth:authorize',
+          MOCK_OAUTH_CODE
+        );
       });
 
       // The v1 heartbeat reports the same fact, so the two sources must not
       // each fire the callback.
-      it('signals supplicant approval once', () => {
+      it('signals supplicant approval once', async () => {
         const onSuppAuthorized = jest.fn();
         integration.onSuppAuthorized = onSuppAuthorized;
         emit('connected');
-        emit('remote:pair:supp:request', {});
+        await emitSuppRequest();
 
         emit('remote:pair:supp:authorize');
         emit('remote:pair:supp:authorize');
 
         expect(onSuppAuthorized).toHaveBeenCalledTimes(1);
         expect(integration.suppAuthorized).toBe(true);
+      });
+    });
+
+    // Every one of these fields is needed to mint the OAuth code. A partial
+    // request used to be logged and waved through, which surfaced as a signin
+    // that either dies at `pairOauthFinish` or hands the supplicant a code
+    // with no sync key behind it — both long after pairing looked fine.
+    describe('incomplete supplicant request', () => {
+      beforeEach(async () => {
+        await integration.createChannel();
+        emit('connected');
+      });
+
+      // A throw from inside a channel listener reaches no caller: the flow
+      // would stall with no failure state and nothing in Sentry. Rejections
+      // route through fail() instead, which the containers already navigate on.
+      it.each([
+        'client_id',
+        'code_challenge',
+        'code_challenge_method',
+        'keys_jwk',
+        'scope',
+        'state',
+      ])('fails without throwing when %s is missing', (field) => {
+        expect(() =>
+          emit('remote:pair:supp:request', suppRequestWithout(field))
+        ).not.toThrow();
+
+        expect(integration.state).toBe(AuthorityState.Failed);
+        expect(onError).toHaveBeenCalledWith(
+          expect.objectContaining({ errno: OAUTH_ERRORS.INVALID_PARAMETER.errno })
+        );
+      });
+
+      // Rules beyond presence live in pairing-request-validation.test.ts; these
+      // two only prove the authority is wired to the validator rather than to
+      // its own truthiness checks.
+      it.each([
+        { label: 'a client that cannot pair', field: 'client_id', value: '0123456789abcdef' },
+        { label: 'a PKCE method other than S256', field: 'code_challenge_method', value: 'plain' },
+      ])('fails on $label', ({ field, value }) => {
+        emit('remote:pair:supp:request', { ...MOCK_SUPP_REQUEST, [field]: value });
+
+        expect(integration.state).toBe(AuthorityState.Failed);
+      });
+
+      // remoteMetaData is derived from the channel server's sender envelope
+      // rather than the payload, so its absence says nothing about the request.
+      it('still accepts a request that carries no sender metadata', async () => {
+        emit('remote:pair:supp:request', MOCK_SUPP_OAUTH_PARAMS);
+        await Promise.resolve();
+
+        expect(integration.remoteMetadata).toBeNull();
+        expect(integration.state).toBe(AuthorityState.WaitingForAuthorizations);
+      });
+
+      it('does not ack a request it rejected', () => {
+        emit('remote:pair:supp:request', suppRequestWithout('keys_jwk'));
+
+        expect(mockChannelSend).not.toHaveBeenCalled();
+      });
+
+      // Nothing was forwarded to Firefox, so there is no request to authorize
+      // against — and no code may be minted from a stale one.
+      it('cannot authorize after a rejected request', async () => {
+        emit('remote:pair:supp:request', suppRequestWithout('client_id'));
+
+        await expect(integration.authorize()).resolves.toBeUndefined();
+        expect(mockPairOauthFinish).not.toHaveBeenCalled();
+        expect(integration.state).toBe(AuthorityState.Failed);
       });
     });
 
@@ -517,7 +676,7 @@ describe('PairingAuthorityIntegration', () => {
 
       // A close after the handshake is the expected teardown, not a failure.
       it('ignores a close once the flow has completed', async () => {
-        emit('remote:pair:supp:request', {});
+        await emitSuppRequest();
         emit('remote:pair:supp:authorize');
         await integration.authorize();
         expect(integration.state).toBe(AuthorityState.Complete);
@@ -526,6 +685,68 @@ describe('PairingAuthorityIntegration', () => {
 
         expect(integration.state).toBe(AuthorityState.Complete);
         expect(onError).not.toHaveBeenCalled();
+      });
+
+      // The supplicant is waiting on this ack; without it neither side can
+      // move, so the authority has to surface the error rather than sit on
+      // the approval screen.
+      it('fails when the metadata ack cannot be sent', async () => {
+        const err = new Error('socket closed');
+        mockChannelSend.mockRejectedValueOnce(err);
+
+        await emitSuppRequest();
+
+        expect(integration.state).toBe(AuthorityState.Failed);
+        expect(onError).toHaveBeenCalledWith(err);
+      });
+
+      it('fails when the granted code cannot be relayed', async () => {
+        const err = new Error('socket closed');
+        mockChannelSend.mockImplementation((command: string) =>
+          command === 'pair:auth:authorize'
+            ? Promise.reject(err)
+            : Promise.resolve()
+        );
+        await emitSuppRequest();
+
+        await integration.authorize();
+
+        expect(integration.state).toBe(AuthorityState.Failed);
+        expect(onError).toHaveBeenCalledWith(err);
+      });
+
+      // The approve handler does not await authorize(), so a rejection escaping
+      // this method is an unhandled rejection that leaves the user waiting on
+      // the approval screen. It has to come back as Failed instead.
+      it('fails rather than rejecting when Firefox cannot finish the oauth pair', async () => {
+        const err = new Error('web channel timed out');
+        mockPairOauthFinish.mockRejectedValue(err);
+        await emitSuppRequest();
+
+        await expect(integration.authorize()).resolves.toBeUndefined();
+
+        expect(integration.state).toBe(AuthorityState.Failed);
+        expect(onError).toHaveBeenCalledWith(err);
+      });
+
+      // A resolved-but-empty response is what the web channel returns when it
+      // times out, so it must not be relayed as if it were a grant.
+      it.each([
+        { label: 'no response at all', result: undefined },
+        { label: 'no code', result: { state: MOCK_SUPP_OAUTH_PARAMS.state } },
+        { label: 'no state', result: { code: 'mock-oauth-code' } },
+      ])('fails when the oauth finish returns $label', async ({ result }) => {
+        mockPairOauthFinish.mockResolvedValue(result);
+        await emitSuppRequest();
+        mockChannelSend.mockClear();
+
+        await integration.authorize();
+
+        expect(integration.state).toBe(AuthorityState.Failed);
+        expect(mockChannelSend).not.toHaveBeenCalledWith(
+          'pair:auth:authorize',
+          expect.anything()
+        );
       });
 
       it('does not re-fail once already failed', () => {

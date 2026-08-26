@@ -361,3 +361,38 @@ export function buildPairingDownloadUrl(entrypoint?: string | null): string {
     ? Constants.DOWNLOAD_LINK_PAIRING_QR_SEND_TAB
     : Constants.DOWNLOAD_LINK_PAIRING_QR_DEFAULT;
 }
+
+
+// Detect device type from user agent.
+export enum Devices {
+  FIREFOX_ANDROID = 'Firefox Android',
+  FIREFOX_DESKTOP = 'Firefox Desktop',
+  FIREFOX_IOS = 'Firefox iOS',
+  OTHER_ANDROID = 'Other Android',
+  OTHER_IOS = 'Other iOS',
+  OTHER = 'Other',
+}
+export function detectDevice(): Devices {
+  const ua = navigator.userAgent;
+  const isFirefox = /Firefox/i.test(ua) && !/FxiOS/i.test(ua);
+  const isFxiOS = /FxiOS/i.test(ua);
+  const isAndroid = /Android/i.test(ua);
+  const isIos = /iPhone|iPad|iPod/i.test(ua) || isFxiOS;
+
+  if (isFirefox && isAndroid) {
+    return Devices.FIREFOX_ANDROID;
+  }
+  if (isFxiOS) {
+    return Devices.FIREFOX_IOS;
+  }
+  if (isFirefox && !isAndroid) {
+    return Devices.FIREFOX_DESKTOP;
+  }
+  if (isIos) {
+    return Devices.OTHER_IOS;
+  }
+  if (isAndroid) {
+    return Devices.OTHER_ANDROID;
+  }
+  return Devices.OTHER;
+}

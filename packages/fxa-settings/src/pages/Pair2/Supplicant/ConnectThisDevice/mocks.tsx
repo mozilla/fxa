@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import ConnectThisDevice, { ConnectThisDeviceProps } from '.';
+import { ConnectThisDevice, ConnectThisDeviceProps } from '.';
 import { MOCK_METADATA_WITH_DEVICE_NAME } from '../../../../components/DeviceInfoBlock/mocks';
 import { RemoteMetadata } from '../../../../lib/types';
 import { MOCK_EMAIL } from '../../../mocks';

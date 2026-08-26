@@ -4,21 +4,22 @@
 
 import React, { useEffect, useState } from 'react';
 import * as Sentry from '@sentry/react';
-import { useNavigate } from 'react-router';
 import ScanQR from '.';
 import {
   AuthorityState,
   Integration,
   PairingAuthorityIntegration,
 } from '../../../../models';
+import { useNavigateWithQuery } from '../../../../lib/hooks';
 
 /**
  * Owns the pairing channel for the authority. Mints a channel on mount so the
- * QR always scans to one that exists on the channel server, and closes it on
- * unmount so leaving the page cannot leak a socket.
+ * QR always scans to one that exists on the channel server. The channel then
+ * outlives this page — the authority moves on while the supplicant is still
+ * joining — so it is only torn down when creation itself fails.
  */
 const ScanQRContainer = ({ integration }: { integration: Integration }) => {
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const [qrCodeValue, setQrCodeValue] = useState('');
 
   if (!(integration instanceof PairingAuthorityIntegration)) {
@@ -34,10 +35,10 @@ const ScanQRContainer = ({ integration }: { integration: Integration }) => {
     integration.onStateChange = (state: AuthorityState) => {
       switch (state) {
         case AuthorityState.WaitingForAuthorizations:
-          navigate('/pair/authority/approve_signin');
+          navigateWithQuery('/pair/authority/continue_on_mobile');
           break;
         case AuthorityState.Failed:
-          navigate('/pair/authority/timeout_and_cancel');
+          navigateWithQuery('/pair/authority/timeout_and_cancel');
           break;
         default:
           // Connecting and WaitingForMetadata both resolve on this page.
@@ -52,15 +53,18 @@ const ScanQRContainer = ({ integration }: { integration: Integration }) => {
       } catch (err) {
         setQrCodeValue('');
         Sentry.captureException(err);
+        // A half-created channel is unusable downstream, so this is the one
+        // path that closes it. Guarded because effect code cannot let the
+        // rejection escape.
+        await integration.destroy().catch((e) => Sentry.captureException(e));
       }
     })();
 
     return () => {
-      // `destroy` is async and effect cleanup cannot await it; catch so a
-      // failed socket close does not surface as an unhandled rejection.
-      integration.destroy().catch((err) => Sentry.captureException(err));
+      // Unsubscribe only — the channel outlives this page for continue_on_mobile.
+      integration.onStateChange = null;
     };
-  }, [integration, navigate]);
+  }, [integration, navigateWithQuery]);
 
   return <ScanQR {...{ qrCodeValue }} />;
 };

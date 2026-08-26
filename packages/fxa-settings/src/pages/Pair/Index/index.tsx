@@ -11,11 +11,11 @@ import React, {
 } from 'react';
 import { isPairGleanReason } from 'fxa-shared/metrics/glean/pair-reasons';
 import { Link, useLocation } from 'react-router';
-import { useNavigateWithQuery } from '../../../lib/hooks';
+import { UseFxAStatusResult, useNavigateWithQuery } from '../../../lib/hooks';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { useFtlMsgResolver } from '../../../models';
-import { useCmsInfoState } from '../../../models/hooks';
+import { useCmsInfoState, useConfig } from '../../../models/hooks';
 import { RelierCmsInfo } from '../../../models/integrations';
 import AppLayout from '../../../components/AppLayout';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
@@ -59,6 +59,44 @@ const PAIR_BANNER_FTL: Record<PairOrigin, { id: string; fallback: string }> = {
   },
 };
 
+/**
+ * The pairing channel the authority encodes into its QR code, handed to the
+ * supplicant flow as router state.
+ */
+export type PairingChannelInfo = {
+  channelId: string;
+  channelKey: string;
+  version: '1'|'2';
+};
+
+/**
+ * Read a v2 pairing channel out of a URL hash, as produced by the authority's
+ * QR code: `/pair#channel_id=...&channel_key=...&v=2`. The channel lives in the
+ * hash rather than the query string so the key is never sent to the server.
+ *
+ * Returns undefined unless the hash names version 2 and carries both halves of
+ * the channel — half a channel cannot be opened, so it is treated as no hand-off
+ * at all rather than as a broken one.
+ */
+export function parsePairingHash(
+  hash?: string
+): PairingChannelInfo | undefined {
+  const params = new URLSearchParams((hash ?? '').replace(/^#/, ''));
+
+  if (params.get('v') !== '2') {
+    return undefined;
+  }
+
+  const version = params.get('v') === '2' ? '2':'1';
+  const channelId = params.get('channel_id');
+  const channelKey = params.get('channel_key');
+  if (!channelId || !channelKey) {
+    return undefined;
+  }
+
+  return { channelId, channelKey, version };
+}
+
 type MobileChoice = 'has-mobile' | 'needs-mobile';
 
 const GLEAN_REASON_BY_CHOICE: Record<MobileChoice, string> = {
@@ -72,16 +110,24 @@ type PairProps = {
   error?: string;
   cmsInfo?: RelierCmsInfo;
   integration?: Integration;
+  fxaStatusResult: UseFxAStatusResult;
 };
 export const viewName = 'pair';
 
-const Pair = ({ error, cmsInfo: cmsInfoProp, integration }: PairProps) => {
+const Pair = ({
+  error,
+  cmsInfo: cmsInfoProp,
+  integration,
+  fxaStatusResult
+}: PairProps) => {
+
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedQRCodeLabel = ftlMsgResolver.getMsg(
     'pair-qr-code-aria-label',
     'QR code'
   );
+  const config = useConfig();
   const navigateWithQuery = useNavigateWithQuery();
   const location = useLocation();
 
@@ -107,10 +153,54 @@ const Pair = ({ error, cmsInfo: cmsInfoProp, integration }: PairProps) => {
     }
   }, [currentView]);
 
+  // A scanned QR lands here with the channel in the hash. `location.hash` is
+  // known at mount, so this is settled before the bootstrap effect below runs.
+  const pairingChannelInfo = useMemo(
+    () => parsePairingHash(location.hash),
+    [location.hash]
+  );
+
+
   useEffect(() => {
     const ua = navigator.userAgent;
     const isFirefoxDesktop =
       /Firefox/i.test(ua) && !/FxiOS/i.test(ua) && !/Android/i.test(ua);
+
+    // This is a signal that the initial fxa_status message is still pending.
+    // Don't move forwards with other evaluations until we have a definitive
+    // answer here.
+    if (!fxaStatusResult.fxaStatus) {
+      return;
+    }
+
+    // Switch on pairing version 2! Both FxA and Firefox have to signal that it
+    // is enabled, same gate as ConnectAnotherDevice.
+    const { pairingVersion } = fxaStatusResult.fxaStatus.capabilities;
+    if(
+      config.pairing.version === 2 &&
+      pairingVersion && pairingVersion === 2 &&
+      pairingChannelInfo && parseInt(pairingChannelInfo?.version) === 2
+    ) {
+      navigateWithQuery(
+        '/pair/supplicant/connect_this_device',
+        { state: pairingChannelInfo },
+        // The channel key is the pairing PSK. It travels in router state, so
+        // the hash it arrived in must not follow it into the next URL.
+        false
+      );
+      return;
+    }
+
+    if(
+      isFirefoxDesktop &&
+      config.pairing.version === 2 &&
+      pairingVersion && pairingVersion === 2
+    ) {
+      // Full reload: `useIntegration` is not keyed on location, so only a
+      // fresh page load rebuilds it as a PairingAuthorityIntegration.
+      hardNavigate('/pair/authority/scan_qr', {}, true);
+      return;
+    }
 
     if (!isFirefoxDesktop) {
       navigateWithQuery('/pair/unsupported');
@@ -162,7 +252,7 @@ const Pair = ({ error, cmsInfo: cmsInfoProp, integration }: PairProps) => {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [pairingChannelInfo, fxaStatusResult, navigateWithQuery]);
 
   // Banner variant is driven by router state from getSyncNavigate.
   const { origin: pairOrigin } = (location.state ?? {}) as Pick<
@@ -243,7 +333,7 @@ const Pair = ({ error, cmsInfo: cmsInfoProp, integration }: PairProps) => {
     openPairPreferences();
   }, [openPairPreferences]);
 
-  if (bootstrapping) {
+  if (bootstrapping || !fxaStatusResult.fxaStatus) {
     return <LoadingSpinner fullScreen />;
   }
 

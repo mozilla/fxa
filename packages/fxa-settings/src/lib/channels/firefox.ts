@@ -112,6 +112,7 @@ export type PairOAuthStartState = {
   state:string,
   scope:string,
   code_challenge: string,
+  code_challenge_method: string,
   keys_jwk:string
 }
 export type PairOAuthFinishState = {
@@ -245,6 +246,13 @@ export function buildSyncOAuthSearch(
 // max timeout of 100-200 ms would be optimal for an ultra-snappy UX, but could cause false negatives on mobile
 // compromising with 500ms for safer mobile support without being noticeably long if it times out
 const DEFAULT_SEND_TIMEOUT_LENGTH_MS = 500;
+
+// Firefox for Android binds its web channel handler per tab, so the first
+// fxa_status message is routinely dropped. Retrying a handful of times recovers
+// from that, and a longer per-attempt window than the default keeps a slow
+// mobile reply from being counted as a drop.
+const FXA_STATUS_ATTEMPTS = 3;
+const FXA_STATUS_TIMEOUT_MS = 1_000;
 
 let messageIdSuffix = 0;
 /**
@@ -415,23 +423,26 @@ export class Firefox extends EventTarget {
     this.broadcast(FirefoxCommand.ProfileChanged, profile);
   }
 
-  async fxaStatus(options: FxAStatusRequest): Promise<FxAStatusResponse> {
-    // We must wait for the browser to send a web channel message
-    // in response to the fxaLogin command. Without this we navigate the user before
-    // the login completes, resulting in an "Invalid token" error on the next page.
-    return new Promise((resolve) => {
-      const eventHandler = (firefoxEvent: any) => {
-        this.removeEventListener(FirefoxCommand.FxAStatus, eventHandler);
-        resolve(firefoxEvent.detail as FxAStatusResponse);
-      };
-      this.addEventListener(FirefoxCommand.FxAStatus, eventHandler);
-
-      // requestAnimationFrame ensures the event listener is added first
-      // otherwise, there is a race condition
-      requestAnimationFrame(() => {
-        this.send(FirefoxCommand.FxAStatus, options);
-      });
-    });
+  /**
+   * Asks the browser for its fxa_status. Resolves undefined once the attempts
+   * are exhausted, so callers settle on defaults instead of awaiting a reply
+   * that may never arrive — a dropped message used to leave the page spinning.
+   */
+  async fxaStatus(
+    options: FxAStatusRequest
+  ): Promise<FxAStatusResponse | undefined> {
+    for (let attempt = 0; attempt < FXA_STATUS_ATTEMPTS; attempt++) {
+      const status = await this._executeCommandWithResponse<FxAStatusResponse>(
+        FirefoxCommand.FxAStatus,
+        options,
+        (event) => event.detail as FxAStatusResponse,
+        FXA_STATUS_TIMEOUT_MS
+      );
+      if (status != null) {
+        return status;
+      }
+    }
+    return undefined;
   }
 
   fxaLogin(options: FxALoginRequest): void {
@@ -661,16 +672,19 @@ export class Firefox extends EventTarget {
       msg,
       (event) => {
         if (event?.detail?.state == null) {
-          throw new Error(`${FirefoxCommand.PairOauthFinish} missing state from event.details`);
+          throw new Error(`${FirefoxCommand.PairOauthStart} missing state from event.details`);
         }
         if (event?.detail?.scope == null) {
-          throw new Error(`${FirefoxCommand.PairOauthFinish} missing code from event.details`);
+          throw new Error(`${FirefoxCommand.PairOauthStart} missing scope from event.details`);
         }
         if (event?.detail?.code_challenge == null) {
-          throw new Error(`${FirefoxCommand.PairOauthFinish} missing code_challenge from event.details`);
+          throw new Error(`${FirefoxCommand.PairOauthStart} missing code_challenge from event.details`);
+        }
+        if (event?.detail?.code_challenge_method == null) {
+          throw new Error(`${FirefoxCommand.PairOauthStart} missing code_challenge_method from event.details`);
         }
         if (event?.detail?.keys_jwk == null) {
-          throw new Error(`${FirefoxCommand.PairOauthFinish} missing keys_jwk from event.details`);
+          throw new Error(`${FirefoxCommand.PairOauthStart} missing keys_jwk from event.details`);
         }
         return event.detail as PairOAuthStartState;
       }
@@ -683,6 +697,13 @@ export class Firefox extends EventTarget {
     state:string,
     scope:string,
     code_challenge:string,
+    code_challenge_method:string,
+    /**
+     * The supplicant's ephemeral public JWK. Firefox only wraps scoped keys into
+     * `keys_jwe` when this is present, so omitting it yields a code that grants
+     * the sync scope with no sync key behind it.
+     */
+    keys_jwk:string,
   }):Promise<PairOAuthFinishState|undefined> {
     return this._executeCommandWithResponse<PairOAuthFinishState>(
       FirefoxCommand.PairOauthFinish,

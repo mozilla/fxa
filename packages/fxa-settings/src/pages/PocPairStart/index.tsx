@@ -69,6 +69,8 @@ const PocPairStart = ({integration}:{ integration: Integration }) => {
           state:startResult.state,
           scope:startResult.scope,
           code_challenge: startResult.code_challenge,
+          code_challenge_method: startResult.code_challenge_method,
+          keys_jwk: startResult.keys_jwk
         });
         if (finishResult == null) {
           throw new Error('Failed to get response for pair oauth finish web channel message.');

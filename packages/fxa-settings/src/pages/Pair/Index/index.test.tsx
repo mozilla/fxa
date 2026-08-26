@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
-import { renderWithRouter } from '../../../models/mocks';
+import { mockAppContext, renderWithRouter } from '../../../models/mocks';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
@@ -12,8 +12,11 @@ import firefox from '../../../lib/channels/firefox';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import { MOCK_ERROR } from './mocks';
 import { MOCK_CMS_INFO } from '../../mocks';
-import Pair, { viewName } from '.';
+import Pair, { parsePairingHash, viewName } from '.';
+import { mockUseFxAStatus } from '../../../lib/hooks/useFxAStatus/mocks';
+import { getDefault } from '../../../lib/config';
 import { PAIR_GLEAN_REASONS } from 'fxa-shared/metrics/glean/pair-reasons';
+import { Integration } from '../../../models';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -21,12 +24,14 @@ jest.mock('../../../lib/metrics', () => ({
 
 let mockLocationState: unknown = null;
 let mockLocationSearch = '';
+let mockLocationHash = '';
 const mockNavigate = jest.fn();
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
   useLocation: () => ({
     pathname: '/pair',
     search: mockLocationSearch,
+    hash: mockLocationHash,
     state: mockLocationState,
   }),
   useNavigate: () => mockNavigate,
@@ -78,6 +83,12 @@ jest.mock('../../../components/QRCode', () => ({
   }) => <img alt={localizedLabel} data-testid="pair-qr" data-value={value} />,
 }));
 
+// Pair holds a spinner until the browser answers fxa_status, so every render
+// needs a settled result.
+const defaultProps: React.ComponentProps<typeof Pair> = {
+  fxaStatusResult: mockUseFxAStatus(),
+};
+
 const sendTabIntegration = {
   data: { entrypoint: 'send-tab-toolbar-icon' },
 } as unknown as React.ComponentProps<typeof Pair>['integration'];
@@ -108,13 +119,14 @@ describe('Pair', () => {
     jest.clearAllMocks();
     mockLocationState = null;
     mockLocationSearch = '';
+    mockLocationHash = '';
   });
 
   // Render Pair and wait for the bootstrap spinner to clear before asserting.
   async function renderPair(
-    props: React.ComponentProps<typeof Pair> = {}
+    props: Partial<React.ComponentProps<typeof Pair>> = {}
   ): Promise<void> {
-    renderWithRouter(<Pair {...props} />);
+    renderWithRouter(<Pair {...defaultProps} {...props} />);
     await screen.findByLabelText(/I already have Firefox for mobile/);
   }
 
@@ -264,7 +276,7 @@ describe('Pair', () => {
 
   describe('download screen', () => {
     async function renderAndNavigateToDownload(
-      props: React.ComponentProps<typeof Pair> = {}
+      props: Partial<React.ComponentProps<typeof Pair>> = {}
     ): Promise<void> {
       await renderPair(props);
       fireEvent.click(screen.getByLabelText(/I don’t have Firefox for mobile/));
@@ -382,7 +394,7 @@ describe('Pair', () => {
       'starts an OAuth flow when fxa_status returns %s on every attempt',
       async (_, response) => {
         requestSignedInUserMock.mockResolvedValue(response);
-        renderWithRouter(<Pair />);
+        renderWithRouter(<Pair {...defaultProps} />);
         await waitFor(() =>
           expect(fxaOAuthFlowBeginMock).toHaveBeenCalledWith([
             'profile',
@@ -408,7 +420,7 @@ describe('Pair', () => {
 
     it('caps fxa_status at two asks before falling through to OAuth', async () => {
       requestSignedInUserMock.mockResolvedValue(undefined);
-      renderWithRouter(<Pair />);
+      renderWithRouter(<Pair {...defaultProps} />);
       await waitFor(() => expect(fxaOAuthFlowBeginMock).toHaveBeenCalled());
       expect(requestSignedInUserMock).toHaveBeenCalledTimes(2);
     });
@@ -429,7 +441,7 @@ describe('Pair', () => {
           code_challenge: 'cc',
           code_challenge_method: 'S256',
         });
-        renderWithRouter(<Pair />);
+        renderWithRouter(<Pair {...defaultProps} />);
         await waitFor(() => expect(hardNavigateSpy).toHaveBeenCalled());
         const [target] = hardNavigateSpy.mock.calls[0];
         const url = new URL(target, 'http://localhost');
@@ -515,7 +527,7 @@ describe('Pair', () => {
   describe('Send Tab variant', () => {
     const sendTabIntegration = {
       data: { entrypoint: 'send-tab-toolbar-icon' },
-    } as unknown as import('../../../models').Integration;
+    } as unknown as Integration;
 
     it('renders the send-tab heading without the grey "Connect another device" text', async () => {
       await renderPair({ integration: sendTabIntegration });
@@ -579,5 +591,126 @@ describe('Pair', () => {
       expect(continueBtn).not.toHaveClass('cta-primary-cms');
       expect(continueBtn.style.getPropertyValue('--cta-bg')).toBe('');
     });
+  });
+
+  // A supplicant that scanned the authority's QR lands on /pair with the
+  // channel in the hash, and belongs in the v2 supplicant flow rather than on
+  // this desktop-only choice screen.
+  describe('pairing v2 supplicant hand-off', () => {
+    const V2_HASH = '#channel_id=chan-1&channel_key=key-1&v=2';
+    const v2Props = {
+      fxaStatusResult: mockUseFxAStatus({
+        pairingEnabled: true,
+        pairingVersion: 2,
+      }),
+    };
+    // v2 routing is gated on the deployment config as well as the browser, so
+    // the suite has to opt in on both sides.
+    const v2AppContext = () => {
+      const config = getDefault();
+      config.pairing.version = 2;
+      return mockAppContext({ config } as Parameters<typeof mockAppContext>[0]);
+    };
+
+    it('hands the channel to the supplicant flow, dropping the hash', async () => {
+      mockLocationHash = V2_HASH;
+      renderWithRouter(<Pair {...v2Props} />, {}, v2AppContext());
+
+      await waitFor(() =>
+        // No hash on the destination: the channel key is the pairing PSK, and
+        // it travels in router state instead.
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/pair/supplicant/connect_this_device',
+          { state: { channelId: 'chan-1', channelKey: 'key-1', version: '2' } }
+        )
+      );
+    });
+
+    it('does not send the browser to /pair/unsupported while handing off', async () => {
+      mockLocationHash = V2_HASH;
+      renderWithRouter(<Pair {...v2Props} />, {}, v2AppContext());
+
+      await waitFor(() => expect(mockNavigate).toHaveBeenCalled());
+      expect(mockNavigate).not.toHaveBeenCalledWith(
+        '/pair/unsupported',
+        expect.anything()
+      );
+      expect(mockNavigate).not.toHaveBeenCalledWith('/pair/unsupported');
+    });
+
+    // Only desktop can be the authority, and it reaches /pair without a
+    // channel because it is the side that mints one.
+    it('reloads into the QR scanner when the hash carries no pairing channel', async () => {
+      // A hard navigate rather than a router hop: `useIntegration` is not keyed
+      // on location, so the authority integration only exists after a reload.
+      const hardNavigateSpy = jest
+        .spyOn(ReactUtils, 'hardNavigate')
+        .mockImplementation(() => {});
+      renderWithRouter(<Pair {...v2Props} />, {}, v2AppContext());
+
+      await waitFor(() =>
+        expect(hardNavigateSpy).toHaveBeenCalledWith(
+          '/pair/authority/scan_qr',
+          {},
+          true
+        )
+      );
+      expect(mockNavigate).not.toHaveBeenCalledWith(
+        '/pair/supplicant/connect_this_device',
+        expect.anything()
+      );
+      hardNavigateSpy.mockRestore();
+    });
+
+    it('falls through to the normal flow when the browser reports v1', async () => {
+      const status = { pairingEnabled: true, pairingVersion: 1 };
+      mockLocationHash = V2_HASH;
+      renderWithRouter(
+        <Pair fxaStatusResult={mockUseFxAStatus(status)} />,
+        {},
+        v2AppContext()
+      );
+
+      // The desktop UA is stubbed for this suite, so the bootstrap reaching the
+      // choice screen is what proves the hold expired. Waits past the grace
+      // period, which is longer than the default findBy timeout.
+      await screen.findByLabelText(/I already have Firefox for mobile/, undefined, {
+        timeout: 4000,
+      });
+      expect(mockNavigate).not.toHaveBeenCalledWith(
+        '/pair/supplicant/connect_this_device',
+        expect.anything()
+      );
+    });
+
+
+  });
+});
+
+describe('parseV2PairingHash', () => {
+  it('reads the channel out of an authority QR hash', () => {
+    expect(
+      parsePairingHash('#channel_id=chan-1&channel_key=key-1&v=2')
+    ).toEqual({ channelId: 'chan-1', channelKey: 'key-1', version: '2' });
+  });
+
+  it('accepts a hash without the leading #', () => {
+    expect(parsePairingHash('channel_id=chan-1&channel_key=key-1&v=2')).toEqual(
+      { channelId: 'chan-1', channelKey: 'key-1', version: '2' }
+    );
+  });
+
+  it.each([
+    ['an empty hash', ''],
+    ['an absent hash', undefined],
+    ['no version', '#channel_id=chan-1&channel_key=key-1'],
+    ['version 1', '#channel_id=chan-1&channel_key=key-1&v=1'],
+    // Half a channel cannot be opened, so it is no hand-off rather than a
+    // broken one.
+    ['no channel_key', '#channel_id=chan-1&v=2'],
+    ['no channel_id', '#channel_key=key-1&v=2'],
+    ['an empty channel_key', '#channel_id=chan-1&channel_key=&v=2'],
+  ])('returns undefined for %s', (_label, hash) => {
+    expect(parsePairingHash(hash)).toBeUndefined();
   });
 });

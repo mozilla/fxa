@@ -8,14 +8,12 @@ import type { UseFxAStatusResult } from '.';
 export function mockUseFxAStatus({
   pairingEnabled = true,
   pairingVersion = 1,
-  hasSyncKeys = undefined,
   offeredSyncEnginesOverride,
   supportsKeysOptionalLogin = false,
   supportsCanLinkAccountUid,
 }: {
-  pairingEnabled?:boolean,
-  pairingVersion?: 1,
-  hasSyncKeys?: undefined,
+  pairingEnabled?: boolean;
+  pairingVersion?: number;
   offeredSyncEnginesOverride?: ReturnType<typeof getSyncEngineIds>;
   supportsKeysOptionalLogin?: boolean;
   supportsCanLinkAccountUid?: boolean | undefined;
@@ -37,15 +35,23 @@ export function mockUseFxAStatus({
   );
 
   return {
-    pairingEnabled,
-    pairingVersion,
-    hasSyncKeys,
     offeredSyncEngines,
     offeredSyncEngineConfigs,
     declinedSyncEngines,
     selectedEnginesForGlean,
     supportsKeysOptionalLogin,
     supportsCanLinkAccountUid,
+    fxaStatus: {
+      capabilities: {
+        engines: [],
+        multiService: true,
+        choose_what_to_sync: true,
+        keys_optional: true,
+        can_link_account_uid: true,
+        pairing: pairingEnabled,
+        pairingVersion,
+      },
+    },
   } satisfies UseFxAStatusResult;
 }
 

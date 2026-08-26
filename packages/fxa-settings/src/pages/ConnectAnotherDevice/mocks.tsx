@@ -2,31 +2,45 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Devices } from '.';
 import { ENTRYPOINTS } from '../../constants';
 import { getDefault } from '../../lib/config';
 import { SignedInUser } from '../../lib/channels/firefox';
 import { AppContextValue } from '../../models';
 import { UseFxAStatusResult } from '../../lib/hooks';
 import { MOCK_ACCOUNT, mockAppContext } from '../../models/mocks';
+import { Devices } from '../../lib/utilities';
 
 /**
  * The browser capabilities `useFxAStatus` resolves to, as the page receives
  * them. Defaults to a v1-pairing browser; pass overrides for the v2 cases.
  */
-export function mockFxAStatus(
-  overrides: Partial<UseFxAStatusResult> = {}
-): UseFxAStatusResult {
+export function mockFxAStatus({
+  overrides = {},
+  pairing = false,
+  pairingVersion = 1,
+}: {
+  overrides?: Partial<UseFxAStatusResult>;
+  pairing?: boolean;
+  pairingVersion?: number;
+} = {}): UseFxAStatusResult {
   return {
-    pairingEnabled: false,
-    pairingVersion: 1,
-    hasSyncKeys: undefined,
     offeredSyncEngines: [],
     offeredSyncEngineConfigs: undefined,
     declinedSyncEngines: [],
     selectedEnginesForGlean: {},
     supportsKeysOptionalLogin: false,
     supportsCanLinkAccountUid: undefined,
+    fxaStatus: {
+      capabilities: {
+        engines: [],
+        multiService: true,
+        choose_what_to_sync: true,
+        keys_optional: true,
+        can_link_account_uid: true,
+        pairing,
+        pairingVersion,
+      },
+    },
     ...overrides,
   };
 }

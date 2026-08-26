@@ -24,7 +24,7 @@ export type ContinueOnMobileProps = {
  * channel reports the mobile device is done, so there is deliberately no
  * primary action. Cancel is the only control.
  */
-const ContinueOnMobile = ({ onCancel }: ContinueOnMobileProps) => (
+export const ContinueOnMobile = ({ onCancel }: ContinueOnMobileProps) => (
   <AppLayout>
     <div className="flex flex-col items-center text-center">
       <FtlMsg id="pair2-authority-continue-on-mobile-heading">

@@ -16,6 +16,7 @@ import { getBasicAccountData } from '../../lib/account-storage';
 import firefox, { buildSyncOAuthSearch } from '../../lib/channels/firefox';
 import GleanMetrics from '../../lib/glean';
 import AppLayout from '../../components/AppLayout';
+import { detectDevice, Devices } from '../../lib/utilities';
 import { UseFxAStatusResult } from '../../lib/hooks';
 
 export type ConnectAnotherDeviceProps = {
@@ -30,14 +31,7 @@ export type ConnectAnotherDeviceProps = {
   fxaStatus: UseFxAStatusResult;
 };
 
-export enum Devices {
-  FIREFOX_ANDROID = 'Firefox Android',
-  FIREFOX_DESKTOP = 'Firefox Desktop',
-  FIREFOX_IOS = 'Firefox iOS',
-  OTHER_ANDROID = 'Other Android',
-  OTHER_IOS = 'Other iOS',
-  OTHER = 'Other',
-}
+
 // Validate entrypoint against known values, defaulting to FIREFOX_MENU_ENTRYPOINT.
 const VALID_ENTRYPOINTS = new Set(Object.values(ENTRYPOINTS));
 function getValidEntrypoint(raw: string | null): ENTRYPOINTS {
@@ -45,32 +39,6 @@ function getValidEntrypoint(raw: string | null): ENTRYPOINTS {
     return raw as ENTRYPOINTS;
   }
   return ENTRYPOINTS.FIREFOX_MENU_ENTRYPOINT;
-}
-
-// Detect device type from user agent.
-function detectDevice(): Devices {
-  const ua = navigator.userAgent;
-  const isFirefox = /Firefox/i.test(ua) && !/FxiOS/i.test(ua);
-  const isFxiOS = /FxiOS/i.test(ua);
-  const isAndroid = /Android/i.test(ua);
-  const isIos = /iPhone|iPad|iPod/i.test(ua) || isFxiOS;
-
-  if (isFirefox && isAndroid) {
-    return Devices.FIREFOX_ANDROID;
-  }
-  if (isFxiOS) {
-    return Devices.FIREFOX_IOS;
-  }
-  if (isFirefox && !isAndroid) {
-    return Devices.FIREFOX_DESKTOP;
-  }
-  if (isIos) {
-    return Devices.OTHER_IOS;
-  }
-  if (isAndroid) {
-    return Devices.OTHER_ANDROID;
-  }
-  return Devices.OTHER;
 }
 
 // Check if the browser supports Sync auth via WebChannels
@@ -194,7 +162,7 @@ const ConnectAnotherDevice = ({
 
   // The browser's pairing capabilities arrive asynchronously over the web
   // channel, so they start out undefined.
-  const capabilitiesResolved = fxaStatus.pairingVersion !== undefined;
+  const capabilitiesResolved = !!fxaStatus.fxaStatus?.capabilities;
 
   useEffect(() => {
     // Deciding the pairing route before the capabilities land would read an
@@ -237,8 +205,8 @@ const ConnectAnotherDevice = ({
         // Both FxA and Firefox have to signal that pairing v2 is enabled!
         if (
           config.pairing.version === 2 &&
-          fxaStatus.pairingEnabled === true &&
-          fxaStatus.pairingVersion === 2
+          fxaStatus.fxaStatus?.capabilities?.pairing === true &&
+          fxaStatus.fxaStatus?.capabilities?.pairingVersion === 2
         ) {
           hardNavigate('/pair/authority/scan_qr', {}, true);
           return;

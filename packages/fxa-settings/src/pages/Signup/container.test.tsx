@@ -41,6 +41,7 @@ import { ModelDataProvider } from '../../lib/model-data';
 import { AuthServerError } from 'fxa-auth-client/browser';
 import { MemoryRouter } from 'react-router';
 import { MOCK_FLOW_ID, mockGetWebChannelServices } from '../mocks';
+import { mockUseFxAStatus } from '../../lib/hooks/useFxAStatus/mocks';
 
 // TIP - Sometimes, we want to mock inputs. In this case they can be mocked directly and
 // often times a mocking util isn't even necessary. Note that using the Dependency Inversion
@@ -187,17 +188,10 @@ async function render(text?: string) {
           integration,
           serviceName,
         }}
-        useFxAStatusResult={{
-          pairingEnabled: true,
-          pairingVersion: 1,
-          hasSyncKeys: true,
-          offeredSyncEngines: [],
-          offeredSyncEngineConfigs: [],
-          selectedEnginesForGlean: {},
-          declinedSyncEngines: [],
-          supportsKeysOptionalLogin: false,
+        useFxAStatusResult={mockUseFxAStatus({
+          offeredSyncEnginesOverride: [],
           supportsCanLinkAccountUid: false,
-        }}
+        })}
         flowQueryParams={{ flowId: MOCK_FLOW_ID }}
       />
     </MemoryRouter>

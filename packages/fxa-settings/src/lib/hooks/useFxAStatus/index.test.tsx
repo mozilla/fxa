@@ -200,7 +200,7 @@ describe('useFxAStatus', () => {
       );
       await waitForNextUpdate();
 
-      expect(result.current.pairingEnabled).toBe(true);
+      expect(result.current.fxaStatus?.capabilities.pairing).toBe(true);
     });
 
     it('returns pairingEnabled: false when the pairing capability is absent', async () => {
@@ -211,7 +211,7 @@ describe('useFxAStatus', () => {
       );
       await waitForNextUpdate();
 
-      expect(result.current.pairingEnabled).toBe(false);
+      expect(result.current.fxaStatus?.capabilities.pairing).toBe(false);
     });
 
     it('returns the pairingVersion reported by the browser', async () => {
@@ -222,7 +222,7 @@ describe('useFxAStatus', () => {
       );
       await waitForNextUpdate();
 
-      expect(result.current.pairingVersion).toBe(2);
+      expect(result.current.fxaStatus?.capabilities.pairingVersion).toBe(2);
     });
 
     it('defaults pairingVersion to 1 when the browser omits it', async () => {
@@ -233,7 +233,7 @@ describe('useFxAStatus', () => {
       );
       await waitForNextUpdate();
 
-      expect(result.current.pairingVersion).toBe(1);
+      expect(result.current.fxaStatus?.capabilities.pairingVersion).toBe(1);
     });
 
     it('defaults pairingVersion to 1 when the browser reports version 0', async () => {
@@ -244,7 +244,7 @@ describe('useFxAStatus', () => {
       );
       await waitForNextUpdate();
 
-      expect(result.current.pairingVersion).toBe(1);
+      expect(result.current.fxaStatus?.capabilities.pairingVersion).toBe(1);
     });
 
     it('returns the hasSyncKeys when browser reports true', async () => {
@@ -255,7 +255,7 @@ describe('useFxAStatus', () => {
       );
       await waitForNextUpdate();
 
-      expect(result.current.hasSyncKeys).toBe(true);
+      expect(result.current.fxaStatus?.capabilities.hasSyncKeys).toBe(true);
     });
 
     it('returns the hasSyncKeys when browser reports false', async () => {
@@ -266,7 +266,7 @@ describe('useFxAStatus', () => {
       );
       await waitForNextUpdate();
 
-      expect(result.current.hasSyncKeys).toBe(false);
+      expect(result.current.fxaStatus?.capabilities.hasSyncKeys).toBe(false);
     });
 
     it('returns the hasSyncKeys when browser does not report', async () => {
@@ -277,7 +277,7 @@ describe('useFxAStatus', () => {
       );
       await waitForNextUpdate();
 
-      expect(result.current.hasSyncKeys).toBe(undefined);
+      expect(result.current.fxaStatus?.capabilities.hasSyncKeys).toBe(undefined);
     });
 
     // Very old versions of Firefox iOS omit `capabilities` entirely.
@@ -289,8 +289,40 @@ describe('useFxAStatus', () => {
       );
       await waitForNextUpdate();
 
-      expect(result.current.pairingEnabled).toBe(false);
-      expect(result.current.pairingVersion).toBe(1);
+      expect(result.current.fxaStatus?.capabilities.pairing).toBe(false);
+      expect(result.current.fxaStatus?.capabilities.pairingVersion).toBe(1);
+    });
+  });
+
+  // firefox.fxaStatus gives up after a bounded number of attempts, and callers
+  // like Pair/Index render a spinner while `fxaStatus` is undefined. Settling on
+  // the defaults is what keeps a dropped web channel message from hanging them.
+  describe('browser never answers', () => {
+    const integration = {
+      type: IntegrationType.PairingAuthority,
+      isSync: () => true,
+      isFirefoxNonSync: () => false,
+      isPairing: () => true,
+    };
+
+    it('settles on the defaults instead of leaving fxaStatus undefined', async () => {
+      (firefox.fxaStatus as jest.Mock).mockResolvedValue(undefined);
+
+      const { result, waitForNextUpdate } = renderHook(() =>
+        useFxAStatus(integration)
+      );
+      await waitForNextUpdate();
+
+      expect(result.current.fxaStatus).toEqual({
+        capabilities: {
+          engines: [],
+          multiService: false,
+          pairing: false,
+          pairingVersion: 1,
+        },
+      });
+      expect(result.current.supportsKeysOptionalLogin).toBe(false);
+      expect(result.current.supportsCanLinkAccountUid).toBe(false);
     });
   });
 
@@ -318,8 +350,8 @@ describe('useFxAStatus', () => {
 
       const { result } = renderHook(() => useFxAStatus(integration));
 
-      expect(result.current.pairingEnabled).toBe(false);
-      expect(result.current.pairingVersion).toBe(1);
+      expect(result.current.fxaStatus?.capabilities.pairing).toBe(false);
+      expect(result.current.fxaStatus?.capabilities.pairingVersion).toBe(1);
     });
   });
 

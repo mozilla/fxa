@@ -9,6 +9,7 @@ import {
   FirefoxCommand,
   buildSyncOAuthSearch,
   FxAOAuthFlowBeginResponse,
+  FxAStatusResponse,
   PairOAuthFinishState,
   PairOAuthStartState,
 } from './firefox';
@@ -134,6 +135,7 @@ describe('Firefox pairing OAuth WebChannel methods', () => {
     state: 'mock-oauth-state',
     scope: 'profile https://identity.mozilla.com/apps/oldsync',
     code_challenge: 'mock-code-challenge',
+    code_challenge_method: 'mock-code-challenge-method',
     keys_jwk: 'mock-keys-jwk',
   };
 
@@ -142,6 +144,8 @@ describe('Firefox pairing OAuth WebChannel methods', () => {
     state: 'mock-oauth-state',
     scope: 'profile',
     code_challenge: 'mock-code-challenge',
+    code_challenge_method: 'mock-code-challenge-method',
+    keys_jwk: 'mock-keys-jwk'
   };
 
   const MOCK_FINISH_RESPONSE: PairOAuthFinishState = {
@@ -232,13 +236,9 @@ describe('Firefox pairing OAuth WebChannel methods', () => {
       await expect(promise).resolves.toEqual(MOCK_START_RESPONSE);
     });
 
-    // NOTE: two of the expected messages below are inaccurate in firefox.ts —
-    // every message is prefixed with PairOauthFinish rather than PairOauthStart,
-    // and an absent `scope` reports "missing code". Asserted as-is so the
-    // strings stay pinned; see the review note about correcting them.
     it.each([
       { field: 'state', message: 'missing state from event.details' },
-      { field: 'scope', message: 'missing code from event.details' },
+      { field: 'scope', message: 'missing scope from event.details' },
       {
         field: 'code_challenge',
         message: 'missing code_challenge from event.details',
@@ -254,7 +254,7 @@ describe('Firefox pairing OAuth WebChannel methods', () => {
           new CustomEvent(FirefoxCommand.PairOauthStart, { detail })
         );
         await expect(promise).rejects.toThrow(
-          `${FirefoxCommand.PairOauthFinish} ${message}`
+          `${FirefoxCommand.PairOauthStart} ${message}`
         );
       }
     );
@@ -364,7 +364,101 @@ describe('Firefox pairing OAuth WebChannel methods', () => {
       await promise;
 
       jest.advanceTimersByTime(SEND_TIMEOUT_MS);
-      expect(console.warn).not.toHaveBeenCalled();
     });
+  });
+});
+
+describe('Firefox fxaStatus', () => {
+  // Keep in sync with FXA_STATUS_ATTEMPTS/FXA_STATUS_TIMEOUT_MS in firefox.ts
+  // (not exported).
+  const ATTEMPTS = 3;
+  const TIMEOUT_MS = 1_000;
+
+  const MOCK_REQUEST = {
+    context: Constants.OAUTH_CONTEXT,
+    isPairing: true,
+    service: Constants.SYNC_SERVICE,
+  };
+
+  const MOCK_RESPONSE: FxAStatusResponse = {
+    capabilities: {
+      engines: ['bookmarks'],
+      multiService: true,
+      pairing: true,
+      pairingVersion: 2,
+    },
+  };
+
+  // Own instance so a listener left over from one case cannot settle another's
+  // promise.
+  let ff: Firefox;
+  let sendSpy: jest.SpyInstance;
+  const originalRAF = window.requestAnimationFrame;
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+    ff = new Firefox();
+    sendSpy = jest.spyOn(ff, 'send').mockImplementation(() => {});
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    window.requestAnimationFrame = (cb: FrameRequestCallback) => {
+      cb(0);
+      return 0;
+    };
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    window.requestAnimationFrame = originalRAF;
+    jest.useRealTimers();
+  });
+
+  it('resolves with the status from the response event', async () => {
+    const promise = ff.fxaStatus(MOCK_REQUEST);
+    expect(sendSpy).toHaveBeenCalledWith(
+      FirefoxCommand.FxAStatus,
+      MOCK_REQUEST
+    );
+
+    ff.dispatchEvent(
+      new CustomEvent(FirefoxCommand.FxAStatus, { detail: MOCK_RESPONSE })
+    );
+
+    await expect(promise).resolves.toEqual(MOCK_RESPONSE);
+    expect(sendSpy).toHaveBeenCalledTimes(1);
+  });
+
+  // Firefox for Android binds its web channel handler per tab and routinely
+  // drops the first fxa_status. Resending is what takes that from a hang to a
+  // successful pairing.
+  it('resends and resolves when the first message is dropped', async () => {
+    const promise = ff.fxaStatus(MOCK_REQUEST);
+    await jest.advanceTimersByTimeAsync(TIMEOUT_MS);
+    expect(sendSpy).toHaveBeenCalledTimes(2);
+
+    ff.dispatchEvent(
+      new CustomEvent(FirefoxCommand.FxAStatus, { detail: MOCK_RESPONSE })
+    );
+
+    await expect(promise).resolves.toEqual(MOCK_RESPONSE);
+  });
+
+  it('resolves undefined once the attempts are exhausted', async () => {
+    const promise = ff.fxaStatus(MOCK_REQUEST);
+    await jest.advanceTimersByTimeAsync(TIMEOUT_MS * ATTEMPTS);
+
+    await expect(promise).resolves.toBeUndefined();
+    expect(sendSpy).toHaveBeenCalledTimes(ATTEMPTS);
+  });
+
+  it('stops resending once the browser has answered', async () => {
+    const promise = ff.fxaStatus(MOCK_REQUEST);
+    ff.dispatchEvent(
+      new CustomEvent(FirefoxCommand.FxAStatus, { detail: MOCK_RESPONSE })
+    );
+    await promise;
+
+    await jest.advanceTimersByTimeAsync(TIMEOUT_MS * ATTEMPTS);
+    expect(sendSpy).toHaveBeenCalledTimes(1);
   });
 });
