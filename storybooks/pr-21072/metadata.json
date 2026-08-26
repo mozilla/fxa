@@ -1,8 +1,8 @@
 {
-  "commit": "a6f7bbfb78f2e25a8413b95a507549a2b2402dd4",
+  "commit": "07833054562078b7df5ee2d8a8e442b13e07e0df",
   "summary": "task(passkey): Add passkeyWraps model, repository and service",
-  "description": "Because:\n* The wrap endpoints (FXA-13142) need to read and write passkeyWraps.\n* A wrap's fixed-width binary fields have to round-trip untouched, since a\n  corrupted envelope cannot be reconstructed.\n\nThis commit:\n* Adds the PasskeyWraps kysely type, a factory and an integration-test\n  fixture.\n* Adds errnos 234-237 with AppError factories, filling the reserved gap.\n* Adds the wrap repository and service store/get, with ownership scoped in\n  SQL and idempotency by full-envelope compare.\n* Adds deleteAllPasskeyWrapsForUser as the only invalidation path; a kB\n  change drops wraps instead of re-sealing them.",
-  "timestamp": 1787674378000,
+  "description": "Because:\n* The wrap endpoints (FXA-13142) need to read and write passkeyWraps.\n* A wrap's fixed-width binary fields have to round-trip untouched, since a\n  corrupted envelope cannot be reconstructed.\n\nThis commit:\n* Adds the PasskeyWraps kysely type, a factory and an integration-test\n  fixture.\n* Adds errnos 234-235 with AppError factories, for a missing wrap and a\n  conflicting one.\n* Adds the wrap repository and service store/get, with ownership scoped in\n  SQL and idempotency by full-envelope compare.\n* Adds deleteAllPasskeyWrapsForUser as the only invalidation path; a kB\n  change drops wraps instead of re-sealing them.",
+  "timestamp": 1787702608000,
   "storybooks": [
     "fxa-react",
     "fxa-settings"

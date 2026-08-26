@@ -98,9 +98,6 @@ payment-provider-card-ending-in = <b>Ödeme yöntemi:</b> { $lastFour } ile bite
 payment-provider-card-ending-in-card-name = <b>Ödeme yöntemi:</b> { $lastFour } ile biten { $cardName }
 subscription-charges-invoice-summary = Fatura özeti
 
-# Variables:
-
-
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
 
@@ -227,6 +224,7 @@ freeTrialEndingReminder-content-charge-discount-2 = İndirim
 #   $invoiceTaxAmount (String) - The tax amount, e.g. $1.20
 freeTrialEndingReminder-content-charge-tax = Vergi: { $invoiceTaxAmount }
 freeTrialEndingReminder-content-charge-tax-2 = Vergi
+freeTrialEndingReminder-content-account-link-plaintext = Ödeme yönteminizi ve hesap bilgilerinizi buradan inceleyebilir ve güncelleyebilirsiniz:
 freeTrialEndingReminder-content-closing = Saygılarımızla,
 # Variables:
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
