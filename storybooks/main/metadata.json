@@ -1,8 +1,8 @@
 {
-  "commit": "edc78d944dc72c80fca59be116be56aa24103f74",
-  "summary": "Merge pull request #21078 from mozilla/fxa-13869",
-  "description": "feat(pairing): handle v2 pairing timeouts and cancellations",
-  "timestamp": 1787766480000,
+  "commit": "6f0608fd21c6d4a60ac483673636e6dcacbb5878",
+  "summary": "Merge pull request #21113 from mozilla/passkey-wraps-drop-updatedat",
+  "description": "task(passkey): Drop passkeyWraps.updatedAt",
+  "timestamp": 1787768138000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
