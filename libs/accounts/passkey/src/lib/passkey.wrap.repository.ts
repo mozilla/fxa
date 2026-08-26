@@ -96,7 +96,7 @@ export async function findPasskeyWrap(
  * @param db - Database instance
  * @param uid - User ID as a hex string
  * @param data - The envelope
- * @param createdAt - Server-set timestamp, also used for updatedAt
+ * @param createdAt - Server-set timestamp
  */
 export async function insertPasskeyWrap(
   db: AccountDatabase,
@@ -118,7 +118,6 @@ export async function insertPasskeyWrap(
     hpkeEncapsulatedSecret: data.hpkeEncapsulatedSecret,
     hpkeSealedKb: data.hpkeSealedKb,
     createdAt,
-    updatedAt: createdAt,
     uid: uuidTransformer.to(uid),
   };
 

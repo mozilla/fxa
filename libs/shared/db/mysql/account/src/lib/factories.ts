@@ -235,6 +235,5 @@ export const PasskeyWrapFactory = (
   hpkeEncapsulatedSecret: getHexBuffer(264, '04'),
   hpkeSealedKb: getHexBuffer(96),
   createdAt: faker.date.recent().getTime(),
-  updatedAt: faker.date.recent().getTime(),
   ...override,
 });
