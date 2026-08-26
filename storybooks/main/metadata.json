@@ -1,8 +1,8 @@
 {
-  "commit": "df0d2568545a5f26a1f28cda503ec7b7b6b93d1e",
-  "summary": "Merge pull request #21109 from mozilla/fxa-13870-v3",
-  "description": "test(functional-tests): add end-to-end v2 pairing coverage",
-  "timestamp": 1787760227000,
+  "commit": "174952f5c00250dcf4f9e9cdbc6bef8de174a75f",
+  "summary": "Merge pull request #21107 from mozilla/fxa-13791",
+  "description": "chore(auth-server): remove browserid route, config, and docs",
+  "timestamp": 1787763303000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

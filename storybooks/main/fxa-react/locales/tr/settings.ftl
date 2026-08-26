@@ -1751,6 +1751,8 @@ pair2-authority-timeout-and-cancel-sync-settings-button = Eşitleme ayarları
 ## shown on their computer. It waits for them to approve the sign-in on the
 ## computer, and shows that computer's details so they can verify the request.
 
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = Eşitlemek için son bir adım
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = Vazgeç
 
