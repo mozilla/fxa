@@ -1229,6 +1229,7 @@ pair2-authority-timeout-and-cancel-cancel-button = Vazgeç
 pair2-authority-timeout-and-cancel-sync-settings-button = Eşitleme ayarları
 
 
+pair2-supplicant-approve-sign-in-heading = Eşitlemek için son bir adım
 pair2-supplicant-approve-sign-in-cancel-button = Vazgeç
 
 
