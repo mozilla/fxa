@@ -1,8 +1,8 @@
 {
-  "commit": "d9f0f7987d39e083a3594571fb30961740a5c100",
-  "summary": "??",
+  "commit": "6a2f3961cbdb520ae8877e84939135a55badda00",
+  "summary": "revert from 19.2.8 to 19.0.8",
   "description": "",
-  "timestamp": 1787699567000,
+  "timestamp": 1787752689000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
