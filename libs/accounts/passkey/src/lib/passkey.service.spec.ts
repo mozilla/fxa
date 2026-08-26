@@ -96,7 +96,6 @@ describe('PasskeyService', () => {
     ...MOCK_ENVELOPE,
     ...override,
     createdAt: MOCK_NOW,
-    updatedAt: MOCK_NOW,
   });
 
   /**

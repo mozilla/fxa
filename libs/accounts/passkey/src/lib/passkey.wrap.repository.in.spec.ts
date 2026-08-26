@@ -128,14 +128,13 @@ describe('PasskeyWrapRepository (Integration)', () => {
       }
     );
 
-    it('sets createdAt and updatedAt from the supplied timestamp', async () => {
+    it('sets createdAt from the supplied timestamp', async () => {
       const { uid, credentialId } = await createAccountWithPasskey();
       await insertPasskeyWrap(db, uid, envelope(credentialId), NOW);
 
       const stored = await findPasskeyWrap(db, uid, credentialId);
 
       expect(stored?.createdAt).toBe(NOW);
-      expect(stored?.updatedAt).toBe(NOW);
     });
 
     it('returns undefined for a credential with no wrap', async () => {

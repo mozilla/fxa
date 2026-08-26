@@ -7,7 +7,6 @@ CREATE TABLE `passkeyWraps` (
   `hpkeEncapsulatedSecret` binary(133) NOT NULL,
   `hpkeSealedKb` binary(48) NOT NULL,
   `createdAt` bigint(20) unsigned NOT NULL,
-  `updatedAt` bigint(20) unsigned NOT NULL,
   PRIMARY KEY (`uid`,`credentialId`),
   CONSTRAINT `passkeyWraps_ibfk_1` FOREIGN KEY (`uid`, `credentialId`) REFERENCES `passkeys` (`uid`, `credentialId`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
