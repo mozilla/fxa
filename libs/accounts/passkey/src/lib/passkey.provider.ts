@@ -27,6 +27,7 @@ export type RawPasskeyConfig = {
   rpId: string;
   allowedOrigins: string[];
   challengeTimeout: number;
+  verificationProofTimeout: number;
   maxPasskeysPerUser: number;
   residentKey: ResidentKeyRequirement;
   /** Empty string is treated as "no preference" and normalized to `undefined`. */

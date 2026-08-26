@@ -34,6 +34,7 @@ describe('PasskeyManager (Integration)', () => {
     allowedOrigins: ['https://accounts.example.com'],
     maxPasskeysPerUser: 2,
     challengeTimeout: 30_000,
+    verificationProofTimeout: 1000 * 60 * 5,
     requestPrfAtRegistration: false,
     prfSalt: '',
     requestPrfAtAuthentication: 'off',

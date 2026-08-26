@@ -28,6 +28,7 @@ const VALID_RAW_CONFIG: RawPasskeyConfig = {
   allowedOrigins: ['https://accounts.firefox.com'],
   maxPasskeysPerUser: 10,
   challengeTimeout: 30_000,
+  verificationProofTimeout: 1000 * 60 * 5,
   residentKey: 'required',
   authenticatorAttachment: '',
   requestPrfAtRegistration: false,

@@ -1761,6 +1761,15 @@ export class AppError extends Error {
     });
   }
 
+  static passkeyVerificationProofInvalid() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.PASSKEY_VERIFICATION_PROOF_INVALID,
+      message: 'Passkey verification proof is invalid',
+    });
+  }
+
   static passkeyAlreadyRegistered() {
     return new AppError({
       code: 409,

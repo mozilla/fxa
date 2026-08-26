@@ -56,6 +56,7 @@ beforeAll(async () => {
     allowedOrigins: ['http://localhost'],
     maxPasskeysPerUser: 10,
     challengeTimeout: 1000 * 60 * 5,
+    verificationProofTimeout: 1000 * 60 * 5,
     requestPrfAtRegistration: false,
     prfSalt: '',
     requestPrfAtAuthentication: 'off',
@@ -118,6 +119,49 @@ describe('PasskeyChallengeManager (integration)', () => {
     });
   });
 
+  describe('proof challenges', () => {
+    it('round-trips a proof for the credential it was minted against', async () => {
+      const proof = await manager.generateProofChallenge('cafebabe', 'Y3JlZA');
+
+      await expect(
+        manager.consumeProofChallenge(proof, 'cafebabe', 'Y3JlZA')
+      ).resolves.toBe(true);
+    });
+
+    it('is single-use', async () => {
+      const proof = await manager.generateProofChallenge('cafebabe', 'Y3JlZA');
+      await manager.consumeProofChallenge(proof, 'cafebabe', 'Y3JlZA');
+
+      await expect(
+        manager.consumeProofChallenge(proof, 'cafebabe', 'Y3JlZA')
+      ).resolves.toBe(false);
+    });
+
+    it('rejects a proof minted against a different credential', async () => {
+      const proof = await manager.generateProofChallenge('cafebabe', 'Y3JlZA');
+
+      await expect(
+        manager.consumeProofChallenge(proof, 'cafebabe', 'b3RoZXI')
+      ).resolves.toBe(false);
+    });
+
+    it('rejects a proof belonging to another uid', async () => {
+      const proof = await manager.generateProofChallenge('cafebabe', 'Y3JlZA');
+
+      await expect(
+        manager.consumeProofChallenge(proof, 'deadbeef', 'Y3JlZA')
+      ).resolves.toBe(false);
+    });
+
+    it('does not accept an upgrade challenge as a proof', async () => {
+      const challenge = await manager.generateUpgradeChallenge('cafebabe');
+
+      await expect(
+        manager.consumeProofChallenge(challenge, 'cafebabe', 'Y3JlZA')
+      ).resolves.toBe(false);
+    });
+  });
+
   describe('consumeChallenge', () => {
     it('returns null on second consume (single-use enforcement)', async () => {
       const challenge = await manager.generateRegistrationChallenge('deadbeef');
@@ -148,6 +192,7 @@ describe('PasskeyChallengeManager (integration)', () => {
         allowedOrigins: ['http://localhost'],
         maxPasskeysPerUser: 10,
         challengeTimeout: 1000,
+        verificationProofTimeout: 1000 * 60 * 5,
         requestPrfAtRegistration: false,
         prfSalt: '',
         requestPrfAtAuthentication: 'off',

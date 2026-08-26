@@ -86,6 +86,18 @@ export class PasskeyConfig {
   public challengeTimeout!: number;
 
   /**
+   * Verification proof expiration timeout in milliseconds.
+   *
+   * Spans a human step, not just a round trip. A passkey sign-in mints the
+   * proof, then the user types their password to unlock `kB` before the client
+   * has an envelope to spend it on. Sized for that, so it is not shorter than
+   * {@link challengeTimeout}.
+   * @example 300000 (5 minutes)
+   */
+  @IsNumber()
+  public verificationProofTimeout!: number;
+
+  /**
    * Resident key (discoverable credential) requirement.
    * - 'required': Credential must be discoverable (stored on authenticator).
    *   Must be set to 'required' for the passwordless / usernameless sign-in
@@ -146,6 +158,7 @@ export class PasskeyConfig {
     this.allowedOrigins = opts.allowedOrigins;
     this.authenticatorAttachment = opts.authenticatorAttachment;
     this.challengeTimeout = opts.challengeTimeout;
+    this.verificationProofTimeout = opts.verificationProofTimeout;
     this.enabled = opts.enabled;
     this.maxPasskeysPerUser = opts.maxPasskeysPerUser;
     this.requestPrfAtRegistration = opts.requestPrfAtRegistration;

@@ -2747,6 +2747,12 @@ const convictConf = convict({
       env: 'PASSKEYS__CHALLENGE_TIMEOUT',
       format: Number,
     },
+    verificationProofTimeout: {
+      default: 300000,
+      doc: 'Time in milliseconds before a passkey verification proof expires. Spans the password entry between a passkey sign-in and the wrap write, so it is human-scale rather than one round trip. Defaults to 300000 ms (5 minutes).',
+      env: 'PASSKEYS__VERIFICATION_PROOF_TIMEOUT',
+      format: Number,
+    },
     maxPasskeysPerUser: {
       default: 10,
       doc: 'Maximum number of passkeys a single user account may register.',

@@ -41,6 +41,7 @@ const mockConfig = new PasskeyConfig({
   enabled: true,
   rpId: 'accounts.example.com',
   challengeTimeout: CHALLENGE_TIMEOUT_MS,
+  verificationProofTimeout: 1000 * 60 * 5,
   maxPasskeysPerUser: MOCK_MAX_PASSKEYS_PER_USER,
   requestPrfAtRegistration: false,
   prfSalt: '',

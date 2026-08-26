@@ -27,10 +27,14 @@ const MOCK_CHALLENGE = Buffer.alloc(32, 0xab).toString('base64url');
 // Matches the config default (passkeys.challengeTimeout = 300,000 ms)
 const CHALLENGE_TIMEOUT_MS = 1000 * 60 * 5;
 
+// Different from CHALLENGE_TIMEOUT_MS so tests are able to deterministically verify which timeout is used
+const VERIFICATION_PROOF_TIMEOUT_MS = 1000 * 60 * 10;
+
 function makeConfig(overrides: Partial<PasskeyConfig> = {}): PasskeyConfig {
   const config = new PasskeyConfig({
     allowedOrigins: ['https://accounts.firefox.com'],
     challengeTimeout: CHALLENGE_TIMEOUT_MS,
+    verificationProofTimeout: VERIFICATION_PROOF_TIMEOUT_MS,
     enabled: true,
     maxPasskeysPerUser: 6,
     residentKey: 'required',
@@ -67,7 +71,7 @@ describe('PasskeyChallengeManager', () => {
       expect(result).toBe(MOCK_CHALLENGE);
     });
 
-    it('calls redis.set with the correct key and TTL', async () => {
+    it('calls redis.set with the correct key', async () => {
       mockRedis.set.mockResolvedValue('OK');
       await manager.generateRegistrationChallenge('deadbeef');
 
@@ -75,7 +79,7 @@ describe('PasskeyChallengeManager', () => {
         `passkey:challenge:registration:${MOCK_CHALLENGE}:deadbeef`,
         expect.any(String),
         'EX',
-        CHALLENGE_TIMEOUT_MS / 1000
+        expect.any(Number)
       );
     });
 
@@ -133,14 +137,69 @@ describe('PasskeyChallengeManager', () => {
   describe('generateUpgradeChallenge', () => {
     it('stores the challenge with type=upgrade and uid', async () => {
       mockRedis.set.mockResolvedValue('OK');
-      await manager.generateUpgradeChallenge('cafebabe');
+      await manager.generateUpgradeChallenge('allyourbase');
 
       const [key, rawJson] = mockRedis.set.mock.calls[0];
       const stored: StoredChallenge = JSON.parse(rawJson);
 
-      expect(key).toBe(`passkey:challenge:upgrade:${MOCK_CHALLENGE}:cafebabe`);
+      expect(key).toBe(
+        `passkey:challenge:upgrade:${MOCK_CHALLENGE}:allyourbase`
+      );
       expect(stored.type).toBe('upgrade');
-      expect(stored.uid).toBe('cafebabe');
+      expect(stored.uid).toBe('allyourbase');
+    });
+  });
+
+  describe('generateProofChallenge', () => {
+    it('stores the challenge with type=proof, uid and credentialId', async () => {
+      mockRedis.set.mockResolvedValue('OK');
+      await manager.generateProofChallenge('allyourbase', 'Y3JlZA');
+
+      const [key, rawJson] = mockRedis.set.mock.calls[0];
+      const stored: StoredChallenge = JSON.parse(rawJson);
+
+      expect(key).toBe(`passkey:challenge:proof:${MOCK_CHALLENGE}:allyourbase`);
+      expect(stored.type).toBe('proof');
+      expect(stored.uid).toBe('allyourbase');
+      expect(stored.credentialId).toBe('Y3JlZA');
+    });
+  });
+
+  /**
+   * The `EX` argument, which is what actually expires the key. Config values are
+   * milliseconds and `EX` is seconds.
+   */
+  describe('redis ttl', () => {
+    it('uses challengeTimeout for a registration challenge', async () => {
+      mockRedis.set.mockResolvedValue('OK');
+      await manager.generateRegistrationChallenge('deadbeef');
+
+      const [, , , ttlSeconds] = mockRedis.set.mock.calls[0];
+      expect(ttlSeconds).toBe(CHALLENGE_TIMEOUT_MS / 1000);
+    });
+
+    it('uses challengeTimeout for an authentication challenge', async () => {
+      mockRedis.set.mockResolvedValue('OK');
+      await manager.generateAuthenticationChallenge();
+
+      const [, , , ttlSeconds] = mockRedis.set.mock.calls[0];
+      expect(ttlSeconds).toBe(CHALLENGE_TIMEOUT_MS / 1000);
+    });
+
+    it('uses challengeTimeout for an upgrade challenge', async () => {
+      mockRedis.set.mockResolvedValue('OK');
+      await manager.generateUpgradeChallenge('allyourbase');
+
+      const [, , , ttlSeconds] = mockRedis.set.mock.calls[0];
+      expect(ttlSeconds).toBe(CHALLENGE_TIMEOUT_MS / 1000);
+    });
+
+    it('uses verificationProofTimeout for a proof', async () => {
+      mockRedis.set.mockResolvedValue('OK');
+      await manager.generateProofChallenge('allyourbase', 'Y3JlZA');
+
+      const [, , , ttlSeconds] = mockRedis.set.mock.calls[0];
+      expect(ttlSeconds).toBe(VERIFICATION_PROOF_TIMEOUT_MS / 1000);
     });
   });
 

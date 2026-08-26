@@ -569,5 +569,21 @@ describe('AppErrors', () => {
         },
       });
     });
+
+    it('creates passkeyVerificationProofInvalid', () => {
+      const result = AppError.passkeyVerificationProofInvalid();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 236,
+        message: 'Passkey verification proof is invalid',
+        output: {
+          statusCode: 400,
+          payload: {
+            error: 'Bad Request',
+            errno: 236,
+          },
+        },
+      });
+    });
   });
 });

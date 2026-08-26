@@ -25,8 +25,25 @@ import { PASSKEY_CHALLENGE_REDIS } from './passkey.provider';
  *   Typed separately from 'authentication' to prevent cross-ceremony attacks where an
  *   upgrade challenge could not be submitted to the sign-in verification endpoint and
  *   vice versa. UID is required when generating an upgrade challenge.
+ *
+ * - 'proof': Not a ceremony challenge. Minted *after* an assertion verification and
+ *   consumed once to allow key creation for that credential. Only attests that the
+ *   assertion happened and keys can be created.
+ *   Typed separately from 'upgrade' because an upgrade challenge is issued before any
+ *   assertion. So, were they one type, either could be spent as the other and prove
+ *   nothing. UID and credentialId are both required.
  */
-export type ChallengeType = 'registration' | 'authentication' | 'upgrade';
+export type ChallengeType =
+  | 'registration'
+  | 'authentication'
+  | 'upgrade'
+  | 'proof';
+
+/**
+ * Length in base64url characters of a challenge or proof token, which are 32
+ * random bytes. Used for Joi validation of the proof before hitting Redis.
+ */
+export const VERIFICATION_PROOF_LENGTH = 43;
 
 /**
  * The shape of a challenge record stored as a JSON value in Redis.
@@ -64,7 +81,17 @@ export interface StoredChallenge {
    */
   uid?: string;
 
-  /** Unix timestamp (milliseconds) when this challenge was created. */
+  /**
+   * Base64url credential ID this token is scoped to.
+   *
+   * Required for 'proof', because it's what stops a proof minted against one
+   * credential authorising key creation for another. Optional elsewhere.
+   */
+  credentialId?: string;
+
+  /**
+   * Unix timestamp (milliseconds) when this challenge was created.
+   */
   createdAt: number;
 
   /**
@@ -138,6 +165,58 @@ export class PasskeyChallengeManager {
    */
   async generateUpgradeChallenge(uid: string): Promise<string> {
     return this.generateChallenge('upgrade', uid);
+  }
+
+  /**
+   * Generates a proof that an assertion for this credential recently verified.
+   *
+   * @param uid - Hex-encoded uid of the user.
+   * @param credentialId - Base64url credential ID the assertion was for.
+   * @returns Base64url-encoded 32-byte proof string.
+   */
+  async generateProofChallenge(
+    uid: string,
+    credentialId: string
+  ): Promise<string> {
+    return this.generateChallenge(
+      'proof',
+      uid,
+      credentialId,
+      this.config.verificationProofTimeout
+    );
+  }
+
+  /**
+   * Fetches and deletes a proof from Redis, rejecting one that was minted for a
+   * different credential.
+   *
+   * @param proof - The base64url-encoded proof string.
+   * @param uid - Hex-encoded uid of the user.
+   * @param credentialId - Base64url credential ID the proof must be scoped to.
+   * @returns true when the proof existed and matched, false otherwise.
+   */
+  async consumeProofChallenge(
+    proof: string,
+    uid: string,
+    credentialId: string
+  ): Promise<boolean> {
+    const stored = await this.consumeChallenge('proof', proof, uid);
+    if (stored === null) {
+      return false;
+    }
+
+    if (stored.credentialId !== credentialId) {
+      this.log?.warn('passkey.challenge.credentialMismatch', {
+        type: 'proof',
+        uid,
+      });
+      this.statsd?.increment('passkey.challenge.credentialMismatch', {
+        type: 'proof',
+      });
+      return false;
+    }
+
+    return true;
   }
 
   /**
@@ -243,23 +322,31 @@ export class PasskeyChallengeManager {
 
   private async generateChallenge(
     type: ChallengeType,
-    uid?: string
+    uid?: string,
+    credentialId?: string,
+    ttlMs?: number
   ): Promise<string> {
+    const ttl = ttlMs ?? this.config.challengeTimeout;
     const challenge = randomBytes(32).toString('base64url');
     const now = Date.now();
-    const timeout = this.config.challengeTimeout;
-    const ttlSeconds = Math.ceil(timeout / 1000);
 
     const stored: StoredChallenge = {
       challenge,
       type,
       uid,
+      credentialId,
       createdAt: now,
-      expiresAt: now + timeout,
+      expiresAt: now + ttl,
     };
 
     const key = this.buildKey(type, challenge, uid);
-    await this.redis.set(key, JSON.stringify(stored), 'EX', ttlSeconds);
+    // Redis EX is in seconds; every timeout in config is milliseconds.
+    await this.redis.set(
+      key,
+      JSON.stringify(stored),
+      'EX',
+      Math.ceil(ttl / 1000)
+    );
 
     this.log?.debug?.('passkey.challenge.generated', { type, uid });
     this.statsd?.increment('passkey.challenge.generated', { type });

@@ -28,6 +28,7 @@ function testConfig(overrides: Partial<PasskeyConfig> = {}): PasskeyConfig {
     residentKey: 'preferred',
     maxPasskeysPerUser: 10,
     challengeTimeout: 30_000,
+    verificationProofTimeout: 1000 * 60 * 5,
     requestPrfAtRegistration: false,
     prfSalt: '',
     requestPrfAtAuthentication: 'off',
