@@ -20,9 +20,13 @@ import { toGenericOSName } from '../../lib/utilities';
 import config from '../../lib/config';
 import {
   PairingChannelClient,
-  PairingChannelIncomingMessage,
   toRemoteMetadata,
 } from '../../lib/channels/pairing-channel';
+import { OAuthError } from '../../lib/oauth';
+import {
+  ValidatedSupplicantRequest,
+  validateSupplicantRequest,
+} from './pairing-request-validation';
 import * as Sentry from '@sentry/browser';
 
 const PAIR_HEARTBEAT_INTERVAL = 1000;
@@ -70,6 +74,8 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
   ]);
 
   private _channel: PairingChannelClient | null = null;
+  private _version: number | null = null;
+  public _iid: string | null = null;
   private _state: AuthorityState | null = null;
 
   private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
@@ -78,6 +84,7 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
   private _suppAuthorized = false;
   private _authAuthorized = false;
   private _cachedChannelId: string | null = null;
+  private _supRequest: ValidatedSupplicantRequest | null = null;
 
   public onSuppAuthorized: (() => void) | null = null;
   public onHeartbeatError: ((err: unknown) => void) | null = null;
@@ -91,6 +98,8 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
     public readonly opts: OAuthIntegrationOptions
   ) {
     super(data, storageData, opts, IntegrationType.PairingAuthority);
+    this._iid = crypto.randomUUID();
+    console.info('Created new PairingAuthorityIntegration', this._iid);
   }
 
   /**
@@ -132,6 +141,7 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
 
     const channel = new PairingChannelClient();
     this._channel = channel;
+    this._version = 2; // Only pairing v2 creates the authority channel
 
     channel.addEventListener('connected', this.handleConnected);
     channel.addEventListener('close', this.handleClose);
@@ -173,6 +183,7 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
 
   private setState(state: AuthorityState): void {
     this._state = state;
+    console.info('Emitting pairing authority state change event.', {id: this._iid, state: this.state});
     this.onStateChange?.(state);
   }
 
@@ -208,11 +219,58 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
    *    asking, and the only field of the message we consume.
    */
   private handleSuppRequest = (event: Event) => {
-    const data = (event as CustomEvent).detail as PairingChannelIncomingMessage;
+    const data = (event as CustomEvent).detail;
     if (data?.remoteMetaData) {
       this._remoteMetadata = toRemoteMetadata(data.remoteMetaData);
     }
-    this.setState(AuthorityState.WaitingForAuthorizations);
+
+    // In V2, FxA brokers pairing channel communications. Ack back to
+    // the supplicant with meta data, so the can approve the connection.
+    if (this._version === 2) {
+      if (!this._channel) {
+        this.fail(
+          new Error('Cannot handle a supplicant request without a channel.')
+        );
+        return;
+      }
+
+      // Vet the request as it arrives rather than in `authorize()`: approving is
+      // what turns these params into a real OAuth code with the account's Sync
+      // keys wrapped inside, so a request we would refuse must never reach the
+      // approval screen. Nothing throws out of this listener — a throw here
+      // reaches no caller, leaving the flow silently stalled.
+      const validation = validateSupplicantRequest(data);
+      if (!validation.ok) {
+        const err = new OAuthError('INVALID_PARAMETER', {
+          param: validation.failures.map((f) => f.field).join(', '),
+        });
+        // Field names and reasons only. The payload is remote-controlled, and
+        // `keys_jwk`/`code_challenge` do not belong in Sentry.
+        Sentry.captureException(err, {
+          extra: {
+            pairingRequestFailures: validation.failures
+              .map((f) => `${f.field}: ${f.reason}`)
+              .join('; '),
+          },
+        });
+        this.fail(err);
+        return;
+      }
+
+      this._supRequest = validation.request;
+
+      this._channel.send('pair:auth:metadata', {})
+        .then(()=>{
+           this.setState(AuthorityState.WaitingForAuthorizations);
+        })
+        .catch((err) => {
+          console.warn('Error sending pair:auth:metadata');
+          Sentry.captureException(err);
+          this.fail(err);
+        });
+    } else {
+      this.setState(AuthorityState.WaitingForAuthorizations);
+    }
   };
 
   /**
@@ -232,12 +290,17 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
       this.onSuppAuthorized?.();
     }
 
-    if (this._state === AuthorityState.WaitingForAuthorizations) {
-      // Supplicant approved first — the authority user has yet to act.
+    // In V2, the supplicant ALWAYS approves first!
+    if (this._version === 2) {
       this.setState(AuthorityState.WaitingForAuthority);
-    } else if (this._state === AuthorityState.WaitingForSupplicant) {
-      // Authority already approved. Handshake complete.
-      this.setState(AuthorityState.Complete);
+    } else {
+      if (this._state === AuthorityState.WaitingForAuthorizations) {
+        // Supplicant approved first — the authority user has yet to act.
+        this.setState(AuthorityState.WaitingForAuthority);
+      } else if (this._state === AuthorityState.WaitingForSupplicant) {
+        // Authority already approved. Handshake complete.
+        this.setState(AuthorityState.Complete);
+      }
     }
   };
 
@@ -400,8 +463,53 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
   /** Authority user approved the pairing request. */
   async authorize(): Promise<void> {
     this._authAuthorized = true;
-    await firefox.pairAuthorize(this.channelId);
 
+    if (this._version === 2) {
+      // `_supRequest` is only ever assigned from `validateSupplicantRequest`, so a
+      // non-null value here has already passed every rule. The type is the
+      // guarantee; re-checking the fields would only invite the two copies to drift.
+      const supRequest = this._supRequest;
+      if (!supRequest || !this._channel) {
+        this.fail(
+          new Error('Cannot authorize without a validated supplicant request.')
+        );
+        return;
+      }
+
+      try {
+        const result = await firefox.pairOauthFinish({
+          client_id: supRequest.client_id,
+          code_challenge: supRequest.code_challenge,
+          code_challenge_method: supRequest.code_challenge_method,
+          keys_jwk: supRequest.keys_jwk,
+          scope: supRequest.scope,
+          state: supRequest.state
+        });
+
+        if (!result?.code || !result.state) {
+          throw new Error('Failed to finalize oauth pair!');
+        }
+        console.info('OAuth pair finish success!')
+
+        await this._channel.send('pair:auth:authorize', {
+          code: result.code,
+          state: result.state
+        })
+      } catch (err) {
+        // pairOauthFinish rejects on its own timeout, on a missing code/state and
+        // on an echoed-state mismatch, and the send can reject too. The approve
+        // handler does not await this method, so anything thrown from here would
+        // be an unhandled rejection that leaves the user on the approval screen.
+        Sentry.captureException(err);
+        this.fail(err);
+        return;
+      }
+    }
+    else {
+      await firefox.pairAuthorize(this.channelId);
+    }
+
+    // The post-approval transition, shared by both pairing versions.
     if (this._state === AuthorityState.WaitingForAuthorizations) {
       this.setState(AuthorityState.WaitingForSupplicant);
     } else if (this._state === AuthorityState.WaitingForAuthority) {
@@ -426,6 +534,7 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
     this.stopHeartbeat();
     this.onSuppAuthorized = null;
     this.onHeartbeatError = null;
+    this._supRequest = null;
 
     this.onStateChange = null;
     this.onError = null;

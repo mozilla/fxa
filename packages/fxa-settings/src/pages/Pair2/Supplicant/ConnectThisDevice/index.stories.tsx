@@ -5,7 +5,7 @@
 import React from 'react';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import ConnectThisDevice from '.';
+import { ConnectThisDevice } from '.';
 import {
   MOCK_METADATA_UNKNOWN_LOCATION,
   MOCK_METADATA_WITH_LOCATION,

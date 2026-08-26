@@ -40,7 +40,7 @@ import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 // The MFA email-OTP guard is unit-tested separately (MfaGuardCore); here it is a
 // pass-through so the recovery setup (its children) renders directly. A mfa:2fa
 // JWT is seeded in setMocks so the JWT-guarded completion call resolves.
-jest.mock('../../components/Settings/MfaGuard', () => ({
+jest.mock('../../components/Settings/MfaGuard/MfaGuardCore', () => ({
   __esModule: true,
   MfaGuardCore: ({ children }: { children: ReactNode }) => children,
 }));

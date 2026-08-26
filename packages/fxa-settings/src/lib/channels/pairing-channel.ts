@@ -64,6 +64,17 @@ export type PairingChannelIncomingMessage = {
   state?: string;
 };
 
+export type PairingChannelV2SupplicantRequestMessage = {
+  remoteMetaData: PairingChannelRemoteMetadata;
+  client_id: string;
+  code_challenge: string;
+  code_challenge_method: string;
+  keys_jwk: string;
+  scope:string;
+  state:string;
+}
+
+
 // Error definitions matching Backbone's pairing-channel-client-errors
 export const PairingChannelErrors = {
   UNEXPECTED_ERROR: { errno: 999, message: 'Unexpected error' },
@@ -246,11 +257,14 @@ export class PairingChannelClient extends EventTarget {
     data: Record<string, unknown> = {}
   ): Promise<void> {
     if (!this.channel) {
+      console.warn('No pairing channel!')
       throw new PairingChannelError('NOT_CONNECTED');
     }
     if (!message) {
+      console.warn('No message!')
       throw new PairingChannelError('INVALID_OUTBOUND_MESSAGE');
     }
+    console.info('Sending pairing message', message);
     await this.channel.send({ message, data });
   }
 
@@ -262,8 +276,10 @@ export class PairingChannelClient extends EventTarget {
     this.channel = null;
     this.removeChannelListeners(ch);
     try {
+      console.info('Closing channel ', ch._channelId)
       await ch.close();
     } catch (err) {
+      console.error("Error closing channel", err);
       sentryMetrics.captureException(err);
     }
   }
@@ -290,6 +306,8 @@ export class PairingChannelClient extends EventTarget {
       }
 
       const { data = {}, message } = payload;
+
+      console.info(`Receiving pairing message`, message)
 
       // Enrich with sender metadata (same shape as Backbone)
       data.remoteMetaData = {

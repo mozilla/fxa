@@ -10,7 +10,7 @@ import { IntegrationFlags } from '../integrations/interfaces';
 // only) is the URL the v1 QR code resolves to, so requiring one would stop the
 // supplicant integration from being built for the flow's own entry point.
 const DEVICE_PAIRING_SUPPLICANT_PATHNAME_REGEXP = /^\/pair\/supp/;
-const DEVICE_PAIRING_V2_SUPPLICANT_PATHNAME_REGEXP = /^\/pair\/supplicant\//;
+const DEVICE_PAIRING_V2_SUPPLICANT_PATHNAME_REGEXP = /(^\/pair\/supplicant\/)|(^\/pair#.*v=2)/;
 const DEVICE_PAIRING_V2_AUTHORITY_PATHNAME_REGEXP = /^\/pair\/authority\//;
 
 /**
@@ -43,7 +43,7 @@ export class DefaultIntegrationFlags implements IntegrationFlags {
     // OAuth redirect (not WebChannel) for the supplicant flow.
     return (
       DEVICE_PAIRING_SUPPLICANT_PATHNAME_REGEXP.test(this.pathname) ||
-      DEVICE_PAIRING_V2_SUPPLICANT_PATHNAME_REGEXP.test(this.pathname)
+      DEVICE_PAIRING_V2_SUPPLICANT_PATHNAME_REGEXP.test(this.pathname + this.urlQueryData.hash)
     );
   }
 

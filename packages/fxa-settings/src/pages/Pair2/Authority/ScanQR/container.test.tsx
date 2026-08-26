@@ -129,6 +129,10 @@ describe('Pair2/Authority/ScanQR container', () => {
       ''
     );
     expect(integration.getPairUrl).not.toHaveBeenCalled();
+
+    // Nothing downstream can use a half-created channel, so this is the one
+    // path that does tear it down.
+    expect(integration.destroy).toHaveBeenCalled();
   });
 
   // The channel exists but its URL cannot be built — same user-visible outcome
@@ -156,16 +160,20 @@ describe('Pair2/Authority/ScanQR container', () => {
 
     emitState(integration, AuthorityState.WaitingForAuthorizations);
 
-    expect(mockNavigate).toHaveBeenCalledWith('/pair/authority/approve_signin');
+    expect(mockNavigate).toHaveBeenCalledWith(
+      '/pair/authority/continue_on_mobile'
+    );
   });
 
-  it('navigates to the approval screen once the supplicant joins', async () => {
+  it('navigates to the continue-on-mobile screen once the supplicant joins', async () => {
     renderContainer();
     await waitFor(() => expect(integration.onStateChange).toBeTruthy());
 
     emitState(integration, AuthorityState.WaitingForAuthorizations);
 
-    expect(mockNavigate).toHaveBeenCalledWith('/pair/authority/approve_signin');
+    expect(mockNavigate).toHaveBeenCalledWith(
+      '/pair/authority/continue_on_mobile'
+    );
   });
 
   it('navigates to the cancel screen when pairing fails', async () => {
@@ -191,26 +199,30 @@ describe('Pair2/Authority/ScanQR container', () => {
     }
   );
 
-  it('destroys the integration on unmount so leaving cannot leak a socket', async () => {
+  // The channel outlives this page: the authority moves on to the next pairing
+  // screen while the supplicant is still joining, so tearing it down on unmount
+  // would drop the socket mid-flow.
+  it('leaves the channel open on unmount', async () => {
     const { unmount } = renderContainer();
     await waitFor(() => expect(integration.createChannel).toHaveBeenCalled());
 
     unmount();
 
-    expect(integration.destroy).toHaveBeenCalled();
+    expect(integration.destroy).not.toHaveBeenCalled();
   });
 
-  // Effect cleanup cannot await, so a rejected close has to be caught rather
-  // than escaping as an unhandled rejection.
-  it('reports a failed teardown to Sentry', async () => {
-    const err = new Error('close failed');
-    integration.destroy.mockRejectedValue(err);
+  // The channel outlives this page, but the handler must not. The integration
+  // lasts the whole session, so a state change arriving after the user has
+  // left pairing would otherwise pull them back into the flow.
+  it('stops routing state changes once unmounted', async () => {
     const { unmount } = renderContainer();
-    await waitFor(() => expect(integration.createChannel).toHaveBeenCalled());
+    await waitFor(() => expect(integration.onStateChange).toBeTruthy());
 
     unmount();
 
-    await waitFor(() => expect(captureException).toHaveBeenCalledWith(err));
+    expect(integration.onStateChange).toBeNull();
+    emitState(integration, AuthorityState.WaitingForAuthorizations);
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   it('throws when handed an integration that is not the pairing authority', () => {

@@ -19,7 +19,7 @@ import {
   useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../models';
-import { MfaGuardCore } from '../../components/Settings/MfaGuard';
+import { MfaGuardCore } from '../../components/Settings/MfaGuard/MfaGuardCore';
 import { JwtTokenCache } from '../../lib/cache';
 import { clearMfaAndJwtCacheOnInvalidJwt } from '../../lib/mfa-guard-utils';
 import InlineRecoverySetup from './index';

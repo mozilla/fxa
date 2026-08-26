@@ -16,13 +16,37 @@ import {
   syncEngineConfigs,
   webChannelDesktopV3EngineConfigs,
 } from '../../sync-engines';
-import firefox from '../../channels/firefox';
+import firefox, { FxAStatusResponse } from '../../channels/firefox';
 import { Constants } from '../../constants';
 
 type FxAStatusIntegration = Pick<
   Integration,
   'type' | 'isSync' | 'isFirefoxNonSync' | 'isPairing'
 >;
+
+type SyncEngineConfigs = typeof syncEngineConfigs | undefined;
+
+/**
+ * `pairing` is optional in the fxa_status response, and very old versions of
+ * Firefox iOS omit `capabilities` entirely. Normalizing here means callers can
+ * read the capability off `fxaStatus` instead of each re-deriving the default.
+ */
+const DEFAULT_PAIRING_CAPABILITIES = {
+  pairing: false,
+  pairingVersion: 1,
+};
+
+/**
+ * What we settle on when no fxa_status is coming — either the browser cannot
+ * answer at all, or it never replied within `firefox.fxaStatus`'s attempts.
+ */
+const DEFAULT_FXA_STATUS: FxAStatusResponse = {
+  capabilities: {
+    engines: [],
+    multiService: false,
+    ...DEFAULT_PAIRING_CAPABILITIES,
+  },
+};
 
 /**
  * If integration.isSync or integration is OAuthNative, sends firefox.fxaStatus to retrieve
@@ -34,36 +58,25 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
   const isSync = integration.isSync();
   const isPairing = integration.isPairing();
   const isOAuthNative = isOAuthNativeIntegration(integration);
-
-  const [webChannelEngines, setWebChannelEngines] = useState<
-    string[] | undefined
-  >();
-  const [offeredSyncEngineConfigs, setOfferedSyncEngineConfigs] = useState<
-    typeof syncEngineConfigs | undefined
-  >();
+  const [webChannelEngines, setWebChannelEngines] = useState<string[]>();
+  const [offeredSyncEngineConfigs, setOfferedSyncEngineConfigs] =
+    useState<SyncEngineConfigs>();
   const [declinedSyncEngines, setDeclinedSyncEngines] = useState<string[]>([]);
   const [supportsKeysOptionalLogin, setSupportsKeysOptionalLogin] =
     useState<boolean>(false);
+
   const [supportsCanLinkAccountUid, setSupportsCanLinkAccountUid] = useState<
     boolean | undefined
   >(undefined);
 
   // Undefined until the browser answers, so callers can tell "not yet known"
-  // from "no pairing support" rather than routing on an unresolved default.
-  const [pairingEnabled, setPairingEnabled] = useState<boolean | undefined>(
-    undefined
-  );
-  const [pairingVersion, setPairingVersion] = useState<number | undefined>(
-    undefined
-  );
-  const [hasSyncKeys, setHasSyncKeys] = useState<boolean | undefined>(
-    undefined
-  );
+  // from "settled, no pairing" rather than routing on an unresolved default.
+  const [fxaStatus, setFxaStatus] = useState<FxAStatusResponse>();
 
   useEffect(() => {
     // This sends a web channel message to the browser to prompt a response
     // that we listen for.
-    if ((isSync || isOAuthNative) && isProbablyFirefox()) {
+    if ((isSync || isOAuthNative || isPairing) && isProbablyFirefox()) {
       (async () => {
         const status = await firefox.fxaStatus({
           // TODO: Improve getting 'context', probably set this on the integration
@@ -74,9 +87,24 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
           service: Constants.SYNC_SERVICE,
         });
 
-        // Very old versions of Firefox iOS do not send `capabilities` in the
-        // fxa_status response. This suppresses TypeErrors due to this.
-        const capabilities = status.capabilities || {};
+        // `status` is undefined when the browser never answered, and very old
+        // versions of Firefox iOS answer without `capabilities`. Falling back to
+        // the defaults in both cases means callers settle rather than wait.
+        const capabilities = {
+          ...DEFAULT_FXA_STATUS.capabilities,
+          ...status?.capabilities,
+        };
+
+        setFxaStatus({
+          ...status,
+          capabilities: {
+            ...capabilities,
+            pairing: !!capabilities.pairing,
+            pairingVersion:
+              capabilities.pairingVersion ||
+              DEFAULT_PAIRING_CAPABILITIES.pairingVersion,
+          },
+        });
 
         if (!webChannelEngines && capabilities.engines) {
           // choose_what_to_sync may be disabled for mobile sync, see:
@@ -106,13 +134,11 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
         } else {
           setSupportsCanLinkAccountUid(false);
         }
-        setPairingEnabled(!!capabilities.pairing);
-        setPairingVersion(capabilities.pairingVersion || 1);
-        setHasSyncKeys(capabilities.hasSyncKeys);
       })();
     } else {
-      setPairingEnabled(false);
-      setPairingVersion(1);
+      // No fxa_status is coming, so settle on the defaults rather than leaving
+      // callers waiting on a reply that will never arrive.
+      setFxaStatus(DEFAULT_FXA_STATUS);
     }
   }, [
     isSync,
@@ -170,15 +196,13 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
   }, [isSync, declinedSyncEngines, offeredSyncEngines]);
 
   return {
-    pairingVersion,
-    pairingEnabled,
-    hasSyncKeys,
     offeredSyncEngines,
     offeredSyncEngineConfigs,
     declinedSyncEngines,
     selectedEnginesForGlean,
     supportsKeysOptionalLogin,
     supportsCanLinkAccountUid,
+    fxaStatus,
   };
 }
 

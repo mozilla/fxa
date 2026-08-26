@@ -23,7 +23,7 @@ export type ConnectThisDeviceProps = {
    * the request came from their own computer. Supplied by the caller — this
    * component does not read the pairing channel itself.
    */
-  remoteMetadata?: RemoteMetadata;
+  remoteMetadata: RemoteMetadata;
   /**
    * Completes pairing. Required so that routing this card cannot leave an
    * action inert — the flow logic itself lands with the route.
@@ -40,22 +40,15 @@ export type ConnectThisDeviceProps = {
  * them to confirm connecting this device to their account. It shows the
  * requesting computer's details so they can verify the request.
  */
-const ConnectThisDevice = ({
+export const ConnectThisDevice = ({
   email,
   remoteMetadata,
   onConnect,
   onCancel,
 }: ConnectThisDeviceProps) => {
+  const awaitingRemoteMetadata = remoteMetadata == null;
   email = email ?? 'foo@mozilla.com';
-  remoteMetadata = remoteMetadata ?? {
-    deviceName: 'name-foo',
-    deviceFamily: 'family-foo',
-    deviceOS: 'os-foo',
-    ipAddress: 'ip-foo',
-    country: 'country-foo',
-    region: 'region-foo',
-    city: 'city-foo',
-  };
+
   return <AppLayout>
     <div className="flex flex-col items-center text-center">
       <FirefoxWordmarkImage className="h-8 w-24 text-black dark:text-white" />
@@ -80,6 +73,7 @@ const ConnectThisDevice = ({
         <button
           type="button"
           onClick={onConnect}
+          disabled={awaitingRemoteMetadata}
           className="cta-primary cta-xl mt-6 w-full"
         >
           Connect
@@ -89,6 +83,7 @@ const ConnectThisDevice = ({
         <button
           type="button"
           onClick={onCancel}
+          disabled={awaitingRemoteMetadata}
           className="link-dark-grey"
         >
           Cancel

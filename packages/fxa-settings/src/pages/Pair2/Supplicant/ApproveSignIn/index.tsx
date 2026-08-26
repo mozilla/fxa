@@ -31,7 +31,7 @@ export type ApproveSignInProps = {
  * tells them to finish approving the sign-in on their computer and shows the
  * requesting device's details for verification. Cancel is the only action.
  */
-const ApproveSignIn = ({ remoteMetadata, onCancel }: ApproveSignInProps) => {
+export const ApproveSignIn = ({ remoteMetadata, onCancel }: ApproveSignInProps) => {
   remoteMetadata = remoteMetadata ?? {
       deviceName: 'name-foo',
       deviceFamily: 'family-foo',

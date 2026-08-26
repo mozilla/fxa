@@ -7,6 +7,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import * as ReactUtils from 'fxa-react/lib/utils';
 import FirefoxPromoBanner from './index';
 import { Constants } from '../../lib/constants';
 import { isProbablyFirefox, useAccount } from '../../models';
@@ -46,6 +47,7 @@ const mockIsFirefox = isProbablyFirefox as jest.Mock;
 const mockIsMobileOrTablet = isMobileOrTabletDevice as jest.Mock;
 const mockIsMobileDevice = isMobileDevice as jest.Mock;
 const mockUseAccount = useAccount as jest.Mock;
+let hardNavigateSpy: jest.SpyInstance;
 
 function renderBanner({ isSignedIntoFirefox = false } = {}) {
   return renderWithLocalizationProvider(
@@ -64,6 +66,13 @@ describe('FirefoxPromoBanner', () => {
     mockIsMobileDevice.mockImplementation(
       (client) => client?.deviceType === 'mobile'
     );
+    hardNavigateSpy = jest
+      .spyOn(ReactUtils, 'hardNavigate')
+      .mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    hardNavigateSpy.mockRestore();
   });
 
   it('renders the mobile-install variant on desktop Firefox signed into the browser and emits view', () => {
@@ -112,6 +121,16 @@ describe('FirefoxPromoBanner', () => {
     expect(GleanMetrics.firefoxPromo.connectMobileSubmit).toHaveBeenCalledWith({
       event: { mobile_device_count: '1' },
     });
+  });
+
+  it('hard navigates to /pair so the integration is rebuilt', async () => {
+    const user = userEvent.setup();
+    mockIsFirefox.mockReturnValue(true);
+    mockIsMobileOrTablet.mockReturnValue(false);
+    renderBanner({ isSignedIntoFirefox: true });
+
+    await user.click(screen.getByRole('link', { name: 'Connect a device' }));
+    expect(hardNavigateSpy).toHaveBeenCalledWith('/pair');
   });
 
   it('renders the switch variant on desktop non-Firefox with the desktop download url', () => {

@@ -6,7 +6,7 @@ import { screen, waitFor } from '@testing-library/react';
 import { MOCK_ACCOUNT, renderWithRouter } from '../../models/mocks';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
-import ConnectAnotherDevice, { Devices, viewName } from '.';
+import ConnectAnotherDevice, { viewName } from '.';
 import { usePageViewEvent } from '../../lib/metrics';
 import {
   MOCK_BASIC_PROPS,
@@ -17,10 +17,10 @@ import {
   mockFxAStatus,
   mockPairingAppContext,
 } from './mocks';
-import { UseFxAStatusResult } from '../../lib/hooks';
 import { ENTRYPOINTS, REACT_ENTRYPOINT } from '../../constants';
 import firefox from '../../lib/channels/firefox';
 import * as ReactUtils from 'fxa-react/lib/utils';
+import { Devices } from '../../lib/utilities';
 
 jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -185,7 +185,7 @@ describe('ConnectAnotherDevice', () => {
     const FXA_PAIRING_V2 = 2;
 
     const renderPairingEligible = (
-      fxaStatus: Partial<UseFxAStatusResult>,
+      fxaStatus: Parameters<typeof mockFxAStatus>[0],
       fxaPairingVersion: number,
       route: string = MOCK_PAIRING_ELIGIBLE_ROUTE
     ) =>
@@ -214,7 +214,7 @@ describe('ConnectAnotherDevice', () => {
 
     it('navigates to the v2 pairing flow when FxA and the browser both support version 2', async () => {
       renderPairingEligible(
-        { pairingEnabled: true, pairingVersion: 2 },
+        { pairing: true, pairingVersion: 2 },
         FXA_PAIRING_V2
       );
 
@@ -230,7 +230,7 @@ describe('ConnectAnotherDevice', () => {
 
     it('reads the browser pairing capabilities from props instead of requesting fxaStatus', async () => {
       renderPairingEligible(
-        { pairingEnabled: true, pairingVersion: 2 },
+        { pairing: true, pairingVersion: 2 },
         FXA_PAIRING_V2
       );
 
@@ -246,7 +246,7 @@ describe('ConnectAnotherDevice', () => {
 
     it('navigates to the v1 pairing flow when the browser only supports pairing version 1', async () => {
       renderPairingEligible(
-        { pairingEnabled: true, pairingVersion: 1 },
+        { pairing: true, pairingVersion: 1 },
         FXA_PAIRING_V2
       );
 
@@ -260,7 +260,7 @@ describe('ConnectAnotherDevice', () => {
 
     it('navigates to the v1 pairing flow when the browser has pairing disabled', async () => {
       renderPairingEligible(
-        { pairingEnabled: false, pairingVersion: 2 },
+        { pairing: false, pairingVersion: 2 },
         FXA_PAIRING_V2
       );
 
@@ -274,7 +274,7 @@ describe('ConnectAnotherDevice', () => {
 
     it('navigates to the v1 pairing flow when FxA pairing version is 1', async () => {
       renderPairingEligible(
-        { pairingEnabled: true, pairingVersion: 2 },
+        { pairing: true, pairingVersion: 2 },
         FXA_PAIRING_V1
       );
 
@@ -287,7 +287,10 @@ describe('ConnectAnotherDevice', () => {
     });
 
     it('navigates to the v1 pairing flow when the browser reports no pairing capability', async () => {
-      renderPairingEligible({}, FXA_PAIRING_V2);
+      renderPairingEligible(
+        { pairing: false, pairingVersion: undefined },
+        FXA_PAIRING_V2
+      );
 
       await waitFor(() => expect(hardNavigate).toHaveBeenCalledWith('/pair'));
       expect(hardNavigate).not.toHaveBeenCalledWith(
@@ -299,7 +302,7 @@ describe('ConnectAnotherDevice', () => {
 
     it('navigates to the v2 pairing flow when the v=2 query param forces it, despite a v1 browser', async () => {
       renderPairingEligible(
-        { pairingEnabled: true, pairingVersion: 1 },
+        { pairing: true, pairingVersion: 1 },
         FXA_PAIRING_V2,
         `${MOCK_PAIRING_ELIGIBLE_ROUTE}&v=2`
       );
@@ -316,7 +319,7 @@ describe('ConnectAnotherDevice', () => {
 
     it('renders the loading spinner while the browser capabilities are unresolved', async () => {
       renderPairingEligible(
-        { pairingEnabled: undefined, pairingVersion: undefined },
+        { overrides: { fxaStatus: undefined } },
         FXA_PAIRING_V2
       );
 
@@ -326,7 +329,7 @@ describe('ConnectAnotherDevice', () => {
 
     it('renders the page without pairing when the flow is not pairing-eligible', async () => {
       renderPairingEligible(
-        { pairingEnabled: true, pairingVersion: 2 },
+        { pairing: true, pairingVersion: 2 },
         FXA_PAIRING_V2,
         '/connect_another_device'
       );

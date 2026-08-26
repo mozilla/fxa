@@ -16,6 +16,8 @@ import {
 import { firefox } from '../../lib/channels/firefox';
 import { RemoteMetadata } from '../../lib/types';
 import config from '../../lib/config';
+import { detectDevice, Devices } from '../../lib/utilities';
+import { OAuthNativeClients } from '@fxa/accounts/oauth';
 
 /** Redirect URI used by OAuth WebChannel reliers (matches Backbone Constants.OAUTH_WEBCHANNEL_REDIRECT) */
 const OAUTH_WEBCHANNEL_REDIRECT =
@@ -74,6 +76,16 @@ export enum SupplicantState {
   Failed = 'failed',
 }
 
+export type OAuthStartParams = {
+  access_type: string;
+  client_id: string;
+  code_challenge: string;
+  code_challenge_method: string;
+  keys_jwk: string;
+  scope: string;
+  state: string;
+};
+
 /**
  * Supplicant integration for the device-pairing flow.
  *
@@ -94,6 +106,15 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
   private _email = '';
   private _deviceName = '';
   private _channelId: string | null = null;
+  private _version: number | null = null;
+  private _iid: string | null = null;
+  /**
+   * The `state` this supplicant asked for, remembered so the authority's
+   * `pair:auth:authorize` can be checked against it. In v2 the value comes from
+   * `firefox.pairOauthStart` rather than the URL, so `this.data.state` is empty
+   * and the round-trip check would otherwise pass for anything.
+   */
+  private _requestedState: string | null = null;
 
   public onStateChange: ((state: SupplicantState) => void) | null = null;
   public onError: ((error: unknown) => void) | null = null;
@@ -104,6 +125,7 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     public readonly opts: OAuthIntegrationOptions
   ) {
     super(data, storageData, opts, IntegrationType.PairingSupplicant);
+    this._iid = crypto.randomUUID();
   }
 
   /**
@@ -126,6 +148,11 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
       return true;
     }
     return allowedClients.includes(clientId);
+  }
+
+  getServiceName(): string {
+    // TBD: At somepoint we will need to encode the service in the pair url?
+    return 'sync';
   }
 
   get state(): SupplicantState {
@@ -162,6 +189,7 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
 
   private setState(state: SupplicantState): void {
     this._state = state;
+    console.info(`Emitting pairing supplicant state change event.`, {id: this._iid, state: this.state});
     this.onStateChange?.(state);
   }
 
@@ -192,6 +220,10 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     this.onError?.(this._error);
   }
 
+  hasChannel(channelId:string) {
+    return !!this._channel && this._channel.channelId === channelId;
+  }
+
   /**
    * Open the WebSocket channel and start the supplicant flow.
    * Called once when the Supp page mounts.
@@ -199,14 +231,27 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
   async openChannel(
     channelServerUri: string,
     channelId: string,
-    channelKey: string
+    channelKey: string,
+    version:number = 1
   ): Promise<void> {
+
+    if (version === 2 && this._channel) {
+      if (channelId === this._channel.channelId) {
+        console.warn('Pairing channel already open!');
+        return; // already open
+      } else {
+        console.warn('Different pairing channel already open!');
+        this._channel.close();
+      }
+    }
+
     if (this._channel) {
       console.warn('Pairing channel already open!');
       return; // already open
     }
 
     this._channelId = channelId;
+    this._version = version;
     this._channel = new PairingChannelClient();
 
     // Listen for channel events
@@ -236,37 +281,46 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
   /** Supplicant user approved the pairing. */
   async supplicantApprove(): Promise<void> {
     if (!this._channel) {
-      return;
+      throw new Error('Missing channel!');
     }
 
     try {
       await this._channel.send('pair:supp:authorize', {});
-
-      if (this._state === SupplicantState.WaitingForAuthorizations) {
-        // Supplicant approved first — wait for authority
-        this.setState(SupplicantState.WaitingForAuthority);
-      } else if (this._state === SupplicantState.WaitingForSupplicant) {
-        // Authority already approved — send result
-        this.sendResultToRelier();
-      }
     } catch (err: unknown) {
       this.fail(err);
+      throw err;
+    }
+
+    // In V2, the the UI flow forces the supplicant to approve first.
+    if (this._version === 2) {
+      this.setState(SupplicantState.WaitingForAuthority);
+    }
+    else {
+      if (this._state === SupplicantState.WaitingForAuthorizations) {
+        this.setState(SupplicantState.WaitingForAuthority);
+      } else if (this._state === SupplicantState.WaitingForSupplicant) {
+        this.sendResultToRelier();
+      }
     }
   }
 
   private handleConnected = () => {
     this.setState(SupplicantState.WaitingForMetadata);
 
-    // Send OAuth request to authority
-    const oauthParams = this.getOAuthParams();
-    if (!this._channel) {
-      return;
-    }
-    this._channel
-      .send('pair:supp:request', oauthParams as Record<string, unknown>)
-      .catch((err: unknown) => {
-        this.fail(err);
-      });
+    // Callback to the browser and get the oauth parameters
+    (async () => {
+      const oauthParams = await this.getOAuthParams();
+
+      // Send OAuth request to authority
+      if (!this._channel) {
+        throw new Error('Channel no longe exists!')
+      }
+      await this._channel
+        .send('pair:supp:request', oauthParams);
+
+    })().catch((err: unknown) => {
+      this.fail(err);
+    });
   };
 
   private handleAuthMetadata = (event: Event) => {
@@ -298,20 +352,43 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
       return;
     }
 
-    const expectedState = this.data.state;
-    if (expectedState && data.state !== expectedState) {
+    // v1 reads it from the URL, v2 from `pairOauthStart`, so prefer what we
+    // actually sent. Nothing to compare against means we never sent a request,
+    // which makes this authorize unsolicited.
+    const expectedState = this._requestedState ?? this.data.state;
+    if (!expectedState) {
+      this.fail(
+        new Error('Cannot verify OAuth state: no request state recorded')
+      );
+      return;
+    }
+    if (data.state !== expectedState) {
       this.fail(new Error('OAuth state mismatch'));
       return;
     }
-
     this._oauthCode = data.code;
 
-    if (this._state === SupplicantState.WaitingForAuthorizations) {
-      // Authority approved first — wait for supplicant user
-      this.setState(SupplicantState.WaitingForSupplicant);
-    } else if (this._state === SupplicantState.WaitingForAuthority) {
-      // Supplicant already approved — send result
-      this.sendResultToRelier();
+    // In V2, the authority always approves last, so we can just finish
+    // the process here.
+    if (this._version === 2) {
+      firefox.fxaOAuthLogin({
+        code: data.code,
+        state: data.state,
+        redirect: OAUTH_WEBCHANNEL_REDIRECT,
+        action: 'pairing',
+      });
+      if (this._channel?.channelId) {
+        setChannelComplete(this._channel.channelId);
+      }
+      this.setState(SupplicantState.Complete);
+    } else {
+      if (this._state === SupplicantState.WaitingForAuthorizations) {
+        // Authority approved first — wait for supplicant user
+        this.setState(SupplicantState.WaitingForSupplicant);
+      } else if (this._state === SupplicantState.WaitingForAuthority) {
+        // Supplicant already approved — send result
+        this.sendResultToRelier();
+      }
     }
   };
 
@@ -324,7 +401,38 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     );
   }
 
+  checkClientInfo () {
+    // no-op. The supplicant doesn't have client info.
+  }
+
+  getClientId(): string | undefined {
+    let clientId = super.getClientId();
+
+    // BAND-AIDE! We should get from the URL, or fxa status! Unfortunately
+    // there are situations like pairing where it's not in the URL and
+    // fxa status is also missing the value.
+    if (!clientId) {
+      const deviceType = detectDevice();
+      if (deviceType === Devices.FIREFOX_ANDROID) {
+        clientId = OAuthNativeClients.Fenix;
+      }
+      if (deviceType === Devices.FIREFOX_IOS) {
+        clientId = OAuthNativeClients.FirefoxIOS;
+      }
+      if (deviceType === Devices.FIREFOX_DESKTOP) {
+        clientId = OAuthNativeClients.FirefoxDesktop;
+      }
+    }
+
+    if (!clientId) {
+      console.warn("Could not resolve a valid clientId!")
+    }
+
+    return clientId;
+  }
+
   private handleClose = () => {
+    console.warn('Channel close event');
     if (this.isPostCompletionReconnect()) {
       return;
     }
@@ -335,12 +443,16 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
   };
 
   private handleChannelError = (event: Event) => {
+
+    console.warn('Channel error event', event)
+
     if (this.isPostCompletionReconnect()) {
       return;
     }
     this.fail((event as CustomEvent).detail);
   };
 
+  // TODO: Remove after v1 is deprecated
   private sendResultToRelier(): void {
     this.setState(SupplicantState.SendingResult);
 
@@ -372,15 +484,47 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
    * keys_jwk, scope, state) throw on missing values to match Backbone's
    * Vat.*.required() validators.
    */
-  private getOAuthParams(): {
-    access_type: string;
-    client_id: string;
-    code_challenge: string;
-    code_challenge_method: string;
-    keys_jwk: string;
-    scope: string;
-    state: string;
-  } {
+  private async getOAuthParams(): Promise<OAuthStartParams> {
+    if (this._version === 2) {
+      const data = await firefox.pairOauthStart({});
+      if (!data) {
+        throw new Error('Firefox could not provide oauth params.')
+      }
+
+      // This following client id check is a bandaide for now, so we at least
+      // have a client id... We fail fast here if we can't figure anything
+      // out, since there's not point in proceeding.
+      const client_id = this.data.clientId || this.getClientId();
+      if (!client_id) {
+        console.warn('Could not determine clientId!')
+        throw new Error("Could not determine clientId! Cannot proceed.")
+      }
+
+      const scope = [
+        ...new Set(data?.scope.replace(/\+/g, ' ').trim().split(/\s+/)),
+      ].join(' ');
+
+      const result = {
+        access_type: this.data.accessType || 'offline',
+        client_id,
+        code_challenge: data.code_challenge,
+        code_challenge_method: data.code_challenge_method,
+        keys_jwk: data.keys_jwk,
+        scope,
+        state: data.state,
+      };
+
+      // Fail fast if something wasn't provided.
+      const missing = Object.entries(result).filter(([k,v]) => !v && k !== 'client_id').map(([k]) => k);
+      if (missing.length) {
+        throw new Error(`Missing required OAuth params: ${missing.join(', ')}`);
+      }
+
+      this._requestedState = result.state;
+      return result;
+    }
+
+    // Legacy v1 approach
     const clientId = this.data.clientId;
     const codeChallenge = this.data.codeChallenge;
     const codeChallengeMethod = this.data.codeChallengeMethod;
@@ -415,6 +559,7 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
       ...new Set(rawScope.replace(/\+/g, ' ').trim().split(/\s+/)),
     ].join(' ');
 
+    this._requestedState = state;
     return {
       access_type: this.data.accessType || 'offline',
       client_id: clientId,
@@ -427,6 +572,7 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
   }
 
   async destroy(): Promise<void> {
+    console.info('Channel destroy')
     this.onStateChange = null;
     this.onError = null;
 

@@ -97,6 +97,20 @@ export class UrlQueryData extends UrlData {
    */
   public async toSearchQuery() {
     await this.synchronized();
+    return this.search;
+  }
+
+  /**
+   * Exposes the location's raw search string
+   */
+  get search() {
     return this.window.location.search;
+  }
+
+  /**
+   * Exposes the location's raw hash string
+   */
+  get hash() {
+    return this.window.location.hash;
   }
 }

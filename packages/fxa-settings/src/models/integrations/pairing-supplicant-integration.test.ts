@@ -2,12 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { waitFor } from '@testing-library/react';
 import { GenericData } from '../../lib/model-data';
 import {
   PAIR_COMPLETE_STORAGE_PREFIX,
   PairingSupplicantIntegration,
   SupplicantState,
 } from './pairing-supplicant-integration';
+import { firefox } from '../../lib/channels/firefox';
 
 // Mock PairingChannelClient
 const mockOpen = jest.fn().mockResolvedValue(undefined);
@@ -86,9 +88,13 @@ describe('PairingSupplicantIntegration', () => {
       emit('connected');
 
       expect(integration.state).toBe(SupplicantState.WaitingForMetadata);
-      expect(mockSend).toHaveBeenCalledWith(
-        'pair:supp:request',
-        expect.objectContaining({ client_id: '3c49430b43dfba77' })
+      // The params are resolved before the request goes out, so the send lands
+      // a microtask after the state change rather than with it.
+      await waitFor(() =>
+        expect(mockSend).toHaveBeenCalledWith(
+          'pair:supp:request',
+          expect.objectContaining({ client_id: '3c49430b43dfba77' })
+        )
       );
     });
 
@@ -191,6 +197,87 @@ describe('PairingSupplicantIntegration', () => {
       expect(
         sessionStorage.getItem(PAIR_COMPLETE_STORAGE_PREFIX + 'chan-42')
       ).toBe('1');
+    });
+  });
+
+  // v2 asks the browser for its OAuth params instead of reading them from the
+  // URL, so the state to check `pair:auth:authorize` against is the one
+  // `pairOauthStart` handed back — not `this.data.state`, which v2 never sets.
+  describe('v2 approval state machine', () => {
+    const BROWSER_STATE = 'browser-generated-state';
+
+    async function setupV2(): Promise<PairingSupplicantIntegration> {
+      jest.spyOn(firefox, 'pairOauthStart').mockResolvedValue({
+        state: BROWSER_STATE,
+        scope: 'profile https://identity.mozilla.com/apps/oldsync',
+        code_challenge: VALID_CODE_CHALLENGE,
+        code_challenge_method: 'S256',
+        keys_jwk: 'dGVzdGtleXM',
+      });
+      jest.spyOn(firefox, 'fxaOAuthLogin').mockImplementation(() => {});
+
+      // No `state` query param, which is what a real v2 supplicant URL looks
+      // like — the whole point is that the check cannot lean on it.
+      const integration = createIntegration({ state: '' });
+      await integration.openChannel('wss://ch.example.com', 'c', 'k', 2);
+      emit('connected');
+      await waitFor(() =>
+        expect(mockSend).toHaveBeenCalledWith(
+          'pair:supp:request',
+          expect.objectContaining({ state: BROWSER_STATE })
+        )
+      );
+      emit('remote:pair:auth:metadata', {
+        email: 'u@e.com',
+        remoteMetaData: { ua: '' },
+      });
+      return integration;
+    }
+
+    it('completes when the authority echoes back the state we sent', async () => {
+      const integration = await setupV2();
+
+      emit('remote:pair:auth:authorize', {
+        code: VALID_OAUTH_CODE,
+        state: BROWSER_STATE,
+      });
+
+      expect(integration.state).toBe(SupplicantState.Complete);
+      expect(firefox.fxaOAuthLogin).toHaveBeenCalledWith(
+        expect.objectContaining({ code: VALID_OAUTH_CODE, action: 'pairing' })
+      );
+    });
+
+    it('fails on a state that is not the one we asked for', async () => {
+      const integration = await setupV2();
+
+      emit('remote:pair:auth:authorize', {
+        code: VALID_OAUTH_CODE,
+        state: 'some-other-flows-state',
+      });
+
+      expect(integration.state).toBe(SupplicantState.Failed);
+      expect(integration.error?.message).toBe('OAuth state mismatch');
+      expect(firefox.fxaOAuthLogin).not.toHaveBeenCalled();
+    });
+
+    // Arrives before `pairOauthStart` has resolved, so there is no state to
+    // compare against and the message cannot be an answer to our request.
+    it('fails on an authorize that arrives before we sent a request', async () => {
+      jest
+        .spyOn(firefox, 'pairOauthStart')
+        .mockReturnValue(new Promise(() => {}));
+      const integration = createIntegration({ state: '' });
+      await integration.openChannel('wss://ch.example.com', 'c', 'k', 2);
+      emit('connected');
+
+      emit('remote:pair:auth:authorize', {
+        code: VALID_OAUTH_CODE,
+        state: BROWSER_STATE,
+      });
+
+      expect(integration.state).toBe(SupplicantState.Failed);
+      expect(integration.error?.message).toContain('no request state recorded');
     });
   });
 
@@ -310,7 +397,11 @@ describe('PairingSupplicantIntegration', () => {
         remoteMetaData: { ua: '' },
       });
 
-      await integration.supplicantApprove();
+      // The rejection is rethrown so the caller can navigate to the failure
+      // screen; the integration records the failure either way.
+      await expect(integration.supplicantApprove()).rejects.toThrow(
+        'send failed'
+      );
       expect(integration.state).toBe(SupplicantState.Failed);
       expect(integration.error?.message).toBe('send failed');
     });

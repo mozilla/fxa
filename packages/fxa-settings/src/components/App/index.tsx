@@ -177,10 +177,10 @@ const PairSuppWaitForAuth = lazy(
 );
 
 const PairAuthorityApproveSignIn = lazy(
-  () => import('../../pages/Pair2/Authority/ApproveSignIn')
+  () => import('../../pages/Pair2/Authority/ApproveSignIn/container')
 );
 const PairAuthorityContinueOnMobile = lazy(
-  () => import('../../pages/Pair2/Authority/ContinueOnMobile')
+  () => import('../../pages/Pair2/Authority/ContinueOnMobile/container')
 );
 const PairAuthorityDownloadFirefox = lazy(
   () => import('../../pages/Pair2/Authority/DownloadFirefox')
@@ -192,15 +192,15 @@ const PairAuthoritySyncSuccess = lazy(
   () => import('../../pages/Pair2/Authority/SyncSuccess')
 );
 const PairAuthorityTimeoutAndCancel = lazy(
-  () => import('../../pages/Pair2/Authority/TimeoutAndCancel')
+  () => import('../../pages/Pair2/Authority/TimeoutAndCancel/container')
 );
 
 
 const PairSupplicantApproveSignIn = lazy(
-  () => import('../../pages/Pair2/Supplicant/ApproveSignIn')
+  () => import('../../pages/Pair2/Supplicant/ApproveSignIn/container')
 );
 const PairSupplicantConnectThisDevice = lazy(
-  () => import('../../pages/Pair2/Supplicant/ConnectThisDevice')
+  () => import('../../pages/Pair2/Supplicant/ConnectThisDevice/container')
 );
 const PairSupplicantDownloadFirefox = lazy(
   () => import('../../pages/Pair2/Supplicant/DownloadFirefox')
@@ -430,12 +430,20 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
     metricsEnabled,
   ]);
 
+  // A scanned QR drops the supplicant on `/pair#…v=2` with no client_id, so its
+  // client-info fetch always fails. Failing fast there would kill the hand-off
+  // before Pair gets a chance to route it.
+  const isPairingV2Handoff = () =>
+    !!window.location.pathname?.startsWith('/pair') &&
+    /\bv=2\b/.test(window.location.hash ?? '');
+
   // Fail fast: if the OAuth client-info fetch in useClientInfoState exhausted its
   // retries, surface the user-facing error immediately rather than waiting downstream
   // failures to occur.
   if (
     integration &&
     isOAuthIntegration(integration) &&
+    !isPairingV2Handoff() &&
     integration.clientInfoLoadFailed
   ) {
     try {
@@ -1066,30 +1074,15 @@ const AuthAndAccountSetupRoutes = ({
         <Route path="/pair/unsupported/*" element={<PairUnsupported />} />
         <Route
           path="/pair/*"
-          element={<PairIndex integration={integration} />}
+          element={<PairIndex {...{integration, fxaStatusResult: useFxAStatusResult}} />}
         />
         <Route
           path="/pair/authority/approve_signin/*"
-          element={<PairAuthorityApproveSignIn {...{
-            email: 'foo@mozilla.com',
-            remoteMetadata: {
-              deviceFamily: 'Mobile',
-              deviceOS: 'iOS',
-              ipAddress: '127.0.0.1',
-            },
-            onApprove: () => {
-              console.log('TBD!')
-            },
-            onChangePassword: () => {
-              console.log('TBD!')
-            }
-          }} />}
+          element={<PairAuthorityApproveSignIn {...{integration}} />}
         />
         <Route
           path="/pair/authority/continue_on_mobile/*"
-          element={<PairAuthorityContinueOnMobile {...{
-            onCancel: () => console.log('TBD')
-          }} />}
+          element={<PairAuthorityContinueOnMobile {...{integration}} />}
         />
         <Route
           path="/pair/authority/download_firefox/*"
@@ -1109,11 +1102,11 @@ const AuthAndAccountSetupRoutes = ({
         />
         <Route
           path="/pair/supplicant/approve_signin/*"
-          element={<PairSupplicantApproveSignIn />}
+          element={<PairSupplicantApproveSignIn {...{integration}} />}
         />
         <Route
           path="/pair/supplicant/connect_this_device/*"
-          element={<PairSupplicantConnectThisDevice />}
+          element={<PairSupplicantConnectThisDevice {...{integration}} />}
         />
         <Route
           path="/pair/supplicant/download_firefox/*"
