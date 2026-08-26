@@ -1,8 +1,8 @@
 {
-  "commit": "b3f5da4c2f4203ec53e15d9f69e843e93b8bb2a5",
-  "summary": "Merge pull request #21100 from mozilla/FXA-13867",
-  "description": "task(settings): Implement pairing v2 flow",
-  "timestamp": 1787710443000,
+  "commit": "df0d2568545a5f26a1f28cda503ec7b7b6b93d1e",
+  "summary": "Merge pull request #21109 from mozilla/fxa-13870-v3",
+  "description": "test(functional-tests): add end-to-end v2 pairing coverage",
+  "timestamp": 1787760227000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
