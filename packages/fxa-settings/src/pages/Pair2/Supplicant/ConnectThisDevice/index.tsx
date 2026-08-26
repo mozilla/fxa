@@ -72,6 +72,7 @@ export const ConnectThisDevice = ({
       <FtlMsg id="pair2-supplicant-connect-this-device-connect-button">
         <button
           type="button"
+          data-testid="pair2-supp-connect-btn"
           onClick={onConnect}
           disabled={awaitingRemoteMetadata}
           className="cta-primary cta-xl mt-6 w-full"
@@ -82,6 +83,7 @@ export const ConnectThisDevice = ({
       <FtlMsg id="pair2-supplicant-connect-this-device-cancel-button">
         <button
           type="button"
+          data-testid="pair2-supp-cancel-btn"
           onClick={onCancel}
           disabled={awaitingRemoteMetadata}
           className="link-dark-grey"

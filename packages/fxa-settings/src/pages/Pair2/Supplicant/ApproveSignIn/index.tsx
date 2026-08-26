@@ -63,6 +63,7 @@ export const ApproveSignIn = ({ remoteMetadata, onCancel }: ApproveSignInProps) 
       <FtlMsg id="pair2-supplicant-approve-sign-in-cancel-button">
         <button
           type="button"
+          data-testid="pair2-supp-cancel-btn"
           onClick={onCancel}
           className="link-dark-grey"
         >
