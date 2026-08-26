@@ -10,7 +10,7 @@ the same ground framed for developers doing manual, by-hand device testing.)
 Pairing connects a signed-in desktop Firefox (the **authority**) to a mobile
 Firefox (the **supplicant**) over a short-lived channel. The specs drive both
 sides: a Marionette-controlled desktop Firefox as the authority, and a real
-mobile app as the supplicant.
+mobile app or a Playwright page as the supplicant.
 
 - `pairingFlowAndroid.spec.ts` + `lib/android-supplicant.ts` (adb-driven Fenix).
 - `pairingFlowiOS.spec.ts` (Simulator + XCUITest-driven Firefox iOS).
@@ -31,9 +31,12 @@ mobile app's FxA-server override.
 mza` for a faster core subset). Needs Docker; `yarn start infrastructure` if it
   isn't up. Provides content-server :3030, auth-server :9000; Fenix/iOS client
   ids are registered in `packages/fxa-auth-server/config/dev.json`.
-- **Playwright's Firefox** (the authority): pulled by `yarn install` in
-  `packages/functional-tests`; if missing, `npx playwright install firefox`.
-  Override the binary with `FIREFOX_BINARY`.
+- **The authority browser** (Marionette): the v1 specs run on Playwright's
+  bundled Firefox, pulled by `yarn install`. The **v2** specs need **Firefox
+  Nightly**, because the v2 chrome commands ship there; they skip without it.
+  Install it from https://www.mozilla.org/firefox/channel/desktop/#nightly.
+  `lib/firefox-binary.ts` finds it at the default install path and falls back to
+  the bundled build. Override with `FIREFOX_BINARY`.
 - **Android:** a booted emulator/device (`adb devices` lists it) with a Fenix
   debug build that has the Sync Debug pairing hook (`org.mozilla.fenix.debug`;
   hook landed in Bug 2053454, so a current debug build already has it). Build +
