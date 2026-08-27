@@ -1,10 +1,10 @@
 ---
-name: fxa-risk-score
-description: Rate how risky a change is in the mozilla/fxa monorepo, and open every review with that rating. Scores impact 0-10 from what the diff does, then reports the band, the change type, how much review it needs, what blocks a merge, database migration hazards, and which user flows can break. Apply this to every pull request and every diff you review in this repository.
+name: code-review
+description: Review pull requests in the mozilla/fxa monorepo, and open every review with a risk rating. Rates impact 0-10 from what the diff does, then reports the band, the change type, how much review the change needs, what blocks a merge, database migration hazards, and which user flows can break. Use this for every pull request review, code review, and diff review in this repository.
 license: MPL-2.0
 ---
 
-# FXA Risk Score
+# FXA Code Review — Risk Rating
 
 Rate one change. Report a number, the reasons behind it, and what a reviewer should do about it.
 
