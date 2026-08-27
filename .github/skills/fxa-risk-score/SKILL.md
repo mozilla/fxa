@@ -16,7 +16,9 @@ Every point must trace to a line in the diff. A reviewer has to be able to disag
 
 Read files around the diff to judge impact. You need callers, types, and config to tell a real risk from a shape that merely looks like one.
 
-In a terminal, fetch it yourself. `$ARGUMENTS` is a commit ref or a PR number, defaulting to `HEAD`:
+In a terminal, fetch it yourself. `$ARGUMENTS` selects what to rate, and each form takes a different command — a PR number is not a git revision, so never hand it to `git show`.
+
+A commit ref, or `HEAD` when `$ARGUMENTS` is empty:
 
 ```bash
 REF="${ARGUMENTS:-HEAD}"
@@ -24,13 +26,27 @@ git show --stat "$REF"
 git diff "$REF^" "$REF"
 ```
 
-For a PR number use `gh pr diff <number>`. For uncommitted work use `git diff main...HEAD`.
+A PR number:
+
+```bash
+gh pr diff "$ARGUMENTS"
+gh pr view "$ARGUMENTS" --json title,body,files
+```
+
+Pending work in the tree, staged and unstaged together. Note the two dots. The three-dot form compares the merge base against `HEAD` only, so it silently skips everything you have not committed.
+
+```bash
+git diff main --stat
+git diff main
+```
 
 **When you cannot verify something, say so and do not award points for it.** Several modifiers below need you to find callers or check the live release. If the tooling in front of you cannot do that, write `unverified` on that line. A guessed modifier is worse than a missing one.
 
 ## Step 2: Classify the Change Type
 
-Pick the one that fits best: `feature`, `fix`, `refactor`, `deps`, `config`, `migration`, `revert`, `test-only`, `docs`, `l10n`.
+Pick the one that fits best. These follow the types in `CONTRIBUTING.md`: `feat`, `fix`, `refactor`, `perf`, `style`, `test`, `docs`, `chore`, plus `deps`, `config`, `migration`, `revert`, and `l10n` for cases the commit types do not name.
+
+`chore` covers build process and auxiliary tooling — CI config, scripts, agent skills, generators. Do not force a tooling change into `docs` or `config`.
 
 A change carrying a migration is `migration` even when it also ships a feature. The migration dominates because it is the part that cannot be rolled back by redeploying.
 
@@ -102,10 +118,12 @@ Floor the total at 0. Cap it at 10.
 | ----- | -------- | --------------------------------------------------------------------- |
 | 0-2   | LOW      | one reviewer, normal skim                                             |
 | 3-5   | MODERATE | one reviewer reading carefully, and the specific concerns named below |
-| 6-8   | HIGH     | second approver, plus a domain owner for the surface involved         |
-| 9-10  | CRITICAL | domain owner and a security reviewer, and do not land late in a train |
+| 6-8   | HIGH     | second approver, plus a reviewer who knows the surface involved       |
+| 9-10  | CRITICAL | a security reviewer as well, and do not land it late in a train       |
 
-Check `.github/CODEOWNERS` to name the actual owner rather than saying "a domain owner".
+Read `.github/CODEOWNERS` and name only an owner it actually matches. Today the file carries one repository-wide rule, `* @mozilla/fxa-devs`, plus a `*.ftl` rule for `@mozilla/fxa-l10n` and a few lockfile paths. So for most changes the owner is `@mozilla/fxa-devs`, and there is no per-domain owner to name.
+
+**Never invent an owner.** "The passkey owner" or "the payments owner" reads like a real routing instruction and is not one. If `CODEOWNERS` has no rule for the surface, say which surface needs expertise and leave the person unnamed: "wants a reviewer familiar with the passkey wrap lifecycle".
 
 ## Step 5: Blockers
 
@@ -140,7 +158,8 @@ Report exactly this shape. Keep it short enough to sit at the top of a review.
 Risk: HIGH (8/10)
 Type: migration · 3 packages
 
-Review depth: second approver + passkey owner
+Review depth: second approver from @mozilla/fxa-devs; wants someone
+              familiar with the passkey wrap lifecycle
 Blockers:     rollback re-adds a NOT NULL column with no backfill, so it
               cannot run against a populated table — confirm the drop is
               sequenced after the current release drains
@@ -161,12 +180,12 @@ Rules for the output:
 - Write `Blockers: none` when there are none. Never omit that line — silence reads as "not checked".
 - The `Why:` line must add up to the reported score. If it does not, you made an arithmetic error, fix it before reporting.
 - Name files and patch numbers. "Touches auth" is not useful; "modifies `lib/oauth/grant.js`" is.
-- Score the same diff the same way twice. A re-review after a push should move the number only if the diff moved, and should say what moved it.
+- Score the same diff the same way twice. A re-review should move the number only if the diff moved or the verified world moved, and must say which. The two-stack modifier legitimately changes as releases drain, so "the drop is now safe, the release carrying the old writer has drained" is a valid reason for a lower score on an unchanged diff. Drift with no stated cause is a bug.
 
 ## Guidelines
 
 - Score the diff in front of you, not the worst thing it could have been.
-- A large diff is not automatically risky. A one-line change to token validation is riskier than a 900-line l10n import. Blast radius is a modifier, never the headline.
+- A large diff is not automatically risky. A one-line change to token validation is riskier than a 900-line l10n import. There is no blast-radius modifier and no per-package points: how far a change reaches is an input to the Impact tier you pick, not an addition on top of it. Every point in the `Why:` line must name a row from Step 3.
 - Read enough surrounding code to tell a real risk from a shape that merely looks like one. Check callers before claiming a contract broke.
 - When you cannot tell whether something is risky, say so on its own line and score it at the low end. A confident wrong number is worse than an honest range.
 - Do not restate the PR description back to the reader. They wrote it.
