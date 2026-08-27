@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 871a3f43c3079678567201d44eb9acbce8f4e7c2</title>
+  <title>Storybooks for commit 3cad71263aff8b610f39a996d9d0bd33025a8e94</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,15 +23,15 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 871a3f43c3079678567201d44eb9acbce8f4e7c2</h1>
+  <h1>Storybooks for commit 3cad71263aff8b610f39a996d9d0bd33025a8e94</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/25/2026, 11:13:52 PM UTC</dd>
+    <dd>8/27/2026, 3:54:51 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(oauth): return an error to the RP when step-up cannot complete</pre></dd>
+    <dd><pre>fix(oauth): fail prompt=none step-up instead of challenging</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
@@ -40,18 +40,15 @@
   level cannot be reached; FxA had no such path
 * a prompt=none step-up routed the user to an interactive 2FA page,
   which the parameter forbids, and the RP was never told
-* declining the recovery-setup guard dropped the user on /signin with
-  the RP still waiting on a request that could not complete
 
 This commit:
 
 * adds an UNMET_AUTHENTICATION_REQUIREMENTS oauth error carrying the
-  RFC error code, reusing getRedirectWithErrorUrl
+  RFC error code, relayed by the authorization route&#039;s existing
+  getRedirectWithErrorUrl path
 * fails prompt=none step-up requests instead of routing to a challenge,
   for errno 170 only — an unverified session is interaction_required
-* redirects to the RP when the recovery-setup guard is declined, but
-  not when the OTP request itself failed
-* documents the error and errno 170 on /oauth/authorization
+* documents errno 170 and the step-up parameters on /oauth/authorization
 * pins that the id_token acr claim reflects the achieved AAL
 
 Closes #FXA-12860</pre></dd>

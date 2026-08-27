@@ -1,8 +1,8 @@
 {
-  "commit": "871a3f43c3079678567201d44eb9acbce8f4e7c2",
-  "summary": "fix(oauth): return an error to the RP when step-up cannot complete",
-  "description": "Because:\n\n* RFC 9470 section 5 requires the authorization request to fail with\n  unmet_authentication_requirements when the requested authentication\n  level cannot be reached; FxA had no such path\n* a prompt=none step-up routed the user to an interactive 2FA page,\n  which the parameter forbids, and the RP was never told\n* declining the recovery-setup guard dropped the user on /signin with\n  the RP still waiting on a request that could not complete\n\nThis commit:\n\n* adds an UNMET_AUTHENTICATION_REQUIREMENTS oauth error carrying the\n  RFC error code, reusing getRedirectWithErrorUrl\n* fails prompt=none step-up requests instead of routing to a challenge,\n  for errno 170 only — an unverified session is interaction_required\n* redirects to the RP when the recovery-setup guard is declined, but\n  not when the OTP request itself failed\n* documents the error and errno 170 on /oauth/authorization\n* pins that the id_token acr claim reflects the achieved AAL\n\nCloses #FXA-12860",
-  "timestamp": 1787699632000,
+  "commit": "3cad71263aff8b610f39a996d9d0bd33025a8e94",
+  "summary": "fix(oauth): fail prompt=none step-up instead of challenging",
+  "description": "Because:\n\n* RFC 9470 section 5 requires the authorization request to fail with\n  unmet_authentication_requirements when the requested authentication\n  level cannot be reached; FxA had no such path\n* a prompt=none step-up routed the user to an interactive 2FA page,\n  which the parameter forbids, and the RP was never told\n\nThis commit:\n\n* adds an UNMET_AUTHENTICATION_REQUIREMENTS oauth error carrying the\n  RFC error code, relayed by the authorization route's existing\n  getRedirectWithErrorUrl path\n* fails prompt=none step-up requests instead of routing to a challenge,\n  for errno 170 only — an unverified session is interaction_required\n* documents errno 170 and the step-up parameters on /oauth/authorization\n* pins that the id_token acr claim reflects the achieved AAL\n\nCloses #FXA-12860",
+  "timestamp": 1787846091000,
   "storybooks": [
     "fxa-settings"
   ],
