@@ -1,8 +1,8 @@
 {
-  "commit": "64bcebc1d9cd2cf94b6cec5353753f21cf991c4f",
+  "commit": "30b6aca08c215f3c0f7167b7f71cddc2145f2d80",
   "summary": "task(passkey): Add verification proof to the challenge manager",
   "description": "Because:\n* A wrap write needs proof that a user-verified assertion just completed for a\n  specific credential, which a session token alone cannot attest.\n* A proof is the same primitive as a challenge — a random value minted, then\n  consumed once — so a second Redis module would be duplication.\n\nThis commit:\n* Adds a 'proof' challenge type, separately typed so an upgrade challenge handed\n  out before any assertion cannot be spent as a proof.\n* Adds generateProofChallenge and consumeProofChallenge, credential-scoped.\n* Takes the proof TTL from PASSKEYS__VERIFICATION_PROOF_TIMEOUT, which spans the\n  password entry a ceremony challenge does not.\n* Adds errno 236, PASSKEY_VERIFICATION_PROOF_INVALID, and its AppError factory.",
-  "timestamp": 1787842773000,
+  "timestamp": 1787844635000,
   "storybooks": [
     "fxa-settings"
   ],
