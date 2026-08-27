@@ -181,20 +181,18 @@ form-verify-code-default-error = Este campo es requerido
 
 form-verify-totp-disabled-button-title-numeric = Ingresa el código de { $codeLength } dígitos para continuar
 form-verify-totp-disabled-button-title-alphanumeric = Ingresa el código de { $codeLength } caracteres para continuar
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = clave de recuperación de cuenta de { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Códigos de autenticación de respaldo
 get-data-trio-download-2 =
-    .title = Descargar
     .aria-label = Descargar
+    .title = Descargar
 get-data-trio-copy-2 =
-    .title = Copiar
     .aria-label = Copiar
+    .title = Copiar
 get-data-trio-print-2 =
-    .title = Imprimir
     .aria-label = Imprimir
+    .title = Imprimir
 
 
 alert-icon-aria-label =
@@ -239,8 +237,6 @@ icon-loading-arrow-aria-label =
     .aria-label = Cargando
 icon-passkey-aria-label =
     .aria-label = Llave de acceso
-
-
 hearts-broken-image-aria-label =
     .aria-label = Un computador y un teléfono móvil y una imagen de un corazón roto en cada uno
 hearts-verified-image-aria-label =
@@ -408,8 +404,6 @@ avatar-default-avatar =
     .alt = Avatar predeterminado
 
 
-
-
 bento-menu-title-3 = Productos de { -brand-mozilla }
 bento-menu-tagline = Más productos de { -brand-mozilla } que protegen tu privacidad
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -474,8 +468,6 @@ dc-opt-out-success-2 = Salida exitosa. { -product-mozilla-accounts } no enviará
 dc-opt-in-success-2 = ¡Gracias! Compartir estos datos nos ayuda a mejorar { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Lo sentimos, hubo un problema al cambiar tu preferencia de recopilación de datos
 dc-learn-more = Aprender más
-
-
 drop-down-menu-title-2 = Menú de { -product-mozilla-account }
 drop-down-menu-signed-in-as-v2 = Conectado como
 drop-down-menu-sign-out = Salir
@@ -559,6 +551,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Cómo esto protege tu cuenta
 flow-setup-2fa-inline-complete-continue-button = Continuar con { $serviceName }
 flow-setup-2fa-prompt-heading = Establecer autenticación en dos pasos
 flow-setup-2fa-prompt-description = { $serviceName } requiere que configures la autenticación de dos pasos para mantener tu cuenta segura.
+flow-setup-2fa-prompt-passkey-success-banner = Acceso exitoso con llave de acceso
+flow-setup-2fa-prompt-passkey-description = { $serviceName } también requiere autenticación de dos pasos para tu { -product-mozilla-account }. Después de la configuración, ya no la necesitarás cuando te conectes con una llave de acceso.
 flow-setup-2fa-prompt-use-authenticator-apps = Puedes utilizar cualquiera de <authenticationAppsLink>estas aplicaciones de autenticación</authenticationAppsLink> para continuar.
 flow-setup-2fa-prompt-continue-button = Continuar
 
@@ -572,8 +566,6 @@ flow-setup-phone-confirm-code-resend-code-button = Reenviar código
 flow-setup-phone-confirm-code-resend-code-success = Código enviado
 flow-setup-phone-confirm-code-success-message-v2 = Teléfono de recuperación añadido
 flow-change-phone-confirm-code-success-message = Teléfono de recuperación cambiado
-
-
 flow-setup-phone-submit-number-heading = Verifica tu número de teléfono
 flow-setup-phone-verify-number-instruction = Recibirás un mensaje de texto de { -brand-mozilla } con un código para verificar tu número. No compartas este código con nadie.
 flow-setup-phone-submit-number-info-message-v2 = El teléfono de recuperación solo está disponible en Estados Unidos y Canadá. No se recomiendan los números de VoIP ni las máscaras telefónicas.
@@ -765,6 +757,7 @@ page-passkey-add-error-system-v2 = Se produjo un error al crear tu llave de acce
 
 
 recent-activity-title = Actividad reciente de la cuenta
+recent-activity-show-more-button = Mostrar más
 recent-activity-account-create-v2 = Cuenta creada
 recent-activity-account-disable-v2 = Cuenta deshabilitada
 recent-activity-account-enable-v2 = Cuenta habilitada
@@ -820,6 +813,9 @@ recent-activity-account-passwordless-login-otp-failed = Código de conexión sin
 recent-activity-account-passwordless-login-otp-verified = Código de conexión sin contraseña verificado
 recent-activity-account-passwordless-registration-complete = Registro de cuenta sin contraseña completado
 recent-activity-account-recovery-codes-set = Códigos de recuperación establecidos
+recent-activity-account-passkey-wrap-created = Llave de acceso habilitada para la sincronización
+recent-activity-account-passkey-wrap-creation-failure = Falló la configuración de sincronización con llave de acceso
+recent-activity-account-passkey-wrap-invalidated = Se eliminó el acceso de sincronización mediante llave de acceso después del restablecimiento de contraseña
 recent-activity-unknown = Otra actividad de la cuenta
 
 
@@ -1104,8 +1100,6 @@ recovery-phone-number-ending-digits = Número que termina en { $lastFourPhoneNum
 oauth-error-1000 = Algo se fue a las pailas. Por favor, cierra esta pestaña y vuelve a intentarlo.
 
 
-
-
 passkey-registration-error-not-allowed = La configuración de la llave de acceso falló o no está disponible. Vuelve a intentarlo o elige otro método.
 passkey-registration-error-not-allowed-existing = La creación de la llave de acceso no está disponible para este dispositivo. Es posible que el dispositivo ya esté registrado o que el proceso de configuración se haya cancelado.
 passkey-registration-error-timeout = Se canceló la configuración de la llave de acceso. Vuelve a intentarlo.
@@ -1120,8 +1114,6 @@ passkey-registration-error-invalid-state = Esta llave de acceso ya está registr
 passkey-registration-error-not-readable = No pudimos acceder al autenticador. Vuelve a intentarlo o elige otro método.
 passkey-registration-error-constraint = La configuración de la llave de acceso no está disponible en este dispositivo. Prueba con otro método o dispositivo.
 passkey-registration-error-unexpected = La configuración de la llave de acceso falló. Vuelve a intentarlo o elige otro método.
-
-
 passkey-authentication-trouble-heading = No se pudo conectar con una llave de acceso
 passkey-authentication-trouble-description = Vuelve a intentarlo o utiliza otra opción para conectarte.
 passkey-authentication-trouble-link = Cómo usar las llaves de acceso
@@ -1290,17 +1282,78 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Chuta, algo se fue a las p
 pair-unsupported-desktop-firefox-fallback-message-v2 = Por favor, cierra esta pestaña y vuelve a intentarlo.
 
 
+pair2-authority-approve-sign-in-heading = ¿Autorizar conexión?
+pair2-authority-approve-sign-in-confirm-button = Sí, aprobar conexión
+pair2-authority-approve-sign-in-change-password = ¿No eres tú? <changePassword>Cambia tu contraseña</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = Continúa en tu dispositivo móvil
+pair2-authority-continue-on-mobile-description = Sigue los pasos en tu teléfono o tablet.
+pair2-authority-continue-on-mobile-cancel-button = Cancelar
+
+
+pair2-authority-download-firefox-heading = Abre { -brand-firefox } para sincronizar
+pair2-authority-download-firefox-instruction = Para configurar la sincronización entre dispositivos, abre { -brand-firefox } en este dispositivo y visita <b>firefox.com/pair</b>
+pair2-authority-download-firefox-cta = Descarga { -brand-firefox }
+
+
+pair2-authority-scan-qr-heading = Escanea para conectar tu dispositivo móvil
+pair2-authority-scan-qr-instruction = Escanea el código QR con tu teléfono o tablet para sincronizar tus marcadores, pestañas y más de { -brand-firefox }.
+pair2-authority-scan-qr-code-aria-label = Código QR para conectar tu dispositivo móvil
+pair2-authority-scan-qr-help-link = Obtén ayuda para escanear
+
+
+pair2-authority-sync-success-heading = Estás sincronizando
+pair2-authority-sync-success-description = Tus pestañas, marcadores, contraseñas y mucho más están disponibles en todos tus dispositivos.
+pair2-authority-sync-success-view-tabs-button = Ver pestañas sincronizadas
+pair2-authority-sync-success-sync-settings-button = Ajustes de sincronización
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = ¿Aún quieres conectar un dispositivo?
+pair2-authority-timeout-and-cancel-timeout-description = Parece que se agotó el tiempo de espera. Vuelve a intentarlo si todavía quieres conectar tu dispositivo móvil y sincronizar tus datos de { -brand-firefox }.
+pair2-authority-timeout-and-cancel-canceled-heading = Cancelado
+pair2-authority-timeout-and-cancel-canceled-description = Si cambias de opinión o quieres conectar un dispositivo diferente, vuelve a intentarlo.
+pair2-authority-timeout-and-cancel-try-again-button = Volver a intentarlo
+pair2-authority-timeout-and-cancel-cancel-button = Cancelar
+pair2-authority-timeout-and-cancel-sync-settings-button = Ajustes de sincronización
+
+
 pair2-supplicant-approve-sign-in-heading = Un último paso para sincronizar
 pair2-supplicant-approve-sign-in-instruction = Aprueba la conexión en tu computador.
 pair2-supplicant-approve-sign-in-cancel-button = Cancelar
+
+
+pair2-supplicant-connect-this-device-heading = ¿Conectar este dispositivo a tu cuenta?
+pair2-supplicant-connect-this-device-connect-button = Conectar
+pair2-supplicant-connect-this-device-cancel-button = Cancelar
+
+
+pair2-supplicant-download-firefox-heading = Obtén { -brand-firefox } en este dispositivo
+pair2-supplicant-download-firefox-description = Descarga { -brand-firefox } para sincronizar marcadores, historial y más en todos tus dispositivos. <linkExternal>Más información</linkExternal>
+pair2-supplicant-download-firefox-continue-button = Continuar en { -brand-firefox }
+
+
+pair2-supplicant-ready-to-scan-heading = Para conectar un dispositivo
+pair2-supplicant-ready-to-scan-instruction = En tu computador, abre { -brand-firefox } y ve a <b>firefox.com/pair</b>, y sigue las instrucciones en pantalla para conectar este dispositivo móvil.
+pair2-supplicant-ready-to-scan-learn-more-link = Aprender más
+
+
+pair2-supplicant-sync-success-heading = Tu dispositivo está conectado
+pair2-supplicant-sync-success-description = Tus marcadores, pestañas y más permanecerán sincronizados en { -brand-firefox }.
+pair2-supplicant-sync-success-view-tabs-button = Ver pestañas sincronizadas
+pair2-supplicant-sync-success-sync-settings-button = Ajustes de sincronización
+
+
+pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que se nos acabó el tiempo
+pair2-supplicant-timeout-and-cancel-timeout-description = Para conectar tu dispositivo móvil y sincronizar tus datos de { -brand-firefox }, visita <b>firefox.com/pair</b> en tu computador.
+pair2-supplicant-timeout-and-cancel-canceled-heading = Cancelado
+pair2-supplicant-timeout-and-cancel-canceled-description = Para conectar un dispositivo en cualquier momento, visita <b>firefox.com/pair</b> desde tu computador.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmada
 service-welcome-signin-success-banner = ¡Conectado exitosamente!
 service-welcome-vpn-heading = Siguiente: Activar VPN
 service-welcome-vpn-description = Un paso más para mejorar la privacidad de tu navegador. Ve al panel abierto y actívalo.
-
-
 
 
 set-password-heading-v2 = Crear contraseña para sincronizar
@@ -1329,8 +1382,6 @@ complete-reset-pw-recovery-key-link = Usar clave de recuperación de cuenta
 reset-password-complete-banner-heading = Tu contraseña ha sido restablecida.
 reset-password-complete-banner-message = No olvides generar una nueva clave de recuperación de cuenta desde la configuración de { -product-mozilla-account } para evitar futuros problemas de conexión.
 complete-reset-password-desktop-relay = { -brand-firefox } intentará regresarte a la pestaña de origen para que hagas uso de una máscara de correo electrónico después de conectarte.
-
-
 confirm-backup-code-reset-password-input-label = Ingresa el código de 10 caracteres
 confirm-backup-code-reset-password-confirm-button = Confirmar
 confirm-backup-code-reset-password-subheader = Ingresar código de autenticación de respaldo
@@ -1364,8 +1415,6 @@ password-reset-submit-button-2 = Continuar
 
 reset-password-complete-header = Tu contraseña ha sido restablecida
 reset-password-confirmed-cta = Continuar con { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Restablecer tu contraseña
@@ -1446,8 +1495,6 @@ signin-passkey-fallback-body = Para mantener tus datos seguros, deberás ingresa
 signin-passkey-fallback-password-label = Contraseña
 signin-passkey-fallback-continue = Continuar
 signin-passkey-fallback-forgot-password-link = ¿Olvidaste tu contraseña?
-
-
 
 
 signin-passwordless-code-heading = Ingresar código de confirmación
@@ -1564,8 +1611,6 @@ signin-unblock-code-incorrect-format-2 = El código de autorización solo puede 
 signin-unblock-resend-code-button = ¿No está en la bandeja de entrada ni en la carpeta de spam? Reenviar
 signin-unblock-support-link = ¿Por qué sucede esto?
 signin-unblock-desktop-relay = { -brand-firefox } intentará regresarte a la pestaña de origen para que hagas uso de una máscara de correo electrónico después de conectarte.
-
-
 
 
 confirm-signup-code-page-title = Ingresar código de confirmación

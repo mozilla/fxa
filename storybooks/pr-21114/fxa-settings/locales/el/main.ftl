@@ -111,12 +111,12 @@ app-query-parameter-err-heading = Εσφαλμένο αίτημα: Μη έγκυ
 
 
 app-footer-mozilla-logo-label = Λογότυπο { -brand-mozilla }
-app-footer-privacy-notice = Σημείωση απορρήτου ιστοτόπου
+app-footer-privacy-notice = Δήλωση απορρήτου ιστοτόπου
 app-footer-terms-of-service = Όροι υπηρεσίας
 
 
-app-default-title-2 = { -product-mozilla-accounts(case: "nom", capitalization: "upper") }
-app-page-title-2 = { $title } | { -product-mozilla-accounts(case: "nom", capitalization: "upper") }
+app-default-title-2 = { -product-mozilla-accounts(capitalization: "upper", case: "nom") }
+app-page-title-2 = { $title } | { -product-mozilla-accounts(capitalization: "upper", case: "nom") }
 
 
 link-sr-new-window = Ανοίγει σε νέο παράθυρο
@@ -499,6 +499,7 @@ cs-cannot-disconnect = Η εφαρμογή πελάτη δεν βρέθηκε, �
 cs-logged-out-2 = Έγινε αποσύνδεση από το { $service }
 cs-refresh-button =
     .title = Ανανέωση συνδεδεμένων υπηρεσιών
+cs-connect-device-button = Συνδέστε μια συσκευή
 cs-missing-device-help = Απουσία ή διπλή παρουσία στοιχείων;
 cs-disconnect-sync-heading = Αποσύνδεση από το Sync
 
@@ -622,6 +623,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Πώς προστατεύετα
 flow-setup-2fa-inline-complete-continue-button = Συνέχεια στο { $serviceName }
 flow-setup-2fa-prompt-heading = Ρύθμιση ταυτοποίησης δύο παραγόντων
 flow-setup-2fa-prompt-description = Το { $serviceName } απαιτεί να ρυθμίσετε την ταυτοποίηση δύο παραγόντων για την προστασία του λογαριασμού σας.
+flow-setup-2fa-prompt-passkey-success-banner = Έγινε επιτυχής σύνδεση με κλειδί πρόσβασης
+flow-setup-2fa-prompt-passkey-description = Το { $serviceName } απαιτεί επίσης ταυτοποίηση δύο παραγόντων για τον { -product-mozilla-account(capitalization: "lower", case: "acc") } σας. Μετά τη ρύθμιση, δεν θα τη χρειάζεστε πλέον όταν θα κάνετε σύνδεση με κλειδί πρόσβασης.
 flow-setup-2fa-prompt-use-authenticator-apps = Μπορείτε να χρησιμοποιήσετε οποιαδήποτε από <authenticationAppsLink>αυτές τις εφαρμογές ελέγχου ταυτότητας</authenticationAppsLink> για να συνεχίσετε.
 flow-setup-2fa-prompt-continue-button = Συνέχεια
 
@@ -882,6 +885,9 @@ recent-activity-account-passwordless-login-otp-failed = Ο κωδικός για
 recent-activity-account-passwordless-login-otp-verified = Ο κωδικός για σύνδεση χωρίς κωδικό πρόσβασης επαληθεύτηκε
 recent-activity-account-passwordless-registration-complete = Η δημιουργία λογαριασμού χωρίς κωδικό πρόσβασης ολοκληρώθηκε
 recent-activity-account-recovery-codes-set = Ορίστηκαν κωδικοί ανάκτησης
+recent-activity-account-passkey-wrap-created = Το κλειδί πρόσβασης ενεργοποιήθηκε για συγχρονισμό
+recent-activity-account-passkey-wrap-creation-failure = Η ρύθμιση του συγχρονισμού με κλειδί πρόσβασης απέτυχε
+recent-activity-account-passkey-wrap-invalidated = Η πρόσβαση στον συγχρονισμό με κλειδί πρόσβασης καταργήθηκε μετά την επαναφορά του κωδικού πρόσβασης
 recent-activity-unknown = Άλλη δραστηριότητα λογαριασμού
 
 
@@ -1103,10 +1109,10 @@ tfa-row-cannot-disable-2 = Δεν ήταν δυνατή η απενεργοπο�
 tfa-row-verify-session-info = Θα χρειαστεί να επιβεβαιώσετε την τρέχουσα συνεδρία σας για να ρυθμίσετε την ταυτοποίηση δύο παραγόντων
 
 
-terms-privacy-agreement-intro-3 = Συνεχίζοντας, συμφωνείτε με τα εξής:
-terms-privacy-agreement-customized-terms = { $serviceName }: <termsLink>Όροι υπηρεσίας</termsLink> και <privacyLink>Σημείωση απορρήτου</privacyLink>
-terms-privacy-agreement-mozilla-2 = { -product-mozilla-accounts(capitalization: "upper", case: "nom") }: <mozillaAccountsTos>Όροι υπηρεσίας</mozillaAccountsTos> και <mozillaAccountsPrivacy>Σημείωση απορρήτου</mozillaAccountsPrivacy>
-terms-privacy-agreement-default-2 = Συνεχίζοντας, αποδέχεστε τους <mozillaAccountsTos>Όρους υπηρεσίας</mozillaAccountsTos> και τη <mozillaAccountsPrivacy>Σημείωση απορρήτου</mozillaAccountsPrivacy>.
+terms-privacy-agreement-intro-3 = Συνεχίζοντας, αποδέχεστε τα εξής:
+terms-privacy-agreement-customized-terms = { $serviceName }: <termsLink>Όροι παροχής υπηρεσιών</termsLink> και <privacyLink>Δήλωση απορρήτου</privacyLink>
+terms-privacy-agreement-mozilla-2 = { -product-mozilla-accounts(capitalization: "upper", case: "nom") }: <mozillaAccountsTos>Όροι παροχής υπηρεσιών</mozillaAccountsTos> και <mozillaAccountsPrivacy>Δήλωση απορρήτου</mozillaAccountsPrivacy>
+terms-privacy-agreement-default-2 = Συνεχίζοντας, αποδέχεστε τους <mozillaAccountsTos>Όρους παροχής υπηρεσιών</mozillaAccountsTos> και τη <mozillaAccountsPrivacy>Δήλωση απορρήτου</mozillaAccountsPrivacy>.
 
 
 third-party-auth-options-or = Ή
@@ -1351,21 +1357,35 @@ pair-unsupported-desktop-firefox-fallback-message-v2 = Κλείστε αυτήν
 
 pair2-authority-approve-sign-in-heading = Έγκριση σύνδεσης;
 pair2-authority-approve-sign-in-confirm-button = Ναι, έγκριση σύνδεσης
+pair2-authority-approve-sign-in-change-password = Δεν είστε εσείς; <changePassword>Αλλάξτε τον κωδικό πρόσβασής σας</changePassword>
 
 
+pair2-authority-continue-on-mobile-heading = Συνεχίστε στην κινητή σας συσκευή
+pair2-authority-continue-on-mobile-description = Ακολουθήστε τα βήματα στο τηλέφωνο ή το tablet σας.
 pair2-authority-continue-on-mobile-cancel-button = Ακύρωση
 
 
+pair2-authority-download-firefox-heading = Ανοίξτε το { -brand-firefox } για συγχρονισμό
+pair2-authority-download-firefox-instruction = Για να ρυθμίσετε τον συγχρονισμό μεταξύ των συσκευών, ανοίξτε το { -brand-firefox } σε αυτήν τη συσκευή και επισκεφθείτε το <b>firefox.com/pair</b>
 pair2-authority-download-firefox-cta = Λήψη του { -brand-firefox }
 
 
+pair2-authority-scan-qr-heading = Κάντε σάρωση για να συνδέσετε άλλη συσκευή
+pair2-authority-scan-qr-instruction = Σαρώστε τον κωδικό QR με το τηλέφωνο ή το tablet σας για να συγχρονίσετε τους σελιδοδείκτες, τις καρτέλες και άλλα δεδομένα του { -brand-firefox }.
+pair2-authority-scan-qr-code-aria-label = Κωδικός QR για σύνδεση της κινητής σας συσκευής
 pair2-authority-scan-qr-help-link = Λήψη βοήθειας με τη σάρωση
 
 
 pair2-authority-sync-success-heading = Γίνεται συγχρονισμός
+pair2-authority-sync-success-description = Οι καρτέλες, οι σελιδοδείκτες, οι κωδικοί πρόσβασης και πολλά άλλα είναι έτοιμα σε όλες τις συσκευές σας.
+pair2-authority-sync-success-view-tabs-button = Προβολή συγχρονισμένων καρτελών
 pair2-authority-sync-success-sync-settings-button = Ρυθμίσεις συγχρονισμού
 
 
+pair2-authority-timeout-and-cancel-timeout-heading = Θέλετε ακόμα να συνδέσετε μια συσκευή;
+pair2-authority-timeout-and-cancel-timeout-description = Φαίνεται ότι το χρονικό όριο έληξε. Δοκιμάστε ξανά αν θέλετε ακόμα να συνδέσετε την κινητή συσκευή σας και να συγχρονίσετε τα δεδομένα του { -brand-firefox } σας.
+pair2-authority-timeout-and-cancel-canceled-heading = Ακυρώθηκε
+pair2-authority-timeout-and-cancel-canceled-description = Εάν αλλάξετε γνώμη ή θέλετε να συνδέσετε μια άλλη συσκευή, δοκιμάστε ξανά.
 pair2-authority-timeout-and-cancel-try-again-button = Δοκιμή ξανά
 pair2-authority-timeout-and-cancel-cancel-button = Ακύρωση
 pair2-authority-timeout-and-cancel-sync-settings-button = Ρυθμίσεις συγχρονισμού
@@ -1376,19 +1396,31 @@ pair2-supplicant-approve-sign-in-instruction = Εγκρίνετε τη σύνδ�
 pair2-supplicant-approve-sign-in-cancel-button = Ακύρωση
 
 
+pair2-supplicant-connect-this-device-heading = Σύνδεση συσκευής στον λογαριασμό σας;
 pair2-supplicant-connect-this-device-connect-button = Σύνδεση
 pair2-supplicant-connect-this-device-cancel-button = Ακύρωση
 
 
+pair2-supplicant-download-firefox-heading = Αποκτήστε το { -brand-firefox } σε αυτήν τη συσκευή
+pair2-supplicant-download-firefox-description = Κάντε λήψη του { -brand-firefox } για να συγχρονίσετε τους σελιδοδείκτες, το ιστορικό και πολλά άλλα με όλες τις συσκευές σας. <linkExternal>Μάθετε περισσότερα</linkExternal>
+pair2-supplicant-download-firefox-continue-button = Συνέχεια στο { -brand-firefox }
+
+
+pair2-supplicant-ready-to-scan-heading = Για να συνδέσετε μια συσκευή
+pair2-supplicant-ready-to-scan-instruction = Στον υπολογιστή σας, ανοίξτε το { -brand-firefox }, μεταβείτε στο <b>firefox.com/pair</b> και ακολουθήστε τις οδηγίες που εμφανίζονται στην οθόνη για να συνδέσετε αυτήν την κινητή συσκευή.
 pair2-supplicant-ready-to-scan-learn-more-link = Μάθετε περισσότερα
 
 
 pair2-supplicant-sync-success-heading = Η συσκευή σας έχει συνδεθεί
+pair2-supplicant-sync-success-description = Οι σελιδοδείκτες, οι καρτέλες και πολλά άλλα θα συγχρονίζονται στο { -brand-firefox }.
 pair2-supplicant-sync-success-view-tabs-button = Προβολή συγχρονισμένων καρτελών
 pair2-supplicant-sync-success-sync-settings-button = Ρυθμίσεις συγχρονισμού
 
 
+pair2-supplicant-timeout-and-cancel-timeout-heading = Φαίνεται ότι το χρονικό όριο έληξε
+pair2-supplicant-timeout-and-cancel-timeout-description = Για να συνδέσετε την κινητή σας συσκευή και να συγχρονίσετε τα δεδομένα σας από το { -brand-firefox }, επισκεφθείτε το <b>firefox.com/pair</b> από τον υπολογιστή σας.
 pair2-supplicant-timeout-and-cancel-canceled-heading = Ακυρώθηκε
+pair2-supplicant-timeout-and-cancel-canceled-description = Για να συνδέσετε μια συσκευή ανά πάσα στιγμή, επισκεφθείτε το <b>firefox.com/pair</b> από τον υπολογιστή σας.
 
 
 service-welcome-signup-success-banner = Ο { -product-mozilla-account(capitalization: "lower", case: "nom") } επιβεβαιώθηκε

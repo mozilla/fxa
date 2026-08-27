@@ -555,6 +555,9 @@ cs-cannot-disconnect = Η εφαρμογή πελάτη δεν βρέθηκε, �
 cs-logged-out-2 = Έγινε αποσύνδεση από το { $service }
 cs-refresh-button =
     .title = Ανανέωση συνδεδεμένων υπηρεσιών
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = Συνδέστε μια συσκευή
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = Απουσία ή διπλή παρουσία στοιχείων;
 cs-disconnect-sync-heading = Αποσύνδεση από το Sync
@@ -743,6 +746,13 @@ flow-setup-2fa-prompt-heading = Ρύθμιση ταυτοποίησης δύο �
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
 flow-setup-2fa-prompt-description = Το { $serviceName } απαιτεί να ρυθμίσετε την ταυτοποίηση δύο παραγόντων για την προστασία του λογαριασμού σας.
+# Success banner shown at the top of the page when the user signed in with a passkey.
+flow-setup-2fa-prompt-passkey-success-banner = Έγινε επιτυχής σύνδεση με κλειδί πρόσβασης
+# Body copy shown when the user signed in with a passkey and the service still
+# requires two-step authentication setup.
+# Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
+# that requests two-step authentication setup.
+flow-setup-2fa-prompt-passkey-description = Το { $serviceName } απαιτεί επίσης ταυτοποίηση δύο παραγόντων για τον { -product-mozilla-account(capitalization: "lower", case: "acc") } σας. Μετά τη ρύθμιση, δεν θα τη χρειάζεστε πλέον όταν θα κάνετε σύνδεση με κλειδί πρόσβασης.
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = Μπορείτε να χρησιμοποιήσετε οποιαδήποτε από <authenticationAppsLink>αυτές τις εφαρμογές ελέγχου ταυτότητας</authenticationAppsLink> για να συνεχίσετε.
 flow-setup-2fa-prompt-continue-button = Συνέχεια
@@ -1064,6 +1074,12 @@ recent-activity-account-passwordless-login-otp-failed = Ο κωδικός για
 recent-activity-account-passwordless-login-otp-verified = Ο κωδικός για σύνδεση χωρίς κωδικό πρόσβασης επαληθεύτηκε
 recent-activity-account-passwordless-registration-complete = Η δημιουργία λογαριασμού χωρίς κωδικό πρόσβασης ολοκληρώθηκε
 recent-activity-account-recovery-codes-set = Ορίστηκαν κωδικοί ανάκτησης
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
+recent-activity-account-passkey-wrap-created = Το κλειδί πρόσβασης ενεργοποιήθηκε για συγχρονισμό
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-creation-failure = Η ρύθμιση του συγχρονισμού με κλειδί πρόσβασης απέτυχε
+# A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
+recent-activity-account-passkey-wrap-invalidated = Η πρόσβαση στον συγχρονισμό με κλειδί πρόσβασης καταργήθηκε μετά την επαναφορά του κωδικού πρόσβασης
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Άλλη δραστηριότητα λογαριασμού
 
@@ -1383,15 +1399,15 @@ tfa-row-verify-session-info = Θα χρειαστεί να επιβεβαιώσ�
 ## These terms are used in signin and signup for Firefox account
 
 # This message is followed by a bulleted list of <serviceName>: Terms of Service, Privacy Notice
-terms-privacy-agreement-intro-3 = Συνεχίζοντας, συμφωνείτε με τα εξής:
+terms-privacy-agreement-intro-3 = Συνεχίζοντας, αποδέχεστε τα εξής:
 # This item is part of a bulleted list and follows terms-privacy-agreement-intro
 # $serviceName (String) - The name of the service (e.g., "Mozilla Subscription Services")
 # $serviceName is customizable via Strapi and will be localized separately
-terms-privacy-agreement-customized-terms = { $serviceName }: <termsLink>Όροι υπηρεσίας</termsLink> και <privacyLink>Σημείωση απορρήτου</privacyLink>
+terms-privacy-agreement-customized-terms = { $serviceName }: <termsLink>Όροι παροχής υπηρεσιών</termsLink> και <privacyLink>Δήλωση απορρήτου</privacyLink>
 # links to Mozilla Accounts Terms of Service and Privacy Notice, part of a bulleted list
-terms-privacy-agreement-mozilla-2 = { -product-mozilla-accounts(capitalization: "upper", case: "nom") }: <mozillaAccountsTos>Όροι υπηρεσίας</mozillaAccountsTos> και <mozillaAccountsPrivacy>Σημείωση απορρήτου</mozillaAccountsPrivacy>
+terms-privacy-agreement-mozilla-2 = { -product-mozilla-accounts(capitalization: "upper", case: "nom") }: <mozillaAccountsTos>Όροι παροχής υπηρεσιών</mozillaAccountsTos> και <mozillaAccountsPrivacy>Δήλωση απορρήτου</mozillaAccountsPrivacy>
 # links to Mozilla Account's Terms of Service and Privacy Notice
-terms-privacy-agreement-default-2 = Συνεχίζοντας, αποδέχεστε τους <mozillaAccountsTos>Όρους υπηρεσίας</mozillaAccountsTos> και τη <mozillaAccountsPrivacy>Σημείωση απορρήτου</mozillaAccountsPrivacy>.
+terms-privacy-agreement-default-2 = Συνεχίζοντας, αποδέχεστε τους <mozillaAccountsTos>Όρους παροχής υπηρεσιών</mozillaAccountsTos> και τη <mozillaAccountsPrivacy>Δήλωση απορρήτου</mozillaAccountsPrivacy>.
 
 ## ThirdPartyAuth component
 ## This is a component that is used to display a list of third party providers (Apple, Google, etc.)
@@ -1822,12 +1838,17 @@ pair2-authority-approve-sign-in-heading = Έγκριση σύνδεσης;
 # Submit button confirming that the user started the pairing and approves the
 # other device being added to their account
 pair2-authority-approve-sign-in-confirm-button = Ναι, έγκριση σύνδεσης
+# "Not you?" asks whether someone other than the user started this sign-in.
+# The text inside <changePassword> links to the page for changing the password.
+pair2-authority-approve-sign-in-change-password = Δεν είστε εσείς; <changePassword>Αλλάξτε τον κωδικό πρόσβασής σας</changePassword>
 
 ## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer after scanning the pairing QR code with
 ## their phone. It confirms the flow has moved to the mobile device and waits
 ## for the remaining steps to be completed there.
 
+pair2-authority-continue-on-mobile-heading = Συνεχίστε στην κινητή σας συσκευή
+pair2-authority-continue-on-mobile-description = Ακολουθήστε τα βήματα στο τηλέφωνο ή το tablet σας.
 # Dismisses the pairing attempt
 pair2-authority-continue-on-mobile-cancel-button = Ακύρωση
 
@@ -1835,6 +1856,10 @@ pair2-authority-continue-on-mobile-cancel-button = Ακύρωση
 ## Users see this on their computer when Firefox is needed to continue pairing.
 ## It points them at firefox.com/pair and offers a download link for Firefox.
 
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-download-firefox-heading = Ανοίξτε το { -brand-firefox } για συγχρονισμό
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction = Για να ρυθμίσετε τον συγχρονισμό μεταξύ των συσκευών, ανοίξτε το { -brand-firefox } σε αυτήν τη συσκευή και επισκεφθείτε το <b>firefox.com/pair</b>
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Λήψη του { -brand-firefox }
 
@@ -1842,6 +1867,11 @@ pair2-authority-download-firefox-cta = Λήψη του { -brand-firefox }
 ## Users see this on their computer. It shows a QR code that they scan with
 ## their phone or tablet to connect the two devices and start syncing.
 
+pair2-authority-scan-qr-heading = Κάντε σάρωση για να συνδέσετε άλλη συσκευή
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-scan-qr-instruction = Σαρώστε τον κωδικό QR με το τηλέφωνο ή το tablet σας για να συγχρονίσετε τους σελιδοδείκτες, τις καρτέλες και άλλα δεδομένα του { -brand-firefox }.
+# Accessible label describing the QR code image shown on this page
+pair2-authority-scan-qr-code-aria-label = Κωδικός QR για σύνδεση της κινητής σας συσκευής
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Λήψη βοήθειας με τη σάρωση
 
@@ -1851,6 +1881,9 @@ pair2-authority-scan-qr-help-link = Λήψη βοήθειας με τη σάρω
 
 # "syncing" here means copying data between the user's devices
 pair2-authority-sync-success-heading = Γίνεται συγχρονισμός
+pair2-authority-sync-success-description = Οι καρτέλες, οι σελιδοδείκτες, οι κωδικοί πρόσβασης και πολλά άλλα είναι έτοιμα σε όλες τις συσκευές σας.
+# Opens the tabs that are open on the user's other synced devices
+pair2-authority-sync-success-view-tabs-button = Προβολή συγχρονισμένων καρτελών
 # Opens the browser settings that control what is synced
 pair2-authority-sync-success-sync-settings-button = Ρυθμίσεις συγχρονισμού
 
@@ -1859,6 +1892,12 @@ pair2-authority-sync-success-sync-settings-button = Ρυθμίσεις συγχ�
 ## either because it timed out or because it was canceled. Both cases offer to
 ## start pairing over again.
 
+# Shown when the pairing attempt expired before it was approved
+pair2-authority-timeout-and-cancel-timeout-heading = Θέλετε ακόμα να συνδέσετε μια συσκευή;
+pair2-authority-timeout-and-cancel-timeout-description = Φαίνεται ότι το χρονικό όριο έληξε. Δοκιμάστε ξανά αν θέλετε ακόμα να συνδέσετε την κινητή συσκευή σας και να συγχρονίσετε τα δεδομένα του { -brand-firefox } σας.
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-canceled-heading = Ακυρώθηκε
+pair2-authority-timeout-and-cancel-canceled-description = Εάν αλλάξετε γνώμη ή θέλετε να συνδέσετε μια άλλη συσκευή, δοκιμάστε ξανά.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Δοκιμή ξανά
 # Abandons pairing without retrying
@@ -1883,16 +1922,35 @@ pair2-supplicant-approve-sign-in-cancel-button = Ακύρωση
 ## device to their account, and shows that computer's details so they can
 ## verify the request.
 
+# "this device" is the mobile device the user is holding, not the computer
+# whose details are shown below the heading
+pair2-supplicant-connect-this-device-heading = Σύνδεση συσκευής στον λογαριασμό σας;
 # Confirms the pairing attempt
 pair2-supplicant-connect-this-device-connect-button = Σύνδεση
 # Dismisses the pairing attempt
 pair2-supplicant-connect-this-device-cancel-button = Ακύρωση
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing reaches a device that
+## does not have Firefox installed yet. It explains what syncing gets them and
+## sends them off to install the browser.
+
+pair2-supplicant-download-firefox-heading = Αποκτήστε το { -brand-firefox } σε αυτήν τη συσκευή
+# "sync" is a verb here, referring to syncing data between the user's devices.
+# <linkExternal> is an anchor tag linking to a page explaining what sync does.
+pair2-supplicant-download-firefox-description = Κάντε λήψη του { -brand-firefox } για να συγχρονίσετε τους σελιδοδείκτες, το ιστορικό και πολλά άλλα με όλες τις συσκευές σας. <linkExternal>Μάθετε περισσότερα</linkExternal>
+# Primary action. Sends the user to the Firefox download page.
+pair2-supplicant-download-firefox-continue-button = Συνέχεια στο { -brand-firefox }
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
 ## to open firefox.com/pair on their computer, which is where the QR code they
 ## scan with the mobile device comes from.
 
+pair2-supplicant-ready-to-scan-heading = Για να συνδέσετε μια συσκευή
+# <b> emphasises the address the user types on their computer. It is not a link,
+# and the address itself must not be translated.
+pair2-supplicant-ready-to-scan-instruction = Στον υπολογιστή σας, ανοίξτε το { -brand-firefox }, μεταβείτε στο <b>firefox.com/pair</b> και ακολουθήστε τις οδηγίες που εμφανίζονται στην οθόνη για να συνδέσετε αυτήν την κινητή συσκευή.
 # Opens a Mozilla support article about setting up sync
 pair2-supplicant-ready-to-scan-learn-more-link = Μάθετε περισσότερα
 
@@ -1901,6 +1959,7 @@ pair2-supplicant-ready-to-scan-learn-more-link = Μάθετε περισσότε
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Η συσκευή σας έχει συνδεθεί
+pair2-supplicant-sync-success-description = Οι σελιδοδείκτες, οι καρτέλες και πολλά άλλα θα συγχρονίζονται στο { -brand-firefox }.
 # Opens the view listing tabs open on the user's other synced devices
 pair2-supplicant-sync-success-view-tabs-button = Προβολή συγχρονισμένων καρτελών
 # Opens the browser's sync settings, where the user chooses what to sync
@@ -1912,8 +1971,14 @@ pair2-supplicant-sync-success-sync-settings-button = Ρυθμίσεις συγχ
 ## are informational and offer no on-screen action, so the copy points the user
 ## back to their computer to start again.
 
+# Shown when the pairing attempt expired before it completed. "we" is Firefox.
+pair2-supplicant-timeout-and-cancel-timeout-heading = Φαίνεται ότι το χρονικό όριο έληξε
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-timeout-description = Για να συνδέσετε την κινητή σας συσκευή και να συγχρονίσετε τα δεδομένα σας από το { -brand-firefox }, επισκεφθείτε το <b>firefox.com/pair</b> από τον υπολογιστή σας.
 # Shown after the pairing attempt was canceled
 pair2-supplicant-timeout-and-cancel-canceled-heading = Ακυρώθηκε
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-canceled-description = Για να συνδέσετε μια συσκευή ανά πάσα στιγμή, επισκεφθείτε το <b>firefox.com/pair</b> από τον υπολογιστή σας.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
