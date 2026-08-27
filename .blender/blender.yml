@@ -7,6 +7,9 @@ install_command: "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 yarn install --immutable --
 investigate:
   enabled: true
   dismiss_unaffected: true
+  # Dismiss confident (high) not-affected alerts up to high severity.
+  dismiss_min_confidence: high
+  dismiss_max_severity: high
   max_claude_turns: 100
   max_budget_usd: 6.00
 
