@@ -1,8 +1,8 @@
 {
-  "commit": "8849601399c78fd420c4edffb907b3bd393d98b4",
+  "commit": "4879ede4ba2256ecf3d4e5a95db11353ab942820",
   "summary": "task(passkey): Implement POST /passkey/keys",
   "description": "Because:\n* A passkey needs somewhere to store the envelope that unlocks kB without a\n  password.\n* Gating the write on a verification proof rather than the MFA scope avoids\n  exposing one capability at two auth levels.\n\nThis commit:\n* Adds POST /passkey/keys behind the passwordless sync flag, with exact-width\n  validation for the five envelope fields.\n* Spends the proof after every other check, so a rejected payload costs the user\n  no extra device prompt.\n* Returns 201 on insert, 200 on an identical repeat, 409 on a different one.\n* Checks only that the credential exists and is owned; `prfEnabled` is a\n  best-guess column and no basis for refusing a verified write.\n* Lets recordSecurityEvent carry additionalInfo, so a new failure reason needs no\n  new event name.",
-  "timestamp": 1787846288000,
+  "timestamp": 1787859280000,
   "storybooks": [
     "fxa-settings"
   ],
