@@ -111,12 +111,12 @@ app-query-parameter-err-heading = Εσφαλμένο αίτημα: Μη έγκυ
 
 
 app-footer-mozilla-logo-label = Λογότυπο { -brand-mozilla }
-app-footer-privacy-notice = Σημείωση απορρήτου ιστοτόπου
+app-footer-privacy-notice = Δήλωση απορρήτου ιστοτόπου
 app-footer-terms-of-service = Όροι υπηρεσίας
 
 
-app-default-title-2 = { -product-mozilla-accounts(case: "nom", capitalization: "upper") }
-app-page-title-2 = { $title } | { -product-mozilla-accounts(case: "nom", capitalization: "upper") }
+app-default-title-2 = { -product-mozilla-accounts(capitalization: "upper", case: "nom") }
+app-page-title-2 = { $title } | { -product-mozilla-accounts(capitalization: "upper", case: "nom") }
 
 
 link-sr-new-window = Ανοίγει σε νέο παράθυρο

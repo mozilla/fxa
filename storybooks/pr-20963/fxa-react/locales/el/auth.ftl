@@ -33,22 +33,22 @@ recovery-phone-reset-password-short-body = Κωδικός από τη { -brand-m
 subplat-header-mozilla-logo-2 = <img data-l10n-name="subplat-mozilla-logo" alt="Λογότυπο { -brand-mozilla }">
 subplat-footer-mozilla-logo-2 = <img data-l10n-name="mozilla-logo-footer" alt="Λογότυπο { -brand-mozilla }">
 subplat-automated-email = Αυτό είναι ένα αυτοματοποιημένο email· αν το λάβατε κατά λάθος, δεν απαιτείται καμία περαιτέρω ενέργεια.
-subplat-privacy-notice = Σημείωση απορρήτου
-subplat-privacy-plaintext = Σημείωση απορρήτου:
+subplat-privacy-notice = Δήλωση απορρήτου
+subplat-privacy-plaintext = Δήλωση απορρήτου:
 subplat-update-billing-plaintext = { subplat-update-billing }:
 # Variables:
 #  $email (String) - A user's primary email address
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subplat-explainer-specific-2 = Λαμβάνετε αυτό το email επειδή το { $email } διαθέτει { -product-mozilla-account(case: "acc", capitalization: "lower") } και έχετε εγγραφεί στο { $productName }.
+subplat-explainer-specific-2 = Λαμβάνετε αυτό το email επειδή το { $email } διαθέτει { -product-mozilla-account(capitalization: "lower", case: "acc") } και έχετε εγγραφεί στο { $productName }.
 # Variables:
 #  $email (String) - A user's primary email address
-subplat-explainer-reminder-form-2 = Λαμβάνετε αυτό το email επειδή το { $email } διαθέτει { -product-mozilla-account(case: "acc", capitalization: "lower") }.
-subplat-explainer-multiple-2 = Λαμβάνετε αυτό το email επειδή το { $email } διαθέτει { -product-mozilla-account(case: "acc", capitalization: "lower") } και έχετε εγγραφεί σε πολλαπλά προϊόντα.
-subplat-explainer-was-deleted-2 = Λαμβάνετε αυτό το email επειδή έχει δημιουργηθεί { -product-mozilla-account(case: "nom", capitalization: "lower") } με το { $email }.
-subplat-manage-account-2 = Διαχειριστείτε τις ρυθμίσεις του { -product-mozilla-account(case: "gen", capitalization: "lower") } σας μεταβαίνοντας στη <a data-l10n-name="subplat-account-page">σελίδα λογαριασμού</a>.
+subplat-explainer-reminder-form-2 = Λαμβάνετε αυτό το email επειδή το { $email } διαθέτει { -product-mozilla-account(capitalization: "lower", case: "acc") }.
+subplat-explainer-multiple-2 = Λαμβάνετε αυτό το email επειδή το { $email } διαθέτει { -product-mozilla-account(capitalization: "lower", case: "acc") } και έχετε εγγραφεί σε πολλαπλά προϊόντα.
+subplat-explainer-was-deleted-2 = Λαμβάνετε αυτό το email επειδή έχει δημιουργηθεί { -product-mozilla-account(capitalization: "lower", case: "nom") } με το { $email }.
+subplat-manage-account-2 = Διαχειριστείτε τις ρυθμίσεις του { -product-mozilla-account(capitalization: "lower", case: "gen") } σας μεταβαίνοντας στη <a data-l10n-name="subplat-account-page">σελίδα λογαριασμού</a>.
 # Variables:
 #  $accountSettingsUrl (String) - URL to Account Settings
-subplat-manage-account-plaintext-2 = Διαχειριστείτε τις ρυθμίσεις του { -product-mozilla-account(case: "gen", capitalization: "lower") } σας στη σελίδα: { $accountSettingsUrl }
+subplat-manage-account-plaintext-2 = Διαχειριστείτε τις ρυθμίσεις του { -product-mozilla-account(capitalization: "lower", case: "gen") } σας στη σελίδα: { $accountSettingsUrl }
 subplat-terms-policy = Όροι και πολιτική ακύρωσης
 subplat-terms-policy-plaintext = { subplat-terms-policy }:
 subplat-cancel = Ακύρωση συνδρομής
@@ -57,10 +57,10 @@ subplat-reactivate = Επανενεργοποίηση συνδρομής
 subplat-reactivate-plaintext = { subplat-reactivate }:
 subplat-update-billing = Ενημέρωση στοιχείων χρέωσης
 subplat-privacy-policy = Πολιτική απορρήτου { -brand-mozilla }
-subplat-privacy-policy-2 = Σημείωση απορρήτου { -product-mozilla-accounts(case: "gen", capitalization: "upper") }
+subplat-privacy-policy-2 = Δήλωση απορρήτου { -product-mozilla-accounts(capitalization: "lower", case: "gen") }
 subplat-privacy-policy-plaintext = { subplat-privacy-policy }:
 subplat-privacy-policy-plaintext-2 = { subplat-privacy-policy-2 }:
-subplat-moz-terms = Όροι υπηρεσίας { -product-mozilla-accounts(case: "gen", capitalization: "upper") }
+subplat-moz-terms = Όροι υπηρεσίας { -product-mozilla-accounts(capitalization: "upper", case: "gen") }
 subplat-moz-terms-plaintext = { subplat-moz-terms }:
 subplat-legal = Νομικά
 subplat-legal-plaintext = { subplat-legal }:
@@ -97,9 +97,6 @@ payment-provider-card-ending-in-plaintext = Μέθοδος πληρωμής: Κ�
 payment-provider-card-ending-in = <b>Μέθοδος πληρωμής:</b> Κάρτα με κατάληξη { $lastFour }
 payment-provider-card-ending-in-card-name = <b>Μέθοδος πληρωμής:</b> { $cardName } με κατάληξη { $lastFour }
 subscription-charges-invoice-summary = Σύνοψη παραστατικού
-
-# Variables:
-
 
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
@@ -192,10 +189,10 @@ downloadSubscription-subject = Καλώς ορίσατε στο { $productName }
 downloadSubscription-title = Καλώς ορίσατε στο { $productName }
 downloadSubscription-content-2 = Ας ξεκινήσουμε με τη χρήση όλων των δυνατοτήτων που περιλαμβάνονται στη συνδρομή σας:
 downloadSubscription-link-action-2 = Έναρξη
-fraudulentAccountDeletion-subject-2 = Ο { -product-mozilla-account(case: "nom", capitalization: "lower") } σας διαγράφηκε
+fraudulentAccountDeletion-subject-2 = Ο { -product-mozilla-account(capitalization: "lower", case: "nom") } σας διαγράφηκε
 fraudulentAccountDeletion-title = Ο λογαριασμός σας διαγράφηκε
-fraudulentAccountDeletion-content-part1-v2 = Πρόσφατα, δημιουργήθηκε ένας { -product-mozilla-account(case: "nom", capitalization: "lower") } και χρεωθήκατε για μια συνδρομή με αυτήν τη διεύθυνση email. Όπως κάνουμε με όλους τους νέους λογαριασμούς, ζητήσαμε να επιβεβαιώσετε τον λογαριασμό σας επικυρώνοντας πρώτα αυτήν τη διεύθυνση email.
-fraudulentAccountDeletion-content-part2-v2 = Προς το παρόν, βλέπουμε ότι ο λογαριασμός δεν επιβεβαιώθηκε ποτέ. Δεδομένου ότι αυτό το βήμα δεν ολοκληρώθηκε, δεν είμαστε σίγουροι εάν πρόκειται για εξουσιοδοτημένη συνδρομή. Συνεπώς, ο { -product-mozilla-account(case: "nom", capitalization: "lower") } που δημιουργήθηκε με αυτήν τη διεύθυνση email διαγράφηκε και η συνδρομή σας ακυρώθηκε με επιστροφή όλου του ποσού.
+fraudulentAccountDeletion-content-part1-v2 = Πρόσφατα, δημιουργήθηκε ένας { -product-mozilla-account(capitalization: "lower", case: "nom") } και χρεωθήκατε για μια συνδρομή με αυτήν τη διεύθυνση email. Όπως κάνουμε με όλους τους νέους λογαριασμούς, ζητήσαμε να επιβεβαιώσετε τον λογαριασμό σας επικυρώνοντας πρώτα αυτήν τη διεύθυνση email.
+fraudulentAccountDeletion-content-part2-v2 = Προς το παρόν, βλέπουμε ότι ο λογαριασμός δεν επιβεβαιώθηκε ποτέ. Δεδομένου ότι αυτό το βήμα δεν ολοκληρώθηκε, δεν είμαστε σίγουροι εάν πρόκειται για εξουσιοδοτημένη συνδρομή. Συνεπώς, ο { -product-mozilla-account(capitalization: "lower", case: "nom") } που δημιουργήθηκε με αυτήν τη διεύθυνση email διαγράφηκε και η συνδρομή σας ακυρώθηκε με επιστροφή όλου του ποσού.
 fraudulentAccountDeletion-contact = Εάν έχετε ερωτήσεις, επικοινωνήστε με την <a data-l10n-name="mozillaSupportUrl">ομάδα υποστήριξης</a>.
 # Variables:
 #  $mozillaSupportUrl (String) - Link to https://support.mozilla.org
@@ -259,16 +256,16 @@ subscriptionAccountDeletion-title = Λυπούμαστε που φεύγετε
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $invoiceDateOnly (String) - The date of the next invoice, e.g. 01/20/2016
-subscriptionAccountDeletion-content-cancelled-2 = Διαγράψατε πρόσφατα τον { -product-mozilla-account(case: "acc", capitalization: "lower") } σας. Συνεπώς, έχουμε ακυρώσει τη συνδρομή σας στο { $productName }. Η τελευταία πληρωμή των { $invoiceTotal } έγινε στις { $invoiceDateOnly }.
+subscriptionAccountDeletion-content-cancelled-2 = Διαγράψατε πρόσφατα τον { -product-mozilla-account(capitalization: "lower", case: "acc") } σας. Συνεπώς, έχουμε ακυρώσει τη συνδρομή σας στο { $productName }. Η τελευταία πληρωμή των { $invoiceTotal } έγινε στις { $invoiceDateOnly }.
 subscriptionAccountReminderFirst-subject = Υπενθύμιση: Ολοκληρώστε τη ρύθμιση του λογαριασμού σας
 subscriptionAccountReminderFirst-title = Δεν έχετε ακόμα πρόσβαση στη συνδρομή σας
-subscriptionAccountReminderFirst-content-info-3 = Πριν από λίγες ημέρες, δημιουργήσατε έναν { -product-mozilla-account(case: "acc", capitalization: "lower") } αλλά δεν τον επιβεβαιώσατε. Ελπίζουμε να ολοκληρώσετε τη ρύθμιση του λογαριασμού σας, ώστε να μπορέσετε να χρησιμοποιήσετε τη νέα σας συνδρομή.
+subscriptionAccountReminderFirst-content-info-3 = Πριν από λίγες ημέρες, δημιουργήσατε έναν { -product-mozilla-account(capitalization: "lower", case: "acc") } αλλά δεν τον επιβεβαιώσατε. Ελπίζουμε να ολοκληρώσετε τη ρύθμιση του λογαριασμού σας, ώστε να μπορέσετε να χρησιμοποιήσετε τη νέα σας συνδρομή.
 subscriptionAccountReminderFirst-content-select-2 = Επιλέξτε «Δημιουργία κωδικού πρόσβασης» για να ορίσετε έναν νέο κωδικό πρόσβασης και να ολοκληρώσετε την επιβεβαίωση του λογαριασμού σας.
 subscriptionAccountReminderFirst-action = Δημιουργία κωδικού πρόσβασης
 subscriptionAccountReminderFirst-action-plaintext = { subscriptionAccountReminderFirst-action }:
 subscriptionAccountReminderSecond-subject = Τελική υπενθύμιση: Ρυθμίστε τον λογαριασμό σας
 subscriptionAccountReminderSecond-title-2 = Καλώς ορίσατε στη { -brand-mozilla }!
-subscriptionAccountReminderSecond-content-info-3 = Πριν από λίγες ημέρες, δημιουργήσατε έναν { -product-mozilla-account(case: "acc", capitalization: "lower") } αλλά δεν τον επιβεβαιώσατε. Ελπίζουμε να ολοκληρώσετε τη ρύθμιση του λογαριασμού σας, ώστε να μπορέσετε να χρησιμοποιήσετε τη νέα σας συνδρομή.
+subscriptionAccountReminderSecond-content-info-3 = Πριν από λίγες ημέρες, δημιουργήσατε έναν { -product-mozilla-account(capitalization: "lower", case: "acc") } αλλά δεν τον επιβεβαιώσατε. Ελπίζουμε να ολοκληρώσετε τη ρύθμιση του λογαριασμού σας, ώστε να μπορέσετε να χρησιμοποιήσετε τη νέα σας συνδρομή.
 subscriptionAccountReminderSecond-content-select-2 = Επιλέξτε «Δημιουργία κωδικού πρόσβασης» για να ορίσετε έναν νέο κωδικό πρόσβασης και να ολοκληρώσετε την επιβεβαίωση του λογαριασμού σας.
 subscriptionAccountReminderSecond-action = Δημιουργία κωδικού πρόσβασης
 subscriptionAccountReminderSecond-action-plaintext = { subscriptionAccountReminderSecond-action }:
