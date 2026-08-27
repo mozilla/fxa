@@ -1,8 +1,8 @@
 {
-  "commit": "2e40b721efa6cfb4be8d66354adf94859ef18cd2",
-  "summary": "Changes based on Copilot feedback",
-  "description": "",
-  "timestamp": 1787842472000,
+  "commit": "f9d0aa3680039ecfea086489304d1ec61c187d6e",
+  "summary": "chore(settings): Update to React 19",
+  "description": "This pull request:\n\n- Upgrades React and react-dom to 19 (pinned to `19.0.8`), with `@types/react` 19 and `@testing-library/react` 16\n- Switches `fxa-settings` to `createRoot`; `ReactDOM.render` is gone in React 19\n- Moves render-phase `navigate()` calls into effects across 13 containers — a concurrent root commits asynchronously, so navigating during render races the commit\n- Replaces the hand-rolled `Symbol.for('react.element')` in the SVG Jest transform with `createElement`, and consolidates the duplicated transform into `fxa-react`\n- Migrates `useFormState` to `useActionState` in `CouponForm`, dispatching the auto-apply through `startTransition`\n- Drops `@material-ui/core` (peers on React ^16/^17) and rebuilds the avatar zoom control as a native range input\n- Restores the `MfaGuard` `INSUFFICIENT_AAL` guard so it waits for the global redirect instead of clobbering it, with a Sentry breadcrumb and a fallback banner\n- Removes `@testing-library/react-hooks`, which has no React 19 support, in favour of RTL's `renderHook`\n- Fixes functional-test page objects that assumed the route committed with the URL\n\nOther information\n- **React is pinned to 19.0.8, not 19.2.x.** 19.2.8 reproducibly failed six passkey and 2FA\n  functional tests that pass on 19.0.8, on two independent branches. The cause is not diagnosed;\n  bumping to 19.2.x should be its own change. (FXA-XXXXX)\n- **`StrictMode` is disabled** in `fxa-settings/src/index.tsx`. `PagePasskeyAdd` starts its WebAuthn\n  ceremony in a mount effect and the double-invoke aborts it. Fixing that effect's cleanup and\n  restoring StrictMode is follow-up work. (FXA-XXXXX)\n\nCloses PAY-3887",
+  "timestamp": 1787846853000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
