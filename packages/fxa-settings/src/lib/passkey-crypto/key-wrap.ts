@@ -11,12 +11,16 @@
  * `SerializePrivateKey`, a serialiser only: Web Crypto cannot export a bare
  * scalar. It does not pad to `Nsk`, so this module left-pads the result.
  *
- * Everything crosses the module boundary as `Uint8Array`, so no `CryptoKey`
- * escapes a function. `aad` is opaque here; `context.ts` owns its construction
- * and is the only thing that should be producing it.
+ * Everything else crosses the boundary as `Uint8Array`, so no `CryptoKey`
+ * escapes a function. The `aad` is built here from the caller's
+ * `CredentialContext`, so wrap and unwrap cannot disagree about the framing.
  */
 
-import { assertByteLength } from './assert';
+import {
+  assertByteLength,
+  bindingBytes,
+  type CredentialContext,
+} from './encoding';
 import { concat } from 'hpke';
 import {
   KEY_WRAP_IV_BYTES,
@@ -139,14 +143,18 @@ async function derivePrfKey(
 export async function wrapRecipientPrivateKey(
   privateKeyRaw: Uint8Array,
   prfOut: Uint8Array,
-  aad: Uint8Array
+  context: CredentialContext
 ): Promise<WrappedPrivateKey> {
   assertByteLength('skRRaw', privateKeyRaw, V1_SIZES.skRRaw);
   const key = await derivePrfKey(prfOut, 'encrypt');
   const iv = crypto.getRandomValues(new Uint8Array(KEY_WRAP_IV_BYTES));
 
   const wrapped = await crypto.subtle.encrypt(
-    { name: 'AES-GCM', iv, additionalData: concat(KEY_WRAP_AAD_LABEL, aad) },
+    {
+      name: 'AES-GCM',
+      iv,
+      additionalData: concat(KEY_WRAP_AAD_LABEL, bindingBytes(context)),
+    },
     key,
     privateKeyRaw
   );
@@ -163,22 +171,26 @@ export async function wrapRecipientPrivateKey(
 /**
  * Unwraps the recipient private key, returning the raw scalar bytes.
  *
- * Throws if the ciphertext, nonce, key, or AAD does not match the wrap. GCM
- * cannot distinguish those cases, so the error carries no detail about which
- * input was wrong.
+ * Throws if the ciphertext, nonce, key, or credential context does not match
+ * the wrap. GCM cannot distinguish those cases, so the error carries no detail
+ * about which input was wrong.
  */
 export async function unwrapRecipientPrivateKey(
   wrapped: Uint8Array,
   iv: Uint8Array,
   prfOut: Uint8Array,
-  aad: Uint8Array
+  context: CredentialContext
 ): Promise<Uint8Array> {
   assertByteLength('keyWrapIv', iv, KEY_WRAP_IV_BYTES);
   assertByteLength('prfWrappedSkR', wrapped, V1_SIZES.prfWrappedSkR);
   const key = await derivePrfKey(prfOut, 'decrypt');
 
   const privateKeyRaw = await crypto.subtle.decrypt(
-    { name: 'AES-GCM', iv, additionalData: concat(KEY_WRAP_AAD_LABEL, aad) },
+    {
+      name: 'AES-GCM',
+      iv,
+      additionalData: concat(KEY_WRAP_AAD_LABEL, bindingBytes(context)),
+    },
     key,
     wrapped
   );

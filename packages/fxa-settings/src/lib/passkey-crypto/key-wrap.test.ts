@@ -12,6 +12,7 @@
  */
 
 import { KEY_WRAP_IV_BYTES, PRF_OUT_BYTES, V1_SIZES } from './constants';
+import { bindingBytes } from './encoding';
 import {
   generateRecipientKeyPair,
   unwrapRecipientPrivateKey,
@@ -22,8 +23,14 @@ import { suite } from './suite';
 const MOCK_PRF_OUT = new Uint8Array(PRF_OUT_BYTES).fill(0xa1);
 const MOCK_OTHER_PRF_OUT = new Uint8Array(PRF_OUT_BYTES).fill(0xb2);
 
-const MOCK_AAD = new TextEncoder().encode('uid:credentialId:v1');
-const MOCK_OTHER_AAD = new TextEncoder().encode('uid:otherCredentialId:v1');
+const MOCK_CONTEXT = {
+  uid: '0011223344556677889900aabbccddee',
+  credentialId: 'cGFzc2tleS1jcmVkZW50aWFsLWlk',
+};
+const MOCK_OTHER_CREDENTIAL = {
+  ...MOCK_CONTEXT,
+  credentialId: 'b3RoZXItY3JlZGVudGlhbA',
+};
 
 describe('passkey-crypto key-wrap', () => {
   describe('generateRecipientKeyPair', () => {
@@ -133,7 +140,7 @@ describe('passkey-crypto key-wrap', () => {
       const { wrapped } = await wrapRecipientPrivateKey(
         privateKeyRaw,
         MOCK_PRF_OUT,
-        MOCK_AAD
+        MOCK_CONTEXT
       );
       expect(wrapped.length).toBe(V1_SIZES.prfWrappedSkR);
     });
@@ -143,7 +150,7 @@ describe('passkey-crypto key-wrap', () => {
       const { iv } = await wrapRecipientPrivateKey(
         privateKeyRaw,
         MOCK_PRF_OUT,
-        MOCK_AAD
+        MOCK_CONTEXT
       );
       expect(iv.length).toBe(KEY_WRAP_IV_BYTES);
     });
@@ -154,12 +161,12 @@ describe('passkey-crypto key-wrap', () => {
       const first = await wrapRecipientPrivateKey(
         privateKeyRaw,
         MOCK_PRF_OUT,
-        MOCK_AAD
+        MOCK_CONTEXT
       );
       const second = await wrapRecipientPrivateKey(
         privateKeyRaw,
         MOCK_PRF_OUT,
-        MOCK_AAD
+        MOCK_CONTEXT
       );
       expect(Buffer.from(first.iv)).not.toEqual(Buffer.from(second.iv));
     });
@@ -169,12 +176,12 @@ describe('passkey-crypto key-wrap', () => {
       const first = await wrapRecipientPrivateKey(
         privateKeyRaw,
         MOCK_PRF_OUT,
-        MOCK_AAD
+        MOCK_CONTEXT
       );
       const second = await wrapRecipientPrivateKey(
         privateKeyRaw,
         MOCK_PRF_OUT,
-        MOCK_AAD
+        MOCK_CONTEXT
       );
       expect(Buffer.from(first.wrapped)).not.toEqual(
         Buffer.from(second.wrapped)
@@ -187,7 +194,7 @@ describe('passkey-crypto key-wrap', () => {
       const { iv } = await wrapRecipientPrivateKey(
         privateKeyRaw,
         MOCK_PRF_OUT,
-        MOCK_AAD
+        MOCK_CONTEXT
       );
       expect(Buffer.from(iv)).not.toEqual(
         Buffer.from(new Uint8Array(KEY_WRAP_IV_BYTES))
@@ -197,7 +204,11 @@ describe('passkey-crypto key-wrap', () => {
     // The only write path into the fixed-width prfWrappedSkR column.
     it.each([65, 67])('throws when skR is %i bytes', async (length) => {
       await expect(
-        wrapRecipientPrivateKey(new Uint8Array(length), MOCK_PRF_OUT, MOCK_AAD)
+        wrapRecipientPrivateKey(
+          new Uint8Array(length),
+          MOCK_PRF_OUT,
+          MOCK_CONTEXT
+        )
       ).rejects.toThrow(
         `skRRaw must be ${V1_SIZES.skRRaw} bytes, got ${length}`
       );
@@ -209,7 +220,7 @@ describe('passkey-crypto key-wrap', () => {
         wrapRecipientPrivateKey(
           privateKeyRaw,
           new Uint8Array(16).fill(0xa1),
-          MOCK_AAD
+          MOCK_CONTEXT
         )
       ).rejects.toThrow('prfOut must be 32 bytes, got 16');
     });
@@ -223,7 +234,7 @@ describe('passkey-crypto key-wrap', () => {
       const { wrapped, iv } = await wrapRecipientPrivateKey(
         privateKeyRaw,
         MOCK_PRF_OUT,
-        MOCK_AAD
+        MOCK_CONTEXT
       );
 
       const key = await crypto.subtle.importKey(
@@ -236,7 +247,7 @@ describe('passkey-crypto key-wrap', () => {
 
       await expect(
         crypto.subtle.decrypt(
-          { name: 'AES-GCM', iv, additionalData: MOCK_AAD },
+          { name: 'AES-GCM', iv, additionalData: bindingBytes(MOCK_CONTEXT) },
           key,
           wrapped
         )
@@ -250,29 +261,34 @@ describe('passkey-crypto key-wrap', () => {
       const { wrapped, iv } = await wrapRecipientPrivateKey(
         privateKeyRaw,
         MOCK_PRF_OUT,
-        MOCK_AAD
+        MOCK_CONTEXT
       );
 
       const unwrapped = await unwrapRecipientPrivateKey(
         wrapped,
         iv,
         MOCK_PRF_OUT,
-        MOCK_AAD
+        MOCK_CONTEXT
       );
 
       expect(Buffer.from(unwrapped)).toEqual(Buffer.from(privateKeyRaw));
     });
 
-    it('throws when the AAD differs from the one used to wrap', async () => {
+    it('throws when the credential context differs from the wrap', async () => {
       const { privateKeyRaw } = await generateRecipientKeyPair();
       const { wrapped, iv } = await wrapRecipientPrivateKey(
         privateKeyRaw,
         MOCK_PRF_OUT,
-        MOCK_AAD
+        MOCK_CONTEXT
       );
 
       await expect(
-        unwrapRecipientPrivateKey(wrapped, iv, MOCK_PRF_OUT, MOCK_OTHER_AAD)
+        unwrapRecipientPrivateKey(
+          wrapped,
+          iv,
+          MOCK_PRF_OUT,
+          MOCK_OTHER_CREDENTIAL
+        )
       ).rejects.toThrow();
     });
 
@@ -281,11 +297,11 @@ describe('passkey-crypto key-wrap', () => {
       const { wrapped, iv } = await wrapRecipientPrivateKey(
         privateKeyRaw,
         MOCK_PRF_OUT,
-        MOCK_AAD
+        MOCK_CONTEXT
       );
 
       await expect(
-        unwrapRecipientPrivateKey(wrapped, iv, MOCK_OTHER_PRF_OUT, MOCK_AAD)
+        unwrapRecipientPrivateKey(wrapped, iv, MOCK_OTHER_PRF_OUT, MOCK_CONTEXT)
       ).rejects.toThrow();
     });
 
@@ -294,7 +310,7 @@ describe('passkey-crypto key-wrap', () => {
       const { wrapped } = await wrapRecipientPrivateKey(
         privateKeyRaw,
         MOCK_PRF_OUT,
-        MOCK_AAD
+        MOCK_CONTEXT
       );
 
       await expect(
@@ -302,7 +318,7 @@ describe('passkey-crypto key-wrap', () => {
           wrapped,
           new Uint8Array(KEY_WRAP_IV_BYTES).fill(0x00),
           MOCK_PRF_OUT,
-          MOCK_AAD
+          MOCK_CONTEXT
         )
       ).rejects.toThrow();
     });
@@ -312,14 +328,14 @@ describe('passkey-crypto key-wrap', () => {
       const { wrapped, iv } = await wrapRecipientPrivateKey(
         privateKeyRaw,
         MOCK_PRF_OUT,
-        MOCK_AAD
+        MOCK_CONTEXT
       );
 
       const corrupted = new Uint8Array(wrapped);
       corrupted[0] ^= 0xff;
 
       await expect(
-        unwrapRecipientPrivateKey(corrupted, iv, MOCK_PRF_OUT, MOCK_AAD)
+        unwrapRecipientPrivateKey(corrupted, iv, MOCK_PRF_OUT, MOCK_CONTEXT)
       ).rejects.toThrow();
     });
 
@@ -328,14 +344,14 @@ describe('passkey-crypto key-wrap', () => {
       const { wrapped, iv } = await wrapRecipientPrivateKey(
         privateKeyRaw,
         MOCK_PRF_OUT,
-        MOCK_AAD
+        MOCK_CONTEXT
       );
 
       const corrupted = new Uint8Array(wrapped);
       corrupted[corrupted.length - 1] ^= 0xff;
 
       await expect(
-        unwrapRecipientPrivateKey(corrupted, iv, MOCK_PRF_OUT, MOCK_AAD)
+        unwrapRecipientPrivateKey(corrupted, iv, MOCK_PRF_OUT, MOCK_CONTEXT)
       ).rejects.toThrow();
     });
 
@@ -347,7 +363,7 @@ describe('passkey-crypto key-wrap', () => {
             new Uint8Array(length),
             new Uint8Array(KEY_WRAP_IV_BYTES),
             MOCK_PRF_OUT,
-            MOCK_AAD
+            MOCK_CONTEXT
           )
         ).rejects.toThrow(
           `prfWrappedSkR must be ${V1_SIZES.prfWrappedSkR} bytes, got ${length}`
@@ -360,7 +376,7 @@ describe('passkey-crypto key-wrap', () => {
       const { wrapped } = await wrapRecipientPrivateKey(
         privateKeyRaw,
         MOCK_PRF_OUT,
-        MOCK_AAD
+        MOCK_CONTEXT
       );
 
       await expect(
@@ -368,7 +384,7 @@ describe('passkey-crypto key-wrap', () => {
           wrapped,
           new Uint8Array(16),
           MOCK_PRF_OUT,
-          MOCK_AAD
+          MOCK_CONTEXT
         )
       ).rejects.toThrow('keyWrapIv must be 12 bytes, got 16');
     });
@@ -378,7 +394,7 @@ describe('passkey-crypto key-wrap', () => {
       const { wrapped, iv } = await wrapRecipientPrivateKey(
         privateKeyRaw,
         MOCK_PRF_OUT,
-        MOCK_AAD
+        MOCK_CONTEXT
       );
 
       await expect(
@@ -386,7 +402,7 @@ describe('passkey-crypto key-wrap', () => {
           wrapped,
           iv,
           new Uint8Array(64).fill(0xa1),
-          MOCK_AAD
+          MOCK_CONTEXT
         )
       ).rejects.toThrow('prfOut must be 32 bytes, got 64');
     });

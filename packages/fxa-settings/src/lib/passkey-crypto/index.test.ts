@@ -24,7 +24,6 @@ describe('passkey-crypto barrel', () => {
       'RECIPIENT_CURVE',
       'UID_BYTES',
       'V1_SIZES',
-      'buildEnvelopeContext',
       'generateRecipientKeyPair',
       'openKb',
       'sealKb',

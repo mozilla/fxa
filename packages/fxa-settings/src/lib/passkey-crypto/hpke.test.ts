@@ -16,6 +16,7 @@
 
 import { concat, MODE_BASE } from 'hpke';
 import { HPKE_MODE_BASE, V1_SIZES } from './constants';
+import { bindingBytes } from './encoding';
 import { openKb, sealKb } from './hpke';
 import { generateRecipientKeyPair } from './key-wrap';
 import { HPKE_INFO_LABEL, suite } from './suite';
@@ -27,11 +28,21 @@ const hex = (h: string) => Uint8Array.from(Buffer.from(h, 'hex'));
 const bytes = (s: string) => Uint8Array.from(new TextEncoder().encode(s));
 
 const MOCK_KB = new Uint8Array(32).fill(0x5a);
+// sealKb passes no aad, so the recipient side must not either.
+const EMPTY_AAD = new Uint8Array(0);
 
-const MOCK_INFO = bytes('fxa-passkey-wrap-v1');
-const MOCK_OTHER_INFO = bytes('fxa-passkey-wrap-v2');
-const MOCK_AAD = bytes('uid:credentialId');
-const MOCK_OTHER_AAD = bytes('uid:otherCredentialId');
+const MOCK_CONTEXT = {
+  uid: '0011223344556677889900aabbccddee',
+  credentialId: 'cGFzc2tleS1jcmVkZW50aWFsLWlk',
+};
+const MOCK_OTHER_CREDENTIAL = {
+  ...MOCK_CONTEXT,
+  credentialId: 'b3RoZXItY3JlZGVudGlhbA',
+};
+const MOCK_OTHER_ACCOUNT = {
+  ...MOCK_CONTEXT,
+  uid: 'ffeeddccbbaa00998877665544332211',
+};
 
 describe('passkey-crypto hpke', () => {
   describe('ciphersuite', () => {
@@ -60,9 +71,10 @@ describe('passkey-crypto hpke', () => {
     // comparing constants would still pass if sealKb started using mode_psk.
     //
     // Both cases use the production info — label included — so the psk is the
-    // only difference between them. Passing bare MOCK_INFO would fail on the
+    // only difference between them. Passing the bare binding would fail on the
     // info mismatch instead, and would pass whatever mode sealKb used.
-    const productionInfo = () => concat(HPKE_INFO_LABEL, MOCK_INFO);
+    const productionInfo = () =>
+      concat(HPKE_INFO_LABEL, bindingBytes(MOCK_CONTEXT));
 
     const recipientKeys = async (
       publicKey: Uint8Array,
@@ -74,7 +86,7 @@ describe('passkey-crypto hpke', () => {
 
     it('opens in mode_base with the production info — the control', async () => {
       const { publicKey, privateKeyRaw } = await generateRecipientKeyPair();
-      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_INFO, MOCK_AAD);
+      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_CONTEXT);
 
       const ctx = await suite.SetupRecipient(
         await recipientKeys(publicKey, privateKeyRaw),
@@ -82,13 +94,13 @@ describe('passkey-crypto hpke', () => {
         { info: productionInfo() }
       );
 
-      const opened = await ctx.Open(sealed.ciphertext, MOCK_AAD);
+      const opened = await ctx.Open(sealed.ciphertext, EMPTY_AAD);
       expect(Buffer.from(opened)).toEqual(Buffer.from(MOCK_KB));
     });
 
     it('seals in mode_base, so a mode_psk recipient cannot open it', async () => {
       const { publicKey, privateKeyRaw } = await generateRecipientKeyPair();
-      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_INFO, MOCK_AAD);
+      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_CONTEXT);
 
       const ctx = await suite.SetupRecipient(
         await recipientKeys(publicKey, privateKeyRaw),
@@ -100,21 +112,20 @@ describe('passkey-crypto hpke', () => {
         }
       );
 
-      await expect(ctx.Open(sealed.ciphertext, MOCK_AAD)).rejects.toThrow();
+      await expect(ctx.Open(sealed.ciphertext, EMPTY_AAD)).rejects.toThrow();
     });
   });
 
   describe('sealKb / openKb round-trip', () => {
     it('opens to the original kB', async () => {
       const { publicKey, privateKeyRaw } = await generateRecipientKeyPair();
-      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_INFO, MOCK_AAD);
+      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_CONTEXT);
 
       const opened = await openKb(
         sealed,
         publicKey,
         privateKeyRaw,
-        MOCK_INFO,
-        MOCK_AAD
+        MOCK_CONTEXT
       );
 
       expect(Buffer.from(opened)).toEqual(Buffer.from(MOCK_KB));
@@ -122,7 +133,7 @@ describe('passkey-crypto hpke', () => {
 
     it('produces an encapsulated secret of the v1 size', async () => {
       const { publicKey } = await generateRecipientKeyPair();
-      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_INFO, MOCK_AAD);
+      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_CONTEXT);
       expect(sealed.encapsulatedSecret.length).toBe(
         V1_SIZES.hpkeEncapsulatedSecret
       );
@@ -130,7 +141,7 @@ describe('passkey-crypto hpke', () => {
 
     it('produces a ciphertext of the v1 size', async () => {
       const { publicKey } = await generateRecipientKeyPair();
-      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_INFO, MOCK_AAD);
+      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_CONTEXT);
       expect(sealed.ciphertext.length).toBe(V1_SIZES.hpkeSealedKb);
     });
 
@@ -139,7 +150,7 @@ describe('passkey-crypto hpke', () => {
       const { publicKey } = await generateRecipientKeyPair();
 
       await expect(
-        sealKb(new Uint8Array(16).fill(0x5a), publicKey, MOCK_INFO, MOCK_AAD)
+        sealKb(new Uint8Array(16).fill(0x5a), publicKey, MOCK_CONTEXT)
       ).rejects.toThrow('kB must be 32 bytes, got 16');
     });
 
@@ -154,7 +165,7 @@ describe('passkey-crypto hpke', () => {
         pkR: Uint8Array.from([0x02, ...new Uint8Array(66).fill(0xa3)]),
       },
     ])('rejects a pkR that is $label', async ({ pkR }) => {
-      await expect(sealKb(MOCK_KB, pkR, MOCK_INFO, MOCK_AAD)).rejects.toThrow();
+      await expect(sealKb(MOCK_KB, pkR, MOCK_CONTEXT)).rejects.toThrow();
     });
 
     it('rejects a pkR whose coordinates are not on the curve', async () => {
@@ -162,15 +173,15 @@ describe('passkey-crypto hpke', () => {
       const offCurve = new Uint8Array(publicKey);
       offCurve[1] ^= 0xff;
 
-      await expect(
-        sealKb(MOCK_KB, offCurve, MOCK_INFO, MOCK_AAD)
-      ).rejects.toThrow('Public key deserialization failed');
+      await expect(sealKb(MOCK_KB, offCurve, MOCK_CONTEXT)).rejects.toThrow(
+        'Public key deserialization failed'
+      );
     });
 
     it('produces different output for identical inputs, via the ephemeral sender key', async () => {
       const { publicKey } = await generateRecipientKeyPair();
-      const first = await sealKb(MOCK_KB, publicKey, MOCK_INFO, MOCK_AAD);
-      const second = await sealKb(MOCK_KB, publicKey, MOCK_INFO, MOCK_AAD);
+      const first = await sealKb(MOCK_KB, publicKey, MOCK_CONTEXT);
+      const second = await sealKb(MOCK_KB, publicKey, MOCK_CONTEXT);
 
       expect(Buffer.from(first.encapsulatedSecret)).not.toEqual(
         Buffer.from(second.encapsulatedSecret)
@@ -187,7 +198,7 @@ describe('passkey-crypto hpke', () => {
     // envelope. Opening with the bare info must therefore fail.
     it('binds a label into info that the caller does not supply', async () => {
       const { publicKey, privateKeyRaw } = await generateRecipientKeyPair();
-      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_INFO, MOCK_AAD);
+      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_CONTEXT);
 
       await expect(
         suite.Open(
@@ -197,55 +208,44 @@ describe('passkey-crypto hpke', () => {
           },
           sealed.encapsulatedSecret,
           sealed.ciphertext,
-          { info: MOCK_INFO, aad: MOCK_AAD }
+          { info: bindingBytes(MOCK_CONTEXT) }
         )
       ).rejects.toThrow();
     });
   });
 
   describe('context binding', () => {
-    it('fails to open when the aad differs', async () => {
+    it('fails to open under a different credentialId', async () => {
       const { publicKey, privateKeyRaw } = await generateRecipientKeyPair();
-      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_INFO, MOCK_AAD);
+      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_CONTEXT);
 
       await expect(
-        openKb(sealed, publicKey, privateKeyRaw, MOCK_INFO, MOCK_OTHER_AAD)
+        openKb(sealed, publicKey, privateKeyRaw, MOCK_OTHER_CREDENTIAL)
       ).rejects.toThrow();
     });
 
-    it('fails to open when the info differs', async () => {
+    it('fails to open under a different uid', async () => {
       const { publicKey, privateKeyRaw } = await generateRecipientKeyPair();
-      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_INFO, MOCK_AAD);
+      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_CONTEXT);
 
       await expect(
-        openKb(sealed, publicKey, privateKeyRaw, MOCK_OTHER_INFO, MOCK_AAD)
+        openKb(sealed, publicKey, privateKeyRaw, MOCK_OTHER_ACCOUNT)
       ).rejects.toThrow();
     });
 
     it('fails to open with a different recipient keypair', async () => {
       const intended = await generateRecipientKeyPair();
       const other = await generateRecipientKeyPair();
-      const sealed = await sealKb(
-        MOCK_KB,
-        intended.publicKey,
-        MOCK_INFO,
-        MOCK_AAD
-      );
+      const sealed = await sealKb(MOCK_KB, intended.publicKey, MOCK_CONTEXT);
 
       await expect(
-        openKb(
-          sealed,
-          other.publicKey,
-          other.privateKeyRaw,
-          MOCK_INFO,
-          MOCK_AAD
-        )
+        openKb(sealed, other.publicKey, other.privateKeyRaw, MOCK_CONTEXT)
       ).rejects.toThrow();
     });
 
     it('fails to open when the ciphertext is corrupted', async () => {
       const { publicKey, privateKeyRaw } = await generateRecipientKeyPair();
-      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_INFO, MOCK_AAD);
+      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_CONTEXT);
 
       const ciphertext = new Uint8Array(sealed.ciphertext);
       ciphertext[0] ^= 0xff;
@@ -255,8 +255,7 @@ describe('passkey-crypto hpke', () => {
           { ...sealed, ciphertext },
           publicKey,
           privateKeyRaw,
-          MOCK_INFO,
-          MOCK_AAD
+          MOCK_CONTEXT
         )
       ).rejects.toThrow();
     });
@@ -268,7 +267,7 @@ describe('passkey-crypto hpke', () => {
       'fails to open when the encapsulated secret is $label',
       async ({ delta }) => {
         const { publicKey, privateKeyRaw } = await generateRecipientKeyPair();
-        const sealed = await sealKb(MOCK_KB, publicKey, MOCK_INFO, MOCK_AAD);
+        const sealed = await sealKb(MOCK_KB, publicKey, MOCK_CONTEXT);
 
         const encapsulatedSecret = new Uint8Array(
           V1_SIZES.hpkeEncapsulatedSecret + delta
@@ -282,8 +281,7 @@ describe('passkey-crypto hpke', () => {
             { ...sealed, encapsulatedSecret },
             publicKey,
             privateKeyRaw,
-            MOCK_INFO,
-            MOCK_AAD
+            MOCK_CONTEXT
           )
         ).rejects.toThrow('hpkeEncapsulatedSecret must be 133 bytes');
       }
@@ -291,15 +289,14 @@ describe('passkey-crypto hpke', () => {
 
     it('fails to open when the ciphertext is truncated below the tag', async () => {
       const { publicKey, privateKeyRaw } = await generateRecipientKeyPair();
-      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_INFO, MOCK_AAD);
+      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_CONTEXT);
 
       await expect(
         openKb(
           { ...sealed, ciphertext: sealed.ciphertext.subarray(0, 15) },
           publicKey,
           privateKeyRaw,
-          MOCK_INFO,
-          MOCK_AAD
+          MOCK_CONTEXT
         )
       ).rejects.toThrow('hpkeSealedKb must be 48 bytes');
     });
@@ -307,7 +304,7 @@ describe('passkey-crypto hpke', () => {
     // Not guarded in openKb: DeserializePrivateKey rejects a wrong-width scalar.
     it.each([65, 67])('fails to open when skR is %i bytes', async (length) => {
       const { publicKey, privateKeyRaw } = await generateRecipientKeyPair();
-      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_INFO, MOCK_AAD);
+      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_CONTEXT);
 
       const wrongLength = new Uint8Array(length);
       wrongLength.set(
@@ -315,13 +312,13 @@ describe('passkey-crypto hpke', () => {
       );
 
       await expect(
-        openKb(sealed, publicKey, wrongLength, MOCK_INFO, MOCK_AAD)
+        openKb(sealed, publicKey, wrongLength, MOCK_CONTEXT)
       ).rejects.toThrow();
     });
 
     it('fails to open when the encapsulated secret is corrupted', async () => {
       const { publicKey, privateKeyRaw } = await generateRecipientKeyPair();
-      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_INFO, MOCK_AAD);
+      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_CONTEXT);
 
       const encapsulatedSecret = new Uint8Array(sealed.encapsulatedSecret);
       // Corrupt a coordinate byte, not the 0x04 point tag, so it stays a
@@ -333,8 +330,7 @@ describe('passkey-crypto hpke', () => {
           { ...sealed, encapsulatedSecret },
           publicKey,
           privateKeyRaw,
-          MOCK_INFO,
-          MOCK_AAD
+          MOCK_CONTEXT
         )
       ).rejects.toThrow();
     });
@@ -349,11 +345,11 @@ describe('passkey-crypto hpke', () => {
     // pure-JS BigInt scalar multiply over the secret on every unlock.
     it('never calls DeserializePrivateKey during open', async () => {
       const { publicKey, privateKeyRaw } = await generateRecipientKeyPair();
-      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_INFO, MOCK_AAD);
+      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_CONTEXT);
       const spy = jest.spyOn(suite, 'DeserializePrivateKey');
 
       try {
-        await openKb(sealed, publicKey, privateKeyRaw, MOCK_INFO, MOCK_AAD);
+        await openKb(sealed, publicKey, privateKeyRaw, MOCK_CONTEXT);
         expect(spy).not.toHaveBeenCalled();
       } finally {
         spy.mockRestore();
@@ -424,9 +420,9 @@ describe('passkey-crypto hpke', () => {
           )
         )
       );
-      const sealed = await sealKb(MOCK_KB, pkR, MOCK_INFO, MOCK_AAD);
+      const sealed = await sealKb(MOCK_KB, pkR, MOCK_CONTEXT);
 
-      const opened = await openKb(sealed, pkR, padded, MOCK_INFO, MOCK_AAD);
+      const opened = await openKb(sealed, pkR, padded, MOCK_CONTEXT);
       expect(Buffer.from(opened)).toEqual(Buffer.from(MOCK_KB));
     });
 
@@ -435,33 +431,27 @@ describe('passkey-crypto hpke', () => {
       ['too long', V1_SIZES.pkR + 1],
     ])('rejects a pkR that is %s, naming the field', async (_label, length) => {
       const { publicKey, privateKeyRaw } = await generateRecipientKeyPair();
-      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_INFO, MOCK_AAD);
+      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_CONTEXT);
 
       await expect(
-        openKb(
-          sealed,
-          new Uint8Array(length),
-          privateKeyRaw,
-          MOCK_INFO,
-          MOCK_AAD
-        )
+        openKb(sealed, new Uint8Array(length), privateKeyRaw, MOCK_CONTEXT)
       ).rejects.toThrow(`pkR must be ${V1_SIZES.pkR} bytes, got ${length}`);
     });
 
     it('rejects a pkR that is not an uncompressed point', async () => {
       const { publicKey, privateKeyRaw } = await generateRecipientKeyPair();
-      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_INFO, MOCK_AAD);
+      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_CONTEXT);
       const compressed = Uint8Array.from(publicKey);
       compressed[0] = 0x02;
 
       await expect(
-        openKb(sealed, compressed, privateKeyRaw, MOCK_INFO, MOCK_AAD)
+        openKb(sealed, compressed, privateKeyRaw, MOCK_CONTEXT)
       ).rejects.toThrow(/uncompressed point/);
     });
 
     it('rejects a wrong-width pkR at seal time, naming the field', async () => {
       await expect(
-        sealKb(MOCK_KB, new Uint8Array(64), MOCK_INFO, MOCK_AAD)
+        sealKb(MOCK_KB, new Uint8Array(64), MOCK_CONTEXT)
       ).rejects.toThrow(`pkR must be ${V1_SIZES.pkR} bytes, got 64`);
     });
   });
@@ -512,26 +502,25 @@ describe('passkey-crypto hpke', () => {
       delete subtleProto.getPublicKey;
 
       const { publicKey, privateKeyRaw } = await generateRecipientKeyPair();
-      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_INFO, MOCK_AAD);
+      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_CONTEXT);
 
       const opened = await openKb(
         sealed,
         publicKey,
         privateKeyRaw,
-        MOCK_INFO,
-        MOCK_AAD
+        MOCK_CONTEXT
       );
       expect(Buffer.from(opened)).toEqual(Buffer.from(MOCK_KB));
     });
 
     it('never calls getPublicKey during open', async () => {
       const { publicKey, privateKeyRaw } = await generateRecipientKeyPair();
-      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_INFO, MOCK_AAD);
+      const sealed = await sealKb(MOCK_KB, publicKey, MOCK_CONTEXT);
 
       const spy = jest.fn(nativeGetPublicKey);
       subtleProto.getPublicKey = spy;
 
-      await openKb(sealed, publicKey, privateKeyRaw, MOCK_INFO, MOCK_AAD);
+      await openKb(sealed, publicKey, privateKeyRaw, MOCK_CONTEXT);
 
       expect(spy).not.toHaveBeenCalled();
     });

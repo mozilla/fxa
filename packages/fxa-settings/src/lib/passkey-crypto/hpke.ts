@@ -7,15 +7,19 @@
  * public key, and open it again with the recipient private key.
  *
  * FROZEN FORMAT CONTRACT — see FXA-14155. The ciphersuite, mode, and the
- * `info`/`aad` a caller passes are all bound into the output, which is why the
- * `hpke` dependency is pinned exactly.
+ * credential binding are all bound into the output, which is why the `hpke`
+ * dependency is pinned exactly.
  *
- * Everything crosses the module boundary as `Uint8Array`. `info` and `aad` are
- * opaque here; `context.ts` owns their construction and is the only thing that
- * should be producing them.
+ * Everything else crosses the boundary as `Uint8Array`. The `info` is built
+ * here from the caller's `CredentialContext`, so seal and open cannot disagree
+ * about the framing. No `aad`: `info` already binds the credential.
  */
 
-import { assertByteLength } from './assert';
+import {
+  assertByteLength,
+  bindingBytes,
+  type CredentialContext,
+} from './encoding';
 import {
   KB_BYTES,
   RECIPIENT_ALGORITHM,
@@ -98,8 +102,7 @@ export type SealedKb = {
 export async function sealKb(
   kB: Uint8Array,
   pkR: Uint8Array,
-  info: Uint8Array,
-  aad: Uint8Array
+  context: CredentialContext
 ): Promise<SealedKb> {
   assertByteLength('kB', kB, KB_BYTES);
   // DeserializePublicKey would reject a malformed point anyway, but a wrong
@@ -111,7 +114,7 @@ export async function sealKb(
   const { encapsulatedSecret, ciphertext } = await suite.Seal(
     recipientPublicKey,
     kB,
-    { info: concat(HPKE_INFO_LABEL, info), aad }
+    { info: concat(HPKE_INFO_LABEL, bindingBytes(context)) }
   );
 
   // Both are ciphersuite constants, so this only fires if a library or platform
@@ -145,8 +148,7 @@ export async function openKb(
   sealed: SealedKb,
   pkR: Uint8Array,
   skRRaw: Uint8Array,
-  info: Uint8Array,
-  aad: Uint8Array
+  context: CredentialContext
 ): Promise<Uint8Array> {
   assertByteLength(
     'hpkeEncapsulatedSecret',
@@ -159,6 +161,6 @@ export async function openKb(
     await importRecipientKeyPair(pkR, skRRaw),
     sealed.encapsulatedSecret,
     sealed.ciphertext,
-    { info: concat(HPKE_INFO_LABEL, info), aad }
+    { info: concat(HPKE_INFO_LABEL, bindingBytes(context)) }
   );
 }
