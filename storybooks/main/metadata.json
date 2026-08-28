@@ -1,8 +1,8 @@
 {
-  "commit": "195c0a1209ed305d5cd0e11f3d79d08f2908f740",
-  "summary": "Merge pull request #21111 from mozilla/FXA-13866",
-  "description": "task(fxa-settings): Support pairing QR scanning when firefox is not the default",
-  "timestamp": 1787768997000,
+  "commit": "b4cf2b0b93c37b4ecef6fb79caaa425b4ca35a3f",
+  "summary": "Merge pull request #21120 from mozilla/config/blender-dismiss-high-severity",
+  "description": "chore: allow BLEnder to dismiss confident high-severity not-affected alerts",
+  "timestamp": 1787877251000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
