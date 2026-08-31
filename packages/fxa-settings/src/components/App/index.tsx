@@ -16,6 +16,7 @@ import {
 import { QueryParams } from '../..';
 import { persistAccount, setCurrentAccount } from '../../lib/storage-utils';
 import { currentAccount, getAccountByUid } from '../../lib/cache';
+import { setFirefoxSignedInUid } from '../../lib/account-storage';
 import { firefox } from '../../lib/channels/firefox';
 import * as MetricsFlow from '../../lib/metrics-flow';
 import GleanMetrics from '../../lib/glean';
@@ -277,6 +278,8 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
   // the origin page's layout until the destination page loads.
   const [currentSplitLayout, setCurrentSplitLayout] = useState<boolean>(false);
 
+  const accountSwitcherEnabled = !!config.featureFlags?.accountSwitcherEnabled;
+
   useEffect(() => {
     const initializeSession = async () => {
       if (!integration) {
@@ -306,6 +309,9 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
           );
           if (isValidSession) {
             setIsSignedIntoFirefox(true);
+            if (accountSwitcherEnabled) {
+              setFirefoxSignedInUid(userFromBrowser.uid);
+            }
             const cachedUser = getAccountByUid(userFromBrowser.uid);
             // Refresh the token without switching the "current" account.
             persistAccount(
@@ -327,6 +333,11 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
         }
         // Fall through to localStorage checks if WebChannel timed out
         // or the token was invalid.
+      }
+
+      // No valid browser session, so drop any uid mirrored by an earlier load.
+      if (accountSwitcherEnabled) {
+        setFirefoxSignedInUid(null);
       }
 
       if (isSignedInData?.isSignedIn === true) {
@@ -352,7 +363,12 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
       });
     };
     initializeSession();
-  }, [integration, isSignedInData?.isSignedIn, session]);
+  }, [
+    accountSwitcherEnabled,
+    integration,
+    isSignedInData?.isSignedIn,
+    session,
+  ]);
 
   const metricsEnabled = useMemo(() => {
     if (metricsLoading || !integration || isSignedIn === undefined) {

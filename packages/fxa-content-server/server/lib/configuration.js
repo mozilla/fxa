@@ -272,6 +272,12 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'PASSWORDLESS_SIGNUP_ENABLED',
     },
+    accountSwitcherEnabled: {
+      default: false,
+      doc: 'Enables switching between accounts stored in local storage from the avatar menu and cached sign-in',
+      format: Boolean,
+      env: 'FEATURE_FLAGS_ACCOUNT_SWITCHER_ENABLED',
+    },
   },
   passkeys: {
     maxPerUser: {
@@ -1192,6 +1198,13 @@ if (conf.get('env') === 'development') {
   // available for development/testing. It remains gated (default off) in
   // stage/prod unless REACT_CONVERSION_PAIR2_ROUTES is set.
   conf.set('showReactApp.pair2Routes', true);
+  // Enable the in-progress account switcher locally so it is available for
+  // development/testing. It remains gated (default off) in stage/prod. Guarded
+  // because conf.set() overrides an env-derived value, and a developer turning
+  // the flag off explicitly should stay off.
+  if (process.env.FEATURE_FLAGS_ACCOUNT_SWITCHER_ENABLED === undefined) {
+    conf.set('featureFlags.accountSwitcherEnabled', true);
+  }
 }
 
 const DEV_CONFIG_PATH = path.join(__dirname, '..', 'config', 'local.json');
