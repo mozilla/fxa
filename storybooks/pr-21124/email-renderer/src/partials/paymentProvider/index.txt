@@ -1,0 +1,11 @@
+<% if (invoiceAmountDueInCents > 0) { %>
+  <% if (paymentProviderName) { %>
+    payment-method-payment-provider-plaintext = "Payment method: { $paymentProviderName }"
+  <% } else { %>
+    <% if (cardName && lastFour) {%>
+      payment-provider-card-name-ending-in-plaintext = "Payment method: <%- cardName %> ending in <%- lastFour %>"
+    <% } else { %>
+      payment-provider-card-ending-in-plaintext = "Payment method: Card ending in <%- lastFour %>"
+    <% } %>
+  <% } %>
+<% } %>

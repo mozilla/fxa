@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 21c5faa5db9caf5dbeda84d544df6a81eb77020c</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 21c5faa5db9caf5dbeda84d544df6a81eb77020c</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>8/31/2026, 8:30:06 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(l10n): stop requesting en-US ftl files we never deploy</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- `supported-languages.json` lists `en-US`, but the l10n repo only ships `en`, `en-CA` and `en-GB`. Every page load asked for `.../en-US/main.ftl` and got a 404, so the request could never be a cache hit.
+- Negotiation made that unavoidable. `en-US` matched itself, and a plain `en` header expanded to every `en-*` entry in the list, which pulled `en-US` in too.
+
+## This pull request
+
+- Drops `en-US` from `supported-languages.json`. Fluent strips the region and resolves `en-US` to `en`, so we serve the English bundle we actually deploy.
+- Adds a case to `supported-languages.spec.ts` that keeps `en-US` out of the list. JSON holds no comments, so the test carries the reason.
+- Adds `parseAcceptLanguage` and `determineLocale` cases for `en-US`, and updates the existing expectations in `l10n.utils.spec.ts`.
+- Moves the `en-US` fixtures in `AppLocalizationProvider.test.tsx` and `NimbusContext.test.tsx` to `en-CA`, a locale we do deploy.
+- Adds a `NimbusContext` case for the region change described below.
+
+I picked removal over an `EN_GB_LOCALES`-style alias. An alias fixes the `en-US` header but not the `en` header, which still expands to `en-US` through the available-range match, so the 404 would stay.
+
+## Issue that this pull request solves
+
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-10363</pre></dd>
+  </dl>
+</body>
+</html>

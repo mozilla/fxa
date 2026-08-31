@@ -1,0 +1,12 @@
+{
+  "commit": "21c5faa5db9caf5dbeda84d544df6a81eb77020c",
+  "summary": "fix(l10n): stop requesting en-US ftl files we never deploy",
+  "description": "## Because\n\n- `supported-languages.json` lists `en-US`, but the l10n repo only ships `en`, `en-CA` and `en-GB`. Every page load asked for `.../en-US/main.ftl` and got a 404, so the request could never be a cache hit.\n- Negotiation made that unavoidable. `en-US` matched itself, and a plain `en` header expanded to every `en-*` entry in the list, which pulled `en-US` in too.\n\n## This pull request\n\n- Drops `en-US` from `supported-languages.json`. Fluent strips the region and resolves `en-US` to `en`, so we serve the English bundle we actually deploy.\n- Adds a case to `supported-languages.spec.ts` that keeps `en-US` out of the list. JSON holds no comments, so the test carries the reason.\n- Adds `parseAcceptLanguage` and `determineLocale` cases for `en-US`, and updates the existing expectations in `l10n.utils.spec.ts`.\n- Moves the `en-US` fixtures in `AppLocalizationProvider.test.tsx` and `NimbusContext.test.tsx` to `en-CA`, a locale we do deploy.\n- Adds a `NimbusContext` case for the region change described below.\n\nI picked removal over an `EN_GB_LOCALES`-style alias. An alias fixes the `en-US` header but not the `en` header, which still expands to `en-US` through the available-range match, so the 404 would stay.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-10363",
+  "timestamp": 1788208206000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

@@ -1,0 +1,225 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+.text-xs {
+  font-size: 12px !important;
+  line-height: 20px !important;
+}
+.text-sm, .footer-text div, .footer-text-bottom-margin div, .text-footer div, .text-footer-automatedEmail div {
+  font-size: 14px !important;
+  line-height: 22px !important;
+}
+.text-md, .text-body div, .text-body-mb-4 div, .text-body-top-margin div, .text-link, .text-body-link div, .text-body-bottom-link div, .text-body-no-bottom-margin div, .text-body-table-no-bottom-margin td {
+  font-size: 16px !important;
+  line-height: 24px !important;
+}
+.text-lg, .primary-button-subplat a {
+  font-size: 18px !important;
+  line-height: 26px !important;
+}
+.text-xl {
+  font-size: 20px !important;
+  line-height: 28px !important;
+}
+.text-2xl, .text-header div {
+  font-size: 22px !important;
+  line-height: 30px !important;
+}
+.text-3xl {
+  font-size: 32px !important;
+  line-height: 36px !important;
+}
+
+.font-sans, .text-title, .text-title-table div, .text-title-link div, .footer-text div, .footer-text-bottom-margin div, .primary-button-subplat a, .text-footer div, .text-footer-automatedEmail div, .text-body div, .text-body-mb-4 div, .text-body-top-margin div, .text-link, .text-body-link div, .text-body-bottom-link div, .text-body-no-bottom-margin div, .text-body-table-no-bottom-margin td, .text-header div {
+  font-family: sans-serif !important;
+}
+
+.text-blue-500, .link-blue {
+  color: #0060df;
+}
+
+.mt-2, .text-link, .text-body-link div, .text-body-bottom-link div {
+  margin-top: 8px !important;
+}
+.mt-4, .text-body-top-margin div {
+  margin-top: 16px !important;
+}
+.mt-5 {
+  margin-top: 20px !important;
+}
+.mt-6, .footer-container {
+  margin-top: 24px !important;
+}
+.mt-8 {
+  margin-top: 32px !important;
+}
+.mt-10, .text-footer-automatedEmail div {
+  margin-top: 40px !important;
+}
+
+.mb-0, .text-body-no-bottom-margin div, .text-body-table-no-bottom-margin td {
+  margin-bottom: 0px !important;
+}
+.mb-2 {
+  margin-bottom: 8px !important;
+}
+.mb-3, .footer-text-bottom-margin div, .text-footer-automatedEmail div {
+  margin-bottom: 12px !important;
+}
+.mb-4, .text-header div, .text-body-mb-4 div, .text-title-table div {
+  margin-bottom: 16px !important;
+}
+.mb-5 {
+  margin-bottom: 20px !important;
+}
+.mb-6, .text-body div, .text-body-bottom-link div, .header-container {
+  margin-bottom: 24px !important;
+}
+.mb-8 {
+  margin-bottom: 32px !important;
+}
+
+.px-6 {
+  padding-left: 24px !important;
+  padding-right: 24px !important;
+}
+
+.p-4 {
+  padding: 16px !important;
+}
+.pb-1 {
+  padding-bottom: 4px !important;
+}
+.pb-2 {
+  padding-bottom: 8px !important;
+}
+
+tbody > td:first-child,
+tr > td:first-child {
+  padding: 0px !important;
+}
+
+.link-blue {
+  text-decoration: underline;
+  font-family: sans-serif;
+}
+
+.text-header div {
+  text-align: center !important;
+}
+
+.align-left div {
+  text-align: left !important;
+}
+
+.hidden {
+  display: none;
+  width: 0;
+  height: 0;
+  max-height: 0;
+  line-height: 0;
+  overflow: hidden;
+}
+
+.text-footer div, .text-footer-automatedEmail div {
+  text-align: center !important;
+  color: #6d6d6e !important;
+}
+
+.body {
+  max-width: 640px !important;
+  margin: 0px auto !important;
+}
+
+.text-header div {
+  font-weight: 700;
+  color: #464646 !important;
+}
+
+.text-body-table-no-bottom-margin td, .text-body-no-bottom-margin div, .text-link, .text-body-bottom-link div, .text-body-link div, .text-body-top-margin div, .text-body-mb-4 div, .text-body div {
+  color: #4b5563 !important;
+}
+
+.text-title, .text-title-link div, .text-title-table div {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  margin-top: 48px !important;
+}
+
+.text-title-table div {
+  color: #4b5563 !important;
+}
+
+.text-body-top-margin div {
+  color: #4b5563 !important;
+  padding: 4px 0;
+}
+
+.text-link, .text-body-bottom-link div, .text-body-link div {
+  color: #0060df !important;
+  text-decoration: underline !important;
+}
+
+.text-body li {
+  color: #4b5563 !important;
+}
+
+.text-body-table-no-bottom-margin td {
+  padding: 4px 0;
+}
+
+.header-container {
+  max-width: 640px !important;
+}
+
+.subplat-mozilla-logo {
+  padding: 20px 0px !important;
+  display: block !important;
+}
+.subplat-mozilla-logo a,
+.subplat-mozilla-logo img {
+  font-size: 12px !important;
+}
+
+.mozilla-logo-footer {
+  padding: 32px 0px !important;
+  height: 34px !important;
+  display: block !important;
+  margin: 0 auto !important;
+}
+
+.footer-container {
+  background-color: #000;
+  padding: 40px 24px !important;
+}
+
+.footer-text div, .footer-text-bottom-margin div {
+  color: #fff !important;
+  text-align: center !important;
+}
+
+.footer-link {
+  color: #fff !important;
+}
+
+.primary-button-subplat {
+  height: 56px !important;
+  max-width: 310px !important;
+}
+.primary-button-subplat a {
+  background: #0060df !important;
+  max-width: 310px !important;
+  color: #fff;
+  display: unset !important;
+  padding: 12px 20px !important;
+  border-radius: 6px !important;
+}
+
+.product-icon {
+  display: block;
+  margin: 0 auto;
+  height: 58px;
+}
