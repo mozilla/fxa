@@ -122,6 +122,29 @@ export async function waitForUrlContaining(
 }
 
 /**
+ * Poll `client.getUrl()` until it contains any one of the given substrings.
+ *
+ * Use this where the authority passes through a transient screen: a card it only shows while
+ * waiting can be gone before the next poll, so asserting on that one route alone is a race.
+ */
+export async function waitForUrlContainingAny(
+  client: MarionetteClient,
+  substrings: string[],
+  timeoutMs: number = TIMEOUTS.AUTHORITY_COMPLETE
+): Promise<string> {
+  let lastUrl = '';
+  return pollUntil(
+    async () => {
+      lastUrl = await client.getUrl();
+      return substrings.some((s) => lastUrl.includes(s)) ? lastUrl : undefined;
+    },
+    timeoutMs,
+    () =>
+      `URL did not contain any of ${substrings.join(', ')} (last seen: ${lastUrl})`
+  );
+}
+
+/**
  * Poll `client.getUrl()` until the URL differs from `previousUrl`.
  */
 export async function waitForUrlChange(
@@ -190,7 +213,6 @@ export async function signInAuthorityViaMarionette(
 
     // Wait for the email input to appear instead of a fixed sleep
     await findElementBySelectors(client, SELECTORS.EMAIL_INPUT);
-
     // Enter email — use script-based value setting for React compatibility.
     // Marionette's sendKeys doesn't always trigger React's synthetic onChange.
     await setInputValueByScript(client, SELECTORS.EMAIL_INPUT, email);
@@ -204,7 +226,6 @@ export async function signInAuthorityViaMarionette(
 
     // Wait for the password input to appear instead of a fixed sleep
     await findElementBySelectors(client, SELECTORS.PASSWORD_INPUT);
-
     // Enter password
     await setInputValueByScript(client, SELECTORS.PASSWORD_INPUT, password);
 

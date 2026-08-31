@@ -8,8 +8,10 @@ import {
   Firefox,
   FirefoxCommand,
   buildSyncOAuthSearch,
+  DEFAULT_SEND_TIMEOUT_LENGTH_MS,
   FxAOAuthFlowBeginResponse,
   FxAStatusResponse,
+  PAIR_OAUTH_TIMEOUT_MS,
   PairOAuthFinishState,
   PairOAuthStartState,
 } from './firefox';
@@ -126,10 +128,9 @@ describe('buildSyncOAuthSearch', () => {
 });
 
 describe('Firefox pairing OAuth WebChannel methods', () => {
-  // Keep in sync with DEFAULT_SEND_TIMEOUT_LENGTH_MS in firefox.ts (not exported).
-  const SEND_TIMEOUT_MS = 500;
-  // pairOauthFinish overrides the default; it makes a web call.
-  const FINISH_TIMEOUT_MS = 10_000;
+  const SEND_TIMEOUT_MS = DEFAULT_SEND_TIMEOUT_LENGTH_MS;
+  const START_TIMEOUT_MS = PAIR_OAUTH_TIMEOUT_MS;
+  const FINISH_TIMEOUT_MS = PAIR_OAUTH_TIMEOUT_MS;
 
   const MOCK_START_RESPONSE: PairOAuthStartState = {
     state: 'mock-oauth-state',
@@ -145,7 +146,7 @@ describe('Firefox pairing OAuth WebChannel methods', () => {
     scope: 'profile',
     code_challenge: 'mock-code-challenge',
     code_challenge_method: 'mock-code-challenge-method',
-    keys_jwk: 'mock-keys-jwk'
+    keys_jwk: 'mock-keys-jwk',
   };
 
   const MOCK_FINISH_RESPONSE: PairOAuthFinishState = {
@@ -261,15 +262,16 @@ describe('Firefox pairing OAuth WebChannel methods', () => {
 
     it('resolves undefined when the browser does not respond', async () => {
       const promise = ff.pairOauthStart({});
-      jest.advanceTimersByTime(SEND_TIMEOUT_MS);
+      jest.advanceTimersByTime(START_TIMEOUT_MS);
       await expect(promise).resolves.toBeUndefined();
     });
 
+    // A cold mobile start fetches config before it can mint params; 500 ms cut that off.
     it('does not resolve before the timeout elapses', async () => {
       const onSettled = jest.fn();
       ff.pairOauthStart({}).then(onSettled);
 
-      await jest.advanceTimersByTimeAsync(SEND_TIMEOUT_MS - 1);
+      await jest.advanceTimersByTimeAsync(START_TIMEOUT_MS - 1);
       expect(onSettled).not.toHaveBeenCalled();
 
       await jest.advanceTimersByTimeAsync(1);

@@ -75,10 +75,8 @@ const PAIR_BANNER_FTL: Record<PairOrigin, { id: string; fallback: string }> = {
 export type PairingChannelInfo = {
   channelId: string;
   channelKey: string;
-  version: '1'|'2';
+  version: '1' | '2';
 };
-
-
 
 type MobileChoice = 'has-mobile' | 'needs-mobile';
 
@@ -101,9 +99,8 @@ const Pair = ({
   error,
   cmsInfo: cmsInfoProp,
   integration,
-  fxaStatusResult
+  fxaStatusResult,
 }: PairProps) => {
-
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedQRCodeLabel = ftlMsgResolver.getMsg(
@@ -154,22 +151,21 @@ const Pair = ({
   //
   // Read-only, so it is safe to evaluate during render; the auto-attempt token
   // is only spent by ContinueInFirefox.
-  const handoffPlan: HandoffPlan = useMemo(
-    () => {
-      if (pairingChannelInfo && fxaStatusResult.fxaStatusState === 'unanswered') {
-        return planPairingHandoff({
-            device,
-            targetUrl: buildPairUrl(pairingChannelInfo),
-            storeLinks: config.mobileStoreLinks,
-            storage: getAttemptStorage(),
-            build: config.pairing.browserBuild,
-          })
-      }
+  const handoffPlan: HandoffPlan = useMemo(() => {
+    if (pairingChannelInfo && fxaStatusResult.fxaStatusState === 'unanswered') {
+      return planPairingHandoff({
+        device,
+        targetUrl: buildPairUrl(pairingChannelInfo),
+        storeLinks: config.mobileStoreLinks,
+        storage: getAttemptStorage(),
+        build: config.pairing.browserBuild,
+        iosScheme: config.pairing.iosUrlScheme,
+      });
+    }
 
-      // This indicates no handoff is needed. and we can continue as normal.
-      return { kind: 'none' }
-    }, [pairingChannelInfo, fxaStatusResult.fxaStatusState, device, config]
-  );
+    // This indicates no handoff is needed. and we can continue as normal.
+    return { kind: 'none' };
+  }, [pairingChannelInfo, fxaStatusResult.fxaStatusState, device, config]);
 
   useEffect(() => {
     // This is a signal that the initial fxa_status message is still pending.
@@ -188,7 +184,8 @@ const Pair = ({
 
     // Switch on pairing version 2! Both FxA and Firefox have to signal that it
     // is enabled, same gate as ConnectAnotherDevice.
-    const pairingVersion = fxaStatusResult.fxaStatus?.capabilities.pairingVersion;
+    const pairingVersion =
+      fxaStatusResult.fxaStatus?.capabilities.pairingVersion;
 
     if (
       config.pairing.version === 2 &&
@@ -225,10 +222,12 @@ const Pair = ({
 
     // Switch on pairing version 2! Both FxA and Firefox have to signal that it
     // is enabled, same gate as ConnectAnotherDevice.
-    if(
+    if (
       config.pairing.version === 2 &&
-      pairingVersion && pairingVersion === 2 &&
-      pairingChannelInfo && parseInt(pairingChannelInfo?.version) === 2
+      pairingVersion &&
+      pairingVersion === 2 &&
+      pairingChannelInfo &&
+      parseInt(pairingChannelInfo?.version) === 2
     ) {
       navigateWithQuery(
         '/pair/supplicant/connect_this_device',
@@ -240,10 +239,11 @@ const Pair = ({
       return;
     }
 
-    if(
+    if (
       isFirefoxDesktop &&
       config.pairing.version === 2 &&
-      pairingVersion && pairingVersion === 2
+      pairingVersion &&
+      pairingVersion === 2
     ) {
       // Full reload: `useIntegration` is not keyed on location, so only a
       // fresh page load rebuilds it as a PairingAuthorityIntegration.

@@ -136,7 +136,11 @@ export function claimAutoAttempt(
  * Package-pinned intent that opens `target` in Firefox, with a built-in store
  * fallback for when it is not installed.
  */
-function buildAndroidDeepLink(target: string, storeUrl: string, build: 'firefox' | 'fenix'): string {
+function buildAndroidDeepLink(
+  target: string,
+  storeUrl: string,
+  build: 'firefox' | 'fenix'
+): string {
   const scheme = target.startsWith('http://') ? 'http' : 'https';
   const withoutScheme = target.replace(/^https?:\/\//, '');
   return (
@@ -148,8 +152,9 @@ function buildAndroidDeepLink(target: string, storeUrl: string, build: 'firefox'
   );
 }
 
-function buildIosDeepLink(target: string): string {
-  return `firefox://open-url?url=${encodeURIComponent(target)}`;
+/** Every iOS flavour also registers `firefox`, so `scheme` is what picks a build. */
+function buildIosDeepLink(target: string, scheme: string): string {
+  return `${scheme}://open-url?url=${encodeURIComponent(target)}`;
 }
 
 /**
@@ -164,13 +169,16 @@ export function planPairingHandoff({
   targetUrl,
   storeLinks,
   storage,
-  build
+  build,
+  iosScheme = 'firefox',
 }: {
   device: Devices;
   targetUrl: string;
   storeLinks: StoreLinks;
   storage?: AttemptStorage;
-  build: 'firefox' | 'fenix'
+  build: 'firefox' | 'fenix';
+  /** iOS URL scheme to hand off to. See `buildIosDeepLink`. */
+  iosScheme?: string;
 }): HandoffPlan {
   if (!targetUrl) {
     return { kind: 'none' };
@@ -180,7 +188,7 @@ export function planPairingHandoff({
     case Devices.OTHER_IOS:
       return {
         kind: 'ios',
-        deepLink: buildIosDeepLink(targetUrl),
+        deepLink: buildIosDeepLink(targetUrl, iosScheme),
         storeUrl: storeLinks.ios,
       };
     case Devices.OTHER_ANDROID:

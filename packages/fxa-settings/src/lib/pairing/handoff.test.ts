@@ -39,7 +39,7 @@ const plan = (device: Devices, storage = createStorage()) =>
     targetUrl: MOCK_TARGET,
     storeLinks: MOCK_STORE_LINKS,
     storage,
-    build: 'firefox'
+    build: 'firefox',
   });
 
 describe('planPairingHandoff', () => {
@@ -60,7 +60,7 @@ describe('planPairingHandoff', () => {
         device: Devices.OTHER_IOS,
         targetUrl: '',
         storeLinks: MOCK_STORE_LINKS,
-        build: 'firefox'
+        build: 'firefox',
       })
     ).toEqual({ kind: 'none' });
   });
@@ -99,6 +99,31 @@ describe('planPairingHandoff', () => {
       });
     });
 
+    // Every Firefox iOS flavour registers `firefox`, so a release install and a
+    // local build both answer it. The scheme is the only way to pin which one.
+    it('defaults the iOS deep link to the release scheme', () => {
+      const { deepLink } = plan(Devices.OTHER_IOS) as { deepLink: string };
+
+      expect(deepLink).toBe(
+        `firefox://open-url?url=${encodeURIComponent(MOCK_TARGET)}`
+      );
+    });
+
+    it('opens a build-specific iOS scheme when one is configured', () => {
+      const { deepLink } = planPairingHandoff({
+        device: Devices.OTHER_IOS,
+        targetUrl: MOCK_TARGET,
+        storeLinks: MOCK_STORE_LINKS,
+        storage: createStorage(),
+        build: 'firefox',
+        iosScheme: 'fennec',
+      }) as { deepLink: string };
+
+      expect(deepLink).toBe(
+        `fennec://open-url?url=${encodeURIComponent(MOCK_TARGET)}`
+      );
+    });
+
     // `;` separates intent extras, so an unencoded store URL would terminate the
     // extra early and let the rest of the URL become extras of its own.
     it('encodes a store URL containing & and ; into a single extra', () => {
@@ -111,7 +136,7 @@ describe('planPairingHandoff', () => {
         targetUrl: MOCK_TARGET,
         storeLinks,
         storage: createStorage(),
-        build: 'firefox'
+        build: 'firefox',
       }) as { deepLink: string };
 
       expect(deepLink).toContain(
