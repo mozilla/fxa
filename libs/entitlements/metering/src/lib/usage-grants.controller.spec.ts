@@ -13,7 +13,7 @@ import {
   AuthenticatedMeteringClientFactory,
   CreateUsageGrantRequestFactory,
   UsageGrantFactory,
-} from './factories';
+} from './metering.factories';
 import { MeteringAuthGuard } from './metering-auth.guard';
 import { MeteringExceptionFilter } from './metering-exception.filter';
 import {

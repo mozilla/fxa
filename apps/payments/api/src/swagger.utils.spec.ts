@@ -12,7 +12,7 @@ function createDoc(paths: OpenAPIObject['paths'] = {}): OpenAPIObject {
 describe('stripInternalRoutes', () => {
   it('removes routes tagged with an internal tag', () => {
     const doc = createDoc({
-      '/v1/metering/internal/threshold-check': {
+      '/v1/metering/internal/sweep': {
         post: {
           tags: ['Metering Internal'],
           responses: {},
@@ -28,9 +28,7 @@ describe('stripInternalRoutes', () => {
 
     const result = stripInternalRoutes(doc);
 
-    expect(result.paths).not.toHaveProperty(
-      '/v1/metering/internal/threshold-check'
-    );
+    expect(result.paths).not.toHaveProperty('/v1/metering/internal/sweep');
     expect(result.paths).toHaveProperty('/v1/billing');
   });
 

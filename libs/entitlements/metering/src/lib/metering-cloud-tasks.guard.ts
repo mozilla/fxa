@@ -30,7 +30,7 @@ export class MeteringCloudTasksGuard implements CanActivate {
     this.useLocalEmulator = useLocalEmulator === true;
     if (!this.useLocalEmulator && (!oidc?.aud || !oidc?.serviceAccountEmail)) {
       throw new Error(
-        'MeteringConfig.cloudTasks.oidc.aud and serviceAccountEmail are required for the threshold-check handler'
+        'MeteringConfig.cloudTasks.oidc.aud and serviceAccountEmail are required for internal metering endpoints'
       );
     }
     this.audience = oidc?.aud ?? '';

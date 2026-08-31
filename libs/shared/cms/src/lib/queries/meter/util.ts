@@ -6,13 +6,21 @@ import {
   MeterInvalidNotificationThresholdError,
   MeterNotFoundError,
 } from '../../cms.error';
-import { MeterBySlugResult, StrapiMeter } from './types';
+import { MeterBySlugResult, StrapiMeter, StrapiMeterRaw } from './types';
+
+export function toStrapiMeter(meter: StrapiMeterRaw): StrapiMeter {
+  return { ...meter, window: { kind: 'calendar', period: meter.window } };
+}
 
 export class MeterBySlugResultUtil {
+  private readonly normalizedMeters: StrapiMeter[];
+
   constructor(
-    private rawResult: MeterBySlugResult,
+    rawResult: MeterBySlugResult,
     private slug: string
-  ) {}
+  ) {
+    this.normalizedMeters = rawResult.meters.map(toStrapiMeter);
+  }
 
   getMeter(): StrapiMeter {
     const meter = this.meters.at(0);
@@ -38,7 +46,7 @@ export class MeterBySlugResultUtil {
     return thresholds;
   }
 
-  get meters(): MeterBySlugResult['meters'] {
-    return this.rawResult.meters;
+  get meters(): StrapiMeter[] {
+    return this.normalizedMeters;
   }
 }

@@ -4,9 +4,10 @@
 
 import { faker } from '@faker-js/faker';
 import {
-  METERING_WINDOWS,
+  METERING_CALENDAR_PERIODS,
   MeterBySlugResult,
   StrapiMeter,
+  StrapiMeterRaw,
   StrapiMeterWebhook,
 } from './types';
 
@@ -18,24 +19,39 @@ export const StrapiMeterWebhookFactory = (
   ...override,
 });
 
-export const StrapiMeterFactory = (
-  override?: Partial<StrapiMeter>
-): StrapiMeter => ({
+const strapiMeterFields = () => ({
   slug: faker.lorem.slug(),
   unit: faker.string.sample(),
   limit: faker.number.int({ min: 1, max: 1000 }),
-  window: faker.helpers.arrayElement(METERING_WINDOWS),
   notificationThresholds: Array.from(
     { length: faker.number.int({ min: 1, max: 4 }) },
     () => faker.number.int({ min: 1, max: 100 })
   ).join(','),
   webhooks: [StrapiMeterWebhookFactory()],
+});
+
+export const StrapiMeterRawFactory = (
+  override?: Partial<StrapiMeterRaw>
+): StrapiMeterRaw => ({
+  ...strapiMeterFields(),
+  window: faker.helpers.arrayElement(METERING_CALENDAR_PERIODS),
+  ...override,
+});
+
+export const StrapiMeterFactory = (
+  override?: Partial<StrapiMeter>
+): StrapiMeter => ({
+  ...strapiMeterFields(),
+  window: {
+    kind: 'calendar',
+    period: faker.helpers.arrayElement(METERING_CALENDAR_PERIODS),
+  },
   ...override,
 });
 
 export const MeterBySlugResultFactory = (
   override?: Partial<MeterBySlugResult>
 ): MeterBySlugResult => ({
-  meters: [StrapiMeterFactory()],
+  meters: [StrapiMeterRawFactory()],
   ...override,
 });
