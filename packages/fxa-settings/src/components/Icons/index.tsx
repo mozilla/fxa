@@ -17,6 +17,7 @@ import { ReactComponent as ChevronRight } from './icon_chevron_right.min.svg';
 import { ReactComponent as Close } from './icon_close.min.svg';
 import { ReactComponent as Code } from './icon_code.min.svg';
 import { ReactComponent as ErrorOutlineCurrent } from './icon_error_circle_outline_current.min.svg';
+import { ReactComponent as Firefox } from './icon_firefox.min.svg';
 import { ReactComponent as FlagCanada } from './icon_flag_canada.min.svg';
 import { ReactComponent as FlagUsa } from './icon_flag_usa.min.svg';
 import { ReactComponent as InformationOutlineCurrent } from './icon_information_circle_outline_current.min.svg';
@@ -198,6 +199,11 @@ export const CheckmarkCircleOutlineCurrentIcon = ({
       ...getCheckMarkAria(mode),
     }}
   />
+);
+
+/** Decorative: pair with adjacent text rather than relying on it alone. */
+export const FirefoxIcon = ({ className }: { className?: string }) => (
+  <PreparedIcon Image={Firefox} ariaHidden {...{ className }} />
 );
 
 export const ChevronRightIcon = ({ className, ariaHidden }: ImageProps) => (

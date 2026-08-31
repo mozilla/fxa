@@ -426,3 +426,26 @@ export function setCurrentAccountUid(uid: string): void {
   storage().set('currentAccountUid', uid);
   dispatchStorageEvent('currentAccountUid');
 }
+
+/** Every stored account, keyed by uid. Rows may be sparse or invalid. */
+export function getAllAccounts(): Record<string, Partial<UnifiedAccountData>> {
+  return storage().get('accounts') || {};
+}
+
+/**
+ * The uid the browser reports as signed in, mirrored out of the fxa_status web
+ * channel reply. Its own key rather than a field on `accounts[uid]`, which
+ * content-server rewrites through its own persistence allowlist.
+ */
+export function getFirefoxSignedInUid(): string | null {
+  return storage().get('firefoxSignedInUid') || null;
+}
+
+export function setFirefoxSignedInUid(uid: string | null): void {
+  if (uid) {
+    storage().set('firefoxSignedInUid', uid);
+  } else {
+    storage().remove('firefoxSignedInUid');
+  }
+  dispatchStorageEvent('firefoxSignedInUid');
+}

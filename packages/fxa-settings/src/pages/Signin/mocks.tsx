@@ -26,6 +26,8 @@ import {
   mockGetWebChannelServices,
 } from '../mocks';
 import { mockUseFxAStatus } from '../../lib/hooks/useFxAStatus/mocks';
+import Storage from '../../lib/storage';
+import { mockAvatar } from '../../components/AccountSwitcher/mocks';
 import {
   BeginSigninHandler,
   BeginSigninResponse,
@@ -375,7 +377,103 @@ export type SubjectProps = Partial<SigninProps> & {
    * feature flags on. Use in stories that document the passkey-enabled UI.
    */
   passkeyEnabled?: boolean;
+  /**
+   * Flips the account switcher flag on. Pair with `storedAccounts` — the
+   * switcher only renders once there is another account to switch to.
+   */
+  accountSwitcherEnabled?: boolean;
+  /**
+   * Accounts to seed into localStorage. The first entry becomes the current
+   * account; passing nothing clears the keys.
+   */
+  storedAccounts?: StoredSwitchableAccount[];
+  /** Uid the browser reports as signed in, badged in the switcher. */
+  firefoxSignedInUid?: string;
 };
+
+export interface StoredSwitchableAccount {
+  uid: string;
+  email: string;
+  sessionToken?: string;
+  displayName?: string;
+  avatar?: { id: string; url: string };
+  lastLogin?: number;
+}
+
+export const MOCK_SWITCHABLE_ACCOUNTS: StoredSwitchableAccount[] = [
+  {
+    uid: MOCK_UID,
+    email: MOCK_EMAIL,
+    sessionToken: MOCK_SESSION_TOKEN,
+    avatar: mockAvatar('J', '#0060DF'),
+    lastLogin: 3,
+  },
+  {
+    uid: 'uid-work',
+    email: 'work@example.com',
+    sessionToken: 'work-session-token',
+    displayName: 'Work Account',
+    avatar: mockAvatar('W', '#9059FF'),
+    lastLogin: 2,
+  },
+  {
+    uid: 'uid-old',
+    email: 'old-address@example.com',
+    avatar: mockAvatar('O', '#00B3A4'),
+    lastLogin: 1,
+  },
+];
+
+export const MOCK_MANY_SWITCHABLE_ACCOUNTS: StoredSwitchableAccount[] = [
+  ...MOCK_SWITCHABLE_ACCOUNTS,
+  {
+    uid: 'uid-4',
+    email: 'fourth@example.com',
+    sessionToken: 't4',
+    avatar: mockAvatar('F', '#E31587'),
+    lastLogin: 0,
+  },
+  {
+    uid: 'uid-5',
+    email: 'fifth@example.com',
+    sessionToken: 't5',
+    avatar: mockAvatar('T', '#FF8A00'),
+    lastLogin: -1,
+  },
+  {
+    uid: 'uid-6',
+    email: 'sixth@example.com',
+    avatar: mockAvatar('S', '#5B5B66'),
+    lastLogin: -2,
+  },
+];
+
+/**
+ * Seeds (or clears) the localStorage the switcher reads. Called during render so
+ * the switcher sees the accounts on its first pass; writes are idempotent.
+ */
+function seedSwitchableAccounts(
+  storedAccounts?: StoredSwitchableAccount[],
+  firefoxSignedInUid?: string
+) {
+  const storage = Storage.factory('localStorage');
+  if (!storedAccounts?.length) {
+    storage.remove('accounts');
+    storage.remove('currentAccountUid');
+    storage.remove('firefoxSignedInUid');
+    return;
+  }
+  storage.set(
+    'accounts',
+    Object.fromEntries(storedAccounts.map((a) => [a.uid, a]))
+  );
+  storage.set('currentAccountUid', storedAccounts[0].uid);
+  if (firefoxSignedInUid) {
+    storage.set('firefoxSignedInUid', firefoxSignedInUid);
+  } else {
+    storage.remove('firefoxSignedInUid');
+  }
+}
 
 /**
  * Routes through the container's `SigninDecider` so tests exercise the
@@ -397,15 +495,38 @@ export const Subject = ({
   isSignedIntoFirefox = false,
   supportsKeysOptionalLogin = false,
   passkeyEnabled = false,
+  accountSwitcherEnabled = false,
+  storedAccounts,
+  firefoxSignedInUid,
   ...props // overrides
 }: SubjectProps = {}) => {
-  const useFxAStatusResult = mockUseFxAStatus({ supportsKeysOptionalLogin });
+  seedSwitchableAccounts(storedAccounts, firefoxSignedInUid);
+
+  const useFxAStatusResult = mockUseFxAStatus({
+    supportsKeysOptionalLogin,
+    ...(firefoxSignedInUid && {
+      signedInUser: {
+        uid: firefoxSignedInUid,
+        email:
+          storedAccounts?.find((a) => a.uid === firefoxSignedInUid)?.email ||
+          MOCK_EMAIL,
+        sessionToken: MOCK_SESSION_TOKEN,
+        verified: true,
+      },
+    }),
+  });
   const contextValue = mockAppContext();
   if (passkeyEnabled && contextValue.config) {
     contextValue.config.featureFlags = {
       ...contextValue.config.featureFlags,
       passkeysEnabled: true,
       passkeyAuthenticationEnabled: true,
+    };
+  }
+  if (accountSwitcherEnabled && contextValue.config) {
+    contextValue.config.featureFlags = {
+      ...contextValue.config.featureFlags,
+      accountSwitcherEnabled: true,
     };
   }
   return (
