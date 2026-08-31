@@ -180,20 +180,18 @@ form-verify-code-default-error = Dette felt er påkrævet
 
 form-verify-totp-disabled-button-title-numeric = Indtast den { $codeLength }-cifrede kode for at fortsætte
 form-verify-totp-disabled-button-title-alphanumeric = Indtast koden på { $codeLength } tegn for at fortsætte
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Genoprettelsesnøgle til { -brand-firefox }-konto
 get-data-trio-title-backup-verification-codes = Reserve-godkendelseskoder
 get-data-trio-download-2 =
-    .title = Hent
     .aria-label = Hent
+    .title = Hent
 get-data-trio-copy-2 =
-    .title = Kopier
     .aria-label = Kopier
+    .title = Kopier
 get-data-trio-print-2 =
-    .title = Udskriv
     .aria-label = Udskriv
+    .title = Udskriv
 
 
 alert-icon-aria-label =
@@ -238,8 +236,6 @@ icon-loading-arrow-aria-label =
     .aria-label = Indlæser
 icon-passkey-aria-label =
     .aria-label = Adgangsnøgle
-
-
 hearts-broken-image-aria-label =
     .aria-label = En computer og en mobiltelefon med et billede af et knust hjerte på hver
 hearts-verified-image-aria-label =
@@ -407,8 +403,6 @@ avatar-default-avatar =
     .alt = Standard-avatar
 
 
-
-
 bento-menu-title-3 = Produkter fra { -brand-mozilla }
 bento-menu-tagline = Flere produkter fra { -brand-mozilla }, der beskytter dit privatliv
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -474,8 +468,6 @@ dc-opt-out-success-2 = Fravalget lykkedes. { -product-mozilla-accounts } indsend
 dc-opt-in-success-2 = Tak! Deling af disse data hjælper os med at forbedre { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Der opstod desværre et problem med at ændre din indstilling for dataindsamling
 dc-learn-more = Læs mere
-
-
 drop-down-menu-title-2 = { -product-mozilla-account }-menu
 drop-down-menu-signed-in-as-v2 = Logget ind som
 drop-down-menu-sign-out = Log ud
@@ -572,8 +564,6 @@ flow-setup-phone-confirm-code-resend-code-button = Send kode igen
 flow-setup-phone-confirm-code-resend-code-success = Kode sendt
 flow-setup-phone-confirm-code-success-message-v2 = Telefonnummer til genoprettelse tilføjet
 flow-change-phone-confirm-code-success-message = Telefonnummer til genoprettelse ændret
-
-
 flow-setup-phone-submit-number-heading = Bekræft dit telefonnummer
 flow-setup-phone-verify-number-instruction = Du vil modtage en SMS-besked fra { -brand-mozilla } med en kode til at bekræfte dit nummer. Del ikke denne koden med nogen.
 flow-setup-phone-submit-number-info-message-v2 = Telefonnumre til genoprettelse er kun tilgængelige i USA og Canada. VoIP-numre og telefon-masker anbefales ikke.
@@ -1105,8 +1095,6 @@ recovery-phone-number-ending-digits = Nummer, der ender på { $lastFourPhoneNumb
 oauth-error-1000 = Noget gik galt. Luk dette faneblad og prøv igen.
 
 
-
-
 passkey-registration-error-not-allowed = Opsætning af adgangsnøgle mislykkedes eller er ikke tilgængelig. Prøv igen, eller vælg en anden metode.
 passkey-registration-error-not-allowed-existing = Opsætning af adgangsnøgle er ikke tilgængelig med denne enhed. Enten er enheden allerede registreret, eller også blev opsætningsprocessen annulleret.
 passkey-registration-error-timeout = Opsætning af adgangsnøgle blev annulleret. Prøv igen.
@@ -1121,8 +1109,6 @@ passkey-registration-error-invalid-state = Denne adgangsnøgle er allerede regis
 passkey-registration-error-not-readable = Vi kunne ikke få adgang til godkendelsesfunktionen. Prøv igen, eller vælg en anden metode.
 passkey-registration-error-constraint = Opsætning af adgangsnøgle er ikke tilgængelig med denne enhed. Prøv en anden metode eller enhed.
 passkey-registration-error-unexpected = Opsætning af adgangsnøgle mislykkedes. Prøv igen, eller vælg en anden metode.
-
-
 passkey-authentication-trouble-heading = Kunne ikke logge ind med en adgangsnøgle
 passkey-authentication-trouble-description = Prøv igen, eller brug en anden loginmetode.
 passkey-authentication-trouble-link = Sådan bruger du adgangsnøgler
@@ -1302,8 +1288,6 @@ service-welcome-vpn-heading = Næste: Slå VPN til
 service-welcome-vpn-description = Endnu et skridt til at beskytte dit privatliv. Gå til det åbne panel, og slå den til.
 
 
-
-
 set-password-heading-v2 = Opret adgangskode for at synkronisere
 set-password-info-v2 = Dette krypterer dine data. Den skal være forskellig fra adgangskoden til din { -brand-google }- eller { -brand-apple }-konto.
 
@@ -1330,8 +1314,6 @@ complete-reset-pw-recovery-key-link = Brug en genoprettelsesnøgle til kontoen
 reset-password-complete-banner-heading = Din adgangskode er blevet nulstillet.
 reset-password-complete-banner-message = Glem ikke at oprette en ny genoprettelsesnøgle til kontoen fra { -product-mozilla-account }-indstillingerne for at forhindre fremtidige login-problemer.
 complete-reset-password-desktop-relay = { -brand-firefox } vil forsøge at sende dig tilbage, så du kan bruge en mail-maske, når du har logget ind.
-
-
 confirm-backup-code-reset-password-input-label = Indtast koden på ti tegn
 confirm-backup-code-reset-password-confirm-button = Bekræft
 confirm-backup-code-reset-password-subheader = Indtast reserve-godkendelseskode
@@ -1365,8 +1347,6 @@ password-reset-submit-button-2 = Fortsæt
 
 reset-password-complete-header = Din adgangskode er blevet nulstillet
 reset-password-confirmed-cta = Fortsæt til { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Nulstil din adgangskode
@@ -1447,8 +1427,6 @@ signin-passkey-fallback-body = For at beskytte dine data skal du indtaste din ad
 signin-passkey-fallback-password-label = Adgangskode
 signin-passkey-fallback-continue = Fortsæt
 signin-passkey-fallback-forgot-password-link = Glemt adgangskode?
-
-
 
 
 signin-passwordless-code-heading = Indtast bekræftelseskode
@@ -1565,8 +1543,6 @@ signin-unblock-code-incorrect-format-2 = Godkendelseskoden kan kun indeholde bog
 signin-unblock-resend-code-button = Er den ikke i indbakken eller spam-mappen? Send igen
 signin-unblock-support-link = Hvorfor sker dette?
 signin-unblock-desktop-relay = { -brand-firefox } vil forsøge at sende dig tilbage, så du kan bruge en mail-maske, når du har logget ind.
-
-
 
 
 confirm-signup-code-page-title = Indtast bekræftelseskode

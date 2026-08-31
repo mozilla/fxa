@@ -100,6 +100,13 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Rhybuddion gweithredu i adennill y rhyngrwyd
 
 
+pair-continue-in-firefox-heading = Parhau yn { -brand-firefox }
+pair-continue-in-firefox-description = Mae paru'n digwydd o fewn { -brand-firefox }. Agorwch y rhaglen i orffen cysylltu'r ddyfais hon.
+pair-continue-in-firefox-button = Parhau yn { -brand-firefox }
+pair-continue-in-firefox-opening = Yn agor { -brand-firefox }
+pair-continue-in-firefox-get-firefox-link = Dim { -brand-firefox }? Nawr yw'r amser i'w gael
+
+
 dark-mode-toggle-light = Golau
 dark-mode-toggle-dark = Tywyll
 dark-mode-toggle-system = System
@@ -193,20 +200,18 @@ form-verify-code-default-error = Mae angen llanw'r maes hwn
 
 form-verify-totp-disabled-button-title-numeric = Rhowch cod { $codeLength }-digid i barhau
 form-verify-totp-disabled-button-title-alphanumeric = Rhowch cod { $codeLength }-nod i barhau
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Allwedd adfer cyfrif { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Codau dilysu wrth gefn
 get-data-trio-download-2 =
-    .title = Llwytho i Lawr
     .aria-label = Llwytho i Lawr
+    .title = Llwytho i Lawr
 get-data-trio-copy-2 =
-    .title = Copïo
     .aria-label = Copïo
+    .title = Copïo
 get-data-trio-print-2 =
-    .title = Argraffu
     .aria-label = Argraffu
+    .title = Argraffu
 
 
 alert-icon-aria-label =
@@ -251,8 +256,6 @@ icon-loading-arrow-aria-label =
     .aria-label = Yn llwytho
 icon-passkey-aria-label =
     .aria-label = Cyfrinallwedd
-
-
 hearts-broken-image-aria-label =
     .aria-label = Cyfrifiadur a ffôn symudol a delwedd o galon wedi torri ar bob un
 hearts-verified-image-aria-label =
@@ -420,8 +423,6 @@ avatar-default-avatar =
     .alt = Afatar rhagosodedig
 
 
-
-
 bento-menu-title-3 = Cynnyrch { -brand-mozilla }
 bento-menu-tagline = Rhagor o gynnyrch { -brand-mozilla } sy'n diogelu'ch preifatrwydd
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -486,8 +487,6 @@ dc-opt-out-success-2 = Rydych wedi dewis peidio cael eich cynnwys yn llwyddiannu
 dc-opt-in-success-2 = Diolch! Mae rhannu'r data hwn yn ein helpu i wella { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Ymddiheuriadau, bu anhawster wrth newid eich dewisiadau casglu data.
 dc-learn-more = Dysgu rhagor
-
-
 drop-down-menu-title-2 = Dewislen cyfrif { -product-mozilla-account }
 drop-down-menu-signed-in-as-v2 = Mewngofnodwyd fel
 drop-down-menu-sign-out = Allgofnodi
@@ -590,8 +589,6 @@ flow-setup-phone-confirm-code-resend-code-button = Ail-anfon y cod
 flow-setup-phone-confirm-code-resend-code-success = Anfonwyd y cod
 flow-setup-phone-confirm-code-success-message-v2 = Ffôn adfer wedi'i ychwanegu
 flow-change-phone-confirm-code-success-message = Ffôn adfer wedi'i newid
-
-
 flow-setup-phone-submit-number-heading = Gwiriwch eich rhif ffôn
 flow-setup-phone-verify-number-instruction = Byddwch yn cael neges destun gan { -brand-mozilla } gyda chod i ddilysu'ch rhif. Peidiwch â rhannu'r cod hwn gydag unrhyw un.
 flow-setup-phone-submit-number-info-message-v2 = Dim ond yn yr Unol Daleithiau a Chanada y mae ffôn adfer ar gael. Nid yw rhifau VoIP a rhifau ffôn cudd yn cael eu hargymell.
@@ -1136,8 +1133,6 @@ recovery-phone-number-ending-digits = Rhif sy'n gorffen gyda { $lastFourPhoneNum
 oauth-error-1000 = Aeth rhywbeth o'i le. Caewch y tab hwn a cheisio eto.
 
 
-
-
 passkey-registration-error-not-allowed = Methodd gosod y cyfrinallwedd neu nid yw ar gael. Ceisiwch eto neu dewiswch ddull arall.
 passkey-registration-error-not-allowed-existing = Dyw gosod cyfrinallwedd ddim yn bosib gyda'r ddyfais hon. Naill ai mae'r ddyfais eisoes wedi'i chofrestru neu cafodd y broses osod ei diddymu.
 passkey-registration-error-timeout = Wedi diddymu gosod y cyfrinallwedd. Ceisiwch eto.
@@ -1152,8 +1147,6 @@ passkey-registration-error-invalid-state = Mae'r cyfrinallwedd hwn eisoes wedi'i
 passkey-registration-error-not-readable = Doedd dim modd cael mynediad i'r dilysydd. Ceisiwch eto neu dewiswch ddull arall.
 passkey-registration-error-constraint = Dyw gosod cyfrinallweddi ddim ar gael gyda'r ddyfais hon. Rhowch gynnig ar ddull neu ddyfais arall.
 passkey-registration-error-unexpected = Wedi methu gosod y cyfrinallwedd. Ceisiwch eto neu dewiswch ddull arall.
-
-
 passkey-authentication-trouble-heading = Methu mewngofnodi gyda chyfrinallwedd
 passkey-authentication-trouble-description = Ceisiwch eto neu ddefnyddio dewis mewngofnodi arall.
 passkey-authentication-trouble-link = Sut i ddefnyddio cyfrinallweddi
@@ -1396,8 +1389,6 @@ service-welcome-vpn-heading = Nesaf: Troi VPN ymlaen
 service-welcome-vpn-description = Un cam arall i hybu preifatrwydd eich porwr. Ewch i'r panel sydd ar agor a'i droi ymlaen.
 
 
-
-
 set-password-heading-v2 = Creu cyfrinair i gydweddu
 set-password-info-v2 = Mae hyn yn amgryptio eich data. Mae angen iddo fod yn wahanol i gyfrinair eich cyfrif { -brand-google } neu { -brand-apple }.
 
@@ -1424,8 +1415,6 @@ complete-reset-pw-recovery-key-link = Defnyddiwch allwedd adfer cyfrif
 reset-password-complete-banner-heading = Mae eich cyfrinair wedi cael ei ail osod.
 reset-password-complete-banner-message = Peidiwch ag anghofio cynhyrchu allwedd adfer cyfrif newydd o'ch gosodiadau { -product-mozilla-account } i atal problemau mewngofnodi yn y dyfodol.
 complete-reset-password-desktop-relay = Bydd { -brand-firefox } yn ceisio eich anfon yn ôl i ddefnyddio e-bost arallenw ar ôl i chi fewngofnodi.
-
-
 confirm-backup-code-reset-password-input-label = Rhowch y cod 10 nod
 confirm-backup-code-reset-password-confirm-button = Cadarnhau
 confirm-backup-code-reset-password-subheader = Rhowch y cod dilysu wrth gefn
@@ -1459,8 +1448,6 @@ password-reset-submit-button-2 = Parhau
 
 reset-password-complete-header = Mae eich cyfrinair wedi ei ailosod
 reset-password-confirmed-cta = Parhau i { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Ailosod eich cyfrinair
@@ -1542,8 +1529,6 @@ signin-passkey-fallback-body = Er mwyn cadw'ch data'n ddiogel, mae angen i chi r
 signin-passkey-fallback-password-label = Cyfrinallwedd
 signin-passkey-fallback-continue = Parhau
 signin-passkey-fallback-forgot-password-link = Wedi anghofio'r cyfrinair?
-
-
 
 
 signin-passwordless-code-heading = Rhowch y cod dilysu
@@ -1676,8 +1661,6 @@ signin-unblock-code-incorrect-format-2 = Dim ond llythrennau a/neu rifau y gall 
 signin-unblock-resend-code-button = Ddim yn y blwch derbyn na'r sbam? Ail-anfon
 signin-unblock-support-link = Pam mae hyn yn digwydd?
 signin-unblock-desktop-relay = Bydd { -brand-firefox } yn ceisio eich anfon yn ôl i ddefnyddio e-bost arallenw ar ôl i chi fewngofnodi.
-
-
 
 
 confirm-signup-code-page-title = Rhowch y cod dilysu

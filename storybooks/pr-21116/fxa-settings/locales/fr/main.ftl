@@ -116,6 +116,13 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Actions pour reprendre le contrôle d’Internet
 
 
+pair-continue-in-firefox-heading = Continuer dans { -brand-firefox }
+pair-continue-in-firefox-description = L’association se produit dans { -brand-firefox }. Ouvrez-le pour terminer la connexion de cet appareil.
+pair-continue-in-firefox-button = Continuer dans { -brand-firefox }
+pair-continue-in-firefox-opening = Ouverture de { -brand-firefox }
+pair-continue-in-firefox-get-firefox-link = Vous ne disposez pas de { -brand-firefox } ? Téléchargez-le maintenant
+
+
 dark-mode-toggle-light = Clair
 dark-mode-toggle-dark = Sombre
 dark-mode-toggle-system = Système

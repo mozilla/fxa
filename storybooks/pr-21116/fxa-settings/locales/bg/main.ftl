@@ -23,8 +23,6 @@ ready-continue = Продължаване
 alert-bar-close-message = Затваряне на съобщението
 
 
-
-
 bento-menu-firefox-mobile = { -brand-firefox } четец за мобилни устройства
 bento-menu-made-by-mozilla = Направено от { -brand-mozilla }
 
@@ -33,8 +31,6 @@ cs-disconnect-sync-opt-prefix = Устройството е:
 
 
 dc-learn-more = Научете повече
-
-
 
 
 flow-container-back = Назад

@@ -165,20 +165,18 @@ form-verify-code-default-error = Kjo fushë është e domosdoshme
 
 form-verify-totp-disabled-button-title-numeric = Që të vazhdohet, jepni kodin me { $codeLength } shifra
 form-verify-totp-disabled-button-title-alphanumeric = Që të vazhdohet, jepni kodin me { $codeLength } shenja
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Kyç rimarrjeje llogarie { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Kode mirëfilltësimi kopjeruajtjeje
 get-data-trio-download-2 =
-    .title = Shkarkoje
     .aria-label = Shkarkoje
+    .title = Shkarkoje
 get-data-trio-copy-2 =
-    .title = Kopjoje
     .aria-label = Kopjoje
+    .title = Kopjoje
 get-data-trio-print-2 =
-    .title = Shtype
     .aria-label = Shtype
+    .title = Shtype
 
 
 alert-icon-aria-label =
@@ -219,8 +217,6 @@ icon-loading-arrow-aria-label =
     .aria-label = Po ngarkohet
 icon-passkey-aria-label =
     .aria-label = Kyçkalim
-
-
 hearts-broken-image-aria-label =
     .aria-label = Një kompjuter dhe një celular dhe pamje e një zemre të copëtuar, në secilin
 hearts-verified-image-aria-label =
@@ -368,8 +364,6 @@ avatar-default-avatar =
     .alt = Avatar parazgjedhje
 
 
-
-
 bento-menu-title-3 = Produkte { -brand-mozilla }
 bento-menu-tagline = Më tepër produkte nga { -brand-mozilla } që mbrojnë privatësinë tuaj
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -430,8 +424,6 @@ dc-opt-out-success-2 = Lënie jashtë e suksesshme. { -product-mozilla-accounts 
 dc-opt-in-success-2 = Faleminderit! Ndarja e këtyre të dhënave na ndihmon të përmirësojmë { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Na ndjeni, pati një problem në ndryshimin e parapëlqimit tuaj për grumbullim të dhënash
 dc-learn-more = Mësoni më tepër
-
-
 drop-down-menu-title-2 = Menu { -product-mozilla-account }
 drop-down-menu-signed-in-as-v2 = Futur si
 drop-down-menu-sign-out = Dilni
@@ -528,8 +520,6 @@ flow-setup-phone-confirm-code-resend-code-button = Ridërgo kodin
 flow-setup-phone-confirm-code-resend-code-success = Kodi i dërgua
 flow-setup-phone-confirm-code-success-message-v2 = U shtua telefon rimarrje
 flow-change-phone-confirm-code-success-message = U ndryshua telefon rimarrje
-
-
 flow-setup-phone-submit-number-heading = Verifikoni numrin tuaj të telefonit
 flow-setup-phone-verify-number-instruction = Do të merrni një mesazh tekst nga { -brand-mozilla } me një kod që të verifikoni numrin tuaj. Mos ia tregoni kujt këtë kod.
 flow-setup-phone-submit-number-info-message-v2 = Telefon rimarrje mund të përdorni vetëm Shtetet e Bashkuara dhe Kanada. Nuk rekomandohen numra VoIP dhe maska telefonash.
@@ -1005,8 +995,6 @@ recovery-phone-number-ending-digits = Numër që përfundon me { $lastFourPhoneN
 oauth-error-1000 = Diç shkoi ters. Ju lutemi, mbylleni këtë skedë dhe riprovoni.
 
 
-
-
 passkey-registration-error-not-allowed = Ujdisja e kyçkalimit dështoi, ose s’është e mundshme. Riprovoni, ose zgjidhni tjetër metodë.
 passkey-registration-error-timeout = Ujdisja e kyçkalimit qe anuluar. Riprovoni.
 passkey-registration-error-security = Në këtë faqe s’mund të ujdisen kyçkalime. Përdorni sajtin e siguruar dhe riprovoni.
@@ -1014,8 +1002,6 @@ passkey-registration-error-invalid-state = Ky kyçkalim është i regjistruar ta
 passkey-registration-error-not-readable = S’hymë dot te aplikacioni mirëfilltësues. Riprovoni, ose zgjidhni metodë tjetër
 passkey-registration-error-constraint = Ujdisja e kyçkalimit s’është e përdorshme me këtë pajisje. Provoni metodë ose pajisje tjetër.
 passkey-registration-error-unexpected = Ujdisja e kyçkalimit dështoi. Riprovoni, ose zgjidhni tjetër metodë.
-
-
 passkey-authentication-error-not-allowed = Hyrja me kyçkalim dështoi, ose s’është e përdorshme. Riprovoni, ose zgjidhni tjetër metodë.
 passkey-authentication-error-timeout = Kërkesës për kyçkalim i mbaroi koha. Ju lutemi, riprovoni.
 passkey-authentication-error-security = Në këtë faqe s’mund të përdoren kyçkalime. Kontrolloni nëse jeni në sajtin e saktë të siguruar dhe riprovoni.
@@ -1142,8 +1128,6 @@ service-welcome-vpn-heading = Më pas: Hapni VPN-në
 service-welcome-vpn-description = Edhe një hap për të përforcuar privatësinë e shfletuesit tuaj. Kaloni te paneli i hapur dhe aktivizojeni.
 
 
-
-
 set-password-heading-v2 = Që të bëhet njëkohësim, krijoni fjalëkalim
 set-password-info-v2 = Kjo fshehtëzon të dhënat tuaja. Lypset të jetë i ndryshëm nga fjalëkalimi juaj për llogarinë në { -brand-google }, ose { -brand-apple }.
 
@@ -1170,8 +1154,6 @@ complete-reset-pw-recovery-key-link = Përdorni kyç rimarrjeje llogarie
 reset-password-complete-banner-heading = Fjalëkalimi juaj u ricaktua.
 reset-password-complete-banner-message = Mos harroni të prodhoni një kyç të ri rimarrjeje llogarie që nga rregullimet e { -product-mozilla-account } tuaja, për të penguar probleme të ardhshme hyrjeje.
 complete-reset-password-desktop-relay = Pasi të bëni hyrjen në llogari, { -brand-firefox }-i do të provojë t’ju dërgojë një maskë email për ta përdorur.
-
-
 confirm-backup-code-reset-password-input-label = Jepni kodin me 10 shenja
 confirm-backup-code-reset-password-confirm-button = Ripohojeni
 confirm-backup-code-reset-password-subheader = Jepni kod mirëfilltësimi kopjeruajtjeje
@@ -1204,8 +1186,6 @@ password-reset-submit-button-2 = Vazhdo
 
 reset-password-complete-header = Fjalëkalimi juaj u ricaktua
 reset-password-confirmed-cta = Vazhdoni te { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Ricaktoni fjalëkalimin tuaj
@@ -1285,8 +1265,6 @@ signin-passkey-fallback-heading = Që të bëhet njëkohësimi, jepni fjalëkali
 signin-passkey-fallback-body = Që të ruhen të parrezik të dhënat tuaja, ju duhet të jepni fjalëkalimin tuaj, kur përdorni këtë kyçkalim.
 signin-passkey-fallback-password-label = Fjalëkalim
 signin-passkey-fallback-continue = Vazhdo
-
-
 
 
 signin-passwordless-code-heading = Jepni kodin e ripohimit
@@ -1402,8 +1380,6 @@ signin-unblock-code-incorrect-format-2 = Kodi i autorizimit mund të përmbajë 
 signin-unblock-resend-code-button = S’gjendet te dosja e të marrëve apo e të padëshiruarave? Ridërgojeni
 signin-unblock-support-link = Pse ndodh kjo?
 signin-unblock-desktop-relay = Pasi të bëni hyrjen në llogari, { -brand-firefox }-i do të provojë t’ju dërgojë një maskë email për ta përdorur.
-
-
 
 
 confirm-signup-code-page-title = Jepni kodin e ripohimit

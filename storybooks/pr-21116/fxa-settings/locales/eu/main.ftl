@@ -122,20 +122,18 @@ form-verify-code-default-error = Eremu hau beharrezkoa da
 
 form-verify-totp-disabled-button-title-numeric = Jarraitzeko, idatzi { $codeLength } zifrako kodea
 form-verify-totp-disabled-button-title-alphanumeric = Jarraitzeko, idatzi { $codeLength } karaktere kodea
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox }  kontua berreskuratzeko gakoa
 get-data-trio-title-backup-verification-codes = Autentifikazio-kodearen babes-kopia
 get-data-trio-download-2 =
-    .title = Deskargatu
     .aria-label = Deskargatu
+    .title = Deskargatu
 get-data-trio-copy-2 =
-    .title = Kopiatu
     .aria-label = Kopiatu
+    .title = Kopiatu
 get-data-trio-print-2 =
-    .title = Inprimatu
     .aria-label = Inprimatu
+    .title = Inprimatu
 
 
 alert-icon-aria-label =
@@ -172,8 +170,6 @@ info-icon-aria-label =
     .aria-label = Informazioa
 usa-flag-icon-aria-label =
     .aria-label = Estatu Batuetako bandera
-
-
 hearts-broken-image-aria-label =
     .aria-label = Ordenagailu bat eta telefono mugikor bat eta bihotz hautsi baten irudia bakoitzean
 hearts-verified-image-aria-label =
@@ -304,8 +300,6 @@ avatar-default-avatar =
     .alt = Abatar lehenetsia
 
 
-
-
 bento-menu-title-3 = { -brand-mozilla } produktuak
 bento-menu-tagline = Zure pribatutasuna babesten duten { -brand-mozilla }ren produktu gehiago
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -370,8 +364,6 @@ dc-opt-out-success-2 = Aukeratu arrakastaz. { -product-mozilla-accounts }k ez du
 dc-opt-in-success-2 = Eskerrik asko! Datu hauek partekatzeak { -product-mozilla-accounts } hobetzen laguntzen digu.
 dc-opt-in-out-error-2 = Barkatu, arazo bat izan da zure datuak biltzeko hobespenak aldatzean
 dc-learn-more = Argibide gehiago
-
-
 drop-down-menu-title-2 = { -product-mozilla-account } menua
 drop-down-menu-signed-in-as-v2 = Saioa hasita:
 drop-down-menu-sign-out = Amaitu saioa
@@ -411,8 +403,6 @@ flow-setup-phone-confirm-code-expired = Kodea iraungita?
 flow-setup-phone-confirm-code-resend-code-button = Birbidali kodea
 flow-setup-phone-confirm-code-resend-code-success = Kodea bidalia
 flow-setup-phone-confirm-code-success-message-v2 = Berreskuratze telefonoa gehitu da
-
-
 flow-setup-phone-submit-number-heading = Egiaztatu zure telefono zenbakia
 flow-setup-phone-verify-number-instruction = { -brand-mozilla } erabiltzailearen testu-mezu bat jasoko duzu zure zenbakia egiaztatzeko kode batekin. Ez partekatu kode hau inorekin.
 flow-setup-phone-submit-number-info-message-v2 = Berreskuratzeko telefonoa Estatu Batuetan eta Kanadan bakarrik dago erabilgarri. Ez dira gomendatzen VoIP zenbakiak eta telefono-maskarak.
@@ -947,8 +937,6 @@ reset-password-complete-banner-message = Ez ahaztu kontua berreskuratzeko gako b
 complete-reset-password-desktop-relay = { -brand-firefox } saioa hasi ondoren posta elektronikoko maskara bat erabiltzera bidaltzen saiatuko da.
 
 
-
-
 confirm-reset-password-with-code-heading = Egiaztatu zure posta elektronikoa
 confirm-reset-password-with-code-instruction = Berrespen-kode bat bidali dugu <span>{ $email }</span> helbidera.
 confirm-reset-password-code-input-group-label = Sartu 8 digituko kodea 10 minutuko epean
@@ -1093,8 +1081,6 @@ signin-unblock-code-incorrect-format-2 = Baimen-kodeak letrak edota zenbakiak so
 signin-unblock-resend-code-button = Ez dago sarrera-ontzian edo spam karpetan? Bidali berriro
 signin-unblock-support-link = Zergatik ari da hau gertatzen?
 signin-unblock-desktop-relay = { -brand-firefox } saioa hasi ondoren posta elektronikoko maskara bat erabiltzera bidaltzen saiatuko da.
-
-
 
 
 confirm-signup-code-page-title = Sartu baieztapen-kodea

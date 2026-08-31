@@ -166,20 +166,18 @@ form-verify-code-default-error = 此字段必填
 
 form-verify-totp-disabled-button-title-numeric = 输入 { $codeLength } 位数的验证码以继续操作
 form-verify-totp-disabled-button-title-alphanumeric = 输入由 { $codeLength } 个字符组成的验证码以继续操作
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } 账户恢复密钥
 get-data-trio-title-backup-verification-codes = 备用验证码
 get-data-trio-download-2 =
-    .title = 下载
     .aria-label = 下载
+    .title = 下载
 get-data-trio-copy-2 =
-    .title = 复制
     .aria-label = 复制
+    .title = 复制
 get-data-trio-print-2 =
-    .title = 打印
     .aria-label = 打印
+    .title = 打印
 
 
 alert-icon-aria-label =
@@ -222,8 +220,6 @@ icon-loading-arrow-aria-label =
     .aria-label = 正在加载
 icon-passkey-aria-label =
     .aria-label = 通行密钥
-
-
 hearts-broken-image-aria-label =
     .aria-label = 一台电脑和一部手机，上面分别有一颗破碎的心
 hearts-verified-image-aria-label =
@@ -381,8 +377,6 @@ avatar-default-avatar =
     .alt = 默认头像
 
 
-
-
 bento-menu-title-3 = { -brand-mozilla } 产品
 bento-menu-tagline = { -brand-mozilla } 的更多保护您隐私的产品。
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -446,8 +440,6 @@ dc-opt-out-success-2 = 退出成功，{ -product-mozilla-accounts }将不再向 
 dc-opt-in-success-2 = 感谢！共享此数据可帮助我们改进 { -product-mozilla-accounts }。
 dc-opt-in-out-error-2 = 抱歉，更改您的数据收集首选项时遇到问题
 dc-learn-more = 详细了解
-
-
 drop-down-menu-title-2 = { -product-mozilla-account }菜单
 drop-down-menu-signed-in-as-v2 = 已登录为
 drop-down-menu-sign-out = 退出
@@ -540,8 +532,6 @@ flow-setup-phone-confirm-code-resend-code-button = 重新发送验证码
 flow-setup-phone-confirm-code-resend-code-success = 验证码已发送
 flow-setup-phone-confirm-code-success-message-v2 = 已添加恢复电话号码
 flow-change-phone-confirm-code-success-message = 已更改恢复电话号码
-
-
 flow-setup-phone-submit-number-heading = 请验证您的电话号码
 flow-setup-phone-verify-number-instruction = 您会收到一条来自 { -brand-mozilla } 的短信，内容是用于验证您的手机号的验证码。请不要与任何人分享此验证码。
 flow-setup-phone-submit-number-info-message-v2 = 恢复电话号码仅在美国和加拿大可用。不建议使用 VoIP 和虚拟手机号。
@@ -1039,8 +1029,6 @@ recovery-phone-number-ending-digits = 手机尾号为 { $lastFourPhoneNumber }
 oauth-error-1000 = 出了点问题。请关闭此标签页，然后再试一次。
 
 
-
-
 passkey-registration-error-not-allowed = 通行密钥设置失败或不可用，请重试或选择其他方式。
 passkey-registration-error-not-allowed-existing = 此设备无法设置通行密钥，因为此设备已经注册过，或设置过程被取消。
 passkey-registration-error-timeout = 已取消设置通行密钥，请重试。
@@ -1055,8 +1043,6 @@ passkey-registration-error-invalid-state = 此通行密钥已经注册过。请�
 passkey-registration-error-not-readable = 无法访问身份验证器，请重试或选择其他方式。
 passkey-registration-error-constraint = 此设备不支持设置通行密钥。请尝试其他方式，或换用其他设备。
 passkey-registration-error-unexpected = 通行密钥设置失败，请重试或选择其他方式。
-
-
 passkey-authentication-error-not-allowed = 使用通行密钥登录失败，或该登录方式不可用。请重试或选择其他方式。
 passkey-authentication-error-not-allowed-existing = 此设备不支持设置通行密钥，请重试或选择其他方式。
 passkey-authentication-error-timeout = 密钥请求超时，请重试。
@@ -1236,8 +1222,6 @@ service-welcome-vpn-heading = 下一步: 开启 VPN
 service-welcome-vpn-description = 只差一步，即可增强浏览器的隐私保护。请前往打开的面板，将其启用。
 
 
-
-
 set-password-heading-v2 = 创建密码以同步
 set-password-info-v2 = 此密码将用于加密您的数据，请使用不同与 { -brand-google }、{ -brand-apple } 等账户的密码。
 
@@ -1264,8 +1248,6 @@ complete-reset-pw-recovery-key-link = 使用账户恢复密钥
 reset-password-complete-banner-heading = 您的密码已重置。
 reset-password-complete-banner-message = 别忘了在 { -product-mozilla-account }设置中生成新的账户恢复密钥，避免将来登录时遇到问题。
 complete-reset-password-desktop-relay = { -brand-firefox } 将尝试在您登录后返回原页面，供您使用马甲邮箱。
-
-
 confirm-backup-code-reset-password-input-label = 请输入由 10 个字符组成的验证码
 confirm-backup-code-reset-password-confirm-button = 确认
 confirm-backup-code-reset-password-subheader = 请输入备用验证码
@@ -1298,8 +1280,6 @@ password-reset-submit-button-2 = 继续
 
 reset-password-complete-header = 您的密码已重置
 reset-password-confirmed-cta = 继续使用 { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = 重设密码
@@ -1372,8 +1352,6 @@ signin-passkey-fallback-heading = 输入密码进行同步
 signin-passkey-fallback-body = 为确保您的数据安全，使用此通行密钥时需输入密码。
 signin-passkey-fallback-password-label = 密码
 signin-passkey-fallback-continue = 继续
-
-
 
 
 signin-passwordless-code-heading = 输入确认码
@@ -1474,8 +1452,6 @@ signin-unblock-code-incorrect-format-2 = 授权码只能是字母、数字或其
 signin-unblock-resend-code-button = 收件箱和垃圾邮件箱中都没有？重新发送
 signin-unblock-support-link = 为什么会出现此情况？
 signin-unblock-desktop-relay = { -brand-firefox } 将尝试在您登录后返回原页面，供您使用马甲邮箱。
-
-
 
 
 confirm-signup-code-page-title = 输入确认码
