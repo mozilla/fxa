@@ -1,8 +1,8 @@
 {
-  "commit": "b4cf2b0b93c37b4ecef6fb79caaa425b4ca35a3f",
-  "summary": "Merge pull request #21120 from mozilla/config/blender-dismiss-high-severity",
-  "description": "chore: allow BLEnder to dismiss confident high-severity not-affected alerts",
-  "timestamp": 1787877251000,
+  "commit": "9a87225621acbf28e73acefb940f0c3fc19c873c",
+  "summary": "Merge pull request #21073 from mozilla/fxa-14372",
+  "description": "chore(content-server): remove unreachable Backbone code",
+  "timestamp": 1788201894000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

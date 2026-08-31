@@ -19,9 +19,6 @@ alert-bar-close-message = Затваряне на съобщението
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-firefox-mobile = { -brand-firefox } четец за мобилни устройства
 bento-menu-made-by-mozilla = Направено от { -brand-mozilla }
 
@@ -33,9 +30,6 @@ cs-disconnect-sync-opt-prefix = Устройството е:
 ## Data collection section
 
 dc-learn-more = Научете повече
-
-# DropDownAvatarMenu component
-
 
 ## Flow Container
 

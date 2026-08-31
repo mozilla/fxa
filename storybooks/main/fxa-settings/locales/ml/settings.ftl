@@ -121,21 +121,18 @@ form-verify-totp-disabled-button-title-numeric = തുടരാൻ വേണ്
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = തുടരാൻ വേണ്ടി { $codeLength }-പ്രതീകം നീള കോഡു് നല്കുക
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } അക്കൌണ്ടു് വീണ്ടെടുപ്പു് സങ്കേതം
 get-data-trio-title-backup-verification-codes = കരുതൽ പകർപ്പു് ആധികാരികമാക്കൽ-സങ്കേതങ്ങൾ
 get-data-trio-download-2 =
-    .title = ഇറക്കിവയ്ക്കുക
     .aria-label = ഇറക്കിവയ്ക്കുക
+    .title = ഇറക്കിവയ്ക്കുക
 get-data-trio-copy-2 =
-    .title = പകൎത്തുക
     .aria-label = പകൎത്തുക
+    .title = പകൎത്തുക
 get-data-trio-print-2 =
-    .title = അച്ചടിപ്പിക്കുക
     .aria-label = അച്ചടിപ്പിക്കുക
+    .title = അച്ചടിപ്പിക്കുക
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -178,10 +175,6 @@ error-icon-aria-label =
 # Used as information icon for informative messaging
 info-icon-aria-label =
     .aria-label = വിവരം
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 signin-recovery-code-image-description =
     .aria-label = മറഞ്ഞിരിക്കുന്ന വാചകം ഉൾക്കൊള്ളുന്ന പ്രമാണം.
 signin-totp-code-image-label =
@@ -302,9 +295,6 @@ alert-bar-close-message = സന്ദേശം അടയ്ക്കുക
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-vpn-2 = { -product-mozilla-vpn }
 bento-menu-monitor-3 = { -product-mozilla-monitor }
 bento-menu-firefox-relay-2 = { -product-firefox-relay }
@@ -316,9 +306,6 @@ cs-sign-out-button = പുറത്തുകടക്കുക
 ## Data collection section
 
 dc-learn-more = കൂടുതല്‍ അറിയുക
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = { -product-mozilla-account } കുറിപ്പടി
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)

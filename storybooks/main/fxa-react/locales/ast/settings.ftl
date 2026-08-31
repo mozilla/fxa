@@ -2,9 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-
-# BentoMenu component
-
 bento-menu-vpn-2 = { -product-mozilla-vpn }
 bento-menu-firefox-relay-2 = { -product-firefox-relay }
 bento-menu-firefox-desktop = Restolador { -brand-firefox } pa ordenadores
@@ -34,9 +31,6 @@ cs-disconnect-sync-opt-not-say = Nun quiero dicilo
 cs-sign-out-button = Zarrar la sesión
 
 ## Data collection section
-
-
-# DropDownAvatarMenu component
 
 drop-down-menu-sign-out-error-2 = Hebo un problema al zarrar la sesión
 

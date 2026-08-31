@@ -40,19 +40,16 @@ device-info-ip-address = IP ochochib'äl: { $ipAddress }
 ## FormVerifyTotp component
 ## Form to enter a time-based one-time-passcode (e.g., 6-digit numeric code or 8-digit alphanumeric code)
 
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-download-2 =
-    .title = Tiqasäx
     .aria-label = Tiqasäx
+    .title = Tiqasäx
 get-data-trio-copy-2 =
-    .title = Tiwachib'ëx
     .aria-label = Tiwachib'ëx
+    .title = Tiwachib'ëx
 get-data-trio-print-2 =
-    .title = Titz'ajb'äx
     .aria-label = Titz'ajb'äx
+    .title = Titz'ajb'äx
 
 ## Input Password
 
@@ -102,9 +99,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-vpn-2 = { -product-mozilla-vpn }
 bento-menu-firefox-relay-2 = { -product-firefox-relay }
 bento-menu-made-by-mozilla = B'anon ruma { -brand-mozilla }
@@ -153,9 +147,6 @@ cs-sign-out-button = Titz'apïx molojri'ïl
 
 dc-heading = Kimolik Tzij chuqa' Okisaxïk
 dc-learn-more = Tetamäx ch'aqa' chik
-
-# DropDownAvatarMenu component
-
 drop-down-menu-sign-out = Titz'apïx molojri'ïl
 
 ## Flow Container
@@ -498,9 +489,6 @@ pair-unsupported-message = ¿La xawokisaj relesäy wachib'äl q'inoj? K'atzinel 
 # Displayed in an alert bar
 complete-reset-password-success-alert = Xjikib'äx ewan tzij
 
-# ConfirmBackupCodeResetPassword page
-
-
 ## ResetPasswordConfirmed
 
 reset-password-complete-header = Xtzolïx ri ewan atzij
@@ -567,9 +555,6 @@ signin-totp-code-recovery-code-link = ¿La k'ayew xatz'ib'aj ri b'itz'ib'?
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 confirm-signup-code-input-label = Titz'ib'äx 6-rutz'ib' b'itz'ib'
 # Form button to confirm if the confirmation code entered by the user is valid

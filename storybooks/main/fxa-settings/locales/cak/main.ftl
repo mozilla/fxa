@@ -46,18 +46,16 @@ device-info-browser-os = { $browserName } pa { $genericOSName }
 device-info-ip-address = IP ochochib'äl: { $ipAddress }
 
 
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-download-2 =
-    .title = Tiqasäx
     .aria-label = Tiqasäx
+    .title = Tiqasäx
 get-data-trio-copy-2 =
-    .title = Tiwachib'ëx
     .aria-label = Tiwachib'ëx
+    .title = Tiwachib'ëx
 get-data-trio-print-2 =
-    .title = Titz'ajb'äx
     .aria-label = Titz'ajb'äx
+    .title = Titz'ajb'äx
 
 
 input-password-hide = Tewäx ewan tzij
@@ -87,8 +85,6 @@ avatar-your-avatar =
     .alt = Avatar wichin
 avatar-default-avatar =
     .alt = Avatar k'o wi
-
-
 
 
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -128,8 +124,6 @@ cs-sign-out-button = Titz'apïx molojri'ïl
 
 dc-heading = Kimolik Tzij chuqa' Okisaxïk
 dc-learn-more = Tetamäx ch'aqa' chik
-
-
 drop-down-menu-sign-out = Titz'apïx molojri'ïl
 
 
@@ -393,8 +387,6 @@ pair-unsupported-message = ¿La xawokisaj relesäy wachib'äl q'inoj? K'atzinel 
 complete-reset-password-success-alert = Xjikib'äx ewan tzij
 
 
-
-
 reset-password-complete-header = Xtzolïx ri ewan atzij
 
 
@@ -431,8 +423,6 @@ signin-token-code-confirm-button = Tijikib'äx
 signin-totp-code-confirm-button = Tijikib'äx
 signin-totp-code-other-account-link = Tokisäx jun chik rub'i' taqoya'l
 signin-totp-code-recovery-code-link = ¿La k'ayew xatz'ib'aj ri b'itz'ib'?
-
-
 
 
 confirm-signup-code-input-label = Titz'ib'äx 6-rutz'ib' b'itz'ib'

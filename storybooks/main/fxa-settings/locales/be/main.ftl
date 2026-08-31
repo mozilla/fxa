@@ -112,20 +112,18 @@ form-password-with-inline-criteria-match-error = Паролі не супада�
 form-verify-code-default-error = Гэта поле абавязковае
 
 
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Ключ аднаўлення ўліковага запісу { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Рэзервовыя коды аўтэнтыфікацыі
 get-data-trio-download-2 =
-    .title = Сцягванне
     .aria-label = Сцягванне
+    .title = Сцягванне
 get-data-trio-copy-2 =
-    .title = Капіяваць
     .aria-label = Капіяваць
+    .title = Капіяваць
 get-data-trio-print-2 =
-    .title = Друкаваць
     .aria-label = Друкаваць
+    .title = Друкаваць
 
 
 alert-icon-aria-label =
@@ -134,8 +132,6 @@ icon-attention-aria-label =
     .aria-label = Увага
 icon-warning-aria-label =
     .aria-label = Папярэджанне
-
-
 hearts-broken-image-aria-label =
     .aria-label = Камп'ютар і мабільны тэлефон з выявай разбітага сэрца на іх
 hearts-verified-image-aria-label =
@@ -231,8 +227,6 @@ avatar-default-avatar =
     .alt = Прадвызначаны аватар
 
 
-
-
 bento-menu-title-3 = Прадукты { -brand-mozilla }
 bento-menu-vpn-2 = { -product-mozilla-vpn }
 bento-menu-monitor-3 = { -product-mozilla-monitor }
@@ -294,8 +288,6 @@ dc-opt-out-success-2 = Адмова пацверджана. { -product-mozilla-a
 dc-opt-in-success-2 = Дзякуй! Адпраўка гэтых дадзеных дапаможа нам палепшыць { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = На жаль, пры змене параметраў збору дадзеных ўзнікла праблема
 dc-learn-more = Падрабязней
-
-
 drop-down-menu-title-2 = Меню { -product-mozilla-account }
 drop-down-menu-signed-in-as-v2 = Увайшоўшы як
 drop-down-menu-sign-out = Выйсці
@@ -762,8 +754,6 @@ complete-reset-password-success-alert = Пароль усталяваны
 complete-reset-password-error-alert = На жаль, падчас усталявання вашага пароля узнікла праблема
 
 
-
-
 confirm-reset-password-with-code-heading = Праверце сваю электронную пошту
 confirm-reset-password-otp-submit-button = Працягнуць
 confirm-reset-password-otp-resend-code-button = Паўторна адправіць код
@@ -844,8 +834,6 @@ signin-unblock-code-required-error = Патрэбен код аўтарызац�
 signin-unblock-resend-code-button = Няма ў уваходных ці ў спаме? Выслаць яшчэ раз
 signin-unblock-support-link = Чаму гэта адбываецца?
 signin-unblock-desktop-relay = { -brand-firefox } паспрабуе адаслаць вас назад на выкарыстанне маскі электроннай пошты пасля ўваходу.
-
-
 
 
 confirm-signup-code-page-title = Увядзіце код пацвярджэння

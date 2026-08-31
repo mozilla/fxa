@@ -185,21 +185,18 @@ form-verify-totp-disabled-button-title-numeric = Nhập mã { $codeLength } ch�
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Nhập mã { $codeLength } ký tự để tiếp tục
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Khóa khôi phục tài khoản { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Mã xác thực dự phòng
 get-data-trio-download-2 =
-    .title = Tải xuống
     .aria-label = Tải xuống
+    .title = Tải xuống
 get-data-trio-copy-2 =
-    .title = Sao chép
     .aria-label = Sao chép
+    .title = Sao chép
 get-data-trio-print-2 =
-    .title = In
     .aria-label = In
+    .title = In
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -263,10 +260,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = Passkey
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Một máy tính và một điện thoại di động và hình ảnh một trái tim tan vỡ trên mỗi nó
 hearts-verified-image-aria-label =
@@ -515,9 +508,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = Các sản phẩm { -brand-mozilla }
 bento-menu-tagline = Các sản phẩm khác từ { -brand-mozilla } bảo vệ quyền riêng tư của bạn
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -610,9 +600,6 @@ dc-opt-out-success-2 = Đã tắt thành công. { -product-mozilla-accounts } s�
 dc-opt-in-success-2 = Cảm ơn! Chia sẻ dữ liệu này sẽ giúp chúng tôi cải thiện { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Xin lỗi, đã xảy ra sự cố khi thay đổi tùy chọn thu thập dữ liệu của bạn
 dc-learn-more = Tìm hiểu thêm
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = Menu { -product-mozilla-account }
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -769,9 +756,6 @@ flow-setup-phone-confirm-code-resend-code-button = Gửi lại mã
 flow-setup-phone-confirm-code-resend-code-success = Đã gửi mã
 flow-setup-phone-confirm-code-success-message-v2 = Đã thêm số điện thoại khôi phục
 flow-change-phone-confirm-code-success-message = Đã thay đổi số điện thoại khôi phục
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Xác minh số điện thoại của bạn
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = Bạn sẽ nhận được tin nhắn văn bản từ { -brand-mozilla } kèm theo mã để xác minh số của bạn. Không chia sẻ mã này với bất kỳ ai.
@@ -1481,9 +1465,6 @@ oauth-error-1000 = Đã xảy ra lỗi. Vui lòng đóng thẻ này và thử l�
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = Thiết lập mật khẩu không thành công hoặc không khả dụng. Hãy thử lại hoặc chọn phương pháp khác.
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
@@ -1515,9 +1496,6 @@ passkey-registration-error-not-readable = Chúng tôi không thể truy cập v�
 passkey-registration-error-constraint = Thiết lập passkey không khả dụng với thiết bị này. Hãy thử phương pháp hoặc thiết bị khác.
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = Thiết lập passkey không thành công. Vui lòng thử lại hoặc chọn phương pháp khác.
-
-# Authentication errors
-
 # Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
 # available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
 # points the user to another way to sign in.
@@ -1986,9 +1964,6 @@ service-welcome-vpn-description = Thêm một bước nữa để tăng cường
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
 
-
-# password to complete their sign-in when they want to login to a service requiring it.
-
 set-password-heading-v2 = Tạo mật khẩu để đồng bộ
 # "This" refers to the heading, "Create password to sync"
 set-password-info-v2 = Điều này sẽ mã hóa dữ liệu của bạn. Mật khẩu này phải khác với mật khẩu tài khoản { -brand-google } hoặc { -brand-apple } của bạn.
@@ -2038,9 +2013,6 @@ reset-password-complete-banner-message = Đừng quên tạo khóa khôi phục 
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = { -brand-firefox } sẽ điều hướng bạn quay trở lại để sử dụng email ẩn danh sau khi bạn đăng nhập.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = Nhập mã gồm 10 ký tự
 confirm-backup-code-reset-password-confirm-button = Xác nhận
 confirm-backup-code-reset-password-subheader = Nhập mã xác thực dự phòng
@@ -2091,9 +2063,6 @@ reset-password-confirmed-cta = Tiếp tục đến { $serviceName }
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Đặt lại mật khẩu của bạn
 password-reset-recovery-method-subheader = Chọn phương pháp khôi phục
@@ -2200,11 +2169,6 @@ signin-passkey-fallback-body = Để bảo vệ dữ liệu của bạn, bạn c
 signin-passkey-fallback-password-label = Mật khẩu
 signin-passkey-fallback-continue = Tiếp tục
 signin-passkey-fallback-forgot-password-link = Quên mật khẩu?
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2381,9 +2345,6 @@ signin-unblock-desktop-relay = { -brand-firefox } sẽ điều hướng bạn qu
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Nhập mã xác nhận

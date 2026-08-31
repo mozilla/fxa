@@ -75,6 +75,20 @@ choose-newsletters-option-test-pilot =
 choose-newsletters-option-reclaim-the-internet =
     .label = Napominanja k akciji, aby internet slědk dostał
 
+## ContinueInFirefox component - Part of the desktop-to-mobile pairing flow
+## Shown when the pairing QR code is opened in a browser other than Firefox.
+## It hands the pairing link to the Firefox app, and offers the app store when
+## Firefox is not installed on the device.
+
+pair-continue-in-firefox-heading = Z { -brand-firefox } pókšacowaś
+pair-continue-in-firefox-description = Koplowanje se w { -brand-firefox } stawa. Wócyńśo jen, aby zwězowanje toś togo rěda dokóńcył.
+# Opens the Firefox app on this device
+pair-continue-in-firefox-button = Z { -brand-firefox } pókšacowaś
+# Shown while waiting for the Firefox app to take over
+pair-continue-in-firefox-opening = { -brand-firefox } se wócynja
+# Sends the user to the App Store or Play Store to install Firefox
+pair-continue-in-firefox-get-firefox-link = Njamaśo { -brand-firefox }? Wobstarajśo se jen
+
 ## Dark mode toggle
 
 dark-mode-toggle-light = Swětły
@@ -203,21 +217,18 @@ form-verify-totp-disabled-button-title-numeric = Zapódajśo { $codeLength }-mě
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Zapódajśo { $codeLength }-znamjenjowy kod, aby pókšacował
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Kontowy wótnowjeński kluc { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Kody za zawěsćeńsku awtentifikaciju
 get-data-trio-download-2 =
-    .title = Ześěgnuś
     .aria-label = Ześěgnuś
+    .title = Ześěgnuś
 get-data-trio-copy-2 =
-    .title = Kopěrowaś
     .aria-label = Kopěrowaś
+    .title = Kopěrowaś
 get-data-trio-print-2 =
-    .title = Śišćaś
     .aria-label = Śišćaś
+    .title = Śišćaś
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -281,10 +292,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = Gronidłowy kluc
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Licadło a mobilny telefon a na kuždem wobraz złamaneje wutšoby
 hearts-verified-image-aria-label =
@@ -533,9 +540,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = Produkty { -brand-mozilla }
 bento-menu-tagline = Dalšne produkty wót { -brand-mozilla }, kótarež wašu priwatnosć šćitaju
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -603,9 +607,9 @@ cs-disconnect-sync-opt-not-say = Bźez pódaśa
 
 cs-disconnect-advice-confirm = W pórěźe, som zrozměł
 cs-disconnect-lost-advice-heading = Zgubjony abo kšadnjony rěd jo se źělił
-cs-disconnect-lost-advice-content-3 = Dokulaž waš rěd jo se zgubił abo kšadnuł, wy měł gronidło swójogo { -product-mozilla-account(case: "gen", capitalization: "lower") } w swójich kontowych nastajenjach změniś, aby waše informacije wěste źaržał. Wy měł teke za informacijami wót wašogo rědowego zgótowarja pytaś, aby waše daty znazdala wulašował.
+cs-disconnect-lost-advice-content-3 = Dokulaž waš rěd jo se zgubił abo kšadnuł, wy měł gronidło swójogo { -product-mozilla-account(capitalization: "lower", case: "gen") } w swójich kontowych nastajenjach změniś, aby waše informacije wěste źaržał. Wy měł teke za informacijami wót wašogo rědowego zgótowarja pytaś, aby waše daty znazdala wulašował.
 cs-disconnect-suspicious-advice-heading = Suspektny rěd jo se źělił
-cs-disconnect-suspicious-advice-content-2 = Jolic wótźělony rěd jo napšawdu suspektny, wy dejał gronidło swójogo { -product-mozilla-account(case: "gen", capitalization: "lower") } w swójich nastajenjach změniś, aby swóje informacije wěste źaržał. Wy dejał teke about:logins do adresowego póla zapódaś, aby druge gronidła změnił, kótarež sćo składł w { -brand-firefox }.
+cs-disconnect-suspicious-advice-content-2 = Jolic wótźělony rěd jo napšawdu suspektny, wy dejał gronidło swójogo { -product-mozilla-account(capitalization: "lower", case: "gen") } w swójich nastajenjach změniś, aby swóje informacije wěste źaržał. Wy dejał teke about:logins do adresowego póla zapódaś, aby druge gronidła změnił, kótarež sćo składł w { -brand-firefox }.
 cs-sign-out-button = Wótzjawiś
 
 ## Sub-rows shown beneath a connected browser entry to indicate which Mozilla
@@ -622,16 +626,13 @@ cs-scope-firefox-vpn = Zatwarjony VPN { -brand-firefox }
 dc-heading = Zběranje a wužywanje datow
 dc-subheader-moz-accounts = { -product-mozilla-accounts }
 dc-subheader-ff-browser = Wobglědowak { -brand-firefox }
-dc-subheader-content-2 = { -product-mozilla-accounts(case: "dat", capitalization: "upper") } dowóliś, techniske a interakciske daty na { -brand-mozilla } pósłaś.
+dc-subheader-content-2 = { -product-mozilla-accounts(capitalization: "upper", case: "dat") } dowóliś, techniske a interakciske daty na { -brand-mozilla } pósłaś.
 dc-subheader-ff-content = Aby techniske nastajenja a nastajenja za interakciske daty wobglědowaka { -brand-firefox } pśeglědował abo aktualizěrował, wócyńśo nastajenja { -brand-firefox } a nawigěrujśo k Priwatnosć a wěstota.
 dc-opt-out-success-2 = Wótzjawjenje wuspěšne. { -product-mozilla-accounts } njebudu techniske abo interakciske daty na { -brand-mozilla } słaś.
-dc-opt-in-success-2 = Wjeliki źěk! Źělenje toś tych datow nam pomaga, { -product-mozilla-accounts(case: "acc", capitalization: "lower") } pólěpšyś.
+dc-opt-in-success-2 = Wjeliki źěk! Źělenje toś tych datow nam pomaga, { -product-mozilla-accounts(capitalization: "lower", case: "acc") } pólěpšyś.
 dc-opt-in-out-error-2 = Bóžko jo pśi změnjanju wašogo nastajenja datoweje zběrki problem nastał
 dc-learn-more = Dalšne informacije
-
-# DropDownAvatarMenu component
-
-drop-down-menu-title-2 = Meni { -product-mozilla-account(case: "gen", capitalization: "lower") }
+drop-down-menu-title-2 = Meni { -product-mozilla-account(capitalization: "lower", case: "gen") }
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
 drop-down-menu-signed-in-as-v2 = Pśizjawjony ako
@@ -793,9 +794,6 @@ flow-setup-phone-confirm-code-resend-code-button = Kod znowego słaś
 flow-setup-phone-confirm-code-resend-code-success = Kod jo se pósłał
 flow-setup-phone-confirm-code-success-message-v2 = Wótnowjeński telefon pśidany
 flow-change-phone-confirm-code-success-message = Wótnowjeński telefon změnjony
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Pśeglědajśo swój telefonowy numer
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = Dostanjośo tekstowu powěsć wót { -brand-mozilla } z kodom, aby swój numer pśeglědował. Njeźělśo toś ten kod z někim drugim.
@@ -984,7 +982,7 @@ delete-account-header =
     .title = Konto wulašowaś
 delete-account-step-1-2 = Kšac 1 z 2
 delete-account-step-2-2 = Kšac 2 z 2
-delete-account-confirm-title-4 = Sćo snaź zwězał swójo { -product-mozilla-account(case: "acc", capitalization: "lower") } z jednym produktom abo z jedneju słužbu  { -brand-mozilla } abo z někotarymi z nich, kótarež was wěsty a produktiwny we webje źarže:
+delete-account-confirm-title-4 = Sćo snaź zwězał swójo { -product-mozilla-account(capitalization: "lower", case: "acc") } z jednym produktom abo z jedneju słužbu  { -brand-mozilla } abo z někotarymi z nich, kótarež was wěsty a produktiwny we webje źarže:
 delete-account-product-mozilla-account = { -product-mozilla-account }
 delete-account-product-mozilla-vpn = { -product-mozilla-vpn }
 delete-account-product-mdn-plus = { -product-mdn-plus }
@@ -1522,9 +1520,6 @@ oauth-error-1000 = Něco njejo se raźiło. Pšosym zacyńśo toś ten rejtarik 
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = Konfiguracija gronidłowego kluca njejo se raźiła abo njejo k dispoziciji. Wopytajśo hyšći raz abo wubjeŕśo drugu metodu.
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
@@ -1556,9 +1551,6 @@ passkey-registration-error-not-readable = Njejsmy mógli pśistup k awtentifikat
 passkey-registration-error-constraint = Konfiguracija gronidłowego kluca njejo z toś tym rědom k dispoziciji. Wopytajśo drugu metodu abo drugi rěd.
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = Konfiguracija gronidłowego kluca njejo se raźiła. Wopytajśo hyšći raz abo wubjeŕśo drugu metodu.
-
-# Authentication errors
-
 # Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
 # available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
 # points the user to another way to sign in.
@@ -1623,7 +1615,7 @@ connect-another-device-ios-complete-setup-message = Pśizjawśo se pla { -brand-
 ## Users will see this page if they have local storage or cookies disabled.
 
 cookies-disabled-header = Local storage a cookieje su trjebne
-cookies-disabled-enable-prompt-2 = Pšosym zmóžniśo cookieje a lokalny składowak we wašom wobglědowaku, aby pśistup ku { -product-mozilla-account(case: "dat", capitalization: "lower") } měł. To funkcije zmóžnja, ako na pśikład markowanje pśez pósejźenja.
+cookies-disabled-enable-prompt-2 = Pšosym zmóžniśo cookieje a lokalny składowak we wašom wobglědowaku, aby pśistup ku { -product-mozilla-account(capitalization: "lower", case: "dat") } měł. To funkcije zmóžnja, ako na pśikład markowanje pśez pósejźenja.
 # A button users may click to check if cookies and local storage are enabled and be directed to the previous page if so.
 cookies-disabled-button-try-again = Hyšći raz wopytaś
 # An external link going to: https://support.mozilla.org/kb/cookies-information-websites-store-on-your-computer
@@ -2027,9 +2019,6 @@ service-welcome-vpn-description = Dalšny kšac, aby se priwatnosć wašogo wobg
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
 
-
-# password to complete their sign-in when they want to login to a service requiring it.
-
 set-password-heading-v2 = Napórajśo gronidło za synchronizaciju
 # "This" refers to the heading, "Create password to sync"
 set-password-info-v2 = To waše daty koděrujo. Musy se wót kontowego gronidła { -brand-google } abo { -brand-apple } rozeznaś.
@@ -2079,9 +2068,6 @@ reset-password-complete-banner-message = Njezabywajśo nowy kontowy wótnowjeńs
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = { -brand-firefox } buźo was slědk słaś, aby pó pśizjawjenju e-mailowu masku wužywał.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = 10-městnowy kod zapódaś
 confirm-backup-code-reset-password-confirm-button = Wobkšuśiś
 confirm-backup-code-reset-password-subheader = Zapódajśo kod za zawěsćeńsku awtentifikaciju
@@ -2132,9 +2118,6 @@ reset-password-confirmed-cta = Dalej k { $serviceName }
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Stajśo swójo gronidło slědk
 password-reset-recovery-method-subheader = Wubjeŕśo wótnowjeńsku metodu
@@ -2197,7 +2180,7 @@ signin-link-expired-message-2 = Wótkaz, na kótaryž sćo kliknuł, jo spadnjon
 ## Signin page
 
 # Strings within the <span> elements appear as a subheading.
-signin-password-needed-header-2 = Zapódajśo swójo gronidło <span>za swójo { -product-mozilla-account(case: "acc", capitalization: "lower") }</span>
+signin-password-needed-header-2 = Zapódajśo swójo gronidło <span>za swójo { -product-mozilla-account(capitalization: "lower", case: "acc") }</span>
 # $serviceName - the name of the service which the user authenticating for
 # For languages structured like English, the phrase can read "to continue to { $serviceName }"
 signin-subheader-without-logo-with-servicename = Dalej k { $serviceName }
@@ -2247,11 +2230,6 @@ signin-passkey-fallback-body = Aby swóje daty wěste wobchował, musyśo swójo
 signin-passkey-fallback-password-label = Gronidło
 signin-passkey-fallback-continue = Dalej
 signin-passkey-fallback-forgot-password-link = Sćo gronidło zabył?
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2381,7 +2359,7 @@ signin-reported-message = Naš team jo powěźeńku dostał. Rozpšawy ako toś 
 # String within the <span> element appears on a separate line
 # If more appropriate in a locale, the string within the <span>, "for your { -product-mozilla-account }"
 # can stand alone as "{ -product-mozilla-account }"
-signin-token-code-heading-2 = Zapódajśo wobkšuśeński kod <span>za swójo  { -product-mozilla-account(case: "acc", capitalization: "lower") }</span>
+signin-token-code-heading-2 = Zapódajśo wobkšuśeński kod <span>za swójo  { -product-mozilla-account(capitalization: "lower", case: "acc") }</span>
 # { $email } represents the email that the user entered to sign in
 signin-token-code-instruction-v2 = Zapódajśo kod, kótaryž jo se pósłał za 5 minutow na <email>{ $email }</email>.
 signin-token-code-input-label-v2 = 6-městnowy kod zapódaś
@@ -2453,15 +2431,12 @@ signin-unblock-desktop-relay = { -brand-firefox } buźo was slědk słaś, aby p
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
 
-
-# and a confirmation code has been sent to their email address.
-
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Wobkšuśeński kod zapódaś
 # String within the <span> element appears on a separate line
 # If more appropriate in a locale, the string within the <span>, "for your { -product-mozilla-account }"
 # can stand alone as "{ -product-mozilla-account }"
-confirm-signup-code-heading-2 = Zapódajśo wobkšuśeński kod <span>za swójo { -product-mozilla-account(case: "acc", capitalization: "lower") }</span>
+confirm-signup-code-heading-2 = Zapódajśo wobkšuśeński kod <span>za swójo { -product-mozilla-account(capitalization: "lower", case: "acc") }</span>
 # { $email } represents the email that the user entered to sign in
 confirm-signup-code-instruction-v2 = Zapódajśo kod, kótaryž jo se pósłał za 5 minutow na <email>{ $email }</email>.
 confirm-signup-code-input-label = 6-městnowy kod zapódaś

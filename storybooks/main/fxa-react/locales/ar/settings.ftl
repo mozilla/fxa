@@ -9,9 +9,6 @@ alert-bar-close-message = أغلِق الرسالة
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-firefox-desktop = متصفّح { -brand-firefox } للحواسيب
 bento-menu-firefox-mobile = متصفّح { -brand-firefox } للمحمول
 

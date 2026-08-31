@@ -33,8 +33,6 @@ avatar-your-avatar =
     .alt = آپ کی تصویر
 
 
-
-
 bento-menu-firefox-desktop = { -brand-firefox } براؤزر برائے ڈیسک ٹاپ
 bento-menu-firefox-mobile = { -brand-firefox } موبائل کے لئے  راؤزر
 
@@ -58,8 +56,6 @@ cs-disconnect-advice-confirm = ٹھیک ہے، سمجھ گیا
 cs-disconnect-lost-advice-heading = گمشدہ یا چوری شدہ آلہ کو منقطع کر دیا گیا
 cs-disconnect-suspicious-advice-heading = مشکوک آلہ کو منقطع کر دیا گیا
 cs-sign-out-button = سائن آؤٹ کریں
-
-
 
 
 drop-down-menu-sign-out = سائن آؤٹ کریں

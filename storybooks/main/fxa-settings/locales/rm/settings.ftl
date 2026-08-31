@@ -134,21 +134,18 @@ form-verify-totp-disabled-button-title-numeric = Endatescha il code da { $codeLe
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Endatescha il code da { $codeLength } caracters per cuntinuar
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Clav da recuperaziun dal conto da { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Codes d'autentificaziun da backup
 get-data-trio-download-2 =
-    .title = Telechargiar
     .aria-label = Telechargiar
+    .title = Telechargiar
 get-data-trio-copy-2 =
-    .title = Copiar
     .aria-label = Copiar
+    .title = Copiar
 get-data-trio-print-2 =
-    .title = Stampar
     .aria-label = Stampar
+    .title = Stampar
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -200,10 +197,6 @@ info-icon-aria-label =
 # Used to select United States as a country code for phone number
 usa-flag-icon-aria-label =
     .aria-label = Bandiera dal Stadis Unids da l’America
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = In computer ed in telefonin e sin omadus in maletg dad in cor rut
 hearts-verified-image-aria-label =
@@ -404,9 +397,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = Products da { -brand-mozilla }
 bento-menu-tagline = Ulteriurs products da { -brand-mozilla } che protegian tia sfera privata
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -485,9 +475,6 @@ dc-opt-out-success-2 = Deactivà cun success. { -product-mozilla-accounts } na t
 dc-opt-in-success-2 = Grazia! La cundivisiun da questas datas ans gidan da meglierar { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Perstgisa, igl ha dà in problem cun midar tias preferenzas areguard la rimnada da datas
 dc-learn-more = Ulteriuras infurmaziuns
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = Menu { -product-mozilla-account }
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -559,9 +546,6 @@ flow-setup-phone-confirm-code-expired = Code scadì?
 flow-setup-phone-confirm-code-resend-code-button = Trametter anc ina giada il code
 flow-setup-phone-confirm-code-resend-code-success = Tramess il code
 flow-setup-phone-confirm-code-success-message-v2 = Agiuntà in numer da telefon per la recuperaziun dal conto
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Verifitgescha tes numer da telefon
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = Ti vegns a retschaiver in messadi da text da { -brand-mozilla } cun in code per verifitgar tes numer. Na cundivida cun nagin quest code.
@@ -1332,9 +1316,6 @@ reset-password-complete-banner-message = N’emblida betg da generar ina nova cl
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = { -brand-firefox } vegn ad empruvar da ta renviar a la pagina per utilisar in alias dad e-mail suenter l’annunzia.
 
-# ConfirmBackupCodeResetPassword page
-
-
 ## Confirm Reset Password With Code
 
 confirm-reset-password-with-code-heading = Controllescha tes e-mails
@@ -1570,9 +1551,6 @@ signin-unblock-desktop-relay = { -brand-firefox } vegn ad empruvar da ta renviar
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Endatescha il code da conferma

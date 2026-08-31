@@ -72,21 +72,18 @@ form-verify-totp-disabled-button-title-numeric = បញ្ចូលកូដ { $
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = បញ្ចូលកូដ { $codeLength }-តួ ដើម្បីបន្ត
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = សោសង្គ្រោះគណនី { -brand-firefox }
 get-data-trio-title-backup-verification-codes = កូដយថាភូតកម្មសំណៅចម្លងបម្រុងទុក
 get-data-trio-download-2 =
-    .title = ទាញយក
     .aria-label = ទាញយក
+    .title = ទាញយក
 get-data-trio-copy-2 =
-    .title = ចម្លង
     .aria-label = ចម្លង
+    .title = ចម្លង
 get-data-trio-print-2 =
-    .title = បោះពុម្ព
     .aria-label = បោះពុម្ព
+    .title = បោះពុម្ព
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -168,9 +165,6 @@ avatar-your-avatar =
     .alt = រូបតំណាងរបស់អ្នក
 
 ##
-
-
-# BentoMenu component
 
 bento-menu-firefox-desktop = { -brand-firefox } កម្មវិធីរុករកសម្រាប់កុំព្យូទ័រ
 bento-menu-firefox-mobile = កម្មវិធីរុករកតាមអ៊ីនធឺណិតសម្រាប់ទូរសព្ទចល័ត { -brand-firefox }
@@ -323,9 +317,6 @@ pair-supp-allow-cancel-link = បោះបង់
 # A new password was successfully set for the user's account
 # Displayed in an alert bar
 complete-reset-password-success-alert = កំណត់ពាក្យសម្ងាត់
-
-# ConfirmBackupCodeResetPassword page
-
 
 ## ResetPasswordRecoveryPhone page
 

@@ -250,20 +250,18 @@ form-verify-code-default-error = Це поле обов'язкове
 
 form-verify-totp-disabled-button-title-numeric = Щоб продовжити, введіть код із { $codeLength } цифр
 form-verify-totp-disabled-button-title-alphanumeric = Щоб продовжити, введіть код із { $codeLength } символів
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Ключ відновлення облікового запису { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Резервні коди автентифікації
 get-data-trio-download-2 =
-    .title = Завантажити
     .aria-label = Завантажити
+    .title = Завантажити
 get-data-trio-copy-2 =
-    .title = Копіювати
     .aria-label = Копіювати
+    .title = Копіювати
 get-data-trio-print-2 =
-    .title = Друк
     .aria-label = Друк
+    .title = Друк
 
 
 alert-icon-aria-label =
@@ -300,8 +298,6 @@ info-icon-aria-label =
     .aria-label = Інформація
 usa-flag-icon-aria-label =
     .aria-label = Прапор США
-
-
 hearts-broken-image-aria-label =
     .aria-label = Комп'ютер і мобільний телефон, а також зображення розбитого серця на пляжі
 hearts-verified-image-aria-label =
@@ -438,8 +434,6 @@ avatar-default-avatar =
     .alt = Типовий аватар
 
 
-
-
 bento-menu-title-3 = Продукти { -brand-mozilla }
 bento-menu-tagline = Інші продукти від { -brand-mozilla }, які захищають вашу приватність
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -498,8 +492,6 @@ dc-opt-out-success-2 = Відмова пройшла успішно. { -product-
 dc-opt-in-success-2 = Дякуємо! Надсилання цих даних допомагає нам вдосконалювати { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Перепрошуємо, виникла проблема зі зміною параметрів збору даних
 dc-learn-more = Докладніше
-
-
 drop-down-menu-title-2 = Меню { -product-mozilla-account(case: "gen") }
 drop-down-menu-signed-in-as-v2 = Вхід виконано
 drop-down-menu-sign-out = Вийти
@@ -576,8 +568,6 @@ flow-setup-phone-confirm-code-resend-code-button = Надіслати код п�
 flow-setup-phone-confirm-code-resend-code-success = Код надіслано
 flow-setup-phone-confirm-code-success-message-v2 = Додано телефон для відновлення
 flow-change-phone-confirm-code-success-message = Телефон для відновлення змінився
-
-
 flow-setup-phone-submit-number-heading = Підтвердьте свій номер телефону
 flow-setup-phone-verify-number-instruction = Ви отримаєте текстове повідомлення від { -brand-mozilla } з кодом для підтвердження свого номера. Нікому не повідомляйте цей код.
 flow-setup-phone-submit-number-info-message-v2 = Телефон для відновлення доступний лише в США та Канаді. Не рекомендується використовувати номери VoIP і маски номерів телефонів.
@@ -1118,8 +1108,6 @@ complete-reset-pw-recovery-key-link = Використати ключ відно
 reset-password-complete-banner-heading = Ваш пароль було скинуто.
 reset-password-complete-banner-message = Не забудьте згенерувати новий ключ відновлення облікового запису в налаштуваннях { -product-mozilla-account }, щоб уникнути проблем з входом у майбутньому.
 complete-reset-password-desktop-relay = { -brand-firefox } спробує повернути вас назад, щоб ви використали маску е-пошти після входу.
-
-
 confirm-backup-code-reset-password-input-label = Введіть 10-значний код
 confirm-backup-code-reset-password-confirm-button = Підтвердити
 confirm-backup-code-reset-password-subheader = Введіть резервний код автентифікації
@@ -1152,8 +1140,6 @@ password-reset-submit-button-2 = Продовжити
 
 reset-password-complete-header = Ваш пароль було відновлено
 reset-password-confirmed-cta = Продовжити в { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Скинути пароль
@@ -1303,8 +1289,6 @@ signin-unblock-code-incorrect-format-2 = Код авторизації може 
 signin-unblock-resend-code-button = Немає у вхідних чи у спамі? Надіслати ще раз
 signin-unblock-support-link = Чому це відбувається?
 signin-unblock-desktop-relay = { -brand-firefox } спробує повернути вас назад, щоб ви використали маску е-пошти після входу.
-
-
 
 
 confirm-signup-code-page-title = Введіть код підтвердження

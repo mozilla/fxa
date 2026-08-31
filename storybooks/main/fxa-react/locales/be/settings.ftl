@@ -115,21 +115,18 @@ form-verify-code-default-error = Гэта поле абавязковае
 ## FormVerifyTotp component
 ## Form to enter a time-based one-time-passcode (e.g., 6-digit numeric code or 8-digit alphanumeric code)
 
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Ключ аднаўлення ўліковага запісу { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Рэзервовыя коды аўтэнтыфікацыі
 get-data-trio-download-2 =
-    .title = Сцягванне
     .aria-label = Сцягванне
+    .title = Сцягванне
 get-data-trio-copy-2 =
-    .title = Капіяваць
     .aria-label = Капіяваць
+    .title = Капіяваць
 get-data-trio-print-2 =
-    .title = Друкаваць
     .aria-label = Друкаваць
+    .title = Друкаваць
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -143,10 +140,6 @@ icon-attention-aria-label =
 # Aria-label option for an alert symbol
 icon-warning-aria-label =
     .aria-label = Папярэджанне
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Камп'ютар і мабільны тэлефон з выявай разбітага сэрца на іх
 hearts-verified-image-aria-label =
@@ -301,9 +294,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = Прадукты { -brand-mozilla }
 bento-menu-vpn-2 = { -product-mozilla-vpn }
 bento-menu-monitor-3 = { -product-mozilla-monitor }
@@ -383,9 +373,6 @@ dc-opt-out-success-2 = Адмова пацверджана. { -product-mozilla-a
 dc-opt-in-success-2 = Дзякуй! Адпраўка гэтых дадзеных дапаможа нам палепшыць { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = На жаль, пры змене параметраў збору дадзеных ўзнікла праблема
 dc-learn-more = Падрабязней
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = Меню { -product-mozilla-account }
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -1058,9 +1045,6 @@ complete-reset-password-success-alert = Пароль усталяваны
 # Displayed in an alert bar
 complete-reset-password-error-alert = На жаль, падчас усталявання вашага пароля узнікла праблема
 
-# ConfirmBackupCodeResetPassword page
-
-
 ## Confirm Reset Password With Code
 
 confirm-reset-password-with-code-heading = Праверце сваю электронную пошту
@@ -1205,9 +1189,6 @@ signin-unblock-desktop-relay = { -brand-firefox } паспрабуе адасл�
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Увядзіце код пацвярджэння

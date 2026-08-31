@@ -173,21 +173,18 @@ form-verify-totp-disabled-button-title-numeric = Që të vazhdohet, jepni kodin 
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Që të vazhdohet, jepni kodin me { $codeLength } shenja
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Kyç rimarrjeje llogarie { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Kode mirëfilltësimi kopjeruajtjeje
 get-data-trio-download-2 =
-    .title = Shkarkoje
     .aria-label = Shkarkoje
+    .title = Shkarkoje
 get-data-trio-copy-2 =
-    .title = Kopjoje
     .aria-label = Kopjoje
+    .title = Kopjoje
 get-data-trio-print-2 =
-    .title = Shtype
     .aria-label = Shtype
+    .title = Shtype
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -245,10 +242,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = Kyçkalim
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Një kompjuter dhe një celular dhe pamje e një zemre të copëtuar, në secilin
 hearts-verified-image-aria-label =
@@ -467,9 +460,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = Produkte { -brand-mozilla }
 bento-menu-tagline = Më tepër produkte nga { -brand-mozilla } që mbrojnë privatësinë tuaj
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -548,9 +538,6 @@ dc-opt-out-success-2 = Lënie jashtë e suksesshme. { -product-mozilla-accounts 
 dc-opt-in-success-2 = Faleminderit! Ndarja e këtyre të dhënave na ndihmon të përmirësojmë { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Na ndjeni, pati një problem në ndryshimin e parapëlqimit tuaj për grumbullim të dhënash
 dc-learn-more = Mësoni më tepër
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = Menu { -product-mozilla-account }
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -704,9 +691,6 @@ flow-setup-phone-confirm-code-resend-code-button = Ridërgo kodin
 flow-setup-phone-confirm-code-resend-code-success = Kodi i dërgua
 flow-setup-phone-confirm-code-success-message-v2 = U shtua telefon rimarrje
 flow-change-phone-confirm-code-success-message = U ndryshua telefon rimarrje
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Verifikoni numrin tuaj të telefonit
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = Do të merrni një mesazh tekst nga { -brand-mozilla } me një kod që të verifikoni numrin tuaj. Mos ia tregoni kujt këtë kod.
@@ -1351,9 +1335,6 @@ oauth-error-1000 = Diç shkoi ters. Ju lutemi, mbylleni këtë skedë dhe riprov
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = Ujdisja e kyçkalimit dështoi, ose s’është e mundshme. Riprovoni, ose zgjidhni tjetër metodë.
 # The ceremony timed out before the user responded
@@ -1368,9 +1349,6 @@ passkey-registration-error-not-readable = S’hymë dot te aplikacioni mirëfill
 passkey-registration-error-constraint = Ujdisja e kyçkalimit s’është e përdorshme me këtë pajisje. Provoni metodë ose pajisje tjetër.
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = Ujdisja e kyçkalimit dështoi. Riprovoni, ose zgjidhni tjetër metodë.
-
-# Authentication errors
-
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Hyrja me kyçkalim dështoi, ose s’është e përdorshme. Riprovoni, ose zgjidhni tjetër metodë.
 # The ceremony timed out before the user responded
@@ -1590,9 +1568,6 @@ service-welcome-vpn-description = Edhe një hap për të përforcuar privatësin
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
 
-
-# password to complete their sign-in when they want to login to a service requiring it.
-
 set-password-heading-v2 = Që të bëhet njëkohësim, krijoni fjalëkalim
 # "This" refers to the heading, "Create password to sync"
 set-password-info-v2 = Kjo fshehtëzon të dhënat tuaja. Lypset të jetë i ndryshëm nga fjalëkalimi juaj për llogarinë në { -brand-google }, ose { -brand-apple }.
@@ -1642,9 +1617,6 @@ reset-password-complete-banner-message = Mos harroni të prodhoni një kyç të 
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = Pasi të bëni hyrjen në llogari, { -brand-firefox }-i do të provojë t’ju dërgojë një maskë email për ta përdorur.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = Jepni kodin me 10 shenja
 confirm-backup-code-reset-password-confirm-button = Ripohojeni
 confirm-backup-code-reset-password-subheader = Jepni kod mirëfilltësimi kopjeruajtjeje
@@ -1694,9 +1666,6 @@ reset-password-confirmed-cta = Vazhdoni te { $serviceName }
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Ricaktoni fjalëkalimin tuaj
 password-reset-recovery-method-subheader = Zgjidhni një metodë rikthimi
@@ -1806,11 +1775,6 @@ signin-passkey-fallback-heading = Që të bëhet njëkohësimi, jepni fjalëkali
 signin-passkey-fallback-body = Që të ruhen të parrezik të dhënat tuaja, ju duhet të jepni fjalëkalimin tuaj, kur përdorni këtë kyçkalim.
 signin-passkey-fallback-password-label = Fjalëkalim
 signin-passkey-fallback-continue = Vazhdo
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2002,9 +1966,6 @@ signin-unblock-desktop-relay = Pasi të bëni hyrjen në llogari, { -brand-firef
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Jepni kodin e ripohimit

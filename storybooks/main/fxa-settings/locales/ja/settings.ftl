@@ -142,21 +142,18 @@ form-verify-code-default-error = この項目は必須です
 ## FormVerifyTotp component
 ## Form to enter a time-based one-time-passcode (e.g., 6-digit numeric code or 8-digit alphanumeric code)
 
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } アカウント回復用キー
 get-data-trio-title-backup-verification-codes = バックアップ認証コード
 get-data-trio-download-2 =
-    .title = ダウンロード
     .aria-label = ダウンロード
+    .title = ダウンロード
 get-data-trio-copy-2 =
-    .title = コピー
     .aria-label = コピー
+    .title = コピー
 get-data-trio-print-2 =
-    .title = 印刷
     .aria-label = 印刷
+    .title = 印刷
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -199,10 +196,6 @@ error-icon-aria-label =
 # Used to select United States as a country code for phone number
 usa-flag-icon-aria-label =
     .aria-label = アメリカ国旗
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = コンピューターとスマートフォン、それぞれに失恋ハートの画像
 hearts-verified-image-aria-label =
@@ -395,9 +388,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = { -brand-mozilla } の製品
 bento-menu-tagline = プライバシーを保護する他の { -brand-mozilla } の製品
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -474,9 +464,6 @@ dc-opt-out-success-2 = オプトアウトが完了しました。{ -product-mozi
 dc-opt-in-success-2 = ご協力ありがとうございます。このデータを共有することで { -product-mozilla-accounts }の改善に役立てられます。
 dc-opt-in-out-error-2 = データ収集設定の変更時に問題が発生しました
 dc-learn-more = 詳細情報
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = { -product-mozilla-account }メニュー
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -618,9 +605,6 @@ flow-setup-phone-confirm-code-expired = コードの有効期限が切れてい�
 flow-setup-phone-confirm-code-resend-code-button = 確認コードを再送する
 flow-setup-phone-confirm-code-resend-code-success = コードを送信しました
 flow-setup-phone-confirm-code-success-message-v2 = 回復用電話番号を追加しました
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = 電話番号を確認します
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = 電話番号を確認するために { -brand-mozilla } からテキストメッセージを送信します。このコードは誰とも共有しないでください。
@@ -1340,9 +1324,6 @@ complete-reset-password-success-alert = パスワードを設定しました
 # An error occurred while attempting to set a new password (password reset flow)
 # Displayed in an alert bar
 complete-reset-password-error-alert = 申し訳ありませんが、パスワードの設定中に問題が発生しました
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-confirm-button = 確認
 
 ## Confirm Reset Password With Code
@@ -1387,9 +1368,6 @@ reset-password-confirmed-cta = { $serviceName } へ進む
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = パスワードのリセット
 password-reset-recovery-method-subheader = 回復方法を選択してください
@@ -1552,9 +1530,6 @@ signin-unblock-support-link = このような問題が起きた理由
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = 確認コードの入力
