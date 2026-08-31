@@ -90,7 +90,10 @@ export const SUBSCRIPTION_PROMOTION_CODE_METADATA_KEY = 'appliedPromotionCode';
  * basil shape (parent.subscription_details.subscription), falling back to the
  * legacy top-level `subscription` field for invoices still in the acacia shape
  * (events emitted by an acacia-era account, or docs cached in the Firestore
- * mirror before the basil cutover). Remove once no acacia-era invoices remain.
+ * mirror before the basil cutover).
+ *
+ * PAY-3900: remove with the rest of the dual-format support once the Firestore
+ * migration has run.
  */
 export function getInvoiceSubscription(
   invoice: Stripe.Invoice
@@ -1802,9 +1805,16 @@ export class StripeHelper extends StripeHelperBase {
       const rawCoupon = discount?.source?.coupon;
       const coupon = typeof rawCoupon === 'object' ? rawCoupon : undefined;
 
-      // This type inconsistency runs quite deep, but plan does exist on the subscription here
-      // for all current use-cases.
-      const plan = (sub as any).plan as Stripe.Plan;
+      const plan = singlePlan(sub);
+      if (!plan) {
+        throw error.internalValidationError(
+          'subscriptionsToResponse',
+          sub,
+          new Error(
+            `Multiple items for a subscription not supported: ${sub.id}`
+          )
+        );
+      }
 
       const product = products.find((p) => p.product_id === plan.product);
       if (!product)
@@ -2416,15 +2426,42 @@ export class StripeHelper extends StripeHelperBase {
     // Stripe only sends fields that have changed in their previous_attributes field
     // Additionally, previous_attributes is a generic field that has no proper typings
     // and is used in a flexible manner.
-    const previousAttributes = eventData.previous_attributes as any;
-    const planOldDiff = (previousAttributes as any)
-      .plan as Partial<Stripe.Plan> | null;
-    const planOld: Stripe.Plan | null = planOldDiff
-      ? {
-          ...planNew,
-          ...planOldDiff,
-        }
-      : null;
+    const previousAttributes: Partial<Stripe.Subscription> & {
+      plan?: Partial<Stripe.Plan>;
+    } = eventData.previous_attributes ?? {};
+    // Acacia sent the previous price as the top-level `plan`; basil removed
+    // that field and reports item changes under `items.data[]` instead —
+    // including the billing-period bump on every renewal, so only a moved
+    // price id is an actual upgrade.
+    //
+    // PAY-3900: remove with the rest of the dual-format support once the
+    // Firestore migration has run.
+    const previousItem:
+      | { plan?: Partial<Stripe.Plan>; price?: Partial<Stripe.Price> }
+      | undefined = previousAttributes.items?.data?.[0];
+    const previousItemPrice = previousItem?.price;
+    const itemDiff: Partial<Stripe.Plan> | undefined =
+      previousItem?.plan ??
+      (previousItemPrice
+        ? {
+            id: previousItemPrice.id,
+            interval: previousItemPrice.recurring?.interval,
+            interval_count: previousItemPrice.recurring?.interval_count,
+          }
+        : undefined);
+    const planOldDiff: Partial<Stripe.Plan> | undefined =
+      previousAttributes.plan ??
+      (itemDiff && itemDiff.id !== planNew.id ? itemDiff : undefined);
+
+    let planOld: Stripe.Plan | null = null;
+    if (planOldDiff) {
+      planOld = {
+        ...planNew,
+        ...planOldDiff,
+        interval: planOldDiff.interval ?? planNew.interval,
+        interval_count: planOldDiff.interval_count ?? planNew.interval_count,
+      };
+    }
 
     let invoiceOldCurrency: string | undefined;
     let invoiceTotalOldInCents: number | undefined;

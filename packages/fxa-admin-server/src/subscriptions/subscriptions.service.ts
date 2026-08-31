@@ -4,6 +4,7 @@
 
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { singlePlan } from 'fxa-shared/subscriptions/stripe';
 import { AbbrevPlan } from 'fxa-shared/subscriptions/types';
 import Stripe from 'stripe';
 import { MozSubscription } from '../rest/model/moz-subscription.model';
@@ -112,10 +113,8 @@ export class SubscriptionsService {
 
     for (const subscription of customer?.subscriptions?.data || []) {
       // Inspired by code in auth-server payments ;]
-      const plan = plans.find(
-        // @ts-ignore
-        (p) => p.plan_id === subscription.plan.id
-      );
+      const subscriptionPlan = singlePlan(subscription);
+      const plan = plans.find((p) => p.plan_id === subscriptionPlan?.id);
 
       let invoice = subscription.latest_invoice;
       if (typeof invoice === 'string') {

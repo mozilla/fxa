@@ -3466,7 +3466,7 @@ describe('StripeHelper', () => {
               .mockResolvedValue({ id: productId, name: productName });
             pastDueInvoice.payments.data[0].payment.charge = failedChargeCopy;
             pastDueSub.latest_invoice = pastDueInvoice;
-            pastDueSub.plan.product = product1.id;
+            pastDueSub.items.data[0].plan.product = product1.id;
             const input = { data: [pastDueSub] };
             const actual = await stripeHelper.subscriptionsToResponse(input);
             expect(actual).toEqual(expectedPastDue);
@@ -3544,7 +3544,7 @@ describe('StripeHelper', () => {
           const latestInvoiceItemsEnded =
             stripeInvoiceToLatestInvoiceItemsDTO(paidInvoice);
           const sub = deepCopy(cancelledSubscription);
-          sub.plan.product = product1.id;
+          sub.items.data[0].plan.product = product1.id;
           const input = { data: [sub] };
           jest
             .spyOn(stripeHelper.stripe.invoices, 'retrieve')
@@ -5642,6 +5642,122 @@ describe('StripeHelper', () => {
           undefined,
           oldPlan
         );
+      });
+
+      it('reconstructs the old plan from a basil items.data[].price diff', async () => {
+        const event = deepCopy(eventCustomerSubscriptionUpdated);
+        const oldPrice = {
+          id: 'OLD_00000000000000',
+          recurring: { interval: 'year', interval_count: 1 },
+          unit_amount: 1000000,
+        };
+        event.data.object.cancel_at_period_end = false;
+        delete event.data.previous_attributes.plan;
+        event.data.previous_attributes.cancel_at_period_end = false;
+        event.data.previous_attributes.latest_invoice =
+          'mock_latest_invoice_id';
+        event.data.previous_attributes.items = { data: [{ price: oldPrice }] };
+        const result =
+          await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
+            event
+          );
+        expect(result).toBe(mockUpgradeDowngradeDetails);
+        assertOnlyExpectedHelperCalledWith(
+          'extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail',
+          event.data.object,
+          expectedBaseUpdateDetails,
+          mockInvoice,
+          undefined,
+          {
+            ...event.data.object.items.data[0].plan,
+            id: oldPrice.id,
+            interval: 'year',
+            interval_count: 1,
+          }
+        );
+      });
+
+      it('reconstructs the old plan from a basil items.data[].plan diff', async () => {
+        const event = deepCopy(eventCustomerSubscriptionUpdated);
+        const oldItemPlan = {
+          id: 'OLD_00000000000000',
+          interval: 'year',
+          interval_count: 1,
+          amount: 1000000,
+        };
+        event.data.object.cancel_at_period_end = false;
+        delete event.data.previous_attributes.plan;
+        event.data.previous_attributes.cancel_at_period_end = false;
+        event.data.previous_attributes.latest_invoice =
+          'mock_latest_invoice_id';
+        event.data.previous_attributes.items = {
+          data: [{ plan: oldItemPlan }],
+        };
+        const result =
+          await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
+            event
+          );
+        expect(result).toBe(mockUpgradeDowngradeDetails);
+        assertOnlyExpectedHelperCalledWith(
+          'extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail',
+          event.data.object,
+          expectedBaseUpdateDetails,
+          mockInvoice,
+          undefined,
+          { ...event.data.object.items.data[0].plan, ...oldItemPlan }
+        );
+      });
+
+      it('keeps the old cadence when a basil price diff omits recurring', async () => {
+        const event = deepCopy(eventCustomerSubscriptionUpdated);
+        event.data.object.cancel_at_period_end = false;
+        delete event.data.previous_attributes.plan;
+        event.data.previous_attributes.cancel_at_period_end = false;
+        event.data.previous_attributes.latest_invoice =
+          'mock_latest_invoice_id';
+        event.data.previous_attributes.items = {
+          data: [{ price: { id: 'OLD_00000000000000', unit_amount: 1000000 } }],
+        };
+        await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(event);
+        const [, , , , planOld] = (
+          stripeHelper as any
+        ).extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail.mock.calls[0];
+        expect(planOld.interval).toBe(
+          event.data.object.items.data[0].plan.interval
+        );
+        expect(planOld.interval_count).toBe(
+          event.data.object.items.data[0].plan.interval_count
+        );
+      });
+
+      // Stripe's basil changelog says previous_attributes now reports the
+      // subscription item's billing-period change, so this arrives on every
+      // renewal. The full prior item is asserted here rather than a partial
+      // diff, because the real payload shape is not verified.
+      it('does not send an upgrade when a renewal item diff repeats the current price', async () => {
+        const event = deepCopy(eventCustomerSubscriptionUpdated);
+        const currentPlan = event.data.object.items.data[0].plan;
+        event.data.object.cancel_at_period_end = false;
+        delete event.data.previous_attributes.plan;
+        event.data.previous_attributes.latest_invoice =
+          'mock_latest_invoice_id';
+        event.data.previous_attributes.items = {
+          data: [
+            {
+              current_period_end: 1326853478,
+              plan: currentPlan,
+              price: { id: currentPlan.id, unit_amount: currentPlan.amount },
+            },
+          ],
+        };
+        const result =
+          await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
+            event
+          );
+        expect(result).toEqual(expectedBaseUpdateDetails);
+        expect(
+          stripeHelper.extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail
+        ).not.toHaveBeenCalled();
       });
 
       it('calls the expected helper method for upgrade or downgrade if previously cancelled', async () => {
