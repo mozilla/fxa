@@ -9,6 +9,8 @@ import {
   FirefoxWordmarkImage,
   PairingInterruptedImage,
 } from '../../../../components/images';
+import GleanMetrics from '../../../../lib/glean';
+import { useGleanView } from '../../../../lib/glean/useGleanView';
 
 /**
  * Why the pairing attempt ended without connecting. Named for the cause rather
@@ -76,6 +78,10 @@ export type TimeoutAndCancelProps = {
 const TimeoutAndCancel = ({ reason }: TimeoutAndCancelProps) => {
   reason = reason ?? 'timeout';
   const { headingFtlId, heading, descriptionFtlId, description } = COPY[reason];
+
+  // Custom view event rather than the automatic one: both states share a route,
+  // so `reason` is the only thing that tells them apart.
+  useGleanView(() => GleanMetrics.dtmMobile.timeoutView({ event: { reason } }));
 
   return (
     <AppLayout whiteBackground>

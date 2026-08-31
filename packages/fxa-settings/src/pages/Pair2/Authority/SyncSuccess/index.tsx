@@ -6,6 +6,8 @@ import React from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import AppLayout from '../../../../components/AppLayout';
 import { SyncSuccessImage } from '../../../../components/images';
+import GleanMetrics from '../../../../lib/glean';
+import { useGleanView } from '../../../../lib/glean/useGleanView';
 
 export type SyncSuccessProps = {
   /**
@@ -26,41 +28,50 @@ export type SyncSuccessProps = {
 const SyncSuccess = ({
   onViewSyncedTabs,
   onSyncSettings,
-}: SyncSuccessProps) => (
-  <AppLayout>
-    <div className="flex flex-col items-center text-center">
-      <FtlMsg id="pair2-authority-sync-success-heading">
-        <h1 className="card-header">You’re syncing</h1>
-      </FtlMsg>
-      <FtlMsg id="pair2-authority-sync-success-description">
-        <p className="text-base">
-          Your tabs, bookmarks, passwords, and more are ready across your
-          devices.
-        </p>
-      </FtlMsg>
+}: SyncSuccessProps) => {
+  // Custom view event rather than the automatic page load, so the terminal step
+  // of the funnel is an event that carries `session.pairing_channel_hash` and
+  // joins to the mobile device's own success view.
+  useGleanView(() => GleanMetrics.dtmDesktop.pairSuccessView());
 
-      <SyncSuccessImage className="mt-8 h-40 w-auto" />
+  return (
+    <AppLayout>
+      <div className="flex flex-col items-center text-center">
+        <FtlMsg id="pair2-authority-sync-success-heading">
+          <h1 className="card-header">You’re syncing</h1>
+        </FtlMsg>
+        <FtlMsg id="pair2-authority-sync-success-description">
+          <p className="text-base">
+            Your tabs, bookmarks, passwords, and more are ready across your
+            devices.
+          </p>
+        </FtlMsg>
 
-      <FtlMsg id="pair2-authority-sync-success-view-tabs-button">
-        <button
-          type="button"
-          onClick={onViewSyncedTabs}
-          className="cta-primary cta-xl mt-8 w-full"
-        >
-          View synced tabs
-        </button>
-      </FtlMsg>
-      <FtlMsg id="pair2-authority-sync-success-sync-settings-button">
-        <button
-          type="button"
-          onClick={onSyncSettings}
-          className="link-dark-grey"
-        >
-          Sync settings
-        </button>
-      </FtlMsg>
-    </div>
-  </AppLayout>
-);
+        <SyncSuccessImage className="mt-8 h-40 w-auto" />
+
+        <FtlMsg id="pair2-authority-sync-success-view-tabs-button">
+          <button
+            type="button"
+            onClick={onViewSyncedTabs}
+            data-glean-id="dtm_desktop_pair_success_view_tabs"
+            className="cta-primary cta-xl mt-8 w-full"
+          >
+            View synced tabs
+          </button>
+        </FtlMsg>
+        <FtlMsg id="pair2-authority-sync-success-sync-settings-button">
+          <button
+            type="button"
+            onClick={onSyncSettings}
+            data-glean-id="dtm_desktop_pair_success_sync_settings"
+            className="link-dark-grey"
+          >
+            Sync settings
+          </button>
+        </FtlMsg>
+      </div>
+    </AppLayout>
+  );
+};
 
 export default SyncSuccess;

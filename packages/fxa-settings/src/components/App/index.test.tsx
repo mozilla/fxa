@@ -38,6 +38,10 @@ import { useFxAStatus } from '../../lib/hooks';
 import sentryMetrics from 'fxa-shared/sentry/browser';
 import { flushL10nErrorReports } from '../../lib/l10n-error-reporter';
 import { OAuthError, OAUTH_ERRORS } from '../../lib/oauth';
+import {
+  capturePairingChannelParams,
+  resetPairingChannelParamsForTest,
+} from '../../lib/pairing-channel-params';
 
 jest.mock('../../lib/hooks/useFxAStatus', () => ({
   __esModule: true,
@@ -826,6 +830,64 @@ describe('Integration serviceName error handling', () => {
 
     expect(screen.getByText('Bad Request')).toBeInTheDocument();
     expect(screen.getByText(mockError.message)).toBeInTheDocument();
+  });
+
+  // A scanned QR drops the pair2 supplicant on /pair with the channel in the
+  // fragment and no client_id, so its client-info fetch always fails. Startup
+  // lifts that fragment off the URL before React renders, so the bypass has to
+  // read the capture — checking the live hash would fail fast on every scan.
+  it('does not fail fast on the pair2 hand-off once startup has stripped the fragment', async () => {
+    // This file swaps `window.location` for a plain object, so history cannot
+    // drive it: set the landing URL on the mock, capture, then clear the hash
+    // by hand to stand in for the strip.
+    const { pathname, hash } = window.location;
+    window.location.pathname = '/pair';
+    window.location.hash = '#channel_id=chan-1&channel_key=key-1&v=2';
+    capturePairingChannelParams();
+    window.location.hash = '';
+
+    (useInitialMetricsQueryState as jest.Mock).mockReturnValue({
+      loading: true,
+    });
+    (useLocalSignedInQueryState as jest.Mock).mockReturnValue({
+      data: undefined,
+    });
+    const mockOAuthIntegration = {
+      type: IntegrationType.OAuthWeb,
+      clientInfoLoadFailed: true,
+      isSync: jest.fn().mockReturnValue(false),
+      isDesktopSync: jest.fn().mockReturnValue(false),
+      isFirefoxClientServiceRelay: jest.fn().mockReturnValue(false),
+      checkClientInfo: jest.fn().mockImplementation(() => {
+        throw new OAuthError(OAUTH_ERRORS.SERVICE_UNAVAILABLE.errno);
+      }),
+      getClientId: jest.fn(),
+      data: {},
+      getCmsInfo: jest.fn(),
+      getLegalTerms: jest.fn(),
+    };
+    (useIntegration as jest.Mock).mockReturnValue(mockOAuthIntegration);
+
+    try {
+      await act(async () => {
+        renderWithLocalizationProvider(
+          <MemoryRouter>
+            <AppContext.Provider
+              value={{ ...mockAppContext(), ...createAppContext() }}
+            >
+              <App flowQueryParams={updatedFlowQueryParams} />
+            </AppContext.Provider>
+          </MemoryRouter>
+        );
+      });
+
+      expect(mockOAuthIntegration.checkClientInfo).not.toHaveBeenCalled();
+      expect(screen.queryByText('Bad Request')).not.toBeInTheDocument();
+    } finally {
+      resetPairingChannelParamsForTest();
+      window.location.pathname = pathname;
+      window.location.hash = hash;
+    }
   });
 
   it('throws error when non-OAuth integration', async () => {
