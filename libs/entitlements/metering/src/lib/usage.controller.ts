@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
-  BadRequestException,
   Body,
   Controller,
   Get,
@@ -26,12 +25,13 @@ import {
   ValidateResponse,
   zodToOpenApi,
 } from '@fxa/payments/api-server/server-utils';
-import { MeteringExceptionFilter } from './metering-exception.filter';
+
 import {
   CurrentMeteringClient,
   MeteringAuthGuard,
   type AuthenticatedMeteringClient,
 } from './metering-auth.guard';
+import { MeteringExceptionFilter } from './metering-exception.filter';
 import {
   ingestUsageRequestSchema,
   usageQueryParamsSchema,
@@ -39,6 +39,7 @@ import {
   type UsageQueryResponse,
 } from './metering.schema';
 import { UsageService } from './usage.service';
+import { parseRequest } from './utils/parseRequest';
 
 @ApiTags('Metering')
 @ApiBearerAuth()
@@ -71,13 +72,10 @@ export class UsageController {
     @CurrentMeteringClient()
     authenticatedMeteringClient: AuthenticatedMeteringClient
   ): Promise<void> {
-    const parsed = ingestUsageRequestSchema.safeParse(body);
-    if (!parsed.success) {
-      throw new BadRequestException(
-        parsed.error.issues.map(({ code, path }) => ({ code, path }))
-      );
-    }
-    await this.usageService.ingestUsage(parsed.data);
+    await this.usageService.ingestUsage(
+      authenticatedMeteringClient.clientId,
+      parseRequest(ingestUsageRequestSchema, body)
+    );
   }
 
   @Get(':userIdentifier/:slug')
@@ -112,12 +110,9 @@ export class UsageController {
     @CurrentMeteringClient()
     authenticatedMeteringClient: AuthenticatedMeteringClient
   ): Promise<UsageQueryResponse> {
-    const parsed = usageQueryParamsSchema.safeParse({ userIdentifier, slug });
-    if (!parsed.success) {
-      throw new BadRequestException(
-        parsed.error.issues.map(({ code, path }) => ({ code, path }))
-      );
-    }
-    return this.usageService.queryUsage(parsed.data);
+    return this.usageService.queryUsage(
+      authenticatedMeteringClient.clientId,
+      parseRequest(usageQueryParamsSchema, { userIdentifier, slug })
+    );
   }
 }

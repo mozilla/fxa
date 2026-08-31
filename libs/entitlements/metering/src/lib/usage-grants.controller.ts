@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -29,13 +28,13 @@ import {
   ValidateResponse,
   zodToOpenApi,
 } from '@fxa/payments/api-server/server-utils';
-import { MeteringExceptionFilter } from './metering-exception.filter';
+
 import {
   CurrentMeteringClient,
   MeteringAuthGuard,
   type AuthenticatedMeteringClient,
 } from './metering-auth.guard';
-import { UsageGrantsService } from './usage-grants.service';
+import { MeteringExceptionFilter } from './metering-exception.filter';
 import {
   createUsageGrantRequestSchema,
   deleteUsageGrantParamsSchema,
@@ -45,6 +44,8 @@ import {
   type ListUsageGrantsResponse,
   type UsageGrant,
 } from './usage-grants.schema';
+import { UsageGrantsService } from './usage-grants.service';
+import { parseRequest } from './utils/parseRequest';
 
 @ApiTags('Metering')
 @ApiBearerAuth()
@@ -82,14 +83,8 @@ export class UsageGrantsController {
     @CurrentMeteringClient()
     authenticatedMeteringClient: AuthenticatedMeteringClient
   ): Promise<UsageGrant> {
-    const parsed = createUsageGrantRequestSchema.safeParse(body);
-    if (!parsed.success) {
-      throw new BadRequestException(
-        parsed.error.issues.map(({ code, path }) => ({ code, path }))
-      );
-    }
     return this.usageGrantsService.createGrant({
-      request: parsed.data,
+      request: parseRequest(createUsageGrantRequestSchema, body),
       grantedBy: authenticatedMeteringClient.clientId,
     });
   }
@@ -129,18 +124,13 @@ export class UsageGrantsController {
     @CurrentMeteringClient()
     authenticatedMeteringClient: AuthenticatedMeteringClient
   ): Promise<ListUsageGrantsResponse> {
-    const parsed = listUsageGrantsParamsSchema.safeParse({
+    const params = parseRequest(listUsageGrantsParamsSchema, {
       userIdentifier,
       slug,
     });
-    if (!parsed.success) {
-      throw new BadRequestException(
-        parsed.error.issues.map(({ code, path }) => ({ code, path }))
-      );
-    }
     const grants = await this.usageGrantsService.listGrants(
-      parsed.data.userIdentifier,
-      parsed.data.slug
+      params.userIdentifier,
+      params.slug
     );
     return { grants };
   }
@@ -169,12 +159,7 @@ export class UsageGrantsController {
     @CurrentMeteringClient()
     authenticatedMeteringClient: AuthenticatedMeteringClient
   ): Promise<void> {
-    const parsed = deleteUsageGrantParamsSchema.safeParse({ grantId });
-    if (!parsed.success) {
-      throw new BadRequestException(
-        parsed.error.issues.map(({ code, path }) => ({ code, path }))
-      );
-    }
-    await this.usageGrantsService.deleteGrant(parsed.data.grantId);
+    const params = parseRequest(deleteUsageGrantParamsSchema, { grantId });
+    await this.usageGrantsService.deleteGrant(params.grantId);
   }
 }

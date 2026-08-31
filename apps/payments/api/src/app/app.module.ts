@@ -7,10 +7,10 @@ import {
 } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { SentryGlobalFilter, SentryModule } from '@sentry/nestjs/setup';
-import { TypedConfigModule, dotenvLoader } from 'nest-typed-config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { RootConfig } from '../config';
+import { RootConfigModule } from '../config/config.module';
+import { MeteringSweepProviders } from './metering-sweep.providers';
 import {
   BillingAndSubscriptionsController,
   BillingAndSubscriptionsService,
@@ -18,20 +18,17 @@ import {
 import { AuthModule, FxaOAuthAuthGuard } from '@fxa/payments/auth';
 import {
   MeteringAuthGuard,
-  MeteringCloudTasksGuard,
-  MeteringCloudTasksClientProvider,
-  MeteringCloudTasksController,
-  MeteringIngestManager,
-  MeteringQueryManager,
+  MeteringConsumerService,
+  MeteringDedupeManager,
+  MeteringDedupeRedisClientProvider,
+  MeteringEventsManager,
+  MeteringEventsRepository,
   MeteringExceptionFilter,
-  MeteringThresholdService,
-  MeteringThresholdTasksManager,
-  MeteringWebhookManager,
-  OpenMeterClient,
+  MeteringPubSubClientProvider,
+  MeteringPublisherManager,
   UsageController,
   UsageService,
   UsageGrantsController,
-  UsageGrantsManager,
   UsageGrantsService,
 } from '@fxa/entitlements/metering';
 import {
@@ -93,21 +90,7 @@ import { NimbusClient, NimbusClientConfig } from '@fxa/shared/experiments';
 import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregator';
 
 @Module({
-  imports: [
-    SentryModule.forRoot(),
-    AuthModule,
-    TypedConfigModule.forRoot({
-      schema: RootConfig,
-      load: dotenvLoader({
-        separator: '__',
-        keyTransformer: (key) =>
-          key
-            .toLowerCase()
-            .replace(/(?<!_)_([a-z])/g, (_, p1) => p1.toUpperCase()),
-        envFilePath: ['.env.local', '.env'],
-      }),
-    }),
-  ],
+  imports: [SentryModule.forRoot(), AuthModule, RootConfigModule],
   controllers: [
     AppController,
     BillingAndSubscriptionsController,
@@ -117,7 +100,6 @@ import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregat
     StripeWebhooksController,
     UsageController,
     UsageGrantsController,
-    MeteringCloudTasksController,
   ],
   providers: [
     {
@@ -172,17 +154,16 @@ import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregat
     NimbusClient,
     NimbusClientConfig,
     MeteringAuthGuard,
-    MeteringCloudTasksGuard,
-    MeteringCloudTasksClientProvider,
     MeteringExceptionFilter,
-    MeteringThresholdService,
-    MeteringIngestManager,
-    MeteringQueryManager,
-    MeteringThresholdTasksManager,
-    MeteringWebhookManager,
-    OpenMeterClient,
+    MeteringPubSubClientProvider,
+    MeteringPublisherManager,
+    MeteringConsumerService,
+    MeteringDedupeManager,
+    MeteringDedupeRedisClientProvider,
+    MeteringEventsManager,
+    MeteringEventsRepository,
+    ...MeteringSweepProviders,
     UsageService,
-    UsageGrantsManager,
     UsageGrantsService,
   ],
 })
