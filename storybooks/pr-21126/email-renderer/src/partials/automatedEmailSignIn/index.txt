@@ -1,0 +1,5 @@
+automated-email-sign-in-plaintext = "If you did not authorize this action, please review your account security settings at:"
+<%- securitySettingsLink %>
+
+automated-email-support-plaintext = "For more info, visit Mozilla Support:"
+<%- reviewActivitySupportUrl %>

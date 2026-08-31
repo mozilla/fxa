@@ -1,0 +1,12 @@
+{
+  "commit": "ba44984aa9e576196f76cfa131d2d58c13d4be93",
+  "summary": "refactor(settings): replace MUI Slider with a native range input",
+  "description": "## Because\n\n- `@material-ui/core` was pulled in for one component, the zoom `Slider` on the avatar page, and it dragged `@emotion/react` and `@emotion/styled` along with it. No source file imports `@emotion/` directly.\n- A native `<input type=\"range\">` gives the same keyboard support and screen reader announcement with no JavaScript. The dependency bought us nothing.\n\n## This pull request\n\n- Replaces the MUI `Slider` in `PageAvatar/index.tsx` with `<input type=\"range\">`, same min, max, step and `aria-label`.\n- Rewrites `handleSliderChange` to a normal `ChangeEvent<HTMLInputElement>` handler, which drops the `@ts-ignore` the two-argument MUI callback needed.\n- Adds `zoomSliderClass`, a Tailwind class string that styles the track and thumb per vendor prefix. A range input has no cross-browser styling hook.\n- Removes `@material-ui/core`, `@emotion/react`, `@emotion/styled` and the already dead `@types/material-ui` from `fxa-settings/package.json`, and refreshes `yarn.lock`.\n- Adds a test that finds the control by `role=\"slider\"` and its accessible name, then checks the zoom value updates.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-10214",
+  "timestamp": 1788208496000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

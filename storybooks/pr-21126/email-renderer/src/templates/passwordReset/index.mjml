@@ -1,0 +1,23 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="passwordReset-title-2">Your password has been updated</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="passwordReset-description-2">You reset your Mozilla account password on:</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<%- include('/partials/userInfo/index.mjml') %>
+
+<%- include('/partials/automatedEmailResetPassword/index.mjml') %>

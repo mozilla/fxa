@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit ba44984aa9e576196f76cfa131d2d58c13d4be93</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit ba44984aa9e576196f76cfa131d2d58c13d4be93</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>8/31/2026, 8:34:56 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>refactor(settings): replace MUI Slider with a native range input</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- `@material-ui/core` was pulled in for one component, the zoom `Slider` on the avatar page, and it dragged `@emotion/react` and `@emotion/styled` along with it. No source file imports `@emotion/` directly.
+- A native `&lt;input type=&quot;range&quot;&gt;` gives the same keyboard support and screen reader announcement with no JavaScript. The dependency bought us nothing.
+
+## This pull request
+
+- Replaces the MUI `Slider` in `PageAvatar/index.tsx` with `&lt;input type=&quot;range&quot;&gt;`, same min, max, step and `aria-label`.
+- Rewrites `handleSliderChange` to a normal `ChangeEvent&lt;HTMLInputElement&gt;` handler, which drops the `@ts-ignore` the two-argument MUI callback needed.
+- Adds `zoomSliderClass`, a Tailwind class string that styles the track and thumb per vendor prefix. A range input has no cross-browser styling hook.
+- Removes `@material-ui/core`, `@emotion/react`, `@emotion/styled` and the already dead `@types/material-ui` from `fxa-settings/package.json`, and refreshes `yarn.lock`.
+- Adds a test that finds the control by `role=&quot;slider&quot;` and its accessible name, then checks the zoom value updates.
+
+## Issue that this pull request solves
+
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-10214</pre></dd>
+  </dl>
+</body>
+</html>
