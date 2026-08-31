@@ -544,16 +544,12 @@ module.exports = (
         }
 
         if (deviceArray.length !== 0) {
-          try {
-            await push.sendPush(uid, deviceArray, endpointAction, pushOptions);
-          } catch (err) {
-            // push may fail due to not found devices or a bad push action
-            // log the error but still respond with a 200
-            log.error('Account.devicesNotify', {
-              uid: uid,
-              error: err,
-            });
-          }
+          // Fire and forget. A send can take minutes; the route responds 200 regardless.
+          push
+            .sendPush(uid, deviceArray, endpointAction, pushOptions)
+            .catch((err) =>
+              log.error('Account.devicesNotify', { uid, error: err })
+            );
         }
 
         // Emit a metrics event for when a user sends tabs between devices.

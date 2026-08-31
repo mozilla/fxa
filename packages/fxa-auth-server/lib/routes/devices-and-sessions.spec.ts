@@ -569,6 +569,43 @@ describe('/account/devices/notify', () => {
     });
   });
 
+  it('responds before the push send settles and logs its rejection', async () => {
+    mockRequest.payload = {
+      to: ['bogusid1', 'bogusid2'],
+      TTL: 60,
+      payload: pushPayload,
+    };
+
+    const pushError = new Error('push failed');
+    let rejectPush: (err: Error) => void = () => {};
+    const pushSend = new Promise((_, reject) => {
+      rejectPush = reject;
+    });
+    const log = createMock<AuthLogger>();
+    const route = getRoute(
+      makeRoutes({
+        config: { deviceNotificationsEnabled: true },
+        customs: { checkAuthenticated: () => Promise.resolve() },
+        log,
+        push: mocks.mockPush({ sendPush: () => pushSend }),
+      }),
+      '/account/devices/notify'
+    );
+
+    // The send is still pending here. An awaited send would hang this test.
+    await runTest(route, mockRequest, (response) => {
+      expect(JSON.stringify(response)).toBe('{}');
+    });
+
+    rejectPush(pushError);
+    await new Promise((resolve) => setImmediate(resolve));
+
+    expect(log.error).toHaveBeenCalledWith('Account.devicesNotify', {
+      uid,
+      error: pushError,
+    });
+  });
+
   it('can send account verification message with empty payload', () => {
     mockRequest.payload = {
       to: 'all',

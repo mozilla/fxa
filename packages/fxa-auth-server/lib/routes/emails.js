@@ -948,7 +948,15 @@ module.exports = (
         if (device) {
           const devices = await request.app.devices;
           const otherDevices = devices.filter((d) => d.id !== device.id);
-          await push.notifyDeviceConnected(uid, otherDevices, device.name);
+          // Fire and forget. A send can take minutes, so do not block the response.
+          push
+            .notifyDeviceConnected(uid, otherDevices, device.name)
+            .catch((err) =>
+              log.error('Account.RecoveryEmailVerify.notifyDeviceConnected', {
+                err,
+                uid,
+              })
+            );
         }
 
         // If the account is already verified, the link may have been
@@ -995,7 +1003,15 @@ module.exports = (
 
               request.emitMetricsEvent('account.confirmed', { uid });
               const devices = await request.app.devices;
-              await push.notifyAccountUpdated(uid, devices, 'accountConfirm');
+              // Fire and forget. A send can take minutes, so do not block the response.
+              push
+                .notifyAccountUpdated(uid, devices, 'accountConfirm')
+                .catch((err) =>
+                  log.error('account.signin.confirm.notifyAccountUpdated', {
+                    err,
+                    uid,
+                  })
+                );
             }
           } catch (err) {
             if (
