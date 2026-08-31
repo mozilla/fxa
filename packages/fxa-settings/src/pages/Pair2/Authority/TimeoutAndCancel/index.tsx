@@ -6,6 +6,8 @@ import React from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import AppLayout from '../../../../components/AppLayout';
 import { PairingInterruptedImage } from '../../../../components/images';
+import GleanMetrics from '../../../../lib/glean';
+import { useGleanView } from '../../../../lib/glean/useGleanView';
 
 /**
  * Why pairing stopped. Shared verbatim with the mobile twin,
@@ -32,6 +34,12 @@ type VariantContent = {
   secondaryFtlId: string;
   secondaryLabel: string;
   secondaryHandler: 'onCancel' | 'onSyncSettings';
+  /**
+   * Per-variant because the two secondary buttons are different actions, not one
+   * action relabelled — unlike "Try again", which is shared and instead carries
+   * the variant in `data-glean-type`.
+   */
+  secondaryGleanId: string;
 };
 
 const variantContent: Record<TimeoutAndCancelReason, VariantContent> = {
@@ -44,6 +52,7 @@ const variantContent: Record<TimeoutAndCancelReason, VariantContent> = {
     secondaryFtlId: 'pair2-authority-timeout-and-cancel-cancel-button',
     secondaryLabel: 'Cancel',
     secondaryHandler: 'onCancel',
+    secondaryGleanId: 'dtm_desktop_timeout_cancel',
   },
   canceled: {
     headingFtlId: 'pair2-authority-timeout-and-cancel-canceled-heading',
@@ -54,6 +63,7 @@ const variantContent: Record<TimeoutAndCancelReason, VariantContent> = {
     secondaryFtlId: 'pair2-authority-timeout-and-cancel-sync-settings-button',
     secondaryLabel: 'Sync settings',
     secondaryHandler: 'onSyncSettings',
+    secondaryGleanId: 'dtm_desktop_canceled_sync_settings',
   },
 };
 
@@ -73,6 +83,12 @@ const TimeoutAndCancel = ({
   const content = variantContent[reason || 'timeout'];
   const onSecondary = { onCancel, onSyncSettings }[content.secondaryHandler];
 
+  // Custom view event rather than the automatic one: both states share a route,
+  // so `reason` is the only thing that tells them apart.
+  useGleanView(() =>
+    GleanMetrics.dtmDesktop.timeoutView({ event: { reason } })
+  );
+
   return (
     <AppLayout>
       <div className="flex flex-col items-center text-center">
@@ -90,6 +106,8 @@ const TimeoutAndCancel = ({
             <button
               type="button"
               onClick={onTryAgain}
+              data-glean-id="dtm_desktop_timeout_retry_submit"
+              data-glean-type={reason}
               className="cta-primary cta-xl"
             >
               Try again
@@ -101,6 +119,7 @@ const TimeoutAndCancel = ({
           <button
             type="button"
             onClick={onSecondary}
+            data-glean-id={content.secondaryGleanId}
             // `py-2` keeps the tap target comfortable, so the margin is halved
             // to land on the 16px gap the design asks for.
             className="mt-2 py-2 text-base text-grey-900 underline dark:text-grey-10"

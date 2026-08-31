@@ -20,6 +20,8 @@ import * as event from 'fxa-shared/metrics/glean/web/event';
 import * as email from 'fxa-shared/metrics/glean/web/email';
 import * as error from 'fxa-shared/metrics/glean/web/error';
 import * as promoQrMobile from 'fxa-shared/metrics/glean/web/promoQrMobile';
+import * as dtmDesktop from 'fxa-shared/metrics/glean/web/dtmDesktop';
+import * as dtmMobile from 'fxa-shared/metrics/glean/web/dtmMobile';
 import * as reg from 'fxa-shared/metrics/glean/web/reg';
 import * as login from 'fxa-shared/metrics/glean/web/login';
 import * as cachedLogin from 'fxa-shared/metrics/glean/web/cachedLogin';
@@ -52,12 +54,14 @@ import {
   deviceType,
   entrypoint,
   flowId,
+  pairingChannelHash,
 } from 'fxa-shared/metrics/glean/web/session';
 import * as utm from 'fxa-shared/metrics/glean/web/utm';
 import * as entrypointQuery from 'fxa-shared/metrics/glean/web/entrypoint';
 import { Integration } from '../../models';
 import { MetricsFlow } from '../metrics-flow';
 import { currentAccount } from '../../lib/cache';
+import { getPairingChannelId } from '../pairing-channel-params';
 
 type DeviceTypes = 'mobile' | 'tablet' | 'desktop';
 export type GleanMetricsContext = {
@@ -95,7 +99,13 @@ const submitPing = async (fn: SubmitPingFn) => {
   let f: SubmitPingFn | undefined;
 
   while ((f = lambdas.shift())) {
-    await f();
+    try {
+      await f();
+    } catch {
+      // A ping that throws must not escape the loop: the mutex is only cleared
+      // after it, so one failure would wedge the queue for the rest of the
+      // session and leave `isDone()` polling forever.
+    }
   }
 
   EXEC_MUTEX = false;
@@ -106,8 +116,8 @@ let metricsContext: GleanMetricsContext;
 let ua: UAParser | null;
 
 const encoder = new TextEncoder();
-const hashUid = async (uid: string) => {
-  const data = encoder.encode(uid);
+const sha256Hex = async (value: string) => {
+  const data = encoder.encode(value);
   const hash = await crypto.subtle.digest('SHA-256', data);
   const uint8View = new Uint8Array(hash);
   const hex = uint8View.reduce(
@@ -143,11 +153,24 @@ const getDeviceType: () => DeviceTypes | void = () => {
 const initMetrics = async () => {
   userId.set('');
   userIdSha256.set('');
+  pairingChannelHash.set('');
   const account = currentAccount();
+  // Both hashes go through crypto.subtle, which is absent outside a secure
+  // context and throws in some sandboxed WebViews — the pairing supplicant's
+  // environment. An escaping rejection would take the rest of this function
+  // with it, and at initialize() it disables Glean for the whole session.
   try {
     if (account?.uid) {
       userId.set(account.uid);
-      userIdSha256.set(await hashUid(account.uid));
+      userIdSha256.set(await sha256Hex(account.uid));
+    }
+
+    // The join key across the two devices in a pairing. Resolved from a snapshot
+    // frozen at page load, so every event in the flow carries the same value
+    // even after the SPA has rewritten the URL it came from.
+    const pairingChannelId = getPairingChannelId();
+    if (pairingChannelId) {
+      pairingChannelHash.set(await sha256Hex(pairingChannelId));
     }
   } catch (e) {
     // noop
@@ -958,6 +981,38 @@ const recordEventMetric = (
         branch: gleanPingMetrics?.event?.['branch'] || '',
         nimbus_user_id: gleanPingMetrics?.event?.['nimbusUserId'] || '',
       });
+      break;
+    case 'dtm_desktop_pair_success_view':
+      dtmDesktop.pairSuccessView.record();
+      break;
+    case 'dtm_mobile_pair_success_view':
+      dtmMobile.pairSuccessView.record();
+      break;
+    case 'dtm_desktop_timeout_view':
+      dtmDesktop.timeoutView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'dtm_mobile_timeout_view':
+      dtmMobile.timeoutView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'dtm_mobile_deeplink_attempt':
+      dtmMobile.deeplinkAttempt.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'dtm_mobile_deeplink_firefox_detected':
+      dtmMobile.deeplinkFirefoxDetected.record();
+      break;
+    case 'dtm_mobile_deeplink_store_redirect':
+      dtmMobile.deeplinkStoreRedirect.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'dtm_mobile_deeplink_webview_fallback':
+      dtmMobile.deeplinkWebviewFallback.record();
       break;
   }
 };

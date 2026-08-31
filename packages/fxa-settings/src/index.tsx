@@ -13,6 +13,7 @@ import App from './components/App';
 import { NimbusProvider } from './models/contexts/NimbusContext';
 import config, { readConfigMeta } from './lib/config';
 import { searchParams } from './lib/utilities';
+import { capturePairingChannelParams } from './lib/pairing-channel-params';
 import { AppContext, initializeAppContext } from './models';
 import { ThemeProvider } from './models/contexts/ThemeContext';
 import Storage from './lib/storage';
@@ -47,6 +48,12 @@ export interface QueryParams extends FlowQueryParams {
 }
 
 try {
+  // First, before anything can read the URL: the pairing channel key lives in
+  // the fragment, and Glean's automatic events report window.location.href.
+  // Safe ahead of the restore below, which only ever adds entrypoint/utm params
+  // and rebuilds from href, so it neither needs nor disturbs the fragment.
+  capturePairingChannelParams();
+
   // FXA-14132: Fx Desktop opens the pairing-authority page with none of the
   // attribution params it gave /pair. Restore them from the hand-off stash before
   // the router — and every UrlQueryData — reads the URL. Mirrors

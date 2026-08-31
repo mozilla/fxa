@@ -9,6 +9,8 @@ import {
   FirefoxWordmarkImage,
   SyncSuccessImage,
 } from '../../../../components/images';
+import GleanMetrics from '../../../../lib/glean';
+import { useGleanView } from '../../../../lib/glean/useGleanView';
 
 export type SyncSuccessProps = {
   /**
@@ -30,6 +32,11 @@ const SyncSuccess = ({
   onViewSyncedTabs,
   onSyncSettings,
 }: SyncSuccessProps) => {
+  // Custom view event rather than the automatic page load, so the terminal step
+  // of the funnel is an event that carries `session.pairing_channel_hash` and
+  // joins to the desktop device's own success view.
+  useGleanView(() => GleanMetrics.dtmMobile.pairSuccessView());
+
   return <AppLayout whiteBackground>
     <div className="flex flex-col items-center text-center">
       <FirefoxWordmarkImage className="h-8 w-24 text-black dark:text-white" />
@@ -49,6 +56,7 @@ const SyncSuccess = ({
         <button
           type="button"
           onClick={onViewSyncedTabs}
+          data-glean-id="dtm_mobile_pair_success_view_tabs"
           className="cta-primary cta-xl mt-6 w-full"
         >
           View synced tabs
@@ -58,6 +66,7 @@ const SyncSuccess = ({
         <button
           type="button"
           onClick={onSyncSettings}
+          data-glean-id="dtm_mobile_pair_success_sync_settings"
           className="mt-4 py-2 text-base text-grey-900 underline dark:text-grey-10"
         >
           Sync settings

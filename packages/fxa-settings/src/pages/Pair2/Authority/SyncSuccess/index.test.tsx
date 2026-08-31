@@ -8,6 +8,20 @@ import { FluentBundle } from '@fluent/bundle';
 import { getFtlBundle, testL10n } from 'fxa-react/lib/test-utils';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { Subject } from './mocks';
+import GleanMetrics from '../../../../lib/glean';
+
+jest.mock('../../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    dtmDesktop: {
+      pairSuccessView: jest.fn(),
+    },
+  },
+}));
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('Pair2/Authority/SyncSuccess page', () => {
   // Guards against drift between the fallback text in the component and the
@@ -68,5 +82,14 @@ describe('Pair2/Authority/SyncSuccess page', () => {
     await user.click(screen.getByRole('button', { name: 'Sync settings' }));
 
     expect(onSyncSettings).toHaveBeenCalledTimes(1);
+  });
+
+  // The terminal step of the pairing funnel. A custom event rather than the
+  // automatic page load, because it has to carry the channel hash that joins
+  // this device's half of the pairing to the other's.
+  it('emits a view event on mount', () => {
+    renderWithLocalizationProvider(<Subject />);
+
+    expect(GleanMetrics.dtmDesktop.pairSuccessView).toHaveBeenCalledTimes(1);
   });
 });

@@ -61,6 +61,7 @@ const ApproveSignIn = ({
           type="button"
           data-testid="pair2-auth-approve-btn"
           onClick={onApprove}
+          data-glean-id="dtm_desktop_connect_submit"
           className="cta-primary cta-xl mt-6 w-full"
         >
           Yes, approve sign-in
@@ -74,6 +75,7 @@ const ApproveSignIn = ({
             <button
               type="button"
               onClick={onChangePassword}
+              data-glean-id="dtm_desktop_connect_change_password"
               className="text-grey-900 underline dark:text-grey-10"
             />
           ),
@@ -85,6 +87,7 @@ const ApproveSignIn = ({
           <button
             type="button"
             onClick={onChangePassword}
+            data-glean-id="dtm_desktop_connect_change_password"
             className="text-grey-900 underline dark:text-grey-10"
           >
             Change your password

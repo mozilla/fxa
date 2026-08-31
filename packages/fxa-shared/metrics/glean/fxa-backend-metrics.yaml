@@ -1833,3 +1833,29 @@ passkey:
     expires: never
     data_sensitivity:
       - interaction
+
+dtm_backend:
+  pair_success:
+    type: event
+    description: |
+      A device pairing authorization code was minted for a mobile client. In the
+      pair2 flow this is only reachable once both devices have confirmed, so it
+      counts confirmed pairings. Two caveats. Legacy pairing reaches the same
+      endpoint earlier — when the desktop user approves, possibly before the
+      phone has — so its rows mean "authority approved" rather than "both
+      confirmed", and the two cannot be told apart server side. Legacy also
+      supports a desktop supplicant, whose client_id falls outside the mobile
+      set and so is not counted at all.
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14315
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction

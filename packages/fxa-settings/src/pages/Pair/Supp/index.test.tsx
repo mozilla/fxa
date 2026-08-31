@@ -8,6 +8,21 @@ import Supp from '.';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { Integration } from '../../../models/integrations/integration';
+import {
+  capturePairingChannelParams,
+  resetPairingChannelParamsForTest,
+} from '../../../lib/pairing-channel-params';
+
+/**
+ * Startup lifts the pairing fragment out of the URL so its channel key cannot
+ * reach telemetry, and the page reads that capture rather than the live hash.
+ * Tests therefore set the hash and then run the same capture production runs.
+ */
+function setPairingHash(hash: string) {
+  window.location.hash = hash;
+  resetPairingChannelParamsForTest();
+  capturePairingChannelParams();
+}
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -111,16 +126,16 @@ describe('Pair/Supp page', () => {
       mockIntegration = new PSI();
       mockNavigateWithQuery.mockClear();
       sessionStorage.clear();
-      window.location.hash = '#channel_id=test-chan&channel_key=dGVzdA';
+      setPairingHash('#channel_id=test-chan&channel_key=dGVzdA');
     });
 
     afterEach(() => {
-      window.location.hash = '';
+      setPairingHash('');
       sessionStorage.clear();
     });
 
     it('shows error when hash params are missing', () => {
-      window.location.hash = '';
+      setPairingHash('');
       renderWithLocalizationProvider(
         <Supp integration={mockIntegration as unknown as Integration} />
       );

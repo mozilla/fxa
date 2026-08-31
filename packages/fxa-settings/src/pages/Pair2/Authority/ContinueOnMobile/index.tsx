@@ -40,6 +40,7 @@ export const ContinueOnMobile = ({ onCancel }: ContinueOnMobileProps) => (
         <button
           type="button"
           onClick={onCancel}
+          data-glean-id="dtm_desktop_continue_cancel"
           className="link-dark-grey"
         >
           Cancel
