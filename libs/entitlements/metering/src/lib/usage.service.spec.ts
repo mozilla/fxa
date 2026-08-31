@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Logger } from '@nestjs/common';
-import type { LoggerService } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 
 import {
@@ -14,61 +12,52 @@ import {
 import {
   IngestUsageRequestFactory,
   UsageQueryParamsFactory,
-} from './factories';
-import { MeteringIngestManager } from './metering-ingest.manager';
-import { MeteringQueryManager } from './metering-query.manager';
-import { MeteringThresholdTasksManager } from './metering-threshold-tasks.manager';
+} from './metering.factories';
+import { MeteringEventsManager } from './metering-events.manager';
+import { MeteringPublisherManager } from './metering-publisher.manager';
 import {
+  ClickHouseError,
   MeterNotConfiguredError,
-  MeteringBufferOverflowError,
-  OpenMeterQueryError,
+  PublishError,
+  SessionUsageQueryNotSupportedError,
+  TimestampOutOfRangeError,
 } from './metering.error';
 import { UsageGrantsManager } from './usage-grants.manager';
 import { UsageService } from './usage.service';
 
+const CLIENT_ID = 'vpn';
+const NOW = new Date('2026-05-15T12:00:00.000Z');
+
 describe('UsageService', () => {
   let usageService: UsageService;
-  let meteringConfigurationManager: jest.Mocked<MeteringConfigurationManager>;
-  let meteringQueryManager: jest.Mocked<MeteringQueryManager>;
-  let meteringIngestManager: jest.Mocked<MeteringIngestManager>;
-  let meteringThresholdTasksManager: jest.Mocked<MeteringThresholdTasksManager>;
+  let meteringConfigurationManager: jest.Mocked<
+    Pick<MeteringConfigurationManager, 'getMeterBySlug'>
+  >;
+  let meteringPublisherManager: jest.Mocked<
+    Pick<MeteringPublisherManager, 'publish'>
+  >;
+  let meteringEventsManager: jest.Mocked<
+    Pick<MeteringEventsManager, 'sumUsage'>
+  >;
   let usageGrantsManager: jest.Mocked<
     Pick<UsageGrantsManager, 'getActiveGrantedAmount'>
   >;
-  let logger: jest.Mocked<Pick<LoggerService, 'error'>>;
 
   beforeEach(async () => {
-    logger = { error: jest.fn() };
     const moduleRef = await Test.createTestingModule({
       providers: [
         UsageService,
         {
           provide: MeteringConfigurationManager,
-          useValue: {
-            getMeterBySlug: jest.fn(),
-          },
+          useValue: { getMeterBySlug: jest.fn() },
         },
         {
-          provide: MeteringQueryManager,
-          useValue: {
-            queryUsage: jest.fn(),
-          },
+          provide: MeteringPublisherManager,
+          useValue: { publish: jest.fn().mockResolvedValue(undefined) },
         },
         {
-          provide: MeteringIngestManager,
-          useValue: {
-            enqueue: jest.fn(),
-          },
-        },
-        {
-          provide: MeteringThresholdTasksManager,
-          useValue: {
-            scheduleThresholdCheck: jest.fn().mockResolvedValue({
-              enqueued: true,
-              taskId: 't',
-              reason: 'created',
-            }),
-          },
+          provide: MeteringEventsManager,
+          useValue: { sumUsage: jest.fn().mockResolvedValue(0) },
         },
         {
           provide: UsageGrantsManager,
@@ -76,132 +65,140 @@ describe('UsageService', () => {
             getActiveGrantedAmount: jest.fn().mockResolvedValue(0),
           },
         },
-        {
-          provide: Logger,
-          useValue: logger,
-        },
       ],
     }).compile();
 
     usageService = moduleRef.get(UsageService);
     meteringConfigurationManager = moduleRef.get(MeteringConfigurationManager);
-    meteringQueryManager = moduleRef.get(MeteringQueryManager);
-    meteringIngestManager = moduleRef.get(MeteringIngestManager);
-    meteringThresholdTasksManager = moduleRef.get(
-      MeteringThresholdTasksManager
-    );
+    meteringPublisherManager = moduleRef.get(MeteringPublisherManager);
+    meteringEventsManager = moduleRef.get(MeteringEventsManager);
     usageGrantsManager = moduleRef.get(UsageGrantsManager);
   });
 
   describe('ingestUsage', () => {
-    it('enqueues the event onto the ingest buffer for a configured slug', async () => {
+    it('publishes the event for a configured slug', async () => {
       const meter = StrapiMeterFactory();
-      const timestamp = '2026-05-07T12:34:56.000Z';
+      const timestamp = '2026-05-15T11:34:56.000Z';
       const ingestUsageRequest = IngestUsageRequestFactory({
         slug: meter.slug,
         timestamp,
       });
       meteringConfigurationManager.getMeterBySlug.mockResolvedValue(meter);
 
-      await usageService.ingestUsage(ingestUsageRequest);
+      await usageService.ingestUsage(CLIENT_ID, ingestUsageRequest, NOW);
 
       expect(meteringConfigurationManager.getMeterBySlug).toHaveBeenCalledWith(
         meter.slug
       );
-      expect(meteringIngestManager.enqueue).toHaveBeenCalledWith({
+      expect(meteringPublisherManager.publish).toHaveBeenCalledWith({
         id: ingestUsageRequest.id,
+        clientId: CLIENT_ID,
+        slug: meter.slug,
         userIdentifier: ingestUsageRequest.userIdentifier,
         amount: ingestUsageRequest.amount,
-        timestamp: new Date(timestamp),
-        meter,
+        timestamp,
       });
     });
 
-    it('enqueues with an undefined timestamp when the request omits one', async () => {
+    it('attributes the event to the authenticated client', async () => {
       const meter = StrapiMeterFactory();
-      const ingestUsageRequest = IngestUsageRequestFactory({
-        slug: meter.slug,
-        timestamp: undefined,
-      });
       meteringConfigurationManager.getMeterBySlug.mockResolvedValue(meter);
 
-      await usageService.ingestUsage(ingestUsageRequest);
-
-      expect(meteringIngestManager.enqueue).toHaveBeenCalledWith({
-        id: ingestUsageRequest.id,
-        userIdentifier: ingestUsageRequest.userIdentifier,
-        amount: ingestUsageRequest.amount,
-        timestamp: undefined,
-        meter,
-      });
-    });
-
-    it('schedules a threshold-check Cloud Task after the buffer push', async () => {
-      const meter = StrapiMeterFactory();
-      const ingestUsageRequest = IngestUsageRequestFactory({
-        slug: meter.slug,
-      });
-      meteringConfigurationManager.getMeterBySlug.mockResolvedValue(meter);
-
-      await usageService.ingestUsage(ingestUsageRequest);
-
-      expect(
-        meteringThresholdTasksManager.scheduleThresholdCheck
-      ).toHaveBeenCalledWith({
-        slug: meter.slug,
-        userIdentifier: ingestUsageRequest.userIdentifier,
-      });
-    });
-
-    it('does not fail the ingest but logs when scheduling the threshold task throws', async () => {
-      const meter = StrapiMeterFactory();
-      const ingestUsageRequest = IngestUsageRequestFactory({
-        slug: meter.slug,
-      });
-      const schedulingError = new Error('cloud-tasks down');
-      meteringConfigurationManager.getMeterBySlug.mockResolvedValue(meter);
-      meteringThresholdTasksManager.scheduleThresholdCheck.mockRejectedValueOnce(
-        schedulingError
+      await usageService.ingestUsage(
+        'relay',
+        IngestUsageRequestFactory({ slug: meter.slug }),
+        NOW
       );
 
-      await expect(
-        usageService.ingestUsage(ingestUsageRequest)
-      ).resolves.toBeUndefined();
-      await new Promise((resolve) => setImmediate(resolve));
-
-      expect(meteringIngestManager.enqueue).toHaveBeenCalled();
-      expect(logger.error).toHaveBeenCalledWith(schedulingError);
+      expect(meteringPublisherManager.publish).toHaveBeenCalledWith(
+        expect.objectContaining({ clientId: 'relay' })
+      );
     });
 
-    it('rejects unknown slugs with MeterNotConfiguredError', async () => {
-      const ingestUsageRequest = IngestUsageRequestFactory();
+    it('stamps the current time when the request omits a timestamp', async () => {
+      const meter = StrapiMeterFactory();
+      meteringConfigurationManager.getMeterBySlug.mockResolvedValue(meter);
+
+      await usageService.ingestUsage(
+        CLIENT_ID,
+        IngestUsageRequestFactory({ slug: meter.slug, timestamp: undefined }),
+        NOW
+      );
+
+      expect(meteringPublisherManager.publish).toHaveBeenCalledWith(
+        expect.objectContaining({ timestamp: '2026-05-15T12:00:00.000Z' })
+      );
+    });
+
+    it('rejects unknown slugs with MeterNotConfiguredError and publishes nothing', async () => {
       meteringConfigurationManager.getMeterBySlug.mockResolvedValue(null);
 
       await expect(
-        usageService.ingestUsage(ingestUsageRequest)
+        usageService.ingestUsage(CLIENT_ID, IngestUsageRequestFactory(), NOW)
       ).rejects.toThrow(MeterNotConfiguredError);
-      expect(meteringIngestManager.enqueue).not.toHaveBeenCalled();
+      expect(meteringPublisherManager.publish).not.toHaveBeenCalled();
+    });
+
+    it('rejects a far-future timestamp that ClickHouse would silently saturate', async () => {
+      const meter = StrapiMeterFactory();
+      meteringConfigurationManager.getMeterBySlug.mockResolvedValue(meter);
+
+      await expect(
+        usageService.ingestUsage(
+          CLIENT_ID,
+          IngestUsageRequestFactory({
+            slug: meter.slug,
+            timestamp: '9999-01-01T00:00:00.000Z',
+          }),
+          NOW
+        )
+      ).rejects.toThrow(TimestampOutOfRangeError);
+      expect(meteringPublisherManager.publish).not.toHaveBeenCalled();
+    });
+
+    it('rejects a timestamp older than the accepted backfill window', async () => {
+      const meter = StrapiMeterFactory();
+      meteringConfigurationManager.getMeterBySlug.mockResolvedValue(meter);
+
+      await expect(
+        usageService.ingestUsage(
+          CLIENT_ID,
+          IngestUsageRequestFactory({
+            slug: meter.slug,
+            timestamp: '2026-05-01T00:00:00.000Z',
+          }),
+          NOW
+        )
+      ).rejects.toThrow(TimestampOutOfRangeError);
+    });
+
+    it('rejects before looking the meter up, so a bad timestamp costs no CMS call', async () => {
+      await expect(
+        usageService.ingestUsage(
+          CLIENT_ID,
+          IngestUsageRequestFactory({ timestamp: '9999-01-01T00:00:00.000Z' }),
+          NOW
+        )
+      ).rejects.toThrow(TimestampOutOfRangeError);
       expect(
-        meteringThresholdTasksManager.scheduleThresholdCheck
+        meteringConfigurationManager.getMeterBySlug
       ).not.toHaveBeenCalled();
     });
 
-    it('propagates MeteringBufferOverflowError and does not schedule a threshold check when the buffer is full', async () => {
+    it('propagates a publish failure so the caller can retry', async () => {
       const meter = StrapiMeterFactory();
-      const ingestUsageRequest = IngestUsageRequestFactory({
-        slug: meter.slug,
-      });
       meteringConfigurationManager.getMeterBySlug.mockResolvedValue(meter);
-      meteringIngestManager.enqueue.mockImplementation(() => {
-        throw new MeteringBufferOverflowError();
-      });
+      meteringPublisherManager.publish.mockRejectedValue(
+        new PublishError(new Error('pubsub down'))
+      );
 
       await expect(
-        usageService.ingestUsage(ingestUsageRequest)
-      ).rejects.toThrow(MeteringBufferOverflowError);
-      expect(
-        meteringThresholdTasksManager.scheduleThresholdCheck
-      ).not.toHaveBeenCalled();
+        usageService.ingestUsage(
+          CLIENT_ID,
+          IngestUsageRequestFactory({ slug: meter.slug }),
+          NOW
+        )
+      ).rejects.toThrow(PublishError);
     });
   });
 
@@ -210,29 +207,25 @@ describe('UsageService', () => {
       const meter = StrapiMeterFactory({
         unit: 'tokens',
         limit: 1000,
-        window: 'monthly',
+        window: { kind: 'calendar', period: 'monthly' },
       });
       const params = UsageQueryParamsFactory({ slug: meter.slug });
       meteringConfigurationManager.getMeterBySlug.mockResolvedValue(meter);
-      meteringQueryManager.queryUsage.mockResolvedValue({
-        usage: 250,
-        from: new Date('2000-01-01T00:00:00.000Z'),
-        to: new Date('2000-01-02T00:00:00.000Z'),
-      });
+      meteringEventsManager.sumUsage.mockResolvedValue(250);
 
-      const now = new Date('2026-05-15T12:00:00.000Z');
-      const result = await usageService.queryUsage(params, now);
+      const result = await usageService.queryUsage(CLIENT_ID, params, NOW);
 
-      expect(meteringQueryManager.queryUsage).toHaveBeenCalledWith({
-        userIdentifier: params.userIdentifier,
+      expect(meteringEventsManager.sumUsage).toHaveBeenCalledWith({
+        clientId: CLIENT_ID,
         slug: params.slug,
+        subject: params.userIdentifier,
         from: new Date('2026-05-01T00:00:00.000Z'),
         to: new Date('2026-06-01T00:00:00.000Z'),
       });
       expect(usageGrantsManager.getActiveGrantedAmount).toHaveBeenCalledWith(
         params.userIdentifier,
         params.slug,
-        now
+        NOW
       );
       expect(result).toEqual({
         usage: 250,
@@ -244,23 +237,64 @@ describe('UsageService', () => {
       });
     });
 
+    it('scopes the usage read to the authenticated client', async () => {
+      const meter = StrapiMeterFactory({
+        window: { kind: 'calendar', period: 'monthly' },
+      });
+      const params = UsageQueryParamsFactory({ slug: meter.slug });
+      meteringConfigurationManager.getMeterBySlug.mockResolvedValue(meter);
+
+      await usageService.queryUsage('relay', params, NOW);
+
+      expect(meteringEventsManager.sumUsage).toHaveBeenCalledWith(
+        expect.objectContaining({ clientId: 'relay' })
+      );
+    });
+
+    it('reads a sliding window relative to now', async () => {
+      const meter = StrapiMeterFactory({
+        window: { kind: 'sliding', durationMs: 5 * 60 * 60 * 1000 },
+      });
+      const params = UsageQueryParamsFactory({ slug: meter.slug });
+      meteringConfigurationManager.getMeterBySlug.mockResolvedValue(meter);
+
+      const result = await usageService.queryUsage(CLIENT_ID, params, NOW);
+
+      expect(meteringEventsManager.sumUsage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          from: new Date('2026-05-15T07:00:00.000Z'),
+          to: new Date('2026-05-15T12:00:00.000Z'),
+        })
+      );
+      expect(result.windowStart).toBe('2026-05-15T07:00:00.000Z');
+      expect(result.windowEnd).toBe('2026-05-15T12:00:00.000Z');
+    });
+
+    it('rejects a session meter without reading usage', async () => {
+      const meter = StrapiMeterFactory({
+        window: { kind: 'session', durationMs: 30 * 60 * 1000 },
+      });
+      const params = UsageQueryParamsFactory({ slug: meter.slug });
+      meteringConfigurationManager.getMeterBySlug.mockResolvedValue(meter);
+
+      await expect(
+        usageService.queryUsage(CLIENT_ID, params, NOW)
+      ).rejects.toThrow(SessionUsageQueryNotSupportedError);
+      expect(meteringEventsManager.sumUsage).not.toHaveBeenCalled();
+    });
+
     it('raises the reported limit by the active granted amount', async () => {
       const meter = StrapiMeterFactory({
         unit: 'tokens',
         limit: 1000,
-        window: 'monthly',
+        window: { kind: 'calendar', period: 'monthly' },
       });
       const params = UsageQueryParamsFactory({ slug: meter.slug });
       meteringConfigurationManager.getMeterBySlug.mockResolvedValue(meter);
-      meteringQueryManager.queryUsage.mockResolvedValue({
-        usage: 250,
-        from: new Date('2000-01-01T00:00:00.000Z'),
-        to: new Date('2000-01-02T00:00:00.000Z'),
-      });
+      meteringEventsManager.sumUsage.mockResolvedValue(250);
       usageGrantsManager.getActiveGrantedAmount.mockResolvedValue(500);
 
-      const now = new Date('2026-05-15T12:00:00.000Z');
-      const result = await usageService.queryUsage(params, now);
+      const result = await usageService.queryUsage(CLIENT_ID, params, NOW);
 
       expect(result).toEqual({
         usage: 250,
@@ -272,44 +306,44 @@ describe('UsageService', () => {
       });
     });
 
-    it('propagates a failure from the query manager', async () => {
-      const meter = StrapiMeterFactory({ window: 'monthly' });
+    it('propagates a failure from the events manager', async () => {
+      const meter = StrapiMeterFactory({
+        window: { kind: 'calendar', period: 'monthly' },
+      });
       const params = UsageQueryParamsFactory({ slug: meter.slug });
       meteringConfigurationManager.getMeterBySlug.mockResolvedValue(meter);
-      meteringQueryManager.queryUsage.mockRejectedValue(
-        new OpenMeterQueryError(new Error('openmeter down'))
+      meteringEventsManager.sumUsage.mockRejectedValue(
+        new ClickHouseError('query', new Error('clickhouse down'))
       );
 
-      await expect(usageService.queryUsage(params)).rejects.toThrow(
-        OpenMeterQueryError
-      );
+      await expect(
+        usageService.queryUsage(CLIENT_ID, params, NOW)
+      ).rejects.toThrow(ClickHouseError);
     });
 
     it('propagates a failure from the grants manager', async () => {
-      const meter = StrapiMeterFactory({ window: 'monthly' });
+      const meter = StrapiMeterFactory({
+        window: { kind: 'calendar', period: 'monthly' },
+      });
       const params = UsageQueryParamsFactory({ slug: meter.slug });
       meteringConfigurationManager.getMeterBySlug.mockResolvedValue(meter);
-      meteringQueryManager.queryUsage.mockResolvedValue({
-        usage: 250,
-        from: new Date('2000-01-01T00:00:00.000Z'),
-        to: new Date('2000-01-02T00:00:00.000Z'),
-      });
+      meteringEventsManager.sumUsage.mockResolvedValue(250);
       usageGrantsManager.getActiveGrantedAmount.mockRejectedValue(
         new Error('firestore unavailable')
       );
 
-      await expect(usageService.queryUsage(params)).rejects.toThrow(
-        'firestore unavailable'
-      );
+      await expect(
+        usageService.queryUsage(CLIENT_ID, params, NOW)
+      ).rejects.toThrow('firestore unavailable');
     });
 
     it('rejects unknown slugs with MeterNotConfiguredError', async () => {
       const params = UsageQueryParamsFactory();
       meteringConfigurationManager.getMeterBySlug.mockResolvedValue(null);
 
-      await expect(usageService.queryUsage(params)).rejects.toThrow(
-        MeterNotConfiguredError
-      );
+      await expect(
+        usageService.queryUsage(CLIENT_ID, params, NOW)
+      ).rejects.toThrow(MeterNotConfiguredError);
     });
   });
 });

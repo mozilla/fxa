@@ -51,6 +51,14 @@
       "dependsOn": ["prune-lockfile", "copy-workspace-modules"],
       "executor": "nx:noop"
     },
+    "metering-sweep": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "node ../../../dist/apps/payments/api/metering-sweep.js",
+        "cwd": "apps/payments/api"
+      }
+    },
     "serve": {
       "continuous": true,
       "executor": "@nx/js:node",

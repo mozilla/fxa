@@ -13,6 +13,9 @@ module.exports = {
       target: 'node',
       compiler: 'tsc',
       main: './src/main.ts',
+      additionalEntryPoints: [
+        { entryName: 'metering-sweep', entryPath: './src/metering-sweep.ts' },
+      ],
       tsConfig: './tsconfig.app.json',
       assets: ['./src/assets'],
       optimization: false,

@@ -11,7 +11,8 @@ import {
   StrapiClientEventResponse,
   meterBySlugQuery,
   MeterBySlugResultFactory,
-  StrapiMeterFactory,
+  StrapiMeterRawFactory,
+  toStrapiMeter,
 } from '@fxa/shared/cms';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { MeteringConfigurationManager } from './metering-configuration.manager';
@@ -153,7 +154,7 @@ describe('MeteringConfigurationManager', () => {
 
   describe('getMeterBySlug', () => {
     it('returns the first meter when a match exists', async () => {
-      const mockMeter = StrapiMeterFactory();
+      const mockMeter = StrapiMeterRawFactory();
       const mockResult = MeterBySlugResultFactory({
         meters: [mockMeter],
       });
@@ -164,7 +165,7 @@ describe('MeteringConfigurationManager', () => {
       expect(mockStrapiClient.query).toHaveBeenCalledWith(meterBySlugQuery, {
         slug: 'test-slug',
       });
-      expect(result).toEqual(mockMeter);
+      expect(result).toEqual(toStrapiMeter(mockMeter));
     });
 
     it('returns null when no meters match', async () => {
@@ -191,7 +192,7 @@ describe('MeteringConfigurationManager', () => {
 
   describe('getMeterResultUtil', () => {
     it('returns a util exposing the fetched meter and its parsed thresholds', async () => {
-      const mockMeter = StrapiMeterFactory({
+      const mockMeter = StrapiMeterRawFactory({
         notificationThresholds: '50,75,90',
       });
       mockStrapiClient.query.mockResolvedValue(
@@ -200,7 +201,7 @@ describe('MeteringConfigurationManager', () => {
 
       const util = await manager.getMeterResultUtil('test-slug');
 
-      expect(util.getMeter()).toEqual(mockMeter);
+      expect(util.getMeter()).toEqual(toStrapiMeter(mockMeter));
       expect(util.getNotificationThresholds()).toEqual([50, 75, 90]);
     });
 

@@ -9,6 +9,7 @@ import {
   type StrapiMeter,
 } from '@fxa/shared/cms';
 
+import { UsageGrantLifetimeNotSupportedError } from './metering.error';
 import { UsageGrantsManager } from './usage-grants.manager';
 import type { UsageGrantRecord } from './usage-grants.repository';
 import {
@@ -16,9 +17,9 @@ import {
   type UsageGrant,
   type UsageGrantLifetime,
 } from './usage-grants.schema';
-import { computeWindow } from './utils/computeWindow';
 import { isUsageGrantActive } from './utils/isUsageGrantActive';
 import { requireMeterBySlug } from './utils/requireMeterBySlug';
+import { resolveWindow } from './utils/resolveWindow';
 
 export interface CreateUsageGrantParams {
   request: CreateUsageGrantRequest;
@@ -80,7 +81,14 @@ export class UsageGrantsService {
       case 'unending':
         return null;
       case 'currentWindow':
-        return computeWindow(meter.window, now).windowEnd;
+        if (meter.window.kind === 'sliding') {
+          throw new UsageGrantLifetimeNotSupportedError(
+            meter.slug,
+            lifetime.type,
+            meter.window.kind
+          );
+        }
+        return resolveWindow(meter.window, now).windowEnd;
       case 'expires':
         return new Date(lifetime.expiresAt);
     }

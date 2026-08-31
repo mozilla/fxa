@@ -14,7 +14,7 @@ import helmet from 'helmet';
 import { ResponseValidationInterceptor } from '@fxa/payments/api-server';
 import { AppModule } from './app/app.module';
 import { RootConfig } from './config';
-import { annotateWebhookRoutes, stripInternalRoutes } from './swagger.utils';
+import { annotateWebhookRoutes } from './swagger.utils';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -49,12 +49,10 @@ async function bootstrap() {
   }
 
   // SECURITY: /swagger.json is intentionally unauthenticated (Backstage
-  // depends on it). Internal routes are stripped; public routes are
-  // discoverable anyway.
-  const publicDocument = stripInternalRoutes(document);
+  // depends on it).
   const httpAdapter = app.getHttpAdapter();
   httpAdapter.get('/swagger.json', (_req: Request, res: Response) => {
-    res.json(publicDocument);
+    res.json(document);
   });
 
   const reflector = app.get(Reflector);

@@ -14,20 +14,20 @@ import type { LoggerService } from '@nestjs/common';
 import * as Sentry from '@sentry/nestjs';
 
 import {
+  ClickHouseError,
   MeterNotConfiguredError,
-  MeteringBufferOverflowError,
   MeteringError,
+  PublishError,
+  SessionUsageQueryNotSupportedError,
+  TimestampOutOfRangeError,
+  UsageGrantLifetimeNotSupportedError,
   UsageGrantNotFoundError,
 } from './metering.error';
 
-interface MeteringErrorBody {
-  statusCode: number;
-  error: string;
-  message: string;
-}
-
-interface HttpResponseWriter {
-  status(code: number): { json(body: MeteringErrorBody): unknown };
+interface HttpResponse {
+  status(code: number): {
+    json(body: { statusCode: number; error: string; message: string }): unknown;
+  };
 }
 
 @Catch(MeteringError)
@@ -35,13 +35,10 @@ export class MeteringExceptionFilter implements ExceptionFilter {
   constructor(@Inject(Logger) private readonly logger: LoggerService) {}
 
   catch(exception: MeteringError, host: ArgumentsHost): void {
-    this.respond(
-      exception,
-      host.switchToHttp().getResponse<HttpResponseWriter>()
-    );
+    this.respond(exception, host.switchToHttp().getResponse<HttpResponse>());
   }
 
-  respond(exception: MeteringError, response: HttpResponseWriter): void {
+  respond(exception: MeteringError, response: HttpResponse): void {
     if (
       exception instanceof MeterNotConfiguredError ||
       exception instanceof UsageGrantNotFoundError
@@ -54,11 +51,35 @@ export class MeteringExceptionFilter implements ExceptionFilter {
       return;
     }
 
-    if (exception instanceof MeteringBufferOverflowError) {
+    if (
+      exception instanceof UsageGrantLifetimeNotSupportedError ||
+      exception instanceof TimestampOutOfRangeError ||
+      exception instanceof SessionUsageQueryNotSupportedError
+    ) {
+      response.status(HttpStatus.BAD_REQUEST).json({
+        statusCode: HttpStatus.BAD_REQUEST,
+        error: 'Bad Request',
+        message: exception.message,
+      });
+      return;
+    }
+
+    if (exception instanceof PublishError) {
       response.status(HttpStatus.SERVICE_UNAVAILABLE).json({
         statusCode: HttpStatus.SERVICE_UNAVAILABLE,
         error: 'Service Unavailable',
-        message: exception.message,
+        message: 'Usage event could not be accepted, retry shortly',
+      });
+      return;
+    }
+
+    if (exception instanceof ClickHouseError) {
+      this.logger.error(exception);
+      Sentry.captureException(exception);
+      response.status(HttpStatus.SERVICE_UNAVAILABLE).json({
+        statusCode: HttpStatus.SERVICE_UNAVAILABLE,
+        error: 'Service Unavailable',
+        message: 'Usage data is temporarily unavailable, retry shortly',
       });
       return;
     }

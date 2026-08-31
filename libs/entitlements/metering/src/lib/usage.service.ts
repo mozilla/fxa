@@ -2,60 +2,64 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Inject, Injectable, Logger } from '@nestjs/common';
-import type { LoggerService } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 import { MeteringConfigurationManager } from '@fxa/shared/cms';
 
-import { MeteringIngestManager } from './metering-ingest.manager';
-import { MeteringQueryManager } from './metering-query.manager';
-import { MeteringThresholdTasksManager } from './metering-threshold-tasks.manager';
+import { MeteringEventsManager } from './metering-events.manager';
+import { MeteringPublisherManager } from './metering-publisher.manager';
+import {
+  SessionUsageQueryNotSupportedError,
+  TimestampOutOfRangeError,
+} from './metering.error';
+import { isTimestampInRange } from './utils/isTimestampInRange';
 import {
   type IngestUsageRequest,
   type UsageQueryParams,
   type UsageQueryResponse,
 } from './metering.schema';
 import { UsageGrantsManager } from './usage-grants.manager';
-import { computeWindow } from './utils/computeWindow';
 import { requireMeterBySlug } from './utils/requireMeterBySlug';
+import { resolveWindow } from './utils/resolveWindow';
 
 @Injectable()
 export class UsageService {
   constructor(
     private readonly meteringConfigurationManager: MeteringConfigurationManager,
-    private readonly meteringQueryManager: MeteringQueryManager,
-    private readonly meteringIngestManager: MeteringIngestManager,
-    private readonly meteringThresholdTasksManager: MeteringThresholdTasksManager,
-    private readonly usageGrantsManager: UsageGrantsManager,
-    @Inject(Logger) private readonly logger: LoggerService
+    private readonly meteringPublisherManager: MeteringPublisherManager,
+    private readonly meteringEventsManager: MeteringEventsManager,
+    private readonly usageGrantsManager: UsageGrantsManager
   ) {}
 
-  async ingestUsage(ingestUsageRequest: IngestUsageRequest): Promise<void> {
+  async ingestUsage(
+    clientId: string,
+    ingestUsageRequest: IngestUsageRequest,
+    now: Date = new Date()
+  ): Promise<void> {
+    if (
+      ingestUsageRequest.timestamp !== undefined &&
+      !isTimestampInRange(ingestUsageRequest.timestamp, now)
+    ) {
+      throw new TimestampOutOfRangeError(ingestUsageRequest.timestamp);
+    }
+
     const meter = await requireMeterBySlug(
       this.meteringConfigurationManager,
       ingestUsageRequest.slug
     );
-    this.meteringIngestManager.enqueue({
+
+    await this.meteringPublisherManager.publish({
       id: ingestUsageRequest.id,
+      clientId,
+      slug: meter.slug,
       userIdentifier: ingestUsageRequest.userIdentifier,
       amount: ingestUsageRequest.amount,
-      timestamp: ingestUsageRequest.timestamp
-        ? new Date(ingestUsageRequest.timestamp)
-        : undefined,
-      meter,
+      timestamp: ingestUsageRequest.timestamp ?? now.toISOString(),
     });
-    this.scheduleThresholdCheck(meter.slug, ingestUsageRequest.userIdentifier);
-  }
-
-  private scheduleThresholdCheck(slug: string, userIdentifier: string): void {
-    this.meteringThresholdTasksManager
-      .scheduleThresholdCheck({ slug, userIdentifier })
-      .catch((err) => {
-        this.logger.error(err);
-      });
   }
 
   async queryUsage(
+    clientId: string,
     params: UsageQueryParams,
     now: Date = new Date()
   ): Promise<UsageQueryResponse> {
@@ -64,12 +68,17 @@ export class UsageService {
       params.slug
     );
 
-    const { windowStart, windowEnd } = computeWindow(meter.window, now);
+    if (meter.window.kind === 'session') {
+      throw new SessionUsageQueryNotSupportedError(params.slug);
+    }
 
-    const [result, grantedAmount] = await Promise.all([
-      this.meteringQueryManager.queryUsage({
-        userIdentifier: params.userIdentifier,
+    const { windowStart, windowEnd } = resolveWindow(meter.window, now);
+
+    const [usage, grantedAmount] = await Promise.all([
+      this.meteringEventsManager.sumUsage({
+        clientId,
         slug: params.slug,
+        subject: params.userIdentifier,
         from: windowStart,
         to: windowEnd,
       }),
@@ -81,7 +90,7 @@ export class UsageService {
     ]);
 
     return {
-      usage: result.usage,
+      usage,
       limit: meter.limit + grantedAmount,
       grantedAmount,
       unit: meter.unit,
