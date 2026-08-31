@@ -1,8 +1,8 @@
 {
-  "commit": "a039ac2230ff77473c938b3d6f982666ecf63725",
-  "summary": "?",
+  "commit": "1b091d778cc2be0a41fc30350a3006d2677239d3",
+  "summary": "Updates based on Valerie's feedback",
   "description": "",
-  "timestamp": 1788207676000,
+  "timestamp": 1788208972000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
