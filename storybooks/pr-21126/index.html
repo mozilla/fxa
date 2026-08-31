@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit ba44984aa9e576196f76cfa131d2d58c13d4be93</title>
+  <title>Storybooks for commit f5a1d10401fadd35a3e4170ba26b8afa22764294</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit ba44984aa9e576196f76cfa131d2d58c13d4be93</h1>
+  <h1>Storybooks for commit f5a1d10401fadd35a3e4170ba26b8afa22764294</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,22 +31,20 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/31/2026, 8:34:56 PM UTC</dd>
+    <dd>8/31/2026, 9:39:25 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>refactor(settings): replace MUI Slider with a native range input</pre></dd>
+    <dd><pre>fix(settings): stop clipping the avatar zoom slider</pre></dd>
     <dt>Description</dt>
     <dd><pre>## Because
 
-- `@material-ui/core` was pulled in for one component, the zoom `Slider` on the avatar page, and it dragged `@emotion/react` and `@emotion/styled` along with it. No source file imports `@emotion/` directly.
-- A native `&lt;input type=&quot;range&quot;&gt;` gives the same keyboard support and screen reader announcement with no JavaScript. The dependency bought us nothing.
+- The leftover `slider.css` clipped the new zoom control to nothing. Its `.AvatarCropper input` rule set `clip: rect(0,0,0,0)` and `position: absolute` to hide MUI&#039;s proxy input, and the native `&lt;input type=&quot;range&quot;&gt;` sits inside the same `.AvatarCropper` container, so the rule matched it too.
+- The zoom test drove the control with `fireEvent.change`, which only proves a synthetic value assignment. `.claude/rules/testing/react.md` asks for `userEvent`.
 
 ## This pull request
 
-- Replaces the MUI `Slider` in `PageAvatar/index.tsx` with `&lt;input type=&quot;range&quot;&gt;`, same min, max, step and `aria-label`.
-- Rewrites `handleSliderChange` to a normal `ChangeEvent&lt;HTMLInputElement&gt;` handler, which drops the `@ts-ignore` the two-argument MUI callback needed.
-- Adds `zoomSliderClass`, a Tailwind class string that styles the track and thumb per vendor prefix. A range input has no cross-browser styling hook.
-- Removes `@material-ui/core`, `@emotion/react`, `@emotion/styled` and the already dead `@types/material-ui` from `fxa-settings/package.json`, and refreshes `yarn.lock`.
-- Adds a test that finds the control by `role=&quot;slider&quot;` and its accessible name, then checks the zoom value updates.
+- Deletes `slider.css` and its `@import` from `tailwind.css`. Every selector in the file was `.AvatarCropper` or `.MuiSlider-*`, and only `PageAvatar/index.tsx` uses `.AvatarCropper`.
+- Rewrites the zoom test in `PageAvatar/index.test.tsx` to use `userEvent.setup()`, with `user.upload()` for the file input and a `user.click()` on `zoom-in-btn` that drives the slider value to `1.1`.
+- Keeps one `fireEvent.change` for the thumb move, with a comment. jsdom implements no default action for a range input, so neither a pointer drag nor an arrow key moves the thumb.
 
 ## Issue that this pull request solves
 
