@@ -41,6 +41,7 @@ import {
   isSendTabEntrypoint,
 } from '../../../lib/utilities';
 import { buildPairUrl, parsePairingHash } from '../../../lib/pairing/pair-url';
+import { getPairingHash } from '../../../lib/pairing-channel-params';
 import {
   getAttemptStorage,
   HandoffPlan,
@@ -154,8 +155,11 @@ const Pair = ({
 
   // A scanned QR lands here with the channel in the hash. `location.hash` is
   // known at mount, so this is settled before the bootstrap effect below runs.
+  // Startup lifts the fragment off the URL before React renders so the channel
+  // key never reaches telemetry, which leaves the router's copy empty here and
+  // the capture as where the channel actually is.
   const pairingChannelInfo = useMemo(
-    () => parsePairingHash(location.hash),
+    () => parsePairingHash(location.hash || getPairingHash()),
     [location.hash]
   );
 

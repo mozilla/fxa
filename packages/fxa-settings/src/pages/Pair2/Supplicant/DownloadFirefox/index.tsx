@@ -15,6 +15,8 @@ import {
 } from '../../../../components/images';
 import { LINK } from '../../../../constants';
 import { Constants } from '../../../../lib/constants';
+import GleanMetrics from '../../../../lib/glean';
+import { flushPingsThen } from '../../../../lib/glean/flush-then';
 import {
   AttemptStorage,
   claimAutoAttempt,
@@ -49,7 +51,11 @@ export type DownloadFirefoxProps = {
 };
 
 const learnMoreLink = (
-  <LinkExternal href={LINK.FX_SYNC} className="link-dark-grey">
+  <LinkExternal
+    href={LINK.FX_SYNC}
+    gleanDataAttrs={{ id: 'dtm_mobile_download_learn_more' }}
+    className="link-dark-grey"
+  >
     Learn more
   </LinkExternal>
 );
@@ -103,16 +109,20 @@ const DownloadFirefox = ({
       setAttempting(false);
       return;
     }
+    // Not flushed before the hand-off: this is the happy path, and holding it
+    // for a ping is a cost every successful pairing would pay. Some of these
+    // are lost to the navigation, and the metric's description says so.
+    GleanMetrics.dtmMobile.deeplinkAttempt({ event: { reason: 'android' } });
     assign(plan.deepLink);
 
     // WebView backstop: if the intent silently no-ops, drop the CTA back to its
     // resting state rather than spinning forever. State only — never a
     // navigation, so it cannot race S.browser_fallback_url, which unloads us
     // first when it works.
-    const restTimer = window.setTimeout(
-      () => setAttempting(false),
-      STORE_FALLBACK_TIMEOUT_MS
-    );
+    const restTimer = window.setTimeout(() => {
+      GleanMetrics.dtmMobile.deeplinkWebviewFallback();
+      setAttempting(false);
+    }, STORE_FALLBACK_TIMEOUT_MS);
     return () => window.clearTimeout(restTimer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -126,6 +136,7 @@ const DownloadFirefox = ({
       return;
     }
     setAttempting(true);
+    GleanMetrics.dtmMobile.deeplinkAttempt({ event: { reason: plan.kind } });
     // Android's intent:// carries its own store fallback via
     // S.browser_fallback_url, so it needs no JS watchdog.
     if (isAndroid) {
@@ -133,7 +144,17 @@ const DownloadFirefox = ({
     }
     teardownRef.current?.();
     teardownRef.current = armStoreFallback({
-      onFallback: () => assign(plan.storeUrl),
+      onFallback: (reason) => {
+        GleanMetrics.dtmMobile.deeplinkStoreRedirect({ event: { reason } });
+        // Flush first — this is the event the store-fallback data rests on, and
+        // navigating in the same tick would drop it. The wait is a window in
+        // which the app can still take the foreground, and the watch that would
+        // have noticed is already torn down, so ask the document directly.
+        flushPingsThen(
+          () => assign(plan.storeUrl),
+          () => document.visibilityState === 'visible'
+        );
+      },
     });
   };
 
@@ -165,12 +186,18 @@ const DownloadFirefox = ({
   // iOS honours — LinkExternal's target="_blank" would break it. Without one
   // the CTA is an ordinary outbound link to mozilla.org.
   const cta = plan ? (
-    <a href={plan.deepLink} onClick={onAttempt} className={ctaClassName}>
+    <a
+      href={plan.deepLink}
+      onClick={onAttempt}
+      data-glean-id="dtm_mobile_download_submit"
+      className={ctaClassName}
+    >
       {ctaLabel}
     </a>
   ) : (
     <LinkExternal
       href={Constants.FIREFOX_MOBILE_DOWNLOAD_URL}
+      gleanDataAttrs={{ id: 'dtm_mobile_download_submit' }}
       className={ctaClassName}
     >
       {ctaLabel}
@@ -178,7 +205,7 @@ const DownloadFirefox = ({
   );
 
   return (
-   <AppLayout whiteBackground>
+    <AppLayout whiteBackground>
       <div className="flex flex-col items-center text-center">
         <FirefoxWordmarkImage className="h-8 w-24 text-black dark:text-white" />
 

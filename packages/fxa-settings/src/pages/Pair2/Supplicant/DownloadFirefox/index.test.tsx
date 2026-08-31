@@ -15,6 +15,8 @@ import {
   planPairingHandoff,
 } from '../../../../lib/pairing/handoff';
 import { Devices } from '../../../../lib/utilities';
+import GleanMetrics from '../../../../lib/glean';
+import { PING_FLUSH_MS } from '../../../../lib/glean/flush-then';
 import DownloadFirefox from '.';
 import {
   MOCK_ANDROID_PLAN,
@@ -416,6 +418,116 @@ describe('Pair2/Supplicant/DownloadFirefox page', () => {
         .getAttribute('href');
       expect(href).toContain('channel_key=key-1');
       expect(href).toMatch(/#Intent;.*;end$/);
+    });
+  });
+  // The production hand-off, so this is where the dtm_mobile deeplink funnel
+  // lives. Glean is not initialized under test, so the recorders are no-ops
+  // that are observed rather than stubbed.
+  describe('deep link telemetry', () => {
+    let deeplinkAttempt: jest.SpyInstance;
+    let deeplinkStoreRedirect: jest.SpyInstance;
+    let deeplinkWebviewFallback: jest.SpyInstance;
+
+    beforeEach(() => {
+      deeplinkAttempt = jest.spyOn(GleanMetrics.dtmMobile, 'deeplinkAttempt');
+      deeplinkStoreRedirect = jest.spyOn(
+        GleanMetrics.dtmMobile,
+        'deeplinkStoreRedirect'
+      );
+      deeplinkWebviewFallback = jest.spyOn(
+        GleanMetrics.dtmMobile,
+        'deeplinkWebviewFallback'
+      );
+    });
+
+    afterEach(() => {
+      deeplinkAttempt.mockRestore();
+      deeplinkStoreRedirect.mockRestore();
+      deeplinkWebviewFallback.mockRestore();
+    });
+
+    it('records the attempt when the iOS CTA is tapped', async () => {
+      const user = userEvent.setup();
+      renderWithLocalizationProvider(<Subject storage={createStorage()} />);
+
+      await user.click(
+        screen.getByRole('link', { name: 'Continue in Firefox' })
+      );
+
+      expect(deeplinkAttempt).toHaveBeenCalledWith({
+        event: { reason: 'ios' },
+      });
+    });
+
+    it('records the attempt when Android hands off on mount', () => {
+      renderWithLocalizationProvider(
+        <Subject plan={MOCK_ANDROID_PLAN} storage={createStorage()} />
+      );
+
+      expect(deeplinkAttempt).toHaveBeenCalledWith({
+        event: { reason: 'android' },
+      });
+    });
+
+    it('records the webview fallback when the intent silently no-ops', async () => {
+      jest.useFakeTimers();
+      try {
+        renderWithLocalizationProvider(
+          <Subject plan={MOCK_ANDROID_PLAN} storage={createStorage()} />
+        );
+
+        jest.advanceTimersByTime(STORE_FALLBACK_TIMEOUT_MS);
+
+        await waitFor(() =>
+          expect(deeplinkWebviewFallback).toHaveBeenCalledTimes(1)
+        );
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    // A silent failure — tap, no dialog, nothing — is the 'timeout' inference.
+    // The redirect is recorded first and the navigation waits for the flush.
+    it('records the store redirect with its reason, then navigates', async () => {
+      jest.useFakeTimers();
+      try {
+        const assign = jest.fn();
+        const user = userEvent.setup({
+          advanceTimers: jest.advanceTimersByTime,
+        });
+        renderWithLocalizationProvider(
+          <Subject assign={assign} storage={createStorage()} />
+        );
+
+        await user.click(
+          screen.getByRole('link', { name: 'Continue in Firefox' })
+        );
+        jest.advanceTimersByTime(STORE_FALLBACK_TIMEOUT_MS);
+
+        expect(deeplinkStoreRedirect).toHaveBeenCalledWith({
+          event: { reason: 'timeout' },
+        });
+        expect(assign).not.toHaveBeenCalled();
+
+        await jest.advanceTimersByTimeAsync(PING_FLUSH_MS);
+
+        expect(assign).toHaveBeenCalledWith(MOCK_IOS_PLAN.storeUrl);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it.each([
+      ['with a plan', MOCK_IOS_PLAN],
+      ['without a plan', undefined],
+    ])('tags the CTA for click telemetry %s', (_label, plan) => {
+      renderWithLocalizationProvider(
+        <Subject plan={plan} storage={createStorage()} />
+      );
+
+      expect(
+        screen.getByRole('link', { name: 'Continue in Firefox' })
+      ).toHaveAttribute('data-glean-id', 'dtm_mobile_download_submit');
     });
   });
 });

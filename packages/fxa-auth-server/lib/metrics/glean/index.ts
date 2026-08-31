@@ -474,6 +474,9 @@ export function gleanMetrics(config: ConfigType) {
       verificationStarted: createEventFn('passkey_verification_started'),
       verificationSuccess: createEventFn('passkey_verification_success'),
     },
+    pairing: {
+      success: createEventFn('dtm_backend_pair_success'),
+    },
   };
 }
 
@@ -514,6 +517,7 @@ export const logErrorWithGlean = ({
           | 'emailDelivery'
           | 'loginConfirmSkipFor'
           | 'passkey'
+          | 'pairing'
         >
       ];
     funnelFns[event as keyof typeof funnelFns](request, {

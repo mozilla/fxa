@@ -41,6 +41,13 @@ jest.mock('../../../../lib/glean', () => ({
       downloadFirefoxView: (...args: unknown[]) =>
         mockDownloadFirefoxView(...args),
     },
+    // The page records the hand-off; covered in its own test, inert here.
+    dtmMobile: {
+      deeplinkAttempt: jest.fn(),
+      deeplinkStoreRedirect: jest.fn(),
+      deeplinkWebviewFallback: jest.fn(),
+    },
+    isDone: jest.fn().mockResolvedValue(undefined),
   },
 }));
 

@@ -6,6 +6,8 @@ import React from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import AppLayout from '../../../../components/AppLayout';
 import { PairingInterruptedImage } from '../../../../components/images';
+import GleanMetrics from '../../../../lib/glean';
+import { useGleanView } from '../../../../lib/glean/useGleanView';
 
 /**
  * Why pairing stopped. Shared verbatim with the mobile twin,
@@ -31,6 +33,11 @@ type VariantContent = {
   secondary?: {
     ftlId: string;
     label: string;
+    /**
+     * Its own id rather than a shared one with a `data-glean-type`: the
+     * secondary is a different action per variant, not one action relabelled.
+     */
+    gleanId: string;
   };
 };
 
@@ -51,6 +58,7 @@ const variantContent: Record<TimeoutAndCancelReason, VariantContent> = {
     secondary: {
       ftlId: 'pair2-authority-timeout-and-cancel-sync-settings-button',
       label: 'Sync settings',
+      gleanId: 'dtm_desktop_canceled_sync_settings',
     },
   },
 };
@@ -67,7 +75,14 @@ const TimeoutAndCancel = ({
   onTryAgain,
   onSyncSettings,
 }: TimeoutAndCancelProps) => {
-  const content = variantContent[reason ?? 'timeout'];
+  const resolvedReason = reason ?? 'timeout';
+  const content = variantContent[resolvedReason];
+
+  // Custom view event rather than the automatic one: both states share a route,
+  // so `reason` is the only thing that tells them apart.
+  useGleanView(() =>
+    GleanMetrics.dtmDesktop.timeoutView({ event: { reason: resolvedReason } })
+  );
 
   return (
     <AppLayout>
@@ -86,6 +101,8 @@ const TimeoutAndCancel = ({
             <button
               type="button"
               onClick={onTryAgain}
+              data-glean-id="dtm_desktop_timeout_retry_submit"
+              data-glean-type={resolvedReason}
               className="cta-primary cta-xl"
             >
               Try again
@@ -98,6 +115,7 @@ const TimeoutAndCancel = ({
             <button
               type="button"
               onClick={onSyncSettings}
+              data-glean-id={content.secondary.gleanId}
               // `py-2` keeps the tap target comfortable, so the margin is halved
               // to land on the 16px gap the design asks for.
               className="mt-2 py-2 text-base text-grey-900 underline dark:text-grey-10"
