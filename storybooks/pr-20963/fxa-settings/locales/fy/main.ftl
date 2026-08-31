@@ -181,20 +181,18 @@ form-verify-code-default-error = Dit fjild is ferplichte
 
 form-verify-totp-disabled-button-title-numeric = Fier in { $codeLength }-siferige koade yn om troch te gean
 form-verify-totp-disabled-button-title-alphanumeric = Fier in koade fan { $codeLength } tekens yn om troch te gean
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox }-accountwerstelkaai
 get-data-trio-title-backup-verification-codes = Reserve-autentikaasjekoaden
 get-data-trio-download-2 =
-    .title = Downloade
     .aria-label = Downloade
+    .title = Downloade
 get-data-trio-copy-2 =
-    .title = Kopiearje
     .aria-label = Kopiearje
+    .title = Kopiearje
 get-data-trio-print-2 =
-    .title = Ofdrukke
     .aria-label = Ofdrukke
+    .title = Ofdrukke
 
 
 alert-icon-aria-label =
@@ -239,8 +237,6 @@ icon-loading-arrow-aria-label =
     .aria-label = Lade
 icon-passkey-aria-label =
     .aria-label = Passkey
-
-
 hearts-broken-image-aria-label =
     .aria-label = In kompjûter en in mobile telefoan en op beide in ôfbylding fan in brutsen hert
 hearts-verified-image-aria-label =
@@ -408,8 +404,6 @@ avatar-default-avatar =
     .alt = Standertavatar
 
 
-
-
 bento-menu-title-3 = { -brand-mozilla }-produkten
 bento-menu-tagline = Mear produkten fan { -brand-mozilla } dy’t jo privacy beskermje
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -480,8 +474,6 @@ dc-opt-out-success-2 = Ofmelden suksesfol. { -product-mozilla-accounts } stjoert
 dc-opt-in-success-2 = Tank! Troch dizze gegevens te dielen helpe jo ús { -product-mozilla-accounts } te ferbetterjen.
 dc-opt-in-out-error-2 = Sorry, der is in probleem bard by it wizigjen fan jo foarkar foar gegevenssamling
 dc-learn-more = Mear ynfo
-
-
 drop-down-menu-title-2 = { -product-mozilla-account }-menu
 drop-down-menu-signed-in-as-v2 = Oanmeld as
 drop-down-menu-sign-out = Ofmelde
@@ -580,8 +572,6 @@ flow-setup-phone-confirm-code-resend-code-button = Koade nochris ferstjoere
 flow-setup-phone-confirm-code-resend-code-success = Koade ferstjoerd
 flow-setup-phone-confirm-code-success-message-v2 = Wersteltelefoannûmer tafoege
 flow-change-phone-confirm-code-success-message = Wersteltelefoannûmer wizige
-
-
 flow-setup-phone-submit-number-heading = Ferifiearje jo telefoannûmer
 flow-setup-phone-verify-number-instruction = Jo ûntfange in sms fan { -brand-mozilla } mei in koade om jo nûmer te ferifiearjen. Diel dizze koade mei net ien.
 flow-setup-phone-submit-number-info-message-v2 = Wersteltelefoannûmers binne allinnich beskikber yn de Ferienige Steaten en Kanada. VoIP-nûmers en telefoanmaskers wurde net oanrekommandearre.
@@ -1118,8 +1108,6 @@ recovery-phone-number-ending-digits = Nûmer dat einiget op { $lastFourPhoneNumb
 oauth-error-1000 = Der is wat misgien. Slút dit ljepblêd en probearje it opnij.
 
 
-
-
 passkey-registration-error-not-allowed = Ynstellen fan wachtwurd mislearre of is net beskikber. Probearje it opnij of kies in oare metoade.
 passkey-registration-error-not-allowed-existing = Ynstellen fan wachtwurdkaai is net beskikber op dit apparaat. It apparaat is al registrearre, of it ynstelproses is annulearre.
 passkey-registration-error-timeout = Ynstellen fan wachtwurdkaai is annulearre. Probearje it opnij.
@@ -1134,8 +1122,6 @@ passkey-registration-error-invalid-state = Dizze wachtwurdkaai is al registrearr
 passkey-registration-error-not-readable = Wy krije gjin tagong krije ta de authenticator. Probearje it opnij of kies in oare metoade.
 passkey-registration-error-constraint = It ynstellen fan in wachtwurdkaai is net beskikber mei dit apparaat. Probearje in oare metoade of apparaat.
 passkey-registration-error-unexpected = Ynstellen fan wachtwurdkaai mislearre. Probearje it opnij of kies in oare metoade.
-
-
 passkey-authentication-trouble-heading = Kin net oanmelde mei in wachtwurdkaai
 passkey-authentication-trouble-description = Probearje it opnij of brûk in oare oanmeldingsopsje.
 passkey-authentication-trouble-link = Wachtwurdkaaien brûke
@@ -1378,8 +1364,6 @@ service-welcome-vpn-heading = Folgjende: VPN ynskeakelje
 service-welcome-vpn-description = Noch ien stap om de privacy fan jo browser te ferbetterjen. Gean nei it iepen paniel en skeakelje VPN yn.
 
 
-
-
 set-password-heading-v2 = Meitsje in wachtwurd oan om te syngronisearjen
 set-password-info-v2 = Hjirtroch wurde jo gegevens fersifere. It moat wat oars wêze as jo { -brand-google }- of { -brand-apple }-accountwachtwurd.
 
@@ -1406,8 +1390,6 @@ complete-reset-pw-recovery-key-link = Accountwerstelkaai brûke
 reset-password-complete-banner-heading = Jo wachtwurd is opnij inisjalisearre.
 reset-password-complete-banner-message = Ferjit net in nije accountwerstelkaai te meitsjen fan jo { -product-mozilla-account }-ynstellingen út om takomstige oanmeldingsproblemen foar te kommen.
 complete-reset-password-desktop-relay = { -brand-firefox } probearret jo werom te stjoeren om in e-mailmasker te brûken neidat jo jo oanmeld hawwe.
-
-
 confirm-backup-code-reset-password-input-label = Fier koade fan 10 tekens yn
 confirm-backup-code-reset-password-confirm-button = Befêstigje
 confirm-backup-code-reset-password-subheader = Fier reserve-autentikaasjekoade yn
@@ -1441,8 +1423,6 @@ password-reset-submit-button-2 = Trochgean
 
 reset-password-complete-header = Jo wachtwurd is opnij ynsteld
 reset-password-confirmed-cta = Trochgean nei { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Jo wachtwurd werinisjalisearje
@@ -1520,8 +1500,6 @@ signin-passkey-fallback-body = Om jo gegevens feilich te hâlden, moatte jo jo w
 signin-passkey-fallback-password-label = Wachtwurd
 signin-passkey-fallback-continue = Trochgean
 signin-passkey-fallback-forgot-password-link = Wachtwurd ferjitten?
-
-
 
 
 signin-passwordless-code-heading = Fier befêstigingskoade yn
@@ -1638,8 +1616,6 @@ signin-unblock-code-incorrect-format-2 = Autorisaasjekoade mei allinnich letters
 signin-unblock-resend-code-button = Net yn Postfek YN of map mei net-winske? Opnij ferstjoere
 signin-unblock-support-link = Werom bart dit?
 signin-unblock-desktop-relay = { -brand-firefox } probearret jo werom te stjoeren om in e-mailmasker te brûken neidat jo jo oanmeld hawwe.
-
-
 
 
 confirm-signup-code-page-title = Fier befêstigingskoade yn

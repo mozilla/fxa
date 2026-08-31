@@ -13,9 +13,6 @@ datablock-copy =
 ## FormVerifyTotp component
 ## Form to enter a time-based one-time-passcode (e.g., 6-digit numeric code or 8-digit alphanumeric code)
 
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 
 ## Input Password
@@ -40,9 +37,6 @@ avatar-your-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-vpn-2 = { -product-mozilla-vpn }
 bento-menu-monitor-3 = { -product-mozilla-monitor }
 bento-menu-firefox-relay-2 = { -product-firefox-relay }
@@ -59,9 +53,6 @@ cs-sign-out-button = साइन आउट करें
 dc-subheader-moz-accounts = { -product-mozilla-accounts }
 dc-subheader-ff-browser = { -brand-firefox } ब्राउज़र
 dc-learn-more = अधिक जानें
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = { -product-mozilla-account } मेन्यू
 
 ## HeaderLockup component, the header in account settings
