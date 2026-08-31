@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 6a713f2f38ca3efed4c3de483f21d4b5a06271ea</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 6a713f2f38ca3efed4c3de483f21d4b5a06271ea</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>8/31/2026, 8:02:27 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(pairing): configurable iOS scheme and v2 iOS E2E coverage</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- Every Firefox iOS flavour registers `firefox://`, so a hardcoded scheme
+  cannot reach a local build when a release install is also present.
+- The v2 `pair_oauth_start` round trip does not fit the default WebChannel
+  deadline on a cold start, and timing out there fails the whole pairing.
+- v2 pairing against a real Firefox iOS supplicant had no coverage.
+
+This commit:
+- Adds a `pairing.ios_url_scheme` setting, surfaced as
+  `config.pairing.iosUrlScheme`, and builds the iOS hand-off link from it.
+- Names the pairing OAuth timeout `PAIR_OAUTH_TIMEOUT_MS` and exports it
+  with the default, so the channel tests stop copying the numbers.
+- Adds `pairingFlowV2iOS.spec.ts` and `lib/ios-supplicant.ts`, driving a
+  Simulator supplicant against a Marionette authority.
+- Restricts the v2 iOS and Android pairing specs to the local target.
+- Lets the dev launcher and test targets reach a stack off localhost.</pre></dd>
+  </dl>
+</body>
+</html>

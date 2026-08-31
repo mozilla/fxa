@@ -1,0 +1,10 @@
+{
+  "commit": "6a713f2f38ca3efed4c3de483f21d4b5a06271ea",
+  "summary": "feat(pairing): configurable iOS scheme and v2 iOS E2E coverage",
+  "description": "Because:\n- Every Firefox iOS flavour registers `firefox://`, so a hardcoded scheme\n  cannot reach a local build when a release install is also present.\n- The v2 `pair_oauth_start` round trip does not fit the default WebChannel\n  deadline on a cold start, and timing out there fails the whole pairing.\n- v2 pairing against a real Firefox iOS supplicant had no coverage.\n\nThis commit:\n- Adds a `pairing.ios_url_scheme` setting, surfaced as\n  `config.pairing.iosUrlScheme`, and builds the iOS hand-off link from it.\n- Names the pairing OAuth timeout `PAIR_OAUTH_TIMEOUT_MS` and exports it\n  with the default, so the channel tests stop copying the numbers.\n- Adds `pairingFlowV2iOS.spec.ts` and `lib/ios-supplicant.ts`, driving a\n  Simulator supplicant against a Marionette authority.\n- Restricts the v2 iOS and Android pairing specs to the local target.\n- Lets the dev launcher and test targets reach a stack off localhost.",
+  "timestamp": 1788206547000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
