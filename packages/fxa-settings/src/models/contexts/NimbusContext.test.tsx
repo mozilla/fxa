@@ -64,7 +64,7 @@ describe('NimbusContext', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseDynamicLocalization.mockReturnValue({
-      currentLocale: 'en-US',
+      currentLocale: 'en-CA',
       switchLanguage: jest.fn(),
       clearLanguagePreference: jest.fn(),
       isLoading: false,
@@ -195,13 +195,29 @@ describe('NimbusContext', () => {
 
       expect(mockInitializeNimbus).toHaveBeenCalledWith('test-user-id', false, {
         language: 'en',
-        region: 'us',
+        region: 'ca',
       });
 
       await screen.findByTestId('experiments');
       expect(screen.getByTestId('experiments')).toHaveTextContent(
         'has-experiments'
       );
+    });
+
+    it('sends no region when the locale negotiates down to en', async () => {
+      mockUseDynamicLocalization.mockReturnValue({
+        currentLocale: 'en-US',
+        switchLanguage: jest.fn(),
+        clearLanguagePreference: jest.fn(),
+        isLoading: false,
+      });
+
+      renderWithProviders();
+
+      expect(mockInitializeNimbus).toHaveBeenCalledWith('test-user-id', false, {
+        language: 'en',
+        region: undefined,
+      });
     });
 
     it('handles API response with lowercase features', async () => {
@@ -255,7 +271,7 @@ describe('NimbusContext', () => {
         expect(mockInitializeNimbus).toHaveBeenCalledWith(
           'test-user-id',
           true,
-          { language: 'en', region: 'us' }
+          { language: 'en', region: 'ca' }
         );
       });
     });
@@ -272,7 +288,7 @@ describe('NimbusContext', () => {
         expect(mockInitializeNimbus).toHaveBeenCalledWith(
           'test-user-id',
           true,
-          { language: 'en', region: 'us' }
+          { language: 'en', region: 'ca' }
         );
       });
     });

@@ -15,7 +15,7 @@ import fetchMock from 'fetch-mock';
 import AppLocalizationProvider from './AppLocalizationProvider';
 
 describe('<AppLocalizationProvider/>', () => {
-  const locales = ['en-GB', 'en-US', 'es-ES'];
+  const locales = ['en-GB', 'en-CA', 'es-ES'];
   const bundles = ['greetings', 'farewells'];
   const reportError = () => {};
   function waitUntilTranslated() {
@@ -30,15 +30,15 @@ describe('<AppLocalizationProvider/>', () => {
       '/static-asset-manifest.json',
       `
       {
-        "/locales/en-US/greetings.ftl": "/locales/en-US/greetings.ftl",
-        "/locales/en-US/farewells.ftl": "/locales/en-US/farewells.ftl",
+        "/locales/en-CA/greetings.ftl": "/locales/en-CA/greetings.ftl",
+        "/locales/en-CA/farewells.ftl": "/locales/en-CA/farewells.ftl",
         "/locales/es-ES/greetings.ftl": "/locales/es-ES/greetings.ftl",
         "/locales/en-GB/greetings.ftl": "/locales/en-GB/greetings.ftl",
       }
       `
     );
-    fetchMock.get('/locales/en-US/greetings.ftl', 'hello = Hello\n');
-    fetchMock.get('/locales/en-US/farewells.ftl', 'goodbye = Goodbye\n');
+    fetchMock.get('/locales/en-CA/greetings.ftl', 'hello = Hello\n');
+    fetchMock.get('/locales/en-CA/farewells.ftl', 'goodbye = Goodbye\n');
     fetchMock.get('/locales/es-ES/greetings.ftl', 'hello = Hola\n');
     fetchMock.get('/locales/en-GB/greetings.ftl', 'hello = Hello { $amount }');
     fetchMock.get('*', { throws: new Error() });
@@ -58,11 +58,11 @@ describe('<AppLocalizationProvider/>', () => {
     cleanup();
   });
 
-  it('translate to en-US', async () => {
+  it('translate to en-CA', async () => {
     const { getByTestId } = render(
       <AppLocalizationProvider
         bundles={bundles}
-        userLocales={['en-US']}
+        userLocales={['en-CA']}
         reportError={reportError}
       >
         <main data-testid="result">
@@ -99,7 +99,7 @@ describe('<AppLocalizationProvider/>', () => {
     );
     await waitUntilTranslated();
 
-    // Ensure we fall back to en-US if our locale is missing that string.
+    // Ensure we leave the string untranslated if our locale is missing it.
     expect(getByTestId('result')).toHaveTextContent('Holauntranslated');
   });
 
@@ -122,7 +122,7 @@ describe('<AppLocalizationProvider/>', () => {
     );
     await waitUntilTranslated();
 
-    // Ensure we fall back to en-US strings if we don't have translations for
+    // Ensure we leave strings untranslated if we don't have translations for
     // any of the userLocales.
     expect(getByTestId('result')).toHaveTextContent('untranslated');
   });
