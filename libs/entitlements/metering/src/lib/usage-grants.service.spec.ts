@@ -13,8 +13,11 @@ import {
 import {
   CreateUsageGrantRequestFactory,
   UsageGrantRecordFactory,
-} from './factories';
-import { MeterNotConfiguredError } from './metering.error';
+} from './metering.factories';
+import {
+  MeterNotConfiguredError,
+  UsageGrantLifetimeNotSupportedError,
+} from './metering.error';
 import { UsageGrantsManager } from './usage-grants.manager';
 import { UsageGrantsService } from './usage-grants.service';
 
@@ -97,8 +100,11 @@ describe('UsageGrantsService', () => {
       });
     });
 
-    it('resolves a currentWindow lifetime to the end of the meter window', async () => {
-      const meter = StrapiMeterFactory({ slug: 'tokens', window: 'monthly' });
+    it('resolves a currentWindow lifetime to the end of a calendar window', async () => {
+      const meter = StrapiMeterFactory({
+        slug: 'tokens',
+        window: { kind: 'calendar', period: 'monthly' },
+      });
       const request = CreateUsageGrantRequestFactory({
         slug: 'tokens',
         lifetime: { type: 'currentWindow' },
@@ -116,6 +122,26 @@ describe('UsageGrantsService', () => {
         })
       );
     });
+
+    it.each(['sliding', 'session'] as const)(
+      'rejects a currentWindow lifetime on a %s meter and creates nothing',
+      async (kind) => {
+        const meter = StrapiMeterFactory({
+          slug: 'tokens',
+          window: { kind, durationMs: 5 * 60 * 60 * 1000 },
+        });
+        const request = CreateUsageGrantRequestFactory({
+          slug: 'tokens',
+          lifetime: { type: 'currentWindow' },
+        });
+        meteringConfigurationManager.getMeterBySlug.mockResolvedValue(meter);
+
+        await expect(
+          service.createGrant({ request, grantedBy: 'rp-1' }, now)
+        ).rejects.toThrow(UsageGrantLifetimeNotSupportedError);
+        expect(usageGrantsManager.createGrant).not.toHaveBeenCalled();
+      }
+    );
 
     it('resolves an expires lifetime to the supplied timestamp', async () => {
       const meter = StrapiMeterFactory({ slug: 'tokens' });

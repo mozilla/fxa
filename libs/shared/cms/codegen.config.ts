@@ -1,4 +1,5 @@
 import type { CodegenConfig } from '@graphql-codegen/cli';
+import { preset as clientPreset } from '@graphql-codegen/client-preset';
 
 const STRAPI_GRAPHQL_API_URL =
   process.env.STRAPI_CLIENT_CONFIG__GRAPHQL_API_URI;
@@ -23,7 +24,7 @@ const config: CodegenConfig = {
   ],
   generates: {
     'libs/shared/cms/src/__generated__/': {
-      preset: 'client',
+      preset: clientPreset,
       config: {
         avoidOptionals: true,
       },

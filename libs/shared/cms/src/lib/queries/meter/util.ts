@@ -4,15 +4,68 @@
 
 import {
   MeterInvalidNotificationThresholdError,
+  MeterInvalidWindowError,
   MeterNotFoundError,
 } from '../../cms.error';
-import { MeterBySlugResult, StrapiMeter } from './types';
+import {
+  METERING_MAX_WINDOW_DURATION_MINUTES,
+  MeterBySlugResult,
+  MeteringWindow,
+  StrapiMeter,
+  StrapiMeterRaw,
+} from './types';
+
+export function toStrapiMeter(meter: StrapiMeterRaw): StrapiMeter {
+  return {
+    slug: meter.slug,
+    unit: meter.unit,
+    limit: meter.limit,
+    notificationThresholds: meter.notificationThresholds,
+    webhooks: meter.webhooks,
+    window: toMeteringWindow(meter),
+  };
+}
+
+function toMeteringWindow(meter: StrapiMeterRaw): MeteringWindow {
+  switch (meter.windowKind) {
+    case 'calendar':
+      if (!meter.windowPeriod) {
+        throw new MeterInvalidWindowError(
+          meter.slug,
+          'calendar meters need a windowPeriod'
+        );
+      }
+      return { kind: 'calendar', period: meter.windowPeriod };
+    case 'sliding':
+    case 'session':
+      if (!meter.windowDurationMinutes || meter.windowDurationMinutes <= 0) {
+        throw new MeterInvalidWindowError(
+          meter.slug,
+          `${meter.windowKind} meters need a positive windowDurationMinutes`
+        );
+      }
+      if (meter.windowDurationMinutes > METERING_MAX_WINDOW_DURATION_MINUTES) {
+        throw new MeterInvalidWindowError(
+          meter.slug,
+          `${meter.windowKind} meters cannot exceed ${METERING_MAX_WINDOW_DURATION_MINUTES} minutes because events are only retained that long`
+        );
+      }
+      return {
+        kind: meter.windowKind,
+        durationMs: meter.windowDurationMinutes * 60_000,
+      };
+  }
+}
 
 export class MeterBySlugResultUtil {
+  private readonly normalizedMeters: StrapiMeter[];
+
   constructor(
-    private rawResult: MeterBySlugResult,
+    rawResult: MeterBySlugResult,
     private slug: string
-  ) {}
+  ) {
+    this.normalizedMeters = rawResult.meters.map(toStrapiMeter);
+  }
 
   getMeter(): StrapiMeter {
     const meter = this.meters.at(0);
@@ -38,7 +91,7 @@ export class MeterBySlugResultUtil {
     return thresholds;
   }
 
-  get meters(): MeterBySlugResult['meters'] {
-    return this.rawResult.meters;
+  get meters(): StrapiMeter[] {
+    return this.normalizedMeters;
   }
 }

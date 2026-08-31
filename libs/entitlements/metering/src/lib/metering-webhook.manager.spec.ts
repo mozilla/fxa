@@ -4,21 +4,25 @@
 
 import { Logger } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { VError } from 'verror';
 
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 import { MeteringWebhookManager } from './metering-webhook.manager';
 import { MeteringConfig, MockMeteringConfig } from './metering.config';
-
-type WebhookDispatchArgs = Parameters<MeteringWebhookManager['dispatch']>[0];
+import {
+  EmptyClientSecretError,
+  MissingClientSecretError,
+  WebhookDispatchError,
+} from './metering.error';
+import type { WebhookDispatchParams } from './metering.types';
 
 describe('MeteringWebhookManager', () => {
   const SIGNING_CLIENT_ID = 'vpn';
   const SECRET = 'webhook-signing-secret-aaaaaaaaaaaaaaaaa';
   const METERING_CONFIG: MeteringConfig = {
-    openmeterBaseUrl: 'http://example.com',
+    ...MockMeteringConfig,
     clients: { [SIGNING_CLIENT_ID]: SECRET },
-    cloudTasks: MockMeteringConfig.cloudTasks,
   };
 
   let meteringWebhookManager: MeteringWebhookManager;
@@ -51,14 +55,14 @@ describe('MeteringWebhookManager', () => {
     fetchMock.mockRestore();
   });
 
-  function args(
-    overrides: Partial<WebhookDispatchArgs> = {}
-  ): WebhookDispatchArgs {
+  function params(
+    overrides: Partial<WebhookDispatchParams> = {}
+  ): WebhookDispatchParams {
     return {
       signingClientId: SIGNING_CLIENT_ID,
       url: 'https://relying-party.example/webhook',
       slug: 'vpn-bandwidth',
-      userIdentifier: 'user-1',
+      subject: 'user-1',
       threshold: 80,
       currentUsage: 85,
       limit: 100,
@@ -66,7 +70,7 @@ describe('MeteringWebhookManager', () => {
       unit: 'gigabytes',
       windowStart: new Date('2026-05-01T00:00:00.000Z'),
       windowEnd: new Date('2026-06-01T00:00:00.000Z'),
-      eventId: 'evt-1',
+      idempotencyKey: 'vpn:vpn-bandwidth:user-1:2026-05:80',
       ...overrides,
     };
   }
@@ -74,7 +78,7 @@ describe('MeteringWebhookManager', () => {
   async function captureSignatureHeader(
     target: MeteringWebhookManager
   ): Promise<string> {
-    await target.dispatch(args());
+    await target.dispatch(params());
     return fetchMock.mock.calls[fetchMock.mock.calls.length - 1][1].headers[
       'X-Entitlements-Metering-Signature'
     ];
@@ -101,8 +105,8 @@ describe('MeteringWebhookManager', () => {
       }
     });
 
-    it('POSTs to the configured URL with the signed envelope and idempotency key', async () => {
-      await meteringWebhookManager.dispatch(args());
+    it('POSTs the signed envelope to the configured URL', async () => {
+      await meteringWebhookManager.dispatch(params());
 
       expect(fetchMock).toHaveBeenCalledTimes(1);
       const [url, init] = fetchMock.mock.calls[0];
@@ -122,50 +126,59 @@ describe('MeteringWebhookManager', () => {
         limit: 100,
         grantedAmount: 20,
         unit: 'gigabytes',
-        eventId: 'evt-1',
+        idempotencyKey: 'vpn:vpn-bandwidth:user-1:2026-05:80',
       });
-      expect(body.idempotencyKey).toMatch(/^[0-9a-f]+$/);
       expect(body.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
     });
 
-    it('resolves on 2xx without throwing and emits a 2xx-bucketed dispatch counter', async () => {
+    it('resolves on 2xx', async () => {
       fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }));
       await expect(
-        meteringWebhookManager.dispatch(args())
+        meteringWebhookManager.dispatch(params())
       ).resolves.toBeUndefined();
       expect(fetchMock).toHaveBeenCalledTimes(1);
     });
 
-    it('throws on 5xx so Cloud Tasks can re-enqueue', async () => {
+    it('throws WebhookDispatchError on 5xx', async () => {
       fetchMock.mockResolvedValueOnce(new Response('', { status: 503 }));
-      await expect(meteringWebhookManager.dispatch(args())).rejects.toThrow(
-        /Webhook target returned 503/
+      await expect(meteringWebhookManager.dispatch(params())).rejects.toThrow(
+        WebhookDispatchError
       );
       expect(fetchMock).toHaveBeenCalledTimes(1);
     });
 
-    it('throws on 4xx so Cloud Tasks can re-enqueue (and eventually DLQ)', async () => {
+    it('names the response status in the error info', async () => {
       fetchMock.mockResolvedValueOnce(new Response('', { status: 400 }));
-      await expect(meteringWebhookManager.dispatch(args())).rejects.toThrow(
-        /Webhook target returned 400/
-      );
-      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect.assertions(2);
+      try {
+        await meteringWebhookManager.dispatch(params());
+      } catch (err) {
+        expect(err).toBeInstanceOf(WebhookDispatchError);
+        if (err instanceof WebhookDispatchError) {
+          expect(VError.info(err)['status']).toBe(400);
+        }
+      }
     });
 
-    it('throws on network error', async () => {
+    it('wraps a network error in WebhookDispatchError, keeping the cause message', async () => {
       fetchMock.mockRejectedValueOnce(new Error('ECONNRESET'));
-      await expect(meteringWebhookManager.dispatch(args())).rejects.toThrow(
-        /ECONNRESET/
-      );
-      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect.assertions(2);
+      try {
+        await meteringWebhookManager.dispatch(params());
+      } catch (err) {
+        expect(err).toBeInstanceOf(WebhookDispatchError);
+        if (err instanceof WebhookDispatchError) {
+          expect(err.message).toMatch(/ECONNRESET/);
+        }
+      }
     });
 
-    it('skips dispatch silently when there is no signing key for the signingClientId', async () => {
+    it('throws MissingClientSecretError without dispatching when no signing key is configured', async () => {
       await expect(
         meteringWebhookManager.dispatch(
-          args({ signingClientId: 'no-such-client' })
+          params({ signingClientId: 'no-such-client' })
         )
-      ).resolves.toBeUndefined();
+      ).rejects.toThrow(MissingClientSecretError);
       expect(fetchMock).not.toHaveBeenCalled();
     });
   });
@@ -177,9 +190,7 @@ describe('MeteringWebhookManager', () => {
           ...METERING_CONFIG,
           clients: { [SIGNING_CLIENT_ID]: '   ' },
         })
-      ).rejects.toThrow(
-        `MeteringConfig.clients[${SIGNING_CLIENT_ID}] has an empty secret`
-      );
+      ).rejects.toThrow(EmptyClientSecretError);
     });
 
     it('trims whitespace-padded secrets so signatures match the auth guard', async () => {
