@@ -11,20 +11,17 @@ datablock-download =
 ## FormVerifyTotp component
 ## Form to enter a time-based one-time-passcode (e.g., 6-digit numeric code or 8-digit alphanumeric code)
 
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } recovery key ng account
 get-data-trio-download-2 =
-    .title = i-Download
     .aria-label = i-Download
+    .title = i-Download
 get-data-trio-copy-2 =
-    .title = Kopyahin
     .aria-label = Kopyahin
+    .title = Kopyahin
 get-data-trio-print-2 =
-    .title = i-Print
     .aria-label = i-Print
+    .title = i-Print
 
 ## Alert Bar
 
@@ -38,9 +35,6 @@ avatar-default-avatar =
     .alt = Default na avatar
 
 ##
-
-
-# BentoMenu component
 
 bento-menu-firefox-desktop = { -brand-firefox } Browser para sa Desktop
 bento-menu-firefox-mobile = { -brand-firefox } Browser para sa Mobile

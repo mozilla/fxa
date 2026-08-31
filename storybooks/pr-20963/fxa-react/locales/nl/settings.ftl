@@ -197,21 +197,18 @@ form-verify-totp-disabled-button-title-numeric = Voer een { $codeLength }-cijfer
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Voer een code van { $codeLength } tekens in om door te gaan
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox }-accountherstelsleutel
 get-data-trio-title-backup-verification-codes = Reserve-authenticatiecodes
 get-data-trio-download-2 =
-    .title = Downloaden
     .aria-label = Downloaden
+    .title = Downloaden
 get-data-trio-copy-2 =
-    .title = Kopiëren
     .aria-label = Kopiëren
+    .title = Kopiëren
 get-data-trio-print-2 =
-    .title = Afdrukken
     .aria-label = Afdrukken
+    .title = Afdrukken
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -275,10 +272,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = Wachtwoordsleutel
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Een computer en een mobiele telefoon en op beide een afbeelding van een gebroken hart
 hearts-verified-image-aria-label =
@@ -527,9 +520,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = { -brand-mozilla }-producten
 bento-menu-tagline = Meer producten van { -brand-mozilla } die uw privacy beschermen
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -622,9 +612,6 @@ dc-opt-out-success-2 = Afmelden succesvol. { -product-mozilla-accounts } stuurt 
 dc-opt-in-success-2 = Bedankt! Door deze gegevens te delen helpt u ons { -product-mozilla-accounts } te verbeteren.
 dc-opt-in-out-error-2 = Sorry, er is een probleem opgetreden bij het wijzigen van uw voorkeur voor gegevensverzameling
 dc-learn-more = Meer info
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = { -product-mozilla-account }-menu
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -785,9 +772,6 @@ flow-setup-phone-confirm-code-resend-code-button = Code nogmaals versturen
 flow-setup-phone-confirm-code-resend-code-success = Code verzonden
 flow-setup-phone-confirm-code-success-message-v2 = Hersteltelefoonnummer toegevoegd
 flow-change-phone-confirm-code-success-message = Hersteltelefoonnummer gewijzigd
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Verifieer uw telefoonnummer
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = U ontvangt een sms van { -brand-mozilla } met een code om uw nummer te verifiëren. Deel deze code met niemand.
@@ -1508,9 +1492,6 @@ oauth-error-1000 = Er is iets misgegaan. Sluit dit tabblad en probeer het opnieu
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = Instellen van wachtwoordsleutel mislukt of niet beschikbaar. Probeer het opnieuw of kies een andere methode.
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
@@ -1542,9 +1523,6 @@ passkey-registration-error-not-readable = We krijgen geen toegang tot de authent
 passkey-registration-error-constraint = Instellen van wachtwoordsleutel is niet beschikbaar met dit apparaat. Probeer een andere methode of een ander apparaat.
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = Instellen wachtwoordsleutel mislukt. Probeer het opnieuw of kies een andere methode.
-
-# Authentication errors
-
 # Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
 # available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
 # points the user to another way to sign in.
@@ -2013,9 +1991,6 @@ service-welcome-vpn-description = Nog één stap om de privacy van uw browser te
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
 
-
-# password to complete their sign-in when they want to login to a service requiring it.
-
 set-password-heading-v2 = Maak een wachtwoord aan om te synchroniseren
 # "This" refers to the heading, "Create password to sync"
 set-password-info-v2 = Hierdoor worden uw gegevens versleuteld. Het dient anders te zijn dan uw { -brand-google }- of { -brand-apple }-accountwachtwoord.
@@ -2065,9 +2040,6 @@ reset-password-complete-banner-message = Vergeet niet een nieuwe accountherstels
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = { -brand-firefox } probeert u terug te sturen om een e-mailmasker te gebruiken nadat u zich hebt aangemeld.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = Voer code van 10 tekens in
 confirm-backup-code-reset-password-confirm-button = Bevestigen
 confirm-backup-code-reset-password-subheader = Voer reserve-authenticatiecode in
@@ -2118,9 +2090,6 @@ reset-password-confirmed-cta = Doorgaan naar { $serviceName }
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Uw wachtwoord herinitialiseren
 password-reset-recovery-method-subheader = Een herstelmethode kiezen
@@ -2228,11 +2197,6 @@ signin-passkey-fallback-body = Om uw gegevens veilig te houden, dient u uw wacht
 signin-passkey-fallback-password-label = Wachtwoord
 signin-passkey-fallback-continue = Doorgaan
 signin-passkey-fallback-forgot-password-link = Wachtwoord vergeten?
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2425,9 +2389,6 @@ signin-unblock-desktop-relay = { -brand-firefox } probeert u terug te sturen om 
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Voer bevestigingscode in

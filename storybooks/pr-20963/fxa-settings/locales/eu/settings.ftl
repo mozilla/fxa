@@ -134,21 +134,18 @@ form-verify-totp-disabled-button-title-numeric = Jarraitzeko, idatzi { $codeLeng
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Jarraitzeko, idatzi { $codeLength } karaktere kodea
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox }  kontua berreskuratzeko gakoa
 get-data-trio-title-backup-verification-codes = Autentifikazio-kodearen babes-kopia
 get-data-trio-download-2 =
-    .title = Deskargatu
     .aria-label = Deskargatu
+    .title = Deskargatu
 get-data-trio-copy-2 =
-    .title = Kopiatu
     .aria-label = Kopiatu
+    .title = Kopiatu
 get-data-trio-print-2 =
-    .title = Inprimatu
     .aria-label = Inprimatu
+    .title = Inprimatu
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -200,10 +197,6 @@ info-icon-aria-label =
 # Used to select United States as a country code for phone number
 usa-flag-icon-aria-label =
     .aria-label = Estatu Batuetako bandera
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Ordenagailu bat eta telefono mugikor bat eta bihotz hautsi baten irudia bakoitzean
 hearts-verified-image-aria-label =
@@ -404,9 +397,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = { -brand-mozilla } produktuak
 bento-menu-tagline = Zure pribatutasuna babesten duten { -brand-mozilla }ren produktu gehiago
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -487,9 +477,6 @@ dc-opt-out-success-2 = Aukeratu arrakastaz. { -product-mozilla-accounts }k ez du
 dc-opt-in-success-2 = Eskerrik asko! Datu hauek partekatzeak { -product-mozilla-accounts } hobetzen laguntzen digu.
 dc-opt-in-out-error-2 = Barkatu, arazo bat izan da zure datuak biltzeko hobespenak aldatzean
 dc-learn-more = Argibide gehiago
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = { -product-mozilla-account } menua
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -561,9 +548,6 @@ flow-setup-phone-confirm-code-expired = Kodea iraungita?
 flow-setup-phone-confirm-code-resend-code-button = Birbidali kodea
 flow-setup-phone-confirm-code-resend-code-success = Kodea bidalia
 flow-setup-phone-confirm-code-success-message-v2 = Berreskuratze telefonoa gehitu da
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Egiaztatu zure telefono zenbakia
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = { -brand-mozilla } erabiltzailearen testu-mezu bat jasoko duzu zure zenbakia egiaztatzeko kode batekin. Ez partekatu kode hau inorekin.
@@ -1332,9 +1316,6 @@ reset-password-complete-banner-message = Ez ahaztu kontua berreskuratzeko gako b
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = { -brand-firefox } saioa hasi ondoren posta elektronikoko maskara bat erabiltzera bidaltzen saiatuko da.
 
-# ConfirmBackupCodeResetPassword page
-
-
 ## Confirm Reset Password With Code
 
 confirm-reset-password-with-code-heading = Egiaztatu zure posta elektronikoa
@@ -1570,9 +1551,6 @@ signin-unblock-desktop-relay = { -brand-firefox } saioa hasi ondoren posta elekt
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Sartu baieztapen-kodea

@@ -99,6 +99,13 @@ choose-newsletters-option-reclaim-the-internet =
     .label = ਇੰਟਰਨੈੱਟ ਉੱਤੇ ਦਾਅਵਾ ਕਰਨ ਲਈ ਕਾਰਵਾਈ ਚੇਤਾਵਨੀਆਂ
 
 
+pair-continue-in-firefox-heading = { -brand-firefox } ਨਾਲ ਜਾਰੀ ਰੱਖੋ
+pair-continue-in-firefox-description = { -brand-firefox } ਰਾਹੀਂ ਪੇਅਰ ਕੀਤਾ ਗਿਆ ਹੈ। ਇਸ ਡਿਵਾਈਸ ਨਾਲ ਕਨੈਕਟ ਕਰਨ ਨੂੰ ਪੂਰਾ ਕਰਨ ਵਾਸਤੇ ਇਸ ਨੂੰ ਖੋਲ੍ਹੋ।
+pair-continue-in-firefox-button = { -brand-firefox } ਨਾਲ ਜਾਰੀ ਰੱਖੋ
+pair-continue-in-firefox-opening = { -brand-firefox } ਨੂੰ ਖੋਲ੍ਹਿਆ ਜਾ ਰਿਾਹ ਹੈ
+pair-continue-in-firefox-get-firefox-link = ਕੀ { -brand-firefox } ਨਹੀਂ ਹੈ? ਹੁਣੇ ਲਵੋ
+
+
 datablock-download =
     .message = ਡਾਊਨਲੋਡ ਕੀਤਾ
 datablock-copy =
@@ -166,20 +173,18 @@ form-verify-code-default-error = ਇਹ ਖੇਤਰ ਲੋੜੀਂਦਾ ਹ�
 
 form-verify-totp-disabled-button-title-numeric = ਜਾਰੀ ਰੱਖਣ ਲਈ { $codeLength }-ਅੰਕ ਦਿਓ
 form-verify-totp-disabled-button-title-alphanumeric = ਜਾਰੀ ਰੱਖਣ ਲਈ { $codeLength }-ਅੱਖਰ ਦਿਓ
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } ਖਾਤਾ ਰਿਕਵਰੀ ਕੁੰਜੀ
 get-data-trio-title-backup-verification-codes = ਬੈਕਅੱਪ ਪਰਮਾਣੀਕਰਨ ਕੋਡ
 get-data-trio-download-2 =
-    .title = ਡਾਊਨਲੋਡ
     .aria-label = ਡਾਊਨਲੋਡ ਕਰੋ
+    .title = ਡਾਊਨਲੋਡ
 get-data-trio-copy-2 =
-    .title = ਕਾਪੀ
     .aria-label = ਕਾਪੀ ਕਰੋ
+    .title = ਕਾਪੀ
 get-data-trio-print-2 =
-    .title = ਪਰਿੰਟ
     .aria-label = ਪਰਿੰਟ ਕਰੋ
+    .title = ਪਰਿੰਟ
 
 
 alert-icon-aria-label =
@@ -220,8 +225,6 @@ icon-loading-arrow-aria-label =
     .aria-label = ਲੋਡ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ
 icon-passkey-aria-label =
     .aria-label = ਪਾਸ-ਕੀ
-
-
 hearts-broken-image-aria-label =
     .aria-label = ਕੰਪਿਊਟਰ ਤੇ ਮੋਬਾਈਲ ਫ਼ੋਨ ਅਤੇ ਦੋਵਾਂ ਉੱਤੇ ਟੁੱਟੇ ਹੋਏ ਦਿਲ ਦੀ ਤਸਵੀਰ
 hearts-verified-image-aria-label =
@@ -364,8 +367,6 @@ avatar-default-avatar =
     .alt = ਮੂਲ ਰੂਪ
 
 
-
-
 bento-menu-title-3 = { -brand-mozilla } ਉਤਪਾਦ
 bento-menu-tagline = ਤੁਹਾਡੀ ਪਰਦੇਦਾਰੀ ਦੀ ਸੁਰੱਖਿਆ ਲਈ { -brand-mozilla } ਵਲੋਂ ਹੋਰ ਉਤਪਾਦ
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -421,8 +422,6 @@ dc-subheader-content-2 = { -product-mozilla-accounts } ਨੂੰ { -brand-mozill
 dc-opt-in-success-2 = ਮੇਹਰਬਾਨੀ! ਇਹ ਡਾਟਾ ਸਾਂਝਾ ਕਰਨਾ { -product-mozilla-accounts } ਵਧੀਆ ਬਣਾਉਣ ਲਈ ਸਾਡੀ ਮਦਦ ਕਰਦਾ ਹੈ।
 dc-opt-in-out-error-2 = ਅਫ਼਼ਸੋਸ, ਤੁਹਾਡੀ ਡਾਟਾ ਇਕੱਤਰ ਕਰਨ ਦੀ ਪਸੰਦ ਬਦਲਣ ਦੌਰਾਨ ਸਮੱਸਿਆ ਸੀ
 dc-learn-more = ਹੋਰ ਜਾਣੋ
-
-
 drop-down-menu-title-2 = { -product-mozilla-account } ਮੇਨੂ
 drop-down-menu-signed-in-as-v2 = ਇਸ ਵਜੋਂ ਸਾਈਨ-ਇਨ ਕੀਤਾ
 drop-down-menu-sign-out = ਸਾਈਨ ਆਉਟ
@@ -508,8 +507,6 @@ flow-setup-phone-confirm-code-resend-code-button = ਕੋਡ ਮੁੜ ਕੇ �
 flow-setup-phone-confirm-code-resend-code-success = ਕੋਡ ਭੇਜਿਆ
 flow-setup-phone-confirm-code-success-message-v2 = ਰਿਕਵਰੀ ਫ਼ੋਨ ਜੋੜਿਆ ਗਿਆ
 flow-change-phone-confirm-code-success-message = ਰਿਕਵਰੀ ਫ਼ੋਨ ਨੂੰ ਬਦਲਿਆ ਗਿਆ ਹੈ
-
-
 flow-setup-phone-submit-number-heading = ਆਪਣੇ ਫ਼ੋਨ ਨੰਬਰ ਦੀ ਜਾਂਚ ਕਰੋ
 flow-setup-phone-submit-number-info-message-v2 = ਰਿਕਵਰੀ ਫ਼ੋਨ ਸਿਰਫ਼ ਸੰਯੁਕਤ ਰਾਜ ਅਮਰੀਕਾ ਅਤੇ ਕੈਨੇਡਾ ਵਿੱਚ ਹੀ ਮੌਜੂਦ ਹੈ। voIP ਨੰਬਰ ਅਤੇ ਫ਼ੋਨ ਮਾਸਕਾਂ ਦੀ ਸਿਫ਼ਾਰਸ਼ ਨਹੀਂ ਕੀਤੀ ਜਾਂਦੀ ਹੈ।
 flow-setup-phone-submit-number-legal = ਆਪਣਾ ਨੰਬਰ ਦੇ ਕੇ ਤੁਸੀਂ ਸਾਨੂੰ ਇਹ ਸੰਭਾਲਣ ਲਈ ਸਹਿਮਤ ਹੋ ਤਾਂ ਕਿ ਅਸੀਂ ਤੁਹਾਨੂੰ ਸਿਰਫ਼ ਖਾਤੇ ਨੂੰੀ ਤਸਦੀਕ ਕਰਨ ਵਾਸਤੇ ਸੁਨੇਹਾ ਭੇਜ ਸਕੀਏ। ਸੁਨੇਹਾ ਅਤੇ ਡਾਟਾ ਖ਼ਰਚੇ ਲਾਗੂ ਹੋ ਸਕਦੇ ਹਨ।
@@ -1075,8 +1072,6 @@ pair2-supplicant-sync-success-sync-settings-button = ਸਿੰਕ ਸੈਟਿ�
 pair2-supplicant-timeout-and-cancel-canceled-heading = ਰੱਦ ਕੀਤਾ
 
 
-
-
 set-password-heading-v2 = ਸਿੰਕ ਕਰਨ ਲਈ ਪਾਸਵਰਡ ਬਣਾਓ
 
 
@@ -1096,8 +1091,6 @@ complete-reset-password-success-alert = ਪਾਸਵਰਡ ਸੈਟ ਕਰੋ
 complete-reset-password-error-alert = ਅਫ਼ਸੋਸ, ਤੁਹਾਡੇ ਪਾਸਵਰਡ ਸੈਟ ਕਰਨ ਦੌਰਾਨ ਸਮੱਸਿਆ ਆਈ ਸੀ
 complete-reset-pw-recovery-key-link = ਖਾਤਾ ਰਿਕਵਰੀ ਕੁੰਜੀ ਨੂੰ ਵਰਤੋਂ
 reset-password-complete-banner-heading = ਤੁਹਾਡੇ ਪਾਸਵਰਡ ਨੂੰ ਮੁੜ ਸੈੱਟ ਕੀਤਾ ਗਿਆ ਹੈ।
-
-
 confirm-backup-code-reset-password-input-label = 10-ਅੰਕ ਦਾ ਕੋਡ ਦਿਓ
 confirm-backup-code-reset-password-confirm-button = ਤਸਦੀਕ
 confirm-backup-code-reset-password-subheader = ਬੈਕਅੱਪ ਪਰਮਾਣੀਕਰਨ ਕੋਡ ਦਿਓ
@@ -1129,8 +1122,6 @@ password-reset-submit-button-2 = ਜਾਰੀ ਰੱਖੋ
 
 reset-password-complete-header = ਤੁਹਾਡੇ ਪਾਸਵਰਡ ਨੂੰ ਮੁੜ ਸੈੱਟ ਕੀਤਾ ਗਿਆ ਹੈ
 reset-password-confirmed-cta = { $serviceName } ਨਾਲ ਜਾਰੀ ਰੱਖੋ
-
-
 
 
 password-reset-recovery-method-header = ਆਪਣੇ ਪਾਸਵਰਡ ਨੂੰ ਮੁੜ-ਸੈੱਟ ਕਰੋ
@@ -1258,8 +1249,6 @@ signin-unblock-code-incorrect-length = ਪਰਮਾਣੀਕਰਨ ਕੋਡ 8 �
 signin-unblock-code-incorrect-format-2 = ਪਰਮਾਣੀਕਰਨ ਕੋਡ ਵਿੱਚ ਸਿਰਫ਼ ਅੱਖਰ ਅਤੇ/ਜਾਂ ਅੰਕ ਹੀ ਹੋ ਸਕਦੇ ਹਨ
 signin-unblock-resend-code-button = ਇਨਬਾਕਸ ਜਾਂ ਸਪੈਮ ਫੋਲਡਰ ਵਿੱਚ ਨਹੀਂ? ਮੁੜ ਭੇਜੋ
 signin-unblock-support-link = ਇਹ ਕਿਓ ਵਾਪਰਿਆ ਹੈ?
-
-
 
 
 confirm-signup-code-page-title = ਤਸਦੀਕੀਕਰਨ ਕੋਡ ਦਿਓ

@@ -176,21 +176,18 @@ form-verify-totp-disabled-button-title-numeric = Upiši { $codeLength }-znamenka
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Upiši { $codeLength }-znakovni kod
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Ključ za obnavljanje { -brand-firefox } računa
 get-data-trio-title-backup-verification-codes = Rezervni kodovi za autentifikaciju
 get-data-trio-download-2 =
-    .title = Preuzmi
     .aria-label = Preuzmi
+    .title = Preuzmi
 get-data-trio-copy-2 =
-    .title = Kopiraj
     .aria-label = Kopiraj
+    .title = Kopiraj
 get-data-trio-print-2 =
-    .title = Ispiši
     .aria-label = Ispiši
+    .title = Ispiši
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -248,10 +245,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = Lozinka
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Računalo i mobitel sa slikom slomljenog srca
 hearts-verified-image-aria-label =
@@ -453,9 +446,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = { -brand-mozilla } proizvodi
 bento-menu-tagline = Daljnji { -brand-mozilla } proizvodi koji štite tvoju privatnost
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -532,9 +522,6 @@ dc-subheader-content-2 = Dozvoli da { -product-mozilla-accounts } šalju tehnič
 dc-opt-out-success-2 = Isključivanje uspjelo. { -product-mozilla-accounts } neće slati tehničke podatke ili podatke o interakciji na { -brand-mozilla }.
 dc-opt-in-success-2 = Hvala! Dijeljenje ovih podataka nam pomaže poboljšati { -product-mozilla-accounts }.
 dc-learn-more = Saznaj više
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = Izbornik za { -product-mozilla-account }
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -634,9 +621,6 @@ flow-setup-phone-confirm-code-resend-code-button = Ponovo pošalji kod
 flow-setup-phone-confirm-code-resend-code-success = Kod je poslan
 flow-setup-phone-confirm-code-success-message-v2 = Telefonski broj za oporavak je dodan
 flow-change-phone-confirm-code-success-message = Telefonski broj za oporavak je promijenjen
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Potvrdi svoj broj telefona
 # cliking on the button sends a code by text message to the phone number typed in by the user
 flow-setup-phone-submit-number-button = Pošalji kod
@@ -1197,9 +1181,6 @@ complete-reset-password-error-alert = Žao nam je. Došlo je do greške prilikom
 # Displayed on the sign in page
 reset-password-complete-banner-heading = Tvoja je lozinka resetirana.
 
-# ConfirmBackupCodeResetPassword page
-
-
 ## Confirm Reset Password With Code
 
 confirm-reset-password-with-code-heading = Provjeri tvoju e-mail adresu
@@ -1358,9 +1339,6 @@ signin-unblock-desktop-relay = { -brand-firefox } će te pokušati vratiti na ka
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Upiši potvrdni kod

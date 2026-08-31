@@ -66,9 +66,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-firefox-desktop = { -brand-firefox }i brauser töölauale
 bento-menu-firefox-mobile = { -brand-firefox }i brauser mobiilile
 bento-menu-made-by-mozilla = Loodud { -brand-mozilla } poolt
@@ -123,9 +120,6 @@ dc-opt-out-success-2 = Loobumine õnnestus. Teenus { -product-mozilla-accounts }
 dc-opt-in-success-2 = Täname! Nende andmete jagamine aitab meil teenust { -product-mozilla-accounts } paremaks teha.
 dc-opt-in-out-error-2 = Vabandust, kahjuks esines andmete kogumise eelistuste muutmisel probleem
 dc-learn-more = Rohkem teavet
-
-# DropDownAvatarMenu component
-
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
 drop-down-menu-signed-in-as-v2 = Sisse logitud kasutajana

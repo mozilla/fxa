@@ -199,21 +199,18 @@ form-verify-totp-disabled-button-title-numeric = შეიყვანეთ { $
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = შეიყვანეთ { $codeLength }-სიმბოლოიანი კოდი, რომ განაგრძოთ
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox }-ანგარიშის აღდგენის გასაღები
 get-data-trio-title-backup-verification-codes = შესვლის სამარქაფო კოდები
 get-data-trio-download-2 =
-    .title = ჩამოტვირთვა
     .aria-label = ჩამოტვირთვა
+    .title = ჩამოტვირთვა
 get-data-trio-copy-2 =
-    .title = ასლი
     .aria-label = ასლი
+    .title = ასლი
 get-data-trio-print-2 =
-    .title = ამობეჭდვა
     .aria-label = ამობეჭდვა
+    .title = ამობეჭდვა
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -277,10 +274,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = საშვი
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = კომპიუტერი, მობილური ტელეფონი და თითოეულ მათგანზე გამოსახული გატეხილი გული
 hearts-verified-image-aria-label =
@@ -529,9 +522,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = { -brand-mozilla }-ს ნაწარმი
 bento-menu-tagline = { -brand-mozilla }-ს მეტი ნაწარმი თქვენი პირადულობის დასაცავად
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -624,9 +614,6 @@ dc-opt-out-success-2 = უარი მიღებულია. { -product-mozi
 dc-opt-in-success-2 = გმადლობთ! ამ მონაცემების გაზიარება მეტად წაადგება { -product-mozilla-accounts(case: "gen") } გაუმჯობესებას.
 dc-opt-in-out-error-2 = სამწუხაროდ, ხარვეზი წარმოიშვა მონაცემთა აღრიცხვის პარამეტრის ცვლილებისას
 dc-learn-more = ვრცლად
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = { -product-mozilla-account(case: "gen") } მენიუ
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -787,9 +774,6 @@ flow-setup-phone-confirm-code-resend-code-button = კოდის კვლა�
 flow-setup-phone-confirm-code-resend-code-success = კოდი გამოგზავნილია
 flow-setup-phone-confirm-code-success-message-v2 = აღდგენის ტელეფონი დამატებულია
 flow-change-phone-confirm-code-success-message = აღდგენის ტელეფონი შეცვლილია
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = ტელეფონის ნომრის დამოწმება
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = ტექსტურ შეტყობინებას გამოგიგზავნით { -brand-mozilla } თქვენი ნომრის დამადასტურებელი კოდით. არავის გაუზიაროთ ეგ კოდი.
@@ -1508,9 +1492,6 @@ oauth-error-1000 = რაღაც ხარვეზია. გთხოვთ 
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = საშვის გამართვა ვერ მოხერხდა ან მიუწვდომელია. სცადეთ ხელახლა ან აირჩიეთ სხვა საშუალება.
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
@@ -1542,9 +1523,6 @@ passkey-registration-error-not-readable = წვდომა ვერ მოხ
 passkey-registration-error-constraint = საშვები არაა მხარდაჭერილი ამ მოწყობილობაზე. სცადეთ სხვა გზა ან მოწყობილობა.
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = საშვის გამართვა ვერ მოხერხდა. სცადეთ ხელახლა ან აირჩიეთ სხვა საშუალება.
-
-# Authentication errors
-
 # Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
 # available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
 # points the user to another way to sign in.
@@ -2013,9 +1991,6 @@ service-welcome-vpn-description = კიდევ ერთი ნაბიჯ�
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
 
-
-# password to complete their sign-in when they want to login to a service requiring it.
-
 set-password-heading-v2 = პაროლის შექმნა დასინქრონებისთვის
 # "This" refers to the heading, "Create password to sync"
 set-password-info-v2 = ამით დაიშიფრება თქვენი მონაცემები. განსხვავებული პაროლებით უნდა გქონდეთ ანგარიშები { -brand-google } და { -brand-apple }.
@@ -2065,9 +2040,6 @@ reset-password-complete-banner-message = არ დაგავიწყდე�
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = { -brand-firefox } ეცდება შესვლის შემდგომ უკან დაგაბრუნოთ ელფოსტის ნიღბის გამოსაყენებლად.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = შეიყვანეთ 10-ნიშნა კოდი
 confirm-backup-code-reset-password-confirm-button = თანხმობა
 confirm-backup-code-reset-password-subheader = შეიყვანეთ შესვლის სამარქაფო კოდი
@@ -2118,9 +2090,6 @@ reset-password-confirmed-cta = განაგრძეთ და იხილ�
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = პაროლის განულება
 password-reset-recovery-method-subheader = აირჩიეთ აღდგენის გზა
@@ -2231,11 +2200,6 @@ signin-passkey-fallback-body = თქვენი მონაცემები
 signin-passkey-fallback-password-label = პაროლი
 signin-passkey-fallback-continue = განაგრძეთ
 signin-passkey-fallback-forgot-password-link = დაგავიწყდათ პაროლი?
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2428,9 +2392,6 @@ signin-unblock-desktop-relay = { -brand-firefox } ეცდება შეს�
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = შეიყვანეთ დადასტურების კოდი

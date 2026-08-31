@@ -154,20 +154,18 @@ form-verify-code-default-error = Este campo é obrigatório
 
 form-verify-totp-disabled-button-title-numeric = Insira o código de { $codeLength } dígitos para continuar
 form-verify-totp-disabled-button-title-alphanumeric = Digite o código de { $codeLength } caracteres para continuar
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Chave de recuperação de conta { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Códigos de autenticação de backup
 get-data-trio-download-2 =
-    .title = Baixar
     .aria-label = Baixar
+    .title = Baixar
 get-data-trio-copy-2 =
-    .title = Copiar
     .aria-label = Copiar
+    .title = Copiar
 get-data-trio-print-2 =
-    .title = Imprimir
     .aria-label = Imprimir
+    .title = Imprimir
 
 
 alert-icon-aria-label =
@@ -204,8 +202,6 @@ info-icon-aria-label =
     .aria-label = Informação
 usa-flag-icon-aria-label =
     .aria-label = Bandeira dos Estados Unidos
-
-
 hearts-broken-image-aria-label =
     .aria-label = Um computador, um celular e a imagem de um coração partido em cada um
 hearts-verified-image-aria-label =
@@ -343,8 +339,6 @@ avatar-default-avatar =
     .alt = Avatar padrão
 
 
-
-
 bento-menu-title-3 = Produtos { -brand-mozilla }
 bento-menu-tagline = Mais produtos da { -brand-mozilla } que protegem sua privacidade
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -399,8 +393,6 @@ dc-opt-out-success-2 = Opção por não permitir feita com sucesso. { -product-m
 dc-opt-in-success-2 = Obrigado! Compartilhar esses dados nos ajuda a melhorar as { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Desculpe, houve um problema ao alterar sua preferência de coleta de dados
 dc-learn-more = Saiba mais
-
-
 drop-down-menu-title-2 = Menu da { -product-mozilla-account }
 drop-down-menu-signed-in-as-v2 = Conectado como
 drop-down-menu-sign-out = Desconectar
@@ -452,8 +444,6 @@ flow-setup-phone-confirm-code-expired = O código expirou?
 flow-setup-phone-confirm-code-resend-code-button = Reenviar código
 flow-setup-phone-confirm-code-resend-code-success = Código enviado
 flow-setup-phone-confirm-code-success-message-v2 = Adicionado celular de recuperação de conta
-
-
 flow-setup-phone-submit-number-heading = Verifique seu número de celular
 flow-setup-phone-verify-number-instruction = Você receberá uma mensagem de texto da { -brand-mozilla } com um código para verificar seu número. Não compartilhe esse código com ninguém.
 flow-setup-phone-submit-number-info-message-v2 = Celular de recuperação de conta só está disponível nos Estados Unidos e no Canadá. Números VoIP e máscaras de celular não são recomendados.
@@ -991,8 +981,6 @@ complete-reset-pw-recovery-key-link = Usar chave de recuperação de conta
 reset-password-complete-banner-heading = Sua senha foi redefinida.
 reset-password-complete-banner-message = Não esqueça de gerar uma nova chave de recuperação de conta a partir das configurações da sua { -product-mozilla-account } para evitar futuros problemas de acesso.
 complete-reset-password-desktop-relay = O { -brand-firefox } irá tentar redirecionar de volta para você usar uma máscara de email após entrar na sua conta.
-
-
 confirm-backup-code-reset-password-input-label = Insira o código de 10 caracteres
 confirm-backup-code-reset-password-confirm-button = Confirmar
 confirm-backup-code-reset-password-subheader = Digite um código de autenticação de backup
@@ -1025,8 +1013,6 @@ password-reset-submit-button-2 = Avançar
 
 reset-password-complete-header = Sua senha foi redefinida
 reset-password-confirmed-cta = Continuar para { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Redefina sua senha
@@ -1163,8 +1149,6 @@ signin-unblock-code-incorrect-format-2 = O código de autorização só pode con
 signin-unblock-resend-code-button = Não chegou em sua caixa de entrada ou pasta de spam? Reenviar
 signin-unblock-support-link = Por que isso está acontecendo?
 signin-unblock-desktop-relay = O { -brand-firefox } irá tentar redirecionar de volta para você usar uma máscara de email após entrar na sua conta.
-
-
 
 
 confirm-signup-code-page-title = Digite o código de confirmação

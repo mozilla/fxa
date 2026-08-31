@@ -136,20 +136,18 @@ form-verify-code-default-error = Campu ubbligatoriu
 
 form-verify-totp-disabled-button-title-numeric = Metti u còdici di { $codeLength } cifri pi cuntinuari
 form-verify-totp-disabled-button-title-alphanumeric = Metti u còdici di { $codeLength } caràttari pi cuntinuari
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Chiavi di ricùpiru dû cuntu { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Còdici d’autinticazzioni di sicurizza
 get-data-trio-download-2 =
-    .title = Scàrrica
     .aria-label = Scàrrica
+    .title = Scàrrica
 get-data-trio-copy-2 =
-    .title = Copia
     .aria-label = Copia
+    .title = Copia
 get-data-trio-print-2 =
-    .title = Stampa
     .aria-label = Stampa
+    .title = Stampa
 
 
 alert-icon-aria-label =
@@ -186,8 +184,6 @@ info-icon-aria-label =
     .aria-label = Nfurmazzioni
 usa-flag-icon-aria-label =
     .aria-label = Bannera dî Stati Junciuti dâ Mèrica
-
-
 hearts-broken-image-aria-label =
     .aria-label = Un computer e un tilèfunu e na mmàggini d’un cori ciaccatu ncapu a iḍḍi
 hearts-verified-image-aria-label =
@@ -326,8 +322,6 @@ avatar-default-avatar =
     .alt = Àvatar pridifinutu
 
 
-
-
 bento-menu-title-3 = Prudutti { -brand-mozilla }
 bento-menu-tagline = Autri prudutti { -brand-mozilla } chi prutègginu a to privatizza
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -382,8 +376,6 @@ dc-opt-out-success-2 = Sdisattivatu. { -product-mozilla-accounts } nun manna cch
 dc-opt-in-success-2 = Grazzi! Spàrtiri sti dati n’ajuta a fari megghiu { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Ni dispiaci, cci fu un prubblema mentri chi canciava i to prifirenzi ncapu â ricota dî dati.
 dc-learn-more = Cchiù nfurmazzioni
-
-
 drop-down-menu-title-2 = Minù di { -product-mozilla-account }
 drop-down-menu-signed-in-as-v2 = Trasisti comu
 drop-down-menu-sign-out = Nesci
@@ -460,8 +452,6 @@ flow-setup-phone-confirm-code-resend-code-button = Manna arrè
 flow-setup-phone-confirm-code-resend-code-success = Còdici mannatu
 flow-setup-phone-confirm-code-success-message-v2 = Juncisti u nùmmaru di tilèfunu di ricùpiru
 flow-change-phone-confirm-code-success-message = Canciasti u nùmmaru di tilèfunu di ricùpiru
-
-
 flow-setup-phone-submit-number-heading = Virìfica u to nùmmaru di tilèfunu
 flow-setup-phone-verify-number-instruction = T’arriva un missaggiu di testu di { -brand-mozilla } c’un còdici pi virificari u to nùmmaru. Nun spàrtiri stu còdici cu nuḍḍu.
 flow-setup-phone-submit-number-info-message-v2 = U nùmmaru di tilèfunu di ricùpiru dû cuntu è dispunìbbili sulu nnê Stati Junciuti e nnô Cànada. Nun cunzigghiamu di usari nùmmari VoIP e i nùmmari mascarati.
@@ -976,8 +966,6 @@ complete-reset-password-error-alert = Ni dispiaci, cci fu un prubblema mentri ch
 complete-reset-pw-recovery-key-link = Usa na chiavi di ricùpiru dû cuntu
 reset-password-complete-banner-heading = Risittasti a to chiavi.
 complete-reset-password-desktop-relay = Doppu chi trasisti, { -brand-firefox } prova a mannàriti arrè â pàggina p’usari nu nnirizzu di posta elittrònica mascaratu.
-
-
 confirm-backup-code-reset-password-input-label = Metti u còdici di 10 caràttari
 
 
@@ -1042,8 +1030,6 @@ signin-bounced-header = Ni dispiaci. Bluccammu u to cuntu.
 signin-bounced-message = L’e-mail di cunferma chi mannammu a { $email } turnau nn’arrè e bluccammu u to cuntu pi prutèggiri i to dati di { -brand-firefox }.
 signin-bounced-help = Si chistu è nu nnirizzu di posta elittrònica vàlitu, <linkExternal>fannillu sapiri</linkExternal> e t’ajutamu a sbluccari u to cuntu.
 signin-bounced-create-new-account = Nun ài cchiù accessu a stu nnirizzu di posta elittrònica? Crìa un cuntu novu
-
-
 
 
 confirm-signup-code-success-alert = Cunfirmasti u cuntu

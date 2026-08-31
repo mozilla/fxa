@@ -21,8 +21,6 @@ app-footer-terms-of-service = Términos del serviciu
 
 app-loading-spinner-aria-label-loading = Cargando…
 
-
-
 bento-menu-vpn-2 = { -product-mozilla-vpn }
 bento-menu-firefox-relay-2 = { -product-firefox-relay }
 bento-menu-firefox-desktop = Restolador { -brand-firefox } pa ordenadores
@@ -45,8 +43,6 @@ cs-disconnect-sync-opt-not-say = Nun quiero dicilo
 
 
 cs-sign-out-button = Zarrar la sesión
-
-
 
 
 drop-down-menu-sign-out-error-2 = Hebo un problema al zarrar la sesión

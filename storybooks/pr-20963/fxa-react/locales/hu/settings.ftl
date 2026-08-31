@@ -75,6 +75,20 @@ choose-newsletters-option-test-pilot =
 choose-newsletters-option-reclaim-the-internet =
     .label = Felhívások az internet visszaszerzésére
 
+## ContinueInFirefox component - Part of the desktop-to-mobile pairing flow
+## Shown when the pairing QR code is opened in a browser other than Firefox.
+## It hands the pairing link to the Firefox app, and offers the app store when
+## Firefox is not installed on the device.
+
+pair-continue-in-firefox-heading = Folytatás a { -brand-firefox }ban
+pair-continue-in-firefox-description = A párosítás { -brand-firefox } múlva megtörténik. Nyissa meg az eszköz csatlakoztatásának befejezéséhez.
+# Opens the Firefox app on this device
+pair-continue-in-firefox-button = Folytatás a { -brand-firefox }ban
+# Shown while waiting for the Firefox app to take over
+pair-continue-in-firefox-opening = Nyitás: { -brand-firefox }
+# Sends the user to the App Store or Play Store to install Firefox
+pair-continue-in-firefox-get-firefox-link = Nincs { -brand-firefox }ja? Szerezze be most
+
 ## Dark mode toggle
 
 dark-mode-toggle-light = Világos
@@ -197,21 +211,18 @@ form-verify-totp-disabled-button-title-numeric = A folytatáshoz adja meg a { $c
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = A folytatáshoz adja meg a { $codeLength } karakteres kódot
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } fiók-helyreállítási kulcs
 get-data-trio-title-backup-verification-codes = Tartalék hitelesítési kódok
 get-data-trio-download-2 =
-    .title = Letöltés
     .aria-label = Letöltés
+    .title = Letöltés
 get-data-trio-copy-2 =
-    .title = Másolás
     .aria-label = Másolás
+    .title = Másolás
 get-data-trio-print-2 =
-    .title = Nyomtatás
     .aria-label = Nyomtatás
+    .title = Nyomtatás
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -275,10 +286,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = Jelkulcs
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Egy számítógép és egy mobiltelefon, mindkettőn egy összetört szív képe
 hearts-verified-image-aria-label =
@@ -527,9 +534,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = { -brand-mozilla } termékek
 bento-menu-tagline = A { -brand-mozilla } további termékei, amelyek védik a magánszféráját
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -626,9 +630,6 @@ dc-opt-out-success-2 = Sikeres leiratkozás. A { -product-mozilla-accounts } nem
 dc-opt-in-success-2 = Köszönjük! Ezen adatok megosztása segít nekünk a { -product-mozilla-accounts } fejlesztésében.
 dc-opt-in-out-error-2 = Sajnos probléma merült fel az adatgyűjtési beállítás megváltoztatásakor
 dc-learn-more = További tudnivalók
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = { -product-mozilla-account } menü
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -789,9 +790,6 @@ flow-setup-phone-confirm-code-resend-code-button = Kód újraküldése
 flow-setup-phone-confirm-code-resend-code-success = Kód elküldve
 flow-setup-phone-confirm-code-success-message-v2 = Helyreállítási telefonszám hozzáadva
 flow-change-phone-confirm-code-success-message = A helyreállítási telefonszám megváltozott
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Ellenőrizze a telefonszámát
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = Kapni fog egy SMS-t a { -brand-mozilla(ending: "accented") }tól, amely egy kódot tartalmaz a száma ellenőrzéséhez. Ne ossza meg ezt a kódot másokkal.
@@ -1512,9 +1510,6 @@ oauth-error-1000 = Hiba történt. Zárja be ezt a lapot, és próbálja újra.
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = A jelkulcs beállítása sikertelen vagy nem érhető el. Próbálja újra, vagy válasszon másik módszert.
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
@@ -1546,9 +1541,6 @@ passkey-registration-error-not-readable = Nem tudtuk elérni a hitelesítőt. Pr
 passkey-registration-error-constraint = A jelkulcsbeállítás nem érhető el ennél az eszköznél. Próbálkozzon másik módszerrel vagy eszközzel.
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = A jelkulcs beállítása sikertelen. Próbálja újra, vagy válasszon másik módszert.
-
-# Authentication errors
-
 # Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
 # available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
 # points the user to another way to sign in.
@@ -2017,9 +2009,6 @@ service-welcome-vpn-description = Még egy lépés a böngészője adatvédelmé
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
 
-
-# password to complete their sign-in when they want to login to a service requiring it.
-
 set-password-heading-v2 = Jelszó létrehozása a szinkronizáláshoz
 # "This" refers to the heading, "Create password to sync"
 set-password-info-v2 = Ez titkosítja az adatait. Különböznie kell a { -brand-google } vagy { -brand-apple }-fiókjához tartozó jelszavától.
@@ -2069,9 +2058,6 @@ reset-password-complete-banner-message = Ne felejtsen el egy új fiók-helyreál
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = Bejelentkezés után a { -brand-firefox } megpróbálja visszaküldeni Önt az e-mail-maszk használatához.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = Adja meg a 10 karakteres kódot
 confirm-backup-code-reset-password-confirm-button = Megerősítés
 confirm-backup-code-reset-password-subheader = Adjon meg egy tartalék hitelesítési kódot
@@ -2122,9 +2108,6 @@ reset-password-confirmed-cta = Tovább erre: { $serviceName }
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Jelszó visszaállítása
 password-reset-recovery-method-subheader = Válasszon helyreállítási módot
@@ -2235,11 +2218,6 @@ signin-passkey-fallback-body = Hogy adatait biztonságban tartsa, meg kell adnia
 signin-passkey-fallback-password-label = Jelszó
 signin-passkey-fallback-continue = Folytatás
 signin-passkey-fallback-forgot-password-link = Elfelejtette a jelszót?
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2432,9 +2410,6 @@ signin-unblock-desktop-relay = Bejelentkezés után a { -brand-firefox } megpró
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Adja meg a megerősítő kódot

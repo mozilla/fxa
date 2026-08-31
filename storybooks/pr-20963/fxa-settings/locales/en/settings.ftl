@@ -929,11 +929,6 @@ la-unlink-content-3 = Are you sure you want to unlink your account? Unlinking yo
 la-unlink-content-4 = Before unlinking your account, you must set a password. Without a password, there is no way for you to log in after unlinking your account.
 nav-linked-accounts = { la-heading }
 
-# Shown inside the MFA dialog when the account needs a higher authentication
-# level and the automatic redirect to two-step authentication has not happened,
-# so the user is not left waiting with no explanation.
-mfa-guard-session-expired = Session verification required. Please sign in again.
-
 ## Modal - Default values for a message directed at the user where the user can typically Confirm or Cancel.
 
 modal-close-title = Close

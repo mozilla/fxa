@@ -220,6 +220,13 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Pozivi k ukrepanju za povrnitev interneta
 
 
+pair-continue-in-firefox-heading = Nadaljuj v { -brand-firefox(sklon: "mestnik") }
+pair-continue-in-firefox-description = Seznanjanje bo izvedeno čez { -brand-firefox }. Odprite ga za dokončanje povezovanja naprave.
+pair-continue-in-firefox-button = Nadaljuj v { -brand-firefox(sklon: "mestnik") }
+pair-continue-in-firefox-opening = Odpiranje { -brand-firefox }
+pair-continue-in-firefox-get-firefox-link = Nimate { -brand-firefox }? Pridobite ga zdaj
+
+
 dark-mode-toggle-light = Svetla
 dark-mode-toggle-dark = Temna
 dark-mode-toggle-system = Sistemska
@@ -307,20 +314,18 @@ form-verify-code-default-error = To polje je obvezno
 
 form-verify-totp-disabled-button-title-numeric = Za nadaljevanje vnesite { $codeLength }-mestno kodo
 form-verify-totp-disabled-button-title-alphanumeric = Za nadaljevanje vnesite { $codeLength }-znakovno kodo
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Ključ za obnovitev { -brand-firefox } Računa
 get-data-trio-title-backup-verification-codes = Rezervne overitvene kode
 get-data-trio-download-2 =
-    .title = Prenesi
     .aria-label = Prenesi
+    .title = Prenesi
 get-data-trio-copy-2 =
-    .title = Kopiraj
     .aria-label = Kopiraj
+    .title = Kopiraj
 get-data-trio-print-2 =
-    .title = Natisni
     .aria-label = Natisni
+    .title = Natisni
 
 
 alert-icon-aria-label =
@@ -365,8 +370,6 @@ icon-loading-arrow-aria-label =
     .aria-label = Nalaganje
 icon-passkey-aria-label =
     .aria-label = Ključ za dostop
-
-
 hearts-broken-image-aria-label =
     .aria-label = Računalnik in mobilni telefon ter na vsakem podoba zlomljenega srca
 hearts-verified-image-aria-label =
@@ -534,8 +537,6 @@ avatar-default-avatar =
     .alt = Privzeti avatar
 
 
-
-
 bento-menu-title-3 = Izdelki { -brand-mozilla }
 bento-menu-tagline = Več izdelkov { -brand-mozilla(sklon: "rodilnik") }, ki varujejo vašo zasebnost
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -602,8 +603,6 @@ dc-opt-out-success-2 = Odjava je uspela. { -product-mozilla-accounts } { -brand-
 dc-opt-in-success-2 = Hvala! Z deljenjem teh podatkov nam pomagate izboljševati { -product-mozilla-accounts(sklon: "tozilnik") }.
 dc-opt-in-out-error-2 = Oprostite, pri spreminjanju nastavitve o zbiranju podatkov je prišlo do težave
 dc-learn-more = Več o tem
-
-
 drop-down-menu-title-2 = Meni { -product-mozilla-account(sklon: "rodilnik") }
 drop-down-menu-signed-in-as-v2 = Prijavljeni kot
 drop-down-menu-sign-out = Odjava
@@ -704,8 +703,6 @@ flow-setup-phone-confirm-code-resend-code-button = Znova pošlji kodo
 flow-setup-phone-confirm-code-resend-code-success = Koda poslana
 flow-setup-phone-confirm-code-success-message-v2 = Telefonska številka za obnovitev je dodana
 flow-change-phone-confirm-code-success-message = Telefonska številka za obnovitev je spremenjena
-
-
 flow-setup-phone-submit-number-heading = Potrdite svojo telefonsko številko
 flow-setup-phone-verify-number-instruction = Od { -brand-mozilla(sklon: "rodilnik") } boste prejeli sporočilo SMS s kodo za potrditev številke. Kode ne pokažite nikomur drugemu.
 flow-setup-phone-submit-number-info-message-v2 = Telefonska številka za obnovitev je na voljo samo v ZDA in Kanadi. Uporabe številk VoIP in telefonskih mask ne priporočamo.
@@ -1099,8 +1096,8 @@ row-defaults-status = Brez
 
 
 passkey-row-header = Ključi za dostop
-passkey-row-enabled = Omogočeno
-passkey-row-not-set = Ni nastavljeno
+passkey-row-enabled = Omogočeni
+passkey-row-not-set = Niso nastavljeni
 passkey-row-action-create = Ustvari
 passkey-row-description = Naredite prijavo preprostejšo in varnejšo z dostopom do računa s telefonom ali drugo podprto napravo.
 passkey-row-info-link-2 = Več o tem
@@ -1248,8 +1245,6 @@ recovery-phone-number-ending-digits = Številka, ki se končuje na { $lastFourPh
 oauth-error-1000 = Nekaj je šlo narobe. Zaprite ta zavihek in poskusite znova.
 
 
-
-
 passkey-registration-error-not-allowed = Nastavitev ključa za dostop ni uspela ali ni na voljo. Poskusite znova ali izberite drugo metodo.
 passkey-registration-error-not-allowed-existing = Nastavitev gesla ni na voljo za to napravo. Naprava je že registrirana ali pa je bil postopek nastavitve preklican.
 passkey-registration-error-timeout = Nastavitev ključa za dostop je bila preklicana. Poskusite znova.
@@ -1264,8 +1259,6 @@ passkey-registration-error-invalid-state = To geslo je že registrirano. Uporabi
 passkey-registration-error-not-readable = Nismo mogli dostopati do overitelja. Poskusite znova ali izberite drugo metodo.
 passkey-registration-error-constraint = Nastavitev gesla ni na voljo za to napravo. Poskusite z drugo metodo ali napravo.
 passkey-registration-error-unexpected = Nastavitev gesla ni uspela. Poskusite znova ali izberite drugo metodo.
-
-
 passkey-authentication-trouble-heading = Prijava z geslom ni mogoča
 passkey-authentication-trouble-description = Poskusite znova ali uporabite drugo možnost prijave.
 passkey-authentication-trouble-link = Kako uporabljati gesla
@@ -1508,8 +1501,6 @@ service-welcome-vpn-heading = Naslednje: Vklopite VPN
 service-welcome-vpn-description = Še koraki več za večjo zasebnost brskalnika. Pojdite na odprto ploščo in jo omogočite.
 
 
-
-
 set-password-heading-v2 = Ustvarite geslo za sinhronizacijo
 set-password-info-v2 = S tem se vaši podatki šifrirajo. Geslo mora biti drugačno od gesla vašega računa { -brand-google } ali { -brand-apple }.
 
@@ -1536,8 +1527,6 @@ complete-reset-pw-recovery-key-link = Uporabi ključ za obnovitev računa
 reset-password-complete-banner-heading = Vaše geslo je bilo ponastavljeno.
 reset-password-complete-banner-message = Ne pozabite v nastavitvah { -product-mozilla-account(sklon: "rodilnik") } ustvariti novega ključa za obnovitev računa, da se izognete nadaljnjim težavam pri prijavi.
 complete-reset-password-desktop-relay = Po prijavi vas bo { -brand-firefox } poskusil poslati nazaj na uporabo e-poštne maske.
-
-
 confirm-backup-code-reset-password-input-label = Vnesite 10-mestno kodo
 confirm-backup-code-reset-password-confirm-button = Potrdi
 confirm-backup-code-reset-password-subheader = Vnesite rezervno overitveno kodo
@@ -1571,8 +1560,6 @@ password-reset-submit-button-2 = Nadaljuj
 
 reset-password-complete-header = Vaše geslo je bilo ponastavljeno
 reset-password-confirmed-cta = Nadaljuj na { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Ponastavite geslo
@@ -1655,8 +1642,6 @@ signin-passkey-fallback-body = Da ohranite svoje podatke varne, morate pri upora
 signin-passkey-fallback-password-label = Geslo
 signin-passkey-fallback-continue = Nadaljuj
 signin-passkey-fallback-forgot-password-link = Ste pozabili geslo?
-
-
 
 
 signin-passwordless-code-heading = Vnesite potrditveno kodo
@@ -1781,8 +1766,6 @@ signin-unblock-code-incorrect-format-2 = Koda lahko vsebuje samo črke in/ali š
 signin-unblock-resend-code-button = Ni med prejeto ali vsiljeno pošto? Pošlji znova
 signin-unblock-support-link = Zakaj se to dogaja?
 signin-unblock-desktop-relay = Po prijavi vas bo { -brand-firefox } poskusil poslati nazaj na uporabo e-poštne maske.
-
-
 
 
 confirm-signup-code-page-title = Vnesite potrditveno kodo

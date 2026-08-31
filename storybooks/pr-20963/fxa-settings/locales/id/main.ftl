@@ -67,8 +67,6 @@ avatar-default-avatar =
     .alt = Avatar baku
 
 
-
-
 bento-menu-firefox-desktop = Peramban { -brand-firefox } untuk Desktop
 bento-menu-firefox-mobile = Peramban { -brand-firefox } untuk Seluler
 bento-menu-made-by-mozilla = Dibuat oleh { -brand-mozilla }
@@ -99,8 +97,6 @@ cs-disconnect-advice-confirm = Oke, paham
 cs-disconnect-lost-advice-heading = Sambungan perangkat yang hilang atau dicuri terputus
 cs-disconnect-suspicious-advice-heading = Perangkat yang mencurigakan terputus
 cs-sign-out-button = Keluar
-
-
 
 
 drop-down-menu-sign-out = Keluar

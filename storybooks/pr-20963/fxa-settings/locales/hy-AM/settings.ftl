@@ -46,21 +46,18 @@ device-info-ip-address = IP հասցե՝ { $ipAddress }
 ## FormVerifyTotp component
 ## Form to enter a time-based one-time-passcode (e.g., 6-digit numeric code or 8-digit alphanumeric code)
 
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } հաշվի վերականգնման բանալի
 get-data-trio-title-backup-verification-codes = Երկրորդական նույնականացման ծածկագիր
 get-data-trio-download-2 =
-    .title = Ներբեռնել
     .aria-label = Ներբեռնել
+    .title = Ներբեռնել
 get-data-trio-copy-2 =
-    .title = Պատճենել
     .aria-label = Պատճենել
+    .title = Պատճենել
 get-data-trio-print-2 =
-    .title = Տպել
     .aria-label = Տպել
+    .title = Տպել
 
 ## Input Password
 
@@ -94,9 +91,6 @@ avatar-default-avatar =
     .alt = Սկզբնադիր ավատար
 
 ##
-
-
-# BentoMenu component
 
 bento-menu-title-3 = { -brand-mozilla } արտադրանքներ
 

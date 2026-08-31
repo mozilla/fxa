@@ -183,21 +183,18 @@ form-verify-totp-disabled-button-title-numeric = Унесите { $codeLength }-
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Унесите код од { $codeLength } знакова за наставак
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } кључ за опоравак налога
 get-data-trio-title-backup-verification-codes = Резервни кодови за потврду идентитета
 get-data-trio-download-2 =
-    .title = Преузми
     .aria-label = Преузми
+    .title = Преузми
 get-data-trio-copy-2 =
-    .title = Копирај
     .aria-label = Копирај
+    .title = Копирај
 get-data-trio-print-2 =
-    .title = Штампај
     .aria-label = Штампај
+    .title = Штампај
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -258,10 +255,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = Приступни кључ
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Рачунар и мобилни телефон, сваки са сликом сломљеног срца
 hearts-verified-image-aria-label =
@@ -491,9 +484,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = { -brand-mozilla } производи
 bento-menu-tagline = Више производа из { -brand-mozilla } који штите вашу приватност
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -574,9 +564,6 @@ dc-opt-out-success-2 = Одјављивање је успешно. { -product-mo
 dc-opt-in-success-2 = Хвала! Дељење ових података нам помаже да побољшамо { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Жао нам је, дошло је до грешке при мењању ваших подешавања за прикупљање података
 dc-learn-more = Сазнајте више
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = { -product-mozilla-account } мени
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -731,9 +718,6 @@ flow-setup-phone-confirm-code-resend-code-button = Пошаљи код поно�
 flow-setup-phone-confirm-code-resend-code-success = Код је послат
 flow-setup-phone-confirm-code-success-message-v2 = Телефон за опоравак је додат
 flow-change-phone-confirm-code-success-message = Телефон за опоравак је промењен
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Потврдите свој број телефона
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = Добићете текстуалну поруку од { -brand-mozilla } са кодом за потврду вашег броја. Не делите овај код ни са ким.
@@ -1412,9 +1396,6 @@ oauth-error-1000 = Нешто није у реду. Затворите овај 
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = Подешавање приступног кључа није успело или је недоступно. Покушајте поново или изаберите други начин.
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
@@ -1437,9 +1418,6 @@ passkey-registration-error-not-readable = Нисмо могли да прист�
 passkey-registration-error-constraint = Подешавање приступног кључа није доступно на овом уређају. Покушајте други начин или уређај.
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = Подешавање приступног кључа није успело. Покушајте поново или изаберите други начин.
-
-# Authentication errors
-
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Пријава приступним кључем није успела или је недоступна. Покушајте поново или изаберите други начин.
 # User already registered a device
@@ -1740,9 +1718,6 @@ service-welcome-vpn-description = Још један корак за повећа
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
 
-
-# password to complete their sign-in when they want to login to a service requiring it.
-
 set-password-heading-v2 = Направите лозинку за усклађивање
 # "This" refers to the heading, "Create password to sync"
 set-password-info-v2 = Ово шифрује ваше податке. Мора се разликовати од лозинке за ваш { -brand-google } или { -brand-apple } налог.
@@ -1792,9 +1767,6 @@ reset-password-complete-banner-message = Не заборавите да гене
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = { -brand-firefox } ће покушати да вас врати на коришћење маске е-поште након што се пријавите.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = Унесите код од 10 знакова
 confirm-backup-code-reset-password-confirm-button = Потврди
 confirm-backup-code-reset-password-subheader = Унесите резервни код за потврду идентитета
@@ -1844,9 +1816,6 @@ reset-password-confirmed-cta = Настави на { $serviceName }
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Ресетујте лозинку
 password-reset-recovery-method-subheader = Изаберите начин опоравка
@@ -1954,11 +1923,6 @@ signin-passkey-fallback-heading = Унесите лозинку за ускла�
 signin-passkey-fallback-body = Да бисте сачували безбедност својих података, потребно је да унесете лозинку када користите овај приступни кључ.
 signin-passkey-fallback-password-label = Лозинка
 signin-passkey-fallback-continue = Настави
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2155,9 +2119,6 @@ signin-unblock-desktop-relay = { -brand-firefox } ће покушати да в�
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Унесите код за потврду

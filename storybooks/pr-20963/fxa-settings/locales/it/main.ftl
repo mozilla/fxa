@@ -116,6 +116,13 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Inviti all’azione per riprendere il controllo di Internet
 
 
+pair-continue-in-firefox-heading = Continua in { -brand-firefox }
+pair-continue-in-firefox-description = L’associazione avviene in { -brand-firefox }. Aprilo per completare la connessione di questo dispositivo.
+pair-continue-in-firefox-button = Continua in { -brand-firefox }
+pair-continue-in-firefox-opening = Apertura di { -brand-firefox }
+pair-continue-in-firefox-get-firefox-link = Non hai { -brand-firefox }? Installalo ora
+
+
 dark-mode-toggle-light = Chiaro
 dark-mode-toggle-dark = Scuro
 dark-mode-toggle-system = Sistema
@@ -197,20 +204,18 @@ form-verify-code-default-error = Campo obbligatorio
 
 form-verify-totp-disabled-button-title-numeric = Inserisci un codice di { $codeLength } cifre per continuare
 form-verify-totp-disabled-button-title-alphanumeric = Inserisci un codice di { $codeLength } caratteri per continuare
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Chiave di recupero dell’account { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Codici di autenticazione di backup
 get-data-trio-download-2 =
-    .title = Scarica
     .aria-label = Scarica
+    .title = Scarica
 get-data-trio-copy-2 =
-    .title = Copia
     .aria-label = Copia
+    .title = Copia
 get-data-trio-print-2 =
-    .title = Stampa
     .aria-label = Stampa
+    .title = Stampa
 
 
 alert-icon-aria-label =
@@ -255,8 +260,6 @@ icon-loading-arrow-aria-label =
     .aria-label = Caricamento in corso…
 icon-passkey-aria-label =
     .aria-label = Passkey
-
-
 hearts-broken-image-aria-label =
     .aria-label = Un computer, un telefono cellulare e l’immagine di un cuore spezzato su ciascuno
 hearts-verified-image-aria-label =
@@ -424,8 +427,6 @@ avatar-default-avatar =
     .alt = Avatar predefinito
 
 
-
-
 bento-menu-title-3 = Prodotti { -brand-mozilla }
 bento-menu-tagline = Altri prodotti { -brand-mozilla } che proteggono la tua privacy
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -488,8 +489,6 @@ dc-opt-out-success-2 = Disattivazione riuscita. Il servizio di { -product-mozill
 dc-opt-in-success-2 = Grazie! La condivisione di questi dati ci aiuta a migliorare il servizio di { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Siamo spiacenti, si è verificato un problema durante la modifica delle preferenze relative alla raccolta dati
 dc-learn-more = Ulteriori informazioni
-
-
 drop-down-menu-title-2 = Menu dell’{ -product-mozilla-account }
 drop-down-menu-signed-in-as-v2 = Accesso effettuato come
 drop-down-menu-sign-out = Disconnetti
@@ -588,8 +587,6 @@ flow-setup-phone-confirm-code-resend-code-button = Invia di nuovo il codice
 flow-setup-phone-confirm-code-resend-code-success = Codice inviato
 flow-setup-phone-confirm-code-success-message-v2 = Aggiunto telefono per il recupero dell’account
 flow-change-phone-confirm-code-success-message = Modificato telefono per il recupero dell’account
-
-
 flow-setup-phone-submit-number-heading = Verifica il tuo numero di telefono
 flow-setup-phone-verify-number-instruction = Riceverai un SMS da { -brand-mozilla } con un codice per verificare il tuo numero. Non condividere questo codice con nessuno.
 flow-setup-phone-submit-number-info-message-v2 = Il telefono per il recupero dell’account è disponibile solo negli Stati Uniti e in Canada. I numeri VoIP e gli alias telefonici non sono consigliati.
@@ -1114,8 +1111,6 @@ recovery-phone-number-ending-digits = Numero che termina con { $lastFourPhoneNum
 oauth-error-1000 = Si è verificato un problema. Chiudi questa scheda e riprova.
 
 
-
-
 passkey-registration-error-not-allowed = La configurazione della passkey non è riuscita o non è disponibile. Riprova o scegli un altro metodo.
 passkey-registration-error-not-allowed-existing = La configurazione della passkey non è disponibile con questo dispositivo. Potrebbe essere già stato registrato oppure la procedura di configurazione è stata annullata.
 passkey-registration-error-timeout = La configurazione della passkey è stata annullata. Riprova.
@@ -1130,8 +1125,6 @@ passkey-registration-error-invalid-state = Questa passkey è già registrata. Ut
 passkey-registration-error-not-readable = Impossibile accedere al dispositivo di autenticazione. Riprova o scegli un altro metodo.
 passkey-registration-error-constraint = La configurazione della passkey non è disponibile con questo dispositivo. Prova con un altro metodo o dispositivo.
 passkey-registration-error-unexpected = Configurazione passkey non riuscita. Riprova o scegli un altro metodo.
-
-
 passkey-authentication-trouble-heading = Impossibile accedere con una passkey
 passkey-authentication-trouble-description = Riprova o utilizza un’altra opzione di accesso.
 passkey-authentication-trouble-link = Come utilizzare le passkey
@@ -1374,8 +1367,6 @@ service-welcome-vpn-heading = Prossimo passo: attiva la VPN
 service-welcome-vpn-description = Un altro passo per aumentare la privacy del tuo browser. Vai al pannello aperto e attivala.
 
 
-
-
 set-password-heading-v2 = Crea una password per sincronizzare
 set-password-info-v2 = La password critta i tuoi dati e deve essere diversa da quella del tuo account { -brand-google } o { -brand-apple }.
 
@@ -1402,8 +1393,6 @@ complete-reset-pw-recovery-key-link = Utilizza la chiave di recupero dell’acco
 reset-password-complete-banner-heading = La password è stata reimpostata.
 reset-password-complete-banner-message = Non dimenticare di generare una nuova chiave di recupero dell’account dalle impostazioni del tuo { -product-mozilla-account } per evitare problemi di accesso in futuro.
 complete-reset-password-desktop-relay = Dopo aver effettuato l’accesso, { -brand-firefox } tenterà di rimandarti alla pagina per utilizzare l’alias di posta elettronica.
-
-
 confirm-backup-code-reset-password-input-label = Inserisci il codice di 10 caratteri
 confirm-backup-code-reset-password-confirm-button = Conferma
 confirm-backup-code-reset-password-subheader = Digita il codice di autenticazione di backup
@@ -1437,8 +1426,6 @@ password-reset-submit-button-2 = Continua
 
 reset-password-complete-header = La password è stata reimpostata
 reset-password-confirmed-cta = Continua su { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Reimpostazione della password
@@ -1516,8 +1503,6 @@ signin-passkey-fallback-body = Per mantenere i tuoi dati al sicuro, devi inserir
 signin-passkey-fallback-password-label = Password
 signin-passkey-fallback-continue = Continua
 signin-passkey-fallback-forgot-password-link = Password dimenticata?
-
-
 
 
 signin-passwordless-code-heading = Inserisci il codice di conferma
@@ -1634,8 +1619,6 @@ signin-unblock-code-incorrect-format-2 = Il codice di autorizzazione può conten
 signin-unblock-resend-code-button = Il messaggio non si trova nella posta in arrivo e neppure nello spam? Invia di nuovo il codice
 signin-unblock-support-link = Perché succede questo?
 signin-unblock-desktop-relay = Dopo aver effettuato l’accesso, { -brand-firefox } tenterà di rimandarti alla pagina per utilizzare l’alias di posta elettronica.
-
-
 
 
 confirm-signup-code-page-title = Inserisci il codice di conferma

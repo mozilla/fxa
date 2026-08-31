@@ -137,6 +137,13 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Felhívások az internet visszaszerzésére
 
 
+pair-continue-in-firefox-heading = Folytatás a { -brand-firefox }ban
+pair-continue-in-firefox-description = A párosítás { -brand-firefox } múlva megtörténik. Nyissa meg az eszköz csatlakoztatásának befejezéséhez.
+pair-continue-in-firefox-button = Folytatás a { -brand-firefox }ban
+pair-continue-in-firefox-opening = Nyitás: { -brand-firefox }
+pair-continue-in-firefox-get-firefox-link = Nincs { -brand-firefox }ja? Szerezze be most
+
+
 dark-mode-toggle-light = Világos
 dark-mode-toggle-dark = Sötét
 dark-mode-toggle-system = Rendszer
@@ -218,20 +225,18 @@ form-verify-code-default-error = Ez a mező kötelező
 
 form-verify-totp-disabled-button-title-numeric = A folytatáshoz adja meg a { $codeLength } számjegyű kódot
 form-verify-totp-disabled-button-title-alphanumeric = A folytatáshoz adja meg a { $codeLength } karakteres kódot
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } fiók-helyreállítási kulcs
 get-data-trio-title-backup-verification-codes = Tartalék hitelesítési kódok
 get-data-trio-download-2 =
-    .title = Letöltés
     .aria-label = Letöltés
+    .title = Letöltés
 get-data-trio-copy-2 =
-    .title = Másolás
     .aria-label = Másolás
+    .title = Másolás
 get-data-trio-print-2 =
-    .title = Nyomtatás
     .aria-label = Nyomtatás
+    .title = Nyomtatás
 
 
 alert-icon-aria-label =
@@ -276,8 +281,6 @@ icon-loading-arrow-aria-label =
     .aria-label = Betöltés
 icon-passkey-aria-label =
     .aria-label = Jelkulcs
-
-
 hearts-broken-image-aria-label =
     .aria-label = Egy számítógép és egy mobiltelefon, mindkettőn egy összetört szív képe
 hearts-verified-image-aria-label =
@@ -445,8 +448,6 @@ avatar-default-avatar =
     .alt = Alapértelmezett profilkép
 
 
-
-
 bento-menu-title-3 = { -brand-mozilla } termékek
 bento-menu-tagline = A { -brand-mozilla } további termékei, amelyek védik a magánszféráját
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -517,8 +518,6 @@ dc-opt-out-success-2 = Sikeres leiratkozás. A { -product-mozilla-accounts } nem
 dc-opt-in-success-2 = Köszönjük! Ezen adatok megosztása segít nekünk a { -product-mozilla-accounts } fejlesztésében.
 dc-opt-in-out-error-2 = Sajnos probléma merült fel az adatgyűjtési beállítás megváltoztatásakor
 dc-learn-more = További tudnivalók
-
-
 drop-down-menu-title-2 = { -product-mozilla-account } menü
 drop-down-menu-signed-in-as-v2 = Bejelentkezve mint
 drop-down-menu-sign-out = Kijelentkezés
@@ -617,8 +616,6 @@ flow-setup-phone-confirm-code-resend-code-button = Kód újraküldése
 flow-setup-phone-confirm-code-resend-code-success = Kód elküldve
 flow-setup-phone-confirm-code-success-message-v2 = Helyreállítási telefonszám hozzáadva
 flow-change-phone-confirm-code-success-message = A helyreállítási telefonszám megváltozott
-
-
 flow-setup-phone-submit-number-heading = Ellenőrizze a telefonszámát
 flow-setup-phone-verify-number-instruction = Kapni fog egy SMS-t a { -brand-mozilla(ending: "accented") }tól, amely egy kódot tartalmaz a száma ellenőrzéséhez. Ne ossza meg ezt a kódot másokkal.
 flow-setup-phone-submit-number-info-message-v2 = A helyreállítási telefonszám csak az Egyesült Államokban és Kanadában érhető el. A VoIP számok és a telefonmaszkok nem ajánlottak.
@@ -1155,8 +1152,6 @@ recovery-phone-number-ending-digits = { $lastFourPhoneNumber } végű szám
 oauth-error-1000 = Hiba történt. Zárja be ezt a lapot, és próbálja újra.
 
 
-
-
 passkey-registration-error-not-allowed = A jelkulcs beállítása sikertelen vagy nem érhető el. Próbálja újra, vagy válasszon másik módszert.
 passkey-registration-error-not-allowed-existing = A jelkulcsbeállítás nem érhető el ennél az eszköznél. Vagy az eszköz már regisztrálva lett, vagy a telepítési folyamat megszakításra került.
 passkey-registration-error-timeout = A jelkulcsbeállítás meg lett szakítva. Próbálja újra.
@@ -1171,8 +1166,6 @@ passkey-registration-error-invalid-state = Ez a jelkulcs már regisztrálva van.
 passkey-registration-error-not-readable = Nem tudtuk elérni a hitelesítőt. Próbálja újra, vagy válasszon másik módszert.
 passkey-registration-error-constraint = A jelkulcsbeállítás nem érhető el ennél az eszköznél. Próbálkozzon másik módszerrel vagy eszközzel.
 passkey-registration-error-unexpected = A jelkulcs beállítása sikertelen. Próbálja újra, vagy válasszon másik módszert.
-
-
 passkey-authentication-trouble-heading = Nem sikerült jelkulccsal bejelentkezni
 passkey-authentication-trouble-description = Próbálja újra, vagy használjon másik bejelentkezési lehetőséget.
 passkey-authentication-trouble-link = Jelkulcsok használata
@@ -1415,8 +1408,6 @@ service-welcome-vpn-heading = Következő: A VPN bekapcsolása
 service-welcome-vpn-description = Még egy lépés a böngészője adatvédelmének megerősítéséhez. Ugorjon a nyitott panelre, és kapcsolja be.
 
 
-
-
 set-password-heading-v2 = Jelszó létrehozása a szinkronizáláshoz
 set-password-info-v2 = Ez titkosítja az adatait. Különböznie kell a { -brand-google } vagy { -brand-apple }-fiókjához tartozó jelszavától.
 
@@ -1443,8 +1434,6 @@ complete-reset-pw-recovery-key-link = Fiók-helyreállítási kulcs használata
 reset-password-complete-banner-heading = A mesterjelszó törölve
 reset-password-complete-banner-message = Ne felejtsen el egy új fiók-helyreállítási kulcsot előállítani a { -product-mozilla-account } beállításaiban, hogy megakadályozza a jövőbeli bejelentkezési problémákat.
 complete-reset-password-desktop-relay = Bejelentkezés után a { -brand-firefox } megpróbálja visszaküldeni Önt az e-mail-maszk használatához.
-
-
 confirm-backup-code-reset-password-input-label = Adja meg a 10 karakteres kódot
 confirm-backup-code-reset-password-confirm-button = Megerősítés
 confirm-backup-code-reset-password-subheader = Adjon meg egy tartalék hitelesítési kódot
@@ -1478,8 +1467,6 @@ password-reset-submit-button-2 = Folytatás
 
 reset-password-complete-header = A jelszó vissza lett állítva
 reset-password-confirmed-cta = Tovább erre: { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Jelszó visszaállítása
@@ -1560,8 +1547,6 @@ signin-passkey-fallback-body = Hogy adatait biztonságban tartsa, meg kell adnia
 signin-passkey-fallback-password-label = Jelszó
 signin-passkey-fallback-continue = Folytatás
 signin-passkey-fallback-forgot-password-link = Elfelejtette a jelszót?
-
-
 
 
 signin-passwordless-code-heading = Adja meg a megerősítő kódot
@@ -1678,8 +1663,6 @@ signin-unblock-code-incorrect-format-2 = Az engedélyezési kód csak betűket �
 signin-unblock-resend-code-button = Nincs a beérkezett vagy a levélszemét mappában? Újraküldés
 signin-unblock-support-link = Miért történik ez?
 signin-unblock-desktop-relay = Bejelentkezés után a { -brand-firefox } megpróbálja visszaküldeni Önt az e-mail-maszk használatához.
-
-
 
 
 confirm-signup-code-page-title = Adja meg a megerősítő kódot

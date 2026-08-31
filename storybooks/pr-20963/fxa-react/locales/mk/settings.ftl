@@ -26,9 +26,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-firefox-desktop = { -brand-firefox } Прелистувач за работен компјутер
 bento-menu-firefox-mobile = { -brand-firefox } Прелистувач за мобилен телефон
 bento-menu-made-by-mozilla = Направено од { -brand-mozilla }
@@ -69,9 +66,6 @@ cs-disconnect-suspicious-advice-heading = Сомнителниот уред е �
 cs-sign-out-button = Одјавете се
 
 ## Data collection section
-
-
-# DropDownAvatarMenu component
 
 drop-down-menu-sign-out = Одјави се
 

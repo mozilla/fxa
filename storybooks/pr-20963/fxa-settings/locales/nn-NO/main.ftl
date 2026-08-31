@@ -104,6 +104,12 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Handlingsvarsel for å vinne tilbake internett
 
 
+pair-continue-in-firefox-heading = Hald fram i { -brand-firefox }
+pair-continue-in-firefox-button = Hald fram i { -brand-firefox }
+pair-continue-in-firefox-opening = Opnar { -brand-firefox }
+pair-continue-in-firefox-get-firefox-link = Har du ikkje { -brand-firefox }? Skaff deg han no
+
+
 dark-mode-toggle-light = Lyst
 dark-mode-toggle-dark = Mørkt
 dark-mode-toggle-system = System
@@ -393,6 +399,8 @@ password-reset-warning-review-sign-in-options = Sjå gjennom påloggingsalternat
 password-reset-warning-have-key = Har du ein kontogjenopprettingsnøkkel?
 password-reset-warning-use-key-link-v2 = Bruk det for å tilbakestille passordet ditt og behalde nettlesardataa dine
 password-reset-warning-signed-in-device = Framleis logga inn på ei anna eining?
+password-reset-warning-restore-data-link = Les om korleis du gjenopprettar nettlesardata frå ei pålogga eining
+password-reset-warning-new-device = Brukar du ei ny eining, men får ikkje tilgang til dei gamle?
 
 
 alert-bar-close-message = Lat att melding
@@ -814,6 +822,8 @@ recent-activity-account-passwordless-login-otp-failed = Kode for passordlaus inn
 recent-activity-account-passwordless-login-otp-verified = Kode for passordlaus innlogging stadfesta
 recent-activity-account-passwordless-registration-complete = Registrering av passordlaus konto fullført
 recent-activity-account-recovery-codes-set = Gjenopprettingskodar innstilte
+recent-activity-account-passkey-wrap-created = Passnøkkel aktivert for synkronisering
+recent-activity-account-passkey-wrap-creation-failure = Synkroniseringsoppsett med passnøkkel mislykkast
 recent-activity-unknown = Annan kontoaktivitet
 
 
@@ -1283,6 +1293,7 @@ pair-unsupported-desktop-firefox-fallback-message-v2 = Lat att denne fana og pr�
 
 pair2-authority-approve-sign-in-heading = Godkjenne innlogging?
 pair2-authority-approve-sign-in-confirm-button = Ja, godkjenn innlogging
+pair2-authority-approve-sign-in-change-password = Ikkje deg? <changePassword>Endre passordet ditt</changePassword>
 
 
 pair2-authority-continue-on-mobile-heading = Hald fram på mobileininga di

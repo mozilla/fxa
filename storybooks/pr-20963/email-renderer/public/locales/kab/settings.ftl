@@ -92,21 +92,18 @@ form-verify-code-default-error = Urti-a yettwasra
 ## FormVerifyTotp component
 ## Form to enter a time-based one-time-passcode (e.g., 6-digit numeric code or 8-digit alphanumeric code)
 
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Tasarut n tririt n umiḍan n { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Tingalin n usesteb n uḥraz
 get-data-trio-download-2 =
-    .title = Sader
     .aria-label = Sader
+    .title = Sader
 get-data-trio-copy-2 =
-    .title = Nɣel
     .aria-label = Nɣel
+    .title = Nɣel
 get-data-trio-print-2 =
-    .title = Siggez
     .aria-label = Siggez
+    .title = Siggez
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -264,9 +261,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = Ifarisen n { -brand-mozilla }
 bento-menu-vpn-2 = { -product-mozilla-vpn }
 bento-menu-monitor-3 = { -product-mozilla-monitor }
@@ -333,9 +327,6 @@ dc-subheader-ff-browser = Iminig { -brand-firefox }
 dc-subheader-content-2 = Sireg { -product-mozilla-accounts } i tuzna n yisefka itiknikanen d umyigew ɣer { -brand-mozilla }.
 dc-opt-in-out-error-2 = Nesḥassef, yella wugur deg usali n yismenyafen-ik•im n ulqaḍ n yisefka
 dc-learn-more = Issin ugar
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = Umuɣ n { -product-mozilla-account }
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -377,9 +368,6 @@ flow-setup-phone-confirm-code-heading = Sekcem tangalt n usenqed
 flow-setup-phone-confirm-code-button = Sentem
 flow-setup-phone-confirm-code-resend-code-button = Ales tuzna n tengalt
 flow-setup-phone-confirm-code-success-message-v2 = Uṭṭun n tiliɣri yettwarna
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Sentem uṭṭun n tiliɣri-k·m
 
 ## HeaderLockup component, the header in account settings
@@ -878,9 +866,6 @@ complete-reset-pw-header-v2 = Snulfu-d awal n uɛeddi amaynut
 # Displayed in an alert bar
 complete-reset-password-success-alert = Awal uffir yettusbadu
 
-# ConfirmBackupCodeResetPassword page
-
-
 ## Confirm Reset Password With Code
 
 confirm-reset-password-with-code-heading = Senqed imayl-ik
@@ -1009,9 +994,6 @@ signin-unblock-support-link = Acuɣeṛ i d-iḍerru waya?
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Sekcem tangalt n usentem
