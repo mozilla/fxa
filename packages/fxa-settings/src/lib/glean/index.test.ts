@@ -18,6 +18,8 @@ import * as accountBanner from 'fxa-shared/metrics/glean/web/accountBanner';
 import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
 import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
 import * as postVerifySetPassword from 'fxa-shared/metrics/glean/web/postVerifySetPassword';
+import * as dtmDesktop from 'fxa-shared/metrics/glean/web/dtmDesktop';
+import * as dtmMobile from 'fxa-shared/metrics/glean/web/dtmMobile';
 import { userIdSha256, userId } from 'fxa-shared/metrics/glean/web/account';
 import {
   oauthClientId,
@@ -27,6 +29,7 @@ import {
   deviceType,
   entrypoint,
   flowId,
+  pairingChannelHash,
 } from 'fxa-shared/metrics/glean/web/session';
 import * as utm from 'fxa-shared/metrics/glean/web/utm';
 import * as entrypointQuery from 'fxa-shared/metrics/glean/web/entrypoint';
@@ -34,6 +37,10 @@ import { Config } from '../config';
 import { WebIntegration, useAccount, WebIntegrationData } from '../../models';
 import { MetricsFlow } from '../metrics-flow';
 import { currentAccount } from '../cache';
+import {
+  capturePairingChannelParams,
+  resetPairingChannelParamsForTest,
+} from '../pairing-channel-params';
 
 jest.mock('../../lib/cache', () => ({
   currentAccount: jest.fn(),
@@ -84,6 +91,7 @@ describe('lib/glean', () => {
     setUtmTermStub: SinonStub,
     setEntrypointExperimentStub: SinonStub,
     setEntrypointVariationStub: SinonStub,
+    setPairingChannelHashStub: SinonStub,
     pageLoadStub: SinonStub,
     handleClickEvent: SinonStub;
 
@@ -128,6 +136,7 @@ describe('lib/glean', () => {
       'set'
     );
     setEntrypointVariationStub = sandbox.stub(entrypointQuery.variation, 'set');
+    setPairingChannelHashStub = sandbox.stub(pairingChannelHash, 'set');
     submitPingStub = sandbox.stub(pings.accountsEvents, 'submit');
     pageLoadStub = sandbox.stub(GleanMetricsAPI.default, 'pageLoad');
     handleClickEvent = sandbox.stub(
@@ -261,6 +270,7 @@ describe('lib/glean', () => {
       sinon.assert.calledWith(setUtmTermStub, '');
       sinon.assert.calledWith(setEntrypointExperimentStub, '');
       sinon.assert.calledWith(setEntrypointVariationStub, '');
+      sinon.assert.calledWith(setPairingChannelHashStub, '');
     });
 
     it('sets the metrics values', async () => {
@@ -1659,6 +1669,137 @@ describe('lib/glean', () => {
         sinon.assert.calledWith(
           setEventNameStub,
           'delete_account_password_submit'
+        );
+        sinon.assert.calledOnce(spy);
+      });
+    });
+
+    // The join key across the two devices. The digest is pinned to a literal
+    // rather than a shape, because the whole point is that both devices derive
+    // the same value from the same channel id.
+    describe('pairing channel hash', () => {
+      afterEach(() => {
+        resetPairingChannelParamsForTest();
+        window.history.replaceState(null, '', '/');
+      });
+
+      it('sets a hash when a channel id is present', async () => {
+        window.history.replaceState(null, '', '/pair?channel_id=chan-abc');
+        capturePairingChannelParams();
+
+        GleanMetrics.initialize(
+          { ...mockConfig, enabled: true },
+          mockMetricsContext
+        );
+        GleanMetrics.registration.view();
+        await GleanMetrics.isDone();
+
+        sinon.assert.calledWith(
+          setPairingChannelHashStub,
+          'f5448b29ac04cb6cdd6f41ebd66bbbea79a6fd1150eb13e7c28d7f25eff8bb01'
+        );
+      });
+
+      it('sets an empty string outside a pairing flow', async () => {
+        capturePairingChannelParams();
+
+        GleanMetrics.initialize(
+          { ...mockConfig, enabled: true },
+          mockMetricsContext
+        );
+        GleanMetrics.registration.view();
+        await GleanMetrics.isDone();
+
+        sinon.assert.calledWith(setPairingChannelHashStub, '');
+      });
+    });
+
+    // Both pairing interrupted screens share a route with their other state, so
+    // `reason` is the only thing distinguishing them. The dispatcher arm is what
+    // decides whether it reaches Glean, which is why it is pinned per reason.
+    describe('pair2', () => {
+      it('submits a ping with the dtm_desktop_timeout_view event name and a timeout reason', async () => {
+        GleanMetrics.dtmDesktop.timeoutView({ event: { reason: 'timeout' } });
+        const spy = sandbox.spy(dtmDesktop.timeoutView, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'dtm_desktop_timeout_view');
+        sinon.assert.calledWith(setEventReasonStub, 'timeout');
+        sinon.assert.calledOnce(spy);
+      });
+
+      it('submits a ping with the dtm_desktop_timeout_view event name and a canceled reason', async () => {
+        GleanMetrics.dtmDesktop.timeoutView({ event: { reason: 'canceled' } });
+        await GleanMetrics.isDone();
+        sinon.assert.calledWith(setEventNameStub, 'dtm_desktop_timeout_view');
+        sinon.assert.calledWith(setEventReasonStub, 'canceled');
+      });
+
+      it('submits a ping with the dtm_mobile_timeout_view event name and a timeout reason', async () => {
+        GleanMetrics.dtmMobile.timeoutView({ event: { reason: 'timeout' } });
+        const spy = sandbox.spy(dtmMobile.timeoutView, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'dtm_mobile_timeout_view');
+        sinon.assert.calledWith(setEventReasonStub, 'timeout');
+        sinon.assert.calledOnce(spy);
+      });
+
+      it('submits a ping with the dtm_mobile_timeout_view event name and a canceled reason', async () => {
+        GleanMetrics.dtmMobile.timeoutView({ event: { reason: 'canceled' } });
+        await GleanMetrics.isDone();
+        sinon.assert.calledWith(setEventNameStub, 'dtm_mobile_timeout_view');
+        sinon.assert.calledWith(setEventReasonStub, 'canceled');
+      });
+
+      it('submits a ping with the dtm_mobile_deeplink_attempt event name and a platform reason', async () => {
+        GleanMetrics.dtmMobile.deeplinkAttempt({ event: { reason: 'ios' } });
+        const spy = sandbox.spy(dtmMobile.deeplinkAttempt, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'dtm_mobile_deeplink_attempt'
+        );
+        sinon.assert.calledWith(setEventReasonStub, 'ios');
+        sinon.assert.calledOnce(spy);
+      });
+
+      it('submits a ping with the dtm_mobile_deeplink_store_redirect event name and a reason', async () => {
+        GleanMetrics.dtmMobile.deeplinkStoreRedirect({
+          event: { reason: 'focus_grace' },
+        });
+        const spy = sandbox.spy(dtmMobile.deeplinkStoreRedirect, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'dtm_mobile_deeplink_store_redirect'
+        );
+        sinon.assert.calledWith(setEventReasonStub, 'focus_grace');
+        sinon.assert.calledOnce(spy);
+      });
+
+      it('submits a ping with the dtm_mobile_deeplink_firefox_detected event name', async () => {
+        GleanMetrics.dtmMobile.deeplinkFirefoxDetected();
+        const spy = sandbox.spy(dtmMobile.deeplinkFirefoxDetected, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'dtm_mobile_deeplink_firefox_detected'
+        );
+        sinon.assert.calledOnce(spy);
+      });
+
+      it('submits a ping with the dtm_mobile_deeplink_webview_fallback event name', async () => {
+        GleanMetrics.dtmMobile.deeplinkWebviewFallback();
+        const spy = sandbox.spy(dtmMobile.deeplinkWebviewFallback, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'dtm_mobile_deeplink_webview_fallback'
         );
         sinon.assert.calledOnce(spy);
       });

@@ -49,6 +49,7 @@ const SyncSuccess = ({
         <button
           type="button"
           onClick={onViewSyncedTabs}
+          data-glean-id="dtm_mobile_pair_success_view_tabs"
           className="cta-primary cta-xl mt-6 w-full"
         >
           View synced tabs
@@ -58,6 +59,7 @@ const SyncSuccess = ({
         <button
           type="button"
           onClick={onSyncSettings}
+          data-glean-id="dtm_mobile_pair_success_sync_settings"
           className="mt-4 py-2 text-base text-grey-900 underline dark:text-grey-10"
         >
           Sync settings

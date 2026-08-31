@@ -19,6 +19,7 @@ const DISABLED_CLIENT_ID = 'd15ab1edd15ab1ed';
 const SERVICES_WITH_EMAIL_VERIFICATION_CLIENT = '32aaeb6f1c21316a';
 
 const mockLog = createMock<AuthLogger>();
+const mockGlean = { pairing: { success: jest.fn() } };
 
 const baseConfig = {
   oauthServer: {
@@ -34,17 +35,20 @@ const baseConfig = {
 };
 
 const route = require('./authorization')({
+  glean: mockGlean,
   log: mockLog,
   oauthDB: {},
 })[1];
 
 const configuredRoute = require('./authorization')({
+  glean: mockGlean,
   log: mockLog,
   oauthDB: {},
   config: baseConfig,
 })[1];
 
 const sessionTokenRoute = require('./authorization')({
+  glean: mockGlean,
   log: mockLog,
   oauthDB: {},
   config: {
@@ -420,6 +424,7 @@ describe('/authorization POST consent write', () => {
         generateTokens: jest.fn(async () => ({})),
       }));
       routes = require('./authorization')({
+        glean: mockGlean,
         log: opts.log ?? mockLog,
         oauthDB: opts.oauthDB,
         config: baseConfig,
@@ -894,6 +899,7 @@ describe('/oauth/authorization service-driven scope resolution', () => {
 
   function makeRoute(oauthDB: Record<string, any>) {
     return require('./authorization')({
+      glean: mockGlean,
       log: mockLog,
       oauthDB,
       config: baseConfig,
@@ -1141,6 +1147,103 @@ describe('isLocalHost', () => {
   });
 });
 
+describe('isPairingAuthorization', () => {
+  const { isPairingAuthorization } = require('./authorization');
+  const {
+    parseToScalars,
+  } = require('fxa-shared/lib/user-agent');
+
+  // Real user agents, captured from physical devices in FXA-10427. Driven
+  // through the actual parser rather than hand-built scalars, because the bug
+  // this guards against was an assumption about what the parser returns.
+  const UA = {
+    macFirefox:
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:132.0) Gecko/20100101 Firefox/132.0',
+    windowsFirefox:
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:132.0) Gecko/20100101 Firefox/132.0',
+    macSafari:
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15',
+    ipadFirefox:
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Safari/605.1.15',
+    ipadSafari:
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.3 Safari/605.1.15',
+    iphoneFirefox:
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_6_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/130.1 Mobile/15E148 Safari/605.1.15',
+    androidFirefox:
+      'Mozilla/5.0 (Android 13; Mobile; rv:133.0) Gecko/133.0 Firefox/133.0',
+    androidTabletFirefox:
+      'Mozilla/5.0 (Android 13; Tablet; rv:133.0) Gecko/133.0 Firefox/133.0',
+  };
+
+  const request = (userAgent: string) => ({
+    app: { ua: parseToScalars(userAgent) },
+  });
+
+  describe('a code minted for a mobile client', () => {
+    it.each([
+      ['macOS', UA.macFirefox],
+      ['Windows', UA.windowsFirefox],
+    ])('counts a desktop Firefox authority on %s', (_os, userAgent) => {
+      expect(
+        isPairingAuthorization(request(userAgent), OAuthNativeClients.Fenix)
+      ).toBe(true);
+    });
+
+    // The app signing in directly, which reaches this endpoint with the very
+    // same client_id. Only the user agent tells them apart.
+    it.each([
+      ['Firefox on Android', UA.androidFirefox],
+      ['Firefox on an Android tablet', UA.androidTabletFirefox],
+      ['Firefox on iPhone', UA.iphoneFirefox],
+    ])('ignores %s signing in for itself', (_name, userAgent) => {
+      expect(
+        isPairingAuthorization(request(userAgent), OAuthNativeClients.Fenix)
+      ).toBe(false);
+    });
+
+    // The reason this is a positive test for desktop Firefox. iPad Firefox sends
+    // a Mac UA with no FxiOS token, so it parses as neither mobile nor tablet
+    // and is indistinguishable from MacBook Safari (FXA-10427). A "not mobile"
+    // test would have counted these as pairings.
+    it.each([
+      ['iPad Firefox', UA.ipadFirefox],
+      ['iPad Safari', UA.ipadSafari],
+      ['MacBook Safari', UA.macSafari],
+    ])('ignores %s, which reads as a desktop UA', (_name, userAgent) => {
+      expect(
+        isPairingAuthorization(request(userAgent), OAuthNativeClients.FirefoxIOS)
+      ).toBe(false);
+    });
+
+    it('accepts an uppercase client id', () => {
+      expect(
+        isPairingAuthorization(
+          request(UA.macFirefox),
+          OAuthNativeClients.Fenix.toUpperCase()
+        )
+      ).toBe(true);
+    });
+
+    it('tolerates a missing user agent', () => {
+      expect(
+        isPairingAuthorization({ app: {} }, OAuthNativeClients.Fenix)
+      ).toBe(false);
+    });
+  });
+
+  describe('a code minted for any other client', () => {
+    it.each([
+      ['Firefox Desktop', OAuthNativeClients.FirefoxDesktop],
+      ['Thunderbird', OAuthNativeClients.Thunderbird],
+      ['a web relying party', 'dcdb5ae7add825d2'],
+    ])('ignores one for %s', (_name, clientId) => {
+      expect(isPairingAuthorization(request(UA.macFirefox), clientId)).toBe(
+        false
+      );
+    });
+  });
+});
+
 describe('/authorization POST redirect_uri validation', () => {
   const UID_HEX = 'a'.repeat(32);
   const REGISTERED_URI = 'https://example.com/redirect';
@@ -1164,6 +1267,7 @@ describe('/authorization POST redirect_uri validation', () => {
         generateTokens: jest.fn(async () => ({})),
       }));
       const routes = require('./authorization')({
+        glean: mockGlean,
         log: mockLog,
         oauthDB: {
           getClient: jest.fn(async () => ({

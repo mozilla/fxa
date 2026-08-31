@@ -45,6 +45,7 @@ const SyncSuccess = ({
         <button
           type="button"
           onClick={onViewSyncedTabs}
+          data-glean-id="dtm_desktop_pair_success_view_tabs"
           className="cta-primary cta-xl mt-8 w-full"
         >
           View synced tabs
@@ -54,6 +55,7 @@ const SyncSuccess = ({
         <button
           type="button"
           onClick={onSyncSettings}
+          data-glean-id="dtm_desktop_pair_success_sync_settings"
           className="link-dark-grey"
         >
           Sync settings

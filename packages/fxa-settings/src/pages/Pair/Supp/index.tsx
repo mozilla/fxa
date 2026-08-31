@@ -10,6 +10,7 @@ import { REACT_ENTRYPOINT } from '../../../constants';
 import Banner from '../../../components/Banner';
 import { useNavigateWithQuery } from '../../../lib/hooks';
 import config from '../../../lib/config';
+import { getPairingChannelParams } from '../../../lib/pairing-channel-params';
 import { Integration } from '../../../models';
 import {
   clearChannelComplete,
@@ -37,10 +38,13 @@ const Supp = ({ integration, error: errorProp }: SuppProps) => {
       return;
     }
 
-    // channel_id/key live in the URL hash so they're not sent to the server.
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const channelId = hashParams.get('channel_id');
-    const channelKey = hashParams.get('channel_key');
+    // channel_id/key arrive in the URL hash so they're not sent to the server,
+    // and are lifted out of it at startup so the key cannot reach telemetry
+    // either — see lib/pairing-channel-params.
+    const { channelId, channelKey } = getPairingChannelParams() ?? {
+      channelId: null,
+      channelKey: null,
+    };
     const channelServerUri = config.pairing?.serverBaseUri;
 
     if (!channelServerUri || !channelId || !channelKey) {

@@ -472,6 +472,9 @@ export function gleanMetrics(config: ConfigType) {
       deleteSuccess: createEventFn('passkey_delete_success'),
       renameSuccess: createEventFn('passkey_rename_success'),
     },
+    pairing: {
+      success: createEventFn('dtm_backend_pair_success'),
+    },
   };
 }
 

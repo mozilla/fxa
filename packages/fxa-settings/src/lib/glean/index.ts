@@ -20,6 +20,8 @@ import * as event from 'fxa-shared/metrics/glean/web/event';
 import * as email from 'fxa-shared/metrics/glean/web/email';
 import * as error from 'fxa-shared/metrics/glean/web/error';
 import * as promoQrMobile from 'fxa-shared/metrics/glean/web/promoQrMobile';
+import * as dtmDesktop from 'fxa-shared/metrics/glean/web/dtmDesktop';
+import * as dtmMobile from 'fxa-shared/metrics/glean/web/dtmMobile';
 import * as reg from 'fxa-shared/metrics/glean/web/reg';
 import * as login from 'fxa-shared/metrics/glean/web/login';
 import * as cachedLogin from 'fxa-shared/metrics/glean/web/cachedLogin';
@@ -52,12 +54,14 @@ import {
   deviceType,
   entrypoint,
   flowId,
+  pairingChannelHash,
 } from 'fxa-shared/metrics/glean/web/session';
 import * as utm from 'fxa-shared/metrics/glean/web/utm';
 import * as entrypointQuery from 'fxa-shared/metrics/glean/web/entrypoint';
 import { Integration } from '../../models';
 import { MetricsFlow } from '../metrics-flow';
 import { currentAccount } from '../../lib/cache';
+import { getPairingChannelId } from '../pairing-channel-params';
 
 type DeviceTypes = 'mobile' | 'tablet' | 'desktop';
 export type GleanMetricsContext = {
@@ -106,8 +110,8 @@ let metricsContext: GleanMetricsContext;
 let ua: UAParser | null;
 
 const encoder = new TextEncoder();
-const hashUid = async (uid: string) => {
-  const data = encoder.encode(uid);
+const sha256Hex = async (value: string) => {
+  const data = encoder.encode(value);
   const hash = await crypto.subtle.digest('SHA-256', data);
   const uint8View = new Uint8Array(hash);
   const hex = uint8View.reduce(
@@ -147,7 +151,7 @@ const initMetrics = async () => {
   try {
     if (account?.uid) {
       userId.set(account.uid);
-      userIdSha256.set(await hashUid(account.uid));
+      userIdSha256.set(await sha256Hex(account.uid));
     }
   } catch (e) {
     // noop
@@ -159,6 +163,14 @@ const initMetrics = async () => {
   deviceType.set(getDeviceType() || '');
   entrypoint.set(metricsContext.integration.data.entrypoint || '');
   flowId.set(metricsContext.metricsFlow?.flowId || '');
+
+  // The join key across the two devices in a pairing. Re-derived on every event
+  // rather than set once, so an event fired before the channel existed does not
+  // leave the rest of the flow unjoinable.
+  const pairingChannelId = getPairingChannelId();
+  pairingChannelHash.set(
+    pairingChannelId ? await sha256Hex(pairingChannelId) : ''
+  );
 
   utm.campaign.set(metricsContext.integration.data.utmCampaign || '');
   utm.content.set(metricsContext.integration.data.utmContent || '');
@@ -955,6 +967,32 @@ const recordEventMetric = (
       break;
     case 'promo_qr_mobile_view':
       promoQrMobile.view.record();
+      break;
+    case 'dtm_desktop_timeout_view':
+      dtmDesktop.timeoutView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'dtm_mobile_timeout_view':
+      dtmMobile.timeoutView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'dtm_mobile_deeplink_attempt':
+      dtmMobile.deeplinkAttempt.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'dtm_mobile_deeplink_firefox_detected':
+      dtmMobile.deeplinkFirefoxDetected.record();
+      break;
+    case 'dtm_mobile_deeplink_store_redirect':
+      dtmMobile.deeplinkStoreRedirect.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'dtm_mobile_deeplink_webview_fallback':
+      dtmMobile.deeplinkWebviewFallback.record();
       break;
   }
 };

@@ -286,6 +286,31 @@ session:
     data_sensitivity:
       - interaction
 
+  pairing_channel_hash:
+    type: string
+    description: |
+      A SHA-256 hash of the device pairing channel id, hex encoded. The two
+      devices in a pairing are separate sessions with separate flow ids, so this
+      is what joins the desktop and mobile halves of one pairing into a single
+      funnel. Empty outside a pairing flow. Hashed because the raw channel id
+      addresses a live channel; the hash is one-way and the id is a random
+      32-character value, so it cannot be reversed by search.
+    lifetime: application
+    send_in_pings:
+      - accounts-events
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14315
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - technical
+
 utm:
   campaign:
     description: |
@@ -4406,6 +4431,155 @@ promo_qr_mobile:
       - fxa-staff@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-13279
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+
+dtm_desktop:
+  timeout_view:
+    type: event
+    description: |
+      User viewed the pairing interrupted screen on the desktop (authority)
+      device. One route serves both the timed-out and the canceled state, so the
+      state is in 'reason' rather than being inferable from the URL.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14315
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Why pairing stopped: 'timeout' when the pairing channel expired, or
+          'canceled' when either device abandoned the attempt.
+        type: string
+
+dtm_mobile:
+  timeout_view:
+    type: event
+    description: |
+      User viewed the pairing interrupted screen on the mobile (supplicant)
+      device. One route serves both the timed-out and the canceled state, so the
+      state is in 'reason' rather than being inferable from the URL.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14315
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Why pairing stopped: 'timeout' when the pairing channel expired, or
+          'canceled' when either device abandoned the attempt.
+        type: string
+
+  deeplink_attempt:
+    type: event
+    description: |
+      Pairing tried to hand off from a browser to the Firefox app after a QR
+      scan. Recorded where the hand-off starts, which differs per platform:
+      Android navigates on mount, iOS requires the user to tap first.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14315
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          The hand-off mechanism used, which follows the platform: 'ios' for a
+          custom scheme, 'android' for an intent, 'other' for a mobile browser
+          that supports neither.
+        type: string
+
+  deeplink_firefox_detected:
+    type: event
+    description: |
+      Pairing was already running inside Firefox, so no app hand-off was needed
+      and the page navigated straight to the pairing target.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14315
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+
+  deeplink_store_redirect:
+    type: event
+    description: |
+      Pairing sent the user to the app store because Firefox appeared not to be
+      installed. This is inferred from the page never being backgrounded, not
+      detected: on iOS a cancelled "Open in Firefox?" prompt is
+      indistinguishable from the not-installed alert, so this over-counts
+      missing installs by however often users cancel that prompt.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14315
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Which inference fired: 'timeout' when the scheme raised no dialog at
+          all, or 'focus_grace' when a dialog was dismissed and the app never
+          took the foreground.
+        type: string
+
+  deeplink_webview_fallback:
+    type: event
+    description: |
+      The Android intent was silently swallowed, which happens in an embedded
+      WebView that does not implement shouldOverrideUrlLoading, so the page
+      revealed a manual retry button instead of continuing to wait.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14315
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121

@@ -16,6 +16,7 @@ import { Constants } from '../../../../lib/constants';
 const learnMoreLink = (
   <LinkExternal
     href={LINK.FX_SYNC}
+    gleanDataAttrs={{ id: 'dtm_mobile_download_learn_more' }}
     className="link-dark-grey"
   >
     Learn more
@@ -58,6 +59,7 @@ const DownloadFirefox = () => (
         <FtlMsg id="pair2-supplicant-download-firefox-continue-button">
           <LinkExternal
             href={Constants.FIREFOX_MOBILE_DOWNLOAD_URL}
+            gleanDataAttrs={{ id: 'dtm_mobile_download_submit' }}
             className="cta-primary cta-xl"
           >
             Continue in Firefox

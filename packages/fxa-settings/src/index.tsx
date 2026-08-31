@@ -13,6 +13,7 @@ import App from './components/App';
 import { NimbusProvider } from './models/contexts/NimbusContext';
 import config, { readConfigMeta } from './lib/config';
 import { searchParams } from './lib/utilities';
+import { capturePairingChannelParams } from './lib/pairing-channel-params';
 import { AppContext, initializeAppContext } from './models';
 import { ThemeProvider } from './models/contexts/ThemeContext';
 import Storage from './lib/storage';
@@ -46,6 +47,10 @@ export interface QueryParams extends FlowQueryParams {
 }
 
 try {
+  // First, before anything can read the URL: the pairing channel key lives in
+  // the fragment, and Glean's automatic events report window.location.href.
+  capturePairingChannelParams();
+
   const flowQueryParams = searchParams(window.location.search) as QueryParams;
 
   // Populate config

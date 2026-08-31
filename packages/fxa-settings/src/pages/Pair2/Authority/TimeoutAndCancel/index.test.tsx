@@ -9,8 +9,22 @@ import { getFtlBundle, testL10n } from 'fxa-react/lib/test-utils';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { TimeoutAndCancelReason } from '.';
 import { Subject } from './mocks';
+import GleanMetrics from '../../../../lib/glean';
+
+jest.mock('../../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    dtmDesktop: {
+      timeoutView: jest.fn(),
+    },
+  },
+}));
 
 const REASONS: TimeoutAndCancelReason[] = ['timeout', 'canceled'];
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('Pair2/Authority/TimeoutAndCancel page', () => {
   // Guards against drift between the fallback text in the component and the
@@ -129,4 +143,14 @@ describe('Pair2/Authority/TimeoutAndCancel page', () => {
       expect(onTryAgain).toHaveBeenCalledTimes(1);
     }
   );
+
+  // The automatic view event cannot tell the two states apart — they share a
+  // route — so the reason has to come from the component.
+  it.each(REASONS)('emits a view event carrying the reason (%s)', (reason) => {
+    renderWithLocalizationProvider(<Subject {...{ reason }} />);
+
+    expect(GleanMetrics.dtmDesktop.timeoutView).toHaveBeenCalledWith({
+      event: { reason },
+    });
+  });
 });

@@ -2,13 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import AppLayout from '../../../../components/AppLayout';
 import {
   FirefoxWordmarkImage,
   PairingInterruptedImage,
 } from '../../../../components/images';
+import GleanMetrics from '../../../../lib/glean';
 
 /**
  * Why the pairing attempt ended without connecting. Named for the cause rather
@@ -76,6 +77,12 @@ export type TimeoutAndCancelProps = {
 const TimeoutAndCancel = ({ reason }: TimeoutAndCancelProps) => {
   reason = reason ?? 'timeout';
   const { headingFtlId, heading, descriptionFtlId, description } = COPY[reason];
+
+  // Custom view event rather than the automatic one: both states share a route,
+  // so `reason` is the only thing that tells them apart.
+  useEffect(() => {
+    GleanMetrics.dtmMobile.timeoutView({ event: { reason } });
+  }, [reason]);
 
   return (
     <AppLayout>

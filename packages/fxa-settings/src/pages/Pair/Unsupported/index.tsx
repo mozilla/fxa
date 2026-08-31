@@ -16,6 +16,7 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 import AppLayout from '../../../components/AppLayout';
 import Banner from '../../../components/Banner';
 import GleanMetrics from '../../../lib/glean';
+import { hasPairingChannelParams } from '../../../lib/pairing-channel-params';
 
 type PairUnsupportedProps = { error?: string };
 export const viewName = 'pair-unsupported';
@@ -32,10 +33,10 @@ function useDeviceContext() {
     const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(ua);
     const isIos = /iPhone|iPad|iPod/i.test(ua);
 
-    // System camera URL: mobile with channel_id/channel_key in the URL hash.
-    const hash = window.location.hash;
-    const isSystemCameraUrl =
-      isMobile && hash.includes('channel_id') && hash.includes('channel_key');
+    // System camera URL: mobile, with a pairing channel in the URL. The
+    // fragment is lifted out of the URL at startup to keep the channel key out
+    // of telemetry, so this asks the capture rather than the live hash.
+    const isSystemCameraUrl = isMobile && hasPairingChannelParams();
 
     // Four mutually exclusive Backbone template branches:
     //   1. Desktop non-Firefox            → "Oops! not using Firefox" + Download CTA

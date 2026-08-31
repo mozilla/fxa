@@ -8,6 +8,20 @@ import { getFtlBundle, testL10n } from 'fxa-react/lib/test-utils';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { PairingInterruptionReason } from '.';
 import { Subject } from './mocks';
+import GleanMetrics from '../../../../lib/glean';
+
+jest.mock('../../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    dtmMobile: {
+      timeoutView: jest.fn(),
+    },
+  },
+}));
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const VARIANTS: Array<{
   reason: PairingInterruptionReason;
@@ -132,4 +146,17 @@ describe('Pair2/Supplicant/TimeoutAndCancel page', () => {
       timedOutHeading
     );
   });
+
+  // The automatic view event cannot tell the two states apart — they share a
+  // route — so the reason has to come from the component.
+  it.each(['timeout', 'canceled'] as PairingInterruptionReason[])(
+    'emits a view event carrying the reason (%s)',
+    (reason) => {
+      renderWithLocalizationProvider(<Subject {...{ reason }} />);
+
+      expect(GleanMetrics.dtmMobile.timeoutView).toHaveBeenCalledWith({
+        event: { reason },
+      });
+    }
+  );
 });

@@ -8,6 +8,7 @@ const Joi = require('joi');
 const { OauthError } = require('@fxa/accounts/errors');
 const { AppError: AuthError } = require('@fxa/accounts/errors');
 const {
+  MOBILE_OAUTH_NATIVE_CLIENT_IDS,
   OAUTH_NATIVE_CLIENT_IDS,
   OAuthNativeClients,
 } = require('@fxa/accounts/oauth');
@@ -48,7 +49,41 @@ function isLocalHost(url) {
   return LOOPBACK_HOSTS.has(host);
 }
 
-module.exports = ({ log, oauthDB, config, statsd, authServerCacheRedis }) => {
+/**
+ * Whether this authorization is a device pairing, inferred rather than declared:
+ * Firefox sends an identical payload either way, so there is no marker to read.
+ *
+ * A mobile client's code is normally requested by that same app, from the FxA
+ * page inside its own webview. Pairing is the one flow where desktop Firefox
+ * asks for it on the phone's behalf, and that is what this identifies. Pairing
+ * from a phone to a desktop is not supported, so there is no mirror case.
+ *
+ * Deliberately a positive test for desktop Firefox rather than "not a mobile
+ * device". Current iPad Firefox sends a Mac UA with no FxiOS token, leaving it
+ * indistinguishable from MacBook Safari (FXA-10427), so it parses as neither
+ * mobile nor tablet — a negative test would count an ordinary iPad sign-in as a
+ * pairing. Only real desktop Firefox carries Gecko's `Firefox/<version>`, which
+ * `browser` is parsed from; iPad Firefox is WebKit and reports Safari. That also
+ * means this does not depend on iPad detection ever being fixed.
+ */
+function isPairingAuthorization(request, clientId) {
+  if (!MOBILE_OAUTH_NATIVE_CLIENT_IDS.has(clientId.toLowerCase())) {
+    return false;
+  }
+  const ua = request.app.ua;
+  // deviceType is null only for a desktop; Firefox on an Android tablet would
+  // otherwise slip through on `browser` alone.
+  return ua?.browser === 'Firefox' && !ua?.deviceType;
+}
+
+module.exports = ({
+  log,
+  oauthDB,
+  config,
+  statsd,
+  glean,
+  authServerCacheRedis,
+}) => {
   if (!config) {
     config = require('../../../config').default.getProperties();
   }
@@ -684,6 +719,14 @@ module.exports = ({ log, oauthDB, config, statsd, authServerCacheRedis }) => {
         req.payload.assertion = await makeAssertionJWT(config, sessionToken);
         const result = await authorizationHandler(req, payloadOverride);
 
+        // In pair2 the browser only reaches this endpoint after both devices
+        // have confirmed, so a successful code here is a completed pairing.
+        // Not awaited, matching the access_token.created call in token.js: a
+        // metrics failure must not fail the authorization.
+        if (isPairingAuthorization(req, clientId)) {
+          glean.pairing.success(req);
+        }
+
         const geoData = req.app.geo;
         const country = geoData.location && geoData.location.country;
         const countryCode = geoData.location && geoData.location.countryCode;
@@ -711,3 +754,4 @@ module.exports = ({ log, oauthDB, config, statsd, authServerCacheRedis }) => {
 };
 
 module.exports.isLocalHost = isLocalHost;
+module.exports.isPairingAuthorization = isPairingAuthorization;

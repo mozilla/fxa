@@ -359,4 +359,16 @@ export const eventsMap = {
   promoQrMobile: {
     view: 'promo_qr_mobile_view',
   },
+
+  dtmDesktop: {
+    timeoutView: 'dtm_desktop_timeout_view',
+  },
+
+  dtmMobile: {
+    timeoutView: 'dtm_mobile_timeout_view',
+    deeplinkAttempt: 'dtm_mobile_deeplink_attempt',
+    deeplinkFirefoxDetected: 'dtm_mobile_deeplink_firefox_detected',
+    deeplinkStoreRedirect: 'dtm_mobile_deeplink_store_redirect',
+    deeplinkWebviewFallback: 'dtm_mobile_deeplink_webview_fallback',
+  },
 } as const;
