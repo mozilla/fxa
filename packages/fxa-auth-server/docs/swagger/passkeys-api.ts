@@ -176,6 +176,47 @@ const PASSKEYS_API_DOCS = {
       `,
     ],
   },
+
+  /**
+   * Swagger/OpenAPI documentation for `POST /passkey/wraps`.
+   *
+   * Stores the wrap envelope that lets a passkey unlock `kB` without a password.
+   */
+  PASSKEY_WRAPS_POST: {
+    ...TAGS_PASSKEYS,
+    description: '/passkey/wraps',
+    notes: [
+      dedent`
+        🔒 Authenticated with session token (verified)
+
+        Stores the wrap envelope for one passkey. The envelope is produced entirely
+        on the client: \`kB\` is sealed with HPKE to a per-wrap recipient key, whose
+        private half is encrypted under a key derived from the credential's WebAuthn
+        PRF output. The server stores all five fields uninterpreted and never sees
+        \`kB\`, the private key, or the PRF output.
+
+        The credential must belong to the authenticated account.
+
+        **Request body:**
+        - \`credentialId\` (string, required) — base64url credential ID
+        - \`pkR\` (string, required) — base64url, 133 bytes
+        - \`prfWrappedSkR\` (string, required) — base64url, 82 bytes
+        - \`keyWrapIv\` (string, required) — base64url, 12 bytes
+        - \`hpkeEncapsulatedSecret\` (string, required) — base64url, 133 bytes
+        - \`hpkeSealedKb\` (string, required) — base64url, 48 bytes
+
+        **Response:** \`{ created: boolean }\` — false when an identical wrap was
+        already stored.
+
+        **Errors:**
+        - \`404\` errno 224 — no such passkey for this account
+        - \`409\` errno 235 — a different wrap already exists for this credential
+
+        **Security events:** \`account.passkey.wrap_created\` on a new wrap;
+        \`account.passkey.wrap_creation_failure\` on any failure to store one.
+      `,
+    ],
+  },
 };
 
 export default PASSKEYS_API_DOCS;
