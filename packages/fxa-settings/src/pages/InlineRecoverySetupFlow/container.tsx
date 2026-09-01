@@ -46,13 +46,24 @@ export const InlineRecoverySetupContainer = ({
   const [loadingAccount, setLoadingAccount] = useState<boolean>(true);
 
   useEffect(() => {
+    let cancelled = false;
     async function acctRefresh() {
-      // Refresh to get recoveryPhone.available (not populated during sign-in)
-      await account.refresh('account');
-      setLoadingAccount(false);
+      try {
+        // Refresh to get recoveryPhone.available (not populated during sign-in)
+        await account.refresh('account');
+      } catch {
+        // Fall through — read whatever localStorage already has.
+      }
+      if (!cancelled) {
+        setLoadingAccount(false);
+      }
     }
     acctRefresh();
-  }, [account]);
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const navigateWithQuery = useNavigateWithQuery();
 
@@ -293,25 +304,43 @@ export const InlineRecoverySetupContainer = ({
     unwrapBKey,
   ]);
 
-  if (currentStep === 0) {
-    navigateWithQuery('/inline_totp_setup', { state: signinLocationState });
-    return;
-  }
-
+  // The three ways to leave this page, in priority order. They run from the
+  // effect below rather than during render, where the navigation would race
+  // the commit.
+  const shouldRedirectToTotpSetup = currentStep === 0;
   // Some basic sanity checks
-  if (!isSignedIn || !signinRecoveryLocationState?.email || !totp) {
-    navigateWithQuery('/signup');
-    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
-  }
-
+  const shouldRedirectToSignup =
+    !shouldRedirectToTotpSetup &&
+    (!isSignedIn || !signinRecoveryLocationState?.email || !totp);
   // we only care about "verified" here, not "exists"
   // because "exists" only tells us that totp setup was started.
   // Prior to using Redis during setup, tokens were directly stored in the database,
   // but may never be marked as enabled/verified if setup is aborted or unsuccessful.
-  if (totpStatus?.verified) {
-    navigateWithQuery('/signin_totp_code', {
-      state: signinLocationState,
-    });
+  const shouldRedirectToTotpCode =
+    !shouldRedirectToTotpSetup &&
+    !shouldRedirectToSignup &&
+    !!totpStatus?.verified;
+  useEffect(() => {
+    if (shouldRedirectToTotpSetup) {
+      navigateWithQuery('/inline_totp_setup', { state: signinLocationState });
+    } else if (shouldRedirectToSignup) {
+      navigateWithQuery('/signup');
+    } else if (shouldRedirectToTotpCode) {
+      navigateWithQuery('/signin_totp_code', { state: signinLocationState });
+    }
+  }, [
+    shouldRedirectToTotpSetup,
+    shouldRedirectToSignup,
+    shouldRedirectToTotpCode,
+    signinLocationState,
+    navigateWithQuery,
+  ]);
+
+  if (shouldRedirectToTotpSetup || shouldRedirectToSignup) {
+    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
+  }
+
+  if (shouldRedirectToTotpCode) {
     return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }
 

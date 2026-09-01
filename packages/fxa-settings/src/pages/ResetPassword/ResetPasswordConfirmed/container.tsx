@@ -16,7 +16,7 @@ import OAuthDataError from '../../../components/OAuthDataError';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { AuthError } from '../../../lib/oauth';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import GleanMetrics from '../../../lib/glean';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { currentAccount } from '../../../lib/cache';
@@ -40,10 +40,24 @@ const ResetPasswordConfirmedContainer = ({
   const { keyFetchToken, unwrapBKey } =
     sensitiveDataClient.getDataType(SensitiveData.Key.AccountReset) || {};
 
-  // If we have lost the required bits for OAuth handling, we have to start again.
-  if (!uid || !sessionToken) {
-    navigateWithQuery('/signin', { replace: true });
-    return;
+  // If we have lost the required bits for OAuth handling, we have to start
+  // again. Both redirects below run from the effect rather than during render,
+  // where the navigation would race the commit.
+  const shouldRedirectToSignin = !uid || !sessionToken;
+  // An OAuth error outranks the root redirect, as it did in the render order
+  // this replaced; missing auth state still redirects either way.
+  const shouldRedirectToRoot =
+    !shouldRedirectToSignin && !oAuthDataError && !verified;
+  useEffect(() => {
+    if (shouldRedirectToSignin) {
+      navigateWithQuery('/signin', { replace: true });
+    } else if (shouldRedirectToRoot) {
+      navigateWithQuery('/');
+    }
+  }, [shouldRedirectToSignin, shouldRedirectToRoot, navigateWithQuery]);
+
+  if (shouldRedirectToSignin) {
+    return null;
   }
 
   const handleOAuthRedirectError = (error: AuthError) => {
@@ -100,9 +114,8 @@ const ResetPasswordConfirmedContainer = ({
     return <OAuthDataError error={oAuthDataError} />;
   }
 
-  if (!verified) {
-    navigateWithQuery('/');
-    return;
+  if (shouldRedirectToRoot) {
+    return null;
   }
 
   return (

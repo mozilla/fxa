@@ -12,7 +12,7 @@ import {
   SecurityEvent,
 } from '../models/Account';
 import type { Passkey } from 'fxa-auth-client/browser';
-import { lazy } from './test-utils';
+import { lazy } from './lazy';
 import Storage from './storage';
 
 const storage = lazy<Storage>(() => Storage.factory('localStorage'));

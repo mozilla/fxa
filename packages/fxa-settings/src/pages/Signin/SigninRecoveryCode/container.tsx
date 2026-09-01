@@ -9,7 +9,7 @@ import {
   useAuthClient,
   useSensitiveDataClient,
 } from '../../../models';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { getSigninState } from '../utils';
 import { SigninLocationState } from '../interfaces';
 import {
@@ -122,6 +122,15 @@ export const SigninRecoveryCodeContainer = ({
     }
   };
 
+  // Redirect from an effect rather than during render. A concurrent root
+  // commits asynchronously, so a render-phase navigation races the commit.
+  // The error guards are mirrored here because they return first below.
+  useEffect(() => {
+    if (!signinState && !oAuthDataError && !oAuthKeysCheckError) {
+      navigateWithQuery('/');
+    }
+  }, [signinState, oAuthDataError, oAuthKeysCheckError, navigateWithQuery]);
+
   if (oAuthDataError) {
     return <OAuthDataError error={oAuthDataError} />;
   }
@@ -133,7 +142,7 @@ export const SigninRecoveryCodeContainer = ({
   const splitLayout = cmsInfo?.SigninRecoveryCodePage?.splitLayout;
 
   if (!signinState) {
-    navigateWithQuery('/');
+    // Redirect runs from the effect above.
     return (
       <AppLayout
         {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}

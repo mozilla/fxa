@@ -97,6 +97,7 @@ export const MfaGuardCore = ({
 
   // Modal Setup
   useEffect(() => {
+    let cancelled = false;
     (async () => {
       // To avoid requesting multiple OTPs on mount
       if (JwtTokenCache.hasToken(sessionToken, requiredScope)) {
@@ -130,11 +131,22 @@ export const MfaGuardCore = ({
           return;
         }
 
+        // The auth client's global error handler may have already routed us
+        // off this page (e.g. INSUFFICIENT_AAL redirects to /signin_totp_code).
+        // Dismissing after that would navigate the host back and clobber it.
+        if (cancelled) {
+          return;
+        }
+
         Sentry.captureException(err);
         onFatalError(getLocalizedErrorMessage(ftlMsgResolver, err));
         dismiss();
       }
     })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [
     jwtState,
     sessionToken,

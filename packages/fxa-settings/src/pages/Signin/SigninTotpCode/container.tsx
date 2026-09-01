@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router';
 import type { UseFxAStatusResult } from '../../../lib/hooks';
 import {
@@ -124,6 +125,35 @@ export const SigninTotpCodeContainer = ({
     }
   };
 
+  // Only bounce users who arrived here without usable state. Latching on the
+  // first valid signinState matters because the cache write that follows a
+  // successful TOTP verification briefly clears it, and a live check would
+  // read that as "no state" and redirect out of a flow that just succeeded.
+  const hasValidSigninState =
+    !!signinState &&
+    (signinState.isSessionAALUpgrade === true ||
+      !signinState.verificationMethod ||
+      signinState.verificationMethod === VerificationMethods.TOTP_2FA);
+  // Latch from an effect, not during render: a concurrent root can discard a
+  // render, and a latch set there would survive from a render that never
+  // committed, letting a later commit with invalid state skip the redirect.
+  const hasHadValidSigninState = useRef(false);
+  useEffect(() => {
+    if (hasValidSigninState) {
+      hasHadValidSigninState.current = true;
+    }
+  }, [hasValidSigninState]);
+
+  // Navigate from an effect: a concurrent root commits asynchronously, so a
+  // render-phase navigation races the commit.
+  const shouldRedirectFromTotp =
+    !hasValidSigninState && !hasHadValidSigninState.current;
+  useEffect(() => {
+    if (!oAuthDataError && shouldRedirectFromTotp) {
+      navigateWithQuery('/');
+    }
+  }, [oAuthDataError, shouldRedirectFromTotp, navigateWithQuery]);
+
   if (oAuthDataError) {
     return <OAuthDataError error={oAuthDataError} />;
   }
@@ -135,13 +165,7 @@ export const SigninTotpCodeContainer = ({
   const cmsInfo = integration.getCmsInfo();
   const splitLayout = cmsInfo?.SigninTotpCodePage?.splitLayout;
 
-  if (
-    !signinState ||
-    (signinState.isSessionAALUpgrade !== true &&
-      signinState.verificationMethod &&
-      signinState.verificationMethod !== VerificationMethods.TOTP_2FA)
-  ) {
-    navigateWithQuery('/');
+  if (shouldRedirectFromTotp || !signinState) {
     return (
       <AppLayout
         {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
