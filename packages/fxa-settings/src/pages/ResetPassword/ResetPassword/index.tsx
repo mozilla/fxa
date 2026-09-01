@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useFtlMsgResolver } from '../../../models';
 
@@ -14,6 +14,7 @@ import LinkRememberPassword from '../../../components/LinkRememberPassword';
 import { isEmailValid } from 'fxa-shared/email/helpers';
 import { ResetPasswordFormData, ResetPasswordProps } from './interfaces';
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 import Banner from '../../../components/Banner';
 
 export const viewName = 'reset-password';
@@ -31,9 +32,7 @@ const ResetPassword = ({
 
   const ftlMsgResolver = useFtlMsgResolver();
 
-  useEffect(() => {
-    GleanMetrics.passwordReset.view();
-  }, []);
+  useGleanView(() => GleanMetrics.passwordReset.view());
 
   const { control, getValues, handleSubmit, register } =
     useForm<ResetPasswordFormData>({

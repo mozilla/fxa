@@ -5,13 +5,14 @@
 import { useNavigate, useLocation } from 'react-router';
 import { useNavigateWithQuery, useWebRedirect } from '../../../../lib/hooks';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import AppLayout from '../../../../components/AppLayout';
 import CardHeader from '../../../../components/CardHeader';
 import TermsPrivacyAgreement from '../../../../components/TermsPrivacyAgreement';
 import { AuthUiErrors } from '../../../../lib/auth-errors/auth-errors';
 import GleanMetrics from '../../../../lib/glean';
+import { useGleanView } from '../../../../lib/glean/useGleanView';
 import {
   useFtlMsgResolver,
   isWebIntegration,
@@ -98,9 +99,9 @@ const SigninCached = ({
     defaultValues: { email },
   });
 
-  useEffect(() => {
-    GleanMetrics.cachedLogin.view({ event: { thirdPartyLinks: false } });
-  }, []);
+  useGleanView(() =>
+    GleanMetrics.cachedLogin.view({ event: { thirdPartyLinks: false } })
+  );
 
   const onSubmit = useCallback(async () => {
     setSigninLoading(true);

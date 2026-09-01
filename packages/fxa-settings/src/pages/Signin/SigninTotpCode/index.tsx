@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import {
@@ -16,6 +16,7 @@ import { MozServices } from '../../../lib/types';
 import firefox from '../../../lib/channels/firefox';
 import AppLayout from '../../../components/AppLayout';
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 import { SigninIntegration, SigninLocationState } from '../interfaces';
 import type { UseFxAStatusResult } from '../../../lib/hooks';
 import { useNavigateWithQuery } from '../../../lib/hooks';
@@ -104,9 +105,7 @@ export const SigninTotpCode = ({
       }
     : undefined;
 
-  useEffect(() => {
-    GleanMetrics.totpForm.view();
-  }, []);
+  useGleanView(() => GleanMetrics.totpForm.view());
 
   const onSubmit = async (code: string) => {
     setBannerError('');
@@ -260,6 +259,7 @@ export const SigninTotpCode = ({
         codeLength={6}
         codeType="numeric"
         errorMessage={bannerError}
+        inputPrefixDataTestId="totp"
         localizedInputLabel={ftlMsgResolver.getMsg(
           'signin-totp-code-input-label-v4',
           'Enter 6-digit code'

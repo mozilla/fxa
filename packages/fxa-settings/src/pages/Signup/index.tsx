@@ -4,7 +4,7 @@
 
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { isEmailMask } from 'fxa-shared/email/helpers';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import AppLayout from '../../components/AppLayout';
 import CardHeader, {
@@ -18,6 +18,7 @@ import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import firefox from '../../lib/channels/firefox';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import GleanMetrics from '../../lib/glean';
+import { useGleanView } from '../../lib/glean/useGleanView';
 import { useNavigateWithQuery } from '../../lib/hooks';
 import {
   logViewEvent,
@@ -60,9 +61,7 @@ export const Signup = ({
 
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
-  useEffect(() => {
-    GleanMetrics.registration.view();
-  }, []);
+  useGleanView(() => GleanMetrics.registration.view());
 
   const isOAuth = isOAuthIntegration(integration);
   const isOAuthNative = isOAuthNativeIntegration(integration);

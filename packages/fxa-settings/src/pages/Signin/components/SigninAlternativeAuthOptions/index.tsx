@@ -4,12 +4,13 @@
 
 import { useLocation } from 'react-router';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import React, { useEffect } from 'react';
+import React from 'react';
 import AppLayout from '../../../../components/AppLayout';
 import CardHeader from '../../../../components/CardHeader';
 import TermsPrivacyAgreement from '../../../../components/TermsPrivacyAgreement';
 import AlternativeAuthOptions from '../../../../components/AlternativeAuthOptions';
 import GleanMetrics from '../../../../lib/glean';
+import { useGleanView } from '../../../../lib/glean/useGleanView';
 import { useNavigateWithQuery } from '../../../../lib/hooks';
 import Banner from '../../../../components/Banner';
 import { SigninAlternativeAuthOptionsProps } from '../../interfaces';
@@ -89,13 +90,11 @@ const SigninAlternativeAuthOptions = ({
   const hideAccountSwitchLink =
     isSignedIntoFirefox && integration.isFirefoxDesktopClient();
 
-  useEffect(() => {
-    // Linked-passwordless is the only render path where third-party auth /
-    // passkey are the user's only options. Tracked under `login.alternative_auth_*`
-    // so the view→click funnel for this cohort lives under one category and
-    // is distinct from generic signin/TPA events.
-    GleanMetrics.login.alternativeAuthView();
-  }, []);
+  // Linked-passwordless is the only render path where third-party auth /
+  // passkey are the user's only options. Tracked under `login.alternative_auth_*`
+  // so the view→click funnel for this cohort lives under one category and
+  // is distinct from generic signin/TPA events.
+  useGleanView(() => GleanMetrics.login.alternativeAuthView());
 
   const authInProgress = passkey.isLoading;
 

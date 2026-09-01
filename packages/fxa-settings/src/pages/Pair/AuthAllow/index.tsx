@@ -12,6 +12,7 @@ import DeviceInfoBlock from '../../../components/DeviceInfoBlock';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { ReactComponent as LocationBalloonImage } from './confirm-pairing.svg';
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 import Banner from '../../../components/Banner';
 import { PairingAuthorityIntegration } from '../../../models/integrations/pairing-authority-integration';
 import { Integration, useAuthClient } from '../../../models';
@@ -47,9 +48,7 @@ const AuthAllow = ({
   error: errorProp,
 }: AuthAllowProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
-  useEffect(() => {
-    GleanMetrics.cadApproveDevice.view();
-  }, []);
+  useGleanView(() => GleanMetrics.cadApproveDevice.view());
   const navigateWithQuery = useNavigateWithQuery();
   const authClient = useAuthClient();
   const location = useLocation();
