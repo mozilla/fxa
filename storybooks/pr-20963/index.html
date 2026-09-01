@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 1b091d778cc2be0a41fc30350a3006d2677239d3</title>
+  <title>Storybooks for commit abcea55f1d57c5d1c28a42bf837c8120f740b5f6</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 1b091d778cc2be0a41fc30350a3006d2677239d3</h1>
+  <h1>Storybooks for commit abcea55f1d57c5d1c28a42bf837c8120f740b5f6</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,9 +31,30 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/31/2026, 8:42:52 PM UTC</dd>
+    <dd>9/1/2026, 1:11:50 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>Updates based on Valerie&#039;s feedback</pre></dd>
+    <dd><pre>chore(settings): Update to React 19</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>This pull request:
+
+- Upgrades React and react-dom to 19 (pinned to `19.0.8`), with `@types/react` 19 and `@testing-library/react` 16
+- Switches `fxa-settings` to `createRoot`; `ReactDOM.render` is gone in React 19
+- Moves render-phase `navigate()` calls into effects across 13 containers — a concurrent root commits asynchronously, so navigating during render races the commit
+- Replaces the hand-rolled `Symbol.for(&#039;react.element&#039;)` in the SVG Jest transform with `createElement`, and consolidates the duplicated transform into `fxa-react`
+- Migrates `useFormState` to `useActionState` in `CouponForm`, dispatching the auto-apply through `startTransition`
+- Drops `@material-ui/core` (peers on React ^16/^17) and rebuilds the avatar zoom control as a native range input
+- Removes `@testing-library/react-hooks`, which has no React 19 support, in favour of RTL&#039;s `renderHook`
+- Fixes functional-test page objects that assumed the route committed with the URL
+
+Other information
+- **React is pinned to 19.0.8, not 19.2.x.** 19.2.8 reproducibly failed six passkey and 2FA
+  functional tests that pass on 19.0.8, on two independent branches. The cause is not diagnosed;
+  bumping to 19.2.x should be its own change. (FXA-14313)
+- **`StrictMode` is disabled** in `fxa-settings/src/index.tsx`. `PagePasskeyAdd` starts its WebAuthn
+  ceremony in a mount effect and the double-invoke aborts it. Fixing that effect&#039;s cleanup and
+  restoring StrictMode is follow-up work. (FXA-14313)
+
+Closes PAY-3887</pre></dd>
   </dl>
 </body>
 </html>
