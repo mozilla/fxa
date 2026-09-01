@@ -75,6 +75,20 @@ choose-newsletters-option-test-pilot =
 choose-newsletters-option-reclaim-the-internet =
     .label = Åtgärdsvarningar för att återta internet
 
+## ContinueInFirefox component - Part of the desktop-to-mobile pairing flow
+## Shown when the pairing QR code is opened in a browser other than Firefox.
+## It hands the pairing link to the Firefox app, and offers the app store when
+## Firefox is not installed on the device.
+
+pair-continue-in-firefox-heading = Fortsätt i { -brand-firefox }
+pair-continue-in-firefox-description = Parkoppling sker om { -brand-firefox }. Öppna den för att slutföra anslutningen av enheten.
+# Opens the Firefox app on this device
+pair-continue-in-firefox-button = Fortsätt i { -brand-firefox }
+# Shown while waiting for the Firefox app to take over
+pair-continue-in-firefox-opening = Öppnar { -brand-firefox }
+# Sends the user to the App Store or Play Store to install Firefox
+pair-continue-in-firefox-get-firefox-link = Har du inte { -brand-firefox }? Hämta den nu
+
 ## Dark mode toggle
 
 dark-mode-toggle-light = Ljust
@@ -197,21 +211,18 @@ form-verify-totp-disabled-button-title-numeric = Ange { $codeLength }-siffrig ko
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Ange en kod på { $codeLength } tecken för att fortsätta
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } kontoåterställningsnyckel
 get-data-trio-title-backup-verification-codes = Reservautentiseringskoder
 get-data-trio-download-2 =
-    .title = Hämta
     .aria-label = Hämta
+    .title = Hämta
 get-data-trio-copy-2 =
-    .title = Kopiera
     .aria-label = Kopiera
+    .title = Kopiera
 get-data-trio-print-2 =
-    .title = Skriv ut
     .aria-label = Skriv ut
+    .title = Skriv ut
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -275,10 +286,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = Lösenord
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = En dator och en mobiltelefon och en bild av ett brustet hjärta på varje
 hearts-verified-image-aria-label =
@@ -527,9 +534,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = { -brand-mozilla }-produkter
 bento-menu-tagline = Fler produkter från { -brand-mozilla } som skyddar din integritet
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -622,9 +626,6 @@ dc-opt-out-success-2 = Valet lyckades. { -product-mozilla-accounts } skickar int
 dc-opt-in-success-2 = Tack! Att dela denna data hjälper oss att förbättra { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Tyvärr, det uppstod ett problem med att ändra din inställning för datainsamling
 dc-learn-more = Läs mer
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = { -product-mozilla-account }-meny
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -785,9 +786,6 @@ flow-setup-phone-confirm-code-resend-code-button = Skicka koden igen
 flow-setup-phone-confirm-code-resend-code-success = Kod skickad
 flow-setup-phone-confirm-code-success-message-v2 = Återställningstelefon tillagd
 flow-change-phone-confirm-code-success-message = Återställningstelefonen har ändrats
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Verifiera ditt telefonnummer
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = Du får ett sms från { -brand-mozilla } med en kod för att verifiera ditt nummer. Dela inte den här koden med någon.
@@ -1507,9 +1505,6 @@ oauth-error-1000 = Något gick fel. Stäng den här fliken och försök igen.
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = Inställning av lösenordsnyckel misslyckades eller är otillgänglig. Försök igen eller välj en annan metod.
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
@@ -1541,9 +1536,6 @@ passkey-registration-error-not-readable = Vi kunde inte komma åt autentiseringe
 passkey-registration-error-constraint = Installation av lösenordsnyckel är inte tillgänglig med den här enheten. Prova en annan metod eller enhet.
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = Inställning av lösenordsnyckel misslyckades. Försök igen eller välj en annan metod.
-
-# Authentication errors
-
 # Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
 # available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
 # points the user to another way to sign in.
@@ -2012,9 +2004,6 @@ service-welcome-vpn-description = Ytterligare ett steg för att stärka din webb
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
 
-
-# password to complete their sign-in when they want to login to a service requiring it.
-
 set-password-heading-v2 = Skapa lösenord för att synkronisera
 # "This" refers to the heading, "Create password to sync"
 set-password-info-v2 = Detta krypterar din data. Det måste skilja sig från lösenordet för ditt { -brand-google }- eller { -brand-apple }-konto.
@@ -2064,9 +2053,6 @@ reset-password-complete-banner-message = Glöm inte att skapa en ny kontoåterst
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = { -brand-firefox } försöker skicka dig tillbaka för att använda ett e-postalias efter du loggat in.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = Ange en kod på 10 tecken
 confirm-backup-code-reset-password-confirm-button = Bekräfta
 confirm-backup-code-reset-password-subheader = Ange reservautentiseringskod
@@ -2117,9 +2103,6 @@ reset-password-confirmed-cta = Fortsätt till { $serviceName }
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Återställ lösenordet
 password-reset-recovery-method-subheader = Välj en återställningsmetod
@@ -2230,11 +2213,6 @@ signin-passkey-fallback-body = För att skydda din data måste du ange ditt lös
 signin-passkey-fallback-password-label = Lösenord
 signin-passkey-fallback-continue = Fortsätt
 signin-passkey-fallback-forgot-password-link = Glömt lösenordet?
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2427,9 +2405,6 @@ signin-unblock-desktop-relay = { -brand-firefox } försöker skicka dig tillbaka
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Ange bekräftelsekod

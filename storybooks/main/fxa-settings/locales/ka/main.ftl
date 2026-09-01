@@ -138,6 +138,13 @@ choose-newsletters-option-reclaim-the-internet =
     .label = სამოქმედო ცნობები ინტერნეტის დასაბრუნებლად
 
 
+pair-continue-in-firefox-heading = გამოიყენეთ { -brand-firefox }, რომ განაგრძოთ
+pair-continue-in-firefox-description = უერთდება { -brand-firefox }. გახსენით ამ მოწყობილობასთან კავშირის დასასრულებლად.
+pair-continue-in-firefox-button = გამოიყენეთ { -brand-firefox }, რომ განაგრძოთ
+pair-continue-in-firefox-opening = იხსნება { -brand-firefox }
+pair-continue-in-firefox-get-firefox-link = { -brand-firefox } არ გაქვთ? გადმოწერეთ ახლავე
+
+
 dark-mode-toggle-light = ნათელი
 dark-mode-toggle-dark = მუქი
 dark-mode-toggle-system = სისტემის

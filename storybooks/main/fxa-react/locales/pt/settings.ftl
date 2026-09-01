@@ -75,6 +75,20 @@ choose-newsletters-option-test-pilot =
 choose-newsletters-option-reclaim-the-internet =
     .label = Alertas de ação para recuperar a Internet
 
+## ContinueInFirefox component - Part of the desktop-to-mobile pairing flow
+## Shown when the pairing QR code is opened in a browser other than Firefox.
+## It hands the pairing link to the Firefox app, and offers the app store when
+## Firefox is not installed on the device.
+
+pair-continue-in-firefox-heading = Continuar em { -brand-firefox }
+pair-continue-in-firefox-description = O emparelhamento acontece em { -brand-firefox }. Abra-a para concluir a ligação a este dispositivo.
+# Opens the Firefox app on this device
+pair-continue-in-firefox-button = Continuar em { -brand-firefox }
+# Shown while waiting for the Firefox app to take over
+pair-continue-in-firefox-opening = A abrir { -brand-firefox }
+# Sends the user to the App Store or Play Store to install Firefox
+pair-continue-in-firefox-get-firefox-link = Não tem { -brand-firefox }? Obter agora
+
 ## Dark mode toggle
 
 dark-mode-toggle-light = Claro
@@ -197,21 +211,18 @@ form-verify-totp-disabled-button-title-numeric = Introduza o código de { $codeL
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Introduza o código de { $codeLength } caracteres para continuar
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Chave de recuperação da conta { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Códigos de autenticação de recuperação
 get-data-trio-download-2 =
-    .title = Transferir
     .aria-label = Transferir
+    .title = Transferir
 get-data-trio-copy-2 =
-    .title = Copiar
     .aria-label = Copiar
+    .title = Copiar
 get-data-trio-print-2 =
-    .title = Imprimir
     .aria-label = Imprimir
+    .title = Imprimir
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -275,10 +286,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = Chave de acesso
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Um computador e um telemóvel, e a imagem de um coração quebrado em cada um
 hearts-verified-image-aria-label =
@@ -527,9 +534,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = Produtos da { -brand-mozilla }
 bento-menu-tagline = Mais produtos da { -brand-mozilla } que protegem a sua privacidade
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -620,9 +624,6 @@ dc-opt-out-success-2 = Desativação bem sucedida. As { -product-mozilla-account
 dc-opt-in-success-2 = Obrigado! Partilhar estes dados ajuda-nos a melhorar as { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Pedimos desculpa, mas ocorreu um problema ao alterar a sua preferência de recolha de dados
 dc-learn-more = Saber mais
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = Menu { -product-mozilla-account }
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -783,9 +784,6 @@ flow-setup-phone-confirm-code-resend-code-button = Reenviar código
 flow-setup-phone-confirm-code-resend-code-success = Código enviado
 flow-setup-phone-confirm-code-success-message-v2 = Telefone de recuperação adicionado
 flow-change-phone-confirm-code-success-message = Telefone de recuperação alterado
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Verifique o seu número de telefone
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = Irá receber uma mensagem de texto da { -brand-mozilla } com um código para confirmar o seu número. Não partilhe este código com ninguém.
@@ -1504,9 +1502,6 @@ oauth-error-1000 = Ocorreu um erro. Feche este separador e tente novamente.
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = A configuração da palavra-passe falhou ou está indisponível. Tente novamente ou escolha outro método.
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
@@ -1538,9 +1533,6 @@ passkey-registration-error-not-readable = Não conseguimos aceder ao autenticado
 passkey-registration-error-constraint = A configuração por palavra-passe não está disponível para este dispositivo. Tente outro método ou dispositivo.
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = A configuração da chave de acesso falhou. Tente novamente ou escolha outro método.
-
-# Authentication errors
-
 # Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
 # available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
 # points the user to another way to sign in.
@@ -2011,9 +2003,6 @@ service-welcome-vpn-description = Mais um passo para melhorar a privacidade do s
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
 
-
-# password to complete their sign-in when they want to login to a service requiring it.
-
 set-password-heading-v2 = Criar palavra-passe para sincronizar
 # "This" refers to the heading, "Create password to sync"
 set-password-info-v2 = Isto encripta os seus dados. Tem de ser diferente da palavra-passe da sua conta { -brand-google } ou { -brand-apple }.
@@ -2063,9 +2052,6 @@ reset-password-complete-banner-message = Não se esqueça de gerar uma nova chav
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = O { -brand-firefox } vai tentar redirecionar para a utilização de uma máscara de e-mail após o seu início de sessão.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = Inserir código de 10 caracteres
 confirm-backup-code-reset-password-confirm-button = Confirmar
 confirm-backup-code-reset-password-subheader = Insira o código de autenticação de recuperação
@@ -2116,9 +2102,6 @@ reset-password-confirmed-cta = Continuar para { $serviceName }
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Repor a sua palavra-passe
 password-reset-recovery-method-subheader = Escolha um método de recuperação
@@ -2226,11 +2209,6 @@ signin-passkey-fallback-body = Para manter os seus dados seguros, tem de introdu
 signin-passkey-fallback-password-label = Palavra-passe
 signin-passkey-fallback-continue = Continuar
 signin-passkey-fallback-forgot-password-link = Esqueceu-se da palavra-passe?
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2423,9 +2401,6 @@ signin-unblock-desktop-relay = O { -brand-firefox } vai tentar redirecionar para
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Inserir código de confirmação
