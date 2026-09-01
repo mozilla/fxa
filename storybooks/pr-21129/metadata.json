@@ -1,8 +1,8 @@
 {
-  "commit": "e4f1f6fde566dd1730830bb48e369aacc9c0c90b",
+  "commit": "84f2b4029ed923265354953f8e0795624344c23e",
   "summary": "wip",
   "description": "",
-  "timestamp": 1788287863000,
+  "timestamp": 1788289529000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
