@@ -1,0 +1,12 @@
+{
+  "commit": "e4f1f6fde566dd1730830bb48e369aacc9c0c90b",
+  "summary": "wip",
+  "description": "",
+  "timestamp": 1788287863000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
