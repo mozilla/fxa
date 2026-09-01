@@ -1,8 +1,8 @@
 {
-  "commit": "bd78c26291c964aab8f9dc291cd325f48959f314",
-  "summary": "Merge pull request #21124 from mozilla/fxa-10363",
-  "description": "fix(l10n): stop requesting en-US ftl files we never deploy",
-  "timestamp": 1788292788000,
+  "commit": "56c8d4dabc6248d4728093f6feaf741f4ef18e9c",
+  "summary": "Merge pull request #21123 from mozilla/fxa-5807",
+  "description": "fix(auth-server): do not await push sends in three routes",
+  "timestamp": 1788292804000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
