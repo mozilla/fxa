@@ -975,6 +975,89 @@ describe('/recovery_email/verify_code', () => {
         expect(notifyArgs[2]).toBe('accountConfirm');
       });
     });
+
+    describe('the push send is not awaited', () => {
+      const pushError = new Error('push failed');
+
+      // The route responds before the push send settles, so give the
+      // rejection handler a turn before asserting on the log.
+      const flushRejectionHandler = () =>
+        new Promise((resolve) => setImmediate(resolve));
+
+      // These tests own their db, log and push mocks so that the mocks
+      // shared by the rest of this describe keep their state.
+      const makeDb = (dbOverrides: any = {}) =>
+        mocks.mockDB({
+          email: TEST_EMAIL,
+          emailCode: Buffer.from(mockRequest.payload.code, 'hex'),
+          emailVerified: true,
+          uid,
+          ...dbOverrides,
+        });
+
+      const setup = (push: any, db: any) => {
+        const log = createMock<AuthLogger>();
+        const route = getRoute(
+          makeRoutes({
+            config: {},
+            customs: mockCustoms,
+            db,
+            log,
+            mailer: mockMailer,
+            push,
+            verificationReminders,
+          }),
+          '/recovery_email/verify_code'
+        );
+        return { log, route };
+      };
+
+      it('logs a rejected notifyDeviceConnected and still returns an empty body', async () => {
+        const db = makeDb();
+        db.deviceFromTokenVerificationId = jest.fn().mockResolvedValue({
+          name: 'my device',
+          id: '123456789',
+          type: 'desktop',
+        });
+        const { log, route } = setup(
+          mocks.mockPush({
+            notifyDeviceConnected: () => Promise.reject(pushError),
+          }),
+          db
+        );
+
+        await runTest(route, mockRequest, (response: any) => {
+          expect(JSON.stringify(response)).toBe('{}');
+        });
+        await flushRejectionHandler();
+
+        expect(log.error).toHaveBeenCalledWith(
+          'Account.RecoveryEmailVerify.notifyDeviceConnected',
+          { err: pushError, uid }
+        );
+      });
+
+      it('logs a rejected notifyAccountUpdated and still returns an empty body', async () => {
+        // An emailCode that differs from the submitted code makes this a
+        // sign-in confirmation rather than an account verification.
+        const { log, route } = setup(
+          mocks.mockPush({
+            notifyAccountUpdated: () => Promise.reject(pushError),
+          }),
+          makeDb({ emailCode: Buffer.from('f'.repeat(32), 'hex') })
+        );
+
+        await runTest(route, mockRequest, (response: any) => {
+          expect(JSON.stringify(response)).toBe('{}');
+        });
+        await flushRejectionHandler();
+
+        expect(log.error).toHaveBeenCalledWith(
+          'account.signin.confirm.notifyAccountUpdated',
+          { err: pushError, uid }
+        );
+      });
+    });
   });
 });
 
