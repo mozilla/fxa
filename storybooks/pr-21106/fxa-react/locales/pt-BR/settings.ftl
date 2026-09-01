@@ -144,21 +144,18 @@ form-verify-totp-disabled-button-title-numeric = Insira o código de { $codeLeng
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Digite o código de { $codeLength } caracteres para continuar
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Chave de recuperação de conta { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Códigos de autenticação de backup
 get-data-trio-download-2 =
-    .title = Baixar
     .aria-label = Baixar
+    .title = Baixar
 get-data-trio-copy-2 =
-    .title = Copiar
     .aria-label = Copiar
+    .title = Copiar
 get-data-trio-print-2 =
-    .title = Imprimir
     .aria-label = Imprimir
+    .title = Imprimir
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -210,10 +207,6 @@ info-icon-aria-label =
 # Used to select United States as a country code for phone number
 usa-flag-icon-aria-label =
     .aria-label = Bandeira dos Estados Unidos
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Um computador, um celular e a imagem de um coração partido em cada um
 hearts-verified-image-aria-label =
@@ -421,9 +414,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = Produtos { -brand-mozilla }
 bento-menu-tagline = Mais produtos da { -brand-mozilla } que protegem sua privacidade
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -494,9 +484,6 @@ dc-opt-out-success-2 = Opção por não permitir feita com sucesso. { -product-m
 dc-opt-in-success-2 = Obrigado! Compartilhar esses dados nos ajuda a melhorar as { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Desculpe, houve um problema ao alterar sua preferência de coleta de dados
 dc-learn-more = Saiba mais
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = Menu da { -product-mozilla-account }
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -587,9 +574,6 @@ flow-setup-phone-confirm-code-expired = O código expirou?
 flow-setup-phone-confirm-code-resend-code-button = Reenviar código
 flow-setup-phone-confirm-code-resend-code-success = Código enviado
 flow-setup-phone-confirm-code-success-message-v2 = Adicionado celular de recuperação de conta
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Verifique seu número de celular
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = Você receberá uma mensagem de texto da { -brand-mozilla } com um código para verificar seu número. Não compartilhe esse código com ninguém.
@@ -1365,9 +1349,6 @@ reset-password-complete-banner-message = Não esqueça de gerar uma nova chave d
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = O { -brand-firefox } irá tentar redirecionar de volta para você usar uma máscara de email após entrar na sua conta.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = Insira o código de 10 caracteres
 confirm-backup-code-reset-password-confirm-button = Confirmar
 confirm-backup-code-reset-password-subheader = Digite um código de autenticação de backup
@@ -1417,9 +1398,6 @@ reset-password-confirmed-cta = Continuar para { $serviceName }
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Redefina sua senha
 password-reset-recovery-method-subheader = Escolha um método de recuperação
@@ -1637,9 +1615,6 @@ signin-unblock-desktop-relay = O { -brand-firefox } irá tentar redirecionar de 
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Digite o código de confirmação

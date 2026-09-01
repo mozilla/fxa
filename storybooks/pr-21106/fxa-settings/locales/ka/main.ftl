@@ -138,6 +138,13 @@ choose-newsletters-option-reclaim-the-internet =
     .label = სამოქმედო ცნობები ინტერნეტის დასაბრუნებლად
 
 
+pair-continue-in-firefox-heading = გამოიყენეთ { -brand-firefox }, რომ განაგრძოთ
+pair-continue-in-firefox-description = უერთდება { -brand-firefox }. გახსენით ამ მოწყობილობასთან კავშირის დასასრულებლად.
+pair-continue-in-firefox-button = გამოიყენეთ { -brand-firefox }, რომ განაგრძოთ
+pair-continue-in-firefox-opening = იხსნება { -brand-firefox }
+pair-continue-in-firefox-get-firefox-link = { -brand-firefox } არ გაქვთ? გადმოწერეთ ახლავე
+
+
 dark-mode-toggle-light = ნათელი
 dark-mode-toggle-dark = მუქი
 dark-mode-toggle-system = სისტემის
@@ -219,20 +226,18 @@ form-verify-code-default-error = ველის შევსება აუც
 
 form-verify-totp-disabled-button-title-numeric = შეიყვანეთ { $codeLength }-ნიშნა კოდი, რომ განაგრძოთ
 form-verify-totp-disabled-button-title-alphanumeric = შეიყვანეთ { $codeLength }-სიმბოლოიანი კოდი, რომ განაგრძოთ
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox }-ანგარიშის აღდგენის გასაღები
 get-data-trio-title-backup-verification-codes = შესვლის სამარქაფო კოდები
 get-data-trio-download-2 =
-    .title = ჩამოტვირთვა
     .aria-label = ჩამოტვირთვა
+    .title = ჩამოტვირთვა
 get-data-trio-copy-2 =
-    .title = ასლი
     .aria-label = ასლი
+    .title = ასლი
 get-data-trio-print-2 =
-    .title = ამობეჭდვა
     .aria-label = ამობეჭდვა
+    .title = ამობეჭდვა
 
 
 alert-icon-aria-label =
@@ -277,8 +282,6 @@ icon-loading-arrow-aria-label =
     .aria-label = იტვირთება
 icon-passkey-aria-label =
     .aria-label = საშვი
-
-
 hearts-broken-image-aria-label =
     .aria-label = კომპიუტერი, მობილური ტელეფონი და თითოეულ მათგანზე გამოსახული გატეხილი გული
 hearts-verified-image-aria-label =
@@ -446,8 +449,6 @@ avatar-default-avatar =
     .alt = ნაგულისხმევი ავატარი
 
 
-
-
 bento-menu-title-3 = { -brand-mozilla }-ს ნაწარმი
 bento-menu-tagline = { -brand-mozilla }-ს მეტი ნაწარმი თქვენი პირადულობის დასაცავად
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -514,8 +515,6 @@ dc-opt-out-success-2 = უარი მიღებულია. { -product-mozi
 dc-opt-in-success-2 = გმადლობთ! ამ მონაცემების გაზიარება მეტად წაადგება { -product-mozilla-accounts(case: "gen") } გაუმჯობესებას.
 dc-opt-in-out-error-2 = სამწუხაროდ, ხარვეზი წარმოიშვა მონაცემთა აღრიცხვის პარამეტრის ცვლილებისას
 dc-learn-more = ვრცლად
-
-
 drop-down-menu-title-2 = { -product-mozilla-account(case: "gen") } მენიუ
 drop-down-menu-signed-in-as-v2 = შესული ხართ, როგორც
 drop-down-menu-sign-out = გამოსვლა
@@ -614,8 +613,6 @@ flow-setup-phone-confirm-code-resend-code-button = კოდის კვლა�
 flow-setup-phone-confirm-code-resend-code-success = კოდი გამოგზავნილია
 flow-setup-phone-confirm-code-success-message-v2 = აღდგენის ტელეფონი დამატებულია
 flow-change-phone-confirm-code-success-message = აღდგენის ტელეფონი შეცვლილია
-
-
 flow-setup-phone-submit-number-heading = ტელეფონის ნომრის დამოწმება
 flow-setup-phone-verify-number-instruction = ტექსტურ შეტყობინებას გამოგიგზავნით { -brand-mozilla } თქვენი ნომრის დამადასტურებელი კოდით. არავის გაუზიაროთ ეგ კოდი.
 flow-setup-phone-submit-number-info-message-v2 = აღდგენის ტელეფონი ხელმისაწვდომია მხოლოდ შეერთებულ შტატებსა და კანადაში. VoIP-ნომრები და ტელეფონის შენიღბული ნომრები არასასურველია.
@@ -1150,8 +1147,6 @@ recovery-phone-number-ending-digits = ნომრის დაბოლოე�
 oauth-error-1000 = რაღაც ხარვეზია. გთხოვთ დახუროთ ჩანართი და სცადოთ ხელახლა.
 
 
-
-
 passkey-registration-error-not-allowed = საშვის გამართვა ვერ მოხერხდა ან მიუწვდომელია. სცადეთ ხელახლა ან აირჩიეთ სხვა საშუალება.
 passkey-registration-error-not-allowed-existing = საშვის გამართვა მიუწვდომელია ამ მოწყობილობაზე. ან მოწყობილობა უკვე აღრიცხულია ან გამართვა შეწყვეტილია.
 passkey-registration-error-timeout = საშვის გამართვა გაუქმებულია. სცადეთ ხელახლა.
@@ -1166,8 +1161,6 @@ passkey-registration-error-invalid-state = ეს საშვი უკვე �
 passkey-registration-error-not-readable = წვდომა ვერ მოხერხდა დამმოწმებელთან. სცადეთ ხელახლა ან აირჩიეთ სხვა საშუალება.
 passkey-registration-error-constraint = საშვები არაა მხარდაჭერილი ამ მოწყობილობაზე. სცადეთ სხვა გზა ან მოწყობილობა.
 passkey-registration-error-unexpected = საშვის გამართვა ვერ მოხერხდა. სცადეთ ხელახლა ან აირჩიეთ სხვა საშუალება.
-
-
 passkey-authentication-trouble-heading = საშვით შესვლა ვერ ხერხდება
 passkey-authentication-trouble-description = ხელახლა სცადეთ ან გამოიყენეთ შესვლის სხვა ხერხი.
 passkey-authentication-trouble-link = როგორ გამოიყენება საშვები
@@ -1410,8 +1403,6 @@ service-welcome-vpn-heading = შემდეგ: ჩართეთ VPN
 service-welcome-vpn-description = კიდევ ერთი ნაბიჯი თქვენი ბრაუზერის პირადულობის ასამაღლებლად. გადადით გახსნილ არეში და ჩართეთ.
 
 
-
-
 set-password-heading-v2 = პაროლის შექმნა დასინქრონებისთვის
 set-password-info-v2 = ამით დაიშიფრება თქვენი მონაცემები. განსხვავებული პაროლებით უნდა გქონდეთ ანგარიშები { -brand-google } და { -brand-apple }.
 
@@ -1438,8 +1429,6 @@ complete-reset-pw-recovery-key-link = გამოიყენეთ ანგ�
 reset-password-complete-banner-heading = თქვენი პაროლი აღდგა.
 reset-password-complete-banner-message = არ დაგავიწყდეთ ანგარიშის აღდგენის ახალი გასაღებების შედგენა თქვენი { -product-mozilla-account(case: "gen") } პარამეტრებიდან მომავალში შესვლის ხარვეზების ასარიდებლად.
 complete-reset-password-desktop-relay = { -brand-firefox } ეცდება შესვლის შემდგომ უკან დაგაბრუნოთ ელფოსტის ნიღბის გამოსაყენებლად.
-
-
 confirm-backup-code-reset-password-input-label = შეიყვანეთ 10-ნიშნა კოდი
 confirm-backup-code-reset-password-confirm-button = თანხმობა
 confirm-backup-code-reset-password-subheader = შეიყვანეთ შესვლის სამარქაფო კოდი
@@ -1473,8 +1462,6 @@ password-reset-submit-button-2 = განაგრძეთ
 
 reset-password-complete-header = თქვენი პაროლი აღდგა.
 reset-password-confirmed-cta = განაგრძეთ და იხილეთ { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = პაროლის განულება
@@ -1555,8 +1542,6 @@ signin-passkey-fallback-body = თქვენი მონაცემები
 signin-passkey-fallback-password-label = პაროლი
 signin-passkey-fallback-continue = განაგრძეთ
 signin-passkey-fallback-forgot-password-link = დაგავიწყდათ პაროლი?
-
-
 
 
 signin-passwordless-code-heading = შეიყვანეთ დადასტურების კოდი
@@ -1673,8 +1658,6 @@ signin-unblock-code-incorrect-format-2 = დამოწმების კო�
 signin-unblock-resend-code-button = არ მიგიღიათ და არც ჯართის საქაღალდეშია? გაგზავნეთ ხელახლა
 signin-unblock-support-link = რის გამოა ეს?
 signin-unblock-desktop-relay = { -brand-firefox } ეცდება შესვლის შემდგომ უკან დაგაბრუნოთ ელფოსტის ნიღბის გამოსაყენებლად.
-
-
 
 
 confirm-signup-code-page-title = შეიყვანეთ დადასტურების კოდი

@@ -107,20 +107,18 @@ form-password-with-inline-criteria-match-error = Awalen uffiren ur mṣadan ara
 form-verify-code-default-error = Urti-a yettwasra
 
 
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Tasarut n tririt n umiḍan n { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Tingalin n usesteb n uḥraz
 get-data-trio-download-2 =
-    .title = Sader
     .aria-label = Sader
+    .title = Sader
 get-data-trio-copy-2 =
-    .title = Nɣel
     .aria-label = Nɣel
+    .title = Nɣel
 get-data-trio-print-2 =
-    .title = Siggez
     .aria-label = Siggez
+    .title = Siggez
 
 
 alert-icon-aria-label =
@@ -219,8 +217,6 @@ avatar-default-avatar =
     .alt = Avaṭar amezwer
 
 
-
-
 bento-menu-title-3 = Ifarisen n { -brand-mozilla }
 bento-menu-vpn-2 = { -product-mozilla-vpn }
 bento-menu-monitor-3 = { -product-mozilla-monitor }
@@ -276,8 +272,6 @@ dc-subheader-ff-browser = Iminig { -brand-firefox }
 dc-subheader-content-2 = Sireg { -product-mozilla-accounts } i tuzna n yisefka itiknikanen d umyigew ɣer { -brand-mozilla }.
 dc-opt-in-out-error-2 = Nesḥassef, yella wugur deg usali n yismenyafen-ik•im n ulqaḍ n yisefka
 dc-learn-more = Issin ugar
-
-
 drop-down-menu-title-2 = Umuɣ n { -product-mozilla-account }
 drop-down-menu-signed-in-as-v2 = Tkecmeḍ s yisem
 drop-down-menu-sign-out = Ffeɣ
@@ -302,8 +296,6 @@ flow-setup-phone-confirm-code-heading = Sekcem tangalt n usenqed
 flow-setup-phone-confirm-code-button = Sentem
 flow-setup-phone-confirm-code-resend-code-button = Ales tuzna n tengalt
 flow-setup-phone-confirm-code-success-message-v2 = Uṭṭun n tiliɣri yettwarna
-
-
 flow-setup-phone-submit-number-heading = Sentem uṭṭun n tiliɣri-k·m
 
 
@@ -680,8 +672,6 @@ complete-reset-pw-header-v2 = Snulfu-d awal n uɛeddi amaynut
 complete-reset-password-success-alert = Awal uffir yettusbadu
 
 
-
-
 confirm-reset-password-with-code-heading = Senqed imayl-ik
 confirm-reset-password-otp-submit-button = Kemmel
 confirm-reset-password-otp-resend-code-button = Ales tuzna n tengalt
@@ -761,8 +751,6 @@ signin-unblock-header = Sireg ajerred-agi
 signin-unblock-code-input = Sekcem tangalt n tsiregt
 signin-unblock-submit-button = Kemmel
 signin-unblock-support-link = Acuɣeṛ i d-iḍerru waya?
-
-
 
 
 confirm-signup-code-page-title = Sekcem tangalt n usentem

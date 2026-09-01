@@ -24,8 +24,6 @@ datablock-print =
     .message = ముద్రించబడింది
 
 
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } ఖాతా రికవరీ కీ
 
@@ -45,8 +43,6 @@ alert-bar-close-message = సందేశాన్ని మూసివేయ�
 
 avatar-your-avatar =
     .alt = మీ అవతారం
-
-
 
 
 bento-menu-made-by-mozilla = { -brand-mozilla } ద్వారా తయారు చేయబడింది
@@ -77,8 +73,6 @@ cs-sign-out-button = సైన్ అవుట్ చేయండి
 
 dc-heading = డేటా సేకరణ మరియు ఉపయోగం
 dc-learn-more = ఇంకా తెలుసుకోండి
-
-
 drop-down-menu-sign-out = నిష్క్రమించు
 drop-down-menu-sign-out-error-2 = క్షమించండి, మిమ్మల్ని సైన్ అవుట్ చేయడంలో సమస్య ఉంది
 

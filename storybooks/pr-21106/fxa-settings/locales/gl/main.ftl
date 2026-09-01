@@ -72,20 +72,18 @@ device-info-ip-address = Enderezo IP: { $ipAddress }
 form-verify-code-default-error = Este campo é obrigatorio
 
 
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Chave de recuperación da conta de { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Copia de seguridade dos códigos de autenticación
 get-data-trio-download-2 =
-    .title = Descargar
     .aria-label = Descargar
+    .title = Descargar
 get-data-trio-copy-2 =
-    .title = Copiar
     .aria-label = Copiar
+    .title = Copiar
 get-data-trio-print-2 =
-    .title = Mostrar
     .aria-label = Mostrar
+    .title = Mostrar
 
 
 hearts-broken-image-aria-label =

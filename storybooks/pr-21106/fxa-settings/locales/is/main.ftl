@@ -119,20 +119,18 @@ form-verify-code-default-error = Þessi reitur er nauðsynlegur
 
 form-verify-totp-disabled-button-title-numeric = Settu inn { $codeLength }-talna kóða til að halda áfram
 form-verify-totp-disabled-button-title-alphanumeric = Settu inn { $codeLength }-stafa kóða til að halda áfram
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Endurheimtulykill fyrir { -brand-firefox }-reikning
 get-data-trio-title-backup-verification-codes = Varaauðkenningarkóðar
 get-data-trio-download-2 =
-    .title = Sækja
     .aria-label = Sækja
+    .title = Sækja
 get-data-trio-copy-2 =
-    .title = Afrita
     .aria-label = Afrita
+    .title = Afrita
 get-data-trio-print-2 =
-    .title = Prenta
     .aria-label = Prenta
+    .title = Prenta
 
 
 alert-icon-aria-label =
@@ -169,8 +167,6 @@ info-icon-aria-label =
     .aria-label = Upplýsingar
 usa-flag-icon-aria-label =
     .aria-label = Bandarískur fáni
-
-
 hearts-broken-image-aria-label =
     .aria-label = Tölva og farsími með brostin hjörtu
 hearts-verified-image-aria-label =
@@ -304,8 +300,6 @@ avatar-default-avatar =
     .alt = Sjálfgefin auðkennismynd
 
 
-
-
 bento-menu-title-3 = { -brand-mozilla } hugbúnaður
 bento-menu-tagline = Fleiri vörur frá { -brand-mozilla } sem vernda friðhelgi þína
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -364,8 +358,6 @@ dc-opt-out-success-2 = Tókst að afþakka. { -product-mozilla-accounts } mun ek
 dc-opt-in-success-2 = Takk! Að deila þessum gögnum hjálpar okkur að bæta { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Því miður kom upp vandamál við að breyta kjörstillingum þínum varðandi gagnasöfnun
 dc-learn-more = Frekari upplýsingar
-
-
 drop-down-menu-title-2 = { -product-mozilla-account }-valmynd
 drop-down-menu-signed-in-as-v2 = Skráð/ur inn sem
 drop-down-menu-sign-out = Skrá út
@@ -431,8 +423,6 @@ flow-setup-phone-confirm-code-resend-code-button = Senda kóða aftur
 flow-setup-phone-confirm-code-resend-code-success = Kóði sendur
 flow-setup-phone-confirm-code-success-message-v2 = Endurheimtusímanúmeri bætt við
 flow-change-phone-confirm-code-success-message = Endurheimtusímanúmeri breytt
-
-
 flow-setup-phone-submit-number-heading = Staðfestu símanúmerið þitt
 flow-setup-phone-verify-number-instruction = Þú munt fá SMS frá { -brand-mozilla } með kóða til að staðfesta númerið þitt. Ekki deila þessum kóða með neinum.
 flow-setup-phone-submit-number-legal = Með því að gefa upp símanúmerið þitt, samþykkir þú að við geymum það svo við getum sent þér skilaboð einungis til að staðfesta reikninginn. Gjöld vegna skilaboða og gagnamagns gætu átt við.
@@ -970,8 +960,6 @@ complete-reset-pw-recovery-key-link = Nota endurheimtarlykil reiknings
 reset-password-complete-banner-heading = Lykilorðið þitt var endurstillt.
 reset-password-complete-banner-message = Ekki gleyma að búa til nýjan endurheimtulykil í { -product-mozilla-account } stillingunum þínum til að koma í veg fyrir möguleg vandamál með innskráningu í framtíðinni.
 complete-reset-password-desktop-relay = { -brand-firefox } mun reyna að senda þig til baka til að nota tölvupósthulu eftir að þú skráir þig inn.
-
-
 confirm-backup-code-reset-password-input-label = Settu inn 10-stafa kóða
 confirm-backup-code-reset-password-confirm-button = Staðfesta
 confirm-backup-code-reset-password-subheader = Settu inn varaauðkenningarkóða
@@ -1003,8 +991,6 @@ password-reset-submit-button-2 = Halda áfram
 
 reset-password-complete-header = Lykilorðið þitt var endurstillt
 reset-password-confirmed-cta = Halda áfram í { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Endurstilltu lykilorðið þitt
@@ -1131,8 +1117,6 @@ signin-unblock-code-incorrect-format-2 = Heimildarkóði getur aðeins innihaldi
 signin-unblock-resend-code-button = Ekki í pósthólfinu eða ruslpóstmöppunni? Senda aftur
 signin-unblock-support-link = Hvers vegna er þetta að gerast?
 signin-unblock-desktop-relay = { -brand-firefox } mun reyna að senda þig til baka til að nota tölvupósthulu eftir að þú skráir þig inn.
-
-
 
 
 confirm-signup-code-page-title = Settu inn staðfestingarkóða

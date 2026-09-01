@@ -17,8 +17,6 @@ app-footer-terms-of-service = بنود الخدمة
 alert-bar-close-message = أغلِق الرسالة
 
 
-
-
 bento-menu-firefox-desktop = متصفّح { -brand-firefox } للحواسيب
 bento-menu-firefox-mobile = متصفّح { -brand-firefox } للمحمول
 

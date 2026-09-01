@@ -197,20 +197,17 @@ form-verify-totp-disabled-button-title-numeric = Anna { $codeLength }-numeroinen
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Anna { $codeLength }-merkkinen koodi jatkaaksesi
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox }-tilin palautusavain
 get-data-trio-download-2 =
-    .title = Lataa
     .aria-label = Lataa
+    .title = Lataa
 get-data-trio-copy-2 =
-    .title = Kopioi
     .aria-label = Kopioi
+    .title = Kopioi
 get-data-trio-print-2 =
-    .title = Tulosta
     .aria-label = Tulosta
+    .title = Tulosta
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -261,10 +258,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = Todentamisavain
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Tietokone ja matkapuhelin, joissa molemmissa on särkynyt sydän
 hearts-verified-image-aria-label =
@@ -484,9 +477,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = { -brand-mozilla }-tuotteet
 bento-menu-tagline = Lisää yksityisyyttäsi suojaavia tuotteita { -brand-mozilla }lta
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -578,9 +568,6 @@ dc-opt-out-success-2 = Poistuminen onnistui. { -product-mozilla-accounts } ei l�
 dc-opt-in-success-2 = Kiitos! Tämän tiedon jakaminen auttaa parantamaan { -product-mozilla-accounts } -palvelua.
 dc-opt-in-out-error-2 = Valitettavasti tiedonkeruuasetusten muuttamisen yhteydessä ilmeni ongelma
 dc-learn-more = Lue lisää
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = { -product-mozilla-account }en valikko
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -700,9 +687,6 @@ flow-setup-phone-confirm-code-expired = Vanheniko koodi?
 flow-setup-phone-confirm-code-resend-code-button = Lähetä koodi uudelleen
 flow-setup-phone-confirm-code-resend-code-success = Koodi lähetetty
 flow-setup-phone-confirm-code-success-message-v2 = Palauttamisen puhelinnumero lisätty
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Vahvista puhelinnumerosi
 # cliking on the button sends a code by text message to the phone number typed in by the user
 flow-setup-phone-submit-number-button = Lähetä koodi
@@ -1278,9 +1262,6 @@ oauth-error-1000 = Jokin meni pieleen. Sulje tämä välilehti ja yritä uudelle
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # The ceremony timed out before the user responded
 passkey-registration-error-timeout = Todentamisavaimen määritys peruttiin. Yritä uudelleen.
 # Link label appended after passkey-registration-canceled-v2, opens a SUMO support article.
@@ -1291,9 +1272,6 @@ passkey-registration-error-not-supported-v2 = Selaimesi tai laitteesi ei tue tod
 passkey-registration-error-not-supported-link = Lue lisää
 # Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
 passkey-registration-error-could-not-complete-link = Lue lisää
-
-# Authentication errors
-
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Todentamisavainpyyntö aikakatkaistiin. Yritä uudelleen.
 # Browser or platform does not support passkeys
@@ -1674,9 +1652,6 @@ service-welcome-vpn-heading = Seuraavaksi: Ota VPN käyttöön
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
 
-
-# password to complete their sign-in when they want to login to a service requiring it.
-
 set-password-heading-v2 = Luo salasana synkronointia varten
 
 ## SetPassword page for passwordless flow
@@ -1716,9 +1691,6 @@ complete-reset-pw-recovery-key-link = Käytä tilin palautusavainta
 # A message informing the user that the password reset was successful and reminding them to create another recovery key
 # Displayed on the sign in page
 reset-password-complete-banner-heading = Salasanasi on nollattu.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = Kirjoita 10-merkkinen koodi
 confirm-backup-code-reset-password-confirm-button = Vahvista
 confirm-backup-code-reset-password-subheader = Anna varatodennuskoodi
@@ -1766,9 +1738,6 @@ reset-password-confirmed-cta = Jatka palveluun { $serviceName }
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Nollaa salasanasi
 password-reset-recovery-method-subheader = Valitse palautustapa
@@ -1859,11 +1828,6 @@ signin-passkey-fallback-body = Tietojesi suojaamiseksi sinun on annettava salasa
 signin-passkey-fallback-password-label = Salasana
 signin-passkey-fallback-continue = Jatka
 signin-passkey-fallback-forgot-password-link = Unohditko salasanan?
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2009,9 +1973,6 @@ signin-unblock-support-link = Mistä tämä johtuu?
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Kirjoita vahvistuskoodi

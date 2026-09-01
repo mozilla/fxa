@@ -159,20 +159,18 @@ form-verify-code-default-error = จำเป็นต้องกรอกช�
 
 form-verify-totp-disabled-button-title-numeric = ใส่รหัส { $codeLength } หลักเพื่อดำเนินการต่อ
 form-verify-totp-disabled-button-title-alphanumeric = ใส่รหัส { $codeLength } ตัวอักขระเพื่อดำเนินการต่อ
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = คีย์กู้คืนบัญชี { -brand-firefox }
 get-data-trio-title-backup-verification-codes = รหัสยืนยันตัวตนสำรอง
 get-data-trio-download-2 =
-    .title = ดาวน์โหลด
     .aria-label = ดาวน์โหลด
+    .title = ดาวน์โหลด
 get-data-trio-copy-2 =
-    .title = คัดลอก
     .aria-label = คัดลอก
+    .title = คัดลอก
 get-data-trio-print-2 =
-    .title = พิมพ์
     .aria-label = พิมพ์
+    .title = พิมพ์
 
 
 alert-icon-aria-label =
@@ -215,8 +213,6 @@ icon-loading-arrow-aria-label =
     .aria-label = กำลังโหลด
 icon-passkey-aria-label =
     .aria-label = พาสคีย์
-
-
 hearts-broken-image-aria-label =
     .aria-label = คอมพิวเตอร์และโทรศัพท์มือถือ ซึ่งมีภาพหัวใจสลายอยู่บนหน้าจอของแต่ละเครื่อง
 hearts-verified-image-aria-label =
@@ -370,8 +366,6 @@ avatar-default-avatar =
     .alt = อวตารเริ่มต้น
 
 
-
-
 bento-menu-title-3 = ผลิตภัณฑ์ของ { -brand-mozilla }
 bento-menu-tagline = ผลิตภัณฑ์เพิ่มเติมจาก { -brand-mozilla } ที่ปกป้องความเป็นส่วนตัวของคุณ
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -432,8 +426,6 @@ dc-opt-out-success-2 = ยกเลิกสำเร็จแล้ว { -produ
 dc-opt-in-success-2 = ขอบคุณ! การร่วมให้ข้อมูลนี้ช่วยเราปรับปรุง { -product-mozilla-accounts } ให้ดีขึ้นได้
 dc-opt-in-out-error-2 = ขออภัย มีปัญหาในการเปลี่ยนการกำหนดลักษณะการรวบรวมข้อมูลของคุณ
 dc-learn-more = เรียนรู้เพิ่มเติม
-
-
 drop-down-menu-title-2 = เมนู { -product-mozilla-account }
 drop-down-menu-signed-in-as-v2 = ลงชื่อเข้าเป็น
 drop-down-menu-sign-out = ลงชื่อออก
@@ -526,8 +518,6 @@ flow-setup-phone-confirm-code-resend-code-button = ส่งรหัสอี�
 flow-setup-phone-confirm-code-resend-code-success = ส่งรหัสแล้ว
 flow-setup-phone-confirm-code-success-message-v2 = เพิ่มเบอร์โทรศัพท์สำหรับกู้คืนแล้ว
 flow-change-phone-confirm-code-success-message = เปลี่ยนเบอร์โทรศัพท์สำหรับกู้คืนแล้ว
-
-
 flow-setup-phone-submit-number-heading = ยืนยันหมายเลขโทรศัพท์ของคุณ
 flow-setup-phone-verify-number-instruction = คุณจะได้รับข้อความจาก { -brand-mozilla } พร้อมรหัสเพื่อยืนยันหมายเลขของคุณ อย่าเปิดเผยรหัสนี้ให้ใครทราบ
 flow-setup-phone-submit-number-info-message-v2 = เบอร์โทรศัพท์สำหรับกู้คืนมีให้บริการเฉพาะในสหรัฐอเมริกาและแคนาดาเท่านั้น ไม่แนะนำให้ใช้หมายเลข VoIP และตัวปกปิดเบอร์โทรศัพท์
@@ -1010,8 +1000,6 @@ recovery-phone-number-ending-digits = หมายเลขโทรศัพท
 oauth-error-1000 = มีความผิดพลาดบางประการ โปรดปิดแท็บนี้และลองใหม่อีกครั้ง
 
 
-
-
 passkey-registration-error-not-allowed = การตั้งค่าพาสคีย์ล้มเหลวหรือไม่พร้อมใช้งาน โปรดลองอีกครั้งหรือเลือกวิธีอื่นแทน
 passkey-registration-error-not-allowed-existing = การตั้งค่าพาสคีย์ไม่พร้อมใช้งานกับอุปกรณ์นี้ เนื่องจากอุปกรณ์ถูกลงทะเบียนไว้อยู่แล้ว หรือกระบวนการตั้งค่าถูกยกเลิก
 passkey-registration-error-timeout = การตั้งค่าพาสคีย์ถูกยกเลิก โปรดลองอีกครั้ง
@@ -1022,8 +1010,6 @@ passkey-registration-error-invalid-state = พาสคีย์นี้ถู�
 passkey-registration-error-not-readable = เราไม่สามารถเข้าถึงเครื่องมือยืนยันตัวตนได้ โปรดลองอีกครั้งหรือเลือกวิธีอื่นแทน
 passkey-registration-error-constraint = ไม่สามารถตั้งค่าพาสคีย์บนอุปกรณ์นี้ได้ โปรดลองใช้วิธีอื่นหรืออุปกรณ์อื่นแทน
 passkey-registration-error-unexpected = การตั้งค่าพาสคีย์ล้มเหลว โปรดลองอีกครั้งหรือเลือกวิธีอื่นแทน
-
-
 passkey-authentication-error-not-allowed = การลงชื่อเข้าด้วยพาสคีย์ล้มเหลวหรือไม่พร้อมใช้งาน โปรดลองอีกครั้งหรือเลือกวิธีอื่นแทน
 passkey-authentication-error-not-allowed-existing = การตั้งค่าพาสคีย์ไม่พร้อมใช้งานกับอุปกรณ์นี้ โปรดลองอีกครั้งหรือเลือกใช้วิธีอื่น
 passkey-authentication-error-timeout = คำขอพาสคีย์หมดเวลา โปรดลองใหม่อีกครั้ง
@@ -1193,8 +1179,6 @@ service-welcome-vpn-heading = ต่อไป: เปิด VPN
 service-welcome-vpn-description = อีกขั้นตอนหนึ่งที่ช่วยเพิ่มความเป็นส่วนตัวให้เบราว์เซอร์ของคุณ ไปยังแผงที่แสดงขึ้นมาและเปิดใช้งาน
 
 
-
-
 set-password-heading-v2 = สร้างรหัสผ่านเพื่อซิงค์
 set-password-info-v2 = วิธีนี้จะเข้ารหัสลับข้อมูลของคุณ ซึ่งมันต้องแตกต่างจากรหัสผ่านบัญชี { -brand-google } หรือ { -brand-apple } ของคุณ
 
@@ -1221,8 +1205,6 @@ complete-reset-pw-recovery-key-link = ใช้คีย์กู้คืนบ
 reset-password-complete-banner-heading = รหัสผ่านของคุณได้ถูกตั้งใหม่แล้ว
 reset-password-complete-banner-message = อย่าลืมสร้างคีย์กู้คืนบัญชีใหม่จากหน้าการตั้งค่า{ -product-mozilla-account } ของคุณเพื่อป้องกันปัญหาการลงชื่อเข้าในอนาคต
 complete-reset-password-desktop-relay = { -brand-firefox } จะลองนำคุณกลับไปเพื่อใช้ตัวปกปิดอีเมลหลังจากที่คุณลงชื่อเข้า
-
-
 confirm-backup-code-reset-password-input-label = ใส่รหัส 10 ตัวอักขระ
 confirm-backup-code-reset-password-confirm-button = ยืนยัน
 confirm-backup-code-reset-password-subheader = ใส่รหัสยืนยันตัวตนสำรอง
@@ -1255,8 +1237,6 @@ password-reset-submit-button-2 = ดำเนินการต่อ
 
 reset-password-complete-header = ตั้งรหัสผ่านของคุณใหม่แล้ว
 reset-password-confirmed-cta = ดำเนินการต่อไปยัง { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = ตั้งรหัสผ่านใหม่
@@ -1329,8 +1309,6 @@ signin-passkey-fallback-heading = ป้อนรหัสผ่านของ�
 signin-passkey-fallback-body = เพื่อรักษาข้อมูลของคุณให้ปลอดภัย คุณต้องป้อนหรัสผ่านของคุณเมื่อใช้พาสคีย์นี้
 signin-passkey-fallback-password-label = รหัสผ่าน
 signin-passkey-fallback-continue = ดำเนินการต่อ
-
-
 
 
 signin-passwordless-code-heading = ใส่รหัสยืนยัน
@@ -1431,8 +1409,6 @@ signin-unblock-code-incorrect-format-2 = รหัสอนุญาตต้อ
 signin-unblock-resend-code-button = ไม่อยู่ในโฟลเดอร์กล่องขาเข้าหรือสแปมใช่หรือไม่? ส่งใหม่
 signin-unblock-support-link = ทำไมถึงเกิดเหตุการณ์นี้?
 signin-unblock-desktop-relay = { -brand-firefox } จะลองนำคุณกลับไปเพื่อใช้ตัวปกปิดอีเมลหลังจากที่คุณลงชื่อเข้า
-
-
 
 
 confirm-signup-code-page-title = ใส่รหัสยืนยัน

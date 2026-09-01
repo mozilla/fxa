@@ -140,21 +140,18 @@ form-verify-totp-disabled-button-title-numeric = Settu inn { $codeLength }-talna
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Settu inn { $codeLength }-stafa kóða til að halda áfram
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Endurheimtulykill fyrir { -brand-firefox }-reikning
 get-data-trio-title-backup-verification-codes = Varaauðkenningarkóðar
 get-data-trio-download-2 =
-    .title = Sækja
     .aria-label = Sækja
+    .title = Sækja
 get-data-trio-copy-2 =
-    .title = Afrita
     .aria-label = Afrita
+    .title = Afrita
 get-data-trio-print-2 =
-    .title = Prenta
     .aria-label = Prenta
+    .title = Prenta
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -206,10 +203,6 @@ info-icon-aria-label =
 # Used to select United States as a country code for phone number
 usa-flag-icon-aria-label =
     .aria-label = Bandarískur fáni
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Tölva og farsími með brostin hjörtu
 hearts-verified-image-aria-label =
@@ -413,9 +406,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = { -brand-mozilla } hugbúnaður
 bento-menu-tagline = Fleiri vörur frá { -brand-mozilla } sem vernda friðhelgi þína
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -490,9 +480,6 @@ dc-opt-out-success-2 = Tókst að afþakka. { -product-mozilla-accounts } mun ek
 dc-opt-in-success-2 = Takk! Að deila þessum gögnum hjálpar okkur að bæta { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Því miður kom upp vandamál við að breyta kjörstillingum þínum varðandi gagnasöfnun
 dc-learn-more = Frekari upplýsingar
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = { -product-mozilla-account }-valmynd
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -599,9 +586,6 @@ flow-setup-phone-confirm-code-resend-code-button = Senda kóða aftur
 flow-setup-phone-confirm-code-resend-code-success = Kóði sendur
 flow-setup-phone-confirm-code-success-message-v2 = Endurheimtusímanúmeri bætt við
 flow-change-phone-confirm-code-success-message = Endurheimtusímanúmeri breytt
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Staðfestu símanúmerið þitt
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = Þú munt fá SMS frá { -brand-mozilla } með kóða til að staðfesta númerið þitt. Ekki deila þessum kóða með neinum.
@@ -1370,9 +1354,6 @@ reset-password-complete-banner-message = Ekki gleyma að búa til nýjan endurhe
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = { -brand-firefox } mun reyna að senda þig til baka til að nota tölvupósthulu eftir að þú skráir þig inn.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = Settu inn 10-stafa kóða
 confirm-backup-code-reset-password-confirm-button = Staðfesta
 confirm-backup-code-reset-password-subheader = Settu inn varaauðkenningarkóða
@@ -1421,9 +1402,6 @@ reset-password-confirmed-cta = Halda áfram í { $serviceName }
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Endurstilltu lykilorðið þitt
 password-reset-recovery-method-subheader = Veldu aðferð fyrir endurheimtingu
@@ -1623,9 +1601,6 @@ signin-unblock-desktop-relay = { -brand-firefox } mun reyna að senda þig til b
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Settu inn staðfestingarkóða

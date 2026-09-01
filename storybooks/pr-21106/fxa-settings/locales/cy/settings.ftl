@@ -75,6 +75,20 @@ choose-newsletters-option-test-pilot =
 choose-newsletters-option-reclaim-the-internet =
     .label = Rhybuddion gweithredu i adennill y rhyngrwyd
 
+## ContinueInFirefox component - Part of the desktop-to-mobile pairing flow
+## Shown when the pairing QR code is opened in a browser other than Firefox.
+## It hands the pairing link to the Firefox app, and offers the app store when
+## Firefox is not installed on the device.
+
+pair-continue-in-firefox-heading = Parhau yn { -brand-firefox }
+pair-continue-in-firefox-description = Mae paru'n digwydd o fewn { -brand-firefox }. Agorwch y rhaglen i orffen cysylltu'r ddyfais hon.
+# Opens the Firefox app on this device
+pair-continue-in-firefox-button = Parhau yn { -brand-firefox }
+# Shown while waiting for the Firefox app to take over
+pair-continue-in-firefox-opening = Yn agor { -brand-firefox }
+# Sends the user to the App Store or Play Store to install Firefox
+pair-continue-in-firefox-get-firefox-link = Dim { -brand-firefox }? Nawr yw'r amser i'w gael
+
 ## Dark mode toggle
 
 dark-mode-toggle-light = Golau
@@ -209,21 +223,18 @@ form-verify-totp-disabled-button-title-numeric = Rhowch cod { $codeLength }-digi
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Rhowch cod { $codeLength }-nod i barhau
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Allwedd adfer cyfrif { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Codau dilysu wrth gefn
 get-data-trio-download-2 =
-    .title = Llwytho i Lawr
     .aria-label = Llwytho i Lawr
+    .title = Llwytho i Lawr
 get-data-trio-copy-2 =
-    .title = Copïo
     .aria-label = Copïo
+    .title = Copïo
 get-data-trio-print-2 =
-    .title = Argraffu
     .aria-label = Argraffu
+    .title = Argraffu
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -287,10 +298,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = Cyfrinallwedd
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Cyfrifiadur a ffôn symudol a delwedd o galon wedi torri ar bob un
 hearts-verified-image-aria-label =
@@ -539,9 +546,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = Cynnyrch { -brand-mozilla }
 bento-menu-tagline = Rhagor o gynnyrch { -brand-mozilla } sy'n diogelu'ch preifatrwydd
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -632,9 +636,6 @@ dc-opt-out-success-2 = Rydych wedi dewis peidio cael eich cynnwys yn llwyddiannu
 dc-opt-in-success-2 = Diolch! Mae rhannu'r data hwn yn ein helpu i wella { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Ymddiheuriadau, bu anhawster wrth newid eich dewisiadau casglu data.
 dc-learn-more = Dysgu rhagor
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = Dewislen cyfrif { -product-mozilla-account }
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -799,9 +800,6 @@ flow-setup-phone-confirm-code-resend-code-button = Ail-anfon y cod
 flow-setup-phone-confirm-code-resend-code-success = Anfonwyd y cod
 flow-setup-phone-confirm-code-success-message-v2 = Ffôn adfer wedi'i ychwanegu
 flow-change-phone-confirm-code-success-message = Ffôn adfer wedi'i newid
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Gwiriwch eich rhif ffôn
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = Byddwch yn cael neges destun gan { -brand-mozilla } gyda chod i ddilysu'ch rhif. Peidiwch â rhannu'r cod hwn gydag unrhyw un.
@@ -1530,9 +1528,6 @@ oauth-error-1000 = Aeth rhywbeth o'i le. Caewch y tab hwn a cheisio eto.
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = Methodd gosod y cyfrinallwedd neu nid yw ar gael. Ceisiwch eto neu dewiswch ddull arall.
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
@@ -1564,9 +1559,6 @@ passkey-registration-error-not-readable = Doedd dim modd cael mynediad i'r dilys
 passkey-registration-error-constraint = Dyw gosod cyfrinallweddi ddim ar gael gyda'r ddyfais hon. Rhowch gynnig ar ddull neu ddyfais arall.
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = Wedi methu gosod y cyfrinallwedd. Ceisiwch eto neu dewiswch ddull arall.
-
-# Authentication errors
-
 # Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
 # available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
 # points the user to another way to sign in.
@@ -2035,9 +2027,6 @@ service-welcome-vpn-description = Un cam arall i hybu preifatrwydd eich porwr. E
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
 
-
-# password to complete their sign-in when they want to login to a service requiring it.
-
 set-password-heading-v2 = Creu cyfrinair i gydweddu
 # "This" refers to the heading, "Create password to sync"
 set-password-info-v2 = Mae hyn yn amgryptio eich data. Mae angen iddo fod yn wahanol i gyfrinair eich cyfrif { -brand-google } neu { -brand-apple }.
@@ -2087,9 +2076,6 @@ reset-password-complete-banner-message = Peidiwch ag anghofio cynhyrchu allwedd 
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = Bydd { -brand-firefox } yn ceisio eich anfon yn ôl i ddefnyddio e-bost arallenw ar ôl i chi fewngofnodi.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = Rhowch y cod 10 nod
 confirm-backup-code-reset-password-confirm-button = Cadarnhau
 confirm-backup-code-reset-password-subheader = Rhowch y cod dilysu wrth gefn
@@ -2140,9 +2126,6 @@ reset-password-confirmed-cta = Parhau i { $serviceName }
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Ailosod eich cyfrinair
 password-reset-recovery-method-subheader = Dewiswch ddull adfer
@@ -2254,11 +2237,6 @@ signin-passkey-fallback-body = Er mwyn cadw'ch data'n ddiogel, mae angen i chi r
 signin-passkey-fallback-password-label = Cyfrinallwedd
 signin-passkey-fallback-continue = Parhau
 signin-passkey-fallback-forgot-password-link = Wedi anghofio'r cyfrinair?
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2467,9 +2445,6 @@ signin-unblock-desktop-relay = Bydd { -brand-firefox } yn ceisio eich anfon yn �
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Rhowch y cod dilysu

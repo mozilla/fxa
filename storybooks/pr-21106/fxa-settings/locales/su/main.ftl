@@ -25,8 +25,6 @@
 -app-store = Toko App
 -google-play = Google Play
 
-
-
 bento-menu-firefox-desktop = { -brand-firefox } Panyungsi keur Déstop
 bento-menu-firefox-mobile = { -brand-firefox } Panyungsi keur Sélulér
 
@@ -35,8 +33,6 @@ cs-cannot-disconnect = Klién teu kapanggih, teu bisa megatkeun
 
 
 dc-learn-more = Leuwih teleb
-
-
 
 
 modal-cancel-button = Bolay

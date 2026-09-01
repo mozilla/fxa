@@ -222,20 +222,18 @@ form-verify-code-default-error = Câmp obligatoriu
 
 form-verify-totp-disabled-button-title-numeric = Introdu codul de { $codeLength } cifre pentru a continua
 form-verify-totp-disabled-button-title-alphanumeric = Introdu codul de { $codeLength } caractere pentru a continua
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Cheie de recuperare a contului { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Coduri de autentificare de rezervă
 get-data-trio-download-2 =
-    .title = Descarcă
     .aria-label = Descarcă
+    .title = Descarcă
 get-data-trio-copy-2 =
-    .title = Copiază
     .aria-label = Copiază
+    .title = Copiază
 get-data-trio-print-2 =
-    .title = Printează
     .aria-label = Printează
+    .title = Printează
 
 
 alert-icon-aria-label =
@@ -280,8 +278,6 @@ icon-loading-arrow-aria-label =
     .aria-label = Se încarcă
 icon-passkey-aria-label =
     .aria-label = Cheie de acces
-
-
 hearts-broken-image-aria-label =
     .aria-label = Un calculator și un telefon mobil și o imagine a unei inimi frânte pe fiecare
 hearts-verified-image-aria-label =
@@ -449,8 +445,6 @@ avatar-default-avatar =
     .alt = Avatar implicit
 
 
-
-
 bento-menu-title-3 = Produse { -brand-mozilla }
 bento-menu-tagline = Mai multe produse de la { -brand-mozilla } care îți protejează confidențialitatea
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -517,8 +511,6 @@ dc-opt-out-success-2 = Dezactivare realizată cu succes. { -product-mozilla-acco
 dc-opt-in-success-2 = Îți mulțumim! Partajarea acestor date ne ajută să îmbunătățim { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Ne pare rău, a apărut o problemă la modificarea preferințelor de colectare a datelor
 dc-learn-more = Află mai multe
-
-
 drop-down-menu-title-2 = Meniu { -product-mozilla-account }
 drop-down-menu-signed-in-as-v2 = Autentificat(ă) ca
 drop-down-menu-sign-out = Ieși din cont
@@ -618,8 +610,6 @@ flow-setup-phone-confirm-code-resend-code-button = Retrimite codul
 flow-setup-phone-confirm-code-resend-code-success = Cod trimis
 flow-setup-phone-confirm-code-success-message-v2 = Număr de telefon de recuperare adăugat
 flow-change-phone-confirm-code-success-message = Număr de telefon de recuperare modificat
-
-
 flow-setup-phone-submit-number-heading = Verifică numărul de telefon
 flow-setup-phone-verify-number-instruction = Vei primi un mesaj text de la { -brand-mozilla } cu un cod pentru verificarea numărului. Nu-l distribui nimănui.
 flow-setup-phone-submit-number-info-message-v2 = Numărul de telefon pentru recuperare este disponibil numai în Statele Unite și Canada. Numerele VoIP și măștile telefonice nu sunt recomandate.
@@ -1159,8 +1149,6 @@ recovery-phone-number-ending-digits = Număr care se termină în { $lastFourPho
 oauth-error-1000 = Ceva nu a mers. Închide fila și încearcă din nou.
 
 
-
-
 passkey-registration-error-not-allowed = Setarea cheii de acces a eșuat sau nu este disponibilă. Încearcă iar sau alege altă metodă.
 passkey-registration-error-not-allowed-existing = Configurarea de chei de acces nu este disponibilă pe acest dispozitiv. Ori dispozitivul a fost deja înregistrat, ori a fost anulată procedura de configurare.
 passkey-registration-error-timeout = Setarea cheii de acces a fost anulată. Încearcă din nou.
@@ -1175,8 +1163,6 @@ passkey-registration-error-invalid-state = Cheia de acces este deja înregistrat
 passkey-registration-error-not-readable = Nu am putut accesa aplicația de autentificare. Încearcă din nou sau alege altă metodă.
 passkey-registration-error-constraint = Nu poți seta chei de acces cu acest dispozitiv. Încearcă altă metodă sau alt dispozitiv.
 passkey-registration-error-unexpected = Setarea cheii de acces a eșuat. Încearcă din nou sau alege altă metodă.
-
-
 passkey-authentication-trouble-heading = Nu am reușit autentificarea cu o cheie de acces
 passkey-authentication-trouble-description = Încearcă din nou sau folosește o altă opțiune de autentificare.
 passkey-authentication-trouble-link = Cum să utilizezi cheile de acces
@@ -1419,8 +1405,6 @@ service-welcome-vpn-heading = Apoi: Activează VPN-ul
 service-welcome-vpn-description = Încă un pas pentru a îmbunătăți confidențialitatea browserului tău. Accesează panoul deschis și activează-l.
 
 
-
-
 set-password-heading-v2 = Creează o parolă pentru sincronizare
 set-password-info-v2 = Îți criptează datele. Trebuie să fie diferită de parola contului { -brand-google } sau { -brand-apple }.
 
@@ -1447,8 +1431,6 @@ complete-reset-pw-recovery-key-link = Folosește cheia de recuperare a contului
 reset-password-complete-banner-heading = Parola a fost resetată.
 reset-password-complete-banner-message = Nu uita să generezi o cheie nouă de recuperare a contului din setările { -product-mozilla-account } pentru a preveni viitoare probleme la intrarea în cont.
 complete-reset-password-desktop-relay = { -brand-firefox } va încerca să te trimită înapoi ca să folosești o mască de e-mail după ce intri în cont.
-
-
 confirm-backup-code-reset-password-input-label = Introdu codul de 10 caractere
 confirm-backup-code-reset-password-confirm-button = Confirmă
 confirm-backup-code-reset-password-subheader = Introdu codul de autentificare de rezervă
@@ -1482,8 +1464,6 @@ password-reset-submit-button-2 = Continuă
 
 reset-password-complete-header = Parola a fost resetată
 reset-password-confirmed-cta = Continuă cu { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Resetează-ți parola
@@ -1565,8 +1545,6 @@ signin-passkey-fallback-body = Pentru a-ți păstra datele în siguranță, treb
 signin-passkey-fallback-password-label = Parolă
 signin-passkey-fallback-continue = Continuă
 signin-passkey-fallback-forgot-password-link = Ți-ai uitat parola?
-
-
 
 
 signin-passwordless-code-heading = Introdu codul de confirmare
@@ -1687,8 +1665,6 @@ signin-unblock-code-incorrect-format-2 = Codul de autorizare poate conține doar
 signin-unblock-resend-code-button = Nu e în căsuța poștală sau în dosarul de spam? Retrimite
 signin-unblock-support-link = De ce s-a întâmplat asta?
 signin-unblock-desktop-relay = { -brand-firefox } va încerca să te trimită înapoi ca să folosești o mască de e-mail după ce intri în cont.
-
-
 
 
 confirm-signup-code-page-title = Introdu codul de confirmare

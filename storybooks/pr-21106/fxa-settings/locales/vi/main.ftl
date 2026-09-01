@@ -169,20 +169,18 @@ form-verify-code-default-error = Trường này là bắt buộc
 
 form-verify-totp-disabled-button-title-numeric = Nhập mã { $codeLength } chữ số để tiếp tục
 form-verify-totp-disabled-button-title-alphanumeric = Nhập mã { $codeLength } ký tự để tiếp tục
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Khóa khôi phục tài khoản { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Mã xác thực dự phòng
 get-data-trio-download-2 =
-    .title = Tải xuống
     .aria-label = Tải xuống
+    .title = Tải xuống
 get-data-trio-copy-2 =
-    .title = Sao chép
     .aria-label = Sao chép
+    .title = Sao chép
 get-data-trio-print-2 =
-    .title = In
     .aria-label = In
+    .title = In
 
 
 alert-icon-aria-label =
@@ -227,8 +225,6 @@ icon-loading-arrow-aria-label =
     .aria-label = Đang tải
 icon-passkey-aria-label =
     .aria-label = Passkey
-
-
 hearts-broken-image-aria-label =
     .aria-label = Một máy tính và một điện thoại di động và hình ảnh một trái tim tan vỡ trên mỗi nó
 hearts-verified-image-aria-label =
@@ -396,8 +392,6 @@ avatar-default-avatar =
     .alt = Ảnh đại diện mặc định
 
 
-
-
 bento-menu-title-3 = Các sản phẩm { -brand-mozilla }
 bento-menu-tagline = Các sản phẩm khác từ { -brand-mozilla } bảo vệ quyền riêng tư của bạn
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -464,8 +458,6 @@ dc-opt-out-success-2 = Đã tắt thành công. { -product-mozilla-accounts } s�
 dc-opt-in-success-2 = Cảm ơn! Chia sẻ dữ liệu này sẽ giúp chúng tôi cải thiện { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Xin lỗi, đã xảy ra sự cố khi thay đổi tùy chọn thu thập dữ liệu của bạn
 dc-learn-more = Tìm hiểu thêm
-
-
 drop-down-menu-title-2 = Menu { -product-mozilla-account }
 drop-down-menu-signed-in-as-v2 = Đã đăng nhập với tài khoản
 drop-down-menu-sign-out = Đăng xuất
@@ -560,8 +552,6 @@ flow-setup-phone-confirm-code-resend-code-button = Gửi lại mã
 flow-setup-phone-confirm-code-resend-code-success = Đã gửi mã
 flow-setup-phone-confirm-code-success-message-v2 = Đã thêm số điện thoại khôi phục
 flow-change-phone-confirm-code-success-message = Đã thay đổi số điện thoại khôi phục
-
-
 flow-setup-phone-submit-number-heading = Xác minh số điện thoại của bạn
 flow-setup-phone-verify-number-instruction = Bạn sẽ nhận được tin nhắn văn bản từ { -brand-mozilla } kèm theo mã để xác minh số của bạn. Không chia sẻ mã này với bất kỳ ai.
 flow-setup-phone-submit-number-info-message-v2 = Số điện thoại khôi phục chỉ khả dụng ở Hoa Kỳ và Canada. Không khuyến khích số VoIP và số điện thoại ẩn danh.
@@ -1087,8 +1077,6 @@ recovery-phone-number-ending-digits = Số kết thúc bằng { $lastFourPhoneNu
 oauth-error-1000 = Đã xảy ra lỗi. Vui lòng đóng thẻ này và thử lại.
 
 
-
-
 passkey-registration-error-not-allowed = Thiết lập mật khẩu không thành công hoặc không khả dụng. Hãy thử lại hoặc chọn phương pháp khác.
 passkey-registration-error-not-allowed-existing = Thiết lập passkey không khả dụng với thiết bị này. Có thể thiết bị đã được đăng ký hoặc quá trình thiết lập đã bị huỷ bỏ.
 passkey-registration-error-timeout = Đã huỷ quá trình thiết lập passkey. Thử lại.
@@ -1103,8 +1091,6 @@ passkey-registration-error-invalid-state = Passkey này đã được đăng ký
 passkey-registration-error-not-readable = Chúng tôi không thể truy cập vào hệ thống xác thực. Vui lòng thử lại hoặc chọn phương thức khác.
 passkey-registration-error-constraint = Thiết lập passkey không khả dụng với thiết bị này. Hãy thử phương pháp hoặc thiết bị khác.
 passkey-registration-error-unexpected = Thiết lập passkey không thành công. Vui lòng thử lại hoặc chọn phương pháp khác.
-
-
 passkey-authentication-trouble-heading = Không thể đăng nhập bằng passkey
 passkey-authentication-trouble-description = Hãy thử lại hoặc sử dụng tùy chọn đăng nhập khác.
 passkey-authentication-trouble-link = Cách sử dụng passkey
@@ -1347,8 +1333,6 @@ service-welcome-vpn-heading = Tiếp theo: Bật VPN
 service-welcome-vpn-description = Thêm một bước nữa để tăng cường quyền riêng tư cho trình duyệt của bạn. Hãy vào bảng điều khiển và bật nó lên.
 
 
-
-
 set-password-heading-v2 = Tạo mật khẩu để đồng bộ
 set-password-info-v2 = Điều này sẽ mã hóa dữ liệu của bạn. Mật khẩu này phải khác với mật khẩu tài khoản { -brand-google } hoặc { -brand-apple } của bạn.
 
@@ -1375,8 +1359,6 @@ complete-reset-pw-recovery-key-link = Sử dụng khóa khôi phục tài khoả
 reset-password-complete-banner-heading = Mật khẩu của bạn đã được đặt lại.
 reset-password-complete-banner-message = Đừng quên tạo khóa khôi phục tài khoản mới từ cài đặt { -product-mozilla-account } của bạn để tránh các vấn đề đăng nhập về sau.
 complete-reset-password-desktop-relay = { -brand-firefox } sẽ điều hướng bạn quay trở lại để sử dụng email ẩn danh sau khi bạn đăng nhập.
-
-
 confirm-backup-code-reset-password-input-label = Nhập mã gồm 10 ký tự
 confirm-backup-code-reset-password-confirm-button = Xác nhận
 confirm-backup-code-reset-password-subheader = Nhập mã xác thực dự phòng
@@ -1410,8 +1392,6 @@ password-reset-submit-button-2 = Tiếp tục
 
 reset-password-complete-header = Mật khẩu của bạn đã được đặt lại
 reset-password-confirmed-cta = Tiếp tục đến { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Đặt lại mật khẩu của bạn
@@ -1488,8 +1468,6 @@ signin-passkey-fallback-body = Để bảo vệ dữ liệu của bạn, bạn c
 signin-passkey-fallback-password-label = Mật khẩu
 signin-passkey-fallback-continue = Tiếp tục
 signin-passkey-fallback-forgot-password-link = Quên mật khẩu?
-
-
 
 
 signin-passwordless-code-heading = Nhập mã xác minh
@@ -1590,8 +1568,6 @@ signin-unblock-code-incorrect-format-2 = Mã xác minh chỉ có thể chứa ch
 signin-unblock-resend-code-button = Không có trong hộp thư đến hoặc thư mục spam? Gửi lại
 signin-unblock-support-link = Tại sao chuyện này xảy ra?
 signin-unblock-desktop-relay = { -brand-firefox } sẽ điều hướng bạn quay trở lại để sử dụng email ẩn danh sau khi bạn đăng nhập.
-
-
 
 
 confirm-signup-code-page-title = Nhập mã xác nhận

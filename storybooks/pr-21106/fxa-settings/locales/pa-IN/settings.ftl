@@ -72,6 +72,20 @@ choose-newsletters-option-test-pilot =
 choose-newsletters-option-reclaim-the-internet =
     .label = ਇੰਟਰਨੈੱਟ ਉੱਤੇ ਦਾਅਵਾ ਕਰਨ ਲਈ ਕਾਰਵਾਈ ਚੇਤਾਵਨੀਆਂ
 
+## ContinueInFirefox component - Part of the desktop-to-mobile pairing flow
+## Shown when the pairing QR code is opened in a browser other than Firefox.
+## It hands the pairing link to the Firefox app, and offers the app store when
+## Firefox is not installed on the device.
+
+pair-continue-in-firefox-heading = { -brand-firefox } ਨਾਲ ਜਾਰੀ ਰੱਖੋ
+pair-continue-in-firefox-description = { -brand-firefox } ਰਾਹੀਂ ਪੇਅਰ ਕੀਤਾ ਗਿਆ ਹੈ। ਇਸ ਡਿਵਾਈਸ ਨਾਲ ਕਨੈਕਟ ਕਰਨ ਨੂੰ ਪੂਰਾ ਕਰਨ ਵਾਸਤੇ ਇਸ ਨੂੰ ਖੋਲ੍ਹੋ।
+# Opens the Firefox app on this device
+pair-continue-in-firefox-button = { -brand-firefox } ਨਾਲ ਜਾਰੀ ਰੱਖੋ
+# Shown while waiting for the Firefox app to take over
+pair-continue-in-firefox-opening = { -brand-firefox } ਨੂੰ ਖੋਲ੍ਹਿਆ ਜਾ ਰਿਾਹ ਹੈ
+# Sends the user to the App Store or Play Store to install Firefox
+pair-continue-in-firefox-get-firefox-link = ਕੀ { -brand-firefox } ਨਹੀਂ ਹੈ? ਹੁਣੇ ਲਵੋ
+
 ## Tooltip notifications for actions performed on account recovery keys or one-time use codes
 
 datablock-download =
@@ -176,21 +190,18 @@ form-verify-totp-disabled-button-title-numeric = ਜਾਰੀ ਰੱਖਣ ਲ�
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = ਜਾਰੀ ਰੱਖਣ ਲਈ { $codeLength }-ਅੱਖਰ ਦਿਓ
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } ਖਾਤਾ ਰਿਕਵਰੀ ਕੁੰਜੀ
 get-data-trio-title-backup-verification-codes = ਬੈਕਅੱਪ ਪਰਮਾਣੀਕਰਨ ਕੋਡ
 get-data-trio-download-2 =
-    .title = ਡਾਊਨਲੋਡ
     .aria-label = ਡਾਊਨਲੋਡ ਕਰੋ
+    .title = ਡਾਊਨਲੋਡ
 get-data-trio-copy-2 =
-    .title = ਕਾਪੀ
     .aria-label = ਕਾਪੀ ਕਰੋ
+    .title = ਕਾਪੀ
 get-data-trio-print-2 =
-    .title = ਪਰਿੰਟ
     .aria-label = ਪਰਿੰਟ ਕਰੋ
+    .title = ਪਰਿੰਟ
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -248,10 +259,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = ਪਾਸ-ਕੀ
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = ਕੰਪਿਊਟਰ ਤੇ ਮੋਬਾਈਲ ਫ਼ੋਨ ਅਤੇ ਦੋਵਾਂ ਉੱਤੇ ਟੁੱਟੇ ਹੋਏ ਦਿਲ ਦੀ ਤਸਵੀਰ
 hearts-verified-image-aria-label =
@@ -463,9 +470,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = { -brand-mozilla } ਉਤਪਾਦ
 bento-menu-tagline = ਤੁਹਾਡੀ ਪਰਦੇਦਾਰੀ ਦੀ ਸੁਰੱਖਿਆ ਲਈ { -brand-mozilla } ਵਲੋਂ ਹੋਰ ਉਤਪਾਦ
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -541,9 +545,6 @@ dc-subheader-content-2 = { -product-mozilla-accounts } ਨੂੰ { -brand-mozill
 dc-opt-in-success-2 = ਮੇਹਰਬਾਨੀ! ਇਹ ਡਾਟਾ ਸਾਂਝਾ ਕਰਨਾ { -product-mozilla-accounts } ਵਧੀਆ ਬਣਾਉਣ ਲਈ ਸਾਡੀ ਮਦਦ ਕਰਦਾ ਹੈ।
 dc-opt-in-out-error-2 = ਅਫ਼਼ਸੋਸ, ਤੁਹਾਡੀ ਡਾਟਾ ਇਕੱਤਰ ਕਰਨ ਦੀ ਪਸੰਦ ਬਦਲਣ ਦੌਰਾਨ ਸਮੱਸਿਆ ਸੀ
 dc-learn-more = ਹੋਰ ਜਾਣੋ
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = { -product-mozilla-account } ਮੇਨੂ
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -679,9 +680,6 @@ flow-setup-phone-confirm-code-resend-code-button = ਕੋਡ ਮੁੜ ਕੇ �
 flow-setup-phone-confirm-code-resend-code-success = ਕੋਡ ਭੇਜਿਆ
 flow-setup-phone-confirm-code-success-message-v2 = ਰਿਕਵਰੀ ਫ਼ੋਨ ਜੋੜਿਆ ਗਿਆ
 flow-change-phone-confirm-code-success-message = ਰਿਕਵਰੀ ਫ਼ੋਨ ਨੂੰ ਬਦਲਿਆ ਗਿਆ ਹੈ
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = ਆਪਣੇ ਫ਼ੋਨ ਨੰਬਰ ਦੀ ਜਾਂਚ ਕਰੋ
 # The initial rollout of the recovery phone is only available to users with US and Canada mobile phone numbers.
 # Voice over Internet Protocol (VoIP), is a technology that uses a broadband Internet connection instead of a regular (or analog) phone line to make calls.
@@ -1537,9 +1535,6 @@ pair2-supplicant-timeout-and-cancel-canceled-heading = ਰੱਦ ਕੀਤਾ
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
 
-
-# password to complete their sign-in when they want to login to a service requiring it.
-
 set-password-heading-v2 = ਸਿੰਕ ਕਰਨ ਲਈ ਪਾਸਵਰਡ ਬਣਾਓ
 
 ## ThirdPartyAuthCallback Page
@@ -1576,9 +1571,6 @@ complete-reset-pw-recovery-key-link = ਖਾਤਾ ਰਿਕਵਰੀ ਕੁੰ�
 # A message informing the user that the password reset was successful and reminding them to create another recovery key
 # Displayed on the sign in page
 reset-password-complete-banner-heading = ਤੁਹਾਡੇ ਪਾਸਵਰਡ ਨੂੰ ਮੁੜ ਸੈੱਟ ਕੀਤਾ ਗਿਆ ਹੈ।
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = 10-ਅੰਕ ਦਾ ਕੋਡ ਦਿਓ
 confirm-backup-code-reset-password-confirm-button = ਤਸਦੀਕ
 confirm-backup-code-reset-password-subheader = ਬੈਕਅੱਪ ਪਰਮਾਣੀਕਰਨ ਕੋਡ ਦਿਓ
@@ -1627,9 +1619,6 @@ reset-password-confirmed-cta = { $serviceName } ਨਾਲ ਜਾਰੀ ਰੱਖ
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = ਆਪਣੇ ਪਾਸਵਰਡ ਨੂੰ ਮੁੜ-ਸੈੱਟ ਕਰੋ
 password-reset-recovery-method-subheader = ਕਿਸੇ ਰਿਕਵਰੀ ਢੰਗ ਨੂੰ ਚੁਣੋ
@@ -1817,9 +1806,6 @@ signin-unblock-support-link = ਇਹ ਕਿਓ ਵਾਪਰਿਆ ਹੈ?
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = ਤਸਦੀਕੀਕਰਨ ਕੋਡ ਦਿਓ

@@ -157,20 +157,18 @@ form-verify-code-default-error = Chest cjamp al è obligatori
 
 form-verify-totp-disabled-button-title-numeric = Inserìs un codiç di { $codeLength } cifris par continuâ
 form-verify-totp-disabled-button-title-alphanumeric = Inserìs un codiç di { $codeLength } caratars par continuâ
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Clâf di recupar dal account { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Codiçs di autenticazion di backup
 get-data-trio-download-2 =
-    .title = Discjame
     .aria-label = Discjame
+    .title = Discjame
 get-data-trio-copy-2 =
-    .title = Copie
     .aria-label = Copie
+    .title = Copie
 get-data-trio-print-2 =
-    .title = Stampe
     .aria-label = Stampe
+    .title = Stampe
 
 
 alert-icon-aria-label =
@@ -207,8 +205,6 @@ info-icon-aria-label =
     .aria-label = Informazion
 usa-flag-icon-aria-label =
     .aria-label = Bandiere dai Stâts Unîts
-
-
 hearts-broken-image-aria-label =
     .aria-label = Un computer e un celulâr e la imagjin di un cûr slambrât su ogniun
 hearts-verified-image-aria-label =
@@ -354,8 +350,6 @@ avatar-default-avatar =
     .alt = Avatar predefinît
 
 
-
-
 bento-menu-title-3 = Prodots { -brand-mozilla }
 bento-menu-tagline = Altris prodots di { -brand-mozilla } che a protezin la tô riservatece
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -416,8 +410,6 @@ dc-opt-out-success-2 = Disativazion lade a bon fin. { -product-mozilla-accounts 
 dc-opt-in-success-2 = Graciis! La condivision di chescj dâts nus jude a miorâ i { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Nus displâs, al è vignût fûr un probleme tal cambiâ lis preferencis relativis ae racuelte dai dâts
 dc-learn-more = Plui informazions
-
-
 drop-down-menu-title-2 = Menù { -product-mozilla-account }
 drop-down-menu-signed-in-as-v2 = Jentrât come
 drop-down-menu-sign-out = Disconet
@@ -514,8 +506,6 @@ flow-setup-phone-confirm-code-resend-code-button = Torne mande il codiç
 flow-setup-phone-confirm-code-resend-code-success = Codiç mandât
 flow-setup-phone-confirm-code-success-message-v2 = Zontât telefon pal recupar dal account
 flow-change-phone-confirm-code-success-message = Telefon pal recupar dal account cambiât
-
-
 flow-setup-phone-submit-number-heading = Verifiche il to numar di telefon
 flow-setup-phone-verify-number-instruction = Tu ricevarâs un SMS di { -brand-mozilla } cuntun codiç par verificâ il to numar. No sta condividi cun nissun chest codiç.
 flow-setup-phone-submit-number-info-message-v2 = Il numar di telefon pal recupar dal account al è disponibil dome tai Stâts Unîts e in Canadà. I numars VoIP e i alias telefonics no son conseâts.
@@ -1080,8 +1070,6 @@ pair-unsupported-header = Associe doprant une aplicazion
 pair-unsupported-message = Âstu doprât la fotocjamare di sisteme? Tu scugnis associâ dal didentri di une aplicazion { -brand-firefox }.
 
 
-
-
 set-password-heading-v2 = Cree une password par sincronizâ
 set-password-info-v2 = Cheste operazion e cifre i tiei dâts. E à di jessi divierse di chê dal to account { -brand-google } o { -brand-apple }.
 
@@ -1105,8 +1093,6 @@ complete-reset-pw-recovery-key-link = Dopre la clâf di recupar dal account
 reset-password-complete-banner-heading = La tô password e je stade ripristinade.
 reset-password-complete-banner-message = No sta dismenteâti di gjenerâ une gnove clâf di recupar dal account da lis impostazions dal to { -product-mozilla-account } par evitâ problemis di acès in futûr.
 complete-reset-password-desktop-relay = Dopo fat l'acès, { -brand-firefox } al cirarà di tornâ a mandâti ae pagjine par doprâ la mascare di pueste eletroniche.
-
-
 confirm-backup-code-reset-password-input-label = Inserìs il codiç di 10 caratars
 confirm-backup-code-reset-password-confirm-button = Conferme
 confirm-backup-code-reset-password-subheader = Inserìs il codiç di autenticazion di backup
@@ -1139,8 +1125,6 @@ password-reset-submit-button-2 = Continue
 
 reset-password-complete-header = La password e je stade ristabilide
 reset-password-confirmed-cta = Continue su { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Ristabilìs la tô password
@@ -1301,8 +1285,6 @@ signin-unblock-code-incorrect-format-2 = Il codiç di autorizazion al pues conti
 signin-unblock-resend-code-button = No ise te pueste in jentrade o te cartele spam/malvolude? Torne mande
 signin-unblock-support-link = Ce staial sucedint?
 signin-unblock-desktop-relay = Dopo fat l'acès, { -brand-firefox } al cirarà di tornâ a mandâti ae pagjine par doprâ la mascare di pueste eletroniche.
-
-
 
 
 confirm-signup-code-page-title = Inserìs il codiç di conferme
