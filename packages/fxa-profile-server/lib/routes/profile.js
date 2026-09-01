@@ -75,6 +75,7 @@ module.exports = {
   response: {
     schema: Joi.object({
       email: Joi.string().allow(null),
+      additionalEmails: Joi.array().items(Joi.string()).optional(),
       uid: Joi.string().allow(null),
       avatar: Joi.string().allow(null),
       avatarDefault: Joi.boolean().allow(null),
