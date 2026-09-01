@@ -1,11 +1,9 @@
 {
-  "commit": "f5a1d10401fadd35a3e4170ba26b8afa22764294",
+  "commit": "948eddf4540430020546af6bbf7cac5f925e9f2b",
   "summary": "fix(settings): stop clipping the avatar zoom slider",
-  "description": "## Because\n\n- The leftover `slider.css` clipped the new zoom control to nothing. Its `.AvatarCropper input` rule set `clip: rect(0,0,0,0)` and `position: absolute` to hide MUI's proxy input, and the native `<input type=\"range\">` sits inside the same `.AvatarCropper` container, so the rule matched it too.\n- The zoom test drove the control with `fireEvent.change`, which only proves a synthetic value assignment. `.claude/rules/testing/react.md` asks for `userEvent`.\n\n## This pull request\n\n- Deletes `slider.css` and its `@import` from `tailwind.css`. Every selector in the file was `.AvatarCropper` or `.MuiSlider-*`, and only `PageAvatar/index.tsx` uses `.AvatarCropper`.\n- Rewrites the zoom test in `PageAvatar/index.test.tsx` to use `userEvent.setup()`, with `user.upload()` for the file input and a `user.click()` on `zoom-in-btn` that drives the slider value to `1.1`.\n- Keeps one `fireEvent.change` for the thumb move, with a comment. jsdom implements no default action for a range input, so neither a pointer drag nor an arrow key moves the thumb.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-10214",
-  "timestamp": 1788212365000,
+  "description": "- The leftover `slider.css` clipped the new zoom control to nothing. Its `.AvatarCropper input` rule set `clip: rect(0,0,0,0)` and `position: absolute` to hide MUI's proxy input, and the native `<input type=\"range\">` sits inside the same `.AvatarCropper` container, so the rule matched it too.\n- The zoom test drove the control with `fireEvent.change`, which only proves a synthetic value assignment. `.claude/rules/testing/react.md` asks for `userEvent`.\n\n- Deletes `slider.css` and its `@import` from `tailwind.css`. Every selector in the file was `.AvatarCropper` or `.MuiSlider-*`, and only `PageAvatar/index.tsx` uses `.AvatarCropper`.\n- Rewrites the zoom test in `PageAvatar/index.test.tsx` to use `userEvent.setup()`, with `user.upload()` for the file input and a `user.click()` on `zoom-in-btn` that drives the slider value to `1.1`.\n- Keeps one `fireEvent.change` for the thumb move, with a comment. jsdom implements no default action for a range input, so neither a pointer drag nor an arrow key moves the thumb.\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-10214",
+  "timestamp": 1788298957000,
   "storybooks": [
-    "email-renderer",
-    "fxa-react",
     "fxa-settings"
   ],
   "deployDir": "deploy/"

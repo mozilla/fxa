@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit f5a1d10401fadd35a3e4170ba26b8afa22764294</title>
+  <title>Storybooks for commit 948eddf4540430020546af6bbf7cac5f925e9f2b</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,30 +23,22 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit f5a1d10401fadd35a3e4170ba26b8afa22764294</h1>
+  <h1>Storybooks for commit 948eddf4540430020546af6bbf7cac5f925e9f2b</h1>
   <ul>
-    <li><a href="./email-renderer/">email-renderer</a></li>
-<li><a href="./fxa-react/">fxa-react</a></li>
-<li><a href="./fxa-settings/">fxa-settings</a></li>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/31/2026, 9:39:25 PM UTC</dd>
+    <dd>9/1/2026, 9:42:37 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(settings): stop clipping the avatar zoom slider</pre></dd>
     <dt>Description</dt>
-    <dd><pre>## Because
-
-- The leftover `slider.css` clipped the new zoom control to nothing. Its `.AvatarCropper input` rule set `clip: rect(0,0,0,0)` and `position: absolute` to hide MUI&#039;s proxy input, and the native `&lt;input type=&quot;range&quot;&gt;` sits inside the same `.AvatarCropper` container, so the rule matched it too.
+    <dd><pre>- The leftover `slider.css` clipped the new zoom control to nothing. Its `.AvatarCropper input` rule set `clip: rect(0,0,0,0)` and `position: absolute` to hide MUI&#039;s proxy input, and the native `&lt;input type=&quot;range&quot;&gt;` sits inside the same `.AvatarCropper` container, so the rule matched it too.
 - The zoom test drove the control with `fireEvent.change`, which only proves a synthetic value assignment. `.claude/rules/testing/react.md` asks for `userEvent`.
-
-## This pull request
 
 - Deletes `slider.css` and its `@import` from `tailwind.css`. Every selector in the file was `.AvatarCropper` or `.MuiSlider-*`, and only `PageAvatar/index.tsx` uses `.AvatarCropper`.
 - Rewrites the zoom test in `PageAvatar/index.test.tsx` to use `userEvent.setup()`, with `user.upload()` for the file input and a `user.click()` on `zoom-in-btn` that drives the slider value to `1.1`.
 - Keeps one `fireEvent.change` for the thumb move, with a comment. jsdom implements no default action for a range input, so neither a pointer drag nor an arrow key moves the thumb.
-
-## Issue that this pull request solves
 
 Closes: https://mozilla-hub.atlassian.net/browse/FXA-10214</pre></dd>
   </dl>

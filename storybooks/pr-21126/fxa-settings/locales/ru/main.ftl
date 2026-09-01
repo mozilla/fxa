@@ -136,6 +136,13 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Оповещения о действиях по восстановлению доступа к Интернету
 
 
+pair-continue-in-firefox-heading = Продолжить в { -brand-firefox }
+pair-continue-in-firefox-description = Сопряжение происходит в { -brand-firefox }. Откройте его, чтобы завершить подключение этого устройства.
+pair-continue-in-firefox-button = Продолжить в { -brand-firefox }
+pair-continue-in-firefox-opening = Запускаем { -brand-firefox }
+pair-continue-in-firefox-get-firefox-link = Нет { -brand-firefox }? Скачайте сейчас
+
+
 dark-mode-toggle-light = Светлая
 dark-mode-toggle-dark = Тёмная
 dark-mode-toggle-system = Системная
@@ -1143,7 +1150,7 @@ recovery-phone-number-ending-digits = Номер, заканчивающийся
 oauth-error-1000 = Что-то пошло не так. Пожалуйста, закройте эту вкладку и попробуйте ещё раз.
 
 
-passkey-registration-error-not-allowed = Ошибка установки ключа доступа или он недоступен. Попробуйте еще раз или выберите другой метод.
+passkey-registration-error-not-allowed = Ошибка установки ключа доступа или он недоступен. Попробуйте ещё раз или выберите другой метод.
 passkey-registration-error-not-allowed-existing = Установка ключа доступа недоступна с этим устройством. Либо устройство уже зарегистрировано, либо процесс настройки был отменен.
 passkey-registration-error-timeout = Установка ключа доступа была отменена. Попробуйте снова.
 passkey-registration-canceled-v2 = Для установки ключа доступа истекло время ожидания или она была отменена.
@@ -1154,13 +1161,13 @@ passkey-registration-error-could-not-complete = Установка ключа д
 passkey-registration-error-could-not-complete-link = Узнать больше
 passkey-registration-error-security = На этой странице нельзя устанавливать ключи доступа. Используйте безопасный сайт и попробуйте снова.
 passkey-registration-error-invalid-state = Этот ключ доступа уже зарегистрирован. Используйте его, чтобы войти или добавить другой ключ доступа.
-passkey-registration-error-not-readable = Мы не смогли получить доступ к аутентификатору. Попробуйте еще раз или выберите другой метод.
+passkey-registration-error-not-readable = Мы не смогли получить доступ к аутентификатору. Попробуйте ещё раз или выберите другой метод.
 passkey-registration-error-constraint = Установка ключа доступа недоступна с этим устройством. Попробуйте другой метод или устройство.
 passkey-registration-error-unexpected = Не удалось установить ключ доступа. Попробуйте ещё раз или выберите другой метод.
 passkey-authentication-trouble-heading = Не удалось войти с помощью ключа доступа
 passkey-authentication-trouble-description = Попробуйте ещё раз или используйте другой способ входа.
 passkey-authentication-trouble-link = Как использовать ключи доступа
-passkey-authentication-error-not-allowed = Вход с ключом доступа не удался или недоступен. Попробуйте еще раз или выберите другой метод.
+passkey-authentication-error-not-allowed = Вход с ключом доступа не удался или недоступен. Попробуйте ещё раз или выберите другой метод.
 passkey-authentication-error-not-allowed-existing = Установка ключа доступа недоступна с этим устройством. Пожалуйста, попробуйте ещё раз или выберите другой метод.
 passkey-authentication-error-timeout = Время ожидания запроса ключа истекло. Повторите попытку.
 passkey-authentication-error-timeout-v2 = Время ожидания входа по ключу доступа истекло. Попробуйте снова.

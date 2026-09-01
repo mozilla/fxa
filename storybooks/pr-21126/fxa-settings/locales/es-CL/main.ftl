@@ -100,6 +100,13 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Alertas de acción para recuperar Internet
 
 
+pair-continue-in-firefox-heading = Continuar en { -brand-firefox }
+pair-continue-in-firefox-description = El emparejamiento se realiza en { -brand-firefox }. Ábrelo para finalizar la conexión de este dispositivo.
+pair-continue-in-firefox-button = Continuar en { -brand-firefox }
+pair-continue-in-firefox-opening = Abriendo { -brand-firefox }
+pair-continue-in-firefox-get-firefox-link = ¿No tienes { -brand-firefox }? Descárgalo ahora
+
+
 dark-mode-toggle-light = Claro
 dark-mode-toggle-dark = Oscuro
 dark-mode-toggle-system = Sistema
