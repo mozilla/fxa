@@ -12006,28 +12006,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@openmeter/client@npm:1.0.0-beta.229":
-  version: 1.0.0-beta.229
-  resolution: "@openmeter/client@npm:1.0.0-beta.229"
-  dependencies:
-    ky: "npm:2.0.2"
-    zod: "npm:4.4.3"
-  checksum: 10c0/0e9234aa8933ba6cd9eaba0cc9938b3922a1b7c20f52c7dc489f518ac2a473029461cea1c89f94c9bca386d2283870065d8c897f8dc2e2c6cad48cf1abcfc3e5
-  languageName: node
-  linkType: hard
-
-"@openmeter/sdk@npm:1.0.0-beta.229":
-  version: 1.0.0-beta.229
-  resolution: "@openmeter/sdk@npm:1.0.0-beta.229"
-  dependencies:
-    openapi-fetch: "npm:0.17.0"
-    openapi-typescript-helpers: "npm:0.1.0"
-  peerDependencies:
-    react: ">=18.0.0"
-  checksum: 10c0/220ddf57546176ba1ee98675c5e9bf411c6cfd0e7b4017df2ab5507440ff1ebaa08d45c5f2563f94bd11da42fde811bdb157fef4d62280f0fc16525372ba25a4
-  languageName: node
-  linkType: hard
-
 "@opentelemetry/api-logs@npm:0.208.0":
   version: 0.208.0
   resolution: "@opentelemetry/api-logs@npm:0.208.0"
@@ -33407,8 +33385,6 @@ __metadata:
     "@nx/web": "npm:22.7.5"
     "@nx/webpack": "npm:22.7.5"
     "@nx/workspace": "npm:22.7.5"
-    "@openmeter/client": "npm:1.0.0-beta.229"
-    "@openmeter/sdk": "npm:1.0.0-beta.229"
     "@opentelemetry/api": "npm:^1.9.0"
     "@opentelemetry/auto-instrumentations-node": "npm:^0.79.0"
     "@opentelemetry/sdk-trace-base": "npm:^2.9.0"
@@ -33507,6 +33483,7 @@ __metadata:
     hot-shots: "npm:^10.2.1"
     husky: "npm:^9.1.7"
     i18n-iso-countries: "npm:^7.14.0"
+    ioredis: "npm:^4.28.2"
     jest: "npm:30.0.5"
     jest-environment-jsdom: "npm:29.7.0"
     jest-environment-node: "npm:^29.7.0"
@@ -40207,13 +40184,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ky@npm:2.0.2":
-  version: 2.0.2
-  resolution: "ky@npm:2.0.2"
-  checksum: 10c0/5bac227454193003c819eed5a26b30ae9ac639648be2944547f1aad204a470261ae2a8f7537dac0fd4a6433264bb8f1081b25411bfb49ef5d05a0e21d18b2ab9
-  languageName: node
-  linkType: hard
-
 "kysely@npm:^0.28.17":
   version: 0.28.17
   resolution: "kysely@npm:0.28.17"
@@ -44140,28 +44110,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"openapi-fetch@npm:0.17.0":
-  version: 0.17.0
-  resolution: "openapi-fetch@npm:0.17.0"
-  dependencies:
-    openapi-typescript-helpers: "npm:^0.1.0"
-  checksum: 10c0/7e981d28c7839469662a73d44f3a85e05c1a5842a8afd5d6e36c75cbf085aa7f705862871cc7ce07c04605ddc936af3d5850c2cc66d193ee1fea07e7135da192
-  languageName: node
-  linkType: hard
-
 "openapi-fetch@npm:^0.13.5":
   version: 0.13.8
   resolution: "openapi-fetch@npm:0.13.8"
   dependencies:
     openapi-typescript-helpers: "npm:^0.0.15"
   checksum: 10c0/28fd9b2f23be8ed1b8ac489ae9715b087de6a70be4ce3c40285d9a1fa1f033ecd2d08f767765c5a45a1797bb0996bd331cc57fb5bac1e259d999b58567f029ac
-  languageName: node
-  linkType: hard
-
-"openapi-typescript-helpers@npm:0.1.0, openapi-typescript-helpers@npm:^0.1.0":
-  version: 0.1.0
-  resolution: "openapi-typescript-helpers@npm:0.1.0"
-  checksum: 10c0/3a148cf7d6a7f51124966a0fef64c2fbcf1a5a0a1e6320dd627f0733787ac4259877be43f7a7a2910684e3d5d238c6a9655c6f9e1f3adaa9a2a61477e3b8481f
   languageName: node
   linkType: hard
 
@@ -57366,13 +57320,6 @@ __metadata:
   version: 0.8.15
   resolution: "zen-observable@npm:0.8.15"
   checksum: 10c0/71cc2f2bbb537300c3f569e25693d37b3bc91f225cefce251a71c30bc6bb3e7f8e9420ca0eb57f2ac9e492b085b8dfa075fd1e8195c40b83c951dd59c6e4fbf8
-  languageName: node
-  linkType: hard
-
-"zod@npm:4.4.3":
-  version: 4.4.3
-  resolution: "zod@npm:4.4.3"
-  checksum: 10c0/7ea31b558e88f9faf44f31dd185e2e1cbf51fed3081787fb96cc2534749b50c0acfc6da7f0922a7353ed092dd358c7d50c28ea96c94d04af64191bd33152eca3
   languageName: node
   linkType: hard
 

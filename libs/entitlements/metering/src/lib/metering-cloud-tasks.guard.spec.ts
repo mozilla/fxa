@@ -10,12 +10,15 @@ import {
   type TokenPayload,
 } from 'google-auth-library';
 
-import { MeteringCloudTasksConfig, MeteringConfig } from './metering.config';
+import {
+  MeteringCloudTasksConfig,
+  MeteringConfig,
+  MockMeteringConfig,
+} from './metering.config';
 import { MeteringCloudTasksGuard } from './metering-cloud-tasks.guard';
 
 describe('MeteringCloudTasksGuard', () => {
-  const AUD =
-    'https://payments-api.example/v1/metering/internal/threshold-check';
+  const AUD = 'https://payments-api.example/v1/metering/internal/sweep';
   const RUNNER = 'metering-task-runner@example.iam.gserviceaccount.com';
 
   function makeConfig(
@@ -34,7 +37,7 @@ describe('MeteringCloudTasksGuard', () => {
       serviceAccountEmail: overrides.serviceAccountEmail ?? RUNNER,
     });
     return {
-      openmeterBaseUrl: 'http://example.com',
+      ...MockMeteringConfig,
       clients: {},
       cloudTasks,
     };

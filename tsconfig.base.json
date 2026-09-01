@@ -42,6 +42,9 @@
       ],
       "@fxa/accounts/two-factor": ["./libs/accounts/two-factor/src/index.ts"],
       "@fxa/entitlements/metering": ["./libs/entitlements/metering/src/index.ts"],
+      "@fxa/entitlements/metering/testing": [
+        "./libs/entitlements/metering/src/testing.ts"
+      ],
       "@fxa/free-access-program": ["./libs/free-access-program/src/index.ts"],
       "@fxa/google": ["./libs/google/src/index.ts"],
       "@fxa/payments/api-server": ["./libs/payments/api-server/src/index.ts"],
