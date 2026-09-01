@@ -17,19 +17,17 @@ datablock-download =
     .message = Nai-download na
 
 
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } recovery key ng account
 get-data-trio-download-2 =
-    .title = i-Download
     .aria-label = i-Download
+    .title = i-Download
 get-data-trio-copy-2 =
-    .title = Kopyahin
     .aria-label = Kopyahin
+    .title = Kopyahin
 get-data-trio-print-2 =
-    .title = i-Print
     .aria-label = i-Print
+    .title = i-Print
 
 
 alert-bar-close-message = Isara ang mensahe
@@ -39,8 +37,6 @@ avatar-your-avatar =
     .alt = Ang avatar mo
 avatar-default-avatar =
     .alt = Default na avatar
-
-
 
 
 bento-menu-firefox-desktop = { -brand-firefox } Browser para sa Desktop

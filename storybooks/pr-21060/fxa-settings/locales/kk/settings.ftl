@@ -75,6 +75,20 @@ choose-newsletters-option-test-pilot =
 choose-newsletters-option-reclaim-the-internet =
     .label = Интернетті қалпына келтіруге арналған әрекет ескертулері
 
+## ContinueInFirefox component - Part of the desktop-to-mobile pairing flow
+## Shown when the pairing QR code is opened in a browser other than Firefox.
+## It hands the pairing link to the Firefox app, and offers the app store when
+## Firefox is not installed on the device.
+
+pair-continue-in-firefox-heading = { -brand-firefox } ішінде жалғастыру
+pair-continue-in-firefox-description = Жұптастыру { -brand-firefox } ішінде орындалады. Құрылғыны қосуды аяқтау үшін оны ашыңыз.
+# Opens the Firefox app on this device
+pair-continue-in-firefox-button = { -brand-firefox } ішінде жалғастыру
+# Shown while waiting for the Firefox app to take over
+pair-continue-in-firefox-opening = { -brand-firefox } ашылуда
+# Sends the user to the App Store or Play Store to install Firefox
+pair-continue-in-firefox-get-firefox-link = { -brand-firefox } жоқ па? Оны қазір алыңыз
+
 ## Dark mode toggle
 
 dark-mode-toggle-light = Ашық түсті
@@ -197,21 +211,18 @@ form-verify-totp-disabled-button-title-numeric = Жалғастыру үшін {
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Жалғастыру үшін { $codeLength } таңбадан тұратын кодты енгізіңіз
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } тіркелгіні қалпына келтіру кілті
 get-data-trio-title-backup-verification-codes = Сақтық аутентификация кодтары
 get-data-trio-download-2 =
-    .title = Жүктеп алу
     .aria-label = Жүктеп алу
+    .title = Жүктеп алу
 get-data-trio-copy-2 =
-    .title = Көшіріп алу
     .aria-label = Көшіріп алу
+    .title = Көшіріп алу
 get-data-trio-print-2 =
-    .title = Баспаға шығару
     .aria-label = Баспаға шығару
+    .title = Баспаға шығару
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -275,10 +286,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = Рұқсат кілті
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Компьютер мен ұялы телефон және әрқайсысында жаралы жүректің суреті
 hearts-verified-image-aria-label =
@@ -527,9 +534,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = { -brand-mozilla } өнімдері
 bento-menu-tagline = Жекелігіңізді қорғайтын басқа да { -brand-mozilla } өнімдері
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -624,9 +628,6 @@ dc-opt-out-success-2 = Бас тарту сәтті болды. { -product-mozil
 dc-opt-in-success-2 = Рахмет! Бұл деректермен бөлісу { -product-mozilla-accounts } қызметін жақсартуға көмектеседі.
 dc-opt-in-out-error-2 = Кешіріңіз, деректерді жинау параметрін өзгерту кезінде мәселе орын алды
 dc-learn-more = Көбірек білу
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = { -product-mozilla-account } мәзірі
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -761,6 +762,11 @@ flow-setup-2fa-prompt-heading = Екі қадамды аутентификаци
 flow-setup-2fa-prompt-description = { $serviceName } тіркелгіңіздің қауіпсіздігін қамтамасыз ету үшін екі сатылы аутентификацияны орнатуды талап етеді.
 # Success banner shown at the top of the page when the user signed in with a passkey.
 flow-setup-2fa-prompt-passkey-success-banner = Рұқсат кілтімен кіру сәтті орындалды
+# Body copy shown when the user signed in with a passkey and the service still
+# requires two-step authentication setup.
+# Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
+# that requests two-step authentication setup.
+flow-setup-2fa-prompt-passkey-description = { $serviceName } сонымен қатар { -product-mozilla-account } үшін екі сатылы аутентификацияны қажет етеді. Баптағаннан кейін, рұқсат кілтімен кірген кезде ол енді қажет болмайды.
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = Жалғастыру үшін <authenticationAppsLink>осы аутентификация қолданбаларының</authenticationAppsLink> кез келгенін пайдалана аласыз.
 flow-setup-2fa-prompt-continue-button = Жалғастыру
@@ -782,9 +788,6 @@ flow-setup-phone-confirm-code-resend-code-button = Кодты қайта жіб�
 flow-setup-phone-confirm-code-resend-code-success = Код жіберілді
 flow-setup-phone-confirm-code-success-message-v2 = Қалпына келтіру телефоны қосылды
 flow-change-phone-confirm-code-success-message = Қалпына келтіру телефоны өзгертілді
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Телефон нөміріңізді растаңыз
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = Нөміріңізді растау үшін керек кодты { -brand-mozilla } нөмірінен жіберілген SMS хабарламамен аласыз. Бұл кодты ешкіммен бөліспеңіз.
@@ -1085,6 +1088,12 @@ recent-activity-account-passwordless-login-otp-failed = Парольсіз кі�
 recent-activity-account-passwordless-login-otp-verified = Парольсіз кіру коды расталды
 recent-activity-account-passwordless-registration-complete = Парольсіз тіркелгіні тіркеу аяқталды
 recent-activity-account-recovery-codes-set = Қалпына келтіру кодтары орнатылды
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
+recent-activity-account-passkey-wrap-created = Рұқсат кілті синхрондау үшін іске қосылды
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-creation-failure = Рұқсат кілтімен синхрондауды баптау сәтсіз аяқталды
+# A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
+recent-activity-account-passkey-wrap-invalidated = Парольді қалпына келтіруден кейін рұқсат кілтімен синхрондауға қол жеткізу өшірілген
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Тіркелгінің басқа белсенділігі
 
@@ -1498,9 +1507,6 @@ oauth-error-1000 = Бірнәрсе қате кетті. Бұл бетті жа�
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = Рұқсат кілтін баптау сәтсіз аяқталды немесе қолжетімді емес. Қайталап көріңіз немесе басқа тәсілді қолданып көріңіз.
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
@@ -1532,9 +1538,6 @@ passkey-registration-error-not-readable = Біз аутентификаторғ�
 passkey-registration-error-constraint = Бұл құрылғыда рұқсат кілттерін баптау мүмкін емес. Басқа әдісті немесе құрылғыны қолданып көріңіз.
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = Рұқсат кілтін баптау сәтсіз аяқталды. Қайталап көріңіз немесе басқа тәсілді қолданып көріңіз.
-
-# Authentication errors
-
 # Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
 # available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
 # points the user to another way to sign in.
@@ -2003,9 +2006,6 @@ service-welcome-vpn-description = Браузеріңіздің жекелігі�
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
 
-
-# password to complete their sign-in when they want to login to a service requiring it.
-
 set-password-heading-v2 = Синхрондау үшін пароль жасаңыз
 # "This" refers to the heading, "Create password to sync"
 set-password-info-v2 = Бұл сіздің деректеріңізді шифрлейді. Ол сіздің { -brand-google } немесе { -brand-apple } тіркелгі пароліңізден өзгеше болуы керек.
@@ -2055,9 +2055,6 @@ reset-password-complete-banner-message = Жүйеге кірудің болаш�
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = { -brand-firefox } сіз кіргеннен кейін электрондық пошта маскасын пайдалануға қайта жіберуге тырысады.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = 10 таңбалы кодты енгізіңіз
 confirm-backup-code-reset-password-confirm-button = Растау
 confirm-backup-code-reset-password-subheader = Сақтық аутентификация кодын енгізіңіз
@@ -2108,9 +2105,6 @@ reset-password-confirmed-cta = { $serviceName } қызметіне жалғас�
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Парольді тастау
 password-reset-recovery-method-subheader = Қалпына келтіру әдісін таңдаңыз
@@ -2221,11 +2215,6 @@ signin-passkey-fallback-body = Деректеріңіздің қауіпсізд
 signin-passkey-fallback-password-label = Пароль
 signin-passkey-fallback-continue = Жалғастыру
 signin-passkey-fallback-forgot-password-link = Пароліңізді ұмыттыңыз ба?
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2418,9 +2407,6 @@ signin-unblock-desktop-relay = { -brand-firefox } сіз кіргеннен ке
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Растау кодын енгізіңіз

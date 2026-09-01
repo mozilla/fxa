@@ -164,21 +164,18 @@ form-verify-totp-disabled-button-title-numeric = Inserìs un codiç di { $codeLe
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Inserìs un codiç di { $codeLength } caratars par continuâ
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Clâf di recupar dal account { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Codiçs di autenticazion di backup
 get-data-trio-download-2 =
-    .title = Discjame
     .aria-label = Discjame
+    .title = Discjame
 get-data-trio-copy-2 =
-    .title = Copie
     .aria-label = Copie
+    .title = Copie
 get-data-trio-print-2 =
-    .title = Stampe
     .aria-label = Stampe
+    .title = Stampe
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -230,10 +227,6 @@ info-icon-aria-label =
 # Used to select United States as a country code for phone number
 usa-flag-icon-aria-label =
     .aria-label = Bandiere dai Stâts Unîts
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Un computer e un celulâr e la imagjin di un cûr slambrât su ogniun
 hearts-verified-image-aria-label =
@@ -449,9 +442,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = Prodots { -brand-mozilla }
 bento-menu-tagline = Altris prodots di { -brand-mozilla } che a protezin la tô riservatece
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -530,9 +520,6 @@ dc-opt-out-success-2 = Disativazion lade a bon fin. { -product-mozilla-accounts 
 dc-opt-in-success-2 = Graciis! La condivision di chescj dâts nus jude a miorâ i { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Nus displâs, al è vignût fûr un probleme tal cambiâ lis preferencis relativis ae racuelte dai dâts
 dc-learn-more = Plui informazions
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = Menù { -product-mozilla-account }
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -686,9 +673,6 @@ flow-setup-phone-confirm-code-resend-code-button = Torne mande il codiç
 flow-setup-phone-confirm-code-resend-code-success = Codiç mandât
 flow-setup-phone-confirm-code-success-message-v2 = Zontât telefon pal recupar dal account
 flow-change-phone-confirm-code-success-message = Telefon pal recupar dal account cambiât
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Verifiche il to numar di telefon
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = Tu ricevarâs un SMS di { -brand-mozilla } cuntun codiç par verificâ il to numar. No sta condividi cun nissun chest codiç.
@@ -1492,9 +1476,6 @@ pair-unsupported-message = Âstu doprât la fotocjamare di sisteme? Tu scugnis a
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
 
-
-# password to complete their sign-in when they want to login to a service requiring it.
-
 set-password-heading-v2 = Cree une password par sincronizâ
 # "This" refers to the heading, "Create password to sync"
 set-password-info-v2 = Cheste operazion e cifre i tiei dâts. E à di jessi divierse di chê dal to account { -brand-google } o { -brand-apple }.
@@ -1539,9 +1520,6 @@ reset-password-complete-banner-message = No sta dismenteâti di gjenerâ une gno
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = Dopo fat l'acès, { -brand-firefox } al cirarà di tornâ a mandâti ae pagjine par doprâ la mascare di pueste eletroniche.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = Inserìs il codiç di 10 caratars
 confirm-backup-code-reset-password-confirm-button = Conferme
 confirm-backup-code-reset-password-subheader = Inserìs il codiç di autenticazion di backup
@@ -1591,9 +1569,6 @@ reset-password-confirmed-cta = Continue su { $serviceName }
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Ristabilìs la tô password
 password-reset-recovery-method-subheader = Sielç un metodi di recupar
@@ -1843,9 +1818,6 @@ signin-unblock-desktop-relay = Dopo fat l'acès, { -brand-firefox } al cirarà d
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Inserìs il codiç di conferme

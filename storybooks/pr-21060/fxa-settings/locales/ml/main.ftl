@@ -112,20 +112,18 @@ form-verify-code-default-error = ഈ തലം പൂരിപ്പിക്ക
 
 form-verify-totp-disabled-button-title-numeric = തുടരാൻ വേണ്ടി { $codeLength }-അക്കം നീള കോഡു് നല്കുക
 form-verify-totp-disabled-button-title-alphanumeric = തുടരാൻ വേണ്ടി { $codeLength }-പ്രതീകം നീള കോഡു് നല്കുക
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } അക്കൌണ്ടു് വീണ്ടെടുപ്പു് സങ്കേതം
 get-data-trio-title-backup-verification-codes = കരുതൽ പകർപ്പു് ആധികാരികമാക്കൽ-സങ്കേതങ്ങൾ
 get-data-trio-download-2 =
-    .title = ഇറക്കിവയ്ക്കുക
     .aria-label = ഇറക്കിവയ്ക്കുക
+    .title = ഇറക്കിവയ്ക്കുക
 get-data-trio-copy-2 =
-    .title = പകൎത്തുക
     .aria-label = പകൎത്തുക
+    .title = പകൎത്തുക
 get-data-trio-print-2 =
-    .title = അച്ചടിപ്പിക്കുക
     .aria-label = അച്ചടിപ്പിക്കുക
+    .title = അച്ചടിപ്പിക്കുക
 
 
 alert-icon-aria-label =
@@ -156,8 +154,6 @@ error-icon-aria-label =
     .aria-label = പിശകു്
 info-icon-aria-label =
     .aria-label = വിവരം
-
-
 signin-recovery-code-image-description =
     .aria-label = മറഞ്ഞിരിക്കുന്ന വാചകം ഉൾക്കൊള്ളുന്ന പ്രമാണം.
 signin-totp-code-image-label =
@@ -231,8 +227,6 @@ password-reset-warning-icon = മുന്നറിയിപ്പു്
 alert-bar-close-message = സന്ദേശം അടയ്ക്കുക
 
 
-
-
 bento-menu-vpn-2 = { -product-mozilla-vpn }
 bento-menu-monitor-3 = { -product-mozilla-monitor }
 bento-menu-firefox-relay-2 = { -product-firefox-relay }
@@ -242,8 +236,6 @@ cs-sign-out-button = പുറത്തുകടക്കുക
 
 
 dc-learn-more = കൂടുതല്‍ അറിയുക
-
-
 drop-down-menu-title-2 = { -product-mozilla-account } കുറിപ്പടി
 drop-down-menu-signed-in-as-v2 = ആയി പ്രവേശിച്ചിരിയ്ക്കുന്നു
 drop-down-menu-sign-out = പുറത്തുകടക്കുക

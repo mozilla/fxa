@@ -100,6 +100,13 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Alertas de acción para recuperar Internet
 
 
+pair-continue-in-firefox-heading = Continuar en { -brand-firefox }
+pair-continue-in-firefox-description = El emparejamiento ocurre en { -brand-firefox }. Abrilo para terminar de conectar este dispositivo.
+pair-continue-in-firefox-button = Continuar en { -brand-firefox }
+pair-continue-in-firefox-opening = Abriendo { -brand-firefox }
+pair-continue-in-firefox-get-firefox-link = ¿No tenés { -brand-firefox }? Conseguilo ahora
+
+
 dark-mode-toggle-light = Claro
 dark-mode-toggle-dark = Oscuro
 dark-mode-toggle-system = Sistema
@@ -181,20 +188,18 @@ form-verify-code-default-error = Este campo es requerido
 
 form-verify-totp-disabled-button-title-numeric = Ingresá un código de { $codeLength } dígitos para continuar
 form-verify-totp-disabled-button-title-alphanumeric = Ingresá un código de { $codeLength } caracteres para continuar
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Clave de recuperación de cuenta de { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Códigos de autenticación de respaldo
 get-data-trio-download-2 =
-    .title = Descargar
     .aria-label = Descargar
+    .title = Descargar
 get-data-trio-copy-2 =
-    .title = Copiar
     .aria-label = Copiar
+    .title = Copiar
 get-data-trio-print-2 =
-    .title = Imprimir
     .aria-label = Imprimir
+    .title = Imprimir
 
 
 alert-icon-aria-label =
@@ -239,8 +244,6 @@ icon-loading-arrow-aria-label =
     .aria-label = Cargando
 icon-passkey-aria-label =
     .aria-label = Clave de acceso
-
-
 hearts-broken-image-aria-label =
     .aria-label = Una computadora y un teléfono celular con la imagen de un corazón roto en cada uno
 hearts-verified-image-aria-label =
@@ -408,8 +411,6 @@ avatar-default-avatar =
     .alt = Avatar predeterminado
 
 
-
-
 bento-menu-title-3 = Productos de { -brand-mozilla }
 bento-menu-tagline = Más productos de { -brand-mozilla } que protegen tu privacidad
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -474,8 +475,6 @@ dc-opt-out-success-2 = Salida exitosa. { -product-mozilla-accounts } no enviará
 dc-opt-in-success-2 = ¡Gracias! Compartir estos datos nos ayuda a mejorar { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Perdón, hubo un problema al cambiar tus preferencias de recolección de información
 dc-learn-more = Conocer más
-
-
 drop-down-menu-title-2 = Menú de { -product-mozilla-account }
 drop-down-menu-signed-in-as-v2 = Ingresado como
 drop-down-menu-sign-out = Cerrar la sesión
@@ -559,8 +558,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Cómo esto protege tu cuenta
 flow-setup-2fa-inline-complete-continue-button = Continuar a { $serviceName }
 flow-setup-2fa-prompt-heading = Configurar la autenticación de dos pasos
 flow-setup-2fa-prompt-description = { $serviceName } requiere que configurés la autenticación de dos pasos para mantener tu cuenta segura.
-flow-setup-2fa-prompt-passkey-success-banner = Se inició sesión correctamente con la clave de acceso
-flow-setup-2fa-prompt-passkey-description = { $serviceName } también requiere autenticación de dos pasos para tu { -product-mozilla-account }. Después de la configuración, ya no la necesitarás cuando inicies sesión con una clave de acceso.
+flow-setup-2fa-prompt-passkey-success-banner = Se inició sesión exitosamente con la clave de acceso
+flow-setup-2fa-prompt-passkey-description = { $serviceName } también requiere autenticación de dos pasos para tu { -product-mozilla-account }. Después de la configuración, ya no la vas a necesitar cuando iniciés sesión con una clave de acceso.
 flow-setup-2fa-prompt-use-authenticator-apps = Podés usar cualquiera de <authenticationAppsLink>estas aplicaciones de autenticación</authenticationAppsLink> para continuar.
 flow-setup-2fa-prompt-continue-button = Continuar
 
@@ -574,8 +573,6 @@ flow-setup-phone-confirm-code-resend-code-button = Reenviar codigo
 flow-setup-phone-confirm-code-resend-code-success = Código enviado
 flow-setup-phone-confirm-code-success-message-v2 = Teléfono de recuperación agregado
 flow-change-phone-confirm-code-success-message = Teléfono de recuperación cambiado
-
-
 flow-setup-phone-submit-number-heading = Verificá tu número de teléfono
 flow-setup-phone-verify-number-instruction = Recibirás un mensaje de texto de { -brand-mozilla } con un código para verificar tu número. No compartás este código con nadie.
 flow-setup-phone-submit-number-info-message-v2 = El teléfono de recuperación solo está disponible en Estados Unidos y Canadá. No se recomiendan números VoIP ni máscaras telefónicas.
@@ -823,6 +820,9 @@ recent-activity-account-passwordless-login-otp-failed = Falló el código de ini
 recent-activity-account-passwordless-login-otp-verified = Código de inicio de sesión sin contraseña verificado
 recent-activity-account-passwordless-registration-complete = Se completó el registro de la cuenta sin contraseña
 recent-activity-account-recovery-codes-set = Códigos de recuperación establecidos
+recent-activity-account-passkey-wrap-created = Clave de acceso habilitada para sincronización
+recent-activity-account-passkey-wrap-creation-failure = Falló la configuración de Sync con la clave de acceso
+recent-activity-account-passkey-wrap-invalidated = Se quitó el acceso a la sincronización con clave de acceso tras restablecer la contraseña
 recent-activity-unknown = Otra actividad de la cuenta
 
 
@@ -1109,8 +1109,6 @@ recovery-phone-number-ending-digits = Número que termina en { $lastFourPhoneNum
 oauth-error-1000 = Algo no funcionó. Cerrá esta pestaña y probá de nuevo.
 
 
-
-
 passkey-registration-error-not-allowed = La configuración de la clave de acceso falló o no está disponible. Probá de nuevo o elegí otro método.
 passkey-registration-error-not-allowed-existing = La configuración de la clave de acceso no está disponible para este dispositivo. O el dispositivo ya fue registrado o el proceso de configuración fue cancelado.
 passkey-registration-error-timeout = Se canceló la configuración de la clave de acceso. Probá de nuevo.
@@ -1125,8 +1123,6 @@ passkey-registration-error-invalid-state = Esta clave de acceso ya está registr
 passkey-registration-error-not-readable = No pudimos acceder al autenticador. Probá de nuevo o elegí otro método.
 passkey-registration-error-constraint = La configuración de la clave de acceso no está disponible para este dispositivo. Probá otro método o dispositivo.
 passkey-registration-error-unexpected = Falló la configuración de la clave de acceso. Probá de nuevo o elegí otro método.
-
-
 passkey-authentication-trouble-heading = No se pudo iniciar sesión con una clave de acceso
 passkey-authentication-trouble-description = Probá de nuevo o usá otra opción de inicio de sesión.
 passkey-authentication-trouble-link = Cómo usar claves de acceso
@@ -1341,7 +1337,7 @@ pair2-supplicant-connect-this-device-connect-button = Conectar
 pair2-supplicant-connect-this-device-cancel-button = Cancelar
 
 
-pair2-supplicant-download-firefox-heading = Conseguí { -brand-firefox } en este dispositivo
+pair2-supplicant-download-firefox-heading = Instalá { -brand-firefox } en este dispositivo
 pair2-supplicant-download-firefox-description = Descargá { -brand-firefox } para sincronizar marcadores, historial y más entre dispositivos. <linkExternal>Conocer más</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Continuar en { -brand-firefox }
 
@@ -1367,8 +1363,6 @@ service-welcome-signup-success-banner = { -product-mozilla-account } confirmada
 service-welcome-signin-success-banner = ¡Inicio de sesión exitoso!
 service-welcome-vpn-heading = Siguiente: Habilitar VPN
 service-welcome-vpn-description = Un paso más para mejorar la privacidad de tu navegador. Ir al panel abierto y activarlo.
-
-
 
 
 set-password-heading-v2 = Crear contraseña para sincronizar
@@ -1397,8 +1391,6 @@ complete-reset-pw-recovery-key-link = Usar la clave de recuperación de la cuent
 reset-password-complete-banner-heading = Se restableció tu contraseña.
 reset-password-complete-banner-message = No olvidés generar una nueva clave de recuperación de cuenta desde la configuración de { -product-mozilla-account } para evitar problemas de inicio de sesión en el futuro.
 complete-reset-password-desktop-relay = { -brand-firefox } tratará de volver donde estabas para usar una máscara de correo electrónico después de que iniciés sesión.
-
-
 confirm-backup-code-reset-password-input-label = Ingresá el código de 10 caracteres
 confirm-backup-code-reset-password-confirm-button = Confirmar
 confirm-backup-code-reset-password-subheader = Ingresar código de autenticación de respaldo
@@ -1432,8 +1424,6 @@ password-reset-submit-button-2 = Continuar
 
 reset-password-complete-header = Tu contraseña fue restablecida
 reset-password-confirmed-cta = Continuar a { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Restablecé tu contraseña
@@ -1514,8 +1504,6 @@ signin-passkey-fallback-body = Para mantener tus datos seguros, necesitás ingre
 signin-passkey-fallback-password-label = Contraseña
 signin-passkey-fallback-continue = Continuar
 signin-passkey-fallback-forgot-password-link = ¿Te olvidaste la contraseña?
-
-
 
 
 signin-passwordless-code-heading = Ingresá el código de confirmación
@@ -1632,8 +1620,6 @@ signin-unblock-code-incorrect-format-2 = El código de autorización solo puede 
 signin-unblock-resend-code-button = ¿No está en la bandeja de entrada o correo basura? Reenviar
 signin-unblock-support-link = ¿Por qué pasa esto?
 signin-unblock-desktop-relay = { -brand-firefox } tratará de volver donde estabas para usar una máscara de correo electrónico después de que iniciés sesión.
-
-
 
 
 confirm-signup-code-page-title = Ingresá el código de confirmación

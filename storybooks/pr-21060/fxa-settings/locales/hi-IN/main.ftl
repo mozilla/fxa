@@ -32,8 +32,6 @@ datablock-copy =
     .message = कॉपी की गई
 
 
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 
 
@@ -51,8 +49,6 @@ avatar-your-avatar =
     .alt = आपका अवतार
 
 
-
-
 bento-menu-vpn-2 = { -product-mozilla-vpn }
 bento-menu-monitor-3 = { -product-mozilla-monitor }
 bento-menu-firefox-relay-2 = { -product-firefox-relay }
@@ -67,8 +63,6 @@ cs-sign-out-button = साइन आउट करें
 dc-subheader-moz-accounts = { -product-mozilla-accounts }
 dc-subheader-ff-browser = { -brand-firefox } ब्राउज़र
 dc-learn-more = अधिक जानें
-
-
 drop-down-menu-title-2 = { -product-mozilla-account } मेन्यू
 
 

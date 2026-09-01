@@ -43,6 +43,9 @@ button-back-title = Tilbake
 ## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
+# Button to download the account recovery key as a plain text file and navigate to the next step
+# The next (and final) step is an optional prompt to save a storage hint
+recovery-key-download-button-v4 = Last ned og hald fram
 # Error message shown in a banner if the account recovery key download failed.
 # The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Klarte ikkje å laste ned kontogjenopprettingsnøkkelen din.
@@ -71,6 +74,19 @@ choose-newsletters-option-test-pilot =
 # "Action alerts" can be interpreted as "Calls to action"
 choose-newsletters-option-reclaim-the-internet =
     .label = Handlingsvarsel for å vinne tilbake internett
+
+## ContinueInFirefox component - Part of the desktop-to-mobile pairing flow
+## Shown when the pairing QR code is opened in a browser other than Firefox.
+## It hands the pairing link to the Firefox app, and offers the app store when
+## Firefox is not installed on the device.
+
+pair-continue-in-firefox-heading = Hald fram i { -brand-firefox }
+# Opens the Firefox app on this device
+pair-continue-in-firefox-button = Hald fram i { -brand-firefox }
+# Shown while waiting for the Firefox app to take over
+pair-continue-in-firefox-opening = Opnar { -brand-firefox }
+# Sends the user to the App Store or Play Store to install Firefox
+pair-continue-in-firefox-get-firefox-link = Har du ikkje { -brand-firefox }? Skaff deg han no
 
 ## Dark mode toggle
 
@@ -194,21 +210,18 @@ form-verify-totp-disabled-button-title-numeric = Skriv inn { $codeLength }-sifra
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Skriv inn koden på { $codeLength } teikn for å halde fram
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Kontogjenopprettingsnøkkel for { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Reserve-autentiseringskodar
 get-data-trio-download-2 =
-    .title = Last ned
     .aria-label = Last ned
+    .title = Last ned
 get-data-trio-copy-2 =
-    .title = Kopier
     .aria-label = Kopier
+    .title = Kopier
 get-data-trio-print-2 =
-    .title = Skriv ut
     .aria-label = Skriv ut
+    .title = Skriv ut
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -272,10 +285,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = Passnøkkel
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Ei datamaskin og ein mobiltelefon og eit bilde av eit knust hjarte på kvar
 hearts-verified-image-aria-label =
@@ -314,9 +323,15 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
     .aria-label = { -brand-firefox }-vindauge med eit rundt merke som viser eit grønt hakemerke og «VPN», som viser at VPN-et er aktivt.
+sync-devices-image-aria-label =
+    .aria-label = Eit nettlesarvindauge på ei datamaskin og ein mobiltelefon, begge blir synkroniserte, med { -brand-firefox }-maskoten ved sida av.
 # Aria label for the Firefox logo and wordmark shown together as a brand lockup
 firefox-wordmark-image-aria-label =
     .aria-label = { -brand-firefox }-logo
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = Illustrasjon som representerer ei vellykka passordendring.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -495,7 +510,13 @@ flow-recovery-key-hint-unsafe-char-error = Hintet kan ikkje innehalde usikre uni
 password-reset-warning-icon = Åtvaring
 password-reset-chevron-expanded = Skjul åtvaring
 password-reset-chevron-collapsed = Vis åtvaring
+password-reset-warning-review-sign-in-options = Sjå gjennom påloggingsalternativ for å behalde nettlesardata
 password-reset-warning-have-key = Har du ein kontogjenopprettingsnøkkel?
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = Bruk det for å tilbakestille passordet ditt og behalde nettlesardataa dine
+password-reset-warning-signed-in-device = Framleis logga inn på ei anna eining?
+password-reset-warning-restore-data-link = Les om korleis du gjenopprettar nettlesardata frå ei pålogga eining
+password-reset-warning-new-device = Brukar du ei ny eining, men får ikkje tilgang til dei gamle?
 
 ## Alert Bar
 
@@ -509,9 +530,6 @@ avatar-default-avatar =
     .alt = Standardavatar
 
 ##
-
-
-# BentoMenu component
 
 bento-menu-title-3 = { -brand-mozilla }-produkt
 bento-menu-tagline = Fleire produkt frå { -brand-mozilla } som tek vare på personvernet ditt
@@ -605,9 +623,6 @@ dc-opt-out-success-2 = Vellykka utmelding. { -product-mozilla-accounts } sender 
 dc-opt-in-success-2 = Takk! Deling av desse dataa hjelper oss med å forbetre { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Dessverre oppstod det eit problem med å endre innstillinga for datainnsamling
 dc-learn-more = Les meir
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = { -product-mozilla-account }-meny
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -740,6 +755,8 @@ flow-setup-2fa-prompt-heading = Set opp tostegs-autentisering
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
 flow-setup-2fa-prompt-description = { $serviceName } krev at du konfigurerer tostegs-autentisering for å halde kontoen din trygg.
+# Success banner shown at the top of the page when the user signed in with a passkey.
+flow-setup-2fa-prompt-passkey-success-banner = Vellykka pålogging med passnøkkel
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = Du kan bruke kven som helst av <authenticationAppsLink>desse autentiseringsappane</authenticationAppsLink> for å halde fram.
 flow-setup-2fa-prompt-continue-button = Hald fram
@@ -761,9 +778,6 @@ flow-setup-phone-confirm-code-resend-code-button = Send koden på nytt
 flow-setup-phone-confirm-code-resend-code-success = Kode sendt
 flow-setup-phone-confirm-code-success-message-v2 = Gjenopprettingstelefon lagt til
 flow-change-phone-confirm-code-success-message = Gjenopprettingstelefon endra
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Stadfest telefonnummeret ditt
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = Du får ei tekstmelding frå { -brand-mozilla } med ein kode for å stadfeste nummeret ditt. Ikkje del denne koden med nokon.
@@ -1064,6 +1078,10 @@ recent-activity-account-passwordless-login-otp-failed = Kode for passordlaus inn
 recent-activity-account-passwordless-login-otp-verified = Kode for passordlaus innlogging stadfesta
 recent-activity-account-passwordless-registration-complete = Registrering av passordlaus konto fullført
 recent-activity-account-recovery-codes-set = Gjenopprettingskodar innstilte
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
+recent-activity-account-passkey-wrap-created = Passnøkkel aktivert for synkronisering
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-creation-failure = Synkroniseringsoppsett med passnøkkel mislykkast
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Annan kontoaktivitet
 
@@ -1477,9 +1495,6 @@ oauth-error-1000 = Noko gjekk gale. Lat att fana og prøv på nytt.
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = Oppsett av passnøkkel mislykkast eller er ikkje tilgjengeleg. Prøv igjen eller vel ein annan metode.
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
@@ -1511,9 +1526,6 @@ passkey-registration-error-not-readable = Vi klarte ikkje å få tilgang til aut
 passkey-registration-error-constraint = Oppsett av passnøkkel er ikkje tilgjengeleg på denne eininga. Prøv ein annan metode eller eining.
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = Mislykka oppsett av passnøkkel. Prøv igjen eller vel ein annan metode.
-
-# Authentication errors
-
 # Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
 # available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
 # points the user to another way to sign in.
@@ -1828,6 +1840,9 @@ pair2-authority-approve-sign-in-heading = Godkjenne innlogging?
 # Submit button confirming that the user started the pairing and approves the
 # other device being added to their account
 pair2-authority-approve-sign-in-confirm-button = Ja, godkjenn innlogging
+# "Not you?" asks whether someone other than the user started this sign-in.
+# The text inside <changePassword> links to the page for changing the password.
+pair2-authority-approve-sign-in-change-password = Ikkje deg? <changePassword>Endre passordet ditt</changePassword>
 
 ## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer after scanning the pairing QR code with
@@ -1835,6 +1850,7 @@ pair2-authority-approve-sign-in-confirm-button = Ja, godkjenn innlogging
 ## for the remaining steps to be completed there.
 
 pair2-authority-continue-on-mobile-heading = Hald fram på mobileininga di
+pair2-authority-continue-on-mobile-description = Følg stega på telefonen eller nettbrettet ditt.
 # Dismisses the pairing attempt
 pair2-authority-continue-on-mobile-cancel-button = Avbryt
 
@@ -1852,6 +1868,10 @@ pair2-authority-download-firefox-cta = Last ned { -brand-firefox }
 ## their phone or tablet to connect the two devices and start syncing.
 
 pair2-authority-scan-qr-heading = Skann for å kople til mobileininga di
+# Accessible label describing the QR code image shown on this page
+pair2-authority-scan-qr-code-aria-label = QR-kode for å kople til mobileininga di
+# Link to a support article for users having trouble scanning the QR code
+pair2-authority-scan-qr-help-link = Få hjelp med skanning
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
@@ -1869,8 +1889,11 @@ pair2-authority-sync-success-sync-settings-button = Synkroniseringsinnstillingar
 ## either because it timed out or because it was canceled. Both cases offer to
 ## start pairing over again.
 
+# Shown when the pairing attempt expired before it was approved
+pair2-authority-timeout-and-cancel-timeout-heading = Vil du framleis kople til ei eining?
 # Shown when the pairing attempt was canceled, on either device
 pair2-authority-timeout-and-cancel-canceled-heading = Avbrote
+pair2-authority-timeout-and-cancel-canceled-description = Viss du ombestemmer deg eller vil kople til ei anna eining, kan du prøve på nytt.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Prøv igjen
 # Abandons pairing without retrying
@@ -1883,6 +1906,9 @@ pair2-authority-timeout-and-cancel-sync-settings-button = Synkroniseringsinnstil
 ## shown on their computer. It waits for them to approve the sign-in on the
 ## computer, and shows that computer's details so they can verify the request.
 
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = Eit siste steg for å synkronisere
+pair2-supplicant-approve-sign-in-instruction = Godkjenn innlogginga på datamaskina di.
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = Avbryt
 
@@ -1906,12 +1932,15 @@ pair2-supplicant-connect-this-device-cancel-button = Avbryt
 ## sends them off to install the browser.
 
 pair2-supplicant-download-firefox-heading = Få { -brand-firefox } på denne eininga
+# Primary action. Sends the user to the Firefox download page.
+pair2-supplicant-download-firefox-continue-button = Hald fram i { -brand-firefox }
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
 ## to open firefox.com/pair on their computer, which is where the QR code they
 ## scan with the mobile device comes from.
 
+pair2-supplicant-ready-to-scan-heading = For å kople til ei eining
 # Opens a Mozilla support article about setting up sync
 pair2-supplicant-ready-to-scan-learn-more-link = Les meir
 
@@ -1945,9 +1974,6 @@ service-welcome-vpn-description = Eitt steg til for å forbetre personvernet til
 
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
-
-
-# password to complete their sign-in when they want to login to a service requiring it.
 
 set-password-heading-v2 = Opprett passord for å synkronisere
 # "This" refers to the heading, "Create password to sync"
@@ -1998,9 +2024,6 @@ reset-password-complete-banner-message = Ikkje gløym å generere ein ny kontogj
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = { -brand-firefox } vil prøve å sende deg tilbake for å bruke eit e-postalias etter at du har logga på.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = Skriv inn 10-sifra kode
 confirm-backup-code-reset-password-confirm-button = Stadfest
 confirm-backup-code-reset-password-subheader = Skriv inn reserve-autentiseringskode
@@ -2038,6 +2061,7 @@ confirm-totp-reset-password-use-different-account = Bruk ein annan konto
 ## ResetPassword start page
 
 password-reset-flow-heading = Tilbakestill passordet ditt
+password-reset-body-3 = Tilbakestilling av passordet kan påverke synkroniserte nettlesardata.
 password-reset-email-input =
     .label = Skriv inn e-postadressa di
 password-reset-submit-button-2 = Hald fram
@@ -2050,9 +2074,6 @@ reset-password-confirmed-cta = Hald fram til { $serviceName }
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Tilbakestill passord
 password-reset-recovery-method-subheader = Vel ein gjenopprettingsmetode
@@ -2163,11 +2184,6 @@ signin-passkey-fallback-body = For å halde dataa dine trygge, må du oppgi pass
 signin-passkey-fallback-password-label = Passord
 signin-passkey-fallback-continue = Hald fram
 signin-passkey-fallback-forgot-password-link = Gløymt passordet?
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2360,9 +2376,6 @@ signin-unblock-desktop-relay = { -brand-firefox } vil prøve å sende deg tilbak
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Skriv inn stadfestingskode

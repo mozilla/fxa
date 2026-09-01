@@ -159,21 +159,18 @@ form-verify-totp-disabled-button-title-numeric = Барои идома дода�
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Барои идома додан, рамзеро дорои { $codeLength } аломат ворид кунед
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Калиди барқарорсозии ҳисоби «{ -brand-firefox }»
 get-data-trio-title-backup-verification-codes = Нусхаи эҳтиётии рамзҳои санҷиши ҳаққоният
 get-data-trio-download-2 =
-    .title = Боргирӣ кардан
     .aria-label = Боргирӣ кардан
+    .title = Боргирӣ кардан
 get-data-trio-copy-2 =
-    .title = Нусха бардоштан
     .aria-label = Нусха бардоштан
+    .title = Нусха бардоштан
 get-data-trio-print-2 =
-    .title = Чоп кардан
     .aria-label = Чоп кардан
+    .title = Чоп кардан
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -225,10 +222,6 @@ info-icon-aria-label =
 # Used to select United States as a country code for phone number
 usa-flag-icon-aria-label =
     .aria-label = Парчами Иёлоти Муттаҳидаи Амрико
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Компютер ва телефони мобилӣ бо тасвири дили шикаста дар ҳар яке онҳо.
 hearts-verified-image-aria-label =
@@ -377,9 +370,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = Маҳсулоти «{ -brand-mozilla }»
 bento-menu-tagline = Маҳсулоти бештар аз «{ -brand-mozilla }», ки махфияти шуморо муҳофизат мекунанд
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -415,9 +405,6 @@ dc-heading = Ҷамъоварӣ ва истифодабарии маълумот
 dc-subheader-moz-accounts = { -product-mozilla-accounts }
 dc-subheader-ff-browser = Браузери «{ -brand-firefox }»
 dc-learn-more = Маълумоти бештар
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = Менюи «{ -product-mozilla-account }»
 drop-down-menu-sign-out = Баромад
 
@@ -506,9 +493,6 @@ flow-setup-phone-confirm-code-resend-code-button = Аз нав фиристод�
 flow-setup-phone-confirm-code-resend-code-success = Рамз фиристода шуд
 flow-setup-phone-confirm-code-success-message-v2 = Телефони барқарорсозӣ илова карда шуд
 flow-change-phone-confirm-code-success-message = Телефони барқарорсозӣ иваз карда шуд
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Рақами телефони худро тасдиқ кунед
 # cliking on the button sends a code by text message to the phone number typed in by the user
 flow-setup-phone-submit-number-button = Фиристодани рамз
@@ -978,9 +962,6 @@ complete-reset-pw-recovery-key-link = Истифодаи калиди барқа
 # A message informing the user that the password reset was successful and reminding them to create another recovery key
 # Displayed on the sign in page
 reset-password-complete-banner-heading = Ниҳонвожаи шумо аз нав барқарор карда шуд.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-subheader = Нусхаи эҳтиётии рамзи санҷиши ҳаққониятро ворид кунед
 
 ## Confirm Reset Password With Code
@@ -1016,9 +997,6 @@ reset-password-confirmed-cta = Ба «{ $serviceName }» идома диҳед
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Барқарор кардани ниҳонвожаи худ
 password-reset-recovery-method-subheader = Тарзи барқарорсозиро интихоб кунед
@@ -1162,9 +1140,6 @@ signin-unblock-support-link = Чаро ин ба вуҷуд меояд?
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Рамзи тасдиқкунандаро ворид намоед

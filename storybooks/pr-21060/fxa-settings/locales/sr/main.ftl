@@ -174,20 +174,18 @@ form-verify-code-default-error = Ово поље је обавезно
 
 form-verify-totp-disabled-button-title-numeric = Унесите { $codeLength }-цифрени код за наставак
 form-verify-totp-disabled-button-title-alphanumeric = Унесите код од { $codeLength } знакова за наставак
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } кључ за опоравак налога
 get-data-trio-title-backup-verification-codes = Резервни кодови за потврду идентитета
 get-data-trio-download-2 =
-    .title = Преузми
     .aria-label = Преузми
+    .title = Преузми
 get-data-trio-copy-2 =
-    .title = Копирај
     .aria-label = Копирај
+    .title = Копирај
 get-data-trio-print-2 =
-    .title = Штампај
     .aria-label = Штампај
+    .title = Штампај
 
 
 alert-icon-aria-label =
@@ -230,8 +228,6 @@ icon-loading-arrow-aria-label =
     .aria-label = Учитавање
 icon-passkey-aria-label =
     .aria-label = Приступни кључ
-
-
 hearts-broken-image-aria-label =
     .aria-label = Рачунар и мобилни телефон, сваки са сликом сломљеног срца
 hearts-verified-image-aria-label =
@@ -385,8 +381,6 @@ avatar-default-avatar =
     .alt = Подразумевани аватар
 
 
-
-
 bento-menu-title-3 = { -brand-mozilla } производи
 bento-menu-tagline = Више производа из { -brand-mozilla } који штите вашу приватност
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -449,8 +443,6 @@ dc-opt-out-success-2 = Одјављивање је успешно. { -product-mo
 dc-opt-in-success-2 = Хвала! Дељење ових података нам помаже да побољшамо { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Жао нам је, дошло је до грешке при мењању ваших подешавања за прикупљање података
 dc-learn-more = Сазнајте више
-
-
 drop-down-menu-title-2 = { -product-mozilla-account } мени
 drop-down-menu-signed-in-as-v2 = Пријављени сте као
 drop-down-menu-sign-out = Одјави се
@@ -548,8 +540,6 @@ flow-setup-phone-confirm-code-resend-code-button = Пошаљи код поно�
 flow-setup-phone-confirm-code-resend-code-success = Код је послат
 flow-setup-phone-confirm-code-success-message-v2 = Телефон за опоравак је додат
 flow-change-phone-confirm-code-success-message = Телефон за опоравак је промењен
-
-
 flow-setup-phone-submit-number-heading = Потврдите свој број телефона
 flow-setup-phone-verify-number-instruction = Добићете текстуалну поруку од { -brand-mozilla } са кодом за потврду вашег броја. Не делите овај код ни са ким.
 flow-setup-phone-submit-number-info-message-v2 = Телефон за опоравак је доступан само у Сједињеним Државама и Канади. VoIP бројеви и маскирани бројеви телефона се не препоручују.
@@ -1051,8 +1041,6 @@ recovery-phone-number-ending-digits = Број који се завршава н
 oauth-error-1000 = Нешто није у реду. Затворите овај језичак и покушајте поново.
 
 
-
-
 passkey-registration-error-not-allowed = Подешавање приступног кључа није успело или је недоступно. Покушајте поново или изаберите други начин.
 passkey-registration-error-not-allowed-existing = Подешавање приступног кључа није доступно на овом уређају. Или је уређај већ регистрован или је процес подешавања отказан.
 passkey-registration-error-timeout = Подешавање приступног кључа је отказано. Покушајте поново.
@@ -1063,8 +1051,6 @@ passkey-registration-error-invalid-state = Овај приступни кључ 
 passkey-registration-error-not-readable = Нисмо могли да приступимо потврђивачу. Покушајте поново или изаберите други начин.
 passkey-registration-error-constraint = Подешавање приступног кључа није доступно на овом уређају. Покушајте други начин или уређај.
 passkey-registration-error-unexpected = Подешавање приступног кључа није успело. Покушајте поново или изаберите други начин.
-
-
 passkey-authentication-error-not-allowed = Пријава приступним кључем није успела или је недоступна. Покушајте поново или изаберите други начин.
 passkey-authentication-error-not-allowed-existing = Подешавање приступног кључа није доступно на овом уређају. Покушајте поново или изаберите други начин.
 passkey-authentication-error-timeout = Захтев за приступни кључ је истекао. Покушајте поново.
@@ -1234,8 +1220,6 @@ service-welcome-vpn-heading = Следеће: Укључите VPN
 service-welcome-vpn-description = Још један корак за повећање приватности вашег прегледача. Идите на отворени панел и укључите га.
 
 
-
-
 set-password-heading-v2 = Направите лозинку за усклађивање
 set-password-info-v2 = Ово шифрује ваше податке. Мора се разликовати од лозинке за ваш { -brand-google } или { -brand-apple } налог.
 
@@ -1262,8 +1246,6 @@ complete-reset-pw-recovery-key-link = Користи кључ за опорав�
 reset-password-complete-banner-heading = Ваша лозинка је ресетована.
 reset-password-complete-banner-message = Не заборавите да генеришете нови кључ за опоравак налога у подешавањима за { -product-mozilla-account } како бисте спречили будуће проблеме са пријавом.
 complete-reset-password-desktop-relay = { -brand-firefox } ће покушати да вас врати на коришћење маске е-поште након што се пријавите.
-
-
 confirm-backup-code-reset-password-input-label = Унесите код од 10 знакова
 confirm-backup-code-reset-password-confirm-button = Потврди
 confirm-backup-code-reset-password-subheader = Унесите резервни код за потврду идентитета
@@ -1296,8 +1278,6 @@ password-reset-submit-button-2 = Настави
 
 reset-password-complete-header = Ваша лозинка је ресетована
 reset-password-confirmed-cta = Настави на { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Ресетујте лозинку
@@ -1375,8 +1355,6 @@ signin-passkey-fallback-heading = Унесите лозинку за ускла�
 signin-passkey-fallback-body = Да бисте сачували безбедност својих података, потребно је да унесете лозинку када користите овај приступни кључ.
 signin-passkey-fallback-password-label = Лозинка
 signin-passkey-fallback-continue = Настави
-
-
 
 
 signin-passwordless-code-heading = Унесите код за потврду
@@ -1497,8 +1475,6 @@ signin-unblock-code-incorrect-format-2 = Ауторизациони код мо�
 signin-unblock-resend-code-button = Није у пријемном сандучету или фасцикли са непожељним порукама? Пошаљи поново
 signin-unblock-support-link = Зашто се ово дешава?
 signin-unblock-desktop-relay = { -brand-firefox } ће покушати да вас врати на коришћење маске е-поште након што се пријавите.
-
-
 
 
 confirm-signup-code-page-title = Унесите код за потврду

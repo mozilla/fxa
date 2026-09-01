@@ -75,6 +75,20 @@ choose-newsletters-option-test-pilot =
 choose-newsletters-option-reclaim-the-internet =
     .label = Výzvy na opětovné získání internetu
 
+## ContinueInFirefox component - Part of the desktop-to-mobile pairing flow
+## Shown when the pairing QR code is opened in a browser other than Firefox.
+## It hands the pairing link to the Firefox app, and offers the app store when
+## Firefox is not installed on the device.
+
+pair-continue-in-firefox-heading = Pokračujte ve { -brand-firefox(case: "loc") }
+pair-continue-in-firefox-description = Párování se dokončí v aplikaci { -brand-firefox }. Otevřete ji a připojte toto zařízení.
+# Opens the Firefox app on this device
+pair-continue-in-firefox-button = Pokračovat ve { -brand-firefox(case: "loc") }
+# Shown while waiting for the Firefox app to take over
+pair-continue-in-firefox-opening = Otevírá se { -brand-firefox }
+# Sends the user to the App Store or Play Store to install Firefox
+pair-continue-in-firefox-get-firefox-link = Nemáte { -brand-firefox(case: "acc") }? Stáhněte si ho nyní
+
 ## Dark mode toggle
 
 dark-mode-toggle-light = Světlý
@@ -200,21 +214,18 @@ form-verify-totp-disabled-button-title-numeric = Pro pokračování vložte { $c
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Pro pokračování vložte { $codeLength } znakový kód
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Klíč k obnovení účtu { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Záložní ověřovací kódy
 get-data-trio-download-2 =
-    .title = Stáhnout
     .aria-label = Stáhnout
+    .title = Stáhnout
 get-data-trio-copy-2 =
-    .title = Kopírovat
     .aria-label = Kopírovat
+    .title = Kopírovat
 get-data-trio-print-2 =
-    .title = Vytisknout
     .aria-label = Vytisknout
+    .title = Vytisknout
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -278,10 +289,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = Přístupový klíč
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Počítač a mobil a na každém obrázek zlomeného srdce
 hearts-verified-image-aria-label =
@@ -530,9 +537,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = produkty { -brand-mozilla(case: "gen") }
 bento-menu-tagline = Další produkty od { -brand-mozilla(case: "gen") }, které chrání vaše soukromí
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -598,12 +602,12 @@ cs-disconnect-advice-confirm = Ok, rozumím
 cs-disconnect-lost-advice-heading = Ztracené nebo ukradené zařízení bylo odpojeno
 cs-disconnect-lost-advice-content-3 =
     Pokud bylo vaše zařízení ztraceno nebo ukradeno,
-    pro zabezpečení vašich dat byste si měli změnit heslo svého { -product-mozilla-account(case: "gen", capitalization: "lower") }.
+    pro zabezpečení vašich dat byste si měli změnit heslo svého { -product-mozilla-account(capitalization: "lower", case: "gen") }.
     Doporučujeme také u výrobce svého zařízení zjistit možnosti pro jeho vzdálené vymazání.
 cs-disconnect-suspicious-advice-heading = Podezřelé zařízení bylo odpojeno
 cs-disconnect-suspicious-advice-content-2 =
     Pokud je odpojované zařízení skutečně podezřejmé,
-    pro zabezpečení vašich dat byste si měli změnit heslo svého { -product-mozilla-account(case: "gen", capitalization: "lower") }.
+    pro zabezpečení vašich dat byste si měli změnit heslo svého { -product-mozilla-account(capitalization: "lower", case: "gen") }.
     Doporučujeme také změnit všechna hesla uložená ve { -brand-firefox(case: "loc") }, která najdete po zadání about:logins do adresního řádku.
 cs-sign-out-button = Odhlásit se
 
@@ -621,16 +625,13 @@ cs-scope-firefox-vpn = Vestavěná VPN aplikace { -brand-firefox }
 dc-heading = Sběr dat a jejich použití
 dc-subheader-moz-accounts = { -product-mozilla-accounts }
 dc-subheader-ff-browser = Prohlížeč { -brand-firefox }
-dc-subheader-content-2 = Povolte { -product-mozilla-accounts(case: "dat", capitalization: "lower") } zasílat { -brand-mozilla(case: "dat") } technické údaje a údaje o interakcích
+dc-subheader-content-2 = Povolte { -product-mozilla-accounts(capitalization: "lower", case: "dat") } zasílat { -brand-mozilla(case: "dat") } technické údaje a údaje o interakcích
 dc-subheader-ff-content = Pokud chcete zkontrolovat nebo aktualizovat nastavení odesílání technických údajů a údajů o interakcích prohlížečem { -brand-firefox }, otevřete nastavení { -brand-firefox } a přejděte do sekce Soukromí a zabezpečení.
 dc-opt-out-success-2 = Sdílení dat bylo úspěšně zrušeno. { -product-mozilla-accounts } nebude { -brand-mozilla(case: "dat") } odesílat technické údaje a údaje o interakcích.
-dc-opt-in-success-2 = Díky! Sdílení těchto dat nám pomáhá vylepšovat { -product-mozilla-accounts(case: "acc", capitalization: "lower") }.
+dc-opt-in-success-2 = Díky! Sdílení těchto dat nám pomáhá vylepšovat { -product-mozilla-accounts(capitalization: "lower", case: "acc") }.
 dc-opt-in-out-error-2 = Při změně předvolby shromažďování dat došlo k problému
 dc-learn-more = Zjistit více
-
-# DropDownAvatarMenu component
-
-drop-down-menu-title-2 = Nabídka { -product-mozilla-account(case: "gen", capitalization: "lower") }
+drop-down-menu-title-2 = Nabídka { -product-mozilla-account(capitalization: "lower", case: "gen") }
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
 drop-down-menu-signed-in-as-v2 = Přihlášen(a) jako
@@ -769,7 +770,7 @@ flow-setup-2fa-prompt-passkey-success-banner = Přihlášení pomocí klíče by
 # requires two-step authentication setup.
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
-flow-setup-2fa-prompt-passkey-description = { $serviceName } také vyžaduje dvoufázové ověření pro vaše { -product-mozilla-account }. Po nastavení už ho nebudete potřebovat pro přihlašování pomocí hesla.
+flow-setup-2fa-prompt-passkey-description = Služba { $serviceName } také vyžaduje dvoufázové ověření pro váš { -product-mozilla-account(capitalization: "lower", case: "acc") }. Po dokončení nastavení už ho nebudete potřebovat, když se přihlásíte pomocí přístupového klíče.
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = Pro pokračování můžete použít kteroukoliv z <authenticationAppsLink>těchto ověřovacích aplikací</authenticationAppsLink>.
 flow-setup-2fa-prompt-continue-button = Pokračovat
@@ -791,9 +792,6 @@ flow-setup-phone-confirm-code-resend-code-button = Znovu odeslat kód
 flow-setup-phone-confirm-code-resend-code-success = Kód byl odeslán
 flow-setup-phone-confirm-code-success-message-v2 = Telefon pro obnovení byl přidán
 flow-change-phone-confirm-code-success-message = Telefon pro obnovení se změnil
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Ověřte své telefonní číslo
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = { -brand-mozilla } vám zašle textovou zprávu s kódem pro ověření vašeho čísla. Tento kód s nikým nesdílejte.
@@ -981,7 +979,7 @@ delete-account-header =
     .title = Smazat účet
 delete-account-step-1-2 = Krok 1 ze 2
 delete-account-step-2-2 = Krok 2 ze 2
-delete-account-confirm-title-4 = Možná jste svůj { -product-mozilla-account(case: "acc", capitalization: "lower") }  připojili k jednomu nebo více z následujících produktů nebo služeb od { -brand-mozilla(case: "gen") }, které vám zajišťují bezpečnost a produktivitu na webu:
+delete-account-confirm-title-4 = Možná jste svůj { -product-mozilla-account(capitalization: "lower", case: "acc") }  připojili k jednomu nebo více z následujících produktů nebo služeb od { -brand-mozilla(case: "gen") }, které vám zajišťují bezpečnost a produktivitu na webu:
 delete-account-product-mozilla-account = { -product-mozilla-account }
 delete-account-product-mozilla-vpn = { -product-mozilla-vpn }
 delete-account-product-mdn-plus = { -product-mdn-plus }
@@ -1095,6 +1093,12 @@ recent-activity-account-passwordless-login-otp-failed = Selhal kód pro přihlá
 recent-activity-account-passwordless-login-otp-verified = Ověřen kód pro přihlášení bez hesla
 recent-activity-account-passwordless-registration-complete = Registrace účtu bez hesla byla dokončena
 recent-activity-account-recovery-codes-set = Obnovovací kódy jsou nastaveny
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
+recent-activity-account-passkey-wrap-created = Přístupový klíč byl povolen pro synchronizaci
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-creation-failure = Nastavení synchronizace s přístupovým klíčem selhalo
+# A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
+recent-activity-account-passkey-wrap-invalidated = Po resetování hesla byl zrušen přístup k synchronizaci pomocí přístupového klíče
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Jiná aktivita u účtu
 
@@ -1505,9 +1509,6 @@ oauth-error-1000 = Nastala nespecifikovaná chyba. Zavřete prosím tento panel 
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = Nastavení přístupového klíče selhalo nebo je nedostupné. Zkuste to znovu nebo zvolte jiný způsob.
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
@@ -1539,9 +1540,6 @@ passkey-registration-error-not-readable = Nepodařilo se nám přistoupit k ově
 passkey-registration-error-constraint = Nastavení přístupového klíče není na tomto zařízení dostupné. Zkuste jinou metodu nebo zařízení.
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = Nastavení přístupového klíče selhalo. Zkuste to znovu nebo zvolte jiný způsob.
-
-# Authentication errors
-
 # Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
 # available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
 # points the user to another way to sign in.
@@ -1606,7 +1604,7 @@ connect-another-device-ios-complete-setup-message = Pro dokončení nastavení s
 ## Users will see this page if they have local storage or cookies disabled.
 
 cookies-disabled-header = Je vyžadováno místní úložiště a cookies
-cookies-disabled-enable-prompt-2 = Abyste mohli používat { -product-mozilla-account(case: "acc", capitalization: "lower") }, povolte prosím cookies a local storage. Díky tomu si vás budeme moci zapamatovat mezi jednotlivými relacemi.
+cookies-disabled-enable-prompt-2 = Abyste mohli používat { -product-mozilla-account(capitalization: "lower", case: "acc") }, povolte prosím cookies a local storage. Díky tomu si vás budeme moci zapamatovat mezi jednotlivými relacemi.
 # A button users may click to check if cookies and local storage are enabled and be directed to the previous page if so.
 cookies-disabled-button-try-again = Zkusit znovu
 # An external link going to: https://support.mozilla.org/kb/cookies-information-websites-store-on-your-computer
@@ -1615,7 +1613,7 @@ cookies-disabled-learn-more = Zjistit více
 ## Index / home page
 
 index-header = Zadejte svoji e-mailovou adresu
-index-sync-header = Pokračovat do svého { -product-mozilla-account(case: "gen", capitalization: "lower") }
+index-sync-header = Pokračovat do svého { -product-mozilla-account(capitalization: "lower", case: "gen") }
 index-sync-subheader = Synchronizujte svá hesla, panely a záložky všude, kde používáte { -brand-firefox }.
 index-relay-header = Vytvoření e-mailové masky
 index-relay-subheader = Uveďte e-mailovou adresu, na kterou chcete přeposílat e-maily z maskovaného e-mailu.
@@ -1835,7 +1833,7 @@ pair-unsupported-oops-mobile = Jejda! Zdá se, že nepoužíváte { -brand-firef
 # v2: Heading for the mobile instructional message, shown on all mobile devices
 # (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
 # Aligned with legacy Backbone copy (see templates/partial/unsupported-pair.mustache).
-pair-unsupported-connecting-mobile-header-v2 = Propojení mobilního zařízení s vaším { -product-mozilla-account(case: "ins", capitalization: "lower") }
+pair-unsupported-connecting-mobile-header-v2 = Propojení mobilního zařízení s vaším { -product-mozilla-account(capitalization: "lower", case: "ins") }
 # v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
 # URL so the domain does not wrap to a new line on narrow screens.
 pair-unsupported-connecting-mobile-instructions-v2 = Otevřete { -brand-firefox } na svém počítači, navštivte <b>firefox.com/pair</b> a postupujte podle pokynů na obrazovce pro připojení svého mobilního zařízení.
@@ -1887,7 +1885,7 @@ pair2-authority-download-firefox-cta = Stáhnout { -brand-firefox }
 
 pair2-authority-scan-qr-heading = Naskenujte a připojte své mobilní zařízení
 # "sync" is a verb here, referring to syncing data between the user's devices
-pair2-authority-scan-qr-instruction = Naskenujte QR kód svým telefonem nebo tabletem a synchronizujte své záložky, panely a další data v aplikaci { -brand-firefox }.
+pair2-authority-scan-qr-instruction = Naskenujte QR kód svým telefonem nebo tabletem a synchronizujte své záložky, panely a další data ve { -brand-firefox(case: "loc") }.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR kód pro připojení vašeho mobilního zařízení
 # Link to a support article for users having trouble scanning the QR code
@@ -1912,7 +1910,7 @@ pair2-authority-sync-success-sync-settings-button = Nastavení synchronizace
 
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Stále chcete připojit zařízení?
-pair2-authority-timeout-and-cancel-timeout-description = Zdá se, že vypršel časový limit. Zkuste to znovu, pokud stále chcete připojit své mobilní zařízení a synchronizovat svá data { -brand-firefox }.
+pair2-authority-timeout-and-cancel-timeout-description = Zdá se, že vypršel časový limit. Zkuste to znovu, pokud stále chcete připojit své mobilní zařízení a synchronizovat svá data { -brand-firefox(case: "gen") }.
 # Shown when the pairing attempt was canceled, on either device
 pair2-authority-timeout-and-cancel-canceled-heading = Zrušeno
 pair2-authority-timeout-and-cancel-canceled-description = Pokud změníte názor nebo chcete připojit jiné zařízení, zkuste to znovu.
@@ -1953,10 +1951,10 @@ pair2-supplicant-connect-this-device-cancel-button = Zrušit
 ## does not have Firefox installed yet. It explains what syncing gets them and
 ## sends them off to install the browser.
 
-pair2-supplicant-download-firefox-heading = Získejte { -brand-firefox } na tomto zařízení
+pair2-supplicant-download-firefox-heading = Získejte { -brand-firefox(case: "acc") } na tomto zařízení
 # "sync" is a verb here, referring to syncing data between the user's devices.
 # <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = Stáhněte si aplikaci { -brand-firefox } pro synchronizaci záložek, historie a dalšího data mezi zařízeními. <linkExternal>Zjistit více</linkExternal>
+pair2-supplicant-download-firefox-description = Stáhněte si { -brand-firefox(case: "acc") } pro synchronizaci záložek, historie a dalšího dat mezi zařízeními. <linkExternal>Zjistit více</linkExternal>
 # Primary action. Sends the user to the Firefox download page.
 pair2-supplicant-download-firefox-continue-button = Pokračujte za { -brand-firefox(case: "gen") }
 
@@ -1968,7 +1966,7 @@ pair2-supplicant-download-firefox-continue-button = Pokračujte za { -brand-fire
 pair2-supplicant-ready-to-scan-heading = Pro připojení zařízení
 # <b> emphasises the address the user types on their computer. It is not a link,
 # and the address itself must not be translated.
-pair2-supplicant-ready-to-scan-instruction = Na počítači otevřete { -brand-firefox }, přejděte na <b>firefox.com/pair</b> a postupujte podle pokynů na obrazovce pro připojení tohoto mobilního zařízení.
+pair2-supplicant-ready-to-scan-instruction = Na počítači otevřete { -brand-firefox(case: "acc") }, přejděte na <b>firefox.com/pair</b> a podle pokynů na obrazovce připojte toto mobilní zařízení.
 # Opens a Mozilla support article about setting up sync
 pair2-supplicant-ready-to-scan-learn-more-link = Zjistit více
 
@@ -1977,7 +1975,7 @@ pair2-supplicant-ready-to-scan-learn-more-link = Zjistit více
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Vaše zařízení je připojeno
-pair2-supplicant-sync-success-description = Vaše záložky, panely a další obsah zůstanou synchronizované i přes aplikaci { -brand-firefox }.
+pair2-supplicant-sync-success-description = Vaše záložky, panely a další obsah zůstanou synchronizované i ve { -brand-firefox(case: "loc") }.
 # Opens the view listing tabs open on the user's other synced devices
 pair2-supplicant-sync-success-view-tabs-button = Zobrazit synchronizované panely
 # Opens the browser's sync settings, where the user chooses what to sync
@@ -1992,11 +1990,11 @@ pair2-supplicant-sync-success-sync-settings-button = Nastavení synchronizace
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zdá se, že vypršel časový limit
 # "firefox.com/pair" is a URL and should not be translated
-pair2-supplicant-timeout-and-cancel-timeout-description = Pro připojení svého mobilního zařízení a synchronizaci dat o aplikaci { -brand-firefox } navštivte na svém počítači <b>firefox.com/pair</b>.
+pair2-supplicant-timeout-and-cancel-timeout-description = Chcete-li připojit své mobilní zařízení a synchronizovat data { -brand-firefox(case: "gen") }, přejděte na svém počítači na stránku <b>firefox.com/pair</b>.
 # Shown after the pairing attempt was canceled
 pair2-supplicant-timeout-and-cancel-canceled-heading = Zrušeno
 # "firefox.com/pair" is a URL and should not be translated
-pair2-supplicant-timeout-and-cancel-canceled-description = Pro připojení svého zařízení prosím navštivte <b>firefox.com/pair</b> na vašem počítači.
+pair2-supplicant-timeout-and-cancel-canceled-description = Pro připojení svého zařízení prosím navštivte <b>firefox.com/pair</b> na svém počítači.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -2009,9 +2007,6 @@ service-welcome-vpn-description = Ještě jeden krok k posílení ochrany soukro
 
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
-
-
-# password to complete their sign-in when they want to login to a service requiring it.
 
 set-password-heading-v2 = Pro potřeby synchronizace si vytvořte heslo
 # "This" refers to the heading, "Create password to sync"
@@ -2057,14 +2052,11 @@ complete-reset-pw-recovery-key-link = Použít obnovovací klíč
 # A message informing the user that the password reset was successful and reminding them to create another recovery key
 # Displayed on the sign in page
 reset-password-complete-banner-heading = Vaše heslo bylo obnoveno.
-reset-password-complete-banner-message = Abyste předešli budoucím problémům s přihlášením, nezapomeňte si v nastavení { -product-mozilla-account(case: "gen", capitalization: "lower") } vygenerovat nový obnovovací klíč k účtu.
+reset-password-complete-banner-message = Abyste předešli budoucím problémům s přihlášením, nezapomeňte si v nastavení { -product-mozilla-account(capitalization: "lower", case: "gen") } vygenerovat nový obnovovací klíč k účtu.
 # Message to user after they were redirected to the Mozilla account sign-in page in a new browser
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = { -brand-firefox } se vás pokusí po přihlášení přesměrovat na e-mailovou masku.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = Zadejte 10místný kód
 confirm-backup-code-reset-password-confirm-button = Potvrdit
 confirm-backup-code-reset-password-subheader = Zadejte záložní ověřovací kód
@@ -2115,9 +2107,6 @@ reset-password-confirmed-cta = Pokračovat do služby { $serviceName }
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Obnovit heslo
 password-reset-recovery-method-subheader = Vyberte způsob obnovení
@@ -2226,11 +2215,6 @@ signin-passkey-fallback-body = Aby byla vaše data v bezpečí, musíte při pou
 signin-passkey-fallback-password-label = Heslo
 signin-passkey-fallback-continue = Pokračovat
 signin-passkey-fallback-forgot-password-link = Zapomněli jste heslo?
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2357,7 +2341,7 @@ signin-reported-message = Náš tým byl upozorněn. Zprávy jako tato nám pom�
 # String within the <span> element appears on a separate line
 # If more appropriate in a locale, the string within the <span>, "for your { -product-mozilla-account }"
 # can stand alone as "{ -product-mozilla-account }"
-signin-token-code-heading-2 = Zadejte potvrzovací kód<span> pro váš { -product-mozilla-account(case: "acc", capitalization: "lower") }</span>
+signin-token-code-heading-2 = Zadejte potvrzovací kód<span> pro váš { -product-mozilla-account(capitalization: "lower", case: "acc") }</span>
 # { $email } represents the email that the user entered to sign in
 signin-token-code-instruction-v2 = Vložte během 5 minut kód, který vám byl zaslán na <email>{ $email }</email>.
 signin-token-code-input-label-v2 = Zadejte šestimístný kód
@@ -2429,15 +2413,12 @@ signin-unblock-desktop-relay = { -brand-firefox } se vás pokusí po přihláše
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
 
-
-# and a confirmation code has been sent to their email address.
-
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Zadejte potvrzovací kód
 # String within the <span> element appears on a separate line
 # If more appropriate in a locale, the string within the <span>, "for your { -product-mozilla-account }"
 # can stand alone as "{ -product-mozilla-account }"
-confirm-signup-code-heading-2 = Zadejte potvrzovací kód<span>pro svůj { -product-mozilla-account(case: "acc", capitalization: "lower") }</span>
+confirm-signup-code-heading-2 = Zadejte potvrzovací kód<span>pro svůj { -product-mozilla-account(capitalization: "lower", case: "acc") }</span>
 # { $email } represents the email that the user entered to sign in
 confirm-signup-code-instruction-v2 = Vložte během 5 minut kód, který vám byl zaslán na <email>{ $email }</email>.
 confirm-signup-code-input-label = Zadejte šestimístný kód

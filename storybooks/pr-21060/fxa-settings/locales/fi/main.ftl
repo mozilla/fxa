@@ -83,6 +83,7 @@ button-back-aria-label = Takaisin
 button-back-title = Takaisin
 
 
+recovery-key-download-button-v4 = Lataa ja jatka
 recovery-key-pdf-download-error = Valitettavasti tilin palautusavaimen lataamisessa oli ongelma.
 
 
@@ -140,6 +141,7 @@ device-info-block-location-city-country = { $city }, { $country } (arvio)
 device-info-block-location-country = { $country } (arvio)
 device-info-block-location-unknown = Tuntematon sijainti
 device-info-browser-os = { $browserName } alustalla { $genericOSName }
+device-info-browser-device = { $browserName } laitteella { $deviceName }
 device-info-ip-address = IP-osoite: { $ipAddress }
 
 
@@ -179,19 +181,17 @@ form-verify-code-default-error = Tämä kenttä on pakollinen
 
 form-verify-totp-disabled-button-title-numeric = Anna { $codeLength }-numeroinen koodi jatkaaksesi
 form-verify-totp-disabled-button-title-alphanumeric = Anna { $codeLength }-merkkinen koodi jatkaaksesi
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox }-tilin palautusavain
 get-data-trio-download-2 =
-    .title = Lataa
     .aria-label = Lataa
+    .title = Lataa
 get-data-trio-copy-2 =
-    .title = Kopioi
     .aria-label = Kopioi
+    .title = Kopioi
 get-data-trio-print-2 =
-    .title = Tulosta
     .aria-label = Tulosta
+    .title = Tulosta
 
 
 alert-icon-aria-label =
@@ -214,6 +214,8 @@ close-icon-aria-label =
     .aria-label = Sulje viesti
 code-icon-aria-label =
     .aria-label = Koodi
+edit-icon-aria-label =
+    .aria-label = Muokkaa
 error-icon-aria-label =
     .aria-label = Virhe
 info-icon-aria-label =
@@ -224,8 +226,6 @@ icon-loading-arrow-aria-label =
     .aria-label = Ladataan
 icon-passkey-aria-label =
     .aria-label = Todentamisavain
-
-
 hearts-broken-image-aria-label =
     .aria-label = Tietokone ja matkapuhelin, joissa molemmissa on särkynyt sydän
 hearts-verified-image-aria-label =
@@ -256,6 +256,8 @@ backup-authentication-codes-image-aria-label =
     .aria-label = Laitteen näyttö ja koodeja
 sync-clouds-image-aria-label =
     .aria-label = Pilviä, joissa on synkronointikuvake
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox }in logo
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Olet kirjautunut { -brand-firefox }iin.
@@ -368,8 +370,6 @@ avatar-default-avatar =
     .alt = Oletusavatar
 
 
-
-
 bento-menu-title-3 = { -brand-mozilla }-tuotteet
 bento-menu-tagline = Lisää yksityisyyttäsi suojaavia tuotteita { -brand-mozilla }lta
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -397,6 +397,7 @@ cs-cannot-disconnect = Asiakasta ei löydy, yhteyttä ei voi katkaista
 cs-logged-out-2 = Kirjautunut ulos palvelusta { $service }
 cs-refresh-button =
     .title = Päivitä yhdistetyt palvelut
+cs-connect-device-button = Yhdistä laite
 cs-missing-device-help = Puuttuuko jokin tai onko jokin kahteen kertaan?
 cs-disconnect-sync-heading = Katkaise yhteys Sync-palveluun
 
@@ -434,8 +435,6 @@ dc-opt-out-success-2 = Poistuminen onnistui. { -product-mozilla-accounts } ei l�
 dc-opt-in-success-2 = Kiitos! Tämän tiedon jakaminen auttaa parantamaan { -product-mozilla-accounts } -palvelua.
 dc-opt-in-out-error-2 = Valitettavasti tiedonkeruuasetusten muuttamisen yhteydessä ilmeni ongelma
 dc-learn-more = Lue lisää
-
-
 drop-down-menu-title-2 = { -product-mozilla-account }en valikko
 drop-down-menu-signed-in-as-v2 = Kirjauduttu tunnuksella
 drop-down-menu-sign-out = Kirjaudu ulos
@@ -509,8 +508,6 @@ flow-setup-phone-confirm-code-expired = Vanheniko koodi?
 flow-setup-phone-confirm-code-resend-code-button = Lähetä koodi uudelleen
 flow-setup-phone-confirm-code-resend-code-success = Koodi lähetetty
 flow-setup-phone-confirm-code-success-message-v2 = Palauttamisen puhelinnumero lisätty
-
-
 flow-setup-phone-submit-number-heading = Vahvista puhelinnumerosi
 flow-setup-phone-submit-number-button = Lähetä koodi
 
@@ -680,6 +677,7 @@ page-passkey-add-error-system-v2 = Todentamisavaimen luomisessa oli ongelma. Yri
 
 
 recent-activity-title = Viimeaikaiset tilitapahtumat
+recent-activity-show-more-button = Näytä lisää
 recent-activity-account-create-v2 = Tili luotu
 recent-activity-account-disable-v2 = Tili poistettu käytöstä
 recent-activity-account-enable-v2 = Tili otettu käyttöön
@@ -806,6 +804,8 @@ passkey-delete-modal-heading = Poistetaanko todennusavain?
 passkey-delete-modal-cancel-button = Peruuta
 passkey-delete-modal-confirm-button = Poista todentamisavain
 passkey-delete-success = Todentamisavain poistettu
+passkey-rename-save-button = Tallenna
+passkey-rename-cancel-button = Peruuta
 
 
 switch-turn-off = Poista käytöstä
@@ -926,6 +926,7 @@ auth-error-216 = Tekstiviestien raja saavutettu
 auth-error-224 = Todentamisavainta ei löytynyt
 auth-error-225 = Todentamisavain on jo rekisteröity
 auth-error-228 = Todentamisavaimen rekisteröinti epäonnistui
+auth-error-239 = Tiliäsi ei voitu poistaa. Yritä uudelleen tai ota yhteyttä tukeen, jos ongelma jatkuu.
 auth-error-999 = Odottamaton virhe
 auth-error-1001 = Kirjautumisyritys peruttu
 auth-error-1002 = Istunto vanhentui. Kirjaudu sisään uudelleen.
@@ -933,6 +934,8 @@ auth-error-1003 = Paikallinen tallennustila tai evästeet ovat edelleen poissa k
 auth-error-1008 = Uuden salasanan pitää erota vanhasta
 auth-error-1010 = Salasanan täytyy olla kelvollinen
 auth-error-1011 = Sähköpostiosoitteen täytyy olla kelvollinen
+auth-error-1018 = Vahvistussähköpostisi palautui juuri. Kirjoititko sähköpostiosoitteesi väärin?
+auth-error-1020 = Kirjoititko sähköpostiosoitteen väärin? firefox.com ei ole kelvollinen sähköpostipalvelu
 auth-error-1031 = Ikä täytyy antaa rekisteröitymistä varten
 auth-error-1032 = Sinun tulee antaa kelvollinen ikä rekisteröityäksesi
 auth-error-1054 = Virheellinen kaksivaiheisen todennuksen koodi
@@ -944,17 +947,14 @@ recovery-phone-number-ending-digits = Numero, joka päättyy { $lastFourPhoneNum
 oauth-error-1000 = Jokin meni pieleen. Sulje tämä välilehti ja yritä uudelleen.
 
 
-
-
 passkey-registration-error-timeout = Todentamisavaimen määritys peruttiin. Yritä uudelleen.
 passkey-registration-canceled-link = Lue lisää
 passkey-registration-error-not-supported-v2 = Selaimesi tai laitteesi ei tue todentamisavaimia.
 passkey-registration-error-not-supported-link = Lue lisää
 passkey-registration-error-could-not-complete-link = Lue lisää
-
-
 passkey-authentication-error-timeout = Todentamisavainpyyntö aikakatkaistiin. Yritä uudelleen.
 passkey-authentication-error-not-supported-v2 = Selaimesi tai laitteesi ei tue todentamisavaimia.
+passkey-authentication-error-unexpected = Jotain meni pieleen. Yritä uudelleen tai valitse toinen kirjautumismenetelmä.
 passkey-authentication-error-not-found = Todentamisavainta ei tunnistettu. Käytä toista kirjautumistapaa.
 
 
@@ -1030,7 +1030,9 @@ pair-auth-complete-see-tabs-button = Näytä synkronoitujen laitteiden välilehd
 pair-auth-complete-manage-devices-link = Hallinnoi laitteita
 
 
+pair-auth-complete-send-tab-heading = Olet valmis lähettämään välilehtiä
 pair-auth-complete-send-tab-device-connected = { $deviceFamily } käyttöjärjestelmälle { $deviceOS } on yhdistetty.
+pair-auth-complete-send-tab-benefits = Voit lähettää avoimia välilehtiä, salasanoja ja kirjanmerkkejä laitteiden välillä välittömästi.
 
 
 auth-totp-heading-w-default-service = Syötä todennuskoodi <span>jatkaaksesi tilin asetuksiin</span>
@@ -1044,6 +1046,8 @@ auth-totp-code-required-error = Todennuskoodi vaaditaan
 pair-wait-for-supp-heading-text = Hyväksyntä vaaditaan nyt <span>joltakin muulta laitteeltasi</span>
 
 
+pair-failure-header-v2 = Laitteen pariliitos epäonnistui
+pair-failure-message-v2 = Määritystä ei voitu suorittaa loppuun. Kirjaudu sisään sähköpostiosoitteellasi.
 pair-failure-try-again-link = Yritä uudelleen
 
 
@@ -1061,9 +1065,12 @@ pair-qr-code-aria-label = QR-koodi
 
 pair-choice-subheader = Synkronoi { -brand-firefox }-kokemuksesi
 pair-choice-description = Tarkastele tallennettuja salasanoja, välilehtiä, selaushistoriaa ja muuta – kaikilla laitteillasi.
+pair-choice-header-send-tab = Lataa tai avaa { -brand-firefox } laitteella, jolle haluat lähettää välilehtiä
 pair-choice-legend = Jatka valitsemalla vaihtoehto:
 pair-choice-has-mobile-title = Minulla on jo { -brand-firefox } mobiililaitteille
+pair-choice-has-mobile-description = Aloita synkronointi nyt, jos sinulla on jo { -brand-firefox } mobiililaitteellasi.
 pair-choice-needs-mobile-title = Minulla ei ole { -brand-firefox }ia mobiililaitteille
+pair-choice-needs-mobile-description = Lataa { -brand-firefox } mobiililaitteellesi ja aloita synkronointi.
 pair-choice-continue-button = Jatka
 pair-signed-in-successfully = Kirjautuminen onnistui!
 pair-account-created-now-syncing = Tili luotu. Synkronoit nyt.
@@ -1071,11 +1078,15 @@ pair-password-created-now-syncing = Salasana luotu. Synkronoit nyt.
 
 
 pair-download-subheader = Lataa { -brand-firefox } mobiililaitteille
+pair-download-description = Synkronoi { -brand-firefox } puhelimeesi tai tablettiisi lataamalla ensin { -brand-firefox } mobiililaitteille. Toimi näin:
+pair-download-step-scan-qr = <b>Vaihe { $stepNumber }</b>: Lataa { -brand-firefox } skannaamalla tämä QR-koodi mobiililaitteesi kameralla:
+pair-download-step-continue-sync = <b>Vaihe { $stepNumber }</b>: Valitse ”Jatka synkronointia” synkronoidaksesi { -brand-firefox }in mobiililaitteellasi.
 pair-continue-to-sync-button = Jatka synkronointiin
 
 
 pair-success-header-2 = Laite yhdistetty
 pair-success-message-2 = Parin muodostaminen onnistui.
+pair-success-tab-close-message = { -brand-firefox } sulkee tämän välilehden automaattisesti.
 
 
 pair-supp-allow-heading-text = Vahvista parin muodostaminen <span>tilille { $email }</span>
@@ -1089,17 +1100,58 @@ pair-wait-for-auth-heading-text = Hyväksyntä vaaditaan nyt <span>joltain muult
 pair-unsupported-header = Muodosta pari sovelluksella
 pair-unsupported-message = Käytitkö järjestelmän kameraa? Parin muodostaminen tulee tehdä { -brand-firefox }-sovelluksesta.
 pair-unsupported-oops-header = Oho! Vaikuttaa siltä, ettet käytä { -brand-firefox }ia.
+pair-unsupported-switch-to-firefox = Vaihda { -brand-firefox }iin ja avaa tämä sivu yhdistääksesi toisen laitteen.
 pair-unsupported-oops-mobile = Oho! Vaikuttaa siltä, ettet käytä { -brand-firefox }ia.
+pair-unsupported-connecting-mobile-header-v2 = Yhdistetään { -product-mozilla-account } ja mobiililaitteesi
+pair-unsupported-connecting-mobile-instructions-v2 = Avaa { -brand-firefox } tietokoneellasi, siirry osoitteeseen <b>firefox.com/pair</b> ja seuraa näytön ohjeita yhdistääksesi mobiililaitteesi.
 pair-unsupported-learn-more-link-v2 = Lue lisää
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oho! Jotain meni pieleen.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Sulje tämä välilehti ja yritä uudelleen.
 
 
+pair2-authority-approve-sign-in-heading = Hyväksytäänkö sisäänkirjautuminen?
+pair2-authority-approve-sign-in-confirm-button = Kyllä, hyväksy kirjautuminen
+pair2-authority-approve-sign-in-change-password = Etkö se ollut sinä? <changePassword>Vaihda salasanasi</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = Jatka mobiililaitteellasi
+pair2-authority-continue-on-mobile-description = Noudata puhelimesi tai tabletin ohjeita.
+pair2-authority-continue-on-mobile-cancel-button = Peruuta
+
+
+pair2-authority-download-firefox-heading = Avaa { -brand-firefox } synkronointia varten
+pair2-authority-download-firefox-instruction = Määritä synkronointi laitteiden välillä avaamalla { -brand-firefox } tällä laitteella, ja siirry osoitteeseen <b>firefox.com/pair</b>.
+pair2-authority-download-firefox-cta = Lataa { -brand-firefox }
+
+
+pair2-authority-scan-qr-heading = Skannaa yhdistääksesi mobiililaitteesi
+pair2-authority-scan-qr-instruction = Skannaa QR-koodi puhelimellasi tai tabletillasi synkronoidaksesi { -brand-firefox }in kirjanmerkit, välilehdet ja paljon muuta.
+pair2-authority-scan-qr-code-aria-label = QR-koodi mobiililaitteen yhdistämiseksi
+pair2-authority-scan-qr-help-link = Apua skannaukseen
+
+
+pair2-authority-sync-success-heading = Synkronointi on muodostettu
+pair2-authority-sync-success-description = Välilehdet, kirjanmerkit, salasanat ja paljon muuta ovat valmiina kaikilla laitteillasi.
+pair2-authority-sync-success-view-tabs-button = Näytä synkronoidut välilehdet
+pair2-authority-sync-success-sync-settings-button = Synkronoinnin asetukset
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = Haluatko yhdistää lisää laitteita?
+pair2-authority-timeout-and-cancel-try-again-button = Yritä uudestaan
+pair2-authority-timeout-and-cancel-cancel-button = Peruuta
+pair2-authority-timeout-and-cancel-sync-settings-button = Synkronoinnin asetukset
+
+
+pair2-supplicant-approve-sign-in-heading = Vielä yksi vaihe ennen synkronointia
+pair2-supplicant-approve-sign-in-instruction = Hyväksy kirjautuminen tietokoneellasi.
+
+
+pair2-supplicant-sync-success-sync-settings-button = Synkronoinnin asetukset
+
+
 service-welcome-signup-success-banner = { -product-mozilla-account } vahvistettu
 service-welcome-signin-success-banner = Kirjautuminen onnistui!
 service-welcome-vpn-heading = Seuraavaksi: Ota VPN käyttöön
-
-
 
 
 set-password-heading-v2 = Luo salasana synkronointia varten
@@ -1123,8 +1175,6 @@ complete-reset-password-success-alert = Salasana asetettu
 complete-reset-password-error-alert = Valitettavasti salasanaa asettaessa ilmeni ongelma
 complete-reset-pw-recovery-key-link = Käytä tilin palautusavainta
 reset-password-complete-banner-heading = Salasanasi on nollattu.
-
-
 confirm-backup-code-reset-password-input-label = Kirjoita 10-merkkinen koodi
 confirm-backup-code-reset-password-confirm-button = Vahvista
 confirm-backup-code-reset-password-subheader = Anna varatodennuskoodi
@@ -1155,8 +1205,6 @@ password-reset-submit-button-2 = Jatka
 
 reset-password-complete-header = Salasanasi on nollattu
 reset-password-confirmed-cta = Jatka palveluun { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Nollaa salasanasi
@@ -1223,8 +1271,7 @@ signin-passkey-fallback-heading = Kirjoita salasanasi synkronoidaksesi
 signin-passkey-fallback-body = Tietojesi suojaamiseksi sinun on annettava salasanasi, kun käytät tätä todentamisavainta.
 signin-passkey-fallback-password-label = Salasana
 signin-passkey-fallback-continue = Jatka
-
-
+signin-passkey-fallback-forgot-password-link = Unohditko salasanan?
 
 
 signin-passwordless-code-heading = Kirjoita vahvistuskoodi
@@ -1317,8 +1364,6 @@ signin-unblock-code-incorrect-length = Valtuutuskoodin tulee sisältää 8 merkk
 signin-unblock-code-incorrect-format-2 = Valtuutuskoodi voi sisältää vain kirjaimia ja/tai numeroita
 signin-unblock-resend-code-button = Ei saapuneissa tai roskapostissa? Lähetä uudestaan
 signin-unblock-support-link = Mistä tämä johtuu?
-
-
 
 
 confirm-signup-code-page-title = Kirjoita vahvistuskoodi

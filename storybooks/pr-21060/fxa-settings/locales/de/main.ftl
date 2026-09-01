@@ -100,6 +100,13 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Möglichkeiten zum Engagement zur Wiederherstellung des Internets
 
 
+pair-continue-in-firefox-heading = Auf { -brand-firefox } fortfahren
+pair-continue-in-firefox-description = Die Kopplung erfolgt in { -brand-firefox }. Öffnen Sie sie, um die Verbindung mit dem Gerät abzuschließen.
+pair-continue-in-firefox-button = Auf { -brand-firefox } fortfahren
+pair-continue-in-firefox-opening = { -brand-firefox } wird geöffnet
+pair-continue-in-firefox-get-firefox-link = Sie nuetzen { -brand-firefox } noch nicht? Laden Sie ihn jetzt herunter.
+
+
 dark-mode-toggle-light = Hell
 dark-mode-toggle-dark = Dunkel
 dark-mode-toggle-system = System
@@ -181,20 +188,18 @@ form-verify-code-default-error = Dieses Feld ist erforderlich
 
 form-verify-totp-disabled-button-title-numeric = Geben Sie den { $codeLength }-stelligen Code ein, um fortzufahren
 form-verify-totp-disabled-button-title-alphanumeric = Geben Sie den { $codeLength }-stelligen Code ein, um fortzufahren
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox }-Kontowiederherstellungsschlüssel
 get-data-trio-title-backup-verification-codes = Sicherungs-Authentifizierungscodes
 get-data-trio-download-2 =
-    .title = Herunterladen
     .aria-label = Herunterladen
+    .title = Herunterladen
 get-data-trio-copy-2 =
-    .title = Kopieren
     .aria-label = Kopieren
+    .title = Kopieren
 get-data-trio-print-2 =
-    .title = Drucken
     .aria-label = Drucken
+    .title = Drucken
 
 
 alert-icon-aria-label =
@@ -239,8 +244,6 @@ icon-loading-arrow-aria-label =
     .aria-label = Wird geladen
 icon-passkey-aria-label =
     .aria-label = Zugangsschlüssel
-
-
 hearts-broken-image-aria-label =
     .aria-label = Ein Computer und ein Mobiltelefon mit jeweils einem Bild eines gebrochenen Herzens
 hearts-verified-image-aria-label =
@@ -408,8 +411,6 @@ avatar-default-avatar =
     .alt = Standard-Avatar
 
 
-
-
 bento-menu-title-3 = { -brand-mozilla }-Produkte
 bento-menu-tagline = Weitere { -brand-mozilla }-Produkte, die Ihre Privatsphäre schützen
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -474,8 +475,6 @@ dc-opt-out-success-2 = Widerspruch erfolgreich. { -product-mozilla-accounts } se
 dc-opt-in-success-2 = Vielen Dank! Die Weitergabe dieser Daten hilft uns, { -product-mozilla-accounts } zu verbessern.
 dc-opt-in-out-error-2 = Entschuldigung, beim Ändern Ihrer Präferenzen zur Datensammlung ist ein Fehler aufgetreten.
 dc-learn-more = Weitere Informationen
-
-
 drop-down-menu-title-2 = { -product-mozilla-account }-Menü
 drop-down-menu-signed-in-as-v2 = Angemeldet als
 drop-down-menu-sign-out = Abmelden
@@ -574,8 +573,6 @@ flow-setup-phone-confirm-code-resend-code-button = Code erneut senden
 flow-setup-phone-confirm-code-resend-code-success = Code gesendet
 flow-setup-phone-confirm-code-success-message-v2 = Telefonnummer zur Kontowiederherstellung hinzugefügt
 flow-change-phone-confirm-code-success-message = Telefonnummer zur Kontowiederherstellung geändert
-
-
 flow-setup-phone-submit-number-heading = Bestätigen Sie Ihre Telefonnummer
 flow-setup-phone-verify-number-instruction = Sie erhalten eine Textnachricht von { -brand-mozilla } mit einem Code, um Ihre Nummer zu verifizieren. Geben Sie diesen Code an niemanden weiter.
 flow-setup-phone-submit-number-info-message-v2 = Die Telefonnummer zur Kontowiederherstellung ist nur in den USA und Kanada verfügbar. VoIP-Nummern und Telefonnummer-Masken werden nicht empfohlen.
@@ -823,6 +820,9 @@ recent-activity-account-passwordless-login-otp-failed = Passwortloser Anmeldecod
 recent-activity-account-passwordless-login-otp-verified = Passwortloser Anmeldecode verifiziert
 recent-activity-account-passwordless-registration-complete = Registrierung des passwortlosen Kontos abgeschlossen
 recent-activity-account-recovery-codes-set = Wiederherstellungscodes erstellt
+recent-activity-account-passkey-wrap-created = Zugangsschlüssel für Synchronisation aktiviert
+recent-activity-account-passkey-wrap-creation-failure = Einrichtung der Synchronisation mit Zugangsschlüssel fehlgeschlagen
+recent-activity-account-passkey-wrap-invalidated = Zugriffsschlüssel-Synchronisation nach Zurücksetzen des Passworts entfernt
 recent-activity-unknown = Andere Kontoaktivitäten
 
 
@@ -1109,8 +1109,6 @@ recovery-phone-number-ending-digits = Nummer endet auf { $lastFourPhoneNumber }
 oauth-error-1000 = Etwas ist schiefgegangen. Bitte schließen Sie diesen Tab und versuchen Sie es erneut.
 
 
-
-
 passkey-registration-error-not-allowed = Einrichtung des Zugangsschlüssels fehlgeschlagen oder nicht verfügbar. Versuchen Sie es erneut oder wählen Sie eine andere Methode.
 passkey-registration-error-not-allowed-existing = Die Passkey-Einrichtung ist für dieses Gerät nicht verfügbar. Entweder war das Gerät bereits registriert oder der Einrichtungsprozess wurde abgebrochen.
 passkey-registration-error-timeout = Einrichtung des Zugangsschlüssels wurde abgebrochen. Erneut versuchen
@@ -1125,8 +1123,6 @@ passkey-registration-error-invalid-state = Dieser Zugangsschlüssel ist bereits 
 passkey-registration-error-not-readable = Wir konnten nicht auf die Authentifizierungsmethode zugreifen. Versuchen Sie es erneut oder wählen Sie eine andere Methode.
 passkey-registration-error-constraint = Das Einrichten von Zugangsschlüsseln ist für dieses Gerät nicht verfügbar. Versuchen Sie es mit einer anderen Methode oder einem anderen Gerät.
 passkey-registration-error-unexpected = Einrichtung des Zugangsschlüssels fehlgeschlagen. Versuchen Sie es erneut oder wählen Sie eine andere Methode.
-
-
 passkey-authentication-trouble-heading = Anmeldung mit Zugangsschlüssel fehlgeschlagen
 passkey-authentication-trouble-description = Versuchen Sie es erneut, oder verwenden Sie eine andere Anmeldeoption.
 passkey-authentication-trouble-link = Wie man Zugangsschlüssel verwendet
@@ -1369,8 +1365,6 @@ service-welcome-vpn-heading = Nächster Schritt: VPN aktivieren
 service-welcome-vpn-description = Noch ein Schritt, um die Privatsphäre Ihres Browsers zu schützen. Verwenden Sie das offene Panel und schalten Sie das VPN ein.
 
 
-
-
 set-password-heading-v2 = Passwort zum Synchronisieren erstellen
 set-password-info-v2 = Dadurch werden Ihre Daten verschlüsselt. Es muss sich vom Passwort Ihres { -brand-google }- oder { -brand-apple }-Kontos unterscheiden.
 
@@ -1397,8 +1391,6 @@ complete-reset-pw-recovery-key-link = Kontowiederherstellungsschlüssel verwende
 reset-password-complete-banner-heading = Ihr Passwort wurde zurückgesetzt.
 reset-password-complete-banner-message = Vergessen Sie nicht, einen neuen Kontowiederherstellungsschlüssel aus Ihren { -product-mozilla-account }-Einstellungen zu erzeugen, um zukünftige Anmeldeprobleme zu vermeiden.
 complete-reset-password-desktop-relay = { -brand-firefox } wird versuchen, Ihnen nach der Anmeldung erneut eine Gelegenheit zu geben, eine E-Mail-Maske zu verwenden.
-
-
 confirm-backup-code-reset-password-input-label = 10-stelligen Code eingeben
 confirm-backup-code-reset-password-confirm-button = Bestätigen
 confirm-backup-code-reset-password-subheader = Sicherungs-Authentifizierungscode eingeben
@@ -1432,8 +1424,6 @@ password-reset-submit-button-2 = Weiter
 
 reset-password-complete-header = Ihr Passwort wurde zurückgesetzt.
 reset-password-confirmed-cta = Weiter zu { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Setzen Sie Ihr Passwort zurück
@@ -1511,8 +1501,6 @@ signin-passkey-fallback-body = Um Ihre Daten zu schützen, müssen Sie Ihr Passw
 signin-passkey-fallback-password-label = Passwort
 signin-passkey-fallback-continue = Weiter
 signin-passkey-fallback-forgot-password-link = Passwort vergessen?
-
-
 
 
 signin-passwordless-code-heading = Bestätigungscode eingeben
@@ -1629,8 +1617,6 @@ signin-unblock-code-incorrect-format-2 = Der Autorisierungscode darf nur Buchsta
 signin-unblock-resend-code-button = Weder in Ihrem Posteingang noch im Spam-Ordner? Erneut senden
 signin-unblock-support-link = Warum geschieht dies?
 signin-unblock-desktop-relay = { -brand-firefox } wird versuchen, Sie nach der Anmeldung zurückzugeben, um eine E-Mail-Maske zu verwenden.
-
-
 
 
 confirm-signup-code-page-title = Bestätigungscode eingeben

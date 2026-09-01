@@ -83,14 +83,6 @@ button-back-aria-label = Atrás
 button-back-title = Atrás
 
 
-recovery-key-download-button-v3 = Descargar y continuar
-    .title = Descargar y continuar
-recovery-key-pdf-heading = Clave de recuperación de cuenta
-recovery-key-pdf-download-date = Generada: { $date }
-recovery-key-pdf-key-legend = Clave de recuperación de cuenta
-recovery-key-pdf-instructions = Esta clave te permite recuperar los datos cifrados de tu navegador (incluidas las contraseñas, los marcadores y el historial) en caso de que olvides tu contraseña. Guárdala en un lugar que recordarás.
-recovery-key-pdf-storage-ideas-heading = Lugares para guardar la clave
-recovery-key-pdf-support = Saber más acerca de tu clave de recuperación de cuenta
 recovery-key-pdf-download-error = Lo sentimos, ha surgido un problema al descargar la clave de recuperación de cuenta.
 
 
@@ -169,20 +161,18 @@ form-verify-code-default-error = Este campo es obligatorio
 
 form-verify-totp-disabled-button-title-numeric = Introduce un código de { $codeLength } dígitos para continuar
 form-verify-totp-disabled-button-title-alphanumeric = Introduce un código de { $codeLength } caracteres para continuar
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Clave de recuperación de cuenta de { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Códigos de autenticación de respaldo
 get-data-trio-download-2 =
-    .title = Descargar
     .aria-label = Descargar
+    .title = Descargar
 get-data-trio-copy-2 =
-    .title = Copiar
     .aria-label = Copiar
+    .title = Copiar
 get-data-trio-print-2 =
-    .title = Imprimir
     .aria-label = Imprimir
+    .title = Imprimir
 
 
 alert-icon-aria-label =
@@ -219,8 +209,6 @@ info-icon-aria-label =
     .aria-label = Información
 usa-flag-icon-aria-label =
     .aria-label = Bandera de Estados Unidos
-
-
 hearts-broken-image-aria-label =
     .aria-label = Un ordenador, un teléfono móvil y la imagen de un corazón roto en cada uno.
 hearts-verified-image-aria-label =
@@ -366,8 +354,6 @@ avatar-default-avatar =
     .alt = Avatar predeterminado
 
 
-
-
 bento-menu-title-3 = productos { -brand-mozilla }
 bento-menu-tagline = Más productos de { -brand-mozilla } que protegen tu privacidad
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -432,8 +418,6 @@ dc-opt-out-success-2 = Desactivación correcta. { -product-mozilla-accounts } no
 dc-opt-in-success-2 = ¡Gracias! Compartir estos datos nos ayuda a mejorar { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Lo sentimos, ha surgido un problema al cambiar tu preferencia de recolección de datos
 dc-learn-more = Saber más
-
-
 drop-down-menu-title-2 = menú { -product-mozilla-account }
 drop-down-menu-signed-in-as-v2 = Sesión iniciada como
 drop-down-menu-sign-out = Cerrar sesión
@@ -530,8 +514,6 @@ flow-setup-phone-confirm-code-resend-code-button = Reenviar código
 flow-setup-phone-confirm-code-resend-code-success = Código enviado
 flow-setup-phone-confirm-code-success-message-v2 = Teléfono de recuperación añadido
 flow-change-phone-confirm-code-success-message = Teléfono de recuperación cambiado
-
-
 flow-setup-phone-submit-number-heading = Verifica tu número de teléfono
 flow-setup-phone-verify-number-instruction = Recibirás un mensaje de texto de { -brand-mozilla } con un código para verificar tu número. No compartas este código con nadie.
 flow-setup-phone-submit-number-info-message-v2 = El teléfono de recuperación sólo está disponible en Estados Unidos y Canadá. No se recomiendan los números VoIP ni las máscaras telefónicas.
@@ -1072,8 +1054,6 @@ pair-unsupported-header = Conectarse mediante una aplicación
 pair-unsupported-message = ¿Has usado la cámara del sistema? Tienes que conectarla desde una aplicación de { -brand-firefox }.
 
 
-
-
 set-password-heading-v2 = Crea una contraseña para sincronizar
 
 
@@ -1096,8 +1076,6 @@ complete-reset-pw-recovery-key-link = Usar la clave de recuperación de la cuent
 reset-password-complete-banner-heading = Se ha restablecido tu contraseña maestra.
 reset-password-complete-banner-message = No olvides generar una nueva clave de recuperación de cuenta desde la configuración de { -product-mozilla-account } para evitar futuros problemas de conexión.
 complete-reset-password-desktop-relay = { -brand-firefox } intentará enviarte nuevamente donde estabas para que uses una máscara de correo electrónico después de iniciar sesión.
-
-
 confirm-backup-code-reset-password-input-label = Introduce el código de 10 caracteres
 confirm-backup-code-reset-password-confirm-button = Confirmar
 confirm-backup-code-reset-password-subheader = Introduce el código de autenticación de respaldo
@@ -1130,8 +1108,6 @@ password-reset-submit-button-2 = Continuar
 
 reset-password-complete-header = Se ha restablecido tu contraseña
 reset-password-confirmed-cta = Continuar a { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Restablecer tu contraseña
@@ -1283,8 +1259,6 @@ signin-unblock-code-incorrect-format-2 = El código de autorización solo puede 
 signin-unblock-resend-code-button = ¿No está en la bandeja de entrada o en la carpeta de spam? Reenviar
 signin-unblock-support-link = ¿Por qué sucede esto?
 signin-unblock-desktop-relay = { -brand-firefox } intentará enviarte nuevamente donde estabas para que uses una máscara de correo electrónico después de iniciar sesión.
-
-
 
 
 confirm-signup-code-page-title = Introduce el código de confirmación

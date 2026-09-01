@@ -23,9 +23,6 @@ avatar-your-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-firefox-desktop = { -brand-firefox } براؤزر برائے ڈیسک ٹاپ
 bento-menu-firefox-mobile = { -brand-firefox } موبائل کے لئے  راؤزر
 
@@ -56,9 +53,6 @@ cs-disconnect-suspicious-advice-heading = مشکوک آلہ کو منقطع کر
 cs-sign-out-button = سائن آؤٹ کریں
 
 ## Data collection section
-
-
-# DropDownAvatarMenu component
 
 drop-down-menu-sign-out = سائن آؤٹ کریں
 

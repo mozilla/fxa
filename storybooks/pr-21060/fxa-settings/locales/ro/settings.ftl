@@ -43,6 +43,9 @@ button-back-title = Înapoi
 ## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
+# Button to download the account recovery key as a plain text file and navigate to the next step
+# The next (and final) step is an optional prompt to save a storage hint
+recovery-key-download-button-v4 = Descarcă și continuă
 # Error message shown in a banner if the account recovery key download failed.
 # The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Ne pare rău, a apărut o problemă la descărcarea cheii tale de recuperare a contului
@@ -197,21 +200,18 @@ form-verify-totp-disabled-button-title-numeric = Introdu codul de { $codeLength 
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Introdu codul de { $codeLength } caractere pentru a continua
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Cheie de recuperare a contului { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Coduri de autentificare de rezervă
 get-data-trio-download-2 =
-    .title = Descarcă
     .aria-label = Descarcă
+    .title = Descarcă
 get-data-trio-copy-2 =
-    .title = Copiază
     .aria-label = Copiază
+    .title = Copiază
 get-data-trio-print-2 =
-    .title = Printează
     .aria-label = Printează
+    .title = Printează
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -275,10 +275,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = Cheie de acces
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Un calculator și un telefon mobil și o imagine a unei inimi frânte pe fiecare
 hearts-verified-image-aria-label =
@@ -527,9 +523,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = Produse { -brand-mozilla }
 bento-menu-tagline = Mai multe produse de la { -brand-mozilla } care îți protejează confidențialitatea
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -622,9 +615,6 @@ dc-opt-out-success-2 = Dezactivare realizată cu succes. { -product-mozilla-acco
 dc-opt-in-success-2 = Îți mulțumim! Partajarea acestor date ne ajută să îmbunătățim { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Ne pare rău, a apărut o problemă la modificarea preferințelor de colectare a datelor
 dc-learn-more = Află mai multe
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = Meniu { -product-mozilla-account }
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -758,6 +748,13 @@ flow-setup-2fa-prompt-heading = Configurează autentificarea în doi pași
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
 flow-setup-2fa-prompt-description = { $serviceName } necesită configurarea autentificării în doi pași ca să îți menții contul în siguranță.
+# Success banner shown at the top of the page when the user signed in with a passkey.
+flow-setup-2fa-prompt-passkey-success-banner = Te-ai conectat cu succes folosind cheia de acces
+# Body copy shown when the user signed in with a passkey and the service still
+# requires two-step authentication setup.
+# Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
+# that requests two-step authentication setup.
+flow-setup-2fa-prompt-passkey-description = { $serviceName } necesită și autentificarea în doi pași pentru contul tău { -product-mozilla-account }. După configurare, nu vei mai avea nevoie de ea când te conectezi cu o cheie de acces.
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = Poți folosi oricare dintre <authenticationAppsLink>aceste aplicații de autentificare</authenticationAppsLink> pentru a continua.
 flow-setup-2fa-prompt-continue-button = Continuă
@@ -779,9 +776,6 @@ flow-setup-phone-confirm-code-resend-code-button = Retrimite codul
 flow-setup-phone-confirm-code-resend-code-success = Cod trimis
 flow-setup-phone-confirm-code-success-message-v2 = Număr de telefon de recuperare adăugat
 flow-change-phone-confirm-code-success-message = Număr de telefon de recuperare modificat
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Verifică numărul de telefon
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = Vei primi un mesaj text de la { -brand-mozilla } cu un cod pentru verificarea numărului. Nu-l distribui nimănui.
@@ -1083,6 +1077,12 @@ recent-activity-account-passwordless-login-otp-failed = Codul de autentificare f
 recent-activity-account-passwordless-login-otp-verified = Cod de autentificare fără parolă verificat
 recent-activity-account-passwordless-registration-complete = Înregistrarea contului fără parolă a fost finalizată
 recent-activity-account-recovery-codes-set = Coduri de recuperare setate
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
+recent-activity-account-passkey-wrap-created = Cheie de acces activată pentru sincronizare
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-creation-failure = Configurarea sincronizării cu cheia de acces a eșuat
+# A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
+recent-activity-account-passkey-wrap-invalidated = Accesul la sincronizare cu cheie de acces a fost eliminat după resetarea parolei
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Alte activități din cont
 
@@ -1499,9 +1499,6 @@ oauth-error-1000 = Ceva nu a mers. Închide fila și încearcă din nou.
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = Setarea cheii de acces a eșuat sau nu este disponibilă. Încearcă iar sau alege altă metodă.
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
@@ -1533,9 +1530,6 @@ passkey-registration-error-not-readable = Nu am putut accesa aplicația de auten
 passkey-registration-error-constraint = Nu poți seta chei de acces cu acest dispozitiv. Încearcă altă metodă sau alt dispozitiv.
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = Setarea cheii de acces a eșuat. Încearcă din nou sau alege altă metodă.
-
-# Authentication errors
-
 # Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
 # available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
 # points the user to another way to sign in.
@@ -2004,9 +1998,6 @@ service-welcome-vpn-description = Încă un pas pentru a îmbunătăți confiden
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
 
-
-# password to complete their sign-in when they want to login to a service requiring it.
-
 set-password-heading-v2 = Creează o parolă pentru sincronizare
 # "This" refers to the heading, "Create password to sync"
 set-password-info-v2 = Îți criptează datele. Trebuie să fie diferită de parola contului { -brand-google } sau { -brand-apple }.
@@ -2056,9 +2047,6 @@ reset-password-complete-banner-message = Nu uita să generezi o cheie nouă de r
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = { -brand-firefox } va încerca să te trimită înapoi ca să folosești o mască de e-mail după ce intri în cont.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = Introdu codul de 10 caractere
 confirm-backup-code-reset-password-confirm-button = Confirmă
 confirm-backup-code-reset-password-subheader = Introdu codul de autentificare de rezervă
@@ -2109,9 +2097,6 @@ reset-password-confirmed-cta = Continuă cu { $serviceName }
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Resetează-ți parola
 password-reset-recovery-method-subheader = Alege o metodă de recuperare
@@ -2223,11 +2208,6 @@ signin-passkey-fallback-body = Pentru a-ți păstra datele în siguranță, treb
 signin-passkey-fallback-password-label = Parolă
 signin-passkey-fallback-continue = Continuă
 signin-passkey-fallback-forgot-password-link = Ți-ai uitat parola?
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2424,9 +2404,6 @@ signin-unblock-desktop-relay = { -brand-firefox } va încerca să te trimită î
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Introdu codul de confirmare

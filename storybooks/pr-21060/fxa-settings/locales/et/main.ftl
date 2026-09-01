@@ -64,8 +64,6 @@ avatar-default-avatar =
     .alt = Vaikimisi avatar
 
 
-
-
 bento-menu-firefox-desktop = { -brand-firefox }i brauser töölauale
 bento-menu-firefox-mobile = { -brand-firefox }i brauser mobiilile
 bento-menu-made-by-mozilla = Loodud { -brand-mozilla } poolt
@@ -109,8 +107,6 @@ dc-opt-out-success-2 = Loobumine õnnestus. Teenus { -product-mozilla-accounts }
 dc-opt-in-success-2 = Täname! Nende andmete jagamine aitab meil teenust { -product-mozilla-accounts } paremaks teha.
 dc-opt-in-out-error-2 = Vabandust, kahjuks esines andmete kogumise eelistuste muutmisel probleem
 dc-learn-more = Rohkem teavet
-
-
 drop-down-menu-signed-in-as-v2 = Sisse logitud kasutajana
 drop-down-menu-sign-out = Logi välja
 drop-down-menu-sign-out-error-2 = Vabandust, väljalogimisel esines probleem

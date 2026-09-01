@@ -43,6 +43,9 @@ button-back-title = Geri
 ## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
+# Button to download the account recovery key as a plain text file and navigate to the next step
+# The next (and final) step is an optional prompt to save a storage hint
+recovery-key-download-button-v4 = İndir ve devam et
 # Error message shown in a banner if the account recovery key download failed.
 # The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Hesap kurtarma anahtarınız indirilirken bir sorun oluştu.
@@ -71,6 +74,17 @@ choose-newsletters-option-test-pilot =
 # "Action alerts" can be interpreted as "Calls to action"
 choose-newsletters-option-reclaim-the-internet =
     .label = İnternete sahip çıkmak için harekete geçme çağrıları
+
+## ContinueInFirefox component - Part of the desktop-to-mobile pairing flow
+## Shown when the pairing QR code is opened in a browser other than Firefox.
+## It hands the pairing link to the Firefox app, and offers the app store when
+## Firefox is not installed on the device.
+
+pair-continue-in-firefox-heading = { -brand-firefox } ile devam et
+# Opens the Firefox app on this device
+pair-continue-in-firefox-button = { -brand-firefox } ile devam et
+# Shown while waiting for the Firefox app to take over
+pair-continue-in-firefox-opening = { -brand-firefox } açılıyor
 
 ## Dark mode toggle
 
@@ -143,6 +157,7 @@ device-info-ip-address = IP adresi: { $ipAddress }
 ## the user is on Firefox) or switching to Firefox (on other browsers).
 
 firefox-promo-banner-mobile-cta = Cihaz bağlayın
+firefox-promo-banner-switch-cta = { -brand-firefox }’a geçin
 
 ## FormPasswordInlineCriteria
 
@@ -186,21 +201,18 @@ form-verify-totp-disabled-button-title-numeric = Devam etmek için { $codeLength
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Devam etmek için { $codeLength } karakterlik kodu yazın
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } hesap kurtarma anahtarı
 get-data-trio-title-backup-verification-codes = Yedek kimlik doğrulama kodları
 get-data-trio-download-2 =
-    .title = İndir
     .aria-label = İndir
+    .title = İndir
 get-data-trio-copy-2 =
-    .title = Kopyala
     .aria-label = Kopyala
+    .title = Kopyala
 get-data-trio-print-2 =
-    .title = Yazdır
     .aria-label = Yazdır
+    .title = Yazdır
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -261,10 +273,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = Geçiş anahtarı
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Her birinde kırık bir kalp olan bir bilgisayar ve bir cep telefonu
 hearts-verified-image-aria-label =
@@ -300,6 +308,13 @@ sync-clouds-image-aria-label =
     .aria-label = Eşitleme simgesi olan bulutlar
 confetti-falling-image-aria-label =
     .aria-label = Düşen konfeti animasyonu
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox } logosu
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = Parolanın başarıyla değiştirildiğini gösteren çizim.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -494,9 +509,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = { -brand-mozilla } ürünleri
 bento-menu-tagline = Gizliliğinizi koruyan diğer { -brand-mozilla } ürünleri
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -589,9 +601,6 @@ dc-opt-out-success-2 = Ayrılma işlemi başarılı. { -product-mozilla-accounts
 dc-opt-in-success-2 = Teşekkürler! Bu verileri paylaşmanız { -product-mozilla-accounts }nı geliştirmemize yardımcı oluyor.
 dc-opt-in-out-error-2 = Üzgünüz, veri toplama tercihiniz değiştirilirken bir sorun oluştu
 dc-learn-more = Daha fazla bilgi al
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = { -product-mozilla-account } menüsü
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -724,6 +733,8 @@ flow-setup-2fa-prompt-heading = İki aşamalı kimlik doğrulamayı ayarla
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
 flow-setup-2fa-prompt-description = { $serviceName }, hesabınızı güvende tutmak için iki aşamalı kimlik doğrulamasını ayarlamanızı gerektiriyor.
+# Success banner shown at the top of the page when the user signed in with a passkey.
+flow-setup-2fa-prompt-passkey-success-banner = Geçiş anahtarıyla başarıyla giriş yapıldı
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = Devam etmek için <authenticationAppsLink>bu kimlik doğrulama uygulamalarından</authenticationAppsLink> herhangi birini kullanabilirsiniz.
 flow-setup-2fa-prompt-continue-button = Devam et
@@ -745,9 +756,6 @@ flow-setup-phone-confirm-code-resend-code-button = Kodu yeniden gönder
 flow-setup-phone-confirm-code-resend-code-success = Kod gönderildi
 flow-setup-phone-confirm-code-success-message-v2 = Kurtarma telefonu eklendi
 flow-change-phone-confirm-code-success-message = Kurtarma telefonu değiştirildi
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Telefon numaranızı doğrulayın
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = { -brand-mozilla }’dan numaranızı doğrulamak için bir kod içeren bir SMS alacaksınız. Bu kodu kimseyle paylaşmayın.
@@ -1023,7 +1031,12 @@ recent-activity-password-reset-otp-sent = Parola sıfırlama onay kodu gönderil
 recent-activity-password-reset-otp-verified = Parola sıfırlama onay kodu doğrulandı
 recent-activity-must-reset-password = Parola sıfırlama gerekli
 recent-activity-account-recovery-phone-replace-complete = Kurtarma telefonu değiştirildi
+recent-activity-account-recovery-phone-replace-failure = Kurtarma telefonu değiştirilemedi
 recent-activity-account-two-factor-replace-success = İki aşamalı kimlik doğrulama değiştirildi
+recent-activity-account-two-factor-replace-failure = İki aşamalı kimlik doğrulama değiştirilemedi
+recent-activity-account-recovery-phone-setup-failed = Kurtarma telefonu kurulumu başarısız oldu
+recent-activity-account-recovery-phone-reset-password-complete = Kurtarma telefonu kullanılarak parola sıfırlandı
+recent-activity-account-recovery-phone-reset-password-failed = Kurtarma telefonu kullanılarak parola sıfırlanamadı
 # A code was emailed to the user to authorize a sensitive account change (e.g. removing 2FA, deleting the account).
 recent-activity-account-mfa-otp-sent = Hesap değiştirme izni istendi
 # The user successfully entered the code emailed to authorize a sensitive account change.
@@ -1031,7 +1044,10 @@ recent-activity-account-mfa-otp-verified = Hesap değiştirmeye izin verildi
 # The user entered an incorrect or expired code when trying to authorize a sensitive account change.
 recent-activity-account-mfa-otp-failed = Hesap değiştirme yetkilendirmesi başarısız oldu
 recent-activity-account-passkey-registration-success = Geçiş anahtarı eklendi
+recent-activity-account-passkey-registration-failure = Geçiş anahtarı kaydı başarısız
 recent-activity-account-passkey-removed = Geçiş anahtarı kaldırıldı
+recent-activity-account-passkey-authentication-success = Geçiş anahtarıyla giriş tamamlandı
+recent-activity-account-passkey-authentication-failure = Geçiş anahtarıyla giriş başarısız oldu
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Diğer hesap etkinlikleri
 
@@ -1415,9 +1431,6 @@ oauth-error-1000 = Bir şeyler yanlış gitti. Lütfen bu sekmeyi kapatıp yenid
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # The ceremony timed out before the user responded
 passkey-registration-error-timeout = Geçiş anahtarı kurulumu iptal edildi. Yeniden deneyin.
 # Link label appended after passkey-registration-canceled-v2, opens a SUMO support article.
@@ -1428,9 +1441,6 @@ passkey-registration-error-not-supported-v2 = Tarayıcınız veya cihazınız ge
 passkey-registration-error-not-supported-link = Daha fazla bilgi al
 # Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
 passkey-registration-error-could-not-complete-link = Daha fazla bilgi alın
-
-# Authentication errors
-
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Geçiş anahtarı isteği zaman aşımına uğradı. Lütfen yeniden deneyin.
 # Browser or platform does not support passkeys
@@ -1752,6 +1762,8 @@ pair2-authority-timeout-and-cancel-sync-settings-button = Eşitleme ayarları
 ## shown on their computer. It waits for them to approve the sign-in on the
 ## computer, and shows that computer's details so they can verify the request.
 
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = Eşitlemek için son bir adım
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = Vazgeç
 
@@ -1776,6 +1788,14 @@ pair2-supplicant-connect-this-device-cancel-button = Vazgeç
 
 # Primary action. Sends the user to the Firefox download page.
 pair2-supplicant-download-firefox-continue-button = { -brand-firefox } ile devam et
+
+## ReadyToScan page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device before pairing starts. It tells them
+## to open firefox.com/pair on their computer, which is where the QR code they
+## scan with the mobile device comes from.
+
+# Opens a Mozilla support article about setting up sync
+pair2-supplicant-ready-to-scan-learn-more-link = Daha fazla bilgi al
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device once pairing has completed: the device
@@ -1808,9 +1828,6 @@ service-welcome-vpn-heading = Sonraki: VPN’i açın
 
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
-
-
-# password to complete their sign-in when they want to login to a service requiring it.
 
 set-password-heading-v2 = Eşitleme için parola oluşturun
 # "This" refers to the heading, "Create password to sync"
@@ -1861,9 +1878,6 @@ reset-password-complete-banner-message = Gelecekte sorun yaşamamak için { -pro
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = { -brand-firefox }, giriş yaptıktan sonra sizi e-posta maskesi kullanmaya yönlendirecektir.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = 10 karakterli kodu yazın
 confirm-backup-code-reset-password-confirm-button = Onayla
 confirm-backup-code-reset-password-subheader = Yedek kimlik doğrulama kodunu yazın
@@ -1901,6 +1915,7 @@ confirm-totp-reset-password-use-different-account = Farklı bir hesap kullan
 ## ResetPassword start page
 
 password-reset-flow-heading = Parolanızı sıfırlayın
+password-reset-body-3 = Parolanızı sıfırlamanız eşitlenmiş tarayıcı verilerini etkileyebilir.
 password-reset-email-input =
     .label = E-posta adresinizi yazın
 password-reset-submit-button-2 = Devam et
@@ -1913,9 +1928,6 @@ reset-password-confirmed-cta = { $serviceName } hizmetine devam et
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Parolanızı sıfırlayın
 password-reset-recovery-method-subheader = Bir kurtarma yöntemi seçin
@@ -2022,11 +2034,6 @@ signin-passkey-fallback-heading = Eşitlemek için parolanızı yazın
 signin-passkey-fallback-password-label = Parola
 signin-passkey-fallback-continue = Devam et
 signin-passkey-fallback-forgot-password-link = Parolanızı unuttunuz mu?
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2193,9 +2200,6 @@ signin-unblock-desktop-relay = { -brand-firefox }, giriş yaptıktan sonra sizi 
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Onay kodunu girin

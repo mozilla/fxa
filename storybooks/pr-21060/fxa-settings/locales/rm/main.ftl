@@ -115,20 +115,18 @@ form-verify-code-default-error = Quest champ è obligatoric
 
 form-verify-totp-disabled-button-title-numeric = Endatescha il code da { $codeLength } cifras per cuntinuar
 form-verify-totp-disabled-button-title-alphanumeric = Endatescha il code da { $codeLength } caracters per cuntinuar
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Clav da recuperaziun dal conto da { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Codes d'autentificaziun da backup
 get-data-trio-download-2 =
-    .title = Telechargiar
     .aria-label = Telechargiar
+    .title = Telechargiar
 get-data-trio-copy-2 =
-    .title = Copiar
     .aria-label = Copiar
+    .title = Copiar
 get-data-trio-print-2 =
-    .title = Stampar
     .aria-label = Stampar
+    .title = Stampar
 
 
 alert-icon-aria-label =
@@ -165,8 +163,6 @@ info-icon-aria-label =
     .aria-label = Infurmaziuns
 usa-flag-icon-aria-label =
     .aria-label = Bandiera dal Stadis Unids da l’America
-
-
 hearts-broken-image-aria-label =
     .aria-label = In computer ed in telefonin e sin omadus in maletg dad in cor rut
 hearts-verified-image-aria-label =
@@ -297,8 +293,6 @@ avatar-default-avatar =
     .alt = Avatar predefinì
 
 
-
-
 bento-menu-title-3 = Products da { -brand-mozilla }
 bento-menu-tagline = Ulteriurs products da { -brand-mozilla } che protegian tia sfera privata
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -361,8 +355,6 @@ dc-opt-out-success-2 = Deactivà cun success. { -product-mozilla-accounts } na t
 dc-opt-in-success-2 = Grazia! La cundivisiun da questas datas ans gidan da meglierar { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Perstgisa, igl ha dà in problem cun midar tias preferenzas areguard la rimnada da datas
 dc-learn-more = Ulteriuras infurmaziuns
-
-
 drop-down-menu-title-2 = Menu { -product-mozilla-account }
 drop-down-menu-signed-in-as-v2 = Annunzià sco
 drop-down-menu-sign-out = Sortir
@@ -402,8 +394,6 @@ flow-setup-phone-confirm-code-expired = Code scadì?
 flow-setup-phone-confirm-code-resend-code-button = Trametter anc ina giada il code
 flow-setup-phone-confirm-code-resend-code-success = Tramess il code
 flow-setup-phone-confirm-code-success-message-v2 = Agiuntà in numer da telefon per la recuperaziun dal conto
-
-
 flow-setup-phone-submit-number-heading = Verifitgescha tes numer da telefon
 flow-setup-phone-verify-number-instruction = Ti vegns a retschaiver in messadi da text da { -brand-mozilla } cun in code per verifitgar tes numer. Na cundivida cun nagin quest code.
 flow-setup-phone-submit-number-info-message-v2 = La funcziunalitad dal numer da telefon da recuperaziun stat mo a disposiziun en ils Stadis Unids da l’America ed en il Canada. I vegn scusseglià d’utilisar numers VoIP ed alias da numers da telefon.
@@ -940,8 +930,6 @@ reset-password-complete-banner-message = N’emblida betg da generar ina nova cl
 complete-reset-password-desktop-relay = { -brand-firefox } vegn ad empruvar da ta renviar a la pagina per utilisar in alias dad e-mail suenter l’annunzia.
 
 
-
-
 confirm-reset-password-with-code-heading = Controllescha tes e-mails
 confirm-reset-password-with-code-instruction = Nus avain tramess in code da conferma a <span>{ $email }</span>.
 confirm-reset-password-code-input-group-label = Endatescha il code dad 8 cifras entaifer 10 minutas
@@ -1086,8 +1074,6 @@ signin-unblock-code-incorrect-format-2 = Il code d’autorisaziun po mo cuntegna
 signin-unblock-resend-code-button = Betg en la posta entrada u en l’ordinatur da spam? Trametter anc ina giada
 signin-unblock-support-link = Pertge capita quai?
 signin-unblock-desktop-relay = { -brand-firefox } vegn ad empruvar da ta renviar danovamain a la pagina per utilisar in alias dad e-mail suenter l’annunzia.
-
-
 
 
 confirm-signup-code-page-title = Endatescha il code da conferma

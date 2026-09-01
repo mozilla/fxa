@@ -274,6 +274,8 @@ churn-stay-subscribed-action-error = Beklenmeyen bir sorun oluştu. Lütfen yeni
 # $discountPercent (Number) - The discount amount between 1 and 100 as an integer (e.g, 'Stay subscribed and save 10%', discountPercent = 10)
 churn-stay-subscribed-button-stay-subscribed-and-save-discount = Aboneliğinizi sürdürerek %{ $discountPercent } tasarruf edin
 churn-stay-subscribed-button-stay-subscribed-and-save = Aboneliğinizi sürdürerek tasarruf edin
+churn-stay-subscribed-button-no-thanks = Hayır
+    .aria-label = Abonelikler sayfasına dön
 churn-stay-subscribed-title-offer-expired = Bu teklifin süresi doldu
 
 ## $productName (String) - The name of the product associated with the subscription.
@@ -460,6 +462,8 @@ next-new-user-subscribe-product-assurance = E-postanızı yalnızca hesabınız�
 ## $productName (String) - The name of the subscribed product.
 
 resubscribe-dialog-title = { $productName } ürününü kullanmaya devam etmek ister misiniz?
+subscription-content-button-resubscribe = Yeniden abone ol
+    .aria-label = { $productName } ürününe yeniden abone ol
 resubscribe-success-dialog-title = Teşekkürler! Artık hazırsınız.
 
 ## $billOnDate (Date) - The billing date of the current invoice (e.g., September 8, 2025)

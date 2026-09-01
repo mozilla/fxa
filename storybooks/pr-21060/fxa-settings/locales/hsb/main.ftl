@@ -83,6 +83,7 @@ button-back-aria-label = Wróćo
 button-back-title = Wróćo
 
 
+recovery-key-download-button-v4 = Sćahnyć a pokročować
 recovery-key-pdf-download-error = Bohužel je při sćahowanju  kontoweho wobnowjenskeho kluča problem nastał.
 
 
@@ -97,6 +98,13 @@ choose-newsletters-option-test-pilot =
     .label = Dočasny přistup, zo byšće nowe produkty testował
 choose-newsletters-option-reclaim-the-internet =
     .label = Namołwy k akciji, zo byšće internet wróćo dóstał
+
+
+pair-continue-in-firefox-heading = Z { -brand-firefox } pokročować
+pair-continue-in-firefox-description = Koplowanje so w { -brand-firefox } stawa. Wočińće jón, zo byšće zwjazowanje tutoho grata dokónčił.
+pair-continue-in-firefox-button = Z { -brand-firefox } pokročować
+pair-continue-in-firefox-opening = { -brand-firefox } so wočinja
+pair-continue-in-firefox-get-firefox-link = Nimaće { -brand-firefox }? Wobstarajće sej jón
 
 
 dark-mode-toggle-light = Swětły
@@ -186,20 +194,18 @@ form-verify-code-default-error = Tute polo je trěbne
 
 form-verify-totp-disabled-button-title-numeric = Zapodajće { $codeLength }-městnowy kod, zo byšće pokročował
 form-verify-totp-disabled-button-title-alphanumeric = Zapodajće { $codeLength }-znamješkowy kod, zo byšće pokročował
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Kontowy wobnowjenski kluč { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Zawěsćenske awtentifikaciske kody
 get-data-trio-download-2 =
-    .title = Sćahnyć
     .aria-label = Sćahnyć
+    .title = Sćahnyć
 get-data-trio-copy-2 =
-    .title = Kopěrować
     .aria-label = Kopěrować
+    .title = Kopěrować
 get-data-trio-print-2 =
-    .title = Ćišćeć
     .aria-label = Ćišćeć
+    .title = Ćišćeć
 
 
 alert-icon-aria-label =
@@ -244,8 +250,6 @@ icon-loading-arrow-aria-label =
     .aria-label = Začituje so
 icon-passkey-aria-label =
     .aria-label = Hesłowy kluč
-
-
 hearts-broken-image-aria-label =
     .aria-label = Ličak a mobilny telefon a na kóždym wobraz złamaneje wutroby
 hearts-verified-image-aria-label =
@@ -413,8 +417,6 @@ avatar-default-avatar =
     .alt = Standardny awatar
 
 
-
-
 bento-menu-title-3 = Produkty { -brand-mozilla }
 bento-menu-tagline = Dalše produkty wot { -brand-mozilla }, kotrež wašu priwatnosć škitaja
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -463,9 +465,9 @@ cs-disconnect-sync-opt-not-say = Bjez podaća
 
 cs-disconnect-advice-confirm = W porjadku, sym zrozumił
 cs-disconnect-lost-advice-heading = Zhubjeny abo kradnjeny grat je so dźělił
-cs-disconnect-lost-advice-content-3 = Dokelž waš grat je so zhubił abo kradnył, wy měł hesło swojeho { -product-mozilla-account(case: "gen", capitalization: "lower") } w swojich kontowych nastajenjach změnić, zo byšće waše informacije wěste dźeržał. Wy měł tež za informacijemi wot wašeho gratoweho zhotowjerja pytać, zo by waše daty wotdaloka zhašał.
+cs-disconnect-lost-advice-content-3 = Dokelž waš grat je so zhubił abo kradnył, wy měł hesło swojeho { -product-mozilla-account(capitalization: "lower", case: "gen") } w swojich kontowych nastajenjach změnić, zo byšće waše informacije wěste dźeržał. Wy měł tež za informacijemi wot wašeho gratoweho zhotowjerja pytać, zo by waše daty wotdaloka zhašał.
 cs-disconnect-suspicious-advice-heading = Podhladny grat je so dźělił
-cs-disconnect-suspicious-advice-content-2 = Jeli wotdźěleny grat je woprawdźe podhladny, wy dyrbjał hesło swojeho { -product-mozilla-account(case: "gen", capitalization: "lower") } w swojich nastajenjach změnić, zo byšće swoje informacije wěste dźeržał. Wy dyrbjał tež about:logins do adresoweho pola zapodać, zo byšće druhe hesła změnił, kotrež sće w { -brand-firefox } składował.
+cs-disconnect-suspicious-advice-content-2 = Jeli wotdźěleny grat je woprawdźe podhladny, wy dyrbjał hesło swojeho { -product-mozilla-account(capitalization: "lower", case: "gen") } w swojich nastajenjach změnić, zo byšće swoje informacije wěste dźeržał. Wy dyrbjał tež about:logins do adresoweho pola zapodać, zo byšće druhe hesła změnił, kotrež sće w { -brand-firefox } składował.
 cs-sign-out-button = Wotzjewić
 
 
@@ -475,15 +477,13 @@ cs-scope-firefox-vpn = Zatwarjeny VPN { -brand-firefox }
 dc-heading = Zběranje a wužiwanje datow
 dc-subheader-moz-accounts = { -product-mozilla-accounts }
 dc-subheader-ff-browser = Wobhladowak { -brand-firefox }
-dc-subheader-content-2 = { -product-mozilla-accounts(case: "dat", capitalization: "upper") } dowolić, techniske a interakciske daty na { -brand-mozilla } pósłać.
+dc-subheader-content-2 = { -product-mozilla-accounts(capitalization: "upper", case: "dat") } dowolić, techniske a interakciske daty na { -brand-mozilla } pósłać.
 dc-subheader-ff-content = Zo byšće techniske nastajenja a nastajenja za interakciske daty wobhladowaka { -brand-firefox } přepruwował abo aktualizował, wočińće nastajenja { -brand-firefox } a nawigěrujće k Priwatnosć a wěstota.
 dc-opt-out-success-2 = Wotzjewjenje wuspěšne. { -product-mozilla-accounts } njebudźe techniske abo interakciske daty na { -brand-mozilla } słać.
-dc-opt-in-success-2 = Wulki dźak! Dźělenje tutych datow nam pomha, { -product-mozilla-accounts(case: "acc", capitalization: "lower") } polěpšić.
+dc-opt-in-success-2 = Wulki dźak! Dźělenje tutych datow nam pomha, { -product-mozilla-accounts(capitalization: "lower", case: "acc") } polěpšić.
 dc-opt-in-out-error-2 = Bohužel je při měnjenju wašeho nastajenja datoweje zběrki problem nastał
 dc-learn-more = Dalše informacije
-
-
-drop-down-menu-title-2 = Meni { -product-mozilla-account(case: "gen", capitalization: "lower") }
+drop-down-menu-title-2 = Meni { -product-mozilla-account(capitalization: "lower", case: "gen") }
 drop-down-menu-signed-in-as-v2 = Přizjewjeny jako
 drop-down-menu-sign-out = Wotzjewić
 drop-down-menu-sign-out-error-2 = Bohužel je při wotzjewjenju problem nastał
@@ -568,6 +568,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Kak to waše konto škita
 flow-setup-2fa-inline-complete-continue-button = Dale k { $serviceName }
 flow-setup-2fa-prompt-heading = Dwukročelowu awtentifikaciju konfigurować
 flow-setup-2fa-prompt-description = { $serviceName } žada, zo dwukročelowu awtentifikaciju konfigurujeće, zo by waše konto wěste wostało.
+flow-setup-2fa-prompt-passkey-success-banner = Wuspěšnje z hesłowym klučom přizjewjeny
+flow-setup-2fa-prompt-passkey-description = { $serviceName } sej tež dwukročelowu awtentifikaciju za waše { -product-mozilla-account } wužaduje. Po konfiguraciji njetrjebaće ju, hdyž so z hesłowym klučom přizjewjeće.
 flow-setup-2fa-prompt-use-authenticator-apps = Móžeće <authenticationAppsLink>tute awtentifikaciske nałoženja</authenticationAppsLink> wužiwać, zo byšće pokročował.
 flow-setup-2fa-prompt-continue-button = Dale
 
@@ -581,8 +583,6 @@ flow-setup-phone-confirm-code-resend-code-button = Kod znowa słać
 flow-setup-phone-confirm-code-resend-code-success = Kod je so pósłał
 flow-setup-phone-confirm-code-success-message-v2 = Wobnowjenski telefon přidaty
 flow-change-phone-confirm-code-success-message = Wobnowjenski telefon změnjeny
-
-
 flow-setup-phone-submit-number-heading = Přepruwujće swoje telefonowe čisło
 flow-setup-phone-verify-number-instruction = Dóstanjeće tekstowu powěsć wot { -brand-mozilla } z kodom, zo byšće swoje čisło přepruwował. Njedźělće tutón kod z někim druhim.
 flow-setup-phone-submit-number-info-message-v2 = Wobnowjenski telefon je jenož w Zjednoćenych statach a Kanadźe k dispoziciji. Čisła VoIP a telefonowe maski so njeporučeja.
@@ -730,7 +730,7 @@ delete-account-header =
     .title = Konto zhašeć
 delete-account-step-1-2 = Krok 1 z 2
 delete-account-step-2-2 = Krok 2 z 2
-delete-account-confirm-title-4 = Sće snano swoje { -product-mozilla-account(case: "acc", capitalization: "lower") } z jednym produktom abo z jednej słužbu  { -brand-mozilla } abo z wjacorymi z nich zwjazał, kotrež was wěsty a produktiwny we webje dźerža:
+delete-account-confirm-title-4 = Sće snano swoje { -product-mozilla-account(capitalization: "lower", case: "acc") } z jednym produktom abo z jednej słužbu  { -brand-mozilla } abo z wjacorymi z nich zwjazał, kotrež was wěsty a produktiwny we webje dźerža:
 delete-account-product-mozilla-account = { -product-mozilla-account }
 delete-account-product-mozilla-vpn = { -product-mozilla-vpn }
 delete-account-product-mdn-plus = { -product-mdn-plus }
@@ -832,6 +832,9 @@ recent-activity-account-passwordless-login-otp-failed = Přizjewjenski kod bjez 
 recent-activity-account-passwordless-login-otp-verified = Přizjewjenski kod bjez hesła přepruwowany
 recent-activity-account-passwordless-registration-complete = Kontowa registracija bjez hesła dokónčena
 recent-activity-account-recovery-codes-set = Wobnowjenske kody nastajene
+recent-activity-account-passkey-wrap-created = Hesłowy kluč je so za synchronizaciju zmóžnił
+recent-activity-account-passkey-wrap-creation-failure = Konfiguracija synchronizacije z hesłowym klučom je so nimokuliła
+recent-activity-account-passkey-wrap-invalidated = Synchronizaciski přistup z hesłowym klučom je so po wróćostajenju hesła wotstronił
 recent-activity-unknown = Druha kontowa aktiwita
 
 
@@ -1122,8 +1125,6 @@ recovery-phone-number-ending-digits = Čisło, kotrež so na { $lastFourPhoneNum
 oauth-error-1000 = Něšto je so nimokuliło. Prošu začińće tutón rajtark a spytajće hišće raz.
 
 
-
-
 passkey-registration-error-not-allowed = Konfiguracija hesłoweho kluča njeje so poradźiła abo njeje k dispoziciji. Spytajće hišće raz abo wubjerće druhu metodu.
 passkey-registration-error-not-allowed-existing = Konfiguracija hesłoweho kluča z tutym gratom k dispoziciji njeje. Pak je grat hižo zregistrowany pak konfiguraciski proces je so přetorhnył.
 passkey-registration-error-timeout = Konfiguracija hesłoweho kluča je so přetorhnyła. Spytajće hišće raz.
@@ -1138,8 +1139,6 @@ passkey-registration-error-invalid-state = Tutón hesłowy kluč je hižo zregis
 passkey-registration-error-not-readable = Njemóžachmy přistup k awtentifikatorej dóstać. Spytajće hišće raz abo wubjerće druhu metodu.
 passkey-registration-error-constraint = Konfiguracija hesłoweho kluča z tutym gratom k dispoziciji njeje. Spytajće druhu metodu abo druhi grat.
 passkey-registration-error-unexpected = Konfiguracija hesłoweho kluča njeje so poradźiła. Spytajće hišće raz abo wubjerće druhu metodu.
-
-
 passkey-authentication-trouble-heading = Přizjewjenje z hesłowym klučom njeje móžne
 passkey-authentication-trouble-description = Spytajće hišće raz abo wužiwajće druhu přizjewjensku móžnosć.
 passkey-authentication-trouble-link = Kak so hesłowe kluče wužiwaja
@@ -1170,7 +1169,7 @@ connect-another-device-ios-complete-setup-message = Přizjewće so pola { -brand
 
 
 cookies-disabled-header = Local storage a placki su trěbne
-cookies-disabled-enable-prompt-2 = Prošu zmóžńće placki a lokalny składowak we wašim wobhladowaku, zo byšće přistup k swojemu { -product-mozilla-account(case: "dat", capitalization: "lower") } měł. To funkcije zmóžnja, kaž na přikład spomjatkowanje přez posedźenja.
+cookies-disabled-enable-prompt-2 = Prošu zmóžńće placki a lokalny składowak we wašim wobhladowaku, zo byšće přistup k swojemu { -product-mozilla-account(capitalization: "lower", case: "dat") } měł. To funkcije zmóžnja, kaž na přikład spomjatkowanje přez posedźenja.
 cookies-disabled-button-try-again = Hišće raz spytać
 cookies-disabled-learn-more = Dalše informacije
 
@@ -1382,8 +1381,6 @@ service-welcome-vpn-heading = Přichodny krok: VPN zmóžnić
 service-welcome-vpn-description = Dalši krok, zo by so priwatnosć wašeho wobhladowaka skrućiła. Přeńdźće k wočinjenemu woknu a zmóžńće jón.
 
 
-
-
 set-password-heading-v2 = Wutworće hesło za synchronizaciju
 set-password-info-v2 = To waše daty zaklučuje. Dyrbi so wot kontoweho hesła { -brand-google } abo { -brand-apple } rozeznać.
 
@@ -1410,8 +1407,6 @@ complete-reset-pw-recovery-key-link = Kontowy wobnowjenski kluč wužiwać
 reset-password-complete-banner-heading = Waše hesło bu wróćo stajene.
 reset-password-complete-banner-message = Njezabywajće nowy kontowy wobnowjenski kluč ze swojich nastajenjow { -product-mozilla-account } generěrować, zo byšće přichodnym přizjewjenskim problemam zadźěwał.
 complete-reset-password-desktop-relay = { -brand-firefox } budźe was wróćo słać, zo byšće po přizjewjenju e-mejlowu masku wužiwał.
-
-
 confirm-backup-code-reset-password-input-label = 10-městnowy kod zapodać
 confirm-backup-code-reset-password-confirm-button = Wobkrućić
 confirm-backup-code-reset-password-subheader = Zapodajće kod za zawěsćensku awtentifikaciju
@@ -1445,8 +1440,6 @@ password-reset-submit-button-2 = Dale
 
 reset-password-complete-header = Waše hesło je so wróćo stajiło
 reset-password-confirmed-cta = Dale k { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Waše hesło wróćo stajić
@@ -1494,7 +1487,7 @@ signin-link-expired-header = Wobkrućenski wotkaz spadnjeny
 signin-link-expired-message-2 = Wotkaz, na kotryž sće kliknył, je spadnjeny abo je so hižo wužiwał.
 
 
-signin-password-needed-header-2 = Zapodajće swoje hesło <span>za swoje { -product-mozilla-account(case: "acc", capitalization: "lower") }</span>
+signin-password-needed-header-2 = Zapodajće swoje hesło <span>za swoje { -product-mozilla-account(capitalization: "lower", case: "acc") }</span>
 signin-subheader-without-logo-with-servicename = Dale k { $serviceName }
 signin-subheader-without-logo-default = Dale ke kontowym nastajenjam
 signin-button = Přizjewić
@@ -1529,8 +1522,6 @@ signin-passkey-fallback-body = Zo byšće swoje daty wěste wobchował, dyrbiće
 signin-passkey-fallback-password-label = Hesło
 signin-passkey-fallback-continue = Dale
 signin-passkey-fallback-forgot-password-link = Sće hesło zabył?
-
-
 
 
 signin-passwordless-code-heading = Wobkrućenski kod zapodać
@@ -1612,7 +1603,7 @@ signin-reported-header = Dźakujemy so za wašu stražliwosć
 signin-reported-message = Naš team je zdźělenku dóstał. Rozprawy kaž tuta nam pomhaja, zadobywarjow wotwobarać.
 
 
-signin-token-code-heading-2 = Zapodajće wobkrućenski kod<span>za swoje { -product-mozilla-account(case: "acc", capitalization: "lower") }</span>
+signin-token-code-heading-2 = Zapodajće wobkrućenski kod<span>za swoje { -product-mozilla-account(capitalization: "lower", case: "acc") }</span>
 signin-token-code-instruction-v2 = Zapodajće kod, kotryž je so za 5 mjeńšin na <email>{ $email }</email> pósłał.
 signin-token-code-input-label-v2 = 6-městnowy kod zapodać
 signin-token-code-confirm-button = Wobkrućić
@@ -1657,10 +1648,8 @@ signin-unblock-support-link = Čehodla so to stawa?
 signin-unblock-desktop-relay = { -brand-firefox } budźe was wróćo słać, zo byšće po přizjewjenju e-mejlowu masku wužiwał.
 
 
-
-
 confirm-signup-code-page-title = Wobkrućenski kod zapodać
-confirm-signup-code-heading-2 = Zapodajće wobkrućenski kod <span>za swoje { -product-mozilla-account(case: "acc", capitalization: "lower") }</span>
+confirm-signup-code-heading-2 = Zapodajće wobkrućenski kod <span>za swoje { -product-mozilla-account(capitalization: "lower", case: "acc") }</span>
 confirm-signup-code-instruction-v2 = Zapodajće kod, kotryž je so za 5 mjeńšin na <email>{ $email }</email> pósłał.
 confirm-signup-code-input-label = 6-městnowy kod zapodać
 confirm-signup-code-confirm-button = Wobkrućić

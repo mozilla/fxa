@@ -100,6 +100,13 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Интернетті қалпына келтіруге арналған әрекет ескертулері
 
 
+pair-continue-in-firefox-heading = { -brand-firefox } ішінде жалғастыру
+pair-continue-in-firefox-description = Жұптастыру { -brand-firefox } ішінде орындалады. Құрылғыны қосуды аяқтау үшін оны ашыңыз.
+pair-continue-in-firefox-button = { -brand-firefox } ішінде жалғастыру
+pair-continue-in-firefox-opening = { -brand-firefox } ашылуда
+pair-continue-in-firefox-get-firefox-link = { -brand-firefox } жоқ па? Оны қазір алыңыз
+
+
 dark-mode-toggle-light = Ашық түсті
 dark-mode-toggle-dark = Күңгірт
 dark-mode-toggle-system = Жүйелік
@@ -181,20 +188,18 @@ form-verify-code-default-error = Бұл өріс міндетті түрде к�
 
 form-verify-totp-disabled-button-title-numeric = Жалғастыру үшін { $codeLength } цифрдан тұратын кодты енгізіңіз
 form-verify-totp-disabled-button-title-alphanumeric = Жалғастыру үшін { $codeLength } таңбадан тұратын кодты енгізіңіз
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } тіркелгіні қалпына келтіру кілті
 get-data-trio-title-backup-verification-codes = Сақтық аутентификация кодтары
 get-data-trio-download-2 =
-    .title = Жүктеп алу
     .aria-label = Жүктеп алу
+    .title = Жүктеп алу
 get-data-trio-copy-2 =
-    .title = Көшіріп алу
     .aria-label = Көшіріп алу
+    .title = Көшіріп алу
 get-data-trio-print-2 =
-    .title = Баспаға шығару
     .aria-label = Баспаға шығару
+    .title = Баспаға шығару
 
 
 alert-icon-aria-label =
@@ -239,8 +244,6 @@ icon-loading-arrow-aria-label =
     .aria-label = Жүктелу
 icon-passkey-aria-label =
     .aria-label = Рұқсат кілті
-
-
 hearts-broken-image-aria-label =
     .aria-label = Компьютер мен ұялы телефон және әрқайсысында жаралы жүректің суреті
 hearts-verified-image-aria-label =
@@ -408,8 +411,6 @@ avatar-default-avatar =
     .alt = Әдепкі аватар
 
 
-
-
 bento-menu-title-3 = { -brand-mozilla } өнімдері
 bento-menu-tagline = Жекелігіңізді қорғайтын басқа да { -brand-mozilla } өнімдері
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -478,8 +479,6 @@ dc-opt-out-success-2 = Бас тарту сәтті болды. { -product-mozil
 dc-opt-in-success-2 = Рахмет! Бұл деректермен бөлісу { -product-mozilla-accounts } қызметін жақсартуға көмектеседі.
 dc-opt-in-out-error-2 = Кешіріңіз, деректерді жинау параметрін өзгерту кезінде мәселе орын алды
 dc-learn-more = Көбірек білу
-
-
 drop-down-menu-title-2 = { -product-mozilla-account } мәзірі
 drop-down-menu-signed-in-as-v2 = Кім ретінде кірген
 drop-down-menu-sign-out = Шығу
@@ -564,6 +563,7 @@ flow-setup-2fa-inline-complete-continue-button = { $serviceName } қызметі
 flow-setup-2fa-prompt-heading = Екі қадамды аутентификацияны орнату
 flow-setup-2fa-prompt-description = { $serviceName } тіркелгіңіздің қауіпсіздігін қамтамасыз ету үшін екі сатылы аутентификацияны орнатуды талап етеді.
 flow-setup-2fa-prompt-passkey-success-banner = Рұқсат кілтімен кіру сәтті орындалды
+flow-setup-2fa-prompt-passkey-description = { $serviceName } сонымен қатар { -product-mozilla-account } үшін екі сатылы аутентификацияны қажет етеді. Баптағаннан кейін, рұқсат кілтімен кірген кезде ол енді қажет болмайды.
 flow-setup-2fa-prompt-use-authenticator-apps = Жалғастыру үшін <authenticationAppsLink>осы аутентификация қолданбаларының</authenticationAppsLink> кез келгенін пайдалана аласыз.
 flow-setup-2fa-prompt-continue-button = Жалғастыру
 
@@ -577,8 +577,6 @@ flow-setup-phone-confirm-code-resend-code-button = Кодты қайта жіб�
 flow-setup-phone-confirm-code-resend-code-success = Код жіберілді
 flow-setup-phone-confirm-code-success-message-v2 = Қалпына келтіру телефоны қосылды
 flow-change-phone-confirm-code-success-message = Қалпына келтіру телефоны өзгертілді
-
-
 flow-setup-phone-submit-number-heading = Телефон нөміріңізді растаңыз
 flow-setup-phone-verify-number-instruction = Нөміріңізді растау үшін керек кодты { -brand-mozilla } нөмірінен жіберілген SMS хабарламамен аласыз. Бұл кодты ешкіммен бөліспеңіз.
 flow-setup-phone-submit-number-info-message-v2 = Қалпына келтіру телефоны тек АҚШ пен Канадада қолжетімді. VoIP нөмірлері мен телефон маскаларын пайдалану ұсынылмайды.
@@ -826,6 +824,9 @@ recent-activity-account-passwordless-login-otp-failed = Парольсіз кі�
 recent-activity-account-passwordless-login-otp-verified = Парольсіз кіру коды расталды
 recent-activity-account-passwordless-registration-complete = Парольсіз тіркелгіні тіркеу аяқталды
 recent-activity-account-recovery-codes-set = Қалпына келтіру кодтары орнатылды
+recent-activity-account-passkey-wrap-created = Рұқсат кілті синхрондау үшін іске қосылды
+recent-activity-account-passkey-wrap-creation-failure = Рұқсат кілтімен синхрондауды баптау сәтсіз аяқталды
+recent-activity-account-passkey-wrap-invalidated = Парольді қалпына келтіруден кейін рұқсат кілтімен синхрондауға қол жеткізу өшірілген
 recent-activity-unknown = Тіркелгінің басқа белсенділігі
 
 
@@ -1111,8 +1112,6 @@ recovery-phone-number-ending-digits = { $lastFourPhoneNumber } нөміріме�
 oauth-error-1000 = Бірнәрсе қате кетті. Бұл бетті жауып, қайталап көріңіз.
 
 
-
-
 passkey-registration-error-not-allowed = Рұқсат кілтін баптау сәтсіз аяқталды немесе қолжетімді емес. Қайталап көріңіз немесе басқа тәсілді қолданып көріңіз.
 passkey-registration-error-not-allowed-existing = Бұл құрылғыда рұқсат кілттерін баптау мүмкін емес. Құрылғы тіркелген немесе орнату процесінен бас тартылған болуы мүмкін.
 passkey-registration-error-timeout = Рұқсат кілтін баптаудан бас тартылды. Қайталап көріңіз.
@@ -1127,8 +1126,6 @@ passkey-registration-error-invalid-state = Бұл рұқсат кілті тір
 passkey-registration-error-not-readable = Біз аутентификаторға қол жеткізе алмадық. Қайталап көріңіз немесе басқа әдісті таңдаңыз.
 passkey-registration-error-constraint = Бұл құрылғыда рұқсат кілттерін баптау мүмкін емес. Басқа әдісті немесе құрылғыны қолданып көріңіз.
 passkey-registration-error-unexpected = Рұқсат кілтін баптау сәтсіз аяқталды. Қайталап көріңіз немесе басқа тәсілді қолданып көріңіз.
-
-
 passkey-authentication-trouble-heading = Рұқсат кілтімен кіру мүмкін болмады
 passkey-authentication-trouble-description = Қайталап көріңіз немесе басқа кіру опциясын пайдаланыңыз.
 passkey-authentication-trouble-link = Рұқсат кілттерді қалай пайдалануға болады
@@ -1371,8 +1368,6 @@ service-welcome-vpn-heading = Келесі: VPN іске қосу
 service-welcome-vpn-description = Браузеріңіздің жекелігін арттырудың тағы бір қадамы қалды. Ашық панельге өтіп, оны іске қосыңыз.
 
 
-
-
 set-password-heading-v2 = Синхрондау үшін пароль жасаңыз
 set-password-info-v2 = Бұл сіздің деректеріңізді шифрлейді. Ол сіздің { -brand-google } немесе { -brand-apple } тіркелгі пароліңізден өзгеше болуы керек.
 
@@ -1399,8 +1394,6 @@ complete-reset-pw-recovery-key-link = Тіркелгіні қалпына кел
 reset-password-complete-banner-heading = Парль тасталды
 reset-password-complete-banner-message = Жүйеге кірудің болашақ мәселелерін болдырмау үшін { -product-mozilla-account } баптауларынан тіркелгіні қалпына келтірудің жаңа кілтін жасауды ұмытпаңыз.
 complete-reset-password-desktop-relay = { -brand-firefox } сіз кіргеннен кейін электрондық пошта маскасын пайдалануға қайта жіберуге тырысады.
-
-
 confirm-backup-code-reset-password-input-label = 10 таңбалы кодты енгізіңіз
 confirm-backup-code-reset-password-confirm-button = Растау
 confirm-backup-code-reset-password-subheader = Сақтық аутентификация кодын енгізіңіз
@@ -1434,8 +1427,6 @@ password-reset-submit-button-2 = Жалғастыру
 
 reset-password-complete-header = Пароліңіз тасталды
 reset-password-confirmed-cta = { $serviceName } қызметіне жалғастыру
-
-
 
 
 password-reset-recovery-method-header = Парольді тастау
@@ -1516,8 +1507,6 @@ signin-passkey-fallback-body = Деректеріңіздің қауіпсізд
 signin-passkey-fallback-password-label = Пароль
 signin-passkey-fallback-continue = Жалғастыру
 signin-passkey-fallback-forgot-password-link = Пароліңізді ұмыттыңыз ба?
-
-
 
 
 signin-passwordless-code-heading = Растау кодын енгізіңіз
@@ -1634,8 +1623,6 @@ signin-unblock-code-incorrect-format-2 = Авторизация кодында �
 signin-unblock-resend-code-button = Кіріс немесе спам бумасында жоқ па? Қайта жіберу
 signin-unblock-support-link = Бұл неліктен орын алады?
 signin-unblock-desktop-relay = { -brand-firefox } сіз кіргеннен кейін электрондық пошта маскасын пайдалануға қайта жіберуге тырысады.
-
-
 
 
 confirm-signup-code-page-title = Растау кодын енгізіңіз

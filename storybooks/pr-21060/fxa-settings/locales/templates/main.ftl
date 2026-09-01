@@ -121,6 +121,13 @@ choose-newsletters-option-reclaim-the-internet =
   .label = Action alerts to reclaim the internet
 
 
+pair-continue-in-firefox-heading = Continue in { -brand-firefox }
+pair-continue-in-firefox-description = Pairing happens in { -brand-firefox }. Open it to finish connecting this device.
+pair-continue-in-firefox-button = Continue in { -brand-firefox }
+pair-continue-in-firefox-opening = Opening { -brand-firefox }
+pair-continue-in-firefox-get-firefox-link = Don’t have { -brand-firefox }? Get it now
+
+
 dark-mode-toggle-light = Light
 dark-mode-toggle-dark = Dark
 dark-mode-toggle-system = System
@@ -954,6 +961,9 @@ recent-activity-account-passwordless-login-otp-failed = Passwordless sign-in cod
 recent-activity-account-passwordless-login-otp-verified = Passwordless sign-in code verified
 recent-activity-account-passwordless-registration-complete = Passwordless account registration completed
 recent-activity-account-recovery-codes-set = Recovery codes set
+recent-activity-account-passkey-wrap-created = Passkey enabled for syncing
+recent-activity-account-passkey-wrap-creation-failure = Sync setup with passkey failed
+recent-activity-account-passkey-wrap-invalidated = Passkey sync access removed after password reset
 
 recent-activity-unknown = Other account activity
 

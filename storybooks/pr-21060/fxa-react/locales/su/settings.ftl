@@ -2,9 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-
-# BentoMenu component
-
 bento-menu-firefox-desktop = { -brand-firefox } Panyungsi keur Déstop
 bento-menu-firefox-mobile = { -brand-firefox } Panyungsi keur Sélulér
 
@@ -15,9 +12,6 @@ cs-cannot-disconnect = Klién teu kapanggih, teu bisa megatkeun
 ## Data collection section
 
 dc-learn-more = Leuwih teleb
-
-# DropDownAvatarMenu component
-
 
 ## Modal - Default values for a message directed at the user where the user can typically Confirm or Cancel.
 

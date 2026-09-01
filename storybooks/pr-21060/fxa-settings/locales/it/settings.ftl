@@ -75,6 +75,20 @@ choose-newsletters-option-test-pilot =
 choose-newsletters-option-reclaim-the-internet =
     .label = Inviti all’azione per riprendere il controllo di Internet
 
+## ContinueInFirefox component - Part of the desktop-to-mobile pairing flow
+## Shown when the pairing QR code is opened in a browser other than Firefox.
+## It hands the pairing link to the Firefox app, and offers the app store when
+## Firefox is not installed on the device.
+
+pair-continue-in-firefox-heading = Continua in { -brand-firefox }
+pair-continue-in-firefox-description = L’associazione avviene in { -brand-firefox }. Aprilo per completare la connessione di questo dispositivo.
+# Opens the Firefox app on this device
+pair-continue-in-firefox-button = Continua in { -brand-firefox }
+# Shown while waiting for the Firefox app to take over
+pair-continue-in-firefox-opening = Apertura di { -brand-firefox }
+# Sends the user to the App Store or Play Store to install Firefox
+pair-continue-in-firefox-get-firefox-link = Non hai { -brand-firefox }? Installalo ora
+
 ## Dark mode toggle
 
 dark-mode-toggle-light = Chiaro
@@ -197,21 +211,18 @@ form-verify-totp-disabled-button-title-numeric = Inserisci un codice di { $codeL
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Inserisci un codice di { $codeLength } caratteri per continuare
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Chiave di recupero dell’account { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Codici di autenticazione di backup
 get-data-trio-download-2 =
-    .title = Scarica
     .aria-label = Scarica
+    .title = Scarica
 get-data-trio-copy-2 =
-    .title = Copia
     .aria-label = Copia
+    .title = Copia
 get-data-trio-print-2 =
-    .title = Stampa
     .aria-label = Stampa
+    .title = Stampa
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -275,10 +286,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = Passkey
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Un computer, un telefono cellulare e l’immagine di un cuore spezzato su ciascuno
 hearts-verified-image-aria-label =
@@ -527,9 +534,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = Prodotti { -brand-mozilla }
 bento-menu-tagline = Altri prodotti { -brand-mozilla } che proteggono la tua privacy
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -618,9 +622,6 @@ dc-opt-out-success-2 = Disattivazione riuscita. Il servizio di { -product-mozill
 dc-opt-in-success-2 = Grazie! La condivisione di questi dati ci aiuta a migliorare il servizio di { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Siamo spiacenti, si è verificato un problema durante la modifica delle preferenze relative alla raccolta dati
 dc-learn-more = Ulteriori informazioni
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = Menu dell’{ -product-mozilla-account }
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -781,9 +782,6 @@ flow-setup-phone-confirm-code-resend-code-button = Invia di nuovo il codice
 flow-setup-phone-confirm-code-resend-code-success = Codice inviato
 flow-setup-phone-confirm-code-success-message-v2 = Aggiunto telefono per il recupero dell’account
 flow-change-phone-confirm-code-success-message = Modificato telefono per il recupero dell’account
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Verifica il tuo numero di telefono
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = Riceverai un SMS da { -brand-mozilla } con un codice per verificare il tuo numero. Non condividere questo codice con nessuno.
@@ -1084,6 +1082,12 @@ recent-activity-account-passwordless-login-otp-failed = Codice di accesso senza 
 recent-activity-account-passwordless-login-otp-verified = Codice di accesso senza password verificato
 recent-activity-account-passwordless-registration-complete = Completata registrazione dell’account senza password
 recent-activity-account-recovery-codes-set = Impostati codici di recupero
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
+recent-activity-account-passkey-wrap-created = Passkey attivata per la sincronizzazione
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-creation-failure = Configurazione della sincronizzazione con passkey non riuscita
+# A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
+recent-activity-account-passkey-wrap-invalidated = Accesso alla sincronizzazione tramite passkey revocato dopo la reimpostazione della password
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Altre attività dell’account
 
@@ -1486,9 +1490,6 @@ oauth-error-1000 = Si è verificato un problema. Chiudi questa scheda e riprova.
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = La configurazione della passkey non è riuscita o non è disponibile. Riprova o scegli un altro metodo.
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
@@ -1520,9 +1521,6 @@ passkey-registration-error-not-readable = Impossibile accedere al dispositivo di
 passkey-registration-error-constraint = La configurazione della passkey non è disponibile con questo dispositivo. Prova con un altro metodo o dispositivo.
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = Configurazione passkey non riuscita. Riprova o scegli un altro metodo.
-
-# Authentication errors
-
 # Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
 # available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
 # points the user to another way to sign in.
@@ -1991,9 +1989,6 @@ service-welcome-vpn-description = Un altro passo per aumentare la privacy del tu
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
 
-
-# password to complete their sign-in when they want to login to a service requiring it.
-
 set-password-heading-v2 = Crea una password per sincronizzare
 # "This" refers to the heading, "Create password to sync"
 set-password-info-v2 = La password critta i tuoi dati e deve essere diversa da quella del tuo account { -brand-google } o { -brand-apple }.
@@ -2043,9 +2038,6 @@ reset-password-complete-banner-message = Non dimenticare di generare una nuova c
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = Dopo aver effettuato l’accesso, { -brand-firefox } tenterà di rimandarti alla pagina per utilizzare l’alias di posta elettronica.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = Inserisci il codice di 10 caratteri
 confirm-backup-code-reset-password-confirm-button = Conferma
 confirm-backup-code-reset-password-subheader = Digita il codice di autenticazione di backup
@@ -2096,9 +2088,6 @@ reset-password-confirmed-cta = Continua su { $serviceName }
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Reimpostazione della password
 password-reset-recovery-method-subheader = Scegli un metodo di recupero
@@ -2206,11 +2195,6 @@ signin-passkey-fallback-body = Per mantenere i tuoi dati al sicuro, devi inserir
 signin-passkey-fallback-password-label = Password
 signin-passkey-fallback-continue = Continua
 signin-passkey-fallback-forgot-password-link = Password dimenticata?
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2403,9 +2387,6 @@ signin-unblock-desktop-relay = Dopo aver effettuato l’accesso, { -brand-firefo
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Inserisci il codice di conferma

@@ -39,31 +39,15 @@ brand-m-logo =
 button-back-aria-label = Tebek
 button-back-title = Tebek
 
-## ButtonDownloadRecoveryKeyPDF
-## Clicking on this button downloads a PDF file that contains the user's account recovery key
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
-# Button to download the account recovery key as a PDF file and navigate to the next step
+# Button to download the account recovery key as a plain text file and navigate to the next step
 # The next (and final) step is an optional prompt to save a storage hint
-# .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = Downloade en trochgean
-    .title = Downloade en trochgean
-recovery-key-pdf-heading = Accountwerstelkaai
-# Date when the account recovery key was created and this file was downloaded
-# { $date }: formatted date with 'medium' dateStyle format (e.g., for 'en': Jul 31, 2023)
-recovery-key-pdf-download-date = Oanmakke: { $date }
-# Shown directly above recovery key value and preceeded by a key icon
-recovery-key-pdf-key-legend = Accountwerstelkaai
-# Instructions in the text file to prompt the user to keep this information in a secure, easy to remember location.
-# Password resets without this account recovery key can result in data loss.
-# "key" here refers to "account recovery key"
-recovery-key-pdf-instructions = Mei dizze kaai kinne jo jo fersifere browsergegevens (ynklusyf wachtwurden, blêdwizers en skiednis) weromhelje as jo jo wachtwurd ferjitte. Bewarje it op in plak dat jo ûnthâlde kinne.
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-recovery-key-pdf-storage-ideas-heading = Plakken om jo kaai te bewarjen
-# Followed by a link (https://mzl.la/3bNrM1I) to get more information and support
-recovery-key-pdf-support = Mear ynfo oer jo accountwerstelkaai
-# Error message displayed in an alert bar if the PDF download failed.
+recovery-key-download-button-v4 = Downloade en trochgean
+# Error message shown in a banner if the account recovery key download failed.
+# The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Sorry, der is in probleem bard by it downloaden fan de accountwerstelkaai.
 
 ## ButtonPasskeySignin
@@ -213,21 +197,18 @@ form-verify-totp-disabled-button-title-numeric = Fier in { $codeLength }-siferig
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Fier in koade fan { $codeLength } tekens yn om troch te gean
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox }-accountwerstelkaai
 get-data-trio-title-backup-verification-codes = Reserve-autentikaasjekoaden
 get-data-trio-download-2 =
-    .title = Downloade
     .aria-label = Downloade
+    .title = Downloade
 get-data-trio-copy-2 =
-    .title = Kopiearje
     .aria-label = Kopiearje
+    .title = Kopiearje
 get-data-trio-print-2 =
-    .title = Ofdrukke
     .aria-label = Ofdrukke
+    .title = Ofdrukke
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -291,10 +272,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = Passkey
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = In kompjûter en in mobile telefoan en op beide in ôfbylding fan in brutsen hert
 hearts-verified-image-aria-label =
@@ -543,9 +520,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = { -brand-mozilla }-produkten
 bento-menu-tagline = Mear produkten fan { -brand-mozilla } dy’t jo privacy beskermje
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -642,9 +616,6 @@ dc-opt-out-success-2 = Ofmelden suksesfol. { -product-mozilla-accounts } stjoert
 dc-opt-in-success-2 = Tank! Troch dizze gegevens te dielen helpe jo ús { -product-mozilla-accounts } te ferbetterjen.
 dc-opt-in-out-error-2 = Sorry, der is in probleem bard by it wizigjen fan jo foarkar foar gegevenssamling
 dc-learn-more = Mear ynfo
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = { -product-mozilla-account }-menu
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -777,6 +748,13 @@ flow-setup-2fa-prompt-heading = Autentikaasje yn twa stappen ynstelle
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
 flow-setup-2fa-prompt-description = { $serviceName } fereasket dat jo twa-stapsautentikaasje ynstelle om jo account feilich te hâlden.
+# Success banner shown at the top of the page when the user signed in with a passkey.
+flow-setup-2fa-prompt-passkey-success-banner = Mei sukses oanmeld mei wachtwurdkaai
+# Body copy shown when the user signed in with a passkey and the service still
+# requires two-step authentication setup.
+# Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
+# that requests two-step authentication setup.
+flow-setup-2fa-prompt-passkey-description = { $serviceName } fereasket ek twa-stapsautentikaasje foar jo { -product-mozilla-account }. Nei it ynstellen hawwe jo dizze net mear nedich as jo jo oanmelde mei in wachtwurdkaai.
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = Jo kinne elk fan <authenticationAppsLink>dizze autentikaasje-apps</authenticationAppsLink> brûke om troch te gean.
 flow-setup-2fa-prompt-continue-button = Trochgean
@@ -798,9 +776,6 @@ flow-setup-phone-confirm-code-resend-code-button = Koade nochris ferstjoere
 flow-setup-phone-confirm-code-resend-code-success = Koade ferstjoerd
 flow-setup-phone-confirm-code-success-message-v2 = Wersteltelefoannûmer tafoege
 flow-change-phone-confirm-code-success-message = Wersteltelefoannûmer wizige
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Ferifiearje jo telefoannûmer
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = Jo ûntfange in sms fan { -brand-mozilla } mei in koade om jo nûmer te ferifiearjen. Diel dizze koade mei net ien.
@@ -1101,6 +1076,12 @@ recent-activity-account-passwordless-login-otp-failed = Koade foar oanmelden sû
 recent-activity-account-passwordless-login-otp-verified = Koade foar oanmelden sûnder wachtwurd ferifiearre
 recent-activity-account-passwordless-registration-complete = Wachtwurdleaze accountregistraasje foltôge
 recent-activity-account-recovery-codes-set = Werstelkoaden ynsteld
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
+recent-activity-account-passkey-wrap-created = Wachtwurdkaai foar syngronisaasje ynskeakele
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-creation-failure = Syngronisaasje ynstelle mei wachtwurdkaai mislearre
+# A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
+recent-activity-account-passkey-wrap-invalidated = Wachtwurdkaai-syngronisaasjetagong fuortsmiten nei opnij ynstellen wachtwurd
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Oare accountaktiviteit
 
@@ -1515,9 +1496,6 @@ oauth-error-1000 = Der is wat misgien. Slút dit ljepblêd en probearje it opnij
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = Ynstellen fan wachtwurd mislearre of is net beskikber. Probearje it opnij of kies in oare metoade.
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
@@ -1549,9 +1527,6 @@ passkey-registration-error-not-readable = Wy krije gjin tagong krije ta de authe
 passkey-registration-error-constraint = It ynstellen fan in wachtwurdkaai is net beskikber mei dit apparaat. Probearje in oare metoade of apparaat.
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = Ynstellen fan wachtwurdkaai mislearre. Probearje it opnij of kies in oare metoade.
-
-# Authentication errors
-
 # Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
 # available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
 # points the user to another way to sign in.
@@ -1880,6 +1855,59 @@ pair2-authority-continue-on-mobile-description = Folgje de stappen op jo telefoa
 # Dismisses the pairing attempt
 pair2-authority-continue-on-mobile-cancel-button = Annulearje
 
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when Firefox is needed to continue pairing.
+## It points them at firefox.com/pair and offers a download link for Firefox.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-download-firefox-heading = Iepenje { -brand-firefox } om te syngronisearjen
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction = Iepenje { -brand-firefox } op dit apparaat en besykje <b>firefox.com/pair</b> om syngronisaasje tusken apparaten yn te stellen
+# Links out to the Firefox download page
+pair2-authority-download-firefox-cta = { -brand-firefox } downloade
+
+## ScanQR page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer. It shows a QR code that they scan with
+## their phone or tablet to connect the two devices and start syncing.
+
+pair2-authority-scan-qr-heading = Scan om jo mobile apparaat te ferbinen
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-scan-qr-instruction = Scan de QR-koade mei jo telefoan of tablet om jo { -brand-firefox }-blêdwizers, ljepblêden en mear te syngronisearjen.
+# Accessible label describing the QR code image shown on this page
+pair2-authority-scan-qr-code-aria-label = QR-koade om jo mobile apparaat te ferbinen
+# Link to a support article for users having trouble scanning the QR code
+pair2-authority-scan-qr-help-link = Help by scannen ûntfange
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and offers the follow-up actions.
+
+# "syncing" here means copying data between the user's devices
+pair2-authority-sync-success-heading = Jo syngronisearje
+pair2-authority-sync-success-description = Jo ljepblêden, blêdwizers, wachtwurden en mear binne klear op al jo apparaten.
+# Opens the tabs that are open on the user's other synced devices
+pair2-authority-sync-success-view-tabs-button = Syngronisearre ljepblêden besjen
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button = Syngronisaasje-ynstellingen
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when pairing stopped without succeeding,
+## either because it timed out or because it was canceled. Both cases offer to
+## start pairing over again.
+
+# Shown when the pairing attempt expired before it was approved
+pair2-authority-timeout-and-cancel-timeout-heading = Wolle jo dochs in apparaat ferbine?
+pair2-authority-timeout-and-cancel-timeout-description = It liket derop dat de tiid ferrûn is. Probearje it nochris as jo jo mobyl apparaat noch ferbine wolle en jo { -brand-firefox }-gegevens syngronisearje wolle.
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-canceled-heading = Annulearre
+pair2-authority-timeout-and-cancel-canceled-description = As jo fan gedachten feroarje of in oar apparaat ferbine wolle, probearje it dan opnij.
+# Restarts the pairing flow
+pair2-authority-timeout-and-cancel-try-again-button = Opnij probearje
+# Abandons pairing without retrying
+pair2-authority-timeout-and-cancel-cancel-button = Annulearje
+# Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
+pair2-authority-timeout-and-cancel-sync-settings-button = Syngronisaasje-ynstellingen
+
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
 ## shown on their computer. It waits for them to approve the sign-in on the
@@ -1890,6 +1918,70 @@ pair2-supplicant-approve-sign-in-heading = Ien lêste syngronisaasjestap
 pair2-supplicant-approve-sign-in-instruction = Keur de oanmelding op jo kompjûter goed.
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = Annulearje
+
+## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It asks them to confirm connecting the mobile
+## device to their account, and shows that computer's details so they can
+## verify the request.
+
+# "this device" is the mobile device the user is holding, not the computer
+# whose details are shown below the heading
+pair2-supplicant-connect-this-device-heading = Dit apparaat mei jo account ferbine?
+# Confirms the pairing attempt
+pair2-supplicant-connect-this-device-connect-button = Ferbine
+# Dismisses the pairing attempt
+pair2-supplicant-connect-this-device-cancel-button = Annulearje
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing reaches a device that
+## does not have Firefox installed yet. It explains what syncing gets them and
+## sends them off to install the browser.
+
+pair2-supplicant-download-firefox-heading = Download { -brand-firefox } op dit apparaat
+# "sync" is a verb here, referring to syncing data between the user's devices.
+# <linkExternal> is an anchor tag linking to a page explaining what sync does.
+pair2-supplicant-download-firefox-description = Download { -brand-firefox } om blêdwizers, skiednis en mear op ferskate apparaten te syngronisearjen. <linkExternal>Mear ynfo</linkExternal>
+# Primary action. Sends the user to the Firefox download page.
+pair2-supplicant-download-firefox-continue-button = Trochgean yn { -brand-firefox }
+
+## ReadyToScan page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device before pairing starts. It tells them
+## to open firefox.com/pair on their computer, which is where the QR code they
+## scan with the mobile device comes from.
+
+pair2-supplicant-ready-to-scan-heading = In apparaat ferbine
+# <b> emphasises the address the user types on their computer. It is not a link,
+# and the address itself must not be translated.
+pair2-supplicant-ready-to-scan-instruction = Iepenje { -brand-firefox } op jo kompjûter, besykje <b>firefox.com/pair</b> en folgje de ynstruksjes op it skerm om jo mobile apparaat te ferbinen.
+# Opens a Mozilla support article about setting up sync
+pair2-supplicant-ready-to-scan-learn-more-link = Mear ynfo
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device once pairing has completed: the device
+## is signed in and syncing with the computer they paired it with.
+
+pair2-supplicant-sync-success-heading = Jo apparaat is ferbûn
+pair2-supplicant-sync-success-description = Jo blêdwizers, ljepblêden en mear bliuwe yn { -brand-firefox } syngronisearre.
+# Opens the view listing tabs open on the user's other synced devices
+pair2-supplicant-sync-success-view-tabs-button = Syngronisearre ljepblêden besjen
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button = Syngronisaasje-ynstellingen
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing ends without connecting,
+## either because the attempt timed out or because it was canceled. Both states
+## are informational and offer no on-screen action, so the copy points the user
+## back to their computer to start again.
+
+# Shown when the pairing attempt expired before it completed. "we" is Firefox.
+pair2-supplicant-timeout-and-cancel-timeout-heading = It liket derop dat der in time-out bard is
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-timeout-description = Besykje <b>firefox.com/pair</b> op jo kompjûter om jo mobile apparaat te ferbinen en jo { -brand-firefox }-gegevens te syngronisearjen.
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-canceled-heading = Annulearre
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-canceled-description = Besykje <b>firefox.com/pair</b> op jo kompjûter om op elk winske momint in apparaat te ferbinen.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -1902,9 +1994,6 @@ service-welcome-vpn-description = Noch ien stap om de privacy fan jo browser te 
 
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
-
-
-# password to complete their sign-in when they want to login to a service requiring it.
 
 set-password-heading-v2 = Meitsje in wachtwurd oan om te syngronisearjen
 # "This" refers to the heading, "Create password to sync"
@@ -1955,9 +2044,6 @@ reset-password-complete-banner-message = Ferjit net in nije accountwerstelkaai t
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = { -brand-firefox } probearret jo werom te stjoeren om in e-mailmasker te brûken neidat jo jo oanmeld hawwe.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = Fier koade fan 10 tekens yn
 confirm-backup-code-reset-password-confirm-button = Befêstigje
 confirm-backup-code-reset-password-subheader = Fier reserve-autentikaasjekoade yn
@@ -2008,9 +2094,6 @@ reset-password-confirmed-cta = Trochgean nei { $serviceName }
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Jo wachtwurd werinisjalisearje
 password-reset-recovery-method-subheader = In werstelmetoade kieze
@@ -2118,11 +2201,6 @@ signin-passkey-fallback-body = Om jo gegevens feilich te hâlden, moatte jo jo w
 signin-passkey-fallback-password-label = Wachtwurd
 signin-passkey-fallback-continue = Trochgean
 signin-passkey-fallback-forgot-password-link = Wachtwurd ferjitten?
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2315,9 +2393,6 @@ signin-unblock-desktop-relay = { -brand-firefox } probearret jo werom te stjoere
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Fier befêstigingskoade yn

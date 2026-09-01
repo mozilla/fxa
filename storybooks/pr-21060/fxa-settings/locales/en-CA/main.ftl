@@ -184,20 +184,18 @@ form-verify-code-default-error = This field is required
 
 form-verify-totp-disabled-button-title-numeric = Enter { $codeLength }-digit code to continue
 form-verify-totp-disabled-button-title-alphanumeric = Enter { $codeLength }-character code to continue
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } account recovery key
 get-data-trio-title-backup-verification-codes = Backup authentication codes
 get-data-trio-download-2 =
-    .title = Download
     .aria-label = Download
+    .title = Download
 get-data-trio-copy-2 =
-    .title = Copy
     .aria-label = Copy
+    .title = Copy
 get-data-trio-print-2 =
-    .title = Print
     .aria-label = Print
+    .title = Print
 
 
 alert-icon-aria-label =
@@ -242,8 +240,6 @@ icon-loading-arrow-aria-label =
     .aria-label = Loading
 icon-passkey-aria-label =
     .aria-label = Passkey
-
-
 hearts-broken-image-aria-label =
     .aria-label = A computer and a mobile phone and an image of a broken heart on each
 hearts-verified-image-aria-label =
@@ -411,8 +407,6 @@ avatar-default-avatar =
     .alt = Default avatar
 
 
-
-
 bento-menu-title-3 = { -brand-mozilla } products
 bento-menu-tagline = More products from { -brand-mozilla } that protect your privacy
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -476,8 +470,6 @@ dc-opt-out-success-2 = Opt out successful. { -product-mozilla-accounts } won’t
 dc-opt-in-success-2 = Thanks! Sharing this data helps us improve { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Sorry, there was a problem changing your data collection preference
 dc-learn-more = Learn more
-
-
 drop-down-menu-title-2 = { -product-mozilla-account } menu
 drop-down-menu-signed-in-as-v2 = Signed in as
 drop-down-menu-sign-out = Sign out
@@ -574,8 +566,6 @@ flow-setup-phone-confirm-code-resend-code-button = Resend code
 flow-setup-phone-confirm-code-resend-code-success = Code sent
 flow-setup-phone-confirm-code-success-message-v2 = Recovery phone added
 flow-change-phone-confirm-code-success-message = Recovery phone changed
-
-
 flow-setup-phone-submit-number-heading = Verify your phone number
 flow-setup-phone-verify-number-instruction = You’ll get a text message from { -brand-mozilla } with a code to verify your number. Don’t share this code with anyone.
 flow-setup-phone-submit-number-info-message-v2 = Recovery phone is only available in the United States and Canada. VoIP numbers and phone masks are not recommended.
@@ -1105,8 +1095,6 @@ recovery-phone-number-ending-digits = Number ending in { $lastFourPhoneNumber }
 oauth-error-1000 = Something went wrong. Please close this tab and try again.
 
 
-
-
 passkey-registration-error-not-allowed = Passkey setup failed or is unavailable. Try again or choose another method.
 passkey-registration-error-not-allowed-existing = Passkey setup isn’t available with this device. Either the device has already been registered or the setup process was cancelled.
 passkey-registration-error-timeout = Passkey setup was cancelled. Try again.
@@ -1121,8 +1109,6 @@ passkey-registration-error-invalid-state = This passkey is already registered. U
 passkey-registration-error-not-readable = We couldn’t access the authenticator. Try again or choose another method.
 passkey-registration-error-constraint = Passkey setup isn’t available with this device. Try another method or device.
 passkey-registration-error-unexpected = Passkey setup failed. Try again or choose another method.
-
-
 passkey-authentication-trouble-heading = Couldn’t sign in with a passkey
 passkey-authentication-trouble-description = Try again or use another sign-in option.
 passkey-authentication-trouble-link = How to use passkeys
@@ -1297,8 +1283,6 @@ service-welcome-vpn-heading = Next: Turn on VPN
 service-welcome-vpn-description = One more step to boost your browser’s privacy. Go to the open panel and turn it on.
 
 
-
-
 set-password-heading-v2 = Create password to sync
 set-password-info-v2 = This encrypts your data. It needs to be different from your { -brand-google } or { -brand-apple } account password.
 
@@ -1325,8 +1309,6 @@ complete-reset-pw-recovery-key-link = Use account recovery key
 reset-password-complete-banner-heading = Your password has been reset.
 reset-password-complete-banner-message = Don’t forget to generate a new account recovery key from your { -product-mozilla-account } settings to prevent future sign-in issues.
 complete-reset-password-desktop-relay = { -brand-firefox } will try sending you back to use an email mask after you sign in.
-
-
 confirm-backup-code-reset-password-input-label = Enter 10-character code
 confirm-backup-code-reset-password-confirm-button = Confirm
 confirm-backup-code-reset-password-subheader = Enter backup authentication code
@@ -1359,8 +1341,6 @@ password-reset-submit-button-2 = Continue
 
 reset-password-complete-header = Your password has been reset
 reset-password-confirmed-cta = Continue to { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Reset your password
@@ -1440,8 +1420,6 @@ signin-passkey-fallback-heading = Enter your password to sync
 signin-passkey-fallback-body = To keep your data safe, you need to enter your password when you use this passkey.
 signin-passkey-fallback-password-label = Password
 signin-passkey-fallback-continue = Continue
-
-
 
 
 signin-passwordless-code-heading = Enter confirmation code
@@ -1558,8 +1536,6 @@ signin-unblock-code-incorrect-format-2 = Authorization code can only contain let
 signin-unblock-resend-code-button = Not in inbox or spam folder? Resend
 signin-unblock-support-link = Why is this happening?
 signin-unblock-desktop-relay = { -brand-firefox } will try sending you back to use an email mask after you sign in.
-
-
 
 
 confirm-signup-code-page-title = Enter confirmation code

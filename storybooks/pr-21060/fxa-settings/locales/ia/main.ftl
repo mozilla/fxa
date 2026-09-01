@@ -100,6 +100,13 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Avisos de action pro reprender le controlo de internet
 
 
+pair-continue-in-firefox-heading = Continuar in { -brand-firefox }
+pair-continue-in-firefox-description = Durante le accopulamento eveni in { -brand-firefox }. Aperi lo pro finir de connecter iste apparato.
+pair-continue-in-firefox-button = Continuar in { -brand-firefox }
+pair-continue-in-firefox-opening = Aperiente { -brand-firefox }
+pair-continue-in-firefox-get-firefox-link = Non ha tu { -brand-firefox }? Installa lo ora
+
+
 dark-mode-toggle-light = Clar
 dark-mode-toggle-dark = Obscur
 dark-mode-toggle-system = Systema
@@ -181,20 +188,18 @@ form-verify-code-default-error = Campo requirite.
 
 form-verify-totp-disabled-button-title-numeric = Insere un codice de { $codeLength } cifras pro continuar
 form-verify-totp-disabled-button-title-alphanumeric = Insere un codice de { $codeLength } characteres pro continuar
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Clave de recuperation del conto { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Codices de authentication de reserva
 get-data-trio-download-2 =
-    .title = Discargar
     .aria-label = Discargar
+    .title = Discargar
 get-data-trio-copy-2 =
-    .title = Copiar
     .aria-label = Copiar
+    .title = Copiar
 get-data-trio-print-2 =
-    .title = Imprimer
     .aria-label = Imprimer
+    .title = Imprimer
 
 
 alert-icon-aria-label =
@@ -239,8 +244,6 @@ icon-loading-arrow-aria-label =
     .aria-label = Cargante
 icon-passkey-aria-label =
     .aria-label = Clave-contrasigno
-
-
 hearts-broken-image-aria-label =
     .aria-label = Un computator e un telephono mobile e un imagine de un corde rupte sur cata uno
 hearts-verified-image-aria-label =
@@ -408,8 +411,6 @@ avatar-default-avatar =
     .alt = Avatar predefinite
 
 
-
-
 bento-menu-title-3 = Productos { -brand-mozilla }
 bento-menu-tagline = Plus de productos { -brand-mozilla } que protege tu confidentialitate
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -478,8 +479,6 @@ dc-opt-out-success-2 = Refusate con successo. { -product-mozilla-accounts } non 
 dc-opt-in-success-2 = Gratias! Compartir iste datos adjuta nos meliorar { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Desolate, problema a cambiar tu preferentias de recolta de datos
 dc-learn-more = Pro saper plus
-
-
 drop-down-menu-title-2 = Menu de { -product-mozilla-account }
 drop-down-menu-signed-in-as-v2 = In session como
 drop-down-menu-sign-out = Clauder session
@@ -564,6 +563,7 @@ flow-setup-2fa-inline-complete-continue-button = Continuar a { $serviceName }
 flow-setup-2fa-prompt-heading = Configurar authentication a duo passos
 flow-setup-2fa-prompt-description = { $serviceName } te require le authentication a duo passos pro tener secur tu conto.
 flow-setup-2fa-prompt-passkey-success-banner = Firmate con sucesso con clave-contrasigno
+flow-setup-2fa-prompt-passkey-description = { $serviceName } alsi require le authentication a duo passos pro tu { -product-mozilla-account }. Post le installation, tu non plus lo debera accedente con un clave-contrasigno.
 flow-setup-2fa-prompt-use-authenticator-apps = Tu pote usar qualcunque de <authenticationAppsLink>iste applicationes de authentication</authenticationAppsLink> pro proceder.
 flow-setup-2fa-prompt-continue-button = Continuar
 
@@ -577,8 +577,6 @@ flow-setup-phone-confirm-code-resend-code-button = Reinviar le codice
 flow-setup-phone-confirm-code-resend-code-success = Codice inviate
 flow-setup-phone-confirm-code-success-message-v2 = Telephono de recuperation addite
 flow-change-phone-confirm-code-success-message = Cambiate numero de telephono de recuperation
-
-
 flow-setup-phone-submit-number-heading = Verifica tu numero de telephono
 flow-setup-phone-verify-number-instruction = Tu recipera un SMS ab { -brand-mozilla } con un codice pro verificar tu numero. Non comparti iste codice con quicunque.
 flow-setup-phone-submit-number-info-message-v2 = Le numero de telephono de reserva es solo disponibile in le Statos Unite e Canada. Numeros e mascas de telephono VoIP non es recommendate.
@@ -826,6 +824,9 @@ recent-activity-account-passwordless-login-otp-failed = Codice de accesso sin co
 recent-activity-account-passwordless-login-otp-verified = Codice de accesso sin contrasigno verificate
 recent-activity-account-passwordless-registration-complete = Registration de conto sin contrasigno completate
 recent-activity-account-recovery-codes-set = Codices de recuperation configurate
+recent-activity-account-passkey-wrap-created = Clave-contrasigno activate pro synchronisar
+recent-activity-account-passkey-wrap-creation-failure = Configuration del accesso con clave-contrasigno fallite
+recent-activity-account-passkey-wrap-invalidated = Clave-contrasigno de accesso al synchronisation removite post le redefinition del contrasigno
 recent-activity-unknown = Altere activitate de conto
 
 
@@ -1113,8 +1114,6 @@ recovery-phone-number-ending-digits = Numero finiente in { $lastFourPhoneNumber 
 oauth-error-1000 = Un error ha occurrite. Per favor claude iste scheda e retenta.
 
 
-
-
 passkey-registration-error-not-allowed = Installation de clave-contrasigno fallite o il es indisponibile. Retenta o elige un altere methodo.
 passkey-registration-error-not-allowed-existing = Le configuration del clave-contrasigno non es disponibile in iste apparato. Le apparato ha jam essite registrate o le processo de configuration cancellate.
 passkey-registration-error-timeout = Le installation de clave-contrasigno era cancellate. Retenta.
@@ -1129,8 +1128,6 @@ passkey-registration-error-invalid-state = Iste clave-contrasigno es jam registr
 passkey-registration-error-not-readable = Nos non poteva acceder al authenticator. Retenta o elige un altere methodo.
 passkey-registration-error-constraint = Le configuration del claves-contrasigno non es disponibile con iste apparato. Tenta un altere methodo o apparato.
 passkey-registration-error-unexpected = Le configuration del clave-contrasigno falleva. Retenta o elige un altere methodo.
-
-
 passkey-authentication-trouble-heading = Impossibile acceder con un clave-contrasigno
 passkey-authentication-trouble-description = Retenta o usa un altere option de authentication.
 passkey-authentication-trouble-link = Como usar claves-contrasigno
@@ -1373,8 +1370,6 @@ service-welcome-vpn-heading = Successivemente: activa le VPN
 service-welcome-vpn-description = Un altere passo pro augmentar le confidentialitate de tu navigator. Va al pannello aperte e activa lo.
 
 
-
-
 set-password-heading-v2 = Crear password pro synchronisar
 set-password-info-v2 = Isto crypta tu datos. Illo debe esser differente contrasigno de conto { -brand-google } o { -brand-apple }.
 
@@ -1401,8 +1396,6 @@ complete-reset-pw-recovery-key-link = Usar clave de recuperation del conto
 reset-password-complete-banner-heading = Tu contrasigno ha essite reinitialisate.
 reset-password-complete-banner-message = Non oblida de generar un nove clave de recuperation de conto desde tu parametros de { -product-mozilla-account } pro evitar problemas de accesso in futuro.
 complete-reset-password-desktop-relay = { -brand-firefox } tentara inviar te retro pro usar un alias email post que tu accede.
-
-
 confirm-backup-code-reset-password-input-label = Insere le codice de 10 characteres
 confirm-backup-code-reset-password-confirm-button = Confirmar
 confirm-backup-code-reset-password-subheader = Insere codice de authentication de reserva
@@ -1436,8 +1429,6 @@ password-reset-submit-button-2 = Continuar
 
 reset-password-complete-header = Tu contrasigno ha essite remontate
 reset-password-confirmed-cta = Continuar a { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Reinitialisa tu contrasigno
@@ -1515,8 +1506,6 @@ signin-passkey-fallback-body = Pro mantener tu datos secur, tu debe inserer tu c
 signin-passkey-fallback-password-label = Contrasigno
 signin-passkey-fallback-continue = Continuar
 signin-passkey-fallback-forgot-password-link = Contrasigno oblidate?
-
-
 
 
 signin-passwordless-code-heading = Insere le codice de confirmation
@@ -1633,8 +1622,6 @@ signin-unblock-code-incorrect-format-2 = Le codice de autorisation solo pote con
 signin-unblock-resend-code-button = Non in le cassa de entrata, ni in le dossier de spam? Reinviar
 signin-unblock-support-link = Perque isto eveni?
 signin-unblock-desktop-relay = { -brand-firefox } tentara inviar te retro pro usar un alias email post que tu accede.
-
-
 
 
 confirm-signup-code-page-title = Insere le codice de confirmation

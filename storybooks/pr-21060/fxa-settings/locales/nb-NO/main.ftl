@@ -87,6 +87,7 @@ button-back-aria-label = Tilbake
 button-back-title = Tilbake
 
 
+recovery-key-download-button-v4 = Last ned og fortsett
 recovery-key-pdf-download-error = Beklager, det oppstod et problem da kontogjenopprettingsnøkkelen skulle lastes ned.
 
 
@@ -101,6 +102,12 @@ choose-newsletters-option-test-pilot =
     .label = Tidlig tilgang til å teste nye produkter
 choose-newsletters-option-reclaim-the-internet =
     .label = Handlingsvarsler for å vinne tilbake internett
+
+
+pair-continue-in-firefox-heading = Fortsett i { -brand-firefox }
+pair-continue-in-firefox-button = Fortsett i { -brand-firefox }
+pair-continue-in-firefox-opening = Åpner { -brand-firefox }
+pair-continue-in-firefox-get-firefox-link = Har du ikke { -brand-firefox }? Skaff deg det nå
 
 
 dark-mode-toggle-light = Lyst
@@ -184,20 +191,18 @@ form-verify-code-default-error = Dette feltet er obligatorisk
 
 form-verify-totp-disabled-button-title-numeric = Skriv inn { $codeLength }-sifret kode for å fortsette
 form-verify-totp-disabled-button-title-alphanumeric = Skriv inn koden på { $codeLength } tegn for å fortsette
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox }-kontogjenopprettingsnøkkel
 get-data-trio-title-backup-verification-codes = Reserve-autentiseringskoder
 get-data-trio-download-2 =
-    .title = Last ned
     .aria-label = Last ned
+    .title = Last ned
 get-data-trio-copy-2 =
-    .title = Kopier
     .aria-label = Kopier
+    .title = Kopier
 get-data-trio-print-2 =
-    .title = Skriv ut
     .aria-label = Skriv ut
+    .title = Skriv ut
 
 
 alert-icon-aria-label =
@@ -242,8 +247,6 @@ icon-loading-arrow-aria-label =
     .aria-label = Laster
 icon-passkey-aria-label =
     .aria-label = Passnøkkel
-
-
 hearts-broken-image-aria-label =
     .aria-label = En datamaskin og en mobiltelefon og et bilde av et knust hjerte på hver av dem
 hearts-verified-image-aria-label =
@@ -394,7 +397,10 @@ password-reset-chevron-expanded = Skjul advarsel
 password-reset-chevron-collapsed = Vis advarsel
 password-reset-warning-review-sign-in-options = Se gjennom påloggingsalternativer for å beholde nettleserdata
 password-reset-warning-have-key = Har du en kontogjenopprettingsnøkkel?
+password-reset-warning-use-key-link-v2 = Bruk den for å tilbakestille passordet ditt og beholde dine nettleserdata
 password-reset-warning-signed-in-device = Fortsatt logget inn på en annen enhet?
+password-reset-warning-restore-data-link = Les om hvordan du gjenoppretter nettleserdata fra en pålogget enhet
+password-reset-warning-new-device = Bruker du en ny enhet, men får ikke tilgang til de gamle?
 
 
 alert-bar-close-message = Lukk melding
@@ -404,8 +410,6 @@ avatar-your-avatar =
     .alt = Avataren din
 avatar-default-avatar =
     .alt = Standardavatar
-
-
 
 
 bento-menu-title-3 = { -brand-mozilla }-produkter
@@ -433,6 +437,7 @@ cs-cannot-disconnect = Klienten ble ikke funnet, kan ikke koble fra
 cs-logged-out-2 = Logget ut av { $service }
 cs-refresh-button =
     .title = Oppdater tilkoblede tjenester
+cs-connect-device-button = Koble til en enhet
 cs-missing-device-help = Manglende eller duplikatelement?
 cs-disconnect-sync-heading = Koble fra Sync
 
@@ -471,8 +476,6 @@ dc-opt-out-success-2 = Fravalget vellykket. { -product-mozilla-accounts } sender
 dc-opt-in-success-2 = Takk! Deling av disse data hjelper oss med å forbedre { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Dessverre oppstod det et problem under endring av innstillingene for datainnsamling
 dc-learn-more = Les mer
-
-
 drop-down-menu-title-2 = { -product-mozilla-account }-meny
 drop-down-menu-signed-in-as-v2 = Logget inn som
 drop-down-menu-sign-out = Logg ut
@@ -556,6 +559,7 @@ flow-setup-2fa-inline-complete-learn-more-link = Slik beskytter dette kontoen di
 flow-setup-2fa-inline-complete-continue-button = Fortsett til { $serviceName }
 flow-setup-2fa-prompt-heading = Konfigurer totrinns-autentisering
 flow-setup-2fa-prompt-description = { $serviceName } krever at du konfigurerer totrinns-autentisering for å holde kontoen din trygg.
+flow-setup-2fa-prompt-passkey-success-banner = Vellykket pålogging med passnøkkel
 flow-setup-2fa-prompt-use-authenticator-apps = Du kan bruke hvilken som helst av <authenticationAppsLink>disse autentiseringsappene</authenticationAppsLink> for å fortsette.
 flow-setup-2fa-prompt-continue-button = Fortsett
 
@@ -569,8 +573,6 @@ flow-setup-phone-confirm-code-resend-code-button = Send koden på nytt
 flow-setup-phone-confirm-code-resend-code-success = Kode sendt
 flow-setup-phone-confirm-code-success-message-v2 = Gjenopprettingstelefon lagt til
 flow-change-phone-confirm-code-success-message = Gjenopprettingstelefon endret
-
-
 flow-setup-phone-submit-number-heading = Bekreft telefonnummeret ditt
 flow-setup-phone-verify-number-instruction = Du vil motta en tekstmelding fra { -brand-mozilla } med en kode for å bekrefte nummeret ditt. Ikke del denne koden med noen.
 flow-setup-phone-submit-number-info-message-v2 = Gjenopprettingstelefon er bare tilgjengelig i USA og Canada. VoIP-numre og telefonalias anbefales ikke.
@@ -762,6 +764,7 @@ page-passkey-add-error-system-v2 = Det oppstod et problem med å opprette passn�
 
 
 recent-activity-title = Nylig kontoaktivitet
+recent-activity-show-more-button = Vis mer
 recent-activity-account-create-v2 = Konto opprettet
 recent-activity-account-disable-v2 = Konto deaktivert
 recent-activity-account-enable-v2 = Konto aktivert
@@ -817,6 +820,8 @@ recent-activity-account-passwordless-login-otp-failed = Sending av kode for pass
 recent-activity-account-passwordless-login-otp-verified = Kode for passordløs innlogging bekreftet
 recent-activity-account-passwordless-registration-complete = Registrering av passordløs konto fullført
 recent-activity-account-recovery-codes-set = Gjenopprettingskoder satt opp
+recent-activity-account-passkey-wrap-created = Passnøkkel aktivert for synkronisering
+recent-activity-account-passkey-wrap-creation-failure = Synkroniseringsoppsett med passnøkkel mislyktes
 recent-activity-unknown = Annen kontoaktivitet
 
 
@@ -1092,8 +1097,6 @@ recovery-phone-number-ending-digits = Nummer som slutter på { $lastFourPhoneNum
 oauth-error-1000 = Noe gikk galt. Lukk denne fanen og prøv på nytt.
 
 
-
-
 passkey-registration-error-not-allowed = Oppsett av passnøkkel mislyktes eller er ikke tilgjengelig. Prøv igjen eller velg en annen metode.
 passkey-registration-error-not-allowed-existing = Oppsett av passnøkkel er ikke tilgjengelig på denne enheten. Enten er enheten allerede registrert, eller så ble oppsettet avbrutt.
 passkey-registration-error-timeout = Oppsett av passnøkkel ble avbrutt. Prøv igjen.
@@ -1108,8 +1111,6 @@ passkey-registration-error-invalid-state = Denne passnøkkelen er allerede regis
 passkey-registration-error-not-readable = Vi fikk ikke tilgang til autentiseringsenheten. Prøv igjen eller velg en annen metode.
 passkey-registration-error-constraint = Oppsett av passnøkkel er ikke tilgjengelig på denne enheten. Prøv en annen metode eller enhet.
 passkey-registration-error-unexpected = Oppsett av passnøkkel mislyktes. Prøv igjen eller velg en annen metode.
-
-
 passkey-authentication-trouble-heading = Kunne ikke logge inn med en passnøkkel
 passkey-authentication-trouble-description = Prøv på nytt eller bruk en annen påloggingsmetode.
 passkey-authentication-trouble-link = Slik bruker du passnøkler
@@ -1278,17 +1279,68 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Ups! Noe gikk galt.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Lukk denne fanen og prøv igjen.
 
 
+pair2-authority-approve-sign-in-heading = Godkjenn pålogging?
+pair2-authority-approve-sign-in-confirm-button = Ja, godkjenn pålogging
+pair2-authority-approve-sign-in-change-password = Ikke deg? <changePassword>Endre passordet ditt</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = Fortsett på mobilenheten din
+pair2-authority-continue-on-mobile-description = Følg stegene på telefonen eller nettbrettet ditt.
+pair2-authority-continue-on-mobile-cancel-button = Avbryt
+
+
+pair2-authority-download-firefox-heading = Åpne { -brand-firefox } for å synkronisere
+pair2-authority-download-firefox-cta = Last ned { -brand-firefox }
+
+
+pair2-authority-scan-qr-heading = Skann for å koble til mobilenheten din
+pair2-authority-scan-qr-code-aria-label = QR-kode for å koble til mobilenheten din
+pair2-authority-scan-qr-help-link = Få hjelp med skanning
+
+
+pair2-authority-sync-success-heading = Du synkroniserer
+pair2-authority-sync-success-view-tabs-button = Vis synkroniserte faner
+pair2-authority-sync-success-sync-settings-button = Synkroniseringsinnstillinger
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = Vil du fortsatt koble til en enhet?
+pair2-authority-timeout-and-cancel-canceled-heading = Avbrutt
+pair2-authority-timeout-and-cancel-canceled-description = Hvis du ombestemmer deg eller vil koble til en annen enhet, kan du prøve på nytt.
+pair2-authority-timeout-and-cancel-try-again-button = Prøv på nytt
+pair2-authority-timeout-and-cancel-cancel-button = Avbryt
+pair2-authority-timeout-and-cancel-sync-settings-button = Synkroniseringsinnstillinger
+
+
 pair2-supplicant-approve-sign-in-heading = Et siste trinn for å synkronisere
 pair2-supplicant-approve-sign-in-instruction = Godkjenn innloggingen på datamaskinen din.
 pair2-supplicant-approve-sign-in-cancel-button = Avbryt
+
+
+pair2-supplicant-connect-this-device-heading = Koble denne enheten til kontoen din?
+pair2-supplicant-connect-this-device-connect-button = Koble til
+pair2-supplicant-connect-this-device-cancel-button = Avbryt
+
+
+pair2-supplicant-download-firefox-heading = Få { -brand-firefox } på denne enheten
+pair2-supplicant-download-firefox-continue-button = Fortsett i { -brand-firefox }
+
+
+pair2-supplicant-ready-to-scan-heading = For å koble til en enhet
+pair2-supplicant-ready-to-scan-learn-more-link = Les mer
+
+
+pair2-supplicant-sync-success-heading = Enheten din er tilkoblet
+pair2-supplicant-sync-success-view-tabs-button = Vis synkroniserte faner
+pair2-supplicant-sync-success-sync-settings-button = Synkroniseringsinnstillinger
+
+
+pair2-supplicant-timeout-and-cancel-canceled-heading = Avbrutt
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } bekreftet
 service-welcome-signin-success-banner = Du er logget inn!
 service-welcome-vpn-heading = Neste: Slå på VPN
 service-welcome-vpn-description = Ett steg til for å forbedre nettleserens personvern. Gå til det åpne panelet og slå det på.
-
-
 
 
 set-password-heading-v2 = Opprett passord for å synkronisere
@@ -1317,8 +1369,6 @@ complete-reset-pw-recovery-key-link = Bruk kontogjenopprettingsnøkkel
 reset-password-complete-banner-heading = Passordet ditt har blitt tilbakestilt.
 reset-password-complete-banner-message = Ikke glem å generere en ny kontogjenopprettingsnøkkel fra innstillingene dine for { -product-mozilla-account } for å forhindre fremtidige innloggingsproblemer.
 complete-reset-password-desktop-relay = { -brand-firefox } vil prøve å sende deg tilbake til å bruke et e-postalias etter at du har logget inn.
-
-
 confirm-backup-code-reset-password-input-label = Skriv inn kode på 10 tegn
 confirm-backup-code-reset-password-confirm-button = Bekreft
 confirm-backup-code-reset-password-subheader = Skriv inn reserve-autentiseringskode
@@ -1352,8 +1402,6 @@ password-reset-submit-button-2 = Fortsett
 
 reset-password-complete-header = Passordet ditt er tilbakestilt
 reset-password-confirmed-cta = Fortsett til { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Tilbakestill passord
@@ -1434,8 +1482,6 @@ signin-passkey-fallback-body = For å holde dataene dine trygge, må du oppgi pa
 signin-passkey-fallback-password-label = Passord
 signin-passkey-fallback-continue = Fortsett
 signin-passkey-fallback-forgot-password-link = Glemt passord?
-
-
 
 
 signin-passwordless-code-heading = Skriv inn bekreftelseskode
@@ -1552,8 +1598,6 @@ signin-unblock-code-incorrect-format-2 = Godkjenningskoden kan bare inneholde bo
 signin-unblock-resend-code-button = Ikke i innboks eller mappen for uønsket e-post (spam)? Send på nytt
 signin-unblock-support-link = Hvorfor skjer dette?
 signin-unblock-desktop-relay = { -brand-firefox } vil prøve å sende deg tilbake til å bruke et e-postalias etter at du har logget inn.
-
-
 
 
 confirm-signup-code-page-title = Skriv inn bekreftelseskode

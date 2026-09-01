@@ -221,9 +221,9 @@ resend-success-banner-description = Dodaj { $accountsEmail } do kontaktów, aby 
 
 brand-banner-dismiss-button-2 =
     .aria-label = Zamknij komunikat
-brand-prelaunch-title = 1 listopada nazwa „{ -product-firefox-accounts(case: "nom", capitalization: "lower") }” zostanie zmieniona na „{ -product-mozilla-accounts(case: "nom", capitalization: "lower") }”
+brand-prelaunch-title = 1 listopada nazwa „{ -product-firefox-accounts(capitalization: "lower", case: "nom") }” zostanie zmieniona na „{ -product-mozilla-accounts(capitalization: "lower", case: "nom") }”
 brand-prelaunch-subtitle = Nadal będziesz się logować przy użyciu tej samej nazwy użytkownika i hasła i nie będzie żadnych innych zmian w produktach, z których korzystasz.
-brand-postlaunch-title = Zmieniliśmy nazwę „{ -product-firefox-accounts(case: "nom", capitalization: "lower") }” na „{ -product-mozilla-accounts(case: "nom", capitalization: "lower") }”. Nadal będziesz się logować przy użyciu tej samej nazwy użytkownika i hasła i nie będzie żadnych innych zmian w produktach, z których korzystasz.
+brand-postlaunch-title = Zmieniliśmy nazwę „{ -product-firefox-accounts(capitalization: "lower", case: "nom") }” na „{ -product-mozilla-accounts(capitalization: "lower", case: "nom") }”. Nadal będziesz się logować przy użyciu tej samej nazwy użytkownika i hasła i nie będzie żadnych innych zmian w produktach, z których korzystasz.
 brand-learn-more = Więcej informacji
 brand-close-banner =
     .alt = Zamknij komunikat
@@ -317,20 +317,18 @@ form-verify-code-default-error = To pole jest wymagane
 
 form-verify-totp-disabled-button-title-numeric = Wpisz { $codeLength }-cyfrowy kod, aby kontynuować
 form-verify-totp-disabled-button-title-alphanumeric = Wpisz { $codeLength }-znakowy kod, aby kontynuować
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Klucz odzyskiwania konta { -brand-firefox(case: "gen") }
 get-data-trio-title-backup-verification-codes = Zapasowe kody uwierzytelniania
 get-data-trio-download-2 =
-    .title = Pobierz
     .aria-label = Pobierz
+    .title = Pobierz
 get-data-trio-copy-2 =
-    .title = Kopiuj
     .aria-label = Kopiuj
+    .title = Kopiuj
 get-data-trio-print-2 =
-    .title = Drukuj
     .aria-label = Drukuj
+    .title = Drukuj
 
 
 alert-icon-aria-label =
@@ -371,8 +369,6 @@ icon-loading-arrow-aria-label =
     .aria-label = Wczytywanie
 icon-passkey-aria-label =
     .aria-label = Klucz dostępu
-
-
 hearts-broken-image-aria-label =
     .aria-label = Komputer i telefon komórkowy ze złamanymi serduszkami
 hearts-verified-image-aria-label =
@@ -522,8 +518,6 @@ avatar-default-avatar =
     .alt = Domyślny awatar
 
 
-
-
 bento-menu-title-3 = Produkty { -brand-mozilla(case: "gen") }
 bento-menu-tagline = Więcej produktów od { -brand-mozilla(case: "gen") }, które chronią Twoją prywatność
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -572,24 +566,22 @@ cs-disconnect-sync-opt-not-say = Nie chcę powiedzieć
 
 cs-disconnect-advice-confirm = OK
 cs-disconnect-lost-advice-heading = Rozłączono zgubione lub skradzione urządzenie
-cs-disconnect-lost-advice-content-3 = Ponieważ urządzenie zostało zgubione lub skradzione, w celu zachowania bezpieczeństwa swoich danych należy zmienić hasło { -product-mozilla-account(case: "gen", capitalization: "lower") } w ustawieniach konta. Należy także poszukać informacji o możliwości zdalnego usunięcia danych u producenta urządzenia.
+cs-disconnect-lost-advice-content-3 = Ponieważ urządzenie zostało zgubione lub skradzione, w celu zachowania bezpieczeństwa swoich danych należy zmienić hasło { -product-mozilla-account(capitalization: "lower", case: "gen") } w ustawieniach konta. Należy także poszukać informacji o możliwości zdalnego usunięcia danych u producenta urządzenia.
 cs-disconnect-suspicious-advice-heading = Rozłączono podejrzane urządzenie
-cs-disconnect-suspicious-advice-content-2 = Jeśli rozłączane urządzenie jest rzeczywiście podejrzane, należy zmienić hasło { -product-mozilla-account(case: "acc", capitalization: "lower") } w ustawieniach konta, aby zapewnić bezpieczeństwo swoich danych. Należy także zmienić wszystkie inne hasła zachowane w { -brand-firefox(case: "loc") }, wpisując about:logins na pasku adresu.
+cs-disconnect-suspicious-advice-content-2 = Jeśli rozłączane urządzenie jest rzeczywiście podejrzane, należy zmienić hasło { -product-mozilla-account(capitalization: "lower", case: "acc") } w ustawieniach konta, aby zapewnić bezpieczeństwo swoich danych. Należy także zmienić wszystkie inne hasła zachowane w { -brand-firefox(case: "loc") }, wpisując about:logins na pasku adresu.
 cs-sign-out-button = Wyloguj się
 
 
 dc-heading = Zbieranie i wykorzystywanie danych
 dc-subheader-moz-accounts = { -product-mozilla-accounts }
 dc-subheader-ff-browser = Przeglądarka { -brand-firefox }
-dc-subheader-content-2 = Pozwól { -product-mozilla-accounts(case: "dat", capitalization: "lower") } wysyłać dane techniczne i o interakcjach do { -brand-mozilla(case: "gen") }.
+dc-subheader-content-2 = Pozwól { -product-mozilla-accounts(capitalization: "lower", case: "dat") } wysyłać dane techniczne i o interakcjach do { -brand-mozilla(case: "gen") }.
 dc-subheader-ff-content = Aby przejrzeć lub zaktualizować ustawienia danych technicznych i o interakcjach przeglądarki { -brand-firefox }, otwórz ustawienia { -brand-firefox(case: "gen") } i przejdź do sekcji „Prywatność i bezpieczeństwo”.
 dc-opt-out-success-2 = Pomyślnie zrezygnowano. { -product-mozilla-accounts } nie będą wysyłać danych technicznych i o interakcjach do { -brand-mozilla(case: "gen") }.
-dc-opt-in-success-2 = Dzięki! Dzielenie się tymi danymi pomaga nam ulepszać { -product-mozilla-accounts(case: "acc", capitalization: "lower") }.
+dc-opt-in-success-2 = Dzięki! Dzielenie się tymi danymi pomaga nam ulepszać { -product-mozilla-accounts(capitalization: "lower", case: "acc") }.
 dc-opt-in-out-error-2 = Przepraszamy, wystąpił problem podczas zmieniania preferencji zbierania danych
 dc-learn-more = Więcej informacji
-
-
-drop-down-menu-title-2 = Menu { -product-mozilla-account(case: "gen", capitalization: "lower") }
+drop-down-menu-title-2 = Menu { -product-mozilla-account(capitalization: "lower", case: "gen") }
 drop-down-menu-signed-in-as-v2 = Zalogowano jako
 drop-down-menu-sign-out = Wyloguj się
 drop-down-menu-sign-out-error-2 = Przepraszamy, wystąpił problem z wylogowaniem
@@ -686,8 +678,6 @@ flow-setup-phone-confirm-code-resend-code-button = Wyślij ponownie kod
 flow-setup-phone-confirm-code-resend-code-success = Wysłano kod
 flow-setup-phone-confirm-code-success-message-v2 = Dodano telefon odzyskiwania
 flow-change-phone-confirm-code-success-message = Zmieniono telefon odzyskiwania
-
-
 flow-setup-phone-submit-number-heading = Zweryfikuj numer telefonu
 flow-setup-phone-verify-number-instruction = Otrzymasz wiadomość SMS od { -brand-mozilla(case: "gen") } z kodem weryfikującym numer telefonu. Nie udostępniaj tego kodu nikomu.
 flow-setup-phone-submit-number-info-message-v2 = Telefon odzyskiwania jest dostępny tylko w Stanach Zjednoczonych i Kanadzie. Numery VoIP i maski telefoniczne nie są zalecane.
@@ -700,7 +690,7 @@ header-menu-closed = Menu nawigacji witryny
 header-back-to-top-link =
     .title = Wróć na górę
 header-back-to-settings-link =
-    .title = Wróć do ustawień { -product-mozilla-account(case: "gen", capitalization: "lower") }
+    .title = Wróć do ustawień { -product-mozilla-account(capitalization: "lower", case: "gen") }
 header-title-2 = { -product-mozilla-account }
 header-help = Pomoc
 
@@ -956,7 +946,7 @@ verify-secondary-email-resend-code-button = Wyślij ponownie kod potwierdzenia
 
 
 delete-account-link = Usuń konto
-inactive-update-status-success-alert = Pomyślnie zalogowano. Twoje { -product-mozilla-account(case: "nom", capitalization: "lower") } i dane pozostaną aktywne.
+inactive-update-status-success-alert = Pomyślnie zalogowano. Twoje { -product-mozilla-account(capitalization: "lower", case: "nom") } i dane pozostaną aktywne.
 
 
 product-promo-monitor =
@@ -1088,7 +1078,7 @@ tfa-row-button-refresh =
 tfa-row-cannot-refresh =
     Przepraszamy, wystąpił problem podczas odświeżania
     uwierzytelniania dwuetapowego.
-tfa-row-enabled-description = Twoje konto jest chronione uwierzytelnianiem dwuetapowym. Podczas logowania do { -product-mozilla-account(case: "gen", capitalization: "lower") } będzie trzeba wpisać jednorazowy kod z aplikacji uwierzytelniającej.
+tfa-row-enabled-description = Twoje konto jest chronione uwierzytelnianiem dwuetapowym. Podczas logowania do { -product-mozilla-account(capitalization: "lower", case: "gen") } będzie trzeba wpisać jednorazowy kod z aplikacji uwierzytelniającej.
 tfa-row-enabled-info-link = W jaki sposób chroni to Twoje konto
 tfa-row-disabled-description-v2 = Zabezpiecz swoje konto, używając aplikacji uwierzytelniającej innej firmy jako drugiego kroku logowania.
 tfa-row-cannot-verify-session-4 = Przepraszamy, wystąpił problem podczas potwierdzania sesji
@@ -1173,13 +1163,13 @@ connect-another-device-ios-complete-setup-message = Zaloguj się do { -brand-fir
 
 
 cookies-disabled-header = Obsługa lokalnego przechowywania danych i ciasteczek jest wymagana
-cookies-disabled-enable-prompt-2 = Proszę włączyć obsługę ciasteczek i lokalnego przechowywania danych w przeglądarce, aby uzyskać dostęp do { -product-mozilla-account(case: "gen", capitalization: "lower") }. Dzięki temu włączona zostanie funkcja zapamiętywania użytkownika między sesjami.
+cookies-disabled-enable-prompt-2 = Proszę włączyć obsługę ciasteczek i lokalnego przechowywania danych w przeglądarce, aby uzyskać dostęp do { -product-mozilla-account(capitalization: "lower", case: "gen") }. Dzięki temu włączona zostanie funkcja zapamiętywania użytkownika między sesjami.
 cookies-disabled-button-try-again = Spróbuj ponownie
 cookies-disabled-learn-more = Więcej informacji
 
 
 index-header = Wpisz adres e-mail
-index-sync-header = Przejdź do { -product-mozilla-account(case: "gen", capitalization: "lower") }
+index-sync-header = Przejdź do { -product-mozilla-account(capitalization: "lower", case: "gen") }
 index-sync-subheader = Synchronizuj hasła, karty i zakładki wszędzie tam, gdzie używasz { -brand-firefox(case: "acc") }.
 index-relay-header = Utwórz maskę dla adresu e-mail
 index-relay-subheader = Podaj adres e-mail, na który przekazywać wiadomości z zamaskowanego adresu.
@@ -1299,7 +1289,7 @@ pair-unsupported-message = Czy użyto aparatu systemowego? Należy powiązać z�
 pair-unsupported-oops-header = Ups! Wygląda na to, że nie używasz { -brand-firefox(case: "gen") }.
 pair-unsupported-switch-to-firefox = Przejdź na { -brand-firefox(case: "acc") } i otwórz tę stronę, aby podłączyć kolejne urządzenie.
 pair-unsupported-oops-mobile = Ups! Wygląda na to, że nie używasz { -brand-firefox(case: "gen") }.
-pair-unsupported-connecting-mobile-header-v2 = Łączenie telefonu z { -product-mozilla-account(case: "ins", capitalization: "lower") }
+pair-unsupported-connecting-mobile-header-v2 = Łączenie telefonu z { -product-mozilla-account(capitalization: "lower", case: "ins") }
 pair-unsupported-connecting-mobile-instructions-v2 = Włącz { -brand-firefox(case: "acc") } na komputerze, otwórz stronę <b>firefox.com/pair</b> i postępuj zgodnie z instrukcjami na ekranie, aby połączyć swój telefon.
 pair-unsupported-learn-more-link-v2 = Więcej informacji
 pair-unsupported-desktop-firefox-fallback-header-v2 = Ups! Coś poszło nie tak.
@@ -1335,12 +1325,10 @@ pair2-supplicant-connect-this-device-cancel-button = Anuluj
 pair2-supplicant-timeout-and-cancel-canceled-heading = Anulowano
 
 
-service-welcome-signup-success-banner = Potwierdzono { -product-mozilla-account(case: "acc", capitalization: "lower") }
+service-welcome-signup-success-banner = Potwierdzono { -product-mozilla-account(capitalization: "lower", case: "acc") }
 service-welcome-signin-success-banner = Pomyślnie zalogowano
 service-welcome-vpn-heading = Teraz: Włącz VPN
 service-welcome-vpn-description = Kolejny krok do zwiększenia prywatności w przeglądarce. Przejdź do otwartego panelu i włącz tę opcję.
-
-
 
 
 set-password-heading-v2 = Utwórz hasło, aby synchronizować
@@ -1367,10 +1355,8 @@ complete-reset-password-success-alert = Ustawiono hasło
 complete-reset-password-error-alert = Przepraszamy, wystąpił problem z ustawieniem hasła
 complete-reset-pw-recovery-key-link = Użyj klucza odzyskiwania konta
 reset-password-complete-banner-heading = Zmieniono hasło.
-reset-password-complete-banner-message = Nie zapomnij utworzyć nowego klucza odzyskiwania konta w ustawieniach { -product-mozilla-account(case: "gen", capitalization: "lower") }, aby zapobiec przyszłym problemom z logowaniem.
+reset-password-complete-banner-message = Nie zapomnij utworzyć nowego klucza odzyskiwania konta w ustawieniach { -product-mozilla-account(capitalization: "lower", case: "gen") }, aby zapobiec przyszłym problemom z logowaniem.
 complete-reset-password-desktop-relay = { -brand-firefox } po zalogowaniu spróbuje odesłać Cię do użycia maski dla adresu e-mail.
-
-
 confirm-backup-code-reset-password-input-label = Wpisz 10-znakowy kod
 confirm-backup-code-reset-password-confirm-button = Potwierdź
 confirm-backup-code-reset-password-subheader = Wpisz zapasowy kod uwierzytelniania
@@ -1403,8 +1389,6 @@ password-reset-submit-button-2 = Kontynuuj
 
 reset-password-complete-header = Zmieniono hasło
 reset-password-confirmed-cta = Przejdź do usługi { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Zmień hasło
@@ -1451,7 +1435,7 @@ signin-link-expired-header = Odnośnik potwierdzenia wygasł
 signin-link-expired-message-2 = Kliknięty odnośnik wygasł lub został już wykorzystany.
 
 
-signin-password-needed-header-2 = Wpisz hasło <span>do { -product-mozilla-account(case: "gen", capitalization: "lower") }</span>
+signin-password-needed-header-2 = Wpisz hasło <span>do { -product-mozilla-account(capitalization: "lower", case: "gen") }</span>
 signin-subheader-without-logo-with-servicename = Przejdź do usługi { $serviceName }
 signin-subheader-without-logo-default = Przejdź do ustawień konta
 signin-button = Zaloguj się
@@ -1482,8 +1466,6 @@ back = Wstecz
 
 signin-passkey-fallback-password-label = Hasło
 signin-passkey-fallback-continue = Kontynuuj
-
-
 
 
 signin-passwordless-code-heading = Wpisz kod potwierdzenia
@@ -1543,7 +1525,7 @@ signin-reported-header = Dziękujemy za czujność
 signin-reported-message = Nasz zespół został powiadomiony. Zgłoszenia pomagają nam odpędzać intruzów.
 
 
-signin-token-code-heading-2 = Wpisz kod potwierdzenia <span>do { -product-mozilla-account(case: "gen", capitalization: "lower") }</span>
+signin-token-code-heading-2 = Wpisz kod potwierdzenia <span>do { -product-mozilla-account(capitalization: "lower", case: "gen") }</span>
 signin-token-code-instruction-v2 = Wpisz kod potwierdzenia wysłany na adres <email>{ $email }</email> w ciągu 5 minut.
 signin-token-code-input-label-v2 = Wpisz sześciocyfrowy kod
 signin-token-code-confirm-button = Potwierdź
@@ -1581,10 +1563,8 @@ signin-unblock-support-link = Dlaczego to się stało?
 signin-unblock-desktop-relay = { -brand-firefox } po zalogowaniu spróbuje odesłać Cię do użycia maski dla adresu e-mail.
 
 
-
-
 confirm-signup-code-page-title = Wpisz kod potwierdzenia
-confirm-signup-code-heading-2 = Wpisz kod potwierdzenia <span>do { -product-mozilla-account(case: "gen", capitalization: "lower") }</span>
+confirm-signup-code-heading-2 = Wpisz kod potwierdzenia <span>do { -product-mozilla-account(capitalization: "lower", case: "gen") }</span>
 confirm-signup-code-instruction-v2 = Wpisz kod potwierdzenia wysłany na adres <email>{ $email }</email> w ciągu 5 minut.
 confirm-signup-code-input-label = Wpisz sześciocyfrowy kod
 confirm-signup-code-confirm-button = Potwierdź
@@ -1604,7 +1584,7 @@ signup-change-email-link = Zmień adres e-mail
 
 
 signup-confirmed-sync-header = Synchronizacja jest włączona
-signup-confirmed-sync-success-banner = Potwierdzono { -product-mozilla-account(case: "acc", capitalization: "lower") }
+signup-confirmed-sync-success-banner = Potwierdzono { -product-mozilla-account(capitalization: "lower", case: "acc") }
 signup-confirmed-sync-button = Zacznij przeglądać Internet
 signup-confirmed-sync-description-with-payment-v2 = Twoje hasła, metody płatności, adresy, zakładki, historia i inne dane mogą być synchronizowane wszędzie tam, gdzie używasz { -brand-firefox(case: "acc") }.
 signup-confirmed-sync-description-v2 = Twoje hasła, adresy, zakładki, historia i inne dane mogą być synchronizowane wszędzie tam, gdzie używasz { -brand-firefox(case: "acc") }.

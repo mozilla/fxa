@@ -122,6 +122,9 @@ device-info-block-location-unknown = 位置未知
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $genericOSName } 上的 { $browserName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $deviceName } 上的 { $browserName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP 地址：{ $ipAddress }
@@ -177,21 +180,18 @@ form-verify-totp-disabled-button-title-numeric = 输入 { $codeLength } 位数�
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = 输入由 { $codeLength } 个字符组成的验证码以继续操作
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } 账户恢复密钥
 get-data-trio-title-backup-verification-codes = 备用验证码
 get-data-trio-download-2 =
-    .title = 下载
     .aria-label = 下载
+    .title = 下载
 get-data-trio-copy-2 =
-    .title = 复制
     .aria-label = 复制
+    .title = 复制
 get-data-trio-print-2 =
-    .title = 打印
     .aria-label = 打印
+    .title = 打印
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -252,10 +252,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = 通行密钥
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = 一台电脑和一部手机，上面分别有一颗破碎的心
 hearts-verified-image-aria-label =
@@ -294,6 +290,13 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
     .aria-label = 带有圆形标记的 { -brand-firefox } 窗口，标记中显示绿色勾号和“VPN”，表示 VPN 已启用。
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = { -brand-firefox } 徽标
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = 密码更改成功的图案。
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -485,9 +488,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = { -brand-mozilla } 产品
 bento-menu-tagline = { -brand-mozilla } 的更多保护您隐私的产品。
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -575,9 +575,6 @@ dc-opt-out-success-2 = 退出成功，{ -product-mozilla-accounts }将不再向 
 dc-opt-in-success-2 = 感谢！共享此数据可帮助我们改进 { -product-mozilla-accounts }。
 dc-opt-in-out-error-2 = 抱歉，更改您的数据收集首选项时遇到问题
 dc-learn-more = 详细了解
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = { -product-mozilla-account }菜单
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -727,9 +724,6 @@ flow-setup-phone-confirm-code-resend-code-button = 重新发送验证码
 flow-setup-phone-confirm-code-resend-code-success = 验证码已发送
 flow-setup-phone-confirm-code-success-message-v2 = 已添加恢复电话号码
 flow-change-phone-confirm-code-success-message = 已更改恢复电话号码
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = 请验证您的电话号码
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = 您会收到一条来自 { -brand-mozilla } 的短信，内容是用于验证您的手机号的验证码。请不要与任何人分享此验证码。
@@ -1407,9 +1401,6 @@ oauth-error-1000 = 出了点问题。请关闭此标签页，然后再试一次�
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = 通行密钥设置失败或不可用，请重试或选择其他方式。
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
@@ -1441,9 +1432,6 @@ passkey-registration-error-not-readable = 无法访问身份验证器，请重�
 passkey-registration-error-constraint = 此设备不支持设置通行密钥。请尝试其他方式，或换用其他设备。
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = 通行密钥设置失败，请重试或选择其他方式。
-
-# Authentication errors
-
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = 使用通行密钥登录失败，或该登录方式不可用。请重试或选择其他方式。
 # User already registered a device
@@ -1742,6 +1730,14 @@ pair-unsupported-learn-more-link-v2 = 详细了解
 pair-unsupported-desktop-firefox-fallback-header-v2 = 哎呀！出了点问题。
 pair-unsupported-desktop-firefox-fallback-message-v2 = 请关闭此标签页并重试。
 
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# Dismisses the pairing attempt
+pair2-supplicant-approve-sign-in-cancel-button = 取消
+
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
 
@@ -1753,9 +1749,6 @@ service-welcome-vpn-description = 只差一步，即可增强浏览器的隐私�
 
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
-
-
-# password to complete their sign-in when they want to login to a service requiring it.
 
 set-password-heading-v2 = 创建密码以同步
 # "This" refers to the heading, "Create password to sync"
@@ -1806,9 +1799,6 @@ reset-password-complete-banner-message = 别忘了在 { -product-mozilla-account
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = { -brand-firefox } 将尝试在您登录后返回原页面，供您使用马甲邮箱。
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = 请输入由 10 个字符组成的验证码
 confirm-backup-code-reset-password-confirm-button = 确认
 confirm-backup-code-reset-password-subheader = 请输入备用验证码
@@ -1858,9 +1848,6 @@ reset-password-confirmed-cta = 继续使用 { $serviceName }
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = 重设密码
 password-reset-recovery-method-subheader = 选择恢复方式
@@ -1963,11 +1950,6 @@ signin-passkey-fallback-heading = 输入密码进行同步
 signin-passkey-fallback-body = 为确保您的数据安全，使用此通行密钥时需输入密码。
 signin-passkey-fallback-password-label = 密码
 signin-passkey-fallback-continue = 继续
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2144,9 +2126,6 @@ signin-unblock-desktop-relay = { -brand-firefox } 将尝试在您登录后返回
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = 输入确认码

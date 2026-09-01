@@ -43,6 +43,9 @@ button-back-title = 뒤로
 ## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
+# Button to download the account recovery key as a plain text file and navigate to the next step
+# The next (and final) step is an optional prompt to save a storage hint
+recovery-key-download-button-v4 = 다운로드 및 계속
 # Error message shown in a banner if the account recovery key download failed.
 # The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = 죄송합니다. 계정 복구 키를 다운로드하는 중 문제가 발생했습니다.
@@ -122,6 +125,9 @@ device-info-block-location-unknown = 알 수 없는 위치
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $genericOSName }의 { $browserName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $deviceName }의 { $browserName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP 주소: { $ipAddress }
@@ -131,7 +137,10 @@ device-info-ip-address = IP 주소: { $ipAddress }
 ## the user is on Firefox) or switching to Firefox (on other browsers).
 
 firefox-promo-banner-mobile-heading = 어디에서나 { -brand-firefox }를 사용하세요
+firefox-promo-banner-mobile-description = 여러 기기에서 탭, 북마크, 비밀번호를 동기화하세요. 게다가 모두 안전하게 암호화됩니다.
 firefox-promo-banner-mobile-cta = 기기 연결
+firefox-promo-banner-switch-heading = 빠르게 전환. 손쉽게 적응.
+firefox-promo-banner-switch-description = { -brand-firefox }로 전환하면 북마크, 비밀번호, 방문 기록 등을 가져올 수 있으므로 막힘없이 탐색을 시작할 수 있습니다.
 firefox-promo-banner-switch-cta = { -brand-firefox }로 전환
 
 ## FormPasswordInlineCriteria
@@ -176,21 +185,18 @@ form-verify-totp-disabled-button-title-numeric = 계속하려면 { $codeLength }
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = 계속하려면 { $codeLength }글자의 코드를 입력하세요.
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } 계정 복구 키
 get-data-trio-title-backup-verification-codes = 백업 인증 코드
 get-data-trio-download-2 =
-    .title = 다운로드
     .aria-label = 다운로드
+    .title = 다운로드
 get-data-trio-copy-2 =
-    .title = 복사
     .aria-label = 복사
+    .title = 복사
 get-data-trio-print-2 =
-    .title = 인쇄
     .aria-label = 인쇄
+    .title = 인쇄
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -228,6 +234,9 @@ checkmark-success-icon-aria-label =
 # Used to indicate a check mark for an enabled state/option
 checkmark-enabled-icon-aria-label =
     .aria-label = 활성화됨
+# Used to indicate that an action will navigate forward or open a detail view
+chevron-right-icon-aria-label =
+    .aria-label = 오른쪽 화살표
 # Used on X icon to dismiss a message such as an alert or banner
 close-icon-aria-label =
     .aria-label = 메시지 닫기
@@ -251,10 +260,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = 패스키
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = 각각 깨진 하트가 그려진 컴퓨터와 휴대폰
 hearts-verified-image-aria-label =
@@ -293,9 +298,15 @@ confetti-falling-image-aria-label =
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
     .aria-label = { -brand-firefox } 창에는 녹색 확인 표시를 나타내는 원형 배지와 VPN이 활성화되었음을 나타내는 "VPN"이 표시됩니다.
+sync-devices-image-aria-label =
+    .aria-label = 서로 동기화하는 데스크톱 브라우저 창과 휴대폰, 주위에는 { -brand-firefox } 마스코트
 # Aria label for the Firefox logo and wordmark shown together as a brand lockup
 firefox-wordmark-image-aria-label =
     .aria-label = { -brand-firefox } 로고
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = 비밀번호 변경에 성공했음을 나타내는 삽화.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -355,6 +366,8 @@ link-expired-new-link-button = 새 링크 받기
 
 # immediately before remember-password-signin-link
 remember-password-text = 비밀번호를 기억하시나요?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = 패스키가 있거나 비밀번호를 기억하고 계십니까?
 # link navigates to the sign in page
 remember-password-signin-link = 로그인
 
@@ -472,7 +485,15 @@ flow-recovery-key-hint-unsafe-char-error = 힌트에는 안전하지 않은 유�
 password-reset-warning-icon = 경고
 password-reset-chevron-expanded = 경고 접기
 password-reset-chevron-collapsed = 경고 펼치기
+password-reset-warning-review-sign-in-options = 브라우저 데이터를 지키기 위해 로그인 옵션 검토
 password-reset-warning-have-key = 계정 복구 키가 있나요?
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = 사용하여 비밀번호를 재설정하고 브라우저 데이터를 유지하세요
+password-reset-warning-signed-in-device = 다른 기기에 여전히 로그인되어 있나요?
+password-reset-warning-signed-in-device-description = 브라우저 데이터가 있을 수 있습니다. 비밀번호를 재설정한 뒤, 해당 기기에 로그인하여 데이터를 복구하고 동기화하세요.
+password-reset-warning-restore-data-link = 로그인한 기기에서 브라우저 데이터를 복원하는 법 알아보기
+password-reset-warning-new-device = 새 기기를 쓰지만 이전 기기에는 접근할 수 없나요?
+password-reset-warning-new-device-description = 비밀번호를 재설정한 뒤에는, { -brand-firefox } 서버의 암호화된 브라우저 데이터를 이 기기에서 확인할 수 없습니다.
 
 ## Alert Bar
 
@@ -486,9 +507,6 @@ avatar-default-avatar =
     .alt = 기본 아바타
 
 ##
-
-
-# BentoMenu component
 
 bento-menu-title-3 = { -brand-mozilla } 제품
 bento-menu-tagline = 사용자의 개인 정보를 보호하는 더 많은 { -brand-mozilla }의 제품
@@ -560,6 +578,15 @@ cs-disconnect-suspicious-advice-heading = 의심스러운 기기가 연결 해�
 cs-disconnect-suspicious-advice-content-2 = 연결이 끊긴 장치가 실제로 의심스러운 경우, 정보를 안전하게 보호하려면 계정 설정에서 { -product-mozilla-account } 비밀번호를 변경해야 합니다. 주소창에 about:logins을 입력하여 { -brand-firefox }에 저장한 다른 비밀번호도 변경해야 합니다.
 cs-sign-out-button = 로그아웃
 
+## Sub-rows shown beneath a connected browser entry to indicate which Mozilla
+## services that browser is currently authorized to access via its refresh token.
+
+# Shown as a read-only sub-row under a browser device entry to indicate that
+# the device's refresh token is authorized for Firefox’s built-in VPN.
+# In this context, "VPN" is a VPN service built into the Firefox browser, and
+# generally isn’t localized differently than "VPN".
+cs-scope-firefox-vpn = { -brand-firefox }의 내장 VPN
+
 ## Data collection section
 
 dc-heading = 데이터 수집 및 사용
@@ -571,9 +598,6 @@ dc-opt-out-success-2 = 동의 철회에 성공했습니다. { -product-mozilla-a
 dc-opt-in-success-2 = 감사합니다! 이 데이터를 공유하면 { -product-mozilla-accounts }를 개선하는 데 도움이 됩니다.
 dc-opt-in-out-error-2 = 데이터 수집 설정을 변경하는 중 문제가 발생했습니다.
 dc-learn-more = 자세히 알아보기
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = { -product-mozilla-account } 메뉴
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -702,6 +726,13 @@ flow-setup-2fa-prompt-heading = 2단계 인증 설정
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
 flow-setup-2fa-prompt-description = { $serviceName } 서비스 계정을 안전하게 보호하기 위해 2단계 인증을 설정해야 합니다.
+# Success banner shown at the top of the page when the user signed in with a passkey.
+flow-setup-2fa-prompt-passkey-success-banner = 패스키로 로그인 성공
+# Body copy shown when the user signed in with a passkey and the service still
+# requires two-step authentication setup.
+# Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
+# that requests two-step authentication setup.
+flow-setup-2fa-prompt-passkey-description = { $serviceName }에도 { -product-mozilla-account }의 2단계 인증이 필요합니다. 설정한 뒤에는, 더 이상 패스키로 로그인할 때 2단계 인증을 요구하지 않습니다.
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = <authenticationAppsLink>다음 인증 앱</authenticationAppsLink>을 사용하여 계속 진행할 수 있습니다.
 flow-setup-2fa-prompt-continue-button = 계속
@@ -723,9 +754,6 @@ flow-setup-phone-confirm-code-resend-code-button = 코드 재전송
 flow-setup-phone-confirm-code-resend-code-success = 코드 전송됨
 flow-setup-phone-confirm-code-success-message-v2 = 복구 전화번호가 추가됨
 flow-change-phone-confirm-code-success-message = 복구 전화번호가 변경됨
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = 전화번호 확인
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = { -brand-mozilla }에서 전화번호 확인 코드가 포함된 문자 메시지를 받게 됩니다. 이 코드를 누구에게도 공유하지 마세요.
@@ -953,6 +981,7 @@ page-passkey-add-cancel = 취소
 ## Success / Error messages (shown in alert bar after returning to settings)
 
 page-passkey-add-success = 패스키 생성됨
+page-passkey-add-error-system-v2 = 패스키를 생성하는 데 문제가 발생했습니다. 나중에 다시 시도하세요.
 
 ## Recent account activity
 ## All strings except title indicate an event that occurred from the user's account
@@ -998,6 +1027,35 @@ recent-activity-account-recovery-codes-signin-complete = 복구 코드를 사용
 recent-activity-password-reset-otp-sent = 비밀번호 재설정 확인 코드가 전송됨
 recent-activity-password-reset-otp-verified = 비밀번호 재설정 확인 코드가 확인됨
 recent-activity-must-reset-password = 비밀번호 재설정 필요
+recent-activity-account-recovery-phone-replace-complete = 복구 전화번호 교체됨
+recent-activity-account-recovery-phone-replace-failure = 복구 전화번호 교체 실패
+recent-activity-account-two-factor-replace-success = 2단계 인증 교체됨
+recent-activity-account-two-factor-replace-failure = 2단계 인증 교체 실패
+recent-activity-account-recovery-phone-setup-failed = 복구 전화번호 설정 실패
+recent-activity-account-recovery-phone-reset-password-complete = 복구 전화번호로 비밀번호 재설정 완료
+recent-activity-account-recovery-phone-reset-password-failed = 복구 전화번호로 비밀번호 재설정 실패
+# A code was emailed to the user to authorize a sensitive account change (e.g. removing 2FA, deleting the account).
+recent-activity-account-mfa-otp-sent = 계정 변경 승인 요청됨
+# The user successfully entered the code emailed to authorize a sensitive account change.
+recent-activity-account-mfa-otp-verified = 계정 변경 승인됨
+# The user entered an incorrect or expired code when trying to authorize a sensitive account change.
+recent-activity-account-mfa-otp-failed = 계정 변경 승인 실패
+recent-activity-account-passkey-registration-success = 패스키 추가됨
+recent-activity-account-passkey-registration-failure = 패스키 등록 실패
+recent-activity-account-passkey-removed = 패스키 제거됨
+recent-activity-account-passkey-authentication-success = 패스키로 로그인 완료
+recent-activity-account-passkey-authentication-failure = 패스키로 로그인 실패
+recent-activity-account-passwordless-login-otp-sent = 비밀번호 없는 로그인 코드 전송됨
+recent-activity-account-passwordless-login-otp-failed = 비밀번호 없는 로그인 코드 확인 실패
+recent-activity-account-passwordless-login-otp-verified = 비밀번호 없는 로그인 코드 확인됨
+recent-activity-account-passwordless-registration-complete = 비밀번호 없는 계정 등록 완료
+recent-activity-account-recovery-codes-set = 복구 코드 설정됨
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
+recent-activity-account-passkey-wrap-created = 동기화를 위한 패스키 켜짐
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-creation-failure = 패스키로 동기화 설정 실패
+# A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
+recent-activity-account-passkey-wrap-invalidated = 비밀번호 재설정 후 패스키 동기화 접근이 제거됨
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = 기타 계정 활동
 
@@ -1166,6 +1224,7 @@ passkey-sub-row-created-date = 생성: { $createdDate }
 passkey-sub-row-last-used-date = 최근 사용: { $lastUsedDate }
 passkey-sub-row-delete-title = 패스키 삭제
 passkey-delete-modal-heading = 패스키를 삭제 하시겠습니까?
+passkey-delete-modal-content-v2 = 이 패스키가 계정에서 제거됩니다. 다른 방법(비밀번호, 다른 패스키, 연결된 계정)을 이용해 로그인해야 합니다.
 passkey-delete-modal-cancel-button = 취소
 passkey-delete-modal-confirm-button = 패스키 삭제
 passkey-delete-success = 패스키 삭제됨
@@ -1374,6 +1433,7 @@ auth-error-227 = 패스키 인증 실패
 auth-error-228 = 패스키 등록 실패
 auth-error-233 = 패스 키를 만드려면 기기에서 화면 잠금이나 PIN, 지문, 얼굴 인식, 보안 키를 설정하고 다시 시도하세요.
 auth-error-238 = 패스키 질문 실패
+auth-error-239 = 죄송합니다, 계정을 삭제할 수 없습니다. 다시 시도하거나, 문제가 계속되면 지원 팀에 문의하세요.
 auth-error-999 = 알 수 없는 오류
 auth-error-1001 = 로그인 시도 취소됨
 auth-error-1002 = 세션이 만료되었습니다. 계속하려면 로그인하세요.
@@ -1402,13 +1462,27 @@ oauth-error-1000 = 오류가 발생했습니다. 현재 탭을 닫고 다시 실
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = 패스키 설정이 실패했거나 사용할 수 없습니다. 다시 시도하거나 다른 방법을 선택하십시오.
+# Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
+# Firefox collapses user-cancel and duplicate-authenticator into the same error, but duplicate is
+# the far more likely cause when the user has existing passkeys, so we state it plainly.
+passkey-registration-error-not-allowed-existing = 이 기기에서 패스키 설정을 사용할 수 없습니다. 기기가 이미 등록되었거나 설정 과정이 취소되었습니다.
 # The ceremony timed out before the user responded
 passkey-registration-error-timeout = 패스키 설정이 취소되었습니다. 다시 시도하세요.
+passkey-registration-canceled-v2 = 패스키 설정의 제한 시간이 초과되었거나 취소되었습니다.
+# Link label appended after passkey-registration-canceled-v2, opens a SUMO support article.
+passkey-registration-canceled-link = 더 알아보기
+# Browser or platform does not support passkeys or the requested options (e.g., user verification, discoverable credential).
+passkey-registration-error-not-supported-v2 = 브라우저나 기기가 패스키를 지원하지 않습니다.
+# Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
+passkey-registration-error-not-supported-link = 더 알아보기
+# Generic fallback shown when passkey setup fails for an indeterminate reason.
+# Keep the tone neutral; do not imply the device is unsupported or that the user cancelled.
+# "method" here means an alternative way to create the passkey (e.g. another password manager or security key), not a different account or sign-in option.
+passkey-registration-error-could-not-complete = 패스키 설정을 완료할 수 없습니다. 다른 방법이나 기기를 이용하세요.
+# Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
+passkey-registration-error-could-not-complete-link = 더 알아보기
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe, wrong domain)
 passkey-registration-error-security = 이 페이지에서 패스키를 설정할 수 없습니다. 보안 사이트를 사용하고 다시 시도하세요.
 # A credential for this RP already exists on the authenticator (excludeCredentials match)
@@ -1419,13 +1493,26 @@ passkey-registration-error-not-readable = 인증기에 접근할 수 없습니�
 passkey-registration-error-constraint = 이 기기에서 패스키 설정을 사용할 수 없습니다. 다른 방법이나 장치를 사용해 보세요.
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = 패스키 설정에 실패했습니다. 다시 시도하거나 다른 방법을 선택하십시오.
-
-# Authentication errors
-
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = 패스키로 로그인할 수 없음
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = 다시 시도하거나 다른 로그인 옵션을 이용하세요.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = 패스키 사용 방법
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = 패스키로 로그인에 실패했거나 사용할 수 없습니다. 다시 시도하거나 다른 방법을 선택하십시오.
+# User already registered a device
+passkey-authentication-error-not-allowed-existing = 이 기기에서 패스키 설정을 사용할 수 없습니다. 다시 시도하거나 다른 방법을 선택하십시오.
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = 패스키 요청이 시간을 초과했습니다. 다시 시도하세요.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = 패스키 로그인 제한 시간이 초과되었습니다. 다시 시도하세요.
+# Browser or platform does not support passkeys
+passkey-authentication-error-not-supported-v2 = 브라우저나 기기가 패스키를 지원하지 않습니다.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
 passkey-authentication-error-security = 이 페이지에서는 패스키를 사용할 수 없습니다. 올바른 보안 사이트에 있는지 확인하고 다시 시도하세요.
 # Unexpected credential state during authentication
@@ -1434,6 +1521,10 @@ passkey-authentication-error-invalid-state = 패스키에 문제가 발생했습
 passkey-authentication-error-not-readable = 인증기에 접근할 수 없습니다. 다시 시도하거나 다른 로그인 방법을 사용하세요.
 # Catch-all for unexpected errors during authentication (TypeError, DataError, EncodingError, ConstraintError, OperationError, UnknownError)
 passkey-authentication-error-unexpected = 무언가 잘못되었습니다. 다시 시도하거나 다른 로그인 방법을 선택하세요.
+# Server returned 404 PASSKEY_NOT_FOUND — the assertion was for a credential
+# that no longer exists on the account (e.g., the user deleted the passkey
+# from their account but the authenticator still has the credential).
+passkey-authentication-error-not-found = 패스키를 인식할 수 없습니다. 다른 로그인 방법을 이용하세요.
 
 ## Connect Another Device page
 
@@ -1564,6 +1655,7 @@ pair-auth-complete-send-tab-heading = 탭을 보낼 준비가 되었습니다.
 # Variable { $deviceFamily } is generally a browser name, for example "Firefox"
 # Variable { $deviceOS } is an operating system short name, for example "iOS", "Android"
 pair-auth-complete-send-tab-device-connected = { $deviceOS } { $deviceFamily } 기기가 연결되었습니다.
+pair-auth-complete-send-tab-benefits = 열려 있는 탭, 비밀번호, 북마크를 다른 기기에 곧바로 전송할 수 있습니다.
 
 ## AuthTotp page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
@@ -1623,6 +1715,8 @@ pair-qr-code-aria-label = QR 코드
 pair-choice-subheader = { -brand-firefox } 사용 경험을 동기화하세요.
 # Description shown on the choice screen
 pair-choice-description = 모든 기기에서 저장된 비밀번호, 탐색 기록 등을 확인하세요.
+# Heading shown on the choice screen when the user arrived via a Send Tab entrypoint
+pair-choice-header-send-tab = 탭을 보내려는 기기에서 { -brand-firefox }를 다운로드하거나 실행하세요.
 # Legend for the radio button fieldset
 pair-choice-legend = 계속하려면 옵션을 선택하세요:
 # Radio option: user already has Firefox for mobile — title
@@ -1646,6 +1740,12 @@ pair-password-created-now-syncing = 비밀번호가 생성되었습니다. 동�
 
 # Subheader for the download screen
 pair-download-subheader = 모바일용 { -brand-firefox } 다운로드
+# Description for the download screen
+pair-download-description = 휴대폰이나 태블릿의 { -brand-firefox }와 동기화하시려면, 먼저 모바일용 { -brand-firefox }를 다운로드하셔야 합니다. 아래 단계를 참조하세요:
+# Step 1: scan QR code. $stepNumber is the step number (1)
+pair-download-step-scan-qr = <b>{ $stepNumber }단계</b>: 모바일 기기의 카메라로 이 QR코드를 스캔하고 { -brand-firefox }를 다운로드하세요:
+# Step 2: continue to sync. $stepNumber is the step number (2)
+pair-download-step-continue-sync = <b>{ $stepNumber }단계</b>: “이어서 동기화”를 선택하여 모바일 기기에서 { -brand-firefox } 사용 경험을 동기화하세요.
 # Button on the download screen that opens about:preferences for pairing
 pair-continue-to-sync-button = 이어서 동기화
 
@@ -1653,6 +1753,7 @@ pair-continue-to-sync-button = 이어서 동기화
 
 pair-success-header-2 = 기기 연결됨
 pair-success-message-2 = 페어링에 성공했습니다.
+pair-success-tab-close-message = 이 탭은 { -brand-firefox }가 자동으로 닫을 예정입니다.
 
 ## SuppAllow page - Part of the device pairing flow
 ## Users see this page when they have started to pair a second (or more) device to their account
@@ -1768,6 +1869,10 @@ pair2-supplicant-download-firefox-heading = 이 기기에 { -brand-firefox } 다
 ## to open firefox.com/pair on their computer, which is where the QR code they
 ## scan with the mobile device comes from.
 
+pair2-supplicant-ready-to-scan-heading = 기기를 연결하려면
+# <b> emphasises the address the user types on their computer. It is not a link,
+# and the address itself must not be translated.
+pair2-supplicant-ready-to-scan-instruction = 컴퓨터에서 { -brand-firefox }를 열고, <b>firefox.com/pair</b>로 이동한 뒤, 화면의 지침에 따라 이 모바일 기기를 연결하십시오.
 # Opens a Mozilla support article about setting up sync
 pair2-supplicant-ready-to-scan-learn-more-link = 더 알아보기
 
@@ -1801,9 +1906,6 @@ service-welcome-vpn-description = 브라우저의 개인 정보 보호를 강화
 
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
-
-
-# password to complete their sign-in when they want to login to a service requiring it.
 
 set-password-heading-v2 = 동기화를 위한 비밀번호 생성
 # "This" refers to the heading, "Create password to sync"
@@ -1854,9 +1956,6 @@ reset-password-complete-banner-message = 향후 로그인 문제가 생기는 �
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = 사용자가 로그인한 후 { -brand-firefox }가 이메일 마스크를 사용하도록 다시 요청합니다.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = 10자리 코드 입력
 confirm-backup-code-reset-password-confirm-button = 확인
 confirm-backup-code-reset-password-subheader = 백업 인증 코드 입력
@@ -1906,9 +2005,6 @@ reset-password-confirmed-cta = { $serviceName }로 계속
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = 비밀번호 재설정
 password-reset-recovery-method-subheader = 복구 방법 선택
@@ -2015,11 +2111,6 @@ signin-passkey-fallback-body = 데이터를 안전하게 지키기 위해, 이 �
 signin-passkey-fallback-password-label = 비밀번호
 signin-passkey-fallback-continue = 계속
 signin-passkey-fallback-forgot-password-link = 비밀번호를 잊으셨나요?
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2200,9 +2291,6 @@ signin-unblock-desktop-relay = 사용자가 로그인한 후 { -brand-firefox }�
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = 확인 코드를 입력하세요.

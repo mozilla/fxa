@@ -104,6 +104,13 @@ choose-newsletters-option-test-pilot =
     .label = גישה מוקדמת לבדיקת מוצרים חדשים
 
 
+pair-continue-in-firefox-heading = המשך ב־{ -brand-firefox }
+pair-continue-in-firefox-description = הצימוד מתבצע ב־{ -brand-firefox }. יש לפתוח אותו כדי לסיים לחבר את המכשיר הזה.
+pair-continue-in-firefox-button = המשך ב־{ -brand-firefox }
+pair-continue-in-firefox-opening = בתהליך פתיחת { -brand-firefox }
+pair-continue-in-firefox-get-firefox-link = אין לך את { -brand-firefox }? ניתן לקבל אותו כעת
+
+
 dark-mode-toggle-light = בהיר
 dark-mode-toggle-dark = כהה
 dark-mode-toggle-system = מערכת
@@ -182,19 +189,17 @@ form-verify-code-default-error = שדה זה נדרש
 
 form-verify-totp-disabled-button-title-numeric = יש להזין קוד בן { $codeLength } ספרות כדי להמשיך
 form-verify-totp-disabled-button-title-alphanumeric = יש להזין קוד בן { $codeLength } תווים כדי להמשיך
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = מפתח לשחזור חשבון { -brand-firefox }
 get-data-trio-download-2 =
-    .title = הורדה
     .aria-label = הורדה
+    .title = הורדה
 get-data-trio-copy-2 =
-    .title = העתקה
     .aria-label = העתקה
+    .title = העתקה
 get-data-trio-print-2 =
-    .title = הדפסה
     .aria-label = הדפסה
+    .title = הדפסה
 
 
 alert-icon-aria-label =
@@ -235,8 +240,6 @@ icon-loading-arrow-aria-label =
     .aria-label = בטעינה
 icon-passkey-aria-label =
     .aria-label = מפתח גישה
-
-
 hearts-broken-image-aria-label =
     .aria-label = מחשב וטלפון נייד עם תמונה של לב שבור על כל אחד
 hearts-verified-image-aria-label =
@@ -404,8 +407,6 @@ avatar-default-avatar =
     .alt = דמות מייצגת ברירת מחדל
 
 
-
-
 bento-menu-title-3 = מוצרי { -brand-mozilla }
 bento-menu-tagline = מוצרים נוספים מ־{ -brand-mozilla } שמגנים על הפרטיות שלך
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -468,8 +469,6 @@ dc-opt-out-success-2 = ביטול ההצטרפות הצליח. { -product-mozill
 dc-opt-in-success-2 = תודה! שיתוף הנתונים האלה עוזר לנו לשפר את { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = הייתה בעיה בשינוי העדפת איסוף הנתונים שלך, עמך הסליחה
 dc-learn-more = מידע נוסף
-
-
 drop-down-menu-title-2 = תפריט { -product-mozilla-account(case: "a") }
 drop-down-menu-signed-in-as-v2 = מחובר בתור
 drop-down-menu-sign-out = התנתקות
@@ -564,8 +563,6 @@ flow-setup-phone-confirm-code-resend-code-button = שליחת הקוד מחדש
 flow-setup-phone-confirm-code-resend-code-success = הקוד נשלח
 flow-setup-phone-confirm-code-success-message-v2 = נוסף טלפון לשחזור
 flow-change-phone-confirm-code-success-message = טלפון לשחזור השתנה
-
-
 flow-setup-phone-submit-number-heading = אימות מספר הטלפון שלך
 flow-setup-phone-verify-number-instruction = תישלח אליך הודעת טקסט מ־{ -brand-mozilla } עם קוד לאימות המספר שלך. אין לשתף את הקוד הזה עם אף אחד.
 flow-setup-phone-submit-number-info-message-v2 = טלפון לשחזור זמין רק בארצות הברית ובקנדה. מספרי VoIP ומסכות טלפון אינם מומלצים.
@@ -799,6 +796,9 @@ recent-activity-account-passwordless-login-otp-failed = קוד כניסה ללא
 recent-activity-account-passwordless-login-otp-verified = קוד כניסה ללא ססמה אומת
 recent-activity-account-passwordless-registration-complete = רישום חשבון ללא סיסמה הושלם
 recent-activity-account-recovery-codes-set = הוגדרו קודים לשחזור
+recent-activity-account-passkey-wrap-created = מפתח גישה הופעל עבור סנכרון
+recent-activity-account-passkey-wrap-creation-failure = הגדרת הסנכרון באמצעות מפתח גישה נכשלה
+recent-activity-account-passkey-wrap-invalidated = הגישה של מפתח הגישה לסנכרון הוסרה לאחר איפוס הססמה
 recent-activity-unknown = פעילות אחרת בחשבון
 
 
@@ -1064,8 +1064,6 @@ recovery-phone-number-ending-digits = מספר המסתיים ב־{ $lastFourPho
 oauth-error-1000 = משהו השתבש. נא לסגור לשונית זו ולנסות שוב.
 
 
-
-
 passkey-registration-error-not-allowed = הגדרת מפתח הגישה נכשלה או שאינה זמינה. נא לנסות שוב או לבחור בשיטה אחרת.
 passkey-registration-error-not-allowed-existing = הגדרת מפתחות גישה אינה זמינה במכשיר זה. ייתכן שהמכשיר כבר נרשם או שתהליך ההגדרה בוטל.
 passkey-registration-error-timeout = הגדרת מפתח הגישה בוטלה. נא לנסות שוב.
@@ -1080,8 +1078,6 @@ passkey-registration-error-invalid-state = מפתח גישה זה כבר רשו�
 passkey-registration-error-not-readable = לא הצלחנו לגשת ליישומון המאמת. נא לנסות שוב או לבחור בשיטה אחרת.
 passkey-registration-error-constraint = הגדרת מפתח הגישה אינה זמינה עם מכשיר זה. נא לנסות שיטה או מכשיר אחרים.
 passkey-registration-error-unexpected = הגדרת מפתח הגישה נכשלה. נא לנסות שוב או לבחור בשיטה אחרת.
-
-
 passkey-authentication-trouble-heading = לא ניתן היה להיכנס עם מפתח גישה
 passkey-authentication-trouble-description = נא לנסות שוב או להשתמש באפשרות כניסה אחרת.
 passkey-authentication-trouble-link = כיצד להשתמש במפתחות גישה
@@ -1324,8 +1320,6 @@ service-welcome-vpn-heading = השלב הבא: הפעלת ה־VPN
 service-welcome-vpn-description = עוד צעד אחד בלבד לשיפור פרטיות הדפדפן שלך. יש לעבור לחלונית הפתוחה ולהפעיל אותו.
 
 
-
-
 set-password-heading-v2 = יצירת ססמה לסנכרון
 set-password-info-v2 = ססמה זו מצפינה את הנתונים שלך. היא צריכה להיות שונה מססמת החשבון שלך ב־{ -brand-google } או ב־{ -brand-apple }.
 
@@ -1349,8 +1343,6 @@ complete-reset-pw-recovery-key-link = שימוש במפתח לשחזור החש�
 reset-password-complete-banner-heading = הססמה שלך אופסה.
 reset-password-complete-banner-message = מומלץ ליצור מפתח שחזור חשבון חדש מהגדרות { -product-mozilla-account(case: "the") } שלך כדי למנוע בעיות התחברות עתידיות.
 complete-reset-password-desktop-relay = ‏{ -brand-firefox } ינסה לשלוח אותך בחזרה להשתמש במסכת דוא״ל לאחר ההתחברות.
-
-
 confirm-backup-code-reset-password-input-label = נא להזין קוד בן 10 תווים
 confirm-backup-code-reset-password-confirm-button = אישור
 confirm-backup-code-reset-password-instruction = נא להכניס את אחד מהקודים החד־פעמיים ששמרת כשהגדרת את האימות הדו־שלבי.
@@ -1383,8 +1375,6 @@ password-reset-submit-button-2 = המשך
 
 reset-password-complete-header = הססמה שלך אופסה
 reset-password-confirmed-cta = המשך אל { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = איפוס הססמה שלך
@@ -1459,8 +1449,6 @@ signin-passkey-fallback-body = כדי לשמור על בטיחות הנתוני�
 signin-passkey-fallback-password-label = ססמה
 signin-passkey-fallback-continue = המשך
 signin-passkey-fallback-forgot-password-link = שכחת את הססמה?
-
-
 
 
 signin-passwordless-code-heading = נא להכניס את קוד האימות
@@ -1572,8 +1560,6 @@ signin-unblock-code-incorrect-format-2 = קוד ההרשאה יכול להכיל
 signin-unblock-resend-code-button = לא בתיקיית הדואר הנכנס או הספאם? שליחה חוזרת
 signin-unblock-support-link = מדוע זה קורה?
 signin-unblock-desktop-relay = ‏{ -brand-firefox } ינסה לשלוח אותך בחזרה להשתמש במסכת דוא״ל לאחר ההתחברות.
-
-
 
 
 confirm-signup-code-page-title = נא להכניס את קוד האימות

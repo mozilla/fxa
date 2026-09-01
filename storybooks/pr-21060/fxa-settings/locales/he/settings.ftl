@@ -67,6 +67,20 @@ choose-newsletters-option-latest-news =
 choose-newsletters-option-test-pilot =
     .label = גישה מוקדמת לבדיקת מוצרים חדשים
 
+## ContinueInFirefox component - Part of the desktop-to-mobile pairing flow
+## Shown when the pairing QR code is opened in a browser other than Firefox.
+## It hands the pairing link to the Firefox app, and offers the app store when
+## Firefox is not installed on the device.
+
+pair-continue-in-firefox-heading = המשך ב־{ -brand-firefox }
+pair-continue-in-firefox-description = הצימוד מתבצע ב־{ -brand-firefox }. יש לפתוח אותו כדי לסיים לחבר את המכשיר הזה.
+# Opens the Firefox app on this device
+pair-continue-in-firefox-button = המשך ב־{ -brand-firefox }
+# Shown while waiting for the Firefox app to take over
+pair-continue-in-firefox-opening = בתהליך פתיחת { -brand-firefox }
+# Sends the user to the App Store or Play Store to install Firefox
+pair-continue-in-firefox-get-firefox-link = אין לך את { -brand-firefox }? ניתן לקבל אותו כעת
+
 ## Dark mode toggle
 
 dark-mode-toggle-light = בהיר
@@ -186,20 +200,17 @@ form-verify-totp-disabled-button-title-numeric = יש להזין קוד בן { $
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = יש להזין קוד בן { $codeLength } תווים כדי להמשיך
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = מפתח לשחזור חשבון { -brand-firefox }
 get-data-trio-download-2 =
-    .title = הורדה
     .aria-label = הורדה
+    .title = הורדה
 get-data-trio-copy-2 =
-    .title = העתקה
     .aria-label = העתקה
+    .title = העתקה
 get-data-trio-print-2 =
-    .title = הדפסה
     .aria-label = הדפסה
+    .title = הדפסה
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -259,10 +270,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = מפתח גישה
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = מחשב וטלפון נייד עם תמונה של לב שבור על כל אחד
 hearts-verified-image-aria-label =
@@ -511,9 +518,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = מוצרי { -brand-mozilla }
 bento-menu-tagline = מוצרים נוספים מ־{ -brand-mozilla } שמגנים על הפרטיות שלך
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -602,9 +606,6 @@ dc-opt-out-success-2 = ביטול ההצטרפות הצליח. { -product-mozill
 dc-opt-in-success-2 = תודה! שיתוף הנתונים האלה עוזר לנו לשפר את { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = הייתה בעיה בשינוי העדפת איסוף הנתונים שלך, עמך הסליחה
 dc-learn-more = מידע נוסף
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = תפריט { -product-mozilla-account(case: "a") }
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -761,9 +762,6 @@ flow-setup-phone-confirm-code-resend-code-button = שליחת הקוד מחדש
 flow-setup-phone-confirm-code-resend-code-success = הקוד נשלח
 flow-setup-phone-confirm-code-success-message-v2 = נוסף טלפון לשחזור
 flow-change-phone-confirm-code-success-message = טלפון לשחזור השתנה
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = אימות מספר הטלפון שלך
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = תישלח אליך הודעת טקסט מ־{ -brand-mozilla } עם קוד לאימות המספר שלך. אין לשתף את הקוד הזה עם אף אחד.
@@ -1040,6 +1038,12 @@ recent-activity-account-passwordless-login-otp-failed = קוד כניסה ללא
 recent-activity-account-passwordless-login-otp-verified = קוד כניסה ללא ססמה אומת
 recent-activity-account-passwordless-registration-complete = רישום חשבון ללא סיסמה הושלם
 recent-activity-account-recovery-codes-set = הוגדרו קודים לשחזור
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
+recent-activity-account-passkey-wrap-created = מפתח גישה הופעל עבור סנכרון
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-creation-failure = הגדרת הסנכרון באמצעות מפתח גישה נכשלה
+# A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
+recent-activity-account-passkey-wrap-invalidated = הגישה של מפתח הגישה לסנכרון הוסרה לאחר איפוס הססמה
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = פעילות אחרת בחשבון
 
@@ -1431,9 +1435,6 @@ oauth-error-1000 = משהו השתבש. נא לסגור לשונית זו ולנ
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = הגדרת מפתח הגישה נכשלה או שאינה זמינה. נא לנסות שוב או לבחור בשיטה אחרת.
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
@@ -1465,9 +1466,6 @@ passkey-registration-error-not-readable = לא הצלחנו לגשת ליישו�
 passkey-registration-error-constraint = הגדרת מפתח הגישה אינה זמינה עם מכשיר זה. נא לנסות שיטה או מכשיר אחרים.
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = הגדרת מפתח הגישה נכשלה. נא לנסות שוב או לבחור בשיטה אחרת.
-
-# Authentication errors
-
 # Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
 # available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
 # points the user to another way to sign in.
@@ -1936,9 +1934,6 @@ service-welcome-vpn-description = עוד צעד אחד בלבד לשיפור פ�
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
 
-
-# password to complete their sign-in when they want to login to a service requiring it.
-
 set-password-heading-v2 = יצירת ססמה לסנכרון
 # "This" refers to the heading, "Create password to sync"
 set-password-info-v2 = ססמה זו מצפינה את הנתונים שלך. היא צריכה להיות שונה מססמת החשבון שלך ב־{ -brand-google } או ב־{ -brand-apple }.
@@ -1983,9 +1978,6 @@ reset-password-complete-banner-message = מומלץ ליצור מפתח שחזו
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = ‏{ -brand-firefox } ינסה לשלוח אותך בחזרה להשתמש במסכת דוא״ל לאחר ההתחברות.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = נא להזין קוד בן 10 תווים
 confirm-backup-code-reset-password-confirm-button = אישור
 confirm-backup-code-reset-password-instruction = נא להכניס את אחד מהקודים החד־פעמיים ששמרת כשהגדרת את האימות הדו־שלבי.
@@ -2035,9 +2027,6 @@ reset-password-confirmed-cta = המשך אל { $serviceName }
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = איפוס הססמה שלך
 password-reset-recovery-method-subheader = בחירת אמצעי לשחזור
@@ -2142,11 +2131,6 @@ signin-passkey-fallback-body = כדי לשמור על בטיחות הנתוני�
 signin-passkey-fallback-password-label = ססמה
 signin-passkey-fallback-continue = המשך
 signin-passkey-fallback-forgot-password-link = שכחת את הססמה?
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2333,9 +2317,6 @@ signin-unblock-desktop-relay = ‏{ -brand-firefox } ינסה לשלוח אות�
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = נא להכניס את קוד האימות

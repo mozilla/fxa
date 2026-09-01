@@ -124,21 +124,18 @@ form-verify-totp-disabled-button-title-numeric = Ingresa el código de { $codeLe
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Ingrese el código de carácter { $codeLength } para continuar
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } clave de recuperación de cuenta
 get-data-trio-title-backup-verification-codes = Códigos de autenticación de respaldo
 get-data-trio-download-2 =
-    .title = Descargar
     .aria-label = Descargar
+    .title = Descargar
 get-data-trio-copy-2 =
-    .title = Copiar
     .aria-label = Copiar
+    .title = Copiar
 get-data-trio-print-2 =
-    .title = Imprimir
     .aria-label = Imprimir
+    .title = Imprimir
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -179,10 +176,6 @@ info-icon-aria-label =
 # Used to select United States as a country code for phone number
 usa-flag-icon-aria-label =
     .aria-label = Bandera de Estados Unidos
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Una computadora y un número de teléfono y una imágen de un corazón roto en cada uno
 hearts-verified-image-aria-label =
@@ -366,9 +359,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = { -brand-mozilla } productos
 bento-menu-tagline = Más productos de { -brand-mozilla } que protegen tu privacidad
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -441,9 +431,6 @@ dc-opt-out-success-2 = Tu exclusión voluntaria ha sido exitosa. { -product-mozi
 dc-opt-in-success-2 = ¡Gracias! Compartir estos datos nos ayuda a mejorar { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Lo sentimos, hubo un problema al cambiar tu preferencia de recopilación de datos
 dc-learn-more = Saber más
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = Menú { -product-mozilla-account }
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -515,9 +502,6 @@ flow-setup-phone-confirm-code-expired = ¿Código expirado?
 flow-setup-phone-confirm-code-resend-code-button = Reenviar código
 flow-setup-phone-confirm-code-resend-code-success = Código enviado
 flow-setup-phone-confirm-code-success-message-v2 = Se agregó teléfono de recuperación
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Verifica tu número de teléfono
 flow-setup-phone-submit-number-legal = Al proporcionar tu número, acepta que lo almacenemos para poder enviarte mensajes de texto únicamente para verificar la cuenta. Pueden aplicarse tarifas por mensajes y datos.
 # cliking on the button sends a code by text message to the phone number typed in by the user
@@ -1194,9 +1178,6 @@ complete-reset-pw-recovery-key-link = Utiliza la clave de recuperación de cuent
 # Displayed on the sign in page
 reset-password-complete-banner-heading = Tu contraseña ha sido restablecida
 
-# ConfirmBackupCodeResetPassword page
-
-
 ## Confirm Reset Password With Code
 
 confirm-reset-password-with-code-heading = Verifica tu correo electrónico
@@ -1372,9 +1353,6 @@ signin-unblock-support-link = ¿Por qué está pasando esto?
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Ingresar código de confirmación

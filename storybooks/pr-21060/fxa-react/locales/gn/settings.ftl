@@ -43,6 +43,9 @@ button-back-title = Tapykue
 ## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
+# Button to download the account recovery key as a plain text file and navigate to the next step
+# The next (and final) step is an optional prompt to save a storage hint
+recovery-key-download-button-v4 = Emboguejy ha eku’ejey
 # Error message shown in a banner if the account recovery key download failed.
 # The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Ore ñyro, oĩ apañuái hekopyahúvo ne mba’ete mba’eñemi jeguerujeyrã.
@@ -194,21 +197,18 @@ form-verify-totp-disabled-button-title-numeric = Ehai ayvu orekóva { $codeLengt
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Ehai ayvu orekóva { $codeLength } tai eku’e hag̃ua
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } Mba’ete mba’eñemi jeguerujeyrã
 get-data-trio-title-backup-verification-codes = Ayvu ñemoneĩrã jeykekoha
 get-data-trio-download-2 =
-    .title = Mboguejy
     .aria-label = Mboguejy
+    .title = Mboguejy
 get-data-trio-copy-2 =
-    .title = Monguatia
     .aria-label = Monguatia
+    .title = Monguatia
 get-data-trio-print-2 =
-    .title = Ñemonguatia
     .aria-label = Ñemonguatia
+    .title = Ñemonguatia
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -272,10 +272,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = Ñe’ẽñemi
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Mohendaha ha pumbyry popegua korasõ jeka ra’ãnga reheve peteĩteĩvape
 hearts-verified-image-aria-label =
@@ -524,9 +520,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = { -brand-mozilla } apopyrekuéra
 bento-menu-tagline = { -brand-mozilla } apopyrekuéra omo’ãva nde rekoñemi
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -619,9 +612,6 @@ dc-opt-out-success-2 = Esẽ porã. { -product-mozilla-accounts } nomondomo’ã
 dc-opt-in-success-2 = ¡Aguyje! Emoherakuãvo ko’ã mba’ekuaarã ore pytyvõta { -product-mozilla-accounts } oiko porãvévo.
 dc-opt-in-out-error-2 = Ore ñyrõ, iñapañuái emoambuévo mba’ekuaarã ñembyaty eguerohoryvéva
 dc-learn-more = Kuaave
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = { -product-mozilla-account } poravorã
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -754,6 +744,8 @@ flow-setup-2fa-prompt-heading = Emboheko ñemoneĩ mokõi jeku’épe
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
 flow-setup-2fa-prompt-description = { $serviceName } ojerure emohenda hag̃ua mokõi tape ñemoneĩrã ereko hag̃ua ne mba’ete tekorosãme.
+# Success banner shown at the top of the page when the user signed in with a passkey.
+flow-setup-2fa-prompt-passkey-success-banner = Hendýma ñe’ẽ ñemi jeikerã ndive
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = Eiporukuaa oimeraẽva <authenticationAppsLink>ko’ã tembiporu’i ñemoneĩrã</authenticationAppsLink> eku’ejey hag̃ua.
 flow-setup-2fa-prompt-continue-button = Ku’ejey
@@ -775,9 +767,6 @@ flow-setup-phone-confirm-code-resend-code-button = Emondojey ayvu
 flow-setup-phone-confirm-code-resend-code-success = Ayvu mondopyre
 flow-setup-phone-confirm-code-success-message-v2 = Pumbyry guerujeyrã mbojuajupyre
 flow-change-phone-confirm-code-success-message = Oñemoambue pumbyry guerujeyrã
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Ehechajey ne pumbyry papapy
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = Og̃uahẽta ñe’ẽmondo jehaipy { -brand-mozilla } guive peteĩ ayvu ehechajey hag̃ua nde papapy. Aníke emoherakuã ko ayvu.
@@ -1078,6 +1067,12 @@ recent-activity-account-passwordless-login-otp-failed = Ndoikói ayvu jeikerã �
 recent-activity-account-passwordless-login-otp-verified = Ayvu jeikerã ñe’ẽñemi’ỹre hechajeypyre
 recent-activity-account-passwordless-registration-complete = Oĩmbáma mba’ete mboheraguapy ñe’ẽñemi’ỹre
 recent-activity-account-recovery-codes-set = Ayvu guerujeyrãva mboajepyre
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
+recent-activity-account-passkey-wrap-created = Ñe’ẽ ñemi oikóva embojuehe hag̃ua
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-creation-failure = Ndoikói Sync ñemboheko ñe’ẽ ñemi ndive
+# A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
+recent-activity-account-passkey-wrap-invalidated = Ojepe’a ñembojuehe ñe’ẽ ñemi ndive ñe’ẽñemi oikojey rire
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Mba’ete rembiapo ambuéva
 
@@ -1491,9 +1486,6 @@ oauth-error-1000 = Oĩ ndoikóiva. Emboty ko tendayke ha eha’ã jey.
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = Pe ñe’ẽ ñemi ñemboheko ndoikói térã ndojeporukuaái. Eha’ãjey ag̃ave térã eiporavo ambue.
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
@@ -1525,9 +1517,6 @@ passkey-registration-error-not-readable = Ndoroikekuaái moañetehápe. Eha’ã
 passkey-registration-error-constraint = Ñe’ẽ ñemi jeikeha ñemboheko noĩri ko mba’e’okápe. Eiporu ambue mba’e térã mba’e’oka.
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = Ñe’ẽ ñemi jeikeha ñemboheko ndoikói. Eha’ãjey térã eiporavo ambue.
-
-# Authentication errors
-
 # Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
 # available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
 # points the user to another way to sign in.
@@ -1885,6 +1874,7 @@ pair2-authority-scan-qr-help-link = Eñepytyvõta emoha’ãnga hag̃ua
 
 # "syncing" here means copying data between the user's devices
 pair2-authority-sync-success-heading = Embojuajuhína
+pair2-authority-sync-success-description = Nde rendayke, techaukaha, ñe’ẽñemi ha hetave ojeporukuaáma opaite mba’e’okápe.
 # Opens the tabs that are open on the user's other synced devices
 pair2-authority-sync-success-view-tabs-button = Ehecha tendayke mbojuajupyre
 # Opens the browser settings that control what is synced
@@ -1994,9 +1984,6 @@ service-welcome-vpn-description = Eku’e oikoporã hag̃ua ne kundahára rekoñ
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
 
-
-# password to complete their sign-in when they want to login to a service requiring it.
-
 set-password-heading-v2 = Emoheñói ñe’ẽñemi embojuehe hag̃ua
 # "This" refers to the heading, "Create password to sync"
 set-password-info-v2 = Kóva ombopapapy ne mba’ekuaarã. Iñambueva’erã ne ñe’ẽñemi { -brand-google } térã { -brand-apple } mba’etepeguágui.
@@ -2046,9 +2033,6 @@ reset-password-complete-banner-message = Ani nderesarái emoheñóivo mba’eñe
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = { -brand-firefox } orahaukajeýta ndéve eiporu hag̃ua ñanduti veve rovamo’ãha eike rire ñandutípe.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = Ehai ayvu orekóva 10 tai
 confirm-backup-code-reset-password-confirm-button = Moneĩ
 confirm-backup-code-reset-password-subheader = Emoinge ayvu ñemoneĩrã jeykekoha
@@ -2099,9 +2083,6 @@ reset-password-confirmed-cta = Eku’ejey { $serviceName } ndive
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Embojevyjey ne ñe’ẽñemi
 password-reset-recovery-method-subheader = Eiporavo mba’éichapa erujeýta
@@ -2212,11 +2193,6 @@ signin-passkey-fallback-body = Ereko hag̃ua mba’ekuaarã tekosãme, eikotev�
 signin-passkey-fallback-password-label = Ñe’ẽñemi
 signin-passkey-fallback-continue = Ku’ejey
 signin-passkey-fallback-forgot-password-link = ¿Nderesarái ñe’ẽñemígui?
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2409,9 +2385,6 @@ signin-unblock-desktop-relay = { -brand-firefox } orahaukajeýta eimehápe eipor
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Emoinge ayvu jehechajeyrã

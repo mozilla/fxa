@@ -83,14 +83,7 @@ button-back-aria-label = Tillbaka
 button-back-title = Tillbaka
 
 
-recovery-key-download-button-v3 = Ladda ner och fortsätt
-    .title = Ladda ner och fortsätt
-recovery-key-pdf-heading = Nyckel för kontoåterställning
-recovery-key-pdf-download-date = Skapad: { $date }
-recovery-key-pdf-key-legend = Nyckel för kontoåterställning
-recovery-key-pdf-instructions = Den här nyckeln låter dig återställa dina krypterade webbläsardata (inklusive lösenord, bokmärken och historik) om du glömmer ditt lösenord. Förvara den på en plats du kommer ihåg.
-recovery-key-pdf-storage-ideas-heading = Platser att förvara din nyckel
-recovery-key-pdf-support = Läs mer om din kontoåterställningsnyckel
+recovery-key-download-button-v4 = Ladda ner och fortsätt
 recovery-key-pdf-download-error = Det gick tyvärr inte att ladda ned din kontoåterställningsnyckel.
 
 
@@ -105,6 +98,13 @@ choose-newsletters-option-test-pilot =
     .label = Tidig tillgång till att testa nya produkter
 choose-newsletters-option-reclaim-the-internet =
     .label = Åtgärdsvarningar för att återta internet
+
+
+pair-continue-in-firefox-heading = Fortsätt i { -brand-firefox }
+pair-continue-in-firefox-description = Parkoppling sker om { -brand-firefox }. Öppna den för att slutföra anslutningen av enheten.
+pair-continue-in-firefox-button = Fortsätt i { -brand-firefox }
+pair-continue-in-firefox-opening = Öppnar { -brand-firefox }
+pair-continue-in-firefox-get-firefox-link = Har du inte { -brand-firefox }? Hämta den nu
 
 
 dark-mode-toggle-light = Ljust
@@ -188,20 +188,18 @@ form-verify-code-default-error = Detta fält är obligatoriskt
 
 form-verify-totp-disabled-button-title-numeric = Ange { $codeLength }-siffrig kod för att fortsätta
 form-verify-totp-disabled-button-title-alphanumeric = Ange en kod på { $codeLength } tecken för att fortsätta
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } kontoåterställningsnyckel
 get-data-trio-title-backup-verification-codes = Reservautentiseringskoder
 get-data-trio-download-2 =
-    .title = Hämta
     .aria-label = Hämta
+    .title = Hämta
 get-data-trio-copy-2 =
-    .title = Kopiera
     .aria-label = Kopiera
+    .title = Kopiera
 get-data-trio-print-2 =
-    .title = Skriv ut
     .aria-label = Skriv ut
+    .title = Skriv ut
 
 
 alert-icon-aria-label =
@@ -246,8 +244,6 @@ icon-loading-arrow-aria-label =
     .aria-label = Laddar
 icon-passkey-aria-label =
     .aria-label = Lösenord
-
-
 hearts-broken-image-aria-label =
     .aria-label = En dator och en mobiltelefon och en bild av ett brustet hjärta på varje
 hearts-verified-image-aria-label =
@@ -415,8 +411,6 @@ avatar-default-avatar =
     .alt = Standardavatar
 
 
-
-
 bento-menu-title-3 = { -brand-mozilla }-produkter
 bento-menu-tagline = Fler produkter från { -brand-mozilla } som skyddar din integritet
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -483,8 +477,6 @@ dc-opt-out-success-2 = Valet lyckades. { -product-mozilla-accounts } skickar int
 dc-opt-in-success-2 = Tack! Att dela denna data hjälper oss att förbättra { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Tyvärr, det uppstod ett problem med att ändra din inställning för datainsamling
 dc-learn-more = Läs mer
-
-
 drop-down-menu-title-2 = { -product-mozilla-account }-meny
 drop-down-menu-signed-in-as-v2 = Inloggad som
 drop-down-menu-sign-out = Logga ut
@@ -568,6 +560,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Hur detta skyddar ditt konto
 flow-setup-2fa-inline-complete-continue-button = Fortsätt till { $serviceName }
 flow-setup-2fa-prompt-heading = Ställ in tvåstegsautentisering
 flow-setup-2fa-prompt-description = { $serviceName } kräver att du konfigurerar tvåstegsautentisering för att skydda ditt konto.
+flow-setup-2fa-prompt-passkey-success-banner = Inloggad med lösenordsnyckel
+flow-setup-2fa-prompt-passkey-description = { $serviceName } kräver också tvåstegsautentisering för ditt { -product-mozilla-account }. Efter installationen behöver du inte längre den när du loggar in med en lösenordsnyckel.
 flow-setup-2fa-prompt-use-authenticator-apps = Du kan använda någon av <authenticationAppsLink>dessa autentiseringsappar</authenticationAppsLink> för att fortsätta.
 flow-setup-2fa-prompt-continue-button = Fortsätt
 
@@ -581,8 +575,6 @@ flow-setup-phone-confirm-code-resend-code-button = Skicka koden igen
 flow-setup-phone-confirm-code-resend-code-success = Kod skickad
 flow-setup-phone-confirm-code-success-message-v2 = Återställningstelefon tillagd
 flow-change-phone-confirm-code-success-message = Återställningstelefonen har ändrats
-
-
 flow-setup-phone-submit-number-heading = Verifiera ditt telefonnummer
 flow-setup-phone-verify-number-instruction = Du får ett sms från { -brand-mozilla } med en kod för att verifiera ditt nummer. Dela inte den här koden med någon.
 flow-setup-phone-submit-number-info-message-v2 = Återställningstelefon är endast tillgänglig i USA och Kanada. VoIP-nummer och telefonalias rekommenderas inte.
@@ -830,6 +822,9 @@ recent-activity-account-passwordless-login-otp-failed = Lösenordslös inloggnin
 recent-activity-account-passwordless-login-otp-verified = Lösenordslös inloggningskod verifierad
 recent-activity-account-passwordless-registration-complete = Lösenordslös kontoregistrering slutförd
 recent-activity-account-recovery-codes-set = Återställningskoder inställda
+recent-activity-account-passkey-wrap-created = Lösenordsnyckel aktiverad för synkronisering
+recent-activity-account-passkey-wrap-creation-failure = Synkroniseringsinstallationen med lösenordsnyckel misslyckades
+recent-activity-account-passkey-wrap-invalidated = Åtkomst till synkronisering av lösenordsnyckel borttagen efter lösenordsåterställning
 recent-activity-unknown = Annan kontoaktivitet
 
 
@@ -1115,8 +1110,6 @@ recovery-phone-number-ending-digits = Nummer som slutar på { $lastFourPhoneNumb
 oauth-error-1000 = Något gick fel. Stäng den här fliken och försök igen.
 
 
-
-
 passkey-registration-error-not-allowed = Inställning av lösenordsnyckel misslyckades eller är otillgänglig. Försök igen eller välj en annan metod.
 passkey-registration-error-not-allowed-existing = Installation av lösenordsnyckel är inte tillgänglig med den här enheten. Antingen har enheten redan registrerats eller så avbröts installationen.
 passkey-registration-error-timeout = Installationen av lösenordsnyckel avbröts. Försök igen.
@@ -1131,8 +1124,6 @@ passkey-registration-error-invalid-state = Denna lösenordsnyckel är redan regi
 passkey-registration-error-not-readable = Vi kunde inte komma åt autentiseringen. Försök igen eller välj en annan metod.
 passkey-registration-error-constraint = Installation av lösenordsnyckel är inte tillgänglig med den här enheten. Prova en annan metod eller enhet.
 passkey-registration-error-unexpected = Inställning av lösenordsnyckel misslyckades. Försök igen eller välj en annan metod.
-
-
 passkey-authentication-trouble-heading = Det gick inte att logga in med en lösenordsnyckel
 passkey-authentication-trouble-description = Försök igen eller använd ett annat inloggningsalternativ.
 passkey-authentication-trouble-link = Hur man använder lösenordsnycklar
@@ -1334,7 +1325,7 @@ pair2-authority-timeout-and-cancel-canceled-heading = Avbruten
 pair2-authority-timeout-and-cancel-canceled-description = Om du ångrar dig eller vill ansluta en annan enhet, försök igen.
 pair2-authority-timeout-and-cancel-try-again-button = Försök igen
 pair2-authority-timeout-and-cancel-cancel-button = Avbryt
-pair2-authority-timeout-and-cancel-sync-settings-button = Sync-inställningar
+pair2-authority-timeout-and-cancel-sync-settings-button = Synkroniseringsinställningar
 
 
 pair2-supplicant-approve-sign-in-heading = Ett sista steg för att synkronisera
@@ -1375,8 +1366,6 @@ service-welcome-vpn-heading = Nästa: Slå på VPN
 service-welcome-vpn-description = Ytterligare ett steg för att stärka din webbläsares integritet. Gå till den öppna panelen och slå på den.
 
 
-
-
 set-password-heading-v2 = Skapa lösenord för att synkronisera
 set-password-info-v2 = Detta krypterar din data. Det måste skilja sig från lösenordet för ditt { -brand-google }- eller { -brand-apple }-konto.
 
@@ -1403,8 +1392,6 @@ complete-reset-pw-recovery-key-link = Använd nyckel för kontoåterställning
 reset-password-complete-banner-heading = Ditt lösenord har återställts.
 reset-password-complete-banner-message = Glöm inte att skapa en ny kontoåterställningsnyckel från dina inställningar för { -product-mozilla-account } för att förhindra framtida inloggningsproblem.
 complete-reset-password-desktop-relay = { -brand-firefox } försöker skicka dig tillbaka för att använda ett e-postalias efter du loggat in.
-
-
 confirm-backup-code-reset-password-input-label = Ange en kod på 10 tecken
 confirm-backup-code-reset-password-confirm-button = Bekräfta
 confirm-backup-code-reset-password-subheader = Ange reservautentiseringskod
@@ -1438,8 +1425,6 @@ password-reset-submit-button-2 = Fortsätt
 
 reset-password-complete-header = Ditt lösenord har återställts
 reset-password-confirmed-cta = Fortsätt till { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Återställ lösenordet
@@ -1520,8 +1505,6 @@ signin-passkey-fallback-body = För att skydda din data måste du ange ditt lös
 signin-passkey-fallback-password-label = Lösenord
 signin-passkey-fallback-continue = Fortsätt
 signin-passkey-fallback-forgot-password-link = Glömt lösenordet?
-
-
 
 
 signin-passwordless-code-heading = Ange bekräftelsekod
@@ -1638,8 +1621,6 @@ signin-unblock-code-incorrect-format-2 = Behörighetskod kan endast innehålla b
 signin-unblock-resend-code-button = Inte i inkorgen eller skräppostmappen? Skicka igen
 signin-unblock-support-link = Varför händer detta?
 signin-unblock-desktop-relay = { -brand-firefox } försöker skicka dig tillbaka för att använda ett e-postalias efter du loggat in.
-
-
 
 
 confirm-signup-code-page-title = Ange bekräftelsekod

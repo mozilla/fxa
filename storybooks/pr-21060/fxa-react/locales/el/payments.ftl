@@ -34,7 +34,7 @@ brand-name-mozilla-logo = Λογότυπο { -brand-mozilla }
 
 ## Component - NewUserEmailForm
 
-new-user-sign-in-link-2 = Διαθέτετε ήδη { -product-mozilla-account(case: "acc", capitalization: "lower") }; <a>Συνδεθείτε</a>
+new-user-sign-in-link-2 = Διαθέτετε ήδη { -product-mozilla-account(capitalization: "lower", case: "acc") }; <a>Συνδεθείτε</a>
 # "Required" to indicate that the user must use the checkbox below this text to
 # agree to a payment method's terms of service and privacy notice in order to
 # continue.
@@ -100,7 +100,7 @@ payment-confirmation-download-button = Συνέχεια στη λήψη
 
 ## Component - PaymentConsentCheckbox
 
-payment-confirm-with-legal-links-static-3 = Εξουσιοδοτώ τη { -brand-mozilla } να χρεώνει το αναγραφόμενο ποσό στη μέθοδο πληρωμής μου, σύμφωνα με τους <termsOfServiceLink>Όρους υπηρεσίας</termsOfServiceLink> και τη <privacyNoticeLink>Σημείωση απορρήτου</privacyNoticeLink>, μέχρι να ακυρώσω τη συνδρομή μου.
+payment-confirm-with-legal-links-static-3 = Εξουσιοδοτώ τη { -brand-mozilla } να χρεώνει το αναγραφόμενο ποσό στη μέθοδο πληρωμής μου, σύμφωνα με τους <termsOfServiceLink>Όρους παροχής υπηρεσιών</termsOfServiceLink> και τη <privacyNoticeLink>Δήλωση απορρήτου</privacyNoticeLink>, μέχρι να ακυρώσω τη συνδρομή μου.
 payment-confirm-checkbox-error = Πρέπει να ολοκληρώσετε αυτήν τη διαδικασία πριν προχωρήσετε
 
 ## Component - PaymentErrorView
@@ -119,8 +119,8 @@ iap-upgrade-get-help-button = Λήψη βοήθειας
 ## Component - PaymentForm
 
 payment-name =
-    .placeholder = Πλήρες όνομα
     .label = Το όνομα όπως εμφανίζεται στην κάρτα σας
+    .placeholder = Πλήρες όνομα
 payment-cc =
     .label = Η κάρτα σας
 payment-cancel-btn = Ακύρωση
@@ -279,9 +279,9 @@ sub-guarantee = Εγγύηση επιστροφής χρημάτων 30 ημερ
 
 # "Mozilla Accounts" is capitalized in this instance for title case in English
 # This heading is followed by links to Terms of Service and Privacy Notice
-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(case: "nom", capitalization: "upper") }
+subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "upper", case: "nom") }
 terms = Όροι υπηρεσίας
-privacy = Σημείωση απορρήτου
+privacy = Δήλωση απορρήτου
 terms-download = Λήψη όρων
 
 ## App-level string(s) and messages shared by multiple components or routes
@@ -361,7 +361,7 @@ coupon-expired = Φαίνεται πως ο κωδικός της προωθητ
 card-error = Δεν ήταν δυνατή η επεξεργασία της συναλλαγής σας. Επαληθεύστε τα στοιχεία της πιστωτικής σας κάρτας και δοκιμάστε ξανά.
 country-currency-mismatch = Το νόμισμα της συνδρομής δεν είναι έγκυρο για τη χώρα που σχετίζεται με την πληρωμή σας.
 currency-currency-mismatch = Δυστυχώς, δεν μπορείτε να κάνετε εναλλαγή νομισμάτων.
-location-unsupported = Η τρέχουσα τοποθεσία σας δεν υποστηρίζεται σύμφωνα με τους Όρους υπηρεσίας μας.
+location-unsupported = Η τρέχουσα τοποθεσία σας δεν υποστηρίζεται σύμφωνα με τους Όρους παροχής υπηρεσιών μας.
 no-subscription-change = Δυστυχώς, δεν μπορείτε να αλλάξετε το πακέτο συνδρομής σας.
 # $mobileAppStore (String) - "Google Play Store" or "App Store", localized when the translation is available.
 iap-already-subscribed = Έχετε ήδη εγγραφεί μέσω του { $mobileAppStore }.
@@ -386,7 +386,7 @@ coupon-success-repeating = Το πρόγραμμά σας θα ανανεωθε�
 
 ## Routes - Checkout - New user
 
-new-user-step-1-2 = 1. Δημιουργήστε έναν { -product-mozilla-account(case: "acc", capitalization: "lower") }
+new-user-step-1-2 = 1. Δημιουργήστε έναν { -product-mozilla-account(capitalization: "lower", case: "acc") }
 new-user-card-title = Εισαγάγετε τα στοιχεία της κάρτας σας
 new-user-submit = Εγγραφή τώρα
 
@@ -404,10 +404,6 @@ product-invoice-preview-error-text = Δεν ήταν δυνατή η φόρτω�
 ## Routes - Product - IapRoadblock
 
 subscription-iaperrorupgrade-title = Δεν μπορεί να γίνει αναβάθμιση ακόμα
-
-# The following are not terms because they are not used directly in messages,
-# but rather looked up in code and passed into the message as variables.
-
 brand-name-google-play-2 = { -google-play } Store
 brand-name-apple-app-store-2 = { -app-store }
 
@@ -503,9 +499,6 @@ sub-next-bill-due-date = Προθεσμία επόμενου λογαριασμ�
 sub-expires-on = Λήγει στις { $date }
 
 ## Routes - Subscription - PaymentUpdate
-
-
-# $expirationDate (Date) - The payment card's expiration date.
 
 pay-update-card-exp = Λήγει στις { $expirationDate }
 sub-route-idx-updating = Ενημέρωση στοιχείων χρέωσης…

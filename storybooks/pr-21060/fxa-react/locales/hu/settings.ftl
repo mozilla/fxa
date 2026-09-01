@@ -75,6 +75,20 @@ choose-newsletters-option-test-pilot =
 choose-newsletters-option-reclaim-the-internet =
     .label = Felhívások az internet visszaszerzésére
 
+## ContinueInFirefox component - Part of the desktop-to-mobile pairing flow
+## Shown when the pairing QR code is opened in a browser other than Firefox.
+## It hands the pairing link to the Firefox app, and offers the app store when
+## Firefox is not installed on the device.
+
+pair-continue-in-firefox-heading = Folytatás a { -brand-firefox }ban
+pair-continue-in-firefox-description = A párosítás { -brand-firefox } múlva megtörténik. Nyissa meg az eszköz csatlakoztatásának befejezéséhez.
+# Opens the Firefox app on this device
+pair-continue-in-firefox-button = Folytatás a { -brand-firefox }ban
+# Shown while waiting for the Firefox app to take over
+pair-continue-in-firefox-opening = Nyitás: { -brand-firefox }
+# Sends the user to the App Store or Play Store to install Firefox
+pair-continue-in-firefox-get-firefox-link = Nincs { -brand-firefox }ja? Szerezze be most
+
 ## Dark mode toggle
 
 dark-mode-toggle-light = Világos
@@ -197,21 +211,18 @@ form-verify-totp-disabled-button-title-numeric = A folytatáshoz adja meg a { $c
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = A folytatáshoz adja meg a { $codeLength } karakteres kódot
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } fiók-helyreállítási kulcs
 get-data-trio-title-backup-verification-codes = Tartalék hitelesítési kódok
 get-data-trio-download-2 =
-    .title = Letöltés
     .aria-label = Letöltés
+    .title = Letöltés
 get-data-trio-copy-2 =
-    .title = Másolás
     .aria-label = Másolás
+    .title = Másolás
 get-data-trio-print-2 =
-    .title = Nyomtatás
     .aria-label = Nyomtatás
+    .title = Nyomtatás
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -275,10 +286,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = Jelkulcs
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Egy számítógép és egy mobiltelefon, mindkettőn egy összetört szív képe
 hearts-verified-image-aria-label =
@@ -527,9 +534,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = { -brand-mozilla } termékek
 bento-menu-tagline = A { -brand-mozilla } további termékei, amelyek védik a magánszféráját
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -626,9 +630,6 @@ dc-opt-out-success-2 = Sikeres leiratkozás. A { -product-mozilla-accounts } nem
 dc-opt-in-success-2 = Köszönjük! Ezen adatok megosztása segít nekünk a { -product-mozilla-accounts } fejlesztésében.
 dc-opt-in-out-error-2 = Sajnos probléma merült fel az adatgyűjtési beállítás megváltoztatásakor
 dc-learn-more = További tudnivalók
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = { -product-mozilla-account } menü
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -767,7 +768,7 @@ flow-setup-2fa-prompt-passkey-success-banner = Sikeresen bejelentkezett a jelkul
 # requires two-step authentication setup.
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
-flow-setup-2fa-prompt-passkey-description = A(z) { $serviceName } is kétlépcsős hitelesítést igényel a(z) { -product-mozilla-account } eszközéhez. A beállítás után nem lesz rá szüksége, ha jelkulccsal jelentkezik be.
+flow-setup-2fa-prompt-passkey-description = A(z) { $serviceName } is kétlépcsős hitelesítést igényel a { -product-mozilla-account }jához. A beállítás után már nem lesz rá szüksége, ha jelkulccsal jelentkezik be.
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = A folytatáshoz <authenticationAppsLink>ezen hitelesítő alkalmazások</authenticationAppsLink> bármelyikét használhatja.
 flow-setup-2fa-prompt-continue-button = Folytatás
@@ -789,9 +790,6 @@ flow-setup-phone-confirm-code-resend-code-button = Kód újraküldése
 flow-setup-phone-confirm-code-resend-code-success = Kód elküldve
 flow-setup-phone-confirm-code-success-message-v2 = Helyreállítási telefonszám hozzáadva
 flow-change-phone-confirm-code-success-message = A helyreállítási telefonszám megváltozott
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Ellenőrizze a telefonszámát
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = Kapni fog egy SMS-t a { -brand-mozilla(ending: "accented") }tól, amely egy kódot tartalmaz a száma ellenőrzéséhez. Ne ossza meg ezt a kódot másokkal.
@@ -1092,6 +1090,12 @@ recent-activity-account-passwordless-login-otp-failed = A jelszó nélküli beje
 recent-activity-account-passwordless-login-otp-verified = Jelszó nélküli bejelentkezési kód ellenőrizve
 recent-activity-account-passwordless-registration-complete = Jelszó nélküli fiókregisztráció befejezve
 recent-activity-account-recovery-codes-set = Helyreállítási kódok beállítva
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
+recent-activity-account-passkey-wrap-created = A jelkulcs engedélyezve a szinkronizáláshoz
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-creation-failure = A jelkulcsos szinkronizálás beállítása sikertelen
+# A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
+recent-activity-account-passkey-wrap-invalidated = A jelkulcsos szinkronizálás hozzáférése eltávolítva a jelszó-visszaállítás után
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Egyéb fióktevékenység
 
@@ -1506,9 +1510,6 @@ oauth-error-1000 = Hiba történt. Zárja be ezt a lapot, és próbálja újra.
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = A jelkulcs beállítása sikertelen vagy nem érhető el. Próbálja újra, vagy válasszon másik módszert.
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
@@ -1540,9 +1541,6 @@ passkey-registration-error-not-readable = Nem tudtuk elérni a hitelesítőt. Pr
 passkey-registration-error-constraint = A jelkulcsbeállítás nem érhető el ennél az eszköznél. Próbálkozzon másik módszerrel vagy eszközzel.
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = A jelkulcs beállítása sikertelen. Próbálja újra, vagy válasszon másik módszert.
-
-# Authentication errors
-
 # Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
 # available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
 # points the user to another way to sign in.
@@ -1856,7 +1854,7 @@ pair-unsupported-desktop-firefox-fallback-message-v2 = Zárja be ezt a lapot, é
 pair2-authority-approve-sign-in-heading = Jóváhagyja a bejelentkezést?
 # Submit button confirming that the user started the pairing and approves the
 # other device being added to their account
-pair2-authority-approve-sign-in-confirm-button = Igen, jóváhagyom a bejelentkezést
+pair2-authority-approve-sign-in-confirm-button = Igen, a bejelentkezés jóváhagyása
 # "Not you?" asks whether someone other than the user started this sign-in.
 # The text inside <changePassword> links to the page for changing the password.
 pair2-authority-approve-sign-in-change-password = Nem Ön az? <changePassword>Változtassa meg a jelszavát</changePassword>
@@ -1876,30 +1874,30 @@ pair2-authority-continue-on-mobile-cancel-button = Mégse
 ## It points them at firefox.com/pair and offers a download link for Firefox.
 
 # "sync" is a verb here, referring to syncing data between the user's devices
-pair2-authority-download-firefox-heading = { -brand-firefox } megnyitása a szinkronizáláshoz
+pair2-authority-download-firefox-heading = A { -brand-firefox } megnyitása a szinkronizáláshoz
 # "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = Az eszközök közti szinkronizálás beállításához nyissa meg a(z) { -brand-firefox } böngészőt ezen az eszközön, és keresse fel a <b>firefox.com/pair</b> oldalt
+pair2-authority-download-firefox-instruction = Az eszközök közti szinkronizálás beállításához nyissa meg a { -brand-firefox } böngészőt ezen az eszközön, és keresse fel a <b>firefox.com/pair</b> oldalt
 # Links out to the Firefox download page
-pair2-authority-download-firefox-cta = { -brand-firefox } letöltése
+pair2-authority-download-firefox-cta = A { -brand-firefox } letöltése
 
 ## ScanQR page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer. It shows a QR code that they scan with
 ## their phone or tablet to connect the two devices and start syncing.
 
-pair2-authority-scan-qr-heading = Beolvasás a mobileszközhöz csatlakozáshoz
+pair2-authority-scan-qr-heading = Olvassa le a mobileszköze csatlakoztatásához
 # "sync" is a verb here, referring to syncing data between the user's devices
-pair2-authority-scan-qr-instruction = Olvassa le a QR-kódot telefonjával vagy táblagépével, és szinkronizálja a(z) { -brand-firefox } könyvjelzőit, lapjait és egyebeit.
+pair2-authority-scan-qr-instruction = Olvassa le a QR-kódot telefonjával vagy táblagépével, és szinkronizálja a { -brand-firefox } könyvjelzőit, lapjait és egyebeit.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR-kód a mobileszköz csatlakoztatásához
 # Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Segítség a beolvasáshoz
+pair2-authority-scan-qr-help-link = Segítség a leolvasáshoz
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
 ## It confirms that sync is on and offers the follow-up actions.
 
 # "syncing" here means copying data between the user's devices
-pair2-authority-sync-success-heading = Szinkronizál
+pair2-authority-sync-success-heading = Ön már szinkronizál
 pair2-authority-sync-success-description = Lapjai, könyvjelzői, jelszavai és egyebek készen állnak az összes eszközén.
 # Opens the tabs that are open on the user's other synced devices
 pair2-authority-sync-success-view-tabs-button = Szinkronizált lapok megtekintése
@@ -1913,10 +1911,10 @@ pair2-authority-sync-success-sync-settings-button = Szinkronizálási beállít�
 
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Még mindig csatlakoztatni szeretne egy eszközt?
-pair2-authority-timeout-and-cancel-timeout-description = Úgy tűnik, túlléptük az időkorlátot. Próbálja újra, ha továbbra is csatlakoztatni szeretné mobileszközét, és szinkronizálni szeretné az adatait: { -brand-firefox }.
+pair2-authority-timeout-and-cancel-timeout-description = Úgy tűnik, túlléptük az időkorlátot. Próbálja újra, ha továbbra is csatlakoztatni szeretné mobileszközét, és szinkronizálni szeretné a { -brand-firefox } adatait:.
 # Shown when the pairing attempt was canceled, on either device
 pair2-authority-timeout-and-cancel-canceled-heading = Megszakítva
-pair2-authority-timeout-and-cancel-canceled-description = Ha meggondolja magát vagy egy másik eszközt szeretne csatlakoztatni, próbálja újra.
+pair2-authority-timeout-and-cancel-canceled-description = Ha meggondolja magát, vagy egy másik eszközt szeretne csatlakoztatni, próbálja újra.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Újrapróbálkozás
 # Abandons pairing without retrying
@@ -1954,22 +1952,22 @@ pair2-supplicant-connect-this-device-cancel-button = Mégse
 ## does not have Firefox installed yet. It explains what syncing gets them and
 ## sends them off to install the browser.
 
-pair2-supplicant-download-firefox-heading = { -brand-firefox } erre az eszközre
+pair2-supplicant-download-firefox-heading = A { -brand-firefox } beszerzése erre az eszközre
 # "sync" is a verb here, referring to syncing data between the user's devices.
 # <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = Töltse le a(z) { -brand-firefox } programot, és szinkronizálja a könyvjelzőket, előzményeket és egyebeket az eszközök között. <linkExternal>Tudjon meg többet</linkExternal>
+pair2-supplicant-download-firefox-description = Töltse le a { -brand-firefox }ot, és szinkronizálja a könyvjelzőket, előzményeket és egyebeket az eszközök között. <linkExternal>Tudjon meg többet</linkExternal>
 # Primary action. Sends the user to the Firefox download page.
-pair2-supplicant-download-firefox-continue-button = Folytatás { -brand-firefox } múlva
+pair2-supplicant-download-firefox-continue-button = Folytatás a { -brand-firefox }ban
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
 ## to open firefox.com/pair on their computer, which is where the QR code they
 ## scan with the mobile device comes from.
 
-pair2-supplicant-ready-to-scan-heading = Eszköz csatlakoztatásához
+pair2-supplicant-ready-to-scan-heading = Eszköz csatlakoztatása
 # <b> emphasises the address the user types on their computer. It is not a link,
 # and the address itself must not be translated.
-pair2-supplicant-ready-to-scan-instruction = Nyissa meg a(z) { -brand-firefox } böngészőt a számítógépén, és menjen a <b>firefox.com/pair</b> oldalra, és kövesse a képernyőn megjelenő utasításokat a mobileszköz csatlakoztatásához.
+pair2-supplicant-ready-to-scan-instruction = Nyissa meg a { -brand-firefox }ot a számítógépén, lépjen a <b>firefox.com/pair</b> oldalra, és kövesse a képernyőn megjelenő utasításokat a mobileszköze csatlakoztatásához.
 # Opens a Mozilla support article about setting up sync
 pair2-supplicant-ready-to-scan-learn-more-link = További tudnivalók
 
@@ -1977,8 +1975,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = További tudnivalók
 ## Users see this on their mobile device once pairing has completed: the device
 ## is signed in and syncing with the computer they paired it with.
 
-pair2-supplicant-sync-success-heading = Az eszköz csatlakoztatva van
-pair2-supplicant-sync-success-description = A könyvjelzői, lapjai és egyebei szinkronizálva maradnak { -brand-firefox }ban.
+pair2-supplicant-sync-success-heading = Az eszköze csatlakoztatva van
+pair2-supplicant-sync-success-description = A könyvjelzői, lapjai és egyebei szinkronizálva maradnak a { -brand-firefox }ban.
 # Opens the view listing tabs open on the user's other synced devices
 pair2-supplicant-sync-success-view-tabs-button = Szinkronizált lapok megtekintése
 # Opens the browser's sync settings, where the user chooses what to sync
@@ -1993,7 +1991,7 @@ pair2-supplicant-sync-success-sync-settings-button = Szinkronizálási beállít
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
 pair2-supplicant-timeout-and-cancel-timeout-heading = Úgy tűnik, túlléptük az időkorlátot
 # "firefox.com/pair" is a URL and should not be translated
-pair2-supplicant-timeout-and-cancel-timeout-description = A mobileszköz csatlakoztatásához és a(z) { -brand-firefox } adatainak szinkronizálásához keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén.
+pair2-supplicant-timeout-and-cancel-timeout-description = A mobileszköz csatlakoztatásához és a { -brand-firefox } adatainak szinkronizálásához keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén.
 # Shown after the pairing attempt was canceled
 pair2-supplicant-timeout-and-cancel-canceled-heading = Megszakítva
 # "firefox.com/pair" is a URL and should not be translated
@@ -2010,9 +2008,6 @@ service-welcome-vpn-description = Még egy lépés a böngészője adatvédelmé
 
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
-
-
-# password to complete their sign-in when they want to login to a service requiring it.
 
 set-password-heading-v2 = Jelszó létrehozása a szinkronizáláshoz
 # "This" refers to the heading, "Create password to sync"
@@ -2063,9 +2058,6 @@ reset-password-complete-banner-message = Ne felejtsen el egy új fiók-helyreál
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = Bejelentkezés után a { -brand-firefox } megpróbálja visszaküldeni Önt az e-mail-maszk használatához.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = Adja meg a 10 karakteres kódot
 confirm-backup-code-reset-password-confirm-button = Megerősítés
 confirm-backup-code-reset-password-subheader = Adjon meg egy tartalék hitelesítési kódot
@@ -2116,9 +2108,6 @@ reset-password-confirmed-cta = Tovább erre: { $serviceName }
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Jelszó visszaállítása
 password-reset-recovery-method-subheader = Válasszon helyreállítási módot
@@ -2229,11 +2218,6 @@ signin-passkey-fallback-body = Hogy adatait biztonságban tartsa, meg kell adnia
 signin-passkey-fallback-password-label = Jelszó
 signin-passkey-fallback-continue = Folytatás
 signin-passkey-fallback-forgot-password-link = Elfelejtette a jelszót?
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2426,9 +2410,6 @@ signin-unblock-desktop-relay = Bejelentkezés után a { -brand-firefox } megpró
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Adja meg a megerősítő kódot

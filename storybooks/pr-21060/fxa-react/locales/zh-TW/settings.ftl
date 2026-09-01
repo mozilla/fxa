@@ -43,6 +43,9 @@ button-back-title = 上一頁
 ## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
+# Button to download the account recovery key as a plain text file and navigate to the next step
+# The next (and final) step is an optional prompt to save a storage hint
+recovery-key-download-button-v4 = 下載並繼續
 # Error message shown in a banner if the account recovery key download failed.
 # The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = 很抱歉，下載帳號救援金鑰時發生問題。
@@ -71,6 +74,20 @@ choose-newsletters-option-test-pilot =
 # "Action alerts" can be interpreted as "Calls to action"
 choose-newsletters-option-reclaim-the-internet =
     .label = 採取行動奪回網路環境
+
+## ContinueInFirefox component - Part of the desktop-to-mobile pairing flow
+## Shown when the pairing QR code is opened in a browser other than Firefox.
+## It hands the pairing link to the Firefox app, and offers the app store when
+## Firefox is not installed on the device.
+
+pair-continue-in-firefox-heading = 到 { -brand-firefox } 繼續
+pair-continue-in-firefox-description = 需於 { -brand-firefox } 進行配對，請開啟 { -brand-firefox } 完成連結此裝置。
+# Opens the Firefox app on this device
+pair-continue-in-firefox-button = 到 { -brand-firefox } 繼續
+# Shown while waiting for the Firefox app to take over
+pair-continue-in-firefox-opening = 正在開啟 { -brand-firefox }
+# Sends the user to the App Store or Play Store to install Firefox
+pair-continue-in-firefox-get-firefox-link = 沒有 { -brand-firefox } 嗎？立即安裝
 
 ## Dark mode toggle
 
@@ -182,21 +199,18 @@ form-verify-totp-disabled-button-title-numeric = 請輸入 { $codeLength } 位�
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = 請輸入 { $codeLength } 個字元的驗證碼繼續
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } 帳號救援金鑰
 get-data-trio-title-backup-verification-codes = 備用驗證碼
 get-data-trio-download-2 =
-    .title = 下載
     .aria-label = 下載
+    .title = 下載
 get-data-trio-copy-2 =
-    .title = 複製
     .aria-label = 複製
+    .title = 複製
 get-data-trio-print-2 =
-    .title = 列印
     .aria-label = 列印
+    .title = 列印
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -260,10 +274,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = Passkey
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = 一台電腦與一支手機，當中分別有破碎的心
 hearts-verified-image-aria-label =
@@ -512,9 +522,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = { -brand-mozilla } 產品
 bento-menu-tagline = { -brand-mozilla } 更多會保護您隱私的產品
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -603,9 +610,6 @@ dc-opt-out-success-2 = 成功退出。{ -product-mozilla-accounts }將不再傳�
 dc-opt-in-success-2 = 感謝您！分享此資料可協助我們改進 { -product-mozilla-accounts }。
 dc-opt-in-out-error-2 = 很抱歉，更改您的資料收集偏好設定時發生問題
 dc-learn-more = 了解更多
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = { -product-mozilla-account } 選單
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -734,6 +738,13 @@ flow-setup-2fa-prompt-heading = 設定兩階段驗證
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
 flow-setup-2fa-prompt-description = { $serviceName } 要求您設定兩階段驗證，以確保帳號安全。
+# Success banner shown at the top of the page when the user signed in with a passkey.
+flow-setup-2fa-prompt-passkey-success-banner = 成功使用 Passkey 登入
+# Body copy shown when the user signed in with a passkey and the service still
+# requires two-step authentication setup.
+# Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
+# that requests two-step authentication setup.
+flow-setup-2fa-prompt-passkey-description = { $serviceName } 要求對您的 { -product-mozilla-account }進行兩階段驗證。設定完成後，如果使用 Passkey 登入則不需要再進行兩階段驗證。
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = 您可以使用<authenticationAppsLink>下列驗證程式</authenticationAppsLink>當中的任一種來設定。
 flow-setup-2fa-prompt-continue-button = 繼續
@@ -755,9 +766,6 @@ flow-setup-phone-confirm-code-resend-code-button = 重寄驗證碼
 flow-setup-phone-confirm-code-resend-code-success = 已傳送驗證碼
 flow-setup-phone-confirm-code-success-message-v2 = 已新增救援電話號碼
 flow-change-phone-confirm-code-success-message = 已更改救援電話號碼
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = 確認您的手機號碼
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = 您會收到來自 { -brand-mozilla } 的驗證簡訊，當中包含一組驗證碼。請勿將此驗證碼提供給任何人。
@@ -1054,6 +1062,12 @@ recent-activity-account-passwordless-login-otp-failed = 無密碼登入代碼驗
 recent-activity-account-passwordless-login-otp-verified = 無密碼登入代碼驗證成功
 recent-activity-account-passwordless-registration-complete = 無密碼帳號註冊成功
 recent-activity-account-recovery-codes-set = 設定救援碼
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
+recent-activity-account-passkey-wrap-created = 已啟用 Passkey 進行同步
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-creation-failure = 使用 Passkey 設定同步失敗
+# A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
+recent-activity-account-passkey-wrap-invalidated = 密碼重設完成後，移除 Passkey 同步存取權限
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = 其他帳號活動
 
@@ -1450,9 +1464,6 @@ oauth-error-1000 = 有些東西不對勁，請關閉此分頁再試一次。
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = Passkey 設定失敗或無法使用，請再試一次或改用其他方式。
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
@@ -1484,9 +1495,6 @@ passkey-registration-error-not-readable = 無法存取驗證器，請再試一�
 passkey-registration-error-constraint = 無法於此裝置設定 Passkey，請改用其他方式或另一台裝置。
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = Passkey 設定失敗，請再試一次或改用其他方式。
-
-# Authentication errors
-
 # Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
 # available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
 # points the user to another way to sign in.
@@ -1955,9 +1963,6 @@ service-welcome-vpn-description = 讓您瀏覽器的隱私保護再進一步。�
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
 
-
-# password to complete their sign-in when they want to login to a service requiring it.
-
 set-password-heading-v2 = 設定同步密碼
 # "This" refers to the heading, "Create password to sync"
 set-password-info-v2 = 將會加密您的資料，必須與您的 { -brand-google } 或 { -brand-apple } 帳號密碼不同。
@@ -2007,9 +2012,6 @@ reset-password-complete-banner-message = 別忘記到 { -product-mozilla-account
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = 登入後，{ -brand-firefox } 將嘗試使用您的轉寄信箱帶您回到原網站。
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = 請輸入 10 字元長的驗證碼
 confirm-backup-code-reset-password-confirm-button = 確認
 confirm-backup-code-reset-password-subheader = 請輸入備用驗證碼
@@ -2060,9 +2062,6 @@ reset-password-confirmed-cta = 繼續前往 { $serviceName }
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = 重設您的密碼
 password-reset-recovery-method-subheader = 選擇救援方式
@@ -2166,11 +2165,6 @@ signin-passkey-fallback-body = 為了確保您的資料安全，使用這把 Pas
 signin-passkey-fallback-password-label = 密碼
 signin-passkey-fallback-continue = 繼續
 signin-passkey-fallback-forgot-password-link = 忘記密碼？
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2347,9 +2341,6 @@ signin-unblock-desktop-relay = 登入後，{ -brand-firefox } 將嘗試使用您
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = 請輸入確認碼

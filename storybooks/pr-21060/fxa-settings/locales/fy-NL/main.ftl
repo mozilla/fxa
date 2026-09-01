@@ -83,6 +83,7 @@ button-back-aria-label = Tebek
 button-back-title = Tebek
 
 
+recovery-key-download-button-v4 = Downloade en trochgean
 recovery-key-pdf-download-error = Sorry, der is in probleem bard by it downloaden fan de accountwerstelkaai.
 
 
@@ -180,20 +181,18 @@ form-verify-code-default-error = Dit fjild is ferplichte
 
 form-verify-totp-disabled-button-title-numeric = Fier in { $codeLength }-siferige koade yn om troch te gean
 form-verify-totp-disabled-button-title-alphanumeric = Fier in koade fan { $codeLength } tekens yn om troch te gean
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox }-accountwerstelkaai
 get-data-trio-title-backup-verification-codes = Reserve-autentikaasjekoaden
 get-data-trio-download-2 =
-    .title = Downloade
     .aria-label = Downloade
+    .title = Downloade
 get-data-trio-copy-2 =
-    .title = Kopiearje
     .aria-label = Kopiearje
+    .title = Kopiearje
 get-data-trio-print-2 =
-    .title = Ofdrukke
     .aria-label = Ofdrukke
+    .title = Ofdrukke
 
 
 alert-icon-aria-label =
@@ -238,8 +237,6 @@ icon-loading-arrow-aria-label =
     .aria-label = Lade
 icon-passkey-aria-label =
     .aria-label = Passkey
-
-
 hearts-broken-image-aria-label =
     .aria-label = In kompjûter en in mobile telefoan en op beide in ôfbylding fan in brutsen hert
 hearts-verified-image-aria-label =
@@ -407,8 +404,6 @@ avatar-default-avatar =
     .alt = Standertavatar
 
 
-
-
 bento-menu-title-3 = { -brand-mozilla }-produkten
 bento-menu-tagline = Mear produkten fan { -brand-mozilla } dy’t jo privacy beskermje
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -479,8 +474,6 @@ dc-opt-out-success-2 = Ofmelden suksesfol. { -product-mozilla-accounts } stjoert
 dc-opt-in-success-2 = Tank! Troch dizze gegevens te dielen helpe jo ús { -product-mozilla-accounts } te ferbetterjen.
 dc-opt-in-out-error-2 = Sorry, der is in probleem bard by it wizigjen fan jo foarkar foar gegevenssamling
 dc-learn-more = Mear ynfo
-
-
 drop-down-menu-title-2 = { -product-mozilla-account }-menu
 drop-down-menu-signed-in-as-v2 = Oanmeld as
 drop-down-menu-sign-out = Ofmelde
@@ -564,6 +557,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Hoe dit jo account beskermet
 flow-setup-2fa-inline-complete-continue-button = Trochgean nei { $serviceName }
 flow-setup-2fa-prompt-heading = Autentikaasje yn twa stappen ynstelle
 flow-setup-2fa-prompt-description = { $serviceName } fereasket dat jo twa-stapsautentikaasje ynstelle om jo account feilich te hâlden.
+flow-setup-2fa-prompt-passkey-success-banner = Mei sukses oanmeld mei wachtwurdkaai
+flow-setup-2fa-prompt-passkey-description = { $serviceName } fereasket ek twa-stapsautentikaasje foar jo { -product-mozilla-account }. Nei it ynstellen hawwe jo dizze net mear nedich as jo jo oanmelde mei in wachtwurdkaai.
 flow-setup-2fa-prompt-use-authenticator-apps = Jo kinne elk fan <authenticationAppsLink>dizze autentikaasje-apps</authenticationAppsLink> brûke om troch te gean.
 flow-setup-2fa-prompt-continue-button = Trochgean
 
@@ -577,8 +572,6 @@ flow-setup-phone-confirm-code-resend-code-button = Koade nochris ferstjoere
 flow-setup-phone-confirm-code-resend-code-success = Koade ferstjoerd
 flow-setup-phone-confirm-code-success-message-v2 = Wersteltelefoannûmer tafoege
 flow-change-phone-confirm-code-success-message = Wersteltelefoannûmer wizige
-
-
 flow-setup-phone-submit-number-heading = Ferifiearje jo telefoannûmer
 flow-setup-phone-verify-number-instruction = Jo ûntfange in sms fan { -brand-mozilla } mei in koade om jo nûmer te ferifiearjen. Diel dizze koade mei net ien.
 flow-setup-phone-submit-number-info-message-v2 = Wersteltelefoannûmers binne allinnich beskikber yn de Ferienige Steaten en Kanada. VoIP-nûmers en telefoanmaskers wurde net oanrekommandearre.
@@ -826,6 +819,9 @@ recent-activity-account-passwordless-login-otp-failed = Koade foar oanmelden sû
 recent-activity-account-passwordless-login-otp-verified = Koade foar oanmelden sûnder wachtwurd ferifiearre
 recent-activity-account-passwordless-registration-complete = Wachtwurdleaze accountregistraasje foltôge
 recent-activity-account-recovery-codes-set = Werstelkoaden ynsteld
+recent-activity-account-passkey-wrap-created = Wachtwurdkaai foar syngronisaasje ynskeakele
+recent-activity-account-passkey-wrap-creation-failure = Syngronisaasje ynstelle mei wachtwurdkaai mislearre
+recent-activity-account-passkey-wrap-invalidated = Wachtwurdkaai-syngronisaasjetagong fuortsmiten nei opnij ynstellen wachtwurd
 recent-activity-unknown = Oare accountaktiviteit
 
 
@@ -1112,8 +1108,6 @@ recovery-phone-number-ending-digits = Nûmer dat einiget op { $lastFourPhoneNumb
 oauth-error-1000 = Der is wat misgien. Slút dit ljepblêd en probearje it opnij.
 
 
-
-
 passkey-registration-error-not-allowed = Ynstellen fan wachtwurd mislearre of is net beskikber. Probearje it opnij of kies in oare metoade.
 passkey-registration-error-not-allowed-existing = Ynstellen fan wachtwurdkaai is net beskikber op dit apparaat. It apparaat is al registrearre, of it ynstelproses is annulearre.
 passkey-registration-error-timeout = Ynstellen fan wachtwurdkaai is annulearre. Probearje it opnij.
@@ -1128,8 +1122,6 @@ passkey-registration-error-invalid-state = Dizze wachtwurdkaai is al registrearr
 passkey-registration-error-not-readable = Wy krije gjin tagong krije ta de authenticator. Probearje it opnij of kies in oare metoade.
 passkey-registration-error-constraint = It ynstellen fan in wachtwurdkaai is net beskikber mei dit apparaat. Probearje in oare metoade of apparaat.
 passkey-registration-error-unexpected = Ynstellen fan wachtwurdkaai mislearre. Probearje it opnij of kies in oare metoade.
-
-
 passkey-authentication-trouble-heading = Kin net oanmelde mei in wachtwurdkaai
 passkey-authentication-trouble-description = Probearje it opnij of brûk in oare oanmeldingsopsje.
 passkey-authentication-trouble-link = Wachtwurdkaaien brûke
@@ -1308,17 +1300,68 @@ pair2-authority-continue-on-mobile-description = Folgje de stappen op jo telefoa
 pair2-authority-continue-on-mobile-cancel-button = Annulearje
 
 
+pair2-authority-download-firefox-heading = Iepenje { -brand-firefox } om te syngronisearjen
+pair2-authority-download-firefox-instruction = Iepenje { -brand-firefox } op dit apparaat en besykje <b>firefox.com/pair</b> om syngronisaasje tusken apparaten yn te stellen
+pair2-authority-download-firefox-cta = { -brand-firefox } downloade
+
+
+pair2-authority-scan-qr-heading = Scan om jo mobile apparaat te ferbinen
+pair2-authority-scan-qr-instruction = Scan de QR-koade mei jo telefoan of tablet om jo { -brand-firefox }-blêdwizers, ljepblêden en mear te syngronisearjen.
+pair2-authority-scan-qr-code-aria-label = QR-koade om jo mobile apparaat te ferbinen
+pair2-authority-scan-qr-help-link = Help by scannen ûntfange
+
+
+pair2-authority-sync-success-heading = Jo syngronisearje
+pair2-authority-sync-success-description = Jo ljepblêden, blêdwizers, wachtwurden en mear binne klear op al jo apparaten.
+pair2-authority-sync-success-view-tabs-button = Syngronisearre ljepblêden besjen
+pair2-authority-sync-success-sync-settings-button = Syngronisaasje-ynstellingen
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = Wolle jo dochs in apparaat ferbine?
+pair2-authority-timeout-and-cancel-timeout-description = It liket derop dat de tiid ferrûn is. Probearje it nochris as jo jo mobyl apparaat noch ferbine wolle en jo { -brand-firefox }-gegevens syngronisearje wolle.
+pair2-authority-timeout-and-cancel-canceled-heading = Annulearre
+pair2-authority-timeout-and-cancel-canceled-description = As jo fan gedachten feroarje of in oar apparaat ferbine wolle, probearje it dan opnij.
+pair2-authority-timeout-and-cancel-try-again-button = Opnij probearje
+pair2-authority-timeout-and-cancel-cancel-button = Annulearje
+pair2-authority-timeout-and-cancel-sync-settings-button = Syngronisaasje-ynstellingen
+
+
 pair2-supplicant-approve-sign-in-heading = Ien lêste syngronisaasjestap
 pair2-supplicant-approve-sign-in-instruction = Keur de oanmelding op jo kompjûter goed.
 pair2-supplicant-approve-sign-in-cancel-button = Annulearje
+
+
+pair2-supplicant-connect-this-device-heading = Dit apparaat mei jo account ferbine?
+pair2-supplicant-connect-this-device-connect-button = Ferbine
+pair2-supplicant-connect-this-device-cancel-button = Annulearje
+
+
+pair2-supplicant-download-firefox-heading = Download { -brand-firefox } op dit apparaat
+pair2-supplicant-download-firefox-description = Download { -brand-firefox } om blêdwizers, skiednis en mear op ferskate apparaten te syngronisearjen. <linkExternal>Mear ynfo</linkExternal>
+pair2-supplicant-download-firefox-continue-button = Trochgean yn { -brand-firefox }
+
+
+pair2-supplicant-ready-to-scan-heading = In apparaat ferbine
+pair2-supplicant-ready-to-scan-instruction = Iepenje { -brand-firefox } op jo kompjûter, besykje <b>firefox.com/pair</b> en folgje de ynstruksjes op it skerm om jo mobile apparaat te ferbinen.
+pair2-supplicant-ready-to-scan-learn-more-link = Mear ynfo
+
+
+pair2-supplicant-sync-success-heading = Jo apparaat is ferbûn
+pair2-supplicant-sync-success-description = Jo blêdwizers, ljepblêden en mear bliuwe yn { -brand-firefox } syngronisearre.
+pair2-supplicant-sync-success-view-tabs-button = Syngronisearre ljepblêden besjen
+pair2-supplicant-sync-success-sync-settings-button = Syngronisaasje-ynstellingen
+
+
+pair2-supplicant-timeout-and-cancel-timeout-heading = It liket derop dat der in time-out bard is
+pair2-supplicant-timeout-and-cancel-timeout-description = Besykje <b>firefox.com/pair</b> op jo kompjûter om jo mobile apparaat te ferbinen en jo { -brand-firefox }-gegevens te syngronisearjen.
+pair2-supplicant-timeout-and-cancel-canceled-heading = Annulearre
+pair2-supplicant-timeout-and-cancel-canceled-description = Besykje <b>firefox.com/pair</b> op jo kompjûter om op elk winske momint in apparaat te ferbinen.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } befêstige
 service-welcome-signin-success-banner = Mei sukses oanmeld!
 service-welcome-vpn-heading = Folgjende: VPN ynskeakelje
 service-welcome-vpn-description = Noch ien stap om de privacy fan jo browser te ferbetterjen. Gean nei it iepen paniel en skeakelje VPN yn.
-
-
 
 
 set-password-heading-v2 = Meitsje in wachtwurd oan om te syngronisearjen
@@ -1347,8 +1390,6 @@ complete-reset-pw-recovery-key-link = Accountwerstelkaai brûke
 reset-password-complete-banner-heading = Jo wachtwurd is opnij inisjalisearre.
 reset-password-complete-banner-message = Ferjit net in nije accountwerstelkaai te meitsjen fan jo { -product-mozilla-account }-ynstellingen út om takomstige oanmeldingsproblemen foar te kommen.
 complete-reset-password-desktop-relay = { -brand-firefox } probearret jo werom te stjoeren om in e-mailmasker te brûken neidat jo jo oanmeld hawwe.
-
-
 confirm-backup-code-reset-password-input-label = Fier koade fan 10 tekens yn
 confirm-backup-code-reset-password-confirm-button = Befêstigje
 confirm-backup-code-reset-password-subheader = Fier reserve-autentikaasjekoade yn
@@ -1382,8 +1423,6 @@ password-reset-submit-button-2 = Trochgean
 
 reset-password-complete-header = Jo wachtwurd is opnij ynsteld
 reset-password-confirmed-cta = Trochgean nei { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Jo wachtwurd werinisjalisearje
@@ -1461,8 +1500,6 @@ signin-passkey-fallback-body = Om jo gegevens feilich te hâlden, moatte jo jo w
 signin-passkey-fallback-password-label = Wachtwurd
 signin-passkey-fallback-continue = Trochgean
 signin-passkey-fallback-forgot-password-link = Wachtwurd ferjitten?
-
-
 
 
 signin-passwordless-code-heading = Fier befêstigingskoade yn
@@ -1579,8 +1616,6 @@ signin-unblock-code-incorrect-format-2 = Autorisaasjekoade mei allinnich letters
 signin-unblock-resend-code-button = Net yn Postfek YN of map mei net-winske? Opnij ferstjoere
 signin-unblock-support-link = Werom bart dit?
 signin-unblock-desktop-relay = { -brand-firefox } probearret jo werom te stjoeren om in e-mailmasker te brûken neidat jo jo oanmeld hawwe.
-
-
 
 
 confirm-signup-code-page-title = Fier befêstigingskoade yn

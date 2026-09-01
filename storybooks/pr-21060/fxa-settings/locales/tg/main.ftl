@@ -156,20 +156,18 @@ form-verify-code-default-error = Ин майдон ҳатмӣ аст.
 
 form-verify-totp-disabled-button-title-numeric = Барои идома додан, рамзи { $codeLength }-рақамаро ворид кунед
 form-verify-totp-disabled-button-title-alphanumeric = Барои идома додан, рамзеро дорои { $codeLength } аломат ворид кунед
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Калиди барқарорсозии ҳисоби «{ -brand-firefox }»
 get-data-trio-title-backup-verification-codes = Нусхаи эҳтиётии рамзҳои санҷиши ҳаққоният
 get-data-trio-download-2 =
-    .title = Боргирӣ кардан
     .aria-label = Боргирӣ кардан
+    .title = Боргирӣ кардан
 get-data-trio-copy-2 =
-    .title = Нусха бардоштан
     .aria-label = Нусха бардоштан
+    .title = Нусха бардоштан
 get-data-trio-print-2 =
-    .title = Чоп кардан
     .aria-label = Чоп кардан
+    .title = Чоп кардан
 
 
 alert-icon-aria-label =
@@ -206,8 +204,6 @@ info-icon-aria-label =
     .aria-label = Маълумот
 usa-flag-icon-aria-label =
     .aria-label = Парчами Иёлоти Муттаҳидаи Амрико
-
-
 hearts-broken-image-aria-label =
     .aria-label = Компютер ва телефони мобилӣ бо тасвири дили шикаста дар ҳар яке онҳо.
 hearts-verified-image-aria-label =
@@ -309,8 +305,6 @@ avatar-default-avatar =
     .alt = Аватари пешфарз
 
 
-
-
 bento-menu-title-3 = Маҳсулоти «{ -brand-mozilla }»
 bento-menu-tagline = Маҳсулоти бештар аз «{ -brand-mozilla }», ки махфияти шуморо муҳофизат мекунанд
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -341,8 +335,6 @@ dc-heading = Ҷамъоварӣ ва истифодабарии маълумот
 dc-subheader-moz-accounts = { -product-mozilla-accounts }
 dc-subheader-ff-browser = Браузери «{ -brand-firefox }»
 dc-learn-more = Маълумоти бештар
-
-
 drop-down-menu-title-2 = Менюи «{ -product-mozilla-account }»
 drop-down-menu-sign-out = Баромад
 
@@ -400,8 +392,6 @@ flow-setup-phone-confirm-code-resend-code-button = Аз нав фиристод�
 flow-setup-phone-confirm-code-resend-code-success = Рамз фиристода шуд
 flow-setup-phone-confirm-code-success-message-v2 = Телефони барқарорсозӣ илова карда шуд
 flow-change-phone-confirm-code-success-message = Телефони барқарорсозӣ иваз карда шуд
-
-
 flow-setup-phone-submit-number-heading = Рақами телефони худро тасдиқ кунед
 flow-setup-phone-submit-number-button = Фиристодани рамз
 
@@ -741,8 +731,6 @@ complete-reset-pw-header-v2 = Ниҳонвожаи наверо эҷод нам�
 complete-reset-password-success-alert = Ниҳонвожа танзим карда шуд
 complete-reset-pw-recovery-key-link = Истифодаи калиди барқарорсозии ҳисоб
 reset-password-complete-banner-heading = Ниҳонвожаи шумо аз нав барқарор карда шуд.
-
-
 confirm-backup-code-reset-password-subheader = Нусхаи эҳтиётии рамзи санҷиши ҳаққониятро ворид кунед
 
 
@@ -766,8 +754,6 @@ password-reset-submit-button-2 = Идома додан
 
 reset-password-complete-header = Ниҳонвожаи шумо аз нав барқарор карда шуд
 reset-password-confirmed-cta = Ба «{ $serviceName }» идома диҳед
-
-
 
 
 password-reset-recovery-method-header = Барқарор кардани ниҳонвожаи худ
@@ -862,8 +848,6 @@ signin-unblock-code-input = Рамзи санҷиши дастрасиро во�
 signin-unblock-submit-button = Идома додан
 signin-unblock-code-required-error = Рамзи санҷиши дастрасӣ лозим аст
 signin-unblock-support-link = Чаро ин ба вуҷуд меояд?
-
-
 
 
 confirm-signup-code-page-title = Рамзи тасдиқкунандаро ворид намоед

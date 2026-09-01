@@ -43,6 +43,9 @@ button-back-title = Atrás
 ## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
+# Button to download the account recovery key as a plain text file and navigate to the next step
+# The next (and final) step is an optional prompt to save a storage hint
+recovery-key-download-button-v4 = Descargar y continuar
 # Error message shown in a banner if the account recovery key download failed.
 # The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Lo sentimos, hubo un problema al descargar tu clave de recuperación de cuenta.
@@ -71,6 +74,20 @@ choose-newsletters-option-test-pilot =
 # "Action alerts" can be interpreted as "Calls to action"
 choose-newsletters-option-reclaim-the-internet =
     .label = Alertas de acción para recuperar Internet
+
+## ContinueInFirefox component - Part of the desktop-to-mobile pairing flow
+## Shown when the pairing QR code is opened in a browser other than Firefox.
+## It hands the pairing link to the Firefox app, and offers the app store when
+## Firefox is not installed on the device.
+
+pair-continue-in-firefox-heading = Continuar en { -brand-firefox }
+pair-continue-in-firefox-description = El emparejamiento se realiza en { -brand-firefox }. Ábrelo para finalizar la conexión de este dispositivo.
+# Opens the Firefox app on this device
+pair-continue-in-firefox-button = Continuar en { -brand-firefox }
+# Shown while waiting for the Firefox app to take over
+pair-continue-in-firefox-opening = Abriendo { -brand-firefox }
+# Sends the user to the App Store or Play Store to install Firefox
+pair-continue-in-firefox-get-firefox-link = ¿No tienes { -brand-firefox }? Descárgalo ahora
 
 ## Dark mode toggle
 
@@ -194,21 +211,18 @@ form-verify-totp-disabled-button-title-numeric = Ingresa el código de { $codeLe
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Ingresa el código de { $codeLength } caracteres para continuar
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = clave de recuperación de cuenta de { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Códigos de autenticación de respaldo
 get-data-trio-download-2 =
-    .title = Descargar
     .aria-label = Descargar
+    .title = Descargar
 get-data-trio-copy-2 =
-    .title = Copiar
     .aria-label = Copiar
+    .title = Copiar
 get-data-trio-print-2 =
-    .title = Imprimir
     .aria-label = Imprimir
+    .title = Imprimir
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -272,10 +286,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = Llave de acceso
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Un computador y un teléfono móvil y una imagen de un corazón roto en cada uno
 hearts-verified-image-aria-label =
@@ -524,9 +534,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = Productos de { -brand-mozilla }
 bento-menu-tagline = Más productos de { -brand-mozilla } que protegen tu privacidad
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -562,6 +569,9 @@ cs-cannot-disconnect = Cliente no encontrado, no se pudo desconectar
 cs-logged-out-2 = Desconectado de { $service }
 cs-refresh-button =
     .title = Actualizar servicios conectados
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = Conecta un dispositivo
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = ¿Faltan elementos o están duplicados?
 cs-disconnect-sync-heading = Desconectarse de Sync
@@ -614,9 +624,6 @@ dc-opt-out-success-2 = Salida exitosa. { -product-mozilla-accounts } no enviará
 dc-opt-in-success-2 = ¡Gracias! Compartir estos datos nos ayuda a mejorar { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Lo sentimos, hubo un problema al cambiar tu preferencia de recopilación de datos
 dc-learn-more = Aprender más
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = Menú de { -product-mozilla-account }
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -749,6 +756,13 @@ flow-setup-2fa-prompt-heading = Establecer autenticación en dos pasos
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
 flow-setup-2fa-prompt-description = { $serviceName } requiere que configures la autenticación de dos pasos para mantener tu cuenta segura.
+# Success banner shown at the top of the page when the user signed in with a passkey.
+flow-setup-2fa-prompt-passkey-success-banner = Acceso exitoso con llave de acceso
+# Body copy shown when the user signed in with a passkey and the service still
+# requires two-step authentication setup.
+# Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
+# that requests two-step authentication setup.
+flow-setup-2fa-prompt-passkey-description = { $serviceName } también requiere autenticación de dos pasos para tu { -product-mozilla-account }. Después de la configuración, ya no la necesitarás cuando te conectes con una llave de acceso.
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = Puedes utilizar cualquiera de <authenticationAppsLink>estas aplicaciones de autenticación</authenticationAppsLink> para continuar.
 flow-setup-2fa-prompt-continue-button = Continuar
@@ -770,9 +784,6 @@ flow-setup-phone-confirm-code-resend-code-button = Reenviar código
 flow-setup-phone-confirm-code-resend-code-success = Código enviado
 flow-setup-phone-confirm-code-success-message-v2 = Teléfono de recuperación añadido
 flow-change-phone-confirm-code-success-message = Teléfono de recuperación cambiado
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Verifica tu número de teléfono
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = Recibirás un mensaje de texto de { -brand-mozilla } con un código para verificar tu número. No compartas este código con nadie.
@@ -1011,6 +1022,8 @@ page-passkey-add-error-system-v2 = Se produjo un error al crear tu llave de acce
 ## These are displayed as a list with the date when the event occured
 
 recent-activity-title = Actividad reciente de la cuenta
+# Clicking this button reveals the older account activity that is hidden at first.
+recent-activity-show-more-button = Mostrar más
 recent-activity-account-create-v2 = Cuenta creada
 recent-activity-account-disable-v2 = Cuenta deshabilitada
 recent-activity-account-enable-v2 = Cuenta habilitada
@@ -1071,6 +1084,12 @@ recent-activity-account-passwordless-login-otp-failed = Código de conexión sin
 recent-activity-account-passwordless-login-otp-verified = Código de conexión sin contraseña verificado
 recent-activity-account-passwordless-registration-complete = Registro de cuenta sin contraseña completado
 recent-activity-account-recovery-codes-set = Códigos de recuperación establecidos
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
+recent-activity-account-passkey-wrap-created = Llave de acceso habilitada para la sincronización
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-creation-failure = Falló la configuración de sincronización con llave de acceso
+# A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
+recent-activity-account-passkey-wrap-invalidated = Se eliminó el acceso de sincronización mediante llave de acceso después del restablecimiento de contraseña
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Otra actividad de la cuenta
 
@@ -1483,9 +1502,6 @@ oauth-error-1000 = Algo se fue a las pailas. Por favor, cierra esta pestaña y v
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = La configuración de la llave de acceso falló o no está disponible. Vuelve a intentarlo o elige otro método.
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
@@ -1517,9 +1533,6 @@ passkey-registration-error-not-readable = No pudimos acceder al autenticador. Vu
 passkey-registration-error-constraint = La configuración de la llave de acceso no está disponible en este dispositivo. Prueba con otro método o dispositivo.
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = La configuración de la llave de acceso falló. Vuelve a intentarlo o elige otro método.
-
-# Authentication errors
-
 # Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
 # available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
 # points the user to another way to sign in.
@@ -1825,6 +1838,83 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Chuta, algo se fue a las p
 pair-unsupported-desktop-firefox-fallback-message-v2 = Por favor, cierra esta pestaña y vuelve a intentarlo.
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer, which is already signed in, after their
+## mobile device scans the pairing QR code. It asks them to approve the
+## sign-in, and shows the requesting device's details so they can verify it.
+
+# Asks the user to confirm the sign-in that another one of their devices just started
+pair2-authority-approve-sign-in-heading = ¿Autorizar conexión?
+# Submit button confirming that the user started the pairing and approves the
+# other device being added to their account
+pair2-authority-approve-sign-in-confirm-button = Sí, aprobar conexión
+# "Not you?" asks whether someone other than the user started this sign-in.
+# The text inside <changePassword> links to the page for changing the password.
+pair2-authority-approve-sign-in-change-password = ¿No eres tú? <changePassword>Cambia tu contraseña</changePassword>
+
+## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer after scanning the pairing QR code with
+## their phone. It confirms the flow has moved to the mobile device and waits
+## for the remaining steps to be completed there.
+
+pair2-authority-continue-on-mobile-heading = Continúa en tu dispositivo móvil
+pair2-authority-continue-on-mobile-description = Sigue los pasos en tu teléfono o tablet.
+# Dismisses the pairing attempt
+pair2-authority-continue-on-mobile-cancel-button = Cancelar
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when Firefox is needed to continue pairing.
+## It points them at firefox.com/pair and offers a download link for Firefox.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-download-firefox-heading = Abre { -brand-firefox } para sincronizar
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction = Para configurar la sincronización entre dispositivos, abre { -brand-firefox } en este dispositivo y visita <b>firefox.com/pair</b>
+# Links out to the Firefox download page
+pair2-authority-download-firefox-cta = Descarga { -brand-firefox }
+
+## ScanQR page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer. It shows a QR code that they scan with
+## their phone or tablet to connect the two devices and start syncing.
+
+pair2-authority-scan-qr-heading = Escanea para conectar tu dispositivo móvil
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-scan-qr-instruction = Escanea el código QR con tu teléfono o tablet para sincronizar tus marcadores, pestañas y más de { -brand-firefox }.
+# Accessible label describing the QR code image shown on this page
+pair2-authority-scan-qr-code-aria-label = Código QR para conectar tu dispositivo móvil
+# Link to a support article for users having trouble scanning the QR code
+pair2-authority-scan-qr-help-link = Obtén ayuda para escanear
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and offers the follow-up actions.
+
+# "syncing" here means copying data between the user's devices
+pair2-authority-sync-success-heading = Estás sincronizando
+pair2-authority-sync-success-description = Tus pestañas, marcadores, contraseñas y mucho más están disponibles en todos tus dispositivos.
+# Opens the tabs that are open on the user's other synced devices
+pair2-authority-sync-success-view-tabs-button = Ver pestañas sincronizadas
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button = Ajustes de sincronización
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when pairing stopped without succeeding,
+## either because it timed out or because it was canceled. Both cases offer to
+## start pairing over again.
+
+# Shown when the pairing attempt expired before it was approved
+pair2-authority-timeout-and-cancel-timeout-heading = ¿Aún quieres conectar un dispositivo?
+pair2-authority-timeout-and-cancel-timeout-description = Parece que se agotó el tiempo de espera. Vuelve a intentarlo si todavía quieres conectar tu dispositivo móvil y sincronizar tus datos de { -brand-firefox }.
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-canceled-heading = Cancelado
+pair2-authority-timeout-and-cancel-canceled-description = Si cambias de opinión o quieres conectar un dispositivo diferente, vuelve a intentarlo.
+# Restarts the pairing flow
+pair2-authority-timeout-and-cancel-try-again-button = Volver a intentarlo
+# Abandons pairing without retrying
+pair2-authority-timeout-and-cancel-cancel-button = Cancelar
+# Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
+pair2-authority-timeout-and-cancel-sync-settings-button = Ajustes de sincronización
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
 ## shown on their computer. It waits for them to approve the sign-in on the
 ## computer, and shows that computer's details so they can verify the request.
@@ -1834,6 +1924,70 @@ pair2-supplicant-approve-sign-in-heading = Un último paso para sincronizar
 pair2-supplicant-approve-sign-in-instruction = Aprueba la conexión en tu computador.
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = Cancelar
+
+## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It asks them to confirm connecting the mobile
+## device to their account, and shows that computer's details so they can
+## verify the request.
+
+# "this device" is the mobile device the user is holding, not the computer
+# whose details are shown below the heading
+pair2-supplicant-connect-this-device-heading = ¿Conectar este dispositivo a tu cuenta?
+# Confirms the pairing attempt
+pair2-supplicant-connect-this-device-connect-button = Conectar
+# Dismisses the pairing attempt
+pair2-supplicant-connect-this-device-cancel-button = Cancelar
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing reaches a device that
+## does not have Firefox installed yet. It explains what syncing gets them and
+## sends them off to install the browser.
+
+pair2-supplicant-download-firefox-heading = Obtén { -brand-firefox } en este dispositivo
+# "sync" is a verb here, referring to syncing data between the user's devices.
+# <linkExternal> is an anchor tag linking to a page explaining what sync does.
+pair2-supplicant-download-firefox-description = Descarga { -brand-firefox } para sincronizar marcadores, historial y más en todos tus dispositivos. <linkExternal>Más información</linkExternal>
+# Primary action. Sends the user to the Firefox download page.
+pair2-supplicant-download-firefox-continue-button = Continuar en { -brand-firefox }
+
+## ReadyToScan page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device before pairing starts. It tells them
+## to open firefox.com/pair on their computer, which is where the QR code they
+## scan with the mobile device comes from.
+
+pair2-supplicant-ready-to-scan-heading = Para conectar un dispositivo
+# <b> emphasises the address the user types on their computer. It is not a link,
+# and the address itself must not be translated.
+pair2-supplicant-ready-to-scan-instruction = En tu computador, abre { -brand-firefox } y ve a <b>firefox.com/pair</b>, y sigue las instrucciones en pantalla para conectar este dispositivo móvil.
+# Opens a Mozilla support article about setting up sync
+pair2-supplicant-ready-to-scan-learn-more-link = Aprender más
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device once pairing has completed: the device
+## is signed in and syncing with the computer they paired it with.
+
+pair2-supplicant-sync-success-heading = Tu dispositivo está conectado
+pair2-supplicant-sync-success-description = Tus marcadores, pestañas y más permanecerán sincronizados en { -brand-firefox }.
+# Opens the view listing tabs open on the user's other synced devices
+pair2-supplicant-sync-success-view-tabs-button = Ver pestañas sincronizadas
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button = Ajustes de sincronización
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing ends without connecting,
+## either because the attempt timed out or because it was canceled. Both states
+## are informational and offer no on-screen action, so the copy points the user
+## back to their computer to start again.
+
+# Shown when the pairing attempt expired before it completed. "we" is Firefox.
+pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que se nos acabó el tiempo
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-timeout-description = Para conectar tu dispositivo móvil y sincronizar tus datos de { -brand-firefox }, visita <b>firefox.com/pair</b> en tu computador.
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-canceled-heading = Cancelado
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-canceled-description = Para conectar un dispositivo en cualquier momento, visita <b>firefox.com/pair</b> desde tu computador.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -1846,9 +2000,6 @@ service-welcome-vpn-description = Un paso más para mejorar la privacidad de tu 
 
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
-
-
-# password to complete their sign-in when they want to login to a service requiring it.
 
 set-password-heading-v2 = Crear contraseña para sincronizar
 # "This" refers to the heading, "Create password to sync"
@@ -1899,9 +2050,6 @@ reset-password-complete-banner-message = No olvides generar una nueva clave de r
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = { -brand-firefox } intentará regresarte a la pestaña de origen para que hagas uso de una máscara de correo electrónico después de conectarte.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = Ingresa el código de 10 caracteres
 confirm-backup-code-reset-password-confirm-button = Confirmar
 confirm-backup-code-reset-password-subheader = Ingresar código de autenticación de respaldo
@@ -1952,9 +2100,6 @@ reset-password-confirmed-cta = Continuar con { $serviceName }
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Restablecer tu contraseña
 password-reset-recovery-method-subheader = Elige un método de recuperación
@@ -2065,11 +2210,6 @@ signin-passkey-fallback-body = Para mantener tus datos seguros, deberás ingresa
 signin-passkey-fallback-password-label = Contraseña
 signin-passkey-fallback-continue = Continuar
 signin-passkey-fallback-forgot-password-link = ¿Olvidaste tu contraseña?
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2262,9 +2402,6 @@ signin-unblock-desktop-relay = { -brand-firefox } intentará regresarte a la pes
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Ingresar código de confirmación

@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 3bb0bd29f273bf63f61cfcb64e4fa9b33d93c021</title>
+  <title>Storybooks for commit b6f3882ab9b1e3a6a22f762703d5240205bbb754</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,29 +23,23 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 3bb0bd29f273bf63f61cfcb64e4fa9b33d93c021</h1>
+  <h1>Storybooks for commit b6f3882ab9b1e3a6a22f762703d5240205bbb754</h1>
   <ul>
     <li><a href="./fxa-react/">fxa-react</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/19/2026, 2:30:40 AM UTC</dd>
+    <dd>9/1/2026, 9:01:41 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(react): reject unusable l10n asset maps</pre></dd>
     <dt>Description</dt>
-    <dd><pre>## Because
-
-- The guard in `readL10nHashedMappings` accepted any non-null object with at least one key. A JSON array got through, and so did an object whose values were empty strings or nested objects.
+    <dd><pre>- The guard in `readL10nHashedMappings` accepted any non-null object with at least one key. A JSON array got through, and so did an object whose values were empty strings or nested objects.
 - `fetchMessages` then treated that map as real. Every lookup missed, each bundle came back empty, and the page ended up with no l10n resources at all rather than the unhashed-path fallback the comment promises.
 - The warning did not fire either, so nothing said why the strings were missing.
 
-## This pull request
-
 - Rejects arrays and requires every mapped value to be a non-empty string. Anything else falls through to the warning that is already there and returns `undefined`.
 - Adds three rows to the fallback table in `AppLocalizationProvider.test.tsx`: an array, an empty string value, and a non-string value. I reverted the guard and re-ran to check that all three fail without it.
-
-## Issue that this pull request solves
 
 Closes: https://mozilla-hub.atlassian.net/browse/FXA-11871</pre></dd>
   </dl>

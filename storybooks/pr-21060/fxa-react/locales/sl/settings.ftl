@@ -75,6 +75,20 @@ choose-newsletters-option-test-pilot =
 choose-newsletters-option-reclaim-the-internet =
     .label = Pozivi k ukrepanju za povrnitev interneta
 
+## ContinueInFirefox component - Part of the desktop-to-mobile pairing flow
+## Shown when the pairing QR code is opened in a browser other than Firefox.
+## It hands the pairing link to the Firefox app, and offers the app store when
+## Firefox is not installed on the device.
+
+pair-continue-in-firefox-heading = Nadaljuj v { -brand-firefox(sklon: "mestnik") }
+pair-continue-in-firefox-description = Seznanjanje bo izvedeno čez { -brand-firefox }. Odprite ga za dokončanje povezovanja naprave.
+# Opens the Firefox app on this device
+pair-continue-in-firefox-button = Nadaljuj v { -brand-firefox(sklon: "mestnik") }
+# Shown while waiting for the Firefox app to take over
+pair-continue-in-firefox-opening = Odpiranje { -brand-firefox }
+# Sends the user to the App Store or Play Store to install Firefox
+pair-continue-in-firefox-get-firefox-link = Nimate { -brand-firefox }? Pridobite ga zdaj
+
 ## Dark mode toggle
 
 dark-mode-toggle-light = Svetla
@@ -203,21 +217,18 @@ form-verify-totp-disabled-button-title-numeric = Za nadaljevanje vnesite { $code
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Za nadaljevanje vnesite { $codeLength }-znakovno kodo
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Ključ za obnovitev { -brand-firefox } Računa
 get-data-trio-title-backup-verification-codes = Rezervne overitvene kode
 get-data-trio-download-2 =
-    .title = Prenesi
     .aria-label = Prenesi
+    .title = Prenesi
 get-data-trio-copy-2 =
-    .title = Kopiraj
     .aria-label = Kopiraj
+    .title = Kopiraj
 get-data-trio-print-2 =
-    .title = Natisni
     .aria-label = Natisni
+    .title = Natisni
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -281,10 +292,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = Ključ za dostop
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Računalnik in mobilni telefon ter na vsakem podoba zlomljenega srca
 hearts-verified-image-aria-label =
@@ -533,9 +540,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = Izdelki { -brand-mozilla }
 bento-menu-tagline = Več izdelkov { -brand-mozilla(sklon: "rodilnik") }, ki varujejo vašo zasebnost
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -628,9 +632,6 @@ dc-opt-out-success-2 = Odjava je uspela. { -product-mozilla-accounts } { -brand-
 dc-opt-in-success-2 = Hvala! Z deljenjem teh podatkov nam pomagate izboljševati { -product-mozilla-accounts(sklon: "tozilnik") }.
 dc-opt-in-out-error-2 = Oprostite, pri spreminjanju nastavitve o zbiranju podatkov je prišlo do težave
 dc-learn-more = Več o tem
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = Meni { -product-mozilla-account(sklon: "rodilnik") }
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -793,9 +794,6 @@ flow-setup-phone-confirm-code-resend-code-button = Znova pošlji kodo
 flow-setup-phone-confirm-code-resend-code-success = Koda poslana
 flow-setup-phone-confirm-code-success-message-v2 = Telefonska številka za obnovitev je dodana
 flow-change-phone-confirm-code-success-message = Telefonska številka za obnovitev je spremenjena
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Potrdite svojo telefonsko številko
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = Od { -brand-mozilla(sklon: "rodilnik") } boste prejeli sporočilo SMS s kodo za potrditev številke. Kode ne pokažite nikomur drugemu.
@@ -1098,6 +1096,12 @@ recent-activity-account-passwordless-login-otp-failed = Koda za prijavo brez ges
 recent-activity-account-passwordless-login-otp-verified = Koda za prijavo brez gesla je preverjena
 recent-activity-account-passwordless-registration-complete = Registracija računa brez gesla končana
 recent-activity-account-recovery-codes-set = Kode za obnovitev so nastavljene
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
+recent-activity-account-passkey-wrap-created = Geslo je omogočeno za sinhronizacijo
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-creation-failure = Nastavitev sinhronizacije z geslom ni uspela
+# A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
+recent-activity-account-passkey-wrap-invalidated = Dostop za sinhronizacijo gesel je bil po ponastavitvi gesla odstranjen
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Drugačna dejavnost v računu
 
@@ -1311,8 +1315,8 @@ row-defaults-status = Brez
 ## UnitRowPasskey
 
 passkey-row-header = Ključi za dostop
-passkey-row-enabled = Omogočeno
-passkey-row-not-set = Ni nastavljeno
+passkey-row-enabled = Omogočeni
+passkey-row-not-set = Niso nastavljeni
 passkey-row-action-create = Ustvari
 passkey-row-description = Naredite prijavo preprostejšo in varnejšo z dostopom do računa s telefonom ali drugo podprto napravo.
 # External link to a support article about passkeys.
@@ -1516,9 +1520,6 @@ oauth-error-1000 = Nekaj je šlo narobe. Zaprite ta zavihek in poskusite znova.
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = Nastavitev ključa za dostop ni uspela ali ni na voljo. Poskusite znova ali izberite drugo metodo.
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
@@ -1550,9 +1551,6 @@ passkey-registration-error-not-readable = Nismo mogli dostopati do overitelja. P
 passkey-registration-error-constraint = Nastavitev gesla ni na voljo za to napravo. Poskusite z drugo metodo ali napravo.
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = Nastavitev gesla ni uspela. Poskusite znova ali izberite drugo metodo.
-
-# Authentication errors
-
 # Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
 # available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
 # points the user to another way to sign in.
@@ -2021,9 +2019,6 @@ service-welcome-vpn-description = Še koraki več za večjo zasebnost brskalnika
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
 
-
-# password to complete their sign-in when they want to login to a service requiring it.
-
 set-password-heading-v2 = Ustvarite geslo za sinhronizacijo
 # "This" refers to the heading, "Create password to sync"
 set-password-info-v2 = S tem se vaši podatki šifrirajo. Geslo mora biti drugačno od gesla vašega računa { -brand-google } ali { -brand-apple }.
@@ -2073,9 +2068,6 @@ reset-password-complete-banner-message = Ne pozabite v nastavitvah { -product-mo
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = Po prijavi vas bo { -brand-firefox } poskusil poslati nazaj na uporabo e-poštne maske.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = Vnesite 10-mestno kodo
 confirm-backup-code-reset-password-confirm-button = Potrdi
 confirm-backup-code-reset-password-subheader = Vnesite rezervno overitveno kodo
@@ -2126,9 +2118,6 @@ reset-password-confirmed-cta = Nadaljuj na { $serviceName }
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Ponastavite geslo
 password-reset-recovery-method-subheader = Izberite način obnovitve
@@ -2241,11 +2230,6 @@ signin-passkey-fallback-body = Da ohranite svoje podatke varne, morate pri upora
 signin-passkey-fallback-password-label = Geslo
 signin-passkey-fallback-continue = Nadaljuj
 signin-passkey-fallback-forgot-password-link = Ste pozabili geslo?
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2446,9 +2430,6 @@ signin-unblock-desktop-relay = Po prijavi vas bo { -brand-firefox } poskusil pos
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Vnesite potrditveno kodo
