@@ -22,6 +22,7 @@ module.exports = {
     strategy: 'oauth',
     scope: [
       'profile:email',
+      'profile:additionalEmails',
       'profile:locale',
       'profile:amr',
       'profile:subscriptions',
@@ -33,6 +34,7 @@ module.exports = {
   response: {
     schema: Joi.object({
       email: Joi.string().optional(),
+      additionalEmails: Joi.array().items(Joi.string()).optional(),
       locale: Joi.string().optional(),
       amrValues: Joi.array().items(Joi.string().required()).optional(),
       twoFactorAuthentication: Joi.boolean().optional(),
@@ -99,6 +101,9 @@ module.exports = {
       const result = {};
       if (typeof body.email !== 'undefined') {
         result.email = body.email;
+      }
+      if (typeof body.additionalEmails !== 'undefined') {
+        result.additionalEmails = body.additionalEmails;
       }
       if (typeof body.locale !== 'undefined') {
         result.locale = body.locale;

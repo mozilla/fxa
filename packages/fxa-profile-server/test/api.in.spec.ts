@@ -156,6 +156,23 @@ describe('#integration - api', () => {
       assertSecurityHeaders(res);
     });
 
+    it('should return additionalEmails when the auth-server provides them', async () => {
+      mock.tokenGood();
+      mock.coreProfile({
+        email: 'user@example.domain',
+        additionalEmails: ['second@example.domain'],
+      });
+      const res = await Server.api.get({
+        url: '/profile',
+        headers: {
+          authorization: 'Bearer ' + tok,
+        },
+      });
+      expect(res.statusCode).toBe(200);
+      expect(res.result.additionalEmails).toEqual(['second@example.domain']);
+      assertSecurityHeaders(res);
+    });
+
     it('should handle auth server errors', async () => {
       mock.token({
         user: USERID,
@@ -596,6 +613,77 @@ describe('#integration - api', () => {
         },
       });
       expect(res.statusCode).toBe(403);
+      assertSecurityHeaders(res);
+    });
+
+    it('should NOT return additionalEmails', async () => {
+      // `/email` authorizes only the primary address; do not leak secondaries.
+      mock.tokenGood();
+      mock.coreProfile({
+        email: 'user@example.domain',
+        additionalEmails: ['second@example.domain'],
+      });
+      const res = await Server.api.get({
+        url: '/email',
+        headers: {
+          authorization: 'Bearer ' + tok,
+        },
+      });
+      expect(res.statusCode).toBe(200);
+      const body = JSON.parse(res.payload);
+      expect(body.email).toBe('user@example.domain');
+      expect(body.additionalEmails).toBeUndefined();
+      assertSecurityHeaders(res);
+    });
+  });
+
+  describe('/profile additionalEmails', () => {
+    var tok = token();
+
+    it('should omit additionalEmails when the auth-server does not return it', async () => {
+      // Preserve omission when the auth server withholds the field.
+      mock.token({
+        user: USERID,
+        scope: ['profile:email'],
+      });
+      mock.coreProfile({ email: 'user@example.domain' });
+      const res = await Server.api.get({
+        url: '/profile',
+        headers: {
+          authorization: 'Bearer ' + tok,
+        },
+      });
+      expect(res.statusCode).toBe(200);
+      const body = JSON.parse(res.payload);
+      expect(body.email).toBe('user@example.domain');
+      expect(body.additionalEmails).toBeUndefined();
+      assertSecurityHeaders(res);
+    });
+
+    it('should return additionalEmails for a token scoped to only profile:additionalEmails', async () => {
+      // Only `_core_profile` accepts this scope; `/profile` must still succeed
+      // when its other batched requests are unauthorized.
+      mock.token({
+        user: USERID,
+        scope: ['profile:additionalEmails'],
+      });
+      // This scope does not authorize the primary address.
+      mock.coreProfile({
+        additionalEmails: ['second@example.domain', 'third@example.domain'],
+      });
+      const res = await Server.api.get({
+        url: '/profile',
+        headers: {
+          authorization: 'Bearer ' + tok,
+        },
+      });
+      expect(res.statusCode).toBe(200);
+      const body = JSON.parse(res.payload);
+      expect(body.additionalEmails).toEqual([
+        'second@example.domain',
+        'third@example.domain',
+      ]);
+      expect(body.email).toBeUndefined();
       assertSecurityHeaders(res);
     });
   });

@@ -1672,6 +1672,11 @@ export class AccountHandler {
     if (scope.contains('profile:email')) {
       res.email = account.primaryEmail?.email;
     }
+    if (scope.contains('profile:additionalEmails')) {
+      res.additionalEmails = (account.emails ?? [])
+        .filter((email) => !email.isPrimary && email.isVerified)
+        .map((email) => email.email);
+    }
     if (scope.contains('profile:locale') && account.locale) {
       res.locale = account.locale;
     }
@@ -2789,6 +2794,7 @@ export const accountRoutes = (
         response: {
           schema: isA.object({
             email: isA.string().optional(),
+            additionalEmails: isA.array().items(isA.string()).optional(),
             locale: isA.string().optional().allow(null),
             authenticationMethods: isA
               .array()

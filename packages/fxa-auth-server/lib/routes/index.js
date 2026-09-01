@@ -126,7 +126,8 @@ module.exports = function (
     zendeskClient,
     stripeHelper,
     authServerCacheRedis,
-    statsd
+    statsd,
+    profile
   );
   const password = require('./password')(
     log,

@@ -2,13 +2,59 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { createTestServer, TestServerInstance } from '../support/helpers/test-server';
+import {
+  createTestServer,
+  TestServerInstance,
+} from '../support/helpers/test-server';
+import crypto from 'crypto';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const Client = require('../client')();
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const jwt = require('jsonwebtoken');
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const tokens = require('../../lib/tokens')({ trace: function () {} });
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const baseConfig = require('../../config').default.getProperties();
 
 let server: TestServerInstance;
 let CLIENT_ID: string;
+
+async function generateMfaJwt(client: any) {
+  const sessionToken = await tokens.SessionToken.fromHex(client.sessionToken);
+  const now = Math.floor(Date.now() / 1000);
+
+  return jwt.sign(
+    {
+      sub: client.uid,
+      scope: ['mfa:email'],
+      iat: now,
+      jti: crypto.randomUUID(),
+      stid: sessionToken.id,
+    },
+    baseConfig.mfa.jwt.secretKey,
+    {
+      algorithm: 'HS256',
+      expiresIn: baseConfig.mfa.jwt.expiresInSec,
+      audience: baseConfig.mfa.jwt.audience,
+      issuer: baseConfig.mfa.jwt.issuer,
+    }
+  );
+}
+
+async function addVerifiedSecondaryEmail(
+  client: any,
+  mfaJwt: string,
+  email: string
+) {
+  await client.createEmail(mfaJwt, email);
+  const emailData = await server.mailbox.waitForEmail(email);
+  await client.verifySecondaryEmailWithCode(
+    mfaJwt,
+    emailData['headers']['x-verify-code'],
+    email
+  );
+}
 
 beforeAll(async () => {
   server = await createTestServer({
@@ -57,6 +103,82 @@ describe.each(testVersions)(
         expect(response.authenticatorAssuranceLevel).toBe(1);
         expect(response.profileChangedAt).toBeTruthy();
       });
+
+      it('returns an empty additionalEmails when there is no secondary email', async () => {
+        const response = await client.accountProfile();
+
+        expect(response.additionalEmails).toEqual([]);
+      });
+    });
+
+    describe('additionalEmails and secondary email state', () => {
+      let client: any;
+      let secondEmail: string;
+
+      beforeEach(async () => {
+        secondEmail = server.uniqueEmail();
+        client = await Client.createAndVerify(
+          server.publicUrl,
+          server.uniqueEmail(),
+          'password',
+          server.mailbox,
+          { ...testOptions, lang: 'en-US' }
+        );
+      });
+
+      it('excludes an unverified secondary email and includes it once verified', async () => {
+        const mfaJwt = await generateMfaJwt(client);
+        await client.createEmail(mfaJwt, secondEmail);
+
+        let response = await client.accountProfile();
+        expect(response.additionalEmails).toEqual([]);
+
+        const sentEmail = await server.mailbox.waitForEmail(secondEmail);
+        const verifyCode = sentEmail['headers']['x-verify-code'];
+        await client.verifySecondaryEmailWithCode(
+          mfaJwt,
+          verifyCode,
+          secondEmail
+        );
+
+        response = await client.accountProfile();
+        expect(response.additionalEmails).toEqual([secondEmail]);
+      });
+
+      it('returns every verified secondary email', async () => {
+        const thirdEmail = server.uniqueEmail();
+        const mfaJwt = await generateMfaJwt(client);
+
+        await addVerifiedSecondaryEmail(client, mfaJwt, secondEmail);
+        await addVerifiedSecondaryEmail(client, mfaJwt, thirdEmail);
+
+        const response = await client.accountProfile();
+
+        expect(response.additionalEmails).toHaveLength(2);
+        expect(response.additionalEmails).toEqual(
+          expect.arrayContaining([secondEmail, thirdEmail])
+        );
+      });
+
+      it('drops a deleted secondary email from the profile', async () => {
+        const mfaJwt = await generateMfaJwt(client);
+        await addVerifiedSecondaryEmail(client, mfaJwt, secondEmail);
+
+        expect((await client.accountProfile()).additionalEmails).toEqual([
+          secondEmail,
+        ]);
+
+        await client.deleteEmail(mfaJwt, secondEmail);
+
+        expect((await client.accountProfile()).additionalEmails).toEqual([]);
+      });
+
+      it('never returns the primary email in additionalEmails', async () => {
+        const response = await client.accountProfile();
+
+        expect(response.email).toBeTruthy();
+        expect(response.additionalEmails).not.toContain(response.email);
+      });
     });
 
     describe('when a request is authenticated with a valid oauth token', () => {
@@ -74,13 +196,12 @@ describe.each(testVersions)(
           { ...testOptions, lang: 'en-US' }
         );
 
-        const tokenResponse =
-          await client.grantOAuthTokensFromSessionToken({
-            grant_type: 'fxa-credentials',
-            client_id: CLIENT_ID,
-            access_type: 'offline',
-            scope: scope,
-          });
+        const tokenResponse = await client.grantOAuthTokensFromSessionToken({
+          grant_type: 'fxa-credentials',
+          client_id: CLIENT_ID,
+          access_type: 'offline',
+          scope: scope,
+        });
 
         token = tokenResponse.access_token;
       }
@@ -122,6 +243,31 @@ describe.each(testVersions)(
             expect(response.email).toBeFalsy();
             expect(response.locale).toBe('en-US');
             expect(response.profileChangedAt).toBeTruthy();
+          });
+        });
+
+        describe('additionalEmails', () => {
+          it('omits additionalEmails for an email only token', async () => {
+            await initialize('profile:email');
+            const response = await client.accountProfile(token);
+
+            expect(response.email).toBeTruthy();
+            expect(response.additionalEmails).toBeUndefined();
+          });
+
+          it('returns an empty array when there are no secondary emails', async () => {
+            await initialize('profile:additionalEmails');
+            const response = await client.accountProfile(token);
+
+            expect(response.additionalEmails).toEqual([]);
+            expect(response.email).toBeFalsy();
+          });
+
+          it('returns additionalEmails for a profile scoped token', async () => {
+            await initialize('profile');
+            const response = await client.accountProfile(token);
+
+            expect(response.additionalEmails).toEqual([]);
           });
         });
 
