@@ -219,6 +219,8 @@ export async function testAuthDatabaseSetup(instance: Knex): Promise<void> {
     './key-fetch-tokens.sql',
     './security-event-names.sql',
     './security-events.sql',
+    './passkeys.sql',
+    './passkey-wraps.sql',
   ]);
   // The order matters for inserts or foreign key refs
   await runSql([

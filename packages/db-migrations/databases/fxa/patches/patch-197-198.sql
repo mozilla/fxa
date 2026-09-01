@@ -1,3 +1,7 @@
+SET NAMES utf8mb4 COLLATE utf8mb4_bin;
+
+CALL assertPatchLevel('197');
+
 CREATE PROCEDURE `resetAccount_20` (
   IN `uidArg` BINARY(16),
   IN `verifyHashArg` BINARY(32),
@@ -62,3 +66,5 @@ BEGIN
 
   COMMIT;
 END;
+
+UPDATE dbMetadata SET value = '198' WHERE name = 'schema-patch-level';
