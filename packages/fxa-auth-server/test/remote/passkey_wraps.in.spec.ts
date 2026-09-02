@@ -12,7 +12,10 @@ import {
   PasskeyService,
   V1_WIDTHS,
 } from '@fxa/accounts/passkey';
-import { VirtualAuthenticator } from '@fxa/accounts/passkey/testing';
+import {
+  VirtualAuthenticator,
+  VirtualCredential,
+} from '@fxa/accounts/passkey/testing';
 import { ERRNO } from '@fxa/accounts/errors';
 import Config from '../../config';
 
@@ -110,11 +113,15 @@ afterAll(async () => {
 describe('#integration - remote passkey wrap storage', () => {
   let client: any;
   let credentialId: string;
+  let credential: VirtualCredential;
 
   /**
    * Registers a passkey through the real MFA + WebAuthn flow.
    */
-  async function registerPasskey(): Promise<string> {
+  async function registerPasskey(): Promise<{
+    credentialId: string;
+    credential: VirtualCredential;
+  }> {
     await client.api.doRequest(
       'POST',
       `${client.api.baseURL}/mfa/otp/request`,
@@ -148,15 +155,42 @@ describe('#integration - remote passkey wrap storage', () => {
       { response, challenge: options.challenge }
     );
 
-    return registered.credentialId;
+    return { credentialId: registered.credentialId, credential: cred };
   }
 
-  /** POSTs a wrap. */
-  async function storeWrap(payload: Record<string, unknown>) {
-    return client.api.doRequest(
+  /**
+   * Signs in with the passkey, asking for the passkey scope, and returns the
+   * token that mints.
+   */
+  async function mintWrapToken(
+    assertWith: VirtualCredential = credential
+  ): Promise<string> {
+    const { challenge } = await client.api.doRequest(
+      'POST',
+      `${client.api.baseURL}/passkey/authentication/start`,
+      null,
+      { keysRequired: true, scope: 'passkey' }
+    );
+    const response = VirtualAuthenticator.createAssertionResponse(assertWith, {
+      challenge,
+      origin: passkeyOrigin,
+      rpId: passkeyRpId,
+    });
+    const { mfaToken } = await client.api.doRequest(
+      'POST',
+      `${client.api.baseURL}/passkey/authentication/finish`,
+      null,
+      { response, challenge, keysRequired: true }
+    );
+    return mfaToken;
+  }
+
+  /** POSTs a wrap with a freshly minted token. */
+  async function storeWrap(payload: Record<string, unknown>, token?: string) {
+    return client.api.doRequestWithBearerToken(
       'POST',
       `${client.api.baseURL}/passkey/wraps`,
-      await client.api.Token.SessionToken.fromHex(client.sessionToken),
+      token ?? (await mintWrapToken()),
       payload
     );
   }
@@ -173,7 +207,7 @@ describe('#integration - remote passkey wrap storage', () => {
       server.mailbox,
       { version: 'V2' }
     );
-    credentialId = await registerPasskey();
+    ({ credentialId, credential } = await registerPasskey());
   });
 
   it('stores the envelope and records a security event', async () => {
@@ -239,18 +273,7 @@ describe('#integration - remote passkey wrap storage', () => {
     expect(stored).toBeUndefined();
   });
 
-  it('rejects a credential the account does not own', async () => {
-    await expect(
-      storeCurrentWrap({
-        credentialId: Buffer.from('someone-elses-cred').toString('base64url'),
-      })
-    ).rejects.toMatchObject({
-      code: 404,
-      errno: ERRNO.PASSKEY_NOT_FOUND,
-    });
-  });
-
-  it('requires a session token', async () => {
+  it('requires an mfa token', async () => {
     await expect(
       client.api.doRequestWithBearerToken(
         'POST',
@@ -258,6 +281,15 @@ describe('#integration - remote passkey wrap storage', () => {
         'invalid-token',
         { credentialId, ...envelope() }
       )
+    ).rejects.toMatchObject({ code: 401 });
+  });
+
+  it('refuses a token earned on a different credential', async () => {
+    const other = await registerPasskey();
+    const token = await mintWrapToken(other.credential);
+
+    await expect(
+      storeWrap({ credentialId, ...envelope() }, token)
     ).rejects.toMatchObject({ code: 401 });
   });
 });

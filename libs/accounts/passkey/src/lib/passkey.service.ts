@@ -40,6 +40,17 @@ import { AppError } from '@fxa/accounts/errors';
 export interface AuthenticationResult {
   /** Authenticated user ID as a hex string. */
   uid: string;
+
+  /**
+   * `passkeys.credentialId` of the credential that signed this assertion, as
+   * stored. The request's `id` only has to decode to the same bytes.
+   */
+  credentialId: string;
+
+  /**
+   * MFA scope the challenge was created with. Absent when none was asked for.
+   */
+  scope?: string;
 }
 
 /**
@@ -442,11 +453,11 @@ export class PasskeyService {
    * @returns WebAuthn authentication options
    */
   async generateAuthenticationChallenge(
-    options: { uid?: string; keysRequired?: boolean } = {}
+    options: { uid?: string; keysRequired?: boolean; scope?: string } = {}
   ): Promise<PublicKeyCredentialRequestOptionsJSON> {
-    const { uid, keysRequired = false } = options;
+    const { uid, keysRequired = false, scope } = options;
     const challenge =
-      await this.challengeManager.generateAuthenticationChallenge();
+      await this.challengeManager.generateAuthenticationChallenge(scope);
 
     let allowCredentials: string[] = [];
     if (uid) {
@@ -602,7 +613,11 @@ export class PasskeyService {
       }
     }
 
-    return { uid };
+    return {
+      uid,
+      credentialId: passkey.credentialId,
+      scope: storedChallenge.scope,
+    };
   }
 
   /**

@@ -835,7 +835,27 @@ describe('PasskeyService', () => {
         mockResponse,
         MOCK_CHALLENGE
       );
-      expect(result).toEqual({ uid: MOCK_UID });
+      expect(result).toEqual({
+        uid: MOCK_UID,
+        credentialId: MOCK_CREDENTIAL_ID,
+      });
+    });
+
+    it('returns the stored credentialId, not the one from the request', async () => {
+      mockManager.findPasskeyByUidAndCredentialId.mockResolvedValue(
+        mockPasskey
+      );
+      mockManager.findPasskeyByCredentialId.mockResolvedValue({
+        ...mockPasskey,
+        credentialId: 'stored-canonical-id',
+      });
+
+      const result = await service.verifyAuthenticationResponse(
+        { ...mockResponse, id: MOCK_CREDENTIAL_ID },
+        MOCK_CHALLENGE
+      );
+
+      expect(result.credentialId).toBe('stored-canonical-id');
     });
 
     it('looks up passkey by credential ID decoded from response.id', async () => {
@@ -896,7 +916,10 @@ describe('PasskeyService', () => {
         MOCK_CHALLENGE,
         MOCK_UID
       );
-      expect(result).toEqual({ uid: MOCK_UID });
+      expect(result).toEqual({
+        uid: MOCK_UID,
+        credentialId: MOCK_CREDENTIAL_ID,
+      });
     });
 
     it('throws a passkeyNotFound AppError when the credential is not registered', async () => {
@@ -1044,7 +1067,10 @@ describe('PasskeyService', () => {
           true
         );
 
-        expect(result).toEqual({ uid: MOCK_UID });
+        expect(result).toEqual({
+          uid: MOCK_UID,
+          credentialId: MOCK_CREDENTIAL_ID,
+        });
         expect(mockManager.setPasskeyPrfEnabled).toHaveBeenCalledWith(
           MOCK_UID,
           MOCK_CREDENTIAL_ID
@@ -1108,7 +1134,10 @@ describe('PasskeyService', () => {
           true
         );
 
-        expect(result).toEqual({ uid: MOCK_UID });
+        expect(result).toEqual({
+          uid: MOCK_UID,
+          credentialId: MOCK_CREDENTIAL_ID,
+        });
         expect(mockMetrics.increment).toHaveBeenCalledWith(
           'passkey.authentication.prf.update_failed',
           { reason: 'dbError' }

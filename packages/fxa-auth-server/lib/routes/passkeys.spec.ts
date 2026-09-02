@@ -59,13 +59,16 @@ describe('passkeys routes', () => {
   const CREDENTIAL_ID_B64 =
     Buffer.from('credential-id-xyz').toString('base64url');
 
-  // Only the passkeys flags are read by these routes; cast the partial fixture
-  // to the full ConfigType the factory expects.
+  // Only the passkeys flags and the MFA action list are read by these routes;
+  // cast the partial fixture to the full ConfigType the factory expects.
   const config = {
     passkeys: {
       enabled: true,
       registrationEnabled: true,
       authenticationEnabled: true,
+    },
+    mfa: {
+      actions: ['2fa', 'email', 'recovery_key', 'password', 'passkey'],
     },
   } as unknown as ConfigType;
 
