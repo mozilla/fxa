@@ -27,6 +27,10 @@ const base = {
     '^@fxa/free-access-program$':
       '<rootDir>/../../libs/free-access-program/src',
     '^@fxa/shared/(.*)$': '<rootDir>/../../libs/shared/$1/src',
+    // Secondary entry points must precede the greedy pattern below, which would
+    // otherwise map them to `libs/accounts/<pkg>/<entry>/src`.
+    '^@fxa/accounts/passkey/testing$':
+      '<rootDir>/../../libs/accounts/passkey/src/testing',
     '^@fxa/accounts/(.*)$': '<rootDir>/../../libs/accounts/$1/src',
     '^@fxa/payments/(.*)$': '<rootDir>/../../libs/payments/$1/src',
     '^@fxa/profile/(.*)$': '<rootDir>/../../libs/profile/$1/src',

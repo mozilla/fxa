@@ -10,9 +10,11 @@ import {
   PasskeyService,
   PasskeyChallengeManager,
   PasskeyManager,
+} from '@fxa/accounts/passkey';
+import {
   VirtualAuthenticator,
   VirtualCredential,
-} from '@fxa/accounts/passkey';
+} from '@fxa/accounts/passkey/testing';
 import Config from '../../config';
 import {
   createTestServer,

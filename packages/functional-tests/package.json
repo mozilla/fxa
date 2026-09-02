@@ -28,6 +28,9 @@
   "nx": {
     "tags": [
       "scope:functional-test"
+    ],
+    "implicitDependencies": [
+      "accounts-passkey"
     ]
   }
 }
