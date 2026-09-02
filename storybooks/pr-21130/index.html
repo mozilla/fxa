@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 0bf7a3c64210d3ed25116fc4db41791549806f15</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 0bf7a3c64210d3ed25116fc4db41791549806f15</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/2/2026, 4:21:45 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>task(passkey): Return the wrap envelope from passkey sign-in</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- Passwordless Sync needs the envelope to unseal kB, and the only caller
+  that needs it is the sign-in that is about to use it.
+- /authentication/finish is reachable only by completing an assertion
+  against a challenge from /start, so possession of the authenticator is
+  already proven — a stronger gate than a session token on a read.
+
+This commit:
+- Returns passkeyWrap from /passkey/authentication/finish, for a
+  keys-required sign-in only, behind passwordlessSyncEnabled.
+- Withholds a wrap that predates the account&#039;s keysChangedAt, and reports
+  that to Sentry: it means a rotation left a row behind and the user has
+  silently lost passwordless sign-in.
+- Reads the wrap after minting the session and swallows any failure, so
+  nothing about it can fail a sign-in the assertion already verified.
+- Refuses a disabled account, which every password sign-in path already
+  does and which now also withholds key material.
+- Moves envelope encode/decode into the repository, keyed off the widths,
+  replacing hand-written field lists on both routes.
+
+Closes #FXA-13143</pre></dd>
+  </dl>
+</body>
+</html>

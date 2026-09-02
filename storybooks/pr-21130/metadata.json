@@ -1,0 +1,10 @@
+{
+  "commit": "0bf7a3c64210d3ed25116fc4db41791549806f15",
+  "summary": "task(passkey): Return the wrap envelope from passkey sign-in",
+  "description": "Because:\n- Passwordless Sync needs the envelope to unseal kB, and the only caller\n  that needs it is the sign-in that is about to use it.\n- /authentication/finish is reachable only by completing an assertion\n  against a challenge from /start, so possession of the authenticator is\n  already proven — a stronger gate than a session token on a read.\n\nThis commit:\n- Returns passkeyWrap from /passkey/authentication/finish, for a\n  keys-required sign-in only, behind passwordlessSyncEnabled.\n- Withholds a wrap that predates the account's keysChangedAt, and reports\n  that to Sentry: it means a rotation left a row behind and the user has\n  silently lost passwordless sign-in.\n- Reads the wrap after minting the session and swallows any failure, so\n  nothing about it can fail a sign-in the assertion already verified.\n- Refuses a disabled account, which every password sign-in path already\n  does and which now also withholds key material.\n- Moves envelope encode/decode into the repository, keyed off the widths,\n  replacing hand-written field lists on both routes.\n\nCloses #FXA-13143",
+  "timestamp": 1788366105000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
