@@ -33,9 +33,9 @@ import { reportSentryError } from '../sentry';
 // matches the WebAuthn L2 ceiling (1023 bytes → 1364 base64url chars),
 // aligning with `passkeys.credentialId VARBINARY(1023)`.
 const BASE64URL_PATTERN = /^[A-Za-z0-9_-]+$/;
-const base64urlString = (maxLen: number) =>
+export const base64urlString = (maxLen: number) =>
   isA.string().max(maxLen).regex(BASE64URL_PATTERN);
-const base64urlCredentialId = () => base64urlString(1364);
+export const base64urlCredentialId = () => base64urlString(1364);
 const base64urlChallenge = () => base64urlString(64);
 
 // Mirrors `AAGUID_RE` in libs/accounts/passkey, which rejects the same
@@ -57,7 +57,7 @@ export const passkeyResponseSchema = isA.object({
 });
 
 /** Subset of the Customs service used by passkey routes. */
-interface Customs {
+export interface Customs {
   /**
    * Enforces rate-limiting for an authenticated action.
    * Throws an AppError if the user or IP is throttled.
@@ -76,7 +76,7 @@ interface Customs {
 }
 
 /** Subset of the database used by passkey routes. */
-interface DB {
+export interface DB {
   /** Fetches the account record for the given UID. */
   account(uid: string): Promise<{
     uid: string;

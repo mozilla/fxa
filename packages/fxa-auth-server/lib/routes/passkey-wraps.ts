@@ -1,0 +1,195 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import * as isA from 'joi';
+import { Container } from 'typedi';
+import {
+  PasskeyService,
+  V1_WIDTHS,
+  type NewPasskeyWrapData,
+} from '@fxa/accounts/passkey';
+import { AuthRequest } from '../types';
+import { ConfigType } from '../../config';
+import { isPasskeyPasswordlessSyncEnabled } from '../passkey-utils';
+import { recordSecurityEvent } from './utils/security-event';
+import type { SecurityEventNames } from 'fxa-shared/db/models/auth/security-event';
+import { reportSentryError } from '../sentry';
+import { base64urlCredentialId, base64urlString } from './passkeys';
+import type { Customs, DB } from './passkeys';
+import PASSKEYS_API_DOCS from '../../docs/swagger/passkeys-api';
+
+/**
+ * A base64url string of exactly `bytes` decoded bytes. Every v1 width has one
+ * legal character count, so the length is the whole check.
+ */
+const base64urlBytes = (bytes: number) => {
+  const chars = Math.ceil((bytes * 4) / 3);
+  return base64urlString(chars).length(chars);
+};
+
+/**
+ * One required field per envelope width, built from the widths themselves so a
+ * v2 field cannot reach the handler unvalidated.
+ */
+const envelopeSchema = Object.fromEntries(
+  Object.entries(V1_WIDTHS).map(([name, bytes]) => [
+    name,
+    base64urlBytes(bytes).required(),
+  ])
+);
+
+/**
+ * The stored wrap as it arrives on the wire: the same fields, base64url-encoded
+ * rather than binary. Keyed off the stored shape, so a new field cannot be
+ * added without a payload entry.
+ */
+type WrapPayload = Record<keyof NewPasskeyWrapData, string>;
+
+/**
+ * Handlers for the passkey wrap endpoints. The envelopes that let a passkey
+ * unlock `kB`.
+ */
+export class PasskeyWrapsHandler {
+  constructor(
+    private readonly service: PasskeyService,
+    private readonly db: DB,
+    private readonly customs: Customs
+  ) {}
+
+  /**
+   * Handles `POST /passkey/wraps`.
+   *
+   * Creates the wrap for a credential that has none. There is no update path,
+   * so a stale wrap is resolved by deleting the passkey and re-enrolling.
+   *
+   * Takes a verified session, as passkey rename does. Registering and deleting
+   * a credential take the `mfa:passkey` scope; this writes against a credential
+   * that already cleared that bar, and a wrap is inert without its PRF output.
+   *
+   * @returns `{ created: boolean }` — false when an identical wrap was already
+   *   stored.
+   */
+  async createPasskeyWrap(request: AuthRequest) {
+    const { uid } = request.auth.credentials as { uid: string };
+    const payload = request.payload as WrapPayload;
+    const { credentialId } = payload;
+
+    const account = await this.db.account(uid);
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      account.primaryEmail.email,
+      'passkeyWrapsCreate'
+    );
+
+    let result: 'created' | 'unchanged';
+    try {
+      result = await this.service.storePasskeyWrap(
+        uid,
+        credentialId,
+        {
+          pkR: Buffer.from(payload.pkR, 'base64url'),
+          prfWrappedSkR: Buffer.from(payload.prfWrappedSkR, 'base64url'),
+          keyWrapIv: Buffer.from(payload.keyWrapIv, 'base64url'),
+          hpkeEncapsulatedSecret: Buffer.from(
+            payload.hpkeEncapsulatedSecret,
+            'base64url'
+          ),
+          hpkeSealedKb: Buffer.from(payload.hpkeSealedKb, 'base64url'),
+        },
+        Date.now()
+      );
+    } catch (err) {
+      await this.recordEvent(request, 'account.passkey.wrap_creation_failure');
+      throw err;
+    }
+
+    if (result === 'unchanged') {
+      return { created: false };
+    }
+
+    // Guarded like the failure path: the row is already committed, so a failed
+    // audit write must not turn a stored wrap into a 500 the client retries —
+    // the retry answers `created: false` and the event is never emitted at all.
+    await this.recordEvent(request, 'account.passkey.wrap_created');
+
+    return { created: true };
+  }
+
+  /**
+   * Records a security event without letting its failure escape.
+   *
+   * On the failure path this runs on the way out of a `throw` and must not
+   * replace the error that caused it; on the success path the row is already
+   * committed. Reported to Sentry so an audit-write outage is not silent.
+   */
+  private async recordEvent(request: AuthRequest, name: SecurityEventNames) {
+    try {
+      await recordSecurityEvent(name, {
+        db: this.db,
+        request,
+      });
+    } catch (err) {
+      reportSentryError(err, request);
+    }
+  }
+}
+
+/**
+ * Builds the passkey wrap routes.
+ *
+ * Gated on `passkeys.passwordlessSyncEnabled` rather than the management flag.
+ */
+export const passkeyWrapsRoutes = (
+  customs: Customs,
+  db: DB,
+  config: ConfigType,
+  log: any
+) => {
+  const passwordlessSyncEnabledCheck = () =>
+    isPasskeyPasswordlessSyncEnabled(config);
+
+  if (!Container.has(PasskeyService)) {
+    throw new Error(
+      'Could not register passkey wrap routes. PasskeyService not registered with DI.'
+    );
+  }
+  const handler = new PasskeyWrapsHandler(
+    Container.get(PasskeyService),
+    db,
+    customs
+  );
+
+  return [
+    {
+      method: 'POST',
+      path: '/passkey/wraps',
+      options: {
+        ...PASSKEYS_API_DOCS.PASSKEY_WRAPS_POST,
+        pre: [{ method: passwordlessSyncEnabledCheck }],
+        auth: {
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
+          payload: false,
+        },
+        validate: {
+          payload: isA.object({
+            credentialId: base64urlCredentialId().required(),
+            ...envelopeSchema,
+          }),
+        },
+        response: {
+          schema: isA.object({
+            created: isA.boolean().required(),
+          }),
+        },
+      },
+      handler: function (request: AuthRequest) {
+        log.begin('passkey.wraps.create', request);
+        return handler.createPasskeyWrap(request);
+      },
+    },
+  ];
+};
+
+export default passkeyWrapsRoutes;

@@ -27,7 +27,7 @@ import { base64urlToBuffer } from './passkey.repository';
  * the same widths at the API boundary; this is the last layer that can
  * still refuse the write.
  */
-const V1_WIDTHS = {
+export const V1_WIDTHS = {
   pkR: 133,
   prfWrappedSkR: 82,
   keyWrapIv: 12,

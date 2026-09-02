@@ -254,6 +254,9 @@ module.exports = function (
     mailer
   );
 
+  const { passkeyWrapsRoutes } = require('./passkey-wraps');
+  const passkeyWraps = passkeyWrapsRoutes(customs, db, config, log);
+
   const { passwordlessRoutes } = require('./passwordless');
   const passwordless = passwordlessRoutes(
     log,
@@ -294,7 +297,8 @@ module.exports = function (
     cms,
     geo,
     mfa,
-    passkeys
+    passkeys,
+    passkeyWraps
   );
 
   function optionallyIgnoreTrace(fn) {
