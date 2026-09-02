@@ -1,0 +1,12 @@
+{
+  "commit": "36fa061b0812da9b1f2b4e5ac420ea9a7683ed32",
+  "summary": "chore(deps): upgrade react and react-dom to 19.2.8",
+  "description": "Because:\n- The 19.0.8 pin was a workaround for passkey and 2FA functional failures\n  that no longer reproduce once the mount effects are idempotent.\n\nThis commit:\n- Bumps react and react-dom from 19.0.8 to 19.2.8.",
+  "timestamp": 1788308215000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
