@@ -27,4 +27,6 @@ export * from './lib/passkey.config';
 export * from './lib/passkey.provider';
 export * from './lib/passkey.challenge.manager';
 export * from './lib/webauthn-adapter';
-export * from './lib/virtual-authenticator';
+
+// The virtual authenticator is deliberately absent — import it from
+// `@fxa/accounts/passkey/testing`.

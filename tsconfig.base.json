@@ -36,6 +36,9 @@
       "@fxa/accounts/errors": ["./libs/accounts/errors/src/index.ts"],
       "@fxa/accounts/oauth": ["./libs/accounts/oauth/src/index.ts"],
       "@fxa/accounts/passkey": ["./libs/accounts/passkey/src/index.ts"],
+      "@fxa/accounts/passkey/testing": [
+        "./libs/accounts/passkey/src/testing.ts"
+      ],
       "@fxa/accounts/rate-limit": ["./libs/accounts/rate-limit/src/index.ts"],
       "@fxa/accounts/recovery-phone": [
         "./libs/accounts/recovery-phone/src/index.ts"
