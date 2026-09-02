@@ -1,8 +1,8 @@
 {
-  "commit": "78890bbf165d4dd6d70c34648f4ccb9b7beb38e9",
-  "summary": "fix(settings): Match the pairing hand-off card to its Figma spec",
-  "description": "Because:\n  - The live card's copy and its \"Opening Firefox…\" status line diverged\n    from the approved design and from the Pair2 storybook card.\n  - The design drops the separate store link; the hand-off already routes\n    to the store on both platforms.\n\nThis commit:\n  - Retitles the card \"Get Firefox on this device\" with the sync subcopy\n    and an inline \"Learn more\" link.\n  - Moves \"Opening Firefox…\" into the CTA as its active state.\n  - Removes the \"Don’t have Firefox? Get it now\" link.\n  - Keeps the CTA mounted throughout, so `attempting` alone drives it and\n    a retap still reaches the store.\n\nFixes FXA-14459",
-  "timestamp": 1788315649000,
+  "commit": "ff42731751a325e95e869e63d1924ab61dcf2fec",
+  "summary": "fix(settings): Drop the tag-stripping regex from the pairing card test",
+  "description": "Because:\n  - CodeQL reads `replace(/<\\/?[a-zA-Z]+>/g, '')` as an incomplete HTML\n    sanitizer and fails the PR on a high-severity alert.\n\nThis commit:\n  - Splits the Fluent message on the literal `<linkExternal>` tag instead,\n    asserting the sentence and the placeable separately.",
+  "timestamp": 1788316123000,
   "storybooks": [
     "fxa-settings"
   ],
