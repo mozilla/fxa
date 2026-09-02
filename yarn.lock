@@ -33555,8 +33555,8 @@ __metadata:
     pm2: "npm:^7.0.0"
     postcss: "npm:8.5.12"
     prettier: "npm:^3.5.3"
-    react: "npm:19.0.8"
-    react-dom: "npm:19.0.8"
+    react: "npm:19.2.8"
+    react-dom: "npm:19.2.8"
     react-ga4: "npm:^2.1.0"
     reflect-metadata: "npm:^0.2.1"
     rxjs: "npm:^7.8.1"
@@ -48026,14 +48026,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:19.0.8":
-  version: 19.0.8
-  resolution: "react-dom@npm:19.0.8"
+"react-dom@npm:19.2.8":
+  version: 19.2.8
+  resolution: "react-dom@npm:19.2.8"
   dependencies:
-    scheduler: "npm:^0.25.0"
+    scheduler: "npm:^0.27.0"
   peerDependencies:
-    react: ^19.0.8
-  checksum: 10c0/f84a59bddcd2f6d1824513ab67e99985244c4d6dc4a2d7205a7171871a53b8eec5d68c16756f50c345fcb5838e292c33c4ffafe47e19ad514b31248f9eb0e8c3
+    react: ^19.2.8
+  checksum: 10c0/41ba2247b76f687fcfe5bbc99f514d6b851d8c8041c2f5ded36ed05bd7fdc5208cacbac9de51e3e6633e77f96f44cec9f0d4a5a55184dba4e00738f224439134
   languageName: node
   linkType: hard
 
@@ -48320,10 +48320,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:19.0.8":
-  version: 19.0.8
-  resolution: "react@npm:19.0.8"
-  checksum: 10c0/46142b6f68a61845c5e37f919a09094357391a6708ebc016581fd1f246e618aee34e218b6829d92acfd8fcaa5e5a2e1967689c4973013d3fe41309fe0d0a022b
+"react@npm:19.2.8":
+  version: 19.2.8
+  resolution: "react@npm:19.2.8"
+  checksum: 10c0/5f86bdb56426652fd6d989d30a6f2e603c057272c47c9ca3a3fbe190a3a39ee9ccce937d63cfc039717abed1b8891d6a499134bc35311acc07eafdacd86537cd
   languageName: node
   linkType: hard
 
@@ -49929,13 +49929,6 @@ __metadata:
     loose-envify: "npm:^1.1.0"
     object-assign: "npm:^4.1.1"
   checksum: 10c0/b0982e4b0f34f4ffa4f2f486161c0fd9ce9b88680b045dccbf250eb1aa4fd27413570645455187a83535e2370f5c667a251045547765408492bd883cbe95fcdb
-  languageName: node
-  linkType: hard
-
-"scheduler@npm:^0.25.0":
-  version: 0.25.0
-  resolution: "scheduler@npm:0.25.0"
-  checksum: 10c0/a4bb1da406b613ce72c1299db43759526058fdcc413999c3c3e0db8956df7633acf395cb20eb2303b6a65d658d66b6585d344460abaee8080b4aa931f10eaafe
   languageName: node
   linkType: hard
 
