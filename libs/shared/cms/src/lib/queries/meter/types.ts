@@ -9,6 +9,13 @@ export const METERING_CALENDAR_PERIODS = [
 ] as const;
 export type MeteringCalendarPeriod = (typeof METERING_CALENDAR_PERIODS)[number];
 
+export const METERING_WINDOW_KINDS = [
+  'calendar',
+  'sliding',
+  'session',
+] as const;
+export type MeteringWindowKind = (typeof METERING_WINDOW_KINDS)[number];
+
 export type MeteringWindow =
   | { kind: 'calendar'; period: MeteringCalendarPeriod }
   | { kind: 'sliding'; durationMs: number }
@@ -28,7 +35,9 @@ interface StrapiMeterFields {
 }
 
 export interface StrapiMeterRaw extends StrapiMeterFields {
-  window: MeteringCalendarPeriod;
+  windowKind: MeteringWindowKind;
+  windowPeriod: MeteringCalendarPeriod | null;
+  windowDurationMinutes: number | null;
 }
 
 export interface StrapiMeter extends StrapiMeterFields {

@@ -22,6 +22,30 @@ apps.push({
   filter_env: ['npm_'],
 });
 
+apps.push({
+  name: 'payments-metering-subscriber',
+  script: 'nx run payments-api:metering-subscriber',
+  max_restarts: '1',
+  min_uptime: '2m',
+  env: {
+    PATH,
+    PORT: 3038,
+    METERING_CONFIG__PUBSUB__CONSUMER_ENABLED: 'true',
+  },
+  filter_env: ['npm_'],
+});
+
+apps.push({
+  name: 'payments-metering-sweep',
+  script: 'nx run payments-api:metering-sweep-loop',
+  max_restarts: '1',
+  min_uptime: '2m',
+  env: {
+    PATH,
+  },
+  filter_env: ['npm_'],
+});
+
 module.exports = {
   apps,
 };

@@ -11,20 +11,64 @@ import {
 } from '.';
 import {
   MeterInvalidNotificationThresholdError,
+  MeterInvalidWindowError,
   MeterNotFoundError,
 } from '../../cms.error';
 
 describe('toStrapiMeter', () => {
   it.each(METERING_CALENDAR_PERIODS)(
-    'maps the %s Strapi window to a calendar window',
+    'maps a calendar meter with the %s period',
     (period) => {
-      const meter = StrapiMeterRawFactory({ window: period });
+      const meter = StrapiMeterRawFactory({
+        windowKind: 'calendar',
+        windowPeriod: period,
+      });
       expect(toStrapiMeter(meter).window).toEqual({ kind: 'calendar', period });
     }
   );
 
+  it('maps a sliding meter to a duration in milliseconds', () => {
+    const meter = StrapiMeterRawFactory({
+      windowKind: 'sliding',
+      windowPeriod: null,
+      windowDurationMinutes: 90,
+    });
+    expect(toStrapiMeter(meter).window).toEqual({
+      kind: 'sliding',
+      durationMs: 90 * 60_000,
+    });
+  });
+
+  it('maps a session meter to a duration in milliseconds', () => {
+    const meter = StrapiMeterRawFactory({
+      windowKind: 'session',
+      windowPeriod: null,
+      windowDurationMinutes: 30,
+    });
+    expect(toStrapiMeter(meter).window).toEqual({
+      kind: 'session',
+      durationMs: 30 * 60_000,
+    });
+  });
+
+  it('rejects a calendar meter without a period', () => {
+    const meter = StrapiMeterRawFactory({
+      windowKind: 'calendar',
+      windowPeriod: null,
+    });
+    expect(() => toStrapiMeter(meter)).toThrow(MeterInvalidWindowError);
+  });
+
+  it('rejects a sliding meter without a duration', () => {
+    const meter = StrapiMeterRawFactory({
+      windowKind: 'sliding',
+      windowDurationMinutes: null,
+    });
+    expect(() => toStrapiMeter(meter)).toThrow(MeterInvalidWindowError);
+  });
+
   it('preserves every field other than the window', () => {
-    const meter = StrapiMeterRawFactory({ window: 'daily' });
+    const meter = StrapiMeterRawFactory({ windowPeriod: 'daily' });
     const normalized = toStrapiMeter(meter);
     expect(normalized.slug).toBe(meter.slug);
     expect(normalized.unit).toBe(meter.unit);
@@ -36,18 +80,22 @@ describe('toStrapiMeter', () => {
   });
 
   it('does not mutate the raw meter', () => {
-    const meter = StrapiMeterRawFactory({ window: 'daily' });
+    const meter = StrapiMeterRawFactory({ windowPeriod: 'daily' });
     toStrapiMeter(meter);
-    expect(meter.window).toBe('daily');
+    expect(meter.windowPeriod).toBe('daily');
   });
 });
 
 describe('MeterBySlugResultUtil', () => {
   it('returns the first meter with its window normalized', () => {
-    const meter = StrapiMeterRawFactory({ window: 'monthly' });
+    const meter = StrapiMeterRawFactory({ windowPeriod: 'monthly' });
     const util = new MeterBySlugResultUtil({ meters: [meter] }, 'test-slug');
     expect(util.getMeter()).toEqual({
-      ...meter,
+      slug: meter.slug,
+      unit: meter.unit,
+      limit: meter.limit,
+      notificationThresholds: meter.notificationThresholds,
+      webhooks: meter.webhooks,
       window: { kind: 'calendar', period: 'monthly' },
     });
   });
@@ -58,7 +106,7 @@ describe('MeterBySlugResultUtil', () => {
     expect(util.meters).toHaveLength(1);
     expect(util.meters[0].window).toEqual({
       kind: 'calendar',
-      period: result.meters[0].window,
+      period: result.meters[0].windowPeriod,
     });
   });
 

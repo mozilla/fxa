@@ -6,17 +6,20 @@ import { PubSub } from '@google-cloud/pubsub';
 import { Provider } from '@nestjs/common';
 
 import { MeteringPubSubConfig } from './metering-pubsub.config';
+import { ensurePubSubEmulatorResources } from './utils/ensurePubSubEmulatorResources';
 
 export const MeteringPubSubClient = Symbol('METERING_PUBSUB_CLIENT');
 
 export const MeteringPubSubClientProvider: Provider<PubSub> = {
   provide: MeteringPubSubClient,
-  useFactory: (config: MeteringPubSubConfig) => {
+  useFactory: async (config: MeteringPubSubConfig) => {
     const { projectId, emulatorHost } = config;
-    if (emulatorHost) {
-      return new PubSub({ projectId, apiEndpoint: emulatorHost });
+    if (!emulatorHost) {
+      return new PubSub({ projectId });
     }
-    return new PubSub({ projectId });
+    const pubsub = new PubSub({ projectId, apiEndpoint: emulatorHost });
+    await ensurePubSubEmulatorResources(pubsub, config);
+    return pubsub;
   },
   inject: [MeteringPubSubConfig],
 };

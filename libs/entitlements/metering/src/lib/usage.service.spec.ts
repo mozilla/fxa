@@ -15,11 +15,11 @@ import {
 } from './metering.factories';
 import { MeteringEventsManager } from './metering-events.manager';
 import { MeteringPublisherManager } from './metering-publisher.manager';
+import { MeteringSweepManager } from './metering-sweep.manager';
 import {
   ClickHouseError,
   MeterNotConfiguredError,
   PublishError,
-  SessionUsageQueryNotSupportedError,
   TimestampOutOfRangeError,
 } from './metering.error';
 import { UsageGrantsManager } from './usage-grants.manager';
@@ -38,6 +38,9 @@ describe('UsageService', () => {
   >;
   let meteringEventsManager: jest.Mocked<
     Pick<MeteringEventsManager, 'sumUsage'>
+  >;
+  let meteringSweepManager: jest.Mocked<
+    Pick<MeteringSweepManager, 'findSessionStarts'>
   >;
   let usageGrantsManager: jest.Mocked<
     Pick<UsageGrantsManager, 'getActiveGrantedAmount'>
@@ -60,6 +63,12 @@ describe('UsageService', () => {
           useValue: { sumUsage: jest.fn().mockResolvedValue(0) },
         },
         {
+          provide: MeteringSweepManager,
+          useValue: {
+            findSessionStarts: jest.fn().mockResolvedValue(new Map()),
+          },
+        },
+        {
           provide: UsageGrantsManager,
           useValue: {
             getActiveGrantedAmount: jest.fn().mockResolvedValue(0),
@@ -72,6 +81,7 @@ describe('UsageService', () => {
     meteringConfigurationManager = moduleRef.get(MeteringConfigurationManager);
     meteringPublisherManager = moduleRef.get(MeteringPublisherManager);
     meteringEventsManager = moduleRef.get(MeteringEventsManager);
+    meteringSweepManager = moduleRef.get(MeteringSweepManager);
     usageGrantsManager = moduleRef.get(UsageGrantsManager);
   });
 
@@ -270,17 +280,61 @@ describe('UsageService', () => {
       expect(result.windowEnd).toBe('2026-05-15T12:00:00.000Z');
     });
 
-    it('rejects a session meter without reading usage', async () => {
+    it('uses the open session as the window for a session meter', async () => {
+      const meter = StrapiMeterFactory({
+        window: { kind: 'session', durationMs: 30 * 60 * 1000 },
+      });
+      const params = UsageQueryParamsFactory({ slug: meter.slug });
+      const sessionStart = new Date('2026-05-15T11:50:00.000Z');
+      meteringConfigurationManager.getMeterBySlug.mockResolvedValue(meter);
+      meteringSweepManager.findSessionStarts.mockResolvedValue(
+        new Map([[params.userIdentifier, sessionStart]])
+      );
+
+      const result = await usageService.queryUsage(CLIENT_ID, params, NOW);
+
+      expect(meteringSweepManager.findSessionStarts).toHaveBeenCalledWith({
+        clientId: CLIENT_ID,
+        slug: params.slug,
+        subjects: [params.userIdentifier],
+      });
+      expect(meteringEventsManager.sumUsage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          from: sessionStart,
+          to: new Date('2026-05-15T12:20:00.000Z'),
+        })
+      );
+      expect(result.windowStart).toBe('2026-05-15T11:50:00.000Z');
+    });
+
+    it('starts an empty window at now when a session meter subject has no open session', async () => {
       const meter = StrapiMeterFactory({
         window: { kind: 'session', durationMs: 30 * 60 * 1000 },
       });
       const params = UsageQueryParamsFactory({ slug: meter.slug });
       meteringConfigurationManager.getMeterBySlug.mockResolvedValue(meter);
 
-      await expect(
-        usageService.queryUsage(CLIENT_ID, params, NOW)
-      ).rejects.toThrow(SessionUsageQueryNotSupportedError);
-      expect(meteringEventsManager.sumUsage).not.toHaveBeenCalled();
+      const result = await usageService.queryUsage(CLIENT_ID, params, NOW);
+
+      expect(meteringEventsManager.sumUsage).toHaveBeenCalledWith(
+        expect.objectContaining({ from: NOW })
+      );
+      expect(result.usage).toBe(0);
+    });
+
+    it('does not look up session starts for a calendar meter', async () => {
+      const meter = StrapiMeterFactory({
+        window: { kind: 'calendar', period: 'monthly' },
+      });
+      meteringConfigurationManager.getMeterBySlug.mockResolvedValue(meter);
+
+      await usageService.queryUsage(
+        CLIENT_ID,
+        UsageQueryParamsFactory({ slug: meter.slug }),
+        NOW
+      );
+
+      expect(meteringSweepManager.findSessionStarts).not.toHaveBeenCalled();
     });
 
     it('raises the reported limit by the active granted amount', async () => {

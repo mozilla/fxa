@@ -3,7 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/payments/api/src",
   "projectType": "application",
-  "tags": [],
+  "tags": ["app", "payments", "type:sp3"],
   "targets": {
     "build": {
       "executor": "nx:run-commands",
@@ -77,7 +77,7 @@
       }
     },
     "start": {
-      "command": "pm2 start apps/payments/api/pm2.config.js && yarn check:url localhost:3037/__heartbeat__",
+      "command": "pm2 delete payments-api payments-metering-subscriber payments-metering-sweep >/dev/null 2>&1; pm2 start apps/payments/api/pm2.config.js && yarn check:url localhost:3037/__heartbeat__",
       "dependsOn": []
     },
     "stop": {
@@ -93,7 +93,20 @@
       "options": {
         "passWithNoTests": true
       }
+    },
+    "metering-subscriber": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "../../../_scripts/check-url.sh localhost:3037/__heartbeat__ 200 payments-api && node ../../../dist/apps/payments/api/main.js",
+        "cwd": "apps/payments/api"
+      }
+    },
+    "metering-sweep-loop": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "../../../_scripts/check-url.sh localhost:3037/__heartbeat__ 200 payments-api && while true; do node ../../../dist/apps/payments/api/metering-sweep.js; sleep 60; done",
+        "cwd": "apps/payments/api"
+      }
     }
-  },
-  "tags": ["app", "payments", "type:sp3"]
+  }
 }

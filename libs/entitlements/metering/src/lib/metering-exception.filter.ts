@@ -18,7 +18,6 @@ import {
   MeterNotConfiguredError,
   MeteringError,
   PublishError,
-  SessionUsageQueryNotSupportedError,
   TimestampOutOfRangeError,
   UsageGrantLifetimeNotSupportedError,
   UsageGrantNotFoundError,
@@ -53,8 +52,7 @@ export class MeteringExceptionFilter implements ExceptionFilter {
 
     if (
       exception instanceof UsageGrantLifetimeNotSupportedError ||
-      exception instanceof TimestampOutOfRangeError ||
-      exception instanceof SessionUsageQueryNotSupportedError
+      exception instanceof TimestampOutOfRangeError
     ) {
       response.status(HttpStatus.BAD_REQUEST).json({
         statusCode: HttpStatus.BAD_REQUEST,

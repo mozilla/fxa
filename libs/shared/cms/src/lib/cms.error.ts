@@ -133,6 +133,13 @@ export class MeterInvalidNotificationThresholdError extends QueriesUtilError {
   }
 }
 
+export class MeterInvalidWindowError extends QueriesUtilError {
+  constructor(slug: string, reason: string) {
+    super('Meter window configuration is invalid', { slug, reason });
+    this.name = 'MeterInvalidWindowError';
+  }
+}
+
 export class CmsValidationError extends CMSError {
   constructor(
     public readonly model: string,

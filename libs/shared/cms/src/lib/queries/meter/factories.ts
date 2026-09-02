@@ -34,7 +34,9 @@ export const StrapiMeterRawFactory = (
   override?: Partial<StrapiMeterRaw>
 ): StrapiMeterRaw => ({
   ...strapiMeterFields(),
-  window: faker.helpers.arrayElement(METERING_CALENDAR_PERIODS),
+  windowKind: 'calendar',
+  windowPeriod: faker.helpers.arrayElement(METERING_CALENDAR_PERIODS),
+  windowDurationMinutes: null,
   ...override,
 });
 

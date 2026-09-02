@@ -14,7 +14,6 @@ import {
   MeteringError,
   PublishError,
   TimestampOutOfRangeError,
-  SessionUsageQueryNotSupportedError,
   UsageGrantLifetimeNotSupportedError,
 } from './metering.error';
 
@@ -132,17 +131,6 @@ describe('MeteringExceptionFilter', () => {
         message: expect.not.stringContaining('10.0.0.9'),
       })
     );
-  });
-
-  it('maps SessionUsageQueryNotSupportedError to 400', () => {
-    filter.respond(new SessionUsageQueryNotSupportedError('tokens'), response);
-
-    expect(status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
-    expect(json).toHaveBeenCalledWith({
-      statusCode: HttpStatus.BAD_REQUEST,
-      error: 'Bad Request',
-      message: 'Usage queries are not supported for session meters',
-    });
   });
 
   it('maps TimestampOutOfRangeError to 400', () => {

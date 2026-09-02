@@ -8,10 +8,8 @@ import { MeteringConfigurationManager } from '@fxa/shared/cms';
 
 import { MeteringEventsManager } from './metering-events.manager';
 import { MeteringPublisherManager } from './metering-publisher.manager';
-import {
-  SessionUsageQueryNotSupportedError,
-  TimestampOutOfRangeError,
-} from './metering.error';
+import { MeteringSweepManager } from './metering-sweep.manager';
+import { TimestampOutOfRangeError } from './metering.error';
 import { isTimestampInRange } from './utils/isTimestampInRange';
 import {
   type IngestUsageRequest,
@@ -28,6 +26,7 @@ export class UsageService {
     private readonly meteringConfigurationManager: MeteringConfigurationManager,
     private readonly meteringPublisherManager: MeteringPublisherManager,
     private readonly meteringEventsManager: MeteringEventsManager,
+    private readonly meteringSweepManager: MeteringSweepManager,
     private readonly usageGrantsManager: UsageGrantsManager
   ) {}
 
@@ -68,11 +67,15 @@ export class UsageService {
       params.slug
     );
 
-    if (meter.window.kind === 'session') {
-      throw new SessionUsageQueryNotSupportedError(params.slug);
-    }
-
-    const { windowStart, windowEnd } = resolveWindow(meter.window, now);
+    const sessionStart =
+      meter.window.kind === 'session'
+        ? await this.findSessionStart(clientId, params)
+        : undefined;
+    const { windowStart, windowEnd } = resolveWindow(
+      meter.window,
+      now,
+      sessionStart
+    );
 
     const [usage, grantedAmount] = await Promise.all([
       this.meteringEventsManager.sumUsage({
@@ -97,5 +100,17 @@ export class UsageService {
       windowStart: windowStart.toISOString(),
       windowEnd: windowEnd.toISOString(),
     };
+  }
+
+  private async findSessionStart(
+    clientId: string,
+    params: UsageQueryParams
+  ): Promise<Date | undefined> {
+    const starts = await this.meteringSweepManager.findSessionStarts({
+      clientId,
+      slug: params.slug,
+      subjects: [params.userIdentifier],
+    });
+    return starts.get(params.userIdentifier);
   }
 }

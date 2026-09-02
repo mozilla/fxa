@@ -66,13 +66,6 @@ export class DedupeError extends MeteringError {
   }
 }
 
-export class SessionUsageQueryNotSupportedError extends MeteringError {
-  constructor(slug: string) {
-    super('Usage queries are not supported for session meters', { slug });
-    this.name = 'SessionUsageQueryNotSupportedError';
-  }
-}
-
 export class TimestampOutOfRangeError extends MeteringError {
   constructor(timestamp: string) {
     super('Usage event timestamp is outside the accepted range', {

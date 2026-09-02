@@ -4,12 +4,50 @@
 
 import {
   MeterInvalidNotificationThresholdError,
+  MeterInvalidWindowError,
   MeterNotFoundError,
 } from '../../cms.error';
-import { MeterBySlugResult, StrapiMeter, StrapiMeterRaw } from './types';
+import {
+  MeterBySlugResult,
+  MeteringWindow,
+  StrapiMeter,
+  StrapiMeterRaw,
+} from './types';
 
 export function toStrapiMeter(meter: StrapiMeterRaw): StrapiMeter {
-  return { ...meter, window: { kind: 'calendar', period: meter.window } };
+  return {
+    slug: meter.slug,
+    unit: meter.unit,
+    limit: meter.limit,
+    notificationThresholds: meter.notificationThresholds,
+    webhooks: meter.webhooks,
+    window: toMeteringWindow(meter),
+  };
+}
+
+function toMeteringWindow(meter: StrapiMeterRaw): MeteringWindow {
+  switch (meter.windowKind) {
+    case 'calendar':
+      if (!meter.windowPeriod) {
+        throw new MeterInvalidWindowError(
+          meter.slug,
+          'calendar meters need a windowPeriod'
+        );
+      }
+      return { kind: 'calendar', period: meter.windowPeriod };
+    case 'sliding':
+    case 'session':
+      if (!meter.windowDurationMinutes || meter.windowDurationMinutes <= 0) {
+        throw new MeterInvalidWindowError(
+          meter.slug,
+          `${meter.windowKind} meters need a positive windowDurationMinutes`
+        );
+      }
+      return {
+        kind: meter.windowKind,
+        durationMs: meter.windowDurationMinutes * 60_000,
+      };
+  }
 }
 
 export class MeterBySlugResultUtil {
