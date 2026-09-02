@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit fbb05cd60f812042b3873b6b4c2ebe85282c802a</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit fbb05cd60f812042b3873b6b4c2ebe85282c802a</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/2/2026, 2:29:55 AM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(pair): center the loading spinner on the supplicant connect screen</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+* The wait for the pairing channel rendered a bare spinner with no layout of
+  its own, so it sat in the top-left corner instead of the middle of the page.
+
+This commit:
+
+* Renders the connect_this_device loading state through AppLayout so it keeps
+  the page chrome and centering of the card that follows it.
+* Adds a container test covering the loading state.
+
+Fixes FXA-14457</pre></dd>
+  </dl>
+</body>
+</html>

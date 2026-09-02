@@ -1,0 +1,10 @@
+{
+  "commit": "fbb05cd60f812042b3873b6b4c2ebe85282c802a",
+  "summary": "fix(pair): center the loading spinner on the supplicant connect screen",
+  "description": "Because:\n\n* The wait for the pairing channel rendered a bare spinner with no layout of\n  its own, so it sat in the top-left corner instead of the middle of the page.\n\nThis commit:\n\n* Renders the connect_this_device loading state through AppLayout so it keeps\n  the page chrome and centering of the card that follows it.\n* Adds a container test covering the loading state.\n\nFixes FXA-14457",
+  "timestamp": 1788316195000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
