@@ -115,6 +115,19 @@ describe('Pair2/Supplicant/ConnectThisDevice container', () => {
     );
   });
 
+  // A bare spinner has no layout of its own, so the browser parked it in the
+  // top-left corner while the channel opened. Rendering it through the same
+  // layout the connect prompt uses keeps it centered on the page.
+  it('renders the spinner inside the page layout while the channel opens', async () => {
+    // Leave the channel pending so the loading state is the rendered output.
+    integration.openChannel.mockReturnValue(new Promise<void>(() => {}));
+
+    renderContainer();
+
+    const spinner = await screen.findByRole('img', { name: 'Loading…' });
+    expect(screen.getByRole('main')).toContainElement(spinner);
+  });
+
   it('renders the device details once the authority metadata arrives', async () => {
     renderContainer();
     await waitFor(() => expect(integration.onStateChange).toBeTruthy());
