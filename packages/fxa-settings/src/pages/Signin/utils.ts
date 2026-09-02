@@ -24,7 +24,7 @@ import { useNavigateWithQuery } from '../../lib/hooks';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { currentAccount, discardSessionToken } from '../../lib/cache';
 import firefox from '../../lib/channels/firefox';
-import { AuthError } from '../../lib/oauth';
+import { AuthError, OAuthError } from '../../lib/oauth';
 import GleanMetrics from '../../lib/glean';
 import { OAuthData } from '../../lib/oauth/hooks';
 import AuthenticationMethods from '../../constants/authentication-methods';
@@ -723,6 +723,18 @@ const getOAuthNavigationTarget = async (
       error.errno === AuthUiErrors.INSUFFICIENT_ACR_VALUES.errno
     ) {
       GleanMetrics.login.error({ event: { reason: error.message } });
+
+      // Every destination below is interactive, which prompt=none forbids. On
+      // the caller's flag, not the integration: prompt=none can outlive the
+      // authorization route in the query string, and the RP may have opted out
+      // of error redirects. Errno 170 only — an unverified session is
+      // interaction_required, not an unmet level (FXA-14408).
+      if (
+        error.errno === AuthUiErrors.INSUFFICIENT_ACR_VALUES.errno &&
+        navigationOptions.canRelayPromptNoneError
+      ) {
+        return { error: new OAuthError('UNMET_AUTHENTICATION_REQUIREMENTS') };
+      }
 
       const to = (() => {
         // If the user doesn't have totp, and encountered an unverified_session error, send them

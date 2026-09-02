@@ -367,6 +367,36 @@ describe('generateTokens', () => {
     ]);
   });
 
+  // No token is minted for a rejected request, so RFC 9470 section 5 reduces to:
+  // acr tracks the achieved aal, never the requested acr_values.
+  it('reflects the achieved aal in the id_token acr claim', async () => {
+    requestedGrant.scope = ScopeSet.fromArray(['openid']);
+    requestedGrant.aal = 2;
+    const result = await generateTokens(requestedGrant);
+
+    const jwt = decodeJWT(result.id_token);
+    expect(jwt.claims.acr).toBe('AAL2');
+    expect(jwt.claims['fxa-aal']).toBe(2);
+  });
+
+  it('reports the lower level in acr when the session only reached AAL1', async () => {
+    requestedGrant.scope = ScopeSet.fromArray(['openid']);
+    requestedGrant.aal = 1;
+    const result = await generateTokens(requestedGrant);
+
+    const jwt = decodeJWT(result.id_token);
+    expect(jwt.claims.acr).toBe('AAL1');
+  });
+
+  it('omits acr when the grant carries no aal', async () => {
+    requestedGrant.scope = ScopeSet.fromArray(['openid']);
+    delete requestedGrant.aal;
+    const result = await generateTokens(requestedGrant);
+
+    const jwt = decodeJWT(result.id_token);
+    expect(jwt.claims.acr).toBeUndefined();
+  });
+
   it('propagates auth_time (seconds) in id_token claims without re-dividing', async () => {
     requestedGrant.scope = ScopeSet.fromArray(['openid']);
     // authAt is already seconds since the epoch; auth_time must equal it, not

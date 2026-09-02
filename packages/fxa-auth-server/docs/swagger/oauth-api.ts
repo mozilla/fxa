@@ -19,8 +19,26 @@ const OAUTH_AUTHORIZATION_POST = {
       Authorize a new OAuth client connection to the user's account, returning a short-lived authentication code that the client can exchange for access tokens at the OAuth token endpoint.
 
       This route behaves like the oauth-server /authorization endpoint except that it is authenticated directly with a sessionToken.
+
+      ### Step-up authentication (RFC 9470)
+
+      An RP can request a higher authentication level with \`acr_values=AAL2\`, and can bound its freshness with \`max_age\`. The two are independent and each is optional; a session failing either one is rejected here with \`errno: 170\`.
+
+      The hosted sign-in UI resolves that with a second-factor challenge. Where it cannot — the RP sent \`prompt=none\` — it redirects to the registered \`redirect_uri\` with \`error=unmet_authentication_requirements\` instead. That redirect comes from the UI, never from this endpoint.
     `,
   ],
+  plugins: {
+    'hapi-swagger': {
+      responses: {
+        400: {
+          description: dedent`
+            Failing requests may be caused by the following errors (this is not an exhaustive list):
+            - \`errno: 170\` - Requested \`acr_values\` or \`max_age\` could not be satisfied.
+          `,
+        },
+      },
+    },
+  },
 };
 
 const OAUTH_DESTROY_POST = {

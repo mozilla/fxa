@@ -255,6 +255,33 @@ test.describe('severity-2', () => {
       expect(after.acr).toBe('AAL2');
       expect(typeof after.auth_time).toBe('number');
     });
+
+    test('returns unmet_authentication_requirements when prompt=none forbids the challenge', async ({
+      target,
+      pages: { page, relier, signin },
+      testAccountTracker,
+    }) => {
+      const credentials = await testAccountTracker.signUp();
+
+      await relier.goto();
+      await relier.clickEmailFirst();
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+      expect(await relier.isLoggedIn()).toBe(true);
+      expect((await relier.getAuthStatus()).acr).toBe('AAL1');
+
+      // 123Done merges query params over its route defaults. Runs outside local
+      // too: the per-client allowlist is only consulted when email or login_hint
+      // is present, and /api/step_up sends neither.
+      await page.goto(`${target.relierUrl}/api/step_up?prompt=none`);
+
+      // Wait on the error param, not the path — a successful redirect also
+      // lands on /api/oauth.
+      await page.waitForURL(/error=unmet_authentication_requirements/);
+      const params = new URL(page.url()).searchParams;
+      expect(params.get('error')).toBe('unmet_authentication_requirements');
+      expect(params.get('state')).toBeTruthy();
+    });
   });
 });
 

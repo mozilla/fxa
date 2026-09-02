@@ -300,6 +300,12 @@ export interface NavigationOptions {
   // session was established. Drives the /pair `choice_view` reason.
   passwordCreationReason?: PasswordCreationReason;
   accountHasTotp?: boolean;
+  // Set only by the Authorization container, and only when the RP accepts error
+  // redirects. It is the one caller that relays a returned error to the RP; the
+  // rest render errors in-FxA, and with return_on_error=false even this one
+  // does. Failing the request in those cases would dead-end the user instead of
+  // letting the interactive fallback complete the flow.
+  canRelayPromptNoneError?: boolean;
   authClient: Pick<AuthClient, 'sessionResendVerifyCode'>;
 }
 
