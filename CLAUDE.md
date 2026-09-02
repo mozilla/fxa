@@ -112,7 +112,8 @@ Skills: `/fxa-test-draft` (draft tests for changes), `/fxa-test-repair` (audit a
 **Be concise.** Applies to commit messages, PR bodies, Jira tickets, and code comments.
 
 - **Cut items before compressing sentences.** Shorten by dropping a point or folding two together; tightening a point worth keeping is fine, but don't squeeze every point into a semicolon-spliced fragment. What survives should read like a person wrote it.
-- **One claim per bullet.** State what changed. Give the reason only when it isn't inferable and lives nowhere else.
+- **One claim per bullet.** In commit messages, PR bodies and tickets, state what changed. Give the reason only when it isn't inferable and lives nowhere else.
+- **Comments state what is true, not what changed.** They're read cold, with no diff — so "used to", "no longer" and "we decided in review" belong in the commit's `Because:` section instead. Detailed rules auto-load from `.claude/rules/code-comments.md` when you touch JavaScript/TypeScript.
 - **Meta-commentary must save the reader work.** Out-of-scope notes and rejected alternatives earn their place when a reviewer would otherwise ask; narrating the diff's boundaries doesn't.
 - **Ticket refs in code only where the history is the answer.** Put the why in the comment. An `FXA-12345` pointer fits when the code reads as complex or non-standard and the explanation outgrows a comment — a workaround, an external constraint. Not in test names. Leave existing refs alone.
 - **Paths earn their place.** Name a file when it saves the reader a search. Skip it when the diff or a reference section already points there.
