@@ -1,0 +1,10 @@
+{
+  "commit": "c54a23cff0ac652850d9efde4245f7e76ab687e0",
+  "summary": "fix(settings): pass hasPasskey in passkey-enabled signin stories",
+  "description": "Because:\n\n- The passkey CTA is gated on account hasPasskey, but the\n  passkey-enabled Signin/SigninAlternativeAuthOptions stories only\n  flipped the feature flags, so they fell back to the legacy circular\n  third-party buttons with no passkey button.\n\nThis commit:\n\n- Passes hasPasskey in all passkey-enabled Signin and\n  SigninAlternativeAuthOptions stories.\n- Adds cancelled (NotAllowedError) and timed-out ceremony stories that\n  stub navigator.credentials.get so a click on the passkey button shows\n  the warning banner usePasskeySignIn really generates.\n- Disables the other auth options in the passkey loading story to match\n  page behaviour during an in-flight ceremony.",
+  "timestamp": 1788390969000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
