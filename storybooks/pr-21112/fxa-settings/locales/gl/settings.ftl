@@ -89,21 +89,18 @@ form-verify-code-default-error = Este campo é obrigatorio
 ## FormVerifyTotp component
 ## Form to enter a time-based one-time-passcode (e.g., 6-digit numeric code or 8-digit alphanumeric code)
 
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Chave de recuperación da conta de { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Copia de seguridade dos códigos de autenticación
 get-data-trio-download-2 =
-    .title = Descargar
     .aria-label = Descargar
+    .title = Descargar
 get-data-trio-copy-2 =
-    .title = Copiar
     .aria-label = Copiar
+    .title = Copiar
 get-data-trio-print-2 =
-    .title = Mostrar
     .aria-label = Mostrar
+    .title = Mostrar
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.

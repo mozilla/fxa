@@ -140,21 +140,18 @@ form-verify-totp-disabled-button-title-numeric = Щоб продовжити, в
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Щоб продовжити, введіть код із { $codeLength } символів
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Ключ відновлення облікового запису { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Резервні коди автентифікації
 get-data-trio-download-2 =
-    .title = Завантажити
     .aria-label = Завантажити
+    .title = Завантажити
 get-data-trio-copy-2 =
-    .title = Копіювати
     .aria-label = Копіювати
+    .title = Копіювати
 get-data-trio-print-2 =
-    .title = Друк
     .aria-label = Друк
+    .title = Друк
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -206,10 +203,6 @@ info-icon-aria-label =
 # Used to select United States as a country code for phone number
 usa-flag-icon-aria-label =
     .aria-label = Прапор США
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Комп'ютер і мобільний телефон, а також зображення розбитого серця на пляжі
 hearts-verified-image-aria-label =
@@ -416,9 +409,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = Продукти { -brand-mozilla }
 bento-menu-tagline = Інші продукти від { -brand-mozilla }, які захищають вашу приватність
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -493,9 +483,6 @@ dc-opt-out-success-2 = Відмова пройшла успішно. { -product-
 dc-opt-in-success-2 = Дякуємо! Надсилання цих даних допомагає нам вдосконалювати { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Перепрошуємо, виникла проблема зі зміною параметрів збору даних
 dc-learn-more = Докладніше
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = Меню { -product-mozilla-account(case: "gen") }
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -621,9 +608,6 @@ flow-setup-phone-confirm-code-resend-code-button = Надіслати код п�
 flow-setup-phone-confirm-code-resend-code-success = Код надіслано
 flow-setup-phone-confirm-code-success-message-v2 = Додано телефон для відновлення
 flow-change-phone-confirm-code-success-message = Телефон для відновлення змінився
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Підтвердьте свій номер телефону
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = Ви отримаєте текстове повідомлення від { -brand-mozilla } з кодом для підтвердження свого номера. Нікому не повідомляйте цей код.
@@ -1399,9 +1383,6 @@ reset-password-complete-banner-message = Не забудьте згенерув�
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = { -brand-firefox } спробує повернути вас назад, щоб ви використали маску е-пошти після входу.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = Введіть 10-значний код
 confirm-backup-code-reset-password-confirm-button = Підтвердити
 confirm-backup-code-reset-password-subheader = Введіть резервний код автентифікації
@@ -1451,9 +1432,6 @@ reset-password-confirmed-cta = Продовжити в { $serviceName }
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Скинути пароль
 password-reset-recovery-method-subheader = Виберіть спосіб відновлення
@@ -1688,9 +1666,6 @@ signin-unblock-desktop-relay = { -brand-firefox } спробує поверну�
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Введіть код підтвердження

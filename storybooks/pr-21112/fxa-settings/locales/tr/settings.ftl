@@ -75,6 +75,17 @@ choose-newsletters-option-test-pilot =
 choose-newsletters-option-reclaim-the-internet =
     .label = İnternete sahip çıkmak için harekete geçme çağrıları
 
+## ContinueInFirefox component - Part of the desktop-to-mobile pairing flow
+## Shown when the pairing QR code is opened in a browser other than Firefox.
+## It hands the pairing link to the Firefox app, and offers the app store when
+## Firefox is not installed on the device.
+
+pair-continue-in-firefox-heading = { -brand-firefox } ile devam et
+# Opens the Firefox app on this device
+pair-continue-in-firefox-button = { -brand-firefox } ile devam et
+# Shown while waiting for the Firefox app to take over
+pair-continue-in-firefox-opening = { -brand-firefox } açılıyor
+
 ## Dark mode toggle
 
 dark-mode-toggle-light = Açık
@@ -1751,6 +1762,8 @@ pair2-authority-timeout-and-cancel-sync-settings-button = Eşitleme ayarları
 ## shown on their computer. It waits for them to approve the sign-in on the
 ## computer, and shows that computer's details so they can verify the request.
 
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = Eşitlemek için son bir adım
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = Vazgeç
 

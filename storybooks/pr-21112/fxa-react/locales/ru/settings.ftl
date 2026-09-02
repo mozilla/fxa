@@ -75,6 +75,20 @@ choose-newsletters-option-test-pilot =
 choose-newsletters-option-reclaim-the-internet =
     .label = Оповещения о действиях по восстановлению доступа к Интернету
 
+## ContinueInFirefox component - Part of the desktop-to-mobile pairing flow
+## Shown when the pairing QR code is opened in a browser other than Firefox.
+## It hands the pairing link to the Firefox app, and offers the app store when
+## Firefox is not installed on the device.
+
+pair-continue-in-firefox-heading = Продолжить в { -brand-firefox }
+pair-continue-in-firefox-description = Сопряжение происходит в { -brand-firefox }. Откройте его, чтобы завершить подключение этого устройства.
+# Opens the Firefox app on this device
+pair-continue-in-firefox-button = Продолжить в { -brand-firefox }
+# Shown while waiting for the Firefox app to take over
+pair-continue-in-firefox-opening = Запускаем { -brand-firefox }
+# Sends the user to the App Store or Play Store to install Firefox
+pair-continue-in-firefox-get-firefox-link = Нет { -brand-firefox }? Скачайте сейчас
+
 ## Dark mode toggle
 
 dark-mode-toggle-light = Светлая
@@ -200,21 +214,18 @@ form-verify-totp-disabled-button-title-numeric = Введите { $codeLength }-
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Введите для продолжения код из { $codeLength } символов
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Ключ восстановления аккаунта { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Резервные коды аутентификации
 get-data-trio-download-2 =
-    .title = Скачать
     .aria-label = Скачать
+    .title = Скачать
 get-data-trio-copy-2 =
-    .title = Скопировать
     .aria-label = Скопировать
+    .title = Скопировать
 get-data-trio-print-2 =
-    .title = Печать
     .aria-label = Печать
+    .title = Печать
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -278,10 +289,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = Ключ доступа
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Компьютер, мобильный телефон и изображение разбитого сердца на каждом
 hearts-verified-image-aria-label =
@@ -530,9 +537,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = Продукты { -brand-mozilla }
 bento-menu-tagline = Больше продуктов от { -brand-mozilla }, которые защищают вашу конфиденциальность
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -623,9 +627,6 @@ dc-opt-out-success-2 = Отказ подтверждён. { -product-mozilla-acc
 dc-opt-in-success-2 = Спасибо! Отправка этих данных поможет нам улучшить { -product-mozilla-accounts(case: "nominative") }.
 dc-opt-in-out-error-2 = К сожалению, при изменении вашей настройки сбора данных возникла проблема
 dc-learn-more = Подробнее
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = Меню { -product-mozilla-account(case: "genitive") }
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -787,9 +788,6 @@ flow-setup-phone-confirm-code-resend-code-button = Отправить код е�
 flow-setup-phone-confirm-code-resend-code-success = Код отправлен
 flow-setup-phone-confirm-code-success-message-v2 = Телефон для восстановления добавлен
 flow-change-phone-confirm-code-success-message = Телефон для восстановления изменён
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Подтвердите свой номер телефона
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = Вы получите текстовое сообщение от { -brand-mozilla } с кодом для подтверждения вашего номера телефона. Не сообщайте этот код никому.
@@ -1511,11 +1509,8 @@ oauth-error-1000 = Что-то пошло не так. Пожалуйста, з�
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
-passkey-registration-error-not-allowed = Ошибка установки ключа доступа или он недоступен. Попробуйте еще раз или выберите другой метод.
+passkey-registration-error-not-allowed = Ошибка установки ключа доступа или он недоступен. Попробуйте ещё раз или выберите другой метод.
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
 # Firefox collapses user-cancel and duplicate-authenticator into the same error, but duplicate is
 # the far more likely cause when the user has existing passkeys, so we state it plainly.
@@ -1540,14 +1535,11 @@ passkey-registration-error-security = На этой странице нельз�
 # A credential for this RP already exists on the authenticator (excludeCredentials match)
 passkey-registration-error-invalid-state = Этот ключ доступа уже зарегистрирован. Используйте его, чтобы войти или добавить другой ключ доступа.
 # Authenticator I/O failure (e.g., security key disconnected mid-ceremony)
-passkey-registration-error-not-readable = Мы не смогли получить доступ к аутентификатору. Попробуйте еще раз или выберите другой метод.
+passkey-registration-error-not-readable = Мы не смогли получить доступ к аутентификатору. Попробуйте ещё раз или выберите другой метод.
 # Attestation constraints or device-specific restrictions can't be met
 passkey-registration-error-constraint = Установка ключа доступа недоступна с этим устройством. Попробуйте другой метод или устройство.
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = Не удалось установить ключ доступа. Попробуйте ещё раз или выберите другой метод.
-
-# Authentication errors
-
 # Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
 # available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
 # points the user to another way to sign in.
@@ -1559,7 +1551,7 @@ passkey-authentication-trouble-description = Попробуйте ещё раз 
 # using passkeys.
 passkey-authentication-trouble-link = Как использовать ключи доступа
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
-passkey-authentication-error-not-allowed = Вход с ключом доступа не удался или недоступен. Попробуйте еще раз или выберите другой метод.
+passkey-authentication-error-not-allowed = Вход с ключом доступа не удался или недоступен. Попробуйте ещё раз или выберите другой метод.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = Установка ключа доступа недоступна с этим устройством. Пожалуйста, попробуйте ещё раз или выберите другой метод.
 # The ceremony timed out before the user responded
@@ -2016,9 +2008,6 @@ service-welcome-vpn-description = Ещё один шаг к повышению �
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
 
-
-# password to complete their sign-in when they want to login to a service requiring it.
-
 set-password-heading-v2 = Создайте пароль для синхронизации
 # "This" refers to the heading, "Create password to sync"
 set-password-info-v2 = Это зашифрует ваши данные. Он должен отличаться от пароля вашего аккаунта { -brand-google } или { -brand-apple }.
@@ -2068,9 +2057,6 @@ reset-password-complete-banner-message = Не забудьте сгенерир�
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = { -brand-firefox } попытается отправить вас обратно, чтобы вы использовали псевдоним электронной почты после входа.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = Введите 10-значный код
 confirm-backup-code-reset-password-confirm-button = Подтвердить
 confirm-backup-code-reset-password-subheader = Введите резервный код аутентификации
@@ -2121,9 +2107,6 @@ reset-password-confirmed-cta = Перейти к { $serviceName }
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Сбросить пароль
 password-reset-recovery-method-subheader = Выберите метод восстановления
@@ -2235,11 +2218,6 @@ signin-passkey-fallback-body = Для обеспечения безопасно�
 signin-passkey-fallback-password-label = Пароль
 signin-passkey-fallback-continue = Продолжить
 signin-passkey-fallback-forgot-password-link = Забыли пароль?
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2436,9 +2414,6 @@ signin-unblock-desktop-relay = { -brand-firefox } попытается отпр�
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Введите код подтверждения

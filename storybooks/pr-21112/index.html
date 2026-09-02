@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 1baa046de110b41d15317c6f4573bdae02d3f29e</title>
+  <title>Storybooks for commit 307beb18ed2fabbe38639b93496b6634cbc31507</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,44 +23,33 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 1baa046de110b41d15317c6f4573bdae02d3f29e</h1>
+  <h1>Storybooks for commit 307beb18ed2fabbe38639b93496b6634cbc31507</h1>
   <ul>
     <li><a href="./fxa-react/">fxa-react</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>8/26/2026, 2:25:10 PM UTC</dd>
+    <dd>9/2/2026, 1:52:08 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(settings): run the QR promo value proposition experiment</pre></dd>
     <dt>Description</dt>
-    <dd><pre>Add the first FxA Nimbus A/B test. Test 8 value proposition headings against
-the current control on the desktop QR promo in the authentication flow, and
-ship the updated promo design that makes room for the longer strings.
+    <dd><pre>Because:
+- The mobile download rate from desktop auth traffic needs a lift, and no FxA
+  Nimbus experiment has run before.
+- The updated promo design makes room for the longer headings the test needs.
 
-Declare the promo-qr-mobile feature in the FML with two variables, enabled
-and branch. A single branch slug drives the heading and the QR code
-together, because each QR scans to its own Bitly link and a mismatched pair
-would misattribute the download. Every channel defaults to the control, so a
-Cirrus failure is a no-op, and an unknown slug falls back to the control, so
-a typo in Experimenter cannot break the promo.
-
-Declare all 9 headings as literal FTL ids so the l10n extraction finds them,
-and pick one at runtime with useFtlMsgResolver. The CTA moves below the QR
-and changes wording, so it takes a new -v2 id and translators re-translate
-rather than keep the old string.
-
-Rebuild the component to the updated design. The logo above the heading is
-gone, because the Bitly QR already embeds the Firefox glyph in its centre.
-The 230KB qr-mobile-kit.svg gives way to real fox vectors and a per-branch
-QR, about a 10x reduction. The heading used text-md, which is not in the
-font scale and so set no size at all; it is now text-sm font-bold.
-
-Report branch and nimbus_user_id on promo_qr_mobile.view. Cirrus reports
-enrollment itself, so the app must stamp nimbus_user_id on its own events
-for the analysis to join them. A CMS-supplied image carries no branch, so
-those users get the control copy and report no branch. The render waits on
-Nimbus so the control does not paint and then swap.</pre></dd>
+This commit:
+- Declares promo-qr-mobile in the FML with enabled and branch, typed as a
+  BranchSlug enum so a misspelled arm is rejected instead of silently serving
+  the control while Cirrus reports a treatment.
+- Adds 9 literal FTL heading ids and a per-branch QR, resolved at runtime.
+- Rebuilds the promo to the updated design: no logo, CTA below the QR, and real
+  fox vectors in place of the 230KB kit.
+- Reports branch and nimbus_user_id on promo_qr_mobile.view, stamping the id the
+  provider enrolled with rather than the value the API echoes back.
+- Holds the render until both Nimbus and the CMS resolve, so no control paints
+  and then swaps.</pre></dd>
   </dl>
 </body>
 </html>

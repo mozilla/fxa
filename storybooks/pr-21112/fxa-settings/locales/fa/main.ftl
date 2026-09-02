@@ -148,20 +148,18 @@ form-verify-code-default-error = این قسمت الزامی است.
 
 form-verify-totp-disabled-button-title-numeric = وارد کردن کد { $codeLength } رقمی برای ادامه
 form-verify-totp-disabled-button-title-alphanumeric = وارد کردن کد { $codeLength } نویسه‌ای برای ادامه
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = کلید بازیابی حساب { -brand-firefox }
 get-data-trio-title-backup-verification-codes = کدهای احراز هویت بازیابی
 get-data-trio-download-2 =
-    .title = بارگیری
     .aria-label = بارگیری
+    .title = بارگیری
 get-data-trio-copy-2 =
-    .title = رونوشت
     .aria-label = رونوشت
+    .title = رونوشت
 get-data-trio-print-2 =
-    .title = چاپ
     .aria-label = چاپ
+    .title = چاپ
 
 
 alert-icon-aria-label =
@@ -200,8 +198,6 @@ info-icon-aria-label =
     .aria-label = اطلاعات
 usa-flag-icon-aria-label =
     .aria-label = پرچم ایالات متحده آمریکا
-
-
 hearts-broken-image-aria-label =
     .aria-label = یک رایانه و یک تلفن همراه و تصویری از یک قلب شکسته روی هر کدام
 hearts-verified-image-aria-label =
@@ -245,8 +241,6 @@ avatar-default-avatar =
     .alt = چهرک پیش‌فرض
 
 
-
-
 bento-menu-title-3 = محصولات { -brand-mozilla }
 bento-menu-vpn-2 = { -product-mozilla-vpn }
 bento-menu-monitor-3 = { -product-mozilla-monitor }
@@ -268,8 +262,6 @@ cs-sign-out-button = خروج از حساب کاربری
 dc-subheader-moz-accounts = { -product-mozilla-accounts }
 dc-subheader-ff-browser = مرورگر { -brand-firefox }
 dc-learn-more = بیشتر بدانید
-
-
 drop-down-menu-title-2 = منوی { -product-mozilla-account }
 drop-down-menu-sign-out = خروج
 

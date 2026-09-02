@@ -168,21 +168,18 @@ form-verify-totp-disabled-button-title-numeric = ใส่รหัส { $codeLe
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = ใส่รหัส { $codeLength } ตัวอักขระเพื่อดำเนินการต่อ
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = คีย์กู้คืนบัญชี { -brand-firefox }
 get-data-trio-title-backup-verification-codes = รหัสยืนยันตัวตนสำรอง
 get-data-trio-download-2 =
-    .title = ดาวน์โหลด
     .aria-label = ดาวน์โหลด
+    .title = ดาวน์โหลด
 get-data-trio-copy-2 =
-    .title = คัดลอก
     .aria-label = คัดลอก
+    .title = คัดลอก
 get-data-trio-print-2 =
-    .title = พิมพ์
     .aria-label = พิมพ์
+    .title = พิมพ์
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -243,10 +240,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = พาสคีย์
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = คอมพิวเตอร์และโทรศัพท์มือถือ ซึ่งมีภาพหัวใจสลายอยู่บนหน้าจอของแต่ละเครื่อง
 hearts-verified-image-aria-label =
@@ -476,9 +469,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = ผลิตภัณฑ์ของ { -brand-mozilla }
 bento-menu-tagline = ผลิตภัณฑ์เพิ่มเติมจาก { -brand-mozilla } ที่ปกป้องความเป็นส่วนตัวของคุณ
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -557,9 +547,6 @@ dc-opt-out-success-2 = ยกเลิกสำเร็จแล้ว { -produ
 dc-opt-in-success-2 = ขอบคุณ! การร่วมให้ข้อมูลนี้ช่วยเราปรับปรุง { -product-mozilla-accounts } ให้ดีขึ้นได้
 dc-opt-in-out-error-2 = ขออภัย มีปัญหาในการเปลี่ยนการกำหนดลักษณะการรวบรวมข้อมูลของคุณ
 dc-learn-more = เรียนรู้เพิ่มเติม
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = เมนู { -product-mozilla-account }
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -709,9 +696,6 @@ flow-setup-phone-confirm-code-resend-code-button = ส่งรหัสอี�
 flow-setup-phone-confirm-code-resend-code-success = ส่งรหัสแล้ว
 flow-setup-phone-confirm-code-success-message-v2 = เพิ่มเบอร์โทรศัพท์สำหรับกู้คืนแล้ว
 flow-change-phone-confirm-code-success-message = เปลี่ยนเบอร์โทรศัพท์สำหรับกู้คืนแล้ว
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = ยืนยันหมายเลขโทรศัพท์ของคุณ
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = คุณจะได้รับข้อความจาก { -brand-mozilla } พร้อมรหัสเพื่อยืนยันหมายเลขของคุณ อย่าเปิดเผยรหัสนี้ให้ใครทราบ
@@ -1371,9 +1355,6 @@ oauth-error-1000 = มีความผิดพลาดบางประก�
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = การตั้งค่าพาสคีย์ล้มเหลวหรือไม่พร้อมใช้งาน โปรดลองอีกครั้งหรือเลือกวิธีอื่นแทน
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
@@ -1396,9 +1377,6 @@ passkey-registration-error-not-readable = เราไม่สามารถ�
 passkey-registration-error-constraint = ไม่สามารถตั้งค่าพาสคีย์บนอุปกรณ์นี้ได้ โปรดลองใช้วิธีอื่นหรืออุปกรณ์อื่นแทน
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = การตั้งค่าพาสคีย์ล้มเหลว โปรดลองอีกครั้งหรือเลือกวิธีอื่นแทน
-
-# Authentication errors
-
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = การลงชื่อเข้าด้วยพาสคีย์ล้มเหลวหรือไม่พร้อมใช้งาน โปรดลองอีกครั้งหรือเลือกวิธีอื่นแทน
 # User already registered a device
@@ -1699,9 +1677,6 @@ service-welcome-vpn-description = อีกขั้นตอนหนึ่ง�
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
 
-
-# password to complete their sign-in when they want to login to a service requiring it.
-
 set-password-heading-v2 = สร้างรหัสผ่านเพื่อซิงค์
 # "This" refers to the heading, "Create password to sync"
 set-password-info-v2 = วิธีนี้จะเข้ารหัสลับข้อมูลของคุณ ซึ่งมันต้องแตกต่างจากรหัสผ่านบัญชี { -brand-google } หรือ { -brand-apple } ของคุณ
@@ -1751,9 +1726,6 @@ reset-password-complete-banner-message = อย่าลืมสร้างค
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = { -brand-firefox } จะลองนำคุณกลับไปเพื่อใช้ตัวปกปิดอีเมลหลังจากที่คุณลงชื่อเข้า
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = ใส่รหัส 10 ตัวอักขระ
 confirm-backup-code-reset-password-confirm-button = ยืนยัน
 confirm-backup-code-reset-password-subheader = ใส่รหัสยืนยันตัวตนสำรอง
@@ -1803,9 +1775,6 @@ reset-password-confirmed-cta = ดำเนินการต่อไปยั�
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = ตั้งรหัสผ่านใหม่
 password-reset-recovery-method-subheader = เลือกวิธีการกู้คืน
@@ -1908,11 +1877,6 @@ signin-passkey-fallback-heading = ป้อนรหัสผ่านของ�
 signin-passkey-fallback-body = เพื่อรักษาข้อมูลของคุณให้ปลอดภัย คุณต้องป้อนหรัสผ่านของคุณเมื่อใช้พาสคีย์นี้
 signin-passkey-fallback-password-label = รหัสผ่าน
 signin-passkey-fallback-continue = ดำเนินการต่อ
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2089,9 +2053,6 @@ signin-unblock-desktop-relay = { -brand-firefox } จะลองนำคุณ
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = ใส่รหัสยืนยัน

@@ -116,20 +116,17 @@ form-verify-code-default-error = Бу кыр кирәкле
 ## FormVerifyTotp component
 ## Form to enter a time-based one-time-passcode (e.g., 6-digit numeric code or 8-digit alphanumeric code)
 
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } хисабын коткару ачкычы
 get-data-trio-download-2 =
-    .title = Иңдерү
     .aria-label = Иңдерү
+    .title = Иңдерү
 get-data-trio-copy-2 =
-    .title = Күчереп алу
     .aria-label = Күчереп алу
+    .title = Күчереп алу
 get-data-trio-print-2 =
-    .title = Бастыру
     .aria-label = Бастыру
+    .title = Бастыру
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -290,9 +287,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = { -brand-mozilla } продуктлары
 bento-menu-vpn-2 = { -product-mozilla-vpn }
 bento-menu-monitor-3 = { -product-mozilla-monitor }
@@ -346,9 +340,6 @@ dc-heading = Мәгълүмат туплау һәм аны куллану
 dc-subheader-moz-accounts = { -product-mozilla-accounts }
 dc-subheader-ff-browser = { -brand-firefox } браузеры
 dc-learn-more = Күбрәк белү
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = { -product-mozilla-account } менюсы
 drop-down-menu-sign-out = Чыгу
 drop-down-menu-sign-out-error-2 = Гафу итегез, сезне чыгарганда кыенлыклар килеп чыкты
@@ -974,9 +965,6 @@ complete-reset-pw-recovery-key-link = Хисапны коткару ачкычы
 # Displayed on the sign in page
 reset-password-complete-banner-heading = Серсүзегез алмаштырылды
 
-# ConfirmBackupCodeResetPassword page
-
-
 ## Confirm Reset Password With Code
 
 confirm-reset-password-with-code-heading = Эл. почтагызны тикшерегез
@@ -1130,9 +1118,6 @@ signin-unblock-support-link = Бу нидән килеп чыга?
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Раслау кодын кертү

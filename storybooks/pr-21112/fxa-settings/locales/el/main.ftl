@@ -111,12 +111,12 @@ app-query-parameter-err-heading = Εσφαλμένο αίτημα: Μη έγκυ
 
 
 app-footer-mozilla-logo-label = Λογότυπο { -brand-mozilla }
-app-footer-privacy-notice = Σημείωση απορρήτου ιστοτόπου
+app-footer-privacy-notice = Δήλωση απορρήτου ιστοτόπου
 app-footer-terms-of-service = Όροι υπηρεσίας
 
 
-app-default-title-2 = { -product-mozilla-accounts(case: "nom", capitalization: "upper") }
-app-page-title-2 = { $title } | { -product-mozilla-accounts(case: "nom", capitalization: "upper") }
+app-default-title-2 = { -product-mozilla-accounts(capitalization: "upper", case: "nom") }
+app-page-title-2 = { $title } | { -product-mozilla-accounts(capitalization: "upper", case: "nom") }
 
 
 link-sr-new-window = Ανοίγει σε νέο παράθυρο
@@ -137,9 +137,9 @@ resend-success-banner-description = Προσθέστε το { $accountsEmail } �
 
 brand-banner-dismiss-button-2 =
     .aria-label = Κλείσιμο μηνύματος
-brand-prelaunch-title = Οι { -product-firefox-accounts(case: "nom", capitalization: "lower") } θα γίνουν { -product-mozilla-accounts(case: "nom", capitalization: "lower") } την 1η Νοεμβρίου
+brand-prelaunch-title = Οι { -product-firefox-accounts(capitalization: "lower", case: "nom") } θα γίνουν { -product-mozilla-accounts(capitalization: "lower", case: "nom") } την 1η Νοεμβρίου
 brand-prelaunch-subtitle = Θα συνεχίσετε να συνδέεστε με το ίδιο όνομα χρήστη και κωδικό πρόσβασης και δεν θα γίνουν άλλες αλλαγές στα προϊόντα που χρησιμοποιείτε.
-brand-postlaunch-title = Έχουμε μετονομάσει τους { -product-firefox-accounts(case: "acc", capitalization: "lower") } σε { -product-mozilla-accounts(case: "acc", capitalization: "lower") }. Θα συνεχίσετε να συνδέεστε με το ίδιο όνομα χρήστη και κωδικό πρόσβασης και δεν θα γίνουν άλλες αλλαγές στα προϊόντα που χρησιμοποιείτε.
+brand-postlaunch-title = Έχουμε μετονομάσει τους { -product-firefox-accounts(capitalization: "lower", case: "acc") } σε { -product-mozilla-accounts(capitalization: "lower", case: "acc") }. Θα συνεχίσετε να συνδέεστε με το ίδιο όνομα χρήστη και κωδικό πρόσβασης και δεν θα γίνουν άλλες αλλαγές στα προϊόντα που χρησιμοποιείτε.
 brand-learn-more = Μάθετε περισσότερα
 brand-close-banner =
     .alt = Κλείσιμο μηνύματος
@@ -166,6 +166,13 @@ choose-newsletters-option-test-pilot =
     .label = Πρώιμη πρόσβαση σε δοκιμές νέων προϊόντων
 choose-newsletters-option-reclaim-the-internet =
     .label = Ειδοποιήσεις για δράσεις που αφορούν την ανάκτηση του ελέγχου του διαδικτύου
+
+
+pair-continue-in-firefox-heading = Συνέχεια στο { -brand-firefox }
+pair-continue-in-firefox-description = Η σύζευξη γίνεται στο { -brand-firefox }. Ανοίξτε το για να ολοκληρώσετε τη σύνδεση της συσκευής.
+pair-continue-in-firefox-button = Συνέχεια στο { -brand-firefox }
+pair-continue-in-firefox-opening = Άνοιγμα του { -brand-firefox }
+pair-continue-in-firefox-get-firefox-link = Δεν διαθέτετε το { -brand-firefox }; Αποκτήστε το τώρα
 
 
 dark-mode-toggle-light = Ανοιχτόχρωμο
@@ -249,20 +256,18 @@ form-verify-code-default-error = Αυτό το πεδίο απαιτείται
 
 form-verify-totp-disabled-button-title-numeric = Εισαγάγετε τον { $codeLength }ψήφιο κωδικό για να συνεχίσετε
 form-verify-totp-disabled-button-title-alphanumeric = Εισαγάγετε τον κωδικό { $codeLength } χαρακτήρων για να συνεχίσετε
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Κλειδί ανάκτησης λογαριασμού { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Εφεδρικοί κωδικοί ταυτοποίησης
 get-data-trio-download-2 =
-    .title = Λήψη
     .aria-label = Λήψη
+    .title = Λήψη
 get-data-trio-copy-2 =
-    .title = Αντιγραφή
     .aria-label = Αντιγραφή
+    .title = Αντιγραφή
 get-data-trio-print-2 =
-    .title = Εκτύπωση
     .aria-label = Εκτύπωση
+    .title = Εκτύπωση
 
 
 alert-icon-aria-label =
@@ -307,8 +312,6 @@ icon-loading-arrow-aria-label =
     .aria-label = Φόρτωση
 icon-passkey-aria-label =
     .aria-label = Κλειδί πρόσβασης
-
-
 hearts-broken-image-aria-label =
     .aria-label = Ένας υπολογιστής, ένα κινητό τηλέφωνο και μια εικόνα ραγισμένης καρδιάς στο καθένα
 hearts-verified-image-aria-label =
@@ -476,8 +479,6 @@ avatar-default-avatar =
     .alt = Προεπιλεγμένη εικόνα χρήστη
 
 
-
-
 bento-menu-title-3 = Προϊόντα { -brand-mozilla }
 bento-menu-tagline = Περισσότερα προϊόντα από τη { -brand-mozilla } που προστατεύουν το απόρρητό σας
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -505,6 +506,7 @@ cs-cannot-disconnect = Η εφαρμογή πελάτη δεν βρέθηκε, �
 cs-logged-out-2 = Έγινε αποσύνδεση από το { $service }
 cs-refresh-button =
     .title = Ανανέωση συνδεδεμένων υπηρεσιών
+cs-connect-device-button = Συνδέστε μια συσκευή
 cs-missing-device-help = Απουσία ή διπλή παρουσία στοιχείων;
 cs-disconnect-sync-heading = Αποσύνδεση από το Sync
 
@@ -525,11 +527,11 @@ cs-disconnect-sync-opt-not-say = Προτιμώ να μην πω
 
 cs-disconnect-advice-confirm = Εντάξει, το κατάλαβα
 cs-disconnect-lost-advice-heading = Αποσυνδέθηκε απολεσθείσα ή κλεμμένη συσκευή
-cs-disconnect-lost-advice-content-3 = Εφόσον η συσκευή σας χάθηκε ή κλάπηκε, θα πρέπει να αλλάξετε τον κωδικό πρόσβασης του { -product-mozilla-account(case: "gen", capitalization: "lower") } στις ρυθμίσεις λογαριασμού σας, για την προστασία των δεδομένων σας. Θα πρέπει επίσης να αναζητήσετε πληροφορίες από τον κατασκευαστή της συσκευής σας σχετικά με την απομακρυσμένη διαγραφή δεδομένων.
+cs-disconnect-lost-advice-content-3 = Εφόσον η συσκευή σας χάθηκε ή κλάπηκε, θα πρέπει να αλλάξετε τον κωδικό πρόσβασης του { -product-mozilla-account(capitalization: "lower", case: "gen") } στις ρυθμίσεις λογαριασμού σας, για την προστασία των δεδομένων σας. Θα πρέπει επίσης να αναζητήσετε πληροφορίες από τον κατασκευαστή της συσκευής σας σχετικά με την απομακρυσμένη διαγραφή δεδομένων.
 cs-disconnect-suspicious-advice-heading = Η ύποπτη συσκευή αποσυνδέθηκε
 cs-disconnect-suspicious-advice-content-2 =
     Αν η αποσυνδεδεμένη συσκευή είναι πράγματι ύποπτη, θα πρέπει να αλλάξετε τον κωδικό πρόσβασης του
-    { -product-mozilla-account(case: "gen", capitalization: "lower") } σας, για την προστασία των δεδομένων σας. Θα πρέπει επίσης να αλλάξετε όλους τους άλλους αποθηκευμένους κωδικούς πρόσβασης του { -brand-firefox } στη σελίδα «about:logins».
+    { -product-mozilla-account(capitalization: "lower", case: "gen") } σας, για την προστασία των δεδομένων σας. Θα πρέπει επίσης να αλλάξετε όλους τους άλλους αποθηκευμένους κωδικούς πρόσβασης του { -brand-firefox } στη σελίδα «about:logins».
 cs-sign-out-button = Αποσύνδεση
 
 
@@ -537,17 +539,15 @@ cs-scope-firefox-vpn = Το ενσωματωμένο VPN του { -brand-firefox
 
 
 dc-heading = Συλλογή και χρήση δεδομένων
-dc-subheader-moz-accounts = { -product-mozilla-accounts(case: "nom", capitalization: "upper") }
+dc-subheader-moz-accounts = { -product-mozilla-accounts(capitalization: "upper", case: "nom") }
 dc-subheader-ff-browser = Πρόγραμμα περιήγησης { -brand-firefox }
-dc-subheader-content-2 = Να επιτρέπεται στους { -product-mozilla-accounts(case: "acc", capitalization: "lower") } η αποστολή τεχνικών δεδομένων και δεδομένων αλληλεπίδρασης στη { -brand-mozilla }.
+dc-subheader-content-2 = Να επιτρέπεται στους { -product-mozilla-accounts(capitalization: "lower", case: "acc") } η αποστολή τεχνικών δεδομένων και δεδομένων αλληλεπίδρασης στη { -brand-mozilla }.
 dc-subheader-ff-content = Για να ελέγξετε ή να ενημερώσετε τις ρυθμίσεις των τεχνικών δεδομένων και των δεδομένων αλληλεπίδρασης του προγράμματος περιήγησης { -brand-firefox }, ανοίξτε τις ρυθμίσεις του { -brand-firefox } και μεταβείτε στην ενότητα «Απόρρητο και ασφάλεια».
-dc-opt-out-success-2 = Επιτυχής απενεργοποίηση. Οι { -product-mozilla-accounts(case: "nom", capitalization: "lower") } δεν θα στέλνουν τεχνικά δεδομένα ή δεδομένα αλληλεπίδρασης στη { -brand-mozilla }.
-dc-opt-in-success-2 = Ευχαριστούμε! Η κοινοποίηση αυτών των δεδομένων μάς βοηθά να βελτιώσουμε τους { -product-mozilla-accounts(case: "acc", capitalization: "lower") }.
+dc-opt-out-success-2 = Επιτυχής απενεργοποίηση. Οι { -product-mozilla-accounts(capitalization: "lower", case: "nom") } δεν θα στέλνουν τεχνικά δεδομένα ή δεδομένα αλληλεπίδρασης στη { -brand-mozilla }.
+dc-opt-in-success-2 = Ευχαριστούμε! Η κοινοποίηση αυτών των δεδομένων μάς βοηθά να βελτιώσουμε τους { -product-mozilla-accounts(capitalization: "lower", case: "acc") }.
 dc-opt-in-out-error-2 = Δυστυχώς, προέκυψε πρόβλημα κατά την αλλαγή της προτίμησής σας για τη συλλογή δεδομένων
 dc-learn-more = Μάθετε περισσότερα
-
-
-drop-down-menu-title-2 = Μενού { -product-mozilla-account(case: "gen", capitalization: "lower") }
+drop-down-menu-title-2 = Μενού { -product-mozilla-account(capitalization: "lower", case: "gen") }
 drop-down-menu-signed-in-as-v2 = Συνδεθήκατε ως
 drop-down-menu-sign-out = Αποσύνδεση
 drop-down-menu-sign-out-error-2 = Δυστυχώς, προέκυψε πρόβλημα κατά την αποσύνδεση
@@ -630,6 +630,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Πώς προστατεύετα
 flow-setup-2fa-inline-complete-continue-button = Συνέχεια στο { $serviceName }
 flow-setup-2fa-prompt-heading = Ρύθμιση ταυτοποίησης δύο παραγόντων
 flow-setup-2fa-prompt-description = Το { $serviceName } απαιτεί να ρυθμίσετε την ταυτοποίηση δύο παραγόντων για την προστασία του λογαριασμού σας.
+flow-setup-2fa-prompt-passkey-success-banner = Έγινε επιτυχής σύνδεση με κλειδί πρόσβασης
+flow-setup-2fa-prompt-passkey-description = Το { $serviceName } απαιτεί επίσης ταυτοποίηση δύο παραγόντων για τον { -product-mozilla-account(capitalization: "lower", case: "acc") } σας. Μετά τη ρύθμιση, δεν θα τη χρειάζεστε πλέον όταν θα κάνετε σύνδεση με κλειδί πρόσβασης.
 flow-setup-2fa-prompt-use-authenticator-apps = Μπορείτε να χρησιμοποιήσετε οποιαδήποτε από <authenticationAppsLink>αυτές τις εφαρμογές ελέγχου ταυτότητας</authenticationAppsLink> για να συνεχίσετε.
 flow-setup-2fa-prompt-continue-button = Συνέχεια
 
@@ -643,8 +645,6 @@ flow-setup-phone-confirm-code-resend-code-button = Αποστολή νέου κ�
 flow-setup-phone-confirm-code-resend-code-success = Ο κωδικός απεστάλη
 flow-setup-phone-confirm-code-success-message-v2 = Προστέθηκε τηλέφωνο ανάκτησης
 flow-change-phone-confirm-code-success-message = Το τηλέφωνο ανάκτησης άλλαξε
-
-
 flow-setup-phone-submit-number-heading = Επαληθεύστε τον αριθμό τηλεφώνου σας
 flow-setup-phone-verify-number-instruction = Θα λάβετε ένα μήνυμα κειμένου από τη { -brand-mozilla } με έναν κωδικό για την επαλήθευση του αριθμού σας. Μην μοιραστείτε αυτόν τον κωδικό με κανέναν.
 flow-setup-phone-submit-number-info-message-v2 = Το τηλέφωνο ανάκτησης είναι διαθέσιμο μόνο στις Ηνωμένες Πολιτείες και τον Καναδά. Δεν προτείνεται η χρήση αριθμών VoIP και μασκών τηλεφώνου.
@@ -657,8 +657,8 @@ header-menu-closed = Μενού πλοήγησης ιστοτόπου
 header-back-to-top-link =
     .title = Επιστροφή στην κορυφή
 header-back-to-settings-link =
-    .title = Επιστροφή στις ρυθμίσεις { -product-mozilla-account(case: "gen", capitalization: "lower") }
-header-title-2 = { -product-mozilla-account(case: "nom", capitalization: "upper") }
+    .title = Επιστροφή στις ρυθμίσεις { -product-mozilla-account(capitalization: "lower", case: "gen") }
+header-title-2 = { -product-mozilla-account(capitalization: "upper", case: "nom") }
 header-help = Βοήθεια
 
 
@@ -790,8 +790,8 @@ delete-account-header =
     .title = Διαγραφή λογαριασμού
 delete-account-step-1-2 = Βημα 1 απο 2
 delete-account-step-2-2 = Βημα 2 απο 2
-delete-account-confirm-title-4 = Ίσως έχετε συνδέσει τον { -product-mozilla-account(case: "acc", capitalization: "lower") } σας με ένα ή περισσότερα από τα εξής προϊόντα ή υπηρεσίες της { -brand-mozilla }, που σας προστατεύουν και σας βοηθούν με τις εργασίες σας στο διαδίκτυο:
-delete-account-product-mozilla-account = { -product-mozilla-account(case: "nom", capitalization: "upper") }
+delete-account-confirm-title-4 = Ίσως έχετε συνδέσει τον { -product-mozilla-account(capitalization: "lower", case: "acc") } σας με ένα ή περισσότερα από τα εξής προϊόντα ή υπηρεσίες της { -brand-mozilla }, που σας προστατεύουν και σας βοηθούν με τις εργασίες σας στο διαδίκτυο:
+delete-account-product-mozilla-account = { -product-mozilla-account(capitalization: "upper", case: "nom") }
 delete-account-product-mozilla-vpn = { -product-mozilla-vpn }
 delete-account-product-mdn-plus = { -product-mdn-plus }
 delete-account-product-mozilla-hubs = { -product-mozilla-hubs }
@@ -892,6 +892,9 @@ recent-activity-account-passwordless-login-otp-failed = Ο κωδικός για
 recent-activity-account-passwordless-login-otp-verified = Ο κωδικός για σύνδεση χωρίς κωδικό πρόσβασης επαληθεύτηκε
 recent-activity-account-passwordless-registration-complete = Η δημιουργία λογαριασμού χωρίς κωδικό πρόσβασης ολοκληρώθηκε
 recent-activity-account-recovery-codes-set = Ορίστηκαν κωδικοί ανάκτησης
+recent-activity-account-passkey-wrap-created = Το κλειδί πρόσβασης ενεργοποιήθηκε για συγχρονισμό
+recent-activity-account-passkey-wrap-creation-failure = Η ρύθμιση του συγχρονισμού με κλειδί πρόσβασης απέτυχε
+recent-activity-account-passkey-wrap-invalidated = Η πρόσβαση στον συγχρονισμό με κλειδί πρόσβασης καταργήθηκε μετά την επαναφορά του κωδικού πρόσβασης
 recent-activity-unknown = Άλλη δραστηριότητα λογαριασμού
 
 
@@ -938,7 +941,7 @@ verify-secondary-email-resend-code-button = Εκ νέου αποστολή κω�
 
 
 delete-account-link = Διαγραφή λογαριασμού
-inactive-update-status-success-alert = Έγινε επιτυχής σύνδεση. Ο { -product-mozilla-account(case: "nom", capitalization: "lower") } και τα δεδομένα σας θα παραμείνουν ενεργά.
+inactive-update-status-success-alert = Έγινε επιτυχής σύνδεση. Ο { -product-mozilla-account(capitalization: "lower", case: "nom") } και τα δεδομένα σας θα παραμείνουν ενεργά.
 
 
 product-promo-monitor =
@@ -1099,7 +1102,7 @@ tfa-row-button-refresh =
 tfa-row-cannot-refresh =
     Δυστυχώς, προέκυψε πρόβλημα κατά την ανανέωση
     της ταυτοποίησης δύο παραγόντων.
-tfa-row-enabled-description = Ο λογαριασμός σας προστατεύεται από ταυτοποίηση δύο παραγόντων. Θα πρέπει να εισαγάγετε έναν κωδικό μίας χρήσης από την εφαρμογή ελέγχου ταυτότητάς σας κατά τη σύνδεση στον { -product-mozilla-account(case: "acc", capitalization: "lower") } σας.
+tfa-row-enabled-description = Ο λογαριασμός σας προστατεύεται από ταυτοποίηση δύο παραγόντων. Θα πρέπει να εισαγάγετε έναν κωδικό μίας χρήσης από την εφαρμογή ελέγχου ταυτότητάς σας κατά τη σύνδεση στον { -product-mozilla-account(capitalization: "lower", case: "acc") } σας.
 tfa-row-enabled-info-link = Πώς προστατεύεται ο λογαριασμός σας
 tfa-row-disabled-description-v2 = Ασφαλίστε τον λογαριασμό σας με μια τρίτη εφαρμογή ελέγχου ταυτότητας ως ένα δεύτερο βήμα για τη σύνδεση.
 tfa-row-cannot-verify-session-4 = Δυστυχώς, προέκυψε πρόβλημα με την επιβεβαίωση της συνεδρίας σας
@@ -1113,10 +1116,10 @@ tfa-row-cannot-disable-2 = Δεν ήταν δυνατή η απενεργοπο�
 tfa-row-verify-session-info = Θα χρειαστεί να επιβεβαιώσετε την τρέχουσα συνεδρία σας για να ρυθμίσετε την ταυτοποίηση δύο παραγόντων
 
 
-terms-privacy-agreement-intro-3 = Συνεχίζοντας, συμφωνείτε με τα εξής:
-terms-privacy-agreement-customized-terms = { $serviceName }: <termsLink>Όροι υπηρεσίας</termsLink> και <privacyLink>Σημείωση απορρήτου</privacyLink>
-terms-privacy-agreement-mozilla-2 = { -product-mozilla-accounts(case: "nom", capitalization: "upper") }: <mozillaAccountsTos>Όροι υπηρεσίας</mozillaAccountsTos> και <mozillaAccountsPrivacy>Σημείωση απορρήτου</mozillaAccountsPrivacy>
-terms-privacy-agreement-default-2 = Συνεχίζοντας, αποδέχεστε τους <mozillaAccountsTos>Όρους υπηρεσίας</mozillaAccountsTos> και τη <mozillaAccountsPrivacy>Σημείωση απορρήτου</mozillaAccountsPrivacy>.
+terms-privacy-agreement-intro-3 = Συνεχίζοντας, αποδέχεστε τα εξής:
+terms-privacy-agreement-customized-terms = { $serviceName }: <termsLink>Όροι παροχής υπηρεσιών</termsLink> και <privacyLink>Δήλωση απορρήτου</privacyLink>
+terms-privacy-agreement-mozilla-2 = { -product-mozilla-accounts(capitalization: "upper", case: "nom") }: <mozillaAccountsTos>Όροι παροχής υπηρεσιών</mozillaAccountsTos> και <mozillaAccountsPrivacy>Δήλωση απορρήτου</mozillaAccountsPrivacy>
+terms-privacy-agreement-default-2 = Συνεχίζοντας, αποδέχεστε τους <mozillaAccountsTos>Όρους παροχής υπηρεσιών</mozillaAccountsTos> και τη <mozillaAccountsPrivacy>Δήλωση απορρήτου</mozillaAccountsPrivacy>.
 
 
 third-party-auth-options-or = Ή
@@ -1177,8 +1180,6 @@ recovery-phone-number-ending-digits = Αριθμός που λήγει σε { $l
 oauth-error-1000 = Κάτι πήγε στραβά. Κλείστε αυτήν την καρτέλα και δοκιμάστε ξανά.
 
 
-
-
 passkey-registration-error-not-allowed = Η ρύθμιση του κλειδιού πρόσβασης απέτυχε ή δεν είναι διαθέσιμη. Δοκιμάστε ξανά ή επιλέξτε άλλη μέθοδο.
 passkey-registration-error-not-allowed-existing = Η ρύθμιση του κλειδιού πρόσβασης δεν είναι διαθέσιμη με αυτήν τη συσκευή. Είτε η συσκευή έχει ήδη καταχωριστεί είτε η διαδικασία ρύθμισης ακυρώθηκε.
 passkey-registration-error-timeout = Η ρύθμιση του κλειδιού πρόσβασης ακυρώθηκε. Δοκιμάστε ξανά.
@@ -1193,8 +1194,6 @@ passkey-registration-error-invalid-state = Αυτό το κλειδί πρόσβ
 passkey-registration-error-not-readable = Δεν ήταν δυνατή η πρόσβαση στην εφαρμογή ελέγχου ταυτότητας. Δοκιμάστε ξανά ή επιλέξτε άλλη μέθοδο.
 passkey-registration-error-constraint = Η ρύθμιση του κλειδιού πρόσβασης δεν είναι διαθέσιμη με αυτήν τη συσκευή. Δοκιμάστε μια άλλη μέθοδο ή συσκευή.
 passkey-registration-error-unexpected = Η ρύθμιση του κλειδιού πρόσβασης απέτυχε. Δοκιμάστε ξανά ή επιλέξτε άλλη μέθοδο.
-
-
 passkey-authentication-trouble-heading = Αδυναμία σύνδεσης με κλειδί πρόσβασης
 passkey-authentication-trouble-description = Δοκιμάστε ξανά ή χρησιμοποιήστε κάποια άλλη επιλογή σύνδεσης.
 passkey-authentication-trouble-link = Τρόπος χρήσης των κλειδιών πρόσβασης
@@ -1225,20 +1224,20 @@ connect-another-device-ios-complete-setup-message = Συνδεθείτε στο 
 
 
 cookies-disabled-header = Απαιτούνται cookie και τοπική αποθήκευση
-cookies-disabled-enable-prompt-2 = Ενεργοποιήστε τα cookie και τον τοπικό χώρο αποθήκευσης στο πρόγραμμα περιήγησής σας για να αποκτήσετε πρόσβαση στον { -product-mozilla-account(case: "acc", capitalization: "lower") } σας. Με αυτόν τον τρόπο, θα ενεργοποιήσετε λειτουργίες όπως η απομνημόνευση της σύνδεσής σας μεταξύ των συνεδριών.
+cookies-disabled-enable-prompt-2 = Ενεργοποιήστε τα cookie και τον τοπικό χώρο αποθήκευσης στο πρόγραμμα περιήγησής σας για να αποκτήσετε πρόσβαση στον { -product-mozilla-account(capitalization: "lower", case: "acc") } σας. Με αυτόν τον τρόπο, θα ενεργοποιήσετε λειτουργίες όπως η απομνημόνευση της σύνδεσής σας μεταξύ των συνεδριών.
 cookies-disabled-button-try-again = Δοκιμή ξανά
 cookies-disabled-learn-more = Μάθετε περισσότερα
 
 
 index-header = Εισαγάγετε το email σας
-index-sync-header = Συνέχεια στον { -product-mozilla-account(case: "acc", capitalization: "lower") } σας
+index-sync-header = Συνέχεια στον { -product-mozilla-account(capitalization: "lower", case: "acc") } σας
 index-sync-subheader = Συγχρονίστε τους κωδικούς πρόσβασης, τις καρτέλες και τους σελιδοδείκτες σας οπουδήποτε χρησιμοποιείτε το { -brand-firefox }.
 index-relay-header = Δημιουργία μάσκας email
 index-relay-subheader = Εισαγάγετε τη διεύθυνση email όπου θα θέλατε να προωθούνται τα email από τη μάσκα email σας.
 index-subheader-with-servicename = Συνέχεια στο { $serviceName }
 index-subheader-default = Συνέχεια στις ρυθμίσεις λογαριασμού
 index-cta = Εγγραφή ή σύνδεση
-index-account-info = Ένας { -product-mozilla-account(case: "nom", capitalization: "lower") } ξεκλειδώνει επίσης την πρόσβαση σε περισσότερα προϊόντα της { -brand-mozilla } που προστατεύουν το απόρρητό σας.
+index-account-info = Ένας { -product-mozilla-account(capitalization: "lower", case: "nom") } ξεκλειδώνει επίσης την πρόσβαση σε περισσότερα προϊόντα της { -brand-mozilla } που προστατεύουν το απόρρητό σας.
 index-email-input =
     .label = Εισαγάγετε το email σας
 index-account-delete-success = Επιτυχής διαγραφή λογαριασμού
@@ -1365,14 +1364,35 @@ pair-unsupported-desktop-firefox-fallback-message-v2 = Κλείστε αυτήν
 
 pair2-authority-approve-sign-in-heading = Έγκριση σύνδεσης;
 pair2-authority-approve-sign-in-confirm-button = Ναι, έγκριση σύνδεσης
+pair2-authority-approve-sign-in-change-password = Δεν είστε εσείς; <changePassword>Αλλάξτε τον κωδικό πρόσβασής σας</changePassword>
 
 
+pair2-authority-continue-on-mobile-heading = Συνεχίστε στην κινητή σας συσκευή
+pair2-authority-continue-on-mobile-description = Ακολουθήστε τα βήματα στο τηλέφωνο ή το tablet σας.
 pair2-authority-continue-on-mobile-cancel-button = Ακύρωση
 
 
+pair2-authority-download-firefox-heading = Ανοίξτε το { -brand-firefox } για συγχρονισμό
+pair2-authority-download-firefox-instruction = Για να ρυθμίσετε τον συγχρονισμό μεταξύ των συσκευών, ανοίξτε το { -brand-firefox } σε αυτήν τη συσκευή και επισκεφθείτε το <b>firefox.com/pair</b>
 pair2-authority-download-firefox-cta = Λήψη του { -brand-firefox }
 
 
+pair2-authority-scan-qr-heading = Κάντε σάρωση για να συνδέσετε άλλη συσκευή
+pair2-authority-scan-qr-instruction = Σαρώστε τον κωδικό QR με το τηλέφωνο ή το tablet σας για να συγχρονίσετε τους σελιδοδείκτες, τις καρτέλες και άλλα δεδομένα του { -brand-firefox }.
+pair2-authority-scan-qr-code-aria-label = Κωδικός QR για σύνδεση της κινητής σας συσκευής
+pair2-authority-scan-qr-help-link = Λήψη βοήθειας με τη σάρωση
+
+
+pair2-authority-sync-success-heading = Γίνεται συγχρονισμός
+pair2-authority-sync-success-description = Οι καρτέλες, οι σελιδοδείκτες, οι κωδικοί πρόσβασης και πολλά άλλα είναι έτοιμα σε όλες τις συσκευές σας.
+pair2-authority-sync-success-view-tabs-button = Προβολή συγχρονισμένων καρτελών
+pair2-authority-sync-success-sync-settings-button = Ρυθμίσεις συγχρονισμού
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = Θέλετε ακόμα να συνδέσετε μια συσκευή;
+pair2-authority-timeout-and-cancel-timeout-description = Φαίνεται ότι το χρονικό όριο έληξε. Δοκιμάστε ξανά αν θέλετε ακόμα να συνδέσετε την κινητή συσκευή σας και να συγχρονίσετε τα δεδομένα του { -brand-firefox } σας.
+pair2-authority-timeout-and-cancel-canceled-heading = Ακυρώθηκε
+pair2-authority-timeout-and-cancel-canceled-description = Εάν αλλάξετε γνώμη ή θέλετε να συνδέσετε μια άλλη συσκευή, δοκιμάστε ξανά.
 pair2-authority-timeout-and-cancel-try-again-button = Δοκιμή ξανά
 pair2-authority-timeout-and-cancel-cancel-button = Ακύρωση
 pair2-authority-timeout-and-cancel-sync-settings-button = Ρυθμίσεις συγχρονισμού
@@ -1383,18 +1403,37 @@ pair2-supplicant-approve-sign-in-instruction = Εγκρίνετε τη σύνδ�
 pair2-supplicant-approve-sign-in-cancel-button = Ακύρωση
 
 
+pair2-supplicant-connect-this-device-heading = Σύνδεση συσκευής στον λογαριασμό σας;
 pair2-supplicant-connect-this-device-connect-button = Σύνδεση
+pair2-supplicant-connect-this-device-cancel-button = Ακύρωση
 
 
+pair2-supplicant-download-firefox-heading = Αποκτήστε το { -brand-firefox } σε αυτήν τη συσκευή
+pair2-supplicant-download-firefox-description = Κάντε λήψη του { -brand-firefox } για να συγχρονίσετε τους σελιδοδείκτες, το ιστορικό και πολλά άλλα με όλες τις συσκευές σας. <linkExternal>Μάθετε περισσότερα</linkExternal>
+pair2-supplicant-download-firefox-continue-button = Συνέχεια στο { -brand-firefox }
+
+
+pair2-supplicant-ready-to-scan-heading = Για να συνδέσετε μια συσκευή
+pair2-supplicant-ready-to-scan-instruction = Στον υπολογιστή σας, ανοίξτε το { -brand-firefox }, μεταβείτε στο <b>firefox.com/pair</b> και ακολουθήστε τις οδηγίες που εμφανίζονται στην οθόνη για να συνδέσετε αυτήν την κινητή συσκευή.
+pair2-supplicant-ready-to-scan-learn-more-link = Μάθετε περισσότερα
+
+
+pair2-supplicant-sync-success-heading = Η συσκευή σας έχει συνδεθεί
+pair2-supplicant-sync-success-description = Οι σελιδοδείκτες, οι καρτέλες και πολλά άλλα θα συγχρονίζονται στο { -brand-firefox }.
+pair2-supplicant-sync-success-view-tabs-button = Προβολή συγχρονισμένων καρτελών
 pair2-supplicant-sync-success-sync-settings-button = Ρυθμίσεις συγχρονισμού
 
 
-service-welcome-signup-success-banner = Ο { -product-mozilla-account(case: "nom", capitalization: "lower") } επιβεβαιώθηκε
+pair2-supplicant-timeout-and-cancel-timeout-heading = Φαίνεται ότι το χρονικό όριο έληξε
+pair2-supplicant-timeout-and-cancel-timeout-description = Για να συνδέσετε την κινητή σας συσκευή και να συγχρονίσετε τα δεδομένα σας από το { -brand-firefox }, επισκεφθείτε το <b>firefox.com/pair</b> από τον υπολογιστή σας.
+pair2-supplicant-timeout-and-cancel-canceled-heading = Ακυρώθηκε
+pair2-supplicant-timeout-and-cancel-canceled-description = Για να συνδέσετε μια συσκευή ανά πάσα στιγμή, επισκεφθείτε το <b>firefox.com/pair</b> από τον υπολογιστή σας.
+
+
+service-welcome-signup-success-banner = Ο { -product-mozilla-account(capitalization: "lower", case: "nom") } επιβεβαιώθηκε
 service-welcome-signin-success-banner = Επιτυχής σύνδεση!
 service-welcome-vpn-heading = Επόμενο: Ενεργοποιήστε το VPN
 service-welcome-vpn-description = Ένα ακόμα βήμα για την ενίσχυση του απορρήτου του προγράμματος περιήγησής σας. Μεταβείτε στον ανοικτό πίνακα και ενεργοποιήστε το.
-
-
 
 
 set-password-heading-v2 = Δημιουργία κωδικού πρόσβασης για συγχρονισμό
@@ -1421,10 +1460,8 @@ complete-reset-password-success-alert = Ο κωδικός πρόσβασης ο�
 complete-reset-password-error-alert = Δυστυχώς, προέκυψε πρόβλημα κατά τον ορισμό του κωδικού πρόσβασής σας
 complete-reset-pw-recovery-key-link = Χρήση κλειδιού ανάκτησης λογαριασμού
 reset-password-complete-banner-heading = Έγινε επαναφορά του κωδικού πρόσβασής σας.
-reset-password-complete-banner-message = Μην ξεχάσετε να δημιουργήσετε ένα νέο κλειδί ανάκτησης λογαριασμού από τις ρυθμίσεις του { -product-mozilla-account(case: "gen", capitalization: "lower") } σας για να αποτρέψετε μελλοντικά προβλήματα σύνδεσης.
+reset-password-complete-banner-message = Μην ξεχάσετε να δημιουργήσετε ένα νέο κλειδί ανάκτησης λογαριασμού από τις ρυθμίσεις του { -product-mozilla-account(capitalization: "lower", case: "gen") } σας για να αποτρέψετε μελλοντικά προβλήματα σύνδεσης.
 complete-reset-password-desktop-relay = Το { -brand-firefox } θα προσπαθήσει να σας μεταφέρει στην αρχική καρτέλα για να χρησιμοποιήσετε μια μάσκα email αφού συνδεθείτε.
-
-
 confirm-backup-code-reset-password-input-label = Εισαγάγετε τον κωδικό 10 χαρακτήρων
 confirm-backup-code-reset-password-confirm-button = Επιβεβαίωση
 confirm-backup-code-reset-password-subheader = Εισαγάγετε εφεδρικό κωδικό ταυτοποίησης
@@ -1458,8 +1495,6 @@ password-reset-submit-button-2 = Συνέχεια
 
 reset-password-complete-header = Έγινε επαναφορά του κωδικού πρόσβασής σας
 reset-password-confirmed-cta = Συνέχεια στο { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Επαναφέρετε τον κωδικό πρόσβασής σας
@@ -1505,7 +1540,7 @@ signin-link-expired-header = Ο σύνδεσμος επιβεβαίωσης έλ
 signin-link-expired-message-2 = Ο σύνδεσμος στον οποίο κάνατε κλικ έχει λήξει ή έχει ήδη χρησιμοποιηθεί.
 
 
-signin-password-needed-header-2 = Εισαγάγετε τον κωδικό πρόσβασης <span>για τον { -product-mozilla-account(case: "acc", capitalization: "lower") } σας</span>
+signin-password-needed-header-2 = Εισαγάγετε τον κωδικό πρόσβασης <span>για τον { -product-mozilla-account(capitalization: "lower", case: "acc") } σας</span>
 signin-subheader-without-logo-with-servicename = Συνέχεια στο { $serviceName }
 signin-subheader-without-logo-default = Συνέχεια στις ρυθμίσεις λογαριασμού
 signin-button = Σύνδεση
@@ -1540,8 +1575,6 @@ signin-passkey-fallback-body = Για την προστασία των δεδο�
 signin-passkey-fallback-password-label = Κωδικός πρόσβασης
 signin-passkey-fallback-continue = Συνέχεια
 signin-passkey-fallback-forgot-password-link = Ξεχάσατε τον κωδικό πρόσβασής σας;
-
-
 
 
 signin-passwordless-code-heading = Εισαγωγή κωδικού επιβεβαίωσης
@@ -1617,7 +1650,7 @@ signin-reported-header = Σας ευχαριστούμε για την εγρή�
 signin-reported-message = Η ομάδα μας έχει ειδοποιηθεί. Αναφορές σαν κι αυτή μάς βοηθούν να αποκλείουμε τους εισβολείς.
 
 
-signin-token-code-heading-2 = Εισαγάγετε τον κωδικό επιβεβαίωσης <span>για τον { -product-mozilla-account(case: "acc", capitalization: "lower") } σας</span>
+signin-token-code-heading-2 = Εισαγάγετε τον κωδικό επιβεβαίωσης <span>για τον { -product-mozilla-account(capitalization: "lower", case: "acc") } σας</span>
 signin-token-code-instruction-v2 = Εισαγάγετε τον κωδικό επιβεβαίωσης που απεστάλη στο <email>{ $email }</email>, εντός 5 λεπτών.
 signin-token-code-input-label-v2 = Εισαγάγετε τον εξαψήφιο κωδικό
 signin-token-code-confirm-button = Επιβεβαίωση
@@ -1660,10 +1693,8 @@ signin-unblock-support-link = Γιατί συμβαίνει αυτό;
 signin-unblock-desktop-relay = Το { -brand-firefox } θα προσπαθήσει να σας μεταφέρει στην αρχική καρτέλα για να χρησιμοποιήσετε μια μάσκα email αφού συνδεθείτε.
 
 
-
-
 confirm-signup-code-page-title = Εισαγωγή κωδικού επιβεβαίωσης
-confirm-signup-code-heading-2 = Εισαγάγετε τον κωδικό επιβεβαίωσης <span>για τον { -product-mozilla-account(case: "acc", capitalization: "lower") } σας</span>
+confirm-signup-code-heading-2 = Εισαγάγετε τον κωδικό επιβεβαίωσης <span>για τον { -product-mozilla-account(capitalization: "lower", case: "acc") } σας</span>
 confirm-signup-code-instruction-v2 = Εισαγάγετε τον κωδικό επιβεβαίωσης που απεστάλη στο <email>{ $email }</email>, εντός 5 λεπτών.
 confirm-signup-code-input-label = Εισαγάγετε τον εξαψήφιο κωδικό
 confirm-signup-code-confirm-button = Επιβεβαίωση
@@ -1688,7 +1719,7 @@ signup-change-email-link = Αλλαγή email
 
 
 signup-confirmed-sync-header = Ο συγχρονισμός είναι ενεργός
-signup-confirmed-sync-success-banner = Ο { -product-mozilla-account(case: "nom", capitalization: "lower") } επιβεβαιώθηκε
+signup-confirmed-sync-success-banner = Ο { -product-mozilla-account(capitalization: "lower", case: "nom") } επιβεβαιώθηκε
 signup-confirmed-sync-button = Έναρξη περιήγησης
 signup-confirmed-sync-description-with-payment-v2 = Οι κωδικοί πρόσβασης, οι μέθοδοι πληρωμής, οι διευθύνσεις, οι σελιδοδείκτες, το ιστορικό σας και πολλά άλλα μπορούν να συγχρονίζονται σε όποια συσκευή χρησιμοποιείτε το { -brand-firefox }.
 signup-confirmed-sync-description-v2 = Οι κωδικοί πρόσβασης, οι διευθύνσεις, οι σελιδοδείκτες, το ιστορικό σας και πολλά άλλα μπορούν να συγχρονίζονται σε όποια συσκευή χρησιμοποιείτε το { -brand-firefox }.

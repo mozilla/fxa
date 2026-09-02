@@ -140,21 +140,18 @@ form-verify-totp-disabled-button-title-numeric = Metti u còdici di { $codeLengt
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Metti u còdici di { $codeLength } caràttari pi cuntinuari
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Chiavi di ricùpiru dû cuntu { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Còdici d’autinticazzioni di sicurizza
 get-data-trio-download-2 =
-    .title = Scàrrica
     .aria-label = Scàrrica
+    .title = Scàrrica
 get-data-trio-copy-2 =
-    .title = Copia
     .aria-label = Copia
+    .title = Copia
 get-data-trio-print-2 =
-    .title = Stampa
     .aria-label = Stampa
+    .title = Stampa
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -206,10 +203,6 @@ info-icon-aria-label =
 # Used to select United States as a country code for phone number
 usa-flag-icon-aria-label =
     .aria-label = Bannera dî Stati Junciuti dâ Mèrica
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = Un computer e un tilèfunu e na mmàggini d’un cori ciaccatu ncapu a iḍḍi
 hearts-verified-image-aria-label =
@@ -418,9 +411,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = Prudutti { -brand-mozilla }
 bento-menu-tagline = Autri prudutti { -brand-mozilla } chi prutègginu a to privatizza
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -491,9 +481,6 @@ dc-opt-out-success-2 = Sdisattivatu. { -product-mozilla-accounts } nun manna cch
 dc-opt-in-success-2 = Grazzi! Spàrtiri sti dati n’ajuta a fari megghiu { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Ni dispiaci, cci fu un prubblema mentri chi canciava i to prifirenzi ncapu â ricota dî dati.
 dc-learn-more = Cchiù nfurmazzioni
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = Minù di { -product-mozilla-account }
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -619,9 +606,6 @@ flow-setup-phone-confirm-code-resend-code-button = Manna arrè
 flow-setup-phone-confirm-code-resend-code-success = Còdici mannatu
 flow-setup-phone-confirm-code-success-message-v2 = Juncisti u nùmmaru di tilèfunu di ricùpiru
 flow-change-phone-confirm-code-success-message = Canciasti u nùmmaru di tilèfunu di ricùpiru
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Virìfica u to nùmmaru di tilèfunu
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = T’arriva un missaggiu di testu di { -brand-mozilla } c’un còdici pi virificari u to nùmmaru. Nun spàrtiri stu còdici cu nuḍḍu.
@@ -1357,9 +1341,6 @@ reset-password-complete-banner-heading = Risittasti a to chiavi.
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = Doppu chi trasisti, { -brand-firefox } prova a mannàriti arrè â pàggina p’usari nu nnirizzu di posta elittrònica mascaratu.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = Metti u còdici di 10 caràttari
 
 ## Confirm Reset Password With Code
@@ -1459,8 +1440,5 @@ signin-bounced-create-new-account = Nun ài cchiù accessu a stu nnirizzu di pos
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 confirm-signup-code-success-alert = Cunfirmasti u cuntu

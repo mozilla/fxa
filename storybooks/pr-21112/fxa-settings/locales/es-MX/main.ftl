@@ -126,20 +126,18 @@ form-verify-code-default-error = Este campo es requerido
 
 form-verify-totp-disabled-button-title-numeric = Ingresa el código de { $codeLength } dígitos para continuar
 form-verify-totp-disabled-button-title-alphanumeric = Ingrese el código de carácter { $codeLength } para continuar
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } clave de recuperación de cuenta
 get-data-trio-title-backup-verification-codes = Códigos de autenticación de respaldo
 get-data-trio-download-2 =
-    .title = Descargar
     .aria-label = Descargar
+    .title = Descargar
 get-data-trio-copy-2 =
-    .title = Copiar
     .aria-label = Copiar
+    .title = Copiar
 get-data-trio-print-2 =
-    .title = Imprimir
     .aria-label = Imprimir
+    .title = Imprimir
 
 
 alert-icon-aria-label =
@@ -168,8 +166,6 @@ info-icon-aria-label =
     .aria-label = Información
 usa-flag-icon-aria-label =
     .aria-label = Bandera de Estados Unidos
-
-
 hearts-broken-image-aria-label =
     .aria-label = Una computadora y un número de teléfono y una imágen de un corazón roto en cada uno
 hearts-verified-image-aria-label =
@@ -283,8 +279,6 @@ avatar-default-avatar =
     .alt = Avatar predeterminado
 
 
-
-
 bento-menu-title-3 = { -brand-mozilla } productos
 bento-menu-tagline = Más productos de { -brand-mozilla } que protegen tu privacidad
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -341,8 +335,6 @@ dc-opt-out-success-2 = Tu exclusión voluntaria ha sido exitosa. { -product-mozi
 dc-opt-in-success-2 = ¡Gracias! Compartir estos datos nos ayuda a mejorar { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Lo sentimos, hubo un problema al cambiar tu preferencia de recopilación de datos
 dc-learn-more = Saber más
-
-
 drop-down-menu-title-2 = Menú { -product-mozilla-account }
 drop-down-menu-signed-in-as-v2 = Inició sesión como
 drop-down-menu-sign-out = Cerrar sesión
@@ -382,8 +374,6 @@ flow-setup-phone-confirm-code-expired = ¿Código expirado?
 flow-setup-phone-confirm-code-resend-code-button = Reenviar código
 flow-setup-phone-confirm-code-resend-code-success = Código enviado
 flow-setup-phone-confirm-code-success-message-v2 = Se agregó teléfono de recuperación
-
-
 flow-setup-phone-submit-number-heading = Verifica tu número de teléfono
 flow-setup-phone-submit-number-legal = Al proporcionar tu número, acepta que lo almacenemos para poder enviarte mensajes de texto únicamente para verificar la cuenta. Pueden aplicarse tarifas por mensajes y datos.
 flow-setup-phone-submit-number-button = Enviar código
@@ -858,8 +848,6 @@ complete-reset-pw-recovery-key-link = Utiliza la clave de recuperación de cuent
 reset-password-complete-banner-heading = Tu contraseña ha sido restablecida
 
 
-
-
 confirm-reset-password-with-code-heading = Verifica tu correo electrónico
 confirm-reset-password-with-code-instruction = Enviamos un código de confirmación a <span>{ $email }</span>.
 confirm-reset-password-otp-submit-button = Continuar
@@ -972,8 +960,6 @@ signin-unblock-code-incorrect-length = El código de autorización debe contener
 signin-unblock-code-incorrect-format-2 = El código de autorización solo puede contener letras y/o números
 signin-unblock-resend-code-button = ¿No está en tu Bandeja de Entrada o en tu carpeta de spam? Reenviar
 signin-unblock-support-link = ¿Por qué está pasando esto?
-
-
 
 
 confirm-signup-code-page-title = Ingresar código de confirmación

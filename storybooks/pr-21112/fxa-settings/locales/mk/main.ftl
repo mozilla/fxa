@@ -35,8 +35,6 @@ avatar-default-avatar =
     .alt = Стандарден аватар
 
 
-
-
 bento-menu-firefox-desktop = { -brand-firefox } Прелистувач за работен компјутер
 bento-menu-firefox-mobile = { -brand-firefox } Прелистувач за мобилен телефон
 bento-menu-made-by-mozilla = Направено од { -brand-mozilla }
@@ -69,8 +67,6 @@ cs-disconnect-advice-confirm = Добро, разбрав
 cs-disconnect-lost-advice-heading = Изгубениот или украдениот уред е исклучен
 cs-disconnect-suspicious-advice-heading = Сомнителниот уред е исклучен
 cs-sign-out-button = Одјавете се
-
-
 
 
 drop-down-menu-sign-out = Одјави се

@@ -140,20 +140,18 @@ form-password-with-inline-criteria-sr-passwords-match = 入力したパスワー
 form-verify-code-default-error = この項目は必須です
 
 
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } アカウント回復用キー
 get-data-trio-title-backup-verification-codes = バックアップ認証コード
 get-data-trio-download-2 =
-    .title = ダウンロード
     .aria-label = ダウンロード
+    .title = ダウンロード
 get-data-trio-copy-2 =
-    .title = コピー
     .aria-label = コピー
+    .title = コピー
 get-data-trio-print-2 =
-    .title = 印刷
     .aria-label = 印刷
+    .title = 印刷
 
 
 alert-icon-aria-label =
@@ -184,8 +182,6 @@ error-icon-aria-label =
     .aria-label = エラー
 usa-flag-icon-aria-label =
     .aria-label = アメリカ国旗
-
-
 hearts-broken-image-aria-label =
     .aria-label = コンピューターとスマートフォン、それぞれに失恋ハートの画像
 hearts-verified-image-aria-label =
@@ -310,8 +306,6 @@ avatar-default-avatar =
     .alt = 既定のアバター
 
 
-
-
 bento-menu-title-3 = { -brand-mozilla } の製品
 bento-menu-tagline = プライバシーを保護する他の { -brand-mozilla } の製品
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -370,8 +364,6 @@ dc-opt-out-success-2 = オプトアウトが完了しました。{ -product-mozi
 dc-opt-in-success-2 = ご協力ありがとうございます。このデータを共有することで { -product-mozilla-accounts }の改善に役立てられます。
 dc-opt-in-out-error-2 = データ収集設定の変更時に問題が発生しました
 dc-learn-more = 詳細情報
-
-
 drop-down-menu-title-2 = { -product-mozilla-account }メニュー
 drop-down-menu-signed-in-as-v2 = ログイン中のアカウント
 drop-down-menu-sign-out = ログアウト
@@ -459,8 +451,6 @@ flow-setup-phone-confirm-code-expired = コードの有効期限が切れてい�
 flow-setup-phone-confirm-code-resend-code-button = 確認コードを再送する
 flow-setup-phone-confirm-code-resend-code-success = コードを送信しました
 flow-setup-phone-confirm-code-success-message-v2 = 回復用電話番号を追加しました
-
-
 flow-setup-phone-submit-number-heading = 電話番号を確認します
 flow-setup-phone-verify-number-instruction = 電話番号を確認するために { -brand-mozilla } からテキストメッセージを送信します。このコードは誰とも共有しないでください。
 flow-setup-phone-submit-number-info-message-v2 = 回復用電話番号はアメリカ合衆国とカナダのみで利用可能です。VoIP の電話番号や電話番号マスクは非推奨です。
@@ -957,8 +947,6 @@ account-recovery-lost-recovery-key-link-2 = アカウント回復用キーが見
 complete-reset-pw-header-v2 = 新しいパスワードを設定
 complete-reset-password-success-alert = パスワードを設定しました
 complete-reset-password-error-alert = 申し訳ありませんが、パスワードの設定中に問題が発生しました
-
-
 confirm-backup-code-reset-password-confirm-button = 確認
 
 
@@ -987,8 +975,6 @@ password-reset-submit-button-2 = 続ける
 
 reset-password-complete-header = パスワードがリセットされました
 reset-password-confirmed-cta = { $serviceName } へ進む
-
-
 
 
 password-reset-recovery-method-header = パスワードのリセット
@@ -1095,8 +1081,6 @@ signin-unblock-code-incorrect-length = 認証コードは 8 文字でなけれ�
 signin-unblock-code-incorrect-format-2 = 認証コードに含められるのは英数字のみです
 signin-unblock-resend-code-button = 受信トレイや迷惑メールフォルダーに見当たりませんか？ 再送信
 signin-unblock-support-link = このような問題が起きた理由
-
-
 
 
 confirm-signup-code-page-title = 確認コードの入力

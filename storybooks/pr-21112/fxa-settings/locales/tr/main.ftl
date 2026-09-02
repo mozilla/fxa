@@ -100,6 +100,11 @@ choose-newsletters-option-reclaim-the-internet =
     .label = İnternete sahip çıkmak için harekete geçme çağrıları
 
 
+pair-continue-in-firefox-heading = { -brand-firefox } ile devam et
+pair-continue-in-firefox-button = { -brand-firefox } ile devam et
+pair-continue-in-firefox-opening = { -brand-firefox } açılıyor
+
+
 dark-mode-toggle-light = Açık
 dark-mode-toggle-dark = Koyu
 dark-mode-toggle-system = Sistem
@@ -1229,6 +1234,7 @@ pair2-authority-timeout-and-cancel-cancel-button = Vazgeç
 pair2-authority-timeout-and-cancel-sync-settings-button = Eşitleme ayarları
 
 
+pair2-supplicant-approve-sign-in-heading = Eşitlemek için son bir adım
 pair2-supplicant-approve-sign-in-cancel-button = Vazgeç
 
 

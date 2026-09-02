@@ -12,18 +12,18 @@ app-query-parameter-err-heading = Εσφαλμένο αίτημα: Μη έγκυ
 ## FxA React - Strings shared between multiple FxA products for application footer
 
 app-footer-mozilla-logo-label = Λογότυπο { -brand-mozilla }
-app-footer-privacy-notice = Σημείωση απορρήτου ιστοτόπου
+app-footer-privacy-notice = Δήλωση απορρήτου ιστοτόπου
 app-footer-terms-of-service = Όροι υπηρεσίας
 
 ## FxA React - Strings shared between multiple FxA products for application page title
 
 # This string is used as the default title for pages, displayed in the browser tab.
-app-default-title-2 = { -product-mozilla-accounts(case: "nom", capitalization: "upper") }
+app-default-title-2 = { -product-mozilla-accounts(capitalization: "upper", case: "nom") }
 # This string is used as the title of the page, displayed in the browser tab.
 # Variables:
 #   $title (String) - the name of the current page
 #                      (for example: "Two-step authentication")
-app-page-title-2 = { $title } | { -product-mozilla-accounts(case: "nom", capitalization: "upper") }
+app-page-title-2 = { $title } | { -product-mozilla-accounts(capitalization: "upper", case: "nom") }
 
 ## FxA React - Strings shared between multiple FxA products for external link
 

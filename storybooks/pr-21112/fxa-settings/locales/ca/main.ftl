@@ -51,8 +51,6 @@ avatar-default-avatar =
     .alt = Avatar per defecte
 
 
-
-
 bento-menu-firefox-desktop = Navegador { -brand-firefox } per a l'escriptori
 bento-menu-firefox-mobile = Navegador { -brand-firefox } per al mòbil
 bento-menu-made-by-mozilla = Creat per { -brand-mozilla }
@@ -88,8 +86,6 @@ cs-sign-out-button = Tanca la sessió
 
 dc-heading = Ús i recollida de dades
 dc-learn-more = Més informació
-
-
 drop-down-menu-sign-out = Tanca la sessió
 
 
