@@ -69,7 +69,7 @@ _Note:_ This is a general overview and may vary per library/package. For authori
 - **Nx:** `nx build <pkg>`, `nx lint <pkg>`, `nx test-unit <pkg>`, `nx test-integration <pkg>`, `nx start <pkg>`
 - **Pkg scripts:** `cd packages/<name> && yarn <script>` — Run these through Nx (`nx build <pkg>`, `nx build-storybook <pkg>`); invoking them with plain `yarn` will **not** run their dependency steps.
 - **L10N:** `yarn l10n:prime`
-- **DB migrations:** add new SQL under `packages/db-migrations/databases/fxa/patches/` → `nx run db-migrations:migrate`
+- **DB migrations:** add a forward patch and its rollback under `packages/db-migrations/databases/<db>/patches/` and bump that database's `target-patch.json` — see `packages/db-migrations/databases/README.md`. `yarn start` applies them; to run it directly, `node ./packages/db-migrations/bin/patcher.mjs`.
   **Never edit existing published migration files.**
 
 > When asked, show the exact minimal command block you intend to run; wait for approval.
