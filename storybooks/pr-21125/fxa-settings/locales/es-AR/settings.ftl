@@ -1884,7 +1884,7 @@ pair2-authority-scan-qr-instruction = Escaneá el código QR con tu teléfono o 
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = Código QR para conectar tu dispositivo móvil
 # Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Obtener ayuda para escanear
+pair2-authority-scan-qr-help-link = Ayuda para escanear
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
