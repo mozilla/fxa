@@ -1,8 +1,8 @@
 {
-  "commit": "bb62bcf94de4b6348b6c36de8aefe73224ac5503",
-  "summary": "Merge pull request #21128 from mozilla/FXA-14421",
-  "description": "feat(db): delete passkey wraps when a password reset rotates kB",
-  "timestamp": 1788369698000,
+  "commit": "1dd9ab34126093ead57a4f50bbf3b003eb5d137a",
+  "summary": "Merge pull request #21115 from mozilla/FXA-14268",
+  "description": "test(passkey): add PRF output support to the virtual authenticator",
+  "timestamp": 1788375579000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
