@@ -288,10 +288,16 @@ describe('verifyWebauthnRegistrationResponse', () => {
   });
 
   it('records prfEnabled when the browser reports PRF support', async () => {
+    // A config that actually requests PRF, so the ceremony carries the eval
+    // salt and the authenticator reports the capability on its own.
+    const prfConfig = testConfig({
+      requestPrfAtRegistration: true,
+      prfSalt: TEST_PRF_SALT,
+    });
     const cred = VirtualAuthenticator.createCredential();
     const challenge = randomBytes(32).toString('base64url');
 
-    const options = await generateWebauthnRegistrationOptions(config, {
+    const options = await generateWebauthnRegistrationOptions(prfConfig, {
       uid: Buffer.alloc(16, 0xaa).toString('hex'),
       email: 'test@example.com',
       challenge,
@@ -301,20 +307,46 @@ describe('verifyWebauthnRegistrationResponse', () => {
       challenge: options.challenge,
       origin: TEST_ORIGIN,
       rpId: TEST_RP_ID,
+      extensions: options.extensions,
     });
-    // prf.enabled is a WebAuthn Level 3 client-extension output the browser
-    // sets; the virtual authenticator leaves clientExtensionResults empty, so
-    // attach it here. (Field absent from SimpleWebAuthn's output type.)
-    (attestation.clientExtensionResults as { prf?: { enabled: boolean } }).prf =
-      { enabled: true };
 
-    const result = await verifyWebauthnRegistrationResponse(config, {
+    const result = await verifyWebauthnRegistrationResponse(prfConfig, {
       response: attestation,
       challenge,
     });
 
     expect(result.verified).toBe(true);
     expect(result.data?.prfEnabled).toBe(true);
+  });
+
+  it('records prfEnabled as false when the authenticator cannot do PRF', async () => {
+    const prfConfig = testConfig({
+      requestPrfAtRegistration: true,
+      prfSalt: TEST_PRF_SALT,
+    });
+    const cred = VirtualAuthenticator.createCredential({ prfSupported: false });
+    const challenge = randomBytes(32).toString('base64url');
+
+    const options = await generateWebauthnRegistrationOptions(prfConfig, {
+      uid: Buffer.alloc(16, 0xaa).toString('hex'),
+      email: 'test@example.com',
+      challenge,
+    });
+
+    const attestation = VirtualAuthenticator.createAttestationResponse(cred, {
+      challenge: options.challenge,
+      origin: TEST_ORIGIN,
+      rpId: TEST_RP_ID,
+      extensions: options.extensions,
+    });
+
+    const result = await verifyWebauthnRegistrationResponse(prfConfig, {
+      response: attestation,
+      challenge,
+    });
+
+    expect(result.verified).toBe(true);
+    expect(result.data?.prfEnabled).toBe(false);
   });
 
   it('rejects a mismatched challenge', async () => {
