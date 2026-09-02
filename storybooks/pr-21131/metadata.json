@@ -1,8 +1,8 @@
 {
-  "commit": "36fa061b0812da9b1f2b4e5ac420ea9a7683ed32",
-  "summary": "chore(deps): upgrade react and react-dom to 19.2.8",
-  "description": "Because:\n- The 19.0.8 pin was a workaround for passkey and 2FA functional failures\n  that no longer reproduce once the mount effects are idempotent.\n\nThis commit:\n- Bumps react and react-dom from 19.0.8 to 19.2.8.",
-  "timestamp": 1788308215000,
+  "commit": "409aac6f9193421f7272f2635ca1aca4532b4645",
+  "summary": "fix(functional-tests): key the TOTP code fill to a page-unique input",
+  "description": "Because:\n- After a code page navigates to the TOTP page the outgoing view can stay\n  committed briefly, and both inputs share the \"Enter 6-digit code\" label,\n  so the fill landed on the outgoing page's input.\n- The re-fill loop never retried: its inner assertion's timeout consumed\n  the entire toPass budget.\n\nThis commit:\n- Gives the TOTP page's input a totp- testid prefix, guarded in unit tests.\n- Points the TOTP page object at that testid.\n- Replaces the retry loop with a plain fill that waits for the unique input.",
+  "timestamp": 1788376905000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

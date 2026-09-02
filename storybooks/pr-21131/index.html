@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 36fa061b0812da9b1f2b4e5ac420ea9a7683ed32</title>
+  <title>Storybooks for commit 409aac6f9193421f7272f2635ca1aca4532b4645</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 36fa061b0812da9b1f2b4e5ac420ea9a7683ed32</h1>
+  <h1>Storybooks for commit 409aac6f9193421f7272f2635ca1aca4532b4645</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,16 +31,21 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/2/2026, 12:16:55 AM UTC</dd>
+    <dd>9/2/2026, 7:21:45 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>chore(deps): upgrade react and react-dom to 19.2.8</pre></dd>
+    <dd><pre>fix(functional-tests): key the TOTP code fill to a page-unique input</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-- The 19.0.8 pin was a workaround for passkey and 2FA functional failures
-  that no longer reproduce once the mount effects are idempotent.
+- After a code page navigates to the TOTP page the outgoing view can stay
+  committed briefly, and both inputs share the &quot;Enter 6-digit code&quot; label,
+  so the fill landed on the outgoing page&#039;s input.
+- The re-fill loop never retried: its inner assertion&#039;s timeout consumed
+  the entire toPass budget.
 
 This commit:
-- Bumps react and react-dom from 19.0.8 to 19.2.8.</pre></dd>
+- Gives the TOTP page&#039;s input a totp- testid prefix, guarded in unit tests.
+- Points the TOTP page object at that testid.
+- Replaces the retry loop with a plain fill that waits for the unique input.</pre></dd>
   </dl>
 </body>
 </html>

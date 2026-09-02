@@ -1309,7 +1309,7 @@ pair2-authority-download-firefox-cta = Descargar { -brand-firefox }
 pair2-authority-scan-qr-heading = Escanear para conectar tu dispositivo móvil
 pair2-authority-scan-qr-instruction = Escaneá el código QR con tu teléfono o tablet para sincronizar tus marcadores de{ -brand-firefox }, pestañas y más.
 pair2-authority-scan-qr-code-aria-label = Código QR para conectar tu dispositivo móvil
-pair2-authority-scan-qr-help-link = Obtener ayuda para escanear
+pair2-authority-scan-qr-help-link = Ayuda para escanear
 
 
 pair2-authority-sync-success-heading = Estás sincronizando
