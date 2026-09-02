@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 78890bbf165d4dd6d70c34648f4ccb9b7beb38e9</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 78890bbf165d4dd6d70c34648f4ccb9b7beb38e9</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/2/2026, 2:20:49 AM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): Match the pairing hand-off card to its Figma spec</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+  - The live card&#039;s copy and its &quot;Opening Firefox…&quot; status line diverged
+    from the approved design and from the Pair2 storybook card.
+  - The design drops the separate store link; the hand-off already routes
+    to the store on both platforms.
+
+This commit:
+  - Retitles the card &quot;Get Firefox on this device&quot; with the sync subcopy
+    and an inline &quot;Learn more&quot; link.
+  - Moves &quot;Opening Firefox…&quot; into the CTA as its active state.
+  - Removes the &quot;Don’t have Firefox? Get it now&quot; link.
+  - Keeps the CTA mounted throughout, so `attempting` alone drives it and
+    a retap still reaches the store.
+
+Fixes FXA-14459</pre></dd>
+  </dl>
+</body>
+</html>
