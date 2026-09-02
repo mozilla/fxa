@@ -168,6 +168,13 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Ειδοποιήσεις για δράσεις που αφορούν την ανάκτηση του ελέγχου του διαδικτύου
 
 
+pair-continue-in-firefox-heading = Συνέχεια στο { -brand-firefox }
+pair-continue-in-firefox-description = Η σύζευξη γίνεται στο { -brand-firefox }. Ανοίξτε το για να ολοκληρώσετε τη σύνδεση της συσκευής.
+pair-continue-in-firefox-button = Συνέχεια στο { -brand-firefox }
+pair-continue-in-firefox-opening = Άνοιγμα του { -brand-firefox }
+pair-continue-in-firefox-get-firefox-link = Δεν διαθέτετε το { -brand-firefox }; Αποκτήστε το τώρα
+
+
 dark-mode-toggle-light = Ανοιχτόχρωμο
 dark-mode-toggle-dark = Σκουρόχρωμο
 dark-mode-toggle-system = Σύστημα

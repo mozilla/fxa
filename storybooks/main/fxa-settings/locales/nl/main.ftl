@@ -100,6 +100,13 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Actiewaarschuwingen om het internet terug te eisen
 
 
+pair-continue-in-firefox-heading = Doorgaan in { -brand-firefox }
+pair-continue-in-firefox-description = Koppelen vindt plaats in { -brand-firefox }. Open het om het verbinden met dit apparaat te voltooien.
+pair-continue-in-firefox-button = Doorgaan in { -brand-firefox }
+pair-continue-in-firefox-opening = { -brand-firefox } wordt geopend
+pair-continue-in-firefox-get-firefox-link = Hebt u { -brand-firefox } niet? Nu downloaden
+
+
 dark-mode-toggle-light = Licht
 dark-mode-toggle-dark = Donker
 dark-mode-toggle-system = Systeem

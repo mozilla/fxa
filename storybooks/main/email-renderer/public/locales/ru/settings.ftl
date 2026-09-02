@@ -75,6 +75,20 @@ choose-newsletters-option-test-pilot =
 choose-newsletters-option-reclaim-the-internet =
     .label = Оповещения о действиях по восстановлению доступа к Интернету
 
+## ContinueInFirefox component - Part of the desktop-to-mobile pairing flow
+## Shown when the pairing QR code is opened in a browser other than Firefox.
+## It hands the pairing link to the Firefox app, and offers the app store when
+## Firefox is not installed on the device.
+
+pair-continue-in-firefox-heading = Продолжить в { -brand-firefox }
+pair-continue-in-firefox-description = Сопряжение происходит в { -brand-firefox }. Откройте его, чтобы завершить подключение этого устройства.
+# Opens the Firefox app on this device
+pair-continue-in-firefox-button = Продолжить в { -brand-firefox }
+# Shown while waiting for the Firefox app to take over
+pair-continue-in-firefox-opening = Запускаем { -brand-firefox }
+# Sends the user to the App Store or Play Store to install Firefox
+pair-continue-in-firefox-get-firefox-link = Нет { -brand-firefox }? Скачайте сейчас
+
 ## Dark mode toggle
 
 dark-mode-toggle-light = Светлая
@@ -1496,7 +1510,7 @@ oauth-error-1000 = Что-то пошло не так. Пожалуйста, з�
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
-passkey-registration-error-not-allowed = Ошибка установки ключа доступа или он недоступен. Попробуйте еще раз или выберите другой метод.
+passkey-registration-error-not-allowed = Ошибка установки ключа доступа или он недоступен. Попробуйте ещё раз или выберите другой метод.
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
 # Firefox collapses user-cancel and duplicate-authenticator into the same error, but duplicate is
 # the far more likely cause when the user has existing passkeys, so we state it plainly.
@@ -1521,7 +1535,7 @@ passkey-registration-error-security = На этой странице нельз�
 # A credential for this RP already exists on the authenticator (excludeCredentials match)
 passkey-registration-error-invalid-state = Этот ключ доступа уже зарегистрирован. Используйте его, чтобы войти или добавить другой ключ доступа.
 # Authenticator I/O failure (e.g., security key disconnected mid-ceremony)
-passkey-registration-error-not-readable = Мы не смогли получить доступ к аутентификатору. Попробуйте еще раз или выберите другой метод.
+passkey-registration-error-not-readable = Мы не смогли получить доступ к аутентификатору. Попробуйте ещё раз или выберите другой метод.
 # Attestation constraints or device-specific restrictions can't be met
 passkey-registration-error-constraint = Установка ключа доступа недоступна с этим устройством. Попробуйте другой метод или устройство.
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
@@ -1537,7 +1551,7 @@ passkey-authentication-trouble-description = Попробуйте ещё раз 
 # using passkeys.
 passkey-authentication-trouble-link = Как использовать ключи доступа
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
-passkey-authentication-error-not-allowed = Вход с ключом доступа не удался или недоступен. Попробуйте еще раз или выберите другой метод.
+passkey-authentication-error-not-allowed = Вход с ключом доступа не удался или недоступен. Попробуйте ещё раз или выберите другой метод.
 # User already registered a device
 passkey-authentication-error-not-allowed-existing = Установка ключа доступа недоступна с этим устройством. Пожалуйста, попробуйте ещё раз или выберите другой метод.
 # The ceremony timed out before the user responded
