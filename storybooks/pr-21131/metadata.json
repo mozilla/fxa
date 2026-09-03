@@ -1,8 +1,8 @@
 {
-  "commit": "17e1bd35273142fbe9925659c6966d30b4e1e342",
-  "summary": "fixup! fix(settings): re-enable StrictMode and fix the effects it surfaced",
-  "description": "",
-  "timestamp": 1788397742000,
+  "commit": "0ed210348fa1f825d765fbe6bc9709ab372c6e15",
+  "summary": "chore(deps): upgrade react and react-dom to 19.2.8",
+  "description": "Because:\n- The 19.0.8 pin was a workaround for passkey and 2FA functional failures\n  that no longer reproduce once the mount effects are idempotent.\n\nThis commit:\n- Bumps react and react-dom from 19.0.8 to 19.2.8.",
+  "timestamp": 1788455762000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
