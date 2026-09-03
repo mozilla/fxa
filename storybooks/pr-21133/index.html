@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 2326fe17cb1c50ad0f35a55abd33220f6945605d</title>
+  <title>Storybooks for commit 8987c06a581a73f68965e5dacc999c1e56957fa4</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,35 +23,28 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 2326fe17cb1c50ad0f35a55abd33220f6945605d</h1>
+  <h1>Storybooks for commit 8987c06a581a73f68965e5dacc999c1e56957fa4</h1>
   <ul>
     <li><a href="./fxa-react/">fxa-react</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/3/2026, 2:30:28 AM UTC</dd>
+    <dd>9/3/2026, 2:52:28 AM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>refactor(settings): Route pairing hand-off to download_firefox page</pre></dd>
+    <dd><pre>fix(auth-server): Repair two auth-server specs left broken on main</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-* ContinueInFirefox duplicated the existing /pair/supplicant/download_firefox
-  page — the same card and copy under a second set of Fluent ids.
-* The hand-off rendered inline at /pair, so it had no URL of its own and no
-  view metrics.
+* account.spec.ts still expected acceptLanguage &quot;en-US&quot; after en-US was
+  dropped from supported-languages.json, so negotiation resolves it to &quot;en&quot;.
+* passkey_wraps.in.spec.ts imported VirtualAuthenticator from the package
+  barrel, which no longer exports it, so it was undefined at runtime.
 
 This commit:
-* Moves the deep-link hand-off onto Pair2/Supplicant/DownloadFirefox and
-  deletes components/ContinueInFirefox.
-* Navigates from /pair with the channel in router state, keeping the channel
-  key out of the URL.
-* Rebuilds the plan in a new container, so autoAttempt is read from live
-  sessionStorage rather than frozen into a history entry.
-* Falls back to the plain download CTA when no channel arrives, so a direct
-  hit degrades instead of erroring.
-* Adds the cad_firefox.download_firefox_view Glean event.
-
-Closes: FXA-14459</pre></dd>
+* Updates the four acceptLanguage expectations to &quot;en&quot;, matching the change
+  already made to email-helpers.spec.ts.
+* Imports VirtualAuthenticator from @fxa/accounts/passkey/testing, as
+  passkeys.in.spec.ts already does.</pre></dd>
   </dl>
 </body>
 </html>
