@@ -9,11 +9,17 @@ const DESCRIPTIONS = {
     "An OAuth access token that the client can use for authorized requests to service providers to access data associated with the user's account.",
   accessType:
     'If specified, a value of `offline` will cause the connecting client to be granted a refresh token alongside its access token.',
+  acr:
+    'The authentication context class reference reached by the session that produced this grant, as a string of the form `AAL2`. Reflects the assurance level actually achieved, which may be higher than the level requested.',
   acrValues:
-    'A space-separated list of ACR values specifying acceptable levels of user authentication that the token should have a claim for. Specifying `AAL2` will require the token to have an authentication assuarance level >= 2 which ensures that the user has been authenticated with 2FA before authorizing the requested grant.',
+    'A space-separated list of ACR values specifying acceptable levels of user authentication that the token should have a claim for. Specifying `AAL2` will require the token to have an authentication assurance level >= 2, which ensures the user has completed a second factor before the requested grant is authorized. `AAL2` is the only value recognized; any other value in the list is ignored.',
+  amr:
+    'The authentication methods used for this grant, as an array of method classes (for example `["pwd","otp"]`). Method classes are coarse: TOTP, backup authentication codes, and recovery-phone codes all report as `otp`.',
   active: 'Boolean indicator of whether the presented token is active.',
+  authTime:
+    'The time of the session\'s most recent authentication event, in seconds since the epoch. Note that `iat` and `exp` on this endpoint are in milliseconds; the difference is intentional and retained for backwards compatibility.',
   maxAge:
-    'The maximum permissible elapsed time in seconds since the user last authenticated. If the session is older, a fresh second-factor challenge (step-up authentication) is required before the grant is authorized.',
+    'The maximum permissible elapsed time in seconds since the user last authenticated. If the session is older, a fresh second-factor challenge (step-up authentication) is required before the grant is authorized. Freshness is measured against the session\'s most recent authentication event, and is evaluated with a five-second grace period so that a just-completed challenge satisfies `max_age=0`.',
   activePrice:
     'Whether the price can be used for new purchases. Defaults to true.',
   amount:
