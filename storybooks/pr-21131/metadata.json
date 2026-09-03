@@ -1,8 +1,8 @@
 {
-  "commit": "3fa3adbd4e403720f68e43019c2f8af85cea445f",
+  "commit": "30cbf6ec504fc83531ce47e097b94d6e01d51d13",
   "summary": "fix(settings): record the signin view once fxa_status settles",
   "description": "Because:\n- supportsKeysOptionalLogin stays false until the browser answers fxa_status,\n  so the view event fired again when the reply flipped it.\n- The first event reported third-party links as hidden on a page that goes\n  on to show them.\n\nThis commit:\n- Holds the signin view event until the fxa_status reply settles.",
-  "timestamp": 1788463179000,
+  "timestamp": 1788468666000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
