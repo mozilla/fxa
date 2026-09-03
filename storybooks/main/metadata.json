@@ -1,8 +1,8 @@
 {
-  "commit": "b714f47b5c6a9c1107a133423f4ead6d3ca15904",
-  "summary": "Merge pull request #21090 from mozilla/dependabot/npm_and_yarn/dotenv-17.4.2",
-  "description": "chore(deps): bump dotenv from 16.6.1 to 17.4.2",
-  "timestamp": 1788472090000,
+  "commit": "28947b1ff20b2a66363bef6c663061731acb1ccb",
+  "summary": "Merge pull request #21088 from mozilla/dependabot/github_actions/docker/setup-buildx-action-4.3.0",
+  "description": "chore(deps): bump docker/setup-buildx-action from 4.2.0 to 4.3.0",
+  "timestamp": 1788472146000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
