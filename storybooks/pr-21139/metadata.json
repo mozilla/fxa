@@ -1,8 +1,8 @@
 {
-  "commit": "26e15c7b46a07eabdf26e0ec57b0195e66bb4216",
+  "commit": "44bcecd9e4abf0d2f812a4ad73177bebfdfd0fdb",
   "summary": "refactor(settings): use stacked rectangular buttons for Google and Apple auth",
   "description": "## Because\n\n- The Google and Apple buttons changed shape with account state. `AlternativeAuthOptions` picked the circular style when the passkey button was hidden, and the rectangular style when it was shown.\n- The team chose consistency over the vertical space that the circular style saved.\n\n## This pull request\n\n- Removes the `ThirdPartyAuthVariant` type and the `variant` prop from `ThirdPartyAuth` and `ThirdPartySignInButton`. Both always render through `BoxButton`.\n- Collapses the separator in `AlternativeAuthOptions` to: inline renders \"or\", standalone renders nothing.\n- Deletes the `third-party-auth-options-sign-in-with` string and three unreferenced SVG assets.\n- Updates the tests, the stories, and the button snapshots.\n\n## Issue that this pull request solves\n\nCloses: FXA-14300",
-  "timestamp": 1788468173000,
+  "timestamp": 1788475522000,
   "storybooks": [
     "fxa-settings"
   ],
