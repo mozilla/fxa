@@ -363,11 +363,12 @@ module.exports = (
   const routes = [
     {
       method: 'POST',
-      path: '/totp/create',
+      path: '/mfa/totp/create',
       options: {
-        ...TOTP_DOCS.TOTP_CREATE_POST,
+        ...TOTP_DOCS.MFA_TOTP_CREATE_POST,
         auth: {
-          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
+          strategy: 'mfa',
+          scope: ['mfa:2fa'],
           payload: false,
         },
         validate: {
@@ -449,42 +450,12 @@ module.exports = (
     },
     {
       method: 'POST',
-      path: '/mfa/totp/create',
+      path: '/mfa/totp/setup/verify',
       options: {
-        ...TOTP_DOCS.MFA_TOTP_CREATE_POST,
+        ...TOTP_DOCS.MFA_TOTP_SETUP_VERIFY_POST,
         auth: {
           strategy: 'mfa',
           scope: ['mfa:2fa'],
-          payload: false,
-        },
-        validate: {
-          payload: isA.object({
-            metricsContext: METRICS_CONTEXT_SCHEMA,
-          }),
-        },
-        response: {
-          schema: isA.object({
-            qrCodeUrl: isA.string().required(),
-            secret: isA.string().required(),
-          }),
-        },
-      },
-      handler: async function (request) {
-        return routes
-          .find(
-            (route) =>
-              route.path === '/v1/totp/create' && route.method === 'POST'
-          )
-          .handler(request);
-      },
-    },
-    {
-      method: 'POST',
-      path: '/totp/setup/verify',
-      options: {
-        ...TOTP_DOCS.TOTP_SETUP_VERIFY_POST,
-        auth: {
-          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
         validate: {
@@ -581,9 +552,9 @@ module.exports = (
     },
     {
       method: 'POST',
-      path: '/mfa/totp/setup/verify',
+      path: '/mfa/totp/setup/complete',
       options: {
-        ...TOTP_DOCS.MFA_TOTP_SETUP_VERIFY_POST,
+        ...TOTP_DOCS.MFA_TOTP_SETUP_COMPLETE_POST,
         auth: {
           strategy: 'mfa',
           scope: ['mfa:2fa'],
@@ -591,41 +562,7 @@ module.exports = (
         },
         validate: {
           payload: isA.object({
-            code: isA
-              .string()
-              .max(32)
-              .regex(validators.DIGITS)
-              .required()
-              .description(DESCRIPTION.codeTotp),
-            metricsContext: METRICS_CONTEXT_SCHEMA,
-          }),
-        },
-        response: {
-          schema: isA.object({
-            success: isA.boolean().required(),
-          }),
-        },
-      },
-      handler: async function (request) {
-        return routes
-          .find(
-            (route) =>
-              route.path === '/v1/totp/setup/verify' && route.method === 'POST'
-          )
-          .handler(request);
-      },
-    },
-    {
-      method: 'POST',
-      path: '/totp/setup/complete',
-      options: {
-        ...TOTP_DOCS.TOTP_SETUP_COMPLETE_POST,
-        auth: {
-          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
-          payload: false,
-        },
-        validate: {
-          payload: isA.object({
+            service: validators.service,
             metricsContext: METRICS_CONTEXT_SCHEMA,
           }),
         },
@@ -730,38 +667,6 @@ module.exports = (
             });
           }
         }
-      },
-    },
-    {
-      method: 'POST',
-      path: '/mfa/totp/setup/complete',
-      options: {
-        ...TOTP_DOCS.MFA_TOTP_SETUP_COMPLETE_POST,
-        auth: {
-          strategy: 'mfa',
-          scope: ['mfa:2fa'],
-          payload: false,
-        },
-        validate: {
-          payload: isA.object({
-            service: validators.service,
-            metricsContext: METRICS_CONTEXT_SCHEMA,
-          }),
-        },
-        response: {
-          schema: isA.object({
-            success: isA.boolean().required(),
-          }),
-        },
-      },
-      handler: async function (request) {
-        return routes
-          .find(
-            (route) =>
-              route.path === '/v1/totp/setup/complete' &&
-              route.method === 'POST'
-          )
-          .handler(request);
       },
     },
     {

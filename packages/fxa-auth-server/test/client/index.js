@@ -12,6 +12,8 @@ module.exports = (config) => {
   const pbkdf2 = require('../../lib/crypto/pbkdf2');
   const hkdf = require('../../lib/crypto/hkdf');
   const tokens = require('../../lib/tokens')({ trace: function () {} }, config);
+  const jwt = require('jsonwebtoken');
+  const serverConfig = require('../../config').default.getProperties();
 
   // Ensure tests generate TOTP codes using the same encoding as the server
   otplib.authenticator.options = Object.assign(
@@ -922,8 +924,29 @@ module.exports = (config) => {
     return this.api.sendUnblockCode(email);
   };
 
-  Client.prototype.createTotpToken = function (options = {}) {
-    return this.api.createTotpToken(this.sessionToken, options);
+  // Mint the mfa:2fa JWT that guards TOTP enrolment, signed directly instead
+  // of via the email-OTP flow.
+  Client.prototype.getMfa2faToken = async function () {
+    const sessionToken = await tokens.SessionToken.fromHex(this.sessionToken);
+    return jwt.sign(
+      {
+        sub: this.uid,
+        scope: ['mfa:2fa'],
+        jti: crypto.randomUUID(),
+        stid: sessionToken.id,
+      },
+      serverConfig.mfa.jwt.secretKey,
+      {
+        algorithm: 'HS256',
+        expiresIn: serverConfig.mfa.jwt.expiresInSec,
+        audience: serverConfig.mfa.jwt.audience,
+        issuer: serverConfig.mfa.jwt.issuer,
+      }
+    );
+  };
+
+  Client.prototype.createTotpToken = async function (options = {}) {
+    return this.api.createTotpTokenWithJwt(await this.getMfa2faToken(), options);
   };
 
   Client.prototype.deleteTotpToken = function (jwt) {
@@ -938,12 +961,19 @@ module.exports = (config) => {
     return this.api.verifyTotpCode(this.sessionToken, code, options);
   };
 
-  Client.prototype.verifyTotpSetupCode = function (code, options = {}) {
-    return this.api.verifyTotpSetupCode(this.sessionToken, code, options);
+  Client.prototype.verifyTotpSetupCode = async function (code, options = {}) {
+    return this.api.verifyTotpSetupCodeWithJwt(
+      await this.getMfa2faToken(),
+      code,
+      options
+    );
   };
 
-  Client.prototype.completeTotpSetup = function (options = {}) {
-    return this.api.completeTotpSetup(this.sessionToken, options);
+  Client.prototype.completeTotpSetup = async function (options = {}) {
+    return this.api.completeTotpSetupWithJwt(
+      await this.getMfa2faToken(),
+      options
+    );
   };
 
   Client.prototype.geoEligibilityCheck = async function (feature) {
