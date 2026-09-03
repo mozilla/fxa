@@ -202,7 +202,7 @@ const PairSupplicantConnectThisDevice = lazy(
   () => import('../../pages/Pair2/Supplicant/ConnectThisDevice/container')
 );
 const PairSupplicantDownloadFirefox = lazy(
-  () => import('../../pages/Pair2/Supplicant/DownloadFirefox')
+  () => import('../../pages/Pair2/Supplicant/DownloadFirefox/container')
 );
 const PairSupplicantReadyToScan = lazy(
   () => import('../../pages/Pair2/Supplicant/ReadyToScan')

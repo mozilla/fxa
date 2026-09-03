@@ -2,7 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { buildPairUrl, parsePairingHash, PairingChannelInfo } from './pair-url';
+import {
+  buildPairUrl,
+  isPairingChannelInfo,
+  parsePairingHash,
+  PairingChannelInfo,
+} from './pair-url';
 
 const MOCK_ORIGIN = 'https://accounts.firefox.com';
 const MOCK_CHANNEL: PairingChannelInfo = {
@@ -74,6 +79,50 @@ describe('parsePairingHash', () => {
     expect(
       parsePairingHash(`#channel_id=chan-1&channel_key=${key}&v=2`)
     ).toEqual({ channelId: 'chan-1', channelKey: key, version: '2' });
+  });
+});
+
+// The guard is what `parsePairingHash` validates through, and it is also the
+// only check on a channel that reaches a page as router state rather than in a
+// hash — so it is exercised directly on shapes a hash could never produce.
+describe('isPairingChannelInfo', () => {
+  it('accepts a well-formed v2 channel', () => {
+    expect(
+      isPairingChannelInfo({
+        channelId: 'chan-1',
+        channelKey: 'key-1',
+        version: '2',
+      })
+    ).toBe(true);
+  });
+
+  it.each([
+    ['null', null],
+    ['undefined', undefined],
+    ['a string', 'channel'],
+    ['an array', []],
+    ['an empty object', {}],
+    [
+      'a numeric version',
+      { channelId: 'chan-1', channelKey: 'key-1', version: 2 },
+    ],
+    ['version 1', { channelId: 'chan-1', channelKey: 'key-1', version: '1' }],
+    ['a missing channel key', { channelId: 'chan-1', version: '2' }],
+    ['a missing channel id', { channelKey: 'key-1', version: '2' }],
+    [
+      'a non-string channel key',
+      { channelId: 'chan-1', channelKey: 123, version: '2' },
+    ],
+    [
+      'a channel key that is not base64url',
+      { channelId: 'chan-1', channelKey: 'key-1;end', version: '2' },
+    ],
+    [
+      'an over-long channel key',
+      { channelId: 'chan-1', channelKey: 'a'.repeat(129), version: '2' },
+    ],
+  ])('rejects %s', (_label, value) => {
+    expect(isPairingChannelInfo(value)).toBe(false);
   });
 });
 

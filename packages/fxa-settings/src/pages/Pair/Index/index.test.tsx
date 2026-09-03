@@ -750,38 +750,43 @@ describe('parseV2PairingHash', () => {
     };
 
     beforeEach(() => {
+      // This describe sits outside the `Pair` block that owns the shared
+      // reset, so navigation calls would otherwise accumulate across cases.
+      jest.clearAllMocks();
       mockLocationHash = V2_HASH;
+    });
+
+    afterEach(() => {
+      mockLocationHash = '';
     });
 
     it.each([
       ['iOS Safari', IOS_SAFARI],
       ['Android Chrome', ANDROID_CHROME],
-    ])('offers to continue in Firefox on %s', async (_label, ua) => {
+    ])('routes to the download screen on %s', async (_label, ua) => {
       setUserAgent(ua);
       renderWithRouter(<Pair {...unansweredProps} />, {}, v2AppContext());
 
-      expect(
-        await screen.findByRole('heading', { name: 'Continue in Firefox' })
-      ).toBeInTheDocument();
-      expect(mockNavigate).not.toHaveBeenCalled();
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/pair/supplicant/download_firefox',
+          { state: { channelId: 'chan-1', channelKey: 'key-1', version: '2' } }
+        )
+      );
     });
 
-    // The channel key is what the deep link exists to carry; without it Firefox
-    // opens on a /pair page with nothing to pair.
-    it('hands Firefox the pairing URL the QR encoded', async () => {
+    // The channel key is the pairing PSK, and the download screen is handed it
+    // as router state — so unlike /pair/unsupported below, the hash it arrived
+    // in must not follow it into the next URL. The deep link the destination
+    // builds from that state is covered in its own container test.
+    it('does not carry the channel key into the destination URL', async () => {
       setUserAgent(IOS_SAFARI);
       renderWithRouter(<Pair {...unansweredProps} />, {}, v2AppContext());
 
-      const cta = await screen.findByRole('link', {
-        name: 'Continue in Firefox',
-      });
-      const target = new URL(
-        decodeURIComponent(
-          cta.getAttribute('href')!.replace('firefox://open-url?url=', '')
-        )
-      );
-      expect(target.pathname).toBe('/pair');
-      expect(target.hash).toBe(V2_HASH);
+      await waitFor(() => expect(mockNavigate).toHaveBeenCalled());
+      const [path] = mockNavigate.mock.calls[0];
+      expect(path).toBe('/pair/supplicant/download_firefox');
+      expect(path).not.toContain('channel_key');
     });
 
     // There is no Firefox app to hand off to on desktop.
@@ -794,9 +799,10 @@ describe('parseV2PairingHash', () => {
       await waitFor(() =>
         expect(mockNavigate).toHaveBeenCalledWith(`/pair/unsupported${V2_HASH}`)
       );
-      expect(
-        screen.queryByRole('heading', { name: 'Continue in Firefox' })
-      ).not.toBeInTheDocument();
+      expect(mockNavigate).not.toHaveBeenCalledWith(
+        '/pair/supplicant/download_firefox',
+        expect.anything()
+      );
     });
 
     // firefox:// inside Firefox is a no-op, so a hand-off here would strand the
@@ -806,9 +812,10 @@ describe('parseV2PairingHash', () => {
       renderWithRouter(<Pair {...unansweredProps} />, {}, v2AppContext());
 
       await waitFor(() => expect(mockNavigate).toHaveBeenCalled());
-      expect(
-        screen.queryByRole('heading', { name: 'Continue in Firefox' })
-      ).not.toBeInTheDocument();
+      expect(mockNavigate).not.toHaveBeenCalledWith(
+        '/pair/supplicant/download_firefox',
+        expect.anything()
+      );
     });
 
     it('does not offer the hand-off when the URL carries no pairing channel', async () => {
@@ -817,9 +824,10 @@ describe('parseV2PairingHash', () => {
       renderWithRouter(<Pair {...unansweredProps} />, {}, v2AppContext());
 
       await waitFor(() => expect(mockNavigate).toHaveBeenCalled());
-      expect(
-        screen.queryByRole('heading', { name: 'Continue in Firefox' })
-      ).not.toBeInTheDocument();
+      expect(mockNavigate).not.toHaveBeenCalledWith(
+        '/pair/supplicant/download_firefox',
+        expect.anything()
+      );
     });
 
     // A browser that answered is telling us something; only silence means the
@@ -833,9 +841,10 @@ describe('parseV2PairingHash', () => {
       );
 
       await waitFor(() => expect(mockNavigate).toHaveBeenCalled());
-      expect(
-        screen.queryByRole('heading', { name: 'Continue in Firefox' })
-      ).not.toBeInTheDocument();
+      expect(mockNavigate).not.toHaveBeenCalledWith(
+        '/pair/supplicant/download_firefox',
+        expect.anything()
+      );
     });
   });
 });
