@@ -7,10 +7,11 @@ import {
   firefox,
   Firefox,
   FirefoxCommand,
-  buildSyncOAuthSearch,
+  buildOAuthSearch,
   FxAOAuthFlowBeginResponse,
   PairOAuthFinishState,
   PairOAuthStartState,
+  WebChannelService,
 } from './firefox';
 
 describe('Firefox pairing WebChannel methods', () => {
@@ -76,7 +77,7 @@ describe('Firefox pairing WebChannel methods', () => {
   });
 });
 
-describe('buildSyncOAuthSearch', () => {
+describe('buildOAuthSearch', () => {
   const MOCK_CODE_VERIFIER = 'au3dqDz2dOB0_vSikXCUf4S8Gc-37dL-F7sGxtxpR3R';
 
   // Mirrors a real fxa_oauth_flow_begin response. Firefox derives the challenge
@@ -99,7 +100,7 @@ describe('buildSyncOAuthSearch', () => {
     // would still pass if the allowlist were replaced by a spread. The response
     // type has no verifier field, but the payload crosses a trust boundary and
     // TypeScript is erased, so a compromised Firefox could put one on the wire.
-    const search = buildSyncOAuthSearch({
+    const search = buildOAuthSearch({
       ...OAUTH_PARAMS,
       code_verifier: MOCK_CODE_VERIFIER,
       sessionToken: 'deadbeef',
@@ -121,6 +122,79 @@ describe('buildSyncOAuthSearch', () => {
     ]);
     expect(search.get('code_challenge')).toBe(OAUTH_PARAMS.code_challenge);
     expect(search.toString()).not.toContain(MOCK_CODE_VERIFIER);
+  });
+
+  // Precedence: the caller argument, then the browser echo, then sync.
+  it.each([
+    { echoed: undefined, passed: undefined, expected: 'sync' },
+    { echoed: undefined, passed: 'relay', expected: 'relay' },
+    { echoed: 'vpn', passed: undefined, expected: 'vpn' },
+    { echoed: 'vpn', passed: 'sync', expected: 'sync' },
+    // The echo crosses a trust boundary and the type is erased, so an
+    // unrecognized name must not reach the sign-in URL.
+    {
+      echoed: 'evil' as WebChannelService,
+      passed: undefined,
+      expected: 'sync',
+    },
+  ] as const)(
+    'sets service=$expected when the browser echoes $echoed and the caller passes $passed',
+    ({ echoed, passed, expected }) => {
+      const search = buildOAuthSearch(
+        { ...OAUTH_PARAMS, service: echoed },
+        passed
+      );
+      expect(search.get('service')).toBe(expected);
+    }
+  );
+});
+
+describe('fxaOAuthFlowBegin', () => {
+  const SCOPES = ['profile', Constants.OAUTH_OLDSYNC_SCOPE];
+
+  let ff: Firefox;
+  let sendSpy: jest.SpyInstance;
+  const originalRAF = window.requestAnimationFrame;
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+    ff = new Firefox();
+    sendSpy = jest.spyOn(ff, 'send').mockImplementation(() => {});
+    window.requestAnimationFrame = (cb: FrameRequestCallback) => {
+      cb(0);
+      return 0;
+    };
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    window.requestAnimationFrame = originalRAF;
+    jest.useRealTimers();
+  });
+
+  // Let the request time out so a pending promise cannot leak into the next case.
+  const settle = async (promise: Promise<unknown>) => {
+    jest.runOnlyPendingTimers();
+    await promise;
+  };
+
+  it.each(['sync', 'relay'] as const)(
+    'sends service=%s with the scopes',
+    async (service) => {
+      const promise = ff.fxaOAuthFlowBegin(SCOPES, service);
+      expect(sendSpy).toHaveBeenCalledWith(FirefoxCommand.OAuthFlowBegin, {
+        scopes: SCOPES,
+        service,
+      });
+      await settle(promise);
+    }
+  );
+
+  it('omits the service when the caller passes none', async () => {
+    const promise = ff.fxaOAuthFlowBegin(SCOPES);
+    // toStrictEqual, because toEqual would pass on a `service: undefined` key.
+    expect(sendSpy.mock.calls[0][1]).toStrictEqual({ scopes: SCOPES });
+    await settle(promise);
   });
 });
 

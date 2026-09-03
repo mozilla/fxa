@@ -44,8 +44,8 @@ jest.mock('../../../lib/channels/firefox', () => ({
     }),
     fxaOAuthFlowBegin: jest.fn().mockResolvedValue(null),
   },
-  buildSyncOAuthSearch: jest.requireActual('../../../lib/channels/firefox')
-    .buildSyncOAuthSearch,
+  buildOAuthSearch: jest.requireActual('../../../lib/channels/firefox')
+    .buildOAuthSearch,
   FirefoxCommand: {
     PairPreferences: 'fxaccounts:pair_preferences',
   },
@@ -384,10 +384,10 @@ describe('Pair', () => {
         requestSignedInUserMock.mockResolvedValue(response);
         renderWithRouter(<Pair />);
         await waitFor(() =>
-          expect(fxaOAuthFlowBeginMock).toHaveBeenCalledWith([
-            'profile',
-            'https://identity.mozilla.com/apps/oldsync',
-          ])
+          expect(fxaOAuthFlowBeginMock).toHaveBeenCalledWith(
+            ['profile', 'https://identity.mozilla.com/apps/oldsync'],
+            'sync'
+          )
         );
       }
     );

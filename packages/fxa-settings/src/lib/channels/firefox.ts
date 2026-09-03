@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Constants } from "../constants";
+import { Constants } from '../constants';
 
 export enum FirefoxCommand {
   AccountDeleted = 'fxaccounts:delete',
@@ -96,7 +96,6 @@ export type FxAStatusResponse = {
   };
   clientId?: string;
   signedInUser?: SignedInUser;
-
 };
 
 export type SignedInUser = {
@@ -109,15 +108,15 @@ export type SignedInUser = {
 };
 
 export type PairOAuthStartState = {
-  state:string,
-  scope:string,
-  code_challenge: string,
-  keys_jwk:string
-}
+  state: string;
+  scope: string;
+  code_challenge: string;
+  keys_jwk: string;
+};
 export type PairOAuthFinishState = {
-  state:string,
-  code:string
-}
+  state: string;
+  code: string;
+};
 
 export type FxALoginRequest = {
   email: string;
@@ -149,6 +148,25 @@ export type WebChannelServices =
   | {
       vpn: {};
     };
+
+// keyof a union yields only the shared keys, so distribute over it first.
+type KeysOfUnion<T> = T extends unknown ? keyof T : never;
+
+// Service names the WebChannel messages accept, derived from
+// WebChannelServices so the two cannot drift apart.
+export type WebChannelService = KeysOfUnion<WebChannelServices>;
+
+// The same names at runtime. The browser echoes a service back over the
+// WebChannel, where the type above is erased, so the echo needs a real check.
+// The Record makes a missing name a compile error, not a silent rejection.
+const WEB_CHANNEL_SERVICES = new Set<string>(
+  Object.keys({
+    sync: true,
+    relay: true,
+    smartwindow: true,
+    vpn: true,
+  } satisfies Record<WebChannelService, true>)
+);
 
 // ref: [FxAccounts.sys.mjs](https://searchfox.org/mozilla-central/rev/82828dba9e290914eddd294a0871533875b3a0b5/services/fxaccounts/FxAccounts.sys.mjs#910)
 export type FxALoginSignedInUserRequest = FxALoginRequest & {
@@ -213,17 +231,24 @@ export type FxAOAuthFlowBeginResponse = {
   code_challenge_method?: string;
   // Forward to /authorization, otherwise the OAuth code is keyless and Sync never enables.
   keys_jwk?: string;
+  // Optional because the browser does not echo the service back yet.
+  service?: WebChannelService;
 };
 
-// Builds the oauth_webchannel_v1 Sync sign-in URL search params from the
-// fxa_oauth_flow_begin response. Callers may set additional params on the
-// returned URLSearchParams (e.g. entrypoint, email, utm_*).
-export function buildSyncOAuthSearch(
-  oauthParams: FxAOAuthFlowBeginResponse
+// Builds the oauth_webchannel_v1 sign-in URL search params from the
+// fxa_oauth_flow_begin response. The service comes from the caller, then the
+// browser echo, then sync. Callers may set additional params on the returned
+// URLSearchParams (e.g. entrypoint, email, utm_*).
+export function buildOAuthSearch(
+  oauthParams: FxAOAuthFlowBeginResponse,
+  service?: WebChannelService
 ): URLSearchParams {
+  const echoed = oauthParams.service;
+  const resolvedService =
+    service ?? (echoed && WEB_CHANNEL_SERVICES.has(echoed) ? echoed : 'sync');
   const search = new URLSearchParams({
     context: 'oauth_webchannel_v1',
-    service: 'sync',
+    service: resolvedService,
     client_id: oauthParams.client_id,
     state: oauthParams.state,
     scope: oauthParams.scope,
@@ -505,7 +530,8 @@ export class Firefox extends EventTarget {
 
   /** Start new OAuth flow in Firefox and get fresh params for recovery. */
   async fxaOAuthFlowBegin(
-    scopes: string[]
+    scopes: string[],
+    service?: WebChannelService
   ): Promise<FxAOAuthFlowBeginResponse | null> {
     let timeoutId: number;
     return Promise.race<FxAOAuthFlowBeginResponse | null>([
@@ -519,7 +545,12 @@ export class Firefox extends EventTarget {
 
         this.addEventListener(FirefoxCommand.OAuthFlowBegin, eventHandler);
         requestAnimationFrame(() => {
-          this.send(FirefoxCommand.OAuthFlowBegin, { scopes });
+          // Omit the key when the caller has no service, rather than send
+          // undefined.
+          this.send(FirefoxCommand.OAuthFlowBegin, {
+            scopes,
+            ...(service ? { service } : {}),
+          });
         });
       }),
       new Promise<FxAOAuthFlowBeginResponse | null>((resolve) => {
@@ -644,15 +675,14 @@ export class Firefox extends EventTarget {
   }
 
   /** Requests that a pairing oauth operation begin. This is the first half of pairing dance. */
-  async pairOauthStart(msg:{
-    scopes?: string[]
-  }):Promise<PairOAuthStartState|undefined> {
-
+  async pairOauthStart(msg: {
+    scopes?: string[];
+  }): Promise<PairOAuthStartState | undefined> {
     // Default sync scopes
     if (msg.scopes == null) {
       msg.scopes = [
         Constants.OAUTH_OLDSYNC_SCOPE,
-        Constants.OAUTH_TRUSTED_PROFILE_SCOPE
+        Constants.OAUTH_TRUSTED_PROFILE_SCOPE,
       ];
     }
 
@@ -661,47 +691,58 @@ export class Firefox extends EventTarget {
       msg,
       (event) => {
         if (event?.detail?.state == null) {
-          throw new Error(`${FirefoxCommand.PairOauthFinish} missing state from event.details`);
+          throw new Error(
+            `${FirefoxCommand.PairOauthFinish} missing state from event.details`
+          );
         }
         if (event?.detail?.scope == null) {
-          throw new Error(`${FirefoxCommand.PairOauthFinish} missing code from event.details`);
+          throw new Error(
+            `${FirefoxCommand.PairOauthFinish} missing code from event.details`
+          );
         }
         if (event?.detail?.code_challenge == null) {
-          throw new Error(`${FirefoxCommand.PairOauthFinish} missing code_challenge from event.details`);
+          throw new Error(
+            `${FirefoxCommand.PairOauthFinish} missing code_challenge from event.details`
+          );
         }
         if (event?.detail?.keys_jwk == null) {
-          throw new Error(`${FirefoxCommand.PairOauthFinish} missing keys_jwk from event.details`);
+          throw new Error(
+            `${FirefoxCommand.PairOauthFinish} missing keys_jwk from event.details`
+          );
         }
         return event.detail as PairOAuthStartState;
       }
-    )
+    );
   }
 
   /** Requests that a pairing oauth operation be finished. This is the second half of pairing dance. */
-  async pairOauthFinish(msg:{
-    client_id:string,
-    state:string,
-    scope:string,
-    code_challenge:string,
-  }):Promise<PairOAuthFinishState|undefined> {
+  async pairOauthFinish(msg: {
+    client_id: string;
+    state: string;
+    scope: string;
+    code_challenge: string;
+  }): Promise<PairOAuthFinishState | undefined> {
     return this._executeCommandWithResponse<PairOAuthFinishState>(
       FirefoxCommand.PairOauthFinish,
       msg,
       (event) => {
         if (event?.detail?.code == null) {
-          throw new Error(`${FirefoxCommand.PairOauthFinish} missing code from event.details`);
+          throw new Error(
+            `${FirefoxCommand.PairOauthFinish} missing code from event.details`
+          );
         }
         if (event?.detail?.state == null) {
-          throw new Error(`${FirefoxCommand.PairOauthFinish} missing state from event.details`);
+          throw new Error(
+            `${FirefoxCommand.PairOauthFinish} missing state from event.details`
+          );
         }
         if (event.detail.state !== msg.state) {
           throw new Error(`${FirefoxCommand.PairOauthFinish} invalid state!`);
-
         }
-        return event.detail as PairOAuthFinishState
+        return event.detail as PairOAuthFinishState;
       },
       10_000 // The final handshake makes a web call. Give it some leeway.
-    )
+    );
   }
 
   /**
@@ -714,11 +755,11 @@ export class Firefox extends EventTarget {
   private async _executeCommandWithResponse<TResp>(
     cmd: FirefoxCommand,
     msg: any,
-    handleResp:(event:any) => TResp,
+    handleResp: (event: any) => TResp,
     timeout = DEFAULT_SEND_TIMEOUT_LENGTH_MS
   ) {
     let timeoutId: number;
-    let onResp:EventListenerOrEventListenerObject;
+    let onResp: EventListenerOrEventListenerObject;
     return Promise.race<undefined | TResp>([
       new Promise<undefined | TResp>((resolve, reject) => {
         onResp = (event: any) => {
@@ -735,13 +776,13 @@ export class Firefox extends EventTarget {
           // The handler might throw an error and fail fast if the data looks wrong. Handle error
           // and reject if this happens.
           try {
-            const resp = handleResp(event)
+            const resp = handleResp(event);
 
             resolve(resp);
           } catch (err) {
             reject(err);
           }
-        }
+        };
         this.addEventListener(cmd, onResp);
         requestAnimationFrame(() => {
           console.log(`[[Firefox WebChannel] ${cmd} sent msg`, msg);
@@ -755,16 +796,13 @@ export class Firefox extends EventTarget {
             `[Firefox WebChannel] ${cmd} timed out or unavailable in this browser`
           );
           if (onResp) {
-            this.removeEventListener(cmd, onResp)
+            this.removeEventListener(cmd, onResp);
           }
           resolve(undefined);
         }, timeout);
       }),
     ]);
   }
-
-
-
 
   /*
    * Sends an fxa_status and returns the signed in user if available.

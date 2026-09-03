@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { screen, waitFor } from '@testing-library/react';
+import { userEvent } from '@testing-library/user-event';
 import { MOCK_ACCOUNT, renderWithRouter } from '../../models/mocks';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
@@ -148,6 +149,52 @@ describe('ConnectAnotherDevice', () => {
       screen.getByText('Sign in to this Firefox to complete set-up')
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Sign in' })).toBeInTheDocument();
+  });
+
+  describe('sync sign-in', () => {
+    let hardNavigate: jest.SpyInstance;
+    beforeEach(() => {
+      hardNavigate = jest
+        .spyOn(ReactUtils, 'hardNavigate')
+        .mockImplementation(() => {});
+    });
+    afterEach(() => {
+      jest.restoreAllMocks();
+      (firefox.fxaOAuthFlowBegin as jest.Mock).mockReset();
+    });
+
+    it('sends the user to a sync sign-in when they choose Sign in', async () => {
+      (firefox.fxaOAuthFlowBegin as jest.Mock).mockResolvedValue({
+        action: 'email',
+        response_type: 'code',
+        access_type: 'offline',
+        scope: 'profile https://identity.mozilla.com/apps/oldsync',
+        client_id: 'cid-abc',
+        state: 'state-xyz',
+      });
+      renderWithRouter(
+        <ConnectAnotherDevice
+          isSignIn
+          isSignUp={false}
+          showSuccessMessage={false}
+          email={MOCK_ACCOUNT.primaryEmail.email}
+          entrypoint={ENTRYPOINTS.FIREFOX_FX_VIEW_ENTRYPOINT}
+          device={Devices.FIREFOX_DESKTOP}
+          isSignedIn={false}
+          canSignIn
+          fxaStatus={mockFxAStatus()}
+        />
+      );
+      await userEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+
+      await waitFor(() => expect(hardNavigate).toHaveBeenCalled());
+      const url = new URL(hardNavigate.mock.calls[0][0], 'http://localhost');
+      expect(url.searchParams.get('service')).toBe('sync');
+      expect(firefox.fxaOAuthFlowBegin).toHaveBeenCalledWith(
+        ['profile', 'https://identity.mozilla.com/apps/oldsync'],
+        'sync'
+      );
+    });
   });
 
   it('renders device-specific messaging for Android', () => {
