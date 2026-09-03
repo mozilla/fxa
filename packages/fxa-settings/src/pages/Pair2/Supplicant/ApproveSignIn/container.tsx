@@ -39,14 +39,20 @@ export const ApproveSignInContainer = ({integration}:{integration:Integration|Pa
     };
   },[integration])
 
-  const onCancel = () => {
-    integration.destroy()
-      .then(() => {
-        navigateWithQuery('/pair/supplicant/timeout_and_cancel', {}, true)
-      }).catch((err) => {
-        Sentry.captureException(err);
-        navigateWithQuery('/pair/supplicant/timeout_and_cancel', {}, true)
-      });
+  // Leave even if the channel will not close; the user asked to stop. The
+  // reason rides along so the dead-end screen says "Canceled" rather than
+  // blaming a timeout the user never waited out.
+  const onCancel = async () => {
+    try {
+      await integration.destroy();
+    } catch (err) {
+      Sentry.captureException(err);
+    }
+    navigateWithQuery(
+      '/pair/supplicant/timeout_and_cancel',
+      { state: { reason: 'canceled' } },
+      true
+    );
   }
 
   return <ApproveSignIn {...{ remoteMetadata:integration.remoteMetadata, onCancel }}/>

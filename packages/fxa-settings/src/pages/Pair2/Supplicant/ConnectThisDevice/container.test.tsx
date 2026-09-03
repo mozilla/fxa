@@ -192,6 +192,8 @@ describe('Pair2/Supplicant/ConnectThisDevice container', () => {
       );
     });
 
+    // The reason has to travel with the navigation: without it the dead-end
+    // screen blames a timeout for a pairing the user deliberately stopped.
     it('closes the channel before leaving for the cancel screen', async () => {
       const user = userEvent.setup();
       await renderReady();
@@ -199,8 +201,28 @@ describe('Pair2/Supplicant/ConnectThisDevice container', () => {
       await user.click(screen.getByRole('button', { name: 'Cancel' }));
 
       await waitFor(() => expect(integration.destroy).toHaveBeenCalled());
-      expect(mockNavigate).toHaveBeenCalledWith(
-        '/pair/supplicant/timeout_and_cancel'
+      expect(navigateWithQuery).toHaveBeenCalledWith(
+        '/pair/supplicant/timeout_and_cancel',
+        { state: { reason: 'canceled' } },
+        true
+      );
+    });
+
+    // The user asked to stop, so a channel that will not close cleanly cannot
+    // keep them on a screen that is waiting on a pairing they cancelled.
+    it('still leaves for the cancel screen when the channel cannot be closed', async () => {
+      const user = userEvent.setup();
+      const err = new Error('channel server unreachable');
+      integration.destroy.mockRejectedValue(err);
+      await renderReady();
+
+      await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+      await waitFor(() => expect(captureException).toHaveBeenCalledWith(err));
+      expect(navigateWithQuery).toHaveBeenCalledWith(
+        '/pair/supplicant/timeout_and_cancel',
+        { state: { reason: 'canceled' } },
+        true
       );
     });
   });

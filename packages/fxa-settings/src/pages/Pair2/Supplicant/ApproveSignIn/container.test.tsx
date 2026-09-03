@@ -118,7 +118,7 @@ describe('Pair2/Supplicant/ApproveSignIn container', () => {
       await waitFor(() => expect(integration.destroy).toHaveBeenCalled());
       expect(navigateWithQuery).toHaveBeenCalledWith(
         '/pair/supplicant/timeout_and_cancel',
-        {},
+        { state: { reason: 'canceled' } },
         true
       );
     });
@@ -135,7 +135,7 @@ describe('Pair2/Supplicant/ApproveSignIn container', () => {
       await waitFor(() => expect(captureException).toHaveBeenCalledWith(err));
       expect(navigateWithQuery).toHaveBeenCalledWith(
         '/pair/supplicant/timeout_and_cancel',
-        {},
+        { state: { reason: 'canceled' } },
         true
       );
     });
