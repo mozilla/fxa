@@ -1,8 +1,8 @@
 {
-  "commit": "8987c06a581a73f68965e5dacc999c1e56957fa4",
-  "summary": "fix(auth-server): Repair two auth-server specs left broken on main",
-  "description": "Because:\n* account.spec.ts still expected acceptLanguage \"en-US\" after en-US was\n  dropped from supported-languages.json, so negotiation resolves it to \"en\".\n* passkey_wraps.in.spec.ts imported VirtualAuthenticator from the package\n  barrel, which no longer exports it, so it was undefined at runtime.\n\nThis commit:\n* Updates the four acceptLanguage expectations to \"en\", matching the change\n  already made to email-helpers.spec.ts.\n* Imports VirtualAuthenticator from @fxa/accounts/passkey/testing, as\n  passkeys.in.spec.ts already does.",
-  "timestamp": 1788403948000,
+  "commit": "77e4f0cfaa7d36fdabd77429cfe208943b2970e6",
+  "summary": "refactor(settings): Route pairing hand-off to download_firefox page",
+  "description": "Because:\n* ContinueInFirefox duplicated the existing /pair/supplicant/download_firefox\n  page — the same card and copy under a second set of Fluent ids.\n* The hand-off rendered inline at /pair, so it had no URL of its own and no\n  view metrics.\n* Two auth-server specs were already failing on main, so this branch could not\n  go green without repairing them.\n\nThis commit:\n* Moves the deep-link hand-off onto Pair2/Supplicant/DownloadFirefox and\n  deletes components/ContinueInFirefox.\n* Navigates from /pair with the channel in router state, keeping the channel\n  key out of the URL, and falls back to the plain download CTA when no channel\n  arrives.\n* Rebuilds the plan in a new container, so autoAttempt is read from live\n  sessionStorage rather than frozen into a history entry.\n* Adds the cad_firefox.download_firefox_view Glean event.\n* Repairs two auth-server specs: a stale acceptLanguage expectation and a\n  VirtualAuthenticator import left pointing at the package barrel.\n\nCloses: FXA-14459",
+  "timestamp": 1788470810000,
   "storybooks": [
     "fxa-react",
     "fxa-settings"
