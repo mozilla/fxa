@@ -1,9 +1,10 @@
 {
-  "commit": "ff42731751a325e95e869e63d1924ab61dcf2fec",
-  "summary": "fix(settings): Drop the tag-stripping regex from the pairing card test",
-  "description": "Because:\n  - CodeQL reads `replace(/<\\/?[a-zA-Z]+>/g, '')` as an incomplete HTML\n    sanitizer and fails the PR on a high-severity alert.\n\nThis commit:\n  - Splits the Fluent message on the literal `<linkExternal>` tag instead,\n    asserting the sentence and the placeable separately.",
-  "timestamp": 1788316123000,
+  "commit": "b60f77bf95c5c50b1549e0e8d129b80820426954",
+  "summary": "Merge remote-tracking branch 'origin/FXA-14459' into FXA-14459",
+  "description": "# Conflicts:\n#\tpackages/fxa-settings/src/components/ContinueInFirefox/en.ftl\n#\tpackages/fxa-settings/src/components/ContinueInFirefox/index.stories.tsx\n#\tpackages/fxa-settings/src/components/ContinueInFirefox/index.test.tsx\n#\tpackages/fxa-settings/src/components/ContinueInFirefox/index.tsx\n#\tpackages/fxa-settings/src/pages/Pair/Index/index.test.tsx",
+  "timestamp": 1788401044000,
   "storybooks": [
+    "fxa-react",
     "fxa-settings"
   ],
   "deployDir": "deploy/"

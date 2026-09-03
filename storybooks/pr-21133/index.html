@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit ff42731751a325e95e869e63d1924ab61dcf2fec</title>
+  <title>Storybooks for commit b60f77bf95c5c50b1549e0e8d129b80820426954</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,23 +23,23 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit ff42731751a325e95e869e63d1924ab61dcf2fec</h1>
+  <h1>Storybooks for commit b60f77bf95c5c50b1549e0e8d129b80820426954</h1>
   <ul>
-    <li><a href="./fxa-settings/">fxa-settings</a></li>
+    <li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/2/2026, 2:28:43 AM UTC</dd>
+    <dd>9/3/2026, 2:04:04 AM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(settings): Drop the tag-stripping regex from the pairing card test</pre></dd>
+    <dd><pre>Merge remote-tracking branch &#039;origin/FXA-14459&#039; into FXA-14459</pre></dd>
     <dt>Description</dt>
-    <dd><pre>Because:
-  - CodeQL reads `replace(/&lt;\/?[a-zA-Z]+&gt;/g, &#039;&#039;)` as an incomplete HTML
-    sanitizer and fails the PR on a high-severity alert.
-
-This commit:
-  - Splits the Fluent message on the literal `&lt;linkExternal&gt;` tag instead,
-    asserting the sentence and the placeable separately.</pre></dd>
+    <dd><pre># Conflicts:
+#	packages/fxa-settings/src/components/ContinueInFirefox/en.ftl
+#	packages/fxa-settings/src/components/ContinueInFirefox/index.stories.tsx
+#	packages/fxa-settings/src/components/ContinueInFirefox/index.test.tsx
+#	packages/fxa-settings/src/components/ContinueInFirefox/index.tsx
+#	packages/fxa-settings/src/pages/Pair/Index/index.test.tsx</pre></dd>
   </dl>
 </body>
 </html>
