@@ -1,8 +1,8 @@
 {
-  "commit": "28947b1ff20b2a66363bef6c663061731acb1ccb",
-  "summary": "Merge pull request #21088 from mozilla/dependabot/github_actions/docker/setup-buildx-action-4.3.0",
-  "description": "chore(deps): bump docker/setup-buildx-action from 4.2.0 to 4.3.0",
-  "timestamp": 1788472146000,
+  "commit": "ec1914b5b1904df690308d7089e747cb4f3cb32f",
+  "summary": "Merge pull request #21141 from mozilla/fxa-14471",
+  "description": "fix(auth): import VirtualAuthenticator from passkey testing entry point",
+  "timestamp": 1788472620000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
