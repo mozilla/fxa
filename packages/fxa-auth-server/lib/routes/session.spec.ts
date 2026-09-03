@@ -1267,7 +1267,7 @@ describe('/session/resend_code', () => {
 
     const expectedCode = getExpectedOtpCode({}, signupCodeAccount.emailCode);
     const args = fxaMailer.sendVerifyShortCodeEmail.mock.calls[0][0];
-    expect(args.acceptLanguage).toBe('en-US');
+    expect(args.acceptLanguage).toBe('en');
     expect(args.code).toBe(expectedCode);
     expect(args.location.city).toBe('Mountain View');
     expect(args.location.country).toBe('United States');
