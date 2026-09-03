@@ -1,8 +1,8 @@
 {
-  "commit": "a83e11fc317f329710ade25f1f34250ebb316ad9",
-  "summary": "Merge pull request #21126 from mozilla/fxa-10214",
-  "description": "refactor(settings): replace MUI Slider with a native range input",
-  "timestamp": 1788453031000,
+  "commit": "d7dbd2e84528fab1c3e3cb5aec41d5db4a18ce64",
+  "summary": "Merge pull request #21063 from mozilla/fxa-13670",
+  "description": "fix(auth-server): run bulk-mailer test scripts without a shell",
+  "timestamp": 1788455512000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
