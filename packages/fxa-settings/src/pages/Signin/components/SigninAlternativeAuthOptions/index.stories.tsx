@@ -52,27 +52,29 @@ const Subject = ({
   finishOAuthFlowHandler = mockFinishOAuthFlowHandler,
   passkeyEnabled = false,
   ...props
-}: SubjectProps) => (
-  <MemoryRouter>
-    <AppContext.Provider
-      value={passkeyEnabled ? passkeyEnabledContext() : mockAppContext()}
-    >
-      <SigninAlternativeAuthOptions
-        {...{
-          integration,
-          email,
-          serviceName,
-          hasLinkedAccount,
-          hasPassword,
-          avatarData,
-          avatarLoading,
-          finishOAuthFlowHandler,
-          ...props,
-        }}
-      />
-    </AppContext.Provider>
-  </MemoryRouter>
-);
+}: SubjectProps) => {
+  const ctx = passkeyEnabled ? passkeyEnabledContext() : mockAppContext();
+
+  return (
+    <MemoryRouter>
+      <AppContext.Provider value={ctx}>
+        <SigninAlternativeAuthOptions
+          {...{
+            integration,
+            email,
+            serviceName,
+            hasLinkedAccount,
+            hasPassword,
+            avatarData,
+            avatarLoading,
+            finishOAuthFlowHandler,
+            ...props,
+          }}
+        />
+      </AppContext.Provider>
+    </MemoryRouter>
+  );
+};
 
 export default {
   title: 'Pages/Signin/SigninAlternativeAuthOptions',
@@ -113,12 +115,15 @@ export const WithErrorBanner = () => (
 );
 
 // Passkey enabled: third-party providers + passkey button stack together.
-export const WithPasskeyEnabled = () => <Subject passkeyEnabled={true} />;
+export const WithPasskeyEnabled = () => (
+  <Subject passkeyEnabled={true} hasPasskey={true} />
+);
 
 // Passkey + Sync: ceremony routes to /signin_passkey_fallback for the password gate.
 export const WithPasskeyEnabledSync = () => (
   <Subject
     passkeyEnabled={true}
+    hasPasskey={true}
     serviceName={MozServices.FirefoxSync}
     integration={createMockSigninOAuthNativeSyncIntegration()}
   />
@@ -128,6 +133,7 @@ export const WithPasskeyEnabledSync = () => (
 export const WithPasskeyEnabledAndErrorBanner = () => (
   <Subject
     passkeyEnabled={true}
+    hasPasskey={true}
     localizedErrorFromLocationState="Your sign-in session has expired."
   />
 );

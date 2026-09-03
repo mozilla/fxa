@@ -36,6 +36,7 @@ export const WithPasskeySignIn = () => (
   </AppLayout>
 );
 
+// During an in-flight ceremony the page also disables the other options.
 export const WithPasskeySignInLoading = () => (
   <AppLayout>
     <Subject
@@ -44,6 +45,7 @@ export const WithPasskeySignInLoading = () => (
         onClick: action('passkey-sign-in-clicked'),
         isLoading: true,
       }}
+      disabled
     />
   </AppLayout>
 );
