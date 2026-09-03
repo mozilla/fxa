@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit b60f77bf95c5c50b1549e0e8d129b80820426954</title>
+  <title>Storybooks for commit 4c5efda4335bd478c1e8ccb36b50e3600fbde0a2</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,23 +23,35 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit b60f77bf95c5c50b1549e0e8d129b80820426954</h1>
+  <h1>Storybooks for commit 4c5efda4335bd478c1e8ccb36b50e3600fbde0a2</h1>
   <ul>
     <li><a href="./fxa-react/">fxa-react</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/3/2026, 2:04:04 AM UTC</dd>
+    <dd>9/3/2026, 2:10:55 AM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>Merge remote-tracking branch &#039;origin/FXA-14459&#039; into FXA-14459</pre></dd>
+    <dd><pre>refactor(settings): Route pairing hand-off to download_firefox page</pre></dd>
     <dt>Description</dt>
-    <dd><pre># Conflicts:
-#	packages/fxa-settings/src/components/ContinueInFirefox/en.ftl
-#	packages/fxa-settings/src/components/ContinueInFirefox/index.stories.tsx
-#	packages/fxa-settings/src/components/ContinueInFirefox/index.test.tsx
-#	packages/fxa-settings/src/components/ContinueInFirefox/index.tsx
-#	packages/fxa-settings/src/pages/Pair/Index/index.test.tsx</pre></dd>
+    <dd><pre>Because:
+* ContinueInFirefox duplicated the existing /pair/supplicant/download_firefox
+  page — the same card and copy under a second set of Fluent ids.
+* The hand-off rendered inline at /pair, so it had no URL of its own and no
+  view metrics.
+
+This commit:
+* Moves the deep-link hand-off onto Pair2/Supplicant/DownloadFirefox and
+  deletes components/ContinueInFirefox.
+* Navigates from /pair with the channel in router state, keeping the channel
+  key out of the URL.
+* Rebuilds the plan in a new container, so autoAttempt is read from live
+  sessionStorage rather than frozen into a history entry.
+* Falls back to the plain download CTA when no channel arrives, so a direct
+  hit degrades instead of erroring.
+* Adds the cad_firefox.download_firefox_view Glean event.
+
+Closes: FXA-14459</pre></dd>
   </dl>
 </body>
 </html>
