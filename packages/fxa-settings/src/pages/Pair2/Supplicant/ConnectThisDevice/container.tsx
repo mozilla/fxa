@@ -12,7 +12,7 @@ import {
   SupplicantState,
 } from '../../../../models';
 import config from '../../../../lib/config';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import AppLayout from '../../../../components/AppLayout';
 import ConnectThisDevice from '.';
 import { navigateWithQuery } from '../../../../lib/utilities';
 
@@ -112,7 +112,9 @@ export const ConnectThisDeviceContainer = ({
   };
 
   if (!ready || !remoteMetadata) {
-    return <LoadingSpinner />
+    // Rendered through AppLayout rather than a bare spinner so the wait for the
+    // channel keeps the page chrome and centering of the card that follows it.
+    return <AppLayout loading />
   }
 
   return <ConnectThisDevice {...{remoteMetadata, email, onCancel, onConnect }} />
