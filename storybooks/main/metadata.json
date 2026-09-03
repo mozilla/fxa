@@ -1,8 +1,8 @@
 {
-  "commit": "c162c57e8063a95edad84efb546d74d4fdfb4356",
-  "summary": "Merge pull request #21125 from mozilla/fxa-pair-ios",
-  "description": "feat(pairing): configurable iOS scheme and v2 iOS E2E coverage",
-  "timestamp": 1788452530000,
+  "commit": "4ed9773c106b00c6f381858843049587a38bca31",
+  "summary": "Merge pull request #21104 from mozilla/fxa-14395",
+  "description": "fix(auth-server): report the real Joi error for response validation",
+  "timestamp": 1788452830000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
