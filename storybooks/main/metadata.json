@@ -1,8 +1,8 @@
 {
-  "commit": "a7ee89dc350705f3d8a5812c657ac679d13d4401",
-  "summary": "Merge pull request #21132 from mozilla/FXA-14452",
-  "description": "fix(settings): show canceled screen when mobile cancels pairing",
-  "timestamp": 1788470618000,
+  "commit": "0b74b5c3d502790f889223745ae142a8c0353ec0",
+  "summary": "Merge pull request #21134 from mozilla/FXA-14457",
+  "description": "fix(pair): center the loading spinner on the supplicant connect screen",
+  "timestamp": 1788470716000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
