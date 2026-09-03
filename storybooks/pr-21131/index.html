@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 55db20630622225c5b9e7abd7a026471f990d4a5</title>
+  <title>Storybooks for commit 17e1bd35273142fbe9925659c6966d30b4e1e342</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 55db20630622225c5b9e7abd7a026471f990d4a5</h1>
+  <h1>Storybooks for commit 17e1bd35273142fbe9925659c6966d30b4e1e342</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,21 +31,9 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/2/2026, 8:37:01 PM UTC</dd>
+    <dd>9/3/2026, 1:09:02 AM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(functional-tests): key the TOTP code fill to a page-unique input</pre></dd>
-    <dt>Description</dt>
-    <dd><pre>Because:
-- After a code page navigates to the TOTP page the outgoing view can stay
-  committed briefly, and both inputs share the &quot;Enter 6-digit code&quot; label,
-  so the fill landed on the outgoing page&#039;s input.
-- The re-fill loop never retried: its inner assertion&#039;s timeout consumed
-  the entire toPass budget.
-
-This commit:
-- Gives the TOTP page&#039;s input a totp- testid prefix, guarded in unit tests.
-- Points the TOTP page object at that testid.
-- Replaces the retry loop with a plain fill that waits for the unique input.</pre></dd>
+    <dd><pre>fixup! fix(settings): re-enable StrictMode and fix the effects it surfaced</pre></dd>
   </dl>
 </body>
 </html>
