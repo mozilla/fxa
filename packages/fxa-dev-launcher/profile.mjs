@@ -1,13 +1,43 @@
 import chalk from 'chalk';
 
+// Origins for the `local` env. They default to localhost, so the usual dev flow is
+// unchanged. Override them to point at a stack reached on another host, such as a
+// Tailscale address, which is what pairing with a real phone needs: the authority must
+// mint pair URLs on the same origin the phone is configured against.
+const LOCAL_HOST = process.env.FXA_LOCAL_HOST ?? 'localhost';
+const CONTENT_ORIGIN =
+  process.env.FXA_CONTENT_ORIGIN ?? `http://${LOCAL_HOST}:3030`;
+const AUTH_ORIGIN = process.env.FXA_AUTH_ORIGIN ?? `http://${LOCAL_HOST}:9000`;
+const PROFILE_ORIGIN =
+  process.env.FXA_PROFILE_ORIGIN ?? `http://${LOCAL_HOST}:1111`;
+
+// Firefox refuses the FxA WebChannel on a non-secure context, and only localhost is
+// trustworthy by default. A stack reached on another host over http needs its hostname
+// marked, or sign-in and pairing fail with no visible cause.
+const secureContextHost = (() => {
+  try {
+    const { hostname, protocol } = new URL(CONTENT_ORIGIN);
+    if (
+      protocol === 'https:' ||
+      hostname === 'localhost' ||
+      hostname === '127.0.0.1'
+    ) {
+      return undefined;
+    }
+    return hostname;
+  } catch {
+    return undefined;
+  }
+})();
+
 const CONFIGS = {
   local: {
-    auth: 'http://localhost:9000/v1',
-    content: 'http://localhost:3030/',
-    token: 'http://localhost:8000/1.0/sync/1.5',
-    loop: 'http://localhost:10222',
-    oauth: 'http://localhost:9000/v1',
-    profile: 'http://localhost:1111/v1',
+    auth: `${AUTH_ORIGIN}/v1`,
+    content: `${CONTENT_ORIGIN}/`,
+    token: `http://${LOCAL_HOST}:8000/1.0/sync/1.5`,
+    loop: `http://${LOCAL_HOST}:10222`,
+    oauth: `${AUTH_ORIGIN}/v1`,
+    profile: `${PROFILE_ORIGIN}/v1`,
   },
   latest: {
     auth: 'https://latest.dev.lcip.org/auth/v1',
@@ -99,6 +129,9 @@ const fxaProfile = {
   'services.sync.log.appender.dump': 'Debug',
   'identity.fxaccounts.auth.uri': fxaEnv.auth,
   'identity.fxaccounts.allowHttp': true,
+  ...(secureContextHost
+    ? { 'dom.securecontext.allowlist': secureContextHost }
+    : {}),
   'identity.fxaccounts.remote.root': fxaEnv.content,
   'identity.fxaccounts.remote.force_auth.uri':
     fxaEnv.content + 'force_auth?service=sync&context=' + FXA_DESKTOP_CONTEXT,
@@ -132,6 +165,16 @@ const fxaProfile = {
   'identity.fxaccounts.oauth.enabled':
     FXA_DESKTOP_CONTEXT === 'oauth_webchannel_v1',
 };
+
+// Opt in to the pairing v2 flow. Both the browser and the server have to advertise
+// version 2 before /pair takes the v2 route, so this pairs with PAIRING_VERSION=2 on
+// the stack. Left unset by default so existing dev flows keep v1. The v2 chrome
+// commands ship in Nightly, so point FIREFOX_BIN at a Nightly build.
+if (process.env.FXA_PAIRING_VERSION) {
+  fxaProfile['identity.fxaccounts.pairing.version'] = Number(
+    process.env.FXA_PAIRING_VERSION
+  );
+}
 
 // Configuration for local sync development
 

@@ -96,6 +96,9 @@ const watch = () =>
 // Emulator cold start + UI nav + channel handshake + OAuth round trip.
 test.setTimeout(300_000);
 
+// Local only: both halves run on this machine, against the stack under test.
+test.skip(({ target }) => target.name !== 'local');
+
 test.describe.serial('v2 Android pairing flow', () => {
   test.describe.configure({ retries: 0 });
 

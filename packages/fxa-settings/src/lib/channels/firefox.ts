@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Constants } from "../constants";
+import { Constants } from '../constants';
 
 export enum FirefoxCommand {
   AccountDeleted = 'fxaccounts:delete',
@@ -108,16 +108,16 @@ export type SignedInUser = {
 };
 
 export type PairOAuthStartState = {
-  state:string,
-  scope:string,
-  code_challenge: string,
-  code_challenge_method: string,
-  keys_jwk:string
-}
+  state: string;
+  scope: string;
+  code_challenge: string;
+  code_challenge_method: string;
+  keys_jwk: string;
+};
 export type PairOAuthFinishState = {
-  state:string,
-  code:string
-}
+  state: string;
+  code: string;
+};
 
 export type FxALoginRequest = {
   email: string;
@@ -244,7 +244,11 @@ export function buildSyncOAuthSearch(
 // timeout tuned for device latency
 // max timeout of 100-200 ms would be optimal for an ultra-snappy UX, but could cause false negatives on mobile
 // compromising with 500ms for safer mobile support without being noticeably long if it times out
-const DEFAULT_SEND_TIMEOUT_LENGTH_MS = 500;
+export const DEFAULT_SEND_TIMEOUT_LENGTH_MS = 500;
+
+// Both halves of the handshake make a web call, and a cold start fetches the FxA client and
+// OpenID configuration first, which does not fit the default.
+export const PAIR_OAUTH_TIMEOUT_MS = 10_000;
 
 // Firefox for Android binds its web channel handler per tab, so the first
 // fxa_status message is routinely dropped. Retrying a handful of times recovers
@@ -654,15 +658,14 @@ export class Firefox extends EventTarget {
   }
 
   /** Requests that a pairing oauth operation begin. This is the first half of pairing dance. */
-  async pairOauthStart(msg:{
-    scopes?: string[]
-  }):Promise<PairOAuthStartState|undefined> {
-
+  async pairOauthStart(msg: {
+    scopes?: string[];
+  }): Promise<PairOAuthStartState | undefined> {
     // Default sync scopes
     if (msg.scopes == null) {
       msg.scopes = [
         Constants.OAUTH_OLDSYNC_SCOPE,
-        Constants.OAUTH_TRUSTED_PROFILE_SCOPE
+        Constants.OAUTH_TRUSTED_PROFILE_SCOPE,
       ];
     }
 
@@ -671,57 +674,71 @@ export class Firefox extends EventTarget {
       msg,
       (event) => {
         if (event?.detail?.state == null) {
-          throw new Error(`${FirefoxCommand.PairOauthStart} missing state from event.details`);
+          throw new Error(
+            `${FirefoxCommand.PairOauthStart} missing state from event.details`
+          );
         }
         if (event?.detail?.scope == null) {
-          throw new Error(`${FirefoxCommand.PairOauthStart} missing scope from event.details`);
+          throw new Error(
+            `${FirefoxCommand.PairOauthStart} missing scope from event.details`
+          );
         }
         if (event?.detail?.code_challenge == null) {
-          throw new Error(`${FirefoxCommand.PairOauthStart} missing code_challenge from event.details`);
+          throw new Error(
+            `${FirefoxCommand.PairOauthStart} missing code_challenge from event.details`
+          );
         }
         if (event?.detail?.code_challenge_method == null) {
-          throw new Error(`${FirefoxCommand.PairOauthStart} missing code_challenge_method from event.details`);
+          throw new Error(
+            `${FirefoxCommand.PairOauthStart} missing code_challenge_method from event.details`
+          );
         }
         if (event?.detail?.keys_jwk == null) {
-          throw new Error(`${FirefoxCommand.PairOauthStart} missing keys_jwk from event.details`);
+          throw new Error(
+            `${FirefoxCommand.PairOauthStart} missing keys_jwk from event.details`
+          );
         }
         return event.detail as PairOAuthStartState;
-      }
-    )
+      },
+      PAIR_OAUTH_TIMEOUT_MS
+    );
   }
 
   /** Requests that a pairing oauth operation be finished. This is the second half of pairing dance. */
-  async pairOauthFinish(msg:{
-    client_id:string,
-    state:string,
-    scope:string,
-    code_challenge:string,
-    code_challenge_method:string,
+  async pairOauthFinish(msg: {
+    client_id: string;
+    state: string;
+    scope: string;
+    code_challenge: string;
+    code_challenge_method: string;
     /**
      * The supplicant's ephemeral public JWK. Firefox only wraps scoped keys into
      * `keys_jwe` when this is present, so omitting it yields a code that grants
      * the sync scope with no sync key behind it.
      */
-    keys_jwk:string,
-  }):Promise<PairOAuthFinishState|undefined> {
+    keys_jwk: string;
+  }): Promise<PairOAuthFinishState | undefined> {
     return this._executeCommandWithResponse<PairOAuthFinishState>(
       FirefoxCommand.PairOauthFinish,
       msg,
       (event) => {
         if (event?.detail?.code == null) {
-          throw new Error(`${FirefoxCommand.PairOauthFinish} missing code from event.details`);
+          throw new Error(
+            `${FirefoxCommand.PairOauthFinish} missing code from event.details`
+          );
         }
         if (event?.detail?.state == null) {
-          throw new Error(`${FirefoxCommand.PairOauthFinish} missing state from event.details`);
+          throw new Error(
+            `${FirefoxCommand.PairOauthFinish} missing state from event.details`
+          );
         }
         if (event.detail.state !== msg.state) {
           throw new Error(`${FirefoxCommand.PairOauthFinish} invalid state!`);
-
         }
-        return event.detail as PairOAuthFinishState
+        return event.detail as PairOAuthFinishState;
       },
-      10_000 // The final handshake makes a web call. Give it some leeway.
-    )
+      PAIR_OAUTH_TIMEOUT_MS
+    );
   }
 
   /**
@@ -734,11 +751,11 @@ export class Firefox extends EventTarget {
   private async _executeCommandWithResponse<TResp>(
     cmd: FirefoxCommand,
     msg: any,
-    handleResp:(event:any) => TResp,
+    handleResp: (event: any) => TResp,
     timeout = DEFAULT_SEND_TIMEOUT_LENGTH_MS
   ) {
     let timeoutId: number;
-    let onResp:EventListenerOrEventListenerObject;
+    let onResp: EventListenerOrEventListenerObject;
     return Promise.race<undefined | TResp>([
       new Promise<undefined | TResp>((resolve, reject) => {
         onResp = (event: any) => {
@@ -755,13 +772,13 @@ export class Firefox extends EventTarget {
           // The handler might throw an error and fail fast if the data looks wrong. Handle error
           // and reject if this happens.
           try {
-            const resp = handleResp(event)
+            const resp = handleResp(event);
 
             resolve(resp);
           } catch (err) {
             reject(err);
           }
-        }
+        };
         this.addEventListener(cmd, onResp);
         requestAnimationFrame(() => {
           console.log(`[[Firefox WebChannel] ${cmd} sent msg`, msg);
@@ -775,16 +792,13 @@ export class Firefox extends EventTarget {
             `[Firefox WebChannel] ${cmd} timed out or unavailable in this browser`
           );
           if (onResp) {
-            this.removeEventListener(cmd, onResp)
+            this.removeEventListener(cmd, onResp);
           }
           resolve(undefined);
         }, timeout);
       }),
     ]);
   }
-
-
-
 
   /*
    * Sends an fxa_status and returns the signed in user if available.

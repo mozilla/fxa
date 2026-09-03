@@ -14,9 +14,13 @@ mobile app or a Playwright page as the supplicant.
 
 - `pairingFlowAndroid.spec.ts` + `lib/android-supplicant.ts` (adb-driven Fenix).
 - `pairingFlowiOS.spec.ts` (Simulator + XCUITest-driven Firefox iOS).
+- `pairingFlowV2Android.spec.ts` (v2, adb-driven Fenix).
+- `pairingFlowV2iOS.spec.ts` + `lib/ios-supplicant.ts` (v2, Simulator + XCUITest).
 
-Both are gated behind env flags (`ANDROID_PAIRING_ENABLED` /
-`IOS_PAIRING_ENABLED`) and skip by default, including in CI. The web-only specs
+All are gated behind env flags (`ANDROID_PAIRING_ENABLED`,
+`IOS_PAIRING_ENABLED`, `ANDROID_PAIRING_V2_ENABLED`, `IOS_PAIRING_V2_ENABLED`)
+and skip by default, including in CI. The two v2 specs additionally skip on any
+target but `local`, since both halves run on this machine. The web-only specs
 (`pairingFlow.spec.ts`, `pairChoice.spec.ts`, the Backbone/negative variants)
 need no mobile device and are unaffected.
 
@@ -71,6 +75,32 @@ IOS_PAIRING_ENABLED=1 \
   npx playwright test pairingFlowiOS.spec.ts --project=local
 ```
 
+iOS v2 (needs the stack started with `PAIRING_VERSION=2` and
+`PAIRING_IOS_URL_SCHEME=fennec`):
+
+```bash
+cd packages/functional-tests
+IOS_PAIRING_V2_ENABLED=1 \
+  FIREFOX_IOS_PROJECT_DIR=<firefox-ios checkout> \
+  IOS_DESTINATION='platform=iOS Simulator,name=iPhone 16,OS=18.0' \
+  npx playwright test pairingFlowV2iOS.spec.ts --project=local
+```
+
+The spec runs the whole flow twice, once per delivery, so `-g` picks one:
+
+```bash
+npx playwright test pairingFlowV2iOS.spec.ts -g 'from a deep link'   # test builds the link
+npx playwright test pairingFlowV2iOS.spec.ts -g "page's own"         # page supplies the link
+```
+
+`PAIRING_IOS_URL_SCHEME` only matters to the hand-off delivery, whose link the
+`/pair` page builds from the served `pairing.iosUrlScheme`. It has to name this
+build (`fennec`) or the link points at an install that is not there. The
+deep-link delivery builds its own URL in `IOSSupplicant` and ignores the config.
+
+`IOS_DESTINATION` is optional; without it `IOSSupplicant` targets whichever
+Simulator is booted. `IOS_SIMULATOR_UDID` picks one when several are.
+
 Extra flags: `ANDROID_PAIRING_DEBUG=1` / `PAIRING_DEBUG=1` (verbose logs),
 `ANDROID_SERIAL` (target one of several attached devices).
 
@@ -122,6 +152,35 @@ The run reports `1 passed`. With `ANDROID_PAIRING_DEBUG=1` the account device
 list shows the paired mobile device as `type=mobile, commands=2`, i.e. it
 registered on the account. The authority reaching `/pair/auth/complete` (not
 `/pair/failure`) is the authoritative signal both sides completed the handshake.
+
+## How the iOS v2 driver works (and its gotchas)
+
+`IOSSupplicant` (`lib/ios-supplicant.ts`) is deliberately thinner than its Android
+counterpart. adb ships uiautomator, so `AndroidSupplicant` can read the screen and tap from
+outside the app. `simctl` has no equivalent, so on iOS the taps and the in-webview assertions
+live in `XCUITests/PairingTests/testPairingV2`, and the driver only handles the build
+check, the app lifecycle, URL delivery, and diagnostics.
+
+- **The QR is never scanned; the URL is delivered with `simctl openurl`,** because a
+  Simulator has no camera. Both deliveries use `fennec://open-url?url=...`, which goes
+  through the real `RouteBuilder` -> `FxAPairingURLParser` -> `.fxaPairing` path a scanned v2
+  QR takes. They differ only in who built the link: the test, or the `/pair` page.
+- **The hand-off delivery reads the link off the rendered page,** in an iOS-emulated browser
+  context. That covers what a constructed URL cannot: that the card renders for a non-Firefox
+  browser, and that the link names the configured `PAIRING_IOS_URL_SCHEME`.
+- **Neither delivery taps the CTA, and a Simulator cannot.** Safari there refuses to open a
+  third-party scheme, answering "the address is invalid" even though the identical URL opens
+  fine through `simctl`, the app is installed, and it registers the scheme. Verified against
+  the app: `RouteBuilder` matches host `open-url` and `FxAPairingURLParser` accepts the link,
+  so the failure is upstream of the app. The tap is only testable on a real device.
+- **`CUSTOM_FXA_SERVER` still reaches the app through the xctestrun plist,** because XCUITest
+  runs sandboxed and does not inherit host env. `UITestAppDelegate` reads it and sets the FxA
+  content-server prefs before the account manager initializes.
+- **The supplicant-side failure shows up in the xcodebuild log,** not in a Playwright
+  assertion. The spec attaches it on failure.
+- **No webchannel-localhost patch is needed.** `FxAWebViewModel` compares each message's
+  frame origin against the loaded page's scheme, host and port, and that page comes from the
+  configured content server, so pointing the app at the local stack is enough.
 
 ## How the Android driver works (and its gotchas)
 

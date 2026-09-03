@@ -785,6 +785,12 @@ const conf = (module.exports = convict({
       env: 'PAIRING_BROWSER_BUILD',
       format: ['firefox', 'fenix'],
     },
+    ios_url_scheme: {
+      default: 'firefox',
+      doc: 'URL scheme the iOS pairing deep link opens. Every Firefox iOS flavour registers "firefox", so name a build-specific scheme to reach a local build when a release install is also present.',
+      env: 'PAIRING_IOS_URL_SCHEME',
+      format: ['firefox', 'fennec', 'firefox-beta', 'firefox-internal'],
+    },
     clients: {
       default: [
         '3c49430b43dfba77', // Reference browser

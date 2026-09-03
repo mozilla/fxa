@@ -97,6 +97,8 @@ export interface Config {
   };
   pairing: {
     browserBuild: 'firefox' | 'fenix';
+    /** iOS URL scheme the pairing hand-off opens. See `pairing.ios_url_scheme`. */
+    iosUrlScheme: string;
     clients: string[];
     serverBaseUri: string;
     version: number;
@@ -223,6 +225,7 @@ export function getDefault() {
     },
     pairing: {
       browserBuild: 'firefox',
+      iosUrlScheme: 'firefox',
       clients: [],
       serverBaseUri: 'wss://channelserver.services.mozilla.com',
       version: 1,
