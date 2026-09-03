@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 0ed210348fa1f825d765fbe6bc9709ab372c6e15</title>
+  <title>Storybooks for commit 3fa3adbd4e403720f68e43019c2f8af85cea445f</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 0ed210348fa1f825d765fbe6bc9709ab372c6e15</h1>
+  <h1>Storybooks for commit 3fa3adbd4e403720f68e43019c2f8af85cea445f</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,16 +31,18 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/3/2026, 5:16:02 PM UTC</dd>
+    <dd>9/3/2026, 7:19:39 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>chore(deps): upgrade react and react-dom to 19.2.8</pre></dd>
+    <dd><pre>fix(settings): record the signin view once fxa_status settles</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-- The 19.0.8 pin was a workaround for passkey and 2FA functional failures
-  that no longer reproduce once the mount effects are idempotent.
+- supportsKeysOptionalLogin stays false until the browser answers fxa_status,
+  so the view event fired again when the reply flipped it.
+- The first event reported third-party links as hidden on a page that goes
+  on to show them.
 
 This commit:
-- Bumps react and react-dom from 19.0.8 to 19.2.8.</pre></dd>
+- Holds the signin view event until the fxa_status reply settles.</pre></dd>
   </dl>
 </body>
 </html>
