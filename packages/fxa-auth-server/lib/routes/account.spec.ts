@@ -1120,7 +1120,7 @@ describe('/account/create', () => {
       args = mockFxaMailer.sendVerifyEmail.mock.calls[0];
       expect(args[0].location.city).toBe('Mountain View');
       expect(args[0].location.country).toBe('United States');
-      expect(args[0].acceptLanguage).toBe('en-US');
+      expect(args[0].acceptLanguage).toBe('en');
       expect(args[0].timeZone).toBe('America/Los_Angeles');
       expect(args[0].device.uaBrowser).toBe('Firefox Mobile');
       expect(args[0].device.uaOS).toBe('iOS');
@@ -2484,7 +2484,7 @@ describe('/account/login', () => {
 
       expect(mockFxaMailer.sendVerifyLoginEmail).toHaveBeenCalledTimes(1);
       args = mockFxaMailer.sendVerifyLoginEmail.mock.calls[0];
-      expect(args[0].acceptLanguage).toBe('en-US');
+      expect(args[0].acceptLanguage).toBe('en');
       expect(args[0].location.city).toBe('Mountain View');
       expect(args[0].location.country).toBe('United States');
       expect(args[0].timeZone).toBe('America/Los_Angeles');
@@ -2599,7 +2599,7 @@ describe('/account/login', () => {
 
         expect(mockFxaMailer.sendVerifyLoginEmail).toHaveBeenCalledTimes(1);
         const args = mockFxaMailer.sendVerifyLoginEmail.mock.calls[0][0];
-        expect(args.acceptLanguage).toBe('en-US');
+        expect(args.acceptLanguage).toBe('en');
         expect(args.location.city).toBe('Mountain View');
         expect(args.location.country).toBe('United States');
         expect(args.timeZone).toBe('America/Los_Angeles');
@@ -2969,7 +2969,7 @@ describe('/account/login', () => {
           expect(mockFxaMailer.sendVerifyLoginEmail).toHaveBeenCalledTimes(1);
           const sendVerifyLoginEmailArgs =
             mockFxaMailer.sendVerifyLoginEmail.mock.calls[0][0];
-          expect(sendVerifyLoginEmailArgs.acceptLanguage).toBe('en-US');
+          expect(sendVerifyLoginEmailArgs.acceptLanguage).toBe('en');
           expect(sendVerifyLoginEmailArgs.location.city).toBe('Mountain View');
           expect(sendVerifyLoginEmailArgs.location.country).toBe(
             'United States'
