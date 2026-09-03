@@ -22,9 +22,6 @@ const { resolveClientTags } = require('./metrics/client-tags');
 const { swaggerOptions } = require('../docs/swagger/swagger-options');
 const { Account } = require('fxa-shared/db/models/auth');
 const { determineLocale } = require('../../../libs/shared/l10n/src');
-const {
-  reportValidationError,
-} = require('fxa-shared/sentry/report-validation-error');
 const { logErrorWithGlean } = require('./metrics/glean');
 const { retryAfterHeaderValue } = require('@fxa/accounts/errors');
 const mfa = require('./routes/auth-schemes/mfa');
@@ -48,9 +45,76 @@ function trimLocale(header) {
   return str.trim();
 }
 
+// Only Joi's `string.pattern.*` messages embed the failing value, which in a
+// response payload is user data. They render it quoted, so redact that form
+// rather than every occurrence, which would shred a message on a short value.
+function redactValue(message, value) {
+  if (typeof value !== 'string' || value === '') {
+    return message;
+  }
+  return message.replaceAll(`"${value}"`, '"<redacted>"');
+}
+
+// Joi collapses a nested `alternatives()` failure into a single
+// `alternatives.match` and hides the real cause under `context.details`. Walk
+// down to the leaves so the failing field and its constraint survive.
+function flattenValidationDetails(details) {
+  const leaves = new Map();
+  const walk = (list) => {
+    for (const detail of list || []) {
+      const nested = detail.context?.details;
+      if (nested?.length) {
+        walk(nested);
+        continue;
+      }
+      // Array indexes are data, not schema. Collapse them so the same failure
+      // at items 0 and 3 groups as one Sentry issue instead of two.
+      const path = (detail.path || [])
+        .map((segment) => (typeof segment === 'number' ? '*' : segment))
+        .join('.');
+      // Path and type alone collide: an alternatives() of two string patterns
+      // reports `string.pattern.base` twice on the same path. The pattern is
+      // schema, not response data, so it is safe to report and stable.
+      const constraint = detail.context?.regex?.source ?? '';
+      leaves.set(`${path}:${detail.type}:${constraint}`, {
+        path,
+        type: detail.type,
+        constraint,
+        message: redactValue(detail.message, detail.context?.value),
+      });
+    }
+  };
+  walk(details);
+  // Plain codepoint order, not localeCompare: two hosts on different ICU
+  // collations must not fingerprint the same failure two ways.
+  return [...leaves.entries()]
+    .sort(([a], [b]) => (a < b ? -1 : 1))
+    .map(([, leaf]) => leaf);
+}
+
 function logValidationError(response, log) {
   log.error('server.ValidationError', response);
-  reportValidationError(response.stack, response);
+
+  const details = flattenValidationDetails(response.details);
+  const summary = details
+    .map((d) => `${d.path || '<root>'} (${d.type})`)
+    .join(', ');
+  const message = details.length
+    ? `Response validation failed: ${summary}`
+    : 'Response validation failed';
+
+  Sentry.withScope((scope) => {
+    scope.setContext('validationError', { details });
+    if (details.length) {
+      // Group on the field and the constraint, not on the collapsed top-level
+      // message, which is identical for every alternatives() mismatch.
+      scope.setFingerprint([
+        'response-validation',
+        ...details.map((d) => `${d.path}:${d.type}:${d.constraint}`),
+      ]);
+    }
+    Sentry.captureMessage(message, 'error');
+  });
 }
 
 function logEndpointErrors(response, log) {

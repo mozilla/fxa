@@ -4,11 +4,18 @@
 
 import { Account } from 'fxa-shared/db/models/auth/account';
 import { createMock } from '@golevelup/ts-jest';
+import Joi from 'joi';
 import { AuthLogger } from './types';
 
-const mockReportValidationError = jest.fn();
-jest.mock('fxa-shared/sentry/report-validation-error', () => ({
-  reportValidationError: mockReportValidationError,
+const mockScope = {
+  setContext: jest.fn(),
+  setFingerprint: jest.fn(),
+};
+const mockCaptureMessage = jest.fn();
+jest.mock('@sentry/node', () => ({
+  ...jest.requireActual('@sentry/node'),
+  withScope: jest.fn((cb: (scope: unknown) => void) => cb(mockScope)),
+  captureMessage: mockCaptureMessage,
 }));
 
 const EndpointError = require('poolee/lib/error')(require('util').inherits);
@@ -16,6 +23,7 @@ const { AppError: error } = require('@fxa/accounts/errors');
 const knownIpLocation = require('../test/known-ip-location');
 const mocks = require('../test/mocks');
 const server = require('./server');
+const oauthValidators = require('./oauth/validators');
 
 const glean = mocks.mockGlean();
 const customs = mocks.mockCustoms();
@@ -71,38 +79,123 @@ describe('lib/server', () => {
   });
 
   describe('logValidationError', () => {
-    const msg = 'Invalid response payload';
-    const response = {
-      __proto__: {
-        name: 'ValidationError',
-      },
-      message: msg,
-      stack: 'ValidationError: "[0].plan_id" is required',
-    };
+    // 64 characters clears the token branch's length check, so both branches
+    // reach their pattern and report `string.pattern.base` on the same path.
+    const LEAKY_TOKEN = 'leaky-token-user@example.com'.padEnd(64, 'z');
+    const LEAKY_EMAIL = 'leaky@example.com';
+    const HEX_PATTERN = '^(?:[0-9a-f]{2})+$';
+    const JWT_PATTERN =
+      '^([a-zA-Z0-9\\-_]+)\\.([a-zA-Z0-9\\-_]+)\\.([a-zA-Z0-9\\-_]+)$';
+    const mockLog = { error: jest.fn() };
 
-    afterEach(() => {
-      mockReportValidationError.mockClear();
-    });
+    // Mirrors the shape that produced FXA-AUTH-2ST: an outer alternatives()
+    // whose accessToken is itself an alternatives(), so Joi collapses the real
+    // cause twice and the top level reports only `alternatives.match`. The
+    // accessToken validator is the production one, so the patterns are real.
+    const validate = (payload: any) =>
+      Joi.alternatives(
+        Joi.object({
+          accessToken: oauthValidators.accessToken,
+          email: Joi.string().email(),
+        }),
+        Joi.object({ code: Joi.string() })
+      ).validate(payload).error;
+
+    const tokenFailure = () =>
+      validate({ accessToken: LEAKY_TOKEN, email: LEAKY_EMAIL });
 
     it('logs a validation error', () => {
-      const mockLog = {
-        error: (op: string, err: any) => {
-          expect(op).toBe('server.ValidationError');
-          expect(err.message).toBe(msg);
-        },
-      };
+      const response = tokenFailure();
       server._logValidationError(response, mockLog);
+      expect(mockLog.error).toHaveBeenCalledWith(
+        'server.ValidationError',
+        response
+      );
     });
 
-    it('reports a validation error to Sentry', () => {
-      const mockLog = {
-        error: () => {},
-      };
+    it('reports the failing field and constraint to Sentry', () => {
+      server._logValidationError(tokenFailure(), mockLog);
+      expect(mockScope.setContext).toHaveBeenCalledWith('validationError', {
+        details: [
+          {
+            path: 'accessToken',
+            type: 'object.unknown',
+            constraint: '',
+            message: '"accessToken" is not allowed',
+          },
+          {
+            path: 'accessToken',
+            type: 'string.pattern.base',
+            constraint: HEX_PATTERN,
+            message: `"accessToken" with value "<redacted>" fails to match the required pattern: /${HEX_PATTERN}/`,
+          },
+          {
+            path: 'accessToken',
+            type: 'string.pattern.base',
+            constraint: JWT_PATTERN,
+            message: `"accessToken" with value "<redacted>" fails to match the required pattern: /${JWT_PATTERN}/`,
+          },
+        ],
+      });
+      expect(mockCaptureMessage).toHaveBeenCalledWith(
+        'Response validation failed: accessToken (object.unknown), accessToken (string.pattern.base), accessToken (string.pattern.base)',
+        'error'
+      );
+    });
+
+    it('fingerprints on the flattened path, type and constraint', () => {
+      server._logValidationError(tokenFailure(), mockLog);
+      expect(mockScope.setFingerprint).toHaveBeenCalledWith([
+        'response-validation',
+        'accessToken:object.unknown:',
+        `accessToken:string.pattern.base:${HEX_PATTERN}`,
+        `accessToken:string.pattern.base:${JWT_PATTERN}`,
+      ]);
+    });
+
+    it('gives a failure on a different field a different fingerprint', () => {
+      server._logValidationError(
+        validate({ accessToken: 'f'.repeat(64), email: 'not-an-email' }),
+        mockLog
+      );
+      expect(mockScope.setFingerprint).toHaveBeenCalledWith([
+        'response-validation',
+        'accessToken:object.unknown:',
+        'email:string.email:',
+      ]);
+    });
+
+    it('gives the same failure at two array indexes one fingerprint', () => {
+      const response = Joi.array()
+        .items(Joi.object({ plan_id: Joi.string().required() }))
+        .validate([{}, {}], { abortEarly: false }).error;
       server._logValidationError(response, mockLog);
-      expect(mockReportValidationError).toHaveBeenCalledTimes(1);
-      expect(mockReportValidationError).toHaveBeenCalledWith(
-        response.stack,
-        response
+      expect(mockScope.setFingerprint).toHaveBeenCalledWith([
+        'response-validation',
+        '*.plan_id:any.required:',
+      ]);
+    });
+
+    it('reports no values from the response payload', () => {
+      server._logValidationError(tokenFailure(), mockLog);
+      const reported = JSON.stringify([
+        mockScope.setContext.mock.calls,
+        mockScope.setFingerprint.mock.calls,
+        mockCaptureMessage.mock.calls,
+      ]);
+      expect(reported).not.toContain(LEAKY_TOKEN);
+      expect(reported).not.toContain(LEAKY_EMAIL);
+    });
+
+    it('reports a validation error that carries no details', () => {
+      server._logValidationError({ details: undefined }, mockLog);
+      expect(mockScope.setContext).toHaveBeenCalledWith('validationError', {
+        details: [],
+      });
+      expect(mockScope.setFingerprint).not.toHaveBeenCalled();
+      expect(mockCaptureMessage).toHaveBeenCalledWith(
+        'Response validation failed',
+        'error'
       );
     });
   });
