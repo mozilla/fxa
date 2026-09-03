@@ -1,8 +1,8 @@
 {
-  "commit": "2dc3537262b6fefab0e03593f3772f08958c1b50",
+  "commit": "97e645f2b3e655bb6397923d5054eff7913d29ac",
   "summary": "feat(passkey): Add GET /passkey/wraps/{credentialId}",
   "description": "Because:\n- Passwordless sign-in needs the wrap envelope to unseal kB, and the\n  mfa:passkey token minted from an assertion authorizes the read.\n- A wrap written before the account's current kB unseals a key Sync no\n  longer uses, so serving it would break the sign-in it is meant to fix.\n\nThis commit:\n- Adds GET /passkey/wraps/{credentialId} behind an mfa:passkey token.\n- Withholds a wrap older than keysChangedAt as a 404, errno 236.\n- Adds encodePasskeyWrapEnvelope, keyed off the v1 widths.\n- Records no security event; this runs on every passwordless sign-in.\n\nCloses #FXA-13143",
-  "timestamp": 1788461789000,
+  "timestamp": 1788463469000,
   "storybooks": [
     "fxa-settings"
   ],
