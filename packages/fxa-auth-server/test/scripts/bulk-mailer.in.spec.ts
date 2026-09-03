@@ -11,7 +11,7 @@ const crypto = require('crypto');
 
 const ROOT_DIR = '../..';
 const cwd = path.resolve(__dirname, ROOT_DIR);
-const execAsync = promisify(cp.exec);
+const execFileAsync = promisify(cp.execFile);
 
 const log = mocks.mockLog();
 const config = require('../../config').default.getProperties();
@@ -64,6 +64,8 @@ const DB = createDB(config, log, Token, UnblockCode);
 
 const execOptions = {
   cwd,
+  // Script output is captured through a pipe now, so the 1 MB default is too small.
+  maxBuffer: 10 * 1024 * 1024,
   env: {
     ...process.env,
     NODE_ENV: 'dev',
@@ -71,6 +73,21 @@ const execOptions = {
     AUTH_FIRESTORE_EMULATOR_HOST: 'localhost:9090',
   },
 };
+
+// execFile takes an argument array, so no path goes through a shell.
+function runScript(args: string[]) {
+  return execFileAsync(
+    'node',
+    [
+      '-r',
+      'ts-node/register/transpile-only',
+      '-r',
+      'tsconfig-paths/register',
+      ...args,
+    ],
+    execOptions
+  );
+}
 
 describe('#integration - scripts/bulk-mailer', () => {
   let db: any;
@@ -86,10 +103,14 @@ describe('#integration - scripts/bulk-mailer', () => {
       db.createAccount(account2Mock),
     ]);
 
-    await execAsync(
-      `node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/dump-users --emails ${account1Mock.email},${account2Mock.email} > ${USER_DUMP_PATH}`,
-      execOptions
-    );
+    const { stdout } = await runScript([
+      'scripts/dump-users',
+      '--emails',
+      `${account1Mock.email},${account2Mock.email}`,
+    ]);
+    // Fail here, not in a later test, if the dump did not arrive whole.
+    JSON.parse(stdout);
+    fs.writeFileSync(USER_DUMP_PATH, stdout);
   });
 
   afterAll(async () => {
@@ -104,10 +125,7 @@ describe('#integration - scripts/bulk-mailer', () => {
 
   it('fails if --input missing', async () => {
     try {
-      await execAsync(
-        'node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/bulk-mailer --method sendVerifyEmail',
-        execOptions
-      );
+      await runScript(['scripts/bulk-mailer', '--method', 'sendVerifyEmail']);
       throw new Error('script should have failed');
     } catch (err: any) {
       expect(err.message).toContain('Command failed');
@@ -116,10 +134,13 @@ describe('#integration - scripts/bulk-mailer', () => {
 
   it('fails if --input file missing', async () => {
     try {
-      await execAsync(
-        'node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/bulk-mailer --input does_not_exist --method sendVerifyEmail',
-        execOptions
-      );
+      await runScript([
+        'scripts/bulk-mailer',
+        '--input',
+        'does_not_exist',
+        '--method',
+        'sendVerifyEmail',
+      ]);
       throw new Error('script should have failed');
     } catch (err: any) {
       expect(err.message).toContain('Command failed');
@@ -128,10 +149,7 @@ describe('#integration - scripts/bulk-mailer', () => {
 
   it('fails if --method missing', async () => {
     try {
-      await execAsync(
-        'node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/bulk-mailer --input ${USER_DUMP_PATH}',
-        execOptions
-      );
+      await runScript(['scripts/bulk-mailer', '--input', USER_DUMP_PATH]);
       throw new Error('script should have failed');
     } catch (err: any) {
       expect(err.message).toContain('Command failed');
@@ -140,10 +158,13 @@ describe('#integration - scripts/bulk-mailer', () => {
 
   it('fails if --method is invalid', async () => {
     try {
-      await execAsync(
-        'node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/bulk-mailer --input ${USER_DUMP_PATH} --method doesNotExist',
-        execOptions
-      );
+      await runScript([
+        'scripts/bulk-mailer',
+        '--input',
+        USER_DUMP_PATH,
+        '--method',
+        'doesNotExist',
+      ]);
       throw new Error('script should have failed');
     } catch (err: any) {
       expect(err.message).toContain('Command failed');
@@ -151,10 +172,15 @@ describe('#integration - scripts/bulk-mailer', () => {
   });
 
   it('succeeds with valid input file and method, writing files to disk', async () => {
-    await execAsync(
-      `node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendPasswordChangedEmail --write ${OUTPUT_DIRECTORY}`,
-      execOptions
-    );
+    await runScript([
+      'scripts/bulk-mailer',
+      '--input',
+      USER_DUMP_PATH,
+      '--method',
+      'sendPasswordChangedEmail',
+      '--write',
+      OUTPUT_DIRECTORY,
+    ]);
 
     expect(
       fs.existsSync(
@@ -202,10 +228,13 @@ describe('#integration - scripts/bulk-mailer', () => {
   });
 
   it('succeeds with valid input file and method, writing emails to stdout', async () => {
-    const output = await execAsync(
-      `node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendPasswordChangedEmail`,
-      execOptions
-    );
+    const output = await runScript([
+      'scripts/bulk-mailer',
+      '--input',
+      USER_DUMP_PATH,
+      '--method',
+      'sendPasswordChangedEmail',
+    ]);
     const result = output.stdout.toString();
 
     expect(result).toContain(account1Mock.uid);
@@ -219,9 +248,13 @@ describe('#integration - scripts/bulk-mailer', () => {
   });
 
   it('succeeds with valid input file and method, sends', async () => {
-    await execAsync(
-      `node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendVerifyEmail --send`,
-      execOptions
-    );
+    await runScript([
+      'scripts/bulk-mailer',
+      '--input',
+      USER_DUMP_PATH,
+      '--method',
+      'sendVerifyEmail',
+      '--send',
+    ]);
   });
 });
