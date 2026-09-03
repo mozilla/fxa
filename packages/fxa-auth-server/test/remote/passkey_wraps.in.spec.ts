@@ -11,8 +11,8 @@ import {
   PasskeyManager,
   PasskeyService,
   V1_WIDTHS,
-  VirtualAuthenticator,
 } from '@fxa/accounts/passkey';
+import { VirtualAuthenticator } from '@fxa/accounts/passkey/testing';
 import { ERRNO } from '@fxa/accounts/errors';
 import Config from '../../config';
 
