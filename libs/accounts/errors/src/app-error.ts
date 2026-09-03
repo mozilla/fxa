@@ -1752,6 +1752,15 @@ export class AppError extends Error {
     });
   }
 
+  static passkeyWrapStale() {
+    return new AppError({
+      code: 404,
+      error: 'Not Found',
+      errno: ERRNO.PASSKEY_WRAP_STALE,
+      message: 'Passkey wrap is stale',
+    });
+  }
+
   static passkeyWrapConflict() {
     return new AppError({
       code: 409,

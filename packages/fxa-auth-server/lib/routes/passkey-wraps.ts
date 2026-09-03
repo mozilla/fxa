@@ -7,6 +7,7 @@ import { Container } from 'typedi';
 import {
   PasskeyService,
   V1_WIDTHS,
+  encodePasskeyWrapEnvelope,
   type NewPasskeyWrapData,
 } from '@fxa/accounts/passkey';
 import { AppError } from '@fxa/accounts/errors';
@@ -48,6 +49,25 @@ const envelopeSchema = Object.fromEntries(
 type WrapPayload = Record<keyof NewPasskeyWrapData, string>;
 
 /**
+ * Whether the token's credential names the credential being acted on.
+ */
+function isBoundTo(cid: string | undefined, credentialId: string): boolean {
+  return (
+    !!cid &&
+    Buffer.from(cid, 'base64url').equals(Buffer.from(credentialId, 'base64url'))
+  );
+}
+
+/**
+ * Whether a wrap seals a `kB` the account has since replaced.
+ *
+ * Inverted so a `NaN` keysChangedAt withholds rather than serves.
+ */
+export function isWrapStale(createdAt: number, keysChangedAt: number): boolean {
+  return !(createdAt >= keysChangedAt);
+}
+
+/**
  * Handlers for the passkey wrap endpoints. The envelopes that let a passkey
  * unlock `kB`.
  */
@@ -77,12 +97,7 @@ export class PasskeyWrapsHandler {
     const payload = request.payload as WrapPayload;
     const { credentialId } = payload;
 
-    if (
-      !cid ||
-      !Buffer.from(cid, 'base64url').equals(
-        Buffer.from(credentialId, 'base64url')
-      )
-    ) {
+    if (!isBoundTo(cid, credentialId)) {
       await this.recordEvent(request, 'account.passkey.wrap_creation_failure');
       throw AppError.invalidMfaToken();
     }
@@ -127,6 +142,54 @@ export class PasskeyWrapsHandler {
     await this.recordEvent(request, 'account.passkey.wrap_created');
 
     return { created: true };
+  }
+
+  /**
+   * Handles `GET /passkey/wraps/{credentialId}`.
+   *
+   * Returns the envelope for one credential so the client can unseal `kB`
+   * without a password. The server cannot read it: the sealed key and the
+   * PRF-wrapped private key are opaque here.
+   *
+   * Bound to the asserted credential as the write is. A wrap should only ever
+   * be fetched to complete a sign-in with that same credential.
+   *
+   * No security event: this runs on every passwordless sign-in, so an event
+   * here would bury the history it is meant to make legible (FXA-13139).
+   *
+   * @returns The base64url envelope plus the time it was stored.
+   */
+  async getPasskeyWrap(request: AuthRequest) {
+    const { uid, cid } = request.auth.credentials as {
+      uid: string;
+      cid?: string;
+    };
+    const { credentialId } = request.params as { credentialId: string };
+
+    if (!isBoundTo(cid, credentialId)) {
+      throw AppError.invalidMfaToken();
+    }
+
+    const account = await this.db.account(uid);
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      account.primaryEmail.email,
+      'passkeyWrapsGet'
+    );
+
+    // Throws 404 for both an unknown credential (errno 224) and a credential
+    // with no wrap (errno 234); the distinction is PasskeyService's contract.
+    const wrap = await this.service.getPasskeyWrap(uid, credentialId);
+
+    if (isWrapStale(wrap.createdAt, account.keysChangedAt)) {
+      throw AppError.passkeyWrapStale();
+    }
+
+    return {
+      ...encodePasskeyWrapEnvelope(wrap),
+      createdAt: wrap.createdAt,
+    };
   }
 
   /**
@@ -200,6 +263,34 @@ export const passkeyWrapsRoutes = (
       handler: function (request: AuthRequest) {
         log.begin('passkey.wraps.create', request);
         return handler.createPasskeyWrap(request);
+      },
+    },
+    {
+      method: 'GET',
+      path: '/passkey/wraps/{credentialId}',
+      options: {
+        ...PASSKEYS_API_DOCS.PASSKEY_WRAPS_GET,
+        pre: [{ method: passwordlessSyncEnabledCheck }],
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:passkey'],
+          payload: false,
+        },
+        validate: {
+          params: isA.object({
+            credentialId: base64urlCredentialId().required(),
+          }),
+        },
+        response: {
+          schema: isA.object({
+            ...envelopeSchema,
+            createdAt: isA.number().required(),
+          }),
+        },
+      },
+      handler: function (request: AuthRequest) {
+        log.begin('passkey.wraps.get', request);
+        return handler.getPasskeyWrap(request);
       },
     },
   ];
