@@ -1,8 +1,8 @@
 {
-  "commit": "d7dbd2e84528fab1c3e3cb5aec41d5db4a18ce64",
-  "summary": "Merge pull request #21063 from mozilla/fxa-13670",
-  "description": "fix(auth-server): run bulk-mailer test scripts without a shell",
-  "timestamp": 1788455512000,
+  "commit": "a7ee89dc350705f3d8a5812c657ac679d13d4401",
+  "summary": "Merge pull request #21132 from mozilla/FXA-14452",
+  "description": "fix(settings): show canceled screen when mobile cancels pairing",
+  "timestamp": 1788470618000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
