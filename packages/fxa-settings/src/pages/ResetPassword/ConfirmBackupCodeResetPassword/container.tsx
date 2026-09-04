@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router';
 import { useAuthClient, useConfig, useFtlMsgResolver } from '../../../models';
-import { ResetPasswordIntegration } from '../interfaces';
+import { PasskeyResetSignals, ResetPasswordIntegration } from '../interfaces';
 import ConfirmBackupCodeResetPassword from '.';
 import { useNavigateWithQuery } from '../../../lib/hooks';
 import { CompleteResetPasswordLocationState } from '../CompleteResetPassword/interfaces';
@@ -30,13 +30,18 @@ const ConfirmBackupCodeResetPasswordContainer = ({
     estimatedSyncDeviceCount,
     uid,
     hasPasskey,
+    hasPasskeyWraps,
   } = location.state as CompleteResetPasswordLocationState;
+
+  // Built once and spread, so a new signal is one edit rather than one per
+  // navigate target — an omission arrives undefined and fails closed silently.
+  const passkeySignals: PasskeyResetSignals = { hasPasskey, hasPasskeyWraps };
 
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
 
   const showPasskeyOption = shouldShowPasskeyResetOption(config, {
-    hasPasskey,
+    ...passkeySignals,
     serviceRequiresKeys: integration.isSync(),
     requireHasPasskey: true,
   });
@@ -53,7 +58,7 @@ const ConfirmBackupCodeResetPasswordContainer = ({
         recoveryKeyExists,
         token,
         uid,
-        hasPasskey,
+        ...passkeySignals,
       },
       replace: true,
     });

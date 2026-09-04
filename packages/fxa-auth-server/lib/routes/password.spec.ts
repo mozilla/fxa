@@ -410,38 +410,72 @@ describe('/password', () => {
         );
       }
 
-      it('reports hasPasskey when the passkey feature is enabled', async () => {
+      it('reports hasPasskey and hasPasskeyWraps when the passkey feature is enabled', async () => {
         const mockPasskeyService = createMock<PasskeyService>({
           hasPasskey: jest.fn().mockResolvedValue(true),
+          hasPasskeyWraps: jest.fn().mockResolvedValue(true),
         });
         Container.set(PasskeyService, mockPasskeyService);
 
         const response = await runVerifyOtp(mockPasskeyConfig);
 
         expect(mockPasskeyService.hasPasskey).toHaveBeenCalledWith(uid);
+        expect(mockPasskeyService.hasPasskeyWraps).toHaveBeenCalledWith(uid);
         expect(response.hasPasskey).toBe(true);
+        expect(response.hasPasskeyWraps).toBe(true);
       });
 
-      it('omits hasPasskey when the passkey feature is disabled', async () => {
+      it('reports hasPasskeyWraps false for an account with a passkey but no wrap', async () => {
         const mockPasskeyService = createMock<PasskeyService>({
           hasPasskey: jest.fn().mockResolvedValue(true),
+          hasPasskeyWraps: jest.fn().mockResolvedValue(false),
+        });
+        Container.set(PasskeyService, mockPasskeyService);
+
+        const response = await runVerifyOtp(mockPasskeyConfig);
+
+        expect(response.hasPasskey).toBe(true);
+        expect(response.hasPasskeyWraps).toBe(false);
+      });
+
+      it('skips the wraps lookup when the account has no passkey', async () => {
+        const mockPasskeyService = createMock<PasskeyService>({
+          hasPasskey: jest.fn().mockResolvedValue(false),
+          hasPasskeyWraps: jest.fn().mockResolvedValue(true),
+        });
+        Container.set(PasskeyService, mockPasskeyService);
+
+        const response = await runVerifyOtp(mockPasskeyConfig);
+
+        expect(mockPasskeyService.hasPasskeyWraps).not.toHaveBeenCalled();
+        expect(response.hasPasskey).toBe(false);
+        expect(response.hasPasskeyWraps).toBeUndefined();
+      });
+
+      it('omits both signals when the passkey feature is disabled', async () => {
+        const mockPasskeyService = createMock<PasskeyService>({
+          hasPasskey: jest.fn().mockResolvedValue(true),
+          hasPasskeyWraps: jest.fn().mockResolvedValue(true),
         });
         Container.set(PasskeyService, mockPasskeyService);
 
         const response = await runVerifyOtp(mockConfig);
 
         expect(response.hasPasskey).toBeUndefined();
+        expect(response.hasPasskeyWraps).toBeUndefined();
       });
 
-      it('leaves hasPasskey undefined when the lookup throws', async () => {
+      it('leaves both signals undefined when the passkey lookup throws', async () => {
         const mockPasskeyService = createMock<PasskeyService>({
           hasPasskey: jest.fn().mockRejectedValue(new Error('boom')),
+          hasPasskeyWraps: jest.fn().mockResolvedValue(true),
         });
         Container.set(PasskeyService, mockPasskeyService);
 
         const response = await runVerifyOtp(mockPasskeyConfig);
 
         expect(response.hasPasskey).toBeUndefined();
+        expect(response.hasPasskeyWraps).toBeUndefined();
         expect(mockLog.error).toHaveBeenCalledWith(
           'passwordForgotVerifyOtp.hasPasskey',
           expect.objectContaining({ err: expect.any(Error) })
@@ -451,10 +485,31 @@ describe('/password', () => {
         );
       });
 
-      it('logs an error and leaves hasPasskey undefined when enabled but the passkey service is unregistered', async () => {
+      it('keeps hasPasskey when only the wraps lookup throws', async () => {
+        const mockPasskeyService = createMock<PasskeyService>({
+          hasPasskey: jest.fn().mockResolvedValue(true),
+          hasPasskeyWraps: jest.fn().mockRejectedValue(new Error('boom')),
+        });
+        Container.set(PasskeyService, mockPasskeyService);
+
+        const response = await runVerifyOtp(mockPasskeyConfig);
+
+        expect(response.hasPasskey).toBe(true);
+        expect(response.hasPasskeyWraps).toBeUndefined();
+        expect(mockLog.error).toHaveBeenCalledWith(
+          'passwordForgotVerifyOtp.hasPasskeyWraps',
+          expect.objectContaining({ err: expect.any(Error) })
+        );
+        expect(mockStatsd.increment).toHaveBeenCalledWith(
+          'password.forgotVerifyOtp.hasPasskeyWraps.error'
+        );
+      });
+
+      it('logs an error and leaves both signals undefined when enabled but the passkey service is unregistered', async () => {
         const response = await runVerifyOtp(mockPasskeyConfig);
 
         expect(response.hasPasskey).toBeUndefined();
+        expect(response.hasPasskeyWraps).toBeUndefined();
         expect(mockStatsd.increment).toHaveBeenCalledWith(
           'password.forgotVerifyOtp.hasPasskey.error'
         );
@@ -463,6 +518,7 @@ describe('/password', () => {
       it('returns only the allowlisted response keys, never an internal field', async () => {
         const mockPasskeyService = createMock<PasskeyService>({
           hasPasskey: jest.fn().mockResolvedValue(true),
+          hasPasskeyWraps: jest.fn().mockResolvedValue(true),
         });
         Container.set(PasskeyService, mockPasskeyService);
 
@@ -471,7 +527,14 @@ describe('/password', () => {
         // Guards the token-returning route against an accidental internal-field
         // spread slipping past the .unknown(true) response schema.
         expect(Object.keys(response).sort()).toEqual(
-          ['code', 'emailToHashWith', 'hasPasskey', 'token', 'uid'].sort()
+          [
+            'code',
+            'emailToHashWith',
+            'hasPasskey',
+            'hasPasskeyWraps',
+            'token',
+            'uid',
+          ].sort()
         );
       });
     });

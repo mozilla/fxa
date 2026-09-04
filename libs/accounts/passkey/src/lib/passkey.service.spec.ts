@@ -144,6 +144,7 @@ describe('PasskeyService', () => {
       | 'deletePasskey'
       | 'findPasskeyWrap'
       | 'createPasskeyWrap'
+      | 'countPasskeyWraps'
     >
   > = {
     checkPasskeyCount: jest.fn(),
@@ -158,6 +159,7 @@ describe('PasskeyService', () => {
     deletePasskey: jest.fn(),
     findPasskeyWrap: jest.fn(),
     createPasskeyWrap: jest.fn(),
+    countPasskeyWraps: jest.fn(),
   };
 
   const mockChallengeManager = {
@@ -1182,6 +1184,28 @@ describe('PasskeyService', () => {
     it('propagates manager rejections', async () => {
       mockManager.countPasskeys.mockRejectedValue(new Error('db down'));
       await expect(service.hasPasskey(MOCK_UID)).rejects.toThrow('db down');
+    });
+  });
+
+  describe('hasPasskeyWraps', () => {
+    it('returns true when the manager reports one or more wraps', async () => {
+      mockManager.countPasskeyWraps.mockResolvedValue(1);
+      const result = await service.hasPasskeyWraps(MOCK_UID);
+      expect(result).toBe(true);
+      expect(mockManager.countPasskeyWraps).toHaveBeenCalledWith(MOCK_UID);
+    });
+
+    it('returns false when the manager reports zero wraps', async () => {
+      mockManager.countPasskeyWraps.mockResolvedValue(0);
+      const result = await service.hasPasskeyWraps(MOCK_UID);
+      expect(result).toBe(false);
+    });
+
+    it('propagates manager rejections', async () => {
+      mockManager.countPasskeyWraps.mockRejectedValue(new Error('db down'));
+      await expect(service.hasPasskeyWraps(MOCK_UID)).rejects.toThrow(
+        'db down'
+      );
     });
   });
 

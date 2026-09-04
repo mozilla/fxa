@@ -7,6 +7,7 @@ export type PasskeySigninFlags = {
   featureFlags?: {
     passkeysEnabled?: boolean;
     passkeyAuthenticationEnabled?: boolean;
+    passkeyPasswordlessSyncEnabled?: boolean;
   };
 };
 
@@ -24,6 +25,14 @@ export function passkeySigninFeatureEnabled(
     config.featureFlags?.passkeysEnabled &&
     config.featureFlags?.passkeyAuthenticationEnabled
   );
+}
+
+/**
+ * Whether a passkey can recover the account's Sync encryption keys, so sign-in
+ * can skip the password. Gates every surface that offers that as an option.
+ */
+export function passwordlessSyncEnabled(config: PasskeySigninFlags): boolean {
+  return !!config.featureFlags?.passkeyPasswordlessSyncEnabled;
 }
 
 /**

@@ -1072,6 +1072,7 @@ module.exports = function (
             token: isA.string().required(),
             uid: isA.string().required(),
             hasPasskey: isA.boolean().optional(),
+            hasPasskeyWraps: isA.boolean().optional(),
           }),
         },
       },
@@ -1120,9 +1121,16 @@ module.exports = function (
           getClientServiceTags(request)
         );
 
-        // Passkey-aware reset messaging: does the account have a passkey? Fail
-        // open so the reset flow never breaks.
+        // Passkey-aware reset messaging: does the account have a passkey, and
+        // can that passkey recover the account's encryption keys? Fail open so
+        // the reset flow never breaks.
+        //
+        // These signals are scoped to this route because it is reached only
+        // after the emailed OTP is verified. They must not be added to the
+        // unauthenticated /account/status, where they would leak per-account
+        // credential state to anyone who knows an email address.
         let hasPasskey: boolean | undefined;
+        let hasPasskeyWraps: boolean | undefined;
         if (
           config.passkeys?.enabled &&
           config.passkeys?.authenticationEnabled
@@ -1135,6 +1143,21 @@ module.exports = function (
             log.error('passwordForgotVerifyOtp.hasPasskey', { err });
             statsd.increment('password.forgotVerifyOtp.hasPasskey.error');
           }
+
+          // A wrap is stored against a credential, so an account without a
+          // passkey cannot have one.
+          if (hasPasskey) {
+            try {
+              hasPasskeyWraps = await Container.get(
+                PasskeyService
+              ).hasPasskeyWraps(account.uid);
+            } catch (err) {
+              log.error('passwordForgotVerifyOtp.hasPasskeyWraps', { err });
+              statsd.increment(
+                'password.forgotVerifyOtp.hasPasskeyWraps.error'
+              );
+            }
+          }
         }
 
         return {
@@ -1143,6 +1166,7 @@ module.exports = function (
           token: passwordForgotToken.data,
           uid: passwordForgotToken.uid,
           hasPasskey,
+          hasPasskeyWraps,
         };
       },
     },

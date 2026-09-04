@@ -283,6 +283,17 @@ export class PasskeyService {
   }
 
   /**
+   * Returns whether the user has at least one passkey key-wrap, meaning a
+   * passkey can recover their encryption keys without the password.
+   *
+   * @param uid - User ID as a hex string
+   * @returns true if the user has one or more wraps
+   */
+  async hasPasskeyWraps(uid: string): Promise<boolean> {
+    return (await this.passkeyManager.countPasskeyWraps(uid)) > 0;
+  }
+
+  /**
    * Updates the friendly name for a passkey, ensuring the passkey belongs to the user.
    * The name is trimmed before validation and storage.
    *
