@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit fe2ccc6286b3945d67f39068eb54982e316d528f</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit fe2ccc6286b3945d67f39068eb54982e316d528f</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/4/2026, 2:14:00 AM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>bug(settings): Make the mobile card span the viewport</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+  * The location/IP container on the Supplicant &quot;One last step to
+    sync&quot; screen renders narrower than spec on Android.
+  * AppLayout&#039;s main and section are shrink-to-fit, so `.card`&#039;s own
+    `w-full` never takes effect below the mobileLandscape breakpoint.
+
+This commit:
+  * Spans main and section to the viewport below `mobileLandscape`,
+    keeping shrink-to-fit above it so the fixed-width card stays
+    centered.
+  * Updates the AppLayout snapshot for the new `main` class list.
+
+Closes #FXA-14460</pre></dd>
+  </dl>
+</body>
+</html>
