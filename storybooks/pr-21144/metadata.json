@@ -1,0 +1,10 @@
+{
+  "commit": "6c19cde8563af6a63090f5f848f2fb7370c11c8b",
+  "summary": "fix(settings): show canceled screen when desktop cancels pairing",
+  "description": "Because:\n\n* Cancelling on desktop only closed the pairing channel, and a closed\n  channel looks the same as an expired one from the mobile end.\n* Mobile fell back to \"Looks like we timed out\", blaming a wait the user\n  never made; the designs call for \"Canceled\".\n\nThis commit:\n\n* Sends pair:auth:cancel from the authority before it tears the channel\n  down.\n* Fails the supplicant on that notice and records that the authority\n  cancelled.\n* Routes the supplicant's dead-end screen with reason 'canceled' instead\n  of falling through to 'timeout'.\n\nCloses: FXA-14453",
+  "timestamp": 1788487336000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

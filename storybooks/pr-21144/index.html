@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 6c19cde8563af6a63090f5f848f2fb7370c11c8b</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 6c19cde8563af6a63090f5f848f2fb7370c11c8b</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/4/2026, 2:02:16 AM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): show canceled screen when desktop cancels pairing</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+* Cancelling on desktop only closed the pairing channel, and a closed
+  channel looks the same as an expired one from the mobile end.
+* Mobile fell back to &quot;Looks like we timed out&quot;, blaming a wait the user
+  never made; the designs call for &quot;Canceled&quot;.
+
+This commit:
+
+* Sends pair:auth:cancel from the authority before it tears the channel
+  down.
+* Fails the supplicant on that notice and records that the authority
+  cancelled.
+* Routes the supplicant&#039;s dead-end screen with reason &#039;canceled&#039; instead
+  of falling through to &#039;timeout&#039;.
+
+Closes: FXA-14453</pre></dd>
+  </dl>
+</body>
+</html>
