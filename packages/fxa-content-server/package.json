@@ -25,7 +25,9 @@
     "delete": "pm2 delete pm2.config.js",
     "start-production": "NODE_ENV=production grunt build && yarn build-css && CONFIG_FILES=server/config/local.json,server/config/production.json,server/config/secrets.json grunt serverproc:dist",
     "start-remote": "scripts/run_remote_dev.sh",
-    "format": "prettier --write --config ../../_dev/.prettierrc '**'"
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'",
+    "test": "yarn test-unit",
+    "test-unit": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-content-server-jest-unit-results.xml NODE_ENV=test jest --forceExit --reporters=default --reporters=jest-junit"
   },
   "repository": {
     "type": "git",

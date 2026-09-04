@@ -63,6 +63,27 @@ module.exports = function (config, i18n, statsd, glean) {
     );
   }
 
+  if (config.get('waict.enabled')) {
+    const canaryEnabled = config.get('waict.canaryEnabled');
+    routes.push(require('./routes/get-waict-manifest')(config));
+    routes.push(
+      require('./routes/post-waict-report')({
+        op: 'server.waict.violation',
+        canaryOp: 'server.waict.canary.success',
+        path: config.get('waict.reportUri'),
+        // When the canary is enabled, reports for it are a success signal
+        // (the reporting pipeline is alive), not a real integrity violation.
+        canaryPath: canaryEnabled
+          ? require('./routes/get-waict-canary').CANARY_PATH
+          : null,
+        statsd,
+      })
+    );
+    if (canaryEnabled) {
+      routes.push(require('./routes/get-waict-canary')(config));
+    }
+  }
+
   if (config.get('env') === 'development') {
     routes.push(require('./routes/get-502')(config));
     routes.push(require('./routes/get-503')(config));
