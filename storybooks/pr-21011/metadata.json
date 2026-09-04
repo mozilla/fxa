@@ -1,8 +1,8 @@
 {
-  "commit": "41427a56aee4461b4a1bb9840a1561541b777718",
+  "commit": "f81c43ad80460813c7692f455bb84b6ed4b77bbb",
   "summary": "fix(settings): carry pairing attribution to the device approval page",
   "description": "Because:\n - After scanning the Sync pairing QR code, the desktop device approval page\n   (/pair/auth/allow) had no entrypoint query param, so Glean's\n   session.entrypoint was empty on cad_approve_device.view and .submit.\n - Firefox opens that page as a brand-new navigation carrying only client_id,\n   scope, email, uid, channel_id and redirect_uri, so the web app had no\n   entrypoint to propagate.\n - Two in-app paths dropped the entrypoint before pairing even began: /pair's\n   sync sign-in round trip, and the connect-another-device redirect.\n\nThis commit:\n - Adds lib/pairing-attribution.ts, which stashes the attribution params\n   (entrypoint, entrypoint_experiment, entrypoint_variation and the five utm_*)\n   in namespaced localStorage with a 30 minute TTL when /pair hands control to\n   Firefox, then restores them onto the pairing-authority URL.\n - Restores at bootstrap, before BrowserRouter mounts, because UrlQueryData\n   writes via a raw history.replaceState that react-router never observes, so a\n   later write would be clobbered by the first navigateWithQuery().\n - Defaults entrypoint to 'preferences' when nothing was stashed, covering\n   pairings started straight from Firefox's about:preferences dialog.\n - Merges the attribution into /pair's sync OAuth handoff URL so it survives the\n   sign-in round trip, which also repairs /pair's own post-signin metrics.\n - Makes the connect-another-device redirect to /pair carry its query params,\n   matching the four sibling hardNavigate('/pair', {}, true) call sites.\n - Adds unit coverage for the stash, TTL, merge and bootstrap rewrite, a\n   Playwright spec asserting the approval URL and the cad_approve_device.view\n   ping, and first-time coverage of the CAD bootstrap redirect.\n\nCloses #FXA-14132",
-  "timestamp": 1788485221000,
+  "timestamp": 1788485409000,
   "storybooks": [
     "fxa-settings"
   ],
