@@ -136,6 +136,117 @@ describe('lib/client', () => {
     });
   });
 
+  describe('passkey wraps', () => {
+    let httpsClient: AuthClient;
+    let originalFetch: typeof globalThis.fetch;
+    let lastUrl: string | undefined;
+    let lastInit: RequestInit | undefined;
+    let responseBody: string;
+
+    const jwt = 'mfa.jwt.token';
+    const credentialId = 'Y3JlZC1pZA';
+
+    // Distinct fills, so a field swapped for another is visible.
+    const envelope = {
+      pkR: new Uint8Array(133).fill(0x04),
+      prfWrappedSkR: new Uint8Array(82).fill(0x11),
+      keyWrapIv: new Uint8Array(12).fill(0x22),
+      hpkeEncapsulatedSecret: new Uint8Array(133).fill(0x33),
+      hpkeSealedKb: new Uint8Array(48).fill(0x44),
+    };
+
+    const wireEnvelope = {
+      pkR: Buffer.alloc(133, 0x04).toString('base64url'),
+      prfWrappedSkR: Buffer.alloc(82, 0x11).toString('base64url'),
+      keyWrapIv: Buffer.alloc(12, 0x22).toString('base64url'),
+      hpkeEncapsulatedSecret: Buffer.alloc(133, 0x33).toString('base64url'),
+      hpkeSealedKb: Buffer.alloc(48, 0x44).toString('base64url'),
+    };
+
+    before(() => {
+      httpsClient = new AuthClient('https://localhost:9000');
+    });
+
+    beforeEach(() => {
+      originalFetch = globalThis.fetch;
+      lastUrl = undefined;
+      lastInit = undefined;
+      responseBody = '{}';
+      globalThis.fetch = (async (url: string, init?: RequestInit) => {
+        lastUrl = url;
+        lastInit = init;
+        return new Response(responseBody, {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }) as typeof globalThis.fetch;
+    });
+
+    afterEach(() => {
+      globalThis.fetch = originalFetch;
+    });
+
+    it('encodes the envelope to base64url on the way out', async () => {
+      responseBody = '{"created":true}';
+
+      await httpsClient.createPasskeyWrap(jwt, credentialId, envelope);
+
+      assert.equal(lastUrl, 'https://localhost:9000/v1/passkey/wraps');
+      assert.deepEqual(JSON.parse(lastInit?.body as string), {
+        credentialId,
+        ...wireEnvelope,
+      });
+    });
+
+    it('decodes the envelope to bytes on the way in, keeping createdAt', async () => {
+      responseBody = JSON.stringify({
+        ...wireEnvelope,
+        createdAt: 1700000000000,
+      });
+
+      const result = await httpsClient.getPasskeyWrap(jwt, credentialId);
+
+      assert.deepEqual(result, { ...envelope, createdAt: 1700000000000 });
+      assert.equal(
+        lastUrl,
+        `https://localhost:9000/v1/passkey/wraps/${credentialId}`
+      );
+    });
+
+    it('escapes a credential id containing url-unsafe characters', async () => {
+      responseBody = JSON.stringify({ ...wireEnvelope, createdAt: 1 });
+
+      await httpsClient.getPasskeyWrap(jwt, 'a/b?c');
+
+      assert.equal(
+        lastUrl,
+        'https://localhost:9000/v1/passkey/wraps/a%2Fb%3Fc'
+      );
+    });
+
+    it('forwards scope to the assertion challenge when set', async () => {
+      responseBody = '{"challenge":"abc","userVerification":"required"}';
+
+      await httpsClient.beginPasskeyAuthentication({
+        keysRequired: true,
+        scope: 'passkey',
+      });
+
+      assert.deepEqual(JSON.parse(lastInit?.body as string), {
+        keysRequired: true,
+        scope: 'passkey',
+      });
+    });
+
+    it('omits scope from the assertion challenge when not set', async () => {
+      responseBody = '{"challenge":"abc","userVerification":"required"}';
+
+      await httpsClient.beginPasskeyAuthentication({ keysRequired: true });
+
+      assert.ok(!('scope' in JSON.parse(lastInit?.body as string)));
+    });
+  });
+
   describe('request() error handling', () => {
     let httpClient: AuthClient;
     let originalFetch: typeof globalThis.fetch;
