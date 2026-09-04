@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 6422d929e95703bc6aa74fb6e959ec0d04370d19</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 6422d929e95703bc6aa74fb6e959ec0d04370d19</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/4/2026, 10:19:25 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(passkey): expose wrap state on the password reset flow</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- A Sync account whose passkey can recover its encryption keys should get
+  the passkey wording on the reset footer, which was suppressed for every
+  Sync sign-in while wraps did not exist.
+- Wrap state describes account state, so it belongs on the email-verified
+  step of the reset flow and on no unauthenticated route.
+- Wraps can be stored before sign-in can unwrap them, so the footer needs
+  the same kill switch the wrap routes use.
+
+This commit:
+- Adds hasPasskeyWraps to PasskeyService, backed by a per-uid wrap count.
+- Returns hasPasskeyWraps from /password/forgot/verify_otp and adds it to
+  the auth-client return type.
+- Threads the signals through the reset flow as one grouped object.
+- Gates the passkey reset footer on a wrap plus passkeyPasswordlessSyncEnabled
+  for Sync, failing closed when either is unknown.
+- Asserts the flag is absent from /account/status and never looked up there.
+
+Closes #FXA-14220</pre></dd>
+  </dl>
+</body>
+</html>

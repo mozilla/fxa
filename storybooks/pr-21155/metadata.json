@@ -1,0 +1,10 @@
+{
+  "commit": "6422d929e95703bc6aa74fb6e959ec0d04370d19",
+  "summary": "feat(passkey): expose wrap state on the password reset flow",
+  "description": "Because:\n- A Sync account whose passkey can recover its encryption keys should get\n  the passkey wording on the reset footer, which was suppressed for every\n  Sync sign-in while wraps did not exist.\n- Wrap state describes account state, so it belongs on the email-verified\n  step of the reset flow and on no unauthenticated route.\n- Wraps can be stored before sign-in can unwrap them, so the footer needs\n  the same kill switch the wrap routes use.\n\nThis commit:\n- Adds hasPasskeyWraps to PasskeyService, backed by a per-uid wrap count.\n- Returns hasPasskeyWraps from /password/forgot/verify_otp and adds it to\n  the auth-client return type.\n- Threads the signals through the reset flow as one grouped object.\n- Gates the passkey reset footer on a wrap plus passkeyPasswordlessSyncEnabled\n  for Sync, failing closed when either is unknown.\n- Asserts the flag is absent from /account/status and never looked up there.\n\nCloses #FXA-14220",
+  "timestamp": 1788560365000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
