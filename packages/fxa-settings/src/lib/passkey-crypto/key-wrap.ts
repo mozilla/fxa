@@ -12,7 +12,7 @@
  * scalar. It does not pad to `Nsk`, so this module left-pads the result.
  *
  * Everything crosses the module boundary as `Uint8Array`, so no `CryptoKey`
- * escapes a function. `aad` is opaque here; `context.ts` owns its construction
+ * escapes a function. `aad` is opaque here; `envelope.ts` owns its construction
  * and is the only thing that should be producing it.
  */
 
@@ -84,6 +84,7 @@ export async function generateRecipientKeyPair(): Promise<RecipientKeyPair> {
   // right-pads it and the wrap can never be opened.
   const privateKeyRaw = new Uint8Array(V1_SIZES.skRRaw);
   privateKeyRaw.set(scalar, V1_SIZES.skRRaw - scalar.length);
+  scalar.fill(0);
 
   return { publicKey, privateKeyRaw };
 }
