@@ -920,6 +920,54 @@ jobs:
           workflow: << parameters.workflow >>
           test_suite: e2e
 
+  # Boots the same stack the functional tests use, on one container, and holds
+  # it open so a dev can drive it by hand instead of checking the branch out
+  # locally. Runs no tests.
+  #
+  # Reaching it takes CircleCI's "Rerun job with SSH", which cannot be turned on
+  # from config; see the interactive dev stack section of .circleci/README.md.
+  # Nothing here is exposed to the network on its own. The ports are reachable
+  # only through the SSH gateway, which admits only the keys of the account that
+  # started the rerun.
+  dev-stack:
+    parameters:
+      hold_minutes:
+        type: integer
+        default: 180
+    executor: functional-test-executor
+    steps:
+      - git-checkout
+      - restore-workspace
+      - run:
+          name: Add localhost
+          command: |
+            sudo tee -a /etc/hosts \<<<'127.0.0.1 localhost'
+            sudo cat /etc/hosts
+      - wait-for-infrastructure
+      - run:
+          name: Start services
+          command: ./packages/functional-tests/scripts/start-services.sh
+          environment:
+            NODE_ENV: test
+          no_output_timeout: 20m
+      - run:
+          name: Install X11 / VNC tooling
+          command: ./.circleci/dev-stack-display.sh install
+      - run:
+          name: Start virtual display
+          command: ./.circleci/dev-stack-display.sh start
+          background: true
+      - run:
+          name: How to connect
+          command: ./.circleci/dev-stack-info.sh
+      - run:
+          name: Hold stack open
+          command: ./.circleci/dev-stack-hold.sh << parameters.hold_minutes >>
+          # The hold loop prints a heartbeat every 60s, so this only trips if
+          # the loop itself dies.
+          no_output_timeout: 30m
+      - store-artifacts
+
   # Runs payments-next functional tests using playwright.
   # For local: uses functional-test-executor with full infra.
   # For stage/production: uses smoke-test-executor.
@@ -1149,6 +1197,29 @@ workflows:
               only:
                 - /^dependabot\/.*/
                 - /^func\/.*/
+      # Boots the stack and leaves it running for hands-on validation. Always
+      # approval-gated, and deliberately absent from `Tests Complete (PR)`: it
+      # is a debugging tool, never a gate.
+      - approve-dev-stack:
+          name: Approve Dev Stack (SSH)
+          type: approval
+          filters:
+            branches:
+              ignore:
+                - /^dependabot\/.*/
+                # Fork PRs. SSH access to a stack built from unreviewed code
+                # is not something a fork author should be able to request.
+                - /^pull\/.*/
+      - dev-stack:
+          name: Dev Stack (SSH)
+          requires:
+            - Build (PR)
+            - Approve Dev Stack (SSH)
+          filters:
+            branches:
+              ignore:
+                - /^dependabot\/.*/
+                - /^pull\/.*/
       - on-complete:
           name: Tests Complete (PR)
           stage: Tests

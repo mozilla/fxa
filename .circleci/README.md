@@ -52,6 +52,73 @@ circleci config process .circleci/config.yml > .circleci/local.yml
 circleci local execute -c .circleci/local.yml --job test-many
 ```
 
+## Interactive dev stack (`Dev Stack (SSH)`)
+
+`Dev Stack (SSH)` boots the same services as the functional tests
+(`packages/functional-tests/scripts/start-services.sh`, on the same
+`functional-test-executor`) on a single container and holds it open. It runs no
+tests. Use it to click through a branch without checking it out.
+
+### Using it
+
+1. On the PR, approve **Approve Dev Stack (SSH)**.
+2. When the job reaches "Hold stack open", click **Rerun job with SSH**.
+   CircleCI cannot enable SSH from `config.yml`, so this rerun is unavoidable —
+   it rebuilds the stack (~15 min). To skip the wasted first pass, approve once
+   and then always start from Rerun-with-SSH.
+3. The "How to connect" step prints the `ssh -L` block. Paste in the host and
+   port from the job's SSH panel and run it.
+4. Open <http://localhost:3030> in your own browser.
+5. `touch /tmp/release-stack` when you are done.
+
+### Ports
+
+Same-port forwarding is deliberate: the services advertise `localhost:<port>`
+URLs in their served config, so preserving the numbers makes them work unmodified.
+
+| Port |                          | Port        |                           |
+| ---- | ------------------------ | ----------- | ------------------------- |
+| 3030 | content server           | 3000        | fxa-settings (dev server) |
+| 9000 | auth server              | 9001        | mail helper               |
+| 1111 | profile server           | 1112        | profile static            |
+| 8080 | 123done                  | 8091        | admin panel               |
+| 8095 | admin server             | 6080 / 5901 | noVNC / VNC               |
+| 9130 | content-server inspector | 9160        | auth-server inspector     |
+
+Mail is captured, not delivered — sign up with an `@restmail.net` address and
+read it at `http://localhost:9001/mail/<local-part>`.
+
+### Seeing a browser
+
+`.circleci/dev-stack-display.sh` puts Xvfb, fluxbox, x11vnc and noVNC on `:99`,
+and installs `xauth` so `ssh -X` works. Three options, best first:
+
+- Your own browser over the tunnel. Fastest, real devtools.
+- VNC (`vnc://localhost:5901` or `http://localhost:6080/vnc.html`) to watch a
+  headed run: `DISPLAY=:99 DEBUG=1 yarn playwright test --project=local <spec>`.
+- `ssh -X` — works, but X11 over a WAN link is slow.
+
+The tooling is installed at job time rather than baked into
+`_dev/docker/ci/Dockerfile`, because a Dockerfile change forces the `-vN` bump
+across every image reference plus an `update-ci-image` publish (below) — not
+worth ~30s of apt.
+
+### Access and cost
+
+Access is not group-based: CircleCI installs only the public keys of the VCS
+account that clicked Rerun-with-SSH, so exactly one person can connect.
+Approving and rerunning both require write access to the project, which comes
+from GitHub team membership. The container accepts no inbound connections other
+than through CircleCI's SSH gateway, so a forwarded port is not a published one.
+
+Docker `xlarge` is 20 credits/min; the default 180 minute hold is ~3,600 credits
+if you let it run out. `touch /tmp/release-stack` stops the meter. Pass
+`hold_minutes` to change the ceiling — CircleCI's hard job limit is 5 hours.
+
+The stack runs `NODE_ENV=test` with the functional-test executor's environment,
+so customs is off and the React / recovery-phone / passwordless flags are forced
+on. It matches CI, not your local `yarn start`.
+
 ## Updating the CI images (Playwright / dependency bumps)
 
 Most jobs run in pre-built images published to Docker Hub as
