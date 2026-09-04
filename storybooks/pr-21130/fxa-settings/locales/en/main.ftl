@@ -1206,8 +1206,6 @@ terms-privacy-agreement-default-2 = By proceeding, you agree to the <mozillaAcco
 
 third-party-auth-options-or = or
 
-third-party-auth-options-sign-in-with = Sign in with
-
 continue-with-google-button = Continue with { -brand-google }
 continue-with-apple-button = Continue with { -brand-apple }
 
