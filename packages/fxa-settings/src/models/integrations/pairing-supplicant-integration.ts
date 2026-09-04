@@ -476,8 +476,20 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     this.setState(SupplicantState.Complete);
   }
 
+  private hasUrlOAuthParams(): boolean {
+    return !!(
+      this.data.clientId &&
+      this.data.codeChallenge &&
+      this.data.codeChallengeMethod &&
+      this.data.keysJwk &&
+      this.data.state &&
+      this.data.scope
+    );
+  }
+
   /**
-   * Build the OAuth params to send to the authority.
+   * Build the OAuth params to send to the authority, either from the URL or,
+   * in v2, from the browser.
    * Matches Backbone's SupplicantRelier.getOAuthParams() with Vat validation.
    *
    * Required fields (client_id, code_challenge, code_challenge_method,
@@ -485,7 +497,11 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
    * Vat.*.required() validators.
    */
   private async getOAuthParams(): Promise<OAuthStartParams> {
-    if (this._version === 2) {
+    // A supplicant whose own app scanned the QR is opened by app-services,
+    // which has already run OAuth start and put the params in the URL. Asking
+    // the browser again there would begin a second flow and strand the PKCE
+    // verifier the app is holding for the code it expects back.
+    if (this._version === 2 && !this.hasUrlOAuthParams()) {
       const data = await firefox.pairOauthStart({});
       if (!data) {
         throw new Error('Firefox could not provide oauth params.')
@@ -524,7 +540,6 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
       return result;
     }
 
-    // Legacy v1 approach
     const clientId = this.data.clientId;
     const codeChallenge = this.data.codeChallenge;
     const codeChallengeMethod = this.data.codeChallengeMethod;
