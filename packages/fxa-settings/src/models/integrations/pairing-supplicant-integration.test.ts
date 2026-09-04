@@ -431,6 +431,42 @@ describe('PairingSupplicantIntegration', () => {
     });
   });
 
+  describe('authority cancel', () => {
+    async function connectedIntegration() {
+      const integration = createIntegration();
+      await integration.openChannel('wss://ch.example.com', 'c', 'k');
+      emit('connected');
+      return integration;
+    }
+
+    it('ends the flow when the authority cancels', async () => {
+      const integration = await connectedIntegration();
+
+      emit('remote:pair:auth:cancel');
+
+      expect(integration.state).toBe(SupplicantState.Failed);
+    });
+
+    it('records that the authority cancelled', async () => {
+      const integration = await connectedIntegration();
+
+      emit('remote:pair:auth:cancel');
+
+      expect(integration.canceledByAuthority).toBe(true);
+    });
+
+    // Without a notice the close is indistinguishable from the channel running
+    // out of time, which is what the dead-end screen then has to say.
+    it('does not treat a bare channel close as a cancel', async () => {
+      const integration = await connectedIntegration();
+
+      emit('close');
+
+      expect(integration.state).toBe(SupplicantState.Failed);
+      expect(integration.canceledByAuthority).toBe(false);
+    });
+  });
+
   describe('isPairing', () => {
     it('returns true', () => {
       expect(createIntegration().isPairing()).toBe(true);

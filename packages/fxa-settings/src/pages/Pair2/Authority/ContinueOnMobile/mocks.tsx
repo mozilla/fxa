@@ -16,6 +16,7 @@ export const Subject = ({
 );
 
 export type MockAuthorityIntegration = PairingAuthorityIntegration & {
+  cancel: jest.Mock;
   destroy: jest.Mock;
 };
 
@@ -32,6 +33,7 @@ export function mockAuthorityIntegration(
   ) as MockAuthorityIntegration;
 
   return Object.assign(integration, {
+    cancel: jest.fn().mockResolvedValue(undefined),
     destroy: jest.fn().mockResolvedValue(undefined),
     onStateChange: null,
     ...overrides,

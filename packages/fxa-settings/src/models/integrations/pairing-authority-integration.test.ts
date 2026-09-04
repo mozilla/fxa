@@ -598,7 +598,9 @@ describe('PairingAuthorityIntegration', () => {
 
         expect(integration.state).toBe(AuthorityState.Failed);
         expect(onError).toHaveBeenCalledWith(
-          expect.objectContaining({ errno: OAUTH_ERRORS.INVALID_PARAMETER.errno })
+          expect.objectContaining({
+            errno: OAUTH_ERRORS.INVALID_PARAMETER.errno,
+          })
         );
       });
 
@@ -606,10 +608,21 @@ describe('PairingAuthorityIntegration', () => {
       // two only prove the authority is wired to the validator rather than to
       // its own truthiness checks.
       it.each([
-        { label: 'a client that cannot pair', field: 'client_id', value: '0123456789abcdef' },
-        { label: 'a PKCE method other than S256', field: 'code_challenge_method', value: 'plain' },
+        {
+          label: 'a client that cannot pair',
+          field: 'client_id',
+          value: '0123456789abcdef',
+        },
+        {
+          label: 'a PKCE method other than S256',
+          field: 'code_challenge_method',
+          value: 'plain',
+        },
       ])('fails on $label', ({ field, value }) => {
-        emit('remote:pair:supp:request', { ...MOCK_SUPP_REQUEST, [field]: value });
+        emit('remote:pair:supp:request', {
+          ...MOCK_SUPP_REQUEST,
+          [field]: value,
+        });
 
         expect(integration.state).toBe(AuthorityState.Failed);
       });
@@ -755,6 +768,40 @@ describe('PairingAuthorityIntegration', () => {
 
         expect(onError).toHaveBeenCalledTimes(1);
       });
+    });
+  });
+
+  describe('cancel', () => {
+    // The supplicant cannot tell a closed channel from an expired one, so the
+    // notice has to get out while the channel is still up.
+    it('tells the supplicant before closing the channel', async () => {
+      const integration = createIntegration();
+      await integration.createChannel();
+
+      await integration.cancel();
+
+      expect(mockChannelSend).toHaveBeenCalledWith('pair:auth:cancel', {});
+      expect(mockChannelSend.mock.invocationCallOrder[0]).toBeLessThan(
+        mockChannelClose.mock.invocationCallOrder[0]
+      );
+    });
+
+    it('closes the channel when the notice cannot be sent', async () => {
+      const integration = createIntegration();
+      await integration.createChannel();
+      mockChannelSend.mockRejectedValue(new Error('channel server gone'));
+
+      await integration.cancel();
+
+      expect(mockChannelClose).toHaveBeenCalled();
+      expect(integration.hasChannel()).toBe(false);
+    });
+
+    it('resolves when there is no channel to cancel', async () => {
+      const integration = createIntegration();
+
+      await expect(integration.cancel()).resolves.toBeUndefined();
+      expect(mockChannelSend).not.toHaveBeenCalled();
     });
   });
 
