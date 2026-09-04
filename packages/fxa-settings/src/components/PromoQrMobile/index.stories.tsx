@@ -8,6 +8,7 @@ import { withLocalization } from 'fxa-react/lib/storybooks';
 import { IntegrationType } from '../../models/integrations';
 import { PromoQrMobile } from '.';
 import AppLayout from '../AppLayout';
+import { NimbusContext } from '../../models/contexts/NimbusContext';
 
 export default {
   title: 'Components/PromoQrMobile',
@@ -15,41 +16,58 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-export const Default = () => {
-  
-  return (
-    <MemoryRouter initialEntries={['/']}>
-      <PromoQrMobile
-        integration={{ type: IntegrationType.Web, isDesktopSync: () => false }}
-      />
-    </MemoryRouter>
-  );
+const webIntegration = {
+  type: IntegrationType.Web,
+  isDesktopSync: () => false,
 };
 
-export const WithCardAppLayout = () => {
-  
-  return (
-    <MemoryRouter initialEntries={['/']}>
-      <AppLayout>
-        <h1 className="card-header">Sign in</h1>
-        <p className="mt-2">Continue to account settings</p>
-      </AppLayout>
-      <PromoQrMobile
-        integration={{ type: IntegrationType.Web, isDesktopSync: () => false }}
-      />
-    </MemoryRouter>
-  );
-};
+// Storybook has no Nimbus fetch, so supply the branch directly.
+const withBranch = (branch: string, children: React.ReactNode) => (
+  <NimbusContext.Provider
+    value={{
+      experiments: {
+        nimbusUserId: 'storybook',
+        features: { 'promo-qr-mobile': { enabled: true, branch } },
+      },
+      loading: false,
+    }}
+  >
+    {children}
+  </NimbusContext.Provider>
+);
 
-export const DesktopSync = () => {
-  return (
-    <MemoryRouter initialEntries={['/']}>
-      <PromoQrMobile
-        integration={{
-          type: IntegrationType.OAuthNative,
-          isDesktopSync: () => true,
-        }}
-      />
-    </MemoryRouter>
-  );
-};
+const story = (branch: string) => () => (
+  <MemoryRouter initialEntries={['/']}>
+    {withBranch(branch, <PromoQrMobile integration={webIntegration} />)}
+  </MemoryRouter>
+);
+
+// One line.
+export const Control = story('control');
+
+// Two lines.
+export const TreatmentB = story('treatment-b');
+
+// Three lines, the longest string in the experiment.
+export const TreatmentA = story('treatment-a');
+
+export const WithCardAppLayout = () => (
+  <MemoryRouter initialEntries={['/']}>
+    <AppLayout>
+      <h1 className="card-header">Sign in</h1>
+      <p className="mt-2">Continue to account settings</p>
+    </AppLayout>
+    {withBranch('treatment-a', <PromoQrMobile integration={webIntegration} />)}
+  </MemoryRouter>
+);
+
+export const DesktopSync = () => (
+  <MemoryRouter initialEntries={['/']}>
+    <PromoQrMobile
+      integration={{
+        type: IntegrationType.OAuthNative,
+        isDesktopSync: () => true,
+      }}
+    />
+  </MemoryRouter>
+);

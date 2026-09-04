@@ -954,7 +954,10 @@ const recordEventMetric = (
       });
       break;
     case 'promo_qr_mobile_view':
-      promoQrMobile.view.record();
+      promoQrMobile.view.record({
+        branch: gleanPingMetrics?.event?.['branch'] || '',
+        nimbus_user_id: gleanPingMetrics?.event?.['nimbusUserId'] || '',
+      });
       break;
   }
 };

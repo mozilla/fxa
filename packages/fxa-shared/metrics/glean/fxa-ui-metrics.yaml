@@ -4406,9 +4406,17 @@ promo_qr_mobile:
       - fxa-staff@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-13279
+      - https://mozilla-hub.atlassian.net/browse/FXA-14273
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      nimbus_user_id:
+        description: Nimbus user ID
+        type: string
+      branch:
+        description: The value proposition experiment branch shown to the user
+        type: string

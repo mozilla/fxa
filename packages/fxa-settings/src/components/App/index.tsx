@@ -195,7 +195,6 @@ const PairAuthorityTimeoutAndCancel = lazy(
   () => import('../../pages/Pair2/Authority/TimeoutAndCancel/container')
 );
 
-
 const PairSupplicantApproveSignIn = lazy(
   () => import('../../pages/Pair2/Supplicant/ApproveSignIn/container')
 );
@@ -214,8 +213,6 @@ const PairSupplicantSyncSuccess = lazy(
 const PairSupplicantTimeoutAndCancel = lazy(
   () => import('../../pages/Pair2/Supplicant/TimeoutAndCancel')
 );
-
-
 
 const AuthorizationContainer = lazy(
   () => import('../../pages/Authorization/container')
@@ -652,7 +649,10 @@ const AuthAndAccountSetupRoutes = ({
         <Route path="/web_channel_example/*" element={<WebChannelExample />} />
         <Route path="/poc_deep_link/*" element={<PocDeepLink />} />
         <Route path="/poc_pair_init/*" element={<PocPairInit />} />
-        <Route path="/poc_pair_start/*" element={<PocPairStart {...{integration}} />} />
+        <Route
+          path="/poc_pair_start/*"
+          element={<PocPairStart {...{ integration }} />}
+        />
         <Route path="/cookies_disabled" element={<CookiesDisabled />} />
 
         {/* Post verify */}
@@ -1074,15 +1074,19 @@ const AuthAndAccountSetupRoutes = ({
         <Route path="/pair/unsupported/*" element={<PairUnsupported />} />
         <Route
           path="/pair/*"
-          element={<PairIndex {...{integration, fxaStatusResult: useFxAStatusResult}} />}
+          element={
+            <PairIndex
+              {...{ integration, fxaStatusResult: useFxAStatusResult }}
+            />
+          }
         />
         <Route
           path="/pair/authority/approve_signin/*"
-          element={<PairAuthorityApproveSignIn {...{integration}} />}
+          element={<PairAuthorityApproveSignIn {...{ integration }} />}
         />
         <Route
           path="/pair/authority/continue_on_mobile/*"
-          element={<PairAuthorityContinueOnMobile {...{integration}} />}
+          element={<PairAuthorityContinueOnMobile {...{ integration }} />}
         />
         <Route
           path="/pair/authority/download_firefox/*"
@@ -1102,11 +1106,11 @@ const AuthAndAccountSetupRoutes = ({
         />
         <Route
           path="/pair/supplicant/approve_signin/*"
-          element={<PairSupplicantApproveSignIn {...{integration}} />}
+          element={<PairSupplicantApproveSignIn {...{ integration }} />}
         />
         <Route
           path="/pair/supplicant/connect_this_device/*"
-          element={<PairSupplicantConnectThisDevice {...{integration}} />}
+          element={<PairSupplicantConnectThisDevice {...{ integration }} />}
         />
         <Route
           path="/pair/supplicant/download_firefox/*"
@@ -1130,6 +1134,7 @@ const AuthAndAccountSetupRoutes = ({
       <PromoQrMobile
         integration={integration}
         promoQrImageUrl={defaultCmsState.data?.defaultCms?.promoQrImageUrl}
+        cmsLoading={defaultCmsState.loading}
       />
     </>
   );

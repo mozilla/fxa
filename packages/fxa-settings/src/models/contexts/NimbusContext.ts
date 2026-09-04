@@ -14,8 +14,19 @@
  * ```
  */
 
-import React, { createContext, useContext, ReactNode, useEffect, useState, useMemo } from 'react';
-import { NimbusResult, initializeNimbus, NimbusContextT } from '../../lib/nimbus';
+import React, {
+  createContext,
+  useContext,
+  ReactNode,
+  useEffect,
+  useState,
+  useMemo,
+} from 'react';
+import {
+  NimbusResult,
+  initializeNimbus,
+  NimbusContextT,
+} from '../../lib/nimbus';
 import { AppContext } from './AppContext';
 import { useDynamicLocalization } from '../../contexts/DynamicLocalizationContext';
 import { parseAcceptLanguage } from '@fxa/shared/l10n';
@@ -32,7 +43,7 @@ interface NimbusApiResponse {
 const NIMBUS_PREVIEW_PARAM = 'nimbusPreview';
 const SENTRY_TAGS = {
   area: 'NimbusProvider',
-  component: 'NimbusContext'
+  component: 'NimbusContext',
 } as const;
 
 export interface NimbusContextValue {
@@ -41,7 +52,10 @@ export interface NimbusContextValue {
   error?: Error;
 }
 
-const NimbusContext = createContext<NimbusContextValue | undefined>(undefined);
+// Exported so tests and stories can supply a branch without a network fetch.
+export const NimbusContext = createContext<NimbusContextValue | undefined>(
+  undefined
+);
 
 export function useNimbusContext() {
   const context = useContext(NimbusContext);
@@ -79,13 +93,16 @@ export function NimbusProvider({ children }: NimbusProviderProps) {
 
   // Get metricsEnabled from accounts object, safely handling undefined values
   const accountMetricsEnabled = useMemo(() => {
-    if (!currentAccountUid || !accounts || accounts[currentAccountUid]?.metricsEnabled === undefined) {
+    if (
+      !currentAccountUid ||
+      !accounts ||
+      accounts[currentAccountUid]?.metricsEnabled === undefined
+    ) {
       return true;
     }
 
     return accounts[currentAccountUid]?.metricsEnabled;
   }, [currentAccountUid, accounts]);
-
 
   useEffect(() => {
     // Disable Nimbus if metrics are opted out
@@ -119,7 +136,8 @@ export function NimbusProvider({ children }: NimbusProviderProps) {
 
         const nimbusPreview = config.nimbus.preview
           ? config.nimbus.preview
-          : searchParams(window.location.search)[NIMBUS_PREVIEW_PARAM] === 'true';
+          : searchParams(window.location.search)[NIMBUS_PREVIEW_PARAM] ===
+            'true';
 
         const nimbusResult = await initializeNimbus(
           nimbusUserId,
@@ -136,7 +154,9 @@ export function NimbusProvider({ children }: NimbusProviderProps) {
             const features = apiResponse.Features || apiResponse.features;
             setExperiments({
               features: features,
-              nimbusUserId: uniqueUserId,
+              // The ID Cirrus enrolled with, not uniqueUserId: analysis joins
+              // events to enrollment on this value.
+              nimbusUserId,
             } as NimbusResult);
           } else {
             setExperiments(null);
@@ -149,12 +169,16 @@ export function NimbusProvider({ children }: NimbusProviderProps) {
           extra: {
             uniqueUserId,
             nimbusEnabled: config.nimbus.enabled,
-            previewMode: config.nimbus.preview
+            previewMode: config.nimbus.preview,
           },
         });
 
         if (mounted) {
-          setError(err instanceof Error ? err : new Error('Failed to fetch nimbus experiments'));
+          setError(
+            err instanceof Error
+              ? err
+              : new Error('Failed to fetch nimbus experiments')
+          );
           setLoading(false);
         }
       }
@@ -174,11 +198,14 @@ export function NimbusProvider({ children }: NimbusProviderProps) {
     accountMetricsEnabled,
   ]);
 
-  const value: NimbusContextValue = useMemo(() => ({
-    experiments,
-    loading,
-    error,
-  }), [experiments, loading, error]);
+  const value: NimbusContextValue = useMemo(
+    () => ({
+      experiments,
+      loading,
+      error,
+    }),
+    [experiments, loading, error]
+  );
 
   return React.createElement(NimbusContext.Provider, { value }, children);
 }
