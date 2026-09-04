@@ -1,8 +1,8 @@
 {
-  "commit": "b6c9ac71229501e596bd644e39d60121f3b692f5",
-  "summary": "Merge pull request #21142 from mozilla/fix/account-spec-locale-en",
-  "description": "fix(auth-server): expect the negotiated en locale in mailer assertions",
-  "timestamp": 1788475318000,
+  "commit": "eb1ac9ddab7149d8b07f98f9aa38dad7906ab916",
+  "summary": "Merge pull request #21139 from mozilla/fxa-14300",
+  "description": "refactor(settings): use stacked rectangular buttons for Google and Apple auth",
+  "timestamp": 1788482130000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
