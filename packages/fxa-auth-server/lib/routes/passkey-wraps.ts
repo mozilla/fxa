@@ -10,8 +10,9 @@ import {
   encodePasskeyWrapEnvelope,
   type NewPasskeyWrapData,
 } from '@fxa/accounts/passkey';
-import { AppError } from '@fxa/accounts/errors';
+import { AppError, ERRNO } from '@fxa/accounts/errors';
 import { AuthRequest } from '../types';
+import { GleanMetricsType } from '../metrics/glean';
 import { ConfigType } from '../../config';
 import { isPasskeyPasswordlessSyncEnabled } from '../passkey-utils';
 import { recordSecurityEvent } from './utils/security-event';
@@ -68,6 +69,22 @@ export function isWrapStale(createdAt: number, keysChangedAt: number): boolean {
 }
 
 /**
+ * Errnos the wrap service raises, as Glean `reason` values.
+ *
+ * Anything absent is reported as `unexpected` rather than named, so a new errno
+ * cannot quietly widen a reason the dictionary documents.
+ */
+const WRAP_FAILURE_REASONS: Record<number, string> = {
+  [ERRNO.PASSKEY_NOT_FOUND]: 'credential_not_found',
+  [ERRNO.PASSKEY_WRAP_NOT_FOUND]: 'wrap_not_found',
+  [ERRNO.PASSKEY_WRAP_CONFLICT]: 'conflict',
+  [ERRNO.PASSKEY_WRAP_STALE]: 'stale',
+};
+
+const failureReason = (err: unknown): string =>
+  WRAP_FAILURE_REASONS[(err as AppError)?.errno] ?? 'unexpected';
+
+/**
  * Handlers for the passkey wrap endpoints. The envelopes that let a passkey
  * unlock `kB`.
  */
@@ -75,7 +92,8 @@ export class PasskeyWrapsHandler {
   constructor(
     private readonly service: PasskeyService,
     private readonly db: DB,
-    private readonly customs: Customs
+    private readonly customs: Customs,
+    private readonly glean: GleanMetricsType
   ) {}
 
   /**
@@ -98,6 +116,7 @@ export class PasskeyWrapsHandler {
     const { credentialId } = payload;
 
     if (!isBoundTo(cid, credentialId)) {
+      this.glean.passkey.wrapCreateFailure(request, { reason: 'not_bound' });
       await this.recordEvent(request, 'account.passkey.wrap_creation_failure');
       throw AppError.invalidMfaToken();
     }
@@ -128,6 +147,9 @@ export class PasskeyWrapsHandler {
         Date.now()
       );
     } catch (err) {
+      this.glean.passkey.wrapCreateFailure(request, {
+        reason: failureReason(err),
+      });
       await this.recordEvent(request, 'account.passkey.wrap_creation_failure');
       throw err;
     }
@@ -135,6 +157,8 @@ export class PasskeyWrapsHandler {
     if (result === 'unchanged') {
       return { created: false };
     }
+
+    this.glean.passkey.wrapCreateComplete(request);
 
     // Guarded like the failure path: the row is already committed, so a failed
     // audit write must not turn a stored wrap into a 500 the client retries —
@@ -167,6 +191,7 @@ export class PasskeyWrapsHandler {
     const { credentialId } = request.params as { credentialId: string };
 
     if (!isBoundTo(cid, credentialId)) {
+      this.glean.passkey.wrapGetFailure(request, { reason: 'not_bound' });
       throw AppError.invalidMfaToken();
     }
 
@@ -178,13 +203,23 @@ export class PasskeyWrapsHandler {
       'passkeyWrapsGet'
     );
 
-    // Throws 404 for both an unknown credential (errno 224) and a credential
-    // with no wrap (errno 234); the distinction is PasskeyService's contract.
-    const wrap = await this.service.getPasskeyWrap(uid, credentialId);
+    let wrap;
+    try {
+      // Throws 404 for both an unknown credential (errno 224) and a credential
+      // with no wrap (errno 234); the distinction is PasskeyService's contract.
+      wrap = await this.service.getPasskeyWrap(uid, credentialId);
 
-    if (isWrapStale(wrap.createdAt, account.keysChangedAt)) {
-      throw AppError.passkeyWrapStale();
+      if (isWrapStale(wrap.createdAt, account.keysChangedAt)) {
+        throw AppError.passkeyWrapStale();
+      }
+    } catch (err) {
+      this.glean.passkey.wrapGetFailure(request, {
+        reason: failureReason(err),
+      });
+      throw err;
     }
+
+    this.glean.passkey.wrapGetComplete(request);
 
     return {
       ...encodePasskeyWrapEnvelope(wrap),
@@ -220,6 +255,7 @@ export const passkeyWrapsRoutes = (
   customs: Customs,
   db: DB,
   config: ConfigType,
+  glean: GleanMetricsType,
   log: any
 ) => {
   const passwordlessSyncEnabledCheck = () =>
@@ -233,7 +269,8 @@ export const passkeyWrapsRoutes = (
   const handler = new PasskeyWrapsHandler(
     Container.get(PasskeyService),
     db,
-    customs
+    customs,
+    glean
   );
 
   return [

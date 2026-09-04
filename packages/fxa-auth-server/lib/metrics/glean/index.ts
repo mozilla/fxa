@@ -471,6 +471,14 @@ export function gleanMetrics(config: ConfigType) {
       createComplete: createEventFn('passkey_create_complete'),
       deleteSuccess: createEventFn('passkey_delete_success'),
       renameSuccess: createEventFn('passkey_rename_success'),
+      wrapCreateComplete: createEventFn('passkey_wrap_create_complete'),
+      wrapCreateFailure: createEventFn('passkey_wrap_create_failure', {
+        additionalMetrics: extraKeyReasonCb,
+      }),
+      wrapGetComplete: createEventFn('passkey_wrap_get_complete'),
+      wrapGetFailure: createEventFn('passkey_wrap_get_failure', {
+        additionalMetrics: extraKeyReasonCb,
+      }),
     },
   };
 }
