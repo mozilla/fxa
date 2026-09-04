@@ -47,31 +47,18 @@ const AlternativeAuthOptions = ({
     return null;
   }
 
-  const variant = renderPasskey ? 'box' : 'icon';
-
-  // inline → 'or'; standalone + icon → 'Sign in with'; standalone + box → no separator
-  let separator: { ftlId: string; defaultText: string } | null = null;
-  if (!isStandalone) {
-    separator = { ftlId: 'third-party-auth-options-or', defaultText: 'or' };
-  } else if (!renderPasskey) {
-    separator = {
-      ftlId: 'third-party-auth-options-sign-in-with',
-      defaultText: 'Sign in with',
-    };
-  }
-
   return (
     <div className="flex flex-col">
-      {separator && (
+      {!isStandalone && (
         <div
           className={`text-sm flex items-center justify-center mt-6 ${
             errorBanner ? 'mb-0' : 'mb-6'
           }`}
         >
           <div className="flex-1 h-px bg-grey-300 divide-x"></div>
-          <FtlMsg id={separator.ftlId}>
+          <FtlMsg id="third-party-auth-options-or">
             <div className="mx-4 text-base text-grey-500 dark:text-grey-200 font-extralight">
-              {separator.defaultText}
+              or
             </div>
           </FtlMsg>
           <div className="flex-1 h-px bg-grey-300 divide-x"></div>
@@ -91,7 +78,6 @@ const AlternativeAuthOptions = ({
         {showThirdPartyAuth && (
           <ThirdPartyAuth
             {...{
-              variant,
               viewName,
               flowQueryParams,
               disabled,

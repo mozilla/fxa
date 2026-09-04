@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { ReactElement, useCallback } from 'react';
+import { useCallback } from 'react';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import { useLocalization } from '@fluent/react';
 
 import { ReactComponent as GoogleLogo } from './google-logo-viewbox.svg';
-import { ReactComponent as AppleLogo } from './apple-logo-viewbox-white.svg';
 import { ReactComponent as AppleLogoBoxBlack } from './apple-logo-cropped-black.svg';
 import { ReactComponent as AppleLogoBoxWhite } from './apple-logo-cropped-white.svg';
 
@@ -17,14 +16,11 @@ import GleanMetrics from '../../lib/glean';
 import { QueryParams } from '../..';
 import BoxButton from '../BoxButton';
 
-export type ThirdPartyAuthVariant = 'icon' | 'box';
-
 export type ThirdPartyAuthProps = {
   onContinueWithGoogle?: () => void;
   onContinueWithApple?: () => void;
   viewName?: string;
   flowQueryParams?: QueryParams;
-  variant?: ThirdPartyAuthVariant;
   disabled?: boolean;
 };
 
@@ -38,16 +34,12 @@ const ThirdPartyAuth = ({
   onContinueWithApple,
   viewName = 'unknown',
   flowQueryParams,
-  variant = 'icon',
   disabled = false,
 }: ThirdPartyAuthProps) => {
   const config = useConfig();
 
-  const buttonContainerClassName =
-    variant === 'box' ? 'flex flex-col gap-2.5' : 'flex gap-4 justify-center';
-
   return (
-    <div className={buttonContainerClassName}>
+    <div className="flex flex-col gap-2.5">
       <ThirdPartySignInButton
         {...{
           party: 'google',
@@ -58,14 +50,8 @@ const ThirdPartyAuth = ({
           prompt: 'consent',
           viewName,
           flowQueryParams,
-          variant,
           disabled,
           onSubmit: onContinueWithGoogle,
-          buttonText: (
-            <>
-              <GoogleLogo className="w-full h-auto" />
-            </>
-          ),
         }}
       />
       <ThirdPartySignInButton
@@ -79,14 +65,8 @@ const ThirdPartyAuth = ({
           viewName,
           responseMode: 'form_post',
           flowQueryParams,
-          variant,
           disabled,
           onSubmit: onContinueWithApple,
-          buttonText: (
-            <>
-              <AppleLogo className="w-full h-auto" />
-            </>
-          ),
         }}
       />
     </div>
@@ -103,11 +83,9 @@ const ThirdPartySignInButton = ({
   prompt,
   responseType,
   responseMode,
-  buttonText,
   onSubmit,
   viewName,
   flowQueryParams,
-  variant = 'icon',
   disabled = false,
 }: {
   party: 'google' | 'apple';
@@ -119,11 +97,9 @@ const ThirdPartySignInButton = ({
   prompt: string;
   responseType: string;
   responseMode?: string;
-  buttonText: ReactElement;
   onSubmit?: () => void;
   viewName?: string;
   flowQueryParams?: QueryParams;
-  variant?: ThirdPartyAuthVariant;
   disabled?: boolean;
 }) => {
   const { logViewEventOnce } = useMetrics();
@@ -205,64 +181,37 @@ const ThirdPartySignInButton = ({
     onSubmit,
   ]);
 
-  if (variant === 'box') {
-    const labelFtlId =
-      party === 'google'
-        ? 'continue-with-google-button'
-        : 'continue-with-apple-button';
-    const labelDefault =
-      party === 'google' ? 'Continue with Google' : 'Continue with Apple';
-
-    let leadingIcon: React.ReactNode;
-    switch (party) {
-      case 'google':
-        leadingIcon = <GoogleLogo className="w-6 h-6" />;
-        break;
-      case 'apple':
-        leadingIcon = (
-          // In forced-color mode (HCM), the Apple mark opts out of the system palette
-          // and gets an opposite-colour chip for contrast.
-          <>
-            <span className="flex items-center justify-center dark:hidden forced-colors:[forced-color-adjust:none] forced-colors:rounded-full forced-colors:bg-white forced-colors:p-1.5">
-              <AppleLogoBoxBlack className="w-6 h-6" />
-            </span>
-            <span className="hidden items-center justify-center dark:flex forced-colors:[forced-color-adjust:none] forced-colors:rounded-full forced-colors:bg-black forced-colors:p-1.5">
-              <AppleLogoBoxWhite className="w-6 h-6" />
-            </span>
-          </>
-        );
-        break;
-    }
-
-    return (
-      <BoxButton
-        onClick={handleClick}
-        aria-label={getLoginAriaLabel()}
-        leadingIcon={leadingIcon}
-        disabled={disabled}
-      >
-        <FtlMsg id={labelFtlId}>{labelDefault}</FtlMsg>
-      </BoxButton>
-    );
-  }
+  const isGoogle = party === 'google';
+  const labelFtlId = isGoogle
+    ? 'continue-with-google-button'
+    : 'continue-with-apple-button';
+  const labelDefault = isGoogle
+    ? 'Continue with Google'
+    : 'Continue with Apple';
+  const leadingIcon = isGoogle ? (
+    <GoogleLogo className="w-6 h-6" />
+  ) : (
+    // In forced-color mode (HCM), the Apple mark opts out of the system palette
+    // and gets an opposite-colour chip for contrast.
+    <>
+      <span className="flex items-center justify-center dark:hidden forced-colors:[forced-color-adjust:none] forced-colors:rounded-full forced-colors:bg-white forced-colors:p-1.5">
+        <AppleLogoBoxBlack className="w-6 h-6" />
+      </span>
+      <span className="hidden items-center justify-center dark:flex forced-colors:[forced-color-adjust:none] forced-colors:rounded-full forced-colors:bg-black forced-colors:p-1.5">
+        <AppleLogoBoxWhite className="w-6 h-6" />
+      </span>
+    </>
+  );
 
   return (
-    <button
-      type="button"
-      disabled={disabled}
-      className={`w-[60px] h-[60px] p-4 flex items-center justify-center rounded-full border focus-visible-default outline-offset-2
-      disabled:opacity-50 disabled:cursor-not-allowed
-      ${
-        party === 'google'
-          ? 'bg-[#F9F4F4] border-[#747775] border-[1px]'
-          : 'bg-black border-transparent dark:border-grey-300'
-      }
-      `}
+    <BoxButton
       onClick={handleClick}
       aria-label={getLoginAriaLabel()}
+      leadingIcon={leadingIcon}
+      disabled={disabled}
     >
-      {buttonText}
-    </button>
+      <FtlMsg id={labelFtlId}>{labelDefault}</FtlMsg>
+    </BoxButton>
   );
 };
 

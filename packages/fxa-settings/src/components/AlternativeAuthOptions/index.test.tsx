@@ -43,9 +43,9 @@ describe('AlternativeAuthOptions', () => {
       expect(screen.getByText('or')).toBeInTheDocument();
     });
 
-    it('renders separator with "Sign in with" copy when standalone (icon variant)', () => {
+    it('renders no separator when standalone', () => {
       renderWithLocalizationProvider(<Subject isStandalone />);
-      expect(screen.getByText('Sign in with')).toBeInTheDocument();
+      expect(screen.queryByText('or')).not.toBeInTheDocument();
     });
 
     it('renders the inline error banner when provided', () => {
@@ -57,12 +57,25 @@ describe('AlternativeAuthOptions', () => {
       expect(screen.getByTestId('banner')).toBeInTheDocument();
     });
 
-    it('renders third-party buttons in icon variant (circular 60x60) when passkey is hidden', async () => {
-      renderWithLocalizationProvider(<Subject />);
-      const googleButton = await screen.findByLabelText('Continue with Google');
-      expect(googleButton).toHaveClass('rounded-full');
-      expect(googleButton.className).toMatch(/w-\[60px\]/);
-    });
+    it.each([
+      { passkeyState: 'hidden', props: {} },
+      {
+        passkeyState: 'shown',
+        props: {
+          showPasskeySignin: true,
+          passkeySignIn: { onClick: jest.fn() },
+        },
+      },
+    ])(
+      'renders third-party buttons with a visible provider label when the passkey button is $passkeyState',
+      async ({ props }) => {
+        renderWithLocalizationProvider(<Subject {...props} />);
+        const googleButton = await screen.findByRole('button', {
+          name: 'Continue with Google',
+        });
+        expect(googleButton).toHaveTextContent('Continue with Google');
+      }
+    );
   });
 
   describe('passkey button rendering', () => {
@@ -87,18 +100,7 @@ describe('AlternativeAuthOptions', () => {
       screen.getByText('Sign in with passkey');
     });
 
-    it('switches the third-party row to box variant when the passkey button is shown', async () => {
-      renderWithLocalizationProvider(
-        <Subject showPasskeySignin passkeySignIn={{ onClick: jest.fn() }} />
-      );
-      const googleButton = await screen.findByRole('button', {
-        name: 'Continue with Google',
-      });
-      expect(googleButton).not.toHaveClass('rounded-full');
-      expect(googleButton.className).toMatch(/rounded-md/);
-    });
-
-    it('renders the default "or" separator in box variant when inline (primary form is above)', () => {
+    it('renders the default "or" separator when inline (primary form is above)', () => {
       renderWithLocalizationProvider(
         <Subject showPasskeySignin passkeySignIn={{ onClick: jest.fn() }} />
       );
@@ -113,7 +115,6 @@ describe('AlternativeAuthOptions', () => {
           passkeySignIn={{ onClick: jest.fn() }}
         />
       );
-      expect(screen.queryByText('Sign in with')).not.toBeInTheDocument();
       expect(screen.queryByText('or')).not.toBeInTheDocument();
     });
   });
