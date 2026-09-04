@@ -114,6 +114,7 @@ const settingsConfig = {
   pairing: {
     browserBuild: config.get('pairing.browser_build'),
     iosUrlScheme: config.get('pairing.ios_url_scheme'),
+    iosHandoff: config.get('pairing.ios_handoff'),
     clients: config.get('pairing.clients'),
     serverBaseUri: config.get('pairing.server_base_uri'),
     version: config.get('pairing.version'),
