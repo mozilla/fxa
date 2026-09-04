@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 7855c75aa7638ac34f6a9853c6eadc6f30c8f29f</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 7855c75aa7638ac34f6a9853c6eadc6f30c8f29f</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/4/2026, 11:34:55 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(pair): let a failed channel open be retried</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+- open() resolved on a failed connect, so openChannel()&#039;s catch never
+  ran and never cleared its client reference; every later call then
+  returned early on &quot;Pairing channel already open!&quot;.
+- The supplicant could not retry a channel after a flaky network or a
+  consumed channel id, short of a full page reload.
+- create() rethrows and attaches its listeners before `connected`;
+  open() did neither.
+
+This commit:
+
+- Rejects from open() once the error event has gone out.
+- Guards openChannel()&#039;s catch with isPostCompletionReconnect() so the
+  post-OAuth reload still reaches the success screen.
+- Attaches the channel listeners before dispatching `connected`.
+- Covers the retry path, the listener order, and the reload guard.
+
+Closes #FXA-14483</pre></dd>
+  </dl>
+</body>
+</html>
