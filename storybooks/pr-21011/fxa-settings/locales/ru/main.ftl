@@ -136,6 +136,13 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Оповещения о действиях по восстановлению доступа к Интернету
 
 
+pair-continue-in-firefox-heading = Продолжить в { -brand-firefox }
+pair-continue-in-firefox-description = Сопряжение происходит в { -brand-firefox }. Откройте его, чтобы завершить подключение этого устройства.
+pair-continue-in-firefox-button = Продолжить в { -brand-firefox }
+pair-continue-in-firefox-opening = Запускаем { -brand-firefox }
+pair-continue-in-firefox-get-firefox-link = Нет { -brand-firefox }? Скачайте сейчас
+
+
 dark-mode-toggle-light = Светлая
 dark-mode-toggle-dark = Тёмная
 dark-mode-toggle-system = Системная
@@ -220,20 +227,18 @@ form-verify-code-default-error = Это обязательное поле
 
 form-verify-totp-disabled-button-title-numeric = Введите { $codeLength }-значный код для продолжения
 form-verify-totp-disabled-button-title-alphanumeric = Введите для продолжения код из { $codeLength } символов
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Ключ восстановления аккаунта { -brand-firefox }
 get-data-trio-title-backup-verification-codes = Резервные коды аутентификации
 get-data-trio-download-2 =
-    .title = Скачать
     .aria-label = Скачать
+    .title = Скачать
 get-data-trio-copy-2 =
-    .title = Скопировать
     .aria-label = Скопировать
+    .title = Скопировать
 get-data-trio-print-2 =
-    .title = Печать
     .aria-label = Печать
+    .title = Печать
 
 
 alert-icon-aria-label =
@@ -278,8 +283,6 @@ icon-loading-arrow-aria-label =
     .aria-label = Загрузка
 icon-passkey-aria-label =
     .aria-label = Ключ доступа
-
-
 hearts-broken-image-aria-label =
     .aria-label = Компьютер, мобильный телефон и изображение разбитого сердца на каждом
 hearts-verified-image-aria-label =
@@ -447,8 +450,6 @@ avatar-default-avatar =
     .alt = Стандартный аватар
 
 
-
-
 bento-menu-title-3 = Продукты { -brand-mozilla }
 bento-menu-tagline = Больше продуктов от { -brand-mozilla }, которые защищают вашу конфиденциальность
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -513,8 +514,6 @@ dc-opt-out-success-2 = Отказ подтверждён. { -product-mozilla-acc
 dc-opt-in-success-2 = Спасибо! Отправка этих данных поможет нам улучшить { -product-mozilla-accounts(case: "nominative") }.
 dc-opt-in-out-error-2 = К сожалению, при изменении вашей настройки сбора данных возникла проблема
 dc-learn-more = Подробнее
-
-
 drop-down-menu-title-2 = Меню { -product-mozilla-account(case: "genitive") }
 drop-down-menu-signed-in-as-v2 = Вы вошли как
 drop-down-menu-sign-out = Выйти
@@ -614,8 +613,6 @@ flow-setup-phone-confirm-code-resend-code-button = Отправить код е�
 flow-setup-phone-confirm-code-resend-code-success = Код отправлен
 flow-setup-phone-confirm-code-success-message-v2 = Телефон для восстановления добавлен
 flow-change-phone-confirm-code-success-message = Телефон для восстановления изменён
-
-
 flow-setup-phone-submit-number-heading = Подтвердите свой номер телефона
 flow-setup-phone-verify-number-instruction = Вы получите текстовое сообщение от { -brand-mozilla } с кодом для подтверждения вашего номера телефона. Не сообщайте этот код никому.
 flow-setup-phone-submit-number-info-message-v2 = Телефон для восстановления доступен только в США и Канаде. Номера VoIP и псевдонимы телефона не рекомендуются.
@@ -1153,9 +1150,7 @@ recovery-phone-number-ending-digits = Номер, заканчивающийся
 oauth-error-1000 = Что-то пошло не так. Пожалуйста, закройте эту вкладку и попробуйте ещё раз.
 
 
-
-
-passkey-registration-error-not-allowed = Ошибка установки ключа доступа или он недоступен. Попробуйте еще раз или выберите другой метод.
+passkey-registration-error-not-allowed = Ошибка установки ключа доступа или он недоступен. Попробуйте ещё раз или выберите другой метод.
 passkey-registration-error-not-allowed-existing = Установка ключа доступа недоступна с этим устройством. Либо устройство уже зарегистрировано, либо процесс настройки был отменен.
 passkey-registration-error-timeout = Установка ключа доступа была отменена. Попробуйте снова.
 passkey-registration-canceled-v2 = Для установки ключа доступа истекло время ожидания или она была отменена.
@@ -1166,15 +1161,13 @@ passkey-registration-error-could-not-complete = Установка ключа д
 passkey-registration-error-could-not-complete-link = Узнать больше
 passkey-registration-error-security = На этой странице нельзя устанавливать ключи доступа. Используйте безопасный сайт и попробуйте снова.
 passkey-registration-error-invalid-state = Этот ключ доступа уже зарегистрирован. Используйте его, чтобы войти или добавить другой ключ доступа.
-passkey-registration-error-not-readable = Мы не смогли получить доступ к аутентификатору. Попробуйте еще раз или выберите другой метод.
+passkey-registration-error-not-readable = Мы не смогли получить доступ к аутентификатору. Попробуйте ещё раз или выберите другой метод.
 passkey-registration-error-constraint = Установка ключа доступа недоступна с этим устройством. Попробуйте другой метод или устройство.
 passkey-registration-error-unexpected = Не удалось установить ключ доступа. Попробуйте ещё раз или выберите другой метод.
-
-
 passkey-authentication-trouble-heading = Не удалось войти с помощью ключа доступа
 passkey-authentication-trouble-description = Попробуйте ещё раз или используйте другой способ входа.
 passkey-authentication-trouble-link = Как использовать ключи доступа
-passkey-authentication-error-not-allowed = Вход с ключом доступа не удался или недоступен. Попробуйте еще раз или выберите другой метод.
+passkey-authentication-error-not-allowed = Вход с ключом доступа не удался или недоступен. Попробуйте ещё раз или выберите другой метод.
 passkey-authentication-error-not-allowed-existing = Установка ключа доступа недоступна с этим устройством. Пожалуйста, попробуйте ещё раз или выберите другой метод.
 passkey-authentication-error-timeout = Время ожидания запроса ключа истекло. Повторите попытку.
 passkey-authentication-error-timeout-v2 = Время ожидания входа по ключу доступа истекло. Попробуйте снова.
@@ -1413,8 +1406,6 @@ service-welcome-vpn-heading = Далее: Включить VPN
 service-welcome-vpn-description = Ещё один шаг к повышению приватности вашего браузера. Перейдите на открытую панель и включите его.
 
 
-
-
 set-password-heading-v2 = Создайте пароль для синхронизации
 set-password-info-v2 = Это зашифрует ваши данные. Он должен отличаться от пароля вашего аккаунта { -brand-google } или { -brand-apple }.
 
@@ -1441,8 +1432,6 @@ complete-reset-pw-recovery-key-link = Использовать ключ восс
 reset-password-complete-banner-heading = Ваш пароль был сброшен.
 reset-password-complete-banner-message = Не забудьте сгенерировать новый ключ восстановления аккаунта в настройках { -product-mozilla-account(case: "genitive") }, чтобы избежать проблем со входом в систему в будущем.
 complete-reset-password-desktop-relay = { -brand-firefox } попытается отправить вас обратно, чтобы вы использовали псевдоним электронной почты после входа.
-
-
 confirm-backup-code-reset-password-input-label = Введите 10-значный код
 confirm-backup-code-reset-password-confirm-button = Подтвердить
 confirm-backup-code-reset-password-subheader = Введите резервный код аутентификации
@@ -1476,8 +1465,6 @@ password-reset-submit-button-2 = Продолжить
 
 reset-password-complete-header = Ваш пароль был сброшен
 reset-password-confirmed-cta = Перейти к { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Сбросить пароль
@@ -1559,8 +1546,6 @@ signin-passkey-fallback-body = Для обеспечения безопасно�
 signin-passkey-fallback-password-label = Пароль
 signin-passkey-fallback-continue = Продолжить
 signin-passkey-fallback-forgot-password-link = Забыли пароль?
-
-
 
 
 signin-passwordless-code-heading = Введите код подтверждения
@@ -1681,8 +1666,6 @@ signin-unblock-code-incorrect-format-2 = Код авторизации може�
 signin-unblock-resend-code-button = Нет в папке «Входящие» или «Спам»? Отправить снова
 signin-unblock-support-link = Почему это происходит?
 signin-unblock-desktop-relay = { -brand-firefox } попытается отправить вас обратно, чтобы вы использовали псевдоним электронной почты после входа.
-
-
 
 
 confirm-signup-code-page-title = Введите код подтверждения

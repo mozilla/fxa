@@ -126,19 +126,17 @@ form-password-with-inline-criteria-sr-passwords-match = Керелгән сер�
 form-verify-code-default-error = Бу кыр кирәкле
 
 
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } хисабын коткару ачкычы
 get-data-trio-download-2 =
-    .title = Иңдерү
     .aria-label = Иңдерү
+    .title = Иңдерү
 get-data-trio-copy-2 =
-    .title = Күчереп алу
     .aria-label = Күчереп алу
+    .title = Күчереп алу
 get-data-trio-print-2 =
-    .title = Бастыру
     .aria-label = Бастыру
+    .title = Бастыру
 
 
 icon-attention-aria-label =
@@ -239,8 +237,6 @@ avatar-default-avatar =
     .alt = Стандарт аватар
 
 
-
-
 bento-menu-title-3 = { -brand-mozilla } продуктлары
 bento-menu-vpn-2 = { -product-mozilla-vpn }
 bento-menu-monitor-3 = { -product-mozilla-monitor }
@@ -283,8 +279,6 @@ dc-heading = Мәгълүмат туплау һәм аны куллану
 dc-subheader-moz-accounts = { -product-mozilla-accounts }
 dc-subheader-ff-browser = { -brand-firefox } браузеры
 dc-learn-more = Күбрәк белү
-
-
 drop-down-menu-title-2 = { -product-mozilla-account } менюсы
 drop-down-menu-sign-out = Чыгу
 drop-down-menu-sign-out-error-2 = Гафу итегез, сезне чыгарганда кыенлыклар килеп чыкты
@@ -724,8 +718,6 @@ complete-reset-pw-recovery-key-link = Хисапны коткару ачкычы
 reset-password-complete-banner-heading = Серсүзегез алмаштырылды
 
 
-
-
 confirm-reset-password-with-code-heading = Эл. почтагызны тикшерегез
 confirm-reset-password-otp-submit-button = Дәвам итү
 confirm-reset-password-otp-resend-code-button = Кодны яңадан җибәрү
@@ -823,8 +815,6 @@ signin-unblock-code-required-error = Авторизация коды кирәк
 signin-unblock-code-incorrect-length = Авторизация кодында 8 символ булырга тиеш
 signin-unblock-code-incorrect-format-2 = Авторизация коды хәрефләр һәм/яки саннардан гына торырга тиеш
 signin-unblock-support-link = Бу нидән килеп чыга?
-
-
 
 
 confirm-signup-code-page-title = Раслау кодын кертү

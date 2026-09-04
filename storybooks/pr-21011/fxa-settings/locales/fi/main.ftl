@@ -181,19 +181,17 @@ form-verify-code-default-error = Tämä kenttä on pakollinen
 
 form-verify-totp-disabled-button-title-numeric = Anna { $codeLength }-numeroinen koodi jatkaaksesi
 form-verify-totp-disabled-button-title-alphanumeric = Anna { $codeLength }-merkkinen koodi jatkaaksesi
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox }-tilin palautusavain
 get-data-trio-download-2 =
-    .title = Lataa
     .aria-label = Lataa
+    .title = Lataa
 get-data-trio-copy-2 =
-    .title = Kopioi
     .aria-label = Kopioi
+    .title = Kopioi
 get-data-trio-print-2 =
-    .title = Tulosta
     .aria-label = Tulosta
+    .title = Tulosta
 
 
 alert-icon-aria-label =
@@ -228,8 +226,6 @@ icon-loading-arrow-aria-label =
     .aria-label = Ladataan
 icon-passkey-aria-label =
     .aria-label = Todentamisavain
-
-
 hearts-broken-image-aria-label =
     .aria-label = Tietokone ja matkapuhelin, joissa molemmissa on särkynyt sydän
 hearts-verified-image-aria-label =
@@ -374,8 +370,6 @@ avatar-default-avatar =
     .alt = Oletusavatar
 
 
-
-
 bento-menu-title-3 = { -brand-mozilla }-tuotteet
 bento-menu-tagline = Lisää yksityisyyttäsi suojaavia tuotteita { -brand-mozilla }lta
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -441,8 +435,6 @@ dc-opt-out-success-2 = Poistuminen onnistui. { -product-mozilla-accounts } ei l�
 dc-opt-in-success-2 = Kiitos! Tämän tiedon jakaminen auttaa parantamaan { -product-mozilla-accounts } -palvelua.
 dc-opt-in-out-error-2 = Valitettavasti tiedonkeruuasetusten muuttamisen yhteydessä ilmeni ongelma
 dc-learn-more = Lue lisää
-
-
 drop-down-menu-title-2 = { -product-mozilla-account }en valikko
 drop-down-menu-signed-in-as-v2 = Kirjauduttu tunnuksella
 drop-down-menu-sign-out = Kirjaudu ulos
@@ -516,8 +508,6 @@ flow-setup-phone-confirm-code-expired = Vanheniko koodi?
 flow-setup-phone-confirm-code-resend-code-button = Lähetä koodi uudelleen
 flow-setup-phone-confirm-code-resend-code-success = Koodi lähetetty
 flow-setup-phone-confirm-code-success-message-v2 = Palauttamisen puhelinnumero lisätty
-
-
 flow-setup-phone-submit-number-heading = Vahvista puhelinnumerosi
 flow-setup-phone-submit-number-button = Lähetä koodi
 
@@ -957,15 +947,11 @@ recovery-phone-number-ending-digits = Numero, joka päättyy { $lastFourPhoneNum
 oauth-error-1000 = Jokin meni pieleen. Sulje tämä välilehti ja yritä uudelleen.
 
 
-
-
 passkey-registration-error-timeout = Todentamisavaimen määritys peruttiin. Yritä uudelleen.
 passkey-registration-canceled-link = Lue lisää
 passkey-registration-error-not-supported-v2 = Selaimesi tai laitteesi ei tue todentamisavaimia.
 passkey-registration-error-not-supported-link = Lue lisää
 passkey-registration-error-could-not-complete-link = Lue lisää
-
-
 passkey-authentication-error-timeout = Todentamisavainpyyntö aikakatkaistiin. Yritä uudelleen.
 passkey-authentication-error-not-supported-v2 = Selaimesi tai laitteesi ei tue todentamisavaimia.
 passkey-authentication-error-unexpected = Jotain meni pieleen. Yritä uudelleen tai valitse toinen kirjautumismenetelmä.
@@ -1168,8 +1154,6 @@ service-welcome-signin-success-banner = Kirjautuminen onnistui!
 service-welcome-vpn-heading = Seuraavaksi: Ota VPN käyttöön
 
 
-
-
 set-password-heading-v2 = Luo salasana synkronointia varten
 
 
@@ -1191,8 +1175,6 @@ complete-reset-password-success-alert = Salasana asetettu
 complete-reset-password-error-alert = Valitettavasti salasanaa asettaessa ilmeni ongelma
 complete-reset-pw-recovery-key-link = Käytä tilin palautusavainta
 reset-password-complete-banner-heading = Salasanasi on nollattu.
-
-
 confirm-backup-code-reset-password-input-label = Kirjoita 10-merkkinen koodi
 confirm-backup-code-reset-password-confirm-button = Vahvista
 confirm-backup-code-reset-password-subheader = Anna varatodennuskoodi
@@ -1223,8 +1205,6 @@ password-reset-submit-button-2 = Jatka
 
 reset-password-complete-header = Salasanasi on nollattu
 reset-password-confirmed-cta = Jatka palveluun { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = Nollaa salasanasi
@@ -1292,8 +1272,6 @@ signin-passkey-fallback-body = Tietojesi suojaamiseksi sinun on annettava salasa
 signin-passkey-fallback-password-label = Salasana
 signin-passkey-fallback-continue = Jatka
 signin-passkey-fallback-forgot-password-link = Unohditko salasanan?
-
-
 
 
 signin-passwordless-code-heading = Kirjoita vahvistuskoodi
@@ -1386,8 +1364,6 @@ signin-unblock-code-incorrect-length = Valtuutuskoodin tulee sisältää 8 merkk
 signin-unblock-code-incorrect-format-2 = Valtuutuskoodi voi sisältää vain kirjaimia ja/tai numeroita
 signin-unblock-resend-code-button = Ei saapuneissa tai roskapostissa? Lähetä uudestaan
 signin-unblock-support-link = Mistä tämä johtuu?
-
-
 
 
 confirm-signup-code-page-title = Kirjoita vahvistuskoodi

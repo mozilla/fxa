@@ -194,21 +194,18 @@ form-verify-totp-disabled-button-title-numeric = Enter { $codeLength }-digit cod
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
 form-verify-totp-disabled-button-title-alphanumeric = Enter { $codeLength }-character code to continue
-
-# GetDataTrio component, part of Account Recovery Key flow
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } account recovery key
 get-data-trio-title-backup-verification-codes = Backup authentication codes
 get-data-trio-download-2 =
-    .title = Download
     .aria-label = Download
+    .title = Download
 get-data-trio-copy-2 =
-    .title = Copy
     .aria-label = Copy
+    .title = Copy
 get-data-trio-print-2 =
-    .title = Print
     .aria-label = Print
+    .title = Print
 
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
@@ -272,10 +269,6 @@ icon-loading-arrow-aria-label =
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = Passkey
-
-## Images - these are all aria labels used for illustrations
-## Aria labels are used as alternate text that can be read aloud by screen readers.
-
 hearts-broken-image-aria-label =
     .aria-label = A computer and a mobile phone and an image of a broken heart on each
 hearts-verified-image-aria-label =
@@ -524,9 +517,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-title-3 = { -brand-mozilla } products
 bento-menu-tagline = More products from { -brand-mozilla } that protect your privacy
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -614,9 +604,6 @@ dc-opt-out-success-2 = Opt out successful. { -product-mozilla-accounts } won’t
 dc-opt-in-success-2 = Thanks! Sharing this data helps us improve { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Sorry, there was a problem changing your data collection preference
 dc-learn-more = Learn more
-
-# DropDownAvatarMenu component
-
 drop-down-menu-title-2 = { -product-mozilla-account } menu
 # This is displayed in the Settings menu after user's click on their profile icon.
 # Following this string on a new line will be their display name (user's name or email)
@@ -770,9 +757,6 @@ flow-setup-phone-confirm-code-resend-code-button = Resend code
 flow-setup-phone-confirm-code-resend-code-success = Code sent
 flow-setup-phone-confirm-code-success-message-v2 = Recovery phone added
 flow-change-phone-confirm-code-success-message = Recovery phone changed
-
-## FlowSetupPhoneConfirmCode
-
 flow-setup-phone-submit-number-heading = Verify your phone number
 # The code is a 6-digit code send by text message/SMS
 flow-setup-phone-verify-number-instruction = You’ll get a text message from { -brand-mozilla } with a code to verify your number. Don’t share this code with anyone.
@@ -1482,9 +1466,6 @@ oauth-error-1000 = Something went wrong. Please close this tab and try again.
 ## Passkey error messages
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
-
-# Registration errors
-
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = Passkey setup failed or is unavailable. Try again or choose another method.
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
@@ -1516,9 +1497,6 @@ passkey-registration-error-not-readable = We couldn’t access the authenticator
 passkey-registration-error-constraint = Passkey setup isn’t available with this device. Try another method or device.
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = Passkey setup failed. Try again or choose another method.
-
-# Authentication errors
-
 # Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
 # available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
 # points the user to another way to sign in.
@@ -1835,9 +1813,6 @@ service-welcome-vpn-description = One more step to boost your browser’s privac
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
 
-
-# password to complete their sign-in when they want to login to a service requiring it.
-
 set-password-heading-v2 = Create password to sync
 # "This" refers to the heading, "Create password to sync"
 set-password-info-v2 = This encrypts your data. It needs to be different from your { -brand-google } or { -brand-apple } account password.
@@ -1887,9 +1862,6 @@ reset-password-complete-banner-message = Don’t forget to generate a new accoun
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = { -brand-firefox } will try sending you back to use an email mask after you sign in.
-
-# ConfirmBackupCodeResetPassword page
-
 confirm-backup-code-reset-password-input-label = Enter 10-character code
 confirm-backup-code-reset-password-confirm-button = Confirm
 confirm-backup-code-reset-password-subheader = Enter backup authentication code
@@ -1939,9 +1911,6 @@ reset-password-confirmed-cta = Continue to { $serviceName }
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
-
-
-# password, and they previously had set up an account recovery method.
 
 password-reset-recovery-method-header = Reset your password
 password-reset-recovery-method-subheader = Choose a recovery method
@@ -2051,11 +2020,6 @@ signin-passkey-fallback-heading = Enter your password to sync
 signin-passkey-fallback-body = To keep your data safe, you need to enter your password when you use this passkey.
 signin-passkey-fallback-password-label = Password
 signin-passkey-fallback-continue = Continue
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2248,9 +2212,6 @@ signin-unblock-desktop-relay = { -brand-firefox } will try sending you back to u
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
-
-
-# and a confirmation code has been sent to their email address.
 
 # Page title show in browser title bar or page tab
 confirm-signup-code-page-title = Enter confirmation code

@@ -168,20 +168,18 @@ form-verify-code-default-error = Ovo je obavezno polje
 
 form-verify-totp-disabled-button-title-numeric = Upiši { $codeLength }-znamenkasti kod
 form-verify-totp-disabled-button-title-alphanumeric = Upiši { $codeLength }-znakovni kod
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = Ključ za obnavljanje { -brand-firefox } računa
 get-data-trio-title-backup-verification-codes = Rezervni kodovi za autentifikaciju
 get-data-trio-download-2 =
-    .title = Preuzmi
     .aria-label = Preuzmi
+    .title = Preuzmi
 get-data-trio-copy-2 =
-    .title = Kopiraj
     .aria-label = Kopiraj
+    .title = Kopiraj
 get-data-trio-print-2 =
-    .title = Ispiši
     .aria-label = Ispiši
+    .title = Ispiši
 
 
 alert-icon-aria-label =
@@ -222,8 +220,6 @@ icon-loading-arrow-aria-label =
     .aria-label = Učitavanje
 icon-passkey-aria-label =
     .aria-label = Lozinka
-
-
 hearts-broken-image-aria-label =
     .aria-label = Računalo i mobitel sa slikom slomljenog srca
 hearts-verified-image-aria-label =
@@ -360,8 +356,6 @@ avatar-default-avatar =
     .alt = Zadani avatar
 
 
-
-
 bento-menu-title-3 = { -brand-mozilla } proizvodi
 bento-menu-tagline = Daljnji { -brand-mozilla } proizvodi koji štite tvoju privatnost
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -420,8 +414,6 @@ dc-subheader-content-2 = Dozvoli da { -product-mozilla-accounts } šalju tehnič
 dc-opt-out-success-2 = Isključivanje uspjelo. { -product-mozilla-accounts } neće slati tehničke podatke ili podatke o interakciji na { -brand-mozilla }.
 dc-opt-in-success-2 = Hvala! Dijeljenje ovih podataka nam pomaže poboljšati { -product-mozilla-accounts }.
 dc-learn-more = Saznaj više
-
-
 drop-down-menu-title-2 = Izbornik za { -product-mozilla-account }
 drop-down-menu-signed-in-as-v2 = Prijavljen/a si kao
 drop-down-menu-sign-out = Odjava
@@ -486,8 +478,6 @@ flow-setup-phone-confirm-code-resend-code-button = Ponovo pošalji kod
 flow-setup-phone-confirm-code-resend-code-success = Kod je poslan
 flow-setup-phone-confirm-code-success-message-v2 = Telefonski broj za oporavak je dodan
 flow-change-phone-confirm-code-success-message = Telefonski broj za oporavak je promijenjen
-
-
 flow-setup-phone-submit-number-heading = Potvrdi svoj broj telefona
 flow-setup-phone-submit-number-button = Pošalji kod
 
@@ -896,8 +886,6 @@ complete-reset-password-error-alert = Žao nam je. Došlo je do greške prilikom
 reset-password-complete-banner-heading = Tvoja je lozinka resetirana.
 
 
-
-
 confirm-reset-password-with-code-heading = Provjeri tvoju e-mail adresu
 confirm-reset-password-with-code-instruction = Poslali smo kod za potvrđivanje na <span>{ $email }</span>.
 confirm-reset-password-code-input-group-label = Upiši 8-znamenkasti kod u roku od 10 minuta
@@ -992,8 +980,6 @@ signin-unblock-code-incorrect-format-2 = Kod za autorizaciju smije sadržati sam
 signin-unblock-resend-code-button = Nije u sandučiću dolazne pošte niti u sandučiću neželjenih e-mailova? Pošalji ponovo
 signin-unblock-support-link = Zašto se ovo događa?
 signin-unblock-desktop-relay = { -brand-firefox } će te pokušati vratiti na karticu kako bi koristio/la masku e-mail adrese nakon što se prijaviš.
-
-
 
 
 confirm-signup-code-page-title = Upiši potvrdni kod

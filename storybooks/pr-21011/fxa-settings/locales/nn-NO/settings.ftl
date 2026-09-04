@@ -75,6 +75,19 @@ choose-newsletters-option-test-pilot =
 choose-newsletters-option-reclaim-the-internet =
     .label = Handlingsvarsel for å vinne tilbake internett
 
+## ContinueInFirefox component - Part of the desktop-to-mobile pairing flow
+## Shown when the pairing QR code is opened in a browser other than Firefox.
+## It hands the pairing link to the Firefox app, and offers the app store when
+## Firefox is not installed on the device.
+
+pair-continue-in-firefox-heading = Hald fram i { -brand-firefox }
+# Opens the Firefox app on this device
+pair-continue-in-firefox-button = Hald fram i { -brand-firefox }
+# Shown while waiting for the Firefox app to take over
+pair-continue-in-firefox-opening = Opnar { -brand-firefox }
+# Sends the user to the App Store or Play Store to install Firefox
+pair-continue-in-firefox-get-firefox-link = Har du ikkje { -brand-firefox }? Skaff deg han no
+
 ## Dark mode toggle
 
 dark-mode-toggle-light = Lyst
@@ -502,6 +515,8 @@ password-reset-warning-have-key = Har du ein kontogjenopprettingsnøkkel?
 # "it" refers to the user's account recovery key.
 password-reset-warning-use-key-link-v2 = Bruk det for å tilbakestille passordet ditt og behalde nettlesardataa dine
 password-reset-warning-signed-in-device = Framleis logga inn på ei anna eining?
+password-reset-warning-restore-data-link = Les om korleis du gjenopprettar nettlesardata frå ei pålogga eining
+password-reset-warning-new-device = Brukar du ei ny eining, men får ikkje tilgang til dei gamle?
 
 ## Alert Bar
 
@@ -1063,6 +1078,10 @@ recent-activity-account-passwordless-login-otp-failed = Kode for passordlaus inn
 recent-activity-account-passwordless-login-otp-verified = Kode for passordlaus innlogging stadfesta
 recent-activity-account-passwordless-registration-complete = Registrering av passordlaus konto fullført
 recent-activity-account-recovery-codes-set = Gjenopprettingskodar innstilte
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
+recent-activity-account-passkey-wrap-created = Passnøkkel aktivert for synkronisering
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-creation-failure = Synkroniseringsoppsett med passnøkkel mislykkast
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Annan kontoaktivitet
 
@@ -1821,6 +1840,9 @@ pair2-authority-approve-sign-in-heading = Godkjenne innlogging?
 # Submit button confirming that the user started the pairing and approves the
 # other device being added to their account
 pair2-authority-approve-sign-in-confirm-button = Ja, godkjenn innlogging
+# "Not you?" asks whether someone other than the user started this sign-in.
+# The text inside <changePassword> links to the page for changing the password.
+pair2-authority-approve-sign-in-change-password = Ikkje deg? <changePassword>Endre passordet ditt</changePassword>
 
 ## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer after scanning the pairing QR code with

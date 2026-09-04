@@ -181,20 +181,18 @@ form-verify-code-default-error = Ko korápe ahaiva’erã
 
 form-verify-totp-disabled-button-title-numeric = Ehai ayvu orekóva { $codeLength } tai eku’e hag̃ua
 form-verify-totp-disabled-button-title-alphanumeric = Ehai ayvu orekóva { $codeLength } tai eku’e hag̃ua
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } Mba’ete mba’eñemi jeguerujeyrã
 get-data-trio-title-backup-verification-codes = Ayvu ñemoneĩrã jeykekoha
 get-data-trio-download-2 =
-    .title = Mboguejy
     .aria-label = Mboguejy
+    .title = Mboguejy
 get-data-trio-copy-2 =
-    .title = Monguatia
     .aria-label = Monguatia
+    .title = Monguatia
 get-data-trio-print-2 =
-    .title = Ñemonguatia
     .aria-label = Ñemonguatia
+    .title = Ñemonguatia
 
 
 alert-icon-aria-label =
@@ -239,8 +237,6 @@ icon-loading-arrow-aria-label =
     .aria-label = Henyhẽhína
 icon-passkey-aria-label =
     .aria-label = Ñe’ẽñemi
-
-
 hearts-broken-image-aria-label =
     .aria-label = Mohendaha ha pumbyry popegua korasõ jeka ra’ãnga reheve peteĩteĩvape
 hearts-verified-image-aria-label =
@@ -408,8 +404,6 @@ avatar-default-avatar =
     .alt = Avatar ypyguáva
 
 
-
-
 bento-menu-title-3 = { -brand-mozilla } apopyrekuéra
 bento-menu-tagline = { -brand-mozilla } apopyrekuéra omo’ãva nde rekoñemi
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -476,8 +470,6 @@ dc-opt-out-success-2 = Esẽ porã. { -product-mozilla-accounts } nomondomo’ã
 dc-opt-in-success-2 = ¡Aguyje! Emoherakuãvo ko’ã mba’ekuaarã ore pytyvõta { -product-mozilla-accounts } oiko porãvévo.
 dc-opt-in-out-error-2 = Ore ñyrõ, iñapañuái emoambuévo mba’ekuaarã ñembyaty eguerohoryvéva
 dc-learn-more = Kuaave
-
-
 drop-down-menu-title-2 = { -product-mozilla-account } poravorã
 drop-down-menu-signed-in-as-v2 = Eike peteĩramo
 drop-down-menu-sign-out = Ñesẽ
@@ -575,8 +567,6 @@ flow-setup-phone-confirm-code-resend-code-button = Emondojey ayvu
 flow-setup-phone-confirm-code-resend-code-success = Ayvu mondopyre
 flow-setup-phone-confirm-code-success-message-v2 = Pumbyry guerujeyrã mbojuajupyre
 flow-change-phone-confirm-code-success-message = Oñemoambue pumbyry guerujeyrã
-
-
 flow-setup-phone-submit-number-heading = Ehechajey ne pumbyry papapy
 flow-setup-phone-verify-number-instruction = Og̃uahẽta ñe’ẽmondo jehaipy { -brand-mozilla } guive peteĩ ayvu ehechajey hag̃ua nde papapy. Aníke emoherakuã ko ayvu.
 flow-setup-phone-submit-number-info-message-v2 = Pumbyry guerujeyrã ojeporukuaa Estados Unidos ha Canadá-pe añoite. Noñemoneĩri VoIP papapy avei pumbyry rovamo’ãha.
@@ -1112,8 +1102,6 @@ recovery-phone-number-ending-digits = Papapy opáva { $lastFourPhoneNumber }-pe
 oauth-error-1000 = Oĩ ndoikóiva. Emboty ko tendayke ha eha’ã jey.
 
 
-
-
 passkey-registration-error-not-allowed = Pe ñe’ẽ ñemi ñemboheko ndoikói térã ndojeporukuaái. Eha’ãjey ag̃ave térã eiporavo ambue.
 passkey-registration-error-not-allowed-existing = Ñe’ẽ ñemi ñemoheñói ndereiporukuaamo’ãi ko mba’e’okápe. Ikatu pe mba’e’oka oñemboheraguapýma térã ikatu ojehejareíma pe iñemboheko.
 passkey-registration-error-timeout = Ojehejarei ñe’ẽ ñemi ñemboheko. Eha’ãjey ag̃ave.
@@ -1128,8 +1116,6 @@ passkey-registration-error-invalid-state = Ko ñemigua oñemboheraguapýma. Eipo
 passkey-registration-error-not-readable = Ndoroikekuaái moañetehápe. Eha’ã pyahu jey térã eiporavo ambueháicha.
 passkey-registration-error-constraint = Ñe’ẽ ñemi jeikeha ñemboheko noĩri ko mba’e’okápe. Eiporu ambue mba’e térã mba’e’oka.
 passkey-registration-error-unexpected = Ñe’ẽ ñemi jeikeha ñemboheko ndoikói. Eha’ãjey térã eiporavo ambue.
-
-
 passkey-authentication-trouble-heading = Ndaikatúi eike ñe’ẽ ñemi jeikaha ndive
 passkey-authentication-trouble-description = Eha’ẽ jey térã eiporu ambue mba’e eike hag̃ua.
 passkey-authentication-trouble-link = Mba’éicha eiporúta ñe’ẽ ñemi jeikaha
@@ -1371,8 +1357,6 @@ service-welcome-vpn-heading = Upéi: Emyandy VPN
 service-welcome-vpn-description = Eku’e oikoporã hag̃ua ne kundahára rekoñemi. Eho ta’ãngarupa ijurujávape ha emyandy.
 
 
-
-
 set-password-heading-v2 = Emoheñói ñe’ẽñemi embojuehe hag̃ua
 set-password-info-v2 = Kóva ombopapapy ne mba’ekuaarã. Iñambueva’erã ne ñe’ẽñemi { -brand-google } térã { -brand-apple } mba’etepeguágui.
 
@@ -1399,8 +1383,6 @@ complete-reset-pw-recovery-key-link = Eiporu mba’eñemi jeguerujeyrã
 reset-password-complete-banner-heading = Ojeguerujeýma ne ñe’ẽñemi.
 reset-password-complete-banner-message = Ani nderesarái emoheñóivo mba’eñemi pyahu mba’ete guerujeyrã { -product-mozilla-account } ñemboheko guive ani hag̃ua iñapañuái nde jeike.
 complete-reset-password-desktop-relay = { -brand-firefox } orahaukajeýta ndéve eiporu hag̃ua ñanduti veve rovamo’ãha eike rire ñandutípe.
-
-
 confirm-backup-code-reset-password-input-label = Ehai ayvu orekóva 10 tai
 confirm-backup-code-reset-password-confirm-button = Moneĩ
 confirm-backup-code-reset-password-subheader = Emoinge ayvu ñemoneĩrã jeykekoha
@@ -1434,8 +1416,6 @@ password-reset-submit-button-2 = Ku’ejey
 
 reset-password-complete-header = Oikojeýma ne ñe’ẽñemi
 reset-password-confirmed-cta = Eku’ejey { $serviceName } ndive
-
-
 
 
 password-reset-recovery-method-header = Embojevyjey ne ñe’ẽñemi
@@ -1516,8 +1496,6 @@ signin-passkey-fallback-body = Ereko hag̃ua mba’ekuaarã tekosãme, eikotev�
 signin-passkey-fallback-password-label = Ñe’ẽñemi
 signin-passkey-fallback-continue = Ku’ejey
 signin-passkey-fallback-forgot-password-link = ¿Nderesarái ñe’ẽñemígui?
-
-
 
 
 signin-passwordless-code-heading = Emoinge ayvu ñemoneĩrã
@@ -1634,8 +1612,6 @@ signin-unblock-code-incorrect-format-2 = Pe ayvu ñemoneĩrã orekova’erã tai
 signin-unblock-resend-code-button = ¿Ndaipóri ñe’ẽmondo g̃uahẽhápe térã spam marandurendápe? Emondojey
 signin-unblock-support-link = ¿Mba’ére oiko ko’ãva?
 signin-unblock-desktop-relay = { -brand-firefox } orahaukajeýta eimehápe eiporu hag̃ua ñanduti veve rovamo’ãha eñepyrũ rire tembiapo.
-
-
 
 
 confirm-signup-code-page-title = Emoinge ayvu jehechajeyrã

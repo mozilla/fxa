@@ -32,9 +32,6 @@ avatar-default-avatar =
 
 ##
 
-
-# BentoMenu component
-
 bento-menu-firefox-desktop = Peramban { -brand-firefox } untuk Desktop
 bento-menu-firefox-mobile = Peramban { -brand-firefox } untuk Seluler
 bento-menu-made-by-mozilla = Dibuat oleh { -brand-mozilla }
@@ -73,9 +70,6 @@ cs-disconnect-suspicious-advice-heading = Perangkat yang mencurigakan terputus
 cs-sign-out-button = Keluar
 
 ## Data collection section
-
-
-# DropDownAvatarMenu component
 
 drop-down-menu-sign-out = Keluar
 

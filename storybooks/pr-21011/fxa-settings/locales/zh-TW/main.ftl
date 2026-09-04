@@ -100,6 +100,13 @@ choose-newsletters-option-reclaim-the-internet =
     .label = 採取行動奪回網路環境
 
 
+pair-continue-in-firefox-heading = 到 { -brand-firefox } 繼續
+pair-continue-in-firefox-description = 需於 { -brand-firefox } 進行配對，請開啟 { -brand-firefox } 完成連結此裝置。
+pair-continue-in-firefox-button = 到 { -brand-firefox } 繼續
+pair-continue-in-firefox-opening = 正在開啟 { -brand-firefox }
+pair-continue-in-firefox-get-firefox-link = 沒有 { -brand-firefox } 嗎？立即安裝
+
+
 dark-mode-toggle-light = 亮色
 dark-mode-toggle-dark = 暗色
 dark-mode-toggle-system = 系統
@@ -169,20 +176,18 @@ form-verify-code-default-error = 此欄位必填
 
 form-verify-totp-disabled-button-title-numeric = 請輸入 { $codeLength } 位數的驗證碼繼續
 form-verify-totp-disabled-button-title-alphanumeric = 請輸入 { $codeLength } 個字元的驗證碼繼續
-
-
 get-data-trio-title-firefox = { -brand-firefox }
 get-data-trio-title-firefox-recovery-key = { -brand-firefox } 帳號救援金鑰
 get-data-trio-title-backup-verification-codes = 備用驗證碼
 get-data-trio-download-2 =
-    .title = 下載
     .aria-label = 下載
+    .title = 下載
 get-data-trio-copy-2 =
-    .title = 複製
     .aria-label = 複製
+    .title = 複製
 get-data-trio-print-2 =
-    .title = 列印
     .aria-label = 列印
+    .title = 列印
 
 
 alert-icon-aria-label =
@@ -227,8 +232,6 @@ icon-loading-arrow-aria-label =
     .aria-label = 載入中
 icon-passkey-aria-label =
     .aria-label = Passkey
-
-
 hearts-broken-image-aria-label =
     .aria-label = 一台電腦與一支手機，當中分別有破碎的心
 hearts-verified-image-aria-label =
@@ -396,8 +399,6 @@ avatar-default-avatar =
     .alt = 預設大頭照
 
 
-
-
 bento-menu-title-3 = { -brand-mozilla } 產品
 bento-menu-tagline = { -brand-mozilla } 更多會保護您隱私的產品
 bento-menu-vpn-2 = { -product-mozilla-vpn }
@@ -460,8 +461,6 @@ dc-opt-out-success-2 = 成功退出。{ -product-mozilla-accounts }將不再傳�
 dc-opt-in-success-2 = 感謝您！分享此資料可協助我們改進 { -product-mozilla-accounts }。
 dc-opt-in-out-error-2 = 很抱歉，更改您的資料收集偏好設定時發生問題
 dc-learn-more = 了解更多
-
-
 drop-down-menu-title-2 = { -product-mozilla-account } 選單
 drop-down-menu-signed-in-as-v2 = 已登入為
 drop-down-menu-sign-out = 登出
@@ -556,8 +555,6 @@ flow-setup-phone-confirm-code-resend-code-button = 重寄驗證碼
 flow-setup-phone-confirm-code-resend-code-success = 已傳送驗證碼
 flow-setup-phone-confirm-code-success-message-v2 = 已新增救援電話號碼
 flow-change-phone-confirm-code-success-message = 已更改救援電話號碼
-
-
 flow-setup-phone-submit-number-heading = 確認您的手機號碼
 flow-setup-phone-verify-number-instruction = 您會收到來自 { -brand-mozilla } 的驗證簡訊，當中包含一組驗證碼。請勿將此驗證碼提供給任何人。
 flow-setup-phone-submit-number-info-message-v2 = 救援電話號碼僅提供美國與加拿大使用者使用，不建議使用 VoIP 網路號碼或轉接門號。
@@ -1072,8 +1069,6 @@ recovery-phone-number-ending-digits = 號碼尾碼為 { $lastFourPhoneNumber }
 oauth-error-1000 = 有些東西不對勁，請關閉此分頁再試一次。
 
 
-
-
 passkey-registration-error-not-allowed = Passkey 設定失敗或無法使用，請再試一次或改用其他方式。
 passkey-registration-error-not-allowed-existing = 無法於此裝置設定 Passkey。可能是此裝置已經註冊過，或已取消設定過程。
 passkey-registration-error-timeout = Passkey 設定已取消，請再試一次。
@@ -1088,8 +1083,6 @@ passkey-registration-error-invalid-state = 此 Passkey 已經註冊，請使用�
 passkey-registration-error-not-readable = 無法存取驗證器，請再試一次或改用其他方式。
 passkey-registration-error-constraint = 無法於此裝置設定 Passkey，請改用其他方式或另一台裝置。
 passkey-registration-error-unexpected = Passkey 設定失敗，請再試一次或改用其他方式。
-
-
 passkey-authentication-trouble-heading = 無法使用 Passkey 登入
 passkey-authentication-trouble-description = 請再試一次，或改用其他方式登入。
 passkey-authentication-trouble-link = 如何使用 Passkey
@@ -1332,8 +1325,6 @@ service-welcome-vpn-heading = 下一步：開啟 VPN
 service-welcome-vpn-description = 讓您瀏覽器的隱私保護再進一步。請到開啟的面板中打開此功能。
 
 
-
-
 set-password-heading-v2 = 設定同步密碼
 set-password-info-v2 = 將會加密您的資料，必須與您的 { -brand-google } 或 { -brand-apple } 帳號密碼不同。
 
@@ -1360,8 +1351,6 @@ complete-reset-pw-recovery-key-link = 使用帳號救援金鑰
 reset-password-complete-banner-heading = 您的密碼已重設成功。
 reset-password-complete-banner-message = 別忘記到 { -product-mozilla-account } 設定中產生一把新的帳號救援金鑰，避免未來遇到登入問題。
 complete-reset-password-desktop-relay = 登入後，{ -brand-firefox } 將嘗試使用您的轉寄信箱帶您回到原網站。
-
-
 confirm-backup-code-reset-password-input-label = 請輸入 10 字元長的驗證碼
 confirm-backup-code-reset-password-confirm-button = 確認
 confirm-backup-code-reset-password-subheader = 請輸入備用驗證碼
@@ -1395,8 +1384,6 @@ password-reset-submit-button-2 = 繼續
 
 reset-password-complete-header = 已重設您的密碼
 reset-password-confirmed-cta = 繼續前往 { $serviceName }
-
-
 
 
 password-reset-recovery-method-header = 重設您的密碼
@@ -1470,8 +1457,6 @@ signin-passkey-fallback-body = 為了確保您的資料安全，使用這把 Pas
 signin-passkey-fallback-password-label = 密碼
 signin-passkey-fallback-continue = 繼續
 signin-passkey-fallback-forgot-password-link = 忘記密碼？
-
-
 
 
 signin-passwordless-code-heading = 請輸入確認碼
@@ -1572,8 +1557,6 @@ signin-unblock-code-incorrect-format-2 = 授權碼僅可包含字母或數字
 signin-unblock-resend-code-button = 沒在收件匣或垃圾信件匣中找到嗎？點此重送
 signin-unblock-support-link = 為什麼會發生？
 signin-unblock-desktop-relay = 登入後，{ -brand-firefox } 將嘗試使用您的轉寄信箱帶您回到原網站。
-
-
 
 
 confirm-signup-code-page-title = 請輸入確認碼
