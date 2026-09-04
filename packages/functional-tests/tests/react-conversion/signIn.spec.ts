@@ -23,7 +23,7 @@ test.describe('severity-2 #smoke', () => {
       // Sign out
       await settings.signOut();
 
-      await expect(signin.emailFirstHeading).toBeVisible();
+      await expect(signin.emailTextbox).toBeVisible();
     });
 
     test('sign in as an existing user with incorrect email case', async ({
@@ -44,7 +44,7 @@ test.describe('severity-2 #smoke', () => {
       // Sign out
       await settings.signOut();
 
-      await expect(signin.emailFirstHeading).toBeVisible();
+      await expect(signin.emailTextbox).toBeVisible();
     });
   });
 });

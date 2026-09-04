@@ -4,6 +4,7 @@
 
 /* eslint-disable no-undef */
 
+import crypto from 'node:crypto';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { StatsD } from 'hot-shots';
 
@@ -24,7 +25,6 @@ try {
 const { asyncIterable } = require('../../test/mocks');
 const { AppError: error } = require('@fxa/accounts/errors');
 const stripeError = require('stripe').errors;
-const uuidv4 = require('uuid').v4;
 
 const chance = new Chance();
 
@@ -756,7 +756,7 @@ describe('StripeHelper', () => {
     });
 
     it('returns false when there is no Stripe customer', async () => {
-      const uid = uuidv4().replace(/-/g, '');
+      const uid = crypto.randomUUID().replace(/-/g, '');
       customerExpanded = undefined;
       jest
         .spyOn(stripeHelper, 'expandResource')
@@ -891,7 +891,7 @@ describe('StripeHelper', () => {
   });
 
   describe('getInvoiceWithDiscount', () => {
-    it('returns an invoice with discounts expanded', async () => {
+    it('returns an invoice with discounts and their coupons expanded', async () => {
       const invoice = { id: 'invoiceId' };
       jest
         .spyOn(stripeHelper.stripe.invoices, 'retrieve')
@@ -901,7 +901,7 @@ describe('StripeHelper', () => {
       expect(stripeHelper.stripe.invoices.retrieve).toHaveBeenCalledTimes(1);
       expect(stripeHelper.stripe.invoices.retrieve).toHaveBeenCalledWith(
         invoice.id,
-        { expand: ['discounts'] }
+        { expand: ['discounts.source.coupon'] }
       );
     });
   });
@@ -1087,7 +1087,10 @@ describe('StripeHelper', () => {
       expect(stripeStub).toHaveBeenCalledTimes(1);
       expect(stripeStub).toHaveBeenCalledWith({
         subscription: 'sub123',
-        expand: ['discounts', 'lines.data.taxes.tax_rate_details.tax_rate'],
+        expand: [
+          'discounts.source.coupon',
+          'lines.data.taxes.tax_rate_details.tax_rate',
+        ],
       });
     });
 
@@ -1102,7 +1105,10 @@ describe('StripeHelper', () => {
       expect(stripeStub).toHaveBeenCalledTimes(1);
       expect(stripeStub).toHaveBeenCalledWith({
         subscription: 'sub123',
-        expand: ['discounts', 'lines.data.taxes.tax_rate_details.tax_rate'],
+        expand: [
+          'discounts.source.coupon',
+          'lines.data.taxes.tax_rate_details.tax_rate',
+        ],
         subscription_details: { cancel_at_period_end: false },
       });
     });
@@ -1771,27 +1777,37 @@ describe('StripeHelper', () => {
   });
 
   describe('fetchOpenInvoices', () => {
-    it('returns customer paypal agreement id', async () => {
+    const openInvoice = (subscriptionId: string) => {
       const invoice = deepCopy(invoicePaidSubscriptionCreate);
       invoice.parent = {
-        subscription_details: { subscription: { status: 'active' } },
+        type: 'subscription_details',
+        subscription_details: { subscription: subscriptionId },
       };
-      const invoice2 = deepCopy(invoicePaidSubscriptionCreate);
-      invoice2.parent = {
-        subscription_details: { subscription: { status: 'cancelled' } },
-      };
-      async function* genInvoice() {
-        yield invoice;
-        yield invoice2;
+      return invoice;
+    };
+
+    const mockInvoiceList = (invoices: any[]) => {
+      async function* genInvoices() {
+        for (const invoice of invoices) {
+          yield invoice;
+        }
       }
       jest
         .spyOn(stripeHelper.stripe.invoices, 'list')
-        .mockReturnValue(genInvoice());
-      const actual: any[] = [];
-      for await (const item of stripeHelper.fetchOpenInvoices(0)) {
-        actual.push(item);
+        .mockReturnValue(genInvoices());
+    };
+
+    const collectInvoices = async () => {
+      const invoices: any[] = [];
+      for await (const invoice of stripeHelper.fetchOpenInvoices(0)) {
+        invoices.push(invoice);
       }
-      expect(actual).toEqual([invoice]);
+      return invoices;
+    };
+
+    it('lists open send_invoice invoices without expanding the subscription', async () => {
+      mockInvoiceList([]);
+      await collectInvoices();
       expect(
         stripeHelper.stripe.invoices.list as jest.Mock
       ).toHaveBeenCalledTimes(1);
@@ -1803,11 +1819,50 @@ describe('StripeHelper', () => {
         collection_method: 'send_invoice',
         status: 'open',
         created: 0,
-        expand: [
-          'data.customer',
-          'data.parent.subscription_details.subscription',
-        ],
+        expand: ['data.customer'],
       });
+    });
+
+    it('yields invoices whose subscription is active', async () => {
+      const invoice = openInvoice('sub_active');
+      mockInvoiceList([invoice]);
+      jest
+        .spyOn(stripeHelper, 'expandResource')
+        .mockResolvedValue({ id: 'sub_active', status: 'active' });
+      const actual = await collectInvoices();
+      expect(actual).toEqual([invoice]);
+      expect(stripeHelper.expandResource).toHaveBeenCalledWith(
+        'sub_active',
+        SUBSCRIPTIONS_RESOURCE
+      );
+    });
+
+    it('skips invoices whose subscription is not active', async () => {
+      mockInvoiceList([openInvoice('sub_canceled')]);
+      jest
+        .spyOn(stripeHelper, 'expandResource')
+        .mockResolvedValue({ id: 'sub_canceled', status: 'canceled' });
+      const actual = await collectInvoices();
+      expect(actual).toEqual([]);
+    });
+
+    it('skips invoices whose subscription cannot be resolved', async () => {
+      mockInvoiceList([openInvoice('sub_missing')]);
+      jest.spyOn(stripeHelper, 'expandResource').mockResolvedValue(undefined);
+      const actual = await collectInvoices();
+      expect(actual).toEqual([]);
+    });
+
+    it('yields only the invoices with an active subscription', async () => {
+      const activeInvoice = openInvoice('sub_active');
+      mockInvoiceList([openInvoice('sub_canceled'), activeInvoice]);
+      jest
+        .spyOn(stripeHelper, 'expandResource')
+        .mockResolvedValueOnce({ id: 'sub_canceled', status: 'canceled' })
+        .mockResolvedValueOnce({ id: 'sub_active', status: 'active' });
+      const actual = await collectInvoices();
+      expect(actual).toEqual([activeInvoice]);
+      expect(stripeHelper.expandResource).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -2950,6 +3005,80 @@ describe('StripeHelper', () => {
       );
     });
 
+    it('re-fetches the invoice from Stripe when the cached discount is an unexpanded id', async () => {
+      const cachedInvoice = deepCopy(invoicePaidSubscriptionCreate);
+      cachedInvoice.discounts = ['di_1234567890abcdef'];
+      const expandedInvoice = deepCopy(invoicePaidSubscriptionCreate);
+      expandedInvoice.discounts = [
+        {
+          id: 'di_1234567890abcdef',
+          source: { coupon: { id: 'co_1234567890abcdef', percent_off: 20 } },
+        },
+      ];
+      stripeFirestore.retrieveInvoice = jest
+        .fn()
+        .mockResolvedValue(cachedInvoice);
+      stripeHelper.stripe.invoices.retrieve = jest
+        .fn()
+        .mockResolvedValue(expandedInvoice);
+
+      const result = await stripeHelper.expandResource(
+        cachedInvoice.id,
+        INVOICES_RESOURCE
+      );
+
+      expect(result).toEqual(expandedInvoice);
+      expect(stripeHelper.stripe.invoices.retrieve).toHaveBeenCalledWith(
+        cachedInvoice.id,
+        { expand: ['discounts.source.coupon'] }
+      );
+    });
+
+    it('returns the cached invoice when the discount has no source', async () => {
+      const cachedInvoice = deepCopy(invoicePaidSubscriptionCreate);
+      cachedInvoice.discounts = [
+        {
+          id: 'di_1234567890abcdef',
+          object: 'discount',
+          coupon: { id: 'co_1234567890abcdef', percent_off: 20 },
+        },
+      ];
+      stripeFirestore.retrieveInvoice = jest
+        .fn()
+        .mockResolvedValue(cachedInvoice);
+      stripeHelper.stripe.invoices.retrieve = jest.fn();
+
+      const result = await stripeHelper.expandResource(
+        cachedInvoice.id,
+        INVOICES_RESOURCE
+      );
+
+      expect(result).toEqual(cachedInvoice);
+      expect(stripeHelper.stripe.invoices.retrieve).not.toHaveBeenCalled();
+    });
+
+    it('does not re-fetch the invoice when the cached discount is already expanded', async () => {
+      const cachedInvoice = deepCopy(invoicePaidSubscriptionCreate);
+      cachedInvoice.discounts = [
+        {
+          id: 'di_1234567890abcdef',
+          source: { coupon: { id: 'co_1234567890abcdef', percent_off: 20 } },
+        },
+      ];
+      stripeFirestore.retrieveInvoice = jest
+        .fn()
+        .mockResolvedValue(cachedInvoice);
+      stripeHelper.stripe.invoices.retrieve = jest.fn();
+
+      const result = await stripeHelper.expandResource(
+        cachedInvoice.id,
+        INVOICES_RESOURCE
+      );
+
+      expect(result).toEqual(cachedInvoice);
+      expect(stripeHelper.stripe.invoices.retrieve).not.toHaveBeenCalled();
+    });
+
     it('expands invoice when invoice isnt found and inserts it', async () => {
       stripeFirestore.retrieveInvoice = jest
         .fn()
@@ -3614,6 +3743,73 @@ describe('StripeHelper', () => {
         expect(actual).toEqual(expected);
       });
 
+      it('re-fetches the subscription for its promotion values when the cached discount is an unexpanded id', async () => {
+        const subscription = deepCopy(subscriptionCouponForever);
+        subscription.discounts = ['di_1234567890abcdef'];
+        const input = { data: [subscription] };
+        jest
+          .spyOn(stripeHelper.stripe.invoices, 'retrieve')
+          .mockResolvedValue(paidInvoice);
+        const callback = jest.spyOn(stripeHelper, 'expandResource');
+        callback.mockResolvedValueOnce(paidInvoice);
+        callback.mockResolvedValueOnce({ id: productId, name: productName });
+        jest
+          .spyOn(stripeHelper, 'getSubscriptionWithDiscount')
+          .mockResolvedValue(deepCopy(subscriptionCouponForever));
+
+        const actual = await stripeHelper.subscriptionsToResponse(input);
+
+        expect(stripeHelper.getSubscriptionWithDiscount).toHaveBeenCalledWith(
+          subscription.id
+        );
+        expect(actual[0].promotion_name).toBe(
+          subscriptionCouponForever.discounts[0].source.coupon.name
+        );
+        expect(actual[0].promotion_duration).toBe('forever');
+        expect(actual[0].promotion_percent_off).toBe(
+          subscriptionCouponForever.discounts[0].source.coupon.percent_off
+        );
+      });
+
+      it('omits the promotion values when the cached discount has no source', async () => {
+        const subscription = deepCopy(subscriptionCouponForever);
+        subscription.discounts = [
+          {
+            id: 'di_1234567890abcdef',
+            object: 'discount',
+            coupon: { id: 'co_1234567890abcdef', percent_off: 20 },
+          },
+        ];
+        const input = { data: [subscription] };
+        jest
+          .spyOn(stripeHelper.stripe.invoices, 'retrieve')
+          .mockResolvedValue(paidInvoice);
+        const callback = jest.spyOn(stripeHelper, 'expandResource');
+        callback.mockResolvedValueOnce(paidInvoice);
+        callback.mockResolvedValueOnce({ id: productId, name: productName });
+
+        const actual = await stripeHelper.subscriptionsToResponse(input);
+
+        expect(actual[0].promotion_name).toBeNull();
+        expect(actual[0].promotion_percent_off).toBeNull();
+      });
+
+      it('does not re-fetch the subscription when the cached discount is already expanded', async () => {
+        const subscription = deepCopy(subscriptionCouponForever);
+        const input = { data: [subscription] };
+        jest
+          .spyOn(stripeHelper.stripe.invoices, 'retrieve')
+          .mockResolvedValue(paidInvoice);
+        const callback = jest.spyOn(stripeHelper, 'expandResource');
+        callback.mockResolvedValueOnce(paidInvoice);
+        callback.mockResolvedValueOnce({ id: productId, name: productName });
+        jest.spyOn(stripeHelper, 'getSubscriptionWithDiscount');
+
+        await stripeHelper.subscriptionsToResponse(input);
+
+        expect(stripeHelper.getSubscriptionWithDiscount).not.toHaveBeenCalled();
+      });
+
       it('repeating coupon includes the promotion values in the returned value', async () => {
         const subscription = deepCopy(subscriptionCouponRepeating);
         const input = { data: [subscription] };
@@ -3651,7 +3847,8 @@ describe('StripeHelper', () => {
             promotion_name:
               subscriptionCouponRepeating.discounts[0].source.coupon.name,
             promotion_percent_off:
-              subscriptionCouponRepeating.discounts[0].source.coupon.percent_off,
+              subscriptionCouponRepeating.discounts[0].source.coupon
+                .percent_off,
           },
         ];
         const actual = await stripeHelper.subscriptionsToResponse(input);
@@ -5009,6 +5206,32 @@ describe('StripeHelper', () => {
         expect(actual.discountDuration).toBeNull();
       });
 
+      it('extracts the correct discount type when only the coupon needs to be expanded', async () => {
+        const fixtureUnexpandedCoupon = deepCopy(fixture);
+        fixtureUnexpandedCoupon.discounts = [
+          { source: { coupon: 'couponId' } },
+        ];
+        jest.spyOn(stripeHelper, 'getInvoiceWithDiscount').mockResolvedValue({
+          ...fixtureUnexpandedCoupon,
+          discounts: [
+            {
+              source: {
+                coupon: {
+                  duration: 'repeating',
+                  duration_in_months: 3,
+                },
+              },
+            },
+          ],
+        });
+        const actual = await stripeHelper.extractInvoiceDetailsForEmail(
+          fixtureUnexpandedCoupon
+        );
+        expect(stripeHelper.getInvoiceWithDiscount).toHaveBeenCalledTimes(1);
+        expect(actual.discountType).toBe('repeating');
+        expect(actual.discountDuration).toBe(3);
+      });
+
       it('uses and includes Firestore based configs when available', async () => {
         jest
           .spyOn(stripeHelper, 'maybeGetPlanConfig')
@@ -5726,7 +5949,10 @@ describe('StripeHelper', () => {
           [
             {
               subscription: event.data.object.id,
-              expand: ['discounts', 'lines.data.taxes.tax_rate_details.tax_rate'],
+              expand: [
+                'discounts',
+                'lines.data.taxes.tax_rate_details.tax_rate',
+              ],
             },
           ],
         ]);

@@ -2,13 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { isPairGleanReason } from 'fxa-shared/metrics/glean/pair-reasons';
 import { Link, useLocation } from 'react-router';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { UseFxAStatusResult, useNavigateWithQuery } from '../../../lib/hooks';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { useFtlMsgResolver } from '../../../models';
-import { useCmsInfoState } from '../../../models/hooks';
+import { useCmsInfoState, useConfig } from '../../../models/hooks';
 import { RelierCmsInfo } from '../../../models/integrations';
 import AppLayout from '../../../components/AppLayout';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
@@ -29,8 +36,17 @@ import mobileFirefoxIcon from './mobile-ff.svg';
 import mobileDownloadIcon from './mobile-download.svg';
 import {
   buildPairingDownloadUrl,
+  detectDevice,
+  Devices,
   isSendTabEntrypoint,
 } from '../../../lib/utilities';
+import { buildPairUrl, parsePairingHash } from '../../../lib/pairing/pair-url';
+import {
+  getAttemptStorage,
+  HandoffPlan,
+  planPairingHandoff,
+} from '../../../lib/pairing/handoff';
+import ContinueInFirefox from '../../../components/ContinueInFirefox';
 import type { PairOrigin } from '../../Signin/utils';
 import type { SigninLocationState } from '../../Signin/interfaces';
 import type { Integration } from '../../../models';
@@ -52,6 +68,16 @@ const PAIR_BANNER_FTL: Record<PairOrigin, { id: string; fallback: string }> = {
   },
 };
 
+/**
+ * The pairing channel the authority encodes into its QR code, handed to the
+ * supplicant flow as router state.
+ */
+export type PairingChannelInfo = {
+  channelId: string;
+  channelKey: string;
+  version: '1' | '2';
+};
+
 type MobileChoice = 'has-mobile' | 'needs-mobile';
 
 const GLEAN_REASON_BY_CHOICE: Record<MobileChoice, string> = {
@@ -65,6 +91,7 @@ type PairProps = {
   error?: string;
   cmsInfo?: RelierCmsInfo;
   integration?: Integration;
+  fxaStatusResult: UseFxAStatusResult;
 };
 export const viewName = 'pair';
 
@@ -72,6 +99,7 @@ const Pair = ({
   error,
   cmsInfo: cmsInfoProp,
   integration,
+  fxaStatusResult,
 }: PairProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const ftlMsgResolver = useFtlMsgResolver();
@@ -79,6 +107,7 @@ const Pair = ({
     'pair-qr-code-aria-label',
     'QR code'
   );
+  const config = useConfig();
   const navigateWithQuery = useNavigateWithQuery();
   const location = useLocation();
 
@@ -104,10 +133,123 @@ const Pair = ({
     }
   }, [currentView]);
 
+  // A scanned QR lands here with the channel in the hash. `location.hash` is
+  // known at mount, so this is settled before the bootstrap effect below runs.
+  const pairingChannelInfo = useMemo(
+    () => parsePairingHash(location.hash),
+    [location.hash]
+  );
+
+  const device = detectDevice();
+  const isFirefoxDesktop = device === Devices.FIREFOX_DESKTOP;
+
+  // A phone that scanned the QR with its system camera opens this page in
+  // whatever browser it defaults to, which is might not be Firefox.
+  // When the browser never answered fxa_status there is no WebChannel here to
+  // carry the flow, so we will hand the pairing URL to the Firefox app instead,
+  // falling back to the app store when it is not installed.
+  //
+  // Read-only, so it is safe to evaluate during render; the auto-attempt token
+  // is only spent by ContinueInFirefox.
+  const handoffPlan: HandoffPlan = useMemo(() => {
+    if (pairingChannelInfo && fxaStatusResult.fxaStatusState === 'unanswered') {
+      return planPairingHandoff({
+        device,
+        targetUrl: buildPairUrl(pairingChannelInfo),
+        storeLinks: config.mobileStoreLinks,
+        storage: getAttemptStorage(),
+        build: config.pairing.browserBuild,
+        iosScheme: config.pairing.iosUrlScheme,
+      });
+    }
+
+    // This indicates no handoff is needed. and we can continue as normal.
+    return { kind: 'none' };
+  }, [pairingChannelInfo, fxaStatusResult.fxaStatusState, device, config]);
+
   useEffect(() => {
-    const ua = navigator.userAgent;
-    const isFirefoxDesktop =
-      /Firefox/i.test(ua) && !/FxiOS/i.test(ua) && !/Android/i.test(ua);
+    // This is a signal that the initial fxa_status message is still pending.
+    // Don't move forwards with other evaluations until we have a definitive
+    // answer here. 'unanswered' is a definitive answer: no reply is coming.
+    if (fxaStatusResult.fxaStatusState === 'pending') {
+      return;
+    }
+
+    // Handled by rendering the hand-off card below. It must be checked before
+    // the !isFirefoxDesktop branch, which would otherwise send every mobile
+    // browser to /pair/unsupported.
+    if (handoffPlan.kind !== 'none') {
+      return;
+    }
+
+    // Switch on pairing version 2! Both FxA and Firefox have to signal that it
+    // is enabled, same gate as ConnectAnotherDevice.
+    const pairingVersion =
+      fxaStatusResult.fxaStatus?.capabilities.pairingVersion;
+
+    if (
+      config.pairing.version === 2 &&
+      pairingVersion &&
+      pairingVersion === 2 &&
+      pairingChannelInfo?.version === '2'
+    ) {
+      navigateWithQuery(
+        '/pair/supplicant/connect_this_device',
+        { state: pairingChannelInfo },
+        false
+      );
+      return;
+    }
+
+    if (
+      isFirefoxDesktop &&
+      config.pairing.version === 2 &&
+      pairingVersion &&
+      pairingVersion === 2
+    ) {
+      // Full reload: `useIntegration` is not keyed on location, so only a
+      // fresh page load rebuilds it as a PairingAuthorityIntegration.
+      hardNavigate('/pair/authority/scan_qr', {}, true);
+      return;
+    }
+
+    // This is a signal that the initial fxa_status message is still pending.
+    // Don't move forwards with other evaluations until we have a definitive
+    // answer here.
+    if (!fxaStatusResult.fxaStatus) {
+      return;
+    }
+
+    // Switch on pairing version 2! Both FxA and Firefox have to signal that it
+    // is enabled, same gate as ConnectAnotherDevice.
+    if (
+      config.pairing.version === 2 &&
+      pairingVersion &&
+      pairingVersion === 2 &&
+      pairingChannelInfo &&
+      parseInt(pairingChannelInfo?.version) === 2
+    ) {
+      navigateWithQuery(
+        '/pair/supplicant/connect_this_device',
+        { state: pairingChannelInfo },
+        // The channel key is the pairing PSK. It travels in router state, so
+        // the hash it arrived in must not follow it into the next URL.
+        false
+      );
+      return;
+    }
+
+    if (
+      isFirefoxDesktop &&
+      config.pairing.version === 2 &&
+      pairingVersion &&
+      pairingVersion === 2
+    ) {
+      // Full reload: `useIntegration` is not keyed on location, so only a
+      // fresh page load rebuilds it as a PairingAuthorityIntegration.
+      hardNavigate('/pair/authority/scan_qr', {}, true);
+      return;
+    }
 
     if (!isFirefoxDesktop) {
       navigateWithQuery('/pair/unsupported');
@@ -159,24 +301,43 @@ const Pair = ({
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [pairingChannelInfo, fxaStatusResult, handoffPlan, navigateWithQuery]);
+
+  // Banner variant is driven by router state from getSyncNavigate.
+  const { origin: pairOrigin } = (location.state ?? {}) as Pick<
+    SigninLocationState,
+    'origin'
+  >;
+
+  // Router state is the primary channel, but flows that stop at an interstitial
+  // (/signup_confirmed_sync, /inline_recovery_key_setup) reach here through a
+  // hard navigation that carries the query param instead, and a reload drops
+  // router state entirely. Both are validated: `location.state` is untyped at
+  // runtime, and the param is user-controllable.
+  const pairReason = useMemo(() => {
+    const fromState = (location.state as { pairReason?: unknown } | null)
+      ?.pairReason;
+    if (isPairGleanReason(fromState)) {
+      return fromState;
+    }
+    const fromQuery = new URLSearchParams(location.search).get('pairReason');
+    return isPairGleanReason(fromQuery) ? fromQuery : undefined;
+  }, [location.state, location.search]);
 
   // Fire Glean view events only after the bootstrap reveals the page;
   // otherwise users redirected during bootstrap would skew the metric.
   useEffect(() => {
     if (bootstrapping) return;
     if (currentView === 'choice') {
-      GleanMetrics.cadFireFox.choiceView();
+      // Recorded as an empty reason when /pair is reached outside a sign-in or
+      // sign-up flow, or from a flow with no sanctioned bucket (third-party
+      // auth) — the dispatcher coerces a missing reason to ''.
+      GleanMetrics.cadFireFox.choiceView({ event: { reason: pairReason } });
       return;
     }
     GleanMetrics.cadFireFox.view();
-  }, [bootstrapping, currentView]);
+  }, [bootstrapping, currentView, pairReason]);
 
-  // Banner variant is driven by reach-router state from getSyncNavigate.
-  const { origin: pairOrigin } = (location.state ?? {}) as Pick<
-    SigninLocationState,
-    'origin'
-  >;
   const bannerCopy =
     currentView === 'choice' && pairOrigin ? PAIR_BANNER_FTL[pairOrigin] : null;
 
@@ -221,7 +382,11 @@ const Pair = ({
     openPairPreferences();
   }, [openPairPreferences]);
 
-  if (bootstrapping) {
+  if (handoffPlan.kind !== 'none') {
+    return <ContinueInFirefox plan={handoffPlan} />;
+  }
+
+  if (bootstrapping || fxaStatusResult.fxaStatusState === 'pending') {
     return <LoadingSpinner fullScreen />;
   }
 

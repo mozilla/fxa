@@ -13,7 +13,8 @@ import { ButtonIconTrash } from '../ButtonIcon';
 import { SETTINGS_PATH } from '../../../constants';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import GleanMetrics from '../../../lib/glean';
-import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
+import { MfaGuard } from '../MfaGuard';
+import { useMfaErrorHandler } from '../../../lib/hooks';
 import { MfaReason } from '../../../lib/types';
 
 const DeleteRecoveryKeyModal = ({ onDismiss }: { onDismiss: () => void }) => {

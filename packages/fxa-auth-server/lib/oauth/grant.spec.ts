@@ -109,7 +109,9 @@ describe('validateRequestedGrant', () => {
     };
     await expect(
       validateRequestedGrant(CLAIMS, CLIENT, requestedGrant)
-    ).rejects.toThrow('Mismatch acr value');
+      // errno 170 (INSUFFICIENT_ACR_VALUES) is the signal the frontend routes to
+      // a second-factor challenge.
+    ).rejects.toMatchObject({ errno: 170 });
     let grant = await validateRequestedGrant(
       { ...CLAIMS, 'fxa-aal': 2 },
       CLIENT,
@@ -130,7 +132,7 @@ describe('validateRequestedGrant', () => {
     };
     await expect(
       validateRequestedGrant(CLAIMS, CLIENT, requestedGrant)
-    ).rejects.toThrow('Mismatch acr value');
+    ).rejects.toMatchObject({ errno: 170 });
     const grant = await validateRequestedGrant(
       { ...CLAIMS, 'fxa-aal': 2 },
       CLIENT,
@@ -176,6 +178,50 @@ describe('validateRequestedGrant', () => {
         requestedGrant
       )
     ).rejects.toThrow('Requested scopes are not allowed');
+  });
+
+  describe('max_age (RFC 9470 freshness)', () => {
+    // `fxa-lastAuthAt` is seconds since epoch, compared against Date.now()/1000.
+    const nowSeconds = () => Math.floor(Date.now() / 1000);
+    const claimsAuthedAt = (secondsAgo: number) => ({
+      ...CLAIMS,
+      'fxa-lastAuthAt': nowSeconds() - secondsAgo,
+    });
+
+    it('requires step-up (errno 170) when the session is older than max_age', async () => {
+      await expect(
+        validateRequestedGrant(claimsAuthedAt(3600), CLIENT, { max_age: 60 })
+      ).rejects.toMatchObject({ errno: 170 });
+    });
+
+    it('passes when the session is within max_age', async () => {
+      const grant = await validateRequestedGrant(claimsAuthedAt(10), CLIENT, {
+        max_age: 3600,
+      });
+      expect(grant.aal).toBe(1);
+    });
+
+    it('treats max_age=0 as satisfied by a just-completed challenge (within leeway)', async () => {
+      const grant = await validateRequestedGrant(claimsAuthedAt(0), CLIENT, {
+        max_age: 0,
+      });
+      expect(grant.aal).toBe(1);
+    });
+
+    it('requires step-up for max_age=0 when the session is older than the leeway', async () => {
+      await expect(
+        validateRequestedGrant(claimsAuthedAt(60), CLIENT, { max_age: 0 })
+      ).rejects.toMatchObject({ errno: 170 });
+    });
+
+    it('skips the freshness check entirely when max_age is absent', async () => {
+      const grant = await validateRequestedGrant(
+        claimsAuthedAt(99999),
+        CLIENT,
+        {}
+      );
+      expect(grant.aal).toBe(1);
+    });
   });
 });
 
@@ -281,10 +327,11 @@ describe('generateTokens', () => {
   });
 
   it('should return authAt from grant', async () => {
-    const now = Date.now();
-    requestedGrant.authAt = now;
+    // authAt is seconds since the epoch (from session_token.lastAuthAt()).
+    const authAtSeconds = 1_700_000_000;
+    requestedGrant.authAt = authAtSeconds;
     const result = await generateTokens(requestedGrant);
-    expect(result.auth_at).toBe(now);
+    expect(result.auth_at).toBe(authAtSeconds);
   });
 
   it('should return keysJwe from grant', async () => {
@@ -320,12 +367,45 @@ describe('generateTokens', () => {
     ]);
   });
 
-  it('should propagate auth_time in claims', async () => {
+  // No token is minted for a rejected request, so RFC 9470 section 5 reduces to:
+  // acr tracks the achieved aal, never the requested acr_values.
+  it('reflects the achieved aal in the id_token acr claim', async () => {
     requestedGrant.scope = ScopeSet.fromArray(['openid']);
-    requestedGrant.authAt = Date.now();
+    requestedGrant.aal = 2;
+    const result = await generateTokens(requestedGrant);
+
+    const jwt = decodeJWT(result.id_token);
+    expect(jwt.claims.acr).toBe('AAL2');
+    expect(jwt.claims['fxa-aal']).toBe(2);
+  });
+
+  it('reports the lower level in acr when the session only reached AAL1', async () => {
+    requestedGrant.scope = ScopeSet.fromArray(['openid']);
+    requestedGrant.aal = 1;
+    const result = await generateTokens(requestedGrant);
+
+    const jwt = decodeJWT(result.id_token);
+    expect(jwt.claims.acr).toBe('AAL1');
+  });
+
+  it('omits acr when the grant carries no aal', async () => {
+    requestedGrant.scope = ScopeSet.fromArray(['openid']);
+    delete requestedGrant.aal;
+    const result = await generateTokens(requestedGrant);
+
+    const jwt = decodeJWT(result.id_token);
+    expect(jwt.claims.acr).toBeUndefined();
+  });
+
+  it('propagates auth_time (seconds) in id_token claims without re-dividing', async () => {
+    requestedGrant.scope = ScopeSet.fromArray(['openid']);
+    // authAt is already seconds since the epoch; auth_time must equal it, not
+    // authAt/1000 (the previous bug produced a value ~1000x too small).
+    const authAtSeconds = 1_700_000_000;
+    requestedGrant.authAt = authAtSeconds;
     const result = await generateTokens(requestedGrant);
     expect(result.id_token).toBeTruthy();
     const jwt = decodeJWT(result.id_token);
-    expect(jwt.claims.auth_time).toBe(Math.floor(requestedGrant.authAt / 1000));
+    expect(jwt.claims.auth_time).toBe(authAtSeconds);
   });
 });

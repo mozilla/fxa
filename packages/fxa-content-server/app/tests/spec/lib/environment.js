@@ -2,12 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import chai from 'chai';
+import { assert } from 'chai';
 import Environment from 'lib/environment';
 import sinon from 'sinon';
 import WindowMock from '../../mocks/window';
-
-var assert = chai.assert;
 
 describe('lib/environment', function () {
   var environment;

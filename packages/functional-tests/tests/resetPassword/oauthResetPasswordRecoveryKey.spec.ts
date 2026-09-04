@@ -55,7 +55,7 @@ test.describe('severity-1 #smoke', () => {
       const keyDownload = await resetPassword.downloadRecoveryKey();
       const filename = keyDownload.suggestedFilename();
       expect(filename).toMatch(
-        new RegExp(`Mozilla-Recovery-Key_[0-9-]{10}_${credentials.email}.pdf`)
+        new RegExp(`Mozilla-Recovery-Key_[0-9-]{10}_${credentials.email}.txt`)
       );
       expect(filename.length).toBeGreaterThan(0);
 

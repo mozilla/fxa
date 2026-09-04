@@ -17,10 +17,6 @@ import { BaseTarget } from '../../lib/targets/base';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('change 2FA', () => {
-    test.beforeAll(({ target }) => {
-      target.smsClient.guardTestPhoneNumber();
-    });
-
     // happy path
     test('can change 2FA and signin with new 2FA', async ({
       page,
@@ -105,53 +101,60 @@ test.describe('severity-2 #smoke', () => {
 
       await expect(settings.settingsHeading).toBeVisible();
     });
+  });
+});
 
-    test('can change 2fa and use existing recovery phone to sign in', async ({
-      page,
+// Local only — see "Routing SMS tests in CI" in the README.
+test.describe('change 2FA with recovery phone (local only)', () => {
+  test.beforeAll(({ target }) => {
+    target.smsClient.guardTestPhoneNumber();
+  });
+
+  test('can change 2fa and use existing recovery phone to sign in', async ({
+    page,
+    target,
+    testAccountTracker,
+    pages: {
+      recoveryPhone,
+      settings,
+      signin,
+      signinRecoveryCode,
+      signinRecoveryChoice,
+      signinRecoveryPhone,
+      signinTotpCode,
+      totp,
+    },
+  }) => {
+    const credentials = await testAccountTracker.signUp();
+    await signin.emailFirstSignin(credentials);
+
+    await addThenChange2FA({ settings, totp, target, credentials });
+
+    // connect phone
+    await addPhoneRecovery({
+      credentials,
+      recoveryPhone,
+      settings,
       target,
-      testAccountTracker,
-      pages: {
-        recoveryPhone,
-        settings,
-        signin,
-        signinRecoveryCode,
-        signinRecoveryChoice,
-        signinRecoveryPhone,
-        signinTotpCode,
-        totp,
-      },
-    }) => {
-      const credentials = await testAccountTracker.signUp();
-      await signin.emailFirstSignin(credentials);
-
-      await addThenChange2FA({ settings, totp, target, credentials });
-
-      // connect phone
-      await addPhoneRecovery({
-        credentials,
-        recoveryPhone,
-        settings,
-        target,
-      });
-
-      // sign out
-      await settings.signOut();
-
-      // Sign in with recovery phone
-      await completeSigninWithDualRecovery({
-        method: 'Phone',
-        page,
-        signin,
-        signinTotpCode,
-        signinRecoveryChoice,
-        signinRecoveryCode,
-        signinRecoveryPhone,
-        credentials,
-        target,
-      });
-
-      await expect(settings.settingsHeading).toBeVisible();
     });
+
+    // sign out
+    await settings.signOut();
+
+    // Sign in with recovery phone
+    await completeSigninWithDualRecovery({
+      method: 'Phone',
+      page,
+      signin,
+      signinTotpCode,
+      signinRecoveryChoice,
+      signinRecoveryCode,
+      signinRecoveryPhone,
+      credentials,
+      target,
+    });
+
+    await expect(settings.settingsHeading).toBeVisible();
   });
 });
 

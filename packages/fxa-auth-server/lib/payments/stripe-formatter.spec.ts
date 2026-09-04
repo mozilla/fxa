@@ -71,6 +71,60 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
     );
   });
 
+  it('keeps the discount amount when the invoice discount is an unexpanded id', () => {
+    const invoicePreview = deepCopy(previewInvoiceWithDiscountAndTax);
+    invoicePreview.discounts = ['di_1234567890abcdef'];
+
+    const invoice = stripeInvoiceToFirstInvoicePreviewDTO([
+      invoicePreview,
+      undefined,
+    ]);
+
+    expect(invoice.discount).toEqual({
+      amount: previewInvoiceWithDiscountAndTax.total_discount_amounts[0].amount,
+      amount_off: null,
+      percent_off: null,
+    });
+  });
+
+  it('keeps the discount amount when the discount has no source', () => {
+    const invoicePreview = deepCopy(previewInvoiceWithDiscountAndTax);
+    invoicePreview.discounts = [
+      {
+        id: 'di_1234567890abcdef',
+        object: 'discount',
+        coupon: { id: 'co_1234567890abcdef', percent_off: 20 },
+      },
+    ];
+
+    const invoice = stripeInvoiceToFirstInvoicePreviewDTO([
+      invoicePreview,
+      undefined,
+    ]);
+
+    expect(invoice.discount).toEqual({
+      amount: previewInvoiceWithDiscountAndTax.total_discount_amounts[0].amount,
+      amount_off: null,
+      percent_off: null,
+    });
+  });
+
+  it('keeps the discount amount when the coupon on the discount source is an unexpanded id', () => {
+    const invoicePreview = deepCopy(previewInvoiceWithDiscountAndTax);
+    invoicePreview.discounts[0].source.coupon = 'co_1234567890abcdef';
+
+    const invoice = stripeInvoiceToFirstInvoicePreviewDTO([
+      invoicePreview,
+      undefined,
+    ]);
+
+    expect(invoice.discount).toEqual({
+      amount: previewInvoiceWithDiscountAndTax.total_discount_amounts[0].amount,
+      amount_off: null,
+      percent_off: null,
+    });
+  });
+
   it('formats an invoice where tax display_name is an empty string', () => {
     const invoicePreview = deepCopy(previewInvoiceWithTax);
     invoicePreview.total_taxes[0].tax_rate_details.tax_rate.display_name = '';
@@ -85,6 +139,20 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
     expect(invoice.tax[0].amount).toBe(
       invoicePreview.total_taxes[0].amount
     );
+    expect(invoice.tax?.[0].display_name).toBeUndefined();
+    expect(invoice.tax?.[0].inclusive).toBe(true);
+  });
+
+  it('formats an invoice where the tax rate is an unexpanded id', () => {
+    const invoicePreview = deepCopy(previewInvoiceWithTax);
+    invoicePreview.total_taxes[0].tax_rate_details.tax_rate = 'txr_1234';
+
+    const invoice = stripeInvoiceToFirstInvoicePreviewDTO([
+      invoicePreview,
+      undefined,
+    ]);
+
+    expect(invoice.tax?.[0].amount).toBe(invoicePreview.total_taxes[0].amount);
     expect(invoice.tax?.[0].display_name).toBeUndefined();
     expect(invoice.tax?.[0].inclusive).toBe(true);
   });
@@ -160,5 +228,18 @@ describe('stripeInvoiceToLatestInvoiceItemsDTO', () => {
     expect(invoice.discount.percent_off).toBe(
       previewInvoiceWithDiscountAndTax.discounts[0].source.coupon.percent_off
     );
+  });
+
+  it('keeps the discount amount when the invoice discount is an unexpanded id', () => {
+    const invoicePreview = deepCopy(previewInvoiceWithDiscountAndTax);
+    invoicePreview.discounts = ['di_1234567890abcdef'];
+
+    const invoice = stripeInvoiceToLatestInvoiceItemsDTO(invoicePreview);
+
+    expect(invoice.discount).toEqual({
+      amount: previewInvoiceWithDiscountAndTax.total_discount_amounts[0].amount,
+      amount_off: null,
+      percent_off: null,
+    });
   });
 });

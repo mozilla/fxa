@@ -25,12 +25,7 @@ import {
   useRouter,
   useSearchParams,
 } from 'next/navigation';
-import {
-  useEffect,
-  useMemo,
-  useState,
-  useContext,
-} from 'react';
+import { useEffect, useMemo, useState, useContext } from 'react';
 
 import type { Interval } from '@fxa/payments/metrics/client';
 import { BaseButton, ButtonVariant, CheckoutCheckbox } from '@fxa/payments/ui';
@@ -85,10 +80,10 @@ interface CheckoutFormProps {
     };
     paymentInfo?: {
       type:
-      | Stripe.PaymentMethod.Type
-      | 'google_iap'
-      | 'apple_iap'
-      | 'external_paypal';
+        | Stripe.PaymentMethod.Type
+        | 'google_iap'
+        | 'apple_iap'
+        | 'external_paypal';
       last4?: string;
       brand?: string;
       customerSessionClientSecret?: string;
@@ -154,13 +149,13 @@ export function CheckoutForm({
     () =>
       isCancelInterstitialOffer
         ? {
-          offeringId: (params.offeringId as string) ?? undefined,
-          interval: (params.interval as Interval) ?? undefined,
-          utmSource: searchParams.get('utm_source') ?? undefined,
-          utmMedium: searchParams.get('utm_medium') ?? undefined,
-          utmCampaign: searchParams.get('utm_campaign') ?? undefined,
-          nimbusUserId: searchParams.get('nimbus_user_id') ?? undefined,
-        }
+            offeringId: (params.offeringId as string) ?? undefined,
+            interval: (params.interval as Interval) ?? undefined,
+            utmSource: searchParams.get('utm_source') ?? undefined,
+            utmMedium: searchParams.get('utm_medium') ?? undefined,
+            utmCampaign: searchParams.get('utm_campaign') ?? undefined,
+            nimbusUserId: searchParams.get('nimbus_user_id') ?? undefined,
+          }
         : null,
     [isCancelInterstitialOffer, params.interval, searchParams]
   );
@@ -246,13 +241,22 @@ export function CheckoutForm({
         });
       }
 
-      await checkoutCartWithPaypal(
-        cart.id,
-        cart.version,
-        getAttributionParams(searchParams),
-        params,
-        Object.fromEntries(searchParams)
-      );
+      try {
+        await checkoutCartWithPaypal(
+          cart.id,
+          cart.version,
+          getAttributionParams(searchParams),
+          params,
+          Object.fromEntries(searchParams)
+        );
+      } catch {
+        await finalizeCartWithError(cart.id, CartErrorReasonId.BASIC_ERROR);
+        const queryParamString = searchParams.toString()
+          ? `?${searchParams.toString()}`
+          : '';
+        router.push('./error' + queryParamString);
+        return;
+      }
 
       const queryParamString = searchParams.toString()
         ? `?${searchParams.toString()}`
@@ -265,25 +269,37 @@ export function CheckoutForm({
     // Trigger form validation and wallet collection
     const { error: submitError } = await elements.submit();
     if (submitError) {
+      if (submitError.type !== 'validation_error') {
+        await finalizeCartWithError(cart.id, CartErrorReasonId.BASIC_ERROR);
+        const queryParamString = searchParams.toString()
+          ? `?${searchParams.toString()}`
+          : '';
+        router.push('./error' + queryParamString);
+        return;
+      }
       setLoading(false);
       return;
     }
 
     const paymentElement = elements.getElement(PaymentElement);
     if (!paymentElement) {
-      setLoading(false);
+      await finalizeCartWithError(cart.id, CartErrorReasonId.BASIC_ERROR);
+      const queryParamString = searchParams.toString()
+        ? `?${searchParams.toString()}`
+        : '';
+      router.push('./error' + queryParamString);
       return;
     }
 
     const confirmationTokenParams: ConfirmationTokenCreateParams | undefined =
       !isSavedPaymentMethod
         ? {
-          payment_method_data: {
-            billing_details: {
-              email: sessionEmail || undefined,
+            payment_method_data: {
+              billing_details: {
+                email: sessionEmail || undefined,
+              },
             },
-          },
-        }
+          }
         : undefined;
 
     // Create the ConfirmationToken using the details collected by the Payment Element
@@ -317,15 +333,24 @@ export function CheckoutForm({
       });
     }
 
-    await checkoutCartWithStripe(
-      cart.id,
-      cart.version,
-      confirmationToken.id,
-      selectedPaymentMethod,
-      getAttributionParams(searchParams),
-      params,
-      Object.fromEntries(searchParams)
-    );
+    try {
+      await checkoutCartWithStripe(
+        cart.id,
+        cart.version,
+        confirmationToken.id,
+        selectedPaymentMethod,
+        getAttributionParams(searchParams),
+        params,
+        Object.fromEntries(searchParams)
+      );
+    } catch {
+      await finalizeCartWithError(cart.id, CartErrorReasonId.BASIC_ERROR);
+      const queryParamString = searchParams.toString()
+        ? `?${searchParams.toString()}`
+        : '';
+      router.push('./error' + queryParamString);
+      return;
+    }
 
     const queryParamString = searchParams.toString()
       ? `?${searchParams.toString()}`

@@ -2,6 +2,7 @@
   "extends": "../tsconfig.json",
   "exclude": ["node_modules", "test", "dist", "**/*spec.ts"],
   "compilerOptions": {
+    // Storybook resolves paths against baseUrl ./dist (see main.js), so this alias must point at the compiled index.js.
     "paths": {
       "@fxa/shared/l10n": ["libs/shared/l10n/src/index.js"]
     }

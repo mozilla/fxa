@@ -8,17 +8,21 @@ import BoxButton from '../BoxButton';
 
 export type ButtonPasskeySigninProps = {
   isLoading?: boolean;
+  /** Locks the button without showing its spinner, unlike `isLoading`. */
+  disabled?: boolean;
   onClick?: () => void;
 };
 
 const ButtonPasskeySignin = ({
   isLoading = false,
+  disabled = false,
   onClick = () => {},
 }: ButtonPasskeySigninProps) => (
   <BoxButton
     type="button"
     leadingIcon={<PasskeyIcon className="w-5 h-5" ariaHidden />}
     isLoading={isLoading}
+    disabled={disabled}
     onClick={onClick}
   >
     {isLoading ? (

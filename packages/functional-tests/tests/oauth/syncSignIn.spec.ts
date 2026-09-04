@@ -58,7 +58,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.clickSignIn();
 
       // By default, we should see the most recent signed in email
-      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninSubmitButton).toBeVisible();
       await expect(page.getByText(email)).toBeVisible();
     });
 
@@ -84,7 +84,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.clickEmailFirst();
 
       // FxA sees the existing session and shows cached account
-      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninSubmitButton).toBeVisible();
       await signin.signInButton.click();
 
       // We get a signin code, because we are using a restmail address, and forces
@@ -132,7 +132,7 @@ test.describe('severity-1 #smoke', () => {
 
       // SmartWindow recognizes the browser user and offers a cached sign-in.
       await signin.goto('/authorization', smartWindowDesktopOAuthQueryParams);
-      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninSubmitButton).toBeVisible();
       await expect(page.getByText(syncCredentials.email)).toBeVisible();
       await signin.signInButton.click();
 
@@ -174,7 +174,7 @@ test.describe('severity-1 #smoke', () => {
 
       await gotoSyncSession(page, target);
 
-      await expect(signin.passwordFormHeading).toBeVisible();
+      await expect(signin.passwordTextbox).toBeVisible();
       await expect(page.getByText(email)).toBeVisible();
 
       await signin.fillOutPasswordForm(password);

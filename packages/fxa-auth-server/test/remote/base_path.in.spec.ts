@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { getSharedTestServer, TestServerInstance } from '../support/helpers/test-server';
+import {
+  getSharedTestServer,
+  TestServerInstance,
+} from '../support/helpers/test-server';
 import pkg from '../../package.json';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -40,13 +43,11 @@ describe.each(testVersions)(
 
     it('.well-known did not move', async () => {
       const res = await fetch(
-        `http://localhost:${serverPort}/.well-known/browserid`
+        `http://localhost:${serverPort}/.well-known/public-keys`
       );
       expect(res.status).toBe(200);
       const json = await res.json();
-      expect(json.authentication).toBe(
-        '/.well-known/browserid/nonexistent.html'
-      );
+      expect(json.keys.length).toBeGreaterThan(0);
     });
 
     it('"/" returns valid version information', async () => {

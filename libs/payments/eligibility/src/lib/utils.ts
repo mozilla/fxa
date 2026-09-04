@@ -7,6 +7,7 @@ import {
   EligibilityOfferingResult,
 } from '@fxa/shared/cms';
 
+import { SubgroupOfferingMissingPositionError } from './eligibility.error';
 import {
   Interval,
   IntervalComparison,
@@ -29,13 +30,26 @@ export const offeringComparison = (
       !!subgroup.offerings.find((oc) => oc.apiIdentifier === fromOfferingId)
   );
   if (!commonSubgroups.length) return null;
-  const subgroupOfferingIds = commonSubgroups[0].offerings.map(
-    (o) => o.apiIdentifier
-  );
-  const existingIndex = subgroupOfferingIds.indexOf(fromOfferingId);
-  const targetIndex = subgroupOfferingIds.indexOf(targetOffering.apiIdentifier);
 
-  const resultIndex = targetIndex - existingIndex;
+  const targetOfferingId = targetOffering.apiIdentifier;
+  const groupName = commonSubgroups[0].groupName;
+  const rankedOfferings = commonSubgroups[0].rankedOfferings ?? [];
+  const fromPosition = rankedOfferings.find(
+    (r) => r.offering.apiIdentifier === fromOfferingId
+  )?.position;
+  const targetPosition = rankedOfferings.find(
+    (r) => r.offering.apiIdentifier === targetOfferingId
+  )?.position;
+
+  if (fromPosition === undefined || targetPosition === undefined) {
+    throw new SubgroupOfferingMissingPositionError(
+      groupName,
+      fromOfferingId,
+      targetOfferingId
+    );
+  }
+
+  const resultIndex = targetPosition - fromPosition;
   if (resultIndex === 0) {
     return OfferingComparison.SAME;
   } else if (resultIndex > 0) {

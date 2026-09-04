@@ -39,9 +39,14 @@ jest.mock('next/headers', () => ({
   headers: () => mockHeaders(),
 }));
 
-jest.mock('uuid', () => ({
+jest.mock('node:crypto', () => ({
+  ...jest.requireActual('node:crypto'),
   __esModule: true,
-  v4: () => 'mock-uuid-value',
+  randomUUID: () => 'mock-uuid-value',
+  default: {
+    ...jest.requireActual('node:crypto'),
+    randomUUID: () => 'mock-uuid-value',
+  },
 }));
 
 jest.mock('@fxa/payments/ui/actions', () => ({
@@ -190,7 +195,7 @@ describe('StripePaymentManagementPage', () => {
     });
   });
 
-  it('uses uuid as instanceKey when defaultPaymentMethod is null', async () => {
+  it('uses a generated uuid as instanceKey when defaultPaymentMethod is null', async () => {
     mockGetStripeClientSession.mockResolvedValue({
       clientSecret: MOCK_CLIENT_SECRET,
       currency: MOCK_CURRENCY,

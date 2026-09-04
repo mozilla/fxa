@@ -42,7 +42,6 @@ import {
   buildAuthorityOAuthUrl,
   extractChannelId,
   findElementBySelectors,
-  screenshotAuthority,
   isPairRoutesReact,
   waitForUrlContaining,
   captureDiagnostics,
@@ -283,7 +282,6 @@ test.describe.serial('iOS pairing flow', () => {
         const user = await getSignedInUser(client);
         expect(user.signedIn).toBe(true);
         expect(user.email).toBe(credentials.email);
-        await screenshotAuthority(client, 'iOS', '1-signed-in');
         return user;
       });
 
@@ -341,7 +339,6 @@ test.describe.serial('iOS pairing flow', () => {
       await sleep(3_000);
       const { url: preApproveUrl } = await captureDiagnostics(client);
       debug(`Authority URL before approve: ${preApproveUrl}`);
-      await screenshotAuthority(client, 'iOS', '2-auth-approve');
 
       // Dump the page HTML to help debug missing buttons
       try {
@@ -381,7 +378,6 @@ test.describe.serial('iOS pairing flow', () => {
       );
       await client.clickElement(approveBtn);
       debug('Authority approved pairing');
-      await screenshotAuthority(client, 'iOS', '3-auth-approved');
     });
 
     // 5. Wait for authority to reach completion page
@@ -396,7 +392,6 @@ test.describe.serial('iOS pairing flow', () => {
       );
       expect(finalUrl).not.toContain('pair/failure');
       debug(`Authority completed at: ${finalUrl}`);
-      await screenshotAuthority(client, 'iOS', '4-auth-complete');
     });
 
     // 6. Wait for iOS XCUITest to finish
@@ -501,7 +496,6 @@ test.describe.serial('iOS pairing flow', () => {
       // Wait for the approve button to confirm the page loaded
       await findElementBySelectors(client, SELECTORS.AUTHORITY_APPROVE, 30_000);
       debug('Authority approval page loaded');
-      await screenshotAuthority(client, 'iOS-cancel', '1-auth-approve');
     });
 
     // Wait for iOS XCUITest to finish (supplicant taps Cancel)

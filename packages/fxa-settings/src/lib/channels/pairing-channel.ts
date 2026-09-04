@@ -12,6 +12,10 @@
  */
 
 import sentryMetrics from 'fxa-shared/sentry/browser';
+import { RemoteMetadata } from '../types';
+import UAParser from 'ua-parser-js';
+import { toGenericOSName } from '../utilities';
+import { base64urlToBytes, bytesToBase64url } from '../base64url';
 
 // Types
 
@@ -28,6 +32,30 @@ export type PairingChannelRemoteMetadata = {
   ipAddress?: string;
 };
 
+/**
+ * Derive the device details shown to the user from the channel server's
+ * `sender` envelope. Shared by both sides of the flow: the supplicant reads it
+ * off `pair:auth:metadata`, the authority off `pair:supp:request`.
+ */
+export function toRemoteMetadata(
+  remote: PairingChannelRemoteMetadata,
+  deviceName?: string
+): RemoteMetadata {
+  const parser = new UAParser(remote.ua || '');
+  const browser = parser.getBrowser();
+  const os = parser.getOS();
+
+  return {
+    city: remote.city,
+    country: remote.country,
+    region: remote.region,
+    ipAddress: remote.ipAddress || '',
+    deviceFamily: browser.name || 'Unknown',
+    deviceOS: toGenericOSName(os.name || ''),
+    deviceName: deviceName || browser.name || 'Unknown',
+  };
+}
+
 export type PairingChannelIncomingMessage = {
   remoteMetaData: PairingChannelRemoteMetadata;
   deviceName?: string;
@@ -35,6 +63,17 @@ export type PairingChannelIncomingMessage = {
   code?: string;
   state?: string;
 };
+
+export type PairingChannelV2SupplicantRequestMessage = {
+  remoteMetaData: PairingChannelRemoteMetadata;
+  client_id: string;
+  code_challenge: string;
+  code_challenge_method: string;
+  keys_jwk: string;
+  scope:string;
+  state:string;
+}
+
 
 // Error definitions matching Backbone's pairing-channel-client-errors
 export const PairingChannelErrors = {
@@ -81,19 +120,6 @@ export class PairingChannelError extends Error {
   }
 }
 
-/** Decode a base64url string to Uint8Array (for PSK). */
-function base64urlToUint8Array(base64url: string): Uint8Array {
-  const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
-  const pad =
-    base64.length % 4 === 0 ? '' : '='.repeat(4 - (base64.length % 4));
-  const binary = atob(base64 + pad);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return bytes;
-}
-
 /**
  * EventTarget-based client that wraps fxa-pairing-channel for PSK-encrypted
  * WebSocket communication with the channel server.
@@ -110,12 +136,77 @@ type PairingChannelSocket = {
   close(): Promise<void>;
   addEventListener(type: string, listener: EventListener): void;
   removeEventListener(type: string, listener: EventListener): void;
+  _channelId?: string;
+  _channelKey?: Uint8Array;
 };
 
 export class PairingChannelClient extends EventTarget {
   private channel: PairingChannelSocket | null = null;
   private _opening = false;
 
+  get channelKey() {
+    if (this.channel?._channelKey) {
+      return bytesToBase64url(this.channel._channelKey);
+    }
+    return null;
+  }
+
+  get channelId() {
+    if (this.channel?._channelId) {
+      return this.channel._channelId;
+    }
+    return null;
+  }
+
+  /**
+   * Creates a new pairing channel. Once opened, a channelId and channelKey
+   * should be populated on this instance.
+   *
+   * @param channelServerUri The channel server to connect to.
+   */
+  async create(channelServerUri: string): Promise<void> {
+    if (this.channel || this._opening) {
+      throw new PairingChannelError('ALREADY_CONNECTED');
+    }
+
+    if (!channelServerUri) {
+      throw new PairingChannelError('INVALID_CONFIGURATION');
+    }
+
+    this._opening = true;
+    try {
+      const { PairingChannel } = await import(
+        /* webpackChunkName: "fxaPairingChannel" */
+        'fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js'
+      );
+      const channel = await PairingChannel.create(channelServerUri);
+      this.channel = channel;
+
+      // Listeners go on before `connected` so a message that arrives in the
+      // same tick as the handshake completing is not dropped.
+      channel.addEventListener('message', this.handleMessage);
+      channel.addEventListener('error', this.handleError);
+      channel.addEventListener('close', this.handleClose);
+
+      this.dispatchEvent(new CustomEvent('connected'));
+    } catch (err) {
+      sentryMetrics.captureException(err);
+      this.dispatchEvent(new CustomEvent('error', { detail: err }));
+      // Rethrow so the caller can tell a failed create from a successful one.
+      // Without this the authority resolves as if it had a channel and encodes
+      // `channel_id=null` into a QR code the supplicant cannot join.
+      throw err;
+    } finally {
+      this._opening = false;
+    }
+  }
+
+  /**
+   * Opens an existing pairing channel connection
+   * @param channelServerUri Channel server to connect to
+   * @param channelId Id of channel to open
+   * @param channelKey Key for channel
+   */
   async open(
     channelServerUri: string,
     channelId: string,
@@ -131,7 +222,7 @@ export class PairingChannelClient extends EventTarget {
 
     this._opening = true;
     try {
-      const psk = base64urlToUint8Array(channelKey);
+      const psk = base64urlToBytes(channelKey);
 
       // Dynamic import — fxa-pairing-channel UMD bundle exposes PairingChannel.connect()
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -166,11 +257,14 @@ export class PairingChannelClient extends EventTarget {
     data: Record<string, unknown> = {}
   ): Promise<void> {
     if (!this.channel) {
+      console.warn('No pairing channel!')
       throw new PairingChannelError('NOT_CONNECTED');
     }
     if (!message) {
+      console.warn('No message!')
       throw new PairingChannelError('INVALID_OUTBOUND_MESSAGE');
     }
+    console.info('Sending pairing message', message);
     await this.channel.send({ message, data });
   }
 
@@ -182,8 +276,10 @@ export class PairingChannelClient extends EventTarget {
     this.channel = null;
     this.removeChannelListeners(ch);
     try {
+      console.info('Closing channel ', ch._channelId)
       await ch.close();
     } catch (err) {
+      console.error("Error closing channel", err);
       sentryMetrics.captureException(err);
     }
   }
@@ -210,6 +306,8 @@ export class PairingChannelClient extends EventTarget {
       }
 
       const { data = {}, message } = payload;
+
+      console.info(`Receiving pairing message`, message)
 
       // Enrich with sender metadata (same shape as Backbone)
       data.remoteMetaData = {

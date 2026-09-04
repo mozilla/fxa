@@ -25,7 +25,7 @@ test.describe('severity-2 #smoke', () => {
       await relier.clickEmailFirst();
 
       // Email first page does not prefill an email
-      await expect(signup.emailFormHeading).toBeVisible();
+      await expect(signup.emailTextbox).toBeVisible();
       await expect(signup.emailTextbox).toHaveValue('');
     });
 
@@ -44,14 +44,14 @@ test.describe('severity-2 #smoke', () => {
 
       await page.waitForURL(`${target.contentServerUrl}/oauth/signup**`);
 
-      await expect(signup.signupFormHeading).toBeVisible();
+      await expect(signup.passwordTextbox).toBeVisible();
       // email provided as login hint is displayed on the signup page
       await expect(page.getByText(email)).toBeVisible();
 
       await signup.changeEmailLink.click();
 
       // Email first page has email input prefilled
-      await expect(signup.emailFormHeading).toBeVisible();
+      await expect(signup.emailTextbox).toBeVisible();
       await expect(signup.emailTextbox).toHaveValue(email);
     });
 
@@ -66,7 +66,7 @@ test.describe('severity-2 #smoke', () => {
         await relier.clickEmailFirst();
 
         // Email is prefilled
-        await expect(signin.passwordFormHeading).toBeVisible();
+        await expect(signin.passwordTextbox).toBeVisible();
         await expect(page.getByText(credentials.email)).toBeVisible();
 
         await signin.useDifferentAccountLink.click();

@@ -13,6 +13,7 @@ import { useFtlMsgResolver } from '../../../models/hooks';
 
 import AppLayout from '../../../components/AppLayout';
 import InputText from '../../../components/InputText';
+import LinkRememberPassword from '../../../components/LinkRememberPassword';
 
 import {
   AccountRecoveryConfirmKeyFormData,
@@ -45,6 +46,8 @@ const AccountRecoveryConfirmKey = ({
   token,
   uid,
   totpExists,
+  hasPasskey,
+  showPasskeyOption,
 }: AccountRecoveryConfirmKeyProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
@@ -171,7 +174,6 @@ const AccountRecoveryConfirmKey = ({
           <InputText
             type="text"
             label="Enter your 32-character account recovery key"
-            name="recoveryKey"
             autoFocus
             // Crockford base32 encoding is case insensitive, so visually display as
             // uppercase here but don't bother transforming the submit data to match
@@ -180,7 +182,7 @@ const AccountRecoveryConfirmKey = ({
             autoComplete="off"
             spellCheck={false}
             prefixDataTestId="account-recovery-confirm-key"
-            inputRef={register({ required: true })}
+            registration={register('recoveryKey', { required: true })}
             onChange={handleChange}
             hasErrors={!!errorMessage}
           />
@@ -222,6 +224,7 @@ const AccountRecoveryConfirmKey = ({
               recoveryKeyHint,
               token,
               uid,
+              hasPasskey,
             }}
             onClick={() => GleanMetrics.passwordReset.recoveryKeyCannotFind()}
           >
@@ -242,6 +245,7 @@ const AccountRecoveryConfirmKey = ({
               recoveryKeyHint,
               token,
               uid,
+              hasPasskey,
             }}
             onClick={() => GleanMetrics.passwordReset.recoveryKeyCannotFind()}
           >
@@ -249,6 +253,11 @@ const AccountRecoveryConfirmKey = ({
           </Link>
         )}
       </FtlMsg>
+
+      <LinkRememberPassword
+        entrypoint="account_recovery_confirm_key"
+        {...{ email, showPasskeyOption }}
+      />
     </AppLayout>
   );
 };

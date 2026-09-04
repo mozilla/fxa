@@ -1592,6 +1592,7 @@ password_reset:
     description: |
       Forgot Password Confirmation Code Sign In
       User clicks the "sign in" button on the "Enter Confirmation Code" screen'
+      Deprecated: superseded by remember_password_link_click and no longer emitted.
     send_in_pings:
       - events
     notification_emails:
@@ -1769,6 +1770,66 @@ password_reset:
     expires: never
     data_sensitivity:
       - interaction
+  remember_password_link_view:
+    type: event
+    description: |
+      Password Reset Remember Password Footer Link View
+      Impression of the "Remember your password? Sign in" footer shown across the
+      password reset flow.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13821
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      has_passkey_option:
+        description: |
+          "true" when the passkey-aware wording ("Have a passkey or remember your
+          password?") was shown instead of the standard "Remember your password?".
+        type: string
+      reason:
+        description: |
+          The reset-flow step the footer was shown on (e.g. reset_password,
+          confirm_reset_password, complete_reset_password).
+        type: string
+  remember_password_link_click:
+    type: event
+    description: |
+      Password Reset Remember Password Footer Link Click
+      User clicks the "Sign in" link in the "Remember your password?" footer shown
+      across the password reset flow. Supersedes email_confirmation_signin.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13821
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      has_passkey_option:
+        description: |
+          "true" when the passkey-aware wording ("Have a passkey or remember your
+          password?") was shown instead of the standard "Remember your password?".
+        type: string
+      reason:
+        description: |
+          The reset-flow step the footer was shown on (e.g. reset_password,
+          confirm_reset_password, complete_reset_password).
+        type: string
   submit:
     type: event
     description: |
@@ -2233,12 +2294,18 @@ cad_firefox:
       - fxa-staff@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-9607
+      - https://mozilla-hub.atlassian.net/browse/FXA-14133
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      reason:
+        description: |
+          The sign-in or registration flow that redirected the user to the choice screen. See PAIR_GLEAN_REASONS in fxa-shared/metrics/glean/pair-reasons.ts for the permitted values. Empty when the screen is reached directly (e.g. the pair link on a success page) or from a flow with no bucket of its own, such as third-party auth.
+        type: string
   choice_engage:
     type: event
     description: |
@@ -2972,6 +3039,64 @@ passkey:
         description: |
           Sign-in surface the banner was shown on: 'emailfirst', 'signin',
           'otplogin', or 'alternative_auth'.
+        type: string
+  signin_prf_support:
+    type: event
+    description: |
+      Records whether the WebAuthn PRF extension produced an output at passkey
+      sign-in (`navigator.credentials.get()`), i.e. whether the credential
+      supports PRF on this device. Early telemetry ahead of passwordless Sync
+      (Phase 2) to learn the true PRF capability of the passkey base, which the
+      registration-time `prfEnabled` flag under-reports. Only the presence of
+      the PRF output is recorded — never the output itself.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14085
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      supported:
+        description: |
+          Whether the PRF output was present: "present" or "absent". The
+          sign-in device's OS is available separately via Glean's built-in
+          `client_info.os`, so it is not duplicated here.
+        type: string
+  signin_retry_without_prf_request:
+    type: event
+    description: |
+      A passkey sign-in's first WebAuthn attempt failed in a way the optional
+      PRF extension could have caused (e.g. Windows Hello UnknownError,
+      FXA-13991), so the ceremony silently retried once without PRF. Mirrors
+      `account_pref.passkey_create_retry_without_prf_request` for the sign-in
+      (`navigator.credentials.get()`) path.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14085
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          The DOMException name of the first-attempt error that triggered the
+          retry (e.g. UnknownError).
+        type: string
+      outcome:
+        description: |
+          Whether the retry without PRF succeeded: "success" or "failure".
         type: string
 
 account_pref:
@@ -4281,9 +4406,17 @@ promo_qr_mobile:
       - fxa-staff@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-13279
+      - https://mozilla-hub.atlassian.net/browse/FXA-14273
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      nimbus_user_id:
+        description: Nimbus user ID
+        type: string
+      branch:
+        description: The value proposition experiment branch shown to the user
+        type: string

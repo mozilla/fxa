@@ -672,7 +672,9 @@ describe('StripeFirestore', () => {
       await stripeFirestore.fetchAndInsertInvoice(invoiceId, eventTime);
 
       expect(stripe.invoices.retrieve).toHaveBeenCalledTimes(1);
-      expect(stripe.invoices.retrieve).toHaveBeenCalledWith(invoiceId);
+      expect(stripe.invoices.retrieve).toHaveBeenCalledWith(invoiceId, {
+        expand: ['discounts.source.coupon'],
+      });
       expect(
         stripeFirestore.customerCollectionDbRef.where
       ).toHaveBeenCalledTimes(1);
@@ -718,7 +720,9 @@ describe('StripeFirestore', () => {
 
       expect(result).toEqual(mockInvoice);
       expect(stripe.invoices.retrieve).toHaveBeenCalledTimes(1);
-      expect(stripe.invoices.retrieve).toHaveBeenCalledWith(invoiceId);
+      expect(stripe.invoices.retrieve).toHaveBeenCalledWith(invoiceId, {
+        expand: ['discounts.source.coupon'],
+      });
       expect(
         stripeFirestore.customerCollectionDbRef.where
       ).toHaveBeenCalledTimes(1);
@@ -742,7 +746,9 @@ describe('StripeFirestore', () => {
 
       expect(result).toEqual(mockInvoiceWithoutSubscription);
       expect(stripe.invoices.retrieve).toHaveBeenCalledTimes(1);
-      expect(stripe.invoices.retrieve).toHaveBeenCalledWith(invoiceId);
+      expect(stripe.invoices.retrieve).toHaveBeenCalledWith(invoiceId, {
+        expand: ['discounts.source.coupon'],
+      });
       expect(
         stripeFirestore.customerCollectionDbRef.where
       ).toHaveBeenCalledTimes(0);
@@ -802,7 +808,9 @@ describe('StripeFirestore', () => {
 
       expect(result).toEqual(mockInvoice);
       expect(stripe.invoices.retrieve).toHaveBeenCalledTimes(1);
-      expect(stripe.invoices.retrieve).toHaveBeenCalledWith(invoiceId);
+      expect(stripe.invoices.retrieve).toHaveBeenCalledWith(invoiceId, {
+        expand: ['discounts.source.coupon'],
+      });
       expect(
         stripeFirestore.customerCollectionDbRef.where
       ).toHaveBeenCalledTimes(1);

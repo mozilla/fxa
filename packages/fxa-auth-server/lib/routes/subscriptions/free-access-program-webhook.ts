@@ -4,6 +4,7 @@
 
 import Boom from '@hapi/boom';
 import { ServerRoute } from '@hapi/hapi';
+import type { StatsD } from 'hot-shots';
 import isA from 'joi';
 
 import {
@@ -35,7 +36,8 @@ const payloadSchema = isA
 export const freeAccessProgramWebhookRoutes = (
   log: AuthLogger,
   strapiClient: StrapiClient,
-  reconciler: FreeAccessProgramService
+  reconciler: FreeAccessProgramService,
+  statsd: StatsD
 ): ServerRoute[] => {
   const seenEvents = new Map<string, number>();
 
@@ -69,6 +71,7 @@ export const freeAccessProgramWebhookRoutes = (
         const authorization =
           (request.headers.authorization as string | undefined) ?? '';
         if (!strapiClient.verifyWebhookSignature(authorization)) {
+          statsd.increment('free_access_program.webhook.auth.error');
           throw Boom.unauthorized('Invalid Strapi webhook signature');
         }
 
@@ -76,12 +79,16 @@ export const freeAccessProgramWebhookRoutes = (
           request.payload as StrapiAccessWebhookPayload
         );
         if ('skip' in classification) {
+          statsd.increment('free_access_program.webhook.skipped', {
+            reason: classification.skip,
+          });
           return { handled: false, reason: classification.skip };
         }
 
         if (
           isDuplicateAccessWebhook(seenEvents, classification.dedupeKey, Date.now())
         ) {
+          statsd.increment('free_access_program.webhook.duplicate');
           return { handled: true, dedupe: true };
         }
 
@@ -89,6 +96,7 @@ export const freeAccessProgramWebhookRoutes = (
           await reconciler.reconcile();
         } catch (err) {
           // Swallow: the periodic cron sweep is the backstop.
+          statsd.increment('free_access_program.webhook.reconcile.error');
           log.error('subscriptions.freeAccessProgramWebhook.reconcile.error', {
             err,
           });

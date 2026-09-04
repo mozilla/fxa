@@ -27,6 +27,8 @@ import * as ReactUtils from 'fxa-react/lib/utils';
 import firefox from '../../lib/channels/firefox';
 import config from '../../lib/config';
 import { OAuthNativeServices } from '@fxa/accounts/oauth';
+import { OAUTH_ERRORS, OAuthError } from '../../lib/oauth';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
@@ -86,6 +88,61 @@ describe('Signin utils', () => {
         queryParams: '',
         ...overrides,
       }) as NavigationOptions;
+
+    // End-to-end coverage of the pass-through from NavigationOptions into the
+    // /pair `choice_view` reason. Without these, the options could be dropped
+    // anywhere between handleNavigation and getSyncNavigate and every other
+    // test in this file would still pass (FXA-14133).
+    describe('pair reason pass-through', () => {
+      const navigateToPair = async (overrides: Partial<NavigationOptions>) => {
+        await handleNavigation(
+          createBaseNavigationOptions({
+            integration: createMockSigninOAuthNativeSyncIntegration(),
+            performNavigation: true,
+            ...overrides,
+          })
+        );
+        return mockNavigate.mock.calls[0]?.[1]?.state?.pairReason;
+      };
+
+      it('reports otp_login for a Sync OTP sign-in that created a password', async () => {
+        expect(await navigateToPair({ passwordCreationReason: 'otp' })).toBe(
+          'otp_login'
+        );
+      });
+
+      it('reports passkey_login for a Sync passkey sign-in that created a password', async () => {
+        expect(
+          await navigateToPair({ passwordCreationReason: 'passkey' })
+        ).toBe('passkey_login');
+      });
+
+      it('reports no reason for a third-party-auth password creation', async () => {
+        expect(
+          await navigateToPair({ passwordCreationReason: 'third_party_auth' })
+        ).toBeUndefined();
+      });
+
+      it('reports passkey_login for a passkey session that skipped set_password', async () => {
+        expect(await navigateToPair({ isPasskeySession: true })).toBe(
+          'passkey_login'
+        );
+      });
+
+      it('reports otp_login for an OTP session that skipped set_password', async () => {
+        expect(await navigateToPair({ isPasswordlessOtpSignin: true })).toBe(
+          'otp_login'
+        );
+      });
+
+      it('reports password_reg for a sign-up', async () => {
+        expect(await navigateToPair({ origin: 'signup' })).toBe('password_reg');
+      });
+
+      it('reports password_login for a plain password sign-in', async () => {
+        expect(await navigateToPair({})).toBe('password_login');
+      });
+    });
 
     it('does not navigate if performNavigation is false', async () => {
       const navigationOptions = createBaseNavigationOptions({
@@ -397,7 +454,9 @@ describe('Signin utils', () => {
         const result = await handleNavigation(navigationOptions);
 
         expect(result.error).toBeUndefined();
-        expect(sessionResendVerifyCode).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
+        expect(sessionResendVerifyCode).toHaveBeenCalledWith(
+          MOCK_SESSION_TOKEN
+        );
         expect(mockNavigate).toHaveBeenCalledWith(
           '/confirm_signup_code',
           expect.any(Object)
@@ -588,6 +647,10 @@ describe('Signin utils', () => {
       };
 
       it('diverts to /inline_totp_setup when the account has no TOTP', async () => {
+        // An AAL2 RP may check account-level AAL2 (profile:amr), where passkeys
+        // don't count, so a passkey session with no account TOTP is still forced
+        // to enroll to avoid the AMO bounce loop. (Distinguishing session- vs
+        // account-level AAL2 is FXA-14312.)
         const finishOAuthFlowHandler = jest.fn();
         const navigationOptions = buildPasskeyOAuthOptions({
           accountHasTotp: false,
@@ -601,6 +664,39 @@ describe('Signin utils', () => {
         expect(mockNavigate).toHaveBeenCalledWith(
           '/inline_totp_setup?client_id=abc',
           expect.objectContaining({ replace: true })
+        );
+      });
+
+      it('forwards isPasskeySession into the location state so the page can show the passkey copy', async () => {
+        const navigationOptions = buildPasskeyOAuthOptions({
+          accountHasTotp: false,
+          finishOAuthFlowHandler: jest.fn(),
+        });
+
+        await handleNavigation(navigationOptions);
+
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/inline_totp_setup?client_id=abc',
+          expect.objectContaining({
+            state: expect.objectContaining({ isPasskeySession: true }),
+          })
+        );
+      });
+
+      it('forwards isPasskeySession as false for a cached session', async () => {
+        const navigationOptions = buildPasskeyOAuthOptions({
+          isPasskeySession: false,
+          accountHasTotp: false,
+          finishOAuthFlowHandler: jest.fn(),
+        });
+
+        await handleNavigation(navigationOptions);
+
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/inline_totp_setup?client_id=abc',
+          expect.objectContaining({
+            state: expect.objectContaining({ isPasskeySession: false }),
+          })
         );
       });
 
@@ -664,6 +760,203 @@ describe('Signin utils', () => {
 
         expect(finishOAuthFlowHandler).toHaveBeenCalledTimes(1);
         expect(hardNavigateSpy).toHaveBeenCalled();
+      });
+    });
+
+    describe('AAL upgrade / step-up routing', () => {
+      // /settings is the carve-out for Settings-originated AAL upgrades only.
+      // RP-initiated step-up is not flagged isSessionAALUpgrade and completes
+      // the OAuth flow back to the RP.
+      it('completes the OAuth flow to the RP for an RP-initiated step-up', async () => {
+        const integration = createMockSigninOAuthIntegration();
+        integration.wantsTwoStepAuthentication = jest
+          .fn()
+          .mockReturnValue(true);
+        const finishOAuthFlowHandler = jest
+          .fn()
+          .mockResolvedValue(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
+
+        const navigationOptions = createBaseNavigationOptions({
+          integration,
+          // Not a Settings upgrade; account already AAL2 so the TOTP-setup gate
+          // is skipped and the grant completes.
+          accountHasTotp: true,
+          finishOAuthFlowHandler,
+        });
+
+        await handleNavigation(navigationOptions);
+
+        expect(mockNavigate).not.toHaveBeenCalledWith('/settings');
+        expect(finishOAuthFlowHandler).toHaveBeenCalledTimes(1);
+        expect(hardNavigateSpy).toHaveBeenCalledWith(
+          MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
+          undefined,
+          undefined,
+          true
+        );
+      });
+
+      describe('prompt=none', () => {
+        const buildPromptNoneOptions = (
+          overrides: Partial<NavigationOptions> = {}
+        ) => {
+          const integration = createMockSigninOAuthIntegration();
+          integration.wantsTwoStepAuthentication = jest
+            .fn()
+            .mockReturnValue(true);
+          return createBaseNavigationOptions({
+            integration,
+            queryParams: '?client_id=abc',
+            canRelayPromptNoneError: true,
+            ...overrides,
+          });
+        };
+
+        it('fails the request instead of challenging when the server reports errno 170', async () => {
+          const finishOAuthFlowHandler = jest.fn().mockResolvedValue({
+            error: AuthUiErrors.INSUFFICIENT_ACR_VALUES,
+          });
+          const navigationOptions = buildPromptNoneOptions({
+            // Has TOTP, so the enrolment divert is skipped and the grant
+            // attempt is what surfaces the unmet level.
+            accountHasTotp: true,
+            finishOAuthFlowHandler,
+          });
+
+          const result = await handleNavigation(navigationOptions);
+
+          expect(finishOAuthFlowHandler).toHaveBeenCalledTimes(1);
+          expect(result.error).toBeInstanceOf(OAuthError);
+          expect(result.error).toEqual(
+            expect.objectContaining({
+              errno: OAUTH_ERRORS.UNMET_AUTHENTICATION_REQUIREMENTS.errno,
+              response_error_code: 'unmet_authentication_requirements',
+            })
+          );
+          expect(mockNavigate).not.toHaveBeenCalled();
+          expect(hardNavigateSpy).not.toHaveBeenCalled();
+        });
+
+        it('does not reclassify an unverified session as an unmet level', async () => {
+          // Same errno branch, different meaning — interaction_required, not an
+          // unmet level. Pins that it is not mislabelled (FXA-14408).
+          const finishOAuthFlowHandler = jest.fn().mockResolvedValue({
+            error: AuthUiErrors.UNVERIFIED_SESSION,
+          });
+          const navigationOptions = buildPromptNoneOptions({
+            accountHasTotp: true,
+            finishOAuthFlowHandler,
+          });
+
+          const result = await handleNavigation(navigationOptions);
+
+          expect(result.error).toBeUndefined();
+          expect(mockNavigate).toHaveBeenCalledWith(
+            '/signin_token_code?client_id=abc',
+            expect.objectContaining({ replace: true })
+          );
+        });
+
+        it('still diverts to enrolment when the account has no TOTP', async () => {
+          // The server is authoritative: a passkey session is already
+          // fxa-aal>=2, so it would grant what a client-side check would refuse.
+          const finishOAuthFlowHandler = jest.fn();
+          const navigationOptions = buildPromptNoneOptions({
+            accountHasTotp: false,
+            finishOAuthFlowHandler,
+          });
+
+          const result = await handleNavigation(navigationOptions);
+
+          expect(result.error).toBeUndefined();
+          expect(mockNavigate).toHaveBeenCalledWith(
+            '/inline_totp_setup?client_id=abc',
+            expect.objectContaining({ replace: true })
+          );
+        });
+
+        it('does not fail the request when the RP opted out of error redirects', async () => {
+          // return_on_error=false means the container renders in-FxA rather than
+          // redirecting, so failing here would dead-end the user instead of
+          // letting enrolment complete the flow.
+          const finishOAuthFlowHandler = jest.fn().mockResolvedValue({
+            error: AuthUiErrors.INSUFFICIENT_ACR_VALUES,
+          });
+          const navigationOptions = buildPromptNoneOptions({
+            accountHasTotp: true,
+            canRelayPromptNoneError: false,
+            finishOAuthFlowHandler,
+          });
+
+          const result = await handleNavigation(navigationOptions);
+
+          expect(result.error).toBeUndefined();
+          expect(mockNavigate).toHaveBeenCalledWith(
+            '/inline_totp_setup?client_id=abc',
+            expect.objectContaining({ replace: true })
+          );
+        });
+
+        it('does not fail the request for callers that cannot relay it to the RP', async () => {
+          const finishOAuthFlowHandler = jest.fn().mockResolvedValue({
+            error: AuthUiErrors.INSUFFICIENT_ACR_VALUES,
+          });
+          const navigationOptions = buildPromptNoneOptions({
+            accountHasTotp: true,
+            canRelayPromptNoneError: false,
+            finishOAuthFlowHandler,
+          });
+
+          const result = await handleNavigation(navigationOptions);
+
+          expect(result.error).toBeUndefined();
+          expect(mockNavigate).toHaveBeenCalledWith(
+            '/inline_totp_setup?client_id=abc',
+            expect.objectContaining({ replace: true })
+          );
+        });
+
+        it('still challenges interactively when prompt=none was not requested', async () => {
+          const integration = createMockSigninOAuthIntegration();
+          integration.wantsTwoStepAuthentication = jest
+            .fn()
+            .mockReturnValue(true);
+          const finishOAuthFlowHandler = jest.fn().mockResolvedValue({
+            error: AuthUiErrors.INSUFFICIENT_ACR_VALUES,
+          });
+
+          const navigationOptions = createBaseNavigationOptions({
+            integration,
+            queryParams: '?client_id=abc',
+            accountHasTotp: true,
+            finishOAuthFlowHandler,
+          });
+
+          const result = await handleNavigation(navigationOptions);
+
+          expect(result.error).toBeUndefined();
+          expect(mockNavigate).toHaveBeenCalledWith(
+            '/inline_totp_setup?client_id=abc',
+            expect.objectContaining({ replace: true })
+          );
+        });
+      });
+
+      it('returns a Settings-originated AAL upgrade to /settings', async () => {
+        const integration = createMockSigninOAuthIntegration();
+        const finishOAuthFlowHandler = jest.fn();
+
+        const navigationOptions = createBaseNavigationOptions({
+          integration,
+          isSessionAALUpgrade: true,
+          finishOAuthFlowHandler,
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(finishOAuthFlowHandler).not.toHaveBeenCalled();
+        expect(mockNavigate).toHaveBeenCalledWith('/settings');
       });
     });
 
@@ -859,6 +1152,18 @@ describe('Signin utils', () => {
         });
         expect(result.to).not.toContain('passwordCreated');
       });
+
+      it('includes pairReason=password_login by default', () => {
+        const result = getSyncNavigate('?service=sync');
+        expect(result.to).toContain('pairReason=password_login');
+      });
+
+      it('includes pairReason=passkey_login for a passkey session', () => {
+        const result = getSyncNavigate('?service=sync', {
+          isPasskeySession: true,
+        });
+        expect(result.to).toContain('pairReason=passkey_login');
+      });
     });
 
     describe('/pair redirect (React path, pairRoutes=true)', () => {
@@ -869,7 +1174,10 @@ describe('Signin utils', () => {
         expect(result.to).toContain('/pair?');
         expect(result.to).not.toContain('showSuccessMessage');
         expect(result.shouldHardNavigate).toBe(false);
-        expect(result.locationState).toEqual({ origin: 'signin' });
+        expect(result.locationState).toEqual({
+          origin: 'signin',
+          pairReason: 'password_login',
+        });
       });
 
       it('soft-navs with origin=signup when signupSuccess', () => {
@@ -878,17 +1186,22 @@ describe('Signin utils', () => {
         });
         expect(result.to).not.toContain('signupSuccess');
         expect(result.shouldHardNavigate).toBe(false);
-        expect(result.locationState).toEqual({ origin: 'signup' });
+        expect(result.locationState).toEqual({
+          origin: 'signup',
+          pairReason: 'password_reg',
+        });
       });
 
       it('soft-navs with origin=post-verify-set-password when set-password flow', () => {
         const result = getSyncNavigate('?service=sync', {
           origin: 'post-verify-set-password',
+          passwordCreationReason: 'otp',
         });
         expect(result.to).not.toContain('passwordCreated');
         expect(result.shouldHardNavigate).toBe(false);
         expect(result.locationState).toEqual({
           origin: 'post-verify-set-password',
+          pairReason: 'otp_login',
         });
       });
 
@@ -896,6 +1209,98 @@ describe('Signin utils', () => {
         const result = getSyncNavigate('');
         expect(result.to).toBe('/pair');
         expect(result.shouldHardNavigate).toBe(false);
+      });
+
+      // Keeps the user's auth method out of history and server access logs on
+      // the soft-nav path; router state carries it instead.
+      it('does not put pairReason in the URL when soft-navigating to /pair', () => {
+        const result = getSyncNavigate('?service=sync', {
+          isPasskeySession: true,
+        });
+        expect(result.to).not.toContain('pairReason');
+        expect(result.locationState?.pairReason).toBe('passkey_login');
+      });
+
+      describe('pairReason location state', () => {
+        it('is password_reg for a sign-up, even with a passkey session', () => {
+          const result = getSyncNavigate('?service=sync', {
+            origin: 'signup',
+            isPasskeySession: true,
+          });
+          expect(result.locationState?.pairReason).toBe('password_reg');
+        });
+
+        it.each([
+          ['passkey', 'passkey_login'],
+          ['otp', 'otp_login'],
+        ] as const)(
+          'is %s -> %s from passwordCreationReason',
+          (passwordCreationReason, expected) => {
+            const result = getSyncNavigate('?service=sync', {
+              passwordCreationReason,
+            });
+            expect(result.locationState?.pairReason).toBe(expected);
+          }
+        );
+
+        it('is undefined for third-party-auth password creation', () => {
+          const result = getSyncNavigate('?service=sync', {
+            passwordCreationReason: 'third_party_auth',
+          });
+          expect(result.locationState?.pairReason).toBeUndefined();
+        });
+
+        it('is passkey_login for a passkey session', () => {
+          const result = getSyncNavigate('?service=sync', {
+            isPasskeySession: true,
+          });
+          expect(result.locationState?.pairReason).toBe('passkey_login');
+        });
+
+        it('is otp_login for a passwordless OTP sign-in', () => {
+          const result = getSyncNavigate('?service=sync', {
+            isPasswordlessOtpSignin: true,
+          });
+          expect(result.locationState?.pairReason).toBe('otp_login');
+        });
+
+        it('is passkey_login when both passkey and OTP flags are set', () => {
+          const result = getSyncNavigate('?service=sync', {
+            isPasskeySession: true,
+            isPasswordlessOtpSignin: true,
+          });
+          expect(result.locationState?.pairReason).toBe('passkey_login');
+        });
+      });
+
+      // Interstitials reach /pair via hardNavigate('/pair', {}, true), which
+      // forwards the current query string — so the reason has to be on their
+      // URL or it is lost for every flow that stops at one (FXA-14133).
+      describe('interstitial hand-off', () => {
+        it('carries pairReason onto /signup_confirmed_sync', () => {
+          const result = getSyncNavigate('?service=sync', {
+            showSignupConfirmedSync: true,
+            passwordCreationReason: 'otp',
+          });
+          expect(result.to).toContain('/signup_confirmed_sync?');
+          expect(result.to).toContain('pairReason=otp_login');
+        });
+
+        it('carries pairReason onto /inline_recovery_key_setup', () => {
+          const result = getSyncNavigate('?service=sync', {
+            showInlineRecoveryKeySetup: true,
+          });
+          expect(result.to).toContain('/inline_recovery_key_setup?');
+          expect(result.to).toContain('pairReason=password_login');
+        });
+
+        it('omits pairReason on an interstitial when the flow has no bucket', () => {
+          const result = getSyncNavigate('?service=sync', {
+            showSignupConfirmedSync: true,
+            passwordCreationReason: 'third_party_auth',
+          });
+          expect(result.to).not.toContain('pairReason');
+        });
       });
     });
   });

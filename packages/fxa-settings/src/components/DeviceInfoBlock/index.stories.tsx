@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import DeviceInfoBlock from '.';
+import DeviceInfoBlock, { DeviceNameDisplay } from '.';
 import { RemoteMetadata } from '../../lib/types';
 import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
@@ -21,12 +21,15 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-const storyWithProps = (props?: Partial<RemoteMetadata>) => {
+const storyWithProps = (
+  metadata?: Partial<RemoteMetadata>,
+  deviceNameDisplay?: DeviceNameDisplay
+) => {
   const story = () => (
     <AppLayout>
       <DeviceInfoBlock
-        remoteMetadata={MOCK_METADATA_UNKNOWN_LOCATION}
-        {...props}
+        remoteMetadata={{ ...MOCK_METADATA_UNKNOWN_LOCATION, ...metadata }}
+        {...{ deviceNameDisplay }}
       />
     </AppLayout>
   );
@@ -56,3 +59,13 @@ export const WithFullLocation = storyWithProps({
   region: MOCK_REGION,
   country: MOCK_COUNTRY,
 });
+
+export const WithInlineDeviceName = storyWithProps(
+  { deviceName: MOCK_DEVICE_NAME },
+  'inline'
+);
+
+export const WithHiddenDeviceName = storyWithProps(
+  { deviceName: MOCK_DEVICE_NAME },
+  'hidden'
+);

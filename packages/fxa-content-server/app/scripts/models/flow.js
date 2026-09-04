@@ -20,7 +20,7 @@ import ResumeTokenMixin from './mixins/resume-token';
 import UrlMixin from './mixins/url';
 import vat from '../lib/vat';
 import Url from '../lib/url';
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 var Model = Backbone.Model.extend({
   initialize(options) {
@@ -64,7 +64,7 @@ var Model = Backbone.Model.extend({
       } else if (urlParams.deviceId) {
         this.set('deviceId', urlParams.deviceId);
       } else {
-        this.set('deviceId', uuid.v4().replace(/-/g, ''));
+        this.set('deviceId', uuidv4().replace(/-/g, ''));
       }
     }
   },

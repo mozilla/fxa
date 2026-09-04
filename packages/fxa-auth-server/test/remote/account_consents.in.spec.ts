@@ -137,6 +137,54 @@ describe('accountAuthorizations repository', () => {
     expect(await db.listAccountConsentsByUid(id)).toHaveLength(2);
   });
 
+  describe('hasConsentForScopeAndClient (VPN-in-Desktop DAU bandaid)', () => {
+    it('returns true for the exact (uid, scope, service, clientId)', async () => {
+      const id = track(newUid());
+      await seed({
+        uid: id,
+        scope: VPN_SCOPE,
+        service: 'vpn',
+        clientId: DESKTOP,
+      });
+      expect(
+        await db.hasConsentForScopeAndClient(id, VPN_SCOPE, 'vpn', DESKTOP)
+      ).toBe(true);
+    });
+
+    it('returns false when only the clientId differs', async () => {
+      const id = track(newUid());
+      // VPN authorized on another client (e.g. iOS) must not count as Desktop.
+      await seed({ uid: id, scope: VPN_SCOPE, service: 'vpn', clientId: IOS });
+      expect(
+        await db.hasConsentForScopeAndClient(id, VPN_SCOPE, 'vpn', DESKTOP)
+      ).toBe(false);
+    });
+
+    it('returns false when the scope differs', async () => {
+      const id = track(newUid());
+      await seed({
+        uid: id,
+        scope: OLDSYNC_SCOPE,
+        service: 'vpn',
+        clientId: DESKTOP,
+      });
+      expect(
+        await db.hasConsentForScopeAndClient(id, VPN_SCOPE, 'vpn', DESKTOP)
+      ).toBe(false);
+    });
+
+    it('returns false for a uid with no consent rows', async () => {
+      expect(
+        await db.hasConsentForScopeAndClient(
+          newUid(),
+          VPN_SCOPE,
+          'vpn',
+          DESKTOP
+        )
+      ).toBe(false);
+    });
+  });
+
   it('records one row per scope from a single multi-scope upsert', async () => {
     const id = track(newUid());
     const now = Date.now();
@@ -605,5 +653,226 @@ describe('#integration - lifecycle: account deletion vs connected-services revok
 
     const after = await db.listAccountConsentsByUid(uid);
     expect(after).toHaveLength(before.length);
+  });
+});
+
+describe('accountAuthorizations v2 dual-write and read (FXA-14169)', () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { config } = require('../../config');
+
+  const v1ReadRows = (uid: string) =>
+    db.mysql._read(
+      'SELECT scope, service FROM accountAuthorizations WHERE uid=?',
+      [Buffer.from(uid, 'hex')]
+    );
+
+  const v2ReadRows = (uid: string) =>
+    db.mysql._read(
+      'SELECT scopeId, service FROM accountAuthorizations_v2 WHERE uid=?',
+      [Buffer.from(uid, 'hex')]
+    );
+
+  const trackedV2: string[] = [];
+  const trackV2 = (id: string) => {
+    trackedV2.push(id);
+    return id;
+  };
+
+  afterEach(async () => {
+    config.set('oauthServer.accountAuthorizations.dualWriteV2', false);
+    config.set('oauthServer.accountAuthorizations.readV2', false);
+    for (const id of trackedV2.splice(0)) {
+      await db.mysql._write(
+        'DELETE FROM accountAuthorizations_v2 WHERE uid=?',
+        [Buffer.from(id, 'hex')]
+      );
+      await db.deleteAllConsentsForUser(id);
+    }
+  });
+
+  it('writes a matching v2 row with the resolved scopeId when dualWriteV2 is on', async () => {
+    config.set('oauthServer.accountAuthorizations.dualWriteV2', true);
+    const id = trackV2(newUid());
+
+    await db.recordSignInConsents({
+      uid: id,
+      scopes: [PROFILE_SCOPE],
+      service: '',
+      clientId: DESKTOP,
+      now: Date.now(),
+    });
+
+    // Verify directly against the v2 table: one row, with a resolved scopeId.
+    const rows = await v2ReadRows(id);
+    expect(rows).toHaveLength(1);
+    expect(rows[0].scopeId).toEqual(expect.any(Number));
+    expect(rows[0].service).toBe('');
+  });
+
+  it('reads consent from v2 (not v1) when readV2 is on', async () => {
+    config.set('oauthServer.accountAuthorizations.dualWriteV2', true);
+    const id = trackV2(newUid());
+    await db.recordSignInConsents({
+      uid: id,
+      scopes: [PROFILE_SCOPE],
+      service: '',
+      clientId: DESKTOP,
+      now: Date.now(),
+    });
+    // Leave only the v2 row standing, so a v2 read is the only thing that can
+    // still find this consent. `deleteAllConsentsForUser` now clears both
+    // tables, so this deletes from v1 directly instead.
+    await db.mysql._write('DELETE FROM accountAuthorizations WHERE uid=?', [
+      Buffer.from(id, 'hex'),
+    ]);
+
+    config.set('oauthServer.accountAuthorizations.readV2', true);
+    expect(await db.hasConsentForSignIn(id, PROFILE_SCOPE, '')).toBe(true);
+
+    config.set('oauthServer.accountAuthorizations.readV2', false);
+    expect(await db.hasConsentForSignIn(id, PROFILE_SCOPE, '')).toBe(false);
+  });
+
+  it('falls back to v1 when readV2 is on but the row exists only in v1', async () => {
+    // dualWriteV2 stays off: the row lands in v1 only.
+    const id = trackV2(newUid());
+    await db.recordSignInConsents({
+      uid: id,
+      scopes: [PROFILE_SCOPE],
+      service: '',
+      clientId: DESKTOP,
+      now: Date.now(),
+    });
+
+    config.set('oauthServer.accountAuthorizations.readV2', true);
+    expect(await db.hasConsentForSignIn(id, PROFILE_SCOPE, '')).toBe(true);
+  });
+
+  it('skips an unseeded scope in v2 but still writes it to v1', async () => {
+    config.set('oauthServer.accountAuthorizations.dualWriteV2', true);
+    const id = trackV2(newUid());
+
+    await db.recordSignInConsents({
+      uid: id,
+      scopes: [UNKNOWN_SCOPE],
+      service: '',
+      clientId: DESKTOP,
+      now: Date.now(),
+    });
+
+    // Resolve-only: the unseeded scope can't resolve to a scopeId, so no v2
+    // row is written...
+    expect(await v2ReadRows(id)).toHaveLength(0);
+    // ...but v1 still recorded it, so nothing is dropped.
+    expect(await db.hasConsentForSignIn(id, UNKNOWN_SCOPE, '')).toBe(true);
+  });
+
+  it('account deletion clears both v1 and v2 rows', async () => {
+    config.set('oauthServer.accountAuthorizations.dualWriteV2', true);
+    const id = trackV2(newUid());
+
+    await db.recordSignInConsents({
+      uid: id,
+      scopes: [PROFILE_SCOPE],
+      service: '',
+      clientId: DESKTOP,
+      now: Date.now(),
+    });
+    expect(await v1ReadRows(id)).toHaveLength(1);
+    expect(await v2ReadRows(id)).toHaveLength(1);
+
+    await db.deleteAllConsentsForUser(id);
+
+    expect(await v1ReadRows(id)).toHaveLength(0);
+    expect(await v2ReadRows(id)).toHaveLength(0);
+    // readV2 is off here, so this is the v1 path answering.
+    expect(await db.hasConsentForSignIn(id, PROFILE_SCOPE, '')).toBe(false);
+  });
+});
+
+// FXA-14263: Firefox Desktop requests the Sync scope on every browser flow,
+// so signing into another browser service used to file an apps/oldsync consent
+// row for a user who never authorized Sync. The bandaid drops that row and
+// must leave everything else alone. Branch coverage lives in
+// lib/oauth/desktop-sync-dau-authorization-bandaid.spec.ts; this pins the behaviour
+// against a real ScopeSet, a real code redemption, and real DB rows.
+describe('#integration - Sync consent for non-Sync Desktop sign-ins', () => {
+  let testClient: any;
+
+  // The shared PKCE_CODE_CHALLENGE above has no published verifier, and these
+  // tests redeem the code, so derive a matching pair (RFC 7636 S256).
+  const CODE_VERIFIER = 'WLjNEANMbRNUSG0uQsUZMQGgIL5FUknGz2jRipY79ZC';
+  const CODE_CHALLENGE = crypto
+    .createHash('sha256')
+    .update(CODE_VERIFIER)
+    .digest('base64url');
+
+  beforeEach(async () => {
+    testClient = await Client.createAndVerify(
+      server.publicUrl,
+      server.uniqueEmail(),
+      'test password',
+      server.mailbox,
+      { version: '' }
+    );
+    track(testClient.uid);
+  });
+
+  // Mirrors Desktop signing into Smart Window: scope= is the Sync scope
+  // regardless of which service the user actually chose.
+  function desktopAuthParams(overrides: Record<string, unknown> = {}) {
+    return {
+      client_id: DESKTOP,
+      scope: OLDSYNC_SCOPE,
+      state: 'xyz',
+      access_type: 'offline',
+      code_challenge: CODE_CHALLENGE,
+      code_challenge_method: 'S256',
+      ...overrides,
+    };
+  }
+
+  it('omits the Sync consent row when the resolved service is not Sync', async () => {
+    await testClient.createAuthorizationCode(
+      desktopAuthParams({ service: 'smartwindow' })
+    );
+
+    const rows = await db.listAccountConsentsByUid(testClient.uid);
+    expect(rows.map((r: any) => r.scope)).not.toContain(OLDSYNC_SCOPE);
+    expect(rows).toEqual([
+      expect.objectContaining({
+        scope: SMARTWINDOW_SCOPE,
+        service: 'smartwindow',
+      }),
+    ]);
+  });
+
+  it('still grants the Sync scope on the code and the access token', async () => {
+    const authResult = await testClient.createAuthorizationCode(
+      desktopAuthParams({ service: 'smartwindow' })
+    );
+
+    // The authorization response reports the granted scope...
+    expect(authResult.scope).toContain(OLDSYNC_SCOPE);
+
+    // ...and the access token minted from that code carries it too, so the
+    // bandaid really is ledger-only and does not impact functionality.
+    const tokens = await testClient.grantOAuthTokens({
+      client_id: DESKTOP,
+      code: authResult.code,
+      code_verifier: CODE_VERIFIER,
+    });
+    expect(tokens.scope).toContain(OLDSYNC_SCOPE);
+  });
+
+  it('records the Sync consent row when the service is Sync', async () => {
+    await testClient.createAuthorizationCode(
+      desktopAuthParams({ service: 'sync' })
+    );
+
+    const rows = await db.listAccountConsentsByUid(testClient.uid);
+    expect(rows).toEqual([
+      expect.objectContaining({ scope: OLDSYNC_SCOPE, service: 'sync' }),
+    ]);
   });
 });

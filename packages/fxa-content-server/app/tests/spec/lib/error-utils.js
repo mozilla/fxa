@@ -4,7 +4,7 @@
 
 import $ from 'jquery';
 import AuthErrors from 'lib/auth-errors';
-import chai from 'chai';
+import { assert } from 'chai';
 import domWriter from 'lib/dom-writer';
 import ErrorUtils from 'lib/error-utils';
 import FiveHundredTemplate from 'templates/500.mustache';
@@ -13,8 +13,6 @@ import OAuthErrors from 'lib/oauth-errors';
 import sinon from 'sinon';
 import Translator from 'lib/translator';
 import WindowMock from '../../mocks/window';
-
-var assert = chai.assert;
 
 describe('lib/error-utils', function () {
   var err;

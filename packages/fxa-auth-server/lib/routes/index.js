@@ -56,7 +56,7 @@ module.exports = function (
   );
   // The routing modules themselves.
   const defaults = require('./defaults')(log, config, db);
-  const idp = require('./idp')(log, serverPublicKeys);
+  const idp = require('./idp')(serverPublicKeys);
   const grant = require('../oauth/grant');
   const oauthRawDB = require('../oauth/db');
   grant.setStripeHelper(stripeHelper);
@@ -87,7 +87,9 @@ module.exports = function (
     mailer,
     devicesImpl,
     statsd,
-    glean
+    glean,
+    authServerCacheRedis,
+    customs
   );
   const oauthRoutes = oauth.map((route) => ({
     path: route.path,
@@ -252,6 +254,9 @@ module.exports = function (
     mailer
   );
 
+  const { passkeyWrapsRoutes } = require('./passkey-wraps');
+  const passkeyWraps = passkeyWrapsRoutes(customs, db, config, log);
+
   const { passwordlessRoutes } = require('./passwordless');
   const passwordless = passwordlessRoutes(
     log,
@@ -292,7 +297,8 @@ module.exports = function (
     cms,
     geo,
     mfa,
-    passkeys
+    passkeys,
+    passkeyWraps
   );
 
   function optionallyIgnoreTrace(fn) {

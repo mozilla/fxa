@@ -22,3 +22,8 @@ export const getWafTfPath = () =>
   window.location.host.startsWith('fxa-admin-panel.prod.')
     ? 'fxa/tf/prod/waf.tf'
     : 'fxa/tf/stage/waf.tf';
+
+export const getEventBrokerTfPath = () =>
+  window.location.host.startsWith('fxa-admin-panel.prod.')
+    ? 'fxa-legacy/tf/prod/locals.tf'
+    : 'fxa-legacy/tf/stage/locals.tf';

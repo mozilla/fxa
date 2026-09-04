@@ -12,6 +12,7 @@ import {
   MOCK_BASIC_PROPS,
   MOCK_DEFAULTS,
   MOCK_DEVICE_BASIC_PROPS,
+  mockFxAStatus,
 } from './mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
@@ -39,6 +40,7 @@ export const CanSignInNoSuccessMessage = () => (
       isSignUp={false}
       isSignedIn={false}
       canSignIn
+      fxaStatus={mockFxAStatus()}
     />
   </AppLayout>
 );
@@ -57,6 +59,7 @@ export const WithSignupSuccessMessage = () => (
       isSignedIn={false}
       canSignIn
       {...MOCK_DEFAULTS}
+      fxaStatus={mockFxAStatus()}
     />
   </AppLayout>
 );
@@ -70,6 +73,7 @@ export const WithSignInSuccessMessage = () => (
       isSignedIn={false}
       canSignIn
       {...MOCK_DEFAULTS}
+      fxaStatus={mockFxAStatus()}
     />
   </AppLayout>
 );

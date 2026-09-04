@@ -16,6 +16,19 @@ export default {
 
 export const Default = () => (
   <MemoryRouter>
-    <LinkRememberPassword email={MOCK_ACCOUNT.primaryEmail.email} />
+    <LinkRememberPassword
+      email={MOCK_ACCOUNT.primaryEmail.email}
+      entrypoint="reset_password"
+    />
+  </MemoryRouter>
+);
+
+export const WithPasskeyOption = () => (
+  <MemoryRouter>
+    <LinkRememberPassword
+      email={MOCK_ACCOUNT.primaryEmail.email}
+      entrypoint="reset_password"
+      showPasskeyOption
+    />
   </MemoryRouter>
 );

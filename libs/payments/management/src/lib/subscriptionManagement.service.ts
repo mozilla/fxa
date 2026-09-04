@@ -438,7 +438,7 @@ export class SubscriptionManagementService {
     };
 
     const appleIapSubscriptions =
-      await this.appleIapPurchaseManager.getForUser(uid);
+      await this.appleIapPurchaseManager.getForUserOrStaleCached(uid);
 
     for (const purchase of appleIapSubscriptions) {
       purchases.storeIds.push(purchase.productId);
@@ -561,7 +561,7 @@ export class SubscriptionManagementService {
     } = upcomingInvoice;
 
     const nextPromotionName =
-      subscription.discounts[0]?.source?.coupon.name ?? null;
+      subscription.discounts[0]?.source?.coupon?.name ?? null;
 
     const totalExclusiveTax = taxAmounts
       .filter((tax) => !tax.inclusive)

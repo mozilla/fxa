@@ -27,7 +27,6 @@ const FRONTEND_ROUTES = [
   'inline_totp_setup',
   'inline_recovery_setup',
   'inline_recovery_key_setup', // React app only
-  'legal',
   'oauth',
   'oauth/force_auth',
   'oauth/signin',
@@ -38,6 +37,18 @@ const FRONTEND_ROUTES = [
   'pair/supp',
   'pair/supp/complete',
   'pair/unsupported',
+  'pair/authority/approve_signin',
+  'pair/authority/continue_on_mobile',
+  'pair/authority/download_firefox',
+  'pair/authority/scan_qr',
+  'pair/authority/sync_success',
+  'pair/authority/timeout_and_cancel',
+  'pair/supplicant/approve_signin',
+  'pair/supplicant/connect_this_device',
+  'pair/supplicant/download_firefox',
+  'pair/supplicant/ready_to_scan',
+  'pair/supplicant/sync_success',
+  'pair/supplicant/timeout_and_cancel',
   'post_verify/cad_qr/get_started',
   'post_verify/cad_qr/ready_to_scan',
   'post_verify/cad_qr/scan_code',
@@ -56,7 +67,6 @@ const FRONTEND_ROUTES = [
   'signup_confirmed_sync', // React app only
   'report_signin',
   'reset_password',
-  'reset_password_confirmed',
   'reset_password_verified',
   'reset_password_with_recovery_key_verified',
   'reset_password_totp_recovery_choice',
@@ -108,12 +118,8 @@ const PAIRING_ROUTES = [
 
 const OAUTH_SUCCESS_ROUTES = ['/oauth/success/:clientId'];
 
-const TERMS_PRIVACY_REGEX =
-  /^\/(?:([a-zA-Z-\_]*)\/)?legal\/(terms|privacy)(?:\/)?$/;
-
 module.exports = {
   FRONTEND_ROUTES,
   PAIRING_ROUTES,
   OAUTH_SUCCESS_ROUTES,
-  TERMS_PRIVACY_REGEX,
 };

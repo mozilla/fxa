@@ -5,8 +5,6 @@
 import fs from 'fs';
 import { Container } from 'typedi';
 
-import { AuthFirestore, AuthLogger, AppConfig } from '../../lib/types';
-import { setupFirestore } from '../../lib/firestore-db';
 import { PaymentConfigManager } from '../../lib/payments/configuration/manager';
 import { ProductConfig } from 'fxa-shared/subscriptions/configuration/product';
 import { PlanConfig } from 'fxa-shared/subscriptions/configuration/plan';
@@ -354,31 +352,10 @@ describe('StripeProductsAndPlansConverter', () => {
     let paymentConfigManager: any;
     let converter: any;
 
-    const mockConfig = {
-      authFirestore: {
-        prefix: 'mock-fxa-',
-      },
-      subscriptions: {
-        playApiServiceAccount: {
-          credentials: {
-            clientEmail: 'mock-client-email',
-          },
-          keyFile: 'mock-private-keyfile',
-        },
-        productConfigsFirestore: {
-          schemaValidation: {
-            cdnUrlRegex: ['^http'],
-          },
-        },
-      },
-    };
-
     beforeEach(() => {
-      const firestore = setupFirestore(mockConfig as any);
-      Container.set(AuthFirestore, firestore);
-      Container.set(AuthLogger, {});
-      Container.set(AppConfig, mockConfig);
-      paymentConfigManager = new PaymentConfigManager();
+      // A real PaymentConfigManager can't be used here: its constructor kicks off
+      // an un-awaited Firestore load() and snapshot listeners that outlive the spec.
+      paymentConfigManager = { validateProductConfig: jest.fn() };
       Container.set(PaymentConfigManager, paymentConfigManager);
       converter = new StripeProductsAndPlansConverter({
         log: mockLog,
@@ -447,31 +424,10 @@ describe('StripeProductsAndPlansConverter', () => {
     let paymentConfigManager: any;
     let converter: any;
 
-    const mockConfig = {
-      authFirestore: {
-        prefix: 'mock-fxa-',
-      },
-      subscriptions: {
-        playApiServiceAccount: {
-          credentials: {
-            clientEmail: 'mock-client-email',
-          },
-          keyFile: 'mock-private-keyfile',
-        },
-        productConfigsFirestore: {
-          schemaValidation: {
-            cdnUrlRegex: ['^http'],
-          },
-        },
-      },
-    };
-
     beforeEach(() => {
-      const firestore = setupFirestore(mockConfig as any);
-      Container.set(AuthFirestore, firestore);
-      Container.set(AuthLogger, {});
-      Container.set(AppConfig, mockConfig);
-      paymentConfigManager = new PaymentConfigManager();
+      // A real PaymentConfigManager can't be used here: its constructor kicks off
+      // an un-awaited Firestore load() and snapshot listeners that outlive the spec.
+      paymentConfigManager = { validatePlanConfig: jest.fn() };
       Container.set(PaymentConfigManager, paymentConfigManager);
       converter = new StripeProductsAndPlansConverter({
         log: mockLog,

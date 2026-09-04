@@ -25,9 +25,11 @@ test.describe('relay integration', () => {
 
     await page.waitForURL(/signup/);
 
+    // Fluent wraps brand terms in bidi isolates, so a plain string spanning
+    // "Mozilla" never matches.
     await expect(
       signup.page.getByText(
-        'A password is needed to securely manage your masked emails and access Mozilla’s security tools.'
+        /A password is needed to securely manage your masked emails/
       )
     ).toBeVisible();
 

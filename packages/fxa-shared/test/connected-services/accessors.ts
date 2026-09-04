@@ -13,13 +13,18 @@ import {
   ISessionTokensCache,
 } from '../../connected-services';
 
+const MOCK_ACCESS_TOKEN = Object.freeze({ tokenId: 'a'.repeat(64) });
+
 describe('connected-services/accessors', () => {
   class TestDbStore implements IConnectedServicesDbStore {
     async getRefreshTokensByUid(uid: string): Promise<any> {
       return [{ tokenId: '1234' }];
     }
+    // Deliberately not part of IConnectedServicesDbStore. It exists here only
+    // so the cache-only contract for access tokens is pinned by an assertion
+    // rather than merely by the interface's shape.
     async getAccessTokensByUid(uid: string): Promise<any> {
-      return [];
+      throw new Error('access tokens must not be read from the database');
     }
     async close() {
       return;
@@ -48,7 +53,7 @@ describe('connected-services/accessors', () => {
       return {};
     }
     async getAccessTokens(uid: string | Buffer): Promise<any> {
-      return [];
+      return [MOCK_ACCESS_TOKEN];
     }
   }
 
@@ -80,12 +85,12 @@ describe('connected-services/accessors', () => {
   });
 
   describe('connected services database', () => {
-    it('gets access tokens', async () => {
-      const uid = '1234';
-      const result = await db.getAccessTokensByUid('1234');
+    it('gets access tokens from the cache only', async () => {
+      const result = await db.getAccessTokensByUid(uid);
 
+      assert.deepEqual(result, [MOCK_ACCESS_TOKEN]);
       Sinon.assert.calledOnceWithExactly(stubTokenCache.getAccessTokens, uid);
-      Sinon.assert.calledOnceWithExactly(stubDbStore.getAccessTokensByUid, uid);
+      Sinon.assert.notCalled(stubDbStore.getAccessTokensByUid);
     });
 
     it('gets access refresh tokens', async () => {
@@ -102,18 +107,17 @@ describe('connected-services/accessors', () => {
   });
 
   describe('connected services cache', async () => {
-    it('gets accesss token', async () => {
+    it('gets access token', async () => {
       const result = await cache.getAccessToken(uid);
 
       assert.notInstanceOf(result, Array);
       Sinon.assert.calledOnce(stubTokenCache.getAccessToken);
     });
 
-    it('gets accesss tokens', async () => {
+    it('gets access tokens', async () => {
       const result = await cache.getAccessTokens(uid);
 
-      assert.instanceOf(result, Array);
-      assert.lengthOf(result, 0);
+      assert.deepEqual(result, [MOCK_ACCESS_TOKEN]);
       Sinon.assert.calledOnce(stubTokenCache.getAccessTokens);
     });
 

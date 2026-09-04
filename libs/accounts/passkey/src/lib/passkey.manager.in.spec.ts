@@ -36,6 +36,7 @@ describe('PasskeyManager (Integration)', () => {
     challengeTimeout: 30_000,
     requestPrfAtRegistration: false,
     prfSalt: '',
+    requestPrfAtAuthentication: 'off',
   });
 
   const mockMetrics = {

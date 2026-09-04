@@ -5,14 +5,15 @@
 import React, { ChangeEvent, useCallback, useRef, useState } from 'react';
 
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { SETTINGS_PATH } from '../../../constants';
 import InputText from '../../InputText';
 import FlowContainer from '../FlowContainer';
 import { isEmailMask, isEmailValid } from 'fxa-shared/email/helpers';
 import { useAccount, useAlertBar } from 'fxa-settings/src/models';
-import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
+import { MfaGuard } from '../MfaGuard';
+import { useMfaErrorHandler } from '../../../lib/hooks';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { MfaReason } from '../../../lib/types';
 import { useFtlMsgResolver } from '../../../models/hooks';
@@ -42,7 +43,10 @@ export const PageSecondaryEmailAdd = () => {
     async (email: string) => {
       try {
         await account.createSecondaryEmail(email);
-        navigateWithQuery(`${SETTINGS_PATH}/emails/verify`, { state: { email }, replace: true });
+        navigateWithQuery(`${SETTINGS_PATH}/emails/verify`, {
+          state: { email },
+          replace: true,
+        });
       } catch (e) {
         const errorHandled = handleMfaError(e);
         if (errorHandled) {

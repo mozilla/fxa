@@ -43,10 +43,7 @@ const handleAuthUiError = (error: {
   return { error: AuthUiErrors.UNEXPECTED_ERROR as HandledError };
 };
 
-export const getHandledError = (error: {
-  errno: number;
-  message: string;
-}) => {
+export const getHandledError = (error: { errno: number; message: string }) => {
   return handleAuthUiError(error);
 };
 
@@ -110,7 +107,7 @@ export const getLocalizedErrorMessage = (
   TODO in FXA-9502: account for potential errno overlap between auth-errors
   and oauth errors. Checking the auth-error array currently happens first.
 **/
-export const getErrorFtlId = (err: { errno?: number; message?: string }) => {
+export const getErrorFtlId = (err: Partial<GenericError>) => {
   if (err.errno) {
     if (err.errno in AuthUiErrorNos) {
       const error = AuthUiErrorNos[err.errno];
@@ -129,14 +126,21 @@ export const getErrorFtlId = (err: { errno?: number; message?: string }) => {
     }
   }
   // If the error isn't found, return an empty string FTL ID and log to Sentry.
-  const logMessage = err.errno
-    ? `WARNING: An error occurred that we attempted to localize and render, but this error was not found in auth-errors or oauth-errors. We should either add this error to our list or not display it. error: ${JSON.stringify(
-        err
-      )}`
-    : `WARNING: An error occurred that we attempted to localize and render, but 'errno' is missing. error: ${JSON.stringify(
-        err
-      )}`;
-  Sentry.captureMessage(logMessage);
+  const reason = err.errno
+    ? 'An error occurred that we attempted to localize and render, but this error was not found in auth-errors or oauth-errors. We should either add this error to our list or not display it.'
+    : "An error occurred that we attempted to localize and render, but 'errno' is missing.";
+  // Capture the error itself: stringifying an Error drops its message and stack.
+  // Keep 'errno' out of the tags: beforeSend in fxa-shared fingerprints a tagged
+  // errno into a single group and downgrades the level to info.
+  const { code, retryAfter } = err;
+  Sentry.captureException(
+    err instanceof Error ? err : new Error(err.message || reason),
+    {
+      tags: { source: 'getErrorFtlId' },
+      extra: { reason, errno: err.errno, code, retryAfter },
+      level: 'warning',
+    }
+  );
   return '';
 };
 

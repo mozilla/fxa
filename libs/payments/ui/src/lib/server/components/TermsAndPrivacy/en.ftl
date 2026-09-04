@@ -6,7 +6,6 @@ next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capita
 
 next-terms = Terms of Service
 next-privacy = Privacy Notice
-next-terms-download = Download Terms
 
 terms-and-privacy-stripe-label = { -brand-mozilla } uses { -brand-name-stripe } for secure payment processing.
 terms-and-privacy-stripe-link = { -brand-name-stripe } privacy policy

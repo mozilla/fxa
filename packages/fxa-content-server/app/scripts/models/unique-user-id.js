@@ -22,7 +22,7 @@ import Cocktail from 'cocktail';
 import ResumeTokenMixin from './mixins/resume-token';
 import UrlMixin from './mixins/url';
 import Storage from '../lib/storage';
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 var Model = Backbone.Model.extend({
   initialize(options) {
@@ -53,7 +53,7 @@ var Model = Backbone.Model.extend({
         // uniqueUserId is the new name.
         uniqueUserId = storage.get('uniqueUserId');
       } else {
-        uniqueUserId = uuid.v4();
+        uniqueUserId = uuidv4();
       }
     }
 

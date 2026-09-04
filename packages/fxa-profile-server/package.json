@@ -35,7 +35,6 @@
     "mozlog": "^3.0.2",
     "mysql": "^2.18.1",
     "poolee": "^1.0.1",
-    "request": "^2.88.2",
     "sharp": "^0.35.0",
     "stream-to-array": "2.3.0"
   },
@@ -46,13 +45,11 @@
     "commander": "9.3.0",
     "eslint": "^8.18.0",
     "jest-junit": "^16.0.0",
-    "nock": "^13.5.1",
     "pm2": "^7.0.0",
     "pngparse": "2.0.1",
     "prettier": "^3.5.3",
     "rimraf": "^6.0.1",
     "sinon": "^14.0.0",
-    "through": "2.3.8",
     "ts-jest": "^29.1.1"
   },
   "repository": {

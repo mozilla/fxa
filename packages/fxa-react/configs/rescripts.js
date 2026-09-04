@@ -99,13 +99,22 @@ const configureDevServerCompression = (devServerConfig) => {
 
     setupMiddlewares: (middlewares, devServer) => {
       middlewares.unshift(compression({ threshold: '4kb' }));
-      return devServerConfig.setupMiddlewares?.(middlewares, devServer) || middlewares;
+      return (
+        devServerConfig.setupMiddlewares?.(middlewares, devServer) ||
+        middlewares
+      );
     },
   };
 };
 
 const setModuleNameMapper = (tsconfigBase) => (config) => {
   config.transform = {
+    // Must precede the spread: CRA's catch-all fileTransform also matches .svg,
+    // and it hand-rolls a React element with the pre-19 `react.element` brand,
+    // which React 19 rejects. Jest takes the first matching pattern, so ordering
+    // is what routes SVGs here. Only the SVG path was broken — CRA's handling of
+    // every other asset is just a basename, so it stays in place.
+    '^.+\\.svg$': resolve(__dirname, '../svg-transform.js'),
     ...config.transform,
     '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true }],
   };

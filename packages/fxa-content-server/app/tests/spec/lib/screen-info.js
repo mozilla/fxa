@@ -4,11 +4,9 @@
 
 // test the screen-info module
 
-import chai from 'chai';
+import { assert } from 'chai';
 import ScreenInfo from 'lib/screen-info';
 import WindowMock from '../../mocks/window';
-
-var assert = chai.assert;
 
 describe('lib/screen-info', function () {
   var windowMock;

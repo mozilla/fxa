@@ -52,7 +52,6 @@ describe('RecoveryPhoneService', () => {
   const mockRecoveryPhoneManager = {
     storeUnconfirmed: jest.fn(),
     getUnconfirmed: jest.fn(),
-    getAllUnconfirmedCodes: jest.fn(),
     registerPhoneNumber: jest.fn(),
     removePhoneNumber: jest.fn(),
     getConfirmedPhoneNumber: jest.fn(),
@@ -118,7 +117,6 @@ describe('RecoveryPhoneService', () => {
       };
     });
     mockRecoveryPhoneManager.hasRecoveryCodes.mockResolvedValue(true);
-    mockRecoveryPhoneManager.getAllUnconfirmedCodes.mockResolvedValue([]);
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -178,49 +176,8 @@ describe('RecoveryPhoneService', () => {
       phoneNumber,
       true
     );
-    expect(
-      mockRecoveryPhoneManager.getAllUnconfirmedCodes
-    ).toHaveBeenCalledWith(uid);
-    expect(result).toBeTruthy();
-  });
-
-  it('Should send new code to set up a phone number', async () => {
-    mockOtpManager.generateCode.mockReturnValue(code);
-    mockRecoveryPhoneManager.getAllUnconfirmedCodes.mockResolvedValue([
-      'code123',
-      'code456',
-    ]);
-
-    const result = await service.setupPhoneNumber(
-      uid,
-      phoneNumber,
-      mockGetFormattedMessage
-    );
-
-    expect(result).toBeTruthy();
-    expect(mockRecoveryPhoneManager.removeCode).toHaveBeenCalledWith(
-      uid,
-      'code123'
-    );
-    expect(mockRecoveryPhoneManager.removeCode).toHaveBeenCalledWith(
-      uid,
-      'code456'
-    );
-    expect(mockOtpManager.generateCode).toHaveBeenCalled();
-    expect(mockSmsManager.sendSMS).toHaveBeenCalledWith({
-      to: phoneNumber,
-      body: (await mockGetFormattedMessage(code)).msg,
-      statusCallback: expect.stringContaining(mockWebhookUrl),
-    });
-    expect(mockRecoveryPhoneManager.storeUnconfirmed).toHaveBeenCalledWith(
-      uid,
-      code,
-      phoneNumber,
-      true
-    );
-    expect(
-      mockRecoveryPhoneManager.getAllUnconfirmedCodes
-    ).toHaveBeenCalledWith(uid);
+    // Storing overwrites the previous record, so no wipe is needed.
+    expect(mockRecoveryPhoneManager.removeCode).not.toHaveBeenCalled();
   });
 
   it('handles message template when provided to set up phone number', async () => {
@@ -245,9 +202,6 @@ describe('RecoveryPhoneService', () => {
       phoneNumber,
       true
     );
-    expect(
-      mockRecoveryPhoneManager.getAllUnconfirmedCodes
-    ).toHaveBeenCalledWith(uid);
   });
 
   it('Will reject a phone number that is not part of launch', async () => {
@@ -312,17 +266,15 @@ describe('RecoveryPhoneService', () => {
       ).toHaveBeenCalledWith(uid);
     });
 
-    it('can return stripped phone number', async () => {
+    it('returns the national format when one is stored', async () => {
       mockRecoveryPhoneManager.getConfirmedPhoneNumber.mockReturnValueOnce({
         phoneNumber,
+        nationalFormat: '(500) 555-1234',
       });
 
-      const result = await service.hasConfirmed(uid, 4);
+      const result = await service.hasConfirmed(uid);
 
-      expect(result.phoneNumber).toEqual('1234');
-      expect(
-        mockRecoveryPhoneManager.getConfirmedPhoneNumber
-      ).toHaveBeenCalledWith(uid);
+      expect(result.nationalFormat).toEqual('(500) 555-1234');
     });
 
     it('can determine confirmed phone number does not exist', async () => {
@@ -347,6 +299,89 @@ describe('RecoveryPhoneService', () => {
       );
 
       expect(service.hasConfirmed(uid)).rejects.toEqual(mockError);
+    });
+  });
+
+  describe('has confirmed masked', () => {
+    it('returns only the last 4 digits of the phone number', async () => {
+      mockRecoveryPhoneManager.getConfirmedPhoneNumber.mockResolvedValueOnce({
+        phoneNumber,
+      });
+
+      const result = await service.hasConfirmedMasked(uid);
+
+      expect(result).toStrictEqual({
+        exists: true,
+        phoneNumber: '1234',
+        nationalFormat: undefined,
+      });
+    });
+
+    it('strips the national format down to the last 4 digits', async () => {
+      mockRecoveryPhoneManager.getConfirmedPhoneNumber.mockResolvedValueOnce({
+        phoneNumber,
+        nationalFormat: '(500) 555-1234',
+      });
+
+      const result = await service.hasConfirmedMasked(uid);
+
+      expect(result).toStrictEqual({
+        exists: true,
+        phoneNumber: '1234',
+        nationalFormat: '1234',
+      });
+    });
+
+    it('keeps the separators when keepFormatting is set', async () => {
+      mockRecoveryPhoneManager.getConfirmedPhoneNumber.mockResolvedValueOnce({
+        phoneNumber,
+        nationalFormat: '(500) 555-1234',
+      });
+
+      const result = await service.hasConfirmedMasked(uid, {
+        keepFormatting: true,
+      });
+
+      expect(result).toStrictEqual({
+        exists: true,
+        phoneNumber: '•••••••1234',
+        nationalFormat: '(•••) •••-1234',
+      });
+    });
+
+    // keepFormatting must never widen disclosure beyond the last 4 digits.
+    it.each([{ keepFormatting: false }, { keepFormatting: true }])(
+      'never returns a dialable number with keepFormatting $keepFormatting',
+      async (opts) => {
+        mockRecoveryPhoneManager.getConfirmedPhoneNumber.mockResolvedValueOnce({
+          phoneNumber,
+          nationalFormat: '(500) 555-1234',
+        });
+
+        const result = await service.hasConfirmedMasked(uid, opts);
+
+        expect(result.phoneNumber).not.toContain('500');
+        expect(result.nationalFormat).not.toContain('500');
+      }
+    );
+
+    it('returns exists false when no phone number is confirmed', async () => {
+      mockRecoveryPhoneManager.getConfirmedPhoneNumber.mockRejectedValueOnce(
+        new RecoveryNumberNotExistsError(uid)
+      );
+
+      const result = await service.hasConfirmedMasked(uid);
+
+      expect(result).toStrictEqual({ exists: false });
+    });
+
+    it('can propagate unexpected error', async () => {
+      const mockError = new Error(uid);
+      mockRecoveryPhoneManager.getConfirmedPhoneNumber.mockRejectedValueOnce(
+        mockError
+      );
+
+      await expect(service.hasConfirmedMasked(uid)).rejects.toEqual(mockError);
     });
   });
 
@@ -559,6 +594,8 @@ describe('RecoveryPhoneService', () => {
         body: (await mockGetFormattedMessage(code)).msg,
         statusCallback: expect.stringContaining(mockWebhookUrl),
       });
+      // Storing overwrites the previous record, so no wipe is needed.
+      expect(mockRecoveryPhoneManager.removeCode).not.toHaveBeenCalled();
     });
 
     it('should fallback to the short message', async () => {
@@ -621,51 +658,6 @@ describe('RecoveryPhoneService', () => {
       expect(service.sendCode(uid, mockGetFormattedMessage)).rejects.toThrow(
         error
       );
-    });
-
-    it('Should send new code for setup phone number', async () => {
-      mockOtpManager.generateCode.mockReturnValue(code);
-      mockRecoveryPhoneManager.getAllUnconfirmedCodes.mockResolvedValue([
-        'code123',
-        'code456',
-      ]);
-
-      mockRecoveryPhoneManager.getConfirmedPhoneNumber.mockResolvedValueOnce({
-        phoneNumber,
-      });
-      mockOtpManager.generateCode.mockResolvedValueOnce(code);
-      mockSmsManager.sendSMS.mockResolvedValue({ status: 'success' });
-
-      const result = await service.sendCode(uid, mockGetFormattedMessage);
-
-      expect(result).toBeTruthy();
-      expect(
-        mockRecoveryPhoneManager.getConfirmedPhoneNumber
-      ).toHaveBeenCalledWith(uid);
-      expect(mockRecoveryPhoneManager.storeUnconfirmed).toHaveBeenCalledWith(
-        uid,
-        code,
-        phoneNumber,
-        false
-      );
-      expect(mockOtpManager.generateCode).toHaveBeenCalled();
-      expect(mockSmsManager.sendSMS).toHaveBeenCalledWith({
-        to: phoneNumber,
-        body: (await mockGetFormattedMessage(code)).msg,
-        statusCallback: expect.stringContaining(mockWebhookUrl),
-      });
-
-      expect(mockRecoveryPhoneManager.removeCode).toHaveBeenCalledWith(
-        uid,
-        'code123'
-      );
-      expect(mockRecoveryPhoneManager.removeCode).toHaveBeenCalledWith(
-        uid,
-        'code456'
-      );
-      expect(
-        mockRecoveryPhoneManager.getAllUnconfirmedCodes
-      ).toHaveBeenCalledWith(uid);
     });
   });
 
@@ -749,6 +741,36 @@ describe('RecoveryPhoneService', () => {
     it('can handle being passed an empty string', () => {
       const phoneNumber = '';
       expect(service.stripPhoneNumber(phoneNumber, 4)).toEqual('');
+    });
+  });
+
+  describe('mask national format', () => {
+    it.each([
+      { input: '(123) 456-7890', expected: '(•••) •••-7890' },
+      { input: '+33 9 87 65 43 21', expected: '+•• • •• •• 43 21' },
+      { input: '+15005551234', expected: '+•••••••1234' },
+    ])('masks $input as $expected', ({ input, expected }) => {
+      expect(service.maskNationalFormat(input)).toEqual(expected);
+    });
+
+    it('shows the requested number of trailing digits', () => {
+      expect(service.maskNationalFormat('(123) 456-7890', 2)).toEqual(
+        '(•••) •••-••90'
+      );
+    });
+
+    it('is a no-op on an already masked number', () => {
+      expect(service.maskNationalFormat('(•••) •••-7890')).toEqual(
+        '(•••) •••-7890'
+      );
+    });
+
+    it('masks nothing when the number has 4 or fewer digits', () => {
+      expect(service.maskNationalFormat('7890')).toEqual('7890');
+    });
+
+    it('can handle being passed an empty string', () => {
+      expect(service.maskNationalFormat('')).toEqual('');
     });
   });
 

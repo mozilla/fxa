@@ -159,7 +159,7 @@ const RECOVERY_PHONE_GET = {
     dedent`
       🔒 Authenticated with session token or password forgot token
 
-      Return whether a recovery phone exists and, if permitted, the masked phone number information.
+      Return whether a recovery phone exists, along with the masked phone number information. The full phone number is never returned.
     `,
   ],
 };

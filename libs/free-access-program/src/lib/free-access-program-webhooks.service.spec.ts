@@ -77,6 +77,9 @@ describe('FreeAccessProgramWebhooksService', () => {
 
     expect(manager.invalidateProjectionCache).toHaveBeenCalledTimes(1);
     expect(result).toEqual({ handled: true });
+    expect(statsd.increment).toHaveBeenCalledWith(
+      'free_access_program.webhook.invalidate.success'
+    );
   });
 
   it('does not invalidate for a non-access model', async () => {
@@ -87,6 +90,10 @@ describe('FreeAccessProgramWebhooksService', () => {
 
     expect(result).toEqual({ handled: false, reason: 'model' });
     expect(manager.invalidateProjectionCache).not.toHaveBeenCalled();
+    expect(statsd.increment).toHaveBeenCalledWith(
+      'free_access_program.webhook.skipped',
+      { reason: 'model' }
+    );
   });
 
   it('does not invalidate for an unknown event type', async () => {
@@ -97,6 +104,10 @@ describe('FreeAccessProgramWebhooksService', () => {
 
     expect(result).toEqual({ handled: false, reason: 'event' });
     expect(manager.invalidateProjectionCache).not.toHaveBeenCalled();
+    expect(statsd.increment).toHaveBeenCalledWith(
+      'free_access_program.webhook.skipped',
+      { reason: 'event' }
+    );
   });
 
   it('dedupes a replayed webhook without invalidating twice', async () => {
@@ -106,6 +117,9 @@ describe('FreeAccessProgramWebhooksService', () => {
     expect(manager.invalidateProjectionCache).toHaveBeenCalledTimes(1);
     expect(first).toEqual({ handled: true });
     expect(second).toEqual({ handled: true, dedupe: true });
+    expect(statsd.increment).toHaveBeenCalledWith(
+      'free_access_program.webhook.duplicate'
+    );
   });
 
   it('swallows an invalidateProjectionCache failure and still reports handled', async () => {
@@ -120,6 +134,9 @@ describe('FreeAccessProgramWebhooksService', () => {
     expect(logger.error).toHaveBeenCalledWith(
       'freeAccessProgramWebhook.invalidate.error',
       { err: expect.any(Error) }
+    );
+    expect(statsd.increment).toHaveBeenCalledWith(
+      'free_access_program.webhook.invalidate.error'
     );
   });
 });

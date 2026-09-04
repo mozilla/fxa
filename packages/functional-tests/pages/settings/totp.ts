@@ -250,6 +250,7 @@ export class TotpPage extends SettingsLayout {
     await this.page.waitForURL(/inline_totp_setup/);
     await expect(inlineTotpSetup.introHeading).toBeVisible();
     await inlineTotpSetup.continueButton.click();
+    await inlineTotpSetup.confirmMfaGuard(credentials.email);
     const secret = await this.setUp2faAppWithManualCode(credentials);
     await this.page.waitForURL(/inline_recovery_setup/);
     if (recoveryPhoneAvailable) {

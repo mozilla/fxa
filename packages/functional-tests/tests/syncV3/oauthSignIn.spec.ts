@@ -31,7 +31,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.goto();
       await relier.clickEmailFirst();
 
-      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninSubmitButton).toBeVisible();
       await expect(page.getByText(credentials.email)).toBeVisible();
       await signin.signInButton.click();
 
@@ -41,7 +41,7 @@ test.describe('severity-1 #smoke', () => {
       // Attempt to sign back in
       await relier.clickEmailFirst();
 
-      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninSubmitButton).toBeVisible();
       await expect(page.getByText(credentials.email)).toBeVisible();
       await signin.signInButton.click();
 
@@ -50,7 +50,7 @@ test.describe('severity-1 #smoke', () => {
       // Disconnect sync otherwise we can have flaky tests.
       await settings.disconnectSync(credentials);
 
-      await expect(signin.emailFirstHeading).toBeVisible();
+      await expect(signin.emailTextbox).toBeVisible();
     });
   });
 });

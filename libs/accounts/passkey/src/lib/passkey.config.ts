@@ -26,6 +26,18 @@ import type {
 export const MAX_PASSKEY_NAME_LENGTH = 255;
 
 /**
+ * Scope of the PRF-at-authentication request (see
+ * {@link PasskeyConfig.requestPrfAtAuthentication}).
+ *
+ * - `off`: never request PRF at sign-in (kill switch).
+ * - `keys-required`: request PRF only for keys-required (Sync) sign-ins — the
+ *   Phase-2-relevant cohort, lowest blast radius.
+ * - `all`: request PRF for every passkey sign-in, for fuller telemetry.
+ */
+export const PRF_AUTH_SCOPES = ['off', 'keys-required', 'all'] as const;
+export type PrfAuthScope = (typeof PRF_AUTH_SCOPES)[number];
+
+/**
  * Configuration for passkey (WebAuthn) functionality.
  *
  * This configuration is loaded from Convict in auth-server's config/index.ts
@@ -118,6 +130,13 @@ export class PasskeyConfig {
   public prfSalt!: string;
 
   /**
+   * Scope of the PRF request at sign-in. Off by default (kill switch).
+   * @see {@link PrfAuthScope}
+   */
+  @IsIn(PRF_AUTH_SCOPES)
+  public requestPrfAtAuthentication!: PrfAuthScope;
+
+  /**
    * Creates a new PasskeyConfig instance by copying all fields from the
    * provided options object.
    *
@@ -131,6 +150,7 @@ export class PasskeyConfig {
     this.maxPasskeysPerUser = opts.maxPasskeysPerUser;
     this.requestPrfAtRegistration = opts.requestPrfAtRegistration;
     this.prfSalt = opts.prfSalt;
+    this.requestPrfAtAuthentication = opts.requestPrfAtAuthentication;
     this.residentKey = opts.residentKey;
     this.rpId = opts.rpId;
   }

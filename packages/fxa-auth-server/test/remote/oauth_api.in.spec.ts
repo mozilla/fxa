@@ -1036,8 +1036,13 @@ describe('#integration - /v1', function () {
           .then(function (res) {
             expect(res.statusCode).toBe(400);
             assertSecurityHeaders(res);
-            expect(res.result.message).toBe('Mismatch acr value');
-            expect(res.result.errno).toBe(120);
+            // errno 170 (INSUFFICIENT_ACR_VALUES) is the signal the frontend
+            // routes to a second-factor (step-up) challenge; errno 120 was not
+            // recognized by the frontend step-up handlers.
+            expect(res.result.message).toBe(
+              'Required Authentication Context Reference values could not be satisfied'
+            );
+            expect(res.result.errno).toBe(170);
           });
       });
 
@@ -3611,6 +3616,12 @@ describe('#integration - /v1', function () {
       expect(result.iat).toBeLessThan(Date.now());
       expect(result.sub).toBe(USERID);
       expect(result['fxa-lastUsedAt']).toBeUndefined();
+      // RFC 9470 §6.2: the access token reports the session's authentication
+      // level, event time (seconds), and methods. GOOD_CLAIMS is AAL1, so even a
+      // non-step-up token surfaces its achieved level.
+      expect(result.acr).toBe(ACR);
+      expect(result.auth_time).toBe(AUTH_AT);
+      expect(result.amr).toEqual(AMR);
     });
 
     it('should return { active: false } if token is an access token, but token_type_hint=refresh_token', async () => {
@@ -3679,6 +3690,12 @@ describe('#integration - /v1', function () {
       expect(result.sub).toBe(USERID);
       expect(typeof result['fxa-lastUsedAt']).toBe('number');
       expect(result['fxa-lastUsedAt']).toBeLessThan(Date.now());
+      // Elevation must not survive a token refresh: refresh tokens carry none of
+      // the authentication-event metadata (they are MySQL-backed and never
+      // stamped with authAt/amr/aal).
+      expect(result.acr).toBeUndefined();
+      expect(result.auth_time).toBeUndefined();
+      expect(result.amr).toBeUndefined();
     });
 
     it('should return { active: false } if token is an refresh token, but token_type_hint=access_token', async () => {

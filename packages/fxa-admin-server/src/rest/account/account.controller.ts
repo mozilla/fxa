@@ -30,7 +30,10 @@ import {
   Email,
   getAccountCustomerByUid,
 } from 'fxa-shared/db/models/auth';
-import { SecurityEventNames } from 'fxa-shared/db/models/auth/security-event';
+import {
+  SecurityEventNames,
+  SECURITY_EVENTS_LIMIT,
+} from 'fxa-shared/db/models/auth/security-event';
 import { AdminPanelFeature } from '@fxa/shared/guards';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
@@ -114,11 +117,12 @@ const RECOVERYKEY_COLUMNS = [
 const RECOVERYPHONES_COLUMNS = ['phoneNumber'];
 const LINKEDACCOUNT_COLUMNS = ['uid', 'authAt', 'providerId', 'enabled'];
 
-// credentialId, publicKey, signCount, and backupEligible are intentionally
-// excluded from the admin view because they expose sensitive cryptographic
-// material.
+// Columns exposed to the admin panel. credentialId lets a single
+// passkey be targeted for removal; other credential fields are
+// intentionally excluded.
 const PASSKEY_COLUMNS = [
   'name',
+  'credentialId',
   'createdAt',
   'lastUsedAt',
   'aaguid',
@@ -399,6 +403,64 @@ export class AccountController {
     return deleted;
   }
 
+  /**
+   * Fires the profileDataChange notification after a passkey removal so
+   * downstream profile caches are invalidated.
+   */
+  private async notifyPasskeyRemoved(uid: string) {
+    await this.notifier.send({
+      event: 'profileDataChange',
+      data: {
+        ts: Date.now() / 1000,
+        uid,
+      },
+    });
+  }
+
+  @Features(AdminPanelFeature.RemovePasskeys)
+  @AuditLog()
+  @Post('remove-passkeys')
+  public async removePasskeys(@Body('uid') uid: string): Promise<boolean> {
+    this.eventLogging.onEvent(EventNames.RemovePasskeys);
+
+    const rowsDeleted = await this.db
+      .knex('passkeys')
+      .delete()
+      .where('uid', uuidTransformer.to(uid));
+
+    const deleted = rowsDeleted > 0;
+
+    if (deleted) {
+      await this.notifyPasskeyRemoved(uid);
+    }
+
+    return deleted;
+  }
+
+  @Features(AdminPanelFeature.RemovePasskeys)
+  @AuditLog()
+  @Post('remove-passkey')
+  public async removePasskey(
+    @Body('uid') uid: string,
+    @Body('credentialId') credentialId: string
+  ): Promise<boolean> {
+    this.eventLogging.onEvent(EventNames.RemovePasskeys);
+
+    const rowsDeleted = await this.db
+      .knex('passkeys')
+      .delete()
+      .where('uid', uuidTransformer.to(uid))
+      .andWhere('credentialId', Buffer.from(credentialId, 'base64url'));
+
+    const deleted = rowsDeleted > 0;
+
+    if (deleted) {
+      await this.notifyPasskeyRemoved(uid);
+    }
+
+    return deleted;
+  }
+
   @Features(AdminPanelFeature.UnverifyEmail)
   @AuditLog()
   @Post('unverify-email')
@@ -579,7 +641,7 @@ export class AccountController {
     @Body('locators') locators: string | string[],
     @CurrentUser() user: string
   ) {
-    this.eventLogging.onEvent('deleteAccounts');
+    this.eventLogging.onEvent(EventNames.DeleteAccounts);
 
     const locatorList = Array.isArray(locators) ? locators : [locators];
     if (locatorList.length > 1000) {
@@ -664,7 +726,7 @@ export class AccountController {
     @CurrentUser() user: string,
     @Req() req: Request
   ) {
-    this.eventLogging.onEvent('deleteAccounts');
+    this.eventLogging.onEvent(EventNames.ResetAccounts);
 
     const locatorList = Array.isArray(locators) ? locators : [locators];
     if (locatorList.length > 1000) {
@@ -791,7 +853,7 @@ export class AccountController {
   }
 
   @Features(AdminPanelFeature.AccountSearch)
-  public async securityEvents(account: Account) {
+  public async securityEvents(account: Account, limit = SECURITY_EVENTS_LIMIT) {
     const uidBuffer = uuidTransformer.to(account.uid);
     return await this.db.securityEvents
       .query()
@@ -802,7 +864,7 @@ export class AccountController {
         'securityEventNames.id'
       )
       .where('uid', uidBuffer)
-      .limit(10)
+      .limit(limit)
       .orderBy('createdAt', 'DESC');
   }
 
@@ -903,6 +965,7 @@ export class AccountController {
       rows.map(
         async (row: {
           name: string;
+          credentialId: Buffer;
           createdAt: number;
           lastUsedAt: number | null;
           aaguid: Buffer;
@@ -917,7 +980,12 @@ export class AccountController {
             : await this.mds.getAuthenticatorName(
                 bufferToUuidString(row.aaguid)
               );
-          return { ...row, aaguid, authenticatorName };
+          return {
+            ...row,
+            credentialId: row.credentialId.toString('base64url'),
+            aaguid,
+            authenticatorName,
+          };
         }
       )
     );

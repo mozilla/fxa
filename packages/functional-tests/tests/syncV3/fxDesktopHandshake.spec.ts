@@ -44,7 +44,7 @@ test.describe('severity-2 #smoke', () => {
       await signin.respondToWebChannelMessage(eventDetailStatus);
       await signin.checkWebChannelMessage(FirefoxCommand.FxAStatus);
 
-      await expect(signin.syncSignInHeading).toBeVisible();
+      await expect(signin.emailTextbox).toBeVisible();
       await expect(signin.emailTextbox).toHaveValue('');
     });
 
@@ -81,7 +81,7 @@ test.describe('severity-2 #smoke', () => {
       );
       await signin.checkWebChannelMessage(FirefoxCommand.FxAStatus);
       // password confirmation required to sign in to sync
-      await expect(signin.passwordFormHeading).toBeVisible();
+      await expect(signin.passwordTextbox).toBeVisible();
       await expect(page.getByText(syncCredentials.email)).toBeVisible();
     });
 
@@ -119,7 +119,7 @@ test.describe('severity-2 #smoke', () => {
       );
       await signin.respondToWebChannelMessage(eventDetailStatus);
       await signin.checkWebChannelMessage(FirefoxCommand.FxAStatus);
-      await expect(signin.passwordFormHeading).toBeVisible();
+      await expect(signin.passwordTextbox).toBeVisible();
       // email param takes precedence
       await expect(page.getByText(credentials.email)).toBeVisible();
     });
@@ -144,7 +144,7 @@ test.describe('severity-2 #smoke', () => {
           target.contentServerUrl
         }?context=fx_desktop_v3&service=sync&automatedBrowser=true&${query.toString()}`
       );
-      await expect(signin.passwordFormHeading).toBeVisible();
+      await expect(signin.passwordTextbox).toBeVisible();
       await expect(page.getByText(credentials.email)).toBeVisible();
     });
   });

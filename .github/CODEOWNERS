@@ -1,3 +1,11 @@
 * @mozilla/fxa-devs
 
 *.ftl @mozilla/fxa-l10n
+
+# Dependency files left without code owner so version bumps can auto-merge via bot (BLEnder/Dependabot)
+/package.json
+/yarn.lock
+/package-lock.json
+**/package.json
+**/yarn.lock
+**/package-lock.json

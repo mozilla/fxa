@@ -2,9 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import {
+  useEmailBouncePolling,
+  useNavigateWithQuery,
+  useOAuthFlowRecovery,
+} from '../../../lib/hooks';
 import { currentAccount } from '../../../lib/cache';
 import {
   useFinishOAuthFlowHandler,
@@ -24,9 +28,6 @@ import { QueryParams } from '../../..';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 import GleanMetrics from '../../../lib/glean';
 import AppLayout from '../../../components/AppLayout';
-import { useOAuthFlowRecovery } from '../../../lib/hooks/useOAuthFlowRecovery';
-
-export const POLL_INTERVAL = 5000;
 
 function getAccountInfo(
   emailFromLocationState?: string,
@@ -101,45 +102,7 @@ const SignupConfirmCodeContainer = ({
   // Poll for hard bounces registered in database for the entered email.
   // Previously, we checked if the account was deleted, and assumed
   // that implied the email bounced/was invalid.
-  const [hasHardBounce, setHasHardBounce] = useState(false);
-  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    const checkEmailBounceStatus = async () => {
-      if (!email) return;
-      try {
-        // Type assertion needed until fxa-auth-client is rebuilt with new method
-        const result = await (
-          authClient as typeof authClient & {
-            emailBounceStatus: (
-              email: string
-            ) => Promise<{ hasHardBounce: boolean }>;
-          }
-        ).emailBounceStatus(email);
-        if (result.hasHardBounce) {
-          setHasHardBounce(true);
-        }
-      } catch (error) {
-        // Silently fail - we don't want to block the user flow on errors
-        console.error('Error checking email bounce status:', error);
-      }
-    };
-
-    // Initial check
-    checkEmailBounceStatus();
-
-    // Set up polling
-    pollIntervalRef.current = setInterval(
-      checkEmailBounceStatus,
-      POLL_INTERVAL
-    );
-
-    return () => {
-      if (pollIntervalRef.current) {
-        clearInterval(pollIntervalRef.current);
-      }
-    };
-  }, [authClient, email]);
+  const hasHardBounce = useEmailBouncePolling(email, authClient);
 
   const [recoveryAttempted, setRecoveryAttempted] = useState<boolean>(false);
 
@@ -196,6 +159,57 @@ const SignupConfirmCodeContainer = ({
     }
   }, [hasHardBounce, origin, navigateWithQuery, email]);
 
+  // Redirect from an effect rather than during render. A concurrent root
+  // commits asynchronously, so a render-phase navigation races the commit.
+  // Each guard below mirrors the early-return chain in the render body so the
+  // two effects stay mutually exclusive, as the sequential returns were.
+  useEffect(() => {
+    if (
+      integration &&
+      !isRecovering &&
+      (!uid || !sessionToken || !email) &&
+      !isOAuthNativeIntegration(integration)
+    ) {
+      // For OAuth Native flows, recovery is attempted instead.
+      navigateWithQuery('/');
+    }
+  }, [integration, isRecovering, uid, sessionToken, email, navigateWithQuery]);
+
+  useEffect(() => {
+    if (
+      integration &&
+      !isRecovering &&
+      uid &&
+      sessionToken &&
+      email &&
+      !oAuthDataError &&
+      oAuthKeysCheckError &&
+      !isOAuthNativeIntegration(integration) &&
+      (!keyFetchToken || !unwrapBKey)
+    ) {
+      navigateWithQuery('/signin', {
+        state: {
+          localizedErrorMessage: ftlMsg.getMsg(
+            'signin-code-expired-error',
+            'Code expired. Please sign in again.'
+          ),
+        },
+      });
+    }
+  }, [
+    integration,
+    isRecovering,
+    uid,
+    sessionToken,
+    email,
+    oAuthDataError,
+    oAuthKeysCheckError,
+    keyFetchToken,
+    unwrapBKey,
+    ftlMsg,
+    navigateWithQuery,
+  ]);
+
   const cmsInfo = integration?.getCmsInfo();
   const splitLayout = cmsInfo?.SignupConfirmCodePage?.splitLayout;
 
@@ -217,11 +231,8 @@ const SignupConfirmCodeContainer = ({
   }
 
   if (!uid || !sessionToken || !email) {
-    // For non-OAuth Native flows, navigate to root
-    // For OAuth Native flows, recovery was already attempted above
-    if (!isOAuthNativeIntegration(integration)) {
-      navigateWithQuery('/');
-    }
+    // Redirect (non-OAuth Native) and recovery (OAuth Native) both run from
+    // effects above; render loading until one of them lands.
     return (
       <AppLayout
         {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
@@ -248,15 +259,7 @@ const SignupConfirmCodeContainer = ({
       );
     }
     if (!keyFetchToken || !unwrapBKey) {
-      const localizedErrorMessage = ftlMsg.getMsg(
-        'signin-code-expired-error',
-        'Code expired. Please sign in again.'
-      );
-      navigateWithQuery('/signin', {
-        state: {
-          localizedErrorMessage,
-        },
-      });
+      // Redirect to /signin runs from an effect above.
       return (
         <AppLayout
           {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}

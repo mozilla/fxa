@@ -249,7 +249,7 @@ const conf = (module.exports = convict({
     },
     passkeysEnabled: {
       default: false,
-      doc: 'Master switch for passkeys UI. Must be true for registration or authentication UI to activate.',
+      doc: 'Primary switch for passkeys UI. Must be true for registration or authentication UI to activate.',
       format: Boolean,
       env: 'FEATURE_FLAGS_PASSKEYS_ENABLED',
     },
@@ -264,6 +264,12 @@ const conf = (module.exports = convict({
       doc: 'Enables passkey sign-in UI',
       format: Boolean,
       env: 'FEATURE_FLAGS_PASSKEY_AUTHENTICATION_ENABLED',
+    },
+    passkeyPasswordlessSyncEnabled: {
+      default: false,
+      doc: 'Enables passwordless sync sign-in UI, where sync keys are recovered from a passkey instead of the password',
+      format: Boolean,
+      env: 'FEATURE_FLAGS_PASSKEY_PASSWORDLESS_SYNC_ENABLED',
     },
     passwordlessEnabled: {
       default: false,
@@ -314,12 +320,6 @@ const conf = (module.exports = convict({
       doc: 'Enable users to visit the React version of "simple" routes',
       format: Boolean,
       env: 'REACT_CONVERSION_SIMPLE_ROUTES',
-    },
-    resetPasswordRoutes: {
-      default: false,
-      doc: 'Enable users to visit the React version of "reset_password" routes',
-      format: Boolean,
-      env: 'REACT_CONVERSION_RESET_PASSWORD_ROUTES',
     },
     oauthRoutes: {
       default: false,
@@ -374,6 +374,12 @@ const conf = (module.exports = convict({
       doc: 'FXA-13863: Enable the throwaway deep-link pairing POC pages (poc_deep_link, poc_pair_init, poc_pair_start)',
       format: Boolean,
       env: 'REACT_CONVERSION_POC_PAIRING_ROUTES',
+    },
+    pair2Routes: {
+      default: false,
+      doc: 'Enable users to visit the in-progress React "pair2" pairing rewrite routes',
+      format: Boolean,
+      env: 'REACT_CONVERSION_PAIR2_ROUTES',
     },
   },
   brandMessagingMode: {
@@ -479,12 +485,6 @@ const conf = (module.exports = convict({
       env: 'GLEAN_DEBUG_VIEW_TAG',
       format: String,
     },
-  },
-  legal_docs_url: {
-    default: 'http://localhost:3030/settings/legal-docs',
-    doc: 'The base URL for fetching legal documents (privacy policy, terms of service)',
-    env: 'LEGAL_DOCS_URL',
-    format: 'url',
   },
   googleAuthConfig: {
     enabled: {
@@ -779,6 +779,18 @@ const conf = (module.exports = convict({
     },
   },
   pairing: {
+    browser_build: {
+      default: 'firefox',
+      doc: 'Android package suffix (org.mozilla.<build>) the pairing deep link is pinned to. "fenix" targets pre-release builds.',
+      env: 'PAIRING_BROWSER_BUILD',
+      format: ['firefox', 'fenix'],
+    },
+    ios_url_scheme: {
+      default: 'firefox',
+      doc: 'URL scheme the iOS pairing deep link opens. Every Firefox iOS flavour registers "firefox", so name a build-specific scheme to reach a local build when a release install is also present.',
+      env: 'PAIRING_IOS_URL_SCHEME',
+      format: ['firefox', 'fennec', 'firefox-beta', 'firefox-internal'],
+    },
     clients: {
       default: [
         '3c49430b43dfba77', // Reference browser
@@ -793,6 +805,12 @@ const conf = (module.exports = convict({
       default: 'wss://channelserver.services.mozilla.com',
       doc: 'The url of the Pairing channel server.',
       env: 'PAIRING_SERVER_BASE_URI',
+    },
+    version: {
+      default: 1,
+      doc: 'The pairing flow version to use. 1 is the legacy content-server flow, 2 is the React "pair2" rewrite.',
+      env: 'PAIRING_VERSION',
+      format: Number,
     },
   },
   mobileStoreLinks: {
@@ -1163,9 +1181,7 @@ const conf = (module.exports = convict({
   },
 }));
 
-// At the time this file is required, we'll determine the "process name" for this proc
-// if we can determine what type of process it is (browserid or verifier) based
-// on the path, we'll use that, otherwise we'll name it 'ephemeral'.
+// Name this process after the script that started it.
 conf.set('process_type', path.basename(process.argv[1], '.js'));
 
 // Always send CSP headers in development mode
@@ -1175,6 +1191,10 @@ if (conf.get('env') === 'development') {
   // are available for development/testing. They remain gated (default off) in
   // stage/prod unless REACT_CONVERSION_POC_PAIRING_ROUTES is set.
   conf.set('showReactApp.pocPairingRoutes', true);
+  // Enable the in-progress React "pair2" pairing rewrite locally so it is
+  // available for development/testing. It remains gated (default off) in
+  // stage/prod unless REACT_CONVERSION_PAIR2_ROUTES is set.
+  conf.set('showReactApp.pair2Routes', true);
 }
 
 const DEV_CONFIG_PATH = path.join(__dirname, '..', 'config', 'local.json');
@@ -1205,7 +1225,6 @@ if (!conf.has('static_resource_url')) {
   conf.set('static_resource_url', conf.get('public_url'));
 }
 
-// For ops consistency with Browserid, we support HTTP_PROXY
 // special handling of HTTP_PROXY env var
 if (process.env.HTTP_PROXY) {
   const p = process.env.HTTP_PROXY.split(':');

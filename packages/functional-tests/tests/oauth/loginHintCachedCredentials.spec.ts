@@ -33,7 +33,7 @@ test.describe('severity-2 #smoke', () => {
       await page.waitForURL(/signin/);
 
       // Email is prefilled
-      await expect(signin.passwordFormHeading).toBeVisible();
+      await expect(signin.passwordTextbox).toBeVisible();
       await expect(page.getByText(loginHintCredentials.email)).toBeVisible();
 
       await signin.useDifferentAccountLink.click();

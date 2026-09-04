@@ -2,10 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { test } from '@playwright/test';
 import { Twilio } from 'twilio';
 import Redis from 'ioredis';
 import type { Redis as RedisType } from 'ioredis';
 import { TargetName, getFromEnv, getFromEnvWithFallback } from './targets';
+
+/** Remote targets select tests by severity label; #phone routes them to the serialized runner. */
+const SEVERITY_LABEL = /severity-\d/;
+const PHONE_TAG = /#phone\b/;
 
 // Default test number, see Twilio test credentials phone numbers:
 // https://www.twilio.com/docs/iam/test-credentials
@@ -99,10 +104,33 @@ export class SmsClient {
     phoneNumber?: string;
     timeout?: number;
   }) {
+    this.assertSmsTestIsIsolated();
+
     if (this.isTwilioEnabled()) {
       return this._getCodeTwilio(phoneNumber);
     } else {
       return this._getCodeLocal(uid, timeout);
+    }
+  }
+
+  /**
+   * Against a real Twilio number the code lookup returns the newest message sent to that
+   * number, whoever triggered it, so two concurrent SMS flows steal each other's codes.
+   * Stage and production select tests by severity label, so a labelled test must also be
+   * #phone to reach the serialized runner. Checked on every target so local catches it first.
+   *
+   * Only covers reads. A labelled test that sends to the shared number without ever calling
+   * this would still overwrite the message a #phone test is waiting on; none exist today.
+   */
+  private assertSmsTestIsIsolated() {
+    const title = test.info().titlePath.join(' ');
+    if (SEVERITY_LABEL.test(title) && !PHONE_TAG.test(title)) {
+      throw new Error(
+        `Test reads an SMS code and carries a severity label, so it will run on stage and
+production alongside other SMS tests and can consume their codes. Tag it #phone to put it on
+the serialized runner, or drop the severity label to keep it local.
+  Test: ${title}`
+      );
     }
   }
 
@@ -225,53 +253,27 @@ export class SmsClient {
       throw new Error('Not connected to Redis');
     }
 
-    const redisKeyPattern = `recovery-phone:sms-attempt:${uid}:*`;
+    const redisKey = `recovery-phone:sms-attempt:${uid}`;
     const expires = Date.now() + timeout;
 
     while (Date.now() < expires) {
-      let cursor = '0';
-      let newestKey: string | null = null;
-      let newestCreatedAt = -1;
+      const valueRaw = await this.redisClient.get(redisKey);
 
-      do {
-        const [newCursor, keys] = await this.redisClient.scan(
-          cursor,
-          'MATCH',
-          redisKeyPattern
-        );
-        cursor = newCursor;
-
-        for (const key of keys) {
-          const valueRaw = await this.redisClient.get(key);
-
-          if (valueRaw === null) continue;
-          let value;
-          try {
-            value = JSON.parse(valueRaw);
-          } catch (err) {
-            continue;
-          }
-          if (
-            typeof value !== 'object' ||
-            value === null ||
-            typeof value.createdAt !== 'number'
-          )
-            continue;
-
-          if (!newestKey || value.createdAt > newestCreatedAt) {
-            newestKey = key;
-            newestCreatedAt = value.createdAt;
-          }
+      let code: string | undefined;
+      if (valueRaw !== null) {
+        try {
+          code = JSON.parse(valueRaw).code;
+        } catch (err) {
+          // Retry on a malformed record.
         }
-      } while (cursor !== '0');
+      }
 
-      // If no keys are found, wait and try again.
-      if (!newestKey) {
+      // If no usable record is found, wait and try again.
+      if (typeof code !== 'string') {
         await wait();
         continue;
       }
 
-      const code = newestKey.split(':')[3];
       const lastCode = this.uidCodes.get(uid);
 
       // If the code is the same as the last one, wait and try again.

@@ -15,6 +15,12 @@ import {
   RawPasskeyConfig,
 } from './passkey.provider';
 import Redis from 'ioredis';
+import * as Sentry from '@sentry/nestjs';
+
+jest.mock('@sentry/nestjs', () => ({
+  captureMessage: jest.fn(),
+}));
+const mockCaptureMessage = Sentry.captureMessage as jest.Mock;
 
 const VALID_RAW_CONFIG: RawPasskeyConfig = {
   enabled: true,
@@ -26,6 +32,7 @@ const VALID_RAW_CONFIG: RawPasskeyConfig = {
   authenticatorAttachment: '',
   requestPrfAtRegistration: false,
   prfSalt: '',
+  requestPrfAtAuthentication: 'off',
 };
 
 function buildModule(rawPasskeys: unknown) {
@@ -106,6 +113,7 @@ describe('PasskeyConfigProvider', () => {
       expect(config!.residentKey).toBe('required');
       expect(config!.requestPrfAtRegistration).toBe(false);
       expect(config!.prfSalt).toBe('');
+      expect(config!.requestPrfAtAuthentication).toBe('off');
     });
 
     it('copies a configured prfSalt', async () => {
@@ -195,6 +203,33 @@ describe('PasskeyConfigProvider', () => {
         })
       ).rejects.toThrow(
         'property prfSalt has failed the following constraints'
+      );
+    });
+  });
+
+  describe('requestPrfAtAuthentication normalization', () => {
+    beforeEach(() => {
+      mockCaptureMessage.mockClear();
+    });
+
+    it('copies a valid scope through unchanged', async () => {
+      const { config } = await buildModule({
+        ...VALID_RAW_CONFIG,
+        requestPrfAtAuthentication: 'all',
+      });
+      expect(config!.requestPrfAtAuthentication).toBe('all');
+      expect(mockCaptureMessage).not.toHaveBeenCalled();
+    });
+
+    it('falls back to "off" and reports to Sentry for an invalid value', async () => {
+      const { config } = await buildModule({
+        ...VALID_RAW_CONFIG,
+        requestPrfAtAuthentication: 'sometimes',
+      });
+      expect(config!.requestPrfAtAuthentication).toBe('off');
+      expect(mockCaptureMessage).toHaveBeenCalledWith(
+        expect.stringContaining('sometimes'),
+        'warning'
       );
     });
   });

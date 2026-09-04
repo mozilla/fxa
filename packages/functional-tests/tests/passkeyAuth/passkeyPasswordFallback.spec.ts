@@ -79,7 +79,9 @@ async function passkeyFallbackSignIn(
     settingsPasskeyAdd,
     creds.email
   );
-  await page.getByTestId('password-input-field').fill(creds.password);
+  await page
+    .getByTestId('signin-passkey-fallback-password-input-field')
+    .fill(creds.password);
   await page.getByTestId('continue-button').click();
 }
 
@@ -156,7 +158,7 @@ test.describe('severity-1 #smoke', () => {
         email
       );
       await page
-        .getByTestId('password-input-field')
+        .getByTestId('signin-passkey-fallback-password-input-field')
         .fill('definitely-the-wrong-password');
       await page.getByTestId('continue-button').click();
 

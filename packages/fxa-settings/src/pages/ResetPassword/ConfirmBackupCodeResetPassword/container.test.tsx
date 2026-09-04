@@ -15,6 +15,12 @@ jest.mock('../../../models', () => ({
   useAuthClient: () => ({
     consumeRecoveryCodeWithPasswordForgotToken: mockConsume,
   }),
+  useConfig: () => ({
+    featureFlags: {
+      passkeysEnabled: true,
+      passkeyAuthenticationEnabled: true,
+    },
+  }),
   useFtlMsgResolver: () => ({
     getMsg: (_id: string, fallback: string) => fallback,
   }),
@@ -55,6 +61,7 @@ jest.mock('.', () => (props: any) => {
 
 const mockIntegration: ResetPasswordIntegration = {
   getCmsInfo: () => undefined,
+  isSync: () => false,
 };
 
 async function render() {

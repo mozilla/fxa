@@ -23,6 +23,7 @@
       "@fxa/profile/client": ["libs/profile/client/src/index"],
       "@fxa/shared/cms": ["libs/shared/cms/src/index"],
       "@fxa/shared/cloud-tasks": ["libs/shared/cloud-tasks/src/index"],
+      "@fxa/shared/crypto": ["libs/shared/crypto/src/index"],
       "@fxa/shared/db/firestore": ["libs/shared/db/firestore/src/index"],
       "@fxa/shared/db/mysql/account": [
         "libs/shared/db/mysql/account/src/index"

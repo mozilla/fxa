@@ -28,6 +28,7 @@ const CompleteResetPassword = ({
   submitNewPassword,
   estimatedSyncDeviceCount,
   recoveryKeyExists,
+  showPasskeyOption,
   integration,
 }: CompleteResetPasswordProps) => {
   const location = useLocation();
@@ -52,7 +53,7 @@ const CompleteResetPassword = ({
 
   const showRecoveryKeyLink = !!(recoveryKeyExists && !hasConfirmedRecoveryKey);
 
-  const { handleSubmit, register, getValues, errors, formState, trigger } =
+  const { handleSubmit, register, getValues, formState, trigger } =
     useForm<CompleteResetPasswordFormData>({
       mode: 'onTouched',
       criteriaMode: 'all',
@@ -111,7 +112,7 @@ const CompleteResetPassword = ({
         <FormPasswordWithInlineCriteria
           {...{
             email,
-            errors,
+            errors: formState.errors,
             formState,
             getValues,
             register,
@@ -123,7 +124,10 @@ const CompleteResetPassword = ({
         />
       </section>
       <div className="flex flex-col mt-6 gap-4">
-        <LinkRememberPassword {...{ email }} />
+        <LinkRememberPassword
+          entrypoint="complete_reset_password"
+          {...{ email, showPasskeyOption }}
+        />
         {showRecoveryKeyLink && (
           <FtlMsg id="complete-reset-pw-recovery-key-link">
             <Link

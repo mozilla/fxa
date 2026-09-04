@@ -123,6 +123,19 @@ export function isMobileOrTabletDevice() {
   return navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
 }
 
+// Whether the pairing flow is supported here: `/pair` is desktop-Firefox only
+// and redirects anything else to /pair/unsupported. It ignores whether the user
+// is signed into the browser because /pair can take the user to sign into Sync.
+export function isPairingSupported({
+  isFirefox,
+  isMobile,
+}: {
+  isFirefox: boolean;
+  isMobile: boolean;
+}) {
+  return isFirefox && !isMobile;
+}
+
 // Crockford base32 Regex. Case insensitive and excludes I, L, O, U
 const B32_STRING = /^[0-9A-HJ-KM-NP-TV-Z]+$/i;
 export function isBase32Crockford(value: string) {
@@ -347,4 +360,39 @@ export function buildPairingDownloadUrl(entrypoint?: string | null): string {
   return isSendTabEntrypoint(entrypoint)
     ? Constants.DOWNLOAD_LINK_PAIRING_QR_SEND_TAB
     : Constants.DOWNLOAD_LINK_PAIRING_QR_DEFAULT;
+}
+
+
+// Detect device type from user agent.
+export enum Devices {
+  FIREFOX_ANDROID = 'Firefox Android',
+  FIREFOX_DESKTOP = 'Firefox Desktop',
+  FIREFOX_IOS = 'Firefox iOS',
+  OTHER_ANDROID = 'Other Android',
+  OTHER_IOS = 'Other iOS',
+  OTHER = 'Other',
+}
+export function detectDevice(): Devices {
+  const ua = navigator.userAgent;
+  const isFirefox = /Firefox/i.test(ua) && !/FxiOS/i.test(ua);
+  const isFxiOS = /FxiOS/i.test(ua);
+  const isAndroid = /Android/i.test(ua);
+  const isIos = /iPhone|iPad|iPod/i.test(ua) || isFxiOS;
+
+  if (isFirefox && isAndroid) {
+    return Devices.FIREFOX_ANDROID;
+  }
+  if (isFxiOS) {
+    return Devices.FIREFOX_IOS;
+  }
+  if (isFirefox && !isAndroid) {
+    return Devices.FIREFOX_DESKTOP;
+  }
+  if (isIos) {
+    return Devices.OTHER_IOS;
+  }
+  if (isAndroid) {
+    return Devices.OTHER_ANDROID;
+  }
+  return Devices.OTHER;
 }

@@ -41,15 +41,33 @@ export class FreeAccessProgramService {
   async findCapabilitiesForEmail(
     email?: string | null
   ): Promise<FreeAccessCapabilityMap> {
-    if (!email) return {};
+    if (!email) {
+      this.recordMembershipCheck('email_capabilities', false);
+      return {};
+    }
     const projection = await this.configurationManager.getCachedProjection();
-    return projection[email.toLowerCase()]?.capabilities ?? {};
+    const capabilities = projection[email.toLowerCase()]?.capabilities ?? {};
+    this.recordMembershipCheck(
+      'email_capabilities',
+      Object.keys(capabilities).length > 0
+    );
+    return capabilities;
   }
 
   async findOfferingIdsForEmail(email?: string | null): Promise<string[]> {
-    if (!email) return [];
+    if (!email) {
+      this.recordMembershipCheck('email_offerings', false);
+      return [];
+    }
     const projection = await this.configurationManager.getCachedProjection();
-    return [...(projection[email.toLowerCase()]?.offeringApiIdentifiers ?? [])];
+    const offeringApiIdentifiers = [
+      ...(projection[email.toLowerCase()]?.offeringApiIdentifiers ?? []),
+    ];
+    this.recordMembershipCheck(
+      'email_offerings',
+      offeringApiIdentifiers.length > 0
+    );
+    return offeringApiIdentifiers;
   }
 
   async findFreeAccessForUid(uid: string): Promise<FreeAccessForUid> {
@@ -58,14 +76,31 @@ export class FreeAccessProgramService {
     const email = (
       await this.accountManager.getPrimaryEmailByUid(uid)
     )?.toLowerCase();
-    if (!email) return empty;
+    if (!email) {
+      this.recordMembershipCheck('uid', false);
+      return empty;
+    }
 
     const projection = await this.configurationManager.getCachedProjection();
-    if (!(email in projection)) return empty;
+    if (!(email in projection)) {
+      this.recordMembershipCheck('uid', false);
+      return empty;
+    }
 
     const grantsByClient =
       await this.configurationManager.getCachedAccessGrantsByClient();
+    this.recordMembershipCheck('uid', true);
     return { isMember: true, grantsByClient: grantsByClient[email] ?? {} };
+  }
+
+  private recordMembershipCheck(
+    lookup: 'uid' | 'email_capabilities' | 'email_offerings',
+    member: boolean
+  ): void {
+    this.statsd.increment('free_access_program.membership.check', {
+      member: `${member}`,
+      lookup,
+    });
   }
 
   async reconcile(): Promise<ReconcileResult> {
@@ -79,8 +114,19 @@ export class FreeAccessProgramService {
 
     const startedAt = Date.now();
     try {
+      // Time the journal (Firestore) load here; the CMS fetch is timed inside
+      // getFreshProjection (reconcile.load.projection_ms). Kept in flight
+      // together so reconcile latency stays attributable to each source.
+      const journalStartedAt = Date.now();
+      const beforePromise = journalManager.get().then((result) => {
+        this.statsd.timing(
+          'free_access_program.reconcile.load.journal_ms',
+          Date.now() - journalStartedAt
+        );
+        return result;
+      });
       const [before, after] = await Promise.all([
-        journalManager.get(),
+        beforePromise,
         this.configurationManager.getFreshProjection(),
       ]);
 
@@ -133,6 +179,7 @@ export class FreeAccessProgramService {
     for (const email of emails) {
       try {
         await notifier.notifyEmailChanged(email);
+        this.statsd.increment('free_access_program.reconcile.notify.success');
       } catch (err) {
         this.statsd.increment('free_access_program.reconcile.notify.error');
         this.logger.error(err);

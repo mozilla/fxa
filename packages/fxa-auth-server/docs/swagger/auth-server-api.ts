@@ -152,7 +152,7 @@ export const AUTH_SERVER_API_DESCRIPTION = {
     | 404         | 198   | Unknown app name                                                              |
     | 400         | 199   | Invalid promotion code                                                        |
     | 503         | 201   | Service unavailable                                                           |
-    | 503         | 202   | Feature not enabled                                                           |
+    | 403         | 202   | Feature not enabled                                                           |
     | 500         | 203   | System unavailable, try again soon                                            |
     | 503         | 204   | This client has been temporarily disabled                                     |
     | 500         | 205   | Could not login with third party account, please try again later              |
@@ -323,5 +323,9 @@ export const AUTH_SERVER_API_DESCRIPTION = {
             "retryAfterLocalized": "in a few seconds"
         }
   \`\`\`
+
+    Rate limiting uses the same shape with \`429 Too Many Requests\` and
+    \`errno: 114\`. On those responses \`retryAfter\` is in **milliseconds**;
+    the \`Retry-After\` header is in seconds, as always.
   `,
 };

@@ -4,8 +4,10 @@
 
 import { useState } from 'react';
 
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
+import {
+  useNavigateWithQuery,
+  useValidatedQueryParams,
+} from '../../../lib/hooks';
 import { useAuthClient, useFtlMsgResolver } from '../../../models';
 import { ReportSigninQueryParams } from '../../../models/pages/signin';
 import { ReportSigninLinkDamaged } from '../../../components/LinkDamaged';

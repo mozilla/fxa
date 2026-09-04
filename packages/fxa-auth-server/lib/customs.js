@@ -115,7 +115,7 @@ class CustomsClient {
 
   async check(request, email, action) {
     const opts = toOpts(request?.app?.clientAddress, email, undefined);
-    const checked = await this.checkV2(request, 'check', action, opts);
+    const checked = await this.checkV2(request, 'check', action, opts, email);
     if (checked) {
       return;
     }
@@ -146,7 +146,8 @@ class CustomsClient {
       request,
       'checkAuthenticated',
       action,
-      opts
+      opts,
+      email
     );
     if (checked) {
       return;
@@ -180,6 +181,16 @@ class CustomsClient {
 
     this.optionallyReportStatsD('request.checkIpOnly', action, result);
     return this.handleCustomsResult(request, result);
+  }
+
+  /**
+   * Rate limits on a credential hash, for actions checked before the account
+   * behind it is known. v2 only; no-ops when v2 is off.
+   */
+  async checkToken(request, action, tokenHash) {
+    const opts = toOpts(request?.app?.clientAddress);
+    opts.token = tokenHash;
+    await this.checkV2(request, 'checkToken', action, opts);
   }
 
   async flag(ip, info) {
@@ -247,15 +258,18 @@ class CustomsClient {
       const unblock = !!result.unblock;
 
       if (result.retryAfter) {
+        // Legacy reports seconds; everything downstream expects ms.
+        const retryAfter = result.retryAfter * 1000;
+
         // Create a localized retryAfterLocalized value from retryAfter.
         // For example '713' becomes '12 minutes' in English.
         const retryAfterLocalized = localizeTimestamp.format(
-          Date.now() + result.retryAfter * 1000,
+          Date.now() + retryAfter,
           request.headers['accept-language']
         );
 
         throw this.error.tooManyRequests(
-          result.retryAfter,
+          retryAfter,
           retryAfterLocalized,
           unblock
         );
@@ -278,7 +292,7 @@ class CustomsClient {
    * customs action being checked. If there is, we will call into this code instead of calling
    * the legacy customs service.
    */
-  async checkV2(request, type, action, opts) {
+  async checkV2(request, type, action, opts, nonNormalizedEmail) {
     // Short circuit if rate limit wasn't provided.
     if (this.rateLimit == null) {
       return false;
@@ -296,8 +310,9 @@ class CustomsClient {
     }
 
     // The config can specify that certain ips, emails, or uids should be excluded
-    // from rate limit checks.
-    const skip = this.rateLimit.skip(action, opts);
+    // from rate limit checks. Pass the raw email so an ignoreEmails pattern can
+    // match a +suffix that opts.email no longer carries.
+    const skip = this.rateLimit.skip(action, opts, nonNormalizedEmail);
     if (skip) {
       this.statsd.increment(`${serviceName}.check.v2.skip`, [
         opts.ip_email ? 'ip_email' : '',
@@ -320,6 +335,7 @@ class CustomsClient {
         uid: opts.uid,
         ip_email: opts.ip_email,
         ip_uid: opts.ip_uid,
+        token: opts.token,
       });
     } catch (err) {
       Sentry.captureException(err, {
@@ -394,6 +410,11 @@ class CustomsClient {
     }
 
     const opts = toOpts(request?.app?.clientAddress, email);
+    // A self-serve success may only clear counters attributable to that
+    // principal. Drop the raw ip (shared across everyone behind a NAT/VPN) so it
+    // cannot wipe ip-keyed anti-spray counters for other users. ip_email is
+    // derived inside toOpts and survives.
+    delete opts.ip;
     await this.rateLimit.unblock(opts);
   }
   // #endregion

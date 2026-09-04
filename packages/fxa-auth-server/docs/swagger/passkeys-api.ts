@@ -77,7 +77,10 @@ const PASSKEY_AUTHENTICATION_START_POST = {
       \`navigator.credentials.get\`. \`allowCredentials\` is always empty
       \`allowCredentials\` is omitted when the allow-list is empty (discoverable flow).
 
-      **Request body:** none
+      **Request body:**
+      - \`keysRequired\` (boolean, optional) — hint for the keys-required PRF scope
+      - \`scope\` (string, optional) — an MFA action from \`config.mfa.actions\`. Stored
+        on the challenge, so \`/finish\` returns an \`mfa:<scope>\` token for it.
     `,
   ],
 };
@@ -105,7 +108,9 @@ const PASSKEY_AUTHENTICATION_FINISH_POST = {
         Sync-scoped keys obtained via a follow-up step (a password step today), so
         the server defers its login notifications/metrics until keys are available.
 
-      **Response:** \`uid\`, \`sessionToken\`, \`verified\`, \`hasPassword\`
+      **Response:** \`uid\`, \`sessionToken\`, \`verified\`, \`hasPassword\`, and
+      \`mfaToken\` when \`/start\` was given a \`scope\`. The token carries that scope
+      and the credential that signed the assertion.
 
       **Security event:** \`account.passkey.authentication_success\` recorded on success.
     `,
@@ -173,6 +178,50 @@ const PASSKEYS_API_DOCS = {
 
         **Response:** Updated passkey metadata including \`credentialId\`, \`name\`,
         \`createdAt\`, \`lastUsedAt\`, \`transports\`, and \`prfEnabled\`.
+      `,
+    ],
+  },
+
+  /**
+   * Swagger/OpenAPI documentation for `POST /passkey/wraps`.
+   *
+   * Stores the wrap envelope that lets a passkey unlock `kB` without a password.
+   */
+  PASSKEY_WRAPS_POST: {
+    ...TAGS_PASSKEYS,
+    description: '/passkey/wraps',
+    notes: [
+      dedent`
+        🔒 Authenticated with MFA JWT (scope: mfa:passkey)
+
+        Stores the wrap envelope for one passkey. The envelope is produced entirely
+        on the client: \`kB\` is sealed with HPKE to a per-wrap recipient key, whose
+        private half is encrypted under a key derived from the credential's WebAuthn
+        PRF output. The server stores all five fields uninterpreted and never sees
+        \`kB\`, the private key, or the PRF output.
+
+        The token must be bound to \`credentialId\`, which \`/passkey/authentication/finish\`
+        does when \`/start\` asks for the \`passkey\` scope. A token minted any other way
+        carries no binding and is rejected.
+
+        **Request body:**
+        - \`credentialId\` (string, required) — base64url credential ID
+        - \`pkR\` (string, required) — base64url, 133 bytes
+        - \`prfWrappedSkR\` (string, required) — base64url, 82 bytes
+        - \`keyWrapIv\` (string, required) — base64url, 12 bytes
+        - \`hpkeEncapsulatedSecret\` (string, required) — base64url, 133 bytes
+        - \`hpkeSealedKb\` (string, required) — base64url, 48 bytes
+
+        **Response:** \`{ created: boolean }\` — false when an identical wrap was
+        already stored.
+
+        **Errors:**
+        - \`401\` errno 223 — the token is invalid, or is not bound to \`credentialId\`
+        - \`404\` errno 224 — the passkey was deleted after the assertion
+        - \`409\` errno 235 — a different wrap already exists for this credential
+
+        **Security events:** \`account.passkey.wrap_created\` on a new wrap;
+        \`account.passkey.wrap_creation_failure\` on any failure to store one.
       `,
     ],
   },

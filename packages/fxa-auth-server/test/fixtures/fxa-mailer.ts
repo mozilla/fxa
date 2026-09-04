@@ -21,9 +21,6 @@ import { FxaMailer } from '../../lib/senders/fxa-mailer';
  * with {@link uninstallMockFxaMailer} in `afterEach`** — TypeDI state is not
  * reset by Jest's `clearMocks`, so an un-removed mock leaks into later specs.
  *
- * `canSend` defaults to `true` so the modern FxaMailer code path is exercised;
- * override it (or any method) via the argument or `.mockReturnValue(...)`.
- *
  * Prefer mocking `FxaMailer` over the legacy `mailer`. Tests that only exercise
  * the FxaMailer path can pass a throwaway stub for the legacy `mailer` argument
  * rather than mocking its untyped surface.
@@ -38,10 +35,7 @@ import { FxaMailer } from '../../lib/senders/fxa-mailer';
 export function installMockFxaMailer(
   overrides?: PartialFuncReturn<FxaMailer>
 ): DeepMocked<FxaMailer> {
-  const mailer = createMock<FxaMailer>({
-    canSend: () => true,
-    ...overrides,
-  });
+  const mailer = createMock<FxaMailer>({ ...overrides });
   Container.set(FxaMailer, mailer);
   return mailer;
 }

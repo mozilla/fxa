@@ -17,7 +17,8 @@ import {
   handleNavigation,
   ensureCanLinkAcountOrRedirect,
 } from '../../Signin/utils';
-import type { UseFxAStatusResult } from '../../../lib/hooks/useFxAStatus';
+import type { UseFxAStatusResult } from '../../../lib/hooks';
+import { useWebRedirect, useNavigateWithQuery } from '../../../lib/hooks';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import {
   StoredAccountData,
@@ -30,8 +31,6 @@ import { isThirdPartyAuthCallbackIntegration } from '../../../models/integration
 import VerificationMethods from '../../../constants/verification-methods';
 import VerificationReasons from '../../../constants/verification-reasons';
 import { currentAccount } from '../../../lib/cache';
-import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 
 type LinkedAccountData = {
   uid: hexstring;

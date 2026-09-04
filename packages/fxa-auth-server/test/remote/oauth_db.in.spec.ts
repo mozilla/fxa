@@ -127,11 +127,20 @@ describe('db', () => {
       expect(hex(t.tokenId)).toBe(hex(hash));
     });
 
+    // Guards the revocation assertion below: access tokens are keyed by the
+    // hash of the token, so looking one up by the raw token always misses and
+    // would make that assertion pass whether or not revocation happened.
+    it('should get the right accessToken', async () => {
+      const hash = encrypt.hash(token);
+      const t = await db.getAccessToken(hash);
+      expect(hex(t.tokenId)).toBe(hex(hash));
+    });
+
     it('should delete tokens and codes for the given userId', async () => {
       await db.removeTokensAndCodes(userId);
       const c = await db.getCode(code);
       expect(c).toBeUndefined();
-      const t = await db.getAccessToken(token);
+      const t = await db.getAccessToken(encrypt.hash(token));
       expect(t).toBeUndefined();
       const rt = await db.getRefreshToken(encrypt.hash(refreshToken));
       expect(rt).toBeUndefined();

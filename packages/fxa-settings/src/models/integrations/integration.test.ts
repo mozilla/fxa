@@ -78,4 +78,12 @@ describe('Integration Model', function () {
       expect(model.isTrusted()).toBeTruthy();
     });
   });
+
+  // Only the two pairing integrations override this; `useFxAStatus` reads it to
+  // decide whether to tell the browser a pairing flow is underway.
+  describe('isPairing', function () {
+    it('returns `false`', () => {
+      expect(model.isPairing()).toBe(false);
+    });
+  });
 });

@@ -10,6 +10,7 @@ import {
   verifyWebauthnAuthenticationResponse,
   extractPrfEnabled,
   UserVerificationRequiredError,
+  shouldRequestPrfAtAuth,
 } from './webauthn-adapter';
 import { PasskeyConfig } from './passkey.config';
 import { VirtualAuthenticator } from './virtual-authenticator';
@@ -29,6 +30,7 @@ function testConfig(overrides: Partial<PasskeyConfig> = {}): PasskeyConfig {
     challengeTimeout: 30_000,
     requestPrfAtRegistration: false,
     prfSalt: '',
+    requestPrfAtAuthentication: 'off',
     ...overrides,
   });
 }
@@ -286,10 +288,16 @@ describe('verifyWebauthnRegistrationResponse', () => {
   });
 
   it('records prfEnabled when the browser reports PRF support', async () => {
+    // A config that actually requests PRF, so the ceremony carries the eval
+    // salt and the authenticator reports the capability on its own.
+    const prfConfig = testConfig({
+      requestPrfAtRegistration: true,
+      prfSalt: TEST_PRF_SALT,
+    });
     const cred = VirtualAuthenticator.createCredential();
     const challenge = randomBytes(32).toString('base64url');
 
-    const options = await generateWebauthnRegistrationOptions(config, {
+    const options = await generateWebauthnRegistrationOptions(prfConfig, {
       uid: Buffer.alloc(16, 0xaa).toString('hex'),
       email: 'test@example.com',
       challenge,
@@ -299,20 +307,46 @@ describe('verifyWebauthnRegistrationResponse', () => {
       challenge: options.challenge,
       origin: TEST_ORIGIN,
       rpId: TEST_RP_ID,
+      extensions: options.extensions,
     });
-    // prf.enabled is a WebAuthn Level 3 client-extension output the browser
-    // sets; the virtual authenticator leaves clientExtensionResults empty, so
-    // attach it here. (Field absent from SimpleWebAuthn's output type.)
-    (attestation.clientExtensionResults as { prf?: { enabled: boolean } }).prf =
-      { enabled: true };
 
-    const result = await verifyWebauthnRegistrationResponse(config, {
+    const result = await verifyWebauthnRegistrationResponse(prfConfig, {
       response: attestation,
       challenge,
     });
 
     expect(result.verified).toBe(true);
     expect(result.data?.prfEnabled).toBe(true);
+  });
+
+  it('records prfEnabled as false when the authenticator cannot do PRF', async () => {
+    const prfConfig = testConfig({
+      requestPrfAtRegistration: true,
+      prfSalt: TEST_PRF_SALT,
+    });
+    const cred = VirtualAuthenticator.createCredential({ prfSupported: false });
+    const challenge = randomBytes(32).toString('base64url');
+
+    const options = await generateWebauthnRegistrationOptions(prfConfig, {
+      uid: Buffer.alloc(16, 0xaa).toString('hex'),
+      email: 'test@example.com',
+      challenge,
+    });
+
+    const attestation = VirtualAuthenticator.createAttestationResponse(cred, {
+      challenge: options.challenge,
+      origin: TEST_ORIGIN,
+      rpId: TEST_RP_ID,
+      extensions: options.extensions,
+    });
+
+    const result = await verifyWebauthnRegistrationResponse(prfConfig, {
+      response: attestation,
+      challenge,
+    });
+
+    expect(result.verified).toBe(true);
+    expect(result.data?.prfEnabled).toBe(false);
   });
 
   it('rejects a mismatched challenge', async () => {
@@ -492,6 +526,77 @@ describe('generateWebauthnAuthenticationOptions', () => {
     expect(options.allowCredentials).toEqual([
       expect.objectContaining({ id: credId }),
     ]);
+  });
+
+  it('requests the PRF extension with the configured salt when requestPrf is true and a salt is set', async () => {
+    const options = await generateWebauthnAuthenticationOptions(
+      testConfig({ prfSalt: TEST_PRF_SALT }),
+      {
+        challenge: randomBytes(32).toString('base64url'),
+        allowCredentials: [],
+        requestPrf: true,
+      }
+    );
+
+    expect(options.extensions).toEqual(
+      expect.objectContaining({ prf: { eval: { first: TEST_PRF_SALT } } })
+    );
+  });
+
+  it('omits the PRF extension when requestPrf is true but no salt is configured', async () => {
+    const options = await generateWebauthnAuthenticationOptions(
+      testConfig({ prfSalt: '' }),
+      {
+        challenge: randomBytes(32).toString('base64url'),
+        allowCredentials: [],
+        requestPrf: true,
+      }
+    );
+
+    expect(options.extensions ?? {}).not.toHaveProperty('prf');
+  });
+
+  it('omits the PRF extension when requestPrf is false even with a salt', async () => {
+    const options = await generateWebauthnAuthenticationOptions(
+      testConfig({ prfSalt: TEST_PRF_SALT }),
+      {
+        challenge: randomBytes(32).toString('base64url'),
+        allowCredentials: [],
+        requestPrf: false,
+      }
+    );
+
+    expect(options.extensions ?? {}).not.toHaveProperty('prf');
+  });
+});
+
+describe('shouldRequestPrfAtAuth', () => {
+  const withScope = (scope: PasskeyConfig['requestPrfAtAuthentication']) =>
+    testConfig({ requestPrfAtAuthentication: scope, prfSalt: TEST_PRF_SALT });
+
+  it('never requests PRF under the "off" scope', () => {
+    expect(shouldRequestPrfAtAuth(withScope('off'), true)).toBe(false);
+    expect(shouldRequestPrfAtAuth(withScope('off'), false)).toBe(false);
+  });
+
+  it('always requests PRF under the "all" scope', () => {
+    expect(shouldRequestPrfAtAuth(withScope('all'), true)).toBe(true);
+    expect(shouldRequestPrfAtAuth(withScope('all'), false)).toBe(true);
+  });
+
+  it('requests PRF under "keys-required" only for a keys-required sign-in', () => {
+    expect(shouldRequestPrfAtAuth(withScope('keys-required'), true)).toBe(true);
+    expect(shouldRequestPrfAtAuth(withScope('keys-required'), false)).toBe(
+      false
+    );
+  });
+
+  it('never requests PRF when no salt is configured, even under "all"', () => {
+    const noSalt = testConfig({
+      requestPrfAtAuthentication: 'all',
+      prfSalt: '',
+    });
+    expect(shouldRequestPrfAtAuth(noSalt, true)).toBe(false);
   });
 });
 

@@ -10,7 +10,7 @@ import CardHeader from '../../../../components/CardHeader';
 import TermsPrivacyAgreement from '../../../../components/TermsPrivacyAgreement';
 import AlternativeAuthOptions from '../../../../components/AlternativeAuthOptions';
 import GleanMetrics from '../../../../lib/glean';
-import { useNavigateWithQuery } from '../../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../../lib/hooks';
 import Banner from '../../../../components/Banner';
 import { SigninAlternativeAuthOptionsProps } from '../../interfaces';
 import SigninUserLockup from '../SigninUserLockup';
@@ -97,8 +97,13 @@ const SigninAlternativeAuthOptions = ({
     GleanMetrics.login.alternativeAuthView();
   }, []);
 
+  const authInProgress = passkey.isLoading;
+
   return (
-    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
+    <AppLayout
+      {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}
+      loading={passkey.isNavigating}
+    >
       {(localizedSuccessBannerHeading || localizedSuccessBannerDescription) && (
         <Banner
           type="success"
@@ -149,6 +154,7 @@ const SigninAlternativeAuthOptions = ({
             : undefined
         }
         errorBanner={showPasskeySignin ? passkey.errorBanner : undefined}
+        disabled={authInProgress}
         {...{ viewName, flowQueryParams }}
       />
 

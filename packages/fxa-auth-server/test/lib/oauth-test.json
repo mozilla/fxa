@@ -1,8 +1,7 @@
 {
   "oauthServer": {
     "browserid": {
-      "issuer": "localhost:9000",
-      "verificationUrl": "http://localhost:5050/v2"
+      "issuer": "localhost:9000"
     },
     "clientManagement": {
       "enabled": true

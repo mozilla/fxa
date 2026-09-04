@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { TERMS_PRIVACY_REGEX } = require('./content-server-routes');
-
 /**
  * When you're ready to serve the React version of a page, identify which feature flag
  * group object it should go in and add a new object in `routes` by calling `.getRoute`
@@ -39,22 +37,13 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
     },
     simpleRoutes: {
       featureFlagOn: showReactApp.simpleRoutes,
-      routes: reactRoute.getRoutes([
-        'clear',
-        'cookies_disabled',
-        'legal',
-        // Match (allow for optional trailing slash):
-        // * /legal/terms
-        // * /<locale>/legal/terms
-        // * /legal/privacy
-        // * /<locale>/legal/privacy
-        TERMS_PRIVACY_REGEX,
-      ]),
+      routes: reactRoute.getRoutes(['clear', 'cookies_disabled']),
       fullProdRollout: true,
     },
 
+    // The Backbone reset password views are gone, so React is the only option.
     resetPasswordRoutes: {
-      featureFlagOn: showReactApp.resetPasswordRoutes,
+      featureFlagOn: true,
       routes: reactRoute.getRoutes([
         'reset_password',
         'complete_reset_password',
@@ -189,6 +178,24 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'poc_deep_link',
         'poc_pair_init',
         'poc_pair_start',
+      ]),
+      fullProdRollout: true,
+    },
+    pair2Routes: {
+      featureFlagOn: showReactApp.pair2Routes,
+      routes: reactRoute.getRoutes([
+        'pair/authority/approve_signin',
+        'pair/authority/continue_on_mobile',
+        'pair/authority/download_firefox',
+        'pair/authority/scan_qr',
+        'pair/authority/sync_success',
+        'pair/authority/timeout_and_cancel',
+        'pair/supplicant/approve_signin',
+        'pair/supplicant/connect_this_device',
+        'pair/supplicant/download_firefox',
+        'pair/supplicant/ready_to_scan',
+        'pair/supplicant/sync_success',
+        'pair/supplicant/timeout_and_cancel',
       ]),
       fullProdRollout: true,
     },

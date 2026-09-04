@@ -12,7 +12,7 @@ import { AppError as error } from '@fxa/accounts/errors';
 import { StripeWebhookHandler } from '../../routes/subscriptions/stripe-webhook';
 import { reportSentryError } from '../../sentry';
 import { AuthLogger } from '../../types';
-import { StripeHelper } from '../stripe';
+import { getInvoiceSubscription, StripeHelper } from '../stripe';
 import {
   PAYPAL_BILLING_AGREEMENT_INVALID,
   PAYPAL_SOURCE_ERRORS,
@@ -91,13 +91,13 @@ export class PaypalProcessor {
   }
 
   private async cancelInvoiceSubscription(invoice: Stripe.Invoice) {
+    const subscription = getInvoiceSubscription(invoice);
     return Promise.all([
       this.stripeHelper.markUncollectible(invoice),
       this.stripeHelper.cancelSubscription(
-        (
-          invoice.parent?.subscription_details
-            ?.subscription as Stripe.Subscription
-        ).id
+        typeof subscription === 'string'
+          ? subscription
+          : (subscription as Stripe.Subscription).id
       ),
     ]);
   }

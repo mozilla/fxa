@@ -97,6 +97,26 @@ const ACCOUNT_ACTIVITY_UPDATE_AFTER_MS = config.get(
   'oauthServer.accountActivity.updateAfter'
 );
 
+// VPN-in-Desktop DAU bandaid (FXA-14159).
+const vpnInDesktopDauBandaid = require('../../oauth/vpn-in-desktop-dau-bandaid');
+const {
+  excludeDauCacheKey,
+} = require('../../oauth/desktop-sync-dau-authorization-bandaid');
+// The client and scope the bandaid targets are fixed product facts, not
+// operational knobs, so they're constants rather than config: Firefox Desktop
+// is the only client that mints a VPN token for every signed-in user, and the
+// VPN scope is its canonical scope (a key of oauthServer.exchange.serviceScopes).
+const FIREFOX_DESKTOP_CLIENT_ID = '5882386c6d801776';
+const VPN_SCOPE = 'https://identity.mozilla.com/apps/vpn';
+const VPN_IN_DESKTOP_DAU_POLICY = {
+  clientId: FIREFOX_DESKTOP_CLIENT_ID,
+  scope: VPN_SCOPE,
+  rolloutRate: config.get('oauthServer.vpnInDesktopDauBandaid.rolloutRate'),
+  // Convict 'duration' yields milliseconds; Redis EX wants seconds.
+  cacheTtlSeconds:
+    config.get('oauthServer.vpnInDesktopDauBandaid.cacheTtl') / 1000,
+};
+
 // These scopes are used to request a one-off exchange of claims or credentials,
 // but they don't make sense to use on an ongoing basis via refresh tokens.
 const SCOPES_TO_EXCLUDE_FROM_REFRESH_TOKEN_GRANTS = ScopeSet.fromArray([
@@ -236,7 +256,17 @@ const PAYLOAD_SCHEMA = Joi.object({
   resource: validators.resourceUrl.optional().description(DESCRIPTION.resource),
 });
 
-module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
+module.exports = ({
+  log,
+  oauthDB,
+  db,
+  mailer,
+  devices,
+  statsd,
+  glean,
+  authServerCacheRedis,
+  customs,
+}) => {
   async function validateGrantParameters(client, params) {
     let requestedGrant;
     switch (params.grant_type) {
@@ -268,9 +298,10 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
     requestedGrant.ttl = Math.min(params.ttl, MAX_TTL_S);
     // When true, the `access_token.created` Glean event is tagged with
     // `exclude_dau` so this token creation is excluded from the DAU signal (the
-    // event still fires). Exposed on the authorization_code / fxa-credentials
-    // grants only; absent elsewhere, so it coerces to false.
-    requestedGrant.excludeDau = params.exclude_dau === true;
+    // event still fires). Set either by the client, or by the
+    // authorization_code grant carrying the server-side decision (FXA-14263).
+    requestedGrant.excludeDau =
+      params.exclude_dau === true || requestedGrant.excludeDau === true;
     return requestedGrant;
   }
 
@@ -337,6 +368,28 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
     }
     // Looks legit! Codes are one-time-use, so remove it from the db.
     await oauthDB.removeCode(buf(code));
+    // Pick up the exclude-DAU decision left by /oauth/authorization (FXA-14263).
+    // Absent key means "count it", so a Redis failure degrades to today's
+    // behaviour. No delete needed: the key expires with the code, which is
+    // itself one-time-use. Constant checks first — only a Desktop code carrying
+    // the Sync scope can have a flag, so everything else skips Redis.
+    if (
+      authServerCacheRedis &&
+      hex(codeObj.clientId) === FIREFOX_DESKTOP_CLIENT_ID &&
+      codeObj.scope?.contains(OAUTH_SCOPE_OLD_SYNC)
+    ) {
+      try {
+        const cached = await authServerCacheRedis.get(
+          excludeDauCacheKey(encrypt.hash(code).toString('hex'))
+        );
+        if (cached === '1') {
+          codeObj.excludeDau = true;
+        }
+      } catch (err) {
+        statsd?.increment('oauth.excludeDau.readFailed');
+        log.warn('oauth.excludeDau.readFailed', { err: err?.message });
+      }
+    }
     return codeObj;
   }
 
@@ -579,7 +632,15 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
     // Token exchange doesn't require client authentication since the
     // subject_token is already bound to an allowed client.
     let client = null;
-    if (params.grant_type !== GRANT_TOKEN_EXCHANGE) {
+    if (params.grant_type === GRANT_TOKEN_EXCHANGE) {
+      // A successful exchange revokes the subject token, so a repeat with the
+      // same token is a retry of a rejection. Must stay ahead of the db reads.
+      await customs.checkToken(
+        req,
+        'tokenExchange',
+        hex(encrypt.hash(params.subject_token))
+      );
+    } else {
       client = await authenticateClient(req.headers, params);
       // Refuse to generate new access tokens for disabled clients that are already
       // connected to the account. We allow disabled clients to claim existing authorization
@@ -631,6 +692,27 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
       ? `${params.grant_type}:${params.reason}`
       : params.grant_type;
     const scopes = grant.scope?.toString() || '';
+
+    // VPN-in-Desktop DAU bandaid (FXA-14159): Firefox Desktop mints a VPN token
+    // for every signed-in user via fxa-credentials. When the user hasn't
+    // actually authorized VPN for this client, tag the event `exclude_dau` so
+    // the DAU rollup filters it. The token is still granted. Don't override a
+    // client-supplied exclude_dau=true.
+    if (params.grant_type === GRANT_FXA_ASSERTION && !grant.excludeDau) {
+      const exclude = await vpnInDesktopDauBandaid.shouldExcludeFromDau(
+        { oauthDB, redis: authServerCacheRedis, statsd, log },
+        {
+          uid,
+          clientId: oauthClientId,
+          scopeSet: grant.scope,
+          policy: VPN_IN_DESKTOP_DAU_POLICY,
+        }
+      );
+      if (exclude) {
+        grant.excludeDau = true;
+      }
+    }
+
     // This maps to the `access_token.created` Glean event which always fires here
     // because an access token is always created. `exclude_dau` tags the
     // event so the DAU signal can exclude token creations that we know don't

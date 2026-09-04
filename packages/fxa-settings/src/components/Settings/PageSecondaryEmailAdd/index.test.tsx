@@ -12,7 +12,7 @@ import { resetOnce } from '../../../lib/utilities';
 import userEvent, { UserEvent } from '@testing-library/user-event';
 import AuthClient from 'fxa-auth-client/lib/client';
 import { JwtTokenCache } from '../../../lib/cache';
-import { MfaContext } from '../MfaGuard';
+import { MfaContext } from '../../../lib/hooks';
 
 window.console.error = jest.fn();
 

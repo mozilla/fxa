@@ -137,7 +137,9 @@ export class AccountEventsManager {
       }
 
       await this.usersDbRef?.doc(uid).collection('events').add(emailEvent);
-      this.statsd.increment('accountEvents.recordEmailEvent.write');
+      this.statsd.increment('accountEvents.recordEmailEvent.write', {
+        template: message.template
+      });
     } catch (err) {
       // Failing to write to events shouldn't break anything
       this.statsd.increment('accountEvents.recordEmailEvent.error');

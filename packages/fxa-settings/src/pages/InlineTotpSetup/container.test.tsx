@@ -10,15 +10,13 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import { MozServices } from '../../lib/types';
 import { IntegrationType, OAuthIntegration } from '../../models';
 import InlineTotpSetupContainer from './container';
-import GleanMetrics from '../../lib/glean';
 import {
-  MOCK_TOTP_TOKEN,
   MOCK_QUERY_PARAMS,
   MOCK_SIGNIN_LOCATION_STATE,
-  MOCK_SIGNIN_RECOVERY_LOCATION_STATE,
+  MOCK_SIGNIN_LOCATION_STATE_PASSKEY,
 } from './mocks';
 import { screen, waitFor } from '@testing-library/react';
-import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import { AuthUiError } from '../../lib/auth-errors/auth-errors';
 import { MOCK_FLOW_ID } from '../Signin/mocks';
 
 const mockLocationHook = jest.fn();
@@ -32,31 +30,20 @@ jest.mock('react-router', () => {
 });
 
 const mockSessionHook = jest.fn();
-const mockVerifyTotpSetupCode = jest.fn();
 const mockSendVerificationCode = jest.fn();
-const mockCreateTotpToken = jest.fn();
 const mockCheckTotpTokenExists = jest.fn();
 
+// The container only calls checkTotpTokenExists directly; the enrolment's
+// JWT-guarded calls live in InlineTotpEnrolment (InlineTotpSetup is mocked out).
 jest.mock('../../models', () => {
   return {
     ...jest.requireActual('../../models'),
     useSession: () => mockSessionHook(),
     useAuthClient: () => ({
-      verifyTotpSetupCode: mockVerifyTotpSetupCode,
-      createTotpToken: mockCreateTotpToken,
       checkTotpTokenExists: mockCheckTotpTokenExists,
     }),
   };
 });
-
-jest.mock('../../lib/glean', () => ({
-  __esModule: true,
-  default: {
-    accountPref: {
-      twoStepAuthQrCodeSuccess: jest.fn(),
-    },
-  },
-}));
 
 function setMocks() {
   const search = '?' + new URLSearchParams(MOCK_QUERY_PARAMS);
@@ -71,17 +58,14 @@ function setMocks() {
     search,
     state: MOCK_SIGNIN_LOCATION_STATE,
   });
-  mockVerifyTotpSetupCode.mockReset();
   mockSendVerificationCode.mockReset();
-  mockCreateTotpToken.mockReset();
   mockCheckTotpTokenExists.mockReset();
   mockSessionHook.mockReturnValue({
     isSessionVerified: async () => true,
     sendVerificationCode: mockSendVerificationCode,
   });
-  // Default: TOTP doesn't exist, so we need to create one
+  // Default: TOTP doesn't exist, so enrolment should proceed
   mockCheckTotpTokenExists.mockResolvedValue({ exists: false, verified: false });
-  mockCreateTotpToken.mockResolvedValue(MOCK_TOTP_TOKEN);
   jest.spyOn(InlineTotpSetupModule, 'default');
   (InlineTotpSetupModule.default as jest.Mock).mockReset();
   mockNavigateHook.mockReset();
@@ -182,7 +166,10 @@ describe('InlineTotpSetupContainer', () => {
       mockSessionHook.mockImplementationOnce(() => ({
         isSessionVerified: async () => true,
       }));
-      mockCheckTotpTokenExists.mockResolvedValue({ exists: true, verified: true });
+      mockCheckTotpTokenExists.mockResolvedValue({
+        exists: true,
+        verified: true,
+      });
       render();
       const location = mockLocationHook();
       await waitFor(() => {
@@ -197,7 +184,10 @@ describe('InlineTotpSetupContainer', () => {
       mockSessionHook.mockImplementationOnce(() => ({
         isSessionVerified: async () => false,
       }));
-      mockCheckTotpTokenExists.mockResolvedValue({ exists: true, verified: true });
+      mockCheckTotpTokenExists.mockResolvedValue({
+        exists: true,
+        verified: true,
+      });
       render();
       const location = mockLocationHook();
       await waitFor(() => {
@@ -208,29 +198,31 @@ describe('InlineTotpSetupContainer', () => {
       });
     });
 
-    it('does not call createTotpToken while TOTP status is loading', async () => {
+    it('does not render enrolment while TOTP status is loading', async () => {
       // Simulate loading by not resolving the promise
       mockCheckTotpTokenExists.mockImplementation(() => new Promise(() => {}));
 
       render();
 
-      // Wait a bit to ensure the component has mounted
       await new Promise((resolve) => setTimeout(resolve, 100));
-      expect(mockCreateTotpToken).not.toHaveBeenCalled();
+      expect(InlineTotpSetupModule.default).not.toHaveBeenCalled();
     });
 
-    it('does not call createTotpToken when TOTP is already verified', async () => {
+    it('does not render enrolment when TOTP is already verified', async () => {
       mockSessionHook.mockImplementationOnce(() => ({
         isSessionVerified: async () => true,
       }));
-      mockCheckTotpTokenExists.mockResolvedValue({ exists: true, verified: true });
+      mockCheckTotpTokenExists.mockResolvedValue({
+        exists: true,
+        verified: true,
+      });
 
       render();
 
       await waitFor(() => {
         expect(mockNavigateHook).toHaveBeenCalled();
       });
-      expect(mockCreateTotpToken).not.toHaveBeenCalled();
+      expect(InlineTotpSetupModule.default).not.toHaveBeenCalled();
     });
   });
 
@@ -244,80 +236,43 @@ describe('InlineTotpSetupContainer', () => {
       expect(InlineTotpSetupModule.default).not.toHaveBeenCalled();
     });
 
-    it('invokes InlineTotpSetup with the correct props', async () => {
+    it('invokes InlineTotpSetup at the intro step with the correct props', async () => {
       render();
       await waitFor(() => {
         expect(InlineTotpSetupModule.default).toHaveBeenCalled();
         const args = (InlineTotpSetupModule.default as jest.Mock).mock
           .calls[0][0];
-        expect(args.totp).toEqual(MOCK_TOTP_TOKEN);
+        expect(args.currentStep).toBe(0);
+        expect(typeof args.onContinue).toBe('function');
         expect(args.serviceName).toBe(MozServices.Default);
+        expect(args.enrolment).toBeTruthy();
       });
     });
 
-    describe('callbacks', () => {
-      describe('verifyCodeHandler', () => {
-        it('throws an error when the server rejects the code', async () => {
-          mockVerifyTotpSetupCode.mockRejectedValue(new Error('bad'));
-          render();
-          await waitFor(() => {
-            expect(InlineTotpSetupModule.default).toHaveBeenCalled();
-          });
-          const args = (InlineTotpSetupModule.default as jest.Mock).mock
-            .calls[0][0];
-          const verifyCodeHandler = args.verifyCodeHandler;
-
-          // jest didn't like some syntax in AuthUiErrors when I tried to use
-          // expect().toThrow()
-          try {
-            await verifyCodeHandler('0101');
-            expect(true).toBe(false); // an error should've been thrown
-          } catch (err) {
-            // eslint-disable-next-line jest/no-conditional-expect
-            expect(err).toBe(AuthUiErrors.INVALID_TOTP_CODE);
-          }
-        });
-
-        it('throws an error when checking the code errors', async () => {
-          mockVerifyTotpSetupCode.mockRejectedValue(new Error('err'));
-          render();
-          await waitFor(() => {
-            expect(InlineTotpSetupModule.default).toHaveBeenCalled();
-          });
-          const args = (InlineTotpSetupModule.default as jest.Mock).mock
-            .calls[0][0];
-          const verifyCodeHandler = args.verifyCodeHandler;
-
-          // jest didn't like some syntax in AuthUiErrors when I tried to use
-          // expect().toThrow()
-          try {
-            await verifyCodeHandler('1010');
-            expect(true).toBe(false); // an error should've been thrown
-          } catch (err) {
-            // eslint-disable-next-line jest/no-conditional-expect
-            expect(err).toBe(AuthUiErrors.INVALID_TOTP_CODE);
-          }
-        });
-
-        it('redirects to inline_recovery_setup when the code is valid', async () => {
-          mockVerifyTotpSetupCode.mockResolvedValue({ success: true });
-          render();
-          await waitFor(() => {
-            expect(InlineTotpSetupModule.default).toHaveBeenCalled();
-          });
-          const args = (InlineTotpSetupModule.default as jest.Mock).mock
-            .calls[0][0];
-          const verifyCodeHandler = args.verifyCodeHandler;
-          await verifyCodeHandler('1010');
-          expect(
-            GleanMetrics.accountPref.twoStepAuthQrCodeSuccess
-          ).toHaveBeenCalled();
-          expect(mockNavigateHook).toHaveBeenCalledWith(
-            `/inline_recovery_setup?${new URLSearchParams(MOCK_QUERY_PARAMS)}`,
-            { state: MOCK_SIGNIN_RECOVERY_LOCATION_STATE }
-          );
-        });
+    it('passes signedInWithPasskey when the ceremony used a passkey', async () => {
+      mockLocationHook.mockReturnValue({
+        pathname: '/inline_totp_setup',
+        search: '?' + new URLSearchParams(MOCK_QUERY_PARAMS),
+        state: MOCK_SIGNIN_LOCATION_STATE_PASSKEY,
       });
+
+      render();
+
+      await waitFor(() => {
+        expect(InlineTotpSetupModule.default).toHaveBeenCalled();
+      });
+      const args = (InlineTotpSetupModule.default as jest.Mock).mock.calls[0][0];
+      expect(args.signedInWithPasskey).toBe(true);
+    });
+
+    it('passes signedInWithPasskey as false for a normal sign-in', async () => {
+      render();
+
+      await waitFor(() => {
+        expect(InlineTotpSetupModule.default).toHaveBeenCalled();
+      });
+      const args = (InlineTotpSetupModule.default as jest.Mock).mock.calls[0][0];
+      expect(args.signedInWithPasskey).toBe(false);
     });
   });
 });

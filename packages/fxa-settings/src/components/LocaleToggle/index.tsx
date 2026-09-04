@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { useLocaleManager } from '../../lib/hooks/useLocaleManager';
+import { useLocaleManager } from '../../lib/hooks';
 import { useFtlMsgResolver } from '../../models';
 import { getBrowserDefaultLocaleInfo } from '../../lib/locales';
 

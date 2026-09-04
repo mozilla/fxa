@@ -2,23 +2,47 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* eslint-disable indent */
 const assert = require('assert');
 const fs = require('fs');
-const url = require('url');
-
-const _nock = require('nock');
-const through = require('through');
+const { STATUS_CODES } = require('http');
 
 const config = require('../../lib/config');
 fs.mkdirSync(config.get('img.uploads.dest.public'), { recursive: true });
-// eslint-disable-next-line space-unary-ops
-const local = new (require('../../lib/img/local'))();
-const inject = require('./inject');
 
-const IS_AWS = config.get('img.driver') === 'aws';
+const OAUTH_VERIFY_URL = config.get('oauth.url') + '/verify';
+const AUTH_PROFILE_URL = config.get('authServer.url') + '/account/profile';
+const WORKER_AVATAR_URL = new RegExp(
+  '^' +
+    config.get('worker.url').replace(/[.*+?^${}()|[\]\\]/g, '\\$&') +
+    '/a/[0-9a-f]{32}$'
+);
 
-const SIZES = require('../../lib/img').SIZES;
+// Gather a request body, which may be a hapi payload stream on upload.
+async function readBody(body) {
+  if (body == null) {
+    return Buffer.alloc(0);
+  }
+  if (Buffer.isBuffer(body)) {
+    return body;
+  }
+  if (typeof body === 'string') {
+    return Buffer.from(body);
+  }
+  const chunks = [];
+  for await (const chunk of body) {
+    chunks.push(Buffer.from(chunk));
+  }
+  return Buffer.concat(chunks);
+}
+
+function reply(status, body) {
+  const text = typeof body === 'string' ? body : JSON.stringify(body);
+  return new Response(status === 204 || body == null ? null : text, {
+    status,
+    statusText: STATUS_CODES[status] || '',
+    headers: { 'content-type': 'application/json' },
+  });
+}
 
 module.exports = async function mock(options) {
   const WORKER = await require('../../lib/server/worker').create();
@@ -29,82 +53,69 @@ module.exports = async function mock(options) {
     scope: ['profile'],
   });
 
-  const MOCK_ID = new Array(33).join('f');
+  // Each entry matches at most one request, and `done()` asserts it was used.
+  let outstanding = [];
 
-  var outstandingMocks = [];
-
-  function nock() {
-    var scope = _nock.apply(_nock, arguments);
-    outstandingMocks.push(scope);
-    return scope;
-  }
-
-  function worker(bytes) {
-    if (bytes == null) {
-      throw new Error('Content-Length argument required');
-    }
-    var parts = url.parse(config.get('worker.url'));
-    var path = '';
-    var headers = {
-      'content-type': 'image/png',
-      'content-length': '' + bytes,
+  function intercept(spec) {
+    const entry = Object.assign({ called: false }, spec);
+    entry.done = function () {
+      assert(entry.called, 'Mock never called: ' + spec.describe);
     };
-    return nock(parts.protocol + '//' + parts.host, {
-      reqheaders: headers,
-    })
-      .filteringPath(function filter(_path) {
-        path = _path;
-        return _path.replace(/\/a\/[0-9a-f]{32}/g, '/a/' + MOCK_ID);
-      })
-      .post('/a/' + MOCK_ID)
-      .reply(200, function (uri, body) {
-        return inject(WORKER, {
-          method: 'POST',
-          url: path,
-          payload: Buffer.from(body, 'hex'),
-          headers: headers,
-        });
-      });
+    outstanding.push(entry);
+    return entry;
   }
 
-  function uploadAws() {
-    var bucket = config.get('img.uploads.dest.public');
-    Object.keys(SIZES).forEach(function () {
-      var u = '/' + bucket + '/XXX';
-      var id;
-      nock('https://s3.amazonaws.com')
-        .filteringPath(function filter(_path) {
-          id = _path.replace('/' + bucket + '/', '');
-          return _path.replace(id, 'XXX');
-        })
-        .put(u)
-        .reply(200, function (uri, body) {
-          var s = through();
-          s.setEncoding = function () {};
-          local.upload(id, body).done(function () {
-            s.end();
-          });
-          return s;
-        });
+  global.fetch = async function mockFetch(input, init) {
+    init = init || {};
+    const reqUrl = typeof input === 'string' ? input : String(input.url);
+    const method = (init.method || 'GET').toUpperCase();
+    const entry = outstanding.find(
+      (e) => !e.called && e.method === method && e.matches(reqUrl)
+    );
+    if (!entry) {
+      throw new Error('Unexpected request: ' + method + ' ' + reqUrl);
+    }
+    entry.called = true;
+    return entry.respond(reqUrl, init);
+  };
+
+  function interceptVerify(status, body) {
+    return intercept({
+      method: 'POST',
+      describe: 'oauth /verify',
+      matches: (u) => u === OAUTH_VERIFY_URL,
+      respond: () => reply(status, body),
     });
   }
 
-  function deleteAws() {
-    var bucket = config.get('img.uploads.dest.public');
-    var u = '/' + bucket + '?delete';
-    Object.keys(SIZES).forEach(function () {
-      nock('https://s3.amazonaws.com')
-        .post(u)
-        .reply(200, function (uri, body) {
-          // eslint-disable-next-line no-useless-escape
-          var id = body.match(/<Key>([0-9a-z-A-Z_\-]+)<\/Key>/)[1];
-          var s = through();
-          s.setEncoding = function () {};
-          local.delete(id).done(function () {
-            s.end();
-          });
-          return s;
+  function interceptProfile(status, body) {
+    return intercept({
+      method: 'GET',
+      describe: 'auth-server /account/profile',
+      matches: (u) => u === AUTH_PROFILE_URL,
+      respond: () => reply(status, body),
+    });
+  }
+
+  // Hands the uploaded bytes to the real worker, so the image pipeline still
+  // runs and the resized files land where later assertions look for them.
+  function worker(bytes) {
+    return intercept({
+      method: 'POST',
+      describe: 'image worker upload',
+      matches: (u) => WORKER_AVATAR_URL.test(u),
+      respond: async (reqUrl, init) => {
+        const headers = new Headers(init.headers || {});
+        assert.strictEqual(headers.get('content-type'), 'image/png');
+        assert.strictEqual(headers.get('content-length'), String(bytes));
+        const res = await WORKER.inject({
+          method: 'POST',
+          url: new URL(reqUrl).pathname,
+          payload: await readBody(init.body),
+          headers: Object.fromEntries(headers.entries()),
         });
+        return reply(res.statusCode, res.payload);
+      },
     });
   }
 
@@ -113,74 +124,45 @@ module.exports = async function mock(options) {
       // Reset even if a mock assertion throws, so one failing test cannot
       // leave stale mocks that cascade into every later test's teardown.
       try {
-        outstandingMocks.forEach(function (mock) {
+        outstanding.forEach(function (mock) {
           mock.done();
         });
       } finally {
-        outstandingMocks = [];
+        outstanding = [];
       }
     },
 
     tokenGood: function tokenGood() {
-      var parts = url.parse(config.get('oauth.url'));
-      return nock(parts.protocol + '//' + parts.host)
-        .post(parts.path + '/verify')
-        .reply(200, TOKEN_GOOD);
+      return interceptVerify(200, TOKEN_GOOD);
     },
 
     token: function token(tok) {
-      var parts = url.parse(config.get('oauth.url'));
-      return nock(parts.protocol + '//' + parts.host)
-        .post(parts.path + '/verify')
-        .reply(200, JSON.stringify(tok));
+      return interceptVerify(200, JSON.stringify(tok));
     },
 
     tokenFailure: function tokenFailure() {
-      var parts = url.parse(config.get('oauth.url'));
-      return nock(parts.protocol + '//' + parts.host)
-        .post(parts.path + '/verify')
-        .reply(500);
+      return interceptVerify(500, null);
     },
 
     email: function mockEmail(email) {
-      var parts = url.parse(config.get('authServer.url'));
-      return nock(parts.protocol + '//' + parts.host)
-        .get(parts.path + '/account/profile')
-        .reply(200, {
-          email: email,
-        });
+      return interceptProfile(200, { email: email });
     },
 
     subscriptions: function mockSubscriptions(subscriptions) {
-      var parts = url.parse(config.get('authServer.url'));
-      return nock(parts.protocol + '//' + parts.host)
-        .get(parts.path + '/account/profile')
-        .reply(200, { subscriptions });
+      return interceptProfile(200, { subscriptions });
     },
 
     profileChangedAt: function mockProfileChangedAt(email, profileChangedAt) {
-      var parts = url.parse(config.get('authServer.url'));
-      return nock(parts.protocol + '//' + parts.host)
-        .get(parts.path + '/account/profile')
-        .reply(200, {
-          email: email,
-          profileChangedAt,
-        });
+      return interceptProfile(200, { email: email, profileChangedAt });
     },
 
     emailFailure: function mockEmailFailure(body) {
       body = body || {};
-      var parts = url.parse(config.get('authServer.url'));
-      return nock(parts.protocol + '//' + parts.host)
-        .get(parts.path + '/account/profile')
-        .reply(body.code || 500, body);
+      return interceptProfile(body.code || 500, body);
     },
 
     coreProfile: function mockEmail(body) {
-      const parts = url.parse(config.get('authServer.url'));
-      return nock(parts.protocol + '//' + parts.host)
-        .get(parts.path + '/account/profile')
-        .reply(200, body);
+      return interceptProfile(200, body);
     },
 
     workerFailure: function workerFailure(action, bytes, response) {
@@ -190,48 +172,38 @@ module.exports = async function mock(options) {
       if (bytes == null) {
         throw new Error('Content-Length argument required');
       }
-      var parts = url.parse(config.get('worker.url'));
-      var headers =
-        action === 'post'
-          ? {
-              'content-type': 'image/png',
-              'content-length': '' + bytes,
-            }
-          : {};
-      return nock(parts.protocol + '//' + parts.host, {
-        reqheaders: headers,
-      })
-        .filteringPath(/^\/a\/[0-9a-f]{32}$/g, '/a/' + MOCK_ID)
-        [action]('/a/' + MOCK_ID) // eslint-disable-line no-unexpected-multiline
-        .reply(500, response || 'unexpected server error');
+      return intercept({
+        method: action.toUpperCase(),
+        describe: 'image worker ' + action + ' failure',
+        matches: (u) => WORKER_AVATAR_URL.test(u),
+        respond: (reqUrl, init) => {
+          if (action === 'post') {
+            const headers = new Headers(init.headers || {});
+            assert.strictEqual(headers.get('content-type'), 'image/png');
+            assert.strictEqual(headers.get('content-length'), String(bytes));
+          }
+          return reply(500, response || 'unexpected server error');
+        },
+      });
     },
 
     image: function image(bytes) {
       worker(bytes);
-      if (IS_AWS) {
-        uploadAws();
-      }
     },
 
     deleteImage: function deleteImage() {
-      var parts = url.parse(config.get('worker.url'));
-      var path = '';
-      nock(parts.protocol + '//' + parts.host)
-        .filteringPath(function filter(_path) {
-          path = _path;
-          return _path.replace(/\/a\/[0-9a-f]{32}/g, '/a/' + MOCK_ID);
-        })
-        .delete('/a/' + MOCK_ID)
-        .reply(200, function () {
-          return inject(WORKER, {
+      intercept({
+        method: 'DELETE',
+        describe: 'image worker delete',
+        matches: (u) => WORKER_AVATAR_URL.test(u),
+        respond: async (reqUrl) => {
+          const res = await WORKER.inject({
             method: 'DELETE',
-            url: path,
+            url: new URL(reqUrl).pathname,
           });
-        });
-
-      if (IS_AWS) {
-        deleteAws();
-      }
+          return reply(res.statusCode, res.payload);
+        },
+      });
     },
 
     log: function mockLog(logger, cb) {
@@ -251,7 +223,7 @@ module.exports = async function mock(options) {
         },
       };
       log.addFilter(filter);
-      outstandingMocks.push({
+      outstanding.push({
         done: function done() {
           assert(isDone, 'Mocked logger never called: ' + logger);
         },

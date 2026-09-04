@@ -147,9 +147,8 @@ it('creates a new relying party via UI', async () => {
   await screen.findByText(
     'To finalize this new RP, a couple more steps are needed'
   );
-  await screen.findByText(
-    'gcloud pubsub topics create rpQueue-new-id --message-retention-duration=2678400s'
-  );
+  await screen.findByText('eventbroker_endpoint_subscription_config');
+  await screen.findByText('fxa-legacy/tf/stage/locals.tf');
   await screen.findByText('client_secret: SECRET123');
   fireEvent.click(screen.getByText('Got it!'));
 

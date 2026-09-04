@@ -112,7 +112,7 @@ export class BillingAndSubscriptionsService {
         ? this.subscriptionManager.listActiveForCustomer(stripeCustomer.id)
         : Promise.resolve<StripeSubscription[]>([]),
       this.googleIapPurchaseManager.getForUser(uid),
-      this.appleIapPurchaseManager.getForUser(uid),
+      this.appleIapPurchaseManager.getForUserOrStaleCached(uid),
       // Only resolve Free Access Program data when the feature is enabled.
       this.freeAccessProgramConfig.enabled
         ? this.freeAccessProgramService.findFreeAccessForUid(uid)
@@ -223,10 +223,18 @@ export class BillingAndSubscriptionsService {
           offering.offering.defaultPurchase.stripePlanChoices.map(
             (choice) => choice.stripePlanChoice
           );
-        const price = await this.priceManager.retrieveByInterval(
+        let price = await this.priceManager.retrieveByInterval(
           priceIds,
           offering.interval as unknown as SubplatInterval
         );
+
+        if (!price) {
+          const isGoogle = googleIapPurchases.some((p) => p.sku === storeId);
+          price = isGoogle
+            ? await this.priceManager.findGoogleIAPPriceByStoreId(storeId)
+            : await this.priceManager.findAppleIAPPriceByStoreId(storeId);
+        }
+
         if (!price) {
           continue;
         }

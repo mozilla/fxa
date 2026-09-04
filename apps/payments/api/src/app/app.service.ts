@@ -17,7 +17,7 @@ let commitHash = UNKNOWN;
 let sourceRepo = UNKNOWN;
 
 try {
-  const versionJsonPath = path.join(process.cwd(), 'config', 'version.json');
+  const versionJsonPath = path.join(__dirname, 'config', 'version.json');
   const info = JSON.parse(fs.readFileSync(versionJsonPath, 'utf-8'));
   commitHash = info.version.hash;
   sourceRepo = info.version.source;

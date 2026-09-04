@@ -18,6 +18,7 @@ import DESCRIPTION from '../../docs/swagger/shared/descriptions';
 import * as butil from '../crypto/butil';
 import * as random from '../crypto/random';
 import { AppError as error } from '@fxa/accounts/errors';
+import { PasskeyService } from '@fxa/accounts/passkey';
 import { schema as METRICS_CONTEXT_SCHEMA } from '../metrics/context';
 import { gleanMetrics } from '../metrics/glean';
 import * as requestHelper from '../routes/utils/request_helper';
@@ -255,7 +256,6 @@ module.exports = function (
           sessionToken?: string;
         };
         const wantsKeys = requestHelper.wantsKeys(request);
-        const ip = request.app.clientAddress;
 
         const hasTotp = await checkTotpToken();
 
@@ -454,40 +454,16 @@ module.exports = function (
             generation: account.verifierSetAt,
           });
           await oauth.removePublicAndCanGrantTokens(passwordChangeToken.uid);
-          const emails = await db.accountEmails(passwordChangeToken.uid);
-          const geoData = request.app.geo;
-          const {
-            browser: uaBrowser,
-            browserVersion: uaBrowserVersion,
-            os: uaOS,
-            osVersion: uaOSVersion,
-            deviceType: uaDeviceType,
-          } = request.app.ua;
 
           try {
-            if (fxaMailer.canSend('passwordChanged')) {
-              await fxaMailer.sendPasswordChangedEmail({
-                ...FxaMailerFormat.account(account),
-                ...(await FxaMailerFormat.metricsContext(request)),
-                ...FxaMailerFormat.localTime(request),
-                ...FxaMailerFormat.location(request),
-                ...FxaMailerFormat.device(request),
-                ...FxaMailerFormat.sync(false),
-              });
-            } else {
-              await mailer.sendPasswordChangedEmail(emails, account, {
-                acceptLanguage: request.app.acceptLanguage,
-                ip,
-                location: geoData.location,
-                timeZone: geoData.timeZone,
-                uaBrowser,
-                uaBrowserVersion,
-                uaOS,
-                uaOSVersion,
-                uaDeviceType,
-                uid: passwordChangeToken.uid,
-              });
-            }
+            await fxaMailer.sendPasswordChangedEmail({
+              ...FxaMailerFormat.account(account),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.sync(false),
+            });
           } catch (error) {
             // If we couldn't email them, no big deal. Log
             // and pretend everything worked.
@@ -684,7 +660,6 @@ module.exports = function (
         }
 
         const wantsKeys = requestHelper.wantsKeys(request);
-        const ip = request.app.clientAddress;
 
         const hasTotp = await otpUtils.hasTotpToken({ uid });
 
@@ -857,40 +832,16 @@ module.exports = function (
             generation: account.verifierSetAt,
           });
           await oauth.removePublicAndCanGrantTokens(uid);
-          const emails = await db.accountEmails(uid);
-          const geoData = request.app.geo;
-          const {
-            browser: uaBrowser,
-            browserVersion: uaBrowserVersion,
-            os: uaOS,
-            osVersion: uaOSVersion,
-            deviceType: uaDeviceType,
-          } = request.app.ua;
 
           try {
-            if (fxaMailer.canSend('passwordChanged')) {
-              await fxaMailer.sendPasswordChangedEmail({
-                ...FxaMailerFormat.account(account),
-                ...(await FxaMailerFormat.metricsContext(request)),
-                ...FxaMailerFormat.localTime(request),
-                ...FxaMailerFormat.location(request),
-                ...FxaMailerFormat.device(request),
-                ...FxaMailerFormat.sync(false),
-              });
-            } else {
-              await mailer.sendPasswordChangedEmail(emails, account, {
-                acceptLanguage: request.app.acceptLanguage,
-                ip,
-                location: geoData.location,
-                timeZone: geoData.timeZone,
-                uaBrowser,
-                uaBrowserVersion,
-                uaOS,
-                uaOSVersion,
-                uaDeviceType,
-                uid: uid,
-              });
-            }
+            await fxaMailer.sendPasswordChangedEmail({
+              ...FxaMailerFormat.account(account),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.sync(false),
+            });
           } catch (error) {
             // If we couldn't email them, no big deal. Log
             // and pretend everything worked.
@@ -1066,48 +1017,17 @@ module.exports = function (
         request.setMetricsFlowCompleteSignal(flowCompleteSignal);
 
         const code = await otpManager.create(account.uid);
-        const ip = request.app.clientAddress;
         const service = payload.service || request.query.service;
-        const { deviceId, flowId, flowBeginTime } =
-          await request.app.metricsContext;
-        const geoData = request.app.geo;
-        const {
-          browser: uaBrowser,
-          browserVersion: uaBrowserVersion,
-          os: uaOS,
-          osVersion: uaOSVersion,
-          deviceType: uaDeviceType,
-        } = request.app.ua;
 
-        if (fxaMailer.canSend('passwordForgotOtp')) {
-          await fxaMailer.sendPasswordForgotOtpEmail({
-            ...FxaMailerFormat.account(account),
-            ...(await FxaMailerFormat.metricsContext(request)),
-            ...FxaMailerFormat.sync(service),
-            ...FxaMailerFormat.device(request),
-            ...FxaMailerFormat.location(request),
-            ...FxaMailerFormat.localTime(request),
-            code,
-          });
-        } else {
-          await mailer.sendPasswordForgotOtpEmail(account.emails, account, {
-            code,
-            service,
-            acceptLanguage: request.app.acceptLanguage,
-            deviceId,
-            flowId,
-            flowBeginTime,
-            ip,
-            location: geoData.location,
-            timeZone: geoData.timeZone,
-            uaBrowser,
-            uaBrowserVersion,
-            uaOS,
-            uaOSVersion,
-            uaDeviceType,
-            uid: account.uid,
-          });
-        }
+        await fxaMailer.sendPasswordForgotOtpEmail({
+          ...FxaMailerFormat.account(account),
+          ...(await FxaMailerFormat.metricsContext(request)),
+          ...FxaMailerFormat.sync(service),
+          ...FxaMailerFormat.device(request),
+          ...FxaMailerFormat.location(request),
+          ...FxaMailerFormat.localTime(request),
+          code,
+        });
 
         glean.resetPassword.otpEmailSent(request);
 
@@ -1143,6 +1063,15 @@ module.exports = function (
               .length(config.passwordForgotOtp.digits)
               .regex(validators.DIGITS),
             metricsContext: METRICS_CONTEXT_SCHEMA,
+          }),
+        },
+        response: {
+          schema: isA.object({
+            code: isA.string().required(),
+            emailToHashWith: isA.string().required(),
+            token: isA.string().required(),
+            uid: isA.string().required(),
+            hasPasskey: isA.boolean().optional(),
           }),
         },
       },
@@ -1191,11 +1120,29 @@ module.exports = function (
           getClientServiceTags(request)
         );
 
+        // Passkey-aware reset messaging: does the account have a passkey? Fail
+        // open so the reset flow never breaks.
+        let hasPasskey: boolean | undefined;
+        if (
+          config.passkeys?.enabled &&
+          config.passkeys?.authenticationEnabled
+        ) {
+          try {
+            hasPasskey = await Container.get(PasskeyService).hasPasskey(
+              account.uid
+            );
+          } catch (err) {
+            log.error('passwordForgotVerifyOtp.hasPasskey', { err });
+            statsd.increment('password.forgotVerifyOtp.hasPasskey.error');
+          }
+        }
+
         return {
           code: passwordForgotToken.passCode,
           emailToHashWith: passwordForgotToken.email,
           token: passwordForgotToken.data,
           uid: passwordForgotToken.uid,
+          hasPasskey,
         };
       },
     },
@@ -1306,22 +1253,14 @@ module.exports = function (
               emailOptions
             );
           } else {
-            if (fxaMailer.canSend('passwordReset')) {
-              await fxaMailer.sendPasswordResetEmail({
-                ...FxaMailerFormat.account(account),
-                ...(await FxaMailerFormat.metricsContext(request)),
-                ...FxaMailerFormat.localTime(request),
-                ...FxaMailerFormat.location(request),
-                ...FxaMailerFormat.device(request),
-                ...FxaMailerFormat.sync(false),
-              });
-            } else {
-              await mailer.sendPasswordResetEmail(
-                emails,
-                passwordForgotToken,
-                emailOptions
-              );
-            }
+            await fxaMailer.sendPasswordResetEmail({
+              ...FxaMailerFormat.account(account),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.sync(false),
+            });
           }
         }
 

@@ -48,11 +48,11 @@ subplat-privacy-policy-plaintext-2 = "Mozilla Accounts Privacy Notice:"
 <%- privacyUrl %>
 
 subplat-moz-terms-plaintext = "Mozilla Accounts Terms Of Service:"
-<%- subscriptionTermsUrl %>
+https://www.mozilla.org/about/legal/terms/services/
 <% } %>
 
 Mozilla Corporation
-149 New Montgomery St, 4th Floor, San Francisco, CA 94105
+1875 Mission Street, Suite 103, San Francisco, CA 94103
 
 subplat-legal-plaintext = "Legal:"
 https://www.mozilla.org/about/legal/terms/services/

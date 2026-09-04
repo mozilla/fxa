@@ -25,7 +25,7 @@ jest.mock('../../../models/integrations/pairing-authority-integration', () => ({
     channelId = 'test-channel-id';
     getSupplicantMetadata = jest.fn().mockResolvedValue(null);
     complete = jest.fn();
-    destroy = jest.fn();
+    destroy = jest.fn().mockResolvedValue(undefined);
   },
 }));
 
@@ -180,7 +180,7 @@ describe('AuthComplete page', () => {
       const mockIntegration = {
         getSupplicantMetadata: jest.fn().mockResolvedValue(null),
         complete: jest.fn(),
-        destroy: jest.fn(),
+        destroy: jest.fn().mockResolvedValue(undefined),
         data: { entrypoint: 'send-tab-toolbar-icon' },
       };
       renderWithLocalizationProvider(
@@ -215,7 +215,7 @@ describe('AuthComplete page', () => {
       const mockIntegration = {
         getSupplicantMetadata: jest.fn().mockResolvedValue(null),
         complete: jest.fn(),
-        destroy: jest.fn(),
+        destroy: jest.fn().mockResolvedValue(undefined),
         data: { entrypoint: 'preferences' },
       };
       renderWithLocalizationProvider(

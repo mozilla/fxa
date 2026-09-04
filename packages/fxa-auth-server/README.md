@@ -87,6 +87,26 @@ This also allows to use temporary throw-away Docker containers to provide these.
 
 See the ["Emails" page in ecosystem platform](https://mozilla.github.io/ecosystem-platform/reference/emails) for docs on our email stack, including styling and l10n guides.
 
+### Local emails and codes
+
+Locally, emails are caught by [`test/mail_helper.js`](test/mail_helper.js) — a fake SMTP server that `yarn start` runs under pm2 as the `inbox` service. Rather than delivering anything, it logs the code or link from each email, so watch it while signing in or signing up:
+
+```sh
+pm2 logs inbox
+```
+
+To skip the copy/paste between terminal and browser, start the stack with `MAIL_HELPER_COPY_CODES=1` (or set in your env) and each code is copied to your clipboard as it arrives:
+
+```sh
+MAIL_HELPER_COPY_CODES=1 yarn start
+```
+
+This covers signin, token, unblock, password reset, MFA, passwordless signup/signin, and recovery phone codes, plus the verification link for the flows that send one instead of a code. It is off by default, requires `pbcopy` (macOS), `xclip` (Linux), or `clip` (Windows), and is silently skipped if the clipboard tool is unavailable.
+
+Note that enabling this puts codes into your system clipboard, where clipboard managers, history tools, and other local processes may pick them up and retain them. These are throwaway codes for local test accounts, but keep the flag off if that tradeoff matters on your machine.
+
+The service reports which mode it is in on startup, so `pm2 logs inbox` will show either `Clipboard copy: enabled (pbcopy)` or `Clipboard copy: disabled`. If it says disabled despite the variable being set in your shell, the pm2 daemon is likely holding an older environment — `pm2 kill` and start the stack again, or restart the one service with `MAIL_HELPER_COPY_CODES=1 pm2 restart inbox --update-env`.
+
 ### Storybook
 
 Storybook is set up in the auth-server for FxA and SubPlat emails. See our "emails" documentation for more info.

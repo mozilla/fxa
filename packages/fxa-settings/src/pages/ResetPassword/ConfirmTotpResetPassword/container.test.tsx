@@ -9,6 +9,7 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import { MOCK_EMAIL, MOCK_PASSWORD_CHANGE_TOKEN, MOCK_UID } from '../../mocks';
 
 import ConfirmTotpResetPasswordContainer from './container';
+import { ResetPasswordIntegration } from '../interfaces';
 
 const mockCheckTotp = jest.fn();
 const mockRecoveryPhoneGetWithPasswordForgotToken = jest.fn();
@@ -19,10 +20,21 @@ jest.mock('../../../models', () => ({
     recoveryPhoneGetWithPasswordForgotToken:
       mockRecoveryPhoneGetWithPasswordForgotToken,
   }),
+  useConfig: () => ({
+    featureFlags: {
+      passkeysEnabled: true,
+      passkeyAuthenticationEnabled: true,
+    },
+  }),
   useFtlMsgResolver: () => ({
     getMsg: (_id: string, fallback: string) => fallback,
   }),
 }));
+
+const mockIntegration: ResetPasswordIntegration = {
+  isSync: () => false,
+  getCmsInfo: () => undefined,
+};
 
 const mockNavigate = jest.fn();
 jest.mock('../../../lib/hooks/useNavigateWithQuery', () => ({
@@ -59,7 +71,7 @@ jest.mock('.', () => (props: any) => {
 async function renderComponent() {
   renderWithLocalizationProvider(
     <MemoryRouter>
-      <ConfirmTotpResetPasswordContainer />
+      <ConfirmTotpResetPasswordContainer integration={mockIntegration} />
     </MemoryRouter>
   );
 }

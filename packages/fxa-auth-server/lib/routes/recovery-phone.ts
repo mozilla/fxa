@@ -26,7 +26,8 @@ import {
   AuthRequest,
   SessionTokenAuthCredential,
 } from '../types';
-import { E164_NUMBER } from './validators';
+import { E164_NUMBER, maskedPhoneNumber } from './validators';
+import requestHelper from './utils/request_helper';
 import { AppError } from '@fxa/accounts/errors';
 import Localizer from '../l10n';
 import NodeRendererBindings from '../senders/renderer/bindings-node';
@@ -439,7 +440,6 @@ class RecoveryPhoneHandler {
       await this.glean.login.recoveryPhoneSuccess(request);
 
       const account = await this.db.account(uid);
-      const { acceptLanguage, geo, ua } = request.app;
 
       this.statsd.increment(
         'account.recoveryPhone.phoneSignin.success',
@@ -455,31 +455,14 @@ class RecoveryPhoneHandler {
       });
 
       try {
-        if (this.fxaMailer.canSend('postSigninRecoveryPhone')) {
-          await this.fxaMailer.sendPostSigninRecoveryPhoneEmail({
-            ...FxaMailerFormat.account(account),
-            ...(await FxaMailerFormat.metricsContext(request)),
-            ...FxaMailerFormat.localTime(request),
-            ...FxaMailerFormat.location(request),
-            ...FxaMailerFormat.device(request),
-            ...FxaMailerFormat.sync(false),
-          });
-        } else {
-          await this.mailer.sendPostSigninRecoveryPhoneEmail(
-            account.emails,
-            account,
-            {
-              acceptLanguage,
-              timeZone: geo.timeZone,
-              uaBrowser: ua.browser,
-              uaBrowserVersion: ua.browserVersion,
-              uaOS: ua.os,
-              uaOSVersion: ua.osVersion,
-              uaDeviceType: ua.deviceType,
-              uid,
-            }
-          );
-        }
+        await this.fxaMailer.sendPostSigninRecoveryPhoneEmail({
+          ...FxaMailerFormat.account(account),
+          ...(await FxaMailerFormat.metricsContext(request)),
+          ...FxaMailerFormat.localTime(request),
+          ...FxaMailerFormat.location(request),
+          ...FxaMailerFormat.device(request),
+          ...FxaMailerFormat.sync(false),
+        });
       } catch (error) {
         // log email send error but don't throw
         // user should be allowed to proceed
@@ -546,7 +529,6 @@ class RecoveryPhoneHandler {
       await this.glean.twoStepAuthPhoneCode.complete(request);
 
       const account = await this.db.account(uid);
-      const { acceptLanguage, geo, ua } = request.app;
 
       this.statsd.increment(
         'account.recoveryPhone.phoneAdded.success',
@@ -565,39 +547,18 @@ class RecoveryPhoneHandler {
       // when 2fa setup is complete
       if (hasTotpToken) {
         try {
-          if (this.fxaMailer.canSend('postAddRecoveryPhone')) {
-            await this.fxaMailer.sendPostAddRecoveryPhoneEmail({
-              ...FxaMailerFormat.account(account),
-              ...(await FxaMailerFormat.metricsContext(request)),
-              ...FxaMailerFormat.localTime(request),
-              ...FxaMailerFormat.location(request),
-              ...FxaMailerFormat.device(request),
-              ...FxaMailerFormat.sync(false),
-              maskedLastFourPhoneNumber: `••••••${this.recoveryPhoneService.stripPhoneNumber(
-                phoneNumber || '',
-                4
-              )}`,
-            });
-          } else {
-            await this.mailer.sendPostAddRecoveryPhoneEmail(
-              account.emails,
-              account,
-              {
-                acceptLanguage,
-                maskedLastFourPhoneNumber: `••••••${this.recoveryPhoneService.stripPhoneNumber(
-                  phoneNumber || '',
-                  4
-                )}`,
-                timeZone: geo.timeZone,
-                uaBrowser: ua.browser,
-                uaBrowserVersion: ua.browserVersion,
-                uaOS: ua.os,
-                uaOSVersion: ua.osVersion,
-                uaDeviceType: ua.deviceType,
-                uid,
-              }
-            );
-          }
+          await this.fxaMailer.sendPostAddRecoveryPhoneEmail({
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(false),
+            maskedLastFourPhoneNumber: `••••••${this.recoveryPhoneService.stripPhoneNumber(
+              phoneNumber || '',
+              4
+            )}`,
+          });
         } catch (error) {
           // log email send error but don't throw
           // user should be allowed to proceed
@@ -708,35 +669,17 @@ class RecoveryPhoneHandler {
       request,
     });
 
-    const { acceptLanguage, geo, ua } = request.app;
     const account = await this.db.account(uid);
 
     try {
-      if (this.fxaMailer.canSend('postChangeRecoveryPhone')) {
-        await this.fxaMailer.sendPostChangeRecoveryPhoneEmail({
-          ...FxaMailerFormat.account(account),
-          ...(await FxaMailerFormat.metricsContext(request)),
-          ...FxaMailerFormat.localTime(request),
-          ...FxaMailerFormat.location(request),
-          ...FxaMailerFormat.device(request),
-          ...FxaMailerFormat.sync(false),
-        });
-      } else {
-        await this.mailer.sendPostChangeRecoveryPhoneEmail(
-          account.emails,
-          account,
-          {
-            acceptLanguage,
-            timeZone: geo.timeZone,
-            uaBrowser: ua.browser,
-            uaBrowserVersion: ua.browserVersion,
-            uaOS: ua.os,
-            uaOSVersion: ua.osVersion,
-            uaDeviceType: ua.deviceType,
-            uid,
-          }
-        );
-      }
+      await this.fxaMailer.sendPostChangeRecoveryPhoneEmail({
+        ...FxaMailerFormat.account(account),
+        ...(await FxaMailerFormat.metricsContext(request)),
+        ...FxaMailerFormat.localTime(request),
+        ...FxaMailerFormat.location(request),
+        ...FxaMailerFormat.device(request),
+        ...FxaMailerFormat.sync(false),
+      });
     } catch (error) {
       // log error, but don't throw
       // user should be allowed to proceed if email or security event fails
@@ -809,34 +752,16 @@ class RecoveryPhoneHandler {
       );
 
       const account = await this.db.account(uid);
-      const { acceptLanguage, geo, ua } = request.app;
 
       try {
-        if (this.fxaMailer.canSend('passwordResetRecoveryPhone')) {
-          await this.fxaMailer.sendPasswordResetRecoveryPhoneEmail({
-            ...FxaMailerFormat.account(account),
-            ...(await FxaMailerFormat.metricsContext(request)),
-            ...FxaMailerFormat.localTime(request),
-            ...FxaMailerFormat.location(request),
-            ...FxaMailerFormat.device(request),
-            ...FxaMailerFormat.sync(false),
-          });
-        } else {
-          await this.mailer.sendPasswordResetRecoveryPhoneEmail(
-            account.emails,
-            account,
-            {
-              acceptLanguage,
-              timeZone: geo.timeZone,
-              uaBrowser: ua.browser,
-              uaBrowserVersion: ua.browserVersion,
-              uaOS: ua.os,
-              uaOSVersion: ua.osVersion,
-              uaDeviceType: ua.deviceType,
-              uid,
-            }
-          );
-        }
+        await this.fxaMailer.sendPasswordResetRecoveryPhoneEmail({
+          ...FxaMailerFormat.account(account),
+          ...(await FxaMailerFormat.metricsContext(request)),
+          ...FxaMailerFormat.localTime(request),
+          ...FxaMailerFormat.location(request),
+          ...FxaMailerFormat.device(request),
+          ...FxaMailerFormat.sync(false),
+        });
       } catch (error) {
         this.log.error(
           'account.recoveryPhone.phonePasswordResetNotification.error',
@@ -885,7 +810,6 @@ class RecoveryPhoneHandler {
       await this.glean.twoStepAuthPhoneRemove.success(request);
 
       const account = await this.db.account(uid);
-      const { acceptLanguage, geo, ua } = request.app;
 
       try {
         await recordSecurityEvent('account.recovery_phone_removed', {
@@ -894,31 +818,14 @@ class RecoveryPhoneHandler {
           account,
         });
 
-        if (this.fxaMailer.canSend('postRemoveRecoveryPhone')) {
-          await this.fxaMailer.sendPostRemoveRecoveryPhoneEmail({
-            ...FxaMailerFormat.account(account),
-            ...(await FxaMailerFormat.metricsContext(request)),
-            ...FxaMailerFormat.localTime(request),
-            ...FxaMailerFormat.location(request),
-            ...FxaMailerFormat.device(request),
-            ...FxaMailerFormat.sync(false),
-          });
-        } else {
-          await this.mailer.sendPostRemoveRecoveryPhoneEmail(
-            account.emails,
-            account,
-            {
-              acceptLanguage,
-              timeZone: geo.timeZone,
-              uaBrowser: ua.browser,
-              uaBrowserVersion: ua.browserVersion,
-              uaOS: ua.os,
-              uaOSVersion: ua.osVersion,
-              uaDeviceType: ua.deviceType,
-              uid,
-            }
-          );
-        }
+        await this.fxaMailer.sendPostRemoveRecoveryPhoneEmail({
+          ...FxaMailerFormat.account(account),
+          ...(await FxaMailerFormat.metricsContext(request)),
+          ...FxaMailerFormat.localTime(request),
+          ...FxaMailerFormat.location(request),
+          ...FxaMailerFormat.device(request),
+          ...FxaMailerFormat.sync(false),
+        });
       } catch (error) {
         // log email send error but don't throw
         // user should be allowed to proceed
@@ -975,29 +882,14 @@ class RecoveryPhoneHandler {
   }
 
   async exists(request: AuthRequest) {
-    // To ensure no data is leaked, we will never expose the full phone number, if
-    // the session is not verified. e.g. The user has entered the correct password,
-    // but failed to provide 2FA.
-    const shouldStripNumber = (() => {
-      if (
-        request.auth.strategy === 'multiStrategySessionToken' ||
-        request.auth.strategy === 'multiStrategySessionTokenBearer'
-      ) {
-        const { emailVerified, mustVerify, tokenVerified } = request.auth
-          .credentials as SessionTokenAuthCredential;
-        return !emailVerified || (mustVerify && !tokenVerified);
-      }
-      return true;
-    })();
-
-    const phoneNumberStrip = shouldStripNumber ? 4 : undefined;
     const { uid } = request.auth.credentials as AuthCredential;
+    // Masked either way; the flag only affects formatting, not digits.
+    const keepFormatting = requestHelper.isPastMustVerifyGate(request);
 
     try {
-      return await this.recoveryPhoneService.hasConfirmed(
-        uid,
-        phoneNumberStrip
-      );
+      return await this.recoveryPhoneService.hasConfirmedMasked(uid, {
+        keepFormatting,
+      });
     } catch (error) {
       throw AppError.backendServiceFailure(
         'RecoveryPhoneService',
@@ -1358,6 +1250,13 @@ export const recoveryPhoneRoutes = (
             'multiStrategySessionToken',
             'multiStrategyPasswordForgotToken',
           ],
+        },
+        response: {
+          schema: isA.object({
+            exists: isA.boolean().required(),
+            phoneNumber: maskedPhoneNumber,
+            nationalFormat: maskedPhoneNumber,
+          }),
         },
       },
       handler: function (request: AuthRequest) {

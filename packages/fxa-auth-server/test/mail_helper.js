@@ -5,6 +5,7 @@
 /* eslint-disable no-console */
 
 'use strict';
+const { spawn } = require('child_process');
 const MailParser = require('mailparser').MailParser;
 const simplesmtp = require('simplesmtp');
 const Redis = require('ioredis');
@@ -13,11 +14,48 @@ const { RECOVERY_PHONE_REDIS_PREFIX } = require('@fxa/accounts/recovery-phone');
 
 const TEMPLATES_WITH_NO_CODE = new Set(['passwordResetEmail']);
 
+// Set MAIL_HELPER_COPY_CODES=1 to copy each code to the local clipboard as it
+// arrives. Off by default. See "Local emails and codes" in the README.
+const COPY_CODES = process.env.MAIL_HELPER_COPY_CODES === '1';
+const CLIPBOARD_COMMAND = {
+  darwin: ['pbcopy'],
+  linux: ['xclip', ['-selection', 'clipboard']],
+  win32: ['clip'],
+}[process.platform];
+
+function clipboardStatus() {
+  if (!COPY_CODES) {
+    return 'Clipboard copy: disabled (set MAIL_HELPER_COPY_CODES=1 to enable)';
+  }
+  if (!CLIPBOARD_COMMAND) {
+    return `Clipboard copy: unavailable (no clipboard tool known for ${process.platform})`;
+  }
+  return `Clipboard copy: enabled (${CLIPBOARD_COMMAND[0]})`;
+}
+
+// Copies whatever the mail helper just logged — a code, or the verification
+// link for the flows that send one instead.
+function copyToClipboard(value) {
+  if (!COPY_CODES || !value || !CLIPBOARD_COMMAND) {
+    return;
+  }
+  const [command, args = []] = CLIPBOARD_COMMAND;
+  try {
+    const proc = spawn(command, args, { stdio: ['pipe', 'ignore', 'ignore'] });
+    // A missing clipboard binary shouldn't take the mail helper down with it.
+    proc.on('error', () => {});
+    proc.stdin.on('error', () => {});
+    proc.stdin.end(String(value));
+  } catch (err) {
+    // Ignore errors
+  }
+}
+
 // SMS polling
 const redis = new Redis(config.redis);
 const usersLastSms = {};
 async function printMatchingKeys(startUp = false) {
-  const redisKeyPattern = `${RECOVERY_PHONE_REDIS_PREFIX}:*:*`;
+  const redisKeyPattern = `${RECOVERY_PHONE_REDIS_PREFIX}:*`;
   try {
     if (redis.status !== 'ready') {
       throw new Error('Redis connection is not ready');
@@ -25,23 +63,31 @@ async function printMatchingKeys(startUp = false) {
 
     const keys = await redis.keys(redisKeyPattern);
 
-    if (keys.length > 0) {
-      for (const key of keys) {
-        const keyParts = key.split(':');
-        const uid = keyParts[2];
-        const code = keyParts[3];
+    for (const key of keys) {
+      const value = await redis.get(key);
+      let code;
+      try {
+        code = value && JSON.parse(value).code;
+      } catch (err) {
+        // Skip a malformed record rather than abort the whole tick.
+      }
+      if (!code) {
+        continue;
+      }
 
-        if (!usersLastSms[uid]) {
-          usersLastSms[uid] = {};
-        }
+      const uid = key.split(':')[2];
 
-        // Check if this code was already printed for this user
-        if (!usersLastSms[uid][code]) {
-          if (!startUp) {
-            console.log('\x1B[36mRecovery Phone Otp:', code, '\x1B[39m');
-          }
-          usersLastSms[uid][code] = true;
+      if (!usersLastSms[uid]) {
+        usersLastSms[uid] = {};
+      }
+
+      // Check if this code was already printed for this user
+      if (!usersLastSms[uid][code]) {
+        if (!startUp) {
+          console.log('\x1B[36mRecovery Phone Otp:', code, '\x1B[39m');
+          copyToClipboard(code);
         }
+        usersLastSms[uid][code] = true;
       }
     }
   } catch (error) {
@@ -97,23 +143,32 @@ module.exports = (printLogs) => {
 
           if (vsc) {
             console.log('\x1B[34mSignin code', vsc, '\x1B[39m');
+            copyToClipboard(vsc);
           } else if (vc) {
             console.log('\x1B[32m', link || vc, '\x1B[39m');
+            copyToClipboard(link || vc);
           } else if (sc) {
             console.log('\x1B[32mToken code: ', sc, '\x1B[39m');
+            copyToClipboard(sc);
           } else if (rc) {
-            console.log('\x1B[34m', link, '\x1B[39m');
+            console.log('\x1B[34m', link || rc, '\x1B[39m');
+            copyToClipboard(link || rc);
           } else if (uc) {
             console.log('\x1B[36mUnblock code:', uc, '\x1B[39m');
             console.log('\x1B[36mReport link:', rul, '\x1B[39m');
+            copyToClipboard(uc);
           } else if (rpc) {
             console.log('\x1B[36mReset password Otp:', rpc, '\x1B[39m');
+            copyToClipboard(rpc);
           } else if (mfa) {
             console.log('\x1B[36mMfa code:', mfa, '\x1B[39m');
+            copyToClipboard(mfa);
           } else if (plSignup) {
             console.log('\x1B[35mPasswordless signup code:', plSignup, '\x1B[39m');
+            copyToClipboard(plSignup);
           } else if (plSignin) {
             console.log('\x1B[35mPasswordless signin code:', plSignin, '\x1B[39m');
+            copyToClipboard(plSignin);
           } else if (TEMPLATES_WITH_NO_CODE.has(template)) {
             console.log(`Notification email: ${template}`);
           } else {
@@ -198,6 +253,7 @@ module.exports = (printLogs) => {
 
     api.start().then(() => {
       console.log('mail_helper started...');
+      console.log(clipboardStatus());
       printMatchingKeys(true);
       return resolve({
         close() {

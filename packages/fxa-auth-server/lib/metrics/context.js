@@ -83,7 +83,11 @@ module.exports = function (log, config) {
       return;
     }
 
-    metadata.service = this.payload.service || this.query.service;
+    // Keep a client-supplied metricsContext.service when the request carries no
+    // service of its own; /session/reauth sends none, and overwriting would drop
+    // the relying party from every event emitted after the stash.
+    metadata.service =
+      this.payload.service || this.query.service || metadata.service;
 
     let cacheKey;
     try {
@@ -164,6 +168,7 @@ module.exports = function (log, config) {
       data.flowBeginTime = metadata.flowBeginTime;
       data.flowCompleteSignal = metadata.flowCompleteSignal;
       data.flowType = metadata.flowType;
+      data.authMethod = metadata.authMethod;
       data.clientId = metadata.clientId;
 
       if (metadata.service) {
@@ -345,11 +350,17 @@ module.exports = function (log, config) {
    * @name setMetricsFlowCompleteSignal
    * @this request
    * @param {String} flowCompleteSignal
+   * @param {String} [flowType]
+   * @param {String} [authMethod] How the user authenticated, for the
+   *   `login.complete` reason. Set by whichever route authenticated, since the
+   *   flow may complete several requests later. Server-owned: it is absent from
+   *   SCHEMA so a client cannot supply one.
    */
-  function setFlowCompleteSignal(flowCompleteSignal, flowType) {
+  function setFlowCompleteSignal(flowCompleteSignal, flowType, authMethod) {
     if (this.payload && this.payload.metricsContext) {
       this.payload.metricsContext.flowCompleteSignal = flowCompleteSignal;
       this.payload.metricsContext.flowType = flowType;
+      this.payload.metricsContext.authMethod = authMethod;
     }
   }
 };

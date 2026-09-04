@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import chai from 'chai';
+import { assert } from 'chai';
 import ProfileClient from 'lib/profile-client';
 import Session from 'lib/session';
 import sinon from 'sinon';
 
 var PROFILE_URL = 'http://localhost:1111';
-var assert = chai.assert;
 var client;
 var server;
 var EMAIL = 'user@example.domain';

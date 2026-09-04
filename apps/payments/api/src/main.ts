@@ -13,12 +13,13 @@ import type { Request, Response } from 'express';
 import helmet from 'helmet';
 import { ResponseValidationInterceptor } from '@fxa/payments/api-server';
 import { AppModule } from './app/app.module';
-import { RootConfig } from './config';
+import { NEST_LOG_LEVELS, RootConfig } from './config';
 import { annotateWebhookRoutes, stripInternalRoutes } from './swagger.utils';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     rawBody: true,
+    logger: [NEST_LOG_LEVELS[process.env.LOG_LEVEL ?? ''] ?? 'log'],
   });
 
   app.use(

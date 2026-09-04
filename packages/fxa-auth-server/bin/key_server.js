@@ -249,7 +249,8 @@ async function run(config) {
             strapiClientConfig,
             strapiClient,
             firestore,
-            log
+            log,
+            statsd
           );
         freeAccessJournalManagerConfig = Object.assign(
           new FreeAccessProgramJournalManagerConfig(),
@@ -569,6 +570,16 @@ async function run(config) {
       } catch (e) {
         log.warn('shutdown', {
           message: 'Server did not shut down cleanly. ' + e.message,
+        });
+      }
+
+      // Drain before statsd closes — a failed flush increments a statsd metric.
+      try {
+        await bqWriter?.shutdown();
+      } catch (e) {
+        log.warn('shutdown', {
+          message:
+            'Rate limit BQ writer did not shut down cleanly. ' + e.message,
         });
       }
 

@@ -8,8 +8,7 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 import { SETTINGS_PATH } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import { useTotpSetup } from '../../../lib/hooks/useTotpSetup';
+import { useNavigateWithQuery, useTotpSetup } from '../../../lib/hooks';
 import { totpUtils } from '../../../lib/totp-utils';
 import { MfaReason, RecoveryPhoneSetupReason } from '../../../lib/types';
 import {
@@ -26,7 +25,8 @@ import FlowSetup2faBackupCodeDownload from '../FlowSetup2faBackupCodeDownload';
 import FlowSetup2faBackupCodeConfirm from '../FlowSetup2faBackupCodeConfirm';
 import FlowSetupRecoveryPhoneSubmitNumber from '../FlowSetupRecoveryPhoneSubmitNumber';
 import FlowSetupRecoveryPhoneConfirmCode from '../FlowSetupRecoveryPhoneConfirmCode';
-import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
+import { MfaGuard } from '../MfaGuard';
+import { useMfaErrorHandler } from '../../../lib/hooks';
 
 export const MfaGuardPage2faSetup = () => {
   return (

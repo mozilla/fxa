@@ -17,10 +17,10 @@ import firefox from '../../../lib/channels/firefox';
 import AppLayout from '../../../components/AppLayout';
 import GleanMetrics from '../../../lib/glean';
 import { SigninIntegration, SigninLocationState } from '../interfaces';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import type { UseFxAStatusResult } from '../../../lib/hooks';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import { handleNavigation } from '../utils';
 import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
-import type { UseFxAStatusResult } from '../../../lib/hooks/useFxAStatus';
 import { storeAccountData } from '../../../lib/storage-utils';
 import {
   getLocalizedErrorMessage,
@@ -193,6 +193,7 @@ export const SigninTotpCode = ({
         handleFxaLogin: true,
         handleFxaOAuthLogin: true,
         performNavigation: !integration.isFirefoxMobileClient(),
+        isPasswordlessOtpSignin: signinState.isPasswordlessOtpSignin,
         authClient,
       };
 

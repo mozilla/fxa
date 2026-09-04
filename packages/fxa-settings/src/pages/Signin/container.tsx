@@ -3,7 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useLocation } from 'react-router';
-import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
+import {
+  useNavigateWithQuery,
+  UseFxAStatusResult,
+  useValidatedQueryParams,
+} from '../../lib/hooks';
 import SigninDecider from './components/SigninDecider';
 import {
   Integration,
@@ -16,9 +20,7 @@ import {
   isOAuthNativeIntegrationSync,
   isOAuthNativeIntegration,
 } from '../../models';
-import { UseFxAStatusResult } from '../../lib/hooks/useFxAStatus';
 import { MozServices } from '../../lib/types';
-import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import {
   SigninQueryParams,
   OAuthNativeQueryParameters,
@@ -69,7 +71,7 @@ import {
   StoredAccountData,
 } from '../../lib/storage-utils';
 import { cachedSignIn, ensureCanLinkAcountOrRedirect } from './utils';
-import { PROFILE_OAUTH_TOKEN_TTL_SECONDS } from '../../lib/oauth';
+import { useSigninAvatar } from './useSigninAvatar';
 import OAuthDataError from '../../components/OAuthDataError';
 import { AppLayout } from '../../components/AppLayout';
 
@@ -340,59 +342,7 @@ const SigninContainer = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Avatar state - fetched directly from profile server
-  const [avatarData, setAvatarData] = useState<
-    { account: { avatar: { id: string; url: string } } } | undefined
-  >(undefined);
-  const [avatarLoading, setAvatarLoading] = useState(true);
-
-  // Fetch avatar on mount from profile server (requires OAuth token)
-  useEffect(() => {
-    if (
-      sessionToken &&
-      config?.servers?.profile?.url &&
-      config?.oauth?.clientId
-    ) {
-      // Get OAuth token with profile:avatar scope (required by profile server)
-      authClient
-        .createOAuthToken(sessionToken, config.oauth.clientId, {
-          scope: 'profile:avatar',
-          ttl: PROFILE_OAUTH_TOKEN_TTL_SECONDS,
-        })
-        .then(({ access_token }) => {
-          return fetch(`${config.servers.profile.url}/v1/avatar`, {
-            method: 'GET',
-            headers: {
-              Authorization: `Bearer ${access_token}`,
-              'Content-Type': 'application/json',
-            },
-          });
-        })
-        .then((response) => {
-          if (!response.ok) throw new Error('Failed to fetch avatar');
-          return response.json();
-        })
-        .then((data: { id: string; url: string; avatar?: string }) => {
-          setAvatarData({
-            account: {
-              avatar: {
-                id: data.id,
-                url: data.avatar || data.url,
-              },
-            },
-          });
-        })
-        .catch(() => {
-          // Avatar fetch failed, use default
-          setAvatarData(undefined);
-        })
-        .finally(() => {
-          setAvatarLoading(false);
-        });
-    } else {
-      setAvatarLoading(false);
-    }
-  }, [authClient, config, sessionToken]);
+  const { avatarData, avatarLoading } = useSigninAvatar(sessionToken);
 
   // For Firefox non-Sync flows, validate the cached session token before rendering.
   // This is because if users "sign out" from the browser menu, FxA doesn't know
@@ -663,6 +613,40 @@ const SigninContainer = ({
     [authClient, flowQueryParams, ftlMsgResolver]
   );
 
+  // Guard redirects run from an effect; a render-phase navigation races the
+  // commit.
+  useEffect(() => {
+    if (!oAuthDataError && (!email || validationError)) {
+      navigateWithQuery('/');
+    }
+  }, [oAuthDataError, email, validationError, navigateWithQuery]);
+
+  // Same reason, for the hard navigation below. A render discarded by a
+  // concurrent root would otherwise still have sent the browser to
+  // /update_firefox. Guards mirror the early returns in the render body so
+  // this only fires at the point that branch was reachable.
+  useEffect(() => {
+    if (
+      !oAuthDataError &&
+      email &&
+      !validationError &&
+      hasLinkedAccount !== undefined &&
+      hasPassword !== undefined &&
+      sessionValidationComplete &&
+      isUnsupportedContext(integration.data.context)
+    ) {
+      hardNavigate('/update_firefox', {}, true);
+    }
+  }, [
+    oAuthDataError,
+    email,
+    validationError,
+    hasLinkedAccount,
+    hasPassword,
+    sessionValidationComplete,
+    integration,
+  ]);
+
   if (oAuthDataError) {
     return <OAuthDataError error={oAuthDataError} />;
   }
@@ -677,7 +661,6 @@ const SigninContainer = ({
   // TODO: if validationError is 'email', in content-server we show "Bad request email param"
   // For now, just redirect to index-first, until FXA-8289 is done
   if (!email || validationError) {
-    navigateWithQuery('/');
     return (
       <AppLayout
         {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
@@ -699,7 +682,7 @@ const SigninContainer = ({
   }
 
   if (isUnsupportedContext(integration.data.context)) {
-    hardNavigate('/update_firefox', {}, true);
+    // Hard navigation runs from the effect above.
     return (
       <AppLayout {...{ loading: true, splitLayout, setCurrentSplitLayout }} />
     );
@@ -790,6 +773,10 @@ export async function trySignIn(
         metricsContext: options.metricsContext,
         unblockCode: options.unblockCode,
         originalLoginEmail: options.originalLoginEmail,
+        // We own the verification email in this flow: `handleNavigation` sends it
+        // as it routes to the code screen, so the server must not send its own
+        // copy (FXA-14109).
+        sendSigninVerificationEmail: false,
       }
     );
 

@@ -454,6 +454,13 @@ describe('InvoiceManager', () => {
   });
 
   describe('processNonZeroInvoice', () => {
+    class MockStripeError extends Error {
+      raw: { message: string };
+      constructor(message: string) {
+        super(message);
+        this.raw = { message };
+      }
+    }
     it('successfully processes non-zero invoice', async () => {
       const mockPaymentAttemptCount = 1;
       const mockCustomer = StripeResponseFactory(
@@ -831,6 +838,161 @@ describe('InvoiceManager', () => {
       expect(
         invoiceManager.safeFinalizeWithoutAutoAdvance
       ).toHaveBeenLastCalledWith(mockInvoice.id);
+    });
+
+    it('aborts the PayPal charge when invoice finalization fails', async () => {
+      const mockPaymentAttemptCount = 1;
+      const mockCustomer = StripeResponseFactory(
+        StripeCustomerFactory({
+          metadata: {
+            [STRIPE_CUSTOMER_METADATA.PaypalAgreement]: '1',
+          },
+        })
+      );
+      const mockInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({
+          status: 'draft',
+          currency: 'usd',
+          metadata: {
+            [STRIPE_INVOICE_METADATA.RetryAttempts]: String(
+              mockPaymentAttemptCount
+            ),
+          },
+          customer_shipping: { address: StripeAddressFactory() },
+        })
+      );
+
+      jest
+        .spyOn(stripeClient, 'invoicesFinalizeInvoice')
+        .mockRejectedValue(
+          new MockStripeError('An unexpected error occurred.')
+        );
+      jest.spyOn(paypalClient, 'chargeCustomer').mockResolvedValue(
+        ChargeResponseFactory({
+          paymentStatus: 'Completed',
+        })
+      );
+      jest.spyOn(stripeClient, 'invoicesUpdate').mockResolvedValue(mockInvoice);
+      jest.spyOn(stripeClient, 'invoicesPay').mockResolvedValue();
+
+      await expect(
+        invoiceManager.processPayPalNonZeroInvoice(mockCustomer, mockInvoice)
+      ).rejects.toThrow('An unexpected error occurred.');
+
+      expect(paypalClient.chargeCustomer).not.toHaveBeenCalled();
+      expect(stripeClient.invoicesUpdate).not.toHaveBeenCalled();
+      expect(stripeClient.invoicesPay).not.toHaveBeenCalled();
+    });
+
+    it('charges the customer when the invoice was already finalized', async () => {
+      const mockPaymentAttemptCount = 1;
+      const mockCustomer = StripeResponseFactory(
+        StripeCustomerFactory({
+          metadata: {
+            [STRIPE_CUSTOMER_METADATA.PaypalAgreement]: '1',
+          },
+        })
+      );
+      const mockInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({
+          status: 'open',
+          currency: 'usd',
+          metadata: {
+            [STRIPE_INVOICE_METADATA.RetryAttempts]: String(
+              mockPaymentAttemptCount
+            ),
+          },
+          customer_shipping: { address: StripeAddressFactory() },
+        })
+      );
+      const mockPayPalCharge = ChargeResponseFactory({
+        paymentStatus: 'Completed',
+      });
+
+      jest
+        .spyOn(stripeClient, 'invoicesFinalizeInvoice')
+        .mockRejectedValue(
+          new MockStripeError(
+            "This invoice is already finalized, you can't re-finalize a non-draft invoice."
+          )
+        );
+      jest
+        .spyOn(stripeClient, 'invoicesRetrieve')
+        .mockResolvedValue(mockInvoice);
+      jest
+        .spyOn(paypalClient, 'chargeCustomer')
+        .mockResolvedValue(mockPayPalCharge);
+      jest.spyOn(stripeClient, 'invoicesUpdate').mockResolvedValue(mockInvoice);
+      jest.spyOn(stripeClient, 'invoicesPay').mockResolvedValue();
+
+      await invoiceManager.processPayPalNonZeroInvoice(
+        mockCustomer,
+        mockInvoice
+      );
+
+      expect(paypalClient.chargeCustomer).toHaveBeenCalledWith({
+        amountInCents: mockInvoice.amount_due,
+        billingAgreementId:
+          mockCustomer.metadata[STRIPE_CUSTOMER_METADATA.PaypalAgreement],
+        invoiceNumber: mockInvoice.id,
+        currencyCode: mockInvoice.currency,
+        countryCode: mockInvoice.customer_shipping?.address?.country,
+        idempotencyKey: `${mockInvoice.id}-${mockPaymentAttemptCount}`,
+      });
+      expect(stripeClient.invoicesPay).toHaveBeenCalledWith(mockInvoice.id);
+    });
+
+    it('finalizes the invoice before dispatching the PayPal charge', async () => {
+      const mockPaymentAttemptCount = 1;
+      const mockCustomer = StripeResponseFactory(
+        StripeCustomerFactory({
+          metadata: {
+            [STRIPE_CUSTOMER_METADATA.PaypalAgreement]: '1',
+          },
+        })
+      );
+      const mockInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({
+          status: 'draft',
+          currency: 'usd',
+          metadata: {
+            [STRIPE_INVOICE_METADATA.RetryAttempts]: String(
+              mockPaymentAttemptCount
+            ),
+          },
+          customer_shipping: { address: StripeAddressFactory() },
+        })
+      );
+      const mockPayPalCharge = ChargeResponseFactory({
+        paymentStatus: 'Completed',
+      });
+      const callOrder: string[] = [];
+
+      jest
+        .spyOn(stripeClient, 'invoicesFinalizeInvoice')
+        .mockImplementation(async () => {
+          await Promise.resolve();
+          callOrder.push('invoicesFinalizeInvoice');
+          return mockInvoice;
+        });
+      jest
+        .spyOn(paypalClient, 'chargeCustomer')
+        .mockImplementation(async () => {
+          callOrder.push('chargeCustomer');
+          return mockPayPalCharge;
+        });
+      jest.spyOn(stripeClient, 'invoicesUpdate').mockResolvedValue(mockInvoice);
+      jest
+        .spyOn(stripeClient, 'invoicesRetrieve')
+        .mockResolvedValue(mockInvoice);
+      jest.spyOn(stripeClient, 'invoicesPay').mockResolvedValue();
+
+      await invoiceManager.processPayPalNonZeroInvoice(
+        mockCustomer,
+        mockInvoice
+      );
+
+      expect(callOrder).toEqual(['invoicesFinalizeInvoice', 'chargeCustomer']);
     });
   });
 });

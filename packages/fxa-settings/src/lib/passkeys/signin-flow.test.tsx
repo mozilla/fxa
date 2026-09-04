@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react';
 import * as Sentry from '@sentry/browser';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import { MemoryRouter } from 'react-router';
@@ -26,6 +26,10 @@ import {
   ensureCanLinkAcountOrRedirect,
   handleNavigation,
 } from '../../pages/Signin/utils';
+import type {
+  BannerProps,
+  ExternalLinkProps,
+} from '../../components/Banner/interfaces';
 
 jest.mock('./webauthn', () => ({
   __esModule: true,
@@ -75,6 +79,8 @@ jest.mock('../glean', () => ({
       buttonView: jest.fn(),
       authSuccess: jest.fn(),
       getHelpLinkClick: jest.fn(),
+      signinPrfSupport: jest.fn(),
+      signinRetryWithoutPrfRequest: jest.fn(),
     },
   },
 }));
@@ -650,7 +656,8 @@ describe('usePasskeySignIn', () => {
       });
 
       expect(handleNavigation).not.toHaveBeenCalled();
-      const banner = result.current.errorBanner as React.ReactElement;
+      const banner = result.current
+        .errorBanner as React.ReactElement<BannerProps>;
       expect(banner.props.type).toBe('error');
       expect(spies.ftlMsgResolver.getMsg).toHaveBeenCalledWith(
         expectedFtlId,
@@ -680,13 +687,15 @@ describe('usePasskeySignIn', () => {
 
       // The core contract: a neutral warning banner (not the red error banner)
       // carrying the help link.
-      const banner = result.current.errorBanner as React.ReactElement;
+      const banner = result.current
+        .errorBanner as React.ReactElement<BannerProps>;
       expect(banner.props.type).toBe('warning');
       expect(banner.props.content).toEqual({
         localizedHeading: 'Couldn’t sign in with a passkey',
         localizedDescription: 'Try again or use another sign-in option.',
       });
-      expect(banner.props.link.localizedText).toBe('How to use passkeys');
+      const link = banner.props.link as ExternalLinkProps;
+      expect(link.localizedText).toBe('How to use passkeys');
       // Never routed to the red error banner copy, and never reported to Sentry.
       expect(spies.ftlMsgResolver.getMsg).not.toHaveBeenCalledWith(
         'passkey-authentication-error-not-allowed',
@@ -708,7 +717,8 @@ describe('usePasskeySignIn', () => {
       await result.current.onClick();
     });
 
-    const banner = result.current.errorBanner as React.ReactElement;
+    const banner = result.current
+      .errorBanner as React.ReactElement<BannerProps>;
     expect(banner.props.type).toBe('warning');
     expect(banner.props.content).toEqual({
       localizedHeading: 'Passkey sign-in timed out. Try again.',
@@ -738,10 +748,12 @@ describe('usePasskeySignIn', () => {
         await result.current.onClick();
       });
 
-      const banner = result.current.errorBanner as React.ReactElement;
-      expect(banner.props.link.url).toBe(expectedUrl);
+      const banner = result.current
+        .errorBanner as React.ReactElement<BannerProps>;
+      const link = banner.props.link as ExternalLinkProps;
+      expect(link.url).toBe(expectedUrl);
 
-      banner.props.link.onClick();
+      link.onClick?.();
       expect(GleanMetrics.passkey.getHelpLinkClick).toHaveBeenCalledWith({
         event: { reason: expectedReason },
       });
@@ -884,6 +896,90 @@ describe('usePasskeySignIn', () => {
     // handleNavigation errors come from an internal helper, not the network,
     // so no PII-sanitisation wrapper is applied.
     expect(Sentry.captureException as jest.Mock).toHaveBeenCalledWith(navError);
+  });
+
+  describe('isNavigating (page-level loading state)', () => {
+    it('starts false before any sign-in attempt', () => {
+      const { args } = buildArgs();
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+      expect(result.current.isNavigating).toBe(false);
+    });
+
+    it('is raised and left set on the no-password committed-success path', async () => {
+      const { args } = buildArgs();
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+      await act(async () => {
+        await result.current.onClick();
+      });
+      expect(result.current.isNavigating).toBe(true);
+    });
+
+    it('is not raised when handleNavigation returns an error, so the form stays rendered', async () => {
+      (handleNavigation as jest.Mock).mockResolvedValue({
+        error: new Error('OAuth completion failed'),
+      });
+      const { args } = buildArgs();
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+      await act(async () => {
+        await result.current.onClick();
+      });
+      expect(result.current.isNavigating).toBe(false);
+      expect(result.current.errorBanner).toBeDefined();
+    });
+
+    it('is raised before routing to the password step when keys are required', async () => {
+      const { args, spies } = buildArgs({
+        integration: {
+          isSync: () => true,
+          isFirefoxNonSync: () => false,
+          requiresPasswordForLogin: () => true,
+          getService: () => 'sync',
+          type: IntegrationType.OAuthNative,
+          data: {},
+        } as unknown as PasskeySignInIntegration,
+      });
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+      await act(async () => {
+        await result.current.onClick();
+      });
+      expect(spies.navigateWithQuery).toHaveBeenCalledWith(
+        '/signin_passkey_fallback',
+        { state: { passkeySurface: 'emailfirst' } }
+      );
+      expect(result.current.isNavigating).toBe(true);
+    });
+
+    it('stays raised on the Firefox mobile WebChannel handoff, where no navigation is performed', async () => {
+      const { args } = buildArgs({
+        integration: {
+          isSync: () => false,
+          isFirefoxNonSync: () => true,
+          requiresPasswordForLogin: () => false,
+          getService: () => 'vpn',
+          getClientId: () => 'service-id',
+          isFirefoxMobileClient: () => true,
+          type: IntegrationType.OAuthNative,
+          data: {},
+        } as unknown as PasskeySignInIntegration,
+      });
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+      await act(async () => {
+        await result.current.onClick();
+      });
+      expect(result.current.isNavigating).toBe(true);
+    });
+
+    it('is not raised when the ceremony is cancelled', async () => {
+      (getCredential as jest.Mock).mockRejectedValue(
+        new DOMException('cancelled', 'NotAllowedError')
+      );
+      const { args } = buildArgs();
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+      await act(async () => {
+        await result.current.onClick();
+      });
+      expect(result.current.isNavigating).toBe(false);
+    });
   });
 
   it('shows the "passkey not recognized" banner on errno PASSKEY_NOT_FOUND', async () => {
@@ -1252,6 +1348,104 @@ describe('usePasskeySignIn', () => {
           accountHasTotp: true,
         })
       );
+    });
+  });
+
+  describe('PRF at sign-in', () => {
+    const optionsWithPrf = {
+      challenge: CHALLENGE,
+      userVerification: 'required',
+      extensions: { prf: { eval: { first: 'c2FsdA' } } },
+    };
+    const credentialWithPrf = {
+      ...MOCK_CREDENTIAL,
+      clientExtensionResults: {
+        prf: { results: { first: new ArrayBuffer(32) } },
+      },
+    };
+
+    it('passes the keysRequired hint to beginPasskeyAuthentication', async () => {
+      const { args, spies } = buildArgs({
+        integration: {
+          isSync: () => false,
+          isFirefoxNonSync: () => false,
+          isFirefoxMobileClient: () => false,
+          requiresPasswordForLogin: () => true,
+        } as unknown as PasskeySignInIntegration,
+      });
+
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(spies.beginPasskeyAuthentication).toHaveBeenCalledWith({
+        keysRequired: true,
+      });
+    });
+
+    it('records present support and sends prfSupported=true in the finish request when the output is present', async () => {
+      const { args, spies } = buildArgs();
+      spies.beginPasskeyAuthentication.mockResolvedValue(optionsWithPrf);
+      (getCredential as jest.Mock).mockResolvedValue(credentialWithPrf);
+
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(GleanMetrics.passkey.signinPrfSupport).toHaveBeenCalledWith({
+        event: { supported: 'present' },
+      });
+      const [, , options] = spies.completePasskeyAuthentication.mock.calls[0];
+      expect(options.prfSupported).toBe(true);
+    });
+
+    it('strips the PRF output from the credential before sending it to the server', async () => {
+      const { args, spies } = buildArgs();
+      spies.beginPasskeyAuthentication.mockResolvedValue(optionsWithPrf);
+      (getCredential as jest.Mock).mockResolvedValue(credentialWithPrf);
+
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      const [sentCredential] =
+        spies.completePasskeyAuthentication.mock.calls[0];
+      expect(sentCredential.clientExtensionResults).not.toHaveProperty('prf');
+    });
+
+    it('records absent support and sends prfSupported=false when no output is present', async () => {
+      const { args, spies } = buildArgs();
+      spies.beginPasskeyAuthentication.mockResolvedValue(optionsWithPrf);
+      (getCredential as jest.Mock).mockResolvedValue(MOCK_CREDENTIAL);
+
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(GleanMetrics.passkey.signinPrfSupport).toHaveBeenCalledWith({
+        event: { supported: 'absent' },
+      });
+      const [, , options] = spies.completePasskeyAuthentication.mock.calls[0];
+      expect(options.prfSupported).toBe(false);
+    });
+
+    it('omits prfSupported and the support event when the server did not request PRF', async () => {
+      const { args, spies } = buildArgs();
+      // Default beginPasskeyAuthentication returns options without extensions.
+      (getCredential as jest.Mock).mockResolvedValue(MOCK_CREDENTIAL);
+
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(GleanMetrics.passkey.signinPrfSupport).not.toHaveBeenCalled();
+      const [, , options] = spies.completePasskeyAuthentication.mock.calls[0];
+      expect(options).not.toHaveProperty('prfSupported');
     });
   });
 });

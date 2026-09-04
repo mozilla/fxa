@@ -2,13 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { createTestServer, TestServerInstance } from '../support/helpers/test-server';
+import crypto from 'node:crypto';
+import {
+  createTestServer,
+  TestServerInstance,
+} from '../support/helpers/test-server';
 
 const Client = require('../client')();
 const otplib = require('otplib');
 const random = require('../../lib/crypto/random');
 const jwt = require('jsonwebtoken');
-const uuid = require('uuid');
 const tokens = require('../../lib/tokens')({ trace: function () {} });
 const baseConfig = require('../../config').default.getProperties();
 
@@ -24,7 +27,7 @@ async function generateMfaJwt(client: any) {
     sub: client.uid,
     scope: ['mfa:2fa'],
     iat: now,
-    jti: uuid.v4(),
+    jti: crypto.randomUUID(),
     stid: sessionTokenId,
   };
 
@@ -54,7 +57,12 @@ let recoveryCodes: string[];
 beforeAll(async () => {
   server = await createTestServer({
     configOverrides: {
-      totp: { recoveryCodes: { count: recoveryCodeCount, notifyLowCount: recoveryCodeCount - 2 } },
+      totp: {
+        recoveryCodes: {
+          count: recoveryCodeCount,
+          notifyLowCount: recoveryCodeCount - 2,
+        },
+      },
     },
   });
   recoveryCodes = await generateRecoveryCodes();
@@ -106,7 +114,9 @@ describe.each(testVersions)(
       );
 
       const code = otplib.authenticator.generate();
-      const verifyResponse = await client.verifyTotpSetupCode(code, { metricsContext });
+      const verifyResponse = await client.verifyTotpSetupCode(code, {
+        metricsContext,
+      });
       expect(verifyResponse.success).toBe(true);
 
       const setResponse = await client.setRecoveryCodes(recoveryCodes);
@@ -115,7 +125,9 @@ describe.each(testVersions)(
       await client.completeTotpSetup({ metricsContext });
 
       const emailData = await server.mailbox.waitForEmail(email);
-      expect(emailData.headers['x-template-name']).toBe('postAddTwoStepAuthentication');
+      expect(emailData.headers['x-template-name']).toBe(
+        'postAddTwoStepAuthentication'
+      );
     });
 
     it('should replace backup authentication codes', async () => {
@@ -150,29 +162,39 @@ describe.each(testVersions)(
       });
 
       it('should consume backup authentication code and verify session', async () => {
-        const res = await client.consumeRecoveryCode(recoveryCodes[0], { metricsContext });
+        const res = await client.consumeRecoveryCode(recoveryCodes[0], {
+          metricsContext,
+        });
         expect(res.remaining).toBe(recoveryCodeCount - 1);
 
         const status = await client.emailStatus();
         expect(status.sessionVerified).toBe(true);
 
         const emailData = await server.mailbox.waitForEmail(email);
-        expect(emailData.headers['x-template-name']).toBe('postSigninRecoveryCode');
+        expect(emailData.headers['x-template-name']).toBe(
+          'postSigninRecoveryCode'
+        );
       });
 
       it('should consume backup authentication code and can remove TOTP token', async () => {
-        const res = await client.consumeRecoveryCode(recoveryCodes[0], { metricsContext });
+        const res = await client.consumeRecoveryCode(recoveryCodes[0], {
+          metricsContext,
+        });
         expect(res.remaining).toBe(recoveryCodeCount - 1);
 
         const emailData = await server.mailbox.waitForEmail(email);
-        expect(emailData.headers['x-template-name']).toBe('postSigninRecoveryCode');
+        expect(emailData.headers['x-template-name']).toBe(
+          'postSigninRecoveryCode'
+        );
 
         const mfaJwt = await generateMfaJwt(client);
         const result = await client.deleteTotpToken(mfaJwt);
         expect(result).toBeTruthy();
 
         const deleteEmailData = await server.mailbox.waitForEmail(email);
-        expect(deleteEmailData.headers['x-template-name']).toBe('postRemoveTwoStepAuthentication');
+        expect(deleteEmailData.headers['x-template-name']).toBe(
+          'postRemoveTwoStepAuthentication'
+        );
       });
     });
 
@@ -189,13 +211,19 @@ describe.each(testVersions)(
       });
 
       it('should consume backup authentication code and verify session', async () => {
-        const res1 = await client.consumeRecoveryCode(recoveryCodes[0], { metricsContext });
+        const res1 = await client.consumeRecoveryCode(recoveryCodes[0], {
+          metricsContext,
+        });
         expect(res1.remaining).toBe(recoveryCodeCount - 1);
 
         const emailData1 = await server.mailbox.waitForEmail(email);
-        expect(emailData1.headers['x-template-name']).toBe('postSigninRecoveryCode');
+        expect(emailData1.headers['x-template-name']).toBe(
+          'postSigninRecoveryCode'
+        );
 
-        const res2 = await client.consumeRecoveryCode(recoveryCodes[1], { metricsContext });
+        const res2 = await client.consumeRecoveryCode(recoveryCodes[1], {
+          metricsContext,
+        });
         expect(res2.remaining).toBe(recoveryCodeCount - 2);
 
         const emails = await server.mailbox.waitForEmails(email, 2);

@@ -66,29 +66,14 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
         });
 
         const account = await db.account(uid);
-        const { acceptLanguage, clientAddress: geo, ua } = request.app;
 
-        if (fxaMailer.canSend('postNewRecoveryCodes')) {
-          await fxaMailer.sendPostNewRecoveryCodesEmail({
-            ...FxaMailerFormat.account(account),
-            ...FxaMailerFormat.device(request),
-            ...FxaMailerFormat.location(request),
-            ...FxaMailerFormat.sync(false),
-            ...FxaMailerFormat.localTime(request),
-          });
-        } else {
-          await mailer.sendPostNewRecoveryCodesEmail(account.emails, account, {
-            acceptLanguage,
-            location: geo.location,
-            timeZone: geo.timeZone,
-            uaBrowser: ua.browser,
-            uaBrowserVersion: ua.browserVersion,
-            uaOS: ua.os,
-            uaOSVersion: ua.osVersion,
-            uaDeviceType: ua.deviceType,
-            uid,
-          });
-        }
+        await fxaMailer.sendPostNewRecoveryCodesEmail({
+          ...FxaMailerFormat.account(account),
+          ...FxaMailerFormat.device(request),
+          ...FxaMailerFormat.location(request),
+          ...FxaMailerFormat.sync(false),
+          ...FxaMailerFormat.localTime(request),
+        });
 
         log.info('account.recoveryCode.replaced', { uid });
         await request.emitMetricsEvent('recoveryCode.replaced', { uid });
@@ -213,29 +198,14 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
         glean.twoFactorAuth.replaceCodeComplete(request, { uid });
 
         const account = await db.account(uid);
-        const { acceptLanguage, clientAddress: geo, ua } = request.app;
 
-        if (fxaMailer.canSend('postNewRecoveryCodes')) {
-          await fxaMailer.sendPostNewRecoveryCodesEmail({
-            ...FxaMailerFormat.account(account),
-            ...FxaMailerFormat.device(request),
-            ...FxaMailerFormat.location(request),
-            ...FxaMailerFormat.sync(false),
-            ...FxaMailerFormat.localTime(request),
-          });
-        } else {
-          await mailer.sendPostNewRecoveryCodesEmail(account.emails, account, {
-            acceptLanguage,
-            location: geo.location,
-            timeZone: geo.timeZone,
-            uaBrowser: ua.browser,
-            uaBrowserVersion: ua.browserVersion,
-            uaOS: ua.os,
-            uaOSVersion: ua.osVersion,
-            uaDeviceType: ua.deviceType,
-            uid,
-          });
-        }
+        await fxaMailer.sendPostNewRecoveryCodesEmail({
+          ...FxaMailerFormat.account(account),
+          ...FxaMailerFormat.device(request),
+          ...FxaMailerFormat.location(request),
+          ...FxaMailerFormat.sync(false),
+          ...FxaMailerFormat.localTime(request),
+        });
 
         await recordSecurityEvent('account.recovery_codes_created', {
           db,
@@ -341,12 +311,7 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
       async handler(request) {
         log.begin('session.verify.recoveryCode', request);
 
-        const {
-          email,
-          id: tokenId,
-          tokenVerified,
-          uid,
-        } = request.auth.credentials;
+        const { email, id: tokenId, uid } = request.auth.credentials;
 
         await customs.checkAuthenticated(
           request,
@@ -361,72 +326,40 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
           log.info('account.recoveryCode.consumedAllCodes', { uid });
         }
 
-        if (
-          !tokenVerified ||
-          // If the token is already verified but the auth assurance level needs
-          // to be upgraded, then this user was redirected from Settings to
-          // our TOTP page and entered a recovery code to upgrade their session
-          request.auth.credentials.authenticatorAssuranceLevel <= 1
-        ) {
-          await db.verifyTokensWithMethod(tokenId, 'recovery-code');
-        }
+        // A consumed backup authentication code always refreshes the session's
+        // authentication event, including on an already-AAL2 session (a step-up
+        // re-challenge). `recovery-code` maps to AAL2, so this can never lower the
+        // session's assurance level.
+        await db.verifyTokensWithMethod(tokenId, 'recovery-code');
 
         const account = await db.account(uid);
-        const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
 
         const mailerPromises = [];
 
-        if (fxaMailer.canSend('postSigninRecoveryCode')) {
-          mailerPromises.push(
-            fxaMailer.sendPostSigninRecoveryCodeEmail({
-              ...FxaMailerFormat.account(account),
-              ...(await FxaMailerFormat.metricsContext(request)),
-              ...FxaMailerFormat.localTime(request),
-              ...FxaMailerFormat.location(request),
-              ...FxaMailerFormat.device(request),
-              ...FxaMailerFormat.sync(false),
-            })
-          );
-        } else {
-          mailerPromises.push(
-            mailer.sendPostSigninRecoveryCodeEmail(account.emails, account, {
-              acceptLanguage,
-              ip,
-              location: geo.location,
-              timeZone: geo.timeZone,
-              uaBrowser: ua.browser,
-              uaBrowserVersion: ua.browserVersion,
-              uaOS: ua.os,
-              uaOSVersion: ua.osVersion,
-              uaDeviceType: ua.deviceType,
-              uid,
-            })
-          );
-        }
+        mailerPromises.push(
+          fxaMailer.sendPostSigninRecoveryCodeEmail({
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(false),
+          })
+        );
 
         if (remaining <= codeConfig.notifyLowCount) {
           log.info('account.recoveryCode.notifyLowCount', { uid, remaining });
 
-          if (fxaMailer.canSend('lowRecoveryCodes')) {
-            mailerPromises.push(
-              fxaMailer.sendLowRecoveryCodesEmail({
-                ...FxaMailerFormat.account(account),
-                ...FxaMailerFormat.localTime(request),
-                ...FxaMailerFormat.device(request),
-                ...(await FxaMailerFormat.metricsContext(request)),
-                ...FxaMailerFormat.sync(false),
-                numberRemaining: remaining,
-              })
-            );
-          } else {
-            mailerPromises.push(
-              mailer.sendLowRecoveryCodesEmail(account.emails, account, {
-                acceptLanguage,
-                numberRemaining: remaining,
-                uid,
-              })
-            );
-          }
+          mailerPromises.push(
+            fxaMailer.sendLowRecoveryCodesEmail({
+              ...FxaMailerFormat.account(account),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.device(request),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.sync(false),
+              numberRemaining: remaining,
+            })
+          );
         }
 
         await Promise.allSettled(mailerPromises);

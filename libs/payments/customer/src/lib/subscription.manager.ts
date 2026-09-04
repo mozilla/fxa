@@ -191,7 +191,7 @@ export class SubscriptionManager {
 
     const subscription = await this.retrieve(subscriptionId);
     return subscription.discounts.some(
-      (discount) => discount.source?.coupon.id === stripeCouponId
+      (discount) => discount.source?.coupon?.id === stripeCouponId
     );
   }
 }

@@ -8,8 +8,6 @@ module.exports = (config) => {
   const EventEmitter = require('events').EventEmitter;
   const util = require('util');
 
-  const request = require('request');
-
   const tokens = require('../../lib/tokens')({ trace: function () {} }, config);
 
   util.inherits(ClientApi, EventEmitter);
@@ -36,7 +34,7 @@ module.exports = (config) => {
     return `Hawk id="${verify.credentials.id}"`;
   }
 
-  ClientApi.prototype.doRequest = function (
+  ClientApi.prototype.doRequest = async function (
     method,
     url,
     token,
@@ -44,61 +42,83 @@ module.exports = (config) => {
     headers,
     ignoreCors
   ) {
-    return new Promise((resolve, reject) => {
-      if (typeof headers === 'undefined') {
-        headers = {};
+    if (typeof headers === 'undefined') {
+      headers = {};
+    }
+    // We do a shallow clone to avoid tainting the caller's copy of `headers`.
+    headers = Object.assign({}, headers);
+    if (token && !headers.Authorization) {
+      headers.Authorization = hawkHeader(
+        token,
+        method,
+        url,
+        payload,
+        this.timeOffset
+      );
+    }
+    // Fetch defaults `accept-language: *` when unset.
+    // Avoid storing this on server as a user pref.
+    if (!headers['accept-language']) {
+      headers['accept-language'] = '';
+    }
+    const options = {
+      url: url,
+      method: method,
+      headers: headers,
+      json: payload || true,
+    };
+    this.emit('startRequest', options);
+
+    const requestHeaders = new Headers(headers);
+    if (payload && !requestHeaders.has('content-type')) {
+      requestHeaders.set('content-type', 'application/json');
+    }
+
+    let res, body;
+    try {
+      res = await fetch(url, {
+        method,
+        headers: requestHeaders,
+        body: payload ? JSON.stringify(payload) : undefined,
+      });
+      // Tolerate a non-JSON body so an error page stays inspectable by the
+      // caller rather than throwing here.
+      const text = await res.text();
+      try {
+        body = JSON.parse(text);
+      } catch (e) {
+        body = text;
       }
-      // We do a shallow clone to avoid tainting the caller's copy of `headers`.
-      headers = Object.assign({}, headers);
-      if (token && !headers.Authorization) {
-        headers.Authorization = hawkHeader(
-          token,
-          method,
-          url,
-          payload,
-          this.timeOffset
+    } catch (err) {
+      this.emit('endRequest', options, err, res);
+      throw err;
+    }
+
+    const timestamp = res.headers.get('timestamp');
+    if (timestamp) {
+      // Record time skew
+      this.timeOffset = Date.now() - parseInt(timestamp, 10) * 1000;
+    }
+
+    this.emit('endRequest', options, null, res);
+    if (body.error || res.status !== 200) {
+      throw body;
+    }
+
+    const allowedOrigin = res.headers.get('access-control-allow-origin');
+    if (!ignoreCors && allowedOrigin) {
+      // Requiring config outside this condition causes the local tests to fail
+      // because tokenLifetimes.passwordChangeToken is -1
+      const { config } = require('../../config');
+      const corsOrigin = config.get('corsOrigin');
+      if (corsOrigin.indexOf(allowedOrigin) < 0) {
+        throw new Error(
+          `Unexpected allowed origin: ${allowedOrigin} not in ${corsOrigin}`
         );
       }
-      const options = {
-        url: url,
-        method: method,
-        headers: headers,
-        json: payload || true,
-      };
-      if (headers['accept-language'] === undefined) {
-        delete headers['accept-language'];
-      }
-      this.emit('startRequest', options);
-      request(options, (err, res, body) => {
-        if (res && res.headers.timestamp) {
-          // Record time skew
-          this.timeOffset =
-            Date.now() - parseInt(res.headers.timestamp, 10) * 1000;
-        }
+    }
 
-        this.emit('endRequest', options, err, res);
-        if (err || body.error || res.statusCode !== 200) {
-          return reject(err || body);
-        }
-
-        const allowedOrigin = res.headers['access-control-allow-origin'];
-        if (!ignoreCors && allowedOrigin) {
-          // Requiring config outside this condition causes the local tests to fail
-          // because tokenLifetimes.passwordChangeToken is -1
-          const { config } = require('../../config');
-          const corsOrigin = config.get('corsOrigin');
-          if (corsOrigin.indexOf(allowedOrigin) < 0) {
-            return reject(
-              new Error(
-                `Unexpected allowed origin: ${allowedOrigin} not in ${corsOrigin}`
-              )
-            );
-          }
-        }
-
-        resolve(body);
-      });
-    });
+    return body;
   };
 
   ClientApi.prototype.doRequestWithBearerToken = function (

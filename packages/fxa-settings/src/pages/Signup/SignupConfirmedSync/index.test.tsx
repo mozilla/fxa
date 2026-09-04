@@ -10,6 +10,7 @@ import { createMockIntegration, Subject } from './mocks';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import { firefox } from '../../../lib/channels/firefox';
 import { RelierCmsInfo } from '../../../models';
+import { MOCK_CMS_INFO } from '../../mocks';
 
 function mockReactUtilsModule() {
   jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
@@ -116,5 +117,28 @@ describe('SignupConfirmedSync', () => {
 
     const cmsImg = screen.getByRole('img', { name: 'sync is on' });
     expect(cmsImg).toHaveAttribute('src', 'https://example.com/sync.png');
+  });
+
+  it('renders the CMS headline and primary button text when provided', () => {
+    renderWithLocalizationProvider(
+      <Subject
+        integration={createMockIntegration(
+          // the pair CTA only renders for desktop sync
+          true,
+          MOCK_CMS_INFO
+        )}
+      />
+    );
+
+    expect(
+      screen.getByRole('heading', {
+        name: MOCK_CMS_INFO.SignupConfirmedSyncPage.headline,
+      })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', {
+        name: MOCK_CMS_INFO.SignupConfirmedSyncPage.primaryButtonText,
+      })
+    ).toBeInTheDocument();
   });
 });

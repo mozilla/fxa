@@ -14,9 +14,7 @@ import { OAUTH_SCOPE_OLD_SYNC } from 'fxa-shared/oauth/constants';
 import { list as listAuthorizedClients } from '../oauth/authorized_clients';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
 import isA from 'joi';
-import Stripe from 'stripe';
 import { Container } from 'typedi';
-import * as uuid from 'uuid';
 
 import { ConfigType } from '../../config';
 import ACCOUNT_DOCS from '../../docs/swagger/account-api';
@@ -66,6 +64,7 @@ import {
 import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
 import { OtpUtils } from './utils/otp';
 import { getExistingSecondaryEmailRecord } from './emails';
+import { passkeyResponseSchema } from './passkeys';
 import { Redis } from 'ioredis';
 import { FxaMailer } from '../senders/fxa-mailer';
 import { FxaMailerFormat } from '../senders/fxa-mailer-format';
@@ -73,7 +72,10 @@ import { OAuthClientInfoServiceName } from '../senders/oauth_client_info';
 import { BackupCodeManager } from '@fxa/accounts/two-factor';
 import { RecoveryPhoneService } from '@fxa/accounts/recovery-phone';
 import { PasskeyService, PasskeyRecord } from '@fxa/accounts/passkey';
-import { BOUNCE_TYPE_HARD } from '@fxa/accounts/email-sender';
+import {
+  BOUNCE_TYPE_HARD,
+  escapeLikePattern,
+} from '@fxa/accounts/email-sender';
 import { getClientServiceTags } from '../metrics/client-tags';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
@@ -223,7 +225,7 @@ export class AccountHandler {
     }
 
     const account = await this.db.createAccount({
-      uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
+      uid: await random.hex(16),
       createdAt: Date.now(),
       email: email,
       emailCode: emailCode,
@@ -343,20 +345,11 @@ export class AccountHandler {
     tokenVerificationId: any;
     verificationMethod: string;
   }) {
-    const {
-      request,
-      account,
-      sessionToken,
-      tokenVerificationId,
-      verificationMethod,
-    } = options;
-    const { deviceId, flowId, flowBeginTime, productId, planId } =
-      await request.app.metricsContext;
-    const locale = request.app.acceptLanguage;
+    const { request, account, tokenVerificationId, verificationMethod } =
+      options;
+    const { flowId, flowBeginTime } = await request.app.metricsContext;
     const form = request.payload as any;
     const query = request.query;
-    const ip = request.app.clientAddress;
-    const style = form.style;
 
     if (account.emailVerified) {
       return;
@@ -367,24 +360,6 @@ export class AccountHandler {
         case 'email-otp': {
           const secret = account.emailCode;
           const code = this.otpUtils.generateOtpCode(secret, this.otpOptions);
-          const emailContext = {
-            acceptLanguage: locale,
-            code,
-            deviceId,
-            flowId,
-            flowBeginTime,
-            productId,
-            planId,
-            ip,
-            location: request.app.geo.location,
-            timeZone: request.app.geo.timeZone,
-            uaBrowser: sessionToken.uaBrowser,
-            uaBrowserVersion: sessionToken.uaBrowserVersion,
-            uaOS: sessionToken.uaOS,
-            uaOSVersion: sessionToken.uaOSVersion,
-            uaDeviceType: sessionToken.uaDeviceType,
-            uid: sessionToken.uid,
-          };
 
           const rpCmsConfig = await fetchRpCmsData(
             request,
@@ -393,99 +368,46 @@ export class AccountHandler {
           );
 
           if (!rpCmsConfig || !rpCmsConfig.VerifyShortCodeEmail) {
-            if (this.fxaMailer.canSend('verifyShortCode')) {
-              await this.fxaMailer.sendVerifyShortCodeEmail({
-                ...FxaMailerFormat.account(account),
-                ...(await FxaMailerFormat.metricsContext(request)),
-                ...FxaMailerFormat.localTime(request),
-                ...FxaMailerFormat.location(request),
-                ...FxaMailerFormat.device(request),
-                ...FxaMailerFormat.sync(form.service || query.service || false),
-                code,
-              });
-            } else {
-              await this.mailer.sendVerifyShortCodeEmail(
-                [],
-                account,
-                emailContext
-              );
-            }
+            await this.fxaMailer.sendVerifyShortCodeEmail({
+              ...FxaMailerFormat.account(account),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.sync(form.service || query.service || false),
+              code,
+            });
           } else {
-            const metricsContext = await request.app.metricsContext;
-            const rpEmailContext = {
-              ...emailContext,
-              target: 'strapi',
-              cmsRpClientId: rpCmsConfig.clientId,
-              cmsRpFromName: rpCmsConfig.shared?.emailFromName,
-              entrypoint: metricsContext.entrypoint,
-              logoUrl: rpCmsConfig?.shared?.emailLogoUrl,
-              logoAltText: rpCmsConfig?.shared?.emailLogoAltText,
-              logoWidth: rpCmsConfig?.shared?.emailLogoWidth,
-              ...rpCmsConfig.VerifyShortCodeEmail,
-            };
-            if (this.fxaMailer.canSend('verifyShortCode')) {
-              await this.fxaMailer.sendVerifyShortCodeEmail({
-                ...FxaMailerFormat.account(account),
-                ...(await FxaMailerFormat.metricsContext(request)),
-                ...FxaMailerFormat.localTime(request),
-                ...FxaMailerFormat.location(request),
-                ...FxaMailerFormat.device(request),
-                ...FxaMailerFormat.sync(form.service || query.service || false),
-                ...FxaMailerFormat.cmsLogo(rpCmsConfig.shared),
-                ...FxaMailerFormat.cmsEmailSubject(
-                  rpCmsConfig.VerifyShortCodeEmail
-                ),
-                ...FxaMailerFormat.cmsRpInfo(rpCmsConfig),
-                code,
-              });
-            } else {
-              await this.mailer.sendVerifyShortCodeEmail(
-                [],
-                account,
-                rpEmailContext
-              );
-            }
+            await this.fxaMailer.sendVerifyShortCodeEmail({
+              ...FxaMailerFormat.account(account),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.sync(form.service || query.service || false),
+              ...FxaMailerFormat.cmsLogo(rpCmsConfig.shared),
+              ...FxaMailerFormat.cmsEmailSubject(
+                rpCmsConfig.VerifyShortCodeEmail
+              ),
+              ...FxaMailerFormat.cmsRpInfo(rpCmsConfig),
+              code,
+            });
           }
           break;
         }
         default: {
-          if (this.fxaMailer.canSend('verify')) {
-            await this.fxaMailer.sendVerifyEmail({
-              ...FxaMailerFormat.account(account),
-              ...(await FxaMailerFormat.metricsContext(request)),
-              ...FxaMailerFormat.sync(form.service || query.service),
-              ...FxaMailerFormat.localTime(request),
-              ...FxaMailerFormat.location(request),
-              ...FxaMailerFormat.device(request),
-              code: account.emailCode,
-              resume: form.resume,
-              redirectTo: form.redirectTo,
-              service: form.service || query.service,
-            });
-          } else {
-            await this.mailer.sendVerifyEmail([], account, {
-              code: account.emailCode,
-              service: form.service || query.service,
-              redirectTo: form.redirectTo,
-              resume: form.resume,
-              acceptLanguage: locale,
-              deviceId,
-              flowId,
-              flowBeginTime,
-              productId,
-              planId,
-              ip,
-              location: request.app.geo.location,
-              timeZone: request.app.geo.timeZone,
-              style,
-              uaBrowser: sessionToken.uaBrowser,
-              uaBrowserVersion: sessionToken.uaBrowserVersion,
-              uaOS: sessionToken.uaOS,
-              uaOSVersion: sessionToken.uaOSVersion,
-              uaDeviceType: sessionToken.uaDeviceType,
-              uid: sessionToken.uid,
-            });
-          }
+          await this.fxaMailer.sendVerifyEmail({
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.sync(form.service || query.service),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            code: account.emailCode,
+            resume: form.resume,
+            redirectTo: form.redirectTo,
+            service: form.service || query.service,
+          });
         }
       }
 
@@ -769,7 +691,7 @@ export class AccountHandler {
     const [kA, wrapWrapKb] = await random.hex(32, 32);
 
     const account = await this.db.createAccount({
-      uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
+      uid: await random.hex(16),
       createdAt: Date.now(),
       email,
       emailCode,
@@ -928,91 +850,6 @@ export class AccountHandler {
           await this.subscriptionAccountReminders.delete(uid);
         }
       }
-
-      throw err;
-    }
-  }
-
-  async setPassword(request: AuthRequest) {
-    this.log.begin('Account.set_password', request);
-
-    const form = request.payload as any;
-    const {
-      authPW,
-      authPWVersion2,
-      wrapKb,
-      wrapKbVersion2,
-      clientSalt,
-      metricsContext,
-    } = form;
-    const { query } = request;
-    const auth = request.auth;
-    const { user: uid } = auth.credentials;
-
-    const account = await this.db.account(uid as string);
-    const email = account.primaryEmail?.email;
-
-    await this.customs.checkAuthenticated(request, uid, email, 'setPassword');
-
-    const response: Record<string, any> = {};
-    response.uid = uid;
-
-    try {
-      await this.setPasswordOnStubAccount({
-        account,
-        authPW,
-        authPWVersion2,
-        wrapKb,
-        wrapKbVersion2,
-        clientSalt,
-      });
-
-      const { emailCode: tokenVerificationId } = account;
-      const sessionToken = await this.createSessionToken({
-        account,
-        request,
-        tokenVerificationId,
-      });
-      response.sessionToken = sessionToken.data;
-
-      if (query.sendVerifyEmail) {
-        await this.sendVerifyCode({
-          account,
-          request,
-          sessionToken,
-          tokenVerificationId,
-          verificationMethod: 'email-otp',
-        });
-      }
-
-      // This is a brand new (unverified) user who just created their first
-      // subscription, so we know we will only have one priceId result here.
-      const priceId = (
-        await this.capabilityService.subscribedPriceIds(uid as string)
-      )[0];
-      const price = (await this.stripeHelper.allPlans()).find(
-        (p) => p.id === priceId
-      );
-      // Cached prices have products expanded already
-      const product = price?.product as Stripe.Product;
-      if (product && product?.id && product?.name) {
-        await this.subscriptionAccountReminders.create(
-          uid,
-          metricsContext.flowId,
-          metricsContext.flowBeginTime,
-          metricsContext.deviceId,
-          product.id,
-          product.name
-        );
-      }
-
-      // TODO (FXA-5557): record flow metrics
-
-      return response;
-    } catch (err) {
-      this.log.error('Account.set_password.error', {
-        err,
-      });
 
       throw err;
     }
@@ -1434,12 +1271,8 @@ export class AccountHandler {
       // successful verification — sending it here too would result in a duplicate.
       if (accountRecord.primaryEmail.isVerified) {
         if (sessionToken.tokenVerified) {
-          const geoData = request.app.geo;
           const service =
             (request.payload as any).service || request.query.service;
-          const ip = request.app.clientAddress;
-          const { deviceId, flowId, flowBeginTime, entrypoint } =
-            await request.app.metricsContext;
 
           const rpCmsConfig = await fetchRpCmsData(
             request,
@@ -1448,81 +1281,38 @@ export class AccountHandler {
           );
 
           try {
-            const emailContext = {
-              acceptLanguage: request.app.acceptLanguage,
-              deviceId,
-              flowId,
-              flowBeginTime,
-              ip,
-              location: geoData.location,
-              service,
-              timeZone: geoData.timeZone,
-              uaBrowser: request.app.ua.browser,
-              uaBrowserVersion: request.app.ua.browserVersion,
-              uaOS: request.app.ua.os,
-              uaOSVersion: request.app.ua.osVersion,
-              uaDeviceType: request.app.ua.deviceType,
-              uid: sessionToken.uid,
-            };
             if (!rpCmsConfig || !rpCmsConfig.NewDeviceLoginEmail) {
-              if (this.fxaMailer.canSend('newDeviceLogin')) {
-                const clientInfo =
-                  await this.oauthClientInfoService.fetch(service);
-                await this.fxaMailer.sendNewDeviceLoginEmail({
-                  ...FxaMailerFormat.account(accountRecord),
-                  ...FxaMailerFormat.device(request),
-                  ...FxaMailerFormat.localTime(request),
-                  ...FxaMailerFormat.location(request),
-                  ...(await FxaMailerFormat.metricsContext(request)),
-                  ...FxaMailerFormat.sync(service),
-                  clientName: clientInfo.name,
-                  showBannerWarning: false,
-                });
-              } else {
-                await this.mailer.sendNewDeviceLoginEmail(
-                  accountRecord.emails,
-                  accountRecord,
-                  emailContext
-                );
-              }
+              const clientInfo =
+                await this.oauthClientInfoService.fetch(service);
+              await this.fxaMailer.sendNewDeviceLoginEmail({
+                ...FxaMailerFormat.account(accountRecord),
+                ...FxaMailerFormat.device(request),
+                ...FxaMailerFormat.localTime(request),
+                ...FxaMailerFormat.location(request),
+                ...(await FxaMailerFormat.metricsContext(request)),
+                ...FxaMailerFormat.sync(service),
+                clientName: clientInfo.name,
+                showBannerWarning: false,
+              });
             } else {
-              if (this.fxaMailer.canSend('newDeviceLogin')) {
-                const clientInfo =
-                  await this.oauthClientInfoService.fetch(service);
-                await this.fxaMailer.sendNewDeviceLoginEmail({
-                  ...FxaMailerFormat.account(accountRecord),
-                  ...FxaMailerFormat.device(request),
-                  ...FxaMailerFormat.localTime(request),
-                  ...FxaMailerFormat.location(request),
-                  ...(await FxaMailerFormat.metricsContext(request)),
-                  ...FxaMailerFormat.sync(service),
-                  ...FxaMailerFormat.cmsLogo(rpCmsConfig.shared),
-                  ...FxaMailerFormat.cmsEmailSubject(
-                    rpCmsConfig.NewDeviceLoginEmail
-                  ),
-                  ...FxaMailerFormat.cmsRpInfo(rpCmsConfig),
-                  clientName: clientInfo.name,
-                  showBannerWarning: false,
-                  target: 'strapi',
-                });
-              } else {
-                const rpEmailContext = {
-                  ...emailContext,
-                  target: 'strapi',
-                  cmsRpClientId: rpCmsConfig.clientId,
-                  cmsRpFromName: rpCmsConfig.shared?.emailFromName,
-                  entrypoint,
-                  logoUrl: rpCmsConfig?.shared?.emailLogoUrl,
-                  logoAltText: rpCmsConfig?.shared?.emailLogoAltText,
-                  logoWidth: rpCmsConfig?.shared?.emailLogoWidth,
-                  ...rpCmsConfig.NewDeviceLoginEmail,
-                };
-                await this.mailer.sendNewDeviceLoginEmail(
-                  accountRecord.emails,
-                  accountRecord,
-                  rpEmailContext
-                );
-              }
+              const clientInfo =
+                await this.oauthClientInfoService.fetch(service);
+              await this.fxaMailer.sendNewDeviceLoginEmail({
+                ...FxaMailerFormat.account(accountRecord),
+                ...FxaMailerFormat.device(request),
+                ...FxaMailerFormat.localTime(request),
+                ...FxaMailerFormat.location(request),
+                ...(await FxaMailerFormat.metricsContext(request)),
+                ...FxaMailerFormat.sync(service),
+                ...FxaMailerFormat.cmsLogo(rpCmsConfig.shared),
+                ...FxaMailerFormat.cmsEmailSubject(
+                  rpCmsConfig.NewDeviceLoginEmail
+                ),
+                ...FxaMailerFormat.cmsRpInfo(rpCmsConfig),
+                clientName: clientInfo.name,
+                showBannerWarning: false,
+                target: 'strapi',
+              });
             }
           } catch (err) {
             // If we couldn't email them, no big deal. Log
@@ -1818,12 +1608,16 @@ export class AccountHandler {
         const emailNormalization = new EmailNormalization(
           bouncesConfig.emailAliasNormalization
         );
+        // Escape LIKE wildcards in the user-supplied email up front; the
+        // intentional trailing '+%' wildcard is injected afterwards, so it
+        // stays unescaped.
+        const escapedEmail = escapeLikePattern(email);
         const normalizedEmail = emailNormalization.normalizeEmailAliases(
-          email,
+          escapedEmail,
           ''
         );
         const wildcardEmail = emailNormalization.normalizeEmailAliases(
-          email,
+          escapedEmail,
           '+%'
         );
 
@@ -1843,7 +1637,7 @@ export class AccountHandler {
           }
         );
       } else {
-        bounces = await this.db.emailBounces(email);
+        bounces = await this.db.emailBounces(escapeLikePattern(email));
       }
 
       const hasHardBounce = bounces.some(
@@ -2112,62 +1906,32 @@ export class AccountHandler {
       if (recoveryKeyId) {
         await this.db.deleteRecoveryKey(account.uid);
 
-        const geoData = request.app.geo;
-        const ip = request.app.clientAddress;
-        const emailOptions = {
-          acceptLanguage: request.app.acceptLanguage,
-          ip: ip,
-          location: geoData.location,
-          timeZone: geoData.timeZone,
-          uaBrowser: request.app.ua.browser,
-          uaBrowserVersion: request.app.ua.browserVersion,
-          uaOS: request.app.ua.os,
-          uaOSVersion: request.app.ua.osVersion,
-          uaDeviceType: request.app.ua.deviceType,
-          uid: account.uid,
-        };
-
         // a new key won't be autogenerated for users with 2FA enabled or currently,
         // for mobile users, due to the web view automatically closing after a
         // successful login. The `isFirefoxMobileClient` option matches the
         // client-side check against `integration.isFirefoxMobileClient()`.
+        // No `return` here: the caller discards the value, and returning from
+        // only some branches trips TS7030 now that the untyped old-mailer
+        // fallback, which widened the return type to `any`, is gone.
         if (hasTotpToken || isFirefoxMobileClient) {
-          if (this.fxaMailer.canSend('passwordResetWithRecoveryKeyPrompt')) {
-            return await this.fxaMailer.sendPasswordResetWithRecoveryKeyPromptEmail(
-              {
-                ...FxaMailerFormat.account(account),
-                ...(await FxaMailerFormat.metricsContext(request)),
-                ...FxaMailerFormat.localTime(request),
-                ...FxaMailerFormat.location(request),
-                ...FxaMailerFormat.device(request),
-                ...FxaMailerFormat.sync(false),
-              }
-            );
-          } else {
-            return await this.mailer.sendPasswordResetWithRecoveryKeyPromptEmail(
-              account.emails,
-              account,
-              emailOptions
-            );
-          }
+          await this.fxaMailer.sendPasswordResetWithRecoveryKeyPromptEmail({
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(false),
+          });
         } else {
-          if (this.fxaMailer.canSend('passwordResetAccountRecovery')) {
-            return await this.fxaMailer.sendPasswordResetAccountRecoveryEmail({
-              ...FxaMailerFormat.account(account),
-              ...(await FxaMailerFormat.metricsContext(request)),
-              ...FxaMailerFormat.localTime(request),
-              ...FxaMailerFormat.location(request),
-              ...FxaMailerFormat.device(request),
-              ...FxaMailerFormat.sync(false),
-              productName: 'Firefox',
-            });
-          } else {
-            return await this.mailer.sendPasswordResetAccountRecoveryEmail(
-              account.emails,
-              account,
-              emailOptions
-            );
-          }
+          await this.fxaMailer.sendPasswordResetAccountRecoveryEmail({
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(false),
+            productName: 'Firefox',
+          });
         }
       }
     };
@@ -2513,7 +2277,10 @@ export class AccountHandler {
       this.db.totpToken(uid),
       Container.get(BackupCodeManager).getCountForUserId(uid),
       this.db.getRecoveryKeyRecordWithHint(uid),
-      Container.get(RecoveryPhoneService).hasConfirmed(uid),
+      // Masked either way; the flag only affects formatting, not digits.
+      Container.get(RecoveryPhoneService).hasConfirmedMasked(uid, {
+        keepFormatting: requestHelper.isPastMustVerifyGate(request),
+      }),
       request.app.geo?.location?.countryCode
         ? Container.get(RecoveryPhoneService).available(
             uid,
@@ -2866,61 +2633,6 @@ export const accountRoutes = (
     },
     {
       method: 'POST',
-      path: '/account/set_password',
-      options: {
-        ...ACCOUNT_DOCS.ACCOUNT_SET_PASSWORD_POST,
-        auth: {
-          mode: 'required',
-          payload: false,
-          strategy: 'oauthToken',
-        },
-        validate: {
-          query: isA.object({
-            sendVerifyEmail: isA
-              .boolean()
-              .optional()
-              .default(true)
-              .description(DESCRIPTION.sendVerifyEmail),
-          }),
-          payload: isA
-            .object({
-              authPW: validators.authPW.description(DESCRIPTION.authPW),
-              authPWVersion2: validators.authPW
-                .optional()
-                .description(DESCRIPTION.authPWVersion2),
-              wrapKb: validators.wrapKb
-                .optional()
-                .description(DESCRIPTION.wrapKb),
-              wrapKbVersion2: validators.wrapKb
-                .optional()
-                .description(DESCRIPTION.wrapKbVersion2),
-              clientSalt: validators.clientSalt
-                .optional()
-                .description(DESCRIPTION.clientSalt),
-              metricsContext: METRICS_CONTEXT_SCHEMA,
-              service: validators.service.description(DESCRIPTION.service),
-            })
-            .and('authPWVersion2', 'wrapKb', 'wrapKbVersion2', 'clientSalt'),
-        },
-        response: {
-          schema: isA.object({
-            sessionToken: isA
-              .string()
-              .regex(HEX_STRING)
-              .required()
-              .description(DESCRIPTION.sessionToken),
-            uid: isA
-              .string()
-              .regex(HEX_STRING)
-              .required()
-              .description(DESCRIPTION.uid),
-          }),
-        },
-      },
-      handler: (request: AuthRequest) => accountHandler.setPassword(request),
-    },
-    {
-      method: 'POST',
       path: '/account/login',
       apidoc: {
         errors: [
@@ -2972,6 +2684,10 @@ export const accountRoutes = (
             verificationMethod: validators.verificationMethod
               .optional()
               .description(DESCRIPTION.verificationMethod),
+            sendSigninVerificationEmail: isA
+              .boolean()
+              .optional()
+              .description(DESCRIPTION.sendSigninVerificationEmail),
           }),
         },
         response: {
@@ -3346,8 +3062,9 @@ export const accountRoutes = (
             recoveryPhone: isA
               .object({
                 exists: isA.boolean().required(),
-                phoneNumber: isA.string().allow(null).optional(),
-                nationalFormat: isA.string().allow(null).optional(),
+                // Masked: at most the last 4 digits survive either field.
+                phoneNumber: validators.maskedPhoneNumber,
+                nationalFormat: validators.maskedPhoneNumber,
                 available: isA.boolean().required(),
               })
               .optional(),
@@ -3361,22 +3078,7 @@ export const accountRoutes = (
                 })
               )
               .optional(),
-            passkeys: isA
-              .array()
-              .items(
-                isA.object({
-                  credentialId: isA.string().required(),
-                  name: isA.string().required(),
-                  createdAt: isA.number().required(),
-                  lastUsedAt: isA.number().allow(null).required(),
-                  transports: isA.array().items(isA.string()).required(),
-                  aaguid: isA.string().required(),
-                  backupEligible: isA.boolean().required(),
-                  backupState: isA.boolean().required(),
-                  prfEnabled: isA.boolean().required(),
-                })
-              )
-              .optional(),
+            passkeys: isA.array().items(passkeyResponseSchema).optional(),
             subscriptions: isA
               .array()
               .items(

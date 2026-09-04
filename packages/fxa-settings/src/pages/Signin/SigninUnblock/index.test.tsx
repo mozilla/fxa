@@ -151,6 +151,24 @@ describe('SigninUnblock', () => {
     ).toBeInTheDocument();
   });
 
+  it('renders the CMS headline and primary button text when provided', () => {
+    renderWithSuccess(
+      undefined,
+      createMockSigninOAuthIntegration({ cmsInfo: MOCK_CMS_INFO })
+    );
+    expect(
+      screen.getByRole('heading', {
+        level: 1,
+        name: MOCK_CMS_INFO.SigninUnblockCodePage.headline,
+      })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', {
+        name: MOCK_CMS_INFO.SigninUnblockCodePage.primaryButtonText,
+      })
+    ).toBeInTheDocument();
+  });
+
   it('emits the expected metrics on render', () => {
     renderWithSuccess();
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);

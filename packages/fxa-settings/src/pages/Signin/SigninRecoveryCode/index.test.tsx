@@ -180,7 +180,12 @@ describe('PageSigninRecoveryCode', () => {
       screen.getByText(MOCK_CMS_INFO.SigninRecoveryCodePage!.headline!)
     ).toBeInTheDocument();
     expect(
-      screen.getByText(MOCK_CMS_INFO.SigninRecoveryCodePage!.description!)
+      screen.getByText(MOCK_CMS_INFO.SigninRecoveryCodePage.description)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', {
+        name: MOCK_CMS_INFO.SigninRecoveryCodePage.primaryButtonText,
+      })
     ).toBeInTheDocument();
   });
 
@@ -388,6 +393,71 @@ describe('PageSigninRecoveryCode', () => {
         '/post_verify/set_password',
         expect.anything()
       );
+    });
+
+    // Without this, /pair tags cad_firefox.choice_view as password_login for a
+    // user who actually signed in with an email OTP code.
+    it('forwards isPasswordlessOtpSignin to handleNavigation for an OTP sign-in', async () => {
+      const user = userEvent.setup();
+      const handleNavigationSpy = jest
+        .spyOn(SigninUtils, 'handleNavigation')
+        .mockResolvedValue({ error: undefined });
+      const integration = createMockSigninOAuthNativeSyncIntegration();
+      integration.requiresPasswordForLogin = () => false;
+
+      renderWithLocalizationProvider(
+        <MemoryRouter>
+          <SigninRecoveryCode
+            finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+            integration={integration}
+            navigateToRecoveryPhone={jest.fn()}
+            signinState={{
+              ...mockSigninLocationState,
+              isPasswordlessOtpSignin: true,
+            }}
+            submitRecoveryCode={submitSuccess()}
+            supportsKeysOptionalLogin={true}
+          />
+        </MemoryRouter>
+      );
+      await user.type(screen.getByRole('textbox'), MOCK_BACKUP_CODE);
+      await user.click(screen.getByRole('button', { name: 'Confirm' }));
+
+      await waitFor(() => {
+        expect(handleNavigationSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ isPasswordlessOtpSignin: true })
+        );
+      });
+    });
+
+    it('leaves isPasswordlessOtpSignin unset for a password sign-in', async () => {
+      const user = userEvent.setup();
+      const handleNavigationSpy = jest
+        .spyOn(SigninUtils, 'handleNavigation')
+        .mockResolvedValue({ error: undefined });
+      const integration = createMockSigninOAuthNativeSyncIntegration();
+      integration.requiresPasswordForLogin = () => false;
+
+      renderWithLocalizationProvider(
+        <MemoryRouter>
+          <SigninRecoveryCode
+            finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+            integration={integration}
+            navigateToRecoveryPhone={jest.fn()}
+            signinState={mockSigninLocationState}
+            submitRecoveryCode={submitSuccess()}
+            supportsKeysOptionalLogin={true}
+          />
+        </MemoryRouter>
+      );
+      await user.type(screen.getByRole('textbox'), MOCK_BACKUP_CODE);
+      await user.click(screen.getByRole('button', { name: 'Confirm' }));
+
+      await waitFor(() => {
+        expect(handleNavigationSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ isPasswordlessOtpSignin: undefined })
+        );
+      });
     });
   });
 

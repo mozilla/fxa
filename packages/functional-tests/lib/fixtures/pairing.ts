@@ -10,63 +10,123 @@
  * (desktop) side of the pairing flow.
  */
 
-import { firefox } from 'playwright';
+import { resolveAuthorityBinary } from '../firefox-binary';
 import { MarionetteFirefox } from '../marionette-firefox';
+import { BaseTarget } from '../targets/base';
 import { test as standardTest, TestOptions } from './standard';
 
 export type PairingTestOptions = TestOptions & {
   marionetteAuthority: MarionetteFirefox;
+  /**
+   * A second real Firefox for the supplicant half. The v2 supplicant runs real
+   * web-channel commands (pair_oauth_start, oauth_login), so it cannot be a
+   * Playwright page; its profile is fresh, hence signed out.
+   *
+   * Both roles get `identity.fxaccounts.pairing.version: 2` from `buildPrefs`
+   * in `lib/marionette-firefox.ts`, which is what lets chrome accept the v2
+   * commands at all.
+   */
+  marionetteSupplicant: MarionetteFirefox;
 };
+
+/**
+ * Marionette ports, two per worker so the roles cannot collide at any worker
+ * count. A collision would not be silent: `MarionetteFirefox.launch` kills
+ * whatever already holds the port.
+ */
+function marionettePortFor(role: PairingRole, parallelIndex: number): number {
+  const raw = process.env.MARIONETTE_PORT || '2828';
+  const basePort = Number(raw);
+  if (!Number.isInteger(basePort)) {
+    throw new Error(`Invalid MARIONETTE_PORT: ${raw}`);
+  }
+  const port = basePort + parallelIndex * 2 + (role === 'supplicant' ? 1 : 0);
+  if (port < 1024 || port > 65535) {
+    throw new Error(
+      `Marionette port out of range for worker ${parallelIndex}: ${port}`
+    );
+  }
+  return port;
+}
+
+type PairingRole = 'authority' | 'supplicant';
+
+/**
+ * Launch one Marionette-driven Firefox for a pairing role.
+ *
+ * Shared by both fixtures so the two roles cannot drift — notably the CI WAF
+ * bypass, which a supplicant hitting a protected target needs just as much as
+ * the authority does.
+ */
+async function launchPairingFirefox(
+  role: PairingRole,
+  target: BaseTarget,
+  channelServerUri: string,
+  parallelIndex: number
+): Promise<MarionetteFirefox> {
+  const firefox = await MarionetteFirefox.launch({
+    firefoxBinary: resolveAuthorityBinary(),
+    marionettePort: marionettePortFor(role, parallelIndex),
+    channelServerUri,
+    target: target.name,
+    context: 'oauth_webchannel_v1',
+    headless: process.env.MARIONETTE_HEADLESS !== 'false',
+  });
+
+  // In CI, inject WAF bypass header into all Firefox HTTP requests
+  const wafToken = process.env.CI_WAF_TOKEN;
+  if (process.env.CI && wafToken) {
+    await firefox.client.setContext('chrome');
+    await firefox.client.executeScript(
+      `
+      const token = arguments[0];
+      Services.obs.addObserver({
+        observe(subject) {
+          subject.QueryInterface(Ci.nsIHttpChannel);
+          subject.setRequestHeader("fxa-ci", token, false);
+        }
+      }, "http-on-modify-request");
+      `,
+      { sandbox: 'system', args: [wafToken] }
+    );
+  }
+
+  return firefox;
+}
+
+/** Resolved once per worker: both roles talk to the same channel server. */
+async function resolveChannelServerUri(contentServerUrl: string) {
+  return (
+    process.env.CHANNEL_SERVER_URI ||
+    (await fetchChannelServerUri(contentServerUrl))
+  );
+}
 
 export const test = standardTest.extend<PairingTestOptions>({
   marionetteAuthority: async ({ target }, use, testInfo) => {
-    // Use Playwright's bundled Firefox by default — it's already downloaded
-    // in CI and locally. Override with FIREFOX_BINARY env if needed.
-    const firefoxBinary =
-      process.env.FIREFOX_BINARY || firefox.executablePath();
-    const channelServerUri =
-      process.env.CHANNEL_SERVER_URI ||
-      (await fetchChannelServerUri(target.contentServerUrl));
-    const basePort = parseInt(process.env.MARIONETTE_PORT || '2828', 10);
-    if (isNaN(basePort)) {
-      throw new Error(
-        `Invalid MARIONETTE_PORT: ${process.env.MARIONETTE_PORT}`
-      );
-    }
-    // Offset port by parallelIndex so parallel workers don't collide
-    const marionettePort = basePort + testInfo.parallelIndex;
-    const headless = process.env.MARIONETTE_HEADLESS !== 'false';
-
-    const authority = await MarionetteFirefox.launch({
-      firefoxBinary,
-      marionettePort,
-      channelServerUri,
-      target: target.name,
-      context: 'oauth_webchannel_v1',
-      headless,
-    });
-
-    // In CI, inject WAF bypass header into all Firefox HTTP requests
-    const wafToken = process.env.CI_WAF_TOKEN;
-    if (process.env.CI && wafToken) {
-      await authority.client.setContext('chrome');
-      await authority.client.executeScript(
-        `
-        const token = arguments[0];
-        Services.obs.addObserver({
-          observe(subject) {
-            subject.QueryInterface(Ci.nsIHttpChannel);
-            subject.setRequestHeader("fxa-ci", token, false);
-          }
-        }, "http-on-modify-request");
-        `,
-        { sandbox: 'system', args: [wafToken] }
-      );
-    }
+    const authority = await launchPairingFirefox(
+      'authority',
+      target,
+      await resolveChannelServerUri(target.contentServerUrl),
+      testInfo.parallelIndex
+    );
 
     await use(authority);
 
     await authority.close();
+  },
+
+  marionetteSupplicant: async ({ target }, use, testInfo) => {
+    const supplicant = await launchPairingFirefox(
+      'supplicant',
+      target,
+      await resolveChannelServerUri(target.contentServerUrl),
+      testInfo.parallelIndex
+    );
+
+    await use(supplicant);
+
+    await supplicant.close();
   },
 });
 

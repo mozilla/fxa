@@ -4,8 +4,16 @@
 
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppleIapClient } from './apple-iap.client';
-import { AppleIapMissingCredentialsError } from './apple-iap.error';
-import { Environment, StatusResponse } from 'app-store-server-api';
+import {
+  AppleIapClientBundleError,
+  AppleIapMissingCredentialsError,
+  AppleIapServiceUnavailableError,
+} from './apple-iap.error';
+import {
+  AppStoreError,
+  Environment,
+  StatusResponse,
+} from 'app-store-server-api';
 import {
   AppleIapClientConfig,
   MockAppleIapClientConfig,
@@ -17,6 +25,7 @@ jest.mock('app-store-server-api', () => {
   const actual = jest.requireActual('app-store-server-api');
   return {
     Environment: actual.Environment,
+    AppStoreError: actual.AppStoreError,
     AppStoreServerAPI: jest.fn().mockImplementation(() => ({
       getSubscriptionStatuses: jest.fn(),
     })),
@@ -80,6 +89,64 @@ describe('AppleIapClient', () => {
       expect(mockApiInstance.getSubscriptionStatuses).toHaveBeenCalledWith(
         mockTransactionId
       );
+    });
+
+    // Apple reports internal errors in the 5xxxxxx range — 5000001 is the one
+    // it marks retryable, 5000000 is not — and rate limiting as 4290000.
+    it.each([
+      {
+        description: 'a retryable internal error',
+        errorCode: 5000001,
+        errorMessage: 'An unknown error occurred. Please try again.',
+      },
+      {
+        description: 'an internal error Apple does not mark retryable',
+        errorCode: 5000000,
+        errorMessage: 'An unknown error occurred.',
+      },
+      {
+        description: 'rate limiting',
+        errorCode: 4290000,
+        errorMessage: 'Rate limit exceeded.',
+      },
+    ])(
+      'throws AppleIapServiceUnavailableError for $description',
+      async ({ errorCode, errorMessage }) => {
+        const mockApiInstance = appleIapClient.appStoreServerApiClients
+          .values()
+          .next().value;
+        assert(mockApiInstance);
+
+        jest
+          .spyOn(mockApiInstance, 'getSubscriptionStatuses')
+          .mockRejectedValue(new AppStoreError(errorCode, errorMessage));
+
+        await expect(
+          appleIapClient.getSubscriptionStatuses(
+            appleIapClientConfig.credentials[0].bundleId,
+            faker.string.uuid()
+          )
+        ).rejects.toThrow(AppleIapServiceUnavailableError);
+      }
+    );
+
+    it('throws AppleIapClientBundleError for an App Store error Apple does not want retried', async () => {
+      const mockApiInstance = appleIapClient.appStoreServerApiClients
+        .values()
+        .next().value;
+      assert(mockApiInstance);
+
+      jest.spyOn(mockApiInstance, 'getSubscriptionStatuses').mockRejectedValue(
+        // 4000006 InvalidTransactionIdError — a caller bug, not a retry.
+        new AppStoreError(4000006, 'Invalid transaction id.')
+      );
+
+      await expect(
+        appleIapClient.getSubscriptionStatuses(
+          appleIapClientConfig.credentials[0].bundleId,
+          faker.string.uuid()
+        )
+      ).rejects.toThrow(AppleIapClientBundleError);
     });
 
     it('should throw AppleIapMissingCredentialsError if no credentials exist for bundleId', () => {

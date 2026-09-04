@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useNavigate, useLocation } from 'react-router';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery, useWebRedirect } from '../../../lib/hooks';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import CardHeader from '../../../components/CardHeader';
 import AppLayout from '../../../components/AppLayout';
@@ -33,7 +33,6 @@ import { handleNavigation } from '../utils';
 import { ResendStatus } from '../../../lib/types';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
-import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 
 export const viewName = 'signin-unblock';
 

@@ -5,6 +5,7 @@
 import { faker } from '@faker-js/faker';
 import {
   StripeApiList,
+  StripeApiSearchResult,
   StripeResponse,
   type StripeApiListPromise,
 } from '../stripe.client.types';
@@ -16,6 +17,18 @@ export const StripeApiListFactory = <T extends Array<any>>(
   object: 'list',
   url: '/v1/subscriptions',
   has_more: false,
+  data,
+  ...override,
+});
+
+export const StripeApiSearchResultFactory = <T>(
+  data: T[],
+  override?: Partial<StripeApiSearchResult<T>>
+): StripeApiSearchResult<T> => ({
+  object: 'search_result',
+  url: '/v1/prices/search',
+  has_more: false,
+  next_page: null,
   data,
   ...override,
 });

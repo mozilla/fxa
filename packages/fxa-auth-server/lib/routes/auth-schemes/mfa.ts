@@ -138,9 +138,9 @@ export const strategy = (
       let sessionToken;
       try {
         sessionToken = await getCredentialsFunc(decoded.stid);
-      } catch (err) { }
+      } catch (err) {}
 
-       if (!sessionToken) {
+      if (!sessionToken) {
         statsd?.increment('mfa.invalid_mfa_token.bad_stid');
         throw AppError.invalidMfaToken();
       }
@@ -207,6 +207,12 @@ export const strategy = (
 
       // Decorate session token with scope
       sessionToken.scope = decoded.scope;
+      // Undefined unless the token was minted from a passkey assertion.
+      //
+      // Follows the line above rather than Hapi's `artifacts`, which would keep
+      // claims off the shared session instance at the cost of a second place to
+      // look for them.
+      sessionToken.cid = decoded.cid;
 
       // Finalize auth
       return h.authenticated({

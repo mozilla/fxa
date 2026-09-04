@@ -33,11 +33,15 @@ import { resolveServiceOrClientId } from '../../models/integrations/utils';
 import { queryParamsToMetricsContext } from '../metrics';
 import type { QueryParams } from '../..';
 import {
-  getCredential,
   handleWebAuthnError,
   isWebAuthnSupported,
   type PublicKeyCredentialJSON,
 } from './';
+import {
+  extractPrfSupport,
+  getCredentialWithPrfFallback,
+  stripPrfResults,
+} from './prf-fallback';
 import type { PasskeySignInGleanReason } from './webauthn-errors';
 import { PASSKEY_SUPPORT_URL, PASSKEY_TROUBLESHOOT_URL } from './constants';
 
@@ -226,6 +230,8 @@ export interface UsePasskeySignInArgs {
 
 export interface UsePasskeySignInResult {
   isLoading: boolean;
+  /** Verification succeeded and navigation is pending. Never raised on an error. */
+  isNavigating: boolean;
   errorBanner: React.ReactNode | undefined;
   onClick: () => Promise<void>;
 }
@@ -254,6 +260,7 @@ export function usePasskeySignIn({
   supportsKeysOptionalLogin,
 }: UsePasskeySignInArgs): UsePasskeySignInResult {
   const [isLoading, setIsLoading] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
   const [banner, setBanner] = useState<PasskeyBannerState | undefined>();
   const inFlight = useRef(false);
   const navigate = useNavigate();
@@ -363,6 +370,7 @@ export function usePasskeySignIn({
     const finish = () => {
       inFlight.current = false;
       setIsLoading(false);
+      setIsNavigating(false);
     };
     const setUnexpectedError = () =>
       setLocalizedError(
@@ -374,18 +382,39 @@ export function usePasskeySignIn({
     setIsLoading(true);
     gleanEvents.submit();
 
+    // True when this login still needs Sync-scoped keys that a follow-up
+    // password step will provide. Computed up front so it can also hint the
+    // server whether to request PRF under the keys-required scope; reused below
+    // to route to the password step.
+    const keysRequired = integration.requiresPasswordForLogin(
+      supportsKeysOptionalLogin
+    );
+
     try {
       // Discoverable credentials only — the Signin page's email field is
       // intentionally ignored. The browser surfaces all credentials for the
-      // RP and the user picks one.
-      const challengeOptions = await authClient.beginPasskeyAuthentication();
+      // RP and the user picks one. The keysRequired hint lets the server decide
+      // whether to attach the PRF extension to the returned options.
+      const challengeOptions = await authClient.beginPasskeyAuthentication({
+        keysRequired,
+      });
 
       // Isolated try/catch so a network-layer TypeError (e.g. fetch failure)
       // from surrounding auth-client calls can't be miscategorised as a
       // WebAuthn error.
       let credential: PublicKeyCredentialJSON;
       try {
-        credential = await getCredential(challengeOptions);
+        // If the server attached PRF and the first attempt fails in a way PRF
+        // could have caused, retry once without PRF (never blocks sign-in).
+        credential = await getCredentialWithPrfFallback(
+          challengeOptions,
+          undefined,
+          ({ reason, outcome }) => {
+            GleanMetrics.passkey.signinRetryWithoutPrfRequest({
+              event: { reason, outcome },
+            });
+          }
+        );
       } catch (err) {
         if (err instanceof DOMException || err instanceof TypeError) {
           const categorized = handleWebAuthnError(
@@ -408,22 +437,30 @@ export function usePasskeySignIn({
         throw err;
       }
 
+      // Read support (presence only) before stripping the output from the
+      // credential; only meaningful when the server requested PRF.
+      const prfRequested = !!challengeOptions.extensions?.prf;
+      const prfSupported = prfRequested && extractPrfSupport(credential);
+      if (prfRequested) {
+        GleanMetrics.passkey.signinPrfSupport({
+          event: { supported: prfSupported ? 'present' : 'absent' },
+        });
+      }
+      credential = stripPrfResults(credential);
+
       const serviceForRequest = resolvePasskeyService(integration);
       const metricsContext = queryParamsToMetricsContext(flowQueryParams);
 
-      const keysRequired = integration.requiresPasswordForLogin(
-        supportsKeysOptionalLogin
-      );
       const completion = await authClient.completePasskeyAuthentication(
         credential,
         challengeOptions.challenge,
         {
           ...(serviceForRequest ? { service: serviceForRequest } : {}),
-          // True when this login still needs Sync-scoped keys that a
-          // follow-up password step will provide. The server uses it to
-          // defer its login metrics/email framing until keys exist; the
-          // client uses the same value below to route to that step.
+          // The server uses keysRequired to defer its login metrics/email
+          // framing until keys exist; the client uses the same value below to
+          // route to that step.
           keysRequired,
+          ...(prfRequested ? { prfSupported } : {}),
           metricsContext,
         }
       );
@@ -478,6 +515,7 @@ export function usePasskeySignIn({
         const fallbackPath = completion.hasPassword
           ? '/signin_passkey_fallback'
           : '/post_verify/set_password';
+        setIsNavigating(true);
         // Thread the passkey context so the destination page can tag its Glean
         // events with the originating surface.
         navigateWithQuery(fallbackPath, {
@@ -522,11 +560,11 @@ export function usePasskeySignIn({
       if (navError) {
         Sentry.captureException(navError);
         setUnexpectedError();
+        finish();
       } else {
-        // Terminal success for the no-password-needed branch: WebAuthn
-        // ceremony verified, no Sync password step required, navigation
-        // completed cleanly. Fire the consolidated success event with the
-        // appropriate `<surface>_nopassword` reason for Looker funnels.
+        // Deliberately not finish()'d — the loading state must survive the hard
+        // redirect or WebChannel handoff as this component unmounts.
+        setIsNavigating(true);
         GleanMetrics.passkey.authSuccess({
           event: {
             reason: buildPasskeyAuthSuccessReason(
@@ -536,7 +574,6 @@ export function usePasskeySignIn({
           },
         });
       }
-      finish();
     } catch (err) {
       const errno = (err as { errno?: number })?.errno;
       if (errno === AuthUiErrors.PASSKEY_NOT_FOUND.errno) {
@@ -575,5 +612,5 @@ export function usePasskeySignIn({
     supportsKeysOptionalLogin,
   ]);
 
-  return { isLoading, errorBanner, onClick };
+  return { isLoading, isNavigating, errorBanner, onClick };
 }

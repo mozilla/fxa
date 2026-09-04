@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import { Localized, useLocalization } from '@fluent/react';
 
 import { useLocation } from 'react-router';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import { SETTINGS_PATH } from '../../../constants';
 import { logViewEvent } from '../../../lib/metrics';
 import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
@@ -15,7 +15,8 @@ import InputText from '../../InputText';
 import FlowContainer from '../FlowContainer';
 import { useForm } from 'react-hook-form';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
-import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
+import { MfaGuard } from '../MfaGuard';
+import { useMfaErrorHandler } from '../../../lib/hooks';
 import { MfaReason } from '../../../lib/types';
 import Banner, { ResendCodeSuccessBanner } from '../../Banner';
 
@@ -37,6 +38,9 @@ export const PageSecondaryEmailVerify = () => {
       verificationCode: '',
     },
   });
+  // Eagerly read formState properties so react-hook-form's Proxy subscribes
+  // to each one regardless of short-circuit evaluation.
+  const { isDirty, isValid } = formState;
   const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
   const goHome = useCallback(
@@ -132,8 +136,7 @@ export const PageSecondaryEmailVerify = () => {
     }
   }, [email, navigateWithQuery]);
 
-  const buttonDisabled =
-    !formState.isDirty || !formState.isValid || account.loading;
+  const buttonDisabled = !isDirty || !isValid || account.loading;
   const resendDisabled =
     resendCodeLoading || account.loading || resendCooldownActive;
   return (
@@ -173,14 +176,13 @@ export const PageSecondaryEmailVerify = () => {
               attrs={{ label: true }}
             >
               <InputText
-                name="verificationCode"
                 label="Enter your confirmation code"
                 onChange={() => {
                   if (errorText) {
                     setErrorText(undefined);
                   }
                 }}
-                inputRef={register({
+                registration={register('verificationCode', {
                   required: true,
                   pattern: /^\s*[0-9]{6}\s*$/,
                 })}

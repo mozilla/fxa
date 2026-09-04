@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useLocation } from 'react-router';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery, useOAuthFlowRecovery } from '../../../lib/hooks';
 import SigninTokenCode from '.';
 import AppLayout from '../../../components/AppLayout';
 import {
@@ -23,7 +23,6 @@ import OAuthDataError from '../../../components/OAuthDataError';
 import { useEffect, useState } from 'react';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { tryFinalizeUpgrade } from '../../../lib/auth-key-stretch-upgrade';
-import { useOAuthFlowRecovery } from '../../../lib/hooks/useOAuthFlowRecovery';
 
 // The email with token code (verifyLoginCodeEmail) is sent on `/signin`
 // submission if conditions are met.
@@ -114,6 +113,25 @@ const SigninTokenCodeContainer = ({
     getTotpStatus();
   }, [authClient, signinState]);
 
+  // For non-OAuth Native flows, redirect to root when state is missing
+  useEffect(() => {
+    if (
+      (!signinState || !signinState.sessionToken) &&
+      !isOAuthNativeIntegration(integration)
+    ) {
+      navigateWithQuery('/');
+    }
+  }, [signinState, integration, navigateWithQuery]);
+
+  // Redirect if 2FA is set up for the account but session is not TOTP verified
+  useEffect(() => {
+    if (totpVerified && signinState) {
+      navigateWithQuery('/signin_totp_code', {
+        state: signinState,
+      });
+    }
+  }, [totpVerified, signinState, navigateWithQuery]);
+
   const cmsInfo = integration.getCmsInfo();
   const splitLayout = cmsInfo?.SigninTokenCodePage?.splitLayout;
 
@@ -127,11 +145,6 @@ const SigninTokenCodeContainer = ({
   }
 
   if (!signinState || !signinState.sessionToken) {
-    // For non-OAuth Native flows, navigate to root
-    // For OAuth Native flows, recovery was already attempted above
-    if (!isOAuthNativeIntegration(integration)) {
-      navigateWithQuery('/');
-    }
     return (
       <AppLayout
         {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
@@ -139,12 +152,7 @@ const SigninTokenCodeContainer = ({
     );
   }
 
-  // redirect if there is 2FA is set up for the account,
-  // but the session is not TOTP verified
   if (totpVerified) {
-    navigateWithQuery('/signin_totp_code', {
-      state: signinState,
-    });
     return (
       <AppLayout
         {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}

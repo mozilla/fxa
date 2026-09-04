@@ -81,6 +81,10 @@ describe('CMSLocalization', () => {
   });
 
   describe('strapiToFtl', () => {
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
     it('converts Strapi data to FTL format', () => {
       const strapiData = [
         {
@@ -101,7 +105,6 @@ describe('CMSLocalization', () => {
 
       const result = localization.strapiToFtl(strapiData);
 
-      expect(result).toContain('# Generated on');
       expect(result).toContain('# FTL file for CMS localization');
       expect(result).toContain(
         '# desktopSyncFirefoxCms - Firefox Desktop Sync'
@@ -126,9 +129,26 @@ describe('CMSLocalization', () => {
     it('handles empty Strapi data', () => {
       const result = localization.strapiToFtl([]);
 
-      expect(result).toContain('# Generated on');
       expect(result).toContain('# FTL file for CMS localization');
       expect(result).not.toContain('=');
+    });
+
+    it('returns identical content for the same entries at different times', () => {
+      const strapiData = [
+        {
+          l10nId: 'desktopSyncFirefoxCms',
+          name: 'Firefox Desktop Sync',
+          SigninPage: { headline: 'Enter your password' },
+        },
+      ];
+
+      jest.useFakeTimers();
+      jest.setSystemTime(new Date('2026-07-06T19:55:05.237Z'));
+      const first = localization.strapiToFtl(strapiData);
+      jest.setSystemTime(new Date('2026-08-19T20:40:29.858Z'));
+      const second = localization.strapiToFtl(strapiData);
+
+      expect(second).toBe(first);
     });
 
     it('filters out non-string fields', () => {
@@ -453,6 +473,60 @@ describe('CMSLocalization', () => {
           branch: 'test-branch',
         });
       });
+
+      it('skips the commit when the branch already holds the content', async () => {
+        localization.octokit.pulls.get.mockResolvedValue({
+          data: { head: { ref: 'test-branch' } },
+        });
+        localization.octokit.repos.getContent.mockResolvedValue({
+          data: {
+            sha: 'existing-sha',
+            encoding: 'base64',
+            content: Buffer.from('test content').toString('base64'),
+          },
+        });
+
+        await localization.updateExistingPR(123, 'test content');
+
+        expect(
+          localization.octokit.repos.createOrUpdateFileContents
+        ).not.toHaveBeenCalled();
+        expect(mockLog.info).toHaveBeenCalledWith(
+          'cms.integrations.github.pr.unchanged',
+          { prNumber: 123, fileName: 'cms.ftl', branch: 'test-branch' }
+        );
+      });
+
+      it('commits when the branch holds different content', async () => {
+        localization.octokit.pulls.get.mockResolvedValue({
+          data: { head: { ref: 'test-branch' } },
+        });
+        localization.octokit.repos.getContent.mockResolvedValue({
+          data: {
+            sha: 'existing-sha',
+            encoding: 'base64',
+            content: Buffer.from('previous content').toString('base64'),
+          },
+        });
+        localization.octokit.repos.createOrUpdateFileContents.mockResolvedValue(
+          undefined
+        );
+
+        await localization.updateExistingPR(123, 'test content');
+
+        expect(
+          localization.octokit.repos.createOrUpdateFileContents
+        ).toHaveBeenCalledWith({
+          owner: 'test-owner',
+          repo: 'test-repo',
+          path: 'locales/en/cms.ftl',
+          message:
+            '🔄 Update CMS localization file (cms.ftl) - Strapi webhook sync',
+          content: Buffer.from('test content').toString('base64'),
+          sha: 'existing-sha',
+          branch: 'test-branch',
+        });
+      });
     });
 
     describe('createGitHubPR', () => {
@@ -537,6 +611,102 @@ describe('CMSLocalization', () => {
           branch: expect.any(String),
         });
       });
+
+      it('opens no PR when the base branch already holds the content', async () => {
+        localization.octokit.git.getRef.mockResolvedValue({
+          data: { object: { sha: 'base-sha' } },
+        });
+        localization.octokit.repos.getContent.mockResolvedValue({
+          data: {
+            sha: 'existing-file-sha',
+            encoding: 'base64',
+            content: Buffer.from('test content').toString('base64'),
+          },
+        });
+
+        await localization.createGitHubPR('test content', 'desktop-sync');
+
+        expect(localization.octokit.git.createRef).not.toHaveBeenCalled();
+        expect(
+          localization.octokit.repos.createOrUpdateFileContents
+        ).not.toHaveBeenCalled();
+        expect(localization.octokit.pulls.create).not.toHaveBeenCalled();
+        expect(mockLog.info).toHaveBeenCalledWith(
+          'cms.integrations.github.pr.unchanged',
+          { fileName: 'cms.ftl', branch: 'main' }
+        );
+      });
+
+      it('opens a PR when the base branch holds different content', async () => {
+        localization.octokit.git.getRef.mockResolvedValue({
+          data: { object: { sha: 'ref-sha' } },
+        });
+        localization.octokit.git.createRef.mockResolvedValue(undefined);
+        localization.octokit.repos.getContent.mockResolvedValue({
+          data: {
+            sha: 'existing-file-sha',
+            encoding: 'base64',
+            content: Buffer.from('previous content').toString('base64'),
+          },
+        });
+        localization.octokit.repos.createOrUpdateFileContents.mockResolvedValue(
+          undefined
+        );
+        localization.octokit.pulls.create.mockResolvedValue({
+          data: { number: 123, html_url: 'https://github.com/test/pr/123' },
+        });
+
+        await localization.createGitHubPR('test content', 'desktop-sync');
+
+        expect(localization.octokit.pulls.create).toHaveBeenCalledWith({
+          owner: 'test-owner',
+          repo: 'test-repo',
+          title: '🌐 Add CMS localization file (cms.ftl)',
+          body: expect.any(String),
+          head: expect.any(String),
+          base: 'main',
+        });
+      });
+
+      it('pins the file read and the new branch to the same base commit', async () => {
+        localization.octokit.git.getRef.mockResolvedValue({
+          data: { object: { sha: 'base-sha' } },
+        });
+        localization.octokit.git.createRef.mockResolvedValue(undefined);
+        localization.octokit.repos.getContent.mockResolvedValue({
+          data: {
+            sha: 'existing-file-sha',
+            encoding: 'base64',
+            content: Buffer.from('previous content').toString('base64'),
+          },
+        });
+        localization.octokit.repos.createOrUpdateFileContents.mockResolvedValue(
+          undefined
+        );
+        localization.octokit.pulls.create.mockResolvedValue({
+          data: { number: 123, html_url: 'https://github.com/test/pr/123' },
+        });
+
+        await localization.createGitHubPR('test content', 'desktop-sync');
+
+        expect(
+          localization.octokit.git.getRef.mock.invocationCallOrder[0]
+        ).toBeLessThan(
+          localization.octokit.repos.getContent.mock.invocationCallOrder[0]
+        );
+        expect(localization.octokit.repos.getContent).toHaveBeenCalledWith({
+          owner: 'test-owner',
+          repo: 'test-repo',
+          path: 'locales/en/cms.ftl',
+          ref: 'base-sha',
+        });
+        expect(localization.octokit.git.createRef).toHaveBeenCalledWith({
+          owner: 'test-owner',
+          repo: 'test-repo',
+          ref: expect.stringMatching(/^refs\/heads\/cms-localization-\d+$/),
+          sha: 'base-sha',
+        });
+      });
     });
   });
 
@@ -553,14 +723,20 @@ describe('CMSLocalization', () => {
 
       const originalFetch = global.fetch;
       global.fetch = jest.fn().mockImplementation((url: string) => {
-        if (url === 'http://localhost:1337/api/relying-parties?populate=*') {
+        if (
+          url ===
+          'http://localhost:1337/api/relying-parties?populate=*&pagination[pageSize]=100'
+        ) {
           return Promise.resolve({
             ok: true,
             status: 200,
             json: () => Promise.resolve({ data: relyingPartyEntries }),
           });
         }
-        if (url === 'http://localhost:1337/api/legal-notices?populate=*') {
+        if (
+          url ===
+          'http://localhost:1337/api/legal-notices?populate=*&pagination[pageSize]=100'
+        ) {
           return Promise.resolve({
             ok: true,
             status: 200,
@@ -574,7 +750,7 @@ describe('CMSLocalization', () => {
         const result = await localization.fetchAllStrapiEntries();
 
         expect(global.fetch as any).toHaveBeenCalledWith(
-          'http://localhost:1337/api/relying-parties?populate=*',
+          'http://localhost:1337/api/relying-parties?populate=*&pagination[pageSize]=100',
           {
             headers: {
               Authorization: 'Bearer test-api-key',
@@ -584,7 +760,7 @@ describe('CMSLocalization', () => {
         );
 
         expect(global.fetch as any).toHaveBeenCalledWith(
-          'http://localhost:1337/api/legal-notices?populate=*',
+          'http://localhost:1337/api/legal-notices?populate=*&pagination[pageSize]=100',
           {
             headers: {
               Authorization: 'Bearer test-api-key',
@@ -613,14 +789,20 @@ describe('CMSLocalization', () => {
 
       const originalFetch = global.fetch;
       global.fetch = jest.fn().mockImplementation((url: string) => {
-        if (url === 'http://localhost:1337/api/relying-parties?populate=*') {
+        if (
+          url ===
+          'http://localhost:1337/api/relying-parties?populate=*&pagination[pageSize]=100'
+        ) {
           return Promise.resolve({
             ok: true,
             status: 200,
             json: () => Promise.resolve({ data: relyingPartyEntries }),
           });
         }
-        if (url === 'http://localhost:1337/api/legal-notices?populate=*') {
+        if (
+          url ===
+          'http://localhost:1337/api/legal-notices?populate=*&pagination[pageSize]=100'
+        ) {
           return Promise.resolve({
             ok: false,
             status: 500,
@@ -667,14 +849,20 @@ describe('CMSLocalization', () => {
 
       const originalFetch = global.fetch;
       global.fetch = jest.fn().mockImplementation((url: string) => {
-        if (url === 'http://localhost:1337/api/relying-parties?populate=*') {
+        if (
+          url ===
+          'http://localhost:1337/api/relying-parties?populate=*&pagination[pageSize]=100'
+        ) {
           return Promise.resolve({
             ok: true,
             status: 200,
             json: () => Promise.resolve({ data: relyingPartyEntries }),
           });
         }
-        if (url === 'http://localhost:1337/api/legal-notices?populate=*') {
+        if (
+          url ===
+          'http://localhost:1337/api/legal-notices?populate=*&pagination[pageSize]=100'
+        ) {
           return Promise.resolve({
             ok: true,
             status: 200,

@@ -64,6 +64,12 @@ const conf = convict({
     format: Number,
     env: 'PORT',
   },
+  step_up_max_age: {
+    doc: 'Default max_age (seconds) requested by the step-up auth flow',
+    default: 300,
+    format: 'nat',
+    env: 'STEP_UP_MAX_AGE',
+  },
 });
 
 const configTarget = process.env.CONFIG_123DONE || './config.json';

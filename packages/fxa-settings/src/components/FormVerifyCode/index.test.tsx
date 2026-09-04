@@ -101,6 +101,21 @@ describe('FormVerifyCode component', () => {
       expect(submitButton).toBeEnabled();
     });
 
+    it('keeps the submit button disabled when the disabled prop is set, even for a valid code', async () => {
+      const user = userEvent.setup();
+      renderWithLocalizationProvider(<Subject disabled />);
+      const input = screen.getByRole('textbox', {
+        name: 'Enter your 4-digit code',
+      });
+      const submitButton = screen.getByRole('button', {
+        name: 'Check that code',
+      });
+
+      await user.type(input, '1234');
+
+      expect(submitButton).toBeDisabled();
+    });
+
     it('should disable submit button when invalid code is entered', async () => {
       const user = userEvent.setup();
       renderWithLocalizationProvider(<Subject />);

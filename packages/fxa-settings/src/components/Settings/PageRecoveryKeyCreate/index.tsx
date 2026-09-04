@@ -4,7 +4,7 @@
 
 import React, { useState } from 'react';
 
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import { SETTINGS_PATH } from '../../../constants';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { useAccount, useFtlMsgResolver } from '../../../models';

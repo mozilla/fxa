@@ -328,6 +328,34 @@ describe('CheckoutForm', () => {
       expect(mockCheckoutCartWithStripe).not.toHaveBeenCalled();
       expect(mockRouterPush).not.toHaveBeenCalled();
     });
+
+    it('finalizes the cart with an error and routes to error when checkoutCartWithStripe rejects', async () => {
+      mockElementsSubmit.mockResolvedValue({ error: undefined });
+      mockCreateConfirmationToken.mockResolvedValue({
+        confirmationToken: { id: 'ctoken_123' },
+      });
+      mockCheckoutCartWithStripe.mockRejectedValue(
+        new Error('version mismatch')
+      );
+      mockFinalizeCartWithError.mockResolvedValue(undefined);
+
+      const user = userEvent.setup();
+      render(<CheckoutForm {...baseProps} />);
+      fireStripeReady();
+      await user.click(screen.getByTestId('consent-checkbox'));
+      fireStripeChange({ complete: true, value: { type: 'card' } });
+
+      await user.click(screen.getByRole('button', { name: /Subscribe Now/i }));
+
+      await waitFor(() => {
+        expect(mockFinalizeCartWithError).toHaveBeenCalledWith(
+          'cart-id',
+          'basic-error'
+        );
+      });
+
+      expect(mockRouterPush).toHaveBeenCalledWith('./error');
+    });
   });
 
   describe('PayPal payment path', () => {

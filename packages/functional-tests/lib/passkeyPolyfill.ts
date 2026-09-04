@@ -3,13 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import type { Page } from '@playwright/test';
-// Import the virtual-authenticator module directly rather than through the
-// `@fxa/accounts/passkey` barrel — the barrel re-exports NestJS-decorated
-// services whose parameter decorators Playwright's Babel loader cannot parse.
+// The testing entry point rather than the `@fxa/accounts/passkey` barrel: the
+// barrel re-exports NestJS-decorated services whose parameter decorators
+// Playwright's Babel loader cannot parse.
 import {
   VirtualAuthenticator,
+  type VirtualCeremonyExtensions,
   type VirtualCredential,
-} from '../../../libs/accounts/passkey/src/lib/virtual-authenticator';
+} from '@fxa/accounts/passkey/testing';
 import type {
   RegistrationResponseJSON,
   AuthenticationResponseJSON,
@@ -44,6 +45,14 @@ const WEBAUTHN_DOM_EXCEPTION_NAMES = [
   'UnknownError',
 ];
 
+export type PasskeyPolyfillOpts = {
+  /**
+   * Pass `false` to mint credentials from an authenticator that cannot evaluate
+   * a PRF, so the relying party's password-required fallback can be exercised.
+   */
+  prfSupported?: boolean;
+};
+
 type Mode = 'pending' | 'success' | 'cancel' | 'corrupt';
 type Trigger = () => Promise<void>;
 type PostCheck = () => Promise<void>;
@@ -54,11 +63,13 @@ type CreationOptions = {
   challenge: string;
   rp?: { id?: string };
   allowCredentials?: Array<{ id: string }>;
+  extensions?: VirtualCeremonyExtensions;
 };
 type RequestOptions = {
   challenge: string;
   rpId?: string;
   allowCredentials?: Array<{ id: string }>;
+  extensions?: VirtualCeremonyExtensions;
 };
 
 /**
@@ -67,7 +78,7 @@ type RequestOptions = {
  * Unlike the previous CDP-based approach (Chromium only), this patches
  * `window.PublicKeyCredential` and `navigator.credentials.{create,get}` via
  * `page.addInitScript`, delegating the cryptographic work to the Node-side
- * VirtualAuthenticator from `@fxa/accounts/passkey`. The resulting attestation
+ * VirtualAuthenticator from `@fxa/accounts/passkey/testing`. The resulting attestation
  * and assertion responses are cryptographically valid, so the auth-server
  * `verifyRegistration/AuthenticationResponse` checks pass end-to-end.
  *
@@ -81,9 +92,17 @@ type RequestOptions = {
  */
 export class PasskeyPolyfill {
   private credentials: VirtualCredential[] = [];
+  private readonly prfSupported: boolean;
   private mode: Mode = 'pending';
   private onCredentialAdded?: () => void;
   private installed = false;
+
+  /**
+   * @param opts - see {@link PasskeyPolyfillOpts}
+   */
+  constructor(opts: PasskeyPolyfillOpts = {}) {
+    this.prfSupported = opts.prfSupported !== false;
+  }
 
   /**
    * Install the polyfill on the given Playwright page. Exposes the Node-side
@@ -216,7 +235,9 @@ export class PasskeyPolyfill {
   ): Promise<RegistrationResponseJSON> {
     await this.waitForReleasableMode();
 
-    const cred = VirtualAuthenticator.createCredential();
+    const cred = VirtualAuthenticator.createCredential({
+      prfSupported: this.prfSupported,
+    });
     this.credentials.push(cred);
 
     const rpId = options.rp?.id ?? new URL(origin).hostname;
@@ -224,6 +245,7 @@ export class PasskeyPolyfill {
       challenge: options.challenge,
       origin,
       rpId,
+      extensions: options.extensions,
     });
 
     this.onCredentialAdded?.();
@@ -249,6 +271,7 @@ export class PasskeyPolyfill {
       challenge: options.challenge,
       origin,
       rpId,
+      extensions: options.extensions,
     });
 
     if (this.mode === 'corrupt') {
@@ -345,6 +368,29 @@ const BROWSER_POLYFILL = `(() => {
       }
       return bufToB64url(v);
     }
+    // Native PRF eval inputs are BufferSources; Node speaks the base64url JSON
+    // shape the server issues, so re-encode them on the way out.
+    function serializePrfValues(values) {
+      return { first: reqB64url(values.first, 'prf eval first') };
+    }
+    function serializeExtensions(ext) {
+      if (!ext) return undefined;
+      if (!ext.prf) return ext;
+      const prf = {};
+      if (ext.prf.eval) prf.eval = serializePrfValues(ext.prf.eval);
+      return Object.assign({}, ext, { prf: prf });
+    }
+    // A real browser surfaces PRF outputs as ArrayBuffers, and the app relies on
+    // that (binary outputs drop out when the credential is JSON-stringified for
+    // the server). Node sends them base64url, so decode here.
+    function decodeExtensionResults(results) {
+      const prf = results && results.prf;
+      if (!prf || !prf.results) return results;
+      const decoded = { first: b64urlToBuf(prf.results.first) };
+      return Object.assign({}, results, {
+        prf: Object.assign({}, prf, { results: decoded }),
+      });
+    }
 
     class FakePublicKeyCredential {
       constructor(json) {
@@ -368,7 +414,9 @@ const BROWSER_POLYFILL = `(() => {
             userHandle: r.userHandle ? b64urlToBuf(r.userHandle) : null,
           };
         }
-        this._clientExtensionResults = json.clientExtensionResults || {};
+        this._clientExtensionResults = decodeExtensionResults(
+          json.clientExtensionResults || {}
+        );
       }
       static isUserVerifyingPlatformAuthenticatorAvailable() {
         return Promise.resolve(true);
@@ -444,6 +492,7 @@ const BROWSER_POLYFILL = `(() => {
         const json = await invoke('__fxaPasskeyCreate', {
           challenge: reqB64url(pk.challenge, 'create challenge'),
           rp: pk.rp,
+          extensions: serializeExtensions(pk.extensions),
         });
         return new FakePublicKeyCredential(json);
       },
@@ -455,6 +504,7 @@ const BROWSER_POLYFILL = `(() => {
           allowCredentials: (pk.allowCredentials || []).map((c) => ({
             id: reqB64url(c.id, 'allowCredentials id'),
           })),
+          extensions: serializeExtensions(pk.extensions),
         });
         return new FakePublicKeyCredential(json);
       },

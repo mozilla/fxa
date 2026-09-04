@@ -37,6 +37,9 @@ const TestComponent = () => {
         {experiments ? 'has-experiments' : 'no-experiments'}
       </div>
       <div data-testid="error">{error ? error.message : 'no-error'}</div>
+      <div data-testid="nimbus-user-id">
+        {experiments?.nimbusUserId ?? 'no-id'}
+      </div>
     </div>
   );
 };
@@ -64,7 +67,7 @@ describe('NimbusContext', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseDynamicLocalization.mockReturnValue({
-      currentLocale: 'en-US',
+      currentLocale: 'en-CA',
       switchLanguage: jest.fn(),
       clearLanguagePreference: jest.fn(),
       isLoading: false,
@@ -184,6 +187,55 @@ describe('NimbusContext', () => {
       );
     });
 
+    it('reports the account uid it enrolled with, not uniqueUserId', async () => {
+      const accountUid = 'test-account-uid';
+      mockUseLocalStorageSync.mockImplementation((key: string) => {
+        if (key === 'currentAccountUid') return accountUid;
+        if (key === 'accounts')
+          return { [accountUid]: { metricsEnabled: true } };
+        return undefined;
+      });
+      mockInitializeNimbus.mockResolvedValue({
+        features: { 'test-feature': { enabled: true } },
+        // The provider stamps the id it enrolled with; whatever the API echoes
+        // back is ignored.
+        nimbusUserId: 'ignored-api-value',
+      });
+
+      renderWithProviders();
+
+      await waitFor(() => {
+        expect(mockInitializeNimbus).toHaveBeenCalledWith(
+          accountUid,
+          false,
+          expect.anything()
+        );
+      });
+      // Analysis joins Glean events to Cirrus enrollment on this id, so it must
+      // match the id passed to initializeNimbus above.
+      expect(screen.getByTestId('nimbus-user-id')).toHaveTextContent(
+        accountUid
+      );
+    });
+
+    it('falls back to uniqueUserId when there is no current account', async () => {
+      mockInitializeNimbus.mockResolvedValue({
+        features: { 'test-feature': { enabled: true } },
+        // The provider stamps the id it enrolled with; whatever the API echoes
+        // back is ignored.
+        nimbusUserId: 'ignored-api-value',
+      });
+
+      renderWithProviders();
+
+      await screen.findByText('test-user-id');
+      expect(mockInitializeNimbus).toHaveBeenCalledWith(
+        'test-user-id',
+        false,
+        expect.anything()
+      );
+    });
+
     it('fetches experiments successfully', async () => {
       const mockExperiments: NimbusResult = {
         features: { 'test-feature': { enabled: true } },
@@ -195,13 +247,29 @@ describe('NimbusContext', () => {
 
       expect(mockInitializeNimbus).toHaveBeenCalledWith('test-user-id', false, {
         language: 'en',
-        region: 'us',
+        region: 'ca',
       });
 
       await screen.findByTestId('experiments');
       expect(screen.getByTestId('experiments')).toHaveTextContent(
         'has-experiments'
       );
+    });
+
+    it('sends no region when the locale negotiates down to en', async () => {
+      mockUseDynamicLocalization.mockReturnValue({
+        currentLocale: 'en-US',
+        switchLanguage: jest.fn(),
+        clearLanguagePreference: jest.fn(),
+        isLoading: false,
+      });
+
+      renderWithProviders();
+
+      expect(mockInitializeNimbus).toHaveBeenCalledWith('test-user-id', false, {
+        language: 'en',
+        region: undefined,
+      });
     });
 
     it('handles API response with lowercase features', async () => {
@@ -255,7 +323,7 @@ describe('NimbusContext', () => {
         expect(mockInitializeNimbus).toHaveBeenCalledWith(
           'test-user-id',
           true,
-          { language: 'en', region: 'us' }
+          { language: 'en', region: 'ca' }
         );
       });
     });
@@ -272,7 +340,7 @@ describe('NimbusContext', () => {
         expect(mockInitializeNimbus).toHaveBeenCalledWith(
           'test-user-id',
           true,
-          { language: 'en', region: 'us' }
+          { language: 'en', region: 'ca' }
         );
       });
     });

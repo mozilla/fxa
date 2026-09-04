@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { isPairingSupported } from '../../lib/utilities';
+
 export type BannerState =
   | 'firefox-pair'
   | 'switch-desktop'
@@ -22,13 +24,14 @@ export function getBannerState({
   isMobile: boolean;
   isSignedIntoBrowser: boolean;
 }): BannerState {
+  if (isPairingSupported({ isFirefox, isMobile }) && isSignedIntoBrowser) {
+    return 'firefox-pair';
+  }
+  // Firefox mobile already has the app. Desktop without a browser session gets
+  // no banner, though the Connected Services button still shows there: it only
+  // needs `isPairingSupported`, since /pair can obtain the session itself.
   if (isFirefox) {
-    // Firefox mobile users already have the app, so there is nothing to promo.
-    if (isMobile) {
-      return 'hidden';
-    }
-    // Desktop Firefox: only promote pairing to users signed into the browser.
-    return isSignedIntoBrowser ? 'firefox-pair' : 'hidden';
+    return 'hidden';
   }
   return isMobile ? 'switch-mobile' : 'switch-desktop';
 }

@@ -11,7 +11,11 @@ import {
   isPasskeyRegistrationEnabled,
   isPasskeyAuthenticationEnabled,
 } from '../passkey-utils';
-import { passkeyRoutes, PasskeyHandler } from './passkeys';
+import {
+  passkeyRoutes,
+  passkeyResponseSchema,
+  PasskeyHandler,
+} from './passkeys';
 import { ConfigType } from '../../config';
 import { FxaMailer } from '../senders/fxa-mailer';
 import { OAuthClientInfoServiceName } from '../senders/oauth_client_info';
@@ -55,13 +59,16 @@ describe('passkeys routes', () => {
   const CREDENTIAL_ID_B64 =
     Buffer.from('credential-id-xyz').toString('base64url');
 
-  // Only the passkeys flags are read by these routes; cast the partial fixture
-  // to the full ConfigType the factory expects.
+  // Only the passkeys flags and the MFA action list are read by these routes;
+  // cast the partial fixture to the full ConfigType the factory expects.
   const config = {
     passkeys: {
       enabled: true,
       registrationEnabled: true,
       authenticationEnabled: true,
+    },
+    mfa: {
+      actions: ['2fa', 'email', 'recovery_key', 'password', 'passkey'],
     },
   } as unknown as ConfigType;
 
@@ -118,6 +125,7 @@ describe('passkeys routes', () => {
     };
     request.emitMetricsEvent = jest.fn(() => Promise.resolve({}));
     request.setMetricsFlowCompleteSignal = jest.fn();
+    request.stashMetricsContext = jest.fn(() => Promise.resolve());
     return await route.handler(request);
   }
 
@@ -189,7 +197,6 @@ describe('passkeys routes', () => {
     };
 
     mockFxaMailer = {
-      canSend: jest.fn().mockReturnValue(true),
       sendPostAddPasskeyEmail: jest.fn().mockResolvedValue(undefined),
       sendPostRemovePasskeyEmail: jest.fn().mockResolvedValue(undefined),
       sendNewDeviceLoginEmail: jest.fn().mockResolvedValue(undefined),
@@ -297,6 +304,31 @@ describe('passkeys routes', () => {
           },
         })
       ).rejects.toThrow('Client has sent too many requests');
+    });
+
+    it('accepts an unknown transport in excludeCredentials', async () => {
+      mockPasskeyService.generateRegistrationChallenge.mockResolvedValue({
+        ...mockRegistrationOptions,
+        excludeCredentials: [
+          {
+            id: CREDENTIAL_ID_B64,
+            type: 'public-key',
+            transports: ['internal', 'unknown'],
+          },
+        ],
+      });
+
+      const result = await runTest('/passkey/registration/start', {
+        auth: {
+          credentials: { uid: UID, id: SESSION_TOKEN_ID, email: TEST_EMAIL },
+        },
+      });
+
+      await expect(
+        route.options.response.schema.validateAsync(result)
+      ).resolves.toMatchObject({
+        excludeCredentials: [{ transports: ['internal', 'unknown'] }],
+      });
     });
 
     describe('when the primary email differs from the signup email', () => {
@@ -531,7 +563,6 @@ describe('passkeys routes', () => {
         payload,
       });
 
-      expect(mockFxaMailer.canSend).toHaveBeenCalledWith('postAddPasskey');
       expect(mockFxaMailer.sendPostAddPasskeyEmail).toHaveBeenCalledTimes(1);
       expect(mockFxaMailer.sendPostAddPasskeyEmail).toHaveBeenCalledWith(
         expect.objectContaining({ showSyncPasswordNote: true })
@@ -563,23 +594,6 @@ describe('passkeys routes', () => {
       expect(mockFxaMailer.sendPostAddPasskeyEmail).toHaveBeenCalledWith(
         expect.objectContaining({ showSyncPasswordNote: false })
       );
-    });
-
-    it('skips email when canSend returns false', async () => {
-      mockFxaMailer.canSend.mockReturnValue(false);
-
-      await runTest('/passkey/registration/finish', {
-        auth: {
-          credentials: {
-            uid: UID,
-            id: SESSION_TOKEN_ID,
-            email: TEST_EMAIL,
-          },
-        },
-        payload,
-      });
-
-      expect(mockFxaMailer.sendPostAddPasskeyEmail).not.toHaveBeenCalled();
     });
 
     it('swallows email send errors and still returns passkey data', async () => {
@@ -865,32 +879,10 @@ describe('passkeys routes', () => {
         'DELETE'
       );
 
-      expect(mockFxaMailer.canSend).toHaveBeenCalledWith('postRemovePasskey');
       expect(mockFxaMailer.sendPostRemovePasskeyEmail).toHaveBeenCalledTimes(1);
       expect(mockFxaMailer.sendPostRemovePasskeyEmail).toHaveBeenCalledWith(
         expect.objectContaining({ to: TEST_EMAIL })
       );
-    });
-
-    it('skips email when canSend returns false', async () => {
-      mockFxaMailer.canSend.mockReturnValue(false);
-
-      await runTest(
-        '/passkey/{credentialId}',
-        {
-          auth: {
-            credentials: {
-              uid: UID,
-              id: SESSION_TOKEN_ID,
-              email: TEST_EMAIL,
-            },
-          },
-          params: { credentialId: CREDENTIAL_ID_B64 },
-        },
-        'DELETE'
-      );
-
-      expect(mockFxaMailer.sendPostRemovePasskeyEmail).not.toHaveBeenCalled();
     });
 
     it('swallows email send errors and still returns empty object', async () => {
@@ -1092,7 +1084,19 @@ describe('passkeys routes', () => {
       ).toHaveBeenCalledTimes(1);
       expect(
         mockPasskeyService.generateAuthenticationChallenge
-      ).toHaveBeenCalledWith();
+      ).toHaveBeenCalledWith({ keysRequired: undefined });
+    });
+
+    it('forwards the keysRequired hint from the payload to the service', async () => {
+      await runTest('/passkey/authentication/start', {
+        auth: { credentials: {} },
+        payload: { keysRequired: true },
+        app: { ua: {} },
+      });
+
+      expect(
+        mockPasskeyService.generateAuthenticationChallenge
+      ).toHaveBeenCalledWith({ keysRequired: true });
     });
 
     it('records glean.passkey.authenticationStarted with the request', async () => {
@@ -1154,7 +1158,12 @@ describe('passkeys routes', () => {
 
       expect(
         mockPasskeyService.verifyAuthenticationResponse
-      ).toHaveBeenCalledWith(payload.response, payload.challenge);
+      ).toHaveBeenCalledWith(
+        payload.response,
+        payload.challenge,
+        undefined,
+        undefined
+      );
       expect(db.createPasskeyVerifiedSessionToken).toHaveBeenCalledWith(
         expect.objectContaining({ uid: UID })
       );
@@ -1164,6 +1173,23 @@ describe('passkeys routes', () => {
         verified: true,
         hasPassword: true,
       });
+    });
+
+    it('forwards prfSupported from the payload to verifyAuthenticationResponse', async () => {
+      await runTest('/passkey/authentication/finish', {
+        auth: { credentials: {} },
+        app: { ua: {} },
+        payload: { ...payload, prfSupported: true },
+      });
+
+      expect(
+        mockPasskeyService.verifyAuthenticationResponse
+      ).toHaveBeenCalledWith(
+        payload.response,
+        payload.challenge,
+        undefined,
+        true
+      );
     });
 
     it('sets hasPassword false for passwordless accounts', async () => {
@@ -1203,21 +1229,34 @@ describe('passkeys routes', () => {
       );
     });
 
-    it('emits glean.login.complete with reason "passkey"', async () => {
+    it('stashes the metrics context against the new session token', async () => {
       await runTest('/passkey/authentication/finish', {
         auth: { credentials: {} },
         app: { ua: {} },
         payload,
       });
 
-      expect(glean.login.complete).toHaveBeenCalledTimes(1);
-      expect(glean.login.complete).toHaveBeenCalledWith(expect.anything(), {
-        uid: UID,
-        reason: 'passkey',
-      });
+      // The password-creation and key-fetch steps of a keys-required sign-in
+      // send no metrics context, so they resolve it from this stash.
+      expect(request.stashMetricsContext).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'new-session-token-id' })
+      );
     });
 
-    it('does not emit glean.login.complete when verification fails', async () => {
+    it('does not emit glean.login.complete directly at the ceremony', async () => {
+      await runTest('/passkey/authentication/finish', {
+        auth: { credentials: {} },
+        app: { ua: {} },
+        payload,
+      });
+
+      // login.complete is emitted by the flow-complete machinery, driven by the
+      // signal set below. Emitting here too would double-count every
+      // keys-required sign-in, which also completes at /session/reauth.
+      expect(glean.login.complete).not.toHaveBeenCalled();
+    });
+
+    it('does not set the login flow-complete signal when verification fails', async () => {
       mockPasskeyService.verifyAuthenticationResponse = jest
         .fn()
         .mockRejectedValue(AppError.passkeyAuthenticationFailed());
@@ -1230,6 +1269,7 @@ describe('passkeys routes', () => {
         })
       ).rejects.toThrow();
 
+      expect(request.setMetricsFlowCompleteSignal).not.toHaveBeenCalled();
       expect(glean.login.complete).not.toHaveBeenCalled();
     });
 
@@ -1475,24 +1515,6 @@ describe('passkeys routes', () => {
         );
       });
 
-      it('falls back to the legacy mailer when fxaMailer cannot send newDeviceLogin', async () => {
-        mockFxaMailer.canSend.mockReturnValue(false);
-
-        await runTest('/passkey/authentication/finish', {
-          auth: { credentials: {} },
-          app: { ua: {} },
-          payload,
-        });
-
-        expect(mockFxaMailer.sendNewDeviceLoginEmail).not.toHaveBeenCalled();
-        expect(mailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(1);
-        expect(mailer.sendNewDeviceLoginEmail).toHaveBeenCalledWith(
-          [{ email: TEST_EMAIL, isPrimary: true, isVerified: true }],
-          expect.objectContaining({ uid: UID }),
-          expect.objectContaining({ uid: UID })
-        );
-      });
-
       it('does not reject the sign-in when the email send fails', async () => {
         mockFxaMailer.sendNewDeviceLoginEmail.mockRejectedValue(
           new Error('smtp down')
@@ -1546,8 +1568,24 @@ describe('passkeys routes', () => {
         });
         expect(request.setMetricsFlowCompleteSignal).toHaveBeenCalledWith(
           'account.login',
-          'login'
+          'login',
+          'passkey'
         );
+      });
+
+      it('sets the flow signal before emitting account.login when keysRequired is false', async () => {
+        await runTest('/passkey/authentication/finish', {
+          auth: { credentials: {} },
+          app: { ua: {} },
+          payload,
+        });
+
+        // emitMetricsEvent only recognises the flow as complete — and so records
+        // login.complete — if the signal is already set. Reversing these two
+        // silently drops the event for keys-optional sign-ins.
+        expect(
+          request.setMetricsFlowCompleteSignal.mock.invocationCallOrder[0]
+        ).toBeLessThan(request.emitMetricsEvent.mock.invocationCallOrder[0]);
       });
 
       it('records the account.login security event when keysRequired is false', async () => {
@@ -1748,14 +1786,32 @@ describe('passkeys routes', () => {
       method: string,
       kind: 'payload' | 'params'
     ): Schema {
-      const all = passkeyRoutes(customs, db, config, statsd, glean, log);
+      const all = passkeyRoutes(
+        customs,
+        db,
+        config,
+        statsd,
+        glean,
+        log,
+        mailer
+      );
       const route = all.find(
         (r: any) => r.path === path && r.method === method
       );
       if (!route) {
         throw new Error(`Route not found: ${method} ${path}`);
       }
-      return route.options.validate[kind];
+      // Not every passkey route declares validation, so the union of route
+      // option types doesn't carry `validate`.
+      const schema = (
+        route.options as {
+          validate?: { payload?: Schema; params?: Schema };
+        }
+      ).validate?.[kind];
+      if (!schema) {
+        throw new Error(`No ${kind} schema on route: ${method} ${path}`);
+      }
+      return schema;
     }
 
     const authPayload = (
@@ -2032,5 +2088,92 @@ describe('passkeys routes', () => {
         ]);
       });
     });
+  });
+
+  describe('passkeyResponseSchema', () => {
+    const VALID_PASSKEY = {
+      credentialId: 'A_z-09Aa',
+      name: 'Work laptop',
+      createdAt: 1700000000000,
+      lastUsedAt: null,
+      transports: ['internal'],
+      aaguid: 'adce0002-35bc-c60a-648b-0b25f1f05503',
+      backupEligible: true,
+      backupState: true,
+      prfEnabled: false,
+    };
+    const BAD_AAGUID_PASSKEY = {
+      ...VALID_PASSKEY,
+      aaguid: 'adce000235bcc60a648b0b25f1f05503',
+    };
+
+    function getResponseSchema(method: string, path: string): Schema {
+      const all = passkeyRoutes(
+        customs,
+        db,
+        config,
+        statsd,
+        glean,
+        log,
+        mailer
+      );
+      const route = all.find(
+        (r: any) => r.path === path && r.method === method
+      );
+      const schema = (route?.options as { response?: { schema?: Schema } })
+        ?.response?.schema;
+      if (!schema) {
+        throw new Error(`No response schema on route: ${method} ${path}`);
+      }
+      return schema;
+    }
+
+    it('accepts a well-formed passkey', () => {
+      const { error } = passkeyResponseSchema.validate(VALID_PASSKEY);
+      expect(error).toBeUndefined();
+    });
+
+    it('rejects a non-base64url credentialId', () => {
+      const { error } = passkeyResponseSchema.validate({
+        ...VALID_PASSKEY,
+        credentialId: 'has/slash',
+      });
+      expect(error?.details).toEqual([
+        expect.objectContaining({
+          context: expect.objectContaining({ key: 'credentialId' }),
+          type: 'string.pattern.base',
+        }),
+      ]);
+    });
+
+    it('rejects an aaguid that is not a hyphenated UUID', () => {
+      const { error } = passkeyResponseSchema.validate(BAD_AAGUID_PASSKEY);
+      expect(error?.details).toEqual([
+        expect.objectContaining({
+          context: expect.objectContaining({ key: 'aaguid' }),
+          type: 'string.pattern.base',
+        }),
+      ]);
+    });
+
+    // `GET /passkeys` returns an array, the other two a single object.
+    const routeCases: Array<[string, string, unknown]> = [
+      ['POST', '/passkey/registration/finish', BAD_AAGUID_PASSKEY],
+      ['GET', '/passkeys', [BAD_AAGUID_PASSKEY]],
+      ['PATCH', '/passkey/{credentialId}', BAD_AAGUID_PASSKEY],
+    ];
+
+    it.each(routeCases)(
+      '%s %s validates its response against the schema',
+      (method, path, response) => {
+        const { error } = getResponseSchema(method, path).validate(response);
+        expect(error?.details[0]).toEqual(
+          expect.objectContaining({
+            context: expect.objectContaining({ key: 'aaguid' }),
+            type: 'string.pattern.base',
+          })
+        );
+      }
+    );
   });
 });

@@ -107,7 +107,10 @@ export type StripeDiscount = NegotiateExpanded<
   DeepOverride<
     Stripe.Discount,
     {
-      source: DeepOverride<Stripe.Discount.Source, { coupon: StripeCoupon }>;
+      source: DeepOverride<
+        Stripe.Discount.Source,
+        { coupon: StripeCoupon | null }
+      >;
     }
   >,
   'customer' | 'promotion_code'
@@ -413,6 +416,7 @@ export type StripeConfirmationToken = NegotiateExpanded<
 >;
 
 export type StripeAddress = Stripe.Address;
+export type StripeApiSearchResult<T> = Stripe.ApiSearchResult<T>;
 export type StripeApiList<T> = Stripe.ApiList<T>;
 export type StripeApiListPromise<T> = Stripe.ApiListPromise<T>;
 export type StripeResponse<T> = Stripe.Response<T>;

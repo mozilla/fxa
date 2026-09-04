@@ -2,8 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const crypto = require('crypto');
 const Joi = require('joi');
 const { Container } = require('typedi');
+const { AppError: AuthError, OAUTH_ERRNO } = require('@fxa/accounts/errors');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
 const {
@@ -11,6 +13,11 @@ const {
   OAUTH_SCOPE_RELAY,
   OAUTH_SCOPE_SESSION_TOKEN,
 } = require('fxa-shared/oauth/constants');
+const encrypt = require('fxa-shared/auth/encrypt');
+const { OAuthNativeClients } = require('@fxa/accounts/oauth');
+const {
+  excludeDauCacheKey,
+} = require('../../oauth/desktop-sync-dau-authorization-bandaid');
 
 function buf(v: any) {
   return Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex');
@@ -33,6 +40,12 @@ const GRANT_TOKEN_EXCHANGE = 'urn:ietf:params:oauth:grant-type:token-exchange';
 const SUBJECT_TOKEN_TYPE_REFRESH =
   'urn:ietf:params:oauth:token-type:refresh_token';
 const FIREFOX_IOS_CLIENT_ID = '1b1a3e44c54fbb58';
+const FIREFOX_DESKTOP_CLIENT_ID = OAuthNativeClients.FirefoxDesktop;
+// Mirrors encrypt.hash(), used by the route to key the rate limit.
+const SUBJECT_TOKEN_HASH = crypto
+  .createHash('sha256')
+  .update(Buffer.from(REFRESH_TOKEN, 'hex'))
+  .digest('hex');
 
 const noop = () => {};
 const mockLog = { debug: noop, warn: noop, info: noop, error: noop };
@@ -41,6 +54,7 @@ const mockStatsD = { increment: jest.fn() };
 const mockGlean = {
   oauth: { tokenCreated: jest.fn() },
 };
+const mockCustoms = { checkToken: jest.fn().mockResolvedValue(undefined) };
 
 const tokenRoutesDepMocks = {
   '../../oauth/assertion': async () => true,
@@ -131,6 +145,7 @@ const tokenRoutesArgMocks = {
   devices: {},
   statsd: mockStatsD,
   glean: mockGlean,
+  customs: mockCustoms,
 };
 
 let tokenRoutes: any;
@@ -145,6 +160,16 @@ function joiNotAllowed(err: any, param: string) {
   expect(err.isJoi).toBe(true);
   expect(err.name).toBe('ValidationError');
   expect(err.details[0].message).toBe(`"${param}" is not allowed`);
+}
+
+// The /oauth/token payload is a Joi.alternatives(), so a rejection always
+// surfaces the generic "does not match any of the allowed types" at the top
+// level. authorization_code is the first alternative; its own failure reason is
+// nested, and that is what these tests need to assert on.
+function authorizationCodeAlternativeError(err: any) {
+  expect(err.isJoi).toBe(true);
+  expect(err.details[0].type).toBe('alternatives.match');
+  return err.details[0].context.details[0];
 }
 
 function resetAndMockDeps() {
@@ -704,16 +729,70 @@ describe('token exchange grant_type', () => {
       expect(hex(removedTokenId)).toBe('1234567890abcdef');
     });
   });
+
+  describe('rate limiting', () => {
+    function exchangeRequest() {
+      return {
+        app: {},
+        headers: {},
+        payload: {
+          grant_type: GRANT_TOKEN_EXCHANGE,
+          subject_token: REFRESH_TOKEN,
+          subject_token_type: SUBJECT_TOKEN_TYPE_REFRESH,
+          scope: OAUTH_SCOPE_RELAY,
+        },
+        emitMetricsEvent: () => {},
+      };
+    }
+
+    it('throttles on the hash of the subject_token', async () => {
+      resetAndMockDeps();
+      const routes = require('./token')(tokenRoutesArgMocks);
+      const request = exchangeRequest();
+
+      await expect(routes[0].config.handler(request)).rejects.toMatchObject({
+        errno: 108, // the stub subject_token does not resolve
+      });
+
+      expect(mockCustoms.checkToken).toHaveBeenCalledWith(
+        request,
+        'tokenExchange',
+        SUBJECT_TOKEN_HASH
+      );
+    });
+
+    it('rejects a throttled exchange without reading the oauth db', async () => {
+      resetAndMockDeps();
+      const getRefreshToken = jest.fn();
+      const routes = require('./token')({
+        ...tokenRoutesArgMocks,
+        customs: {
+          checkToken: jest
+            .fn()
+            .mockRejectedValue(
+              AuthError.tooManyRequests(900_000, 'in 15 minutes')
+            ),
+        },
+        oauthDB: { ...tokenRoutesArgMocks.oauthDB, getRefreshToken },
+      });
+
+      await expect(
+        routes[0].config.handler(exchangeRequest())
+      ).rejects.toMatchObject({ errno: 114 });
+
+      expect(getRefreshToken).not.toHaveBeenCalled();
+    });
+  });
 });
 
 describe('/oauth/token POST', () => {
-  describe('exclude_dau input validation', () => {
-    // tokenRoutes[1] is the POST /oauth/token route (tokenRoutes[0] is /token).
-    function v(req: any) {
-      const oauthTokenRoute = tokenRoutes[1];
-      return oauthTokenRoute.config.validate.payload.validate(req);
-    }
+  // tokenRoutes[1] is the POST /oauth/token route (tokenRoutes[0] is /token).
+  function v(req: any) {
+    const oauthTokenRoute = tokenRoutes[1];
+    return oauthTokenRoute.config.validate.payload.validate(req);
+  }
 
+  describe('exclude_dau input validation', () => {
     it('accepts exclude_dau=true for the authorization_code grant', () => {
       const res = v({
         client_id: CLIENT_ID,
@@ -743,6 +822,51 @@ describe('/oauth/token POST', () => {
       });
       expect(res.error).toBeUndefined();
       expect(res.value.exclude_dau).toBe(false);
+    });
+  });
+
+  // Firefox redeems a pairing/sign-in code here, sending
+  // {grant_type, code, client_id, code_verifier} (FxAccountsClient.oauthToken).
+  // It holds the verifier in the parent process and never gives it to the web
+  // page, so the xor on this alternative is what makes a redemption without a
+  // known verifier fail: a public client cannot substitute a client_secret.
+  describe('authorization_code grant requires exactly one client credential', () => {
+    it('accepts a code_verifier alone, the shape Firefox sends', () => {
+      const res = v({
+        client_id: CLIENT_ID,
+        grant_type: 'authorization_code',
+        code: CODE,
+        code_verifier: PKCE_CODE_VERIFIER,
+      });
+      expect(res.error).toBeUndefined();
+      expect(res.value.code_verifier).toBe(PKCE_CODE_VERIFIER);
+    });
+
+    it('rejects a code redemption carrying neither code_verifier nor client_secret', () => {
+      const res = v({
+        client_id: CLIENT_ID,
+        grant_type: 'authorization_code',
+        code: CODE,
+      });
+      const detail = authorizationCodeAlternativeError(res.error);
+      expect(detail.type).toBe('object.missing');
+      expect(detail.context.peers).toEqual(['client_secret', 'code_verifier']);
+    });
+
+    it('rejects a code redemption carrying both code_verifier and client_secret', () => {
+      const res = v({
+        client_id: CLIENT_ID,
+        grant_type: 'authorization_code',
+        code: CODE,
+        code_verifier: PKCE_CODE_VERIFIER,
+        client_secret: CLIENT_SECRET,
+      });
+      const detail = authorizationCodeAlternativeError(res.error);
+      expect(detail.type).toBe('object.xor');
+      expect(detail.context.present).toEqual([
+        'client_secret',
+        'code_verifier',
+      ]);
     });
   });
 
@@ -1513,5 +1637,276 @@ describe('/oauth/token POST', () => {
         }
       );
     });
+  });
+});
+
+// FXA-14263: /oauth/authorization is the only request that sees `service=`, so
+// it decides whether a Desktop sign-in counts toward Sync DAU and leaves the
+// answer in Redis against the code's hash. Here we assert the read side.
+// Read side of the FXA-14263 carry: /oauth/authorization decides, leaves the
+// answer in Redis against the code's hash, and the redemption picks it up.
+describe('exclude_dau carried on the authorization code', () => {
+  const EXPECTED_KEY = excludeDauCacheKey(
+    encrypt.hash(CODE_WITH_KEYS).toString('hex')
+  );
+
+  function codeRequest(payloadOverrides: Record<string, unknown> = {}) {
+    return {
+      app: {},
+      // Code redemption is client-authenticated; no session token rides along.
+      auth: { credentials: undefined },
+      headers: {},
+      payload: {
+        client_id: FIREFOX_DESKTOP_CLIENT_ID,
+        grant_type: 'authorization_code',
+        code: CODE_WITH_KEYS,
+        ...payloadOverrides,
+      },
+      emitMetricsEvent: () => {},
+    };
+  }
+
+  // The route short-circuits before Redis unless the code is a Firefox Desktop
+  // one carrying the Sync scope, so the default code fixture has to be that.
+  function buildOauthDB(codeOverrides: Record<string, unknown> = {}) {
+    return {
+      ...tokenRoutesArgMocks.oauthDB,
+      async getCode() {
+        return {
+          userId: buf(UID),
+          clientId: buf(FIREFOX_DESKTOP_CLIENT_ID),
+          createdAt: Date.now(),
+          scope: ScopeSet.fromArray([OAUTH_SCOPE_OLD_SYNC, 'profile']),
+          ...codeOverrides,
+        };
+      },
+      getCanonicalScopeForService: (service: string) =>
+        service === 'sync' ? OAUTH_SCOPE_OLD_SYNC : undefined,
+    };
+  }
+
+  async function run({
+    redis,
+    oauthDB = buildOauthDB(),
+    payload,
+  }: {
+    redis?: { get: jest.Mock };
+    oauthDB?: Record<string, any>;
+    payload?: Record<string, unknown>;
+  }) {
+    resetAndMockDeps();
+    // The shared generateTokens stub passes `scope` through untouched, but the
+    // real one emits `access.scope.toString()`. These tests carry a real
+    // ScopeSet on the code, so match production or the route throws.
+    jest.doMock('../../oauth/grant', () => ({
+      ...tokenRoutesDepMocks['../../oauth/grant'],
+      generateTokens: (grant: any) => {
+        const t = { ...grant, scope: grant.scope.toString() } as any;
+        if (grant.offline) {
+          t.refresh_token = '00ff';
+        }
+        return t;
+      },
+    }));
+    const glean = { oauth: { tokenCreated: jest.fn() } };
+    const routes = require('./token')({
+      ...tokenRoutesArgMocks,
+      oauthDB,
+      glean,
+      authServerCacheRedis: redis,
+    });
+    const request = codeRequest(payload);
+    await routes[1].handler(request);
+    return { glean, request };
+  }
+
+  it('tags the token created event when the code was flagged', async () => {
+    const redis = { get: jest.fn().mockResolvedValue('1') };
+
+    const { glean, request } = await run({ redis });
+
+    expect(redis.get).toHaveBeenCalledWith(EXPECTED_KEY);
+    expect(glean.oauth.tokenCreated).toHaveBeenCalledWith(
+      request,
+      expect.objectContaining({
+        reason: 'authorization_code',
+        scopes: ScopeSet.fromArray([
+          OAUTH_SCOPE_OLD_SYNC,
+          'profile',
+        ]).toString(),
+        excludeDau: true,
+      })
+    );
+  });
+
+  it('does not tag the event when no flag was recorded for the code', async () => {
+    const redis = { get: jest.fn().mockResolvedValue(null) };
+
+    const { glean, request } = await run({ redis });
+
+    expect(redis.get).toHaveBeenCalledWith(EXPECTED_KEY);
+    expect(glean.oauth.tokenCreated).toHaveBeenCalledWith(
+      request,
+      expect.objectContaining({ excludeDau: false })
+    );
+  });
+
+  it('counts the token and reports the failure when Redis is unavailable', async () => {
+    const redis = { get: jest.fn().mockRejectedValue(new Error('no redis')) };
+
+    const { glean, request } = await run({ redis });
+
+    expect(glean.oauth.tokenCreated).toHaveBeenCalledWith(
+      request,
+      expect.objectContaining({ excludeDau: false })
+    );
+    // The only signal that the bandaid has silently stopped working.
+    expect(mockStatsD.increment).toHaveBeenCalledWith(
+      'oauth.excludeDau.readFailed'
+    );
+  });
+
+  it('counts the token when no cache is wired up', async () => {
+    const { glean, request } = await run({ redis: undefined });
+
+    expect(glean.oauth.tokenCreated).toHaveBeenCalledWith(
+      request,
+      expect.objectContaining({ excludeDau: false })
+    );
+  });
+
+  it('keeps a client-supplied exclude_dau even when nothing was cached', async () => {
+    const redis = { get: jest.fn().mockResolvedValue(null) };
+
+    const { glean, request } = await run({
+      redis,
+      payload: { exclude_dau: true },
+    });
+
+    expect(redis.get).toHaveBeenCalled();
+    expect(glean.oauth.tokenCreated).toHaveBeenCalledWith(
+      request,
+      expect.objectContaining({ excludeDau: true })
+    );
+  });
+
+  describe('skips Redis when the code cannot carry a flag', () => {
+    it('does not read for a code without the Sync scope', async () => {
+      const redis = { get: jest.fn() };
+
+      await run({
+        redis,
+        oauthDB: buildOauthDB({ scope: ScopeSet.fromArray(['profile']) }),
+      });
+
+      expect(redis.get).not.toHaveBeenCalled();
+    });
+
+    it('does not read for a non-Desktop client', async () => {
+      const redis = { get: jest.fn() };
+
+      await run({
+        redis,
+        oauthDB: buildOauthDB({ clientId: buf(FIREFOX_IOS_CLIENT_ID) }),
+        payload: { client_id: FIREFOX_IOS_CLIENT_ID },
+      });
+
+      expect(redis.get).not.toHaveBeenCalled();
+    });
+  });
+});
+
+// The handler is the last thing between a code and a token, so the gate is
+// covered by driving it directly. Two of its branches are left out on purpose:
+// a stored method other than S256, and a verifier for a challenge-less code.
+// Neither can arrive over HTTP, because /authorization pins the method to S256
+// and writes a challenge if and only if the client is public.
+describe('PKCE gate on the authorization_code grant', () => {
+  // Matches the route's pkceHash(): sha256 of the verifier, URL-safe base64,
+  // unpadded. oauth/util's base64URLEncode is a Buffer.toString('base64url').
+  const CODE_CHALLENGE = crypto
+    .createHash('sha256')
+    .update(PKCE_CODE_VERIFIER)
+    .digest('base64url');
+
+  const CHALLENGED_CODE = {
+    codeChallenge: CODE_CHALLENGE,
+    codeChallengeMethod: 'S256',
+  };
+
+  async function redeem(
+    codeOverrides: Record<string, unknown>,
+    payloadOverrides: Record<string, unknown> = {}
+  ) {
+    resetAndMockDeps();
+    // The shared oauth/util stub only carries makeAssertionJWT, but computing a
+    // pkceHash needs the real base64URLEncode.
+    jest.doMock('../../oauth/util', () => ({
+      ...jest.requireActual('../../oauth/util'),
+      makeAssertionJWT: async () => ({}),
+    }));
+    // The code row carries a real ScopeSet, so match what production's
+    // generateTokens emits or the route throws while building the response.
+    jest.doMock('../../oauth/grant', () => ({
+      ...tokenRoutesDepMocks['../../oauth/grant'],
+      generateTokens: (grant: any) => ({
+        ...grant,
+        scope: grant.scope.toString(),
+      }),
+    }));
+    // The gate throws before the code is consumed, so removeCode having been
+    // called is the observable signal that a redemption cleared it.
+    const removeCode = jest.fn().mockResolvedValue(null);
+    const routes = require('./token')({
+      ...tokenRoutesArgMocks,
+      oauthDB: {
+        ...tokenRoutesArgMocks.oauthDB,
+        removeCode,
+        async getCode() {
+          return {
+            userId: buf(UID),
+            clientId: buf(CLIENT_ID),
+            createdAt: Date.now(),
+            scope: ScopeSet.fromArray(['profile']),
+            ...codeOverrides,
+          };
+        },
+      },
+    });
+    await routes[1].handler({
+      app: {},
+      auth: { credentials: undefined },
+      headers: {},
+      payload: {
+        client_id: CLIENT_ID,
+        grant_type: 'authorization_code',
+        code: CODE,
+        ...payloadOverrides,
+      },
+      emitMetricsEvent: () => {},
+    });
+    return { removeCode };
+  }
+
+  it('consumes the code when the verifier matches the stored challenge', async () => {
+    const { removeCode } = await redeem(CHALLENGED_CODE, {
+      code_verifier: PKCE_CODE_VERIFIER,
+    });
+
+    expect(removeCode).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects a redemption with no verifier when the code carries a challenge', async () => {
+    await expect(redeem(CHALLENGED_CODE)).rejects.toMatchObject({
+      errno: OAUTH_ERRNO.MISSING_PKCE_PARAMETERS,
+    });
+  });
+
+  it('rejects a verifier that does not hash to the stored challenge', async () => {
+    await expect(
+      redeem(CHALLENGED_CODE, {
+        code_verifier: 'w'.repeat(PKCE_CODE_VERIFIER.length),
+      })
+    ).rejects.toMatchObject({ errno: OAUTH_ERRNO.INCORRECT_CODE_CHALLENGE });
   });
 });

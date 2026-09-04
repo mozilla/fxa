@@ -9,11 +9,14 @@ import { ResetPasswordIntegration } from '../interfaces';
 
 const mockIntegration: ResetPasswordIntegration = {
   getCmsInfo: () => undefined,
+  isSync: () => false,
 };
 
 export const Subject = ({
   verifyBackupCode = () => Promise.resolve(),
   errorMessage = '',
+  email = 'test@example.com',
+  showPasskeyOption = false,
 }) => {
   const [codeErrorMessage, setCodeErrorMessage] = useState(errorMessage);
   return (
@@ -24,6 +27,8 @@ export const Subject = ({
           codeErrorMessage,
           setCodeErrorMessage,
           integration: mockIntegration,
+          email,
+          showPasskeyOption,
         }}
       />
     </MemoryRouter>

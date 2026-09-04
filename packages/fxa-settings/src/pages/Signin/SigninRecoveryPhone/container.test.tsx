@@ -42,19 +42,6 @@ jest.mock('../../../models', () => ({
   },
 }));
 
-const mockFinishOAuthFlowHandler = jest
-  .fn()
-  .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
-
-jest.mock('../../../lib/hooks', () => ({
-  useFinishOAuthFlowHandler: jest.fn(() => ({
-    finishOAuthFlowHandler: mockFinishOAuthFlowHandler,
-    oAuthDataError: null,
-  })),
-  useNavigateWithQuery: jest.fn(),
-  useWebRedirect: jest.fn(),
-}));
-
 jest.mock('../../../lib/error-utils', () => ({
   getHandledError: jest.fn().mockImplementation((err) => ({
     error: {
@@ -323,6 +310,45 @@ describe('SigninRecoveryPhoneContainer', () => {
       expect(mockNavigate).not.toHaveBeenCalledWith(
         expect.stringContaining('/post_verify/set_password'),
         expect.anything()
+      );
+    });
+
+    // Without this, /pair tags cad_firefox.choice_view as password_login for a
+    // user who actually signed in with an email OTP code (FXA-14133).
+    it('forwards isPasswordlessOtpSignin to handleNavigation for an OTP sign-in', async () => {
+      const integration =
+        createMockSigninOAuthNativeSyncIntegration() as Integration;
+      integration.requiresPasswordForLogin = () => false;
+      mockReachRouter('/signin_recovery_phone', {
+        signinState: {
+          ...mockSigninLocationState,
+          isPasswordlessOtpSignin: true,
+        },
+        lastFourPhoneDigits: '1234',
+      });
+      renderSigninRecoveryPhoneContainer(integration);
+
+      await currentPageProps?.verifyCode('123456');
+
+      expect(handleNavigation).toHaveBeenCalledWith(
+        expect.objectContaining({ isPasswordlessOtpSignin: true })
+      );
+    });
+
+    it('leaves isPasswordlessOtpSignin unset for a password sign-in', async () => {
+      const integration =
+        createMockSigninOAuthNativeSyncIntegration() as Integration;
+      integration.requiresPasswordForLogin = () => false;
+      mockReachRouter('/signin_recovery_phone', {
+        signinState: mockSigninLocationState,
+        lastFourPhoneDigits: '1234',
+      });
+      renderSigninRecoveryPhoneContainer(integration);
+
+      await currentPageProps?.verifyCode('123456');
+
+      expect(handleNavigation).toHaveBeenCalledWith(
+        expect.objectContaining({ isPasswordlessOtpSignin: undefined })
       );
     });
   });

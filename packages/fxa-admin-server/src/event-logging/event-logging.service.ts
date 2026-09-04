@@ -15,6 +15,9 @@ export enum EventNames {
   UnsubscribeFromMailingLists = 'unsubscribe-from-mailing-lists',
   Remove2FA = 'remove-2fa',
   DeleteRecoveryPhone = 'delete-recovery-phone',
+  DeleteAccounts = 'delete-accounts',
+  ResetAccounts = 'reset-accounts',
+  RemovePasskeys = 'remove-passkeys',
 }
 
 /**
@@ -34,7 +37,7 @@ export class EventLoggingService {
    * Logs an event occurrence
    * @param eventName - A known event name
    */
-  public onEvent(eventName: Omit<EventNames, EventNames.AccountSearch>) {
+  public onEvent(eventName: Exclude<EventNames, EventNames.AccountSearch>) {
     this.log.info(this.logType, {
       event: eventName,
     });

@@ -186,9 +186,12 @@ describe('SigninPasskeyFallback container', () => {
 
   describe('onContinue', () => {
     function submitPassword(getByTestId: (id: string) => HTMLElement) {
-      fireEvent.change(getByTestId('password-input-field'), {
-        target: { value: 'pa55word' },
-      });
+      fireEvent.change(
+        getByTestId('signin-passkey-fallback-password-input-field'),
+        {
+          target: { value: 'pa55word' },
+        }
+      );
       fireEvent.click(getByTestId('continue-button'));
     }
 
@@ -220,6 +223,20 @@ describe('SigninPasskeyFallback container', () => {
           }),
         })
       );
+    });
+
+    // This is the only producer of isPasskeySession, and therefore the only
+    // source of the passkey_login reason on /pair for accounts that already
+    // have a password (FXA-14133).
+    it('marks the session as passkey-established so /pair attributes passkey_login', async () => {
+      const { getByTestId } = render();
+      submitPassword(getByTestId);
+
+      await waitFor(() => {
+        expect(mockHandleNavigation).toHaveBeenCalledWith(
+          expect.objectContaining({ isPasskeySession: true })
+        );
+      });
     });
 
     it('passes the flow metricsContext to sessionReauth so the deferred account.login is correlated', async () => {
@@ -322,9 +339,12 @@ describe('SigninPasskeyFallback container', () => {
 
   describe('Glean events', () => {
     function submitPassword(getByTestId: (id: string) => HTMLElement) {
-      fireEvent.change(getByTestId('password-input-field'), {
-        target: { value: 'pa55word' },
-      });
+      fireEvent.change(
+        getByTestId('signin-passkey-fallback-password-input-field'),
+        {
+          target: { value: 'pa55word' },
+        }
+      );
       fireEvent.click(getByTestId('continue-button'));
     }
 

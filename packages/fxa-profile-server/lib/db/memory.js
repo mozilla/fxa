@@ -87,6 +87,19 @@ MemoryStore.prototype = {
     return P.resolve();
   },
 
+  // The selection goes too, the way the mysql `avatar_selected` foreign key
+  // cascades.
+  deleteUserAvatars: function deleteUserAvatars(uid) {
+    var userId = uid.toString('hex');
+    Object.keys(this.avatars).forEach((id) => {
+      if (this.avatars[id].userId.toString('hex') === userId) {
+        delete this.avatars[id];
+      }
+    });
+    delete this.selected[userId];
+    return P.resolve();
+  },
+
   addProvider: function addProvider(name) {
     this.providers[name] = name;
     return P.resolve(name);

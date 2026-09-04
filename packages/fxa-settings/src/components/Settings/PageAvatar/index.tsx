@@ -4,11 +4,10 @@
 
 import React, { ChangeEvent, useCallback, useRef, useState } from 'react';
 
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import { Localized, useLocalization } from '@fluent/react';
 import Webcam from 'react-webcam';
 import Cropper, { Area } from 'react-easy-crop';
-import { Slider } from '@material-ui/core';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 import 'react-easy-crop/react-easy-crop.css';
@@ -38,6 +37,15 @@ import {
 
 const PROFILE_FILE_IMAGE_MAX_UPLOAD_SIZE = 2 * 1024 * 1024;
 const frameClass = `rounded-full m-auto w-40 object-cover`;
+// Range inputs need per-vendor track and thumb rules. The negative margin
+// centers the WebKit thumb on the track; Firefox centers its own.
+const zoomSliderClass = [
+  'appearance-none w-full bg-transparent cursor-pointer rounded-full focus-visible-default outline-offset-4',
+  '[&::-webkit-slider-runnable-track]:h-1 [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-grey-300',
+  '[&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:-mt-1.5 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-500',
+  '[&::-moz-range-track]:h-1 [&::-moz-range-track]:rounded-full [&::-moz-range-track]:bg-grey-300',
+  '[&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-blue-500',
+].join(' ');
 
 export const PageAddAvatar = () => {
   usePageViewEvent('settings.avatar.change');
@@ -147,12 +155,8 @@ export const PageAddAvatar = () => {
     return null;
   }, [croppedAreaPixels, rotation, capturedImgSrc]);
 
-  const handleSliderChange = (
-    event: React.SyntheticEvent<Element, Event>,
-    value: number | number[]
-  ) => {
-    // @ts-ignore
-    setZoom(value);
+  const handleSliderChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setZoom(Number(event.target.value));
   };
 
   /* Capture Handlers */
@@ -241,14 +245,14 @@ export const PageAddAvatar = () => {
           }}
         />
         <div className="w-32 ml-2 mr-4">
-          <Slider
+          <input
+            type="range"
             min={1}
             max={3}
             step={0.1}
             value={zoom}
-            className={'w-100'}
+            className={zoomSliderClass}
             aria-label="zoom-slider"
-            component={'span'}
             onChange={handleSliderChange}
           />
         </div>

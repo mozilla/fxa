@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { HandledError } from '../../lib/error-utils';
-import { UseFxAStatusResult } from '../../lib/hooks/useFxAStatus';
+import { UseFxAStatusResult } from '../../lib/hooks';
 import { Integration, OAuthIntegration } from '../../models';
 import { QueryParams } from '../..';
 

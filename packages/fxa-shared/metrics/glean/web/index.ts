@@ -23,7 +23,12 @@ export const stringEventPropertyNames = [
 
 // String event extras passed to specific events but not backed by a global
 // `event`-module metric, so they are not set globally in populateMetrics.
-export const stringEventExtraPropertyNames = ['mobile_device_count'] as const;
+export const stringEventExtraPropertyNames = [
+  'mobile_device_count',
+  'supported',
+  'has_passkey_option',
+  'branch',
+] as const;
 
 export type PropertyNameStringT = typeof stringEventPropertyNames;
 export type PropertyNameString =
@@ -161,6 +166,9 @@ export const eventsMap = {
 
     backupChoiceView: 'password_reset_backup_choice_view',
     backupChoiceSubmit: 'password_reset_backup_choice_submit',
+
+    rememberPasswordLinkView: 'password_reset_remember_password_link_view',
+    rememberPasswordLinkClick: 'password_reset_remember_password_link_click',
   },
 
   thirdPartyAuth: {
@@ -182,6 +190,8 @@ export const eventsMap = {
     buttonView: 'passkey_button_view',
     authSuccess: 'passkey_auth_success',
     getHelpLinkClick: 'passkey_get_help_link_click',
+    signinPrfSupport: 'passkey_signin_prf_support',
+    signinRetryWithoutPrfRequest: 'passkey_signin_retry_without_prf_request',
   },
 
   cad: {

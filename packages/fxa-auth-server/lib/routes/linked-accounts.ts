@@ -4,7 +4,6 @@
 import { AuthLogger, AuthRequest } from '../types';
 import { ConfigType } from '../../config';
 import { OAuth2Client } from 'google-auth-library';
-import * as uuid from 'uuid';
 import * as random from '../crypto/random';
 import * as jose from 'jose';
 import validators from './validators';
@@ -50,7 +49,11 @@ import { FxaMailerFormat } from '../senders/fxa-mailer-format';
 
 const HEX_STRING = validators.HEX_STRING;
 
+// Apple uses the same URL for the audience of the client-secret JWT we send
+// and for the issuer of the id_tokens we verify, but the two roles are
+// distinct; name them separately so call sites read correctly.
 const APPLE_AUD = 'https://appleid.apple.com';
+const APPLE_ISSUER = 'https://appleid.apple.com';
 
 export class LinkedAccountHandler {
   private googleAuthClient?: OAuth2Client;
@@ -119,7 +122,7 @@ export class LinkedAccountHandler {
         token,
         this.config.appleAuthConfig.securityEventsClientIds,
         this.applePublicKey.pem,
-        APPLE_AUD,
+        APPLE_ISSUER,
         this.statsd
       )) as AppleJWTSETPayload;
 
@@ -355,7 +358,21 @@ export class LinkedAccountHandler {
             }
             const tokenResponse = await res.json();
             rawIdToken = tokenResponse['id_token'];
-            idToken = jose.decodeJwt(rawIdToken);
+
+            // Verify the id_token signature against Apple's published keys
+            // instead of trusting an unverified decode. Reuses the same JWKS
+            // fetch + verify helpers as the Apple SET webhook handler.
+            const applePublicKey = await getApplePublicKey(
+              rawIdToken,
+              this.statsd
+            );
+            idToken = await validateSecurityToken(
+              rawIdToken,
+              [clientId],
+              applePublicKey.pem,
+              APPLE_ISSUER,
+              this.statsd
+            );
           } catch (err) {
             this.log.error('linked_account.code_exchange_error', err);
             throw error.thirdPartyAccountError();
@@ -398,6 +415,21 @@ export class LinkedAccountHandler {
         throw error.thirdPartyAccountError();
       }
 
+      // The IdP must have verified mailbox ownership before we auto-link or
+      // create an account by email, otherwise an unverified third-party
+      // identity could take over an existing FxA account at that address.
+      // Apple sends email_verified as the string "true"; Google as a boolean.
+      const emailVerified =
+        idToken.email_verified === true || idToken.email_verified === 'true';
+      if (!emailVerified) {
+        this.statsd.increment('linked_account.email_not_verified');
+        this.log.error('linked_account.email_not_verified', {
+          provider,
+          userid,
+        });
+        throw error.thirdPartyAccountError();
+      }
+
       try {
         // This is a new third party account linking an existing FxA account
         accountRecord = await this.db.accountRecord(email);
@@ -407,42 +439,15 @@ export class LinkedAccountHandler {
           await this.updateProfileDisplayName(accountRecord.uid, name);
         }
 
-        const geoData = request.app.geo;
-        const ip = request.app.clientAddress;
-
-        if (this.fxaMailer.canSend('postAddLinkedAccount')) {
-          await this.fxaMailer.sendPostAddLinkedAccountEmail({
-            ...FxaMailerFormat.account(accountRecord),
-            ...(await FxaMailerFormat.metricsContext(request)),
-            ...FxaMailerFormat.localTime(request),
-            ...FxaMailerFormat.location(request),
-            ...FxaMailerFormat.device(request),
-            ...FxaMailerFormat.sync(service),
-            providerName: PROVIDER_NAME[provider],
-          });
-        } else {
-          const emailOptions = {
-            acceptLanguage: request.app.acceptLanguage,
-            deviceId,
-            flowId,
-            flowBeginTime,
-            ip,
-            location: geoData.location,
-            providerName: PROVIDER_NAME[provider],
-            timeZone: geoData.timeZone,
-            uaBrowser: request.app.ua.browser,
-            uaBrowserVersion: request.app.ua.browserVersion,
-            uaOS: request.app.ua.os,
-            uaOSVersion: request.app.ua.osVersion,
-            uaDeviceType: request.app.ua.deviceType,
-            uid: accountRecord.uid,
-          };
-          await this.mailer.sendPostAddLinkedAccountEmail(
-            accountRecord.emails,
-            accountRecord,
-            emailOptions
-          );
-        }
+        await this.fxaMailer.sendPostAddLinkedAccountEmail({
+          ...FxaMailerFormat.account(accountRecord),
+          ...(await FxaMailerFormat.metricsContext(request)),
+          ...FxaMailerFormat.localTime(request),
+          ...FxaMailerFormat.location(request),
+          ...FxaMailerFormat.device(request),
+          ...FxaMailerFormat.sync(service),
+          providerName: PROVIDER_NAME[provider],
+        });
         request.setMetricsFlowCompleteSignal('account.login', 'login');
         switch (provider) {
           case 'google':
@@ -489,7 +494,7 @@ export class LinkedAccountHandler {
           32
         );
         accountRecord = await this.db.createAccount({
-          uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
+          uid: await random.hex(16),
           createdAt: Date.now(),
           email,
           emailCode,

@@ -89,7 +89,7 @@ const ACCOUNT_DEVICE_POST = {
             - \`errno: 107\` - Invalid parameter in request body
           `,
         },
-        503: {
+        403: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 202\` - Feature not enabled
@@ -159,7 +159,7 @@ const ACCOUNT_DEVICES_NOTIFY_POST = {
             - \`errno: 107\` - Invalid parameter in request body
           `,
         },
-        503: {
+        403: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 202\` - Feature not enabled

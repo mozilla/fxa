@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import crypto from 'node:crypto';
 import Container from 'typedi';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { StatsD } from 'hot-shots';
-import { v4 as uuidv4 } from 'uuid';
 import { AppError, ERRNO } from '@fxa/accounts/errors';
 import { AppleIAP } from './payments/iap/apple-app-store/apple-iap';
 import { PlayBilling } from './payments/iap/google-play/play-billing';
@@ -36,7 +36,7 @@ jest.mock('./inactive-accounts', () => {
 });
 
 const email = 'foo@example.com';
-const uid = uuidv4({}, Buffer.alloc(16)).toString('hex');
+const uid = crypto.randomBytes(16).toString('hex');
 const expectedSubscriptions = [
   { uid, subscriptionId: '123' },
   { uid, subscriptionId: '456' },

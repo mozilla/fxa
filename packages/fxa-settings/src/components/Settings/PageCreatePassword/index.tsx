@@ -4,7 +4,7 @@
 
 import { Localized } from '@fluent/react';
 import { useLocation } from 'react-router';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { SETTINGS_PATH } from '../../../constants';
@@ -17,10 +17,8 @@ import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
 import FlowContainer from '../FlowContainer';
 import FormPassword from '../../FormPassword';
 import { UnlinkAccountLocationState } from '../../../lib/types';
-import {
-  MfaGuard,
-  useMfaErrorHandler,
-} from '../../../components/Settings/MfaGuard';
+import { MfaGuard } from '../MfaGuard';
+import { useMfaErrorHandler } from '../../../lib/hooks';
 import { MfaReason } from '../../../lib/types';
 
 type FormData = {
@@ -40,7 +38,7 @@ export const PageCreatePassword = () => {
   const handleMfaError = useMfaErrorHandler();
   usePageViewEvent('settings.create-password');
 
-  const { handleSubmit, register, getValues, errors, formState, trigger } =
+  const { handleSubmit, register, getValues, formState, trigger } =
     useForm<FormData>({
       mode: 'onTouched',
       criteriaMode: 'all',
@@ -115,7 +113,7 @@ export const PageCreatePassword = () => {
         <FormPassword
           {...{
             formState,
-            errors,
+            errors: formState.errors,
             trigger,
             register,
             getValues,

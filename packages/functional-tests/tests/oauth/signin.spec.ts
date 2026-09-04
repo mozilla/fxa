@@ -38,7 +38,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.clickEmailFirst();
 
       // Email is prefilled
-      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninSubmitButton).toBeVisible();
       await expect(page.getByText(credentials.email)).toBeVisible();
 
       await signin.signInButton.click();
@@ -63,7 +63,7 @@ test.describe('severity-1 #smoke', () => {
       // Attempt to sign back in with cached user
       await relier.clickEmailFirst();
 
-      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninSubmitButton).toBeVisible();
       await expect(page.getByText(credentials.email)).toBeVisible();
 
       await signin.signInButton.click();
@@ -125,7 +125,7 @@ test.describe('severity-1 #smoke', () => {
       await page.waitForURL(`${target.contentServerUrl}/oauth/**`);
 
       // Cached user detected
-      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninSubmitButton).toBeVisible();
       await expect(page.getByText(email)).toBeVisible();
 
       await signin.signInButton.click();
@@ -155,7 +155,7 @@ test.describe('severity-1 #smoke', () => {
       // now suggest a cached login
       await relier.goto();
       await relier.clickChooseFlow();
-      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninSubmitButton).toBeVisible();
 
       await signin.signInButton.click();
       await expect(page).toHaveURL(/confirm_signup_code/);

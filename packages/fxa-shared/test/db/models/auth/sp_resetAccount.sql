@@ -1,4 +1,4 @@
-CREATE PROCEDURE `resetAccount_19` (
+CREATE PROCEDURE `resetAccount_20` (
   IN `uidArg` BINARY(16),
   IN `verifyHashArg` BINARY(32),
   IN `verifyHashVersion2Arg` BINARY(32),
@@ -36,8 +36,10 @@ BEGIN
   END IF;
 
   -- We should only revoke the recovery key if the users private key has changed.
+  -- The same goes for passkey wraps, which seal kB to the old `keysChangedAt`.
   IF keysHaveChangedArg = 1 THEN
     DELETE FROM recoveryKeys WHERE uid = uidArg;
+    DELETE FROM passkeyWraps WHERE uid = uidArg;
   END IF;
 
   UPDATE accounts

@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import crypto from 'node:crypto';
 import { AppError as errors } from '@fxa/accounts/errors';
 import { createMock } from '@golevelup/ts-jest';
 import { AuthLogger } from '../types';
@@ -10,7 +11,6 @@ import {
   uninstallMockFxaMailer,
 } from '../../test/fixtures/fxa-mailer';
 
-const uuid = require('uuid');
 const mocks = require('../../test/mocks');
 const getRoute = require('../../test/routes_helpers').getRoute;
 const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
@@ -29,7 +29,7 @@ const email = 'test@email.com';
 const recoveryKeyId = '000000';
 const recoveryData = '11111111111';
 const hint = 'super secret location';
-const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+const uid = crypto.randomBytes(16).toString('hex');
 
 let mockAuthorizedClientsList: any = jest.fn().mockResolvedValue([]);
 
@@ -362,7 +362,7 @@ describe('POST /recoveryKey', () => {
     });
   });
 
-  describe('should create disabled account recovery key', () => {
+  describe('ignores a request to create a disabled account recovery key', () => {
     beforeEach(async () => {
       const requestOptions = {
         credentials: { uid, email },
@@ -381,14 +381,43 @@ describe('POST /recoveryKey', () => {
       expect(response).toEqual({});
     });
 
-    it('called db.createRecoveryKey correctly', () => {
+    it('created the key enabled despite the payload asking for disabled', () => {
       expect(db.createRecoveryKey).toHaveBeenCalledTimes(1);
       expect(db.createRecoveryKey).toHaveBeenNthCalledWith(
         1,
         uid,
         recoveryKeyId,
         recoveryData,
-        false
+        true
+      );
+    });
+
+    it('logged that the enabled flag was ignored', () => {
+      expect(log.warn).toHaveBeenCalledTimes(1);
+      expect(log.warn).toHaveBeenNthCalledWith(
+        1,
+        'account.recoveryKey.enabledFalseIgnored',
+        { uid }
+      );
+    });
+
+    it('notified the account owner that a key was added', () => {
+      expect(fxaMailer.sendPostAddAccountRecoveryEmail).toHaveBeenCalledTimes(
+        1
+      );
+      expect(fxaMailer.sendPostAddAccountRecoveryEmail).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({ to: email })
+      );
+    });
+
+    it('recorded a security event for the key creation', () => {
+      expect(mockAccountEventsManager.recordSecurityEvent).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          name: 'account.recovery_key_added',
+          uid,
+        })
       );
     });
   });
@@ -399,7 +428,7 @@ describe('POST /recoveryKey', () => {
       const requestOptions = {
         credentials: { uid, email, tokenVerified: true },
         log,
-        payload: { recoveryKeyId, enabled: false },
+        payload: { recoveryKeyId },
       };
       response = await setup(
         { db: { email } },
@@ -416,6 +445,11 @@ describe('POST /recoveryKey', () => {
       expect(response).toEqual({});
     });
 
+    it('validated the key id without opting in to disabled rows', () => {
+      expect(db.getRecoveryKey).toHaveBeenCalledTimes(1);
+      expect(db.getRecoveryKey).toHaveBeenNthCalledWith(1, uid, recoveryKeyId);
+    });
+
     it('called customs.checkAuthenticated correctly', () => {
       expect(customs.checkAuthenticated).toHaveBeenCalledTimes(1);
       expect(customs.checkAuthenticated).toHaveBeenNthCalledWith(
@@ -427,33 +461,16 @@ describe('POST /recoveryKey', () => {
       );
     });
 
-    it('called db.updateRecoveryKey correctly', () => {
-      expect(db.updateRecoveryKey).toHaveBeenCalledTimes(1);
-      expect(db.updateRecoveryKey).toHaveBeenNthCalledWith(
-        1,
-        uid,
-        recoveryKeyId,
-        true
-      );
+    it('did not change the key state', () => {
+      expect(db.updateRecoveryKey).not.toHaveBeenCalled();
     });
 
-    it('called request.emitMetricsEvent correctly', () => {
-      expect(request.emitMetricsEvent).toHaveBeenCalledTimes(1);
-      expect(request.emitMetricsEvent).toHaveBeenNthCalledWith(
-        1,
-        'recoveryKey.created',
-        expect.objectContaining({ uid })
-      );
+    it('did not emit a key creation metrics event', () => {
+      expect(request.emitMetricsEvent).not.toHaveBeenCalled();
     });
 
-    it('called mailer.sendPostAddAccountRecoveryEmail correctly', () => {
-      expect(fxaMailer.sendPostAddAccountRecoveryEmail).toHaveBeenCalledTimes(
-        1
-      );
-      expect(fxaMailer.sendPostAddAccountRecoveryEmail).toHaveBeenNthCalledWith(
-        1,
-        expect.objectContaining({ to: email })
-      );
+    it('did not send a key creation email', () => {
+      expect(fxaMailer.sendPostAddAccountRecoveryEmail).not.toHaveBeenCalled();
     });
 
     it('records security event', () => {
@@ -464,6 +481,51 @@ describe('POST /recoveryKey', () => {
           ipAddr: '63.245.221.32',
           uid: uid,
           tokenId: undefined,
+        })
+      );
+    });
+  });
+
+  describe('rejects a disabled (legacy) account recovery key', () => {
+    let error: any;
+
+    beforeEach(async () => {
+      error = undefined;
+      mockAccountEventsManager = mocks.mockAccountEventsManager();
+      const requestOptions = {
+        credentials: { uid, email, tokenVerified: true },
+        log,
+        payload: { recoveryKeyId },
+      };
+      try {
+        await setup(
+          { db: { email, recoveryKeyDisabled: true } },
+          {},
+          '/recoveryKey/verify',
+          requestOptions
+        );
+      } catch (e) {
+        error = e;
+      }
+    });
+    afterAll(() => {
+      mocks.unMockAccountEventsManager();
+    });
+
+    it('is indistinguishable from a missing key (errno 158)', () => {
+      expect(error.errno).toBe(errors.ERRNO.RECOVERY_KEY_NOT_FOUND);
+    });
+
+    it('did not enable the key', () => {
+      expect(db.updateRecoveryKey).not.toHaveBeenCalled();
+    });
+
+    it('records a challenge failure security event', () => {
+      expect(mockAccountEventsManager.recordSecurityEvent).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          name: 'account.recovery_key_challenge_failure',
+          uid,
         })
       );
     });
@@ -541,6 +603,34 @@ describe('GET /recoveryKey/{recoveryKeyId}', () => {
 
     it('returned the correct response', () => {
       expect(response.errno).toBe(errors.ERRNO.RECOVERY_KEY_INVALID);
+    });
+  });
+
+  describe('rejects a disabled (unconfirmed) recovery key', () => {
+    beforeEach(async () => {
+      const requestOptions = {
+        credentials: { uid, email },
+        params: { recoveryKeyId },
+        log,
+      };
+      try {
+        await setup(
+          { db: { recoveryData, recoveryKeyId, recoveryKeyDisabled: true } },
+          {},
+          '/recoveryKey/{recoveryKeyId}',
+          requestOptions
+        );
+      } catch (err) {
+        response = err;
+      }
+    });
+
+    it('is indistinguishable from a missing key (errno 158)', () => {
+      expect(response.errno).toBe(errors.ERRNO.RECOVERY_KEY_NOT_FOUND);
+    });
+
+    it('did not opt in to disabled keys', () => {
+      expect(db.getRecoveryKey).toHaveBeenNthCalledWith(1, uid, recoveryKeyId);
     });
   });
 });
@@ -742,6 +832,19 @@ describe('DELETE /recoveryKey', () => {
 });
 
 describe('POST /recoveryKey/hint', () => {
+  beforeEach(() => {
+    glean = mocks.mockGlean();
+    fxaMailer = installMockFxaMailer();
+  });
+
+  it('requires a verified session token', () => {
+    const hintRoute = getRoute(makeRoutes({}), '/recoveryKey/hint', 'POST');
+    expect(hintRoute.options.auth.strategies).toEqual([
+      'verifiedSessionTokenBearer',
+      'verifiedSessionToken',
+    ]);
+  });
+
   describe('should fail for unknown recovery key', () => {
     beforeEach(async () => {
       const requestOptions = {

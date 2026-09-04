@@ -9,6 +9,6 @@ export class ConfirmSignupCodePage extends BaseTokenCodePage {
 
   get heading() {
     this.checkPath();
-    return this.page.getByRole('heading', { name: /^Enter confirmation code/ });
+    return this.pageHeading;
   }
 }

@@ -10,7 +10,7 @@ import { withLocalization } from 'fxa-react/lib/storybooks';
 import SettingsLayout from '../SettingsLayout';
 import { AppContext } from '../../../models/contexts/AppContext';
 import { mockAppContext } from '../../../models/mocks';
-import { MfaContext } from '../MfaGuard';
+import { MfaContext } from '../../../lib/hooks';
 
 export default {
   title: 'Pages/Settings/SecondaryEmailVerify',
@@ -18,7 +18,9 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-const initialEntries = [{ pathname: '/', state: { email: 'johndope@example.com' } }];
+const initialEntries = [
+  { pathname: '/', state: { email: 'johndope@example.com' } },
+];
 
 type Story = StoryObj<typeof PageSecondaryEmailVerify>;
 

@@ -80,6 +80,6 @@ async function removeAccount(
   await settings.deleteAccountButton.click();
   await deleteAccount.deleteAccount(password);
 
-  await expect(signin.emailFirstHeading).toBeVisible();
+  await expect(signin.emailTextbox).toBeVisible();
   await expect(page.getByText('Account deleted successfully')).toBeVisible();
 }

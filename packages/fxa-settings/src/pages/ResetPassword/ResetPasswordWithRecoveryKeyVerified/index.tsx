@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { lazy, Suspense, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
@@ -11,7 +11,7 @@ import { useFtlMsgResolver } from '../../../models';
 import GleanMetrics from '../../../lib/glean';
 import { RecoveryKeyImage } from '../../../components/images';
 import DataBlockInline from '../../../components/DataBlockInline';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import ButtonDownloadRecoveryKey from '../../../components/ButtonDownloadRecoveryKey';
 import RecoveryKeySetupHint from '../../../components/RecoveryKeySetupHint';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { AuthError } from '../../../lib/oauth';
@@ -46,13 +46,6 @@ const ResetPasswordWithRecoveryKeyVerified = ({
     'reset-password-with-recovery-key-verified-page-title',
     'Password reset successful'
   );
-  const ButtonDownloadRecoveryKeyPDF = lazy(
-    () => import('../../../components/ButtonDownloadRecoveryKeyPDF')
-  );
-  const spinner = (
-    <LoadingSpinner className="bg-grey-20 flex items-center flex-col justify-center select-none" />
-  );
-
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   useEffect(() => {
     GleanMetrics.passwordReset.recoveryKeyResetSuccessView();
@@ -135,16 +128,13 @@ const ResetPasswordWithRecoveryKeyVerified = ({
             id: 'account_pref_recovery_key_copy',
           }}
         />
-        <Suspense fallback={spinner}>
-          <ButtonDownloadRecoveryKeyPDF
-            {...{
-              navigateForward: navigateToHint,
-              recoveryKeyValue: newRecoveryKey,
-              viewName,
-              email,
-            }}
-          />
-        </Suspense>
+        <ButtonDownloadRecoveryKey
+          {...{
+            navigateForward: navigateToHint,
+            recoveryKeyValue: newRecoveryKey,
+            email,
+          }}
+        />
         <FtlMsg id="flow-recovery-key-download-next-link-v2">
           <button
             className="text-sm link-blue text-center mx-auto mt-6"

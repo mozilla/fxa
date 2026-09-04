@@ -296,29 +296,21 @@ export class InactiveAccountsManager {
       inactiveDeletionEta: now + emailTypeSpecificVals.timeToDeletion,
     };
 
-    if (this.fxaMailer.canSend(emailTypeSpecificVals.emailTemplate)) {
-      await this.fxaMailer[emailTypeSpecificVals.emailSender]({
-        ...FxaMailerFormat.account(account),
-        ...(await FxaMailerFormat.metricsContext(requestForGlean)),
-        ...FxaMailerFormat.localTime(requestForGlean),
-        ...FxaMailerFormat.location(requestForGlean),
-        ...FxaMailerFormat.device(requestForGlean),
-        ...FxaMailerFormat.sync(false),
-        // use the formatter to convert inactiveDeletionEta to localized strings
-        deletionDate: FxaMailerFormat.localTime(
-          requestForGlean,
-          message.inactiveDeletionEta
-        ).date,
-        // override acceptLanguage to ensure email is localized as best we can
-        acceptLanguage: account.locale,
-      });
-    } else {
-      await this.mailer[emailTypeSpecificVals.emailSender](
-        account.emails,
-        account,
-        message
-      );
-    }
+    await this.fxaMailer[emailTypeSpecificVals.emailSender]({
+      ...FxaMailerFormat.account(account),
+      ...(await FxaMailerFormat.metricsContext(requestForGlean)),
+      ...FxaMailerFormat.localTime(requestForGlean),
+      ...FxaMailerFormat.location(requestForGlean),
+      ...FxaMailerFormat.device(requestForGlean),
+      ...FxaMailerFormat.sync(false),
+      // use the formatter to convert inactiveDeletionEta to localized strings
+      deletionDate: FxaMailerFormat.localTime(
+        requestForGlean,
+        message.inactiveDeletionEta
+      ).date,
+      // override acceptLanguage to ensure email is localized as best we can
+      acceptLanguage: account.locale,
+    });
 
     this.statsd.increment(
       `account.inactive.${emailTypeSpecificVals.attempt}-email.sent`

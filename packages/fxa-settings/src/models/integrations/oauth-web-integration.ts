@@ -181,7 +181,11 @@ export class OAuthWebIntegration extends GenericIntegration<
   }
 
   wantsLogin() {
-    return this.data.prompt === OAuthPrompt.LOGIN || this.data.maxAge === 0;
+    // `max_age` used to force a password prompt here (via `maxAge === 0`). Step-up
+    // auth must NOT prompt for a password — `max_age` is forwarded to the backend
+    // and drives a second-factor challenge instead (RFC 9470 / FXA-12856). Only
+    // `prompt=login` still forces password re-entry.
+    return this.data.prompt === OAuthPrompt.LOGIN;
   }
 
   wantsPromptNone() {
@@ -374,6 +378,23 @@ export class OAuthWebIntegration extends GenericIntegration<
     return this.data.redirectTo || '';
   }
 }
+
+export function normalizeError(
+    err: unknown
+  ): Error | { errno: number; message: string } {
+    if (err instanceof Error) {
+      return err;
+    }
+    if (
+      typeof err === 'object' &&
+      err !== null &&
+      'errno' in err &&
+      'message' in err
+    ) {
+      return err as { errno: number; message: string };
+    }
+    return new Error(String(err));
+  }
 
 export function scopeStrToArray(scopes: string) {
   const arrScopes = scopes

@@ -9,8 +9,9 @@ export type Base64URLString = string;
 export interface PublicKeyCredentialDescriptorJSON {
   id: Base64URLString;
   type: 'public-key';
-  // 'smart-card' is valid per spec but absent from the TS DOM lib's union.
-  transports?: (AuthenticatorTransport | 'smart-card')[];
+  // Not restricted to AuthenticatorTransport — the IDL is sequence<DOMString>:
+  // https://www.w3.org/TR/webauthn-3/#dom-publickeycredentialdescriptor-transports
+  transports?: string[];
 }
 
 /**
@@ -114,7 +115,8 @@ function toNativeDescriptor(
     id: base64urlToBytes(descriptor.id),
     type: descriptor.type,
     ...(descriptor.transports
-      ? { transports: descriptor.transports as AuthenticatorTransport[] }
+      ? // Cast: the DOM lib narrows this to a closed enum.
+        { transports: descriptor.transports as AuthenticatorTransport[] }
       : {}),
   };
 }

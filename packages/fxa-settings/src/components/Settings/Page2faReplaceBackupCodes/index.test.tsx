@@ -19,7 +19,7 @@ import {
 
 import { Page2faReplaceBackupCodes } from '.';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
-import { MfaContext } from '../MfaGuard';
+import { MfaContext } from '../../../lib/hooks';
 
 const mockRecoveryCodes = ['0123456789'];
 
@@ -69,8 +69,6 @@ jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
   useNavigate: () => mockNavigate,
 }));
-
-window.URL.createObjectURL = jest.fn();
 
 async function renderPage2faReplaceBackupCodes(
   account = accountWithExistingCodes

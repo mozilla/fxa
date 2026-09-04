@@ -98,10 +98,18 @@ export class MarionetteFirefox {
       args.push('--headless');
     }
 
+    // Diagnostic: set MARIONETTE_LOG to capture the authority's stdout (content
+    // console.log, via devtools.console.stdout.content) to a file.
+    const logPath = process.env.MARIONETTE_LOG;
     const proc = spawn(firefoxBinary, args, {
-      stdio: 'ignore',
+      stdio: logPath ? ['ignore', 'pipe', 'pipe'] : 'ignore',
       detached: false,
     });
+    if (logPath && proc.stdout && proc.stderr) {
+      const ws = fs.createWriteStream(logPath, { flags: 'a' });
+      proc.stdout.pipe(ws);
+      proc.stderr.pipe(ws);
+    }
 
     try {
       // Wait for Marionette port to become available
@@ -216,9 +224,18 @@ function buildPrefs(
     // Auto-handle unexpected dialogs (dismiss by default)
     'marionette.prefs.recommended': true,
 
-    // Pairing
+    // Pairing. version=2 lets chrome accept the v2 pair_oauth_start /
+    // pair_oauth_finish web-channel commands (gated by _ensurePairingEnabled).
     'identity.fxaccounts.pairing.enabled': true,
+    'identity.fxaccounts.pairing.version': 2,
     'identity.fxaccounts.remote.pairing.uri': channelServerUri,
+
+    // Diagnostic: route content console.log to the process stdout so the
+    // authority's [pair2] logs can be captured (see MARIONETTE_LOG).
+    'devtools.console.stdout.content': true,
+    // Diagnostic: FxAccounts chrome logs (pairing + oauth) to dump/stdout.
+    'identity.fxaccounts.loglevel': 'Trace',
+    'identity.fxaccounts.log.appender.dump': 'Trace',
 
     // Browser chrome — suppress UI that interferes with automation
     'datareporting.policy.dataSubmissionEnabled': false,

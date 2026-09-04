@@ -105,10 +105,22 @@ describe('SigninRecoveryChoice', () => {
     });
     renderSigninRecoveryChoice({ integration: mockIntegrationWithCms });
     expect(
-      screen.getByText(MOCK_CMS_INFO.SigninRecoveryChoicePage!.headline!)
+      screen.getByText(MOCK_CMS_INFO.SigninRecoveryChoicePage.headline)
     ).toBeInTheDocument();
     expect(
-      screen.getByText(MOCK_CMS_INFO.SigninRecoveryChoicePage!.description!)
+      screen.getByText(MOCK_CMS_INFO.SigninRecoveryChoicePage.description)
+    ).toBeInTheDocument();
+  });
+
+  it('renders the CMS primary button text when provided', () => {
+    const mockIntegrationWithCms = createMockSigninWebIntegration({
+      cmsInfo: MOCK_CMS_INFO,
+    });
+    renderSigninRecoveryChoice({ integration: mockIntegrationWithCms });
+    expect(
+      screen.getByRole('button', {
+        name: MOCK_CMS_INFO.SigninRecoveryChoicePage.primaryButtonText,
+      })
     ).toBeInTheDocument();
   });
 

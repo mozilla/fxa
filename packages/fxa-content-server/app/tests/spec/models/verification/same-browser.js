@@ -2,12 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import chai from 'chai';
+import { assert } from 'chai';
 import SameBrowserVerificationModel from 'models/verification/same-browser';
 import sinon from 'sinon';
 import Storage from 'lib/storage';
-
-var assert = chai.assert;
 
 describe('models/verification/same-browser', function () {
   describe('_getUsersStorageId', function () {

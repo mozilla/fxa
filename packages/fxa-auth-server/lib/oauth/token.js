@@ -64,10 +64,14 @@ exports.verify = async function verify(accessToken) {
   // pretend they're still valid, while chipping away at
   // the backlog by either slowly reducing this epoch, or
   // by slowly purging older tokens from the db.
-  const expired =
-    +token.expiresAt < Date.now() &&
-    +token.expiresAt >=
-      config.get('oauthServer.expiration.accessTokenExpiryEpoch');
+  const now = Date.now();
+  // A future epoch would grandfather every already-expired token, silently
+  // disabling expiry enforcement. Treat that misconfig as no grandfathering.
+  const configuredEpoch = +config.get(
+    'oauthServer.expiration.accessTokenExpiryEpoch'
+  );
+  const expiryEpoch = configuredEpoch > now ? 0 : configuredEpoch;
+  const expired = +token.expiresAt < now && +token.expiresAt >= expiryEpoch;
 
   if (expired) {
     throw OauthError.expiredToken(token.expiresAt);

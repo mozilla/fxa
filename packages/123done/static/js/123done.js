@@ -159,6 +159,42 @@ $(document).ready(function () {
       if (loggedInState.keys_jwe) {
         $('#keys').text(`Scoped key: ${loggedInState.keys_jwe}`);
       }
+
+      renderStepUpClaims(email);
+    }
+
+    // auth_time is seconds since the epoch; show the raw value and a readable one.
+    function formatAuthTime(authTime) {
+      if (!authTime) {
+        return 'auth_time: (none)';
+      }
+      return `auth_time: ${authTime} (${new Date(authTime * 1000).toISOString()})`;
+    }
+
+    // Two views of the same elevation, which should agree: the id_token claims from
+    // redirect time, and what the authorization server reports for the access token.
+    function renderStepUpClaims(email) {
+      $('#id-token-acr, #id-token-auth-time').text('');
+      $('#introspect-acr, #introspect-auth-time, #introspect-amr').text('');
+      if (!email) {
+        return;
+      }
+
+      $('#id-token-acr').text(`acr: ${loggedInState.acr || '(none)'}`);
+      $('#id-token-auth-time').text(formatAuthTime(loggedInState.auth_time));
+
+      // Fetched once per page load; /v1/introspect is rate-limited per IP.
+      $.get('/api/token_claims')
+        .done(function (claims) {
+          $('#introspect-acr').text(`acr: ${claims.acr || '(none)'}`);
+          $('#introspect-auth-time').text(formatAuthTime(claims.auth_time));
+          $('#introspect-amr').text(
+            `amr: ${claims.amr ? claims.amr.join(' ') : '(none)'}`
+          );
+        })
+        .fail(function (xhr) {
+          $('#introspect-acr').text(`introspection failed: ${xhr.status}`);
+        });
     }
 
     function updateListArea(email) {
@@ -283,6 +319,26 @@ $(document).ready(function () {
 
     $('button.prompt-login').click(function (ev) {
       authenticate('prompt_login');
+    });
+
+    // Seeded from `?max_age=` when the page URL carries one, so that override still
+    // reaches /api/step_up — the click handler below sends whatever is in the box.
+    // Otherwise from config, so the box shows the value the route would use anyway.
+    const urlMaxAge = new URLSearchParams(window.location.search).get(
+      'max_age'
+    );
+    $('#step-up-max-age').val(
+      urlMaxAge === null ? loggedInState.step_up_max_age : urlMaxAge
+    );
+
+    $('button.step-up-auth').click(function (ev) {
+      // An empty or non-integer box means "use the route default". Forwarding it raw
+      // would send `max_age=`, which fails authorization-parameter validation and
+      // drops the tester on an error page.
+      const raw = $('#step-up-max-age').val();
+      const maxAge = Number(raw);
+      const valid = raw !== '' && Number.isInteger(maxAge) && maxAge >= 0;
+      authenticate('step_up', valid ? { max_age: maxAge } : {});
     });
 
     // upon click of logout link navigator.id.logout()

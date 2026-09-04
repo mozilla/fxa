@@ -5,6 +5,7 @@
 import { ModelDataStore, GenericData } from '../../lib/model-data';
 import {
   OAuthWebIntegration,
+  normalizeError,
   replaceItemInArray,
 } from './oauth-web-integration';
 import * as Sentry from '@sentry/browser';
@@ -37,6 +38,36 @@ describe('models/integrations/oauth-relier', function () {
 
   it('exists', () => {
     expect(model).toBeDefined();
+  });
+
+  describe('wantsLogin', () => {
+    function getIntegration(params: Record<string, unknown>) {
+      return new OAuthWebIntegration(
+        new GenericData({ scope: 'profile', ...params }),
+        new GenericData({ scope: 'profile' }),
+        {
+          scopedKeysEnabled: true,
+          scopedKeysValidation: {},
+          isPromptNoneEnabled: true,
+          isPromptNoneEnabledClientIds: [],
+        }
+      );
+    }
+
+    it('returns true when prompt=login', () => {
+      expect(getIntegration({ prompt: 'login' }).wantsLogin()).toBe(true);
+    });
+
+    // Step-up auth must NOT prompt for a password; max_age drives a second-factor
+    // challenge via the backend instead (FXA-12861 / FXA-12856).
+    it('does not force login for max_age=0', () => {
+      // Query-param values are strings in the data store.
+      expect(getIntegration({ max_age: '0' }).wantsLogin()).toBe(false);
+    });
+
+    it('returns false when neither prompt=login nor a password reason is present', () => {
+      expect(getIntegration({}).wantsLogin()).toBe(false);
+    });
   });
 
   describe('scope', () => {
@@ -482,6 +513,87 @@ describe('models/integrations/oauth-relier', function () {
 
     it('handles empty replacement', () => {
       expect(replaceItemInArray(['a', 'b', 'c'], 'a', [])).toEqual(['b', 'c']);
+    });
+  });
+
+  // The pairing integrations surface whatever the channel handed them, which
+  // may be a DOM error, a channel-server errno object, or a bare string.
+  describe('normalizeError', () => {
+    it('passes an Error through unchanged', () => {
+      const err = new Error('boom');
+
+      expect(normalizeError(err)).toBe(err);
+    });
+
+    it('passes an errno object through unchanged', () => {
+      const err = { errno: 1006, message: 'Connection closed' };
+
+      expect(normalizeError(err)).toBe(err);
+    });
+
+    it('preserves an Error subclass', () => {
+      const err = new OAuthError(OAUTH_ERRORS.INVALID_TOKEN.errno);
+
+      expect(normalizeError(err)).toBe(err);
+    });
+
+    it.each([
+      ['a string', 'something went wrong', 'something went wrong'],
+      ['null', null, 'null'],
+      ['undefined', undefined, 'undefined'],
+      ['a number', 42, '42'],
+      ['an object with no errno', { foo: 'bar' }, '[object Object]'],
+    ])('wraps %s in an Error', (_label, input, expected) => {
+      const result = normalizeError(input);
+
+      expect(result).toBeInstanceOf(Error);
+      expect((result as Error).message).toBe(expected);
+    });
+  });
+
+  describe('getRedirectWithErrorUrl', () => {
+    function getIntegration(params: Record<string, unknown>) {
+      const integration = new OAuthWebIntegration(
+        new GenericData({ scope: 'profile', ...params }),
+        new GenericData({ scope: 'profile' }),
+        {
+          scopedKeysEnabled: true,
+          scopedKeysValidation: {},
+          isPromptNoneEnabled: true,
+          isPromptNoneEnabledClientIds: [],
+        }
+      );
+      // The registered URI the server handed back, not the RP-supplied param.
+      integration.clientInfo = { redirectUri: 'https://amo.test/oauth' } as any;
+      return integration;
+    }
+
+    it('returns the RFC 9470 error code and echoes state', () => {
+      const integration = getIntegration({ state: 'rp-state-123' });
+
+      const url = new URL(
+        integration.getRedirectWithErrorUrl(
+          new OAuthError('UNMET_AUTHENTICATION_REQUIREMENTS')
+        )
+      );
+
+      expect(url.origin + url.pathname).toBe('https://amo.test/oauth');
+      expect(url.searchParams.get('error')).toBe(
+        'unmet_authentication_requirements'
+      );
+      expect(url.searchParams.get('state')).toBe('rp-state-123');
+    });
+
+    it('falls back to the errno when the error carries no OAuth code', () => {
+      const integration = getIntegration({ state: 'rp-state-123' });
+
+      const url = new URL(
+        integration.getRedirectWithErrorUrl(OAUTH_ERRORS.TRY_AGAIN)
+      );
+
+      expect(url.searchParams.get('error')).toBe(
+        String(OAUTH_ERRORS.TRY_AGAIN.errno)
+      );
     });
   });
 

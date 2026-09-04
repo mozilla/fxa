@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { timingSafeEqual, randomInt } from 'crypto';
+import { randomInt } from 'crypto';
+import { bufferEqualsConstantTime } from '@fxa/shared/crypto';
 import { OtpStorage } from './otp.storage';
 import { OtpManagerConfig } from './otp.config';
 
@@ -63,7 +64,7 @@ export class OtpManager {
       return false;
     }
 
-    return timingSafeEqual(Buffer.from(code), Buffer.from(String(storedVal)));
+    return bufferEqualsConstantTime(code, String(storedVal));
   }
 
   /**
