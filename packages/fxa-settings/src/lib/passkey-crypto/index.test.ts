@@ -6,30 +6,14 @@ import * as passkeyCrypto from './index';
 
 describe('passkey-crypto barrel', () => {
   /**
-   * The suite traffics in `CryptoKey`s, and the module boundary exists to keep
-   * them inside. `export *` makes that easy to undo by accident.
+   * The module boundary is what keeps `CryptoKey`s, the raw crypto layers and
+   * the frozen context construction inside. Widening this list is how that
+   * comes undone, so the list is asserted exactly rather than by exclusion.
    */
-  it('does not export the ciphersuite', () => {
-    expect(Object.keys(passkeyCrypto)).not.toContain('suite');
-  });
-
-  it('exports the primitives callers need', () => {
+  it('exports only the two envelope operations', () => {
     expect(Object.keys(passkeyCrypto).sort()).toEqual([
-      'HPKE_MODE_BASE',
-      'KB_BYTES',
-      'KEY_WRAP_IV_BYTES',
-      'KEY_WRAP_KDF_HASH',
-      'PRF_OUT_BYTES',
-      'RECIPIENT_ALGORITHM',
-      'RECIPIENT_CURVE',
-      'UID_BYTES',
-      'V1_SIZES',
-      'buildEnvelopeContext',
-      'generateRecipientKeyPair',
-      'openKb',
-      'sealKb',
-      'unwrapRecipientPrivateKey',
-      'wrapRecipientPrivateKey',
+      'createWrapEnvelope',
+      'openWrapEnvelope',
     ]);
   });
 });

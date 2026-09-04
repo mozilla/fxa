@@ -16,6 +16,15 @@ export function assertByteLength(
   value: Uint8Array,
   expected: number
 ): void {
+  // Both checks, and neither alone: `isView` rejects a plain object carrying a
+  // spoofed `Symbol.toStringTag`, the tag rejects a DataView or a wider
+  // TypedArray. Neither uses `instanceof`, which fails across realms.
+  if (
+    !ArrayBuffer.isView(value) ||
+    Object.prototype.toString.call(value) !== '[object Uint8Array]'
+  ) {
+    throw new Error(`${name} must be a Uint8Array`);
+  }
   if (value.length !== expected) {
     throw new Error(`${name} must be ${expected} bytes, got ${value.length}`);
   }
