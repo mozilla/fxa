@@ -1,8 +1,8 @@
 {
-  "commit": "77e4f0cfaa7d36fdabd77429cfe208943b2970e6",
+  "commit": "071482c2ac4fe184627a68d5ca09709c93a5b8c9",
   "summary": "refactor(settings): Route pairing hand-off to download_firefox page",
-  "description": "Because:\n* ContinueInFirefox duplicated the existing /pair/supplicant/download_firefox\n  page — the same card and copy under a second set of Fluent ids.\n* The hand-off rendered inline at /pair, so it had no URL of its own and no\n  view metrics.\n* Two auth-server specs were already failing on main, so this branch could not\n  go green without repairing them.\n\nThis commit:\n* Moves the deep-link hand-off onto Pair2/Supplicant/DownloadFirefox and\n  deletes components/ContinueInFirefox.\n* Navigates from /pair with the channel in router state, keeping the channel\n  key out of the URL, and falls back to the plain download CTA when no channel\n  arrives.\n* Rebuilds the plan in a new container, so autoAttempt is read from live\n  sessionStorage rather than frozen into a history entry.\n* Adds the cad_firefox.download_firefox_view Glean event.\n* Repairs two auth-server specs: a stale acceptLanguage expectation and a\n  VirtualAuthenticator import left pointing at the package barrel.\n\nCloses: FXA-14459",
-  "timestamp": 1788470810000,
+  "description": "Because:\n* ContinueInFirefox duplicated the existing /pair/supplicant/download_firefox\n  page — the same card and copy under a second set of Fluent ids.\n* The hand-off rendered inline at /pair, so it had no URL of its own and no\n  view metrics.\n\nThis commit:\n* Moves the deep-link hand-off onto Pair2/Supplicant/DownloadFirefox and\n  deletes components/ContinueInFirefox.\n* Navigates from /pair with the channel in router state, keeping the channel\n  key out of the URL, and falls back to the plain download CTA when no channel\n  arrives.\n* Rebuilds the plan in a new container, so autoAttempt is read from live\n  sessionStorage rather than frozen into a history entry.\n* Adds the cad_firefox.download_firefox_view Glean event.\n\nCloses: FXA-14459",
+  "timestamp": 1788560900000,
   "storybooks": [
     "fxa-react",
     "fxa-settings"
