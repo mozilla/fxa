@@ -1,0 +1,10 @@
+{
+  "commit": "74727fbe093813eef1959923adc8a53cde706ee1",
+  "summary": "feat(settings): add the passwordless Sync opt-in page",
+  "description": "Because:\n- A Sync sign-in that used a passkey and then a password is the one point\n  where the offer to skip the password next time can be made without a\n  second device prompt, so the flow needs a page to make it on.\n\nThis commit:\n- Adds the PasswordlessSyncOptIn page alongside the other post-sign-in\n  interstitials.\n- Renders the success banner, offer copy, enable button and decline link.\n- Swaps the enable button to a loading label while the wrap is stored, and\n  disables the decline link so it cannot race the write.\n- Takes an optional localized error banner for a failed store.\n- Adds Storybook stories and unit tests.\n\nCloses #FXA-14424",
+  "timestamp": 1788558631000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
