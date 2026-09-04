@@ -113,7 +113,7 @@ describe.each(testVersions)(
       expect(client.kB.length).toBe(64);
     });
 
-    it('verify_otp reports hasPasskey=false for an account without a passkey', async () => {
+    it('verify_otp reports both passkey signals false for an account without a passkey', async () => {
       const email = server.uniqueEmail();
       const password = 'allyourbasearebelongtous';
 
@@ -135,6 +135,10 @@ describe.each(testVersions)(
       );
 
       expect(result.hasPasskey).toBe(false);
+      // Determined, not unknown: the lookup ran and found no passkey, so no
+      // wrap. `undefined` is reserved for the feature being off or the lookup
+      // failing.
+      expect(result.hasPasskeyWraps).toBe(false);
     });
 
     it('forgot password limits verify attempts', async () => {

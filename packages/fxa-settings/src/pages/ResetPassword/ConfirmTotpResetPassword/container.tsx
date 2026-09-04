@@ -8,7 +8,7 @@ import { useAuthClient, useConfig, useFtlMsgResolver } from '../../../models';
 import ConfirmTotpResetPassword from '.';
 import { useNavigateWithQuery } from '../../../lib/hooks';
 import { CompleteResetPasswordLocationState } from '../CompleteResetPassword/interfaces';
-import { ResetPasswordIntegration } from '../interfaces';
+import { PasskeyResetSignals, ResetPasswordIntegration } from '../interfaces';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { shouldShowPasskeyResetOption } from '../../../lib/passkeys';
@@ -30,13 +30,18 @@ const ConfirmTotpResetPasswordContainer = ({
     estimatedSyncDeviceCount,
     uid,
     hasPasskey,
+    hasPasskeyWraps,
   } = location.state as CompleteResetPasswordLocationState;
+
+  // Built once and spread, so a new signal is one edit rather than one per
+  // navigate target — an omission arrives undefined and fails closed silently.
+  const passkeySignals: PasskeyResetSignals = { hasPasskey, hasPasskeyWraps };
 
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
 
   const showPasskeyOption = shouldShowPasskeyResetOption(config, {
-    hasPasskey,
+    ...passkeySignals,
     serviceRequiresKeys: integration.isSync(),
     requireHasPasskey: true,
   });
@@ -53,7 +58,7 @@ const ConfirmTotpResetPasswordContainer = ({
         recoveryKeyExists,
         token,
         uid,
-        hasPasskey,
+        ...passkeySignals,
       },
       replace: true,
     });
@@ -93,7 +98,7 @@ const ConfirmTotpResetPasswordContainer = ({
         recoveryKeyExists,
         token,
         uid,
-        hasPasskey,
+        ...passkeySignals,
       },
       replace: false,
     });

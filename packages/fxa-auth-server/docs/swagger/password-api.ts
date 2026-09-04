@@ -14,7 +14,7 @@ const PASSWORD_CHANGE_START_POST = {
   description: '/password/change/start',
   notes: [
     'Begin the "change password" process. Returns a single-use `passwordChangeToken`, to be sent to `POST /password/change/finish`. Also returns a single-use `keyFetchToken`.',
-    'Important! the email value must be the original account email, i.e. the email used during initial sign up, and NOT the current primary email!'
+    'Important! the email value must be the original account email, i.e. the email used during initial sign up, and NOT the current primary email!',
   ],
   plugins: {
     'hapi-swagger': {
@@ -70,6 +70,8 @@ const PASSWORD_FORGOT_VERIFY_OTP_POST = {
   notes: [
     dedent`
       Verify the OTP from \`/password/forgot/send_otp\` to receive the PasswordForgotToken and its code to continue the password reset process.
+
+      When the passkey feature is enabled, the response also carries \`hasPasskey\` (the account has a registered passkey) and \`hasPasskeyWraps\` (a passkey can recover the account's encryption keys without the password). Both drive the reset-flow messaging and are omitted when the lookup fails. They are exposed here — behind the verified OTP — and not on \`/account/status\`.
     `,
   ],
 };
