@@ -154,8 +154,9 @@ export class PasskeyWrapsHandler {
    * Bound to the asserted credential as the write is. A wrap should only ever
    * be fetched to complete a sign-in with that same credential.
    *
-   * No security event: this runs on every passwordless sign-in, so an event
-   * here would bury the history it is meant to make legible (FXA-13139).
+   * Both `wrap_retrieved` and `wrap_retrieval_failure` land on every
+   * passwordless sign-in, so both are kept out of the settings activity list
+   * by `HIDDEN_SECURITY_EVENT_NAMES` in fxa-settings.
    *
    * @returns The base64url envelope plus the time it was stored.
    */
@@ -167,6 +168,7 @@ export class PasskeyWrapsHandler {
     const { credentialId } = request.params as { credentialId: string };
 
     if (!isBoundTo(cid, credentialId)) {
+      await this.recordEvent(request, 'account.passkey.wrap_retrieval_failure');
       throw AppError.invalidMfaToken();
     }
 
@@ -180,11 +182,20 @@ export class PasskeyWrapsHandler {
 
     // Throws 404 for both an unknown credential (errno 224) and a credential
     // with no wrap (errno 234); the distinction is PasskeyService's contract.
-    const wrap = await this.service.getPasskeyWrap(uid, credentialId);
+    let wrap: Awaited<ReturnType<PasskeyService['getPasskeyWrap']>>;
+    try {
+      wrap = await this.service.getPasskeyWrap(uid, credentialId);
+    } catch (err) {
+      await this.recordEvent(request, 'account.passkey.wrap_retrieval_failure');
+      throw err;
+    }
 
     if (isWrapStale(wrap.createdAt, account.keysChangedAt)) {
+      await this.recordEvent(request, 'account.passkey.wrap_retrieval_failure');
       throw AppError.passkeyWrapStale();
     }
+
+    await this.recordEvent(request, 'account.passkey.wrap_retrieved');
 
     return {
       ...encodePasskeyWrapEnvelope(wrap),

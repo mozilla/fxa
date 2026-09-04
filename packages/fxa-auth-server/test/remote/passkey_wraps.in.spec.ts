@@ -313,13 +313,18 @@ describe('#integration - remote passkey wrap storage', () => {
         .execute();
     }
 
-    it('returns the stored envelope', async () => {
+    it('returns the stored envelope and records a security event', async () => {
       await storeCurrentWrap();
 
       const result = await fetchWrap();
 
       expect(result).toMatchObject(envelope());
       expect(result.createdAt).toEqual(expect.any(Number));
+
+      const events = await client.securityEvents();
+      expect(events.map((e: any) => e.name)).toContain(
+        'account.passkey.wrap_retrieved'
+      );
     });
 
     it('404s when the passkey has no wrap', async () => {
@@ -327,6 +332,11 @@ describe('#integration - remote passkey wrap storage', () => {
         code: 404,
         errno: ERRNO.PASSKEY_WRAP_NOT_FOUND,
       });
+
+      const events = await client.securityEvents();
+      expect(events.map((e: any) => e.name)).toContain(
+        'account.passkey.wrap_retrieval_failure'
+      );
     });
 
     it('withholds a wrap that predates the current kB', async () => {

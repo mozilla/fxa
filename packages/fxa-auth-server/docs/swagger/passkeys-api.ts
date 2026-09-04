@@ -259,8 +259,10 @@ const PASSKEYS_API_DOCS = {
         - \`404\` errno 234 — the passkey has no wrap
         - \`404\` errno 236 — the wrap predates the account's \`keysChangedAt\`
 
-        **Security events:** none. This runs on every passwordless sign-in, so an
-        event here would bury the history it is meant to make legible.
+        **Security events:** \`account.passkey.wrap_retrieved\` on a returned
+        envelope; \`account.passkey.wrap_retrieval_failure\` on any failure to
+        return one. Both are recorded for the audit trail and hidden from the
+        account settings activity list.
       `,
     ],
   },

@@ -313,10 +313,73 @@ describe('passkey wraps routes', () => {
       );
     });
 
-    it('records no security event', async () => {
+    it('records a wrap_retrieved event on a returned envelope', async () => {
       await runGet();
 
-      expect(recordSecurityEvent).not.toHaveBeenCalled();
+      expect(recordSecurityEvent).toHaveBeenCalledWith(
+        'account.passkey.wrap_retrieved',
+        expect.objectContaining({ db, request: expect.any(Object) })
+      );
+    });
+
+    it('records a wrap_retrieval_failure event when the fetch throws', async () => {
+      service.getPasskeyWrap.mockRejectedValue(AppError.passkeyWrapNotFound());
+
+      await expect(runGet()).rejects.toMatchObject({
+        errno: ERRNO.PASSKEY_WRAP_NOT_FOUND,
+      });
+      expect(recordSecurityEvent).toHaveBeenCalledWith(
+        'account.passkey.wrap_retrieval_failure',
+        expect.objectContaining({ db, request: expect.any(Object) })
+      );
+    });
+
+    it('records a wrap_retrieval_failure event on a stale wrap', async () => {
+      db.account.mockResolvedValue({
+        primaryEmail: { email: TEST_EMAIL },
+        keysChangedAt: WRAP_CREATED_AT + 1,
+      } as Awaited<ReturnType<DB['account']>>);
+
+      await expect(runGet()).rejects.toMatchObject({
+        errno: ERRNO.PASSKEY_WRAP_STALE,
+      });
+      expect(recordSecurityEvent).toHaveBeenCalledWith(
+        'account.passkey.wrap_retrieval_failure',
+        expect.objectContaining({ db, request: expect.any(Object) })
+      );
+    });
+
+    it('records a wrap_retrieval_failure event for an unbound token', async () => {
+      await expect(
+        runGet({ credentialId: CREDENTIAL_ID }, { cid: 'some-other-cred' })
+      ).rejects.toThrow();
+
+      expect(recordSecurityEvent).toHaveBeenCalledWith(
+        'account.passkey.wrap_retrieval_failure',
+        expect.objectContaining({ db, request: expect.any(Object) })
+      );
+    });
+
+    it('surfaces the fetch error even when the audit write fails', async () => {
+      service.getPasskeyWrap.mockRejectedValue(AppError.passkeyWrapNotFound());
+      (recordSecurityEvent as jest.Mock).mockRejectedValueOnce(
+        new Error('audit write failed')
+      );
+
+      await expect(runGet()).rejects.toMatchObject({
+        errno: ERRNO.PASSKEY_WRAP_NOT_FOUND,
+      });
+    });
+
+    it('returns the envelope even when the audit write fails', async () => {
+      (recordSecurityEvent as jest.Mock).mockRejectedValueOnce(
+        new Error('audit write failed')
+      );
+
+      await expect(runGet()).resolves.toHaveProperty(
+        'createdAt',
+        WRAP_CREATED_AT
+      );
     });
 
     it('rate-limits against the current primary email', async () => {
