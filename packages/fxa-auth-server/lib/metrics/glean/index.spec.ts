@@ -188,6 +188,10 @@ jest.mock('./server_events', () => ({
     recordPasskeyCreateComplete: mockFn('recordPasskeyCreateComplete'),
     recordPasskeyDeleteSuccess: mockFn('recordPasskeyDeleteSuccess'),
     recordPasskeyRenameSuccess: mockFn('recordPasskeyRenameSuccess'),
+    recordPasskeyWrapCreateComplete: mockFn('recordPasskeyWrapCreateComplete'),
+    recordPasskeyWrapCreateFailure: mockFn('recordPasskeyWrapCreateFailure'),
+    recordPasskeyWrapGetComplete: mockFn('recordPasskeyWrapGetComplete'),
+    recordPasskeyWrapGetFailure: mockFn('recordPasskeyWrapGetFailure'),
   }),
 }));
 

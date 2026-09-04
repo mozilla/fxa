@@ -12,6 +12,7 @@ import { AppError, ERRNO } from '@fxa/accounts/errors';
 import { recordSecurityEvent } from './utils/security-event';
 import { isWrapStale, passkeyWrapsRoutes } from './passkey-wraps';
 import { ConfigType } from '../../config';
+import { GleanMetricsType } from '../metrics/glean';
 
 jest.mock('./utils/security-event', () => ({
   recordSecurityEvent: jest.fn(),
@@ -74,9 +75,10 @@ describe('passkey wraps routes', () => {
   let db: DeepMocked<DB>;
   let customs: DeepMocked<Customs>;
   let service: DeepMocked<PasskeyService>;
+  let glean: DeepMocked<GleanMetricsType>;
 
   const buildRoute = (cfg: ConfigType = config) =>
-    passkeyWrapsRoutes(customs, db, cfg, log).find(
+    passkeyWrapsRoutes(customs, db, cfg, glean, log).find(
       (r) => r.path === '/passkey/wraps' && r.method === 'POST'
     ) as any;
 
@@ -109,6 +111,7 @@ describe('passkey wraps routes', () => {
     } as Awaited<ReturnType<DB['account']>>);
     customs = createMock<Customs>();
     service = createMock<PasskeyService>();
+    glean = createMock<GleanMetricsType>();
     service.storePasskeyWrap.mockResolvedValue('created');
     service.getPasskeyWrap.mockResolvedValue(
       storedWrap() as Awaited<ReturnType<PasskeyService['getPasskeyWrap']>>
@@ -243,11 +246,70 @@ describe('passkey wraps routes', () => {
       await expect(run()).rejects.toThrow();
       expect(service.storePasskeyWrap).not.toHaveBeenCalled();
     });
+
+    describe('glean', () => {
+      it('emits wrap_create_complete on a new wrap', async () => {
+        await run();
+
+        expect(glean.passkey.wrapCreateComplete).toHaveBeenCalledWith(
+          expect.any(Object)
+        );
+      });
+
+      // The client already holds a wrap; nothing about the account changed, so
+      // counting it would inflate the enrolment funnel.
+      it('emits nothing for an unchanged wrap', async () => {
+        service.storePasskeyWrap.mockResolvedValue('unchanged');
+
+        await run();
+
+        expect(glean.passkey.wrapCreateComplete).not.toHaveBeenCalled();
+        expect(glean.passkey.wrapCreateFailure).not.toHaveBeenCalled();
+      });
+
+      it('reports an unbound token as not_bound', async () => {
+        await expect(
+          run(validPayload(), { cid: 'some-other-cred' })
+        ).rejects.toThrow();
+
+        expect(glean.passkey.wrapCreateFailure).toHaveBeenCalledWith(
+          expect.any(Object),
+          { reason: 'not_bound' }
+        );
+      });
+
+      it.each([
+        [ERRNO.PASSKEY_WRAP_CONFLICT, 'conflict'],
+        [ERRNO.PASSKEY_NOT_FOUND, 'credential_not_found'],
+      ])('maps errno %i to reason %s', async (errno, reason) => {
+        service.storePasskeyWrap.mockRejectedValue(
+          Object.assign(new Error('nope'), { errno })
+        );
+
+        await expect(run()).rejects.toThrow();
+
+        expect(glean.passkey.wrapCreateFailure).toHaveBeenCalledWith(
+          expect.any(Object),
+          { reason }
+        );
+      });
+
+      it('reports an error with no errno as unexpected', async () => {
+        service.storePasskeyWrap.mockRejectedValue(new Error('db is down'));
+
+        await expect(run()).rejects.toThrow();
+
+        expect(glean.passkey.wrapCreateFailure).toHaveBeenCalledWith(
+          expect.any(Object),
+          { reason: 'unexpected' }
+        );
+      });
+    });
   });
 
   describe('GET /passkey/wraps/{credentialId}', () => {
     const buildGetRoute = (cfg: ConfigType = config) =>
-      passkeyWrapsRoutes(customs, db, cfg, log).find(
+      passkeyWrapsRoutes(customs, db, cfg, glean, log).find(
         (r) => r.path === '/passkey/wraps/{credentialId}' && r.method === 'GET'
       ) as any;
 
@@ -368,6 +430,59 @@ describe('passkey wraps routes', () => {
       ).toThrow();
     });
 
+    describe('glean', () => {
+      it('emits wrap_get_complete when the envelope is served', async () => {
+        await runGet();
+
+        expect(glean.passkey.wrapGetComplete).toHaveBeenCalledWith(
+          expect.any(Object)
+        );
+      });
+
+      it('reports an unbound token as not_bound', async () => {
+        await expect(
+          runGet({ credentialId: CREDENTIAL_ID }, { cid: 'some-other-cred' })
+        ).rejects.toThrow();
+
+        expect(glean.passkey.wrapGetFailure).toHaveBeenCalledWith(
+          expect.any(Object),
+          { reason: 'not_bound' }
+        );
+      });
+
+      // The one reason the route raises itself; the rest come off the service.
+      it('reports a wrap the account has outgrown as stale', async () => {
+        db.account.mockResolvedValue({
+          primaryEmail: { email: TEST_EMAIL },
+          keysChangedAt: WRAP_CREATED_AT + 1,
+        } as Awaited<ReturnType<DB['account']>>);
+
+        await expect(runGet()).rejects.toThrow();
+
+        expect(glean.passkey.wrapGetFailure).toHaveBeenCalledWith(
+          expect.any(Object),
+          { reason: 'stale' }
+        );
+        expect(glean.passkey.wrapGetComplete).not.toHaveBeenCalled();
+      });
+
+      it.each([
+        [ERRNO.PASSKEY_WRAP_NOT_FOUND, 'wrap_not_found'],
+        [ERRNO.PASSKEY_NOT_FOUND, 'credential_not_found'],
+      ])('maps errno %i to reason %s', async (errno, reason) => {
+        service.getPasskeyWrap.mockRejectedValue(
+          Object.assign(new Error('nope'), { errno })
+        );
+
+        await expect(runGet()).rejects.toThrow();
+
+        expect(glean.passkey.wrapGetFailure).toHaveBeenCalledWith(
+          expect.any(Object),
+          { reason }
+        );
+      });
+    });
+
     describe('params validation', () => {
       let schema: Schema;
 
@@ -429,6 +544,7 @@ describe('passkey wraps routes', () => {
         customs,
         db as any,
         disabledConfig,
+        glean,
         log
       );
       const route = routes.find(

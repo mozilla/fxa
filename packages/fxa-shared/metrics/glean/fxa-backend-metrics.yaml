@@ -1833,3 +1833,97 @@ passkey:
     expires: never
     data_sensitivity:
       - interaction
+  wrap_create_complete:
+    type: event
+    description: |
+      A passkey key-wrap envelope was stored for the first time. This is the
+      last step of enrolling a passkey for passwordless Sync; a passkey that
+      never reaches it cannot unseal the account's Sync keys. Records only
+      the writes that stored a new envelope, so a client re-sending one it
+      already stored is not counted.
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14156
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+  wrap_create_failure:
+    type: event
+    description: |
+      Storing a passkey key-wrap envelope failed. A `conflict` reason means the
+      client derived a different envelope for a credential that already has
+      one, which points at a client crypto fault rather than a user error.
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14156
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Why the write was refused. One of `not_bound` (the MFA token was
+          minted for a different credential), `conflict` (a different envelope
+          is already stored), `credential_not_found`, or `unexpected`.
+        type: string
+  wrap_get_complete:
+    type: event
+    description: |
+      A passkey key-wrap envelope was served, letting the client unseal the
+      account's Sync keys. Records only the attempts that succeeded; the ones
+      that did not are counted by passkey.wrap_get_failure.
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14156
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+  wrap_get_failure:
+    type: event
+    description: |
+      A passkey key-wrap envelope was withheld. Every reason ends the same way
+      for the user, in a silent fall back to signing in with a password, so the
+      reason is what distinguishes them.
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14156
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Why the envelope was withheld. One of `not_bound` (the MFA token was
+          minted for a different credential), `stale` (the envelope seals a kB
+          the account has since replaced, so the passkey needs re-enrolling),
+          `wrap_not_found` (the passkey was never given an envelope),
+          `credential_not_found`, or `unexpected`.
+        type: string
