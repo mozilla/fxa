@@ -1,0 +1,10 @@
+{
+  "commit": "9a1f226e3bcbc93b8a1cf3fd9bfaeaf1d7b1c8f6",
+  "summary": "fix(settings): Skip pairing channel close once the socket is gone",
+  "description": "Because:\n\n* A socket error disconnects the pairing channel without a matching\n  `close` event, so the authority tears down still holding a dead channel.\n* fxa-pairing-channel's `close()` dereferences its already-nulled\n  `_connection`, throwing a TypeError caught only to be reported to Sentry.\n\nThis commit:\n\n* Skips the underlying `close()` in `PairingChannelClient` when the package\n  has already dropped the socket.\n* Adds a regression test covering close after a socket error.\n\nCloses #FXA-14443\nFixes FXA-CONTENT-1KYN",
+  "timestamp": 1788559440000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

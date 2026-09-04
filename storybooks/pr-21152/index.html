@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 9a1f226e3bcbc93b8a1cf3fd9bfaeaf1d7b1c8f6</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 9a1f226e3bcbc93b8a1cf3fd9bfaeaf1d7b1c8f6</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/4/2026, 10:04:00 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): Skip pairing channel close once the socket is gone</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+* A socket error disconnects the pairing channel without a matching
+  `close` event, so the authority tears down still holding a dead channel.
+* fxa-pairing-channel&#039;s `close()` dereferences its already-nulled
+  `_connection`, throwing a TypeError caught only to be reported to Sentry.
+
+This commit:
+
+* Skips the underlying `close()` in `PairingChannelClient` when the package
+  has already dropped the socket.
+* Adds a regression test covering close after a socket error.
+
+Closes #FXA-14443
+Fixes FXA-CONTENT-1KYN</pre></dd>
+  </dl>
+</body>
+</html>
