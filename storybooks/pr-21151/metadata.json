@@ -1,8 +1,8 @@
 {
-  "commit": "36fc3f76da921dc4392c5e05944957fc5ce253da",
+  "commit": "50d6977e41c707fc9144c019128981558e5509f5",
   "summary": "feat(passkey): Add Glean events for the wrap lifecycle",
   "description": "Because:\n  - Wrap operations have statsd counters but no attributed metrics, so\n    enrolment and passwordless sign-in cannot be measured per service,\n    flow or user.\n  - A passkey whose wrap never stored can never unseal Sync keys, and\n    nothing today shows how often that happens.\n\nThis commit:\n  - Adds passkey.wrap_create_complete and wrap_create_failure to\n    POST /passkey/wraps.\n  - Adds passkey.wrap_get_complete and wrap_get_failure to\n    GET /passkey/wraps/{credentialId}.\n  - Reports a reason of not_bound, conflict, stale, wrap_not_found,\n    credential_not_found or unexpected on the failure events.\n  - Threads glean into passkeyWrapsRoutes.\n\nCloses #FXA-14156",
-  "timestamp": 1788546642000,
+  "timestamp": 1788554696000,
   "storybooks": [
     "fxa-react",
     "fxa-settings"
