@@ -70,10 +70,9 @@ export type PairingChannelV2SupplicantRequestMessage = {
   code_challenge: string;
   code_challenge_method: string;
   keys_jwk: string;
-  scope:string;
-  state:string;
-}
-
+  scope: string;
+  state: string;
+};
 
 // Error definitions matching Backbone's pairing-channel-client-errors
 export const PairingChannelErrors = {
@@ -118,6 +117,20 @@ export class PairingChannelError extends Error {
     this.name = 'PairingChannelError';
     this.errno = def.errno;
   }
+}
+
+/**
+ * The channel server drops the socket rather than answering when the channel is
+ * gone — expired, already consumed by a completed pairing, or at its two-client
+ * limit. The same rejection covers a socket lost mid-handshake, which the
+ * supplicant's mobile webview hits on any network change or backgrounding.
+ * fxa-pairing-channel raises a bare Error for all of it, so the message is the
+ * only signal to match on.
+ */
+const CHANNEL_CLOSED_MESSAGE = 'WebSocket unexpectedly closed';
+
+function isChannelClosedError(err: unknown): boolean {
+  return err instanceof Error && err.message === CHANNEL_CLOSED_MESSAGE;
 }
 
 /**
@@ -245,8 +258,21 @@ export class PairingChannelClient extends EventTarget {
       channel.addEventListener('error', this.handleError);
       channel.addEventListener('close', this.handleClose);
     } catch (err) {
-      sentryMetrics.captureException(err);
-      this.dispatchEvent(new CustomEvent('error', { detail: err }));
+      // A dropped socket is the channel server's normal answer for a channel it
+      // will not serve, so it carries no signal worth an exception report. The
+      // flow still ends on the failure screen; the console breadcrumb keeps it
+      // visible in the trail of any real error that follows.
+      if (isChannelClosedError(err)) {
+        console.warn('Pairing channel closed before it opened', channelId);
+        this.dispatchEvent(
+          new CustomEvent('error', {
+            detail: new PairingChannelError('CONNECTION_CLOSED'),
+          })
+        );
+      } else {
+        sentryMetrics.captureException(err);
+        this.dispatchEvent(new CustomEvent('error', { detail: err }));
+      }
     } finally {
       this._opening = false;
     }
@@ -257,11 +283,11 @@ export class PairingChannelClient extends EventTarget {
     data: Record<string, unknown> = {}
   ): Promise<void> {
     if (!this.channel) {
-      console.warn('No pairing channel!')
+      console.warn('No pairing channel!');
       throw new PairingChannelError('NOT_CONNECTED');
     }
     if (!message) {
-      console.warn('No message!')
+      console.warn('No message!');
       throw new PairingChannelError('INVALID_OUTBOUND_MESSAGE');
     }
     console.info('Sending pairing message', message);
@@ -276,10 +302,10 @@ export class PairingChannelClient extends EventTarget {
     this.channel = null;
     this.removeChannelListeners(ch);
     try {
-      console.info('Closing channel ', ch._channelId)
+      console.info('Closing channel ', ch._channelId);
       await ch.close();
     } catch (err) {
-      console.error("Error closing channel", err);
+      console.error('Error closing channel', err);
       sentryMetrics.captureException(err);
     }
   }
@@ -307,7 +333,7 @@ export class PairingChannelClient extends EventTarget {
 
       const { data = {}, message } = payload;
 
-      console.info(`Receiving pairing message`, message)
+      console.info(`Receiving pairing message`, message);
 
       // Enrich with sender metadata (same shape as Backbone)
       data.remoteMetaData = {
