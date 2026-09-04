@@ -81,7 +81,7 @@ choose-newsletters-option-reclaim-the-internet =
 ## Firefox is not installed on the device.
 
 pair-continue-in-firefox-heading = Fortsätt i { -brand-firefox }
-pair-continue-in-firefox-description = Parkoppling sker om { -brand-firefox }. Öppna den för att slutföra anslutningen av enheten.
+pair-continue-in-firefox-description = Parkoppling sker i { -brand-firefox }. Öppna den för att slutföra anslutningen av enheten.
 # Opens the Firefox app on this device
 pair-continue-in-firefox-button = Fortsätt i { -brand-firefox }
 # Shown while waiting for the Firefox app to take over

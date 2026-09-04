@@ -1,8 +1,8 @@
 {
-  "commit": "d32477f58d787a205d9511e6f407d4db3db3eeba",
-  "summary": "Merge pull request #21137 from mozilla/passkey-wrap-mfa-token",
-  "description": "feat(passkey): Mint an MFA token from passkey sign-in",
-  "timestamp": 1788490662000,
+  "commit": "113caf6277a57cf1b5dfed691cdcd2daaabe9cf0",
+  "summary": "Merge pull request #21112 from mozilla/fxa-14273",
+  "description": "feat(settings): run the QR promo value proposition experiment",
+  "timestamp": 1788542565000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
