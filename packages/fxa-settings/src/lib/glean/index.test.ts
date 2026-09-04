@@ -14,6 +14,7 @@ import * as reg from 'fxa-shared/metrics/glean/web/reg';
 import * as login from 'fxa-shared/metrics/glean/web/login';
 import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
 import * as passkey from 'fxa-shared/metrics/glean/web/passkey';
+import * as promoQrMobile from 'fxa-shared/metrics/glean/web/promoQrMobile';
 import * as accountBanner from 'fxa-shared/metrics/glean/web/accountBanner';
 import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
 import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
@@ -879,6 +880,32 @@ describe('lib/glean', () => {
         sinon.assert.calledOnceWithExactly(spy, {
           reason: 'UnknownError',
           outcome: 'success',
+        });
+      });
+    });
+
+    describe('promoQrMobile', () => {
+      it('submits promo_qr_mobile_view with the enrolled branch', async () => {
+        const spy = sandbox.spy(promoQrMobile.view, 'record');
+        GleanMetrics.promoQrMobile.view({
+          event: { branch: 'treatment-b', nimbusUserId: 'nimbus-id' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'promo_qr_mobile_view');
+        sinon.assert.calledOnceWithExactly(spy, {
+          branch: 'treatment-b',
+          nimbus_user_id: 'nimbus-id',
+        });
+      });
+
+      it('submits empty extras when the user is not enrolled', async () => {
+        const spy = sandbox.spy(promoQrMobile.view, 'record');
+        GleanMetrics.promoQrMobile.view({ event: {} });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnceWithExactly(spy, {
+          branch: '',
+          nimbus_user_id: '',
         });
       });
     });

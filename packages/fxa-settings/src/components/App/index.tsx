@@ -1134,6 +1134,7 @@ const AuthAndAccountSetupRoutes = ({
       <PromoQrMobile
         integration={integration}
         promoQrImageUrl={defaultCmsState.data?.defaultCms?.promoQrImageUrl}
+        cmsLoading={defaultCmsState.loading}
       />
     </>
   );

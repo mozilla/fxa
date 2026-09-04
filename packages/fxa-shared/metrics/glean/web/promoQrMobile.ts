@@ -11,7 +11,10 @@ import EventMetricType from '@mozilla/glean/private/metrics/event';
  *
  * Generated from `promo_qr_mobile.view`.
  */
-export const view = new EventMetricType(
+export const view = new EventMetricType<{
+  branch?: string;
+  nimbus_user_id?: string;
+}>(
   {
     category: 'promo_qr_mobile',
     name: 'view',
@@ -19,5 +22,5 @@ export const view = new EventMetricType(
     lifetime: 'ping',
     disabled: false,
   },
-  []
+  ['branch', 'nimbus_user_id']
 );

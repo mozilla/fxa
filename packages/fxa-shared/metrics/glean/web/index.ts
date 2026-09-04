@@ -27,6 +27,7 @@ export const stringEventExtraPropertyNames = [
   'mobile_device_count',
   'supported',
   'has_passkey_option',
+  'branch',
 ] as const;
 
 export type PropertyNameStringT = typeof stringEventPropertyNames;

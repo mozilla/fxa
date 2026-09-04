@@ -23,6 +23,53 @@ features:
         value: { "enabled": false, "emoji": ";)" }
       - channel: production
         value: { "enabled": false, "emoji": "❤️" }
+  promo-qr-mobile:
+    description: >
+      Value proposition A/B test for the QR mobile download promo shown in the
+      authentication flow. The branch slug selects both the heading string and
+      the matching QR code, because each QR points at a distinct Bitly link.
+    variables:
+      enabled:
+        description: If the experiment is enabled. When false the control ships.
+        type: Boolean
+        default: false
+      branch:
+        description: >
+          The branch slug. An unknown slug falls back to the control, but the
+          BranchSlug enum means Experimenter rejects one before that can happen.
+        type: Option<BranchSlug>
+        default: null
+    defaults:
+      - channel: developer
+        value: { "enabled": false, "branch": "control" }
+      - channel: staging
+        value: { "enabled": false, "branch": "control" }
+      - channel: production
+        value: { "enabled": false, "branch": "control" }
 types:
   objects: {}
-  enums: {}
+  enums:
+    BranchSlug:
+      description: >
+        The arms of the QR promo value proposition test. Each slug selects a
+        heading and its matching QR code in PromoQrMobile/branches.ts, so a slug
+        added here must be added there too.
+      variants:
+        control:
+          description: "Control | Your phone. Your rules. | Scan to download mobile app"
+        treatment-a:
+          description: "Continue Across Devices | Pick up where you left off, wherever you go | Scan to download mobile app"
+        treatment-b:
+          description: "Continue Across Devices | Your tabs and more, ready on your phone | Scan to download mobile app"
+        treatment-c:
+          description: "One Browser You Trust | The browser you trust, on your phone | Scan to download mobile app"
+        treatment-d:
+          description: "One Browser You Trust | Same Firefox. Different screen. | Scan to download mobile app"
+        treatment-e:
+          description: "Protect Your Privacy Everywhere | Your privacy shouldn’t stop here | Scan to download mobile app"
+        treatment-f:
+          description: "Protect Your Privacy Everywhere | Keep more of your browsing to yourself | Scan to download mobile app"
+        treatment-g:
+          description: "Calmer Focus | Your phone could use a little less noise | Scan to download mobile app"
+        treatment-h:
+          description: "Calmer Focus | Take a calmer way to browse with you | Scan to download mobile app"
