@@ -31,7 +31,6 @@ export type ConnectAnotherDeviceProps = {
   fxaStatus: UseFxAStatusResult;
 };
 
-
 // Validate entrypoint against known values, defaulting to FIREFOX_MENU_ENTRYPOINT.
 const VALID_ENTRYPOINTS = new Set(Object.values(ENTRYPOINTS));
 function getValidEntrypoint(raw: string | null): ENTRYPOINTS {
@@ -73,7 +72,7 @@ const ConnectAnotherDevice = ({
   isSignIn: isSignInProp,
   canSignIn: canSignInProp,
   device: deviceProp,
-  fxaStatus
+  fxaStatus,
 }: ConnectAnotherDeviceProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
@@ -201,7 +200,6 @@ const ConnectAnotherDevice = ({
         signedInUser?.sessionToken && signedInUser.verified
       );
       if (browserSignedIn && isEligibleForPairing()) {
-
         // Both FxA and Firefox have to signal that pairing v2 is enabled!
         if (
           config.pairing.version === 2 &&
@@ -219,7 +217,7 @@ const ConnectAnotherDevice = ({
           return;
         }
 
-        hardNavigate('/pair');
+        hardNavigate('/pair', {}, true);
         return;
       }
       if (browserSignedIn) {
