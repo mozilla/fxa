@@ -85,6 +85,7 @@ export interface DB {
     emailCode: string;
     emailVerified: boolean;
     verifierSetAt: number;
+    keysChangedAt: number;
     locale?: string;
     primaryEmail: { email: string; emailCode: string; isVerified: boolean };
     emails: Array<{ email: string; isPrimary: boolean; isVerified: boolean }>;

@@ -554,6 +554,22 @@ describe('AppErrors', () => {
       });
     });
 
+    it('creates passkeyWrapStale', () => {
+      const result = AppError.passkeyWrapStale();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 236,
+        message: 'Passkey wrap is stale',
+        output: {
+          statusCode: 404,
+          payload: {
+            error: 'Not Found',
+            errno: 236,
+          },
+        },
+      });
+    });
+
     it('creates passkeyWrapConflict', () => {
       const result = AppError.passkeyWrapConflict();
       expect(result).toBeInstanceOf(AppError);

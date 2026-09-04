@@ -10,7 +10,7 @@ import type { Customs, DB } from './passkeys';
 import { AuthLogger } from '../types';
 import { AppError, ERRNO } from '@fxa/accounts/errors';
 import { recordSecurityEvent } from './utils/security-event';
-import { passkeyWrapsRoutes } from './passkey-wraps';
+import { isWrapStale, passkeyWrapsRoutes } from './passkey-wraps';
 import { ConfigType } from '../../config';
 
 jest.mock('./utils/security-event', () => ({
@@ -38,6 +38,26 @@ const validEnvelope = () => ({
 const validPayload = (overrides: Record<string, unknown> = {}) => ({
   credentialId: CREDENTIAL_ID,
   ...validEnvelope(),
+  ...overrides,
+});
+
+/**
+ * A `keysChangedAt` older than the stored wrap, so staleness never fires and a
+ * test about some other condition can say so.
+ */
+const KEYS_CHANGED_AT = 1_700_000_000_000;
+const WRAP_CREATED_AT = KEYS_CHANGED_AT + 10_000;
+
+/** The stored row, binary as the repository returns it. */
+const storedWrap = (overrides: Record<string, unknown> = {}) => ({
+  uid: Buffer.from(UID, 'hex'),
+  credentialId: Buffer.from(CREDENTIAL_ID, 'base64url'),
+  pkR: Buffer.alloc(V1_WIDTHS.pkR, 0x04),
+  prfWrappedSkR: Buffer.alloc(V1_WIDTHS.prfWrappedSkR, 0x11),
+  keyWrapIv: Buffer.alloc(V1_WIDTHS.keyWrapIv, 0x22),
+  hpkeEncapsulatedSecret: Buffer.alloc(V1_WIDTHS.hpkeEncapsulatedSecret, 0x33),
+  hpkeSealedKb: Buffer.alloc(V1_WIDTHS.hpkeSealedKb, 0x44),
+  createdAt: WRAP_CREATED_AT,
   ...overrides,
 });
 
@@ -85,10 +105,14 @@ describe('passkey wraps routes', () => {
     db = createMock<DB>();
     db.account.mockResolvedValue({
       primaryEmail: { email: TEST_EMAIL },
+      keysChangedAt: KEYS_CHANGED_AT,
     } as Awaited<ReturnType<DB['account']>>);
     customs = createMock<Customs>();
     service = createMock<PasskeyService>();
     service.storePasskeyWrap.mockResolvedValue('created');
+    service.getPasskeyWrap.mockResolvedValue(
+      storedWrap() as Awaited<ReturnType<PasskeyService['getPasskeyWrap']>>
+    );
     Container.set(PasskeyService, service);
   });
 
@@ -218,6 +242,172 @@ describe('passkey wraps routes', () => {
 
       await expect(run()).rejects.toThrow();
       expect(service.storePasskeyWrap).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('GET /passkey/wraps/{credentialId}', () => {
+    const buildGetRoute = (cfg: ConfigType = config) =>
+      passkeyWrapsRoutes(customs, db, cfg, log).find(
+        (r) => r.path === '/passkey/wraps/{credentialId}' && r.method === 'GET'
+      ) as any;
+
+    const runGet = (
+      params = { credentialId: CREDENTIAL_ID },
+      { cid }: { cid?: string } = { cid: CREDENTIAL_ID }
+    ) =>
+      buildGetRoute().handler({
+        headers: { 'user-agent': 'test-agent' },
+        auth: { credentials: { uid: UID, id: 'session-token-id', cid } },
+        params,
+        app: { clientAddress: '127.0.0.1' },
+      });
+
+    it('returns the envelope base64url-encoded, with its createdAt', async () => {
+      await expect(runGet()).resolves.toEqual({
+        pkR: Buffer.alloc(V1_WIDTHS.pkR, 0x04).toString('base64url'),
+        prfWrappedSkR: Buffer.alloc(V1_WIDTHS.prfWrappedSkR, 0x11).toString(
+          'base64url'
+        ),
+        keyWrapIv: Buffer.alloc(V1_WIDTHS.keyWrapIv, 0x22).toString(
+          'base64url'
+        ),
+        hpkeEncapsulatedSecret: Buffer.alloc(
+          V1_WIDTHS.hpkeEncapsulatedSecret,
+          0x33
+        ).toString('base64url'),
+        hpkeSealedKb: Buffer.alloc(V1_WIDTHS.hpkeSealedKb, 0x44).toString(
+          'base64url'
+        ),
+        createdAt: WRAP_CREATED_AT,
+      });
+    });
+
+    it('never returns uid or credentialId from the stored row', async () => {
+      const result = await runGet();
+
+      expect(result).not.toHaveProperty('uid');
+      expect(result).not.toHaveProperty('credentialId');
+    });
+
+    it('withholds a wrap stored before keysChangedAt', async () => {
+      db.account.mockResolvedValue({
+        primaryEmail: { email: TEST_EMAIL },
+        keysChangedAt: WRAP_CREATED_AT + 1,
+      } as Awaited<ReturnType<DB['account']>>);
+
+      await expect(runGet()).rejects.toMatchObject({
+        code: 404,
+        errno: ERRNO.PASSKEY_WRAP_STALE,
+      });
+    });
+
+    it('serves a wrap stored in the same millisecond as keysChangedAt', async () => {
+      db.account.mockResolvedValue({
+        primaryEmail: { email: TEST_EMAIL },
+        keysChangedAt: WRAP_CREATED_AT,
+      } as Awaited<ReturnType<DB['account']>>);
+
+      await expect(runGet()).resolves.toHaveProperty(
+        'createdAt',
+        WRAP_CREATED_AT
+      );
+    });
+
+    it('records no security event', async () => {
+      await runGet();
+
+      expect(recordSecurityEvent).not.toHaveBeenCalled();
+    });
+
+    it('rate-limits against the current primary email', async () => {
+      await runGet();
+
+      expect(customs.checkAuthenticated).toHaveBeenCalledWith(
+        expect.any(Object),
+        UID,
+        TEST_EMAIL,
+        'passkeyWrapsGet'
+      );
+    });
+
+    it('refuses a token minted for a different credential', async () => {
+      await expect(
+        runGet({ credentialId: CREDENTIAL_ID }, { cid: 'some-other-cred' })
+      ).rejects.toMatchObject({ errno: ERRNO.INVALID_MFA_TOKEN });
+      expect(service.getPasskeyWrap).not.toHaveBeenCalled();
+    });
+
+    it('refuses a token with no credential binding', async () => {
+      await expect(
+        runGet({ credentialId: CREDENTIAL_ID }, {})
+      ).rejects.toMatchObject({ errno: ERRNO.INVALID_MFA_TOKEN });
+      expect(service.getPasskeyWrap).not.toHaveBeenCalled();
+    });
+
+    it('accepts a binding that differs only in base64url encoding', async () => {
+      const padded = `${CREDENTIAL_ID}=`;
+
+      await expect(
+        runGet({ credentialId: CREDENTIAL_ID }, { cid: padded })
+      ).resolves.toHaveProperty('createdAt', WRAP_CREATED_AT);
+    });
+
+    // `payload: false` is load-bearing: the mfa scheme implements no payload
+    // method, and Hapi refuses to register the route without the opt-out.
+    it('requires an mfa:passkey token', () => {
+      expect(buildGetRoute().options.auth).toEqual({
+        strategy: 'mfa',
+        scope: ['mfa:passkey'],
+        payload: false,
+      });
+    });
+
+    it('gates on the passwordless sync flag', () => {
+      expect(() =>
+        buildGetRoute(disabledConfig).options.pre[0].method()
+      ).toThrow();
+    });
+
+    describe('params validation', () => {
+      let schema: Schema;
+
+      beforeEach(() => {
+        schema = buildGetRoute().options.validate.params;
+      });
+
+      it('accepts a base64url credential id', () => {
+        expect(
+          schema.validate({ credentialId: CREDENTIAL_ID }).error
+        ).toBeUndefined();
+      });
+
+      it('rejects standard base64 in place of base64url', () => {
+        expect(
+          schema.validate({ credentialId: 'AAAA/AAAAAAAAAA+' }).error
+        ).toBeDefined();
+      });
+
+      it('requires a credential id', () => {
+        expect(schema.validate({}).error).toBeDefined();
+      });
+    });
+  });
+
+  describe('isWrapStale', () => {
+    it('is not stale when the wrap is newer than the keys', () => {
+      expect(isWrapStale(1_000, 500)).toBe(false);
+    });
+
+    it('is not stale when the two are equal', () => {
+      expect(isWrapStale(1_000, 1_000)).toBe(false);
+    });
+
+    it('is stale when the keys are newer than the wrap', () => {
+      expect(isWrapStale(500, 1_000)).toBe(true);
+    });
+
+    it('is stale when keysChangedAt is not a number', () => {
+      expect(isWrapStale(1_000, Number.NaN)).toBe(true);
     });
   });
 

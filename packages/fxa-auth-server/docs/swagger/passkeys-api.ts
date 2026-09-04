@@ -225,6 +225,45 @@ const PASSKEYS_API_DOCS = {
       `,
     ],
   },
+
+  PASSKEY_WRAPS_GET: {
+    ...TAGS_PASSKEYS,
+    description: '/passkey/wraps/{credentialId}',
+    notes: [
+      dedent`
+        🔒 Authenticated with MFA JWT (scope: mfa:passkey)
+
+        Returns the wrap envelope for one passkey, as stored. Unsealing happens
+        entirely on the client and needs the credential's WebAuthn PRF output, so
+        the envelope is inert to anyone who cannot complete an assertion with that
+        credential. The server never sees \`kB\`, the recipient private key, or the
+        PRF output.
+
+        The token must be bound to \`credentialId\`, as it is for the write. A wrap
+        is only ever fetched to complete a sign-in with that same credential.
+
+        A wrap stored before the account's \`keysChangedAt\` seals a \`kB\` the
+        account no longer uses, and is withheld rather than returned — the client
+        falls back to a password sign-in and re-enrols.
+
+        **Path parameters:**
+        - \`credentialId\` (string, required) — base64url credential ID
+
+        **Response:** the five base64url envelope fields (\`pkR\`,
+        \`prfWrappedSkR\`, \`keyWrapIv\`, \`hpkeEncapsulatedSecret\`,
+        \`hpkeSealedKb\`) plus \`createdAt\`.
+
+        **Errors:**
+        - \`401\` errno 223 — the token is invalid, or is not bound to \`credentialId\`
+        - \`404\` errno 224 — no such passkey for this account
+        - \`404\` errno 234 — the passkey has no wrap
+        - \`404\` errno 236 — the wrap predates the account's \`keysChangedAt\`
+
+        **Security events:** none. This runs on every passwordless sign-in, so an
+        event here would bury the history it is meant to make legible.
+      `,
+    ],
+  },
 };
 
 export default PASSKEYS_API_DOCS;

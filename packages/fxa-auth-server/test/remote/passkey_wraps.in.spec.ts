@@ -17,6 +17,7 @@ import {
   VirtualCredential,
 } from '@fxa/accounts/passkey/testing';
 import { ERRNO } from '@fxa/accounts/errors';
+import { uuidTransformer } from 'fxa-shared/db/transformers';
 import Config from '../../config';
 
 import {
@@ -291,5 +292,69 @@ describe('#integration - remote passkey wrap storage', () => {
     await expect(
       storeWrap({ credentialId, ...envelope() }, token)
     ).rejects.toMatchObject({ code: 401 });
+  });
+
+  describe('GET /passkey/wraps/{credentialId}', () => {
+    /** GETs a wrap with a freshly minted token. */
+    async function fetchWrap(id = credentialId, token?: string) {
+      return client.api.doRequestWithBearerToken(
+        'GET',
+        `${client.api.baseURL}/passkey/wraps/${id}`,
+        token ?? (await mintWrapToken())
+      );
+    }
+
+    /** Moves the account's `keysChangedAt` past every stored wrap. */
+    async function rotateKeys() {
+      await db
+        ?.updateTable('accounts')
+        .set({ keysChangedAt: Date.now() + 60_000 })
+        .where('uid', '=', uuidTransformer.to(client.uid))
+        .execute();
+    }
+
+    it('returns the stored envelope', async () => {
+      await storeCurrentWrap();
+
+      const result = await fetchWrap();
+
+      expect(result).toMatchObject(envelope());
+      expect(result.createdAt).toEqual(expect.any(Number));
+    });
+
+    it('404s when the passkey has no wrap', async () => {
+      await expect(fetchWrap()).rejects.toMatchObject({
+        code: 404,
+        errno: ERRNO.PASSKEY_WRAP_NOT_FOUND,
+      });
+    });
+
+    it('withholds a wrap that predates the current kB', async () => {
+      await storeCurrentWrap();
+      await rotateKeys();
+
+      await expect(fetchWrap()).rejects.toMatchObject({
+        code: 404,
+        errno: ERRNO.PASSKEY_WRAP_STALE,
+      });
+    });
+
+    it('requires an mfa token', async () => {
+      await storeCurrentWrap();
+
+      await expect(
+        fetchWrap(credentialId, 'invalid-token')
+      ).rejects.toMatchObject({ code: 401 });
+    });
+
+    it('refuses a token earned on a different credential', async () => {
+      await storeCurrentWrap();
+      const other = await registerPasskey();
+      const token = await mintWrapToken(other.credential);
+
+      await expect(fetchWrap(credentialId, token)).rejects.toMatchObject({
+        code: 401,
+      });
+    });
   });
 });
