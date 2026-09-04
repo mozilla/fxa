@@ -135,6 +135,7 @@ describe.each(testVersions)(
       );
 
       expect(result.hasPasskey).toBe(false);
+      expect(result.hasPasskeyWraps).toBeUndefined();
     });
 
     it('forgot password limits verify attempts', async () => {

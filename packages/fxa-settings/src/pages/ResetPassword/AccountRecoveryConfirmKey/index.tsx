@@ -19,6 +19,7 @@ import {
   AccountRecoveryConfirmKeyFormData,
   AccountRecoveryConfirmKeyProps,
 } from './interfaces';
+import { PasskeyResetSignals } from '../interfaces';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { RecoveryKeyImage } from '../../../components/images';
 import { Constants } from '../../../lib/constants';
@@ -47,8 +48,10 @@ const AccountRecoveryConfirmKey = ({
   uid,
   totpExists,
   hasPasskey,
+  hasPasskeyWraps,
   showPasskeyOption,
 }: AccountRecoveryConfirmKeyProps) => {
+  const passkeySignals: PasskeyResetSignals = { hasPasskey, hasPasskeyWraps };
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
 
@@ -224,7 +227,7 @@ const AccountRecoveryConfirmKey = ({
               recoveryKeyHint,
               token,
               uid,
-              hasPasskey,
+              ...passkeySignals,
             }}
             onClick={() => GleanMetrics.passwordReset.recoveryKeyCannotFind()}
           >
@@ -245,7 +248,7 @@ const AccountRecoveryConfirmKey = ({
               recoveryKeyHint,
               token,
               uid,
-              hasPasskey,
+              ...passkeySignals,
             }}
             onClick={() => GleanMetrics.passwordReset.recoveryKeyCannotFind()}
           >

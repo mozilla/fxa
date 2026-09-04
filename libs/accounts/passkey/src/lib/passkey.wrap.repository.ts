@@ -116,6 +116,26 @@ export async function findPasskeyWrap(
 }
 
 /**
+ * Count the wraps a user holds across all of their credentials.
+ *
+ * @param db - Database instance
+ * @param uid - User ID as a hex string
+ * @returns Number of wraps for the user
+ */
+export async function countPasskeyWrapsByUid(
+  db: AccountDatabase,
+  uid: string
+): Promise<number> {
+  const result = await db
+    .selectFrom('passkeyWraps')
+    .select(db.fn.count('credentialId').as('count'))
+    .where('uid', '=', uuidTransformer.to(uid))
+    .executeTakeFirst();
+
+  return Number(result?.count ?? 0);
+}
+
+/**
  * Insert a wrap for a credential that has none.
  *
  * A second wrap for the same credential hits the primary key and throws.
