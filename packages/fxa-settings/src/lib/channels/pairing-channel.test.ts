@@ -208,6 +208,56 @@ describe('PairingChannelClient', () => {
       expect(onError).toHaveBeenCalled();
     });
 
+    it('reports an unexpected connect rejection to Sentry', async () => {
+      const {
+        PairingChannel,
+      } = require('fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js');
+      const sentryMetrics = require('fxa-shared/sentry/browser');
+      const err = new Error('connection refused');
+      PairingChannel.connect.mockRejectedValueOnce(err);
+
+      await client.open(SERVER, CHAN, VALID_KEY);
+
+      expect(sentryMetrics.captureException).toHaveBeenCalledWith(err);
+    });
+
+    // The channel server drops the socket for any channel it will not serve,
+    // which the supplicant hits routinely on its post-pairing reload.
+    it('dispatches a CONNECTION_CLOSED error when the socket closes during connect', async () => {
+      const {
+        PairingChannel,
+      } = require('fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js');
+      PairingChannel.connect.mockRejectedValueOnce(
+        new Error('WebSocket unexpectedly closed')
+      );
+      const onError = jest.fn();
+      client.addEventListener('error', onError);
+
+      await client.open(SERVER, CHAN, VALID_KEY);
+
+      expect(client.isConnected).toBe(false);
+      const detail = onError.mock.calls[0][0].detail;
+      expect(detail).toBeInstanceOf(PairingChannelError);
+      expect(detail.errno).toBe(1006);
+      expect(detail.message).toBe(
+        'Connection to remote device closed, please try again'
+      );
+    });
+
+    it('does not report a closed socket during connect to Sentry', async () => {
+      const {
+        PairingChannel,
+      } = require('fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js');
+      const sentryMetrics = require('fxa-shared/sentry/browser');
+      PairingChannel.connect.mockRejectedValueOnce(
+        new Error('WebSocket unexpectedly closed')
+      );
+
+      await client.open(SERVER, CHAN, VALID_KEY);
+
+      expect(sentryMetrics.captureException).not.toHaveBeenCalled();
+    });
+
     it('rejects concurrent open during in-flight connect', async () => {
       const {
         PairingChannel,
