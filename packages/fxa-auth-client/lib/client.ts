@@ -7,6 +7,7 @@ import { Credentials } from './crypto';
 import { deriveTokenCredentials } from './hawk';
 import { bearerHeader, BearerTokenKind } from './bearer';
 import { SaltVersion, createSaltV2 } from './salt';
+import { base64UrlToUint8, uint8ToBase64Url } from './utils';
 import * as Sentry from '@sentry/browser';
 import { MetricsContext } from '@fxa/shared/metrics/glean';
 
@@ -267,7 +268,59 @@ export type PasskeyAuthenticationResult = {
   sessionToken: hexstring;
   verified: boolean;
   hasPassword: boolean;
+  /**
+   * Scoped MFA token, present only when `beginPasskeyAuthentication` asked for
+   * a scope.
+   */
+  mfaToken?: string;
 };
+
+/**
+ * Field list for the wrap envelope, shared by the encode and decode paths so
+ * they cannot drift.
+ */
+const WRAP_ENVELOPE_FIELDS = [
+  'pkR',
+  'prfWrappedSkR',
+  'keyWrapIv',
+  'hpkeEncapsulatedSecret',
+  'hpkeSealedKb',
+] as const;
+
+/**
+ * Envelope bytes, as the `passkey-crypto` module produces and consumes them.
+ * Base64url encoding is a transport concern and does not leave this client.
+ */
+export type PasskeyWrapEnvelope = Record<
+  (typeof WRAP_ENVELOPE_FIELDS)[number],
+  Uint8Array
+>;
+
+/**
+ * A stored envelope, with the time the server recorded it.
+ */
+export type StoredPasskeyWrap = PasskeyWrapEnvelope & { createdAt: number };
+
+type PasskeyWrapEnvelopeJSON = Record<
+  (typeof WRAP_ENVELOPE_FIELDS)[number],
+  string
+>;
+
+function encodeWrapEnvelope(
+  envelope: PasskeyWrapEnvelope
+): PasskeyWrapEnvelopeJSON {
+  return Object.fromEntries(
+    WRAP_ENVELOPE_FIELDS.map((name) => [name, uint8ToBase64Url(envelope[name])])
+  ) as PasskeyWrapEnvelopeJSON;
+}
+
+function decodeWrapEnvelope(
+  envelope: PasskeyWrapEnvelopeJSON
+): PasskeyWrapEnvelope {
+  return Object.fromEntries(
+    WRAP_ENVELOPE_FIELDS.map((name) => [name, base64UrlToUint8(envelope[name])])
+  ) as PasskeyWrapEnvelope;
+}
 
 export interface PublicKeyCredentialJSON {
   id: Base64URLString;
@@ -3713,6 +3766,53 @@ export default class AuthClient {
   }
 
   /**
+   * Stores the wrap envelope that lets one passkey unlock `kB`. An identical
+   * repeat reports `created: false` rather than failing.
+   *
+   * @param jwt MFA JWT with scope `mfa:passkey`, minted for this credential
+   * @param credentialId The base64url-encoded credential ID to store against
+   * @param envelope The envelope bytes from `passkey-crypto`
+   * @param headers Optional additional headers
+   */
+  async createPasskeyWrap(
+    jwt: string,
+    credentialId: string,
+    envelope: PasskeyWrapEnvelope,
+    headers?: Headers
+  ): Promise<{ created: boolean }> {
+    return this.jwtPost(
+      '/passkey/wraps',
+      jwt,
+      { credentialId, ...encodeWrapEnvelope(envelope) },
+      headers
+    );
+  }
+
+  /**
+   * Fetches the wrap envelope for one passkey, so the client can unseal `kB`
+   * without a password.
+   *
+   * 404 covers three conditions, so callers branch on errno: 224 no such
+   * passkey, 234 no wrap stored, 236 the wrap predates the current `kB`.
+   *
+   * @param jwt MFA JWT with scope `mfa:passkey`
+   * @param credentialId The base64url-encoded credential ID to fetch
+   * @param headers Optional additional headers
+   */
+  async getPasskeyWrap(
+    jwt: string,
+    credentialId: string,
+    headers?: Headers
+  ): Promise<StoredPasskeyWrap> {
+    const { createdAt, ...envelope } = await this.jwtGet(
+      `/passkey/wraps/${encodeURIComponent(credentialId)}`,
+      jwt,
+      headers
+    );
+    return { ...decodeWrapEnvelope(envelope), createdAt };
+  }
+
+  /**
    * Starts a passkey authentication (assertion) flow.
    *
    * No email is sent — the server returns options with an empty
@@ -3721,16 +3821,20 @@ export default class AuthClient {
    *
    * @param options.keysRequired Hints that this is a keys-required (Sync)
    *   sign-in, so the server may request PRF under the keys-required scope.
+   * @param options.scope Bare action name (e.g. `passkey`) this sign-in should
+   *   also authorize; makes `/finish` return an `mfaToken`.
    * @param headers Optional additional headers
    */
   async beginPasskeyAuthentication(
-    options: { keysRequired?: boolean } = {},
+    options: { keysRequired?: boolean; scope?: string } = {},
     headers?: Headers
   ): Promise<PublicKeyCredentialRequestOptionsJSON> {
-    const payload =
-      options.keysRequired === undefined
+    const payload = {
+      ...(options.keysRequired === undefined
         ? {}
-        : { keysRequired: options.keysRequired };
+        : { keysRequired: options.keysRequired }),
+      ...(options.scope === undefined ? {} : { scope: options.scope }),
+    };
     return this.request(
       'POST',
       '/passkey/authentication/start',
