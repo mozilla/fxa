@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit a80445dda3a5e58e3e88786103d81641a40fd33a</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit a80445dda3a5e58e3e88786103d81641a40fd33a</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/4/2026, 10:30:23 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(settings): compose the passkey wrap envelope create and unwrap</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- Passwordless Sync needs a client that can seal kB to a passkey and
+  recover it from the stored envelope.
+- auth-server owns kB generation staleness: a reset deletes the wraps and
+  GET /passkey/wraps withholds one older than keysChangedAt. Binding the
+  generation here would need keysChangedAt plumbed to the client, where any
+  drift fails the unwrap with no way to recover.
+
+This commit:
+- Adds createWrapEnvelope and openWrapEnvelope, typed against the
+  auth-client PasskeyWrapEnvelope so no parallel envelope type exists.
+- Exports only those two, keeping the crypto layers and the frozen context
+  construction module-local.
+- Drops keysChangedAt from the bound context, leaving the HPKE aad empty.
+- Removes context.ts, folding its framing and validation into envelope.ts.
+- Zeroes the recipient private key and the serialised scalar after use.
+
+Closes #FXA-13147</pre></dd>
+  </dl>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "commit": "a80445dda3a5e58e3e88786103d81641a40fd33a",
+  "summary": "feat(settings): compose the passkey wrap envelope create and unwrap",
+  "description": "Because:\n- Passwordless Sync needs a client that can seal kB to a passkey and\n  recover it from the stored envelope.\n- auth-server owns kB generation staleness: a reset deletes the wraps and\n  GET /passkey/wraps withholds one older than keysChangedAt. Binding the\n  generation here would need keysChangedAt plumbed to the client, where any\n  drift fails the unwrap with no way to recover.\n\nThis commit:\n- Adds createWrapEnvelope and openWrapEnvelope, typed against the\n  auth-client PasskeyWrapEnvelope so no parallel envelope type exists.\n- Exports only those two, keeping the crypto layers and the frozen context\n  construction module-local.\n- Drops keysChangedAt from the bound context, leaving the HPKE aad empty.\n- Removes context.ts, folding its framing and validation into envelope.ts.\n- Zeroes the recipient private key and the serialised scalar after use.\n\nCloses #FXA-13147",
+  "timestamp": 1788561023000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
