@@ -64,6 +64,11 @@ export interface StoredChallenge {
    */
   uid?: string;
 
+  /**
+   * MFA scope this ceremony was started for, fixed before the user is prompted.
+   */
+  scope?: string;
+
   /** Unix timestamp (milliseconds) when this challenge was created. */
   createdAt: number;
 
@@ -126,8 +131,8 @@ export class PasskeyChallengeManager {
    *
    * @returns Base64url-encoded 32-byte challenge string.
    */
-  async generateAuthenticationChallenge(): Promise<string> {
-    return this.generateChallenge('authentication');
+  async generateAuthenticationChallenge(scope?: string): Promise<string> {
+    return this.generateChallenge('authentication', undefined, scope);
   }
 
   /**
@@ -243,7 +248,8 @@ export class PasskeyChallengeManager {
 
   private async generateChallenge(
     type: ChallengeType,
-    uid?: string
+    uid?: string,
+    scope?: string
   ): Promise<string> {
     const challenge = randomBytes(32).toString('base64url');
     const now = Date.now();
@@ -254,6 +260,7 @@ export class PasskeyChallengeManager {
       challenge,
       type,
       uid,
+      scope,
       createdAt: now,
       expiresAt: now + timeout,
     };

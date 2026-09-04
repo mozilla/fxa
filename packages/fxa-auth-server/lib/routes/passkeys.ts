@@ -6,6 +6,7 @@ import * as isA from 'joi';
 import { Container } from 'typedi';
 import { PasskeyService } from '@fxa/accounts/passkey';
 import { AuthClientInfoService, AuthRequest } from '../types';
+import { signMfaToken } from './utils/mfa-token';
 import { recordSecurityEvent } from './utils/security-event';
 import { notifyAttachedServicesForAccountSession } from './utils/account';
 import { schema as METRICS_CONTEXT_SCHEMA } from '../metrics/context';
@@ -127,7 +128,8 @@ export class PasskeyHandler {
     private readonly statsd: any,
     private readonly glean: GleanMetricsType,
     private readonly mailer: any,
-    private readonly oauthClientInfoService: AuthClientInfoService
+    private readonly oauthClientInfoService: AuthClientInfoService,
+    private readonly config: ConfigType
   ) {}
 
   /**
@@ -404,12 +406,14 @@ export class PasskeyHandler {
   async authenticationStart(request: AuthRequest) {
     await this.customs.checkIpOnly(request, 'passkeyAuthStart');
 
-    const { keysRequired } = (request.payload ?? {}) as {
+    const { keysRequired, scope } = (request.payload ?? {}) as {
       keysRequired?: boolean;
+      scope?: string;
     };
 
     const options = await this.service.generateAuthenticationChallenge({
       keysRequired,
+      scope,
     });
 
     this.glean.passkey.authenticationStarted(request);
@@ -442,8 +446,14 @@ export class PasskeyHandler {
       };
 
     let uid: string;
+    let scope: string | undefined;
+    let assertedCredentialId: string;
     try {
-      ({ uid } = await this.service.verifyAuthenticationResponse(
+      ({
+        uid,
+        scope,
+        credentialId: assertedCredentialId,
+      } = await this.service.verifyAuthenticationResponse(
         response,
         challenge,
         undefined,
@@ -497,11 +507,23 @@ export class PasskeyHandler {
 
     const hasPassword = account.verifierSetAt > 0;
 
+    // Minted here rather than at /start, where there is no session yet to bind
+    // the claims to. `scope` is the one the challenge was created with.
+    const mfaToken = scope
+      ? signMfaToken(this.config, {
+          uid,
+          scope,
+          sessionTokenId: sessionToken.id,
+          credentialId: assertedCredentialId,
+        })
+      : undefined;
+
     return {
       uid,
       sessionToken: sessionToken.data,
       verified: true,
       hasPassword,
+      ...(mfaToken && { mfaToken }),
     };
   }
 
@@ -673,7 +695,8 @@ export const passkeyRoutes = (
     statsd,
     glean,
     mailer,
-    oauthClientInfoService
+    oauthClientInfoService,
+    config
   );
 
   return [
@@ -892,6 +915,12 @@ export const passkeyRoutes = (
           payload: isA.object({
             // Hint for the keys-required PRF scope; omitted = not keys-required.
             keysRequired: isA.boolean().optional(),
+            // The action this sign-in should also authorize. Committed to the
+            // challenge here, so /finish cannot be asked for a different one.
+            scope: isA
+              .string()
+              .valid(...config.mfa.actions)
+              .optional(),
           }),
         },
         response: {
@@ -957,6 +986,8 @@ export const passkeyRoutes = (
             sessionToken: isA.string().required(),
             verified: isA.boolean().required(),
             hasPassword: isA.boolean().required(),
+            // Present only when /start requested a scope.
+            mfaToken: isA.string().optional(),
           }),
         },
       },

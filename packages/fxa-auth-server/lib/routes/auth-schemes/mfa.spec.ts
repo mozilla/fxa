@@ -7,6 +7,8 @@ import { AppError } from '@fxa/accounts/errors';
 import jwt from 'jsonwebtoken';
 import { strategy } from './mfa';
 
+const CREDENTIAL_ID = 'test-credential-id';
+
 function makeJwt(account: any, sessionToken: any, config: any) {
   const now = Math.floor(Date.now() / 1000);
   const claims = {
@@ -15,6 +17,7 @@ function makeJwt(account: any, sessionToken: any, config: any) {
     iat: now,
     jti: crypto.randomUUID(),
     stid: sessionToken.id,
+    cid: CREDENTIAL_ID,
   };
   const opts: jwt.SignOptions = {
     algorithm: 'HS256',
@@ -111,6 +114,9 @@ describe('lib/routes/auth-schemes/mfa', () => {
 
     // Session token should be decorated with a scope.
     expect(sessionToken.scope[0]).toBe('mfa:test');
+
+    // And with the credential the token was minted from.
+    expect(sessionToken.cid).toBe(CREDENTIAL_ID);
   });
 
   it('should throw an error if no authorization header is provided', async () => {

@@ -60,11 +60,16 @@ describe('passkey wraps routes', () => {
       (r) => r.path === '/passkey/wraps' && r.method === 'POST'
     ) as any;
 
-  async function run(payload: Record<string, unknown> = validPayload()) {
+  async function run(
+    payload: Record<string, unknown> = validPayload(),
+    // An options object so a test can pass no binding at all; a positional
+    // default would swallow `undefined` and assert nothing.
+    { cid }: { cid?: string } = { cid: CREDENTIAL_ID }
+  ) {
     const route = buildRoute();
     const request = {
       headers: { 'user-agent': 'test-agent' },
-      auth: { credentials: { uid: UID, id: 'session-token-id' } },
+      auth: { credentials: { uid: UID, id: 'session-token-id', cid } },
       payload,
       app: {
         clientAddress: '127.0.0.1',
@@ -136,6 +141,28 @@ describe('passkey wraps routes', () => {
       );
     });
 
+    it('refuses a token minted for a different credential', async () => {
+      await expect(
+        run(validPayload(), { cid: 'some-other-cred' })
+      ).rejects.toThrow();
+      expect(service.storePasskeyWrap).not.toHaveBeenCalled();
+    });
+
+    it('accepts a binding that differs only in base64url encoding', async () => {
+      const padded = `${Buffer.from(CREDENTIAL_ID, 'base64url').toString(
+        'base64url'
+      )}=`;
+
+      await expect(run(validPayload(), { cid: padded })).resolves.toEqual({
+        created: true,
+      });
+    });
+
+    it('refuses a token with no credential binding', async () => {
+      await expect(run(validPayload(), {})).rejects.toThrow();
+      expect(service.storePasskeyWrap).not.toHaveBeenCalled();
+    });
+
     it('rate-limits against the current primary email', async () => {
       await run();
 
@@ -195,9 +222,10 @@ describe('passkey wraps routes', () => {
   });
 
   describe('route configuration', () => {
-    it('accepts only a verified session token', () => {
+    it('requires an mfa:passkey token', () => {
       expect(buildRoute().options.auth).toEqual({
-        strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
+        strategy: 'mfa',
+        scope: ['mfa:passkey'],
         payload: false,
       });
     });

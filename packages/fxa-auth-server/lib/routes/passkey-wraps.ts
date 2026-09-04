@@ -9,6 +9,7 @@ import {
   V1_WIDTHS,
   type NewPasskeyWrapData,
 } from '@fxa/accounts/passkey';
+import { AppError } from '@fxa/accounts/errors';
 import { AuthRequest } from '../types';
 import { ConfigType } from '../../config';
 import { isPasskeyPasswordlessSyncEnabled } from '../passkey-utils';
@@ -63,17 +64,28 @@ export class PasskeyWrapsHandler {
    * Creates the wrap for a credential that has none. There is no update path,
    * so a stale wrap is resolved by deleting the passkey and re-enrolling.
    *
-   * Takes a verified session, as passkey rename does. Registering and deleting
-   * a credential take the `mfa:passkey` scope; this writes against a credential
-   * that already cleared that bar, and a wrap is inert without its PRF output.
+   * Requires an `mfa:passkey` token bound to the credential being written.
    *
    * @returns `{ created: boolean }` — false when an identical wrap was already
    *   stored.
    */
   async createPasskeyWrap(request: AuthRequest) {
-    const { uid } = request.auth.credentials as { uid: string };
+    const { uid, cid } = request.auth.credentials as {
+      uid: string;
+      cid?: string;
+    };
     const payload = request.payload as WrapPayload;
     const { credentialId } = payload;
+
+    if (
+      !cid ||
+      !Buffer.from(cid, 'base64url').equals(
+        Buffer.from(credentialId, 'base64url')
+      )
+    ) {
+      await this.recordEvent(request, 'account.passkey.wrap_creation_failure');
+      throw AppError.invalidMfaToken();
+    }
 
     const account = await this.db.account(uid);
     await this.customs.checkAuthenticated(
@@ -169,7 +181,8 @@ export const passkeyWrapsRoutes = (
         ...PASSKEYS_API_DOCS.PASSKEY_WRAPS_POST,
         pre: [{ method: passwordlessSyncEnabledCheck }],
         auth: {
-          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
+          strategy: 'mfa',
+          scope: ['mfa:passkey'],
           payload: false,
         },
         validate: {
