@@ -101,7 +101,7 @@ choose-newsletters-option-reclaim-the-internet =
 
 
 pair-continue-in-firefox-heading = Fortsätt i { -brand-firefox }
-pair-continue-in-firefox-description = Parkoppling sker om { -brand-firefox }. Öppna den för att slutföra anslutningen av enheten.
+pair-continue-in-firefox-description = Parkoppling sker i { -brand-firefox }. Öppna den för att slutföra anslutningen av enheten.
 pair-continue-in-firefox-button = Fortsätt i { -brand-firefox }
 pair-continue-in-firefox-opening = Öppnar { -brand-firefox }
 pair-continue-in-firefox-get-firefox-link = Har du inte { -brand-firefox }? Hämta den nu
