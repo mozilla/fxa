@@ -291,7 +291,14 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     } catch (err: unknown) {
       // Reset _channel so a subsequent openChannel() call can retry
       this._channel = null;
-      this.fail(err);
+      // A consumed channel refusing the socket is the post-OAuth reload, not a
+      // failure. open() dispatches an `error` event before it rejects, so
+      // handleChannelError has usually settled the state by now; fail() is a
+      // no-op once it has, and still catches the errors raised before any
+      // event went out.
+      if (!this.isPostCompletionReconnect()) {
+        this.fail(err);
+      }
     }
   }
 
