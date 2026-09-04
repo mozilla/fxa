@@ -1,0 +1,10 @@
+{
+  "commit": "ac0a6b3a0d02e4b67f2d4d8692d1bb6a8d5062fd",
+  "summary": "fix(settings): put v2 supplicant pairing screens on a white background",
+  "description": "Because:\n\n- Figma puts the mobile pairing screens on white; they render light grey.\n- `.card` only gains a white background from `mobileLandscape` up, so on a\n  phone the card is transparent and the grey `body` is the whole screen.\n\nThis commit:\n\n- Adds an opt-in `whiteBackground` prop to `AppLayout` that whitens the page\n  wrapper, leaving the default and dark mode untouched.\n- Passes it from the six `Pair2/Supplicant` screens. The desktop `Authority`\n  screens keep the grey page, which their white cards need for contrast.\n- Covers the prop in the `AppLayout` suite and the page colour in each\n  supplicant suite.\n\nFixes FXA-14461",
+  "timestamp": 1788370521000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
