@@ -246,6 +246,38 @@ describe('PubsubProxy Controller', () => {
     }
   });
 
+  it('passes the delete reason to SET generation', async () => {
+    await (controller as any).generateSET(
+      {
+        event: dto.DELETE_EVENT,
+        reason: 'inactivity',
+        uid: 'uid1234',
+      },
+      TEST_CLIENT_ID
+    );
+
+    expect(jwtset.generateDeleteSET).toHaveBeenCalledWith({
+      clientId: TEST_CLIENT_ID,
+      reason: 'inactivity',
+      uid: 'uid1234',
+    });
+  });
+
+  it('omits an unrecognized delete reason from SET generation', async () => {
+    await (controller as any).generateSET(
+      {
+        event: dto.DELETE_EVENT,
+        reason: 'nonsense',
+        uid: 'uid1234',
+      },
+      TEST_CLIENT_ID
+    );
+
+    const [delEvent] = (jwtset.generateDeleteSET as jest.Mock).mock.calls[0];
+    expect(delEvent).toEqual({ clientId: TEST_CLIENT_ID, uid: 'uid1234' });
+    expect(delEvent).not.toHaveProperty('reason');
+  });
+
   it('records proxy.success timing using message.timestamp, not changeTime', async () => {
     // Simulate a password event where changeTime is years-old (the credential
     // generation timestamp) but timestamp reflects when the event was queued.

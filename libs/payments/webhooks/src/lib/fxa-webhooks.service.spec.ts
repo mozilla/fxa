@@ -254,9 +254,10 @@ describe('FxaWebhookService', () => {
       );
     });
 
-    it('handles delete-user event', async () => {
+    it('handles a delete-user event with a reason', async () => {
+      const reason = 'user';
       const token = await signToken({
-        [FXA_DELETE_EVENT_URI]: {},
+        [FXA_DELETE_EVENT_URI]: { reason },
       });
 
       await service.handleWebhookEvent(`Bearer ${token}`);
@@ -264,10 +265,26 @@ describe('FxaWebhookService', () => {
       expect(statsd.increment).toHaveBeenCalledWith('fxa.webhook.event', {
         eventType: 'delete-user',
       });
-      expect(logger.log).toHaveBeenCalledWith(
-        'handleDeleteUser',
-        expect.objectContaining({ sub: TEST_UID })
+      expect(logger.log).toHaveBeenCalledWith('handleDeleteUser', {
+        sub: TEST_UID,
+        event: { reason },
+      });
+      expect(paymentsGleanService.handleUserDelete).toHaveBeenCalledWith(
+        TEST_UID
       );
+    });
+
+    it('handles a legacy delete-user event without a reason', async () => {
+      const token = await signToken({
+        [FXA_DELETE_EVENT_URI]: {},
+      });
+
+      await service.handleWebhookEvent(`Bearer ${token}`);
+
+      expect(logger.log).toHaveBeenCalledWith('handleDeleteUser', {
+        sub: TEST_UID,
+        event: {},
+      });
       expect(paymentsGleanService.handleUserDelete).toHaveBeenCalledWith(
         TEST_UID
       );
