@@ -200,6 +200,8 @@ const makeRoutes = function (options: any = {}) {
     del: jest.fn().mockResolvedValue(1),
   };
 
+  const profile = options.profile || mocks.mockProfile();
+
   const routeModule = require('./emails');
 
   const routes = routeModule(
@@ -215,9 +217,11 @@ const makeRoutes = function (options: any = {}) {
     undefined,
     options.stripeHelper,
     authServerCacheRedis,
-    statsd
+    statsd,
+    profile
   );
   (routes as any).__redis = authServerCacheRedis;
+  (routes as any).__profile = profile;
   return routes;
 };
 
@@ -1620,6 +1624,207 @@ describe('/emails/reminders/cad', () => {
 
       expect(response).toBeTruthy();
       expect(Object.keys(response)).toHaveLength(0);
+    });
+  });
+});
+
+describe('profile cache invalidation', () => {
+  const directError = new Error('profile server unavailable');
+  const eventError = new Error('sns unavailable');
+  let uid: string, mockLog: any, mockDB: any, profile: any, mockRequest: any;
+
+  beforeEach(() => {
+    mocks.mockOAuthClientInfo();
+    uid = crypto.randomBytes(16).toString('hex');
+    mockLog = createMock<AuthLogger>();
+    mockLog.notifyAttachedServices = jest.fn().mockResolvedValue(undefined);
+    profile = mocks.mockProfile();
+  });
+
+  describe('/mfa/recovery_email/secondary/verify_code - newly verified', () => {
+    let route: any;
+    const secret = 'abcd1234abcd1234abcd1234abcd1234';
+
+    beforeEach(() => {
+      mocks.mockAccountEventsManager();
+      installMockFxaMailer();
+      mockDB = mocks.mockDB({
+        uid,
+        email: TEST_EMAIL,
+        emailVerified: true,
+      });
+
+      const authServerCacheRedis = {
+        get: jest.fn().mockResolvedValue(JSON.stringify({ uid, secret })),
+        set: jest.fn().mockResolvedValue('OK'),
+        del: jest.fn().mockResolvedValue(1),
+      };
+      const routes = makeRoutes({
+        db: mockDB,
+        log: mockLog,
+        mailer: mocks.mockMailer(),
+        authServerCacheRedis,
+        profile,
+      });
+      route = getRoute(routes, '/mfa/recovery_email/secondary/verify_code');
+
+      const otpUtilsLocal = require('./utils/otp').default(
+        {},
+        { histogram: () => {} }
+      );
+      mockRequest = mocks.mockRequest({
+        credentials: { uid, email: TEST_EMAIL },
+        log: mockLog,
+        payload: {
+          email: TEST_EMAIL_ADDITIONAL,
+          code: otpUtilsLocal.generateOtpCode(secret, otpOptions),
+        },
+      });
+    });
+
+    afterEach(() => {
+      mocks.unMockAccountEventsManager();
+      uninstallMockFxaMailer();
+    });
+
+    it('invalidates the profile cache after verification', async () => {
+      const response = await runTest(route, mockRequest);
+
+      expect(response).toEqual({});
+      expect(profile.deleteCache).toHaveBeenCalledTimes(1);
+      expect(profile.deleteCache).toHaveBeenCalledWith(uid);
+      expect(mockLog.notifyAttachedServices).toHaveBeenCalledTimes(1);
+      expect(mockLog.notifyAttachedServices).toHaveBeenCalledWith(
+        'profileDataChange',
+        mockRequest,
+        { uid }
+      );
+    });
+
+    it('succeeds when only the direct delete rejects', async () => {
+      profile.deleteCache.mockRejectedValue(directError);
+
+      const response = await runTest(route, mockRequest);
+
+      expect(response).toEqual({});
+      expect(mockLog.notifyAttachedServices).toHaveBeenCalledTimes(1);
+      expect(mockLog.error).toHaveBeenCalledWith(
+        'secondary_email.invalidateProfileCache.clientDelete',
+        { uid, err: directError }
+      );
+    });
+
+    it('succeeds when only the notification event rejects', async () => {
+      mockLog.notifyAttachedServices.mockRejectedValue(eventError);
+
+      const response = await runTest(route, mockRequest);
+
+      expect(response).toEqual({});
+      expect(profile.deleteCache).toHaveBeenCalledTimes(1);
+      expect(mockLog.error).toHaveBeenCalledWith(
+        'secondary_email.invalidateProfileCache.notifyEvent',
+        { uid, err: eventError }
+      );
+    });
+
+    it('does not throw when both reject', async () => {
+      // invalidation is best effort
+      profile.deleteCache.mockRejectedValue(directError);
+      mockLog.notifyAttachedServices.mockRejectedValue(eventError);
+
+      const response = await runTest(route, mockRequest);
+
+      expect(response).toEqual({});
+      expect(mockLog.error).toHaveBeenCalledWith(
+        'secondary_email.invalidateProfileCache.clientDelete',
+        { uid, err: directError }
+      );
+      expect(mockLog.error).toHaveBeenCalledWith(
+        'secondary_email.invalidateProfileCache.notifyEvent',
+        { uid, err: eventError }
+      );
+    });
+  });
+
+  describe('/mfa/recovery_email/destroy', () => {
+    let fxaMailer: any, route: any;
+
+    const makeDestroyRoute = () => {
+      const routes = makeRoutes({
+        db: mockDB,
+        log: mockLog,
+        mailer: mocks.mockMailer(),
+        profile,
+      });
+      return getRoute(routes, '/mfa/recovery_email/destroy');
+    };
+
+    beforeEach(() => {
+      mocks.mockAccountEventsManager();
+      fxaMailer = installMockFxaMailer();
+      mockDB = mocks.mockDB({ uid, email: TEST_EMAIL, emailVerified: true });
+      route = makeDestroyRoute();
+      mockRequest = mocks.mockRequest({
+        credentials: { uid, email: TEST_EMAIL },
+        log: mockLog,
+        payload: { email: TEST_EMAIL_ADDITIONAL },
+      });
+    });
+
+    afterEach(() => {
+      mocks.unMockAccountEventsManager();
+      uninstallMockFxaMailer();
+    });
+
+    const withVerifiedSecondary = () => {
+      mockDB.account = jest.fn().mockResolvedValue({
+        uid,
+        email: TEST_EMAIL,
+        emails: [
+          {
+            email: TEST_EMAIL,
+            normalizedEmail: normalizeEmail(TEST_EMAIL),
+            isPrimary: true,
+            isVerified: true,
+          },
+          {
+            email: TEST_EMAIL_ADDITIONAL,
+            normalizedEmail: normalizeEmail(TEST_EMAIL_ADDITIONAL),
+            isPrimary: false,
+            isVerified: true,
+          },
+        ],
+      });
+      route = makeDestroyRoute();
+    };
+
+    it('does not invalidate when the removed address was never verified', async () => {
+      const response = await runTest(route, mockRequest);
+
+      expect(response).toEqual({});
+      expect(profile.deleteCache).not.toHaveBeenCalled();
+      expect(mockLog.notifyAttachedServices).not.toHaveBeenCalled();
+      expect(fxaMailer.sendPostRemoveSecondaryEmail).not.toHaveBeenCalled();
+    });
+
+    it('invalidates the profile cache when a verified address is removed', async () => {
+      withVerifiedSecondary();
+
+      const response = await runTest(route, mockRequest);
+
+      expect(response).toEqual({});
+      expect(mockDB.deleteEmail).toHaveBeenCalledWith(
+        uid,
+        normalizeEmail(TEST_EMAIL_ADDITIONAL)
+      );
+      expect(profile.deleteCache).toHaveBeenCalledTimes(1);
+      expect(profile.deleteCache).toHaveBeenCalledWith(uid);
+      expect(mockLog.notifyAttachedServices).toHaveBeenCalledTimes(1);
+      expect(mockLog.notifyAttachedServices).toHaveBeenCalledWith(
+        'profileDataChange',
+        mockRequest,
+        { uid }
+      );
     });
   });
 });
