@@ -100,6 +100,7 @@ const CompleteResetPasswordContainer = ({
     recoveryKeyExists,
     estimatedSyncDeviceCount,
     hasPasskey,
+    hasPasskeyWraps,
   } = location.state as CompleteResetPasswordLocationState;
 
   const kB = sensitiveDataClient.getDataType(
@@ -124,6 +125,7 @@ const CompleteResetPasswordContainer = ({
   // non-Sync reset even when the account has Sync data on other devices.
   const showPasskeyOption = shouldShowPasskeyResetOption(config, {
     hasPasskey,
+    hasPasskeyWraps,
     serviceRequiresKeys: integration.isSync(),
     requireHasPasskey: true,
   });

@@ -18,6 +18,14 @@ const flagsOff = {
   },
 };
 
+/** Sync surfaces additionally need the passwordless flag to offer a passkey. */
+const passwordlessSyncFlagsOn = {
+  featureFlags: {
+    ...flagsOn.featureFlags,
+    passkeyPasswordlessSyncEnabled: true,
+  },
+};
+
 describe('shouldShowPasskeyResetOption', () => {
   describe('feature flag gating', () => {
     it('returns false when the passkey feature is off, even post-OTP with a passkey', () => {
@@ -41,7 +49,7 @@ describe('shouldShowPasskeyResetOption', () => {
       ).toBe(true);
     });
 
-    it('suppresses for a Sync flow (serviceRequiresKeys)', () => {
+    it('suppresses for a Sync flow, where the wrap status is not yet known', () => {
       expect(
         shouldShowPasskeyResetOption(flagsOn, { serviceRequiresKeys: true })
       ).toBe(false);
@@ -76,14 +84,62 @@ describe('shouldShowPasskeyResetOption', () => {
       ).toBe(false);
     });
 
-    it('suppresses for a Sync flow even with a passkey', () => {
+    it('returns true for a Sync flow when the account has a key-wrap', () => {
+      expect(
+        shouldShowPasskeyResetOption(passwordlessSyncFlagsOn, {
+          hasPasskey: true,
+          hasPasskeyWraps: true,
+          requireHasPasskey: true,
+          serviceRequiresKeys: true,
+        })
+      ).toBe(true);
+    });
+
+    it('suppresses for a Sync flow with a key-wrap when passwordless Sync is off', () => {
+      // Wraps can exist before sign-in can unwrap them, and the footer would
+      // otherwise send the user to a passkey sign-in that asks for the password
+      // they just declared forgotten.
       expect(
         shouldShowPasskeyResetOption(flagsOn, {
           hasPasskey: true,
+          hasPasskeyWraps: true,
           requireHasPasskey: true,
           serviceRequiresKeys: true,
         })
       ).toBe(false);
+    });
+
+    it('suppresses for a Sync flow when the account has no key-wrap', () => {
+      expect(
+        shouldShowPasskeyResetOption(flagsOn, {
+          hasPasskey: true,
+          hasPasskeyWraps: false,
+          requireHasPasskey: true,
+          serviceRequiresKeys: true,
+        })
+      ).toBe(false);
+    });
+
+    it('suppresses for a Sync flow when the wrap status is unknown', () => {
+      expect(
+        shouldShowPasskeyResetOption(flagsOn, {
+          hasPasskey: true,
+          hasPasskeyWraps: undefined,
+          requireHasPasskey: true,
+          serviceRequiresKeys: true,
+        })
+      ).toBe(false);
+    });
+
+    it('returns true for a non-Sync flow without a key-wrap', () => {
+      expect(
+        shouldShowPasskeyResetOption(flagsOn, {
+          hasPasskey: true,
+          hasPasskeyWraps: false,
+          requireHasPasskey: true,
+          serviceRequiresKeys: false,
+        })
+      ).toBe(true);
     });
   });
 
