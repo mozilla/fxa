@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit adbdb4dec3d6238e41c2db8d3ff42c9718e26a70</title>
+  <title>Storybooks for commit 5347259e8d5893e20dd039af8397c3766bc27ebd</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit adbdb4dec3d6238e41c2db8d3ff42c9718e26a70</h1>
+  <h1>Storybooks for commit 5347259e8d5893e20dd039af8397c3766bc27ebd</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/4/2026, 3:16:44 AM UTC</dd>
+    <dd>9/4/2026, 3:38:07 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(passkey): Add GET /passkey/wraps/{credentialId}</pre></dd>
     <dt>Description</dt>
@@ -42,6 +42,8 @@
 This commit:
 - Adds GET /passkey/wraps/{credentialId} behind an mfa:passkey token,
   rate-limited as passkeyWrapsGet.
+- Requires the token be bound to the credential being fetched, as the
+  write does.
 - Withholds a wrap older than keysChangedAt as a 404, errno 236.
 - Adds encodePasskeyWrapEnvelope, keyed off the v1 widths.
 - Records no security event; this runs on every passwordless sign-in.
