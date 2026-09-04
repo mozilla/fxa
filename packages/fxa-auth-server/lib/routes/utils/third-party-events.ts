@@ -14,6 +14,10 @@ const RISC_CONFIG_URI =
 
 const APPLE_PUBLIC_KEYS = 'https://appleid.apple.com/auth/keys';
 
+// These run on unauthenticated webhook paths; don't let a slow provider
+// hold the request open.
+const JWKS_TIMEOUT_MS = 5_000;
+
 export type GoogleSETEvent = {
   subject: {
     subject_type: string;
@@ -324,7 +328,9 @@ export function normalizeGoogleSETEventType(eventType: string): string {
  */
 export async function getApplePublicKey(token: string, statsd: StatsD) {
   try {
-    const response = await fetch(APPLE_PUBLIC_KEYS);
+    const response = await fetch(APPLE_PUBLIC_KEYS, {
+      signal: AbortSignal.timeout(JWKS_TIMEOUT_MS),
+    });
     if (!response.ok) {
       throw new Error(
         `Apple public key endpoint responded with ${response.status}`
@@ -366,7 +372,9 @@ export async function getGooglePublicKey(
   statsd: StatsD
 ): Promise<{ pem: string; issuer: string }> {
   try {
-    const riscConfigResponse = await fetch(RISC_CONFIG_URI);
+    // Google needs two hops; one deadline covers both.
+    const signal = AbortSignal.timeout(JWKS_TIMEOUT_MS);
+    const riscConfigResponse = await fetch(RISC_CONFIG_URI, { signal });
     if (!riscConfigResponse.ok) {
       throw new Error(
         `Google RISC configuration endpoint responded with ${riscConfigResponse.status}`
@@ -374,7 +382,7 @@ export async function getGooglePublicKey(
     }
     const { jwks_uri: jwksUri, issuer } = await riscConfigResponse.json();
 
-    const googleCertsResponse = await fetch(jwksUri);
+    const googleCertsResponse = await fetch(jwksUri, { signal });
     if (!googleCertsResponse.ok) {
       throw new Error(
         `Google public key endpoint responded with ${googleCertsResponse.status}`

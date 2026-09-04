@@ -59,8 +59,6 @@ const APPLE_ISSUER = 'https://appleid.apple.com';
 export class LinkedAccountHandler {
   private googleAuthClient?: OAuth2Client;
   private otpUtils: any;
-  private goooglePublicKey: any;
-  private applePublicKey: any;
 
   constructor(
     private log: AuthLogger,
@@ -109,27 +107,25 @@ export class LinkedAccountHandler {
     // in a payload object.
     const { payload: token } = request.payload as any;
 
+    let applePublicKey;
     try {
-      if (!this.applePublicKey) {
-        this.applePublicKey = await getApplePublicKey(token, this.statsd);
-      }
-    } catch (error) {
+      applePublicKey = await getApplePublicKey(token, this.statsd);
+    } catch (err) {
       this.statsd.increment('handleAppleSET.publicKeyError');
-      throw error;
+      throw err;
     }
 
     try {
       const jwtPayload = (await validateSecurityToken(
         token,
         this.config.appleAuthConfig.securityEventsClientIds,
-        this.applePublicKey.pem,
+        applePublicKey.pem,
         APPLE_ISSUER,
         this.statsd
       )) as AppleJWTSETPayload;
 
       if (!jwtPayload) {
-        this.statsd.increment('handleAppleSET.validationError');
-        return {};
+        throw error.invalidToken();
       }
 
       const { events } = jwtPayload;
@@ -173,13 +169,12 @@ export class LinkedAccountHandler {
     const tokenBuffer = request.payload as ArrayBuffer;
     const token = tokenBuffer.toString();
 
+    let googlePublicKey;
     try {
-      if (!this.goooglePublicKey) {
-        this.goooglePublicKey = await getGooglePublicKey(token, this.statsd);
-      }
-    } catch (error) {
+      googlePublicKey = await getGooglePublicKey(token, this.statsd);
+    } catch (err) {
       this.statsd.increment('handleGoogleSET.publicKeyError');
-      throw error;
+      throw err;
     }
 
     try {
@@ -195,14 +190,13 @@ export class LinkedAccountHandler {
       const jwtPayload = (await validateSecurityToken(
         token,
         this.config.googleAuthConfig.securityEventsClientIds,
-        this.goooglePublicKey.pem,
-        this.goooglePublicKey.issuer,
+        googlePublicKey.pem,
+        googlePublicKey.issuer,
         this.statsd
       )) as GoogleJWTSETPayload;
 
       if (!jwtPayload) {
-        this.statsd.increment('handleGoogleSET.validationError');
-        return {};
+        throw error.invalidToken();
       }
 
       this.statsd.increment('handleGoogleSET.decoded');

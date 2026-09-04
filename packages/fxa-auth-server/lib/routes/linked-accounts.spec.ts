@@ -1099,11 +1099,8 @@ describe('/linked_account', () => {
                     : options.validateSecurityToken
                   : makeJWT(),
               isValidClientId: () => true,
-              getGooglePublicKey: () => {
-                return {
-                  pem: 'somekey',
-                };
-              },
+              getGooglePublicKey:
+                options.getGooglePublicKey ?? (() => ({ pem: 'somekey' })),
             },
           }
         ),
@@ -1366,10 +1363,12 @@ describe('/linked_account', () => {
       );
     });
 
-    it('handles JWT validation failure gracefully', async () => {
+    it('rejects a token that fails verification', async () => {
       setupTest({ validateSecurityToken: async () => undefined });
 
-      await runTest(route, mockRequest);
+      await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+        errno: error.ERRNO.INVALID_TOKEN,
+      });
 
       // Only these two metrics should be called, in order
       expect(statsd.increment).toHaveBeenCalledTimes(2);
@@ -1381,11 +1380,17 @@ describe('/linked_account', () => {
         2,
         'handleGoogleSET.validationError'
       );
+    });
 
-      // Should not call decoded or processing metrics since validation failed
-      expect(mockDB.getLinkedAccount).not.toHaveBeenCalled();
-      expect(mockDB.sessions).not.toHaveBeenCalled();
-      expect(mockDB.deleteSessionToken).not.toHaveBeenCalled();
+    it('resolves the signing key on every request', async () => {
+      // Key state must not carry across requests. See FXA-14413.
+      const getGooglePublicKey = jest.fn(() => ({ pem: 'somekey' }));
+      setupTest({ validateSecurityToken: makeJWT(), getGooglePublicKey });
+
+      await runTest(route, mockRequest);
+      await runTest(route, mockRequest);
+
+      expect(getGooglePublicKey).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -1449,13 +1454,12 @@ describe('/linked_account', () => {
           {
             './utils/third-party-events': {
               validateSecurityToken: () =>
-                options.validateSecurityToken || makeJWT(),
+                'validateSecurityToken' in options
+                  ? options.validateSecurityToken
+                  : makeJWT(),
               isValidClientId: () => true,
-              getApplePublicKey: () => {
-                return {
-                  pem: 'somekey',
-                };
-              },
+              getApplePublicKey:
+                options.getApplePublicKey ?? (() => ({ pem: 'somekey' })),
             },
           }
         ),
@@ -1570,6 +1574,29 @@ describe('/linked_account', () => {
       expect(statsd.increment).toHaveBeenCalledWith(
         'handleAppleSET.processed.consent-revoked'
       );
+    });
+
+    it('rejects a token that fails verification', async () => {
+      setupTest({ validateSecurityToken: undefined });
+
+      await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+        errno: error.ERRNO.INVALID_TOKEN,
+      });
+
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'handleAppleSET.validationError'
+      );
+    });
+
+    it('resolves the signing key on every request', async () => {
+      // Key state must not carry across requests. See FXA-14413.
+      const getApplePublicKey = jest.fn(() => ({ pem: 'somekey' }));
+      setupTest({ getApplePublicKey });
+
+      await runTest(route, mockRequest);
+      await runTest(route, mockRequest);
+
+      expect(getApplePublicKey).toHaveBeenCalledTimes(2);
     });
   });
 });
