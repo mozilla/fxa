@@ -1,0 +1,10 @@
+{
+  "commit": "a4f7a41932c61d225eaf6d314b281cebe5fc29dc",
+  "summary": "fix(settings): reject pairing sends on a torn-down channel",
+  "description": "Because:\n  - fxa-pairing-channel reports an unexpected socket close as an `error`,\n    not a `close`, so the wrapper keeps a channel it has already discarded\n  - sending on that channel threw a raw `TypeError` from the library, which\n    reached Sentry and the integrations' `fail()` handlers with no errno\n\nThis commit:\n  - throws `CONNECTION_CLOSED` from `PairingChannelClient.send()` when the\n    underlying channel reports itself closed\n  - covers the torn-down send path in the unit tests\n\nCloses: FXA-14484",
+  "timestamp": 1788565852000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
