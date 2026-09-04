@@ -675,16 +675,18 @@ describe('Pair', () => {
       // The desktop UA is stubbed for this suite, so the bootstrap reaching the
       // choice screen is what proves the hold expired. Waits past the grace
       // period, which is longer than the default findBy timeout.
-      await screen.findByLabelText(/I already have Firefox for mobile/, undefined, {
-        timeout: 4000,
-      });
+      await screen.findByLabelText(
+        /I already have Firefox for mobile/,
+        undefined,
+        {
+          timeout: 4000,
+        }
+      );
       expect(mockNavigate).not.toHaveBeenCalledWith(
         '/pair/supplicant/connect_this_device',
         expect.anything()
       );
     });
-
-
   });
 });
 
@@ -743,9 +745,10 @@ describe('parseV2PairingHash', () => {
       fxaStatusResult: mockUseFxAStatus({ fxaStatusState: 'unanswered' }),
     };
 
-    const v2AppContext = () => {
+    const v2AppContext = ({ iosHandoff = false } = {}) => {
       const config = getDefault();
       config.pairing.version = 2;
+      config.pairing.iosHandoff = iosHandoff;
       return mockAppContext({ config } as Parameters<typeof mockAppContext>[0]);
     };
 
@@ -753,12 +756,43 @@ describe('parseV2PairingHash', () => {
       mockLocationHash = V2_HASH;
     });
 
-    it.each([
-      ['iOS Safari', IOS_SAFARI],
-      ['Android Chrome', ANDROID_CHROME],
-    ])('offers to continue in Firefox on %s', async (_label, ua) => {
-      setUserAgent(ua);
+    // This describe sits outside the one that clears between tests, so a
+    // navigation recorded here would otherwise be seen by the next test.
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('offers to continue in Firefox on Android Chrome', async () => {
+      setUserAgent(ANDROID_CHROME);
       renderWithRouter(<Pair {...unansweredProps} />, {}, v2AppContext());
+
+      expect(
+        await screen.findByRole('heading', { name: 'Continue in Firefox' })
+      ).toBeInTheDocument();
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
+
+    // Firefox iOS cannot finish a pairing that started in another browser, so
+    // the hand-off card would only be a tap in front of the same dead end.
+    it('sends an iOS browser straight to /pair/unsupported', async () => {
+      setUserAgent(IOS_SAFARI);
+      renderWithRouter(<Pair {...unansweredProps} />, {}, v2AppContext());
+
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith(`/pair/unsupported${V2_HASH}`)
+      );
+      expect(
+        screen.queryByRole('heading', { name: 'Continue in Firefox' })
+      ).not.toBeInTheDocument();
+    });
+
+    it('offers to continue in Firefox on iOS once the deployment enables it', async () => {
+      setUserAgent(IOS_SAFARI);
+      renderWithRouter(
+        <Pair {...unansweredProps} />,
+        {},
+        v2AppContext({ iosHandoff: true })
+      );
 
       expect(
         await screen.findByRole('heading', { name: 'Continue in Firefox' })
@@ -770,7 +804,11 @@ describe('parseV2PairingHash', () => {
     // opens on a /pair page with nothing to pair.
     it('hands Firefox the pairing URL the QR encoded', async () => {
       setUserAgent(IOS_SAFARI);
-      renderWithRouter(<Pair {...unansweredProps} />, {}, v2AppContext());
+      renderWithRouter(
+        <Pair {...unansweredProps} />,
+        {},
+        v2AppContext({ iosHandoff: true })
+      );
 
       const cta = await screen.findByRole('link', {
         name: 'Continue in Firefox',

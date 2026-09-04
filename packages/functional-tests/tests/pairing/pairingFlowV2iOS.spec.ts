@@ -39,9 +39,9 @@
  *
  * Local target only, gated behind IOS_PAIRING_V2_ENABLED, and skipped by default in every
  * case. Prerequisites: the FxA stack
- * started with PAIRING_VERSION=2, a booted Simulator, a firefox-ios checkout built with
- * `build-for-testing` for the SyncIntegrationTestPlan, and Firefox Nightly for the authority
- * (or FIREFOX_BINARY at a v2-capable build).
+ * started with PAIRING_VERSION=2 and PAIRING_IOS_HANDOFF=true, a booted Simulator, a
+ * firefox-ios checkout built with `build-for-testing` for the SyncIntegrationTestPlan, and
+ * Firefox Nightly for the authority (or FIREFOX_BINARY at a v2-capable build).
  */
 
 import { writeFileSync } from 'fs';
@@ -152,7 +152,8 @@ const DELIVERIES = [
  * Render `/pair` as a non-Firefox phone would and return the hand-off link it offers.
  *
  * The iOS descriptor makes `detectDevice` report iOS. The card renders only once `fxa_status`
- * goes unanswered, which is a timeout rather than a reply, so it is absent on first paint.
+ * goes unanswered, which is a timeout rather than a reply, so it is absent on first paint —
+ * and only where the stack serves `PAIRING_IOS_HANDOFF=true`.
  */
 async function readHandoffDeepLink(
   browser: Browser,

@@ -149,6 +149,10 @@ const Pair = ({
   // carry the flow, so we will hand the pairing URL to the Firefox app instead,
   // falling back to the app store when it is not installed.
   //
+  // iOS gets a plan only where the deployment says Firefox iOS can act on one.
+  // Without one the flow falls through to /pair/unsupported below, which is
+  // where the hand-off would have led anyway.
+  //
   // Read-only, so it is safe to evaluate during render; the auto-attempt token
   // is only spent by ContinueInFirefox.
   const handoffPlan: HandoffPlan = useMemo(() => {
@@ -160,6 +164,7 @@ const Pair = ({
         storage: getAttemptStorage(),
         build: config.pairing.browserBuild,
         iosScheme: config.pairing.iosUrlScheme,
+        iosHandoff: config.pairing.iosHandoff,
       });
     }
 

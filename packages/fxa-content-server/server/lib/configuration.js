@@ -791,6 +791,12 @@ const conf = (module.exports = convict({
       env: 'PAIRING_IOS_URL_SCHEME',
       format: ['firefox', 'fennec', 'firefox-beta', 'firefox-internal'],
     },
+    ios_handoff: {
+      default: false,
+      doc: 'Whether a pairing QR scanned outside Firefox on iOS is handed off to the Firefox app. Disabled while Firefox iOS cannot finish a pairing it did not start, since the hand-off card is then only an extra step in front of /pair/unsupported.',
+      env: 'PAIRING_IOS_HANDOFF',
+      format: Boolean,
+    },
     clients: {
       default: [
         '3c49430b43dfba77', // Reference browser

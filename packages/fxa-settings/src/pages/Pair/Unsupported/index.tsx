@@ -5,7 +5,6 @@
 import React, { useEffect, useMemo } from 'react';
 
 import { FtlMsg } from 'fxa-react/lib/utils';
-import CardHeader from '../../../components/CardHeader';
 import { usePageViewEvent } from '../../../lib/metrics';
 import {
   HeartsBrokenImage,
@@ -64,9 +63,7 @@ function useDeviceContext() {
   }, []);
 }
 
-const PairUnsupported = ({
-  error,
-}: PairUnsupportedProps) => {
+const PairUnsupported = ({ error }: PairUnsupportedProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const {
     isDesktopNonFirefox,
@@ -133,10 +130,15 @@ const PairUnsupported = ({
       {isMobileWithSystemCamera && (
         <>
           <HeartsBrokenImage className="w-3/5 mx-auto" />
-          <CardHeader
-            headingTextFtlId="pair-unsupported-header"
-            headingText="Pair using an app"
-          />
+          <FtlMsg id="pair-unsupported-header">
+            <h1
+              id="pair-unsupported-header"
+              className="card-header mb-2 focus:outline-none"
+              tabIndex={-1}
+            >
+              Pair using an app
+            </h1>
+          </FtlMsg>
           <FtlMsg id="pair-unsupported-message">
             <p className="text-sm">
               Did you use the system camera? You must pair from within a Firefox

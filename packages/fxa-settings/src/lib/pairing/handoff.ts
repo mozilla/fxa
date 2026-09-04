@@ -160,9 +160,10 @@ function buildIosDeepLink(target: string, scheme: string): string {
 /**
  * Decide how — or whether — to hand `targetUrl` to the Firefox app.
  *
- * Only a non-Firefox phone gets a plan. Inside Firefox there is nothing to hand
- * off to and `firefox://` is a no-op, and on desktop there is no app to open,
- * so both fall through to `none` and the caller keeps its existing behaviour.
+ * Only a non-Firefox phone gets a plan, and iOS only once `iosHandoff` says the
+ * app can act on one. Inside Firefox there is nothing to hand off to and
+ * `firefox://` is a no-op, and on desktop there is no app to open, so both fall
+ * through to `none` and the caller keeps its existing behaviour.
  */
 export function planPairingHandoff({
   device,
@@ -171,6 +172,7 @@ export function planPairingHandoff({
   storage,
   build,
   iosScheme = 'firefox',
+  iosHandoff = false,
 }: {
   device: Devices;
   targetUrl: string;
@@ -179,6 +181,13 @@ export function planPairingHandoff({
   build: 'firefox' | 'fenix';
   /** iOS URL scheme to hand off to. See `buildIosDeepLink`. */
   iosScheme?: string;
+  /**
+   * Whether Firefox iOS can finish a pairing that started in another browser.
+   * It cannot until the app supports pairing version 2 from a native-camera
+   * scan, and a hand-off that only ever lands on /pair/unsupported is worse
+   * than going there directly — so off unless the deployment opts in.
+   */
+  iosHandoff?: boolean;
 }): HandoffPlan {
   if (!targetUrl) {
     return { kind: 'none' };
@@ -186,6 +195,9 @@ export function planPairingHandoff({
 
   switch (device) {
     case Devices.OTHER_IOS:
+      if (!iosHandoff) {
+        return { kind: 'none' };
+      }
       return {
         kind: 'ios',
         deepLink: buildIosDeepLink(targetUrl, iosScheme),
