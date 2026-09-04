@@ -1,8 +1,8 @@
 {
-  "commit": "ea0cf8b62379838b9f18da250a0301b87c790035",
-  "summary": "fix(pair): send an iOS QR scan straight to /pair/unsupported",
-  "description": "Because:\n  - Firefox iOS cannot finish a pairing started from a native-camera scan,\n    so the hand-off card is only a tap in front of a roadblock\n  - \"Continue in Firefox\" reads as progress, which makes the dead end worse\n\nThis commit:\n  - adds a `pairing.ios_handoff` setting, off by default\n  - plans no iOS hand-off while it is off, so /pair falls through to\n    /pair/unsupported\n  - keeps the Android hand-off, where updating Firefox makes a re-scan work\n  - covers the iOS redirect in the Pair unit tests and the unsupported spec\n  - names the new flag in the iOS v2 pairing spec and its guide\n\nCloses: FXA-14467",
-  "timestamp": 1788488745000,
+  "commit": "dd08f6be8c2f79eee5b868a729098e5b195abdb5",
+  "summary": "fix(pair): give the \"Pair using an app\" screen its heading id",
+  "description": "Because:\n  - the React pair/unsupported page dropped the `pair-unsupported-header`\n    id on the system-camera branch, which the Backbone template carries\n  - the new iOS pairing functional test keys off that id, and failed on it\n\nThis commit:\n  - renders that heading directly with the id, in place of CardHeader\n  - asserts the id in the Unsupported page tests",
+  "timestamp": 1788553293000,
   "storybooks": [
     "fxa-settings"
   ],
