@@ -140,8 +140,12 @@ export const AppLayout = ({
 
         {!splitLayout ? (
           <>
-            <main className="flex mobileLandscape:items-center flex-1">
-              <section>
+            {/* The mobile card is full-bleed, so these span the viewport below
+                `mobileLandscape` — left to shrink-to-fit, a card with narrow
+                content ends up narrower than the screen. Above that breakpoint
+                shrink-to-fit is what centers the fixed-width card. */}
+            <main className="flex w-full mobileLandscape:w-auto mobileLandscape:items-center flex-1">
+              <section className="w-full mobileLandscape:w-auto">
                 {loading ? (
                   <>
                     <CardLoadingSpinner />
