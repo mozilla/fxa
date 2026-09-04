@@ -70,10 +70,9 @@ export type PairingChannelV2SupplicantRequestMessage = {
   code_challenge: string;
   code_challenge_method: string;
   keys_jwk: string;
-  scope:string;
-  state:string;
-}
-
+  scope: string;
+  state: string;
+};
 
 // Error definitions matching Backbone's pairing-channel-client-errors
 export const PairingChannelErrors = {
@@ -138,6 +137,11 @@ type PairingChannelSocket = {
   removeEventListener(type: string, listener: EventListener): void;
   _channelId?: string;
   _channelKey?: Uint8Array;
+  /**
+   * True once fxa-pairing-channel has torn the WebSocket down. In 1.0.2 this
+   * is `!this._socket || readyState === 3`, set by its `_shutdown()`.
+   */
+  readonly closed?: boolean;
 };
 
 export class PairingChannelClient extends EventTarget {
@@ -257,11 +261,15 @@ export class PairingChannelClient extends EventTarget {
     data: Record<string, unknown> = {}
   ): Promise<void> {
     if (!this.channel) {
-      console.warn('No pairing channel!')
+      console.warn('No pairing channel!');
       throw new PairingChannelError('NOT_CONNECTED');
     }
+    if (this.channel.closed) {
+      console.warn('Pairing channel is closed!');
+      throw new PairingChannelError('CONNECTION_CLOSED');
+    }
     if (!message) {
-      console.warn('No message!')
+      console.warn('No message!');
       throw new PairingChannelError('INVALID_OUTBOUND_MESSAGE');
     }
     console.info('Sending pairing message', message);
@@ -276,10 +284,10 @@ export class PairingChannelClient extends EventTarget {
     this.channel = null;
     this.removeChannelListeners(ch);
     try {
-      console.info('Closing channel ', ch._channelId)
+      console.info('Closing channel ', ch._channelId);
       await ch.close();
     } catch (err) {
-      console.error("Error closing channel", err);
+      console.error('Error closing channel', err);
       sentryMetrics.captureException(err);
     }
   }
@@ -307,7 +315,7 @@ export class PairingChannelClient extends EventTarget {
 
       const { data = {}, message } = payload;
 
-      console.info(`Receiving pairing message`, message)
+      console.info(`Receiving pairing message`, message);
 
       // Enrich with sender metadata (same shape as Backbone)
       data.remoteMetaData = {
