@@ -1,8 +1,8 @@
 {
-  "commit": "380d164c3ec43470ad23eee514f263f84adccfc4",
+  "commit": "93be902b957d0b9d652639c2bc9898b8da2cdbd7",
   "summary": "feat(auth-client): Add passkey wrap methods and assertion scope",
   "description": "Because:\n- Passwordless sign-in needs the wrap envelope, and no client method\n  reaches the wrap endpoints.\n- A passkey assertion can now mint a scoped MFA token, which callers\n  need in order to request and spend one.\n\nThis commit:\n- Adds createPasskeyWrap and getPasskeyWrap, base64url on the wire and\n  Uint8Array for callers.\n- Adds the optional scope param to beginPasskeyAuthentication.\n- Surfaces mfaToken on the authentication result.\n\nCloses #FXA-13148",
-  "timestamp": 1788498462000,
+  "timestamp": 1788499222000,
   "storybooks": [
     "fxa-settings"
   ],
