@@ -1,0 +1,10 @@
+{
+  "commit": "245c9aa63108b5769a9419934acc76f9a1039ed6",
+  "summary": "fix(settings): stop reporting expected pairing channel closes to Sentry",
+  "description": "Because:\n\n- A dropped socket is the channel server's normal answer for a\n  channel it will not serve, but open() reported every connect\n  failure to Sentry.\n- The supplicant hits it on its post-pairing reload, where the\n  integration already ignores it, and on any webview network change.\n- Triage already tracks \"WebSocket unexpectedly closed\" as known\n  client-side noise.\n\nThis commit:\n\n- Classifies a closed socket during connect and dispatches\n  CONNECTION_CLOSED rather than capturing an exception.\n- Leaves every other connect failure reporting to Sentry.\n- Logs the suppressed close as a console breadcrumb.\n- Covers both branches in pairing-channel.test.ts.\n\nCloses #FXA-14444",
+  "timestamp": 1788559897000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
