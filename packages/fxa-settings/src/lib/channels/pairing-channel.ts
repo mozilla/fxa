@@ -138,6 +138,11 @@ type PairingChannelSocket = {
   removeEventListener(type: string, listener: EventListener): void;
   _channelId?: string;
   _channelKey?: Uint8Array;
+  /**
+   * fxa-pairing-channel's own handle on the socket. It is nulled out when the
+   * socket goes away, and the package's `close()` dereferences it unguarded.
+   */
+  _connection?: unknown;
 };
 
 export class PairingChannelClient extends EventTarget {
@@ -275,6 +280,16 @@ export class PairingChannelClient extends EventTarget {
     const ch = this.channel;
     this.channel = null;
     this.removeChannelListeners(ch);
+
+    // An `error` from the socket leaves the channel disconnected without a
+    // matching `close`, so teardown still arrives here holding a dead channel.
+    // There is no socket left to shut down, and asking the package to close one
+    // throws. An absent `_connection` is not the same signal as a null one:
+    // only null means the package has torn the socket down.
+    if (ch._connection === null) {
+      return;
+    }
+
     try {
       console.info('Closing channel ', ch._channelId)
       await ch.close();
