@@ -137,7 +137,7 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
 
   async createChannel(): Promise<void> {
     if (this._channel) {
-      console.warn('Pairing channel already exists!')
+      console.warn('Pairing channel already exists!');
       return;
     }
 
@@ -185,7 +185,10 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
 
   private setState(state: AuthorityState): void {
     this._state = state;
-    console.info('Emitting pairing authority state change event.', {id: this._iid, state: this.state});
+    console.info('Emitting pairing authority state change event.', {
+      id: this._iid,
+      state: this.state,
+    });
     this.onStateChange?.(state);
   }
 
@@ -261,9 +264,10 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
 
       this._supRequest = validation.request;
 
-      this._channel.send('pair:auth:metadata', {})
-        .then(()=>{
-           this.setState(AuthorityState.WaitingForAuthorizations);
+      this._channel
+        .send('pair:auth:metadata', {})
+        .then(() => {
+          this.setState(AuthorityState.WaitingForAuthorizations);
         })
         .catch((err) => {
           console.warn('Error sending pair:auth:metadata');
@@ -485,18 +489,18 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
           code_challenge_method: supRequest.code_challenge_method,
           keys_jwk: supRequest.keys_jwk,
           scope: supRequest.scope,
-          state: supRequest.state
+          state: supRequest.state,
         });
 
         if (!result?.code || !result.state) {
           throw new Error('Failed to finalize oauth pair!');
         }
-        console.info('OAuth pair finish success!')
+        console.info('OAuth pair finish success!');
 
         await this._channel.send('pair:auth:authorize', {
           code: result.code,
-          state: result.state
-        })
+          state: result.state,
+        });
       } catch (err) {
         // pairOauthFinish rejects on its own timeout, on a missing code/state and
         // on an echoed-state mismatch, and the send can reject too. The approve
@@ -506,8 +510,7 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
         this.fail(err);
         return;
       }
-    }
-    else {
+    } else {
       await firefox.pairAuthorize(this.channelId);
     }
 
@@ -529,6 +532,25 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
   async complete(): Promise<void> {
     this.stopHeartbeat();
     await firefox.pairComplete(this.channelId);
+  }
+
+  /**
+   * Ends the flow at the authority user's request.
+   *
+   * A channel the user closed and one that expired look identical from the
+   * other end, so the supplicant is told before the channel goes away —
+   * otherwise its dead-end screen blames a timeout for a pairing this user
+   * deliberately stopped.
+   */
+  async cancel(): Promise<void> {
+    try {
+      await this._channel?.send('pair:auth:cancel', {});
+    } catch (err) {
+      // The notice is a courtesy to the other device. A channel that will not
+      // carry it still has to be torn down.
+      Sentry.captureException(err);
+    }
+    await this.destroy();
   }
 
   /** Clean up timers on unmount. */
@@ -557,7 +579,7 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
       try {
         await this._channel.close();
       } catch (err) {
-        Sentry.captureException(err)
+        Sentry.captureException(err);
       } finally {
         this._channel = null;
       }

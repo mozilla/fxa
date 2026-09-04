@@ -17,25 +17,29 @@ import ConnectThisDevice from '.';
 import { navigateWithQuery } from '../../../../lib/utilities';
 
 export const ConnectThisDeviceContainer = ({
-  integration
-}:{
-  integration?: Integration|PairingSupplicantIntegration
+  integration,
+}: {
+  integration?: Integration | PairingSupplicantIntegration;
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [remoteMetadata, setRemoteMetadata] = useState<RemoteMetadata|null>(null);
-  const [email, setEmail] = useState<string|undefined>();
+  const [remoteMetadata, setRemoteMetadata] = useState<RemoteMetadata | null>(
+    null
+  );
+  const [email, setEmail] = useState<string | undefined>();
   const [ready, setReady] = useState<boolean>(false);
 
   if (!(integration instanceof PairingSupplicantIntegration)) {
-    throw new Error('Invalid integration. Expecting instance of PairingSupplicantIntegration');
+    throw new Error(
+      'Invalid integration. Expecting instance of PairingSupplicantIntegration'
+    );
   }
   if (location.state?.version !== '2') {
     throw new Error('Invalid location state. Expecting version of 2.');
   }
 
   useEffect(() => {
-    integration.onStateChange = (state:SupplicantState) => {
+    integration.onStateChange = (state: SupplicantState) => {
       switch (state) {
         case SupplicantState.WaitingForAuthorizations:
           // The following data should have been relayed over the pairing channel
@@ -45,9 +49,9 @@ export const ConnectThisDeviceContainer = ({
             ipAddress: integration.remoteMetadata?.ipAddress || 'Unknown',
             city: integration.remoteMetadata?.city || 'Unknown',
             country: integration.remoteMetadata?.country || 'Unknown',
-            deviceFamily: integration.remoteMetadata?.deviceFamily  || 'Unknown',
+            deviceFamily: integration.remoteMetadata?.deviceFamily || 'Unknown',
             deviceName: integration.remoteMetadata?.deviceName || 'Unknown',
-            deviceOS: integration.remoteMetadata?.deviceOS  || 'Unknown',
+            deviceOS: integration.remoteMetadata?.deviceOS || 'Unknown',
             region: integration.remoteMetadata?.region || 'Unknown',
           });
           break;
@@ -55,14 +59,23 @@ export const ConnectThisDeviceContainer = ({
           navigateWithQuery('/pair/supplicant/approve_signin', {}, true);
           break;
         case SupplicantState.Failed:
-          navigateWithQuery('/pair/supplicant/timeout_and_cancel', {}, true);
+          navigateWithQuery(
+            '/pair/supplicant/timeout_and_cancel',
+            {
+              state: {
+                reason: integration.canceledByAuthority
+                  ? 'canceled'
+                  : 'timeout',
+              },
+            },
+            true
+          );
           break;
         default:
           console.warn('Unexpected state change: ' + state);
           break;
       }
-    }
-
+    };
 
     (async () => {
       await integration.openChannel(
@@ -70,7 +83,7 @@ export const ConnectThisDeviceContainer = ({
         location.state.channelId,
         location.state.channelKey,
         2
-      )
+      );
       setReady(true);
     })().catch((err) => {
       Sentry.captureException(err);
@@ -97,27 +110,29 @@ export const ConnectThisDeviceContainer = ({
       { state: { reason: 'canceled' } },
       true
     );
-  }
+  };
 
   const onConnect = () => {
     integration
       .supplicantApprove()
       .then(() => {
-        navigate('/pair/supplicant/approve_signin')
+        navigate('/pair/supplicant/approve_signin');
       })
       .catch((err) => {
         Sentry.captureException(err);
-        navigate('/pair/supplicant/timeout_and_cancel')
+        navigate('/pair/supplicant/timeout_and_cancel');
       });
   };
 
   if (!ready || !remoteMetadata) {
     // Rendered through AppLayout rather than a bare spinner so the wait for the
     // channel keeps the page chrome and centering of the card that follows it.
-    return <AppLayout loading />
+    return <AppLayout loading />;
   }
 
-  return <ConnectThisDevice {...{remoteMetadata, email, onCancel, onConnect }} />
-}
+  return (
+    <ConnectThisDevice {...{ remoteMetadata, email, onCancel, onConnect }} />
+  );
+};
 
 export default ConnectThisDeviceContainer;
