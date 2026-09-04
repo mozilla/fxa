@@ -1,8 +1,8 @@
 {
-  "commit": "eb1ac9ddab7149d8b07f98f9aa38dad7906ab916",
-  "summary": "Merge pull request #21139 from mozilla/fxa-14300",
-  "description": "refactor(settings): use stacked rectangular buttons for Google and Apple auth",
-  "timestamp": 1788482130000,
+  "commit": "d32477f58d787a205d9511e6f407d4db3db3eeba",
+  "summary": "Merge pull request #21137 from mozilla/passkey-wrap-mfa-token",
+  "description": "feat(passkey): Mint an MFA token from passkey sign-in",
+  "timestamp": 1788490662000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
