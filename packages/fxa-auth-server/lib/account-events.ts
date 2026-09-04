@@ -26,6 +26,12 @@ type EmailEvent = BaseEvent & {
   template: string;
 };
 
+export type SecurityEventLoginMethod =
+  | 'password'
+  | 'passwordless.otp'
+  | 'passwordless.thirdParty'
+  | 'passkey';
+
 interface SecurityEventAdditionalInfo {
   userAgent?: string;
   location?: {
@@ -39,6 +45,9 @@ interface SecurityEventAdditionalInfo {
   };
   client_id?: string;
   service?: string;
+  // How the user authenticated. Rows written before this field existed have no
+  // method; read those as unknown, not as a password login.
+  method?: SecurityEventLoginMethod;
   waf?: {
     clientJa4?: string;
     clientJa3?: string;
@@ -138,7 +147,7 @@ export class AccountEventsManager {
 
       await this.usersDbRef?.doc(uid).collection('events').add(emailEvent);
       this.statsd.increment('accountEvents.recordEmailEvent.write', {
-        template: message.template
+        template: message.template,
       });
     } catch (err) {
       // Failing to write to events shouldn't break anything

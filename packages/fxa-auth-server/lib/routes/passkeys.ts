@@ -594,6 +594,7 @@ export class PasskeyHandler {
           db: this.db,
           request,
           account: { uid: account.uid },
+          method: 'passkey',
         });
       }
     } catch (err) {
