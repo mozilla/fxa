@@ -252,27 +252,36 @@ export class PairingChannelClient extends EventTarget {
       );
 
       this.channel = channel;
-      this.dispatchEvent(new CustomEvent('connected'));
 
+      // Listeners go on before `connected` so a message that arrives in the
+      // same tick as the handshake completing is not dropped.
       channel.addEventListener('message', this.handleMessage);
       channel.addEventListener('error', this.handleError);
       channel.addEventListener('close', this.handleClose);
+
+      this.dispatchEvent(new CustomEvent('connected'));
     } catch (err) {
       // A dropped socket is the channel server's normal answer for a channel it
       // will not serve, so it carries no signal worth an exception report. The
-      // flow still ends on the failure screen; the console breadcrumb keeps it
-      // visible in the trail of any real error that follows.
-      if (isChannelClosedError(err)) {
+      // console breadcrumb keeps it visible in the trail of any real error
+      // that follows.
+      const closed = isChannelClosedError(err);
+      if (closed) {
         console.warn('Pairing channel closed before it opened', channelId);
-        this.dispatchEvent(
-          new CustomEvent('error', {
-            detail: new PairingChannelError('CONNECTION_CLOSED'),
-          })
-        );
       } else {
         sentryMetrics.captureException(err);
-        this.dispatchEvent(new CustomEvent('error', { detail: err }));
       }
+
+      // Report the closed socket under its own errno so a caller reading the
+      // error sees the same 1006 a mid-flow close produces.
+      const detail = closed
+        ? new PairingChannelError('CONNECTION_CLOSED')
+        : err;
+      this.dispatchEvent(new CustomEvent('error', { detail }));
+
+      // Rejecting is what lets the caller drop this instance; resolving leaves
+      // a client that looks live and blocks every later reopen.
+      throw detail;
     } finally {
       this._opening = false;
     }

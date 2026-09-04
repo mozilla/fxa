@@ -189,7 +189,10 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
 
   private setState(state: SupplicantState): void {
     this._state = state;
-    console.info(`Emitting pairing supplicant state change event.`, {id: this._iid, state: this.state});
+    console.info(`Emitting pairing supplicant state change event.`, {
+      id: this._iid,
+      state: this.state,
+    });
     this.onStateChange?.(state);
   }
 
@@ -220,7 +223,7 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     this.onError?.(this._error);
   }
 
-  hasChannel(channelId:string) {
+  hasChannel(channelId: string) {
     return !!this._channel && this._channel.channelId === channelId;
   }
 
@@ -232,9 +235,8 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     channelServerUri: string,
     channelId: string,
     channelKey: string,
-    version:number = 1
+    version: number = 1
   ): Promise<void> {
-
     if (version === 2 && this._channel) {
       if (channelId === this._channel.channelId) {
         console.warn('Pairing channel already open!');
@@ -274,7 +276,14 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     } catch (err: unknown) {
       // Reset _channel so a subsequent openChannel() call can retry
       this._channel = null;
-      this.fail(err);
+      // A consumed channel refusing the socket is the post-OAuth reload, not a
+      // failure. open() dispatches an `error` event before it rejects, so
+      // handleChannelError has usually settled the state by now; fail() is a
+      // no-op once it has, and still catches the errors raised before any
+      // event went out.
+      if (!this.isPostCompletionReconnect()) {
+        this.fail(err);
+      }
     }
   }
 
@@ -294,8 +303,7 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     // In V2, the the UI flow forces the supplicant to approve first.
     if (this._version === 2) {
       this.setState(SupplicantState.WaitingForAuthority);
-    }
-    else {
+    } else {
       if (this._state === SupplicantState.WaitingForAuthorizations) {
         this.setState(SupplicantState.WaitingForAuthority);
       } else if (this._state === SupplicantState.WaitingForSupplicant) {
@@ -313,11 +321,9 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
 
       // Send OAuth request to authority
       if (!this._channel) {
-        throw new Error('Channel no longe exists!')
+        throw new Error('Channel no longe exists!');
       }
-      await this._channel
-        .send('pair:supp:request', oauthParams);
-
+      await this._channel.send('pair:supp:request', oauthParams);
     })().catch((err: unknown) => {
       this.fail(err);
     });
@@ -401,7 +407,7 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     );
   }
 
-  checkClientInfo () {
+  checkClientInfo() {
     // no-op. The supplicant doesn't have client info.
   }
 
@@ -425,7 +431,7 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     }
 
     if (!clientId) {
-      console.warn("Could not resolve a valid clientId!")
+      console.warn('Could not resolve a valid clientId!');
     }
 
     return clientId;
@@ -443,8 +449,7 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
   };
 
   private handleChannelError = (event: Event) => {
-
-    console.warn('Channel error event', event)
+    console.warn('Channel error event', event);
 
     if (this.isPostCompletionReconnect()) {
       return;
@@ -488,7 +493,7 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     if (this._version === 2) {
       const data = await firefox.pairOauthStart({});
       if (!data) {
-        throw new Error('Firefox could not provide oauth params.')
+        throw new Error('Firefox could not provide oauth params.');
       }
 
       // This following client id check is a bandaide for now, so we at least
@@ -496,8 +501,8 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
       // out, since there's not point in proceeding.
       const client_id = this.data.clientId || this.getClientId();
       if (!client_id) {
-        console.warn('Could not determine clientId!')
-        throw new Error("Could not determine clientId! Cannot proceed.")
+        console.warn('Could not determine clientId!');
+        throw new Error('Could not determine clientId! Cannot proceed.');
       }
 
       const scope = [
@@ -515,7 +520,9 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
       };
 
       // Fail fast if something wasn't provided.
-      const missing = Object.entries(result).filter(([k,v]) => !v && k !== 'client_id').map(([k]) => k);
+      const missing = Object.entries(result)
+        .filter(([k, v]) => !v && k !== 'client_id')
+        .map(([k]) => k);
       if (missing.length) {
         throw new Error(`Missing required OAuth params: ${missing.join(', ')}`);
       }
@@ -572,7 +579,7 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
   }
 
   async destroy(): Promise<void> {
-    console.info('Channel destroy')
+    console.info('Channel destroy');
     this.onStateChange = null;
     this.onError = null;
 
