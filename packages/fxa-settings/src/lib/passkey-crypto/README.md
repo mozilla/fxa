@@ -9,9 +9,9 @@ arrives via `authClient.accountKeys()` and leaves over the Sync webchannel.
 opaquely, and `fxa-auth-client` only carries it over the wire (FXA-13148).
 Extract to a shared lib if a second client ever needs it.
 
-Two crypto layers, kept separate, plus the context they both bind:
+Two crypto layers, kept separate, plus the composition that drives them:
 
-- **Context** (`context.ts`) — build the `info` and `aad` both layers bind, from `uid`, `credentialId`, and `keysChangedAt`.
+- **Envelope** (`envelope.ts`) — the API callers use. `createWrapEnvelope` turns `kB` and `prfOut` into a v1 envelope; `openWrapEnvelope` turns a stored envelope and `prfOut` back into `kB`. Also owns the `info`/`aad` context both layers bind, built from `uid` and `credentialId`. The envelope shape is `PasskeyWrapEnvelope` from `fxa-auth-client`, so what this module produces is exactly what `createPasskeyWrap` sends and `getPasskeyWrap` returns.
 - **HPKE** (`hpke.ts`) — seal `kB` to a per-wrap recipient public key, and open it again.
 - **AES-GCM** (`key-wrap.ts`) — generate the recipient keypair and wrap its private key under the passkey's PRF output. Web Crypto for every cryptographic operation; the `hpke` import is a serialiser only.
 
@@ -37,7 +37,8 @@ A bit on future iterations. Nothing can change in place. With no version field t
 ## Boundaries
 
 - Everything crosses the module boundary as `Uint8Array`. No `CryptoKey` escapes a function.
-- `info` and `aad` are opaque to `hpke.ts` and `key-wrap.ts`, but `context.ts` owns their construction. Callers pass credential context, not bytes: assembling the framing at two call sites is how you get envelopes that nothing can open, and the failure is indistinguishable from a wrong PRF output.
+- `info` and `aad` are opaque to `hpke.ts` and `key-wrap.ts`, but `envelope.ts` owns their construction. Callers pass credential context, not bytes: assembling the framing at two call sites is how you get envelopes that nothing can open, and the failure is indistinguishable from a wrong PRF output.
+- `skR` never reaches a caller or the network: the wrapped form is the only copy that leaves `envelope.ts`. The buffers it owns are zeroed in a `finally` on both paths, but zeroing is best-effort in JS — importing the scalar goes through a JWK `d` string, which is immutable and collectable only by GC.
 - Client-only. The auth-server stores and returns the envelope opaquely and performs no crypto; `kB` must never reach it. Nothing here may take a Node-only dependency.
 
 ## Constraints that are easy to reintroduce
@@ -45,7 +46,9 @@ A bit on future iterations. Nothing can change in place. With no version field t
 - **`keyWrapIv` must be freshly random per wrap.** `prfOut` is deterministic for a given credential and salt, and HKDF is deterministic too, so the AES-GCM key repeats across re-enrolments. A reused nonce under that key collapses GCM's confidentiality _and_ authenticity guarantees.
 - **`openKb` rebuilds the keypair itself, from `pkR` and the scalar.** Not `suite.DeserializePrivateKey`: given the scalar alone the library has to recover the public point by multiplying it against the curve generator, which it does with a pure-JS BigInt wNAF multiply branching on secret-derived digits — on every unlock. Since `pkR` is stored, Web Crypto can import the pair directly from a JWK. That also sidesteps `crypto.subtle.getPublicKey`, whose fallback requires an extractable key, so a runtime without it (WebKit at time of writing) failed with a generic `DecapError` that Node would never reproduce. `hpke.test.ts` holds all of it: a spy proving `DeserializePrivateKey` is never called, an equivalence test against it, and the `getPublicKey`-deleted suite.
 - **Widths are checked on the way out, not just the way in.** Every value bound for a `BINARY(n)` column is asserted at its v1 size before it is returned. These are ciphersuite constants, so a failure means a library or platform change moved one — and the alternative is a silently padded row that can never be opened.
-- **`keysChangedAt` binds the HPKE layer only, never the `skR` wrap.** Rotation re-seals `kB` to the stored `pkR` without the authenticator (tech spec §2.2.1, goal 4), so it has no `prfOut` and cannot re-wrap `skR`. A generation bound into `keyWrapAad` would make every password reset lock the credential out. `context.ts` enforces the split; `golden-envelope.test.ts` holds both halves.
+- **The envelope binds `uid` and `credentialId`, and nothing else.** The `kB` generation is the server's to enforce: `sp_resetAccount` deletes an account's wraps when a reset rotates `kB`, and `GET /passkey/wraps/{credentialId}` returns errno 236 for a wrap predating the current `keysChangedAt`. Binding it here would mean plumbing `keysChangedAt` to both the create and unwrap paths and matching it forever — any drift fails the unwrap indistinguishably from a wrong `prfOut`, with no update path to recover through.
+
+- **The HPKE `aad` is empty.** Everything the envelope authenticates travels in `info`. `sealKb` and `openKb` keep the parameter because RFC 9180 has the slot, but nothing fills it at v1 — and a value that migrated from `info` to `aad` would be a format change like any other.
 - **`prfOut` is HKDF input, not the AES key.** It is deterministic per credential and salt and carries no domain separation of its own, so using it raw would share one key with any future use of the same PRF salt.
 - **`skR` is stored as the raw scalar, not a PKCS#8 export.** PKCS#8 measures 241 bytes only because every Web Crypto implementation happens to emit the OPTIONAL public-key field. `Nsk` = 66 is a ciphersuite constant, and the fixed-width `prfWrappedSkR` column would silently zero-pad anything shorter. `SerializePrivateKey` decodes the JWK `d` as-is and does **not** pad, so `generateRecipientKeyPair` left-pads to `Nsk` — a platform whose EC export strips leading zeros would otherwise store a short scalar for roughly 1 key in 512.
 
@@ -63,4 +66,6 @@ Real `crypto.subtle` and the real `hpke` library — but Node's Web Crypto, not 
 Two suites carry more weight than the rest.
 
 The RFC 9180 Appendix A.6 vectors confirm the ciphersuite is configured correctly. They are copied verbatim from the RFC, which is safe in a way the envelope fixture is not: the RFC is published and immutable, so a vendored copy cannot drift from its source, and a value that diverges from it fails the tests rather than silencing them.
-`golden-envelope.test.ts` decrypts a committed v1 envelope, and is the only test that fails when the format itself moves — everything else seals and opens with the same code, so it passes whatever the format is. Never regenerate that fixture.
+`golden-envelope.test.ts` decrypts a committed v1 envelope and asserts the derived context byte-for-byte, so it is the only test that fails when the format itself moves — everything else seals and opens with the same code, so it passes whatever the format is. That byte-exact assertion is what pins `uid` to hex and `credentialId` to base64url; a round-trip test would not notice either changing.
+
+Regenerating the fixture is only safe while no shipped client has written a v1 envelope. Once one has, the committed vectors are the only evidence of the format those stored rows were sealed under, and regenerating them turns a test that would have caught a format change into one that ratifies it — locking those users out of Sync with no recovery path, since the envelope carries no version field.
