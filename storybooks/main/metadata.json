@@ -1,8 +1,8 @@
 {
-  "commit": "113caf6277a57cf1b5dfed691cdcd2daaabe9cf0",
-  "summary": "Merge pull request #21112 from mozilla/fxa-14273",
-  "description": "feat(settings): run the QR promo value proposition experiment",
-  "timestamp": 1788542565000,
+  "commit": "c7ae05bc9ac92d3d5d004d33214620cf994eb361",
+  "summary": "Merge pull request #21130 from mozilla/FXA-13143",
+  "description": "feat(passkey): Add GET /passkey/wraps/{credentialId}",
+  "timestamp": 1788551154000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
