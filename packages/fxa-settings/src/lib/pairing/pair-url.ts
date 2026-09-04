@@ -42,6 +42,30 @@ function isSafeChannelValue(value: string): boolean {
 }
 
 /**
+ * Is this a v2 pairing channel we are willing to act on?
+ *
+ * The channel reaches us two ways — parsed out of the URL hash here, and handed
+ * between pages as router state — and both end up interpolated into a deep
+ * link, so both are validated through this one guard rather than trusting the
+ * shape of whatever arrived.
+ */
+export function isPairingChannelInfo(
+  value: unknown
+): value is PairingChannelInfo {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+  const { channelId, channelKey, version } = value as Record<string, unknown>;
+  return (
+    version === '2' &&
+    typeof channelId === 'string' &&
+    typeof channelKey === 'string' &&
+    isSafeChannelValue(channelId) &&
+    isSafeChannelValue(channelKey)
+  );
+}
+
+/**
  * Read a v2 pairing channel out of a URL hash, as produced by the authority's
  * QR code: `/pair#channel_id=...&channel_key=...&v=2`. The channel lives in the
  * hash rather than the query string so the key is never sent to the server.
@@ -56,20 +80,13 @@ export function parsePairingHash(
 ): PairingChannelInfo | undefined {
   const params = new URLSearchParams((hash ?? '').replace(/^#/, ''));
 
-  if (params.get('v') !== '2') {
-    return undefined;
-  }
+  const candidate = {
+    channelId: params.get('channel_id'),
+    channelKey: params.get('channel_key'),
+    version: params.get('v'),
+  };
 
-  const channelId = params.get('channel_id');
-  const channelKey = params.get('channel_key');
-  if (!channelId || !channelKey) {
-    return undefined;
-  }
-  if (!isSafeChannelValue(channelId) || !isSafeChannelValue(channelKey)) {
-    return undefined;
-  }
-
-  return { channelId, channelKey, version: '2' };
+  return isPairingChannelInfo(candidate) ? candidate : undefined;
 }
 
 /**

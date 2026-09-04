@@ -533,6 +533,9 @@ const recordEventMetric = (
     case 'cad_firefox_notnow_submit':
       cadFirefox.notnowSubmit.record();
       break;
+    case 'cad_firefox_download_firefox_view':
+      cadFirefox.downloadFirefoxView.record();
+      break;
     case 'cad_approve_device_view':
       cadApproveDevice.view.record();
       break;
