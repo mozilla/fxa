@@ -326,8 +326,12 @@ const Pair = ({
 
   // Fire Glean view events only after the bootstrap reveals the page;
   // otherwise users redirected during bootstrap would skew the metric.
+  const recordedView = useRef<string | null>(null);
   useEffect(() => {
     if (bootstrapping) return;
+    const viewKey = currentView === 'choice' ? `choice:${pairReason}` : 'view';
+    if (recordedView.current === viewKey) return;
+    recordedView.current = viewKey;
     if (currentView === 'choice') {
       // Recorded as an empty reason when /pair is reached outside a sign-in or
       // sign-up flow, or from a flow with no sanctioned bucket (third-party

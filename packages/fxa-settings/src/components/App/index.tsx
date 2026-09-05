@@ -522,6 +522,7 @@ const SettingsRoutes = ({
 }) => {
   const location = useLocation();
   const isSync = integration != null ? integration.isSync() : false;
+  const settingsContext = useMemo(() => initializeSettingsContext(), []);
 
   // Check localStorage directly — prop is async, localStorage is sync after storeAccountData()
   const { data: localSignedInData } = useLocalSignedInQueryState();
@@ -553,7 +554,6 @@ const SettingsRoutes = ({
     return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }
 
-  const settingsContext = initializeSettingsContext();
   return (
     <AccountStateProvider>
       <SettingsContext.Provider value={settingsContext}>

@@ -54,11 +54,10 @@ test.describe('severity-1 #smoke', () => {
 
       // Account already has a password, so the change password CTA should
       // emit reason='change' (vs 'create' for passwordless accounts).
-      const submitPings = gleanEventsHelper.getEventsByName(
+      const submitPing = await gleanEventsHelper.waitForEvent(
         'account_pref_change_password_submit'
       );
-      expect(submitPings.length).toBeGreaterThan(0);
-      expect(submitPings[0].extras.reason).toBe('change');
+      expect(submitPing.extras.reason).toBe('change');
 
       // Sign out and login with new password
       await settings.signOut();

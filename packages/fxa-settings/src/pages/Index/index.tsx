@@ -21,6 +21,7 @@ import {
   useFtlMsgResolver,
 } from '../../models';
 import GleanMetrics from '../../lib/glean';
+import { useGleanView } from '../../lib/glean/useGleanView';
 import Banner from '../../components/Banner';
 import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
 import CmsLogo from '../../components/CmsLogo';
@@ -83,9 +84,7 @@ export const Index = ({
   const emailEngageEventEmitted = useRef(false);
   const emailInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    GleanMetrics.emailFirst.view();
-  }, []);
+  useGleanView(() => GleanMetrics.emailFirst.view());
 
   // Defer auto-focus once. If the container redirects an already-signed-in user
   // away, intermittently the browser's email autocomplete dropdown can be shown on

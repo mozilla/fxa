@@ -3,11 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Link, useLocation } from 'react-router';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Control, useForm, useWatch } from 'react-hook-form';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 import { isBase32Crockford } from '../../../lib/utilities';
 import { useFtlMsgResolver } from '../../../models/hooks';
 
@@ -61,9 +62,7 @@ const AccountRecoveryConfirmKey = ({
       },
     });
 
-  useEffect(() => {
-    GleanMetrics.passwordReset.recoveryKeyView();
-  }, []);
+  useGleanView(() => GleanMetrics.passwordReset.recoveryKeyView());
 
   const removeSpaces = (key: string) => key.replace(/\s/g, '');
 

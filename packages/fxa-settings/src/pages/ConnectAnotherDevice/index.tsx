@@ -2,7 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Link, useLocation } from 'react-router';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { ENTRYPOINTS, REACT_ENTRYPOINT } from '../../constants';
@@ -160,6 +166,13 @@ const ConnectAnotherDevice = ({
     );
   }, [entrypoint, searchParams]);
 
+  const cadViewRecorded = useRef(false);
+  const recordCadView = () => {
+    if (cadViewRecorded.current) return;
+    cadViewRecorded.current = true;
+    GleanMetrics.cad.view();
+  };
+
   // The browser's pairing capabilities arrive asynchronously over the web
   // channel, so they start out undefined.
   const capabilitiesResolved = !!fxaStatus.fxaStatus?.capabilities;
@@ -173,7 +186,7 @@ const ConnectAnotherDevice = ({
     }
 
     if (propsDriveRender) {
-      GleanMetrics.cad.view();
+      recordCadView();
       return;
     }
 
@@ -224,14 +237,14 @@ const ConnectAnotherDevice = ({
       }
       if (browserSignedIn) {
         setBootstrapping(false);
-        GleanMetrics.cad.view();
+        recordCadView();
         return;
       }
       const redirected = await startSyncOAuthFlow();
       if (cancelled || redirected) return;
       // WebChannel didn't reply; reveal the page so the user isn't stuck.
       setBootstrapping(false);
-      GleanMetrics.cad.view();
+      recordCadView();
     })();
 
     return () => {

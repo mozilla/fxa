@@ -12,13 +12,14 @@ export type FormVerifyTotpProps = {
   errorBannerId?: string;
   errorMessage: string;
   setErrorDescription?: React.Dispatch<React.SetStateAction<string>>;
+  inputPrefixDataTestId?: string;
   localizedInputLabel: string;
   localizedSubmitButtonText: string;
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
   verifyCode: (code: string) => void;
   gleanDataAttrs?: GleanClickEventDataAttrs;
   className?: string;
-  cmsButton?: CmsButtonType
+  cmsButton?: CmsButtonType;
 };
 
 export type VerifyTotpFormData = {

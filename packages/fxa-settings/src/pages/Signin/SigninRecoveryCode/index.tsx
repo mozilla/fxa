@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import {
@@ -17,6 +17,7 @@ import FormVerifyCode, {
   InputModeEnum,
 } from '../../../components/FormVerifyCode';
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 import AppLayout from '../../../components/AppLayout';
 import { SigninRecoveryCodeProps } from './interfaces';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
@@ -46,9 +47,7 @@ const SigninRecoveryCode = ({
   setCurrentSplitLayout,
   supportsKeysOptionalLogin,
 }: SigninRecoveryCodeProps) => {
-  useEffect(() => {
-    GleanMetrics.loginBackupCode.view();
-  }, []);
+  useGleanView(() => GleanMetrics.loginBackupCode.view());
 
   const navigateWithQuery = useNavigateWithQuery();
 

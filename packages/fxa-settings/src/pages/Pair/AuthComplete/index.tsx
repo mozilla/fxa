@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import CardHeader from '../../../components/CardHeader';
@@ -87,8 +87,15 @@ const AuthComplete = ({
   // Signal pairing complete to Firefox on mount. On teardown, drop the
   // cached metadata so a fresh pairing in the same tab doesn't reuse the
   // previous supplicant's browser/OS.
+  const completed = useRef(false);
   useEffect(() => {
-    authorityIntegration?.complete();
+    // `complete` is a one-shot signal to Firefox, and the cleanup below closes
+    // a pairing channel that cannot be reopened, so a second setup for the same
+    // integration must not send it again.
+    if (!completed.current) {
+      completed.current = true;
+      authorityIntegration?.complete();
+    }
     return () => {
       // `destroy` is async and effect cleanup cannot await it; catch so a
       // failed socket close does not surface as an unhandled rejection.
