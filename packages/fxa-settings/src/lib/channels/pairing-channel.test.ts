@@ -21,6 +21,7 @@ let mockChannel: {
   removeEventListener: jest.Mock;
   _channelId?: string;
   _channelKey?: Uint8Array;
+  closed?: boolean;
 };
 
 jest.mock(
@@ -55,6 +56,7 @@ describe('PairingChannelClient', () => {
       // 'testkey1' — the same bytes VALID_KEY decodes to.
       _channelId: CHAN,
       _channelKey: new TextEncoder().encode('testkey1'),
+      closed: false,
     };
     jest.clearAllMocks();
     client = new PairingChannelClient();
@@ -183,6 +185,16 @@ describe('PairingChannelClient', () => {
 
     it('throws when not connected', async () => {
       await expect(client.send('msg')).rejects.toThrow('Not connected');
+    });
+
+    it('throws CONNECTION_CLOSED when the channel is torn down', async () => {
+      await client.open(SERVER, CHAN, VALID_KEY);
+      mockChannel.closed = true;
+
+      await expect(client.send('pair:supp:authorize')).rejects.toMatchObject({
+        errno: 1006,
+      });
+      expect(mockChannel.send).not.toHaveBeenCalled();
     });
 
     it('throws for empty message', async () => {
