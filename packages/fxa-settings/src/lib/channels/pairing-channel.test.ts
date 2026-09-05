@@ -70,6 +70,19 @@ describe('PairingChannelClient', () => {
       expect(onConnected).toHaveBeenCalled();
     });
 
+    // A message can land in the same tick the handshake completes, so the
+    // listeners have to be attached by the time `connected` observers run.
+    it('registers channel listeners before dispatching connected', async () => {
+      let listenersAtConnected = 0;
+      client.addEventListener('connected', () => {
+        listenersAtConnected = mockChannel.addEventListener.mock.calls.length;
+      });
+
+      await client.open(SERVER, CHAN, VALID_KEY);
+
+      expect(listenersAtConnected).toBe(3);
+    });
+
     it('throws for missing params', async () => {
       await expect(client.open('', CHAN, VALID_KEY)).rejects.toThrow(
         'Invalid channel server configuration'
@@ -202,7 +215,9 @@ describe('PairingChannelClient', () => {
 
       const onError = jest.fn();
       client.addEventListener('error', onError);
-      await client.open(SERVER, CHAN, VALID_KEY);
+      await expect(client.open(SERVER, CHAN, VALID_KEY)).rejects.toThrow(
+        'connection refused'
+      );
 
       expect(client.isConnected).toBe(false);
       expect(onError).toHaveBeenCalled();
@@ -216,7 +231,7 @@ describe('PairingChannelClient', () => {
       const err = new Error('connection refused');
       PairingChannel.connect.mockRejectedValueOnce(err);
 
-      await client.open(SERVER, CHAN, VALID_KEY);
+      await expect(client.open(SERVER, CHAN, VALID_KEY)).rejects.toThrow(err);
 
       expect(sentryMetrics.captureException).toHaveBeenCalledWith(err);
     });
@@ -233,7 +248,9 @@ describe('PairingChannelClient', () => {
       const onError = jest.fn();
       client.addEventListener('error', onError);
 
-      await client.open(SERVER, CHAN, VALID_KEY);
+      await expect(client.open(SERVER, CHAN, VALID_KEY)).rejects.toThrow(
+        'Connection to remote device closed, please try again'
+      );
 
       expect(client.isConnected).toBe(false);
       const detail = onError.mock.calls[0][0].detail;
@@ -253,9 +270,27 @@ describe('PairingChannelClient', () => {
         new Error('WebSocket unexpectedly closed')
       );
 
-      await client.open(SERVER, CHAN, VALID_KEY);
+      await expect(client.open(SERVER, CHAN, VALID_KEY)).rejects.toThrow(
+        PairingChannelError
+      );
 
       expect(sentryMetrics.captureException).not.toHaveBeenCalled();
+    });
+
+    it('allows a retry after a failed open', async () => {
+      const {
+        PairingChannel,
+      } = require('fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js');
+      PairingChannel.connect.mockRejectedValueOnce(
+        new Error('WebSocket unexpectedly closed')
+      );
+      await expect(client.open(SERVER, CHAN, VALID_KEY)).rejects.toThrow(
+        PairingChannelError
+      );
+
+      await client.open(SERVER, CHAN, VALID_KEY);
+
+      expect(client.isConnected).toBe(true);
     });
 
     it('rejects concurrent open during in-flight connect', async () => {

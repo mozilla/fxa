@@ -429,6 +429,37 @@ describe('PairingSupplicantIntegration', () => {
       expect(integration.state).toBe(SupplicantState.Failed);
       expect(onError).toHaveBeenCalled();
     });
+
+    // The channel server refuses the socket outright for a channel already
+    // consumed, so the Android post-OAuth reload sees the rejection rather
+    // than a close event on a live channel.
+    it('open failure while still Connecting is ignored when completion marker is set', async () => {
+      sessionStorage.setItem(PAIR_COMPLETE_STORAGE_PREFIX + 'c', '1');
+      mockOpen.mockRejectedValueOnce(
+        new Error('Connection to remote device closed, please try again')
+      );
+      const integration = createIntegration();
+      const onError = jest.fn();
+      const onStateChange = jest.fn();
+      integration.onError = onError;
+      integration.onStateChange = onStateChange;
+
+      await integration.openChannel('wss://ch.example.com', 'c', 'k');
+
+      expect(integration.state).toBe(SupplicantState.Connecting);
+      expect(onError).not.toHaveBeenCalled();
+      expect(onStateChange).not.toHaveBeenCalled();
+    });
+
+    it('allows a retry on the same channel after a failed open', async () => {
+      mockOpen.mockRejectedValueOnce(new Error('ws connect failed'));
+      const integration = createIntegration();
+
+      await integration.openChannel('wss://ch.example.com', 'c', 'k');
+      await integration.openChannel('wss://ch.example.com', 'c', 'k');
+
+      expect(mockOpen).toHaveBeenCalledTimes(2);
+    });
   });
 
   describe('isPairing', () => {
