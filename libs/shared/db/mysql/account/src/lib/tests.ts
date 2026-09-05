@@ -6,9 +6,17 @@ import fs from 'fs';
 import path from 'path';
 import { Kysely, sql } from 'kysely';
 
-import { DB, setupAccountDatabase } from '@fxa/shared/db/mysql/account';
+import {
+  AccountDatabase,
+  DB,
+  setupAccountDatabase,
+} from '@fxa/shared/db/mysql/account';
 
 const SQL_FILE_LOCATION = '../test';
+const TEST_SCHEMA_PREFIX = 'testAccount-';
+
+// Wide enough that a schema from a concurrent run is never old enough to sweep.
+const ORPHAN_SCHEMA_MAX_AGE_HOURS = 3;
 
 export type ACCOUNT_TABLES =
   | 'accounts'
@@ -41,7 +49,9 @@ export async function testAccountDatabaseSetup(
     user: 'root',
   });
 
-  const testDbName = `testAccount-${crypto.randomUUID()}`;
+  await dropOrphanedTestSchemas(db);
+
+  const testDbName = `${TEST_SCHEMA_PREFIX}${crypto.randomUUID()}`;
 
   await sql`DROP DATABASE IF EXISTS ${sql.table(testDbName)}`.execute(db);
   await sql`CREATE DATABASE ${sql.table(testDbName)}`.execute(db);
@@ -61,6 +71,67 @@ export async function testAccountDatabaseSetup(
   );
 
   return db;
+}
+
+/**
+ * Drops the throwaway schema and closes the connection.
+ *
+ * Asks the connection for its own schema instead of making each test track
+ * the name, which keeps the testAccountDatabaseSetup signature unchanged.
+ */
+export async function testAccountDatabaseTeardown(db?: AccountDatabase) {
+  if (!db) {
+    // Setup threw, so there is nothing to clean up.
+    return;
+  }
+
+  try {
+    const name = await currentSchema(db);
+    if (name?.startsWith(TEST_SCHEMA_PREFIX)) {
+      await sql`DROP DATABASE IF EXISTS ${sql.table(name)}`.execute(db);
+    }
+  } finally {
+    // Always close the pool. A leaked pool exhausts connections later.
+    await db.destroy();
+  }
+}
+
+async function currentSchema(db: AccountDatabase) {
+  const result = await sql<{
+    name: string | null;
+  }>`SELECT DATABASE() AS name`.execute(db);
+  return result.rows[0]?.name;
+}
+
+/**
+ * Drops throwaway schemas left behind by runs that crashed or were killed
+ * before their teardown. Age based rather than sweep all, so a concurrent run
+ * keeps its schema.
+ *
+ * A schema with no tables has no row in information_schema.TABLES, so a run
+ * killed between CREATE DATABASE and the table SQL stays behind. SCHEMATA has
+ * no create time to work from, so that gap is accepted.
+ */
+async function dropOrphanedTestSchemas(db: AccountDatabase) {
+  try {
+    const result = await sql<{ name: string }>`
+      SELECT TABLE_SCHEMA AS name
+      FROM information_schema.TABLES
+      WHERE TABLE_SCHEMA LIKE ${TEST_SCHEMA_PREFIX + '%'}
+      GROUP BY TABLE_SCHEMA
+      HAVING MAX(CREATE_TIME) < NOW() - INTERVAL ${sql.lit(
+        ORPHAN_SCHEMA_MAX_AGE_HOURS
+      )} HOUR
+    `.execute(db);
+
+    for (const { name } of result.rows) {
+      await sql`DROP DATABASE IF EXISTS ${sql.table(name)}`.execute(db);
+    }
+  } catch (err) {
+    // Two suites can sweep at once and race for the same schema. Cleanup of
+    // old junk must never fail the run that is starting.
+    console.warn('Could not sweep orphaned test schemas', err);
+  }
 }
 
 /**
