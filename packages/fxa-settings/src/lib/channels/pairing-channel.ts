@@ -137,10 +137,7 @@ type PairingChannelSocket = {
   removeEventListener(type: string, listener: EventListener): void;
   _channelId?: string;
   _channelKey?: Uint8Array;
-  /**
-   * True once fxa-pairing-channel has torn the WebSocket down. In 1.0.2 this
-   * is `!this._socket || readyState === 3`, set by its `_shutdown()`.
-   */
+  /** True once fxa-pairing-channel has torn the WebSocket down. */
   readonly closed?: boolean;
 };
 
