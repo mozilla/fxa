@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit a4f7a41932c61d225eaf6d314b281cebe5fc29dc</title>
+  <title>Storybooks for commit bab670c343f1b824ec1c1d81cc25f654cf755d31</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,28 +23,15 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit a4f7a41932c61d225eaf6d314b281cebe5fc29dc</h1>
+  <h1>Storybooks for commit bab670c343f1b824ec1c1d81cc25f654cf755d31</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/4/2026, 11:50:52 PM UTC</dd>
+    <dd>9/5/2026, 12:06:48 AM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(settings): reject pairing sends on a torn-down channel</pre></dd>
-    <dt>Description</dt>
-    <dd><pre>Because:
-  - fxa-pairing-channel reports an unexpected socket close as an `error`,
-    not a `close`, so the wrapper keeps a channel it has already discarded
-  - sending on that channel threw a raw `TypeError` from the library, which
-    reached Sentry and the integrations&#039; `fail()` handlers with no errno
-
-This commit:
-  - throws `CONNECTION_CLOSED` from `PairingChannelClient.send()` when the
-    underlying channel reports itself closed
-  - covers the torn-down send path in the unit tests
-
-Closes: FXA-14484</pre></dd>
+    <dd><pre>chore(settings): shorten the closed field comment</pre></dd>
   </dl>
 </body>
 </html>
