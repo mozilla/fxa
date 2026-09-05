@@ -1,8 +1,8 @@
 {
-  "commit": "7855c75aa7638ac34f6a9853c6eadc6f30c8f29f",
-  "summary": "fix(pair): let a failed channel open be retried",
-  "description": "Because:\n\n- open() resolved on a failed connect, so openChannel()'s catch never\n  ran and never cleared its client reference; every later call then\n  returned early on \"Pairing channel already open!\".\n- The supplicant could not retry a channel after a flaky network or a\n  consumed channel id, short of a full page reload.\n- create() rethrows and attaches its listeners before `connected`;\n  open() did neither.\n\nThis commit:\n\n- Rejects from open() once the error event has gone out.\n- Guards openChannel()'s catch with isPostCompletionReconnect() so the\n  post-OAuth reload still reaches the success screen.\n- Attaches the channel listeners before dispatching `connected`.\n- Covers the retry path, the listener order, and the reload guard.\n\nCloses #FXA-14483",
-  "timestamp": 1788564895000,
+  "commit": "e5eed5dd68e73d3a09a49fda3a324276302de9c4",
+  "summary": "chore(pair): clarify the reconnect guard comment and fix a typo",
+  "description": "Because:\n\n- The guard comment's \"no-op once it has\" had no clear antecedent.\n- The channel-missing error read \"no longe exists\".\n\nThis commit:\n\n- Rewrites the openChannel guard comment to say why fail() still runs\n  for the errors that reject before any event is dispatched.\n- Corrects the thrown message to \"Channel no longer exists!\".",
+  "timestamp": 1788566415000,
   "storybooks": [
     "fxa-settings"
   ],
