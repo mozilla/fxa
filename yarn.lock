@@ -24121,12 +24121,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-plugin-transform-typescript-metadata@npm:^0.3.1, babel-plugin-transform-typescript-metadata@npm:^0.3.2":
+"babel-plugin-transform-typescript-metadata@npm:^0.3.1":
   version: 0.3.2
   resolution: "babel-plugin-transform-typescript-metadata@npm:0.3.2"
   dependencies:
     "@babel/helper-plugin-utils": "npm:^7.0.0"
   checksum: 10c0/3a44874122e696416e4bc01a7973f38b07cf6bfd2e366026960a16f85d64ab41b735f408a045cbcfe651dadda52802c9fb992ee8229b1d7731fad56cc4346f57
+  languageName: node
+  linkType: hard
+
+"babel-plugin-transform-typescript-metadata@npm:^0.4.0":
+  version: 0.4.0
+  resolution: "babel-plugin-transform-typescript-metadata@npm:0.4.0"
+  dependencies:
+    "@babel/helper-plugin-utils": "npm:^7.0.0"
+  peerDependencies:
+    "@babel/core": ^7.0.0 || ^8.0.0-0
+  peerDependenciesMeta:
+    "@babel/core":
+      optional: false
+  checksum: 10c0/dddeaab66bc580684312b86e1bc4856f5943b9eee6515536fa60da005c3371a5a2b31d4224143e2f8195f2f55ed8c551658c1f3c15d44f2dcf402fd586a6be57
   languageName: node
   linkType: hard
 
@@ -33217,7 +33231,7 @@ __metadata:
     babel-jest: "npm:^29.7.0"
     babel-loader: "npm:^9.1.3"
     babel-plugin-named-exports-order: "npm:^0.0.2"
-    babel-plugin-transform-typescript-metadata: "npm:^0.3.2"
+    babel-plugin-transform-typescript-metadata: "npm:^0.4.0"
     babel-preset-react-app: "npm:^10.0.1"
     base32-decode: "npm:^1.0.0"
     base32-encode: "npm:^1.2.0"
