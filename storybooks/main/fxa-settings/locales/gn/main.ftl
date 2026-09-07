@@ -100,6 +100,12 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Nehenói tembiaporã Ñanduti mopu’ãjeyrã
 
 
+pair-continue-in-firefox-heading = Eku’ejey { -brand-firefox } ndive
+pair-continue-in-firefox-button = Eku’ejey { -brand-firefox } ndive
+pair-continue-in-firefox-opening = Ijuruja { -brand-firefox }
+pair-continue-in-firefox-get-firefox-link = ¿Ndererekói { -brand-firefox }? Erekóyta ko’ág̃a
+
+
 dark-mode-toggle-light = Tesakã
 dark-mode-toggle-dark = Ypytũ
 dark-mode-toggle-system = Apopyvusu
