@@ -74,7 +74,7 @@
     "prettier": "^3.5.3",
     "supertest": "^7.0.0",
     "ts-jest": "^29.2.3",
-    "ts-loader": "^9.5.1",
+    "ts-loader": "^9.6.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "5.5.3"
   },
