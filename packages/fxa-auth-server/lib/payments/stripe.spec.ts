@@ -705,6 +705,48 @@ describe('StripeHelper', () => {
         });
       });
     });
+
+    describe('when the caller supplies a payment intent', () => {
+      let paymentIntentsRetrieve: jest.Mock;
+
+      beforeEach(() => {
+        customerExpanded.subscriptions.data[0] = {
+          ...deepCopy(subscription2),
+          collection_method: 'charge_automatically',
+        };
+        paymentIntentsRetrieve = jest
+          .fn()
+          .mockResolvedValue({ payment_method: 'pm_mock' });
+        stripeHelper.stripe = {
+          paymentIntents: { retrieve: paymentIntentsRetrieve },
+        };
+        jest
+          .spyOn(stripeHelper, 'getPaymentMethod')
+          .mockResolvedValue({ type: 'card', card: {} });
+      });
+
+      it('uses an expanded payment intent without retrieving it again', async () => {
+        const result = await stripeHelper.getPaymentProvider(customerExpanded, {
+          id: 'pi_mock',
+          payment_method: 'pm_mock',
+        } as any);
+
+        expect(paymentIntentsRetrieve).not.toHaveBeenCalled();
+        expect(stripeHelper.getPaymentMethod).toHaveBeenCalledWith('pm_mock');
+        expect(result).toBe('card');
+      });
+
+      it('retrieves the payment intent when given a bare id', async () => {
+        const result = await stripeHelper.getPaymentProvider(
+          customerExpanded,
+          'pi_mock'
+        );
+
+        expect(paymentIntentsRetrieve).toHaveBeenCalledWith('pi_mock');
+        expect(stripeHelper.getPaymentMethod).toHaveBeenCalledWith('pm_mock');
+        expect(result).toBe('card');
+      });
+    });
   });
 
   describe('hasSubscriptionRequiringPaymentMethod', () => {
@@ -4742,6 +4784,165 @@ describe('StripeHelper', () => {
       stripeHelper.stripe = mockStripe;
     });
 
+    describe('extractInvoicePaymentDetails', () => {
+      const MOCK_INVOICE_ID = 'in_1GQL9sBVqmGyQTMaEl7Oczgm';
+      const MOCK_CHARGE_ID = 'ch_1GQL9tBVqmGyQTMaNLu55LsR';
+      const MOCK_PAYMENT_INTENT_ID = 'pi_1GQL9sBVqmGyQTMaSnFPZJlx';
+
+      const invoiceWithPayment = (payment: any): any => ({
+        id: MOCK_INVOICE_ID,
+        payments: {
+          object: 'list',
+          data: [{ payment, status: 'paid' }],
+          has_more: false,
+          total_count: 1,
+        },
+      });
+
+      const MOCK_PAYMENT_INTENT = {
+        id: MOCK_PAYMENT_INTENT_ID,
+        latest_charge: MOCK_CHARGE_ID,
+      };
+
+      let invoicesRetrieve: jest.Mock;
+      let paymentIntentsRetrieve: jest.Mock;
+
+      beforeEach(() => {
+        expandMock.mockReset().mockResolvedValue(mockCharge);
+        invoicesRetrieve = jest.fn();
+        paymentIntentsRetrieve = jest
+          .fn()
+          .mockResolvedValue(MOCK_PAYMENT_INTENT);
+        stripeHelper.stripe = {
+          ...mockStripe,
+          invoices: { ...mockStripe.invoices, retrieve: invoicesRetrieve },
+          paymentIntents: { retrieve: paymentIntentsRetrieve },
+        };
+      });
+
+      it('resolves the charge through the payment intent when the invoice payment has no charge', async () => {
+        // Stripe surfaces the payment intent in place of the charge whenever
+        // the charge has one, which is every card payment.
+        const result = await stripeHelper.extractInvoicePaymentDetails(
+          invoiceWithPayment({
+            type: 'payment_intent',
+            payment_intent: MOCK_PAYMENT_INTENT_ID,
+          })
+        );
+
+        expect(paymentIntentsRetrieve).toHaveBeenCalledWith(
+          MOCK_PAYMENT_INTENT_ID
+        );
+        expect(expandMock).toHaveBeenCalledWith(MOCK_CHARGE_ID, 'charges');
+        // The resolved object is handed back so getPaymentProvider does not
+        // retrieve the same payment intent a second time.
+        expect(result).toEqual({
+          charge: mockCharge,
+          paymentIntent: MOCK_PAYMENT_INTENT,
+        });
+      });
+
+      it('retrieves the invoice with payments expanded when payments is absent', async () => {
+        // Webhook payloads and the Firestore mirror carry no `payments`.
+        invoicesRetrieve.mockResolvedValue(
+          invoiceWithPayment({
+            type: 'payment_intent',
+            payment_intent: MOCK_PAYMENT_INTENT,
+          })
+        );
+
+        const result = await stripeHelper.extractInvoicePaymentDetails({
+          id: MOCK_INVOICE_ID,
+        } as any);
+
+        expect(invoicesRetrieve).toHaveBeenCalledWith(MOCK_INVOICE_ID, {
+          expand: ['payments.data.payment.payment_intent'],
+        });
+        expect(paymentIntentsRetrieve).not.toHaveBeenCalled();
+        expect(result).toEqual({
+          charge: mockCharge,
+          paymentIntent: MOCK_PAYMENT_INTENT,
+        });
+      });
+
+      it('uses the charge on the invoice payment when Stripe surfaces one', async () => {
+        const result = await stripeHelper.extractInvoicePaymentDetails(
+          invoiceWithPayment({ type: 'charge', charge: MOCK_CHARGE_ID })
+        );
+
+        expect(invoicesRetrieve).not.toHaveBeenCalled();
+        expect(paymentIntentsRetrieve).not.toHaveBeenCalled();
+        expect(result).toEqual({
+          charge: mockCharge,
+          paymentIntent: undefined,
+        });
+      });
+
+      it('falls back to the top-level charge on an acacia-era invoice', async () => {
+        const result = await stripeHelper.extractInvoicePaymentDetails({
+          id: MOCK_INVOICE_ID,
+          charge: MOCK_CHARGE_ID,
+        } as any);
+
+        expect(invoicesRetrieve).not.toHaveBeenCalled();
+        expect(paymentIntentsRetrieve).not.toHaveBeenCalled();
+        expect(result).toEqual({
+          charge: mockCharge,
+          paymentIntent: undefined,
+        });
+      });
+
+      it('returns a null charge when the invoice has no payment', async () => {
+        const result = await stripeHelper.extractInvoicePaymentDetails({
+          id: MOCK_INVOICE_ID,
+          payments: {
+            object: 'list',
+            data: [],
+            has_more: false,
+            total_count: 0,
+          },
+        } as any);
+
+        expect(invoicesRetrieve).not.toHaveBeenCalled();
+        expect(paymentIntentsRetrieve).not.toHaveBeenCalled();
+        expect(expandMock).not.toHaveBeenCalled();
+        expect(result).toEqual({ charge: null, paymentIntent: undefined });
+      });
+
+      it('reports to Sentry and returns a null charge when the payment intent lookup fails', async () => {
+        const scopeContextSpy = jest.fn();
+        jest
+          .spyOn(Sentry, 'withScope')
+          .mockImplementation(((fn: any) =>
+            fn({ setContext: scopeContextSpy })) as any);
+        jest
+          .spyOn(sentryModule, 'reportSentryError')
+          .mockImplementation(jest.fn());
+        const stripeFailure = new Error('Stripe unavailable');
+        paymentIntentsRetrieve.mockRejectedValue(stripeFailure);
+
+        const result = await stripeHelper.extractInvoicePaymentDetails(
+          invoiceWithPayment({
+            type: 'payment_intent',
+            payment_intent: MOCK_PAYMENT_INTENT_ID,
+          })
+        );
+
+        expect(scopeContextSpy).toHaveBeenCalledWith('stripeInvoice', {
+          invoice: { id: MOCK_INVOICE_ID },
+        });
+        expect(sentryModule.reportSentryError).toHaveBeenCalledWith(
+          stripeFailure
+        );
+        // The id survives the failure, so the provider lookup still has
+        // something to work from.
+        expect(result).toEqual({
+          charge: null,
+          paymentIntent: MOCK_PAYMENT_INTENT_ID,
+        });
+      });
+    });
+
     describe('extractInvoiceDetailsForEmail', () => {
       const fixture: any = { ...invoicePaidSubscriptionCreate };
       const fixtureDiscount: any = {
@@ -4895,10 +5096,41 @@ describe('StripeHelper', () => {
         expect(result).toEqual(expected);
       });
 
-      it('does not throw an exception when details on a payment method are missing', async () => {
-        const noChargeFixture = deepCopy(invoicePaidSubscriptionCreate);
-        noChargeFixture.customer = mockCustomer;
-        noChargeFixture.payments.data[0].payment.charge = null;
+      it('extracts card details from a webhook invoice that carries no expanded payments', async () => {
+        // `Invoice.payments` is expansion-only, so a webhook payload arrives
+        // without it and the card details have to be fetched. Without the
+        // fetch, lastFour is null and the email renders a raw {$lastFour}.
+        const webhookFixture = deepCopy(invoicePaidSubscriptionCreate);
+        webhookFixture.customer = mockCustomer;
+        delete webhookFixture.payments;
+
+        const expandedInvoice = deepCopy(invoicePaidSubscriptionCreate);
+        expandedInvoice.payments.data[0].payment = {
+          type: 'payment_intent',
+          payment_intent: {
+            id: 'pi_1GQL9sBVqmGyQTMaSnFPZJlx',
+            latest_charge: chargeId,
+          },
+        };
+        stripeHelper.stripe.invoices.retrieve = jest
+          .fn()
+          .mockResolvedValue(expandedInvoice);
+
+        const result =
+          await stripeHelper.extractInvoiceDetailsForEmail(webhookFixture);
+
+        expect(stripeHelper.stripe.invoices.retrieve).toHaveBeenCalledWith(
+          webhookFixture.id,
+          { expand: ['payments.data.payment.payment_intent'] }
+        );
+        expect(result).toEqual(expected);
+      });
+
+      it('returns no card details when the invoice has no payment', async () => {
+        const noPaymentFixture = deepCopy(invoicePaidSubscriptionCreate);
+        noPaymentFixture.customer = mockCustomer;
+        noPaymentFixture.payments.data = [];
+        noPaymentFixture.payments.total_count = 0;
         expandMock.mockReset().mockResolvedValue({});
         expandMock.mockResolvedValueOnce(mockCustomer);
         expandMock.mockResolvedValueOnce({
@@ -4907,14 +5139,8 @@ describe('StripeHelper', () => {
           metadata: mockPlan.metadata,
           product: mockProduct,
         });
-        expandMock.mockResolvedValueOnce(null);
         const result =
-          await stripeHelper.extractInvoiceDetailsForEmail(noChargeFixture);
-        expect(
-          (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
-        ).toBe(true);
-        expect(mockStripe.products.retrieve.mock.calls.length > 0).toBe(false);
-        expect(expandMock).toHaveBeenCalledTimes(4);
+          await stripeHelper.extractInvoiceDetailsForEmail(noPaymentFixture);
         expect(result).toEqual({
           ...expected,
           lastFour: null,

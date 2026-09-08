@@ -9,8 +9,8 @@
         <b>Payment method:</b> <%- paymentProviderName %>
       </span>
     </mj-text>
-  <% } else { %>
-    <% if (cardName && lastFour) { %>
+  <% } else if (lastFour) { %>
+    <% if (cardName) { %>
       <mj-text css-class="text-body-no-bottom-margin">
         <span data-l10n-id="payment-provider-card-ending-in-card-name" data-l10n-args="<%= JSON.stringify({cardName, lastFour}) %>">
           <b>Payment method:</b> <%- cardName %> ending in <%- lastFour %>

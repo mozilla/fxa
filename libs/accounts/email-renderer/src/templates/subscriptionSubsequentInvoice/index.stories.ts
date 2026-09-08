@@ -31,10 +31,11 @@ const data = {
   showPaymentMethod: true,
   showProratedAmount: false,
   showTaxAmount: false,
-
   productPaymentCycle: 'monthly',
   invoiceAmountDueInCents: 1000,
-  paymentProviderName: 'foo',
+  paymentProviderName: undefined,
+  cardName: undefined,
+  lastFour: undefined,
   remainingAmountTotalInCents: 1000,
   offeringPriceInCents: 1000,
   offeringPrice: '$10.00',
@@ -58,6 +59,7 @@ const createStory = subplatStoryWithProps<TemplateData>(
 export const SubscriptionSubsequentInvoicePayPalProrated = createStory(
   {
     payment_provider: 'paypal',
+    paymentProviderName: 'PayPal',
     paymentProrated: '$5,231.00',
     showProratedAmount: true,
   },
@@ -67,6 +69,7 @@ export const SubscriptionSubsequentInvoicePayPalProrated = createStory(
 export const SubscriptionSubsequentInvoicePayPalNoProrated = createStory(
   {
     payment_provider: 'paypal',
+    paymentProviderName: 'PayPal',
     showProratedAmount: false,
   },
   'PayPal with no prorated amount'
