@@ -52,6 +52,16 @@ export function getStoredAccountData(input: {
 
 type LocalAccounts = Record<hexstring, StoredAccountData>;
 
+const UID_REGEX = /^[0-9a-f]{32}$/;
+
+/**
+ * `hexstring` is a type assertion, not a runtime check. Only a validated uid
+ * may key the accounts map, or `__proto__` reaches `Object.prototype`.
+ */
+function isValidUid(uid: unknown): uid is hexstring {
+  return typeof uid === 'string' && UID_REGEX.test(uid);
+}
+
 export function accounts(accounts?: LocalAccounts) {
   if (accounts) {
     storage.set('accounts', accounts);
@@ -75,20 +85,28 @@ export function currentAccount(
   // Current user can be specified in url params (ex. when clicking
   // `Manage account` from sync prefs.
   const forceUid = searchParam('uid', window.location.search);
-  if (forceUid && all[forceUid]) {
+  if (isValidUid(forceUid) && all[forceUid]) {
     storage.set('currentAccountUid', forceUid);
   }
 
-  const uid = storage.get('currentAccountUid') as hexstring;
   if (account) {
+    if (!isValidUid(account.uid)) {
+      return undefined;
+    }
     all[account.uid] = account;
     accounts(all);
     return account;
   }
-  return all[uid];
+
+  // Guarded rather than cleared: this runs during render, so it must not write.
+  const uid = storage.get('currentAccountUid');
+  return isValidUid(uid) ? all[uid] : undefined;
 }
 
 export function getAccountByUid(uid: string) {
+  if (!isValidUid(uid)) {
+    return undefined;
+  }
   const all = accounts() || {};
   return all[uid];
 }
@@ -150,8 +168,10 @@ export function discardSessionToken() {
 
 export function clearSignedInAccountUid() {
   const all = accounts() || {};
-  const uid = storage.get('currentAccountUid') as hexstring;
-  delete all[uid];
+  const uid = storage.get('currentAccountUid');
+  if (isValidUid(uid)) {
+    delete all[uid];
+  }
   accounts(all);
   storage.remove('currentAccountUid');
   dispatchStorageEvent('accounts');
