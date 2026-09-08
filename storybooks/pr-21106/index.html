@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit af32d961e184a49454f41e43181787500963837b</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit af32d961e184a49454f41e43181787500963837b</h1>
+  <ul>
+    <li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/8/2026, 10:07:46 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>chore(tests): remove misleading comment in teardown guard</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- Integration suites create a throwaway MySQL schema per run and never drop it. The schemas pile up on developer machines and in CI containers.
+- A run that crashes before its teardown leaves its schema behind for good.
+
+## This pull request
+
+- Adds `testAccountDatabaseTeardown`. It drops the throwaway schema, then closes the pool.
+- Reads the schema name from the connection, so `testAccountDatabaseSetup` keeps its signature.
+- Drops orphan schemas older than 3 hours at setup time. The age limit lets a concurrent run keep its own schema.
+- Replaces `await db.destroy()` with the new teardown in 12 integration specs.
+- Adds `tests.spec.ts` for the teardown and the sweep.
+
+## Issue that this pull request solves
+
+Closes: FXA-14412</pre></dd>
+  </dl>
+</body>
+</html>

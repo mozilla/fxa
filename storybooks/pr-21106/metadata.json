@@ -1,0 +1,11 @@
+{
+  "commit": "af32d961e184a49454f41e43181787500963837b",
+  "summary": "chore(tests): remove misleading comment in teardown guard",
+  "description": "## Because\n\n- Integration suites create a throwaway MySQL schema per run and never drop it. The schemas pile up on developer machines and in CI containers.\n- A run that crashes before its teardown leaves its schema behind for good.\n\n## This pull request\n\n- Adds `testAccountDatabaseTeardown`. It drops the throwaway schema, then closes the pool.\n- Reads the schema name from the connection, so `testAccountDatabaseSetup` keeps its signature.\n- Drops orphan schemas older than 3 hours at setup time. The age limit lets a concurrent run keep its own schema.\n- Replaces `await db.destroy()` with the new teardown in 12 integration specs.\n- Adds `tests.spec.ts` for the teardown and the sweep.\n\n## Issue that this pull request solves\n\nCloses: FXA-14412",
+  "timestamp": 1788905266000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
