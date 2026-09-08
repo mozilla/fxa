@@ -9,6 +9,7 @@ import { REACT_ENTRYPOINT } from '../../../constants';
 import AppLayout from '../../../components/AppLayout';
 import { useFtlMsgResolver } from '../../../models';
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 import { RecoveryKeyImage } from '../../../components/images';
 import DataBlockInline from '../../../components/DataBlockInline';
 import ButtonDownloadRecoveryKey from '../../../components/ButtonDownloadRecoveryKey';
@@ -47,8 +48,8 @@ const ResetPasswordWithRecoveryKeyVerified = ({
     'Password reset successful'
   );
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
+  useGleanView(() => GleanMetrics.passwordReset.recoveryKeyResetSuccessView());
   useEffect(() => {
-    GleanMetrics.passwordReset.recoveryKeyResetSuccessView();
     // key was auto-generated
     logViewEvent(`flow.${viewName}`, 'generate-new-key', REACT_ENTRYPOINT);
   }, []);

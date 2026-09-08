@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import Modal from '../Modal';
 import InputText from '../../InputText';
@@ -12,6 +12,7 @@ import { EmailCodeImage } from '../../images';
 import Banner, { ResendCodeSuccessBanner } from '../../Banner';
 import { MfaReason } from '../../../lib/types';
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 
 type ModalProps = {
   email: string;
@@ -42,11 +43,11 @@ export const ModalMfaProtected = ({
   showResendSuccessBanner,
   reason,
 }: ModalProps) => {
-  useEffect(() => {
+  useGleanView(() =>
     GleanMetrics.accountPref.mfaGuardView({
       event: { reason },
-    });
-  }, [reason]);
+    })
+  );
   const ftlMsgResolver = useFtlMsgResolver();
 
   const { handleSubmit, register, formState } = useForm<FormData>({

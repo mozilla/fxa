@@ -17,6 +17,7 @@ import {
 } from '../../../components/CardHeader';
 import TermsPrivacyAgreement from '../../../components/TermsPrivacyAgreement';
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 
 export const SetPassword = ({
   email,
@@ -31,11 +32,11 @@ export const SetPassword = ({
     useState<boolean>(false);
   const [bannerErrorText, setBannerErrorText] = useState<string>('');
 
-  useEffect(() => {
+  useGleanView(() =>
     GleanMetrics.postVerifySetPassword.view({
       event: { reason: gleanReason },
-    });
-  }, [gleanReason]);
+    })
+  );
 
   const onSubmit = useCallback(
     async ({ newPassword }: SetPasswordFormData) => {

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
@@ -60,6 +60,7 @@ export const Page2faSetup = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [flowHasPhoneChoice] = useState(() => account.recoveryPhone.available);
   const [generatingCodes, setGeneratingCodes] = useState(false);
+  const generatingCodesRef = useRef(false);
   const [phoneData, setPhoneData] = useState<{
     phoneNumber: string;
     nationalFormat: string | undefined;
@@ -126,15 +127,17 @@ export const Page2faSetup = () => {
 
   // generate & persist backup codes when users pick that route
   const createRecoveryCodes = useCallback(async () => {
-    if (backupCodes.length || generatingCodes) return;
+    if (backupCodes.length || generatingCodesRef.current) return;
+    generatingCodesRef.current = true;
     setGeneratingCodes(true);
     const codes: string[] = await totpUtils.generateRecoveryCodes(
       config.recoveryCodes.count,
       config.recoveryCodes.length
     );
     setBackupCodes(codes);
+    generatingCodesRef.current = false;
     setGeneratingCodes(false);
-  }, [backupCodes, config.recoveryCodes, generatingCodes]);
+  }, [backupCodes, config.recoveryCodes]);
 
   // kick‑off generation when we reach the download step (with or without choice)
   useEffect(() => {

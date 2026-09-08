@@ -2,21 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import * as Sentry from '@sentry/browser';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import Modal from '../Modal';
 import UnitRow, { UnitRowProps } from '../UnitRow';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import {
-  useAccount,
-  useAlertBar,
-  useFtlMsgResolver,
-  useSession,
-} from '../../../models';
+import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
 import { SETTINGS_PATH } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { BackupCodesSubRow, BackupPhoneSubRow } from '../SubRow';
 import { useNavigateWithQuery } from '../../../lib/hooks';
@@ -206,11 +202,8 @@ const DisableTwoStepAuthModal = ({
   const account = useAccount();
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
-  const session = useSession();
 
-  useEffect(() => {
-    GleanMetrics.accountPref.twoStepAuthDisableModalView();
-  }, [session]);
+  useGleanView(() => GleanMetrics.accountPref.twoStepAuthDisableModalView());
 
   const disableTwoStepAuth = useCallback(async () => {
     try {

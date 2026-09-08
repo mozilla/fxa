@@ -17,11 +17,6 @@ export abstract class BaseTokenCodePage extends BaseLayout {
 
   get codeInput() {
     this.checkPath();
-    // The URL changes before the new view commits, so waitForURL and checkPath
-    // can pass while the previous page is still mounted. An unnamed textbox
-    // query then matches that page — a strict-mode violation if it has several,
-    // a silent wrong fill if it has one. Naming only helps when the outgoing
-    // fields differ; fillOutCodeForm covers the same-label case.
     return this.page.getByRole('textbox', { name: /code/i });
   }
 
@@ -56,19 +51,13 @@ export abstract class BaseTokenCodePage extends BaseLayout {
 
   /**
    * Enters the code and clicks 'submit' button.
+   *
    * @param code 2FA backup code
    */
   async fillOutCodeForm(code: string) {
     this.checkPath();
-    await expect(this.codeInput).toBeVisible();
-    // Several code pages share the "Enter 6-digit code" label, so during the
-    // commit lag described on codeInput the fill can land on the outgoing
-    // page's input and be discarded when the real one mounts. Re-fill until the
-    // value sticks on whichever input is current.
-    await expect(async () => {
-      await this.codeInput.fill(code);
-      await expect(this.codeInput).toHaveValue(code);
-    }).toPass({ timeout: 15000 });
+    await this.codeInput.fill(code);
+    await expect(this.codeInput).toHaveValue(code);
     await this.submitButton.click();
   }
 }

@@ -7,10 +7,12 @@ import { BaseTokenCodePage } from './baseTokenCode';
 export class SigninTotpCodePage extends BaseTokenCodePage {
   readonly path = '/signin_totp_code';
 
+  // Override the base code input locator to avoid conflicts when arriving from another code page.
+  // (mainly the passwordless code page).
   get codeInput() {
     this.checkPath();
     return this.page
-      .getByLabel('Enter 6-digit code') // React
+      .getByTestId('totp-input-field') // React
       .or(this.page.getByPlaceholder('Enter 6-digit code')); //Backbone
   }
 

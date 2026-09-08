@@ -2,13 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import * as Sentry from '@sentry/browser';
 import type AuthClient from 'fxa-auth-client/browser';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
@@ -20,6 +14,7 @@ import type {
 } from '../../components/Banner/interfaces';
 import { AuthUiErrors } from '../auth-errors/auth-errors';
 import GleanMetrics from '../glean';
+import { useGleanView } from '../glean/useGleanView';
 import { useNavigate } from 'react-router';
 import { useNavigateWithQuery } from '../hooks/useNavigateWithQuery';
 import { FinishOAuthFlowHandler } from '../oauth/hooks';
@@ -266,13 +261,13 @@ export function usePasskeySignIn({
   const navigate = useNavigate();
 
   // One impression per surface when the button is shown, so click-through is measurable.
-  useEffect(() => {
-    if (isButtonVisible) {
+  useGleanView(
+    () =>
       GleanMetrics.passkey.buttonView({
         event: { reason: toPasskeyMetricsSurface(surface) },
-      });
-    }
-  }, [isButtonVisible, surface]);
+      }),
+    isButtonVisible
+  );
 
   const errorBanner = useMemo<React.ReactNode | undefined>(() => {
     if (!banner) {

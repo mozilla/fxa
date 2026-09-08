@@ -5,6 +5,7 @@
 // @ts-ignore
 import './styles/tailwind.out.css';
 
+import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import sentryMetrics from 'fxa-shared/sentry/browser';
 import { AppErrorBoundary } from './components/ErrorBoundaries';
@@ -83,7 +84,10 @@ try {
     !localStorageEnabled &&
     window.location.pathname !== '/cookies_disabled'
   ) {
-    window.location.replace('/cookies_disabled');
+    // The query must survive the redirect: the functional tests simulate
+    // disabled storage with a `disable_local_storage` param that
+    // Storage.testStorage reads from location.search on every check.
+    window.location.replace('/cookies_disabled' + window.location.search);
   }
 
   const View = localStorageEnabled
@@ -91,21 +95,22 @@ try {
     : () => <CookiesDisabled />;
 
   const root = createRoot(document.getElementById('root') as HTMLElement);
-  // TODO: re-enable strict mode in FXA-14313
   root.render(
-    <BrowserRouter>
-      <DynamicLocalizationProvider baseDir={config.l10n.baseUrl}>
-        <AppErrorBoundary>
-          <AppContext.Provider value={appContext}>
-            <NimbusProvider>
-              <ThemeProvider enabled={config.darkMode?.enabled}>
-                <View />
-              </ThemeProvider>
-            </NimbusProvider>
-          </AppContext.Provider>
-        </AppErrorBoundary>
-      </DynamicLocalizationProvider>
-    </BrowserRouter>
+    <StrictMode>
+      <BrowserRouter>
+        <DynamicLocalizationProvider baseDir={config.l10n.baseUrl}>
+          <AppErrorBoundary>
+            <AppContext.Provider value={appContext}>
+              <NimbusProvider>
+                <ThemeProvider enabled={config.darkMode?.enabled}>
+                  <View />
+                </ThemeProvider>
+              </NimbusProvider>
+            </AppContext.Provider>
+          </AppErrorBoundary>
+        </DynamicLocalizationProvider>
+      </BrowserRouter>
+    </StrictMode>
   );
 } catch (error) {
   console.error('Error initializing FXA Settings', error);

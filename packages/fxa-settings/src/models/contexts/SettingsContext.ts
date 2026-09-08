@@ -5,7 +5,11 @@
 import React from 'react';
 import firefox, { FirefoxCommand } from '../../lib/channels/firefox';
 import { AlertBarInfo } from '../AlertBarInfo';
-import { getCurrentAccountUid, updateExtendedAccountState, dispatchStorageEvent } from '../../lib/account-storage';
+import {
+  getCurrentAccountUid,
+  updateExtendedAccountState,
+  dispatchStorageEvent,
+} from '../../lib/account-storage';
 
 // TODO, move some values from AppContext to SettingsContext after
 // using container components, FXA-8107
@@ -14,8 +18,13 @@ export interface SettingsContextValue {
   navigatorLanguages?: readonly string[];
 }
 
-export function initializeSettingsContext() {
-  const alertBarInfo = new AlertBarInfo();
+let firefoxListenersRegistered = false;
+
+function registerFirefoxListeners() {
+  if (firefoxListenersRegistered) {
+    return;
+  }
+  firefoxListenersRegistered = true;
 
   const isForCurrentUser = (event: Event) => {
     const currentUid = getCurrentAccountUid();
@@ -47,9 +56,13 @@ export function initializeSettingsContext() {
   firefox.addEventListener(FirefoxCommand.Error, (event) => {
     console.error(event);
   });
+}
+
+export function initializeSettingsContext() {
+  registerFirefoxListeners();
 
   const context: SettingsContextValue = {
-    alertBarInfo,
+    alertBarInfo: new AlertBarInfo(),
     navigatorLanguages: navigator.languages || ['en'],
   };
 

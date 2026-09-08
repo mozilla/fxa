@@ -13,6 +13,7 @@ import Avatar from '../../../components/Settings/Avatar';
 import { Banner } from '../../../components/Banner';
 import InputPassword from '../../../components/InputPassword';
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { AccountAvatar } from '../../../lib/interfaces';
 import { PasskeyMetricsSurface } from '../../../lib/passkeys/signin-flow';
@@ -64,11 +65,11 @@ const SigninPasskeyFallback = ({
     defaultValues: { password: '' },
   });
 
-  useEffect(() => {
+  useGleanView(() =>
     GleanMetrics.passkeyEnterPassword.view({
       event: { reason: passkeySurface },
-    });
-  }, [passkeySurface]);
+    })
+  );
 
   // Fire engage on the first keystroke into the password field. Mirrors the
   // pattern used in PostVerify/SetPassword.

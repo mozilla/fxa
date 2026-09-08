@@ -103,7 +103,11 @@ describe('Sign in with TOTP code page', () => {
 
     const headingEl = screen.getByRole('heading', { level: 2 });
     expect(headingEl).toHaveTextContent('Enter two-step authentication code');
-    screen.getByLabelText('Enter 6-digit code');
+    // testid needed for functional tests to identify the TOTP input field vs other code inputs
+    expect(screen.getByLabelText('Enter 6-digit code')).toHaveAttribute(
+      'data-testid',
+      'totp-input-field'
+    );
 
     // submit button is disabled by default until code entered in input
     expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled();

@@ -26,6 +26,7 @@ import { useMfaErrorHandler } from '../../../lib/hooks';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 import {
   getLocalizedErrorMessage,
   HandledError,
@@ -72,9 +73,7 @@ export const PagePasskeyAdd = () => {
   const navigateWithQuery = useNavigateWithQuery();
   const handleMfaError = useMfaErrorHandler();
 
-  const ceremonyStarted = useRef(false);
-  const isMounted = useRef(true);
-  const wasCanceled = useRef(false);
+  const userCanceled = useRef(false);
   const abortController = useRef<AbortController | null>(null);
 
   const navigateToSettings = useCallback(() => {
@@ -82,38 +81,48 @@ export const PagePasskeyAdd = () => {
   }, [navigateWithQuery]);
 
   const handleCancel = useCallback(() => {
-    if (wasCanceled.current) return;
+    if (userCanceled.current) return;
     // Mark cancellation before aborting so the in-flight ceremony's catch
     // block can suppress the resulting AbortError instead of double-firing
     // alert/navigate.
-    wasCanceled.current = true;
+    userCanceled.current = true;
     abortController.current?.abort();
     alertBar.error(passkeyCanceledOrTimedOutMessage());
     navigateToSettings();
   }, [alertBar, navigateToSettings]);
 
+  // `ftlMsgResolver` and `alertBar` are rebuilt on every render, so listing
+  // them as effect dependencies would restart the WebAuthn prompt mid-flight.
+  const latest = useRef({
+    account,
+    authClient,
+    alertBar,
+    ftlMsgResolver,
+    handleMfaError,
+    navigateToSettings,
+  });
   useEffect(() => {
-    isMounted.current = true;
-    return () => {
-      isMounted.current = false;
-      // Sticky guard so a StrictMode dry-run unmount doesn't surface as a
-      // spurious error banner on remount.
-      wasCanceled.current = true;
-      abortController.current?.abort();
-      abortController.current = null;
+    latest.current = {
+      account,
+      authClient,
+      alertBar,
+      ftlMsgResolver,
+      handleMfaError,
+      navigateToSettings,
     };
-  }, []);
+  });
+
+  // Recorded per page view, not per ceremony — the ceremony below restarts on
+  // every effect run.
+  useGleanView(() => GleanMetrics.accountPref.passkeyCreateView());
 
   useEffect(() => {
-    if (ceremonyStarted.current) return;
-    ceremonyStarted.current = true;
-
     const controller = new AbortController();
     abortController.current = controller;
+    let active = true;
+    const stale = () => !active || userCanceled.current;
 
     const runCeremony = async () => {
-      GleanMetrics.accountPref.passkeyCreateView();
-
       // Tracks whether the server sent an excludeCredentials list (i.e., the
       // account already has passkeys). Used to bias NotAllowedError toward the
       // "duplicate authenticator" interpretation on Firefox, which collapses
@@ -121,12 +130,13 @@ export const PagePasskeyAdd = () => {
       let hadExcludeCredentials = false;
       try {
         // Step 1: Get registration options from server
-        const jwt = account.getCachedJwtByScope('passkey');
-        const creationOptions = await authClient.beginPasskeyRegistration(jwt);
+        const jwt = latest.current.account.getCachedJwtByScope('passkey');
+        const creationOptions =
+          await latest.current.authClient.beginPasskeyRegistration(jwt);
         const challenge = creationOptions.challenge;
         hadExcludeCredentials = !!creationOptions.excludeCredentials?.length;
 
-        if (!isMounted.current || wasCanceled.current) return;
+        if (stale()) return;
 
         // Step 2: Browser WebAuthn prompt. Silently retries without the PRF
         // extension if the first attempt fails in a way PRF could have caused
@@ -146,31 +156,34 @@ export const PagePasskeyAdd = () => {
         // After the WebAuthn prompt resolves we're past the abortable window;
         // if the user has clicked Cancel by this point, skip the server call
         // so we don't create a passkey the user thinks they canceled.
-        if (!isMounted.current || wasCanceled.current) return;
+        if (stale()) return;
 
         // Step 3: Complete registration with server
-        await authClient.completePasskeyRegistration(
+        await latest.current.authClient.completePasskeyRegistration(
           jwt,
           credential,
           challenge
         );
-        await account.refresh('passkeys');
+        await latest.current.account.refresh('passkeys');
 
-        if (!isMounted.current || wasCanceled.current) return;
+        if (stale()) return;
 
         // Success
         GleanMetrics.accountPref.passkeyCreateSuccessView();
-        alertBar.success(
-          ftlMsgResolver.getMsg('page-passkey-add-success', 'Passkey created')
+        latest.current.alertBar.success(
+          latest.current.ftlMsgResolver.getMsg(
+            'page-passkey-add-success',
+            'Passkey created'
+          )
         );
-        navigateToSettings();
+        latest.current.navigateToSettings();
       } catch (error) {
         // handleCancel already showed the cancellation banner and navigated;
         // suppress the AbortError side effects so they don't double-fire.
-        if (!isMounted.current || wasCanceled.current) return;
+        if (stale()) return;
 
         // Check if MFA JWT expired
-        if (handleMfaError(error)) return;
+        if (latest.current.handleMfaError(error)) return;
 
         // Check if WebAuthn error
         if (error instanceof DOMException || error instanceof TypeError) {
@@ -196,8 +209,8 @@ export const PagePasskeyAdd = () => {
             // NotSupportedError at this stage means the ceremony was refused
             // (e.g., algorithm/attestation mismatch, requireResidentKey on a non-RK authenticator, etc.),
             // not that the browser doesn't support WebAuthn at all — the MfaGuard's pre-check would have caught that.
-            alertBar.error(passkeyCouldNotCompleteMessage());
-            navigateToSettings();
+            latest.current.alertBar.error(passkeyCouldNotCompleteMessage());
+            latest.current.navigateToSettings();
             return;
           }
           if (
@@ -208,14 +221,17 @@ export const PagePasskeyAdd = () => {
             // banner (per Figma). NotAllowedError is excluded — WebAuthn
             // conflates cancel with UV failure under that name, so it falls
             // through to the generic categorizer below.
-            alertBar.error(passkeyCanceledOrTimedOutMessage());
-            navigateToSettings();
+            latest.current.alertBar.error(passkeyCanceledOrTimedOutMessage());
+            latest.current.navigateToSettings();
             return;
           }
-          alertBar.error(
-            ftlMsgResolver.getMsg(categorized.ftlId, categorized.fallbackText)
+          latest.current.alertBar.error(
+            latest.current.ftlMsgResolver.getMsg(
+              categorized.ftlId,
+              categorized.fallbackText
+            )
           );
-          navigateToSettings();
+          latest.current.navigateToSettings();
           return;
         }
 
@@ -237,31 +253,37 @@ export const PagePasskeyAdd = () => {
         });
 
         if (isKnownAuthError) {
-          alertBar.error(
-            getLocalizedErrorMessage(ftlMsgResolver, error as HandledError)
+          latest.current.alertBar.error(
+            getLocalizedErrorMessage(
+              latest.current.ftlMsgResolver,
+              error as HandledError
+            )
           );
         } else {
           Sentry.captureException(error);
-          alertBar.error(
-            ftlMsgResolver.getMsg(
+          latest.current.alertBar.error(
+            latest.current.ftlMsgResolver.getMsg(
               'page-passkey-add-error-system-v2',
               'There was a problem creating your passkey. Try again later.'
             )
           );
         }
-        navigateToSettings();
+        latest.current.navigateToSettings();
       }
     };
 
     runCeremony();
-  }, [
-    account,
-    authClient,
-    alertBar,
-    ftlMsgResolver,
-    handleMfaError,
-    navigateToSettings,
-  ]);
+
+    return () => {
+      active = false;
+      controller.abort();
+      if (abortController.current === controller) {
+        abortController.current = null;
+      }
+    };
+    // Everything the effect reads arrives through `latest`.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div

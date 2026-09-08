@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { useValidatedQueryParams } from '../../../lib/hooks';
@@ -33,9 +33,16 @@ const CompleteSigninContainer = () => {
   const [errorMessage, setErrorMessage] = useState<string>();
   const [linkExpired, setLinkExpired] = useState(false);
 
+  // The code is single-use, so a second verifyCode for it fails with
+  // INVALID_VERIFICATION_CODE and renders the link as expired.
+  const verifyStarted = useRef(false);
+
+  // queryParamModel is rebuilt on every render, so a dependency array would not
+  // limit this effect to one run; verifyStarted is what does.
   useEffect(() => {
     (async () => {
-      if (!validationError) {
+      if (!validationError && !verifyStarted.current) {
+        verifyStarted.current = true;
         const { uid, code } = queryParamModel;
 
         try {

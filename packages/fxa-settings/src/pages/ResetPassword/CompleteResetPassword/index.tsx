@@ -2,9 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 
 import AppLayout from '../../../components/AppLayout';
 import FormPasswordWithInlineCriteria from '../../../components/FormPasswordWithInlineCriteria';
@@ -35,14 +36,14 @@ const CompleteResetPassword = ({
   const searchParams = location.search;
   const additionalAccessibilityInfo =
     integration.getCmsInfo()?.shared.additionalAccessibilityInfo;
-  useEffect(() => {
+  useGleanView(() => {
     if (hasConfirmedRecoveryKey) {
       GleanMetrics.passwordReset.recoveryKeyCreatePasswordView();
     } else {
       const reason = recoveryKeyExists ? 'with key' : 'without key';
       GleanMetrics.passwordReset.createNewView({ event: { reason } });
     }
-  }, [hasConfirmedRecoveryKey, recoveryKeyExists]);
+  });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isActiveSyncUser = !!(

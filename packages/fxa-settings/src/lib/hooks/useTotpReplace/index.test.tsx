@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { renderHook, waitFor } from '@testing-library/react';
-import { useTotpSetup } from '.';
+import { useTotpReplace } from '.';
 import { useAccount } from '../../../models';
 import { useMfaErrorHandler } from '../useMfaErrorHandler';
 import { TotpInfo } from '../../types';
@@ -22,20 +22,27 @@ const MOCK_TOTP_INFO: TotpInfo = {
   secret: 'ABCD1234',
 };
 
-let createTotpWithJwt: jest.Mock;
+let startReplaceTotpWithJwt: jest.Mock;
 let handleMfaError: jest.Mock;
+
+function mockAccount(verified = true) {
+  (useAccount as jest.Mock).mockReturnValue({
+    startReplaceTotpWithJwt,
+    totp: { verified },
+  });
+}
 
 beforeEach(() => {
   jest.clearAllMocks();
-  createTotpWithJwt = jest.fn().mockResolvedValue(MOCK_TOTP_INFO);
+  startReplaceTotpWithJwt = jest.fn().mockResolvedValue(MOCK_TOTP_INFO);
   handleMfaError = jest.fn().mockReturnValue(false);
-  (useAccount as jest.Mock).mockReturnValue({ createTotpWithJwt });
+  mockAccount();
   (useMfaErrorHandler as jest.Mock).mockReturnValue(handleMfaError);
 });
 
-describe('useTotpSetup', () => {
+describe('useTotpReplace', () => {
   it('returns the totp info once the request resolves', async () => {
-    const { result } = renderHook(() => useTotpSetup());
+    const { result } = renderHook(() => useTotpReplace());
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 
@@ -43,16 +50,12 @@ describe('useTotpSetup', () => {
     expect(result.current.error).toBeNull();
   });
 
-  // createTotpWithJwt is a server-side mutation: a second call mints a new
-  // token and silently invalidates the first, leaving the user scanning a QR
-  // code the server no longer accepts. Both effect deps come from context, so
-  // a re-run on changed identity is the reachable form of that double-fire.
-  it('mints only one token when the effect re-runs', async () => {
+  it('mints only one secret when the effect re-runs', async () => {
     (useMfaErrorHandler as jest.Mock).mockImplementation(() =>
       jest.fn().mockReturnValue(false)
     );
 
-    const { result, rerender } = renderHook(() => useTotpSetup());
+    const { result, rerender } = renderHook(() => useTotpReplace());
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     rerender();
@@ -60,14 +63,25 @@ describe('useTotpSetup', () => {
       expect(result.current.totpInfo).toEqual(MOCK_TOTP_INFO)
     );
 
-    expect(createTotpWithJwt).toHaveBeenCalledTimes(1);
+    expect(startReplaceTotpWithJwt).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not start a replacement when the account has no verified totp', async () => {
+    mockAccount(false);
+
+    const { result } = renderHook(() => useTotpReplace());
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(startReplaceTotpWithJwt).not.toHaveBeenCalled();
+    expect(result.current.totpInfo).toBeUndefined();
   });
 
   it('surfaces the error when the MFA handler does not consume it', async () => {
     const err = new Error('totp boom');
-    createTotpWithJwt.mockRejectedValue(err);
+    startReplaceTotpWithJwt.mockRejectedValue(err);
 
-    const { result } = renderHook(() => useTotpSetup());
+    const { result } = renderHook(() => useTotpReplace());
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 
@@ -76,10 +90,10 @@ describe('useTotpSetup', () => {
   });
 
   it('leaves error unset when the MFA handler consumes the error', async () => {
-    createTotpWithJwt.mockRejectedValue(new Error('jwt expired'));
+    startReplaceTotpWithJwt.mockRejectedValue(new Error('jwt expired'));
     handleMfaError.mockReturnValue(true);
 
-    const { result } = renderHook(() => useTotpSetup());
+    const { result } = renderHook(() => useTotpReplace());
 
     await waitFor(() => expect(handleMfaError).toHaveBeenCalled());
 

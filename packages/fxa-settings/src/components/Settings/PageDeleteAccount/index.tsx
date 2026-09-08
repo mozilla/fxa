@@ -18,6 +18,7 @@ import { Localized } from '@fluent/react';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 import { useFtlMsgResolver } from '../../../models/hooks';
 import {
   clearSignedInAccountUid,
@@ -109,9 +110,7 @@ export const PageDeleteAccount = () => {
 
   const account = useAccount();
 
-  useEffect(() => {
-    GleanMetrics.deleteAccount.view();
-  }, []);
+  useGleanView(() => GleanMetrics.deleteAccount.view());
 
   useEffect(() => {
     if (!account.hasPassword) {

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import FlowContainer from '../FlowContainer';
 import ProgressBar from '../ProgressBar';
 import { FtlMsg } from 'fxa-react/lib/utils';
@@ -13,6 +13,7 @@ import { useFtlMsgResolver } from '../../../models';
 import FormPhoneNumber from '../../FormPhoneNumber';
 import { RecoveryPhoneSetupReason } from '../../../lib/types';
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 
 export type FlowSetupRecoveryPhoneSubmitNumberProps = {
   currentStep?: number;
@@ -40,11 +41,11 @@ export const FlowSetupRecoveryPhoneSubmitNumber = ({
 
   const ftlMsgResolver = useFtlMsgResolver();
 
-  useEffect(() => {
+  useGleanView(() =>
     GleanMetrics.accountPref.twoStepAuthPhoneSubmitView({
       event: { reason },
-    });
-  }, [reason]);
+    })
+  );
 
   const clearBanners = async () => {
     setLocalizedErrorBannerMessage(''); // Clear the banner message

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 
 import { FtlMsg } from 'fxa-react/lib/utils';
 import CardHeader from '../../../components/CardHeader';
@@ -16,6 +16,7 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 import AppLayout from '../../../components/AppLayout';
 import Banner from '../../../components/Banner';
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 
 type PairUnsupportedProps = { error?: string };
 export const viewName = 'pair-unsupported';
@@ -78,7 +79,7 @@ const PairUnsupported = ({
   } = useDeviceContext();
 
   // Emit Glean view events per device context (matches Backbone unsupported.js logView).
-  useEffect(() => {
+  useGleanView(() => {
     if (isDesktopNonFirefox) {
       GleanMetrics.cadRedirectDesktop.view();
     } else if (isMobileWithSystemCamera) {
@@ -88,7 +89,7 @@ const PairUnsupported = ({
     } else {
       GleanMetrics.cadRedirectDesktop.defaultView();
     }
-  }, [isDesktopNonFirefox, isMobileWithSystemCamera, isMobileNoSystemCamera]);
+  });
 
   return (
     <AppLayout>

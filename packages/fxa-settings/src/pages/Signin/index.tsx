@@ -5,7 +5,7 @@
 import { useNavigate, Link, useLocation } from 'react-router';
 import { useNavigateWithQuery, useWebRedirect } from '../../lib/hooks';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import AppLayout from '../../components/AppLayout';
 import CardHeader from '../../components/CardHeader';
@@ -14,6 +14,7 @@ import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
 import AlternativeAuthOptions from '../../components/AlternativeAuthOptions';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import GleanMetrics from '../../lib/glean';
+import { useGleanView } from '../../lib/glean/useGleanView';
 import {
   useSensitiveDataClient,
   useFtlMsgResolver,
@@ -53,7 +54,7 @@ const Signin = ({
   localizedSuccessBannerHeading,
   localizedSuccessBannerDescription,
   flowQueryParams,
-  useFxAStatusResult: { supportsKeysOptionalLogin },
+  useFxAStatusResult: { supportsKeysOptionalLogin, fxaStatusState },
   isSignedIntoFirefox = false,
   setCurrentSplitLayout,
 }: SigninProps) => {
@@ -144,11 +145,16 @@ const Signin = ({
     ? hasPassword
     : isOAuthNative && !supportsKeysOptionalLogin;
 
-  useEffect(() => {
-    GleanMetrics.login.view({
-      event: { thirdPartyLinks: !hideThirdPartyAuth },
-    });
-  }, [hideThirdPartyAuth]);
+  // `supportsKeysOptionalLogin` is false until the browser answers fxa_status,
+  // so recording any earlier reports third-party links as hidden on a page that
+  // goes on to show them.
+  useGleanView(
+    () =>
+      GleanMetrics.login.view({
+        event: { thirdPartyLinks: !hideThirdPartyAuth },
+      }),
+    fxaStatusState !== 'pending'
+  );
 
   const signInWithPassword = useCallback(
     async (password: string) => {

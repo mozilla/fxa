@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import AppLayout from '../../../components/AppLayout';
 import FormVerifyTotp from '../../../components/FormVerifyTotp';
 import { ConfirmResetPasswordProps } from './interfaces';
@@ -13,6 +13,7 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import { ResendStatus } from '../../../lib/types';
 import { EmailCodeImage } from '../../../components/images';
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
 import { HeadingPrimary } from '../../../components/HeadingPrimary';
 import { useNavigateWithQuery } from '../../../lib/hooks';
@@ -29,9 +30,7 @@ const ConfirmResetPassword = ({
   integration,
   showPasskeyOption,
 }: ConfirmResetPasswordProps) => {
-  useEffect(() => {
-    GleanMetrics.passwordReset.emailConfirmationView();
-  }, []);
+  useGleanView(() => GleanMetrics.passwordReset.emailConfirmationView());
 
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();

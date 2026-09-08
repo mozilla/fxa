@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import {
   useNavigateWithQuery,
@@ -38,6 +38,7 @@ import {
 import { ConfirmSignupCodeProps } from './interfaces';
 import firefox from '../../../lib/channels/firefox';
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 import { storeAccountData } from '../../../lib/storage-utils';
 import {
   getErrorFtlId,
@@ -90,14 +91,10 @@ const ConfirmSignupCode = ({
   integration.data.validate();
 
   const reason = origin === 'signup' ? 'signup' : 'signin';
-  const hasEmittedView = useRef(false);
 
-  useEffect(() => {
-    if (!hasEmittedView.current) {
-      GleanMetrics.signupConfirmation.view({ event: { reason } });
-      hasEmittedView.current = true;
-    }
-  }, [reason]);
+  useGleanView(() =>
+    GleanMetrics.signupConfirmation.view({ event: { reason } })
+  );
 
   // Countdown timer for resend code
   useEffect(() => {

@@ -2,13 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { FtlMsg } from 'fxa-react/lib/utils';
 
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 import { GleanClickEventType2FA, TotpInfo } from '../../../lib/types';
 import { formatSecret } from '../../../lib/utilities';
 
@@ -186,11 +187,11 @@ const QrCodeStep = ({
   const ftlMsgResolver = useFtlMsgResolver();
   const [imgLoaded, setImgLoaded] = useState(false);
 
-  useEffect(() => {
+  useGleanView(() =>
     GleanMetrics.accountPref.twoStepAuthQrView({
       event: { reason: GleanClickEventType2FA.setup },
-    });
-  }, []);
+    })
+  );
 
   return (
     <div>
@@ -257,11 +258,11 @@ const ManualCodeStep = ({
   setSetupMethod: React.Dispatch<React.SetStateAction<TwoStepSetupMethod>>;
   secret: string;
 }) => {
-  useEffect(() => {
+  useGleanView(() =>
     GleanMetrics.accountPref.twoStepAuthManualCodeView({
       event: { reason: GleanClickEventType2FA.setup },
-    });
-  }, []);
+    })
+  );
 
   return (
     <div>

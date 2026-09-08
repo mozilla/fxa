@@ -20,6 +20,7 @@ import { SETTINGS_PATH } from 'fxa-settings/src/constants';
 import { Localized } from '@fluent/react';
 import DataCollection from '../DataCollection';
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 import ProductPromo, {
   getProductPromoData,
   VpnPromoData,
@@ -70,13 +71,12 @@ export const PageSettings = ({
   });
   Metrics.usePageViewEvent(Metrics.settingsViewName);
 
-  useEffect(() => {
-    GleanMetrics.accountPref.view();
-  }, []);
+  useGleanView(() => GleanMetrics.accountPref.view());
 
   const [vpnPromo, setVpnPromo] = useState<VpnPromoData | null>(null);
   const [productPromoGleanEventSent, setProductPromoGleanEventSent] =
     useState(false);
+  const reactivationReported = useRef(false);
 
   useEffect(() => {
     function showInactiveVerifiedBanner() {
@@ -97,7 +97,12 @@ export const PageSettings = ({
       return true;
     }
 
+    if (reactivationReported.current) {
+      return;
+    }
+
     if (showInactiveVerifiedBanner()) {
+      reactivationReported.current = true;
       GleanMetrics.accountBanner.reactivationSuccessView();
       alertBar.success(
         ftlMsgResolver.getMsg(

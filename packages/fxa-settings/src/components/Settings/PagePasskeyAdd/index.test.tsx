@@ -563,8 +563,6 @@ describe('PagePasskeyAdd', () => {
   });
 
   it('cancel between createCredential and completePasskeyRegistration skips the server completion call', async () => {
-    // Hold createCredential resolution so we can click cancel after it resolves
-    // but before the success path proceeds.
     let resolveCreate: (value: typeof mockCredential) => void = () => {};
     mockCreateCredential.mockImplementation(
       () =>
@@ -575,10 +573,7 @@ describe('PagePasskeyAdd', () => {
     renderPage();
     await waitFor(() => expect(mockCreateCredential).toHaveBeenCalled());
     fireEvent.click(screen.getByTestId('passkey-add-cancel'));
-    resolveCreate(mockCredential);
-    // Yield twice so the awaited continuation runs and observes wasCanceled.
-    await Promise.resolve();
-    await Promise.resolve();
+    await waitFor(() => resolveCreate(mockCredential));
     expect(mockCompletePasskeyRegistration).not.toHaveBeenCalled();
     expect(mockAlertSuccess).not.toHaveBeenCalled();
     expect(mockAlertError).toHaveBeenCalledWith(
