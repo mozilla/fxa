@@ -81,13 +81,13 @@ choose-newsletters-option-reclaim-the-internet =
 ## Firefox is not installed on the device.
 
 pair-continue-in-firefox-heading = Folytatás a { -brand-firefox }ban
-pair-continue-in-firefox-description = A párosítás { -brand-firefox } múlva megtörténik. Nyissa meg az eszköz csatlakoztatásának befejezéséhez.
+pair-continue-in-firefox-description = A párosítás a { -brand-firefox }ban történik. Nyissa meg az eszköz csatlakoztatásának befejezéséhez.
 # Opens the Firefox app on this device
 pair-continue-in-firefox-button = Folytatás a { -brand-firefox }ban
 # Shown while waiting for the Firefox app to take over
-pair-continue-in-firefox-opening = Nyitás: { -brand-firefox }
+pair-continue-in-firefox-opening = Megnyitás a { -brand-firefox }ban
 # Sends the user to the App Store or Play Store to install Firefox
-pair-continue-in-firefox-get-firefox-link = Nincs { -brand-firefox }ja? Szerezze be most
+pair-continue-in-firefox-get-firefox-link = Nincs { -brand-firefox }a? Szerezze be most.
 
 ## Dark mode toggle
 

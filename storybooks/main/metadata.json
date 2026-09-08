@@ -1,8 +1,8 @@
 {
-  "commit": "70193b5b59183ada8190418b7f68ed41ff4fde63",
-  "summary": "Merge pull request #21160 from mozilla/dependabot/npm_and_yarn/babel-plugin-transform-typescript-metadata-0.4.0",
-  "description": "chore(deps-dev): bump babel-plugin-transform-typescript-metadata from 0.3.2 to 0.4.0",
-  "timestamp": 1788766244000,
+  "commit": "32a52122568d6e94945ebe2776b0dc86e7500373",
+  "summary": "Merge pull request #21131 from mozilla/FXA-14313",
+  "description": "fix(settings): re-enable StrictMode and upgrade React to 19.2.8",
+  "timestamp": 1788886416000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
