@@ -2,42 +2,63 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useEffect } from "react";
-import * as Sentry from "@sentry/browser";
-import ApproveSignIn from ".";
-import { Integration, PairingSupplicantIntegration, SupplicantState } from "../../../../models";
-import { navigateWithQuery } from "../../../../lib/utilities";
+import { useEffect } from 'react';
+import * as Sentry from '@sentry/browser';
+import ApproveSignIn from '.';
+import {
+  Integration,
+  PairingSupplicantIntegration,
+  SupplicantState,
+} from '../../../../models';
+import { navigateWithQuery } from '../../../../lib/utilities';
 
-
-export const ApproveSignInContainer = ({integration}:{integration:Integration|PairingSupplicantIntegration}) => {
+export const ApproveSignInContainer = ({
+  integration,
+}: {
+  integration: Integration | PairingSupplicantIntegration;
+}) => {
   if (!(integration instanceof PairingSupplicantIntegration)) {
-     throw new Error('Invalid integration. Expecting instance of PairingSupplicantIntegration');
+    throw new Error(
+      'Invalid integration. Expecting instance of PairingSupplicantIntegration'
+    );
   }
   if (!integration.remoteMetadata) {
-    throw new Error('Invalid integration state. Remote meta data should be populated.');
+    throw new Error(
+      'Invalid integration state. Remote meta data should be populated.'
+    );
   }
 
   useEffect(() => {
     integration.onStateChange = (state) => {
-      switch(state) {
+      switch (state) {
         case SupplicantState.Complete:
           navigateWithQuery('/pair/supplicant/sync_success', {}, true);
           break;
         case SupplicantState.Failed:
-          console.warn('SupplicantState failed', { tags: { state } })
-          navigateWithQuery('/pair/supplicant/timeout_and_cancel', {}, true);
+          console.warn('SupplicantState failed', { tags: { state } });
+          navigateWithQuery(
+            '/pair/supplicant/timeout_and_cancel',
+            {
+              state: {
+                reason: integration.canceledByAuthority
+                  ? 'canceled'
+                  : 'timeout',
+              },
+            },
+            true
+          );
           break;
         default:
           console.warn('Unexpected state change: ' + state);
           break;
       }
-    }
+    };
 
     return () => {
       // Unsubscribe only — the channel outlives this page for sync_success.
       integration.onStateChange = null;
     };
-  },[integration])
+  }, [integration]);
 
   // Leave even if the channel will not close; the user asked to stop. The
   // reason rides along so the dead-end screen says "Canceled" rather than
@@ -53,9 +74,13 @@ export const ApproveSignInContainer = ({integration}:{integration:Integration|Pa
       { state: { reason: 'canceled' } },
       true
     );
-  }
+  };
 
-  return <ApproveSignIn {...{ remoteMetadata:integration.remoteMetadata, onCancel }}/>
-}
+  return (
+    <ApproveSignIn
+      {...{ remoteMetadata: integration.remoteMetadata, onCancel }}
+    />
+  );
+};
 
-export default ApproveSignInContainer
+export default ApproveSignInContainer;

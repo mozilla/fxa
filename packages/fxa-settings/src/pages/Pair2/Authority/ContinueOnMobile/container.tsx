@@ -54,7 +54,7 @@ const ContinueOnMobileContainer = ({
   // Leave even if the channel will not close; the user asked to stop.
   const onCancel = async () => {
     try {
-      await integration.destroy();
+      await integration.cancel();
     } catch (err) {
       Sentry.captureException(err);
     }

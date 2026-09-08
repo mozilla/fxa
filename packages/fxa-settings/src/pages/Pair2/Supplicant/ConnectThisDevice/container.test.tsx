@@ -47,16 +47,21 @@ type MockSupplicantIntegration = PairingSupplicantIntegration & {
  * the real prototype because the container narrows on `instanceof` before it
  * touches any of it.
  */
-function mockSupplicantIntegration(): MockSupplicantIntegration {
+function mockSupplicantIntegration({
+  canceledByAuthority = false,
+} = {}): MockSupplicantIntegration {
   const integration = Object.create(
     PairingSupplicantIntegration.prototype
   ) as MockSupplicantIntegration;
 
-  // Both are getters on the prototype, so they cannot be assigned.
+  // All three are getters on the prototype, so they cannot be assigned.
   Object.defineProperty(integration, 'remoteMetadata', {
     get: () => MOCK_METADATA_WITH_DEVICE_NAME,
   });
   Object.defineProperty(integration, 'email', { get: () => MOCK_EMAIL });
+  Object.defineProperty(integration, 'canceledByAuthority', {
+    get: () => canceledByAuthority,
+  });
 
   return Object.assign(integration, {
     openChannel: jest.fn().mockResolvedValue(undefined),
@@ -153,7 +158,7 @@ describe('Pair2/Supplicant/ConnectThisDevice container', () => {
     );
   });
 
-  it('navigates to the cancel screen when pairing fails', async () => {
+  it('blames a timeout when pairing fails on its own', async () => {
     renderContainer();
     await waitFor(() => expect(integration.onStateChange).toBeTruthy());
 
@@ -161,7 +166,23 @@ describe('Pair2/Supplicant/ConnectThisDevice container', () => {
 
     expect(navigateWithQuery).toHaveBeenCalledWith(
       '/pair/supplicant/timeout_and_cancel',
-      {},
+      { state: { reason: 'timeout' } },
+      true
+    );
+  });
+
+  // The desktop user cancelling is not a wait this user ever made, so the
+  // dead-end screen has to name the cancel instead of a timeout.
+  it('names the cancel when the authority cancelled', async () => {
+    integration = mockSupplicantIntegration({ canceledByAuthority: true });
+    renderContainer();
+    await waitFor(() => expect(integration.onStateChange).toBeTruthy());
+
+    emitState(integration, SupplicantState.Failed);
+
+    expect(navigateWithQuery).toHaveBeenCalledWith(
+      '/pair/supplicant/timeout_and_cancel',
+      { state: { reason: 'canceled' } },
       true
     );
   });
@@ -193,9 +214,7 @@ describe('Pair2/Supplicant/ConnectThisDevice container', () => {
       const user = userEvent.setup();
       await renderReady();
 
-      await user.click(
-        screen.getByRole('button', { name: 'Connect' })
-      );
+      await user.click(screen.getByRole('button', { name: 'Connect' }));
 
       expect(integration.supplicantApprove).toHaveBeenCalledTimes(1);
       await waitFor(() =>
