@@ -41,7 +41,7 @@ export const ApproveSignIn = ({ remoteMetadata, onCancel }: ApproveSignInProps) 
       region: 'region-foo',
       city: 'city-foo',
   };
-  return <AppLayout>
+  return <AppLayout whiteBackground>
     <div className="flex flex-col items-center text-center">
       <FirefoxWordmarkImage className="h-8 w-24 text-black dark:text-white" />
 

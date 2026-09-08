@@ -70,4 +70,13 @@ describe('Pair2/Supplicant/SyncSuccess page', () => {
 
     expect(onSyncSettings).toHaveBeenCalledTimes(1);
   });
+
+  it('renders the card on a white page background', () => {
+    renderWithLocalizationProvider(<Subject />);
+
+    // Below `mobileLandscape` the card is transparent, so the page colour is
+    // the colour the phone shows. The designs call for white, not the default
+    // grey the desktop cards sit on.
+    expect(screen.getByTestId('app')).toHaveClass('bg-white');
+  });
 });

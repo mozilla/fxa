@@ -78,7 +78,7 @@ const TimeoutAndCancel = ({ reason }: TimeoutAndCancelProps) => {
   const { headingFtlId, heading, descriptionFtlId, description } = COPY[reason];
 
   return (
-    <AppLayout>
+    <AppLayout whiteBackground>
       <div className="flex flex-col items-center text-center">
         <FirefoxWordmarkImage className="h-8 w-24 text-black dark:text-white" />
 

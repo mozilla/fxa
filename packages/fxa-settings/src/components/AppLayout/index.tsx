@@ -30,6 +30,11 @@ type AppLayoutProps = {
    */
   wrapInCard?: boolean;
   splitLayout?: boolean;
+  /** Whether the page behind the card is white rather than the default grey.
+   * The mobile pairing screens need this: below `mobileLandscape` the card is
+   * transparent, so the page colour is the screen colour.
+   */
+  whiteBackground?: boolean;
   /** Whether to show the locale toggle in the footer */
   showLocaleToggle?: boolean;
   /** Whether to show a loading spinner instead of children.
@@ -48,6 +53,7 @@ export const AppLayout = ({
   widthClass,
   cmsInfo,
   splitLayout = false,
+  whiteBackground = false,
   wrapInCard = true,
   loading = false,
   setCurrentSplitLayout,
@@ -83,6 +89,7 @@ export const AppLayout = ({
       <div
         className={classNames(
           'flex min-h-screen flex-col items-center dark:bg-grey-900',
+          whiteBackground && 'bg-white',
           cmsBackgrounds?.defaultLayout &&
             'mobileLandscape:[background:var(--cms-bg)]',
           splitLayout && 'mobileLandscape:relative'
