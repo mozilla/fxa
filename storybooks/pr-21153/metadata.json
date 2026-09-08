@@ -1,8 +1,8 @@
 {
-  "commit": "547b65f3884a1e710691fca2b0615cc014ec57c0",
+  "commit": "8014d6606df29accd8720b507ecab4e455eb4283",
   "summary": "feat(settings): compose the passkey wrap envelope create and unwrap",
   "description": "Because:\n- Passwordless Sync needs a client that can seal kB to a passkey and\n  recover it from the stored envelope.\n\nThis commit:\n- Adds createWrapEnvelope and openWrapEnvelope over the HPKE and AES-GCM\n  layers.\n- Binds uid and credentialId into the envelope context.\n- Keeps the crypto layers and context construction module-local.\n\nCloses #FXA-13147",
-  "timestamp": 1788903420000,
+  "timestamp": 1788904143000,
   "storybooks": [
     "fxa-settings"
   ],
