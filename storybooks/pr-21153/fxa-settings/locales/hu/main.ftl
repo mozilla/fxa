@@ -383,7 +383,15 @@ password-strength-inline-passwords-match = A jelszavak egyeznek
 
 
 promo-qr-mobile-heading = Az Ön telefonja. Az Ön szabályai.
-promo-qr-mobile-description = Olvassa le az alkalmazás beszerzéséhez
+promo-qr-mobile-heading-treatment-a = Folytassa ott, ahol abbahagyta, bárhol is jár
+promo-qr-mobile-heading-treatment-b = A lapjai és még sok más, a telefonján készen
+promo-qr-mobile-heading-treatment-c = A böngésző, amelyben megbízik, a telefonján
+promo-qr-mobile-heading-treatment-d = Ugyanaz: { -brand-firefox }. Más képernyő.
+promo-qr-mobile-heading-treatment-e = Az adatvédelme nem állhat itt meg
+promo-qr-mobile-heading-treatment-f = Tartson többet a böngészésből saját magának
+promo-qr-mobile-heading-treatment-g = A telefonja kicsit kevesebb zajt használhatna
+promo-qr-mobile-heading-treatment-h = Válasszon egy higgadtabb módját a böngészésnek
+promo-qr-mobile-description-v2 = Beolvasás a mobilalkalmazás letöltéséhez
 promo-qr-mobile-qr-alt =
     .alt = QR-kód a { -brand-firefox } mobilalkalmazás letöltéséhez. A beolvasásához irányítsa a telefonja kameráját a képernyő jobb alsó sarkára.
 
@@ -1095,7 +1103,6 @@ terms-privacy-agreement-default-2 = A folytatással elfogadja a <mozillaAccounts
 
 
 third-party-auth-options-or = Vagy
-third-party-auth-options-sign-in-with = Bejelentkezés ezzel:
 continue-with-google-button = Folytatás a { -brand-google }-lel
 continue-with-apple-button = Folytatás az { -brand-apple }-lel
 

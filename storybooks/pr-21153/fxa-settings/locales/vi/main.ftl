@@ -327,7 +327,6 @@ password-strength-inline-passwords-match = Mật khẩu trùng khớp
 
 
 promo-qr-mobile-heading = Điện thoại của bạn. Luật chơi do bạn đặt.
-promo-qr-mobile-description = Quét mã để tải ứng dụng
 promo-qr-mobile-qr-alt =
     .alt = Mã QR để tải xuống ứng dụng di động { -brand-firefox }. Đặt camera điện thoại của bạn vào góc dưới bên phải màn hình để quét mã.
 
@@ -1020,7 +1019,6 @@ terms-privacy-agreement-default-2 = Bằng cách tiếp tục, bạn đồng ý 
 
 
 third-party-auth-options-or = Hoặc
-third-party-auth-options-sign-in-with = Đăng nhập bằng
 continue-with-google-button = Tiếp tục với { -brand-google }
 continue-with-apple-button = Tiếp tục với { -brand-apple }
 

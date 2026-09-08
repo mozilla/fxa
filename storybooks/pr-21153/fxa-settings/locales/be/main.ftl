@@ -629,7 +629,6 @@ terms-privacy-agreement-default-2 = Працягваючы, вы згаджае�
 
 
 third-party-auth-options-or = Або
-third-party-auth-options-sign-in-with = Увайсці з дапамогай
 continue-with-google-button = Працягнуць з { -brand-google }
 continue-with-apple-button = Працягнуць з { -brand-apple }
 

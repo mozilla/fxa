@@ -635,7 +635,15 @@ password-strength-inline-passwords-match = Hesla se shodují
 
 
 promo-qr-mobile-heading = Váš telefon. Vaše pravidla.
-promo-qr-mobile-description = Naskenujte a stáhněte si aplikaci
+promo-qr-mobile-heading-treatment-a = Pokračujte, kde jste skončili, ať jste kdekoli
+promo-qr-mobile-heading-treatment-b = Vaše panely a další, připraveno ve vašem telefonu
+promo-qr-mobile-heading-treatment-c = Prohlížeč pro svůj telefon, kterému důvěřujete
+promo-qr-mobile-heading-treatment-d = To samé { -brand-firefox }. Jiná obrazovka.
+promo-qr-mobile-heading-treatment-e = Vaše soukromí by zde nemělo skončit
+promo-qr-mobile-heading-treatment-f = Nechte si více části svého prohlížení pro sebe
+promo-qr-mobile-heading-treatment-g = Váš telefon by mohl mít o něco méně šumu
+promo-qr-mobile-heading-treatment-h = Vezměte si s sebou klidnější způsob prohlížení
+promo-qr-mobile-description-v2 = Naskenujte a stáhněte si mobilní aplikaci
 promo-qr-mobile-qr-alt =
     .alt = QR kód ke stažení mobilní aplikace { -brand-firefox }. Nasměrujte fotoaparát telefonu do pravého dolního rohu obrazovky a naskenujte jej.
 
@@ -1343,7 +1351,6 @@ terms-privacy-agreement-default-2 = Pokračováním vyjadřujete souhlas s <mozi
 
 
 third-party-auth-options-or = Nebo
-third-party-auth-options-sign-in-with = Přihlásit pomocí
 continue-with-google-button = Pokračovat pomocí { -brand-google }
 continue-with-apple-button = Pokračovat pomocí { -brand-apple }
 

@@ -909,7 +909,6 @@ terms-privacy-agreement-default-2 = Se tu continuis tu acetis lis <mozillaAccoun
 
 
 third-party-auth-options-or = Opûr
-third-party-auth-options-sign-in-with = Jentre cun
 continue-with-google-button = Continue cun { -brand-google }
 continue-with-apple-button = Continue cun { -brand-apple }
 

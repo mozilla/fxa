@@ -346,7 +346,6 @@ password-strength-inline-passwords-match = Wachtwoorden komen overeen
 
 
 promo-qr-mobile-heading = Uw telefoon. Uw regels.
-promo-qr-mobile-description = Scan om de app te downloaden
 promo-qr-mobile-qr-alt =
     .alt = QR-code om de mobiele { -brand-firefox }-app te downloaden. Richt de camera van uw telefoon op de rechterbenedenhoek van uw scherm om de code te scannen.
 
@@ -1054,7 +1053,6 @@ terms-privacy-agreement-default-2 = Door door te gaan stemt u in met de <mozilla
 
 
 third-party-auth-options-or = Of
-third-party-auth-options-sign-in-with = Aanmelden met
 continue-with-google-button = Doorgaan met { -brand-google }
 continue-with-apple-button = Doorgaan met { -brand-apple }
 
