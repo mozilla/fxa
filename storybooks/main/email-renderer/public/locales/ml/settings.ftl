@@ -579,7 +579,7 @@ tfa-row-action-add = ചേൎക്കുക
 
 # This appears when a user has the option to authenticate via third party accounts in addition to their Firefox account.
 # Firefox account login appears on top, and third party options appear on bottom.
-# This string appears as a separation between the two, in the following order: "Enter your password" "Or"(this string) (continue-with-google-button with aria equivalent text) / (continue-with-apple-button with aria equivalent text)
+# This string appears as a separation between the two, in the following order: "Enter your password" "Or"(this string) (continue-with-google-button) / (continue-with-apple-button). The two buttons show their label as visible text.
 third-party-auth-options-or = അല്ലെങ്കിൽ
 
 ## Auth-server based errors that originate from backend service

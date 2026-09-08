@@ -1,8 +1,8 @@
 {
-  "commit": "4a907dc953f0b07f9611e53aa09db73c0db8f1bc",
-  "summary": "Merge pull request #21038 from mozilla/fxa-14325",
-  "description": "feat(auth-server): tag account.login events with the login method",
-  "timestamp": 1788897691000,
+  "commit": "8c46fe1bade01c953b3bd1de9375a5e27a0384ff",
+  "summary": "Merge pull request #21011 from mozilla/FXA-14132",
+  "description": "fix(settings): Carry pairing attribution to the device approval page",
+  "timestamp": 1788901634000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

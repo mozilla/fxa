@@ -346,7 +346,15 @@ password-strength-inline-passwords-match = Passwörter stimmen überein
 
 
 promo-qr-mobile-heading = Ihr Smartphone. Ihre Regeln.
-promo-qr-mobile-description = Scannen, um die App zu erhalten
+promo-qr-mobile-heading-treatment-a = Mach da weiter, wo du aufgehört hast, egal wo du bist
+promo-qr-mobile-heading-treatment-b = Deine Tabs und mehr auf deinem Handy
+promo-qr-mobile-heading-treatment-c = Der Browser, dem Sie vertrauen, auf Ihrem Handy
+promo-qr-mobile-heading-treatment-d = Gleiches { -brand-firefox }. Anderer Bildschirm.
+promo-qr-mobile-heading-treatment-e = Deine Privatsphäre sollte hier nicht aufhören
+promo-qr-mobile-heading-treatment-f = Behalten Sie mehr vom Surfen für sich
+promo-qr-mobile-heading-treatment-g = Ihr Telefon könnte etwas weniger Störgeräusche vertragen
+promo-qr-mobile-heading-treatment-h = Surfen Sie beruhigter
+promo-qr-mobile-description-v2 = Zum Herunterladen der App für Mobilgeräte scannen
 promo-qr-mobile-qr-alt =
     .alt = QR-Code zum Herunterladen der mobilen { -brand-firefox }-App. Positionieren Sie die Kamera Ihres Telefons in der unteren rechten Ecke des Bildschirms, um ihn zu scannen.
 
@@ -1052,7 +1060,6 @@ terms-privacy-agreement-default-2 = Indem Sie fortfahren, stimmen Sie den <mozil
 
 
 third-party-auth-options-or = oder
-third-party-auth-options-sign-in-with = Anmelden mit
 continue-with-google-button = Weiter mit { -brand-google }
 continue-with-apple-button = Weiter mit { -brand-apple }
 

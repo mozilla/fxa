@@ -346,7 +346,6 @@ password-strength-inline-passwords-match = Coincidencia de contraseñas
 
 
 promo-qr-mobile-heading = Tu teléfono. Tus reglas.
-promo-qr-mobile-description = Escanea para obtener la aplicación.
 promo-qr-mobile-qr-alt =
     .alt = Escanea el código QR para descargar la aplicación móvil de { -brand-firefox }. Coloca la cámara de tu teléfono en la esquina inferior derecha de la pantalla para escanearlo.
 
@@ -1050,7 +1049,6 @@ terms-privacy-agreement-default-2 = Al continuar, aceptas los <mozillaAccountsTo
 
 
 third-party-auth-options-or = O
-third-party-auth-options-sign-in-with = Conectarse con
 continue-with-google-button = Continuar con { -brand-google }
 continue-with-apple-button = Continuar con { -brand-apple }
 

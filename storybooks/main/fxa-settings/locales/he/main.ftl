@@ -342,7 +342,6 @@ password-strength-inline-passwords-match = הססמאות תואמות
 
 
 promo-qr-mobile-heading = הטלפון שלך. החוקים שלך.
-promo-qr-mobile-description = יש לסרוק כדי לקבל את היישומון
 promo-qr-mobile-qr-alt =
     .alt = קוד QR להורדת היישומון { -brand-firefox } לנייד. יש למקם את מצלמת הטלפון שלך בפינה הימנית התחתונה של המסך כדי לסרוק אותו.
 
@@ -1010,7 +1009,6 @@ terms-privacy-agreement-default-2 = המשך התהליך מהווה הסכמה 
 
 
 third-party-auth-options-or = או
-third-party-auth-options-sign-in-with = כניסה באמצעות
 continue-with-google-button = המשך באמצעות { -brand-google }
 continue-with-apple-button = המשך באמצעות { -brand-apple }
 

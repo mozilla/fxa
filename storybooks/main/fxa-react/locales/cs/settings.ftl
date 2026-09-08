@@ -437,8 +437,24 @@ password-strength-inline-passwords-match = Hesla se shodují
 
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Váš telefon. Vaše pravidla.
-# Appears next to a QR code that a user can scan to download the Firefox mobile app
-promo-qr-mobile-description = Naskenujte a stáhněte si aplikaci
+# Value proposition variant. Refers to resuming browsing on another device.
+promo-qr-mobile-heading-treatment-a = Pokračujte, kde jste skončili, ať jste kdekoli
+# Value proposition variant. "tabs" are the open pages in a browser.
+promo-qr-mobile-heading-treatment-b = Vaše panely a další, připraveno ve vašem telefonu
+# Value proposition variant. Refers to using the same trusted browser on a phone.
+promo-qr-mobile-heading-treatment-c = Prohlížeč pro svůj telefon, kterému důvěřujete
+# Value proposition variant. "Different screen" refers to the phone rather than the desktop.
+promo-qr-mobile-heading-treatment-d = To samé { -brand-firefox }. Jiná obrazovka.
+# Value proposition variant. "stop here" means privacy protection should continue onto the phone.
+promo-qr-mobile-heading-treatment-e = Vaše soukromí by zde nemělo skončit
+# Value proposition variant. Refers to keeping browsing activity private.
+promo-qr-mobile-heading-treatment-f = Nechte si více části svého prohlížení pro sebe
+# Value proposition variant. "noise" refers to distractions and clutter.
+promo-qr-mobile-heading-treatment-g = Váš telefon by mohl mít o něco méně šumu
+# Value proposition variant. Refers to a calmer browsing experience on the phone.
+promo-qr-mobile-heading-treatment-h = Vezměte si s sebou klidnější způsob prohlížení
+# Appears below a QR code that a user can scan to download the Firefox mobile app
+promo-qr-mobile-description-v2 = Naskenujte a stáhněte si mobilní aplikaci
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
 promo-qr-mobile-qr-alt =
     .alt = QR kód ke stažení mobilní aplikace { -brand-firefox }. Nasměrujte fotoaparát telefonu do pravého dolního rohu obrazovky a naskenujte jej.
@@ -1430,11 +1446,8 @@ terms-privacy-agreement-default-2 = Pokračováním vyjadřujete souhlas s <mozi
 
 # This appears when a user has the option to authenticate via third party accounts in addition to their Firefox account.
 # Firefox account login appears on top, and third party options appear on bottom.
-# This string appears as a separation between the two, in the following order: "Enter your password" "Or"(this string) (continue-with-google-button with aria equivalent text) / (continue-with-apple-button with aria equivalent text)
+# This string appears as a separation between the two, in the following order: "Enter your password" "Or"(this string) (continue-with-google-button) / (continue-with-apple-button). The two buttons show their label as visible text.
 third-party-auth-options-or = Nebo
-# For the sign-in page, when 3rd-party auth is the only option, this string appears with a divider line between the user's avatar on top and 3rd-party authentication buttons (continue-with-google continue-with-apple buttons) on bottom.
-# This could also be translated as "Sign in with the following" or "Sign in with the below".
-third-party-auth-options-sign-in-with = Přihlásit pomocí
 continue-with-google-button = Pokračovat pomocí { -brand-google }
 continue-with-apple-button = Pokračovat pomocí { -brand-apple }
 

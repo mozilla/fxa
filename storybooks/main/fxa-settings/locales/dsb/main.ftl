@@ -352,7 +352,6 @@ password-strength-inline-passwords-match = Gronidle stej jadnakej
 
 
 promo-qr-mobile-heading = Waš telefon. Waše pšawidła.
-promo-qr-mobile-description = Scannujśo, aby nałoženje dostał
 promo-qr-mobile-qr-alt =
     .alt = QR-kod za ześěgowanje mobilnego nałoženja { -brand-firefox }. Pozicioněrujśo kameru swójogo telefona w rožku dołojce napšawo swójeje wobrazowki, aby jen scannował.
 
@@ -1068,7 +1067,6 @@ terms-privacy-agreement-default-2 = Gaž pókšacujośo, zwólijośo do <mozilla
 
 
 third-party-auth-options-or = abo
-third-party-auth-options-sign-in-with = Pśizjawiś z
 continue-with-google-button = Dalej z { -brand-google }
 continue-with-apple-button = Dalej z { -brand-apple }
 

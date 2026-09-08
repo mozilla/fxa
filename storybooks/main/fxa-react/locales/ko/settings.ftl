@@ -408,8 +408,6 @@ password-strength-inline-passwords-match = 비밀번호가 일치함
 
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = 나의 폰, 나의 규칙.
-# Appears next to a QR code that a user can scan to download the Firefox mobile app
-promo-qr-mobile-description = 스캔하여 앱 다운로드
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
 promo-qr-mobile-qr-alt =
     .alt = { -brand-firefox } 모바일 앱을 다운로드하는 QR 코드입니다. 스캔하려면 휴대전화의 카메라를 화면 오른쪽 하단에 두세요.
@@ -1383,11 +1381,8 @@ terms-privacy-agreement-default-2 = 계속 진행하시면 <mozillaAccountsTos>�
 
 # This appears when a user has the option to authenticate via third party accounts in addition to their Firefox account.
 # Firefox account login appears on top, and third party options appear on bottom.
-# This string appears as a separation between the two, in the following order: "Enter your password" "Or"(this string) (continue-with-google-button with aria equivalent text) / (continue-with-apple-button with aria equivalent text)
+# This string appears as a separation between the two, in the following order: "Enter your password" "Or"(this string) (continue-with-google-button) / (continue-with-apple-button). The two buttons show their label as visible text.
 third-party-auth-options-or = 또는
-# For the sign-in page, when 3rd-party auth is the only option, this string appears with a divider line between the user's avatar on top and 3rd-party authentication buttons (continue-with-google continue-with-apple buttons) on bottom.
-# This could also be translated as "Sign in with the following" or "Sign in with the below".
-third-party-auth-options-sign-in-with = 로그인:
 continue-with-google-button = { -brand-google }로 계속하기
 continue-with-apple-button = { -brand-apple }로 계속하기
 

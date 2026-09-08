@@ -352,7 +352,6 @@ password-strength-inline-passwords-match = Hesle stej jenakej
 
 
 promo-qr-mobile-heading = Waš telefon. Waše prawidła.
-promo-qr-mobile-description = Skenujće, zo byšće nałoženje dóstał
 promo-qr-mobile-qr-alt =
     .alt = QR-kod za sćahowanje mobilneho nałoženja { -brand-firefox }. Pozicioněrujće kameru swojeho telefona w róžku deleka naprawo swojeje wobrazowki, aby jón skenował.
 
@@ -1068,7 +1067,6 @@ terms-privacy-agreement-default-2 = Hdyž pokročujeće, zwoliće do <mozillaAcc
 
 
 third-party-auth-options-or = abo
-third-party-auth-options-sign-in-with = Přizjewić z
 continue-with-google-button = Dale z { -brand-google }
 continue-with-apple-button = Dale z { -brand-apple }
 

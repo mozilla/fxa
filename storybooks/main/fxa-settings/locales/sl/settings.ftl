@@ -440,8 +440,24 @@ password-strength-inline-passwords-match = Gesli se ujemata
 
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Vaš telefon. Vaša pravila.
-# Appears next to a QR code that a user can scan to download the Firefox mobile app
-promo-qr-mobile-description = Skenirajte za prenos aplikacije
+# Value proposition variant. Refers to resuming browsing on another device.
+promo-qr-mobile-heading-treatment-a = Nadaljujte, kjer ste končali in kamorkoli greste
+# Value proposition variant. "tabs" are the open pages in a browser.
+promo-qr-mobile-heading-treatment-b = Vaši zavihki in še več – pripravljeni na telefonu
+# Value proposition variant. Refers to using the same trusted browser on a phone.
+promo-qr-mobile-heading-treatment-c = Brskalnika, ki mu zaupate, na telefonu
+# Value proposition variant. "Different screen" refers to the phone rather than the desktop.
+promo-qr-mobile-heading-treatment-d = Enako { -brand-firefox }. Drugačen zaslon.
+# Value proposition variant. "stop here" means privacy protection should continue onto the phone.
+promo-qr-mobile-heading-treatment-e = Vaša zasebnost se ne bi smela ustaviti tukaj
+# Value proposition variant. Refers to keeping browsing activity private.
+promo-qr-mobile-heading-treatment-f = Obdržite večji del brskanja zase
+# Value proposition variant. "noise" refers to distractions and clutter.
+promo-qr-mobile-heading-treatment-g = Vaš telefon bi lahko porabil manj hrupa
+# Value proposition variant. Refers to a calmer browsing experience on the phone.
+promo-qr-mobile-heading-treatment-h = Vzemite umirjeno brskanje z vami
+# Appears below a QR code that a user can scan to download the Firefox mobile app
+promo-qr-mobile-description-v2 = Skenirajte za prenos mobilne aplikacije
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
 promo-qr-mobile-qr-alt =
     .alt = Koda QR za prenos mobilne aplikacije { -brand-firefox }. Usmerite kamero telefona v spodnji desni kot zaslona, da jo preberete.
@@ -1441,11 +1457,8 @@ terms-privacy-agreement-default-2 = Z nadaljevanjem se strinjate s <mozillaAccou
 
 # This appears when a user has the option to authenticate via third party accounts in addition to their Firefox account.
 # Firefox account login appears on top, and third party options appear on bottom.
-# This string appears as a separation between the two, in the following order: "Enter your password" "Or"(this string) (continue-with-google-button with aria equivalent text) / (continue-with-apple-button with aria equivalent text)
+# This string appears as a separation between the two, in the following order: "Enter your password" "Or"(this string) (continue-with-google-button) / (continue-with-apple-button). The two buttons show their label as visible text.
 third-party-auth-options-or = ali
-# For the sign-in page, when 3rd-party auth is the only option, this string appears with a divider line between the user's avatar on top and 3rd-party authentication buttons (continue-with-google continue-with-apple buttons) on bottom.
-# This could also be translated as "Sign in with the following" or "Sign in with the below".
-third-party-auth-options-sign-in-with = Prijava s ponudnikom
 continue-with-google-button = Nadaljuj z { -brand-google(sklon: "orodnik") }
 continue-with-apple-button = Nadaljuj z { -brand-apple(sklon: "orodnik") }
 
