@@ -3,33 +3,118 @@
 exports[`ThirdPartyAuthComponent buttons match snapshot: apple 1`] = `
 <button
   aria-label="Continue with Apple"
-  class="w-[60px] h-[60px] p-4 flex items-center justify-center rounded-full border focus-visible-default outline-offset-2
-      disabled:opacity-50 disabled:cursor-not-allowed
-      bg-black border-transparent dark:border-grey-300
-      "
+  class="w-full min-h-14 py-3 px-4 gap-4 rounded-md inline-flex items-center
+        font-header text-start break-words
+        text-grey-900 dark:text-grey-10
+        bg-grey-10 dark:bg-grey-600
+        border border-grey-200 dark:border-grey-500
+        hover:bg-grey-100 hover:border-grey-300 dark:hover:bg-grey-500
+        active:bg-grey-300 active:border-grey-700
+        disabled:bg-grey-50 disabled:border-grey-100 disabled:text-grey-500
+        dark:disabled:bg-grey-700 dark:disabled:border-grey-600 dark:disabled:text-grey-300
+        disabled:cursor-not-allowed
+        disabled:hover:bg-grey-50 disabled:hover:border-grey-100
+        dark:disabled:hover:bg-grey-700 dark:disabled:hover:border-grey-600
+        focus-visible-default outline-offset-2
+        "
   type="button"
 >
-  <svg
-    class="w-full h-auto"
+  <span
+    class="w-8 h-8 shrink-0 flex items-center justify-center"
   >
-    apple-logo-viewbox-white.svg
-  </svg>
+    <span
+      class="flex items-center justify-center dark:hidden forced-colors:[forced-color-adjust:none] forced-colors:rounded-full forced-colors:bg-white forced-colors:p-1.5"
+    >
+      <svg
+        class="w-6 h-6"
+      >
+        apple-logo-cropped-black.svg
+      </svg>
+    </span>
+    <span
+      class="hidden items-center justify-center dark:flex forced-colors:[forced-color-adjust:none] forced-colors:rounded-full forced-colors:bg-black forced-colors:p-1.5"
+    >
+      <svg
+        class="w-6 h-6"
+      >
+        apple-logo-cropped-white.svg
+      </svg>
+    </span>
+  </span>
+  <span
+    class="flex-1 min-w-0 break-words"
+  >
+    <span
+      data-testid="ftlmsg-mock"
+      id="continue-with-apple-button"
+    >
+      Continue with Apple
+    </span>
+  </span>
+  <span
+    class="w-8 h-8 shrink-0 flex items-center justify-center ms-auto"
+  >
+    <svg
+      aria-hidden="true"
+      class="w-6 h-6 rtl:-scale-x-100"
+      data-testid="aria-hidden-image"
+      role="img"
+    >
+      icon_chevron_right.min.svg
+    </svg>
+  </span>
 </button>
 `;
 
 exports[`ThirdPartyAuthComponent buttons match snapshot: google 1`] = `
 <button
   aria-label="Continue with Google"
-  class="w-[60px] h-[60px] p-4 flex items-center justify-center rounded-full border focus-visible-default outline-offset-2
-      disabled:opacity-50 disabled:cursor-not-allowed
-      bg-[#F9F4F4] border-[#747775] border-[1px]
-      "
+  class="w-full min-h-14 py-3 px-4 gap-4 rounded-md inline-flex items-center
+        font-header text-start break-words
+        text-grey-900 dark:text-grey-10
+        bg-grey-10 dark:bg-grey-600
+        border border-grey-200 dark:border-grey-500
+        hover:bg-grey-100 hover:border-grey-300 dark:hover:bg-grey-500
+        active:bg-grey-300 active:border-grey-700
+        disabled:bg-grey-50 disabled:border-grey-100 disabled:text-grey-500
+        dark:disabled:bg-grey-700 dark:disabled:border-grey-600 dark:disabled:text-grey-300
+        disabled:cursor-not-allowed
+        disabled:hover:bg-grey-50 disabled:hover:border-grey-100
+        dark:disabled:hover:bg-grey-700 dark:disabled:hover:border-grey-600
+        focus-visible-default outline-offset-2
+        "
   type="button"
 >
-  <svg
-    class="w-full h-auto"
+  <span
+    class="w-8 h-8 shrink-0 flex items-center justify-center"
   >
-    google-logo-viewbox.svg
-  </svg>
+    <svg
+      class="w-6 h-6"
+    >
+      google-logo-viewbox.svg
+    </svg>
+  </span>
+  <span
+    class="flex-1 min-w-0 break-words"
+  >
+    <span
+      data-testid="ftlmsg-mock"
+      id="continue-with-google-button"
+    >
+      Continue with Google
+    </span>
+  </span>
+  <span
+    class="w-8 h-8 shrink-0 flex items-center justify-center ms-auto"
+  >
+    <svg
+      aria-hidden="true"
+      class="w-6 h-6 rtl:-scale-x-100"
+      data-testid="aria-hidden-image"
+      role="img"
+    >
+      icon_chevron_right.min.svg
+    </svg>
+  </span>
 </button>
 `;

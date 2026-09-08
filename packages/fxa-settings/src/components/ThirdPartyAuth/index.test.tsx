@@ -183,41 +183,21 @@ describe('ThirdPartyAuthComponent', () => {
     expect(appleButton).toMatchSnapshot('apple');
   });
 
-  describe('box variant', () => {
-    it('renders Google and Apple as box buttons with localized labels', async () => {
-      renderWith({ enabled: true, variant: 'box' });
+  it('renders Google and Apple as box buttons with localized labels', async () => {
+    renderWith({ enabled: true });
 
-      const googleButton = await screen.findByRole('button', {
-        name: 'Continue with Google',
-      });
-      const appleButton = await screen.findByRole('button', {
-        name: 'Continue with Apple',
-      });
-
-      expect(googleButton).toHaveTextContent('Continue with Google');
-      expect(appleButton).toHaveTextContent('Continue with Apple');
-
-      const chevrons = screen.getAllByText('icon_chevron_right.min.svg');
-      expect(chevrons).toHaveLength(2);
+    const googleButton = await screen.findByRole('button', {
+      name: 'Continue with Google',
+    });
+    const appleButton = await screen.findByRole('button', {
+      name: 'Continue with Apple',
     });
 
-    it('still triggers oauth navigation on click', async () => {
-      const user = userEvent.setup();
-      renderWith({
-        enabled: true,
-        variant: 'box',
-        flowQueryParams: { flowId: '123' },
-      });
+    expect(googleButton).toHaveTextContent('Continue with Google');
+    expect(appleButton).toHaveTextContent('Continue with Apple');
 
-      const button = await screen.findByRole('button', {
-        name: 'Continue with Google',
-      });
-      await user.click(button);
-
-      await waitFor(() => {
-        expect(hardNavigateSpy).toHaveBeenCalled();
-      });
-    });
+    const chevrons = screen.getAllByText('icon_chevron_right.min.svg');
+    expect(chevrons).toHaveLength(2);
   });
 
   describe('emits metrics', () => {

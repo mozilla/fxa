@@ -14,14 +14,14 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-export const IconVariant = () => (
+export const Default = () => (
   <AppLayout>
     <Subject />
   </AppLayout>
 );
 
-export const BoxVariant = () => (
+export const Disabled = () => (
   <AppLayout>
-    <Subject variant="box" />
+    <Subject disabled />
   </AppLayout>
 );
