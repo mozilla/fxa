@@ -362,7 +362,15 @@ password-strength-inline-passwords-match = Le password corrispondono
 
 
 promo-qr-mobile-heading = Il tuo telefono. Le tue regole.
-promo-qr-mobile-description = Scansiona per scaricare l’app
+promo-qr-mobile-heading-treatment-a = Riprendi da dove eri rimasto, ovunque tu vada
+promo-qr-mobile-heading-treatment-b = Le tue schede e altro ancora, a portata di mano sul tuo telefono
+promo-qr-mobile-heading-treatment-c = Il browser di cui ti fidi, sul tuo telefono
+promo-qr-mobile-heading-treatment-d = Stesso { -brand-firefox }. Schermo diverso.
+promo-qr-mobile-heading-treatment-e = La tua privacy non dovrebbe fermarsi qui
+promo-qr-mobile-heading-treatment-f = Mantieni la tua navigazione per te
+promo-qr-mobile-heading-treatment-g = Il tuo telefono potrebbe consumare un po’ meno rumore
+promo-qr-mobile-heading-treatment-h = Naviga con te in modo più tranquillo
+promo-qr-mobile-description-v2 = Scansiona per scaricare l’app mobile
 promo-qr-mobile-qr-alt =
     .alt = Codice QR per ottenere l’app mobile di { -brand-firefox }. Scarica l’app inquadrando con la fotocamera del tuo telefono l’angolo in basso a destra dello schermo per scansionarlo.
 
@@ -1054,7 +1062,6 @@ terms-privacy-agreement-default-2 = Proseguendo accetti le <mozillaAccountsTos>c
 
 
 third-party-auth-options-or = Oppure
-third-party-auth-options-sign-in-with = Accedi con
 continue-with-google-button = Continua con { -brand-google }
 continue-with-apple-button = Continua con { -brand-apple }
 

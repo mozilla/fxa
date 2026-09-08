@@ -319,7 +319,6 @@ password-strength-inline-passwords-match = Salasanat täsmäävät
 
 
 promo-qr-mobile-heading = Sinun puhelin. Sinun säännöt.
-promo-qr-mobile-description = Skannaa saadaksesi sovelluksen
 
 
 account-recovery-notification-cta = Luo

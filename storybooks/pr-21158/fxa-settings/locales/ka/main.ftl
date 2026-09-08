@@ -384,7 +384,6 @@ password-strength-inline-passwords-match = პაროლები ემთხ
 
 
 promo-qr-mobile-heading = თქვენი ტელეფონი. თქვენი წესები.
-promo-qr-mobile-description = წააკითხით გადმოსაწერად
 promo-qr-mobile-qr-alt =
     .alt = QR-კოდი, რომლითაც ჩამოიტვირთება მობილური { -brand-firefox }. მიუშვირეთ ტელეფონის კამერა ეკრანის ქვემოთა მარჯვენა მხარეს.
 
@@ -1090,7 +1089,6 @@ terms-privacy-agreement-default-2 = თუ განაგრძობთ, ა�
 
 
 third-party-auth-options-or = ან
-third-party-auth-options-sign-in-with = შესვლისთვის
 continue-with-google-button = გამოიყენეთ { -brand-google }, რომ განაგრძოთ
 continue-with-apple-button = გამოიყენეთ { -brand-apple }, რომ განაგრძოთ
 
