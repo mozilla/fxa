@@ -836,6 +836,7 @@ describe('sendSigninNotifications', () => {
             state: 'California',
             stateCode: 'CA',
           },
+          method: 'password',
         },
       });
     });

@@ -364,4 +364,21 @@ describe('recordSecurityEvent', () => {
       sigsciTags: 'TRAVERSAL',
     });
   });
+
+  it('includes the method in additionalInfo when given', async () => {
+    await recordSecurityEvent('account.login', {
+      ...makeOpts(),
+      method: 'passkey',
+    });
+
+    const [, message] = mockMgrRecordSecurityEvent.mock.calls[0];
+    expect(message.additionalInfo.method).toBe('passkey');
+  });
+
+  it('omits the method from additionalInfo when not given', async () => {
+    await recordSecurityEvent('account.login', makeOpts());
+
+    const [, message] = mockMgrRecordSecurityEvent.mock.calls[0];
+    expect(message.additionalInfo).not.toHaveProperty('method');
+  });
 });

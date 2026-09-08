@@ -22,6 +22,7 @@ import {
   notifyAttachedServicesForAccountSession,
 } from './utils/account';
 import { normalizeEmail } from 'fxa-shared/email/helpers';
+import { recordSecurityEvent } from './utils/security-event';
 import {
   getGooglePublicKey,
   getApplePublicKey,
@@ -602,6 +603,14 @@ export class LinkedAccountHandler {
     };
 
     const sessionToken = await this.db.createSessionToken(sessionTokenOptions);
+
+    await recordSecurityEvent('account.login', {
+      db: this.db,
+      request,
+      account: { uid: accountRecord.uid },
+      tokenId: sessionToken.id,
+      method: 'passwordless.thirdParty',
+    });
 
     // Mirror the SNS notifications that AccountHandler.createAccount
     // fires. Placed after createSessionToken so db.sessions already

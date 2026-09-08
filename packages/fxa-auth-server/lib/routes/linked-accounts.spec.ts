@@ -48,8 +48,13 @@ jest.mock('fxa-shared/db/models/auth', () => ({
   },
 }));
 
+jest.mock('./utils/security-event', () => ({
+  recordSecurityEvent: jest.fn(),
+}));
+
 const mocks = require('../../test/mocks');
 const { getRoute } = require('../../test/routes_helpers');
+const { recordSecurityEvent } = require('./utils/security-event');
 const { AppError: error } = require('@fxa/accounts/errors');
 
 // Install a typed mock FxaMailer in the Container before loading linked-accounts
@@ -239,6 +244,31 @@ describe('/linked_account', () => {
         expect(mockDB.createSessionToken).toHaveBeenCalledTimes(1);
         expect(result.uid).toBe(UID);
         expect(result.sessionToken).toBeTruthy();
+      });
+
+      it('records an account.login security event tagged as third party', async () => {
+        // The stored proc derives `verified` from the token id, so the new
+        // session token id has to reach the event. Without it a TOTP-gated
+        // sign-in is recorded as a verified login.
+        const SESSION_TOKEN_ID = 'sessiontokenid';
+        mockDB.createSessionToken = jest.fn(() =>
+          Promise.resolve({
+            id: SESSION_TOKEN_ID,
+            uid: UID,
+            data: 'sessiontoken123',
+          })
+        );
+
+        await runTest(route, mockRequest);
+
+        expect(recordSecurityEvent).toHaveBeenCalledWith(
+          'account.login',
+          expect.objectContaining({
+            account: { uid: UID },
+            tokenId: SESSION_TOKEN_ID,
+            method: 'passwordless.thirdParty',
+          })
+        );
       });
 
       it('does not create a new account when the domain is blocklisted', async () => {
