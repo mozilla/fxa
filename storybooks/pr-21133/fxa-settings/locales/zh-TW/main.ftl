@@ -334,7 +334,6 @@ password-strength-inline-passwords-match = 密碼符合
 
 
 promo-qr-mobile-heading = 您的手機，由您掌控。
-promo-qr-mobile-description = 掃描即可下載程式
 promo-qr-mobile-qr-alt =
     .alt = 用來下載 { -brand-firefox } 行動應用程式的 QR Code。請開啟您手機的攝影鏡頭，並對準螢幕右下角即可掃描。
 
@@ -1012,7 +1011,6 @@ terms-privacy-agreement-default-2 = 使用本服務，代表您同意<mozillaAcc
 
 
 third-party-auth-options-or = 或著
-third-party-auth-options-sign-in-with = 使用下列服務帳號登入
 continue-with-google-button = 使用 { -brand-google } 帳號繼續
 continue-with-apple-button = 使用 { -brand-apple } 帳號繼續
 

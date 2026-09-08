@@ -331,7 +331,6 @@ password-strength-inline-passwords-match = 비밀번호가 일치함
 
 
 promo-qr-mobile-heading = 나의 폰, 나의 규칙.
-promo-qr-mobile-description = 스캔하여 앱 다운로드
 promo-qr-mobile-qr-alt =
     .alt = { -brand-firefox } 모바일 앱을 다운로드하는 QR 코드입니다. 스캔하려면 휴대전화의 카메라를 화면 오른쪽 하단에 두세요.
 
@@ -1021,7 +1020,6 @@ terms-privacy-agreement-default-2 = 계속 진행하시면 <mozillaAccountsTos>�
 
 
 third-party-auth-options-or = 또는
-third-party-auth-options-sign-in-with = 로그인:
 continue-with-google-button = { -brand-google }로 계속하기
 continue-with-apple-button = { -brand-apple }로 계속하기
 

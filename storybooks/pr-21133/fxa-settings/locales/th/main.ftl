@@ -308,7 +308,6 @@ password-strength-inline-passwords-match = รหัสผ่านตรงก�
 
 
 promo-qr-mobile-heading = โทรศัพท์ของคุณ คุณเลือกเองได้
-promo-qr-mobile-description = สแกนเพื่อดาวน์โหลดแอป
 promo-qr-mobile-qr-alt =
     .alt = รหัส QR เพื่อดาวน์โหลดแอปมือถือ { -brand-firefox } วางตำแหน่งกล้องโทรศัพท์ของคุณที่มุมขวาล่างของหน้าจอเพื่อสแกน
 
@@ -944,7 +943,6 @@ terms-privacy-agreement-default-2 = เมื่อดำเนินการ�
 
 
 third-party-auth-options-or = หรือ
-third-party-auth-options-sign-in-with = ลงชื่อเข้าด้วย
 continue-with-google-button = ดำเนินการต่อด้วย { -brand-google }
 continue-with-apple-button = ดำเนินการต่อด้วย { -brand-apple }
 

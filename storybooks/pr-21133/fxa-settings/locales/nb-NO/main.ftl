@@ -349,7 +349,6 @@ password-strength-inline-passwords-match = Passordene samsvarer
 
 
 promo-qr-mobile-heading = Din telefon. Dine regler.
-promo-qr-mobile-description = Skann for å hente appen
 promo-qr-mobile-qr-alt =
     .alt = QR-kode for å laste ned { -brand-firefox }-mobilappen. Hold kameraet på telefonen over nedre høyre hjørne av skjermen for å skanne den.
 
@@ -1040,7 +1039,6 @@ terms-privacy-agreement-default-2 = Ved å fortsette godtar du <mozillaAccountsT
 
 
 third-party-auth-options-or = eller
-third-party-auth-options-sign-in-with = Logg inn med
 continue-with-google-button = Fortsett med { -brand-google }
 continue-with-apple-button = Fortsett med { -brand-apple }
 

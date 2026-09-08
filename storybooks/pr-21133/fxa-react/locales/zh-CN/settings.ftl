@@ -396,8 +396,6 @@ password-strength-inline-passwords-match = 密码符合
 
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = 您的手机，您做主。
-# Appears next to a QR code that a user can scan to download the Firefox mobile app
-promo-qr-mobile-description = 扫码下载应用
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
 promo-qr-mobile-qr-alt =
     .alt = 用于下载 { -brand-firefox } 移动版应用的二维码。请将手机相机对准屏幕右下角来扫描。
@@ -1323,11 +1321,8 @@ terms-privacy-agreement-default-2 = 继续操作即表示您同意<mozillaAccoun
 
 # This appears when a user has the option to authenticate via third party accounts in addition to their Firefox account.
 # Firefox account login appears on top, and third party options appear on bottom.
-# This string appears as a separation between the two, in the following order: "Enter your password" "Or"(this string) (continue-with-google-button with aria equivalent text) / (continue-with-apple-button with aria equivalent text)
+# This string appears as a separation between the two, in the following order: "Enter your password" "Or"(this string) (continue-with-google-button) / (continue-with-apple-button). The two buttons show their label as visible text.
 third-party-auth-options-or = 或者
-# For the sign-in page, when 3rd-party auth is the only option, this string appears with a divider line between the user's avatar on top and 3rd-party authentication buttons (continue-with-google continue-with-apple buttons) on bottom.
-# This could also be translated as "Sign in with the following" or "Sign in with the below".
-third-party-auth-options-sign-in-with = 登录方式
 continue-with-google-button = 通过 { -brand-google } 登录
 continue-with-apple-button = 通过 { -brand-apple } 登录
 
