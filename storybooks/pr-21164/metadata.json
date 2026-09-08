@@ -1,8 +1,8 @@
 {
-  "commit": "b88d111acc36a8fc3864b6b8b554b953f4eeb6e6",
+  "commit": "fe8b1367929dc87800619b11806f3ea5a8bbfc38",
   "summary": "fix(payments): Resolve payments emails to display card digits",
   "description": "Because:\n- Webhook payloads and mirrored invoices never carried over, so lastFour was always null.\n- Fluent has no argument to substitute for a null lastFour, so the email rendered the literal {$lastFour} where the digits belong.\n\nThis commit:\n- Adds extractInvoicePaymentDetails to reach the charge through the payment intent's latest_charge and re-retrieves the invoice with payments expanded when it is absent.\n\nCloses: PAY-3909",
-  "timestamp": 1788884519000,
+  "timestamp": 1788889465000,
   "storybooks": [
     "email-renderer"
   ],
