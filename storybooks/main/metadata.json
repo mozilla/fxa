@@ -1,8 +1,8 @@
 {
-  "commit": "75d307d5d8559961d8cb398ba08e815715f02862",
-  "summary": "Merge pull request #21152 from mozilla/worktree-FXA-14443",
-  "description": "fix(settings): Skip pairing channel close once the socket is gone",
-  "timestamp": 1788903279000,
+  "commit": "b2300e777641f9b985539031d685848da03e7fc5",
+  "summary": "Merge pull request #21157 from mozilla/fxa-14444",
+  "description": "fix(settings): stop reporting expected pairing channel closes to Sentry",
+  "timestamp": 1788903364000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
