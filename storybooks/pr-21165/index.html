@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 0059c09a8eba26405638b740efdc80439835e763</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 0059c09a8eba26405638b740efdc80439835e763</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/8/2026, 5:11:12 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(passkey): Add DELETE /passkey/wraps/{credentialId}</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- A wrap the client can no longer unseal is permanent, leaving the passkey
+  stuck without passwordless Sync.
+- Settings needs a per-passkey switch for passwordless sign-in.
+
+This commit:
+- Adds DELETE /passkey/wraps/{credentialId} behind an mfa:passkey token,
+  rate-limited as passkeyWrapsDelete.
+- Adds deletePasskeyWrap through the repository, manager, and service.
+- Reports a credential with no wrap as deleted: false, not 404.
+- Requires no credential binding, unlike the read and the write.
+- Adds deletePasskeyWrap to fxa-auth-client.</pre></dd>
+  </dl>
+</body>
+</html>
