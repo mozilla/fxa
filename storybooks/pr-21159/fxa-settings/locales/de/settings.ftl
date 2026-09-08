@@ -434,8 +434,24 @@ password-strength-inline-passwords-match = Passwörter stimmen überein
 
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Ihr Smartphone. Ihre Regeln.
-# Appears next to a QR code that a user can scan to download the Firefox mobile app
-promo-qr-mobile-description = Scannen, um die App zu erhalten
+# Value proposition variant. Refers to resuming browsing on another device.
+promo-qr-mobile-heading-treatment-a = Mach da weiter, wo du aufgehört hast, egal wo du bist
+# Value proposition variant. "tabs" are the open pages in a browser.
+promo-qr-mobile-heading-treatment-b = Deine Tabs und mehr auf deinem Handy
+# Value proposition variant. Refers to using the same trusted browser on a phone.
+promo-qr-mobile-heading-treatment-c = Der Browser, dem Sie vertrauen, auf Ihrem Handy
+# Value proposition variant. "Different screen" refers to the phone rather than the desktop.
+promo-qr-mobile-heading-treatment-d = Gleiches { -brand-firefox }. Anderer Bildschirm.
+# Value proposition variant. "stop here" means privacy protection should continue onto the phone.
+promo-qr-mobile-heading-treatment-e = Deine Privatsphäre sollte hier nicht aufhören
+# Value proposition variant. Refers to keeping browsing activity private.
+promo-qr-mobile-heading-treatment-f = Behalten Sie mehr vom Surfen für sich
+# Value proposition variant. "noise" refers to distractions and clutter.
+promo-qr-mobile-heading-treatment-g = Ihr Telefon könnte etwas weniger Störgeräusche vertragen
+# Value proposition variant. Refers to a calmer browsing experience on the phone.
+promo-qr-mobile-heading-treatment-h = Surfen Sie beruhigter
+# Appears below a QR code that a user can scan to download the Firefox mobile app
+promo-qr-mobile-description-v2 = Zum Herunterladen der App für Mobilgeräte scannen
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
 promo-qr-mobile-qr-alt =
     .alt = QR-Code zum Herunterladen der mobilen { -brand-firefox }-App. Positionieren Sie die Kamera Ihres Telefons in der unteren rechten Ecke des Bildschirms, um ihn zu scannen.
@@ -1425,11 +1441,8 @@ terms-privacy-agreement-default-2 = Indem Sie fortfahren, stimmen Sie den <mozil
 
 # This appears when a user has the option to authenticate via third party accounts in addition to their Firefox account.
 # Firefox account login appears on top, and third party options appear on bottom.
-# This string appears as a separation between the two, in the following order: "Enter your password" "Or"(this string) (continue-with-google-button with aria equivalent text) / (continue-with-apple-button with aria equivalent text)
+# This string appears as a separation between the two, in the following order: "Enter your password" "Or"(this string) (continue-with-google-button) / (continue-with-apple-button). The two buttons show their label as visible text.
 third-party-auth-options-or = oder
-# For the sign-in page, when 3rd-party auth is the only option, this string appears with a divider line between the user's avatar on top and 3rd-party authentication buttons (continue-with-google continue-with-apple buttons) on bottom.
-# This could also be translated as "Sign in with the following" or "Sign in with the below".
-third-party-auth-options-sign-in-with = Anmelden mit
 continue-with-google-button = Weiter mit { -brand-google }
 continue-with-apple-button = Weiter mit { -brand-apple }
 

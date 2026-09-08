@@ -380,7 +380,6 @@ password-strength-inline-passwords-match = Parolele se potrivesc
 
 
 promo-qr-mobile-heading = Telefonul tău. Regulile tale.
-promo-qr-mobile-description = Scanează pentru a obține aplicația
 promo-qr-mobile-qr-alt =
     .alt = Cod QR pentru descărcarea aplicației mobile { -brand-firefox }. Poziționează camera telefonului în colțul din dreapta jos al ecranului pentru a-l scana.
 
@@ -1092,7 +1091,6 @@ terms-privacy-agreement-default-2 = Prin continuare, ești de acord cu <mozillaA
 
 
 third-party-auth-options-or = sau
-third-party-auth-options-sign-in-with = Intră în cont cu
 continue-with-google-button = Continuă cu { -brand-google }
 continue-with-apple-button = Continuă cu { -brand-apple }
 

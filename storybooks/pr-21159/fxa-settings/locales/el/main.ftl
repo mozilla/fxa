@@ -414,7 +414,6 @@ password-strength-inline-passwords-match = Οι κωδικοί πρόσβαση�
 
 
 promo-qr-mobile-heading = Το τηλέφωνό σας. Οι κανόνες σας.
-promo-qr-mobile-description = Κάντε σάρωση για λήψη της εφαρμογής
 promo-qr-mobile-qr-alt =
     .alt = Κωδικός QR για λήψη του { -brand-firefox } για κινητές συσκευές. Τοποθετήστε την κάμερα του τηλεφώνου σας στην κάτω δεξιά γωνία της οθόνης για σάρωση.
 
@@ -1123,7 +1122,6 @@ terms-privacy-agreement-default-2 = Συνεχίζοντας, αποδέχεστ
 
 
 third-party-auth-options-or = Ή
-third-party-auth-options-sign-in-with = Σύνδεση με
 continue-with-google-button = Συνέχεια με { -brand-google }
 continue-with-apple-button = Συνέχεια με { -brand-apple }
 

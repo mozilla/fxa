@@ -333,7 +333,6 @@ password-strength-inline-passwords-match = Parolalar eşleşiyor
 
 
 promo-qr-mobile-heading = Sizin telefonunuz, sizin kurallarınız.
-promo-qr-mobile-description = Uygulamayı indirmek için okutun
 
 
 account-recovery-notification-cta = Oluştur
@@ -999,7 +998,6 @@ terms-privacy-agreement-default-2 = Devam ederek <mozillaAccountsTos>Hizmet Koş
 
 
 third-party-auth-options-or = veya
-third-party-auth-options-sign-in-with = Bununla giriş yap
 continue-with-google-button = { -brand-google } ile devam et
 continue-with-apple-button = { -brand-apple } ile devam et
 
