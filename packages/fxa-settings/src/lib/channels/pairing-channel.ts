@@ -156,6 +156,8 @@ type PairingChannelSocket = {
    * socket goes away, and the package's `close()` dereferences it unguarded.
    */
   _connection?: unknown;
+  /** True once fxa-pairing-channel has torn the WebSocket down. */
+  readonly closed?: boolean;
 };
 
 export class PairingChannelClient extends EventTarget {
@@ -290,6 +292,10 @@ export class PairingChannelClient extends EventTarget {
     if (!this.channel) {
       console.warn('No pairing channel!');
       throw new PairingChannelError('NOT_CONNECTED');
+    }
+    if (this.channel.closed) {
+      console.warn('Pairing channel is closed!');
+      throw new PairingChannelError('CONNECTION_CLOSED');
     }
     if (!message) {
       console.warn('No message!');
