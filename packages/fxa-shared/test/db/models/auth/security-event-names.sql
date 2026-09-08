@@ -20,6 +20,7 @@ INSERT INTO securityEventNames (id, name) VALUES (53, 'account.passkey.removed')
 INSERT INTO securityEventNames (id, name) VALUES (61, 'account.passkey.wrap_created');
 INSERT INTO securityEventNames (id, name) VALUES (62, 'account.passkey.wrap_creation_failure');
 INSERT INTO securityEventNames (id, name) VALUES (65, 'account.passkey.wrap_deleted');
+INSERT INTO securityEventNames (id, name) VALUES (67, 'account.passkey.wrap_deletion_failure');
 INSERT INTO securityEventNames (id, name) VALUES (66, 'account.passkey.wrap_invalidated');
 INSERT INTO securityEventNames (id, name) VALUES (64, 'account.passkey.wrap_retrieval_failure');
 INSERT INTO securityEventNames (id, name) VALUES (63, 'account.passkey.wrap_retrieved');

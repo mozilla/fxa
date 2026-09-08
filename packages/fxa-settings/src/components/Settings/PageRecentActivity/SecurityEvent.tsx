@@ -70,19 +70,19 @@ export enum SecurityEventName {
   PasskeyWrapRetrievalFailure = 'account.passkey.wrap_retrieval_failure',
   PasskeyWrapDeleted = 'account.passkey.wrap_deleted',
   PasskeyWrapInvalidated = 'account.passkey.wrap_invalidated',
+  PasskeyWrapDeletionFailure = 'account.passkey.wrap_deletion_failure',
 }
 
 // Recorded for the audit trail but not shown: each either restates a row the
 // user already has (signin_confirm_bypass_* duplicates account.login,
-// wrap_retrieved restates passkey.authentication_success) or is a side effect
-// they did not take (wrap_deleted rides the passkey-deletion cascade).
+// wrap_retrieved restates passkey.authentication_success) or lands on every
+// passwordless sign-in, at a volume that would crowd out the rest.
 export const HIDDEN_SECURITY_EVENT_NAMES: ReadonlySet<string> =
   new Set<SecurityEventName>([
     SecurityEventName.PasswordUpgradeSuccess,
     SecurityEventName.SigninConfirmBypassKnownIp,
     SecurityEventName.SigninConfirmBypassNewAccount,
     SecurityEventName.SigninConfirmBypassKnownDevice,
-    SecurityEventName.PasskeyWrapDeleted,
     SecurityEventName.PasskeyWrapRetrieved,
     SecurityEventName.PasskeyWrapRetrievalFailure,
   ]);
@@ -429,6 +429,18 @@ const getSecurityEventNameL10n = (name: string) => {
       return {
         ftlId: 'recent-activity-account-passkey-wrap-creation-failure',
         fallbackText: 'Sync setup with passkey failed',
+      };
+    }
+    case SecurityEventName.PasskeyWrapDeleted: {
+      return {
+        ftlId: 'recent-activity-account-passkey-wrap-deleted',
+        fallbackText: 'Passkey sync access removed',
+      };
+    }
+    case SecurityEventName.PasskeyWrapDeletionFailure: {
+      return {
+        ftlId: 'recent-activity-account-passkey-wrap-deletion-failure',
+        fallbackText: 'Passkey sync access removal failed',
       };
     }
     case SecurityEventName.PasskeyWrapInvalidated: {

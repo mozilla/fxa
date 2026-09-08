@@ -18,6 +18,7 @@ import {
 } from './passkey.repository';
 import {
   deleteAllPasskeyWrapsForUser,
+  deletePasskeyWrap,
   findPasskeyWrap,
   insertPasskeyWrap,
   type NewPasskeyWrapData,
@@ -178,6 +179,73 @@ describe('PasskeyWrapRepository (Integration)', () => {
         insertPasskeyWrap(db, uid, envelope(orphan), NOW)
       ).rejects.toMatchObject({ code: 'ER_NO_REFERENCED_ROW_2' });
     });
+  });
+
+  describe('deletePasskeyWrap', () => {
+    it('deletes the wrap and leaves the passkey registered', async () => {
+      const { uid, credentialId } = await createAccountWithPasskey();
+      await insertPasskeyWrap(db, uid, envelope(credentialId), NOW);
+
+      await expect(deletePasskeyWrap(db, uid, credentialId)).resolves.toBe(
+        true
+      );
+
+      await expect(
+        findPasskeyWrap(db, uid, credentialId)
+      ).resolves.toBeUndefined();
+      await expect(
+        findPasskeyByCredentialId(db, credentialId)
+      ).resolves.toBeDefined();
+    });
+
+    it('reports false for a credential that has no wrap', async () => {
+      const { uid, credentialId } = await createAccountWithPasskey();
+
+      await expect(deletePasskeyWrap(db, uid, credentialId)).resolves.toBe(
+        false
+      );
+    });
+
+    it('reports false for a credential that does not exist', async () => {
+      const { uid } = await createAccountWithPasskey();
+      const orphan = Buffer.alloc(32, 0x99).toString('base64url');
+
+      await expect(deletePasskeyWrap(db, uid, orphan)).resolves.toBe(false);
+    });
+
+    it('does not delete another user’s wrap', async () => {
+      const owner = await createAccountWithPasskey();
+      const other = await createAccountWithPasskey();
+      await insertPasskeyWrap(db, owner.uid, envelope(owner.credentialId), NOW);
+
+      await expect(
+        deletePasskeyWrap(db, other.uid, owner.credentialId)
+      ).resolves.toBe(false);
+
+      await expect(
+        findPasskeyWrap(db, owner.uid, owner.credentialId)
+      ).resolves.toBeDefined();
+    });
+
+    it('leaves the user’s other wraps alone', async () => {
+      const { uid, credentialId } = await createAccountWithPasskey();
+      const second = PasskeyFactory({ prfEnabled: true });
+      const secondCredentialId = second.credentialId.toString('base64url');
+      await insertPasskey(db, uid, {
+        ...second,
+        credentialId: secondCredentialId,
+        aaguid: bufferToAaguid(second.aaguid),
+      });
+      await insertPasskeyWrap(db, uid, envelope(credentialId), NOW);
+      await insertPasskeyWrap(db, uid, envelope(secondCredentialId), NOW);
+
+      await deletePasskeyWrap(db, uid, credentialId);
+
+      await expect(
+        findPasskeyWrap(db, uid, secondCredentialId)
+      ).resolves.toBeDefined();
+    });
+
   });
 
   describe('deleteAllPasskeyWrapsForUser', () => {

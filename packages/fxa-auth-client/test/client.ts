@@ -224,6 +224,38 @@ describe('lib/client', () => {
       );
     });
 
+    it('deletes the wrap for one credential, reporting the server verdict', async () => {
+      responseBody = '{"deleted":true}';
+
+      const result = await httpsClient.deletePasskeyWrap(jwt, credentialId);
+
+      assert.deepEqual(result, { deleted: true });
+      assert.equal(lastInit?.method, 'DELETE');
+      assert.equal(
+        lastUrl,
+        `https://localhost:9000/v1/passkey/wraps/${credentialId}`
+      );
+    });
+
+    it('reports a credential with no wrap as not deleted', async () => {
+      responseBody = '{"deleted":false}';
+
+      const result = await httpsClient.deletePasskeyWrap(jwt, credentialId);
+
+      assert.deepEqual(result, { deleted: false });
+    });
+
+    it('escapes a url-unsafe credential id on the delete path', async () => {
+      responseBody = '{"deleted":true}';
+
+      await httpsClient.deletePasskeyWrap(jwt, 'a/b?c');
+
+      assert.equal(
+        lastUrl,
+        'https://localhost:9000/v1/passkey/wraps/a%2Fb%3Fc'
+      );
+    });
+
     it('forwards scope to the assertion challenge when set', async () => {
       responseBody = '{"challenge":"abc","userVerification":"required"}';
 
