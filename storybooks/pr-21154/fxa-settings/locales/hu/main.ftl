@@ -138,10 +138,10 @@ choose-newsletters-option-reclaim-the-internet =
 
 
 pair-continue-in-firefox-heading = Folytatás a { -brand-firefox }ban
-pair-continue-in-firefox-description = A párosítás { -brand-firefox } múlva megtörténik. Nyissa meg az eszköz csatlakoztatásának befejezéséhez.
+pair-continue-in-firefox-description = A párosítás a { -brand-firefox }ban történik. Nyissa meg az eszköz csatlakoztatásának befejezéséhez.
 pair-continue-in-firefox-button = Folytatás a { -brand-firefox }ban
-pair-continue-in-firefox-opening = Nyitás: { -brand-firefox }
-pair-continue-in-firefox-get-firefox-link = Nincs { -brand-firefox }ja? Szerezze be most
+pair-continue-in-firefox-opening = Megnyitás a { -brand-firefox }ban
+pair-continue-in-firefox-get-firefox-link = Nincs { -brand-firefox }a? Szerezze be most.
 
 
 dark-mode-toggle-light = Világos

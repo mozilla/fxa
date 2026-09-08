@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 74727fbe093813eef1959923adc8a53cde706ee1</title>
+  <title>Storybooks for commit e0f1518885750f919b924f4416ab59e79e6da555</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,29 +23,26 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 74727fbe093813eef1959923adc8a53cde706ee1</h1>
+  <h1>Storybooks for commit e0f1518885750f919b924f4416ab59e79e6da555</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/4/2026, 9:50:31 PM UTC</dd>
+    <dd>9/8/2026, 7:30:17 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>feat(settings): add the passwordless Sync opt-in page</pre></dd>
+    <dd><pre>feat(settings): add the inline passwordless Sync setup page</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-- A Sync sign-in that used a passkey and then a password is the one point
-  where the offer to skip the password next time can be made without a
-  second device prompt, so the flow needs a page to make it on.
+- A Sync sign-in that used a passkey and then a password is where the offer
+  to skip the password next time costs no extra device prompt.
 
 This commit:
-- Adds the PasswordlessSyncOptIn page alongside the other post-sign-in
+- Adds the InlinePasswordlessSyncSetup page alongside the other post-sign-in
   interstitials.
-- Renders the success banner, offer copy, enable button and decline link.
-- Swaps the enable button to a loading label while the wrap is stored, and
-  disables the decline link so it cannot race the write.
-- Takes an optional localized error banner for a failed store.
-- Adds Storybook stories and unit tests.
+- Renders a success banner, the Sync illustration, the offer copy, an enable
+  button and a decline link.
+- Shows an error banner in place of the success banner when storing fails.
 
 Closes #FXA-14424</pre></dd>
   </dl>

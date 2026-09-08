@@ -1834,6 +1834,25 @@ index-account-delete-success = Account deleted successfully
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = Your confirmation email was just returned. Mistyped email?
 
+## InlinePasswordlessSyncSetup page
+## Users see this on their computer right after signing in to Sync with a
+## passkey and their password. It offers to store that passkey so later Sync
+## sign-ins skip the password.
+
+# Browser tab title for the page offering to store a passkey for Sync sign-ins
+inline-passwordless-sync-setup-page-title = Skip the password next time?
+# Confirms the sign-in that just completed. "Sync" names the Firefox feature here, not the action.
+inline-passwordless-sync-setup-success-banner = Signed in to Sync
+# On-page heading, deliberately the same wording as the browser tab title
+inline-passwordless-sync-setup-heading = Skip the password next time?
+inline-passwordless-sync-setup-description = Use this passkey to sign in faster.
+# Accepts the offer and stores the passkey for later sign-ins
+inline-passwordless-sync-setup-enable-button = Enable passkey
+# Button label while the passkey is being stored
+inline-passwordless-sync-setup-enabling = Enabling…
+# Declines the offer; the user keeps entering a password on later sign-ins
+inline-passwordless-sync-setup-not-now-button = Not now
+
 ## InlineRecoveryKeySetup page component
 
 inline-recovery-key-setup-create-error = Oops! We couldn’t create your account recovery key. Please try again later.
@@ -2221,24 +2240,6 @@ pair2-supplicant-timeout-and-cancel-timeout-description = To connect your mobile
 pair2-supplicant-timeout-and-cancel-canceled-heading = Canceled
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = To connect a device anytime, visit <b>firefox.com/pair</b> on your computer.
-
-## PasswordlessSyncOptIn page
-## Users see this on their computer right after signing in to Sync with a
-## passkey and their password. It offers to store that passkey so later Sync
-## sign-ins no longer ask for the password.
-
-# Browser tab title for the page offering to store a passkey for Sync sign-ins
-passwordless-sync-opt-in-page-title = Skip the password next time?
-# Confirms the sign-in that just completed. "Sync" names the Firefox feature here, not the action.
-passwordless-sync-opt-in-success-banner = Signed into Sync
-passwordless-sync-opt-in-heading = Skip the password next time?
-passwordless-sync-opt-in-description = Use this passkey to sign in faster.
-# Accepts the offer and stores the passkey for later sign-ins
-passwordless-sync-opt-in-enable-button = Enable passkey
-# Button label while the passkey is being stored
-passwordless-sync-opt-in-enabling = Enabling…
-# Declines the offer; the user keeps entering a password on later sign-ins
-passwordless-sync-opt-in-not-now-button = Not now
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

@@ -1357,6 +1357,15 @@ index-account-delete-success = Account deleted successfully
 index-email-bounced = Your confirmation email was just returned. Mistyped email?
 
 
+inline-passwordless-sync-setup-page-title = Skip the password next time?
+inline-passwordless-sync-setup-success-banner = Signed in to Sync
+inline-passwordless-sync-setup-heading = Skip the password next time?
+inline-passwordless-sync-setup-description = Use this passkey to sign in faster.
+inline-passwordless-sync-setup-enable-button = Enable passkey
+inline-passwordless-sync-setup-enabling = Enabling…
+inline-passwordless-sync-setup-not-now-button = Not now
+
+
 inline-recovery-key-setup-create-error = Oops! We couldn’t create your account recovery key. Please try again later.
 inline-recovery-key-setup-recovery-created = Account recovery key created
 inline-recovery-key-setup-download-header = Secure your account
@@ -1562,15 +1571,6 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Looks like we timed out
 pair2-supplicant-timeout-and-cancel-timeout-description = To connect your mobile device and sync your { -brand-firefox } data, visit <b>firefox.com/pair</b> on your computer.
 pair2-supplicant-timeout-and-cancel-canceled-heading = Canceled
 pair2-supplicant-timeout-and-cancel-canceled-description = To connect a device anytime, visit <b>firefox.com/pair</b> on your computer.
-
-
-passwordless-sync-opt-in-page-title = Skip the password next time?
-passwordless-sync-opt-in-success-banner = Signed into Sync
-passwordless-sync-opt-in-heading = Skip the password next time?
-passwordless-sync-opt-in-description = Use this passkey to sign in faster.
-passwordless-sync-opt-in-enable-button = Enable passkey
-passwordless-sync-opt-in-enabling = Enabling…
-passwordless-sync-opt-in-not-now-button = Not now
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmed
 service-welcome-signin-success-banner = Signed in successfully!

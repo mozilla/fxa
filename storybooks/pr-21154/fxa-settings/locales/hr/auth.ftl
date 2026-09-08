@@ -98,9 +98,6 @@ payment-provider-card-ending-in = <b>Način plaćanja:</b> Kartica završava s {
 payment-provider-card-ending-in-card-name = <b>Način plaćanja:</b> { $cardName } kartica završava s { $lastFour }
 subscription-charges-invoice-summary = Sažetak računa
 
-# Variables:
-
-
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
 
@@ -191,6 +188,7 @@ fraudulentAccountDeletion-contact = Ako imaš pitanja, kontaktiraj naš <a data-
 # Variables:
 #  $mozillaSupportUrl (String) - Link to https://support.mozilla.org
 fraudulentAccountDeletion-contact-plaintext = Ako imaš pitanja kontaktiraj naš tim za podršku: { $mozillaSupportUrl }
+freeTrialEndingReminder-content-closing = Srdačno,
 # Variables:
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 freeTrialEndingReminder-content-signature = { $productName } tim
