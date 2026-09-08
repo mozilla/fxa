@@ -323,7 +323,6 @@ password-strength-inline-passwords-match = Лозинке се подудара�
 
 
 promo-qr-mobile-heading = Ваш телефон. Ваша правила.
-promo-qr-mobile-description = Скенирајте да бисте преузели апликацију
 promo-qr-mobile-qr-alt =
     .alt = КР код за преузимање мобилне апликације { -brand-firefox }. Поставите камеру свог телефона на доњи десни угао екрана да бисте га скенирали.
 
@@ -985,7 +984,6 @@ terms-privacy-agreement-default-2 = Настављањем се слажете �
 
 
 third-party-auth-options-or = или
-third-party-auth-options-sign-in-with = Пријавите се помоћу
 continue-with-google-button = Наставите са { -brand-google }-ом
 continue-with-apple-button = Наставите са { -brand-apple }-ом
 

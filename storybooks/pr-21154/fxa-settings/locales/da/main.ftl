@@ -338,7 +338,6 @@ password-strength-inline-passwords-match = Adgangskoderne er ens
 
 
 promo-qr-mobile-heading = Din telefon. Dine regler.
-promo-qr-mobile-description = Skan for at hente appen
 promo-qr-mobile-qr-alt =
     .alt = QR-kode til at hente mobilappen { -brand-firefox }. Placer din telefons kamera i nederste højre hjørne af skærmen for at skanne den.
 
@@ -1038,7 +1037,6 @@ terms-privacy-agreement-default-2 = Ved at fortsætte accepterer du <mozillaAcco
 
 
 third-party-auth-options-or = eller
-third-party-auth-options-sign-in-with = Log ind med
 continue-with-google-button = fortsæt med { -brand-google }
 continue-with-apple-button = fortsæt med { -brand-apple }
 

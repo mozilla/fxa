@@ -472,7 +472,15 @@ password-strength-inline-passwords-match = Gesli se ujemata
 
 
 promo-qr-mobile-heading = Vaš telefon. Vaša pravila.
-promo-qr-mobile-description = Skenirajte za prenos aplikacije
+promo-qr-mobile-heading-treatment-a = Nadaljujte, kjer ste končali in kamorkoli greste
+promo-qr-mobile-heading-treatment-b = Vaši zavihki in še več – pripravljeni na telefonu
+promo-qr-mobile-heading-treatment-c = Brskalnika, ki mu zaupate, na telefonu
+promo-qr-mobile-heading-treatment-d = Enako { -brand-firefox }. Drugačen zaslon.
+promo-qr-mobile-heading-treatment-e = Vaša zasebnost se ne bi smela ustaviti tukaj
+promo-qr-mobile-heading-treatment-f = Obdržite večji del brskanja zase
+promo-qr-mobile-heading-treatment-g = Vaš telefon bi lahko porabil manj hrupa
+promo-qr-mobile-heading-treatment-h = Vzemite umirjeno brskanje z vami
+promo-qr-mobile-description-v2 = Skenirajte za prenos mobilne aplikacije
 promo-qr-mobile-qr-alt =
     .alt = Koda QR za prenos mobilne aplikacije { -brand-firefox }. Usmerite kamero telefona v spodnji desni kot zaslona, da jo preberete.
 
@@ -1188,7 +1196,6 @@ terms-privacy-agreement-default-2 = Z nadaljevanjem se strinjate s <mozillaAccou
 
 
 third-party-auth-options-or = ali
-third-party-auth-options-sign-in-with = Prijava s ponudnikom
 continue-with-google-button = Nadaljuj z { -brand-google(sklon: "orodnik") }
 continue-with-apple-button = Nadaljuj z { -brand-apple(sklon: "orodnik") }
 

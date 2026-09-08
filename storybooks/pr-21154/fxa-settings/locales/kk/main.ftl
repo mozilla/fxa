@@ -346,7 +346,6 @@ password-strength-inline-passwords-match = Парольдер өзара сәй�
 
 
 promo-qr-mobile-heading = Сіздің телефоныңыз. Сіздің ережелеріңіз.
-promo-qr-mobile-description = Қолданбаны алу үшін сканерлеңіз
 promo-qr-mobile-qr-alt =
     .alt = { -brand-firefox } мобильді қолданбасын жүктеу үшін QR коды. Телефоныңыздың камерасын сканерлеу үшін экранның төменгі оң жақ бұрышына бағыттаңыз.
 
@@ -1055,7 +1054,6 @@ terms-privacy-agreement-default-2 = Жалғастыру арқылы сіз <mo
 
 
 third-party-auth-options-or = Немесе
-third-party-auth-options-sign-in-with = Арқылы кіру
 continue-with-google-button = { -brand-google } арқылы жалғастыру
 continue-with-apple-button = { -brand-apple } арқылы жалғастыру
 

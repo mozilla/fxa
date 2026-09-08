@@ -1,8 +1,8 @@
 {
-  "commit": "e0f1518885750f919b924f4416ab59e79e6da555",
+  "commit": "1f5e0d75b5ab4d43a2d18859fd18af27e330277c",
   "summary": "feat(settings): add the inline passwordless Sync setup page",
   "description": "Because:\n- A Sync sign-in that used a passkey and then a password is where the offer\n  to skip the password next time costs no extra device prompt.\n\nThis commit:\n- Adds the InlinePasswordlessSyncSetup page alongside the other post-sign-in\n  interstitials.\n- Renders a success banner, the Sync illustration, the offer copy, an enable\n  button and a decline link.\n- Shows an error banner in place of the success banner when storing fails.\n\nCloses #FXA-14424",
-  "timestamp": 1788895817000,
+  "timestamp": 1788902925000,
   "storybooks": [
     "fxa-settings"
   ],

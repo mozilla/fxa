@@ -346,7 +346,6 @@ password-strength-inline-passwords-match = Le contrasignos concorda
 
 
 promo-qr-mobile-heading = Tu telephono. Tu regulas.
-promo-qr-mobile-description = Scande pro obtener le application
 promo-qr-mobile-qr-alt =
     .alt = Codice QR pro discargar le application { -brand-firefox } mobile. Implacia le camera de tu telephono sur le angulo inferior-dextre de tu schermo pro scander lo.
 
@@ -1057,7 +1056,6 @@ terms-privacy-agreement-default-2 = Si tu procede, tu accepta le <mozillaAccount
 
 
 third-party-auth-options-or = O
-third-party-auth-options-sign-in-with = Acceder con le sequente
 continue-with-google-button = Continuar con { -brand-google }
 continue-with-apple-button = Continuar con { -brand-apple }
 

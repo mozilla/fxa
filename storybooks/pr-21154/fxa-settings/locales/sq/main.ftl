@@ -941,7 +941,6 @@ terms-privacy-agreement-default-2 = Duke vazhduar, pajtoheni me <mozillaAccounts
 
 
 third-party-auth-options-or = Ose
-third-party-auth-options-sign-in-with = Hyni me
 continue-with-google-button = Vazhdo me { -brand-google }
 continue-with-apple-button = Vazhdo me { -brand-apple }
 
