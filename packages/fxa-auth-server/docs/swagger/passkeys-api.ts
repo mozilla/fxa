@@ -54,8 +54,7 @@ const PASSKEY_REGISTRATION_FINISH_POST = {
       - \`response\` (object, required) — RegistrationResponseJSON from the browser
       - \`challenge\` (string, required) — The challenge returned by the start endpoint
 
-      **Response:** passkey metadata including \`credentialId\`, \`name\`,
-      \`createdAt\`, \`lastUsedAt\`, and \`transports\`.
+      **Response:** passkey metadata, the same shape \`GET /passkeys\` returns.
     `,
   ],
 };
@@ -134,7 +133,10 @@ const PASSKEYS_API_DOCS = {
         from the response as they are internal implementation details.
 
         **Response:** Array of passkey metadata objects, each containing
-        \`credentialId\`, \`name\`, \`createdAt\`, \`lastUsedAt\`, \`transports\`, and \`prfEnabled\`.
+        \`credentialId\`, \`name\`, \`createdAt\`, \`lastUsedAt\`, \`transports\`, \`prfEnabled\`,
+        and \`hasPasswordlessSync\` — whether the passkey holds a wrap and can
+        therefore unlock \`kB\` without a password. Only the routes that list
+        passkeys resolve that last field.
       `,
     ],
   },
@@ -176,8 +178,7 @@ const PASSKEYS_API_DOCS = {
         **Request body:**
         - \`name\` (string, required) — new display name (1–255 chars)
 
-        **Response:** Updated passkey metadata including \`credentialId\`, \`name\`,
-        \`createdAt\`, \`lastUsedAt\`, \`transports\`, and \`prfEnabled\`.
+        **Response:** the updated passkey, the same shape \`GET /passkeys\` returns.
       `,
     ],
   },

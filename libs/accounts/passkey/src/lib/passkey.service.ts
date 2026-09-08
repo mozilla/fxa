@@ -21,6 +21,7 @@ import {
   isMysqlDupEntry,
   NewPasskeyData,
   PasskeyRecord,
+  PasskeyWithWrapState,
 } from './passkey.repository';
 import { PasskeyWrapEnvelope } from './passkey.wrap.repository';
 import type { PasskeyWrap } from '@fxa/shared/db/mysql/account';
@@ -266,8 +267,9 @@ export class PasskeyService {
    * @param uid - User ID as a hex string
    * @returns Array of passkeys belonging to the user
    */
-  async listPasskeysForUser(uid: string): Promise<PasskeyRecord[]> {
-    const passkeys = await this.passkeyManager.listPasskeysForUser(uid);
+  async listPasskeysForUser(uid: string): Promise<PasskeyWithWrapState[]> {
+    const passkeys =
+      await this.passkeyManager.listPasskeysWithWrapStateForUser(uid);
     this.metrics.increment('passkey.list.success');
     return passkeys;
   }

@@ -55,6 +55,8 @@ export const passkeyResponseSchema = isA.object({
   backupEligible: isA.boolean().required(),
   backupState: isA.boolean().required(),
   prfEnabled: isA.boolean().required(),
+  // Optional: only the routes that list passkeys resolve wrap state.
+  hasPasswordlessSync: isA.boolean().optional(),
 });
 
 /** Subset of the Customs service used by passkey routes. */
@@ -292,6 +294,7 @@ export class PasskeyHandler {
         backupEligible,
         backupState,
         prfEnabled,
+        hasPasswordlessSync,
       }) => ({
         credentialId,
         name,
@@ -302,6 +305,7 @@ export class PasskeyHandler {
         backupEligible,
         backupState,
         prfEnabled,
+        hasPasswordlessSync,
       })
     );
   }

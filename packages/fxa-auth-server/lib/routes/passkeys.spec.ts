@@ -104,6 +104,7 @@ describe('passkeys routes', () => {
     backupEligible: true,
     backupState: false,
     prfEnabled: true,
+    hasPasswordlessSync: true,
   };
 
   async function runTest(
@@ -652,6 +653,7 @@ describe('passkeys routes', () => {
         backupEligible: mockPasskeyRecord.backupEligible,
         backupState: mockPasskeyRecord.backupState,
         prfEnabled: mockPasskeyRecord.prfEnabled,
+        hasPasswordlessSync: mockPasskeyRecord.hasPasswordlessSync,
       });
       expect(result[0]).not.toHaveProperty('publicKey');
       expect(result[0]).not.toHaveProperty('signCount');
@@ -2101,6 +2103,7 @@ describe('passkeys routes', () => {
       backupEligible: true,
       backupState: true,
       prfEnabled: false,
+      hasPasswordlessSync: false,
     };
     const BAD_AAGUID_PASSKEY = {
       ...VALID_PASSKEY,

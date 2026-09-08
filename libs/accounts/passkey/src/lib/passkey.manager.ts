@@ -17,10 +17,12 @@ import {
   findPasskeyByCredentialId as repositoryFindPasskeyByCredentialId,
   findPasskeyByUidAndCredentialId as repositoryFindPasskeyByUidAndCredentialId,
   findPasskeysByUid,
+  findPasskeysWithWrapStateByUid,
   insertPasskey,
   isMysqlDupEntry,
   NewPasskeyData,
   PasskeyRecord,
+  PasskeyWithWrapState,
   updatePasskeyCounterAndLastUsed,
   updatePasskeyName,
   updatePasskeyPrfEnabled,
@@ -170,6 +172,18 @@ export class PasskeyManager {
    */
   async listPasskeysForUser(uid: string): Promise<PasskeyRecord[]> {
     return findPasskeysByUid(this.db, uid);
+  }
+
+  /**
+   * List all passkeys for a user, each flagged with whether it holds a wrap.
+   *
+   * @param uid - User ID as a hex string
+   * @returns Array of passkeys ordered by createdAt descending
+   */
+  async listPasskeysWithWrapStateForUser(
+    uid: string
+  ): Promise<PasskeyWithWrapState[]> {
+    return findPasskeysWithWrapStateByUid(this.db, uid);
   }
 
   /**
