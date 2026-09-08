@@ -1,8 +1,8 @@
 {
-  "commit": "fe2cf93b0a9a244599a5f366a678a04fcce9dc55",
-  "summary": "Merge pull request #21145 from mozilla/worktree-FXA-14460",
-  "description": "bug(settings): Make the mobile card span the viewport",
-  "timestamp": 1788901934000,
+  "commit": "75d307d5d8559961d8cb398ba08e815715f02862",
+  "summary": "Merge pull request #21152 from mozilla/worktree-FXA-14443",
+  "description": "fix(settings): Skip pairing channel close once the socket is gone",
+  "timestamp": 1788903279000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
