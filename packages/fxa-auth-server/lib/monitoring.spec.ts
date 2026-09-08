@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const mockInitMonitoring = jest.fn();
+const mockInitTracing = jest.fn().mockReturnValue({});
+const mockInitSentry = jest.fn();
 const mockIgnoreErrors = jest.fn();
 const mockLogger = {
   info: jest.fn(),
@@ -17,14 +18,18 @@ const mockLinkedErrorsIntegration = jest
   .fn()
   .mockReturnValue({ name: 'LinkedErrors' });
 
-jest.mock('fxa-shared/monitoring', () => ({
-  initMonitoring: mockInitMonitoring,
+jest.mock('@fxa/shared/otel', () => ({
+  initTracing: mockInitTracing,
+}));
+jest.mock('fxa-shared/sentry/node', () => ({
+  initSentry: mockInitSentry,
 }));
 jest.mock('../config', () => ({
   config: {
     getProperties: jest.fn().mockReturnValue({
       log: { level: 'debug' },
       sentry: { dsn: 'https://test@sentry.io/123' },
+      tracing: { serviceName: 'fxa-auth-server' },
     }),
   },
 }));
@@ -40,20 +45,23 @@ jest.mock('@sentry/node', () => ({
   linkedErrorsIntegration: mockLinkedErrorsIntegration,
 }));
 
-// Importing the module triggers the top-level initMonitoring() call once.
+// Importing the module triggers the top-level init calls once.
 import './monitoring';
 
 // Snapshot one-shot call args before `clearMocks: true` wipes them
 // between tests; the module-load side-effect can't be replayed.
-const initMonitoringCallCount = mockInitMonitoring.mock.calls.length;
-const initMonitoringArg = mockInitMonitoring.mock.calls[0]?.[0];
+const initTracingCalls = mockInitTracing.mock.calls.map((c) => [...c]);
+const initSentryCalls = mockInitSentry.mock.calls.map((c) => [...c]);
+const initSentryConfig = initSentryCalls[0]?.[0];
+const tracingCallOrder = mockInitTracing.mock.invocationCallOrder[0];
+const sentryCallOrder = mockInitSentry.mock.invocationCallOrder[0];
 const hapiIntegrationCallCount = mockHapiIntegration.mock.calls.length;
 const linkedErrorsIntegrationCalls = mockLinkedErrorsIntegration.mock.calls.map(
   (c) => c[0]
 );
 const logCalls = mockLog.mock.calls.map((c) => [...c]);
 const filterSentryEvent: (event: any, hint?: any) => any =
-  initMonitoringArg.config.eventFilters[0];
+  initSentryConfig.eventFilters[0];
 
 describe('monitoring', () => {
   beforeEach(() => {
@@ -64,24 +72,37 @@ describe('monitoring', () => {
     jest.restoreAllMocks();
   });
 
-  it('calls initMonitoring on module load', () => {
-    expect(initMonitoringCallCount).toBe(1);
+  it('initializes tracing before sentry on module load', () => {
+    expect(initTracingCalls).toHaveLength(1);
+    expect(initSentryCalls).toHaveLength(1);
+    expect(tracingCallOrder).toBeLessThan(sentryCallOrder);
 
-    // Logger is the return value of the mocked log(level, name)
-    expect(initMonitoringArg.logger).toBe(mockLogger);
+    // Both get the return value of the mocked log(level, name)
+    expect(initTracingCalls[0][1]).toBe(mockLogger);
+    expect(initSentryCalls[0][1]).toBe(mockLogger);
     expect(logCalls).toContainEqual(['debug', 'configure-sentry']);
+  });
 
-    // Config includes spread properties, release, eventFilters, integrations
-    expect(initMonitoringArg.config).toEqual(
+  it('cross-wires the sentry and otel flags', () => {
+    // A sentry dsn tells otel that sentry is present...
+    expect(initTracingCalls[0][0]).toEqual({
+      serviceName: 'fxa-auth-server',
+      sentry: { enabled: true },
+    });
+    // ...and a live tracer tells sentry to skip its own otel setup.
+    expect(initSentryConfig.sentry.skipOpenTelemetrySetup).toBe(true);
+  });
+
+  it('passes the spread config, release, eventFilters and integrations', () => {
+    expect(initSentryConfig).toEqual(
       expect.objectContaining({
         log: { level: 'debug' },
-        sentry: { dsn: 'https://test@sentry.io/123' },
         release: '1.234.0',
       })
     );
-    expect(initMonitoringArg.config.eventFilters).toHaveLength(1);
-    expect(typeof initMonitoringArg.config.eventFilters[0]).toBe('function');
-    expect(initMonitoringArg.config.integrations).toHaveLength(2);
+    expect(initSentryConfig.eventFilters).toHaveLength(1);
+    expect(typeof initSentryConfig.eventFilters[0]).toBe('function');
+    expect(initSentryConfig.integrations).toHaveLength(2);
   });
 
   it('passes Sentry integrations with correct configuration', () => {

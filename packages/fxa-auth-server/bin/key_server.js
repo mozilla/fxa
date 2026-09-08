@@ -30,7 +30,7 @@ const {
   ProductConfigurationManager,
   StrapiClient,
 } = require('@fxa/shared/cms');
-const TracingProvider = require('fxa-shared/tracing/node-tracing');
+const TracingProvider = require('@fxa/shared/otel');
 
 const { createNoopStatsd } = require('../lib/noop-statsd');
 const { AppError: error } = require('@fxa/accounts/errors');
