@@ -16,6 +16,7 @@ import {
   AccountDbProvider,
   PasskeyFactory,
   testAccountDatabaseSetup,
+  testAccountDatabaseTeardown,
 } from '@fxa/shared/db/mysql/account';
 import { AccountManager } from '@fxa/shared/account/account';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
@@ -82,9 +83,7 @@ describe('Passkey Security Tests', () => {
     });
 
     afterAll(async () => {
-      if (db) {
-        await db.destroy();
-      }
+      await testAccountDatabaseTeardown(db);
     });
 
     async function createTestAccount(): Promise<string> {
