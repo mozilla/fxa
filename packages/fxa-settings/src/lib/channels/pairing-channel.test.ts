@@ -21,6 +21,7 @@ let mockChannel: {
   removeEventListener: jest.Mock;
   _channelId?: string;
   _channelKey?: Uint8Array;
+  _connection?: unknown;
 };
 
 jest.mock(
@@ -248,6 +249,23 @@ describe('PairingChannelClient', () => {
       mockChannel.close.mockRejectedValueOnce(new Error('close failed'));
       await client.open(SERVER, CHAN, VALID_KEY);
       await expect(client.close()).resolves.toBeUndefined();
+      expect(client.isConnected).toBe(false);
+    });
+
+    // A socket error disconnects the channel without a matching `close` event,
+    // and the integrations tear down in response — so close() runs against a
+    // channel the package has already unwired.
+    it('skips the underlying close once the socket is gone', async () => {
+      await client.open(SERVER, CHAN, VALID_KEY);
+      getMockHandler('error')(
+        new CustomEvent('error', { detail: new Error('ws fail') })
+      );
+      mockChannel._connection = null;
+
+      await expect(client.close()).resolves.toBeUndefined();
+
+      expect(mockChannel.close).not.toHaveBeenCalled();
+      expect(mockChannel.removeEventListener).toHaveBeenCalled();
       expect(client.isConnected).toBe(false);
     });
   });
