@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit a80445dda3a5e58e3e88786103d81641a40fd33a</title>
+  <title>Storybooks for commit 1c049791def3988bbb54185077f23e2274c0f9e7</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,32 +23,25 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit a80445dda3a5e58e3e88786103d81641a40fd33a</h1>
+  <h1>Storybooks for commit 1c049791def3988bbb54185077f23e2274c0f9e7</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/4/2026, 10:30:23 PM UTC</dd>
+    <dd>9/8/2026, 6:18:50 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(settings): compose the passkey wrap envelope create and unwrap</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 - Passwordless Sync needs a client that can seal kB to a passkey and
   recover it from the stored envelope.
-- auth-server owns kB generation staleness: a reset deletes the wraps and
-  GET /passkey/wraps withholds one older than keysChangedAt. Binding the
-  generation here would need keysChangedAt plumbed to the client, where any
-  drift fails the unwrap with no way to recover.
 
 This commit:
-- Adds createWrapEnvelope and openWrapEnvelope, typed against the
-  auth-client PasskeyWrapEnvelope so no parallel envelope type exists.
-- Exports only those two, keeping the crypto layers and the frozen context
-  construction module-local.
-- Drops keysChangedAt from the bound context, leaving the HPKE aad empty.
-- Removes context.ts, folding its framing and validation into envelope.ts.
-- Zeroes the recipient private key and the serialised scalar after use.
+- Adds createWrapEnvelope and openWrapEnvelope over the HPKE and AES-GCM
+  layers.
+- Binds uid and credentialId into the envelope context.
+- Keeps the crypto layers and context construction module-local.
 
 Closes #FXA-13147</pre></dd>
   </dl>
