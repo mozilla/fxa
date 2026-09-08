@@ -1,0 +1,11 @@
+{
+  "commit": "505eaa53cdaf65aa0ed7c885d5134184f1b4800c",
+  "summary": "Merge branch 'main' into l10n-prod-bug-reporting",
+  "description": "",
+  "timestamp": 1788893627000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
