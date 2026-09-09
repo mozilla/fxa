@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 3ab9174445df674aeaf4c50b4be6faadcee962e0</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 3ab9174445df674aeaf4c50b4be6faadcee962e0</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/9/2026, 9:38:16 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): repair broken Pair and ConnectAnotherDevice stories</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- 19 Storybook stories under `Pages/Pair` and `Pages/ConnectAnotherDevice` throw on render, so nobody can review those states.
+- `Pair` gained a required `fxaStatusResult` prop and reads `fxaStatusResult.fxaStatusState` without a guard. The 9 Pair stories passed no prop.
+- The `Devices` enum moved to `src/lib/utilities.ts`, but the ConnectAnotherDevice story file still imported it from `.`. Module load failed for all 10 stories.
+- `packages/fxa-settings/tsconfig.json` excluded `src/**/*.stories.tsx`, so no typecheck caught either break.
+
+## This pull request
+
+- Removes the `src/**/*.stories.tsx` and `src/**/*.stories.ts` exclusions from `packages/fxa-settings/tsconfig.json`, so `tsc` now covers story files.
+- Passes `fxaStatusResult` to every `&lt;Pair /&gt;` story, built from the existing `mockUseFxAStatus` helper.
+- Imports `Devices` from `../../lib/utilities` in the ConnectAnotherDevice story file.
+
+## Issue that this pull request solves
+
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-14497</pre></dd>
+  </dl>
+</body>
+</html>
