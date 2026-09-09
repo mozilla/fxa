@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 44b3a1658446ba855b945be7d0da6a23aac80ae3</title>
+  <title>Storybooks for commit d80cef4921a75010c19764027f4b5cf1f53ba226</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,28 +23,28 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 44b3a1658446ba855b945be7d0da6a23aac80ae3</h1>
+  <h1>Storybooks for commit d80cef4921a75010c19764027f4b5cf1f53ba226</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/9/2026, 10:02:49 PM UTC</dd>
+    <dd>9/9/2026, 10:40:50 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(settings): pin a Firefox desktop UA for the Pair stories</pre></dd>
+    <dd><pre>fix(settings): make the Pair stories independent of the browser UA</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
 - Pair reads detectDevice() on mount and redirects to /pair/unsupported
-  without clearing bootstrapping, so a non-Firefox user agent leaves every
+  without clearing bootstrapping, so a non-Firefox user agent left every
   story on the full-screen spinner.
 - Reviewers open Storybook in whatever browser they happen to use, so the
   stories only rendered for some of them.
 
 This commit:
 
-- Adds a decorator that stubs navigator.userAgent as Firefox desktop while
-  a Pair story is mounted, and restores it on unmount.</pre></dd>
+- Adds an optional device prop to Pair, defaulting to detectDevice().
+- Passes Devices.FIREFOX_DESKTOP from the 9 Pair stories.</pre></dd>
   </dl>
 </body>
 </html>
