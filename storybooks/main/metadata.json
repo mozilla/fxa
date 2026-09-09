@@ -1,8 +1,8 @@
 {
-  "commit": "362c21a92ed26c64fdadeef1c01d7bd3ae14b63c",
-  "summary": "Merge pull request #21166 from mozilla/FXA-14480",
-  "description": "feat(passkey): Record security events on wrap retrieval",
-  "timestamp": 1788969221000,
+  "commit": "a7b9d279f053462d339333483a20ac50c39a5dcb",
+  "summary": "Merge pull request #21164 from mozilla/PAY-3909",
+  "description": "fix(payments): Resolve payments emails to display card digits",
+  "timestamp": 1788970111000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

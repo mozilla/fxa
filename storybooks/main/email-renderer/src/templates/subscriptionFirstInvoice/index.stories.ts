@@ -32,10 +32,8 @@ const data = {
   showPaymentMethod: true,
   showProratedAmount: false,
   showTaxAmount: false,
-
-  // Had to add these in! Please double check values
-  cardName: 'foo',
-  paymentProviderName: 'bar',
+  cardName: 'Visa',
+  paymentProviderName: undefined,
   lastFour: '4242',
   remainingAmountTotalInCents: 1000,
   offeringPrice: '$10.00',
@@ -60,8 +58,29 @@ const createStory = subplatStoryWithProps<TemplateData>(
 export const SubscriptionFirstInvoiceWithPayPal = createStory(
   {
     payment_provider: 'paypal',
+    paymentProviderName: 'PayPal',
   },
   'Payment method - PayPal'
+);
+
+export const SubscriptionFirstInvoiceWithCardNoBrand = createStory(
+  {
+    cardType: null,
+    cardName: undefined,
+    lastFour: '4242',
+    payment_provider: 'stripe',
+  },
+  'Payment method - card ending in, brand unknown'
+);
+
+export const SubscriptionFirstInvoiceWithCardNoDigits = createStory(
+  {
+    cardType: null,
+    cardName: undefined,
+    lastFour: null,
+    payment_provider: 'stripe',
+  },
+  'Payment method omitted - digits unavailable'
 );
 
 export const SubscriptionFirstInvoiceWithStripe = createStory(
