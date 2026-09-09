@@ -1,0 +1,13 @@
+<%- locals.headline %>
+
+<%- locals.description %>
+
+<%- include('/partials/userInfo/index.txt') %>
+
+verifyShortCode-prompt-3 = "Use this confirmation code:"
+<%- code %>
+
+verifyShortCode-expiry-notice = "It expires in 5 minutes."
+
+<%- include('/partials/automatedEmailNoAction/index.txt') %>
+<%- include('/partials/support/index.txt') %>

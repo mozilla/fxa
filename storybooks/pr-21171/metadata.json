@@ -1,0 +1,12 @@
+{
+  "commit": "da433fdcb6792f81dfb47c3c3cd449541f67d8e9",
+  "summary": "chore(deps): bump @faker-js/faker to 10.5.0",
+  "description": "Resolves Dependabot alert #901.\nCreated by BLEnder (https://github.com/mozilla/blender)",
+  "timestamp": 1788985900000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
