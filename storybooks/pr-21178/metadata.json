@@ -1,0 +1,11 @@
+{
+  "commit": "0167915f7985f781c11ec984b2fe1c947a891e01",
+  "summary": "feat(feature-flags): add admin-managed feature flag POC",
+  "description": "Because:\n  - Turning behaviour on or off in an environment currently needs a config\n    change and a deploy.\n  - An unreleased feature's name should not be published before it launches.\n\nThis commit:\n  - Adds a featureFlags table and an admin panel page to manage flags.\n  - Serves enabled flag names from auth-server GET /v1/feature-flags, cached\n    per process for a configurable TTL.\n  - Adds @fxa/shared/feature-flags for reading flags from clients.\n  - Logs every flag change with the actor, the action, and the prior state.\n  - Gates a demo banner in Settings on my-test-flag.",
+  "timestamp": 1788986306000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

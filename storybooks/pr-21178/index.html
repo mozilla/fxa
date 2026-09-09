@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 0167915f7985f781c11ec984b2fe1c947a891e01</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 0167915f7985f781c11ec984b2fe1c947a891e01</h1>
+  <ul>
+    <li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/9/2026, 8:38:26 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(feature-flags): add admin-managed feature flag POC</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+  - Turning behaviour on or off in an environment currently needs a config
+    change and a deploy.
+  - An unreleased feature&#039;s name should not be published before it launches.
+
+This commit:
+  - Adds a featureFlags table and an admin panel page to manage flags.
+  - Serves enabled flag names from auth-server GET /v1/feature-flags, cached
+    per process for a configurable TTL.
+  - Adds @fxa/shared/feature-flags for reading flags from clients.
+  - Logs every flag change with the actor, the action, and the prior state.
+  - Gates a demo banner in Settings on my-test-flag.</pre></dd>
+  </dl>
+</body>
+</html>
