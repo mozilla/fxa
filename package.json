@@ -293,6 +293,7 @@
     "packages/*"
   ],
   "resolutions": {
+    "qs": "6.16.0",
     "@types/react": "19.2.18",
     "asn1.js": ">=5.4.1",
     "axios": "^1.13.4",
