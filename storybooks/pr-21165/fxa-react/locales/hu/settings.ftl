@@ -441,7 +441,7 @@ promo-qr-mobile-heading-treatment-b = A lapjai és még sok más, a telefonján 
 # Value proposition variant. Refers to using the same trusted browser on a phone.
 promo-qr-mobile-heading-treatment-c = A böngésző, amelyben megbízik, a telefonján
 # Value proposition variant. "Different screen" refers to the phone rather than the desktop.
-promo-qr-mobile-heading-treatment-d = Ugyanaz: { -brand-firefox }. Más képernyő.
+promo-qr-mobile-heading-treatment-d = Ugyanaz a { -brand-firefox }. Csak más képernyőn.
 # Value proposition variant. "stop here" means privacy protection should continue onto the phone.
 promo-qr-mobile-heading-treatment-e = Az adatvédelme nem állhat itt meg
 # Value proposition variant. Refers to keeping browsing activity private.
@@ -449,9 +449,9 @@ promo-qr-mobile-heading-treatment-f = Tartson többet a böngészésből saját 
 # Value proposition variant. "noise" refers to distractions and clutter.
 promo-qr-mobile-heading-treatment-g = A telefonja kicsit kevesebb zajt használhatna
 # Value proposition variant. Refers to a calmer browsing experience on the phone.
-promo-qr-mobile-heading-treatment-h = Válasszon egy higgadtabb módját a böngészésnek
+promo-qr-mobile-heading-treatment-h = Vigye magával a nyugodtabb böngészés élményét
 # Appears below a QR code that a user can scan to download the Firefox mobile app
-promo-qr-mobile-description-v2 = Beolvasás a mobilalkalmazás letöltéséhez
+promo-qr-mobile-description-v2 = Olvassa le a mobilalkalmazás letöltéséhez
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
 promo-qr-mobile-qr-alt =
     .alt = QR-kód a { -brand-firefox } mobilalkalmazás letöltéséhez. A beolvasásához irányítsa a telefonja kameráját a képernyő jobb alsó sarkára.

@@ -447,7 +447,7 @@ password-strength-inline-passwords-match = Mae'r cyfrineiriau'n cyfateb
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Eich ffôn. Eich rheolau.
 # Value proposition variant. Refers to resuming browsing on another device.
-promo-qr-mobile-heading-treatment-a = Codwch lle gwnaethoch chi adael, ble bynnag yr ewch
+promo-qr-mobile-heading-treatment-a = Ailgychwyn o le roeddech chi, lle bynnag rydych chi'n mynd
 # Value proposition variant. "tabs" are the open pages in a browser.
 promo-qr-mobile-heading-treatment-b = Eich tabiau a mwy, yn barod ar eich ffôn
 # Value proposition variant. Refers to using the same trusted browser on a phone.
@@ -455,15 +455,15 @@ promo-qr-mobile-heading-treatment-c = Y porwr rydych chi'n ymddiried ynddo, ar e
 # Value proposition variant. "Different screen" refers to the phone rather than the desktop.
 promo-qr-mobile-heading-treatment-d = Yr un { -brand-firefox }. Sgrin wahanol.
 # Value proposition variant. "stop here" means privacy protection should continue onto the phone.
-promo-qr-mobile-heading-treatment-e = Ni ddylai eich preifatrwydd stopio yma
+promo-qr-mobile-heading-treatment-e = Dylai eich preifatrwydd ddim stopio yma
 # Value proposition variant. Refers to keeping browsing activity private.
 promo-qr-mobile-heading-treatment-f = Cadwch fwy o'ch pori i chi'ch hun
 # Value proposition variant. "noise" refers to distractions and clutter.
-promo-qr-mobile-heading-treatment-g = Gallai eich ffôn ddefnyddio ychydig llai o sŵn
+promo-qr-mobile-heading-treatment-g = Gallai eich ffôn ddefnyddio ychydig llai o'i darfu
 # Value proposition variant. Refers to a calmer browsing experience on the phone.
 promo-qr-mobile-heading-treatment-h = Cymerwch ffordd dawelach i bori gyda chi
 # Appears below a QR code that a user can scan to download the Firefox mobile app
-promo-qr-mobile-description-v2 = Sganiwch i lawrlwytho ap symudol
+promo-qr-mobile-description-v2 = Sganiwch i lwytho ap symudol i lawr
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
 promo-qr-mobile-qr-alt =
     .alt = Cod QR i llwytho ap symudol { -brand-firefox } i lawr. Gosodwch gamera eich ffôn ar gornel dde isaf eich sgrin i'w sganio.
