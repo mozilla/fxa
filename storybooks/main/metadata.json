@@ -1,8 +1,8 @@
 {
-  "commit": "d9d52017386a8c94d4401631e4fc02a6958162ac",
-  "summary": "Merge pull request #21044 from mozilla/l10n-prod-bug-reporting",
-  "description": "feat(l10n): report whole-bundle l10n load failures to Sentry",
-  "timestamp": 1788974856000,
+  "commit": "1df067a3b8e7f23fca0eb576c428885393084666",
+  "summary": "Merge pull request #21153 from mozilla/FXA-13147",
+  "description": "feat(settings): compose the passkey wrap envelope create and unwrap",
+  "timestamp": 1788980084000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
