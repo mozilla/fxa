@@ -384,6 +384,11 @@ password-strength-inline-passwords-match = პაროლები ემთხ
 
 
 promo-qr-mobile-heading = თქვენი ტელეფონი. თქვენი წესები.
+promo-qr-mobile-heading-treatment-b = თქვენი ჩანართები და სხვა მონაცემები გელოდებათ თქვენს ტელეფონზე
+promo-qr-mobile-heading-treatment-c = ბრაუზერი, რომელსაც ენდობით, თქვენს ტელეფონზე
+promo-qr-mobile-heading-treatment-d = იგივე { -brand-firefox }. განსხვავებულ ეკრანზე.
+promo-qr-mobile-heading-treatment-e = თქვენი პირადულობა აქ არ უნდა შეწყდეს
+promo-qr-mobile-description-v2 = წააკითხეთ მობილურზე ჩამოსატვირთად
 promo-qr-mobile-qr-alt =
     .alt = QR-კოდი, რომლითაც ჩამოიტვირთება მობილური { -brand-firefox }. მიუშვირეთ ტელეფონის კამერა ეკრანის ქვემოთა მარჯვენა მხარეს.
 

@@ -346,6 +346,15 @@ password-strength-inline-passwords-match = Coincidencia de contraseñas
 
 
 promo-qr-mobile-heading = Tu teléfono. Tus reglas.
+promo-qr-mobile-heading-treatment-a = Continúa desde donde quedaste, donde sea que vayas.
+promo-qr-mobile-heading-treatment-b = Tus pestañas y más, disponibles en tu teléfono.
+promo-qr-mobile-heading-treatment-c = El navegador en el que confías, en tu teléfono.
+promo-qr-mobile-heading-treatment-d = Mismo { -brand-firefox }. Distinta pantalla.
+promo-qr-mobile-heading-treatment-e = Tu privacidad no debería terminar aquí.
+promo-qr-mobile-heading-treatment-f = Mantén tu navegación en privado.
+promo-qr-mobile-heading-treatment-g = Tu teléfono podría generar un poco menos de ruido
+promo-qr-mobile-heading-treatment-h = Lleva contigo una forma más tranquila de navegar
+promo-qr-mobile-description-v2 = Escanea el código para descargar la app móvil
 promo-qr-mobile-qr-alt =
     .alt = Escanea el código QR para descargar la aplicación móvil de { -brand-firefox }. Coloca la cámara de tu teléfono en la esquina inferior derecha de la pantalla para escanearlo.
 

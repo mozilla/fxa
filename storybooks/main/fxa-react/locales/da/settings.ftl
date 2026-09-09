@@ -43,6 +43,9 @@ button-back-title = Tilbage
 ## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
+# Button to download the account recovery key as a plain text file and navigate to the next step
+# The next (and final) step is an optional prompt to save a storage hint
+recovery-key-download-button-v4 = Hent og fortsæt
 # Error message shown in a banner if the account recovery key download failed.
 # The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Der opstod desværre et problem med at hente din genoprettelsesnøgle til kontoen.
@@ -71,6 +74,20 @@ choose-newsletters-option-test-pilot =
 # "Action alerts" can be interpreted as "Calls to action"
 choose-newsletters-option-reclaim-the-internet =
     .label = Opfordringer til handling for at tage kontrollen over internettet tilbage
+
+## ContinueInFirefox component - Part of the desktop-to-mobile pairing flow
+## Shown when the pairing QR code is opened in a browser other than Firefox.
+## It hands the pairing link to the Firefox app, and offers the app store when
+## Firefox is not installed on the device.
+
+pair-continue-in-firefox-heading = Fortsæt i { -brand-firefox }
+pair-continue-in-firefox-description = Parring sker i { -brand-firefox }. Åbn den for at afslutte tilslutningen af denne enhed.
+# Opens the Firefox app on this device
+pair-continue-in-firefox-button = Fortsæt i { -brand-firefox }
+# Shown while waiting for the Firefox app to take over
+pair-continue-in-firefox-opening = Åbner { -brand-firefox }
+# Sends the user to the App Store or Play Store to install Firefox
+pair-continue-in-firefox-get-firefox-link = Har du ikke { -brand-firefox }? Hent den nu
 
 ## Dark mode toggle
 
@@ -417,6 +434,24 @@ password-strength-inline-passwords-match = Adgangskoderne er ens
 
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Din telefon. Dine regler.
+# Value proposition variant. Refers to resuming browsing on another device.
+promo-qr-mobile-heading-treatment-a = Fortsæt hvor du slap, uanset hvor du går hen
+# Value proposition variant. "tabs" are the open pages in a browser.
+promo-qr-mobile-heading-treatment-b = Dine faneblade med mere, klar på din telefon
+# Value proposition variant. Refers to using the same trusted browser on a phone.
+promo-qr-mobile-heading-treatment-c = Den browser, du har tillid til, på din telefon
+# Value proposition variant. "Different screen" refers to the phone rather than the desktop.
+promo-qr-mobile-heading-treatment-d = Samme { -brand-firefox }. En anden skærm.
+# Value proposition variant. "stop here" means privacy protection should continue onto the phone.
+promo-qr-mobile-heading-treatment-e = Beskyttelse af dit privatliv bør ikke stoppe her
+# Value proposition variant. Refers to keeping browsing activity private.
+promo-qr-mobile-heading-treatment-f = Hold mere af din browsing for dig selv
+# Value proposition variant. "noise" refers to distractions and clutter.
+promo-qr-mobile-heading-treatment-g = Din telefon kunne godt bruge lidt mindre støj
+# Value proposition variant. Refers to a calmer browsing experience on the phone.
+promo-qr-mobile-heading-treatment-h = Tag en roligere måde at browse på med dig
+# Appears below a QR code that a user can scan to download the Firefox mobile app
+promo-qr-mobile-description-v2 = Skan for at hente mobilappen
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
 promo-qr-mobile-qr-alt =
     .alt = QR-kode til at hente mobilappen { -brand-firefox }. Placer din telefons kamera i nederste højre hjørne af skærmen for at skanne den.
@@ -550,6 +585,9 @@ cs-cannot-disconnect = Klienten blev ikke fundet, kunne ikke afbryde forbindelse
 cs-logged-out-2 = Logget ud af { $service }
 cs-refresh-button =
     .title = Opdater forbundne tjenester
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = Opret forbindelse til en enhed
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = Manglende eller gentagne elementer?
 cs-disconnect-sync-heading = Afbryd forbindelsen til Sync
@@ -736,6 +774,13 @@ flow-setup-2fa-prompt-heading = Opsæt totrinsgodkendelse
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
 flow-setup-2fa-prompt-description = { $serviceName } kræver, at du opsætter totrinsgodkendelse for at holde din konto sikker.
+# Success banner shown at the top of the page when the user signed in with a passkey.
+flow-setup-2fa-prompt-passkey-success-banner = Logget ind med adgangsnøgle
+# Body copy shown when the user signed in with a passkey and the service still
+# requires two-step authentication setup.
+# Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
+# that requests two-step authentication setup.
+flow-setup-2fa-prompt-passkey-description = { $serviceName } kræver også totrinsgodkendelse for din { -product-mozilla-account }. Efter opsætningen behøver du den ikke længere, når du logger ind med en adgangsnøgle.
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = Du kan anvende enhver af <authenticationAppsLink>disse godkendelsesapps</authenticationAppsLink> for at fortsætte.
 flow-setup-2fa-prompt-continue-button = Fortsæt
@@ -995,6 +1040,8 @@ page-passkey-add-error-system-v2 = Der opstod et problem med at oprette din adga
 ## These are displayed as a list with the date when the event occured
 
 recent-activity-title = Seneste kontoaktivitet
+# Clicking this button reveals the older account activity that is hidden at first.
+recent-activity-show-more-button = Vis mere
 recent-activity-account-create-v2 = Konto oprettet
 recent-activity-account-disable-v2 = Konto deaktiveret
 recent-activity-account-enable-v2 = Konto aktiveret
@@ -1055,6 +1102,12 @@ recent-activity-account-passwordless-login-otp-failed = Adgangskodefri login-kod
 recent-activity-account-passwordless-login-otp-verified = Adgangskodefri login-kode bekræftet
 recent-activity-account-passwordless-registration-complete = Adgangskodefri registrering af konto fuldført
 recent-activity-account-recovery-codes-set = Genoprettelseskoder angivet
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
+recent-activity-account-passkey-wrap-created = Adgangsnøgle aktiveret til synkronisering
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-creation-failure = Opsætning af synkronisering med adgangsnøgle mislykkedes
+# A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
+recent-activity-account-passkey-wrap-invalidated = Adgang til synkronisering med adgangsnøgle fjernet efter nulstilling af adgangskode
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Anden kontoaktivitet
 
@@ -1801,6 +1854,83 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Hov, noget gik galt.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Luk dette faneblad og prøv igen.
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer, which is already signed in, after their
+## mobile device scans the pairing QR code. It asks them to approve the
+## sign-in, and shows the requesting device's details so they can verify it.
+
+# Asks the user to confirm the sign-in that another one of their devices just started
+pair2-authority-approve-sign-in-heading = Godkend login?
+# Submit button confirming that the user started the pairing and approves the
+# other device being added to their account
+pair2-authority-approve-sign-in-confirm-button = Ja, godkend login
+# "Not you?" asks whether someone other than the user started this sign-in.
+# The text inside <changePassword> links to the page for changing the password.
+pair2-authority-approve-sign-in-change-password = Var det ikke dig? <changePassword>Skift din adgangskode</changePassword>
+
+## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer after scanning the pairing QR code with
+## their phone. It confirms the flow has moved to the mobile device and waits
+## for the remaining steps to be completed there.
+
+pair2-authority-continue-on-mobile-heading = Fortsæt på din mobile enhed
+pair2-authority-continue-on-mobile-description = Følg trinnene på din telefon eller tablet.
+# Dismisses the pairing attempt
+pair2-authority-continue-on-mobile-cancel-button = Annuller
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when Firefox is needed to continue pairing.
+## It points them at firefox.com/pair and offers a download link for Firefox.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-download-firefox-heading = Åbn { -brand-firefox } for at synkronisere
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction = For at opsætte synkronisering på tværs af enheder, åbn { -brand-firefox } på denne enhed og besøg <b>firefox.com/pair</b>
+# Links out to the Firefox download page
+pair2-authority-download-firefox-cta = Hent { -brand-firefox }
+
+## ScanQR page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer. It shows a QR code that they scan with
+## their phone or tablet to connect the two devices and start syncing.
+
+pair2-authority-scan-qr-heading = Skan for at forbinde din mobile enhed
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-scan-qr-instruction = Skan QR-koden med din telefon eller tablet for at synkronisere bogmærker, faneblade med mere i { -brand-firefox }.
+# Accessible label describing the QR code image shown on this page
+pair2-authority-scan-qr-code-aria-label = QR-kode til at forbinde din mobile enhed
+# Link to a support article for users having trouble scanning the QR code
+pair2-authority-scan-qr-help-link = Få hjælp til at skanne
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and offers the follow-up actions.
+
+# "syncing" here means copying data between the user's devices
+pair2-authority-sync-success-heading = Du synkroniserer
+pair2-authority-sync-success-description = Dine faneblade, bogmærker, adgangskoder med mere er klar på tværs af dine enheder.
+# Opens the tabs that are open on the user's other synced devices
+pair2-authority-sync-success-view-tabs-button = Vis synkroniserede faneblade
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button = Indstillinger for synkronisering
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when pairing stopped without succeeding,
+## either because it timed out or because it was canceled. Both cases offer to
+## start pairing over again.
+
+# Shown when the pairing attempt expired before it was approved
+pair2-authority-timeout-and-cancel-timeout-heading = Vil du stadig forbinde en enhed?
+pair2-authority-timeout-and-cancel-timeout-description = Det ser ud til, at tidsfristen udløb. Prøv igen, hvis du stadig vil forbinde din mobile enhed og synkronisere dine { -brand-firefox }-data.
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-canceled-heading = Annulleret
+pair2-authority-timeout-and-cancel-canceled-description = Hvis du ombestemmer dig eller ønsker at forbinde en anden enhed, så prøv igen.
+# Restarts the pairing flow
+pair2-authority-timeout-and-cancel-try-again-button = Prøv igen
+# Abandons pairing without retrying
+pair2-authority-timeout-and-cancel-cancel-button = Annuller
+# Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
+pair2-authority-timeout-and-cancel-sync-settings-button = Indstillinger for synkronisering
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
 ## shown on their computer. It waits for them to approve the sign-in on the
 ## computer, and shows that computer's details so they can verify the request.
@@ -1810,6 +1940,70 @@ pair2-supplicant-approve-sign-in-heading = Et sidste trin til synkronisering
 pair2-supplicant-approve-sign-in-instruction = Godkend login på din computer.
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = Annuller
+
+## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It asks them to confirm connecting the mobile
+## device to their account, and shows that computer's details so they can
+## verify the request.
+
+# "this device" is the mobile device the user is holding, not the computer
+# whose details are shown below the heading
+pair2-supplicant-connect-this-device-heading = Forbind denne enhed til din konto?
+# Confirms the pairing attempt
+pair2-supplicant-connect-this-device-connect-button = Opret forbindelse
+# Dismisses the pairing attempt
+pair2-supplicant-connect-this-device-cancel-button = Annuller
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing reaches a device that
+## does not have Firefox installed yet. It explains what syncing gets them and
+## sends them off to install the browser.
+
+pair2-supplicant-download-firefox-heading = Få { -brand-firefox } på denne enhed
+# "sync" is a verb here, referring to syncing data between the user's devices.
+# <linkExternal> is an anchor tag linking to a page explaining what sync does.
+pair2-supplicant-download-firefox-description = Hent { -brand-firefox } for at synkronisere bogmærker, historik med mere på tværs af enheder. <linkExternal>Læs mere</linkExternal>
+# Primary action. Sends the user to the Firefox download page.
+pair2-supplicant-download-firefox-continue-button = Fortsæt i { -brand-firefox }
+
+## ReadyToScan page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device before pairing starts. It tells them
+## to open firefox.com/pair on their computer, which is where the QR code they
+## scan with the mobile device comes from.
+
+pair2-supplicant-ready-to-scan-heading = Sådan forbinder du en enhed
+# <b> emphasises the address the user types on their computer. It is not a link,
+# and the address itself must not be translated.
+pair2-supplicant-ready-to-scan-instruction = Åbn { -brand-firefox } på din computer, gå til <b>firefox.com/pair</b>, og følg vejledningen på skærmen for at forbinde denne mobile enhed.
+# Opens a Mozilla support article about setting up sync
+pair2-supplicant-ready-to-scan-learn-more-link = Læs mere
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device once pairing has completed: the device
+## is signed in and syncing with the computer they paired it with.
+
+pair2-supplicant-sync-success-heading = Din enhed er forbundet
+pair2-supplicant-sync-success-description = Dine bogmærker, faneblade med mere forbliver synkroniseret i { -brand-firefox }.
+# Opens the view listing tabs open on the user's other synced devices
+pair2-supplicant-sync-success-view-tabs-button = Vis synkroniserede faneblade
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button = Indstillinger for synkronisering
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing ends without connecting,
+## either because the attempt timed out or because it was canceled. Both states
+## are informational and offer no on-screen action, so the copy points the user
+## back to their computer to start again.
+
+# Shown when the pairing attempt expired before it completed. "we" is Firefox.
+pair2-supplicant-timeout-and-cancel-timeout-heading = Det ser ud til, at tidsfristen udløb
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-timeout-description = For at forbinde din mobile enhed og synkronisere dine { -brand-firefox }-data, besøg <b>firefox.com/pair</b> på din computer.
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-canceled-heading = Annulleret
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-canceled-description = For at forbinde en enhed når som helst, besøg <b>firefox.com/pair</b> på din computer.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
