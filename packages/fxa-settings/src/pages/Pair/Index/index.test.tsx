@@ -48,8 +48,8 @@ jest.mock('../../../lib/channels/firefox', () => ({
     requestSignedInUser: jest.fn(),
     fxaOAuthFlowBegin: jest.fn(),
   },
-  buildSyncOAuthSearch: jest.requireActual('../../../lib/channels/firefox')
-    .buildSyncOAuthSearch,
+  buildOAuthSearch: jest.requireActual('../../../lib/channels/firefox')
+    .buildOAuthSearch,
   FirefoxCommand: {
     PairPreferences: 'fxaccounts:pair_preferences',
   },
@@ -418,10 +418,10 @@ describe('Pair', () => {
         requestSignedInUserMock.mockResolvedValue(response);
         renderWithRouter(<Pair {...defaultProps} />);
         await waitFor(() =>
-          expect(fxaOAuthFlowBeginMock).toHaveBeenCalledWith([
-            'profile',
-            'https://identity.mozilla.com/apps/oldsync',
-          ])
+          expect(fxaOAuthFlowBeginMock).toHaveBeenCalledWith(
+            ['profile', 'https://identity.mozilla.com/apps/oldsync'],
+            'sync'
+          )
         );
       }
     );
@@ -900,21 +900,26 @@ describe('parseV2PairingHash', () => {
     it.each([
       ['iOS Safari', IOS_SAFARI, true],
       ['Android Chrome', ANDROID_CHROME, false],
-    ])('routes to the download screen on %s', async (_label, ua, iosHandoff) => {
-      setUserAgent(ua);
-      renderWithRouter(
-        <Pair {...unansweredProps} />,
-        {},
-        v2AppContext({ iosHandoff })
-      );
+    ])(
+      'routes to the download screen on %s',
+      async (_label, ua, iosHandoff) => {
+        setUserAgent(ua);
+        renderWithRouter(
+          <Pair {...unansweredProps} />,
+          {},
+          v2AppContext({ iosHandoff })
+        );
 
-      await waitFor(() =>
-        expect(mockNavigate).toHaveBeenCalledWith(
-          '/pair/supplicant/download_firefox',
-          { state: { channelId: 'chan-1', channelKey: 'key-1', version: '2' } }
-        )
-      );
-    });
+        await waitFor(() =>
+          expect(mockNavigate).toHaveBeenCalledWith(
+            '/pair/supplicant/download_firefox',
+            {
+              state: { channelId: 'chan-1', channelKey: 'key-1', version: '2' },
+            }
+          )
+        );
+      }
+    );
 
     // Firefox iOS cannot finish a pairing that started in another browser, so
     // the hand-off card would only be a tap in front of the same dead end.

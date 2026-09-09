@@ -26,7 +26,7 @@ import Banner from '../../../components/Banner';
 import ButtonBack from '../../../components/ButtonBack';
 import { Constants } from '../../../lib/constants';
 import firefox, {
-  buildSyncOAuthSearch,
+  buildOAuthSearch,
   FirefoxCommand,
 } from '../../../lib/channels/firefox';
 import { hardNavigate } from 'fxa-react/lib/utils';
@@ -314,14 +314,14 @@ const Pair = ({
         return;
       }
       const oauthParams = await firefox
-        .fxaOAuthFlowBegin(['profile', Constants.OAUTH_OLDSYNC_SCOPE])
+        .fxaOAuthFlowBegin(['profile', Constants.OAUTH_OLDSYNC_SCOPE], 'sync')
         .catch(() => null);
       if (cancelled) return;
       if (oauthParams) {
-        // buildSyncOAuthSearch emits OAuth params only, so the attribution
+        // buildOAuthSearch emits OAuth params only, so the attribution
         // params would be lost across the sign-in round trip and /pair would
         // come back without an entrypoint (FXA-14132).
-        const search = buildSyncOAuthSearch(oauthParams);
+        const search = buildOAuthSearch(oauthParams, 'sync');
         for (const [key, value] of Object.entries(pairingAttribution)) {
           search.set(key, value);
         }
