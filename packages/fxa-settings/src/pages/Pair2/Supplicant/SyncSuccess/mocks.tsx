@@ -5,8 +5,5 @@
 import SyncSuccess, { SyncSuccessProps } from '.';
 
 export const Subject = ({
-  onViewSyncedTabs = () => {},
   onSyncSettings = () => {},
-}: Partial<SyncSuccessProps> = {}) => (
-  <SyncSuccess {...{ onViewSyncedTabs, onSyncSettings }} />
-);
+}: Partial<SyncSuccessProps> = {}) => <SyncSuccess {...{ onSyncSettings }} />;
