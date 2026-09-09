@@ -7,45 +7,75 @@ import { LocalizationProvider, ReactLocalization } from '@fluent/react';
 import React, { Component } from 'react';
 import { EN_GB_LOCALES, parseAcceptLanguage } from '@fxa/shared/l10n';
 
+type ReportError = (error: Error) => void;
+
+// A bundle failure belongs to the locale whose file could not be loaded. A
+// manifest failure breaks every locale at once, so it carries none.
+type ReportBundleError = (error: Error, locale?: string) => void;
+
+function describeCause(err: unknown) {
+  return err instanceof Error ? err.message : String(err);
+}
+
 /**
  * Gets l10n messages from server
  * @param baseDir The root location where locales folders are held
  * @param locale The target language
  * @param bundle The target bundle (ie main)
  * @param mappings A set of mappings for static resources.
+ * @param reportBundleError Receives whole-bundle load failures for this locale.
  * @returns
  */
 async function fetchMessages(
   baseDir: string,
   locale: string,
   bundle: string,
-  mappings?: Record<string, string>
+  mappings?: Record<string, string>,
+  reportBundleError?: ReportBundleError
 ) {
+  // Build the path to l10n file
+  const path = `locales/${locale}/${bundle}.ftl`;
+
+  // If mappings were provided see if there is one for the path. This
+  // will be a location where the file path contains a hash in the file
+  // name
+  const mappedPath = mappings ? mappings[path] : path;
+
+  // If we don't have mapped path, there are no l10n resources for this language.
+  if (!mappedPath) {
+    reportBundleError?.(
+      new Error(`No static asset mapping for l10n bundle: ${path}`),
+      locale
+    );
+    return '';
+  }
+
+  // Fetch the file and return the messages
+  const resolvedPath = `${baseDir}/${mappedPath}`;
   try {
-    // Build the path to l10n file
-    let path = `locales/${locale}/${bundle}.ftl`;
+    const response = await fetch(resolvedPath);
 
-    // If mappings were proivided see if there is one for the path. This
-    // will be a location where the file path contains a hash in the file
-    // name
-    if (mappings) {
-      path = mappings[path];
-    }
-
-    // If we don't have mapped path, there are no l10n resources for this language.
-    if (!path) {
+    // A non-OK body is not FTL, and handing it to Fluent yields an empty bundle.
+    if (!response.ok) {
+      reportBundleError?.(
+        new Error(
+          `Fetching l10n bundle returned ${response.status}: ${resolvedPath}`
+        ),
+        locale
+      );
       return '';
     }
 
-    // Fetch the file and return the messages
-    const resolvedPath = `${baseDir}/${path}`;
-    const response = await fetch(resolvedPath);
-    const messages = await response.text();
-
-    return messages;
+    return await response.text();
   } catch (e) {
     // We couldn't fetch any strings; just return nothing and fluent will fall
     // back to the default locale if needed.
+    reportBundleError?.(
+      new Error(
+        `Fetching l10n bundle failed: ${resolvedPath} (${describeCause(e)})`
+      ),
+      locale
+    );
     return '';
   }
 }
@@ -54,21 +84,36 @@ function fetchAllMessages(
   baseDir: string,
   locale: string,
   bundles: Array<string>,
-  mappings?: Record<string, string>
+  mappings?: Record<string, string>,
+  reportBundleError?: ReportBundleError
 ) {
   return Promise.all(
-    bundles.map((bndl) => fetchMessages(baseDir, locale, bndl, mappings))
+    bundles.map((bndl) =>
+      fetchMessages(baseDir, locale, bndl, mappings, reportBundleError)
+    )
   );
 }
 
-async function fetchL10nHashedMappings(mappingUrl: string) {
+async function fetchL10nHashedMappings(
+  mappingUrl: string,
+  reportBundleError?: ReportBundleError
+) {
   try {
     // These mappigns are currently generated with grunt. See grunt task hash-static
     // in fxa-settings for an example of how the mappings are generated.
     const mappingsResponse = await fetch(mappingUrl);
-    const json = await mappingsResponse.json();
-    return json;
+    if (!mappingsResponse.ok) {
+      throw new Error(`Received status ${mappingsResponse.status}`);
+    }
+    return await mappingsResponse.json();
   } catch (err) {
+    reportBundleError?.(
+      new Error(
+        `Fetching l10n static asset manifest failed: ${mappingUrl} (${describeCause(
+          err
+        )})`
+      )
+    );
     return undefined;
   }
 }
@@ -76,17 +121,25 @@ async function fetchL10nHashedMappings(mappingUrl: string) {
 async function createFluentBundleGenerator(
   baseDir: string,
   currentLocales: Array<string>,
-  bundles: Array<string>
+  bundles: Array<string>,
+  reportBundleError?: ReportBundleError
 ) {
   const mappings = await fetchL10nHashedMappings(
-    `${baseDir}/static-asset-manifest.json`
+    `${baseDir}/static-asset-manifest.json`,
+    reportBundleError
   );
   const fetched = await Promise.all(
     currentLocales
       .filter((l) => !EN_GB_LOCALES.includes(l))
       .map(async (locale) => {
         return {
-          [locale]: await fetchAllMessages(baseDir, locale, bundles, mappings),
+          [locale]: await fetchAllMessages(
+            baseDir,
+            locale,
+            bundles,
+            mappings,
+            reportBundleError
+          ),
         };
       })
   );
@@ -127,7 +180,11 @@ type Props = {
   children: any;
   // pass messages directly in, used in testing
   messages?: { [key: string]: string[] };
-  reportError?: (error: Error) => void;
+  // Per-string Fluent errors, e.g. an id missing from the bundle. Defaults to
+  // @fluent/react's console reporter.
+  reportError?: ReportError;
+  // Failures to load a bundle at all, where no string in it can resolve.
+  reportBundleError?: ReportBundleError;
 };
 
 export default class AppLocalizationProvider extends Component<Props, State> {
@@ -137,6 +194,7 @@ export default class AppLocalizationProvider extends Component<Props, State> {
     bundles: ['main'],
     children: React.createElement('div'),
     reportError: undefined,
+    reportBundleError: undefined,
   };
 
   constructor(props: Props) {
@@ -170,7 +228,8 @@ export default class AppLocalizationProvider extends Component<Props, State> {
     const bundleGenerator = await createFluentBundleGenerator(
       baseDir,
       currentLocales,
-      bundles
+      bundles,
+      this.props.reportBundleError
     );
     this.setState({
       l10n: new ReactLocalization(

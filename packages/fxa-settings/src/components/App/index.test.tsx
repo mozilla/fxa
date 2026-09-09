@@ -36,6 +36,7 @@ import { MozServices } from '../../lib/types';
 import mockUseFxAStatus from '../../lib/hooks/useFxAStatus/mocks';
 import { useFxAStatus } from '../../lib/hooks';
 import sentryMetrics from 'fxa-shared/sentry/browser';
+import { flushL10nErrorReports } from '../../lib/l10n-error-reporter';
 import { OAuthError, OAUTH_ERRORS } from '../../lib/oauth';
 
 jest.mock('../../lib/hooks/useFxAStatus', () => ({
@@ -50,6 +51,11 @@ jest.mock('fxa-shared/sentry/browser', () => ({
     disable: jest.fn(),
     captureException: jest.fn(),
   },
+}));
+
+jest.mock('../../lib/l10n-error-reporter', () => ({
+  __esModule: true,
+  flushL10nErrorReports: jest.fn(),
 }));
 
 jest.mock('../../models/contexts/SettingsContext', () => ({
@@ -292,6 +298,97 @@ describe('glean', () => {
         integration: mockIntegration,
       }
     );
+  });
+});
+
+describe('sentry', () => {
+  const mockIntegration = {
+    isSync: jest.fn(),
+    isDesktopSync: jest.fn(),
+    isFirefoxClientServiceRelay: jest.fn(),
+    getServiceName: jest.fn(),
+    getClientId: jest.fn(),
+    getCmsInfo: jest.fn(),
+    getLegalTerms: jest.fn(),
+    data: {},
+  };
+
+  const mockOptedOutAccountResult = {
+    account: {
+      ...mockMetricsQueryAccountResult.account,
+      metricsEnabled: false,
+    },
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (useFxAStatus as jest.Mock).mockReturnValue(mockUseFxAStatus());
+    (useIntegration as jest.Mock).mockReturnValue(mockIntegration);
+    (currentAccount as jest.Mock).mockReturnValue(null);
+  });
+
+  afterEach(() => {
+    (useFxAStatus as jest.Mock).mockReset();
+    (useIntegration as jest.Mock).mockReset();
+    (useInitialMetricsQueryState as jest.Mock).mockReset();
+    (useLocalSignedInQueryState as jest.Mock).mockReset();
+    (currentAccount as jest.Mock).mockReset();
+  });
+
+  async function renderApp() {
+    await act(async () => {
+      renderWithLocalizationProvider(
+        <MemoryRouter>
+          <AppContext.Provider
+            value={{ ...mockAppContext(), ...createAppContext() }}
+          >
+            <App flowQueryParams={updatedFlowQueryParams} />
+          </AppContext.Provider>
+        </MemoryRouter>
+      );
+    });
+  }
+
+  it('flushes the buffered l10n reports for an account with metrics enabled', async () => {
+    (useInitialMetricsQueryState as jest.Mock).mockReturnValue({
+      data: mockMetricsQueryAccountResult,
+      loading: false,
+    });
+    (useLocalSignedInQueryState as jest.Mock).mockReturnValue({
+      data: { isSignedIn: true },
+    });
+
+    await renderApp();
+
+    expect(flushL10nErrorReports).toHaveBeenCalled();
+  });
+
+  it('flushes the buffered l10n reports when signed out, before the metrics query resolves', async () => {
+    (useInitialMetricsQueryState as jest.Mock).mockReturnValue({
+      loading: true,
+    });
+    (useLocalSignedInQueryState as jest.Mock).mockReturnValue({
+      data: { isSignedIn: false },
+    });
+
+    await renderApp();
+
+    expect(flushL10nErrorReports).toHaveBeenCalled();
+  });
+
+  it('does not flush the buffered l10n reports for an account opted out of metrics', async () => {
+    (useInitialMetricsQueryState as jest.Mock).mockReturnValue({
+      data: mockOptedOutAccountResult,
+      loading: false,
+    });
+    (useLocalSignedInQueryState as jest.Mock).mockReturnValue({
+      data: { isSignedIn: true },
+    });
+
+    await renderApp();
+
+    expect(sentryMetrics.disable).toHaveBeenCalled();
+    expect(flushL10nErrorReports).not.toHaveBeenCalled();
   });
 });
 
