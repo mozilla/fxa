@@ -14,9 +14,67 @@ const RISC_CONFIG_URI =
 
 const APPLE_PUBLIC_KEYS = 'https://appleid.apple.com/auth/keys';
 
-// These run on unauthenticated webhook paths; don't let a slow provider
-// hold the request open.
-const JWKS_TIMEOUT_MS = 5_000;
+// Anyone can reach these paths, so don't let a slow provider hold a request
+// open, and don't let one request in become one request out.
+const KEY_FETCH_TIMEOUT_MS = 5_000;
+const KEY_CACHE_TTL_MS = 300_000;
+
+const responseCache = new Map<string, { value: any; fetchedAt: number }>();
+const inFlight = new Map<string, Promise<any>>();
+
+/** Drops every cached provider response. Exposed for tests. */
+export function clearProviderKeyCache() {
+  responseCache.clear();
+  inFlight.clear();
+}
+
+/**
+ * Fetch `url`, reusing a response we already have from the last five minutes.
+ * Callers that miss at the same time share one request.
+ */
+async function getJson(
+  url: string,
+  label: string,
+  isUsable: (value: any) => boolean
+) {
+  const cached = responseCache.get(url);
+  if (cached && Date.now() - cached.fetchedAt < KEY_CACHE_TTL_MS) {
+    return cached.value;
+  }
+
+  let pending = inFlight.get(url);
+  if (!pending) {
+    pending = (async () => {
+      const response = await fetch(url, {
+        signal: AbortSignal.timeout(KEY_FETCH_TIMEOUT_MS),
+      });
+      if (!response.ok) {
+        throw new Error(`${label} responded with ${response.status}`);
+      }
+      const value = await response.json();
+      // A 200 carrying an error page or an empty body would otherwise stand in
+      // for the real keys until it expired.
+      if (!isUsable(value)) {
+        throw new Error(`${label} returned no usable keys`);
+      }
+      responseCache.set(url, { value, fetchedAt: Date.now() });
+      return value;
+    })().finally(() => inFlight.delete(url));
+    inFlight.set(url, pending);
+  }
+  return pending;
+}
+
+const isText = (value: any) => typeof value === 'string' && value.length > 0;
+
+const hasKeys = (value: any) =>
+  Array.isArray(value?.keys) && value.keys.some((key: any) => isText(key?.kid));
+
+const isDiscoveryDoc = (value: any) =>
+  isText(value?.jwks_uri) && isText(value?.issuer);
+
+const findKey = (certs: any, kid: string) =>
+  certs.keys.find((key: { kid: string }) => key?.kid === kid);
 
 export type GoogleSETEvent = {
   subject: {
@@ -328,24 +386,19 @@ export function normalizeGoogleSETEventType(eventType: string): string {
  */
 export async function getApplePublicKey(token: string, statsd: StatsD) {
   try {
-    const response = await fetch(APPLE_PUBLIC_KEYS, {
-      signal: AbortSignal.timeout(JWKS_TIMEOUT_MS),
-    });
-    if (!response.ok) {
-      throw new Error(
-        `Apple public key endpoint responded with ${response.status}`
-      );
-    }
-    const appleCerts = await response.json();
     const jwtHeader = jwt.decode(token, { complete: true })?.header;
     const keyId = jwtHeader?.kid;
     if (!keyId) {
       throw new Error('No valid keyId found.');
     }
 
-    const publicKey = appleCerts.keys.find(
-      (key: { kid: string }) => key.kid === keyId
+    const appleCerts = await getJson(
+      APPLE_PUBLIC_KEYS,
+      'Apple public key endpoint',
+      hasKeys
     );
+
+    const publicKey = findKey(appleCerts, keyId);
 
     if (!publicKey) {
       throw new Error('Public key certificate not found.');
@@ -372,32 +425,24 @@ export async function getGooglePublicKey(
   statsd: StatsD
 ): Promise<{ pem: string; issuer: string }> {
   try {
-    // Google needs two hops; one deadline covers both.
-    const signal = AbortSignal.timeout(JWKS_TIMEOUT_MS);
-    const riscConfigResponse = await fetch(RISC_CONFIG_URI, { signal });
-    if (!riscConfigResponse.ok) {
-      throw new Error(
-        `Google RISC configuration endpoint responded with ${riscConfigResponse.status}`
-      );
-    }
-    const { jwks_uri: jwksUri, issuer } = await riscConfigResponse.json();
-
-    const googleCertsResponse = await fetch(jwksUri, { signal });
-    if (!googleCertsResponse.ok) {
-      throw new Error(
-        `Google public key endpoint responded with ${googleCertsResponse.status}`
-      );
-    }
-    const googleCerts = await googleCertsResponse.json();
     const jwtHeader = jwt.decode(token, { complete: true })?.header;
-    const keyId = jwtHeader.kid;
+    const keyId = jwtHeader?.kid;
     if (!keyId) {
       throw new Error('No valid keyId found.');
     }
 
-    const publicKey = googleCerts.keys.find(
-      (key: { kid: string }) => key.kid === keyId
+    const { jwks_uri: jwksUri, issuer } = await getJson(
+      RISC_CONFIG_URI,
+      'Google RISC configuration endpoint',
+      isDiscoveryDoc
     );
+    const googleCerts = await getJson(
+      jwksUri,
+      'Google public key endpoint',
+      hasKeys
+    );
+
+    const publicKey = findKey(googleCerts, keyId);
 
     if (!publicKey) {
       throw new Error('Public key certificate not found.');
