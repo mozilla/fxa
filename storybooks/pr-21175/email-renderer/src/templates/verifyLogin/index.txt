@@ -1,0 +1,12 @@
+verifyLogin-title-2 = "Did you sign in to <%- clientName %>?"
+
+verifyLogin-description-2 = "Help us keep your account safe by confirming you signed in on:"
+
+<%- include('/partials/userInfo/index.txt') %>
+
+verifyLogin-action = "Confirm sign-in"
+<%- link %>
+
+<%- include('/partials/automatedEmailNotAuthorized/index.txt') %>
+
+<%- include('/partials/support/index.txt') %>

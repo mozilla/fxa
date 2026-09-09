@@ -1,0 +1,12 @@
+{
+  "commit": "b11bb3f75df6db93859a52f3dd7fe088b4af1a25",
+  "summary": "chore(deps): bump handlebars to 4.7.9",
+  "description": "Resolves Dependabot alert #591.\nCreated by BLEnder (https://github.com/mozilla/blender)",
+  "timestamp": 1788986138000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
