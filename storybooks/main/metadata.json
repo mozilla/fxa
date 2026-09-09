@@ -1,8 +1,8 @@
 {
-  "commit": "c7c9ed8aee9f3f5fcd072f47b758f15e639e7a61",
-  "summary": "Merge pull request #21150 from mozilla/FXA-14467",
-  "description": "fix(pair): send an iOS QR scan straight to /pair/unsupported",
-  "timestamp": 1788912914000,
+  "commit": "25055db346210d3a7b5271d10419615280ab1fe5",
+  "summary": "Merge pull request #21162 from mozilla/FXA-14154",
+  "description": "feat(passkey): Surface wrap state on the passkey endpoints",
+  "timestamp": 1788924752000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
