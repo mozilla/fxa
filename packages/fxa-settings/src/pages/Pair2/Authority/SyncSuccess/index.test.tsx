@@ -38,7 +38,7 @@ describe('Pair2/Authority/SyncSuccess page', () => {
     );
   });
 
-  it('exposes the illustration to assistive technology', () => {
+  it('keeps the illustration decorative', () => {
     renderWithLocalizationProvider(<Subject />);
 
     expect(
@@ -46,7 +46,10 @@ describe('Pair2/Authority/SyncSuccess page', () => {
         .getAllByRole('img')
         .map((img) => img.getAttribute('alt') ?? img.getAttribute('aria-label'))
     ).toEqual([
-      'Mozilla logo'
+      // AppLayout's page header alone. The illustration is decorative — the
+      // heading and description above it say the same — and desktop cards
+      // carry no Firefox lockup.
+      'Mozilla logo',
     ]);
   });
 
