@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit eac1bedf2fce092ef10f632fa6ccc936d9a86721</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit eac1bedf2fce092ef10f632fa6ccc936d9a86721</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/9/2026, 7:21:57 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>task(settings): thread service through oauth_flow_begin</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because:
+
+- FXA-14371: the `fxaccounts:oauth_flow_begin` WebChannel message always assumed Sync, so non-Sync callers could not name their service.
+- origin/main landed pairing and `fxa_status` changes on the same files, so the branch needed a merge.
+
+## This commit:
+
+- Merges origin/main into `fxa-14371` and resolves the conflicts in 4 files.
+- Keeps this branch&#039;s work: the `WebChannelService` type, the `buildSyncOAuthSearch` to `buildOAuthSearch` rename with its optional `service` argument, and the `service` argument on `fxaOAuthFlowBegin`.
+- Keeps main&#039;s work: `code_challenge_method` on the pair OAuth types, the `PAIR_OAUTH_TIMEOUT_MS` and `DEFAULT_SEND_TIMEOUT_LENGTH_MS` constants, the corrected `PairOauthStart` error messages, and the `keys_jwk` field on `pairOauthFinish`.
+- Combines both sides in `Pair/Index`: the call now uses `buildOAuthSearch(oauthParams, &#039;sync&#039;)` and still copies the pairing attribution params onto the search.
+
+## Conflicted files
+
+- `packages/fxa-settings/src/lib/channels/firefox.ts`
+- `packages/fxa-settings/src/lib/channels/firefox.test.ts`
+- `packages/fxa-settings/src/pages/ConnectAnotherDevice/index.test.tsx`
+- `packages/fxa-settings/src/pages/Pair/Index/index.tsx`
+
+## Verification
+
+- `npx nx lint fxa-settings` passes with exit 0. The 3 warnings are pre-existing and are in files this branch does not touch.
+- `tsc --noEmit` on `fxa-settings` reports no errors.
+- The full `fxa-settings` Jest suite passes: 300 suites, 3732 tests. `nx test-unit fxa-settings` is a no-op echo for this package and depends on a full production build, so the package Jest runner was used instead.
+- One suite, `src/components/App/index.test.tsx`, failed on the first full run and passed on the second run and in isolation. It is a real-timer test from main that takes 992 ms against a 5 s cap, so heavy parallel load makes it flaky. This branch does not change that file or its code path.
+
+## Notes for the reviewer
+
+- Only the 4 conflicted files were edited. Nothing else changed.
+- The changes are left in the working tree. Nothing is staged or committed.
+- `node_modules/@rspack/binding-linux-arm64-gnu` was installed in the VM so Nx could build its project graph. `node_modules` is gitignored, so this does not affect the diff.</pre></dd>
+  </dl>
+</body>
+</html>
