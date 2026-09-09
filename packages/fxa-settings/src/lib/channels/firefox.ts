@@ -150,6 +150,25 @@ export type WebChannelServices =
       vpn: {};
     };
 
+// keyof a union yields only the shared keys, so distribute over it first.
+type KeysOfUnion<T> = T extends unknown ? keyof T : never;
+
+// Service names the WebChannel messages accept, derived from
+// WebChannelServices so the two cannot drift apart.
+export type WebChannelService = KeysOfUnion<WebChannelServices>;
+
+// The same names at runtime. The browser echoes a service back over the
+// WebChannel, where the type above is erased, so the echo needs a real check.
+// The Record makes a missing name a compile error, not a silent rejection.
+const WEB_CHANNEL_SERVICES = new Set<string>(
+  Object.keys({
+    sync: true,
+    relay: true,
+    smartwindow: true,
+    vpn: true,
+  } satisfies Record<WebChannelService, true>)
+);
+
 // ref: [FxAccounts.sys.mjs](https://searchfox.org/mozilla-central/rev/82828dba9e290914eddd294a0871533875b3a0b5/services/fxaccounts/FxAccounts.sys.mjs#910)
 export type FxALoginSignedInUserRequest = FxALoginRequest & {
   authAt: number;
@@ -213,17 +232,24 @@ export type FxAOAuthFlowBeginResponse = {
   code_challenge_method?: string;
   // Forward to /authorization, otherwise the OAuth code is keyless and Sync never enables.
   keys_jwk?: string;
+  // Optional because the browser does not echo the service back yet.
+  service?: WebChannelService;
 };
 
-// Builds the oauth_webchannel_v1 Sync sign-in URL search params from the
-// fxa_oauth_flow_begin response. Callers may set additional params on the
-// returned URLSearchParams (e.g. entrypoint, email, utm_*).
-export function buildSyncOAuthSearch(
-  oauthParams: FxAOAuthFlowBeginResponse
+// Builds the oauth_webchannel_v1 sign-in URL search params from the
+// fxa_oauth_flow_begin response. The service comes from the caller, then the
+// browser echo, then sync. Callers may set additional params on the returned
+// URLSearchParams (e.g. entrypoint, email, utm_*).
+export function buildOAuthSearch(
+  oauthParams: FxAOAuthFlowBeginResponse,
+  service?: WebChannelService
 ): URLSearchParams {
+  const echoed = oauthParams.service;
+  const resolvedService =
+    service ?? (echoed && WEB_CHANNEL_SERVICES.has(echoed) ? echoed : 'sync');
   const search = new URLSearchParams({
     context: 'oauth_webchannel_v1',
-    service: 'sync',
+    service: resolvedService,
     client_id: oauthParams.client_id,
     state: oauthParams.state,
     scope: oauthParams.scope,
@@ -519,7 +545,8 @@ export class Firefox extends EventTarget {
 
   /** Start new OAuth flow in Firefox and get fresh params for recovery. */
   async fxaOAuthFlowBegin(
-    scopes: string[]
+    scopes: string[],
+    service?: WebChannelService
   ): Promise<FxAOAuthFlowBeginResponse | null> {
     let timeoutId: number;
     return Promise.race<FxAOAuthFlowBeginResponse | null>([
@@ -533,7 +560,12 @@ export class Firefox extends EventTarget {
 
         this.addEventListener(FirefoxCommand.OAuthFlowBegin, eventHandler);
         requestAnimationFrame(() => {
-          this.send(FirefoxCommand.OAuthFlowBegin, { scopes });
+          // Omit the key when the caller has no service, rather than send
+          // undefined.
+          this.send(FirefoxCommand.OAuthFlowBegin, {
+            scopes,
+            ...(service ? { service } : {}),
+          });
         });
       }),
       new Promise<FxAOAuthFlowBeginResponse | null>((resolve) => {
