@@ -152,6 +152,9 @@ module.exports = function (
             metricsContext: METRICS_CONTEXT_SCHEMA,
             originalLoginEmail: validators.email().optional(),
             verificationMethod: validators.verificationMethod.optional(),
+            // Reauth shares `sendSigninNotifications` with /account/login, so it
+            // honours the same flag for clients that send the code themselves.
+            sendSigninVerificationEmail: isA.boolean().optional(),
           }),
         },
         response: {
@@ -512,11 +515,26 @@ module.exports = function (
           throw error.invalidOrExpiredOtpCode();
         }
 
+        // Mirror resend_code: a TOTP account must not verify its session (and co-minted
+        // keyFetchToken) at AAL1 via an email code, nor downgrade totp-2fa to email-2fa.
+        // Skipped pre-email-verification so signup/email confirmation is never gated.
+        if (
+          account.primaryEmail.isVerified &&
+          (await otpUtils.hasTotpToken({ uid }))
+        ) {
+          throw error.insufficientAal();
+        }
+
         // If a valid code was sent, this verifies the session using the `email-2fa` method.
         // The assurance level will be ["pwd", "email"] or level 1.
+        // `email-2fa` maps to AAL1, so only refresh the authentication event when it
+        // would not *lower* an already-AAL2 session — otherwise a re-verification here
+        // would downgrade the session's assurance level (now load-bearing for auth_time).
         // **Note** the order of operations, to avoid any race conditions with push
         // notifications, we perform all DB operations first.
-        await db.verifyTokensWithMethod(sessionToken.id, 'email-2fa');
+        if (sessionToken.authenticatorAssuranceLevel <= 1) {
+          await db.verifyTokensWithMethod(sessionToken.id, 'email-2fa');
+        }
 
         // We have a matching code! Let's verify the account, session and send the
         // corresponding email and emit metrics.
@@ -533,42 +551,20 @@ module.exports = function (
             );
 
           // Send new device login notification email after successful verification
-          const geoData = request.app.geo;
           const service = options.service || request.query.service;
 
           try {
-            if (fxaMailer.canSend('newDeviceLogin')) {
-              const clientInfo = await oauthClientInfoService.fetch(service);
-              await fxaMailer.sendNewDeviceLoginEmail({
-                ...FxaMailerFormat.account(account),
-                ...FxaMailerFormat.device(request),
-                ...FxaMailerFormat.localTime(request),
-                ...FxaMailerFormat.location(request),
-                ...(await FxaMailerFormat.metricsContext(request)),
-                ...FxaMailerFormat.sync(service),
-                clientName: clientInfo.name,
-                showBannerWarning: false,
-              });
-            } else {
-              const emailOptions = {
-                acceptLanguage: request.app.acceptLanguage,
-                ip: request.app.clientAddress, // TODO: Double check this... It doesn't seem to be used?
-                location: geoData.location,
-                service,
-                timeZone: geoData.timeZone,
-                uaBrowser: sessionToken.uaBrowser,
-                uaBrowserVersion: sessionToken.uaBrowserVersion,
-                uaOS: sessionToken.uaOS,
-                uaOSVersion: sessionToken.uaOSVersion,
-                uaDeviceType: sessionToken.uaDeviceType,
-                uid,
-              };
-              await mailer.sendNewDeviceLoginEmail(
-                account.emails,
-                account,
-                emailOptions
-              );
-            }
+            const clientInfo = await oauthClientInfoService.fetch(service);
+            await fxaMailer.sendNewDeviceLoginEmail({
+              ...FxaMailerFormat.account(account),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.sync(service),
+              clientName: clientInfo.name,
+              showBannerWarning: false,
+            });
           } catch (err) {
             log.trace('Session.verify_code.sendNewDeviceLoginEmail.error', {
               error: err,
@@ -642,71 +638,45 @@ module.exports = function (
         if (account.primaryEmail.isVerified) {
           // Unverified emails mean that the user is attempting to resend the code from signup page,
           // therefore they get sent a different email template with the code.
-          if (fxaMailer.canSend('verifyLoginCode')) {
-            // This will just short-circuit to Mozilla, but leaving for future proofing.
-            const clientInfo = await oauthClientInfoService.fetch(undefined);
-            const cmsConfig = await getOptionalCmsEmailConfig(options, {
-              request,
-              cmsManager,
-              log,
-              emailTemplate: 'VerifyLoginCodeEmail',
-            });
-            await fxaMailer.sendVerifyLoginCodeEmail({
-              ...FxaMailerFormat.account(account),
-              ...(await FxaMailerFormat.metricsContext(request)),
-              ...FxaMailerFormat.localTime(request),
-              ...FxaMailerFormat.location(request),
-              ...FxaMailerFormat.device(request),
-              ...FxaMailerFormat.sync(false),
-              ...FxaMailerFormat.cmsLogo(cmsConfig),
-              ...FxaMailerFormat.cmsEmailSubject(cmsConfig),
-              code,
-              service: clientInfo.name,
-              serviceName: clientInfo.name,
-            });
-          } else {
-            await mailer.sendVerifyLoginCodeEmail(
-              account.emails,
-              account,
-              await getOptionalCmsEmailConfig(options, {
-                request,
-                cmsManager,
-                log,
-                emailTemplate: 'VerifyLoginCodeEmail',
-              })
-            );
-          }
+          // This will just short-circuit to Mozilla, but leaving for future proofing.
+          const clientInfo = await oauthClientInfoService.fetch(undefined);
+          const cmsConfig = await getOptionalCmsEmailConfig(options, {
+            request,
+            cmsManager,
+            log,
+            emailTemplate: 'VerifyLoginCodeEmail',
+          });
+          await fxaMailer.sendVerifyLoginCodeEmail({
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(false),
+            ...FxaMailerFormat.cmsLogo(cmsConfig),
+            ...FxaMailerFormat.cmsEmailSubject(cmsConfig),
+            code,
+            service: clientInfo.name,
+            serviceName: clientInfo.name,
+          });
         } else {
-          if (fxaMailer.canSend('verifyShortCode')) {
-            const cmsConfig = await getOptionalCmsEmailConfig(options, {
-              request,
-              cmsManager,
-              log,
-              emailTemplate: 'VerifyShortCodeEmail',
-            });
-            await fxaMailer.sendVerifyShortCodeEmail({
-              ...FxaMailerFormat.account(account),
-              ...(await FxaMailerFormat.metricsContext(request)),
-              ...FxaMailerFormat.localTime(request),
-              ...FxaMailerFormat.location(request),
-              ...FxaMailerFormat.device(request),
-              ...FxaMailerFormat.sync(false),
-              ...FxaMailerFormat.cmsLogo(cmsConfig),
-              ...FxaMailerFormat.cmsEmailSubject(cmsConfig),
-              code,
-            });
-          } else {
-            await mailer.sendVerifyShortCodeEmail(
-              [],
-              account,
-              await getOptionalCmsEmailConfig(options, {
-                request,
-                cmsManager,
-                log,
-                emailTemplate: 'VerifyShortCodeEmail',
-              })
-            );
-          }
+          const cmsConfig = await getOptionalCmsEmailConfig(options, {
+            request,
+            cmsManager,
+            log,
+            emailTemplate: 'VerifyShortCodeEmail',
+          });
+          await fxaMailer.sendVerifyShortCodeEmail({
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(false),
+            ...FxaMailerFormat.cmsLogo(cmsConfig),
+            ...FxaMailerFormat.cmsEmailSubject(cmsConfig),
+            code,
+          });
         }
 
         return {};

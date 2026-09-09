@@ -92,7 +92,7 @@ test.describe('severity-1 #smoke', () => {
 
       await signup.fillOutEmailForm(email);
 
-      await expect(signup.signupFormHeading).toBeVisible();
+      await expect(signup.passwordTextbox).toBeVisible();
 
       await signup.respondToWebChannelMessage(eventDetailLinkAccount);
 

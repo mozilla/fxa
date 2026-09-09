@@ -13,6 +13,7 @@ import { MemoryRouter } from 'react-router';
 
 const mockIntegration: ResetPasswordIntegration = {
   getCmsInfo: () => undefined,
+  isSync: () => false,
 };
 
 describe('ResetPasswordRecoveryPhone', () => {

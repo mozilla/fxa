@@ -53,6 +53,8 @@ export type FormVerifyCodeProps = {
   className?: string;
   /** Disables the submit button during a server-side throttle window. */
   isThrottled?: boolean;
+  /** Locks submit independently of the internal empty/invalid-code state. */
+  disabled?: boolean;
 };
 
 type FormData = {
@@ -74,6 +76,7 @@ const FormVerifyCode = ({
   onChangeCb,
   className = 'flex flex-col gap-4 my-6',
   isThrottled = false,
+  disabled = false,
 }: FormVerifyCodeProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -94,15 +97,18 @@ const FormVerifyCode = ({
     }
   };
 
-  const { handleSubmit, register, errors, watch } = useForm<FormData>({
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+    setValue,
+  } = useForm<FormData>({
     mode: 'onBlur',
     criteriaMode: 'all',
     defaultValues: {
       code: '',
     },
   });
-
-  const codeValue = watch('code');
 
   const localizedDefaultCodeRequiredMessage = ftlMsgResolver.getMsg(
     'form-verify-code-default-error',
@@ -124,6 +130,10 @@ const FormVerifyCode = ({
   ]);
 
   const onSubmit = async ({ code }: FormData) => {
+    // The onPaste auto-submit bypasses the button's disabled attribute.
+    if (disabled || isThrottled) {
+      return;
+    }
     setIsSubmitting(true);
     await verifyCode(code.trim());
     setIsSubmitting(false);
@@ -137,21 +147,11 @@ const FormVerifyCode = ({
     }
   };
 
-  useEffect(() => {
-    if (codeValue && codeValue.length > 0) {
-      const isValid = new RegExp(formAttributes.pattern).test(codeValue);
-      setIsDisabled(!isValid);
-    } else {
-      setIsDisabled(true);
-    }
-  }, [codeValue, formAttributes.pattern]);
-
   return (
     <form noValidate {...{ className }} onSubmit={handleSubmit(onSubmit)}>
       {/* Using `type="text" inputmode="numeric"` shows the numeric keyboard on mobile
       and strips out whitespace on desktop, but does not add an incrementer. */}
       <InputText
-        name="code"
         type="text"
         inputMode={inputMode}
         label={localizedLabel}
@@ -159,6 +159,11 @@ const FormVerifyCode = ({
           if (inputMode === InputModeEnum.numeric) {
             e.target.value = e.target.value.replace(/[^0-9]/g, '');
           }
+          const value = e.target.value;
+          setValue('code', value);
+          const isValid =
+            value.length > 0 && new RegExp(formAttributes.pattern).test(value);
+          setIsDisabled(!isValid);
           if (setClearMessages) {
             setClearMessages(true);
           } else {
@@ -178,16 +183,14 @@ const FormVerifyCode = ({
         spellCheck={false}
         prefixDataTestId={viewName}
         tooltipPosition="bottom"
-        inputRef={register({
-          required: true,
-        })}
+        registration={register('code', { required: true })}
       />
 
       <FtlMsg id={formAttributes.submitButtonFtlId}>
         <CmsButtonWithFallback
           type="submit"
           className="cta-primary cta-xl"
-          disabled={isSubmitting || isDisabled || isThrottled}
+          disabled={isSubmitting || isDisabled || isThrottled || disabled}
           data-glean-id={gleanDataAttrs?.id}
           data-glean-label={gleanDataAttrs?.label}
           data-glean-type={gleanDataAttrs?.type}

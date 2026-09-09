@@ -12,9 +12,17 @@ export interface EligibilityContentSubgroupOfferingResult {
   };
 }
 
+export interface EligibilityContentSubgroupRankedOfferingResult {
+  position: number;
+  offering: {
+    apiIdentifier: string;
+  };
+}
+
 export interface EligibilityContentSubgroupResult {
   groupName: string;
   offerings: EligibilityContentSubgroupOfferingResult[];
+  rankedOfferings: EligibilityContentSubgroupRankedOfferingResult[];
 }
 
 export interface EligibilityContentOfferingResult {

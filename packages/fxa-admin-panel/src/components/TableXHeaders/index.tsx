@@ -33,7 +33,12 @@ export const TableRowXHeader = ({ children, testId }: TableRowXHeaderProps) => {
   return (
     <tr data-testid={testId}>
       {arrayElements.map((element, i) => {
-        if (React.isValidElement(element) && element.type === 'td') {
+        // The type argument is required under @types/react 19, which narrows
+        // isValidElement to `ReactElement<unknown>` rather than `any`.
+        if (
+          React.isValidElement<React.ComponentProps<'td'>>(element) &&
+          element.type === 'td'
+        ) {
           const {
             className: elementClassNames,
             children: elementChildren,

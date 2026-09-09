@@ -4,8 +4,11 @@
 
 import {
   createCredential,
+  getCredential,
   DEFAULT_TIMEOUT_MS,
+  type AuthenticationExtensionsJSON,
   type PublicKeyCredentialCreationOptionsJSON,
+  type PublicKeyCredentialRequestOptionsJSON,
   type PublicKeyCredentialJSON,
 } from './webauthn';
 import { WebAuthnErrorType } from './webauthn-errors';
@@ -34,14 +37,15 @@ export function isRetriableWithoutPrf(error: unknown): boolean {
 }
 
 /**
- * Returns the creation options with the PRF extension removed, preserving any
- * other extensions. Used to retry registration without PRF when an
- * authenticator rejects the PRF eval. Returns the original object unchanged
- * (same reference) when there is no PRF extension to strip.
+ * Returns WebAuthn options with the PRF extension removed, preserving any other
+ * extensions. Works for both creation (registration) and request
+ * (authentication) options — the retry drops PRF when an authenticator rejects
+ * the PRF eval. Returns the original object unchanged (same reference) when
+ * there is no PRF extension to strip.
  */
-export function stripPrfExtension(
-  options: PublicKeyCredentialCreationOptionsJSON
-): PublicKeyCredentialCreationOptionsJSON {
+export function stripPrfExtension<
+  T extends { extensions?: AuthenticationExtensionsJSON },
+>(options: T): T {
   if (!options.extensions?.prf) {
     return options;
   }
@@ -54,6 +58,43 @@ export function stripPrfExtension(
         ? remainingExtensions
         : undefined,
   };
+}
+
+/**
+ * True when the browser returned a PRF output at `get()`. At authentication the
+ * browser returns the PRF _output_ (`prf.results.first`), not the `prf.enabled`
+ * boolean seen at creation, so its presence is the support signal. Reads
+ * presence only — never the output value itself.
+ */
+export function extractPrfSupport(
+  credential: Pick<PublicKeyCredentialJSON, 'clientExtensionResults'>
+): boolean {
+  const prf = (
+    credential.clientExtensionResults as {
+      prf?: { results?: { first?: unknown } };
+    }
+  ).prf;
+  return prf?.results?.first != null;
+}
+
+/**
+ * Returns the credential with any PRF extension results removed from
+ * `clientExtensionResults`, so the PRF output never reaches the server.
+ *
+ * Binary PRF outputs are `ArrayBuffer`s that already drop out when the
+ * credential is JSON-stringified for the wire, but this makes the guarantee
+ * explicit and independent of that serialisation quirk. Returns the original
+ * object unchanged (same reference) when there is no PRF result to strip.
+ */
+export function stripPrfResults(
+  credential: PublicKeyCredentialJSON
+): PublicKeyCredentialJSON {
+  const results = credential.clientExtensionResults as { prf?: unknown };
+  if (!results.prf) {
+    return credential;
+  }
+  const { prf: _prf, ...rest } = results;
+  return { ...credential, clientExtensionResults: rest };
 }
 
 /**
@@ -117,6 +158,58 @@ export async function createCredentialWithPrfFallback(
             stripPrfExtension(options),
             remaining,
             externalSignal
+          );
+          onPrfFallback?.({ reason, outcome: 'success' });
+          return credential;
+        } catch (retryError) {
+          onPrfFallback?.({ reason, outcome: 'failure' });
+          throw retryError;
+        }
+      }
+    }
+    throw error;
+  }
+}
+
+/**
+ * Runs the authentication ceremony, silently retrying once without the PRF
+ * extension if the first attempt fails in a way PRF could have caused.
+ *
+ * The authentication analog of {@link createCredentialWithPrfFallback}: PRF is
+ * requested at sign-in only to detect capability (never to block sign-in), so a
+ * PRF-attributable failure must fall back to a normal, PRF-free assertion. Only
+ * an `UnknownError` triggers the retry, so a user cancel (`NotAllowedError`) or
+ * a timeout (`TimeoutError`) is non-retriable and never causes a re-prompt.
+ *
+ * Only retries when the original options actually carried a PRF extension —
+ * otherwise stripping is a no-op and the same error would recur. The retry is
+ * bounded by what remains of the original `timeoutMs` budget so the two
+ * attempts together never exceed a single timeout window.
+ *
+ * When the retry fires, `onPrfFallback` is invoked exactly once with the
+ * triggering error name and the retry outcome — purely for telemetry.
+ */
+export async function getCredentialWithPrfFallback(
+  options: PublicKeyCredentialRequestOptionsJSON,
+  timeoutMs?: number,
+  onPrfFallback?: (info: PrfFallbackInfo) => void
+): Promise<PublicKeyCredentialJSON> {
+  const startedAt = Date.now();
+  try {
+    return await getCredential(options, timeoutMs);
+  } catch (error) {
+    if (isRetriableWithoutPrf(error) && options.extensions?.prf) {
+      const budget = timeoutMs ?? DEFAULT_TIMEOUT_MS;
+      const remaining = Math.max(0, budget - (Date.now() - startedAt));
+      // With no budget left, a retry (timeoutMs=0) would abort immediately and
+      // throw a TimeoutError that masks the original error, so rethrow the
+      // original unchanged instead.
+      if (remaining > 0) {
+        const reason = (error as DOMException).name;
+        try {
+          const credential = await getCredential(
+            stripPrfExtension(options),
+            remaining
           );
           onPrfFallback?.({ reason, outcome: 'success' });
           return credential;

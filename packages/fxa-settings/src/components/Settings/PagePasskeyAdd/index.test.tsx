@@ -12,7 +12,7 @@ import { Account, AppContext } from '../../../models';
 import { mockAppContext, mockSettingsContext } from '../../../models/mocks';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import { AlertBarInfo } from '../../../models/AlertBarInfo';
-import { MfaContext } from '../MfaGuard';
+import { MfaContext } from '../../../lib/hooks';
 import { createCredential } from '../../../lib/passkeys/webauthn';
 import {
   WebAuthnErrorCategory,

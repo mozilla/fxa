@@ -19,6 +19,8 @@ jest.mock('../../../lib/glean', () => ({
     passwordReset: {
       createNewView: jest.fn(),
       recoveryKeyCreatePasswordView: jest.fn(),
+      rememberPasswordLinkView: jest.fn(),
+      rememberPasswordLinkClick: jest.fn(),
     },
   },
 }));
@@ -48,7 +50,7 @@ describe('CompleteResetPassword page', () => {
 
       // Warning message about data loss should should be displayed
       expect(
-        screen.getByText('Your browser data may not be recovered')
+        screen.getByText('Review sign-in options to keep browser data')
       ).toBeVisible();
 
       // Warning should be expanded by default for known active sync user
@@ -104,7 +106,7 @@ describe('CompleteResetPassword page', () => {
 
       // Warning messages about data loss is displayed but collapsed
       expect(
-        screen.queryByText('Your browser data may not be recovered')
+        screen.queryByText('Review sign-in options to keep browser data')
       ).toBeInTheDocument();
 
       expect(screen.getByRole('img', { name: 'Expand warning' })).toBeVisible();
@@ -146,7 +148,7 @@ describe('CompleteResetPassword page', () => {
 
       // Warning messages about data loss should not be displayed.
       expect(
-        screen.queryByText('Your browser data may not be recovered')
+        screen.queryByText('Review sign-in options to keep browser data')
       ).not.toBeInTheDocument();
 
       // Warning message about using recovery key should not be displayed
@@ -202,7 +204,7 @@ describe('CompleteResetPassword page', () => {
 
       // Warning messages about data loss should be displayed.
       expect(
-        screen.queryByText('Your browser data may not be recovered')
+        screen.queryByText('Review sign-in options to keep browser data')
       ).toBeInTheDocument();
 
       // Option to use recovery key should be displayed
@@ -250,7 +252,7 @@ describe('CompleteResetPassword page', () => {
 
       // Warning messages about data loss is displayed but collapsed
       expect(
-        screen.queryByText('Your browser data may not be recovered')
+        screen.queryByText('Review sign-in options to keep browser data')
       ).toBeInTheDocument();
 
       expect(screen.getByRole('img', { name: 'Expand warning' })).toBeVisible();
@@ -277,7 +279,7 @@ describe('CompleteResetPassword page', () => {
 
       // Warning messages about data loss should not be displayed.
       expect(
-        screen.queryByText('Your browser data may not be recovered')
+        screen.queryByText('Review sign-in options to keep browser data')
       ).toBeInTheDocument();
 
       // Option to use recovery key should be displayed

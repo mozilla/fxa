@@ -1,11 +1,11 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import crypto from 'node:crypto';
 import { knex, Knex } from 'knex';
 import { MysqlDialect, MysqlPool } from 'kysely';
 import { createPool } from 'mysql2';
 import { promisify } from 'util';
-import { v4 as uuidv4 } from 'uuid';
 
 import { logger, Logger } from '@fxa/shared/log';
 import { localStatsD, StatsD } from '@fxa/shared/metrics/statsd';
@@ -106,7 +106,7 @@ export function createKnex(
 }
 
 export function generateFxAUuid() {
-  return uuidv4({}, Buffer.alloc(16)).toString('hex');
+  return crypto.randomBytes(16).toString('hex');
 }
 
 export async function createDialect(

@@ -44,7 +44,7 @@ test.describe('severity-2 #smoke', () => {
       await expect(
         page.getByRole('heading', { name: /Bad Request/ })
       ).toBeVisible();
-      await expect(signin.emailFirstHeading).toBeHidden();
+      await expect(signin.emailTextbox).toBeHidden();
     });
 
     test('does not allow bogus redirect_to parameter', async ({

@@ -142,10 +142,9 @@ export const RecoveryKeySetupHint = ({
         <ControlledCharacterCount {...{ control }} />
         <FtlMsg id="flow-recovery-key-hint-input-v2" attrs={{ label: true }}>
           <InputText
-            name="hint"
             label="Enter a hint (optional)"
             prefixDataTestId="hint"
-            inputRef={register()}
+            registration={register('hint')}
             onChange={() => {
               setHintError(undefined);
               setLocalizedErrorMessage('');

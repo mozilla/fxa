@@ -4,7 +4,7 @@
 
 import $ from 'jquery';
 import AuthErrors from 'lib/auth-errors';
-import chai from 'chai';
+import { assert } from 'chai';
 import AuthClient from 'fxa-auth-client/browser';
 import FxaClientWrapper from 'lib/fxa-client';
 import OAuthRelier from 'models/reliers/oauth';
@@ -22,7 +22,6 @@ var REDIRECT_TO = 'https://sync.firefox.com';
 var STATE = 'state';
 var SYNC_SERVICE = 'sync';
 
-var assert = chai.assert;
 var client;
 var email;
 var password = 'password';

@@ -80,13 +80,23 @@ export class DatabaseService implements OnModuleDestroy {
       metrics
     );
 
+    // Align the connection with the utf8mb4 storage charset; it
+    // otherwise defaults to utf8mb3.
     this.knex = knex({
-      connection: { typeCast: typeCasting, ...dbConfig.fxa },
+      connection: {
+        typeCast: typeCasting,
+        ...dbConfig.fxa,
+        charset: 'UTF8MB4_BIN',
+      },
       client: 'mysql',
     });
 
     this.knexOauth = knex({
-      connection: { typeCast: typeCasting, ...dbConfig.fxa_oauth },
+      connection: {
+        typeCast: typeCasting,
+        ...dbConfig.fxa_oauth,
+        charset: 'UTF8MB4_BIN',
+      },
       client: 'mysql',
     });
 

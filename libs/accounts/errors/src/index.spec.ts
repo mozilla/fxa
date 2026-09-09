@@ -185,18 +185,42 @@ describe('AppErrors', () => {
   });
 
   it('tooManyRequests', () => {
-    let result = AppError.tooManyRequests(900, 'in 15 minutes');
+    let result = AppError.tooManyRequests(900_000, 'in 15 minutes');
     expect(result).toBeInstanceOf(AppError);
     expect(result.errno).toEqual(114);
     expect(result.message).toEqual('Client has sent too many requests');
     expect(result.output.statusCode).toEqual(429);
     expect(result.output.payload.error).toEqual('Too Many Requests');
-    expect(result.output.payload.retryAfter).toEqual(900);
+    expect(result.output.payload.retryAfter).toEqual(900_000);
     expect(result.output.payload.retryAfterLocalized).toEqual('in 15 minutes');
 
-    result = AppError.tooManyRequests(900);
-    expect(result.output.payload.retryAfter).toEqual(900);
+    result = AppError.tooManyRequests(900_000);
+    expect(result.output.payload.retryAfter).toEqual(900_000);
     expect(!result.output.payload.retryAfterLocalized).toBeTruthy();
+  });
+
+  it('tooManyRequests reports retry-after in whole seconds', () => {
+    const result = AppError.tooManyRequests(900_500);
+    expect(result.output.headers['retry-after']).toEqual('901');
+  });
+
+  it.each([0, -1, NaN, Infinity, undefined])(
+    'tooManyRequests falls back to the default wait given %p',
+    (retryAfter) => {
+      const result = AppError.tooManyRequests(retryAfter as number);
+      expect(result.output.payload.retryAfter).toEqual(30_000);
+      expect(result.output.headers['retry-after']).toEqual('30');
+    }
+  );
+
+  it('featureNotEnabled', () => {
+    const result = AppError.featureNotEnabled();
+    expect(result).toBeInstanceOf(AppError);
+    expect(result.errno).toEqual(202);
+    expect(result.message).toEqual('Feature not enabled');
+    expect(result.output.statusCode).toEqual(403);
+    expect(result.output.payload.error).toEqual('Feature not enabled');
+    expect(result.output.payload.errno).toEqual(202);
   });
 
   it('iapInvalidToken', () => {
@@ -509,6 +533,38 @@ describe('AppErrors', () => {
           payload: {
             error: 'Internal Server Error',
             errno: 232,
+          },
+        },
+      });
+    });
+
+    it('creates passkeyWrapNotFound', () => {
+      const result = AppError.passkeyWrapNotFound();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 234,
+        message: 'Passkey wrap not found',
+        output: {
+          statusCode: 404,
+          payload: {
+            error: 'Not Found',
+            errno: 234,
+          },
+        },
+      });
+    });
+
+    it('creates passkeyWrapConflict', () => {
+      const result = AppError.passkeyWrapConflict();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 235,
+        message: 'Passkey wrap already exists with a different payload',
+        output: {
+          statusCode: 409,
+          payload: {
+            error: 'Conflict',
+            errno: 235,
           },
         },
       });

@@ -1,0 +1,10 @@
+-- SET NAMES utf8mb4 COLLATE utf8mb4_bin;
+--
+-- DELETE FROM securityEventNames WHERE name = 'account.passkey.wrap_created';
+-- DELETE FROM securityEventNames WHERE name = 'account.passkey.wrap_creation_failure';
+-- DELETE FROM securityEventNames WHERE name = 'account.passkey.wrap_retrieved';
+-- DELETE FROM securityEventNames WHERE name = 'account.passkey.wrap_retrieval_failure';
+-- DELETE FROM securityEventNames WHERE name = 'account.passkey.wrap_deleted';
+-- DELETE FROM securityEventNames WHERE name = 'account.passkey.wrap_invalidated';
+--
+-- UPDATE dbMetadata SET value = '195' WHERE name = 'schema-patch-level';

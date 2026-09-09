@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useNavigate, useLocation } from 'react-router';
-import { useNavigateWithQuery } from '../../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery, useWebRedirect } from '../../../../lib/hooks';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -19,7 +19,6 @@ import {
 } from '../../../../models';
 import { SigninCachedProps } from '../../interfaces';
 import { handleNavigation, ensureCanLinkAcountOrRedirect } from '../../utils';
-import { useWebRedirect } from '../../../../lib/hooks/useWebRedirect';
 import { getLocalizedErrorMessage } from '../../../../lib/error-utils';
 import Banner from '../../../../components/Banner';
 import CmsButtonWithFallback from '../../../../components/CmsButtonWithFallback';
@@ -262,6 +261,9 @@ const SigninCached = ({
           <FtlMsg id="signin-button">
             <CmsButtonWithFallback
               type="submit"
+              // Functional tests identify this step by test id: it shares
+              // /signin with the password step and all its copy is CMS-driven.
+              data-testid="cached-signin-submit"
               disabled={signinLoading}
               buttonColor={cmsInfo?.shared.buttonColor}
               buttonText={cachedPageCms?.primaryButtonText}

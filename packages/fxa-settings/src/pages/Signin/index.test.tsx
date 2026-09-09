@@ -171,8 +171,14 @@ function privacyAndTermsRendered() {
   const privacy = screen.getByRole('link', {
     name: /Privacy Notice/,
   });
-  expect(terms).toHaveAttribute('href', '/legal/terms');
-  expect(privacy).toHaveAttribute('href', '/legal/privacy');
+  expect(terms).toHaveAttribute(
+    'href',
+    'https://www.mozilla.org/about/legal/terms/services/'
+  );
+  expect(privacy).toHaveAttribute(
+    'href',
+    'https://www.mozilla.org/privacy/mozilla-accounts/'
+  );
 }
 
 function thirdPartyAuthRendered() {
@@ -264,6 +270,38 @@ describe('Signin component', () => {
       (isWebAuthnSupported as jest.Mock).mockReturnValue(false);
       render({ hasPasskey: true });
       expect(passkeyButton()).not.toBeInTheDocument();
+    });
+
+    it('keeps the passkey button enabled after a failed password attempt (only the submit button stays disabled)', async () => {
+      const beginSigninHandler = jest.fn().mockReturnValueOnce(
+        createBeginSigninResponseError({
+          errno: AuthUiErrors.INCORRECT_PASSWORD.errno,
+        })
+      );
+      render({ hasPasskey: true, beginSigninHandler });
+
+      await enterPasswordAndSubmit();
+
+      await waitFor(() => {
+        expect(passkeyButton()).toBeEnabled();
+      });
+      expect(screen.getByRole('button', { name: 'Sign in' })).toBeDisabled();
+    });
+
+    it('releases the passkey lock and surfaces an error when the sign-in handler throws', async () => {
+      const beginSigninHandler = jest
+        .fn()
+        .mockRejectedValueOnce(new Error('network'));
+      render({ hasPasskey: true, beginSigninHandler });
+
+      await enterPasswordAndSubmit();
+
+      await waitFor(() => {
+        expect(passkeyButton()).toBeEnabled();
+      });
+      expect(GleanMetrics.login.error).toHaveBeenCalledWith({
+        event: { reason: 'network' },
+      });
     });
   });
 
@@ -620,7 +658,9 @@ describe('Signin component', () => {
             await enterPasswordAndSubmit();
             await waitFor(() => {
               expect(navigate).toHaveBeenCalledWith(
-                '/inline_recovery_key_setup?',
+                // pairReason rides along so it survives the later hard
+                // navigation from this interstitial to /pair.
+                '/inline_recovery_key_setup?pairReason=password_login',
                 {
                   replace: true,
                   state: {
@@ -687,7 +727,7 @@ describe('Signin component', () => {
                 });
               });
               expect(hardNavigateSpy).toHaveBeenCalledWith(
-                '/pair?showSuccessMessage=true',
+                '/pair?showSuccessMessage=true&pairReason=password_login',
                 undefined,
                 undefined,
                 false
@@ -858,7 +898,7 @@ describe('Signin component', () => {
                 expect(fxaLoginCallOrder).toBeLessThan(fxaOAuthLoginCallOrder);
 
                 expect(hardNavigateSpy).toHaveBeenCalledWith(
-                  '/pair?showSuccessMessage=true',
+                  '/pair?showSuccessMessage=true&pairReason=password_login',
                   undefined,
                   undefined,
                   true

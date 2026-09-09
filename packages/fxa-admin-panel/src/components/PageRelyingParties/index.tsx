@@ -17,7 +17,11 @@ import { AdminPanelFeature } from '@fxa/shared/guards';
 import { Guard } from '../Guard';
 import { useGuardContext } from '../../hooks/GuardContext';
 import { useUserContext } from '../../hooks/UserContext';
-import { getFormattedDate, getWafTfPath } from '../../lib/utils';
+import {
+  getEventBrokerTfPath,
+  getFormattedDate,
+  getWafTfPath,
+} from '../../lib/utils';
 import { TableRowYHeader, TableYHeaders } from '../TableYHeaders';
 import { adminApi } from '../../lib/api';
 
@@ -194,21 +198,8 @@ const CreateRelyingParty = ({ onExit }: { onExit: () => void }) => {
   const [rpId, setRpId] = useState<string>('');
   const [rpSecret, setRpSecret] = useState<string>('');
 
-  // Note, these are v1 projects. We need to migrate queues over to V2.
-  const gcpTerminalLink =
-    window.location.host === 'fxa-admin-panel.prod.mozaws.net'
-      ? `https://console.cloud.google.com/welcome?cloudshell=true&project=moz-fx-fxa-prod-375e`
-      : `https://console.cloud.google.com/welcome?cloudshell=true&project=moz-fx-fxa-nonprod-375e`;
-
-  const oauthClientConfig =
-    window.location.host === 'fxa-admin-panel.prod.mozaws.net'
-      ? `https://github.com/mozilla/webservices-infra/blob/main/fxa/k8s/fxa/values-prod.yaml`
-      : `https://github.com/mozilla/webservices-infra/blob/main/fxa/k8s/fxa/values-stage.yaml`;
-
-  const eventBrokerTfConfig =
-    window.location.host === 'fxa-admin-panel.prod.mozaws.net'
-      ? `https://github.com/mozilla-services/cloudops-infra/blob/master/projects/fxa/tf/prod/envs/prod/resources/eventbroker.tf`
-      : `https://github.com/mozilla-services/cloudops-infra/blob/master/projects/fxa/tf/nonprod/envs/stage/resources/eventbroker.tf`;
+  const eventBrokerTfPath = getEventBrokerTfPath();
+  const eventBrokerTfUrl = `https://github.com/mozilla/webservices-infra/blob/main/${eventBrokerTfPath}`;
 
   const resetState = () => {
     setStatus('');
@@ -246,49 +237,29 @@ const CreateRelyingParty = ({ onExit }: { onExit: () => void }) => {
             To finalize this new RP, a couple more steps are needed
           </h3>
           <p className="mb-2">
-            <b>Step 1:</b> Create a pubsub queue. In order to do this click{' '}
+            <b>Step 1:</b> Add the client id to the{' '}
+            <code>eventbroker_endpoint_subscription_config</code> map in{' '}
             <a
-              href={gcpTerminalLink}
+              href={eventBrokerTfUrl}
               target="_blank"
+              rel="noreferrer"
               className="underline text-blue-700"
             >
-              here
+              {eventBrokerTfPath}
             </a>{' '}
-            to open a gcp terminal, and issue the following command:
-            <pre className="p-2">
-              gcloud pubsub topics create rpQueue-{rpId}{' '}
-              --message-retention-duration=2678400s
-            </pre>
+            (webservices-infra). One entry provisions the topic, the push
+            subscription, and the Firestore webhook document.
+            <pre className="p-2">{`"${rpId}" = { # pragma: allowlist secret
+  endpoint        = "<webhook url>",
+  resource_server = <bool>,
+},`}</pre>
+            Both attributes are optional. <code>resource_server</code> defaults
+            to <code>false</code>. Omit <code>endpoint</code> entirely for a
+            topic with no webhook.
           </p>
 
           <p className="mb-2">
-            <b>Step 2:</b> Next, update this{' '}
-            <a
-              href={eventBrokerTfConfig}
-              target="_blank"
-              className="underline text-blue-700"
-            >
-              file
-            </a>{' '}
-            accordingly. This registers the webhook used for message delivery.
-          </p>
-
-          <p className="mb-2">
-            <b>Step 3:</b> Next, update the OAUTH_CLIENT_IDS mappings{' '}
-            <a
-              href={oauthClientConfig}
-              target="_blank"
-              className="underline text-blue-700"
-            >
-              here
-            </a>
-            . This is used to map client-ids to a known name for legacy
-            amplitude events. This is considered optional, and may be RP
-            dependant.
-          </p>
-
-          <p className="mb-2">
-            <b>Step 4:</b> Provide the following secret in secure manner to the
+            <b>Step 2:</b> Provide the following secret in secure manner to the
             relying party. This secret cannot be displayed again! If it is lost
             or compromised, the RP's secret must be rotated.
             <br />

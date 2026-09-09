@@ -28,10 +28,6 @@ export interface GetRouteDefinition {
   (routes: string[]): RouteDefinition;
 }
 
-export interface GetRouteDefinitionSingle {
-  (route: string | RegExp): RouteDefinition;
-}
-
 export interface RouteHelpers {
   addRoute: (routeDefinition: RouteDefinition) => void;
   validationErrorHandler: (
@@ -49,7 +45,6 @@ export interface AddRoutes {
 type ShowReactApp = {
   emailFirstRoutes: boolean;
   simpleRoutes: boolean;
-  resetPasswordRoutes: boolean;
   oauthRoutes: boolean;
   signInRoutes: boolean;
   signUpRoutes: boolean;
@@ -59,6 +54,7 @@ type ShowReactApp = {
   postVerifyThirdPartyAuthRoutes: boolean;
   webChannelExampleRoutes: boolean;
   pocPairingRoutes: boolean;
+  pair2Routes: boolean;
 };
 
 export interface ReactRouteGroups {
@@ -70,7 +66,10 @@ export interface GetReactRouteGroups {
 }
 
 export interface GetRoute {
-  (name: string, definition: RouteDefinition): {
+  (
+    name: string,
+    definition: RouteDefinition
+  ): {
     name: string;
     definition?: RouteDefinition;
   };

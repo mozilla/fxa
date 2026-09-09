@@ -3,11 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import AuthErrors from 'lib/auth-errors';
-import chai from 'chai';
+import { assert } from 'chai';
 import Transform from 'lib/transform';
 import Vat from 'lib/vat';
-
-var assert = chai.assert;
 
 describe('lib/transform', function () {
   describe('transformUsingSchema', function () {

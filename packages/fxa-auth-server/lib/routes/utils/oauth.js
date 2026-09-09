@@ -104,34 +104,17 @@ module.exports = {
       const isNewAccount = Date.now() - account.createdAt < MAX_NEW_ACCOUNT_AGE;
 
       if (!isNewAccount) {
-        const geoData = request.app.geo;
-        const emailOptions = {
-          acceptLanguage: request.app.acceptLanguage,
-          location: geoData.location,
-          service: clientId,
-          timeZone: geoData.timeZone,
-          uid: credentials.uid,
-        };
-
-        if (fxaMailer.canSend('newDeviceLogin')) {
-          const clientInfo = await oauthClientInfoService.fetch(clientId);
-          await fxaMailer.sendNewDeviceLoginEmail({
-            ...FxaMailerFormat.account(account),
-            ...FxaMailerFormat.device(request),
-            ...FxaMailerFormat.localTime(request),
-            ...FxaMailerFormat.location(request),
-            ...(await FxaMailerFormat.metricsContext(request)),
-            ...FxaMailerFormat.sync(clientId),
-            clientName: clientInfo.name,
-            showBannerWarning: false,
-          });
-        } else {
-          await mailer.sendNewDeviceLoginEmail(
-            account.emails,
-            account,
-            emailOptions
-          );
-        }
+        const clientInfo = await oauthClientInfoService.fetch(clientId);
+        await fxaMailer.sendNewDeviceLoginEmail({
+          ...FxaMailerFormat.account(account),
+          ...FxaMailerFormat.device(request),
+          ...FxaMailerFormat.localTime(request),
+          ...FxaMailerFormat.location(request),
+          ...(await FxaMailerFormat.metricsContext(request)),
+          ...FxaMailerFormat.sync(clientId),
+          clientName: clientInfo.name,
+          showBannerWarning: false,
+        });
       }
     }
   },

@@ -4,7 +4,10 @@
 
 import { useLocation } from 'react-router';
 
-import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
+import {
+  useValidatedQueryParams,
+  useNavigateWithQuery,
+} from '../../../lib/hooks';
 import {
   Integration,
   isOAuthIntegration,
@@ -24,8 +27,7 @@ import {
 } from './interfaces';
 import GleanMetrics from '../../../lib/glean';
 import firefox from '../../../lib/channels/firefox';
-import { useState } from 'react';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useEffect, useState } from 'react';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { storeAccountData } from '../../../lib/storage-utils';
 import { SETTINGS_PATH } from '../../../constants';
@@ -33,6 +35,7 @@ import { LocationState } from '../../Signin/interfaces';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
+import { shouldShowPasskeyResetOption } from '../../../lib/passkeys';
 
 // This component is used for both /complete_reset_password and /account_recovery_reset_password routes
 // for easier maintenance
@@ -60,9 +63,31 @@ const CompleteResetPasswordContainer = ({
 
   const [errorMessage, setErrorMessage] = useState('');
 
+  // Navigate from an effect; a render-phase navigation races the commit.
+  // Compute all redirect conditions before the early return so hooks
+  // are always called in the same order.
+  const stateFields = location.state as Record<string, any> | null;
+  const hasConfirmedRecoveryKeyEarly = !!(
+    stateFields?.accountResetToken &&
+    stateFields?.email &&
+    sensitiveDataClient.getDataType(SensitiveData.Key.DecryptedRecoveryKey)
+      ?.kB &&
+    stateFields?.recoveryKeyId
+  );
+  const isResetWithoutRecoveryKeyEarly = !!(
+    stateFields?.code && stateFields?.token
+  );
+  const shouldRedirectToReset =
+    !location.state ||
+    !(hasConfirmedRecoveryKeyEarly || isResetWithoutRecoveryKeyEarly);
+  useEffect(() => {
+    if (shouldRedirectToReset) {
+      navigateWithQuery('/reset_password', { replace: true });
+    }
+  }, [shouldRedirectToReset, navigateWithQuery]);
+
   if (!location.state) {
-    navigateWithQuery('/reset_password', { replace: true });
-    return;
+    return null;
   }
 
   const {
@@ -74,6 +99,7 @@ const CompleteResetPasswordContainer = ({
     recoveryKeyId,
     recoveryKeyExists,
     estimatedSyncDeviceCount,
+    hasPasskey,
   } = location.state as CompleteResetPasswordLocationState;
 
   const kB = sensitiveDataClient.getDataType(
@@ -92,6 +118,15 @@ const CompleteResetPasswordContainer = ({
   const isSyncUser =
     integration.isSync() ||
     (estimatedSyncDeviceCount && estimatedSyncDeviceCount > 0);
+
+  // Gate the passkey footer on whether this flow is a Sync sign-in (the requested
+  // service), not on sync-device history: a passkey is a valid alternative for a
+  // non-Sync reset even when the account has Sync data on other devices.
+  const showPasskeyOption = shouldShowPasskeyResetOption(config, {
+    hasPasskey,
+    serviceRequiresKeys: integration.isSync(),
+    requireHasPasskey: true,
+  });
 
   const handleNavigationWithRecoveryKey = (
     state: Record<string, any>,
@@ -356,13 +391,15 @@ const CompleteResetPasswordContainer = ({
     }
   };
 
-  // handle the case where we don't have all data required
-  if (!(hasConfirmedRecoveryKey || isResetWithoutRecoveryKey)) {
-    navigateWithQuery('/reset_password', { replace: true });
-  }
-
   if (oAuthDataError) {
     return <OAuthDataError error={oAuthDataError} />;
+  }
+
+  // The redirect effect only runs after commit, so return rather than mount an
+  // invalid reset form for a frame. Below the OAuth error, which outranked this
+  // in the render order it replaced.
+  if (shouldRedirectToReset) {
+    return null;
   }
 
   return (
@@ -374,6 +411,7 @@ const CompleteResetPasswordContainer = ({
         hasConfirmedRecoveryKey,
         recoveryKeyExists,
         estimatedSyncDeviceCount,
+        showPasskeyOption,
       }}
       integration={integration}
       locationState={location.state as CompleteResetPasswordLocationState}

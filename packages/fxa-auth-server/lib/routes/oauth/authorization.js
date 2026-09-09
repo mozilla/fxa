@@ -7,15 +7,21 @@ const Joi = require('joi');
 
 const { OauthError } = require('@fxa/accounts/errors');
 const { AppError: AuthError } = require('@fxa/accounts/errors');
-const { OAUTH_NATIVE_CLIENT_IDS } = require('@fxa/accounts/oauth');
+const {
+  OAUTH_NATIVE_CLIENT_IDS,
+  OAuthNativeClients,
+} = require('@fxa/accounts/oauth');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const validators = require('../../oauth/validators');
 const { validateRequestedGrant, generateTokens } = require('../../oauth/grant');
 const { makeAssertionJWT } = require('../../oauth/util');
 const verifyAssertion = require('../../oauth/assertion');
+const { isFirstAuthorization } = require('../../oauth/first-authorization');
+const encrypt = require('fxa-shared/auth/encrypt');
 const {
-  isFirstAuthorization,
-} = require('../../oauth/first-authorization');
+  dropUnconsentedSyncScope,
+  excludeDauCacheKey,
+} = require('../../oauth/desktop-sync-dau-authorization-bandaid');
 const OAUTH_DOCS = require('../../../docs/swagger/oauth-api').default;
 const OAUTH_SERVER_DOCS =
   require('../../../docs/swagger/oauth-server-api').default;
@@ -31,16 +37,25 @@ const ACCESS_TYPE_OFFLINE = 'offline';
 const PKCE_SHA256_CHALLENGE_METHOD = 'S256'; // This server only supports S256 PKCE, no 'plain'
 const PKCE_CODE_CHALLENGE_LENGTH = 43;
 
+// RFC 8252 loopback hosts. Exact match (not substring/suffix) is what keeps
+// `localhost.attacker.com` and friends from becoming an open redirect.
+const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
+
 function isLocalHost(url) {
-  var host = new URL(url).hostname;
-  return host === 'localhost' || host === 'localhost';
+  // new URL().hostname is already lowercased and keeps IPv6 brackets; only the
+  // trailing-dot FQDN form (e.g. `localhost.`) needs normalizing.
+  const host = new URL(url).hostname.replace(/\.$/, '');
+  return LOOPBACK_HOSTS.has(host);
 }
 
-module.exports = ({ log, oauthDB, config, statsd }) => {
+module.exports = ({ log, oauthDB, config, statsd, authServerCacheRedis }) => {
   if (!config) {
     config = require('../../../config').default.getProperties();
   }
   const MAX_TTL_S = config.oauthServer.expiration.accessToken / 1000;
+  const CODE_EXPIRATION_S = Math.ceil(
+    config.oauthServer.expiration.code / 1000
+  );
 
   const DISABLED_CLIENTS = new Set(config.oauthServer.disabledClients);
 
@@ -62,6 +77,30 @@ module.exports = ({ log, oauthDB, config, statsd }) => {
       throw AuthError.disabledClientId(clientId);
     }
   }
+  // Hand the exclude-DAU decision to /oauth/token, which never receives
+  // `service=`. The auth code is the only link between the two requests.
+  // Written only when the answer is yes, so absence means "count it" — which
+  // is also what a Redis failure degrades to.
+  async function rememberExcludeDau(code, grant) {
+    if (!grant.excludeDau || !authServerCacheRedis) {
+      return;
+    }
+    try {
+      const codeId = encrypt.hash(code).toString('hex');
+      await authServerCacheRedis.set(
+        excludeDauCacheKey(codeId),
+        '1',
+        'EX',
+        CODE_EXPIRATION_S
+      );
+    } catch (err) {
+      statsd?.increment('accountAuthorization.exclude_dau_write_failed');
+      log.warn('accountAuthorization.exclude_dau_write_failed', {
+        err: err?.message,
+      });
+    }
+  }
+
   async function generateAuthorizationCode(client, payload, grant) {
     // Clients must use PKCE if and only if they are a public client.
     if (client.publicClient) {
@@ -87,6 +126,9 @@ module.exports = ({ log, oauthDB, config, statsd }) => {
       })
     );
     code = hex(code);
+    // Awaited: the client can redeem the code when we return it, so the write
+    // must land first or /oauth/token can count the token towards DAU.
+    await rememberExcludeDau(code, grant);
 
     const redirect = new URL(payload.redirect_uri);
     redirect.searchParams.set('code', code);
@@ -179,6 +221,42 @@ module.exports = ({ log, oauthDB, config, statsd }) => {
   // are skipped; the latter guards privileged services like VPN from
   // a non-Mozilla RP forging consent on the user behalf. Errors are
   // swallowed; bookkeeping cannot break sign-in.
+  // Resolve the browser service this authorization is for. Falls back
+  // to inferring from a canonical scope when the URL omits service=,
+  // but only when exactly one is present — ambiguous requests resolve to ''.
+  function resolveServiceValue(req, requestedScopes) {
+    const serviceParam = (req.payload.service || '').toLowerCase();
+    if (oauthDB.isKnownService(serviceParam)) {
+      return serviceParam;
+    }
+    const inferred = requestedScopes
+      .map((s) => oauthDB.getServiceForCanonicalScope(s))
+      .filter(Boolean);
+    return inferred.length === 1 ? inferred[0] : '';
+  }
+
+  // Whether this sign-in should be kept out of the Sync DAU signal. Computed
+  // separately from the consent write because it has to hold for requests that
+  // never reach the ledger: prompt=none silent re-auths, and clients not on a
+  // service's allowlist. Both still mint an apps/oldsync access token.
+  function shouldExcludeSyncDau(req, grant) {
+    const clientIdHex = hex(grant.clientId);
+    // Cheapest gate first. dropUnconsentedSyncScope checks this too, but
+    // short-circuit here if we can.
+    if (clientIdHex !== OAuthNativeClients.FirefoxDesktop) {
+      return false;
+    }
+    const requestedScopes = grant.scope.getScopeValues();
+    if (requestedScopes.length === 0) {
+      return false;
+    }
+    return dropUnconsentedSyncScope({
+      scopes: requestedScopes,
+      serviceValue: resolveServiceValue(req, requestedScopes),
+      clientIdHex,
+    }).droppedSyncScope;
+  }
+
   async function recordAuthorizationRows(req, grant) {
     if (req.payload.prompt === 'none') {
       statsd?.increment('accountAuthorization.skipped', {
@@ -191,23 +269,7 @@ module.exports = ({ log, oauthDB, config, statsd }) => {
       return;
     }
     const clientIdHex = hex(grant.clientId);
-    // Lowercase the service so a casing variant (service=VPN) does not
-    // silently land as service='' and bypass the allowlist gate.
-    const serviceParam = (req.payload.service || '').toLowerCase();
-    let serviceValue = oauthDB.isKnownService(serviceParam) ? serviceParam : '';
-    // When the URL omits service= (e.g. VPN cached sign-in only sends
-    // client_id + scope=apps/vpn), recover the service from a canonical
-    // scope in the request so the row lands at service=<vpn> rather
-    // than service=''. Only fires when exactly one canonical scope is
-    // present; ambiguous multi-canonical requests fall back to ''.
-    if (!serviceValue) {
-      const inferred = requestedScopes
-        .map((s) => oauthDB.getServiceForCanonicalScope(s))
-        .filter(Boolean);
-      if (inferred.length === 1) {
-        serviceValue = inferred[0];
-      }
-    }
+    const serviceValue = resolveServiceValue(req, requestedScopes);
     // Expose the resolved service for native clients so the `login` event can
     // report the browser service (matching the grain of `firstAuthorization`,
     // incl. scope-only flows like VPN cached sign-in) instead of the shared
@@ -230,6 +292,15 @@ module.exports = ({ log, oauthDB, config, statsd }) => {
         scopesToConsent.add(canonical);
       }
     }
+    // Desktop requests the Sync scope on every browser flow, so drop it from
+    // the ledger when another service was signed into. Grant and tokens are
+    // untouched — see ../../oauth/desktop-sync-dau-authorization-bandaid.
+    const { scopes: consentScopes, droppedSyncScope } =
+      dropUnconsentedSyncScope({
+        scopes: Array.from(scopesToConsent),
+        serviceValue,
+        clientIdHex,
+      });
     const now = Date.now();
     const uidHex = hex(grant.userId);
     // Detect the user's first use of this service / RP, to drive
@@ -256,7 +327,7 @@ module.exports = ({ log, oauthDB, config, statsd }) => {
     // accountAuthorization.write_failed and keeps sign-in working.
     await oauthDB.recordSignInConsents({
       uid: uidHex,
-      scopes: Array.from(scopesToConsent),
+      scopes: consentScopes,
       service: serviceValue,
       clientId: clientIdHex,
       now,
@@ -264,6 +335,14 @@ module.exports = ({ log, oauthDB, config, statsd }) => {
     // Only flag once the write succeeded, so the signal matches what landed.
     if (firstAuthorization) {
       req.app.firstAuthorization = true;
+    }
+    // Emitted after the write, like firstAuthorization above, so the counter
+    // tracks rows actually kept out of the ledger rather than decisions made.
+    // A failed write emits accountAuthorization.write_failed instead.
+    if (droppedSyncScope) {
+      statsd?.increment('accountAuthorization.sync_scope_dropped', {
+        service: serviceValue || 'unset',
+      });
     }
     statsd?.increment('accountAuthorization.recorded', {
       service: serviceValue || 'unset',
@@ -286,6 +365,9 @@ module.exports = ({ log, oauthDB, config, statsd }) => {
     }
     validateClientDetails(client, payload);
     const grant = await validateRequestedGrant(claims, client, payload);
+    // Set before recordAuthorizationRows so the decision survives its early
+    // returns and its swallow-all catch — the token is minted either way.
+    grant.excludeDau = shouldExcludeSyncDau(req, grant);
     try {
       await recordAuthorizationRows(req, grant);
     } catch (err) {
@@ -414,6 +496,12 @@ module.exports = ({ log, oauthDB, config, statsd }) => {
               .optional()
               .allow(null)
               .description(DESCRIPTION.acrValues),
+            max_age: Joi.number()
+              .integer()
+              .min(0)
+              .optional()
+              .allow(null)
+              .description(DESCRIPTION.maxAge),
             resource: validators.resourceUrl
               .when('response_type', {
                 is: RESPONSE_TYPE_TOKEN,
@@ -509,6 +597,12 @@ module.exports = ({ log, oauthDB, config, statsd }) => {
               .allow(null)
               .optional()
               .description(DESCRIPTION.acrValues),
+            max_age: Joi.number()
+              .integer()
+              .min(0)
+              .allow(null)
+              .optional()
+              .description(DESCRIPTION.maxAge),
             assertion: Joi.forbidden(),
             resource: Joi.forbidden(),
             service: validators.service
@@ -615,3 +709,5 @@ module.exports = ({ log, oauthDB, config, statsd }) => {
     },
   ];
 };
+
+module.exports.isLocalHost = isLocalHost;

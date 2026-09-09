@@ -24,7 +24,7 @@ import GleanMetrics from '../../lib/glean';
 import Banner from '../../components/Banner';
 import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
 import CmsLogo from '../../components/CmsLogo';
-import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../lib/hooks';
 import { usePasskeySignIn } from '../../lib/passkeys/signin-flow';
 import { passkeySigninFeatureEnabled } from '../../lib/passkeys';
 
@@ -75,6 +75,8 @@ export const Index = ({
     disableAutoSubmit();
     passkey.onClick();
   };
+
+  const authInProgress = isSubmitting || passkey.isLoading;
 
   const legalTerms = integration.getLegalTerms();
 
@@ -133,7 +135,10 @@ export const Index = ({
   const splitLayout = cmsInfo?.EmailFirstPage?.splitLayout;
 
   return (
-    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
+    <AppLayout
+      {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}
+      loading={passkey.isNavigating}
+    >
       {cmsInfo ? (
         <>
           <CmsLogo
@@ -205,10 +210,9 @@ export const Index = ({
         <FtlMsg id="index-email-input" attrs={{ label: true }}>
           <InputText
             className="mt-8"
-            name="email"
             inputMode="email"
             label="Enter your email"
-            inputRef={register()}
+            registration={register('email')}
             inputRefDOM={emailInputRef}
             errorText={tooltipErrorMessage}
             onChange={handleInputChange}
@@ -223,7 +227,7 @@ export const Index = ({
               className="cta-primary cta-xl"
               type="submit"
               data-glean-id="email_first_submit"
-              disabled={isSubmitting}
+              disabled={authInProgress}
               buttonColor={cmsInfo?.shared.buttonColor}
               buttonText={cmsInfo?.EmailFirstPage.primaryButtonText}
             >
@@ -253,6 +257,7 @@ export const Index = ({
             : undefined
         }
         errorBanner={showPasskeySignin ? passkey.errorBanner : undefined}
+        disabled={authInProgress}
         viewName="index"
         flowQueryParams={flowQueryParams}
       />

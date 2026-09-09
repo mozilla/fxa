@@ -299,7 +299,7 @@ describe('#integration - remote subscriptions (enabled)', () => {
       getCountForUserId: async () => ({ hasBackupCodes: false, count: 0 }),
     });
     Container.set(RecoveryPhoneService, {
-      hasConfirmed: async () => ({ exists: false, phoneNumber: null }),
+      hasConfirmedMasked: async () => ({ exists: false }),
     });
     Container.set(PriceManager, { retrieve: jest.fn() });
     Container.set(ProductConfigurationManager, {

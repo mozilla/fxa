@@ -699,7 +699,7 @@ test.describe('severity-1 #smoke', () => {
         await signin.fillOutEmailFirstForm(credentials.email);
 
         // Should redirect to password form, not passwordless
-        await expect(signin.passwordFormHeading).toBeVisible();
+        await expect(signin.passwordTextbox).toBeVisible();
         await expect(page).not.toHaveURL(/signin_passwordless_code/);
       });
 
@@ -967,7 +967,7 @@ test.describe('severity-2', () => {
       await page.goto(target.contentServerUrl);
 
       await expect(page).not.toHaveURL(/signin_passwordless_code/);
-      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninSubmitButton).toBeVisible();
     });
 
     test('passwordless account with cached session navigating to /signin sees cached signin page', async ({
@@ -991,12 +991,12 @@ test.describe('severity-2', () => {
       await page.goto(target.contentServerUrl);
 
       await expect(page).not.toHaveURL(/signin_passwordless_code/);
-      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninSubmitButton).toBeVisible();
 
       // Navigate to /signin directly — same behavior
       await page.goto(`${target.contentServerUrl}/signin?email=${email}`);
       await expect(page).not.toHaveURL(/signin_passwordless_code/);
-      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninSubmitButton).toBeVisible();
     });
 
     test('passwordless signup via Settings then navigating to / shows cached signin (not OTP)', async ({
@@ -1019,7 +1019,7 @@ test.describe('severity-2', () => {
       // Navigate to / — cached session should show signin, not OTP
       await page.goto(target.contentServerUrl);
       await expect(page).not.toHaveURL(/signin_passwordless_code/);
-      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninSubmitButton).toBeVisible();
     });
   });
 
@@ -1117,7 +1117,7 @@ test.describe('severity-2', () => {
       await relier.goto('force_passwordless=true');
       await relier.clickEmailFirst();
       await signin.fillOutEmailFirstForm(email);
-      await expect(signin.passwordFormHeading).toBeVisible();
+      await expect(signin.passwordTextbox).toBeVisible();
       await expect(page).not.toHaveURL(/signin_passwordless_code/);
 
       // Second account is still passwordless — should get passwordless flow
@@ -1126,6 +1126,13 @@ test.describe('severity-2', () => {
       await signin.fillOutEmailFirstForm(otherPasswordlessEmail);
       await page.waitForURL(/signin_passwordless_code/);
       await expect(signinPasswordlessCode.heading).toBeVisible();
+
+      // Drain the OTP this navigation triggered. Teardown clears the inbox and
+      // sends its own code, but an undrained one still in flight can land after
+      // that clear and be read instead, failing cleanup as an invalid code.
+      await target.emailClient.getPasswordlessSigninCode(
+        otherPasswordlessEmail
+      );
     });
 
     test('direct /signup URL with email param redirects to passwordless code when enabled', async ({

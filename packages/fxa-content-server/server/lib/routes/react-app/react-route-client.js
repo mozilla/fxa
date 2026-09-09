@@ -6,14 +6,13 @@ const {
   FRONTEND_ROUTES,
   PAIRING_ROUTES,
   OAUTH_SUCCESS_ROUTES,
-  TERMS_PRIVACY_REGEX,
 } = require('./content-server-routes');
 
 /**
  *  Returns a route object with the `name` of the route.
  */
 const reactRouteClient = {
-  /** @param {String|RegExp} name */
+  /** @param {String} name */
   getRoute(name) {
     if (
       typeof name === 'string' &&
@@ -24,29 +23,15 @@ const reactRouteClient = {
     ) {
       return name;
     }
-    // When using a regex, explicitly return matched routes from router.js
-    if (name instanceof RegExp && name.source === TERMS_PRIVACY_REGEX.source) {
-      return ['legal/privacy', 'legal/terms'];
-    }
 
     throw new Error(
       `"${name}" was not found in any existing content-server routes. Check for typos and path slash mismatches. Otherwise, the route might need to be accounted for in "server/lib/routes/react-app/".`
     );
   },
 
-  /** @param {Array<String|RegExp>} names */
+  /** @param {Array<String>} names */
   getRoutes(names) {
-    const routes = [];
-    for (const name of names) {
-      const match = this.getRoute(name);
-      // if array, 'name' is a regex and 'match' contains route names
-      if (Array.isArray(match)) {
-        routes.push(...match);
-      } else {
-        routes.push(match);
-      }
-    }
-    return routes;
+    return names.map((name) => this.getRoute(name));
   },
 };
 

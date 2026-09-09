@@ -175,8 +175,7 @@
   },
   "oauthServer": {
     "browserid": {
-      "issuer": "localhost:9000",
-      "verificationUrl": "http://localhost:5050/v2"
+      "issuer": "localhost:9000"
     },
     "contentUrl": "http://localhost:3030/oauth/",
     "clientManagement": {
@@ -469,7 +468,9 @@
     "enabled": true,
     "registrationEnabled": true,
     "authenticationEnabled": true,
+    "passwordlessSyncEnabled": true,
     "requestPrfAtRegistration": true,
+    "requestPrfAtAuthentication": "all",
     "prfSalt": "dGVzdC1wcmYtc2FsdA",
     "rpId": "localhost",
     "allowedOrigins": ["http://localhost:3030"]

@@ -118,7 +118,8 @@ describe('Customs', () => {
     expect(err.message).toBe('Client has sent too many requests');
     expect(err.isBoom).toBeTruthy();
     expect(err.output.statusCode).toBe(429);
-    expect(err.output.payload.retryAfter).toBe(10001);
+    // Legacy reports seconds; payload is normalized to ms, header back to seconds.
+    expect(err.output.payload.retryAfter).toBe(10001000);
     expect(err.output.headers['retry-after']).toBe('10001');
   });
 
@@ -218,7 +219,7 @@ describe('Customs', () => {
       err = e;
     }
     expect(err.output.statusCode).toBe(429);
-    expect(err.output.payload.retryAfter).toBe(10001);
+    expect(err.output.payload.retryAfter).toBe(10001000);
     expect(err.output.payload.retryAfterLocalized).toBe('in 3 hours');
 
     const [url, init] = (global.fetch as jest.Mock).mock.calls[0];
@@ -355,12 +356,26 @@ describe('Customs', () => {
 
       await customs.check(request, email, 'accountStatusCheck');
 
-      expect(mockRateLimit.skip).toHaveBeenCalledWith('accountStatusCheck', {
-        ip,
-        email,
-        ip_email,
-      });
+      expect(mockRateLimit.skip).toHaveBeenCalledWith(
+        'accountStatusCheck',
+        { ip, email, ip_email },
+        email
+      );
       expect(mockRateLimit.check).toHaveBeenCalledTimes(0);
+    });
+
+    it('passes the non-normalized email to skip', async () => {
+      mockRateLimit.check = jest.fn(async () => Promise.resolve(null));
+
+      const emailWithAlias = 'user+srl1@mozilla.com';
+
+      await customs.check(request, emailWithAlias, 'accountStatusCheck');
+
+      expect(mockRateLimit.skip).toHaveBeenCalledWith(
+        'accountStatusCheck',
+        expect.objectContaining({ email: 'user@mozilla.com' }),
+        emailWithAlias
+      );
     });
 
     it('normalizes emails with plus aliases for configured domains', async () => {
@@ -439,7 +454,44 @@ describe('Customs', () => {
       );
     });
 
-    it('unblocks the ip and normalized email on reset', async () => {
+    it('checks a token hash alongside the ip on checkToken', async () => {
+      const tokenHash = 'a'.repeat(64);
+      mockRateLimit.check = jest.fn(async () => Promise.resolve(null));
+
+      await customs.checkToken(request, 'tokenExchange', tokenHash);
+
+      expect(mockRateLimit.check).toHaveBeenCalledWith('tokenExchange', {
+        ip,
+        token: tokenHash,
+      });
+    });
+
+    it('throws a 429 in milliseconds when checkToken is blocked', async () => {
+      const tokenHash = 'a'.repeat(64);
+      mockRateLimit.check = jest.fn(async () =>
+        Promise.resolve({ retryAfter: 900000, reason: 'too-many-attempts' })
+      );
+
+      const err: any = await customs
+        .checkToken(request, 'tokenExchange', tokenHash)
+        .catch((e: any) => e);
+
+      expect(err.errno).toBe(114);
+      expect(err.output.statusCode).toBe(429);
+      expect(err.output.payload.retryAfter).toBe(900000);
+      expect(err.output.headers['retry-after']).toBe('900');
+    });
+
+    it('does not call the legacy customs server on checkToken when v2 is off', async () => {
+      const customsV1Only = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
+      global.fetch = jest.fn();
+
+      await customsV1Only.checkToken(request, 'tokenExchange', 'a'.repeat(64));
+
+      expect(global.fetch).not.toHaveBeenCalled();
+    });
+
+    it('unblocks the normalized email and ip_email on reset', async () => {
       const emailWithAlias = 'user+alias@mozilla.com';
       const normalizedEmail = 'user@mozilla.com';
 
@@ -447,10 +499,17 @@ describe('Customs', () => {
 
       expect(mockRateLimit.unblock).toHaveBeenCalledTimes(1);
       expect(mockRateLimit.unblock).toHaveBeenCalledWith({
-        ip,
         email: normalizedEmail,
         ip_email: `${ip}_${normalizedEmail}`,
       });
+    });
+
+    it('does not unblock the raw ip on reset', async () => {
+      await customs.reset(request, 'user@mozilla.com');
+
+      expect(mockRateLimit.unblock).toHaveBeenCalledTimes(1);
+      const opts = mockRateLimit.unblock.mock.calls[0][0];
+      expect(opts).not.toHaveProperty('ip');
     });
   });
 

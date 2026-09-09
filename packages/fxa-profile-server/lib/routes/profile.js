@@ -28,30 +28,43 @@ function nextAvatar(result) {
     result.avatar &&
     (result.avatarDefault || result.avatar.startsWith(monogramUrl))
   ) {
-    const displayName = result.displayName;
-    let avatarUrl = result.avatar;
-    if (displayName && ALPHANUMERIC.test(displayName)) {
-      avatarUrl = `${monogramUrl}/v1/avatar/${displayName[0]}`;
-    } else if (ALPHANUMERIC.test(result.email)) {
-      avatarUrl = `${monogramUrl}/v1/avatar/${result.email[0]}`;
-    } else {
-      avatarUrl = avatarShared.DEFAULT_AVATAR.avatar;
+    // `ALPHANUMERIC.test(undefined)` matches the coerced string `'undefined'`,
+    // so check the type first.
+    const initial = [result.displayName, result.email].find(
+      (value) => typeof value === 'string' && ALPHANUMERIC.test(value)
+    );
+    if (initial) {
+      return `${monogramUrl}/v1/avatar/${initial[0]}`;
     }
-    return avatarUrl;
+    // A missing email means scope hid it, so no initial is knowable yet. Keep
+    // the stored avatar: `changeAvatar` deletes every row for the uid when it
+    // sees the generic default.
+    return typeof result.email === 'string'
+      ? avatarShared.DEFAULT_AVATAR.avatar
+      : result.avatar;
   }
   return result.avatar;
 }
 
-async function changeAvatar(avatarUrl, uid) {
+// Whether monograms should be persisted at all is under review in FXA-14383:
+// `/v1/avatar` cannot compute one, so this row is the only way a monogram
+// reaches a `profile:avatar`-only client.
+async function changeAvatar(avatarUrl, uid, selectedAvatar) {
   if (avatarUrl === avatarShared.DEFAULT_AVATAR.avatar) {
     await db.deleteUserAvatars(uid);
-  } else {
-    await db.addAvatar(
-      crypto.randomBytes(16).toString('hex'),
-      uid,
-      avatarUrl,
-      'fxa'
-    );
+    return;
+  }
+  await db.addAvatar(
+    crypto.randomBytes(16).toString('hex'),
+    uid,
+    avatarUrl,
+    'fxa'
+  );
+  // `addAvatar` inserts and re-points the selection, orphaning the monogram row
+  // it supersedes. A monogram has no uploaded image, so the row is the whole
+  // cleanup; the URL check keeps an uploaded avatar out of this branch.
+  if (selectedAvatar && selectedAvatar.url.startsWith(monogramUrl)) {
+    await db.deleteAvatar(selectedAvatar.id);
   }
 }
 
@@ -131,7 +144,7 @@ module.exports = {
       // Check if the db needs to be updated or just the profileCache
       const selectedAvatar = await db.getSelectedAvatar(creds.user);
       if (!selectedAvatar || selectedAvatar.url !== newAvatar) {
-        await changeAvatar(newAvatar, creds.user);
+        await changeAvatar(newAvatar, creds.user, selectedAvatar);
       }
     }
     // Check to see if the oauth-server is reporting a newer `profileChangedAt`

@@ -23,6 +23,7 @@ import {
   StripeSubscription,
   StripeUpcomingInvoice,
   type StripeSetupIntent,
+  StripeApiSearchResult,
 } from './stripe.client.types';
 import { StripeConfig } from './stripe.config';
 import { STRIPE_API_VERSION } from './stripe.constants';
@@ -237,7 +238,7 @@ export class StripeClient {
       ...params,
       expand: [
         'confirmation_secret',
-        'discounts',
+        'discounts.source.coupon',
         'lines.data.taxes.tax_rate_details.tax_rate',
         'total_taxes.tax_rate_details.tax_rate',
       ],
@@ -250,7 +251,7 @@ export class StripeClient {
     const result = await this.stripe.invoices.createPreview({
       ...params,
       expand: [
-        'discounts',
+        'discounts.source.coupon',
         'lines.data.taxes.tax_rate_details.tax_rate',
         'total_taxes.tax_rate_details.tax_rate',
       ],
@@ -369,6 +370,24 @@ export class StripeClient {
       expand: ['currency_options'],
     });
     return result as StripeResponse<StripePrice>;
+  }
+
+  @Cacheable({
+    cacheKey: (args: any) =>
+      cacheKeyForClient('pricesSearch', args[0], args[1]),
+    strategy: (_: any, context: StripeClient) =>
+      new CacheFirstStrategy(undefined, undefined, context.log),
+    ttlSeconds: 600,
+    client: new MemoryAdapter(),
+  })
+  @CaptureTimingWithStatsD()
+  async pricesSearch(query: string, params?: Stripe.PriceSearchParams) {
+    const result = await this.stripe.prices.search({
+      ...params,
+      query,
+      expand: ['data.currency_options'],
+    });
+    return result as StripeResponse<StripeApiSearchResult<StripePrice>>;
   }
 
   @Cacheable({

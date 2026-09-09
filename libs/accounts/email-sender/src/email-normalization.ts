@@ -5,6 +5,13 @@
 import * as Sentry from '@sentry/node';
 
 /**
+ * Escapes SQL LIKE wildcards (`\`, `%`, `_`) so user-supplied input matches
+ * literally. MySQL's default LIKE escape character is `\`.
+ */
+export const escapeLikePattern = (value: string): string =>
+  value.replace(/([\\%_])/g, '\\$1');
+
+/**
  * Config shape for transforms
  */
 export type EmailAliasConfig = {

@@ -4,13 +4,11 @@
 
 import $ from 'jquery';
 import BaseView from 'views/base';
-import Chai from 'chai';
+import { assert } from 'chai';
 import Cocktail from 'cocktail';
 import LoadingMixin from 'views/mixins/loading-mixin';
 import Template from 'templates/test_template.mustache';
 import WindowMock from '../../../mocks/window';
-
-var assert = Chai.assert;
 
 var View = BaseView.extend({
   template: Template,

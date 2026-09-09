@@ -489,14 +489,12 @@ const convictConf = convict({
     androidUrl: {
       doc: 'url to Android product page',
       format: String,
-      default:
-        'https://app.adjust.com/2uo1qc?campaign=fxa-conf-email&adgroup=android&creative=button&utm_source=email',
+      default: 'https://mzl.la/email-appdownload',
     },
     iosUrl: {
       doc: 'url to IOS product page',
       format: String,
-      default:
-        'https://app.adjust.com/2uo1qc?campaign=fxa-conf-email&adgroup=ios&creative=button&fallback=https%3A%2F%2Fitunes.apple.com%2Fapp%2Fapple-store%2Fid989804926%3Fpt%3D373246%26ct%3Dadjust_tracker%26mt%3D8&utm_source=email',
+      default: 'https://mzl.la/email-appdownload',
     },
     mozillaSupportUrl: {
       doc: 'url to general Mozilla support page',
@@ -703,12 +701,6 @@ const convictConf = convict({
       format: Boolean,
       default: true,
       env: 'SMTP_METRICS_ENABLED',
-    },
-    fxaMailerDisableSend: {
-      doc: 'Array of templates that should not be supported by fxa mailer. Used to fallback to previous email sending if in a pinch.',
-      format: Array,
-      default: [''],
-      env: 'SMTP_FXA_MAILER_DISABLE_SEND',
     },
   },
   maxEventLoopDelay: {
@@ -1303,17 +1295,6 @@ const convictConf = convict({
         env: 'ISSUER',
         default: 'api.accounts.firefox.com',
       },
-      maxSockets: {
-        doc: 'The maximum number of connections that the pool can use at once.',
-        env: 'BROWSERID_MAX_SOCKETS',
-        default: 10,
-      },
-      verificationUrl: {
-        doc: 'URL to the remote verifier we will use for fxa-assertions',
-        format: 'url',
-        env: 'VERIFICATION_URL',
-        default: 'https://verifier.accounts.firefox.com/v2',
-      },
     },
     clients: {
       doc: 'Some pre-defined clients that will be inserted into the DB',
@@ -1450,6 +1431,46 @@ const convictConf = convict({
         env: 'FXA_ACCOUNT_ACTIVITY_UPDATE_AFTER',
       },
     },
+    // FXA-14159 bandaid: Firefox Desktop mints a VPN-scoped access token for
+    // every signed-in user via the fxa-credentials grant, inflating VPN's
+    // services-DAU. When enabled, the token endpoint consults accountAuthorizations
+    // for real VPN consent and, when absent, tags the access_token_created Glean
+    // event with exclude_dau so the DAU rollup filters it (the token is still
+    // granted). The lookup is per-uid rollout-gated and Redis-cached to protect
+    // the OAuth DB. Remove these configs and all associated code once 1) Desktop
+    // moves to refresh tokens (~Fx 155), 2) VPN stops using the fxa-credentials grant
+    // for this, and 3) when we are OK with dropping this for older browser versions.
+    // This does still overcount some users, see FXA-14159 comments.
+    vpnInDesktopDauBandaid: {
+      rolloutRate: {
+        doc: 'Fraction (0-1) of eligible fxa-credentials grants for which the accountAuthorizations lookup runs, bucketed deterministically per-uid. 0 disables the bandaid; ramp per-env (e.g. 0.2 -> 0.5 -> 1).',
+        format: Number,
+        default: 0,
+        env: 'OAUTH_DESKTOP_VPN_DAU_FIX_ROLLOUT_RATE',
+      },
+      cacheTtl: {
+        doc: 'How long the per-uid VPN authorization result (positive and negative) is cached in Redis before the OAuth DB is consulted again.',
+        format: 'duration',
+        default: '12 hours',
+        env: 'OAUTH_DESKTOP_VPN_DAU_FIX_CACHE_TTL',
+      },
+    },
+    accountAuthorizations: {
+      // Shadow-table migration of accountAuthorizations scope -> scopeId FK
+      // (FXA-14169). Both flags default off; nothing changes on deploy.
+      dualWriteV2: {
+        doc: 'Write each consent row to both accountAuthorizations (v1) and accountAuthorizations_v2 (scopeId FK). Enable only after deploy and after the scopes table is seeded/verified.',
+        format: Boolean,
+        default: false,
+        env: 'OAUTH_ACCOUNT_AUTHORIZATIONS_DUAL_WRITE_V2',
+      },
+      readV2: {
+        doc: 'Read consent from accountAuthorizations_v2 first, falling back to v1. Enable only after the v1 -> v2 backfill is complete and verified (zero unresolved scopes).',
+        format: Boolean,
+        default: false,
+        env: 'OAUTH_ACCOUNT_AUTHORIZATIONS_READ_V2',
+      },
+    },
     tokenExchange: {
       allowedClientIds: {
         doc: 'Client IDs allowed to perform token exchange (only Firefox mobile clients as of FXA-12925)',
@@ -1553,7 +1574,7 @@ const convictConf = convict({
       },
     },
     localRedirects: {
-      doc: 'When true, `localhost` and `localhost` always are legal redirects.',
+      doc: 'When true, `localhost`, `127.0.0.1`, and `[::1]` are always legal redirects.',
       default: false,
       env: 'FXA_OAUTH_LOCAL_REDIRECTS',
     },
@@ -2540,6 +2561,8 @@ const convictConf = convict({
         '/__heartbeat__',
         '/__version__',
         '/',
+        // Versioned path — must match request.route.path.
+        '/v1/introspect',
       ],
       doc: 'When checkAllEndpoints is true, this is allows certain endpoints to be skipped from the automatic customs check.',
       env: 'RATE_LIMIT__SKIP_ENDPOINTS',
@@ -2573,7 +2596,7 @@ const convictConf = convict({
         format: String,
       },
       table: {
-        default: 'rate_limit_checks',
+        default: 'rate_limit_checks_v2',
         doc: 'BigQuery table name',
         env: 'RATE_LIMIT__BIGQUERY__TABLE',
         format: String,
@@ -2673,7 +2696,7 @@ const convictConf = convict({
   passkeys: {
     enabled: {
       default: false,
-      doc: 'Master switch for passkeys. Must be true for registrationEnabled or authenticationEnabled to take effect.',
+      doc: 'Primary switch for passkeys. Must be true for registrationEnabled or authenticationEnabled to take effect.',
       env: 'PASSKEYS__ENABLED',
       format: Boolean,
     },
@@ -2687,6 +2710,12 @@ const convictConf = convict({
       default: false,
       doc: 'Enable passkey authentication (sign in with passkey). Requires passkeys.enabled.',
       env: 'PASSKEYS__AUTHENTICATION_ENABLED',
+      format: Boolean,
+    },
+    passwordlessSyncEnabled: {
+      default: false,
+      doc: 'Enable passwordless sync sign-in, where kB is recovered from a passkey-wrapped envelope instead of the password. Requires passkeys.enabled.',
+      env: 'PASSKEYS__PASSWORDLESS_SYNC_ENABLED',
       format: Boolean,
     },
     rpId: {
@@ -2735,6 +2764,12 @@ const convictConf = convict({
       default: '',
       doc: 'Static base64url salt supplied as the WebAuthn PRF eval input',
       env: 'PASSKEYS__PRF_SALT',
+      format: String,
+    },
+    requestPrfAtAuthentication: {
+      default: 'off',
+      doc: 'Scope of the WebAuthn PRF request at sign-in. "off" (kill switch) never requests PRF; "keys-required" requests it only for keys-required (Sync) sign-ins; "all" requests it for every passkey sign-in. Validated/normalized in buildPasskeyConfig (invalid → "off"); String format here so a bad value cannot crash startup.',
+      env: 'PASSKEYS__REQUEST_PRF_AT_AUTHENTICATION',
       format: String,
     },
   },

@@ -25,7 +25,7 @@ export const Subject = ({
     alert('Form submitted! (onFormSubmit called)');
   };
 
-  const { handleSubmit, register, getValues, errors, formState, trigger } =
+  const { handleSubmit, register, getValues, formState, trigger } =
     useForm<FormData>({
       mode: 'onTouched',
       criteriaMode: 'all',
@@ -39,7 +39,7 @@ export const Subject = ({
     <FormPasswordWithInlineCriteria
       {...{
         formState,
-        errors,
+        errors: formState.errors,
         trigger,
         register,
         getValues,

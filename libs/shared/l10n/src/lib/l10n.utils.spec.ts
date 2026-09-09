@@ -29,12 +29,7 @@ describe('l10n.utils', () => {
 
   describe('l10n/parseAcceptLanguage:', () => {
     it('returns default', () => {
-      expect(parseAcceptLanguage('en')).toEqual([
-        'en',
-        'en-US',
-        'en-GB',
-        'en-CA',
-      ]);
+      expect(parseAcceptLanguage('en')).toEqual(['en', 'en-GB', 'en-CA']);
     });
 
     it('handles empty case', () => {
@@ -60,7 +55,6 @@ describe('l10n.utils', () => {
     it('parses several with expected output', () => {
       expect(parseAcceptLanguage('en, de, es, ru')).toEqual([
         'en',
-        'en-US',
         'en-GB',
         'en-CA',
         'de',
@@ -89,7 +83,6 @@ describe('l10n.utils', () => {
             'es-MX',
             'it',
             'en',
-            'en-US',
             'en-GB',
             'en-CA',
           ]
@@ -99,7 +92,6 @@ describe('l10n.utils', () => {
       it('applies correctly with dialects', () => {
         expect(parseAcceptLanguage('de-DE, en-US;q=0.7, en;q=0.3')).toEqual([
           'de',
-          'en-US',
           'en',
           'en-GB',
           'en-CA',
@@ -109,12 +101,7 @@ describe('l10n.utils', () => {
 
     describe('dialect (region) options', () => {
       it('handles en-*', () => {
-        expect(parseAcceptLanguage('en-CA')).toEqual([
-          'en-CA',
-          'en',
-          'en-US',
-          'en-GB',
-        ]);
+        expect(parseAcceptLanguage('en-CA')).toEqual(['en-CA', 'en', 'en-GB']);
       });
 
       it('includes all options and always contains default language (en)', () => {
@@ -142,7 +129,6 @@ describe('l10n.utils', () => {
 
       it('gives "en" higher priority than second locale when first locale is en-*', () => {
         expect(parseAcceptLanguage('en-US, de')).toEqual([
-          'en-US',
           'en',
           'en-GB',
           'en-CA',
@@ -150,20 +136,18 @@ describe('l10n.utils', () => {
         ]);
       });
 
+      it('resolves en-US to en', () => {
+        expect(parseAcceptLanguage('en-US')).toEqual(['en', 'en-GB', 'en-CA']);
+      });
+
       it('handles alias to en-GB', () => {
-        expect(parseAcceptLanguage('en-NZ')).toEqual([
-          'en-GB',
-          'en',
-          'en-US',
-          'en-CA',
-        ]);
+        expect(parseAcceptLanguage('en-NZ')).toEqual(['en-GB', 'en', 'en-CA']);
       });
 
       it('handles multiple languages with en-GB alias', () => {
         expect(parseAcceptLanguage('en-NZ, en-GB, en-MY')).toEqual([
           'en-GB',
           'en',
-          'en-US',
           'en-CA',
         ]);
       });
@@ -294,7 +278,11 @@ describe('l10n.utils', () => {
     });
 
     it('resolves region', () => {
-      expect(determineLocale('en-US')).toEqual('en-US');
+      expect(determineLocale('en-CA')).toEqual('en-CA');
+    });
+
+    it('resolves en-US to en', () => {
+      expect(determineLocale('en-US')).toEqual('en');
     });
 
     it('defaults to base langauge', () => {
@@ -306,7 +294,7 @@ describe('l10n.utils', () => {
     });
 
     it('ignores case', () => {
-      expect(determineLocale('En-uS')).toEqual('en-US');
+      expect(determineLocale('En-cA')).toEqual('en-CA');
     });
 
     it('ignores case and determines correct priority', () => {

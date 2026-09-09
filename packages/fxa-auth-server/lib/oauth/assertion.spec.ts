@@ -157,7 +157,8 @@ describe('JWT verifyAssertion', () => {
 
   it('should reject JWTs with missing `lastAuthAt` claim', async () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { 'fxa-lastAuthAt': _removed, ...claimsWithoutLastAuth } = GOOD_CLAIMS;
+    const { 'fxa-lastAuthAt': _removed, ...claimsWithoutLastAuth } =
+      GOOD_CLAIMS;
     const assertion = await makeJWT(claimsWithoutLastAuth);
     await expect(verifyAssertion(assertion)).rejects.toHaveProperty(
       'errno',

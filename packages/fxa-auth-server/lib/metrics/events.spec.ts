@@ -810,6 +810,34 @@ describe('metrics/events', () => {
     });
   });
 
+  it('.emit on login flow complete uses authMethod as the reason', async () => {
+    const time = Date.now();
+    jest.spyOn(Date, 'now').mockReturnValue(time);
+    const metricsContext = mocks.mockMetricsContext();
+    const request = mocks.mockRequest({
+      credentials: {
+        uid: 'deadbeef',
+      },
+      metricsContext,
+      payload: {
+        metricsContext: {
+          flowId: 'bar',
+          flowBeginTime: time - 1000,
+          flowCompleteSignal: 'account.login',
+          flowType: 'login',
+          authMethod: 'passkey',
+        },
+      },
+    });
+    await events.emit.call(request, 'account.login', { uid: 'quux' });
+
+    expect(glean.login.complete).toHaveBeenCalledTimes(1);
+    expect(glean.login.complete).toHaveBeenCalledWith(request, {
+      uid: 'quux',
+      reason: 'passkey',
+    });
+  });
+
   it('.emitRouteFlowEvent with matching route and response.statusCode', async () => {
     const time = Date.now();
     jest.spyOn(Date, 'now').mockReturnValue(time);

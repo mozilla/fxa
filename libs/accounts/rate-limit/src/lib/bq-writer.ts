@@ -27,6 +27,7 @@ export interface BqWriterConfig {
 export class RateLimitBqWriter {
   private buffer: RateLimitCheckEvent[] = [];
   private timer: NodeJS.Timeout | null = null;
+  private flushChain: Promise<void> = Promise.resolve();
   private readonly tableRef: Table;
 
   /**
@@ -57,20 +58,45 @@ export class RateLimitBqWriter {
     }
   }
 
-  /** Send buffered events to BigQuery. Catches all errors. */
+  /**
+   * Send buffered events to BigQuery. Catches all errors.
+   *
+   * Flushes are serialized: the timer and a batch-size trigger must not
+   * splice the buffer concurrently, or two inserts race over the same rows.
+   */
   async flush(): Promise<void> {
+    this.flushChain = this.flushChain.then(() => this.flushOnce());
+    return this.flushChain;
+  }
+
+  /**
+   * Perform a single insert. Only ever called from the flush chain, so at
+   * most one is in flight at a time.
+   *
+   * flushOnce never rejects — the try/catch covers the insert — so the chain
+   * cannot be poisoned. If that ever changes, flush() needs a .catch() guard.
+   */
+  private async flushOnce(): Promise<void> {
     if (this.buffer.length === 0) {
       return;
     }
 
     const batch = this.buffer.splice(0);
-    try {
-      await this.tableRef.insert(batch);
-    } catch (err) {
-      // Never throw — BQ failures must not affect auth
-      this.statsd?.increment('rate_limit.bq_writer.flush_error');
-      Sentry.captureException(err);
-    }
+
+    // Run the insert in a throwaway isolation scope. Sentry's httpIntegration
+    // records a breadcrumb for the outgoing insertAll call on whichever
+    // isolation scope is active when the request is made. Without this other
+    // Sentry captures get polluted with these insertAll bread crumbs.
+    await Sentry.withIsolationScope(async (scope) => {
+      scope.clear();
+      try {
+        await this.tableRef.insert(batch);
+      } catch (err) {
+        // Never throw — BQ failures must not affect auth
+        this.statsd?.increment('rate_limit.bq_writer.flush_error');
+        Sentry.captureException(err);
+      }
+    });
   }
 
   /** Drain remaining events and stop the flush timer. */

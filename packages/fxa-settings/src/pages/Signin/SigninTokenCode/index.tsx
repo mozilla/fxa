@@ -24,9 +24,8 @@ import { SigninTokenCodeProps } from './interfaces';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { handleNavigation } from '../utils';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
-import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
+import { useWebRedirect, useThrottle } from '../../../lib/hooks';
 import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
-import useThrottle from '../../../lib/hooks/useThrottle';
 
 export const viewName = 'signin-token-code';
 
@@ -53,6 +52,7 @@ const SigninTokenCode = ({
     sessionToken,
     verificationReason,
     showInlineRecoveryKeySetup,
+    isPasswordlessOtpSignin,
   } = signinState;
 
   const [localizedErrorBannerMessage, setLocalizedErrorBannerMessage] =
@@ -190,6 +190,7 @@ const SigninTokenCode = ({
           handleFxaLogin: false,
           handleFxaOAuthLogin: true,
           performNavigation: !integration.isFirefoxMobileClient(),
+          isPasswordlessOtpSignin,
           authClient,
         };
 
@@ -232,6 +233,7 @@ const SigninTokenCode = ({
       unwrapBKey,
       verificationReason,
       showInlineRecoveryKeySetup,
+      isPasswordlessOtpSignin,
       onSessionVerified,
       startThrottle,
       authClient,

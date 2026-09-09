@@ -6,7 +6,11 @@ import type { NavigateFunction } from 'react-router';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { NavigationOptions, SigninLocationState } from './interfaces';
-import type { SetPasswordLocationState } from '../PostVerify/SetPassword/interfaces';
+import type { PairGleanReason } from 'fxa-shared/metrics/glean/pair-reasons';
+import type {
+  PasswordCreationReason,
+  SetPasswordLocationState,
+} from '../PostVerify/SetPassword/interfaces';
 import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import {
   isOAuthIntegration,
@@ -16,11 +20,11 @@ import {
 } from '../../models';
 import { isSendTabEntrypoint } from '../../lib/utilities';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
-import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../lib/hooks';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { currentAccount, discardSessionToken } from '../../lib/cache';
 import firefox from '../../lib/channels/firefox';
-import { AuthError } from '../../lib/oauth';
+import { AuthError, OAuthError } from '../../lib/oauth';
 import GleanMetrics from '../../lib/glean';
 import { OAuthData } from '../../lib/oauth/hooks';
 import AuthenticationMethods from '../../constants/authentication-methods';
@@ -51,6 +55,59 @@ interface SyncNavigateOptions {
   syncHidePromoAfterLogin?: boolean;
   signupSuccess?: boolean;
   origin?: PairOrigin;
+  isPasswordlessOtpSignin?: boolean;
+  isPasskeySession?: boolean;
+  passwordCreationReason?: PasswordCreationReason;
+}
+
+/**
+ * Resolves the flow that landed the user on the /pair choice screen so
+ * `cad_firefox.choice_view` can be split by originating flow.
+ *
+ * `passwordCreationReason` is the authoritative signal for anything arriving
+ * via /post_verify/set_password. Sync always requires encryption keys, so a
+ * passwordless OTP or passkey sign-in is routed through that page to create a
+ * password before it can ever reach /pair — meaning the raw session flags below
+ * are only observable on the flows that skip it.
+ *
+ * Registration wins over the method flags: a Sync sign-up always ends with a
+ * password, and there the method flags describe a step *inside* registration.
+ *
+ * Returns undefined for flows with no sanctioned bucket (third-party auth), so
+ * they record an empty reason rather than inflating `password_login`.
+ */
+function getPairGleanReason({
+  signupSuccess,
+  origin,
+  isPasskeySession,
+  isPasswordlessOtpSignin,
+  isSignInWithThirdPartyAuth,
+  passwordCreationReason,
+}: Pick<
+  SyncNavigateOptions,
+  | 'signupSuccess'
+  | 'origin'
+  | 'isPasskeySession'
+  | 'isPasswordlessOtpSignin'
+  | 'isSignInWithThirdPartyAuth'
+  | 'passwordCreationReason'
+>): PairGleanReason | undefined {
+  if (signupSuccess || origin === 'signup') {
+    return 'password_reg';
+  }
+  if (passwordCreationReason === 'passkey' || isPasskeySession) {
+    return 'passkey_login';
+  }
+  if (passwordCreationReason === 'otp' || isPasswordlessOtpSignin) {
+    return 'otp_login';
+  }
+  if (
+    passwordCreationReason === 'third_party_auth' ||
+    isSignInWithThirdPartyAuth
+  ) {
+    return undefined;
+  }
+  return 'password_login';
 }
 
 export function getSyncNavigate(
@@ -62,14 +119,40 @@ export function getSyncNavigate(
     syncHidePromoAfterLogin,
     signupSuccess,
     origin,
+    isPasswordlessOtpSignin,
+    isPasskeySession,
+    passwordCreationReason,
   }: SyncNavigateOptions = {}
 ): {
   to: string;
   shouldHardNavigate: boolean;
-  locationState?: Pick<SigninLocationState, 'origin'> &
+  locationState?: Pick<SigninLocationState, 'origin' | 'pairReason'> &
     Pick<SetPasswordLocationState, 'passwordCreationReason'>;
 } {
   const searchParams = new URLSearchParams(queryParams);
+
+  // This is used for pages that reach /pair via `hardNavigate('/pair', {}, true)`,
+  // which forwards the current query string — without this the reason would be lost.
+  const pairReason = getPairGleanReason({
+    signupSuccess,
+    origin,
+    isPasskeySession,
+    isPasswordlessOtpSignin,
+    isSignInWithThirdPartyAuth,
+    passwordCreationReason,
+  });
+
+  // Only applied to destinations that /pair reaches by hard navigation, where
+  // router state cannot survive. The React /pair soft-nav deliberately keeps the
+  // reason out of the URL.
+  const withPairReason = () => {
+    if (!pairReason) {
+      return searchParams;
+    }
+    const params = new URLSearchParams(searchParams);
+    params.set('pairReason', pairReason);
+    return params;
+  };
 
   if (isSignInWithThirdPartyAuth) {
     return {
@@ -84,14 +167,14 @@ export function getSyncNavigate(
 
   if (showInlineRecoveryKeySetup) {
     return {
-      to: `/inline_recovery_key_setup?${searchParams}`,
+      to: `/inline_recovery_key_setup?${withPairReason()}`,
       shouldHardNavigate: false,
     };
   }
 
   if (showSignupConfirmedSync) {
     return {
-      to: `/signup_confirmed_sync?${searchParams}`,
+      to: `/signup_confirmed_sync?${withPairReason()}`,
       shouldHardNavigate: false,
     };
   }
@@ -117,7 +200,7 @@ export function getSyncNavigate(
     return {
       to,
       shouldHardNavigate: false,
-      locationState: { origin: pairOrigin },
+      locationState: { origin: pairOrigin, pairReason },
     };
   }
 
@@ -127,6 +210,9 @@ export function getSyncNavigate(
   }
   if (origin === 'post-verify-set-password') {
     searchParams.set('passwordCreated', 'true');
+  }
+  if (pairReason) {
+    searchParams.set('pairReason', pairReason);
   }
   return {
     to: `/pair?${searchParams}`,
@@ -223,12 +309,12 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     integration.wantsTwoStepAuthentication();
   const wantsKeys = integration.wantsKeys();
 
-  // If this is an AAL upgrade, the user was redirected from Settings to enter TOTP.
-  // RP redirects won't get into this state since they'll be taken to the RP and
-  // never Settings. This flow doesn't need Sync web channel messages or care about
-  // skipping navigating either because if a Sync user is inside Settings, we probably
-  // don't have the oauth query parameters required to begin a sign-in flow
-  // anyway. Just take all users back to /settings.
+  // Settings-originated AAL upgrades return to /settings. This is the one
+  // carve-out: the user was redirected from Settings to enter TOTP (they don't
+  // have the OAuth query parameters to begin a sign-in flow). Every other
+  // step-up — RP-initiated, i.e. acr_values/max_age — is NOT flagged
+  // isSessionAALUpgrade and falls through to complete the OAuth flow back to the
+  // RP below. This flow also doesn't need Sync web channel messages.
   if (navigationOptions.isSessionAALUpgrade) {
     navigate('/settings');
     return { error: undefined };
@@ -297,8 +383,15 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     // (/signin_token_code for an unverified session, or /confirm_signup_code for an
     // unverified email) and we know their session isn't fully verified, then send them
     // an otp code. Sending here couples the email with the actual navigation action.
+    // For /signin_token_code this is the only send: the login/reauth calls that
+    // reach here pass `sendSigninVerificationEmail: false` so the auth-server does
+    // not send its own copy, and the cached-signin paths perform no server-side
+    // login at all. /confirm_signup_code is unchanged from before — the server
+    // still sends there, because this resend produces a different template
+    // (`verifyShortCode`) for an unverified primary email (FXA-14109).
     if (
-      (to?.includes('signin_token_code') || to?.includes('confirm_signup_code')) &&
+      (to?.includes('signin_token_code') ||
+        to?.includes('confirm_signup_code')) &&
       navigationOptions.signinData.sessionToken &&
       navigationOptions.signinData.verificationMethod ===
         VerificationMethods.EMAIL_OTP
@@ -332,7 +425,8 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
         return { error };
       }
       if (to) {
-        performNavigation({ navigate,
+        performNavigation({
+          navigate,
           to,
           locationState,
           shouldHardNavigate,
@@ -368,7 +462,8 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     if (navigationOptions.performNavigation !== false) {
       const { to, locationState, shouldHardNavigate } =
         await getNonOAuthNavigationTarget(navigationOptions);
-      performNavigation({ navigate,
+      performNavigation({
+        navigate,
         to,
         locationState,
         shouldHardNavigate,
@@ -409,7 +504,8 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
       if (to === '/post_verify/service_welcome') {
         navigate(to, { state: { origin: 'signin' }, replace: true });
       } else {
-        performNavigation({ navigate,
+        performNavigation({
+          navigate,
           to,
           locationState,
           shouldHardNavigate,
@@ -438,6 +534,7 @@ const createSigninLocationState = (
     showInlineRecoveryKeySetup,
     isSignInWithThirdPartyAuth,
     isPasswordlessOtpSignin,
+    isPasskeySession,
     origin,
   } = navigationOptions;
   return {
@@ -451,6 +548,7 @@ const createSigninLocationState = (
     showInlineRecoveryKeySetup,
     isSignInWithThirdPartyAuth,
     isPasswordlessOtpSignin,
+    isPasskeySession,
     origin,
   };
 };
@@ -539,6 +637,9 @@ const getNonOAuthNavigationTarget = async (
     isSignInWithThirdPartyAuth,
     showSignupConfirmedSync,
     origin,
+    isPasswordlessOtpSignin,
+    isPasskeySession,
+    passwordCreationReason,
   } = navigationOptions;
   if (integration.isSync()) {
     const syncNav = getSyncNavigate(queryParams, {
@@ -546,6 +647,9 @@ const getNonOAuthNavigationTarget = async (
       isSignInWithThirdPartyAuth,
       showSignupConfirmedSync,
       origin,
+      isPasswordlessOtpSignin,
+      isPasskeySession,
+      passwordCreationReason,
     });
     const locationState = createSigninLocationState(navigationOptions);
     return {
@@ -620,6 +724,18 @@ const getOAuthNavigationTarget = async (
     ) {
       GleanMetrics.login.error({ event: { reason: error.message } });
 
+      // Every destination below is interactive, which prompt=none forbids. On
+      // the caller's flag, not the integration: prompt=none can outlive the
+      // authorization route in the query string, and the RP may have opted out
+      // of error redirects. Errno 170 only — an unverified session is
+      // interaction_required, not an unmet level (FXA-14408).
+      if (
+        error.errno === AuthUiErrors.INSUFFICIENT_ACR_VALUES.errno &&
+        navigationOptions.canRelayPromptNoneError
+      ) {
+        return { error: new OAuthError('UNMET_AUTHENTICATION_REQUIREMENTS') };
+      }
+
       const to = (() => {
         // If the user doesn't have totp, and encountered an unverified_session error, send them
         // to signin_token_code, this is a 'mustVerify' case
@@ -654,6 +770,9 @@ const getOAuthNavigationTarget = async (
       showSignupConfirmedSync: navigationOptions.showSignupConfirmedSync,
       syncHidePromoAfterLogin: navigationOptions.syncHidePromoAfterLogin,
       origin: navigationOptions.origin,
+      isPasswordlessOtpSignin: navigationOptions.isPasswordlessOtpSignin,
+      isPasskeySession: navigationOptions.isPasskeySession,
+      passwordCreationReason: navigationOptions.passwordCreationReason,
     });
     return {
       ...syncNav,

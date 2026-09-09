@@ -41,6 +41,7 @@ import { ModelDataProvider } from '../../lib/model-data';
 import { AuthServerError } from 'fxa-auth-client/browser';
 import { MemoryRouter } from 'react-router';
 import { MOCK_FLOW_ID, mockGetWebChannelServices } from '../mocks';
+import { mockUseFxAStatus } from '../../lib/hooks/useFxAStatus/mocks';
 
 // TIP - Sometimes, we want to mock inputs. In this case they can be mocked directly and
 // often times a mocking util isn't even necessary. Note that using the Dependency Inversion
@@ -187,14 +188,10 @@ async function render(text?: string) {
           integration,
           serviceName,
         }}
-        useFxAStatusResult={{
-          offeredSyncEngines: [],
-          offeredSyncEngineConfigs: [],
-          selectedEnginesForGlean: {},
-          declinedSyncEngines: [],
-          supportsKeysOptionalLogin: false,
+        useFxAStatusResult={mockUseFxAStatus({
+          offeredSyncEnginesOverride: [],
           supportsCanLinkAccountUid: false,
-        }}
+        })}
         flowQueryParams={{ flowId: MOCK_FLOW_ID }}
       />
     </MemoryRouter>
@@ -245,7 +242,9 @@ describe('sign-up-container', () => {
       await render('loading spinner mock');
 
       // TODO: Determine if email is valid: https://github.com/mozilla/fxa/pull/16131#discussion_r1418122670
-      expect(mockNavigate).toHaveBeenCalledWith('/');
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/');
+      });
     });
 
     it('handles empty email', async () => {
@@ -265,7 +264,9 @@ describe('sign-up-container', () => {
       await render('loading spinner mock');
 
       // TODO: Show that email is invalid: https://github.com/mozilla/fxa/pull/16131#discussion_r1418122670
-      expect(mockNavigate).toHaveBeenCalledWith('/');
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/');
+      });
     });
   });
 

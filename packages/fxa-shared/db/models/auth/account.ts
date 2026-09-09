@@ -16,6 +16,31 @@ export type AccountOptions = {
   include?: Array<'emails' | 'linkedAccounts' | 'securityEvents'>;
 };
 
+/**
+ * Constant-time comparison of two hex strings, used for password verify-hash
+ * checks so timing does not leak how many leading characters matched. Returns
+ * false (rather than throwing) for non-strings, invalid/odd-length hex, or
+ * unequal lengths.
+ */
+export function constantTimeHexEqual(a?: string, b?: string): boolean {
+  if (typeof a !== 'string' || typeof b !== 'string') {
+    return false;
+  }
+  // Reject anything that isn't strict, even-length hex first: Buffer.from(_,
+  // 'hex') silently truncates on odd-length or invalid input, which could
+  // otherwise let two different strings decode to equal buffers and match.
+  const isHex = (s: string) => s.length % 2 === 0 && /^[0-9a-f]*$/i.test(s);
+  if (!isHex(a) || !isHex(b)) {
+    return false;
+  }
+  const ba = Buffer.from(a, 'hex');
+  const bb = Buffer.from(b, 'hex');
+  if (ba.length !== bb.length) {
+    return false;
+  }
+  return crypto.timingSafeEqual(ba, bb);
+}
+
 const selectFields = [
   'uid',
   'email',
@@ -444,8 +469,8 @@ export class Account extends BaseAuthModel {
       throw notFound();
     }
 
-    const v1 = account.verifyHash === verifyHash;
-    const v2 = account.verifyHashVersion2 === verifyHash;
+    const v1 = constantTimeHexEqual(account.verifyHash, verifyHash);
+    const v2 = constantTimeHexEqual(account.verifyHashVersion2, verifyHash);
 
     return {
       match: v1 || v2,

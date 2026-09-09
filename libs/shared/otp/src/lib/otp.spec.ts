@@ -2,12 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// Mock only randomInt for deterministic codes; timingSafeEqual stays real so
+// the length-mismatch crash path is actually exercised.
 jest.mock('crypto', () => ({
   ...jest.requireActual('crypto'),
   randomInt: jest.fn().mockImplementation((_, __, cb) => {
     cb(undefined, 1999);
   }),
-  timingSafeEqual: jest.fn(),
 }));
 import * as crypto from 'crypto';
 import { OtpManager } from './otp';
@@ -56,13 +57,20 @@ describe('OtpManager', () => {
   });
 
   describe('isValid', () => {
-    it('calls crypto.timingSafeEqual to compare values', async () => {
+    it('returns true when the supplied code matches the stored code', async () => {
       const code = await otpManager.create('cheese9000');
-      await otpManager.isValid('cheese9000', code);
-      expect(crypto.timingSafeEqual).toHaveBeenCalledTimes(1);
-      expect(crypto.timingSafeEqual).toHaveBeenCalledWith(
-        Buffer.from(code),
-        Buffer.from(code)
+      expect(await otpManager.isValid('cheese9000', code)).toBe(true);
+    });
+
+    it('returns false when the stored code differs but is the same length', async () => {
+      await otpManager.create('cheese9000');
+      expect(await otpManager.isValid('cheese9000', '001998')).toBe(false);
+    });
+
+    it('returns false without throwing when the supplied code length differs from the stored code', async () => {
+      await otpManager.create('cheese9000');
+      await expect(otpManager.isValid('cheese9000', '12345')).resolves.toBe(
+        false
       );
     });
 
@@ -70,7 +78,6 @@ describe('OtpManager', () => {
       const actual = await otpManager.isValid('cheese9001', '929291');
       expect(storageAdapter.get).toHaveBeenCalledTimes(1);
       expect(storageAdapter.get).toHaveBeenCalledWith('otp:testo:cheese9001');
-      expect(crypto.timingSafeEqual).toHaveBeenCalledTimes(0);
       expect(actual).toBe(false);
     });
   });

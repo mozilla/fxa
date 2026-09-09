@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useLocation } from 'react-router';
-import { FtlMsg } from 'fxa-react/lib/utils';
+import { useLocation } from 'react-router';
+import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { ReactComponent as IconClose } from '@fxa/shared/assets/images/close.svg';
 import { isProbablyFirefox, useAccount } from '../../models';
@@ -108,12 +108,23 @@ export const FirefoxPromoBannerView = ({
     bannerState === 'switch-mobile'
       ? Constants.FIREFOX_MOBILE_DOWNLOAD_URL
       : Constants.FIREFOX_DESKTOP_DOWNLOAD_URL;
+  const pairHref = `/pair${location.search ?? ''}`;
   const cta = (
     <FtlMsg id={variant.ctaId}>
       {bannerState === 'firefox-pair' ? (
-        <Link {...ctaProps} to={`/pair${location.search ?? ''}`}>
+        <a
+          {...ctaProps}
+          href={pairHref}
+          onClick={(e) => {
+            e.preventDefault();
+            emitMetric('submit');
+            // Full page load so the app re-bootstraps and rebuilds the
+            // integration from the /pair URL, as if the user had just arrived.
+            hardNavigate(pairHref);
+          }}
+        >
           {variant.cta}
-        </Link>
+        </a>
       ) : (
         <LinkExternal {...ctaProps} href={downloadUrl}>
           {variant.cta}

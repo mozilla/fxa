@@ -17,4 +17,9 @@ describe('l10n/supportedLanguages:', () => {
     expect(supportedLanguages.indexOf('fr')).toBeGreaterThanOrEqual(0);
     expect(supportedLanguages.indexOf('pt')).toBeGreaterThanOrEqual(0);
   });
+
+  // If negotiation returns en-US, the localizer fetches an ftl that 404s.
+  it('excludes en-US, which has no translations folder', () => {
+    expect(supportedLanguages).not.toContain('en-US');
+  });
 });

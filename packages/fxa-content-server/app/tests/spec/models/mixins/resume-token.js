@@ -3,14 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Backbone from 'backbone';
-import chai from 'chai';
+import { assert } from 'chai';
 import Cocktail from 'cocktail';
 import ResumeToken from 'models/resume-token';
 import ResumeTokenMixin from 'models/mixins/resume-token';
 import sinon from 'sinon';
 import vat from 'lib/vat';
-
-var assert = chai.assert;
 
 describe('models/mixins/resume-token', function () {
   var model, sentryMetrics;

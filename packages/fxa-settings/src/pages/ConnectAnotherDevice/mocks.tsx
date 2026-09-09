@@ -2,9 +2,49 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Devices } from '.';
 import { ENTRYPOINTS } from '../../constants';
-import { MOCK_ACCOUNT } from '../../models/mocks';
+import { getDefault } from '../../lib/config';
+import { SignedInUser } from '../../lib/channels/firefox';
+import { AppContextValue } from '../../models';
+import { UseFxAStatusResult } from '../../lib/hooks';
+import { MOCK_ACCOUNT, mockAppContext } from '../../models/mocks';
+import { Devices } from '../../lib/utilities';
+
+/**
+ * The browser capabilities `useFxAStatus` resolves to, as the page receives
+ * them. Defaults to a v1-pairing browser; pass overrides for the v2 cases.
+ */
+export function mockFxAStatus({
+  overrides = {},
+  pairing = false,
+  pairingVersion = 1,
+}: {
+  overrides?: Partial<UseFxAStatusResult>;
+  pairing?: boolean;
+  pairingVersion?: number;
+} = {}): UseFxAStatusResult {
+  return {
+    offeredSyncEngines: [],
+    offeredSyncEngineConfigs: undefined,
+    declinedSyncEngines: [],
+    selectedEnginesForGlean: {},
+    supportsKeysOptionalLogin: false,
+    supportsCanLinkAccountUid: undefined,
+    fxaStatusState: 'answered',
+    fxaStatus: {
+      capabilities: {
+        engines: [],
+        multiService: true,
+        choose_what_to_sync: true,
+        keys_optional: true,
+        can_link_account_uid: true,
+        pairing,
+        pairingVersion,
+      },
+    },
+    ...overrides,
+  };
+}
 
 export const MOCK_DEFAULTS = {
   email: MOCK_ACCOUNT.primaryEmail.email,
@@ -17,6 +57,7 @@ export const MOCK_BASIC_PROPS = {
   showSuccessMessage: true,
   isSignedIn: true,
   canSignIn: false,
+  fxaStatus: mockFxAStatus(),
 };
 
 export const MOCK_DEVICE_BASIC_PROPS = {
@@ -27,4 +68,31 @@ export const MOCK_DEVICE_BASIC_PROPS = {
   isSignUp: true,
   isSignedIn: true,
   canSignIn: false,
+  fxaStatus: mockFxAStatus(),
 };
+
+/**
+ * A route that satisfies `isEligibleForPairing`: a Sync web channel context
+ * plus a Firefox-chrome entrypoint. Without both, the bootstrap effect never
+ * reaches the pairing branch.
+ */
+export const MOCK_PAIRING_ELIGIBLE_ROUTE = `/connect_another_device?context=oauth_webchannel_v1&entrypoint=${ENTRYPOINTS.FIREFOX_FX_VIEW_ENTRYPOINT}`;
+
+/** A browser account that `isEligibleForPairing` treats as signed in. */
+export const MOCK_BROWSER_SIGNED_IN_USER: SignedInUser = {
+  email: MOCK_ACCOUNT.primaryEmail.email,
+  sessionToken: 'a'.repeat(64),
+  uid: MOCK_ACCOUNT.uid,
+  verified: true,
+};
+
+/** App context with the FxA-side pairing version pinned to `version`. */
+export function mockPairingAppContext(version: number): AppContextValue {
+  const config = getDefault();
+  return mockAppContext({
+    config: {
+      ...config,
+      pairing: { ...config.pairing, version },
+    },
+  } as AppContextValue);
+}

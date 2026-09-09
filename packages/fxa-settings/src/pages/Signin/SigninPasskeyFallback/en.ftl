@@ -6,3 +6,4 @@ signin-passkey-fallback-heading = Enter your password to sync
 signin-passkey-fallback-body = To keep your data safe, you need to enter your password when you use this passkey.
 signin-passkey-fallback-password-label = Password
 signin-passkey-fallback-continue = Continue
+signin-passkey-fallback-forgot-password-link = Forgot password?

@@ -8,7 +8,7 @@ import { usePageViewEvent } from '../../../lib/metrics';
 import AppLayout from '../../../components/AppLayout';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import Banner from '../../../components/Banner';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import config from '../../../lib/config';
 import { Integration } from '../../../models';
 import {
@@ -27,10 +27,7 @@ type SuppProps = {
   error?: string;
 };
 
-const Supp = ({
-  integration,
-  error: errorProp,
-}: SuppProps) => {
+const Supp = ({ integration, error: errorProp }: SuppProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const navigateWithQuery = useNavigateWithQuery();
   const [error, setError] = useState<string | undefined>(errorProp);

@@ -6,7 +6,6 @@ import base64url from 'base64url';
 import crypto from 'crypto';
 import { normalizeEmail } from 'fxa-shared/email/helpers';
 import IORedis from 'ioredis';
-import * as uuid from 'uuid';
 
 import {
   getSharedTestServer,
@@ -14,6 +13,19 @@ import {
 } from '../support/helpers/test-server';
 import { AuthServerError } from '../support/helpers/test-utils';
 import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
+import {
+  PasskeyFactory,
+  PasskeyWrapFactory,
+  setupAccountDatabase,
+  type AccountDatabase,
+} from '@fxa/shared/db/mysql/account';
+import {
+  bufferToAaguid,
+  findPasskeyByCredentialId,
+  findPasskeyWrap,
+  insertPasskey,
+  insertPasskeyWrap,
+} from '@fxa/accounts/passkey';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const config = require('../../config').default.getProperties();
@@ -80,6 +92,7 @@ let server: TestServerInstance;
 let account: any;
 let secondEmail: string;
 let db: any;
+let accountDb: AccountDatabase;
 let redis: any;
 
 beforeAll(async () => {
@@ -92,17 +105,19 @@ beforeAll(async () => {
   });
   server = await getSharedTestServer();
   db = await DB.connect(config);
+  accountDb = await setupAccountDatabase(config.database.mysql.auth);
 }, 120000);
 
 afterAll(async () => {
   await db.close();
+  await accountDb.destroy();
   await redis.quit();
   await server.stop();
 });
 
 beforeEach(async () => {
   account = {
-    uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
+    uid: crypto.randomBytes(16).toString('hex'),
     email: server.uniqueEmail(),
     emailCode: zeroBuffer16,
     emailVerified: false,
@@ -714,6 +729,67 @@ describe('#integration - remote db', () => {
     // account should STILL exist for this email address
     const exists = await db.accountExists(account.email);
     expect(exists).toBe(true);
+  });
+
+  describe('db.resetAccount passkey wraps', () => {
+    /** Registers a passkey on the test account and seals a wrap to it. */
+    async function seedWrap() {
+      const passkey = PasskeyFactory();
+      const credentialId = passkey.credentialId.toString('base64url');
+      await insertPasskey(accountDb, account.uid, {
+        ...passkey,
+        credentialId,
+        aaguid: bufferToAaguid(passkey.aaguid),
+      });
+
+      const wrap = PasskeyWrapFactory();
+      await insertPasskeyWrap(
+        accountDb,
+        account.uid,
+        {
+          credentialId,
+          pkR: wrap.pkR,
+          prfWrappedSkR: wrap.prfWrappedSkR,
+          keyWrapIv: wrap.keyWrapIv,
+          hpkeEncapsulatedSecret: wrap.hpkeEncapsulatedSecret,
+          hpkeSealedKb: wrap.hpkeSealedKb,
+        },
+        Date.now()
+      );
+
+      return credentialId;
+    }
+
+    it('deletes the wraps but keeps the passkey when the keys change', async () => {
+      const credentialId = await seedWrap();
+
+      await db.resetAccount(
+        { uid: account.uid },
+        { ...account, keysHaveChanged: true }
+      );
+
+      await expect(
+        findPasskeyWrap(accountDb, account.uid, credentialId)
+      ).resolves.toBeUndefined();
+      // The credential stays registered so the user can re-enrol it.
+      await expect(
+        findPasskeyByCredentialId(accountDb, credentialId)
+      ).resolves.toBeDefined();
+    });
+
+    it('keeps the wraps when the keys are unchanged', async () => {
+      // The recovery-key reset, password change and v2 upgrade all land here.
+      const credentialId = await seedWrap();
+
+      await db.resetAccount(
+        { uid: account.uid },
+        { ...account, keysHaveChanged: false }
+      );
+
+      await expect(
+        findPasskeyWrap(accountDb, account.uid, credentialId)
+      ).resolves.toBeDefined();
+    });
   });
 
   it('db.securityEvents', async () => {

@@ -291,15 +291,6 @@ export class EmailLinkBuilder {
     return this.config.iosUrl;
   }
 
-  buildTermsOfServiceDownloadLink(
-    templateName: string,
-    metricsEnabled: boolean
-  ) {
-    const url = new URL(this.config.subscriptionTermsUrl);
-    this.addUTMParams(url, templateName, metricsEnabled, 'subscription-terms');
-    return url.toString();
-  }
-
   buildPrivacyLink(templateName: string, metricsEnabled: boolean) {
     const privacyUrl = new URL(this.config.privacyUrl);
     this.addUTMParams(privacyUrl, templateName, metricsEnabled, 'privacy');

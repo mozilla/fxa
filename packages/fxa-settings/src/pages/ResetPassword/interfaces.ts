@@ -4,4 +4,15 @@
 
 import { Integration } from '../../models';
 
-export type ResetPasswordIntegration = Pick<Integration, 'getCmsInfo'>;
+export type ResetPasswordIntegration = Pick<
+  Integration,
+  'getCmsInfo' | 'isSync'
+>;
+
+/**
+ * Passkey-aware reset-messaging signal from the /password/forgot/verify_otp
+ * response, threaded through the reset flow.
+ */
+export type PasskeyResetSignals = {
+  hasPasskey?: boolean;
+};

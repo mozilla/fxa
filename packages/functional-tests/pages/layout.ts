@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Page, expect } from '@playwright/test';
+import { Locator, Page, expect } from '@playwright/test';
 import { BaseTarget } from '../lib/targets/base';
 
 import {
@@ -26,6 +26,13 @@ export abstract class BaseLayout {
 
   protected get baseUrl() {
     return this.target.baseUrl;
+  }
+
+  // CTA text is CMS-overridable; `form` scope keeps this single-match on pages
+  // that render a second submit button. Protected so page objects expose it
+  // under a name that says which button it is.
+  protected get formSubmitButton(): Locator {
+    return this.page.locator('form button[type="submit"]');
   }
 
   get url() {

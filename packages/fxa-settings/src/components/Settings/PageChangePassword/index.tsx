@@ -5,8 +5,9 @@
 import React, { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { MfaGuard } from '../MfaGuard';
+import { useMfaErrorHandler } from '../../../lib/hooks';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import { SETTINGS_PATH } from '../../../constants';
 import {
   logViewEvent,
@@ -34,23 +35,16 @@ type FormData = {
 // eslint-disable-next-line no-empty-pattern
 export const PageChangePassword = () => {
   usePageViewEvent('settings.change-password');
-  const {
-    handleSubmit,
-    register,
-    getValues,
-    setValue,
-    errors,
-    formState,
-    trigger,
-  } = useForm<FormData>({
-    mode: 'onTouched',
-    criteriaMode: 'all',
-    defaultValues: {
-      oldPassword: '',
-      newPassword: '',
-      confirmPassword: '',
-    },
-  });
+  const { handleSubmit, register, getValues, setValue, formState, trigger } =
+    useForm<FormData>({
+      mode: 'onTouched',
+      criteriaMode: 'all',
+      defaultValues: {
+        oldPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      },
+    });
   const account = useAccount();
   const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -121,7 +115,7 @@ export const PageChangePassword = () => {
         <FormPassword
           {...{
             formState,
-            errors,
+            errors: formState.errors,
             trigger,
             register,
             getValues,

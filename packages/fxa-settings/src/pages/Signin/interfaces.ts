@@ -13,8 +13,10 @@ import { MozServices } from '../../lib/types';
 import type { NavigateFunction } from 'react-router';
 import { Integration } from '../../models';
 import { QueryParams } from '../..';
-import { UseFxAStatusResult } from '../../lib/hooks/useFxAStatus';
+import { UseFxAStatusResult } from '../../lib/hooks';
 import AuthClient from 'fxa-auth-client/browser';
+import type { PairGleanReason } from 'fxa-shared/metrics/glean/pair-reasons';
+import type { PasswordCreationReason } from '../PostVerify/SetPassword/interfaces';
 
 export interface AvatarResponse {
   account: {
@@ -292,7 +294,18 @@ export interface NavigationOptions {
   // True when the session was established by a passkey assertion; pairs
   // with accountHasTotp to drive the AAL2-RP TOTP redirect in utils.ts.
   isPasskeySession?: boolean;
+  // Set by PostVerify/SetPassword. Because Sync always needs encryption keys,
+  // passwordless OTP and passkey sign-ins are routed through that page before
+  // they can reach /pair, so this is the only surviving record of how the
+  // session was established. Drives the /pair `choice_view` reason.
+  passwordCreationReason?: PasswordCreationReason;
   accountHasTotp?: boolean;
+  // Set only by the Authorization container, and only when the RP accepts error
+  // redirects. It is the one caller that relays a returned error to the RP; the
+  // rest render errors in-FxA, and with return_on_error=false even this one
+  // does. Failing the request in those cases would dead-end the user instead of
+  // letting the interactive fallback complete the flow.
+  canRelayPromptNoneError?: boolean;
   authClient: Pick<AuthClient, 'sessionResendVerifyCode'>;
 }
 
@@ -314,6 +327,14 @@ export interface SigninLocationState {
   isSessionAALUpgrade?: boolean;
   isSignInWithThirdPartyAuth?: boolean;
   isPasswordlessOtpSignin?: boolean;
+  // True when this session was established by a passkey assertion. Only set on
+  // a fresh ceremony, so a cached passkey session arrives here undefined.
+  isPasskeySession?: boolean;
+  /**
+   * Set by `getSyncNavigate` when routing to the React /pair choice screen.
+   * Read there to tag `cad_firefox.choice_view` with the originating flow.
+   */
+  pairReason?: PairGleanReason;
   /**
    * Sign-in surface the user came from before reaching SigninPasskeyFallback.
    * Used to populate the `reason` extra on `passkey_enter_password.*` Glean

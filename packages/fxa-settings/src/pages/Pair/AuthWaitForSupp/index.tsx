@@ -13,7 +13,7 @@ import DeviceInfoBlock from '../../../components/DeviceInfoBlock';
 import Banner from '../../../components/Banner';
 import { Integration } from '../../../models';
 import { PairingAuthorityIntegration } from '../../../models/integrations/pairing-authority-integration';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 
 export type AuthWaitForSuppProps = {
   suppDeviceInfo?: RemoteMetadata;

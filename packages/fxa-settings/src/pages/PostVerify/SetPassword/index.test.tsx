@@ -135,10 +135,10 @@ describe('SetPassword page', () => {
       renderWithLocalizationProvider(<Subject />);
 
       expect(
-        screen.getByRole('link', { name: 'Terms of Service' })
+        screen.getByRole('link', { name: /Terms of Service/ })
       ).toBeInTheDocument();
       expect(
-        screen.getByRole('link', { name: 'Privacy Notice' })
+        screen.getByRole('link', { name: /Privacy Notice/ })
       ).toBeInTheDocument();
     });
 

@@ -4,7 +4,11 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import {
+  useNavigateWithQuery,
+  useWebRedirect,
+  useThrottle,
+} from '../../../lib/hooks';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { isSendTabEntrypoint } from '../../../lib/utilities';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
@@ -34,7 +38,6 @@ import {
 import { ConfirmSignupCodeProps } from './interfaces';
 import firefox from '../../../lib/channels/firefox';
 import GleanMetrics from '../../../lib/glean';
-import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import { storeAccountData } from '../../../lib/storage-utils';
 import {
   getErrorFtlId,
@@ -43,7 +46,6 @@ import {
 import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
 import { isFirefoxService } from '../../../models/integrations/utils';
 import { getSyncNavigate } from '../../Signin/utils';
-import useThrottle from '../../../lib/hooks/useThrottle';
 
 export const viewName = 'confirm-signup-code';
 
@@ -213,6 +215,7 @@ const ConfirmSignupCode = ({
       if (isSyncDesktopV3Integration(integration)) {
         const { to } = getSyncNavigate(location.search, {
           showSignupConfirmedSync: true,
+          origin: 'signup',
         });
         navigate(to);
       } else if (isOAuthIntegration(integration)) {
@@ -274,6 +277,10 @@ const ConfirmSignupCode = ({
                 {
                   showSignupConfirmedSync: !isSendTab,
                   signupSuccess: isSendTab,
+                  // Needed for the !isSendTab branch: signupSuccess is false
+                  // there, so without this the /pair reason would fall through
+                  // to password_login instead of password_reg.
+                  origin: 'signup',
                 }
               );
               if (shouldHardNavigate) {

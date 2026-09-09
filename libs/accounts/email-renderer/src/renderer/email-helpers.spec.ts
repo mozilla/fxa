@@ -34,7 +34,8 @@ describe('EmailHelpers', () => {
 
       expect(result.time).toEqual('8:30:45 PM (UTC)');
       expect(result.date).toEqual('Monday, Jan 15, 2024');
-      expect(result.acceptLanguage).toEqual('en-US');
+      // en-US is not a supported locale, so negotiation resolves it to en.
+      expect(result.acceptLanguage).toEqual('en');
       expect(result.timeZone).toEqual('Etc/UTC');
     });
 

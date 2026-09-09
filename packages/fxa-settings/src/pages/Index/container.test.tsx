@@ -9,7 +9,7 @@ import * as cache from '../../lib/cache';
 
 import { act, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
-import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
+import { useValidatedQueryParams } from '../../lib/hooks';
 import { Integration, IntegrationType, WebIntegration } from '../../models';
 import IndexContainer from './container';
 import { MozServices } from '../../lib/types';

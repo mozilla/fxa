@@ -71,7 +71,7 @@ export function stripeInvoiceToInvoicePreviewDTO(
     discountAmount,
     subtotal: invoice.subtotal,
     discountEnd: invoice.discounts[0]?.end,
-    discountType: invoice.discounts[0]?.source?.coupon.duration,
+    discountType: invoice.discounts[0]?.source?.coupon?.duration,
     number: invoice.number,
     paypalTransactionId:
       invoice.metadata?.[STRIPE_INVOICE_METADATA.PaypalTransactionId],
@@ -82,7 +82,7 @@ export function stripeInvoiceToInvoicePreviewDTO(
     creditApplied: invoice.ending_balance
       ? invoice.starting_balance - invoice.ending_balance
       : invoice.starting_balance,
-    promotionName: invoice.discounts[0]?.source?.coupon.name,
+    promotionName: invoice.discounts[0]?.source?.coupon?.name,
     remainingAmountTotal,
     startingBalance: invoice.starting_balance,
     totalExcludingTax: invoice.total_excluding_tax,

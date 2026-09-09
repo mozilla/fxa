@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { ResetPasswordWithRecoveryKeyVerifiedProps } from './interfaces';
 import { formatRecoveryKey } from '../../../lib/utilities';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import {
   Integration,

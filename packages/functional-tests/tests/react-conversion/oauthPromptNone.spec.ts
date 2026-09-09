@@ -33,7 +33,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.signInPromptNone();
 
       await page.waitForURL(/oauth/);
-      await expect(signup.signupFormHeading).toBeVisible();
+      await expect(signup.passwordTextbox).toBeVisible();
     });
 
     test('fails RP that is not allowed', async ({
@@ -121,7 +121,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.signInPromptNone();
 
       await page.waitForURL(/oauth/);
-      await expect(signup.signupFormHeading).toBeVisible();
+      await expect(signup.passwordTextbox).toBeVisible();
     });
 
     test('fails if account is not verified', async ({
@@ -239,7 +239,7 @@ test.describe('severity-1 #smoke', () => {
         await page.waitForResponse(/api\/oauth\?error=login_required/);
         // RP handled it by taking the user back to sign in
         await page.waitForURL(/oauth\/signin/);
-        await expect(signin.passwordFormHeading).toBeVisible();
+        await expect(signin.passwordTextbox).toBeVisible();
       }
     });
 

@@ -5,7 +5,7 @@
 const encrypt = require('fxa-shared/auth/encrypt');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const unique = require('../../unique');
-const AccessToken = require('../accessToken');
+const { ScopeIdCache } = require('../../scopes-cache');
 
 // Shared base class
 const { MysqlOAuthShared } = require('fxa-shared/db/mysql');
@@ -59,34 +59,18 @@ const QUERY_CLIENT_UPDATE =
 // This query deletes everything related to the client, and is thus quite expensive!
 // Don't worry, it's not exposed to any production-facing routes.
 const QUERY_CLIENT_DELETE =
-  'DELETE clients, codes, tokens, refreshTokens, clientDevelopers ' +
+  'DELETE clients, codes, refreshTokens, clientDevelopers ' +
   'FROM clients ' +
   'LEFT JOIN codes ON clients.id = codes.clientId ' +
-  'LEFT JOIN tokens ON clients.id = tokens.clientId ' +
   'LEFT JOIN refreshTokens ON clients.id = refreshTokens.clientId ' +
   'LEFT JOIN clientDevelopers ON clients.id = clientDevelopers.clientId ' +
   'WHERE clients.id=?';
 const QUERY_CODE_INSERT =
   'INSERT INTO codes (clientId, userId, scope, authAt, amr, aal, offline, code, codeChallengeMethod, codeChallenge, keysJwe, profileChangedAt, sessionTokenId) ' +
   'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-const QUERY_ACCESS_TOKEN_INSERT =
-  'INSERT INTO tokens (clientId, userId, scope, type, expiresAt, ' +
-  'token, profileChangedAt) VALUES (?, ?, ?, ?, ?, ?, ?)';
 const QUERY_REFRESH_TOKEN_INSERT =
   'INSERT INTO refreshTokens (clientId, userId, scope, token, profileChangedAt) VALUES ' +
   '(?, ?, ?, ?, ?)';
-// Access token storage in redis annotates each token with client metadata,
-// so we do the same when reading from MySQL, for consistency.
-// Note that the `token` field stores the hash of the token rather than the raw token,
-// and hence would more properly be called `tokenId`.
-const QUERY_ACCESS_TOKEN_FIND =
-  'SELECT tokens.token AS tokenId, tokens.clientId, tokens.createdAt, ' +
-  '  tokens.userId, tokens.scope, ' +
-  '  tokens.createdAt, tokens.expiresAt, tokens.profileChangedAt, ' +
-  '  clients.name as clientName, clients.canGrant AS clientCanGrant, ' +
-  '  clients.publicClient ' +
-  'FROM tokens LEFT OUTER JOIN clients ON clients.id = tokens.clientId ' +
-  'WHERE tokens.token=?';
 // Note that the `token` field stores the hash of the token rather than the raw token,
 // and hence would more properly be called `tokenId`.
 const QUERY_REFRESH_TOKEN_FIND =
@@ -97,17 +81,9 @@ const QUERY_REFRESH_TOKEN_LAST_USED_UPDATE =
   'UPDATE refreshTokens SET lastUsedAt=? WHERE token=?';
 const QUERY_CODE_FIND = 'SELECT * FROM codes WHERE code=?';
 const QUERY_CODE_DELETE = 'DELETE FROM codes WHERE code=?';
-const QUERY_ACCESS_TOKEN_DELETE = 'DELETE FROM tokens WHERE token=?';
 const QUERY_REFRESH_TOKEN_DELETE = 'DELETE FROM refreshTokens WHERE token=?';
-const QUERY_ACCESS_TOKEN_DELETE_USER = 'DELETE FROM tokens WHERE userId=?';
-// These next two queries can be very expensive if MySQL
-// tries to filter by clientId before userId, so we add
-// an explicit index hint to help ensure this doesn't happen.
-const QUERY_DELETE_ACCESS_TOKEN_FOR_PUBLIC_CLIENTS =
-  'DELETE tokens ' +
-  'FROM tokens FORCE INDEX (tokens_user_id)' +
-  'INNER JOIN clients ON tokens.clientId = clients.id ' +
-  'WHERE tokens.userId=? AND (clients.publicClient = 1 OR clients.canGrant = 1)';
+// This query can be very expensive if MySQL tries to filter by clientId before
+// userId, so we add an explicit index hint to help ensure this doesn't happen.
 const QUERY_DELETE_REFRESH_TOKEN_FOR_PUBLIC_CLIENTS =
   'DELETE refreshTokens ' +
   'FROM refreshTokens FORCE INDEX (tokens_user_id)' +
@@ -145,18 +121,6 @@ const QUERY_DEVELOPER_DELETE =
   'FROM developers ' +
   'LEFT JOIN clientDevelopers ON developers.developerId = clientDevelopers.developerId ' +
   'WHERE developers.email=?';
-// When listing access tokens, we deliberately do not exclude tokens that have expired.
-// Such tokens will be cleaned up by a background job.
-// There's minimal downside to showing tokens in the brief period between when they expire and when
-// they get deleted from the db.
-const QUERY_LIST_ACCESS_TOKENS_BY_UID =
-  'SELECT tokens.token AS tokenId, tokens.clientId, tokens.createdAt, ' +
-  '  tokens.userId, tokens.scope, ' +
-  '  tokens.createdAt, tokens.expiresAt, tokens.profileChangedAt, ' +
-  '  clients.name as clientName, clients.canGrant AS clientCanGrant, ' +
-  '  clients.publicClient ' +
-  'FROM tokens LEFT OUTER JOIN clients ON clients.id = tokens.clientId ' +
-  'WHERE tokens.userId=?';
 const QUERY_LIST_REFRESH_TOKENS_BY_UID =
   'SELECT refreshTokens.token AS tokenId, refreshTokens.clientId, refreshTokens.createdAt, refreshTokens.lastUsedAt, ' +
   '  refreshTokens.scope, clients.name as clientName, clients.canGrant AS clientCanGrant ' +
@@ -190,8 +154,6 @@ const QUERY_LIST_REFRESH_TOKENS_BY_CLIENT_ID =
   'SELECT refreshTokens.createdAt, refreshTokens.userId FROM refreshTokens WHERE refreshTokens.clientId=?';
 const DELETE_ACTIVE_CODES_BY_CLIENT_AND_UID =
   'DELETE FROM codes WHERE clientId=? AND userId=?';
-const DELETE_ACTIVE_TOKENS_BY_CLIENT_AND_UID =
-  'DELETE FROM tokens WHERE clientId=? AND userId=?';
 const DELETE_ACTIVE_REFRESH_TOKENS_BY_CLIENT_AND_UID =
   'DELETE FROM refreshTokens WHERE clientId=? AND userId=?';
 const DELETE_REFRESH_TOKEN_WITH_CLIENT_AND_UID =
@@ -221,6 +183,13 @@ const QUERY_ACCOUNT_CONSENT_FIND_SIGNIN =
 // same service.
 const QUERY_HAS_CONSENT_FOR_SCOPE =
   'SELECT 1 FROM accountAuthorizations WHERE uid=? AND scope=? AND service=? LIMIT 1';
+// Full-PK existence check for the VPN-in-Desktop DAU bandaid (FXA-14159).
+// Adds clientId to QUERY_HAS_CONSENT_FOR_SCOPE so a VPN consent recorded for a
+// different client (e.g. Mobile or the standalone VPN app) does not count as
+// Desktop authorization. A complete PK match — the fastest lookup this table
+// supports.
+const QUERY_HAS_CONSENT_FOR_SCOPE_AND_CLIENT =
+  'SELECT 1 FROM accountAuthorizations WHERE uid=? AND scope=? AND service=? AND clientId=? LIMIT 1';
 // Existence checks for the first-authorization signal (FXA-13784). Bounded by
 // the user's rows (PK prefix on uid) with a LIMIT 1 early-out — cheaper than
 // fetching all of a user's consents and filtering in JS.
@@ -234,10 +203,39 @@ const QUERY_ACCOUNT_CONSENT_LIST_BY_UID =
   'SELECT uid, scope, service, clientId, firstAuthorizedTosAt, lastAuthorizedTosAt ' +
   'FROM accountAuthorizations WHERE uid=?';
 
+// accountAuthorizations_v2 shadow table (FXA-14169). Same rows as v1 but
+// `scope` is replaced by an integer `scopeId` FK to scopes(id). Written
+// alongside v1 behind the dualWriteV2 flag; read v2-first / v1-fallback behind
+// readV2. The upsert mirrors v1's GREATEST bump so a concurrent backfill can
+// never regress a fresher live-written row.
+const QUERY_ACCOUNT_CONSENT_V2_UPSERT_PREFIX =
+  'INSERT INTO accountAuthorizations_v2 ' +
+  '(uid, service, scopeId, clientId, firstAuthorizedTosAt, lastAuthorizedTosAt) ' +
+  'VALUES ';
+const QUERY_ACCOUNT_CONSENT_V2_UPSERT_SUFFIX =
+  ' ON DUPLICATE KEY UPDATE ' +
+  'lastAuthorizedTosAt = GREATEST(lastAuthorizedTosAt, VALUES(lastAuthorizedTosAt))';
+// Existence checks against v2. scope is resolved to scopeId by the caller
+// (via the scopes cache) before these run; all are PK left-prefixes on
+// (uid, service, scopeId, clientId).
+const QUERY_ACCOUNT_CONSENT_V2_FIND_SIGNIN =
+  'SELECT 1 FROM accountAuthorizations_v2 WHERE uid=? AND scopeId=? AND service=? LIMIT 1';
+const QUERY_HAS_CONSENT_FOR_SCOPE_V2 =
+  'SELECT 1 FROM accountAuthorizations_v2 WHERE uid=? AND scopeId=? AND service=? LIMIT 1';
+const QUERY_HAS_CONSENT_FOR_SERVICE_V2 =
+  'SELECT 1 FROM accountAuthorizations_v2 WHERE uid=? AND service=? LIMIT 1';
+const QUERY_HAS_CONSENT_FOR_CLIENT_V2 =
+  'SELECT 1 FROM accountAuthorizations_v2 WHERE uid=? AND clientId=? LIMIT 1';
+const QUERY_ACCOUNT_CONSENT_V2_DELETE_BY_UID =
+  'DELETE FROM accountAuthorizations_v2 WHERE uid=?';
+
 // Scope queries
 const QUERY_SCOPE_FIND = 'SELECT * ' + 'FROM scopes ' + 'WHERE scopes.scope=?;';
 const QUERY_SCOPES_INSERT =
   'INSERT INTO scopes (scope, hasScopedKeys) ' + 'VALUES (?, ?);';
+// Bulk scope-string -> id resolution backing the scopes cache. The IN list is
+// built at call time from the uncached scopes.
+const QUERY_SCOPES_RESOLVE_IDS_PREFIX = 'SELECT id, scope FROM scopes WHERE scope IN (';
 
 const buf = (v) => (Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex'));
 
@@ -255,6 +253,30 @@ function resolveMetrics() {
 class MysqlStore extends MysqlOAuthShared {
   constructor(config) {
     super(config, undefined, resolveLogger(), resolveMetrics());
+  }
+
+  // Process-lifetime scope-string -> scopes.id cache for the
+  // accountAuthorizations v2 dual-write/read paths (FXA-14169). Created lazily
+  // on first use so the module-load singleton's constructor does no work; the
+  // scope rows themselves are resolved on-miss and cached from then on. When
+  // both v2 flags are off (the default), it is never created.
+  get _scopeIdCache() {
+    if (!this.__scopeIdCache) {
+      this.__scopeIdCache = new ScopeIdCache((scopes) =>
+        this._resolveScopeRows(scopes)
+      );
+    }
+    return this.__scopeIdCache;
+  }
+
+  // Bulk scope-string -> {scope, id} lookup for the scopes cache. Never called
+  // with an empty list (the cache short-circuits that).
+  _resolveScopeRows(scopes) {
+    const placeholders = scopes.map(() => '?').join(', ');
+    return this._read(
+      QUERY_SCOPES_RESOLVE_IDS_PREFIX + placeholders + ')',
+      scopes
+    );
   }
 
   async ping() {
@@ -448,55 +470,6 @@ class MysqlStore extends MysqlOAuthShared {
     return this._write(QUERY_CODE_DELETE, [hash]);
   }
 
-  _generateAccessToken(accessToken) {
-    return this._write(QUERY_ACCESS_TOKEN_INSERT, [
-      accessToken.clientId,
-      accessToken.userId,
-      accessToken.scope.toString(),
-      accessToken.type,
-      accessToken.expiresAt,
-      accessToken.tokenId,
-      accessToken.profileChangedAt,
-    ]);
-  }
-
-  /**
-   * Get an access token by token id
-   * @param id Token Id
-   * @returns {*}
-   */
-  _getAccessToken(id) {
-    return this._readOne(QUERY_ACCESS_TOKEN_FIND, [buf(id)]).then(function (t) {
-      if (t) {
-        t = AccessToken.fromMySQL(t);
-      }
-      return t;
-    });
-  }
-
-  /**
-   * Remove token by token id
-   * @param id
-   * @returns {*}
-   */
-  _removeAccessToken(id) {
-    return this._write(QUERY_ACCESS_TOKEN_DELETE, [buf(id)]);
-  }
-
-  /**
-   * Get all access tokens for a given user.
-   * @param {String} uid User ID as hex
-   * @returns {Promise}
-   */
-  async _getAccessTokensByUid(uid) {
-    const accessTokens = await this._read(QUERY_LIST_ACCESS_TOKENS_BY_UID, [
-      buf(uid),
-    ]);
-    return accessTokens.map((t) => {
-      return AccessToken.fromMySQL(t);
-    });
-  }
-
   /**
    * Get all refresh tokens for a given user.
    * @param {String} uid User ID as hex
@@ -541,7 +514,11 @@ class MysqlStore extends MysqlOAuthShared {
   }
 
   /**
-   * Delete all authorization grants for some clientId and uid.
+   * Delete the authorization codes and refresh tokens for some clientId and uid.
+   *
+   * The caller is responsible for also revoking this pair's access tokens,
+   * which live only in redis — see `deleteClientAuthorization` in
+   * lib/oauth/db/index.js.
    *
    * @param {String} clientId Client ID
    * @param {String} uid User Id as Hex
@@ -553,17 +530,12 @@ class MysqlStore extends MysqlOAuthShared {
       buf(uid),
     ]);
 
-    const deleteTokens = this._write(DELETE_ACTIVE_TOKENS_BY_CLIENT_AND_UID, [
-      buf(clientId),
-      buf(uid),
-    ]);
-
     const deleteRefreshTokens = this._write(
       DELETE_ACTIVE_REFRESH_TOKENS_BY_CLIENT_AND_UID,
       [buf(clientId), buf(uid)]
     );
 
-    return Promise.all([deleteCodes, deleteTokens, deleteRefreshTokens]);
+    return Promise.all([deleteCodes, deleteRefreshTokens]);
   }
 
   async _pruneAuthorizationCodes(ttl) {
@@ -585,10 +557,12 @@ class MysqlStore extends MysqlOAuthShared {
 
   /**
    * Delete a specific refresh token, for some clientId and uid.
-   * Also deletes *all* access tokens for the clientId and uid combination,
-   * otherwise the refresh token is deleted but none of the access tokens
-   * created from that refresh token are, leaving ghost access tokens
-   * to appear in the users devices & apps list. See:
+   *
+   * The caller is responsible for also revoking *all* access tokens for the
+   * clientId and uid combination (they live in redis), otherwise the refresh
+   * token is deleted but none of the access tokens created from that refresh
+   * token are, leaving ghost access tokens to appear in the users devices &
+   * apps list. See:
    *
    * https://github.com/mozilla/fxa/issues/1249
    * https://github.com/mozilla/fxa/issues/3017
@@ -607,17 +581,7 @@ class MysqlStore extends MysqlOAuthShared {
       [buf(tokenId), buf(clientId), buf(uid)]
     );
 
-    // only delete access tokens if deleting the refresh
-    // tokens has succeeded.
-    if (deleteRefreshTokenRes.affectedRows) {
-      await this._write(DELETE_ACTIVE_TOKENS_BY_CLIENT_AND_UID, [
-        buf(clientId),
-        buf(uid),
-      ]);
-      return true;
-    }
-
-    return false;
+    return deleteRefreshTokenRes.affectedRows > 0;
   }
 
   generateRefreshToken(vals) {
@@ -667,9 +631,14 @@ class MysqlStore extends MysqlOAuthShared {
 
   // Upserts one consent row per scope in a single INSERT. `scopes` must be
   // non-empty; callers return early when there is nothing to record.
-  _upsertAccountConsents(uid, scopes, service, clientId, now) {
+  //
+  // When dualWriteV2 is set, also writes the row to accountAuthorizations_v2
+  // keyed by scopeId. Resolve-only: scopes absent from the scopes table are
+  // skipped (v1 stays authoritative, so nothing is dropped), and the v2 write
+  // is isolated so a v2 failure never affects the v1 write.
+  async _upsertAccountConsents(uid, scopes, service, clientId, now, dualWriteV2) {
     if (!Array.isArray(scopes) || scopes.length === 0) {
-      return Promise.resolve();
+      return;
     }
     const uidBuf = buf(uid);
     const clientIdBuf = buf(clientId);
@@ -678,15 +647,82 @@ class MysqlStore extends MysqlOAuthShared {
     for (const scope of scopes) {
       params.push(uidBuf, scope, service, clientIdBuf, now, now);
     }
-    return this._write(
+    // v1 write — authoritative. A failure bubbles to the caller as today.
+    await this._write(
       QUERY_ACCOUNT_CONSENT_UPSERT_PREFIX +
         tuples +
         QUERY_ACCOUNT_CONSENT_UPSERT_SUFFIX,
       params
     );
+
+    if (!dualWriteV2) {
+      return;
+    }
+
+    // Best-effort v2 mirror. Unresolved scopes are skipped; a v2 failure is
+    // swallowed so it can never affect the authoritative v1 write or the grant.
+    // Both are logged so the dual-write is observable during the bake.
+    try {
+      const { resolved, missing } = await this._scopeIdCache.resolve(scopes);
+      if (missing.length > 0) {
+        // Seed list for the scopes table. Both the list length and each string
+        // are capped — scopes are caller-supplied, so the log event has to stay
+        // bounded regardless of what was passed in.
+        this.log?.warn('accountAuthorizations.v2.missing_scope', {
+          scopes: missing.slice(0, 10).map((s) => String(s).slice(0, 128)),
+          count: missing.length,
+        });
+      }
+      if (resolved.size > 0) {
+        const v2Tuples = [];
+        const v2Params = [];
+        for (const scopeId of resolved.values()) {
+          v2Tuples.push('(?, ?, ?, ?, ?, ?)');
+          v2Params.push(uidBuf, service, scopeId, clientIdBuf, now, now);
+        }
+        await this._write(
+          QUERY_ACCOUNT_CONSENT_V2_UPSERT_PREFIX +
+            v2Tuples.join(', ') +
+            QUERY_ACCOUNT_CONSENT_V2_UPSERT_SUFFIX,
+          v2Params
+        );
+      }
+    } catch (err) {
+      // Still swallowed; v1 already landed. Log only code/errno — the driver
+      // decorates errors with connection options that can include credentials.
+      this.log?.error('accountAuthorizations.v2.write_failed', {
+        code: err?.code,
+        errno: err?.errno,
+      });
+    }
   }
 
-  async _findAccountConsentForSignIn(uid, scope, service) {
+  // Resolve a single scope string to its scopes.id via the cache, or undefined
+  // if it isn't in the scopes table. Used by the v2 read paths.
+  async _resolveScopeId(scope) {
+    const { resolved } = await this._scopeIdCache.resolve([scope]);
+    return resolved.get(scope);
+  }
+
+  // Existence check for the sign-in consent row. When readV2 is set, checks
+  // accountAuthorizations_v2 first (v2-first / v1-fallback): a v2 hit returns
+  // early; otherwise fall through to v1, which stays authoritative until the
+  // backfill completes and cutover happens. An unresolvable scope can't be in
+  // v2, so it also falls through to v1.
+  async _findAccountConsentForSignIn(uid, scope, service, readV2 = false) {
+    if (readV2) {
+      const scopeId = await this._resolveScopeId(scope);
+      if (scopeId !== undefined) {
+        const v2 = await this._read(QUERY_ACCOUNT_CONSENT_V2_FIND_SIGNIN, [
+          buf(uid),
+          scopeId,
+          service,
+        ]);
+        if (v2.length > 0) {
+          return { found: true };
+        }
+      }
+    }
     const rows = await this._read(QUERY_ACCOUNT_CONSENT_FIND_SIGNIN, [
       buf(uid),
       scope,
@@ -697,8 +733,21 @@ class MysqlStore extends MysqlOAuthShared {
 
   // True iff a consent row exists for the exact (uid, scope, service).
   // Used by the exchange gate after the caller has resolved the
-  // requested scope to a service via config.
-  async _hasConsentForScope(uid, scope, service) {
+  // requested scope to a service via config. v2-first / v1-fallback when readV2.
+  async _hasConsentForScope(uid, scope, service, readV2 = false) {
+    if (readV2) {
+      const scopeId = await this._resolveScopeId(scope);
+      if (scopeId !== undefined) {
+        const v2 = await this._read(QUERY_HAS_CONSENT_FOR_SCOPE_V2, [
+          buf(uid),
+          scopeId,
+          service,
+        ]);
+        if (v2.length > 0) {
+          return true;
+        }
+      }
+    }
     const rows = await this._read(QUERY_HAS_CONSENT_FOR_SCOPE, [
       buf(uid),
       scope,
@@ -707,9 +756,32 @@ class MysqlStore extends MysqlOAuthShared {
     return rows.length > 0;
   }
 
+  // True iff a consent row exists for the exact (uid, scope, service, clientId).
+  // Used by the VPN-in-Desktop DAU bandaid (FXA-14159) to confirm the user
+  // authorized VPN for this specific client before counting the token.
+  async _hasConsentForScopeAndClient(uid, scope, service, clientId) {
+    const rows = await this._read(QUERY_HAS_CONSENT_FOR_SCOPE_AND_CLIENT, [
+      buf(uid),
+      scope,
+      service,
+      buf(clientId),
+    ]);
+    return rows.length > 0;
+  }
+
   // True iff the user has any consent row for this service (any scope/client).
   // Drives the browser-service grain of the first-authorization signal.
-  async _hasConsentForService(uid, service) {
+  // v2-first / v1-fallback when readV2.
+  async _hasConsentForService(uid, service, readV2 = false) {
+    if (readV2) {
+      const v2 = await this._read(QUERY_HAS_CONSENT_FOR_SERVICE_V2, [
+        buf(uid),
+        service,
+      ]);
+      if (v2.length > 0) {
+        return true;
+      }
+    }
     const rows = await this._read(QUERY_HAS_CONSENT_FOR_SERVICE, [
       buf(uid),
       service,
@@ -719,7 +791,17 @@ class MysqlStore extends MysqlOAuthShared {
 
   // True iff the user has any consent row for this client (any scope/service).
   // Drives the web-RP grain of the first-authorization signal.
-  async _hasConsentForClient(uid, clientId) {
+  // v2-first / v1-fallback when readV2.
+  async _hasConsentForClient(uid, clientId, readV2 = false) {
+    if (readV2) {
+      const v2 = await this._read(QUERY_HAS_CONSENT_FOR_CLIENT_V2, [
+        buf(uid),
+        buf(clientId),
+      ]);
+      if (v2.length > 0) {
+        return true;
+      }
+    }
     const rows = await this._read(QUERY_HAS_CONSENT_FOR_CLIENT, [
       buf(uid),
       buf(clientId),
@@ -727,8 +809,14 @@ class MysqlStore extends MysqlOAuthShared {
     return rows.length > 0;
   }
 
-  _deleteAllAccountConsentsForUser(uid) {
-    return this._write(QUERY_ACCOUNT_CONSENT_DELETE_BY_UID, [buf(uid)]);
+  // Clears both tables. Not gated on dualWriteV2 — turning that off stops new
+  // v2 writes but existing rows still need purging. v2 first: if the v1 delete
+  // then fails, reads fall back to v1 rather than v2 answering "consent exists"
+  // for an account whose v1 rows are already gone.
+  async _deleteAllAccountConsentsForUser(uid) {
+    const uidBuf = buf(uid);
+    await this._write(QUERY_ACCOUNT_CONSENT_V2_DELETE_BY_UID, [uidBuf]);
+    return this._write(QUERY_ACCOUNT_CONSENT_DELETE_BY_UID, [uidBuf]);
   }
 
   _listAccountConsentsByUid(uid) {
@@ -756,11 +844,12 @@ class MysqlStore extends MysqlOAuthShared {
     });
   }
 
+  // Access tokens are not touched here; they live only in redis and are
+  // revoked by the caller in lib/oauth/db/index.js.
   _removeTokensAndCodes(userId) {
     // TODO this should be a transaction or stored procedure
     var id = buf(userId);
-    return this._write(QUERY_ACCESS_TOKEN_DELETE_USER, [id])
-      .then(this._write.bind(this, QUERY_REFRESH_TOKEN_DELETE_USER, [id]))
+    return this._write(QUERY_REFRESH_TOKEN_DELETE_USER, [id])
       .then(this._write.bind(this, QUERY_CODE_DELETE_USER, [id]))
       .then(this._write.bind(this, QUERY_ACCOUNT_ACTIVITY_DELETE_USER, [id]));
   }
@@ -839,19 +928,17 @@ class MysqlStore extends MysqlOAuthShared {
   }
 
   /**
-   * Removes user's tokens and refreshTokens for canGrant and publicClient clients
+   * Removes user's refreshTokens for canGrant and publicClient clients.
+   * Their access tokens live only in redis and are revoked by the caller in
+   * lib/oauth/db/index.js.
    *
    * @param {Buffer | string} userId
    * @returns {Promise}
    */
   _removePublicAndCanGrantTokens(userId) {
-    const uid = buf(userId);
-
-    return this._write(QUERY_DELETE_ACCESS_TOKEN_FOR_PUBLIC_CLIENTS, [
-      uid,
-    ]).then(() =>
-      this._write(QUERY_DELETE_REFRESH_TOKEN_FOR_PUBLIC_CLIENTS, [uid])
-    );
+    return this._write(QUERY_DELETE_REFRESH_TOKEN_FOR_PUBLIC_CLIENTS, [
+      buf(userId),
+    ]);
   }
 
   async getScope(scope) {

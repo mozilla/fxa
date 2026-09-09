@@ -292,7 +292,7 @@ describe.each(testVersions)(
           expect(res.exists).toBe(false);
         });
 
-        it('should return false if account recovery key exist but not enabled', async () => {
+        it('should ignore a request to create a disabled account recovery key', async () => {
           const email2 = server.uniqueEmail();
           const client2 = await Client.createAndVerify(
             server.publicUrl,
@@ -310,8 +310,9 @@ describe.each(testVersions)(
           );
           expect(res).toEqual({});
 
+          // `enabled: false` is accepted and ignored (FXA-14201).
           res = await client2.getRecoveryKeyExists();
-          expect(res.exists).toBe(false);
+          expect(res.exists).toBe(true);
         });
       });
     });

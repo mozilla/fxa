@@ -9,6 +9,7 @@ import {
   AppleIapError,
   AppleIapMissingCredentialsError,
   AppleIapNotFoundError,
+  AppleIapServiceUnavailableError,
 } from './apple-iap.error';
 import {
   AppStoreError,
@@ -19,6 +20,14 @@ import {
   AppleIapClientConfig,
   AppleIapClientConfigCredential,
 } from './apple-iap.client.config';
+
+/**
+ * Apple's error codes are range-structured, so 5xxxxxx identifies a failure on
+ * Apple's side rather than a problem with our request.
+ * See https://developer.apple.com/documentation/appstoreserverapi/error-codes
+ */
+const isAppStoreServerErrorCode = (errorCode: number) =>
+  Math.floor(errorCode / 1_000_000) === 5;
 
 @Injectable()
 export class AppleIapClient {
@@ -82,6 +91,15 @@ export class AppleIapClient {
 
     if (e instanceof AppStoreError && e.errorCode === 4040010) {
       return new AppleIapNotFoundError(e);
+    }
+
+    if (
+      e instanceof AppStoreError &&
+      (isAppStoreServerErrorCode(e.errorCode) ||
+        e.isRetryable ||
+        e.isRateLimitExceeded)
+    ) {
+      return new AppleIapServiceUnavailableError(e);
     }
 
     if (e instanceof Error) {

@@ -177,6 +177,10 @@ executors:
       # so account lookups would 401 on Stripe auth. Overrides development.json.
       FEATURE_STRIPE_SUBS: false
       RECOVERY_PHONE__ENABLED: true
+      # Every local test registers the same magic number, so the production anti-abuse
+      # cap of 5 would reject them once they run in parallel. 8 nodes x 3 workers puts
+      # a ceiling of 24 on concurrent holders; 50 leaves room for slow teardowns.
+      RECOVERY_PHONE__MAX_UID_PER_NUMBER: 50
       # use test mode except for smoke tests
       RECOVERY_PHONE__TWILIO__CREDENTIAL_MODE: 'test'
       CUSTOMS_SERVER_URL: none
@@ -444,8 +448,17 @@ commands:
               echo "Phone-tagged tests run only on node 0; this is node ${CIRCLE_NODE_INDEX:-0}. Skipping.";
               exit 0;
             fi
+            # Apply the same severity filter as run-playwright-tests, so a #phone test
+            # cannot reach an environment (stage, production) its severity label excludes.
+            if [[ "<< parameters.project >>" == "production" ]]; then
+              GREP='(?=.*#phone)(?=.*severity-1)'
+            elif [[ "<< parameters.project >>" == "stage" ]]; then
+              GREP='(?=.*#phone)(?=.*severity-(1|2))'
+            else
+              GREP='#phone'
+            fi
             cd packages/functional-tests
-            yarn playwright test --project=<< parameters.project >> --grep "#phone" --workers=1
+            yarn playwright test --project=<< parameters.project >> --grep "$GREP" --workers=1 --pass-with-no-tests
 
   store-artifacts:
     steps:
@@ -786,8 +799,11 @@ jobs:
       - provision
       - check-playwright-test-count:
           project: production
+      - run-phone-tests-serialized:
+          project: production
       - run-playwright-tests:
           project: production
+          grep_invert: '#phone'
       - store-artifacts
 
   smoke-tests:
@@ -849,11 +865,10 @@ jobs:
           environment:
             NODE_ENV: test
           no_output_timeout: 20m
-      - run-phone-tests-serialized:
-          project: local
       - run-playwright-tests:
           project: local
-          grep_invert: '#phone'
+          # No phone reservation here: the local executor runs Twilio in test mode, so
+          # codes are read from redis by uid and cannot collide across workers.
           fail_fast: << parameters.fail_fast >>
       - store-artifacts
 
@@ -1038,15 +1053,40 @@ workflows:
       # but still allow them to be run on demand.
       # No `requires` on this job so it can be approved as soon as a PR
       # is opened.
+      # Skipped on filtered branches; those auto-run the functional tests.
+      # This allows auto-merge for bot dependency PRs,
+      # and allows devs to auto-run when branches definitely need func tests.
       - approve-functional-tests:
           name: Approve Functional Tests (PR)
           type: approval
+          filters:
+            branches:
+              ignore:
+                - /^dependabot\/.*/
+                - /^func\/.*/
       - playwright-functional-tests:
           name: Firefox Functional Tests - Playwright (PR)
           workflow: test_pull_request
           requires:
             - Build (PR)
             - Approve Functional Tests (PR)
+          filters:
+            branches:
+              ignore:
+                - /^dependabot\/.*/
+                - /^func\/.*/
+      # Auto-run functional tests (no manual approval) on filtered branches,
+      # so the check reaches a real conclusion instead of hanging pending.
+      - playwright-functional-tests:
+          name: Firefox Functional Tests - Playwright (auto)
+          workflow: test_pull_request
+          requires:
+            - Build (PR)
+          filters:
+            branches:
+              only:
+                - /^dependabot\/.*/
+                - /^func\/.*/
       - on-complete:
           name: Tests Complete (PR)
           stage: Tests
@@ -1059,6 +1099,8 @@ workflows:
             - Integration Test - Servers - Auth (PR)
             - Integration Test - Servers - Auth Scripts (PR)
             - Integration Test - Libraries (PR)
+            # Surface auto-run functional-test failures on bot branches.
+            - Firefox Functional Tests - Playwright (auto)
 
   # Triggered remotely. See .circleci/README.md
   production_smoke_tests:

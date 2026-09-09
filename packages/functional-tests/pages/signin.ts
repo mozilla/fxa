@@ -10,34 +10,19 @@ import { PasskeyPage } from './passkey';
 export class SigninPage extends PasskeyPage {
   readonly path = 'signin';
 
-  get authenticationFormHeading() {
-    return this.page.getByRole('heading', {
-      name: /^Enter (?:authentication|security) code/,
-    });
-  }
-
-  get authenticationCodeTextbox() {
-    return this.page
-      .getByRole('textbox', { name: 'code' })
-      .or(this.page.getByPlaceholder('Enter 6-digit code'));
-  }
-
   get authenticationCodeTextboxTooltip() {
     return this.page.getByText('Invalid two-step authentication code', {
       exact: true,
     });
   }
 
-  get cachedSigninHeading() {
-    return this.page.getByRole('heading', { name: /^Sign in/ });
+  // Shares /signin with the password step, so identify it by test id.
+  get cachedSigninSubmitButton() {
+    return this.page.getByTestId('cached-signin-submit');
   }
 
   get codeTextbox() {
     return this.page.getByRole('textbox', { name: 'Enter 6-digit code' });
-  }
-
-  get confirmButton() {
-    return this.page.getByRole('button', { name: 'Confirm' });
   }
 
   // Use /Continue with.*Apple/ because of hidden bidi Unicode characters around "Apple" in its accessible name.
@@ -50,12 +35,8 @@ export class SigninPage extends PasskeyPage {
     return this.page.getByRole('button', { name: /Continue with .*Google/ });
   }
 
-  get emailFirstHeading() {
-    return this.page.getByRole('heading', { name: /^Enter your email/ });
-  }
-
   get emailFirstSubmitButton() {
-    return this.page.getByRole('button', { name: 'Sign up or sign in' });
+    return this.formSubmitButton;
   }
 
   get emailTextbox() {
@@ -69,16 +50,13 @@ export class SigninPage extends PasskeyPage {
   get useDifferentAccountLink() {
     return this.page.getByRole('link', { name: /^Use a different account/ });
   }
-  get passwordFormHeading() {
-    return this.page.getByRole('heading', { name: /^Enter your password/ });
-  }
 
   get passwordTextbox() {
     return this.page.getByRole('textbox', { name: 'password' });
   }
 
   get signInButton() {
-    return this.page.getByRole('button', { name: 'Sign in', exact: true });
+    return this.formSubmitButton;
   }
 
   get passkeySigninButton() {
@@ -116,14 +94,6 @@ export class SigninPage extends PasskeyPage {
       .or(this.page.getByRole('link', { name })); // Backbone
   }
 
-  get syncSignInHeading() {
-    return this.page.getByRole('heading', {
-      // Fluent inserts directional markers around "Mozilla account" so
-      // just look for partial match
-      name: /^Continue to your/,
-    });
-  }
-
   get badRequestHeading() {
     return this.page.getByRole('heading', {
       name: /Bad Request: Invalid Query Parameters/,
@@ -141,13 +111,6 @@ export class SigninPage extends PasskeyPage {
     );
   }
 
-  async fillOutAuthenticationForm(code: string): Promise<void> {
-    await expect(this.authenticationFormHeading).toBeVisible();
-
-    await this.authenticationCodeTextbox.fill(code);
-    await this.confirmButton.click();
-  }
-
   async fillOutEmailFirstForm(email: string) {
     await expect(this.emailTextbox).toBeVisible();
     // l10n re-mount can drop onChange (button stays disabled); retry until it enables.
@@ -159,7 +122,7 @@ export class SigninPage extends PasskeyPage {
   }
 
   async fillOutPasswordForm(password: string): Promise<void> {
-    await expect(this.passwordFormHeading).toBeVisible();
+    await expect(this.passwordTextbox).toBeVisible();
 
     await this.passwordTextbox.fill(password);
     await this.signInButton.click();

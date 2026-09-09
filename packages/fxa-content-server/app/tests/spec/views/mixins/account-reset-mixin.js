@@ -5,7 +5,7 @@
 import AccountResetMixin from 'views/mixins/account-reset-mixin';
 import AuthErrors from 'lib/auth-errors';
 import BaseView from 'views/base';
-import Chai from 'chai';
+import { assert } from 'chai';
 import Cocktail from 'cocktail';
 import FxaClient from 'lib/fxa-client';
 import Metrics from 'lib/metrics';
@@ -14,8 +14,6 @@ import Relier from 'models/reliers/base';
 import sinon from 'sinon';
 import Template from 'templates/test_template.mustache';
 import User from 'models/user';
-
-var assert = Chai.assert;
 
 var EMAIL = 'testuser@testuser.com';
 

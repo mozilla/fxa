@@ -10,7 +10,8 @@ import { useAlertBar, useAccount, useFtlMsgResolver } from '../../../models';
 import { isAuthUiError } from '../../../lib/auth-errors/auth-errors';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { DISPLAY_SAFE_UNICODE_WITH_NON_BMP } from '../../../constants';
-import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
+import { MfaGuard } from '../MfaGuard';
+import { useMfaErrorHandler } from '../../../lib/hooks';
 import { MfaReason } from '../../../lib/types';
 import InputText from '../../InputText';
 import { Banner } from '../../Banner';
@@ -665,7 +666,9 @@ const PasskeyRenameModal = ({
               }
               setSubmitError(null);
             }}
-            inputRef={register({ validate: localizeValidationError })}
+            registration={register('name', {
+              validate: localizeValidationError,
+            })}
           />
         </div>
         <div className="flex justify-center mx-2 mt-6">

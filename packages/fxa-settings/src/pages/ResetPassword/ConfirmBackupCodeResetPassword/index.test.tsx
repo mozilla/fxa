@@ -77,4 +77,16 @@ describe('ConfirmBackupCodeResetPassword', () => {
     );
     expect(await screen.findByText('Bad recovery code')).toBeInTheDocument();
   });
+
+  // Exhaustive passkey-vs-standard wording is covered in
+  // LinkRememberPassword/index.test.tsx; here we only assert the footer is wired
+  // into the page and showPasskeyOption reaches it.
+  it('threads showPasskeyOption through to the sign-in footer', () => {
+    renderWithLocalizationProvider(<Subject showPasskeyOption />);
+
+    expect(
+      screen.getByText('Have a passkey or remember your password?')
+    ).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Sign in' })).toBeVisible();
+  });
 });

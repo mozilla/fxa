@@ -5,6 +5,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
 import { useForm } from 'react-hook-form';
+import { Link, useLocation } from 'react-router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppLayout from '../../../components/AppLayout';
@@ -49,13 +50,15 @@ const SigninPasskeyFallback = ({
   const [passwordTooltipErrorText, setPasswordTooltipErrorText] = useState('');
   const [bannerErrorText, setBannerErrorText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isThrottled, setIsThrottled] = useState(false);
+  const location = useLocation();
 
   const localizedValidPasswordError = ftlMsgResolver.getMsg(
     'auth-error-1010',
     'Valid password required'
   );
 
-  const { handleSubmit, register, watch } = useForm<FormData>({
+  const { handleSubmit, register, watch, formState } = useForm<FormData>({
     mode: 'onTouched',
     criteriaMode: 'all',
     defaultValues: { password: '' },
@@ -100,6 +103,12 @@ const SigninPasskeyFallback = ({
             setPasswordTooltipErrorText(message);
           } else {
             setBannerErrorText(message);
+            if (errno === AuthUiErrors.THROTTLED.errno) {
+              // Only once the user has exhausted their password attempts do we
+              // surface the reset path (it risks Sync data loss, so it is not
+              // offered up front).
+              setIsThrottled(true);
+            }
           }
         }
       } finally {
@@ -157,16 +166,19 @@ const SigninPasskeyFallback = ({
           attrs={{ label: true }}
         >
           <InputPassword
-            name="password"
             label="Password"
             className="mb-6"
-            errorText={passwordTooltipErrorText}
+            errorText={
+              passwordTooltipErrorText || formState.errors.password?.message
+            }
             anchorPosition="start"
             tooltipPosition="bottom"
             autoFocus
             onChange={() => setPasswordTooltipErrorText('')}
-            inputRef={register()}
-            prefixDataTestId="password"
+            registration={register('password', {
+              required: localizedValidPasswordError,
+            })}
+            prefixDataTestId="signin-passkey-fallback-password"
           />
         </FtlMsg>
 
@@ -181,6 +193,20 @@ const SigninPasskeyFallback = ({
           </button>
         </FtlMsg>
       </form>
+
+      {isThrottled && (
+        <div className="mt-6 text-sm text-center">
+          <FtlMsg id="signin-passkey-fallback-forgot-password-link">
+            <Link
+              to={`/reset_password${location.search}`}
+              className="link-blue"
+              data-glean-id="signin_passkey_fallback_forgot_password"
+            >
+              Forgot password?
+            </Link>
+          </FtlMsg>
+        </div>
+      )}
     </AppLayout>
   );
 };

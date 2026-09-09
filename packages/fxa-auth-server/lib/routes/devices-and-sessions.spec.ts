@@ -11,7 +11,6 @@ const { AppError: error } = require('@fxa/accounts/errors');
 const getRoute = require('../../test/routes_helpers').getRoute;
 const mocks: any = require('../../test/mocks');
 const moment = require('moment');
-const uuid = require('uuid');
 
 const EARLIEST_SANE_TIMESTAMP = 31536000000;
 
@@ -91,7 +90,7 @@ function hexString(bytes: number) {
 }
 
 describe('/account/device', () => {
-  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+  const uid = crypto.randomBytes(16).toString('hex');
   const deviceId = crypto.randomBytes(16).toString('hex');
   const mockDeviceName = 'my awesome device \u{1F353}\u{1F525}';
   let config: any,
@@ -220,7 +219,7 @@ describe('/account/device', () => {
         throw new Error('should have thrown');
       },
       (err: any) => {
-        expect(err.output.statusCode).toBe(503);
+        expect(err.output.statusCode).toBe(403);
         expect(err.errno).toBe(error.ERRNO.FEATURE_NOT_ENABLED);
       }
     );
@@ -306,7 +305,7 @@ describe('/account/device', () => {
 
 describe('/account/devices/notify', () => {
   const config: any = {};
-  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+  const uid = crypto.randomBytes(16).toString('hex');
   const deviceId = crypto.randomBytes(16).toString('hex');
   const mockLog = createMock<AuthLogger>();
   const mockRequest = mocks.mockRequest({
@@ -505,7 +504,7 @@ describe('/account/devices/notify', () => {
         throw new Error('should have thrown');
       },
       (err: any) => {
-        expect(err.output.statusCode).toBe(503);
+        expect(err.output.statusCode).toBe(403);
         expect(err.errno).toBe(error.ERRNO.FEATURE_NOT_ENABLED);
       }
     );
@@ -567,6 +566,43 @@ describe('/account/devices/notify', () => {
 
     return runTest(route, mockRequest, (response) => {
       expect(JSON.stringify(response)).toBe('{}');
+    });
+  });
+
+  it('responds before the push send settles and logs its rejection', async () => {
+    mockRequest.payload = {
+      to: ['bogusid1', 'bogusid2'],
+      TTL: 60,
+      payload: pushPayload,
+    };
+
+    const pushError = new Error('push failed');
+    let rejectPush: (err: Error) => void = () => {};
+    const pushSend = new Promise((_, reject) => {
+      rejectPush = reject;
+    });
+    const log = createMock<AuthLogger>();
+    const route = getRoute(
+      makeRoutes({
+        config: { deviceNotificationsEnabled: true },
+        customs: { checkAuthenticated: () => Promise.resolve() },
+        log,
+        push: mocks.mockPush({ sendPush: () => pushSend }),
+      }),
+      '/account/devices/notify'
+    );
+
+    // The send is still pending here. An awaited send would hang this test.
+    await runTest(route, mockRequest, (response) => {
+      expect(JSON.stringify(response)).toBe('{}');
+    });
+
+    rejectPush(pushError);
+    await new Promise((resolve) => setImmediate(resolve));
+
+    expect(log.error).toHaveBeenCalledWith('Account.devicesNotify', {
+      uid,
+      error: pushError,
     });
   });
 
@@ -637,7 +673,7 @@ describe('/account/devices/notify', () => {
 });
 
 describe('/account/device/commands', () => {
-  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+  const uid = crypto.randomBytes(16).toString('hex');
   const deviceId = crypto.randomBytes(16).toString('hex');
   let mockLog: any, mockRequest: any, mockCustoms: any;
 
@@ -822,7 +858,7 @@ describe('/account/device/commands', () => {
     mockRequest.auth.credentials.refreshTokenId = 'aaabbbccc';
 
     await expect(route.handler(mockRequest)).rejects.toMatchObject({
-      output: { statusCode: 503 },
+      output: { statusCode: 403 },
       errno: error.ERRNO.FEATURE_NOT_ENABLED,
     });
     expect(mockPushbox.retrieve).not.toHaveBeenCalled();
@@ -865,7 +901,7 @@ describe('/account/device/commands', () => {
 });
 
 describe('/account/devices/invoke_command', () => {
-  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+  const uid = crypto.randomBytes(16).toString('hex');
   const command = 'bogusCommandName';
   const mockDevices = [
     {
@@ -1311,7 +1347,7 @@ describe('/account/devices/invoke_command', () => {
     mockRequest.auth.credentials.refreshTokenId = 'aaabbbccc';
 
     await expect(route.handler(mockRequest)).rejects.toMatchObject({
-      output: { statusCode: 503 },
+      output: { statusCode: 403 },
       errno: error.ERRNO.FEATURE_NOT_ENABLED,
     });
     expect(mockPushbox.store).not.toHaveBeenCalled();
@@ -1326,18 +1362,35 @@ describe('/account/device/destroy', () => {
   let mockLog: any;
   let mockDB: any;
   let mockPush: any;
+  let accountRoutes: any;
 
   beforeEach(() => {
-    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    uid = crypto.randomBytes(16).toString('hex');
     deviceId = crypto.randomBytes(16).toString('hex');
     deviceId2 = crypto.randomBytes(16).toString('hex');
     mockDevices = mocks.mockDevices({ deviceId });
     mockLog = createMock<AuthLogger>();
     mockDB = mocks.mockDB();
     mockPush = mocks.mockPush();
+    accountRoutes = makeRoutes({
+      db: mockDB,
+      devices: mockDevices,
+      log: mockLog,
+      push: mockPush,
+    });
   });
 
-  it('should destory the device record', () => {
+  it('requires verifiedSessionToken or refreshToken auth strategies', () => {
+    const routeConfig = getRoute(accountRoutes, '/account/device/destroy');
+
+    expect(routeConfig.options.auth.strategies).toEqual([
+      'verifiedSessionTokenBearer',
+      'verifiedSessionToken',
+      'refreshToken',
+    ]);
+  });
+
+  it('destroys the device record', () => {
     const mockRequest = mocks.mockRequest({
       credentials: {
         uid: uid,
@@ -1347,12 +1400,6 @@ describe('/account/device/destroy', () => {
       payload: {
         id: deviceId,
       },
-    });
-    const accountRoutes = makeRoutes({
-      db: mockDB,
-      devices: mockDevices,
-      log: mockLog,
-      push: mockPush,
     });
     const route = getRoute(accountRoutes, '/account/device/destroy');
 
@@ -1663,7 +1710,7 @@ describe('/account/devices', () => {
     });
 
     await expect(route.handler(mockRequest)).rejects.toMatchObject({
-      output: { statusCode: 503 },
+      output: { statusCode: 403 },
       errno: error.ERRNO.FEATURE_NOT_ENABLED,
     });
   });

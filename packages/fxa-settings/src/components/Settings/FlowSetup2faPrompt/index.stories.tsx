@@ -25,6 +25,16 @@ export const Default = () => (
   />
 );
 
+export const SignedInWithPasskey = () => (
+  <FlowSetup2faPrompt
+    localizedPageTitle="Two-step authentication"
+    serviceName="123Done"
+    onContinue={handleContinueClick}
+    onBackButtonClick={handleCancelClick}
+    signedInWithPasskey
+  />
+);
+
 export const WithError = () => (
   <FlowSetup2faPrompt
     localizedPageTitle="Two-step authentication"

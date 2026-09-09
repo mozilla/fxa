@@ -17,7 +17,7 @@ import {
   SupplicantState,
 } from '../../../models/integrations/pairing-supplicant-integration';
 import { Integration } from '../../../models/integrations/integration';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 
 export type SuppAllowProps = {
   authDeviceInfo?: RemoteMetadata;

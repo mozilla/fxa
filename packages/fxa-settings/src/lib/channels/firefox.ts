@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { Constants } from '../constants';
+
 export enum FirefoxCommand {
   AccountDeleted = 'fxaccounts:delete',
   ProfileChanged = 'profile:change',
@@ -34,6 +36,9 @@ export enum FirefoxCommand {
   PairDecline = 'fxaccounts:pair_decline',
   PairComplete = 'fxaccounts:pair_complete',
   PairPreferences = 'fxaccounts:pair_preferences',
+
+  PairOauthStart = 'fxaccounts:pair_oauth_start',
+  PairOauthFinish = 'fxaccounts:pair_oauth_finish',
 }
 
 export interface FirefoxMessageDetail {
@@ -83,9 +88,11 @@ export type FxAStatusResponse = {
     engines: string[];
     multiService: boolean;
     pairing: boolean;
+    pairingVersion?: number;
     choose_what_to_sync?: boolean;
     keys_optional?: boolean;
     can_link_account_uid?: boolean;
+    hasSyncKeys?: boolean;
   };
   clientId?: string;
   signedInUser?: SignedInUser;
@@ -98,6 +105,18 @@ export type SignedInUser = {
   sessionToken: string | undefined;
   uid: string;
   verified: boolean;
+};
+
+export type PairOAuthStartState = {
+  state: string;
+  scope: string;
+  code_challenge: string;
+  code_challenge_method: string;
+  keys_jwk: string;
+};
+export type PairOAuthFinishState = {
+  state: string;
+  code: string;
 };
 
 export type FxALoginRequest = {
@@ -225,7 +244,18 @@ export function buildSyncOAuthSearch(
 // timeout tuned for device latency
 // max timeout of 100-200 ms would be optimal for an ultra-snappy UX, but could cause false negatives on mobile
 // compromising with 500ms for safer mobile support without being noticeably long if it times out
-const DEFAULT_SEND_TIMEOUT_LENGTH_MS = 500;
+export const DEFAULT_SEND_TIMEOUT_LENGTH_MS = 500;
+
+// Both halves of the handshake make a web call, and a cold start fetches the FxA client and
+// OpenID configuration first, which does not fit the default.
+export const PAIR_OAUTH_TIMEOUT_MS = 10_000;
+
+// Firefox for Android binds its web channel handler per tab, so the first
+// fxa_status message is routinely dropped. Retrying a handful of times recovers
+// from that, and a longer per-attempt window than the default keeps a slow
+// mobile reply from being counted as a drop.
+const FXA_STATUS_ATTEMPTS = 3;
+const FXA_STATUS_TIMEOUT_MS = 1_000;
 
 let messageIdSuffix = 0;
 /**
@@ -396,23 +426,26 @@ export class Firefox extends EventTarget {
     this.broadcast(FirefoxCommand.ProfileChanged, profile);
   }
 
-  async fxaStatus(options: FxAStatusRequest): Promise<FxAStatusResponse> {
-    // We must wait for the browser to send a web channel message
-    // in response to the fxaLogin command. Without this we navigate the user before
-    // the login completes, resulting in an "Invalid token" error on the next page.
-    return new Promise((resolve) => {
-      const eventHandler = (firefoxEvent: any) => {
-        this.removeEventListener(FirefoxCommand.FxAStatus, eventHandler);
-        resolve(firefoxEvent.detail as FxAStatusResponse);
-      };
-      this.addEventListener(FirefoxCommand.FxAStatus, eventHandler);
-
-      // requestAnimationFrame ensures the event listener is added first
-      // otherwise, there is a race condition
-      requestAnimationFrame(() => {
-        this.send(FirefoxCommand.FxAStatus, options);
-      });
-    });
+  /**
+   * Asks the browser for its fxa_status. Resolves undefined once the attempts
+   * are exhausted, so callers settle on defaults instead of awaiting a reply
+   * that may never arrive — a dropped message used to leave the page spinning.
+   */
+  async fxaStatus(
+    options: FxAStatusRequest
+  ): Promise<FxAStatusResponse | undefined> {
+    for (let attempt = 0; attempt < FXA_STATUS_ATTEMPTS; attempt++) {
+      const status = await this._executeCommandWithResponse<FxAStatusResponse>(
+        FirefoxCommand.FxAStatus,
+        options,
+        (event) => event.detail as FxAStatusResponse,
+        FXA_STATUS_TIMEOUT_MS
+      );
+      if (status != null) {
+        return status;
+      }
+    }
+    return undefined;
   }
 
   fxaLogin(options: FxALoginRequest): void {
@@ -622,6 +655,149 @@ export class Firefox extends EventTarget {
   /** Notify browser that pairing is complete. */
   async pairComplete(channelId: string): Promise<void> {
     return this.sendPairingCommand(FirefoxCommand.PairComplete, channelId);
+  }
+
+  /** Requests that a pairing oauth operation begin. This is the first half of pairing dance. */
+  async pairOauthStart(msg: {
+    scopes?: string[];
+  }): Promise<PairOAuthStartState | undefined> {
+    // Default sync scopes
+    if (msg.scopes == null) {
+      msg.scopes = [
+        Constants.OAUTH_OLDSYNC_SCOPE,
+        Constants.OAUTH_TRUSTED_PROFILE_SCOPE,
+      ];
+    }
+
+    return this._executeCommandWithResponse<PairOAuthStartState>(
+      FirefoxCommand.PairOauthStart,
+      msg,
+      (event) => {
+        if (event?.detail?.state == null) {
+          throw new Error(
+            `${FirefoxCommand.PairOauthStart} missing state from event.details`
+          );
+        }
+        if (event?.detail?.scope == null) {
+          throw new Error(
+            `${FirefoxCommand.PairOauthStart} missing scope from event.details`
+          );
+        }
+        if (event?.detail?.code_challenge == null) {
+          throw new Error(
+            `${FirefoxCommand.PairOauthStart} missing code_challenge from event.details`
+          );
+        }
+        if (event?.detail?.code_challenge_method == null) {
+          throw new Error(
+            `${FirefoxCommand.PairOauthStart} missing code_challenge_method from event.details`
+          );
+        }
+        if (event?.detail?.keys_jwk == null) {
+          throw new Error(
+            `${FirefoxCommand.PairOauthStart} missing keys_jwk from event.details`
+          );
+        }
+        return event.detail as PairOAuthStartState;
+      },
+      PAIR_OAUTH_TIMEOUT_MS
+    );
+  }
+
+  /** Requests that a pairing oauth operation be finished. This is the second half of pairing dance. */
+  async pairOauthFinish(msg: {
+    client_id: string;
+    state: string;
+    scope: string;
+    code_challenge: string;
+    code_challenge_method: string;
+    /**
+     * The supplicant's ephemeral public JWK. Firefox only wraps scoped keys into
+     * `keys_jwe` when this is present, so omitting it yields a code that grants
+     * the sync scope with no sync key behind it.
+     */
+    keys_jwk: string;
+  }): Promise<PairOAuthFinishState | undefined> {
+    return this._executeCommandWithResponse<PairOAuthFinishState>(
+      FirefoxCommand.PairOauthFinish,
+      msg,
+      (event) => {
+        if (event?.detail?.code == null) {
+          throw new Error(
+            `${FirefoxCommand.PairOauthFinish} missing code from event.details`
+          );
+        }
+        if (event?.detail?.state == null) {
+          throw new Error(
+            `${FirefoxCommand.PairOauthFinish} missing state from event.details`
+          );
+        }
+        if (event.detail.state !== msg.state) {
+          throw new Error(`${FirefoxCommand.PairOauthFinish} invalid state!`);
+        }
+        return event.detail as PairOAuthFinishState;
+      },
+      PAIR_OAUTH_TIMEOUT_MS
+    );
+  }
+
+  /**
+   * Utility method to help inovke web-channel commands with an expected.
+   * @param cmd - The firefox command to execute
+   * @param msg - The msg 'data' to send with the command
+   * @param handleResp - A callback to handle a message returned in response by Firefox
+   * @param timeout - Optional override, in milliseconds, to wait for a response. Defaults to 500 ms
+   **/
+  private async _executeCommandWithResponse<TResp>(
+    cmd: FirefoxCommand,
+    msg: any,
+    handleResp: (event: any) => TResp,
+    timeout = DEFAULT_SEND_TIMEOUT_LENGTH_MS
+  ) {
+    let timeoutId: number;
+    let onResp: EventListenerOrEventListenerObject;
+    return Promise.race<undefined | TResp>([
+      new Promise<undefined | TResp>((resolve, reject) => {
+        onResp = (event: any) => {
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+          }
+          this.removeEventListener(cmd, onResp);
+
+          // Make sure the contract is fullfilled. There should be an event object returned.
+          if (event == null) {
+            throw new Error('event missing in response');
+          }
+
+          // The handler might throw an error and fail fast if the data looks wrong. Handle error
+          // and reject if this happens.
+          try {
+            const resp = handleResp(event);
+
+            resolve(resp);
+          } catch (err) {
+            reject(err);
+          }
+        };
+        this.addEventListener(cmd, onResp);
+        requestAnimationFrame(() => {
+          console.log(`[[Firefox WebChannel] ${cmd} sent msg`, msg);
+          this.send(cmd, msg);
+        });
+      }),
+
+      new Promise((resolve) => {
+        timeoutId = window.setTimeout(() => {
+          console.warn(
+            `[Firefox WebChannel] ${cmd} timed out or unavailable in this browser`
+          );
+          if (onResp) {
+            this.removeEventListener(cmd, onResp);
+          }
+          resolve(undefined);
+        }, timeout);
+      }),
+    ]);
   }
 
   /*

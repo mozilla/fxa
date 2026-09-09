@@ -35,6 +35,11 @@ exports.create = async function () {
         // which is more forgiving of missing Origin header.
         origin: config.corsOrigin[0] === '*' ? 'ignore' : config.corsOrigin[0],
       },
+      // These routes are loaded by `<img>`, so cookies ride along. See the
+      // `state` note in server/web.js.
+      state: {
+        parse: false,
+      },
     },
   });
   server.validator(Joi);

@@ -62,7 +62,6 @@ const webpackConfig = {
       cocktail: require.resolve('./app/scripts/lib/cocktail'),
       draggable: require.resolve('jquery-ui/ui/widgets/draggable'),
       duration: require.resolve('duration-js/duration'),
-      'fast-text-encoding': require.resolve('fast-text-encoding'),
       fxaCryptoDeriver: path.resolve(
         __dirname,
         '../../dist/libs/vendored/crypto-relier/src/index.js'
@@ -79,7 +78,6 @@ const webpackConfig = {
         'jquery-ui-touch-punch-amd/jquery.ui.touch-punch'
       ),
       'ua-parser-js': require.resolve('ua-parser-js/src/ua-parser'),
-      uuid: require.resolve('node-uuid/uuid'),
       vat: require.resolve('node-vat/vat'),
       'fxa-auth-client/browser': require.resolve('fxa-auth-client/browser'),
       '@fxa/vendored/common-password-list': path.resolve(

@@ -17,7 +17,13 @@ import type {
 } from '@simplewebauthn/server';
 import { PasskeyConfig } from './passkey.config';
 import { PasskeyManager } from './passkey.manager';
-import { NewPasskeyData, PasskeyRecord } from './passkey.repository';
+import {
+  isMysqlDupEntry,
+  NewPasskeyData,
+  PasskeyRecord,
+} from './passkey.repository';
+import { PasskeyWrapEnvelope } from './passkey.wrap.repository';
+import type { PasskeyWrap } from '@fxa/shared/db/mysql/account';
 import { PasskeyChallengeManager } from './passkey.challenge.manager';
 import {
   generateWebauthnRegistrationOptions,
@@ -27,12 +33,24 @@ import {
   generateWebauthnAuthenticationOptions,
   verifyWebauthnAuthenticationResponse,
   UserVerificationRequiredError,
+  shouldRequestPrfAtAuth,
 } from './webauthn-adapter';
 import { AppError } from '@fxa/accounts/errors';
 
 export interface AuthenticationResult {
   /** Authenticated user ID as a hex string. */
   uid: string;
+
+  /**
+   * `passkeys.credentialId` of the credential that signed this assertion, as
+   * stored. The request's `id` only has to decode to the same bytes.
+   */
+  credentialId: string;
+
+  /**
+   * MFA scope the challenge was created with. Absent when none was asked for.
+   */
+  scope?: string;
 }
 
 /**
@@ -75,6 +93,32 @@ const DISPLAY_SAFE_UNICODE_WITH_NON_BMP =
  * - **backupEligible/backupState**: Extract from authenticator data flags (BE/BS bits)
  *
  */
+
+/**
+ * The wrap operations, used to namespace their StatsD counters.
+ */
+type WrapOperation = 'store' | 'get';
+
+/**
+ * Whether a stored wrap already holds exactly this envelope, which makes a
+ * repeated POST idempotent rather than a conflict.
+ *
+ * A plain comparison is fine: every field is a public ciphertext or public key
+ * the caller just supplied, so there is no secret for a timing oracle to reveal.
+ */
+function isSameEnvelope(
+  stored: PasskeyWrap,
+  envelope: PasskeyWrapEnvelope
+): boolean {
+  return (
+    stored.pkR.equals(envelope.pkR) &&
+    stored.prfWrappedSkR.equals(envelope.prfWrappedSkR) &&
+    stored.keyWrapIv.equals(envelope.keyWrapIv) &&
+    stored.hpkeEncapsulatedSecret.equals(envelope.hpkeEncapsulatedSecret) &&
+    stored.hpkeSealedKb.equals(envelope.hpkeSealedKb)
+  );
+}
+
 @Injectable()
 export class PasskeyService {
   /**
@@ -336,7 +380,7 @@ export class PasskeyService {
    */
   private generatePasskeyName(
     aaguid: string,
-    transports: AuthenticatorTransportFuture[],
+    transports: string[],
     existingPasskeys: PasskeyRecord[]
   ): string {
     const baseName = this.getBasePasskeyName(aaguid, transports);
@@ -351,10 +395,7 @@ export class PasskeyService {
    * 2. Transport-based fallback
    * 3. Generic fallback: "Passkey"
    */
-  private getBasePasskeyName(
-    aaguid: string,
-    transports: AuthenticatorTransportFuture[]
-  ): string {
+  private getBasePasskeyName(aaguid: string, transports: string[]): string {
     const allZeros = aaguid === '00000000-0000-0000-0000-000000000000';
 
     if (!allZeros) {
@@ -404,15 +445,19 @@ export class PasskeyService {
   /**
    * Generate WebAuthn authentication (assertion) options.
    *
-   * @param uid - Optional user ID. When provided, restricts authentication to
-   *   the user's registered credentials (known-user flow).
+   * @param options.uid - Optional user ID. When provided, restricts
+   *   authentication to the user's registered credentials (known-user flow).
+   * @param options.keysRequired - Whether this sign-in is a keys-required
+   *   (Sync) flow, used to decide whether to request PRF under the
+   *   `keys-required` scope. Defaults to false.
    * @returns WebAuthn authentication options
    */
   async generateAuthenticationChallenge(
-    uid?: string
+    options: { uid?: string; keysRequired?: boolean; scope?: string } = {}
   ): Promise<PublicKeyCredentialRequestOptionsJSON> {
+    const { uid, keysRequired = false, scope } = options;
     const challenge =
-      await this.challengeManager.generateAuthenticationChallenge();
+      await this.challengeManager.generateAuthenticationChallenge(scope);
 
     let allowCredentials: string[] = [];
     if (uid) {
@@ -420,9 +465,15 @@ export class PasskeyService {
       allowCredentials = passkeys.map((p) => p.credentialId);
     }
 
+    const requestPrf = shouldRequestPrfAtAuth(this.config, keysRequired);
+    if (requestPrf) {
+      this.metrics.increment('passkey.authentication.prf.requested');
+    }
+
     return await generateWebauthnAuthenticationOptions(this.config, {
       challenge,
       allowCredentials,
+      requestPrf,
     });
   }
 
@@ -433,6 +484,8 @@ export class PasskeyService {
    * @param challenge - The challenge that was issued for this authentication.
    * @param expectedUid - Optional expected user ID. When provided, verifies that
    * the authenticating passkey belongs to this user.
+   * @param prfSupported - Whether the browser returned a PRF output at `get()`;
+   * when true, rolls `prfEnabled` forward false→true.
    * @returns Authentication result containing the uid of the authenticated user.
    * @throws {AppError} passkeyNotFound if the credential is not registered.
    * @throws {AppError} passkeyChallengeExpired if the challenge is invalid or expired.
@@ -442,7 +495,8 @@ export class PasskeyService {
   async verifyAuthenticationResponse(
     response: AuthenticationResponseJSON,
     challenge: string,
-    expectedUid?: string
+    expectedUid?: string,
+    prfSupported?: boolean
   ): Promise<AuthenticationResult> {
     const credentialId = response.id;
 
@@ -538,6 +592,163 @@ export class PasskeyService {
     this.metrics.increment('passkey.authentication.success');
     this.log?.log('passkey.authenticated', { uid });
 
-    return { uid };
+    // Best-effort roll-forward of newly detected PRF capability; a failure must
+    // never fail a verified sign-in. The guard skips a write when already set.
+    if (prfSupported && !passkey.prfEnabled) {
+      try {
+        const applied = await this.passkeyManager.setPasskeyPrfEnabled(
+          uid,
+          credentialId
+        );
+        this.metrics.increment(
+          applied
+            ? 'passkey.authentication.prf.update_applied'
+            : 'passkey.authentication.prf.update_noop'
+        );
+      } catch (err) {
+        Sentry.captureException(err);
+        this.metrics.increment('passkey.authentication.prf.update_failed', {
+          reason: 'dbError',
+        });
+      }
+    }
+
+    return {
+      uid,
+      credentialId: passkey.credentialId,
+      scope: storedChallenge.scope,
+    };
+  }
+
+  /**
+   * Store a wrap envelope for a credential.
+   *
+   * Idempotent: an identical payload is a no-op reported as `unchanged`, so the
+   * route answers 200 without emitting an event. A different payload is a
+   * conflict and nothing is replaced, so a stale wrap is resolved by deleting it.
+   *
+   * Does not gate on `passkeys.prfEnabled`. That column is written best-effort
+   * after an assertion, so a stale `false` would reject a legitimate upgrade.
+   * The route that saw the ceremony is the one that can check it.
+   *
+   * @returns `created` when a row was inserted, `unchanged` when one already
+   *   matched
+   */
+  async storePasskeyWrap(
+    uid: string,
+    credentialId: string,
+    envelope: PasskeyWrapEnvelope,
+    now: number
+  ): Promise<'created' | 'unchanged'> {
+    await this.requireOwnedPasskey(uid, credentialId, 'store');
+
+    const existing = await this.passkeyManager.findPasskeyWrap(
+      uid,
+      credentialId
+    );
+    if (existing) {
+      if (!isSameEnvelope(existing, envelope)) {
+        throw this.wrapFailure(
+          'store',
+          'conflict',
+          AppError.passkeyWrapConflict()
+        );
+      }
+      this.metrics.increment('passkey.wrap.store.unchanged');
+      return 'unchanged';
+    }
+
+    try {
+      await this.passkeyManager.createPasskeyWrap(
+        uid,
+        { credentialId, ...envelope },
+        now
+      );
+    } catch (err: unknown) {
+      if (!isMysqlDupEntry(err)) {
+        throw err;
+      }
+
+      // Two requests can both read no wrap before either commits, and the loser
+      // lands here. Re-read so an identical payload still reports `unchanged`,
+      // the same answer it would have got a moment earlier.
+      const winner = await this.passkeyManager.findPasskeyWrap(
+        uid,
+        credentialId
+      );
+      if (winner && isSameEnvelope(winner, envelope)) {
+        this.metrics.increment('passkey.wrap.store.unchanged');
+        return 'unchanged';
+      }
+
+      throw this.wrapFailure(
+        'store',
+        'conflict',
+        AppError.passkeyWrapConflict()
+      );
+    }
+
+    this.metrics.increment('passkey.wrap.store.success');
+    this.log?.log('passkey.wrap.stored', { uid });
+
+    return 'created';
+  }
+
+  /**
+   * Fetch the wrap envelope for a credential.
+   *
+   * A missing passkey and a missing wrap are different conditions with the same
+   * 404, so they carry different errnos.
+   */
+  async getPasskeyWrap(
+    uid: string,
+    credentialId: string
+  ): Promise<PasskeyWrap> {
+    await this.requireOwnedPasskey(uid, credentialId, 'get');
+
+    const wrap = await this.passkeyManager.findPasskeyWrap(uid, credentialId);
+    if (!wrap) {
+      throw this.wrapFailure(
+        'get',
+        'wrapNotFound',
+        AppError.passkeyWrapNotFound()
+      );
+    }
+
+    this.metrics.increment('passkey.wrap.get.success');
+    return wrap;
+  }
+
+  /** Increments the wrap failure counter and returns the error to throw. */
+  private wrapFailure(
+    operation: WrapOperation,
+    reason: string,
+    error: AppError
+  ): AppError {
+    this.metrics.increment(`passkey.wrap.${operation}.failed`, { reason });
+    return error;
+  }
+
+  /**
+   * Load a passkey the account owns, or throw.
+   *
+   * Scoped by uid in SQL, so a credential that does not exist and one owned by
+   * someone else are the same answer.
+   */
+  private async requireOwnedPasskey(
+    uid: string,
+    credentialId: string,
+    operation: WrapOperation
+  ): Promise<PasskeyRecord> {
+    const passkey = await this.passkeyManager.findPasskeyByUidAndCredentialId(
+      uid,
+      credentialId
+    );
+
+    if (!passkey) {
+      throw this.wrapFailure(operation, 'notFound', AppError.passkeyNotFound());
+    }
+
+    return passkey;
   }
 }

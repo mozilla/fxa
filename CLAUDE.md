@@ -69,7 +69,7 @@ _Note:_ This is a general overview and may vary per library/package. For authori
 - **Nx:** `nx build <pkg>`, `nx lint <pkg>`, `nx test-unit <pkg>`, `nx test-integration <pkg>`, `nx start <pkg>`
 - **Pkg scripts:** `cd packages/<name> && yarn <script>` — Run these through Nx (`nx build <pkg>`, `nx build-storybook <pkg>`); invoking them with plain `yarn` will **not** run their dependency steps.
 - **L10N:** `yarn l10n:prime`
-- **DB migrations:** add new SQL under `packages/db-migrations/databases/fxa/patches/` → `nx run db-migrations:migrate`
+- **DB migrations:** add a forward patch and its rollback under `packages/db-migrations/databases/<db>/patches/` and bump that database's `target-patch.json` — see `packages/db-migrations/databases/README.md`. `yarn start` applies them; to run it directly, `node ./packages/db-migrations/bin/patcher.mjs`.
   **Never edit existing published migration files.**
 
 > When asked, show the exact minimal command block you intend to run; wait for approval.
@@ -80,33 +80,44 @@ Follow the commit message format defined in [CONTRIBUTING.md — Git Commit Guid
 
 Key points: `type(scope): subject` format; imperative present tense subject; `Because:` / `This commit:` body sections; `Fixes #N` footer for issues.
 
+**Never add a `Co-Authored-By: Claude ...` trailer** to any commit message.
+
+Length budget — these are read at `git blame` speed, so keep them scannable:
+
+- Subject ≤72 chars.
+- `Because:` — up to 3 bullets. Motivation only.
+- `This commit:` — up to 5 bullets, one line each. What changed; the why belongs in `Because:`.
+- If the change genuinely won't fit in 5 bullets, say the commit is too big rather than adding more bullets.
+
+See section 9 for phrasing.
+
 ## 7) Available Skills
 
-Suggest these proactively when the task matches — do not wait to be asked.
+Every skill's name and description loads automatically — this section only covers when to reach for one unprompted. Suggest proactively when the task matches.
 
-| Skill                           | Use when                                                                                    |
-| ------------------------------- | ------------------------------------------------------------------------------------------- |
-| `/fxa-review`                   | Before merging — thorough parallel review covering security, TS, logic, tests, architecture |
-| `/fxa-review-quick`             | Quick pre-merge check, single pass, no subagents                                            |
-| `/fxa-security-review`          | Landing auth, session, crypto, or payment changes                                           |
-| `/fxa-jira-feature-description` | Writing a Jira description for a new feature or enhancement                                 |
-| `/fxa-jira-bug-description`     | Filing a bug report                                                                         |
-| `/fxa-check-smells`             | Suspecting code quality issues in changed files                                             |
-| `/fxa-check-react`              | Reviewing React/TSX component changes                                                       |
-| `/fxa-check-docs`               | Improving docs, JSDoc, or README in changed files                                           |
-| `/fxa-explain-code`             | Understanding what changed and why                                                          |
-| `/fxa-simplify`                 | Cleaning up recently written code                                                           |
-| `/fxa-check-githistory`         | Checking for regressions or conflicts with past fixes                                       |
-| `/fxa-pr-open`                  | Opening a new pull request from a feature branch                                            |
-| `/fxa-test-draft`               | Drafting Jest tests for staged/unstaged changes or recent commits                           |
-| `/fxa-test-independence`        | Validating tests pass both as a full suite and individually in isolation                    |
-| `/fxa-test-repair`              | Auditing a test file for guideline violations and producing a prioritized repair plan       |
-| `/fxa-pr-status`                | Listing open PRs with file/line counts, draft state, review activity, and approval status   |
+- **Before merging:** `/fxa-review` for auth, payments, crypto, migrations, or multi-package changes; `/fxa-review-quick` otherwise. `/fxa-security-review` on top when the change touches auth, sessions, tokens, or payments.
+- **Filing a ticket:** `/fxa-jira-feature-description` or `/fxa-jira-bug-description`, even when the ask arrives mid-task.
+- **Opening a PR:** `/fxa-pr-open`. It handles the template, the alignment pass against Jira, and the draft-only rule.
 
 ## 8) Testing Guidelines
 
-> Detailed test rules auto-load from `.claude/rules/testing/` when editing test files: `base.md` for all tests, `react.md` layers on for `*.test.tsx`.
+> Detailed test rules auto-load from `.claude/rules/testing/` by path: `base.md` for all tests, `react.md` layers on for `*.test.tsx`, `functional-pages.md` for anything under `packages/functional-tests`.
 
 **Shift-left is a golden goal.** Prefer testing business logic at the lowest layer that exercises it. FXA has three layers, cheapest to costliest: unit (`nx test-unit`), integration (`nx test-integration`), functional/E2E (Playwright in `packages/functional-tests`). Route handlers and React components should be thin shells; their tests cover wiring (auth, request/response shape, error propagation, rendering), not business branches. When a route or component has more than ~3 tests differing only in input shape, that's the signal to extract the rule into a pure function or hook and unit-test it directly. Shifting left is not required for every change — but always strive for it, and flag the opportunities to improve.
 
 Skills: `/fxa-test-draft` (draft tests for changes), `/fxa-test-repair` (audit a test file), `/fxa-test-independence` (verify isolation).
+
+## 9) Conciseness & Writing Style
+
+**Be concise.** Applies to commit messages, PR bodies, Jira tickets, and code comments.
+
+- **Cut items before compressing sentences.** Shorten by dropping a point or folding two together; tightening a point worth keeping is fine, but don't squeeze every point into a semicolon-spliced fragment. What survives should read like a person wrote it.
+- **One claim per bullet.** In commit messages, PR bodies and tickets, state what changed. Give the reason only when it isn't inferable and lives nowhere else.
+- **Comments state what is true, not what changed.** They're read cold, with no diff — so "used to", "no longer" and "we decided in review" belong in the commit's `Because:` section instead. Detailed rules auto-load from `.claude/rules/code-comments.md` when you touch JavaScript/TypeScript.
+- **Meta-commentary must save the reader work.** Out-of-scope notes and rejected alternatives earn their place when a reviewer would otherwise ask; narrating the diff's boundaries doesn't.
+- **Ticket refs in code only where the history is the answer.** Put the why in the comment. An `FXA-12345` pointer fits when the code reads as complex or non-standard and the explanation outgrows a comment — a workaround, an external constraint. Not in test names. Leave existing refs alone.
+- **Paths earn their place.** Name a file when it saves the reader a search. Skip it when the diff or a reference section already points there.
+
+## BLEnder
+
+See [.blender/agents.md](.blender/agents.md) for CI commands and dependency management context.

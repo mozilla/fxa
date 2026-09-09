@@ -73,9 +73,6 @@ const settingsConfig = {
     paymentsNext: {
       url: config.get('payments_next_hosted_url'),
     },
-    legalDocs: {
-      url: config.get('legal_docs_url'),
-    },
   },
   oauth: {
     clientId: config.get('oauth_client_id'),
@@ -115,8 +112,11 @@ const settingsConfig = {
     pairRoutes: config.get('showReactApp.pairRoutes'),
   },
   pairing: {
+    browserBuild: config.get('pairing.browser_build'),
+    iosUrlScheme: config.get('pairing.ios_url_scheme'),
     clients: config.get('pairing.clients'),
     serverBaseUri: config.get('pairing.server_base_uri'),
+    version: config.get('pairing.version'),
   },
   mobileStoreLinks: {
     ios: config.get('mobileStoreLinks.ios'),
@@ -141,6 +141,9 @@ const settingsConfig = {
     ),
     passkeyAuthenticationEnabled: config.get(
       'featureFlags.passkeyAuthenticationEnabled'
+    ),
+    passkeyPasswordlessSyncEnabled: config.get(
+      'featureFlags.passkeyPasswordlessSyncEnabled'
     ),
     passwordlessEnabled: config.get('featureFlags.passwordlessEnabled'),
   },

@@ -743,6 +743,23 @@ describe('sendSigninNotifications', () => {
     Container.reset();
   });
 
+  it('sets authMethod "passkey" when the session was verified by a passkey', () => {
+    sessionToken.verificationMethodValue = 'passkey';
+
+    return sendSigninNotifications(
+      request,
+      accountRecord,
+      sessionToken,
+      undefined
+    ).then(() => {
+      expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledWith(
+        'account.login',
+        'login',
+        'passkey'
+      );
+    });
+  });
+
   it('emits correct notifications when no verifications are required', () => {
     return sendSigninNotifications(
       request,
@@ -753,7 +770,8 @@ describe('sendSigninNotifications', () => {
       expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledTimes(1);
       expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledWith(
         'account.login',
-        'login'
+        'login',
+        'email'
       );
 
       expect(metricsContext.stash).toHaveBeenCalledTimes(1);
@@ -839,7 +857,8 @@ describe('sendSigninNotifications', () => {
         expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledTimes(1);
         expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledWith(
           'account.login',
-          'login'
+          'login',
+          'email'
         );
 
         expect(metricsContext.stash).toHaveBeenCalledTimes(1);
@@ -856,7 +875,7 @@ describe('sendSigninNotifications', () => {
           flowBeginTime: 1769555935958,
           entrypoint: undefined,
           sync: false,
-          acceptLanguage: 'en-US',
+          acceptLanguage: 'en',
           date: 'Tuesday, Jan 27, 2026',
           time: '3:18:55 PM (PST)',
           timeZone: 'America/Los_Angeles',
@@ -905,7 +924,8 @@ describe('sendSigninNotifications', () => {
         expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledTimes(1);
         expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledWith(
           'account.confirmed',
-          'login'
+          'login',
+          'email'
         );
 
         expect(metricsContext.stash).toHaveBeenCalledTimes(2);
@@ -927,7 +947,7 @@ describe('sendSigninNotifications', () => {
           flowBeginTime: 1769555935958,
           entrypoint: undefined,
           sync: false,
-          acceptLanguage: 'en-US',
+          acceptLanguage: 'en',
           date: 'Tuesday, Jan 27, 2026',
           time: '3:18:55 PM (PST)',
           timeZone: 'America/Los_Angeles',
@@ -998,7 +1018,8 @@ describe('sendSigninNotifications', () => {
         expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledTimes(1);
         expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledWith(
           'account.login',
-          'login'
+          'login',
+          'email'
         );
 
         expect(metricsContext.stash).toHaveBeenCalledTimes(1);
@@ -1066,7 +1087,7 @@ describe('sendSigninNotifications', () => {
           flowBeginTime: request.payload.metricsContext.flowBeginTime,
           entrypoint: undefined,
           sync: false,
-          acceptLanguage: 'en-US',
+          acceptLanguage: 'en',
           date: 'Tuesday, Jan 27, 2026',
           time: '3:18:55 PM (PST)',
           timeZone: 'America/Los_Angeles',
@@ -1195,7 +1216,8 @@ describe('sendSigninNotifications', () => {
       expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledTimes(1);
       expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledWith(
         'account.confirmed',
-        'login'
+        'login',
+        'email'
       );
 
       expect(metricsContext.stash).toHaveBeenCalledTimes(2);
@@ -1332,6 +1354,117 @@ describe('sendSigninNotifications', () => {
         expect(fxaMailer.sendVerifyEmail).not.toHaveBeenCalled();
         expect(fxaMailer.sendVerifyLoginEmail).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  // FXA-14109: defaults to sending, so direct API consumers that never set the
+  // flag keep the server send whatever UI they render. Our own web front-end
+  // passes false and sends the OTP itself via /session/resend_code when it shows
+  // the code entry screen, so the user gets one email rather than two.
+  describe('sendSigninVerificationEmail', () => {
+    beforeEach(() => {
+      mocks.mockOAuthClientInfo();
+      sessionToken.tokenVerified = false;
+      request.payload.service = '32aaeb6f1c21316a';
+    });
+
+    it('sends the code email when the flag is omitted, preserving behavior for direct API consumers', async () => {
+      await sendSigninNotifications(
+        request,
+        accountRecord,
+        sessionToken,
+        'email-otp'
+      );
+
+      expect(fxaMailer.sendVerifyLoginCodeEmail).toHaveBeenCalledTimes(1);
+    });
+
+    it('sends the code email when the flag is explicitly true', async () => {
+      request.payload.sendSigninVerificationEmail = true;
+
+      await sendSigninNotifications(
+        request,
+        accountRecord,
+        sessionToken,
+        'email-otp'
+      );
+
+      expect(fxaMailer.sendVerifyLoginCodeEmail).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not send the code email for an unverified session when the flag is false', async () => {
+      request.payload.sendSigninVerificationEmail = false;
+
+      await sendSigninNotifications(
+        request,
+        accountRecord,
+        sessionToken,
+        'email-otp'
+      );
+
+      expect(fxaMailer.sendVerifyLoginCodeEmail).not.toHaveBeenCalled();
+      expect(mailer.sendVerifyLoginCodeEmail).not.toHaveBeenCalled();
+    });
+
+    // The flag is scoped to the unverified-session path. For an unverified
+    // account the client's stand-in (`/session/resend_code`) sends a different
+    // template (`verifyShortCode`), so honouring the flag here would change
+    // which email a signing-up user receives rather than just deduplicating.
+    it('still sends the code email for an unverified account when the flag is false', async () => {
+      accountRecord.primaryEmail.isVerified = false;
+      request.payload.sendSigninVerificationEmail = false;
+
+      await sendSigninNotifications(
+        request,
+        accountRecord,
+        sessionToken,
+        'email-otp'
+      );
+
+      expect(fxaMailer.sendVerifyLoginCodeEmail).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not emit the email.tokencode.sent metric when the flag is false', async () => {
+      request.emitMetricsEvent = jest.fn(() => Promise.resolve());
+      request.payload.sendSigninVerificationEmail = false;
+
+      await sendSigninNotifications(
+        request,
+        accountRecord,
+        sessionToken,
+        'email-otp'
+      );
+
+      expect(request.emitMetricsEvent).not.toHaveBeenCalledWith(
+        'email.tokencode.sent'
+      );
+    });
+
+    it('still sends the link-based confirmation email when the flag is false', async () => {
+      request.payload.sendSigninVerificationEmail = false;
+
+      await sendSigninNotifications(
+        request,
+        accountRecord,
+        sessionToken,
+        'email'
+      );
+
+      expect(fxaMailer.sendVerifyLoginEmail).toHaveBeenCalledTimes(1);
+    });
+
+    it('still sends the account verification email when the flag is false and no OTP method is requested', async () => {
+      accountRecord.primaryEmail.isVerified = false;
+      request.payload.sendSigninVerificationEmail = false;
+
+      await sendSigninNotifications(
+        request,
+        accountRecord,
+        sessionToken,
+        undefined
+      );
+
+      expect(fxaMailer.sendVerifyEmail).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -1487,7 +1620,8 @@ describe('sendSigninNotifications', () => {
       expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledTimes(1);
       expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledWith(
         'account.signed',
-        'login'
+        'login',
+        'email'
       );
 
       expect(metricsContext.stash).toHaveBeenCalledTimes(1);

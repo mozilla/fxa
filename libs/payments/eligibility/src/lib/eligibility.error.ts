@@ -8,3 +8,16 @@ export class EligibilityError extends BaseError {
     this.name = 'EligibilityError';
   }
 }
+
+export class SubgroupOfferingMissingPositionError extends BaseError {
+  constructor(
+    groupName: string,
+    fromOfferingId: string,
+    targetOfferingId: string
+  ) {
+    super('Subgroup offering is missing a position', {
+      info: { groupName, fromOfferingId, targetOfferingId },
+    });
+    this.name = 'SubgroupOfferingMissingPositionError';
+  }
+}

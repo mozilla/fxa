@@ -6,7 +6,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation } from 'react-router';
 import SigninRecoveryChoice from '.';
 import { Integration, useAuthClient, useFtlMsgResolver } from '../../../models';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import { SigninLocationState } from '../interfaces';
 import { getSigninState } from '../utils';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';

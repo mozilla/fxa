@@ -5,7 +5,7 @@
 import type { QueryParams } from '../../..';
 import type { HandledError } from '../../../lib/error-utils';
 import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
-import type { UseFxAStatusResult } from '../../../lib/hooks/useFxAStatus';
+import type { UseFxAStatusResult } from '../../../lib/hooks';
 import { SigninIntegration } from '../interfaces';
 
 export interface PasswordlessLocationState {

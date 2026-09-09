@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { act, fireEvent, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { Account, AppContext } from '../../../models';
 import { mockAppContext, renderWithRouter } from '../../../models/mocks';
@@ -184,4 +185,30 @@ it('PageAddAvatar | renders rotateBtn and calls onclick correctly', async () => 
     fireEvent.click(rotateBtn);
   });
   expect(onClick).toHaveBeenCalled();
+});
+
+it('PageAddAvatar | reflects zoom changes from the slider and the zoom buttons', async () => {
+  const user = userEvent.setup();
+  renderWithRouter(
+    <AppContext.Provider value={mockAppContext({ account })}>
+      <PageAvatar />
+    </AppContext.Provider>
+  );
+
+  await user.upload(
+    screen.getByTestId('avatar-image-upload-input'),
+    new File(['image'], 'avatar.png', { type: 'image/png' })
+  );
+
+  // FileReader resolves asynchronously, so wait for the edit view to appear.
+  const slider = await screen.findByRole('slider', { name: 'zoom-slider' });
+  expect(slider).toHaveValue('1');
+
+  await user.click(screen.getByTestId('zoom-in-btn'));
+  expect(slider).toHaveValue('1.1');
+
+  // jsdom has no default action for a range input, so a drag or an arrow key
+  // cannot move the thumb.
+  fireEvent.change(slider, { target: { value: '2.5' } });
+  expect(slider).toHaveValue('2.5');
 });

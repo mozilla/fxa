@@ -44,21 +44,8 @@ function getOAuthSuccessRouteDefinition(routes) {
   };
 }
 
-/** @type {import("./types").GetRouteDefinitionSingle} */
-function getTermsPrivacyRouteDefinition(regex, i18n) {
-  return {
-    method: 'get',
-    path: regex,
-    process: function (req, res, next) {
-      req.url = '/';
-      next();
-    },
-  };
-}
-
 module.exports = {
   getFrontEndRouteDefinition,
   getFrontEndPairingRouteDefinition,
   getOAuthSuccessRouteDefinition,
-  getTermsPrivacyRouteDefinition,
 };

@@ -196,7 +196,7 @@ exports[`FxA Email Renderer should render renderAdminResetAccounts: matches full
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -617,7 +617,7 @@ exports[`FxA Email Renderer should render renderCadReminderFirst: matches full e
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -1076,7 +1076,7 @@ exports[`FxA Email Renderer should render renderCadReminderSecond: matches full 
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -1503,7 +1503,7 @@ exports[`FxA Email Renderer should render renderInactiveAccountFinalWarning: mat
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -1938,7 +1938,7 @@ exports[`FxA Email Renderer should render renderInactiveAccountFirstWarning: mat
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -2365,7 +2365,7 @@ exports[`FxA Email Renderer should render renderInactiveAccountSecondWarning: ma
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -2731,7 +2731,7 @@ exports[`FxA Email Renderer should render renderLowRecoveryCodes: matches full e
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -3152,7 +3152,7 @@ exports[`FxA Email Renderer should render renderNewDeviceLogin: matches full ema
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -3581,7 +3581,7 @@ exports[`FxA Email Renderer should render renderNewDeviceLoginStrapi: matches fu
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -3957,7 +3957,7 @@ exports[`FxA Email Renderer should render renderPasswordChangeRequired: matches 
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -4301,7 +4301,7 @@ For more information, please visit <a class="link-blue" href="http://localhost:3
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -4706,7 +4706,7 @@ exports[`FxA Email Renderer should render renderPasswordForgotOtp: matches full 
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -5080,7 +5080,7 @@ For more information, please visit <a class="link-blue" href="http://localhost:3
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -5572,7 +5572,7 @@ exports[`FxA Email Renderer should render renderPasswordResetAccountRecovery: ma
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -5966,7 +5966,7 @@ For more information, please visit <a class="link-blue" href="http://localhost:3
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -6396,7 +6396,7 @@ exports[`FxA Email Renderer should render renderPasswordResetWithRecoveryKeyProm
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -6801,7 +6801,7 @@ exports[`FxA Email Renderer should render renderPasswordlessSigninOtp strapi: ma
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -7210,7 +7210,7 @@ exports[`FxA Email Renderer should render renderPasswordlessSigninOtp: matches f
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -7615,7 +7615,7 @@ exports[`FxA Email Renderer should render renderPasswordlessSignupOtp strapi: ma
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -8024,7 +8024,7 @@ exports[`FxA Email Renderer should render renderPasswordlessSignupOtp: matches f
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -8400,7 +8400,7 @@ exports[`FxA Email Renderer should render renderPostAddAccountRecovery: matches 
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -8784,7 +8784,7 @@ exports[`FxA Email Renderer should render renderPostAddLinkedAccount: matches fu
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -9204,7 +9204,7 @@ For more information, please visit <a class="link-blue" href="http://localhost:3
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -9616,7 +9616,7 @@ For more information, please visit <a class="link-blue" href="http://localhost:3
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -10029,7 +10029,7 @@ For more information, please visit <a class="link-blue" href="http://localhost:3
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -10457,7 +10457,7 @@ exports[`FxA Email Renderer should render renderPostAddTwoStepAuthentication wit
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -10885,7 +10885,7 @@ exports[`FxA Email Renderer should render renderPostAddTwoStepAuthentication wit
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -11305,7 +11305,7 @@ exports[`FxA Email Renderer should render renderPostAddTwoStepAuthentication: ma
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -11681,7 +11681,7 @@ exports[`FxA Email Renderer should render renderPostChangeAccountRecovery: match
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -12010,7 +12010,7 @@ exports[`FxA Email Renderer should render renderPostChangePrimary: matches full 
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -12394,7 +12394,7 @@ For more information, please visit <a class="link-blue" href="http://localhost:3
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -12814,7 +12814,7 @@ exports[`FxA Email Renderer should render renderPostChangeTwoStepAuthentication:
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -13208,7 +13208,7 @@ For more information, please visit <a class="link-blue" href="http://localhost:3
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -13600,7 +13600,7 @@ exports[`FxA Email Renderer should render renderPostNewRecoveryCodes: matches fu
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -13976,7 +13976,7 @@ exports[`FxA Email Renderer should render renderPostRemoveAccountRecovery: match
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -14378,7 +14378,7 @@ exports[`FxA Email Renderer should render renderPostRemovePasskey: matches full 
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -14770,7 +14770,7 @@ For more information, please visit <a class="link-blue" href="http://localhost:3
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -15128,7 +15128,7 @@ exports[`FxA Email Renderer should render renderPostRemoveSecondary: matches ful
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -15528,7 +15528,7 @@ exports[`FxA Email Renderer should render renderPostRemoveTwoStepAuthentication:
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -15930,7 +15930,7 @@ For more information, please visit <a class="link-blue" href="http://localhost:3
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -16332,7 +16332,7 @@ For more information, please visit <a class="link-blue" href="http://localhost:3
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -16782,7 +16782,7 @@ exports[`FxA Email Renderer should render renderPostVerify: matches full email s
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -17141,7 +17141,7 @@ exports[`FxA Email Renderer should render renderPostVerifySecondary: matches ful
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -17570,7 +17570,7 @@ exports[`FxA Email Renderer should render renderRecovery: matches full email sna
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -17923,7 +17923,7 @@ exports[`FxA Email Renderer should render renderUnblockCode: matches full email 
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -18243,7 +18243,7 @@ exports[`FxA Email Renderer should render renderVerificationReminderFinal: match
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -18609,7 +18609,7 @@ exports[`FxA Email Renderer should render renderVerificationReminderFirst: match
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -18983,7 +18983,7 @@ exports[`FxA Email Renderer should render renderVerificationReminderSecond: matc
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -19404,7 +19404,7 @@ exports[`FxA Email Renderer should render renderVerify: matches full email snaps
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -19804,7 +19804,7 @@ exports[`FxA Email Renderer should render renderVerifyAccountChange: matches ful
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -20226,7 +20226,7 @@ exports[`FxA Email Renderer should render renderVerifyLogin: matches full email 
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -20626,7 +20626,7 @@ exports[`FxA Email Renderer should render renderVerifyLoginCode: matches full em
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -21086,7 +21086,7 @@ exports[`FxA Email Renderer should render renderVerifyPrimary: matches full emai
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -21485,7 +21485,7 @@ exports[`FxA Email Renderer should render renderVerifySecondaryCode: matches ful
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -21878,7 +21878,7 @@ exports[`FxA Email Renderer should render renderVerifyShortCode with CMS: matche
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>
@@ -22273,7 +22273,7 @@ exports[`FxA Email Renderer should render renderVerifyShortCode: matches full em
               <tr>
                 <td align="left" class="text-footer" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</div>
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">Mozilla. 1875 Mission Street, Suite 103, San Francisco, CA 94103</div>
     
                 </td>
               </tr>

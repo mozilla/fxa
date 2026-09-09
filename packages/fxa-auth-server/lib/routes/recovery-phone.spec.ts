@@ -6,7 +6,7 @@ import { Container } from 'typedi';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { StatsD } from 'hot-shots';
 import { AppError } from '@fxa/accounts/errors';
-import { AccountManager } from '@fxa/shared/account/account';
+import { AccountManager, VerificationMethods } from '@fxa/shared/account/account';
 import { AuthLogger } from '../types';
 import { installMockFxaMailer } from '../../test/fixtures/fxa-mailer';
 import {
@@ -69,6 +69,7 @@ describe('/recovery_phone', () => {
     removePhoneNumber: jest.fn(),
     stripPhoneNumber: jest.fn(),
     hasConfirmed: jest.fn(),
+    hasConfirmedMasked: jest.fn(),
     onMessageStatusUpdate: jest.fn(),
     validateTwilioWebhookCallback: jest.fn(),
     validateSetupCode: jest.fn(),
@@ -779,6 +780,32 @@ describe('/recovery_phone', () => {
       );
     });
 
+    it('refreshes the authentication event on an already-AAL2 session (step-up)', async () => {
+      // A step-up re-challenge via recovery phone must refresh the session's
+      // authentication event even when it is already AAL2. `sms-2fa` maps to
+      // AAL2, so this never lowers the assurance level.
+      mockRecoveryPhoneService.confirmCode = jest.fn().mockReturnValue(true);
+
+      await makeRequest({
+        method: 'POST',
+        path: '/recovery_phone/signin/confirm',
+        credentials: {
+          uid,
+          email,
+          id: 'sessionTokenId',
+          authenticatorAssuranceLevel: 2,
+        },
+        payload: { code },
+      });
+
+      expect(mockAccountManager.verifySession).toHaveBeenCalledTimes(1);
+      expect(mockAccountManager.verifySession).toHaveBeenCalledWith(
+        uid,
+        'sessionTokenId',
+        VerificationMethods.sms2fa
+      );
+    });
+
     it('fails confirms a code during signin', async () => {
       mockRecoveryPhoneService.confirmCode = jest.fn().mockReturnValue(false);
 
@@ -1022,31 +1049,50 @@ describe('/recovery_phone', () => {
   });
 
   describe('GET /recovery_phone', () => {
-    it('gets a recovery phone', async () => {
-      mockRecoveryPhoneService.hasConfirmed = jest.fn().mockReturnValue({
-        exists: true,
-        phoneNumber,
-      });
+    const maskedPhone = { exists: true, phoneNumber: '1234' };
 
-      const resp = await makeRequest({
-        method: 'GET',
-        path: '/recovery_phone',
-        credentials: { uid, emailVerified: true },
-      });
+    // Masking itself is asserted in the service spec; this covers the wiring.
+    it.each([
+      {
+        name: 'a session still owing confirmation',
+        credentials: { emailVerified: true, mustVerify: true },
+        keepFormatting: false,
+      },
+      {
+        name: 'an unverified session',
+        credentials: { emailVerified: false },
+        keepFormatting: false,
+      },
+      {
+        name: 'a confirmed session',
+        credentials: { emailVerified: true, tokenVerified: true },
+        keepFormatting: true,
+      },
+    ])(
+      'delegates to hasConfirmedMasked with keepFormatting $keepFormatting for $name',
+      async ({ credentials, keepFormatting }) => {
+        mockRecoveryPhoneService.hasConfirmedMasked = jest
+          .fn()
+          .mockResolvedValue(maskedPhone);
 
-      expect(resp).toBeDefined();
-      expect(mockRecoveryPhoneService.hasConfirmed).toHaveBeenCalledTimes(1);
-      expect(mockRecoveryPhoneService.hasConfirmed).toHaveBeenNthCalledWith(
-        1,
-        uid,
-        expect.anything()
-      );
-    });
+        const resp = await makeRequest({
+          method: 'GET',
+          path: '/recovery_phone',
+          credentials: { uid, ...credentials },
+        });
 
-    it('indicates  error', async () => {
-      mockRecoveryPhoneService.hasConfirmed = jest
+        expect(resp).toEqual(maskedPhone);
+        expect(
+          mockRecoveryPhoneService.hasConfirmedMasked
+        ).toHaveBeenCalledWith(uid, { keepFormatting });
+        expect(mockRecoveryPhoneService.hasConfirmed).not.toHaveBeenCalled();
+      }
+    );
+
+    it('wraps a hasConfirmedMasked rejection in backendServiceFailure', async () => {
+      mockRecoveryPhoneService.hasConfirmedMasked = jest
         .fn()
-        .mockReturnValue(Promise.reject(new Error('BOOM')));
+        .mockRejectedValue(new Error('BOOM'));
       const promise = makeRequest({
         method: 'GET',
         path: '/recovery_phone',
@@ -1057,27 +1103,6 @@ describe('/recovery_phone', () => {
         'System unavailable, try again soon'
       );
       expect(mockGlean.twoStepAuthPhoneRemove.success).toHaveBeenCalledTimes(0);
-    });
-
-    it('returns masked phone number for unverified session', async () => {
-      mockRecoveryPhoneService.hasConfirmed = jest.fn().mockReturnValue({
-        exists: true,
-        phoneNumber,
-      });
-      const resp = await makeRequest({
-        method: 'GET',
-        path: '/recovery_phone',
-        credentials: { uid, mustVerify: true },
-      });
-      expect(resp).toBeDefined();
-      expect(resp.exists).toBeDefined();
-      expect(resp.phoneNumber).toBeDefined();
-      expect(mockRecoveryPhoneService.hasConfirmed).toHaveBeenCalledTimes(1);
-      expect(mockRecoveryPhoneService.hasConfirmed).toHaveBeenNthCalledWith(
-        1,
-        uid,
-        4
-      );
     });
   });
 

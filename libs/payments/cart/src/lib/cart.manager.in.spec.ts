@@ -1,8 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { v4 as uuidv4 } from 'uuid';
 
+import crypto from 'node:crypto';
 import {
   CartFactory,
   CartState,
@@ -39,7 +39,7 @@ function fail(reason = 'fail was called in a test.') {
 }
 
 const CART_ID = '8730e0d5939c450286e6e6cc1bbeeab2';
-const RANDOM_ID = uuidv4({}, Buffer.alloc(16)).toString('hex');
+const RANDOM_ID = crypto.randomBytes(16).toString('hex');
 const RANDOM_VERSION = 1234;
 const TEST_TIMESTAMP = 1700000000000;
 

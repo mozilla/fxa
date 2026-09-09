@@ -310,10 +310,17 @@ module.exports = (
       const isUnverifiedAccount = !accountRecord.primaryEmail.isVerified;
       const wantsKeys = requestHelper.wantsKeys(request);
 
-      let sessions;
+      // Defaults to sending. Everyone who omits the flag keeps the server-sent
+      // copy — including the RPs that render their own verification UI against
+      // this API, which is the reason this send exists in the first place. Our
+      // own web front-end passes `false` and sends the code itself via
+      // `/session/resend_code`, so the send is coupled to the navigation that
+      // actually prompts for it. Applies only to the unverified-*session* code
+      // email; see `sendVerifySessionEmail` for why. See FXA-14109.
+      const sendSigninVerificationEmail =
+        request.payload.sendSigninVerificationEmail !== false;
 
-      const { deviceId, flowId, flowBeginTime } =
-        await request.app.metricsContext;
+      let sessions;
 
       const mustVerifySession = !sessionToken.tokenVerified;
 
@@ -330,7 +337,13 @@ module.exports = (
         // Otherwise, the login itself is the end of the flow.
         flowCompleteSignal = 'account.login';
       }
-      request.setMetricsFlowCompleteSignal(flowCompleteSignal, 'login');
+      request.setMetricsFlowCompleteSignal(
+        flowCompleteSignal,
+        'login',
+        // A passkey-verified session reaching here is the password step of a
+        // passkey sign-in, not an email login.
+        sessionToken.verificationMethodValue === 'passkey' ? 'passkey' : 'email'
+      );
 
       await stashMetricsContext();
       await checkNumberOfActiveSessions();
@@ -429,38 +442,18 @@ module.exports = (
           sessionToken.tokenVerificationId ||
           accountRecord.primaryEmail.emailCode;
         try {
-          if (fxaMailer.canSend('verify')) {
-            await fxaMailer.sendVerifyEmail({
-              ...FxaMailerFormat.account(accountRecord),
-              ...(await FxaMailerFormat.metricsContext(request)),
-              ...FxaMailerFormat.sync(service),
-              ...FxaMailerFormat.localTime(request),
-              ...FxaMailerFormat.location(request),
-              ...FxaMailerFormat.device(request),
-              code: emailCode,
-              resume,
-              redirectTo,
-              service,
-            });
-          } else {
-            await mailer.sendVerifyEmail([], accountRecord, {
-              code: emailCode,
-              service,
-              redirectTo,
-              resume,
-              acceptLanguage: request.app.acceptLanguage,
-              deviceId,
-              flowId,
-              flowBeginTime,
-              timeZone: request.app.geo.timeZone,
-              uaBrowser: request.app.ua.browser,
-              uaBrowserVersion: request.app.ua.browserVersion,
-              uaOS: request.app.ua.os,
-              uaOSVersion: request.app.ua.osVersion,
-              uaDeviceType: request.app.ua.deviceType,
-              uid: sessionToken.uid,
-            });
-          }
+          await fxaMailer.sendVerifyEmail({
+            ...FxaMailerFormat.account(accountRecord),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.sync(service),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            code: emailCode,
+            resume,
+            redirectTo,
+            service,
+          });
           await request.emitMetricsEvent('email.verification.sent');
         } catch (err) {
           log.error('mailer.verification.error', {
@@ -479,7 +472,19 @@ module.exports = (
             return await sendVerifyLoginEmail();
           case 'email-2fa':
           case 'email-otp':
-            // Sends an email containing a code that can verify a login
+            // Sends an email containing a code that can verify a login.
+            // Scoped to this path deliberately. The unverified-account path
+            // (`sendVerifyAccountEmail`) must keep sending even when the flag is
+            // false, because the client's stand-in — `/session/resend_code` —
+            // sends a *different* template (`verifyShortCode`) when the primary
+            // email is unverified. Turning this off there would silently change
+            // which email a signing-up user receives (FXA-14109).
+            if (!sendSigninVerificationEmail) {
+              log.info('account.token.code.suppressed', {
+                uid: accountRecord.uid,
+              });
+              return;
+            }
             return await sendVerifyLoginCodeEmail();
           case 'email-captcha':
             // `email-captcha` is a custom verification method used only for
@@ -505,48 +510,22 @@ module.exports = (
           tokenVerificationId: sessionToken.tokenVerificationId,
         });
 
-        const geoData = request.app.geo;
         try {
-          if (fxaMailer.canSend('verifyLogin')) {
-            const clientInfo = await oauthClientInfoService.fetch(service);
-            await fxaMailer.sendVerifyLoginEmail({
-              ...FxaMailerFormat.account(accountRecord),
-              ...(await FxaMailerFormat.metricsContext(request)),
-              ...FxaMailerFormat.localTime(request),
-              ...FxaMailerFormat.location(request),
-              ...FxaMailerFormat.device(request),
-              ...FxaMailerFormat.sync(service),
-              code: sessionToken.tokenVerificationId,
-              clientName: clientInfo.name,
-              redirectTo: redirectTo,
-              service: service,
-              resume: resume,
-              uid: sessionToken.uid,
-            });
-          } else {
-            await mailer.sendVerifyLoginEmail(
-              accountRecord.emails,
-              accountRecord,
-              {
-                acceptLanguage: request.app.acceptLanguage,
-                code: sessionToken.tokenVerificationId,
-                deviceId,
-                flowId,
-                flowBeginTime,
-                redirectTo: redirectTo,
-                resume: resume,
-                service: service,
-                location: geoData.location,
-                timeZone: geoData.timeZone,
-                uaBrowser: request.app.ua.browser,
-                uaBrowserVersion: request.app.ua.browserVersion,
-                uaOS: request.app.ua.os,
-                uaOSVersion: request.app.ua.osVersion,
-                uaDeviceType: request.app.ua.deviceType,
-                uid: sessionToken.uid,
-              }
-            );
-          }
+          const clientInfo = await oauthClientInfoService.fetch(service);
+          await fxaMailer.sendVerifyLoginEmail({
+            ...FxaMailerFormat.account(accountRecord),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(service),
+            code: sessionToken.tokenVerificationId,
+            clientName: clientInfo.name,
+            redirectTo: redirectTo,
+            service: service,
+            resume: resume,
+            uid: sessionToken.uid,
+          });
           await request.emitMetricsEvent('email.confirmation.sent');
         } catch (err) {
           log.error('mailer.confirmation.error', {
@@ -566,70 +545,24 @@ module.exports = (
         const rpCmsConfig = await fetchRpCmsData(request, cmsManager, log);
 
         try {
-          if (fxaMailer.canSend('verifyLoginCode')) {
-            const clientInfo = await oauthClientInfoService.fetch(service);
-            await fxaMailer.sendVerifyLoginCodeEmail({
-              ...FxaMailerFormat.account(accountRecord),
-              ...(await FxaMailerFormat.metricsContext(request)),
-              ...FxaMailerFormat.localTime(request),
-              ...FxaMailerFormat.location(request),
-              ...FxaMailerFormat.device(request),
-              ...FxaMailerFormat.sync(service),
-              ...FxaMailerFormat.cmsLogo(rpCmsConfig?.shared),
-              ...FxaMailerFormat.cmsRpInfo(rpCmsConfig),
-              ...FxaMailerFormat.cmsEmailSubject(
-                rpCmsConfig?.VerifyLoginCodeEmail
-              ),
-              code,
-              redirectTo,
-              resume,
-              serviceName: clientInfo.name,
-            });
-          } else {
-            const { timeZone } = request.app.geo;
-            const emailContext = {
-              acceptLanguage: request.app.acceptLanguage,
-              code,
-              deviceId,
-              flowId,
-              flowBeginTime,
-              redirectTo,
-              resume,
-              service,
-              timeZone,
-              uaBrowser: request.app.ua.browser,
-              uaBrowserVersion: request.app.ua.browserVersion,
-              uaOS: request.app.ua.os,
-              uaOSVersion: request.app.ua.osVersion,
-              uaDeviceType: request.app.ua.deviceType,
-              uid: sessionToken.uid,
-            };
-
-            if (!rpCmsConfig || !rpCmsConfig.VerifyLoginCodeEmail) {
-              await mailer.sendVerifyLoginCodeEmail(
-                accountRecord.emails,
-                accountRecord,
-                emailContext
-              );
-            } else {
-              const metricsContext = await request.app.metricsContext;
-              await mailer.sendVerifyLoginCodeEmail(
-                accountRecord.emails,
-                accountRecord,
-                {
-                  ...emailContext,
-                  target: 'strapi',
-                  cmsRpClientId: rpCmsConfig.clientId,
-                  cmsRpFromName: rpCmsConfig.shared?.emailFromName,
-                  entrypoint: metricsContext.entrypoint,
-                  logoUrl: rpCmsConfig?.shared?.emailLogoUrl,
-                  logoAltText: rpCmsConfig?.shared?.emailLogoAltText,
-                  logoWidth: rpCmsConfig?.shared?.emailLogoWidth,
-                  ...rpCmsConfig.VerifyLoginCodeEmail,
-                }
-              );
-            }
-          }
+          const clientInfo = await oauthClientInfoService.fetch(service);
+          await fxaMailer.sendVerifyLoginCodeEmail({
+            ...FxaMailerFormat.account(accountRecord),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(service),
+            ...FxaMailerFormat.cmsLogo(rpCmsConfig?.shared),
+            ...FxaMailerFormat.cmsRpInfo(rpCmsConfig),
+            ...FxaMailerFormat.cmsEmailSubject(
+              rpCmsConfig?.VerifyLoginCodeEmail
+            ),
+            code,
+            redirectTo,
+            resume,
+            serviceName: clientInfo.name,
+          });
 
           await request.emitMetricsEvent('email.tokencode.sent');
           await glean.login.verifyCodeEmailSent(request, {

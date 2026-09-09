@@ -90,7 +90,9 @@ const AuthComplete = ({
   useEffect(() => {
     authorityIntegration?.complete();
     return () => {
-      authorityIntegration?.destroy();
+      // `destroy` is async and effect cleanup cannot await it; catch so a
+      // failed socket close does not surface as an unhandled rejection.
+      authorityIntegration?.destroy().catch(() => {});
       try {
         if (deviceInfoKey) {
           sessionStorage.removeItem(deviceInfoKey);

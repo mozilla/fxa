@@ -19,7 +19,7 @@ const remoteAddress =
 const geolocate = require('fxa-shared/express/geo-locate').geolocate(geodb)(
   remoteAddress
 )(logger);
-const uuid = require('node-uuid');
+const { v4: uuidv4 } = require('uuid');
 const validation = require('../validation');
 
 const {
@@ -120,7 +120,7 @@ module.exports = function (config, glean) {
     // Amplitude-specific device id, like the client-side equivalent
     // created in app/scripts/lib/app-start.js. Transient for now,
     // but will become persistent in due course.
-    const deviceId = (metricsData.deviceId = uuid.v4().replace(/-/g, ''));
+    const deviceId = (metricsData.deviceId = uuidv4().replace(/-/g, ''));
 
     if (metricsData.event_type === 'engage') {
       if (metricsData.service in SERVICES) {

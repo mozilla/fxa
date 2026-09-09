@@ -61,4 +61,27 @@ describe('ButtonPasskeySignin', () => {
 
     expect(handleClick).not.toHaveBeenCalled();
   });
+
+  it('is disabled without the loading spinner when disabled but not loading', () => {
+    renderWithLocalizationProvider(<ButtonPasskeySignin disabled={true} />);
+
+    screen.getByText('Sign in with passkey');
+    expect(screen.getByRole('button')).toBeDisabled();
+    expect(
+      screen.queryByText('icon_loading_arrow.min.svg')
+    ).not.toBeInTheDocument();
+  });
+
+  it('does not call onClick handler when disabled', async () => {
+    const user = userEvent.setup();
+    const handleClick = jest.fn();
+
+    renderWithLocalizationProvider(
+      <ButtonPasskeySignin onClick={handleClick} disabled={true} />
+    );
+
+    await user.click(screen.getByRole('button'));
+
+    expect(handleClick).not.toHaveBeenCalled();
+  });
 });

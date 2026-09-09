@@ -437,6 +437,40 @@ describe('totp', () => {
       });
     });
 
+    it('refreshes the authentication event on an already-AAL2 session (step-up)', () => {
+      // A step-up re-challenge on a session that already reached AAL2 must still
+      // refresh verificationMethod/verifiedAt. Previously an
+      // `authenticatorAssuranceLevel <= 1` guard skipped this, leaving no trace.
+      requestOptions.credentials.authenticatorAssuranceLevel = 2;
+      const authenticator = new otplib.authenticator.Authenticator();
+      authenticator.options = Object.assign({}, otplib.authenticator.options, {
+        secret,
+      });
+      requestOptions.payload = {
+        code: authenticator.generate(secret),
+        service: 'sync',
+      };
+
+      return setup(
+        {
+          db: { email: TEST_EMAIL },
+          totpTokenVerified: true,
+          totpTokenEnabled: true,
+        },
+        {},
+        '/session/verify/totp',
+        requestOptions
+      ).then((response: any) => {
+        expect(response.success).toBe(true);
+        expect(db.verifyTokensWithMethod).toHaveBeenCalledTimes(1);
+        expect(db.verifyTokensWithMethod).toHaveBeenNthCalledWith(
+          1,
+          sessionId,
+          'totp-2fa'
+        );
+      });
+    });
+
     it('should return false for invalid TOTP code', () => {
       requestOptions.payload = {
         code: 'NOTVALID',
@@ -629,6 +663,35 @@ describe('totp', () => {
       await expect(responsePromise).rejects.toThrow(
         authErrors.invalidTokenVerficationCode().message
       );
+    });
+  });
+
+  describe('/mfa/totp/setup/complete', () => {
+    function getPayloadSchema() {
+      const builtRoutes = makeRoutes({});
+      return getRoute(builtRoutes, '/mfa/totp/setup/complete').options.validate
+        .payload;
+    }
+
+    // The auth server validates payloads with stripUnknown:true (see server.js),
+    // so any field not declared in the schema is silently dropped before the
+    // handler reads it. `service` must therefore be declared to reach the
+    // shared completion handler (which uses it for the confirmation email).
+    it('keeps an optional service in the payload under stripUnknown validation', () => {
+      const { error, value } = getPayloadSchema().validate(
+        { service: 'sync' },
+        { stripUnknown: true }
+      );
+      expect(error).toBeUndefined();
+      expect(value.service).toBe('sync');
+    });
+
+    it('rejects a service that violates the service validator', () => {
+      const { error } = getPayloadSchema().validate(
+        { service: 'not a valid service!' },
+        { stripUnknown: true }
+      );
+      expect(error).toBeDefined();
     });
   });
 

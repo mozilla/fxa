@@ -55,7 +55,7 @@ export enum Proc {
   RecoveryCodes = 'recoveryCodes_1',
   RecoveryKey = 'getRecoveryKey_4',
   ReplaceTotpToken = 'replaceTotpToken_1',
-  ResetAccount = 'resetAccount_19',
+  ResetAccount = 'resetAccount_20',
   ResetAccountTokens = 'resetAccountTokens_1',
   SessionWithDevice = 'sessionWithDevice_19',
   Sessions = 'sessions_13',

@@ -8,10 +8,12 @@ import Signin from '../..';
 import SigninCached from '../SigninCached';
 import SigninAlternativeAuthOptions from '../SigninAlternativeAuthOptions';
 import { isOAuthIntegration, isOAuthWebIntegration } from '../../../../models';
-import { UseFxAStatusResult } from '../../../../lib/hooks/useFxAStatus';
+import {
+  UseFxAStatusResult,
+  useNavigateWithQuery,
+} from '../../../../lib/hooks';
 import { MozServices } from '../../../../lib/types';
 import { useFinishOAuthFlowHandler } from '../../../../lib/oauth/hooks';
-import { useNavigateWithQuery } from '../../../../lib/hooks/useNavigateWithQuery';
 import type { QueryParams } from '../../../..';
 import {
   AvatarResponse,

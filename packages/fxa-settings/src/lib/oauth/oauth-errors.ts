@@ -138,6 +138,13 @@ export const OAUTH_ERRORS: Record<string, AuthError> = {
     message: 'Invalid id_token_hint',
     response_error_code: 'invalid_request',
   },
+  // 1100, not the next slot above: error-utils resolves AuthUiErrorNos first
+  // and it already occupies 1001-1067, so those render the wrong banner copy.
+  UNMET_AUTHENTICATION_REQUIREMENTS: {
+    errno: 1100,
+    message: 'Requested authentication level could not be satisfied',
+    response_error_code: 'unmet_authentication_requirements',
+  },
 };
 
 export class OAuthError extends Error {

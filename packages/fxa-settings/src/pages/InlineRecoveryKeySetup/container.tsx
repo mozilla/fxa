@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   RelierCmsInfo,
   useAuthClient,
@@ -21,7 +21,9 @@ import { formatRecoveryKey } from '../../lib/utilities';
 
 const InlineRecoveryKeySetupContainer = ({
   cmsInfo,
-}: { cmsInfo?: RelierCmsInfo }) => {
+}: {
+  cmsInfo?: RelierCmsInfo;
+}) => {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [formattedRecoveryKey, setFormattedRecoveryKey] = useState<string>('');
   const ftlMsgResolver = useFtlMsgResolver();
@@ -99,18 +101,21 @@ const InlineRecoveryKeySetupContainer = ({
     [authClient]
   );
 
-  if (
-    !uid ||
-    !sessionToken ||
-    !unwrapBKey ||
-    !email ||
-    !emailForAuth ||
-    !authPW
-  ) {
-    // go to CAD with success messaging, we do not want to re-prompt for password
-    const { to } = getSyncNavigate(location.search);
-    // keep hard navigate until pair routes converted to react
-    hardNavigate(to);
+  const isMissingSigninState =
+    !uid || !sessionToken || !unwrapBKey || !email || !emailForAuth || !authPW;
+
+  // Navigate from an effect rather than during render: a render discarded by a
+  // concurrent root would otherwise still have sent the browser to CAD.
+  useEffect(() => {
+    if (isMissingSigninState) {
+      // go to CAD with success messaging, we do not want to re-prompt for password
+      const { to } = getSyncNavigate(location.search);
+      // keep hard navigate until pair routes converted to react
+      hardNavigate(to);
+    }
+  }, [isMissingSigninState, location.search]);
+
+  if (isMissingSigninState) {
     return <></>;
   }
 
@@ -133,7 +138,7 @@ const InlineRecoveryKeySetupContainer = ({
         email,
         formattedRecoveryKey,
         navigateForward,
-        cmsInfo
+        cmsInfo,
       }}
     />
   );

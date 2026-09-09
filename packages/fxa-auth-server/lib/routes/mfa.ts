@@ -5,12 +5,11 @@
 import * as isA from 'joi';
 import { Container } from 'typedi';
 import { StatsD } from 'hot-shots';
-import * as jwt from 'jsonwebtoken';
-import * as uuid from 'uuid';
 import { SecurityEvent } from 'fxa-shared/db/models/auth/security-event';
 import { Account, Email } from 'fxa-shared/db/models/auth';
 import { AuthRequest, SessionTokenAuthCredential } from '../types';
 import { recordSecurityEvent } from './utils/security-event';
+import { signMfaToken } from './utils/mfa-token';
 import { ConfigType } from '../../config';
 import { OtpUtils } from './utils/otp';
 import { AppError } from '@fxa/accounts/errors';
@@ -90,28 +89,16 @@ class MfaHandler {
       // is valid for 30s.
       // For specifics see: https://www.npmjs.com/package/otplib
       const expirationTime = (options.step * options.window) / 60;
-      if (this.fxaMailer.canSend('verifyAccountChange')) {
-        await this.fxaMailer.sendVerifyAccountChangeEmail({
-          ...FxaMailerFormat.account(account),
-          ...(await FxaMailerFormat.metricsContext(request)),
-          ...FxaMailerFormat.localTime(request),
-          ...FxaMailerFormat.location(request),
-          ...FxaMailerFormat.device(request),
-          ...FxaMailerFormat.sync(false),
-          code,
-          expirationTime,
-        });
-      } else {
-        await this.mailer.sendVerifyAccountChangeEmail(
-          account.emails,
-          account,
-          {
-            code,
-            uid,
-            expirationTime,
-          }
-        );
-      }
+      await this.fxaMailer.sendVerifyAccountChangeEmail({
+        ...FxaMailerFormat.account(account),
+        ...(await FxaMailerFormat.metricsContext(request)),
+        ...FxaMailerFormat.localTime(request),
+        ...FxaMailerFormat.location(request),
+        ...FxaMailerFormat.device(request),
+        ...FxaMailerFormat.sync(false),
+        code,
+        expirationTime,
+      });
 
       success = true;
     } catch (error) {
@@ -211,27 +198,11 @@ class MfaHandler {
       // this would allow us to let multiple actions to all be sanctioned by a single jwt.
       const scope = action;
 
-      // Issue jwt
-      // TODO: Use `/mfa/otp/request` and `/mfa/otp/verify` to issue the jwt
-      const now = Math.floor(Date.now() / 1000);
-      const claims = {
-        sub: account.uid,
-        scope: [`mfa:${scope}`],
-        iat: now,
-        jti: uuid.v4(),
-        stid: sessionTokenId,
-      };
-
-      const key = this.config.mfa.jwt.secretKey;
-      const opts = {
-        algorithm: 'HS256' as jwt.Algorithm,
-        expiresIn: this.config.mfa.jwt.expiresInSec,
-        audience: this.config.mfa.jwt.audience,
-        issuer: this.config.mfa.jwt.issuer,
-      } as jwt.SignOptions;
-
-      // Create access token
-      const accessToken: string = jwt.sign(claims, key, opts);
+      const accessToken = signMfaToken(this.config, {
+        uid: account.uid,
+        scope,
+        sessionTokenId,
+      });
 
       await recordSecurityEvent('account.mfa_verify_otp_code_success', {
         db: this.db,

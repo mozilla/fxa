@@ -33,7 +33,7 @@ export function getCardIcon(cardBrand: string, l10n: LocalizerRsc) {
     case 'diners':
       return {
         img: Diners,
-        altText: l10n.getString('diners-logo-alt-text', 'Diners logo'),
+        altText: l10n.getString('diners-logo-alt-text2', 'Diners logo'),
       };
     case 'discover':
       return {

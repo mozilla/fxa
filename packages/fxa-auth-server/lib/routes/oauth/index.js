@@ -1,17 +1,43 @@
 const oauthDB = require('../../oauth/db');
 
-module.exports = (log, config, db, mailer, devices, statsd, glean) => {
+module.exports = (
+  log,
+  config,
+  db,
+  mailer,
+  devices,
+  statsd,
+  glean,
+  authServerCacheRedis,
+  customs
+) => {
   const routes = [
-    require('./authorization')({ log, oauthDB, config, statsd }),
+    require('./authorization')({
+      log,
+      oauthDB,
+      config,
+      statsd,
+      authServerCacheRedis,
+    }),
     require('./authorized-clients/destroy')({ oauthDB }),
     require('./authorized-clients/list')({ oauthDB }),
     require('./client/get')({ log, oauthDB }),
     require('./destroy')({ log, oauthDB }),
     require('./id_token_verify')(),
-    require('./introspect')({ oauthDB }),
+    require('./introspect')({ oauthDB, customs }),
     require('./jwks')(),
     require('./key_data')({ log, oauthDB, statsd }),
-    require('./token')({ log, oauthDB, db, mailer, devices, statsd, glean }),
+    require('./token')({
+      log,
+      oauthDB,
+      db,
+      mailer,
+      devices,
+      statsd,
+      glean,
+      authServerCacheRedis,
+      customs,
+    }),
     require('./verify')({ log, glean }),
   ].flat();
 

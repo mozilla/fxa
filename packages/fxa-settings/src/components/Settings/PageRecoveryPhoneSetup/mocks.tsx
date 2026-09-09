@@ -5,7 +5,7 @@
 import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
 import PageRecoveryPhoneSetup from '.';
-import { MfaContext } from '../MfaGuard';
+import { MfaContext } from '../../../lib/hooks';
 
 export const Subject = ({ account: accountOverrides = {} }) => {
   const account = {

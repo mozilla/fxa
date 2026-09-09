@@ -217,12 +217,6 @@ function applyDefaultMocks() {
   mockFetchModule();
 }
 
-let mockUseCheckReactEmailFirst = jest.fn().mockReturnValue(true);
-jest.mock('../../lib/hooks', () => ({
-  __esModule: true,
-  ...jest.requireActual('../../lib/hooks'),
-  useCheckReactEmailFirst: () => mockUseCheckReactEmailFirst(),
-}));
 jest.mock('../../models', () => {
   return {
     ...jest.requireActual('../../models'),
@@ -701,6 +695,20 @@ describe('signin container', () => {
       const options = (mockAuthClient.signInWithAuthPW as jest.Mock).mock
         .calls[0]?.[2];
       expect(options?.service).toBeUndefined();
+    });
+
+    // FXA-14109: handleNavigation sends the OTP as it routes to the code screen,
+    // so the auth-server must not send its own copy or the user gets two emails.
+    it('turns off the server-sent verification email', async () => {
+      render();
+      await waitFor(() => expect(currentSigninProps).toBeDefined());
+      await act(async () => {
+        await currentSigninProps?.beginSigninHandler(MOCK_EMAIL, MOCK_PASSWORD);
+      });
+
+      const options = (mockAuthClient.signInWithAuthPW as jest.Mock).mock
+        .calls[0]?.[2];
+      expect(options?.sendSigninVerificationEmail).toBe(false);
     });
 
     describe('showInlineRecoveryKeySetup', () => {

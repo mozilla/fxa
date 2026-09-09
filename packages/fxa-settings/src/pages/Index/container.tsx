@@ -16,7 +16,7 @@ import { currentAccount, lastStoredAccount } from '../../lib/cache';
 import { checkEmailDomain } from '../../lib/email-domain-validator';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import GleanMetrics from '../../lib/glean';
-import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
+import { useValidatedQueryParams, useNavigateWithQuery } from '../../lib/hooks';
 import { ModelValidationErrors } from '../../lib/model-data';
 import { AuthError } from '../../lib/oauth';
 
@@ -35,7 +35,6 @@ import { persistAccount, setCurrentAccount } from '../../lib/storage-utils';
 import Index from '.';
 import { getLocalizedEmailValidationErrorMessage } from './errorMessageMapper';
 import { IndexContainerProps, LocationState } from './interfaces';
-import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { isMobileDevice } from '../../lib/utilities';
 import AppLayout from '../../components/AppLayout';

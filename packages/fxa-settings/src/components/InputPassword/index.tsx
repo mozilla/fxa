@@ -8,9 +8,7 @@ import { ReactComponent as OpenEye } from './eye-open.svg';
 import { ReactComponent as ClosedEye } from './eye-closed.svg';
 import { useFtlMsgResolver } from '../../models';
 
-export type InputPasswordProps = Omit<InputTextProps, 'type'> & {
-  inputRefDOM?: React.RefObject<HTMLInputElement>;
-};
+export type InputPasswordProps = Omit<InputTextProps, 'type'>;
 
 export const InputPassword = ({
   defaultValue,
@@ -23,6 +21,7 @@ export const InputPassword = ({
   onBlurCb,
   inputRef,
   inputRefDOM,
+  registration,
   hasErrors,
   errorText,
   name,
@@ -82,6 +81,7 @@ export const InputPassword = ({
           onBlurCb,
           className,
           inputRef,
+          registration,
           hasErrors,
           errorText,
           name,

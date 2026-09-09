@@ -9,7 +9,8 @@ import {
   JwtTokenCache,
   sessionToken as getSessionToken,
 } from '../../../lib/cache';
-import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
+import { MfaGuard } from '../MfaGuard';
+import { useMfaErrorHandler } from '../../../lib/hooks';
 
 import { MfaReason } from '../../../lib/types';
 

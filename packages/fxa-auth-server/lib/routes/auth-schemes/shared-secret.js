@@ -4,21 +4,13 @@
 
 const Boom = require('@hapi/boom');
 const { AppError } = require('@fxa/accounts/errors');
-const crypto = require('crypto');
-
-const constantTimeCompare = (subject, object) => {
-  const size = Buffer.byteLength(object);
-  return (
-    crypto.timingSafeEqual(Buffer.alloc(size, subject), Buffer.from(object)) &&
-    subject.length === object.length
-  );
-};
+const { bufferEqualsConstantTime } = require('@fxa/shared/crypto');
 
 exports.strategy =
   (secret, authStrategyOptions = { throwOnFailure: true }) =>
   (server, options) => ({
     authenticate: (request, h) => {
-      if (constantTimeCompare(request.headers.authorization, secret)) {
+      if (bufferEqualsConstantTime(request.headers.authorization, secret)) {
         return h.authenticated({ credentials: {} });
       }
 

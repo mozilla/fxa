@@ -68,3 +68,49 @@ export const getHelpLinkClick = new EventMetricType<{
   },
   ['reason']
 );
+
+/**
+ * Records whether the WebAuthn PRF extension produced an output at passkey
+ * sign-in (`navigator.credentials.get()`), i.e. whether the credential
+ * supports PRF on this device. Early telemetry ahead of passwordless Sync
+ * (Phase 2) to learn the true PRF capability of the passkey base, which the
+ * registration-time `prfEnabled` flag under-reports. Only the presence of
+ * the PRF output is recorded — never the output itself.
+ *
+ * Generated from `passkey.signin_prf_support`.
+ */
+export const signinPrfSupport = new EventMetricType<{
+  supported?: string;
+}>(
+  {
+    category: 'passkey',
+    name: 'signin_prf_support',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['supported']
+);
+
+/**
+ * A passkey sign-in's first WebAuthn attempt failed in a way the optional
+ * PRF extension could have caused (e.g. Windows Hello UnknownError,
+ * FXA-13991), so the ceremony silently retried once without PRF. Mirrors
+ * `account_pref.passkey_create_retry_without_prf_request` for the sign-in
+ * (`navigator.credentials.get()`) path.
+ *
+ * Generated from `passkey.signin_retry_without_prf_request`.
+ */
+export const signinRetryWithoutPrfRequest = new EventMetricType<{
+  outcome?: string;
+  reason?: string;
+}>(
+  {
+    category: 'passkey',
+    name: 'signin_retry_without_prf_request',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['outcome', 'reason']
+);

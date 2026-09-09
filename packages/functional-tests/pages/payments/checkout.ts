@@ -321,6 +321,11 @@ export class CheckoutPage extends BasePaymentPage {
         timeout: 5_000,
       });
       await this.stripeLinkCheckbox.click();
+      // Let Stripe re-validate after toggling Link — it briefly marks
+      // the form incomplete while updating internal state. No observable
+      // DOM signal exists outside the cross-origin iframe.
+      // eslint-disable-next-line playwright/no-wait-for-timeout
+      await this.page.waitForTimeout(500);
     } catch {
       // Stripe Link checkbox not shown — no action needed
     }

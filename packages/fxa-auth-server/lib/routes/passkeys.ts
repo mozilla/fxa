@@ -6,6 +6,7 @@ import * as isA from 'joi';
 import { Container } from 'typedi';
 import { PasskeyService } from '@fxa/accounts/passkey';
 import { AuthClientInfoService, AuthRequest } from '../types';
+import { signMfaToken } from './utils/mfa-token';
 import { recordSecurityEvent } from './utils/security-event';
 import { notifyAttachedServicesForAccountSession } from './utils/account';
 import { schema as METRICS_CONTEXT_SCHEMA } from '../metrics/context';
@@ -33,13 +34,31 @@ import { reportSentryError } from '../sentry';
 // matches the WebAuthn L2 ceiling (1023 bytes → 1364 base64url chars),
 // aligning with `passkeys.credentialId VARBINARY(1023)`.
 const BASE64URL_PATTERN = /^[A-Za-z0-9_-]+$/;
-const base64urlString = (maxLen: number) =>
+export const base64urlString = (maxLen: number) =>
   isA.string().max(maxLen).regex(BASE64URL_PATTERN);
-const base64urlCredentialId = () => base64urlString(1364);
+export const base64urlCredentialId = () => base64urlString(1364);
 const base64urlChallenge = () => base64urlString(64);
 
+// Mirrors `AAGUID_RE` in libs/accounts/passkey, which rejects the same
+// values at the DB boundary.
+const AAGUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Shape of a passkey as returned by the passkey and `/account` routes. */
+export const passkeyResponseSchema = isA.object({
+  credentialId: base64urlCredentialId().required(),
+  name: isA.string().required(),
+  createdAt: isA.number().required(),
+  lastUsedAt: isA.number().allow(null).required(),
+  transports: isA.array().items(isA.string()).required(),
+  aaguid: isA.string().regex(AAGUID_PATTERN).required(),
+  backupEligible: isA.boolean().required(),
+  backupState: isA.boolean().required(),
+  prfEnabled: isA.boolean().required(),
+});
+
 /** Subset of the Customs service used by passkey routes. */
-interface Customs {
+export interface Customs {
   /**
    * Enforces rate-limiting for an authenticated action.
    * Throws an AppError if the user or IP is throttled.
@@ -58,7 +77,7 @@ interface Customs {
 }
 
 /** Subset of the database used by passkey routes. */
-interface DB {
+export interface DB {
   /** Fetches the account record for the given UID. */
   account(uid: string): Promise<{
     uid: string;
@@ -109,7 +128,8 @@ export class PasskeyHandler {
     private readonly statsd: any,
     private readonly glean: GleanMetricsType,
     private readonly mailer: any,
-    private readonly oauthClientInfoService: AuthClientInfoService
+    private readonly oauthClientInfoService: AuthClientInfoService,
+    private readonly config: ConfigType
   ) {}
 
   /**
@@ -191,17 +211,15 @@ export class PasskeyHandler {
       this.glean.passkey.createComplete(request);
 
       try {
-        if (this.fxaMailer.canSend('postAddPasskey')) {
-          await this.fxaMailer.sendPostAddPasskeyEmail({
-            ...FxaMailerFormat.account({ ...account, uid }),
-            ...(await FxaMailerFormat.metricsContext(request)),
-            ...FxaMailerFormat.localTime(request),
-            ...FxaMailerFormat.location(request),
-            ...FxaMailerFormat.device(request),
-            ...FxaMailerFormat.sync(false),
-            showSyncPasswordNote: account.verifierSetAt > 0,
-          });
-        }
+        await this.fxaMailer.sendPostAddPasskeyEmail({
+          ...FxaMailerFormat.account({ ...account, uid }),
+          ...(await FxaMailerFormat.metricsContext(request)),
+          ...FxaMailerFormat.localTime(request),
+          ...FxaMailerFormat.location(request),
+          ...FxaMailerFormat.device(request),
+          ...FxaMailerFormat.sync(false),
+          showSyncPasswordNote: account.verifierSetAt > 0,
+        });
       } catch (err) {
         this.log.error('passkeys.registrationFinish.sendEmail', { err });
         reportSentryError(err, request);
@@ -318,16 +336,14 @@ export class PasskeyHandler {
     this.glean.passkey.deleteSuccess(request);
 
     try {
-      if (this.fxaMailer.canSend('postRemovePasskey')) {
-        await this.fxaMailer.sendPostRemovePasskeyEmail({
-          ...FxaMailerFormat.account({ ...account, uid }),
-          ...(await FxaMailerFormat.metricsContext(request)),
-          ...FxaMailerFormat.localTime(request),
-          ...FxaMailerFormat.location(request),
-          ...FxaMailerFormat.device(request),
-          ...FxaMailerFormat.sync(false),
-        });
-      }
+      await this.fxaMailer.sendPostRemovePasskeyEmail({
+        ...FxaMailerFormat.account({ ...account, uid }),
+        ...(await FxaMailerFormat.metricsContext(request)),
+        ...FxaMailerFormat.localTime(request),
+        ...FxaMailerFormat.location(request),
+        ...FxaMailerFormat.device(request),
+        ...FxaMailerFormat.sync(false),
+      });
     } catch (err) {
       this.log.error('passkeys.deletePasskey.sendEmail', { err });
       reportSentryError(err, request);
@@ -382,13 +398,23 @@ export class PasskeyHandler {
    * browser. No email or uid is accepted in the request body — discoverable
    * credentials only.
    *
-   * @param request - Unauthenticated Hapi request.
+   * @param request - Unauthenticated Hapi request. An optional `keysRequired`
+   *   flag in the payload lets the server decide, under the `keys-required`
+   *   PRF scope, whether to request the PRF extension in the returned options.
    * @returns WebAuthn authentication options to pass to `navigator.credentials.get`.
    */
   async authenticationStart(request: AuthRequest) {
     await this.customs.checkIpOnly(request, 'passkeyAuthStart');
 
-    const options = await this.service.generateAuthenticationChallenge();
+    const { keysRequired, scope } = (request.payload ?? {}) as {
+      keysRequired?: boolean;
+      scope?: string;
+    };
+
+    const options = await this.service.generateAuthenticationChallenge({
+      keysRequired,
+      scope,
+    });
 
     this.glean.passkey.authenticationStarted(request);
 
@@ -403,24 +429,35 @@ export class PasskeyHandler {
    * with flags the UI needs to drive the post-login flow.
    *
    * @param request - Unauthenticated Hapi request containing `response`,
-   *   `challenge`, and optional `service` / `keysRequired` in the payload.
+   *   `challenge`, and optional `service` / `keysRequired` / `prfSupported` in
+   *   the payload.
    * @returns Session token, uid, `verified`, and `hasPassword`.
    */
   async authenticationFinish(request: AuthRequest) {
     await this.customs.checkIpOnly(request, 'passkeyAuthFinish');
 
-    const { response, challenge, service, keysRequired } = request.payload as {
-      response: AuthenticationResponseJSON;
-      challenge: string;
-      service?: string;
-      keysRequired: boolean;
-    };
+    const { response, challenge, service, keysRequired, prfSupported } =
+      request.payload as {
+        response: AuthenticationResponseJSON;
+        challenge: string;
+        service?: string;
+        keysRequired: boolean;
+        prfSupported?: boolean;
+      };
 
     let uid: string;
+    let scope: string | undefined;
+    let assertedCredentialId: string;
     try {
-      ({ uid } = await this.service.verifyAuthenticationResponse(
+      ({
+        uid,
+        scope,
+        credentialId: assertedCredentialId,
+      } = await this.service.verifyAuthenticationResponse(
         response,
-        challenge
+        challenge,
+        undefined,
+        prfSupported
       ));
     } catch (err) {
       await recordSecurityEvent('account.passkey.authentication_failure', {
@@ -443,15 +480,16 @@ export class PasskeyHandler {
       request
     );
 
+    // Later steps of a keys-required sign-in (password creation, key fetch) send
+    // no metrics context of their own, so stash it against the new session token
+    // to keep them on the same flow.
+    await request.stashMetricsContext(sessionToken);
+
     await recordSecurityEvent('account.passkey.authentication_success', {
       db: this.db,
       request,
       account: { uid },
     });
-
-    // Shared completion signal across sign-in surfaces; mirrors passwordless
-    // (reason: 'otp') and linked-accounts (reason: 'google'|'apple').
-    this.glean.login.complete(request, { uid, reason: 'passkey' });
 
     // A keys-requiring login (Sync, or a non-Sync Firefox service like VPN when
     // the browser hasn't decoupled Sync) completes its key step later, at a
@@ -469,11 +507,23 @@ export class PasskeyHandler {
 
     const hasPassword = account.verifierSetAt > 0;
 
+    // Minted here rather than at /start, where there is no session yet to bind
+    // the claims to. `scope` is the one the challenge was created with.
+    const mfaToken = scope
+      ? signMfaToken(this.config, {
+          uid,
+          scope,
+          sessionTokenId: sessionToken.id,
+          credentialId: assertedCredentialId,
+        })
+      : undefined;
+
     return {
       uid,
       sessionToken: sessionToken.data,
       verified: true,
       hasPassword,
+      ...(mfaToken && { mfaToken }),
     };
   }
 
@@ -494,35 +544,17 @@ export class PasskeyHandler {
     // yet, so service framing would be premature.
     const emailService = keysRequired ? undefined : service;
     try {
-      const geoData = request.app.geo;
-      if (this.fxaMailer.canSend('newDeviceLogin')) {
-        const clientInfo =
-          await this.oauthClientInfoService.fetch(emailService);
-        await this.fxaMailer.sendNewDeviceLoginEmail({
-          ...FxaMailerFormat.account(account),
-          ...FxaMailerFormat.device(request),
-          ...FxaMailerFormat.localTime(request),
-          ...FxaMailerFormat.location(request),
-          ...(await FxaMailerFormat.metricsContext(request)),
-          ...FxaMailerFormat.sync(false),
-          clientName: clientInfo.name,
-          showBannerWarning: false,
-        });
-      } else {
-        await this.mailer.sendNewDeviceLoginEmail(account.emails, account, {
-          acceptLanguage: request.app.acceptLanguage,
-          ip: request.app.clientAddress,
-          location: geoData.location,
-          service: emailService,
-          timeZone: geoData.timeZone,
-          uaBrowser: request.app.ua.browser,
-          uaBrowserVersion: request.app.ua.browserVersion,
-          uaOS: request.app.ua.os,
-          uaOSVersion: request.app.ua.osVersion,
-          uaDeviceType: request.app.ua.deviceType,
-          uid: account.uid,
-        });
-      }
+      const clientInfo = await this.oauthClientInfoService.fetch(emailService);
+      await this.fxaMailer.sendNewDeviceLoginEmail({
+        ...FxaMailerFormat.account(account),
+        ...FxaMailerFormat.device(request),
+        ...FxaMailerFormat.localTime(request),
+        ...FxaMailerFormat.location(request),
+        ...(await FxaMailerFormat.metricsContext(request)),
+        ...FxaMailerFormat.sync(false),
+        clientName: clientInfo.name,
+        showBannerWarning: false,
+      });
     } catch (err) {
       this.log.trace(
         'passkeys.authenticationFinish.sendNewDeviceLoginEmail.error',
@@ -550,8 +582,14 @@ export class PasskeyHandler {
       // When keys are required the login completes at the later /session/reauth
       // step, which emits these; skip them here to avoid double-counting.
       if (!keysRequired) {
+        // Signal before emitting: emitMetricsEvent only recognises the flow as
+        // complete (and so records login.complete) if the signal is already set.
+        request.setMetricsFlowCompleteSignal(
+          'account.login',
+          'login',
+          'passkey'
+        );
         await request.emitMetricsEvent('account.login', { uid: account.uid });
-        request.setMetricsFlowCompleteSignal('account.login', 'login');
         await recordSecurityEvent('account.login', {
           db: this.db,
           request,
@@ -657,7 +695,8 @@ export const passkeyRoutes = (
     statsd,
     glean,
     mailer,
-    oauthClientInfoService
+    oauthClientInfoService,
+    config
   );
 
   return [
@@ -704,22 +743,10 @@ export const passkeyRoutes = (
                 isA.object({
                   id: isA.string().required(),
                   type: isA.string().valid('public-key').required(),
-                  transports: isA
-                    .array()
-                    .items(
-                      isA
-                        .string()
-                        .valid(
-                          'ble',
-                          'cable',
-                          'hybrid',
-                          'internal',
-                          'nfc',
-                          'smart-card',
-                          'usb'
-                        )
-                    )
-                    .optional(),
+                  // Any string: stored transports come from the browser, which
+                  // may report values outside the spec's enum.
+                  // https://www.w3.org/TR/webauthn-3/#enum-transport
+                  transports: isA.array().items(isA.string()).optional(),
                 })
               )
               .optional(),
@@ -824,17 +851,7 @@ export const passkeyRoutes = (
           }),
         },
         response: {
-          schema: isA.object({
-            credentialId: isA.string().required(),
-            name: isA.string().required(),
-            createdAt: isA.number().required(),
-            lastUsedAt: isA.number().allow(null).required(),
-            transports: isA.array().items(isA.string()).required(),
-            aaguid: isA.string().required(),
-            backupEligible: isA.boolean().required(),
-            backupState: isA.boolean().required(),
-            prfEnabled: isA.boolean().required(),
-          }),
+          schema: passkeyResponseSchema,
         },
       },
       handler: async function (request: AuthRequest) {
@@ -854,19 +871,7 @@ export const passkeyRoutes = (
           payload: false,
         },
         response: {
-          schema: isA.array().items(
-            isA.object({
-              credentialId: isA.string().required(),
-              name: isA.string().required(),
-              createdAt: isA.number().required(),
-              lastUsedAt: isA.number().allow(null).required(),
-              transports: isA.array().items(isA.string()).required(),
-              aaguid: isA.string().required(),
-              backupEligible: isA.boolean().required(),
-              backupState: isA.boolean().required(),
-              prfEnabled: isA.boolean().required(),
-            })
-          ),
+          schema: isA.array().items(passkeyResponseSchema),
         },
       },
       handler: function (request: AuthRequest) {
@@ -906,6 +911,18 @@ export const passkeyRoutes = (
         ...PASSKEYS_API_DOCS.PASSKEY_AUTHENTICATION_START_POST,
         pre: [{ method: authenticationEnabledCheck }],
         auth: false,
+        validate: {
+          payload: isA.object({
+            // Hint for the keys-required PRF scope; omitted = not keys-required.
+            keysRequired: isA.boolean().optional(),
+            // The action this sign-in should also authorize. Committed to the
+            // challenge here, so /finish cannot be asked for a different one.
+            scope: isA
+              .string()
+              .valid(...config.mfa.actions)
+              .optional(),
+          }),
+        },
         response: {
           schema: isA.object({
             challenge: isA.string().required(),
@@ -949,16 +966,17 @@ export const passkeyRoutes = (
                     signature: base64urlString(1024).required(),
                     userHandle: base64urlString(128).optional(),
                   })
-                  .unknown(true)
                   .required(),
               })
-              .unknown(true)
               .required(),
             challenge: base64urlChallenge().required(),
             service: validators.service.optional(),
             // When true, this login still needs Sync-scoped keys obtained via a
             // follow-up step, so the server defers login notifications/metrics.
             keysRequired: isA.boolean().required(),
+            // Whether the browser returned a PRF output at get(); rolls
+            // prfEnabled forward. Never the PRF output itself.
+            prfSupported: isA.boolean().optional(),
             metricsContext: METRICS_CONTEXT_SCHEMA,
           }),
         },
@@ -968,6 +986,8 @@ export const passkeyRoutes = (
             sessionToken: isA.string().required(),
             verified: isA.boolean().required(),
             hasPassword: isA.boolean().required(),
+            // Present only when /start requested a scope.
+            mfaToken: isA.string().optional(),
           }),
         },
       },
@@ -995,17 +1015,7 @@ export const passkeyRoutes = (
           }),
         },
         response: {
-          schema: isA.object({
-            credentialId: isA.string().required(),
-            name: isA.string().required(),
-            createdAt: isA.number().required(),
-            lastUsedAt: isA.number().allow(null).required(),
-            transports: isA.array().items(isA.string()).required(),
-            aaguid: isA.string().required(),
-            backupEligible: isA.boolean().required(),
-            backupState: isA.boolean().required(),
-            prfEnabled: isA.boolean().required(),
-          }),
+          schema: passkeyResponseSchema,
         },
       },
       handler: function (request: AuthRequest) {

@@ -205,7 +205,6 @@ export default async function Location({
           l10n={l10n}
           {...purchaseDetails}
           {...(cms.commonContent.localizations.at(0) || cms.commonContent)}
-          contentServerUrl={config.contentServerUrl}
           showFXALinks={true}
         />
       </section>

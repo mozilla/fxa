@@ -34,6 +34,11 @@ test.describe('severity-1 #smoke', () => {
     page,
   }) => {
     await page.goto(`${target.paymentsNextUrl}/subscriptions/manage`);
-    await expect(page).toHaveURL(new RegExp(target.contentServerUrl));
+    // The redirect chain may involve an OAuth prompt=none roundtrip
+    // (manage → landing → auth server → callback → content server),
+    // so allow extra time for the final URL to settle.
+    await expect(page).toHaveURL(new RegExp(target.contentServerUrl), {
+      timeout: 30_000,
+    });
   });
 });

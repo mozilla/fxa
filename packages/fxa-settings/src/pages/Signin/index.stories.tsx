@@ -304,7 +304,7 @@ export const CmsCachedNoCachedPageConfig: Story = {
 
 // Passkey button alongside third-party providers, alternative to password entry.
 export const NonCachedAccountHasPasswordWithPasskey: Story = {
-  ...story({ passkeyEnabled: true }),
+  ...story({ passkeyEnabled: true, hasPasskey: true }),
   name: 'Passkey enabled > Non-Cached > Account has password',
 };
 
@@ -312,6 +312,7 @@ export const NonCachedAccountHasPasswordWithPasskey: Story = {
 export const NonCachedSyncWithPasskey: Story = {
   ...story({
     passkeyEnabled: true,
+    hasPasskey: true,
     serviceName: MozServices.FirefoxSync,
     hasLinkedAccount: true,
     hasPassword: true,
@@ -324,6 +325,7 @@ export const NonCachedSyncWithPasskey: Story = {
 export const NonCachedPasswordlessWithPasskey: Story = {
   ...story({
     passkeyEnabled: true,
+    hasPasskey: true,
     hasLinkedAccount: true,
     hasPassword: false,
   }),
@@ -334,6 +336,7 @@ export const NonCachedPasswordlessWithPasskey: Story = {
 export const CachedWithPasskeyFlagOn: Story = {
   ...story({
     passkeyEnabled: true,
+    hasPasskey: true,
     sessionToken: MOCK_SESSION_TOKEN,
   }),
   name: 'Passkey enabled > Cached > passkey button correctly hidden (SigninCached path)',

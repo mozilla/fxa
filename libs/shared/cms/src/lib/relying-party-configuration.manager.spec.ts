@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { readFileSync } from 'fs';
+import { join } from 'path';
+import * as ts from 'typescript';
 import { Test } from '@nestjs/testing';
 import { StatsD } from 'hot-shots';
 import { DocumentNode } from 'graphql';
@@ -54,6 +57,33 @@ jest.mock('@fxa/shared/db/type-cacheable', () => ({
 jest.mock('@apollo/client/utilities', () => ({
   getOperationName: jest.fn().mockReturnValue('MockOperation'),
 }));
+
+/** Returns the type annotation of the `@Inject(LOGGER_PROVIDER)` constructor parameter. */
+function loggerParamType(fileName: string): string | undefined {
+  const filePath = join(__dirname, fileName);
+  const source = ts.createSourceFile(
+    filePath,
+    readFileSync(filePath, 'utf8'),
+    ts.ScriptTarget.Latest,
+    true
+  );
+
+  let annotation: string | undefined;
+  const visit = (node: ts.Node) => {
+    if (
+      ts.isParameter(node) &&
+      ts
+        .getDecorators(node)
+        ?.some((d) => d.getText(source).includes('LOGGER_PROVIDER'))
+    ) {
+      annotation = node.type?.getText(source);
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+
+  return annotation;
+}
 
 describe('RelyingPartyConfigurationManager', () => {
   let relyingPartyConfigurationManager: RelyingPartyConfigurationManager;
@@ -246,7 +276,10 @@ describe('RelyingPartyConfigurationManager', () => {
         text: () => Promise.resolve(ftlContent),
       });
 
-      const result = await relyingPartyConfigurationManager.getFtlContent(locale, config);
+      const result = await relyingPartyConfigurationManager.getFtlContent(
+        locale,
+        config
+      );
 
       expect(result).toBe(ftlContent);
       expect(mockFetch).toHaveBeenCalledWith(
@@ -269,7 +302,10 @@ describe('RelyingPartyConfigurationManager', () => {
         },
       };
 
-      const result = await relyingPartyConfigurationManager.getFtlContent(locale, config);
+      const result = await relyingPartyConfigurationManager.getFtlContent(
+        locale,
+        config
+      );
 
       expect(result).toBe('');
       expect(mockFetch).not.toHaveBeenCalled();
@@ -291,7 +327,10 @@ describe('RelyingPartyConfigurationManager', () => {
         status: 404,
       });
 
-      const result = await relyingPartyConfigurationManager.getFtlContent(locale, config);
+      const result = await relyingPartyConfigurationManager.getFtlContent(
+        locale,
+        config
+      );
 
       expect(result).toBe('');
     });
@@ -367,5 +406,20 @@ describe('RelyingPartyConfigurationManager', () => {
         }
       );
     });
+  });
+});
+
+describe('CMS manager logger annotations', () => {
+  // typedi resolves these managers from `design:paramtypes`, not from the Nest
+  // `@Inject` token, so the annotation itself decides whether the auth-server
+  // boots. tsc serializes the winston `Logger` type to `Function`, which typedi
+  // then tries to construct; `LoggerService` serializes to `Object`, which it
+  // skips. The assertion reads the source because jest compiles with SWC, and
+  // SWC emits `Object` for both annotations.
+  it.each([
+    'relying-party-configuration.manager.ts',
+    'default-configuration.manager.ts',
+  ])('annotates the injected logger in %s as LoggerService', (fileName) => {
+    expect(loggerParamType(fileName)).toBe('LoggerService');
   });
 });

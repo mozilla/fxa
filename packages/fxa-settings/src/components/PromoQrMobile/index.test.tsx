@@ -7,6 +7,10 @@ import { PromoQrMobile, PromoQrMobileIntegration } from '.';
 import { IntegrationType } from '../../models/integrations';
 import { renderWithRouter } from '../../models/mocks';
 import GleanMetrics from '../../lib/glean';
+import {
+  NimbusContext,
+  NimbusContextValue,
+} from '../../models/contexts/NimbusContext';
 
 jest.mock('../../lib/glean', () => ({
   __esModule: true,
@@ -33,13 +37,56 @@ function createIntegration(
   return { type, isDesktopSync: () => isDesktopSync };
 }
 
+const NIMBUS_USER_ID = 'nimbus-user-id';
+
+function nimbusValue({
+  enabled,
+  branch,
+  loading = false,
+}: {
+  enabled?: boolean;
+  branch?: string;
+  loading?: boolean;
+}): NimbusContextValue {
+  return {
+    experiments: {
+      nimbusUserId: NIMBUS_USER_ID,
+      features: { 'promo-qr-mobile': { enabled, branch } },
+    },
+    loading,
+  };
+}
+
 function renderAtRoute(
   pathname: string,
-  integration: PromoQrMobileIntegration
+  integration: PromoQrMobileIntegration,
+  nimbus?: NimbusContextValue,
+  promoQrImageUrl?: string,
+  cmsLoading?: boolean
 ) {
-  return renderWithRouter(<PromoQrMobile integration={integration} />, {
-    route: pathname,
-  });
+  const ui = (
+    <PromoQrMobile
+      integration={integration}
+      promoQrImageUrl={promoQrImageUrl}
+      cmsLoading={cmsLoading}
+    />
+  );
+  return renderWithRouter(
+    nimbus ? (
+      <NimbusContext.Provider value={nimbus}>{ui}</NimbusContext.Provider>
+    ) : (
+      ui
+    ),
+    { route: pathname }
+  );
+}
+
+const webIntegration = createIntegration(IntegrationType.Web);
+
+function qrImage() {
+  return screen.getByAltText(
+    /QR code to download the Firefox mobile app/
+  ) as HTMLImageElement;
 }
 
 describe('PromoQrMobile', () => {
@@ -71,8 +118,6 @@ describe('PromoQrMobile', () => {
   });
 
   describe('visibility based on route', () => {
-    const webIntegration = createIntegration(IntegrationType.Web);
-
     it.each([
       '/',
       '/signin',
@@ -104,17 +149,57 @@ describe('PromoQrMobile', () => {
     });
   });
 
-  describe('Glean view event', () => {
-    const webIntegration = createIntegration(IntegrationType.Web);
+  describe('Nimbus loading', () => {
+    it('renders nothing while Nimbus is loading, so the control does not paint and swap', () => {
+      renderAtRoute(
+        '/',
+        webIntegration,
+        nimbusValue({ enabled: true, branch: 'treatment-a', loading: true })
+      );
+      expect(screen.queryByRole('complementary')).not.toBeInTheDocument();
+    });
 
+    it('does not fire the view event while loading', () => {
+      renderAtRoute(
+        '/',
+        webIntegration,
+        nimbusValue({ enabled: true, branch: 'treatment-a', loading: true })
+      );
+      expect(GleanMetrics.promoQrMobile.view).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('CMS loading', () => {
+    it('renders nothing while the CMS fetch is in flight', () => {
+      renderAtRoute(
+        '/',
+        webIntegration,
+        nimbusValue({ enabled: true, branch: 'treatment-a' }),
+        undefined,
+        true
+      );
+      expect(screen.queryByRole('complementary')).not.toBeInTheDocument();
+    });
+
+    it('does not report a treatment before the CMS override arrives', () => {
+      renderAtRoute(
+        '/',
+        webIntegration,
+        nimbusValue({ enabled: true, branch: 'treatment-a' }),
+        undefined,
+        true
+      );
+      expect(GleanMetrics.promoQrMobile.view).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Glean view event', () => {
     it('fires the view event once on desktop', () => {
-      mockMatchMedia.mockReturnValue({ matches: true });
       renderAtRoute('/', webIntegration);
       expect(GleanMetrics.promoQrMobile.view).toHaveBeenCalledTimes(1);
     });
 
     it('fires the view event once on desktop for desktop sync integrations', () => {
-      mockMatchMedia.mockReturnValue({ matches: true });
       renderAtRoute('/', createIntegration(IntegrationType.OAuthNative, true));
       expect(GleanMetrics.promoQrMobile.view).toHaveBeenCalledTimes(1);
     });
@@ -126,44 +211,146 @@ describe('PromoQrMobile', () => {
     });
 
     it('does not fire for OAuth web integrations', () => {
-      mockMatchMedia.mockReturnValue({ matches: true });
       renderAtRoute('/', createIntegration(IntegrationType.OAuthWeb));
       expect(GleanMetrics.promoQrMobile.view).not.toHaveBeenCalled();
     });
 
     it('does not fire on excluded routes', () => {
-      mockMatchMedia.mockReturnValue({ matches: true });
       renderAtRoute('/reset_password', webIntegration);
       expect(GleanMetrics.promoQrMobile.view).not.toHaveBeenCalled();
+    });
+
+    it('reports the branch and the Nimbus user id when enrolled', () => {
+      renderAtRoute(
+        '/',
+        webIntegration,
+        nimbusValue({ enabled: true, branch: 'treatment-e' })
+      );
+      expect(GleanMetrics.promoQrMobile.view).toHaveBeenCalledWith({
+        event: { nimbusUserId: NIMBUS_USER_ID, branch: 'treatment-e' },
+      });
+    });
+
+    it('reports the control when an unknown slug falls back', () => {
+      renderAtRoute(
+        '/',
+        webIntegration,
+        nimbusValue({ enabled: true, branch: 'treatment-typo' })
+      );
+      expect(GleanMetrics.promoQrMobile.view).toHaveBeenCalledWith({
+        event: { nimbusUserId: NIMBUS_USER_ID, branch: 'control' },
+      });
+    });
+
+    it('reports no branch when the feature is disabled', () => {
+      renderAtRoute(
+        '/',
+        webIntegration,
+        nimbusValue({ enabled: false, branch: 'treatment-a' })
+      );
+      expect(GleanMetrics.promoQrMobile.view).toHaveBeenCalledWith({
+        event: { nimbusUserId: NIMBUS_USER_ID, branch: undefined },
+      });
     });
   });
 
   describe('content', () => {
-    it('renders Firefox logo, heading, description, and QR code', () => {
-      renderAtRoute('/', createIntegration(IntegrationType.Web));
+    it('renders the control heading, the CTA, and the QR code', () => {
+      renderAtRoute('/', webIntegration);
 
-      expect(screen.getByAltText('Firefox logo')).toBeInTheDocument();
       expect(screen.getByText('Your phone. Your rules.')).toBeInTheDocument();
-      expect(screen.getByText('Scan to get the app')).toBeInTheDocument();
       expect(
-        screen.getByAltText(/QR code to download the Firefox mobile app/)
+        screen.getByText('Scan to download mobile app')
       ).toBeInTheDocument();
+      expect(qrImage()).toBeInTheDocument();
     });
 
-    it('uses the CMS-provided QR image URL when the prop is set', () => {
-            renderWithRouter(
-        <PromoQrMobile
-          integration={createIntegration(IntegrationType.Web)}
-          promoQrImageUrl="https://example.com/custom-qr.svg"
-        />,
-        { route: '/' }
+    it('does not render a separate Firefox logo, since the QR carries the glyph', () => {
+      renderAtRoute('/', webIntegration);
+      expect(screen.queryByAltText('Firefox logo')).not.toBeInTheDocument();
+    });
+
+    it('renders the control QR when there is no experiment', () => {
+      renderAtRoute('/', webIntegration);
+      expect(qrImage().src).toContain('control');
+    });
+
+    it.each([
+      ['treatment-a', 'Pick up where you left off, wherever you go'],
+      ['treatment-b', 'Your tabs and more, ready on your phone'],
+      ['treatment-c', 'The browser you trust, on your phone'],
+      ['treatment-d', 'Same Firefox. Different screen.'],
+      ['treatment-e', 'Your privacy shouldn’t stop here'],
+      ['treatment-f', 'Keep more of your browsing to yourself'],
+      ['treatment-g', 'Your phone could use a little less noise'],
+      ['treatment-h', 'Take a calmer way to browse with you'],
+    ])('renders the %s heading and its own QR', (slug, heading) => {
+      renderAtRoute(
+        '/',
+        webIntegration,
+        nimbusValue({ enabled: true, branch: slug })
       );
 
-      const img = screen.getByAltText(
-        /QR code to download the Firefox mobile app/
-      ) as HTMLImageElement;
-      expect(img).toBeInTheDocument();
-      expect(img.src).toBe('https://example.com/custom-qr.svg');
+      expect(screen.getByText(heading)).toBeInTheDocument();
+      expect(qrImage().src).toContain(slug);
+    });
+
+    it('falls back to the control for an unknown branch slug', () => {
+      renderAtRoute(
+        '/',
+        webIntegration,
+        nimbusValue({ enabled: true, branch: 'treatment-typo' })
+      );
+
+      expect(screen.getByText('Your phone. Your rules.')).toBeInTheDocument();
+      expect(qrImage().src).toContain('control');
+    });
+
+    it('ignores the branch when the feature is disabled', () => {
+      renderAtRoute(
+        '/',
+        webIntegration,
+        nimbusValue({ enabled: false, branch: 'treatment-a' })
+      );
+
+      expect(screen.getByText('Your phone. Your rules.')).toBeInTheDocument();
+      expect(qrImage().src).toContain('control');
+    });
+  });
+
+  describe('CMS override', () => {
+    it('uses the CMS-provided QR image URL when the prop is set', () => {
+      renderAtRoute(
+        '/',
+        webIntegration,
+        undefined,
+        'https://example.com/custom-qr.svg'
+      );
+      expect(qrImage().src).toBe('https://example.com/custom-qr.svg');
+    });
+
+    it('forces the control copy, because a CMS image carries no branch', () => {
+      renderAtRoute(
+        '/',
+        webIntegration,
+        nimbusValue({ enabled: true, branch: 'treatment-a' }),
+        'https://example.com/custom-qr.svg'
+      );
+
+      expect(screen.getByText('Your phone. Your rules.')).toBeInTheDocument();
+      expect(qrImage().src).toBe('https://example.com/custom-qr.svg');
+    });
+
+    it('leaves CMS users out of the experiment', () => {
+      renderAtRoute(
+        '/',
+        webIntegration,
+        nimbusValue({ enabled: true, branch: 'treatment-a' }),
+        'https://example.com/custom-qr.svg'
+      );
+      expect(GleanMetrics.promoQrMobile.view).toHaveBeenCalledWith({
+        event: { nimbusUserId: NIMBUS_USER_ID, branch: undefined },
+      });
     });
 
     it.each([
@@ -171,19 +358,12 @@ describe('PromoQrMobile', () => {
       'data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=',
       'not-a-url',
       '',
-    ])('ignores invalid CMS URLs (%s) and falls back to local SVG', (url) => {
-            renderWithRouter(
-        <PromoQrMobile
-          integration={createIntegration(IntegrationType.Web)}
-          promoQrImageUrl={url}
-        />,
-        { route: '/' }
-      );
-
-      const img = screen.getByAltText(
-        /QR code to download the Firefox mobile app/
-      ) as HTMLImageElement;
-      expect(img.src).toContain('qr-mobile-kit');
-    });
+    ])(
+      'ignores invalid CMS URLs (%s) and falls back to the branch QR',
+      (url) => {
+        renderAtRoute('/', webIntegration, undefined, url);
+        expect(qrImage().src).toContain('control');
+      }
+    );
   });
 });

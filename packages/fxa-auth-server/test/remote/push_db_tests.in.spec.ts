@@ -4,8 +4,10 @@
 
 import crypto from 'crypto';
 import base64url from 'base64url';
-import * as uuid from 'uuid';
-import { createTestServer, TestServerInstance } from '../support/helpers/test-server';
+import {
+  createTestServer,
+  TestServerInstance,
+} from '../support/helpers/test-server';
 
 const log = { trace() {}, info() {}, error() {}, debug() {}, warn() {} };
 const config = require('../../config').default.getProperties();
@@ -26,7 +28,7 @@ const zeroBuffer32 = Buffer.from(
 const SESSION_TOKEN_UA =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0';
 const ACCOUNT = {
-  uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
+  uid: crypto.randomBytes(16).toString('hex'),
   email: `push${Math.random()}@bar.com`,
   emailCode: zeroBuffer16,
   emailVerified: false,
@@ -77,7 +79,10 @@ describe('#integration - remote push db', () => {
     await db.createAccount(ACCOUNT);
     const emailRecord = await db.emailRecord(ACCOUNT.email);
     emailRecord.createdAt = Date.now();
-    const sessionToken = await db.createSessionToken(emailRecord, SESSION_TOKEN_UA);
+    const sessionToken = await db.createSessionToken(
+      emailRecord,
+      SESSION_TOKEN_UA
+    );
 
     deviceInfo.sessionTokenId = sessionToken.id;
     const device = await db.createDevice(ACCOUNT.uid, deviceInfo);
@@ -98,7 +103,10 @@ describe('#integration - remote push db', () => {
       },
     }));
     const pushWithUnknown400 = require('../../lib/push')(
-      mockLog2, db, {}, mockStatsD
+      mockLog2,
+      db,
+      {},
+      mockStatsD
     );
     await pushWithUnknown400.sendPush(ACCOUNT.uid, devices, 'accountVerify');
 
@@ -120,7 +128,10 @@ describe('#integration - remote push db', () => {
       },
     }));
     const pushWithKnown400 = require('../../lib/push')(
-      mockLog2, db, {}, mockStatsD
+      mockLog2,
+      db,
+      {},
+      mockStatsD
     );
     await pushWithKnown400.sendPush(ACCOUNT.uid, devices, 'accountVerify');
 

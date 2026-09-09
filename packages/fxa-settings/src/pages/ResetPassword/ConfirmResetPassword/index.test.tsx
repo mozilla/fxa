@@ -19,6 +19,8 @@ jest.mock('../../../lib/glean', () => ({
       emailConfirmationView: jest.fn(),
       emailConfirmationDifferentAccount: jest.fn(),
       emailConfirmationSignin: jest.fn(),
+      rememberPasswordLinkView: jest.fn(),
+      rememberPasswordLinkClick: jest.fn(),
     },
   },
 }));
@@ -93,7 +95,7 @@ describe('ConfirmResetPassword', () => {
     expect(mockVerifyCode).toHaveBeenCalledWith('12345678');
   });
 
-  it('handles click on signin', async () => {
+  it('records a link-click metric on signin', async () => {
     const user = userEvent.setup();
     renderWithLocalizationProvider(<Subject />);
 
@@ -101,17 +103,17 @@ describe('ConfirmResetPassword', () => {
       name: 'Sign in',
     });
 
-    await waitFor(() => user.click(signinLink));
+    await user.click(signinLink);
     expect(
-      GleanMetrics.passwordReset.emailConfirmationSignin
-    ).toHaveBeenCalledTimes(1);
+      GleanMetrics.passwordReset.rememberPasswordLinkClick
+    ).toHaveBeenCalledWith({
+      event: { has_passkey_option: 'false', reason: 'confirm_reset_password' },
+    });
   });
 
   it('handles resend code', async () => {
     const user = userEvent.setup();
-    renderWithLocalizationProvider(
-      <Subject resendCode={mockResendCode} />
-    );
+    renderWithLocalizationProvider(<Subject resendCode={mockResendCode} />);
 
     const resendButton = screen.getByRole('button', {
       name: 'Resend code',

@@ -10,6 +10,7 @@ import { Stripe } from 'stripe';
 import {
   StripeApiListFactory,
   StripeApiListPromiseFactory,
+  StripeApiSearchResultFactory,
   StripeResponseFactory,
 } from './factories/api-list.factory';
 import { StripeCustomerFactory } from './factories/customer.factory';
@@ -44,6 +45,8 @@ const mockStripePaymentMethodsAttach =
   mockJestFnGenerator<typeof Stripe.prototype.paymentMethods.attach>();
 const mockStripePricesRetrieve =
   mockJestFnGenerator<typeof Stripe.prototype.prices.retrieve>();
+const mockStripePricesSearch =
+  mockJestFnGenerator<typeof Stripe.prototype.prices.search>();
 const mockStripeProductsRetrieve =
   mockJestFnGenerator<typeof Stripe.prototype.products.retrieve>();
 const mockStripePromotionCodesList =
@@ -88,6 +91,7 @@ jest.mock('stripe', () => {
       },
       prices: {
         retrieve: mockStripePricesRetrieve,
+        search: mockStripePricesSearch,
       },
       products: {
         retrieve: mockStripeProductsRetrieve,
@@ -313,7 +317,7 @@ describe('StripeClient', () => {
       expect(result).toEqual(mockResponse);
     });
 
-    it('expands confirmation_secret, discounts, and nested tax rates', async () => {
+    it('expands confirmation_secret, discount coupons, and nested tax rates', async () => {
       const mockInvoice = StripeInvoiceFactory();
       const mockResponse = StripeResponseFactory(mockInvoice);
 
@@ -324,7 +328,7 @@ describe('StripeClient', () => {
       expect(mockStripeInvoicesRetrieve).toHaveBeenCalledWith(mockInvoice.id, {
         expand: [
           'confirmation_secret',
-          'discounts',
+          'discounts.source.coupon',
           'lines.data.taxes.tax_rate_details.tax_rate',
           'total_taxes.tax_rate_details.tax_rate',
         ],
@@ -345,6 +349,25 @@ describe('StripeClient', () => {
       });
 
       expect(result).toEqual(mockResponse);
+    });
+
+    it('expands discount coupons and nested tax rates', async () => {
+      const mockCustomer = StripeCustomerFactory();
+      const mockInvoice = StripeUpcomingInvoiceFactory();
+      const mockResponse = StripeResponseFactory(mockInvoice);
+
+      mockStripeCreatePreviewInvoice.mockResolvedValue(mockResponse);
+
+      await stripeClient.invoicesCreatePreview({ customer: mockCustomer.id });
+
+      expect(mockStripeCreatePreviewInvoice).toHaveBeenCalledWith({
+        customer: mockCustomer.id,
+        expand: [
+          'discounts.source.coupon',
+          'lines.data.taxes.tax_rate_details.tax_rate',
+          'total_taxes.tax_rate_details.tax_rate',
+        ],
+      });
     });
   });
 
@@ -396,6 +419,55 @@ describe('StripeClient', () => {
 
       const result = await stripeClient.pricesRetrieve(mockPrice.id);
       expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('pricesSearch', () => {
+    it('returns the matching prices from Stripe', async () => {
+      const mockPrice = StripePriceFactory();
+      const mockResponse = StripeResponseFactory(
+        StripeApiSearchResultFactory([mockPrice])
+      );
+
+      mockStripePricesSearch.mockResolvedValue(mockResponse);
+
+      const result = await stripeClient.pricesSearch(
+        `metadata['playSkuIds']:'sku_123'`
+      );
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('passes the query along and expands currency_options', async () => {
+      const query = `metadata['appStoreProductIds']:'apple.prod'`;
+      const mockResponse = StripeResponseFactory(
+        StripeApiSearchResultFactory([StripePriceFactory()])
+      );
+
+      mockStripePricesSearch.mockResolvedValue(mockResponse);
+
+      await stripeClient.pricesSearch(query);
+
+      expect(mockStripePricesSearch).toHaveBeenCalledWith({
+        query,
+        expand: ['data.currency_options'],
+      });
+    });
+
+    it('merges caller-supplied params with the query and expand', async () => {
+      const query = `metadata['playSkuIds']:'sku_123'`;
+      const mockResponse = StripeResponseFactory(
+        StripeApiSearchResultFactory([StripePriceFactory()])
+      );
+
+      mockStripePricesSearch.mockResolvedValue(mockResponse);
+
+      await stripeClient.pricesSearch(query, { limit: 5 });
+
+      expect(mockStripePricesSearch).toHaveBeenCalledWith({
+        limit: 5,
+        query,
+        expand: ['data.currency_options'],
+      });
     });
   });
 

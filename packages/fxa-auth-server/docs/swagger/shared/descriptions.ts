@@ -12,6 +12,8 @@ const DESCRIPTIONS = {
   acrValues:
     'A space-separated list of ACR values specifying acceptable levels of user authentication that the token should have a claim for. Specifying `AAL2` will require the token to have an authentication assuarance level >= 2 which ensures that the user has been authenticated with 2FA before authorizing the requested grant.',
   active: 'Boolean indicator of whether the presented token is active.',
+  maxAge:
+    'The maximum permissible elapsed time in seconds since the user last authenticated. If the session is older, a fresh second-factor challenge (step-up authentication) is required before the grant is authorized.',
   activePrice:
     'Whether the price can be used for new purchases. Defaults to true.',
   amount:
@@ -192,8 +194,6 @@ const DESCRIPTIONS = {
   promotionPercentOff:
     'Percent that will be taken off the subtotal of any invoices for this customer for the duration of the coupon. For example, a coupon with percent_off of 50 will make a $100 invoice $50 instead.',
   providerUid: 'The user id associated with a particular third party provider.',
-  publicKey:
-    'The key to sign (run bin/generate-keypair from [**browserid-crypto**](https://github.com/mozilla/browserid-crypto)).',
   pushPayload:
     'Push payload, validated against [**pushpayloads.schema.json**](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/lib/pushpayloads.schema.json).',
   reason:
@@ -240,8 +240,14 @@ const DESCRIPTIONS = {
     'Opaque URL-encoded string to be included in the verification link as a query parameter.',
   scope:
     'A space-separated list of scope values that the user has authorized, or is held by the granted access token that the connecting client will be granted. The requested scope will be provided by the connecting client as part of its authorization request, but may be pruned by the user in a confirmation dialog before being sent to this endpoint.',
-  sendVerifyEmail:
-    'Boolean indicating whether a verification email should be sent.',
+  sendSigninVerificationEmail: dedent`
+    Whether the server should send the sign-in verification code email. Defaults to
+    \`true\` when omitted, so clients integrating with this API directly keep receiving
+    it — including those that render their own verification UI, which this send exists
+    for. Set to \`false\` if the caller sends the code itself (via \`/session/resend_code\`)
+    when it presents the code entry screen, as FxA's own web front-end does. Applies
+    only to the \`verifyLoginCode\` email; link-based confirmation emails are unaffected.
+  `,
   service: 'Opaque alphanumeric token to be included in verification links.',
   serviceRP:
     'Identifies the relying service the user was interacting with that triggered the password reset.',

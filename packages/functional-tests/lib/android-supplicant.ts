@@ -35,6 +35,17 @@
 import { execFileSync } from 'child_process';
 import { writeFileSync } from 'fs';
 
+/**
+ * Single-quote a value for the device-side shell that `adb shell` invokes.
+ * Closes the quote, inserts an escaped quote, and reopens: the standard
+ * `'\''` idiom, so the value cannot break out and run as a command.
+ */
+function shellQuote(value: string): string {
+  // Close the quote, add an escaped quote, reopen: the standard '\'' idiom.
+  const escapedQuote = "'\\''";
+  return "'" + value.split("'").join(escapedQuote) + "'";
+}
+
 const DEBUG = !!process.env.ANDROID_PAIRING_DEBUG;
 const debug = (msg: string) =>
   DEBUG && console.log(`[android-supplicant] ${msg}`);
@@ -68,6 +79,8 @@ const KEY_PAIRING_URL = 'pref_key_sync_debug_pairing_url';
 interface UiNode {
   text: string;
   desc: string;
+  /** Empty for GeckoView web content; set for native Android widgets. */
+  resourceId: string;
   cx: number;
   cy: number;
 }
@@ -164,6 +177,20 @@ export class AndroidSupplicant {
   }
 
   /**
+   * Wipe all app data so pairing starts from a signed-out, first-run state.
+   *
+   * `forceStop` only kills the process; the FxA account in `shared_prefs`
+   * survives it, and a Fenix that already has an account takes a re-auth web
+   * flow instead of the pairing flow. Call this before `ensureReady`, which
+   * re-grants the permissions and rewrites the server override that
+   * `pm clear` removes.
+   */
+  resetToColdState(): void {
+    this.adb(['shell', 'pm', 'clear', this.pkg]);
+    debug('Cleared app data; supplicant is in a cold, signed-out state');
+  }
+
+  /**
    * Verify a device is attached and the Fenix debug build is installed. Grants
    * camera/notification permissions and points the FxA server override at the
    * given content server. Cold-starts once so the prefs files exist.
@@ -200,9 +227,11 @@ export class AndroidSupplicant {
     }
 
     // Launch once so the prefs files are created, then stop before editing.
+    this.adb(['logcat', '-c']);
     this.launchHome();
     await this.waitForProcess(30_000);
     await sleep(3_000);
+    await this.assertSignedOut();
     this.forceStop();
 
     this.setPrefString(
@@ -211,6 +240,44 @@ export class AndroidSupplicant {
       contentServerUrl
     );
     debug(`FxA server override set to ${contentServerUrl}`);
+  }
+
+  /**
+   * Fail now if the app still holds an account.
+   *
+   * A Fenix with leftover credentials answers a scanned pairing URL with a
+   * re-auth web flow instead of pairing, so the authority sits waiting for a
+   * `pair:supp:request` that never arrives and the run dies a minute later on
+   * an unrelated timeout. The account state machine names the state on startup,
+   * so read it and say what is actually wrong.
+   */
+  private async assertSignedOut(timeoutMs = 30_000): Promise<void> {
+    const deadline = Date.now() + timeoutMs;
+    let lastState = '';
+
+    do {
+      // The last state wins: the machine reports Initialize before settling.
+      const states = this.dumpLogcat().match(/FxaState\$(\w+)/g) ?? [];
+      lastState = states.length ? states[states.length - 1] : '';
+
+      if (lastState.endsWith('$Disconnected')) {
+        return;
+      }
+      if (lastState.endsWith('$AuthIssues') || lastState.endsWith('$Connected')) {
+        throw new Error(
+          `${this.pkg} still holds an account (${lastState}). ` +
+            'A signed-in supplicant takes a re-auth flow instead of pairing. ' +
+            `Run \`adb shell pm clear ${this.pkg}\` and retry.`
+        );
+      }
+      await sleep(1_000);
+    } while (Date.now() < deadline);
+
+    // Never reported a state. Nothing here proves an account exists, so let the
+    // flow proceed rather than failing a run for a missing log line.
+    debug(
+      `Could not read the account state${lastState ? ` (last saw ${lastState})` : ''}; continuing`
+    );
   }
 
   /**
@@ -247,6 +314,45 @@ export class AndroidSupplicant {
   }
 
   /**
+   * Open the pairing URL as a normal tab, the way a native QR scan does on a
+   * v2 device: `VIEW <pair url>` with no OAuth params in the URL. The page then
+   * asks the browser for them over the web channel (`fxaccounts:pair_oauth_start`).
+   *
+   * The Sync Debug hook takes the other branch - app-services runs OAuth-start
+   * itself and hands the page a URL that already carries the params - so this
+   * is the path that exercises the v2 web-channel command. The web channel is
+   * live in normal tabs: `FxaWebChannelIntegration` is installed by
+   * `BaseBrowserFragment`, the parent of both the browser and custom-tab
+   * fragments.
+   *
+   * Returns the pairing URL as seen in logcat once the tab has loaded it.
+   */
+  async openPairingUrl(
+    pairingUrl: string,
+    timeoutMs = 60_000
+  ): Promise<string> {
+    this.forceStop();
+    this.adb(['logcat', '-c']);
+    // `adb shell` re-tokenizes argv on the device, and the URL carries `#` and
+    // `&`, so it has to travel as one quoted string or the device shell
+    // truncates it. Escape it rather than interpolating it raw: a quote in the
+    // value would otherwise close the quoting and run as a device-side command.
+    this.adb([
+      'shell',
+      `am start -a android.intent.action.VIEW -d ${shellQuote(pairingUrl)} ${this.pkg}`,
+    ]);
+    await this.waitForProcess(30_000);
+    await sleep(6_000); // first-run init before dialogs are dismissable
+    this.dismissBlockingDialogs();
+
+    const line = await this.waitForLog(/url=[^,]*\/pair(\?|#|,|\s)/, timeoutMs);
+    debug(
+      `Supplicant opened the pairing URL in a normal tab: ${line.slice(0, 120)}`
+    );
+    return line;
+  }
+
+  /**
    * Wait until the supplicant custom tab has loaded its pairing page and is
    * connecting to the channel. Distinguishes the real pairing flow (/pair/supp
    * or a pairing authorization URL) from the FXA-13611 email fallback that a
@@ -272,12 +378,15 @@ export class AndroidSupplicant {
    * authority approves the new device, then the supplicant confirms here.
    * (uiautomator can read GeckoView web content.)
    */
-  async confirmPairing(timeoutMs = 45_000): Promise<void> {
+  async confirmPairing(
+    timeoutMs = 45_000,
+    // v1 uses "Confirm"/"Confirm pairing"; the v2 supplicant card uses "Connect".
+    re = /^Confirm pairing$|^Confirm$/i
+  ): Promise<void> {
     // The confirm button lives in GeckoView web content, read via uiautomator's
     // accessibility tree — which GeckoView populates lazily, so a dump can miss
     // it transiently. Poll, and periodically nudge the page with a tiny scroll
     // to force the a11y tree to repopulate.
-    const re = /^Confirm pairing$|^Confirm$/i;
     const deadline = Date.now() + timeoutMs;
     let attempt = 0;
     while (Date.now() < deadline) {
@@ -418,10 +527,15 @@ export class AndroidSupplicant {
     ];
     for (let pass = 0; pass < 3; pass++) {
       const nodes = this.dumpUi();
-      const hit = nodes.find((n) => dismissers.some((re) => re.test(n.text)));
+      // Native widgets only. uiautomator also reads GeckoView web content, and
+      // the v2 supplicant card has its own Cancel button - tapping that would
+      // close the pairing channel and abort the flow on both sides.
+      const hit = nodes.find(
+        (n) => n.resourceId && dismissers.some((re) => re.test(n.text))
+      );
       if (!hit) return;
       this.tap(hit.cx, hit.cy);
-      debug(`Dismissed dialog button: ${hit.text}`);
+      debug(`Dismissed dialog button: ${hit.text} (${hit.resourceId})`);
     }
   }
 
@@ -471,14 +585,34 @@ export class AndroidSupplicant {
       const tag = m[0];
       const text = attr(tag, 'text');
       const desc = attr(tag, 'content-desc');
+      const resourceId = attr(tag, 'resource-id');
       const bounds = attr(tag, 'bounds');
       const b = bounds.match(/\[(\d+),(\d+)\]\[(\d+),(\d+)\]/);
       if (!b) continue;
       const cx = Math.floor((Number(b[1]) + Number(b[3])) / 2);
       const cy = Math.floor((Number(b[2]) + Number(b[4])) / 2);
-      nodes.push({ text, desc, cx, cy });
+      nodes.push({ text, desc, resourceId, cx, cy });
     }
     return nodes;
+  }
+
+  /**
+   * Wait for text to appear in the supplicant's own UI.
+   *
+   * The authority reaching sync_success only proves the authority's half. This
+   * reads the phone's screen, so a supplicant that registered the device but
+   * then landed on an error card is still caught.
+   */
+  async waitForText(re: RegExp, timeoutMs = 45_000): Promise<boolean> {
+    const deadline = Date.now() + timeoutMs;
+    do {
+      const nodes = this.dumpUi();
+      if (nodes.some((n) => re.test(n.text) || re.test(n.desc))) {
+        return true;
+      }
+      await sleep(2_000);
+    } while (Date.now() < deadline);
+    return false;
   }
 
   private async waitForLog(re: RegExp, timeoutMs: number): Promise<string> {

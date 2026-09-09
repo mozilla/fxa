@@ -2,12 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import * as invoiceDTO from 'fxa-shared/dto/auth/payments/invoice';
-import { StripeInvoice } from '@fxa/payments/stripe';
+import { Stripe } from 'stripe';
 
 type ExpandedInvoicePreview = [
-  invoicePreview: StripeInvoice,
-  proratedInvoice?: StripeInvoice,
+  invoicePreview: Stripe.Invoice,
+  proratedInvoice?: Stripe.Invoice,
 ];
+
+function taxRateDisplayName(taxRate: string | Stripe.TaxRate | undefined) {
+  return typeof taxRate === 'object'
+    ? taxRate.display_name || undefined
+    : undefined;
+}
 
 /**
  * Formats a Stripe Invoice to the FirstInvoicePreview DTO format.
@@ -39,18 +45,21 @@ export function stripeInvoiceToFirstInvoicePreviewDTO(
     invoicePreview.tax = totalTaxes.map((tax) => ({
       amount: tax.amount,
       inclusive: tax.tax_behavior === 'inclusive',
-      display_name: tax.tax_rate_details?.tax_rate?.display_name || undefined,
+      display_name: taxRateDisplayName(tax.tax_rate_details?.tax_rate),
     }));
   }
 
   // Add discount if it exists
-  const discount = invoice[0].discounts?.[0];
-  const coupon = discount?.source.coupon;
-  if (coupon && invoice[0].total_discount_amounts) {
+  const firstDiscount = invoice[0].discounts?.[0];
+  const discount =
+    typeof firstDiscount === 'object' ? firstDiscount : undefined;
+  const rawCoupon = discount?.source?.coupon;
+  const coupon = typeof rawCoupon === 'object' ? rawCoupon : undefined;
+  if (invoice[0].total_discount_amounts?.length) {
     invoicePreview.discount = {
       amount: invoice[0].total_discount_amounts[0].amount,
-      amount_off: coupon.amount_off,
-      percent_off: coupon.percent_off,
+      amount_off: coupon?.amount_off ?? null,
+      percent_off: coupon?.percent_off ?? null,
     };
   }
 
@@ -75,7 +84,7 @@ export function stripeInvoiceToFirstInvoicePreviewDTO(
  * in future.
  */
 export function stripeInvoiceToLatestInvoiceItemsDTO(
-  invoice: StripeInvoice
+  invoice: Stripe.Invoice
 ): invoiceDTO.LatestInvoiceItems {
   return stripeInvoiceToFirstInvoicePreviewDTO([invoice, undefined]);
 }

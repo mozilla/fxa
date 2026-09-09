@@ -152,6 +152,7 @@ export const emailConfirmationResendCode = new EventMetricType(
 /**
  * Forgot Password Confirmation Code Sign In
  * User clicks the "sign in" button on the "Enter Confirmation Code" screen'
+ * Deprecated: superseded by remember_password_link_click and no longer emitted.
  *
  * Generated from `password_reset.email_confirmation_signin`.
  */
@@ -303,6 +304,48 @@ export const recoveryKeyView = new EventMetricType(
     disabled: false,
   },
   []
+);
+
+/**
+ * Password Reset Remember Password Footer Link Click
+ * User clicks the "Sign in" link in the "Remember your password?" footer shown
+ * across the password reset flow. Supersedes email_confirmation_signin.
+ *
+ * Generated from `password_reset.remember_password_link_click`.
+ */
+export const rememberPasswordLinkClick = new EventMetricType<{
+  has_passkey_option?: string;
+  reason?: string;
+}>(
+  {
+    category: 'password_reset',
+    name: 'remember_password_link_click',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['has_passkey_option', 'reason']
+);
+
+/**
+ * Password Reset Remember Password Footer Link View
+ * Impression of the "Remember your password? Sign in" footer shown across the
+ * password reset flow.
+ *
+ * Generated from `password_reset.remember_password_link_view`.
+ */
+export const rememberPasswordLinkView = new EventMetricType<{
+  has_passkey_option?: string;
+  reason?: string;
+}>(
+  {
+    category: 'password_reset',
+    name: 'remember_password_link_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['has_passkey_option', 'reason']
 );
 
 /**

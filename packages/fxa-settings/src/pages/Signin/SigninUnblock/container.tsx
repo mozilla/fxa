@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { useEffect } from 'react';
 import { useLocation } from 'react-router';
 
 import VerificationMethods from '../../../constants/verification-methods';
@@ -12,7 +13,7 @@ import {
   useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../../models';
-import { UseFxAStatusResult } from '../../../lib/hooks/useFxAStatus';
+import { UseFxAStatusResult, useNavigateWithQuery } from '../../../lib/hooks';
 
 import { SigninUnblockIntegration } from '../interfaces';
 
@@ -36,7 +37,6 @@ import { SignInOptions } from 'fxa-auth-client/browser';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { isFirefoxService } from '../../../models/integrations/utils';
 import { tryFinalizeUpgrade } from '../../../lib/auth-key-stretch-upgrade';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import AppLayout from '../../../components/AppLayout';
 import { ensureCanLinkAcountOrRedirect } from '../utils';
 
@@ -82,23 +82,31 @@ export const SigninUnblockContainer = ({
     const service = integration.getService();
     const clientId = integration.getClientId();
 
-    const options: SignInOptions = signInOptions ?? {
-      verificationMethod: VerificationMethods.EMAIL_OTP,
-      keys: integration.wantsKeys(),
-      // See oauth_client_info in the auth-server for details on service/clientId
-      // Sending up the clientId when the user is not signing in to the browser
-      // is used to show the correct service name in emails
-      ...(isFirefoxService(service) ? { service } : { service: clientId }),
-      unblockCode,
-      metricsContext: queryParamsToMetricsContext(
-        flowQueryParams as unknown as Record<string, string>
-      ),
+    const options: SignInOptions = {
+      ...(signInOptions ?? {
+        verificationMethod: VerificationMethods.EMAIL_OTP,
+        keys: integration.wantsKeys(),
+        // See oauth_client_info in the auth-server for details on service/clientId
+        // Sending up the clientId when the user is not signing in to the browser
+        // is used to show the correct service name in emails
+        ...(isFirefoxService(service) ? { service } : { service: clientId }),
+        unblockCode,
+        metricsContext: queryParamsToMetricsContext(
+          flowQueryParams as unknown as Record<string, string>
+        ),
+      }),
+      // We own the verification email in this flow: `handleNavigation` sends it
+      // as it routes to the code screen, so the server must not send its own
+      // copy (FXA-14109).
+      sendSigninVerificationEmail: false,
     };
 
     // Get credentials with the correct key version
     const status = await (async () => {
       try {
-        const result = await authClient.getCredentialStatusV2({ primary: email });
+        const result = await authClient.getCredentialStatusV2({
+          primary: email,
+        });
         return result;
       } catch (err) {
         // In the event there's a downstream error, this could be useful a breadcrumb to capture.
@@ -173,8 +181,10 @@ export const SigninUnblockContainer = ({
                 metricsEnabled: response.metricsEnabled ?? true,
                 emailVerified: response.emailVerified ?? false,
                 sessionVerified: response.sessionVerified ?? false,
-                verificationMethod: (response.verificationMethod || VerificationMethods.EMAIL_OTP) as VerificationMethods,
-                verificationReason: response.verificationReason as VerificationReasons,
+                verificationMethod: (response.verificationMethod ||
+                  VerificationMethods.EMAIL_OTP) as VerificationMethods,
+                verificationReason:
+                  response.verificationReason as VerificationReasons,
                 keyFetchToken: response.keyFetchToken,
               },
               unwrapBKey: credentials.unwrapBKey,
@@ -221,6 +231,13 @@ export const SigninUnblockContainer = ({
     }
   };
 
+  // Navigate from an effect; a render-phase navigation races the commit.
+  useEffect(() => {
+    if (!oAuthDataError && (!email || !password)) {
+      navigateWithQuery('/');
+    }
+  }, [oAuthDataError, email, password, navigateWithQuery]);
+
   if (oAuthDataError) {
     return <OAuthDataError error={oAuthDataError} />;
   }
@@ -229,7 +246,6 @@ export const SigninUnblockContainer = ({
   const splitLayout = cmsInfo?.SigninUnblockCodePage?.splitLayout;
 
   if (!email || !password) {
-    navigateWithQuery('/');
     return (
       <AppLayout
         {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}

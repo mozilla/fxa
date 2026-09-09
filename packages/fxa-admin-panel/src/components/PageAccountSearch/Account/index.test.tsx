@@ -2,11 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { render } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import { userEvent } from '@testing-library/user-event';
 import { Account, AccountProps } from './index';
 import { GuardEnv, AdminPanelGroup, AdminPanelGuard } from '@fxa/shared/guards';
 import { IClientConfig } from '../../../../interfaces';
 import { mockConfigBuilder } from '../../../lib/config';
+import { adminApi } from '../../../lib/api';
 
 const mockGuard = new AdminPanelGuard(GuardEnv.Prod);
 const mockGroup = mockGuard.getGroup(AdminPanelGroup.SupportAgentProd);
@@ -34,6 +36,7 @@ jest.mock('../../../lib/api', () => ({
     editLocale: jest.fn(),
     unlinkAccount: jest.fn(),
     clearEmailBounce: jest.fn(),
+    removePasskey: jest.fn(),
     recordSecurityEvent: jest.fn().mockResolvedValue(true),
   },
 }));
@@ -232,6 +235,7 @@ it('displays passkeys with authenticator name', () => {
     passkeys: [
       {
         name: 'iPhone Face ID',
+        credentialId: 'aphonecredentialid',
         createdAt: 1589467100316,
         lastUsedAt: null,
         aaguid: '00000000-0000-0000-0000-000000000000',
@@ -241,6 +245,7 @@ it('displays passkeys with authenticator name', () => {
       },
       {
         name: 'YubiKey 5',
+        credentialId: 'ayubikeycredentialid',
         createdAt: 1589467200000,
         lastUsedAt: 1700000000000,
         aaguid: 'fa2b99dc-9e39-4257-8f92-4a30d23c4118',
@@ -263,6 +268,7 @@ it('displays passkeys with never-used date', () => {
     passkeys: [
       {
         name: 'iPhone Face ID',
+        credentialId: 'aphonecredentialid',
         createdAt: 1589467100316,
         lastUsedAt: null,
         aaguid: '00000000-0000-0000-0000-000000000000',
@@ -283,6 +289,7 @@ it('displays passkeys with last-used date', () => {
     passkeys: [
       {
         name: 'YubiKey 5',
+        credentialId: 'ayubikeycredentialid',
         createdAt: 1589467200000,
         lastUsedAt: 1700000000000,
         aaguid: 'fa2b99dc-9e39-4257-8f92-4a30d23c4118',
@@ -295,6 +302,149 @@ it('displays passkeys with last-used date', () => {
   const { getByTestId } = render(<Account {...withPasskey} />);
 
   expect(getByTestId('passkey-last-used-at')).toHaveTextContent('2023-11');
+});
+
+const passkeyFixture = {
+  name: 'iPhone Face ID',
+  credentialId: 'aphonecredentialid',
+  createdAt: 1589467100316,
+  lastUsedAt: null,
+  aaguid: '00000000-0000-0000-0000-000000000000',
+  authenticatorName: undefined,
+  backupState: true,
+  prfEnabled: false,
+};
+
+it('does not render a per-passkey remove button for a support agent', () => {
+  // The default mocked user is a support agent; RemovePasskeys is Admin-only.
+  render(<Account {...{ ...accountResponse, passkeys: [passkeyFixture] }} />);
+
+  expect(
+    screen.queryByRole('button', { name: /remove passkey/i })
+  ).not.toBeInTheDocument();
+});
+
+it('removes a single passkey by credentialId when an admin confirms', async () => {
+  const allowSpy = jest
+    .spyOn(AdminPanelGuard.prototype, 'allow')
+    .mockReturnValue(true);
+  const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
+  const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+  (adminApi.removePasskey as jest.Mock).mockResolvedValue(true);
+  // recordSecurityEvent is fire-and-forget (.catch); it must return a promise.
+  (adminApi.recordSecurityEvent as jest.Mock).mockResolvedValue(true);
+  const onCleared = jest.fn();
+
+  try {
+    const user = userEvent.setup();
+    render(
+      <Account
+        {...{ ...accountResponse, onCleared, passkeys: [passkeyFixture] }}
+      />
+    );
+
+    await user.click(
+      screen.getByRole('button', { name: 'Remove passkey iPhone Face ID' })
+    );
+
+    expect(confirmSpy).toHaveBeenCalledWith(
+      'Remove the passkey "iPhone Face ID" for "hey@happy.com"? This cannot be undone.'
+    );
+
+    await waitFor(() => {
+      expect(adminApi.removePasskey).toHaveBeenCalledWith(
+        accountResponse.uid,
+        'aphonecredentialid'
+      );
+      expect(adminApi.recordSecurityEvent).toHaveBeenCalledWith(
+        accountResponse.uid,
+        'account.passkey.removed'
+      );
+      expect(alertSpy).toHaveBeenCalledWith('The passkey has been removed.');
+      expect(onCleared).toHaveBeenCalled();
+    });
+  } finally {
+    allowSpy.mockRestore();
+    confirmSpy.mockRestore();
+    alertSpy.mockRestore();
+  }
+});
+
+it('does not record the event or clear when no passkey was removed', async () => {
+  const allowSpy = jest
+    .spyOn(AdminPanelGuard.prototype, 'allow')
+    .mockReturnValue(true);
+  const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
+  const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+  (adminApi.removePasskey as jest.Mock).mockResolvedValue(false);
+  const onCleared = jest.fn();
+
+  try {
+    const user = userEvent.setup();
+    render(
+      <Account
+        {...{ ...accountResponse, onCleared, passkeys: [passkeyFixture] }}
+      />
+    );
+
+    await user.click(
+      screen.getByRole('button', { name: 'Remove passkey iPhone Face ID' })
+    );
+
+    await waitFor(() => {
+      expect(alertSpy).toHaveBeenCalledWith('No passkey was removed.');
+    });
+    expect(adminApi.recordSecurityEvent).not.toHaveBeenCalled();
+    expect(onCleared).not.toHaveBeenCalled();
+  } finally {
+    allowSpy.mockRestore();
+    confirmSpy.mockRestore();
+    alertSpy.mockRestore();
+  }
+});
+
+it('targets the clicked passkey by its own credentialId with multiple passkeys', async () => {
+  const allowSpy = jest
+    .spyOn(AdminPanelGuard.prototype, 'allow')
+    .mockReturnValue(true);
+  const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
+  const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+  (adminApi.removePasskey as jest.Mock).mockResolvedValue(true);
+  (adminApi.recordSecurityEvent as jest.Mock).mockResolvedValue(true);
+
+  const secondPasskey = {
+    ...passkeyFixture,
+    name: 'YubiKey 5',
+    credentialId: 'ayubikeycredentialid',
+  };
+
+  try {
+    const user = userEvent.setup();
+    render(
+      <Account
+        {...{ ...accountResponse, passkeys: [passkeyFixture, secondPasskey] }}
+      />
+    );
+
+    expect(
+      screen.getAllByRole('button', { name: /remove passkey/i })
+    ).toHaveLength(2);
+
+    await user.click(
+      screen.getByRole('button', { name: 'Remove passkey YubiKey 5' })
+    );
+
+    await waitFor(() => {
+      expect(adminApi.removePasskey).toHaveBeenCalledWith(
+        accountResponse.uid,
+        'ayubikeycredentialid'
+      );
+    });
+  } finally {
+    allowSpy.mockRestore();
+    confirmSpy.mockRestore();
+    alertSpy.mockRestore();
+  }
 });
 
 it('displays secondary emails', async () => {
@@ -363,4 +513,97 @@ it('displays key-stretch-version', async () => {
   const { getByTestId } = render(<Account {...lockedAccount} />);
 
   expect(getByTestId('key-stretch-version')).toBeInTheDocument();
+});
+
+describe('account history', () => {
+  const buildSecurityEvents = (count: number) =>
+    Array.from({ length: count }, (_, index) => ({
+      uid: accountResponse.uid,
+      name: `event-${index}`,
+      createdAt: 1589467100316 + index,
+      ipAddr: '127.0.0.1',
+      additionalInfo: '',
+      verified: true,
+    }));
+
+  it('shows a message when there are no events', () => {
+    const { getByTestId } = render(
+      <Account {...accountResponse} securityEvents={[]} />
+    );
+
+    expect(getByTestId('account-security-events')).toHaveTextContent(
+      "This account doesn't have any account history."
+    );
+  });
+
+  it('shows the first ten events and hides the rest', () => {
+    const { getByText, queryByText } = render(
+      <Account {...accountResponse} securityEvents={buildSecurityEvents(25)} />
+    );
+
+    expect(getByText('event-0')).toBeInTheDocument();
+    expect(getByText('event-9')).toBeInTheDocument();
+    expect(queryByText('event-10')).not.toBeInTheDocument();
+  });
+
+  it('shows the remaining events when "Show more" is clicked', async () => {
+    const user = userEvent.setup();
+    const { getByRole, getByText, queryByRole } = render(
+      <Account {...accountResponse} securityEvents={buildSecurityEvents(25)} />
+    );
+
+    await user.click(getByRole('button', { name: 'Show more' }));
+
+    expect(getByText('event-24')).toBeInTheDocument();
+    expect(
+      queryByRole('button', { name: 'Show more' })
+    ).not.toBeInTheDocument();
+  });
+
+  it('hides "Show more" when there are ten or fewer events', () => {
+    const { getByText, queryByRole } = render(
+      <Account {...accountResponse} securityEvents={buildSecurityEvents(10)} />
+    );
+
+    expect(getByText('event-9')).toBeInTheDocument();
+    expect(
+      queryByRole('button', { name: 'Show more' })
+    ).not.toBeInTheDocument();
+  });
+
+  const renderWithAdditionalInfo = (additionalInfo?: string) => {
+    const [securityEvent] = buildSecurityEvents(1);
+    return render(
+      <Account
+        {...accountResponse}
+        securityEvents={[{ ...securityEvent, additionalInfo }]}
+      />
+    );
+  };
+
+  it('indents valid JSON additional info', () => {
+    const { container } = renderWithAdditionalInfo(
+      '{"userAgent":"Firefox","location":{"city":"Toronto"}}'
+    );
+
+    expect(container.querySelector('pre')?.textContent).toBe(
+      '{\n  "userAgent": "Firefox",\n  "location": {\n    "city": "Toronto"\n  }\n}'
+    );
+  });
+
+  it('shows the original string when additional info is not JSON', () => {
+    const { container } = renderWithAdditionalInfo('not json at all');
+
+    expect(container.querySelector('pre')?.textContent).toBe('not json at all');
+  });
+
+  it('shows nothing when there is no additional info', () => {
+    const { container, getByText } = renderWithAdditionalInfo(undefined);
+
+    expect(container.querySelector('pre')).toBeNull();
+    // The empty cell must stay, or the row loses a column.
+    expect(
+      getByText('event-0').closest('tr')?.querySelectorAll('td')
+    ).toHaveLength(4);
+  });
 });

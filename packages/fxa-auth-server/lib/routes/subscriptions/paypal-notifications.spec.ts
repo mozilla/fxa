@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as uuid from 'uuid';
+import crypto from 'node:crypto';
 import { Container } from 'typedi';
 import { createMock } from '@golevelup/ts-jest';
 import { AuthLogger } from '../../types';
@@ -31,7 +31,7 @@ const { SUBSCRIPTIONS_RESOURCE } = require('../../payments/stripe');
 
 const ACCOUNT_LOCALE = 'en-US';
 const TEST_EMAIL = 'test@email.com';
-const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+const UID = crypto.randomBytes(16).toString('hex');
 
 describe('PayPalNotificationHandler', () => {
   let config: any;

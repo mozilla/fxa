@@ -10,7 +10,6 @@ import crypto from 'crypto';
 
 const Client = require('../client')();
 const jwt = require('jsonwebtoken');
-const uuid = require('uuid');
 const tokens = require('../../lib/tokens')({ trace: function () {} });
 const { setupAccountDatabase } = require('@fxa/shared/db/mysql/account');
 const { email: emailHelper } = require('fxa-shared');
@@ -28,7 +27,7 @@ async function generateMfaJwt(client: any) {
     sub: client.uid,
     scope: ['mfa:email'],
     iat: now,
-    jti: uuid.v4(),
+    jti: crypto.randomUUID(),
     stid: sessionTokenId,
   };
 

@@ -7,7 +7,6 @@ const Joi = require('joi');
 const AppError = require('../error');
 const config = require('../config');
 const logger = require('../logging')('routes._core_profile');
-const request = require('../request');
 
 const AUTH_SERVER_URL = config.get('authServer.url') + '/account/profile';
 const AUTH_SERVER_TIMEOUT_MS = config.get('authServer.timeoutMs') || 5000;
@@ -46,94 +45,90 @@ module.exports = {
     }),
   },
   handler: async function _core_profile(req) {
-    function makeReq() {
-      return new Promise((resolve, reject) => {
-        request.get(
-          AUTH_SERVER_URL,
-          {
-            headers: {
-              Authorization: 'Bearer ' + req.auth.credentials.token,
-            },
-            json: true,
-            timeout: AUTH_SERVER_TIMEOUT_MS
+    async function makeReq() {
+      let res, body;
+      try {
+        res = await fetch(AUTH_SERVER_URL, {
+          headers: {
+            Authorization: 'Bearer ' + req.auth.credentials.token,
           },
-          (err, res, body) => {
-            if (err) {
-              logger.error('request.auth_server.network', err);
-              return reject(new AppError.authError('network error'));
-            }
-            if (res.statusCode >= 400) {
-              body = body && body.code ? body : { code: res.statusCode };
-              if (res.statusCode >= 500) {
-                logger.error('request.auth_server.fail', body);
-                return reject(
-                  new AppError.authError('auth-server server error')
-                );
-              }
-              // Return Unauthorized if the token turned out to be invalid,
-              // or if the account has been deleted on the auth-server.
-              // (we can still have valid oauth tokens for deleted accounts,
-              // because distributed state).
-              if (body.code === 401 || body.errno === 102) {
-                logger.info('request.auth_server.fail', body);
-                return reject(new AppError.unauthorized(body.message));
-              }
-              // Preserve upstream errno/message instead of collapsing to errno 999.
-              logger.error('request.auth_server.fail', body);
-              return reject(
-                new AppError(
-                  {
-                    code: body.code || body.statusCode || 500,
-                    errno: body.errno,
-                    error: body.error,
-                    message: body.message,
-                    info: body.info,
-                  },
-                  { upstream: body }
-                )
-              );
-            }
+          signal: AbortSignal.timeout(AUTH_SERVER_TIMEOUT_MS),
+        });
+        const text = await res.text();
+        try {
+          body = JSON.parse(text);
+        } catch (e) {
+          body = undefined;
+        }
+      } catch (err) {
+        logger.error('request.auth_server.network', err);
+        throw new AppError.authError('network error');
+      }
 
-            if (!body) {
-              return reject(new AppError('empty body from auth response'));
-            }
-            const result = {};
-            if (typeof body.email !== 'undefined') {
-              result.email = body.email;
-            }
-            if (typeof body.locale !== 'undefined') {
-              result.locale = body.locale;
-            }
-            // Translate from internal terminology into OAuth-style terminology.
-            if (typeof body.authenticationMethods !== 'undefined') {
-              result.amrValues = body.authenticationMethods;
-            }
-            if (typeof body.authenticatorAssuranceLevel !== 'undefined') {
-              result.twoFactorAuthentication =
-                body.authenticatorAssuranceLevel >= 2;
-            }
-            if (typeof body.subscriptions !== 'undefined') {
-              result.subscriptions = body.subscriptions;
-            }
-            if (typeof body.subscriptionsByClientId !== 'undefined') {
-              result.subscriptionsByClientId = body.subscriptionsByClientId;
-            }
-            if (typeof body.profileChangedAt !== 'undefined') {
-              result.profileChangedAt = body.profileChangedAt;
-            }
-            if (typeof body.metricsEnabled !== 'undefined') {
-              result.metricsEnabled = body.metricsEnabled;
-            }
-            if (typeof body.accountLockedAt === 'number') {
-              result.accountLockedAt = body.accountLockedAt;
-            }
-            if (typeof body.accountDisabledAt === 'number') {
-              result.accountDisabledAt = body.accountDisabledAt;
-            }
-            return resolve(result);
-          }
+      if (res.status >= 400) {
+        body = body && body.code ? body : { code: res.status };
+        if (res.status >= 500) {
+          logger.error('request.auth_server.fail', body);
+          throw new AppError.authError('auth-server server error');
+        }
+        // Return Unauthorized if the token turned out to be invalid,
+        // or if the account has been deleted on the auth-server.
+        // (we can still have valid oauth tokens for deleted accounts,
+        // because distributed state).
+        if (body.code === 401 || body.errno === 102) {
+          logger.info('request.auth_server.fail', body);
+          throw new AppError.unauthorized(body.message);
+        }
+        // Preserve upstream errno/message instead of collapsing to errno 999.
+        logger.error('request.auth_server.fail', body);
+        throw new AppError(
+          {
+            code: body.code || body.statusCode || 500,
+            errno: body.errno,
+            error: body.error,
+            message: body.message,
+            info: body.info,
+          },
+          { upstream: body }
         );
-      });
+      }
+
+      if (!body) {
+        throw new AppError('empty body from auth response');
+      }
+      const result = {};
+      if (typeof body.email !== 'undefined') {
+        result.email = body.email;
+      }
+      if (typeof body.locale !== 'undefined') {
+        result.locale = body.locale;
+      }
+      // Translate from internal terminology into OAuth-style terminology.
+      if (typeof body.authenticationMethods !== 'undefined') {
+        result.amrValues = body.authenticationMethods;
+      }
+      if (typeof body.authenticatorAssuranceLevel !== 'undefined') {
+        result.twoFactorAuthentication = body.authenticatorAssuranceLevel >= 2;
+      }
+      if (typeof body.subscriptions !== 'undefined') {
+        result.subscriptions = body.subscriptions;
+      }
+      if (typeof body.subscriptionsByClientId !== 'undefined') {
+        result.subscriptionsByClientId = body.subscriptionsByClientId;
+      }
+      if (typeof body.profileChangedAt !== 'undefined') {
+        result.profileChangedAt = body.profileChangedAt;
+      }
+      if (typeof body.metricsEnabled !== 'undefined') {
+        result.metricsEnabled = body.metricsEnabled;
+      }
+      if (typeof body.accountLockedAt === 'number') {
+        result.accountLockedAt = body.accountLockedAt;
+      }
+      if (typeof body.accountDisabledAt === 'number') {
+        result.accountDisabledAt = body.accountDisabledAt;
+      }
+      return result;
     }
 
     return makeReq();

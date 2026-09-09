@@ -13,6 +13,8 @@ import * as event from 'fxa-shared/metrics/glean/web/event';
 import * as reg from 'fxa-shared/metrics/glean/web/reg';
 import * as login from 'fxa-shared/metrics/glean/web/login';
 import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
+import * as passkey from 'fxa-shared/metrics/glean/web/passkey';
+import * as promoQrMobile from 'fxa-shared/metrics/glean/web/promoQrMobile';
 import * as accountBanner from 'fxa-shared/metrics/glean/web/accountBanner';
 import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
 import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
@@ -409,6 +411,26 @@ describe('lib/glean', () => {
           setEventNameStub,
           'email_first_passkey_submit_frontend_error'
         );
+      });
+
+      // The dispatcher case arm is the only thing deciding what reaches Glean
+      // for this event, so both the populated and empty reason are pinned here
+      // (FXA-14133).
+      it('submits a ping with the cad_firefox_choice_view event name and a reason', async () => {
+        GleanMetrics.cadFireFox.choiceView({
+          event: { reason: 'otp_login' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'cad_firefox_choice_view');
+        sinon.assert.calledWith(setEventReasonStub, 'otp_login');
+      });
+
+      it('submits a ping with the cad_firefox_choice_view event name and no reason', async () => {
+        GleanMetrics.cadFireFox.choiceView();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'cad_firefox_choice_view');
       });
 
       it('submits a ping with the email_first_passkey_submit_success event name', async () => {
@@ -829,6 +851,62 @@ describe('lib/glean', () => {
         sinon.assert.calledWith(setEventNameStub, 'passkey_auth_success');
         sinon.assert.calledOnce(setEventReasonStub);
         sinon.assert.calledWith(setEventReasonStub, reason);
+      });
+
+      it('submits passkey_signin_prf_support with the supported extra', async () => {
+        const spy = sandbox.spy(passkey.signinPrfSupport, 'record');
+        GleanMetrics.passkey.signinPrfSupport({
+          event: { supported: 'present' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'passkey_signin_prf_support');
+        sinon.assert.calledOnceWithExactly(spy, {
+          supported: 'present',
+        });
+      });
+
+      it('submits passkey_signin_retry_without_prf_request with reason and outcome', async () => {
+        const spy = sandbox.spy(passkey.signinRetryWithoutPrfRequest, 'record');
+        GleanMetrics.passkey.signinRetryWithoutPrfRequest({
+          event: { reason: 'UnknownError', outcome: 'success' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'passkey_signin_retry_without_prf_request'
+        );
+        sinon.assert.calledOnceWithExactly(spy, {
+          reason: 'UnknownError',
+          outcome: 'success',
+        });
+      });
+    });
+
+    describe('promoQrMobile', () => {
+      it('submits promo_qr_mobile_view with the enrolled branch', async () => {
+        const spy = sandbox.spy(promoQrMobile.view, 'record');
+        GleanMetrics.promoQrMobile.view({
+          event: { branch: 'treatment-b', nimbusUserId: 'nimbus-id' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'promo_qr_mobile_view');
+        sinon.assert.calledOnceWithExactly(spy, {
+          branch: 'treatment-b',
+          nimbus_user_id: 'nimbus-id',
+        });
+      });
+
+      it('submits empty extras when the user is not enrolled', async () => {
+        const spy = sandbox.spy(promoQrMobile.view, 'record');
+        GleanMetrics.promoQrMobile.view({ event: {} });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnceWithExactly(spy, {
+          branch: '',
+          nimbus_user_id: '',
+        });
       });
     });
 

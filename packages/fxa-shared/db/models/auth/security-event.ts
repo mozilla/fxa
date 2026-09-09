@@ -77,9 +77,18 @@ export const EVENT_NAMES = {
   'account.passwordless_login_otp_verified': 58,
   'account.passwordless_registration_complete': 59,
   'account.recovery_codes_set': 60,
+  'account.passkey.wrap_created': 61,
+  'account.passkey.wrap_creation_failure': 62,
+  'account.passkey.wrap_retrieved': 63,
+  'account.passkey.wrap_retrieval_failure': 64,
+  'account.passkey.wrap_deleted': 65,
+  'account.passkey.wrap_invalidated': 66,
 } as const satisfies Record<string, number>;
 
 export type SecurityEventNames = keyof typeof EVENT_NAMES;
+
+// Default number of events returned to the account history endpoint.
+export const SECURITY_EVENTS_LIMIT = 200;
 
 export function sanitizeIp(addr: string) {
   addr = addr.trim();
@@ -96,26 +105,6 @@ export function sanitizeIp(addr: string) {
 
 function ipHmac(key: Buffer, uid: Buffer, addr: string) {
   addr = sanitizeIp(addr);
-  const hmac = crypto.createHmac('sha256', key);
-  hmac.update(uid);
-  hmac.update(ip.toBuffer(addr));
-
-  return hmac.digest();
-}
-/**
- * This is used during lookups only to match records written before we
- * stopped prefixing ipv4 addresses; FXA-13433.
- *
- * After some amount of time, we will have more recent login records with the new HMAC than
- * the old, and we can remove this legacy HMAC function and the associated tests.
- *
- * Cleanup ticket: https://mozilla-hub.atlassian.net/browse/FXA-13667
- */
-function ipHmacLegacy(key: Buffer, uid: Buffer, addr: string) {
-  addr = sanitizeIp(addr);
-  if (ip.isV4Format(addr)) {
-    addr = '::' + addr;
-  }
   const hmac = crypto.createHmac('sha256', key);
   hmac.update(uid);
   hmac.update(ip.toBuffer(addr));
@@ -178,7 +167,7 @@ export class SecurityEvent extends BaseAuthModel {
     return !!result;
   }
 
-  static async findByUid(uid: string) {
+  static async findByUid(uid: string, limit = SECURITY_EVENTS_LIMIT) {
     const id = uuidTransformer.to(uid);
     return this.query()
       .select(
@@ -195,13 +184,12 @@ export class SecurityEvent extends BaseAuthModel {
       )
       .where('securityEvents.uid', id)
       .orderBy('securityEvents.createdAt', 'DESC')
-      .limit(20);
+      .limit(limit);
   }
 
   static async findByUidAndIP(uid: string, ipAddr: string, ipHmacKey: string) {
     const id = uuidTransformer.to(uid);
-    const key = Buffer.from(ipHmacKey);
-    const hmacs = [ipHmac(key, id, ipAddr), ipHmacLegacy(key, id, ipAddr)];
+    const hmac = ipHmac(Buffer.from(ipHmacKey), id, ipAddr);
     return SecurityEvent.query()
       .select(
         'securityEventNames.name as name',
@@ -216,7 +204,7 @@ export class SecurityEvent extends BaseAuthModel {
         'securityEventNames.id'
       )
       .where('securityEvents.uid', id)
-      .whereIn('securityEvents.ipAddrHmac', hmacs)
+      .andWhere('securityEvents.ipAddrHmac', hmac)
       .orderBy('securityEvents.createdAt', 'DESC')
       .limit(20);
   }
@@ -227,8 +215,7 @@ export class SecurityEvent extends BaseAuthModel {
     ipHmacKey: string
   ) {
     const id = uuidTransformer.to(uid);
-    const key = Buffer.from(ipHmacKey);
-    const hmacs = [ipHmac(key, id, ipAddr), ipHmacLegacy(key, id, ipAddr)];
+    const hmac = ipHmac(Buffer.from(ipHmacKey), id, ipAddr);
     return SecurityEvent.query()
       .select(
         'securityEventNames.name as name',
@@ -245,7 +232,7 @@ export class SecurityEvent extends BaseAuthModel {
       .where('securityEvents.uid', id)
       .where('securityEvents.verified', 1)
       .where('securityEvents.nameId', EVENT_NAMES['account.login'])
-      .whereIn('securityEvents.ipAddrHmac', hmacs)
+      .andWhere('securityEvents.ipAddrHmac', hmac)
       .orderBy('securityEvents.createdAt', 'DESC')
       .limit(20);
   }

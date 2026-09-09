@@ -18,9 +18,27 @@ const OAUTH_AUTHORIZATION_POST = {
 
       Authorize a new OAuth client connection to the user's account, returning a short-lived authentication code that the client can exchange for access tokens at the OAuth token endpoint.
 
-      This route behaves like the oauth-server /authorization endpoint except that it is authenticated directly with a sessionToken rather than with a BrowserID assertion.
+      This route behaves like the oauth-server /authorization endpoint except that it is authenticated directly with a sessionToken.
+
+      ### Step-up authentication (RFC 9470)
+
+      An RP can request a higher authentication level with \`acr_values=AAL2\`, and can bound its freshness with \`max_age\`. The two are independent and each is optional; a session failing either one is rejected here with \`errno: 170\`.
+
+      The hosted sign-in UI resolves that with a second-factor challenge. Where it cannot — the RP sent \`prompt=none\` — it redirects to the registered \`redirect_uri\` with \`error=unmet_authentication_requirements\` instead. That redirect comes from the UI, never from this endpoint.
     `,
   ],
+  plugins: {
+    'hapi-swagger': {
+      responses: {
+        400: {
+          description: dedent`
+            Failing requests may be caused by the following errors (this is not an exhaustive list):
+            - \`errno: 170\` - Requested \`acr_values\` or \`max_age\` could not be satisfied.
+          `,
+        },
+      },
+    },
+  },
 };
 
 const OAUTH_DESTROY_POST = {
@@ -82,7 +100,7 @@ const OAUTH_TOKEN_POST = {
         - \`grant_type=refresh_token\`: A refresh token issued by a previous call to this endpoint.
         - \`grant_type=fxa-credentials\`: Directly grant tokens using an FxA sessionToken.
 
-      This is the "token endpoint" as defined in RFC6749, and behaves like the [oauth-server /token endpoint](#tag/OAuth-Server-API-Overview/operation/postToken) except that the \`fxa-credentials\` grant can be authenticated directly with a sessionToken rather than with a BrowserID assertion.
+      This is the "token endpoint" as defined in RFC6749, and behaves like the [oauth-server /token endpoint](#tag/OAuth-Server-API-Overview/operation/postToken) except that the \`fxa-credentials\` grant can be authenticated directly with a sessionToken.
     `,
   ],
   plugins: {

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export * from './constants';
+export * from './should-show-passkey-reset-option';
 export * from './should-show-passkey-signin';
 export * from './unsupported-message';
 export * from './webauthn';

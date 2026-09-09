@@ -11,7 +11,6 @@ const singleValue = 'ANMD 1S09 7Y2Y 4EES 02CW BJ6Z PYKP H69F';
 Object.defineProperty(window.navigator, 'clipboard', {
   value: { writeText: jest.fn() },
 });
-window.URL.createObjectURL = jest.fn();
 
 it('can render single values', () => {
   renderWithLocalizationProvider(<Subject />);

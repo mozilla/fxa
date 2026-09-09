@@ -14,8 +14,12 @@ export class SignupConfirmedSyncPage extends BaseLayout {
     });
   }
 
+  // Outside a form with no `type`, so the Glean id is the only stable hook.
   get pairLink() {
-    return this.page.getByRole('button', { name: 'Add another device' });
+    this.checkPath();
+    return this.page.locator(
+      'button[data-glean-id="signup_confirmed_sync_pair_link"]'
+    );
   }
 
   async clickPairLink() {

@@ -42,6 +42,7 @@ const CUSTOMS_METHOD_NAMES = [
   'check',
   'checkAuthenticated',
   'checkIpOnly',
+  'checkToken',
   'flag',
   'reset',
   'v2Enabled',
@@ -636,8 +637,13 @@ function mockDB(data, errors) {
         return Promise.reject(error.recoveryKeyInvalid());
       }
 
+      if (data.recoveryKeyDisabled) {
+        return Promise.reject(error.recoveryKeyNotFound());
+      }
+
       return Promise.resolve({
         recoveryData: data.recoveryData,
+        enabled: true,
       });
     }),
     getRecoveryKeyRecordWithHint: jest.fn(() => {
@@ -855,6 +861,7 @@ function mockMetricsContext(methods) {
                 flowCompleteSignal:
                   this.payload.metricsContext.flowCompleteSignal,
                 flowType: this.payload.metricsContext.flowType,
+                authMethod: this.payload.metricsContext.authMethod,
               },
               this.headers && this.headers.dnt === '1'
                 ? {}
@@ -1115,14 +1122,22 @@ function mockProductConfigurationManager() {
           return {
             offering: {
               commonContent: {
+                privacyNoticeUrl:
+                  'https://www.mozilla.org/privacy/subscription-services',
                 privacyNoticeDownloadUrl:
                   'https://payments-next.example.com/privacy',
+                termsOfServiceUrl:
+                  'https://www.mozilla.org/about/legal/terms/subscription-services',
                 termsOfServiceDownloadUrl:
                   'https://payments-next.example.com/tos',
                 localizations: [
                   {
+                    privacyNoticeUrl:
+                      'https://www.mozilla.org/privacy/subscription-services',
                     privacyNoticeDownloadUrl:
                       'https://payments-next.example.com/privacy',
+                    termsOfServiceUrl:
+                      'https://www.mozilla.org/about/legal/terms/subscription-services',
                     termsOfServiceDownloadUrl:
                       'https://payments-next.example.com/tos',
                   },

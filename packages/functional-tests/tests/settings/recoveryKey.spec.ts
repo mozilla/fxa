@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import fs from 'fs';
-import pdfParse from 'pdf-parse';
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
@@ -45,7 +44,7 @@ test.describe('severity-1 #smoke', () => {
       expect(clipboard).toEqual(newKey);
     });
 
-    test('can download recovery key as PDF', async ({
+    test('can download recovery key as a text file', async ({
       target,
       pages: { page, recoveryKey, settings, signin },
       testAccountTracker,
@@ -80,7 +79,7 @@ test.describe('severity-1 #smoke', () => {
       const filename = dl.suggestedFilename();
       expect(filename.length).toBeLessThanOrEqual(75);
       expect(filename).toBe(
-        `Mozilla-Recovery-Key_${date}_${credentials.email}.pdf`
+        `Mozilla-Recovery-Key_${date}_${credentials.email}.txt`
       );
 
       // Test uses try/finally to ensure the downloaded file is deleted after tests
@@ -90,15 +89,8 @@ test.describe('severity-1 #smoke', () => {
         await dl.saveAs(filename);
         expect(fs.existsSync(filename)).toBeTruthy();
 
-        const getPDF = async (file: fs.PathOrFileDescriptor) => {
-          const readFileSync = fs.readFileSync(file);
-          const pdfExtract = await pdfParse(readFileSync);
-          // Verify downloaded file contains key
-          expect(pdfExtract.text).toContain(newKey);
-          // Verify the PDF file contains only one page
-          expect(pdfExtract.numpages).toEqual(1);
-        };
-        getPDF(filename);
+        const contents = await fs.promises.readFile(filename, 'utf8');
+        expect(contents).toBe(newKey);
       } finally {
         // Delete the downloaded file
         await fs.promises.unlink(filename);

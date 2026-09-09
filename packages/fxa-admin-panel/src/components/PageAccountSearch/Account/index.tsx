@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import { useState } from 'react';
 import {
   Account as AccountType,
   SecurityEvents as SecurityEventsType,
@@ -26,6 +27,17 @@ import ResultBoolean from '../../ResultBoolean';
 import { HIDE_ROW } from '../../../../constants';
 import { adminApi } from '../../../lib/api';
 import { Carts } from '../Cart';
+
+const INITIAL_SECURITY_EVENT_COUNT = 10;
+
+// The column holds a raw database value, so indent it only when it parses.
+const formatAdditionalInfo = (additionalInfo: string) => {
+  try {
+    return JSON.stringify(JSON.parse(additionalInfo), null, 2);
+  } catch {
+    return additionalInfo;
+  }
+};
 
 export type AccountProps = AccountType & {
   onCleared: () => void;
@@ -97,6 +109,7 @@ export const Account = ({
   passkeys,
   accountAuthorizations,
 }: AccountProps) => {
+  const [showAllSecurityEvents, setShowAllSecurityEvents] = useState(false);
   const createdAtDate = getFormattedDate(createdAt);
   const disabledAtDate = getFormattedDate(disabledAt);
   const lockedAtDate = getFormattedDate(lockedAt);
@@ -119,6 +132,30 @@ export const Account = ({
       }
     } catch (err) {
       window.alert(`An unexpected error was encountered. Edit unsuccessful.`);
+    }
+  };
+
+  const handleRemovePasskey = async (credentialId: string, name: string) => {
+    if (
+      !window.confirm(
+        `Remove the passkey "${name}" for "${primaryEmail.email}"? This cannot be undone.`
+      )
+    ) {
+      return;
+    }
+    try {
+      const removed = await adminApi.removePasskey(uid, credentialId);
+      if (!removed) {
+        window.alert('No passkey was removed.');
+        return;
+      }
+      adminApi
+        .recordSecurityEvent(uid, 'account.passkey.removed')
+        .catch(() => {});
+      window.alert('The passkey has been removed.');
+      onCleared();
+    } catch {
+      window.alert('Error removing passkey.');
     }
   };
 
@@ -327,10 +364,11 @@ export const Account = ({
               'Backup State',
               'PRF Enabled',
               'Authenticator',
+              'Action',
             ]}
           >
             {passkeys.map((passkey: PasskeyType) => (
-              <TableRowXHeader key={`${passkey.name}-${passkey.createdAt}`}>
+              <TableRowXHeader key={passkey.credentialId}>
                 <td data-testid="passkey-name">{passkey.name}</td>
                 <td data-testid="passkey-created-at">
                   {getFormattedDate(passkey.createdAt)}
@@ -348,6 +386,21 @@ export const Account = ({
                 </td>
                 <td data-testid="passkey-authenticator-name">
                   {passkey.authenticatorName || 'Unknown'}
+                </td>
+                <td>
+                  <Guard features={[AdminPanelFeature.RemovePasskeys]}>
+                    <button
+                      className="p-1 text-red-700 border-2 rounded border-grey-100 bg-grey-10 hover:border-grey-10 hover:bg-grey-50 hover:text-red-700"
+                      type="button"
+                      data-testid={`remove-passkey-${passkey.credentialId}`}
+                      aria-label={`Remove passkey ${passkey.name}`}
+                      onClick={() =>
+                        handleRemovePasskey(passkey.credentialId, passkey.name)
+                      }
+                    >
+                      Remove
+                    </button>
+                  </Guard>
                 </td>
               </TableRowXHeader>
             ))}
@@ -434,20 +487,42 @@ export const Account = ({
 
         <h3 className="header-lg">Account History</h3>
         {securityEvents && securityEvents.length > 0 ? (
-          <TableXHeaders
-            rowHeaders={['Event', 'Timestamp', 'IP', 'Additional Info']}
-          >
-            {securityEvents.map((securityEvent: SecurityEventsType) => {
-              return (
-                <TableRowXHeader key={securityEvent.uid}>
-                  <>{securityEvent.name}</>
-                  <>{getFormattedDate(securityEvent.createdAt)}</>
-                  <>{securityEvent.ipAddr}</>
-                  <>{securityEvent.additionalInfo}</>
-                </TableRowXHeader>
-              );
-            })}
-          </TableXHeaders>
+          <>
+            <TableXHeaders
+              rowHeaders={['Event', 'Timestamp', 'IP', 'Additional Info']}
+            >
+              {(showAllSecurityEvents
+                ? securityEvents
+                : securityEvents.slice(0, INITIAL_SECURITY_EVENT_COUNT)
+              ).map((securityEvent: SecurityEventsType, index: number) => {
+                return (
+                  // Every event carries the same uid, so pair it with the index.
+                  <TableRowXHeader key={`${securityEvent.uid}-${index}`}>
+                    <>{securityEvent.name}</>
+                    <>{getFormattedDate(securityEvent.createdAt)}</>
+                    <>{securityEvent.ipAddr}</>
+                    <>
+                      {securityEvent.additionalInfo && (
+                        <pre className="whitespace-pre-wrap">
+                          {formatAdditionalInfo(securityEvent.additionalInfo)}
+                        </pre>
+                      )}
+                    </>
+                  </TableRowXHeader>
+                );
+              })}
+            </TableXHeaders>
+            {!showAllSecurityEvents &&
+              securityEvents.length > INITIAL_SECURITY_EVENT_COUNT && (
+                <button
+                  type="button"
+                  className="bg-grey-10 border-2 border-grey-100 mt-2 px-4 py-2 rounded hover:bg-grey-50 hover:border-grey-10"
+                  onClick={() => setShowAllSecurityEvents(true)}
+                >
+                  Show more
+                </button>
+              )}
+          </>
         ) : (
           <p data-testid="account-security-events" className="result-none">
             This account doesn't have any account history.
@@ -502,6 +577,7 @@ export const Account = ({
           has2FA: totps && totps.some((x) => x.enabled),
           hasRecoveryPhone:
             recoveryPhone && recoveryPhone.some((x) => x.exists),
+          hasPasskeys: passkeys && passkeys.length > 0,
         }}
       />
     </>

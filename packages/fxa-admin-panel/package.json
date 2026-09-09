@@ -47,12 +47,14 @@
     "helmet": "^8.0.0",
     "mozlog": "^3.0.2",
     "on-headers": "^1.1.0",
+    "react-hook-form": "^7.54.0",
     "react-router": "7.18.0",
     "react-scripts": "^5.0.1",
     "serve-static": "^1.16.0"
   },
   "devDependencies": {
     "@rescripts/cli": "0.0.16",
+    "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@types/chance": "^1.1.2",
     "@types/convict": "^6.1.1",
@@ -73,7 +75,7 @@
     "fxa-shared": "workspace:*",
     "jest": "27.5.1",
     "jest-watch-typeahead": "0.6.5",
-    "nx": "^23.0.1",
+    "nx": "^23.0.2",
     "pm2": "^7.0.0",
     "postcss-import": "^16.1.0",
     "prettier": "^3.5.3",

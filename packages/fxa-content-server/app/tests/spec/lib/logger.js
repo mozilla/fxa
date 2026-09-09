@@ -3,12 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import AuthErrors from 'lib/auth-errors';
-import chai from 'chai';
+import { assert } from 'chai';
 import Logger from 'lib/logger';
 import sinon from 'sinon';
 import WindowMock from '../../mocks/window';
-
-var assert = chai.assert;
 
 describe('lib/logger', function () {
   var logger;

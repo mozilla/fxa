@@ -1014,6 +1014,8 @@ describe('/session/verify_code', () => {
         ...signupCodeAccount,
         uaBrowser: 'Firefox',
         id: 'sessionTokenId',
+        // A session first reaching /session/verify_code is AAL1 (pwd only).
+        authenticatorAssuranceLevel: 1,
       },
       payload: {
         code: expectedCode,
@@ -1053,6 +1055,19 @@ describe('/session/verify_code', () => {
     expect(fxaMailer.sendPostVerifyEmail).toHaveBeenCalledTimes(1);
     expect(gleanMock.registration.accountVerified).toHaveBeenCalledTimes(1);
     expect(gleanMock.registration.complete).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not refresh the authentication event on an already-AAL2 session (no downgrade)', async () => {
+    // `email-2fa` maps to AAL1. If an already-AAL2 session reaches verify_code,
+    // refreshing the auth event here would lower its assurance level (now
+    // load-bearing for auth_time), so the refresh must be skipped.
+    setup({ emailVerified: true });
+    request.auth.credentials.authenticatorAssuranceLevel = 2;
+    const response = await runTest(route, request);
+    expect(response).toEqual({});
+    // The rest of the handler still runs; only the session-verify is skipped.
+    expect(db.account).toHaveBeenCalledTimes(1);
+    expect(db.verifyTokensWithMethod).not.toHaveBeenCalled();
   });
 
   it('should skip verify account and but still verify session with a valid code', async () => {
@@ -1129,6 +1144,73 @@ describe('/session/verify_code', () => {
     expect(fxaMailer.sendPostVerifyEmail).not.toHaveBeenCalled();
     expect(mailer.sendPostVerifyEmail).not.toHaveBeenCalled();
   });
+
+  it('rejects with insufficientAal when a verified TOTP token exists', async () => {
+    setup({ emailVerified: true });
+    db.totpToken = jest.fn().mockResolvedValue({
+      verified: true,
+      enabled: true,
+    });
+    await expect(runTest(route, request)).rejects.toMatchObject({
+      errno: error.ERRNO.INSUFFICIENT_AAL,
+      output: { statusCode: 400 },
+    });
+    expect(db.verifyTokensWithMethod).not.toHaveBeenCalled();
+  });
+
+  it('still verifies when the TOTP token is unverified', async () => {
+    setup({ emailVerified: true });
+    db.totpToken = jest.fn().mockResolvedValue({
+      verified: false,
+      enabled: false,
+    });
+    const response = await runTest(route, request);
+    expect(response).toEqual({});
+    expect(db.verifyTokensWithMethod).toHaveBeenCalledWith(
+      'sessionTokenId',
+      'email-2fa'
+    );
+  });
+
+  it('still verifies when the TOTP token is verified but disabled', async () => {
+    setup({ emailVerified: true });
+    db.totpToken = jest.fn().mockResolvedValue({
+      verified: true,
+      enabled: false,
+    });
+    const response = await runTest(route, request);
+    expect(response).toEqual({});
+    expect(db.verifyTokensWithMethod).toHaveBeenCalledWith(
+      'sessionTokenId',
+      'email-2fa'
+    );
+  });
+
+  it('still verifies when there is no TOTP token', async () => {
+    setup({ emailVerified: true });
+    db.totpToken = jest.fn().mockRejectedValue(error.totpTokenNotFound());
+    const response = await runTest(route, request);
+    expect(response).toEqual({});
+    expect(db.verifyTokensWithMethod).toHaveBeenCalledWith(
+      'sessionTokenId',
+      'email-2fa'
+    );
+  });
+
+  it('still verifies signup confirmation when the primary email is unverified even with TOTP', async () => {
+    // Default setup leaves the primary email unverified, exercising the
+    // signup/confirmation branch that the isVerified conjunct must never gate.
+    db.totpToken = jest.fn().mockResolvedValue({
+      verified: true,
+      enabled: true,
+    });
+    const response = await runTest(route, request);
+    expect(response).toEqual({});
+    expect(db.verifyTokensWithMethod).toHaveBeenCalledWith(
+      'sessionTokenId',
+      'email-2fa'
+    );
+  });
 });
 
 describe('/session/resend_code', () => {
@@ -1185,7 +1267,7 @@ describe('/session/resend_code', () => {
 
     const expectedCode = getExpectedOtpCode({}, signupCodeAccount.emailCode);
     const args = fxaMailer.sendVerifyShortCodeEmail.mock.calls[0][0];
-    expect(args.acceptLanguage).toBe('en-US');
+    expect(args.acceptLanguage).toBe('en');
     expect(args.code).toBe(expectedCode);
     expect(args.location.city).toBe('Mountain View');
     expect(args.location.country).toBe('United States');

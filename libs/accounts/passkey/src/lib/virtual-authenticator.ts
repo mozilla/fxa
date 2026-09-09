@@ -12,6 +12,7 @@
 
 import {
   createHash,
+  createHmac,
   createSign,
   generateKeyPairSync,
   randomBytes,
@@ -20,6 +21,8 @@ import {
 import type {
   RegistrationResponseJSON,
   AuthenticationResponseJSON,
+  AuthenticationExtensionsClientInputs,
+  AuthenticationExtensionsClientOutputs,
 } from '@simplewebauthn/server';
 
 // ---------------------------------------------------------------------------
@@ -72,6 +75,144 @@ export interface VirtualCredential {
   privateKey: KeyObject;
   publicKey: KeyObject;
   signCount: number;
+  /**
+   * Whether this authenticator can evaluate a PRF. False models a working
+   * authenticator with no `hmac-secret` support: `prf.enabled: false` and never
+   * an output, so the relying party must fall back to a password.
+   */
+  prfSupported: boolean;
+}
+
+/**
+ * PRF eval salt, base64url-encoded as the server issues it. The spec allows a
+ * `second` salt; FxA only ever sends `first`, so it isn't modelled.
+ */
+export interface PrfEvalInputJSON {
+  first: string;
+}
+
+/**
+ * Client extension inputs for a ceremony, in the base64url JSON shape the
+ * server issues — pass the server's `options.extensions` straight through.
+ */
+export interface VirtualCeremonyExtensions {
+  prf?: {
+    eval?: PrfEvalInputJSON;
+  };
+}
+
+export interface CeremonyInput {
+  challenge: string;
+  origin: string;
+  rpId: string;
+  /**
+   * Client extension inputs; takes the server's `options.extensions` directly.
+   * Extensions other than `prf` are ignored, as an authenticator ignores ones
+   * it doesn't implement.
+   */
+  extensions?: VirtualCeremonyExtensions & AuthenticationExtensionsClientInputs;
+}
+
+/** Per-ceremony knobs shared by both response builders. */
+export interface CeremonyOpts {
+  /** Clear the UV flag (default: UV performed). */
+  userVerified?: boolean;
+}
+
+/** The `prf` client extension output, absent from SimpleWebAuthn's types. */
+interface PrfExtensionOutputs {
+  prf?: {
+    enabled?: boolean;
+    results?: { first: string };
+  };
+}
+
+const PRF_SECRET_DOMAIN = 'fxa-virtual-authenticator-prf';
+
+/**
+ * Domain-separation prefix a real client prepends before hashing the RP's salt
+ * into the value the authenticator evaluates.
+ */
+const PRF_INPUT_PREFIX = Buffer.concat([
+  Buffer.from('WebAuthn PRF', 'utf8'),
+  Buffer.from([0x00]),
+]);
+
+/**
+ * Stand-in for the per-credential secret a real authenticator keeps for the
+ * CTAP `hmac-secret` extension. Derived from the private key so the same
+ * credential always yields the same PRF outputs, and two credentials never
+ * collide.
+ *
+ * Not keyed on UV state, unlike CTAP 2.1: FxA requires UV at both ceremonies
+ * and rejects a no-UV assertion server-side, so there is no reachable no-UV
+ * output to model. Revisit if a flow ever requests `userVerification:
+ * 'preferred'`, which is what would make a no-UV assertion reachable.
+ */
+function prfSecret(cred: VirtualCredential): Buffer {
+  return createHash('sha256')
+    .update(PRF_SECRET_DOMAIN)
+    .update(cred.privateKey.export({ format: 'der', type: 'pkcs8' }))
+    .digest();
+}
+
+/**
+ * Derive the PRF output a virtual credential produces for a salt. Test-only:
+ * deterministic per credential and salt, which is what makes wrap round-trip
+ * assertions possible, but not the derivation a real authenticator performs.
+ *
+ * The salt is hashed under the `WebAuthn PRF` prefix first, as a real client
+ * does — that step is also what guarantees the authenticator sees the 32 bytes
+ * CTAP requires, whatever length salt the server sent.
+ *
+ * @param cred - the credential evaluating the PRF
+ * @param salt - base64url eval salt, as sent by the server
+ * @returns the 32-byte output
+ */
+export function derivePrfOutput(cred: VirtualCredential, salt: string): Buffer {
+  const input = createHash('sha256')
+    .update(PRF_INPUT_PREFIX)
+    .update(Buffer.from(salt, 'base64url'))
+    .digest();
+  return createHmac('sha256', prfSecret(cred)).update(input).digest();
+}
+
+/**
+ * `prf` output for a registration ceremony. Returns `{}` unless the ceremony
+ * requested PRF, so ceremonies that don't ask see no change.
+ */
+function registrationPrfOutput(
+  cred: VirtualCredential,
+  input: CeremonyInput
+): AuthenticationExtensionsClientOutputs & PrfExtensionOutputs {
+  if (!input.extensions?.prf) {
+    return {};
+  }
+  // Capability only: a CTAP2 device yields secrets at assertion, not here.
+  return { prf: { enabled: cred.prfSupported } };
+}
+
+/**
+ * `prf` output for an assertion: the evaluated results only. `enabled` is a
+ * registration-time output — a real client does not repeat it here, and code
+ * that reads it at sign-in would be reading something production never sends.
+ */
+function assertionPrfOutput(
+  cred: VirtualCredential,
+  input: CeremonyInput
+): AuthenticationExtensionsClientOutputs & PrfExtensionOutputs {
+  const evalInput = input.extensions?.prf?.eval;
+  if (!evalInput?.first || !cred.prfSupported) {
+    return {};
+  }
+
+  return {
+    prf: {
+      results: {
+        first: derivePrfOutput(cred, evalInput.first).toString('base64url'),
+      },
+    },
+  };
 }
 
 /**
@@ -81,19 +222,34 @@ export interface VirtualCredential {
  * attestation and assertion responses for use in tests.
  */
 export class VirtualAuthenticator {
-  /** Create a fresh ES256 credential with a random 32-byte ID. */
-  static createCredential(): VirtualCredential {
+  /**
+   * Create a fresh ES256 credential with a random 32-byte ID. Pass
+   * `prfSupported: false` for an authenticator that cannot evaluate a PRF.
+   */
+  static createCredential(
+    opts: { prfSupported?: boolean } = {}
+  ): VirtualCredential {
     const { privateKey, publicKey } = generateKeyPairSync('ec', {
       namedCurve: 'P-256',
     });
-    return { id: randomBytes(32), privateKey, publicKey, signCount: 0 };
+    return {
+      id: randomBytes(32),
+      privateKey,
+      publicKey,
+      signCount: 0,
+      prfSupported: opts.prfSupported !== false,
+    };
   }
 
-  /** Build a "none"-format attestation response; pass `userVerified: false` to clear the UV flag (default true). */
+  /**
+   * Build a "none"-format attestation response; pass `userVerified: false` to
+   * clear the UV flag (default true). Pass `input.extensions` to request PRF,
+   * which reports `prf.enabled` — the capability flag the server records.
+   */
   static createAttestationResponse(
     cred: VirtualCredential,
-    input: { challenge: string; origin: string; rpId: string },
-    opts: { userVerified?: boolean } = {}
+    input: CeremonyInput,
+    opts: CeremonyOpts = {}
   ): RegistrationResponseJSON {
     const jwk = cred.publicKey.export({ format: 'jwk' });
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -110,8 +266,10 @@ export class VirtualAuthenticator {
     ]);
 
     const rpIdHash = createHash('sha256').update(input.rpId).digest();
-    const uvFlag = opts.userVerified === false ? 0x00 : 0x04;
-    const flags = Buffer.from([0x41 | uvFlag]); // UP + AT (+ UV unless suppressed)
+    // UP + AT (+ UV unless suppressed)
+    const flags = Buffer.from([
+      0x41 | (opts.userVerified !== false ? 0x04 : 0x00),
+    ]);
     const signCountBuf = Buffer.alloc(4);
     const credIdLen = Buffer.alloc(2);
     credIdLen.writeUInt16BE(cred.id.length, 0);
@@ -149,22 +307,28 @@ export class VirtualAuthenticator {
         transports: ['internal'],
       },
       type: 'public-key',
-      clientExtensionResults: {},
+      clientExtensionResults: registrationPrfOutput(cred, input),
       authenticatorAttachment: 'platform',
     };
   }
 
-  /** Build a signed assertion response; pass `userVerified: false` to clear the UV flag (default true). */
+  /**
+   * Build a signed assertion response; pass `userVerified: false` to clear the
+   * UV flag (default true). Pass `input.extensions` to request PRF, which
+   * yields the deterministic `prf.results` output that wraps `kB`.
+   */
   static createAssertionResponse(
     cred: VirtualCredential,
-    input: { challenge: string; origin: string; rpId: string },
-    opts: { userVerified?: boolean } = {}
+    input: CeremonyInput,
+    opts: CeremonyOpts = {}
   ): AuthenticationResponseJSON {
     cred.signCount++;
 
     const rpIdHash = createHash('sha256').update(input.rpId).digest();
-    const uvFlag = opts.userVerified === false ? 0x00 : 0x04;
-    const flags = Buffer.from([0x01 | uvFlag]); // UP (+ UV unless suppressed)
+    // UP (+ UV unless suppressed)
+    const flags = Buffer.from([
+      0x01 | (opts.userVerified !== false ? 0x04 : 0x00),
+    ]);
     const signCountBuf = Buffer.alloc(4);
     signCountBuf.writeUInt32BE(cred.signCount, 0);
 
@@ -192,7 +356,7 @@ export class VirtualAuthenticator {
         signature: signature.toString('base64url'),
       },
       type: 'public-key',
-      clientExtensionResults: {},
+      clientExtensionResults: assertionPrfOutput(cred, input),
     };
   }
 }

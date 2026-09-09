@@ -10,12 +10,14 @@ import { HeartsVerifiedImage } from '../../components/images';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import Banner from '../../components/Banner';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import { useFtlMsgResolver } from '../../models';
+import { useConfig, useFtlMsgResolver } from '../../models';
 import { Constants } from '../../lib/constants';
 import { getBasicAccountData } from '../../lib/account-storage';
 import firefox, { buildSyncOAuthSearch } from '../../lib/channels/firefox';
 import GleanMetrics from '../../lib/glean';
 import AppLayout from '../../components/AppLayout';
+import { detectDevice, Devices } from '../../lib/utilities';
+import { UseFxAStatusResult } from '../../lib/hooks';
 
 export type ConnectAnotherDeviceProps = {
   email?: string;
@@ -26,16 +28,10 @@ export type ConnectAnotherDeviceProps = {
   isSignIn?: boolean;
   canSignIn?: boolean;
   device?: Devices;
+  fxaStatus: UseFxAStatusResult;
 };
 
-export enum Devices {
-  FIREFOX_ANDROID = 'Firefox Android',
-  FIREFOX_DESKTOP = 'Firefox Desktop',
-  FIREFOX_IOS = 'Firefox iOS',
-  OTHER_ANDROID = 'Other Android',
-  OTHER_IOS = 'Other iOS',
-  OTHER = 'Other',
-}
+
 // Validate entrypoint against known values, defaulting to FIREFOX_MENU_ENTRYPOINT.
 const VALID_ENTRYPOINTS = new Set(Object.values(ENTRYPOINTS));
 function getValidEntrypoint(raw: string | null): ENTRYPOINTS {
@@ -43,32 +39,6 @@ function getValidEntrypoint(raw: string | null): ENTRYPOINTS {
     return raw as ENTRYPOINTS;
   }
   return ENTRYPOINTS.FIREFOX_MENU_ENTRYPOINT;
-}
-
-// Detect device type from user agent.
-function detectDevice(): Devices {
-  const ua = navigator.userAgent;
-  const isFirefox = /Firefox/i.test(ua) && !/FxiOS/i.test(ua);
-  const isFxiOS = /FxiOS/i.test(ua);
-  const isAndroid = /Android/i.test(ua);
-  const isIos = /iPhone|iPad|iPod/i.test(ua) || isFxiOS;
-
-  if (isFirefox && isAndroid) {
-    return Devices.FIREFOX_ANDROID;
-  }
-  if (isFxiOS) {
-    return Devices.FIREFOX_IOS;
-  }
-  if (isFirefox && !isAndroid) {
-    return Devices.FIREFOX_DESKTOP;
-  }
-  if (isIos) {
-    return Devices.OTHER_IOS;
-  }
-  if (isAndroid) {
-    return Devices.OTHER_ANDROID;
-  }
-  return Devices.OTHER;
 }
 
 // Check if the browser supports Sync auth via WebChannels
@@ -103,9 +73,11 @@ const ConnectAnotherDevice = ({
   isSignIn: isSignInProp,
   canSignIn: canSignInProp,
   device: deviceProp,
+  fxaStatus
 }: ConnectAnotherDeviceProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
+  const config = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
   const searchParams = useMemo(
@@ -188,7 +160,18 @@ const ConnectAnotherDevice = ({
     );
   }, [entrypoint, searchParams]);
 
+  // The browser's pairing capabilities arrive asynchronously over the web
+  // channel, so they start out undefined.
+  const capabilitiesResolved = !!fxaStatus.fxaStatus?.capabilities;
+
   useEffect(() => {
+    // Deciding the pairing route before the capabilities land would read an
+    // unresolved v2 browser as v1 and hard-navigate out of the v2 flow, so the
+    // whole bootstrap waits rather than just the render below.
+    if (!capabilitiesResolved) {
+      return;
+    }
+
     if (propsDriveRender) {
       GleanMetrics.cad.view();
       return;
@@ -218,6 +201,24 @@ const ConnectAnotherDevice = ({
         signedInUser?.sessionToken && signedInUser.verified
       );
       if (browserSignedIn && isEligibleForPairing()) {
+
+        // Both FxA and Firefox have to signal that pairing v2 is enabled!
+        if (
+          config.pairing.version === 2 &&
+          fxaStatus.fxaStatus?.capabilities?.pairing === true &&
+          fxaStatus.fxaStatus?.capabilities?.pairingVersion === 2
+        ) {
+          hardNavigate('/pair/authority/scan_qr', {}, true);
+          return;
+        }
+
+        // Escape hatch. Allow the query params to force a v2 pairing flow. Useuful initially for testing, probably
+        // won't stick around forever...
+        if (searchParams.get('v') === '2') {
+          hardNavigate('/pair/authority/scan_qr', {}, true);
+          return;
+        }
+
         hardNavigate('/pair');
         return;
       }
@@ -237,9 +238,9 @@ const ConnectAnotherDevice = ({
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [capabilitiesResolved]);
 
-  if (bootstrapping) {
+  if (bootstrapping || !capabilitiesResolved) {
     return <LoadingSpinner fullScreen />;
   }
 

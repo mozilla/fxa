@@ -39,14 +39,12 @@ const redisUtil = {
   },
   recoveryPhone: {
     async getCode(uid: string) {
-      const redisKey = `${RECOVERY_PHONE_REDIS_PREFIX}:${uid}:*`;
-      const result = await redis.keys(redisKey);
-      expect(result.length).toBe(1);
-      const parts = result[0].split(':');
-      return parts[parts.length - 1];
+      const result = await redis.get(`${RECOVERY_PHONE_REDIS_PREFIX}:${uid}`);
+      expect(result).toBeTruthy();
+      return JSON.parse(result as string).code;
     },
     async clear(uid: string) {
-      await redisUtil.clearAllKey(`${RECOVERY_PHONE_REDIS_PREFIX}:${uid}:*`);
+      await redis.del(`${RECOVERY_PHONE_REDIS_PREFIX}:${uid}`);
     },
   },
   customs: {
@@ -153,7 +151,10 @@ describe('#integration - recovery phone', () => {
     expect(codeSent).toBeDefined();
     expect(confirmResp.status).toBe('success');
     expect(checkResp.exists).toBe(true);
-    expect(checkResp.phoneNumber).toBe(phoneNumber);
+    // Masked either way; what matters is that it is never dialable.
+    expect(checkResp.phoneNumber).not.toBe(phoneNumber);
+    expect(checkResp.phoneNumber).toContain(phoneNumber.slice(-4));
+    expect(checkResp.phoneNumber).not.toContain('415');
   });
 
   it('can send, confirm code, verify session, and remove totp', async () => {

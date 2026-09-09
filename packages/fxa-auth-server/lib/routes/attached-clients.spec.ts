@@ -9,7 +9,6 @@ import { AuthLogger } from '../types';
 const mocks = require('../../test/mocks');
 const { getRoute } = require('../../test/routes_helpers');
 const { AppError: error } = require('@fxa/accounts/errors');
-const uuid = require('uuid');
 
 const EARLIEST_SANE_TIMESTAMP = 31536000000;
 
@@ -67,7 +66,7 @@ describe('/account/attached_clients', () => {
 
   beforeEach(() => {
     config = {};
-    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    uid = crypto.randomBytes(16).toString('hex');
     log = createMock<AuthLogger>();
     db = mocks.mockDB();
     request = mocks.mockRequest({
@@ -413,7 +412,7 @@ describe('/account/attached_client/destroy', () => {
 
   beforeEach(() => {
     config = {};
-    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    uid = crypto.randomBytes(16).toString('hex');
     log = createMock<AuthLogger>();
     db = mocks.mockDB();
     devices = mocks.mockDevices({});
@@ -628,7 +627,7 @@ describe('/account/attached_oauth_clients', () => {
 
   beforeEach(() => {
     config = {};
-    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    uid = crypto.randomBytes(16).toString('hex');
     log = createMock<AuthLogger>();
     db = mocks.mockDB();
     request = mocks.mockRequest({

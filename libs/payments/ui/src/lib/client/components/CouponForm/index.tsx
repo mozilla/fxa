@@ -8,8 +8,14 @@ import { Localized } from '@fluent/react';
 import * as Form from '@radix-ui/react-form';
 import classNames from 'classnames';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { forwardRef, useEffect, useState } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import {
+  forwardRef,
+  startTransition,
+  useActionState,
+  useEffect,
+  useState,
+} from 'react';
+import { useFormStatus } from 'react-dom';
 import { ButtonVariant } from '../BaseButton';
 import { SubmitButton } from '../SubmitButton';
 import {
@@ -157,12 +163,14 @@ const WithoutCoupon = ({
     return result;
   }
   const routeCoupon = useSearchParams().get('coupon') || undefined;
-  const [, formAction] = useFormState(applyCoupon, null);
+  const [, formAction] = useActionState(applyCoupon, null);
   useEffect(() => {
     if (routeCoupon) {
       const formData = new FormData();
       formData.set('coupon', routeCoupon);
-      formAction(formData);
+      // useActionState dispatches must run inside an Action context; the form's
+      // own action supplies one, an effect does not.
+      startTransition(() => formAction(formData));
     }
   }, [routeCoupon, formAction]);
 

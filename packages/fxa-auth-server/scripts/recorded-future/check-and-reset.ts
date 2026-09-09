@@ -37,8 +37,6 @@ import { createDB } from '../../lib/db';
 import oauthDb from '../../lib/oauth/db';
 import * as butil from '../../lib/crypto/butil';
 import PasswordFn from '../../lib/crypto/password';
-import bouncesFn from '../../lib/bounces';
-import sendersFn from '../../lib/senders';
 import TokenFn from '../../lib/tokens';
 import { emitStatsdMetrics } from '../lib/metrics';
 import { collect, parseBooleanArg } from '../lib/args';
@@ -310,10 +308,6 @@ async function resetAccounts(
   resetWithEmails: boolean
 ) {
   const authDb = await getAuthDb();
-  const bounces = bouncesFn(config, authDb);
-  const senders = await sendersFn(log, config, bounces, statsd);
-  // the dynamically named `send\w+Email` functions are not in the type of senders.email
-  const mailer: any = senders.email;
   const accountEventManager = new AccountEventsManager();
 
   // setup for fxa-mailer, since this runs outside of the key_server context we
@@ -351,41 +345,37 @@ async function resetAccounts(
         }
       );
       await oauthDb.removeTokensAndCodes(acct.uid);
-      if (fxaMailer.canSend('passwordChangeRequired')) {
-        // the new fxa-mailer is more type script, so we create a 'fake'
-        // request to satisfy the type checking
-        const request = {
-          app: {
-            ua: {},
-            metricsContext: Promise.resolve({
-              flowBeginTime: 1234567890,
-              flowId: 'fxa-internal-flow-id',
-            }),
-            geo: {
-              timeZone: '',
-              location: {
-                city: '',
-                state: '',
-                stateCode: '',
-                country: '',
-                countryCode: '',
-                postalCode: '',
-              },
+      // the new fxa-mailer is more type script, so we create a 'fake'
+      // request to satisfy the type checking
+      const request = {
+        app: {
+          ua: {},
+          metricsContext: Promise.resolve({
+            flowBeginTime: 1234567890,
+            flowId: 'fxa-internal-flow-id',
+          }),
+          geo: {
+            timeZone: '',
+            location: {
+              city: '',
+              state: '',
+              stateCode: '',
+              country: '',
+              countryCode: '',
+              postalCode: '',
             },
-            acceptLanguage: acct.locale || 'en', // should be set, but fallback if not
           },
-        };
-        await fxaMailer.sendPasswordChangeRequiredEmail({
-          ...FxaMailerFormat.account(acct as unknown as any), // this _should_ be safe
-          ...(await FxaMailerFormat.metricsContext(request)),
-          ...FxaMailerFormat.localTime(request),
-          ...FxaMailerFormat.location(request),
-          ...FxaMailerFormat.device(request),
-          ...FxaMailerFormat.sync(false),
-        });
-      } else {
-        await mailer.sendPasswordChangeRequiredEmail(acct.emails, acct);
-      }
+          acceptLanguage: acct.locale || 'en', // should be set, but fallback if not
+        },
+      };
+      await fxaMailer.sendPasswordChangeRequiredEmail({
+        ...FxaMailerFormat.account(acct as unknown as any), // this _should_ be safe
+        ...(await FxaMailerFormat.metricsContext(request)),
+        ...FxaMailerFormat.localTime(request),
+        ...FxaMailerFormat.location(request),
+        ...FxaMailerFormat.device(request),
+        ...FxaMailerFormat.sync(false),
+      });
       await accountEventManager.recordSecurityEvent(authDb, {
         uid: acct.uid,
         name: 'account.must_reset',

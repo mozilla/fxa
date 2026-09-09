@@ -8,11 +8,13 @@ import { getHandledError } from '../../../lib/error-utils';
 import { ResetPasswordRecoveryPhoneLocationState } from './interfaces';
 import { useAuthClient } from '../../../models';
 import { ResetPasswordIntegration } from '../interfaces';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 
 const ResetPasswordRecoveryPhoneContainer = ({
   integration,
-}: { integration: ResetPasswordIntegration }) => {
+}: {
+  integration: ResetPasswordIntegration;
+}) => {
   const authClient = useAuthClient();
   const navigateWithQuery = useNavigateWithQuery();
 

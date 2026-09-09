@@ -9,7 +9,7 @@ const amplitude = require('../amplitude');
 const flowMetrics = require('../flow-metrics');
 const { logFlowEvent } = require('../flow-event');
 const Url = require('url');
-const uuid = require('node-uuid');
+const { v4: uuidv4 } = require('uuid');
 const validation = require('../validation');
 const {
   overrideJoiMessages,
@@ -73,7 +73,7 @@ module.exports = function (config) {
       // Amplitude-specific device id, like the client-side equivalent
       // created in app/scripts/lib/app-start.js. Transient for now,
       // but will become persistent in due course.
-      metricsData.deviceId = uuid.v4().replace(/-/g, '');
+      metricsData.deviceId = uuidv4().replace(/-/g, '');
 
       amplitude(beginEvent, req, metricsData);
       logFlowEvent(beginEvent, metricsData, req);

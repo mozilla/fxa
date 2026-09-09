@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import crypto from 'node:crypto';
 import { createMock } from '@golevelup/ts-jest';
 import { AuthLogger } from '../../types';
 
 const { Container } = require('typedi');
-const uuid = require('uuid');
 const mocks = require('../../../test/mocks');
 const { AppError: error } = require('@fxa/accounts/errors');
 const { StripeHelper } = require('../../payments/stripe');
@@ -65,7 +65,7 @@ const {
 
 const ACCOUNT_LOCALE = 'en-US';
 const TEST_EMAIL = 'test@email.com';
-const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+const UID = crypto.randomBytes(16).toString('hex');
 const NOW = Date.now();
 const PLANS = mocks.mockPlans;
 const SUBSCRIPTION_ID_1 = 'sub-8675309';
@@ -216,7 +216,7 @@ describe('subscriptions stripeRoutes', () => {
 });
 
 describe('handleAuth', () => {
-  const AUTH_UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+  const AUTH_UID = crypto.randomBytes(16).toString('hex');
   const AUTH_EMAIL = 'auth@example.com';
   const DB_EMAIL = 'db@example.com';
 

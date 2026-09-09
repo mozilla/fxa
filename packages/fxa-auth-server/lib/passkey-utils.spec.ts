@@ -5,6 +5,7 @@
 import {
   isPasskeyAuthenticationEnabled,
   isPasskeyFeatureEnabled,
+  isPasskeyPasswordlessSyncEnabled,
   isPasskeyRegistrationEnabled,
   PasskeyFlagsConfig,
 } from './passkey-utils';
@@ -33,14 +34,14 @@ describe('passkey-utils', () => {
   });
 
   describe('isPasskeyRegistrationEnabled', () => {
-    it('should return true when master and registration flags are both enabled', () => {
+    it('should return true when primary and registration flags are both enabled', () => {
       const config = {
         passkeys: { enabled: true, registrationEnabled: true },
       };
       expect(isPasskeyRegistrationEnabled(config)).toBe(true);
     });
 
-    it('should throw when master is enabled but registrationEnabled is false', () => {
+    it('should throw when primary is enabled but registrationEnabled is false', () => {
       const config = {
         passkeys: { enabled: true, registrationEnabled: false },
       };
@@ -49,7 +50,7 @@ describe('passkey-utils', () => {
       );
     });
 
-    it('should throw when master is disabled even if registrationEnabled is true', () => {
+    it('should throw when primary is disabled even if registrationEnabled is true', () => {
       const config = {
         passkeys: { enabled: false, registrationEnabled: true },
       };
@@ -60,14 +61,14 @@ describe('passkey-utils', () => {
   });
 
   describe('isPasskeyAuthenticationEnabled', () => {
-    it('should return true when master and authentication flags are both enabled', () => {
+    it('should return true when primary and authentication flags are both enabled', () => {
       const config = {
         passkeys: { enabled: true, authenticationEnabled: true },
       };
       expect(isPasskeyAuthenticationEnabled(config)).toBe(true);
     });
 
-    it('should throw when master is enabled but authenticationEnabled is false', () => {
+    it('should throw when primary is enabled but authenticationEnabled is false', () => {
       const config = {
         passkeys: { enabled: true, authenticationEnabled: false },
       };
@@ -76,11 +77,48 @@ describe('passkey-utils', () => {
       );
     });
 
-    it('should throw when master is disabled even if authenticationEnabled is true', () => {
+    it('should throw when primary is disabled even if authenticationEnabled is true', () => {
       const config = {
         passkeys: { enabled: false, authenticationEnabled: true },
       };
       expect(() => isPasskeyAuthenticationEnabled(config)).toThrow(
+        'Feature not enabled'
+      );
+    });
+  });
+
+  describe('isPasskeyPasswordlessSyncEnabled', () => {
+    it('should return true when primary and passwordless sync flags are both enabled', () => {
+      const config = {
+        passkeys: { enabled: true, passwordlessSyncEnabled: true },
+      };
+      expect(isPasskeyPasswordlessSyncEnabled(config)).toBe(true);
+    });
+
+    it('should throw when primary is enabled but passwordlessSyncEnabled is false', () => {
+      const config = {
+        passkeys: { enabled: true, passwordlessSyncEnabled: false },
+      };
+      expect(() => isPasskeyPasswordlessSyncEnabled(config)).toThrow(
+        'Feature not enabled'
+      );
+    });
+
+    it('should throw when primary is disabled even if passwordlessSyncEnabled is true', () => {
+      const config = {
+        passkeys: { enabled: false, passwordlessSyncEnabled: true },
+      };
+      expect(() => isPasskeyPasswordlessSyncEnabled(config)).toThrow(
+        'Feature not enabled'
+      );
+    });
+
+    it('should throw when config.passkeys.passwordlessSyncEnabled is undefined', () => {
+      // Simulate a config predating this flag, e.g. a stale deployed config file.
+      const config = { passkeys: { enabled: true } } as PasskeyFlagsConfig<
+        'enabled' | 'passwordlessSyncEnabled'
+      >;
+      expect(() => isPasskeyPasswordlessSyncEnabled(config)).toThrow(
         'Feature not enabled'
       );
     });

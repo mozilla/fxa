@@ -47,6 +47,26 @@ describe('with current password field', () => {
     await inputNewPassword('testotest0');
     expect(screen.getByTestId('save-password-button')).toBeDisabled();
   });
+
+  it('rejects a new password of spaces only', async () => {
+    const spacesOnly = ' '.repeat(8);
+    renderWithLocalizationProvider(<Subject />);
+    await inputCurrentPassword('quuz');
+    await inputNewPassword(spacesOnly);
+    await inputVerifyPassword(spacesOnly);
+    expect(screen.getByTestId('change-password-length')).toContainElement(
+      screen.getByTestId('icon-invalid')
+    );
+    expect(screen.getByTestId('save-password-button')).toBeDisabled();
+  });
+
+  it('accepts a new password padded with spaces', async () => {
+    renderWithLocalizationProvider(<Subject />);
+    await inputCurrentPassword('quuz');
+    await inputNewPassword('    testo1    ');
+    await inputVerifyPassword('    testo1    ');
+    expect(screen.getByTestId('save-password-button')).toBeEnabled();
+  });
 });
 
 describe('without current password field', () => {

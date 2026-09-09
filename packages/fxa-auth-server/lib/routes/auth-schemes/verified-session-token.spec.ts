@@ -87,6 +87,22 @@ describe('lib/routes/auth-schemes/verified-session-token', () => {
     }
   });
 
+  // `/account/device/destroy` chains this strategy ahead of `refreshToken`,
+  // and mobile reaches it with a plain `Bearer <hex>` refresh token. Hapi only
+  // advances to the next strategy when the error carries `isMissing`, so
+  // losing that flag would 401 every mobile disconnect.
+  it('flags a non-Hawk authorization header as missing so the chain falls through', async () => {
+    request.headers.authorization = `Bearer ${'a'.repeat(64)}`;
+
+    const authStrategy = strategy(getCredentialsFunc, db, config, statsd)();
+
+    await expect(authStrategy.authenticate(request, h)).rejects.toMatchObject({
+      isMissing: true,
+    });
+    expect(getCredentialsFunc).not.toHaveBeenCalled();
+    expect(h.authenticated).not.toHaveBeenCalled();
+  });
+
   it('fails when token not found', async () => {
     getCredentialsFunc = jest.fn().mockResolvedValue(null);
 

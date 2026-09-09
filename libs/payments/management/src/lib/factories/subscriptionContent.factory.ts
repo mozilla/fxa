@@ -136,6 +136,99 @@ export const StaySubscribedFlowContentFactory = (
   ...override,
 });
 
+export type CmsChurnInterventionEntry = {
+  apiIdentifier: string;
+  churnInterventionId: string;
+  churnType: string;
+  ctaMessage: string;
+  discountAmount: number;
+  modalHeading: string;
+  modalMessage: string[];
+  redemptionLimit?: number | null;
+  interval: string;
+  productPageUrl: string;
+  stripeCouponId: string;
+  supportUrl: string;
+  termsHeading: string;
+  termsDetails: string[];
+  webIcon: string;
+};
+
+export const CmsChurnInterventionEntryFactory = (
+  override?: Partial<CmsChurnInterventionEntry>
+): CmsChurnInterventionEntry => ({
+  apiIdentifier: faker.string.sample(),
+  churnInterventionId: `ci_${faker.string.alphanumeric({ length: 24 })}`,
+  churnType: 'cancel',
+  ctaMessage: faker.lorem.sentence(),
+  discountAmount: faker.number.int({ min: 5, max: 50 }),
+  modalHeading: faker.lorem.sentence(),
+  modalMessage: [faker.lorem.sentence(), faker.lorem.sentence()],
+  redemptionLimit: 1,
+  interval: faker.helpers.arrayElement([
+    'daily',
+    'weekly',
+    'monthly',
+    'halfyearly',
+    'yearly',
+  ]),
+  productPageUrl: faker.internet.url(),
+  stripeCouponId: `coupon_${faker.string.alphanumeric({ length: 24 })}`,
+  supportUrl: faker.internet.url(),
+  termsHeading: faker.lorem.sentence(),
+  termsDetails: [faker.lorem.sentence()],
+  webIcon: faker.internet.url(),
+  ...override,
+});
+
+export type CmsOfferingContent = {
+  productName: string;
+  successActionButtonUrl: string;
+  supportUrl: string;
+  webIcon: string;
+};
+
+export const CmsOfferingContentFactory = (
+  override?: Partial<CmsOfferingContent>
+): CmsOfferingContent => ({
+  productName: faker.string.sample(),
+  successActionButtonUrl: faker.internet.url(),
+  supportUrl: faker.internet.url(),
+  webIcon: faker.internet.url(),
+  ...override,
+});
+
+export type InterstitialOfferPageContent = {
+  currentInterval: string;
+  modalHeading1: string;
+  modalMessage?: string[];
+  upgradeButtonLabel: string;
+  upgradeButtonUrl: string;
+  webIcon: string;
+  productName: string;
+  offeringId?: string;
+};
+
+export const InterstitialOfferPageContentFactory = (
+  override?: Partial<InterstitialOfferPageContent>
+): InterstitialOfferPageContent => ({
+  currentInterval: faker.helpers.arrayElement([
+    'daily',
+    'weekly',
+    'monthly',
+    'halfyearly',
+    'yearly',
+  ]),
+  modalHeading1: faker.lorem.sentence(),
+  modalMessage: [faker.lorem.sentence()],
+  upgradeButtonLabel: faker.lorem.sentence(),
+  upgradeButtonUrl: faker.internet.url(),
+  webIcon: faker.internet.url(),
+  productName: faker.string.sample(),
+  offeringId: faker.string.sample(),
+  ...override,
+});
+
 export const TrialSubscriptionContentFactory = (
   override?: Partial<TrialSubscriptionContent>
 ): TrialSubscriptionContent => ({

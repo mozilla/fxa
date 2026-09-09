@@ -46,9 +46,6 @@ export interface Config {
     paymentsNext: {
       url: string;
     };
-    legalDocs: {
-      url: string;
-    };
   };
   oauth: {
     clientId: string;
@@ -57,8 +54,8 @@ export interface Config {
     isPromptNoneEnabled: boolean;
     isPromptNoneEnabledClientIds: string[];
     reactClientIdsEnabled: string[];
-    clientInfoTimeout: number,
-    clientInfoRetries: number,
+    clientInfoTimeout: number;
+    clientInfoRetries: number;
   };
   recoveryCodes: {
     count: number;
@@ -99,8 +96,12 @@ export interface Config {
     pairRoutes: boolean;
   };
   pairing: {
+    browserBuild: 'firefox' | 'fenix';
+    /** iOS URL scheme the pairing hand-off opens. See `pairing.ios_url_scheme`. */
+    iosUrlScheme: string;
     clients: string[];
     serverBaseUri: string;
+    version: number;
   };
   mobileStoreLinks: {
     ios: string;
@@ -118,6 +119,7 @@ export interface Config {
     passkeysEnabled?: boolean;
     passkeyRegistrationEnabled?: boolean;
     passkeyAuthenticationEnabled?: boolean;
+    passkeyPasswordlessSyncEnabled?: boolean;
     passwordlessEnabled?: boolean;
   };
   darkMode?: {
@@ -172,9 +174,6 @@ export function getDefault() {
       paymentsNext: {
         url: '',
       },
-      legalDocs: {
-        url: '',
-      },
     },
     oauth: {
       clientId: '',
@@ -184,7 +183,7 @@ export function getDefault() {
       isPromptNoneEnabledClientIds: new Array<string>(),
       reactClientIdsEnabled: new Array<string>(),
       clientInfoRetries: 4,
-      clientInfoTimeout: 10_000
+      clientInfoTimeout: 10_000,
     },
     recoveryCodes: {
       count: 8,
@@ -225,12 +224,16 @@ export function getDefault() {
       pairRoutes: false,
     },
     pairing: {
+      browserBuild: 'firefox',
+      iosUrlScheme: 'firefox',
       clients: [],
       serverBaseUri: 'wss://channelserver.services.mozilla.com',
+      version: 1,
     },
     mobileStoreLinks: {
       ios: 'https://apps.apple.com/app/firefox-private-safe-browser/id989804926',
-      android: 'https://play.google.com/store/apps/details?id=org.mozilla.firefox',
+      android:
+        'https://play.google.com/store/apps/details?id=org.mozilla.firefox',
     },
     featureFlags: {
       recoveryCodeSetupOnSyncSignIn: false,

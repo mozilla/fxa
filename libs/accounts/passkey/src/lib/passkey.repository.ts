@@ -169,6 +169,32 @@ export async function findPasskeyByCredentialId(
 }
 
 /**
+ * Find a passkey by credential ID, scoped to its owner.
+ *
+ * Similar to `findPasskeyByCredentialId`, but requires the user ID, so the
+ * returned passkey is guaranteed to belong to that user without a further
+ * ownership check by the caller.
+ *
+ * @param db - Database instance
+ * @param uid - Owning user's ID as a hex string
+ * @param credentialId - Credential ID, base64url-encoded
+ * @returns The passkey, or undefined when this user has no such credential
+ */
+export async function findPasskeyByUidAndCredentialId(
+  db: AccountDatabase,
+  uid: string,
+  credentialId: string
+): Promise<PasskeyRecord | undefined> {
+  const row = await db
+    .selectFrom('passkeys')
+    .selectAll()
+    .where('uid', '=', uuidTransformer.to(uid))
+    .where('credentialId', '=', base64urlToBuffer(credentialId))
+    .executeTakeFirst();
+  return row && toPasskeyRecord(row);
+}
+
+/**
  * Insert a new passkey record.
  *
  * @param db - Database instance
@@ -269,6 +295,31 @@ export async function updatePasskeyName(
     .set({ name })
     .where('uid', '=', uuidTransformer.to(uid))
     .where('credentialId', '=', base64urlToBuffer(credentialId))
+    .executeTakeFirst();
+
+  return Number(result.numUpdatedRows);
+}
+
+/**
+ * Roll a passkey's `prfEnabled` flag forward from false to true. Monotonic: the
+ * `prfEnabled = false` guard means an already-true flag is never rewritten, so
+ * capability detected on one device can't be erased by a device lacking PRF.
+ * Scoped to both uid and credentialId so one user can't flip another's passkey.
+ *
+ * @returns Rows updated: 1 on a false→true flip, 0 when already true, not found,
+ *   or owned by another user.
+ */
+export async function updatePasskeyPrfEnabled(
+  db: AccountDatabase,
+  uid: string,
+  credentialId: string
+): Promise<number> {
+  const result = await db
+    .updateTable('passkeys')
+    .set({ prfEnabled: 1 })
+    .where('uid', '=', uuidTransformer.to(uid))
+    .where('credentialId', '=', base64urlToBuffer(credentialId))
+    .where('prfEnabled', '=', false)
     .executeTakeFirst();
 
   return Number(result.numUpdatedRows);

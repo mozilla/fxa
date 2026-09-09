@@ -5,7 +5,6 @@
 import { Redis } from 'ioredis';
 import * as isA from 'joi';
 import { StatsD } from 'hot-shots';
-import * as uuid from 'uuid';
 import Container from 'typedi';
 
 import { OtpManager, OtpStorage } from '@fxa/shared/otp';
@@ -28,6 +27,8 @@ import type { DB } from '../db';
 import {
   isClientAllowedForPasswordless,
   isPasswordlessEligible,
+  PASSWORDLESS_SEND_OTP_SIGNIN,
+  PASSWORDLESS_SEND_OTP_SIGNUP,
 } from './utils/passwordless';
 import { normalizeEmail } from 'fxa-shared/email/helpers';
 import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
@@ -167,6 +168,7 @@ class PasswordlessHandler {
 
   async sendCode(request: AuthRequest) {
     this.log.begin('Passwordless.sendCode', request);
+    request.validateMetricsContext();
 
     const { email, clientId, service } = request.payload as {
       email: string;
@@ -177,6 +179,7 @@ class PasswordlessHandler {
     await this.customs.check(request, email, 'passwordlessSendOtp');
 
     const { account, isNewAccount } = await this.lookupAccount(email);
+    await this.checkFlowRateLimit(request, email, isNewAccount);
     this.validatePasswordlessAccess(
       account,
       email,
@@ -199,6 +202,22 @@ class PasswordlessHandler {
     );
   }
 
+  /**
+   * Rate limit the send per flow. Signup and signin share these endpoints, so
+   * the flow is only known once the account lookup has run.
+   */
+  private async checkFlowRateLimit(
+    request: AuthRequest,
+    email: string,
+    isNewAccount: boolean
+  ): Promise<void> {
+    await this.customs.check(
+      request,
+      email,
+      isNewAccount ? PASSWORDLESS_SEND_OTP_SIGNUP : PASSWORDLESS_SEND_OTP_SIGNIN
+    );
+  }
+
   /** Normalize the email and run the shared blocklist check. */
   private async checkBlocklists(email: string): Promise<void> {
     await checkBlocklists(normalizeEmail(email), this.log, this.statsd);
@@ -206,6 +225,7 @@ class PasswordlessHandler {
 
   async confirmCode(request: AuthRequest) {
     this.log.begin('Passwordless.confirmCode', request);
+    request.validateMetricsContext();
 
     const { email, code, clientId, service } = request.payload as {
       email: string;
@@ -375,6 +395,7 @@ class PasswordlessHandler {
 
   async resendCode(request: AuthRequest) {
     this.log.begin('Passwordless.resendCode', request);
+    request.validateMetricsContext();
 
     const { email, clientId, service } = request.payload as {
       email: string;
@@ -385,6 +406,7 @@ class PasswordlessHandler {
     await this.customs.check(request, email, 'passwordlessSendOtp');
 
     const { account, isNewAccount } = await this.lookupAccount(email);
+    await this.checkFlowRateLimit(request, email, isNewAccount);
     this.validatePasswordlessAccess(
       account,
       email,
@@ -528,7 +550,7 @@ class PasswordlessHandler {
     const [kA, wrapWrapKb, wrapWrapKbVersion2] = await random.hex(32, 32, 32);
 
     const account = await this.db.createAccount({
-      uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
+      uid: await random.hex(16),
       createdAt: Date.now(),
       email,
       emailCode,

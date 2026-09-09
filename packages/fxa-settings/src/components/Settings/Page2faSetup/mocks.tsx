@@ -15,7 +15,7 @@ import {
   MOCK_2FA_SECRET_KEY_RAW,
   PLACEHOLDER_QR_CODE,
 } from '../../../pages/mocks';
-import { MfaContext } from '../MfaGuard';
+import { MfaContext } from '../../../lib/hooks';
 
 export const MOCK_TOTP_INFO = {
   qrCodeUrl: PLACEHOLDER_QR_CODE,

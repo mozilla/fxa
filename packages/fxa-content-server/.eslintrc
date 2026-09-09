@@ -1,8 +1,9 @@
 {
   "extends": ["plugin:fxa/client", "plugin:fxa/recommended"],
   "plugins": ["fxa"],
-  "parser": "babel-eslint",
+  "parser": "@babel/eslint-parser",
   "parserOptions": {
+    "requireConfigFile": false,
     "ecmaVersion": "2020",
     "sourceType": "module"
   },

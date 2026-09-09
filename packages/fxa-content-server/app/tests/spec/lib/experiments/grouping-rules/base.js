@@ -5,7 +5,7 @@
 import _ from 'underscore';
 import { assert } from 'chai';
 import BaseExperiment from 'lib/experiments/grouping-rules/base';
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 describe('lib/experiments/grouping-rules/base', () => {
   let experiment;
@@ -216,7 +216,7 @@ describe('lib/experiments/grouping-rules/base', () => {
         for (let i = 0; i < ITERATIONS; ++i) {
           const choice = experiment.choose({
             experimentChooser,
-            uuid: uuid.v4(),
+            uuid: uuidv4(),
           });
 
           counts[choice]++;

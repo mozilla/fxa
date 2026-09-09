@@ -20,5 +20,10 @@ ruleTester.run('no-exclusive-tests', rule, {
       code: `it.only('test', function() { });`,
       errors: [fromError],
     },
+    {
+      // Computed access reaches the property name by `value`, not `name`.
+      code: `it['only']('test', function() { });`,
+      errors: [fromError],
+    },
   ],
 });

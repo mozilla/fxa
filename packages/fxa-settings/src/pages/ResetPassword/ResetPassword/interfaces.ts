@@ -4,9 +4,11 @@
 
 import { QueryParams } from '../../..';
 import { MozServices } from '../../../lib/types';
+import { ResetPasswordIntegration } from '../interfaces';
 
 export interface ResetPasswordContainerProps {
   flowQueryParams?: QueryParams;
+  integration: ResetPasswordIntegration;
   serviceName: MozServices;
   setCurrentSplitLayout: (value: boolean) => void;
 }
@@ -16,6 +18,7 @@ export interface ResetPasswordProps {
   requestResetPasswordCode: (email: string) => Promise<void>;
   serviceName: MozServices;
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
+  showPasskeyOption?: boolean;
   /**
    * Although Reset Password does not use the split layout, navigating from
    * a page that does (like signin) causes split layout to be shown during

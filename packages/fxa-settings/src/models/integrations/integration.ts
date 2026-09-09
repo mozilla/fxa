@@ -104,6 +104,13 @@ export class GenericIntegration<
     return false;
   }
 
+  /**
+   * Signals that the integration supports pairing. By default this is false.
+   */
+  isPairing() {
+    return false;
+  }
+
   // Practically, this will never be called unless the integration is
   // an oauth-native-integration, but provide a reasonable default.
   getWebChannelServices(

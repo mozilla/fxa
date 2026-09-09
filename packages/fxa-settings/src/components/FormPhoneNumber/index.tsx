@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import InputPhoneNumber from '../InputPhoneNumber';
+import InputPhoneNumber, { defaultCountries } from '../InputPhoneNumber';
 import Banner from '../Banner';
 import { BannerContentProps, BannerLinkProps } from '../Banner/interfaces';
 import { GleanClickEventDataAttrs } from '../../lib/types';
@@ -39,9 +39,14 @@ const FormPhoneNumber = ({
       criteriaMode: 'all',
       defaultValues: {
         phoneNumber: '',
-        countryCode: '',
+        countryCode:
+          defaultCountries.find((c) => c.id === 1)?.code ||
+          defaultCountries[0].code,
       },
     });
+  // Eagerly read isDirty so react-hook-form's Proxy subscribes to it
+  // even when isSubmitting short-circuits the disabled expression.
+  const { isDirty } = formState;
 
   // Use `useWatch` to observe the `phoneNumber` field without causing re-renders
   const phoneNumberInput: string | undefined = useWatch({
@@ -115,7 +120,7 @@ const FormPhoneNumber = ({
           className="cta-primary cta-xl"
           disabled={
             isSubmitting ||
-            !formState.isDirty ||
+            !isDirty ||
             phoneNumberInput === undefined ||
             phoneNumberInput.replace(/\D/g, '').length !== 10
           }

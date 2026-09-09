@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useNavigate, Link, useLocation } from 'react-router';
-import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery, useWebRedirect } from '../../lib/hooks';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -27,7 +27,6 @@ import { shouldShowPasskeySignin } from '../../lib/passkeys';
 import { isWebAuthnSupported } from '../../lib/passkeys/webauthn';
 import { SigninFormData, SigninProps } from './interfaces';
 import { handleNavigation } from './utils';
-import { useWebRedirect } from '../../lib/hooks/useWebRedirect';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import Banner from '../../components/Banner';
 import { SensitiveData } from '../../lib/sensitive-data-client';
@@ -98,6 +97,9 @@ const Signin = ({
   const [passwordTooltipErrorText, setPasswordTooltipErrorText] =
     useState<string>('');
   const [signinLoading, setSigninLoading] = useState<boolean>(false);
+  // Unlike signinLoading, which lingers after an error until the field is edited.
+  const [signinAttemptInFlight, setSigninAttemptInFlight] =
+    useState<boolean>(false);
   const [hasEngaged, setHasEngaged] = useState<boolean>(false);
 
   const isOAuthNative = isOAuthNativeIntegration(integration);
@@ -153,120 +155,134 @@ const Signin = ({
       GleanMetrics.login.submit();
 
       setSigninLoading(true);
-      const { data, error } = await beginSigninHandler(email, password);
+      setSigninAttemptInFlight(true);
+      try {
+        const { data, error } = await beginSigninHandler(email, password);
 
-      if (data) {
-        GleanMetrics.login.success();
+        if (data) {
+          GleanMetrics.login.success();
 
-        const isFullyVerified =
-          data.signIn.emailVerified && data.signIn.sessionVerified;
-        const navigationOptions = {
-          navigate,
-          email,
-          signinData: data.signIn,
-          unwrapBKey: data.unwrapBKey,
-          integration,
-          finishOAuthFlowHandler,
-          redirectTo:
-            isWebIntegration(integration) && webRedirectCheck?.isValid
-              ? integration.data.redirectTo
-              : '',
-          queryParams: location.search,
-          showInlineRecoveryKeySetup: data.showInlineRecoveryKeySetup,
-          handleFxaLogin: true,
-          handleFxaOAuthLogin: true,
-          performNavigation: !(
-            integration.isFirefoxMobileClient() && isFullyVerified
-          ),
-          isServiceWithEmailVerification,
-          authClient,
-        };
+          const isFullyVerified =
+            data.signIn.emailVerified && data.signIn.sessionVerified;
+          const navigationOptions = {
+            navigate,
+            email,
+            signinData: data.signIn,
+            unwrapBKey: data.unwrapBKey,
+            integration,
+            finishOAuthFlowHandler,
+            redirectTo:
+              isWebIntegration(integration) && webRedirectCheck?.isValid
+                ? integration.data.redirectTo
+                : '',
+            queryParams: location.search,
+            showInlineRecoveryKeySetup: data.showInlineRecoveryKeySetup,
+            handleFxaLogin: true,
+            handleFxaOAuthLogin: true,
+            performNavigation: !(
+              integration.isFirefoxMobileClient() && isFullyVerified
+            ),
+            isServiceWithEmailVerification,
+            authClient,
+          };
 
-        const { error: navError } = await handleNavigation(navigationOptions);
-        if (navError) {
-          setLocalizedBannerError(
-            getLocalizedErrorMessage(ftlMsgResolver, navError)
-          );
-        }
-      }
-      if (error) {
-        GleanMetrics.login.error({ event: { reason: error.message } });
-        const { errno } = error;
-
-        if (
-          errno === AuthUiErrors.PASSWORD_REQUIRED.errno ||
-          errno === AuthUiErrors.INCORRECT_PASSWORD.errno
-        ) {
-          setLocalizedBannerError('');
-          setLocalizedBannerErrorDescription('');
-          setLocalizedBannerErrorLink(undefined);
-          setPasswordTooltipErrorText(
-            getLocalizedErrorMessage(ftlMsgResolver, error)
-          );
-        } else {
-          switch (errno) {
-            case AuthUiErrors.THROTTLED.errno:
-            case AuthUiErrors.REQUEST_BLOCKED.errno:
-              const { localizedErrorMessage } =
-                await sendUnblockEmailHandler(email);
-              if (localizedErrorMessage) {
-                // Sending the unblock email could itself be rate limited.
-                // If it is, the error should be displayed on this screen
-                // and the user shouldn't even have the chance to continue.
-                setLocalizedBannerError(localizedErrorMessage);
-                setSigninLoading(false);
-                break;
-              }
-
-              // Store password to be used in another component
-              sensitiveDataClient.setDataType(SensitiveData.Key.Password, {
-                plainTextPassword: password,
-              });
-              // navigate only if sending the unblock code email is successful
-              navigateWithQuery('/signin_unblock', {
-                state: {
-                  email,
-                  // TODO: in FXA-9177, consider persisting hasLinkedAccount and hasPassword to localStorage
-                  hasPassword,
-                  hasLinkedAccount,
-                },
-              });
-              break;
-            case AuthUiErrors.EMAIL_HARD_BOUNCE.errno:
-            case AuthUiErrors.EMAIL_SENT_COMPLAINT.errno:
-              navigateWithQuery('/signin_bounced');
-              break;
-            case AuthUiErrors.ACCOUNT_RESET.errno:
-              setLocalizedBannerError(
-                ftlMsgResolver.getMsg(
-                  'signin-account-locked-banner-heading',
-                  'Reset your password'
-                )
-              );
-              setLocalizedBannerErrorDescription(
-                ftlMsgResolver.getMsg(
-                  'signin-account-locked-banner-description',
-                  'We locked your account to keep it safe from suspicious activity.'
-                )
-              );
-              setLocalizedBannerErrorLink({
-                path: `/reset_password?email=${email}`,
-                localizedText: ftlMsgResolver.getMsg(
-                  'signin-account-locked-banner-link',
-                  'Reset your password to sign in'
-                ),
-                gleanId: 'login_locked_account_banner_link',
-              });
-              GleanMetrics.login.lockedAccountBannerView();
-              break;
-            default:
-              setLocalizedBannerError(
-                getLocalizedErrorMessage(ftlMsgResolver, error)
-              );
-              setSigninLoading(false);
-              break;
+          const { error: navError } = await handleNavigation(navigationOptions);
+          if (navError) {
+            setLocalizedBannerError(
+              getLocalizedErrorMessage(ftlMsgResolver, navError)
+            );
+            setSigninAttemptInFlight(false);
           }
         }
+        if (error) {
+          setSigninAttemptInFlight(false);
+          GleanMetrics.login.error({ event: { reason: error.message } });
+          const { errno } = error;
+
+          if (
+            errno === AuthUiErrors.PASSWORD_REQUIRED.errno ||
+            errno === AuthUiErrors.INCORRECT_PASSWORD.errno
+          ) {
+            setLocalizedBannerError('');
+            setLocalizedBannerErrorDescription('');
+            setLocalizedBannerErrorLink(undefined);
+            setPasswordTooltipErrorText(
+              getLocalizedErrorMessage(ftlMsgResolver, error)
+            );
+          } else {
+            switch (errno) {
+              case AuthUiErrors.THROTTLED.errno:
+              case AuthUiErrors.REQUEST_BLOCKED.errno:
+                const { localizedErrorMessage } =
+                  await sendUnblockEmailHandler(email);
+                if (localizedErrorMessage) {
+                  // Sending the unblock email could itself be rate limited.
+                  // If it is, the error should be displayed on this screen
+                  // and the user shouldn't even have the chance to continue.
+                  setLocalizedBannerError(localizedErrorMessage);
+                  setSigninLoading(false);
+                  break;
+                }
+
+                // Store password to be used in another component
+                sensitiveDataClient.setDataType(SensitiveData.Key.Password, {
+                  plainTextPassword: password,
+                });
+                // navigate only if sending the unblock code email is successful
+                navigateWithQuery('/signin_unblock', {
+                  state: {
+                    email,
+                    // TODO: in FXA-9177, consider persisting hasLinkedAccount and hasPassword to localStorage
+                    hasPassword,
+                    hasLinkedAccount,
+                  },
+                });
+                break;
+              case AuthUiErrors.EMAIL_HARD_BOUNCE.errno:
+              case AuthUiErrors.EMAIL_SENT_COMPLAINT.errno:
+                navigateWithQuery('/signin_bounced');
+                break;
+              case AuthUiErrors.ACCOUNT_RESET.errno:
+                setLocalizedBannerError(
+                  ftlMsgResolver.getMsg(
+                    'signin-account-locked-banner-heading',
+                    'Reset your password'
+                  )
+                );
+                setLocalizedBannerErrorDescription(
+                  ftlMsgResolver.getMsg(
+                    'signin-account-locked-banner-description',
+                    'We locked your account to keep it safe from suspicious activity.'
+                  )
+                );
+                setLocalizedBannerErrorLink({
+                  path: `/reset_password?email=${email}`,
+                  localizedText: ftlMsgResolver.getMsg(
+                    'signin-account-locked-banner-link',
+                    'Reset your password to sign in'
+                  ),
+                  gleanId: 'login_locked_account_banner_link',
+                });
+                GleanMetrics.login.lockedAccountBannerView();
+                break;
+              default:
+                setLocalizedBannerError(
+                  getLocalizedErrorMessage(ftlMsgResolver, error)
+                );
+                setSigninLoading(false);
+                break;
+            }
+          }
+        }
+      } catch (err) {
+        // Either handler can reject rather than return `{ error }`; without this
+        // the lock would strand the other options until a reload.
+        GleanMetrics.login.error({
+          event: { reason: (err as Error)?.message ?? 'unexpected' },
+        });
+        setSigninAttemptInFlight(false);
+        setSigninLoading(false);
+        setLocalizedBannerError(getLocalizedErrorMessage(ftlMsgResolver, err));
       }
     },
     [
@@ -307,8 +323,14 @@ const Signin = ({
   const additionalAccessibilityInfo =
     cmsInfo?.shared.additionalAccessibilityInfo;
 
+  const signinButtonLocked = signinLoading || passkey.isLoading;
+  const alternativesLocked = signinAttemptInFlight || passkey.isLoading;
+
   return (
-    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
+    <AppLayout
+      {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}
+      loading={passkey.isNavigating}
+    >
       {(localizedSuccessBannerHeading || localizedSuccessBannerDescription) && (
         <Banner
           type="success"
@@ -352,7 +374,6 @@ const Signin = ({
         <input type="email" className="hidden" value={email} disabled />
 
         <InputPassword
-          name="password"
           anchorPosition="start"
           className="mb-5"
           label={localizedPasswordFormLabel}
@@ -375,14 +396,14 @@ const Signin = ({
             // if the request errored, loading state must be marked as false to reenable submission on input type
             setSigninLoading(false);
           }}
-          inputRef={register()}
+          registration={register('password')}
         />
 
         <div className="flex">
           <FtlMsg id="signin-button">
             <CmsButtonWithFallback
               type="submit"
-              disabled={signinLoading}
+              disabled={signinButtonLocked}
               buttonColor={cmsInfo?.shared.buttonColor}
               buttonText={signinPageCms?.primaryButtonText}
             >
@@ -401,6 +422,7 @@ const Signin = ({
             : undefined
         }
         errorBanner={showPasskeySignin ? passkey.errorBanner : undefined}
+        disabled={alternativesLocked}
         {...{ viewName, flowQueryParams }}
       />
 

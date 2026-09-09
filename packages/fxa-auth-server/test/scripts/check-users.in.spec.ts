@@ -4,6 +4,7 @@
 
 import cp from 'child_process';
 import util from 'util';
+import os from 'os';
 import path from 'path';
 import fs from 'fs';
 import {
@@ -35,9 +36,12 @@ describe('#integration - scripts/check-users:', () => {
   let server: TestServerInstance;
   let validClient: any;
   let invalidClient: any;
+  let tmpDir: string;
   let filename: string;
 
   beforeAll(async () => {
+    // Write test files outside the repo so no fixtures are left behind.
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'fxa-check-users-'));
     server = await getSharedTestServer();
 
     validClient = await Client.create(
@@ -57,12 +61,16 @@ describe('#integration - scripts/check-users:', () => {
     let csvData = `${validClient.email}:${PASSWORD_VALID}\n`;
     csvData = csvData + `${invalidClient.email}:wrong_password\n`;
     csvData = csvData + `invalid@email.com:wrong_password\n`;
-    filename = `./test/scripts/fixtures/${Math.random()}_two_email_passwords.txt`;
+    filename = path.join(tmpDir, 'two_email_passwords.txt');
     fs.writeFileSync(filename, csvData);
   });
 
   afterAll(async () => {
-    await server.stop();
+    try {
+      if (server) await server.stop();
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
   });
 
   it('fails if no input file', async () => {
@@ -78,9 +86,9 @@ describe('#integration - scripts/check-users:', () => {
   });
 
   it('creates csv file with user stats', async () => {
-    const outfile = `./test/scripts/fixtures/${Math.random()}_stats.csv`;
+    const outfile = path.join(tmpDir, 'stats.csv');
     await execAsync(
-      `node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/check-users -i ${filename} -o ${outfile}`,
+      `node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/check-users -i "${filename}" -o "${outfile}"`,
       execOptions
     );
 
