@@ -1,8 +1,8 @@
 {
-  "commit": "3ab9174445df674aeaf4c50b4be6faadcee962e0",
-  "summary": "fix(settings): repair broken Pair and ConnectAnotherDevice stories",
-  "description": "## Because\n\n- 19 Storybook stories under `Pages/Pair` and `Pages/ConnectAnotherDevice` throw on render, so nobody can review those states.\n- `Pair` gained a required `fxaStatusResult` prop and reads `fxaStatusResult.fxaStatusState` without a guard. The 9 Pair stories passed no prop.\n- The `Devices` enum moved to `src/lib/utilities.ts`, but the ConnectAnotherDevice story file still imported it from `.`. Module load failed for all 10 stories.\n- `packages/fxa-settings/tsconfig.json` excluded `src/**/*.stories.tsx`, so no typecheck caught either break.\n\n## This pull request\n\n- Removes the `src/**/*.stories.tsx` and `src/**/*.stories.ts` exclusions from `packages/fxa-settings/tsconfig.json`, so `tsc` now covers story files.\n- Passes `fxaStatusResult` to every `<Pair />` story, built from the existing `mockUseFxAStatus` helper.\n- Imports `Devices` from `../../lib/utilities` in the ConnectAnotherDevice story file.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-14497",
-  "timestamp": 1788989896000,
+  "commit": "44b3a1658446ba855b945be7d0da6a23aac80ae3",
+  "summary": "fix(settings): pin a Firefox desktop UA for the Pair stories",
+  "description": "Because:\n\n- Pair reads detectDevice() on mount and redirects to /pair/unsupported\n  without clearing bootstrapping, so a non-Firefox user agent leaves every\n  story on the full-screen spinner.\n- Reviewers open Storybook in whatever browser they happen to use, so the\n  stories only rendered for some of them.\n\nThis commit:\n\n- Adds a decorator that stubs navigator.userAgent as Firefox desktop while\n  a Pair story is mounted, and restores it on unmount.",
+  "timestamp": 1788991369000,
   "storybooks": [
     "fxa-settings"
   ],
