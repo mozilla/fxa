@@ -291,7 +291,12 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     } catch (err: unknown) {
       // Reset _channel so a subsequent openChannel() call can retry
       this._channel = null;
-      this.fail(err);
+      // A consumed channel refusing the socket is the post-OAuth reload, not a
+      // failure. fail() still has to run for the config and already-connected
+      // errors, which reject before open() dispatches any `error` event.
+      if (!this.isPostCompletionReconnect()) {
+        this.fail(err);
+      }
     }
   }
 
@@ -329,7 +334,7 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
 
       // Send OAuth request to authority
       if (!this._channel) {
-        throw new Error('Channel no longe exists!');
+        throw new Error('Channel no longer exists!');
       }
       await this._channel.send('pair:supp:request', oauthParams);
     })().catch((err: unknown) => {
