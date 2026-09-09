@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Unsupported-browser pairing test.
+ * Unsupported-browser pairing tests.
  *
- * Spoofs the user-agent to a non-Firefox desktop browser, opens /pair,
- * and verifies the unsupported screen renders with the "Oops!" heading
- * and a Download Firefox link.
+ * Spoofs the user-agent to a browser that cannot pair — a non-Firefox desktop,
+ * and an iPhone opening a scanned pairing URL — and verifies both land on the
+ * unsupported screen.
  *
  * Runs on the standard Firefox project — only the UA string is faked,
  * so no extra browser binary is required.
@@ -24,6 +24,14 @@ const CHROME_DESKTOP_UA =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) ' +
   'AppleWebKit/537.36 (KHTML, like Gecko) ' +
   'Chrome/124.0.0.0 Safari/537.36';
+
+const IOS_SAFARI_UA =
+  'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) ' +
+  'AppleWebKit/605.1.15 (KHTML, like Gecko) ' +
+  'Version/17.4 Mobile/15E148 Safari/604.1';
+
+/** What the system camera opens after scanning a v2 authority QR. */
+const PAIRING_HASH = '#channel_id=chan-1&channel_key=key-1&v=2';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('pairing unsupported browser', () => {
@@ -64,6 +72,27 @@ test.describe('severity-2 #smoke', () => {
         'href',
         /mozilla\.org\/firefox\/new/
       );
+    });
+  });
+
+  // Firefox iOS cannot finish a pairing that started in another browser, so
+  // offering to hand off to it would only be a tap in front of this screen.
+  test.describe('pairing from the iOS system camera', () => {
+    test.use({ userAgent: IOS_SAFARI_UA });
+
+    test('opening a scanned pairing URL on iOS redirects to /pair/unsupported', async ({
+      target,
+      page,
+    }) => {
+      await page.goto(`${target.contentServerUrl}/pair${PAIRING_HASH}`, {
+        waitUntil: 'load',
+      });
+
+      await page.waitForURL(/\/pair\/unsupported/, { timeout: 10_000 });
+      await expect(page.locator('#pair-unsupported-header')).toBeVisible();
+      await expect(
+        page.getByRole('heading', { name: /Continue in Firefox/i })
+      ).toBeHidden();
     });
   });
 });

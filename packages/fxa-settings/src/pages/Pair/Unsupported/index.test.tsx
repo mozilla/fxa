@@ -210,6 +210,24 @@ describe('PairUnsupported', () => {
         restore();
       }
     });
+
+    // Every branch of this page, in both stacks, anchors its heading here, and
+    // the pairing functional tests key off it.
+    it('gives the heading the shared pair-unsupported-header id', () => {
+      const restore = spoofUserAgent(
+        UA_CHROME_ANDROID,
+        '#channel_id=abc&channel_key=def'
+      );
+      try {
+        renderWithLocalizationProvider(<PairUnsupported />);
+
+        expect(
+          screen.getByRole('heading', { name: 'Pair using an app' })
+        ).toHaveAttribute('id', 'pair-unsupported-header');
+      } finally {
+        restore();
+      }
+    });
   });
 
   describe('desktop Firefox fallback', () => {

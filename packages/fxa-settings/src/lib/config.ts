@@ -99,6 +99,11 @@ export interface Config {
     browserBuild: 'firefox' | 'fenix';
     /** iOS URL scheme the pairing hand-off opens. See `pairing.ios_url_scheme`. */
     iosUrlScheme: string;
+    /**
+     * Whether a pairing QR scanned outside Firefox on iOS is handed off to the
+     * Firefox app. See `pairing.ios_handoff`.
+     */
+    iosHandoff: boolean;
     clients: string[];
     serverBaseUri: string;
     version: number;
@@ -226,6 +231,7 @@ export function getDefault() {
     pairing: {
       browserBuild: 'firefox',
       iosUrlScheme: 'firefox',
+      iosHandoff: false,
       clients: [],
       serverBaseUri: 'wss://channelserver.services.mozilla.com',
       version: 1,

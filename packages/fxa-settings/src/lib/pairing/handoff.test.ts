@@ -33,6 +33,7 @@ function createStorage(seed: Record<string, string> = {}) {
   };
 }
 
+/** Hand-off enabled on both platforms; the iOS gate has its own tests. */
 const plan = (device: Devices, storage = createStorage()) =>
   planPairingHandoff({
     device,
@@ -40,6 +41,7 @@ const plan = (device: Devices, storage = createStorage()) =>
     storeLinks: MOCK_STORE_LINKS,
     storage,
     build: 'firefox',
+    iosHandoff: true,
   });
 
 describe('planPairingHandoff', () => {
@@ -81,6 +83,33 @@ describe('planPairingHandoff', () => {
       const url = new URL(deepLink.replace('firefox://', 'https://'));
       expect(url.searchParams.get('url')).toBe(MOCK_TARGET);
     });
+
+    // Firefox iOS cannot finish a pairing it did not start, so handing the URL
+    // over only adds a tap in front of /pair/unsupported.
+    it('plans no hand-off when the Firefox app cannot act on one', () => {
+      expect(
+        planPairingHandoff({
+          device: Devices.OTHER_IOS,
+          targetUrl: MOCK_TARGET,
+          storeLinks: MOCK_STORE_LINKS,
+          storage: createStorage(),
+          build: 'firefox',
+          iosHandoff: false,
+        })
+      ).toEqual({ kind: 'none' });
+    });
+
+    it('plans no hand-off by default', () => {
+      expect(
+        planPairingHandoff({
+          device: Devices.OTHER_IOS,
+          targetUrl: MOCK_TARGET,
+          storeLinks: MOCK_STORE_LINKS,
+          storage: createStorage(),
+          build: 'firefox',
+        })
+      ).toEqual({ kind: 'none' });
+    });
   });
 
   describe('on a non-Firefox Android browser', () => {
@@ -117,6 +146,7 @@ describe('planPairingHandoff', () => {
         storage: createStorage(),
         build: 'firefox',
         iosScheme: 'fennec',
+        iosHandoff: true,
       }) as { deepLink: string };
 
       expect(deepLink).toBe(
@@ -144,6 +174,19 @@ describe('planPairingHandoff', () => {
       );
       // The encoded fallback plus the trailing terminator, and nothing more.
       expect(deepLink.split(';end').length - 1).toBe(1);
+    });
+
+    it('hands off even while the iOS hand-off is disabled', () => {
+      expect(
+        planPairingHandoff({
+          device: Devices.OTHER_ANDROID,
+          targetUrl: MOCK_TARGET,
+          storeLinks: MOCK_STORE_LINKS,
+          storage: createStorage(),
+          build: 'firefox',
+          iosHandoff: false,
+        })
+      ).toEqual(expect.objectContaining({ kind: 'android' }));
     });
 
     it('does not auto-attempt once the token for this target is spent', () => {
