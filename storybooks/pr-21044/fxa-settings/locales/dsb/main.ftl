@@ -352,7 +352,15 @@ password-strength-inline-passwords-match = Gronidle stej jadnakej
 
 
 promo-qr-mobile-heading = Waš telefon. Waše pšawidła.
-promo-qr-mobile-description = Scannujśo, aby nałoženje dostał
+promo-qr-mobile-heading-treatment-a = Cyńśo tam dalej, źožkuli sćo
+promo-qr-mobile-heading-treatment-b = Waše rejtariki a wěcej, gótowe na wašom telefonje
+promo-qr-mobile-heading-treatment-c = Wobglědowak, kótaremuž dowěrjaśo, na wašom telefonje
+promo-qr-mobile-heading-treatment-d = Ten samski { -brand-firefox }. Druga wobrazowka.
+promo-qr-mobile-heading-treatment-e = Waša priwatnosć njeměła se how kóńcyś.
+promo-qr-mobile-heading-treatment-f = Wobchowajśo wěcej swójogo pśeglědowanja
+promo-qr-mobile-heading-treatment-g = Waš telefon mógł pitśku mjenjej šumjenja wužywaś
+promo-qr-mobile-heading-treatment-h = Pśeglědujśo na wótpětu wašnju
+promo-qr-mobile-description-v2 = Scannujśo, aby mobilne nałoženje ześěgnuł
 promo-qr-mobile-qr-alt =
     .alt = QR-kod za ześěgowanje mobilnego nałoženja { -brand-firefox }. Pozicioněrujśo kameru swójogo telefona w rožku dołojce napšawo swójeje wobrazowki, aby jen scannował.
 
@@ -1068,7 +1076,6 @@ terms-privacy-agreement-default-2 = Gaž pókšacujośo, zwólijośo do <mozilla
 
 
 third-party-auth-options-or = abo
-third-party-auth-options-sign-in-with = Pśizjawiś z
 continue-with-google-button = Dalej z { -brand-google }
 continue-with-apple-button = Dalej z { -brand-apple }
 

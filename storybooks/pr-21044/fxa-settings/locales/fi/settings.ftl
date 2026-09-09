@@ -393,8 +393,6 @@ password-strength-inline-passwords-match = Salasanat täsmäävät
 
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Sinun puhelin. Sinun säännöt.
-# Appears next to a QR code that a user can scan to download the Firefox mobile app
-promo-qr-mobile-description = Skannaa saadaksesi sovelluksen
 
 ## Notification Promo Banner component
 
@@ -1195,7 +1193,7 @@ terms-privacy-agreement-default-2 = Jatkamalla hyväksyt <mozillaAccountsTos>kä
 
 # This appears when a user has the option to authenticate via third party accounts in addition to their Firefox account.
 # Firefox account login appears on top, and third party options appear on bottom.
-# This string appears as a separation between the two, in the following order: "Enter your password" "Or"(this string) (continue-with-google-button with aria equivalent text) / (continue-with-apple-button with aria equivalent text)
+# This string appears as a separation between the two, in the following order: "Enter your password" "Or"(this string) (continue-with-google-button) / (continue-with-apple-button). The two buttons show their label as visible text.
 third-party-auth-options-or = Tai
 continue-with-google-button = Jatka käyttämällä { -brand-google }a
 continue-with-apple-button = Jatka käyttämällä { -brand-apple }a

@@ -462,7 +462,6 @@ password-strength-inline-passwords-match = Hasła są zgodne
 
 
 promo-qr-mobile-heading = Twój telefon. Twoje zasady.
-promo-qr-mobile-description = Zeskanuj, aby pobrać aplikację
 
 
 account-recovery-notification-cta = Utwórz
@@ -1099,7 +1098,6 @@ terms-privacy-agreement-default-2 = Kontynuując, wyrażasz zgodę na <mozillaAc
 
 
 third-party-auth-options-or = Lub
-third-party-auth-options-sign-in-with = Zaloguj się za pomocą
 continue-with-google-button = Kontynuuj za pomocą konta { -brand-google }
 continue-with-apple-button = Kontynuuj za pomocą konta { -brand-apple }
 

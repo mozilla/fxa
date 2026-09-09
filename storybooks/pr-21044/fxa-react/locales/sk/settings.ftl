@@ -440,8 +440,6 @@ password-strength-inline-passwords-match = Heslá sa zhodujú
 
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Váš telefón. Vaše pravidlá.
-# Appears next to a QR code that a user can scan to download the Firefox mobile app
-promo-qr-mobile-description = Naskenujte a stiahnite si aplikáciu
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
 promo-qr-mobile-qr-alt =
     .alt = QR kód na stiahnutie mobilnej aplikácie { -brand-firefox }. Umiestnite fotoaparát telefónu do pravého dolného rohu obrazovky a naskenujte ho.
@@ -1436,11 +1434,8 @@ terms-privacy-agreement-default-2 = Pokračovaním vyjadrujete súhlas s <mozill
 
 # This appears when a user has the option to authenticate via third party accounts in addition to their Firefox account.
 # Firefox account login appears on top, and third party options appear on bottom.
-# This string appears as a separation between the two, in the following order: "Enter your password" "Or"(this string) (continue-with-google-button with aria equivalent text) / (continue-with-apple-button with aria equivalent text)
+# This string appears as a separation between the two, in the following order: "Enter your password" "Or"(this string) (continue-with-google-button) / (continue-with-apple-button). The two buttons show their label as visible text.
 third-party-auth-options-or = alebo
-# For the sign-in page, when 3rd-party auth is the only option, this string appears with a divider line between the user's avatar on top and 3rd-party authentication buttons (continue-with-google continue-with-apple buttons) on bottom.
-# This could also be translated as "Sign in with the following" or "Sign in with the below".
-third-party-auth-options-sign-in-with = Prihlásiť sa pomocou
 continue-with-google-button = Pokračovať pomocou { -brand-google }
 continue-with-apple-button = Pokračovať pomocou { -brand-apple }
 

@@ -345,7 +345,6 @@ password-strength-inline-passwords-match = Ñe’ẽñemi ojueheguáva
 
 
 promo-qr-mobile-heading = Ne pumbyry. Nde rekoguata.
-promo-qr-mobile-description = Emoha’ãnga ereko hag̃ua tembiporu’i
 promo-qr-mobile-qr-alt =
     .alt = QR ayvu emboguejy hag̃ua pumbyry rembiporu’i { -brand-firefox }. Emoĩ ne pumbyry ra’ãnganohẽha iguy akatúa gotyo emoha’ãngakuaa hag̃ua.
 
@@ -1051,7 +1050,6 @@ terms-privacy-agreement-default-2 = Eku’ejeývo, emoneĩ umi <mozillaAccountsT
 
 
 third-party-auth-options-or = Térã
-third-party-auth-options-sign-in-with = Eike ñepyrũ kóvandi
 continue-with-google-button = Eku’ejey { -brand-google } ndive
 continue-with-apple-button = Eku’ejey { -brand-apple } ndive
 

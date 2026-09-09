@@ -1,8 +1,8 @@
 {
-  "commit": "505eaa53cdaf65aa0ed7c885d5134184f1b4800c",
-  "summary": "Merge branch 'main' into l10n-prod-bug-reporting",
-  "description": "",
-  "timestamp": 1788893627000,
+  "commit": "2275d30f08cd1d5b22b29774ca913c7bcb087d0b",
+  "summary": "feat(l10n): report whole-bundle l10n load failures to Sentry",
+  "description": "Because:\n\n- A build regression shipped a manifest with no main.ftl entries, and every\n  locale silently fell back to English for several releases.\n- Nothing surfaced it: the client logs one console warning per string and\n  emits no telemetry, so it had to be spotted by eye.\n\nThis commit:\n\n- Adds a reportBundleError prop to AppLocalizationProvider, fired when a\n  bundle has no manifest entry, returns a non-OK status, or the manifest\n  itself cannot be loaded.\n- Sends those to Sentry tagged area:l10n with the locale that failed, deduped\n  by message and capped per page load. Individual missing string ids stay with\n  Fluent's reporter.\n- Buffers reports until sentryMetrics.enable() runs, since bundles resolve\n  before App mounts and Sentry drops events until then.\n- Returns an empty bundle rather than a non-OK response body, which Fluent\n  would otherwise parse as junk.\n- Fixes the test manifest fixture, which was invalid JSON with keys that\n  never matched the computed path.\n\nCloses #FXA-14362",
+  "timestamp": 1788968878000,
   "storybooks": [
     "fxa-react",
     "fxa-settings"
