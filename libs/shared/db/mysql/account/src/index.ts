@@ -14,7 +14,10 @@ export {
   RecoveryPhoneFactory,
 } from './lib/factories';
 export { setupAccountDatabase, AccountDbProvider } from './lib/setup';
-export { testAccountDatabaseSetup } from './lib/tests';
+export {
+  testAccountDatabaseSetup,
+  testAccountDatabaseTeardown,
+} from './lib/tests';
 export type { ACCOUNT_TABLES } from './lib/tests';
 export type { AccountDatabase } from './lib/setup';
 export {
