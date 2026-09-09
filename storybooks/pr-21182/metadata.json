@@ -1,0 +1,12 @@
+{
+  "commit": "3ce5db50e940fbc6e81f6a1024a5d5a17e959480",
+  "summary": "chore(deps): bump joi to 17.13.5",
+  "description": "Resolves Dependabot alert #925.\nCreated by BLEnder (https://github.com/mozilla/blender)",
+  "timestamp": 1788994444000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
