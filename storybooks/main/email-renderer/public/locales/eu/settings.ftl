@@ -317,6 +317,28 @@ password-strength-inline-not-email = Ezin da zure helbide elektronikoa izan
 password-strength-inline-not-common = Ezin da askotan erabilitako pasahitza izan
 password-strength-inline-confirmed-must-match = Berrespena pasahitz berriarekin bat dator
 
+## PromoQrMobile component
+## Promotional aside encouraging users to download the Firefox mobile app via QR code.
+
+# Value proposition variant. Refers to resuming browsing on another device.
+promo-qr-mobile-heading-treatment-a = Zoazen tokira zoazela, jarraitu utzi zenuen lekutik
+# Value proposition variant. "tabs" are the open pages in a browser.
+promo-qr-mobile-heading-treatment-b = Zure fitxak eta gehiago, telefonoan erabiltzeko prest
+# Value proposition variant. Refers to using the same trusted browser on a phone.
+promo-qr-mobile-heading-treatment-c = Zure nabigatzaile fidagarria, telefonoan
+# Value proposition variant. "Different screen" refers to the phone rather than the desktop.
+promo-qr-mobile-heading-treatment-d = { -brand-firefox } bera. Pantaila desberdina.
+# Value proposition variant. "stop here" means privacy protection should continue onto the phone.
+promo-qr-mobile-heading-treatment-e = Zure pribatutasunak ez luke hemen amaitu behar
+# Value proposition variant. Refers to keeping browsing activity private.
+promo-qr-mobile-heading-treatment-f = Mantendu pribatu zure nabigatzearen alor gehiago
+# Value proposition variant. "noise" refers to distractions and clutter.
+promo-qr-mobile-heading-treatment-g = Zure telefonoak distrazio gutxiago ere izan litzake
+# Value proposition variant. Refers to a calmer browsing experience on the phone.
+promo-qr-mobile-heading-treatment-h = Aukeratu nabigatzeko modu lasaiago bat
+# Appears below a QR code that a user can scan to download the Firefox mobile app
+promo-qr-mobile-description-v2 = Eskaneatu mugikorrerako aplikazioa deskargatzeko
+
 ## Notification Promo Banner component
 
 account-recovery-notification-cta = Sortu

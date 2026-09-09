@@ -342,6 +342,15 @@ password-strength-inline-passwords-match = הססמאות תואמות
 
 
 promo-qr-mobile-heading = הטלפון שלך. החוקים שלך.
+promo-qr-mobile-heading-treatment-a = להמשיך מהמקום שבו שהפסקת, לא משנה לאן תלכו.
+promo-qr-mobile-heading-treatment-b = הלשוניות שלך ועוד, מוכנים בטלפון שלך
+promo-qr-mobile-heading-treatment-c = הדפדפן שנתת בו אמון, בטלפון שלך
+promo-qr-mobile-heading-treatment-d = אותו ה־{ -brand-firefox }. מסך שונה.
+promo-qr-mobile-heading-treatment-e = הפרטיות שלך לא צריכה להיעצר כאן
+promo-qr-mobile-heading-treatment-f = לשמור יותר מהגלישה שלך לעצמך
+promo-qr-mobile-heading-treatment-g = הטלפון שלך יכול להיות קצת יותר נקי מהסחות דעת
+promo-qr-mobile-heading-treatment-h = דרך רגועה יותר לגלוש
+promo-qr-mobile-description-v2 = יש לסרוק כדי להוריד את היישומון לנייד
 promo-qr-mobile-qr-alt =
     .alt = קוד QR להורדת היישומון { -brand-firefox } לנייד. יש למקם את מצלמת הטלפון שלך בפינה הימנית התחתונה של המסך כדי לסרוק אותו.
 
