@@ -1,0 +1,12 @@
+{
+  "commit": "1d84aafaee97bae3572c51396c0f1b5b544f700d",
+  "summary": "feat(ent): implement metering based on clickhouse direct",
+  "description": "",
+  "timestamp": 1788977666000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
