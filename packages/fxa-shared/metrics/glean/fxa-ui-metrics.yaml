@@ -2399,6 +2399,25 @@ cad_firefox:
     expires: never
     data_sensitivity:
       - interaction
+  download_firefox_view:
+    type: event
+    description: |
+      User viewed the "Get Firefox on this device" screen, shown on a mobile
+      device that scanned a pairing QR code in a browser that is not Firefox
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9593
+      - https://mozilla-hub.atlassian.net/browse/FXA-14459
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
 
 cad_approve_device:
   view:

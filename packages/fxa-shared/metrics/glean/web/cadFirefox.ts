@@ -82,6 +82,23 @@ export const choiceView = new EventMetricType<{
 );
 
 /**
+ * User viewed the "Get Firefox on this device" screen, shown on a mobile
+ * device that scanned a pairing QR code in a browser that is not Firefox
+ *
+ * Generated from `cad_firefox.download_firefox_view`.
+ */
+export const downloadFirefoxView = new EventMetricType(
+  {
+    category: 'cad_firefox',
+    name: 'download_firefox_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * User clicks "Not now" on the "Connect another device page"
  *
  * Generated from `cad_firefox.notnow_submit`.

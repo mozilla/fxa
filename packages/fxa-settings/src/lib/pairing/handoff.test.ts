@@ -42,6 +42,7 @@ const plan = (device: Devices, storage = createStorage()) =>
     storage,
     build: 'firefox',
     iosHandoff: true,
+    iosScheme: 'firefox',
   });
 
 describe('planPairingHandoff', () => {
@@ -63,6 +64,7 @@ describe('planPairingHandoff', () => {
         targetUrl: '',
         storeLinks: MOCK_STORE_LINKS,
         build: 'firefox',
+        iosScheme: 'firefox',
       })
     ).toEqual({ kind: 'none' });
   });
@@ -95,6 +97,7 @@ describe('planPairingHandoff', () => {
           storage: createStorage(),
           build: 'firefox',
           iosHandoff: false,
+          iosScheme: 'firefox',
         })
       ).toEqual({ kind: 'none' });
     });
@@ -107,6 +110,7 @@ describe('planPairingHandoff', () => {
           storeLinks: MOCK_STORE_LINKS,
           storage: createStorage(),
           build: 'firefox',
+          iosScheme: 'firefox',
         })
       ).toEqual({ kind: 'none' });
     });
@@ -126,16 +130,6 @@ describe('planPairingHandoff', () => {
         target: MOCK_TARGET,
         autoAttempt: true,
       });
-    });
-
-    // Every Firefox iOS flavour registers `firefox`, so a release install and a
-    // local build both answer it. The scheme is the only way to pin which one.
-    it('defaults the iOS deep link to the release scheme', () => {
-      const { deepLink } = plan(Devices.OTHER_IOS) as { deepLink: string };
-
-      expect(deepLink).toBe(
-        `firefox://open-url?url=${encodeURIComponent(MOCK_TARGET)}`
-      );
     });
 
     it('opens a build-specific iOS scheme when one is configured', () => {
@@ -167,6 +161,7 @@ describe('planPairingHandoff', () => {
         storeLinks,
         storage: createStorage(),
         build: 'firefox',
+        iosScheme: 'firefox',
       }) as { deepLink: string };
 
       expect(deepLink).toContain(
@@ -185,6 +180,7 @@ describe('planPairingHandoff', () => {
           storage: createStorage(),
           build: 'firefox',
           iosHandoff: false,
+          iosScheme: 'firefox',
         })
       ).toEqual(expect.objectContaining({ kind: 'android' }));
     });

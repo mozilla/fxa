@@ -232,6 +232,7 @@ export const eventsMap = {
     choiceNotnowSubmit: 'cad_firefox_choice_notnow_submit',
     syncDeviceSubmit: 'cad_firefox_sync_device_submit',
     notnowSubmit: 'cad_firefox_notnow_submit',
+    downloadFirefoxView: 'cad_firefox_download_firefox_view',
   },
 
   accountPref: {
