@@ -4,6 +4,7 @@
 
 import { expect, test } from '../../lib/fixtures/standard';
 import { getTotpCode } from '../../lib/totp';
+import { enableTotpOnAccount } from '../../lib/pairing-helpers';
 
 const SUPPORTED_SERVICE = 'smoketests';
 
@@ -264,13 +265,7 @@ test.describe('severity-2', () => {
         );
         const password = account?.password || '';
 
-        const { secret } = await target.authClient.createTotpToken(
-          sessionToken,
-          {}
-        );
-        const totpCode = await getTotpCode(secret);
-        await target.authClient.verifyTotpSetupCode(sessionToken, totpCode);
-        await target.authClient.completeTotpSetup(sessionToken);
+        const secret = await enableTotpOnAccount(target, sessionToken, email);
 
         if (account) {
           account.secret = secret;
@@ -425,13 +420,7 @@ test.describe('severity-2', () => {
         );
         const password = account?.password || '';
 
-        const { secret } = await target.authClient.createTotpToken(
-          sessionToken,
-          {}
-        );
-        const totpCode = await getTotpCode(secret);
-        await target.authClient.verifyTotpSetupCode(sessionToken, totpCode);
-        await target.authClient.completeTotpSetup(sessionToken);
+        const secret = await enableTotpOnAccount(target, sessionToken, email);
 
         if (account) {
           account.secret = secret;

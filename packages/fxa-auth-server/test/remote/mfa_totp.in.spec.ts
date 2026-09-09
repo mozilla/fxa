@@ -155,6 +155,28 @@ describe.each(testVersions)(
       );
     });
 
+    it.each([
+      '/mfa/totp/create',
+      '/mfa/totp/setup/verify',
+      '/mfa/totp/setup/complete',
+    ])('rejects a session-token (no mfa JWT) request to %s', async (path) => {
+      const sessionToken = await mfaClient.api.Token.SessionToken.fromHex(
+        mfaClient.sessionToken
+      );
+      try {
+        await mfaClient.api.doRequest(
+          'POST',
+          `${mfaClient.api.baseURL}${path}`,
+          sessionToken,
+          { code: '000000', metricsContext }
+        );
+        throw new Error(`${path} should have rejected the session token`);
+      } catch (err: any) {
+        expect(err.code).toBe(401);
+        expect(err.errno).toBe(223);
+      }
+    });
+
     it('should replace TOTP using jwt', async () => {
       const accessToken = await getMfaAccessTokenFor2fa(mfaClient);
       const { completeRes } = await createSetupCompleteTOTPUsingJwt(

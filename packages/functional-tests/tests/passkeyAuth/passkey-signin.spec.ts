@@ -171,8 +171,9 @@ test.describe('severity-1 #smoke', () => {
         testAccountTracker,
       });
       credentials.secret = await enableTotpOnAccount(
-        target.authClient,
-        credentials.sessionToken
+        target,
+        credentials.sessionToken,
+        credentials.email
       );
       await settings.signOut();
 
@@ -201,8 +202,9 @@ test.describe('severity-1 #smoke', () => {
         testAccountTracker,
       });
       credentials.secret = await enableTotpOnAccount(
-        target.authClient,
-        credentials.sessionToken
+        target,
+        credentials.sessionToken,
+        credentials.email
       );
       await settings.signOut();
 
@@ -405,8 +407,9 @@ test.describe('severity-1 #smoke', () => {
         testAccountTracker,
       });
       credentials.secret = await enableTotpOnAccount(
-        target.authClient,
-        credentials.sessionToken
+        target,
+        credentials.sessionToken,
+        credentials.email
       );
       await settings.signOut();
 
@@ -542,8 +545,9 @@ test.describe('severity-1 #smoke', () => {
         testAccountTracker,
       });
       credentials.secret = await enableTotpOnAccount(
-        target.authClient,
-        credentials.sessionToken
+        target,
+        credentials.sessionToken,
+        credentials.email
       );
       await settings.signOut();
       await signInWithRegisteredPasskey({
