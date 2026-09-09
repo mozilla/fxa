@@ -1,0 +1,9 @@
+postRemoveSecondary-title = "Secondary email removed"
+
+postRemoveSecondary-description-2 = "You have successfully removed <%- secondaryEmail %> as a secondary email from your Mozilla account. Security notifications and sign-in confirmations will no longer be delivered to this address."
+
+<%- include('/partials/manageAccount/index.txt') %>
+
+<%- include('/partials/automatedEmailNoAction/index.txt') %>
+
+<%- include('/partials/support/index.txt') %>
