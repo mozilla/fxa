@@ -128,6 +128,35 @@ describe('SubPlat Email Renderer — Invoice emails', () => {
     expect(email.html).toContain('$2.00');
     expect(email.html).toContain('subscription-charges-taxes');
   });
+
+  it('renders the card ending line when the last four digits are known', async () => {
+    const email = await renderer.renderSubscriptionFirstInvoice(
+      { ...baseInvoiceTemplateValues, cardName: undefined },
+      defaultSubscriptionLayoutValues
+    );
+
+    expect(email.html).toContain(
+      'data-l10n-id="payment-provider-card-ending-in"'
+    );
+    expect(email.html).toContain('4242');
+  });
+
+  it('omits the payment method line when the last four digits are unknown', async () => {
+    // Both card strings interpolate $lastFour. Emitting either without the
+    // digits leaves Fluent no argument to substitute, and it renders the
+    // placeable source — a literal {$lastFour} — into the sent email.
+    const email = await renderer.renderSubscriptionFirstInvoice(
+      {
+        ...baseInvoiceTemplateValues,
+        cardName: undefined,
+        lastFour: undefined,
+      },
+      defaultSubscriptionLayoutValues
+    );
+
+    expect(email.html).not.toContain('payment-provider-card-ending-in');
+    expect(email.text).not.toContain('payment-provider-card-ending-in');
+  });
 });
 
 describe('SubPlat Email Renderer — Lifecycle emails', () => {
