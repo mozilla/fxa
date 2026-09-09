@@ -1,8 +1,8 @@
 {
-  "commit": "ee2e7472d90430ec80fb4434ddb5ce4b5dd434e4",
-  "summary": "Merge pull request #21169 from mozilla/passkey-wraps-rate-limit-defaults",
-  "description": "feat(passkey): Add default rate limit rules for passkey wraps",
-  "timestamp": 1788970873000,
+  "commit": "3023fd7fc303a698d54a47ad9057f716ab8dbb84",
+  "summary": "Merge pull request #21133 from mozilla/FXA-14459",
+  "description": "refactor(settings): Route pairing hand-off to the download_firefox page",
+  "timestamp": 1788974635000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
