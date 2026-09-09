@@ -30,6 +30,10 @@ export class StripeWebhookService {
           payload,
           signature
         );
+      Sentry.setTag(
+        'stripe_api_version',
+        webhookEventResponse.event.api_version
+      );
 
       const eventAlreadyProcessed = await this.stripeEventManager.isProcessed(
         webhookEventResponse.event.id
