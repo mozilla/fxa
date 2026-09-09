@@ -1,8 +1,8 @@
 {
-  "commit": "8014d6606df29accd8720b507ecab4e455eb4283",
-  "summary": "feat(settings): compose the passkey wrap envelope create and unwrap",
-  "description": "Because:\n- Passwordless Sync needs a client that can seal kB to a passkey and\n  recover it from the stored envelope.\n\nThis commit:\n- Adds createWrapEnvelope and openWrapEnvelope over the HPKE and AES-GCM\n  layers.\n- Binds uid and credentialId into the envelope context.\n- Keeps the crypto layers and context construction module-local.\n\nCloses #FXA-13147",
-  "timestamp": 1788904143000,
+  "commit": "3053e9d44d63f7b0138e9c821ec01339e2058a4a",
+  "summary": "test(settings): tighten the passkey wrap envelope assertions",
+  "description": "Because:\n- Assertions that compare a result against a shared input pass on two zeroed\n  arrays, in a module whose job is zeroing key material.\n- A uid guard and a width guard shared one bare assertion, so either could be\n  deleted without failing a test.\n\nThis commit:\n- Holds kB and prfOut as hex, giving every call its own copy.\n- Pins the expected message on each validation guard.\n- Covers the credentialId ceiling through createWrapEnvelope, and the\n  rejection of DataView and wider TypedArrays.\n- Covers the HPKE failure stages reached through openWrapEnvelope.",
+  "timestamp": 1788976738000,
   "storybooks": [
     "fxa-settings"
   ],

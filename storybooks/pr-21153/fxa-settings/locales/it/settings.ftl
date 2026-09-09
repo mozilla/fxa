@@ -437,19 +437,19 @@ promo-qr-mobile-heading = Il tuo telefono. Le tue regole.
 # Value proposition variant. Refers to resuming browsing on another device.
 promo-qr-mobile-heading-treatment-a = Riprendi da dove eri rimasto, ovunque tu vada
 # Value proposition variant. "tabs" are the open pages in a browser.
-promo-qr-mobile-heading-treatment-b = Le tue schede e altro ancora, a portata di mano sul tuo telefono
+promo-qr-mobile-heading-treatment-b = Le tue schede e molto altro, subito disponibili sul telefono
 # Value proposition variant. Refers to using the same trusted browser on a phone.
 promo-qr-mobile-heading-treatment-c = Il browser di cui ti fidi, sul tuo telefono
 # Value proposition variant. "Different screen" refers to the phone rather than the desktop.
-promo-qr-mobile-heading-treatment-d = Stesso { -brand-firefox }. Schermo diverso.
+promo-qr-mobile-heading-treatment-d = Lo stesso { -brand-firefox }. Su un altro schermo.
 # Value proposition variant. "stop here" means privacy protection should continue onto the phone.
-promo-qr-mobile-heading-treatment-e = La tua privacy non dovrebbe fermarsi qui
+promo-qr-mobile-heading-treatment-e = La tua privacy deve seguirti ovunque
 # Value proposition variant. Refers to keeping browsing activity private.
-promo-qr-mobile-heading-treatment-f = Mantieni la tua navigazione per te
+promo-qr-mobile-heading-treatment-f = Più privacy per la tua navigazione
 # Value proposition variant. "noise" refers to distractions and clutter.
-promo-qr-mobile-heading-treatment-g = Il tuo telefono potrebbe consumare un po’ meno rumore
+promo-qr-mobile-heading-treatment-g = Al tuo telefono farebbe bene un po’ meno confusione
 # Value proposition variant. Refers to a calmer browsing experience on the phone.
-promo-qr-mobile-heading-treatment-h = Naviga con te in modo più tranquillo
+promo-qr-mobile-heading-treatment-h = Porta con te un modo più sereno di navigare
 # Appears below a QR code that a user can scan to download the Firefox mobile app
 promo-qr-mobile-description-v2 = Scansiona per scaricare l’app mobile
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."

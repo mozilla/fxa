@@ -351,14 +351,14 @@ password-strength-inline-passwords-match = As palavras-passe coincidem
 
 promo-qr-mobile-heading = O seu telefone. As suas regras.
 promo-qr-mobile-heading-treatment-a = Continue de onde ficou, onde quer que vá
-promo-qr-mobile-heading-treatment-b = Os seus separadores e muito mais, prontos no seu telemóvel
+promo-qr-mobile-heading-treatment-b = Os seus separadores e mais, prontos no seu telemóvel
 promo-qr-mobile-heading-treatment-c = O navegador que confia, no seu telemóvel
 promo-qr-mobile-heading-treatment-d = O mesmo { -brand-firefox }. Ecrã diferente.
 promo-qr-mobile-heading-treatment-e = A sua privacidade não deve parar aqui
-promo-qr-mobile-heading-treatment-f = Mantenha mais a sua navegação para si
-promo-qr-mobile-heading-treatment-g = O seu telemóvel poderia usar um pouco menos de som
-promo-qr-mobile-heading-treatment-h = Leve uma forma mais silenciosa de navegar consigo
-promo-qr-mobile-description-v2 = Digitalize para transferir a aplicação móvel
+promo-qr-mobile-heading-treatment-f = Mantenha mais da sua navegação para si
+promo-qr-mobile-heading-treatment-g = O seu telemóvel merece ter um pouco menos de distrações
+promo-qr-mobile-heading-treatment-h = Tenha uma forma mais calma de navegar consigo
+promo-qr-mobile-description-v2 = Digitalize para transferir a app para telemóvel
 promo-qr-mobile-qr-alt =
     .alt = Código QR para transferir a aplicação móvel { -brand-firefox }. Posicione a câmara do seu telemóvel no canto inferior direito do seu ecrã para digitalizar o mesmo.
 

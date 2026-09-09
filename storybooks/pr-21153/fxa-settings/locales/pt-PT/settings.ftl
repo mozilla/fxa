@@ -437,7 +437,7 @@ promo-qr-mobile-heading = O seu telefone. As suas regras.
 # Value proposition variant. Refers to resuming browsing on another device.
 promo-qr-mobile-heading-treatment-a = Continue de onde ficou, onde quer que vá
 # Value proposition variant. "tabs" are the open pages in a browser.
-promo-qr-mobile-heading-treatment-b = Os seus separadores e muito mais, prontos no seu telemóvel
+promo-qr-mobile-heading-treatment-b = Os seus separadores e mais, prontos no seu telemóvel
 # Value proposition variant. Refers to using the same trusted browser on a phone.
 promo-qr-mobile-heading-treatment-c = O navegador que confia, no seu telemóvel
 # Value proposition variant. "Different screen" refers to the phone rather than the desktop.
@@ -445,13 +445,13 @@ promo-qr-mobile-heading-treatment-d = O mesmo { -brand-firefox }. Ecrã diferent
 # Value proposition variant. "stop here" means privacy protection should continue onto the phone.
 promo-qr-mobile-heading-treatment-e = A sua privacidade não deve parar aqui
 # Value proposition variant. Refers to keeping browsing activity private.
-promo-qr-mobile-heading-treatment-f = Mantenha mais a sua navegação para si
+promo-qr-mobile-heading-treatment-f = Mantenha mais da sua navegação para si
 # Value proposition variant. "noise" refers to distractions and clutter.
-promo-qr-mobile-heading-treatment-g = O seu telemóvel poderia usar um pouco menos de som
+promo-qr-mobile-heading-treatment-g = O seu telemóvel merece ter um pouco menos de distrações
 # Value proposition variant. Refers to a calmer browsing experience on the phone.
-promo-qr-mobile-heading-treatment-h = Leve uma forma mais silenciosa de navegar consigo
+promo-qr-mobile-heading-treatment-h = Tenha uma forma mais calma de navegar consigo
 # Appears below a QR code that a user can scan to download the Firefox mobile app
-promo-qr-mobile-description-v2 = Digitalize para transferir a aplicação móvel
+promo-qr-mobile-description-v2 = Digitalize para transferir a app para telemóvel
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
 promo-qr-mobile-qr-alt =
     .alt = Código QR para transferir a aplicação móvel { -brand-firefox }. Posicione a câmara do seu telemóvel no canto inferior direito do seu ecrã para digitalizar o mesmo.
