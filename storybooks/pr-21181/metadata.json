@@ -1,0 +1,12 @@
+{
+  "commit": "39cc212d50924aeba10eecb400873550ca4e7a50",
+  "summary": "chore(deps): bump @xmldom/xmldom to 0.8.15",
+  "description": "Resolves Dependabot alert #927.\nCreated by BLEnder (https://github.com/mozilla/blender)",
+  "timestamp": 1788994434000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
