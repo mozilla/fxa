@@ -138,6 +138,13 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Alerte de acțiune pentru revendicarea internetului
 
 
+pair-continue-in-firefox-heading = Continuă în { -brand-firefox }
+pair-continue-in-firefox-description = Asocierea are loc în { -brand-firefox }. Deschide-l pentru a finaliza conectarea acestui dispozitiv.
+pair-continue-in-firefox-button = Continuă în { -brand-firefox }
+pair-continue-in-firefox-opening = Se deschide { -brand-firefox }
+pair-continue-in-firefox-get-firefox-link = Nu ai { -brand-firefox }? Instalează-l acum
+
+
 dark-mode-toggle-light = Luminos
 dark-mode-toggle-dark = Întunecat
 dark-mode-toggle-system = Sistem
@@ -380,7 +387,15 @@ password-strength-inline-passwords-match = Parolele se potrivesc
 
 
 promo-qr-mobile-heading = Telefonul tău. Regulile tale.
-promo-qr-mobile-description = Scanează pentru a obține aplicația
+promo-qr-mobile-heading-treatment-a = Continuă de unde ai rămas, oriunde ai fi
+promo-qr-mobile-heading-treatment-b = Filele și multe altele - gata pe telefon
+promo-qr-mobile-heading-treatment-c = Browserul în care ai încredere, pe telefon
+promo-qr-mobile-heading-treatment-d = Același { -brand-firefox }. Alt ecran.
+promo-qr-mobile-heading-treatment-e = Confidențialitatea ta nu ar trebui să se oprească aici
+promo-qr-mobile-heading-treatment-f = Păstrează-ți navigarea mai privată
+promo-qr-mobile-heading-treatment-g = Telefonul ar putea avea mai puțin zgomot de fundal
+promo-qr-mobile-heading-treatment-h = Ia cu tine o experiență de navigare mai liniștită
+promo-qr-mobile-description-v2 = Scanează pentru descărcarea aplicației mobile
 promo-qr-mobile-qr-alt =
     .alt = Cod QR pentru descărcarea aplicației mobile { -brand-firefox }. Poziționează camera telefonului în colțul din dreapta jos al ecranului pentru a-l scana.
 
@@ -1092,7 +1107,6 @@ terms-privacy-agreement-default-2 = Prin continuare, ești de acord cu <mozillaA
 
 
 third-party-auth-options-or = sau
-third-party-auth-options-sign-in-with = Intră în cont cu
 continue-with-google-button = Continuă cu { -brand-google }
 continue-with-apple-button = Continuă cu { -brand-apple }
 

@@ -334,7 +334,15 @@ password-strength-inline-passwords-match = 密碼符合
 
 
 promo-qr-mobile-heading = 您的手機，由您掌控。
-promo-qr-mobile-description = 掃描即可下載程式
+promo-qr-mobile-heading-treatment-a = 無論走到哪，都能接續先前的瀏覽進度
+promo-qr-mobile-heading-treatment-b = 分頁與更多內容，隨時可在手機上開啟
+promo-qr-mobile-heading-treatment-c = 在手機上也使用您信賴的瀏覽器
+promo-qr-mobile-heading-treatment-d = 同一套 { -brand-firefox }，在不同螢幕上也能使用。
+promo-qr-mobile-heading-treatment-e = 隱私權保護不該只到這裡
+promo-qr-mobile-heading-treatment-f = 讓更多上網瀏覽紀錄只有你自己看得見
+promo-qr-mobile-heading-treatment-g = 您的手機可以少製造一點噪音
+promo-qr-mobile-heading-treatment-h = 隨身享受更自在的上網體驗
+promo-qr-mobile-description-v2 = 掃描後即可下載行動版應用程式
 promo-qr-mobile-qr-alt =
     .alt = 用來下載 { -brand-firefox } 行動應用程式的 QR Code。請開啟您手機的攝影鏡頭，並對準螢幕右下角即可掃描。
 
@@ -1012,7 +1020,6 @@ terms-privacy-agreement-default-2 = 使用本服務，代表您同意<mozillaAcc
 
 
 third-party-auth-options-or = 或著
-third-party-auth-options-sign-in-with = 使用下列服務帳號登入
 continue-with-google-button = 使用 { -brand-google } 帳號繼續
 continue-with-apple-button = 使用 { -brand-apple } 帳號繼續
 

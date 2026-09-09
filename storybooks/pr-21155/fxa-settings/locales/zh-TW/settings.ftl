@@ -422,8 +422,24 @@ password-strength-inline-passwords-match = 密碼符合
 
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = 您的手機，由您掌控。
-# Appears next to a QR code that a user can scan to download the Firefox mobile app
-promo-qr-mobile-description = 掃描即可下載程式
+# Value proposition variant. Refers to resuming browsing on another device.
+promo-qr-mobile-heading-treatment-a = 無論走到哪，都能接續先前的瀏覽進度
+# Value proposition variant. "tabs" are the open pages in a browser.
+promo-qr-mobile-heading-treatment-b = 分頁與更多內容，隨時可在手機上開啟
+# Value proposition variant. Refers to using the same trusted browser on a phone.
+promo-qr-mobile-heading-treatment-c = 在手機上也使用您信賴的瀏覽器
+# Value proposition variant. "Different screen" refers to the phone rather than the desktop.
+promo-qr-mobile-heading-treatment-d = 同一套 { -brand-firefox }，在不同螢幕上也能使用。
+# Value proposition variant. "stop here" means privacy protection should continue onto the phone.
+promo-qr-mobile-heading-treatment-e = 隱私權保護不該只到這裡
+# Value proposition variant. Refers to keeping browsing activity private.
+promo-qr-mobile-heading-treatment-f = 讓更多上網瀏覽紀錄只有你自己看得見
+# Value proposition variant. "noise" refers to distractions and clutter.
+promo-qr-mobile-heading-treatment-g = 您的手機可以少製造一點噪音
+# Value proposition variant. Refers to a calmer browsing experience on the phone.
+promo-qr-mobile-heading-treatment-h = 隨身享受更自在的上網體驗
+# Appears below a QR code that a user can scan to download the Firefox mobile app
+promo-qr-mobile-description-v2 = 掃描後即可下載行動版應用程式
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
 promo-qr-mobile-qr-alt =
     .alt = 用來下載 { -brand-firefox } 行動應用程式的 QR Code。請開啟您手機的攝影鏡頭，並對準螢幕右下角即可掃描。
@@ -1385,11 +1401,8 @@ terms-privacy-agreement-default-2 = 使用本服務，代表您同意<mozillaAcc
 
 # This appears when a user has the option to authenticate via third party accounts in addition to their Firefox account.
 # Firefox account login appears on top, and third party options appear on bottom.
-# This string appears as a separation between the two, in the following order: "Enter your password" "Or"(this string) (continue-with-google-button with aria equivalent text) / (continue-with-apple-button with aria equivalent text)
+# This string appears as a separation between the two, in the following order: "Enter your password" "Or"(this string) (continue-with-google-button) / (continue-with-apple-button). The two buttons show their label as visible text.
 third-party-auth-options-or = 或著
-# For the sign-in page, when 3rd-party auth is the only option, this string appears with a divider line between the user's avatar on top and 3rd-party authentication buttons (continue-with-google continue-with-apple buttons) on bottom.
-# This could also be translated as "Sign in with the following" or "Sign in with the below".
-third-party-auth-options-sign-in-with = 使用下列服務帳號登入
 continue-with-google-button = 使用 { -brand-google } 帳號繼續
 continue-with-apple-button = 使用 { -brand-apple } 帳號繼續
 

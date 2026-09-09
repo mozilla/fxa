@@ -498,7 +498,6 @@ password-strength-inline-passwords-match = Heslá sa zhodujú
 
 
 promo-qr-mobile-heading = Váš telefón. Vaše pravidlá.
-promo-qr-mobile-description = Naskenujte a stiahnite si aplikáciu
 promo-qr-mobile-qr-alt =
     .alt = QR kód na stiahnutie mobilnej aplikácie { -brand-firefox }. Umiestnite fotoaparát telefónu do pravého dolného rohu obrazovky a naskenujte ho.
 
@@ -1209,7 +1208,6 @@ terms-privacy-agreement-default-2 = Pokračovaním vyjadrujete súhlas s <mozill
 
 
 third-party-auth-options-or = alebo
-third-party-auth-options-sign-in-with = Prihlásiť sa pomocou
 continue-with-google-button = Pokračovať pomocou { -brand-google }
 continue-with-apple-button = Pokračovať pomocou { -brand-apple }
 

@@ -358,7 +358,15 @@ password-strength-inline-passwords-match = Mae'r cyfrineiriau'n cyfateb
 
 
 promo-qr-mobile-heading = Eich ffôn. Eich rheolau.
-promo-qr-mobile-description = Sganio i gael yr ap
+promo-qr-mobile-heading-treatment-a = Ailgychwyn o le roeddech chi, lle bynnag rydych chi'n mynd
+promo-qr-mobile-heading-treatment-b = Eich tabiau a mwy, yn barod ar eich ffôn
+promo-qr-mobile-heading-treatment-c = Y porwr rydych chi'n ymddiried ynddo, ar eich ffôn
+promo-qr-mobile-heading-treatment-d = Yr un { -brand-firefox }. Sgrin wahanol.
+promo-qr-mobile-heading-treatment-e = Dylai eich preifatrwydd ddim stopio yma
+promo-qr-mobile-heading-treatment-f = Cadwch fwy o'ch pori i chi'ch hun
+promo-qr-mobile-heading-treatment-g = Gallai eich ffôn ddefnyddio ychydig llai o'i darfu
+promo-qr-mobile-heading-treatment-h = Cymerwch ffordd dawelach i bori gyda chi
+promo-qr-mobile-description-v2 = Sganiwch i lwytho ap symudol i lawr
 promo-qr-mobile-qr-alt =
     .alt = Cod QR i llwytho ap symudol { -brand-firefox } i lawr. Gosodwch gamera eich ffôn ar gornel dde isaf eich sgrin i'w sganio.
 
@@ -1076,7 +1084,6 @@ terms-privacy-agreement-default-2 = Drwy barhau, rydych yn cytuno i <mozillaAcco
 
 
 third-party-auth-options-or = Neu
-third-party-auth-options-sign-in-with = Mewngofnodwch gyda
 continue-with-google-button = Parhau gyda { -brand-google }
 continue-with-apple-button = Parhau gyda { -brand-apple }
 
