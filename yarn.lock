@@ -7488,12 +7488,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/content@npm:^5.0.2":
-  version: 5.0.2
-  resolution: "@hapi/content@npm:5.0.2"
+"@hapi/content@npm:6.0.2":
+  version: 6.0.2
+  resolution: "@hapi/content@npm:6.0.2"
   dependencies:
-    "@hapi/boom": "npm:9.x.x"
-  checksum: 10c0/8c21ca61103347fac3c1f9094aa85a5ae53eedd6b966bcce932192274705a9a969f9a8e62a4a48f468822127b87befed9c128ac0f5568ee526ec3a98323a1628
+    "@hapi/boom": "npm:^10.0.0"
+  checksum: 10c0/64829e66d9a3dea512e273e96bf0d227b7d22db702b28eb2da1c16d98f8d8ebef6e2130f78b23d8f4e70d915892e84f3954eab2c0023b2be4b1dfef3fdcccb4f
   languageName: node
   linkType: hard
 

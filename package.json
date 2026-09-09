@@ -308,7 +308,8 @@
     "sha.js": "^2.4.12",
     "underscore": ">=1.13.2",
     "intel@npm:^1.2.0": "patch:intel@npm%3A1.2.0#~/.yarn/patches/intel-npm-1.2.0-81acb313a1.patch",
-    "stripe@npm:22.3.1": "patch:stripe@npm%3A22.3.1#~/.yarn/patches/stripe-npm-22.3.1-291b1ac8f8.patch"
+    "stripe@npm:22.3.1": "patch:stripe@npm%3A22.3.1#~/.yarn/patches/stripe-npm-22.3.1-291b1ac8f8.patch",
+    "@hapi/content": "6.0.2"
   },
   "resolutionComments": {
     "multer": "^2.1.1 — remove when @nestjs/platform-express is upgraded to 11.x (ships multer 2.1.1 natively)",
