@@ -121,9 +121,9 @@ const ACCOUNT_EMAILS_GET = {
   ...TAGS_ACCOUNT,
   description: '/account/emails',
   notes: [
-    'Returns the current primary email, secondary email, and original email that was used during sign up.'
-  ]
-}
+    'Returns the current primary email, secondary email, and original email that was used during sign up.',
+  ],
+};
 
 const ACCOUNT_PROFILE_GET = {
   ...TAGS_ACCOUNT,
@@ -136,6 +136,7 @@ const ACCOUNT_PROFILE_GET = {
 
       If an OAuth bearer token is used, the values returned depend on the scopes that the token is authorized for:
         - \`email\` requires \`profile:email\` scope.
+        - \`additionalEmails\` requires \`profile:additionalEmails\` scope. It lists the account's verified secondary email addresses.
         - \`locale\` requires \`profile:locale\` scope.
         - \`authenticationMethods\` and \`authenticatorAssuranceLevel\` require \`profile:amr\` scope.
         - \`accountDisabledAt\` requires \`profile:account_disabled_at\` scope.

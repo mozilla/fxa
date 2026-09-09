@@ -138,7 +138,9 @@ module.exports = (
   /** @type import('../payments/stripe').StripeHelper */
   stripeHelper,
   authServerCacheRedis,
-  statsd
+  statsd,
+  /** @type import('@fxa/profile/client').ProfileClient */
+  profileClient
 ) => {
   const fxaMailer = Container.get(FxaMailer);
   const oauthClientInfoService = Container.get(OAuthClientInfoServiceName);
@@ -146,6 +148,32 @@ module.exports = (
   const REMINDER_PATTERN = new RegExp(
     `^(?:${verificationReminders.keys.join('|')})$`
   );
+
+  // `additionalEmails` is part of the cached profile, so verifying or deleting
+  // a secondary address invalidates that cache.
+  async function tryInvalidateProfileCache(request, uid) {
+    const [deleteReq, notifyEvent] = await Promise.allSettled([
+      profileClient.deleteCache(uid),
+      log.notifyAttachedServices('profileDataChange', request, { uid }),
+    ]);
+
+    if (deleteReq.status === 'rejected') {
+      log.error('secondary_email.invalidateProfileCache.clientDelete', {
+        uid,
+        err: deleteReq.reason,
+      });
+      Sentry.captureException(deleteReq.reason);
+    }
+    if (notifyEvent.status === 'rejected') {
+      log.error('secondary_email.invalidateProfileCache.notifyEvent', {
+        uid,
+        err: notifyEvent.reason,
+      });
+      Sentry.captureException(notifyEvent.reason);
+    }
+
+    return undefined;
+  }
 
   const otpOptions = config.otp;
   const otpUtils = require('./utils/otp').default(db, statsd);
@@ -514,6 +542,8 @@ module.exports = (
         });
         // don't throw on email send error
       }
+
+      await tryInvalidateProfileCache(request, uid);
 
       return {};
     },
@@ -1151,6 +1181,8 @@ module.exports = (
           ...FxaMailerFormat.sync(false),
           secondaryEmail: email,
         });
+
+        await tryInvalidateProfileCache(request, uid);
 
         return {};
       },
