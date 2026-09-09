@@ -171,7 +171,7 @@ export function planPairingHandoff({
   storeLinks,
   storage,
   build,
-  iosScheme = 'firefox',
+  iosScheme,
   iosHandoff = false,
 }: {
   device: Devices;
@@ -180,7 +180,7 @@ export function planPairingHandoff({
   storage?: AttemptStorage;
   build: 'firefox' | 'fenix';
   /** iOS URL scheme to hand off to. See `buildIosDeepLink`. */
-  iosScheme?: string;
+  iosScheme: string;
   /**
    * Whether Firefox iOS can finish a pairing that started in another browser.
    * It cannot until the app supports pairing version 2 from a native-camera

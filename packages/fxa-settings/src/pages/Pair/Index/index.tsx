@@ -46,7 +46,6 @@ import {
   HandoffPlan,
   planPairingHandoff,
 } from '../../../lib/pairing/handoff';
-import ContinueInFirefox from '../../../components/ContinueInFirefox';
 import {
   pickPairingAttribution,
   pickPairingAttributionFromData,
@@ -170,7 +169,7 @@ const Pair = ({
   // where the hand-off would have led anyway.
   //
   // Read-only, so it is safe to evaluate during render; the auto-attempt token
-  // is only spent by ContinueInFirefox.
+  // is only spent by the download screen this routes to.
   const handoffPlan: HandoffPlan = useMemo(() => {
     if (pairingChannelInfo && fxaStatusResult.fxaStatusState === 'unanswered') {
       return planPairingHandoff({
@@ -196,10 +195,18 @@ const Pair = ({
       return;
     }
 
-    // Handled by rendering the hand-off card below. It must be checked before
-    // the !isFirefoxDesktop branch, which would otherwise send every mobile
+    // This device has a Firefox app to hand the pairing URL to, so the
+    // download screen owns the rest of the flow. Must be checked before the
+    // !isFirefoxDesktop branch, which would otherwise send every mobile
     // browser to /pair/unsupported.
     if (handoffPlan.kind !== 'none') {
+      navigateWithQuery(
+        '/pair/supplicant/download_firefox',
+        { state: pairingChannelInfo },
+        // The channel key is the pairing PSK. It travels in router state, so
+        // the hash it arrived in must not follow it into the next URL.
+        false
+      );
       return;
     }
 
@@ -421,10 +428,6 @@ const Pair = ({
     GleanMetrics.cadFireFox.syncDeviceSubmit();
     openPairPreferences();
   }, [openPairPreferences]);
-
-  if (handoffPlan.kind !== 'none') {
-    return <ContinueInFirefox plan={handoffPlan} />;
-  }
 
   if (bootstrapping || fxaStatusResult.fxaStatusState === 'pending') {
     return <LoadingSpinner fullScreen />;
