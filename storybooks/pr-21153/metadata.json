@@ -1,8 +1,8 @@
 {
-  "commit": "3053e9d44d63f7b0138e9c821ec01339e2058a4a",
+  "commit": "28282e4289ffb1024db3239e57f49432a5956127",
   "summary": "test(settings): tighten the passkey wrap envelope assertions",
   "description": "Because:\n- Assertions that compare a result against a shared input pass on two zeroed\n  arrays, in a module whose job is zeroing key material.\n- A uid guard and a width guard shared one bare assertion, so either could be\n  deleted without failing a test.\n\nThis commit:\n- Holds kB and prfOut as hex, giving every call its own copy.\n- Pins the expected message on each validation guard.\n- Covers the credentialId ceiling through createWrapEnvelope, and the\n  rejection of DataView and wider TypedArrays.\n- Covers the HPKE failure stages reached through openWrapEnvelope.",
-  "timestamp": 1788976738000,
+  "timestamp": 1788977862000,
   "storybooks": [
     "fxa-settings"
   ],
