@@ -189,6 +189,28 @@ passkeysRename                         : ip_uid            : 100         : 15 mi
 passkeyDelete                          : ip_uid            : 100         : 15 minutes      : 15 minutes  : block
 
 #
+# Passkey Wraps
+# The envelopes that let a passkey unseal kB. Every endpoint requires an mfa:passkey JWT, so a caller
+# has already completed a WebAuthn assertion. That token is not single-use and lives for
+# mfa.jwt.expiresInSec, so one assertion can drive many wrap calls — these rules, not
+# passkeyAuthFinish, are what bound the volume.
+#
+# Retrieval runs once per passwordless sign-in. Creation runs once per credential, and a user can
+# hold at most ten. Deletion is not credential-bound, so settings can sweep every credential in one
+# sitting; the daily cap leaves room for a delete-then-recreate replacement. No ip rule on any of
+# them: the JWT already gates them, and an ip ban on the sign-in path would take out everyone behind
+# a shared NAT.
+#
+# Counts sit above the prod config, with the extra headroom for local development and stage.
+#
+passkeyWrapsCreate                     : ip_uid            : 8           : 15 minutes      : 15 minutes  : block
+passkeyWrapsCreate                     : uid               : 15          : 24 hours        : 24 hours    : block
+passkeyWrapsGet                        : ip_uid            : 15          : 15 minutes      : 15 minutes  : block
+passkeyWrapsGet                        : uid               : 30          : 15 minutes      : 15 minutes  : block
+passkeyWrapsDelete                     : ip_uid            : 15          : 15 minutes      : 15 minutes  : block
+passkeyWrapsDelete                     : uid               : 30          : 24 hours        : 24 hours    : block
+
+#
 # Passwordless Authentication OTP Limits
 # Controls the rate at which passwordless OTP codes can be sent and verified
 #
