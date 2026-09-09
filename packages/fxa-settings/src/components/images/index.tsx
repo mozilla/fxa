@@ -256,53 +256,33 @@ export const FirefoxWordmarkImage = ({ className, ariaHidden }: ImageProps) => (
   />
 );
 
-export const SyncSuccessImage = ({ className, ariaHidden }: ImageProps) => (
-  <PreparedImage
-    ariaLabel=""
-    ariaLabelFtlId=""
-    Image={SyncSuccess}
-    {...{ className, ariaHidden }}
-  />
+/*
+ * The pairing illustrations below are decorative. The cards that render them
+ * already carry their meaning in text, so WCAG 1.1.1 is met without a text
+ * alternative and the artwork stays out of the accessibility tree.
+ * `QrPhoneFrameImage` is only the phone around the scannable code, which
+ * `Pair2/Authority/ScanQR` labels in its own right.
+ *
+ * `index.test.tsx` holds the matching list, so an image added without a label
+ * fails there rather than shipping unlabelled.
+ */
+
+export const SyncSuccessImage = ({ className }: ImageProps) => (
+  <PreparedImage ariaHidden Image={SyncSuccess} {...{ className }} />
 );
 
-export const PairingInterruptedImage = ({
-  className,
-  ariaHidden,
-}: ImageProps) => (
-  <PreparedImage
-    ariaLabel=""
-    ariaLabelFtlId=""
-    Image={PairingInterrupted}
-    {...{ className, ariaHidden }}
-  />
+export const PairingInterruptedImage = ({ className }: ImageProps) => (
+  <PreparedImage ariaHidden Image={PairingInterrupted} {...{ className }} />
 );
 
-export const LaptopQrCodeImage = ({ className, ariaHidden }: ImageProps) => (
-  <PreparedImage
-    ariaLabel=""
-    ariaLabelFtlId=""
-    Image={LaptopQrCode}
-    {...{ className, ariaHidden }}
-  />
+export const LaptopQrCodeImage = ({ className }: ImageProps) => (
+  <PreparedImage ariaHidden Image={LaptopQrCode} {...{ className }} />
 );
 
-export const MobileDevicePairingImage = ({
-  className,
-  ariaHidden,
-}: ImageProps) => (
-  <PreparedImage
-    ariaLabel=""
-    ariaLabelFtlId=""
-    Image={MobileDevicePairing}
-    {...{ className, ariaHidden }}
-  />
+export const MobileDevicePairingImage = ({ className }: ImageProps) => (
+  <PreparedImage ariaHidden Image={MobileDevicePairing} {...{ className }} />
 );
 
-export const QrPhoneFrameImage = ({ className, ariaHidden }: ImageProps) => (
-  <PreparedImage
-    ariaLabel=""
-    ariaLabelFtlId=""
-    Image={QrPhoneFrame}
-    {...{ className, ariaHidden }}
-  />
+export const QrPhoneFrameImage = ({ className }: ImageProps) => (
+  <PreparedImage ariaHidden Image={QrPhoneFrame} {...{ className }} />
 );

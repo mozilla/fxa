@@ -77,7 +77,7 @@ describe('Pair2/Authority/ScanQR page', () => {
     );
   });
 
-  it('exposes the illustration and the QR code to assistive technology', () => {
+  it('exposes the QR code, keeping the phone artwork decorative', () => {
     renderWithLocalizationProvider(<Subject />);
 
     expect(
@@ -85,9 +85,10 @@ describe('Pair2/Authority/ScanQR page', () => {
         .getAllByRole('img')
         .map((img) => img.getAttribute('alt') ?? img.getAttribute('aria-label'))
     ).toEqual([
-      // AppLayout's page header, then the artwork and the QR composited into
-      // it. Desktop cards have no Firefox lockup.
-      "Mozilla logo",
+      // AppLayout's page header, then the QR composited into the artwork.
+      // The phone frame around it is decorative, and desktop cards have no
+      // Firefox lockup.
+      'Mozilla logo',
       LOCALIZED_QR_CODE_LABEL,
     ]);
   });
