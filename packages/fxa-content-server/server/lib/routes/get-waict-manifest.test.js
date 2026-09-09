@@ -29,6 +29,7 @@ function mockRes() {
     end: jest.fn(() => res),
     type: jest.fn(() => res),
     send: jest.fn(() => res),
+    setHeader: jest.fn(() => res),
   };
   return res;
 }
@@ -56,6 +57,18 @@ describe('get-waict-manifest route', () => {
     );
     expect(res.send).toHaveBeenCalledWith(body);
     expect(res.status).not.toHaveBeenCalled();
+  });
+
+  it('serves the manifest with a revalidating Cache-Control', () => {
+    fs.readFile.mockImplementation((file, cb) =>
+      cb(null, Buffer.from('{"hashes":{}}'))
+    );
+
+    const route = getWaictManifest(mockConfig());
+    const res = mockRes();
+    route.process({}, res);
+
+    expect(res.setHeader).toHaveBeenCalledWith('Cache-Control', 'no-cache');
   });
 
   it('404s (not 500s) and logs a warning when the manifest is missing', () => {

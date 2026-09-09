@@ -10,6 +10,7 @@ jest.mock('../logging/log', () => () => mockLogger);
 const postWaictReport = require('./post-waict-report');
 
 const CANARY_PATH = '/waict-canary.js';
+const PUBLIC_URL = 'https://accounts.firefox.com';
 
 function build(overrides = {}) {
   const statsd = { increment: jest.fn() };
@@ -19,6 +20,7 @@ function build(overrides = {}) {
     path: '/_/waict-violation',
     statsd,
     canaryPath: CANARY_PATH,
+    publicUrl: PUBLIC_URL,
     ...overrides,
   });
   return { route, statsd };
@@ -135,6 +137,50 @@ describe('post-waict-report route', () => {
     const { route, statsd } = build();
     const report = violationReport({
       blockedURL: `https://accounts.firefox.com${CANARY_PATH}?v=123`,
+    });
+    const { req, res } = mockReqRes([report]);
+
+    route.process(req, res);
+
+    expect(statsd.increment).toHaveBeenCalledWith('waict.canary.success');
+  });
+
+  it('matches the canary when blockedURL is relative', () => {
+    const { route, statsd } = build();
+    const report = violationReport({ blockedURL: CANARY_PATH });
+    const { req, res } = mockReqRes([report]);
+
+    route.process(req, res);
+
+    expect(statsd.increment).toHaveBeenCalledWith('waict.canary.success');
+    expect(statsd.increment).not.toHaveBeenCalledWith(
+      'waict.violation',
+      expect.anything(),
+      expect.anything()
+    );
+  });
+
+  it('does not accept a canary path on a foreign origin as a success', () => {
+    const { route, statsd } = build();
+    const report = violationReport({
+      blockedURL: `https://evil.example${CANARY_PATH}`,
+    });
+    const { req, res } = mockReqRes([report]);
+
+    route.process(req, res);
+
+    expect(statsd.increment).not.toHaveBeenCalledWith('waict.canary.success');
+    expect(statsd.increment).toHaveBeenCalledWith(
+      'waict.violation',
+      1,
+      expect.any(Object)
+    );
+  });
+
+  it('falls back to path-only canary matching when no publicUrl is set', () => {
+    const { route, statsd } = build({ publicUrl: undefined });
+    const report = violationReport({
+      blockedURL: `https://accounts.firefox.com${CANARY_PATH}`,
     });
     const { req, res } = mockReqRes([report]);
 

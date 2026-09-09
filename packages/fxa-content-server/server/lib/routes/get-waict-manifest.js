@@ -37,6 +37,8 @@ module.exports = function (config) {
           return;
         }
 
+        // Revalidate always; a stale manifest reports as a false violation.
+        res.setHeader('Cache-Control', 'no-cache');
         res.type(MANIFEST_CONTENT_TYPE);
         res.send(body);
       });

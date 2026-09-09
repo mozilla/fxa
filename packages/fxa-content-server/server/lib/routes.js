@@ -75,6 +75,7 @@ module.exports = function (config, i18n, statsd, glean) {
         canaryPath: canaryEnabled
           ? require('./routes/get-waict-canary').CANARY_PATH
           : null,
+        publicUrl: config.get('public_url'),
         statsd,
       })
     );

@@ -72,23 +72,41 @@ const BODY_SCHEMA = joi
     REPORT_SCHEMA
   );
 
-// A report is from the canary if its blocked resource path matches the canary
-// path (compared by pathname, ignoring origin and any query string).
-function isCanaryReport(blockedUrl, canaryPath) {
+function originOf(publicUrl) {
+  if (!publicUrl) {
+    return '';
+  }
+  try {
+    return new URL(publicUrl).origin;
+  } catch (e) {
+    return '';
+  }
+}
+
+function isCanaryReport(blockedUrl, canaryPath, publicUrl) {
   if (!blockedUrl || typeof blockedUrl !== 'string' || !canaryPath) {
     return false;
   }
 
+  let parsed;
   try {
-    return new URL(blockedUrl).pathname === canaryPath;
+    parsed = new URL(blockedUrl, publicUrl || undefined);
   } catch (e) {
     return false;
   }
+
+  if (parsed.pathname !== canaryPath) {
+    return false;
+  }
+
+  const expectedOrigin = originOf(publicUrl);
+  return expectedOrigin ? parsed.origin === expectedOrigin : true;
 }
 
 module.exports = function (options = {}) {
   const statsd = options.statsd;
   const canaryPath = options.canaryPath;
+  const publicUrl = options.publicUrl;
 
   return {
     method: 'post',
@@ -122,7 +140,7 @@ module.exports = function (options = {}) {
           // for it is a *success* signal: the browser -> report-endpoint
           // pipeline is alive. Treat it as such rather than as a real integrity
           // violation, so canary noise never pollutes violation alerting.
-          if (isCanaryReport(blockedUrl, canaryPath)) {
+          if (isCanaryReport(blockedUrl, canaryPath, publicUrl)) {
             if (statsd) {
               statsd.increment('waict.canary.success');
             }
