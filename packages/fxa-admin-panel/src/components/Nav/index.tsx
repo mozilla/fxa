@@ -99,6 +99,21 @@ export const Nav = () => (
             </NavLink>
           </li>
         </Guard>
+        <Guard features={[AdminPanelFeature.ManageFeatureFlags]}>
+          <li>
+            <NavLink
+              to="/feature-flags"
+              className={({ isActive }) => getNavLinkClassName(isActive)}
+            >
+              <img
+                className="inline-flex mr-2 w-4"
+                src={logsIcon}
+                alt="feature flags icon"
+              />
+              Feature Flags
+            </NavLink>
+          </li>
+        </Guard>
         <Guard features={[AdminPanelFeature.RelyingParties]}>
           <li>
             <NavLink

@@ -77,6 +77,7 @@
     "moduleNameMapper": {
       "^react-native$": "react-native-web",
       "\\.(css|sass|scss)$": "identity-obj-proxy",
+      "@fxa/shared/feature-flags": "<rootDir>/../../libs/shared/feature-flags/src/index.ts",
       "@fxa/shared/l10n": "<rootDir>/../../libs/shared/l10n/src/index.ts",
       "@fxa/shared/metrics/glean": "<rootDir>/../../libs/shared/metrics/glean/src/index.ts",
       "^@fxa/shared/assets(.*)$": "<rootDir>/../../libs/shared/assets/src$1",

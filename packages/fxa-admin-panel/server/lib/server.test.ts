@@ -67,6 +67,7 @@ describe('Test client routes', () => {
     '/domain-blocklist',
     '/email-blocklist',
     '/oauth-scopes',
+    '/feature-flags',
   ])('%s serves index.html', async (route) => {
     const response = await request(app).get(route);
     expect(response.status).toStrictEqual(200);

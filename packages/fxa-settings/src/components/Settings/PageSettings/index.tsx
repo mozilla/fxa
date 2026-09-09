@@ -44,6 +44,7 @@ import {
   isMobileOrTabletDevice,
   isPairingSupported,
 } from '../../../lib/utilities';
+import { useFeatureFlag } from '../../../models/contexts/FeatureFlagsContext';
 
 export const PageSettings = ({
   integration,
@@ -64,6 +65,8 @@ export const PageSettings = ({
 
   const ftlMsgResolver = useFtlMsgResolver();
   const alertBar = useAlertBar();
+
+  const showTestFlagBanner = useFeatureFlag('my-test-flag');
 
   Metrics.setProperties({
     lang: document.querySelector('html')?.getAttribute('lang'),
@@ -214,6 +217,14 @@ export const PageSettings = ({
         />
       </div>
       <div className="flex flex-col flex-7 max-w-full gap-8 mt-10">
+        {showTestFlagBanner && (
+          <div
+            className="bg-green-500/10 border border-green-700 rounded-lg p-4 mx-4 tablet:mx-0 text-sm"
+            data-testid="my-test-flag-banner"
+          >
+            Feature flag <code>my-test-flag</code> is on.
+          </div>
+        )}
         {eligibleForFirefoxPromo && (
           <FirefoxPromoBanner {...{ isSignedIntoFirefox }} />
         )}

@@ -19,6 +19,7 @@ import PageEmailBlocklist from './components/PageEmailBlocklist';
 import PageWafTokens from './components/PageWafTokens';
 import PageDomainBlocklist from './components/PageDomainBlocklist';
 import PageOAuthScopes from './components/PageOAuthScopes';
+import PageFeatureFlags from './components/PageFeatureFlags';
 
 const App = ({ config }: { config: IClientConfig }) => {
   const [guard, setGuard] = useState<AdminPanelGuard>(config.guard);
@@ -67,6 +68,12 @@ const App = ({ config }: { config: IClientConfig }) => {
               )}
               {guard.allow(AdminPanelFeature.OAuthScopes, user.group) && (
                 <Route path="/oauth-scopes" element={<PageOAuthScopes />} />
+              )}
+              {guard.allow(
+                AdminPanelFeature.ManageFeatureFlags,
+                user.group
+              ) && (
+                <Route path="/feature-flags" element={<PageFeatureFlags />} />
               )}
               <Route path="/permissions" element={<PagePermissions />} />
             </Routes>

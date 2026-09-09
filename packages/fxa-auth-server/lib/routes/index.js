@@ -241,6 +241,9 @@ module.exports = function (
   const { geoRoutes } = require('./geo-location');
   const geo = geoRoutes(config, log);
 
+  const { featureFlagsRoutes } = require('./feature-flags');
+  const featureFlags = featureFlagsRoutes(config, log);
+
   const { mfaRoutes } = require('./mfa');
   const mfa = mfaRoutes(customs, db, log, mailer, statsd, config);
 
@@ -297,6 +300,7 @@ module.exports = function (
     cloudScheduler,
     cms,
     geo,
+    featureFlags,
     mfa,
     passkeys,
     passkeyWraps

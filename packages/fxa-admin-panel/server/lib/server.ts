@@ -136,6 +136,7 @@ if (proxyUrl) {
     '/domain-blocklist',
     '/email-blocklist',
     '/oauth-scopes',
+    '/feature-flags',
   ].forEach((route) => {
     // FIXME: should set ETag, Not-Modified:
     app.get(route, (req, res) => {
