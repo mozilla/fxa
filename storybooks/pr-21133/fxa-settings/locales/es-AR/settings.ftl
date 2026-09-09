@@ -439,17 +439,17 @@ promo-qr-mobile-heading-treatment-a = Continúe donde lo dejó, dondequiera que 
 # Value proposition variant. "tabs" are the open pages in a browser.
 promo-qr-mobile-heading-treatment-b = Tus pestañas y más, listas en tu teléfono
 # Value proposition variant. Refers to using the same trusted browser on a phone.
-promo-qr-mobile-heading-treatment-c = El navegador de confianza en tu teléfono
+promo-qr-mobile-heading-treatment-c = El navegador en el que confiás, también en tu teléfono
 # Value proposition variant. "Different screen" refers to the phone rather than the desktop.
-promo-qr-mobile-heading-treatment-d = Igual { -brand-firefox }. Pantalla diferente.
+promo-qr-mobile-heading-treatment-d = Mismo { -brand-firefox }. Pantalla diferente.
 # Value proposition variant. "stop here" means privacy protection should continue onto the phone.
-promo-qr-mobile-heading-treatment-e = Tu privacidad no debería terminar aquí
+promo-qr-mobile-heading-treatment-e = Tu privacidad no debería terminar acá
 # Value proposition variant. Refers to keeping browsing activity private.
-promo-qr-mobile-heading-treatment-f = Guardá más navegación para vos
+promo-qr-mobile-heading-treatment-f = Mantené más de tu navegación en privado
 # Value proposition variant. "noise" refers to distractions and clutter.
 promo-qr-mobile-heading-treatment-g = A tu teléfono le vendría bien un poco menos de ruido
 # Value proposition variant. Refers to a calmer browsing experience on the phone.
-promo-qr-mobile-heading-treatment-h = Llévate una forma más tranquila de navegar
+promo-qr-mobile-heading-treatment-h = Llevá una navegación más tranquila con vos
 # Appears below a QR code that a user can scan to download the Firefox mobile app
 promo-qr-mobile-description-v2 = Escanear para descargar la aplicación móvil
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."

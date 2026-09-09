@@ -434,6 +434,24 @@ password-strength-inline-passwords-match = Le contrasignos concorda
 
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Tu telephono. Tu regulas.
+# Value proposition variant. Refers to resuming browsing on another device.
+promo-qr-mobile-heading-treatment-a = Reprende de ubi tu exiva, ubicunque tu va
+# Value proposition variant. "tabs" are the open pages in a browser.
+promo-qr-mobile-heading-treatment-b = Tu schedas e plus, preste sur tu telephono
+# Value proposition variant. Refers to using the same trusted browser on a phone.
+promo-qr-mobile-heading-treatment-c = Le navigator a que tu te fide, sur tu telephono
+# Value proposition variant. "Different screen" refers to the phone rather than the desktop.
+promo-qr-mobile-heading-treatment-d = Le { -brand-firefox } mesme.
+# Value proposition variant. "stop here" means privacy protection should continue onto the phone.
+promo-qr-mobile-heading-treatment-e = Tu confidentialitate non deberea stoppar ci
+# Value proposition variant. Refers to keeping browsing activity private.
+promo-qr-mobile-heading-treatment-f = Mantene plus de tu navigation pro te mesme
+# Value proposition variant. "noise" refers to distractions and clutter.
+promo-qr-mobile-heading-treatment-g = Tu telephono poterea profitar un poco minus ruito
+# Value proposition variant. Refers to a calmer browsing experience on the phone.
+promo-qr-mobile-heading-treatment-h = Prende con te un maniera de navigar plus calme
+# Appears below a QR code that a user can scan to download the Firefox mobile app
+promo-qr-mobile-description-v2 = Scande pro discargar le app pro apparatos mobile
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
 promo-qr-mobile-qr-alt =
     .alt = Codice QR pro discargar le application { -brand-firefox } mobile. Implacia le camera de tu telephono sur le angulo inferior-dextre de tu schermo pro scander lo.

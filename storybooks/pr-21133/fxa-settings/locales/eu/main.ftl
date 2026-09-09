@@ -13,19 +13,36 @@
     }
 -product-firefox-account = Firefox kontua
 -product-mozilla-vpn = Mozilla VPN
+-product-mozilla-vpn-short = VPN
 -product-mozilla-hubs = Mozilla Hubs
 -product-mdn = MDN
 -product-mdn-plus = MDN Plus
 -product-firefox-cloud = Firefox Cloud
 -product-mozilla-monitor = Mozilla Monitor
+-product-mozilla-monitor-short = Monitor
 -product-firefox-relay = Firefox Relay
+-product-firefox-relay-short = Relay
 -brand-apple = Apple
+-brand-apple-pay = Apple Pay
 -brand-google = Google
+-brand-google-pay = Google Pay
 -brand-paypal = PayPal
 -brand-name-stripe = Stripe
+-brand-amex = American Express
+-brand-diners = Diners Club
+-brand-discover = Discover
+-brand-jcb = JCB
+-brand-link = Link
+-brand-mastercard = Mastercard
+-brand-unionpay = UnionPay
+-brand-visa = Visa
 -app-store = App Store
 -google-play = Google Play
 
+app-something-went-wrong-heading = Zerbait gaizki joan da
+app-something-went-wrong-message = Arazoa jakinarazi zaigu. Berritu orria eta saiatu berriro.
+app-error-id = Errorearen IDa: { $errorId }
+app-error-details-summary = Errorearen xehetasunak
 app-query-parameter-err-heading = Eskaera okerra: kontsulta-parametro baliogabeak
 
 
@@ -251,6 +268,17 @@ password-strength-inline-min-length = Gutxienez 8 karaktere
 password-strength-inline-not-email = Ezin da zure helbide elektronikoa izan
 password-strength-inline-not-common = Ezin da askotan erabilitako pasahitza izan
 password-strength-inline-confirmed-must-match = Berrespena pasahitz berriarekin bat dator
+
+
+promo-qr-mobile-heading-treatment-a = Zoazen tokira zoazela, jarraitu utzi zenuen lekutik
+promo-qr-mobile-heading-treatment-b = Zure fitxak eta gehiago, telefonoan erabiltzeko prest
+promo-qr-mobile-heading-treatment-c = Zure nabigatzaile fidagarria, telefonoan
+promo-qr-mobile-heading-treatment-d = { -brand-firefox } bera. Pantaila desberdina.
+promo-qr-mobile-heading-treatment-e = Zure pribatutasunak ez luke hemen amaitu behar
+promo-qr-mobile-heading-treatment-f = Mantendu pribatu zure nabigatzearen alor gehiago
+promo-qr-mobile-heading-treatment-g = Zure telefonoak distrazio gutxiago ere izan litzake
+promo-qr-mobile-heading-treatment-h = Aukeratu nabigatzeko modu lasaiago bat
+promo-qr-mobile-description-v2 = Eskaneatu mugikorrerako aplikazioa deskargatzeko
 
 
 account-recovery-notification-cta = Sortu
