@@ -1,0 +1,13 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionUpdatePayment">
+        To prevent any interruption to your service, please <a data-l10n-name="updateBillingUrl" href="<%- locals.updateBillingUrl %>">update your payment information</a> as soon as possible.
+      </span>
+    </mj-text>
+  </mj-column>
+</mj-section>
