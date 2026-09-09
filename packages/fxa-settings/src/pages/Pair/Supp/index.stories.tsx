@@ -6,6 +6,7 @@ import Supp from '.';
 import { MemoryRouter } from 'react-router';
 import { Meta } from '@storybook/react';
 import { MOCK_ERROR } from './mocks';
+import { mockUseFxAStatus } from '../../../lib/hooks/useFxAStatus/mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
@@ -21,6 +22,10 @@ export default {
   ],
 } as Meta;
 
-export const DefaultLoadingState = () => <Supp />;
+export const DefaultLoadingState = () => (
+  <Supp fxaStatusResult={mockUseFxAStatus()} />
+);
 
-export const WithError = () => <Supp error={MOCK_ERROR} />;
+export const WithError = () => (
+  <Supp error={MOCK_ERROR} fxaStatusResult={mockUseFxAStatus()} />
+);
