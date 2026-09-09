@@ -20,9 +20,40 @@ jest.mock('fxa-shared/db/models/auth', () => ({
   },
 }));
 
+const SYNC_URL = 'https://lists.example.com/disposable.conf';
+
+/** Minimal stand-in for the parts of `Response` the controller reads. */
+function mockResponse(
+  chunks: string[] | string,
+  overrides: {
+    ok?: boolean;
+    status?: number;
+    statusText?: string;
+    url?: string;
+  } = {}
+): Response {
+  const parts = Array.isArray(chunks) ? chunks : [chunks];
+  return {
+    ok: overrides.ok ?? true,
+    status: overrides.status ?? 200,
+    statusText: overrides.statusText ?? 'OK',
+    url: overrides.url ?? SYNC_URL,
+    body: new ReadableStream<Uint8Array>({
+      start(controller) {
+        for (const part of parts) {
+          controller.enqueue(new TextEncoder().encode(part));
+        }
+        controller.close();
+      },
+    }),
+  } as unknown as Response;
+}
+
 describe('DomainBlocklistController', () => {
   let controller: DomainBlocklistController;
   let logger: { debug: jest.Mock; error: jest.Mock; info: jest.Mock };
+  let fetchMock: jest.Mock;
+  const realFetch = global.fetch;
 
   beforeEach(async () => {
     logger = { debug: jest.fn(), error: jest.fn(), info: jest.fn() };
@@ -58,9 +89,13 @@ describe('DomainBlocklistController', () => {
     controller = module.get<DomainBlocklistController>(
       DomainBlocklistController
     );
+
+    fetchMock = jest.fn();
+    global.fetch = fetchMock as unknown as typeof fetch;
   });
 
   afterEach(() => {
+    global.fetch = realFetch;
     jest.clearAllMocks();
   });
 
@@ -154,6 +189,154 @@ describe('DomainBlocklistController', () => {
       await expect(
         controller.add(['nodot'], 'admin@example.com')
       ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('sync', () => {
+    beforeEach(() => {
+      (DomainBlocklist.addMany as jest.Mock).mockResolvedValue(undefined);
+    });
+
+    it('imports the fetched list in batches of 500', async () => {
+      const list = Array.from({ length: 1200 }, (_, i) => `spam${i}.example`);
+      fetchMock.mockResolvedValue(mockResponse(list.join('\n')));
+
+      const result = await controller.sync(SYNC_URL, 'admin@example.com');
+
+      expect(result).toEqual({ ok: true, total: 1200, submitted: 1200 });
+      expect(DomainBlocklist.addMany).toHaveBeenCalledTimes(3);
+      const batches = (DomainBlocklist.addMany as jest.Mock).mock.calls.map(
+        ([domains]) => domains.length
+      );
+      expect(batches).toEqual([500, 500, 200]);
+      expect(fetchMock).toHaveBeenCalledWith(SYNC_URL, {
+        signal: expect.any(AbortSignal),
+      });
+    });
+
+    it('skips blank lines, comments and invalid entries', async () => {
+      fetchMock.mockResolvedValue(
+        mockResponse(
+          [
+            '# disposable domains',
+            '',
+            '  evil.com  ',
+            'spam.net # inline comment',
+            'not a domain',
+            'nodot',
+            `${'a'.repeat(64)}.com`,
+          ].join('\n')
+        )
+      );
+
+      const result = await controller.sync(SYNC_URL, 'admin@example.com');
+
+      expect(DomainBlocklist.addMany).toHaveBeenCalledWith([
+        'evil.com',
+        'spam.net',
+      ]);
+      expect(result).toEqual({ ok: true, total: 5, submitted: 2 });
+    });
+
+    it('imports repeated entries once', async () => {
+      fetchMock.mockResolvedValue(
+        mockResponse(['evil.com', '@Evil.com', 'evil.com'].join('\n'))
+      );
+
+      const result = await controller.sync(SYNC_URL, 'admin@example.com');
+
+      expect(DomainBlocklist.addMany).toHaveBeenCalledWith(['evil.com']);
+      expect(result).toEqual({ ok: true, total: 3, submitted: 1 });
+    });
+
+    it('logs the summary', async () => {
+      fetchMock.mockResolvedValue(mockResponse('evil.com'));
+
+      await controller.sync(SYNC_URL, 'admin@example.com');
+
+      expect(logger.info).toHaveBeenCalledWith('domainBlocklist.sync', {
+        user: 'admin@example.com',
+        url: SYNC_URL,
+        total: 1,
+        submitted: 1,
+      });
+    });
+
+    it('imports nothing when the list has no valid entries', async () => {
+      fetchMock.mockResolvedValue(mockResponse('# nothing here\n\n'));
+
+      const result = await controller.sync(SYNC_URL, 'admin@example.com');
+
+      expect(result).toEqual({ ok: true, total: 0, submitted: 0 });
+      expect(DomainBlocklist.addMany).not.toHaveBeenCalled();
+    });
+
+    it('throws for a url that is not https', async () => {
+      await expect(
+        controller.sync(
+          'http://lists.example.com/list.conf',
+          'admin@example.com'
+        )
+      ).rejects.toThrow(BadRequestException);
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it('throws for a malformed url', async () => {
+      await expect(
+        controller.sync('not-a-url', 'admin@example.com')
+      ).rejects.toThrow(BadRequestException);
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it('throws when url is not a string', async () => {
+      await expect(
+        controller.sync([SYNC_URL] as any, 'admin@example.com')
+      ).rejects.toThrow('url must be a string');
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it('throws when the list redirects to a plaintext url', async () => {
+      fetchMock.mockResolvedValue(
+        mockResponse('evil.com', { url: 'http://lists.example.com/list.conf' })
+      );
+
+      await expect(
+        controller.sync(SYNC_URL, 'admin@example.com')
+      ).rejects.toThrow('url redirected away from https');
+      expect(DomainBlocklist.addMany).not.toHaveBeenCalled();
+    });
+
+    it('throws when the body exceeds the size cap', async () => {
+      const oneMb = 'a'.repeat(1024 * 1024);
+      fetchMock.mockResolvedValue(mockResponse(Array(11).fill(oneMb)));
+
+      await expect(
+        controller.sync(SYNC_URL, 'admin@example.com')
+      ).rejects.toThrow('List is larger than the 10485760 byte limit');
+      expect(DomainBlocklist.addMany).not.toHaveBeenCalled();
+    });
+
+    it('throws when the list responds with an error status', async () => {
+      fetchMock.mockResolvedValue(
+        mockResponse('', { ok: false, status: 404, statusText: 'Not Found' })
+      );
+
+      await expect(
+        controller.sync(SYNC_URL, 'admin@example.com')
+      ).rejects.toThrow('Could not fetch the list: 404 Not Found');
+      expect(DomainBlocklist.addMany).not.toHaveBeenCalled();
+    });
+
+    it('throws and logs when the fetch fails', async () => {
+      fetchMock.mockRejectedValue(new Error('ECONNREFUSED'));
+
+      await expect(
+        controller.sync(SYNC_URL, 'admin@example.com')
+      ).rejects.toThrow('Could not fetch the list: ECONNREFUSED');
+      expect(logger.error).toHaveBeenCalledWith(
+        'domainBlocklist.sync.fetchFailed',
+        expect.objectContaining({ url: SYNC_URL })
+      );
     });
   });
 

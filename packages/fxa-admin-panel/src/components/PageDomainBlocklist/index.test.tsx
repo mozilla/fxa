@@ -14,6 +14,7 @@ jest.mock('../../lib/api', () => ({
     addDomainBlocklistEntries: jest.fn(),
     removeDomainBlocklistEntry: jest.fn(),
     deleteAllDomainBlocklistEntries: jest.fn(),
+    syncDomainBlocklist: jest.fn(),
   },
 }));
 
@@ -21,6 +22,9 @@ const mockEntries = [
   { domain: 'evil.com', createdAt: 2000 },
   { domain: 'spam.net', createdAt: 1000 },
 ];
+
+const DEFAULT_SYNC_URL =
+  'https://raw.githubusercontent.com/disposable/disposable-email-domains/master/disposable_email_blocklist.conf';
 
 describe('PageDomainBlocklist', () => {
   let user: UserEvent;
@@ -119,6 +123,74 @@ describe('PageDomainBlocklist', () => {
         expect.stringContaining('API error 400: bad domain')
       );
     });
+  });
+
+  it('pre-fills the sync URL with the disposable-email-domains list', async () => {
+    render(<PageDomainBlocklist />);
+    await screen.findByText('No entries yet.');
+
+    expect(screen.getByTestId('domain-blocklist-sync-url')).toHaveValue(
+      DEFAULT_SYNC_URL
+    );
+  });
+
+  it('syncs from the default URL and reports the submitted count', async () => {
+    (adminApi.getDomainBlocklist as jest.Mock)
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce(mockEntries);
+    (adminApi.syncDomainBlocklist as jest.Mock).mockResolvedValue({
+      ok: true,
+      total: 40000,
+      submitted: 39990,
+    });
+
+    render(<PageDomainBlocklist />);
+    await screen.findByText('No entries yet.');
+
+    await user.click(screen.getByTestId('domain-blocklist-sync-btn'));
+
+    expect(adminApi.syncDomainBlocklist).toHaveBeenCalledWith(DEFAULT_SYNC_URL);
+    expect(
+      await screen.findByTestId('domain-blocklist-sync-result')
+    ).toHaveTextContent(
+      'Read 40000 entries and sent 39990 unique domains to the blocklist. Entries already on the list were ignored.'
+    );
+    expect(screen.getByText('evil.com')).toBeInTheDocument();
+  });
+
+  it('syncs from an edited URL', async () => {
+    (adminApi.syncDomainBlocklist as jest.Mock).mockResolvedValue({
+      ok: true,
+      total: 2,
+      submitted: 2,
+    });
+
+    render(<PageDomainBlocklist />);
+    await screen.findByText('No entries yet.');
+
+    const input = screen.getByTestId('domain-blocklist-sync-url');
+    await user.clear(input);
+    await user.type(input, 'https://lists.example.com/other.conf');
+    await user.click(screen.getByTestId('domain-blocklist-sync-btn'));
+
+    expect(adminApi.syncDomainBlocklist).toHaveBeenCalledWith(
+      'https://lists.example.com/other.conf'
+    );
+  });
+
+  it('shows the error message when the sync fails', async () => {
+    (adminApi.syncDomainBlocklist as jest.Mock).mockRejectedValue(
+      new Error('API error 400: url must use https')
+    );
+
+    render(<PageDomainBlocklist />);
+    await screen.findByText('No entries yet.');
+
+    await user.click(screen.getByTestId('domain-blocklist-sync-btn'));
+
+    expect(
+      await screen.findByTestId('domain-blocklist-sync-result')
+    ).toHaveTextContent('Error: API error 400: url must use https');
   });
 
   it('deletes a single entry after successful API call', async () => {

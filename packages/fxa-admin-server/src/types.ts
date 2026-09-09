@@ -320,6 +320,14 @@ export interface DomainBlocklistEntry {
   createdAt: number;
 }
 
+export interface DomainBlocklistSyncResult {
+  ok: boolean;
+  /** non-empty, non-comment lines read from the list */
+  total: number;
+  /** unique valid domains sent to the database; already-blocked ones are ignored there */
+  submitted: number;
+}
+
 export interface OAuthScopeDto {
   id: number;
   scope: string;
