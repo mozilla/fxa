@@ -13,6 +13,7 @@ import { AccountManager } from '@fxa/shared/account/account';
 import {
   bufferToAaguid,
   findPasskeyByCredentialId,
+  findPasskeysWithWrapStateByUid,
   insertPasskey,
 } from './passkey.repository';
 import {
@@ -240,6 +241,83 @@ describe('PasskeyWrapRepository (Integration)', () => {
       await expect(
         findPasskeyWrap(db, uid, credentialId)
       ).resolves.toBeUndefined();
+    });
+  });
+
+  describe('findPasskeysWithWrapStateByUid', () => {
+    /** Adds a second passkey to an existing account. */
+    async function addPasskey(uid: string) {
+      const passkey = PasskeyFactory({ prfEnabled: true });
+      const credentialId = passkey.credentialId.toString('base64url');
+      await insertPasskey(db, uid, {
+        ...passkey,
+        credentialId,
+        aaguid: bufferToAaguid(passkey.aaguid),
+      });
+      return credentialId;
+    }
+
+    it('flags only the passkeys that hold a wrap', async () => {
+      const { uid, credentialId: wrapped } = await createAccountWithPasskey();
+      const bare = await addPasskey(uid);
+      await insertPasskeyWrap(db, uid, envelope(wrapped), NOW);
+
+      const rows = await findPasskeysWithWrapStateByUid(db, uid);
+
+      expect(
+        Object.fromEntries(
+          rows.map((r) => [r.credentialId, r.hasPasswordlessSync])
+        )
+      ).toEqual({ [wrapped]: true, [bare]: false });
+    });
+
+    it('resolves wrap state in a single query', async () => {
+      const { uid, credentialId } = await createAccountWithPasskey();
+      await addPasskey(uid);
+      await addPasskey(uid);
+      await insertPasskeyWrap(db, uid, envelope(credentialId), NOW);
+
+      // `transformQuery` runs once per compiled query, so it counts round
+      // trips without reaching into the driver.
+      let queries = 0;
+      const counted = db.withPlugin({
+        transformQuery(args) {
+          queries++;
+          return args.node;
+        },
+        async transformResult(args) {
+          return args.result;
+        },
+      });
+
+      const rows = await findPasskeysWithWrapStateByUid(counted, uid);
+
+      // Three passkeys, one round trip: a per-row lookup would make this an
+      // N+1 on a route that runs on every Settings page load.
+      expect(rows).toHaveLength(3);
+      expect(queries).toBe(1);
+    });
+
+    it("does not see another account's wrap", async () => {
+      const { uid, credentialId } = await createAccountWithPasskey();
+      const other = await createAccountWithPasskey();
+      await insertPasskeyWrap(db, other.uid, envelope(other.credentialId), NOW);
+
+      const rows = await findPasskeysWithWrapStateByUid(db, uid);
+
+      expect(rows).toEqual([
+        expect.objectContaining({ credentialId, hasPasswordlessSync: false }),
+      ]);
+    });
+
+    it('returns nothing for an account with no passkeys', async () => {
+      const uid = await accountManager.createAccountStub(
+        faker.internet.email(),
+        1,
+        'en-US'
+      );
+
+      expect(await findPasskeysWithWrapStateByUid(db, uid)).toEqual([]);
     });
   });
 });

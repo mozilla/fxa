@@ -135,6 +135,7 @@ describe('PasskeyService', () => {
       | 'checkPasskeyCount'
       | 'registerPasskey'
       | 'listPasskeysForUser'
+      | 'listPasskeysWithWrapStateForUser'
       | 'countPasskeys'
       | 'findPasskeyByCredentialId'
       | 'findPasskeyByUidAndCredentialId'
@@ -149,6 +150,7 @@ describe('PasskeyService', () => {
     checkPasskeyCount: jest.fn(),
     registerPasskey: jest.fn(),
     listPasskeysForUser: jest.fn(),
+    listPasskeysWithWrapStateForUser: jest.fn(),
     countPasskeys: jest.fn(),
     findPasskeyByCredentialId: jest.fn(),
     findPasskeyByUidAndCredentialId: jest.fn(),
@@ -1147,17 +1149,25 @@ describe('PasskeyService', () => {
   });
 
   describe('listPasskeysForUser', () => {
-    const mockPasskeys = [passkeyRecord({ name: 'Passkey' })];
+    const mockPasskeys = [
+      { ...passkeyRecord({ name: 'Passkey' }), hasPasswordlessSync: true },
+    ];
 
-    it('returns passkeys from manager', async () => {
-      mockManager.listPasskeysForUser.mockResolvedValue(mockPasskeys);
+    it('returns passkeys with their wrap state', async () => {
+      mockManager.listPasskeysWithWrapStateForUser.mockResolvedValue(
+        mockPasskeys
+      );
       const result = await service.listPasskeysForUser(MOCK_UID);
       expect(result).toBe(mockPasskeys);
-      expect(mockManager.listPasskeysForUser).toHaveBeenCalledWith(MOCK_UID);
+      expect(mockManager.listPasskeysWithWrapStateForUser).toHaveBeenCalledWith(
+        MOCK_UID
+      );
     });
 
     it('increments passkey.list.success metric', async () => {
-      mockManager.listPasskeysForUser.mockResolvedValue(mockPasskeys);
+      mockManager.listPasskeysWithWrapStateForUser.mockResolvedValue(
+        mockPasskeys
+      );
       await service.listPasskeysForUser(MOCK_UID);
       expect(mockMetrics.increment).toHaveBeenCalledWith(
         'passkey.list.success'

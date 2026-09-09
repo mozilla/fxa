@@ -4808,6 +4808,7 @@ describe('/account', () => {
       backupEligible: true,
       backupState: false,
       prfEnabled: true,
+      hasPasswordlessSync: true,
     };
 
     function buildPasskeysRoute(
@@ -4845,6 +4846,7 @@ describe('/account', () => {
         backupEligible: mockPasskey.backupEligible,
         backupState: mockPasskey.backupState,
         prfEnabled: mockPasskey.prfEnabled,
+        hasPasswordlessSync: mockPasskey.hasPasswordlessSync,
       });
     });
 
@@ -5044,6 +5046,7 @@ describe('/account response schema - passkeys', () => {
     backupEligible: true,
     backupState: true,
     prfEnabled: false,
+    hasPasswordlessSync: false,
   };
 
   let schema: Schema;

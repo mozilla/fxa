@@ -105,6 +105,14 @@ export type PasskeyRecord = Omit<Passkey, 'aaguid' | 'credentialId'> & {
   credentialId: string;
 };
 
+/**
+ * A passkey plus whether it holds a wrap, and so can unlock `kB` without a
+ * password.
+ */
+export type PasskeyWithWrapState = PasskeyRecord & {
+  hasPasswordlessSync: boolean;
+};
+
 function toPasskeyRecord(row: Passkey): PasskeyRecord {
   return {
     ...row,
@@ -147,6 +155,40 @@ export async function findPasskeysByUid(
     .orderBy('credentialId', 'asc')
     .execute();
   return rows.map(toPasskeyRecord);
+}
+
+/**
+ * Find all passkeys for a user, each flagged with whether it holds a wrap.
+ *
+ * One LEFT JOIN rather than a lookup per passkey: this backs `GET /passkeys`
+ * and `/account`, both of which run on every Settings page load.
+ *
+ * @param db - Database instance
+ * @param uid - User ID as a hex string
+ * @returns Array of passkeys ordered by createdAt descending
+ */
+export async function findPasskeysWithWrapStateByUid(
+  db: AccountDatabase,
+  uid: string
+): Promise<PasskeyWithWrapState[]> {
+  const rows = await db
+    .selectFrom('passkeys')
+    .leftJoin('passkeyWraps', (join) =>
+      join
+        .onRef('passkeyWraps.uid', '=', 'passkeys.uid')
+        .onRef('passkeyWraps.credentialId', '=', 'passkeys.credentialId')
+    )
+    .selectAll('passkeys')
+    .select('passkeyWraps.createdAt as wrapCreatedAt')
+    .where('passkeys.uid', '=', uuidTransformer.to(uid))
+    .orderBy('passkeys.createdAt', 'desc')
+    .orderBy('passkeys.credentialId', 'asc')
+    .execute();
+
+  return rows.map(({ wrapCreatedAt, ...row }) => ({
+    ...toPasskeyRecord(row),
+    hasPasswordlessSync: wrapCreatedAt !== null,
+  }));
 }
 
 /**

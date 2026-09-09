@@ -71,7 +71,7 @@ import { FxaMailerFormat } from '../senders/fxa-mailer-format';
 import { OAuthClientInfoServiceName } from '../senders/oauth_client_info';
 import { BackupCodeManager } from '@fxa/accounts/two-factor';
 import { RecoveryPhoneService } from '@fxa/accounts/recovery-phone';
-import { PasskeyService, PasskeyRecord } from '@fxa/accounts/passkey';
+import { PasskeyService, PasskeyWithWrapState } from '@fxa/accounts/passkey';
 import {
   BOUNCE_TYPE_HARD,
   escapeLikePattern,
@@ -2392,7 +2392,7 @@ export class AccountHandler {
 
     const passkeys =
       passkeysResult.status === 'fulfilled'
-        ? (passkeysResult.value as PasskeyRecord[]).map(
+        ? (passkeysResult.value as PasskeyWithWrapState[]).map(
             ({
               credentialId,
               name,
@@ -2403,6 +2403,7 @@ export class AccountHandler {
               backupEligible,
               backupState,
               prfEnabled,
+              hasPasswordlessSync,
             }) => ({
               credentialId,
               name,
@@ -2413,6 +2414,7 @@ export class AccountHandler {
               backupEligible,
               backupState,
               prfEnabled,
+              hasPasswordlessSync,
             })
           )
         : [];
