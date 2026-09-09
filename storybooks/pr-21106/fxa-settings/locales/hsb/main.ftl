@@ -352,6 +352,15 @@ password-strength-inline-passwords-match = Hesle stej jenakej
 
 
 promo-qr-mobile-heading = Waš telefon. Waše prawidła.
+promo-qr-mobile-heading-treatment-a = Čińće tam dale, hdźežkuli sće
+promo-qr-mobile-heading-treatment-b = Waše rajtarki a wjace, hotowe na wašim telefonje
+promo-qr-mobile-heading-treatment-c = Wobhladowak, kotremuž dowěrjeće, na wašim telefonje
+promo-qr-mobile-heading-treatment-d = Samsny { -brand-firefox }. Druha wobrazowka.
+promo-qr-mobile-heading-treatment-e = Waša priwatnosć njeměła so tu kónčić.
+promo-qr-mobile-heading-treatment-f = Wobchowajće wjace swojeho přehladowanja
+promo-qr-mobile-heading-treatment-g = Waš telefon móhł trochu mjenje šuma wužiwać
+promo-qr-mobile-heading-treatment-h = Přehladujće na wotpjate wašnje
+promo-qr-mobile-description-v2 = Skenujće, zo byšće mobilne nałoženje sćahnył
 promo-qr-mobile-qr-alt =
     .alt = QR-kod za sćahowanje mobilneho nałoženja { -brand-firefox }. Pozicioněrujće kameru swojeho telefona w róžku deleka naprawo swojeje wobrazowki, aby jón skenował.
 
