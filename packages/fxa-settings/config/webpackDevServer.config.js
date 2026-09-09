@@ -128,8 +128,16 @@ module.exports = function (proxy, allowedHost) {
       }
 
       // gzip compression of generated files with our own middleware, kept at the
-      // front to avoid content-encoding issues (see #19012 / #19127).
-      middlewares.unshift(compression({ threshold: '4kb' }));
+      // front to avoid content-encoding issues (see #19012 / #19127). The HTML
+      // is exempt because fxa-content-server proxies it and rewrites the body as
+      // text, which a compressed response does not survive.
+      function compressAsset(req, res) {
+        const type = String(res.getHeader('Content-Type') || '');
+        return !type.includes('text/html') && compression.filter(req, res);
+      }
+      middlewares.unshift(
+        compression({ threshold: '4kb', filter: compressAsset })
+      );
 
       // After the internal middlewares: redirect to `PUBLIC_URL`, and reset any
       // service worker previously registered for this host:port.
