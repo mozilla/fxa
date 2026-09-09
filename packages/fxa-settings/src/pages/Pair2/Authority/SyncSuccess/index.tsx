@@ -6,57 +6,48 @@ import React from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import AppLayout from '../../../../components/AppLayout';
 import { SyncSuccessImage } from '../../../../components/images';
+import firefox from '../../../../lib/channels/firefox';
 
 export type SyncSuccessProps = {
   /**
-   * Opens the list of tabs open on the user's other synced devices. Required so
-   * that routing this card cannot leave the primary action inert — the browser
-   * channel call itself lands with the flow wiring.
+   * Opens sync settings. Defaults to asking Firefox to open
+   * `about:settings#sync` over the web channel: web content cannot navigate to
+   * `about:` pages itself.
    */
-  onViewSyncedTabs?: () => void;
-  /** Opens sync settings. Required for the same reason as `onViewSyncedTabs`. */
   onSyncSettings?: () => void;
 };
 
+const openSyncSettings = () => firefox.fxaOpenSyncPreferences();
+
 /**
  * The desktop screen shown once the mobile device has finished pairing and
- * sync is active. It confirms what is now syncing and offers the two follow-up
- * actions.
+ * sync is active. It confirms that syncing has started and links to sync
+ * settings.
  */
 const SyncSuccess = ({
-  onViewSyncedTabs,
-  onSyncSettings,
+  onSyncSettings = openSyncSettings,
 }: SyncSuccessProps) => (
   <AppLayout>
     <div className="flex flex-col items-center text-center">
-      <FtlMsg id="pair2-authority-sync-success-heading">
-        <h1 className="card-header">You’re syncing</h1>
+      <FtlMsg id="pair2-authority-sync-success-heading-v2">
+        <h1 className="card-header">Your device is connected</h1>
       </FtlMsg>
-      <FtlMsg id="pair2-authority-sync-success-description">
+      <FtlMsg id="pair2-authority-sync-success-description-v2">
         <p className="text-base">
-          Your tabs, bookmarks, passwords, and more are ready across your
-          devices.
+          Syncing is underway. It may take a while for your synced data to
+          appear. Feel free to keep browsing.
         </p>
       </FtlMsg>
 
-      <SyncSuccessImage className="mt-8 h-40 w-auto" />
+      <SyncSuccessImage className="mt-6 h-40 w-auto" />
 
-      <FtlMsg id="pair2-authority-sync-success-view-tabs-button">
-        <button
-          type="button"
-          onClick={onViewSyncedTabs}
-          className="cta-primary cta-xl mt-8 w-full"
-        >
-          View synced tabs
-        </button>
-      </FtlMsg>
-      <FtlMsg id="pair2-authority-sync-success-sync-settings-button">
+      <FtlMsg id="pair2-authority-sync-success-sync-settings-button-v2">
         <button
           type="button"
           onClick={onSyncSettings}
-          className="link-dark-grey"
+          className="link-dark-grey mt-6"
         >
-          Sync settings
+          Manage sync settings
         </button>
       </FtlMsg>
     </div>
