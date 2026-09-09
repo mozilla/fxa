@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import ConnectAnotherDevice, { Devices } from '.';
+import ConnectAnotherDevice from '.';
 import AppLayout from '../../components/AppLayout';
+import { Devices } from '../../lib/utilities';
 import { MemoryRouter } from 'react-router';
 import { ENTRYPOINTS } from '../../constants';
 import { Meta } from '@storybook/react';
