@@ -346,7 +346,15 @@ password-strength-inline-passwords-match = Lösenorden matchar
 
 
 promo-qr-mobile-heading = Din telefon. Dina regler.
-promo-qr-mobile-description = Skanna för att hämta appen
+promo-qr-mobile-heading-treatment-a = Fortsätt där du slutade, vart du än går
+promo-qr-mobile-heading-treatment-b = Dina flikar och mer, redo på telefonen
+promo-qr-mobile-heading-treatment-c = Webbläsaren du litar på, till din telefon
+promo-qr-mobile-heading-treatment-d = Samma { -brand-firefox }. Annan skärm.
+promo-qr-mobile-heading-treatment-e = Din integritet bör inte sluta här
+promo-qr-mobile-heading-treatment-f = Håll mer av din surfning för dig själv
+promo-qr-mobile-heading-treatment-g = Din telefon kan använda lite mindre ljud
+promo-qr-mobile-heading-treatment-h = Surfa på ett lugnare sätt
+promo-qr-mobile-description-v2 = Skanna för att ladda ner app för mobil
 promo-qr-mobile-qr-alt =
     .alt = QR-kod för att ladda ner mobilappen { -brand-firefox }. Placera telefonens kamera i det nedre högra hörnet av skärmen för att skanna den.
 
@@ -1053,7 +1061,6 @@ terms-privacy-agreement-default-2 = Genom att fortsätta godkänner du <mozillaA
 
 
 third-party-auth-options-or = Eller
-third-party-auth-options-sign-in-with = Logga in med
 continue-with-google-button = Fortsätt med { -brand-google }
 continue-with-apple-button = Fortsätt med { -brand-apple }
 

@@ -971,6 +971,8 @@ recent-activity-account-passwordless-registration-complete = Passwordless accoun
 recent-activity-account-recovery-codes-set = Recovery codes set
 recent-activity-account-passkey-wrap-created = Passkey enabled for syncing
 recent-activity-account-passkey-wrap-creation-failure = Sync setup with passkey failed
+recent-activity-account-passkey-wrap-deleted = Passkey sync access removed
+recent-activity-account-passkey-wrap-deletion-failure = Removing passkey sync access failed
 recent-activity-account-passkey-wrap-invalidated = Passkey sync access removed after password reset
 
 recent-activity-unknown = Other account activity

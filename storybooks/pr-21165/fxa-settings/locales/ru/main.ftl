@@ -385,7 +385,6 @@ password-strength-inline-passwords-match = Пароли совпадают
 
 
 promo-qr-mobile-heading = Ваш телефон. Ваши правила.
-promo-qr-mobile-description = Отсканируйте, чтобы получить приложение
 promo-qr-mobile-qr-alt =
     .alt = QR-код, чтобы загрузить мобильное приложение { -brand-firefox }. Наведите камеру телефона на правый нижний угол экрана, чтобы отсканировать его.
 
@@ -1093,7 +1092,6 @@ terms-privacy-agreement-default-2 = Продолжая, вы соглашает�
 
 
 third-party-auth-options-or = или
-third-party-auth-options-sign-in-with = Войти через
 continue-with-google-button = Продолжить с { -brand-google }
 continue-with-apple-button = Продолжить с { -brand-apple }
 
