@@ -137,6 +137,26 @@ describe('lib/routes/auth-schemes/mfa', () => {
     }
   });
 
+  it('throws when the jwt has expired', async () => {
+    const authStrategy = strategy(config, getCredentialsFunc, db, statsd)();
+    jest.useFakeTimers({
+      now: Date.now() + (config.mfa.jwt.expiresInSec + 1) * 1000,
+    });
+
+    try {
+      await authStrategy.authenticate(request, h);
+      throw new Error('Should have thrown an error');
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(AppError);
+      const errorResponse = err.output.payload;
+      expect(errorResponse.code).toBe(401);
+      expect(errorResponse.errno).toBe(AppError.ERRNO.INVALID_MFA_TOKEN);
+      expect(errorResponse.message).toBe('Invalid or expired MFA token');
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
   it('increments bad_state and throws when the jwt is missing required claims', async () => {
     const now = Math.floor(Date.now() / 1000);
     const tokenWithoutStid = jwt.sign(
