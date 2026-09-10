@@ -1126,6 +1126,7 @@ workflows:
               ignore:
                 - /^dependabot\/.*/
                 - /^func\/.*/
+                - /^blender\/security-bump-.*/
       - playwright-functional-tests:
           name: Firefox Functional Tests - Playwright (PR)
           workflow: test_pull_request
@@ -1137,6 +1138,7 @@ workflows:
               ignore:
                 - /^dependabot\/.*/
                 - /^func\/.*/
+                - /^blender\/security-bump-.*/
       # Auto-run functional tests (no manual approval) on filtered branches,
       # so the check reaches a real conclusion instead of hanging pending.
       - playwright-functional-tests:
@@ -1149,6 +1151,7 @@ workflows:
               only:
                 - /^dependabot\/.*/
                 - /^func\/.*/
+                - /^blender\/security-bump-.*/
       - on-complete:
           name: Tests Complete (PR)
           stage: Tests
