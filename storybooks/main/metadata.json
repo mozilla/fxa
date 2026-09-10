@@ -1,8 +1,8 @@
 {
-  "commit": "c3de81cd81fc283ca8fe90cb5b1a44a3348613ea",
-  "summary": "Merge pull request #21173 from mozilla/blender/security-bump-axios",
-  "description": "chore(deps): bump axios to 1.20.0",
-  "timestamp": 1788993497000,
+  "commit": "e507dc68f973dce29678bcb47b8554583125eacd",
+  "summary": "Merge pull request #21185 from mozilla/ci/autorun-blender-functional-tests",
+  "description": "ci: auto-run functional tests on blender/* branches",
+  "timestamp": 1789001563000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
