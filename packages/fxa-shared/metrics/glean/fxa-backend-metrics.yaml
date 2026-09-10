@@ -1833,3 +1833,41 @@ passkey:
     expires: never
     data_sensitivity:
       - interaction
+  verification_started:
+    type: event
+    description: |
+      Passkey MFA step-up ceremony started on the server for a session that is
+      already signed in: a challenge was generated for the client. Pairs with
+      passkey.verification_success to measure step-up drop-off, and is distinct
+      from passkey.authentication_started, which is sign-in.
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-12914
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+  verification_success:
+    type: event
+    description: |
+      Passkey MFA step-up assertion verified successfully on the server and a
+      scoped MFA token was issued for the session.
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-12914
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction

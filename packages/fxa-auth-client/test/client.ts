@@ -145,6 +145,19 @@ describe('lib/client', () => {
 
     const jwt = 'mfa.jwt.token';
     const credentialId = 'Y3JlZC1pZA';
+    const sessionToken = 'a'.repeat(64);
+
+    const assertion = {
+      id: credentialId,
+      rawId: credentialId,
+      type: 'public-key' as const,
+      response: {
+        clientDataJSON: 'eyJ0eXBlIjoid2ViYXV0aG4uZ2V0In0',
+        authenticatorData: 'SZYN5YgOjGh0NBcPZHZgW4',
+        signature: 'MEUCIQCx',
+      },
+      clientExtensionResults: {},
+    };
 
     // Distinct fills, so a field swapped for another is visible.
     const envelope = {
@@ -244,6 +257,66 @@ describe('lib/client', () => {
       await httpsClient.beginPasskeyAuthentication({ keysRequired: true });
 
       assert.ok(!('scope' in JSON.parse(lastInit?.body as string)));
+    });
+
+    it('posts the verification challenge to the step-up route with a scope', async () => {
+      responseBody = '{"challenge":"abc","userVerification":"required"}';
+
+      await httpsClient.beginPasskeyVerification(sessionToken, {
+        scope: 'recovery_key',
+      });
+
+      assert.equal(
+        lastUrl,
+        'https://localhost:9000/v1/passkey/verification/start'
+      );
+      assert.deepEqual(JSON.parse(lastInit?.body as string), {
+        scope: 'recovery_key',
+      });
+    });
+
+    it('forwards a pinned credentialId to the verification challenge', async () => {
+      responseBody = '{"challenge":"abc","userVerification":"required"}';
+
+      await httpsClient.beginPasskeyVerification(sessionToken, {
+        scope: 'passkey',
+        credentialId,
+      });
+
+      assert.deepEqual(JSON.parse(lastInit?.body as string), {
+        scope: 'passkey',
+        credentialId,
+      });
+    });
+
+    it('omits credentialId from the verification challenge when not set', async () => {
+      responseBody = '{"challenge":"abc","userVerification":"required"}';
+
+      await httpsClient.beginPasskeyVerification(sessionToken, {
+        scope: 'passkey',
+      });
+
+      assert.ok(!('credentialId' in JSON.parse(lastInit?.body as string)));
+    });
+
+    it('returns the mfaToken from the verification finish route', async () => {
+      responseBody = '{"mfaToken":"minted.jwt.token"}';
+
+      const result = await httpsClient.completePasskeyVerification(
+        sessionToken,
+        assertion,
+        'challenge-abc'
+      );
+
+      assert.equal(
+        lastUrl,
+        'https://localhost:9000/v1/passkey/verification/finish'
+      );
+      assert.deepEqual(JSON.parse(lastInit?.body as string), {
+        response: assertion,
+        challenge: 'challenge-abc',
+      });
+      assert.deepEqual(result, { mfaToken: 'minted.jwt.token' });
     });
   });
 

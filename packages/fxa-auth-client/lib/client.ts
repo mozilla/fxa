@@ -263,6 +263,14 @@ export interface PublicKeyCredentialRequestOptionsJSON {
   extensions?: AuthenticationExtensionsJSON;
 }
 
+/**
+ * What a passkey MFA step-up returns: a scoped token for the caller's existing
+ * session. No session token, since the caller already has one.
+ */
+export type PasskeyVerificationResult = {
+  mfaToken: string;
+};
+
 export type PasskeyAuthenticationResult = {
   uid: hexstring;
   sessionToken: hexstring;
@@ -3896,6 +3904,60 @@ export default class AuthClient {
       'POST',
       '/passkey/authentication/finish',
       payload,
+      headers
+    );
+  }
+
+  /**
+   * Starts a passkey MFA step-up for a session that is already signed in.
+   *
+   * Use this to obtain a fresh scoped token without a new sign-in — for
+   * example when the token minted at sign-in has expired.
+   *
+   * @param sessionToken A verified session token
+   * @param options.scope Bare action name (e.g. `passkey`) the token minted at
+   *   `/finish` will authorize
+   * @param options.credentialId Pins the ceremony to one of the account's
+   *   passkeys. Omit to let any of them answer.
+   * @param headers Optional additional headers
+   */
+  async beginPasskeyVerification(
+    sessionToken: hexstring,
+    options: { scope: string; credentialId?: string },
+    headers?: Headers
+  ): Promise<PublicKeyCredentialRequestOptionsJSON> {
+    return this.sessionPost(
+      '/passkey/verification/start',
+      sessionToken,
+      {
+        scope: options.scope,
+        ...(options.credentialId === undefined
+          ? {}
+          : { credentialId: options.credentialId }),
+      },
+      headers
+    );
+  }
+
+  /**
+   * Completes a passkey MFA step-up by submitting the browser's assertion
+   * response together with the original challenge.
+   *
+   * @param sessionToken The same session token `beginPasskeyVerification` used
+   * @param response `PublicKeyCredentialJSON` returned by the browser
+   * @param challenge The challenge string returned by `beginPasskeyVerification`
+   * @param headers Optional additional headers
+   */
+  async completePasskeyVerification(
+    sessionToken: hexstring,
+    response: PublicKeyCredentialJSON,
+    challenge: string,
+    headers?: Headers
+  ): Promise<PasskeyVerificationResult> {
+    return this.sessionPost(
+      '/passkey/verification/finish',
+      sessionToken,
+      { response, challenge },
       headers
     );
   }

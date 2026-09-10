@@ -396,6 +396,117 @@ export class PasskeyHandler {
   }
 
   /**
+   * Handles `POST /passkey/verification/start`.
+   *
+   * Begins an MFA step-up on the caller's session: generates an assertion
+   * challenge for one scope, optionally pinned to one of the caller's
+   * passkeys. No PRF is requested — this ceremony only proves presence.
+   *
+   * @param request - Session-authenticated Hapi request carrying `scope` and
+   *   an optional `credentialId` in the payload.
+   * @returns WebAuthn authentication options to pass to `navigator.credentials.get`.
+   */
+  async verificationStart(request: AuthRequest) {
+    const { uid } = request.auth.credentials as { uid: string };
+
+    const account = await this.db.account(uid);
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      account.primaryEmail.email,
+      'passkeyVerificationStart'
+    );
+
+    const { scope, credentialId } = request.payload as {
+      scope: string;
+      credentialId?: string;
+    };
+
+    const options = await this.service.generateVerificationChallenge({
+      uid,
+      scope,
+      credentialId,
+    });
+
+    this.glean.passkey.verificationStarted(request);
+
+    return options;
+  }
+
+  /**
+   * Handles `POST /passkey/verification/finish`.
+   *
+   * Completes the step-up by verifying the assertion and minting an MFA token
+   * for the scope the challenge was created with, bound to the caller's
+   * session and to the credential that signed.
+   *
+   * @param request - Session-authenticated Hapi request carrying `response`
+   *   and `challenge` in the payload.
+   * @returns The scoped MFA token.
+   */
+  async verificationFinish(request: AuthRequest) {
+    const { uid, id: sessionTokenId } = request.auth.credentials as {
+      uid: string;
+      id: string;
+    };
+
+    const account = await this.db.account(uid);
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      account.primaryEmail.email,
+      'passkeyVerificationFinish'
+    );
+
+    const { response, challenge } = request.payload as {
+      response: AuthenticationResponseJSON;
+      challenge: string;
+    };
+
+    let scope: string;
+    let assertedCredentialId: string;
+    try {
+      ({ scope, credentialId: assertedCredentialId } =
+        await this.service.verifyVerificationResponse(
+          response,
+          challenge,
+          uid
+        ));
+    } catch (err) {
+      await recordSecurityEvent('account.passkey.verification_failure', {
+        db: this.db,
+        request,
+        account: { uid },
+      });
+      // Add a failure signal. This can be useful to ban clearly bad actors.
+      await this.customs.checkAuthenticated(
+        request,
+        uid,
+        account.primaryEmail.email,
+        'passkeyVerificationFinishFailed'
+      );
+      throw err;
+    }
+
+    this.glean.passkey.verificationSuccess(request);
+
+    await recordSecurityEvent('account.passkey.verification_success', {
+      db: this.db,
+      request,
+      account: { uid },
+    });
+
+    return {
+      mfaToken: signMfaToken(this.config, {
+        uid,
+        scope,
+        sessionTokenId,
+        credentialId: assertedCredentialId,
+      }),
+    };
+  }
+
+  /**
    * Handles `POST /passkey/authentication/start`.
    *
    * Initiates the WebAuthn authentication (assertion) ceremony by generating
@@ -1000,6 +1111,91 @@ export const passkeyRoutes = (
       handler: async function (request: AuthRequest) {
         log.begin('passkey.authentication.finish', request);
         return handler.authenticationFinish(request);
+      },
+    },
+    {
+      method: 'POST',
+      path: '/passkey/verification/start',
+      options: {
+        ...PASSKEYS_API_DOCS.PASSKEY_VERIFICATION_START_POST,
+        pre: [{ method: passkeysEnabledCheck }],
+        auth: {
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
+          payload: false,
+        },
+        validate: {
+          payload: isA.object({
+            // The action this step-up authorizes. Committed to the challenge
+            // here, so /finish cannot be asked for a different one.
+            scope: isA
+              .string()
+              .valid(...config.mfa.actions)
+              .required(),
+            // Pins the ceremony to one passkey. Omitted, any of the account's
+            // passkeys may answer.
+            credentialId: base64urlCredentialId().optional(),
+          }),
+        },
+        response: {
+          schema: isA.object({
+            challenge: isA.string().required(),
+            allowCredentials: isA.array().items(isA.object()).required(),
+            timeout: isA.number().optional(),
+            userVerification: isA.string().valid('required').required(),
+            rpId: isA.string().optional(),
+            hints: isA
+              .array()
+              .items(
+                isA.string().valid('hybrid', 'security-key', 'client-device')
+              )
+              .optional(),
+          }),
+        },
+      },
+      handler: async function (request: AuthRequest) {
+        log.begin('passkey.verification.start', request);
+        return handler.verificationStart(request);
+      },
+    },
+    {
+      method: 'POST',
+      path: '/passkey/verification/finish',
+      options: {
+        ...PASSKEYS_API_DOCS.PASSKEY_VERIFICATION_FINISH_POST,
+        pre: [{ method: passkeysEnabledCheck }],
+        auth: {
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
+          payload: false,
+        },
+        validate: {
+          payload: isA.object({
+            response: isA
+              .object({
+                id: base64urlCredentialId().required(),
+                rawId: base64urlCredentialId().optional(),
+                type: isA.string().valid('public-key').required(),
+                response: isA
+                  .object({
+                    clientDataJSON: base64urlString(2048).required(),
+                    authenticatorData: base64urlString(16384).required(),
+                    signature: base64urlString(1024).required(),
+                    userHandle: base64urlString(128).optional(),
+                  })
+                  .required(),
+              })
+              .required(),
+            challenge: base64urlChallenge().required(),
+          }),
+        },
+        response: {
+          schema: isA.object({
+            mfaToken: isA.string().required(),
+          }),
+        },
+      },
+      handler: async function (request: AuthRequest) {
+        log.begin('passkey.verification.finish', request);
+        return handler.verificationFinish(request);
       },
     },
     {

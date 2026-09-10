@@ -25,7 +25,10 @@ import {
 } from './passkey.repository';
 import { PasskeyWrapEnvelope } from './passkey.wrap.repository';
 import type { PasskeyWrap } from '@fxa/shared/db/mysql/account';
-import { PasskeyChallengeManager } from './passkey.challenge.manager';
+import {
+  CreateVerificationChallengeInput,
+  PasskeyChallengeManager,
+} from './passkey.challenge.manager';
 import {
   generateWebauthnRegistrationOptions,
   verifyWebauthnRegistrationResponse,
@@ -52,6 +55,22 @@ export interface AuthenticationResult {
    * MFA scope the challenge was created with. Absent when none was asked for.
    */
   scope?: string;
+}
+
+/**
+ * Outcome of an MFA step-up ceremony. `scope` is always present: a verification
+ * challenge cannot be created without one.
+ */
+export interface VerificationResult extends AuthenticationResult {
+  scope: string;
+}
+
+/**
+ * Whether two base64url credential IDs name the same credential. The browser
+ * may return a different but equivalent encoding of the bytes we stored.
+ */
+function sameCredentialId(a: string, b: string): boolean {
+  return Buffer.from(a, 'base64url').equals(Buffer.from(b, 'base64url'));
 }
 
 /**
@@ -480,6 +499,97 @@ export class PasskeyService {
   }
 
   /**
+   * Generate WebAuthn assertion options for an MFA step-up on a session that
+   * is already signed in.
+   *
+   * PRF is never requested. This ceremony only attests that the user is present
+   * with a registered passkey; a caller that needs PRF output already has it
+   * from the sign-in assertion.
+   *
+   * @param input.uid - Hex-encoded uid of the signed-in user.
+   * @param input.scope - MFA scope the token minted at finish will carry.
+   * @param input.credentialId - Pins the ceremony to one of the user's
+   *   passkeys. When omitted, any of them may answer.
+   * @returns WebAuthn authentication options
+   * @throws {AppError} passkeyNotFound if the user has no passkeys, or if
+   *   `credentialId` is not one of them.
+   */
+  async generateVerificationChallenge({
+    uid,
+    scope,
+    credentialId,
+  }: CreateVerificationChallengeInput): Promise<PublicKeyCredentialRequestOptionsJSON> {
+    const owned = (await this.passkeyManager.listPasskeysForUser(uid)).map(
+      (p) => p.credentialId
+    );
+
+    // Narrow to the stored encoding of the requested credential, so the value
+    // committed to the challenge is the one `passkeys.credentialId` holds.
+    const allowCredentials = credentialId
+      ? owned.filter((id) => sameCredentialId(id, credentialId))
+      : owned;
+
+    if (allowCredentials.length === 0) {
+      this.metrics.increment('passkey.verification.failed', {
+        reason: 'passkeyNotFound',
+      });
+      throw AppError.passkeyNotFound();
+    }
+
+    const challenge = await this.challengeManager.generateVerificationChallenge(
+      {
+        uid,
+        scope,
+        ...(credentialId && { credentialId: allowCredentials[0] }),
+      }
+    );
+
+    return await generateWebauthnAuthenticationOptions(this.config, {
+      challenge,
+      allowCredentials,
+      requestPrf: false,
+    });
+  }
+
+  /**
+   * Verify the assertion for an MFA step-up ceremony.
+   *
+   * @param response - The raw authentication response from the browser.
+   * @param challenge - The challenge that was issued for this step-up.
+   * @param uid - Hex-encoded uid of the signed-in session.
+   * @returns The scope the challenge was created with, and the credential that
+   *   signed the assertion.
+   * @throws {AppError} passkeyNotFound if the credential is not registered.
+   * @throws {AppError} passkeyChallengeNotFound if the challenge is unknown or expired.
+   * @throws {AppError} passkeyAuthenticationFailed if assertion verification fails,
+   *   the passkey belongs to another account, or the ceremony was pinned to a
+   *   different credential.
+   */
+  async verifyVerificationResponse(
+    response: AuthenticationResponseJSON,
+    challenge: string,
+    uid: string
+  ): Promise<VerificationResult> {
+    const result = await this.verifyAssertion('verification', {
+      response,
+      challenge,
+      expectedUid: uid,
+    });
+
+    if (!result.scope) {
+      // Unreachable through the public API — a verification challenge is always
+      // created with a scope — so a record without one is corrupt, not a
+      // caller mistake.
+      this.metrics.increment('passkey.verification.failed', {
+        reason: 'missingScope',
+      });
+      throw AppError.passkeyAuthenticationFailed();
+    }
+
+    return { ...result, scope: result.scope };
+  }
+
+  /**
    * Verify a WebAuthn authentication response.
    *
    * @param response - The raw authentication response from the browser.
@@ -500,12 +610,42 @@ export class PasskeyService {
     expectedUid?: string,
     prfSupported?: boolean
   ): Promise<AuthenticationResult> {
+    return this.verifyAssertion('authentication', {
+      response,
+      challenge,
+      expectedUid,
+      prfSupported,
+    });
+  }
+
+  /**
+   * Verifies an assertion for either ceremony that produces one.
+   *
+   * The ceremony type selects the challenge namespace, so a sign-in challenge
+   * cannot be spent on a step-up or the reverse, and it namespaces the StatsD
+   * counters.
+   */
+  private async verifyAssertion(
+    type: 'authentication' | 'verification',
+    {
+      response,
+      challenge,
+      expectedUid,
+      prfSupported,
+    }: {
+      response: AuthenticationResponseJSON;
+      challenge: string;
+      expectedUid?: string;
+      prfSupported?: boolean;
+    }
+  ): Promise<AuthenticationResult> {
+    const failed = `passkey.${type}.failed`;
     const credentialId = response.id;
 
     const passkey =
       await this.passkeyManager.findPasskeyByCredentialId(credentialId);
     if (!passkey) {
-      this.metrics.increment('passkey.authentication.failed', {
+      this.metrics.increment(failed, {
         reason: 'passkeyNotFound',
       });
       throw AppError.passkeyNotFound();
@@ -513,20 +653,37 @@ export class PasskeyService {
 
     const uid = passkey.uid.toString('hex');
     if (expectedUid && uid !== expectedUid) {
-      this.metrics.increment('passkey.authentication.failed', {
+      this.metrics.increment(failed, {
         reason: 'uidMismatch',
       });
       throw AppError.passkeyAuthenticationFailed();
     }
 
     const storedChallenge =
-      await this.challengeManager.consumeAuthenticationChallenge(challenge);
+      type === 'verification'
+        ? await this.challengeManager.consumeVerificationChallenge(
+            challenge,
+            uid
+          )
+        : await this.challengeManager.consumeAuthenticationChallenge(challenge);
     if (!storedChallenge) {
-      this.metrics.increment('passkey.authentication.failed', {
+      this.metrics.increment(failed, {
         reason: 'challengeNotFound',
       });
-      this.log?.warn('passkey.challengeNotFound', { credentialId });
+      this.log?.warn('passkey.challengeNotFound', { credentialId, type });
       throw AppError.passkeyChallengeNotFound();
+    }
+
+    // `allowCredentials` already narrowed the browser's prompt, but the finish
+    // payload is the client's, so the pin is re-checked here.
+    if (
+      storedChallenge.credentialId &&
+      !sameCredentialId(storedChallenge.credentialId, credentialId)
+    ) {
+      this.metrics.increment(failed, {
+        reason: 'credentialIdMismatch',
+      });
+      throw AppError.passkeyAuthenticationFailed();
     }
 
     let result: AuthenticationVerificationResult;
@@ -543,7 +700,7 @@ export class PasskeyService {
         // Authenticator did not perform UV. Keep the generic 401 (no distinct
         // errno — avoids leaking credential-capability details on sign-in), but
         // tag the metric so this cause is separable from other failures.
-        this.metrics.increment('passkey.authentication.failed', {
+        this.metrics.increment(failed, {
           reason: 'userVerificationFailed',
         });
         throw AppError.passkeyAuthenticationFailed();
@@ -558,14 +715,14 @@ export class PasskeyService {
         });
         this.metrics.increment('passkey.signCount.rollback');
       }
-      this.metrics.increment('passkey.authentication.failed', {
+      this.metrics.increment(failed, {
         reason: 'verificationError',
       });
       throw AppError.passkeyAuthenticationFailed();
     }
 
     if (!result.verified) {
-      this.metrics.increment('passkey.authentication.failed', {
+      this.metrics.increment(failed, {
         reason: 'notVerified',
       });
       throw AppError.passkeyAuthenticationFailed();
@@ -585,14 +742,14 @@ export class PasskeyService {
         credentialId,
         newSignCount,
       });
-      this.metrics.increment('passkey.authentication.failed', {
+      this.metrics.increment(failed, {
         reason: 'updateFailed',
       });
       throw AppError.passkeyAuthenticationFailed();
     }
 
-    this.metrics.increment('passkey.authentication.success');
-    this.log?.log('passkey.authenticated', { uid });
+    this.metrics.increment(`passkey.${type}.success`);
+    this.log?.log('passkey.authenticated', { uid, type });
 
     // Best-effort roll-forward of newly detected PRF capability; a failure must
     // never fail a verified sign-in. The guard skips a write when already set.

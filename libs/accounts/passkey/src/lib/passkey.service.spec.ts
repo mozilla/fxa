@@ -167,6 +167,8 @@ describe('PasskeyService', () => {
     consumeRegistrationChallenge: jest.fn(),
     generateAuthenticationChallenge: jest.fn(),
     consumeAuthenticationChallenge: jest.fn(),
+    generateVerificationChallenge: jest.fn(),
+    consumeVerificationChallenge: jest.fn(),
   };
 
   const mockMetrics = {
@@ -1580,6 +1582,429 @@ describe('PasskeyService', () => {
           MOCK_NOW
         )
       ).rejects.toThrow(dbError);
+    });
+  });
+
+  describe('generateVerificationChallenge', () => {
+    const OTHER_CREDENTIAL_ID = Buffer.alloc(32, 0xdd).toString('base64url');
+
+    const mockOptions = {
+      challenge: MOCK_CHALLENGE,
+      allowCredentials: [{ id: MOCK_CREDENTIAL_ID }],
+      timeout: 60000,
+      rpId: 'accounts.firefox.com',
+      userVerification: 'required',
+    };
+
+    beforeEach(() => {
+      mockManager.listPasskeysForUser.mockResolvedValue([passkeyRecord()]);
+      mockChallengeManager.generateVerificationChallenge.mockResolvedValue(
+        MOCK_CHALLENGE
+      );
+      (
+        webauthnAdapter.generateWebauthnAuthenticationOptions as jest.Mock
+      ).mockResolvedValue(mockOptions);
+    });
+
+    it('returns WebAuthn authentication options', async () => {
+      const result = await service.generateVerificationChallenge({
+        uid: MOCK_UID,
+        scope: 'passkey',
+      });
+      expect(result).toBe(mockOptions);
+    });
+
+    it('commits the uid and scope to the challenge', async () => {
+      await service.generateVerificationChallenge({
+        uid: MOCK_UID,
+        scope: 'recovery_key',
+      });
+      expect(
+        mockChallengeManager.generateVerificationChallenge
+      ).toHaveBeenCalledWith({ uid: MOCK_UID, scope: 'recovery_key' });
+    });
+
+    it("allow-lists every one of the account's passkeys when unpinned", async () => {
+      mockManager.listPasskeysForUser.mockResolvedValue([
+        passkeyRecord(),
+        passkeyRecord({ credentialId: OTHER_CREDENTIAL_ID }),
+      ]);
+
+      await service.generateVerificationChallenge({
+        uid: MOCK_UID,
+        scope: 'passkey',
+      });
+
+      expect(
+        webauthnAdapter.generateWebauthnAuthenticationOptions
+      ).toHaveBeenCalledWith(mockConfig, {
+        challenge: MOCK_CHALLENGE,
+        allowCredentials: [MOCK_CREDENTIAL_ID, OTHER_CREDENTIAL_ID],
+        requestPrf: false,
+      });
+    });
+
+    it('narrows the allow-list to the pinned credential', async () => {
+      mockManager.listPasskeysForUser.mockResolvedValue([
+        passkeyRecord(),
+        passkeyRecord({ credentialId: OTHER_CREDENTIAL_ID }),
+      ]);
+
+      await service.generateVerificationChallenge({
+        uid: MOCK_UID,
+        scope: 'passkey',
+        credentialId: OTHER_CREDENTIAL_ID,
+      });
+
+      expect(
+        webauthnAdapter.generateWebauthnAuthenticationOptions
+      ).toHaveBeenCalledWith(mockConfig, {
+        challenge: MOCK_CHALLENGE,
+        allowCredentials: [OTHER_CREDENTIAL_ID],
+        requestPrf: false,
+      });
+    });
+
+    it('commits the pinned credential to the challenge', async () => {
+      await service.generateVerificationChallenge({
+        uid: MOCK_UID,
+        scope: 'passkey',
+        credentialId: MOCK_CREDENTIAL_ID,
+      });
+      expect(
+        mockChallengeManager.generateVerificationChallenge
+      ).toHaveBeenCalledWith({
+        uid: MOCK_UID,
+        scope: 'passkey',
+        credentialId: MOCK_CREDENTIAL_ID,
+      });
+    });
+
+    it('never requests the PRF extension', async () => {
+      const prfConfig = new PasskeyConfig({
+        enabled: true,
+        rpId: 'accounts.firefox.com',
+        allowedOrigins: ['https://accounts.firefox.com'],
+        maxPasskeysPerUser: 10,
+        challengeTimeout: 30_000,
+        residentKey: 'required',
+        requestPrfAtRegistration: false,
+        prfSalt: 'c2FsdA',
+        requestPrfAtAuthentication: 'all',
+      });
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          PasskeyService,
+          { provide: PasskeyManager, useValue: mockManager },
+          { provide: PasskeyChallengeManager, useValue: mockChallengeManager },
+          { provide: PasskeyConfig, useValue: prfConfig },
+          { provide: StatsDService, useValue: mockMetrics },
+          { provide: LOGGER_PROVIDER, useValue: mockLogger },
+        ],
+      }).compile();
+
+      await module
+        .get(PasskeyService)
+        .generateVerificationChallenge({ uid: MOCK_UID, scope: 'passkey' });
+
+      expect(
+        webauthnAdapter.generateWebauthnAuthenticationOptions
+      ).toHaveBeenCalledWith(
+        prfConfig,
+        expect.objectContaining({ requestPrf: false })
+      );
+    });
+
+    it('throws passkeyNotFound when the account has no passkeys', async () => {
+      mockManager.listPasskeysForUser.mockResolvedValue([]);
+
+      await expect(
+        service.generateVerificationChallenge({
+          uid: MOCK_UID,
+          scope: 'passkey',
+        })
+      ).rejects.toThrow(AppError.passkeyNotFound());
+      expect(
+        mockChallengeManager.generateVerificationChallenge
+      ).not.toHaveBeenCalled();
+    });
+
+    it("throws passkeyNotFound when the pinned credential is not the account's", async () => {
+      await expect(
+        service.generateVerificationChallenge({
+          uid: MOCK_UID,
+          scope: 'passkey',
+          credentialId: OTHER_CREDENTIAL_ID,
+        })
+      ).rejects.toThrow(AppError.passkeyNotFound());
+    });
+
+    it('increments the verification failure metric when no credential matches', async () => {
+      mockManager.listPasskeysForUser.mockResolvedValue([]);
+
+      await expect(
+        service.generateVerificationChallenge({
+          uid: MOCK_UID,
+          scope: 'passkey',
+        })
+      ).rejects.toThrow();
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'passkey.verification.failed',
+        { reason: 'passkeyNotFound' }
+      );
+    });
+
+    it('propagates a listPasskeysForUser rejection', async () => {
+      mockManager.listPasskeysForUser.mockRejectedValue(
+        new Error('ECONNREFUSED')
+      );
+
+      await expect(
+        service.generateVerificationChallenge({
+          uid: MOCK_UID,
+          scope: 'passkey',
+        })
+      ).rejects.toThrow('ECONNREFUSED');
+    });
+  });
+
+  describe('verifyVerificationResponse', () => {
+    const mockVerificationChallenge = {
+      challenge: MOCK_CHALLENGE,
+      type: 'verification' as const,
+      uid: MOCK_UID,
+      scope: 'passkey',
+      createdAt: MOCK_NOW,
+      expiresAt: MOCK_NOW + 60_000,
+    };
+
+    beforeEach(() => {
+      mockManager.findPasskeyByCredentialId.mockResolvedValue(mockPasskey);
+      mockChallengeManager.consumeVerificationChallenge.mockResolvedValue(
+        mockVerificationChallenge
+      );
+      mockManager.updatePasskeyAfterAuth.mockResolvedValue(true);
+      (
+        webauthnAdapter.verifyWebauthnAuthenticationResponse as jest.Mock
+      ).mockResolvedValue({
+        verified: true,
+        data: { newSignCount: 6, backupState: false },
+      });
+    });
+
+    it('returns the scope the challenge was created with', async () => {
+      const result = await service.verifyVerificationResponse(
+        mockResponse,
+        MOCK_CHALLENGE,
+        MOCK_UID
+      );
+
+      expect(result).toEqual({
+        uid: MOCK_UID,
+        credentialId: MOCK_CREDENTIAL_ID,
+        scope: 'passkey',
+      });
+    });
+
+    it('consumes the challenge from the verification namespace', async () => {
+      await service.verifyVerificationResponse(
+        mockResponse,
+        MOCK_CHALLENGE,
+        MOCK_UID
+      );
+
+      expect(
+        mockChallengeManager.consumeVerificationChallenge
+      ).toHaveBeenCalledWith(MOCK_CHALLENGE, MOCK_UID);
+      expect(
+        mockChallengeManager.consumeAuthenticationChallenge
+      ).not.toHaveBeenCalled();
+    });
+
+    it('increments the verification success metric', async () => {
+      await service.verifyVerificationResponse(
+        mockResponse,
+        MOCK_CHALLENGE,
+        MOCK_UID
+      );
+
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'passkey.verification.success'
+      );
+    });
+
+    it('rolls the signCount forward', async () => {
+      await service.verifyVerificationResponse(
+        mockResponse,
+        MOCK_CHALLENGE,
+        MOCK_UID
+      );
+
+      expect(mockManager.updatePasskeyAfterAuth).toHaveBeenCalledWith(
+        MOCK_UID,
+        MOCK_CREDENTIAL_ID,
+        6,
+        false
+      );
+    });
+
+    it('throws passkeyAuthenticationFailed when the passkey belongs to another account', async () => {
+      const otherUid = Buffer.alloc(16, 0x11).toString('hex');
+
+      await expect(
+        service.verifyVerificationResponse(
+          mockResponse,
+          MOCK_CHALLENGE,
+          otherUid
+        )
+      ).rejects.toThrow(AppError.passkeyAuthenticationFailed());
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'passkey.verification.failed',
+        { reason: 'uidMismatch' }
+      );
+    });
+
+    it('throws passkeyNotFound when the credential is not registered', async () => {
+      mockManager.findPasskeyByCredentialId.mockResolvedValue(undefined);
+
+      await expect(
+        service.verifyVerificationResponse(
+          mockResponse,
+          MOCK_CHALLENGE,
+          MOCK_UID
+        )
+      ).rejects.toThrow(AppError.passkeyNotFound());
+    });
+
+    it('throws passkeyChallengeNotFound when the challenge is unknown or expired', async () => {
+      mockChallengeManager.consumeVerificationChallenge.mockResolvedValue(null);
+
+      await expect(
+        service.verifyVerificationResponse(
+          mockResponse,
+          MOCK_CHALLENGE,
+          MOCK_UID
+        )
+      ).rejects.toThrow(AppError.passkeyChallengeNotFound());
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'passkey.verification.failed',
+        { reason: 'challengeNotFound' }
+      );
+    });
+
+    it('throws passkeyAuthenticationFailed when another credential answers a pinned ceremony', async () => {
+      mockChallengeManager.consumeVerificationChallenge.mockResolvedValue({
+        ...mockVerificationChallenge,
+        credentialId: Buffer.alloc(32, 0xdd).toString('base64url'),
+      });
+
+      await expect(
+        service.verifyVerificationResponse(
+          mockResponse,
+          MOCK_CHALLENGE,
+          MOCK_UID
+        )
+      ).rejects.toThrow(AppError.passkeyAuthenticationFailed());
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'passkey.verification.failed',
+        { reason: 'credentialIdMismatch' }
+      );
+    });
+
+    it('accepts a pinned ceremony answered by the pinned credential', async () => {
+      mockChallengeManager.consumeVerificationChallenge.mockResolvedValue({
+        ...mockVerificationChallenge,
+        credentialId: MOCK_CREDENTIAL_ID,
+      });
+
+      const result = await service.verifyVerificationResponse(
+        mockResponse,
+        MOCK_CHALLENGE,
+        MOCK_UID
+      );
+
+      expect(result.credentialId).toBe(MOCK_CREDENTIAL_ID);
+    });
+
+    it('throws passkeyAuthenticationFailed when the assertion does not verify', async () => {
+      (
+        webauthnAdapter.verifyWebauthnAuthenticationResponse as jest.Mock
+      ).mockResolvedValue({ verified: false, data: {} });
+
+      await expect(
+        service.verifyVerificationResponse(
+          mockResponse,
+          MOCK_CHALLENGE,
+          MOCK_UID
+        )
+      ).rejects.toThrow(AppError.passkeyAuthenticationFailed());
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'passkey.verification.failed',
+        { reason: 'notVerified' }
+      );
+    });
+
+    it('throws passkeyAuthenticationFailed when user verification was not performed', async () => {
+      (
+        webauthnAdapter.verifyWebauthnAuthenticationResponse as jest.Mock
+      ).mockRejectedValue(new UserVerificationRequiredError());
+
+      await expect(
+        service.verifyVerificationResponse(
+          mockResponse,
+          MOCK_CHALLENGE,
+          MOCK_UID
+        )
+      ).rejects.toThrow(AppError.passkeyAuthenticationFailed());
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'passkey.verification.failed',
+        { reason: 'userVerificationFailed' }
+      );
+    });
+
+    it('throws passkeyAuthenticationFailed when the signCount update does not apply', async () => {
+      mockManager.updatePasskeyAfterAuth.mockResolvedValue(false);
+
+      await expect(
+        service.verifyVerificationResponse(
+          mockResponse,
+          MOCK_CHALLENGE,
+          MOCK_UID
+        )
+      ).rejects.toThrow(AppError.passkeyAuthenticationFailed());
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'passkey.verification.failed',
+        { reason: 'updateFailed' }
+      );
+    });
+
+    it('throws passkeyAuthenticationFailed on a stored challenge with no scope', async () => {
+      mockChallengeManager.consumeVerificationChallenge.mockResolvedValue({
+        ...mockVerificationChallenge,
+        scope: undefined,
+      });
+
+      await expect(
+        service.verifyVerificationResponse(
+          mockResponse,
+          MOCK_CHALLENGE,
+          MOCK_UID
+        )
+      ).rejects.toThrow(AppError.passkeyAuthenticationFailed());
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'passkey.verification.failed',
+        { reason: 'missingScope' }
+      );
+    });
+
+    it('does not roll prfEnabled forward', async () => {
+      await service.verifyVerificationResponse(
+        mockResponse,
+        MOCK_CHALLENGE,
+        MOCK_UID
+      );
+
+      expect(mockManager.setPasskeyPrfEnabled).not.toHaveBeenCalled();
     });
   });
 

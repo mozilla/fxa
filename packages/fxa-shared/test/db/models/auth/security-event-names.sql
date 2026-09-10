@@ -17,6 +17,8 @@ INSERT INTO securityEventNames (id, name) VALUES (54, 'account.passkey.authentic
 INSERT INTO securityEventNames (id, name) VALUES (52, 'account.passkey.registration_failure');
 INSERT INTO securityEventNames (id, name) VALUES (51, 'account.passkey.registration_success');
 INSERT INTO securityEventNames (id, name) VALUES (53, 'account.passkey.removed');
+INSERT INTO securityEventNames (id, name) VALUES (68, 'account.passkey.verification_failure');
+INSERT INTO securityEventNames (id, name) VALUES (67, 'account.passkey.verification_success');
 INSERT INTO securityEventNames (id, name) VALUES (61, 'account.passkey.wrap_created');
 INSERT INTO securityEventNames (id, name) VALUES (62, 'account.passkey.wrap_creation_failure');
 INSERT INTO securityEventNames (id, name) VALUES (65, 'account.passkey.wrap_deleted');

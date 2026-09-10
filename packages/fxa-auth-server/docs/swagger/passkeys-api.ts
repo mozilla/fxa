@@ -116,11 +116,68 @@ const PASSKEY_AUTHENTICATION_FINISH_POST = {
   ],
 };
 
+/**
+ * Swagger/OpenAPI documentation for `POST /passkey/verification/start`.
+ *
+ * Initiates a WebAuthn assertion ceremony as an MFA step-up.
+ */
+const PASSKEY_VERIFICATION_START_POST = {
+  ...TAGS_PASSKEYS,
+  description: '/passkey/verification/start',
+  notes: [
+    dedent`
+      🔒 Authenticated with session token (verified)
+
+      Initiates an MFA step-up for the caller's session. Returns
+      \`PublicKeyCredentialRequestOptionsJSON\` to pass to
+      \`navigator.credentials.get\`. \`allowCredentials\` lists the account's
+      passkeys, or just the pinned one. PRF is never requested: this ceremony
+      only proves the user is present with a registered passkey.
+
+      **Request body:**
+      - \`scope\` (string, required) - an MFA action from \`config.mfa.actions\`.
+        Stored on the challenge, so \`/finish\` mints an \`mfa:<scope>\` token for it.
+      - \`credentialId\` (string, optional) - pins the ceremony to one of the
+        account's passkeys.
+    `,
+  ],
+};
+
+/**
+ * Swagger/OpenAPI documentation for `POST /passkey/verification/finish`.
+ *
+ * Completes the MFA step-up and mints a scoped MFA token.
+ */
+const PASSKEY_VERIFICATION_FINISH_POST = {
+  ...TAGS_PASSKEYS,
+  description: '/passkey/verification/finish',
+  notes: [
+    dedent`
+      🔒 Authenticated with session token (verified)
+
+      Completes the MFA step-up ceremony. No session token is created: the
+      caller already has one.
+
+      **Request body:**
+      - \`response\` (object, required) - AuthenticationResponseJSON from the browser
+      - \`challenge\` (string, required) - challenge from the start endpoint
+
+      **Response:** \`mfaToken\`, carrying the scope the challenge was created
+      with, the caller's session, and the credential that signed the assertion.
+
+      **Security events:** \`account.passkey.verification_success\` or
+      \`account.passkey.verification_failure\`.
+    `,
+  ],
+};
+
 const PASSKEYS_API_DOCS = {
   PASSKEY_REGISTRATION_START_POST,
   PASSKEY_REGISTRATION_FINISH_POST,
   PASSKEY_AUTHENTICATION_START_POST,
   PASSKEY_AUTHENTICATION_FINISH_POST,
+  PASSKEY_VERIFICATION_START_POST,
+  PASSKEY_VERIFICATION_FINISH_POST,
   PASSKEYS_GET: {
     ...TAGS_PASSKEYS,
     description: '/passkeys',
