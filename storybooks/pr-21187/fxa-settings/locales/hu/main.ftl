@@ -137,13 +137,6 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Felhívások az internet visszaszerzésére
 
 
-pair-continue-in-firefox-heading = Folytatás a { -brand-firefox }ban
-pair-continue-in-firefox-description = A párosítás a { -brand-firefox }ban történik. Nyissa meg az eszköz csatlakoztatásának befejezéséhez.
-pair-continue-in-firefox-button = Folytatás a { -brand-firefox }ban
-pair-continue-in-firefox-opening = Megnyitás a { -brand-firefox }ban
-pair-continue-in-firefox-get-firefox-link = Nincs { -brand-firefox }a? Szerezze be most.
-
-
 dark-mode-toggle-light = Világos
 dark-mode-toggle-dark = Sötét
 dark-mode-toggle-system = Rendszer
@@ -1390,6 +1383,7 @@ pair2-supplicant-connect-this-device-cancel-button = Mégse
 pair2-supplicant-download-firefox-heading = A { -brand-firefox } beszerzése erre az eszközre
 pair2-supplicant-download-firefox-description = Töltse le a { -brand-firefox }ot, és szinkronizálja a könyvjelzőket, előzményeket és egyebeket az eszközök között. <linkExternal>Tudjon meg többet</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Folytatás a { -brand-firefox }ban
+pair2-supplicant-download-firefox-opening-button = { -brand-firefox } megnyitása…
 
 
 pair2-supplicant-ready-to-scan-heading = Eszköz csatlakoztatása

@@ -246,13 +246,6 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Výzvy na opätovné získanie internetu
 
 
-pair-continue-in-firefox-heading = Pokračujte vo { -brand-firefox(case: "loc") }
-pair-continue-in-firefox-description = Párovanie sa dokončí v aplikácii { -brand-firefox }. Otvorte ju a pripojte toto zariadenie.
-pair-continue-in-firefox-button = Pokračovať vo { -brand-firefox(case: "loc") }
-pair-continue-in-firefox-opening = Otvára sa { -brand-firefox }
-pair-continue-in-firefox-get-firefox-link = Nemáte { -brand-firefox(case: "acc") }? Nainštalujte si ho teraz
-
-
 dark-mode-toggle-light = Svetlá
 dark-mode-toggle-dark = Tmavá
 dark-mode-toggle-system = Podľa systému

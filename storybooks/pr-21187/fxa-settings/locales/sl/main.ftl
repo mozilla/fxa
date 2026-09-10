@@ -220,13 +220,6 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Pozivi k ukrepanju za povrnitev interneta
 
 
-pair-continue-in-firefox-heading = Nadaljuj v { -brand-firefox(sklon: "mestnik") }
-pair-continue-in-firefox-description = Seznanjanje bo izvedeno čez { -brand-firefox }. Odprite ga za dokončanje povezovanja naprave.
-pair-continue-in-firefox-button = Nadaljuj v { -brand-firefox(sklon: "mestnik") }
-pair-continue-in-firefox-opening = Odpiranje { -brand-firefox }
-pair-continue-in-firefox-get-firefox-link = Nimate { -brand-firefox }? Pridobite ga zdaj
-
-
 dark-mode-toggle-light = Svetla
 dark-mode-toggle-dark = Temna
 dark-mode-toggle-system = Sistemska
@@ -1483,6 +1476,7 @@ pair2-supplicant-connect-this-device-cancel-button = Prekliči
 pair2-supplicant-download-firefox-heading = Prejmite { -brand-firefox } za to napravo
 pair2-supplicant-download-firefox-description = Prenesite { -brand-firefox } in sinhronizirajte zaznamke, zgodovino in drugo med napravami. <linkExternal>Več o tem</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Nadaljuj v { -brand-firefox(sklon: "mestnik") }
+pair2-supplicant-download-firefox-opening-button = Odpiranje { -brand-firefox } …
 
 
 pair2-supplicant-ready-to-scan-heading = Za povezavo naprave

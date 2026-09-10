@@ -138,13 +138,6 @@ choose-newsletters-option-reclaim-the-internet =
     .label = სამოქმედო ცნობები ინტერნეტის დასაბრუნებლად
 
 
-pair-continue-in-firefox-heading = გამოიყენეთ { -brand-firefox }, რომ განაგრძოთ
-pair-continue-in-firefox-description = უერთდება { -brand-firefox }. გახსენით ამ მოწყობილობასთან კავშირის დასასრულებლად.
-pair-continue-in-firefox-button = გამოიყენეთ { -brand-firefox }, რომ განაგრძოთ
-pair-continue-in-firefox-opening = იხსნება { -brand-firefox }
-pair-continue-in-firefox-get-firefox-link = { -brand-firefox } არ გაქვთ? გადმოწერეთ ახლავე
-
-
 dark-mode-toggle-light = ნათელი
 dark-mode-toggle-dark = მუქი
 dark-mode-toggle-system = სისტემის
@@ -1385,6 +1378,7 @@ pair2-supplicant-connect-this-device-cancel-button = გაუქმება
 pair2-supplicant-download-firefox-heading = გადმოწერეთ { -brand-firefox } ამ მოწყობილობაზე
 pair2-supplicant-download-firefox-description = ჩამოტვირთეთ { -brand-firefox } სანიშნების, ისტორიისა თუ სხვა მონაცემების დასინქრონებისთვის სხვადასხვა მოწყობილობებზე. <linkExternal>ვრცლად</linkExternal>
 pair2-supplicant-download-firefox-continue-button = გასაგრძელებლად გამოიყენეთ { -brand-firefox }
+pair2-supplicant-download-firefox-opening-button = იხსნება { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = რომ დაკავშირდეს მოწყობილობა

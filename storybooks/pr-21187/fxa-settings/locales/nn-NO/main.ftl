@@ -104,12 +104,6 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Handlingsvarsel for å vinne tilbake internett
 
 
-pair-continue-in-firefox-heading = Hald fram i { -brand-firefox }
-pair-continue-in-firefox-button = Hald fram i { -brand-firefox }
-pair-continue-in-firefox-opening = Opnar { -brand-firefox }
-pair-continue-in-firefox-get-firefox-link = Har du ikkje { -brand-firefox }? Skaff deg han no
-
-
 dark-mode-toggle-light = Lyst
 dark-mode-toggle-dark = Mørkt
 dark-mode-toggle-system = System

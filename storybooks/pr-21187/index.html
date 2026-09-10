@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit f19bd1057e2db6ef899165d3380d0be4c36bd5ae</title>
+  <title>Storybooks for commit ea94e4fb130f99557c3f2c413503df65eb3d4904</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit f19bd1057e2db6ef899165d3380d0be4c36bd5ae</h1>
+  <h1>Storybooks for commit ea94e4fb130f99557c3f2c413503df65eb3d4904</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/10/2026, 8:16:15 PM UTC</dd>
+    <dd>9/10/2026, 10:24:20 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(settings): add the passkey wrap creation hook</pre></dd>
     <dt>Description</dt>
@@ -40,8 +40,8 @@
   wedges the credential until the passkey is deleted.
 
 This commit:
-- Adds usePasskeyWrapCreation, sealing kB into a wrap envelope and
-  storing it under an mfa:passkey proof.
+- Adds usePasskeyWrapCreation, sealing kB into a wrap envelope bound to
+  the account the mfa:passkey proof names, and storing it under that proof.
 - Reopens the envelope before storing it, catching platform crypto that
   seals what it cannot unseal.
 - Refuses spent, zeroed or wrong-width key material, and holds a sealed

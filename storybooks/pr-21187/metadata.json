@@ -1,8 +1,8 @@
 {
-  "commit": "f19bd1057e2db6ef899165d3380d0be4c36bd5ae",
+  "commit": "ea94e4fb130f99557c3f2c413503df65eb3d4904",
   "summary": "feat(settings): add the passkey wrap creation hook",
-  "description": "Because:\n- Passwordless Sync needs kB sealed to a passkey's PRF output before a\n  wrap can be stored.\n- The wrap store is create-only, so a mis-sealed or duplicated envelope\n  wedges the credential until the passkey is deleted.\n\nThis commit:\n- Adds usePasskeyWrapCreation, sealing kB into a wrap envelope and\n  storing it under an mfa:passkey proof.\n- Reopens the envelope before storing it, catching platform crypto that\n  seals what it cannot unseal.\n- Refuses spent, zeroed or wrong-width key material, and holds a sealed\n  envelope so a retry re-sends identical bytes.\n- Maps server errnos to distinct failure reasons and drops a rejected\n  proof from the JWT cache.\n- Zeroes kB and the PRF output once sealed, on every path that reads them.\n\nCloses #FXA-14425",
-  "timestamp": 1789071375000,
+  "description": "Because:\n- Passwordless Sync needs kB sealed to a passkey's PRF output before a\n  wrap can be stored.\n- The wrap store is create-only, so a mis-sealed or duplicated envelope\n  wedges the credential until the passkey is deleted.\n\nThis commit:\n- Adds usePasskeyWrapCreation, sealing kB into a wrap envelope bound to\n  the account the mfa:passkey proof names, and storing it under that proof.\n- Reopens the envelope before storing it, catching platform crypto that\n  seals what it cannot unseal.\n- Refuses spent, zeroed or wrong-width key material, and holds a sealed\n  envelope so a retry re-sends identical bytes.\n- Maps server errnos to distinct failure reasons and drops a rejected\n  proof from the JWT cache.\n- Zeroes kB and the PRF output once sealed, on every path that reads them.\n\nCloses #FXA-14425",
+  "timestamp": 1789079060000,
   "storybooks": [
     "fxa-settings"
   ],
