@@ -1,0 +1,10 @@
+{
+  "commit": "f6de35d043fbef7615cd31e96cac3db5b3940943",
+  "summary": "fix(payments): Add 'free' to free trial email subject and title",
+  "description": "Closes: PAY-3914",
+  "timestamp": 1789061187000,
+  "storybooks": [
+    "email-renderer"
+  ],
+  "deployDir": "deploy/"
+}

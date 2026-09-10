@@ -1,0 +1,8 @@
+cadReminderFirst-title-1 = "It takes two to sync"
+
+cadReminderFirst-description-v2 = "Take your tabs across all your devices. Get your bookmarks, passwords, and other data everywhere you use Firefox."
+
+cadReminderFirst-action-plaintext = "Sync another device:"
+<%- link %>
+
+<%- include('/partials/automatedEmailNoAction/index.txt') %>
