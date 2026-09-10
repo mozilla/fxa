@@ -1,1 +1,0 @@
-support-message-plaintext = "For more info, visit Mozilla Support: <%- supportUrl %>"
