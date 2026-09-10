@@ -16,15 +16,15 @@ export type TemplateData = IconTemplateData &
   };
 
 export const template = 'subscriptionReactivation';
-export const version = 3;
+export const version = 4;
 export const layout = 'subscription';
 
 export function getIncludes(isFreeTrialReactivation: boolean) {
   return {
     subject: isFreeTrialReactivation
       ? {
-          id: 'subscriptionReactivation-freeTrial-subject',
-          message: 'Your <%- productName %> trial has been reactivated',
+          id: 'subscriptionReactivation-free-trial-subject',
+          message: 'Your <%- productName %> free trial has been reactivated',
         }
       : {
           id: 'subscriptionReactivation-subject-2',
