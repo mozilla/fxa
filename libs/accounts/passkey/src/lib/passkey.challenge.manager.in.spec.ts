@@ -103,18 +103,48 @@ describe('PasskeyChallengeManager (integration)', () => {
     });
   });
 
-  describe('generateUpgradeChallenge', () => {
-    it('stores challenge with uid and type=upgrade', async () => {
-      const challenge = await manager.generateUpgradeChallenge('cafebabe');
+  describe('generateVerificationChallenge', () => {
+    it('stores challenge with uid, scope, and type=verification', async () => {
+      const challenge = await manager.generateVerificationChallenge({
+        uid: 'cafebabe',
+        scope: 'passkey',
+      });
 
-      const stored = await manager.consumeUpgradeChallenge(
+      const stored = await manager.consumeVerificationChallenge(
         challenge,
         'cafebabe'
       );
 
       expect(stored?.challenge).toBe(challenge);
-      expect(stored?.type).toBe('upgrade');
+      expect(stored?.type).toBe('verification');
       expect(stored?.uid).toBe('cafebabe');
+      expect(stored?.scope).toBe('passkey');
+    });
+
+    it('round-trips a pinned credentialId', async () => {
+      const challenge = await manager.generateVerificationChallenge({
+        uid: 'cafebabe',
+        scope: 'passkey',
+        credentialId: 'Y3JlZC0x',
+      });
+
+      const stored = await manager.consumeVerificationChallenge(
+        challenge,
+        'cafebabe'
+      );
+
+      expect(stored?.credentialId).toBe('Y3JlZC0x');
+    });
+
+    it('cannot be consumed as an authentication challenge', async () => {
+      const challenge = await manager.generateVerificationChallenge({
+        uid: 'cafebabe',
+        scope: 'passkey',
+      });
+
+      expect(
+        await manager.consumeAuthenticationChallenge(challenge)
+      ).toBeNull();
     });
   });
 

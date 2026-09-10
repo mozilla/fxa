@@ -21,12 +21,13 @@ import { PASSKEY_CHALLENGE_REDIS } from './passkey.provider';
  *   NO uid when generating the challenge because `authenticationStart` is unauthenticated.
  *   The uid is only known after `authenticationVerify` resolves the credential ID.
  *
- * - 'upgrade': Assertion ceremony — PRF key-wrapping flow (`upgradeStart`/`upgradeVerify`).
- *   Typed separately from 'authentication' to prevent cross-ceremony attacks where an
- *   upgrade challenge could not be submitted to the sign-in verification endpoint and
- *   vice versa. UID is required when generating an upgrade challenge.
+ * - 'verification': Assertion ceremony — MFA step-up on a session that is already
+ *   signed in (`verificationStart`/`verificationFinish`). Typed separately from
+ *   'authentication' so a step-up challenge cannot be submitted to the sign-in
+ *   verification endpoint and vice versa. UID is required when generating a
+ *   verification challenge.
  */
-export type ChallengeType = 'registration' | 'authentication' | 'upgrade';
+export type ChallengeType = 'registration' | 'authentication' | 'verification';
 
 /**
  * The shape of a challenge record stored as a JSON value in Redis.
@@ -34,8 +35,8 @@ export type ChallengeType = 'registration' | 'authentication' | 'upgrade';
  * Important notes:
  * - `uid` is an optional hex string (not a Buffer) for clean JSON serialization.
  *   The Authentication (sign-in) challenges are generated before the user
- *   is identified and Registration and Upgrade challenges always include uid (both are
- *   MFA-gated and require an authenticated session), hence why it's optional.
+ *   is identified and Registration and Verification challenges always include uid (both
+ *   are MFA-gated and require an authenticated session), hence why it's optional.
  * - `expiresAt` is informational; the Redis TTL is the authoritative expiry
  *   mechanism. However, the application may compare `expiresAt` against `Date.now()`
  *   if it receives a challenge that Redis has not yet evicted.
@@ -58,7 +59,7 @@ export interface StoredChallenge {
   /**
    * Hex-encoded user ID (16 bytes = 32 hex chars).
    *
-   * Present for 'registration' and 'upgrade' challenges.
+   * Present for 'registration' and 'verification' challenges.
    * Absent for 'authentication' challenges: sign-in uses discoverable credentials and
    * authenticationStart is unauthenticated — the uid is only resolved after the ceremony.
    */
@@ -68,6 +69,14 @@ export interface StoredChallenge {
    * MFA scope this ceremony was started for, fixed before the user is prompted.
    */
   scope?: string;
+
+  /**
+   * The single credential this ceremony is pinned to, as a base64url
+   * `passkeys.credentialId`. Set when the caller asked for one specific
+   * passkey; absent when any of the account's passkeys may answer. Fixed here
+   * rather than read from the finish payload, which the client controls.
+   */
+  credentialId?: string;
 
   /** Unix timestamp (milliseconds) when this challenge was created. */
   createdAt: number;
@@ -88,10 +97,12 @@ export interface CreateRegistrationChallengeInput {
 }
 
 /**
- * Input for generating an upgrade challenge (PRF key-wrapping ceremony).
+ * Input for generating a verification (MFA step-up) challenge.
  */
-export interface CreateUpgradeChallengeInput {
+export interface CreateVerificationChallengeInput {
   uid: string;
+  scope: string;
+  credentialId?: string;
 }
 
 /**
@@ -101,7 +112,7 @@ export interface CreateUpgradeChallengeInput {
  * - Generated with 32 bytes of cryptographic randomness (base64url-encoded)
  * - Stored in Redis with TTL-based automatic expiration
  * - Single-use: atomically read and deleted during validation (GETDEL)
- * - Typed to prevent cross-ceremony attacks (registration / authentication / upgrade)
+ * - Typed to prevent cross-ceremony attacks (registration / authentication / verification)
  *
  * Redis key format: `passkey:challenge:{type}:{challengeBase64url}`
  *
@@ -123,7 +134,7 @@ export class PasskeyChallengeManager {
    * @returns Base64url-encoded 32-byte challenge string.
    */
   async generateRegistrationChallenge(uid: string): Promise<string> {
-    return this.generateChallenge('registration', uid);
+    return this.generateChallenge('registration', { uid });
   }
 
   /**
@@ -132,17 +143,23 @@ export class PasskeyChallengeManager {
    * @returns Base64url-encoded 32-byte challenge string.
    */
   async generateAuthenticationChallenge(scope?: string): Promise<string> {
-    return this.generateChallenge('authentication', undefined, scope);
+    return this.generateChallenge('authentication', { scope });
   }
 
   /**
-   * Generates an upgrade challenge for the WebAuthn PRF key-wrapping ceremony.
+   * Generates a verification challenge for the WebAuthn MFA step-up ceremony.
    *
-   * @param uid - Hex-encoded uid of the user.
+   * @param input.uid - Hex-encoded uid of the user.
+   * @param input.scope - MFA scope the resulting token will carry.
+   * @param input.credentialId - Pins the ceremony to one passkey.
    * @returns Base64url-encoded 32-byte challenge string.
    */
-  async generateUpgradeChallenge(uid: string): Promise<string> {
-    return this.generateChallenge('upgrade', uid);
+  async generateVerificationChallenge({
+    uid,
+    scope,
+    credentialId,
+  }: CreateVerificationChallengeInput): Promise<string> {
+    return this.generateChallenge('verification', { uid, scope, credentialId });
   }
 
   /**
@@ -172,17 +189,17 @@ export class PasskeyChallengeManager {
   }
 
   /**
-   * Fetches and deletes an upgrade challenge from Redis.
+   * Fetches and deletes a verification challenge from Redis.
    *
    * @param challenge - The base64url-encoded challenge string.
    * @param uid - Hex-encoded uid of the user.
    * @returns The stored challenge metadata or null if not found or expired.
    */
-  async consumeUpgradeChallenge(
+  async consumeVerificationChallenge(
     challenge: string,
     uid: string
   ): Promise<StoredChallenge | null> {
-    return this.consumeChallenge('upgrade', challenge, uid);
+    return this.consumeChallenge('verification', challenge, uid);
   }
 
   /**
@@ -248,8 +265,11 @@ export class PasskeyChallengeManager {
 
   private async generateChallenge(
     type: ChallengeType,
-    uid?: string,
-    scope?: string
+    {
+      uid,
+      scope,
+      credentialId,
+    }: { uid?: string; scope?: string; credentialId?: string }
   ): Promise<string> {
     const challenge = randomBytes(32).toString('base64url');
     const now = Date.now();
@@ -261,6 +281,7 @@ export class PasskeyChallengeManager {
       type,
       uid,
       scope,
+      credentialId,
       createdAt: now,
       expiresAt: now + timeout,
     };
