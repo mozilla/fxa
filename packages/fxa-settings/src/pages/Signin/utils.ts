@@ -49,6 +49,7 @@ interface NavigationTargetError {
 export type PairOrigin = NonNullable<SigninLocationState['origin']>;
 
 interface SyncNavigateOptions {
+  showInlinePasswordlessSyncSetup?: boolean;
   showInlineRecoveryKeySetup?: boolean;
   isSignInWithThirdPartyAuth?: boolean;
   showSignupConfirmedSync?: boolean;
@@ -113,6 +114,7 @@ function getPairGleanReason({
 export function getSyncNavigate(
   queryParams: string,
   {
+    showInlinePasswordlessSyncSetup,
     showInlineRecoveryKeySetup,
     isSignInWithThirdPartyAuth,
     showSignupConfirmedSync,
@@ -162,6 +164,13 @@ export function getSyncNavigate(
       // a missing field. Mirrors the explicit reason set by the OTP and
       // passkey callers in SigninPasswordlessCode and signin-flow.
       locationState: { passwordCreationReason: 'third_party_auth' },
+    };
+  }
+
+  if (showInlinePasswordlessSyncSetup) {
+    return {
+      to: `/inline_passwordless_sync_setup?${searchParams}`,
+      shouldHardNavigate: false,
     };
   }
 
@@ -327,6 +336,7 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     cmsInfo?.shared.featureFlags?.syncHidePromoAfterLogin &&
     integration.isSync()
   ) {
+    navigationOptions.showInlinePasswordlessSyncSetup = false;
     navigationOptions.showInlineRecoveryKeySetup = false;
     navigationOptions.showSignupConfirmedSync = false;
     navigationOptions.syncHidePromoAfterLogin = true;
@@ -338,6 +348,7 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     isSendTabEntrypoint(integration.data?.entrypoint) &&
     integration.isSync()
   ) {
+    navigationOptions.showInlinePasswordlessSyncSetup = false;
     navigationOptions.showInlineRecoveryKeySetup = false;
     navigationOptions.showSignupConfirmedSync = false;
   }
@@ -632,6 +643,7 @@ const getNonOAuthNavigationTarget = async (
   const {
     integration,
     queryParams,
+    showInlinePasswordlessSyncSetup,
     showInlineRecoveryKeySetup,
     redirectTo,
     isSignInWithThirdPartyAuth,
@@ -643,6 +655,7 @@ const getNonOAuthNavigationTarget = async (
   } = navigationOptions;
   if (integration.isSync()) {
     const syncNav = getSyncNavigate(queryParams, {
+      showInlinePasswordlessSyncSetup,
       showInlineRecoveryKeySetup,
       isSignInWithThirdPartyAuth,
       showSignupConfirmedSync,
@@ -765,6 +778,8 @@ const getOAuthNavigationTarget = async (
 
   if (navigationOptions.integration.isSync()) {
     const syncNav = getSyncNavigate(navigationOptions.queryParams, {
+      showInlinePasswordlessSyncSetup:
+        navigationOptions.showInlinePasswordlessSyncSetup,
       showInlineRecoveryKeySetup: locationState.showInlineRecoveryKeySetup,
       isSignInWithThirdPartyAuth: navigationOptions.isSignInWithThirdPartyAuth,
       showSignupConfirmedSync: navigationOptions.showSignupConfirmedSync,

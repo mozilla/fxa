@@ -186,6 +186,61 @@ describe('PageSettings', () => {
       });
     });
 
+    describe('passkey enabled for Sync', () => {
+      it('shows the success banner when arriving from the opt-in page', async () => {
+        const alertBarInfo = { success: jest.fn() } as any;
+        renderWithRouter(
+          <AppContext.Provider
+            value={mockAppContext({ account: coldStartAccount })}
+          >
+            <SettingsContext.Provider
+              value={mockSettingsContext({ alertBarInfo })}
+            >
+              <PageSettings />
+            </SettingsContext.Provider>
+          </AppContext.Provider>,
+          {
+            route: {
+              pathname: '/settings',
+              state: { passkeySyncEnabled: true },
+            },
+          }
+        );
+
+        await waitFor(() =>
+          expect(alertBarInfo.success).toHaveBeenCalledWith(
+            'Passkey enabled for sync'
+          )
+        );
+      });
+
+      it('shows the handed-over error when the opt-in failed', async () => {
+        const alertBarInfo = { success: jest.fn(), error: jest.fn() } as any;
+        renderWithRouter(
+          <AppContext.Provider
+            value={mockAppContext({ account: coldStartAccount })}
+          >
+            <SettingsContext.Provider
+              value={mockSettingsContext({ alertBarInfo })}
+            >
+              <PageSettings />
+            </SettingsContext.Provider>
+          </AppContext.Provider>,
+          {
+            route: {
+              pathname: '/settings',
+              state: { localizedErrorFromLocationState: 'Couldn’t enable.' },
+            },
+          }
+        );
+
+        await waitFor(() =>
+          expect(alertBarInfo.error).toHaveBeenCalledWith('Couldn’t enable.')
+        );
+        expect(alertBarInfo.success).not.toHaveBeenCalled();
+      });
+    });
+
     describe('inactive account verified', () => {
       const alertBarInfo = {
         success: jest.fn(),

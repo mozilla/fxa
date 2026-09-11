@@ -1007,6 +1007,23 @@ describe('Signin utils', () => {
         ).toBe('signin');
       });
 
+      it('clears showInlinePasswordlessSyncSetup for send-tab sign-in', async () => {
+        const integration = createMockSigninOAuthNativeSyncIntegration();
+        integration.data.entrypoint = 'send-tab-toolbar-icon';
+        const navigationOptions = createSendTabNavigationOptions({
+          integration,
+          queryParams: '?service=sync',
+          showInlinePasswordlessSyncSetup: true,
+          handleFxaLogin: true,
+        });
+
+        await handleNavigation(navigationOptions);
+
+        const [navigatedUrl] = mockNavigate.mock.calls[0];
+        expect(navigatedUrl).toContain('/pair?');
+        expect(navigatedUrl).not.toContain('inline_passwordless_sync_setup');
+      });
+
       it('clears showSignupConfirmedSync for send-tab post-verify and soft-navs with origin=post-verify-set-password', async () => {
         const integration = createMockSigninOAuthNativeSyncIntegration();
         integration.data.entrypoint = 'send-tab-app-menu';
@@ -1103,6 +1120,15 @@ describe('Signin utils', () => {
         showInlineRecoveryKeySetup: true,
       });
       expect(result.to).toContain('/inline_recovery_key_setup?');
+    });
+
+    it('returns /inline_passwordless_sync_setup ahead of the recovery key promo', () => {
+      const result = getSyncNavigate('?service=sync', {
+        showInlinePasswordlessSyncSetup: true,
+        showInlineRecoveryKeySetup: true,
+      });
+      expect(result.to).toBe('/inline_passwordless_sync_setup?service=sync');
+      expect(result.shouldHardNavigate).toBe(false);
     });
 
     it('returns /signup_confirmed_sync when showSignupConfirmedSync is true', () => {

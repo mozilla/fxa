@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import AuthClient from 'fxa-auth-client/browser';
+import { hexToUint8 } from 'fxa-auth-client/lib/utils';
 import { useCallback } from 'react';
 import {
   OAuthIntegration,
@@ -11,7 +12,9 @@ import {
   isOAuthIntegration,
   isSyncDesktopV3Integration,
   Integration,
+  useSensitiveDataClient,
 } from '../../models';
+import { SensitiveData } from '../sensitive-data-client';
 import { createEncryptedBundle } from '../crypto/scoped-keys';
 import { Constants } from '../constants';
 import { AuthError, OAUTH_ERRORS, OAuthError } from './oauth-errors';
@@ -222,6 +225,7 @@ export function useFinishOAuthFlowHandler(
 ): UseFinishOAuthFlowHandlerResult {
   const isSyncOAuth = isOAuthNativeIntegrationSync(integration);
   const oAuthIntegration = isOAuthIntegration(integration) ? integration : null;
+  const sensitiveDataClient = useSensitiveDataClient();
 
   const finishOAuthFlowHandler: FinishOAuthFlowHandler = useCallback(
     async (accountUid, sessionToken, keyFetchToken, unwrapBKey) => {
@@ -238,6 +242,15 @@ export function useFinishOAuthFlowHandler(
             keyFetchToken,
             unwrapBKey
           );
+          // The only point in a Sync sign-in where `kB` exists client-side, so
+          // the passwordless Sync opt-in collects it here when a passkey
+          // ceremony has asked for it.
+          const pendingWrap = sensitiveDataClient.getDataType(
+            SensitiveData.Key.PasskeyWrap
+          );
+          if (pendingWrap) {
+            pendingWrap.kB = hexToUint8(kB);
+          }
           keys = await constructKeysJwe(
             authClient,
             oAuthIntegration,
@@ -304,7 +317,7 @@ export function useFinishOAuthFlowHandler(
         scope: oAuthData.scope,
       };
     },
-    [authClient, oAuthIntegration, isSyncOAuth]
+    [authClient, oAuthIntegration, isSyncOAuth, sensitiveDataClient]
   );
 
   /* TODO: Probably remove 'isOAuthVerificationDifferentBrowser' and

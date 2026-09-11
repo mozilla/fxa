@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import Security from '../Security';
 import { Profile } from '../Profile';
 import ConnectedServices from '../ConnectedServices';
@@ -64,6 +64,12 @@ export const PageSettings = ({
 
   const ftlMsgResolver = useFtlMsgResolver();
   const alertBar = useAlertBar();
+  const location = useLocation() as ReturnType<typeof useLocation> & {
+    state?: {
+      passkeySyncEnabled?: boolean;
+      localizedErrorFromLocationState?: string;
+    };
+  };
 
   Metrics.setProperties({
     lang: document.querySelector('html')?.getAttribute('lang'),
@@ -77,6 +83,20 @@ export const PageSettings = ({
   const [productPromoGleanEventSent, setProductPromoGleanEventSent] =
     useState(false);
   const reactivationReported = useRef(false);
+
+  useEffect(() => {
+    if (location.state?.passkeySyncEnabled) {
+      alertBar.success(
+        ftlMsgResolver.getMsg(
+          'settings-passkey-sync-enabled-alert',
+          'Passkey enabled for sync'
+        )
+      );
+    } else if (location.state?.localizedErrorFromLocationState) {
+      alertBar.error(location.state.localizedErrorFromLocationState);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     function showInactiveVerifiedBanner() {

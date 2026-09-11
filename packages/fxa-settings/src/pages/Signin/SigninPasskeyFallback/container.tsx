@@ -4,7 +4,13 @@
 
 import { useNavigate, useLocation } from 'react-router';
 import { useCallback, useEffect, useMemo } from 'react';
-import { Integration, useAuthClient, useFtlMsgResolver } from '../../../models';
+import {
+  Integration,
+  useAuthClient,
+  useFtlMsgResolver,
+  useSensitiveDataClient,
+} from '../../../models';
+import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { useSigninAvatar } from '../useSigninAvatar';
@@ -34,6 +40,7 @@ const SigninPasskeyFallbackContainer = ({
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
   const navigate = useNavigate();
+  const sensitiveDataClient = useSensitiveDataClient();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: SigninLocationState;
   };
@@ -117,6 +124,10 @@ const SigninPasskeyFallbackContainer = ({
         // entered here only unwraps keys. Keeps /pair's `choice_view` reason
         // attributed to the passkey flow rather than password sign-in.
         isPasskeySession: true,
+        // Present only when the ceremony left wrap material.
+        showInlinePasswordlessSyncSetup: !!sensitiveDataClient.getDataType(
+          SensitiveData.Key.PasskeyWrap
+        ),
         authClient,
       });
       if (navError) {
@@ -157,6 +168,7 @@ const SigninPasskeyFallbackContainer = ({
       uid,
       passkeySurface,
       metricsContext,
+      sensitiveDataClient,
     ]
   );
 

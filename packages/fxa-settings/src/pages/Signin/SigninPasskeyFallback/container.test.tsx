@@ -4,6 +4,7 @@
 
 import { MemoryRouter } from 'react-router';
 import { fireEvent, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 import * as CacheModule from '../../../lib/cache';
@@ -17,6 +18,10 @@ import SigninPasskeyFallbackContainer from './container';
 import GleanMetrics from '../../../lib/glean';
 import { queryParamsToMetricsContext } from '../../../lib/metrics';
 import { QueryParams } from '../../..';
+import {
+  SensitiveData,
+  SensitiveDataClient,
+} from '../../../lib/sensitive-data-client';
 
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
@@ -71,6 +76,7 @@ const mockNavigate = jest.fn();
 let mockLocationState: Record<string, unknown> | undefined = undefined;
 let mockOAuthDataError: unknown = null;
 const mockFinishOAuthFlowHandler = jest.fn();
+const mockSensitiveDataClient = new SensitiveDataClient();
 
 jest.mock('react-router', () => ({
   __esModule: true,
@@ -95,6 +101,7 @@ jest.mock('../../../models', () => ({
   useFtlMsgResolver: () => ({
     getMsg: (_id: string, fallback: string) => fallback,
   }),
+  useSensitiveDataClient: () => mockSensitiveDataClient,
 }));
 
 jest.mock('../../../lib/oauth/hooks', () => ({
@@ -451,5 +458,45 @@ describe('SigninPasskeyFallback container', () => {
       });
       expect(GleanMetrics.passkey.authSuccess).not.toHaveBeenCalled();
     });
+  });
+});
+
+describe('SigninPasskeyFallback container passwordless Sync opt-in', () => {
+  async function submitPassword(getByTestId: (id: string) => HTMLElement) {
+    const user = userEvent.setup();
+    await user.type(
+      getByTestId('signin-passkey-fallback-password-input-field'),
+      'pa55word'
+    );
+    await user.click(getByTestId('continue-button'));
+  }
+
+  beforeEach(() => {
+    applyDefaultMocks();
+    mockSensitiveDataClient.setDataType(
+      SensitiveData.Key.PasskeyWrap,
+      undefined
+    );
+  });
+
+  it('offers the opt-in only when the passkey ceremony left wrap material', async () => {
+    const { getByTestId } = render();
+    await submitPassword(getByTestId);
+    await waitFor(() => expect(mockHandleNavigation).toHaveBeenCalled());
+    expect(mockHandleNavigation).toHaveBeenCalledWith(
+      expect.objectContaining({ showInlinePasswordlessSyncSetup: false })
+    );
+
+    mockHandleNavigation.mockClear();
+    mockSensitiveDataClient.setDataType(SensitiveData.Key.PasskeyWrap, {
+      credentialId: 'cred',
+      mfaToken: 'mfa-token',
+      prfOut: new Uint8Array(32),
+    });
+    await submitPassword(getByTestId);
+    await waitFor(() => expect(mockHandleNavigation).toHaveBeenCalled());
+    expect(mockHandleNavigation).toHaveBeenCalledWith(
+      expect.objectContaining({ showInlinePasswordlessSyncSetup: true })
+    );
   });
 });

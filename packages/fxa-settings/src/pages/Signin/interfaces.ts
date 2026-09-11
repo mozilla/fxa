@@ -269,6 +269,10 @@ export interface NavigationOptions {
   // include when there's a condition based on what page it originated from
   origin?: 'post-verify-set-password' | 'signup' | 'signin';
   showInlineRecoveryKeySetup?: boolean;
+  // Set by the password step after a passkey sign-in when the ceremony left
+  // the material a passkey wrap needs; takes precedence over the recovery-key
+  // promo so a Sync sign-in shows one promo at most.
+  showInlinePasswordlessSyncSetup?: boolean;
   isSignInWithThirdPartyAuth?: boolean;
   showSignupConfirmedSync?: boolean;
   syncHidePromoAfterLogin?: boolean;
