@@ -1,8 +1,8 @@
 {
-  "commit": "e8ad7e786e9e059b0eb94ae003da05e4c98c6cc0",
-  "summary": "Merge pull request #21147 from mozilla/dependabot/github_actions/aws-actions/configure-aws-credentials-6.2.4",
-  "description": "chore(deps): bump aws-actions/configure-aws-credentials from 6.2.3 to 6.2.4",
-  "timestamp": 1789156436000,
+  "commit": "2fce46f2ed38f89c98473fa5e983a9ca00e0b1f8",
+  "summary": "Merge pull request #21176 from mozilla/blender/security-bump-fast-uri",
+  "description": "chore(deps): bump fast-uri to 3.1.6",
+  "timestamp": 1789157806000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
