@@ -20,6 +20,7 @@ import { getDefault } from '../../../lib/config';
 import { PAIR_GLEAN_REASONS } from 'fxa-shared/metrics/glean/pair-reasons';
 import { Integration } from '../../../models';
 import { parsePairingHash } from '../../../lib/pairing/pair-url';
+import { Devices } from '../../../lib/utilities';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -900,21 +901,26 @@ describe('parseV2PairingHash', () => {
     it.each([
       ['iOS Safari', IOS_SAFARI, true],
       ['Android Chrome', ANDROID_CHROME, false],
-    ])('routes to the download screen on %s', async (_label, ua, iosHandoff) => {
-      setUserAgent(ua);
-      renderWithRouter(
-        <Pair {...unansweredProps} />,
-        {},
-        v2AppContext({ iosHandoff })
-      );
+    ])(
+      'routes to the download screen on %s',
+      async (_label, ua, iosHandoff) => {
+        setUserAgent(ua);
+        renderWithRouter(
+          <Pair {...unansweredProps} />,
+          {},
+          v2AppContext({ iosHandoff })
+        );
 
-      await waitFor(() =>
-        expect(mockNavigate).toHaveBeenCalledWith(
-          '/pair/supplicant/download_firefox',
-          { state: { channelId: 'chan-1', channelKey: 'key-1', version: '2' } }
-        )
-      );
-    });
+        await waitFor(() =>
+          expect(mockNavigate).toHaveBeenCalledWith(
+            '/pair/supplicant/download_firefox',
+            {
+              state: { channelId: 'chan-1', channelKey: 'key-1', version: '2' },
+            }
+          )
+        );
+      }
+    );
 
     // Firefox iOS cannot finish a pairing that started in another browser, so
     // the hand-off card would only be a tap in front of the same dead end.
@@ -1006,5 +1012,62 @@ describe('parseV2PairingHash', () => {
         expect.anything()
       );
     });
+  });
+});
+
+// The `device` prop is how a caller reaches the pairing screens without a
+// Firefox desktop user agent. This describe sits outside the `Pair` block so
+// that block's Firefox override does not apply.
+describe('device prop', () => {
+  const DESKTOP_CHROME =
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 ' +
+    '(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
+  const realUserAgent = navigator.userAgent;
+
+  // This describe sits outside the `Pair` block that owns the shared reset, so
+  // a pairing hash or search left by an earlier test would otherwise route
+  // these renders away from the choice screen.
+  beforeEach(() => {
+    jest.clearAllMocks();
+    localStorage.clear();
+    mockLocationState = null;
+    mockLocationSearch = '';
+    mockLocationHash = '';
+    Object.defineProperty(navigator, 'userAgent', {
+      value: DESKTOP_CHROME,
+      configurable: true,
+    });
+    jest.mocked(firefox.requestSignedInUser).mockReset();
+    jest
+      .mocked(firefox.requestSignedInUser)
+      .mockResolvedValue(MOCK_SYNC_SIGNED_IN_USER);
+    jest.mocked(firefox.fxaOAuthFlowBegin).mockReset();
+    jest.mocked(firefox.fxaOAuthFlowBegin).mockResolvedValue(null);
+  });
+
+  afterEach(() => {
+    Object.defineProperty(navigator, 'userAgent', {
+      value: realUserAgent,
+      configurable: true,
+    });
+  });
+
+  it('reaches the choice screen when a supported device is supplied', async () => {
+    renderWithRouter(
+      <Pair {...defaultProps} device={Devices.FIREFOX_DESKTOP} />
+    );
+
+    expect(
+      await screen.findByLabelText(/I already have Firefox for mobile/)
+    ).toBeInTheDocument();
+    expect(mockNavigate).not.toHaveBeenCalledWith('/pair/unsupported');
+  });
+
+  it('falls back to the user agent when no device is supplied', async () => {
+    renderWithRouter(<Pair {...defaultProps} />);
+
+    await waitFor(() =>
+      expect(mockNavigate).toHaveBeenCalledWith('/pair/unsupported')
+    );
   });
 });

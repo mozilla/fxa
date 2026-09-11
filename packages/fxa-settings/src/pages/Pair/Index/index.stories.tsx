@@ -5,14 +5,18 @@
 import Pair from '.';
 import { Meta } from '@storybook/react';
 import { MemoryRouter } from 'react-router';
+import { Devices } from '../../../lib/utilities';
 import { MOCK_ERROR } from './mocks';
 import { MOCK_CMS_INFO } from '../../mocks';
+import { mockUseFxAStatus } from '../../../lib/hooks/useFxAStatus/mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import type { Integration } from '../../../models';
 
 const sendTabIntegration = {
   data: { entrypoint: 'send-tab-toolbar-icon' },
 } as unknown as Integration;
+
+const fxaStatusResult = mockUseFxAStatus();
 
 export default {
   title: 'Pages/Pair',
@@ -22,49 +26,75 @@ export default {
 
 export const ChoiceScreen = () => (
   <MemoryRouter>
-    <Pair />
+    <Pair fxaStatusResult={fxaStatusResult} device={Devices.FIREFOX_DESKTOP} />
   </MemoryRouter>
 );
 
 export const ChoiceScreenWithSigninBanner = () => (
-  <MemoryRouter initialEntries={[{ pathname: '/', state: { origin: 'signin' } }]}>
-    <Pair />
+  <MemoryRouter
+    initialEntries={[{ pathname: '/', state: { origin: 'signin' } }]}
+  >
+    <Pair fxaStatusResult={fxaStatusResult} device={Devices.FIREFOX_DESKTOP} />
   </MemoryRouter>
 );
 
 export const ChoiceScreenWithSignupBanner = () => (
-  <MemoryRouter initialEntries={[{ pathname: '/', state: { origin: 'signup' } }]}>
-    <Pair />
+  <MemoryRouter
+    initialEntries={[{ pathname: '/', state: { origin: 'signup' } }]}
+  >
+    <Pair fxaStatusResult={fxaStatusResult} device={Devices.FIREFOX_DESKTOP} />
   </MemoryRouter>
 );
 
 export const ChoiceScreenWithPasswordCreatedBanner = () => (
-  <MemoryRouter initialEntries={[{ pathname: '/', state: { origin: 'post-verify-set-password' } }]}>
-    <Pair />
+  <MemoryRouter
+    initialEntries={[
+      { pathname: '/', state: { origin: 'post-verify-set-password' } },
+    ]}
+  >
+    <Pair fxaStatusResult={fxaStatusResult} device={Devices.FIREFOX_DESKTOP} />
   </MemoryRouter>
 );
 
 export const SendTabChoiceScreen = () => (
   <MemoryRouter>
-    <Pair integration={sendTabIntegration} />
+    <Pair
+      integration={sendTabIntegration}
+      fxaStatusResult={fxaStatusResult}
+      device={Devices.FIREFOX_DESKTOP}
+    />
   </MemoryRouter>
 );
 
 export const SendTabChoiceScreenWithSigninBanner = () => (
-  <MemoryRouter initialEntries={[{ pathname: '/', state: { origin: 'signin' } }]}>
-    <Pair integration={sendTabIntegration} />
+  <MemoryRouter
+    initialEntries={[{ pathname: '/', state: { origin: 'signin' } }]}
+  >
+    <Pair
+      integration={sendTabIntegration}
+      fxaStatusResult={fxaStatusResult}
+      device={Devices.FIREFOX_DESKTOP}
+    />
   </MemoryRouter>
 );
 
 export const WithError = () => (
   <MemoryRouter>
-    <Pair error={MOCK_ERROR} />
+    <Pair
+      error={MOCK_ERROR}
+      fxaStatusResult={fxaStatusResult}
+      device={Devices.FIREFOX_DESKTOP}
+    />
   </MemoryRouter>
 );
 
 export const WithErrorOnChoiceScreen = () => (
   <MemoryRouter>
-    <Pair error={MOCK_ERROR} />
+    <Pair
+      error={MOCK_ERROR}
+      fxaStatusResult={fxaStatusResult}
+      device={Devices.FIREFOX_DESKTOP}
+    />
   </MemoryRouter>
 );
 
@@ -73,6 +103,10 @@ export const WithErrorOnChoiceScreen = () => (
 // Mirrors the parity Backbone has via fetchCmsConfig() in pair/index.js.
 export const ChoiceScreenWithCmsTheming = () => (
   <MemoryRouter>
-    <Pair cmsInfo={MOCK_CMS_INFO} />
+    <Pair
+      cmsInfo={MOCK_CMS_INFO}
+      fxaStatusResult={fxaStatusResult}
+      device={Devices.FIREFOX_DESKTOP}
+    />
   </MemoryRouter>
 );

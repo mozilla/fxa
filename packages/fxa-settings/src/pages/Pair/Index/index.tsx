@@ -96,6 +96,9 @@ type PairProps = {
   cmsInfo?: RelierCmsInfo;
   integration?: Integration;
   fxaStatusResult: UseFxAStatusResult;
+  /** @internal Seam for Storybook, which cannot set a user agent. Defaults to
+   * the running browser. */
+  device?: Devices;
 };
 export const viewName = 'pair';
 
@@ -104,6 +107,7 @@ const Pair = ({
   cmsInfo: cmsInfoProp,
   integration,
   fxaStatusResult,
+  device: deviceProp,
 }: PairProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const ftlMsgResolver = useFtlMsgResolver();
@@ -155,7 +159,7 @@ const Pair = ({
     [location.hash]
   );
 
-  const device = detectDevice();
+  const device = deviceProp ?? detectDevice();
   const isFirefoxDesktop = device === Devices.FIREFOX_DESKTOP;
 
   // A phone that scanned the QR with its system camera opens this page in
