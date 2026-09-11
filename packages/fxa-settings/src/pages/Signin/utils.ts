@@ -320,6 +320,11 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     return { error: undefined };
   }
 
+  // A passkey ceremony leaves wrap material only when the password-free
+  // offer should follow; the overrides below may still withdraw it.
+  navigationOptions.showInlinePasswordlessSyncSetup =
+    !!navigationOptions.sensitiveDataClient?.PasskeyWrapData;
+
   // Check CMS fleature flags to determine if we should hide promos, the
   // default is to navigate to settings
   const cmsInfo = integration?.getCmsInfo();
@@ -327,6 +332,7 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     cmsInfo?.shared.featureFlags?.syncHidePromoAfterLogin &&
     integration.isSync()
   ) {
+    navigationOptions.showInlinePasswordlessSyncSetup = false;
     navigationOptions.showInlineRecoveryKeySetup = false;
     navigationOptions.showSignupConfirmedSync = false;
     navigationOptions.syncHidePromoAfterLogin = true;
@@ -338,6 +344,7 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     isSendTabEntrypoint(integration.data?.entrypoint) &&
     integration.isSync()
   ) {
+    navigationOptions.showInlinePasswordlessSyncSetup = false;
     navigationOptions.showInlineRecoveryKeySetup = false;
     navigationOptions.showSignupConfirmedSync = false;
   }
@@ -763,6 +770,15 @@ const getOAuthNavigationTarget = async (
     return { error };
   }
 
+  const oauthData = { code, redirect, state, scope };
+
+  if (navigationOptions.showInlinePasswordlessSyncSetup) {
+    return {
+      to: `/inline_passwordless_sync_setup${navigationOptions.queryParams || ''}`,
+      oauthData,
+    };
+  }
+
   if (navigationOptions.integration.isSync()) {
     const syncNav = getSyncNavigate(navigationOptions.queryParams, {
       showInlineRecoveryKeySetup: locationState.showInlineRecoveryKeySetup,
@@ -776,12 +792,7 @@ const getOAuthNavigationTarget = async (
     });
     return {
       ...syncNav,
-      oauthData: {
-        code,
-        redirect,
-        state,
-        scope,
-      },
+      oauthData,
       locationState: { ...locationState, ...(syncNav.locationState ?? {}) },
     };
   } else if (navigationOptions.integration.isFirefoxNonSync()) {
@@ -789,12 +800,7 @@ const getOAuthNavigationTarget = async (
       to: navigationOptions.integration.isFirefoxClientServiceVpn()
         ? '/post_verify/service_welcome'
         : '/settings',
-      oauthData: {
-        code,
-        redirect,
-        state,
-        scope,
-      },
+      oauthData,
     };
   }
   return { to: redirect, shouldHardNavigate: true };

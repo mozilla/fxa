@@ -29,6 +29,7 @@ import config from '../../lib/config';
 import { OAuthNativeServices } from '@fxa/accounts/oauth';
 import { OAUTH_ERRORS, OAuthError } from '../../lib/oauth';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import { SensitiveDataClient } from '../../lib/sensitive-data-client';
 
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
@@ -66,6 +67,18 @@ describe('Signin utils', () => {
   });
 
   describe('handleNavigation', () => {
+    const stashPendingWrap = () => {
+      const sensitiveDataClient = new SensitiveDataClient();
+      const held = {
+        uid: MOCK_UID,
+        credentialId: 'cred',
+        mfaToken: 'mfa-token',
+        prfOut: new Uint8Array(32).fill(3),
+      };
+      sensitiveDataClient.PasskeyWrapData = held;
+      return { sensitiveDataClient, held };
+    };
+
     const createBaseNavigationOptions = (
       overrides: Partial<NavigationOptions> = {}
     ): NavigationOptions =>
@@ -1060,6 +1073,63 @@ describe('Signin utils', () => {
         expect(
           (options as unknown as { state: { origin: string } }).state.origin
         ).toBe('signin');
+      });
+
+      it('withdraws the password-free offer for send-tab sign-in', async () => {
+        const integration = createMockSigninOAuthNativeSyncIntegration();
+        integration.data.entrypoint = 'send-tab-toolbar-icon';
+        const { sensitiveDataClient } = stashPendingWrap();
+        const navigationOptions = createSendTabNavigationOptions({
+          integration,
+          queryParams: '?service=sync',
+          handleFxaLogin: true,
+          sensitiveDataClient,
+        });
+
+        await handleNavigation(navigationOptions);
+
+        const [navigatedUrl] = mockNavigate.mock.calls[0];
+        expect(navigatedUrl).toContain('/pair?');
+        expect(navigatedUrl).not.toContain('inline_passwordless_sync_setup');
+      });
+
+      it('withdraws the password-free offer when the CMS hides promos after login', async () => {
+        const integration = createMockSigninOAuthNativeSyncIntegration();
+        integration.getCmsInfo = () =>
+          ({
+            shared: { featureFlags: { syncHidePromoAfterLogin: true } },
+          }) as ReturnType<typeof integration.getCmsInfo>;
+        const { sensitiveDataClient } = stashPendingWrap();
+        const navigationOptions = createSendTabNavigationOptions({
+          integration,
+          queryParams: '?service=sync',
+          handleFxaLogin: true,
+          sensitiveDataClient,
+        });
+
+        await handleNavigation(navigationOptions);
+
+        const [navigatedUrl] = mockNavigate.mock.calls[0];
+        expect(navigatedUrl).toContain('/settings');
+      });
+
+      it('keeps the stashed wrap material when the opt-in page will be shown', async () => {
+        const integration = createMockSigninOAuthNativeSyncIntegration();
+        const { sensitiveDataClient, held } = stashPendingWrap();
+        const navigationOptions = createSendTabNavigationOptions({
+          integration,
+          queryParams: '?service=sync',
+          handleFxaLogin: true,
+          sensitiveDataClient,
+        });
+
+        await handleNavigation(navigationOptions);
+
+        const [navigatedUrl] = mockNavigate.mock.calls[0];
+        expect(navigatedUrl).toContain('/inline_passwordless_sync_setup');
+        // Same object, so the offer page receives the material unzeroed.
+        expect(sensitiveDataClient.PasskeyWrapData).toBe(held);
+        expect(held.prfOut).toEqual(new Uint8Array(32).fill(3));
       });
 
       it('clears showSignupConfirmedSync for send-tab post-verify and soft-navs with origin=post-verify-set-password', async () => {
