@@ -1,0 +1,12 @@
+{
+  "commit": "dcb8e4960748402af74c2d4709d3f2a85c3e3a21",
+  "summary": "chore(deps): bump qs to 6.16.0",
+  "description": "Resolves Dependabot alert #904.\nCreated by BLEnder (https://github.com/mozilla/blender)",
+  "timestamp": 1789156892000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
