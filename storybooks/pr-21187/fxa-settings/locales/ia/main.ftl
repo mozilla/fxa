@@ -1345,6 +1345,7 @@ pair2-supplicant-connect-this-device-cancel-button = Cancellar
 pair2-supplicant-download-firefox-heading = Installar { -brand-firefox } sur iste apparato
 pair2-supplicant-download-firefox-description = Discarga { -brand-firefox } pro synchronisar marcapaginas, chronologia, e plus a transverso apparatos. <linkExternal>Pro saper plus</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Continuar in { -brand-firefox }
+pair2-supplicant-download-firefox-opening-button = Aperiente { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = Connecter un apparato

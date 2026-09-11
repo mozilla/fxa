@@ -421,7 +421,7 @@ password-strength-inline-passwords-match = Coincidencia de contraseñas
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Tu teléfono. Tus reglas.
 # Value proposition variant. Refers to resuming browsing on another device.
-promo-qr-mobile-heading-treatment-a = Continúe donde lo dejó, dondequiera que vaya
+promo-qr-mobile-heading-treatment-a = Continuá donde lo dejaste, estés donde estés
 # Value proposition variant. "tabs" are the open pages in a browser.
 promo-qr-mobile-heading-treatment-b = Tus pestañas y más, listas en tu teléfono
 # Value proposition variant. Refers to using the same trusted browser on a phone.

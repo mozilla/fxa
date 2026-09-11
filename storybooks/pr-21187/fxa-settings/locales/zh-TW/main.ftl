@@ -1300,6 +1300,7 @@ pair2-supplicant-connect-this-device-cancel-button = 取消
 pair2-supplicant-download-firefox-heading = 在此裝置安裝 { -brand-firefox }
 pair2-supplicant-download-firefox-description = 下載 { -brand-firefox } 即可在不同裝置間同步書籤、瀏覽紀錄與更多資料。 <linkExternal>了解更多資訊</linkExternal>
 pair2-supplicant-download-firefox-continue-button = 到 { -brand-firefox } 繼續
+pair2-supplicant-download-firefox-opening-button = 正在開啟 { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = 連結裝置

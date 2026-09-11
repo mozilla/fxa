@@ -339,7 +339,7 @@ password-strength-inline-passwords-match = Coincidencia de contraseñas
 
 
 promo-qr-mobile-heading = Tu teléfono. Tus reglas.
-promo-qr-mobile-heading-treatment-a = Continúe donde lo dejó, dondequiera que vaya
+promo-qr-mobile-heading-treatment-a = Continuá donde lo dejaste, estés donde estés
 promo-qr-mobile-heading-treatment-b = Tus pestañas y más, listas en tu teléfono
 promo-qr-mobile-heading-treatment-c = El navegador en el que confiás, también en tu teléfono
 promo-qr-mobile-heading-treatment-d = Mismo { -brand-firefox }. Pantalla diferente.

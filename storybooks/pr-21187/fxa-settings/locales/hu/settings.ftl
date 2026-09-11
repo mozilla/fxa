@@ -431,9 +431,9 @@ promo-qr-mobile-heading-treatment-d = Ugyanaz a { -brand-firefox }. Csak más k�
 # Value proposition variant. "stop here" means privacy protection should continue onto the phone.
 promo-qr-mobile-heading-treatment-e = Az adatvédelme nem állhat itt meg
 # Value proposition variant. Refers to keeping browsing activity private.
-promo-qr-mobile-heading-treatment-f = Tartson többet a böngészésből saját magának
+promo-qr-mobile-heading-treatment-f = Tartsa meg magának a böngészése még nagyobb részét
 # Value proposition variant. "noise" refers to distractions and clutter.
-promo-qr-mobile-heading-treatment-g = A telefonja kicsit kevesebb zajt használhatna
+promo-qr-mobile-heading-treatment-g = A telefonjának is jót tenne a kevesebb zavaró tényező
 # Value proposition variant. Refers to a calmer browsing experience on the phone.
 promo-qr-mobile-heading-treatment-h = Vigye magával a nyugodtabb böngészés élményét
 # Appears below a QR code that a user can scan to download the Firefox mobile app
@@ -1960,7 +1960,7 @@ pair2-supplicant-download-firefox-description = Töltse le a { -brand-firefox }o
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Folytatás a { -brand-firefox }ban
 # Replaces the button label while waiting for the Firefox app to take over
-pair2-supplicant-download-firefox-opening-button = { -brand-firefox } megnyitása…
+pair2-supplicant-download-firefox-opening-button = A { -brand-firefox } megnyitása…
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
