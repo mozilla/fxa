@@ -9,6 +9,9 @@ import {
 
 import { UsageGrantNotFoundError } from './metering.error';
 
+// TODO(jpoyourow, 2026-08): converge on the injectable class style used by
+// MeteringEventsRepository and MeteringSweepRepository.
+
 export interface UsageGrantRecord {
   id: string;
   userIdentifier: string;

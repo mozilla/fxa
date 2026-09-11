@@ -7,7 +7,7 @@ import { Test } from '@nestjs/testing';
 
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 
-import { UsageGrantRecordFactory } from './factories';
+import { UsageGrantRecordFactory } from './metering.factories';
 import { MockMeteringConfigProvider } from './metering.config';
 import { UsageGrantsManager } from './usage-grants.manager';
 import {

@@ -66,5 +66,11 @@ module.exports = {
       autorestart: false,
       kill_timeout: 20000,
     },
+    {
+      name: 'clickhouse',
+      script: '_scripts/clickhouse.sh',
+      autorestart: false,
+      kill_timeout: 20000,
+    },
   ],
 };

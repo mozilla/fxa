@@ -14,13 +14,10 @@ import {
   IngestUsageRequestFactory,
   UsageQueryParamsFactory,
   UsageQueryResponseFactory,
-} from './factories';
+} from './metering.factories';
 import { MeteringAuthGuard } from './metering-auth.guard';
 import { MeteringExceptionFilter } from './metering-exception.filter';
-import {
-  MeterNotConfiguredError,
-  MeteringBufferOverflowError,
-} from './metering.error';
+import { MeterNotConfiguredError, PublishError } from './metering.error';
 import { UsageController } from './usage.controller';
 import { UsageService } from './usage.service';
 
@@ -74,7 +71,10 @@ describe('UsageController', () => {
         authenticatedMeteringClient
       );
 
-      expect(usageService.ingestUsage).toHaveBeenCalledWith(ingestUsageRequest);
+      expect(usageService.ingestUsage).toHaveBeenCalledWith(
+        authenticatedMeteringClient.clientId,
+        ingestUsageRequest
+      );
       expect(result).toBeUndefined();
     });
 
@@ -94,12 +94,12 @@ describe('UsageController', () => {
       const authenticatedMeteringClient = AuthenticatedMeteringClientFactory();
       const ingestUsageRequest = IngestUsageRequestFactory();
       usageService.ingestUsage.mockRejectedValue(
-        new MeteringBufferOverflowError()
+        new PublishError(new Error('pubsub down'))
       );
 
       await expect(
         usageController.ingest(ingestUsageRequest, authenticatedMeteringClient)
-      ).rejects.toThrow(MeteringBufferOverflowError);
+      ).rejects.toThrow(PublishError);
     });
   });
 
@@ -116,7 +116,10 @@ describe('UsageController', () => {
         authenticatedMeteringClient
       );
 
-      expect(usageService.queryUsage).toHaveBeenCalledWith(params);
+      expect(usageService.queryUsage).toHaveBeenCalledWith(
+        authenticatedMeteringClient.clientId,
+        params
+      );
       expect(result).toBe(expected);
     });
 

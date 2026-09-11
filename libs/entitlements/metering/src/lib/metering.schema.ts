@@ -4,15 +4,15 @@
 
 import { z } from 'zod';
 
-import { METERING_WINDOWS } from '@fxa/shared/cms';
+import { METERING_CALENDAR_PERIODS } from '@fxa/shared/cms';
 
-const slugRegex = /^[a-z0-9](?:[a-z0-9_-]*[a-z0-9])?$/;
+const SLUG_REGEX = /^[a-z0-9](?:[a-z0-9_-]*[a-z0-9])?$/;
 
 export const meterSlugSchema = z
   .string()
   .min(1)
   .max(128)
-  .regex(slugRegex, {
+  .regex(SLUG_REGEX, {
     message:
       'slug must be lowercase alphanumeric with optional underscores or hyphens',
   })
@@ -27,10 +27,10 @@ export const userIdentifierSchema = z
   .describe('Unique identifier for the user being metered');
 
 /**
- * OpenMeter deduplicates events by source and id, so a retried ingest with the
- * same id will not double-count (within the Redis retention window).
- * Relying parties should send a stable id for
- * each logical event rather than a fresh id per HTTP attempt.
+ * Duplicates are dropped at ingest: the first copy of an event id to reach the
+ * consumer is stored and every later copy is discarded. Relying parties should
+ * send a stable id for each logical event rather than a fresh id per HTTP
+ * attempt.
  */
 export const ingestUsageRequestSchema = z.object({
   id: z
@@ -44,8 +44,9 @@ export const ingestUsageRequestSchema = z.object({
   slug: meterSlugSchema,
   amount: z
     .number()
+    .int()
     .positive()
-    .describe('Usage amount to record (must be positive)'),
+    .describe('Usage amount to record (must be a positive integer)'),
   timestamp: z.iso
     .datetime({ offset: true })
     .optional()
@@ -55,6 +56,17 @@ export const ingestUsageRequestSchema = z.object({
 });
 
 export type IngestUsageRequest = z.infer<typeof ingestUsageRequestSchema>;
+
+export const meteringWireEventSchema = z.object({
+  id: z.string().min(1).max(256),
+  clientId: z.string().min(1).max(256),
+  slug: meterSlugSchema,
+  userIdentifier: userIdentifierSchema,
+  amount: z.number().int().positive(),
+  timestamp: z.iso.datetime({ offset: true }),
+});
+
+export type MeteringWireEvent = z.infer<typeof meteringWireEventSchema>;
 
 export const usageQueryParamsSchema = z.object({
   userIdentifier: userIdentifierSchema.describe(
@@ -88,15 +100,4 @@ export const usageQueryResponseSchema = z.object({
 
 export type UsageQueryResponse = z.infer<typeof usageQueryResponseSchema>;
 
-export const meteringWindowSchema = z.enum(METERING_WINDOWS);
-
-export const thresholdCheckTaskBodySchema = z.object({
-  slug: meterSlugSchema.describe('Meter slug to check thresholds for'),
-  userIdentifier: userIdentifierSchema.describe(
-    'User identifier to check thresholds for'
-  ),
-});
-
-export type ThresholdCheckTaskBody = z.infer<
-  typeof thresholdCheckTaskBodySchema
->;
+export const meteringCalendarPeriodSchema = z.enum(METERING_CALENDAR_PERIODS);
