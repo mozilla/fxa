@@ -9,6 +9,7 @@ import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import InlinePasswordlessSyncSetup from '.';
 import AppLayout from '../../components/AppLayout';
 import { ERRNO } from '@fxa/accounts/errors';
+import { Banner } from '../../components/Banner';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import {
@@ -153,11 +154,26 @@ const InlinePasswordlessSyncSetupContainer = () => {
   }
 
   return (
-    <InlinePasswordlessSyncSetup
-      onEnable={onEnable}
-      onNotNow={() => continueToSettings()}
-      isEnabling={isEnabling}
-    />
+    <>
+      {/* TEMP(FXA-13151): remove before merge. Manual-verification readout of
+          the material this page is about to seal. */}
+      <Banner
+        type="info"
+        content={{
+          localizedHeading: 'TEMP wrap material',
+          localizedDescription: `kB ${pending.kB?.length ?? 0} bytes · prfOut ${
+            pending.prfOut.length
+          } bytes · credential ${pending.credentialId.slice(0, 12)}… · proof ${
+            pending.mfaToken.split('.')[1]?.slice(0, 12) ?? '?'
+          }…`,
+        }}
+      />
+      <InlinePasswordlessSyncSetup
+        onEnable={onEnable}
+        onNotNow={() => continueToSettings()}
+        isEnabling={isEnabling}
+      />
+    </>
   );
 };
 
