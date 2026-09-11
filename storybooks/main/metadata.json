@@ -1,8 +1,8 @@
 {
-  "commit": "e507dc68f973dce29678bcb47b8554583125eacd",
-  "summary": "Merge pull request #21185 from mozilla/ci/autorun-blender-functional-tests",
-  "description": "ci: auto-run functional tests on blender/* branches",
-  "timestamp": 1789001563000,
+  "commit": "2c09b33860158d74a1713d571f457c2103414f0b",
+  "summary": "Merge pull request #21129 from mozilla/ent-clickhouse",
+  "description": "feat(ent): implement metering based on clickhouse direct",
+  "timestamp": 1789108022000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

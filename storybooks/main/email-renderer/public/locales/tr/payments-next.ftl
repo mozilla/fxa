@@ -306,12 +306,6 @@ next-coupon-submit = Uygula
 
 free-trial-content-trial-expires = Ücretsiz denemeniz { $date } tarihinde sona eriyor.
 free-trial-content-trial-cancelled = Ücretsiz denemeniz iptal edildi.
-
-# Charge info strings - with tax, per interval
-
-
-# Charge info strings - no tax, per interval
-
 free-trial-content-trial-active = Ücretsiz denemeniz etkin.
 free-trial-content-action-error = Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.
 free-trial-content-button-resume-trial = Denemeyi sürdür
@@ -337,17 +331,14 @@ free-trial-content-link-view-invoice-aria = { $productName } faturasını görü
 # $date (Date) - The date the free trial ended (e.g., January 16, 2026)
 free-trial-content-trial-ended = Ücretsiz denemeniz <bold>{ $date }</bold> tarihinde sona erdi.
 free-trial-content-button-update-payment = Ödeme yöntemini güncelle
-
-# Component - Header
-
 payments-header-help =
-    .title = Yardım
-    .aria-label = Yardım
     .alt = Yardım
+    .aria-label = Yardım
+    .title = Yardım
 payments-header-bento =
-    .title = { -brand-mozilla } ürünleri
-    .aria-label = { -brand-mozilla } ürünleri
     .alt = { -brand-mozilla } logosu
+    .aria-label = { -brand-mozilla } ürünleri
+    .title = { -brand-mozilla } ürünleri
 payments-header-bento-close =
     .alt = Kapat
 payments-header-bento-tagline = Gizliliğinizi koruyan diğer { -brand-mozilla } ürünleri
@@ -382,8 +373,8 @@ interstitial-offer-button-keep-subscription = Aboneliği sürdür
 ##
 
 payments-client-loading-spinner =
-    .aria-label = Yükleniyor…
     .alt = Yükleniyor…
+    .aria-label = Yükleniyor…
 
 ## Payment method management page - Stripe
 
@@ -487,6 +478,8 @@ subscription-content-expires-on-expiry-date = Son geçerlilik tarihi: { $date }
 subscription-content-next-bill = Sonraki fatura • { $billedOnDate }
 subscription-content-next-bill-with-tax-1 = { $nextInvoiceTotal } + { $taxDue } vergi
 subscription-content-next-bill-no-tax-1 = { $nextInvoiceTotal }
+subscription-content-button-cancel-subscription = Aboneliği iptal et
+    .aria-label = { $productName } aboneliğinizi iptal edin
 
 ##
 

@@ -136,13 +136,6 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Оповещения о действиях по восстановлению доступа к Интернету
 
 
-pair-continue-in-firefox-heading = Продолжить в { -brand-firefox }
-pair-continue-in-firefox-description = Сопряжение происходит в { -brand-firefox }. Откройте его, чтобы завершить подключение этого устройства.
-pair-continue-in-firefox-button = Продолжить в { -brand-firefox }
-pair-continue-in-firefox-opening = Запускаем { -brand-firefox }
-pair-continue-in-firefox-get-firefox-link = Нет { -brand-firefox }? Скачайте сейчас
-
-
 dark-mode-toggle-light = Светлая
 dark-mode-toggle-dark = Тёмная
 dark-mode-toggle-system = Системная

@@ -100,13 +100,6 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Namołwy k akciji, zo byšće internet wróćo dóstał
 
 
-pair-continue-in-firefox-heading = Z { -brand-firefox } pokročować
-pair-continue-in-firefox-description = Koplowanje so w { -brand-firefox } stawa. Wočińće jón, zo byšće zwjazowanje tutoho grata dokónčił.
-pair-continue-in-firefox-button = Z { -brand-firefox } pokročować
-pair-continue-in-firefox-opening = { -brand-firefox } so wočinja
-pair-continue-in-firefox-get-firefox-link = Nimaće { -brand-firefox }? Wobstarajće sej jón
-
-
 dark-mode-toggle-light = Swětły
 dark-mode-toggle-dark = Ćmowy
 dark-mode-toggle-system = System

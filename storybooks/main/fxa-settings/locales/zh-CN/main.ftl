@@ -319,6 +319,9 @@ password-strength-inline-passwords-match = 密码符合
 
 
 promo-qr-mobile-heading = 您的手机，您做主。
+promo-qr-mobile-heading-treatment-a = 随时随地从上次看到的地方接续浏览
+promo-qr-mobile-heading-treatment-c = 值得信赖的浏览器，手机也能用
+promo-qr-mobile-description-v2 = 扫码下载移动版应用
 promo-qr-mobile-qr-alt =
     .alt = 用于下载 { -brand-firefox } 移动版应用的二维码。请将手机相机对准屏幕右下角来扫描。
 

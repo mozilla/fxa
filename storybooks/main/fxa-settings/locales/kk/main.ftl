@@ -100,13 +100,6 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Интернетті қалпына келтіруге арналған әрекет ескертулері
 
 
-pair-continue-in-firefox-heading = { -brand-firefox } ішінде жалғастыру
-pair-continue-in-firefox-description = Жұптастыру { -brand-firefox } ішінде орындалады. Құрылғыны қосуды аяқтау үшін оны ашыңыз.
-pair-continue-in-firefox-button = { -brand-firefox } ішінде жалғастыру
-pair-continue-in-firefox-opening = { -brand-firefox } ашылуда
-pair-continue-in-firefox-get-firefox-link = { -brand-firefox } жоқ па? Оны қазір алыңыз
-
-
 dark-mode-toggle-light = Ашық түсті
 dark-mode-toggle-dark = Күңгірт
 dark-mode-toggle-system = Жүйелік

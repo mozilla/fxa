@@ -100,13 +100,6 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Opfordringer til handling for at tage kontrollen over internettet tilbage
 
 
-pair-continue-in-firefox-heading = Fortsæt i { -brand-firefox }
-pair-continue-in-firefox-description = Parring sker i { -brand-firefox }. Åbn den for at afslutte tilslutningen af denne enhed.
-pair-continue-in-firefox-button = Fortsæt i { -brand-firefox }
-pair-continue-in-firefox-opening = Åbner { -brand-firefox }
-pair-continue-in-firefox-get-firefox-link = Har du ikke { -brand-firefox }? Hent den nu
-
-
 dark-mode-toggle-light = Lyst
 dark-mode-toggle-dark = Mørkt
 dark-mode-toggle-system = System

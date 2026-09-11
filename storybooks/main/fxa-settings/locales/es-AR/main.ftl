@@ -100,13 +100,6 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Alertas de acción para recuperar Internet
 
 
-pair-continue-in-firefox-heading = Continuar en { -brand-firefox }
-pair-continue-in-firefox-description = El emparejamiento ocurre en { -brand-firefox }. Abrilo para terminar de conectar este dispositivo.
-pair-continue-in-firefox-button = Continuar en { -brand-firefox }
-pair-continue-in-firefox-opening = Abriendo { -brand-firefox }
-pair-continue-in-firefox-get-firefox-link = ¿No tenés { -brand-firefox }? Conseguilo ahora
-
-
 dark-mode-toggle-light = Claro
 dark-mode-toggle-dark = Oscuro
 dark-mode-toggle-system = Sistema
@@ -346,7 +339,7 @@ password-strength-inline-passwords-match = Coincidencia de contraseñas
 
 
 promo-qr-mobile-heading = Tu teléfono. Tus reglas.
-promo-qr-mobile-heading-treatment-a = Continúe donde lo dejó, dondequiera que vaya
+promo-qr-mobile-heading-treatment-a = Continuá donde lo dejaste, estés donde estés
 promo-qr-mobile-heading-treatment-b = Tus pestañas y más, listas en tu teléfono
 promo-qr-mobile-heading-treatment-c = El navegador en el que confiás, también en tu teléfono
 promo-qr-mobile-heading-treatment-d = Mismo { -brand-firefox }. Pantalla diferente.
@@ -1347,6 +1340,7 @@ pair2-supplicant-connect-this-device-cancel-button = Cancelar
 pair2-supplicant-download-firefox-heading = Instalá { -brand-firefox } en este dispositivo
 pair2-supplicant-download-firefox-description = Descargá { -brand-firefox } para sincronizar marcadores, historial y más entre dispositivos. <linkExternal>Conocer más</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Continuar en { -brand-firefox }
+pair2-supplicant-download-firefox-opening-button = Abriendo { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = Para conectar un dispositivo

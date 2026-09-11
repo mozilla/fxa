@@ -75,20 +75,6 @@ choose-newsletters-option-test-pilot =
 choose-newsletters-option-reclaim-the-internet =
     .label = 採取行動奪回網路環境
 
-## ContinueInFirefox component - Part of the desktop-to-mobile pairing flow
-## Shown when the pairing QR code is opened in a browser other than Firefox.
-## It hands the pairing link to the Firefox app, and offers the app store when
-## Firefox is not installed on the device.
-
-pair-continue-in-firefox-heading = 到 { -brand-firefox } 繼續
-pair-continue-in-firefox-description = 需於 { -brand-firefox } 進行配對，請開啟 { -brand-firefox } 完成連結此裝置。
-# Opens the Firefox app on this device
-pair-continue-in-firefox-button = 到 { -brand-firefox } 繼續
-# Shown while waiting for the Firefox app to take over
-pair-continue-in-firefox-opening = 正在開啟 { -brand-firefox }
-# Sends the user to the App Store or Play Store to install Firefox
-pair-continue-in-firefox-get-firefox-link = 沒有 { -brand-firefox } 嗎？立即安裝
-
 ## Dark mode toggle
 
 dark-mode-toggle-light = 亮色
@@ -1917,14 +1903,18 @@ pair2-supplicant-connect-this-device-cancel-button = 取消
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing reaches a device that
 ## does not have Firefox installed yet. It explains what syncing gets them and
-## sends them off to install the browser.
+## either opens the Firefox app to finish pairing or sends them off to install
+## the browser.
 
 pair2-supplicant-download-firefox-heading = 在此裝置安裝 { -brand-firefox }
 # "sync" is a verb here, referring to syncing data between the user's devices.
 # <linkExternal> is an anchor tag linking to a page explaining what sync does.
 pair2-supplicant-download-firefox-description = 下載 { -brand-firefox } 即可在不同裝置間同步書籤、瀏覽紀錄與更多資料。 <linkExternal>了解更多資訊</linkExternal>
-# Primary action. Sends the user to the Firefox download page.
+# Primary action. Opens the Firefox app to finish pairing, or sends the user to
+# the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = 到 { -brand-firefox } 繼續
+# Replaces the button label while waiting for the Firefox app to take over
+pair2-supplicant-download-firefox-opening-button = 正在開啟 { -brand-firefox }…
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them

@@ -116,13 +116,6 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Actions pour reprendre le contrôle d’Internet
 
 
-pair-continue-in-firefox-heading = Continuer dans { -brand-firefox }
-pair-continue-in-firefox-description = L’association se produit dans { -brand-firefox }. Ouvrez-le pour terminer la connexion de cet appareil.
-pair-continue-in-firefox-button = Continuer dans { -brand-firefox }
-pair-continue-in-firefox-opening = Ouverture de { -brand-firefox }
-pair-continue-in-firefox-get-firefox-link = Vous ne disposez pas de { -brand-firefox } ? Téléchargez-le maintenant
-
-
 dark-mode-toggle-light = Clair
 dark-mode-toggle-dark = Sombre
 dark-mode-toggle-system = Système
@@ -1357,6 +1350,7 @@ pair2-supplicant-connect-this-device-cancel-button = Annuler
 pair2-supplicant-download-firefox-heading = Installer { -brand-firefox } sur cet appareil
 pair2-supplicant-download-firefox-description = Téléchargez { -brand-firefox } pour synchroniser les marque-pages, l’historique et d’autres données entre vos appareils. <linkExternal>En savoir plus</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Continuer dans { -brand-firefox }
+pair2-supplicant-download-firefox-opening-button = Ouverture de { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = Comment connecter un appareil

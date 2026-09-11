@@ -121,13 +121,6 @@ choose-newsletters-option-reclaim-the-internet =
   .label = Action alerts to reclaim the internet
 
 
-pair-continue-in-firefox-heading = Continue in { -brand-firefox }
-pair-continue-in-firefox-description = Pairing happens in { -brand-firefox }. Open it to finish connecting this device.
-pair-continue-in-firefox-button = Continue in { -brand-firefox }
-pair-continue-in-firefox-opening = Opening { -brand-firefox }
-pair-continue-in-firefox-get-firefox-link = Don’t have { -brand-firefox }? Get it now
-
-
 dark-mode-toggle-light = Light
 dark-mode-toggle-dark = Dark
 dark-mode-toggle-system = System
@@ -1545,6 +1538,7 @@ pair2-supplicant-connect-this-device-cancel-button = Cancel
 pair2-supplicant-download-firefox-heading = Get { -brand-firefox } on this device
 pair2-supplicant-download-firefox-description = Download { -brand-firefox } to sync bookmarks, history, and more across devices. <linkExternal>Learn more</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Continue in { -brand-firefox }
+pair2-supplicant-download-firefox-opening-button = Opening { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = To connect a device
