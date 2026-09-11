@@ -111,7 +111,7 @@
     "time-grunt": "2.0.0",
     "ua-parser-js": "1.0.35",
     "underscore": "^1.13.8",
-    "uuid": "^11.1.1",
+    "uuid": "^13.0.2",
     "verror": "1.10.1",
     "webpack": "^5.104.1"
   },
