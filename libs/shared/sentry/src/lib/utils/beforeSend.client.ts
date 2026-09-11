@@ -5,7 +5,7 @@
 // Change to @sentry/browser after upgrade to Sentry 8
 import * as Sentry from '@sentry/nextjs';
 import { SentryConfigOpts } from '../models/SentryConfigOpts';
-import { tagFxaName } from './tagFxaName';
+import { applyCommonTags } from './tags';
 
 /**
  * function that gets called before data gets sent to error metrics
@@ -33,6 +33,9 @@ export function beforeSend(opts: SentryConfigOpts, event: Sentry.ErrorEvent) {
     }
   }
 
-  event = tagFxaName(event, opts.sentry?.clientName || opts.sentry?.serverName);
+  event = applyCommonTags(event, {
+    name: opts.sentry?.clientName || opts.sentry?.serverName,
+    runtime: 'browser',
+  });
   return event;
 }
