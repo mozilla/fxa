@@ -19,6 +19,14 @@
     "strict": "off",
     "handle-callback-err": "off"
   },
+  "overrides": [
+    {
+      "files": ["**/*.test.js"],
+      "env": {
+        "jest": true
+      }
+    }
+  ],
   "ignorePatterns": [
     "app/scripts/lib/glean/*.js",
     "dist",

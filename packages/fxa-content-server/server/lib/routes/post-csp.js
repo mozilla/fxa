@@ -9,8 +9,8 @@
 'use strict';
 const joi = require('joi');
 const logger = require('../logging/log')();
-const url = require('url');
 const validation = require('../validation');
+const { stripPIIFromUrl } = require('../url-scrubber');
 const {
   overrideJoiMessages,
 } = require('fxa-shared/sentry/joi-message-overrides');
@@ -81,30 +81,3 @@ module.exports = function (options = {}) {
     },
   };
 };
-
-function stripPIIFromUrl(urlToScrub) {
-  if (!urlToScrub || typeof urlToScrub !== 'string') {
-    return '';
-  }
-
-  let parsedUrl;
-
-  try {
-    parsedUrl = url.parse(urlToScrub, true);
-  } catch (e) {
-    // failed to parse the given url
-    return '';
-  }
-
-  if (!parsedUrl.query.email && !parsedUrl.query.uid) {
-    return urlToScrub;
-  }
-
-  delete parsedUrl.query.email;
-  delete parsedUrl.query.uid;
-
-  // delete parsedUrl.search or else format returns the old querystring.
-  delete parsedUrl.search;
-
-  return url.format(parsedUrl);
-}

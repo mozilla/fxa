@@ -81,6 +81,13 @@ const hashFile = (name) =>
 process.env.REACT_APP_QUERY_FIX_HASH = hashFile('query-fix.js');
 process.env.REACT_APP_LANG_FIX_HASH = hashFile('lang-fix.js');
 
+// WAICT manifest hints. The lines above add a ?v=<md5> query to these scripts'
+// URLs; `exact` pins that ?v= URL in `hashes`, `any` matches by content hash.
+const WAICT_PUBLIC_ASSETS = {
+  'lang-fix.js': { mode: 'exact', v: process.env.REACT_APP_LANG_FIX_HASH },
+  'query-fix.js': { mode: 'any' },
+};
+
 // These sizes are pretty large. We'll warn for bundles exceeding them.
 const WARN_AFTER_BUNDLE_GZIP_SIZE = 512 * 1024;
 const WARN_AFTER_CHUNK_GZIP_SIZE = 1024 * 1024;
@@ -144,6 +151,18 @@ checkBrowsers(paths.appPath, isInteractive)
         WARN_AFTER_CHUNK_GZIP_SIZE
       );
       console.log();
+
+      // Written after the build (emptyDirSync above would wipe it earlier) so
+      // copy:settings carries it into the content-server dist for WAICT
+      // manifest generation.
+      const waictSidecar = {
+        baseUrl: process.env.PUBLIC_URL || '',
+        assets: WAICT_PUBLIC_ASSETS,
+      };
+      fs.writeFileSync(
+        path.join(paths.appBuild, 'waict-public-assets.json'),
+        JSON.stringify(waictSidecar, null, 2)
+      );
 
       const appPackage = require(paths.appPackageJson);
       const publicUrl = paths.publicUrlOrPath;
