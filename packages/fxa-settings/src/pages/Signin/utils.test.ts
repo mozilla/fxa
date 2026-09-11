@@ -837,6 +837,50 @@ describe('Signin utils', () => {
           expect(hardNavigateSpy).not.toHaveBeenCalled();
         });
 
+        it('fails the request instead of showing the consent screen', async () => {
+          const integration = createMockSigninOAuthIntegration();
+          integration.isUntrusted = jest.fn().mockReturnValue(true);
+          Object.assign(integration.data, { scope: 'profile:email' });
+          const finishOAuthFlowHandler = jest.fn();
+          const navigationOptions = createBaseNavigationOptions({
+            integration,
+            queryParams: '?client_id=abc',
+            canRelayPromptNoneError: true,
+            finishOAuthFlowHandler,
+          });
+
+          const result = await handleNavigation(navigationOptions);
+
+          expect(result.error).toBeInstanceOf(OAuthError);
+          expect(result.error).toEqual(
+            expect.objectContaining({
+              errno: OAUTH_ERRORS.PROMPT_NONE_CONSENT_REQUIRED.errno,
+              response_error_code: 'consent_required',
+            })
+          );
+          expect(finishOAuthFlowHandler).not.toHaveBeenCalled();
+          expect(mockNavigate).not.toHaveBeenCalled();
+        });
+
+        it('shows the consent screen when the RP takes no error redirect', async () => {
+          const integration = createMockSigninOAuthIntegration();
+          integration.isUntrusted = jest.fn().mockReturnValue(true);
+          Object.assign(integration.data, { scope: 'profile:email' });
+          const navigationOptions = createBaseNavigationOptions({
+            integration,
+            queryParams: '?client_id=abc',
+            canRelayPromptNoneError: false,
+            finishOAuthFlowHandler: jest.fn(),
+          });
+
+          await handleNavigation(navigationOptions);
+
+          expect(mockNavigate).toHaveBeenCalledWith(
+            '/signin_permissions?client_id=abc',
+            expect.objectContaining({ replace: true })
+          );
+        });
+
         it('does not reclassify an unverified session as an unmet level', async () => {
           // Same errno branch, different meaning — interaction_required, not an
           // unmet level. Pins that it is not mislabelled (FXA-14408).

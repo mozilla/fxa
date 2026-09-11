@@ -457,3 +457,25 @@ ul#donelist {
   display: block;
 }
 /* close commented backslash hack */
+
+/* Shown only on the untrusted instance (321done), so the two demo apps are
+   told apart on sight. Driven by `untrusted` from /api/auth_status. */
+/* A class-level `display` outranks the UA rule for [hidden], so restore it. */
+.untrusted-badge[hidden] {
+  display: none;
+}
+
+.untrusted-badge {
+  display: block;
+  width: fit-content;
+  margin: 0 auto;
+  padding: 0.3em 0.9em;
+  border: 1px solid #8f4700;
+  border-radius: 1em;
+  background: #ffebcd;
+  color: #8f4700;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
