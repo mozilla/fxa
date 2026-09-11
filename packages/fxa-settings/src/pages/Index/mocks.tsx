@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
+import { AppContext } from '../../models';
+import { mockAppContext } from '../../models/mocks';
 import { MemoryRouter } from 'react-router';
 import { MozServices } from '../../lib/types';
 import {
@@ -158,38 +160,40 @@ export const Subject = ({
     supportsKeysOptionalLogin,
   });
   return (
-    <MemoryRouter>
-      <Index
-        processEmailSubmission={async () => {}}
-        disableAutoSubmit={() => {}}
-        authClient={
-          {
-            beginPasskeyAuthentication: async () => {},
-            completePasskeyAuthentication: async () => {},
-            accountProfile: async () => {},
-          } as unknown as AuthClient
-        }
-        finishOAuthFlowHandler={async () => ({
-          redirect: 'http://example.com',
-          code: 'mock-code',
-          state: 'mock-state',
-          scope: 'profile',
-          error: undefined,
-        })}
-        {...{
-          prefillEmail,
-          integration,
-          serviceName,
-          errorBannerMessage,
-          successBannerMessage,
-          tooltipErrorMessage,
-          setErrorBannerMessage,
-          setSuccessBannerMessage,
-          setTooltipErrorMessage,
-          isMobile,
-          useFxAStatusResult: mockUseFxAStatusResult,
-        }}
-      />
-    </MemoryRouter>
+    <AppContext.Provider value={mockAppContext()}>
+      <MemoryRouter>
+        <Index
+          processEmailSubmission={async () => {}}
+          disableAutoSubmit={() => {}}
+          authClient={
+            {
+              beginPasskeyAuthentication: async () => {},
+              completePasskeyAuthentication: async () => {},
+              accountProfile: async () => {},
+            } as unknown as AuthClient
+          }
+          finishOAuthFlowHandler={async () => ({
+            redirect: 'http://example.com',
+            code: 'mock-code',
+            state: 'mock-state',
+            scope: 'profile',
+            error: undefined,
+          })}
+          {...{
+            prefillEmail,
+            integration,
+            serviceName,
+            errorBannerMessage,
+            successBannerMessage,
+            tooltipErrorMessage,
+            setErrorBannerMessage,
+            setSuccessBannerMessage,
+            setTooltipErrorMessage,
+            isMobile,
+            useFxAStatusResult: mockUseFxAStatusResult,
+          }}
+        />
+      </MemoryRouter>
+    </AppContext.Provider>
   );
 };

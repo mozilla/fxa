@@ -78,6 +78,20 @@ export function extractPrfSupport(
 }
 
 /**
+ * The PRF output (`prf.results.first`) as bytes, or undefined when the
+ * authenticator returned none. The browser hands it back as an ArrayBuffer.
+ */
+export function extractPrfOutput(
+  credential: Pick<PublicKeyCredentialJSON, 'clientExtensionResults'>
+): Uint8Array | undefined {
+  const { prf } = credential.clientExtensionResults as {
+    prf?: { results?: { first?: unknown } };
+  };
+  const first = prf?.results?.first;
+  return first instanceof ArrayBuffer ? new Uint8Array(first) : undefined;
+}
+
+/**
  * Returns the credential with any PRF extension results removed from
  * `clientExtensionResults`, so the PRF output never reaches the server.
  *

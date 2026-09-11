@@ -90,6 +90,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'inline_totp_setup',
         'inline_recovery_setup',
         'inline_recovery_key_setup',
+        'inline_password_free_setup',
         'signin_passwordless_code',
         'oauth/signin_passwordless_code',
       ]),

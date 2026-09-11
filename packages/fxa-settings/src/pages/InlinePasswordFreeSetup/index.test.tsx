@@ -7,7 +7,7 @@ import userEvent from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { Subject } from './mocks';
 
-describe('InlinePasswordlessSyncSetup', () => {
+describe('InlinePasswordFreeSetup', () => {
   it('renders the success banner, heading, description, and both actions', () => {
     renderWithLocalizationProvider(<Subject />);
 

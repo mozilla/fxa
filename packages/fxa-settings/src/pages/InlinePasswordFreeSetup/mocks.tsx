@@ -2,14 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import InlinePasswordlessSyncSetup, {
-  InlinePasswordlessSyncSetupProps,
-} from '.';
+import InlinePasswordFreeSetup, { InlinePasswordFreeSetupProps } from '.';
 
 export const Subject = ({
   onEnable = () => {},
   onNotNow = () => {},
   isEnabling = false,
-}: Partial<InlinePasswordlessSyncSetupProps> = {}) => (
-  <InlinePasswordlessSyncSetup {...{ onEnable, onNotNow, isEnabling }} />
+}: Partial<InlinePasswordFreeSetupProps> = {}) => (
+  <InlinePasswordFreeSetup {...{ onEnable, onNotNow, isEnabling }} />
 );
