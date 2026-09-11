@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { DeleteUserEventReason } from '../delete-reason/delete-reason';
+
 // SET Event identifiers
 export const DELETE_EVENT_ID =
   'https://schemas.accounts.firefox.com/event/delete-user';
@@ -14,6 +16,7 @@ export const SUBSCRIPTION_STATE_EVENT_ID =
 
 export type deleteEvent = {
   clientId: string;
+  reason?: DeleteUserEventReason;
   uid: string;
 };
 

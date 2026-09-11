@@ -65,7 +65,7 @@ const EVENT_URIS: Record<string, string> = {
 function buildEventPayload(eventType: string): Record<string, any> {
   switch (eventType) {
     case 'delete':
-      return {};
+      return { reason: 'user' };
     case 'password':
       return { changeTime: Date.now() };
     case 'profile':
