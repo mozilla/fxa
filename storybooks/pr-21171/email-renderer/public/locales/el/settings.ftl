@@ -75,20 +75,6 @@ choose-newsletters-option-test-pilot =
 choose-newsletters-option-reclaim-the-internet =
     .label = Ειδοποιήσεις για δράσεις που αφορούν την ανάκτηση του ελέγχου του διαδικτύου
 
-## ContinueInFirefox component - Part of the desktop-to-mobile pairing flow
-## Shown when the pairing QR code is opened in a browser other than Firefox.
-## It hands the pairing link to the Firefox app, and offers the app store when
-## Firefox is not installed on the device.
-
-pair-continue-in-firefox-heading = Συνέχεια στο { -brand-firefox }
-pair-continue-in-firefox-description = Η σύζευξη γίνεται στο { -brand-firefox }. Ανοίξτε το για να ολοκληρώσετε τη σύνδεση της συσκευής.
-# Opens the Firefox app on this device
-pair-continue-in-firefox-button = Συνέχεια στο { -brand-firefox }
-# Shown while waiting for the Firefox app to take over
-pair-continue-in-firefox-opening = Άνοιγμα του { -brand-firefox }
-# Sends the user to the App Store or Play Store to install Firefox
-pair-continue-in-firefox-get-firefox-link = Δεν διαθέτετε το { -brand-firefox }; Αποκτήστε το τώρα
-
 ## Dark mode toggle
 
 dark-mode-toggle-light = Ανοιχτόχρωμο
@@ -434,6 +420,24 @@ password-strength-inline-passwords-match = Οι κωδικοί πρόσβαση�
 
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Το τηλέφωνό σας. Οι κανόνες σας.
+# Value proposition variant. Refers to resuming browsing on another device.
+promo-qr-mobile-heading-treatment-a = Συνεχίστε από εκεί που σταματήσατε, όπου κι αν πάτε
+# Value proposition variant. "tabs" are the open pages in a browser.
+promo-qr-mobile-heading-treatment-b = Οι καρτέλες σας και πολλά άλλα, έτοιμα στο τηλέφωνό σας
+# Value proposition variant. Refers to using the same trusted browser on a phone.
+promo-qr-mobile-heading-treatment-c = Το πρόγραμμα περιήγησης που εμπιστεύεστε, στο τηλέφωνό σας
+# Value proposition variant. "Different screen" refers to the phone rather than the desktop.
+promo-qr-mobile-heading-treatment-d = Το ίδιο { -brand-firefox }. Σε διαφορετική οθόνη.
+# Value proposition variant. "stop here" means privacy protection should continue onto the phone.
+promo-qr-mobile-heading-treatment-e = Η προστασία του απορρήτου σας δεν πρέπει να σταματά εδώ
+# Value proposition variant. Refers to keeping browsing activity private.
+promo-qr-mobile-heading-treatment-f = Κρατήστε την περιήγησή σας πιο ιδιωτική
+# Value proposition variant. "noise" refers to distractions and clutter.
+promo-qr-mobile-heading-treatment-g = Λιγότερη φασαρία στο τηλέφωνό σας δεν θα έβλαπτε
+# Value proposition variant. Refers to a calmer browsing experience on the phone.
+promo-qr-mobile-heading-treatment-h = Απολαύστε πιο ήρεμη περιήγηση εν κινήσει
+# Appears below a QR code that a user can scan to download the Firefox mobile app
+promo-qr-mobile-description-v2 = Κάντε σάρωση για λήψη της εφαρμογής για κινητά τηλέφωνα
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
 promo-qr-mobile-qr-alt =
     .alt = Κωδικός QR για λήψη του { -brand-firefox } για κινητές συσκευές. Τοποθετήστε την κάμερα του τηλεφώνου σας στην κάτω δεξιά γωνία της οθόνης για σάρωση.
@@ -1942,13 +1946,15 @@ pair2-supplicant-connect-this-device-cancel-button = Ακύρωση
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing reaches a device that
 ## does not have Firefox installed yet. It explains what syncing gets them and
-## sends them off to install the browser.
+## either opens the Firefox app to finish pairing or sends them off to install
+## the browser.
 
 pair2-supplicant-download-firefox-heading = Αποκτήστε το { -brand-firefox } σε αυτήν τη συσκευή
 # "sync" is a verb here, referring to syncing data between the user's devices.
 # <linkExternal> is an anchor tag linking to a page explaining what sync does.
 pair2-supplicant-download-firefox-description = Κάντε λήψη του { -brand-firefox } για να συγχρονίσετε τους σελιδοδείκτες, το ιστορικό και πολλά άλλα με όλες τις συσκευές σας. <linkExternal>Μάθετε περισσότερα</linkExternal>
-# Primary action. Sends the user to the Firefox download page.
+# Primary action. Opens the Firefox app to finish pairing, or sends the user to
+# the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Συνέχεια στο { -brand-firefox }
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow

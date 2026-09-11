@@ -99,13 +99,6 @@ choose-newsletters-option-reclaim-the-internet =
     .label = ਇੰਟਰਨੈੱਟ ਉੱਤੇ ਦਾਅਵਾ ਕਰਨ ਲਈ ਕਾਰਵਾਈ ਚੇਤਾਵਨੀਆਂ
 
 
-pair-continue-in-firefox-heading = { -brand-firefox } ਨਾਲ ਜਾਰੀ ਰੱਖੋ
-pair-continue-in-firefox-description = { -brand-firefox } ਰਾਹੀਂ ਪੇਅਰ ਕੀਤਾ ਗਿਆ ਹੈ। ਇਸ ਡਿਵਾਈਸ ਨਾਲ ਕਨੈਕਟ ਕਰਨ ਨੂੰ ਪੂਰਾ ਕਰਨ ਵਾਸਤੇ ਇਸ ਨੂੰ ਖੋਲ੍ਹੋ।
-pair-continue-in-firefox-button = { -brand-firefox } ਨਾਲ ਜਾਰੀ ਰੱਖੋ
-pair-continue-in-firefox-opening = { -brand-firefox } ਨੂੰ ਖੋਲ੍ਹਿਆ ਜਾ ਰਿਾਹ ਹੈ
-pair-continue-in-firefox-get-firefox-link = ਕੀ { -brand-firefox } ਨਹੀਂ ਹੈ? ਹੁਣੇ ਲਵੋ
-
-
 datablock-download =
     .message = ਡਾਊਨਲੋਡ ਕੀਤਾ
 datablock-copy =

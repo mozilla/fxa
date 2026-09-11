@@ -100,13 +100,6 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Avisos de action pro reprender le controlo de internet
 
 
-pair-continue-in-firefox-heading = Continuar in { -brand-firefox }
-pair-continue-in-firefox-description = Durante le accopulamento eveni in { -brand-firefox }. Aperi lo pro finir de connecter iste apparato.
-pair-continue-in-firefox-button = Continuar in { -brand-firefox }
-pair-continue-in-firefox-opening = Aperiente { -brand-firefox }
-pair-continue-in-firefox-get-firefox-link = Non ha tu { -brand-firefox }? Installa lo ora
-
-
 dark-mode-toggle-light = Clar
 dark-mode-toggle-dark = Obscur
 dark-mode-toggle-system = Systema
@@ -1352,6 +1345,7 @@ pair2-supplicant-connect-this-device-cancel-button = Cancellar
 pair2-supplicant-download-firefox-heading = Installar { -brand-firefox } sur iste apparato
 pair2-supplicant-download-firefox-description = Discarga { -brand-firefox } pro synchronisar marcapaginas, chronologia, e plus a transverso apparatos. <linkExternal>Pro saper plus</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Continuar in { -brand-firefox }
+pair2-supplicant-download-firefox-opening-button = Aperiente { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = Connecter un apparato

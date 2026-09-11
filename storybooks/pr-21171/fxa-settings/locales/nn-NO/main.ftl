@@ -104,12 +104,6 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Handlingsvarsel for å vinne tilbake internett
 
 
-pair-continue-in-firefox-heading = Hald fram i { -brand-firefox }
-pair-continue-in-firefox-button = Hald fram i { -brand-firefox }
-pair-continue-in-firefox-opening = Opnar { -brand-firefox }
-pair-continue-in-firefox-get-firefox-link = Har du ikkje { -brand-firefox }? Skaff deg han no
-
-
 dark-mode-toggle-light = Lyst
 dark-mode-toggle-dark = Mørkt
 dark-mode-toggle-system = System
@@ -1333,6 +1327,7 @@ pair2-supplicant-connect-this-device-cancel-button = Avbryt
 
 pair2-supplicant-download-firefox-heading = Få { -brand-firefox } på denne eininga
 pair2-supplicant-download-firefox-continue-button = Hald fram i { -brand-firefox }
+pair2-supplicant-download-firefox-opening-button = Opnar { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = For å kople til ei eining

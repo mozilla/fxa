@@ -100,13 +100,6 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Rhybuddion gweithredu i adennill y rhyngrwyd
 
 
-pair-continue-in-firefox-heading = Parhau yn { -brand-firefox }
-pair-continue-in-firefox-description = Mae paru'n digwydd o fewn { -brand-firefox }. Agorwch y rhaglen i orffen cysylltu'r ddyfais hon.
-pair-continue-in-firefox-button = Parhau yn { -brand-firefox }
-pair-continue-in-firefox-opening = Yn agor { -brand-firefox }
-pair-continue-in-firefox-get-firefox-link = Dim { -brand-firefox }? Nawr yw'r amser i'w gael
-
-
 dark-mode-toggle-light = Golau
 dark-mode-toggle-dark = Tywyll
 dark-mode-toggle-system = System
@@ -1371,6 +1364,7 @@ pair2-supplicant-connect-this-device-cancel-button = Diddymu
 pair2-supplicant-download-firefox-heading = Cael { -brand-firefox } ar y ddyfais hon
 pair2-supplicant-download-firefox-description = Llwythwch { -brand-firefox } i lawr i gydweddu nodau tudalen, hanes, a mwy ar draws dyfeisiau. <linkExternal>Dysgu rhagor</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Parhau yn { -brand-firefox }
+pair2-supplicant-download-firefox-opening-button = Yn agor { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = I gysylltu dyfais

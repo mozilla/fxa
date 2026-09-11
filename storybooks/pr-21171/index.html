@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit da433fdcb6792f81dfb47c3c3cd449541f67d8e9</title>
+  <title>Storybooks for commit 338bcc8f4bac3a59628e0a8956db356a35ecffaf</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit da433fdcb6792f81dfb47c3c3cd449541f67d8e9</h1>
+  <h1>Storybooks for commit 338bcc8f4bac3a59628e0a8956db356a35ecffaf</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,12 +31,20 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/9/2026, 8:31:40 PM UTC</dd>
+    <dd>9/11/2026, 8:05:55 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>chore(deps): bump @faker-js/faker to 10.5.0</pre></dd>
+    <dd><pre>fix(tests): transform @faker-js/faker for jest</pre></dd>
     <dt>Description</dt>
-    <dd><pre>Resolves Dependabot alert #901.
-Created by BLEnder (https://github.com/mozilla/blender)</pre></dd>
+    <dd><pre>Because:
+ - @faker-js/faker 10 is ESM-only, so jest&#039;s CJS runtime throws
+   &quot;Cannot use import statement outside a module&quot; in 30 projects.
+ - GHSA-qxc2-j82w-r537 is patched only in 10.5.0, so 9.x is not an option.
+
+This commit:
+ - Adds the faker exception to transformIgnorePatterns in jest.preset.js.
+ - Adds it to the three configs that override the preset value.
+
+Co-Authored-By: Claude Opus 5 (1M context) &lt;noreply@anthropic.com&gt;</pre></dd>
   </dl>
 </body>
 </html>

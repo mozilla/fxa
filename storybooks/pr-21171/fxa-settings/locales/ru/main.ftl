@@ -136,13 +136,6 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Оповещения о действиях по восстановлению доступа к Интернету
 
 
-pair-continue-in-firefox-heading = Продолжить в { -brand-firefox }
-pair-continue-in-firefox-description = Сопряжение происходит в { -brand-firefox }. Откройте его, чтобы завершить подключение этого устройства.
-pair-continue-in-firefox-button = Продолжить в { -brand-firefox }
-pair-continue-in-firefox-opening = Запускаем { -brand-firefox }
-pair-continue-in-firefox-get-firefox-link = Нет { -brand-firefox }? Скачайте сейчас
-
-
 dark-mode-toggle-light = Светлая
 dark-mode-toggle-dark = Тёмная
 dark-mode-toggle-system = Системная
@@ -385,6 +378,15 @@ password-strength-inline-passwords-match = Пароли совпадают
 
 
 promo-qr-mobile-heading = Ваш телефон. Ваши правила.
+promo-qr-mobile-heading-treatment-a = Продолжайте с того места, на котором остановились, куда бы вы ни отправились
+promo-qr-mobile-heading-treatment-b = Ваши вкладки и многое другое, готовые на вашем телефоне
+promo-qr-mobile-heading-treatment-c = Браузер, которому вы доверяете, на вашем телефоне
+promo-qr-mobile-heading-treatment-d = Тот же { -brand-firefox }. Другой экран.
+promo-qr-mobile-heading-treatment-e = Ваша приватность не должна ограничиваться здесь
+promo-qr-mobile-heading-treatment-f = Держите больше своего веб-сёрфинга при себе
+promo-qr-mobile-heading-treatment-g = Ваш телефон мог бы использовать немного меньше шумов
+promo-qr-mobile-heading-treatment-h = Спокойный веб-сёрфинг всегда с вами
+promo-qr-mobile-description-v2 = Отсканируйте, чтобы скачать мобильное приложение
 promo-qr-mobile-qr-alt =
     .alt = QR-код, чтобы загрузить мобильное приложение { -brand-firefox }. Наведите камеру телефона на правый нижний угол экрана, чтобы отсканировать его.
 
@@ -1379,6 +1381,7 @@ pair2-supplicant-connect-this-device-cancel-button = Отменить
 pair2-supplicant-download-firefox-heading = Установите { -brand-firefox } на это устройство
 pair2-supplicant-download-firefox-description = Скачайте { -brand-firefox }, чтобы синхронизировать закладки, историю и многое другое между устройствами. <linkExternal>Подробнее</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Продолжить в { -brand-firefox }
+pair2-supplicant-download-firefox-opening-button = Открытие { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = Чтобы подключить устройство
