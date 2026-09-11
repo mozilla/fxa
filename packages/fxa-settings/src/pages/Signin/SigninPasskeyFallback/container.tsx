@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useNavigate, useLocation } from 'react-router';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Banner } from '../../../components/Banner';
 import {
   Integration,
   useAuthClient,
@@ -174,6 +175,40 @@ const SigninPasskeyFallbackContainer = ({
 
   const missingSigninState = !sessionToken || !email || !uid;
 
+  // TEMP(FXA-13151): remove before merge. Manual-verification readout of the
+  // material the passkey ceremony left and whether a wrap already exists.
+  const [tempWrapStatus, setTempWrapStatus] = useState('checking…');
+  const tempPending = sensitiveDataClient.getDataType(
+    SensitiveData.Key.PasskeyWrap
+  );
+  useEffect(() => {
+    if (!tempPending) {
+      setTempWrapStatus('no PRF stash (flag off, PRF absent, or mobile)');
+      return;
+    }
+    if (typeof authClient.getPasskeyWrap !== 'function') {
+      return;
+    }
+    authClient
+      .getPasskeyWrap(tempPending.mfaToken, tempPending.credentialId)
+      .then((wrap) =>
+        setTempWrapStatus(
+          `PRF stash present · wrap EXISTS (createdAt ${new Date(
+            wrap.createdAt
+          ).toISOString()})`
+        )
+      )
+      .catch((err: { errno?: number }) =>
+        setTempWrapStatus(
+          `PRF stash present · ${
+            err?.errno === 234
+              ? 'no wrap stored'
+              : `wrap lookup errno ${err?.errno}`
+          }`
+        )
+      );
+  }, [authClient, tempPending]);
+
   useEffect(() => {
     if (!oAuthDataError && missingSigninState) {
       navigateWithQuery('/');
@@ -189,15 +224,25 @@ const SigninPasskeyFallbackContainer = ({
   }
 
   return (
-    <SigninPasskeyFallback
-      {...{
-        email,
-        onContinue,
-        avatarData,
-        avatarLoading,
-        passkeySurface,
-      }}
-    />
+    <>
+      {/* TEMP(FXA-13151): remove before merge. */}
+      <Banner
+        type="info"
+        content={{
+          localizedHeading: 'TEMP passwordless Sync state',
+          localizedDescription: tempWrapStatus,
+        }}
+      />
+      <SigninPasskeyFallback
+        {...{
+          email,
+          onContinue,
+          avatarData,
+          avatarLoading,
+          passkeySurface,
+        }}
+      />
+    </>
   );
 };
 

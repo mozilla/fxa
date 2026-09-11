@@ -734,6 +734,14 @@ export const PasskeySubRow = ({ passkey }: PasskeySubRowProps) => {
           <span>Last used: {lastUsedText}</span>
         </FtlMsg>
       )}
+      {/* TEMP(FXA-13151): remove before merge. Manual-verification badge;
+          the list route already returns `hasPasswordlessSync`. */}
+      <span className="font-bold text-purple-700">
+        {(passkey as Passkey & { hasPasswordlessSync?: boolean })
+          .hasPasswordlessSync
+          ? 'TEMP: wrap stored'
+          : `TEMP: no wrap (prf ${passkey.prfEnabled ? 'on' : 'off'})`}
+      </span>
     </span>
   );
 
