@@ -25,6 +25,8 @@ import { hardNavigate } from 'fxa-react/lib/utils';
 import { currentAccount, discardSessionToken } from '../../lib/cache';
 import firefox from '../../lib/channels/firefox';
 import { AuthError, OAuthError } from '../../lib/oauth';
+import { needsPermissions } from '../../lib/oauth/permissions';
+import { scopeStrToArray } from '../../models/integrations/oauth-web-integration';
 import GleanMetrics from '../../lib/glean';
 import { OAuthData } from '../../lib/oauth/hooks';
 import AuthenticationMethods from '../../constants/authentication-methods';
@@ -703,6 +705,26 @@ const getOAuthNavigationTarget = async (
   ) {
     return {
       to: `/inline_totp_setup${navigationOptions.queryParams || ''}`,
+      locationState,
+    };
+  }
+
+  // An untrusted RP must tell the user what profile information it can read
+  // before the grant completes. The screen records what it showed, so the next
+  // sign-in for the same scopes passes straight through.
+  if (
+    isOAuthWebIntegration(navigationOptions.integration) &&
+    needsPermissions({
+      untrusted: navigationOptions.integration.isUntrusted(),
+      scopes: Array.from(
+        scopeStrToArray(navigationOptions.integration.data.scope || '')
+      ),
+      uid: navigationOptions.signinData.uid,
+      clientId: navigationOptions.integration.getClientId() || '',
+    })
+  ) {
+    return {
+      to: `/signin_permissions${navigationOptions.queryParams || ''}`,
       locationState,
     };
   }
