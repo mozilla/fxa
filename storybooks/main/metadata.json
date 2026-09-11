@@ -1,8 +1,8 @@
 {
-  "commit": "aa7c1b61c4c0659df82bbd3528a921d4952209da",
-  "summary": "Merge pull request #21181 from mozilla/blender/security-bump-@xmldom/xmldom",
-  "description": "chore(deps): bump @xmldom/xmldom to 0.8.15",
-  "timestamp": 1789156085000,
+  "commit": "c92897716a10bc210246ed726a64471be5d2cfae",
+  "summary": "Merge pull request #21177 from mozilla/blender/security-bump-multer",
+  "description": "chore(deps): bump multer to 2.3.0",
+  "timestamp": 1789156184000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
