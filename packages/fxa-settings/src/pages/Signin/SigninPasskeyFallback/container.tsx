@@ -3,8 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useNavigate, useLocation } from 'react-router';
-import { useCallback, useEffect, useMemo } from 'react';
-import { Integration, useAuthClient, useFtlMsgResolver } from '../../../models';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import {
+  Integration,
+  useAuthClient,
+  useFtlMsgResolver,
+  useSensitiveDataClient,
+} from '../../../models';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { useSigninAvatar } from '../useSigninAvatar';
@@ -17,6 +22,7 @@ import VerificationMethods from '../../../constants/verification-methods';
 import { getSigninState, handleNavigation } from '../utils';
 import { SigninLocationState } from '../interfaces';
 import { buildPasskeyAuthSuccessReason } from '../../../lib/passkeys/signin-flow';
+import { useClearPasskeyWrapOnLeave } from '../../../lib/passkeys/use-clear-wrap-on-leave';
 import { queryParamsToMetricsContext } from '../../../lib/metrics';
 import { QueryParams } from '../../..';
 import SigninPasskeyFallback, { SigninPasskeyFallbackContinueError } from '.';
@@ -34,6 +40,7 @@ const SigninPasskeyFallbackContainer = ({
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
   const navigate = useNavigate();
+  const sensitiveDataClient = useSensitiveDataClient();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: SigninLocationState;
   };
@@ -55,6 +62,12 @@ const SigninPasskeyFallbackContainer = ({
   );
 
   const { avatarData, avatarLoading } = useSigninAvatar(sessionToken);
+
+  // The passkey ceremony's wrap material is this page's until handleNavigation
+  // either withdraws the offer, clearing it, or hands it to the opt-in page.
+  // Leaving any other way zeroes it.
+  const handedOff = useRef(false);
+  useClearPasskeyWrapOnLeave(sensitiveDataClient, handedOff);
 
   const onContinue = useCallback(
     async (
@@ -117,9 +130,11 @@ const SigninPasskeyFallbackContainer = ({
         // entered here only unwraps keys. Keeps /pair's `choice_view` reason
         // attributed to the passkey flow rather than password sign-in.
         isPasskeySession: true,
+        sensitiveDataClient,
         authClient,
       });
       if (navError) {
+        sensitiveDataClient.clearPasskeyWrapData();
         GleanMetrics.passkeyEnterPassword.submitFrontendError({
           event: { reason: 'navigation_error' },
         });
@@ -130,6 +145,9 @@ const SigninPasskeyFallbackContainer = ({
           ),
         };
       }
+      // Set only once the destination is chosen: navigation commits in a
+      // later task, so leaving before this point still clears the material.
+      handedOff.current = true;
 
       GleanMetrics.passkeyEnterPassword.success({
         event: { reason: passkeySurface },
@@ -157,6 +175,7 @@ const SigninPasskeyFallbackContainer = ({
       uid,
       passkeySurface,
       metricsContext,
+      sensitiveDataClient,
     ]
   );
 

@@ -27,6 +27,19 @@ export namespace SensitiveData {
   };
 
   export type DecryptedRecoveryKey = Pick<DecryptedRecoveryKeyData, 'kB'>;
+
+  /**
+   * What the password-free passkey opt-in needs to seal `kB` to the passkey that just signed in. Set
+   * by the passkey ceremony; `kB` is filled in by the password step that
+   * follows.
+   */
+  export type PasskeyWrapData = {
+    uid: hexstring;
+    credentialId: string;
+    mfaToken: string;
+    prfOut: Uint8Array;
+    kB?: Uint8Array;
+  };
 }
 
 /**
@@ -57,4 +70,17 @@ export class SensitiveDataClient {
   public DecryptedRecoveryKeyData:
     | SensitiveData.DecryptedRecoveryKey
     | undefined;
+
+  public PasskeyWrapData: SensitiveData.PasskeyWrapData | undefined;
+
+  /**
+   * Zeroes and drops the material a passkey ceremony left for the
+   * password-free passkey opt-in. Replacing the entry alone would leave the
+   * PRF output and `kB` intact until garbage collection.
+   */
+  clearPasskeyWrapData() {
+    this.PasskeyWrapData?.prfOut.fill(0);
+    this.PasskeyWrapData?.kB?.fill(0);
+    this.PasskeyWrapData = undefined;
+  }
 }

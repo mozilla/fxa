@@ -10,3 +10,9 @@ inline-passwordless-sync-setup-enable-button = Enable passkey
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Enabling…
 inline-passwordless-sync-setup-not-now-button = Not now
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = This passkey is set up for password-free sign-in.
+# Error banner shown when the passkey itself cannot be used to skip the password (no PRF output, or the wrap it produced could not be read back).
+inline-passwordless-sync-setup-error-passkey-unusable = This passkey can’t be used to skip the password.
+# Error banner shown when storing the passkey failed for any other reason. The user is already signed in; only the opt-in failed.
+inline-passwordless-sync-setup-error-generic = Couldn’t set up this passkey for password-free sign-in. You can try again the next time you sign in.

@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import type { SensitiveDataClient } from '../../lib/sensitive-data-client';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { AuthUiError } from '../../lib/auth-errors/auth-errors';
@@ -269,6 +270,12 @@ export interface NavigationOptions {
   // include when there's a condition based on what page it originated from
   origin?: 'post-verify-set-password' | 'signup' | 'signin';
   showInlineRecoveryKeySetup?: boolean;
+  // Passed by the password step after a passkey sign-in. Wrap material held
+  // here turns on the password-free offer; it is cleared when the offer is
+  // withdrawn.
+  sensitiveDataClient?: SensitiveDataClient;
+  // Derived from sensitiveDataClient inside handleNavigation.
+  showInlinePasswordlessSyncSetup?: boolean;
   isSignInWithThirdPartyAuth?: boolean;
   showSignupConfirmedSync?: boolean;
   syncHidePromoAfterLogin?: boolean;

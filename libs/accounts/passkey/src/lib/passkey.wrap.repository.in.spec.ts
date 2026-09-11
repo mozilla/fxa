@@ -198,6 +198,30 @@ describe('PasskeyWrapRepository (Integration)', () => {
       ).resolves.toBeDefined();
     });
 
+    it('deletes the wrap when the given createdAt matches', async () => {
+      const { uid, credentialId } = await createAccountWithPasskey();
+      await insertPasskeyWrap(db, uid, envelope(credentialId), NOW);
+
+      await expect(deletePasskeyWrap(db, uid, credentialId, NOW)).resolves.toBe(
+        true
+      );
+      await expect(
+        findPasskeyWrap(db, uid, credentialId)
+      ).resolves.toBeUndefined();
+    });
+
+    it('leaves a wrap with a different createdAt in place when one is given', async () => {
+      const { uid, credentialId } = await createAccountWithPasskey();
+      await insertPasskeyWrap(db, uid, envelope(credentialId), NOW);
+
+      await expect(
+        deletePasskeyWrap(db, uid, credentialId, NOW - 1)
+      ).resolves.toBe(false);
+      await expect(
+        findPasskeyWrap(db, uid, credentialId)
+      ).resolves.toBeDefined();
+    });
+
     it('reports false for a credential that has no wrap', async () => {
       const { uid, credentialId } = await createAccountWithPasskey();
 
@@ -245,7 +269,6 @@ describe('PasskeyWrapRepository (Integration)', () => {
         findPasskeyWrap(db, uid, secondCredentialId)
       ).resolves.toBeDefined();
     });
-
   });
 
   describe('deleteAllPasskeyWrapsForUser', () => {

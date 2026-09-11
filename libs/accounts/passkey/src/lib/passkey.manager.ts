@@ -312,10 +312,15 @@ export class PasskeyManager {
    * Both uid and credentialId must match to prevent one user from deleting
    * another user's wrap.
    *
+   * @param createdAt - When given, only a wrap with this timestamp is deleted
    * @returns true if a wrap was found and deleted, false otherwise
    */
-  async deletePasskeyWrap(uid: string, credentialId: string): Promise<boolean> {
-    return repositoryDeletePasskeyWrap(this.db, uid, credentialId);
+  async deletePasskeyWrap(
+    uid: string,
+    credentialId: string,
+    createdAt?: number
+  ): Promise<boolean> {
+    return repositoryDeletePasskeyWrap(this.db, uid, credentialId, createdAt);
   }
 
   /**

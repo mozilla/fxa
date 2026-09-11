@@ -27,6 +27,7 @@ const FRONTEND_ROUTES = [
   'inline_totp_setup',
   'inline_recovery_setup',
   'inline_recovery_key_setup', // React app only
+  'inline_passwordless_sync_setup', // React app only
   'oauth',
   'oauth/force_auth',
   'oauth/signin',
