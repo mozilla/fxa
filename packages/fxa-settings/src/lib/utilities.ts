@@ -340,6 +340,30 @@ export function isValidCmsUrl(value: string | null | undefined) {
   }
 }
 
+/**
+ * Whether the value is an asset on one of `allowedOrigins`, or a same-origin
+ * absolute path.
+ *
+ * Experiment values are authored outside the repo and reach an `img` src, so a
+ * host FxA does not control is rejected rather than fetched. An origin carries
+ * its scheme, so matching one also pins the scheme. A protocol-relative value
+ * is rejected before the path check: `//example.com/a.svg` is a foreign origin
+ * that reads like a path.
+ */
+export function isFxaHostedUrl(
+  value: string | null | undefined,
+  allowedOrigins: string[]
+): value is string {
+  if (!value) return false;
+  if (value.startsWith('//')) return false;
+  if (value.startsWith('/')) return true;
+  try {
+    return allowedOrigins.includes(new URL(value).origin);
+  } catch {
+    return false;
+  }
+}
+
 /** Default fallback message used across pairing pages when the error is not an Error instance. */
 export const DEFAULT_PAIRING_ERROR = 'An error occurred during pairing';
 
@@ -361,7 +385,6 @@ export function buildPairingDownloadUrl(entrypoint?: string | null): string {
     ? Constants.DOWNLOAD_LINK_PAIRING_QR_SEND_TAB
     : Constants.DOWNLOAD_LINK_PAIRING_QR_DEFAULT;
 }
-
 
 // Detect device type from user agent.
 export enum Devices {

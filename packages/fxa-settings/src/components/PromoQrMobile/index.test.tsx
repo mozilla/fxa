@@ -40,18 +40,21 @@ function createIntegration(
 const NIMBUS_USER_ID = 'nimbus-user-id';
 
 function nimbusValue({
-  enabled,
-  branch,
   loading = false,
+  ...feature
 }: {
   enabled?: boolean;
   branch?: string;
+  heading?: string;
+  description?: string;
+  qrUrl?: string;
   loading?: boolean;
 }): NimbusContextValue {
   return {
     experiments: {
       nimbusUserId: NIMBUS_USER_ID,
-      features: { 'promo-qr-mobile': { enabled, branch } },
+      enrollments: [],
+      features: { 'promo-qr-mobile': feature },
     },
     loading,
   };
@@ -231,12 +234,8 @@ describe('PromoQrMobile', () => {
       });
     });
 
-    it('reports the control when an unknown slug falls back', () => {
-      renderAtRoute(
-        '/',
-        webIntegration,
-        nimbusValue({ enabled: true, branch: 'treatment-typo' })
-      );
+    it('reports the control when an enrolled arm names no branch', () => {
+      renderAtRoute('/', webIntegration, nimbusValue({ enabled: true }));
       expect(GleanMetrics.promoQrMobile.view).toHaveBeenCalledWith({
         event: { nimbusUserId: NIMBUS_USER_ID, branch: 'control' },
       });
@@ -275,42 +274,83 @@ describe('PromoQrMobile', () => {
       expect(qrImage().src).toContain('control');
     });
 
-    it.each([
-      ['treatment-a', 'Pick up where you left off, wherever you go'],
-      ['treatment-b', 'Your tabs and more, ready on your phone'],
-      ['treatment-c', 'The browser you trust, on your phone'],
-      ['treatment-d', 'Same Firefox. Different screen.'],
-      ['treatment-e', 'Your privacy shouldn’t stop here'],
-      ['treatment-f', 'Keep more of your browsing to yourself'],
-      ['treatment-g', 'Your phone could use a little less noise'],
-      ['treatment-h', 'Take a calmer way to browse with you'],
-    ])('renders the %s heading and its own QR', (slug, heading) => {
+    it('renders the heading the experiment supplies', () => {
       renderAtRoute(
         '/',
         webIntegration,
-        nimbusValue({ enabled: true, branch: slug })
+        nimbusValue({
+          enabled: true,
+          branch: 'treatment-a',
+          heading: 'Pick up where you left off, wherever you go',
+        })
       );
-
-      expect(screen.getByText(heading)).toBeInTheDocument();
-      expect(qrImage().src).toContain(slug);
+      expect(
+        screen.getByText('Pick up where you left off, wherever you go')
+      ).toBeInTheDocument();
     });
 
-    it('falls back to the control for an unknown branch slug', () => {
+    it('renders the description the experiment supplies', () => {
       renderAtRoute(
         '/',
         webIntegration,
-        nimbusValue({ enabled: true, branch: 'treatment-typo' })
+        nimbusValue({
+          enabled: true,
+          branch: 'treatment-a',
+          description: 'Point your camera here',
+        })
+      );
+      expect(screen.getByText('Point your camera here')).toBeInTheDocument();
+    });
+
+    it('renders the QR the experiment supplies when it is FxA hosted', () => {
+      renderAtRoute(
+        '/',
+        webIntegration,
+        nimbusValue({
+          enabled: true,
+          branch: 'treatment-a',
+          qrUrl: '/settings/static/qr/treatment-a.svg',
+        })
+      );
+      expect(qrImage().src).toContain('/settings/static/qr/treatment-a.svg');
+    });
+
+    it('keeps the control copy for fields the arm leaves unset', () => {
+      renderAtRoute(
+        '/',
+        webIntegration,
+        nimbusValue({ enabled: true, branch: 'treatment-a' })
       );
 
       expect(screen.getByText('Your phone. Your rules.')).toBeInTheDocument();
+      expect(
+        screen.getByText('Scan to download mobile app')
+      ).toBeInTheDocument();
       expect(qrImage().src).toContain('control');
     });
 
-    it('ignores the branch when the feature is disabled', () => {
+    it('falls back to the control QR for a qrUrl off the FxA origins', () => {
       renderAtRoute(
         '/',
         webIntegration,
-        nimbusValue({ enabled: false, branch: 'treatment-a' })
+        nimbusValue({
+          enabled: true,
+          branch: 'treatment-a',
+          qrUrl: 'https://evil.example.net/qr.svg',
+        })
+      );
+      expect(qrImage().src).toContain('control');
+    });
+
+    it('ignores the arm when the feature is disabled', () => {
+      renderAtRoute(
+        '/',
+        webIntegration,
+        nimbusValue({
+          enabled: false,
+          branch: 'treatment-a',
+          heading: 'Pick up where you left off, wherever you go',
+        })
       );
 
       expect(screen.getByText('Your phone. Your rules.')).toBeInTheDocument();

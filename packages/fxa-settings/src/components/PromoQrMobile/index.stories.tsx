@@ -21,13 +21,17 @@ const webIntegration = {
   isDesktopSync: () => false,
 };
 
-// Storybook has no Nimbus fetch, so supply the branch directly.
-const withBranch = (branch: string, children: React.ReactNode) => (
+// Storybook has no Nimbus fetch, so supply the branch value directly.
+const withBranch = (
+  feature: Record<string, unknown>,
+  children: React.ReactNode
+) => (
   <NimbusContext.Provider
     value={{
       experiments: {
         nimbusUserId: 'storybook',
-        features: { 'promo-qr-mobile': { enabled: true, branch } },
+        enrollments: [],
+        features: { 'promo-qr-mobile': { enabled: true, ...feature } },
       },
       loading: false,
     }}
@@ -36,20 +40,33 @@ const withBranch = (branch: string, children: React.ReactNode) => (
   </NimbusContext.Provider>
 );
 
-const story = (branch: string) => () => (
+const story = (feature: Record<string, unknown>) => () => (
   <MemoryRouter initialEntries={['/']}>
-    {withBranch(branch, <PromoQrMobile integration={webIntegration} />)}
+    {withBranch(feature, <PromoQrMobile integration={webIntegration} />)}
   </MemoryRouter>
 );
 
-// One line.
-export const Control = story('control');
+// One line. No heading set, so the Fluent control copy shows.
+export const Control = story({ branch: 'control' });
 
 // Two lines.
-export const TreatmentB = story('treatment-b');
+export const TreatmentB = story({
+  branch: 'treatment-b',
+  heading: 'Your tabs and more, ready on your phone',
+});
 
-// Three lines, the longest string in the experiment.
-export const TreatmentA = story('treatment-a');
+// Three lines, the longest heading the layout has to hold.
+export const TreatmentA = story({
+  branch: 'treatment-a',
+  heading: 'Pick up where you left off, wherever you go',
+});
+
+// Experimenter can override the call to action too.
+export const CustomDescription = story({
+  branch: 'treatment-c',
+  heading: 'The browser you trust, on your phone',
+  description: 'Point your camera here',
+});
 
 export const WithCardAppLayout = () => (
   <MemoryRouter initialEntries={['/']}>
@@ -57,7 +74,13 @@ export const WithCardAppLayout = () => (
       <h1 className="card-header">Sign in</h1>
       <p className="mt-2">Continue to account settings</p>
     </AppLayout>
-    {withBranch('treatment-a', <PromoQrMobile integration={webIntegration} />)}
+    {withBranch(
+      {
+        branch: 'treatment-a',
+        heading: 'Pick up where you left off, wherever you go',
+      },
+      <PromoQrMobile integration={webIntegration} />
+    )}
   </MemoryRouter>
 );
 

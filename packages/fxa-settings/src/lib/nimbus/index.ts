@@ -14,10 +14,26 @@ export type NimbusContextT = {
 };
 
 /**
+ * One enrollment as Cirrus reports it. The branch is the arm Nimbus assigned,
+ * which is authoritative: a feature value can only disagree with it if the
+ * recipe set the wrong slug.
+ *
+ * There is no featureId here, so an enrollment cannot be mapped back to the
+ * feature it drives when more than one experiment is running.
+ */
+export interface NimbusEnrollment {
+  experiment: string;
+  branch: string;
+  experiment_type: string;
+  is_preview: boolean;
+}
+
+/**
  * The nimbus experiments and enrollment information needed for applying a feature experiment.
  */
 export interface NimbusResult {
   features: Record<string, any>;
+  enrollments: NimbusEnrollment[];
   nimbusUserId: string;
 }
 

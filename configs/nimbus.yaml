@@ -6,7 +6,10 @@ channels:
   - production
 features:
   example-feature:
-    description: An example feature.
+    description: >
+      Plumbing probe. Point a recipe at this feature to prove the
+      Experimenter to Remote Settings to Cirrus path works, before pointing it
+      at a real feature. Not shown in any UI.
     variables:
       enabled:
         description: If the feature is enabled.
@@ -26,8 +29,14 @@ features:
   promo-qr-mobile:
     description: >
       Value proposition A/B test for the QR mobile download promo shown in the
-      authentication flow. The branch slug selects both the heading string and
-      the matching QR code, because each QR points at a distinct Bitly link.
+      authentication flow.
+
+      Set every variable on every arm, the control included. An arm left empty
+      falls back to the defaults below, which read as "not enrolled": the user
+      sees the built-in control copy and telemetry reports no branch, so that
+      arm yields no data.
+
+      The copy here is not translated. It renders as written in every locale.
     variables:
       enabled:
         description: If the experiment is enabled. When false the control ships.
@@ -35,41 +44,29 @@ features:
         default: false
       branch:
         description: >
-          The branch slug. An unknown slug falls back to the control, but the
-          BranchSlug enum means Experimenter rejects one before that can happen.
-        type: Option<BranchSlug>
+          The arm label reported to telemetry. It names the arm in analysis and
+          selects nothing, so it must match the branch slug in Experimenter.
+        type: Option<String>
         default: null
-    defaults:
-      - channel: developer
-        value: { "enabled": false, "branch": "control" }
-      - channel: staging
-        value: { "enabled": false, "branch": "control" }
-      - channel: production
-        value: { "enabled": false, "branch": "control" }
+      heading:
+        description: >
+          The value proposition heading, in English. Three lines at the promo
+          width is the practical maximum.
+        type: Option<String>
+        default: null
+      description:
+        description: >
+          The call to action under the QR code, in English. One line.
+        type: Option<String>
+        default: null
+      qrUrl:
+        description: >
+          An https URL for this arm's QR image. Each arm needs its own image
+          pointing at its own Bitly link, because the scan is what attributes
+          the conversion. A URL that is not https is ignored and the control
+          QR ships instead.
+        type: Option<String>
+        default: null
 types:
   objects: {}
-  enums:
-    BranchSlug:
-      description: >
-        The arms of the QR promo value proposition test. Each slug selects a
-        heading and its matching QR code in PromoQrMobile/branches.ts, so a slug
-        added here must be added there too.
-      variants:
-        control:
-          description: "Control | Your phone. Your rules. | Scan to download mobile app"
-        treatment-a:
-          description: "Continue Across Devices | Pick up where you left off, wherever you go | Scan to download mobile app"
-        treatment-b:
-          description: "Continue Across Devices | Your tabs and more, ready on your phone | Scan to download mobile app"
-        treatment-c:
-          description: "One Browser You Trust | The browser you trust, on your phone | Scan to download mobile app"
-        treatment-d:
-          description: "One Browser You Trust | Same Firefox. Different screen. | Scan to download mobile app"
-        treatment-e:
-          description: "Protect Your Privacy Everywhere | Your privacy shouldn’t stop here | Scan to download mobile app"
-        treatment-f:
-          description: "Protect Your Privacy Everywhere | Keep more of your browsing to yourself | Scan to download mobile app"
-        treatment-g:
-          description: "Calmer Focus | Your phone could use a little less noise | Scan to download mobile app"
-        treatment-h:
-          description: "Calmer Focus | Take a calmer way to browse with you | Scan to download mobile app"
+  enums: {}

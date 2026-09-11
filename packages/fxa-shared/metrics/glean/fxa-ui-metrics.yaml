@@ -112,6 +112,48 @@ event:
     data_sensitivity:
       - interaction
 
+  nimbus_enrollments:
+    type: string_list
+    description: |
+      The Nimbus experiments the user is enrolled in, one entry per enrollment
+      as "experiment-slug:branch-slug". Nimbus assigns the branch, so this is
+      the authoritative record of the arm the user was placed in.
+    lifetime: ping
+    send_in_pings:
+      - accounts-events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14273
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+
+  nimbus_preview:
+    type: boolean
+    description: |
+      Whether the enrollments came from the Nimbus preview collection. Preview
+      recipes are unlaunched drafts, so these events must be excluded from
+      experiment analysis.
+    lifetime: ping
+    send_in_pings:
+      - accounts-events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14273
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+
   app_framework:
     type: string
     description: |

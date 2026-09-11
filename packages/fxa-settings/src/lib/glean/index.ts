@@ -43,6 +43,9 @@ import { userIdSha256, userId } from 'fxa-shared/metrics/glean/web/account';
 import {
   appFramework,
   cmsCustomizationEnrollment,
+  nimbusUserId,
+  nimbusEnrollments,
+  nimbusPreview,
 } from 'fxa-shared/metrics/glean/web/event';
 import {
   oauthClientId,
@@ -56,6 +59,7 @@ import {
 import * as utm from 'fxa-shared/metrics/glean/web/utm';
 import * as entrypointQuery from 'fxa-shared/metrics/glean/web/entrypoint';
 import { Integration } from '../../models';
+import { NimbusEnrollment } from '../nimbus';
 import { MetricsFlow } from '../metrics-flow';
 import { currentAccount } from '../../lib/cache';
 
@@ -74,6 +78,10 @@ type GleanMetricsT = {
   ) => void;
   setEnabled: (enabled: boolean) => void;
   getEnabled: () => boolean;
+  setNimbusEnrollments: (
+    userId: string | null,
+    enrollments: NimbusEnrollment[]
+  ) => void;
   isDone: () => Promise<void>;
   pageLoad: (url?: string) => void;
   handleClickEvent(event: Event): void;
@@ -104,6 +112,14 @@ const submitPing = async (fn: SubmitPingFn) => {
 let gleanEnabled = false;
 let metricsContext: GleanMetricsContext;
 let ua: UAParser | null;
+
+// Nimbus resolves after Glean starts, and these metrics have a ping lifetime,
+// so they are cleared on every submit. Hold the enrollment here and re-set it
+// per ping in initMetrics.
+let nimbusState: {
+  userId: string | null;
+  enrollments: NimbusEnrollment[];
+} = { userId: null, enrollments: [] };
 
 const encoder = new TextEncoder();
 const hashUid = async (uid: string) => {
@@ -174,6 +190,12 @@ const initMetrics = async () => {
   );
 
   appFramework.set('react');
+
+  nimbusUserId.set(nimbusState.userId || '');
+  nimbusEnrollments.set(
+    nimbusState.enrollments.map((e) => `${e.experiment}:${e.branch}`)
+  );
+  nimbusPreview.set(nimbusState.enrollments.some((e) => e.is_preview));
 
   // If the user has any cms info, they are considered enrolled in CMS customization.
   const cmsInfo = !!metricsContext.integration?.getCmsInfo();
@@ -990,6 +1012,7 @@ export const GleanMetrics: Pick<
   | 'initialize'
   | 'setEnabled'
   | 'getEnabled'
+  | 'setNimbusEnrollments'
   | 'useGlean'
   | 'isDone'
   | 'pageLoad'
@@ -1033,6 +1056,13 @@ export const GleanMetrics: Pick<
   setEnabled: (enabled: boolean) => {
     gleanEnabled = enabled;
     Glean.setUploadEnabled(gleanEnabled);
+  },
+
+  setNimbusEnrollments: (
+    userId: string | null,
+    enrollments: NimbusEnrollment[]
+  ) => {
+    nimbusState = { userId, enrollments };
   },
 
   getEnabled: () => {

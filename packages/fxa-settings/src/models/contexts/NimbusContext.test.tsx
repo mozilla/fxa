@@ -9,11 +9,16 @@ import { useDynamicLocalization } from '../../contexts/DynamicLocalizationContex
 import { initializeNimbus, NimbusResult } from '../../lib/nimbus';
 import * as Sentry from '@sentry/react';
 import { useLocalStorageSync } from '../../lib/hooks/useLocalStorageSync';
+import GleanMetrics from '../../lib/glean';
 
 jest.mock('../../contexts/DynamicLocalizationContext');
 jest.mock('../../lib/nimbus');
 jest.mock('@sentry/react');
 jest.mock('../../lib/hooks/useLocalStorageSync');
+jest.mock('../../lib/glean', () => ({
+  __esModule: true,
+  default: { setNimbusEnrollments: jest.fn() },
+}));
 
 const mockUseDynamicLocalization =
   useDynamicLocalization as jest.MockedFunction<typeof useDynamicLocalization>;
@@ -174,6 +179,7 @@ describe('NimbusContext', () => {
       });
       mockInitializeNimbus.mockResolvedValue({
         features: { 'test-feature': { enabled: true } },
+        enrollments: [],
         nimbusUserId: 'test-user-id',
       });
 
@@ -197,6 +203,7 @@ describe('NimbusContext', () => {
       });
       mockInitializeNimbus.mockResolvedValue({
         features: { 'test-feature': { enabled: true } },
+        enrollments: [],
         // The provider stamps the id it enrolled with; whatever the API echoes
         // back is ignored.
         nimbusUserId: 'ignored-api-value',
@@ -221,6 +228,7 @@ describe('NimbusContext', () => {
     it('falls back to uniqueUserId when there is no current account', async () => {
       mockInitializeNimbus.mockResolvedValue({
         features: { 'test-feature': { enabled: true } },
+        enrollments: [],
         // The provider stamps the id it enrolled with; whatever the API echoes
         // back is ignored.
         nimbusUserId: 'ignored-api-value',
@@ -239,6 +247,7 @@ describe('NimbusContext', () => {
     it('fetches experiments successfully', async () => {
       const mockExperiments: NimbusResult = {
         features: { 'test-feature': { enabled: true } },
+        enrollments: [],
         nimbusUserId: 'test-user-id',
       };
       mockInitializeNimbus.mockResolvedValue(mockExperiments);
@@ -275,6 +284,7 @@ describe('NimbusContext', () => {
     it('handles API response with lowercase features', async () => {
       const mockExperiments: NimbusResult = {
         features: { 'test-feature': { enabled: true } },
+        enrollments: [],
         nimbusUserId: 'test-user-id',
       };
       mockInitializeNimbus.mockResolvedValue(mockExperiments);
@@ -285,6 +295,44 @@ describe('NimbusContext', () => {
       expect(screen.getByTestId('experiments')).toHaveTextContent(
         'has-experiments'
       );
+    });
+
+    it('hands the enrollments to Glean, so later pings carry the branch', async () => {
+      const enrollment = {
+        experiment: 'qr-promo',
+        branch: 'treatment-c',
+        experiment_type: 'experiment',
+        is_preview: true,
+      };
+      mockInitializeNimbus.mockResolvedValue({
+        Enrollments: [enrollment],
+        features: { 'test-feature': { enabled: true } },
+        enrollments: [enrollment],
+        nimbusUserId: 'ignored-api-value',
+      } as unknown as NimbusResult);
+
+      renderWithProviders();
+
+      await waitFor(() => {
+        // The id passed is the one the provider enrolled with, not the echo.
+        expect(GleanMetrics.setNimbusEnrollments).toHaveBeenCalledWith(
+          'test-user-id',
+          [enrollment]
+        );
+      });
+    });
+
+    it('clears the Glean enrollments when there is no result', async () => {
+      mockInitializeNimbus.mockResolvedValue(null);
+
+      renderWithProviders();
+
+      await waitFor(() => {
+        expect(GleanMetrics.setNimbusEnrollments).toHaveBeenCalledWith(
+          null,
+          []
+        );
+      });
     });
 
     it('handles null response', async () => {
@@ -348,6 +396,7 @@ describe('NimbusContext', () => {
     it('cleans up on unmount', async () => {
       mockInitializeNimbus.mockResolvedValue({
         features: { 'test-feature': { enabled: true } },
+        enrollments: [],
         nimbusUserId: 'test-user-id',
       });
 

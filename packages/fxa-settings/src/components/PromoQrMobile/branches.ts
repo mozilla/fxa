@@ -3,82 +3,73 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import controlQr from './qr/control.svg';
-import treatmentAQr from './qr/treatment-a.svg';
-import treatmentBQr from './qr/treatment-b.svg';
-import treatmentCQr from './qr/treatment-c.svg';
-import treatmentDQr from './qr/treatment-d.svg';
-import treatmentEQr from './qr/treatment-e.svg';
-import treatmentFQr from './qr/treatment-f.svg';
-import treatmentGQr from './qr/treatment-g.svg';
-import treatmentHQr from './qr/treatment-h.svg';
+import { isFxaHostedUrl } from '../../lib/utilities';
 
 export const CONTROL_BRANCH = 'control';
 
-export type PromoQrBranch = {
-  /** Literal FTL id. Declared in en.ftl so the l10n extraction finds it. */
-  ftlId: string;
-  /** English fallback, kept in sync with en.ftl. */
-  heading: string;
-  /** Each branch scans to its own Bitly link, so the QR identifies the branch. */
+/** The control QR, shown to everyone outside the experiment. */
+export { controlQr };
+
+export type PromoQrFeature = {
+  enabled?: boolean;
+  branch?: string;
+  heading?: string;
+  description?: string;
+  qrUrl?: string;
+};
+
+export type ResolvedPromo = {
+  /** The arm telemetry reports. Undefined when the user is not enrolled. */
+  slug?: string;
+  /**
+   * Experimenter copy, English as authored. Undefined falls back to the Fluent
+   * control string, which is the only translated copy the promo has.
+   */
+  heading?: string;
+  description?: string;
   qr: string;
 };
 
-export const BRANCHES: Record<string, PromoQrBranch> = {
-  [CONTROL_BRANCH]: {
-    ftlId: 'promo-qr-mobile-heading',
-    heading: 'Your phone. Your rules.',
-    qr: controlQr,
-  },
-  'treatment-a': {
-    ftlId: 'promo-qr-mobile-heading-treatment-a',
-    heading: 'Pick up where you left off, wherever you go',
-    qr: treatmentAQr,
-  },
-  'treatment-b': {
-    ftlId: 'promo-qr-mobile-heading-treatment-b',
-    heading: 'Your tabs and more, ready on your phone',
-    qr: treatmentBQr,
-  },
-  'treatment-c': {
-    ftlId: 'promo-qr-mobile-heading-treatment-c',
-    heading: 'The browser you trust, on your phone',
-    qr: treatmentCQr,
-  },
-  'treatment-d': {
-    ftlId: 'promo-qr-mobile-heading-treatment-d',
-    heading: 'Same Firefox. Different screen.',
-    qr: treatmentDQr,
-  },
-  'treatment-e': {
-    ftlId: 'promo-qr-mobile-heading-treatment-e',
-    heading: 'Your privacy shouldn’t stop here',
-    qr: treatmentEQr,
-  },
-  'treatment-f': {
-    ftlId: 'promo-qr-mobile-heading-treatment-f',
-    heading: 'Keep more of your browsing to yourself',
-    qr: treatmentFQr,
-  },
-  'treatment-g': {
-    ftlId: 'promo-qr-mobile-heading-treatment-g',
-    heading: 'Your phone could use a little less noise',
-    qr: treatmentGQr,
-  },
-  'treatment-h': {
-    ftlId: 'promo-qr-mobile-heading-treatment-h',
-    heading: 'Take a calmer way to browse with you',
-    qr: treatmentHQr,
-  },
-};
+/**
+ * Resolve the arm to the content it shows.
+ *
+ * Each field falls back independently, so a branch that sets a heading but no
+ * QR still shows its heading over the control QR. A branch that sets nothing
+ * renders as the control while still reporting its slug, which is what
+ * distinguishes an enrolled control from untouched traffic.
+ */
+export function resolvePromo(
+  feature: PromoQrFeature | undefined,
+  enrolled: boolean,
+  allowedQrOrigins: string[]
+): ResolvedPromo {
+  if (!enrolled || !feature) {
+    return { qr: controlQr };
+  }
 
-export type ResolvedBranch = PromoQrBranch & { slug: string };
+  return {
+    slug: feature.branch || CONTROL_BRANCH,
+    heading: feature.heading || undefined,
+    description: feature.description || undefined,
+    qr: isFxaHostedUrl(feature.qrUrl, allowedQrOrigins)
+      ? feature.qrUrl
+      : controlQr,
+  };
+}
 
 /**
- * Resolve a branch slug to its copy and QR code. An unknown slug falls back to
- * the control, so a typo in Experimenter cannot break the promo. The returned
- * slug is what the user actually saw, which is what telemetry reports.
+ * The origins an experiment QR may be served from: the app's own origin, plus
+ * the asset CDN. Returns just the app origin when the CDN base is unset or
+ * unparseable, which keeps the check closed rather than open.
  */
-export function resolveBranch(slug?: string | null): ResolvedBranch {
-  const key = slug && BRANCHES[slug] ? slug : CONTROL_BRANCH;
-  return { ...BRANCHES[key], slug: key };
+export function allowedQrOrigins(cdnBaseUrl?: string): string[] {
+  const origins = [window.location.origin];
+  try {
+    if (cdnBaseUrl) {
+      origins.push(new URL(cdnBaseUrl).origin);
+    }
+  } catch {
+    // An unparseable base leaves the app origin as the only allowed one.
+  }
+  return origins;
 }

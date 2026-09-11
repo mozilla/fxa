@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useLocation } from 'react-router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import foxBodySrc from './fox-body.svg';
@@ -10,9 +10,13 @@ import foxTailSrc from './fox-tail.svg';
 import { Integration, isWebIntegration } from '../../models/integrations';
 import GleanMetrics from '../../lib/glean';
 import { isValidCmsUrl } from '../../lib/utilities';
-import { useExperiments, useFtlMsgResolver } from '../../models/hooks';
+import {
+  useConfig,
+  useExperiments,
+  useFtlMsgResolver,
+} from '../../models/hooks';
 import { useNimbusContext } from '../../models/contexts/NimbusContext';
-import { CONTROL_BRANCH, resolveBranch } from './branches';
+import { allowedQrOrigins, resolvePromo } from './branches';
 
 export type PromoQrMobileIntegration = Pick<
   Integration,
@@ -55,7 +59,15 @@ export const PromoQrMobile = ({
   const hasLoggedView = useRef(false);
   const ftlMsgResolver = useFtlMsgResolver();
   const experiments = useExperiments();
+  const config = useConfig();
   const { loading: nimbusLoading } = useNimbusContext();
+
+  // Experiment QR images are served from FxA's own app origin or its asset CDN,
+  // which l10n.baseUrl already points at.
+  const qrOrigins = useMemo(
+    () => allowedQrOrigins(config.l10n?.baseUrl),
+    [config.l10n?.baseUrl]
+  );
 
   // The CMS image decides enrollment, so reporting before it lands would stamp a
   // treatment on a user who ends up seeing the CMS control.
@@ -72,8 +84,7 @@ export const PromoQrMobile = ({
 
   const feature = experiments?.features?.['promo-qr-mobile'];
   const enrolled = !cmsQr && feature?.['enabled'] === true;
-  const branchSlug = enrolled ? feature?.['branch'] : CONTROL_BRANCH;
-  const branch = resolveBranch(branchSlug);
+  const promo = resolvePromo(feature, enrolled, qrOrigins);
 
   useEffect(() => {
     if (
@@ -86,16 +97,19 @@ export const PromoQrMobile = ({
       GleanMetrics.promoQrMobile.view({
         event: {
           nimbusUserId: experiments?.nimbusUserId,
-          branch: enrolled ? branch.slug : undefined,
+          branch: promo.slug,
         },
       });
     }
-  }, [visible, loading, experiments, enrolled, branch.slug]);
+  }, [visible, loading, experiments, promo.slug]);
 
   // Wait for Nimbus and the CMS so the control does not paint and then swap.
   if (!visible || loading) return <></>;
 
-  const heading = ftlMsgResolver.getMsg(branch.ftlId, branch.heading);
+  // Experimenter copy is not translated, so it is rendered as authored.
+  const heading =
+    promo.heading ??
+    ftlMsgResolver.getMsg('promo-qr-mobile-heading', 'Your phone. Your rules.');
 
   return (
     <aside className="hidden desktop:fixed desktop:flex desktop:flex-col desktop:items-center desktop:bottom-8 desktop:end-12 w-60 gap-3">
@@ -118,7 +132,7 @@ export const PromoQrMobile = ({
           <div className="w-[104px] h-[104px] overflow-hidden">
             <FtlMsg id="promo-qr-mobile-qr-alt" attrs={{ alt: true }}>
               <img
-                src={cmsQr ?? branch.qr}
+                src={cmsQr ?? promo.qr}
                 alt="QR code to download the Firefox mobile app. Position your phone’s camera on the lower-right corner of your screen to scan it."
                 className={`w-full h-full ${QR_QUIET_ZONE_CROP}`}
               />
@@ -133,11 +147,13 @@ export const PromoQrMobile = ({
         />
       </div>
 
-      <FtlMsg id="promo-qr-mobile-description-v2">
-        <p className="py-1 text-sm text-grey-900 dark:text-grey-100">
-          Scan to download mobile app
-        </p>
-      </FtlMsg>
+      <p className="py-1 text-sm text-grey-900 dark:text-grey-100">
+        {promo.description ??
+          ftlMsgResolver.getMsg(
+            'promo-qr-mobile-description-v2',
+            'Scan to download mobile app'
+          )}
+      </p>
     </aside>
   );
 };

@@ -24,9 +24,11 @@ import React, {
 } from 'react';
 import {
   NimbusResult,
+  NimbusEnrollment,
   initializeNimbus,
   NimbusContextT,
 } from '../../lib/nimbus';
+import GleanMetrics from '../../lib/glean';
 import { AppContext } from './AppContext';
 import { useDynamicLocalization } from '../../contexts/DynamicLocalizationContext';
 import { parseAcceptLanguage } from '@fxa/shared/l10n';
@@ -37,6 +39,8 @@ import { useLocalStorageSync } from '../../lib/hooks/useLocalStorageSync';
 interface NimbusApiResponse {
   Features?: Record<string, any>;
   features?: Record<string, any>;
+  Enrollments?: NimbusEnrollment[];
+  enrollments?: NimbusEnrollment[];
   nimbusUserId?: string;
 }
 
@@ -109,6 +113,7 @@ export function NimbusProvider({ children }: NimbusProviderProps) {
     const nimbusUserId = currentAccountUid || uniqueUserId;
     if (accountMetricsEnabled === false) {
       setExperiments(null);
+      GleanMetrics.setNimbusEnrollments(null, []);
       setLoading(false);
       setError(undefined);
       return;
@@ -116,6 +121,7 @@ export function NimbusProvider({ children }: NimbusProviderProps) {
 
     if (!config?.nimbus.enabled || !nimbusUserId) {
       setExperiments(null);
+      GleanMetrics.setNimbusEnrollments(null, []);
       setLoading(false);
       setError(undefined);
       return;
@@ -152,14 +158,21 @@ export function NimbusProvider({ children }: NimbusProviderProps) {
           if (nimbusResult) {
             const apiResponse = nimbusResult as NimbusApiResponse;
             const features = apiResponse.Features || apiResponse.features;
+            const enrollments =
+              apiResponse.Enrollments || apiResponse.enrollments || [];
             setExperiments({
               features: features,
+              enrollments,
               // The ID Cirrus enrolled with, not uniqueUserId: analysis joins
               // events to enrollment on this value.
               nimbusUserId,
             } as NimbusResult);
+            // Every subsequent ping carries the enrollment, so conversion events
+            // are attributable, not just the impression that reads the feature.
+            GleanMetrics.setNimbusEnrollments(nimbusUserId, enrollments);
           } else {
             setExperiments(null);
+            GleanMetrics.setNimbusEnrollments(null, []);
           }
           setLoading(false);
         }
