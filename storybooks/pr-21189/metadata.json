@@ -1,0 +1,10 @@
+{
+  "commit": "62053c7d03f6ef25f01aa0c32221ce6c02a0ebe7",
+  "summary": "fix(settings): wrap the scan-QR help link inside the phone frame",
+  "description": "Because:\n - On /pair/authority/scan_qr the \"Get help scanning\" link had no width\n   limit, so long translations such as French ran past the phone bezel.\n\nThis commit:\n - Caps the link at 46% of the artwork so long strings wrap onto a second\n   line inside the phone screen.\n\nCloses #FXA-14486",
+  "timestamp": 1789092046000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 62053c7d03f6ef25f01aa0c32221ce6c02a0ebe7</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 62053c7d03f6ef25f01aa0c32221ce6c02a0ebe7</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/11/2026, 2:00:46 AM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): wrap the scan-QR help link inside the phone frame</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+ - On /pair/authority/scan_qr the &quot;Get help scanning&quot; link had no width
+   limit, so long translations such as French ran past the phone bezel.
+
+This commit:
+ - Caps the link at 46% of the artwork so long strings wrap onto a second
+   line inside the phone screen.
+
+Closes #FXA-14486</pre></dd>
+  </dl>
+</body>
+</html>
