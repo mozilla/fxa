@@ -1,7 +1,12 @@
 # Server-side scope resolution via service parameter for Firefox OAuth flows
 
+> **Superseded by [ADR 0052](0052-scope-resolution-for-first-party-flows.md).** 0052 revisits this
+> decision, which is now open: "non-standard OAuth pattern" is re-evaluated against
+> node-oidc-provider, the "FxA must maintain the mapping regardless" driver is weakened by the web
+> channel capabilities message, and no-scope-escalation is made explicit as a constraint.
+
 - Status: proposed
-- Deciders: Lauren Zugai, Mark Hammond
+- Deciders: Lauren Zugai, Mark Hammond, Wil Clouser, Vijay Budhram
 - Date: 2026-04-15
 
 ## Context and Problem Statement
