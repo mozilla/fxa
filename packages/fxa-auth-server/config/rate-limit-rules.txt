@@ -174,6 +174,17 @@ passkeyAuthStart                       : ip                : 100         : 15 mi
 passkeyAuthFinish                      : ip                : 100         : 15 minutes      : 15 minutes  : block
 passkeyAuthFinishFailed                : ip                : 1000        : 24 hours        : 15 minutes  : ban
 #
+# Passkey Verification
+# MFA step-up on a signed-in session. Each finish mints a scoped MFA token, so the ip_uid limits bound
+# how many tokens one account can mint from one IP, across all its sessions. The caller already holds
+# a session and a registered passkey, so repeated finish failures are bogus requests: block the
+# account+IP pair, and ban the IP at the same threshold as the other authenticated *Failed rules.
+#
+passkeyVerificationStart               : ip_uid            : 15          : 15 minutes      : 15 minutes  : block
+passkeyVerificationFinish              : ip_uid            : 15          : 15 minutes      : 15 minutes  : block
+passkeyVerificationFinishFailed        : ip_uid            : 8           : 15 minutes      : 15 minutes  : block
+passkeyVerificationFinishFailed        : ip                : 75          : 24 hours        : 15 minutes  : ban
+#
 # Passkey Registration
 # MFA-protected endpoints for registering new passkeys. Moderate limits since these require existing auth.
 #
