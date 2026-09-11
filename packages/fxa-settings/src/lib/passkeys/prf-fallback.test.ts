@@ -9,6 +9,7 @@ import {
   isRetriableWithoutPrf,
   stripPrfExtension,
   stripPrfResults,
+  extractPrfOutput,
 } from './prf-fallback';
 import { createCredential, getCredential } from './webauthn';
 import type {
@@ -431,5 +432,34 @@ describe('stripPrfResults', () => {
 
   it('returns the same reference when there is no prf result', () => {
     expect(stripPrfResults(assertionResult)).toBe(assertionResult);
+  });
+});
+
+describe('extractPrfOutput', () => {
+  it('returns the bytes of an ArrayBuffer output', () => {
+    const first = new Uint8Array([1, 2, 3]).buffer;
+    expect(
+      extractPrfOutput({
+        clientExtensionResults: { prf: { results: { first } } },
+      })
+    ).toEqual(new Uint8Array([1, 2, 3]));
+  });
+
+  it('honours the offset and length of a typed-array view', () => {
+    const backing = new Uint8Array([9, 9, 1, 2, 3, 9]);
+    const first = backing.subarray(2, 5);
+    expect(
+      extractPrfOutput({
+        clientExtensionResults: { prf: { results: { first } } },
+      })
+    ).toEqual(new Uint8Array([1, 2, 3]));
+  });
+
+  it.each([
+    ['no prf extension', {}],
+    ['no results', { prf: { enabled: true } }],
+    ['a non-binary first', { prf: { results: { first: 'abc' } } }],
+  ])('returns undefined for %s', (_label, clientExtensionResults) => {
+    expect(extractPrfOutput({ clientExtensionResults })).toBeUndefined();
   });
 });

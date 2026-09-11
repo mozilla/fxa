@@ -17,6 +17,7 @@ export namespace SensitiveData {
     NewRecoveryKey = 'newRecoveryKeyData',
     Password = 'password',
     DecryptedRecoveryKey = 'decryptedRecoveryKeyData',
+    PasskeyWrap = 'passkeyWrapData',
   }
 
   /**
@@ -32,6 +33,7 @@ export namespace SensitiveData {
     newRecoveryKeyData?: NewRecoveryKeyData;
     password?: Password;
     decryptedRecoveryKeyData?: Pick<DecryptedRecoveryKeyData, 'kB'>;
+    passkeyWrapData?: PasskeyWrapData;
   };
 
   /**
@@ -64,6 +66,19 @@ export namespace SensitiveData {
    */
   export type NewRecoveryKeyData = {
     recoveryKey: Uint8Array;
+  };
+
+  /**
+   * Data inserted for the key {@link Key.PasskeyWrap}: what the passwordless
+   * Sync opt-in needs to seal `kB` to the passkey that just signed in. Set by
+   * the passkey ceremony; `kB` is filled in by the password step that follows.
+   */
+  export type PasskeyWrapData = {
+    uid: hexstring;
+    credentialId: string;
+    mfaToken: string;
+    prfOut: Uint8Array;
+    kB?: Uint8Array;
   };
 }
 

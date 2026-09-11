@@ -4,6 +4,7 @@
 
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import * as Sentry from '@sentry/browser';
+import { ERRNO } from '@fxa/accounts/errors';
 import type AuthClient from 'fxa-auth-client/browser';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
 
@@ -33,10 +34,17 @@ import {
   type PublicKeyCredentialJSON,
 } from './';
 import {
+  extractPrfOutput,
   extractPrfSupport,
   getCredentialWithPrfFallback,
   stripPrfResults,
 } from './prf-fallback';
+import {
+  isOAuthNativeIntegrationSync,
+  useConfig,
+  useSensitiveDataClient,
+} from '../../models';
+import { SensitiveData } from '../sensitive-data-client';
 import type { PasskeySignInGleanReason } from './webauthn-errors';
 import { PASSKEY_SUPPORT_URL, PASSKEY_TROUBLESHOOT_URL } from './constants';
 
@@ -195,7 +203,34 @@ export type PasskeySignInAuthClient = Pick<
   | 'completePasskeyAuthentication'
   | 'account'
   | 'sessionResendVerifyCode'
+  | 'getPasskeyWrap'
 >;
+
+/**
+ * True only when the server says no wrap is stored for this passkey. Any
+ * other answer, including a lookup failure, withholds the opt-in.
+ */
+async function hasNoStoredWrap(
+  authClient: PasskeySignInAuthClient,
+  mfaToken: string,
+  credentialId: string
+): Promise<boolean> {
+  try {
+    await authClient.getPasskeyWrap(mfaToken, credentialId);
+    return false;
+  } catch (err) {
+    const errno = (err as { errno?: number })?.errno;
+    if (errno === ERRNO.PASSKEY_WRAP_NOT_FOUND) {
+      return true;
+    }
+    // Withholding the offer is the safe outcome, but an outage would
+    // otherwise look identical to "already enrolled".
+    Sentry.captureException(new Error('passkey-wrap-probe error'), {
+      tags: { errno: String(errno ?? 'none') },
+    });
+    return false;
+  }
+}
 
 /**
  * Shape of an entry in `authClient.account(...)`'s `emails` array. The
@@ -259,6 +294,8 @@ export function usePasskeySignIn({
   const [banner, setBanner] = useState<PasskeyBannerState | undefined>();
   const inFlight = useRef(false);
   const navigate = useNavigate();
+  const config = useConfig();
+  const sensitiveDataClient = useSensitiveDataClient();
 
   // One impression per surface when the button is shown, so click-through is measurable.
   useGleanView(
@@ -376,6 +413,8 @@ export function usePasskeySignIn({
     inFlight.current = true;
     setIsLoading(true);
     gleanEvents.submit();
+    // Material from an abandoned ceremony must not survive into this one.
+    sensitiveDataClient.setDataType(SensitiveData.Key.PasskeyWrap, undefined);
 
     // True when this login still needs Sync-scoped keys that a follow-up
     // password step will provide. Computed up front so it can also hint the
@@ -385,13 +424,25 @@ export function usePasskeySignIn({
       supportsKeysOptionalLogin
     );
 
+    // Desktop OAuth Sync sign-ins that end in a password step can offer to
+    // store a passkey wrap afterwards: that is the only flow where `kB` is
+    // derived client-side. Mobile clients close the web view at handoff, so
+    // the page that makes the offer would never be seen there.
+    const offerPasswordlessSync =
+      !!config.featureFlags?.passkeyPasswordlessSyncEnabled &&
+      keysRequired &&
+      isOAuthNativeIntegrationSync(integration) &&
+      !integration.isFirefoxMobileClient();
+
     try {
       // Discoverable credentials only — the Signin page's email field is
       // intentionally ignored. The browser surfaces all credentials for the
       // RP and the user picks one. The keysRequired hint lets the server decide
-      // whether to attach the PRF extension to the returned options.
+      // whether to attach the PRF extension to the returned options. The scope
+      // makes /finish mint the `mfa:passkey` proof that storing a wrap needs.
       const challengeOptions = await authClient.beginPasskeyAuthentication({
         keysRequired,
+        ...(offerPasswordlessSync ? { scope: 'passkey' } : {}),
       });
 
       // Isolated try/catch so a network-layer TypeError (e.g. fetch failure)
@@ -441,6 +492,9 @@ export function usePasskeySignIn({
           event: { supported: prfSupported ? 'present' : 'absent' },
         });
       }
+      const prfOut = offerPasswordlessSync
+        ? extractPrfOutput(credential)
+        : undefined;
       credential = stripPrfResults(credential);
 
       const serviceForRequest = resolvePasskeyService(integration);
@@ -502,6 +556,24 @@ export function usePasskeySignIn({
         sessionVerified: completion.verified,
         hasPassword: completion.hasPassword,
       });
+
+      // Held in memory only, for the opt-in page after the password step. That
+      // step adds `kB`; the page clears the entry whatever the user decides.
+      // An account that still has to create a password is not offered the
+      // opt-in on the same sign-in, nor is a passkey that already has a wrap.
+      if (
+        prfOut &&
+        completion.mfaToken &&
+        completion.hasPassword &&
+        (await hasNoStoredWrap(authClient, completion.mfaToken, credential.id))
+      ) {
+        sensitiveDataClient.setDataType(SensitiveData.Key.PasskeyWrap, {
+          uid: completion.uid,
+          credentialId: credential.id,
+          mfaToken: completion.mfaToken,
+          prfOut,
+        });
+      }
 
       if (keysRequired) {
         // A password is needed to derive scoped keys before the browser
@@ -605,6 +677,8 @@ export function usePasskeySignIn({
     setTimeoutBanner,
     surface,
     supportsKeysOptionalLogin,
+    config,
+    sensitiveDataClient,
   ]);
 
   return { isLoading, isNavigating, errorBanner, onClick };

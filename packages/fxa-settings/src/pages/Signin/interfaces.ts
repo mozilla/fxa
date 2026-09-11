@@ -269,6 +269,8 @@ export interface NavigationOptions {
   // include when there's a condition based on what page it originated from
   origin?: 'post-verify-set-password' | 'signup' | 'signin';
   showInlineRecoveryKeySetup?: boolean;
+  // Set by the password step after a passkey sign-in left wrap material.
+  showInlinePasswordlessSyncSetup?: boolean;
   isSignInWithThirdPartyAuth?: boolean;
   showSignupConfirmedSync?: boolean;
   syncHidePromoAfterLogin?: boolean;
