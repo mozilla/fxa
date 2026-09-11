@@ -126,6 +126,10 @@ $(document).ready(function () {
     loggedInEmail = loggedInState.email;
     loggedInSubscriptions = loggedInState.subscriptions;
 
+    // The two instances serve identical assets, so the badge is the only thing
+    // on the page that tells them apart.
+    $('#untrusted-badge').prop('hidden', !loggedInState.untrusted);
+
     if (loggedInState.acr === 'AAL2') {
       loggedInEmail += ' ' + String.fromCodePoint(0x1f512);
     }

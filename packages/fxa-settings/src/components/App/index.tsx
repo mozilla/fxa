@@ -171,6 +171,9 @@ const PairAuthTotp = lazy(() => import('../../pages/Pair/AuthTotp'));
 const PairAuthWaitForSupp = lazy(
   () => import('../../pages/Pair/AuthWaitForSupp')
 );
+const PermissionsContainer = lazy(
+  () => import('../../pages/Permissions/container')
+);
 const PairSupp = lazy(() => import('../../pages/Pair/Supp'));
 const PairSuppAllow = lazy(() => import('../../pages/Pair/SuppAllow'));
 const PairSuppWaitForAuth = lazy(
@@ -1044,6 +1047,10 @@ const AuthAndAccountSetupRoutes = ({
         <Route
           path="/connect_another_device/*"
           element={<ConnectAnotherDevice fxaStatus={useFxAStatusResult} />}
+        />
+        <Route
+          path="/signin_permissions/*"
+          element={<PermissionsContainer integration={integration} />}
         />
         <Route
           path="/pair/supp/allow/*"

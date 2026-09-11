@@ -59,6 +59,8 @@ export interface StoredAccountData {
   alertText?: string;
   displayName?: string;
   hasPassword?: boolean;
+  /** Profile scopes the user has been shown, keyed by OAuth client id. */
+  grantedPermissions?: Record<string, string[]>;
 }
 
 /**

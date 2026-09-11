@@ -92,6 +92,8 @@ app.get('/api/auth_status', function (req, res) {
       auth_time: req.session.auth_time || null,
       // Default for the step-up max_age input, so the UI can't drift from config.
       step_up_max_age: config.get('step_up_max_age'),
+      // Drives the untrusted badge, so the two instances are told apart on sight.
+      untrusted: config.get('untrusted'),
     })
   );
 });

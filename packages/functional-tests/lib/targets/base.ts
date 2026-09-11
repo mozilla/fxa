@@ -25,6 +25,13 @@ export abstract class BaseTarget {
   abstract readonly paymentsTestPriceId: string;
   abstract readonly relierUrl: string;
   abstract readonly relierClientID: string;
+  /**
+   * The untrusted relying party (321done). Declared on every target so a stage
+   * or production run fails on a missing app rather than silently testing the
+   * trusted one.
+   */
+  abstract readonly untrustedRelierUrl: string;
+  abstract readonly untrustedRelierClientID: string;
   abstract readonly name: TargetName;
 
   // Must be lazy loaded, because it depends on abstract field, 'name'.

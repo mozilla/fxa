@@ -43,18 +43,6 @@ export class SignupPage extends BaseLayout {
     return this.page.getByRole('link', { name: 'Change email' });
   }
 
-  // for backwards compatibility with Backbone
-  // not currently implemented in React, see FXA-8827
-  get permissionsHeading() {
-    return this.page.getByRole('heading', { name: /^Request for permission/ });
-  }
-
-  // for backwards compatibility with Backbone
-  // not currently implemented in React, see FXA-8827
-  get permissionsAcceptButton() {
-    return this.page.getByRole('button', { name: 'Accept' });
-  }
-
   goto(route = '/', params = new URLSearchParams()) {
     params.set('forceExperiment', 'generalizedReactApp');
     params.set('forceExperimentGroup', 'react');
