@@ -1918,6 +1918,8 @@ pair2-supplicant-download-firefox-heading = Få { -brand-firefox } på denne ein
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Hald fram i { -brand-firefox }
+# Replaces the button label while waiting for the Firefox app to take over
+pair2-supplicant-download-firefox-opening-button = Opnar { -brand-firefox }…
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them

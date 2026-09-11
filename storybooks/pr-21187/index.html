@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit ea94e4fb130f99557c3f2c413503df65eb3d4904</title>
+  <title>Storybooks for commit c325a8c13969643119b760140551a5b1bbaa1c80</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit ea94e4fb130f99557c3f2c413503df65eb3d4904</h1>
+  <h1>Storybooks for commit c325a8c13969643119b760140551a5b1bbaa1c80</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/10/2026, 10:24:20 PM UTC</dd>
+    <dd>9/11/2026, 12:55:38 AM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(settings): add the passkey wrap creation hook</pre></dd>
     <dt>Description</dt>
@@ -40,12 +40,14 @@
   wedges the credential until the passkey is deleted.
 
 This commit:
-- Adds usePasskeyWrapCreation, sealing kB into a wrap envelope bound to
-  the account the mfa:passkey proof names, and storing it under that proof.
+- Adds createPasskeyWrapFlow, sealing kB into a wrap envelope bound to
+  the account and credential the mfa:passkey proof names, and
+  usePasskeyWrapCreation as its React state wrapper.
 - Reopens the envelope before storing it, catching platform crypto that
   seals what it cannot unseal.
 - Refuses spent, zeroed or wrong-width key material, and holds a sealed
-  envelope so a retry re-sends identical bytes.
+  envelope in a store shared across instances so a retry re-sends
+  identical bytes.
 - Maps server errnos to distinct failure reasons and drops a rejected
   proof from the JWT cache.
 - Zeroes kB and the PRF output once sealed, on every path that reads them.

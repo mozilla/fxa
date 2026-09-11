@@ -1327,6 +1327,7 @@ pair2-supplicant-connect-this-device-cancel-button = Avbryt
 
 pair2-supplicant-download-firefox-heading = Få { -brand-firefox } på denne eininga
 pair2-supplicant-download-firefox-continue-button = Hald fram i { -brand-firefox }
+pair2-supplicant-download-firefox-opening-button = Opnar { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = For å kople til ei eining
