@@ -627,10 +627,7 @@ export class SubscriptionManagementService {
     supportUrl: string,
     offeringApiIdentifier: string
   ): Promise<TrialSubscriptionContent | null> {
-    if (
-      subscription.trial_end === null &&
-      subscription.trial_start === null
-    ) {
+    if (subscription.trial_end === null && subscription.trial_start === null) {
       return null;
     }
 
@@ -697,8 +694,8 @@ export class SubscriptionManagementService {
       } = latestInvoice;
 
       const totalExclusiveTax = taxAmounts
-      .filter((tax) => !tax.inclusive)
-      .reduce((sum, tax) => sum + tax.amount, 0);
+        .filter((tax) => !tax.inclusive)
+        .reduce((sum, tax) => sum + tax.amount, 0);
 
       failedInvoiceDate = invoiceDate;
       failedInvoiceTax = Math.max(0, totalExclusiveTax);
@@ -830,9 +827,9 @@ export class SubscriptionManagementService {
         );
 
       if (!productMap) {
-        throw new SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError([
-          priceId,
-        ]);
+        throw new SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError(
+          [priceId]
+        );
       }
 
       const cmsPurchase = productMap.purchaseForPriceId(priceId);
@@ -953,9 +950,9 @@ export class SubscriptionManagementService {
         );
 
       if (!productMap) {
-        throw new SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError([
-          priceId,
-        ]);
+        throw new SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError(
+          [priceId]
+        );
       }
 
       const cmsPurchase = productMap.purchaseForPriceId(priceId);
@@ -1226,6 +1223,13 @@ export class SubscriptionManagementService {
       name: paymentMethod.billing_details.name ?? undefined,
     });
 
+    // The server-derived customer id, not setupIntent.customer, matching
+    // setDefaultStripePaymentDetails below.
+    await this.invoiceManager.retryPaymentForOpenInvoices(
+      accountCustomer.stripeCustomerId,
+      setupIntent.payment_method
+    );
+
     return {
       id: setupIntent.id,
       clientSecret: setupIntent.client_secret,
@@ -1259,6 +1263,19 @@ export class SubscriptionManagementService {
         default_payment_method: paymentMethodId,
       },
     });
+
+    // This is the path taken when the payment method required authentication,
+    // since updateStripePaymentDetails returns before its own collection in
+    // that case.
+    //
+    // `paymentMethodId` is client-supplied, and the customerManager.update above
+    // is what rejects one that is not this customer's -- Stripe refuses a
+    // default payment method that is not attached to the customer. It must stay
+    // ahead of the collection, which charges with that id.
+    await this.invoiceManager.retryPaymentForOpenInvoices(
+      accountCustomer.stripeCustomerId,
+      paymentMethodId
+    );
   }
 
   @SanitizeExceptions()

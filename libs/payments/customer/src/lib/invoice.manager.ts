@@ -2,9 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import type { LoggerService } from '@nestjs/common';
+import { StatsD } from 'hot-shots';
 import { Stripe } from 'stripe';
 
+import { StatsDService } from '@fxa/shared/metrics/statsd';
 import {
   StripeClient,
   StripeCustomer,
@@ -42,7 +45,9 @@ export class InvoiceManager {
   constructor(
     private stripeClient: StripeClient,
     private paypalClient: PayPalClient,
-    private currencyManager: CurrencyManager
+    private currencyManager: CurrencyManager,
+    @Inject(Logger) private log: LoggerService,
+    @Inject(StatsDService) private statsd: StatsD
   ) {}
 
   // Finalize an invoice, rejecting re-finalization of an invoice
@@ -339,6 +344,50 @@ export class InvoiceManager {
     // transitions to paid automatially.
     // https://stripe.com/docs/billing/invoices/subscription#sub-invoice-lifecycle
     return this.safeFinalizeWithoutAutoAdvance(invoiceId);
+  }
+
+  /**
+   * Attempt immediate payment on a customer's open invoices, so someone who
+   * fixes their card does not wait for Stripe's automatic retry (24h+).
+   *
+   * `paymentMethodId` is explicit because Stripe resolves the customer default
+   * only when creating a PaymentIntent, not when re-confirming the failed one --
+   * omitting it retries the card that failed.
+   *
+   * Never throws, so a failed charge cannot fail the payment method update.
+   */
+  async retryPaymentForOpenInvoices(
+    customerId: string,
+    paymentMethodId: string
+  ): Promise<void> {
+    try {
+      // Safe only while every enabled payment method settles synchronously.
+      // PayPal is excluded by collection_method, but enabled methods come from
+      // the Stripe Dashboard, not from code -- add SEPA or ACH and this starts
+      // charging against payments already in flight unless it also filters on
+      // payment status.
+      const invoices = await this.stripeClient.invoicesList({
+        customer: customerId,
+        status: 'open',
+        collection_method: 'charge_automatically',
+      });
+
+      for (const invoice of invoices.data) {
+        await this.stripeClient.invoicesPayChargeAttempt(invoice.id, {
+          payment_method: paymentMethodId,
+        });
+        this.statsd.increment('invoice_retry_payment_success');
+      }
+    } catch (err) {
+      // One catch for the loop, so a failure stops the rest: a decline is
+      // card-level and an API failure global, so they would fail the same way.
+      this.statsd.increment('invoice_retry_payment_failure');
+      this.log.warn('retryPaymentForOpenInvoices', {
+        message: 'Failed to retry payment for open invoices',
+        customerId,
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
   }
 
   /**
