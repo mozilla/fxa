@@ -1,8 +1,8 @@
 {
-  "commit": "2c09b33860158d74a1713d571f457c2103414f0b",
-  "summary": "Merge pull request #21129 from mozilla/ent-clickhouse",
-  "description": "feat(ent): implement metering based on clickhouse direct",
-  "timestamp": 1789108022000,
+  "commit": "ff790560f053e863e97b9d6c31a44995c6e324d5",
+  "summary": "Merge pull request #21179 from mozilla/fxa-14497",
+  "description": "fix(settings): repair broken Pair and ConnectAnotherDevice stories",
+  "timestamp": 1789143480000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
