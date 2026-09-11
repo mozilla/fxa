@@ -1,8 +1,8 @@
 {
-  "commit": "f033e15dd2d61d635ff269efda69e4e6ce865189",
-  "summary": "Merge pull request #21172 from mozilla/blender/security-bump-@hapi/content",
-  "description": "chore(deps): bump @hapi/content to 6.0.2",
-  "timestamp": 1789156159000,
+  "commit": "38b794f36d653d53ce339328622d4ef2e8be5777",
+  "summary": "Merge pull request #21175 from mozilla/blender/security-bump-handlebars",
+  "description": "chore(deps): bump handlebars to 4.7.9",
+  "timestamp": 1789156233000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
