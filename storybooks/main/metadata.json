@@ -1,8 +1,8 @@
 {
-  "commit": "c92897716a10bc210246ed726a64471be5d2cfae",
-  "summary": "Merge pull request #21177 from mozilla/blender/security-bump-multer",
-  "description": "chore(deps): bump multer to 2.3.0",
-  "timestamp": 1789156184000,
+  "commit": "f033e15dd2d61d635ff269efda69e4e6ce865189",
+  "summary": "Merge pull request #21172 from mozilla/blender/security-bump-@hapi/content",
+  "description": "chore(deps): bump @hapi/content to 6.0.2",
+  "timestamp": 1789156159000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
