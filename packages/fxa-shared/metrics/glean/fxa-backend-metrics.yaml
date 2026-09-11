@@ -1847,7 +1847,7 @@ passkey:
       - vzare@mozilla.com
       - fxa-staff@mozilla.com
     bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-12914
+      - https://mozilla-hub.atlassian.net/browse/FXA-14153
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
     expires: never
@@ -1865,7 +1865,7 @@ passkey:
       - vzare@mozilla.com
       - fxa-staff@mozilla.com
     bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-12914
+      - https://mozilla-hub.atlassian.net/browse/FXA-14153
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
     expires: never
