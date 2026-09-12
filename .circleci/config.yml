@@ -22,6 +22,14 @@ parameters:
   enable_nightly:
     type: boolean
     default: true
+  # Set by `yarn pr-debug` (_scripts/pr-debug.sh). Never true on its own.
+  run_stack:
+    type: boolean
+    default: false
+  # How long the stack job stays up after boot, connected or not.
+  stack_minutes:
+    type: integer
+    default: 30
   force-deploy-fxa-ci-images:
     type: boolean
     default: false
@@ -136,9 +144,12 @@ executors:
       resource_class:
         type: string
         default: xlarge
+      image:
+        type: string
+        default: mozilla/fxa-circleci:ci-functional-test-runner-v10
     resource_class: << parameters.resource_class >>
     docker:
-      - image: mozilla/fxa-circleci:ci-functional-test-runner-v10
+      - image: << parameters.image >>
       - image: redis
       - image: pafortin/goaws
       - image: cimg/mysql:8.0
@@ -920,6 +931,58 @@ jobs:
           workflow: << parameters.workflow >>
           test_suite: e2e
 
+  # Boots the functional-test stack in one self-contained job (install, build,
+  # start) so a dev can drive it over "Rerun job with SSH". Runs no tests.
+  # Only the stack workflow runs it; `yarn pr-debug` drives the whole flow.
+  # See the interactive stack section of .circleci/README.md.
+  #
+  # Runs on the builder image rather than the functional-test one: it ships
+  # node_modules and yarn.lock.base, so `provision` skips the install when the
+  # lockfile matches main, and nothing here needs a browser.
+  stack:
+    executor:
+      name: functional-test-executor
+      image: mozilla/fxa-circleci:ci-builder-v10
+    steps:
+      - git-checkout
+      - provision
+      - run:
+          # The migration patcher imports fxa-shared's build output. Other
+          # callers of wait-for-infrastructure get it from the Build workspace;
+          # this job has none, so build it first. start-services.sh reuses it.
+          name: Build fxa-shared for the migration patcher
+          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx build fxa-shared
+          environment:
+            NODE_ENV: test
+      - run:
+          name: Add localhost
+          command: |
+            sudo tee -a /etc/hosts \<<<'127.0.0.1 localhost'
+            sudo cat /etc/hosts
+      - wait-for-infrastructure
+      - run:
+          name: Start services
+          command: ./packages/functional-tests/scripts/start-services.sh
+          environment:
+            NODE_ENV: test
+          no_output_timeout: 20m
+      - run:
+          name: How to connect
+          command: ./.circleci/stack-info.sh
+      # Keeps the job up whether or not anyone is connected, so several stacks
+      # can sit side by side and `yarn pr-debug --tunnel` can hop between them.
+      # Without it CircleCI ends an idle SSH job after ten minutes. Echoes each
+      # minute so no_output_timeout does not cut the hold short.
+      - run:
+          name: Hold the stack
+          command: |
+            for ((i = 1; i <= << pipeline.parameters.stack_minutes >>; i++)); do
+              sleep 60
+              echo "up for ${i} of << pipeline.parameters.stack_minutes >> minutes"
+            done
+      # No store-artifacts: pm2 logs from a hands-on session would publish
+      # whatever the operator typed (debug log level) to a public artifact store.
+
   # Runs payments-next functional tests using playwright.
   # For local: uses functional-test-executor with full infra.
   # For stage/production: uses smoke-test-executor.
@@ -1166,6 +1229,13 @@ workflows:
             - Integration Test - Libraries (PR)
             # Surface auto-run functional-test failures on bot branches.
             - Firefox Functional Tests - Playwright (auto)
+
+  # Triggered by `yarn pr-debug`; never runs on its own. See .circleci/README.md
+  stack:
+    when: << pipeline.parameters.run_stack >>
+    jobs:
+      - stack:
+          name: Stack (SSH)
 
   # Triggered remotely. See .circleci/README.md
   production_smoke_tests:
