@@ -83,6 +83,7 @@ export const EVENT_NAMES = {
   'account.passkey.wrap_retrieval_failure': 64,
   'account.passkey.wrap_deleted': 65,
   'account.passkey.wrap_invalidated': 66,
+  'account.passkey.wrap_deletion_failure': 67,
 } as const satisfies Record<string, number>;
 
 export type SecurityEventNames = keyof typeof EVENT_NAMES;

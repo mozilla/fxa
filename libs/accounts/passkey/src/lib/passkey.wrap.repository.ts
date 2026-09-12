@@ -152,6 +152,31 @@ export async function insertPasskeyWrap(
 }
 
 /**
+ * Delete the wrap for one credential.
+ *
+ * Scoped by uid, so another account's wrap is a no-op rather than a delete.
+ * The passkey stays registered.
+ *
+ * @param db - Database instance
+ * @param uid - User ID as a hex string
+ * @param credentialId - Credential ID, base64url-encoded
+ * @returns true when a wrap was deleted, false when the credential had none
+ */
+export async function deletePasskeyWrap(
+  db: AccountDatabase,
+  uid: string,
+  credentialId: string
+): Promise<boolean> {
+  const result = await db
+    .deleteFrom('passkeyWraps')
+    .where('uid', '=', uuidTransformer.to(uid))
+    .where('credentialId', '=', base64urlToBuffer(credentialId))
+    .executeTakeFirst();
+
+  return result.numDeletedRows === BigInt(1);
+}
+
+/**
  * Delete every wrap for a user, leaving their passkeys in place.
  *
  * For the password-reset path: a reset invalidates `kB`, so every sealed envelope

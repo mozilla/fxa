@@ -3813,6 +3813,30 @@ export default class AuthClient {
   }
 
   /**
+   * Deletes the wrap envelope for one passkey, turning off passwordless
+   * sign-in with it. The passkey itself stays registered.
+   *
+   * Idempotent: a passkey with no wrap reports `deleted: false` rather than
+   * failing. Throws errno 224 when the account has no such passkey.
+   *
+   * @param jwt MFA JWT with scope `mfa:passkey`; no credential binding needed
+   * @param credentialId The base64url-encoded credential ID to clear
+   * @param headers Optional additional headers
+   */
+  async deletePasskeyWrap(
+    jwt: string,
+    credentialId: string,
+    headers?: Headers
+  ): Promise<{ deleted: boolean }> {
+    return this.jwtDelete(
+      `/passkey/wraps/${encodeURIComponent(credentialId)}`,
+      jwt,
+      {},
+      headers
+    );
+  }
+
+  /**
    * Starts a passkey authentication (assertion) flow.
    *
    * No email is sent — the server returns options with an empty

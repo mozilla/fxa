@@ -145,6 +145,7 @@ describe('PasskeyService', () => {
       | 'deletePasskey'
       | 'findPasskeyWrap'
       | 'createPasskeyWrap'
+      | 'deletePasskeyWrap'
     >
   > = {
     checkPasskeyCount: jest.fn(),
@@ -160,6 +161,7 @@ describe('PasskeyService', () => {
     deletePasskey: jest.fn(),
     findPasskeyWrap: jest.fn(),
     createPasskeyWrap: jest.fn(),
+    deletePasskeyWrap: jest.fn(),
   };
 
   const mockChallengeManager = {
@@ -1617,6 +1619,68 @@ describe('PasskeyService', () => {
         code: 404,
         errno: ERRNO.PASSKEY_WRAP_NOT_FOUND,
       });
+    });
+  });
+
+  describe('deletePasskeyWrap', () => {
+    beforeEach(() => {
+      mockManager.findPasskeyByUidAndCredentialId.mockResolvedValue(
+        passkeyRecord({ prfEnabled: true })
+      );
+      mockManager.deletePasskeyWrap.mockResolvedValue(true);
+    });
+
+    it('reports a removed wrap as deleted, counting a success', async () => {
+      await expect(
+        service.deletePasskeyWrap(MOCK_UID, MOCK_CREDENTIAL_ID)
+      ).resolves.toBe(true);
+
+      expect(mockManager.deletePasskeyWrap).toHaveBeenCalledWith(
+        MOCK_UID,
+        MOCK_CREDENTIAL_ID
+      );
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'passkey.wrap.delete.success'
+      );
+    });
+
+    // Idempotent by design: a client clearing a wrap it cannot unseal gets the
+    // same answer however many times it asks.
+    it('reports a credential with no wrap as unchanged, not an error', async () => {
+      mockManager.deletePasskeyWrap.mockResolvedValue(false);
+
+      await expect(
+        service.deletePasskeyWrap(MOCK_UID, MOCK_CREDENTIAL_ID)
+      ).resolves.toBe(false);
+
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'passkey.wrap.delete.unchanged'
+      );
+    });
+
+    // A credential the account does not own is a different state from a wrap
+    // that is already gone, so it throws rather than reporting false.
+    it('throws passkeyNotFound when the user does not own the credential', async () => {
+      mockManager.findPasskeyByUidAndCredentialId.mockResolvedValue(undefined);
+
+      await expect(
+        service.deletePasskeyWrap(MOCK_UID, MOCK_CREDENTIAL_ID)
+      ).rejects.toMatchObject({ errno: ERRNO.PASSKEY_NOT_FOUND });
+
+      expect(mockManager.deletePasskeyWrap).not.toHaveBeenCalled();
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'passkey.wrap.delete.failed',
+        { reason: 'notFound' }
+      );
+    });
+
+    it('propagates a database failure', async () => {
+      const dbError = new Error('db is down');
+      mockManager.deletePasskeyWrap.mockRejectedValue(dbError);
+
+      await expect(
+        service.deletePasskeyWrap(MOCK_UID, MOCK_CREDENTIAL_ID)
+      ).rejects.toThrow(dbError);
     });
   });
 });
