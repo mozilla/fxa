@@ -24,8 +24,8 @@ const ResetPasswordContainer = ({
   const navigateWithQuery = useNavigateWithQuery();
 
   // The account isn't known yet at reset entry, so the passkey footer is shown
-  // unconditionally when the feature is on — except for an active Sync sign-in,
-  // where a passkey can't recover Sync data in Phase 1.
+  // unconditionally when the feature is on — except for a Sync sign-in, which
+  // needs the account's wrap status to know a passkey can recover Sync data.
   const showPasskeyOption = shouldShowPasskeyResetOption(config, {
     serviceRequiresKeys: integration.isSync(),
   });

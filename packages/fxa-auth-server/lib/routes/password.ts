@@ -1072,6 +1072,7 @@ module.exports = function (
             token: isA.string().required(),
             uid: isA.string().required(),
             hasPasskey: isA.boolean().optional(),
+            hasPasskeyWraps: isA.boolean().optional(),
           }),
         },
       },
@@ -1120,20 +1121,31 @@ module.exports = function (
           getClientServiceTags(request)
         );
 
-        // Passkey-aware reset messaging: does the account have a passkey? Fail
-        // open so the reset flow never breaks.
+        // Passkey-aware reset messaging: does the account have a passkey, and
+        // can that passkey recover the account's encryption keys? Fail open so
+        // the reset flow never breaks.
+        //
+        // These signals are scoped to this route because it is reached only
+        // after the emailed OTP is verified. They must not be added to the
+        // unauthenticated /account/status, where they would leak per-account
+        // credential state to anyone who knows an email address.
         let hasPasskey: boolean | undefined;
+        let hasPasskeyWraps: boolean | undefined;
         if (
           config.passkeys?.enabled &&
           config.passkeys?.authenticationEnabled
         ) {
           try {
-            hasPasskey = await Container.get(PasskeyService).hasPasskey(
-              account.uid
-            );
+            // One LEFT JOIN answers both signals. A wrap is flagged per
+            // credential, so this reports only wraps a live passkey can open.
+            const passkeys = await Container.get(
+              PasskeyService
+            ).listPasskeysForUser(account.uid);
+            hasPasskey = passkeys.length > 0;
+            hasPasskeyWraps = passkeys.some((p) => p.hasPasswordlessSync);
           } catch (err) {
-            log.error('passwordForgotVerifyOtp.hasPasskey', { err });
-            statsd.increment('password.forgotVerifyOtp.hasPasskey.error');
+            log.error('passwordForgotVerifyOtp.passkeySignals', { err });
+            statsd.increment('password.forgotVerifyOtp.passkeySignals.error');
           }
         }
 
@@ -1143,6 +1155,7 @@ module.exports = function (
           token: passwordForgotToken.data,
           uid: passwordForgotToken.uid,
           hasPasskey,
+          hasPasskeyWraps,
         };
       },
     },
