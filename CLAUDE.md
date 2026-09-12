@@ -98,6 +98,7 @@ Every skill's name and description loads automatically — this section only cov
 - **Before merging:** `/fxa-review` for auth, payments, crypto, migrations, or multi-package changes; `/fxa-review-quick` otherwise. `/fxa-security-review` on top when the change touches auth, sessions, tokens, or payments.
 - **Filing a ticket:** `/fxa-jira-feature-description` or `/fxa-jira-bug-description`, even when the ask arrives mid-task.
 - **Opening a PR:** `/fxa-pr-open`. It handles the template, the alignment pass against Jira, and the draft-only rule.
+- **Trying a branch without checking it out:** `/fxa-pr-debug`. Boots the branch's stack in CircleCI, tunnels it to `localhost`, and can run a throwaway Playwright check you describe.
 
 ## 8) Testing Guidelines
 
