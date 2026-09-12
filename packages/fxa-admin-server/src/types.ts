@@ -330,3 +330,16 @@ export type OAuthScopeCreateDto = Pick<
   OAuthScopeDto,
   'scope' | 'hasScopedKeys'
 >;
+
+export interface FeatureFlagDto {
+  name: string;
+  enabled: boolean;
+  description: string;
+  updatedAt: number;
+  updatedBy: string;
+}
+
+export type FeatureFlagUpsertDto = Pick<
+  FeatureFlagDto,
+  'name' | 'enabled' | 'description'
+>;

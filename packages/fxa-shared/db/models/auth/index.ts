@@ -32,6 +32,7 @@ import { RecoveryPhones } from './recovery-phones';
 import { EmailBlocklist } from './email-blocklist';
 import { WafBypassToken } from './waf-bypass-token';
 import { DomainBlocklist } from './domain-blocklist';
+import { FeatureFlag } from './feature-flag';
 
 export type PayPalBillingAgreementStatusType =
   | 'Pending'
@@ -273,4 +274,5 @@ export {
   EmailBlocklist,
   WafBypassToken,
   DomainBlocklist,
+  FeatureFlag,
 };

@@ -20,6 +20,8 @@ import type {
   DomainBlocklistEntry,
   OAuthScopeDto,
   OAuthScopeCreateDto,
+  FeatureFlagDto,
+  FeatureFlagUpsertDto,
 } from 'fxa-admin-server/src/types';
 
 function baseUrl() {
@@ -341,6 +343,26 @@ export const adminApi = {
 
   deleteAllDomainBlocklistEntries(): Promise<{ ok: boolean }> {
     return apiFetch('/api/domain-blocklist/all', { method: 'DELETE' });
+  },
+
+  // ---- Feature flags ----
+
+  getFeatureFlags(): Promise<FeatureFlagDto[]> {
+    return apiFetch('/api/feature-flags');
+  },
+
+  upsertFeatureFlag(flag: FeatureFlagUpsertDto): Promise<{ ok: boolean }> {
+    return apiFetch('/api/feature-flags', {
+      method: 'PUT',
+      body: JSON.stringify(flag),
+    });
+  },
+
+  deleteFeatureFlag(name: string): Promise<{ removed: boolean }> {
+    return apiFetch('/api/feature-flags', {
+      method: 'DELETE',
+      body: JSON.stringify({ name }),
+    });
   },
 
   // ---- OAuth scopes ----

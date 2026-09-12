@@ -119,6 +119,7 @@
       "@fxa/shared/experiments": ["./libs/shared/experiments/src/index.ts"],
       "@fxa/shared/geodb": ["./libs/shared/geodb/src/index.ts"],
       "@fxa/shared/glean": ["./libs/shared/metrics/glean/src/index.ts"],
+      "@fxa/shared/feature-flags": ["./libs/shared/feature-flags/src/index.ts"],
       "@fxa/shared/guards": ["./libs/shared/guards/src/index.ts"],
       "@fxa/shared/l10n": ["./libs/shared/l10n/src/index.ts"],
       "@fxa/shared/l10n/client": ["./libs/shared/l10n/src/client.ts"],

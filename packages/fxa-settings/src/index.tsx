@@ -15,6 +15,7 @@ import config, { readConfigMeta } from './lib/config';
 import { searchParams } from './lib/utilities';
 import { AppContext, initializeAppContext } from './models';
 import { ThemeProvider } from './models/contexts/ThemeContext';
+import { FeatureFlagsProvider } from './models/contexts/FeatureFlagsContext';
 import Storage from './lib/storage';
 import { restorePairingAttribution } from './lib/pairing-attribution';
 import CookiesDisabled from './pages/CookiesDisabled';
@@ -113,9 +114,11 @@ try {
           <AppErrorBoundary>
             <AppContext.Provider value={appContext}>
               <NimbusProvider>
-                <ThemeProvider enabled={config.darkMode?.enabled}>
-                  <View />
-                </ThemeProvider>
+                <FeatureFlagsProvider>
+                  <ThemeProvider enabled={config.darkMode?.enabled}>
+                    <View />
+                  </ThemeProvider>
+                </FeatureFlagsProvider>
               </NimbusProvider>
             </AppContext.Provider>
           </AppErrorBoundary>

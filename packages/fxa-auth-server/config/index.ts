@@ -181,6 +181,14 @@ const convictConf = convict({
       env: 'GEODB_LOCATION_OVERRIDE',
     },
   },
+  featureFlags: {
+    cacheTtlMs: {
+      doc: 'How long each process serves feature flags from its in-process cache. A flip in the admin panel takes up to this long to reach a given pod. 0 disables caching.',
+      format: 'nat',
+      default: 60000,
+      env: 'FEATURE_FLAGS_CACHE_TTL_MS',
+    },
+  },
   geoEligibility: {
     rules: {
       doc: 'Mapping of features to country codes that are allowed to see the feature',
