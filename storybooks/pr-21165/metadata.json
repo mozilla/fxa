@@ -1,8 +1,8 @@
 {
-  "commit": "0e215cd7482021f3634c4fe97683ee21e4606ec5",
+  "commit": "5589a3812bba2eb12dd802243004d3ffded4ca58",
   "summary": "feat(passkey): Add DELETE /passkey/wraps/{credentialId}",
   "description": "Because:\n- A wrap the client can no longer unseal is permanent, leaving the passkey\n  stuck without passwordless Sync.\n- Settings needs a per-passkey switch for passwordless sign-in.\n- POST and GET record their failures; a failed delete would have left no\n  audit trail.\n\nThis commit:\n- Adds DELETE /passkey/wraps/{credentialId} behind an mfa:passkey token,\n  rate-limited as passkeyWrapsDelete, with no credential binding.\n- Adds deletePasskeyWrap through the repository, manager, service, and\n  fxa-auth-client.\n- Reports a credential with no wrap as deleted: false, not 404.\n- Records wrap_deleted and wrap_deletion_failure, both hidden from the\n  settings activity list.\n- Adds patch 198-199 for the wrap_deletion_failure event name.",
-  "timestamp": 1788971083000,
+  "timestamp": 1789174989000,
   "storybooks": [
     "fxa-react",
     "fxa-settings"

@@ -75,20 +75,6 @@ choose-newsletters-option-test-pilot =
 choose-newsletters-option-reclaim-the-internet =
     .label = Åtgärdsvarningar för att återta internet
 
-## ContinueInFirefox component - Part of the desktop-to-mobile pairing flow
-## Shown when the pairing QR code is opened in a browser other than Firefox.
-## It hands the pairing link to the Firefox app, and offers the app store when
-## Firefox is not installed on the device.
-
-pair-continue-in-firefox-heading = Fortsätt i { -brand-firefox }
-pair-continue-in-firefox-description = Parkoppling sker i { -brand-firefox }. Öppna den för att slutföra anslutningen av enheten.
-# Opens the Firefox app on this device
-pair-continue-in-firefox-button = Fortsätt i { -brand-firefox }
-# Shown while waiting for the Firefox app to take over
-pair-continue-in-firefox-opening = Öppnar { -brand-firefox }
-# Sends the user to the App Store or Play Store to install Firefox
-pair-continue-in-firefox-get-firefox-link = Har du inte { -brand-firefox }? Hämta den nu
-
 ## Dark mode toggle
 
 dark-mode-toggle-light = Ljust
@@ -435,23 +421,23 @@ password-strength-inline-passwords-match = Lösenorden matchar
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Din telefon. Dina regler.
 # Value proposition variant. Refers to resuming browsing on another device.
-promo-qr-mobile-heading-treatment-a = Fortsätt där du slutade, vart du än går
+promo-qr-mobile-heading-treatment-a = Fortsätt där du slutade, var du än är
 # Value proposition variant. "tabs" are the open pages in a browser.
-promo-qr-mobile-heading-treatment-b = Dina flikar och mer, redo på telefonen
+promo-qr-mobile-heading-treatment-b = Dina flikar och mycket mer, direkt i mobilen
 # Value proposition variant. Refers to using the same trusted browser on a phone.
-promo-qr-mobile-heading-treatment-c = Webbläsaren du litar på, till din telefon
+promo-qr-mobile-heading-treatment-c = Webbläsaren du litar på, även i mobilen
 # Value proposition variant. "Different screen" refers to the phone rather than the desktop.
-promo-qr-mobile-heading-treatment-d = Samma { -brand-firefox }. Annan skärm.
+promo-qr-mobile-heading-treatment-d = Samma { -brand-firefox }. På en annan skärm.
 # Value proposition variant. "stop here" means privacy protection should continue onto the phone.
-promo-qr-mobile-heading-treatment-e = Din integritet bör inte sluta här
+promo-qr-mobile-heading-treatment-e = Integritetsskyddet ska inte sluta här
 # Value proposition variant. Refers to keeping browsing activity private.
-promo-qr-mobile-heading-treatment-f = Håll mer av din surfning för dig själv
+promo-qr-mobile-heading-treatment-f = Surfa mer privat
 # Value proposition variant. "noise" refers to distractions and clutter.
-promo-qr-mobile-heading-treatment-g = Din telefon kan använda lite mindre ljud
+promo-qr-mobile-heading-treatment-g = Din mobil skulle må bra av lite mindre brus
 # Value proposition variant. Refers to a calmer browsing experience on the phone.
 promo-qr-mobile-heading-treatment-h = Surfa på ett lugnare sätt
 # Appears below a QR code that a user can scan to download the Firefox mobile app
-promo-qr-mobile-description-v2 = Skanna för att ladda ner app för mobil
+promo-qr-mobile-description-v2 = Skanna för att ladda ner mobilappen
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
 promo-qr-mobile-qr-alt =
     .alt = QR-kod för att ladda ner mobilappen { -brand-firefox }. Placera telefonens kamera i det nedre högra hörnet av skärmen för att skanna den.
@@ -1958,14 +1944,18 @@ pair2-supplicant-connect-this-device-cancel-button = Avbryt
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing reaches a device that
 ## does not have Firefox installed yet. It explains what syncing gets them and
-## sends them off to install the browser.
+## either opens the Firefox app to finish pairing or sends them off to install
+## the browser.
 
 pair2-supplicant-download-firefox-heading = Hämta { -brand-firefox } till den här enheten
 # "sync" is a verb here, referring to syncing data between the user's devices.
 # <linkExternal> is an anchor tag linking to a page explaining what sync does.
 pair2-supplicant-download-firefox-description = Hämta { -brand-firefox } för att synkronisera bokmärken, historik och mer mellan enheter. <linkExternal>Läs mer</linkExternal>
-# Primary action. Sends the user to the Firefox download page.
+# Primary action. Opens the Firefox app to finish pairing, or sends the user to
+# the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Fortsätt i { -brand-firefox }
+# Replaces the button label while waiting for the Firefox app to take over
+pair2-supplicant-download-firefox-opening-button = Öppnar { -brand-firefox }…
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them

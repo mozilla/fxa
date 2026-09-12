@@ -75,20 +75,6 @@ choose-newsletters-option-test-pilot =
 choose-newsletters-option-reclaim-the-internet =
     .label = Оповещения о действиях по восстановлению доступа к Интернету
 
-## ContinueInFirefox component - Part of the desktop-to-mobile pairing flow
-## Shown when the pairing QR code is opened in a browser other than Firefox.
-## It hands the pairing link to the Firefox app, and offers the app store when
-## Firefox is not installed on the device.
-
-pair-continue-in-firefox-heading = Продолжить в { -brand-firefox }
-pair-continue-in-firefox-description = Сопряжение происходит в { -brand-firefox }. Откройте его, чтобы завершить подключение этого устройства.
-# Opens the Firefox app on this device
-pair-continue-in-firefox-button = Продолжить в { -brand-firefox }
-# Shown while waiting for the Firefox app to take over
-pair-continue-in-firefox-opening = Запускаем { -brand-firefox }
-# Sends the user to the App Store or Play Store to install Firefox
-pair-continue-in-firefox-get-firefox-link = Нет { -brand-firefox }? Скачайте сейчас
-
 ## Dark mode toggle
 
 dark-mode-toggle-light = Светлая
@@ -437,6 +423,24 @@ password-strength-inline-passwords-match = Пароли совпадают
 
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Ваш телефон. Ваши правила.
+# Value proposition variant. Refers to resuming browsing on another device.
+promo-qr-mobile-heading-treatment-a = Продолжайте с того места, на котором остановились, куда бы вы ни отправились
+# Value proposition variant. "tabs" are the open pages in a browser.
+promo-qr-mobile-heading-treatment-b = Ваши вкладки и многое другое, готовые на вашем телефоне
+# Value proposition variant. Refers to using the same trusted browser on a phone.
+promo-qr-mobile-heading-treatment-c = Браузер, которому вы доверяете, на вашем телефоне
+# Value proposition variant. "Different screen" refers to the phone rather than the desktop.
+promo-qr-mobile-heading-treatment-d = Тот же { -brand-firefox }. Другой экран.
+# Value proposition variant. "stop here" means privacy protection should continue onto the phone.
+promo-qr-mobile-heading-treatment-e = Ваша приватность не должна ограничиваться здесь
+# Value proposition variant. Refers to keeping browsing activity private.
+promo-qr-mobile-heading-treatment-f = Держите больше своего веб-сёрфинга при себе
+# Value proposition variant. "noise" refers to distractions and clutter.
+promo-qr-mobile-heading-treatment-g = Ваш телефон мог бы использовать немного меньше шумов
+# Value proposition variant. Refers to a calmer browsing experience on the phone.
+promo-qr-mobile-heading-treatment-h = Спокойный веб-сёрфинг всегда с вами
+# Appears below a QR code that a user can scan to download the Firefox mobile app
+promo-qr-mobile-description-v2 = Отсканируйте, чтобы скачать мобильное приложение
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
 promo-qr-mobile-qr-alt =
     .alt = QR-код, чтобы загрузить мобильное приложение { -brand-firefox }. Наведите камеру телефона на правый нижний угол экрана, чтобы отсканировать его.
@@ -1944,14 +1948,18 @@ pair2-supplicant-connect-this-device-cancel-button = Отменить
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing reaches a device that
 ## does not have Firefox installed yet. It explains what syncing gets them and
-## sends them off to install the browser.
+## either opens the Firefox app to finish pairing or sends them off to install
+## the browser.
 
 pair2-supplicant-download-firefox-heading = Установите { -brand-firefox } на это устройство
 # "sync" is a verb here, referring to syncing data between the user's devices.
 # <linkExternal> is an anchor tag linking to a page explaining what sync does.
 pair2-supplicant-download-firefox-description = Скачайте { -brand-firefox }, чтобы синхронизировать закладки, историю и многое другое между устройствами. <linkExternal>Подробнее</linkExternal>
-# Primary action. Sends the user to the Firefox download page.
+# Primary action. Opens the Firefox app to finish pairing, or sends the user to
+# the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Продолжить в { -brand-firefox }
+# Replaces the button label while waiting for the Firefox app to take over
+pair2-supplicant-download-firefox-opening-button = Открытие { -brand-firefox }…
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them

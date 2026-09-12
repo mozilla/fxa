@@ -100,13 +100,6 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Åtgärdsvarningar för att återta internet
 
 
-pair-continue-in-firefox-heading = Fortsätt i { -brand-firefox }
-pair-continue-in-firefox-description = Parkoppling sker i { -brand-firefox }. Öppna den för att slutföra anslutningen av enheten.
-pair-continue-in-firefox-button = Fortsätt i { -brand-firefox }
-pair-continue-in-firefox-opening = Öppnar { -brand-firefox }
-pair-continue-in-firefox-get-firefox-link = Har du inte { -brand-firefox }? Hämta den nu
-
-
 dark-mode-toggle-light = Ljust
 dark-mode-toggle-dark = Mörkt
 dark-mode-toggle-system = System
@@ -346,15 +339,15 @@ password-strength-inline-passwords-match = Lösenorden matchar
 
 
 promo-qr-mobile-heading = Din telefon. Dina regler.
-promo-qr-mobile-heading-treatment-a = Fortsätt där du slutade, vart du än går
-promo-qr-mobile-heading-treatment-b = Dina flikar och mer, redo på telefonen
-promo-qr-mobile-heading-treatment-c = Webbläsaren du litar på, till din telefon
-promo-qr-mobile-heading-treatment-d = Samma { -brand-firefox }. Annan skärm.
-promo-qr-mobile-heading-treatment-e = Din integritet bör inte sluta här
-promo-qr-mobile-heading-treatment-f = Håll mer av din surfning för dig själv
-promo-qr-mobile-heading-treatment-g = Din telefon kan använda lite mindre ljud
+promo-qr-mobile-heading-treatment-a = Fortsätt där du slutade, var du än är
+promo-qr-mobile-heading-treatment-b = Dina flikar och mycket mer, direkt i mobilen
+promo-qr-mobile-heading-treatment-c = Webbläsaren du litar på, även i mobilen
+promo-qr-mobile-heading-treatment-d = Samma { -brand-firefox }. På en annan skärm.
+promo-qr-mobile-heading-treatment-e = Integritetsskyddet ska inte sluta här
+promo-qr-mobile-heading-treatment-f = Surfa mer privat
+promo-qr-mobile-heading-treatment-g = Din mobil skulle må bra av lite mindre brus
 promo-qr-mobile-heading-treatment-h = Surfa på ett lugnare sätt
-promo-qr-mobile-description-v2 = Skanna för att ladda ner app för mobil
+promo-qr-mobile-description-v2 = Skanna för att ladda ner mobilappen
 promo-qr-mobile-qr-alt =
     .alt = QR-kod för att ladda ner mobilappen { -brand-firefox }. Placera telefonens kamera i det nedre högra hörnet av skärmen för att skanna den.
 
@@ -1348,6 +1341,7 @@ pair2-supplicant-connect-this-device-cancel-button = Avbryt
 pair2-supplicant-download-firefox-heading = Hämta { -brand-firefox } till den här enheten
 pair2-supplicant-download-firefox-description = Hämta { -brand-firefox } för att synkronisera bokmärken, historik och mer mellan enheter. <linkExternal>Läs mer</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Fortsätt i { -brand-firefox }
+pair2-supplicant-download-firefox-opening-button = Öppnar { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = För att ansluta en enhet
