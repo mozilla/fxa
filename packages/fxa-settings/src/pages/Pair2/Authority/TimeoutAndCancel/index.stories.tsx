@@ -14,10 +14,10 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-// The pairing request expired before it was approved, so the user still has an
-// attempt to abandon — the secondary action is Cancel.
+// The pairing request expired before it was approved. The user is already
+// signed in on this computer, so the only action is to try again.
 export const TimedOut = () => <Subject reason="timeout" />;
 
-// Pairing was already called off, so there is nothing left to cancel — the
-// secondary action sends the user to Sync settings instead.
+// Pairing was called off, so a secondary action sends the user to Sync
+// settings.
 export const Canceled = () => <Subject reason="canceled" />;

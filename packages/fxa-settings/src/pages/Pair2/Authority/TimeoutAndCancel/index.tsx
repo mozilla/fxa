@@ -18,8 +18,6 @@ export type TimeoutAndCancelProps = {
   reason?: TimeoutAndCancelReason;
   /** Restarts pairing. The only action shared by both reasons. */
   onTryAgain?: () => void;
-  /** Abandons pairing. The secondary action when `reason` is `timeout`. */
-  onCancel?: () => void;
   /** Sends the user to sync settings. The secondary action when `reason` is `canceled`. */
   onSyncSettings?: () => void;
 };
@@ -29,9 +27,11 @@ type VariantContent = {
   heading: string;
   descriptionFtlId: string;
   description: string;
-  secondaryFtlId: string;
-  secondaryLabel: string;
-  secondaryHandler: 'onCancel' | 'onSyncSettings';
+  /** Text link under "Try again". Absent when retrying is the only way forward. */
+  secondary?: {
+    ftlId: string;
+    label: string;
+  };
 };
 
 const variantContent: Record<TimeoutAndCancelReason, VariantContent> = {
@@ -41,9 +41,6 @@ const variantContent: Record<TimeoutAndCancelReason, VariantContent> = {
     descriptionFtlId: 'pair2-authority-timeout-and-cancel-timeout-description',
     description:
       'Looks like we timed out. Try again if you still want to connect your mobile device and sync your Firefox data.',
-    secondaryFtlId: 'pair2-authority-timeout-and-cancel-cancel-button',
-    secondaryLabel: 'Cancel',
-    secondaryHandler: 'onCancel',
   },
   canceled: {
     headingFtlId: 'pair2-authority-timeout-and-cancel-canceled-heading',
@@ -51,27 +48,26 @@ const variantContent: Record<TimeoutAndCancelReason, VariantContent> = {
     descriptionFtlId: 'pair2-authority-timeout-and-cancel-canceled-description',
     description:
       'If you change your mind or want to connect a different device, try again.',
-    secondaryFtlId: 'pair2-authority-timeout-and-cancel-sync-settings-button',
-    secondaryLabel: 'Sync settings',
-    secondaryHandler: 'onSyncSettings',
+    secondary: {
+      ftlId: 'pair2-authority-timeout-and-cancel-sync-settings-button',
+      label: 'Sync settings',
+    },
   },
 };
 
 /**
  * The desktop screen shown once pairing stops without succeeding — either it
- * timed out or someone canceled it. Both reasons offer "Try again"; the
- * secondary action differs, because a timeout leaves the user mid-flow with
- * something to abandon while a cancel has already ended it.
+ * timed out or someone canceled it. Both reasons offer "Try again". A timeout
+ * offers nothing else: the user is already signed in on this computer, so
+ * there is nothing to abandon and a Cancel would only route them back to the
+ * sign-in page. A cancel adds a link to Sync settings.
  */
 const TimeoutAndCancel = ({
   reason,
   onTryAgain,
-  onCancel,
   onSyncSettings,
 }: TimeoutAndCancelProps) => {
-  reason = reason ?? 'timeout';
-  const content = variantContent[reason || 'timeout'];
-  const onSecondary = { onCancel, onSyncSettings }[content.secondaryHandler];
+  const content = variantContent[reason ?? 'timeout'];
 
   return (
     <AppLayout>
@@ -97,17 +93,19 @@ const TimeoutAndCancel = ({
           </FtlMsg>
         </div>
 
-        <FtlMsg id={content.secondaryFtlId}>
-          <button
-            type="button"
-            onClick={onSecondary}
-            // `py-2` keeps the tap target comfortable, so the margin is halved
-            // to land on the 16px gap the design asks for.
-            className="mt-2 py-2 text-base text-grey-900 underline dark:text-grey-10"
-          >
-            {content.secondaryLabel}
-          </button>
-        </FtlMsg>
+        {content.secondary && (
+          <FtlMsg id={content.secondary.ftlId}>
+            <button
+              type="button"
+              onClick={onSyncSettings}
+              // `py-2` keeps the tap target comfortable, so the margin is halved
+              // to land on the 16px gap the design asks for.
+              className="mt-2 py-2 text-base text-grey-900 underline dark:text-grey-10"
+            >
+              {content.secondary.label}
+            </button>
+          </FtlMsg>
+        )}
       </div>
     </AppLayout>
   );
