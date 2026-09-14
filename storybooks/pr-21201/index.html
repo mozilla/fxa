@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 3b6fba2cd23546d3e4d3fe53390da24599cf2db9</title>
+  <title>Storybooks for commit e732364d639948a7908a0b6f2056a767b5ddce62</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,28 +23,29 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 3b6fba2cd23546d3e4d3fe53390da24599cf2db9</h1>
+  <h1>Storybooks for commit e732364d639948a7908a0b6f2056a767b5ddce62</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/14/2026, 7:41:48 PM UTC</dd>
+    <dd>9/14/2026, 9:07:29 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>refactor(auth-server): remove unused email from recoveryKey/exists</pre></dd>
     <dt>Description</dt>
     <dd><pre>## Because
 
 - `POST /recoveryKey/exists` has required auth since FXA-9398. The handler reads the uid from `request.auth.credentials`.
-- The `email` field in the payload is dead weight. The route validator, the `fxa-auth-client` signature, and the callers all still carried it.
+- The `email` in the payload is therefore dead weight, but the route validator, the `fxa-auth-client` signature, and the call sites all still carry it.
+- Clients from older releases still post `email`. The route must keep accepting that body.
 
 ## This pull request
 
-- Drops `email` from the payload validator in `recovery-key.js`. The payload stays optional and nullable.
-- Narrows `recoveryKeyExists` to `(sessionToken, headers?)` and removes the unauthenticated fallback branch.
-- Updates the callers in `Account.ts`, `hooks.ts`, and the Signin container, plus the assertions in `container.test.tsx`.
-- Deletes `checkRecoveryKeyExistsByEmail()` from the content-server account model. It had no callers.
-- Deletes the `getRecoveryKeyExistsWithEmail` test helper from `test/client/api.js`. It had no callers.
+- Drops `email` from the payload validator in `recovery-key.js`, and pins `stripUnknown` on the route, so a legacy `{ email }` payload is accepted and the field is ignored.
+- Narrows `recoveryKeyExists` to `(sessionToken, headers?)` and removes the unauthenticated branch.
+- Updates the call sites in `Account.ts`, `hooks.ts`, and the Signin container, plus the assertions in `container.test.tsx`.
+- Deletes two helpers that had no callers: `checkRecoveryKeyExistsByEmail()` in the content-server account model, and `getRecoveryKeyExistsWithEmail` in `test/client/api.js`.
+- Adds schema tests in `recovery-key.spec.ts` for the omitted, null, empty, and `{ email }` payloads.
 
 ## Issue that this pull request solves
 
