@@ -23,33 +23,6 @@ export function isSigningOut(): boolean {
   return _isSigningOut;
 }
 
-// TODO in FXA-8454
-// Add checks to ensure this function cannot produce an object that would violate type safety.
-// Currently, there are no checks to ensure that the values are defined and non-null,
-// which could result in errors at runtime.
-export function getStoredAccountData(input: {
-  uid: hexstring;
-  sessionToken?: hexstring;
-  alertText?: string;
-  displayName?: string;
-  metricsEnabled?: boolean;
-  lastLogin?: number;
-  email?: string;
-  emailVerified?: boolean;
-  sessionVerified?: boolean;
-}): StoredAccountData {
-  return {
-    uid: input.uid,
-    sessionToken: input.sessionToken,
-    alertText: input.alertText,
-    displayName: input.displayName,
-    metricsEnabled: input.metricsEnabled,
-    lastLogin: input.lastLogin,
-    email: input.email,
-    verified: !!(input.emailVerified && input.sessionVerified),
-  };
-}
-
 type LocalAccounts = Record<hexstring, StoredAccountData>;
 
 const UID_REGEX = /^[0-9a-f]{32}$/;
