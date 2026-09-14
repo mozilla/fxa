@@ -1,8 +1,8 @@
 {
-  "commit": "24db8eedfbcc6b6bd979984810b4f38e56c2a249",
-  "summary": "Merge pull request #21206 from mozilla/fxa-14216",
-  "description": "chore(settings): remove leftover PageMfaGuardTest debug route",
-  "timestamp": 1789419322000,
+  "commit": "de8e329116060202888a33efcc1715832275375b",
+  "summary": "Merge pull request #21199 from mozilla/fxa-5154",
+  "description": "chore(auth-server): remove unused api-docs.handlebars template",
+  "timestamp": 1789419376000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
