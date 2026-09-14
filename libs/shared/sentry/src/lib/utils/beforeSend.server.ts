@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { tagFxaName } from './tagFxaName';
+import { applyCommonTags } from './tags';
 import { InitSentryOpts } from '../models/SentryConfigOpts';
 import { ErrorEvent } from '@sentry/core';
 
@@ -18,7 +18,7 @@ const EXPECTED_ERRORS = new Set([
   'IntentInsufficientFundsError',
   'PayPalPaymentMethodError',
   'PayPalServiceUnavailableError',
-  'PayPalActiveSubscriptionsMissingAgreementError'
+  'PayPalActiveSubscriptionsMissingAgreementError',
 ]);
 
 export const beforeSend = function (
@@ -34,7 +34,10 @@ export const beforeSend = function (
     }
   }
 
-  event = tagFxaName(event, config.sentry?.serverName || 'unknown');
+  event = applyCommonTags(event, {
+    name: config.sentry?.serverName,
+    runtime: 'server',
+  });
 
   config.eventFilters?.forEach((filter) => {
     event = filter(event, hint);
