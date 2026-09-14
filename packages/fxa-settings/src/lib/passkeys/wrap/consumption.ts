@@ -7,6 +7,7 @@ import { ERRNO } from '@fxa/accounts/errors';
 import type AuthClient from 'fxa-auth-client/browser';
 import { openWrapEnvelope } from '../../passkey-crypto';
 import { PRF_OUT_BYTES } from '../../passkey-crypto/constants';
+import { uidFromMfaToken } from './uid-from-mfa-token';
 
 export type PasskeyFallbackReason =
   | 'no_wrap'
@@ -20,28 +21,37 @@ export type PasskeyFallbackReason =
 export type UnwrapPasskeyKbArgs = {
   mfaToken: string;
   credentialId: string;
-  uid: string;
   prfOut?: Uint8Array;
 };
 export type UnwrapPasskeyKbResult =
   | { ok: true; kB: Uint8Array }
   | { ok: false; reason: PasskeyFallbackReason };
 
-const FETCH_ERRNO_REASONS: Record<number, PasskeyFallbackReason> = {
+const FETCH_ERRNO_REASONS: Partial<Record<number, PasskeyFallbackReason>> = {
   [ERRNO.PASSKEY_WRAP_NOT_FOUND]: 'no_wrap',
   [ERRNO.PASSKEY_NOT_FOUND]: 'passkey_not_found',
   [ERRNO.INVALID_MFA_TOKEN]: 'proof_invalid',
   [ERRNO.PASSKEY_WRAP_STALE]: 'stale',
+  // Expected while the server flag lags the client's, or when the fetch's own
+  // rate limit trips; neither says anything is wrong.
+  [ERRNO.FEATURE_NOT_ENABLED]: 'fetch_failed',
+  [ERRNO.THROTTLED]: 'fetch_failed',
 };
 
 /** Zeroes `prfOut` whatever the outcome. Never throws. */
 export async function unwrapPasskeyKb(
   authClient: Pick<AuthClient, 'getPasskeyWrap'>,
-  { mfaToken, credentialId, uid, prfOut }: UnwrapPasskeyKbArgs
+  { mfaToken, credentialId, prfOut }: UnwrapPasskeyKbArgs
 ): Promise<UnwrapPasskeyKbResult> {
   if (prfOut?.length !== PRF_OUT_BYTES) {
     prfOut?.fill(0);
     return { ok: false, reason: 'no_prf' };
+  }
+  // Same derivation as sealing, so the AAD matches by construction.
+  const uid = uidFromMfaToken(mfaToken);
+  if (!uid) {
+    prfOut.fill(0);
+    return { ok: false, reason: 'proof_invalid' };
   }
   try {
     const { createdAt: _createdAt, ...envelope } =
@@ -56,7 +66,7 @@ export async function unwrapPasskeyKb(
     }
   } catch (err) {
     const errno = (err as { errno?: number })?.errno;
-    const reason = errno !== undefined ? FETCH_ERRNO_REASONS[errno] : undefined;
+    const reason = FETCH_ERRNO_REASONS[errno ?? -1];
     if (!reason) {
       Sentry.captureException(new Error('passkey-wrap-fetch error'), {
         tags: { errno: String(errno ?? 'none') },

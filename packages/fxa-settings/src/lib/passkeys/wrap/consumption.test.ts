@@ -7,6 +7,7 @@ import type AuthClient from 'fxa-auth-client/browser';
 import { ERRNO } from '@fxa/accounts/errors';
 import { unwrapPasskeyKb } from './consumption';
 import { openWrapEnvelope } from '../../passkey-crypto';
+import { bytesToBase64url } from '../../base64url';
 
 jest.mock('@sentry/browser', () => ({
   __esModule: true,
@@ -18,11 +19,24 @@ jest.mock('../../passkey-crypto', () => ({
 }));
 
 const prf = () => new Uint8Array(32).fill(7);
-const wrap = { createdAt: 1 } as any;
+const UID = 'a'.repeat(32);
+const MFA_TOKEN = [
+  'header',
+  bytesToBase64url(new TextEncoder().encode(JSON.stringify({ sub: UID }))),
+  'signature',
+].join('.');
+const wrap: Awaited<ReturnType<AuthClient['getPasskeyWrap']>> = {
+  createdAt: 1,
+  pkR: new Uint8Array(1),
+  prfWrappedSkR: new Uint8Array(1),
+  keyWrapIv: new Uint8Array(1),
+  hpkeEncapsulatedSecret: new Uint8Array(1),
+  hpkeSealedKb: new Uint8Array(1),
+};
+const { createdAt: _createdAt, ...envelope } = wrap;
 const args = (prfOut?: Uint8Array) => ({
-  mfaToken: 'jwt',
+  mfaToken: MFA_TOKEN,
   credentialId: 'cred',
-  uid: 'a'.repeat(32),
   prfOut,
 });
 const client = (impl: () => Promise<unknown>) => ({
@@ -32,7 +46,7 @@ const client = (impl: () => Promise<unknown>) => ({
 });
 
 describe('unwrapPasskeyKb', () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => jest.resetAllMocks());
 
   it('returns kB when the envelope opens, and zeroes prfOut', async () => {
     const kB = new Uint8Array(32).fill(1);
@@ -45,11 +59,21 @@ describe('unwrapPasskeyKb', () => {
     expect(res).toEqual({ ok: true, kB });
     expect(prfOut.every((b) => b === 0)).toBe(true);
     expect(openWrapEnvelope).toHaveBeenCalledWith({
-      envelope: {},
+      envelope,
       prfOut: expect.any(Uint8Array),
-      uid: 'a'.repeat(32),
+      uid: UID,
       credentialId: 'cred',
     });
+  });
+
+  it('is proof_invalid without a fetch when the token names no uid', async () => {
+    const c = client(async () => wrap);
+    const prfOut = prf();
+    expect(
+      await unwrapPasskeyKb(c, { ...args(prfOut), mfaToken: 'not-a-jwt' })
+    ).toEqual({ ok: false, reason: 'proof_invalid' });
+    expect(c.getPasskeyWrap).not.toHaveBeenCalled();
+    expect(prfOut.every((b) => b === 0)).toBe(true);
   });
 
   it('is no_prf without a fetch when prfOut is missing or the wrong width', async () => {
@@ -70,6 +94,8 @@ describe('unwrapPasskeyKb', () => {
     [ERRNO.PASSKEY_NOT_FOUND, 'passkey_not_found'],
     [ERRNO.INVALID_MFA_TOKEN, 'proof_invalid'],
     [ERRNO.PASSKEY_WRAP_STALE, 'stale'],
+    [ERRNO.FEATURE_NOT_ENABLED, 'fetch_failed'],
+    [ERRNO.THROTTLED, 'fetch_failed'],
   ])('maps errno %i to %s without Sentry', async (errno, reason) => {
     const res = await unwrapPasskeyKb(
       client(async () => {
