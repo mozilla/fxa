@@ -1,0 +1,12 @@
+{
+  "commit": "4ad5b4835025ed49f9dad35d368f07584ae04ef1",
+  "summary": "chore(deps): remove unused audit script, audit-filter, and .nsprc",
+  "description": "## Because\n\n- Nothing runs the `audit` script. No CircleCI job, Nx target, shell script, husky hook, or doc invokes it.\n- The repo uses Yarn 4 Berry, which has no `npm audit`, so the script cannot work even if someone ran it.\n- The `.nsprc` files hold advisory exceptions from 2020 (advisories 1179, 1488, 1500). Three of them (fxa-settings, fxa-admin-panel, fxa-dev-launcher) had no script left to read them.\n- BLEnder and CodeQL cover dependency security now.\n\n## This pull request\n\n- Deletes all 12 `packages/*/.nsprc` files.\n- Removes the `audit` script from 9 package.json files.\n- Removes the `audit-filter` devDependency from those same 9 package.json files.\n- Refreshes `yarn.lock`, which drops `audit-filter` and its `docopt` dependency.\n\n## Issue that this pull request solves\n\nCloses: FXA-5447",
+  "timestamp": 1789415044000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
