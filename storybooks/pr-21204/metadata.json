@@ -1,0 +1,10 @@
+{
+  "commit": "17b28da2338f2108a58fb8aea79435e6c92aba1b",
+  "summary": "refactor(settings): remove dead integration check in ConfirmSignupCode",
+  "description": "## Because\n\n- `SignupConfirmCodeContainer` types its `integration` prop as non-optional.\n- The `App` component already returns early when the integration is missing, before any page renders.\n- The `if (!integration)` branch in the container was unreachable, and its TODO asked to move the check up the tree.\n\n## This pull request\n\n- Removes the unreachable `if (!integration)` early return, and the TODO comment above it, from `container.tsx`.\n- Removes the two `expect(currentProps?.integration).toBeDefined()` assertions from `container.test.tsx`.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-8853",
+  "timestamp": 1789415282000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
