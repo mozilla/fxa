@@ -238,7 +238,7 @@ function toAuthUiError(err: unknown): AuthUiError {
   return isAuthUiError(err) ? err : AuthUiErrors.UNEXPECTED_ERROR;
 }
 
-function isZeroed(bytes: Uint8Array): boolean {
+export function isZeroed(bytes: Uint8Array): boolean {
   return bytes.every((byte) => byte === 0);
 }
 
