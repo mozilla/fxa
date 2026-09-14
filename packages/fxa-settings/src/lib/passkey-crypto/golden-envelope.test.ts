@@ -14,7 +14,8 @@
  * envelope, because until then no stored row depends on these bytes. After the
  * first production write it is a migration, not a fixture update — the envelope
  * has no version field, so there is one decrypt path and no way to tell an old
- * row from a new one. See the README.
+ * row from a new one. The README's "Regenerating the fixture" section is the
+ * only sanctioned path; it requires updating `FIXTURE_SHA256` below.
  *
  * Every other test in this module seals and opens with the same code, so it
  * passes whatever the format is: swapping `info` and `aad`, changing the mode,
@@ -32,6 +33,33 @@ import fixture from './v1-envelope-fixture.json';
 
 const bytes = (hex: string) => Uint8Array.from(Buffer.from(hex, 'hex'));
 const hex = (value: Uint8Array) => Buffer.from(value).toString('hex');
+/** ASCII only, same as `suite.ts`; every hashed value is hex or base64url. */
+const ascii = (text: string) => Uint8Array.from(text, (c) => c.charCodeAt(0));
+
+/**
+ * Every vector field, in the order they are hashed. The `_`-prefixed notes in
+ * the fixture are excluded so documentation can change without re-pinning.
+ */
+const VECTOR_FIELDS = [
+  'kB',
+  'prfOut',
+  'uid',
+  'credentialId',
+  'context',
+  'keyWrapIv',
+  'pkR',
+  'skRRaw',
+  'prfWrappedSkR',
+  'hpkeEncapsulatedSecret',
+  'hpkeSealedKb',
+] as const;
+
+/**
+ * SHA-256 over `VECTOR_FIELDS`, each as `name=value` joined by `\n`. Changing
+ * any vector means changing this too, deliberately, in a second file.
+ */
+const FIXTURE_SHA256 =
+  'c99094fa17288839e96a7a36ede5c8a62919af75254a99649adf361867b562f0';
 
 describe('frozen v1 envelope', () => {
   const context = bytes(fixture.context);
@@ -134,6 +162,26 @@ describe('frozen v1 envelope', () => {
     ).rejects.toThrow(
       expect.objectContaining({ name: 'OperationError' }) as Error
     );
+  });
+
+  it('carries exactly the vectors that were frozen', async () => {
+    const canonical = VECTOR_FIELDS.map(
+      (field) => `${field}=${fixture[field]}`
+    ).join('\n');
+    const digest = await crypto.subtle.digest('SHA-256', ascii(canonical));
+
+    // Labelled so a failure names what moved: the field set, or the bytes
+    // under it. Either one means the README's "Regenerating the fixture"
+    // section applies, not a fixture update.
+    expect({
+      fields: Object.keys(fixture)
+        .filter((key) => !key.startsWith('_'))
+        .sort(),
+      sha256: hex(new Uint8Array(digest)),
+    }).toEqual({
+      fields: [...VECTOR_FIELDS].sort(),
+      sha256: FIXTURE_SHA256,
+    });
   });
 
   it('records every field at its v1 width', () => {
