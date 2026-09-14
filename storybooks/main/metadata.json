@@ -1,8 +1,8 @@
 {
-  "commit": "de8e329116060202888a33efcc1715832275375b",
-  "summary": "Merge pull request #21199 from mozilla/fxa-5154",
-  "description": "chore(auth-server): remove unused api-docs.handlebars template",
-  "timestamp": 1789419376000,
+  "commit": "2c4733b3371a78edb838fd6be6cf58d16245d854",
+  "summary": "Merge pull request #21200 from mozilla/fxa-9687",
+  "description": "refactor(settings): tighten metricsContext and flowQueryParams types",
+  "timestamp": 1789419470000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
