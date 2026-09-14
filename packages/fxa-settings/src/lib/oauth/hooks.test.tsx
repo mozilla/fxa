@@ -54,17 +54,25 @@ const pendingWrap = (uid = UID) => ({
   prfOut: new Uint8Array(32).fill(3),
 });
 
-const finish = async () => {
+const finish = async (knownKb?: string) => {
   const { result } = renderHook(
     () => useFinishOAuthFlowHandler(authClient, syncIntegration()),
     { wrapper }
   );
-  return result.current.finishOAuthFlowHandler(
-    UID,
-    'session-token',
-    'key-fetch-token',
-    'unwrap-b-key'
-  );
+  return knownKb
+    ? result.current.finishOAuthFlowHandler(
+        UID,
+        'session-token',
+        undefined,
+        undefined,
+        knownKb
+      )
+    : result.current.finishOAuthFlowHandler(
+        UID,
+        'session-token',
+        'key-fetch-token',
+        'unwrap-b-key'
+      );
 };
 
 beforeEach(() => {
@@ -111,5 +119,33 @@ describe('useFinishOAuthFlowHandler password-free passkey opt-in material', () =
     await finish();
 
     expect(sensitiveDataClient.PasskeyWrapData).toBeUndefined();
+  });
+});
+
+describe('useFinishOAuthFlowHandler with a supplied kB', () => {
+  it('skips accountKeys and still derives keys_jwe for the OAuth code', async () => {
+    const result = await finish(KB_HEX);
+
+    expect(result.error).toBeUndefined();
+    expect(authClient.accountKeys).not.toHaveBeenCalled();
+    expect(authClient.getOAuthScopedKeyData).toHaveBeenCalledWith(
+      'session-token',
+      'client-id',
+      'https://identity.mozilla.com/apps/oldsync'
+    );
+    expect(authClient.createOAuthCode).toHaveBeenCalledWith(
+      'session-token',
+      'client-id',
+      'state',
+      expect.objectContaining({ keys_jwe: 'keys-jwe' })
+    );
+  });
+
+  it('leaves a pending wrap for the same account without kB', async () => {
+    sensitiveDataClient.PasskeyWrapData = pendingWrap();
+
+    await finish(KB_HEX);
+
+    expect(sensitiveDataClient.PasskeyWrapData).toEqual(pendingWrap());
   });
 });

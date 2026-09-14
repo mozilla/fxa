@@ -730,7 +730,8 @@ const getOAuthNavigationTarget = async (
       navigationOptions.signinData.uid,
       navigationOptions.signinData.sessionToken,
       navigationOptions.signinData.keyFetchToken,
-      navigationOptions.unwrapBKey
+      navigationOptions.unwrapBKey,
+      navigationOptions.kB
     );
   if (error) {
     if (
