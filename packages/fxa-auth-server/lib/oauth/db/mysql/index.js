@@ -293,18 +293,6 @@ const QUERY_SCOPES_RESOLVE_IDS_PREFIX =
 
 const buf = (v) => (Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex'));
 
-// Deauthorizations are batched so one statement never scales with the whole ledger.
-// Well under any placeholder or packet limit, and a user's deauthorizable row count
-// is normally a handful.
-const DEAUTHORIZE_BATCH_SIZE = 200;
-const chunk = (items, size) => {
-  const batches = [];
-  for (let i = 0; i < items.length; i += size) {
-    batches.push(items.slice(i, i + size));
-  }
-  return batches;
-};
-
 function firstRow(rows) {
   return rows[0];
 }
@@ -906,44 +894,29 @@ class MysqlStore extends MysqlOAuthShared {
     return this._read(QUERY_ACCOUNT_CONSENT_LIST_BY_UID, [buf(uid)]);
   }
 
-  // Marks the given rows deauthorized as of `deauthorizedAt`, leaving the row and its ToS
-  // timestamps in place. Each row needs scope, service, clientId and the
-  // lastAuthorizedTosAt the caller read, which together form the optimistic
+  // Marks the given rows deauthorized as of `deauthorizedAt`, leaving the row
+  // and its ToS timestamps in place. Each row needs scope, service, clientId and
+  // the lastAuthorizedTosAt the caller read, which together form the optimistic
   // guard described on the query.
   //
   // Returns the number of rows actually deauthorized, which can be lower than
   // rows.length: rows re-authorized since the caller's read, or already
   // deauthorized, are skipped by design.
-  //
-  // A row whose lastAuthorizedTosAt is not a finite number is dropped rather
-  // than sent: NaN reaches the driver as a bare SQL token and fails the whole
-  // batch, so one bad row would otherwise look like the database being down.
   async _deauthorizeAccountAuthorizations(uid, rows, deauthorizedAt) {
     if (!Array.isArray(rows) || rows.length === 0) {
       return 0;
     }
-    const deauthorizable = rows.filter((r) =>
-      Number.isFinite(Number(r?.lastAuthorizedTosAt))
+    const params = [deauthorizedAt, buf(uid)];
+    for (const r of rows) {
+      params.push(r.scope, r.service, buf(r.clientId), r.lastAuthorizedTosAt);
+    }
+    const result = await this._write(
+      QUERY_DEAUTHORIZE_AUTHORIZATION_ROWS_PREFIX +
+        rows.map(() => '(?, ?, ?, ?)').join(', ') +
+        ')',
+      params
     );
-    if (deauthorizable.length === 0) {
-      return 0;
-    }
-    const uidBuf = buf(uid);
-    let affectedRows = 0;
-    for (const batch of chunk(deauthorizable, DEAUTHORIZE_BATCH_SIZE)) {
-      const params = [deauthorizedAt, uidBuf];
-      for (const r of batch) {
-        params.push(r.scope, r.service, buf(r.clientId), r.lastAuthorizedTosAt);
-      }
-      const result = await this._write(
-        QUERY_DEAUTHORIZE_AUTHORIZATION_ROWS_PREFIX +
-          batch.map(() => '(?, ?, ?, ?)').join(', ') +
-          ')',
-        params
-      );
-      affectedRows += result.affectedRows;
-    }
-    return affectedRows;
+    return result.affectedRows;
   }
 
   getEncodingInfo() {

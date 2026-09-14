@@ -453,25 +453,6 @@ describe('deauthorizeAccountAuthorizations', () => {
     const [row] = await db.listAccountConsentsByUid(id);
     expect(Number(row.deauthorizedAt)).toBe(DEAUTHORIZED_AT);
   });
-
-  // Proves no row is silently dropped once the write splits, and that the
-  // generated SQL stays inside MySQL's placeholder and packet limits. It does
-  // not prove batching happened: the count is the same either way.
-  it('loses no rows when the deauthorize spans more than one batch', async () => {
-    const id = track(newUid());
-    const scopes = Array.from(
-      { length: 250 },
-      (_, i) => `https://identity.mozilla.com/apps/batch-${i}`
-    );
-    await db.recordSignInConsents({
-      uid: id,
-      scopes,
-      service: 'vpn',
-      clientId: DESKTOP,
-      now: T0,
-    });
-    expect(await deauthorizeAll(id)).toBe(250);
-  });
 });
 
 describe('token exchange after deauthorization', () => {

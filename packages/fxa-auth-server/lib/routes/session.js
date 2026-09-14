@@ -22,7 +22,6 @@ const oauthDB = require('../oauth/db');
 const {
   deauthorizeOnDisconnect,
 } = require('../oauth/deauthorize-on-disconnect');
-const { resolveStatsD } = require('../container-deps');
 const { FxaMailer } = require('../senders/fxa-mailer');
 const { FxaMailerFormat } = require('../senders/fxa-mailer-format');
 const { OAuthClientInfoServiceName } = require('../senders/oauth_client_info');
@@ -108,10 +107,7 @@ module.exports = function (
         // should be deauthorized. Firefox Desktop is backed by a session rather than
         // a refresh token until bz2053654, so for it this is the only path that
         // can retire one.
-        await deauthorizeOnDisconnect(
-          { oauthDB, log, statsd: resolveStatsD() },
-          { uid, remainingSessions: (await db.sessions(uid)).length }
-        );
+        await deauthorizeOnDisconnect({ oauthDB, db, log, statsd }, { uid });
         await recordSecurityEvent('session.destroy', {
           db,
           request,

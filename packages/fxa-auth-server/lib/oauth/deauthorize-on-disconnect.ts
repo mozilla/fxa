@@ -26,12 +26,15 @@
 
 import { StatsD } from 'hot-shots';
 import { Logger } from 'mozlog';
+import { Container } from 'typedi';
 
 import {
   authorizationRowsToDeauthorize,
   OAUTH_NATIVE_CLIENT_IDS,
   type AuthorizationRow,
 } from '@fxa/accounts/oauth';
+
+import { AuthLogger } from '../types';
 
 export interface DeauthorizeOnDisconnectOauthDB {
   listAccountConsentsByUid(uid: string): Promise<
@@ -51,15 +54,19 @@ export interface DeauthorizeOnDisconnectOauthDB {
   /** Resolves to the number of rows actually deauthorized. */
   deauthorizeAccountAuthorizations(
     uid: string,
-    rows: AuthorizationRow[],
-    deauthorizedAt: number
+    rows: AuthorizationRow[]
   ): Promise<number>;
 }
 
 export interface DeauthorizeOnDisconnectDeps {
   oauthDB: DeauthorizeOnDisconnectOauthDB;
-  // Only the methods this module uses, picked from the real collaborator types
-  // so a minimal mock satisfies them without re-declaring the contract.
+  /**
+   * fxa-db, for counting the sessions left. Callers without one (the bare
+   * oauth route) omit it, which the policy reads as "one remains".
+   */
+  db?: { sessions(uid: string): Promise<unknown[]> };
+  // Fall back to the container when omitted; both are unregistered in most
+  // unit tests, where the fallback yields undefined.
   statsd?: Pick<StatsD, 'increment'>;
   log?: Pick<Logger, 'warn'>;
 }
@@ -73,11 +80,6 @@ export interface DeauthorizeOnDisconnectParams {
   clientId?: string;
   /** How many refresh tokens the destroy actually removed. */
   destroyedRefreshTokens?: number;
-  /**
-   * Sessions left after the sign-out. Undefined where the caller has no fxa-db
-   * handle to count them, which the policy reads as "one remains".
-   */
-  remainingSessions?: number;
 }
 
 const hex = (v: Buffer | string): string =>
@@ -89,24 +91,21 @@ function clientType(clientId?: string): 'native' | 'other' | 'session' {
   if (!clientId) {
     return 'session';
   }
-  return OAUTH_NATIVE_CLIENT_IDS.has(String(clientId).toLowerCase())
+  return OAUTH_NATIVE_CLIENT_IDS.has(clientId.toLowerCase())
     ? 'native'
     : 'other';
 }
 
 export async function deauthorizeOnDisconnect(
   deps: DeauthorizeOnDisconnectDeps,
-  params: DeauthorizeOnDisconnectParams
+  { uid, clientId, destroyedRefreshTokens }: DeauthorizeOnDisconnectParams
 ): Promise<void> {
-  const { uid, clientId, destroyedRefreshTokens, remainingSessions } = params;
-  if (!uid) {
-    return;
-  }
-
+  const statsd =
+    deps.statsd ?? (Container.has(StatsD) ? Container.get(StatsD) : undefined);
+  const log =
+    deps.log ??
+    (Container.has(AuthLogger) ? Container.get(AuthLogger) : undefined);
   const client_type = clientType(clientId);
-  const disconnectedClient = clientId
-    ? { clientId, destroyedRefreshTokens: destroyedRefreshTokens ?? 0 }
-    : undefined;
 
   const attempt = async () => {
     // Authorization rows first, then refresh tokens — not in parallel. An
@@ -116,6 +115,9 @@ export async function deauthorizeOnDisconnect(
     // the user just granted.
     const rows = await deps.oauthDB.listAccountConsentsByUid(uid);
     const refreshTokens = await deps.oauthDB.getRefreshTokenScopesByUid(uid);
+    const remainingSessions = deps.db
+      ? (await deps.db.sessions(uid)).length
+      : undefined;
 
     const toDeauthorize = authorizationRowsToDeauthorize({
       rows: rows.map((r) => ({
@@ -129,27 +131,18 @@ export async function deauthorizeOnDisconnect(
         scope: t.scope,
       })),
       remainingSessions,
-      disconnectedClient,
-      // Should be unreachable — scope is written by us and validated on the way
-      // in. Counted so we find out if it ever isn't, since the row is kept and
-      // the account would otherwise silently stop being deauthorizable.
-      onUnparsableScope: () =>
-        deps.statsd?.increment('accountAuthorization.unparsable_scope', {
-          client_type,
-        }),
+      // Only a destroy that actually removed a refresh token is evidence of a
+      // disconnect.
+      disconnectedClientId: destroyedRefreshTokens ? clientId : undefined,
     });
 
     const deauthorized = toDeauthorize.length
-      ? await deps.oauthDB.deauthorizeAccountAuthorizations(
-          uid,
-          toDeauthorize,
-          Date.now()
-        )
+      ? await deps.oauthDB.deauthorizeAccountAuthorizations(uid, toDeauthorize)
       : 0;
     // 0 is the common case: the owner is still connected, or there was nothing
     // authorized to begin with. Counted separately so the two can be told
     // apart without inferring it from a rate.
-    deps.statsd?.increment(
+    statsd?.increment(
       deauthorized > 0
         ? 'accountAuthorization.deauthorized'
         : 'accountAuthorization.deauthorize_noop',
@@ -160,21 +153,21 @@ export async function deauthorizeOnDisconnect(
   try {
     await attempt();
   } catch {
-    // One immediate retry, no backoff and not gated on error code. Nothing else
-    // revisits these rows, so unlike most writes a failure here is terminal
-    // rather than recoverable on the next request. Retrying is safe because the
+    // One immediate retry. Nothing else revisits these rows, so a failure here
+    // is terminal rather than recoverable on the next request, and Settings'
+    // parallel disconnects can contend on the same rows. Safe because the
     // sequence re-reads: the second attempt decides on fresh state.
-    deps.statsd?.increment('accountAuthorization.deauthorize_retried', {
+    statsd?.increment('accountAuthorization.deauthorize_retried', {
       client_type,
     });
     try {
       await attempt();
     } catch (err) {
-      deps.statsd?.increment('accountAuthorization.deauthorize_failed', {
+      statsd?.increment('accountAuthorization.deauthorize_failed', {
         client_type,
       });
       // Message only, never the error object: it can carry query text.
-      deps.log?.warn('accountAuthorization.deauthorize_failed', {
+      log?.warn('accountAuthorization.deauthorize_failed', {
         err: err instanceof Error ? err.message : String(err),
       });
     }

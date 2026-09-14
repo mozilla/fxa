@@ -51,7 +51,7 @@ const SCHEMA = {
     .pattern(validators.DEVICE_COMMAND_NAME, isA.string().max(2048)),
 };
 
-module.exports = (log, db, push, pushbox, glean, statsd) => {
+module.exports = (log, db, push, pushbox, glean) => {
   return { isSpuriousUpdate, upsert, destroy, synthesizeName };
 
   // Clients have been known to send spurious device updates,
@@ -190,7 +190,6 @@ module.exports = (log, db, push, pushbox, glean, statsd) => {
     // no client identity here.
     let clientId;
     let destroyedRefreshTokens = 0;
-    let failed = false;
     if (deletedDevice && deletedDevice.refreshTokenId) {
       try {
         const token = await oauthDB.getRefreshToken(
@@ -210,23 +209,17 @@ module.exports = (log, db, push, pushbox, glean, statsd) => {
             err: err.message,
           });
         }
-        failed = true;
       }
     }
 
     // Deauthorize any row whose own client has nothing left. deleteDevice cascades
-    // to the device's session token, so reading sessions now yields what
-    // actually remains. Skipped when the lookup above failed, since the client
-    // identity it produces would be incomplete.
-    if (deletedDevice && !failed) {
+    // to the device's session token, so the session count read inside reflects
+    // what actually remains. If the refresh token lookup above failed the token
+    // still exists, so its row is sustained and this is a no-op.
+    if (deletedDevice) {
       await deauthorizeOnDisconnect(
-        { oauthDB, log, statsd },
-        {
-          uid,
-          clientId,
-          destroyedRefreshTokens,
-          remainingSessions: (await db.sessions(uid)).length,
-        }
+        { oauthDB, db, log },
+        { uid, clientId, destroyedRefreshTokens }
       );
     }
 

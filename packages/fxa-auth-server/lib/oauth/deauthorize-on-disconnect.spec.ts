@@ -4,9 +4,9 @@
 
 // The deauthorization policy itself lives in @fxa/accounts/oauth and is tested there
 // (deauthorization.spec.ts). This file covers the orchestration around
-// it: the gate, read ordering, metrics, the single retry, and error swallowing.
+// it: read ordering, the session count, metrics, the single retry, and error
+// swallowing.
 import { OAuthNativeClients } from '@fxa/accounts/oauth';
-import ScopeSet from 'fxa-shared/oauth/scopes';
 
 import {
   deauthorizeOnDisconnect,
@@ -38,21 +38,26 @@ function mockDb(
   } as jest.Mocked<DeauthorizeOnDisconnectOauthDB>;
 }
 
-function mockDeps(db: jest.Mocked<DeauthorizeOnDisconnectOauthDB>) {
+function mockDeps(
+  db: jest.Mocked<DeauthorizeOnDisconnectOauthDB>,
+  remainingSessions = 0
+) {
   return {
     oauthDB: db,
+    db: {
+      sessions: jest.fn().mockResolvedValue(new Array(remainingSessions)),
+    },
     statsd: { increment: jest.fn() },
     log: { warn: jest.fn() },
   };
 }
 
 describe('deauthorizeOnDisconnect', () => {
-  // A refresh-token disconnect of the row's own client, with no session left.
+  // A refresh-token disconnect of the row's own client.
   const destroyed = {
     uid: UID,
     clientId: DESKTOP,
     destroyedRefreshTokens: 1,
-    remainingSessions: 0,
   };
 
   it('deauthorizes the rows nothing sustains, normalizing the buffer clientId', async () => {
@@ -61,18 +66,14 @@ describe('deauthorizeOnDisconnect', () => {
 
     await deauthorizeOnDisconnect(deps, destroyed);
 
-    expect(db.deauthorizeAccountAuthorizations).toHaveBeenCalledWith(
-      UID,
-      [
-        {
-          scope: VPN_SCOPE,
-          service: 'vpn',
-          clientId: DESKTOP,
-          lastAuthorizedTosAt: TOS_AT,
-        },
-      ],
-      expect.any(Number)
-    );
+    expect(db.deauthorizeAccountAuthorizations).toHaveBeenCalledWith(UID, [
+      {
+        scope: VPN_SCOPE,
+        service: 'vpn',
+        clientId: DESKTOP,
+        lastAuthorizedTosAt: TOS_AT,
+      },
+    ]);
     expect(deps.statsd.increment).toHaveBeenCalledWith(
       'accountAuthorization.deauthorized',
       { client_type: 'native' }
@@ -100,13 +101,27 @@ describe('deauthorizeOnDisconnect', () => {
     expect(order).toEqual(['rows', 'tokens']);
   });
 
+  it('keeps a native row on a session sign-out while another session remains', async () => {
+    const db = mockDb();
+
+    await deauthorizeOnDisconnect(mockDeps(db, 1), { uid: UID });
+
+    expect(db.deauthorizeAccountAuthorizations).not.toHaveBeenCalled();
+  });
+
+  it('treats an uncountable session total as one remaining', async () => {
+    const db = mockDb();
+    const { oauthDB, statsd, log } = mockDeps(db);
+
+    await deauthorizeOnDisconnect({ oauthDB, statsd, log }, { uid: UID });
+
+    expect(db.deauthorizeAccountAuthorizations).not.toHaveBeenCalled();
+  });
+
   it('tags a disconnect with no clientId as a session sign-out', async () => {
     const deps = mockDeps(mockDb());
 
-    await deauthorizeOnDisconnect(deps, {
-      uid: UID,
-      remainingSessions: 0,
-    });
+    await deauthorizeOnDisconnect(deps, { uid: UID });
 
     expect(deps.statsd.increment).toHaveBeenCalledWith(
       'accountAuthorization.deauthorized',
@@ -131,7 +146,6 @@ describe('deauthorizeOnDisconnect', () => {
       uid: UID,
       clientId: WEB_RP,
       destroyedRefreshTokens: 1,
-      remainingSessions: 0,
     });
 
     expect(deps.statsd.increment).toHaveBeenCalledWith(
@@ -156,50 +170,10 @@ describe('deauthorizeOnDisconnect', () => {
     );
   });
 
-  it('does not touch the db when uid is absent', async () => {
-    const db = mockDb();
-
-    await deauthorizeOnDisconnect(mockDeps(db), { uid: '' });
-
-    expect(db.listAccountConsentsByUid).not.toHaveBeenCalled();
-    expect(db.deauthorizeAccountAuthorizations).not.toHaveBeenCalled();
-  });
-
-  it('counts a row whose scope will not parse', async () => {
-    const db = mockDb({
-      listAccountConsentsByUid: jest.fn().mockResolvedValue([
-        {
-          scope: '',
-          service: 'vpn',
-          clientId: Buffer.from(DESKTOP, 'hex'),
-          lastAuthorizedTosAt: String(TOS_AT),
-        },
-      ]),
-      getRefreshTokenScopesByUid: jest.fn().mockResolvedValue([
-        {
-          clientId: Buffer.from(DESKTOP, 'hex'),
-          scope: ScopeSet.fromArray([VPN_SCOPE]),
-        },
-      ]),
-    });
-    const deps = mockDeps(db);
-
-    await deauthorizeOnDisconnect(deps, destroyed);
-
-    expect(deps.statsd.increment).toHaveBeenCalledWith(
-      'accountAuthorization.unparsable_scope',
-      { client_type: 'native' }
-    );
-  });
-
   it('tags a session sign-out that deauthorizes nothing as a session no-op', async () => {
-    const db = mockDb();
-    const deps = mockDeps(db);
+    const deps = mockDeps(mockDb(), 1);
 
-    await deauthorizeOnDisconnect(deps, {
-      uid: UID,
-      remainingSessions: 1,
-    });
+    await deauthorizeOnDisconnect(deps, { uid: UID });
 
     expect(deps.statsd.increment).toHaveBeenCalledWith(
       'accountAuthorization.deauthorize_noop',

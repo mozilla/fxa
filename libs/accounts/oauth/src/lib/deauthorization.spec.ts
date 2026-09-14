@@ -31,12 +31,6 @@ function token(clientId: string, scopes: string[]) {
   return { clientId, scope: ScopeSet.fromArray(scopes) };
 }
 
-/** A disconnect that actually removed the client's refresh token. */
-const disconnect = (clientId: string) => ({
-  clientId,
-  destroyedRefreshTokens: 1,
-});
-
 describe('authorizationRowsToDeauthorize', () => {
   describe('a client that still holds a covering refresh token', () => {
     it('keeps its row', () => {
@@ -115,7 +109,7 @@ describe('authorizationRowsToDeauthorize', () => {
           rows: [row({ clientId: FENIX })],
           remainingTokens: [],
           remainingSessions: 1,
-          disconnectedClient: disconnect(FENIX),
+          disconnectedClientId: FENIX,
         })
       ).toHaveLength(1);
     });
@@ -129,22 +123,9 @@ describe('authorizationRowsToDeauthorize', () => {
           rows: [desktopRow, row({ clientId: FENIX })],
           remainingTokens: [],
           remainingSessions: 1,
-          disconnectedClient: disconnect(FENIX),
+          disconnectedClientId: FENIX,
         })
       ).toEqual([row({ clientId: FENIX })]);
-    });
-
-    it('keeps its row when its own destroy removed no refresh token', () => {
-      // The vacuous case: finding no refresh token is not evidence for a client
-      // that never had one.
-      expect(
-        authorizationRowsToDeauthorize({
-          rows: [row()],
-          remainingTokens: [],
-          remainingSessions: 1,
-          disconnectedClient: { clientId: DESKTOP, destroyedRefreshTokens: 0 },
-        })
-      ).toEqual([]);
     });
   });
 
@@ -205,19 +186,6 @@ describe('authorizationRowsToDeauthorize', () => {
           remainingSessions: 0,
         })
       ).toEqual([unsustained]);
-    });
-
-    it('reports the offending scope so the caller can count it', () => {
-      const onUnparsableScope = jest.fn();
-
-      authorizationRowsToDeauthorize({
-        rows: [row({ scope: '', clientId: FENIX })],
-        remainingTokens: [token(FENIX, [VPN_SCOPE])],
-        remainingSessions: 0,
-        onUnparsableScope,
-      });
-
-      expect(onUnparsableScope).toHaveBeenCalledWith('');
     });
   });
 

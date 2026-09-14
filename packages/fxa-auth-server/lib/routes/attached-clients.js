@@ -19,7 +19,6 @@ const oauthDB = require('../oauth/db');
 const {
   deauthorizeOnDisconnect,
 } = require('../oauth/deauthorize-on-disconnect');
-const { resolveAuthLogger, resolveStatsD } = require('../container-deps');
 const DESCRIPTIONS = require('../../docs/swagger/shared/descriptions').default;
 
 module.exports = (log, db, devices, clientUtils) => {
@@ -249,7 +248,7 @@ module.exports = (log, db, devices, clientUtils) => {
               payload.clientId,
               credentials.uid,
               payload.refreshTokenId,
-              (await db.sessions(credentials.uid)).length
+              db
             );
           } catch (err) {
             if (err.errno !== error.ERRNO.REFRESH_TOKEN_UNKNOWN) {
@@ -267,7 +266,7 @@ module.exports = (log, db, devices, clientUtils) => {
             payload.clientId,
             credentials.uid,
             undefined,
-            (await db.sessions(credentials.uid)).length
+            db
           );
         } else if (payload.sessionTokenId) {
           // We've got a plain web session on our hands.
@@ -284,15 +283,8 @@ module.exports = (log, db, devices, clientUtils) => {
           // Read after our own delete, so Settings' parallel sign-outs resolve
           // to whichever request commits last.
           await deauthorizeOnDisconnect(
-            {
-              oauthDB,
-              log: resolveAuthLogger(),
-              statsd: resolveStatsD(),
-            },
-            {
-              uid: credentials.uid,
-              remainingSessions: (await db.sessions(credentials.uid)).length,
-            }
+            { oauthDB, db, log },
+            { uid: credentials.uid }
           );
         }
 

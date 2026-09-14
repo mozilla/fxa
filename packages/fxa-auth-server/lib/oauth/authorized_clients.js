@@ -5,7 +5,6 @@
 const { OauthError } = require('@fxa/accounts/errors');
 const oauthDB = require('./db');
 const ScopeSet = require('fxa-shared').oauth.scopes;
-const { resolveAuthLogger, resolveStatsD } = require('../container-deps');
 const { deauthorizeOnDisconnect } = require('./deauthorize-on-disconnect');
 
 // Helper function to render each returned record in the expected form.
@@ -118,11 +117,10 @@ function processRefreshTokens(refreshTokens) {
 
 module.exports = {
   /**
-   * `remainingSessions` is how many session tokens the account has left. Only
-   * callers with an fxa-db handle can count them; omitting it makes deauthorization
-   * treat a native client as still signed in, which is the safe reading.
+   * `db` is fxa-db, used to count the sessions left. Callers without one omit
+   * it, and deauthorization then treats a native client as still signed in.
    */
-  async destroy(clientId, uid, refreshTokenId, remainingSessions) {
+  async destroy(clientId, uid, refreshTokenId, db) {
     await oauthDB.ready();
     let destroyedRefreshTokens = 0;
     if (refreshTokenId) {
@@ -147,8 +145,8 @@ module.exports = {
     // Deauthorize any row whose own client has nothing left. After the deletes
     // above, so the evaluation sees the new state.
     await deauthorizeOnDisconnect(
-      { oauthDB, log: resolveAuthLogger(), statsd: resolveStatsD() },
-      { uid, clientId, destroyedRefreshTokens, remainingSessions }
+      { oauthDB, db },
+      { uid, clientId, destroyedRefreshTokens }
     );
   },
   /**

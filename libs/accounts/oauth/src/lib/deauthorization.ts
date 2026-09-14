@@ -28,18 +28,8 @@ export interface AuthorizationRowsToDeauthorizeParams {
    * caller cannot count them.
    */
   remainingSessions?: number;
-  /** The client whose refresh tokens this disconnect destroyed, if any. */
-  disconnectedClient?: {
-    /** Hex client_id. */
-    clientId: string;
-    destroyedRefreshTokens: number;
-  };
-  /**
-   * Called with the offending scope when a row's scope will not parse. The row
-   * is kept either way; this exists so the caller can count how often it
-   * happens, since the case should be unreachable.
-   */
-  onUnparsableScope?: (scope: string) => void;
+  /** Hex client_id whose refresh token this disconnect destroyed, if any. */
+  disconnectedClientId?: string;
 }
 
 /**
@@ -66,17 +56,12 @@ export interface AuthorizationRowsToDeauthorizeParams {
  * Client ids are compared lowercased, since callers source them from both hex
  * DB columns and request payloads.
  */
-export function authorizationRowsToDeauthorize(
-  params: AuthorizationRowsToDeauthorizeParams
-): AuthorizationRow[] {
-  const {
-    rows,
-    remainingTokens,
-    remainingSessions,
-    disconnectedClient,
-    onUnparsableScope,
-  } = params;
-
+export function authorizationRowsToDeauthorize({
+  rows,
+  remainingTokens,
+  remainingSessions,
+  disconnectedClientId,
+}: AuthorizationRowsToDeauthorizeParams): AuthorizationRow[] {
   const tokens = remainingTokens.map((t) => ({
     clientId: t.clientId.toLowerCase(),
     scope: t.scope,
@@ -87,12 +72,7 @@ export function authorizationRowsToDeauthorize(
   // destroyed.
   const sessionRemains =
     remainingSessions === undefined || remainingSessions > 0;
-
-  // Only a destroy that actually removed a refresh token is evidence of a
-  // disconnect.
-  const disconnected = disconnectedClient?.destroyedRefreshTokens
-    ? disconnectedClient.clientId.toLowerCase()
-    : undefined;
+  const disconnected = disconnectedClientId?.toLowerCase();
 
   return rows.filter((row) => {
     const owner = row.clientId.toLowerCase();
@@ -105,20 +85,15 @@ export function authorizationRowsToDeauthorize(
       }
     } catch {
       // ScopeSet.contains throws on an unparseable scope, and the column is NOT
-      // NULL DEFAULT ''. Keep the row rather than let one bad value abort the
-      // batch and leave nothing on this account deauthorizable.
-      onUnparsableScope?.(row.scope);
+      // NULL DEFAULT ''. Such a row gates nothing at the exchange, so keep it
+      // rather than let it abort the batch.
       return false;
     }
 
-    if (
+    return !(
       OAUTH_NATIVE_CLIENT_IDS.has(owner) &&
       sessionRemains &&
       owner !== disconnected
-    ) {
-      return false;
-    }
-
-    return true;
+    );
   });
 }

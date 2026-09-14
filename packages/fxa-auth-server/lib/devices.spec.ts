@@ -52,7 +52,6 @@ describe('lib/devices:', () => {
       push: ReturnType<typeof mocks.mockPush>,
       devices: DevicesModule,
       glean: ReturnType<typeof mocks.mockGlean>,
-      statsd: { increment: jest.Mock },
       pushbox: ReturnType<typeof mocks.mockPushbox>;
 
     beforeEach(() => {
@@ -78,8 +77,7 @@ describe('lib/devices:', () => {
       oauthDB.listAccountConsentsByUid.mockResolvedValue([]);
       oauthDB.getRefreshTokenScopesByUid.mockResolvedValue([]);
       oauthDB.deauthorizeAccountAuthorizations.mockResolvedValue(0);
-      statsd = { increment: jest.fn() };
-      devices = devicesModule(log, db, push, pushbox, glean, statsd);
+      devices = devicesModule(log, db, push, pushbox, glean);
     });
 
     it('returns the expected interface', () => {
