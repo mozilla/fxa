@@ -19269,15 +19269,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/bn.js@npm:^5":
-  version: 5.2.0
-  resolution: "@types/bn.js@npm:5.2.0"
-  dependencies:
-    "@types/node": "npm:*"
-  checksum: 10c0/7a36114b8e61faba5c28b433c3e5aabded261745dabb8f3fe41b2d84e8c4c2b8282e52a88a842bd31a565ff5dbf685145ccd91171f1a8d657fb249025c17aa85
-  languageName: node
-  linkType: hard
-
 "@types/body-parser@npm:*":
   version: 1.19.6
   resolution: "@types/body-parser@npm:1.19.6"
@@ -24383,6 +24374,13 @@ __metadata:
   version: 2.19.0
   resolution: "blueimp-md5@npm:2.19.0"
   checksum: 10c0/85d04343537dd99a288c62450341dcce7380d3454c81f8e5a971ddd80307d6f9ef51b5b92ad7d48aaaa92fd6d3a1f6b2f4fada068faae646887f7bfabc17a346
+  languageName: node
+  linkType: hard
+
+"bn.js@npm:^4.0.0, bn.js@npm:^4.1.0, bn.js@npm:^4.11.9":
+  version: 4.12.5
+  resolution: "bn.js@npm:4.12.5"
+  checksum: 10c0/e15e35d0e082fa43c5dd03b552041faf23bc870fbe5de0e41ab5d2d987875f43ffb1f8f57021494e9d71784223c59ddbba1819948b2c2648477a61ab7455aa42
   languageName: node
   linkType: hard
 
@@ -33192,7 +33190,6 @@ __metadata:
     "@type-cacheable/ioredis-adapter": "npm:^10.0.4"
     "@types/babel__core": "npm:^7"
     "@types/babel__preset-env": "npm:^7"
-    "@types/bn.js": "npm:^5"
     "@types/hapi": "npm:^18.0.15"
     "@types/jest": "npm:30.0.0"
     "@types/jsdom": "npm:^21"
@@ -33216,7 +33213,6 @@ __metadata:
     autoprefixer: "npm:^10.4.14"
     babel-jest: "npm:30.0.5"
     base64url: "npm:^3.0.1"
-    bn.js: "npm:^5.2.3"
     class-transformer: "npm:^0.5.1"
     class-validator: "npm:0.14.1"
     classnames: "npm:^2.5.1"
