@@ -789,6 +789,19 @@ describe('IndexContainer', () => {
   });
 
   describe('processEmailSubmission', () => {
+    let gleanSubmitSuccessSpy: jest.SpyInstance;
+    let gleanSubmitFailSpy: jest.SpyInstance;
+
+    // Install the spies before render; the container emits during submission.
+    beforeEach(() => {
+      gleanSubmitSuccessSpy = jest
+        .spyOn(GleanMetrics.emailFirst, 'submitSuccess')
+        .mockImplementation(() => {});
+      gleanSubmitFailSpy = jest
+        .spyOn(GleanMetrics.emailFirst, 'submitFail')
+        .mockImplementation(() => {});
+    });
+
     describe('success', () => {
       it('with a new valid email', async () => {
         mockUseAuthClient.mockReturnValue({
@@ -798,11 +811,6 @@ describe('IndexContainer', () => {
             hasPassword: false,
           }),
         });
-
-        const gleanSubmitSuccessSpy = jest.spyOn(
-          GleanMetrics.emailFirst,
-          'submitSuccess'
-        );
 
         renderWithLocalizationProvider(
           <IndexContainer
@@ -876,10 +884,6 @@ describe('IndexContainer', () => {
           },
         });
 
-        const gleanSubmitSuccessSpy = jest.spyOn(
-          GleanMetrics.emailFirst,
-          'submitSuccess'
-        );
         expect(gleanSubmitSuccessSpy).toHaveBeenCalledTimes(1);
         expect(gleanSubmitSuccessSpy).toHaveBeenCalledWith({
           event: { reason: 'login' },
@@ -917,10 +921,6 @@ describe('IndexContainer', () => {
           );
         });
 
-        const gleanSubmitFailSpy = jest.spyOn(
-          GleanMetrics.emailFirst,
-          'submitFail'
-        );
         expect(gleanSubmitFailSpy).not.toHaveBeenCalled();
       });
 
@@ -955,11 +955,6 @@ describe('IndexContainer', () => {
           );
         });
 
-        // no Glean event emitted with this error type
-        const gleanSubmitFailSpy = jest.spyOn(
-          GleanMetrics.emailFirst,
-          'submitFail'
-        );
         expect(gleanSubmitFailSpy).toHaveBeenCalledWith({
           event: { reason: 'registration' },
         });
@@ -994,11 +989,6 @@ describe('IndexContainer', () => {
           );
         });
 
-        // no Glean event emitted with this error type
-        const gleanSubmitFailSpy = jest.spyOn(
-          GleanMetrics.emailFirst,
-          'submitFail'
-        );
         expect(gleanSubmitFailSpy).toHaveBeenCalledWith({
           event: { reason: 'registration' },
         });
@@ -1040,10 +1030,6 @@ describe('IndexContainer', () => {
           );
         });
 
-        const gleanSubmitFailSpy = jest.spyOn(
-          GleanMetrics.emailFirst,
-          'submitFail'
-        );
         expect(gleanSubmitFailSpy).toHaveBeenCalledWith({
           event: { reason: 'registration' },
         });
@@ -1057,11 +1043,6 @@ describe('IndexContainer', () => {
         (firefox.fxaCanLinkAccount as jest.Mock).mockResolvedValue({
           ok: false,
         });
-
-        const gleanSubmitFailSpy = jest.spyOn(
-          GleanMetrics.emailFirst,
-          'submitFail'
-        );
 
         renderWithLocalizationProvider(
           <IndexContainer
@@ -1102,11 +1083,6 @@ describe('IndexContainer', () => {
           AuthUiErrors.INVALID_EMAIL_DOMAIN
         );
 
-        const gleanSubmitFailSpy = jest.spyOn(
-          GleanMetrics.emailFirst,
-          'submitFail'
-        );
-
         renderWithLocalizationProvider(
           <IndexContainer
             {...{
@@ -1133,11 +1109,6 @@ describe('IndexContainer', () => {
             .fn()
             .mockRejectedValue(new Error('network error')),
         });
-
-        const gleanSubmitFailSpy = jest.spyOn(
-          GleanMetrics.emailFirst,
-          'submitFail'
-        );
 
         renderWithLocalizationProvider(
           <IndexContainer
@@ -1172,11 +1143,6 @@ describe('IndexContainer', () => {
         (firefox.fxaCanLinkAccount as jest.Mock).mockResolvedValue({
           ok: false,
         });
-
-        const gleanSubmitFailSpy = jest.spyOn(
-          GleanMetrics.emailFirst,
-          'submitFail'
-        );
 
         renderWithLocalizationProvider(
           <IndexContainer
