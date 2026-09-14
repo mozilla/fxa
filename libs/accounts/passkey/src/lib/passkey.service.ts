@@ -98,7 +98,7 @@ const DISPLAY_SAFE_UNICODE_WITH_NON_BMP =
 /**
  * The wrap operations, used to namespace their StatsD counters.
  */
-type WrapOperation = 'store' | 'get';
+type WrapOperation = 'store' | 'get' | 'delete';
 
 /**
  * Whether a stored wrap already holds exactly this envelope, which makes a
@@ -719,6 +719,34 @@ export class PasskeyService {
 
     this.metrics.increment('passkey.wrap.get.success');
     return wrap;
+  }
+
+  /**
+   * Delete the wrap envelope for a credential, leaving the passkey registered.
+   *
+   * Idempotent: a credential with no wrap answers `false` rather than throwing.
+   * A missing passkey still throws, being a different account state rather
+   * than a delete that already happened.
+   *
+   * @returns true when a wrap was deleted, false when the credential had none
+   */
+  async deletePasskeyWrap(uid: string, credentialId: string): Promise<boolean> {
+    await this.requireOwnedPasskey(uid, credentialId, 'delete');
+
+    const deleted = await this.passkeyManager.deletePasskeyWrap(
+      uid,
+      credentialId
+    );
+
+    if (!deleted) {
+      this.metrics.increment('passkey.wrap.delete.unchanged');
+      return false;
+    }
+
+    this.metrics.increment('passkey.wrap.delete.success');
+    this.log?.log('passkey.wrap.deleted', { uid });
+
+    return true;
   }
 
   /** Increments the wrap failure counter and returns the error to throw. */

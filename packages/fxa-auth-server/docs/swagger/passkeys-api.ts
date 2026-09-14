@@ -268,6 +268,45 @@ const PASSKEYS_API_DOCS = {
       `,
     ],
   },
+
+  PASSKEY_WRAPS_DELETE: {
+    ...TAGS_PASSKEYS,
+    description: '/passkey/wraps/{credentialId}',
+    notes: [
+      dedent`
+        🔒 Authenticated with MFA JWT (scope: mfa:passkey)
+
+        Deletes the wrap envelope for one passkey. The passkey itself stays
+        registered and usable. \`POST /passkey/wraps\` has no update path, so
+        deleting is how a client replaces an envelope it can no longer unseal:
+        delete, then post a fresh one built from a new assertion.
+
+        The token need not be bound to \`credentialId\`, unlike the read and the
+        write — a delete is a management action, so settings can turn off
+        passwordless sign-in for one passkey from any \`mfa:passkey\` token. Only
+        the authenticated account's own wraps are reachable.
+
+        Idempotent: a credential that has no wrap answers \`{ deleted: false }\`
+        rather than \`404\`. An unknown credential still \`404\`s — that is a
+        different account state, not a delete that already happened.
+
+        **Path parameters:**
+        - \`credentialId\` (string, required) — base64url credential ID
+
+        **Response:** \`{ deleted: boolean }\` — false when the credential had
+        no wrap to remove.
+
+        **Errors:**
+        - \`401\` errno 223 — the token is invalid
+        - \`404\` errno 224 — no such passkey for this account
+
+        **Security events:** \`account.passkey.wrap_deleted\` when a wrap was
+        removed, \`account.passkey.wrap_deletion_failure\` when the delete
+        threw. A credential that had no wrap is neither, having asked for a
+        state it is already in.
+      `,
+    ],
+  },
 };
 
 export default PASSKEYS_API_DOCS;

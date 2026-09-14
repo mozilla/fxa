@@ -29,6 +29,7 @@ import {
 } from './passkey.repository';
 import {
   deleteAllPasskeyWrapsForUser as repositoryDeleteAllPasskeyWrapsForUser,
+  deletePasskeyWrap as repositoryDeletePasskeyWrap,
   findPasskeyWrap as repositoryFindPasskeyWrap,
   insertPasskeyWrap,
   NewPasskeyWrapData,
@@ -303,6 +304,18 @@ export class PasskeyManager {
     createdAt: number
   ): Promise<void> {
     await insertPasskeyWrap(this.db, uid, data, createdAt);
+  }
+
+  /**
+   * Delete the wrap for one credential, leaving the passkey registered.
+   *
+   * Both uid and credentialId must match to prevent one user from deleting
+   * another user's wrap.
+   *
+   * @returns true if a wrap was found and deleted, false otherwise
+   */
+  async deletePasskeyWrap(uid: string, credentialId: string): Promise<boolean> {
+    return repositoryDeletePasskeyWrap(this.db, uid, credentialId);
   }
 
   /**

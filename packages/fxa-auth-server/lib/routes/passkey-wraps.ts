@@ -50,6 +50,10 @@ type WrapPayload = Record<keyof NewPasskeyWrapData, string>;
 
 /**
  * Whether the token's credential names the credential being acted on.
+ *
+ * Callers check this after `customs.checkAuthenticated`: one token can be
+ * replayed until it expires, so a binding refused ahead of the rate limit is an
+ * unmetered audit write.
  */
 function isBoundTo(cid: string | undefined, credentialId: string): boolean {
   return (
@@ -81,8 +85,8 @@ export class PasskeyWrapsHandler {
   /**
    * Handles `POST /passkey/wraps`.
    *
-   * Creates the wrap for a credential that has none. There is no update path,
-   * so a stale wrap is resolved by deleting the passkey and re-enrolling.
+   * Creates the wrap for a credential that has none. A stale wrap is resolved
+   * by deleting the wrap, leaving the passkey registered.
    *
    * Requires an `mfa:passkey` token bound to the credential being written.
    *
@@ -97,11 +101,6 @@ export class PasskeyWrapsHandler {
     const payload = request.payload as WrapPayload;
     const { credentialId } = payload;
 
-    if (!isBoundTo(cid, credentialId)) {
-      await this.recordEvent(request, 'account.passkey.wrap_creation_failure');
-      throw AppError.invalidMfaToken();
-    }
-
     const account = await this.db.account(uid);
     await this.customs.checkAuthenticated(
       request,
@@ -109,6 +108,11 @@ export class PasskeyWrapsHandler {
       account.primaryEmail.email,
       'passkeyWrapsCreate'
     );
+
+    if (!isBoundTo(cid, credentialId)) {
+      await this.recordEvent(request, 'account.passkey.wrap_creation_failure');
+      throw AppError.invalidMfaToken();
+    }
 
     let result: 'created' | 'unchanged';
     try {
@@ -167,11 +171,6 @@ export class PasskeyWrapsHandler {
     };
     const { credentialId } = request.params as { credentialId: string };
 
-    if (!isBoundTo(cid, credentialId)) {
-      await this.recordEvent(request, 'account.passkey.wrap_retrieval_failure');
-      throw AppError.invalidMfaToken();
-    }
-
     const account = await this.db.account(uid);
     await this.customs.checkAuthenticated(
       request,
@@ -179,6 +178,11 @@ export class PasskeyWrapsHandler {
       account.primaryEmail.email,
       'passkeyWrapsGet'
     );
+
+    if (!isBoundTo(cid, credentialId)) {
+      await this.recordEvent(request, 'account.passkey.wrap_retrieval_failure');
+      throw AppError.invalidMfaToken();
+    }
 
     // Throws 404 for both an unknown credential (errno 224) and a credential
     // with no wrap (errno 234); the distinction is PasskeyService's contract.
@@ -201,6 +205,49 @@ export class PasskeyWrapsHandler {
       ...encodePasskeyWrapEnvelope(wrap),
       createdAt: wrap.createdAt,
     };
+  }
+
+  /**
+   * Handles `DELETE /passkey/wraps/{credentialId}`.
+   *
+   * Deliberately not bound to the asserted credential, unlike the read and the
+   * write. Those complete a ceremony with the credential in hand, while a
+   * delete is a management action settings must be able to take from any
+   * `mfa:passkey` token. `PasskeyService` scopes it to the account.
+   */
+  async deletePasskeyWrap(request: AuthRequest) {
+    const { uid } = request.auth.credentials as { uid: string };
+    const { credentialId } = request.params as { credentialId: string };
+
+    const account = await this.db.account(uid);
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      account.primaryEmail.email,
+      'passkeyWrapsDelete'
+    );
+
+    let deleted: boolean;
+    try {
+      // Throws 404 errno 224 for a credential this account does not own; a
+      // credential that simply has no wrap is reported, not thrown.
+      deleted = await this.service.deletePasskeyWrap(uid, credentialId);
+    } catch (err) {
+      await this.recordEvent(request, 'account.passkey.wrap_deletion_failure');
+      throw err;
+    }
+
+    // Not a failure: the wrap is already absent, which is what was asked for.
+    if (!deleted) {
+      return { deleted: false };
+    }
+
+    // Guarded like the create path: the row is already gone, so a failed audit
+    // write must not turn a completed delete into a 500 the client retries.
+    // The retry answers `deleted: false` and the event is never emitted at all.
+    await this.recordEvent(request, 'account.passkey.wrap_deleted');
+
+    return { deleted: true };
   }
 
   /**
@@ -302,6 +349,33 @@ export const passkeyWrapsRoutes = (
       handler: function (request: AuthRequest) {
         log.begin('passkey.wraps.get', request);
         return handler.getPasskeyWrap(request);
+      },
+    },
+    {
+      method: 'DELETE',
+      path: '/passkey/wraps/{credentialId}',
+      options: {
+        ...PASSKEYS_API_DOCS.PASSKEY_WRAPS_DELETE,
+        pre: [{ method: passwordlessSyncEnabledCheck }],
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:passkey'],
+          payload: false,
+        },
+        validate: {
+          params: isA.object({
+            credentialId: base64urlCredentialId().required(),
+          }),
+        },
+        response: {
+          schema: isA.object({
+            deleted: isA.boolean().required(),
+          }),
+        },
+      },
+      handler: function (request: AuthRequest) {
+        log.begin('passkey.wraps.delete', request);
+        return handler.deletePasskeyWrap(request);
       },
     },
   ];
