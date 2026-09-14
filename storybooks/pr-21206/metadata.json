@@ -1,0 +1,10 @@
+{
+  "commit": "e1cd1721cdb75d311ffa2c2c9c90eb6d85ed97aa",
+  "summary": "chore(settings): remove leftover PageMfaGuardTest debug route",
+  "description": "## Because\n\n- The route `/settings/mfa_guard/test/auth_client` was registered statically and without a gate, so the debug page shipped in the production bundle.\n- The page rendered the signed-in user's own MFA JWT and session token cache key into the DOM.\n- The component was MfaGuard proof-of-concept scaffolding. Its own comment said it was temporary.\n\n## This pull request\n\n- Deletes `PageMfaGuardTest/index.tsx`.\n- Removes the import and the `<Route>` for that page from `Settings/index.tsx`.\n- Removes the debug entry from the `guardedRoutes` list in `Settings/index.test.tsx`.\n- Points the README MfaGuard examples at real pages, `PagePasskeyAdd` and `Page2faChange`.\n\n## Issue that this pull request solves\n\nCloses: FXA-14216",
+  "timestamp": 1789416449000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
