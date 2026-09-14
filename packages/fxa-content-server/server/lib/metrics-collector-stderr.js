@@ -10,7 +10,6 @@ const os = require('os');
 
 const HOSTNAME = os.hostname();
 const METRICS_OP = 'client.metrics';
-const MARKETING_OP = 'client.marketing';
 const VERSION = 1;
 
 function addTime(loggableEvent) {
@@ -106,39 +105,13 @@ function writeEntry(entry) {
   process.stderr.write(JSON.stringify(entry) + '\n');
 }
 
-function processMarketingImpressions(event) {
-  if (!(event && event.marketing && event.marketing.forEach)) {
-    return;
-  }
-
-  // each marketing impression is printed individually
-  event.marketing.forEach(function (impression) {
-    addTime(impression);
-    addOp(impression, MARKETING_OP);
-    addHostname(impression);
-    addPid(impression);
-    addVersion(impression);
-
-    copyFields(
-      ['lang', 'agent', 'context', 'entrypoint', 'service'],
-      impression,
-      event
-    );
-
-    writeEntry(impression);
-  });
-}
-
 function StdErrCollector() {
   // nothing to do here.
 }
 
 StdErrCollector.prototype = {
   write: function (event) {
-    const loggableEvent = toLoggableEvent(event);
-    writeEntry(loggableEvent);
-
-    processMarketingImpressions(event);
+    writeEntry(toLoggableEvent(event));
   },
 };
 
