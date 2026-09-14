@@ -1,0 +1,10 @@
+{
+  "commit": "5779a5c45430bd268ec4629f3e2d4537e85e88cf",
+  "summary": "fix(settings): make email-first submission tests pass in isolation",
+  "description": "## Because\n\n- Four tests under `processEmailSubmission` created their Glean spies after the code under test had already run, so the assertions checked a spy that was never in place during submission.\n- They still passed in a full-file run. An earlier test had swapped the real method for a mock, and `afterEach(jest.resetAllMocks)` only clears call history, so the late `jest.spyOn` picked up that leftover mock.\n- Run on their own, those four failed: \"with an existing email\", \"when called with an email mask\", \"when called with a firefox.com email\", and \"when called with an invalid email domain\".\n\n## This pull request\n\n- Creates the `submitSuccess` and `submitFail` spies in a `beforeEach` inside the `processEmailSubmission` describe, ahead of any render.\n- Reuses those two spies across the tests in that block instead of re-spying mid-test.\n- Drops two `// no Glean event emitted with this error type` comments that said the opposite of the assertion under them.\n- No assertion was removed or loosened, no test skipped, and no production code touched.\n\n## Issue that this pull request solves\n\nFXA-11672",
+  "timestamp": 1789416440000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

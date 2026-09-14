@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 5779a5c45430bd268ec4629f3e2d4537e85e88cf</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 5779a5c45430bd268ec4629f3e2d4537e85e88cf</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/14/2026, 8:07:20 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): make email-first submission tests pass in isolation</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- Four tests under `processEmailSubmission` created their Glean spies after the code under test had already run, so the assertions checked a spy that was never in place during submission.
+- They still passed in a full-file run. An earlier test had swapped the real method for a mock, and `afterEach(jest.resetAllMocks)` only clears call history, so the late `jest.spyOn` picked up that leftover mock.
+- Run on their own, those four failed: &quot;with an existing email&quot;, &quot;when called with an email mask&quot;, &quot;when called with a firefox.com email&quot;, and &quot;when called with an invalid email domain&quot;.
+
+## This pull request
+
+- Creates the `submitSuccess` and `submitFail` spies in a `beforeEach` inside the `processEmailSubmission` describe, ahead of any render.
+- Reuses those two spies across the tests in that block instead of re-spying mid-test.
+- Drops two `// no Glean event emitted with this error type` comments that said the opposite of the assertion under them.
+- No assertion was removed or loosened, no test skipped, and no production code touched.
+
+## Issue that this pull request solves
+
+FXA-11672</pre></dd>
+  </dl>
+</body>
+</html>
