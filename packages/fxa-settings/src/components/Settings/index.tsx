@@ -36,8 +36,6 @@ import { PageMfaGuardRecoveryPhoneRemove } from './PageRecoveryPhoneRemove';
 import { MfaGuardPagePasskeyAdd } from './PagePasskeyAdd';
 import { SettingsIntegration } from './interfaces';
 
-import PageMfaGuardTestWithAuthClient from './PageMfaGuardTest';
-
 // Reporting happens in an effect rather than during render so that a repeated
 // render of the error branch cannot report the same failure twice.
 const SettingsError = ({ error }: { error: Error }) => {
@@ -303,11 +301,6 @@ export const Settings = ({
           config.featureFlags?.passkeyRegistrationEnabled && (
             <Route path="passkeys/add" element={<MfaGuardPagePasskeyAdd />} />
           )}
-
-        <Route
-          path="mfa_guard/test/auth_client"
-          element={<PageMfaGuardTestWithAuthClient />}
-        />
       </Routes>
     </SettingsLayout>
   );
