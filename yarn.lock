@@ -10,7 +10,6 @@ __metadata:
   resolution: "123done@workspace:packages/123done"
   dependencies:
     "@types/cookie-session": "npm:^2"
-    audit-filter: "npm:0.5.0"
     convict: "npm:^6.2.5"
     convict-format-with-validator: "npm:^6.2.0"
     cookie-session: "npm:^2.1.0"
@@ -23451,17 +23450,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"audit-filter@npm:0.5.0, audit-filter@npm:^0.5.0":
-  version: 0.5.0
-  resolution: "audit-filter@npm:0.5.0"
-  dependencies:
-    docopt: "npm:^0.6.2"
-  bin:
-    audit-filter: cli.js
-  checksum: 10c0/3b7502d0abd374dc5be4fbafda2077077cfaae9ade44ce8f0fbe003e3452018504a0101c9d5c2ebc6b822aff89117c0535ecc04f9257265ab5122e9e02908949
-  languageName: node
-  linkType: hard
-
 "auto-bind@npm:4.0.0, auto-bind@npm:~4.0.0":
   version: 4.0.0
   resolution: "auto-bind@npm:4.0.0"
@@ -28467,13 +28455,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"docopt@npm:^0.6.2":
-  version: 0.6.2
-  resolution: "docopt@npm:0.6.2"
-  checksum: 10c0/933d3694c576fbe537452f13ddc3cc9fc93631cc481269affaebc7328a66f22adfef3b156ac1ad0433320b38c0b5f512575f624ad890a624833a3b1a7999a7ba
-  languageName: node
-  linkType: hard
-
 "doctrine@npm:^2.1.0":
   version: 2.1.0
   resolution: "doctrine@npm:2.1.0"
@@ -32410,7 +32391,6 @@ __metadata:
     "@types/node": "npm:^22.13.5"
     "@types/supertest": "npm:^2.0.11"
     "@types/yargs": "npm:^17.0.0"
-    audit-filter: "npm:^0.5.0"
     chance: "npm:^1.1.8"
     convict: "npm:^6.2.5"
     convict-format-with-moment: "npm:^6.2.0"
@@ -32487,7 +32467,6 @@ __metadata:
     "@types/webpack": "npm:5.28.5"
     ajv: "npm:^8.20.0"
     async-retry: "npm:^1.3.3"
-    audit-filter: "npm:^0.5.0"
     babel-loader: "npm:^9.1.3"
     binary-split: "npm:1.0.5"
     commander: "npm:2.18.0"
@@ -32585,7 +32564,6 @@ __metadata:
     "@types/postcss-import": "npm:^14"
     "@types/sinon-chai": "npm:3.2.5"
     "@types/sinon-express-mock": "npm:1.3.9"
-    audit-filter: "npm:^0.5.0"
     babel-loader: "npm:^9.1.3"
     babel-plugin-dynamic-import-webpack: "npm:1.1.0"
     backbone: "npm:^1.6.0"
@@ -32712,7 +32690,6 @@ __metadata:
     "@hapi/hawk": "npm:^7.1.2"
     "@hapi/hoek": "npm:^11.0.2"
     "@types/dedent": "npm:^0"
-    audit-filter: "npm:^0.5.0"
     bluebird: "npm:^3.7.2"
     bunyan: "npm:^1.8.15"
     chai: "npm:^5.3.3"
@@ -32773,7 +32750,6 @@ __metadata:
     "@types/supertest": "npm:^2.0.11"
     "@typescript-eslint/eslint-plugin": "npm:^5.59.0"
     "@typescript-eslint/parser": "npm:^7.1.1"
-    audit-filter: "npm:^0.5.0"
     chance: "npm:^1.1.8"
     convict: "npm:^6.2.5"
     convict-format-with-moment: "npm:^6.2.0"
@@ -32807,7 +32783,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "fxa-geodb@workspace:packages/fxa-geodb"
   dependencies:
-    audit-filter: "npm:^0.5.0"
     bluebird: "npm:^3.7.2"
     chai: "npm:^5.3.3"
     cron: "npm:4.1.3"
@@ -32853,7 +32828,6 @@ __metadata:
     "@hapi/inert": "npm:7.1.1"
     "@types/sharp": "npm:^0"
     "@types/sinon": "npm:^17.0.0"
-    audit-filter: "npm:^0.5.0"
     bluebird: "npm:^3.7.2"
     checksum: "npm:1.0.0"
     commander: "npm:9.3.0"
@@ -33056,7 +33030,6 @@ __metadata:
     "@types/sinon": "npm:10.0.1"
     accept-language-parser: "npm:^1.5.0"
     ajv: "npm:^8.20.0"
-    audit-filter: "npm:^0.5.0"
     celebrate: "npm:^15.0.1"
     chai: "npm:^5.3.3"
     chance: "npm:^1.1.8"
