@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit d72d2f37f396ed189264e134c88c1ef0d495ed07</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit d72d2f37f396ed189264e134c88c1ef0d495ed07</h1>
+  <ul>
+    <li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/14/2026, 2:33:28 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(settings): serve the default favicon from the CDN</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- The favicon loads slowly, because the app server serves it instead of the CDN.
+- `packages/fxa-settings/public/index.html` declares no `&lt;link rel=&quot;icon&quot;&gt;`. The browser then makes an implicit `/favicon.ico` request to the app server.
+
+## This pull request
+
+- Adds `assets/other/favicons/mozilla-accounts.png`, a copy of the fxa-settings `favicon.png` (196x196). The &quot;CDN Asset Upload&quot; workflow publishes it on a merge to main.
+- Adds a default icon link to `index.html`. The link points at `https://cdn.accounts.firefox.com/other/favicons/mozilla-accounts.png` and applies before the JS loads.
+- Updates `Head` to render its icon link only when the `favicon` prop has a value. A CMS favicon renders a later icon link through Helmet, and the browser uses the last icon link. The CMS favicon still wins.
+- Adds `packages/fxa-react/components/Head/index.test.tsx` for both `Head` cases.
+
+## Issue that this pull request solves
+
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-9245</pre></dd>
+  </dl>
+</body>
+</html>

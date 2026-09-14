@@ -1,0 +1,11 @@
+{
+  "commit": "d72d2f37f396ed189264e134c88c1ef0d495ed07",
+  "summary": "feat(settings): serve the default favicon from the CDN",
+  "description": "## Because\n\n- The favicon loads slowly, because the app server serves it instead of the CDN.\n- `packages/fxa-settings/public/index.html` declares no `<link rel=\"icon\">`. The browser then makes an implicit `/favicon.ico` request to the app server.\n\n## This pull request\n\n- Adds `assets/other/favicons/mozilla-accounts.png`, a copy of the fxa-settings `favicon.png` (196x196). The \"CDN Asset Upload\" workflow publishes it on a merge to main.\n- Adds a default icon link to `index.html`. The link points at `https://cdn.accounts.firefox.com/other/favicons/mozilla-accounts.png` and applies before the JS loads.\n- Updates `Head` to render its icon link only when the `favicon` prop has a value. A CMS favicon renders a later icon link through Helmet, and the browser uses the last icon link. The CMS favicon still wins.\n- Adds `packages/fxa-react/components/Head/index.test.tsx` for both `Head` cases.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-9245",
+  "timestamp": 1789396408000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
