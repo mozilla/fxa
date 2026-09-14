@@ -1,0 +1,10 @@
+{
+  "commit": "73eee6f5225202d58cf88b6e929170232742dd1f",
+  "summary": "refactor(settings): remove unused getStoredAccountData from cache",
+  "description": "## Because\n\n- `getStoredAccountData` in `packages/fxa-settings/src/lib/cache.ts` has no callers in the repo.\n- The type safety gap in its TODO comment is already covered. `isValidUid` in the same file gates the account cache accessors.\n\n## This pull request\n\n- Removes the `getStoredAccountData` function and its TODO comment from `cache.ts`.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-8454",
+  "timestamp": 1789415280000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
