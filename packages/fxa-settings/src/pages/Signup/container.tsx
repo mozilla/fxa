@@ -146,9 +146,7 @@ const SignupContainer = ({
         // Sending up the clientId when the user is not signing in to the browser
         // is used to show the correct service name in emails
         ...(isFirefoxService(service) ? { service } : { service: clientId }),
-        metricsContext: queryParamsToMetricsContext(
-          flowQueryParams as unknown as Record<string, string>
-        ),
+        metricsContext: queryParamsToMetricsContext(flowQueryParams),
       };
 
       try {

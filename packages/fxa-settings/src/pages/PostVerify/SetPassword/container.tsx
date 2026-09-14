@@ -71,9 +71,7 @@ const SetPasswordContainer = ({
     passwordCreationReason === 'passkey'
       ? `${passkeySurface ?? 'emailfirst'}_passkey`
       : passwordCreationReason;
-  const metricsContext = queryParamsToMetricsContext(
-    flowQueryParams as unknown as Record<string, string>
-  );
+  const metricsContext = queryParamsToMetricsContext(flowQueryParams);
 
   // Trust the stored password state; fall back to a one-time accountStatus
   // check only when it's unknown (e.g. third-party sign-in, stale/direct hit).

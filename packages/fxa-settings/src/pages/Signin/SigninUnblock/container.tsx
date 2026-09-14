@@ -91,9 +91,7 @@ export const SigninUnblockContainer = ({
         // is used to show the correct service name in emails
         ...(isFirefoxService(service) ? { service } : { service: clientId }),
         unblockCode,
-        metricsContext: queryParamsToMetricsContext(
-          flowQueryParams as unknown as Record<string, string>
-        ),
+        metricsContext: queryParamsToMetricsContext(flowQueryParams),
       }),
       // We own the verification email in this flow: `handleNavigation` sends it
       // as it routes to the code screen, so the server must not send its own
@@ -217,9 +215,7 @@ export const SigninUnblockContainer = ({
   const resendUnblockCodeHandler: ResendUnblockCodeHandler = async () => {
     try {
       await authClient.sendUnblockCode(email, {
-        metricsContext: queryParamsToMetricsContext(
-          flowQueryParams as unknown as Record<string, string>
-        ),
+        metricsContext: queryParamsToMetricsContext(flowQueryParams),
       });
       return { success: true };
     } catch (error) {

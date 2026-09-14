@@ -5,11 +5,8 @@
 import { ReactNode } from 'react';
 import { MozServices, TotpInfo } from '../../lib/types';
 import { Integration } from '../../models';
-import { queryParamsToMetricsContext } from '../../lib/metrics';
 import { SigninLocationState } from '../Signin/interfaces';
 import { SigninRecoveryLocationState } from '../InlineRecoverySetupFlow/interfaces';
-
-export type MetricsContext = ReturnType<typeof queryParamsToMetricsContext>;
 
 export type NavTo = (
   uri:

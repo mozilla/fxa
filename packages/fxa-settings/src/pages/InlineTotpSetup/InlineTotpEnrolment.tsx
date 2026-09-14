@@ -12,7 +12,8 @@ import { JwtTokenCache } from '../../lib/cache';
 import { useMfaErrorHandler } from '../../lib/hooks';
 import GleanMetrics from '../../lib/glean';
 import * as Sentry from '@sentry/browser';
-import { MetricsContext, NavTo } from './interfaces';
+import { MetricsContext } from '@fxa/shared/metrics/glean';
+import { NavTo } from './interfaces';
 
 // Includes the later recovery-method and backup-code steps.
 const numberOfSteps = 4;

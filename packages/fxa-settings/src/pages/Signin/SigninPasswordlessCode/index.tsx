@@ -200,9 +200,7 @@ const SigninPasswordlessCode = ({
         clientId: integration.getClientId(),
         service: integration.getService(),
         metricsContext: {
-          ...queryParamsToMetricsContext(
-            flowQueryParams as unknown as Record<string, string>
-          ),
+          ...queryParamsToMetricsContext(flowQueryParams),
           clientId: integration.getClientId(),
         },
       });
@@ -253,9 +251,7 @@ const SigninPasswordlessCode = ({
         clientId: integration.getClientId(),
         service: integration.getService(),
         metricsContext: {
-          ...queryParamsToMetricsContext(
-            flowQueryParams as unknown as Record<string, string>
-          ),
+          ...queryParamsToMetricsContext(flowQueryParams),
           clientId: integration.getClientId(),
         },
       });
