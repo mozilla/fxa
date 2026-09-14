@@ -1,8 +1,8 @@
 {
-  "commit": "ee5d40437c5b95f3ba3d017d25b78d359b2f061f",
-  "summary": "Merge pull request #21198 from mozilla/fxa-2598",
-  "description": "chore(content-server): stop logging marketing impressions to stderr",
-  "timestamp": 1789419598000,
+  "commit": "5841670c31aad4b8c0edf68cecb2efab52c334bc",
+  "summary": "Merge pull request #21210 from mozilla/fxa-2719",
+  "description": "chore(content-server): remove the stderr client.metrics collector",
+  "timestamp": 1789424188000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
