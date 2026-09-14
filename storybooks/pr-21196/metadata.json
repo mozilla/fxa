@@ -1,8 +1,8 @@
 {
-  "commit": "d72d2f37f396ed189264e134c88c1ef0d495ed07",
+  "commit": "ef745487060b990d2ae2b64c5b885f9e3bd2cfbd",
   "summary": "feat(settings): serve the default favicon from the CDN",
-  "description": "## Because\n\n- The favicon loads slowly, because the app server serves it instead of the CDN.\n- `packages/fxa-settings/public/index.html` declares no `<link rel=\"icon\">`. The browser then makes an implicit `/favicon.ico` request to the app server.\n\n## This pull request\n\n- Adds `assets/other/favicons/mozilla-accounts.png`, a copy of the fxa-settings `favicon.png` (196x196). The \"CDN Asset Upload\" workflow publishes it on a merge to main.\n- Adds a default icon link to `index.html`. The link points at `https://cdn.accounts.firefox.com/other/favicons/mozilla-accounts.png` and applies before the JS loads.\n- Updates `Head` to render its icon link only when the `favicon` prop has a value. A CMS favicon renders a later icon link through Helmet, and the browser uses the last icon link. The CMS favicon still wins.\n- Adds `packages/fxa-react/components/Head/index.test.tsx` for both `Head` cases.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-9245",
-  "timestamp": 1789396408000,
+  "description": "## Because\n\n- The settings page declared no icon link. The browser then asked the app server for `/favicon.ico` instead of loading the icon from the CDN.\n- `Head` always rendered an icon link. When `favicon` was undefined, that link had an empty `href` and replaced the static default.\n\n## This pull request\n\n- Adds a default icon link to `index.html`. The build script sets `%PUBLIC_URL%` to the prod CDN, the stage CDN, or a relative path.\n- Renders the Helmet icon link in `Head` only when the `favicon` prop has a value.\n- Adds unit tests for the two `Head` cases.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-9245",
+  "timestamp": 1789407987000,
   "storybooks": [
     "fxa-react",
     "fxa-settings"

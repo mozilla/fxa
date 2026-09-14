@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit d72d2f37f396ed189264e134c88c1ef0d495ed07</title>
+  <title>Storybooks for commit ef745487060b990d2ae2b64c5b885f9e3bd2cfbd</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,28 +23,27 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit d72d2f37f396ed189264e134c88c1ef0d495ed07</h1>
+  <h1>Storybooks for commit ef745487060b990d2ae2b64c5b885f9e3bd2cfbd</h1>
   <ul>
     <li><a href="./fxa-react/">fxa-react</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/14/2026, 2:33:28 PM UTC</dd>
+    <dd>9/14/2026, 5:46:27 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(settings): serve the default favicon from the CDN</pre></dd>
     <dt>Description</dt>
     <dd><pre>## Because
 
-- The favicon loads slowly, because the app server serves it instead of the CDN.
-- `packages/fxa-settings/public/index.html` declares no `&lt;link rel=&quot;icon&quot;&gt;`. The browser then makes an implicit `/favicon.ico` request to the app server.
+- The settings page declared no icon link. The browser then asked the app server for `/favicon.ico` instead of loading the icon from the CDN.
+- `Head` always rendered an icon link. When `favicon` was undefined, that link had an empty `href` and replaced the static default.
 
 ## This pull request
 
-- Adds `assets/other/favicons/mozilla-accounts.png`, a copy of the fxa-settings `favicon.png` (196x196). The &quot;CDN Asset Upload&quot; workflow publishes it on a merge to main.
-- Adds a default icon link to `index.html`. The link points at `https://cdn.accounts.firefox.com/other/favicons/mozilla-accounts.png` and applies before the JS loads.
-- Updates `Head` to render its icon link only when the `favicon` prop has a value. A CMS favicon renders a later icon link through Helmet, and the browser uses the last icon link. The CMS favicon still wins.
-- Adds `packages/fxa-react/components/Head/index.test.tsx` for both `Head` cases.
+- Adds a default icon link to `index.html`. The build script sets `%PUBLIC_URL%` to the prod CDN, the stage CDN, or a relative path.
+- Renders the Helmet icon link in `Head` only when the `favicon` prop has a value.
+- Adds unit tests for the two `Head` cases.
 
 ## Issue that this pull request solves
 
