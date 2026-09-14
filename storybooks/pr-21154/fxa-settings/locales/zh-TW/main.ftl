@@ -100,13 +100,6 @@ choose-newsletters-option-reclaim-the-internet =
     .label = 採取行動奪回網路環境
 
 
-pair-continue-in-firefox-heading = 到 { -brand-firefox } 繼續
-pair-continue-in-firefox-description = 需於 { -brand-firefox } 進行配對，請開啟 { -brand-firefox } 完成連結此裝置。
-pair-continue-in-firefox-button = 到 { -brand-firefox } 繼續
-pair-continue-in-firefox-opening = 正在開啟 { -brand-firefox }
-pair-continue-in-firefox-get-firefox-link = 沒有 { -brand-firefox } 嗎？立即安裝
-
-
 dark-mode-toggle-light = 亮色
 dark-mode-toggle-dark = 暗色
 dark-mode-toggle-system = 系統
@@ -1307,6 +1300,7 @@ pair2-supplicant-connect-this-device-cancel-button = 取消
 pair2-supplicant-download-firefox-heading = 在此裝置安裝 { -brand-firefox }
 pair2-supplicant-download-firefox-description = 下載 { -brand-firefox } 即可在不同裝置間同步書籤、瀏覽紀錄與更多資料。 <linkExternal>了解更多資訊</linkExternal>
 pair2-supplicant-download-firefox-continue-button = 到 { -brand-firefox } 繼續
+pair2-supplicant-download-firefox-opening-button = 正在開啟 { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = 連結裝置

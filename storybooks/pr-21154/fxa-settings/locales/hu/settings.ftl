@@ -75,20 +75,6 @@ choose-newsletters-option-test-pilot =
 choose-newsletters-option-reclaim-the-internet =
     .label = Felhívások az internet visszaszerzésére
 
-## ContinueInFirefox component - Part of the desktop-to-mobile pairing flow
-## Shown when the pairing QR code is opened in a browser other than Firefox.
-## It hands the pairing link to the Firefox app, and offers the app store when
-## Firefox is not installed on the device.
-
-pair-continue-in-firefox-heading = Folytatás a { -brand-firefox }ban
-pair-continue-in-firefox-description = A párosítás a { -brand-firefox }ban történik. Nyissa meg az eszköz csatlakoztatásának befejezéséhez.
-# Opens the Firefox app on this device
-pair-continue-in-firefox-button = Folytatás a { -brand-firefox }ban
-# Shown while waiting for the Firefox app to take over
-pair-continue-in-firefox-opening = Megnyitás a { -brand-firefox }ban
-# Sends the user to the App Store or Play Store to install Firefox
-pair-continue-in-firefox-get-firefox-link = Nincs { -brand-firefox }a? Szerezze be most.
-
 ## Dark mode toggle
 
 dark-mode-toggle-light = Világos
@@ -445,9 +431,9 @@ promo-qr-mobile-heading-treatment-d = Ugyanaz a { -brand-firefox }. Csak más k�
 # Value proposition variant. "stop here" means privacy protection should continue onto the phone.
 promo-qr-mobile-heading-treatment-e = Az adatvédelme nem állhat itt meg
 # Value proposition variant. Refers to keeping browsing activity private.
-promo-qr-mobile-heading-treatment-f = Tartson többet a böngészésből saját magának
+promo-qr-mobile-heading-treatment-f = Tartsa meg magának a böngészése még nagyobb részét
 # Value proposition variant. "noise" refers to distractions and clutter.
-promo-qr-mobile-heading-treatment-g = A telefonja kicsit kevesebb zajt használhatna
+promo-qr-mobile-heading-treatment-g = A telefonjának is jót tenne a kevesebb zavaró tényező
 # Value proposition variant. Refers to a calmer browsing experience on the phone.
 promo-qr-mobile-heading-treatment-h = Vigye magával a nyugodtabb böngészés élményét
 # Appears below a QR code that a user can scan to download the Firefox mobile app
@@ -1963,14 +1949,18 @@ pair2-supplicant-connect-this-device-cancel-button = Mégse
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing reaches a device that
 ## does not have Firefox installed yet. It explains what syncing gets them and
-## sends them off to install the browser.
+## either opens the Firefox app to finish pairing or sends them off to install
+## the browser.
 
 pair2-supplicant-download-firefox-heading = A { -brand-firefox } beszerzése erre az eszközre
 # "sync" is a verb here, referring to syncing data between the user's devices.
 # <linkExternal> is an anchor tag linking to a page explaining what sync does.
 pair2-supplicant-download-firefox-description = Töltse le a { -brand-firefox }ot, és szinkronizálja a könyvjelzőket, előzményeket és egyebeket az eszközök között. <linkExternal>Tudjon meg többet</linkExternal>
-# Primary action. Sends the user to the Firefox download page.
+# Primary action. Opens the Firefox app to finish pairing, or sends the user to
+# the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Folytatás a { -brand-firefox }ban
+# Replaces the button label while waiting for the Firefox app to take over
+pair2-supplicant-download-firefox-opening-button = A { -brand-firefox } megnyitása…
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them

@@ -75,20 +75,6 @@ choose-newsletters-option-test-pilot =
 choose-newsletters-option-reclaim-the-internet =
     .label = Alerte de acțiune pentru revendicarea internetului
 
-## ContinueInFirefox component - Part of the desktop-to-mobile pairing flow
-## Shown when the pairing QR code is opened in a browser other than Firefox.
-## It hands the pairing link to the Firefox app, and offers the app store when
-## Firefox is not installed on the device.
-
-pair-continue-in-firefox-heading = Continuă în { -brand-firefox }
-pair-continue-in-firefox-description = Asocierea are loc în { -brand-firefox }. Deschide-l pentru a finaliza conectarea acestui dispozitiv.
-# Opens the Firefox app on this device
-pair-continue-in-firefox-button = Continuă în { -brand-firefox }
-# Shown while waiting for the Firefox app to take over
-pair-continue-in-firefox-opening = Se deschide { -brand-firefox }
-# Sends the user to the App Store or Play Store to install Firefox
-pair-continue-in-firefox-get-firefox-link = Nu ai { -brand-firefox }? Instalează-l acum
-
 ## Dark mode toggle
 
 dark-mode-toggle-light = Luminos
@@ -1966,13 +1952,15 @@ pair2-supplicant-connect-this-device-cancel-button = Anulează
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing reaches a device that
 ## does not have Firefox installed yet. It explains what syncing gets them and
-## sends them off to install the browser.
+## either opens the Firefox app to finish pairing or sends them off to install
+## the browser.
 
 pair2-supplicant-download-firefox-heading = Instalează { -brand-firefox } pe acest dispozitiv
 # "sync" is a verb here, referring to syncing data between the user's devices.
 # <linkExternal> is an anchor tag linking to a page explaining what sync does.
 pair2-supplicant-download-firefox-description = Descarcă { -brand-firefox } pentru a-ți sincroniza marcajele, istoricul și multe altele pe toate dispozitivele. <linkExternal>Află mai multe</linkExternal>
-# Primary action. Sends the user to the Firefox download page.
+# Primary action. Opens the Firefox app to finish pairing, or sends the user to
+# the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Continuă în { -brand-firefox }
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow

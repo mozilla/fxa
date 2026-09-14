@@ -1855,7 +1855,8 @@ pair2-supplicant-connect-this-device-cancel-button = 취소
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing reaches a device that
 ## does not have Firefox installed yet. It explains what syncing gets them and
-## sends them off to install the browser.
+## either opens the Firefox app to finish pairing or sends them off to install
+## the browser.
 
 pair2-supplicant-download-firefox-heading = 이 기기에 { -brand-firefox } 다운로드
 

@@ -220,13 +220,6 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Pozivi k ukrepanju za povrnitev interneta
 
 
-pair-continue-in-firefox-heading = Nadaljuj v { -brand-firefox(sklon: "mestnik") }
-pair-continue-in-firefox-description = Seznanjanje bo izvedeno čez { -brand-firefox }. Odprite ga za dokončanje povezovanja naprave.
-pair-continue-in-firefox-button = Nadaljuj v { -brand-firefox(sklon: "mestnik") }
-pair-continue-in-firefox-opening = Odpiranje { -brand-firefox }
-pair-continue-in-firefox-get-firefox-link = Nimate { -brand-firefox }? Pridobite ga zdaj
-
-
 dark-mode-toggle-light = Svetla
 dark-mode-toggle-dark = Temna
 dark-mode-toggle-system = Sistemska
@@ -405,7 +398,7 @@ confetti-falling-image-aria-label =
 vpn-welcome-image-aria-label =
     .aria-label = Okno { -brand-firefox(sklon: "rodilnik") } z okroglo značko, ki prikazuje zeleno kljukico, in "VPN", ki kaže, da je VPN aktiven.
 sync-devices-image-aria-label =
-    .aria-label = Namizno okno brskalnika in mobilni telefon, oboje sinhronizirano, ob njem pa maskota { -brand-firefox }
+    .aria-label = Okno namiznega brskalnika in mobilni telefon, ki se sinhronizirata, ob njiju pa maskota { -brand-firefox(sklon: "rodilnik") }
 firefox-wordmark-image-aria-label =
     .aria-label = Logotip { -brand-firefox(sklon: "rodilnik") }
 password-success-image-aria-label =
@@ -472,13 +465,13 @@ password-strength-inline-passwords-match = Gesli se ujemata
 
 
 promo-qr-mobile-heading = Vaš telefon. Vaša pravila.
-promo-qr-mobile-heading-treatment-a = Nadaljujte, kjer ste končali in kamorkoli greste
+promo-qr-mobile-heading-treatment-a = Nadaljujte, kjer ste končali, kamorkoli greste
 promo-qr-mobile-heading-treatment-b = Vaši zavihki in še več – pripravljeni na telefonu
-promo-qr-mobile-heading-treatment-c = Brskalnika, ki mu zaupate, na telefonu
-promo-qr-mobile-heading-treatment-d = Enako { -brand-firefox }. Drugačen zaslon.
+promo-qr-mobile-heading-treatment-c = Brskalnik, ki mu zaupate, tudi na telefonu
+promo-qr-mobile-heading-treatment-d = Isti { -brand-firefox }. Drug zaslon.
 promo-qr-mobile-heading-treatment-e = Vaša zasebnost se ne bi smela ustaviti tukaj
 promo-qr-mobile-heading-treatment-f = Obdržite večji del brskanja zase
-promo-qr-mobile-heading-treatment-g = Vaš telefon bi lahko porabil manj hrupa
+promo-qr-mobile-heading-treatment-g = Vašemu telefonu bi dobro delo malo manj motenj
 promo-qr-mobile-heading-treatment-h = Vzemite umirjeno brskanje z vami
 promo-qr-mobile-description-v2 = Skenirajte za prenos mobilne aplikacije
 promo-qr-mobile-qr-alt =
@@ -696,7 +689,7 @@ flow-setup-2fa-inline-complete-learn-more-link = Kako to ščiti vaš račun
 flow-setup-2fa-inline-complete-continue-button = Nadaljuj v { $serviceName }
 flow-setup-2fa-prompt-heading = Nastavite overjanje v dveh korakih
 flow-setup-2fa-prompt-description = { $serviceName } zahteva, da za varnost računa nastavite overjanje v dveh korakih.
-flow-setup-2fa-prompt-passkey-success-banner = Prijava z geslom uspešna
+flow-setup-2fa-prompt-passkey-success-banner = Prijava s ključem za dostop uspešna
 flow-setup-2fa-prompt-passkey-description = { $serviceName } zahteva tudi overjanje v dveh korakih za vašega { -product-mozilla-account }. Po nastavitvi ga ne boste več potrebovali ob prijavi z geslom.
 flow-setup-2fa-prompt-use-authenticator-apps = Za nadaljevanje lahko uporabite katerokoli od <authenticationAppsLink>naslednjih aplikacij za overjanje</authenticationAppsLink>.
 flow-setup-2fa-prompt-continue-button = Nadaljuj
@@ -960,8 +953,8 @@ recent-activity-account-passwordless-login-otp-failed = Koda za prijavo brez ges
 recent-activity-account-passwordless-login-otp-verified = Koda za prijavo brez gesla je preverjena
 recent-activity-account-passwordless-registration-complete = Registracija računa brez gesla končana
 recent-activity-account-recovery-codes-set = Kode za obnovitev so nastavljene
-recent-activity-account-passkey-wrap-created = Geslo je omogočeno za sinhronizacijo
-recent-activity-account-passkey-wrap-creation-failure = Nastavitev sinhronizacije z geslom ni uspela
+recent-activity-account-passkey-wrap-created = Ključ za dostop je omogočen za sinhronizacijo
+recent-activity-account-passkey-wrap-creation-failure = Nastavitev sinhronizacije s ključem za dostop ni uspela
 recent-activity-account-passkey-wrap-invalidated = Dostop za sinhronizacijo gesel je bil po ponastavitvi gesla odstranjen
 recent-activity-unknown = Drugačna dejavnost v računu
 
@@ -1451,11 +1444,11 @@ pair2-authority-download-firefox-cta = Prenesi { -brand-firefox(sklon: "tozilnik
 
 pair2-authority-scan-qr-heading = Skenirajte za povezavo mobilne naprave
 pair2-authority-scan-qr-instruction = Skenirajte kodo QR s telefonom ali tablico za sinhronizacijo zaznamkov, zavihkov in drugih podatkov v storitvi { -brand-firefox }.
-pair2-authority-scan-qr-code-aria-label = QR koda za povezavo vaše mobilne naprave
+pair2-authority-scan-qr-code-aria-label = Koda QR za povezavo mobilne naprave
 pair2-authority-scan-qr-help-link = Pridobite pomoč pri branju
 
 
-pair2-authority-sync-success-heading = Izvajate sinhronizacijo
+pair2-authority-sync-success-heading = Sinhronizacija poteka
 pair2-authority-sync-success-description = Vaši zavihki, zaznamki, gesla in drugo so pripravljeni v vaših napravah.
 pair2-authority-sync-success-view-tabs-button = Prikaži sinhronizirane zavihke
 pair2-authority-sync-success-sync-settings-button = Nastavitve sinhronizacije
@@ -1480,13 +1473,14 @@ pair2-supplicant-connect-this-device-connect-button = Poveži
 pair2-supplicant-connect-this-device-cancel-button = Prekliči
 
 
-pair2-supplicant-download-firefox-heading = Prejmite { -brand-firefox } za to napravo
-pair2-supplicant-download-firefox-description = Prenesite { -brand-firefox } in sinhronizirajte zaznamke, zgodovino in drugo med napravami. <linkExternal>Več o tem</linkExternal>
+pair2-supplicant-download-firefox-heading = Prenesite { -brand-firefox(sklon: "tozilnik") } na to napravo
+pair2-supplicant-download-firefox-description = Prenesite { -brand-firefox(sklon: "tozilnik") } in sinhronizirajte zaznamke, zgodovino ter druge podatke med napravami. <linkExternal>Več o tem</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Nadaljuj v { -brand-firefox(sklon: "mestnik") }
+pair2-supplicant-download-firefox-opening-button = Odpiranje { -brand-firefox(sklon: "rodilnik") } …
 
 
-pair2-supplicant-ready-to-scan-heading = Za povezavo naprave
-pair2-supplicant-ready-to-scan-instruction = V računalniku odprite { -brand-firefox } in obiščite <b>firefox.com/pair</b> ter sledite navodilom na zaslonu za povezavo te mobilne naprave.
+pair2-supplicant-ready-to-scan-heading = Da povežete napravo
+pair2-supplicant-ready-to-scan-instruction = Na računalniku odprite { -brand-firefox(sklon: "tozilnik") }, obiščite <b>firefox.com/pair</b> in po navodilih na zaslonu povežite mobilno napravo.
 pair2-supplicant-ready-to-scan-learn-more-link = Več o tem
 
 
@@ -1497,9 +1491,9 @@ pair2-supplicant-sync-success-sync-settings-button = Nastavitve sinhronizacije
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Kaže, da nam je potekla časovna omejitev
-pair2-supplicant-timeout-and-cancel-timeout-description = Če želite povezati mobilno napravo in sinhronizirati vaše podatke v storitvi { -brand-firefox }, v računalniku obiščite <b>firefox.com/pair</b>.
+pair2-supplicant-timeout-and-cancel-timeout-description = Če želite povezati mobilno napravo in sinhronizirati podatke { -brand-firefox(sklon: "rodilnik") }, z računalnikom obiščite <b>firefox.com/pair</b>.
 pair2-supplicant-timeout-and-cancel-canceled-heading = Preklicano
-pair2-supplicant-timeout-and-cancel-canceled-description = Če želite kadarkoli povezati napravo, v računalniku obiščite <b>firefox.com/pair</b>.
+pair2-supplicant-timeout-and-cancel-canceled-description = Napravo lahko kadarkoli povežete tako, da z računalnikom obiščete <b>firefox.com/pair</b>.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account(zacetnica: "velika") } potrjen

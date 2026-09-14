@@ -386,13 +386,6 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Výzvy na opětovné získání internetu
 
 
-pair-continue-in-firefox-heading = Pokračujte ve { -brand-firefox(case: "loc") }
-pair-continue-in-firefox-description = Párování se dokončí v aplikaci { -brand-firefox }. Otevřete ji a připojte toto zařízení.
-pair-continue-in-firefox-button = Pokračovat ve { -brand-firefox(case: "loc") }
-pair-continue-in-firefox-opening = Otevírá se { -brand-firefox }
-pair-continue-in-firefox-get-firefox-link = Nemáte { -brand-firefox(case: "acc") }? Stáhněte si ho nyní
-
-
 dark-mode-toggle-light = Světlý
 dark-mode-toggle-dark = Tmavý
 dark-mode-toggle-system = Systémový
@@ -1638,6 +1631,7 @@ pair2-supplicant-connect-this-device-cancel-button = Zrušit
 pair2-supplicant-download-firefox-heading = Získejte { -brand-firefox(case: "acc") } na tomto zařízení
 pair2-supplicant-download-firefox-description = Stáhněte si { -brand-firefox(case: "acc") } pro synchronizaci záložek, historie a dalšího dat mezi zařízeními. <linkExternal>Zjistit více</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Pokračujte za { -brand-firefox(case: "gen") }
+pair2-supplicant-download-firefox-opening-button = Otevírání { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = Pro připojení zařízení

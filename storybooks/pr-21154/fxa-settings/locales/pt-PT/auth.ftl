@@ -131,13 +131,13 @@ subscription-charges-repeating-discount =
 subscription-charges-repeating-discount-plaintext =
     { $discountDuration ->
         [one] Desconto no mês de { $discountDuration }: { $invoiceDiscountAmount }
-       *[other] Desconto no mês de { $discountDuration }: { $invoiceDiscountAmount }
+       *[other] Desconto nos meses de { $discountDuration }: { $invoiceDiscountAmount }
     }
 subscription-charges-discount = Desconto
 subscription-charges-discount-plaintext = Desconto: { $invoiceDiscountAmount }
-subscription-charges-taxes = Impostos e taxas
+subscription-charges-taxes = Impostos & taxas
 # $invoiceTaxAmount (String) - The amount of the tax of the subscription invoice, including currency, e.g. $2.00
-subscriptionCharges-content-tax-plaintext = Impostos e taxas: { $invoiceTaxAmount }
+subscriptionCharges-content-tax-plaintext = Impostos & taxas: { $invoiceTaxAmount }
 subscription-charges-total = <b>Total</b>
 # $invoiceTotal (String) - The total amount of the subscription invoice, including currency, e.g. $10.00
 subscription-charges-total-plaintext = Total: { $invoiceTotal }
@@ -229,22 +229,22 @@ freeTrialEndingReminder-content-charge-tax-2 = Imposto
 # Variables:
 #   $serviceLastActiveDateOnly (String) - The date the charge will occur, e.g. January 20, 2016
 #   $invoiceTotal (String) - The total amount due, e.g. $9.99
-freeTrialEndingReminder-content-charge-total = Total para { $serviceLastActiveDateOnly }: { $invoiceTotal }
-freeTrialEndingReminder-content-charge-total-2 = Total devido em { $serviceLastActiveDateOnly }
-freeTrialEndingReminder-content-account-link = Pode rever ou atualizar o seu método de pagamento e as informações da conta <a data-l10n-name="freeTrialEndingReminder-update-billing">aqui</a>.
-freeTrialEndingReminder-content-account-link-plaintext = Pode rever ou atualizar o seu método de pagamento e as informações da conta aqui:
+freeTrialEndingReminder-content-charge-total = Total a pagar em { $serviceLastActiveDateOnly }: { $invoiceTotal }
+freeTrialEndingReminder-content-charge-total-2 = Total a pagar em { $serviceLastActiveDateOnly }
+freeTrialEndingReminder-content-account-link = Pode rever ou atualizar o seu método de pagamento e informações da conta <a data-l10n-name="freeTrialEndingReminder-update-billing">aqui</a>.
+freeTrialEndingReminder-content-account-link-plaintext = Pode rever ou atualizar o seu método de pagamento e informações da conta aqui:
 # Variables:
 #   $serviceLastActiveDateOnly (String) - The date the trial ends, e.g. January 20, 2016
 freeTrialEndingReminder-content-cancel-link = Para evitar ser cobrado, cancele antes de <strong>{ $serviceLastActiveDateOnly }</strong>: <a data-l10n-name="freeTrialEndingReminder-cancel-subscription">Cancelar subscrição</a>
 freeTrialEndingReminder-content-cancel-link-plaintext = Para evitar ser cobrado, cancele antes de { $serviceLastActiveDateOnly }:
 # Variables:
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-freeTrialEndingReminder-content-thanks = Obrigado por experimentar o { $productName }. Se tiver quaisquer questões sobre o seu teste ou subscrição, por favor, <a data-l10n-name="freeTrialEndingReminder-contact-support">contacte-nos</a>.
+freeTrialEndingReminder-content-thanks = Obrigado por experimentar o { $productName }. Se tiver quaisquer questões sobre o seu teste ou subscrição, por favor <a data-l10n-name="freeTrialEndingReminder-contact-support">contacte-nos</a>.
 freeTrialEndingReminder-content-thanks-plaintext = Obrigado por experimentar o { $productName }. Se tiver quaisquer questões sobre o seu teste ou subscrição, por favor, contacte-nos.
-freeTrialEndingReminder-content-closing = Com os melhores cumprimentos,
+freeTrialEndingReminder-content-closing = Atenciosamente,
 # Variables:
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-freeTrialEndingReminder-content-signature = A equipa do(a) { $productName }
+freeTrialEndingReminder-content-signature = A equipa { $productName }
 # Variables:
 #  $subscriptionSupportUrlWithUtm (String) - URL to the subscription products support page
 freeTrialEndingReminder-content-support-plaintext = Contacte-nos: { $subscriptionSupportUrlWithUtm }
@@ -317,9 +317,9 @@ subscriptionEndingReminder-title = A sua subscrição { $productName } vai expir
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 #   $serviceLastActiveDateOnly (String) - The date of last active service, e.g. 01/20/2016
 subscriptionEndingReminder-content-line1 = O seu acesso a { $productName } vai terminar em <strong>{ $serviceLastActiveDateOnly }</strong>.
-subscriptionEndingReminder-content-line2-v2 = Se quiser continuar a utilizar o { $productName }, pode manter a sua subscrição na <a data-l10n-name="subscriptionEndingReminder-subscription-management">Gestão de subscrições</a> antes de <strong>{ $serviceLastActiveDateOnly }</strong> . Se precisar de ajuda, <a data-l10n-name="subscriptionEndingReminder-contact-support">contacte a nossa equipa de apoio</a>.
+subscriptionEndingReminder-content-line2-v2 = Se quiser continuar a utilizar o { $productName }, pode manter a sua subscrição na <a data-l10n-name="subscriptionEndingReminder-subscription-management">Gestão de subscrições</a> antes de <strong>{ $serviceLastActiveDateOnly }</strong> . Se precisar de ajuda, <a data-l10n-name="subscriptionEndingReminder-contact-support">contacte a nossa equipa de suporte</a>.
 subscriptionEndingReminder-content-line1-plaintext = O seu acesso a { $productName } terminará em { $serviceLastActiveDateOnly }.
-subscriptionEndingReminder-content-line2-plaintext-v2 = Se quiser continuar a usar o { $productName }, pode manter a sua subscrição na Gestão de subscrições antes de { $serviceLastActiveDateOnly }. Se precisar de ajuda, entre em contacto com a nossa equipa de apoio.
+subscriptionEndingReminder-content-line2-plaintext-v2 = Se quiser continuar a usar o { $productName }, pode manter a sua subscrição na Gestão de Subscrições antes de { $serviceLastActiveDateOnly }. Se precisar de ajuda, entre em contacto com a nossa equipa de suporte.
 subscriptionEndingReminder-content-closing = Obrigado por ser um subscritor valorizado!
 subscriptionEndingReminder-churn-title = Pretende manter o acesso?
 subscriptionEndingReminder-churn-terms = <a data-l10n-name="subscriptionEndingReminder-churn-terms">Aplicam-se termos e restrições limitados</a>
@@ -468,19 +468,19 @@ subscriptionUpgrade-content-old-price-year = A taxa anterior era de { $paymentAm
 subscriptionUpgrade-content-old-price-default = A taxa anterior era de { $paymentAmountOld } por intervalo de faturação.
 subscriptionUpgrade-content-old-price-day-tax = A taxa anterior era de { $paymentAmountOld } + { $paymentTaxOld } de impostos por dia.
 subscriptionUpgrade-content-old-price-week-tax = A taxa anterior era de { $paymentAmountOld } + { $paymentTaxOld } impostos por semana.
-subscriptionUpgrade-content-old-price-month-tax = A taxa anterior era de { $paymentAmountOld } + { $paymentTaxOld } impostos por mês.
-subscriptionUpgrade-content-old-price-halfyear-tax = A taxa anterior era de { $paymentAmountOld } + { $paymentTaxOld } impostos por semestre.
-subscriptionUpgrade-content-old-price-year-tax = A taxa anterior era de { $paymentAmountOld } + { $paymentTaxOld } impostos por ano.
-subscriptionUpgrade-content-old-price-default-tax = A taxa anterior era de { $paymentAmountOld } + { $paymentTaxOld } impostos por intervalo de faturação.
-subscriptionUpgrade-content-new-price-day = A partir de agora, será cobrado um débito de { $paymentAmountNew } por dia, excluindo cupões.
-subscriptionUpgrade-content-new-price-week = A partir de agora, irá ser cobrado { $paymentAmountNew } por semana, excluindo cupões.
-subscriptionUpgrade-content-new-price-month = A partir de agora, irá ser cobrado { $paymentAmountNew } por mês, excluindo cupões.
-subscriptionUpgrade-content-new-price-halfyear = A partir de agora, será cobrado { $paymentAmountNew } a cada seis meses, excluindo cupões.
-subscriptionUpgrade-content-new-price-year = A partir de agora, será cobrado { $paymentAmountNew } por ano, excluindo cupões.
+subscriptionUpgrade-content-old-price-month-tax = O pagamento anterior era de { $paymentAmountOld } + { $paymentTaxOld } de imposto por mês.
+subscriptionUpgrade-content-old-price-halfyear-tax = O pagamento anterior era de { $paymentAmountOld } + { $paymentTaxOld } de imposto por semestre.
+subscriptionUpgrade-content-old-price-year-tax = O pagamento anterior era de { $paymentAmountOld } + { $paymentTaxOld } de imposto por ano.
+subscriptionUpgrade-content-old-price-default-tax = O pagamento anterior era de { $paymentAmountOld } + { $paymentTaxOld } de imposto por intervalo de faturação.
+subscriptionUpgrade-content-new-price-day = A partir de agora, irá ser-lhe cobrado { $paymentAmountNew } por dia, excluindo descontos.
+subscriptionUpgrade-content-new-price-week = A partir de agora, irá ser-lhe cobrado { $paymentAmountNew } por semana, excluindo descontos.
+subscriptionUpgrade-content-new-price-month = A partir de agora, irá ser-lhe cobrado { $paymentAmountNew } por mês, excluindo descontos.
+subscriptionUpgrade-content-new-price-halfyear = A partir de agora, irá ser-lhe cobrado { $paymentAmountNew } a cada seis meses, excluindo descontos.
+subscriptionUpgrade-content-new-price-year = A partir de agora, irá ser-lhe cobrado { $paymentAmountNew } por ano, excluindo descontos.
 subscriptionUpgrade-content-new-price-default = De agora em diante, será cobrado { $paymentAmountNew } por cada período de faturação, excluindo descontos.
-subscriptionUpgrade-content-new-price-day-dtax = A partir de agora, ser-lhe-a debitado { $paymentAmountNew } + { $paymentTaxNew } de impostos por dia, excluindo cupões.
+subscriptionUpgrade-content-new-price-day-dtax = A partir de agora, irá ser-lhe cobrado { $paymentAmountNew } + { $paymentTaxNew } de imposto por dia, excluindo descontos.
 subscriptionUpgrade-content-new-price-week-tax = De agora em diante, será cobrado { $paymentAmountNew } mais { $paymentTaxNew } de imposto por semana, excluindo descontos.
-subscriptionUpgrade-content-new-price-month-tax = A partir de agora, ser-lhe-a debitado { $paymentAmountNew } + { $paymentTaxNew } impostos por mês, excluindo cupões.
+subscriptionUpgrade-content-new-price-month-tax = A partir de agora, irá ser-lhe cobrado { $paymentAmountNew } + { $paymentTaxNew } de imposto por mês, excluindo descontos.
 subscriptionUpgrade-content-new-price-halfyear-tax = De agora em diante, será cobrado { $paymentAmountNew } mais { $paymentTaxNew } de imposto a cada seis meses, excluindo descontos.
 subscriptionUpgrade-content-new-price-year-tax = De agora em diante, será cobrado { $paymentAmountNew } mais { $paymentTaxNew } de imposto por ano, excluindo descontos.
 subscriptionUpgrade-content-new-price-default-tax = De agora em diante, será cobrado { $paymentAmountNew } mais { $paymentTaxNew } de imposto por cada período de faturação, excluindo descontos.

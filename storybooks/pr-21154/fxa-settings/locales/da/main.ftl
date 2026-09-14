@@ -83,6 +83,7 @@ button-back-aria-label = Tilbage
 button-back-title = Tilbage
 
 
+recovery-key-download-button-v4 = Hent og fortsæt
 recovery-key-pdf-download-error = Der opstod desværre et problem med at hente din genoprettelsesnøgle til kontoen.
 
 
@@ -338,6 +339,15 @@ password-strength-inline-passwords-match = Adgangskoderne er ens
 
 
 promo-qr-mobile-heading = Din telefon. Dine regler.
+promo-qr-mobile-heading-treatment-a = Fortsæt hvor du slap, uanset hvor du går hen
+promo-qr-mobile-heading-treatment-b = Dine faneblade med mere, klar på din telefon
+promo-qr-mobile-heading-treatment-c = Den browser, du har tillid til, på din telefon
+promo-qr-mobile-heading-treatment-d = Samme { -brand-firefox }. En anden skærm.
+promo-qr-mobile-heading-treatment-e = Beskyttelse af dit privatliv bør ikke stoppe her
+promo-qr-mobile-heading-treatment-f = Hold mere af din browsing for dig selv
+promo-qr-mobile-heading-treatment-g = Din telefon kunne godt bruge lidt mindre støj
+promo-qr-mobile-heading-treatment-h = Tag en roligere måde at browse på med dig
+promo-qr-mobile-description-v2 = Skan for at hente mobilappen
 promo-qr-mobile-qr-alt =
     .alt = QR-kode til at hente mobilappen { -brand-firefox }. Placer din telefons kamera i nederste højre hjørne af skærmen for at skanne den.
 
@@ -429,6 +439,7 @@ cs-cannot-disconnect = Klienten blev ikke fundet, kunne ikke afbryde forbindelse
 cs-logged-out-2 = Logget ud af { $service }
 cs-refresh-button =
     .title = Opdater forbundne tjenester
+cs-connect-device-button = Opret forbindelse til en enhed
 cs-missing-device-help = Manglende eller gentagne elementer?
 cs-disconnect-sync-heading = Afbryd forbindelsen til Sync
 
@@ -550,6 +561,8 @@ flow-setup-2fa-inline-complete-learn-more-link = Sådan beskytter det din konto
 flow-setup-2fa-inline-complete-continue-button = Fortsæt til { $serviceName }
 flow-setup-2fa-prompt-heading = Opsæt totrinsgodkendelse
 flow-setup-2fa-prompt-description = { $serviceName } kræver, at du opsætter totrinsgodkendelse for at holde din konto sikker.
+flow-setup-2fa-prompt-passkey-success-banner = Logget ind med adgangsnøgle
+flow-setup-2fa-prompt-passkey-description = { $serviceName } kræver også totrinsgodkendelse for din { -product-mozilla-account }. Efter opsætningen behøver du den ikke længere, når du logger ind med en adgangsnøgle.
 flow-setup-2fa-prompt-use-authenticator-apps = Du kan anvende enhver af <authenticationAppsLink>disse godkendelsesapps</authenticationAppsLink> for at fortsætte.
 flow-setup-2fa-prompt-continue-button = Fortsæt
 
@@ -754,6 +767,7 @@ page-passkey-add-error-system-v2 = Der opstod et problem med at oprette din adga
 
 
 recent-activity-title = Seneste kontoaktivitet
+recent-activity-show-more-button = Vis mere
 recent-activity-account-create-v2 = Konto oprettet
 recent-activity-account-disable-v2 = Konto deaktiveret
 recent-activity-account-enable-v2 = Konto aktiveret
@@ -809,6 +823,9 @@ recent-activity-account-passwordless-login-otp-failed = Adgangskodefri login-kod
 recent-activity-account-passwordless-login-otp-verified = Adgangskodefri login-kode bekræftet
 recent-activity-account-passwordless-registration-complete = Adgangskodefri registrering af konto fuldført
 recent-activity-account-recovery-codes-set = Genoprettelseskoder angivet
+recent-activity-account-passkey-wrap-created = Adgangsnøgle aktiveret til synkronisering
+recent-activity-account-passkey-wrap-creation-failure = Opsætning af synkronisering med adgangsnøgle mislykkedes
+recent-activity-account-passkey-wrap-invalidated = Adgang til synkronisering med adgangsnøgle fjernet efter nulstilling af adgangskode
 recent-activity-unknown = Anden kontoaktivitet
 
 
@@ -1275,9 +1292,72 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Hov, noget gik galt.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Luk dette faneblad og prøv igen.
 
 
+pair2-authority-approve-sign-in-heading = Godkend login?
+pair2-authority-approve-sign-in-confirm-button = Ja, godkend login
+pair2-authority-approve-sign-in-change-password = Var det ikke dig? <changePassword>Skift din adgangskode</changePassword>
+
+
+pair2-authority-continue-on-mobile-heading = Fortsæt på din mobile enhed
+pair2-authority-continue-on-mobile-description = Følg trinnene på din telefon eller tablet.
+pair2-authority-continue-on-mobile-cancel-button = Annuller
+
+
+pair2-authority-download-firefox-heading = Åbn { -brand-firefox } for at synkronisere
+pair2-authority-download-firefox-instruction = For at opsætte synkronisering på tværs af enheder, åbn { -brand-firefox } på denne enhed og besøg <b>firefox.com/pair</b>
+pair2-authority-download-firefox-cta = Hent { -brand-firefox }
+
+
+pair2-authority-scan-qr-heading = Skan for at forbinde din mobile enhed
+pair2-authority-scan-qr-instruction = Skan QR-koden med din telefon eller tablet for at synkronisere bogmærker, faneblade med mere i { -brand-firefox }.
+pair2-authority-scan-qr-code-aria-label = QR-kode til at forbinde din mobile enhed
+pair2-authority-scan-qr-help-link = Få hjælp til at skanne
+
+
+pair2-authority-sync-success-heading = Du synkroniserer
+pair2-authority-sync-success-description = Dine faneblade, bogmærker, adgangskoder med mere er klar på tværs af dine enheder.
+pair2-authority-sync-success-view-tabs-button = Vis synkroniserede faneblade
+pair2-authority-sync-success-sync-settings-button = Indstillinger for synkronisering
+
+
+pair2-authority-timeout-and-cancel-timeout-heading = Vil du stadig forbinde en enhed?
+pair2-authority-timeout-and-cancel-timeout-description = Det ser ud til, at tidsfristen udløb. Prøv igen, hvis du stadig vil forbinde din mobile enhed og synkronisere dine { -brand-firefox }-data.
+pair2-authority-timeout-and-cancel-canceled-heading = Annulleret
+pair2-authority-timeout-and-cancel-canceled-description = Hvis du ombestemmer dig eller ønsker at forbinde en anden enhed, så prøv igen.
+pair2-authority-timeout-and-cancel-try-again-button = Prøv igen
+pair2-authority-timeout-and-cancel-cancel-button = Annuller
+pair2-authority-timeout-and-cancel-sync-settings-button = Indstillinger for synkronisering
+
+
 pair2-supplicant-approve-sign-in-heading = Et sidste trin til synkronisering
 pair2-supplicant-approve-sign-in-instruction = Godkend login på din computer.
 pair2-supplicant-approve-sign-in-cancel-button = Annuller
+
+
+pair2-supplicant-connect-this-device-heading = Forbind denne enhed til din konto?
+pair2-supplicant-connect-this-device-connect-button = Opret forbindelse
+pair2-supplicant-connect-this-device-cancel-button = Annuller
+
+
+pair2-supplicant-download-firefox-heading = Få { -brand-firefox } på denne enhed
+pair2-supplicant-download-firefox-description = Hent { -brand-firefox } for at synkronisere bogmærker, historik med mere på tværs af enheder. <linkExternal>Læs mere</linkExternal>
+pair2-supplicant-download-firefox-continue-button = Fortsæt i { -brand-firefox }
+
+
+pair2-supplicant-ready-to-scan-heading = Sådan forbinder du en enhed
+pair2-supplicant-ready-to-scan-instruction = Åbn { -brand-firefox } på din computer, gå til <b>firefox.com/pair</b>, og følg vejledningen på skærmen for at forbinde denne mobile enhed.
+pair2-supplicant-ready-to-scan-learn-more-link = Læs mere
+
+
+pair2-supplicant-sync-success-heading = Din enhed er forbundet
+pair2-supplicant-sync-success-description = Dine bogmærker, faneblade med mere forbliver synkroniseret i { -brand-firefox }.
+pair2-supplicant-sync-success-view-tabs-button = Vis synkroniserede faneblade
+pair2-supplicant-sync-success-sync-settings-button = Indstillinger for synkronisering
+
+
+pair2-supplicant-timeout-and-cancel-timeout-heading = Det ser ud til, at tidsfristen udløb
+pair2-supplicant-timeout-and-cancel-timeout-description = For at forbinde din mobile enhed og synkronisere dine { -brand-firefox }-data, besøg <b>firefox.com/pair</b> på din computer.
+pair2-supplicant-timeout-and-cancel-canceled-heading = Annulleret
+pair2-supplicant-timeout-and-cancel-canceled-description = For at forbinde en enhed når som helst, besøg <b>firefox.com/pair</b> på din computer.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } bekræftet

@@ -138,13 +138,6 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Alerte de acțiune pentru revendicarea internetului
 
 
-pair-continue-in-firefox-heading = Continuă în { -brand-firefox }
-pair-continue-in-firefox-description = Asocierea are loc în { -brand-firefox }. Deschide-l pentru a finaliza conectarea acestui dispozitiv.
-pair-continue-in-firefox-button = Continuă în { -brand-firefox }
-pair-continue-in-firefox-opening = Se deschide { -brand-firefox }
-pair-continue-in-firefox-get-firefox-link = Nu ai { -brand-firefox }? Instalează-l acum
-
-
 dark-mode-toggle-light = Luminos
 dark-mode-toggle-dark = Întunecat
 dark-mode-toggle-system = Sistem

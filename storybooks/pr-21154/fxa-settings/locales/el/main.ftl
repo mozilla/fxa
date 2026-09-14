@@ -168,13 +168,6 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Ειδοποιήσεις για δράσεις που αφορούν την ανάκτηση του ελέγχου του διαδικτύου
 
 
-pair-continue-in-firefox-heading = Συνέχεια στο { -brand-firefox }
-pair-continue-in-firefox-description = Η σύζευξη γίνεται στο { -brand-firefox }. Ανοίξτε το για να ολοκληρώσετε τη σύνδεση της συσκευής.
-pair-continue-in-firefox-button = Συνέχεια στο { -brand-firefox }
-pair-continue-in-firefox-opening = Άνοιγμα του { -brand-firefox }
-pair-continue-in-firefox-get-firefox-link = Δεν διαθέτετε το { -brand-firefox }; Αποκτήστε το τώρα
-
-
 dark-mode-toggle-light = Ανοιχτόχρωμο
 dark-mode-toggle-dark = Σκουρόχρωμο
 dark-mode-toggle-system = Σύστημα
@@ -414,6 +407,15 @@ password-strength-inline-passwords-match = Οι κωδικοί πρόσβαση�
 
 
 promo-qr-mobile-heading = Το τηλέφωνό σας. Οι κανόνες σας.
+promo-qr-mobile-heading-treatment-a = Συνεχίστε από εκεί που σταματήσατε, όπου κι αν πάτε
+promo-qr-mobile-heading-treatment-b = Οι καρτέλες σας και πολλά άλλα, έτοιμα στο τηλέφωνό σας
+promo-qr-mobile-heading-treatment-c = Το πρόγραμμα περιήγησης που εμπιστεύεστε, στο τηλέφωνό σας
+promo-qr-mobile-heading-treatment-d = Το ίδιο { -brand-firefox }. Σε διαφορετική οθόνη.
+promo-qr-mobile-heading-treatment-e = Η προστασία του απορρήτου σας δεν πρέπει να σταματά εδώ
+promo-qr-mobile-heading-treatment-f = Κρατήστε την περιήγησή σας πιο ιδιωτική
+promo-qr-mobile-heading-treatment-g = Λιγότερη φασαρία στο τηλέφωνό σας δεν θα έβλαπτε
+promo-qr-mobile-heading-treatment-h = Απολαύστε πιο ήρεμη περιήγηση εν κινήσει
+promo-qr-mobile-description-v2 = Κάντε σάρωση για λήψη της εφαρμογής για κινητά τηλέφωνα
 promo-qr-mobile-qr-alt =
     .alt = Κωδικός QR για λήψη του { -brand-firefox } για κινητές συσκευές. Τοποθετήστε την κάμερα του τηλεφώνου σας στην κάτω δεξιά γωνία της οθόνης για σάρωση.
 
@@ -1409,6 +1411,7 @@ pair2-supplicant-connect-this-device-cancel-button = Ακύρωση
 pair2-supplicant-download-firefox-heading = Αποκτήστε το { -brand-firefox } σε αυτήν τη συσκευή
 pair2-supplicant-download-firefox-description = Κάντε λήψη του { -brand-firefox } για να συγχρονίσετε τους σελιδοδείκτες, το ιστορικό και πολλά άλλα με όλες τις συσκευές σας. <linkExternal>Μάθετε περισσότερα</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Συνέχεια στο { -brand-firefox }
+pair2-supplicant-download-firefox-opening-button = Άνοιγμα του { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = Για να συνδέσετε μια συσκευή

@@ -100,13 +100,6 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Интернетті қалпына келтіруге арналған әрекет ескертулері
 
 
-pair-continue-in-firefox-heading = { -brand-firefox } ішінде жалғастыру
-pair-continue-in-firefox-description = Жұптастыру { -brand-firefox } ішінде орындалады. Құрылғыны қосуды аяқтау үшін оны ашыңыз.
-pair-continue-in-firefox-button = { -brand-firefox } ішінде жалғастыру
-pair-continue-in-firefox-opening = { -brand-firefox } ашылуда
-pair-continue-in-firefox-get-firefox-link = { -brand-firefox } жоқ па? Оны қазір алыңыз
-
-
 dark-mode-toggle-light = Ашық түсті
 dark-mode-toggle-dark = Күңгірт
 dark-mode-toggle-system = Жүйелік
@@ -346,6 +339,15 @@ password-strength-inline-passwords-match = Парольдер өзара сәй�
 
 
 promo-qr-mobile-heading = Сіздің телефоныңыз. Сіздің ережелеріңіз.
+promo-qr-mobile-heading-treatment-a = Қайда барсаңыз да, тоқтаған жеріңізден жалғастырыңыз
+promo-qr-mobile-heading-treatment-b = Сіздің браузер беттеріңіз және т.б., телефоныңызда қолжетімді
+promo-qr-mobile-heading-treatment-c = Сіз сенетін браузер, телефоныңызда
+promo-qr-mobile-heading-treatment-d = Дәл сол { -brand-firefox }. Басқа экранда.
+promo-qr-mobile-heading-treatment-e = Сіздің жекелігіңіз осында тоқтап қалмауы керек
+promo-qr-mobile-heading-treatment-f = Шолуыңыздың көбірек бөлігін өзіңізге қалдырыңыз
+promo-qr-mobile-heading-treatment-g = Телефоныңыз азырақ шу қолдануы мүмкін
+promo-qr-mobile-heading-treatment-h = Шолудың тыныш жолы өзіңізбен бірге
+promo-qr-mobile-description-v2 = Мобильді қосымшаны жүктеп алу үшін сканерлеңіз
 promo-qr-mobile-qr-alt =
     .alt = { -brand-firefox } мобильді қолданбасын жүктеу үшін QR коды. Телефоныңыздың камерасын сканерлеу үшін экранның төменгі оң жақ бұрышына бағыттаңыз.
 
@@ -1341,6 +1343,7 @@ pair2-supplicant-connect-this-device-cancel-button = Бас тарту
 pair2-supplicant-download-firefox-heading = Бұл құрылғыда { -brand-firefox } алу
 pair2-supplicant-download-firefox-description = Құрылғылар арасында бетбелгілерді, тарихты және т.б. синхрондау үшін { -brand-firefox } жүктеп алыңыз. <linkExternal>Көбірек білу</linkExternal>
 pair2-supplicant-download-firefox-continue-button = { -brand-firefox } ішінде жалғастыру
+pair2-supplicant-download-firefox-opening-button = { -brand-firefox } ашылуда…
 
 
 pair2-supplicant-ready-to-scan-heading = Құрылғыны байланыстыру үшін

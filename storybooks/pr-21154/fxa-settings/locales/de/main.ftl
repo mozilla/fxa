@@ -100,13 +100,6 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Möglichkeiten zum Engagement zur Wiederherstellung des Internets
 
 
-pair-continue-in-firefox-heading = Auf { -brand-firefox } fortfahren
-pair-continue-in-firefox-description = Die Kopplung erfolgt in { -brand-firefox }. Öffnen Sie sie, um die Verbindung mit dem Gerät abzuschließen.
-pair-continue-in-firefox-button = Auf { -brand-firefox } fortfahren
-pair-continue-in-firefox-opening = { -brand-firefox } wird geöffnet
-pair-continue-in-firefox-get-firefox-link = Sie nuetzen { -brand-firefox } noch nicht? Laden Sie ihn jetzt herunter.
-
-
 dark-mode-toggle-light = Hell
 dark-mode-toggle-dark = Dunkel
 dark-mode-toggle-system = System
@@ -1347,6 +1340,7 @@ pair2-supplicant-connect-this-device-cancel-button = Abbrechen
 pair2-supplicant-download-firefox-heading = Holen Sie sich { -brand-firefox } auf dieses Gerät
 pair2-supplicant-download-firefox-description = Laden Sie { -brand-firefox } herunter, um Lesezeichen, Chronik und mehr zwischen Geräten zu synchronisieren. <linkExternal>Weitere Informationen</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Auf { -brand-firefox } fortfahren
+pair2-supplicant-download-firefox-opening-button = { -brand-firefox } wird geöffnet…
 
 
 pair2-supplicant-ready-to-scan-heading = Um ein Gerät zu verbinden

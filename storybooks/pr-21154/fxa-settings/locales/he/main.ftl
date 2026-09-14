@@ -104,13 +104,6 @@ choose-newsletters-option-test-pilot =
     .label = גישה מוקדמת לבדיקת מוצרים חדשים
 
 
-pair-continue-in-firefox-heading = המשך ב־{ -brand-firefox }
-pair-continue-in-firefox-description = הצימוד מתבצע ב־{ -brand-firefox }. יש לפתוח אותו כדי לסיים לחבר את המכשיר הזה.
-pair-continue-in-firefox-button = המשך ב־{ -brand-firefox }
-pair-continue-in-firefox-opening = בתהליך פתיחת { -brand-firefox }
-pair-continue-in-firefox-get-firefox-link = אין לך את { -brand-firefox }? ניתן לקבל אותו כעת
-
-
 dark-mode-toggle-light = בהיר
 dark-mode-toggle-dark = כהה
 dark-mode-toggle-system = מערכת
@@ -1302,6 +1295,7 @@ pair2-supplicant-connect-this-device-cancel-button = ביטול
 pair2-supplicant-download-firefox-heading = קבלת { -brand-firefox } במכשיר זה
 pair2-supplicant-download-firefox-description = ניתן להוריד את { -brand-firefox } כדי לסנכרן סימניות, היסטוריה ועוד בין מכשירים. <linkExternal>מידע נוסף</linkExternal>
 pair2-supplicant-download-firefox-continue-button = המשך ב־{ -brand-firefox }
+pair2-supplicant-download-firefox-opening-button = בתהליך פתיחת { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = כדי לחבר מכשיר

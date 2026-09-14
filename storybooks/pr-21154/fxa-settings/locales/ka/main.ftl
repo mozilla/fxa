@@ -138,13 +138,6 @@ choose-newsletters-option-reclaim-the-internet =
     .label = სამოქმედო ცნობები ინტერნეტის დასაბრუნებლად
 
 
-pair-continue-in-firefox-heading = გამოიყენეთ { -brand-firefox }, რომ განაგრძოთ
-pair-continue-in-firefox-description = უერთდება { -brand-firefox }. გახსენით ამ მოწყობილობასთან კავშირის დასასრულებლად.
-pair-continue-in-firefox-button = გამოიყენეთ { -brand-firefox }, რომ განაგრძოთ
-pair-continue-in-firefox-opening = იხსნება { -brand-firefox }
-pair-continue-in-firefox-get-firefox-link = { -brand-firefox } არ გაქვთ? გადმოწერეთ ახლავე
-
-
 dark-mode-toggle-light = ნათელი
 dark-mode-toggle-dark = მუქი
 dark-mode-toggle-system = სისტემის
@@ -384,6 +377,15 @@ password-strength-inline-passwords-match = პაროლები ემთხ
 
 
 promo-qr-mobile-heading = თქვენი ტელეფონი. თქვენი წესები.
+promo-qr-mobile-heading-treatment-a = განაგრძეთ იქიდან, სადაც შეჩერდით, საითკენაც არ უნდა მიემართებოდეთ
+promo-qr-mobile-heading-treatment-b = თქვენი ჩანართები და სხვა მონაცემები გელოდებათ თქვენს ტელეფონზე
+promo-qr-mobile-heading-treatment-c = ბრაუზერი, რომელსაც ენდობით, თქვენს ტელეფონზე
+promo-qr-mobile-heading-treatment-d = იგივე { -brand-firefox }. განსხვავებულ ეკრანზე.
+promo-qr-mobile-heading-treatment-e = თქვენი პირადულობა აქ არ უნდა შეწყდეს
+promo-qr-mobile-heading-treatment-f = გახადეთ გვერდების მონახულება მეტად პირადი
+promo-qr-mobile-heading-treatment-g = ტელეფონზე უწესრიგობის მეტად შემცირებაც შეიძლება
+promo-qr-mobile-heading-treatment-h = გვერდების უფრო მშვიდად მონახულება, გზაში ყოფნისას
+promo-qr-mobile-description-v2 = წააკითხეთ მობილურზე ჩამოსატვირთად
 promo-qr-mobile-qr-alt =
     .alt = QR-კოდი, რომლითაც ჩამოიტვირთება მობილური { -brand-firefox }. მიუშვირეთ ტელეფონის კამერა ეკრანის ქვემოთა მარჯვენა მხარეს.
 
@@ -1376,6 +1378,7 @@ pair2-supplicant-connect-this-device-cancel-button = გაუქმება
 pair2-supplicant-download-firefox-heading = გადმოწერეთ { -brand-firefox } ამ მოწყობილობაზე
 pair2-supplicant-download-firefox-description = ჩამოტვირთეთ { -brand-firefox } სანიშნების, ისტორიისა თუ სხვა მონაცემების დასინქრონებისთვის სხვადასხვა მოწყობილობებზე. <linkExternal>ვრცლად</linkExternal>
 pair2-supplicant-download-firefox-continue-button = გასაგრძელებლად გამოიყენეთ { -brand-firefox }
+pair2-supplicant-download-firefox-opening-button = იხსნება { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = რომ დაკავშირდეს მოწყობილობა

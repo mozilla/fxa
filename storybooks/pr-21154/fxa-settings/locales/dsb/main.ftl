@@ -100,13 +100,6 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Napominanja k akciji, aby internet slědk dostał
 
 
-pair-continue-in-firefox-heading = Z { -brand-firefox } pókšacowaś
-pair-continue-in-firefox-description = Koplowanje se w { -brand-firefox } stawa. Wócyńśo jen, aby zwězowanje toś togo rěda dokóńcył.
-pair-continue-in-firefox-button = Z { -brand-firefox } pókšacowaś
-pair-continue-in-firefox-opening = { -brand-firefox } se wócynja
-pair-continue-in-firefox-get-firefox-link = Njamaśo { -brand-firefox }? Wobstarajśo se jen
-
-
 dark-mode-toggle-light = Swětły
 dark-mode-toggle-dark = Śamny
 dark-mode-toggle-system = System
@@ -1363,6 +1356,7 @@ pair2-supplicant-connect-this-device-cancel-button = Pśetergnuś
 pair2-supplicant-download-firefox-heading = Wobstarajśo se { -brand-firefox } na toś tom rěźe
 pair2-supplicant-download-firefox-description = Ześěgniśo { -brand-firefox }, aby cytańske znamjenja, historiju a wěcej na swójich rědach synchronizěrował. <linkExternal>Dalšne informacije</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Z { -brand-firefox } pókšacowaś
+pair2-supplicant-download-firefox-opening-button = { -brand-firefox } se wócynja …
 
 
 pair2-supplicant-ready-to-scan-heading = Rěd zwězaś
