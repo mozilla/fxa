@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit cb71add1156801935517c3165015f09e91a9593c</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit cb71add1156801935517c3165015f09e91a9593c</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/14/2026, 7:02:34 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>refactor(settings): tighten metricsContext and flowQueryParams types</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- A double cast on `flowQueryParams` stops the compiler from checking that argument.
+- `queryParamsToMetricsContext` already accepts a typed `QueryParams`, so the casts are not necessary.
+- Two import paths for `MetricsContext` resolve to the same file, and one page declares its own duplicate alias.
+
+## This pull request
+
+- Removes the `flowQueryParams` casts at the `queryParamsToMetricsContext` call sites.
+- Removes the orphaned `searchParams` import in `Signin/container.tsx`.
+- Deletes the local `MetricsContext` alias in `InlineTotpSetup/interfaces.ts`.
+- Imports the shared `MetricsContext` from `@fxa/shared/metrics/glean` in all touched files.
+- Changes no runtime logic.
+
+## Issue that this pull request solves
+
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-9687</pre></dd>
+  </dl>
+</body>
+</html>
