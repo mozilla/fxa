@@ -213,14 +213,6 @@ const SignupConfirmCodeContainer = ({
   const cmsInfo = integration?.getCmsInfo();
   const splitLayout = cmsInfo?.SignupConfirmCodePage?.splitLayout;
 
-  // TODO: This check and related test can be moved up the tree to the App component,
-  // where a missing integration should be caught and handled.
-  if (!integration) {
-    return (
-      <AppLayout {...{ loading: true, splitLayout, setCurrentSplitLayout }} />
-    );
-  }
-
   // Show loading while attempting OAuth flow recovery
   if (isRecovering) {
     return (
