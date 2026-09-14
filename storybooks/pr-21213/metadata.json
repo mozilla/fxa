@@ -1,0 +1,10 @@
+{
+  "commit": "9c2402396afbc3e139b812d0c4cbf4f8113c1650",
+  "summary": "fix(pair): route in-app camera v2 scans to the v2 supplicant screens",
+  "description": "Because:\n\n- A v2 QR scanned with a mobile Firefox's own camera opens /pair/supp, the\n  v1 supplicant entry, so pairing completed on the legacy screens.\n- app-services holds the PKCE verifier for the code it expects back, so the\n  page must not begin a second OAuth flow.\n\nThis commit:\n\n- Hands /pair/supp off to /pair/supplicant/connect_this_device only when the\n  authority's fragment, the browser's fxa_status and pairing.version all say v2\n- Waits on fxa_status before choosing a flow, and only for a v=2 fragment\n- Sends the v2 post-OAuth reload to /pair/supplicant/sync_success instead of\n  /oauth/success/:clientId\n- Reads the OAuth request from the URL in v2 when it carries one, asking the\n  browser only when it does not\n- Adds unit coverage for the version gate and the param source\n\nCloses #FXA-14427",
+  "timestamp": 1788561557000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

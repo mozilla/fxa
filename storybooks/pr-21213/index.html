@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 9c2402396afbc3e139b812d0c4cbf4f8113c1650</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 9c2402396afbc3e139b812d0c4cbf4f8113c1650</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/4/2026, 10:39:17 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(pair): route in-app camera v2 scans to the v2 supplicant screens</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+- A v2 QR scanned with a mobile Firefox&#039;s own camera opens /pair/supp, the
+  v1 supplicant entry, so pairing completed on the legacy screens.
+- app-services holds the PKCE verifier for the code it expects back, so the
+  page must not begin a second OAuth flow.
+
+This commit:
+
+- Hands /pair/supp off to /pair/supplicant/connect_this_device only when the
+  authority&#039;s fragment, the browser&#039;s fxa_status and pairing.version all say v2
+- Waits on fxa_status before choosing a flow, and only for a v=2 fragment
+- Sends the v2 post-OAuth reload to /pair/supplicant/sync_success instead of
+  /oauth/success/:clientId
+- Reads the OAuth request from the URL in v2 when it carries one, asking the
+  browser only when it does not
+- Adds unit coverage for the version gate and the param source
+
+Closes #FXA-14427</pre></dd>
+  </dl>
+</body>
+</html>
