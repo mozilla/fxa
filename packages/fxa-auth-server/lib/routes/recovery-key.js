@@ -305,10 +305,10 @@ module.exports = (
           ],
         },
         validate: {
+          // Legacy clients post { email }; the key is dropped, not rejected.
           payload: isA
-            .object({
-              email: validators.email().optional(), // ? Not used ?
-            })
+            .object({})
+            .options({ stripUnknown: true })
             .optional()
             .allow(null),
         },

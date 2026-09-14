@@ -3193,20 +3193,8 @@ export default class AuthClient {
     return this.jwtDelete('/mfa/recoveryKey', jwt, {}, headers);
   }
 
-  async recoveryKeyExists(
-    sessionToken: hexstring | undefined,
-    email: string | undefined,
-    headers?: Headers
-  ) {
-    if (sessionToken) {
-      return this.sessionPost(
-        '/recoveryKey/exists',
-        sessionToken,
-        { email }, // not needed?
-        headers
-      );
-    }
-    return this.request('POST', '/recoveryKey/exists', { email }, headers);
+  async recoveryKeyExists(sessionToken: hexstring, headers?: Headers) {
+    return this.sessionPost('/recoveryKey/exists', sessionToken, {}, headers);
   }
 
   async verifyRecoveryKey(

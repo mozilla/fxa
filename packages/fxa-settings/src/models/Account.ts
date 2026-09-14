@@ -484,10 +484,7 @@ export class Account implements AccountData {
             });
             break;
           case 'recovery':
-            const recoveryKey = await this.authClient.recoveryKeyExists(
-              token,
-              undefined
-            );
+            const recoveryKey = await this.authClient.recoveryKeyExists(token);
             updateExtendedAccountState({
               recoveryKey: {
                 exists: recoveryKey.exists ?? false,

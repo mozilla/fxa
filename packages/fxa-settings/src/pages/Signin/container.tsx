@@ -493,8 +493,7 @@ const SigninContainer = ({
           try {
             // Check recovery key status to determine if we should show inline setup
             const { exists } = await authClient.recoveryKeyExists(
-              result.data.signIn.sessionToken,
-              email
+              result.data.signIn.sessionToken
             );
             result.data.showInlineRecoveryKeySetup = !exists;
           } catch (e) {

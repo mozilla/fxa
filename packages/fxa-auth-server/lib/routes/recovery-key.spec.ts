@@ -636,6 +636,24 @@ describe('GET /recoveryKey/{recoveryKeyId}', () => {
 });
 
 describe('POST /recoveryKey/exists', () => {
+  describe('payload validation', () => {
+    function validate(payload: any) {
+      const schema = getRoute(makeRoutes({}), '/recoveryKey/exists', 'POST')
+        .options.validate.payload;
+      return schema.validate(payload);
+    }
+
+    it.each([undefined, null, {}])('accepts %p as the payload', (payload) => {
+      expect(validate(payload).error).toBeUndefined();
+    });
+
+    it('strips the email a legacy client still sends', () => {
+      const { error, value } = validate({ email: 'user@example.com' });
+      expect(error).toBeUndefined();
+      expect(value).toEqual({});
+    });
+  });
+
   describe('should check if account recovery key exists using sessionToken', () => {
     beforeEach(async () => {
       const requestOptions = {

@@ -1406,15 +1406,6 @@ module.exports = (config) => {
     });
   };
 
-  ClientApi.prototype.getRecoveryKeyExistsWithEmail = function (email) {
-    return this.doRequest(
-      'POST',
-      `${this.baseURL}/recoveryKey/exists`,
-      undefined,
-      { email }
-    );
-  };
-
   ClientApi.prototype.deleteRecoveryKey = function (sessionTokenHex) {
     return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest('DELETE', `${this.baseURL}/recoveryKey`, token);
