@@ -1,8 +1,8 @@
 {
-  "commit": "493c9eb41c28a9ce59485f57ff0d61f212ed7d77",
+  "commit": "64b8bb22121179e2a0d92d6667b02958fbb427f1",
   "summary": "feat(settings): add passkey wrap creation",
-  "description": "Because:\n- Passwordless Sync needs kB sealed to a passkey's PRF output before a\n  wrap can be stored.\n\nThis commit:\n- Adds createPasskeyWrap, sealing kB into a wrap envelope bound to the\n  account the mfa:passkey proof names and storing it under that proof.\n- Reopens the envelope before storing it, catching platform crypto that\n  seals what it cannot unseal.\n- Maps server errnos to distinct failure reasons; wrap_conflict means a\n  wrap already exists, from a lost response or from before a key rotation.\n- Zeroes kB and the PRF output once sealing has been tried.\n- Adds usePasskeyWrapCreation, a loading flag around the call.\n\nCloses #FXA-14425",
-  "timestamp": 1789155311000,
+  "description": "Because:\n- Passwordless Sync needs kB sealed to a passkey's PRF output before a\n  wrap can be stored.\n\nThis commit:\n- Adds createPasskeyWrap, sealing kB into a wrap envelope bound to the\n  account the mfa:passkey proof names and storing it under that proof.\n- Reopens the envelope before storing it, catching platform crypto that\n  seals what it cannot unseal.\n- Labels only client-decided failures; server refusals come back as a\n  HandledError, with errno 235 added to AuthUiErrors so it localizes.\n- Zeroes kB, the PRF output and the reopened copy once sealing has been\n  tried.\n- Adds usePasskeyWrapCreation, a single-flight call with a loading flag.\n\nCloses #FXA-14425",
+  "timestamp": 1789407532000,
   "storybooks": [
     "fxa-settings"
   ],
