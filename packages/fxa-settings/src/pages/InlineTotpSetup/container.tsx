@@ -42,9 +42,7 @@ export const InlineTotpSetupContainer = ({
   const navigateWithQuery = useNavigateWithQuery();
   const session = useSession();
   const authClient = useAuthClient();
-  const metricsContext = queryParamsToMetricsContext(
-    flowQueryParams as unknown as Record<string, string>
-  );
+  const metricsContext = queryParamsToMetricsContext(flowQueryParams);
   const isTotpStatusChecked = useRef(false);
 
   const [currentStep, setCurrentStep] = useState<number>(0);

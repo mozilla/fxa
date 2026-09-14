@@ -47,10 +47,9 @@ import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { KeyStretchExperiment } from '../../models/experiments';
 import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
-import { searchParams } from '../../lib/utilities';
 import { QueryParams } from '../..';
 import { queryParamsToMetricsContext } from '../../lib/metrics';
-import { MetricsContext } from '@fxa/shared/glean';
+import { MetricsContext } from '@fxa/shared/metrics/glean';
 import {
   getHandledError,
   getLocalizedErrorMessage,
@@ -446,9 +445,7 @@ const SigninContainer = ({
         keys: wantsKeys,
         // See oauth_client_info in the auth-server for details on service/clientId.
         ...(service ? { service } : {}),
-        metricsContext: queryParamsToMetricsContext(
-          flowQueryParams as ReturnType<typeof searchParams>
-        ),
+        metricsContext: queryParamsToMetricsContext(flowQueryParams),
       };
       let result = await trySignIn(
         email,
@@ -597,9 +594,7 @@ const SigninContainer = ({
     async (email: string) => {
       try {
         await authClient.sendUnblockCode(email, {
-          metricsContext: queryParamsToMetricsContext(
-            flowQueryParams as unknown as ReturnType<typeof searchParams>
-          ),
+          metricsContext: queryParamsToMetricsContext(flowQueryParams),
         });
         return { success: true };
       } catch (error) {

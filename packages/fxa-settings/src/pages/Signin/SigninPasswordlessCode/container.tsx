@@ -72,9 +72,7 @@ const SigninPasswordlessCodeContainer = ({
             clientId: integration.getClientId(),
             service: service || integration.getService(),
             metricsContext: {
-              ...queryParamsToMetricsContext(
-                flowQueryParams as unknown as Record<string, string>
-              ),
+              ...queryParamsToMetricsContext(flowQueryParams),
               clientId: integration.getClientId(),
             },
           });

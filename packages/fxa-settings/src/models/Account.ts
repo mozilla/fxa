@@ -14,7 +14,7 @@ import AuthClient, {
   AttachedClient as RawAttachedClient,
 } from 'fxa-auth-client/browser';
 import type { Passkey } from 'fxa-auth-client/browser';
-import { MetricsContext } from '@fxa/shared/glean';
+import { MetricsContext } from '@fxa/shared/metrics/glean';
 import {
   currentAccount,
   sessionToken,
