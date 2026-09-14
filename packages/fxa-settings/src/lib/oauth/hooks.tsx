@@ -197,7 +197,7 @@ export type FinishOAuthFlowHandler = (
   keyFetchToken?: string,
   unwrapKB?: string,
   /** Hex `kB` already known to the client; skips the keyFetchToken derivation. */
-  kB?: string
+  kB?: hexstring
 ) => Promise<FinishOAuthFlowHandlerResult>;
 
 type UseFinishOAuthFlowHandlerResult = {

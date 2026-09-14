@@ -2,135 +2,180 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as Sentry from '@sentry/browser';
-import type AuthClient from 'fxa-auth-client/browser';
 import { ERRNO } from '@fxa/accounts/errors';
+import type AuthClient from 'fxa-auth-client/browser';
 import { unwrapPasskeyKb } from './consumption';
-import { openWrapEnvelope } from '../../passkey-crypto';
+import {
+  createWrapEnvelope,
+  type openWrapEnvelope as OpenWrapEnvelope,
+} from '../../passkey-crypto';
 
-jest.mock('@sentry/browser', () => ({
-  __esModule: true,
-  captureException: jest.fn(),
-}));
+// Real crypto by default; mocked only to force the branches a genuine
+// envelope cannot reach.
+const mockOpenWrapEnvelope: jest.MockedFunction<typeof OpenWrapEnvelope> =
+  jest.fn();
 jest.mock('../../passkey-crypto', () => ({
-  __esModule: true,
-  openWrapEnvelope: jest.fn(),
+  ...jest.requireActual('../../passkey-crypto'),
+  openWrapEnvelope: (...args: Parameters<typeof OpenWrapEnvelope>) =>
+    mockOpenWrapEnvelope(...args),
 }));
 
+const mockCaptureException = jest.fn();
+jest.mock('@sentry/browser', () => ({
+  ...jest.requireActual('@sentry/browser'),
+  captureException: (...args: unknown[]) => mockCaptureException(...args),
+}));
+
+const UID = 'a'.repeat(32);
+const CREDENTIAL_ID = 'cred';
+const KB = new Uint8Array(32).fill(0x0b);
 const prf = () => new Uint8Array(32).fill(7);
-const wrap = { createdAt: 1 } as any;
+
 const args = (prfOut?: Uint8Array) => ({
-  mfaToken: 'jwt',
-  credentialId: 'cred',
-  uid: 'a'.repeat(32),
+  mfaToken: 'mfa-token',
+  uid: UID,
+  credentialId: CREDENTIAL_ID,
   prfOut,
 });
-const client = (impl: () => Promise<unknown>) => ({
-  getPasskeyWrap: jest.fn(impl) as unknown as jest.MockedFunction<
-    AuthClient['getPasskeyWrap']
-  >,
+
+const client = (impl: () => Promise<unknown>) =>
+  ({
+    getPasskeyWrap: jest.fn(impl),
+  }) as unknown as {
+    getPasskeyWrap: jest.MockedFunction<AuthClient['getPasskeyWrap']>;
+  };
+
+/** A wrap as the server would return it, sealed by the real crypto. */
+const storedWrap = async (over: { uid?: string; credentialId?: string } = {}) =>
+  ({
+    createdAt: 1,
+    ...(await createWrapEnvelope({
+      kB: new Uint8Array(KB),
+      prfOut: prf(),
+      uid: over.uid ?? UID,
+      credentialId: over.credentialId ?? CREDENTIAL_ID,
+    })),
+  }) as Awaited<ReturnType<AuthClient['getPasskeyWrap']>>;
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  mockOpenWrapEnvelope.mockImplementation(
+    jest.requireActual('../../passkey-crypto').openWrapEnvelope
+  );
 });
 
 describe('unwrapPasskeyKb', () => {
-  beforeEach(() => jest.clearAllMocks());
+  it('recovers the exact kB the envelope was sealed over', async () => {
+    const c = client(async () => storedWrap());
 
-  it('returns kB when the envelope opens, and zeroes prfOut', async () => {
-    const kB = new Uint8Array(32).fill(1);
-    (openWrapEnvelope as jest.Mock).mockResolvedValue(kB);
-    const prfOut = prf();
-    const res = await unwrapPasskeyKb(
-      client(async () => wrap),
-      args(prfOut)
-    );
-    expect(res).toEqual({ ok: true, kB });
-    expect(prfOut.every((b) => b === 0)).toBe(true);
-    expect(openWrapEnvelope).toHaveBeenCalledWith({
-      envelope: {},
-      prfOut: expect.any(Uint8Array),
-      uid: 'a'.repeat(32),
-      credentialId: 'cred',
-    });
+    const res = await unwrapPasskeyKb(c, args(prf()));
+
+    expect(res).toEqual({ ok: true, kB: KB });
+    expect(c.getPasskeyWrap).toHaveBeenCalledWith('mfa-token', CREDENTIAL_ID);
   });
 
-  it('is no_prf without a fetch when prfOut is missing or the wrong width', async () => {
-    const c = client(async () => wrap);
-    expect(await unwrapPasskeyKb(c, args(undefined))).toEqual({
+  it('will not open a wrap bound to a different account', async () => {
+    const res = await unwrapPasskeyKb(
+      client(async () => storedWrap({ uid: 'b'.repeat(32) })),
+      args(prf())
+    );
+
+    expect(res).toEqual({ ok: false, reason: 'failed' });
+  });
+
+  it.each([
+    ['missing', undefined],
+    ['short', new Uint8Array(4)],
+    ['spent', new Uint8Array(32)],
+  ])('fails without a fetch when prfOut is %s', async (_, prfOut) => {
+    const c = client(async () => storedWrap());
+
+    expect(await unwrapPasskeyKb(c, args(prfOut))).toEqual({
       ok: false,
-      reason: 'no_prf',
-    });
-    expect(await unwrapPasskeyKb(c, args(new Uint8Array(4)))).toEqual({
-      ok: false,
-      reason: 'no_prf',
+      reason: 'failed',
     });
     expect(c.getPasskeyWrap).not.toHaveBeenCalled();
   });
 
   it.each([
     [ERRNO.PASSKEY_WRAP_NOT_FOUND, 'no_wrap'],
-    [ERRNO.PASSKEY_NOT_FOUND, 'passkey_not_found'],
-    [ERRNO.INVALID_MFA_TOKEN, 'proof_invalid'],
     [ERRNO.PASSKEY_WRAP_STALE, 'stale'],
+    [ERRNO.PASSKEY_NOT_FOUND, 'failed'],
+    [ERRNO.INVALID_MFA_TOKEN, 'failed'],
+    [ERRNO.FEATURE_NOT_ENABLED, 'failed'],
+    [ERRNO.THROTTLED, 'failed'],
+    [ERRNO.REQUEST_BLOCKED, 'failed'],
   ])('maps errno %i to %s without Sentry', async (errno, reason) => {
     const res = await unwrapPasskeyKb(
       client(async () => {
-        throw { errno };
+        throw Object.assign(new Error('refused'), { errno });
       }),
       args(prf())
     );
+
     expect(res).toEqual({ ok: false, reason });
-    expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(mockCaptureException).not.toHaveBeenCalled();
   });
 
-  it('is fetch_failed with a Sentry tag for any other errno', async () => {
+  it.each([
+    ['offline', new TypeError('Failed to fetch')],
+    ['timed out', new DOMException('aborted', 'AbortError')],
+  ])('fails without Sentry when the client is %s', async (_, err) => {
     const res = await unwrapPasskeyKb(
       client(async () => {
-        throw { errno: 999 };
+        throw err;
       }),
       args(prf())
     );
-    expect(res).toEqual({ ok: false, reason: 'fetch_failed' });
-    expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(Error), {
-      tags: { errno: '999' },
-    });
+
+    expect(res).toEqual({ ok: false, reason: 'failed' });
+    expect(mockCaptureException).not.toHaveBeenCalled();
   });
 
-  it('is decrypt_failed when the envelope does not open, and still zeroes prfOut', async () => {
-    (openWrapEnvelope as jest.Mock).mockRejectedValue(new Error('tag'));
-    const prfOut = prf();
+  it('fails and reports an errno it does not expect', async () => {
     const res = await unwrapPasskeyKb(
-      client(async () => wrap),
-      args(prfOut)
+      client(async () => {
+        throw Object.assign(new Error('refused'), { errno: 999 });
+      }),
+      args(prf())
     );
-    expect(res).toEqual({ ok: false, reason: 'decrypt_failed' });
-    expect(prfOut.every((b) => b === 0)).toBe(true);
+
+    expect(res).toEqual({ ok: false, reason: 'failed' });
+    expect(mockCaptureException).toHaveBeenCalledWith(
+      new Error('passkey-wrap-fetch error'),
+      { tags: { errno: '999' } }
+    );
   });
 
   it('reports a wrap that will not open, which no retry can clear', async () => {
-    (openWrapEnvelope as jest.Mock).mockRejectedValue(new Error('tag'));
+    mockOpenWrapEnvelope.mockRejectedValue(new Error('tag'));
 
-    await unwrapPasskeyKb(
-      client(async () => wrap),
+    const res = await unwrapPasskeyKb(
+      client(async () => storedWrap()),
       args(prf())
     );
 
-    expect(Sentry.captureException).toHaveBeenCalledWith(
+    expect(res).toEqual({ ok: false, reason: 'failed' });
+    expect(mockCaptureException).toHaveBeenCalledWith(
       new Error('passkey-wrap-decrypt error')
     );
   });
 
   it.each([
-    ['an all-zero kB', new Uint8Array(32)],
-    ['a kB of the wrong length', new Uint8Array(16).fill(1)],
-  ])('is decrypt_failed for %s the AEAD tag still accepts', async (_l, kB) => {
-    (openWrapEnvelope as jest.Mock).mockResolvedValue(kB);
-    const prfOut = prf();
+    ['an all-zero kB the AEAD tag still accepts', new Uint8Array(32)],
+    ['a kB of the wrong length', new Uint8Array(16).fill(0x0b)],
+  ])('rejects, zeroes and reports %s', async (_, opened) => {
+    mockOpenWrapEnvelope.mockResolvedValue(opened);
 
     const res = await unwrapPasskeyKb(
-      client(async () => wrap),
-      args(prfOut)
+      client(async () => storedWrap()),
+      args(prf())
     );
 
-    expect(res).toEqual({ ok: false, reason: 'decrypt_failed' });
-    expect(prfOut.every((b) => b === 0)).toBe(true);
+    expect(res).toEqual({ ok: false, reason: 'failed' });
+    expect(opened).toEqual(new Uint8Array(opened.length));
+    expect(mockCaptureException).toHaveBeenCalledWith(
+      new Error('passkey-wrap-decrypt error')
+    );
   });
 });

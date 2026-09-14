@@ -6,9 +6,8 @@ import { useCallback, useRef, useState } from 'react';
 import * as Sentry from '@sentry/browser';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import { useNavigate } from 'react-router';
-import { ERRNO } from '@fxa/accounts/errors';
 
-import { AuthUiErrors, isAuthUiError } from '../../auth-errors/auth-errors';
+import { AuthUiErrors } from '../../auth-errors/auth-errors';
 import GleanMetrics from '../../glean';
 import { useGleanView } from '../../glean/useGleanView';
 import { useMounted } from '../useMounted';
@@ -20,6 +19,7 @@ import type { QueryParams } from '../../..';
 import { isWebAuthnSupported } from '../../passkeys';
 import { authenticateWithPasskey } from '../../passkeys/signin-passkey-auth';
 import { resolveSignedInAccount } from '../../passkeys/signin-account';
+import { recoverPasswordlessKb } from '../../passkeys/wrap/recover';
 import { useConfig, useSensitiveDataClient } from '../../../models';
 import {
   PASSKEY_SIGNIN_SURFACES,
@@ -142,10 +142,6 @@ export function usePasskeySignIn({
       keysRequired
     );
 
-    // Declared outside the try so the catch below can zero it: between the
-    // assertion and the stash, these bytes have no other owner.
-    let prfOut: Uint8Array | undefined;
-
     try {
       const assertion = await authenticateWithPasskey({
         authClient,
@@ -161,50 +157,110 @@ export function usePasskeySignIn({
         finish();
         return;
       }
-      const { completion, credentialId } = assertion;
-      prfOut = assertion.prfOut;
+      const { completion, credentialId, prfOut } = assertion;
 
-      const account = await resolveSignedInAccount({
-        authClient,
-        integration,
-        completion,
-        ftlMsgResolver,
-        navigateWithQuery,
-      });
-      if (!account) {
-        // Nothing downstream can reach these bytes once this returns.
-        prfOut?.fill(0);
-        // Defensive finish() — the merge gate navigates away, but Index →
-        // Index with prefill keeps this component mounted and the button
-        // needs to be clickable again.
-        finish();
-        return;
-      }
+      // The PRF output must not outlive this ceremony, whichever exit is
+      // taken. The opt-in stash holds its own copy.
+      try {
+        const account = await resolveSignedInAccount({
+          authClient,
+          integration,
+          completion,
+          ftlMsgResolver,
+          navigateWithQuery,
+        });
+        if (!account) {
+          // Defensive finish() — the merge gate navigates away, but Index →
+          // Index with prefill keeps this component mounted and the button
+          // needs to be clickable again.
+          finish();
+          return;
+        }
 
-      // TODO(FXA-13152): interim opt-in stash, replaced by the passwordless
-      // unwrap, which reads the opt-in signal off the wrap fetch itself.
-      // Held in memory only, for the opt-in page after the password step. That
-      // step adds `kB`; the page clears the entry whatever the user decides.
-      // An account that still has to create a password is not offered the
-      // opt-in on the same sign-in, nor is a passkey that already has a wrap.
-      if (
-        prfOut &&
-        completion.mfaToken &&
-        completion.hasPassword &&
-        !(await hasStoredWrap(authClient, completion.mfaToken, credentialId)) &&
-        mounted.current
-      ) {
-        sensitiveDataClient.PasskeyWrapData = {
-          uid: completion.uid,
-          credentialId,
-          mfaToken: completion.mfaToken,
-          prfOut,
+        // Same path as password sign-in. `kB` is set when a passkey wrap
+        // supplied it, so no password step is needed.
+        const signIn = async (kB?: hexstring) => {
+          const { error: navError } = await handleNavigation({
+            navigate,
+            email: account.email,
+            signinData: {
+              uid: completion.uid,
+              sessionToken: completion.sessionToken,
+              // Passkey assertion is AAL2; email was verified at registration.
+              emailVerified: true,
+              sessionVerified: completion.verified,
+              verificationMethod: undefined,
+              verificationReason: undefined,
+            },
+            integration,
+            finishOAuthFlowHandler,
+            queryParams,
+            kB,
+            handleFxaLogin: true,
+            handleFxaOAuthLogin: true,
+            // On Firefox mobile, the browser finishes sign-in via WebChannel
+            // messages; navigating the WebView away would interrupt it.
+            performNavigation: !integration.isFirefoxMobileClient(),
+            isPasskeySession: true,
+            accountHasTotp: account.accountHasTotp,
+            authClient,
+          });
+          if (navError) {
+            // Synthetic Error: backend error bodies may carry identifiers.
+            Sentry.captureException(new Error('passkey-signin nav error'), {
+              tags: { errno: String(navError.errno ?? 'none') },
+            });
+            setBanner(passkeyUnexpectedBanner(ftlMsgResolver));
+            finish();
+            return;
+          }
+          // Deliberately not finish()'d — the loading state must survive the
+          // hard redirect or WebChannel handoff as this component unmounts.
+          setStatus('navigating');
+          GleanMetrics.passkey.authSuccess({
+            event: {
+              reason: buildPasskeyAuthSuccessReason(
+                toPasskeyMetricsSurface(surface),
+                kB ? 'passkeywrap' : 'nopassword'
+              ),
+            },
+          });
         };
-      } else {
-        prfOut?.fill(0);
-      }
 
-      if (keysRequired) {
+        if (!keysRequired) {
+          await signIn();
+          return;
+        }
+
+        if (
+          wrapMaterialRequested &&
+          completion.verified &&
+          completion.mfaToken &&
+          completion.hasPassword
+        ) {
+          const recovered = await recoverPasswordlessKb({
+            authClient,
+            uid: completion.uid,
+            mfaToken: completion.mfaToken,
+            credentialId,
+            prfOut,
+            mounted,
+            // The opt-in page only renders on desktop: on Firefox mobile,
+            // performNavigation:false hands sign-in off to WebChannel first.
+            offerOptIn: !integration.isFirefoxMobileClient(),
+            sensitiveDataClient,
+          });
+          // Spent: zeroed now rather than after the sign-in round-trip below.
+          prfOut?.fill(0);
+          if (recovered.outcome === 'left') {
+            return;
+          }
+          if (recovered.outcome === 'recovered') {
+            await signIn(recovered.kB);
+            return;
+          }
+        }
+
         // A password is needed to derive scoped keys before the browser
         // login/OAuth messages are sent. An existing-password account re-enters
         // its password; a passwordless account creates one.
@@ -224,53 +280,10 @@ export function usePasskeySignIn({
             },
           }
         );
-        return;
+      } finally {
+        prfOut?.fill(0);
       }
-
-      // Same path as password sign-in.
-      const { error: navError } = await handleNavigation({
-        navigate,
-        email: account.email,
-        signinData: {
-          uid: completion.uid,
-          sessionToken: completion.sessionToken,
-          // Passkey assertion is AAL2; email was verified at registration.
-          emailVerified: true,
-          sessionVerified: completion.verified,
-          verificationMethod: undefined,
-          verificationReason: undefined,
-        },
-        integration,
-        finishOAuthFlowHandler,
-        queryParams,
-        handleFxaLogin: true,
-        handleFxaOAuthLogin: true,
-        // On Firefox mobile, the browser finishes sign-in via WebChannel
-        // messages; navigating the WebView away would interrupt it.
-        performNavigation: !integration.isFirefoxMobileClient(),
-        isPasskeySession: true,
-        accountHasTotp: account.accountHasTotp,
-        authClient,
-      });
-      if (navError) {
-        Sentry.captureException(navError);
-        setBanner(passkeyUnexpectedBanner(ftlMsgResolver));
-        finish();
-        return;
-      }
-      // Deliberately not finish()'d — the loading state must survive the hard
-      // redirect or WebChannel handoff as this component unmounts.
-      setStatus('navigating');
-      GleanMetrics.passkey.authSuccess({
-        event: {
-          reason: buildPasskeyAuthSuccessReason(
-            toPasskeyMetricsSurface(surface),
-            'nopassword'
-          ),
-        },
-      });
     } catch (err) {
-      prfOut?.fill(0);
       const errno = (err as { errno?: number })?.errno;
       if (errno === AuthUiErrors.PASSKEY_NOT_FOUND.errno) {
         // Expected divergence between server state and authenticator state
@@ -306,51 +319,4 @@ export function usePasskeySignIn({
     onClick,
     clearError,
   };
-}
-
-/**
- * False only when the server says no usable wrap is stored for this passkey:
- * none at all, or one that predates the account's key rotation and will be
- * replaced on store. Any other answer, including a lookup failure, counts as
- * stored so the opt-in is withheld.
- *
- * TODO(FXA-13152): interim. Passwordless sign-in fetches the wrap to open it
- * and reads errno 234 off that same call as the opt-in signal, so this
- * existence probe goes away.
- */
-async function hasStoredWrap(
-  authClient: PasskeySignInAuthClient,
-  mfaToken: string,
-  credentialId: string
-): Promise<boolean> {
-  try {
-    await authClient.getPasskeyWrap(mfaToken, credentialId);
-    return true;
-  } catch (err) {
-    if (isAuthUiError(err)) {
-      if (
-        err.errno === ERRNO.PASSKEY_WRAP_NOT_FOUND ||
-        err.errno === ERRNO.PASSKEY_WRAP_STALE
-      ) {
-        return false;
-      }
-      // Expected while the server flag lags the client's, or when the probe's
-      // own rate limit trips; neither says anything is wrong.
-      if (
-        err.errno === ERRNO.FEATURE_NOT_ENABLED ||
-        err.errno === ERRNO.THROTTLED
-      ) {
-        return true;
-      }
-      // Withholding the offer is the safe outcome, but an outage would
-      // otherwise look identical to "already enrolled".
-      Sentry.captureException(new Error('passkey-wrap-probe error'), {
-        tags: { errno: String(err.errno) },
-      });
-      return true;
-    }
-    // If the error is not an AuthUiError, or if it doesn't match any of the above cases,
-    // we conservatively assume the wrap is stored to avoid offering the opt-in incorrectly.
-    return true;
-  }
 }
