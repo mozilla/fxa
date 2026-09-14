@@ -27,12 +27,17 @@ import {
   SensitiveData,
   SensitiveDataClient,
 } from '../../sensitive-data-client';
-import { ERRNO } from '@fxa/accounts/errors';
 import {
   ensureCanLinkAcountOrRedirect,
   handleNavigation,
 } from '../../../pages/Signin/utils';
+import { unwrapPasskeyKb } from '../../passkeys/wrap/consumption';
 import type { ExternalLinkProps } from '../../../components/Banner/interfaces';
+
+jest.mock('../../passkeys/wrap/consumption', () => ({
+  __esModule: true,
+  unwrapPasskeyKb: jest.fn(),
+}));
 
 jest.mock('../../passkeys/webauthn', () => ({
   __esModule: true,
@@ -151,9 +156,7 @@ const buildArgs = (
     totp: { exists: false, verified: false },
   });
   const sessionResendVerifyCode = jest.fn();
-  const getPasskeyWrap = jest
-    .fn()
-    .mockRejectedValue({ errno: ERRNO.PASSKEY_WRAP_NOT_FOUND });
+  const getPasskeyWrap = jest.fn();
 
   const authClient = {
     beginPasskeyAuthentication,
@@ -194,7 +197,6 @@ const buildArgs = (
       beginPasskeyAuthentication,
       completePasskeyAuthentication,
       account,
-      getPasskeyWrap,
       finishOAuthFlowHandler,
       ftlMsgResolver,
       navigateWithQuery,
@@ -228,6 +230,10 @@ beforeEach(() => {
   (getCredential as jest.Mock).mockResolvedValue(MOCK_CREDENTIAL);
   (ensureCanLinkAcountOrRedirect as jest.Mock).mockResolvedValue(true);
   (handleNavigation as jest.Mock).mockResolvedValue({ error: undefined });
+  (unwrapPasskeyKb as jest.Mock).mockResolvedValue({
+    ok: false,
+    reason: 'no_wrap',
+  });
 });
 
 describe('usePasskeySignIn', () => {
@@ -1467,47 +1473,56 @@ describe('usePasskeySignIn', () => {
   });
 });
 
+const PRF_OUT = new Uint8Array(32).fill(3);
+
+const syncIntegration = () =>
+  ({
+    isSync: () => true,
+    isFirefoxNonSync: () => false,
+    requiresPasswordForLogin: () => true,
+    getService: () => 'sync',
+    getClientId: () => undefined,
+    isFirefoxMobileClient: () => false,
+    type: IntegrationType.OAuthNative,
+    data: {},
+    wantsTwoStepAuthentication: () => false,
+  }) as unknown as PasskeySignInIntegration;
+
+const buildSyncArgs = (integration = syncIntegration()) => {
+  const built = buildArgs({ integration });
+  built.spies.beginPasskeyAuthentication.mockResolvedValue({
+    challenge: CHALLENGE,
+    extensions: { prf: { eval: { first: 'c2FsdA' } } },
+  });
+  built.spies.completePasskeyAuthentication.mockResolvedValue({
+    uid: UID,
+    sessionToken: SESSION_TOKEN,
+    verified: true,
+    hasPassword: true,
+    mfaToken: 'mfa-token',
+  });
+  (getCredential as jest.Mock).mockResolvedValue({
+    ...MOCK_CREDENTIAL,
+    clientExtensionResults: {
+      prf: { results: { first: PRF_OUT.slice().buffer } },
+    },
+  });
+  return built;
+};
+
+const renderSyncHook = ({
+  integration = syncIntegration(),
+  flagOn = true,
+}: { integration?: PasskeySignInIntegration; flagOn?: boolean } = {}) => {
+  passkeyPasswordlessSyncEnabled = flagOn;
+  const { args, spies } = buildSyncArgs(integration);
+  const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+  return { args, result, spies };
+};
+
 describe('usePasskeySignIn passwordless Sync opt-in material', () => {
-  const PRF_OUT = new Uint8Array(32).fill(3);
-  const syncIntegration = () =>
-    ({
-      isSync: () => true,
-      isFirefoxNonSync: () => false,
-      requiresPasswordForLogin: () => true,
-      getService: () => 'sync',
-      getClientId: () => undefined,
-      isFirefoxMobileClient: () => false,
-      type: IntegrationType.OAuthNative,
-      data: {},
-      wantsTwoStepAuthentication: () => false,
-    }) as unknown as PasskeySignInIntegration;
-
-  const buildSyncArgs = (integration = syncIntegration()) => {
-    const built = buildArgs({ integration });
-    built.spies.beginPasskeyAuthentication.mockResolvedValue({
-      challenge: CHALLENGE,
-      extensions: { prf: { eval: { first: 'c2FsdA' } } },
-    });
-    built.spies.completePasskeyAuthentication.mockResolvedValue({
-      uid: UID,
-      sessionToken: SESSION_TOKEN,
-      verified: true,
-      hasPassword: true,
-      mfaToken: 'mfa-token',
-    });
-    (getCredential as jest.Mock).mockResolvedValue({
-      ...MOCK_CREDENTIAL,
-      clientExtensionResults: {
-        prf: { results: { first: PRF_OUT.slice().buffer } },
-      },
-    });
-    return built;
-  };
-
-  it('requests the passkey scope and holds the PRF output with the proof for a desktop Sync sign-in', async () => {
-    passkeyPasswordlessSyncEnabled = true;
-    const { args, spies } = buildSyncArgs();
-    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+  it('requests the passkey scope and holds the PRF output with the proof', async () => {
+    const { result, spies } = renderSyncHook();
 
     await act(() => result.current.onClick());
 
@@ -1515,10 +1530,6 @@ describe('usePasskeySignIn passwordless Sync opt-in material', () => {
       keysRequired: true,
       scope: 'passkey',
     });
-    expect(spies.getPasskeyWrap).toHaveBeenCalledWith(
-      'mfa-token',
-      MOCK_CREDENTIAL.id
-    );
     expect(
       sensitiveDataClient.getDataType(SensitiveData.Key.PasskeyWrap)
     ).toEqual({
@@ -1539,8 +1550,7 @@ describe('usePasskeySignIn passwordless Sync opt-in material', () => {
       mfaToken: 'stale',
       prfOut: new Uint8Array(32),
     });
-    const { args } = buildSyncArgs();
-    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+    const { result } = renderSyncHook({ flagOn: false });
 
     await act(() => result.current.onClick());
 
@@ -1549,86 +1559,74 @@ describe('usePasskeySignIn passwordless Sync opt-in material', () => {
     ).toBeUndefined();
   });
 
-  it('holds nothing for a non-OAuth Sync integration', async () => {
-    passkeyPasswordlessSyncEnabled = true;
+  it('skips the wrap path for a non-OAuth Sync integration', async () => {
     const integration = syncIntegration();
     (integration as { type: IntegrationType }).type =
       IntegrationType.SyncDesktopV3;
-    const { args, spies } = buildSyncArgs(integration);
-    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+    const { result, spies } = renderSyncHook({ integration });
 
     await act(() => result.current.onClick());
 
     expect(spies.beginPasskeyAuthentication).toHaveBeenCalledWith({
       keysRequired: true,
     });
+    expect(unwrapPasskeyKb).not.toHaveBeenCalled();
     expect(
       sensitiveDataClient.getDataType(SensitiveData.Key.PasskeyWrap)
     ).toBeUndefined();
   });
 
   it('requests no scope and holds nothing when the flag is off', async () => {
-    const { args, spies } = buildSyncArgs();
-    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+    const { result, spies } = renderSyncHook({ flagOn: false });
 
     await act(() => result.current.onClick());
 
     expect(spies.beginPasskeyAuthentication).toHaveBeenCalledWith({
       keysRequired: true,
     });
+    expect(unwrapPasskeyKb).not.toHaveBeenCalled();
+    expect(spies.navigateWithQuery).toHaveBeenCalledWith(
+      '/signin_passkey_fallback',
+      { state: { passkeySurface: 'emailfirst' } }
+    );
     expect(
       sensitiveDataClient.getDataType(SensitiveData.Key.PasskeyWrap)
     ).toBeUndefined();
   });
 
-  it('requests no scope and holds nothing on a mobile client', async () => {
-    passkeyPasswordlessSyncEnabled = true;
+  it('runs wrap consumption on a mobile client but never stashes opt-in material, since the opt-in page is desktop-only', async () => {
     const integration = syncIntegration();
     (
       integration as { isFirefoxMobileClient: () => boolean }
     ).isFirefoxMobileClient = () => true;
-    const { args, spies } = buildSyncArgs(integration);
-    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+    const { result, spies } = renderSyncHook({ integration });
 
     await act(() => result.current.onClick());
 
     expect(spies.beginPasskeyAuthentication).toHaveBeenCalledWith({
       keysRequired: true,
+      scope: 'passkey',
     });
-    expect(
-      sensitiveDataClient.getDataType(SensitiveData.Key.PasskeyWrap)
-    ).toBeUndefined();
-  });
-
-  it('holds nothing when a wrap is already stored for the passkey', async () => {
-    passkeyPasswordlessSyncEnabled = true;
-    const { args, spies } = buildSyncArgs();
-    spies.getPasskeyWrap.mockResolvedValue({ createdAt: 1_700_000_000_000 });
-    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
-
-    await act(() => result.current.onClick());
-
-    expect(
-      sensitiveDataClient.getDataType(SensitiveData.Key.PasskeyWrap)
-    ).toBeUndefined();
-  });
-
-  it('holds nothing when the wrap lookup fails for another reason', async () => {
-    passkeyPasswordlessSyncEnabled = true;
-    const { args, spies } = buildSyncArgs();
-    spies.getPasskeyWrap.mockRejectedValue({ errno: ERRNO.INVALID_TOKEN });
-    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
-
-    await act(() => result.current.onClick());
-
+    expect(unwrapPasskeyKb).toHaveBeenCalled();
+    expect(spies.navigateWithQuery).toHaveBeenCalledWith(
+      '/signin_passkey_fallback',
+      {
+        state: {
+          passkeySurface: 'emailfirst',
+          passkeyFallback: {
+            credentialId: MOCK_CREDENTIAL.id,
+            reason: 'no_wrap',
+          },
+        },
+      }
+    );
     expect(
       sensitiveDataClient.getDataType(SensitiveData.Key.PasskeyWrap)
     ).toBeUndefined();
   });
 
   it('holds nothing when the account still has to create a password', async () => {
-    passkeyPasswordlessSyncEnabled = true;
-    const { args, spies } = buildSyncArgs();
+    const { result, spies } = renderSyncHook();
     spies.completePasskeyAuthentication.mockResolvedValue({
       uid: UID,
       sessionToken: SESSION_TOKEN,
@@ -1636,25 +1634,177 @@ describe('usePasskeySignIn passwordless Sync opt-in material', () => {
       hasPassword: false,
       mfaToken: 'mfa-token',
     });
-    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
 
     await act(() => result.current.onClick());
 
+    expect(unwrapPasskeyKb).not.toHaveBeenCalled();
     expect(
       sensitiveDataClient.getDataType(SensitiveData.Key.PasskeyWrap)
     ).toBeUndefined();
   });
 
   it('holds nothing when the authenticator returned no PRF output', async () => {
-    passkeyPasswordlessSyncEnabled = true;
-    const { args } = buildSyncArgs();
+    (unwrapPasskeyKb as jest.Mock).mockResolvedValue({
+      ok: false,
+      reason: 'no_prf',
+    });
+    const { args, result, spies } = renderSyncHook();
     (getCredential as jest.Mock).mockResolvedValue(MOCK_CREDENTIAL);
-    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+
+    await act(() => result.current.onClick());
+
+    expect(unwrapPasskeyKb).toHaveBeenCalledWith(
+      args.authClient,
+      expect.objectContaining({ prfOut: undefined })
+    );
+    expect(spies.navigateWithQuery).toHaveBeenCalledWith(
+      '/signin_passkey_fallback',
+      {
+        state: {
+          passkeySurface: 'emailfirst',
+          passkeyFallback: {
+            credentialId: MOCK_CREDENTIAL.id,
+            reason: 'no_prf',
+          },
+        },
+      }
+    );
+    expect(
+      sensitiveDataClient.getDataType(SensitiveData.Key.PasskeyWrap)
+    ).toBeUndefined();
+  });
+});
+
+describe('usePasskeySignIn passwordless Sync consumption', () => {
+  it('completes the OAuth flow with kB and no password page when the wrap opens', async () => {
+    // The hook zeroes the array it passed in, so read it at call time.
+    let prfOutAtCall: Uint8Array | undefined;
+    (unwrapPasskeyKb as jest.Mock).mockImplementation(
+      async (_client, { prfOut }) => {
+        prfOutAtCall = prfOut && new Uint8Array(prfOut);
+        return { ok: true, kB: new Uint8Array(32).fill(0xab) };
+      }
+    );
+    const { args, result, spies } = renderSyncHook();
+
+    await act(() => result.current.onClick());
+
+    expect(unwrapPasskeyKb).toHaveBeenCalledWith(args.authClient, {
+      mfaToken: 'mfa-token',
+      credentialId: MOCK_CREDENTIAL.id,
+      uid: UID,
+      prfOut: expect.any(Uint8Array),
+    });
+    expect(prfOutAtCall).toEqual(PRF_OUT);
+    expect(handleNavigation).toHaveBeenCalledWith(
+      expect.objectContaining({ kB: 'ab'.repeat(32) })
+    );
+    expect(spies.navigateWithQuery).not.toHaveBeenCalled();
+    expect(GleanMetrics.passkey.authSuccess).toHaveBeenCalledWith({
+      event: { reason: 'emailfirst_nopassword' },
+    });
+    expect(
+      sensitiveDataClient.getDataType(SensitiveData.Key.PasskeyWrap)
+    ).toBeUndefined();
+  });
+
+  it('zeroes the extracted PRF output once the ceremony ends', async () => {
+    const { result } = renderSyncHook();
+
+    await act(() => result.current.onClick());
+
+    const [, { prfOut }] = (unwrapPasskeyKb as jest.Mock).mock.calls[0];
+    expect(prfOut).toEqual(new Uint8Array(32));
+  });
+
+  it.each([
+    'no_prf',
+    'passkey_not_found',
+    'proof_invalid',
+    'stale',
+    'decrypt_failed',
+    'fetch_failed',
+  ] as const)(
+    'falls back to the password page on %s without stashing opt-in material',
+    async (reason) => {
+      (unwrapPasskeyKb as jest.Mock).mockResolvedValue({ ok: false, reason });
+      const { result, spies } = renderSyncHook();
+
+      await act(() => result.current.onClick());
+
+      expect(spies.navigateWithQuery).toHaveBeenCalledWith(
+        '/signin_passkey_fallback',
+        {
+          state: {
+            passkeySurface: 'emailfirst',
+            passkeyFallback: { credentialId: MOCK_CREDENTIAL.id, reason },
+          },
+        }
+      );
+      expect(
+        sensitiveDataClient.getDataType(SensitiveData.Key.PasskeyWrap)
+      ).toBeUndefined();
+      expect(handleNavigation).not.toHaveBeenCalled();
+    }
+  );
+
+  it('falls back to the password page as fetch_failed when the wrap module fails to load', async () => {
+    // Exercises the try/catch around the dynamic import; unwrapPasskeyKb
+    // itself never rejects, so a rejection here stands in for a failed chunk load.
+    (unwrapPasskeyKb as jest.Mock).mockRejectedValue(new Error('chunk'));
+    const { result, spies } = renderSyncHook();
+
+    await act(() => result.current.onClick());
+
+    expect(spies.navigateWithQuery).toHaveBeenCalledWith(
+      '/signin_passkey_fallback',
+      {
+        state: {
+          passkeySurface: 'emailfirst',
+          passkeyFallback: {
+            credentialId: MOCK_CREDENTIAL.id,
+            reason: 'fetch_failed',
+          },
+        },
+      }
+    );
+    expect(
+      sensitiveDataClient.getDataType(SensitiveData.Key.PasskeyWrap)
+    ).toBeUndefined();
+    expect(handleNavigation).not.toHaveBeenCalled();
+  });
+
+  it('stashes opt-in material and falls back when no wrap is stored', async () => {
+    (unwrapPasskeyKb as jest.Mock).mockResolvedValue({
+      ok: false,
+      reason: 'no_wrap',
+    });
+    const { result, spies } = renderSyncHook();
 
     await act(() => result.current.onClick());
 
     expect(
       sensitiveDataClient.getDataType(SensitiveData.Key.PasskeyWrap)
-    ).toBeUndefined();
+    ).toEqual(
+      expect.objectContaining({
+        uid: UID,
+        credentialId: MOCK_CREDENTIAL.id,
+        mfaToken: 'mfa-token',
+        prfOut: PRF_OUT,
+      })
+    );
+    expect(spies.navigateWithQuery).toHaveBeenCalledWith(
+      '/signin_passkey_fallback',
+      {
+        state: {
+          passkeySurface: 'emailfirst',
+          passkeyFallback: {
+            credentialId: MOCK_CREDENTIAL.id,
+            reason: 'no_wrap',
+          },
+        },
+      }
+    );
+    expect(handleNavigation).not.toHaveBeenCalled();
   });
 });
