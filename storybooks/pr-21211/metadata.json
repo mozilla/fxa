@@ -1,0 +1,12 @@
+{
+  "commit": "f1711e492b0abf4f552d1d87fb626b441c8f3c68",
+  "summary": "chore(deps): remove unused bn.js dependency",
+  "description": "## Because\n\n- Nothing in the monorepo imports `bn.js` anymore. Its only consumer was the legacy BrowserID support document at `GET /.well-known/browserid`, which rendered the base64 RSA `n` and `e` values as decimal strings.\n- Commit c80edbb43b removed that route and the import, but the root `package.json` kept the dependency, the `@types/bn.js` devDependency, and a `resolutions` pin.\n\n## This pull request\n\n- Removes `bn.js` from root `dependencies` and `@types/bn.js` from `devDependencies`.\n- Removes the `bn.js` entry from `resolutions`.\n- Regenerates `yarn.lock`.\n\n## Issue that this pull request solves\n\nCloses: FXA-13607",
+  "timestamp": 1789422686000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

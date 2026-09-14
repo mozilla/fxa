@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit f1711e492b0abf4f552d1d87fb626b441c8f3c68</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit f1711e492b0abf4f552d1d87fb626b441c8f3c68</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/14/2026, 9:51:26 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>chore(deps): remove unused bn.js dependency</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- Nothing in the monorepo imports `bn.js` anymore. Its only consumer was the legacy BrowserID support document at `GET /.well-known/browserid`, which rendered the base64 RSA `n` and `e` values as decimal strings.
+- Commit c80edbb43b removed that route and the import, but the root `package.json` kept the dependency, the `@types/bn.js` devDependency, and a `resolutions` pin.
+
+## This pull request
+
+- Removes `bn.js` from root `dependencies` and `@types/bn.js` from `devDependencies`.
+- Removes the `bn.js` entry from `resolutions`.
+- Regenerates `yarn.lock`.
+
+## Issue that this pull request solves
+
+Closes: FXA-13607</pre></dd>
+  </dl>
+</body>
+</html>
