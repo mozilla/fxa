@@ -7,6 +7,7 @@ import {
   AccountDatabase,
   AccountDbProvider,
   testAccountDatabaseSetup,
+  testAccountDatabaseTeardown,
   RecoveryPhoneFactory,
 } from '@fxa/shared/db/mysql/account';
 import { Test } from '@nestjs/testing';
@@ -82,9 +83,10 @@ describe('RecoveryPhoneManager', () => {
   });
 
   afterAll(async () => {
-    await clearRedisSmsKeys();
-    await db.destroy();
     dateMock.mockReset();
+    // Drop the schema first, so a failed Redis cleanup cannot leak it.
+    await testAccountDatabaseTeardown(db);
+    await clearRedisSmsKeys();
   });
 
   it('should get a recovery phone', async () => {

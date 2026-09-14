@@ -16,6 +16,7 @@ import {
   DB,
   PaypalCustomerFactory,
   testAccountDatabaseSetup,
+  testAccountDatabaseTeardown,
 } from '@fxa/shared/db/mysql/account';
 import { PaypalCustomerNoRowsUpdatedError } from './paypalCustomer.error';
 
@@ -27,9 +28,7 @@ describe('PaypalCustomer Repository', () => {
   });
 
   afterAll(async () => {
-    if (kyselyDb) {
-      await kyselyDb.destroy();
-    }
+    await testAccountDatabaseTeardown(kyselyDb);
   });
 
   describe('createPaypalCustomer', () => {

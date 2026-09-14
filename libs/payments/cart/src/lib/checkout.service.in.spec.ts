@@ -6,6 +6,7 @@ import {
   CartErrorReasonId,
   CartState,
   testAccountDatabaseSetup,
+  testAccountDatabaseTeardown,
   AccountDatabase,
 } from '@fxa/shared/db/mysql/account';
 
@@ -65,7 +66,7 @@ describe('CheckoutService', () => {
   });
 
   afterAll(async () => {
-    await db.destroy();
+    await testAccountDatabaseTeardown(db);
   });
 
   describe('full flow: cart state transitions in DB', () => {

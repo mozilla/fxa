@@ -7,6 +7,7 @@ import {
   CartFactory,
   CartState,
   testAccountDatabaseSetup,
+  testAccountDatabaseTeardown,
   AccountDatabase,
   CartUpdate,
   CartErrorReasonId,
@@ -87,7 +88,7 @@ describe('CartManager', () => {
   });
 
   afterAll(async () => {
-    await db.destroy();
+    await testAccountDatabaseTeardown(db);
   });
 
   beforeEach(async () => {
