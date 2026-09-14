@@ -23,7 +23,7 @@ import {
   useAuthClient,
   useConfig,
 } from '../../models';
-import { usePasskeySignIn } from '../../lib/passkeys/signin-flow';
+import { usePasskeySignIn } from '../../lib/hooks/usePasskeySignIn';
 import { shouldShowPasskeySignin } from '../../lib/passkeys';
 import { isWebAuthnSupported } from '../../lib/passkeys/webauthn';
 import { SigninFormData, SigninProps } from './interfaces';
@@ -442,7 +442,11 @@ const Signin = ({
             ? { isLoading: passkey.isLoading, onClick: handlePasskeyClick }
             : undefined
         }
-        errorBanner={showPasskeySignin ? passkey.errorBanner : undefined}
+        errorBanner={
+          showPasskeySignin && passkey.banner ? (
+            <Banner {...passkey.banner} />
+          ) : undefined
+        }
         onContinueWithGoogle={clearErrors}
         onContinueWithApple={clearErrors}
         disabled={alternativesLocked}
