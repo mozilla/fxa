@@ -1338,6 +1338,7 @@ pair2-supplicant-connect-this-device-cancel-button = Cancelar
 pair2-supplicant-download-firefox-heading = Obtén { -brand-firefox } en este dispositivo
 pair2-supplicant-download-firefox-description = Descarga { -brand-firefox } para sincronizar marcadores, historial y más en todos tus dispositivos. <linkExternal>Más información</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Continuar en { -brand-firefox }
+pair2-supplicant-download-firefox-opening-button = Abriendo { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = Para conectar un dispositivo

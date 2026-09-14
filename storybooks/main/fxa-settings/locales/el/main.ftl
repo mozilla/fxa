@@ -1411,6 +1411,7 @@ pair2-supplicant-connect-this-device-cancel-button = Ακύρωση
 pair2-supplicant-download-firefox-heading = Αποκτήστε το { -brand-firefox } σε αυτήν τη συσκευή
 pair2-supplicant-download-firefox-description = Κάντε λήψη του { -brand-firefox } για να συγχρονίσετε τους σελιδοδείκτες, το ιστορικό και πολλά άλλα με όλες τις συσκευές σας. <linkExternal>Μάθετε περισσότερα</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Συνέχεια στο { -brand-firefox }
+pair2-supplicant-download-firefox-opening-button = Άνοιγμα του { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = Για να συνδέσετε μια συσκευή

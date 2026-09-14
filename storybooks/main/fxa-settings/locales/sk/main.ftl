@@ -491,6 +491,15 @@ password-strength-inline-passwords-match = Heslá sa zhodujú
 
 
 promo-qr-mobile-heading = Váš telefón. Vaše pravidlá.
+promo-qr-mobile-heading-treatment-a = Pokračujte tam, kde ste skončili, nech ste kdekoľvek
+promo-qr-mobile-heading-treatment-b = Vaše karty a ďalší obsah poruke vo vašom telefóne
+promo-qr-mobile-heading-treatment-c = Prehliadač, ktorému dôverujete, aj vo vašom telefóne
+promo-qr-mobile-heading-treatment-d = Ten istý { -brand-firefox }. Iná obrazovka.
+promo-qr-mobile-heading-treatment-e = Vaše súkromie by sa tu nemalo končiť
+promo-qr-mobile-heading-treatment-f = Udržte si viac zo svojho prehliadania v súkromí
+promo-qr-mobile-heading-treatment-g = Vášmu telefónu by prospelo menej rušivých vplyvov
+promo-qr-mobile-heading-treatment-h = Majte pokojnejšie prehliadanie vždy poruke
+promo-qr-mobile-description-v2 = Naskenujte kód a stiahnite si mobilnú aplikáciu
 promo-qr-mobile-qr-alt =
     .alt = QR kód na stiahnutie mobilnej aplikácie { -brand-firefox }. Umiestnite fotoaparát telefónu do pravého dolného rohu obrazovky a naskenujte ho.
 
@@ -1488,6 +1497,7 @@ pair2-supplicant-connect-this-device-cancel-button = Zrušiť
 pair2-supplicant-download-firefox-heading = Získajte { -brand-firefox(case: "acc") } na tomto zariadení
 pair2-supplicant-download-firefox-description = Stiahnite si { -brand-firefox(case: "acc") } a synchronizujte záložky, históriu a ďalšie údaje naprieč zariadeniami. <linkExternal>Ďalšie informácie</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Pokračujte vo { -brand-firefox(case: "loc") }
+pair2-supplicant-download-firefox-opening-button = Spúšťa sa { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = Pripojenie zariadenia

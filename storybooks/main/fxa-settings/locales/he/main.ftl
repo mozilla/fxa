@@ -1295,6 +1295,7 @@ pair2-supplicant-connect-this-device-cancel-button = ביטול
 pair2-supplicant-download-firefox-heading = קבלת { -brand-firefox } במכשיר זה
 pair2-supplicant-download-firefox-description = ניתן להוריד את { -brand-firefox } כדי לסנכרן סימניות, היסטוריה ועוד בין מכשירים. <linkExternal>מידע נוסף</linkExternal>
 pair2-supplicant-download-firefox-continue-button = המשך ב־{ -brand-firefox }
+pair2-supplicant-download-firefox-opening-button = בתהליך פתיחת { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = כדי לחבר מכשיר
