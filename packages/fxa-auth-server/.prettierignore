@@ -8,7 +8,6 @@ LICENSE
 *.pot
 *.graffle
 *.docker
-*.handlebars
 *.html
 *.mjml
 Dockerfile*
