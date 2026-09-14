@@ -1,0 +1,10 @@
+{
+  "commit": "efb5a6811adbcaf8c81aadb8f93d5b23cb335ecf",
+  "summary": "feat(settings): Remove synced tabs CTA from pairing confirmation",
+  "description": "Because:\n\n- Synced data is not guaranteed to be available right after pairing, so\n  \"View synced tabs\" can land the user on an empty view.\n- Users who just set up desktop or mobile Firefox have no synced data yet.\n- The open-tabs sync engine may be off, making the CTA misleading.\n\nThis commit:\n\n- Removes the \"View synced tabs\" button and `onViewSyncedTabs` prop from\n  the Authority and Supplicant SyncSuccess cards.\n- Updates heading, description, and link copy to the final Figma design.\n- Versions each changed Fluent id to `-v2`.\n- Adjusts desktop image and link spacing to the 24px redlines.\n- Asserts sync settings is the only action on each card.\n\nCloses #FXA-14475",
+  "timestamp": 1788916327000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
