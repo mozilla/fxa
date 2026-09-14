@@ -1,8 +1,8 @@
 {
-  "commit": "d1a87a3fef1a25e7a190d47513597dd5a47313af",
-  "summary": "Merge pull request #21204 from mozilla/fxa-8853",
-  "description": "refactor(settings): remove dead integration check in ConfirmSignupCode",
-  "timestamp": 1789419197000,
+  "commit": "e3e036a401a9e02994ebbdb484f1deefaf9d2bfc",
+  "summary": "Merge pull request #21203 from mozilla/fxa-8454",
+  "description": "refactor(settings): remove unused getStoredAccountData from cache",
+  "timestamp": 1789419242000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
