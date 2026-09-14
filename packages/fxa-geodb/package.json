@@ -9,7 +9,6 @@
   "scripts": {
     "clean": "rimraf dist",
     "cover": "nyc _mocha",
-    "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint .",
     "test": "mocha",
     "test-unit": "MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-geodb-mocha-unit-results.xml mocha --grep '^(?!.*#integration)' ",
@@ -36,7 +35,6 @@
     "mozlog": "^3.0.2"
   },
   "devDependencies": {
-    "audit-filter": "^0.5.0",
     "chai": "^5.3.3",
     "eslint": "^8.19.0",
     "fxa-shared": "workspace:*",
