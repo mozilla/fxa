@@ -398,7 +398,7 @@ describe('PasskeyService', () => {
       });
     });
 
-    it('captures an unexpected verification error in Sentry', async () => {
+    it('captures an unexpected verification error in Sentry and increments the verificationError metric', async () => {
       const err = new Error('Invalid attestation format');
       mockVerifyWebauthnRegistrationResponse.mockRejectedValue(err);
       await expect(
@@ -409,19 +409,6 @@ describe('PasskeyService', () => {
         )
       ).rejects.toThrow();
       expect(mockCaptureException).toHaveBeenCalledWith(err);
-    });
-
-    it('increments a verificationError metric on an unexpected error', async () => {
-      mockVerifyWebauthnRegistrationResponse.mockRejectedValue(
-        new Error('Invalid attestation format')
-      );
-      await expect(
-        service.createPasskeyFromRegistrationResponse(
-          MOCK_UID,
-          mockResponse,
-          MOCK_CHALLENGE
-        )
-      ).rejects.toThrow();
       expect(mockMetrics.increment).toHaveBeenCalledWith(
         'passkey.registration.failed',
         { reason: 'verificationError' }
@@ -441,7 +428,7 @@ describe('PasskeyService', () => {
       ).rejects.toMatchObject(AppError.passkeyUserVerificationRequired());
     });
 
-    it('does not capture a user-verification failure in Sentry', async () => {
+    it('does not capture a user-verification failure in Sentry and increments the userVerificationFailed metric', async () => {
       mockVerifyWebauthnRegistrationResponse.mockRejectedValue(
         new UserVerificationRequiredError()
       );
@@ -453,19 +440,6 @@ describe('PasskeyService', () => {
         )
       ).rejects.toThrow();
       expect(mockCaptureException).not.toHaveBeenCalled();
-    });
-
-    it('increments a userVerificationFailed metric on a user-verification failure', async () => {
-      mockVerifyWebauthnRegistrationResponse.mockRejectedValue(
-        new UserVerificationRequiredError()
-      );
-      await expect(
-        service.createPasskeyFromRegistrationResponse(
-          MOCK_UID,
-          mockResponse,
-          MOCK_CHALLENGE
-        )
-      ).rejects.toThrow();
       expect(mockMetrics.increment).toHaveBeenCalledWith(
         'passkey.registration.failed',
         { reason: 'userVerificationFailed' }
@@ -500,7 +474,7 @@ describe('PasskeyService', () => {
       );
     });
 
-    it('returns the persisted passkey data', async () => {
+    it('returns the persisted passkey data, increments the success metric, and logs the registration', async () => {
       const result = await service.createPasskeyFromRegistrationResponse(
         MOCK_UID,
         mockResponse,
@@ -520,14 +494,6 @@ describe('PasskeyService', () => {
           backupState: false,
           prfEnabled: true,
         })
-      );
-    });
-
-    it('emits correct metrics and logs on success', async () => {
-      await service.createPasskeyFromRegistrationResponse(
-        MOCK_UID,
-        mockResponse,
-        MOCK_CHALLENGE
       );
       expect(mockMetrics.increment).toHaveBeenCalledWith(
         'passkey.registration.success'
@@ -899,18 +865,14 @@ describe('PasskeyService', () => {
       );
     });
 
-    it('increments the authentication success metric', async () => {
-      await service.verifyAuthenticationResponse(mockResponse, MOCK_CHALLENGE);
-      expect(mockMetrics.increment).toHaveBeenCalledWith(
-        'passkey.authentication.success'
-      );
-    });
-
-    it('logs a security event on success', async () => {
+    it('logs a security event and increments the success metric', async () => {
       await service.verifyAuthenticationResponse(mockResponse, MOCK_CHALLENGE);
       expect(mockLogger.log).toHaveBeenCalledWith(
         'passkey.authenticated',
         expect.objectContaining({ uid: MOCK_UID })
+      );
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'passkey.authentication.success'
       );
     });
 
@@ -1024,7 +986,7 @@ describe('PasskeyService', () => {
       );
     });
 
-    it('increments a userVerificationFailed metric when the authenticator does not verify the user', async () => {
+    it('throws a passkeyAuthenticationFailed AppError and increments the userVerificationFailed metric', async () => {
       (
         webauthnAdapter.verifyWebauthnAuthenticationResponse as jest.Mock
       ).mockRejectedValue(new UserVerificationRequiredError());
@@ -1155,7 +1117,7 @@ describe('PasskeyService', () => {
       { ...passkeyRecord({ name: 'Passkey' }), hasPasswordlessSync: true },
     ];
 
-    it('returns passkeys with their wrap state', async () => {
+    it('returns passkeys with their wrap state and increments the success metric', async () => {
       mockManager.listPasskeysWithWrapStateForUser.mockResolvedValue(
         mockPasskeys
       );
@@ -1164,13 +1126,6 @@ describe('PasskeyService', () => {
       expect(mockManager.listPasskeysWithWrapStateForUser).toHaveBeenCalledWith(
         MOCK_UID
       );
-    });
-
-    it('increments passkey.list.success metric', async () => {
-      mockManager.listPasskeysWithWrapStateForUser.mockResolvedValue(
-        mockPasskeys
-      );
-      await service.listPasskeysForUser(MOCK_UID);
       expect(mockMetrics.increment).toHaveBeenCalledWith(
         'passkey.list.success'
       );
@@ -1399,7 +1354,7 @@ describe('PasskeyService', () => {
       mockManager.findPasskeyWrap.mockResolvedValue(undefined);
     });
 
-    it('stores the envelope and reports it as created', async () => {
+    it('stores the envelope, reports it as created, and increments the success metric', async () => {
       const result = await service.storePasskeyWrap(
         MOCK_UID,
         MOCK_CREDENTIAL_ID,
@@ -1413,16 +1368,6 @@ describe('PasskeyService', () => {
         { credentialId: MOCK_CREDENTIAL_ID, ...MOCK_ENVELOPE },
         MOCK_NOW
       );
-    });
-
-    it('increments the success counter when created', async () => {
-      await service.storePasskeyWrap(
-        MOCK_UID,
-        MOCK_CREDENTIAL_ID,
-        MOCK_ENVELOPE,
-        MOCK_NOW
-      );
-
       expect(mockMetrics.increment).toHaveBeenCalledWith(
         'passkey.wrap.store.success'
       );
