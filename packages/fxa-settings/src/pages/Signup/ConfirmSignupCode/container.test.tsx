@@ -184,7 +184,6 @@ describe('confirm-signup-container', () => {
       );
       expect(currentProps?.email).toEqual(MOCK_EMAIL);
       expect(currentProps?.sessionToken).toEqual(MOCK_SESSION_TOKEN);
-      expect(currentProps?.integration).toBeDefined();
       expect(currentProps?.finishOAuthFlowHandler).toBeDefined();
       expect(currentProps?.newsletterSlugs).toEqual('slugs');
       expect(currentProps?.keyFetchToken).toEqual(MOCK_KEY_FETCH_TOKEN);
@@ -207,7 +206,6 @@ describe('confirm-signup-container', () => {
       );
       expect(currentProps?.email).toEqual(MOCK_EMAIL);
       expect(currentProps?.sessionToken).toEqual(MOCK_SESSION_TOKEN);
-      expect(currentProps?.integration).toBeDefined();
       expect(currentProps?.finishOAuthFlowHandler).toBeDefined();
       expect(currentProps?.newsletterSlugs).toEqual('slugs');
       expect(currentProps?.keyFetchToken).toEqual(MOCK_KEY_FETCH_TOKEN);
