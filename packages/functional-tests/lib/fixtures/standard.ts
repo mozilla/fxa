@@ -34,6 +34,7 @@ export type TestOptions = {
   syncBrowserPages: POMS;
   syncOAuthBrowserPages: POMS;
   testAccountTracker: TestAccountTracker;
+  apiAccountTracker: TestAccountTracker;
   gleanEventsHelper: GleanEventsHelper;
 };
 export type WorkerOptions = { targetName: TargetName; target: ServerTarget };
@@ -87,6 +88,17 @@ export const test = base.extend<TestOptions, WorkerOptions>({
     await handleSyncPagesTraceStop(syncBrowserPages, testInfo);
 
     await syncBrowserPages.browser?.close();
+  },
+
+  // Same tracking and teardown as `testAccountTracker`, without the `page`
+  // dependency that would launch a browser for an API-only spec.
+  apiAccountTracker: async ({ target }, use, testInfo) => {
+    const apiAccountTracker = new TestAccountTracker(target, testInfo);
+
+    await use(apiAccountTracker);
+
+    await target.clearRateLimits();
+    await apiAccountTracker.destroyAllAccounts();
   },
 
   testAccountTracker: async ({ target, page }, use, testInfo) => {

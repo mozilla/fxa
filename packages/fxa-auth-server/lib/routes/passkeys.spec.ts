@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import type { Schema } from 'joi';
+import jwt from 'jsonwebtoken';
 import { Container } from 'typedi';
 import { PasskeyService } from '@fxa/accounts/passkey';
 import { AppError } from '@fxa/accounts/errors';
@@ -59,8 +60,9 @@ describe('passkeys routes', () => {
   const CREDENTIAL_ID_B64 =
     Buffer.from('credential-id-xyz').toString('base64url');
 
-  // Only the passkeys flags and the MFA action list are read by these routes;
-  // cast the partial fixture to the full ConfigType the factory expects.
+  // Only the passkeys flags, the MFA action list and the JWT signing settings
+  // are read by these routes; cast the partial fixture to the full ConfigType
+  // the factory expects.
   const config = {
     passkeys: {
       enabled: true,
@@ -69,6 +71,12 @@ describe('passkeys routes', () => {
     },
     mfa: {
       actions: ['2fa', 'email', 'recovery_key', 'password', 'passkey'],
+      jwt: {
+        expiresInSec: 300,
+        audience: 'fxa',
+        issuer: 'accounts.firefox.com',
+        secretKey: 'foxes'.repeat(13),
+      },
     },
   } as unknown as ConfigType;
 
@@ -1175,6 +1183,31 @@ describe('passkeys routes', () => {
         verified: true,
         hasPassword: true,
       });
+    });
+
+    it('mints an mfaToken bound to the session and the asserted credential', async () => {
+      mockPasskeyService.verifyAuthenticationResponse.mockResolvedValueOnce({
+        uid: UID,
+        scope: 'passkey',
+        credentialId: CREDENTIAL_ID_B64,
+      });
+
+      const result = await runTest('/passkey/authentication/finish', {
+        auth: { credentials: {} },
+        app: { ua: {} },
+        payload,
+      });
+
+      // @types/jsonwebtoken 8 types `verify` as `object | string`, so the
+      // claims this route signs are named here rather than inferred.
+      const claims = jwt.verify(result.mfaToken, config.mfa.jwt.secretKey, {
+        audience: config.mfa.jwt.audience,
+        issuer: config.mfa.jwt.issuer,
+      }) as { sub: string; scope: string[]; cid: string; stid: string };
+      expect(claims.sub).toBe(UID);
+      expect(claims.scope).toEqual(['mfa:passkey']);
+      expect(claims.cid).toBe(CREDENTIAL_ID_B64);
+      expect(claims.stid).toBe('new-session-token-id');
     });
 
     it('forwards prfSupported from the payload to verifyAuthenticationResponse', async () => {

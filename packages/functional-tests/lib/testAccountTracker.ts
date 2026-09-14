@@ -12,10 +12,7 @@ import { Credentials } from './targets';
 import { BaseTarget } from './targets/base';
 import { MfaScope } from 'fxa-settings/src/lib/types';
 import { getTotpCode } from './totp';
-import {
-  SessionStatus,
-  SignedInAccountData,
-} from 'fxa-auth-client/lib/client';
+import { SessionStatus, SignedInAccountData } from 'fxa-auth-client/lib/client';
 
 enum EmailPrefix {
   BLOCKED = 'blocked',
@@ -60,13 +57,27 @@ export class TestAccountTracker {
   accounts: (AccountDetails | Credentials)[];
   private target: BaseTarget;
   private testInfo: TestInfo;
-  private page: Page;
+  private maybePage?: Page;
 
-  constructor(target: BaseTarget, testInfo: TestInfo, page: Page) {
+  /**
+   * `page` is optional so API-level specs can track and destroy accounts
+   * without opening a browser. The JWT-cache helpers are the only members that
+   * need it, and they throw when it is absent.
+   */
+  constructor(target: BaseTarget, testInfo: TestInfo, page?: Page) {
     this.target = target;
     this.testInfo = testInfo;
     this.accounts = [];
-    this.page = page;
+    this.maybePage = page;
+  }
+
+  private get page(): Page {
+    if (!this.maybePage) {
+      throw new Error(
+        'TestAccountTracker was constructed without a page; this helper drives localStorage and needs one.'
+      );
+    }
+    return this.maybePage;
   }
 
   /**
@@ -441,7 +452,7 @@ export class TestAccountTracker {
     const { sessionToken } = await this.target.authClient.signIn(
       {
         primary: account.email,
-        original: account.originalEmail || account.email
+        original: account.originalEmail || account.email,
       },
       account.password,
       {},
@@ -493,7 +504,7 @@ export class TestAccountTracker {
     await this.target.authClient.accountDestroy(
       {
         primary: account.email,
-        original: account.originalEmail || account.email
+        original: account.originalEmail || account.email,
       },
       account.password,
       {},
