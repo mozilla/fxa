@@ -261,6 +261,8 @@ export interface NavigationOptions {
   };
   // unwrapBKey is included if integration.wantsKeys()
   unwrapBKey?: hexstring;
+  // Hex kB already recovered client-side (passkey wrap). Sync OAuth only.
+  kB?: hexstring;
   integration: SigninIntegration;
   finishOAuthFlowHandler: FinishOAuthFlowHandler;
   redirectTo?: string;
