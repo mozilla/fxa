@@ -9,16 +9,12 @@ const config = require('../configuration');
 const flowMetricsRequest = require('../flow-event').metricsRequest;
 const joi = require('joi');
 const logger = require('../logging/log')('server.post-metrics');
-const MetricsCollector = require('../metrics-collector-stderr');
 const validation = require('../validation');
 const {
   overrideJoiMessages,
 } = require('fxa-shared/sentry/joi-message-overrides');
 
-const clientMetricsConfig = config.get('client_metrics');
-const DISABLE_CLIENT_METRICS_STDERR =
-  clientMetricsConfig.stderr_collector_disabled;
-const MAX_EVENT_OFFSET = clientMetricsConfig.max_event_offset;
+const MAX_EVENT_OFFSET = config.get('client_metrics.max_event_offset');
 
 const {
   BROKER: BROKER_PATTERN,
@@ -129,8 +125,6 @@ const BODY_SCHEMA = {
 };
 
 module.exports = function (statsd) {
-  const metricsCollector = new MetricsCollector();
-
   return {
     method: 'post',
     path: '/metrics',
@@ -217,14 +211,6 @@ module.exports = function (statsd) {
       }
 
       process.nextTick(() => {
-        metrics.agent = req.get('user-agent');
-
-        if (metrics.isSampledUser) {
-          if (!DISABLE_CLIENT_METRICS_STDERR) {
-            metricsCollector.write(metrics);
-          }
-        }
-
         flowMetricsRequest(req, metrics, requestReceivedTime);
       });
     },

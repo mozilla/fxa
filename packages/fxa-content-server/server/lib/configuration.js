@@ -77,11 +77,6 @@ const conf = (module.exports = convict({
       env: 'CLIENT_METRICS_MAX_EVENT_OFFSET',
       format: 'duration',
     },
-    stderr_collector_disabled: {
-      default: false,
-      doc: 'disable client metrics output to stderr',
-      env: 'DISABLE_CLIENT_METRICS_STDERR',
-    },
   },
   client_sessions: {
     cookie_name: 'session',
