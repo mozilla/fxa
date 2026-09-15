@@ -29,6 +29,7 @@
     "trigger:docker-push": "_scripts/trigger-docker-push.sh",
     "trigger:docker-push-subplat": "_scripts/trigger-docker-push-subplat.sh",
     "trigger:smoke-tests": "_scripts/trigger-smoke-tests.sh",
+    "pr-debug": "_scripts/pr-debug.sh",
     "trigger:dot-release": "_scripts/trigger-dot-release.sh",
     "trigger:dot-release-subplat": "_scripts/trigger-dot-release-subplat.sh"
   },
