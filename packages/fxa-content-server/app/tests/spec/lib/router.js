@@ -11,7 +11,7 @@ import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
 import Router from 'lib/router';
-import SignInPasswordView from '../../../scripts/views/sign_in_password';
+import SignUpPasswordView from '../../../scripts/views/sign_up_password';
 import sinon from 'sinon';
 import User from 'models/user';
 import View from 'tests/mocks/view';
@@ -467,7 +467,7 @@ describe('lib/router', () => {
 
     it('handles module names for the view', () => {
       var routeHandler = router.createViewHandler(
-        'sign_in_password',
+        'sign_up_password',
         viewConstructorOptions
       );
       assert.isFunction(routeHandler);
@@ -475,7 +475,7 @@ describe('lib/router', () => {
 
       return routeHandler.call(router).then(() => {
         assert.isTrue(
-          router.showView.calledWith(SignInPasswordView, viewConstructorOptions)
+          router.showView.calledWith(SignUpPasswordView, viewConstructorOptions)
         );
       });
     });
@@ -514,7 +514,7 @@ describe('lib/router', () => {
 
     it('handles module names for the view', () => {
       var routeHandler = router.createChildViewHandler(
-        'sign_in_password',
+        'sign_up_password',
         ParentView,
         viewConstructorOptions
       );
@@ -524,7 +524,7 @@ describe('lib/router', () => {
       return routeHandler.call(router).then(() => {
         assert.isTrue(
           router.showChildView.calledWith(
-            SignInPasswordView,
+            SignUpPasswordView,
             ParentView,
             viewConstructorOptions
           )

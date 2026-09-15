@@ -66,8 +66,9 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       fullProdRollout: false,
     },
 
+    // `signin` and `force_auth` have no Backbone views, so React must serve them.
     signInRoutes: {
-      featureFlagOn: showReactApp.signInRoutes,
+      featureFlagOn: true,
       routes: reactRoute.getRoutes([
         'signin',
         'oauth/signin',
