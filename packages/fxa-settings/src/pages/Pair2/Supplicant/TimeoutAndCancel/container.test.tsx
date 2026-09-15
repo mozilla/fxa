@@ -11,7 +11,7 @@ import Container from './container';
 import { Integration, PairingSupplicantIntegration } from '../../../../models';
 
 const TIMEOUT_HEADING = 'Looks like we timed out';
-const CANCELED_HEADING = 'Canceled';
+const CANCELED_HEADING = 'Cancelled';
 
 type MockSupplicantIntegration = PairingSupplicantIntegration & {
   destroy: jest.Mock;

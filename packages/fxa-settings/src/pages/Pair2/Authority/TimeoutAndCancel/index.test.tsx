@@ -90,7 +90,7 @@ describe('Pair2/Authority/TimeoutAndCancel page', () => {
       renderWithLocalizationProvider(<Subject reason="canceled" />);
 
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-        'Canceled'
+        'Cancelled'
       );
       screen.getByText(
         'If you change your mind or want to connect a different device, try again.'

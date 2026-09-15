@@ -24,7 +24,7 @@ const VARIANTS: Array<{
   },
   {
     reason: 'canceled',
-    heading: 'Canceled',
+    heading: 'Cancelled',
     descriptionFtlId:
       'pair2-supplicant-timeout-and-cancel-canceled-description',
     description:

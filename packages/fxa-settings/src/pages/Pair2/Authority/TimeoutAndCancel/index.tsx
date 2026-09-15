@@ -46,8 +46,8 @@ const variantContent: Record<TimeoutAndCancelReason, VariantContent> = {
     secondaryHandler: 'onCancel',
   },
   canceled: {
-    headingFtlId: 'pair2-authority-timeout-and-cancel-canceled-heading',
-    heading: 'Canceled',
+    headingFtlId: 'pair2-authority-timeout-and-cancel-cancelled-heading',
+    heading: 'Cancelled',
     descriptionFtlId: 'pair2-authority-timeout-and-cancel-canceled-description',
     description:
       'If you change your mind or want to connect a different device, try again.',
