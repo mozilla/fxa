@@ -1,8 +1,8 @@
 {
-  "commit": "3a8d1b70cca462f6c94fcb8372c235b64059067d",
-  "summary": "Merge pull request #21212 from mozilla/fxa-14527",
-  "description": "chore(content-server): remove Backbone signin and force_auth views",
-  "timestamp": 1789505223000,
+  "commit": "789d89269611a2579b682463449bb505add198b9",
+  "summary": "Merge pull request #21227 from mozilla/fxa-docs-sync-skill",
+  "description": "feat(skills): add the fxa-docs-sync documentation skill",
+  "timestamp": 1789507055000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
