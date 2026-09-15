@@ -26,31 +26,35 @@ const ELIGIBLE_ENTRYPOINT_QS =
 
 test.describe('severity-2 #smoke', () => {
   test.describe('Pair entry flow', () => {
-    test('direct /pair dispatches fxa_status and oauth_flow_begin and reveals the choice screen', async ({
-      target,
-      syncOAuthBrowserPages: { page, settings, signin, signinTokenCode },
-      testAccountTracker,
-    }) => {
-      // /pair requires a signed-in browser to reveal the choice screen; a fresh
-      // browser is redirected to sign-in first.
-      const credentials = await testAccountTracker.signUpSync();
-      await page.goto(`${target.contentServerUrl}/pair`);
-      await signin.fillOutEmailFirstForm(credentials.email);
-      await signin.fillOutPasswordForm(credentials.password);
-      await page.waitForURL(/signin_token_code/);
-      const code = await target.emailClient.getVerifyLoginCode(
-        credentials.email
-      );
-      await signinTokenCode.fillOutCodeForm(code);
+    // The mobile in-app camera screen prints the entry URL with a trailing
+    // slash, so both spellings must reach the same React page.
+    for (const entry of ['/pair', '/pair/']) {
+      test(`direct ${entry} dispatches fxa_status and oauth_flow_begin and reveals the choice screen`, async ({
+        target,
+        syncOAuthBrowserPages: { page, settings, signin, signinTokenCode },
+        testAccountTracker,
+      }) => {
+        // /pair requires a signed-in browser to reveal the choice screen; a fresh
+        // browser is redirected to sign-in first.
+        const credentials = await testAccountTracker.signUpSync();
+        await page.goto(`${target.contentServerUrl}${entry}`);
+        await signin.fillOutEmailFirstForm(credentials.email);
+        await signin.fillOutPasswordForm(credentials.password);
+        await page.waitForURL(/signin_token_code/);
+        const code = await target.emailClient.getVerifyLoginCode(
+          credentials.email
+        );
+        await signinTokenCode.fillOutCodeForm(code);
 
-      // testid avoids the Localized/label text-content quirk that confuses
-      // getByLabel/getByRole here.
-      await expect(page.getByTestId('has-mobile')).toBeVisible();
-      await expect(page).toHaveURL(/\/pair(\?|$)/);
+        // testid avoids the Localized/label text-content quirk that confuses
+        // getByLabel/getByRole here.
+        await expect(page.getByTestId('has-mobile')).toBeVisible();
+        await expect(page).toHaveURL(/\/pair\/?(\?|$)/);
 
-      await settings.checkWebChannelMessage(FirefoxCommand.FxAStatus);
-      await settings.checkWebChannelMessage(FirefoxCommand.OAuthFlowBegin);
-    });
+        await settings.checkWebChannelMessage(FirefoxCommand.FxAStatus);
+        await settings.checkWebChannelMessage(FirefoxCommand.OAuthFlowBegin);
+      });
+    }
 
     test('Continue advances to the download view when no mobile is selected', async ({
       target,
