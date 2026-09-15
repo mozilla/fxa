@@ -10,7 +10,6 @@ import CompleteSignUpView from '../views/complete_sign_up';
 import ConfirmView from '../views/confirm';
 import ConfirmSignupCodeView from '../views/confirm_signup_code';
 import ConnectAnotherDeviceView from '../views/connect_another_device';
-import ForceAuthView from '../views/force_auth';
 import IndexView from '../views/index';
 import InlineTotpSetupView from '../views/inline_totp_setup';
 import InlineRecoverySetupView from '../views/inline_recovery_setup';
@@ -19,7 +18,6 @@ import ReadyView from '../views/ready';
 import RedirectAuthView from '../views/authorization';
 import ReportSignInView from '../views/report_sign_in';
 import SignInBouncedView from '../views/sign_in_bounced';
-import SignInPasswordView from '../views/sign_in_password';
 import SignInRecoveryCodeView from '../views/sign_in_recovery_code';
 import SignInReportedView from '../views/sign_in_reported';
 import SignInTokenCodeView from '../views/sign_in_token_code';
@@ -213,7 +211,7 @@ Router = Router.extend({
       });
     },
     'force_auth(/)': function () {
-      this.createReactOrBackboneViewHandler('force_auth', ForceAuthView, {
+      this.createReactViewHandler('force_auth', {
         ...Url.searchParams(this.window.location.search),
         email: this.user.get('emailFromIndex'),
         hasLinkedAccount: this.user.get('hasLinkedAccount'),
@@ -240,7 +238,7 @@ Router = Router.extend({
       this.createReactOrBackboneViewHandler('oauth', IndexView);
     },
     'oauth/force_auth(/)': function () {
-      this.createReactOrBackboneViewHandler('oauth/force_auth', ForceAuthView, {
+      this.createReactViewHandler('oauth/force_auth', {
         ...Url.searchParams(this.window.location.search),
         email: this.user.get('emailFromIndex'),
         hasLinkedAccount: this.user.get('hasLinkedAccount'),
@@ -252,21 +250,17 @@ Router = Router.extend({
       });
     },
     'oauth/signin(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'oauth/signin',
-        SignInPasswordView,
-        {
-          // see comment in fxa-settings/src/pages/Signin/container.tsx for param explanation
-          ...Url.searchParams(this.window.location.search),
-          email: this.user.get('emailFromIndex'),
-          hasLinkedAccount: this.user.get('hasLinkedAccount'),
-          hasPassword: this.user.get('hasPassword'),
-          // for subplat redirect only
-          ...(this.relier.get('redirectTo') && {
-            redirect_to: this.relier.get('redirectTo'),
-          }),
-        }
-      );
+      this.createReactViewHandler('oauth/signin', {
+        // see comment in fxa-settings/src/pages/Signin/container.tsx for param explanation
+        ...Url.searchParams(this.window.location.search),
+        email: this.user.get('emailFromIndex'),
+        hasLinkedAccount: this.user.get('hasLinkedAccount'),
+        hasPassword: this.user.get('hasPassword'),
+        // for subplat redirect only
+        ...(this.relier.get('redirectTo') && {
+          redirect_to: this.relier.get('redirectTo'),
+        }),
+      });
     },
     'oauth/signup(/)': function () {
       this.createReactOrBackboneViewHandler(
@@ -409,7 +403,7 @@ Router = Router.extend({
       this.navigateAway(settingsLink);
     },
     'signin(/)': function () {
-      this.createReactOrBackboneViewHandler('signin', SignInPasswordView, {
+      this.createReactViewHandler('signin', {
         // see comment in fxa-settings/src/pages/Signin/container.tsx for param explanation
         ...Url.searchParams(this.window.location.search),
         email: this.user.get('emailFromIndex'),
