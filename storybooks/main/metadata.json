@@ -1,8 +1,8 @@
 {
-  "commit": "e518d85a03316aa37dcc6c32fb3884752b033f2b",
-  "summary": "Merge pull request #21171 from mozilla/blender/security-bump-@faker-js/faker",
-  "description": "chore(deps): bump @faker-js/faker to 10.5.0",
-  "timestamp": 1789500529000,
+  "commit": "17c893d71a03565300d1ea492f807dddf709571b",
+  "summary": "Merge pull request #21220 from mozilla/fxa-10961",
+  "description": "chore(deps): upgrade @hapi/hapi from 20 to 21",
+  "timestamp": 1789504432000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
