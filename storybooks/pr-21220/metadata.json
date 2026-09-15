@@ -1,0 +1,12 @@
+{
+  "commit": "fafb8363c654c704c604db763126f0cbc87e546f",
+  "summary": "chore(deps): upgrade @hapi/hapi from 20 to 21",
+  "description": "## Because\n\n- The three Hapi servers still ran @hapi/hapi 20, which no longer gets support.\n- Dependabot alert #605 asks for @hapi/content 6.0.1 or later, for the ReDoS fix.\n\n## This pull request\n\n- Moves @hapi/hapi from ^20.2.1 to ^21.4.10 in fxa-auth-server, fxa-customs-server and fxa-profile-server.\n- Regenerates yarn.lock with `yarn install`. The transitive Hapi packages move with it, for example @hapi/subtext 7 to 8, @hapi/catbox 11 to 12, @hapi/call 8 to 9, @hapi/statehood 7 to 8, and @hapi/wreck 17 to 18.\n- Keeps @hapi/content at 6.0.2, which meets the \">= 6.0.1\" acceptance criterion. That version already resolved before this change, so the advisory was not reachable at HEAD. Hapi 21 makes 6.0.2 the declared resolution.\n- Adds packages/fxa-auth-server/lib/hapi.d.ts. Hapi 21 changed the default request `Headers`, `Params` and `Query` value types from `any` to `unknown`, which gave 27 new tsc errors in auth-server routes. The file augments `ReqRefDefaults` to restore the v20 value typing. No route code changed.\n- Sets `routes.security.xss` explicitly in fxa-profile-server and fxa-auth-server. Hapi 21 changed this option from a boolean to the enum `enabled`, `disabled` or `false`. fxa-profile-server passed `xss: true`, which Hapi 21 rejects, so the server threw at startup. fxa-auth-server set no value, and the default changed from on to `disabled`. Both now pass `xss: 'enabled'`, which keeps the `x-xss-protection: 1; mode=block` header that Hapi 20 sent. fxa-customs-server sets no security block, so it is not affected.\n- No plugin needed a major bump. @hapi/inert, @hapi/hawk, hapi-swagger and hapi-auth-jwt2 all install unchanged.\n- Drops the `@types/hapi__hapi` devDependency from fxa-auth-server. Hapi 21 ships its own types and wins module resolution, so the stub was dead weight pinned to the old major.\n\n## Issue that this pull request solves\n\nCloses: FXA-10961",
+  "timestamp": 1789497648000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
