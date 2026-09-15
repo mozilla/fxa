@@ -103,8 +103,12 @@ export class RecoveryPhoneService {
     }
 
     // Call Twilio to get some info about the number, and check if it resides in
-    // a country that we support sending sms to.
-    if (this.config.sms?.validCountryCodes) {
+    // a country that we support sending sms to. Test credentials only accept
+    // magic numbers, which have no real country, and share one Lookup rate limit.
+    if (
+      this.config.sms?.validCountryCodes &&
+      this.twilioConfig.credentialMode !== 'test'
+    ) {
       const lookupData = await (async () => {
         try {
           return await this.smsManager.phoneNumberLookup(phoneNumber, '');
