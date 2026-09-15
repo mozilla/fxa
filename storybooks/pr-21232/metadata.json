@@ -1,0 +1,10 @@
+{
+  "commit": "3ec6860cc860da3977c0a300a65cbb2c425a646b",
+  "summary": "fix(pairing): remove Cancel from desktop pairing timeout screen",
+  "description": "Because:\n\n- Cancel on the timeout screen sent users to the sign-in page, though\n  they are already signed in on that computer.\n\nThis commit:\n\n- Renders only \"Try again\" for the timeout variant; canceled still\n  offers \"Sync settings\".\n- Drops the onCancel prop, its container handler, and the Cancel FTL\n  string.\n- Updates tests, mocks, and stories to match.\n\nFixes FXA-14463",
+  "timestamp": 1789425793000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

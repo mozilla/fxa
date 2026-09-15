@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 3ec6860cc860da3977c0a300a65cbb2c425a646b</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 3ec6860cc860da3977c0a300a65cbb2c425a646b</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/14/2026, 10:43:13 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(pairing): remove Cancel from desktop pairing timeout screen</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+- Cancel on the timeout screen sent users to the sign-in page, though
+  they are already signed in on that computer.
+
+This commit:
+
+- Renders only &quot;Try again&quot; for the timeout variant; canceled still
+  offers &quot;Sync settings&quot;.
+- Drops the onCancel prop, its container handler, and the Cancel FTL
+  string.
+- Updates tests, mocks, and stories to match.
+
+Fixes FXA-14463</pre></dd>
+  </dl>
+</body>
+</html>
