@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit ca8bd7fa5eccdc8790bec671bbc43c31e53d9663</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit ca8bd7fa5eccdc8790bec671bbc43c31e53d9663</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/15/2026, 8:22:10 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>refactor(settings): use typed properties in SensitiveDataClient</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- `SensitiveDataClient` kept every value in one private object behind `setDataType(key, value)` and `getDataType(key)`.
+- The generic accessors hid the type of each value behind the `SensitiveData.Key` enum and the `SensitiveData.DataMap` lookup type. A reader had to follow both to learn what a call returns.
+- The file already carried a `TODO(FXA-10929)` on `KeyStretchUpgradeData` that showed the wanted shape.
+
+## This pull request
+
+- Removes `SensitiveData.Key`, `SensitiveData.DataMap`, the private storage object, the constructor and both accessors from `sensitive-data-client.ts`.
+- Adds one typed public property per former key: `AuthData`, `AccountResetData`, `NewRecoveryKeyData`, `Password` and `DecryptedRecoveryKeyData`.
+- Keeps the `SensitiveData` data types. Four prop types still intersect `SensitiveData.AuthData`.
+- Updates the call sites to assign and read the properties directly.
+- Updates the specs to set the property on a real client instead of replacing a getter with `jest.fn()`. Two specs now use the shared `mockSensitiveDataClient` helper in place of an ad-hoc `{getDataType, setDataType}` object.
+
+Storage semantics do not change. The client stores the same values, and it clears them at the same points.
+
+## Issue that this pull request solves
+
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-10929</pre></dd>
+  </dl>
+</body>
+</html>
