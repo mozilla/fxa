@@ -1,8 +1,8 @@
 {
-  "commit": "1a62cbecbdd40dcbf0739e12aea489338c2c512d",
-  "summary": "Merge pull request #21170 from mozilla/add-screenshot-video",
-  "description": "feat(skills): add the issue verification skill (screenshot and video generator)",
-  "timestamp": 1789494283000,
+  "commit": "eab512e551a458a7393e75df4eaec896e117f216",
+  "summary": "Merge pull request #21218 from mozilla/fxa-14529",
+  "description": "perf(auth-server): speed up jest infra suites with swc-node server boot",
+  "timestamp": 1789496261000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
