@@ -9,6 +9,7 @@ import { BeginSigninError } from '../../lib/error-utils';
 import { AccountAvatar } from '../../lib/interfaces';
 import { FinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 import { PasskeyMetricsSurface } from '../../lib/passkeys/signin-flow';
+import type { PasskeyFallbackReason } from '../../lib/passkeys/wrap/consumption';
 import { MozServices } from '../../lib/types';
 import type { NavigateFunction } from 'react-router';
 import { Integration } from '../../models';
@@ -261,6 +262,8 @@ export interface NavigationOptions {
   };
   // unwrapBKey is included if integration.wantsKeys()
   unwrapBKey?: hexstring;
+  // Hex kB already recovered client-side (passkey wrap). Sync OAuth only.
+  kB?: hexstring;
   integration: SigninIntegration;
   finishOAuthFlowHandler: FinishOAuthFlowHandler;
   redirectTo?: string;
@@ -343,4 +346,6 @@ export interface SigninLocationState {
    * events.
    */
   passkeySurface?: PasskeyMetricsSurface;
+  /** Why a passwordless Sync sign-in fell back to this page. Messaging designed separately. */
+  passkeyFallback?: { credentialId: string; reason: PasskeyFallbackReason };
 }
