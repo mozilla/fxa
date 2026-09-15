@@ -799,6 +799,8 @@ recent-activity-account-passwordless-registration-complete = רישום חשבו
 recent-activity-account-recovery-codes-set = הוגדרו קודים לשחזור
 recent-activity-account-passkey-wrap-created = מפתח גישה הופעל עבור סנכרון
 recent-activity-account-passkey-wrap-creation-failure = הגדרת הסנכרון באמצעות מפתח גישה נכשלה
+recent-activity-account-passkey-wrap-deleted = הגישה של מפתח הגישה לסנכרון הוסרה
+recent-activity-account-passkey-wrap-deletion-failure = הסרת הגישה של מפתח הגישה לסנכרון נכשלה
 recent-activity-account-passkey-wrap-invalidated = הגישה של מפתח הגישה לסנכרון הוסרה לאחר איפוס הססמה
 recent-activity-unknown = פעילות אחרת בחשבון
 
@@ -1295,6 +1297,7 @@ pair2-supplicant-connect-this-device-cancel-button = ביטול
 pair2-supplicant-download-firefox-heading = קבלת { -brand-firefox } במכשיר זה
 pair2-supplicant-download-firefox-description = ניתן להוריד את { -brand-firefox } כדי לסנכרן סימניות, היסטוריה ועוד בין מכשירים. <linkExternal>מידע נוסף</linkExternal>
 pair2-supplicant-download-firefox-continue-button = המשך ב־{ -brand-firefox }
+pair2-supplicant-download-firefox-opening-button = בתהליך פתיחת { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = כדי לחבר מכשיר

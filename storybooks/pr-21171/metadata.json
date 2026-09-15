@@ -1,8 +1,8 @@
 {
-  "commit": "338bcc8f4bac3a59628e0a8956db356a35ecffaf",
-  "summary": "fix(tests): transform @faker-js/faker for jest",
-  "description": "Because:\n - @faker-js/faker 10 is ESM-only, so jest's CJS runtime throws\n   \"Cannot use import statement outside a module\" in 30 projects.\n - GHSA-qxc2-j82w-r537 is patched only in 10.5.0, so 9.x is not an option.\n\nThis commit:\n - Adds the faker exception to transformIgnorePatterns in jest.preset.js.\n - Adds it to the three configs that override the preset value.\n\nCo-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>",
-  "timestamp": 1789157155000,
+  "commit": "5398e21ce9f7484d51fd11aad5f8b0bc07e4552a",
+  "summary": "chore(deps): bump @faker-js/faker to 10.5.0",
+  "description": "Because:\n - GHSA-qxc2-j82w-r537 is patched only in 10.5.0, so 9.x is not an option.\n - @faker-js/faker 10 is ESM-only, so jest's CJS runtime throws\n   \"Cannot use import statement outside a module\" in 30 projects.\n\nThis commit:\n - Pins @faker-js/faker to 10.5.0 via a root resolution.\n - Adds the faker exception to transformIgnorePatterns in jest.preset.js.\n - Adds it to the three configs that override the preset value.\n\nResolves Dependabot alert #901.\nCreated by BLEnder (https://github.com/mozilla/blender)",
+  "timestamp": 1789490625000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

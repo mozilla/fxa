@@ -1068,6 +1068,10 @@ recent-activity-account-recovery-codes-set = 設定救援碼
 recent-activity-account-passkey-wrap-created = 已啟用 Passkey 進行同步
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
 recent-activity-account-passkey-wrap-creation-failure = 使用 Passkey 設定同步失敗
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey that could unlock the user's synced browser data had that access turned off, leaving the passkey itself usable for signing in.
+recent-activity-account-passkey-wrap-deleted = 已移除 Passkey 的同步資料存取權限
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to turn off a passkey's access to the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-deletion-failure = Passkey 的同步資料存取權限移除失敗
 # A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
 recent-activity-account-passkey-wrap-invalidated = 密碼重設完成後，移除 Passkey 同步存取權限
 # Security event was recorded, but the activity details are unknown or not shown to user

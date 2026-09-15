@@ -866,6 +866,8 @@ recent-activity-account-passwordless-registration-complete = Jelszó nélküli f
 recent-activity-account-recovery-codes-set = Helyreállítási kódok beállítva
 recent-activity-account-passkey-wrap-created = A jelkulcs engedélyezve a szinkronizáláshoz
 recent-activity-account-passkey-wrap-creation-failure = A jelkulcsos szinkronizálás beállítása sikertelen
+recent-activity-account-passkey-wrap-deleted = A jelszószinkronizálási hozzáférés eltávolítva
+recent-activity-account-passkey-wrap-deletion-failure = A jelszószinkronizálási hozzáférés eltávolítása nem sikerült
 recent-activity-account-passkey-wrap-invalidated = A jelkulcsos szinkronizálás hozzáférése eltávolítva a jelszó-visszaállítás után
 recent-activity-unknown = Egyéb fióktevékenység
 

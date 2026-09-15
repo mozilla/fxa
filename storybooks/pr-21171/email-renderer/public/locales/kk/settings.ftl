@@ -420,6 +420,24 @@ password-strength-inline-passwords-match = Парольдер өзара сәй�
 
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Сіздің телефоныңыз. Сіздің ережелеріңіз.
+# Value proposition variant. Refers to resuming browsing on another device.
+promo-qr-mobile-heading-treatment-a = Қайда барсаңыз да, тоқтаған жеріңізден жалғастырыңыз
+# Value proposition variant. "tabs" are the open pages in a browser.
+promo-qr-mobile-heading-treatment-b = Сіздің браузер беттеріңіз және т.б., телефоныңызда қолжетімді
+# Value proposition variant. Refers to using the same trusted browser on a phone.
+promo-qr-mobile-heading-treatment-c = Сіз сенетін браузер, телефоныңызда
+# Value proposition variant. "Different screen" refers to the phone rather than the desktop.
+promo-qr-mobile-heading-treatment-d = Дәл сол { -brand-firefox }. Басқа экранда.
+# Value proposition variant. "stop here" means privacy protection should continue onto the phone.
+promo-qr-mobile-heading-treatment-e = Сіздің жекелігіңіз осында тоқтап қалмауы керек
+# Value proposition variant. Refers to keeping browsing activity private.
+promo-qr-mobile-heading-treatment-f = Шолуыңыздың көбірек бөлігін өзіңізге қалдырыңыз
+# Value proposition variant. "noise" refers to distractions and clutter.
+promo-qr-mobile-heading-treatment-g = Телефоныңыз азырақ шу қолдануы мүмкін
+# Value proposition variant. Refers to a calmer browsing experience on the phone.
+promo-qr-mobile-heading-treatment-h = Шолудың тыныш жолы өзіңізбен бірге
+# Appears below a QR code that a user can scan to download the Firefox mobile app
+promo-qr-mobile-description-v2 = Мобильді қосымшаны жүктеп алу үшін сканерлеңіз
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
 promo-qr-mobile-qr-alt =
     .alt = { -brand-firefox } мобильді қолданбасын жүктеу үшін QR коды. Телефоныңыздың камерасын сканерлеу үшін экранның төменгі оң жақ бұрышына бағыттаңыз.
@@ -1938,6 +1956,8 @@ pair2-supplicant-download-firefox-description = Құрылғылар арасы�
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = { -brand-firefox } ішінде жалғастыру
+# Replaces the button label while waiting for the Firefox app to take over
+pair2-supplicant-download-firefox-opening-button = { -brand-firefox } ашылуда…
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them

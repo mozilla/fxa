@@ -104,13 +104,6 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Alertas de ação para recuperar a Internet
 
 
-pair-continue-in-firefox-heading = Continuar em { -brand-firefox }
-pair-continue-in-firefox-description = O emparelhamento acontece em { -brand-firefox }. Abra-a para concluir a ligação a este dispositivo.
-pair-continue-in-firefox-button = Continuar em { -brand-firefox }
-pair-continue-in-firefox-opening = A abrir { -brand-firefox }
-pair-continue-in-firefox-get-firefox-link = Não tem { -brand-firefox }? Obter agora
-
-
 dark-mode-toggle-light = Claro
 dark-mode-toggle-dark = Escuro
 dark-mode-toggle-system = Sistema
@@ -1351,6 +1344,7 @@ pair2-supplicant-connect-this-device-cancel-button = Cancelar
 pair2-supplicant-download-firefox-heading = Obtenha { -brand-firefox } neste dispositivo
 pair2-supplicant-download-firefox-description = Transfira o { -brand-firefox } para sincronizar os marcadores, histórico e muito mais entre dispositivos. <linkExternal>Saber mais</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Continuar em { -brand-firefox }
+pair2-supplicant-download-firefox-opening-button = A abrir { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = Para ligar um dispositivo

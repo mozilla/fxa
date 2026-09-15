@@ -1118,6 +1118,8 @@ recent-activity-account-passwordless-registration-complete = Registrace účtu b
 recent-activity-account-recovery-codes-set = Obnovovací kódy jsou nastaveny
 recent-activity-account-passkey-wrap-created = Přístupový klíč byl povolen pro synchronizaci
 recent-activity-account-passkey-wrap-creation-failure = Nastavení synchronizace s přístupovým klíčem selhalo
+recent-activity-account-passkey-wrap-deleted = Přístup k synchronizaci byl odebrán
+recent-activity-account-passkey-wrap-deletion-failure = Odstranění synchronizačního přístupu se nezdařilo
 recent-activity-account-passkey-wrap-invalidated = Po resetování hesla byl zrušen přístup k synchronizaci pomocí přístupového klíče
 recent-activity-unknown = Jiná aktivita u účtu
 

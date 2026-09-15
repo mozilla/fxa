@@ -801,6 +801,8 @@ recent-activity-account-passwordless-registration-complete = 無密碼帳號註�
 recent-activity-account-recovery-codes-set = 設定救援碼
 recent-activity-account-passkey-wrap-created = 已啟用 Passkey 進行同步
 recent-activity-account-passkey-wrap-creation-failure = 使用 Passkey 設定同步失敗
+recent-activity-account-passkey-wrap-deleted = 已移除 Passkey 的同步資料存取權限
+recent-activity-account-passkey-wrap-deletion-failure = Passkey 的同步資料存取權限移除失敗
 recent-activity-account-passkey-wrap-invalidated = 密碼重設完成後，移除 Passkey 同步存取權限
 recent-activity-unknown = 其他帳號活動
 

@@ -420,6 +420,24 @@ password-strength-inline-passwords-match = Wachtwoorden komen overeen
 
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Uw telefoon. Uw regels.
+# Value proposition variant. Refers to resuming browsing on another device.
+promo-qr-mobile-heading-treatment-a = Ga verder waar u was gebleven, waar u ook heen gaat
+# Value proposition variant. "tabs" are the open pages in a browser.
+promo-qr-mobile-heading-treatment-b = Uw tabbladen en meer, klaar op uw telefoon
+# Value proposition variant. Refers to using the same trusted browser on a phone.
+promo-qr-mobile-heading-treatment-c = De browser die u vertrouwt, op uw telefoon
+# Value proposition variant. "Different screen" refers to the phone rather than the desktop.
+promo-qr-mobile-heading-treatment-d = Dezelfde { -brand-firefox }. Ander scherm.
+# Value proposition variant. "stop here" means privacy protection should continue onto the phone.
+promo-qr-mobile-heading-treatment-e = Uw privacy moet hier niet stoppen
+# Value proposition variant. Refers to keeping browsing activity private.
+promo-qr-mobile-heading-treatment-f = Houd meer van uw navigatie voor uzelf
+# Value proposition variant. "noise" refers to distractions and clutter.
+promo-qr-mobile-heading-treatment-g = Uw telefoon kan wat minder ruis gebruiken
+# Value proposition variant. Refers to a calmer browsing experience on the phone.
+promo-qr-mobile-heading-treatment-h = Neem rustiger navigeren met u mee
+# Appears below a QR code that a user can scan to download the Firefox mobile app
+promo-qr-mobile-description-v2 = Scan om de mobiele app te downloaden
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
 promo-qr-mobile-qr-alt =
     .alt = QR-code om de mobiele { -brand-firefox }-app te downloaden. Richt de camera van uw telefoon op de rechterbenedenhoek van uw scherm om de code te scannen.
@@ -1937,6 +1955,8 @@ pair2-supplicant-download-firefox-description = Download { -brand-firefox } om b
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Doorgaan in { -brand-firefox }
+# Replaces the button label while waiting for the Firefox app to take over
+pair2-supplicant-download-firefox-opening-button = { -brand-firefox } openen…
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them

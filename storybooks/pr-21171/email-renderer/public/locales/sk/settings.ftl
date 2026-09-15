@@ -426,6 +426,24 @@ password-strength-inline-passwords-match = Heslá sa zhodujú
 
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Váš telefón. Vaše pravidlá.
+# Value proposition variant. Refers to resuming browsing on another device.
+promo-qr-mobile-heading-treatment-a = Pokračujte tam, kde ste skončili, nech ste kdekoľvek
+# Value proposition variant. "tabs" are the open pages in a browser.
+promo-qr-mobile-heading-treatment-b = Vaše karty a ďalší obsah poruke vo vašom telefóne
+# Value proposition variant. Refers to using the same trusted browser on a phone.
+promo-qr-mobile-heading-treatment-c = Prehliadač, ktorému dôverujete, aj vo vašom telefóne
+# Value proposition variant. "Different screen" refers to the phone rather than the desktop.
+promo-qr-mobile-heading-treatment-d = Ten istý { -brand-firefox }. Iná obrazovka.
+# Value proposition variant. "stop here" means privacy protection should continue onto the phone.
+promo-qr-mobile-heading-treatment-e = Vaše súkromie by sa tu nemalo končiť
+# Value proposition variant. Refers to keeping browsing activity private.
+promo-qr-mobile-heading-treatment-f = Udržte si viac zo svojho prehliadania v súkromí
+# Value proposition variant. "noise" refers to distractions and clutter.
+promo-qr-mobile-heading-treatment-g = Vášmu telefónu by prospelo menej rušivých vplyvov
+# Value proposition variant. Refers to a calmer browsing experience on the phone.
+promo-qr-mobile-heading-treatment-h = Majte pokojnejšie prehliadanie vždy poruke
+# Appears below a QR code that a user can scan to download the Firefox mobile app
+promo-qr-mobile-description-v2 = Naskenujte kód a stiahnite si mobilnú aplikáciu
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
 promo-qr-mobile-qr-alt =
     .alt = QR kód na stiahnutie mobilnej aplikácie { -brand-firefox }. Umiestnite fotoaparát telefónu do pravého dolného rohu obrazovky a naskenujte ho.
@@ -1082,6 +1100,10 @@ recent-activity-account-recovery-codes-set = Obnovovacie kódy boli vytvorené
 recent-activity-account-passkey-wrap-created = Prístupový kľúč bol povolený na synchronizáciu
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
 recent-activity-account-passkey-wrap-creation-failure = Nastavenie synchronizácie s prístupovým kľúčom zlyhalo
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey that could unlock the user's synced browser data had that access turned off, leaving the passkey itself usable for signing in.
+recent-activity-account-passkey-wrap-deleted = Prístupovému kľúču bol odobratý prístup k synchronizovaným údajom
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to turn off a passkey's access to the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-deletion-failure = Prístup prístupového kľúča k synchronizovaným údajom sa nepodarilo zrušiť
 # A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
 recent-activity-account-passkey-wrap-invalidated = Prístup k synchronizácii s prístupovým kľúčom bol odstránený po obnovení hesla
 # Security event was recorded, but the activity details are unknown or not shown to user
@@ -1946,6 +1968,8 @@ pair2-supplicant-download-firefox-description = Stiahnite si { -brand-firefox(ca
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Pokračujte vo { -brand-firefox(case: "loc") }
+# Replaces the button label while waiting for the Firefox app to take over
+pair2-supplicant-download-firefox-opening-button = Spúšťa sa { -brand-firefox }…
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
