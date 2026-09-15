@@ -1,8 +1,8 @@
 {
-  "commit": "bcd991d740b9c4a31ad87c7f1439c06d805f5aa3",
-  "summary": "Merge pull request #21201 from mozilla/fxa-10441",
-  "description": "refactor(auth-server): remove unused email from recoveryKey/exists",
-  "timestamp": 1789490291000,
+  "commit": "b86cf4e742a0c251c2b59153ec629ab2a9dc0e68",
+  "summary": "Merge pull request #21196 from mozilla/fxa-9245",
+  "description": "feat(settings): serve the default favicon from the CDN",
+  "timestamp": 1789490857000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
