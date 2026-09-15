@@ -135,6 +135,7 @@ describe('QueueworkerService', () => {
       error: jest.fn(),
       debug: jest.fn(),
       info: jest.fn(),
+      warn: jest.fn(),
     };
     topic = {
       publishMessage: jest.fn().mockResolvedValue('mockid'),
@@ -340,6 +341,71 @@ describe('QueueworkerService', () => {
       const published = topic.publishMessage.mock.calls[0][0].json;
       expect(published.changeTime).toBe(messageWithoutGeneration.timestamp);
     });
+
+    it('preserves a known delete reason in the Pub/Sub message', async () => {
+      const msg = updateStubMessage({
+        ...baseDeleteMessage,
+        reason: 'unverified',
+      });
+
+      await (service as any).handleMessage(msg);
+
+      const published = topic.publishMessage.mock.calls[0][0].json;
+      expect(published.reason).toBe('unverified');
+      expect(firestore.deleteUser).toHaveBeenCalledWith(baseDeleteMessage.uid);
+      expect(metrics.increment).not.toHaveBeenCalledWith(
+        'message.delete.reasonFallback',
+        expect.anything()
+      );
+    });
+
+    it('accepts a legacy delete message without a reason', async () => {
+      const msg = updateStubMessage(baseDeleteMessage);
+
+      await (service as any).handleMessage(msg);
+
+      const published = topic.publishMessage.mock.calls[0][0].json;
+      expect(published).not.toHaveProperty('reason');
+      expect(metrics.increment).toHaveBeenCalledWith(
+        'message.delete.reasonFallback',
+        { category: 'missing' }
+      );
+      expect(logger.warn).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      {
+        category: 'unknown_string',
+        reason: 'nonsense',
+        rawValue: 'nonsense',
+      },
+      {
+        category: 'non_string',
+        reason: { rawValue: 'private_reason' },
+        rawValue: 'private_reason',
+      },
+    ])(
+      'drops a $category delete reason without suppressing deletion',
+      async ({ category, reason, rawValue }) => {
+        const msg = updateStubMessage({ ...baseDeleteMessage, reason });
+
+        await (service as any).handleMessage(msg);
+
+        const published = topic.publishMessage.mock.calls[0][0].json;
+        expect(published).not.toHaveProperty('reason');
+        expect(metrics.increment).toHaveBeenCalledWith(
+          'message.delete.reasonFallback',
+          { category }
+        );
+        expect(JSON.stringify(metrics.increment.mock.calls)).not.toContain(
+          rawValue
+        );
+        expect(logger.warn).not.toHaveBeenCalled();
+        expect(firestore.deleteUser).toHaveBeenCalledWith(
+          baseDeleteMessage.uid
+        );
+      }
+    );
 
     const invalidMessages = {
       login: { ...baseLoginMessage, clientId: 'test1234' },

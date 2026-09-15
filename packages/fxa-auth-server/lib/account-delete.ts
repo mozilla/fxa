@@ -32,6 +32,7 @@ import {
   InactiveStatusOAuthDb,
   requestForGlean,
 } from './inactive-accounts';
+import { toDeleteUserEventReason } from './account-delete-reason';
 
 type OAuthDbDeleteAccount = Pick<
   typeof OAuthDb,
@@ -261,8 +262,10 @@ export class AccountDeleteManager {
 
       try {
         await this.push.notifyAccountDestroyed(uid, devices);
+        const eventReason = toDeleteUserEventReason(reason);
         await this.log.notifyAttachedServices('delete', {} as AuthRequest, {
           uid,
+          ...(eventReason && { reason: eventReason }),
         });
       } catch (error) {
         this.log.error('accountDeleteManager.notify', {
