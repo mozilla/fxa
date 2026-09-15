@@ -12,17 +12,38 @@ import sinon from 'sinon';
 import { Localized } from '@fluent/react';
 
 import fetchMock from 'fetch-mock';
-import AppLocalizationProvider from './AppLocalizationProvider';
+import AppLocalizationProvider, {
+  L10N_ASSET_MAP_META,
+} from './AppLocalizationProvider';
 
 // `it` negotiates to exactly ['it', 'en'], which keeps the set of requested
 // bundle paths small enough to assert on precisely.
 const HASHED_BASE_DIR = '/hashed';
 const HASHED_LOCALES = ['it'];
+// Keys must match the path `fetchMessages` builds, which has no leading slash.
+// `farewells` is deliberately absent, and `notfound` maps to a path that 404s.
+const HASHED_ASSET_MAP = {
+  'locales/it/greetings.ftl': 'locales/it/greetings.1a2b3c.ftl',
+  'locales/en/greetings.ftl': 'locales/en/greetings.4d5e6f.ftl',
+  'locales/it/notfound.ftl': 'locales/it/notfound.7a8b9c.ftl',
+  'locales/en/notfound.ftl': 'locales/en/notfound.7a8b9c.ftl',
+};
 
 describe('<AppLocalizationProvider/>', () => {
   const locales = ['en-GB', 'en-CA', 'es-ES'];
   const bundles = ['greetings', 'farewells'];
   const reportError = () => {};
+  // Only the hashed paths carry the expected strings, so a test that renders
+  // them proves the map was consulted.
+  const l10nAssetMap = {
+    'locales/en-CA/greetings.ftl': 'locales/en-CA/greetings.hashed.ftl',
+    'locales/en-CA/farewells.ftl': 'locales/en-CA/farewells.hashed.ftl',
+    'locales/es-ES/greetings.ftl': 'locales/es-ES/greetings.hashed.ftl',
+    'locales/en-GB/greetings.ftl': 'locales/en-GB/greetings.hashed.ftl',
+  };
+
+  let warnSpy: jest.SpyInstance;
+
   function waitUntilTranslated() {
     return waitUntil(() => {
       // @ts-ignore
@@ -30,36 +51,40 @@ describe('<AppLocalizationProvider/>', () => {
     });
   }
 
-  beforeAll(() => {
-    // Keys must match the path `fetchMessages` builds, which has no leading
-    // slash. `farewells` is absent for every locale but en-CA, so those
-    // lookups miss and Fluent falls back.
-    fetchMock.get(
-      '/static-asset-manifest.json',
-      JSON.stringify({
-        'locales/en-CA/greetings.ftl': 'locales/en-CA/greetings.ftl',
-        'locales/en-CA/farewells.ftl': 'locales/en-CA/farewells.ftl',
-        'locales/es-ES/greetings.ftl': 'locales/es-ES/greetings.ftl',
-        'locales/en-GB/greetings.ftl': 'locales/en-GB/greetings.ftl',
-      })
+  function setL10nAssetMap(content: string) {
+    let meta = document.head.querySelector(
+      `meta[name="${L10N_ASSET_MAP_META}"]`
     );
-    fetchMock.get('/locales/en-CA/greetings.ftl', 'hello = Hello\n');
-    fetchMock.get('/locales/en-CA/farewells.ftl', 'goodbye = Goodbye\n');
-    fetchMock.get('/locales/es-ES/greetings.ftl', 'hello = Hola\n');
-    fetchMock.get('/locales/en-GB/greetings.ftl', 'hello = Hello { $amount }');
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.setAttribute('name', L10N_ASSET_MAP_META);
+      document.head.appendChild(meta);
+    }
+    meta.setAttribute('content', content);
+  }
 
-    // A separate manifest, served under its own baseDir so it does not
-    // collide with the default manifest fixture above. `farewells` is
-    // deliberately absent from it, and `notfound` maps to a path that 404s.
+  function setL10nAssetMapJson(map: unknown) {
+    setL10nAssetMap(encodeURIComponent(JSON.stringify(map)));
+  }
+
+  function removeL10nAssetMap() {
+    document.head
+      .querySelector(`meta[name="${L10N_ASSET_MAP_META}"]`)
+      ?.remove();
+  }
+
+  beforeAll(() => {
+    fetchMock.get('/locales/en-CA/greetings.hashed.ftl', 'hello = Hello\n');
+    fetchMock.get('/locales/en-CA/farewells.hashed.ftl', 'goodbye = Goodbye\n');
+    fetchMock.get('/locales/es-ES/greetings.hashed.ftl', 'hello = Hola\n');
     fetchMock.get(
-      `${HASHED_BASE_DIR}/static-asset-manifest.json`,
-      JSON.stringify({
-        'locales/it/greetings.ftl': 'locales/it/greetings.1a2b3c.ftl',
-        'locales/en/greetings.ftl': 'locales/en/greetings.4d5e6f.ftl',
-        'locales/it/notfound.ftl': 'locales/it/notfound.7a8b9c.ftl',
-        'locales/en/notfound.ftl': 'locales/en/notfound.7a8b9c.ftl',
-      })
+      '/locales/en-GB/greetings.hashed.ftl',
+      'hello = Hello { $amount }'
     );
+    fetchMock.get('/locales/en-CA/greetings.ftl', 'hello = Unhashed hello\n');
+
+    // Bundles for the reportBundleError tests, served under their own baseDir
+    // so they do not collide with the fixtures above.
     fetchMock.get(
       `${HASHED_BASE_DIR}/locales/it/greetings.1a2b3c.ftl`,
       'hello = Ciao\n'
@@ -67,6 +92,15 @@ describe('<AppLocalizationProvider/>', () => {
     fetchMock.get(
       `${HASHED_BASE_DIR}/locales/en/greetings.4d5e6f.ftl`,
       'hello = Hello\n'
+    );
+    // Unhashed paths for the bundle the map does not cover.
+    fetchMock.get(
+      `${HASHED_BASE_DIR}/locales/it/farewells.ftl`,
+      'hello = Ciao ciao\n'
+    );
+    fetchMock.get(
+      `${HASHED_BASE_DIR}/locales/en/farewells.ftl`,
+      'hello = Bye\n'
     );
     fetchMock.get(`${HASHED_BASE_DIR}/locales/it/notfound.7a8b9c.ftl`, 404);
     fetchMock.get(`${HASHED_BASE_DIR}/locales/en/notfound.7a8b9c.ftl`, 404);
@@ -79,10 +113,14 @@ describe('<AppLocalizationProvider/>', () => {
   });
 
   beforeEach(() => {
+    setL10nAssetMap(encodeURIComponent(JSON.stringify(l10nAssetMap)));
+    warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     sinon.spy(AppLocalizationProvider.prototype, 'render');
   });
 
   afterEach(() => {
+    removeL10nAssetMap();
+    warnSpy.mockRestore();
     // @ts-ignore
     AppLocalizationProvider.prototype.render.restore();
     cleanup();
@@ -173,6 +211,56 @@ describe('<AppLocalizationProvider/>', () => {
     expect(getByTestId('result')).toHaveTextContent('untranslated');
   });
 
+  // An absent map is normal for consumers that do not hash their l10n files.
+  // A map that is present but unusable is a build problem, so it warns.
+  it.each([
+    ['absent', () => removeL10nAssetMap(), 0],
+    ['empty', () => setL10nAssetMap(encodeURIComponent('{}')), 1],
+    ['not JSON', () => setL10nAssetMap('not-json'), 1],
+    ['not URI encoded', () => setL10nAssetMap('%'), 1],
+    ['an array', () => setL10nAssetMapJson(['locales/en-CA/greetings.ftl']), 1],
+    [
+      'an object with an empty string value',
+      () =>
+        setL10nAssetMapJson({
+          ...l10nAssetMap,
+          'locales/en-CA/greetings.ftl': '',
+        }),
+      1,
+    ],
+    [
+      'an object with a non string value',
+      () =>
+        setL10nAssetMapJson({
+          ...l10nAssetMap,
+          'locales/en-CA/greetings.ftl': { path: 'greetings.hashed.ftl' },
+        }),
+      1,
+    ],
+  ])(
+    'falls back to unhashed paths when the map is %s',
+    async (_case, setUpMap, expectedWarnings) => {
+      setUpMap();
+      const { getByTestId } = render(
+        <AppLocalizationProvider
+          bundles={bundles}
+          userLocales={['en-CA']}
+          reportError={reportError}
+        >
+          <main data-testid="result">
+            <Localized id="hello">
+              <div>untranslated</div>
+            </Localized>
+          </main>
+        </AppLocalizationProvider>
+      );
+      await waitUntilTranslated();
+
+      expect(getByTestId('result')).toHaveTextContent('Unhashed hello');
+      expect(warnSpy).toHaveBeenCalledTimes(expectedWarnings);
+    }
+  );
+
   test('check code property', () => {
     const err = new Error();
     // @ts-ignore
@@ -201,14 +289,17 @@ describe('<AppLocalizationProvider/>', () => {
   });
 
   describe('reportBundleError', () => {
+    beforeEach(() => {
+      setL10nAssetMapJson(HASHED_ASSET_MAP);
+    });
+
     function renderWithManifest(
       bundlesToLoad: Array<string>,
-      reportBundleError: jest.Mock,
-      baseDir = HASHED_BASE_DIR
+      reportBundleError: jest.Mock
     ) {
       return render(
         <AppLocalizationProvider
-          baseDir={baseDir}
+          baseDir={HASHED_BASE_DIR}
           bundles={bundlesToLoad}
           userLocales={HASHED_LOCALES}
           reportBundleError={reportBundleError}
@@ -234,7 +325,7 @@ describe('<AppLocalizationProvider/>', () => {
       expect(reportBundleError).not.toHaveBeenCalled();
     });
 
-    it('reports a bundle with no entry in the manifest, once per locale', async () => {
+    it('falls back to the unhashed path for a bundle with no entry in the manifest', async () => {
       const reportBundleError = jest.fn();
       const { getByTestId } = renderWithManifest(
         ['farewells'],
@@ -257,7 +348,7 @@ describe('<AppLocalizationProvider/>', () => {
           'en',
         ],
       ]);
-      expect(getByTestId('result')).toHaveTextContent('untranslated');
+      expect(getByTestId('result')).toHaveTextContent('Ciao ciao');
     });
 
     it('reports a bundle whose hashed path does not resolve, once per locale', async () => {
@@ -282,21 +373,22 @@ describe('<AppLocalizationProvider/>', () => {
       ]);
     });
 
-    it('reports an unreachable manifest', async () => {
+    it('reports an unusable manifest', async () => {
       const reportBundleError = jest.fn();
-      renderWithManifest(['greetings'], reportBundleError, '/no-manifest');
+      setL10nAssetMap('not-json');
+      renderWithManifest(['greetings'], reportBundleError);
       await waitUntilTranslated();
 
       // A manifest failure is not scoped to one locale, so it carries none.
       expect(reportBundleError.mock.calls[0]).toEqual([
         expect.objectContaining({
           message: expect.stringContaining(
-            'Fetching l10n static asset manifest failed: /no-manifest/static-asset-manifest.json'
+            `<meta name="${L10N_ASSET_MAP_META}"> is present but unusable`
           ),
         }),
       ]);
-      // Without mappings the unhashed paths are requested and fail too, so a
-      // manifest outage costs one report plus one per negotiated locale.
+      // Without mappings the unhashed paths are requested and fail too, so an
+      // unusable manifest costs one report plus one per negotiated locale.
       expect(reportBundleError).toHaveBeenCalledTimes(3);
     });
   });
