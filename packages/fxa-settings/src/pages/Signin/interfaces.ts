@@ -101,6 +101,7 @@ export type SigninOAuthIntegration = Pick<
   | 'isFirefoxMobileClient'
   | 'isFirefoxDesktopClient'
   | 'getLegalTerms'
+  | 'isUntrusted'
 >;
 
 export interface LocationState {

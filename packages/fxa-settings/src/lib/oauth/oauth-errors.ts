@@ -133,6 +133,11 @@ export const OAUTH_ERRORS: Record<string, AuthError> = {
     message: 'Unverified user or session',
     response_error_code: 'interaction_required',
   },
+  PROMPT_NONE_CONSENT_REQUIRED: {
+    errno: 1014,
+    message: 'The user has not seen what this client can read',
+    response_error_code: 'consent_required',
+  },
   PROMPT_NONE_INVALID_ID_TOKEN_HINT: {
     errno: 1013,
     message: 'Invalid id_token_hint',
