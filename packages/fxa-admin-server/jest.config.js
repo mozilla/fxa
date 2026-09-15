@@ -14,8 +14,8 @@ module.exports = {
       },
     ],
   },
-  // chai 5 is ESM-only, so jest has to transform it rather than skip it
-  transformIgnorePatterns: ['/node_modules/(?!chai/)'],
+  // chai 5 and @faker-js/faker 10 are ESM-only, so jest has to transform them rather than skip them
+  transformIgnorePatterns: ['/node_modules/(?!(chai|@faker-js/faker)/)'],
   coverageDirectory: './coverage',
   testEnvironment: 'node',
 };
