@@ -21,7 +21,7 @@ jest.mock('react-router', () => ({
 }));
 
 const TIMEOUT_HEADING = 'Still want to connect a device?';
-const CANCELED_HEADING = 'Canceled';
+const CANCELED_HEADING = 'Cancelled';
 
 /** The reason travels in router state, set by whatever ended the flow. */
 type MockAuthorityIntegration = PairingAuthorityIntegration & {

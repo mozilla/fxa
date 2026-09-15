@@ -49,8 +49,8 @@ const COPY: Record<
     ),
   },
   canceled: {
-    headingFtlId: 'pair2-supplicant-timeout-and-cancel-canceled-heading',
-    heading: 'Canceled',
+    headingFtlId: 'pair2-supplicant-timeout-and-cancel-cancelled-heading',
+    heading: 'Cancelled',
     descriptionFtlId:
       'pair2-supplicant-timeout-and-cancel-canceled-description',
     description: (
