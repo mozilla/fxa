@@ -292,6 +292,7 @@
     "packages/*"
   ],
   "resolutions": {
+    "@faker-js/faker": "10.5.0",
     "qs": "6.16.0",
     "@types/react": "19.2.18",
     "asn1.js": ">=5.4.1",
