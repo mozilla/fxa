@@ -1,0 +1,10 @@
+{
+  "commit": "638a530ab0c1b32d9b8744b2c970e723ede594b6",
+  "summary": "feat(fxa-settings): add account switcher behind a feature flag",
+  "description": "Because:\n * Users with several accounts on a device can only reach one of them, and\n   the only way to switch was to sign out first.\n * localStorage already holds every signed-in account plus a current-account\n   pointer, so only the UI was missing.\n\nThis commit:\n * Adds AccountSwitcher, offered on the cached sign-in page and in the\n   settings avatar menu.\n * Ranks stored accounts by RP-requested email, then the browser's own\n   account, then the current one, then recency.\n * Signs in as the chosen account on selection instead of re-ranking the list.\n * Mirrors the browser's signed-in uid to localStorage so both surfaces can\n   badge which account Firefox uses.\n * Gates all of the above on a new accountSwitcherEnabled flag, off by\n   default and on in local dev.",
+  "timestamp": 1789502655000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
