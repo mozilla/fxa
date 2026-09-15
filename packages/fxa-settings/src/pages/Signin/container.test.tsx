@@ -739,8 +739,7 @@ describe('signin container', () => {
           }
         );
         expect(mockAuthClient.recoveryKeyExists).toHaveBeenCalledWith(
-          handlerResult?.data?.signIn.sessionToken,
-          MOCK_EMAIL
+          handlerResult?.data?.signIn.sessionToken
         );
 
         expect(handlerResult?.data?.showInlineRecoveryKeySetup).toEqual(true);
@@ -777,8 +776,7 @@ describe('signin container', () => {
           );
         });
         expect(mockAuthClient.recoveryKeyExists).toHaveBeenCalledWith(
-          handlerResult?.data?.signIn.sessionToken,
-          MOCK_EMAIL
+          handlerResult?.data?.signIn.sessionToken
         );
         expect(handlerResult?.data?.showInlineRecoveryKeySetup).toEqual(false);
       });

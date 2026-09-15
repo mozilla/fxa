@@ -1584,19 +1584,6 @@ const Account = Backbone.Model.extend(
     },
 
     /**
-     * This checks to see if an account recovery key exists for a given
-     * email.
-     *
-     * Response: {
-     *   exists: <boolean>
-     * }
-     * @returns {Promise} resolves with response when complete.
-     */
-    checkRecoveryKeyExistsByEmail() {
-      return this._fxaClient.recoveryKeyExists(undefined, this.get('email'));
-    },
-
-    /**
      * Verify password forgot token to retrieve `accountResetToken`.
      *
      * @param {String} code
