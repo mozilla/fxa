@@ -389,7 +389,11 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     // login at all. /confirm_signup_code is unchanged from before — the server
     // still sends there, because this resend produces a different template
     // (`verifyShortCode`) for an unverified primary email (FXA-14109).
+    //
+    // prompt=none forbids mail as well as UI, and it never reaches either page:
+    // it is failed back to the RP below, or granted silently without one.
     if (
+      !navigationOptions.canRelayPromptNoneError &&
       (to?.includes('signin_token_code') ||
         to?.includes('confirm_signup_code')) &&
       navigationOptions.signinData.sessionToken &&
@@ -412,6 +416,12 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
       wantsTwoStepAuthentication ||
       wantsKeys
     ) {
+      // Every destination here is a verification page, which prompt=none
+      // forbids. Fail back to the RP instead. An unverified session is not an
+      // unmet authentication _level_ — that's errno 170, below.
+      if (navigationOptions.canRelayPromptNoneError) {
+        return { error: new OAuthError('PROMPT_NONE_UNVERIFIED') };
+      }
       performNavigation({ navigate, to, locationState });
       return { error: undefined };
     }
@@ -727,13 +737,16 @@ const getOAuthNavigationTarget = async (
       // Every destination below is interactive, which prompt=none forbids. On
       // the caller's flag, not the integration: prompt=none can outlive the
       // authorization route in the query string, and the RP may have opted out
-      // of error redirects. Errno 170 only — an unverified session is
-      // interaction_required, not an unmet level (FXA-14408).
-      if (
-        error.errno === AuthUiErrors.INSUFFICIENT_ACR_VALUES.errno &&
-        navigationOptions.canRelayPromptNoneError
-      ) {
-        return { error: new OAuthError('UNMET_AUTHENTICATION_REQUIREMENTS') };
+      // of error redirects. The unmet level is errno 170 only — an unverified
+      // session is interaction_required, and TOTP_REQUIRED still routes to a
+      // challenge, because the server would grant once it is answered.
+      if (navigationOptions.canRelayPromptNoneError) {
+        if (error.errno === AuthUiErrors.INSUFFICIENT_ACR_VALUES.errno) {
+          return { error: new OAuthError('UNMET_AUTHENTICATION_REQUIREMENTS') };
+        }
+        if (error.errno === AuthUiErrors.UNVERIFIED_SESSION.errno) {
+          return { error: new OAuthError('PROMPT_NONE_UNVERIFIED') };
+        }
       }
 
       const to = (() => {

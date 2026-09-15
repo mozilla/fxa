@@ -326,6 +326,52 @@ describe('AuthorizationContainer', () => {
     expect(SigninUtilsModule.handleNavigation).not.toHaveBeenCalled();
   });
 
+  it('relays interaction_required to the RP for a client outside servicesWithEmailVerification', async () => {
+    mockCachedSignIn.mockResolvedValue({
+      data: {
+        verificationMethod: VerificationMethods.EMAIL_OTP,
+        verificationReason: VerificationReasons.SIGN_IN,
+        uid: mockAccount.uid,
+        sessionVerified: false,
+        emailVerified: true,
+        totpIsActive: false,
+      },
+      error: undefined,
+    });
+    mockHandleNavigation.mockResolvedValue({
+      error: new OAuthError('PROMPT_NONE_UNVERIFIED'),
+    });
+
+    const getRedirectWithErrorUrl = jest
+      .fn()
+      .mockReturnValue('https://rp.test/oauth?error=interaction_required');
+    const mockIntegration = {
+      data: {},
+      wantsPromptNone: jest.fn().mockReturnValue(true),
+      returnOnError: jest.fn().mockReturnValue(true),
+      getRedirectWithErrorUrl,
+      getClientId: jest.fn().mockReturnValue('not-allowlisted-id'),
+      validatePromptNoneRequest: jest.fn().mockResolvedValue(undefined),
+    };
+
+    render(mockIntegration);
+
+    await waitFor(() => {
+      expect(ReactUtilsModule.hardNavigate).toHaveBeenCalledWith(
+        'https://rp.test/oauth?error=interaction_required'
+      );
+    });
+    // The guard above does not fire for this client, so the unverified session
+    // reaches handleNavigation — which fails it only because the container
+    // marked the error as relayable.
+    expect(mockHandleNavigation).toHaveBeenCalledWith(
+      expect.objectContaining({ canRelayPromptNoneError: true })
+    );
+    expect(getRedirectWithErrorUrl).toHaveBeenCalledWith(
+      expect.objectContaining({ response_error_code: 'interaction_required' })
+    );
+  });
+
   it('allows prompt=none with verified session for servicesWithEmailVerification client', async () => {
     const mockIntegration = {
       data: {
