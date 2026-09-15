@@ -32903,6 +32903,24 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"fxa-relier-demo@workspace:packages/fxa-relier-demo":
+  version: 0.0.0-use.local
+  resolution: "fxa-relier-demo@workspace:packages/fxa-relier-demo"
+  dependencies:
+    "@types/jest": "npm:30.0.0"
+    "@types/react": "npm:19.2.18"
+    "@types/react-dom": "npm:19.2.5"
+    esbuild: "npm:^0.28.1"
+    jest: "npm:30.0.5"
+    jose: "npm:^6.0.6"
+    pm2: "npm:^7.0.0"
+    react: "npm:19.2.8"
+    react-dom: "npm:19.2.8"
+    ts-jest: "npm:29.4.9"
+    typescript: "npm:5.5.3"
+  languageName: unknown
+  linkType: soft
+
 "fxa-settings@workspace:*, fxa-settings@workspace:packages/fxa-settings":
   version: 0.0.0-use.local
   resolution: "fxa-settings@workspace:packages/fxa-settings"
