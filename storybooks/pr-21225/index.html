@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 01c75a0be61aacae6963ff9b06decc6053300d86</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 01c75a0be61aacae6963ff9b06decc6053300d86</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/15/2026, 8:10:38 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): spell the pairing cancellation heading &quot;Cancelled&quot;</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- The pairing flow spelled the cancellation heading as &quot;Canceled&quot; on one device and &quot;Cancelled&quot; on the other.
+- The reporter chose the British spelling &quot;Cancelled&quot; for the mobile screen.
+
+## This pull request
+
+- Changes the Pair2 Authority and Supplicant cancellation heading to &quot;Cancelled&quot;.
+- Updates both `en.ftl` files and the English fallback strings in the two `index.tsx` files.
+- Updates the four test strings that assert the heading.
+- Keeps the `-canceled-` FTL ids as they are. A rename of an id drops every translation of that string.
+
+## Issue that this pull request solves
+
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-14503</pre></dd>
+  </dl>
+</body>
+</html>
