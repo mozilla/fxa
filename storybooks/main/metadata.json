@@ -1,8 +1,8 @@
 {
-  "commit": "aa06a170df01f033328b0b67c1804400a22c7157",
-  "summary": "Merge pull request #21211 from mozilla/fxa-13607",
-  "description": "chore(deps): remove unused bn.js dependency",
-  "timestamp": 1789479684000,
+  "commit": "8d628bc9ea24ce249e870819ed7eee55c49f1c62",
+  "summary": "Merge pull request #21163 from mozilla/fxa-13950-deletion-reason-in-webhooks",
+  "description": "feat(webhooks): add the account deletion reason into webhooks",
+  "timestamp": 1789485979000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
