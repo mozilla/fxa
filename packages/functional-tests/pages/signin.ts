@@ -121,6 +121,12 @@ export class SigninPage extends PasskeyPage {
     await this.emailFirstSubmitButton.click();
   }
 
+  // Both the email-first page and /signin render this button; wait for the swap first.
+  async clickPasskeySigninAfterEmailFirst(): Promise<void> {
+    await expect(this.emailTextbox).toBeHidden();
+    await this.passkeySigninButton.click();
+  }
+
   async fillOutPasswordForm(password: string): Promise<void> {
     await expect(this.passwordTextbox).toBeVisible();
 

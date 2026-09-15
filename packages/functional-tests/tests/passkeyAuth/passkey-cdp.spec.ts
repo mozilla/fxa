@@ -58,7 +58,7 @@ test.describe('severity-1 #smoke #chromium', () => {
         await settings.signOut();
         await page.goto(target.contentServerUrl);
         await signin.fillOutEmailFirstForm(credentials.email);
-        await signin.passkeySigninButton.click();
+        await signin.clickPasskeySigninAfterEmailFirst();
         await page.waitForURL(/settings/);
         await expect(settings.settingsHeading).toBeVisible();
       } finally {
