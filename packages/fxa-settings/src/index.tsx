@@ -12,6 +12,7 @@ import { AppErrorBoundary } from './components/ErrorBoundaries';
 import App from './components/App';
 import { NimbusProvider } from './models/contexts/NimbusContext';
 import config, { readConfigMeta } from './lib/config';
+import { featureFlags } from '@fxa/shared/feature-flags';
 import { searchParams } from './lib/utilities';
 import { capturePairingChannelParams } from './lib/pairing-channel-params';
 import { AppContext, initializeAppContext } from './models';
@@ -67,6 +68,7 @@ try {
   readConfigMeta((name: string) => {
     return document.head.querySelector(name);
   });
+  featureFlags.init({ flags: config.featureFlags ?? {} });
 
   // Must be configured early. Otherwise baggage and sentry-trace headers won't be added
   sentryMetrics.configure({

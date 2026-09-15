@@ -58,6 +58,7 @@ export enum AdminPanelFeature {
   OAuthScopes = 'OAuthScopes',
   CreateOAuthScope = 'CreateOAuthScope',
   DeleteOAuthScope = 'DeleteOAuthScope',
+  ManageFeatureFlags = 'ManageFeatureFlags',
 }
 
 /** Enum of known user groups */
@@ -252,6 +253,10 @@ const defaultAdminPanelPermissions: Permissions = {
   },
   [AdminPanelFeature.DeleteOAuthScope]: {
     name: 'Delete OAuth Scopes',
+    level: PermissionLevel.Admin,
+  },
+  [AdminPanelFeature.ManageFeatureFlags]: {
+    name: 'Manage Feature Flags',
     level: PermissionLevel.Admin,
   },
 };

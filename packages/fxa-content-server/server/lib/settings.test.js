@@ -23,6 +23,11 @@ const { modifySettingsStatic, modifyProxyRes } = proxyquire('./settings', {
     rtlLocales: [],
     '@noCallThru': true,
   },
+  '../../../../dist/libs/shared/feature-flags': {
+    featureFlags: { init: () => {}, all: () => ({}) },
+    httpSource: () => () => {},
+    '@noCallThru': true,
+  },
 });
 
 function injectedConfig(html) {
@@ -104,6 +109,43 @@ describe('settings', () => {
     });
   });
 
+  describe('dynamic feature flags', () => {
+    it('merges admin-managed flags over config-managed ones', () => {
+      const { modifySettingsStatic } = proxyquire('./settings', {
+        fs: {
+          readFileSync: () =>
+            '<meta name="fxa-config" content="__SERVER_CONFIG__" />',
+        },
+        './configuration': {
+          get: (key) =>
+            ({
+              env: 'production',
+              flow_id_key: 'key',
+              'featureFlags.passkeysEnabled': false,
+            })[key] || '',
+        },
+        '../../../../dist/libs/shared/l10n': {
+          supportedLanguages: [],
+          rtlLocales: [],
+          '@noCallThru': true,
+        },
+        '../../../../dist/libs/shared/feature-flags': {
+          featureFlags: {
+            init: () => {},
+            all: () => ({ passkeysEnabled: true, 'new-checkout': true }),
+          },
+          httpSource: () => () => {},
+          '@noCallThru': true,
+        },
+      });
+      const res = mockRes();
+      modifySettingsStatic({ path: '/' }, res);
+      const { featureFlags } = injectedConfig(res.send.args[0][0]);
+      assert.strictEqual(featureFlags.passkeysEnabled, true);
+      assert.strictEqual(featureFlags['new-checkout'], true);
+    });
+  });
+
   describe('nova theme flag', () => {
     const novaHtml =
       '<html data-theme="__NOVA_THEME__"><meta name="fxa-config" content="__SERVER_CONFIG__" /></html>';
@@ -122,6 +164,11 @@ describe('settings', () => {
         '../../../../dist/libs/shared/l10n': {
           supportedLanguages: [],
           rtlLocales: [],
+          '@noCallThru': true,
+        },
+        '../../../../dist/libs/shared/feature-flags': {
+          featureFlags: { init: () => {}, all: () => ({}) },
+          httpSource: () => () => {},
           '@noCallThru': true,
         },
       });
@@ -177,6 +224,11 @@ describe('settings', () => {
         '../../../../dist/libs/shared/l10n': {
           supportedLanguages: [],
           rtlLocales: [],
+          '@noCallThru': true,
+        },
+        '../../../../dist/libs/shared/feature-flags': {
+          featureFlags: { init: () => {}, all: () => ({}) },
+          httpSource: () => () => {},
           '@noCallThru': true,
         },
       });
@@ -277,6 +329,11 @@ describe('settings', () => {
         '../../../../dist/libs/shared/l10n': {
           supportedLanguages: [],
           rtlLocales: [],
+          '@noCallThru': true,
+        },
+        '../../../../dist/libs/shared/feature-flags': {
+          featureFlags: { init: () => {}, all: () => ({}) },
+          httpSource: () => () => {},
           '@noCallThru': true,
         },
       });

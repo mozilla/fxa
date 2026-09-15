@@ -74,10 +74,23 @@ const GEO_ELIGIBILITY_GET = {
   ],
 };
 
+const FEATURE_FLAGS_GET = {
+  ...TAGS_MISC,
+  description: 'feature-flags',
+  notes: [
+    swaggerText`
+      Returns every feature flag as a map of flag name
+      to enabled state. Values are cached per auth-server process, so a change
+      made in the admin panel takes up to the configured cache TTL to appear.
+    `,
+  ],
+};
+
 const API_DOCS = {
   ACCOUNT_GET,
   ACCOUNT_SESSIONS_LOCATIONS_GET,
   GEO_ELIGIBILITY_GET,
+  FEATURE_FLAGS_GET,
   NEWSLETTERS_POST,
   OAUTH_ID_TOKEN_VERIFY_POST,
   SUPPORT_TICKET_POST,

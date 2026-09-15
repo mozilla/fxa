@@ -12,8 +12,28 @@ const {
 const config = require('./configuration');
 const FLOW_ID_KEY = config.get('flow_id_key');
 const flowMetrics = require('./flow-metrics');
+const {
+  featureFlags,
+  httpSource,
+} = require('../../../../dist/libs/shared/feature-flags');
+const logger = require('./logging/log')('settings');
 
 const env = config.get('env');
+
+// Admin-managed flags, polled from the auth server. Resolves immediately on
+// failure so a flag outage never blocks boot; the page then gets config-only
+// flags until the next successful poll.
+const { ttlMs: flagTtlMs, timeoutMs: flagTimeoutMs } = config.get(
+  'featureFlags.dynamic'
+);
+if (flagTtlMs > 0) {
+  featureFlags.init({
+    source: httpSource(config.get('fxaccount_url'), flagTimeoutMs),
+    ttlMs: flagTtlMs,
+    onError: (err) =>
+      logger.error('featureFlags.refresh', { err: err.message }),
+  });
+}
 
 const settingsStaticPath = (() => {
   const static_directory = config.get('static_directory');
@@ -161,10 +181,18 @@ const settingsConfig = {
   servicesWithEmailVerification: config.get('servicesWithEmailVerification'),
 };
 
-// The 404 and 500 handlers set res.locals.errorPage so React renders their pages
+// The 404 and 500 handlers set res.locals.errorPage so React renders their
+// pages. Admin-managed flags override config-managed ones of the same name.
 function getServerConfig(res) {
   const { errorPage } = res.locals;
-  return errorPage ? { ...settingsConfig, errorPage } : settingsConfig;
+  return {
+    ...settingsConfig,
+    featureFlags: {
+      ...settingsConfig.featureFlags,
+      ...featureFlags.all(),
+    },
+    ...(errorPage ? { errorPage } : {}),
+  };
 }
 
 // Replace each placeholder key in the page HTML with its value
@@ -268,7 +296,9 @@ function modifyProxyRes(proxyRes, req, res) {
       const flowEventData = flowMetrics.create(FLOW_ID_KEY);
       html = injectServerConfig(html, {
         __SERVER_CONFIG__: getServerConfig(res),
-        __NOVA_THEME__: config.get('featureFlags.novaDesignSystem') ? 'nova' : '',
+        __NOVA_THEME__: config.get('featureFlags.novaDesignSystem')
+          ? 'nova'
+          : '',
         __FLOW_ID__: flowEventData.flowId,
         __FLOW_BEGIN_TIME__: flowEventData.flowBeginTime,
         ...resolvePreConnectDirectives(settingsConfig),

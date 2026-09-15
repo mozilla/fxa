@@ -122,6 +122,9 @@ export interface Config {
     keyStretchV2?: number;
   };
   featureFlags?: {
+    // Admin-managed flags arrive under their own names; read them through
+    // `featureFlags.get()` from @fxa/shared/feature-flags.
+    [name: string]: boolean | undefined;
     keyStretchV2?: boolean;
     recoveryCodeSetupOnSyncSignIn?: boolean;
     showLocaleToggle?: boolean;

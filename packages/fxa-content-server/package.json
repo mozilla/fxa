@@ -78,7 +78,8 @@
   },
   "nx": {
     "implicitDependencies": [
-      "crypto-relier"
+      "crypto-relier",
+      "shared-feature-flags"
     ],
     "tags": [
       "scope:frontend",

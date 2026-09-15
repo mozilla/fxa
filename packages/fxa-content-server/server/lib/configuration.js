@@ -208,6 +208,20 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'FEATURE_FLAGS_NOVA_DESIGN_SYSTEM',
     },
+    dynamic: {
+      ttlMs: {
+        default: 5000,
+        doc: 'How long admin-managed flags fetched from the auth server are served from the in-process cache. 0 disables dynamic flags.',
+        format: 'nat',
+        env: 'FEATURE_FLAGS_DYNAMIC_TTL_MS',
+      },
+      timeoutMs: {
+        default: 2000,
+        doc: 'Timeout for fetching admin-managed flags from the auth server',
+        format: 'nat',
+        env: 'FEATURE_FLAGS_DYNAMIC_TIMEOUT_MS',
+      },
+    },
   },
   passkeys: {
     maxPerUser: {

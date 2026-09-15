@@ -245,6 +245,9 @@ module.exports = function (
   const { riskSignalRoutes } = require('./risk-signal');
   const riskSignal = riskSignalRoutes(log);
 
+  const { featureFlagsRoutes } = require('./feature-flags');
+  const featureFlags = featureFlagsRoutes(config, log);
+
   const { mfaRoutes } = require('./mfa');
   const mfa = mfaRoutes(customs, db, log, mailer, statsd, config);
 
@@ -302,6 +305,7 @@ module.exports = function (
     cloudScheduler,
     cms,
     geo,
+    featureFlags,
     mfa,
     passkeys,
     passkeyWraps,
