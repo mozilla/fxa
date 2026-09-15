@@ -1,5 +1,11 @@
 {
-  "_comment": "Generated once from the ciphersuite and Web Crypto directly, not through the module. NEVER REGENERATE — see golden-envelope.test.ts.",
+  "_comment": "Generated from the ciphersuite and Web Crypto directly, not through the module. Not regenerable once any client has written a v1 envelope. See the README under \"Regenerating the fixture\" and the hash pin in golden-envelope.test.ts.",
+  "_provenance": {
+    "generated": "2026-08-14 to 2026-08-18 during FXA-13144 (PR #21006, commit 1d572d471f), from a throwaway Node script importing hpke 1.1.3 and using crypto.subtle directly. kB, prfOut, keyWrapIv, pkR and skRRaw are fixed inputs and have never changed.",
+    "hpkeFieldsRegenerated": "2026-09-04 during FXA-13147 (commit 636b874d03) when keysChangedAt left the aad and the context moved wholly into info. prfWrappedSkR was unaffected. No client had written an envelope.",
+    "independentlyVerified": "2026-09-14, FXA-14269: all three layers (context framing, HKDF + AES-GCM unwrap, HPKE open) reproduced with hpke 1.1.3 and crypto.subtle alone, constants copied by value, no import from this module.",
+    "frozenSince": "2026-09-14, FXA-14269"
+  },
   "kB": "00112233445566778899aabbccddeeff102030405060708090a0b0c0d0e0f001",
   "prfOut": "fedcba98765432100123456789abcdeff0e1d2c3b4a5968778695a4b3c2d1e0f",
   "uid": "0011223344556677889900aabbccddee",

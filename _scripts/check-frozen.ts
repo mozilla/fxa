@@ -23,6 +23,12 @@ const frozen: Array<{
     // exempt it so the SB8 upgrade (and future storybook-only changes) can proceed.
     exclude: 'storybook-email\\.ts$',
   },
+  {
+    pattern:
+      'packages/fxa-settings/src/lib/passkey-crypto/v1-envelope-fixture\\.json$',
+    reason:
+      'Golden vectors for the passkey wrap format. Regenerating them makes a format change look like a passing test; see the README under "Regenerating the fixture"',
+  },
 ];
 
 export const getChangedFiles = () => {

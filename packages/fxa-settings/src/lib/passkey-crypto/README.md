@@ -68,4 +68,36 @@ Two suites carry more weight than the rest.
 The RFC 9180 Appendix A.6 vectors confirm the ciphersuite is configured correctly. They are copied verbatim from the RFC, which is safe in a way the envelope fixture is not: the RFC is published and immutable, so a vendored copy cannot drift from its source, and a value that diverges from it fails the tests rather than silencing them.
 `golden-envelope.test.ts` decrypts a committed v1 envelope, so it is the only test anchored to bytes produced outside this module — everything else seals and opens with the same code and passes whatever the format is. `envelope.test.ts` pins the derived context too, but against a literal in the same file.
 
-Regenerating the fixture is only safe while no shipped client has written a v1 envelope. Once one has, the committed vectors are the only evidence of the format those stored rows were sealed under, and regenerating them turns a test that would have caught a format change into one that ratifies it — locking those users out of Sync with no recovery path, since the envelope carries no version field.
+## Regenerating the fixture
+
+Almost never. Two things notice when the fixture changes. `_scripts/check-frozen.ts` lists it, so the local pre-commit hook refuses the commit; that catches an accidental edit and nothing more, since CI does not run the check and `--no-verify` skips it. `golden-envelope.test.ts` pins a SHA-256 of the vector fields, so a deliberate edit has to touch a second file, which CI does enforce. Neither prevents regeneration. They make it visible, and the reviewer is the gate.
+
+### What a failure means
+
+The question is not whether envelopes exist yet. It is: **does this change alter the bytes an envelope is made of, or how those bytes are opened?**
+
+- **No.** A refactor, a rename, better error messages, a dependency bump, a new caller: `golden-envelope.test.ts` stays green and the fixture is not touched. This is the normal case.
+- **Yes.** The golden test goes red. That is a format change, and the red test is the moment to stop. Every envelope already stored was sealed under the old bytes, and the server cannot fix them after the fact: it holds neither `kB` nor `prfOut`, so nothing can be re-encrypted server-side, and a stored envelope that stops opening is a user locked out of Sync with no recovery path.
+
+A red golden test has two legitimate resolutions, and one illegitimate one.
+
+1. **Reconsider the change.** Most format changes are not worth a migration. If existing envelopes must keep opening and the change is optional, drop it.
+2. **Ship it as a new version.** The v1 fixture stays exactly as it is, the v1 open path stays intact, and v2 lands beside it with its own fixture and a written plan for existing envelopes before any code merges. "Iterating on the format" above lists the order: a `version` column, per-version sizes, a dispatched open path, client-side lazy re-wrap, and acceptance that users who never return keep v1 forever.
+3. **Regenerate the fixture.** Only when the format has genuinely not shipped: `passkeyWraps` is empty in stage and prod, and no released client calls `createWrapEnvelope`. Then nothing stored depends on the old bytes and the fixture may be regenerated once, following the steps below. Once that stops being true, this option is gone for good.
+
+### Steps, when regenerating is the right answer
+
+If the format genuinely has not shipped and must change:
+
+1. Land the format change and get the round-trip tests green first, so the shape you freeze is the one that will ship.
+2. Generate the vectors **outside this module**, in a throwaway Node script that imports only `hpke` and uses `crypto.subtle` directly. Do not import from `envelope.ts`, `hpke.ts` or `key-wrap.ts`: vectors produced by the code under test only restate what it does. Use fixed inputs so the run is reproducible: the existing `kB`, `prfOut`, `uid`, `credentialId` and `keyWrapIv` are fine to keep. The script must, by hand: frame the context as `len(uid) || uid || len(credentialId) || credentialId`, each length a 2-byte big-endian prefix, `uid` decoded from hex and `credentialId` from base64url; derive a 256-bit AES-GCM key from `prfOut` with HKDF-SHA512, empty salt, `info` = `KEY_WRAP_KDF_INFO`; left-pad the scalar to 66 bytes and AES-256-GCM it under `KEY_WRAP_AAD_LABEL || context` with the fixed `keyWrapIv`; and `Seal` `kB` to `pkR` with `HPKE_INFO_LABEL || context` as `info` and empty `aad`. Every constant is copied by value, not imported, so a typo fails the golden test rather than silently agreeing with the module.
+3. Replace the vector fields in `v1-envelope-fixture.json`. Update `_provenance` with the date, commit, `hpke` version and reason. The reviewer should open the new envelope the same way, with a script that imports nothing from this module, and say so in the review; the `independentlyVerified` entry records the last time that was done.
+4. Run the golden suite. The hash test fails and prints the digest it computed. Recompute it yourself to confirm, from the module directory, and update `FIXTURE_SHA256`. Nothing else in the test should need to change.
+
+   ```sh
+   node -e 'const f=require("./v1-envelope-fixture.json");const k=["kB","prfOut","uid","credentialId","context","keyWrapIv","pkR","skRRaw","prfWrappedSkR","hpkeEncapsulatedSecret","hpkeSealedKb"];console.log(require("crypto").createHash("sha256").update(k.map(n=>n+"="+f[n]).join("\n")).digest("hex"))'
+   ```
+
+5. Commit with `--no-verify`, since `check:frozen` will refuse the fixture, and say so in the commit's `Because:` along with the evidence from the first step that no envelope exists.
+
+A PR that changes the ciphersuite, labels, context or sizes without a plan for existing envelopes, or that regenerates the fixture without steps 1 and 5 visible in its history, should not be approved, whatever the tests say.
