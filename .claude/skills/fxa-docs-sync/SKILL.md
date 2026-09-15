@@ -141,15 +141,29 @@ continue with what's left.
 ### FxA monorepo
 
 ```bash
-gh pr list --repo mozilla/fxa --state merged --limit 100 \
+gh pr list --repo mozilla/fxa --state merged --limit 500 \
   --search "merged:>=$SINCE" \
   --json number,title,url,mergedAt,labels,body
 ```
 
-For each merged PR, pull its file list (`gh api
-repos/mozilla/fxa/pulls/<n>/files --paginate --jq '.[] | [.status,.filename] |
-@tsv'`). Keep the PR only if a changed path is one the public docs can
-describe. The high-yield signals:
+A busy week clears 100 merges, and a truncated list silently narrows the
+window while the report still claims to have covered it. Raise `--limit` above
+what the window can plausibly contain, and if the result count comes back equal
+to the limit, treat the run as **incomplete**: say so in the report and the PR
+body rather than presenting partial coverage as full.
+
+For each merged PR, pull its file list:
+
+```bash
+gh api "repos/mozilla/fxa/pulls/<n>/files" --paginate \
+  --jq '.[] | [.status, .filename, .previous_filename // ""] | @tsv'
+```
+
+Keep `previous_filename` — on a `renamed` entry the *old* path is the one the
+docs still mention, so dropping it loses the rename signal entirely.
+
+Keep the PR only if a changed path is one the public docs can describe. The
+high-yield signals:
 
 - `package.json` scripts, `project.json` Nx targets, `nx.json`
 - `**/config/*.json` defaults — ports, URLs, feature flags, timeouts
@@ -164,13 +178,24 @@ Filter on the file list, not the commit subject: a `chore(deps):` title can
 still delete a `package.json` script. Skip a PR only when its entire diff is
 tests, l10n `.ftl`, or lockfiles.
 
+For each PR that survives the filter, keep the patch for its docs-relevant
+files (`--jq '.[] | select(.filename == "<path>") | .patch'`). Phase 2 searches
+for *concrete identifiers* — an old script name, the previous port — and a path
+list alone doesn't contain them. The patch supplies the candidate strings;
+Phase 3 still decides what is true.
+
 ### Jira (FXA project)
 
 Resolve the `mozilla-hub` cloudId via `getAccessibleAtlassianResources`, then:
 
 ```
-project = FXA AND updated >= -<window> ORDER BY updated DESC
+project = FXA AND updated >= "<SINCE as yyyy/MM/dd HH:mm>" ORDER BY updated DESC
 ```
+
+Build the bound from the same `SINCE` the GitHub queries use, not from the
+original relative window. After a missed run `SINCE` is the widened boundary,
+and a relative `-24h` here would skip the recovered interval while Phase 6
+advances the cursor past it.
 
 Read summaries, descriptions, and resolutions for renames, removals,
 deprecations, and "docs need updating" notes. Jira explains *why* something
@@ -183,7 +208,7 @@ Detect the sync PR here, not at push time: feedback is a second source of work
 and has to be in hand before editing starts.
 
 ```bash
-gh pr list --repo mozilla/ecosystem-platform --state open --limit 100 \
+gh pr list --repo mozilla/ecosystem-platform --state open --limit 500 \
   --json number,url,headRefName,body,createdAt
 ```
 
@@ -191,18 +216,31 @@ A PR is this skill's if its body contains the marker `<!-- fxa-docs-sync -->`
 or its `headRefName` starts with `docs-sync/`. Carry the result into Phase 5 —
 don't run the detection twice. With no match, skip the rest of this phase.
 
+**Detection must not be able to truncate.** If the returned count equals the
+limit, the sync PR may be past the cut, and a false "no match" opens a second
+PR — the one thing the at-most-one rule exists to prevent. On a full page,
+abort the run rather than proceeding on an unreliable answer.
+
 With a match, read all three comment surfaces. `gh pr view --comments` alone
 misses inline comments on the diff, which is where most doc corrections land:
 
 ```bash
 PR=<number>
-gh pr view "$PR" --repo mozilla/ecosystem-platform --json comments \
-  --jq '.comments[] | [.createdAt, .author.login, .body] | @tsv'
+# issue — top-level PR conversation
+gh api "repos/mozilla/ecosystem-platform/issues/$PR/comments" --paginate \
+  --jq '.[] | [.id, .created_at, .user.login, .body] | @tsv'
+# review — inline, anchored to a file and line
 gh api "repos/mozilla/ecosystem-platform/pulls/$PR/comments" --paginate \
   --jq '.[] | [.id, .created_at, .user.login, .path, .line, .body] | @tsv'
+# reviews — the summary body attached to an approval or request
 gh api "repos/mozilla/ecosystem-platform/pulls/$PR/reviews" --paginate \
   --jq '.[] | select(.body != "") | [.id, .submitted_at, .user.login, .state, .body] | @tsv'
 ```
+
+Read the top-level conversation through `issues/$PR/comments`, not
+`gh pr view --json comments`: the latter's objects carry no numeric `id`, and
+without one a comment can never be recorded as processed, so it reads as new on
+every run.
 
 ### Gate on write access first
 
@@ -245,9 +283,15 @@ the same drive-by.
   (`gh api user --jq .login`). Its own run summaries are not feedback.
 - Bots — `dependabot`, `github-actions`, anything with a `[bot]` suffix. The
   gate already catches them; this just saves a call.
-- Ids at or below `$STATE_DIR/last-comment-<PR>`, the high-water mark written
-  in Phase 6. Without it, a reply becomes input to the next run and the thread
-  grows without end.
+- Ids at or below the high-water mark for **that surface** — the marks written
+  in Phase 6. Without them, a reply becomes input to the next run and the
+  thread grows without end.
+
+  Keep one mark per surface: `last-comment-issue-<PR>`,
+  `last-comment-review-<PR>`, `last-comment-reviews-<PR>`. The three
+  collections number independently, so a single shared cursor lets a high id
+  from one surface suppress a newer comment on another. Compare each id only
+  against the mark for the endpoint it came from.
 
 Classify each survivor and act:
 
@@ -273,8 +317,14 @@ identifiers the window changed — old command names, old ports, removed package
 names, renamed paths:
 
 ```bash
-git -C "$DOCS_DIR" grep -n -i -e "<identifier>" -- docs/ README.md CONTRIBUTING.md
+git -C "$DOCS_DIR" grep -n -i -F -e "<identifier>" \
+  -- docs/ sidebars.js README.md CONTRIBUTING.md
 ```
+
+`-F` matters: identifiers are full of regex metacharacters. Without it
+`api-docs.handlebars` matches `api-docsXhandlebars`, and `patch-19` behaves
+unpredictably against version strings. Include `sidebars.js` — Phase 4 requires
+navigation labels to stay consistent, so it has to be searched here too.
 
 The docs follow the [Divio/Diátaxis](https://documentation.divio.com/) split
 (`docs/tutorials`, `docs/how-tos`, `docs/reference`, `docs/explanation`, plus
@@ -299,6 +349,15 @@ Prefer this over the local FxA checkout, which may sit on a feature branch with
 uncommitted work. Discard any candidate you cannot confirm this way, and report
 it rather than guessing.
 
+**A 404 is an answer, not a failure.** When the candidate came from a `removed`
+or `renamed` file, a 404 on the old path is exactly the confirmation that the
+documented thing is gone — the evidence Phase 4 needs to delete a stale
+instruction. Treating it as unconfirmable would make removals unreachable and
+leave dead commands documented forever. Distinguish the two cases: a 404 on a
+path the window deleted confirms removal; a 404 on a path nobody touched means
+the candidate was wrong. For a rename, confirm both halves — old path absent,
+new path present.
+
 ### Database patch levels
 
 `docs/reference/database-structure.md` opens with a patch level per database
@@ -310,10 +369,17 @@ When a level has moved, read **every** intervening forward patch —
 `patches/patch-<n>-<n+1>.sql`, ignoring the `patch-<n+1>-<n>.sql` rollbacks —
 and classify each one:
 
-- **Structural** — `CREATE TABLE`, `ALTER TABLE`, `DROP COLUMN`, index or
-  foreign-key changes. The diagram must change.
-- **Data or behaviour only** — `INSERT INTO securityEventNames`,
-  `CREATE PROCEDURE`, seed rows. The diagram must not change.
+- **Structural** — any schema DDL: `CREATE TABLE`, `DROP TABLE`,
+  `RENAME TABLE`, `ALTER TABLE` in any form (added, dropped, or retyped
+  columns), and index, key, or constraint changes. The diagram must change.
+- **Data or behaviour only** — `INSERT`/`UPDATE`/`DELETE` on existing tables
+  (`securityEventNames` rows, seed data) and routine definitions
+  (`CREATE PROCEDURE`, `DROP PROCEDURE`). The diagram must not change.
+
+A patch containing both is **structural** — classify on the strongest verb
+present, never on the patch's apparent purpose. Default to structural when a
+statement is unfamiliar; an unnecessary look at the diagram costs a minute,
+while a missed `DROP TABLE` leaves a table on the page that no longer exists.
 
 Apply the span in order rather than reading only the newest patch: a column
 added at one level and dropped two levels later must never appear. Say in the
@@ -331,8 +397,19 @@ under the `## Database:` heading, especially when it shadows an existing table.
 
 ## Phase 4 — Edit
 
-Work on the sync branch (Phase 1.5 determined whether it already exists). For
-each verified candidate, make the smallest edit that makes the doc true.
+Put the branch in place **before** editing anything, using the Phase 1.5
+detection result. Nothing below can run against a branch that doesn't exist
+yet, and editing while `HEAD` is still the default branch strands the work:
+
+```bash
+cd "$DOCS_DIR"
+# existing PR → its branch; no match → a new one off the default branch
+git checkout <existing head branch> || git checkout -b "docs-sync/$(date -u +%F)" "origin/$DEFAULT_BRANCH"
+git branch --show-current   # confirm before the first edit
+```
+
+Phase 5 then only pushes and opens or updates the PR. For each verified
+candidate, make the smallest edit that makes the doc true.
 
 - Keep the `---\ntitle: ...\n---` frontmatter, heading levels, and list style
   intact.
@@ -348,14 +425,26 @@ each verified candidate, make the smallest edit that makes the doc true.
 Then check the build, best-effort:
 
 ```bash
-cd "$DOCS_DIR" && yarn build 2>&1 | tail -20
+cd "$DOCS_DIR"
+set -o pipefail
+yarn build 2>&1 | tail -20
+echo "build exit: ${PIPESTATUS[0]:-$?}"
 ```
 
-Skip it if `node_modules` is absent (installing is slow and out of scope) and
-say so in the report. `onBrokenLinks` is `warn`, so read the warnings — a new
-broken-link warning means a link edit was wrong. Fix it, don't ship it. A
-malformed `erDiagram` fails at render rather than at build, so new mermaid
-tables need a rendered check called out in the PR body.
+Capture the build's own status, not the pipeline's: `yarn build | tail` exits
+with `tail`'s success even when the build failed, which would write "build
+clean" into the PR body after a failure.
+
+Skip the build if `node_modules` is absent (installing is slow and out of
+scope) and say so in the report. `onBrokenLinks` is `warn`, so read the
+warnings — a new broken-link warning means a link edit was wrong. Fix it, don't
+ship it.
+
+A malformed `erDiagram` fails when the page renders, not when the site builds,
+so a green build says nothing about new mermaid tables. Call for a rendered
+check in the PR body and name the affected page. This is a known gap: it is not
+gated, because requiring a renderer that usually isn't installed would block
+correct schema fixes.
 
 Commit with the repo's conventions — imperative subject ≤72 chars. One commit
 per run, or two when the run both answers review feedback and fixes fresh
@@ -375,14 +464,19 @@ This commit:
 
 Use the detection result from Phase 1.5 — don't re-query. Then:
 
-- **Exactly one match** → check out its branch, apply Phase 4 on top, and push.
-  Rebase onto `origin/$DEFAULT_BRANCH` first; if that conflicts,
-  `git rebase --abort` and commit on the branch as-is, noting the staleness in
-  the report. Rewrite the PR body to cover the full accumulated set of fixes,
-  not just this run's, and comment summarizing what this run appended.
-- **No match** → create branch `docs-sync/YYYY-MM-DD` from
-  `origin/$DEFAULT_BRANCH`, push with tracking, and open the PR **ready for
-  review** (not draft) against `$DEFAULT_BRANCH`.
+- **Exactly one match** → the branch is already checked out and edited from
+  Phase 4; push it. Bring in the default branch with
+  `git merge --no-edit "origin/$DEFAULT_BRANCH"`, **never a rebase**: the
+  branch is already published, so rewriting it would need a force-push, which
+  the hard rules forbid — the push would simply be rejected. If the merge
+  conflicts, `git merge --abort` and push the commits as-is, noting the
+  staleness in the report. Rewrite the PR body to cover the full accumulated
+  set of fixes, not just this run's, and comment summarizing what this run
+  appended.
+- **No match** → push the branch Phase 4 created (`docs-sync/YYYY-MM-DD`) with
+  tracking, and open the PR **ready for review** (not draft) against
+  `$DEFAULT_BRANCH`. If that branch name already exists on the remote from a
+  closed PR, push to `docs-sync/YYYY-MM-DD-2` rather than touching the old one.
 - **Two or more matches** → stop. Report the collision and leave every PR
   untouched.
 
@@ -415,28 +509,44 @@ against `mozilla/fxa@main` at the time of the edit.
 
 ## Testing
 
-`yarn build` clean, no new broken-link warnings. Verify the commands in the
-changed pages still run against a current checkout.
+<the build's actual outcome — see below>
 
 ## Issue(s)
 
 N/A — automated consistency pass. Related: FXA-NNNNN
 ```
 
+The Testing section states what this run actually did, never boilerplate:
+
+- Build ran and passed → "`yarn build` clean, no new broken-link warnings."
+- Build skipped → say so and why ("no `node_modules` in the scratch clone"),
+  plus what a reviewer should check by hand instead.
+- Build failed → don't open or update the PR. Fix the failure first.
+
+Never claim a check that didn't run; that is the one thing in the body a
+reviewer cannot verify without redoing the work.
+
 Keep the table to the actual fixes, and drop "Not addressed" when it would be
 empty.
 
 ## Phase 6 — Record and report
 
-Write the window end to `"$STATE_DIR/last-run"` **only if the run completed
-without an aborting error**, so a failed run re-examines the same window next
-time. When Phase 1.5 processed comments, write the highest comment id handled
-to `"$STATE_DIR/last-comment-<PR>"` — including ids you declined, or every
-future run re-litigates the same request.
+Write the window end to `"$STATE_DIR/last-run"` **only if every activity source
+in Phase 1 succeeded and the merged-PR list was not truncated.** Phase 1
+continues past a failed source so the run is still useful, but advancing the
+cursor after a GitHub or Jira outage moves it past activity nobody examined,
+and the widening logic can never recover it. A partial run is fine; a partial
+run that claims the window is done is not.
+
+When Phase 1.5 processed comments, write the highest id handled per surface to
+`last-comment-issue-<PR>`, `last-comment-review-<PR>`, and
+`last-comment-reviews-<PR>` — including ids you declined, or every future run
+re-litigates the same request.
 
 Print one short block — no restating of the workflow:
 
-- Window covered, and sources that failed or were skipped
+- Window covered, whether coverage was complete, and sources that failed,
+  were skipped, or came back truncated — plus whether `last-run` advanced
 - Merged PRs and tickets examined vs. how many were docs-relevant
 - Review comments handled: acted on, answered, or declined with the reason
 - Comments skipped for lack of write access: author, permission seen, and a
