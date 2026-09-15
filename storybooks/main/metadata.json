@@ -1,8 +1,8 @@
 {
-  "commit": "d2d9113e2da14b426a6a16336195b69947586158",
-  "summary": "Merge pull request #21225 from mozilla/fxa-14503",
-  "description": "fix(settings): spell the pairing cancellation heading \"Cancelled\"",
-  "timestamp": 1789510806000,
+  "commit": "00f8b8d461767ad7d738024ea17e8210c9461af5",
+  "summary": "Merge pull request #21230 from mozilla/fxa-14542",
+  "description": "fix(functional-tests): wait for the page swap before the passkey click",
+  "timestamp": 1789510751000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
