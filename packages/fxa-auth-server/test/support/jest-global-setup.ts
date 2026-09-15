@@ -34,11 +34,29 @@ const MAIL_HELPER_HOST = '127.0.0.1';
 const MAIL_HELPER_API_START_PORT = 39001;
 const MAIL_HELPER_SMTP_START_PORT = 39101;
 
+// config/index.ts lets these move the key paths away from the convict defaults.
+const KEY_FILE_ENV_OVERRIDES = [
+  'SECRET_KEY_FILE',
+  'PUBLIC_KEY_FILE',
+  'OLD_PUBLIC_KEY_FILE',
+  'FXA_OPENID_KEYFILE',
+  'FXA_OPENID_NEWKEYFILE',
+  'FXA_OPENID_OLDKEYFILE',
+];
+
 function generateKeysIfNeeded(): void {
+  // The scripts and the server inherit process.env, so the default paths below
+  // are only the real paths when no override is set.
+  const usesDefaultKeyPaths = !KEY_FILE_ENV_OVERRIDES.some(
+    (name) => name in process.env
+  );
   const keyScripts = [
     {
       label: 'auth keys',
       script: path.join(AUTH_SERVER_ROOT, 'scripts', 'gen_keys.js'),
+      // The scripts do nothing when these exist, so skip the slow node spawn.
+      // Paths track the convict defaults; this helper forces NODE_ENV=dev.
+      outputs: ['public-key.json', 'secret-key.json'],
       env: {
         ...process.env,
         NODE_ENV: 'dev',
@@ -47,6 +65,7 @@ function generateKeysIfNeeded(): void {
     {
       label: 'OAuth keys',
       script: path.join(AUTH_SERVER_ROOT, 'scripts', 'oauth_gen_keys.js'),
+      outputs: ['key.json'],
       env: {
         ...process.env,
         NODE_ENV: 'dev',
@@ -55,11 +74,20 @@ function generateKeysIfNeeded(): void {
     },
   ];
 
-  for (const { label, script, env } of keyScripts) {
-    console.log(`[Jest Global Setup] Checking/generating ${label}...`);
+  for (const { label, script, outputs, env } of keyScripts) {
+    const present =
+      usesDefaultKeyPaths &&
+      outputs.every((file) =>
+        fs.existsSync(path.join(AUTH_SERVER_ROOT, 'config', file))
+      );
+    if (present) {
+      console.log(`[Jest Global Setup] ${label} already present.`);
+      continue;
+    }
+    console.log(`[Jest Global Setup] Generating ${label}...`);
     try {
       execSync(
-        `node -r ts-node/register/transpile-only -r tsconfig-paths/register  ${script}`,
+        `node -r @swc-node/register -r tsconfig-paths/register ${script}`,
         {
           cwd: AUTH_SERVER_ROOT,
           env,
@@ -74,8 +102,8 @@ function generateKeysIfNeeded(): void {
 
 async function waitForMailHelper(
   port = Number(process.env.MAILER_PORT || 9001),
-  maxAttempts = 30,
-  delayMs = 500
+  maxAttempts = 150,
+  delayMs = 100
 ): Promise<void> {
   // Use DELETE endpoint — GET /mail/{email} blocks until an email arrives
   for (let i = 0; i < maxAttempts; i++) {
@@ -183,7 +211,7 @@ export default async function globalSetup(): Promise<void> {
     'node',
     [
       '-r',
-      'ts-node/register/transpile-only',
+      '@swc-node/register',
       '-r',
       'tsconfig-paths/register',
       path.join(AUTH_SERVER_ROOT, 'test', 'mail_helper.js'),
