@@ -1,0 +1,11 @@
+{
+  "commit": "8792120ab8eda5c0bedd31c6fb9bc4bda6cf955d",
+  "summary": "feat(react): embed the l10n asset map in the settings HTML",
+  "description": "## Because\n\n* `main` added `reportBundleError` reporting for l10n bundle and manifest load failures.\n* This branch replaced the manifest fetch with a map that the build embeds in the settings HTML.\n* The two changes touched the same function, so the merge needed a resolution that keeps both.\n\n## This commit\n\n* Reads the l10n asset map from the `fxa-l10n-asset-map` meta tag instead of fetching `static-asset-manifest.json`.\n* Keeps the `reportBundleError` plumbing from `main` and reports an unusable map through it.\n* Keeps the `console.warn` fallback for consumers that pass no reporter.\n* Adds the favicon link from `main` next to the new meta tag in `packages/fxa-settings/public/index.html`.\n* Moves the `reportBundleError` tests onto the embedded map, and changes the unreachable manifest case to an unusable map.\n\n## Notes\n\nJira: FXA-11871\n\nConflicted files:\n\n* `packages/fxa-react/lib/AppLocalizationProvider.tsx`\n* `packages/fxa-react/lib/AppLocalizationProvider.test.tsx`\n* `packages/fxa-settings/public/index.html`\n\nChecks: `nx test-unit fxa-react` passes with 122 tests. `nx lint fxa-react` and `nx lint fxa-settings` exit 0. `fxa-settings` has no `test-unit` suite, so that target is a no-op, but its `build` dependency ran and consumed the resolved `index.html`.",
+  "timestamp": 1789495092000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

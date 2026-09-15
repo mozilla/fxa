@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 8792120ab8eda5c0bedd31c6fb9bc4bda6cf955d</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 8792120ab8eda5c0bedd31c6fb9bc4bda6cf955d</h1>
+  <ul>
+    <li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/15/2026, 5:58:12 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(react): embed the l10n asset map in the settings HTML</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+* `main` added `reportBundleError` reporting for l10n bundle and manifest load failures.
+* This branch replaced the manifest fetch with a map that the build embeds in the settings HTML.
+* The two changes touched the same function, so the merge needed a resolution that keeps both.
+
+## This commit
+
+* Reads the l10n asset map from the `fxa-l10n-asset-map` meta tag instead of fetching `static-asset-manifest.json`.
+* Keeps the `reportBundleError` plumbing from `main` and reports an unusable map through it.
+* Keeps the `console.warn` fallback for consumers that pass no reporter.
+* Adds the favicon link from `main` next to the new meta tag in `packages/fxa-settings/public/index.html`.
+* Moves the `reportBundleError` tests onto the embedded map, and changes the unreachable manifest case to an unusable map.
+
+## Notes
+
+Jira: FXA-11871
+
+Conflicted files:
+
+* `packages/fxa-react/lib/AppLocalizationProvider.tsx`
+* `packages/fxa-react/lib/AppLocalizationProvider.test.tsx`
+* `packages/fxa-settings/public/index.html`
+
+Checks: `nx test-unit fxa-react` passes with 122 tests. `nx lint fxa-react` and `nx lint fxa-settings` exit 0. `fxa-settings` has no `test-unit` suite, so that target is a no-op, but its `build` dependency ran and consumed the resolved `index.html`.</pre></dd>
+  </dl>
+</body>
+</html>
