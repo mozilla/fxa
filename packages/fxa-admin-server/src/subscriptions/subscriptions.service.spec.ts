@@ -178,17 +178,17 @@ describe('Subscription Service', () => {
                 {
                   current_period_end: currentPeriodEnd / 1e3,
                   current_period_start: currentPeriodStart / 1e3,
+                  plan: {
+                    id: planId,
+                    product: productId,
+                    product_name: productName,
+                  },
                 },
               ],
             },
             ended_at: endedAt,
             id: subscriptionId,
             latest_invoice: latestInvoice,
-            plan: {
-              id: planId,
-              product: productId,
-              product_name: productName,
-            },
             status,
           },
         ],
