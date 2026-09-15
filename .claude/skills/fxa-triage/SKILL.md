@@ -3,7 +3,8 @@ name: fxa-triage
 description: >-
   Generates a daily FxA triage summary. Queries Jira, GitHub, Bugzilla,
   and optionally Sentry, then outputs a Slack-ready update with detailed analysis.
-  Use when starting triage duties or preparing the daily triage post.
+  Use when starting triage duties or preparing the daily triage post. Also offers
+  a dependency alert & bump PR review run that invokes the fxa-dep-triage skill.
 allowed-tools: Bash, WebFetch, Skill, mcp__atlassian__searchJiraIssuesUsingJql, mcp__sentry__search_issues, mcp__sentry__search_events, mcp__sentry__find_releases, mcp__sentry__get_sentry_resource, mcp__slack__slack_search_channels, mcp__slack__slack_read_channel, mcp__slack__slack_read_thread, mcp__slack__slack_search_public, mcp__slack__slack_send_message_draft, mcp__grafana__list_datasources, mcp__grafana__query_prometheus, mcp__grafana__query_prometheus_histogram, mcp__grafana__search_dashboards, mcp__grafana__get_dashboard_by_uid, mcp__grafana__get_dashboard_panel_queries, mcp__grafana__get_panel_image, mcp__grafana__generate_deeplink, mcp__grafana__grafana_api_request, mcp__circleci__list_followed_projects, mcp__circleci__get_latest_pipeline_status, mcp__circleci__get_build_failure_logs, mcp__circleci__get_job_test_results, mcp__circleci__find_flaky_tests
 user-invocable: true
 ---
@@ -35,6 +36,15 @@ Phase 5.5: Persist             → on `save`, write today's report to $HISTORY_D
 Phase 5.6: Optional Draft      → on `post`, compose Section B as a Slack draft for engineer to review and send (opt-in; harness-permission-gated)
 Phase 5.7: Optional Handoff    → on `handoff`, generate a de-personalized summary of recent state for the next triage owner
 ```
+
+## Choosing the run (the opening)
+
+Open the session before anything else: greet with today's day (`date +%A`) and ask which run the engineer wants. This is the first interaction — before loading the operational config or running any access check.
+
+1. **Daily triage summary** (default) — the full collect-everything flow. Continue to **Operational Config (load first)**, then **Phase 1**.
+2. **Dependency alert & bump PR review** — skip to **[Dependency review](#dependency-review-alerts--bump-prs)** and invoke the `fxa-dep-triage` skill. Skips the operational config and the Phase 1 setup interview; it needs only GitHub access plus public read of `mozilla/blender` tags.
+
+Accept the number or name; default to (1) if the engineer just says "triage".
 
 ## History and Baseline Storage
 
@@ -1118,6 +1128,18 @@ The summary is for an unknown next-owner, so strip personal context:
 Write the summary to `$HISTORY_DIR/handoff-YYYY-MM-DD.md` and print it back to the engineer so they can share it with the next TO. The on-disk copy is so the next TO can read it directly from their own history dir if files are transferred during ownership handoff (see "History and Baseline Storage").
 
 Keep it short — 1 page of markdown is the target. Long handoffs don't get read.
+
+## Dependency review (alerts & bump PRs)
+
+Reached when the engineer picks run 2 at the opening. This run invokes the **`fxa-dep-triage`** skill inline and surfaces its report. That skill:
+- **Assesses every open Dependabot alert** on `mozilla/fxa` — reads BLEnder's recorded verdict (from the `investigated/mozilla/fxa/<n>` tag in `mozilla/blender`) to explain why each is still open and recommend a disposition. It never dismisses or closes an alert.
+- **Drives every open bot dependency PR** (Dependabot + `blender/security-bump-*`) toward green CI. It never merges.
+
+**How to run it:** invoke the `fxa-dep-triage` skill. It runs in this context, so its alert dispositions and merge-ready PR list stay available for the rest of the session. Present its report; the engineer makes the dismiss/merge calls.
+
+**Prereqs:** GitHub access and public read of `mozilla/blender` git tags. The PR-drive part also needs the FxA working tree and a CircleCI token — see the `fxa-dep-triage` skill.
+
+**If `fxa-dep-triage` isn't installed**, fall back to a manual walkthrough: list open alerts (`gh api "repos/mozilla/fxa/dependabot/alerts?state=open"`), read each verdict tag (`gh api repos/mozilla/blender/git/ref/tags/investigated/mozilla/fxa/<n>` → follow an annotated tag's `.message` for the verdict JSON), and list open `blender/security-bump-*` / `dependabot/*` PRs with their CI state.
 
 ## Guidelines
 
