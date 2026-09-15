@@ -67,7 +67,7 @@ describe('PasskeyChallengeManager', () => {
       expect(result).toBe(MOCK_CHALLENGE);
     });
 
-    it('calls redis.set with the correct key and TTL', async () => {
+    it('calls redis.set with the correct key and TTL and increments statsd', async () => {
       mockRedis.set.mockResolvedValue('OK');
       await manager.generateRegistrationChallenge('deadbeef');
 
@@ -77,12 +77,6 @@ describe('PasskeyChallengeManager', () => {
         'EX',
         CHALLENGE_TIMEOUT_MS / 1000
       );
-    });
-
-    it('increments statsd counter for generated challenges', async () => {
-      mockRedis.set.mockResolvedValue('OK');
-      await manager.generateRegistrationChallenge('deadbeef');
-
       expect(mockStatsd.increment).toHaveBeenCalledWith(
         'passkey.challenge.generated',
         { type: 'registration' }
