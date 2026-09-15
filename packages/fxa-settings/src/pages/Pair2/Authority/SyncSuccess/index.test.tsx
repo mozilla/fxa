@@ -31,10 +31,10 @@ describe('Pair2/Authority/SyncSuccess page', () => {
     renderWithLocalizationProvider(<Subject />);
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      'You’re syncing'
+      'Your device is connected'
     );
     screen.getByText(
-      'Your tabs, bookmarks, passwords, and more are ready across your devices.'
+      'Syncing is underway. It may take a while for your synced data to appear. Feel free to keep browsing.'
     );
   });
 
@@ -45,19 +45,15 @@ describe('Pair2/Authority/SyncSuccess page', () => {
       screen
         .getAllByRole('img')
         .map((img) => img.getAttribute('alt') ?? img.getAttribute('aria-label'))
-    ).toEqual([
-      'Mozilla logo'
-    ]);
+    ).toEqual(['Mozilla logo']);
   });
 
-  it('calls onViewSyncedTabs when the primary button is clicked', async () => {
-    const user = userEvent.setup();
-    const onViewSyncedTabs = jest.fn();
-    renderWithLocalizationProvider(<Subject {...{ onViewSyncedTabs }} />);
+  it('offers sync settings as the only action', () => {
+    renderWithLocalizationProvider(<Subject />);
 
-    await user.click(screen.getByRole('button', { name: 'View synced tabs' }));
-
-    expect(onViewSyncedTabs).toHaveBeenCalledTimes(1);
+    expect(
+      screen.getAllByRole('button').map((button) => button.textContent)
+    ).toEqual(['Manage sync settings']);
   });
 
   it('calls onSyncSettings when the sync settings button is clicked', async () => {
@@ -65,7 +61,9 @@ describe('Pair2/Authority/SyncSuccess page', () => {
     const onSyncSettings = jest.fn();
     renderWithLocalizationProvider(<Subject {...{ onSyncSettings }} />);
 
-    await user.click(screen.getByRole('button', { name: 'Sync settings' }));
+    await user.click(
+      screen.getByRole('button', { name: 'Manage sync settings' })
+    );
 
     expect(onSyncSettings).toHaveBeenCalledTimes(1);
   });
