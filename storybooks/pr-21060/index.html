@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 8792120ab8eda5c0bedd31c6fb9bc4bda6cf955d</title>
+  <title>Storybooks for commit f418155a666b00d575f1e5acbc2f053be8b8d191</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,42 +23,35 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 8792120ab8eda5c0bedd31c6fb9bc4bda6cf955d</h1>
+  <h1>Storybooks for commit f418155a666b00d575f1e5acbc2f053be8b8d191</h1>
   <ul>
     <li><a href="./fxa-react/">fxa-react</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/15/2026, 5:58:12 PM UTC</dd>
+    <dd>9/15/2026, 7:00:06 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>feat(react): embed the l10n asset map in the settings HTML</pre></dd>
+    <dd><pre>fix(react): fall back to unhashed l10n path on a missing map entry</pre></dd>
     <dt>Description</dt>
     <dd><pre>## Because
 
-* `main` added `reportBundleError` reporting for l10n bundle and manifest load failures.
-* This branch replaced the manifest fetch with a map that the build embeds in the settings HTML.
-* The two changes touched the same function, so the merge needed a resolution that keeps both.
+- The settings app fetched `static-asset-manifest.json` at runtime to find the hashed l10n file names.
+- A stale copy of that file on the CDN pointed at bundles that no longer exist, and then every locale failed to load.
+- The first round of this branch trusted the new map completely. One missing entry left that locale with no strings at all.
 
-## This commit
+## This pull request
 
-* Reads the l10n asset map from the `fxa-l10n-asset-map` meta tag instead of fetching `static-asset-manifest.json`.
-* Keeps the `reportBundleError` plumbing from `main` and reports an unusable map through it.
-* Keeps the `console.warn` fallback for consumers that pass no reporter.
-* Adds the favicon link from `main` next to the new meta tag in `packages/fxa-settings/public/index.html`.
-* Moves the `reportBundleError` tests onto the embedded map, and changes the unreachable manifest case to an unusable map.
+- Embeds the l10n static asset map in the settings HTML, in the `fxa-l10n-asset-map` meta tag.
+- Removes the runtime fetch of `static-asset-manifest.json`, and with it the stale CDN failure.
+- Changes `fetchMessages()` so a missing or non-string map entry falls back to the unhashed `locales/&lt;locale&gt;/&lt;bundle&gt;.ftl` path for that one lookup.
+- Keeps the `reportBundleError` call on that path, so the gap is still visible.
+- Leaves the guard for an unusable whole map as it was.
+- Adjusts one unit test to cover the fallback.
 
-## Notes
+## Issue that this pull request solves
 
-Jira: FXA-11871
-
-Conflicted files:
-
-* `packages/fxa-react/lib/AppLocalizationProvider.tsx`
-* `packages/fxa-react/lib/AppLocalizationProvider.test.tsx`
-* `packages/fxa-settings/public/index.html`
-
-Checks: `nx test-unit fxa-react` passes with 122 tests. `nx lint fxa-react` and `nx lint fxa-settings` exit 0. `fxa-settings` has no `test-unit` suite, so that target is a no-op, but its `build` dependency ran and consumed the resolved `index.html`.</pre></dd>
+Closes: FXA-11871</pre></dd>
   </dl>
 </body>
 </html>
