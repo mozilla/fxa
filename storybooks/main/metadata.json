@@ -1,8 +1,8 @@
 {
-  "commit": "e6b3c4ee5d3b1f7312000ac70d9d44c61636a596",
-  "summary": "Merge pull request #21192 from mozilla/FXA-14425-wrap-simple",
-  "description": "feat(settings): add passkey wrap creation",
-  "timestamp": 1789498822000,
+  "commit": "683711a30f9980cfbe0bc686a10ec79f16beb1c3",
+  "summary": "Merge pull request #21207 from mozilla/FXA-14269",
+  "description": "test(settings): freeze the passkey golden vectors",
+  "timestamp": 1789499473000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
