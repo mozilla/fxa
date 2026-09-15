@@ -1809,15 +1809,26 @@ const convictConf = convict({
     env: 'REMOTE_ADDRESS_CHAIN_OVERRIDE',
     default: '',
   },
+  // Sign-in confirmation is decided in this order: a suspicious request,
+  // forceGlobally, forcedSyncEmailAddresses and forcedHeuristicEmailAddresses
+  // each force it and skip every bypass; otherwise a recognized device, a
+  // recently verified IP, a new account, and skipForEmailRegex each bypass it.
+  // TOTP is required regardless.
   signinConfirmation: {
-    forcedEmailAddresses: {
-      doc: 'Force sign-in confirmation for email addresses matching this regex for those that do not request scoped keys. Sets "mustVerify: 0" on created session tokens but creates an entry in unverifiedTokens, simulating a non-Sync non-2FA unverified session state',
+    forcedSyncEmailAddresses: {
+      doc: 'Force Sync-style sign-in confirmation (mustVerify: 1) for matching emails. The session cannot complete an OAuth grant until the emailed code is entered, as when scoped keys are requested. Overrides the skip settings below.',
       format: RegExp,
       default: /.+@mozilla\.com$/,
       env: 'SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX',
     },
+    forcedHeuristicEmailAddresses: {
+      doc: 'Force the heuristic (non-Sync non-2FA) unverified session state for matching emails: sign-in confirmation with mustVerify: 0. The session is created unverified, RP redirect flows outside servicesWithEmailVerification continue without a code, and Settings asks for it later. This is the state the heuristics produce for older accounts.',
+      format: RegExp,
+      default: /^unverifiedsession.*@restmail\.net$/,
+      env: 'SIGNIN_CONFIRMATION_FORCE_HEURISTIC_EMAIL_REGEX',
+    },
     skipForEmailRegex: {
-      doc: 'Regex pattern for email addresses that will always skip any non-TOTP sign-in confirmation.',
+      doc: 'Always skip sign-in confirmation for matching emails, including when scoped keys are requested. Does not override a suspicious request or the forced regexes above. TOTP is still required.',
       format: RegExp,
       default: /^$/,
       env: 'SIGNIN_CONFIRMATION_SKIP_FOR_EMAIL_REGEX',

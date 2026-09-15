@@ -379,6 +379,24 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
       sendFxaLogin(navigationOptions);
     }
 
+    const requiresVerificationPage =
+      navigationOptions.signinData.verificationReason ===
+        VerificationReasons.SIGN_UP ||
+      navigationOptions.signinData.verificationMethod ===
+        VerificationMethods.TOTP_2FA ||
+      navigationOptions.signinData.verificationReason ===
+        VerificationReasons.CHANGE_PASSWORD ||
+      navigationOptions.isServiceWithEmailVerification ||
+      wantsTwoStepAuthentication ||
+      wantsKeys;
+
+    // Case 5 above: the RP flow continues to the grant and the user is never
+    // asked for a code, so none is emailed. The server did not send one either
+    // (`sendSigninVerificationEmail: false`), and the session stays unverified
+    // for Settings to prompt later.
+    const skipsVerificationPage =
+      !requiresVerificationPage && isOAuthWebIntegration(integration);
+
     // If we are about to direct a user to an email-OTP verification page
     // (/signin_token_code for an unverified session, or /confirm_signup_code for an
     // unverified email) and we know their session isn't fully verified, then send them
@@ -390,6 +408,7 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     // still sends there, because this resend produces a different template
     // (`verifyShortCode`) for an unverified primary email (FXA-14109).
     if (
+      !skipsVerificationPage &&
       (to?.includes('signin_token_code') ||
         to?.includes('confirm_signup_code')) &&
       navigationOptions.signinData.sessionToken &&
@@ -401,17 +420,7 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
       );
     }
 
-    if (
-      navigationOptions.signinData.verificationReason ===
-        VerificationReasons.SIGN_UP ||
-      navigationOptions.signinData.verificationMethod ===
-        VerificationMethods.TOTP_2FA ||
-      navigationOptions.signinData.verificationReason ===
-        VerificationReasons.CHANGE_PASSWORD ||
-      navigationOptions.isServiceWithEmailVerification ||
-      wantsTwoStepAuthentication ||
-      wantsKeys
-    ) {
+    if (requiresVerificationPage) {
       performNavigation({ navigate, to, locationState });
       return { error: undefined };
     }
