@@ -1,8 +1,8 @@
 {
-  "commit": "afe2cc05e2e393017b1bb82dfd6b3d00222c0e86",
-  "summary": "Merge pull request #21202 from mozilla/fxa-5447",
-  "description": "chore(deps): remove unused audit script, audit-filter, and .nsprc",
-  "timestamp": 1789424199000,
+  "commit": "f7db04812058f0e06be99393c8ac17f418395c49",
+  "summary": "Merge pull request #21208 from mozilla/fix-123done-padding",
+  "description": "fix(123done): fix footer overlap after signin",
+  "timestamp": 1789479599000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
