@@ -30,7 +30,6 @@ import { SigninFormData, SigninProps } from './interfaces';
 import { handleNavigation } from './utils';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import Banner from '../../components/Banner';
-import { SensitiveData } from '../../lib/sensitive-data-client';
 import { BannerLinkProps } from '../../components/Banner/interfaces';
 import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
 import SigninUserLockup from './components/SigninUserLockup';
@@ -231,9 +230,7 @@ const Signin = ({
                 }
 
                 // Store password to be used in another component
-                sensitiveDataClient.setDataType(SensitiveData.Key.Password, {
-                  plainTextPassword: password,
-                });
+                sensitiveDataClient.Password = { plainTextPassword: password };
                 // navigate only if sending the unblock code email is successful
                 navigateWithQuery('/signin_unblock', {
                   state: {

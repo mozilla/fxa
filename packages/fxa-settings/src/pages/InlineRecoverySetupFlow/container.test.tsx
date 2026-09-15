@@ -31,7 +31,6 @@ import {
   useFinishOAuthFlowHandler,
   useOAuthKeysCheck,
 } from '../../lib/oauth/hooks';
-import { SensitiveData } from '../../lib/sensitive-data-client';
 import { mockWindowLocation } from 'fxa-react/lib/test-utils/mockWindowLocation';
 import { ReactNode } from 'react';
 import { JwtTokenCache } from '../../lib/cache';
@@ -80,7 +79,6 @@ jest.mock('../../lib/oauth/hooks.tsx', () => {
 });
 
 const mockSensitiveDataClient = createMockSensitiveDataClient();
-mockSensitiveDataClient.getDataType = jest.fn();
 const mockAuthClient = new AuthClient('http://localhost:9000', {
   keyStretchVersion: 1,
 });
@@ -170,9 +168,11 @@ function setMocks() {
       .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE),
     oAuthDataError: null,
   }));
+  mockSensitiveDataClient.AuthData = undefined;
   (useSensitiveDataClient as jest.Mock).mockImplementation(
     () => mockSensitiveDataClient
   );
+  (useOAuthKeysCheck as jest.Mock).mockClear();
   (useOAuthKeysCheck as jest.Mock).mockImplementation(() => ({
     oAuthKeysCheckError: null,
   }));
@@ -324,10 +324,16 @@ describe('InlineRecoverySetupContainer', () => {
     });
 
     it('reads data from sensitive data client', async () => {
+      mockSensitiveDataClient.AuthData = {
+        keyFetchToken: 'keyFetchToken',
+        unwrapBKey: 'unwrapBKey',
+      };
       render();
       await waitFor(() => {
-        expect(mockSensitiveDataClient.getDataType).toHaveBeenCalledWith(
-          SensitiveData.Key.Auth
+        expect(useOAuthKeysCheck).toHaveBeenCalledWith(
+          defaultProps.integration,
+          'keyFetchToken',
+          'unwrapBKey'
         );
       });
     });

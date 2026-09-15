@@ -12,6 +12,7 @@ import {
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 import GleanMetrics from '../../lib/glean';
+import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../models/mocks';
 import {
   CACHED_SIGNIN_HANDLER_RESPONSE,
   createBeginSigninResponse,
@@ -43,7 +44,6 @@ import firefox from '../../lib/channels/firefox';
 
 import { OAuthNativeServices } from '@fxa/accounts/oauth';
 import { IntegrationType, RelierCmsInfo } from '../../models';
-import { SensitiveData } from '../../lib/sensitive-data-client';
 import userEvent, { UserEvent } from '@testing-library/user-event';
 import * as SigninUtils from './utils';
 import { mockWindowLocation } from 'fxa-react/lib/test-utils/mockWindowLocation';
@@ -105,16 +105,12 @@ jest.mock('../../lib/storage-utils', () => ({
   storeAccountData: jest.fn(),
 }));
 
-const mockSetData = jest.fn();
+const mockSensitiveDataClient = createMockSensitiveDataClient();
 const mockSendVerificationCode = jest.fn();
 jest.mock('../../models', () => {
   return {
     ...jest.requireActual('../../models'),
-    useSensitiveDataClient: () => {
-      return {
-        setDataType: mockSetData,
-      };
-    },
+    useSensitiveDataClient: () => mockSensitiveDataClient,
     useSession: () => ({
       sendVerificationCode: mockSendVerificationCode,
     }),
@@ -235,6 +231,7 @@ describe('Signin component', () => {
 
   beforeEach(() => {
     user = userEvent.setup();
+    mockSensitiveDataClient.Password = undefined;
 
     // because there is a navigation that happens in one test during the forgot password flow,
     // we need to mock location so that it can be reset fully between each test, otherwise
@@ -986,7 +983,7 @@ describe('Signin component', () => {
         await enterPasswordAndSubmit();
         await waitFor(() => {
           expect(sendUnblockEmailHandler).toHaveBeenCalled();
-          expect(mockSetData).toHaveBeenCalledWith(SensitiveData.Key.Password, {
+          expect(mockSensitiveDataClient.Password).toEqual({
             plainTextPassword: MOCK_PASSWORD,
           });
           expect(mockNavigate).toHaveBeenCalledWith('/signin_unblock', {

@@ -142,8 +142,8 @@ function mockVerifyTotp(success: boolean = true, errorOut: boolean = false) {
   );
 }
 const mockSensitiveDataClient = createMockSensitiveDataClient();
-mockSensitiveDataClient.getDataType = jest.fn();
 function resetMockSensitiveDataClient() {
+  mockSensitiveDataClient.AuthData = undefined;
   mockSensitiveDataClient.KeyStretchUpgradeData = undefined;
   (useSensitiveDataClient as jest.Mock).mockImplementation(
     () => mockSensitiveDataClient

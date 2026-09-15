@@ -54,10 +54,7 @@ import {
   getHandledError,
   getLocalizedErrorMessage,
 } from '../../lib/error-utils';
-import {
-  SensitiveData,
-  SensitiveDataClient,
-} from '../../lib/sensitive-data-client';
+import { SensitiveDataClient } from '../../lib/sensitive-data-client';
 import { Constants } from '../../lib/constants';
 import {
   resolveServiceOrClientId,
@@ -779,14 +776,14 @@ export async function trySignIn(
         ? v2Credentials.unwrapBKey
         : v1Credentials.unwrapBKey;
 
-      sensitiveDataClient.setDataType(SensitiveData.Key.Auth, {
+      sensitiveDataClient.AuthData = {
         // Store for inline recovery key flow
         authPW,
         // Store this in case the email was corrected
         emailForAuth: email,
         unwrapBKey,
         keyFetchToken: response.keyFetchToken,
-      });
+      };
 
       // Transform response to match expected BeginSigninResponse format
       const data: BeginSigninResponse = {

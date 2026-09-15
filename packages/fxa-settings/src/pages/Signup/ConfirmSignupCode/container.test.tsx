@@ -101,10 +101,10 @@ function mockModelsModule() {
   (ModelsModule.useSensitiveDataClient as jest.Mock).mockImplementation(
     () => mockSensitiveDataClient
   );
-  mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
+  mockSensitiveDataClient.AuthData = {
     keyFetchToken: MOCK_KEY_FETCH_TOKEN,
     unwrapBKey: MOCK_UNWRAP_BKEY,
-  });
+  };
 }
 
 // Apply default mocks
@@ -306,10 +306,10 @@ describe('confirm-signup-container', () => {
         wantsKeys: () => true,
         getCmsInfo: () => undefined,
       } as Integration;
-      mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
+      mockSensitiveDataClient.AuthData = {
         keyFetchToken: undefined,
         unwrapBKey: undefined,
-      });
+      };
       render();
       expect(mockNavigate).toHaveBeenCalledWith('/signin', {
         state: { localizedErrorMessage: 'Code expired. Please sign in again.' },
@@ -325,10 +325,10 @@ describe('confirm-signup-container', () => {
         wantsKeys: () => true,
         getCmsInfo: () => undefined,
       } as Integration;
-      mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
+      mockSensitiveDataClient.AuthData = {
         keyFetchToken: undefined,
         unwrapBKey: undefined,
-      });
+      };
       jest
         .spyOn(OAuthFlowRecoveryModule, 'useOAuthFlowRecovery')
         .mockReturnValue({

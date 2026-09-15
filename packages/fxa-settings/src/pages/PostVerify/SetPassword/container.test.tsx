@@ -66,7 +66,6 @@ jest.mock('../../../lib/oauth/hooks.tsx', () => {
 });
 
 const mockSensitiveDataClient = createMockSensitiveDataClient();
-mockSensitiveDataClient.setDataType = jest.fn();
 
 const mockNavigate = jest.fn();
 const mockLocation = {

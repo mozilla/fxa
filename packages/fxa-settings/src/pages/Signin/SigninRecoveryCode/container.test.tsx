@@ -26,7 +26,6 @@ import { SigninRecoveryCodeProps } from './interfaces';
 import { mockSigninLocationState } from '../mocks';
 import { waitFor } from '@testing-library/react';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { SensitiveData } from '../../../lib/sensitive-data-client';
 import {
   useFinishOAuthFlowHandler,
   useOAuthKeysCheck,
@@ -116,10 +115,10 @@ function resetMockSensitiveDataClient() {
   (useSensitiveDataClient as jest.Mock).mockImplementation(
     () => mockSensitiveDataClient
   );
-  mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
+  mockSensitiveDataClient.AuthData = {
     keyFetchToken: MOCK_KEY_FETCH_TOKEN,
     unwrapBKey: MOCK_UNWRAP_BKEY,
-  });
+  };
 }
 
 function resetMockAuthClient() {
@@ -189,8 +188,11 @@ describe('SigninRecoveryCode container', () => {
 
     it('reads data from sensitive data client', () => {
       render();
-      expect(mockSensitiveDataClient.getDataType).toHaveBeenCalledWith(
-        SensitiveData.Key.Auth
+      expect(useOAuthKeysCheck).toHaveBeenCalledWith(
+        integration,
+        MOCK_KEY_FETCH_TOKEN,
+        MOCK_UNWRAP_BKEY,
+        undefined
       );
     });
   });

@@ -18,7 +18,6 @@ import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { AuthError } from '../../../lib/oauth';
 import { useEffect, useState } from 'react';
 import GleanMetrics from '../../../lib/glean';
-import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { currentAccount } from '../../../lib/cache';
 
 const ResetPasswordConfirmedContainer = ({
@@ -38,7 +37,7 @@ const ResetPasswordConfirmedContainer = ({
   const [errorMessage, setErrorMessage] = useState('');
   const { uid, sessionToken, email, verified } = currentAccount() || {};
   const { keyFetchToken, unwrapBKey } =
-    sensitiveDataClient.getDataType(SensitiveData.Key.AccountReset) || {};
+    sensitiveDataClient.AccountResetData || {};
 
   // If we have lost the required bits for OAuth handling, we have to start
   // again. Both redirects below run from the effect rather than during render,

@@ -19,7 +19,6 @@ import { ResetPasswordIntegration } from '../interfaces';
 import AccountRecoveryConfirmKey from '.';
 import { useNavigateWithQuery } from '../../../lib/hooks';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
-import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { shouldShowPasskeyResetOption } from '../../../lib/passkeys';
 
 const AccountRecoveryConfirmKeyContainer = ({
@@ -82,9 +81,7 @@ const AccountRecoveryConfirmKeyContainer = ({
       uid
     );
 
-    sensitiveDataClient.setDataType(SensitiveData.Key.DecryptedRecoveryKey, {
-      kB,
-    });
+    sensitiveDataClient.DecryptedRecoveryKeyData = { kB };
 
     navigateWithQuery('/account_recovery_reset_password', {
       state: {
