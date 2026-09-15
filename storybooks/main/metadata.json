@@ -1,8 +1,8 @@
 {
-  "commit": "8d628bc9ea24ce249e870819ed7eee55c49f1c62",
-  "summary": "Merge pull request #21163 from mozilla/fxa-13950-deletion-reason-in-webhooks",
-  "description": "feat(webhooks): add the account deletion reason into webhooks",
-  "timestamp": 1789485979000,
+  "commit": "55eb0f92214009069a960d038fd5b4c5bc4e92ae",
+  "summary": "Merge pull request #21191 from mozilla/dev-stack-ssh",
+  "description": "feat(ci): Set up remote PR debugging via yarn debug-pr",
+  "timestamp": 1789489185000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
