@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 01c75a0be61aacae6963ff9b06decc6053300d86</title>
+  <title>Storybooks for commit 03d76cc77c1a6e42b0154048ba78ae7e5f40140b</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,27 +23,28 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 01c75a0be61aacae6963ff9b06decc6053300d86</h1>
+  <h1>Storybooks for commit 03d76cc77c1a6e42b0154048ba78ae7e5f40140b</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/15/2026, 8:10:38 PM UTC</dd>
+    <dd>9/15/2026, 9:15:29 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(settings): spell the pairing cancellation heading &quot;Cancelled&quot;</pre></dd>
+    <dd><pre>fix(settings): rename Pair2 cancelled heading Fluent ids</pre></dd>
     <dt>Description</dt>
     <dd><pre>## Because
 
-- The pairing flow spelled the cancellation heading as &quot;Canceled&quot; on one device and &quot;Cancelled&quot; on the other.
-- The reporter chose the British spelling &quot;Cancelled&quot; for the mobile screen.
+- The parent commit respelled the two Pair2 cancellation headings to &quot;Cancelled&quot; but kept the old Fluent ids.
+- A maintainer asked for the opposite, so this round renames the ids.
+- The FxA l10n convention gives a string a new id when its English value changes. Translators then see new work instead of a stale translation.
 
 ## This pull request
 
-- Changes the Pair2 Authority and Supplicant cancellation heading to &quot;Cancelled&quot;.
-- Updates both `en.ftl` files and the English fallback strings in the two `index.tsx` files.
-- Updates the four test strings that assert the heading.
-- Keeps the `-canceled-` FTL ids as they are. A rename of an id drops every translation of that string.
+- Renames `pair2-authority-timeout-and-cancel-canceled-heading` to `pair2-authority-timeout-and-cancel-cancelled-heading`.
+- Renames `pair2-supplicant-timeout-and-cancel-canceled-heading` to `pair2-supplicant-timeout-and-cancel-cancelled-heading`.
+- Updates `headingFtlId` in the two sibling `index.tsx` files.
+- Leaves the two `-canceled-description` ids alone, because their English values did not change.
 
 ## Issue that this pull request solves
 

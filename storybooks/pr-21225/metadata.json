@@ -1,8 +1,8 @@
 {
-  "commit": "01c75a0be61aacae6963ff9b06decc6053300d86",
-  "summary": "fix(settings): spell the pairing cancellation heading \"Cancelled\"",
-  "description": "## Because\n\n- The pairing flow spelled the cancellation heading as \"Canceled\" on one device and \"Cancelled\" on the other.\n- The reporter chose the British spelling \"Cancelled\" for the mobile screen.\n\n## This pull request\n\n- Changes the Pair2 Authority and Supplicant cancellation heading to \"Cancelled\".\n- Updates both `en.ftl` files and the English fallback strings in the two `index.tsx` files.\n- Updates the four test strings that assert the heading.\n- Keeps the `-canceled-` FTL ids as they are. A rename of an id drops every translation of that string.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-14503",
-  "timestamp": 1789503038000,
+  "commit": "03d76cc77c1a6e42b0154048ba78ae7e5f40140b",
+  "summary": "fix(settings): rename Pair2 cancelled heading Fluent ids",
+  "description": "## Because\n\n- The parent commit respelled the two Pair2 cancellation headings to \"Cancelled\" but kept the old Fluent ids.\n- A maintainer asked for the opposite, so this round renames the ids.\n- The FxA l10n convention gives a string a new id when its English value changes. Translators then see new work instead of a stale translation.\n\n## This pull request\n\n- Renames `pair2-authority-timeout-and-cancel-canceled-heading` to `pair2-authority-timeout-and-cancel-cancelled-heading`.\n- Renames `pair2-supplicant-timeout-and-cancel-canceled-heading` to `pair2-supplicant-timeout-and-cancel-cancelled-heading`.\n- Updates `headingFtlId` in the two sibling `index.tsx` files.\n- Leaves the two `-canceled-description` ids alone, because their English values did not change.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-14503",
+  "timestamp": 1789506929000,
   "storybooks": [
     "fxa-settings"
   ],
