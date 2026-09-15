@@ -1,8 +1,8 @@
 {
-  "commit": "eab512e551a458a7393e75df4eaec896e117f216",
-  "summary": "Merge pull request #21218 from mozilla/fxa-14529",
-  "description": "perf(auth-server): speed up jest infra suites with swc-node server boot",
-  "timestamp": 1789496261000,
+  "commit": "146e04b1da4f9921e93726266d29b1043aedd351",
+  "summary": "Merge pull request #21154 from mozilla/FXA-14424",
+  "description": "feat(settings): add the inline passwordless Sync setup page",
+  "timestamp": 1789497344000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

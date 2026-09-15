@@ -1352,6 +1352,15 @@ index-account-delete-success = Account deleted successfully
 index-email-bounced = Your confirmation email was just returned. Mistyped email?
 
 
+inline-passwordless-sync-setup-page-title = Skip the password next time?
+inline-passwordless-sync-setup-success-banner = Signed in to { -brand-firefox }
+inline-passwordless-sync-setup-heading = Skip the password next time?
+inline-passwordless-sync-setup-description = Use this passkey to sign in faster.
+inline-passwordless-sync-setup-enable-button = Enable passkey
+inline-passwordless-sync-setup-enabling = Enabling…
+inline-passwordless-sync-setup-not-now-button = Not now
+
+
 inline-recovery-key-setup-create-error = Oops! We couldn’t create your account recovery key. Please try again later.
 inline-recovery-key-setup-recovery-created = Account recovery key created
 inline-recovery-key-setup-download-header = Secure your account
