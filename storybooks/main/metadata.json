@@ -1,8 +1,8 @@
 {
-  "commit": "b86cf4e742a0c251c2b59153ec629ab2a9dc0e68",
-  "summary": "Merge pull request #21196 from mozilla/fxa-9245",
-  "description": "feat(settings): serve the default favicon from the CDN",
-  "timestamp": 1789490857000,
+  "commit": "3a2c819c55e500046543a9389e668862083272a2",
+  "summary": "Merge pull request #21205 from mozilla/fxa-11672",
+  "description": "fix(settings): make email-first submission tests pass in isolation",
+  "timestamp": 1789491851000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
