@@ -213,6 +213,8 @@ async function create(
           maxAge: 31536000,
           includeSubdomains: true,
         },
+        // Hapi defaults this to 'disabled'. Keep the header on.
+        xss: 'enabled',
       },
       state: {
         parse: false,
