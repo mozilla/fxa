@@ -23,7 +23,6 @@ import {
 } from '../../../lib/oauth/hooks';
 import ResetPasswordWithRecoveryKeyVerified from './index';
 import { SETTINGS_PATH } from '../../../constants';
-import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { currentAccount } from '../../../lib/cache';
 
 const ResetPasswordWithRecoveryKeyVerifiedContainer = ({
@@ -51,10 +50,8 @@ const ResetPasswordWithRecoveryKeyVerifiedContainer = ({
     [account]
   );
   const { keyFetchToken, unwrapBKey } =
-    sensitiveDataClient.getDataType(SensitiveData.Key.AccountReset) || {};
-  const recoveryKey = sensitiveDataClient.getDataType(
-    SensitiveData.Key.NewRecoveryKey
-  )?.recoveryKey;
+    sensitiveDataClient.AccountResetData || {};
+  const recoveryKey = sensitiveDataClient.NewRecoveryKeyData?.recoveryKey;
 
   useEffect(() => {
     if (!email) {

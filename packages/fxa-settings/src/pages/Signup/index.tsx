@@ -35,7 +35,6 @@ import {
 } from '../../models';
 import { SignupFormData, SignupProps } from './interfaces';
 import Banner from '../../components/Banner';
-import { SensitiveData } from '../../lib/sensitive-data-client';
 import { checkPaymentMethodsWillSync } from '../../lib/sync-engines';
 import FormPasswordWithInlineCriteria from '../../components/FormPasswordWithInlineCriteria';
 import CmsLogo from '../../components/CmsLogo';
@@ -152,10 +151,10 @@ export const Signup = ({
         storeAccountData(accountData);
 
         // Set these for use in ConfirmSignupCode
-        sensitiveDataClient.setDataType(SensitiveData.Key.Auth, {
+        sensitiveDataClient.AuthData = {
           keyFetchToken: data.signUp.keyFetchToken,
           unwrapBKey: data.unwrapBKey,
-        });
+        };
 
         if (isSync) {
           const syncEngines = {

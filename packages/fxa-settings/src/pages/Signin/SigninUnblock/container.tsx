@@ -34,7 +34,6 @@ import {
 import { getCredentials, getCredentialsV2 } from 'fxa-auth-client/lib/crypto';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { SignInOptions } from 'fxa-auth-client/browser';
-import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { isFirefoxService } from '../../../models/integrations/utils';
 import { tryFinalizeUpgrade } from '../../../lib/auth-key-stretch-upgrade';
 import AppLayout from '../../../components/AppLayout';
@@ -62,8 +61,7 @@ export const SigninUnblockContainer = ({
   const sensitiveDataClient = useSensitiveDataClient();
   // We keep the previous non-null assertion on 'password' here because the
   // flow dictates we definitely have it.
-  const { plainTextPassword: password } =
-    sensitiveDataClient.getDataType(SensitiveData.Key.Password)! || {};
+  const { plainTextPassword: password } = sensitiveDataClient.Password! || {};
 
   const { email, hasLinkedAccount, hasPassword } = location.state || {};
 
@@ -130,14 +128,14 @@ export const SigninUnblockContainer = ({
       );
 
       if (response) {
-        sensitiveDataClient.setDataType(SensitiveData.Key.Auth, {
+        sensitiveDataClient.AuthData = {
           // Store for inline recovery key flow
           authPW: credentials.authPW,
           // Store this in case the email was corrected
           emailForAuth: email,
           unwrapBKey: credentials.unwrapBKey,
           keyFetchToken: response.keyFetchToken,
-        });
+        };
 
         const emailVerified = response.emailVerified ?? false;
         const sessionVerified = response.sessionVerified ?? false;

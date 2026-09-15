@@ -19,7 +19,6 @@ import {
 import { SubmitRecoveryCode, SubmitRecoveryCodeResult } from './interfaces';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { getHandledError } from '../../../lib/error-utils';
-import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { useNavigateWithQuery } from '../../../lib/hooks';
 import AppLayout from '../../../components/AppLayout';
@@ -53,8 +52,7 @@ export const SigninRecoveryCodeContainer = ({
   const signinState = getSigninState(location.state?.signinState);
   const lastFourPhoneDigits = location.state?.lastFourPhoneDigits;
   const sensitiveDataClient = useSensitiveDataClient();
-  const { keyFetchToken, unwrapBKey } =
-    sensitiveDataClient.getDataType(SensitiveData.Key.Auth) || {};
+  const { keyFetchToken, unwrapBKey } = sensitiveDataClient.AuthData || {};
 
   const { oAuthKeysCheckError } = useOAuthKeysCheck(
     integration,

@@ -21,7 +21,6 @@ import { SigninLocationState } from '../interfaces';
 import { getSigninState } from '../utils';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { useEffect, useState } from 'react';
-import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { tryFinalizeUpgrade } from '../../../lib/auth-key-stretch-upgrade';
 
 // The email with token code (verifyLoginCodeEmail) is sent on `/signin`
@@ -42,8 +41,7 @@ const SigninTokenCodeContainer = ({
 
   const signinState = getSigninState(location.state);
   const sensitiveDataClient = useSensitiveDataClient();
-  const { keyFetchToken, unwrapBKey } =
-    sensitiveDataClient.getDataType(SensitiveData.Key.Auth) || {};
+  const { keyFetchToken, unwrapBKey } = sensitiveDataClient.AuthData || {};
 
   const authClient = useAuthClient();
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
