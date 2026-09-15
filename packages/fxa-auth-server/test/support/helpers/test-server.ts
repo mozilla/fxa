@@ -116,8 +116,8 @@ export function getMailHelperConfig(
 
 export async function waitForServer(
   url: string,
-  maxAttempts = 60,
-  delayMs = 1000
+  maxAttempts = 240,
+  delayMs = 250
 ): Promise<void> {
   for (let i = 0; i < maxAttempts; i++) {
     try {
@@ -183,7 +183,7 @@ export function spawnAuthServer(
     'node',
     [
       '-r',
-      'ts-node/register/transpile-only',
+      '@swc-node/register',
       '-r',
       'tsconfig-paths/register',
       path.join(AUTH_SERVER_ROOT, 'bin', 'key_server.js'),
