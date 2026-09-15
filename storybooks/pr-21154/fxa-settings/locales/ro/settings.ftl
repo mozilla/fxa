@@ -1097,6 +1097,10 @@ recent-activity-account-recovery-codes-set = Coduri de recuperare setate
 recent-activity-account-passkey-wrap-created = Cheie de acces activată pentru sincronizare
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
 recent-activity-account-passkey-wrap-creation-failure = Configurarea sincronizării cu cheia de acces a eșuat
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey that could unlock the user's synced browser data had that access turned off, leaving the passkey itself usable for signing in.
+recent-activity-account-passkey-wrap-deleted = Accesul la sincronizare cu cheie de acces a fost eliminat
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to turn off a passkey's access to the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-deletion-failure = Eliminarea accesului la sincronizare cu cheie de acces a eșuat
 # A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
 recent-activity-account-passkey-wrap-invalidated = Accesul la sincronizare cu cheie de acces a fost eliminat după resetarea parolei
 # Security event was recorded, but the activity details are unknown or not shown to user
@@ -1962,6 +1966,8 @@ pair2-supplicant-download-firefox-description = Descarcă { -brand-firefox } pen
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Continuă în { -brand-firefox }
+# Replaces the button label while waiting for the Firefox app to take over
+pair2-supplicant-download-firefox-opening-button = Se deschide { -brand-firefox }…
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them

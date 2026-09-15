@@ -823,6 +823,8 @@ recent-activity-account-passwordless-registration-complete = Registro de cuenta 
 recent-activity-account-recovery-codes-set = Códigos de recuperación establecidos
 recent-activity-account-passkey-wrap-created = Llave de acceso habilitada para la sincronización
 recent-activity-account-passkey-wrap-creation-failure = Falló la configuración de sincronización con llave de acceso
+recent-activity-account-passkey-wrap-deleted = Se eliminó el acceso a sincronización para la llave de acceso
+recent-activity-account-passkey-wrap-deletion-failure = Falló la eliminación del acceso a sincronización para la llave de acceso
 recent-activity-account-passkey-wrap-invalidated = Se eliminó el acceso de sincronización mediante llave de acceso después del restablecimiento de contraseña
 recent-activity-unknown = Otra actividad de la cuenta
 

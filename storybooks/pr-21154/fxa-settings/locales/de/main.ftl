@@ -823,6 +823,8 @@ recent-activity-account-passwordless-registration-complete = Registrierung des p
 recent-activity-account-recovery-codes-set = Wiederherstellungscodes erstellt
 recent-activity-account-passkey-wrap-created = Zugangsschlüssel für Synchronisation aktiviert
 recent-activity-account-passkey-wrap-creation-failure = Einrichtung der Synchronisation mit Zugangsschlüssel fehlgeschlagen
+recent-activity-account-passkey-wrap-deleted = Synchronisierungszugriff für Zugangsschlüssel entfernt
+recent-activity-account-passkey-wrap-deletion-failure = Synchronisierungszugriff für Zugangsschlüssel konnte nicht entfernt werden
 recent-activity-account-passkey-wrap-invalidated = Zugriffsschlüssel-Synchronisation nach Zurücksetzen des Passworts entfernt
 recent-activity-unknown = Andere Kontoaktivitäten
 
