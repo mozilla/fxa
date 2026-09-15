@@ -220,6 +220,27 @@
         "publicClient": true
       },
       {
+        "id": "1e0f4d7e6d3c2b1a",
+        "hashedSecret": "289a885946ee316844d9ffd0d725ee714901548a1e6507f1a40fb3c2ae0c99f1",
+        "name": "Relier Demo (trusted)",
+        "imageUri": "https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png",
+        "redirectUri": "http://localhost:8090/callback",
+        "trusted": true,
+        "canGrant": false,
+        "publicClient": true,
+        "allowedScopes": "https://identity.mozilla.com/apps/123done"
+      },
+      {
+        "id": "2f1a5e8f7e4d3c2b",
+        "hashedSecret": "289a885946ee316844d9ffd0d725ee714901548a1e6507f1a40fb3c2ae0c99f1",
+        "name": "Relier Demo (untrusted)",
+        "imageUri": "https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png",
+        "redirectUri": "http://localhost:8090/callback",
+        "trusted": false,
+        "canGrant": false,
+        "publicClient": true
+      },
+      {
         "id": "22d74070a481bc73",
         "name": "Test Client iOS",
         "hashedSecret": "88716ed2927c96cdc0fb7efe57d5f124fb4161066c1ff7f4263069822256ec66",
