@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import type { BigQuery } from '@google-cloud/bigquery';
+import type { StatsD } from 'hot-shots';
 import {
   Account,
   Email,
@@ -151,6 +153,60 @@ export class IsActiveFnBuilder {
   }
 }
 
+export const getActiveAccountLists = async (
+  bq: BigQuery,
+  qualifiedDatasetId: string,
+  maxAgeDays: number,
+  statsd: Pick<StatsD, 'increment'>
+) => {
+  const [projectId, datasetId] = qualifiedDatasetId.split('.');
+  const [tables] = await bq.dataset(datasetId, { projectId }).getTables();
+  if (!tables.length) {
+    throw new Error(
+      `Active accounts dataset contains no tables: ${qualifiedDatasetId}`
+    );
+  }
+
+  const oldestAllowed = Date.now() - maxAgeDays * 86400000;
+  let hasInvalidTables = false;
+
+  for (const table of tables) {
+    const [metadata] = await table.getMetadata();
+    const numRows = Number(metadata.numRows);
+    const lastModifiedTime = Number(metadata.lastModifiedTime);
+    const tablePath = `${qualifiedDatasetId}.${table.id}`;
+
+    if (
+      !Number.isFinite(numRows) ||
+      numRows < 0 ||
+      !Number.isFinite(lastModifiedTime) ||
+      lastModifiedTime <= 0
+    ) {
+      throw new Error(
+        `Cannot validate active account table metadata: ${tablePath}`
+      );
+    }
+
+    const problems: string[] = [];
+    if (numRows === 0) problems.push('empty');
+    if (lastModifiedTime < oldestAllowed) problems.push('stale');
+
+    for (const problem of problems) {
+      hasInvalidTables = true;
+      statsd.increment(`accounts.inactive.active-account-table.${problem}`, {
+        client_id: String(table.id),
+      });
+      console.error(`Active account table is ${problem}: ${tablePath}`);
+    }
+  }
+
+  if (hasInvalidTables) {
+    throw new Error('Active account tables are empty or stale.');
+  }
+
+  return tables.map((table) => `${qualifiedDatasetId}.${table.id}.uid`);
+};
+
 export const buildExclusionsTempTableQuery = (
   tempTableName: string,
   exclusionLists: string[]
@@ -161,7 +217,7 @@ export const buildExclusionsTempTableQuery = (
     return createTempTable;
   }
 
-  const listQueries = exclusionLists.map((resourcePath) => {
+  const listQueries = [...new Set(exclusionLists)].map((resourcePath) => {
     const parts = resourcePath.split('.');
     const columnName = parts[parts.length - 1];
     const resourceId = parts.slice(0, parts.length - 1).join('.');

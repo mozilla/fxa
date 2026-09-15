@@ -51,6 +51,9 @@ describe('enqueue inactive account deletions script', () => {
 
     const dbResultsLimitString = getOutputValue(outputLines, 'Per MySQL query');
     expect(dbResultsLimitString).toBe('500000');
+    expect(
+      getOutputValue(outputLines, 'Active accounts maximum age in days')
+    ).toBe('14');
   });
 
   it('requires an BQ dataset id', async () => {
@@ -64,6 +67,67 @@ describe('enqueue inactive account deletions script', () => {
 
     const cmd = [...command, '--bq-dataset fxa-dev.inactives-testo'];
     await exec(cmd.join(' '), execOptions);
+  });
+
+  it('accepts an active accounts dataset in dry-run mode', async () => {
+    const cmd = [
+      ...command,
+      '--bq-dataset fxa-dev.inactives-testo',
+      '--active-accounts-dataset my-project.active_accounts',
+      '--active-account-tables-max-age-days 3',
+    ];
+    const { stdout } = await exec(cmd.join(' '), execOptions);
+    expect(stdout).toContain(
+      'Active accounts dataset: my-project.active_accounts'
+    );
+    expect(stdout).toContain('Dry run mode is on.');
+    expect(stdout).toContain('Active accounts maximum age in days: 3');
+  });
+
+  it.each(['0', '-1', 'NaN', 'Infinity', '2days'])(
+    'rejects invalid active accounts maximum age %j',
+    async (maxAgeDays) => {
+      const cmd = [
+        ...command,
+        '--bq-dataset fxa-dev.inactives-testo',
+        `--active-account-tables-max-age-days '${maxAgeDays}'`,
+      ];
+      await expect(exec(cmd.join(' '), execOptions)).rejects.toMatchObject({
+        code: 1,
+        stderr: expect.stringContaining(
+          'Active account tables maximum age must be a positive number of days.'
+        ),
+      });
+    }
+  );
+
+  it.each([
+    '',
+    'dataset',
+    '.dataset',
+    'project.',
+    'project.dataset.table',
+    'project.dataset`',
+    'abc.dataset',
+    'Project.dataset',
+    '1project.dataset',
+    '-project.dataset',
+    'project-.dataset',
+    'my_project.dataset',
+    'project.data-set',
+    'project.data set',
+  ])('rejects invalid active accounts dataset %j', async (datasetId) => {
+    const cmd = [
+      ...command,
+      '--bq-dataset fxa-dev.inactives-testo',
+      `--active-accounts-dataset '${datasetId}'`,
+    ];
+    await expect(exec(cmd.join(' '), execOptions)).rejects.toMatchObject({
+      code: 1,
+      stderr: expect.stringContaining(
+        'Active accounts dataset ID must have the form project.dataset.'
+      ),
+    });
   });
 
   it('requires the end date to be the same or later than the start date', async () => {
