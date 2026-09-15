@@ -5,7 +5,7 @@
 import { useNavigate, useLocation } from 'react-router';
 import { useNavigateWithQuery, useWebRedirect } from '../../../../lib/hooks';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import AppLayout from '../../../../components/AppLayout';
 import CardHeader from '../../../../components/CardHeader';
@@ -26,6 +26,10 @@ import CmsButtonWithFallback from '../../../../components/CmsButtonWithFallback'
 import { useConfig } from '../../../../models';
 import SigninUserLockup from '../SigninUserLockup';
 import { useCachedSigninLockup } from '../../useCachedSigninLockup';
+import AccountSwitcher from '../../../../components/AccountSwitcher';
+import { SwitchableAccount } from '../../../../lib/account-switcher';
+import { useSwitchableAccounts } from '../../../../lib/hooks';
+import { setCurrentAccountUid } from '../../../../lib/account-storage';
 
 export const viewName = 'signin';
 
@@ -47,6 +51,8 @@ const SigninCached = ({
   setCurrentSplitLayout,
   onSessionExpired,
   supportsKeysOptionalLogin,
+  firefoxSignedInUid,
+  autoSignIn = false,
 }: SigninCachedProps) => {
   const authClient = useAuthClient();
   const config = useConfig();
@@ -57,6 +63,9 @@ const SigninCached = ({
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
 
   const [signinLoading, setSigninLoading] = useState<boolean>(false);
+
+  const accountSwitcherEnabled = !!config.featureFlags?.accountSwitcherEnabled;
+  const switchableAccounts = useSwitchableAccounts({ firefoxSignedInUid });
 
   // Passwordless accounts that need keys (Sync, or a non-Sync Firefox service
   // when Sync is not decoupled) need to defer the browser login/OAuth messages
@@ -89,6 +98,61 @@ const SigninCached = ({
     isSignedIntoFirefox &&
     integration.isFirefoxClient() &&
     !!integration.getService();
+
+  // Which account this page is about is already decided upstream and baked into
+  // `email`; that account leads the chooser and its row is the submit control.
+  const suggestedAccount = switchableAccounts.find(
+    (account) => account.email === email
+  );
+  const primaryAccount = suggestedAccount && {
+    ...suggestedAccount,
+    isCurrent: true,
+    // The page already fetched a fresh avatar for this account; the other rows
+    // have only localStorage to go on.
+    avatar: avatarData?.account?.avatar ?? suggestedAccount.avatar,
+  };
+  const otherAccounts = switchableAccounts.filter(
+    (account) => account.email !== email
+  );
+
+  const showAccountChooser =
+    accountSwitcherEnabled &&
+    !hideAccountSwitchLink &&
+    // The chooser replaces the Sign in button, which is where CMS puts
+    // `primaryButtonText`. Keep the classic layout rather than drop an RP's copy.
+    !cachedPageCms?.primaryButtonText &&
+    !!primaryAccount &&
+    otherAccounts.length > 0;
+
+  // Re-enters the container rather than signing in from here: the branches below
+  // (Sync merge, deferring keys until a password is set) depend on the chosen
+  // account's own hasPassword/hasLinkedAccount, which only the container
+  // fetches. It sends us back with `autoSignIn`, or on to the password step.
+  const switchToAccount = useCallback(
+    (account: SwitchableAccount) => {
+      GleanMetrics.login.diffAccountLinkClick();
+      if (account.hasSession) {
+        setCurrentAccountUid(account.uid);
+      }
+      const searchParams = new URLSearchParams(window.location.search);
+      searchParams.delete('email');
+      navigateWithQuery(`/signin?${searchParams.toString()}`, {
+        state: { email: account.email, autoSignIn: true },
+      });
+    },
+    [navigateWithQuery]
+  );
+
+  const useAnotherAccount = useCallback(() => {
+    GleanMetrics.login.diffAccountLinkClick();
+    // The RP-supplied email is dropped: asking for another account signals it is
+    // not the one the user wants.
+    const searchParams = new URLSearchParams(window.location.search);
+    searchParams.delete('email');
+    navigateWithQuery(`/?${searchParams.toString()}`, {
+      state: { prefillEmail: email },
+    });
+  }, [email, navigateWithQuery]);
 
   const isServiceWithEmailVerification =
     !!clientId && config.servicesWithEmailVerification.includes(clientId);
@@ -214,6 +278,37 @@ const SigninCached = ({
     authClient,
   ]);
 
+  // The sign-in was already decided upstream (the switcher, or email-first with
+  // a cached session), so submit without waiting for a second click. Guarded by
+  // a ref rather than the effect deps so a re-render cannot fire a second
+  // attempt.
+  const hasAutoSubmitted = useRef(false);
+  const shouldAutoSignIn = accountSwitcherEnabled && autoSignIn;
+  const [isAutoSigningIn, setIsAutoSigningIn] = useState(shouldAutoSignIn);
+  useEffect(() => {
+    if (!shouldAutoSignIn || hasAutoSubmitted.current) {
+      return;
+    }
+    hasAutoSubmitted.current = true;
+    (async () => {
+      await onSubmit();
+      // Still mounted, so the submit did not navigate away — reveal the card so
+      // the error it just set is visible.
+      setIsAutoSigningIn(false);
+    })();
+  }, [shouldAutoSignIn, onSubmit]);
+
+  // Nothing is actionable while the sign-in is in flight, and rendering the card
+  // first flashed a page the user is about to be moved off.
+  if (isAutoSigningIn) {
+    return (
+      <AppLayout
+        {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}
+        loading
+      />
+    );
+  }
+
   return (
     <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
       {(localizedSuccessBannerHeading || localizedSuccessBannerDescription) && (
@@ -226,8 +321,12 @@ const SigninCached = ({
         />
       )}
       <CardHeader
-        headingText="Sign in"
-        headingTextFtlId="signin-header"
+        headingText={showAccountChooser ? 'Choose an account' : 'Sign in'}
+        headingTextFtlId={
+          showAccountChooser
+            ? 'signin-cached-choose-account-header'
+            : 'signin-header'
+        }
         subheadingWithDefaultServiceFtlId="signin-subheader-without-logo-default"
         subheadingWithCustomServiceFtlId="signin-subheader-without-logo-with-servicename"
         {...{
@@ -247,37 +346,57 @@ const SigninCached = ({
           content={{ localizedHeading: localizedBannerError }}
         />
       )}
-      <SigninUserLockup
-        {...{
-          email,
-          avatarData,
-          avatarLoading,
-          sessionToken,
-          additionalAccessibilityInfo,
-        }}
-      />
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <input type="email" className="hidden" value={email} disabled />
-        <div className="flex">
-          <FtlMsg id="signin-button">
-            <CmsButtonWithFallback
-              type="submit"
-              // Functional tests identify this step by test id: it shares
-              // /signin with the password step and all its copy is CMS-driven.
-              data-testid="cached-signin-submit"
-              disabled={signinLoading}
-              buttonColor={cmsInfo?.shared.buttonColor}
-              buttonText={cachedPageCms?.primaryButtonText}
-            >
-              Sign in
-            </CmsButtonWithFallback>
-          </FtlMsg>
-        </div>
-      </form>
+      {showAccountChooser ? (
+        // No separate lockup or Sign in button: each row is itself the action,
+        // and the suggested account's row is the form's submit control, so the
+        // existing submit path is unchanged.
+        <form onSubmit={handleSubmit(onSubmit)} className="mt-6">
+          <input type="email" className="hidden" value={email} disabled />
+          <AccountSwitcher
+            variant="chooser"
+            accounts={otherAccounts}
+            onSelect={switchToAccount}
+            onUseAnotherAccount={useAnotherAccount}
+            disabled={signinLoading}
+            gleanIdPrefix="cached_login_account_switcher"
+            {...{ primaryAccount }}
+          />
+        </form>
+      ) : (
+        <>
+          <SigninUserLockup
+            {...{
+              email,
+              avatarData,
+              avatarLoading,
+              sessionToken,
+              additionalAccessibilityInfo,
+            }}
+          />
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <input type="email" className="hidden" value={email} disabled />
+            <div className="flex">
+              <FtlMsg id="signin-button">
+                <CmsButtonWithFallback
+                  type="submit"
+                  // Functional tests identify this step by test id: it shares
+                  // /signin with the password step and all its copy is CMS-driven.
+                  data-testid="cached-signin-submit"
+                  disabled={signinLoading}
+                  buttonColor={cmsInfo?.shared.buttonColor}
+                  buttonText={cachedPageCms?.primaryButtonText}
+                >
+                  Sign in
+                </CmsButtonWithFallback>
+              </FtlMsg>
+            </div>
+          </form>
+        </>
+      )}
 
       <TermsPrivacyAgreement legalTerms={legalTerms} />
 
-      {!hideAccountSwitchLink && (
+      {!hideAccountSwitchLink && !showAccountChooser && (
         <div className="flex flex-col mt-8 tablet:justify-between tablet:flex-row">
           <FtlMsg id="signin-use-a-different-account-link">
             <a

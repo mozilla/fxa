@@ -11,6 +11,12 @@ export interface BoxButtonProps
   /** Defaults to a chevron-right; swapped for a spinner when loading. */
   trailingIcon?: React.ReactNode;
   isLoading?: boolean;
+  /**
+   * Marks this as the recommended option with a stronger fill. A prop rather
+   * than a `className` override because Tailwind resolves competing `bg-*`
+   * utilities by stylesheet order, not by the order they appear on the element.
+   */
+  highlighted?: boolean;
   children: React.ReactNode;
 }
 
@@ -18,6 +24,7 @@ const BoxButton = ({
   leadingIcon,
   trailingIcon,
   isLoading = false,
+  highlighted = false,
   children,
   className,
   disabled,
@@ -39,10 +46,22 @@ const BoxButton = ({
       className={`w-full min-h-14 py-3 px-4 gap-4 rounded-md inline-flex items-center
         font-header text-start break-words
         text-grey-900 dark:text-grey-10
-        bg-grey-10 dark:bg-grey-600
-        border border-grey-200 dark:border-grey-500
-        hover:bg-grey-100 hover:border-grey-300 dark:hover:bg-grey-500
-        active:bg-grey-300 active:border-grey-700
+        ${
+          highlighted
+            ? // Purple rather than blue: blue-50 already means "info" on banners
+              // and in FormChoice. Hover and active are set here too, or the grey
+              // ones below would win on those states.
+              `bg-purple-50 border border-purple-200
+               hover:bg-purple-100 hover:border-purple-300
+               active:bg-purple-200 active:border-purple-400
+               dark:bg-purple-900 dark:border-purple-700
+               dark:hover:bg-purple-800 dark:hover:border-purple-600`
+            : `bg-grey-10 border border-grey-200
+               hover:bg-grey-100 hover:border-grey-300
+               active:bg-grey-300 active:border-grey-700
+               dark:bg-grey-600 dark:border-grey-500
+               dark:hover:bg-grey-500`
+        }
         disabled:bg-grey-50 disabled:border-grey-100 disabled:text-grey-500
         dark:disabled:bg-grey-700 dark:disabled:border-grey-600 dark:disabled:text-grey-300
         disabled:cursor-not-allowed

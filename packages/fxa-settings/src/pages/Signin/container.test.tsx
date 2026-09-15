@@ -9,6 +9,7 @@ import * as ModelsModule from '../../models';
 import { OAuthNativeServices } from '@fxa/accounts/oauth';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import * as CacheModule from '../../lib/cache';
+import Storage from '../../lib/storage';
 import * as CryptoModule from 'fxa-auth-client/lib/crypto';
 import * as SentryModule from '@sentry/browser';
 
@@ -546,6 +547,79 @@ describe('signin container', () => {
           expect(currentSigninProps?.email).toBe(LAST_STORED_ACCOUNT.email);
         });
         expect(SigninDeciderModule.default).toHaveBeenCalled();
+      });
+
+      describe('with the account switcher enabled', () => {
+        // Ranks over the whole accounts map, so the map itself has to hold the
+        // fixtures — not just the cache.ts accessors.
+        const seedStoredAccounts = (...storedAccounts: any[]) => {
+          Storage.factory('localStorage').set(
+            'accounts',
+            Object.fromEntries(storedAccounts.map((a) => [a.uid, a]))
+          );
+        };
+
+        const FIREFOX_ACCOUNT = {
+          ...MOCK_STORED_ACCOUNT,
+          uid: 'uid-firefox',
+          email: 'firefox@bar.com',
+          lastLogin: 1,
+        };
+
+        const renderWithBrowserAccount = () =>
+          render({
+            useFxAStatusResult: mockUseFxAStatus({
+              signedInUser: {
+                uid: FIREFOX_ACCOUNT.uid,
+                email: FIREFOX_ACCOUNT.email,
+                sessionToken: FIREFOX_ACCOUNT.sessionToken,
+                verified: true,
+              },
+            }),
+          });
+
+        beforeEach(() => {
+          (ModelsModule.useConfig as jest.Mock).mockImplementation(() => ({
+            featureFlags: { accountSwitcherEnabled: true },
+            servers: { profile: { url: 'http://localhost:1111' } },
+          }));
+        });
+
+        afterEach(() => {
+          Storage.factory('localStorage').clear();
+        });
+
+        it('prefers the account signed in to the browser over the current account', async () => {
+          const CURRENT = {
+            ...MOCK_STORED_ACCOUNT,
+            uid: 'uid-current',
+            email: 'current@bar.com',
+            lastLogin: Date.now(),
+          };
+          mockCurrentAccount(CURRENT);
+          seedStoredAccounts(CURRENT, FIREFOX_ACCOUNT);
+          renderWithBrowserAccount();
+
+          await waitFor(() => {
+            expect(currentSigninProps?.email).toBe(FIREFOX_ACCOUNT.email);
+          });
+        });
+
+        it('still prefers a requested email over the browser account', async () => {
+          const REQUESTED = {
+            ...MOCK_STORED_ACCOUNT,
+            uid: 'uid-requested',
+            email: MOCK_QUERY_PARAM_EMAIL,
+          };
+          mockCurrentAccount(REQUESTED);
+          seedStoredAccounts(REQUESTED, FIREFOX_ACCOUNT);
+          mockUseValidateModule();
+          renderWithBrowserAccount();
+
+          await waitFor(() => {
+            expect(currentSigninProps?.email).toBe(MOCK_QUERY_PARAM_EMAIL);
+          });
+        });
       });
     });
     describe('loading spinner', () => {
