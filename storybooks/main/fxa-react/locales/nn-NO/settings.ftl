@@ -1067,6 +1067,10 @@ recent-activity-account-recovery-codes-set = Gjenopprettingskodar innstilte
 recent-activity-account-passkey-wrap-created = Passnøkkel aktivert for synkronisering
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
 recent-activity-account-passkey-wrap-creation-failure = Synkroniseringsoppsett med passnøkkel mislykkast
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey that could unlock the user's synced browser data had that access turned off, leaving the passkey itself usable for signing in.
+recent-activity-account-passkey-wrap-deleted = Tilgang til synkronisering av passnøklar er fjerna
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to turn off a passkey's access to the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-deletion-failure = Fjerning av tilgang til synkronisering av passnøklar mislykkast
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Annan kontoaktivitet
 
