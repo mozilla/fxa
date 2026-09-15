@@ -1,8 +1,8 @@
 {
-  "commit": "8e0f5996066e9d011b8ad33af1a4c2eecd77119d",
+  "commit": "9dc3755a32798817d261ded73b42eda8b45e69a3",
   "summary": "feat(settings): add passkey wrap creation",
   "description": "Because:\n- Passwordless Sync needs kB sealed to a passkey's PRF output before a\n  wrap can be stored.\n\nThis commit:\n- Adds createPasskeyWrap, sealing kB into a wrap envelope bound to the\n  account the mfa:passkey proof names and storing it under that proof.\n- Reopens the envelope before storing it, catching platform crypto that\n  seals what it cannot unseal.\n- Labels only client-decided failures; server refusals pass through as\n  the auth-client error for the surface to handle.\n- Zeroes kB, the PRF output and the reopened copy once sealing has been\n  tried.\n- Adds usePasskeyWrapCreation, a single-flight call with a loading flag.\n\nCloses #FXA-14425",
-  "timestamp": 1789407778000,
+  "timestamp": 1789486798000,
   "storybooks": [
     "fxa-settings"
   ],

@@ -868,6 +868,8 @@ recent-activity-account-passwordless-registration-complete = Înregistrarea cont
 recent-activity-account-recovery-codes-set = Coduri de recuperare setate
 recent-activity-account-passkey-wrap-created = Cheie de acces activată pentru sincronizare
 recent-activity-account-passkey-wrap-creation-failure = Configurarea sincronizării cu cheia de acces a eșuat
+recent-activity-account-passkey-wrap-deleted = Accesul la sincronizare cu cheie de acces a fost eliminat
+recent-activity-account-passkey-wrap-deletion-failure = Eliminarea accesului la sincronizare cu cheie de acces a eșuat
 recent-activity-account-passkey-wrap-invalidated = Accesul la sincronizare cu cheie de acces a fost eliminat după resetarea parolei
 recent-activity-unknown = Alte activități din cont
 
@@ -1387,6 +1389,7 @@ pair2-supplicant-connect-this-device-cancel-button = Anulează
 pair2-supplicant-download-firefox-heading = Instalează { -brand-firefox } pe acest dispozitiv
 pair2-supplicant-download-firefox-description = Descarcă { -brand-firefox } pentru a-ți sincroniza marcajele, istoricul și multe altele pe toate dispozitivele. <linkExternal>Află mai multe</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Continuă în { -brand-firefox }
+pair2-supplicant-download-firefox-opening-button = Se deschide { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = Pentru a conecta un dispozitiv
