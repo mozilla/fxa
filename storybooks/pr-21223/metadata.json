@@ -1,8 +1,8 @@
 {
-  "commit": "ecfec1408261ffbdefadf34b5c6041c508731d1e",
+  "commit": "42b7eb906987be2392e829570a65da7b571e1e1a",
   "summary": "chore(settings): TEMP passwordless Sync verification readouts",
   "description": "Because:\n\n- Manual verification of FXA-13151 needs to see wrap state that the UI does not otherwise expose.\n\nThis commit:\n\n- Adds a wrap-stored badge to the Settings passkey row.\n- Adds info banners on the passkey password step and the opt-in page reporting the held material and stored-wrap state.\n- Every hunk is marked `TEMP(FXA-13151)`; revert this commit before merge.",
-  "timestamp": 1789509903000,
+  "timestamp": 1789522664000,
   "storybooks": [
     "fxa-settings"
   ],

@@ -1017,7 +1017,6 @@ verify-secondary-email-resend-code-button = Resend confirmation code
 
 delete-account-link = Delete account
 inactive-update-status-success-alert = Signed in successfully. Your { -product-mozilla-account } and data will stay active.
-settings-passkey-sync-enabled-alert = Passkey enabled for sync
 
 
 product-promo-monitor =
@@ -1353,15 +1352,16 @@ index-account-delete-success = Account deleted successfully
 index-email-bounced = Your confirmation email was just returned. Mistyped email?
 
 
-inline-passwordless-sync-setup-page-title = Skip the password next time?
-inline-passwordless-sync-setup-success-banner = Signed in to { -brand-firefox }
-inline-passwordless-sync-setup-heading = Skip the password next time?
-inline-passwordless-sync-setup-description = Use this passkey to sign in faster.
-inline-passwordless-sync-setup-enable-button = Enable passkey
-inline-passwordless-sync-setup-enabling = Enabling…
-inline-passwordless-sync-setup-not-now-button = Not now
-inline-passwordless-sync-setup-error-passkey-unusable = This passkey can’t be used to skip the password.
-inline-passwordless-sync-setup-error-generic = Couldn’t enable this passkey for Sync. You can try again the next time you sign in.
+inline-password-free-setup-page-title = Skip the password next time?
+inline-password-free-setup-success-banner = Signed in to { -brand-firefox }
+inline-password-free-setup-heading = Skip the password next time?
+inline-password-free-setup-description = Use this passkey to sign in faster.
+inline-password-free-setup-enable-button = Enable passkey
+inline-password-free-setup-enabling = Enabling…
+inline-password-free-setup-not-now-button = Not now
+inline-password-free-setup-success-alert = This passkey is set up for password-free sign-in.
+inline-password-free-setup-error-passkey-unusable = This passkey can’t be used to skip the password.
+inline-password-free-setup-error-generic = Couldn’t set up this passkey for password-free sign-in. You can try again the next time you sign in.
 
 
 inline-recovery-key-setup-create-error = Oops! We couldn’t create your account recovery key. Please try again later.
@@ -1532,7 +1532,7 @@ pair2-authority-sync-success-sync-settings-button = Sync settings
 
 pair2-authority-timeout-and-cancel-timeout-heading = Still want to connect a device?
 pair2-authority-timeout-and-cancel-timeout-description = Looks like we timed out. Try again if you still want to connect your mobile device and sync your { -brand-firefox } data.
-pair2-authority-timeout-and-cancel-canceled-heading = Canceled
+pair2-authority-timeout-and-cancel-cancelled-heading = Cancelled
 pair2-authority-timeout-and-cancel-canceled-description = If you change your mind or want to connect a different device, try again.
 pair2-authority-timeout-and-cancel-try-again-button = Try again
 pair2-authority-timeout-and-cancel-cancel-button = Cancel
@@ -1568,7 +1568,7 @@ pair2-supplicant-sync-success-sync-settings-button = Sync settings
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Looks like we timed out
 pair2-supplicant-timeout-and-cancel-timeout-description = To connect your mobile device and sync your { -brand-firefox } data, visit <b>firefox.com/pair</b> on your computer.
-pair2-supplicant-timeout-and-cancel-canceled-heading = Canceled
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelled
 pair2-supplicant-timeout-and-cancel-canceled-description = To connect a device anytime, visit <b>firefox.com/pair</b> on your computer.
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmed
