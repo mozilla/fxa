@@ -110,6 +110,18 @@ export interface Passkey {
   authenticatorName?: string;
   backupState: boolean;
   prfEnabled: boolean;
+  /**
+   * True when a wrap row exists for the credential. Deleting the wrap
+   * leaves the passkey usable for sign-in. See `passwordlessSyncStale`
+   * for whether the wrap still works.
+   */
+  hasPasswordlessSync: boolean;
+  /**
+   * True when the wrap predates the account's last key change. The
+   * auth-server rejects such a wrap, so the passkey cannot unlock Sync
+   * without a password until the user re-enrols.
+   */
+  passwordlessSyncStale: boolean;
 }
 
 export interface AccountAuthorization {

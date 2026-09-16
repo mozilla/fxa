@@ -155,6 +155,13 @@ export const adminApi = {
     });
   },
 
+  removePasskeyWrap(uid: string, credentialId: string): Promise<boolean> {
+    return apiFetch('/api/account/remove-passkey-wrap', {
+      method: 'POST',
+      body: JSON.stringify({ uid, credentialId }),
+    });
+  },
+
   recordSecurityEvent(uid: string, name: string): Promise<boolean> {
     return apiFetch('/api/account/record-security-event', {
       method: 'POST',
