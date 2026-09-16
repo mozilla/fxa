@@ -1,8 +1,8 @@
 {
-  "commit": "6ef7b4f472b52661af90ccacae6aaee7f87652e3",
-  "summary": "Merge pull request #21221 from mozilla/fxa-14416-risk-signal-probe",
-  "description": "feat(auth-server): add risk signal probe endpoint",
-  "timestamp": 1789580486000,
+  "commit": "19f2b1b9990d6120455e652f71bfe6bd597eb21b",
+  "summary": "Merge pull request #21234 from mozilla/passkey-verification-challenge",
+  "description": "feat(passkey): Add the passkey verification ceremony",
+  "timestamp": 1789584657000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
