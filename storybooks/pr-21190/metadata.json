@@ -1,8 +1,8 @@
 {
-  "commit": "e10dc7977656669036ee13172671833abe9d9bec",
+  "commit": "5e1e351506c717da34b32ed647df667894a1230f",
   "summary": "fix(settings): query fxaStatus on pairing entry pages for Web integrations",
   "description": "Because:\n\n- A plain /pair or /connect_another_device URL with no context builds a\n  Web integration, so useFxAStatus never asked the browser.\n- Without the browser's pairingVersion, the page guessed and sent v2\n  browsers down the v1 pairing flow.\n\nThis commit:\n\n- Adds isPairingEntryPathname and treats matching routes as pairing\n  flows in useFxAStatus.\n- Passes location.pathname into useFxAStatus from\n  AuthAndAccountSetupRoutes.\n- Adds tests for the Web integration pairing entry case and the\n  pathname matcher.",
-  "timestamp": 1789576140000,
+  "timestamp": 1789584303000,
   "storybooks": [
     "fxa-settings"
   ],
