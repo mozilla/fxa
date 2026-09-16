@@ -71,6 +71,8 @@ export enum SecurityEventName {
   PasskeyWrapDeleted = 'account.passkey.wrap_deleted',
   PasskeyWrapInvalidated = 'account.passkey.wrap_invalidated',
   PasskeyWrapDeletionFailure = 'account.passkey.wrap_deletion_failure',
+  PasskeyVerificationSuccess = 'account.passkey.verification_success',
+  PasskeyVerificationFailure = 'account.passkey.verification_failure',
 }
 
 // Recorded for the audit trail but not shown: each either restates a row the
@@ -85,6 +87,12 @@ export const HIDDEN_SECURITY_EVENT_NAMES: ReadonlySet<string> =
     SecurityEventName.SigninConfirmBypassKnownDevice,
     SecurityEventName.PasskeyWrapRetrieved,
     SecurityEventName.PasskeyWrapRetrievalFailure,
+    // The passkey step-up only runs inside the passwordless Sync upgrade, to
+    // refresh an MFA token that expired mid-flow. Its rows would restate the
+    // sign-in and Sync rows around them. Surface it if it becomes a general
+    // MFA step-up.
+    SecurityEventName.PasskeyVerificationSuccess,
+    SecurityEventName.PasskeyVerificationFailure,
   ]);
 
 const getSecurityEventNameL10n = (name: string) => {

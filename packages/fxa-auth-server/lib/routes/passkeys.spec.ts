@@ -80,11 +80,15 @@ describe('passkeys routes', () => {
     },
   } as unknown as ConfigType;
 
+  // Shaped like SimpleWebAuthn's return value: `extensions` is always present,
+  // undefined when no extension was requested.
   const mockAuthenticationOptions = {
     challenge: 'auth-challenge-xyz',
+    allowCredentials: [{ id: CREDENTIAL_ID_B64, type: 'public-key' }],
     timeout: 60000,
     userVerification: 'required',
     rpId: 'accounts.firefox.com',
+    extensions: undefined,
   };
 
   const mockRegistrationOptions = {
@@ -159,6 +163,8 @@ describe('passkeys routes', () => {
         createComplete: jest.fn(),
         deleteSuccess: jest.fn(),
         renameSuccess: jest.fn(),
+        verificationStarted: jest.fn(),
+        verificationSuccess: jest.fn(),
       },
       login: {
         complete: jest.fn(),
@@ -203,6 +209,14 @@ describe('passkeys routes', () => {
         .fn()
         .mockResolvedValue(mockAuthenticationOptions),
       verifyAuthenticationResponse: jest.fn().mockResolvedValue({ uid: UID }),
+      generateVerificationChallenge: jest
+        .fn()
+        .mockResolvedValue(mockAuthenticationOptions),
+      verifyVerificationResponse: jest.fn().mockResolvedValue({
+        uid: UID,
+        credentialId: CREDENTIAL_ID_B64,
+        scope: 'recovery_key',
+      }),
     };
 
     mockFxaMailer = {
@@ -1806,6 +1820,299 @@ describe('passkeys routes', () => {
     });
   });
 
+  describe('POST /passkey/verification/start', () => {
+    const startAuth = {
+      auth: {
+        credentials: { uid: UID, id: SESSION_TOKEN_ID, email: TEST_EMAIL },
+      },
+    };
+
+    it('returns the options PasskeyService generated', async () => {
+      const result = await runTest('/passkey/verification/start', {
+        ...startAuth,
+        payload: { scope: 'passkey' },
+      });
+
+      expect(result).toBe(mockAuthenticationOptions);
+      expect(
+        mockPasskeyService.generateVerificationChallenge
+      ).toHaveBeenCalledWith({
+        uid: UID,
+        scope: 'passkey',
+        credentialId: undefined,
+      });
+    });
+
+    it('passes a pinned credentialId through to the service', async () => {
+      await runTest('/passkey/verification/start', {
+        ...startAuth,
+        payload: { scope: 'passkey', credentialId: CREDENTIAL_ID_B64 },
+      });
+
+      expect(
+        mockPasskeyService.generateVerificationChallenge
+      ).toHaveBeenCalledWith({
+        uid: UID,
+        scope: 'passkey',
+        credentialId: CREDENTIAL_ID_B64,
+      });
+    });
+
+    it('enforces rate limiting via customs.checkAuthenticated', async () => {
+      await runTest('/passkey/verification/start', {
+        ...startAuth,
+        payload: { scope: 'passkey' },
+      });
+
+      expect(customs.checkAuthenticated).toHaveBeenCalledWith(
+        expect.anything(),
+        UID,
+        TEST_EMAIL,
+        'passkeyVerificationStart'
+      );
+    });
+
+    it('does not generate a challenge when customs blocks the request', async () => {
+      customs.checkAuthenticated = jest
+        .fn()
+        .mockRejectedValue(AppError.tooManyRequests(60));
+
+      await expect(
+        runTest('/passkey/verification/start', {
+          ...startAuth,
+          payload: { scope: 'passkey' },
+        })
+      ).rejects.toThrow('Client has sent too many requests');
+      expect(
+        mockPasskeyService.generateVerificationChallenge
+      ).not.toHaveBeenCalled();
+    });
+
+    it('emits glean.passkey.verificationStarted', async () => {
+      await runTest('/passkey/verification/start', {
+        ...startAuth,
+        payload: { scope: 'passkey' },
+      });
+
+      expect(glean.passkey.verificationStarted).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not emit glean.passkey.verificationStarted when the service throws', async () => {
+      mockPasskeyService.generateVerificationChallenge = jest
+        .fn()
+        .mockRejectedValue(AppError.passkeyNotFound());
+
+      await expect(
+        runTest('/passkey/verification/start', {
+          ...startAuth,
+          payload: { scope: 'passkey' },
+        })
+      ).rejects.toThrow();
+      expect(glean.passkey.verificationStarted).not.toHaveBeenCalled();
+    });
+
+    it('requires a verified session token', () => {
+      routes = passkeyRoutes(customs, db, config, statsd, glean, log, mailer);
+      route = routes.find((r: any) => r.path === '/passkey/verification/start');
+
+      expect(route.options.auth.strategies).toEqual([
+        'verifiedSessionTokenBearer',
+        'verifiedSessionToken',
+      ]);
+    });
+
+    it('rejects a scope outside config.mfa.actions', () => {
+      routes = passkeyRoutes(customs, db, config, statsd, glean, log, mailer);
+      route = routes.find((r: any) => r.path === '/passkey/verification/start');
+      const schema = route.options.validate.payload as Schema;
+
+      expect(schema.validate({ scope: 'not_an_action' }).error).toBeDefined();
+      expect(schema.validate({ scope: 'passkey' }).error).toBeUndefined();
+    });
+
+    it('rejects a missing scope', () => {
+      routes = passkeyRoutes(customs, db, config, statsd, glean, log, mailer);
+      route = routes.find((r: any) => r.path === '/passkey/verification/start');
+      const schema = route.options.validate.payload as Schema;
+
+      expect(schema.validate({}).error).toBeDefined();
+    });
+  });
+
+  describe('POST /passkey/verification/finish', () => {
+    const finishAuth = {
+      auth: {
+        credentials: { uid: UID, id: SESSION_TOKEN_ID, email: TEST_EMAIL },
+      },
+    };
+
+    const finishPayload = {
+      response: { id: CREDENTIAL_ID_B64, type: 'public-key' },
+      challenge: 'verification-challenge-xyz',
+    };
+
+    it('returns an mfaToken carrying the challenge scope, session, and credential', async () => {
+      const result = await runTest('/passkey/verification/finish', {
+        ...finishAuth,
+        payload: finishPayload,
+      });
+
+      const claims = jwt.verify(result.mfaToken, config.mfa.jwt.secretKey, {
+        audience: config.mfa.jwt.audience,
+        issuer: config.mfa.jwt.issuer,
+      }) as { sub: string; scope: string[]; cid: string; stid: string };
+
+      expect(claims.sub).toBe(UID);
+      expect(claims.scope).toEqual(['mfa:recovery_key']);
+      expect(claims.stid).toBe(SESSION_TOKEN_ID);
+      expect(claims.cid).toBe(CREDENTIAL_ID_B64);
+    });
+
+    it('verifies the assertion against the authenticated uid', async () => {
+      await runTest('/passkey/verification/finish', {
+        ...finishAuth,
+        payload: finishPayload,
+      });
+
+      expect(
+        mockPasskeyService.verifyVerificationResponse
+      ).toHaveBeenCalledWith(
+        finishPayload.response,
+        finishPayload.challenge,
+        UID
+      );
+    });
+
+    it('records account.passkey.verification_success', async () => {
+      await runTest('/passkey/verification/finish', {
+        ...finishAuth,
+        payload: finishPayload,
+      });
+
+      expect(recordSecurityEvent).toHaveBeenCalledWith(
+        'account.passkey.verification_success',
+        expect.objectContaining({ account: { uid: UID } })
+      );
+    });
+
+    it('emits glean.passkey.verificationSuccess', async () => {
+      await runTest('/passkey/verification/finish', {
+        ...finishAuth,
+        payload: finishPayload,
+      });
+
+      expect(glean.passkey.verificationSuccess).toHaveBeenCalledTimes(1);
+    });
+
+    it('enforces rate limiting via customs.checkAuthenticated', async () => {
+      await runTest('/passkey/verification/finish', {
+        ...finishAuth,
+        payload: finishPayload,
+      });
+
+      expect(customs.checkAuthenticated).toHaveBeenCalledWith(
+        expect.anything(),
+        UID,
+        TEST_EMAIL,
+        'passkeyVerificationFinish'
+      );
+    });
+
+    it('does not spend the challenge or record an event when customs blocks the request', async () => {
+      customs.checkAuthenticated = jest
+        .fn()
+        .mockRejectedValue(AppError.tooManyRequests(60));
+
+      await expect(
+        runTest('/passkey/verification/finish', {
+          ...finishAuth,
+          payload: finishPayload,
+        })
+      ).rejects.toThrow('Client has sent too many requests');
+      expect(
+        mockPasskeyService.verifyVerificationResponse
+      ).not.toHaveBeenCalled();
+      expect(recordSecurityEvent).not.toHaveBeenCalled();
+    });
+
+    it('records the failure event and a customs failure signal on a rejected assertion', async () => {
+      mockPasskeyService.verifyVerificationResponse = jest
+        .fn()
+        .mockRejectedValue(AppError.passkeyAuthenticationFailed());
+
+      await expect(
+        runTest('/passkey/verification/finish', {
+          ...finishAuth,
+          payload: finishPayload,
+        })
+      ).rejects.toThrow();
+
+      expect(recordSecurityEvent).toHaveBeenCalledWith(
+        'account.passkey.verification_failure',
+        expect.objectContaining({ account: { uid: UID } })
+      );
+      expect(customs.checkAuthenticated).toHaveBeenCalledWith(
+        expect.anything(),
+        UID,
+        TEST_EMAIL,
+        'passkeyVerificationFinishFailed'
+      );
+      expect(glean.passkey.verificationSuccess).not.toHaveBeenCalled();
+    });
+
+    it('mints no token when the assertion is rejected', async () => {
+      mockPasskeyService.verifyVerificationResponse = jest
+        .fn()
+        .mockRejectedValue(AppError.passkeyAuthenticationFailed());
+
+      await expect(
+        runTest('/passkey/verification/finish', {
+          ...finishAuth,
+          payload: finishPayload,
+        })
+      ).rejects.toThrow('Passkey authentication failed');
+    });
+
+    it('requires a verified session token', () => {
+      routes = passkeyRoutes(customs, db, config, statsd, glean, log, mailer);
+      route = routes.find(
+        (r: any) => r.path === '/passkey/verification/finish'
+      );
+
+      expect(route.options.auth.strategies).toEqual([
+        'verifiedSessionTokenBearer',
+        'verifiedSessionToken',
+      ]);
+    });
+
+    it('rejects a scope in the payload, so the caller cannot pick its own', () => {
+      routes = passkeyRoutes(customs, db, config, statsd, glean, log, mailer);
+      route = routes.find(
+        (r: any) => r.path === '/passkey/verification/finish'
+      );
+      const schema = route.options.validate.payload as Schema;
+
+      const valid = {
+        response: {
+          id: 'A_z-09Aa',
+          type: 'public-key',
+          response: {
+            clientDataJSON: 'eyJ0eXBlIjoid2ViYXV0aG4uZ2V0In0',
+            authenticatorData:
+              'SZYN5YgOjGh0NBcPZHZgW4_krrmihjLHmVzzuoMdl2MFAAAAAQ',
+            signature: 'MEUCIQCx',
+          },
+        },
+        challenge: 'A_z-09',
+      };
+
+      expect(schema.validate(valid).error).toBeUndefined();
+      expect(
+        schema.validate({ ...valid, scope: 'passkey' }).error
+      ).toBeDefined();
+    });
+  });
+
   describe('credentialId payload validation', () => {
     const VALID_CRED_ID = 'A_z-09Aa';
     const VALID_CHALLENGE = 'A_z-09';
@@ -1999,6 +2306,113 @@ describe('passkeys routes', () => {
           ]);
         }
       );
+    });
+
+    describe('POST /passkey/verification/start', () => {
+      let schema: Schema;
+      beforeEach(() => {
+        schema = getSchema('/passkey/verification/start', 'POST', 'payload');
+      });
+
+      it('accepts a pinned credentialId', () => {
+        const { error } = schema.validate({
+          scope: 'passkey',
+          credentialId: VALID_CRED_ID,
+        });
+        expect(error).toBeUndefined();
+      });
+
+      it.each([
+        [
+          'shell-injection probe shape',
+          '(nslookup x.example.com||curl x.example.com)',
+          'string.pattern.base',
+        ],
+        ['contains slash', 'A/B', 'string.pattern.base'],
+        ['contains plus', 'A+B', 'string.pattern.base'],
+        ['contains equals padding', 'AA==', 'string.pattern.base'],
+        ['empty string', '', 'string.empty'],
+      ])('rejects credentialId (%s)', (_label, badId, expectedType) => {
+        const { error } = schema.validate({
+          scope: 'passkey',
+          credentialId: badId,
+        });
+        expect(error?.details).toEqual([
+          expect.objectContaining({
+            path: ['credentialId'],
+            type: expectedType,
+          }),
+        ]);
+      });
+
+      it('rejects a credentialId that exceeds the max length', () => {
+        const { error } = schema.validate({
+          scope: 'passkey',
+          credentialId: 'A'.repeat(1365),
+        });
+        expect(error?.details).toEqual([
+          expect.objectContaining({
+            path: ['credentialId'],
+            type: 'string.max',
+          }),
+        ]);
+      });
+    });
+
+    describe('POST /passkey/verification/finish', () => {
+      let schema: Schema;
+      beforeEach(() => {
+        schema = getSchema('/passkey/verification/finish', 'POST', 'payload');
+      });
+
+      // The assertion shape is shared with /authentication/finish, so one
+      // probe per field class is enough to prove the schema is wired in.
+      const verificationPayload = (
+        responseOverride: Record<string, unknown> = {},
+        challenge: string = VALID_CHALLENGE
+      ) => ({
+        response: {
+          id: VALID_CRED_ID,
+          type: 'public-key',
+          response: VALID_AUTH_INNER,
+          ...responseOverride,
+        },
+        challenge,
+      });
+
+      it('accepts a well-formed assertion payload', () => {
+        const { error } = schema.validate(verificationPayload());
+        expect(error).toBeUndefined();
+      });
+
+      it.each([
+        [
+          'shell-injection probe shape',
+          '(nslookup x.example.com||curl x.example.com)',
+          'string.pattern.base',
+        ],
+        ['contains slash', 'A/B', 'string.pattern.base'],
+        ['contains equals padding', 'AA==', 'string.pattern.base'],
+        ['empty string', '', 'string.empty'],
+      ])('rejects response.id (%s)', (_label, badId, expectedType) => {
+        const { error } = schema.validate(verificationPayload({ id: badId }));
+        expect(error?.details).toEqual([
+          expect.objectContaining({
+            path: ['response', 'id'],
+            type: expectedType,
+          }),
+        ]);
+      });
+
+      it('rejects a non-base64url challenge', () => {
+        const { error } = schema.validate(verificationPayload({}, 'has/slash'));
+        expect(error?.details).toEqual([
+          expect.objectContaining({
+            path: ['challenge'],
+            type: 'string.pattern.base',
+          }),
+        ]);
+      });
     });
 
     describe('POST /passkey/registration/finish', () => {
@@ -2214,5 +2628,51 @@ describe('passkeys routes', () => {
         );
       }
     );
+
+    describe('POST /passkey/verification/start', () => {
+      it('accepts the options SimpleWebAuthn generates, extensions key included', () => {
+        const { error } = getResponseSchema(
+          'POST',
+          '/passkey/verification/start'
+        ).validate(mockAuthenticationOptions);
+        expect(error).toBeUndefined();
+      });
+
+      it('requires allowCredentials', () => {
+        const { error } = getResponseSchema(
+          'POST',
+          '/passkey/verification/start'
+        ).validate({
+          ...mockAuthenticationOptions,
+          allowCredentials: undefined,
+        });
+        expect(error?.details[0]).toEqual(
+          expect.objectContaining({
+            path: ['allowCredentials'],
+            type: 'any.required',
+          })
+        );
+      });
+    });
+
+    describe('POST /passkey/verification/finish', () => {
+      it('accepts an mfaToken', () => {
+        const { error } = getResponseSchema(
+          'POST',
+          '/passkey/verification/finish'
+        ).validate({ mfaToken: 'a.b.c' });
+        expect(error).toBeUndefined();
+      });
+
+      it('rejects a response carrying more than the token', () => {
+        const { error } = getResponseSchema(
+          'POST',
+          '/passkey/verification/finish'
+        ).validate({ mfaToken: 'a.b.c', scope: 'passkey' });
+        expect(error?.details[0]).toEqual(
+          expect.objectContaining({ type: 'object.unknown' })
+        );
+      });
+    });
   });
 });

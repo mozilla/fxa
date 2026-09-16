@@ -8,6 +8,7 @@ import {
   PasskeyService,
   V1_WIDTHS,
   encodePasskeyWrapEnvelope,
+  sameCredentialId,
   type NewPasskeyWrapData,
 } from '@fxa/accounts/passkey';
 import { AppError } from '@fxa/accounts/errors';
@@ -56,10 +57,7 @@ type WrapPayload = Record<keyof NewPasskeyWrapData, string>;
  * unmetered audit write.
  */
 function isBoundTo(cid: string | undefined, credentialId: string): boolean {
-  return (
-    !!cid &&
-    Buffer.from(cid, 'base64url').equals(Buffer.from(credentialId, 'base64url'))
-  );
+  return !!cid && sameCredentialId(cid, credentialId);
 }
 
 /**
