@@ -1,8 +1,8 @@
 {
-  "commit": "ef54e7dde858653ea31d3200327603866f7914c2",
-  "summary": "Merge pull request #21236 from mozilla/fxa-14545",
-  "description": "test(functional-tests): skip two passwordless tests on stage",
-  "timestamp": 1789586586000,
+  "commit": "483f5827fd719a1ebbcef88a08b631ec86f21d26",
+  "summary": "Merge pull request #21232 from mozilla/fxa-14463-remove-pair-timeout-cancel",
+  "description": "fix(pairing): remove Cancel from desktop pairing timeout screen",
+  "timestamp": 1789600799000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

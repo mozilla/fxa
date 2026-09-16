@@ -1532,7 +1532,6 @@ pair2-authority-timeout-and-cancel-timeout-description = Looks like we timed out
 pair2-authority-timeout-and-cancel-cancelled-heading = Cancelled
 pair2-authority-timeout-and-cancel-canceled-description = If you change your mind or want to connect a different device, try again.
 pair2-authority-timeout-and-cancel-try-again-button = Try again
-pair2-authority-timeout-and-cancel-cancel-button = Cancel
 pair2-authority-timeout-and-cancel-sync-settings-button = Sync settings
 
 
