@@ -240,6 +240,8 @@ module.exports = function (
 
   const { geoRoutes } = require('./geo-location');
   const geo = geoRoutes(config, log);
+  const { riskSignalRoutes } = require('./risk-signal');
+  const riskSignal = riskSignalRoutes(log);
 
   const { mfaRoutes } = require('./mfa');
   const mfa = mfaRoutes(customs, db, log, mailer, statsd, config);
@@ -299,7 +301,8 @@ module.exports = function (
     geo,
     mfa,
     passkeys,
-    passkeyWraps
+    passkeyWraps,
+    riskSignal
   );
 
   function optionallyIgnoreTrace(fn) {
