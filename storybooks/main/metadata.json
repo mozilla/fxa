@@ -1,8 +1,8 @@
 {
-  "commit": "fb04651d19284fae5533c942ba478b8a25501625",
-  "summary": "Merge pull request #21209 from mozilla/fxa-14490",
-  "description": "test(passkey): fold metrics-counter tests into their behavior tests",
-  "timestamp": 1789574161000,
+  "commit": "f0e0132e3c4bb66521399029026212db8acc86c3",
+  "summary": "Merge pull request #21056 from mozilla/fxa-5685",
+  "description": "feat(sentry): define common Sentry tags and apply them at the beforeSend seams",
+  "timestamp": 1789574199000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
