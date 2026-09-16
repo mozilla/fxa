@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 777524d9d649fad9f92d08cd4d5f5a3e3b27ee73</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 777524d9d649fad9f92d08cd4d5f5a3e3b27ee73</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/16/2026, 5:52:17 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): start the /pair Sync bootstrap once per mount</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- The /pair bootstrap effect depended on the whole `fxaStatusResult` object. `useFxAStatus` builds a new object literal on every render, so that dependency changed identity on each render.
+- The effect therefore ran again on every parent render. Each extra pass started a second Sync OAuth flow and a second hard navigation, and Firefox cancelled the first one.
+
+## This pull request
+
+- Makes the bootstrap effect depend on the primitive fxa_status fields (`fxaStatusState` and `fxaStatus?.capabilities.pairingVersion`) instead of the result object.
+- Adds a mount-scoped `bootstrapStartedRef`. The async WebChannel bootstrap now starts one time per mount at most.
+- Replaces the run-scoped `cancelled` local with `abortBootstrapRef`. Each pass of the effect raises the flag, and the effect lowers it again after the last branch that routes elsewhere. A pass that routes elsewhere therefore stands an in-flight bootstrap down. Unmount raises the flag too.
+- Adds three tests: a parent re-render, a late fxa_status answer, and a late pairing v2 answer that reaches the QR scanner. Adds a shared `MOCK_OAUTH_PARAMS` constant for the params that the three tests share.
+
+## Issue that this pull request solves
+
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-14544</pre></dd>
+  </dl>
+</body>
+</html>
