@@ -19,6 +19,7 @@ import {
   isOAuthWebIntegration,
 } from '../../models';
 import { isSendTabEntrypoint } from '../../lib/utilities';
+import { clearPendingPasskeyWrap } from '../../lib/passkeys/pending-wrap';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import { useNavigateWithQuery } from '../../lib/hooks';
 import { hardNavigate } from 'fxa-react/lib/utils';
@@ -320,6 +321,11 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     return { error: undefined };
   }
 
+  // A passkey ceremony leaves wrap material only when the password-free
+  // offer should follow; the overrides below may still withdraw it.
+  navigationOptions.showInlinePasswordFreeSetup =
+    !!navigationOptions.sensitiveDataClient?.PasskeyWrapData;
+
   // Check CMS fleature flags to determine if we should hide promos, the
   // default is to navigate to settings
   const cmsInfo = integration?.getCmsInfo();
@@ -327,6 +333,7 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     cmsInfo?.shared.featureFlags?.syncHidePromoAfterLogin &&
     integration.isSync()
   ) {
+    navigationOptions.showInlinePasswordFreeSetup = false;
     navigationOptions.showInlineRecoveryKeySetup = false;
     navigationOptions.showSignupConfirmedSync = false;
     navigationOptions.syncHidePromoAfterLogin = true;
@@ -338,8 +345,18 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     isSendTabEntrypoint(integration.data?.entrypoint) &&
     integration.isSync()
   ) {
+    navigationOptions.showInlinePasswordFreeSetup = false;
     navigationOptions.showInlineRecoveryKeySetup = false;
     navigationOptions.showSignupConfirmedSync = false;
+  }
+
+  // The opt-in page is the only consumer of the passkey wrap material, so
+  // when it will not be shown the material must not outlive this call.
+  if (
+    !navigationOptions.showInlinePasswordFreeSetup &&
+    navigationOptions.sensitiveDataClient
+  ) {
+    clearPendingPasskeyWrap(navigationOptions.sensitiveDataClient);
   }
 
   // When a session is unverified, we need to redirect to the appropriate page depending on status of
@@ -763,6 +780,18 @@ const getOAuthNavigationTarget = async (
     return { error };
   }
 
+  const oauthData = { code, redirect, state, scope };
+
+  // The password-free passkey offer replaces the browser's post-sign-in
+  // landing page (/pair, service welcome, Settings) and continues to Settings
+  // itself.
+  if (navigationOptions.showInlinePasswordFreeSetup) {
+    return {
+      to: `/inline_password_free_setup${navigationOptions.queryParams || ''}`,
+      oauthData,
+    };
+  }
+
   if (navigationOptions.integration.isSync()) {
     const syncNav = getSyncNavigate(navigationOptions.queryParams, {
       showInlineRecoveryKeySetup: locationState.showInlineRecoveryKeySetup,
@@ -776,12 +805,7 @@ const getOAuthNavigationTarget = async (
     });
     return {
       ...syncNav,
-      oauthData: {
-        code,
-        redirect,
-        state,
-        scope,
-      },
+      oauthData,
       locationState: { ...locationState, ...(syncNav.locationState ?? {}) },
     };
   } else if (navigationOptions.integration.isFirefoxNonSync()) {
@@ -789,12 +813,7 @@ const getOAuthNavigationTarget = async (
       to: navigationOptions.integration.isFirefoxClientServiceVpn()
         ? '/post_verify/service_welcome'
         : '/settings',
-      oauthData: {
-        code,
-        redirect,
-        state,
-        scope,
-      },
+      oauthData,
     };
   }
   return { to: redirect, shouldHardNavigate: true };

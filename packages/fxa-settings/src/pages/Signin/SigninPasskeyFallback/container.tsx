@@ -3,8 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useNavigate, useLocation } from 'react-router';
-import { useCallback, useEffect, useMemo } from 'react';
-import { Integration, useAuthClient, useFtlMsgResolver } from '../../../models';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Banner } from '../../../components/Banner';
+import {
+  Integration,
+  useAuthClient,
+  useFtlMsgResolver,
+  useSensitiveDataClient,
+} from '../../../models';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { useSigninAvatar } from '../useSigninAvatar';
@@ -34,6 +40,7 @@ const SigninPasskeyFallbackContainer = ({
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
   const navigate = useNavigate();
+  const sensitiveDataClient = useSensitiveDataClient();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: SigninLocationState;
   };
@@ -117,6 +124,7 @@ const SigninPasskeyFallbackContainer = ({
         // entered here only unwraps keys. Keeps /pair's `choice_view` reason
         // attributed to the passkey flow rather than password sign-in.
         isPasskeySession: true,
+        sensitiveDataClient,
         authClient,
       });
       if (navError) {
@@ -157,10 +165,43 @@ const SigninPasskeyFallbackContainer = ({
       uid,
       passkeySurface,
       metricsContext,
+      sensitiveDataClient,
     ]
   );
 
   const missingSigninState = !sessionToken || !email || !uid;
+
+  // TEMP(FXA-13151): remove before merge. Manual-verification readout of the
+  // material the passkey ceremony left and whether a wrap already exists.
+  const [tempWrapStatus, setTempWrapStatus] = useState('checking…');
+  const tempPending = sensitiveDataClient.PasskeyWrapData;
+  useEffect(() => {
+    if (!tempPending) {
+      setTempWrapStatus('no PRF stash (flag off, PRF absent, or mobile)');
+      return;
+    }
+    if (typeof authClient.getPasskeyWrap !== 'function') {
+      return;
+    }
+    authClient
+      .getPasskeyWrap(tempPending.mfaToken, tempPending.credentialId)
+      .then((wrap) =>
+        setTempWrapStatus(
+          `PRF stash present · wrap EXISTS (createdAt ${new Date(
+            wrap.createdAt
+          ).toISOString()})`
+        )
+      )
+      .catch((err: { errno?: number }) =>
+        setTempWrapStatus(
+          `PRF stash present · ${
+            err?.errno === 234
+              ? 'no wrap stored'
+              : `wrap lookup errno ${err?.errno}`
+          }`
+        )
+      );
+  }, [authClient, tempPending]);
 
   useEffect(() => {
     if (!oAuthDataError && missingSigninState) {
@@ -177,15 +218,25 @@ const SigninPasskeyFallbackContainer = ({
   }
 
   return (
-    <SigninPasskeyFallback
-      {...{
-        email,
-        onContinue,
-        avatarData,
-        avatarLoading,
-        passkeySurface,
-      }}
-    />
+    <>
+      {/* TEMP(FXA-13151): remove before merge. */}
+      <Banner
+        type="info"
+        content={{
+          localizedHeading: 'TEMP passwordless Sync state',
+          localizedDescription: tempWrapStatus,
+        }}
+      />
+      <SigninPasskeyFallback
+        {...{
+          email,
+          onContinue,
+          avatarData,
+          avatarLoading,
+          passkeySurface,
+        }}
+      />
+    </>
   );
 };
 

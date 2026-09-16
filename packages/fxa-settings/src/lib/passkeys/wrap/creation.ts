@@ -10,7 +10,6 @@ import type { AuthUiError } from '../../auth-errors/auth-errors';
 import { createWrapEnvelope, openWrapEnvelope } from '../../passkey-crypto';
 import { PRF_OUT_BYTES } from '../../passkey-crypto/constants';
 
-// TODO: FXA-13151 maps these to user-facing strings.
 export type PasskeyWrapClientFailure =
   | 'prf_unsupported'
   | 'proof_malformed'

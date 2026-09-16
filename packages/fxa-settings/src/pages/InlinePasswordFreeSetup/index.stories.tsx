@@ -6,12 +6,12 @@ import React from 'react';
 import { Meta } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import InlinePasswordlessSyncSetup from '.';
+import InlinePasswordFreeSetup from '.';
 import { Subject } from './mocks';
 
 export default {
-  title: 'Pages/InlinePasswordlessSyncSetup',
-  component: InlinePasswordlessSyncSetup,
+  title: 'Pages/InlinePasswordFreeSetup',
+  component: InlinePasswordFreeSetup,
   decorators: [withLocalization],
 } as Meta;
 

@@ -147,6 +147,9 @@ const SignoutSync = lazy(() => import('../Settings/SignoutSync'));
 const InlineRecoveryKeySetupContainer = lazy(
   () => import('../../pages/InlineRecoveryKeySetup/container')
 );
+const InlinePasswordFreeSetupContainer = lazy(
+  () => import('../../pages/InlinePasswordFreeSetup/container')
+);
 const SetPasswordContainer = lazy(
   () => import('../../pages/PostVerify/SetPassword/container')
 );
@@ -957,6 +960,10 @@ const AuthAndAccountSetupRoutes = ({
               cmsInfo={integration.getCmsInfo()}
             />
           }
+        />
+        <Route
+          path="/inline_password_free_setup/*"
+          element={<InlinePasswordFreeSetupContainer />}
         />
 
         {/* Signup */}

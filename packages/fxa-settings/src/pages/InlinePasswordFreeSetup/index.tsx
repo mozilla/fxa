@@ -11,24 +11,24 @@ import { Banner } from '../../components/Banner';
 import { SyncCloudsImage } from '../../components/images';
 import { useFtlMsgResolver } from '../../models';
 
-export type InlinePasswordlessSyncSetupProps = {
+export type InlinePasswordFreeSetupProps = {
   onEnable: () => void;
   onNotNow: () => void;
   isEnabling?: boolean;
 };
 
 /** Desktop only: mobile clients close the web view before this page. */
-const InlinePasswordlessSyncSetup = ({
+const InlinePasswordFreeSetup = ({
   onEnable,
   onNotNow,
   isEnabling = false,
-}: InlinePasswordlessSyncSetupProps) => {
+}: InlinePasswordFreeSetupProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
 
   return (
     <AppLayout
       title={ftlMsgResolver.getMsg(
-        'inline-passwordless-sync-setup-page-title',
+        'inline-password-free-setup-page-title',
         'Skip the password next time?'
       )}
     >
@@ -36,7 +36,7 @@ const InlinePasswordlessSyncSetup = ({
         type="success"
         content={{
           localizedHeading: ftlMsgResolver.getMsg(
-            'inline-passwordless-sync-setup-success-banner',
+            'inline-password-free-setup-success-banner',
             'Signed in to Firefox'
           ),
         }}
@@ -44,11 +44,11 @@ const InlinePasswordlessSyncSetup = ({
 
       <SyncCloudsImage className="mx-auto mt-4 max-h-44" />
 
-      <FtlMsg id="inline-passwordless-sync-setup-heading">
+      <FtlMsg id="inline-password-free-setup-heading">
         <h1 className="card-header mb-2">Skip the password next time?</h1>
       </FtlMsg>
 
-      <FtlMsg id="inline-passwordless-sync-setup-description">
+      <FtlMsg id="inline-password-free-setup-description">
         <p className="text-sm mb-6">Use this passkey to sign in faster.</p>
       </FtlMsg>
 
@@ -67,19 +67,17 @@ const InlinePasswordlessSyncSetup = ({
                 imageClassName="w-4 h-4 animate-spin"
               />
             </span>
-            <FtlMsg id="inline-passwordless-sync-setup-enabling">
-              Enabling…
-            </FtlMsg>
+            <FtlMsg id="inline-password-free-setup-enabling">Enabling…</FtlMsg>
           </>
         ) : (
-          <FtlMsg id="inline-passwordless-sync-setup-enable-button">
+          <FtlMsg id="inline-password-free-setup-enable-button">
             Enable passkey
           </FtlMsg>
         )}
       </button>
 
       <div className="mt-6 text-sm text-center">
-        <FtlMsg id="inline-passwordless-sync-setup-not-now-button">
+        <FtlMsg id="inline-password-free-setup-not-now-button">
           <button
             type="button"
             className="link-blue disabled:no-underline disabled:text-grey-500 dark:disabled:text-grey-300 disabled:cursor-wait"
@@ -94,4 +92,4 @@ const InlinePasswordlessSyncSetup = ({
   );
 };
 
-export default InlinePasswordlessSyncSetup;
+export default InlinePasswordFreeSetup;
