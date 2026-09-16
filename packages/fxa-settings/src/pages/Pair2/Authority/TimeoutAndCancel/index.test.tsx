@@ -54,7 +54,7 @@ describe('Pair2/Authority/TimeoutAndCancel page', () => {
   );
 
   describe('timeout', () => {
-    it('renders the heading and description', () => {
+    it('renders the heading, description, and actions', () => {
       renderWithLocalizationProvider(<Subject reason="timeout" />);
 
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
@@ -63,15 +63,25 @@ describe('Pair2/Authority/TimeoutAndCancel page', () => {
       screen.getByText(
         'Looks like we timed out. Try again if you still want to connect your mobile device and sync your Firefox data.'
       );
+      screen.getByRole('button', { name: 'Try again' });
+      screen.getByRole('button', { name: 'Cancel' });
+      expect(
+        screen.queryByRole('button', { name: 'Sync settings' })
+      ).not.toBeInTheDocument();
     });
 
-    // The user is already signed in on this computer, so there is nothing to
-    // abandon. Fail loudly if a second action is ever added back here.
-    it('offers only the primary action', () => {
-      renderWithLocalizationProvider(<Subject reason="timeout" />);
+    it('calls onCancel from the secondary action', async () => {
+      const user = userEvent.setup();
+      const onCancel = jest.fn();
+      const onSyncSettings = jest.fn();
+      renderWithLocalizationProvider(
+        <Subject reason="timeout" {...{ onCancel, onSyncSettings }} />
+      );
 
-      expect(screen.getAllByRole('button')).toHaveLength(1);
-      screen.getByRole('button', { name: 'Try again' });
+      await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+      expect(onCancel).toHaveBeenCalledTimes(1);
+      expect(onSyncSettings).not.toHaveBeenCalled();
     });
   });
 
@@ -87,20 +97,23 @@ describe('Pair2/Authority/TimeoutAndCancel page', () => {
       );
       screen.getByRole('button', { name: 'Try again' });
       screen.getByRole('button', { name: 'Sync settings' });
+      expect(
+        screen.queryByRole('button', { name: 'Cancel' })
+      ).not.toBeInTheDocument();
     });
 
     it('calls onSyncSettings from the secondary action', async () => {
       const user = userEvent.setup();
-      const onTryAgain = jest.fn();
+      const onCancel = jest.fn();
       const onSyncSettings = jest.fn();
       renderWithLocalizationProvider(
-        <Subject reason="canceled" {...{ onTryAgain, onSyncSettings }} />
+        <Subject reason="canceled" {...{ onCancel, onSyncSettings }} />
       );
 
       await user.click(screen.getByRole('button', { name: 'Sync settings' }));
 
       expect(onSyncSettings).toHaveBeenCalledTimes(1);
-      expect(onTryAgain).not.toHaveBeenCalled();
+      expect(onCancel).not.toHaveBeenCalled();
     });
   });
 
