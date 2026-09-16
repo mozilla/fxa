@@ -1492,8 +1492,14 @@ export class FxaMailer extends FxaEmailRenderer {
       ...opts,
       ...links,
     });
-    // explicitly override the `to` to ensure we send to the right email
-    return this.sendEmail({ ...opts, to: secondaryEmail }, headers, rendered);
+    // Override the `to` so we send to the address being verified. Drop the
+    // `cc` too: the account's other verified emails must never receive a code
+    // that proves control of a mailbox they do not own.
+    return this.sendEmail(
+      { ...opts, to: secondaryEmail, cc: undefined },
+      headers,
+      rendered
+    );
   }
 
   async sendVerifyAccountChangeEmail(

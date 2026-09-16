@@ -21,6 +21,7 @@ describe('lib/senders/fxa-mailer', () => {
       | 'buildPasswordChangeLink'
       | 'buildAccountSettingsLink'
       | 'buildMozillaSupportUrl'
+      | 'buildVerifyEmailLink'
     >
   >;
   let mockAccountEventsManager: jest.Mocked<
@@ -52,6 +53,7 @@ describe('lib/senders/fxa-mailer', () => {
       buildMozillaSupportUrl: jest
         .fn()
         .mockReturnValue('https://mozilla.support'),
+      buildVerifyEmailLink: jest.fn().mockReturnValue('https://verify.link'),
     };
 
     mockAccountEventsManager = {
@@ -62,6 +64,7 @@ describe('lib/senders/fxa-mailer', () => {
 
     mockConfig = {
       sender: 'Firefox Accounts <accounts@firefox.com>',
+      fxaMailerDisableSend: [],
     };
 
     fxaMailer = new FxaMailer(
@@ -175,6 +178,55 @@ describe('lib/senders/fxa-mailer', () => {
         const sendArgs = mockEmailSender.send.mock.calls[0][0];
         expect(sendArgs.from).toBe('Mozilla Monitor <noreply@firefox.com>');
       });
+    });
+  });
+
+  describe('sendVerifySecondaryCodeEmail', () => {
+    // The caller spreads FxaMailerFormat.account(account), which sets `to` to
+    // the primary email and `cc` to the account's other verified emails.
+    const baseOpts = {
+      to: 'primary@example.com',
+      cc: ['already-verified-secondary@example.com'],
+      email: 'new-address@example.com',
+      code: '123456',
+      uid: 'test-uid',
+      metricsEnabled: true,
+      acceptLanguage: 'en',
+      timeZone: 'America/New_York',
+      device: { uaBrowser: 'Firefox', uaOS: 'Mac OS X' },
+      time: '10:00 AM',
+      date: 'January 1, 2026',
+      location: { city: 'San Francisco', stateCode: 'CA', country: 'USA' },
+      sync: false,
+    } as any;
+
+    function stubRender() {
+      jest
+        .spyOn(fxaMailer as any, 'renderVerifySecondaryCode')
+        .mockResolvedValue({
+          subject: 'Confirm secondary email',
+          html: '<html>test</html>',
+          text: 'test',
+          preview: 'test preview',
+        });
+    }
+
+    it('sends the code only to the address being verified', async () => {
+      stubRender();
+      await fxaMailer.sendVerifySecondaryCodeEmail(baseOpts);
+
+      expect(mockEmailSender.send).toHaveBeenCalledTimes(1);
+      const sendArgs = mockEmailSender.send.mock.calls[0][0];
+      expect(sendArgs.to).toBe('new-address@example.com');
+    });
+
+    it('does not cc the account emails, which would leak the code', async () => {
+      stubRender();
+      await fxaMailer.sendVerifySecondaryCodeEmail(baseOpts);
+
+      expect(mockEmailSender.send).toHaveBeenCalledTimes(1);
+      const sendArgs = mockEmailSender.send.mock.calls[0][0];
+      expect(sendArgs.cc).toBeUndefined();
     });
   });
 
