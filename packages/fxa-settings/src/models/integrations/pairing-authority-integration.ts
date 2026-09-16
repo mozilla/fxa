@@ -75,6 +75,7 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
   ]);
 
   private _channel: PairingChannelClient | null = null;
+  private _createChannelPromise: Promise<void> | null = null;
   private _version: number | null = null;
   public _iid: string | null = null;
   private _state: AuthorityState | null = null;
@@ -136,6 +137,12 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
   }
 
   async createChannel(): Promise<void> {
+    // React StrictMode runs mount effects twice in development, so a second
+    // call can land while the first is still opening the socket. It has to
+    // share that create: a client with no channel id yet cannot build a QR.
+    if (this._createChannelPromise) {
+      return this._createChannelPromise;
+    }
     if (this._channel) {
       console.warn('Pairing channel already exists!');
       return;
@@ -157,14 +164,19 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
       this.handleSuppAuthorize
     );
 
-    try {
-      await channel.create(config.pairing.serverBaseUri);
-    } catch (err) {
-      // Reset _channel so a subsequent createChannel() call can retry.
-      this._channel = null;
-      this.fail(err);
-      throw err;
-    }
+    this._createChannelPromise = channel
+      .create(config.pairing.serverBaseUri)
+      .catch((err) => {
+        // Reset _channel so a subsequent createChannel() call can retry.
+        this._channel = null;
+        this.fail(err);
+        throw err;
+      })
+      .finally(() => {
+        this._createChannelPromise = null;
+      });
+
+    return this._createChannelPromise;
   }
 
   /**

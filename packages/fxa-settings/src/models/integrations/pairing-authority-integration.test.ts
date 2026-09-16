@@ -419,6 +419,45 @@ describe('PairingAuthorityIntegration', () => {
         expect(mockCreate).toHaveBeenCalledTimes(1);
       });
 
+      // StrictMode mounts the ScanQR effect twice in development, so the second
+      // createChannel() arrives while the first is still opening the socket.
+      it('shares an in-flight create with a concurrent caller', async () => {
+        let resolveCreate!: () => void;
+        mockCreate.mockReturnValueOnce(
+          new Promise<void>((resolve) => {
+            resolveCreate = resolve;
+          })
+        );
+
+        const first = integration.createChannel();
+        const second = integration.createChannel();
+        expect(mockCreate).toHaveBeenCalledTimes(1);
+
+        resolveCreate();
+        await Promise.all([first, second]);
+
+        expect(integration.hasChannel()).toBe(true);
+        expect(integration.state).not.toBe(AuthorityState.Failed);
+      });
+
+      it('rejects every concurrent caller when the create fails', async () => {
+        let rejectCreate!: (err: Error) => void;
+        mockCreate.mockReturnValueOnce(
+          new Promise<void>((_, reject) => {
+            rejectCreate = reject;
+          })
+        );
+
+        const first = integration.createChannel();
+        const second = integration.createChannel();
+        rejectCreate(new Error('nope'));
+
+        await expect(first).rejects.toThrow('nope');
+        await expect(second).rejects.toThrow('nope');
+        expect(integration.hasChannel()).toBe(false);
+        expect(onError).toHaveBeenCalledTimes(1);
+      });
+
       it('rethrows and fails when the channel cannot be created', async () => {
         const err = new Error('channel server unreachable');
         mockCreate.mockRejectedValueOnce(err);
