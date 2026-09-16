@@ -76,7 +76,7 @@ describe('Pair2/Supplicant/ReadyToScan page', () => {
     expect(screen.queryAllByRole('button')).toHaveLength(0);
   });
 
-  it('exposes the brand lockup and illustration to assistive technology', () => {
+  it('exposes the brand lockups, keeping the illustration decorative', () => {
     renderWithLocalizationProvider(<ReadyToScan />);
 
     expect(
@@ -84,9 +84,10 @@ describe('Pair2/Supplicant/ReadyToScan page', () => {
         .getAllByRole('img')
         .map((img) => img.getAttribute('alt') ?? img.getAttribute('aria-label'))
     ).toEqual([
-      // AppLayout's page header, then the two images this card renders.
+      // AppLayout's page header, then this card's Firefox lockup. The laptop
+      // illustration is decorative — the instruction beside it says the same.
       'Mozilla logo',
-      'Firefox logo'
+      'Firefox logo',
     ]);
   });
 
