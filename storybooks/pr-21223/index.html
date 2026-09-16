@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 42b7eb906987be2392e829570a65da7b571e1e1a</title>
+  <title>Storybooks for commit 9ef908fe0f35cf1c7e8b0527f0a95a14fb9962aa</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,25 +23,30 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 42b7eb906987be2392e829570a65da7b571e1e1a</h1>
+  <h1>Storybooks for commit 9ef908fe0f35cf1c7e8b0527f0a95a14fb9962aa</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/16/2026, 1:37:44 AM UTC</dd>
+    <dd>9/16/2026, 6:58:02 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>chore(settings): TEMP passwordless Sync verification readouts</pre></dd>
+    <dd><pre>feat(settings): wire up the password-free passkey opt-in</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-- Manual verification of FXA-13151 needs to see wrap state that the UI does not otherwise expose.
+- A desktop browser sign-in that needs encryption keys (Sync, for example) still requires a password after a PRF passkey until a wrap is stored; this is the one place the user can store one.
+- The proof minted at sign-in lives ten minutes and the password step can outlast it.
 
 This commit:
 
-- Adds a wrap-stored badge to the Settings passkey row.
-- Adds info banners on the passkey password step and the opt-in page reporting the held material and stored-wrap state.
-- Every hunk is marked `TEMP(FXA-13151)`; revert this commit before merge.</pre></dd>
+- Requests the `passkey` scope on eligible sign-ins and holds the PRF output, proof and `kB` in SensitiveDataClient.
+- Routes sign-ins where the account has a password and the passkey has no wrap to /inline_password_free_setup in place of the browser&#039;s post-sign-in landing page.
+- Adds the opt-in container: stores the wrap, lands in Settings with a banner, and zeroes the held material on every exit.
+- Steps up with the passkey for a fresh proof when the sign-in one has expired, then submits the same envelope again.
+- Replaces a stored wrap that predates `keysChangedAt` on POST /passkey/wraps instead of refusing it.
+
+Closes #FXA-13151</pre></dd>
   </dl>
 </body>
 </html>

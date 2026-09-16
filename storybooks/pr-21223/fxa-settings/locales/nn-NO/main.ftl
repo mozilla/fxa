@@ -343,6 +343,14 @@ password-strength-inline-passwords-match = Passorda samsvarar
 
 
 promo-qr-mobile-heading = Din telefon. Dine reglar.
+promo-qr-mobile-heading-treatment-b = Fanene dine og meir, klare på telefonen
+promo-qr-mobile-heading-treatment-c = Nettlesaren du stolar på, på telefonen din
+promo-qr-mobile-heading-treatment-d = Same { -brand-firefox }. Ulik skjerm.
+promo-qr-mobile-heading-treatment-e = Personvernet ditt bør ikkje stoppe her
+promo-qr-mobile-heading-treatment-f = Surf meir privat
+promo-qr-mobile-heading-treatment-g = Telefonen din kunne ha trunge litt mindre støy
+promo-qr-mobile-heading-treatment-h = Surf på ein rolegare måte
+promo-qr-mobile-description-v2 = Skann for å laste ned mobilappen
 promo-qr-mobile-qr-alt =
     .alt = QR-kode for å laste ned { -brand-firefox }-mobilappen. Hald kameraet på telefonen over nedre høgre hjørne av skjermen for å skanne han.
 
@@ -392,8 +400,10 @@ password-reset-warning-review-sign-in-options = Sjå gjennom påloggingsalternat
 password-reset-warning-have-key = Har du ein kontogjenopprettingsnøkkel?
 password-reset-warning-use-key-link-v2 = Bruk det for å tilbakestille passordet ditt og behalde nettlesardataa dine
 password-reset-warning-signed-in-device = Framleis logga inn på ei anna eining?
+password-reset-warning-signed-in-device-description = Nettlesardataa dine kan vere tilgjengelege. Tilbakestill passordet ditt, og logg deretter på den eininga for å gjenopprette og synkronisere dataa dine.
 password-reset-warning-restore-data-link = Les om korleis du gjenopprettar nettlesardata frå ei pålogga eining
 password-reset-warning-new-device = Brukar du ei ny eining, men får ikkje tilgang til dei gamle?
+password-reset-warning-new-device-description = Etter at du har tilbakestilt passordet ditt, vil ikkje krypterte nettlesardata på { -brand-firefox }-serverar vere tilgjengelege på denne eininga.
 
 
 alert-bar-close-message = Lat att melding
@@ -555,6 +565,7 @@ flow-setup-2fa-inline-complete-continue-button = Hald fram til { $serviceName }
 flow-setup-2fa-prompt-heading = Set opp tostegs-autentisering
 flow-setup-2fa-prompt-description = { $serviceName } krev at du konfigurerer tostegs-autentisering for å halde kontoen din trygg.
 flow-setup-2fa-prompt-passkey-success-banner = Vellykka pålogging med passnøkkel
+flow-setup-2fa-prompt-passkey-description = { $serviceName } krev også tostegs-autentisering for { -product-mozilla-account }. Etter oppsettet treng du ikkje lenger den når du loggar på med ein passnøkkel.
 flow-setup-2fa-prompt-use-authenticator-apps = Du kan bruke kven som helst av <authenticationAppsLink>desse autentiseringsappane</authenticationAppsLink> for å halde fram.
 flow-setup-2fa-prompt-continue-button = Hald fram
 
@@ -1296,15 +1307,18 @@ pair2-authority-continue-on-mobile-cancel-button = Avbryt
 
 
 pair2-authority-download-firefox-heading = Opne { -brand-firefox } for å synkronisere
+pair2-authority-download-firefox-instruction = For å setje opp synkronisering på tvers av einingar, opne { -brand-firefox } på denne eininga og gå til <b>firefox.com/pair</b>
 pair2-authority-download-firefox-cta = Last ned { -brand-firefox }
 
 
 pair2-authority-scan-qr-heading = Skann for å kople til mobileininga di
+pair2-authority-scan-qr-instruction = Skann QR-koden med telefonen eller nettbrettet for å synkronisere bokmerka, fanene og meir i { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = QR-kode for å kople til mobileininga di
 pair2-authority-scan-qr-help-link = Få hjelp med skanning
 
 
 pair2-authority-sync-success-heading = Du synkroniserer
+pair2-authority-sync-success-description = Faner, bokmerke, passord og meir, er klare på tvers av einingane dine.
 pair2-authority-sync-success-view-tabs-button = Vis synkroniserte faner
 pair2-authority-sync-success-sync-settings-button = Synkroniseringsinnstillingar
 
@@ -1328,20 +1342,25 @@ pair2-supplicant-connect-this-device-cancel-button = Avbryt
 
 
 pair2-supplicant-download-firefox-heading = Få { -brand-firefox } på denne eininga
+pair2-supplicant-download-firefox-description = Last ned { -brand-firefox } for å synkronisere bokmerke, historikk og meir, på tvers av eningar. <linkExternal>Lær meir</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Hald fram i { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Opnar { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = For å kople til ei eining
+pair2-supplicant-ready-to-scan-instruction = Opne { -brand-firefox } på datamaskina, gå til <b>firefox.com/pair</b> og følg instruksjonane på skjermen for å kople til denne mobileininga.
 pair2-supplicant-ready-to-scan-learn-more-link = Les meir
 
 
 pair2-supplicant-sync-success-heading = Eininga di er tilkopla
+pair2-supplicant-sync-success-description = Bokmerka dine, fanene, og meir, vil halde seg synkroniserte i { -brand-firefox }.
 pair2-supplicant-sync-success-view-tabs-button = Vis synkroniserte faner
 pair2-supplicant-sync-success-sync-settings-button = Synkroniseringsinnstillingar
 
 
+pair2-supplicant-timeout-and-cancel-timeout-description = For å kople til mobileininga di og synkronisere { -brand-firefox }-dataa dine, gå til <b>firefox.com/pair</b> på datamaskina di.
 pair2-supplicant-timeout-and-cancel-canceled-heading = Avbrote
+pair2-supplicant-timeout-and-cancel-canceled-description = For å kople til ei eining når som helst, gå til <b>firefox.com/pair</b> på datamaskina di.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } stadfesta

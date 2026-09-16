@@ -1,8 +1,8 @@
 {
-  "commit": "42b7eb906987be2392e829570a65da7b571e1e1a",
-  "summary": "chore(settings): TEMP passwordless Sync verification readouts",
-  "description": "Because:\n\n- Manual verification of FXA-13151 needs to see wrap state that the UI does not otherwise expose.\n\nThis commit:\n\n- Adds a wrap-stored badge to the Settings passkey row.\n- Adds info banners on the passkey password step and the opt-in page reporting the held material and stored-wrap state.\n- Every hunk is marked `TEMP(FXA-13151)`; revert this commit before merge.",
-  "timestamp": 1789522664000,
+  "commit": "9ef908fe0f35cf1c7e8b0527f0a95a14fb9962aa",
+  "summary": "feat(settings): wire up the password-free passkey opt-in",
+  "description": "Because:\n\n- A desktop browser sign-in that needs encryption keys (Sync, for example) still requires a password after a PRF passkey until a wrap is stored; this is the one place the user can store one.\n- The proof minted at sign-in lives ten minutes and the password step can outlast it.\n\nThis commit:\n\n- Requests the `passkey` scope on eligible sign-ins and holds the PRF output, proof and `kB` in SensitiveDataClient.\n- Routes sign-ins where the account has a password and the passkey has no wrap to /inline_password_free_setup in place of the browser's post-sign-in landing page.\n- Adds the opt-in container: stores the wrap, lands in Settings with a banner, and zeroes the held material on every exit.\n- Steps up with the passkey for a fresh proof when the sign-in one has expired, then submits the same envelope again.\n- Replaces a stored wrap that predates `keysChangedAt` on POST /passkey/wraps instead of refusing it.\n\nCloses #FXA-13151",
+  "timestamp": 1789585082000,
   "storybooks": [
     "fxa-settings"
   ],
