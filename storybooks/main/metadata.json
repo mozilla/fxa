@@ -1,8 +1,8 @@
 {
-  "commit": "cbc5e2875ff8d4a5fcde9e8c74adfff32cd718e3",
-  "summary": "Merge pull request #21231 from mozilla/FXA-14513-dep-triage-skill",
-  "description": "feat(skills): add fxa-dep-triage and wire it into fxa-triage",
-  "timestamp": 1789571593000,
+  "commit": "fb04651d19284fae5533c942ba478b8a25501625",
+  "summary": "Merge pull request #21209 from mozilla/fxa-14490",
+  "description": "test(passkey): fold metrics-counter tests into their behavior tests",
+  "timestamp": 1789574161000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
