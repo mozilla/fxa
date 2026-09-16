@@ -23,27 +23,28 @@ Each rule includes the intent, a violation example, and the correct pattern.
 
 ### 1. Name tests for what they assert
 
-Test names should make the assertion self-evident. Don't assert behavior outside the scope of the name. Don't bury multiple cases inside one `it()` body — each named test should describe exactly one observable behavior.
+Test names should make the assertion self-evident. Don't assert behavior outside the scope of the name. Each test covers one scenario: one setup, one code path. The side effects of that path — return value, a persisted write, a metric, a security event — belong in the same test, and the name covers all of them. What must not share a test is a second input, a second branch, or a second scenario.
+
+**Don't over-group.** When one `expect` fails, Jest skips the rest of the test body, so nothing after the failure is known to work until it is fixed. A test that needs a paragraph of assertions, or asserts things a reader would not expect from its name, has grouped too much — split it. A side effect with its own branching or its own failure mode (a metric emitted only for some inputs) gets its own test.
 
 ```ts
-// Violation — vague name, over-reaching assertions
-it('works', () => {
-  const result = createSession(user);
-  expect(result.uid).toBe(user.uid);
-  expect(result.createdAt).toBeDefined();
-  expect(db.createSession).toHaveBeenCalled();
-});
-
-// Correct — each test owns exactly one assertion surface
-it('returns a session with the user uid', () => {
-  const result = createSession(user);
-  expect(result.uid).toBe(user.uid);
-});
-
-it('persists the session to the database', () => {
-  createSession(user);
+// Correct — one scenario; the return value and the write are effects of the same call
+it('returns the new session and persists it for the user', async () => {
+  const result = await createSession(MOCK_USER);
+  expect(result.uid).toBe(MOCK_USER.uid);
   expect(db.createSession).toHaveBeenCalledWith(
-    expect.objectContaining({ uid: user.uid })
+    expect.objectContaining({ uid: MOCK_USER.uid })
+  );
+});
+
+// Violation — two scenarios in one `it`; the second never runs if the first fails
+it('handles session creation', async () => {
+  const result = await createSession(MOCK_USER);
+  expect(result.uid).toBe(MOCK_USER.uid);
+
+  db.getAccount.mockResolvedValue(null);
+  await expect(createSession(MOCK_UNKNOWN_USER)).rejects.toThrow(
+    AppError.unknownAccount()
   );
 });
 
