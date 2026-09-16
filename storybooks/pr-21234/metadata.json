@@ -1,8 +1,8 @@
 {
-  "commit": "6ebc9476fcf0ab2629eda6d206dc3d966aabc2b0",
+  "commit": "85ae55f661030defcd7564d942d5800eb6f1bb1b",
   "summary": "feat(passkey): Add the passkey verification ceremony",
   "description": "Because:\n\n* A signed-in user with a passkey had no way to authorize an MFA action\n  without signing in again; only an emailed OTP could mint a scoped token.\n* A token minted at sign-in expires during password entry, and the client\n  needs a fresh one without a second sign-in.\n* The uid-bound assertion challenge is the general step-up ceremony, not the\n  PRF key-wrapping one it was named for.\n\nThis commit:\n\n* Renames the 'upgrade' challenge type to 'verification', requires a scope on\n  it, and stores an optional pinned credentialId.\n* Adds POST /passkey/verification/{start,finish}, session-authenticated and\n  returning an mfaToken bound to the session and asserting credential.\n* Adds PasskeyService.generateVerificationChallenge and\n  verifyVerificationResponse, sharing assertion verification with sign-in.\n* Adds passkey.verification_{started,success} Glean events,\n  account.passkey.verification_{success,failure} events, and fxa patch 199-200.\n* Adds beginPasskeyVerification and completePasskeyVerification to\n  fxa-auth-client.",
-  "timestamp": 1789573578000,
+  "timestamp": 1789574869000,
   "storybooks": [
     "fxa-react",
     "fxa-settings"
