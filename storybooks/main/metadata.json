@@ -1,8 +1,8 @@
 {
-  "commit": "fedebddd29311e14dc0b0a3ec1bf92c0cce97f36",
-  "summary": "Merge pull request #21216 from mozilla/fxa-14084",
-  "description": "fix(content-server): serve real Fenix fingerprints in assetlinks.json",
-  "timestamp": 1789576350000,
+  "commit": "18ff4e59258aabfe07e796c7426cbd572d7023e6",
+  "summary": "Merge pull request #21195 from mozilla/dependabot/github_actions/docker/login-action-4.6.0",
+  "description": "chore(deps): bump docker/login-action from 4.4.0 to 4.6.0",
+  "timestamp": 1789578634000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
