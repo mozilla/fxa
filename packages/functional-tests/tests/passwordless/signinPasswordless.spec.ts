@@ -1003,7 +1003,11 @@ test.describe('severity-2', () => {
       target,
       pages: { page, signin, signinPasswordlessCode, settings },
       testAccountTracker,
-    }) => {
+    }, { project }) => {
+      test.skip(
+        project.name !== 'local',
+        'force_passwordless=true does not start the passwordless flow on stage or production.'
+      );
       const { email } = testAccountTracker.generatePasswordlessAccountDetails();
 
       await page.goto(`${target.contentServerUrl}/?force_passwordless=true`);
@@ -1140,7 +1144,11 @@ test.describe('severity-2', () => {
       page,
       pages: { settings, signinPasswordlessCode },
       testAccountTracker,
-    }) => {
+    }, { project }) => {
+      test.skip(
+        project.name !== 'local',
+        'The passwordlessEnabled config flag is off on stage and production.'
+      );
       const { email } = testAccountTracker.generatePasswordlessAccountDetails();
 
       // Navigate directly to /signup with email, without force_passwordless=false
