@@ -817,6 +817,8 @@ recent-activity-account-passwordless-registration-complete = Registrering av pas
 recent-activity-account-recovery-codes-set = Gjenopprettingskodar innstilte
 recent-activity-account-passkey-wrap-created = Passnøkkel aktivert for synkronisering
 recent-activity-account-passkey-wrap-creation-failure = Synkroniseringsoppsett med passnøkkel mislykkast
+recent-activity-account-passkey-wrap-deleted = Tilgang til synkronisering av passnøklar er fjerna
+recent-activity-account-passkey-wrap-deletion-failure = Fjerning av tilgang til synkronisering av passnøklar mislykkast
 recent-activity-unknown = Annan kontoaktivitet
 
 

@@ -1110,6 +1110,10 @@ recent-activity-account-recovery-codes-set = Gosod codau adfer
 recent-activity-account-passkey-wrap-created = Cyfrinallwedd wedi'i alluogi ar gyfer cydweddu
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
 recent-activity-account-passkey-wrap-creation-failure = Methodd gosodiad cydweddu gyda'r cyfrinallwedd
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey that could unlock the user's synced browser data had that access turned off, leaving the passkey itself usable for signing in.
+recent-activity-account-passkey-wrap-deleted = Mynediad cysoni passkey wedi'i dynnu
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to turn off a passkey's access to the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-deletion-failure = Methodd dileu mynediad cysoni passkey
 # A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
 recent-activity-account-passkey-wrap-invalidated = Mynediad cydweddu drwy cyfrinallwedd wedi'i dynnu ar ôl ailosod cyfrinair
 # Security event was recorded, but the activity details are unknown or not shown to user

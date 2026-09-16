@@ -895,6 +895,8 @@ recent-activity-account-passwordless-registration-complete = Η δημιουργ
 recent-activity-account-recovery-codes-set = Ορίστηκαν κωδικοί ανάκτησης
 recent-activity-account-passkey-wrap-created = Το κλειδί πρόσβασης ενεργοποιήθηκε για συγχρονισμό
 recent-activity-account-passkey-wrap-creation-failure = Η ρύθμιση του συγχρονισμού με κλειδί πρόσβασης απέτυχε
+recent-activity-account-passkey-wrap-deleted = Η πρόσβαση στον συγχρονισμό με κλειδί πρόσβασης καταργήθηκε
+recent-activity-account-passkey-wrap-deletion-failure = Η κατάργηση πρόσβασης στον συγχρονισμό με κλειδί πρόσβασης απέτυχε
 recent-activity-account-passkey-wrap-invalidated = Η πρόσβαση στον συγχρονισμό με κλειδί πρόσβασης καταργήθηκε μετά την επαναφορά του κωδικού πρόσβασης
 recent-activity-unknown = Άλλη δραστηριότητα λογαριασμού
 

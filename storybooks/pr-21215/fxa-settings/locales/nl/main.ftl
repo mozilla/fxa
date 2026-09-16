@@ -339,6 +339,15 @@ password-strength-inline-passwords-match = Wachtwoorden komen overeen
 
 
 promo-qr-mobile-heading = Uw telefoon. Uw regels.
+promo-qr-mobile-heading-treatment-a = Ga verder waar u was gebleven, waar u ook heen gaat
+promo-qr-mobile-heading-treatment-b = Uw tabbladen en meer, klaar op uw telefoon
+promo-qr-mobile-heading-treatment-c = De browser die u vertrouwt, op uw telefoon
+promo-qr-mobile-heading-treatment-d = Dezelfde { -brand-firefox }. Ander scherm.
+promo-qr-mobile-heading-treatment-e = Uw privacy moet hier niet stoppen
+promo-qr-mobile-heading-treatment-f = Houd meer van uw navigatie voor uzelf
+promo-qr-mobile-heading-treatment-g = Uw telefoon kan wat minder ruis gebruiken
+promo-qr-mobile-heading-treatment-h = Neem rustiger navigeren met u mee
+promo-qr-mobile-description-v2 = Scan om de mobiele app te downloaden
 promo-qr-mobile-qr-alt =
     .alt = QR-code om de mobiele { -brand-firefox }-app te downloaden. Richt de camera van uw telefoon op de rechterbenedenhoek van uw scherm om de code te scannen.
 

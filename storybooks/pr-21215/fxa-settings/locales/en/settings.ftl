@@ -85,20 +85,6 @@ choose-newsletters-option-test-pilot =
 choose-newsletters-option-reclaim-the-internet =
   .label = Action alerts to reclaim the internet
 
-## ContinueInFirefox component - Part of the desktop-to-mobile pairing flow
-## Shown when the pairing QR code is opened in a browser other than Firefox.
-## It hands the pairing link to the Firefox app, and offers the app store when
-## Firefox is not installed on the device.
-
-pair-continue-in-firefox-heading = Continue in { -brand-firefox }
-pair-continue-in-firefox-description = Pairing happens in { -brand-firefox }. Open it to finish connecting this device.
-# Opens the Firefox app on this device
-pair-continue-in-firefox-button = Continue in { -brand-firefox }
-# Shown while waiting for the Firefox app to take over
-pair-continue-in-firefox-opening = Opening { -brand-firefox }
-# Sends the user to the App Store or Play Store to install Firefox
-pair-continue-in-firefox-get-firefox-link = Don’t have { -brand-firefox }? Get it now
-
 ## Dark mode toggle
 
 dark-mode-toggle-light = Light
@@ -1258,6 +1244,10 @@ recent-activity-account-recovery-codes-set = Recovery codes set
 recent-activity-account-passkey-wrap-created = Passkey enabled for syncing
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
 recent-activity-account-passkey-wrap-creation-failure = Sync setup with passkey failed
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey that could unlock the user's synced browser data had that access turned off, leaving the passkey itself usable for signing in.
+recent-activity-account-passkey-wrap-deleted = Passkey sync access removed
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to turn off a passkey's access to the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-deletion-failure = Passkey sync access removal failed
 # A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
 recent-activity-account-passkey-wrap-invalidated = Passkey sync access removed after password reset
 
@@ -1834,6 +1824,19 @@ index-account-delete-success = Account deleted successfully
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = Your confirmation email was just returned. Mistyped email?
 
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+# Browser tab title.
+inline-passwordless-sync-setup-page-title = Skip the password next time?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner = Signed in to { -brand-firefox }
+inline-passwordless-sync-setup-heading = Skip the password next time?
+inline-passwordless-sync-setup-description = Use this passkey to sign in faster.
+inline-passwordless-sync-setup-enable-button = Enable passkey
+# Button label while the passkey is stored.
+inline-passwordless-sync-setup-enabling = Enabling…
+inline-passwordless-sync-setup-not-now-button = Not now
+
 ## InlineRecoveryKeySetup page component
 
 inline-recovery-key-setup-create-error = Oops! We couldn’t create your account recovery key. Please try again later.
@@ -2138,7 +2141,7 @@ pair2-authority-sync-success-sync-settings-button = Sync settings
 pair2-authority-timeout-and-cancel-timeout-heading = Still want to connect a device?
 pair2-authority-timeout-and-cancel-timeout-description = Looks like we timed out. Try again if you still want to connect your mobile device and sync your { -brand-firefox } data.
 # Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-canceled-heading = Canceled
+pair2-authority-timeout-and-cancel-cancelled-heading = Cancelled
 pair2-authority-timeout-and-cancel-canceled-description = If you change your mind or want to connect a different device, try again.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Try again
@@ -2175,14 +2178,18 @@ pair2-supplicant-connect-this-device-cancel-button = Cancel
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing reaches a device that
 ## does not have Firefox installed yet. It explains what syncing gets them and
-## sends them off to install the browser.
+## either opens the Firefox app to finish pairing or sends them off to install
+## the browser.
 
 pair2-supplicant-download-firefox-heading = Get { -brand-firefox } on this device
 # "sync" is a verb here, referring to syncing data between the user's devices.
 # <linkExternal> is an anchor tag linking to a page explaining what sync does.
 pair2-supplicant-download-firefox-description = Download { -brand-firefox } to sync bookmarks, history, and more across devices. <linkExternal>Learn more</linkExternal>
-# Primary action. Sends the user to the Firefox download page.
+# Primary action. Opens the Firefox app to finish pairing, or sends the user to
+# the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Continue in { -brand-firefox }
+# Replaces the button label while waiting for the Firefox app to take over
+pair2-supplicant-download-firefox-opening-button = Opening { -brand-firefox }…
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -2218,7 +2225,7 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Looks like we timed out
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = To connect your mobile device and sync your { -brand-firefox } data, visit <b>firefox.com/pair</b> on your computer.
 # Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-canceled-heading = Canceled
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelled
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = To connect a device anytime, visit <b>firefox.com/pair</b> on your computer.
 
