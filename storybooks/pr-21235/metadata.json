@@ -1,0 +1,10 @@
+{
+  "commit": "2b1c09ca240296ea29a2a4fde71b4d4d0e20e826",
+  "summary": "test(auth): add regex to force unverified sessions, fix stray code emails",
+  "description": "Because:\n\n* The heuristic (non-Sync non-2FA) unverified session is only reachable\n  past skipForNewAccounts.maxAge, so no automated test could produce it\n* SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX has set mustVerify since Feb\n  2026, which blocks OAuth grants, so it no longer simulates that state\n* On RP pass-through the front end emailed a code no one was asked for\n\nThis commit:\n\n* Adds forcedHeuristicEmailAddresses, defaulting to the unverifiedsession\n  test-account prefix so no per-environment value is needed\n* Renames forcedEmailAddresses to forcedSyncEmailAddresses, env var\n  unchanged, and documents the evaluation order\n* Gates the front-end code resend on actually showing a verification page\n* Adds a functional spec for the heuristic unverified session; the\n  Payments Next case is local-only, the rest run on every target\n* Drops a dead skipForEmailAddresses mock\n\nPartially closes FXA-13740\nCloses FXA-12972\nCloses FXA-14301",
+  "timestamp": 1789574333000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

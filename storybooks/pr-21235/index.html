@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 2b1c09ca240296ea29a2a4fde71b4d4d0e20e826</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 2b1c09ca240296ea29a2a4fde71b4d4d0e20e826</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/16/2026, 3:58:53 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>test(auth): add regex to force unverified sessions, fix stray code emails</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+* The heuristic (non-Sync non-2FA) unverified session is only reachable
+  past skipForNewAccounts.maxAge, so no automated test could produce it
+* SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX has set mustVerify since Feb
+  2026, which blocks OAuth grants, so it no longer simulates that state
+* On RP pass-through the front end emailed a code no one was asked for
+
+This commit:
+
+* Adds forcedHeuristicEmailAddresses, defaulting to the unverifiedsession
+  test-account prefix so no per-environment value is needed
+* Renames forcedEmailAddresses to forcedSyncEmailAddresses, env var
+  unchanged, and documents the evaluation order
+* Gates the front-end code resend on actually showing a verification page
+* Adds a functional spec for the heuristic unverified session; the
+  Payments Next case is local-only, the rest run on every target
+* Drops a dead skipForEmailAddresses mock
+
+Partially closes FXA-13740
+Closes FXA-12972
+Closes FXA-14301</pre></dd>
+  </dl>
+</body>
+</html>
