@@ -3,7 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { PAIRING_FXA_STATUS_TIMEOUT_MS, useFxAStatus } from '.';
+import {
+  PAIRING_FXA_STATUS_TIMEOUT_MS,
+  isPairingEntryPathname,
+  useFxAStatus,
+} from '.';
 import { Constants } from '../../constants';
 import firefox from '../../channels/firefox';
 import { IntegrationType, isProbablyFirefox } from '../../../models';
@@ -348,6 +352,68 @@ describe('useFxAStatus', () => {
       expect(result.current.fxaStatus?.capabilities.pairing).toBe(false);
       expect(result.current.fxaStatus?.capabilities.pairingVersion).toBe(1);
     });
+  });
+
+  // A plain /pair with no context builds a Web integration, but the page still
+  // has to negotiate the pairing version with the browser.
+  describe('Web integration on a pairing entry page', () => {
+    const integration = {
+      type: IntegrationType.Web,
+      isSync: () => false,
+      isFirefoxNonSync: () => false,
+      isPairing: () => false,
+    };
+
+    it('asks the browser as a pairing flow', async () => {
+      (firefox.fxaStatus as jest.Mock).mockResolvedValue({
+        capabilities: { engines: [], pairing: true, pairingVersion: 2 },
+      });
+
+      const { result } = renderHook(() =>
+        useFxAStatus(integration, { pathname: '/pair' })
+      );
+      expect(result.current.fxaStatusState).toBe('pending');
+      expect(result.current.fxaStatus).toBeUndefined();
+
+      await waitFor(() => {
+        expect(result.current.fxaStatusState).toBe('answered');
+      });
+      expect(firefox.fxaStatus).toHaveBeenCalledWith(
+        expect.objectContaining({ isPairing: true })
+      );
+      expect(result.current.fxaStatus?.capabilities.pairingVersion).toBe(2);
+    });
+
+    it('gives up on a browser that never answers', () => {
+      jest.useFakeTimers();
+      (firefox.fxaStatus as jest.Mock).mockReturnValue(new Promise(() => {}));
+
+      const { result } = renderHook(() =>
+        useFxAStatus(integration, { pathname: '/connect_another_device' })
+      );
+      act(() => {
+        jest.advanceTimersByTime(PAIRING_FXA_STATUS_TIMEOUT_MS);
+      });
+
+      expect(result.current.fxaStatusState).toBe('unanswered');
+      jest.useRealTimers();
+    });
+  });
+
+  describe('isPairingEntryPathname', () => {
+    it.each(['/pair', '/pair/', '/connect_another_device'])(
+      'matches %s',
+      (pathname) => {
+        expect(isPairingEntryPathname(pathname)).toBe(true);
+      }
+    );
+
+    it.each(['/pair/supp', '/pair/authority/scan_qr', '/settings', undefined])(
+      'does not match %s',
+      (pathname) => {
+        expect(isPairingEntryPathname(pathname)).toBe(false);
+      }
+    );
   });
 
   describe('Non-Firefox browser', () => {

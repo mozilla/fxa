@@ -594,7 +594,9 @@ const AuthAndAccountSetupRoutes = ({
     gleanEnabled && GleanMetrics.pageLoad(location.pathname);
   }, [location.pathname, gleanEnabled]);
 
-  const useFxAStatusResult = useFxAStatus(integration);
+  const useFxAStatusResult = useFxAStatus(integration, {
+    pathname: location.pathname,
+  });
   const defaultCmsState = useDefaultCmsState({
     enabled: isWebIntegration(integration) || integration.isDesktopSync(),
   });
