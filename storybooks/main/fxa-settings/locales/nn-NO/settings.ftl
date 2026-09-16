@@ -420,6 +420,22 @@ password-strength-inline-passwords-match = Passorda samsvarar
 
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Din telefon. Dine reglar.
+# Value proposition variant. "tabs" are the open pages in a browser.
+promo-qr-mobile-heading-treatment-b = Fanene dine og meir, klare på telefonen
+# Value proposition variant. Refers to using the same trusted browser on a phone.
+promo-qr-mobile-heading-treatment-c = Nettlesaren du stolar på, på telefonen din
+# Value proposition variant. "Different screen" refers to the phone rather than the desktop.
+promo-qr-mobile-heading-treatment-d = Same { -brand-firefox }. Ulik skjerm.
+# Value proposition variant. "stop here" means privacy protection should continue onto the phone.
+promo-qr-mobile-heading-treatment-e = Personvernet ditt bør ikkje stoppe her
+# Value proposition variant. Refers to keeping browsing activity private.
+promo-qr-mobile-heading-treatment-f = Surf meir privat
+# Value proposition variant. "noise" refers to distractions and clutter.
+promo-qr-mobile-heading-treatment-g = Telefonen din kunne ha trunge litt mindre støy
+# Value proposition variant. Refers to a calmer browsing experience on the phone.
+promo-qr-mobile-heading-treatment-h = Surf på ein rolegare måte
+# Appears below a QR code that a user can scan to download the Firefox mobile app
+promo-qr-mobile-description-v2 = Skann for å laste ned mobilappen
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
 promo-qr-mobile-qr-alt =
     .alt = QR-kode for å laste ned { -brand-firefox }-mobilappen. Hald kameraet på telefonen over nedre høgre hjørne av skjermen for å skanne han.
@@ -500,8 +516,10 @@ password-reset-warning-have-key = Har du ein kontogjenopprettingsnøkkel?
 # "it" refers to the user's account recovery key.
 password-reset-warning-use-key-link-v2 = Bruk det for å tilbakestille passordet ditt og behalde nettlesardataa dine
 password-reset-warning-signed-in-device = Framleis logga inn på ei anna eining?
+password-reset-warning-signed-in-device-description = Nettlesardataa dine kan vere tilgjengelege. Tilbakestill passordet ditt, og logg deretter på den eininga for å gjenopprette og synkronisere dataa dine.
 password-reset-warning-restore-data-link = Les om korleis du gjenopprettar nettlesardata frå ei pålogga eining
 password-reset-warning-new-device = Brukar du ei ny eining, men får ikkje tilgang til dei gamle?
+password-reset-warning-new-device-description = Etter at du har tilbakestilt passordet ditt, vil ikkje krypterte nettlesardata på { -brand-firefox }-serverar vere tilgjengelege på denne eininga.
 
 ## Alert Bar
 
@@ -742,6 +760,11 @@ flow-setup-2fa-prompt-heading = Set opp tostegs-autentisering
 flow-setup-2fa-prompt-description = { $serviceName } krev at du konfigurerer tostegs-autentisering for å halde kontoen din trygg.
 # Success banner shown at the top of the page when the user signed in with a passkey.
 flow-setup-2fa-prompt-passkey-success-banner = Vellykka pålogging med passnøkkel
+# Body copy shown when the user signed in with a passkey and the service still
+# requires two-step authentication setup.
+# Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
+# that requests two-step authentication setup.
+flow-setup-2fa-prompt-passkey-description = { $serviceName } krev også tostegs-autentisering for { -product-mozilla-account }. Etter oppsettet treng du ikkje lenger den når du loggar på med ein passnøkkel.
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = Du kan bruke kven som helst av <authenticationAppsLink>desse autentiseringsappane</authenticationAppsLink> for å halde fram.
 flow-setup-2fa-prompt-continue-button = Hald fram
@@ -1846,6 +1869,8 @@ pair2-authority-continue-on-mobile-cancel-button = Avbryt
 
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = Opne { -brand-firefox } for å synkronisere
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction = For å setje opp synkronisering på tvers av einingar, opne { -brand-firefox } på denne eininga og gå til <b>firefox.com/pair</b>
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Last ned { -brand-firefox }
 
@@ -1854,6 +1879,8 @@ pair2-authority-download-firefox-cta = Last ned { -brand-firefox }
 ## their phone or tablet to connect the two devices and start syncing.
 
 pair2-authority-scan-qr-heading = Skann for å kople til mobileininga di
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-scan-qr-instruction = Skann QR-koden med telefonen eller nettbrettet for å synkronisere bokmerka, fanene og meir i { -brand-firefox }.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR-kode for å kople til mobileininga di
 # Link to a support article for users having trouble scanning the QR code
@@ -1865,6 +1892,7 @@ pair2-authority-scan-qr-help-link = Få hjelp med skanning
 
 # "syncing" here means copying data between the user's devices
 pair2-authority-sync-success-heading = Du synkroniserer
+pair2-authority-sync-success-description = Faner, bokmerke, passord og meir, er klare på tvers av einingane dine.
 # Opens the tabs that are open on the user's other synced devices
 pair2-authority-sync-success-view-tabs-button = Vis synkroniserte faner
 # Opens the browser settings that control what is synced
@@ -1919,6 +1947,9 @@ pair2-supplicant-connect-this-device-cancel-button = Avbryt
 ## the browser.
 
 pair2-supplicant-download-firefox-heading = Få { -brand-firefox } på denne eininga
+# "sync" is a verb here, referring to syncing data between the user's devices.
+# <linkExternal> is an anchor tag linking to a page explaining what sync does.
+pair2-supplicant-download-firefox-description = Last ned { -brand-firefox } for å synkronisere bokmerke, historikk og meir, på tvers av eningar. <linkExternal>Lær meir</linkExternal>
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Hald fram i { -brand-firefox }
@@ -1931,6 +1962,9 @@ pair2-supplicant-download-firefox-opening-button = Opnar { -brand-firefox }…
 ## scan with the mobile device comes from.
 
 pair2-supplicant-ready-to-scan-heading = For å kople til ei eining
+# <b> emphasises the address the user types on their computer. It is not a link,
+# and the address itself must not be translated.
+pair2-supplicant-ready-to-scan-instruction = Opne { -brand-firefox } på datamaskina, gå til <b>firefox.com/pair</b> og følg instruksjonane på skjermen for å kople til denne mobileininga.
 # Opens a Mozilla support article about setting up sync
 pair2-supplicant-ready-to-scan-learn-more-link = Les meir
 
@@ -1939,6 +1973,7 @@ pair2-supplicant-ready-to-scan-learn-more-link = Les meir
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Eininga di er tilkopla
+pair2-supplicant-sync-success-description = Bokmerka dine, fanene, og meir, vil halde seg synkroniserte i { -brand-firefox }.
 # Opens the view listing tabs open on the user's other synced devices
 pair2-supplicant-sync-success-view-tabs-button = Vis synkroniserte faner
 # Opens the browser's sync settings, where the user chooses what to sync
@@ -1950,8 +1985,12 @@ pair2-supplicant-sync-success-sync-settings-button = Synkroniseringsinnstillinga
 ## are informational and offer no on-screen action, so the copy points the user
 ## back to their computer to start again.
 
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-timeout-description = For å kople til mobileininga di og synkronisere { -brand-firefox }-dataa dine, gå til <b>firefox.com/pair</b> på datamaskina di.
 # Shown after the pairing attempt was canceled
 pair2-supplicant-timeout-and-cancel-canceled-heading = Avbrote
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-canceled-description = For å kople til ei eining når som helst, gå til <b>firefox.com/pair</b> på datamaskina di.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
