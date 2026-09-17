@@ -1,8 +1,8 @@
 {
-  "commit": "e786e63664115df66f5ee48245e26ca922786c46",
-  "summary": "Merge pull request #21240 from mozilla/third-party-auth-mock-idp",
-  "description": "test(functional-tests): exercise Google and Apple sign-in against a local mock IdP",
-  "timestamp": 1789676237000,
+  "commit": "9f4f97034f369a5a9dca1710c843542a52ea7070",
+  "summary": "Merge pull request #21060 from mozilla/fxa-11871",
+  "description": "perf(settings): embed the l10n asset map in index.html",
+  "timestamp": 1789676633000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
