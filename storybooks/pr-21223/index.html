@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 6aaa46446cd3e06a0a73bcc223f10e75ad634f5a</title>
+  <title>Storybooks for commit 00f68419cc299ffe68c0bf543594033af96e434f</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 6aaa46446cd3e06a0a73bcc223f10e75ad634f5a</h1>
+  <h1>Storybooks for commit 00f68419cc299ffe68c0bf543594033af96e434f</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/16/2026, 10:22:32 PM UTC</dd>
+    <dd>9/17/2026, 4:34:21 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(settings): wire up the password-free passkey opt-in</pre></dd>
     <dt>Description</dt>
@@ -41,7 +41,7 @@
 This commit:
 
 - Requests the `passkey` scope on eligible sign-ins and holds the PRF output, proof and `kB` in SensitiveDataClient.
-- Routes sign-ins where the account has a password and the passkey has no wrap to /inline_password_free_setup in place of the browser&#039;s post-sign-in landing page.
+- Routes sign-ins where the account has a password and the passkey has no wrap to /inline_passwordless_sync_setup in place of the browser&#039;s post-sign-in landing page.
 - Adds the opt-in container: stores the wrap, lands in Settings with a banner, and zeroes the held material on every exit.
 - Steps up with the passkey for a fresh proof when the sign-in one has expired, then submits the same envelope again.
 - Replaces a stored wrap that predates `keysChangedAt` on POST /passkey/wraps instead of refusing it.

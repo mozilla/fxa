@@ -1824,24 +1824,24 @@ index-account-delete-success = Account deleted successfully
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = Your confirmation email was just returned. Mistyped email?
 
-## Page offering to store a passkey so that later browser sign-ins that need encryption keys (Sync, for example) skip the password.
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
 
 # Browser tab title.
-inline-password-free-setup-page-title = Skip the password next time?
+inline-passwordless-sync-setup-page-title = Skip the password next time?
 # Success banner after signing in.
-inline-password-free-setup-success-banner = Signed in to { -brand-firefox }
-inline-password-free-setup-heading = Skip the password next time?
-inline-password-free-setup-description = Use this passkey to sign in faster.
-inline-password-free-setup-enable-button = Enable passkey
+inline-passwordless-sync-setup-success-banner = Signed in to { -brand-firefox }
+inline-passwordless-sync-setup-heading = Skip the password next time?
+inline-passwordless-sync-setup-description = Use this passkey to sign in faster.
+inline-passwordless-sync-setup-enable-button = Enable passkey
 # Button label while the passkey is stored.
-inline-password-free-setup-enabling = Enabling…
-inline-password-free-setup-not-now-button = Not now
+inline-passwordless-sync-setup-enabling = Enabling…
+inline-passwordless-sync-setup-not-now-button = Not now
 # Success message shown in the Settings alert bar after the passkey was stored.
-inline-password-free-setup-success-alert = This passkey is set up for password-free sign-in.
+inline-passwordless-sync-setup-success-alert = This passkey is set up for password-free sign-in.
 # Error banner shown when the passkey itself cannot be used to skip the password (no PRF output, or the wrap it produced could not be read back).
-inline-password-free-setup-error-passkey-unusable = This passkey can’t be used to skip the password.
+inline-passwordless-sync-setup-error-passkey-unusable = This passkey can’t be used to skip the password.
 # Error banner shown when storing the passkey failed for any other reason. The user is already signed in; only the opt-in failed.
-inline-password-free-setup-error-generic = Couldn’t set up this passkey for password-free sign-in. You can try again the next time you sign in.
+inline-passwordless-sync-setup-error-generic = Couldn’t set up this passkey for password-free sign-in. You can try again the next time you sign in.
 
 ## InlineRecoveryKeySetup page component
 
