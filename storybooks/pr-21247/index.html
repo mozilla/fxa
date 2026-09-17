@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit a1a0823775395d0ec3beed1d929a24f4a18f84ae</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit a1a0823775395d0ec3beed1d929a24f4a18f84ae</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/17/2026, 7:35:17 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(content-server,settings): serve React for oauth/success route</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- A hard load of `/oauth/success/:clientId` served the Backbone page. The React route group that owned the path had an empty `routes` list, and its flag is off in production.
+- React already mounts `PairSuccess` at `/oauth/success/:clientId/*`. On a hard load the factory built an `OAuthWebIntegration` with no `scope`, so `getPermissions()` threw errno 109 and the app rendered `OAuthDataError`.
+
+## This pull request
+
+- Adds the `oauthSuccessRoutes` React route group in `server/lib/routes/react-app/index.js`. It takes its routes from `OAUTH_SUCCESS_ROUTES`, with `featureFlagOn` and `fullProdRollout` set to true.
+- Reads the new group in `get-oauth-success.js`, so the server stops registering the Backbone route definition.
+- Removes the `oauth/success/:client_id(/)` entry from `app/scripts/lib/router.js`. The `views/ready.js` import stays, because six other entries use it.
+- Sets `integration.isOAuthSuccessFlow` in `integration-factory.ts`, and returns an empty permission list for that flow in `oauth-web-integration.ts`.
+- Matches the client id segment in `isOAuthSuccessFlow()`, so a trailing slash still resolves. Backbone accepted the trailing slash.
+- Adds unit tests for the flag, the empty scope, and the trailing slash.
+
+## Issue that this pull request solves
+
+Closes: FXA-6642</pre></dd>
+  </dl>
+</body>
+</html>
