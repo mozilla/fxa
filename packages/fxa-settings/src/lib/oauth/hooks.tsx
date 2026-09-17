@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import AuthClient from 'fxa-auth-client/browser';
-import { hexToUint8 } from 'fxa-auth-client/lib/utils';
 import { useCallback } from 'react';
 import {
   OAuthIntegration,
@@ -15,6 +14,7 @@ import {
   useSensitiveDataClient,
 } from '../../models';
 import { createEncryptedBundle } from '../crypto/scoped-keys';
+import { captureKbForPendingWrap } from '../passkeys/wrap/pending';
 import { Constants } from '../constants';
 import { AuthError, OAUTH_ERRORS, OAuthError } from './oauth-errors';
 import { AuthUiErrors } from '../auth-errors/auth-errors';
@@ -247,13 +247,8 @@ export function useFinishOAuthFlowHandler(
               unwrapBKey!
             ));
             // The only point in a keys-bearing sign-in where `kB` exists
-            // client-side, so the password-free passkey opt-in collects it here
-            // when a passkey ceremony for this same account has asked for it.
-            const pendingWrap = sensitiveDataClient.PasskeyWrapData;
-            if (pendingWrap?.uid === accountUid) {
-              pendingWrap.kB?.fill(0);
-              pendingWrap.kB = hexToUint8(kB);
-            }
+            // client-side.
+            captureKbForPendingWrap(sensitiveDataClient, accountUid, kB);
           }
           keys = await constructKeysJwe(
             authClient,

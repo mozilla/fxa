@@ -166,13 +166,15 @@ describe('createPasskeyWrap', () => {
       });
     });
 
-    it('hands an error without server fields back untouched', async () => {
-      const err = new Error('network down');
-      createPasskeyWrapApiMock.mockRejectedValue(err);
+    it('words a throw without an errno as the unexpected error', async () => {
+      createPasskeyWrapApiMock.mockRejectedValue(new TypeError('network down'));
 
       const outcome = await createPasskeyWrap(authClient(), args());
 
-      expect(outcome).toEqual({ ok: false, error: err });
+      expect(outcome).toEqual({
+        ok: false,
+        error: expect.objectContaining({ errno: ERRNO.UNEXPECTED_ERROR }),
+      });
     });
   });
 

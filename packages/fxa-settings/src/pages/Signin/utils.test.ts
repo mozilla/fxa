@@ -1087,6 +1087,31 @@ describe('Signin utils', () => {
         expect(sensitiveDataClient.PasskeyWrapData).toBeUndefined();
       });
 
+      it.each([
+        ['another account', { uid: 'f'.repeat(32) }],
+        ['an unverified session', { sessionVerified: false }],
+      ])(
+        'clears the stashed wrap material for %s',
+        async (_label, signinOverrides) => {
+          const integration = createMockSigninOAuthNativeSyncIntegration();
+          const { sensitiveDataClient } = stashPendingWrap();
+          const base = createSendTabNavigationOptions({
+            integration,
+            queryParams: '?service=sync',
+            handleFxaLogin: true,
+            sensitiveDataClient,
+          });
+          const navigationOptions = {
+            ...base,
+            signinData: { ...base.signinData, ...signinOverrides },
+          };
+
+          await handleNavigation(navigationOptions);
+
+          expect(sensitiveDataClient.PasskeyWrapData).toBeUndefined();
+        }
+      );
+
       it('keeps the stashed wrap material when the opt-in page will be shown', async () => {
         const integration = createMockSigninOAuthNativeSyncIntegration();
         const { sensitiveDataClient } = stashPendingWrap();

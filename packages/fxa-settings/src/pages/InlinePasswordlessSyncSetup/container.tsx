@@ -110,11 +110,18 @@ const InlinePasswordlessSyncSetupContainer = () => {
     }
   }, [isMissingWrapData, continueToSettings]);
 
+  // Synchronous re-entry guard: `createPasskeyWrap` zeroes the buffers in
+  // place, so a second click before `isEnabling` renders would seal zeros.
+  const inFlight = useRef(false);
   const onEnable = useCallback(async () => {
+    if (inFlight.current) {
+      return;
+    }
     if (!pendingWrap?.kB) {
       continueToSettings();
       return;
     }
+    inFlight.current = true;
     setIsEnabling(true);
     let result: CreatePasskeyWrapResult;
     try {
