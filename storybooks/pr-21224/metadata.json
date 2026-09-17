@@ -1,8 +1,8 @@
 {
-  "commit": "f98a640a2827ee7beea4ff6f4b3f3d305c34cbcb",
+  "commit": "1a6e7e7f8ebeb2eec187d2fc96ff25d6dedcc7f8",
   "summary": "feat(settings): sign in to Sync with a PRF passkey and no password",
   "description": "Because:\n- A passkey with a stored wrap can recover kB in the browser.\n\nThis commit:\n- Fetches and opens the wrap after a PRF passkey sign-in and passes kB into the OAuth flow.\n- Sends every wrap-less or failing case to the password page with the reason in router state.\n- Stashes opt-in material only when no wrap is stored.\n- Skips the wrap path for Sync desktop v3 and when the flag is off.\n\nCloses #FXA-13152",
-  "timestamp": 1789500417000,
+  "timestamp": 1789670470000,
   "storybooks": [
     "fxa-settings"
   ],

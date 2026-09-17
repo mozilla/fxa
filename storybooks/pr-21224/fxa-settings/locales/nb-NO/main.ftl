@@ -343,6 +343,14 @@ password-strength-inline-passwords-match = Passordene samsvarer
 
 
 promo-qr-mobile-heading = Din telefon. Dine regler.
+promo-qr-mobile-heading-treatment-b = Fanene dine og mer, klart på telefonen
+promo-qr-mobile-heading-treatment-c = Nettleseren du stoler på, på telefonen din
+promo-qr-mobile-heading-treatment-d = Samme { -brand-firefox }. Ulik skjerm.
+promo-qr-mobile-heading-treatment-e = Ditt personvern bør ikke stoppe her
+promo-qr-mobile-heading-treatment-f = Hold mer av surfingen din for deg selv
+promo-qr-mobile-heading-treatment-g = Telefonen din kunne trengt litt mindre støy
+promo-qr-mobile-heading-treatment-h = Ta en roligere måte å surfe på med deg
+promo-qr-mobile-description-v2 = Skann for å laste ned mobilappen
 promo-qr-mobile-qr-alt =
     .alt = QR-kode for å laste ned { -brand-firefox }-mobilappen. Hold kameraet på telefonen over nedre høyre hjørne av skjermen for å skanne den.
 
@@ -392,8 +400,10 @@ password-reset-warning-review-sign-in-options = Se gjennom påloggingsalternativ
 password-reset-warning-have-key = Har du en kontogjenopprettingsnøkkel?
 password-reset-warning-use-key-link-v2 = Bruk den for å tilbakestille passordet ditt og beholde dine nettleserdata
 password-reset-warning-signed-in-device = Fortsatt logget inn på en annen enhet?
+password-reset-warning-signed-in-device-description = Nettleserdataene dine kan være tilgjengelige. Tilbakestill passordet ditt, og logg deretter på den enheten for å gjenopprette og synkronisere dataene dine.
 password-reset-warning-restore-data-link = Les om hvordan du gjenoppretter nettleserdata fra en pålogget enhet
 password-reset-warning-new-device = Bruker du en ny enhet, men får ikke tilgang til de gamle?
+password-reset-warning-new-device-description = Etter at du har tilbakestilt passordet ditt, vil ikke krypterte nettleserdata på { -brand-firefox }-servere være tilgjengelige på denne enheten.
 
 
 alert-bar-close-message = Lukk melding
@@ -553,6 +563,7 @@ flow-setup-2fa-inline-complete-continue-button = Fortsett til { $serviceName }
 flow-setup-2fa-prompt-heading = Konfigurer totrinns-autentisering
 flow-setup-2fa-prompt-description = { $serviceName } krever at du konfigurerer totrinns-autentisering for å holde kontoen din trygg.
 flow-setup-2fa-prompt-passkey-success-banner = Vellykket pålogging med passnøkkel
+flow-setup-2fa-prompt-passkey-description = { $serviceName } krever også totrinnsautentisering for { -product-mozilla-account }. Etter oppsettet trenger du ikke lenger den når du logger på med en passnøkkel.
 flow-setup-2fa-prompt-use-authenticator-apps = Du kan bruke hvilken som helst av <authenticationAppsLink>disse autentiseringsappene</authenticationAppsLink> for å fortsette.
 flow-setup-2fa-prompt-continue-button = Fortsett
 
@@ -815,6 +826,7 @@ recent-activity-account-passwordless-registration-complete = Registrering av pas
 recent-activity-account-recovery-codes-set = Gjenopprettingskoder satt opp
 recent-activity-account-passkey-wrap-created = Passnøkkel aktivert for synkronisering
 recent-activity-account-passkey-wrap-creation-failure = Synkroniseringsoppsett med passnøkkel mislyktes
+recent-activity-account-passkey-wrap-deleted = Tilgang til synkronisering av passnøkler er fjernet
 recent-activity-unknown = Annen kontoaktivitet
 
 
@@ -1315,6 +1327,7 @@ pair2-supplicant-connect-this-device-cancel-button = Avbryt
 
 pair2-supplicant-download-firefox-heading = Få { -brand-firefox } på denne enheten
 pair2-supplicant-download-firefox-continue-button = Fortsett i { -brand-firefox }
+pair2-supplicant-download-firefox-opening-button = Åpner { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = For å koble til en enhet
@@ -1327,6 +1340,7 @@ pair2-supplicant-sync-success-sync-settings-button = Synkroniseringsinnstillinge
 
 
 pair2-supplicant-timeout-and-cancel-canceled-heading = Avbrutt
+pair2-supplicant-timeout-and-cancel-canceled-description = For å koble til en enhet når som helst, gå til <b>firefox.com/pair</b> på datamaskinen din.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } bekreftet
