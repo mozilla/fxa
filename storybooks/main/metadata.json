@@ -1,8 +1,8 @@
 {
-  "commit": "eac7e190364870612e8f4767df0e8865aea34ecb",
-  "summary": "Merge pull request #20724 from sreecharan-desu/fix/fxa-11485-cjk-button-line-breaking",
-  "description": "fix(fxa-settings): prevent CJK button labels breaking one character per line",
-  "timestamp": 1789679488000,
+  "commit": "575e99fb531901753a2db3db870b35339fcb92f5",
+  "summary": "Merge pull request #20801 from sreecharan-desu/feat/configurable-session-expiry",
+  "description": "feat(shared): make session token expiry configurable from auth-server config",
+  "timestamp": 1789679922000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
