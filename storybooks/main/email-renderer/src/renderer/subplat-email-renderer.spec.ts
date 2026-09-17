@@ -227,6 +227,30 @@ describe('SubPlat Email Renderer — Lifecycle emails', () => {
     expect(email.html).toContain('11/13/2024');
   });
 
+  it('renderSubscriptionReactivation uses free trial copy when isFreeTrialReactivation is true', async () => {
+    const email = await renderer.renderSubscriptionReactivation(
+      {
+        productName: 'Mozilla VPN',
+        icon: 'https://cdn.accounts.firefox.com/product-icons/mozilla-vpn-email.png',
+        invoiceTotal: '$9.99',
+        nextInvoiceDateOnly: '11/13/2024',
+        subscriptionSupportUrl: mockLinkSupport,
+        isFreeTrialReactivation: true,
+      },
+      defaultSubscriptionLayoutValues
+    );
+
+    expect(email.subject).toBe(
+      'Your Mozilla VPN free trial has been reactivated'
+    );
+    expect(email.html).toContain(
+      'Thank you for reactivating your Mozilla VPN free trial!'
+    );
+    expect(email.text).toContain(
+      'Thank you for reactivating your Mozilla VPN free trial!'
+    );
+  });
+
   it('renderSubscriptionPaymentFailed renders failed payment email', async () => {
     const email = await renderer.renderSubscriptionPaymentFailed(
       {

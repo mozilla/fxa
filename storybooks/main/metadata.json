@@ -1,8 +1,8 @@
 {
-  "commit": "abffd5a79b84326ad68624b2ea4d98f28f05c6c1",
-  "summary": "Merge pull request #21239 from mozilla/dependabot/github_actions/actions/deploy-pages-5.0.1",
-  "description": "chore(deps): bump actions/deploy-pages from 5.0.0 to 5.0.1",
-  "timestamp": 1789652507000,
+  "commit": "a7bbfe5f1d58433063c0737ac4300783fb91ead2",
+  "summary": "Merge pull request #21186 from mozilla/PAY-3914",
+  "description": "fix(payments): Add 'free' to free trial email subject and title",
+  "timestamp": 1789656329000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
