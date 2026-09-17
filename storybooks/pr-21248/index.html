@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit e994e78e046e877b039f44fdb054e0d4215160cc</title>
+  <title>Storybooks for commit faae1f27ede45b26ff46026ca1513f118840a3aa</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,29 +23,29 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit e994e78e046e877b039f44fdb054e0d4215160cc</h1>
+  <h1>Storybooks for commit faae1f27ede45b26ff46026ca1513f118840a3aa</h1>
   <ul>
     <li><a href="./fxa-react/">fxa-react</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/17/2026, 8:06:17 PM UTC</dd>
+    <dd>9/17/2026, 8:56:05 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>feat(settings): move finish account setup set password to React</pre></dd>
+    <dd><pre>fix(content-server): keep a React route entry for finish account setup</pre></dd>
     <dt>Description</dt>
     <dd><pre>## Because
 
-- `post_verify/finish_account_setup/set_password` is one of the last Backbone-only routes that a live email still links to. It blocks the removal of Backbone.
-- The React SetPassword page already exists, but its container needs an authenticated session. A plain route alias was not enough.
+- `post_verify/finish_account_setup/set_password` was the last Backbone page behind a live subscription email link. It blocks the Backbone removal.
+- The React SetPassword page already exists, but its container needs a session. This link carries a JWT instead, so it needs its own container.
 
 ## This pull request
 
-- Registers the path as a React route onto the existing SetPassword page, in the `postVerifyThirdPartyAuthRoutes` group in `react-app/index.js` and in `components/App/index.tsx`.
-- Adds `finish-account-setup-container.tsx` next to the page. It validates the email link params, calls `authClient.finishSetup` with the JWT from the link, stores the returned account, and redirects.
-- Adds a `subscription` password creation reason and an optional `productName` to the page. Adds a `subscription-set-password` password form type, so the submit button reads &quot;Create password&quot; and not &quot;Start syncing&quot;.
-- Deletes the Backbone view, its mustache template, its spec, and the `router.js` entry. The path stays in the `content-server-routes.js` FRONTEND_ROUTES.
-- Documents the new `subscription` value of the Glean `reason` extra key.
+- Renders the React SetPassword page at `post_verify/finish_account_setup/set_password`. The path joins the `postVerifyThirdPartyAuthRoutes` group in `react-app/index.js` and gets a route in `components/App/index.tsx`.
+- Adds `finish-account-setup-container.tsx`. It validates the email link params, calls `authClient.finishSetup` with the JWT, stores the account with `storeAccountData`, then redirects to mozilla.org.
+- Adds a `subscription` password creation reason, an optional `productName`, and a `subscription-set-password` form type, so the button reads &quot;Create password&quot;.
+- Deletes the Backbone view, its mustache template and its spec. The path stays in the `content-server-routes.js` FRONTEND_ROUTES.
+- Keeps a `createReactViewHandler` entry for the path in the Backbone router, so a flag-off environment still routes to React. The flag itself becomes unconditional in #21245.
 
 ## Issue that this pull request solves
 
