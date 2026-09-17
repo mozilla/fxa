@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import type AuthClient from 'fxa-auth-client/browser';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
 
 import type { BannerProps } from '../../components/Banner/interfaces';
@@ -95,25 +96,15 @@ export type PasskeyAuthSuccessOutcome =
   | 'withpassword'
   | 'createdpassword';
 
+// `otplogin` and `alternative_auth` are no-password surfaces: they never reach
+// the existing-password fallback, so `*_withpassword` is emitted by no caller.
 export type PasskeyAuthSuccessReason =
-  | 'emailfirst_nopassword'
-  | 'emailfirst_withpassword'
-  | 'emailfirst_createdpassword'
-  | 'signin_nopassword'
-  | 'signin_withpassword'
-  | 'signin_createdpassword'
-  // `otplogin` and `alternative_auth` are no-password surfaces: they never
-  // reach the existing-password fallback, so `*_withpassword` is unreachable.
-  | 'otplogin_nopassword'
-  | 'otplogin_createdpassword'
-  | 'alternative_auth_nopassword'
-  | 'alternative_auth_createdpassword';
+  `${PasskeyMetricsSurface}_${PasskeyAuthSuccessOutcome}`;
 
 export const buildPasskeyAuthSuccessReason = (
   prefix: PasskeyMetricsSurface,
   outcome: PasskeyAuthSuccessOutcome
-): PasskeyAuthSuccessReason =>
-  `${prefix}_${outcome}` as PasskeyAuthSuccessReason;
+): PasskeyAuthSuccessReason => `${prefix}_${outcome}`;
 
 /**
  * Reuses handleNavigation's integration type (SigninIntegration) because
@@ -123,6 +114,20 @@ export const buildPasskeyAuthSuccessReason = (
  * every handleNavigation caller. Accepted tradeoff for now.
  */
 export type PasskeySignInIntegration = NavigationOptions['integration'];
+
+/** Pick<> so tests can pass minimal mocks without `as any`. */
+export type PasskeySignInAuthClient = Pick<
+  AuthClient,
+  | 'beginPasskeyAuthentication'
+  | 'completePasskeyAuthentication'
+  | 'account'
+  | 'sessionResendVerifyCode'
+  | 'getPasskeyWrap'
+>;
+
+export type PasskeyAuthCompletion = Awaited<
+  ReturnType<PasskeySignInAuthClient['completePasskeyAuthentication']>
+>;
 
 /**
  * Resolves the `service` sent with a passkey authentication request, forcing

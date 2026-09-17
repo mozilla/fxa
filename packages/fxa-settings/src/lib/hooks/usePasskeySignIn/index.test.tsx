@@ -7,12 +7,11 @@ import * as Sentry from '@sentry/browser';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import { MemoryRouter } from 'react-router';
 import React from 'react';
+import { shouldOfferPasswordlessSyncSetup, usePasskeySignIn } from '.';
 import {
-  shouldOfferPasswordlessSyncSetup,
-  usePasskeySignIn,
   type PasskeySignInAuthClient,
-} from '.';
-import { type PasskeySignInIntegration } from '../../passkeys/signin-flow';
+  type PasskeySignInIntegration,
+} from '../../passkeys/signin-flow';
 import { getCredential, isWebAuthnSupported } from '../../passkeys/webauthn';
 import {
   PASSKEY_SUPPORT_URL,
