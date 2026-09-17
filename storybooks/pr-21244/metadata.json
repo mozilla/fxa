@@ -1,0 +1,10 @@
+{
+  "commit": "63d91b58844a41458b74b1222385e43a5146ce79",
+  "summary": "fix(settings): send services.sync on fx_desktop_v3 login",
+  "description": "Because:\n- Firefox only configures Sync from the login message when `services.sync`\n  is present; SyncDesktopV3Integration inherited the base `undefined`.\n- Legacy content-server sent `services.sync = {}` for v3; the React port\n  did not carry it over, so v3 sign-in left the account connected but\n  Sync off.\n\nThis commit:\n- Override getWebChannelServices on SyncDesktopV3Integration to return\n  `{ sync: syncEngines || {} }`.\n- Add a unit test for the override.\n\nCloses #FXA-14554",
+  "timestamp": 1789671015000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

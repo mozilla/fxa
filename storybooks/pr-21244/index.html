@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 63d91b58844a41458b74b1222385e43a5146ce79</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 63d91b58844a41458b74b1222385e43a5146ce79</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/17/2026, 6:50:15 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): send services.sync on fx_desktop_v3 login</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- Firefox only configures Sync from the login message when `services.sync`
+  is present; SyncDesktopV3Integration inherited the base `undefined`.
+- Legacy content-server sent `services.sync = {}` for v3; the React port
+  did not carry it over, so v3 sign-in left the account connected but
+  Sync off.
+
+This commit:
+- Override getWebChannelServices on SyncDesktopV3Integration to return
+  `{ sync: syncEngines || {} }`.
+- Add a unit test for the override.
+
+Closes #FXA-14554</pre></dd>
+  </dl>
+</body>
+</html>
