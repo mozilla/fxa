@@ -493,7 +493,7 @@ const PasskeyDeleteModal = ({
           account).
         </p>
       </FtlMsg>
-      <div className="flex justify-center mx-2 mt-6">
+      <div className="flex flex-wrap justify-center mx-2 mt-6">
         <FtlMsg id="passkey-delete-modal-cancel-button">
           <button
             className="cta-neutral mx-2 flex-1 cta-xl"
