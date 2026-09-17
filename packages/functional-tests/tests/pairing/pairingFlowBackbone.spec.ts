@@ -211,8 +211,9 @@ test.describe('severity-2 #smoke', () => {
         await test.step('Create test account with TOTP', async () => {
           const creds = await testAccountTracker.signUp();
           const totpSecret = await enableTotpOnAccount(
-            target.authClient,
-            creds.sessionToken
+            target,
+            creds.sessionToken,
+            creds.email
           );
           creds.secret = totpSecret;
           return { credentials: creds, secret: totpSecret };
