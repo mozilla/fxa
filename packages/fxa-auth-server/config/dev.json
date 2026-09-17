@@ -9,6 +9,16 @@
     "url": "http://localhost:3030"
   },
   "customsUrl": "none",
+  "googleAuthConfig": {
+    "tokenEndpoint": "http://localhost:9300/token",
+    "issuer": "http://localhost:9300",
+    "jwksUri": "http://localhost:9300/jwks"
+  },
+  "appleAuthConfig": {
+    "tokenEndpoint": "http://localhost:9300/token",
+    "issuer": "http://localhost:9300",
+    "jwksUri": "http://localhost:9300/jwks"
+  },
   "lockoutEnabled": true,
   "log": {
     "fmt": "pretty",

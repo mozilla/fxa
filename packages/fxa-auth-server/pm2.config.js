@@ -56,6 +56,20 @@ const apps = [
     min_uptime: '2m',
     time: true,
   },
+  {
+    name: 'mock-idp',
+    script: 'node test/mock-idp/server.js',
+    cwd: __dirname,
+    env: {
+      NODE_OPTIONS: `${process.env.NODE_OPTIONS || ''} --dns-result-order=ipv4first`.trim(),
+      MOCK_IDP_PORT: '9300',
+      PATH,
+    },
+    filter_env: ['npm_'],
+    max_restarts: '1',
+    min_uptime: '2m',
+    time: true,
+  },
 ];
 
 if (process.env.CI !== 'true') {

@@ -233,6 +233,18 @@ const convictConf = convict({
       format: String,
       doc: 'Apple auth token endpoint',
     },
+    issuer: {
+      default: 'https://appleid.apple.com',
+      env: 'APPLE_AUTH_ISSUER',
+      format: String,
+      doc: 'Expected id_token issuer when jwksUri is set',
+    },
+    jwksUri: {
+      default: '',
+      env: 'APPLE_AUTH_JWKS_URI',
+      format: String,
+      doc: 'When set, verify id_tokens against this JWKS instead of Apple-published keys and skip the client-secret JWT. Local mock IdP only.',
+    },
     securityEventsClientIds: {
       default: ['com.mozilla.firefox.accounts.auth'],
       env: 'APPLE_AUTH_SECURITY_EVENTS_CLIENT_IDS',
@@ -265,6 +277,18 @@ const convictConf = convict({
       env: 'GOOGLE_AUTH_TOKEN_ENDPOINT',
       format: String,
       doc: 'Google auth token endpoint',
+    },
+    issuer: {
+      default: 'https://accounts.google.com',
+      env: 'GOOGLE_AUTH_ISSUER',
+      format: String,
+      doc: 'Expected id_token issuer when jwksUri is set',
+    },
+    jwksUri: {
+      default: '',
+      env: 'GOOGLE_AUTH_JWKS_URI',
+      format: String,
+      doc: 'When set, verify id_tokens against this JWKS instead of Google-published certs. Local mock IdP only.',
     },
     securityEventsClientIds: {
       default: [
@@ -3159,6 +3183,16 @@ if (convictConf.get('isProduction')) {
   for (const key of SECRET_SETTINGS) {
     if (convictConf.get(key) === convictConf.default(key)) {
       throw new Error(`Config '${key}' must be set in production`);
+    }
+  }
+}
+
+// A JWKS override redirects id_token trust away from the real provider. It
+// exists for the local mock IdP and must never reach a deployed environment.
+if (convictConf.get('env') !== 'dev') {
+  for (const key of ['googleAuthConfig.jwksUri', 'appleAuthConfig.jwksUri']) {
+    if (convictConf.get(key)) {
+      throw new Error(`Config '${key}' may only be set when NODE_ENV=dev`);
     }
   }
 }
