@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import type AuthClient from 'fxa-auth-client/browser';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
 
 import type { BannerProps } from '../../components/Banner/interfaces';
@@ -29,7 +30,7 @@ export type PasskeyMetricsSurface =
   | 'otplogin'
   | 'alternative_auth';
 
-type SurfaceGlean = {
+export type SurfaceGlean = {
   submit: () => void;
   submitFrontendError: (reason: PasskeySignInGleanReason) => void;
   submitSuccess: () => void;
@@ -123,6 +124,20 @@ export const buildPasskeyAuthSuccessReason = (
  * every handleNavigation caller. Accepted tradeoff for now.
  */
 export type PasskeySignInIntegration = NavigationOptions['integration'];
+
+/** Pick<> so tests can pass minimal mocks without `as any`. */
+export type PasskeySignInAuthClient = Pick<
+  AuthClient,
+  | 'beginPasskeyAuthentication'
+  | 'completePasskeyAuthentication'
+  | 'account'
+  | 'sessionResendVerifyCode'
+  | 'getPasskeyWrap'
+>;
+
+export type PasskeyAuthCompletion = Awaited<
+  ReturnType<PasskeySignInAuthClient['completePasskeyAuthentication']>
+>;
 
 /**
  * Resolves the `service` sent with a passkey authentication request, forcing
