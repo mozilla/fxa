@@ -39,15 +39,19 @@ async function fetchMessages(
   // If mappings were provided see if there is one for the path. This
   // will be a location where the file path contains a hash in the file
   // name
-  const mappedPath = mappings ? mappings[path] : path;
-
-  // If we don't have mapped path, there are no l10n resources for this language.
-  if (!mappedPath) {
-    reportBundleError?.(
-      new Error(`No static asset mapping for l10n bundle: ${path}`),
-      locale
-    );
-    return '';
+  let mappedPath = path;
+  if (mappings) {
+    const mapping = mappings[path];
+    if (typeof mapping === 'string' && mapping !== '') {
+      mappedPath = mapping;
+    } else {
+      // Report the gap, then try the unhashed path. It only resolves for
+      // consumers that do not hash their l10n files.
+      reportBundleError?.(
+        new Error(`No static asset mapping for l10n bundle: ${path}`),
+        locale
+      );
+    }
   }
 
   // Fetch the file and return the messages
@@ -94,28 +98,56 @@ function fetchAllMessages(
   );
 }
 
-async function fetchL10nHashedMappings(
-  mappingUrl: string,
+export const L10N_ASSET_MAP_META = 'fxa-l10n-asset-map';
+
+/**
+ * Reads the map of l10n file paths to their hashed file names. The mappings are
+ * generated with grunt, see the hash-static task in fxa-settings, and the build
+ * embeds them into index.html as URI encoded JSON.
+ * @param reportBundleError Receives an unusable map, which breaks every locale.
+ * @returns The mappings, or undefined if the map is absent, empty or malformed
+ */
+function readL10nHashedMappings(
   reportBundleError?: ReportBundleError
-) {
-  try {
-    // These mappigns are currently generated with grunt. See grunt task hash-static
-    // in fxa-settings for an example of how the mappings are generated.
-    const mappingsResponse = await fetch(mappingUrl);
-    if (!mappingsResponse.ok) {
-      throw new Error(`Received status ${mappingsResponse.status}`);
-    }
-    return await mappingsResponse.json();
-  } catch (err) {
-    reportBundleError?.(
-      new Error(
-        `Fetching l10n static asset manifest failed: ${mappingUrl} (${describeCause(
-          err
-        )})`
-      )
-    );
+): Record<string, string> | undefined {
+  const content = document
+    .querySelector(`meta[name="${L10N_ASSET_MAP_META}"]`)
+    ?.getAttribute('content');
+
+  if (!content) {
     return undefined;
   }
+
+  try {
+    const mappings = JSON.parse(decodeURIComponent(content));
+
+    // Every value must be a path we can fetch, so anything other than a plain
+    // object of non-empty strings falls through to the warning below.
+    if (
+      typeof mappings === 'object' &&
+      mappings !== null &&
+      !Array.isArray(mappings) &&
+      Object.keys(mappings).length > 0 &&
+      Object.values(mappings).every(
+        (path) => typeof path === 'string' && path !== ''
+      )
+    ) {
+      return mappings;
+    }
+  } catch (err) {
+    // Fall through to the warning below.
+  }
+
+  // A map we cannot use is a build problem, so warn, then fall back to the
+  // unhashed paths. Only consumers that do not hash their l10n files serve
+  // those, so fxa-settings renders English until the build is fixed. The warning
+  // stays for consumers that pass no reporter.
+  const error = new Error(
+    `<meta name="${L10N_ASSET_MAP_META}"> is present but unusable, falling back to unhashed l10n paths`
+  );
+  console.warn(error.message);
+  reportBundleError?.(error);
+  return undefined;
 }
 
 async function createFluentBundleGenerator(
@@ -124,10 +156,7 @@ async function createFluentBundleGenerator(
   bundles: Array<string>,
   reportBundleError?: ReportBundleError
 ) {
-  const mappings = await fetchL10nHashedMappings(
-    `${baseDir}/static-asset-manifest.json`,
-    reportBundleError
-  );
+  const mappings = readL10nHashedMappings(reportBundleError);
   const fetched = await Promise.all(
     currentLocales
       .filter((l) => !EN_GB_LOCALES.includes(l))
