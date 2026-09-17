@@ -316,12 +316,6 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'REACT_CONVERSION_SIMPLE_ROUTES',
     },
-    oauthRoutes: {
-      default: false,
-      doc: 'Enable users to visit the React version of routes requiring oauth',
-      format: Boolean,
-      env: 'REACT_CONVERSION_OAUTH_ROUTES',
-    },
     signInRoutes: {
       default: false,
       doc: 'Enable users to visit the React version of "signin" routes',
@@ -345,12 +339,6 @@ const conf = (module.exports = convict({
       doc: 'Enable users to visit the React version of any other "post verify" routes',
       format: Boolean,
       env: 'REACT_CONVERSION_POST_VERIFY_OTHER_ROUTES',
-    },
-    postVerifyThirdPartyAuthRoutes: {
-      default: false,
-      doc: 'Enable users to visit the React version of third party auth "post verify" routes',
-      format: Boolean,
-      env: 'REACT_CONVERSION_POST_VERIFY_THIRD_PARTY_AUTH',
     },
     postVerifyCADViaQRRoutes: {
       default: false,

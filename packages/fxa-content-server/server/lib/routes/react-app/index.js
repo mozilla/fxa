@@ -60,12 +60,6 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       fullProdRollout: true,
     },
 
-    oauthRoutes: {
-      featureFlagOn: showReactApp.oauthRoutes,
-      routes: [],
-      fullProdRollout: false,
-    },
-
     // `signin` and `force_auth` have no Backbone views, so React must serve them.
     signInRoutes: {
       featureFlagOn: true,
@@ -144,8 +138,9 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       fullProdRollout: false,
     },
 
+    // These routes have no Backbone views, so React must serve them.
     postVerifyThirdPartyAuthRoutes: {
-      featureFlagOn: showReactApp.postVerifyThirdPartyAuthRoutes,
+      featureFlagOn: true,
       routes: reactRoute.getRoutes([
         'post_verify/third_party_auth/callback',
         // Canonical SetPassword URL going forward (FXA-13475). The legacy
@@ -154,10 +149,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         // resolve through Express to the React app.
         'post_verify/set_password',
         'post_verify/third_party_auth/set_password',
-        // Both set-password routes plus service-welcome ride the
-        // third-party-auth feature flag because they share the post-verify
-        // React app surface, even though they are not strictly third-party
-        // auth flows.
+        // service_welcome sits here because it shares the post-verify React surface.
         'post_verify/service_welcome',
       ]),
       fullProdRollout: true,
