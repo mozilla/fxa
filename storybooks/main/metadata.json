@@ -1,8 +1,8 @@
 {
-  "commit": "acf844150b6aefbca4365b1b1cc6fbc62f3ab68e",
-  "summary": "Merge pull request #21242 from mozilla/fxa-14552",
-  "description": "chore(dev-launcher): refresh README to match current defaults",
-  "timestamp": 1789672997000,
+  "commit": "513b2ef333ec907f07d32c8ed8797e4e1b9f6879",
+  "summary": "Merge pull request #21244 from mozilla/FXA-14554",
+  "description": "fix(settings): send services.sync on fx_desktop_v3 login",
+  "timestamp": 1789675234000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
