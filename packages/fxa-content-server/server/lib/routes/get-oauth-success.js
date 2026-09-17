@@ -9,11 +9,14 @@ const {
   getOAuthSuccessRouteDefinition,
 } = require('./react-app/route-definitions');
 
-function getRoutesExcludingOAuthSuccessReact({ oauthRoutes }, routeNames) {
-  return oauthRoutes.featureFlagOn
+function getRoutesExcludingOAuthSuccessReact(
+  { oauthSuccessRoutes },
+  routeNames
+) {
+  return oauthSuccessRoutes.featureFlagOn
     ? routeNames.filter(
         (routeName) =>
-          !oauthRoutes.routes.find((route) => routeName === route.name)
+          !oauthSuccessRoutes.routes.find((route) => routeName === route.name)
       )
     : routeNames;
 }

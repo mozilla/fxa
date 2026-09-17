@@ -5,6 +5,7 @@
 import { Constants } from '../constants';
 import { ModelDataStore, UrlQueryData } from '../model-data';
 import { IntegrationFlags } from '../integrations/interfaces';
+import { getOAuthSuccessClientId } from '../oauth/success-route';
 
 // The trailing separator is optional: `/pair/supp` (no slash, query and hash
 // only) is the URL the v1 QR code resolves to, so requiring one would stop the
@@ -72,17 +73,9 @@ export class DefaultIntegrationFlags implements IntegrationFlags {
   }
 
   isOAuthSuccessFlow() {
-    const status = /oauth\/success/.test(this.pathname);
-
-    let clientId = '';
-    if (status) {
-      const pathname = this.pathname.split('/');
-      clientId = pathname[pathname.length - 1];
-    }
-
     return {
-      status,
-      clientId,
+      status: /oauth\/success/.test(this.pathname),
+      clientId: getOAuthSuccessClientId(this.pathname),
     };
   }
 

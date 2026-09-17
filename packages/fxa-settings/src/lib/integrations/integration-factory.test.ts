@@ -256,11 +256,10 @@ describe('lib/integrations/integration-factory', () => {
     });
 
     describe('when clientInfo is missing but the fetch did not fail', () => {
-      // Some flows populate `data.clientId` from non-URL-query sources
-      // (e.g. the `/oauth/success/:clientId` pathname via
-      // `initOAuthIntegration`). In those flows `useClientInfoState` never
-      // ran a fetch, so the factory should not flag clientInfoLoadFailed
-      // even though `clientInfo` is undefined and `data.clientId` is set.
+      // Some flows populate `data.clientId` from non-URL-query sources without
+      // `useClientInfoState` ever running a fetch, so the factory should not
+      // flag clientInfoLoadFailed even though `clientInfo` is undefined and
+      // `data.clientId` is set.
       beforeEach(() => {
         sandbox.restore();
         sandbox.stub(flags, 'isOAuth').returns(true);
@@ -290,6 +289,11 @@ describe('lib/integrations/integration-factory', () => {
       it('does not flag clientInfoLoadFailed', () => {
         expect(integration.data.clientId).toEqual('720bc80adfa6988d');
         expect(integration.clientInfoLoadFailed).toBe(false);
+      });
+
+      it('flags isOAuthSuccessFlow so the missing scope is not an error', () => {
+        expect(integration.isOAuthSuccessFlow).toBe(true);
+        expect(() => integration.getServiceName()).not.toThrow();
       });
     });
 

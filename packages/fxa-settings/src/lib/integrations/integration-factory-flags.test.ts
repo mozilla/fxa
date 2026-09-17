@@ -154,6 +154,12 @@ describe('lib/integrations/integration-factory-flags', function () {
     expect(integrationFlags.isOAuthSuccessFlow().clientId).toEqual('foo');
   });
 
+  it('isOAuthSuccessFlow with a trailing slash', () => {
+    sandbox.replaceGetter(queryData, 'pathName', () => '/oauth/success/foo/');
+    expect(integrationFlags.isOAuthSuccessFlow().status).toBeTruthy();
+    expect(integrationFlags.isOAuthSuccessFlow().clientId).toEqual('foo');
+  });
+
   it('isOAuthVerificationFlow', () => {
     queryData.set('code', '123');
     expect(integrationFlags.isOAuthVerificationFlow()).toBeTruthy();

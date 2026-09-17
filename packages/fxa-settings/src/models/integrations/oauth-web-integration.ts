@@ -43,6 +43,9 @@ export class OAuthWebIntegration extends GenericIntegration<
   IntegrationFeatures,
   OAuthIntegrationData
 > {
+  /** `/oauth/success/:clientId` carries a client id but no OAuth request, so it has no scope. */
+  isOAuthSuccessFlow: boolean = false;
+
   constructor(
     data: ModelDataStore,
     protected readonly storageData: ModelDataStore,
@@ -202,6 +205,10 @@ export class OAuthWebIntegration extends GenericIntegration<
   }
 
   getPermissions() {
+    if (this.isOAuthSuccessFlow) {
+      return [];
+    }
+
     // If the /v1/oauth/client/:id fetch failed during factory initialisation,
     // `isTrusted()` returns false and scope sanitisation would strip every
     // scope a real RP typically asks for, throwing an errno-109 that looks
