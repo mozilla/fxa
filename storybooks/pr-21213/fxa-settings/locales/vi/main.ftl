@@ -805,6 +805,8 @@ recent-activity-account-passwordless-registration-complete = Đã hoàn tất đ
 recent-activity-account-recovery-codes-set = Đã thiết lập mã khôi phục
 recent-activity-account-passkey-wrap-created = Đã bật passkey cho đồng bộ hoá
 recent-activity-account-passkey-wrap-creation-failure = Thiết lập đồng bộ hoá bằng passkey không thành công
+recent-activity-account-passkey-wrap-deleted = Đã thu hồi truy cập đồng bộ bằng passkey
+recent-activity-account-passkey-wrap-deletion-failure = Không thể thu hồi truy cập đồng bộ bằng passkey
 recent-activity-account-passkey-wrap-invalidated = Quyền truy cập đồng bộ passkey đã bị xóa sau khi đặt lại mật khẩu
 recent-activity-unknown = Hoạt động tài khoản khác
 

@@ -835,6 +835,8 @@ recent-activity-account-passwordless-registration-complete = Kontowa registracij
 recent-activity-account-recovery-codes-set = Wótnowjeńske kody nastajone
 recent-activity-account-passkey-wrap-created = Gronidłowy kluc jo se za synchronizaciju zmóžnił
 recent-activity-account-passkey-wrap-creation-failure = Konfiguracija synchronizacije z gronidłowym klucom njejo se raźiła
+recent-activity-account-passkey-wrap-deleted = Pśistup gronidłowego kluca na synchronizaciju wótwónoźony
+recent-activity-account-passkey-wrap-deletion-failure = Wótwónoźenje pśistupa gronidłowego kluca na synchronizaciju njejo se raźiło
 recent-activity-account-passkey-wrap-invalidated = Synchronizaciski pśistup z gronidłowym klucom jo se pó slědkstajenju gronidła wótwónoźeł
 recent-activity-unknown = Druga kontowa aktiwita
 

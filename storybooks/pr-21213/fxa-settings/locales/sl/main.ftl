@@ -955,6 +955,8 @@ recent-activity-account-passwordless-registration-complete = Registracija račun
 recent-activity-account-recovery-codes-set = Kode za obnovitev so nastavljene
 recent-activity-account-passkey-wrap-created = Ključ za dostop je omogočen za sinhronizacijo
 recent-activity-account-passkey-wrap-creation-failure = Nastavitev sinhronizacije s ključem za dostop ni uspela
+recent-activity-account-passkey-wrap-deleted = Dostop za sinhronizacijo gesel je odstranjen
+recent-activity-account-passkey-wrap-deletion-failure = Odstranjevanje dostopa za sinhronizacijo gesel ni uspelo
 recent-activity-account-passkey-wrap-invalidated = Dostop za sinhronizacijo gesel je bil po ponastavitvi gesla odstranjen
 recent-activity-unknown = Drugačna dejavnost v računu
 

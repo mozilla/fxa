@@ -420,6 +420,22 @@ password-strength-inline-passwords-match = Passordene samsvarer
 
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Din telefon. Dine regler.
+# Value proposition variant. "tabs" are the open pages in a browser.
+promo-qr-mobile-heading-treatment-b = Fanene dine og mer, klart på telefonen
+# Value proposition variant. Refers to using the same trusted browser on a phone.
+promo-qr-mobile-heading-treatment-c = Nettleseren du stoler på, på telefonen din
+# Value proposition variant. "Different screen" refers to the phone rather than the desktop.
+promo-qr-mobile-heading-treatment-d = Samme { -brand-firefox }. Ulik skjerm.
+# Value proposition variant. "stop here" means privacy protection should continue onto the phone.
+promo-qr-mobile-heading-treatment-e = Ditt personvern bør ikke stoppe her
+# Value proposition variant. Refers to keeping browsing activity private.
+promo-qr-mobile-heading-treatment-f = Hold mer av surfingen din for deg selv
+# Value proposition variant. "noise" refers to distractions and clutter.
+promo-qr-mobile-heading-treatment-g = Telefonen din kunne trengt litt mindre støy
+# Value proposition variant. Refers to a calmer browsing experience on the phone.
+promo-qr-mobile-heading-treatment-h = Ta en roligere måte å surfe på med deg
+# Appears below a QR code that a user can scan to download the Firefox mobile app
+promo-qr-mobile-description-v2 = Skann for å laste ned mobilappen
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
 promo-qr-mobile-qr-alt =
     .alt = QR-kode for å laste ned { -brand-firefox }-mobilappen. Hold kameraet på telefonen over nedre høyre hjørne av skjermen for å skanne den.
@@ -500,8 +516,10 @@ password-reset-warning-have-key = Har du en kontogjenopprettingsnøkkel?
 # "it" refers to the user's account recovery key.
 password-reset-warning-use-key-link-v2 = Bruk den for å tilbakestille passordet ditt og beholde dine nettleserdata
 password-reset-warning-signed-in-device = Fortsatt logget inn på en annen enhet?
+password-reset-warning-signed-in-device-description = Nettleserdataene dine kan være tilgjengelige. Tilbakestill passordet ditt, og logg deretter på den enheten for å gjenopprette og synkronisere dataene dine.
 password-reset-warning-restore-data-link = Les om hvordan du gjenoppretter nettleserdata fra en pålogget enhet
 password-reset-warning-new-device = Bruker du en ny enhet, men får ikke tilgang til de gamle?
+password-reset-warning-new-device-description = Etter at du har tilbakestilt passordet ditt, vil ikke krypterte nettleserdata på { -brand-firefox }-servere være tilgjengelige på denne enheten.
 
 ## Alert Bar
 
@@ -740,6 +758,11 @@ flow-setup-2fa-prompt-heading = Konfigurer totrinns-autentisering
 flow-setup-2fa-prompt-description = { $serviceName } krever at du konfigurerer totrinns-autentisering for å holde kontoen din trygg.
 # Success banner shown at the top of the page when the user signed in with a passkey.
 flow-setup-2fa-prompt-passkey-success-banner = Vellykket pålogging med passnøkkel
+# Body copy shown when the user signed in with a passkey and the service still
+# requires two-step authentication setup.
+# Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
+# that requests two-step authentication setup.
+flow-setup-2fa-prompt-passkey-description = { $serviceName } krever også totrinnsautentisering for { -product-mozilla-account }. Etter oppsettet trenger du ikke lenger den når du logger på med en passnøkkel.
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = Du kan bruke hvilken som helst av <authenticationAppsLink>disse autentiseringsappene</authenticationAppsLink> for å fortsette.
 flow-setup-2fa-prompt-continue-button = Fortsett
@@ -1065,6 +1088,8 @@ recent-activity-account-recovery-codes-set = Gjenopprettingskoder satt opp
 recent-activity-account-passkey-wrap-created = Passnøkkel aktivert for synkronisering
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
 recent-activity-account-passkey-wrap-creation-failure = Synkroniseringsoppsett med passnøkkel mislyktes
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey that could unlock the user's synced browser data had that access turned off, leaving the passkey itself usable for signing in.
+recent-activity-account-passkey-wrap-deleted = Tilgang til synkronisering av passnøkler er fjernet
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Annen kontoaktivitet
 
@@ -1906,6 +1931,8 @@ pair2-supplicant-download-firefox-heading = Få { -brand-firefox } på denne enh
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Fortsett i { -brand-firefox }
+# Replaces the button label while waiting for the Firefox app to take over
+pair2-supplicant-download-firefox-opening-button = Åpner { -brand-firefox }…
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -1934,6 +1961,8 @@ pair2-supplicant-sync-success-sync-settings-button = Synkroniseringsinnstillinge
 
 # Shown after the pairing attempt was canceled
 pair2-supplicant-timeout-and-cancel-canceled-heading = Avbrutt
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-canceled-description = For å koble til en enhet når som helst, gå til <b>firefox.com/pair</b> på datamaskinen din.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

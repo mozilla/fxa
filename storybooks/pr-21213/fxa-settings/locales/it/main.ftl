@@ -837,6 +837,8 @@ recent-activity-account-passwordless-registration-complete = Completata registra
 recent-activity-account-recovery-codes-set = Impostati codici di recupero
 recent-activity-account-passkey-wrap-created = Passkey attivata per la sincronizzazione
 recent-activity-account-passkey-wrap-creation-failure = Configurazione della sincronizzazione con passkey non riuscita
+recent-activity-account-passkey-wrap-deleted = Accesso della passkey ai dati sincronizzati revocato
+recent-activity-account-passkey-wrap-deletion-failure = Impossibile rimuovere l’accesso alla sincronizzazione con passkey
 recent-activity-account-passkey-wrap-invalidated = Accesso alla sincronizzazione tramite passkey revocato dopo la reimpostazione della password
 recent-activity-unknown = Altre attività dell’account
 

@@ -843,6 +843,8 @@ recent-activity-account-passwordless-registration-complete = Cwblhau cofrestriad
 recent-activity-account-recovery-codes-set = Gosod codau adfer
 recent-activity-account-passkey-wrap-created = Cyfrinallwedd wedi'i alluogi ar gyfer cydweddu
 recent-activity-account-passkey-wrap-creation-failure = Methodd gosodiad cydweddu gyda'r cyfrinallwedd
+recent-activity-account-passkey-wrap-deleted = Mynediad cydweddu cyfrinallweddi wedi'i dynnu
+recent-activity-account-passkey-wrap-deletion-failure = Methodd dileu mynediad cydweddu cyfrinallweddi
 recent-activity-account-passkey-wrap-invalidated = Mynediad cydweddu drwy cyfrinallwedd wedi'i dynnu ar ôl ailosod cyfrinair
 recent-activity-unknown = Gweithgarwch cyfrif arall
 
