@@ -1102,6 +1102,10 @@ recent-activity-account-recovery-codes-set = Wobnowjenske kody nastajene
 recent-activity-account-passkey-wrap-created = Hesłowy kluč je so za synchronizaciju zmóžnił
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
 recent-activity-account-passkey-wrap-creation-failure = Konfiguracija synchronizacije z hesłowym klučom je so nimokuliła
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey that could unlock the user's synced browser data had that access turned off, leaving the passkey itself usable for signing in.
+recent-activity-account-passkey-wrap-deleted = Přistup hesłoweho kluča na synchronizaciju wotstronjeny
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to turn off a passkey's access to the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-deletion-failure = Wotstronjenje přistupa hesłoweho kluča na synchronizaciju je so nimokuliło
 # A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
 recent-activity-account-passkey-wrap-invalidated = Synchronizaciski přistup z hesłowym klučom je so po wróćostajenju hesła wotstronił
 # Security event was recorded, but the activity details are unknown or not shown to user
@@ -1969,6 +1973,8 @@ pair2-supplicant-download-firefox-description = Sćehńće { -brand-firefox }, z
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Z { -brand-firefox } pokročować
+# Replaces the button label while waiting for the Firefox app to take over
+pair2-supplicant-download-firefox-opening-button = { -brand-firefox } so wočinja …
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them

@@ -381,8 +381,8 @@ promo-qr-mobile-heading-treatment-b = A lapjai és még sok más, a telefonján 
 promo-qr-mobile-heading-treatment-c = A böngésző, amelyben megbízik, a telefonján
 promo-qr-mobile-heading-treatment-d = Ugyanaz a { -brand-firefox }. Csak más képernyőn.
 promo-qr-mobile-heading-treatment-e = Az adatvédelme nem állhat itt meg
-promo-qr-mobile-heading-treatment-f = Tartson többet a böngészésből saját magának
-promo-qr-mobile-heading-treatment-g = A telefonja kicsit kevesebb zajt használhatna
+promo-qr-mobile-heading-treatment-f = Tartsa meg magának a böngészése még nagyobb részét
+promo-qr-mobile-heading-treatment-g = A telefonjának is jót tenne a kevesebb zavaró tényező
 promo-qr-mobile-heading-treatment-h = Vigye magával a nyugodtabb böngészés élményét
 promo-qr-mobile-description-v2 = Olvassa le a mobilalkalmazás letöltéséhez
 promo-qr-mobile-qr-alt =
@@ -866,6 +866,8 @@ recent-activity-account-passwordless-registration-complete = Jelszó nélküli f
 recent-activity-account-recovery-codes-set = Helyreállítási kódok beállítva
 recent-activity-account-passkey-wrap-created = A jelkulcs engedélyezve a szinkronizáláshoz
 recent-activity-account-passkey-wrap-creation-failure = A jelkulcsos szinkronizálás beállítása sikertelen
+recent-activity-account-passkey-wrap-deleted = A jelszószinkronizálási hozzáférés eltávolítva
+recent-activity-account-passkey-wrap-deletion-failure = A jelszószinkronizálási hozzáférés eltávolítása nem sikerült
 recent-activity-account-passkey-wrap-invalidated = A jelkulcsos szinkronizálás hozzáférése eltávolítva a jelszó-visszaállítás után
 recent-activity-unknown = Egyéb fióktevékenység
 
@@ -1383,7 +1385,7 @@ pair2-supplicant-connect-this-device-cancel-button = Mégse
 pair2-supplicant-download-firefox-heading = A { -brand-firefox } beszerzése erre az eszközre
 pair2-supplicant-download-firefox-description = Töltse le a { -brand-firefox }ot, és szinkronizálja a könyvjelzőket, előzményeket és egyebeket az eszközök között. <linkExternal>Tudjon meg többet</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Folytatás a { -brand-firefox }ban
-pair2-supplicant-download-firefox-opening-button = { -brand-firefox } megnyitása…
+pair2-supplicant-download-firefox-opening-button = A { -brand-firefox } megnyitása…
 
 
 pair2-supplicant-ready-to-scan-heading = Eszköz csatlakoztatása

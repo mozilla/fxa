@@ -408,6 +408,24 @@ password-strength-inline-passwords-match = Mật khẩu trùng khớp
 
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Điện thoại của bạn. Luật chơi do bạn đặt.
+# Value proposition variant. Refers to resuming browsing on another device.
+promo-qr-mobile-heading-treatment-a = Tiếp tục từ nơi bạn đã dừng lại, bất kể bạn đã đi đến đâu
+# Value proposition variant. "tabs" are the open pages in a browser.
+promo-qr-mobile-heading-treatment-b = Các thẻ yêu thích và nhiều nội dung khác, sẵn sàng trên điện thoại của bạn
+# Value proposition variant. Refers to using the same trusted browser on a phone.
+promo-qr-mobile-heading-treatment-c = Trình duyệt bạn tin dùng, trên điện thoại của bạn
+# Value proposition variant. "Different screen" refers to the phone rather than the desktop.
+promo-qr-mobile-heading-treatment-d = Cùng trình duyệt { -brand-firefox }. Nhưng ở trên di động.
+# Value proposition variant. "stop here" means privacy protection should continue onto the phone.
+promo-qr-mobile-heading-treatment-e = Quyền riêng tư của bạn không nên dừng lại tại đây
+# Value proposition variant. Refers to keeping browsing activity private.
+promo-qr-mobile-heading-treatment-f = Giữ hoạt động duyệt web của bạn riêng tư hơn
+# Value proposition variant. "noise" refers to distractions and clutter.
+promo-qr-mobile-heading-treatment-g = Điện thoại của bạn nên bớt ồn hơn một chút
+# Value proposition variant. Refers to a calmer browsing experience on the phone.
+promo-qr-mobile-heading-treatment-h = Hãy chọn cách duyệt web nhẹ nhàng hơn
+# Appears below a QR code that a user can scan to download the Firefox mobile app
+promo-qr-mobile-description-v2 = Quét mã để tải ứng dụng di động
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
 promo-qr-mobile-qr-alt =
     .alt = Mã QR để tải xuống ứng dụng di động { -brand-firefox }. Đặt camera điện thoại của bạn vào góc dưới bên phải màn hình để quét mã.
@@ -1054,6 +1072,10 @@ recent-activity-account-recovery-codes-set = Đã thiết lập mã khôi phục
 recent-activity-account-passkey-wrap-created = Đã bật passkey cho đồng bộ hoá
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
 recent-activity-account-passkey-wrap-creation-failure = Thiết lập đồng bộ hoá bằng passkey không thành công
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey that could unlock the user's synced browser data had that access turned off, leaving the passkey itself usable for signing in.
+recent-activity-account-passkey-wrap-deleted = Đã thu hồi truy cập đồng bộ bằng passkey
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to turn off a passkey's access to the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-deletion-failure = Không thể thu hồi truy cập đồng bộ bằng passkey
 # A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
 recent-activity-account-passkey-wrap-invalidated = Quyền truy cập đồng bộ passkey đã bị xóa sau khi đặt lại mật khẩu
 # Security event was recorded, but the activity details are unknown or not shown to user
@@ -1910,6 +1932,8 @@ pair2-supplicant-download-firefox-description = Tải xuống { -brand-firefox }
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Tiếp tục trong { -brand-firefox }
+# Replaces the button label while waiting for the Firefox app to take over
+pair2-supplicant-download-firefox-opening-button = Đang mở { -brand-firefox }…
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them

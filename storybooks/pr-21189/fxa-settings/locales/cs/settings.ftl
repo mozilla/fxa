@@ -1099,6 +1099,10 @@ recent-activity-account-recovery-codes-set = Obnovovací kódy jsou nastaveny
 recent-activity-account-passkey-wrap-created = Přístupový klíč byl povolen pro synchronizaci
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
 recent-activity-account-passkey-wrap-creation-failure = Nastavení synchronizace s přístupovým klíčem selhalo
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey that could unlock the user's synced browser data had that access turned off, leaving the passkey itself usable for signing in.
+recent-activity-account-passkey-wrap-deleted = Přístup k synchronizaci byl odebrán
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to turn off a passkey's access to the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-deletion-failure = Odstranění synchronizačního přístupu se nezdařilo
 # A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
 recent-activity-account-passkey-wrap-invalidated = Po resetování hesla byl zrušen přístup k synchronizaci pomocí přístupového klíče
 # Security event was recorded, but the activity details are unknown or not shown to user

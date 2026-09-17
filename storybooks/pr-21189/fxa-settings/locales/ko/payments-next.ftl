@@ -377,6 +377,7 @@ free-trial-content-link-view-invoice = 청구서 보기
 free-trial-content-link-view-invoice-aria = { $productName } 청구서 보기
 # $date (Date) - The date the free trial ended (e.g., January 16, 2026)
 free-trial-content-trial-ended = 무료 평가판이 <bold>{ $date }</bold>에 종료됩니다.
+free-trial-content-could-not-process-payment = 결제를 처리하지 못했습니다. 계속 이용하려면 결제 수단을 변경하세요. 처리에는 최대 24시간이 걸릴 수 있으며 은행이나 결제 수단에 따라 달라질 수 있습니다.
 free-trial-content-button-update-payment = 결제 수단 변경
 payments-header-help =
     .alt = 도움말
@@ -404,7 +405,14 @@ payments-header-avatar-expanded-sign-out = 로그아웃
 
 ## Interstitial Offer
 
+interstitial-offer-success-cancel-title = 가신다니 아쉽습니다.
+# $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
+# $date (Date) - Last day of product access
+interstitial-offer-cancel-success-dialog-msg = { $productName } 구독이 취소되었습니다. { $date }까지 { $productName }에 계속 접근할 수 있습니다.
+interstitial-offer-turn-back-on = 구독이 종료되기 전에는 언제든 다시 활성화할 수 있습니다.
+interstitial-offer-cancel-success-dialog-aside = 질문이 있으신가요? <LinkExternal>{ -brand-mozilla } 지원</LinkExternal>을 방문하세요.
 interstitial-offer-button-back-to-subscriptions = 구독으로 돌아가기
+interstitial-offer-action-error = 알 수 없는 오류가 발생하였습니다. 다시 시도해 주세요.
 interstitial-offer-cancel-subscription-button = 구독 취소
 
 ## Daily/Weekly/Monthly refers to the user's current subscription interval
@@ -452,6 +460,29 @@ next-plan-details-show-button = 상세 정보 보기
 free-trial-start-title = { $trialDayLength }일 무료 평가판 시작
 free-trial-success-title = { $trialDayLength }일 무료 평가판이 시작되었습니다.
 
+## $firstPrice (String) - The total price of the first charge for the subscription after the free trial ends
+## $endDate (String) - The date the free trial ends
+
+free-trial-start-message-daily = 오늘은 결제하지 않아도 됩니다. { $endDate }에 무료 평가판이 끝난 뒤부터 { $firstPrice }/일의 요금이 청구됩니다.
+free-trial-start-message-weekly = 오늘은 결제하지 않아도 됩니다. { $endDate }에 무료 평가판이 끝난 뒤부터 { $firstPrice }/주의 요금이 청구됩니다.
+free-trial-start-message-monthly = 오늘은 결제하지 않아도 됩니다. { $endDate }에 무료 평가판이 끝난 뒤부터 { $firstPrice }/월의 요금이 청구됩니다.
+free-trial-start-message-halfyearly = 오늘은 결제하지 않아도 됩니다. { $endDate }에 무료 평가판이 끝난 뒤부터 { $firstPrice }/6개월의 요금이 청구됩니다.
+free-trial-start-message-yearly = 오늘은 결제하지 않아도 됩니다. { $endDate }에 무료 평가판이 끝난 뒤부터 { $firstPrice }/년의 요금이 청구됩니다.
+
+##
+
+# $endDate (String) - The date of the first charge after the free trial ends
+free-trial-first-charge-title = 첫 청구: { $endDate }
+
+## $firstPrice (String) - The total price of the first charge for the subscription after the free trial ends
+## $endDate (String) - The date of the first charge after the free trial ends
+
+free-trial-first-charge-message-daily = { $endDate }에 { $firstPrice }의 요금이 청구되며, 이후로는 취소할 때까지 매일 반복됩니다.
+free-trial-first-charge-message-weekly = { $endDate }에 { $firstPrice }의 요금이 청구되며, 이후로는 취소할 때까지 매주 반복됩니다.
+free-trial-first-charge-message-monthly = { $endDate }에 { $firstPrice }의 요금이 청구되며, 이후로는 취소할 때까지 매월 반복됩니다.
+free-trial-first-charge-message-halfyearly = { $endDate }에 { $firstPrice }의 요금이 청구되며, 이후로는 취소할 때까지 매 6개월마다 반복됩니다.
+free-trial-first-charge-message-yearly = { $endDate }에 { $firstPrice }의 요금이 청구되며, 이후로는 취소할 때까지 매년 반복됩니다.
+
 ##
 
 next-coupon-success = 요금제는 정가로 자동 갱신됩니다.
@@ -492,9 +523,18 @@ next-new-user-subscribe-product-assurance = 이메일은 오직 계정을 만드
 ## $productName (String) - The name of the subscribed product.
 
 resubscribe-dialog-title = { $productName } 사용을 계속 하시겠습니까?
+stay-subscribed-access-will-continue = { $productName }에 대한 접근은 계속되며 결제 주기와 지불은 동일하게 유지됩니다.
 subscription-content-button-resubscribe = 재구독
     .aria-label = { $productName } 재구독
 resubscribe-success-dialog-title = 감사합니다! 모두 준비되었습니다.
+
+## $nextInvoiceTotal (String) - The total amount of the next invoice, formatted according to the user's locale and currency.
+## $taxDue (String) - The tax amount of the next invoice, formatted according to the user's locale and currency.
+## $last4 (String) - The last four digits of the default payment method card.
+## $currentPeriodEnd (Date) - The date of the next charge.
+
+stay-subscribed-next-charge-with-tax = 다음에는 { $currentPeriodEnd }에 { $nextInvoiceTotal } + 세금 { $taxDue }의 요금이 청구됩니다.
+stay-subscribed-next-charge-no-tax = 다음에는 { $currentPeriodEnd }에 { $nextInvoiceTotal }의 요금이 청구됩니다.
 
 ## $billOnDate (Date) - The billing date of the current invoice (e.g., September 8, 2025)
 ## $creditApplied (Number) - The amount from account credit balance used to reduce the amount due on the invoice
@@ -505,9 +545,13 @@ resubscribe-success-dialog-title = 감사합니다! 모두 준비되었습니다
 ## $promotionName (String) - The name of the promotion.
 ## $taxDue (Number) - The tax added on, not included in amount. It will be formatted as currency.
 
+subscription-content-coupon-will-be-applied = { $promotionName } 할인이 적용됩니다
+# • is acting as a separator between "Last bill" and the billing date.
+subscription-content-last-bill = 최근 청구 • { $billedOnDate }
 subscription-content-last-bill-with-tax = { $invoiceTotal } + 세금 { $taxDue }
 subscription-content-last-bill-no-tax = { $invoiceTotal }
 subscription-content-view-invoice = 청구서 보기
+subscription-management-link-view-invoice-aria = { $productName } 청구서 보기
 subscription-content-expires-on-expiry-date = { $date }에 만료
 # • is acting as a separator between "Next bill" and the next billing date.
 subscription-content-next-bill = 다음 청구일 • { $billedOnDate }
@@ -517,20 +561,36 @@ subscription-content-button-stay-subscribed = 구독 유지
     .aria-label = { $productName } 구독 유지
 subscription-content-button-cancel-subscription = 구독 취소
     .aria-label = { $productName } 구독 취소
+# Link to the terms and restrictions for a coupon offer.
+subscription-content-link-churn-intervention-terms-apply = 적용 약관
+subscription-content-link-churn-intervention-terms-aria = 쿠폰 약관 및 제한 사항 보기
 
 ##
 
 dialog-close = 대화상자 닫기
 button-back-to-subscriptions = 구독으로 돌아가기
 subscription-content-cancel-action-error = 알 수 없는 오류가 발생하였습니다. 다시 시도해 주세요.
+paypal-unavailable-error = 현재 { -brand-paypal }을 이용할 수 없습니다. 다른 결제 수단을 사용하거나 나중에 다시 시도하세요.
 
 ## Churn flow - Error page
 
+churn-error-page-title-discount-already-applied = 할인 코드 이미 적용됨
+# $productName (String) - The name of the product associated with the subscription.
+churn-error-page-message-discount-already-applied = 이 할인은 계정의 { $productName } 구독에 적용되었습니다. 여전히 도움이 필요하시면, 지원 팀에 문의하세요.
 churn-error-page-button-manage-subscriptions = 구독 관리
 churn-error-page-button-contact-support = 지원팀 연락
 churn-error-page-button-try-again = 다시 시도
+churn-error-page-title-customer-mismatch = 쿠폰 사용 불가
+churn-error-page-message-customer-mismatch = 이 쿠폰은 다른 구독에 대해 발급된 것으로 본래 수령인만 사용할 수 있습니다.
 churn-error-page-button-sign-in = 로그인
+churn-error-page-title-general-error = 구독을 갱신하는 데 문제가 발생함
 churn-error-page-message-general-error = 지원팀에 연락하거나 다시 시도하세요.
+# $productName (String) - The name of the product associated with the subscription.
+churn-error-page-button-go-to-product-page = { $productName } 제품으로 이동
+# $productName (String) - The name of the product associated with the subscription.
+churn-error-page-title-subscription-not-active = 현재 { $productName } 구독자만 할인을 적용할 수 있습니다
+# $productName (String) - The name of the product associated with the subscription.
+churn-error-page-title-subscription-still-active = { $productName } 구독이 여전히 활성화됨
 
 ## PriceInterval - shared by multiple components, including Details and PurchaseDetails
 ## $amount (Number) - The amount billed. It will be formatted as currency.
@@ -634,9 +694,18 @@ next-coupon-error-limit-reached = 입력한 코드가 제한에 도달했습니�
 
 stay-subscribed-error-expired = 이 제안은 만료되었습니다.
 stay-subscribed-error-discount-used = 할인 코드가 이미 적용되었습니다.
+# $productTitle (String) - The name of the product
+stay-subscribed-error-not-current-subscriber = 현재 { $productTitle } 구독자만 할인을 적용할 수 있습니다.
+stay-subscribed-error-still-active = { $productTitle } 구독이 여전히 활성화되었습니다.
+stay-subscribed-error-general = 구독을 갱신하는 데 문제가 발생했습니다.
 
 ## Manage Payment Method Error Messages
 
+manage-payment-method-intent-error-card-declined = 거래를 처리할 수 없습니다. 신용 카드 정보를 확인한 후 다시 시도하세요.
+manage-payment-method-intent-error-expired-card-error = 신용 카드 유효 기간이 만료된 것 같습니다. 다른 카드를 사용해보세요.
+manage-payment-method-intent-error-try-again = 결제를 승인하는 동안 문제가 발생했습니다. 다시 시도하거나 카드사에 연락하세요.
+manage-payment-method-intent-error-get-in-touch = 결제를 승인하는 동안 문제가 발생했습니다. 카드사에 연락하세요.
+manage-payment-method-intent-error-insufficient-funds = 카드 잔액이 부족한 것 같습니다. 다른 카드를 사용해보세요.
 manage-payment-method-intent-error-generic = 결제를 처리하는 동안 예기치 않은 오류가 발생했습니다. 다시 시도하십시오.
 manage-payment-method-tax-address-required = 결제 위치를 확인할 수 없습니다. 결제 수단 정보를 확인하시고 다시 시도하십시오.
 

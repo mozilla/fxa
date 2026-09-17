@@ -944,6 +944,9 @@ pair-unsupported-header = Parekatzea aplikazioa erabiliz
 pair-unsupported-message = Sistemako kamera darabilzu? { -brand-firefox } aplikazio batetik parekatu behar duzu.
 
 
+pair2-supplicant-download-firefox-opening-button = { -brand-firefox } irekitzen…
+
+
 third-party-auth-callback-message = Mesedez, itxaron, baimendutako aplikaziora birbideratzen ari zara.
 
 

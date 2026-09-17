@@ -1244,6 +1244,10 @@ recent-activity-account-recovery-codes-set = Recovery codes set
 recent-activity-account-passkey-wrap-created = Passkey enabled for syncing
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
 recent-activity-account-passkey-wrap-creation-failure = Sync setup with passkey failed
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey that could unlock the user's synced browser data had that access turned off, leaving the passkey itself usable for signing in.
+recent-activity-account-passkey-wrap-deleted = Passkey sync access removed
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to turn off a passkey's access to the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-deletion-failure = Passkey sync access removal failed
 # A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
 recent-activity-account-passkey-wrap-invalidated = Passkey sync access removed after password reset
 
@@ -1820,6 +1824,19 @@ index-account-delete-success = Account deleted successfully
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = Your confirmation email was just returned. Mistyped email?
 
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+# Browser tab title.
+inline-passwordless-sync-setup-page-title = Skip the password next time?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner = Signed in to { -brand-firefox }
+inline-passwordless-sync-setup-heading = Skip the password next time?
+inline-passwordless-sync-setup-description = Use this passkey to sign in faster.
+inline-passwordless-sync-setup-enable-button = Enable passkey
+# Button label while the passkey is stored.
+inline-passwordless-sync-setup-enabling = Enabling…
+inline-passwordless-sync-setup-not-now-button = Not now
+
 ## InlineRecoveryKeySetup page component
 
 inline-recovery-key-setup-create-error = Oops! We couldn’t create your account recovery key. Please try again later.
@@ -2124,12 +2141,10 @@ pair2-authority-sync-success-sync-settings-button = Sync settings
 pair2-authority-timeout-and-cancel-timeout-heading = Still want to connect a device?
 pair2-authority-timeout-and-cancel-timeout-description = Looks like we timed out. Try again if you still want to connect your mobile device and sync your { -brand-firefox } data.
 # Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-canceled-heading = Canceled
+pair2-authority-timeout-and-cancel-cancelled-heading = Cancelled
 pair2-authority-timeout-and-cancel-canceled-description = If you change your mind or want to connect a different device, try again.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Try again
-# Abandons pairing without retrying
-pair2-authority-timeout-and-cancel-cancel-button = Cancel
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = Sync settings
 
@@ -2208,7 +2223,7 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Looks like we timed out
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = To connect your mobile device and sync your { -brand-firefox } data, visit <b>firefox.com/pair</b> on your computer.
 # Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-canceled-heading = Canceled
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelled
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = To connect a device anytime, visit <b>firefox.com/pair</b> on your computer.
 

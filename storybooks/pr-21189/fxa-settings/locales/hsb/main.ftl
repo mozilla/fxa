@@ -835,6 +835,8 @@ recent-activity-account-passwordless-registration-complete = Kontowa registracij
 recent-activity-account-recovery-codes-set = Wobnowjenske kody nastajene
 recent-activity-account-passkey-wrap-created = Hesłowy kluč je so za synchronizaciju zmóžnił
 recent-activity-account-passkey-wrap-creation-failure = Konfiguracija synchronizacije z hesłowym klučom je so nimokuliła
+recent-activity-account-passkey-wrap-deleted = Přistup hesłoweho kluča na synchronizaciju wotstronjeny
+recent-activity-account-passkey-wrap-deletion-failure = Wotstronjenje přistupa hesłoweho kluča na synchronizaciju je so nimokuliło
 recent-activity-account-passkey-wrap-invalidated = Synchronizaciski přistup z hesłowym klučom je so po wróćostajenju hesła wotstronił
 recent-activity-unknown = Druha kontowa aktiwita
 
@@ -1356,6 +1358,7 @@ pair2-supplicant-connect-this-device-cancel-button = Přetorhnyć
 pair2-supplicant-download-firefox-heading = Wobstarajće sej { -brand-firefox } na tutym graće
 pair2-supplicant-download-firefox-description = Sćehńće { -brand-firefox }, zo byšće zapołožki, historiju a wjace na swojich gratach synchronizował. <linkExternal>Dalše informacije</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Z { -brand-firefox } pokročować
+pair2-supplicant-download-firefox-opening-button = { -brand-firefox } so wočinja …
 
 
 pair2-supplicant-ready-to-scan-heading = Grat zwjazać

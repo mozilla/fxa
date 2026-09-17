@@ -339,7 +339,7 @@ password-strength-inline-passwords-match = Coincidencia de contraseñas
 
 
 promo-qr-mobile-heading = Tu teléfono. Tus reglas.
-promo-qr-mobile-heading-treatment-a = Continúe donde lo dejó, dondequiera que vaya
+promo-qr-mobile-heading-treatment-a = Continuá donde lo dejaste, estés donde estés
 promo-qr-mobile-heading-treatment-b = Tus pestañas y más, listas en tu teléfono
 promo-qr-mobile-heading-treatment-c = El navegador en el que confiás, también en tu teléfono
 promo-qr-mobile-heading-treatment-d = Mismo { -brand-firefox }. Pantalla diferente.
@@ -823,6 +823,8 @@ recent-activity-account-passwordless-registration-complete = Se completó el reg
 recent-activity-account-recovery-codes-set = Códigos de recuperación establecidos
 recent-activity-account-passkey-wrap-created = Clave de acceso habilitada para sincronización
 recent-activity-account-passkey-wrap-creation-failure = Falló la configuración de Sync con la clave de acceso
+recent-activity-account-passkey-wrap-deleted = Se eliminó el acceso a Sync con clave de acceso
+recent-activity-account-passkey-wrap-deletion-failure = Falló la eliminación del acceso de sincronización de contraseña
 recent-activity-account-passkey-wrap-invalidated = Se quitó el acceso a la sincronización con clave de acceso tras restablecer la contraseña
 recent-activity-unknown = Otra actividad de la cuenta
 

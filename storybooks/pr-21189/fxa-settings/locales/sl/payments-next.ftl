@@ -340,18 +340,12 @@ next-coupon-submit = Uveljavi
 
 free-trial-content-trial-expires = Vaš brezplačen preskus poteče { $date }.
 free-trial-content-trial-cancelled = Vaš brezplačen preskus je bil preklican.
-
-# Charge info strings - with tax, per interval
-
 free-trial-content-charge-info-with-tax-day = Po izteku brezplačnega preskusa ob { $date } vam bomo zaračunali { $amount } + { $tax } davek na dan.
 free-trial-content-charge-info-with-tax-week = Po izteku brezplačnega preskusa ob { $date } vam bomo zaračunali { $amount } + { $tax } davek na teden.
 free-trial-content-charge-info-with-tax-month = Po izteku brezplačnega preskusa na dan { $date } vam bomo zaračunali { $amount } + { $tax } davek na mesec.
 free-trial-content-charge-info-with-tax-halfyear = Po izteku brezplačnega preskusa ob { $date } vam bomo vsakih šest mesecev zaračunali { $amount } + { $tax } davek.
 free-trial-content-charge-info-with-tax-year = Po izteku brezplačnega preskusa ob { $date } vam bomo zaračunali { $amount } + { $tax } davek letno.
 free-trial-content-charge-info-with-tax-default = Po izteku brezplačnega preskusa ob { $date } vam bomo zaračunali { $amount } + davek { $tax }.
-
-# Charge info strings - no tax, per interval
-
 free-trial-content-charge-info-no-tax-day = Po izteku brezplačnega preskusa ob { $date } vam bomo zaračunali { $amount } na dan.
 free-trial-content-charge-info-no-tax-week = Po izteku brezplačnega preskusa na dan { $date } vam bomo zaračunali { $amount } na teden.
 free-trial-content-charge-info-no-tax-month = Po izteku brezplačnega preskusa na dan { $date } vam bomo zaračunali { $amount } na mesec.
@@ -385,17 +379,14 @@ free-trial-content-link-view-invoice-aria = Prikaži račun za { $productName }
 free-trial-content-trial-ended = Vaše brezplačno preskusno obdobje se je izteklo <bold>{ $date }</bold>.
 free-trial-content-could-not-process-payment = Vašega plačila nismo mogli obdelati. Če želite obnoviti dostop, posodobite način plačila. Obdelava lahko traja do 24 ur in se lahko razlikuje glede na banko ali način plačila.
 free-trial-content-button-update-payment = Posodobite način plačila
-
-# Component - Header
-
 payments-header-help =
-    .title = Pomoč
-    .aria-label = Pomoč
     .alt = Pomoč
+    .aria-label = Pomoč
+    .title = Pomoč
 payments-header-bento =
-    .title = Izdelki { -brand-mozilla }
-    .aria-label = Izdelki { -brand-mozilla }
     .alt = Logotip { -brand-mozilla(sklon: "rodilnik") }
+    .aria-label = Izdelki { -brand-mozilla }
+    .title = Izdelki { -brand-mozilla }
 payments-header-bento-close =
     .alt = Zapri
 payments-header-bento-tagline = Več izdelkov { -brand-mozilla(sklon: "rodilnik") }, ki varujejo vašo zasebnost
@@ -435,8 +426,8 @@ interstitial-offer-button-keep-subscription = Obdrži naročnino
 ##
 
 payments-client-loading-spinner =
-    .aria-label = Nalaganje …
     .alt = Nalaganje …
+    .aria-label = Nalaganje …
 
 ## Payment method management page - Stripe
 

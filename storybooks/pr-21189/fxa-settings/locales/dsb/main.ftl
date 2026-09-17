@@ -835,6 +835,8 @@ recent-activity-account-passwordless-registration-complete = Kontowa registracij
 recent-activity-account-recovery-codes-set = Wótnowjeńske kody nastajone
 recent-activity-account-passkey-wrap-created = Gronidłowy kluc jo se za synchronizaciju zmóžnił
 recent-activity-account-passkey-wrap-creation-failure = Konfiguracija synchronizacije z gronidłowym klucom njejo se raźiła
+recent-activity-account-passkey-wrap-deleted = Pśistup gronidłowego kluca na synchronizaciju wótwónoźony
+recent-activity-account-passkey-wrap-deletion-failure = Wótwónoźenje pśistupa gronidłowego kluca na synchronizaciju njejo se raźiło
 recent-activity-account-passkey-wrap-invalidated = Synchronizaciski pśistup z gronidłowym klucom jo se pó slědkstajenju gronidła wótwónoźeł
 recent-activity-unknown = Druga kontowa aktiwita
 
@@ -1356,6 +1358,7 @@ pair2-supplicant-connect-this-device-cancel-button = Pśetergnuś
 pair2-supplicant-download-firefox-heading = Wobstarajśo se { -brand-firefox } na toś tom rěźe
 pair2-supplicant-download-firefox-description = Ześěgniśo { -brand-firefox }, aby cytańske znamjenja, historiju a wěcej na swójich rědach synchronizěrował. <linkExternal>Dalšne informacije</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Z { -brand-firefox } pókšacowaś
+pair2-supplicant-download-firefox-opening-button = { -brand-firefox } se wócynja …
 
 
 pair2-supplicant-ready-to-scan-heading = Rěd zwězaś

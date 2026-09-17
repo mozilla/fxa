@@ -827,6 +827,8 @@ recent-activity-account-passwordless-registration-complete = Registration de con
 recent-activity-account-recovery-codes-set = Codices de recuperation configurate
 recent-activity-account-passkey-wrap-created = Clave-contrasigno activate pro synchronisar
 recent-activity-account-passkey-wrap-creation-failure = Configuration del accesso con clave-contrasigno fallite
+recent-activity-account-passkey-wrap-deleted = Clave-contrasigno de accesso al synchronisation removite
+recent-activity-account-passkey-wrap-deletion-failure = Remotion del clave-contrasigno de accesso al synchronisation fallite
 recent-activity-account-passkey-wrap-invalidated = Clave-contrasigno de accesso al synchronisation removite post le redefinition del contrasigno
 recent-activity-unknown = Altere activitate de conto
 
@@ -1345,6 +1347,7 @@ pair2-supplicant-connect-this-device-cancel-button = Cancellar
 pair2-supplicant-download-firefox-heading = Installar { -brand-firefox } sur iste apparato
 pair2-supplicant-download-firefox-description = Discarga { -brand-firefox } pro synchronisar marcapaginas, chronologia, e plus a transverso apparatos. <linkExternal>Pro saper plus</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Continuar in { -brand-firefox }
+pair2-supplicant-download-firefox-opening-button = Aperiente { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = Connecter un apparato

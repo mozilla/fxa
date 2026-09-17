@@ -825,6 +825,8 @@ recent-activity-account-passwordless-registration-complete = Passwordless accoun
 recent-activity-account-recovery-codes-set = Recovery codes set
 recent-activity-account-passkey-wrap-created = Passkey enabled for synchronisation
 recent-activity-account-passkey-wrap-creation-failure = Synchronisation setup with passkey failed
+recent-activity-account-passkey-wrap-deleted = Passkey synchronisation access removed
+recent-activity-account-passkey-wrap-deletion-failure = Passkey synchronisation access removal failed
 recent-activity-account-passkey-wrap-invalidated = Passkey synchronisation access removed after password reset
 recent-activity-unknown = Other account activity
 
@@ -1341,6 +1343,7 @@ pair2-supplicant-connect-this-device-cancel-button = Cancel
 pair2-supplicant-download-firefox-heading = Get { -brand-firefox } on this device
 pair2-supplicant-download-firefox-description = Download { -brand-firefox } to synchronise bookmarks, history and more across devices. <linkExternal>Learn more</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Continue in { -brand-firefox }
+pair2-supplicant-download-firefox-opening-button = Opening { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = To connect a device

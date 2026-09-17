@@ -837,6 +837,8 @@ recent-activity-account-passwordless-registration-complete = Completata registra
 recent-activity-account-recovery-codes-set = Impostati codici di recupero
 recent-activity-account-passkey-wrap-created = Passkey attivata per la sincronizzazione
 recent-activity-account-passkey-wrap-creation-failure = Configurazione della sincronizzazione con passkey non riuscita
+recent-activity-account-passkey-wrap-deleted = Accesso della passkey ai dati sincronizzati revocato
+recent-activity-account-passkey-wrap-deletion-failure = Impossibile rimuovere l’accesso alla sincronizzazione con passkey
 recent-activity-account-passkey-wrap-invalidated = Accesso alla sincronizzazione tramite passkey revocato dopo la reimpostazione della password
 recent-activity-unknown = Altre attività dell’account
 
@@ -1342,7 +1344,7 @@ pair2-supplicant-connect-this-device-cancel-button = Annulla
 pair2-supplicant-download-firefox-heading = Ottieni { -brand-firefox } su questo dispositivo
 pair2-supplicant-download-firefox-description = Scarica { -brand-firefox } per sincronizzare segnalibri, cronologia e altri dati su tutti i tuoi dispositivi. <linkExternal>Ulteriori informazioni</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Continua in { -brand-firefox }
-pair2-supplicant-download-firefox-opening-button = Apertura { -brand-firefox }…
+pair2-supplicant-download-firefox-opening-button = Avvio di { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = Per connettere un dispositivo

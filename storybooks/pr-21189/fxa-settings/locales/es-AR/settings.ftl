@@ -421,7 +421,7 @@ password-strength-inline-passwords-match = Coincidencia de contraseñas
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Tu teléfono. Tus reglas.
 # Value proposition variant. Refers to resuming browsing on another device.
-promo-qr-mobile-heading-treatment-a = Continúe donde lo dejó, dondequiera que vaya
+promo-qr-mobile-heading-treatment-a = Continuá donde lo dejaste, estés donde estés
 # Value proposition variant. "tabs" are the open pages in a browser.
 promo-qr-mobile-heading-treatment-b = Tus pestañas y más, listas en tu teléfono
 # Value proposition variant. Refers to using the same trusted browser on a phone.
@@ -1090,6 +1090,10 @@ recent-activity-account-recovery-codes-set = Códigos de recuperación estableci
 recent-activity-account-passkey-wrap-created = Clave de acceso habilitada para sincronización
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
 recent-activity-account-passkey-wrap-creation-failure = Falló la configuración de Sync con la clave de acceso
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey that could unlock the user's synced browser data had that access turned off, leaving the passkey itself usable for signing in.
+recent-activity-account-passkey-wrap-deleted = Se eliminó el acceso a Sync con clave de acceso
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to turn off a passkey's access to the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-deletion-failure = Falló la eliminación del acceso de sincronización de contraseña
 # A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
 recent-activity-account-passkey-wrap-invalidated = Se quitó el acceso a la sincronización con clave de acceso tras restablecer la contraseña
 # Security event was recorded, but the activity details are unknown or not shown to user

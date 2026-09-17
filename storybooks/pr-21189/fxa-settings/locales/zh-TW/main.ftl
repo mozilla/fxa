@@ -801,6 +801,8 @@ recent-activity-account-passwordless-registration-complete = 無密碼帳號註�
 recent-activity-account-recovery-codes-set = 設定救援碼
 recent-activity-account-passkey-wrap-created = 已啟用 Passkey 進行同步
 recent-activity-account-passkey-wrap-creation-failure = 使用 Passkey 設定同步失敗
+recent-activity-account-passkey-wrap-deleted = 已移除 Passkey 的同步資料存取權限
+recent-activity-account-passkey-wrap-deletion-failure = Passkey 的同步資料存取權限移除失敗
 recent-activity-account-passkey-wrap-invalidated = 密碼重設完成後，移除 Passkey 同步存取權限
 recent-activity-unknown = 其他帳號活動
 
@@ -1300,6 +1302,7 @@ pair2-supplicant-connect-this-device-cancel-button = 取消
 pair2-supplicant-download-firefox-heading = 在此裝置安裝 { -brand-firefox }
 pair2-supplicant-download-firefox-description = 下載 { -brand-firefox } 即可在不同裝置間同步書籤、瀏覽紀錄與更多資料。 <linkExternal>了解更多資訊</linkExternal>
 pair2-supplicant-download-firefox-continue-button = 到 { -brand-firefox } 繼續
+pair2-supplicant-download-firefox-opening-button = 正在開啟 { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = 連結裝置

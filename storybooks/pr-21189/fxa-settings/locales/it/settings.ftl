@@ -1088,6 +1088,10 @@ recent-activity-account-recovery-codes-set = Impostati codici di recupero
 recent-activity-account-passkey-wrap-created = Passkey attivata per la sincronizzazione
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
 recent-activity-account-passkey-wrap-creation-failure = Configurazione della sincronizzazione con passkey non riuscita
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey that could unlock the user's synced browser data had that access turned off, leaving the passkey itself usable for signing in.
+recent-activity-account-passkey-wrap-deleted = Accesso della passkey ai dati sincronizzati revocato
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to turn off a passkey's access to the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-deletion-failure = Impossibile rimuovere l’accesso alla sincronizzazione con passkey
 # A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
 recent-activity-account-passkey-wrap-invalidated = Accesso alla sincronizzazione tramite passkey revocato dopo la reimpostazione della password
 # Security event was recorded, but the activity details are unknown or not shown to user
@@ -1940,7 +1944,7 @@ pair2-supplicant-download-firefox-description = Scarica { -brand-firefox } per s
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Continua in { -brand-firefox }
 # Replaces the button label while waiting for the Firefox app to take over
-pair2-supplicant-download-firefox-opening-button = Apertura { -brand-firefox }…
+pair2-supplicant-download-firefox-opening-button = Avvio di { -brand-firefox }…
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them

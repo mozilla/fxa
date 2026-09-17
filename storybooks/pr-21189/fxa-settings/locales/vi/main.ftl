@@ -327,6 +327,15 @@ password-strength-inline-passwords-match = Mật khẩu trùng khớp
 
 
 promo-qr-mobile-heading = Điện thoại của bạn. Luật chơi do bạn đặt.
+promo-qr-mobile-heading-treatment-a = Tiếp tục từ nơi bạn đã dừng lại, bất kể bạn đã đi đến đâu
+promo-qr-mobile-heading-treatment-b = Các thẻ yêu thích và nhiều nội dung khác, sẵn sàng trên điện thoại của bạn
+promo-qr-mobile-heading-treatment-c = Trình duyệt bạn tin dùng, trên điện thoại của bạn
+promo-qr-mobile-heading-treatment-d = Cùng trình duyệt { -brand-firefox }. Nhưng ở trên di động.
+promo-qr-mobile-heading-treatment-e = Quyền riêng tư của bạn không nên dừng lại tại đây
+promo-qr-mobile-heading-treatment-f = Giữ hoạt động duyệt web của bạn riêng tư hơn
+promo-qr-mobile-heading-treatment-g = Điện thoại của bạn nên bớt ồn hơn một chút
+promo-qr-mobile-heading-treatment-h = Hãy chọn cách duyệt web nhẹ nhàng hơn
+promo-qr-mobile-description-v2 = Quét mã để tải ứng dụng di động
 promo-qr-mobile-qr-alt =
     .alt = Mã QR để tải xuống ứng dụng di động { -brand-firefox }. Đặt camera điện thoại của bạn vào góc dưới bên phải màn hình để quét mã.
 
@@ -796,6 +805,8 @@ recent-activity-account-passwordless-registration-complete = Đã hoàn tất đ
 recent-activity-account-recovery-codes-set = Đã thiết lập mã khôi phục
 recent-activity-account-passkey-wrap-created = Đã bật passkey cho đồng bộ hoá
 recent-activity-account-passkey-wrap-creation-failure = Thiết lập đồng bộ hoá bằng passkey không thành công
+recent-activity-account-passkey-wrap-deleted = Đã thu hồi truy cập đồng bộ bằng passkey
+recent-activity-account-passkey-wrap-deletion-failure = Không thể thu hồi truy cập đồng bộ bằng passkey
 recent-activity-account-passkey-wrap-invalidated = Quyền truy cập đồng bộ passkey đã bị xóa sau khi đặt lại mật khẩu
 recent-activity-unknown = Hoạt động tài khoản khác
 
@@ -1306,6 +1317,7 @@ pair2-supplicant-connect-this-device-cancel-button = Huỷ bỏ
 pair2-supplicant-download-firefox-heading = Tải { -brand-firefox } trên thiết bị này
 pair2-supplicant-download-firefox-description = Tải xuống { -brand-firefox } để đồng bộ dấu trang, lịch sử và nhiều hơn nữa trên các thiết bị. <linkExternal>Tìm hiểu thêm</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Tiếp tục trong { -brand-firefox }
+pair2-supplicant-download-firefox-opening-button = Đang mở { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = Để kết nối thiết bị

@@ -317,7 +317,7 @@ confetti-falling-image-aria-label =
 vpn-welcome-image-aria-label =
     .aria-label = Okno { -brand-firefox(sklon: "rodilnik") } z okroglo značko, ki prikazuje zeleno kljukico, in "VPN", ki kaže, da je VPN aktiven.
 sync-devices-image-aria-label =
-    .aria-label = Namizno okno brskalnika in mobilni telefon, oboje sinhronizirano, ob njem pa maskota { -brand-firefox }
+    .aria-label = Okno namiznega brskalnika in mobilni telefon, ki se sinhronizirata, ob njiju pa maskota { -brand-firefox(sklon: "rodilnik") }
 # Aria label for the Firefox logo and wordmark shown together as a brand lockup
 firefox-wordmark-image-aria-label =
     .aria-label = Logotip { -brand-firefox(sklon: "rodilnik") }
@@ -427,19 +427,19 @@ password-strength-inline-passwords-match = Gesli se ujemata
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Vaš telefon. Vaša pravila.
 # Value proposition variant. Refers to resuming browsing on another device.
-promo-qr-mobile-heading-treatment-a = Nadaljujte, kjer ste končali in kamorkoli greste
+promo-qr-mobile-heading-treatment-a = Nadaljujte, kjer ste končali, kamorkoli greste
 # Value proposition variant. "tabs" are the open pages in a browser.
 promo-qr-mobile-heading-treatment-b = Vaši zavihki in še več – pripravljeni na telefonu
 # Value proposition variant. Refers to using the same trusted browser on a phone.
-promo-qr-mobile-heading-treatment-c = Brskalnika, ki mu zaupate, na telefonu
+promo-qr-mobile-heading-treatment-c = Brskalnik, ki mu zaupate, tudi na telefonu
 # Value proposition variant. "Different screen" refers to the phone rather than the desktop.
-promo-qr-mobile-heading-treatment-d = Enako { -brand-firefox }. Drugačen zaslon.
+promo-qr-mobile-heading-treatment-d = Isti { -brand-firefox }. Drug zaslon.
 # Value proposition variant. "stop here" means privacy protection should continue onto the phone.
 promo-qr-mobile-heading-treatment-e = Vaša zasebnost se ne bi smela ustaviti tukaj
 # Value proposition variant. Refers to keeping browsing activity private.
 promo-qr-mobile-heading-treatment-f = Obdržite večji del brskanja zase
 # Value proposition variant. "noise" refers to distractions and clutter.
-promo-qr-mobile-heading-treatment-g = Vaš telefon bi lahko porabil manj hrupa
+promo-qr-mobile-heading-treatment-g = Vašemu telefonu bi dobro delo malo manj motenj
 # Value proposition variant. Refers to a calmer browsing experience on the phone.
 promo-qr-mobile-heading-treatment-h = Vzemite umirjeno brskanje z vami
 # Appears below a QR code that a user can scan to download the Firefox mobile app
@@ -769,7 +769,7 @@ flow-setup-2fa-prompt-heading = Nastavite overjanje v dveh korakih
 # that requests two-step authentication setup.
 flow-setup-2fa-prompt-description = { $serviceName } zahteva, da za varnost računa nastavite overjanje v dveh korakih.
 # Success banner shown at the top of the page when the user signed in with a passkey.
-flow-setup-2fa-prompt-passkey-success-banner = Prijava z geslom uspešna
+flow-setup-2fa-prompt-passkey-success-banner = Prijava s ključem za dostop uspešna
 # Body copy shown when the user signed in with a passkey and the service still
 # requires two-step authentication setup.
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
@@ -1099,9 +1099,13 @@ recent-activity-account-passwordless-login-otp-verified = Koda za prijavo brez g
 recent-activity-account-passwordless-registration-complete = Registracija računa brez gesla končana
 recent-activity-account-recovery-codes-set = Kode za obnovitev so nastavljene
 # A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
-recent-activity-account-passkey-wrap-created = Geslo je omogočeno za sinhronizacijo
+recent-activity-account-passkey-wrap-created = Ključ za dostop je omogočen za sinhronizacijo
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
-recent-activity-account-passkey-wrap-creation-failure = Nastavitev sinhronizacije z geslom ni uspela
+recent-activity-account-passkey-wrap-creation-failure = Nastavitev sinhronizacije s ključem za dostop ni uspela
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey that could unlock the user's synced browser data had that access turned off, leaving the passkey itself usable for signing in.
+recent-activity-account-passkey-wrap-deleted = Dostop za sinhronizacijo gesel je odstranjen
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to turn off a passkey's access to the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-deletion-failure = Odstranjevanje dostopa za sinhronizacijo gesel ni uspelo
 # A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
 recent-activity-account-passkey-wrap-invalidated = Dostop za sinhronizacijo gesel je bil po ponastavitvi gesla odstranjen
 # Security event was recorded, but the activity details are unknown or not shown to user
@@ -1897,7 +1901,7 @@ pair2-authority-scan-qr-heading = Skenirajte za povezavo mobilne naprave
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-scan-qr-instruction = Skenirajte kodo QR s telefonom ali tablico za sinhronizacijo zaznamkov, zavihkov in drugih podatkov v storitvi { -brand-firefox }.
 # Accessible label describing the QR code image shown on this page
-pair2-authority-scan-qr-code-aria-label = QR koda za povezavo vaše mobilne naprave
+pair2-authority-scan-qr-code-aria-label = Koda QR za povezavo mobilne naprave
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Pridobite pomoč pri branju
 
@@ -1906,7 +1910,7 @@ pair2-authority-scan-qr-help-link = Pridobite pomoč pri branju
 ## It confirms that sync is on and offers the follow-up actions.
 
 # "syncing" here means copying data between the user's devices
-pair2-authority-sync-success-heading = Izvajate sinhronizacijo
+pair2-authority-sync-success-heading = Sinhronizacija poteka
 pair2-authority-sync-success-description = Vaši zavihki, zaznamki, gesla in drugo so pripravljeni v vaših napravah.
 # Opens the tabs that are open on the user's other synced devices
 pair2-authority-sync-success-view-tabs-button = Prikaži sinhronizirane zavihke
@@ -1962,25 +1966,25 @@ pair2-supplicant-connect-this-device-cancel-button = Prekliči
 ## either opens the Firefox app to finish pairing or sends them off to install
 ## the browser.
 
-pair2-supplicant-download-firefox-heading = Prejmite { -brand-firefox } za to napravo
+pair2-supplicant-download-firefox-heading = Prenesite { -brand-firefox(sklon: "tozilnik") } na to napravo
 # "sync" is a verb here, referring to syncing data between the user's devices.
 # <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = Prenesite { -brand-firefox } in sinhronizirajte zaznamke, zgodovino in drugo med napravami. <linkExternal>Več o tem</linkExternal>
+pair2-supplicant-download-firefox-description = Prenesite { -brand-firefox(sklon: "tozilnik") } in sinhronizirajte zaznamke, zgodovino ter druge podatke med napravami. <linkExternal>Več o tem</linkExternal>
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Nadaljuj v { -brand-firefox(sklon: "mestnik") }
 # Replaces the button label while waiting for the Firefox app to take over
-pair2-supplicant-download-firefox-opening-button = Odpiranje { -brand-firefox } …
+pair2-supplicant-download-firefox-opening-button = Odpiranje { -brand-firefox(sklon: "rodilnik") } …
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
 ## to open firefox.com/pair on their computer, which is where the QR code they
 ## scan with the mobile device comes from.
 
-pair2-supplicant-ready-to-scan-heading = Za povezavo naprave
+pair2-supplicant-ready-to-scan-heading = Da povežete napravo
 # <b> emphasises the address the user types on their computer. It is not a link,
 # and the address itself must not be translated.
-pair2-supplicant-ready-to-scan-instruction = V računalniku odprite { -brand-firefox } in obiščite <b>firefox.com/pair</b> ter sledite navodilom na zaslonu za povezavo te mobilne naprave.
+pair2-supplicant-ready-to-scan-instruction = Na računalniku odprite { -brand-firefox(sklon: "tozilnik") }, obiščite <b>firefox.com/pair</b> in po navodilih na zaslonu povežite mobilno napravo.
 # Opens a Mozilla support article about setting up sync
 pair2-supplicant-ready-to-scan-learn-more-link = Več o tem
 
@@ -2004,11 +2008,11 @@ pair2-supplicant-sync-success-sync-settings-button = Nastavitve sinhronizacije
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
 pair2-supplicant-timeout-and-cancel-timeout-heading = Kaže, da nam je potekla časovna omejitev
 # "firefox.com/pair" is a URL and should not be translated
-pair2-supplicant-timeout-and-cancel-timeout-description = Če želite povezati mobilno napravo in sinhronizirati vaše podatke v storitvi { -brand-firefox }, v računalniku obiščite <b>firefox.com/pair</b>.
+pair2-supplicant-timeout-and-cancel-timeout-description = Če želite povezati mobilno napravo in sinhronizirati podatke { -brand-firefox(sklon: "rodilnik") }, z računalnikom obiščite <b>firefox.com/pair</b>.
 # Shown after the pairing attempt was canceled
 pair2-supplicant-timeout-and-cancel-canceled-heading = Preklicano
 # "firefox.com/pair" is a URL and should not be translated
-pair2-supplicant-timeout-and-cancel-canceled-description = Če želite kadarkoli povezati napravo, v računalniku obiščite <b>firefox.com/pair</b>.
+pair2-supplicant-timeout-and-cancel-canceled-description = Napravo lahko kadarkoli povežete tako, da z računalnikom obiščete <b>firefox.com/pair</b>.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
