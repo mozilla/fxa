@@ -98,9 +98,6 @@ payment-provider-card-ending-in = <b>Mode de paiement :</b> carte se terminant 
 payment-provider-card-ending-in-card-name = <b>Mode de paiement :</b> { $cardName } se terminant par { $lastFour }
 subscription-charges-invoice-summary = Récapitulatif de facture
 
-# Variables:
-
-
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
 
@@ -373,13 +370,13 @@ subscriptionPaymentProviderCancelled-content-reason-1 = Il se peut que votre mod
 subscriptionReactivation-subject-2 = Votre abonnement à { $productName } a été réactivé
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-subject = Votre essai de { $productName } a été réactivé
+subscriptionReactivation-free-trial-subject = Votre essai gratuit de { $productName } a été réactivé
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = Merci d’avoir réactivé votre abonnement à { $productName } !
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-title = Merci d’avoir réactivé votre essai de { $productName } !
+subscriptionReactivation-free-trial-title = Merci d’avoir réactivé votre essai gratuit de { $productName } !
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

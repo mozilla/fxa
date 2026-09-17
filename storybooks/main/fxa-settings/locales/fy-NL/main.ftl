@@ -1317,10 +1317,8 @@ pair2-authority-sync-success-sync-settings-button = Syngronisaasje-ynstellingen
 
 pair2-authority-timeout-and-cancel-timeout-heading = Wolle jo dochs in apparaat ferbine?
 pair2-authority-timeout-and-cancel-timeout-description = It liket derop dat de tiid ferrûn is. Probearje it nochris as jo jo mobyl apparaat noch ferbine wolle en jo { -brand-firefox }-gegevens syngronisearje wolle.
-pair2-authority-timeout-and-cancel-canceled-heading = Annulearre
 pair2-authority-timeout-and-cancel-canceled-description = As jo fan gedachten feroarje of in oar apparaat ferbine wolle, probearje it dan opnij.
 pair2-authority-timeout-and-cancel-try-again-button = Opnij probearje
-pair2-authority-timeout-and-cancel-cancel-button = Annulearje
 pair2-authority-timeout-and-cancel-sync-settings-button = Syngronisaasje-ynstellingen
 
 
@@ -1352,7 +1350,6 @@ pair2-supplicant-sync-success-sync-settings-button = Syngronisaasje-ynstellingen
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = It liket derop dat der in time-out bard is
 pair2-supplicant-timeout-and-cancel-timeout-description = Besykje <b>firefox.com/pair</b> op jo kompjûter om jo mobile apparaat te ferbinen en jo { -brand-firefox }-gegevens te syngronisearjen.
-pair2-supplicant-timeout-and-cancel-canceled-heading = Annulearre
 pair2-supplicant-timeout-and-cancel-canceled-description = Besykje <b>firefox.com/pair</b> op jo kompjûter om op elk winske momint in apparaat te ferbinen.
 
 

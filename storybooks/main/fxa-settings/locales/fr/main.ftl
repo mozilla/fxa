@@ -1185,6 +1185,15 @@ index-account-delete-success = Le compte a été supprimé
 index-email-bounced = Votre message de confirmation nous a été renvoyé. Vérifiez que votre adresse e-mail est correcte.
 
 
+inline-passwordless-sync-setup-page-title = Ignorer le mot de passe la prochaine fois ?
+inline-passwordless-sync-setup-success-banner = Connecté·e à { -brand-firefox }
+inline-passwordless-sync-setup-heading = Ignorer le mot de passe la prochaine fois ?
+inline-passwordless-sync-setup-description = Utilisez cette clé pour vous connecter plus rapidement.
+inline-passwordless-sync-setup-enable-button = Activer la clé d’accès
+inline-passwordless-sync-setup-enabling = Activation…
+inline-passwordless-sync-setup-not-now-button = Plus tard
+
+
 inline-recovery-key-setup-create-error = Oups ! Nous n’avons pas pu créer la clé de récupération de votre compte. Veuillez réessayer plus tard.
 inline-recovery-key-setup-recovery-created = Clé de récupération de compte créée
 inline-recovery-key-setup-download-header = Sécurisez votre compte
@@ -1332,10 +1341,9 @@ pair2-authority-sync-success-sync-settings-button = Paramètres de synchronisati
 
 pair2-authority-timeout-and-cancel-timeout-heading = Vous souhaitez toujours connecter un appareil ?
 pair2-authority-timeout-and-cancel-timeout-description = Le délai d’attente semble avoir expiré. Réessayez si vous souhaitez toujours connecter votre appareil mobile et synchroniser vos données { -brand-firefox }.
-pair2-authority-timeout-and-cancel-canceled-heading = Annulé
+pair2-authority-timeout-and-cancel-cancelled-heading = Annulé
 pair2-authority-timeout-and-cancel-canceled-description = Si vous changez d’avis ou si vous souhaitez connecter un autre appareil, réessayez.
 pair2-authority-timeout-and-cancel-try-again-button = Réessayer
-pair2-authority-timeout-and-cancel-cancel-button = Annuler
 pair2-authority-timeout-and-cancel-sync-settings-button = Paramètres de synchronisation
 
 
@@ -1368,7 +1376,7 @@ pair2-supplicant-sync-success-sync-settings-button = Paramètres de synchronisat
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Le délai de connexion a expiré
 pair2-supplicant-timeout-and-cancel-timeout-description = Pour connecter votre appareil mobile et synchroniser vos données { -brand-firefox }, consultez <b>firefox.com/pair</b> sur votre ordinateur.
-pair2-supplicant-timeout-and-cancel-canceled-heading = Annulé
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Annulé
 pair2-supplicant-timeout-and-cancel-canceled-description = Pour connecter un appareil à tout moment, consultez <b>firefox.com/pair</b> sur votre ordinateur.
 
 

@@ -98,9 +98,6 @@ payment-provider-card-ending-in = <b>Төлем әдісі:</b> { $lastFour } с
 payment-provider-card-ending-in-card-name = <b>Төлем әдісі:</b> { $lastFour } сандармен аяқталатын { $cardName }
 subscription-charges-invoice-summary = Шот қорытындысы
 
-# Variables:
-
-
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
 
@@ -381,13 +378,7 @@ subscriptionPaymentProviderCancelled-content-reason-1 = Төлем әдісің�
 subscriptionReactivation-subject-2 = Сіздің { $productName } жазылымыңыз қайта белсендірілді
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-subject = Сіздің { $productName } тегін сынақ мерзіміңіз қайта белсендірілді
-# Variables:
-#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = { $productName } жазылуын қайта белсендіргеніңіз үшін рақмет!
-# Variables:
-#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-title = { $productName } тегін сынақ мерзімін қайта белсендіргеніңіз үшін рақмет!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

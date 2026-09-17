@@ -98,9 +98,6 @@ payment-provider-card-ending-in = <b>Jehepyme’ẽ rape:</b> Kuatia’atã opá
 payment-provider-card-ending-in-card-name = <b> Jehepyme’ẽ rape:</b> { $cardName } opáva { $lastFour }-pe
 subscription-charges-invoice-summary = Ñemuhague mombykypy
 
-# Variables:
-
-
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
 
@@ -380,13 +377,7 @@ subscriptionPaymentProviderCancelled-content-reason-1 = Ikatuhína pe nde jehepy
 subscriptionReactivation-subject-2 = Ne ñemboheraguapy { $productName } eiporukuaa jeýma
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-subject = Ne ñeha’ã { $productName } rehegua eiporukuaa jeýma
-# Variables:
-#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = ¡Aguyje emyandyjeýre ne mboheraguapy { $productName }-pe!
-# Variables:
-#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-title = ¡Aguyje emyandy jeýre ne mboheraguapy { $productName }!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

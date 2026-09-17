@@ -97,9 +97,6 @@ payment-provider-card-ending-in-plaintext = 支払い方法: 末尾が { $lastFo
 payment-provider-card-ending-in = <b>支払い方法:</b> 末尾が { $lastFour } のカード
 payment-provider-card-ending-in-card-name = <b>支払い方法:</b> 末尾が { $lastFour } の { $cardName }
 
-# Variables:
-
-
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
 

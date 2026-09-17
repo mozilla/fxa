@@ -1869,13 +1869,9 @@ pair2-authority-sync-success-sync-settings-button = 同步設定
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = 還想要連結其他裝置嗎？
 pair2-authority-timeout-and-cancel-timeout-description = 看來動作超出時間限制了。若您還想要連結行動裝置，並且同步 { -brand-firefox } 資料的話，請重試。
-# Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-canceled-heading = 已取消
 pair2-authority-timeout-and-cancel-canceled-description = 若您改變心意，或想要連結另一台裝置，請重試。
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = 重試
-# Abandons pairing without retrying
-pair2-authority-timeout-and-cancel-cancel-button = 取消
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = 同步設定
 
@@ -1953,8 +1949,6 @@ pair2-supplicant-sync-success-sync-settings-button = 同步設定
 pair2-supplicant-timeout-and-cancel-timeout-heading = 看來超出時間限制了。
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = 若要連結您的行動裝置並同步 { -brand-firefox } 資料，請在您的電腦造訪 <b>firefox.com/pair</b>。
-# Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-canceled-heading = 已取消
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = 歡迎隨時在您的電腦開啟 <b>firefox.com/pair</b> 連結其他裝置。
 

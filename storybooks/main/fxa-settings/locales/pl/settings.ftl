@@ -1637,12 +1637,8 @@ pair2-authority-download-firefox-cta = Pobierz przeglądarkę { -brand-firefox }
 ## either because it timed out or because it was canceled. Both cases offer to
 ## start pairing over again.
 
-# Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-canceled-heading = Anulowano
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Spróbuj ponownie
-# Abandons pairing without retrying
-pair2-authority-timeout-and-cancel-cancel-button = Anuluj
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = Ustawienia synchronizacji
 
@@ -1659,15 +1655,6 @@ pair2-supplicant-connect-this-device-heading = Czy połączyć to urządzenie z�
 pair2-supplicant-connect-this-device-connect-button = Połącz
 # Dismisses the pairing attempt
 pair2-supplicant-connect-this-device-cancel-button = Anuluj
-
-## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device when pairing ends without connecting,
-## either because the attempt timed out or because it was canceled. Both states
-## are informational and offer no on-screen action, so the copy points the user
-## back to their computer to start again.
-
-# Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-canceled-heading = Anulowano
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

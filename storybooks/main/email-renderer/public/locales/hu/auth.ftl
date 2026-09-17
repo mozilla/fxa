@@ -98,9 +98,6 @@ payment-provider-card-ending-in = <b>Fizetési mód:</b> { $lastFour } végződ�
 payment-provider-card-ending-in-card-name = <b>Fizetési mód:</b> { $lastFour } végződésű { $cardName } kártya
 subscription-charges-invoice-summary = Számlaösszesítő
 
-# Variables:
-
-
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
 
@@ -381,13 +378,13 @@ subscriptionPaymentProviderCancelled-content-reason-1 = Előfordulhat, hogy a fi
 subscriptionReactivation-subject-2 = A(z) { $productName } előfizetését újraaktiváltuk
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-subject = A(z) { $productName } próbaidőszakot újraaktiváltuk
+subscriptionReactivation-free-trial-subject = A(z) { $productName } ingyenes próbaidőszak újra lett aktiválva
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = Köszönjük, hogy újraaktiválta a { $productName } előfizetését.
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-title = Köszönjük, hogy újraaktiválta a(z) { $productName } próbaverziót.
+subscriptionReactivation-free-trial-title = Köszönjük, hogy újraaktiválta a(z) { $productName } ingyenes próbaidőszakot!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

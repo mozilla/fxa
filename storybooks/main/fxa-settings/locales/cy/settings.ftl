@@ -1651,6 +1651,19 @@ index-account-delete-success = Cyfrif wedi ei ddileu'n llwyddiannus
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = Dychwelwyd eich e-bost cadarnhau. E-bost wedi'i gamdeipio?
 
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+# Browser tab title.
+inline-passwordless-sync-setup-page-title = Hepgor y cyfrinair tro nesaf?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner = Wedi mewngofnodi i { -brand-firefox }
+inline-passwordless-sync-setup-heading = Hepgor y cyfrinair tro nesaf?
+inline-passwordless-sync-setup-description = Defnyddiwch y cyfrinair hwn i fewngofnodi'n gyflymach.
+inline-passwordless-sync-setup-enable-button = Galluogi cyfrinair
+# Button label while the passkey is stored.
+inline-passwordless-sync-setup-enabling = Wrthi'n galluogi…
+inline-passwordless-sync-setup-not-now-button = Nid nawr
+
 ## InlineRecoveryKeySetup page component
 
 inline-recovery-key-setup-create-error = Wps! Nid oedd modd i ni greu allwedd adfer eich cyfrif. Ceisiwch eto yn nes ymlaen.
@@ -1934,12 +1947,10 @@ pair2-authority-sync-success-sync-settings-button = Gosodiadau cydweddu
 pair2-authority-timeout-and-cancel-timeout-heading = Dal eisiau cysylltu dyfais?
 pair2-authority-timeout-and-cancel-timeout-description = Mae'n edrych fel bod ein amser wedi dod i ben. Ceisiwch eto os ydych dal eisiau cysylltu eich dyfais symudol a chydweddu eich data { -brand-firefox }.
 # Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-canceled-heading = Diddymwyd
+pair2-authority-timeout-and-cancel-cancelled-heading = Wedi'i Ganslo
 pair2-authority-timeout-and-cancel-canceled-description = Os ydych chi'n newid eich meddwl neu eisiau cysylltu dyfais wahanol, ceisiwch eto.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Ceisiwch eto
-# Abandons pairing without retrying
-pair2-authority-timeout-and-cancel-cancel-button = Diddymu
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = Gosodiadau cydweddu
 
@@ -2018,7 +2029,7 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Mae'n edrych fel bod ein a
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = I gysylltu eich dyfais symudol a chydweddu eich data { -brand-firefox }, ewch i <b>firefox.com/pair</b> ar eich cyfrifiadur.
 # Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-canceled-heading = Diddymwyd
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Wedi'i Ganslo
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = I gysylltu dyfais unrhyw bryd, ewch i <b>firefox.com/pair</b> ar eich cyfrifiadur.
 

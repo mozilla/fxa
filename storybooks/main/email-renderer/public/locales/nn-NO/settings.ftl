@@ -1905,13 +1905,9 @@ pair2-authority-sync-success-sync-settings-button = Synkroniseringsinnstillingar
 
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Vil du framleis kople til ei eining?
-# Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-canceled-heading = Avbrote
 pair2-authority-timeout-and-cancel-canceled-description = Viss du ombestemmer deg eller vil kople til ei anna eining, kan du prøve på nytt.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Prøv igjen
-# Abandons pairing without retrying
-pair2-authority-timeout-and-cancel-cancel-button = Avbryt
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = Synkroniseringsinnstillingar
 
@@ -1987,8 +1983,6 @@ pair2-supplicant-sync-success-sync-settings-button = Synkroniseringsinnstillinga
 
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = For å kople til mobileininga di og synkronisere { -brand-firefox }-dataa dine, gå til <b>firefox.com/pair</b> på datamaskina di.
-# Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-canceled-heading = Avbrote
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = For å kople til ei eining når som helst, gå til <b>firefox.com/pair</b> på datamaskina di.
 

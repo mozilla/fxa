@@ -98,9 +98,6 @@ payment-provider-card-ending-in = <b>Dull talu:</b> Cerdyn yn gorffen gyda { $la
 payment-provider-card-ending-in-card-name = <b>Dull talu:</b> { $cardName } yn gorffen gyda { $lastFour }
 subscription-charges-invoice-summary = Crynodeb o'r Anfoneb
 
-# Variables:
-
-
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
 
@@ -389,13 +386,13 @@ subscriptionPaymentProviderCancelled-content-reason-1 = Mae’n bosibl bod eich 
 subscriptionReactivation-subject-2 = Mae eich tanysgrifiad { $productName } wedi'i ailgychwyn
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-subject = Mae'ch profi { $productName } wedi'i ailgychwyn
+subscriptionReactivation-free-trial-subject = Mae eich treial rhad ac am ddim { $productName } wedi'i ailgychwyn
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = Diolch am ail gychwyn eich tanysgrifiad { $productName }s
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-title = Diolch am ailgychwyn eich profi { $productName }!
+subscriptionReactivation-free-trial-title = Diolch am ailgychwyn eich treial am ddim { $productName }!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

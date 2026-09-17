@@ -98,9 +98,6 @@ payment-provider-card-ending-in = <b>결제 수단:</b> 끝자리 { $lastFour } 
 payment-provider-card-ending-in-card-name = <b>결제 수단:</b> { $lastFour }로 끝나는 { $cardName }
 subscription-charges-invoice-summary = 청구서 요약
 
-# Variables:
-
-
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
 
@@ -373,13 +370,7 @@ subscriptionPaymentProviderCancelled-content-reason-1 = 결제 방법이 만료�
 subscriptionReactivation-subject-2 = { $productName } 구독이 재활성화됨
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-subject = { $productName } 평가판이 다시 활성화됨
-# Variables:
-#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = { $productName } 구독을 다시 활성화해 주셔서 감사합니다!
-# Variables:
-#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-title = { $productName } 평가판을 다시 활성화해 주셔서 감사합니다!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

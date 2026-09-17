@@ -1914,13 +1914,9 @@ pair2-authority-sync-success-sync-settings-button = Настройки синх�
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Всё ещё хотите подключить устройство?
 pair2-authority-timeout-and-cancel-timeout-description = Похоже, у нас истекло время ожидания. Попробуйте ещё раз, если вы по-прежнему хотите подключить свое мобильное устройство и синхронизировать данные { -brand-firefox }.
-# Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-canceled-heading = Отменено
 pair2-authority-timeout-and-cancel-canceled-description = Если вы передумаете или захотите подключить другое устройство, попробуйте ещё раз.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Попробовать снова
-# Abandons pairing without retrying
-pair2-authority-timeout-and-cancel-cancel-button = Отмена
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = Настройки синхронизации
 
@@ -1998,8 +1994,6 @@ pair2-supplicant-sync-success-sync-settings-button = Настройки синх
 pair2-supplicant-timeout-and-cancel-timeout-heading = Похоже, у нас истекло время ожидания
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = Чтобы подключить мобильное устройство и синхронизировать данные { -brand-firefox }, посетите <b>firefox.com/pair</b> на вашем компьютере.
-# Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-canceled-heading = Отменено
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Чтобы подключить устройство в любое время, посетите <b>firefox.com/pair</b> на вашем компьютере.
 

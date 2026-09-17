@@ -1840,13 +1840,9 @@ pair2-authority-sync-success-sync-settings-button = הגדרות סנכרון
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = עדיין רוצה לחבר מכשיר?
 pair2-authority-timeout-and-cancel-timeout-description = נראה שזמן הפעולה פג. יש לנסות שוב אם עדיין ברצונך לחבר את המכשיר הנייד שלך ולסנכרן את נתוני ה־{ -brand-firefox } שלך.
-# Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-canceled-heading = בוטל
 pair2-authority-timeout-and-cancel-canceled-description = אם תשנה את דעתך או שתרצה לחבר מכשיר אחר, ניתן לנסות שוב.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = ניסיון חוזר
-# Abandons pairing without retrying
-pair2-authority-timeout-and-cancel-cancel-button = ביטול
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = הגדרות סנכרון
 
@@ -1924,8 +1920,6 @@ pair2-supplicant-sync-success-sync-settings-button = הגדרות סנכרון
 pair2-supplicant-timeout-and-cancel-timeout-heading = נראה שזמן הפעולה פג
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = כדי לחבר את המכשיר הנייד שלך ולסנכרן את נתוני ה־{ -brand-firefox } שלך, יש לבקר באתר <b>firefox.com/pair</b> במחשב שלך.
-# Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-canceled-heading = בוטל
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = כדי לחבר מכשיר בכל עת, יש לבקר באתר <b>firefox.com/pair</b> במחשב שלך.
 

@@ -1338,10 +1338,8 @@ pair2-authority-sync-success-sync-settings-button = Nastajenja synchronizacije
 
 pair2-authority-timeout-and-cancel-timeout-heading = Cośo hyšći rěd zwězaś?
 pair2-authority-timeout-and-cancel-timeout-description = Zda se, až smy cas pśekšocyli. Wopytajśo hyšći raz, jolic hyšći cośo swój mobilny rěd zwězaś a swóje daty { -brand-firefox } synchronizěrowaś.
-pair2-authority-timeout-and-cancel-canceled-heading = Pśetergnjony
 pair2-authority-timeout-and-cancel-canceled-description = Jolic swójo měnjenje změnjaśo abo cośo drugi rěd zwězaś, wopytajśo hyšći raz.
 pair2-authority-timeout-and-cancel-try-again-button = Hyšći raz wopytaś
-pair2-authority-timeout-and-cancel-cancel-button = Pśetergnuś
 pair2-authority-timeout-and-cancel-sync-settings-button = Nastajenja synchronizacije
 
 
@@ -1374,7 +1372,6 @@ pair2-supplicant-sync-success-sync-settings-button = Nastajenja synchronizacije
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zda se, až smy cas pśekšocyli
 pair2-supplicant-timeout-and-cancel-timeout-description = Aby swój mobilny rěd zwězał a swóje daty { -brand-firefox } synchronizěrował, woglědajśo se k <b>firefox.com/pair</b> na swójo licadle.
-pair2-supplicant-timeout-and-cancel-canceled-heading = Pśetergnjony
 pair2-supplicant-timeout-and-cancel-canceled-description = Aby rěd kuždy cas zwězał, woglědujśo se k <b>firefox.com/pair</b> na swójom licadle.
 
 

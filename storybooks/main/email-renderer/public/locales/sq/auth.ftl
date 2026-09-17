@@ -98,9 +98,6 @@ payment-provider-card-ending-in = <b>Metodë pagese:</b> Kartë që përfundon m
 payment-provider-card-ending-in-card-name = <b>Metodë pagese:</b>> { $cardName } që përfundon me { $lastFour }
 subscription-charges-invoice-summary = Përmbledhje Fature
 
-# Variables:
-
-
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
 

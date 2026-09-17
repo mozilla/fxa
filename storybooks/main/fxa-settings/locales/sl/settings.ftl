@@ -1643,6 +1643,19 @@ index-account-delete-success = Račun je bil uspešno izbrisan
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = Vaša potrditvena e-pošta se je pravkar vrnila. Ste se zatipkali v e-poštnem naslovu?
 
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+# Browser tab title.
+inline-passwordless-sync-setup-page-title = Želite naslednjič preskočiti geslo?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner = Prijavljen v { -brand-firefox }
+inline-passwordless-sync-setup-heading = Želite naslednjič preskočiti geslo?
+inline-passwordless-sync-setup-description = Uporabite to geslo za hitrejšo prijavo.
+inline-passwordless-sync-setup-enable-button = Omogoči geslo
+# Button label while the passkey is stored.
+inline-passwordless-sync-setup-enabling = Omogočanje …
+inline-passwordless-sync-setup-not-now-button = Ne zdaj
+
 ## InlineRecoveryKeySetup page component
 
 inline-recovery-key-setup-create-error = Opla! Ključa za obnovitev računa ni bilo mogoče ustvariti. Poskusite znova pozneje.
@@ -1926,12 +1939,10 @@ pair2-authority-sync-success-sync-settings-button = Nastavitve sinhronizacije
 pair2-authority-timeout-and-cancel-timeout-heading = Še vedno želite povezati napravo?
 pair2-authority-timeout-and-cancel-timeout-description = Kaže, da nam je potekla časovna omejitev. Poskusite znova, če še vedno želite povezati mobilno napravo in sinhronizirati podatke v storitvi { -brand-firefox }.
 # Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-canceled-heading = Preklicano
+pair2-authority-timeout-and-cancel-cancelled-heading = Odpovedana
 pair2-authority-timeout-and-cancel-canceled-description = Če si premislite ali želite povezati drugo napravo, poskusite znova.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Poskusi znova
-# Abandons pairing without retrying
-pair2-authority-timeout-and-cancel-cancel-button = Prekliči
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = Nastavitve sinhronizacije
 
@@ -2010,7 +2021,7 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Kaže, da nam je potekla �
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = Če želite povezati mobilno napravo in sinhronizirati podatke { -brand-firefox(sklon: "rodilnik") }, z računalnikom obiščite <b>firefox.com/pair</b>.
 # Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-canceled-heading = Preklicano
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Odpovedana
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Napravo lahko kadarkoli povežete tako, da z računalnikom obiščete <b>firefox.com/pair</b>.
 

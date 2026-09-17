@@ -97,9 +97,6 @@ payment-provider-card-ending-in-plaintext = Greiðslumáti: Kort sem endar á { 
 payment-provider-card-ending-in = <b>Greiðslumáti:</b> Kort sem endar á { $lastFour }
 payment-provider-card-ending-in-card-name = <b>Greiðslumáti:</b> { $cardName } kort sem endar á { $lastFour }
 
-# Variables:
-
-
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
 

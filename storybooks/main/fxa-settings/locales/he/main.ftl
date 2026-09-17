@@ -1277,10 +1277,8 @@ pair2-authority-sync-success-sync-settings-button = הגדרות סנכרון
 
 pair2-authority-timeout-and-cancel-timeout-heading = עדיין רוצה לחבר מכשיר?
 pair2-authority-timeout-and-cancel-timeout-description = נראה שזמן הפעולה פג. יש לנסות שוב אם עדיין ברצונך לחבר את המכשיר הנייד שלך ולסנכרן את נתוני ה־{ -brand-firefox } שלך.
-pair2-authority-timeout-and-cancel-canceled-heading = בוטל
 pair2-authority-timeout-and-cancel-canceled-description = אם תשנה את דעתך או שתרצה לחבר מכשיר אחר, ניתן לנסות שוב.
 pair2-authority-timeout-and-cancel-try-again-button = ניסיון חוזר
-pair2-authority-timeout-and-cancel-cancel-button = ביטול
 pair2-authority-timeout-and-cancel-sync-settings-button = הגדרות סנכרון
 
 
@@ -1313,7 +1311,6 @@ pair2-supplicant-sync-success-sync-settings-button = הגדרות סנכרון
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = נראה שזמן הפעולה פג
 pair2-supplicant-timeout-and-cancel-timeout-description = כדי לחבר את המכשיר הנייד שלך ולסנכרן את נתוני ה־{ -brand-firefox } שלך, יש לבקר באתר <b>firefox.com/pair</b> במחשב שלך.
-pair2-supplicant-timeout-and-cancel-canceled-heading = בוטל
 pair2-supplicant-timeout-and-cancel-canceled-description = כדי לחבר מכשיר בכל עת, יש לבקר באתר <b>firefox.com/pair</b> במחשב שלך.
 
 

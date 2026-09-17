@@ -98,9 +98,6 @@ payment-provider-card-ending-in = <b>Metodă de plată:</b> Card care se termin�
 payment-provider-card-ending-in-card-name = <b>Metodă de plată:</b> { $cardName } care se termină în { $lastFour }
 subscription-charges-invoice-summary = Rezumatul facturii
 
-# Variables:
-
-
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
 
@@ -383,13 +380,7 @@ subscriptionPaymentProviderCancelled-content-reason-1 = Este posibil să îți f
 subscriptionReactivation-subject-2 = Abonamentul tău { $productName } a fost reactivat
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-subject = Perioada de probă { $productName } a fost reactivată
-# Variables:
-#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = Îți mulțumim că ți-ai reactivat abonamentul pentru { $productName }!
-# Variables:
-#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-title = Îți mulțumim că ai reactivat perioada de probă { $productName }!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

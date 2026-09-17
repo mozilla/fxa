@@ -39,16 +39,16 @@ subplat-update-billing-plaintext = { subplat-update-billing }:
 # Variables:
 #  $email (String) - A user's primary email address
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subplat-explainer-specific-2 = Tuto e-mailovou zprávu vám posíláme, protože e-mailová adresa { $email } má založený { -product-mozilla-account(case: "acc", capitalization: "lower") } a jste přihlášení v produktu { $productName }.
+subplat-explainer-specific-2 = Tuto e-mailovou zprávu vám posíláme, protože e-mailová adresa { $email } má založený { -product-mozilla-account(capitalization: "lower", case: "acc") } a jste přihlášení v produktu { $productName }.
 # Variables:
 #  $email (String) - A user's primary email address
-subplat-explainer-reminder-form-2 = Tuto e-mailovou zprávu vám posíláme, protože { $email } má založený { -product-mozilla-account(case: "acc", capitalization: "lower") }.
-subplat-explainer-multiple-2 = Tuto e-mailovou zprávu vám posíláme, protože { $email } má založený { -product-mozilla-account(case: "acc", capitalization: "lower") } a máte předplaceno několik produktů.
+subplat-explainer-reminder-form-2 = Tuto e-mailovou zprávu vám posíláme, protože { $email } má založený { -product-mozilla-account(capitalization: "lower", case: "acc") }.
+subplat-explainer-multiple-2 = Tuto e-mailovou zprávu vám posíláme, protože { $email } má založený { -product-mozilla-account(capitalization: "lower", case: "acc") } a máte předplaceno několik produktů.
 subplat-explainer-was-deleted-2 = Tento e-mail jste dostali, protože na adresu { $email } byl zaregistrován { -product-mozilla-account(capitalization: "lower") }.
-subplat-manage-account-2 = Svá nastavení { -product-mozilla-account(case: "gen", capitalization: "lower") } můžete spravovat na <a data-l10n-name="subplat-account-page">stránce svého účtu</a>.
+subplat-manage-account-2 = Svá nastavení { -product-mozilla-account(capitalization: "lower", case: "gen") } můžete spravovat na <a data-l10n-name="subplat-account-page">stránce svého účtu</a>.
 # Variables:
 #  $accountSettingsUrl (String) - URL to Account Settings
-subplat-manage-account-plaintext-2 = Spravujte nastavení { -product-mozilla-account(case: "gen", capitalization: "lower") } na stránce svého účtu: { $accountSettingsUrl }
+subplat-manage-account-plaintext-2 = Spravujte nastavení { -product-mozilla-account(capitalization: "lower", case: "gen") } na stránce svého účtu: { $accountSettingsUrl }
 subplat-terms-policy = Podmínky zrušení
 subplat-terms-policy-plaintext = { subplat-terms-policy }:
 subplat-cancel = Zrušit předplatné
@@ -60,7 +60,7 @@ subplat-privacy-policy = { -brand-mozilla } a soukromí
 subplat-privacy-policy-2 = Oznámení o ochraně osobních údajů { -product-mozilla-accounts(capitalization: "uppercase", case: "gen") }
 subplat-privacy-policy-plaintext = { subplat-privacy-policy }:
 subplat-privacy-policy-plaintext-2 = { subplat-privacy-policy-2 }:
-subplat-moz-terms = Podmínky služby { -product-mozilla-accounts(case: "gen", capitalization: "lowercase") }
+subplat-moz-terms = Podmínky služby { -product-mozilla-accounts(capitalization: "lowercase", case: "gen") }
 subplat-moz-terms-plaintext = { subplat-moz-terms }:
 subplat-legal = Právní informace
 subplat-legal-plaintext = { subplat-legal }:
@@ -97,9 +97,6 @@ payment-provider-card-ending-in-plaintext = Platební metoda: Karta končící n
 payment-provider-card-ending-in = <b>Platební metoda:</b> Karta končící na { $lastFour }
 payment-provider-card-ending-in-card-name = <b>Platební metoda:</b> { $cardName } končící na { $lastFour }
 subscription-charges-invoice-summary = Přehled faktur
-
-# Variables:
-
 
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
@@ -383,13 +380,13 @@ subscriptionPaymentProviderCancelled-content-reason-1 = Je možné, že vypršel
 subscriptionReactivation-subject-2 = Vaše předplatné za { $productName } bylo znovu aktivováno
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-subject = Vaše zkušební verze { $productName } byla znovu aktivována
+subscriptionReactivation-free-trial-subject = Vaše bezplatná zkušební verze za { $productName } byla znovu aktivována
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = Děkujeme, že jste si znovu aktivovali předplatné produktu { $productName }!
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-title = Děkujeme za obnovení vaší zkušební verze { $productName }!
+subscriptionReactivation-free-trial-title = Děkujeme za opětovnou aktivaci vaší bezplatné zkušební verze za { $productName }!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

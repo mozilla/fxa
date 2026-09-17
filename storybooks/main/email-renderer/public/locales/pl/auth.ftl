@@ -39,16 +39,16 @@ subplat-update-billing-plaintext = { subplat-update-billing }:
 # Variables:
 #  $email (String) - A user's primary email address
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subplat-explainer-specific-2 = Otrzymujesz tę wiadomość, ponieważ na adres { $email } zarejestrowano { -product-mozilla-account(case: "acc", capitalization: "lower") } i zapisano się na usługę { $productName }.
+subplat-explainer-specific-2 = Otrzymujesz tę wiadomość, ponieważ na adres { $email } zarejestrowano { -product-mozilla-account(capitalization: "lower", case: "acc") } i zapisano się na usługę { $productName }.
 # Variables:
 #  $email (String) - A user's primary email address
-subplat-explainer-reminder-form-2 = Otrzymujesz tę wiadomość, ponieważ { $email } ma { -product-mozilla-account(case: "acc", capitalization: "lower") }.
-subplat-explainer-multiple-2 = Otrzymujesz tę wiadomość, ponieważ na adres { $email } zarejestrowano { -product-mozilla-account(case: "acc", capitalization: "lower") } i subskrybowano wiele produktów.
-subplat-explainer-was-deleted-2 = Otrzymujesz tę wiadomość, ponieważ na adres { $email } zarejestrowano { -product-mozilla-account(case: "acc", capitalization: "lower") }.
-subplat-manage-account-2 = Zarządzaj ustawieniami { -product-mozilla-account(case: "gen", capitalization: "lower") } na stronie swojego <a data-l10n-name="subplat-account-page">konta</a>.
+subplat-explainer-reminder-form-2 = Otrzymujesz tę wiadomość, ponieważ { $email } ma { -product-mozilla-account(capitalization: "lower", case: "acc") }.
+subplat-explainer-multiple-2 = Otrzymujesz tę wiadomość, ponieważ na adres { $email } zarejestrowano { -product-mozilla-account(capitalization: "lower", case: "acc") } i subskrybowano wiele produktów.
+subplat-explainer-was-deleted-2 = Otrzymujesz tę wiadomość, ponieważ na adres { $email } zarejestrowano { -product-mozilla-account(capitalization: "lower", case: "acc") }.
+subplat-manage-account-2 = Zarządzaj ustawieniami { -product-mozilla-account(capitalization: "lower", case: "gen") } na stronie swojego <a data-l10n-name="subplat-account-page">konta</a>.
 # Variables:
 #  $accountSettingsUrl (String) - URL to Account Settings
-subplat-manage-account-plaintext-2 = Zarządzaj ustawieniami { -product-mozilla-account(case: "gen", capitalization: "lower") } na stronie swojego konta: { $accountSettingsUrl }
+subplat-manage-account-plaintext-2 = Zarządzaj ustawieniami { -product-mozilla-account(capitalization: "lower", case: "gen") } na stronie swojego konta: { $accountSettingsUrl }
 subplat-terms-policy = Regulamin i zasady anulowania
 subplat-terms-policy-plaintext = { subplat-terms-policy }:
 subplat-cancel = Anuluj subskrypcję
@@ -57,10 +57,10 @@ subplat-reactivate = Ponownie aktywuj subskrypcję
 subplat-reactivate-plaintext = { subplat-reactivate }:
 subplat-update-billing = Zaktualizuj dane płatnicze
 subplat-privacy-policy = Zasady ochrony prywatności { -brand-mozilla(case: "gen") }
-subplat-privacy-policy-2 = Zasady ochrony prywatności { -product-mozilla-accounts(case: "gen", capitalization: "lower") }
+subplat-privacy-policy-2 = Zasady ochrony prywatności { -product-mozilla-accounts(capitalization: "lower", case: "gen") }
 subplat-privacy-policy-plaintext = { subplat-privacy-policy }:
 subplat-privacy-policy-plaintext-2 = { subplat-privacy-policy-2 }:
-subplat-moz-terms = Regulamin usługi { -product-mozilla-accounts(case: "gen", capitalization: "lower") }
+subplat-moz-terms = Regulamin usługi { -product-mozilla-accounts(capitalization: "lower", case: "gen") }
 subplat-moz-terms-plaintext = { subplat-moz-terms }:
 subplat-legal = Podstawa prawna
 subplat-legal-plaintext = { subplat-legal }:
@@ -96,9 +96,6 @@ payment-provider-card-name-ending-in-plaintext = Metoda płatności: Karta { $ca
 payment-provider-card-ending-in-plaintext = Metoda płatności: Karta kończąca się na { $lastFour }
 payment-provider-card-ending-in = <b>Metoda płatności:</b> Karta kończąca się na { $lastFour }
 payment-provider-card-ending-in-card-name = <b>Metoda płatności:</b> Karta { $cardName } kończąca się na { $lastFour }
-
-# Variables:
-
 
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
@@ -151,10 +148,10 @@ downloadSubscription-subject = Witamy w { $productName }
 downloadSubscription-title = Witamy w { $productName }
 downloadSubscription-content-2 = Zacznij korzystać ze wszystkich funkcji zawartych w subskrypcji:
 downloadSubscription-link-action-2 = Zacznij teraz
-fraudulentAccountDeletion-subject-2 = Twoje { -product-mozilla-account(case: "nom", capitalization: "lower") } zostało usunięte
+fraudulentAccountDeletion-subject-2 = Twoje { -product-mozilla-account(capitalization: "lower", case: "nom") } zostało usunięte
 fraudulentAccountDeletion-title = Twoje konto zostało usunięte
-fraudulentAccountDeletion-content-part1-v2 = Niedawno za pomocą tego adresu e-mail utworzono { -product-mozilla-account(case: "acc", capitalization: "lower") } i naliczono subskrypcję. Tak jak w przypadku każdego nowego konta, poprosiliśmy o jego potwierdzenie, najpierw weryfikując ten adres e-mail.
-fraudulentAccountDeletion-content-part2-v2 = Na tę chwilę widzimy, że konto nigdy nie zostało potwierdzone. Ponieważ ten krok nie został ukończony, nie jesteśmy pewni, czy subskrypcja została upoważniona. Z tego powodu { -product-mozilla-account(case: "nom", capitalization: "lower") } zarejestrowane na ten adres e-mail zostało usunięte, a subskrypcja anulowana ze zwrotem wszystkich opłat.
+fraudulentAccountDeletion-content-part1-v2 = Niedawno za pomocą tego adresu e-mail utworzono { -product-mozilla-account(capitalization: "lower", case: "acc") } i naliczono subskrypcję. Tak jak w przypadku każdego nowego konta, poprosiliśmy o jego potwierdzenie, najpierw weryfikując ten adres e-mail.
+fraudulentAccountDeletion-content-part2-v2 = Na tę chwilę widzimy, że konto nigdy nie zostało potwierdzone. Ponieważ ten krok nie został ukończony, nie jesteśmy pewni, czy subskrypcja została upoważniona. Z tego powodu { -product-mozilla-account(capitalization: "lower", case: "nom") } zarejestrowane na ten adres e-mail zostało usunięte, a subskrypcja anulowana ze zwrotem wszystkich opłat.
 fraudulentAccountDeletion-contact = W razie pytań prosimy o kontakt z naszym <a data-l10n-name="mozillaSupportUrl">zespołem wsparcia</a>.
 # Variables:
 #  $mozillaSupportUrl (String) - Link to https://support.mozilla.org
@@ -170,16 +167,16 @@ subscriptionAccountDeletion-title = Przykro nam, że chcesz się z nami pożegn
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $invoiceDateOnly (String) - The date of the next invoice, e.g. 01/20/2016
-subscriptionAccountDeletion-content-cancelled-2 = Niedawno usunięto { -product-mozilla-account(case: "acc", capitalization: "lower") }. Z tego powodu anulowaliśmy subskrypcję { $productName }. Ostatnia płatność w wysokości { $invoiceTotal } została opłacona w dniu { $invoiceDateOnly }.
+subscriptionAccountDeletion-content-cancelled-2 = Niedawno usunięto { -product-mozilla-account(capitalization: "lower", case: "acc") }. Z tego powodu anulowaliśmy subskrypcję { $productName }. Ostatnia płatność w wysokości { $invoiceTotal } została opłacona w dniu { $invoiceDateOnly }.
 subscriptionAccountReminderFirst-subject = Przypomnienie: dokończ konfigurację konta
 subscriptionAccountReminderFirst-title = Nie masz jeszcze dostępu do swojej subskrypcji
-subscriptionAccountReminderFirst-content-info-3 = Kilka dni temu utworzono { -product-mozilla-account(case: "acc", capitalization: "lower") }, ale nigdy go nie potwierdzono. Mamy nadzieję, że dokończysz konfigurowanie konta, aby móc korzystać ze swojej nowej subskrypcji.
+subscriptionAccountReminderFirst-content-info-3 = Kilka dni temu utworzono { -product-mozilla-account(capitalization: "lower", case: "acc") }, ale nigdy go nie potwierdzono. Mamy nadzieję, że dokończysz konfigurowanie konta, aby móc korzystać ze swojej nowej subskrypcji.
 subscriptionAccountReminderFirst-content-select-2 = Kliknij „Utwórz hasło”, aby ustawić nowe hasło i dokończyć potwierdzanie konta.
 subscriptionAccountReminderFirst-action = Utwórz hasło
 subscriptionAccountReminderFirst-action-plaintext = { subscriptionAccountReminderFirst-action }:
 subscriptionAccountReminderSecond-subject = Ostatnie przypomnienie: skonfiguruj swoje konto
 subscriptionAccountReminderSecond-title-2 = Witamy w { -brand-mozilla(case: "loc") }!
-subscriptionAccountReminderSecond-content-info-3 = Kilka dni temu utworzono { -product-mozilla-account(case: "acc", capitalization: "lower") }, ale nigdy go nie potwierdzono. Mamy nadzieję, że dokończysz konfigurowanie konta, aby móc korzystać ze swojej nowej subskrypcji.
+subscriptionAccountReminderSecond-content-info-3 = Kilka dni temu utworzono { -product-mozilla-account(capitalization: "lower", case: "acc") }, ale nigdy go nie potwierdzono. Mamy nadzieję, że dokończysz konfigurowanie konta, aby móc korzystać ze swojej nowej subskrypcji.
 subscriptionAccountReminderSecond-content-select-2 = Kliknij „Utwórz hasło”, aby ustawić nowe hasło i dokończyć potwierdzanie konta.
 subscriptionAccountReminderSecond-action = Utwórz hasło
 subscriptionAccountReminderSecond-action-plaintext = { subscriptionAccountReminderSecond-action }:

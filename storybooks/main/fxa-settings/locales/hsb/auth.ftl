@@ -39,16 +39,16 @@ subplat-update-billing-plaintext = { subplat-update-billing }:
 # Variables:
 #  $email (String) - A user's primary email address
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subplat-explainer-specific-2 = Dóstawaće tutu mejlku, dokelž { $email } ma { -product-mozilla-account(case: "acc", capitalization: "lower") } a wy sće za { $productName } zregistrowany.
+subplat-explainer-specific-2 = Dóstawaće tutu mejlku, dokelž { $email } ma { -product-mozilla-account(capitalization: "lower", case: "acc") } a wy sće za { $productName } zregistrowany.
 # Variables:
 #  $email (String) - A user's primary email address
-subplat-explainer-reminder-form-2 = Dóstawaće tutu mejlku, dokelž { $email } ma { -product-mozilla-account(case: "acc", capitalization: "lower") }.
-subplat-explainer-multiple-2 = Dóstawaće tutu mejlku, dokelž { $email } ma { -product-mozilla-account(case: "acc", capitalization: "lower") } a sće wjacore produkty abonował.
-subplat-explainer-was-deleted-2 = Dóstawaće tutu mejlku, dokelž { $email } je so za { -product-mozilla-account(case: "acc", capitalization: "lower") } zregistrowała.
-subplat-manage-account-2 = Wopytajće swoju <a data-l10n-name="subplat-account-page">kontowu stronu</a>, zo byšće swoje nastajenja { -product-mozilla-account(case: "acc", capitalization: "lower") } rjadował.
+subplat-explainer-reminder-form-2 = Dóstawaće tutu mejlku, dokelž { $email } ma { -product-mozilla-account(capitalization: "lower", case: "acc") }.
+subplat-explainer-multiple-2 = Dóstawaće tutu mejlku, dokelž { $email } ma { -product-mozilla-account(capitalization: "lower", case: "acc") } a sće wjacore produkty abonował.
+subplat-explainer-was-deleted-2 = Dóstawaće tutu mejlku, dokelž { $email } je so za { -product-mozilla-account(capitalization: "lower", case: "acc") } zregistrowała.
+subplat-manage-account-2 = Wopytajće swoju <a data-l10n-name="subplat-account-page">kontowu stronu</a>, zo byšće swoje nastajenja { -product-mozilla-account(capitalization: "lower", case: "acc") } rjadował.
 # Variables:
 #  $accountSettingsUrl (String) - URL to Account Settings
-subplat-manage-account-plaintext-2 = Wopytajće swoju kontowu stronu, zo byšće swoje nastajenja { -product-mozilla-account(case: "acc", capitalization: "lower") } rjadował: { $accountSettingsUrl }
+subplat-manage-account-plaintext-2 = Wopytajće swoju kontowu stronu, zo byšće swoje nastajenja { -product-mozilla-account(capitalization: "lower", case: "acc") } rjadował: { $accountSettingsUrl }
 subplat-terms-policy = Wuměnjenja a wotwołanske prawidła
 subplat-terms-policy-plaintext = { subplat-terms-policy }:
 subplat-cancel = Abonement wupowědźić
@@ -57,10 +57,10 @@ subplat-reactivate = Abonement zaso aktiwizować
 subplat-reactivate-plaintext = { subplat-reactivate }:
 subplat-update-billing = Płaćenske informacije aktualizować
 subplat-privacy-policy = Prawidła priwatnosće { -brand-mozilla }
-subplat-privacy-policy-2 = Zdźělenka priwatnosće { -product-mozilla-accounts(case: "gen", capitalization: "lowercase") }
+subplat-privacy-policy-2 = Zdźělenka priwatnosće { -product-mozilla-accounts(capitalization: "lowercase", case: "gen") }
 subplat-privacy-policy-plaintext = { subplat-privacy-policy }:
 subplat-privacy-policy-plaintext-2 = { subplat-privacy-policy-2 }:
-subplat-moz-terms = Słužbne wuměnjenja { -product-mozilla-accounts(case: "gen", capitalization: "lowercase") }
+subplat-moz-terms = Słužbne wuměnjenja { -product-mozilla-accounts(capitalization: "lowercase", case: "gen") }
 subplat-moz-terms-plaintext = { subplat-moz-terms }:
 subplat-legal = Prawniske
 subplat-legal-plaintext = { subplat-legal }:
@@ -97,9 +97,6 @@ payment-provider-card-ending-in-plaintext = Płaćenska metoda: Karta so na { $l
 payment-provider-card-ending-in = <b>Płaćenska metoda:</b> Karta so na { $lastFour } kónči
 payment-provider-card-ending-in-card-name = <b>Płaćenska metoda:</b> { $cardName } so na { $lastFour } kónči
 subscription-charges-invoice-summary = Zjeće zličbowanki
-
-# Variables:
-
 
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
@@ -263,16 +260,16 @@ subscriptionAccountDeletion-title = Škoda, zo woteńdźeće
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $invoiceDateOnly (String) - The date of the next invoice, e.g. 01/20/2016
-subscriptionAccountDeletion-content-cancelled-2 = Sće njedawno swoje { -product-mozilla-account(case: "acc", capitalization: "lower") } zhašał. Tohodla smy waš abonement { $productName } wotskazali. Waše kónčne płaćenje { $invoiceTotal } je so dnja { $invoiceDateOnly } zapłaćiło.
+subscriptionAccountDeletion-content-cancelled-2 = Sće njedawno swoje { -product-mozilla-account(capitalization: "lower", case: "acc") } zhašał. Tohodla smy waš abonement { $productName } wotskazali. Waše kónčne płaćenje { $invoiceTotal } je so dnja { $invoiceDateOnly } zapłaćiło.
 subscriptionAccountReminderFirst-subject = Dopomnjeće: Dokónčće konfigurowanje swojeho konta
 subscriptionAccountReminderFirst-title = Hisće nimaće přistup k swojemu abonementej
-subscriptionAccountReminderFirst-content-info-3 = Před někotrymi dnjemi sće { -product-mozilla-account(case: "acc", capitalization: "lower") } załožił, ale njejsće jo ženje wobkrućił. Nadźijamy so, zo konfigurowanje swojeho konta dokónčiće, zo byšće swój nowy abonement wužiwać móhł.
+subscriptionAccountReminderFirst-content-info-3 = Před někotrymi dnjemi sće { -product-mozilla-account(capitalization: "lower", case: "acc") } załožił, ale njejsće jo ženje wobkrućił. Nadźijamy so, zo konfigurowanje swojeho konta dokónčiće, zo byšće swój nowy abonement wužiwać móhł.
 subscriptionAccountReminderFirst-content-select-2 = Wubjerće „Hesło wutworić“, zo byšće nowe hesło nastajił a přepruwowanje swojeho konta dokónčił.
 subscriptionAccountReminderFirst-action = Hesło wutworić
 subscriptionAccountReminderFirst-action-plaintext = { subscriptionAccountReminderFirst-action }:
 subscriptionAccountReminderSecond-subject = Poslednje dopomnjeće: Konfigurujće swoje konto
 subscriptionAccountReminderSecond-title-2 = Witajće k { -brand-mozilla }!
-subscriptionAccountReminderSecond-content-info-3 = Před někotrymi dnjemi sće { -product-mozilla-account(case: "acc", capitalization: "lower") } załožił, ale njejsće jo ženje wobkrućił. Nadźijamy so, zo konfigurowanje swojeho konta dokónčiće, zo byšće swój nowy abonement wužiwać móhł.
+subscriptionAccountReminderSecond-content-info-3 = Před někotrymi dnjemi sće { -product-mozilla-account(capitalization: "lower", case: "acc") } załožił, ale njejsće jo ženje wobkrućił. Nadźijamy so, zo konfigurowanje swojeho konta dokónčiće, zo byšće swój nowy abonement wužiwać móhł.
 subscriptionAccountReminderSecond-content-select-2 = Wubjerće „Hesło wutworić“, zo byšće nowe hesło nastajił a přepruwowanje swojeho konta dokónčił.
 subscriptionAccountReminderSecond-action = Hesło wutworić
 subscriptionAccountReminderSecond-action-plaintext = { subscriptionAccountReminderSecond-action }:
@@ -385,13 +382,7 @@ subscriptionPaymentProviderCancelled-content-reason-1 = Waša płaćenska metoda
 subscriptionReactivation-subject-2 = Waš abonement { $productName } je so reaktiwizował
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-subject = Waša testowa wersija { $productName } je so reaktiwizowała
-# Variables:
-#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = Wulki dźak, zo sće zaso zaktiwizował swój abonement { $productName }!
-# Variables:
-#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-title = Wulki dźak, zo sće swoju testowu wersiju { $productName } reaktiwizował!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

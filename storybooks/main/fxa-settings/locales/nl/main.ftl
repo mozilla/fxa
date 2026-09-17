@@ -1322,10 +1322,8 @@ pair2-authority-sync-success-sync-settings-button = Synchronisatie-instellingen
 
 pair2-authority-timeout-and-cancel-timeout-heading = Wilt u toch een apparaat verbinden?
 pair2-authority-timeout-and-cancel-timeout-description = Het lijkt erop dat er een time-out is opgetreden. Probeer het opnieuw als u nog steeds verbinding wilt maken met uw mobiele apparaat en uw { -brand-firefox }-gegevens wilt synchroniseren.
-pair2-authority-timeout-and-cancel-canceled-heading = Geannuleerd
 pair2-authority-timeout-and-cancel-canceled-description = Als u van gedachten verandert of een ander apparaat wilt verbinden, probeer het dan opnieuw.
 pair2-authority-timeout-and-cancel-try-again-button = Opnieuw proberen
-pair2-authority-timeout-and-cancel-cancel-button = Annuleren
 pair2-authority-timeout-and-cancel-sync-settings-button = Synchronisatie-instellingen
 
 
@@ -1358,7 +1356,6 @@ pair2-supplicant-sync-success-sync-settings-button = Synchronisatie-instellingen
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Het lijkt erop dat er een time-out is opgetreden
 pair2-supplicant-timeout-and-cancel-timeout-description = Bezoek <b>firefox.com/pair</b> op uw computer om uw mobiele apparaat te verbinden en uw { -brand-firefox }-gegevens te synchroniseren.
-pair2-supplicant-timeout-and-cancel-canceled-heading = Geannuleerd
 pair2-supplicant-timeout-and-cancel-canceled-description = Bezoek <b>firefox.com/pair</b> op uw computer om op elk gewenst moment een apparaat te verbinden.
 
 

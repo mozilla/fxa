@@ -1925,13 +1925,9 @@ pair2-authority-sync-success-sync-settings-button = Nastajenja synchronizacije
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Cośo hyšći rěd zwězaś?
 pair2-authority-timeout-and-cancel-timeout-description = Zda se, až smy cas pśekšocyli. Wopytajśo hyšći raz, jolic hyšći cośo swój mobilny rěd zwězaś a swóje daty { -brand-firefox } synchronizěrowaś.
-# Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-canceled-heading = Pśetergnjony
 pair2-authority-timeout-and-cancel-canceled-description = Jolic swójo měnjenje změnjaśo abo cośo drugi rěd zwězaś, wopytajśo hyšći raz.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Hyšći raz wopytaś
-# Abandons pairing without retrying
-pair2-authority-timeout-and-cancel-cancel-button = Pśetergnuś
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = Nastajenja synchronizacije
 
@@ -2009,8 +2005,6 @@ pair2-supplicant-sync-success-sync-settings-button = Nastajenja synchronizacije
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zda se, až smy cas pśekšocyli
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = Aby swój mobilny rěd zwězał a swóje daty { -brand-firefox } synchronizěrował, woglědajśo se k <b>firefox.com/pair</b> na swójo licadle.
-# Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-canceled-heading = Pśetergnjony
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Aby rěd kuždy cas zwězał, woglědujśo se k <b>firefox.com/pair</b> na swójom licadle.
 

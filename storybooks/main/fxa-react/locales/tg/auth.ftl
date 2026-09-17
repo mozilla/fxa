@@ -98,9 +98,6 @@ payment-provider-card-ending-in = <b>Тарзи пардохт</b>: Корте, 
 payment-provider-card-ending-in-card-name = <b>Тарзи пардохт</b>: Корти «{ $cardName }», ки рақамаш бо { $lastFour } анҷом меёбад
 subscription-charges-invoice-summary = Ҷамъбасти санадҳои дархости пардохт
 
-# Variables:
-
-
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
 

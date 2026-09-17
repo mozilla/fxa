@@ -98,9 +98,6 @@ payment-provider-card-ending-in = <b>Начин плаћања:</b> картиц
 payment-provider-card-ending-in-card-name = <b>Начин плаћања:</b> { $cardName } који се завршава на { $lastFour }
 subscription-charges-invoice-summary = Преглед рачуна
 
-# Variables:
-
-
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
 
@@ -383,13 +380,7 @@ subscriptionPaymentProviderCancelled-content-reason-1 = Могуће је да �
 subscriptionReactivation-subject-2 = Ваша претплата на { $productName } је поново активирана
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-subject = Ваша пробни период за { $productName } је поново активиран
-# Variables:
-#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = Хвала што сте поново активирали вашу { $productName } претплату!
-# Variables:
-#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-title = Хвала вам што сте се поново активирали ваш { $productName } пробни период!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20
