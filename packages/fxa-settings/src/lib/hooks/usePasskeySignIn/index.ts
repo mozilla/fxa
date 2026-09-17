@@ -19,9 +19,10 @@ import type { QueryParams } from '../../..';
 import { isWebAuthnSupported } from '../../passkeys';
 import { runPasskeyAssertion } from '../../passkeys/signin-assertion';
 import { resolveSignedInAccount } from '../../passkeys/signin-account';
-import { stashPasskeyWrapOffer } from '../../passkeys/wrap/offer';
+import { recoverPasswordlessKb } from '../../passkeys/wrap/recover';
 import {
-  isOAuthNativeIntegration,
+  isOAuthNativeIntegrationSync,
+  isSyncDesktopV3Integration,
   useConfig,
   useSensitiveDataClient,
 } from '../../../models';
@@ -141,18 +142,14 @@ export function usePasskeySignIn({
       supportsKeysOptionalLogin
     );
 
-    // Desktop Sync sign-ins need encryption keys and so end in a password
-    // step, after which a passkey wrap can be offered: that is the only flow
-    // where `kB` is derived client-side. Mobile clients close the web view at
-    // handoff, so the page that makes the offer would never be seen there.
-    // Other Firefox services that want keys keep their own landing pages and
-    // are not offered.
-    const offerPasswordlessSyncSetup =
+    // Only OAuth-native Sync can take kB straight into the flow; desktop v3
+    // sends keyFetchToken/unwrapBKey over WebChannel and has no passwordless
+    // path.
+    const passwordlessSync =
       !!config.featureFlags?.passkeyPasswordlessSyncEnabled &&
       keysRequired &&
-      isOAuthNativeIntegration(integration) &&
-      integration.isSync() &&
-      !integration.isFirefoxMobileClient();
+      isOAuthNativeIntegrationSync(integration) &&
+      !isSyncDesktopV3Integration(integration);
 
     try {
       const assertion = await runPasskeyAssertion({
@@ -161,7 +158,7 @@ export function usePasskeySignIn({
         surface,
         ftlMsgResolver,
         keysRequired,
-        withWrapMaterial: offerPasswordlessSyncSetup,
+        withWrapMaterial: passwordlessSync,
         metricsContext: queryParamsToMetricsContext(flowQueryParams),
       });
       if (!assertion.ok) {
@@ -171,31 +168,85 @@ export function usePasskeySignIn({
       }
       const { completion, credentialId, prfOut } = assertion;
 
-      const account = await resolveSignedInAccount({
-        authClient,
-        integration,
-        completion,
-        ftlMsgResolver,
-        navigateWithQuery,
-      });
-      if (!account) {
-        // Defensive finish() — the merge gate navigates away, but Index →
-        // Index with prefill keeps this component mounted and the button
-        // needs to be clickable again.
-        finish();
-        return;
-      }
+      // The PRF output must not outlive this ceremony, whichever exit is
+      // taken. The opt-in copy is stashed or zeroed separately.
+      try {
+        const account = await resolveSignedInAccount({
+          authClient,
+          integration,
+          completion,
+          ftlMsgResolver,
+          navigateWithQuery,
+        });
+        if (!account) {
+          // Defensive finish() — the merge gate navigates away, but Index →
+          // Index with prefill keeps this component mounted and the button
+          // needs to be clickable again.
+          finish();
+          return;
+        }
 
-      await stashPasskeyWrapOffer({
-        authClient,
-        completion,
-        credentialId,
-        prfOut,
-        mounted,
-        sensitiveDataClient,
-      });
+        const signIn = async (kB?: hexstring) => {
+          const navError = await completeSignIn({
+            navigate,
+            email: account.email,
+            completion,
+            integration,
+            finishOAuthFlowHandler,
+            queryParams,
+            kB,
+            accountHasTotp: account.accountHasTotp,
+            authClient,
+          });
+          if (navError) {
+            // Synthetic Error: backend error bodies may carry identifiers.
+            Sentry.captureException(new Error('passkey-signin nav error'), {
+              tags: { errno: String(navError.errno ?? 'none') },
+            });
+            setBanner(passkeyUnexpectedBanner(ftlMsgResolver));
+            finish();
+            return;
+          }
+          // Deliberately not finish()'d — the loading state must survive the
+          // hard redirect or WebChannel handoff as this component unmounts.
+          setStatus('navigating');
+          GleanMetrics.passkey.authSuccess({
+            event: {
+              reason: buildPasskeyAuthSuccessReason(
+                toPasskeyMetricsSurface(surface),
+                'nopassword'
+              ),
+            },
+          });
+        };
 
-      if (keysRequired) {
+        if (!keysRequired) {
+          await signIn();
+          return;
+        }
+
+        if (passwordlessSync && completion.mfaToken && completion.hasPassword) {
+          const kB = await recoverPasswordlessKb({
+            authClient,
+            mfaToken: completion.mfaToken,
+            uid: completion.uid,
+            credentialId,
+            prfOut,
+            mounted,
+            // The opt-in page only renders on desktop: on Firefox mobile,
+            // performNavigation:false hands sign-in off to WebChannel first.
+            offerOptIn: !integration.isFirefoxMobileClient(),
+            sensitiveDataClient,
+          });
+          if (kB === 'left') {
+            return;
+          }
+          if (kB) {
+            await signIn(kB);
+            return;
+          }
+        }
+
         // A password is needed to derive scoped keys before the browser
         // login/OAuth messages are sent. An existing-password account re-enters
         // its password; a passwordless account creates one.
@@ -215,36 +266,9 @@ export function usePasskeySignIn({
             },
           }
         );
-        return;
+      } finally {
+        prfOut?.fill(0);
       }
-
-      const navError = await completeSignIn({
-        navigate,
-        email: account.email,
-        completion,
-        integration,
-        finishOAuthFlowHandler,
-        queryParams,
-        accountHasTotp: account.accountHasTotp,
-        authClient,
-      });
-      if (navError) {
-        Sentry.captureException(navError);
-        setBanner(passkeyUnexpectedBanner(ftlMsgResolver));
-        finish();
-        return;
-      }
-      // Deliberately not finish()'d — the loading state must survive the hard
-      // redirect or WebChannel handoff as this component unmounts.
-      setStatus('navigating');
-      GleanMetrics.passkey.authSuccess({
-        event: {
-          reason: buildPasskeyAuthSuccessReason(
-            toPasskeyMetricsSurface(surface),
-            'nopassword'
-          ),
-        },
-      });
     } catch (err) {
       const errno = (err as { errno?: number })?.errno;
       if (errno === AuthUiErrors.PASSKEY_NOT_FOUND.errno) {
@@ -289,6 +313,7 @@ async function completeSignIn({
   integration,
   finishOAuthFlowHandler,
   queryParams,
+  kB,
   accountHasTotp,
   authClient,
 }: {
@@ -298,6 +323,8 @@ async function completeSignIn({
   integration: PasskeySignInIntegration;
   finishOAuthFlowHandler: FinishOAuthFlowHandler;
   queryParams: string;
+  /** Set when a passkey wrap supplied `kB`, so no password step is needed. */
+  kB?: hexstring;
   accountHasTotp: boolean;
   authClient: PasskeySignInAuthClient;
 }) {
@@ -316,6 +343,7 @@ async function completeSignIn({
     integration,
     finishOAuthFlowHandler,
     queryParams,
+    kB,
     handleFxaLogin: true,
     handleFxaOAuthLogin: true,
     // On Firefox mobile, the browser finishes sign-in via WebChannel

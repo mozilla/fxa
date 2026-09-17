@@ -321,9 +321,14 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
   }
 
   // A passkey ceremony leaves wrap material only when the password-free
-  // offer should follow; the overrides below may still withdraw it.
+  // offer should follow. The offer is an OAuth Sync destination for this
+  // verified account; the overrides below may still withdraw it.
+  const pendingWrap = navigationOptions.sensitiveDataClient?.PasskeyWrapData;
   navigationOptions.showInlinePasswordlessSyncSetup =
-    !!navigationOptions.sensitiveDataClient?.PasskeyWrapData;
+    pendingWrap?.uid === navigationOptions.signinData.uid &&
+    isOAuth &&
+    !!navigationOptions.signinData.emailVerified &&
+    !!navigationOptions.signinData.sessionVerified;
 
   // Check CMS fleature flags to determine if we should hide promos, the
   // default is to navigate to settings
@@ -730,7 +735,8 @@ const getOAuthNavigationTarget = async (
       navigationOptions.signinData.uid,
       navigationOptions.signinData.sessionToken,
       navigationOptions.signinData.keyFetchToken,
-      navigationOptions.unwrapBKey
+      navigationOptions.unwrapBKey,
+      navigationOptions.kB
     );
   if (error) {
     if (

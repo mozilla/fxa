@@ -6,9 +6,13 @@ import * as Sentry from '@sentry/browser';
 import { ERRNO } from '@fxa/accounts/errors';
 import type AuthClient from 'fxa-auth-client/browser';
 import type { PasskeyWrapEnvelope } from 'fxa-auth-client/browser';
-import { base64urlToBytes } from '../../base64url';
 import { getCredential } from '../webauthn';
-import type { AuthUiError } from '../../auth-errors/auth-errors';
+import {
+  AuthUiErrors,
+  isAuthUiError,
+  type AuthUiError,
+} from '../../auth-errors/auth-errors';
+import { uidFromMfaToken } from './uid-from-mfa-token';
 import { createWrapEnvelope, openWrapEnvelope } from '../../passkey-crypto';
 import { PRF_OUT_BYTES } from '../../passkey-crypto/constants';
 
@@ -62,8 +66,6 @@ export async function createPasskeyWrap(
     return { ok: false, failure: 'key_unusable' };
   }
 
-  // The server files the wrap under the proof's `sub`;
-  // any other uid would result in sealing an envelope that never opens.
   const uid = uidFromMfaToken(mfaToken);
   if (!uid) {
     return { ok: false, failure: 'proof_malformed' };
@@ -90,11 +92,9 @@ export async function createPasskeyWrap(
   try {
     return await store(authClient, mfaToken, credentialId, envelope);
   } catch (err) {
-    if (
-      (err as AuthUiError).errno !== ERRNO.INVALID_MFA_TOKEN ||
-      !sessionToken
-    ) {
-      return { ok: false, error: err as AuthUiError };
+    const error = toAuthUiError(err);
+    if (error.errno !== ERRNO.INVALID_MFA_TOKEN || !sessionToken) {
+      return { ok: false, error };
     }
     let freshToken: string;
     try {
@@ -102,12 +102,12 @@ export async function createPasskeyWrap(
     } catch {
       // A cancelled prompt or a refused step-up leaves the original refusal
       // as the outcome to word.
-      return { ok: false, error: err as AuthUiError };
+      return { ok: false, error };
     }
     try {
       return await store(authClient, freshToken, credentialId, envelope);
     } catch (retryErr) {
-      return { ok: false, error: retryErr as AuthUiError };
+      return { ok: false, error: toAuthUiError(retryErr) };
     }
   }
 }
@@ -145,18 +145,9 @@ async function stepUp(
   return mfaToken;
 }
 
-function uidFromMfaToken(mfaToken: string): string | undefined {
-  try {
-    const payload = mfaToken.split('.')[1];
-    const { sub } = JSON.parse(
-      new TextDecoder().decode(base64urlToBytes(payload))
-    );
-    return typeof sub === 'string' && /^[0-9a-f]{32}$/.test(sub)
-      ? sub
-      : undefined;
-  } catch {
-    return undefined;
-  }
+/** A network TypeError or other non-auth throw has no errno to word. */
+function toAuthUiError(err: unknown): AuthUiError {
+  return isAuthUiError(err) ? err : AuthUiErrors.UNEXPECTED_ERROR;
 }
 
 function isZeroed(bytes: Uint8Array): boolean {

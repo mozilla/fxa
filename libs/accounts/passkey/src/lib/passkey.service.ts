@@ -842,7 +842,9 @@ export class PasskeyService {
         );
       }
       // Pinned to the row that was read: a wrap another writer stored since
-      // then was not the one judged stale and is not ours to replace.
+      // then was not the one judged stale and is not ours to replace. Not
+      // transactional: if the insert below fails the credential is left with
+      // no wrap, which the next sign-in reports as `no_wrap` and re-offers.
       const removed = await this.passkeyManager.deletePasskeyWrap(
         uid,
         credentialId,

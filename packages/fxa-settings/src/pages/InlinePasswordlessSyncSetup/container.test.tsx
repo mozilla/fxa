@@ -19,16 +19,17 @@ jest.mock('react-router', () => ({
 
 const mockSensitiveDataClient = new SensitiveDataClient();
 const mockAlertBar = { success: jest.fn(), error: jest.fn() };
+const mockAuthClient = {};
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
   useSensitiveDataClient: () => mockSensitiveDataClient,
-  useAuthClient: () => ({}),
+  useAuthClient: () => mockAuthClient,
   useAlertBar: () => mockAlertBar,
 }));
 
 const mockCreateWrap = jest.fn();
 jest.mock('../../lib/passkeys/wrap/creation', () => ({
-  createPasskeyWrap: (...args: unknown[]) => mockCreateWrap(args[1]),
+  createPasskeyWrap: (...args: unknown[]) => mockCreateWrap(...args),
 }));
 
 jest.mock('../../lib/cache', () => ({
@@ -139,7 +140,7 @@ describe('InlinePasswordlessSyncSetupContainer', () => {
       'This passkey is set up for password-free sign-in.'
     );
     expect(mockAlertBar.error).not.toHaveBeenCalled();
-    expect(mockCreateWrap).toHaveBeenCalledWith({
+    expect(mockCreateWrap).toHaveBeenCalledWith(mockAuthClient, {
       credentialId: held.credentialId,
       mfaToken: held.mfaToken,
       sessionToken: 'session-token',

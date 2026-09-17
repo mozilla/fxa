@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useEffect, useRef, type MutableRefObject } from 'react';
+import { useEffect, type RefObject } from 'react';
+import { useMounted } from '../hooks/useMounted';
 import type { SensitiveDataClient } from '../sensitive-data-client';
 
 /**
@@ -16,13 +17,11 @@ import type { SensitiveDataClient } from '../sensitive-data-client';
  */
 export function useClearPasskeyWrapOnLeave(
   sensitiveDataClient: SensitiveDataClient,
-  handedOff?: MutableRefObject<boolean>
-): MutableRefObject<boolean> {
-  const mounted = useRef(false);
+  handedOff?: RefObject<boolean>
+): RefObject<boolean> {
+  const mounted = useMounted();
   useEffect(() => {
-    mounted.current = true;
     return () => {
-      mounted.current = false;
       queueMicrotask(() => {
         // Read at cleanup on purpose: the flag is set by the handoff that
         // triggers this unmount.
@@ -32,6 +31,6 @@ export function useClearPasskeyWrapOnLeave(
         }
       });
     };
-  }, [sensitiveDataClient, handedOff]);
+  }, [sensitiveDataClient, handedOff, mounted]);
   return mounted;
 }

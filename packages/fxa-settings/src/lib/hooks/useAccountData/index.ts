@@ -66,7 +66,7 @@ interface AccountDataResult {
 }
 
 /** Shape returned by the consolidated /account auth-server endpoint. */
-interface AccountResponse {
+export interface AccountResponse {
   emails?: Array<{ email: string; isPrimary: boolean; verified: boolean }>;
   linkedAccounts?: Array<{
     providerId: number;

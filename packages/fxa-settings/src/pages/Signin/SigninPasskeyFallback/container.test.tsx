@@ -111,6 +111,7 @@ jest.mock('../utils', () => ({
 }));
 
 function applyDefaultMocks(): void {
+  jest.restoreAllMocks();
   jest.resetAllMocks();
   mockLocationState = MOCK_LOCATION_STATE;
   mockOAuthDataError = null;
