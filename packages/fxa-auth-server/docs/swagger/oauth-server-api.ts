@@ -54,6 +54,7 @@ const OAUTH_SERVER_API_DESCRIPTION = {
       | 400         | 119   | stale authentication timestamp                  |
       | 400         | 120   | mismatch acr value                              |
       | 400         | 121   | invalid grant_type                              |
+      | 400         | 170   | unmet \`acr_values\` or \`max_age\` requirement   |
       | 500         | 999   | internal server error                           |
 
 
@@ -80,7 +81,25 @@ const AUTHORIZATION_GET = {
   ...TAGS_OAUTH_SERVER,
   description: '/v1/authorization',
   notes: [
-    'This endpoint starts the OAuth flow. A client redirects the user agent to this url. This endpoint will then redirect to the appropriate content-server page.',
+    dedent`
+      This endpoint starts the OAuth flow. A client redirects the user agent to this url. This endpoint will then redirect to the appropriate content-server page.
+
+      **Step-up authentication.** A client may require the user to have completed a second factor,
+      or to have authenticated recently, by supplying \`acr_values\` and/or \`max_age\`
+      ([RFC 9470](https://datatracker.ietf.org/doc/html/rfc9470) section 5). \`acr_values=AAL2\`
+      requires an authenticator assurance level of 2; \`AAL2\` is the only value recognized and any
+      other value in the list is ignored. \`max_age\` bounds, in seconds, how old the session's most
+      recent authentication event may be, evaluated with a five-second grace period so that a
+      just-completed challenge satisfies \`max_age=0\`. If either requirement is unmet the request
+      fails with errno 170 and the hosted sign-in UI challenges the user for a second factor before
+      retrying. Where it cannot challenge — the RP also sent \`prompt=none\` — the UI instead
+      redirects to the registered \`redirect_uri\` with
+      \`error=unmet_authentication_requirements\`.
+
+      The resulting grant carries \`acr\` and \`auth_time\` on the ID token and the JWT access
+      token, and \`acr\`, \`auth_time\` and \`amr\` via the \`/v1/introspect\` endpoint. These are not carried by
+      refresh tokens, so an elevated authentication does not survive a token refresh.
+    `,
   ],
   plugins: {
     'hapi-swagger': {
@@ -98,7 +117,26 @@ const AUTHORIZATION_GET = {
 const AUTHORIZATION_POST = {
   ...TAGS_OAUTH_SERVER,
   description: '/v1/authorization',
-  notes: ['This endpoint should be used by the fxa-content-server, requesting that we supply a short-lived code (currently 15 minutes) that will be sent back to the client. This code will be traded for a token at the [token][] endpoint.',
+  notes: [
+    dedent`
+      This endpoint should be used by the fxa-content-server, requesting that we supply a short-lived code (currently 15 minutes) that will be sent back to the client. This code will be traded for a token at the [token][] endpoint.
+
+      **Step-up authentication.** A client may require the user to have completed a second factor,
+      or to have authenticated recently, by supplying \`acr_values\` and/or \`max_age\`
+      ([RFC 9470](https://datatracker.ietf.org/doc/html/rfc9470) section 5). \`acr_values=AAL2\`
+      requires an authenticator assurance level of 2; \`AAL2\` is the only value recognized and any
+      other value in the list is ignored. \`max_age\` bounds, in seconds, how old the session's most
+      recent authentication event may be, evaluated with a five-second grace period so that a
+      just-completed challenge satisfies \`max_age=0\`. If either requirement is unmet the request
+      fails with errno 170 and the hosted sign-in UI challenges the user for a second factor before
+      retrying. Where it cannot challenge — the RP also sent \`prompt=none\` — the UI instead
+      redirects to the registered \`redirect_uri\` with
+      \`error=unmet_authentication_requirements\`.
+
+      The resulting grant carries \`acr\` and \`auth_time\` on the ID token and the JWT access
+      token, and \`acr\`, \`auth_time\` and \`amr\` via the \`/v1/introspect\` endpoint. These are not carried by
+      refresh tokens, so an elevated authentication does not survive a token refresh.
+    `,
   ],
   plugins: {
     'hapi-swagger': {
@@ -285,7 +323,17 @@ const INTROSPECT_POST = {
     dedent`
       This endpoint returns the status of the token and meta-information about this token.
 
-      If the token has attribute \`active: false\`, none of the other attributes in the response will have content
+      If the token has attribute \`active: false\`, none of the other attributes in the response will have content.
+
+      Per [RFC 9470](https://datatracker.ietf.org/doc/html/rfc9470) section 6.2, the response also
+      carries \`acr\`, \`auth_time\` and \`amr\` describing the authentication behind the grant.
+      These are present on **access tokens only** — a refresh token never carries them, which is what
+      prevents an elevated authentication from surviving a token refresh. An RP that needs a fresh
+      elevation must re-run the authorization flow rather than refreshing.
+
+      **Units:** \`auth_time\` is in *seconds* since the epoch, following OIDC, while \`iat\` and
+      \`exp\` on this endpoint are historically emitted in *milliseconds*. The difference is
+      intentional and retained for backwards compatibility.
     `,
   ],
   plugins: {
@@ -305,7 +353,10 @@ const INTROSPECT_POST = {
                   "iat": 1566535888243,
                   "sub": "913fe9395bb946b48c1521d7beb2cb24",
                   "jti": "5ae05d8fe413a749e0f4eb3c495a1c526fb52c85ca5fde516df5dd77d41f7b5b",
-                  "exp": 1566537688243
+                  "exp": 1566537688243,
+                  "acr": "AAL2",
+                  "auth_time": 1566535870,
+                  "amr": ["pwd", "otp"]
                 }
             \`\`\`
           `,
@@ -411,6 +462,14 @@ const TOKEN_POST = {
       - \`fxa-credentials\`: an FxA identity assertion, obtained by directly authenticating the user's account.
 
       **WARNING**: Do not include \`scope\` unless you want to downgrade it.
+
+      **Step-up authentication.** An access token minted from an \`authorization_code\` grant carries
+      the \`acr\` and \`auth_time\` of the authentication behind that code. A \`refresh_token\`
+      grant carries neither: the refresh token stores no authentication event and the refresh grant
+      never re-evaluates \`acr_values\`/\`max_age\`, because no user is present to challenge. This is
+      deliberate — a client that needs a fresh elevation must re-run the authorization flow. Note
+      that a refreshed token still introspects as \`active: true\`, so a check that only reads
+      \`active\` will not notice the elevation is gone.
     `,
   ],
   plugins: {
