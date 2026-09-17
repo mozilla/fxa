@@ -1,0 +1,11 @@
+{
+  "commit": "e994e78e046e877b039f44fdb054e0d4215160cc",
+  "summary": "feat(settings): move finish account setup set password to React",
+  "description": "## Because\n\n- `post_verify/finish_account_setup/set_password` is one of the last Backbone-only routes that a live email still links to. It blocks the removal of Backbone.\n- The React SetPassword page already exists, but its container needs an authenticated session. A plain route alias was not enough.\n\n## This pull request\n\n- Registers the path as a React route onto the existing SetPassword page, in the `postVerifyThirdPartyAuthRoutes` group in `react-app/index.js` and in `components/App/index.tsx`.\n- Adds `finish-account-setup-container.tsx` next to the page. It validates the email link params, calls `authClient.finishSetup` with the JWT from the link, stores the returned account, and redirects.\n- Adds a `subscription` password creation reason and an optional `productName` to the page. Adds a `subscription-set-password` password form type, so the submit button reads \"Create password\" and not \"Start syncing\".\n- Deletes the Backbone view, its mustache template, its spec, and the `router.js` entry. The path stays in the `content-server-routes.js` FRONTEND_ROUTES.\n- Documents the new `subscription` value of the Glean `reason` extra key.\n\n## Issue that this pull request solves\n\nCloses: FXA-14380",
+  "timestamp": 1789675577000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
