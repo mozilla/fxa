@@ -1893,13 +1893,9 @@ pair2-authority-sync-success-sync-settings-button = Syngronisaasje-ynstellingen
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Wolle jo dochs in apparaat ferbine?
 pair2-authority-timeout-and-cancel-timeout-description = It liket derop dat de tiid ferrûn is. Probearje it nochris as jo jo mobyl apparaat noch ferbine wolle en jo { -brand-firefox }-gegevens syngronisearje wolle.
-# Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-canceled-heading = Annulearre
 pair2-authority-timeout-and-cancel-canceled-description = As jo fan gedachten feroarje of in oar apparaat ferbine wolle, probearje it dan opnij.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Opnij probearje
-# Abandons pairing without retrying
-pair2-authority-timeout-and-cancel-cancel-button = Annulearje
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = Syngronisaasje-ynstellingen
 
@@ -1975,8 +1971,6 @@ pair2-supplicant-sync-success-sync-settings-button = Syngronisaasje-ynstellingen
 pair2-supplicant-timeout-and-cancel-timeout-heading = It liket derop dat der in time-out bard is
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = Besykje <b>firefox.com/pair</b> op jo kompjûter om jo mobile apparaat te ferbinen en jo { -brand-firefox }-gegevens te syngronisearjen.
-# Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-canceled-heading = Annulearre
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Besykje <b>firefox.com/pair</b> op jo kompjûter om op elk winske momint in apparaat te ferbinen.
 

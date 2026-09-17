@@ -1175,6 +1175,15 @@ index-account-delete-success = Konto erfolgreich gelöscht
 index-email-bounced = Ihre Bestätigungs-E-Mail kam gerade zurück. Stimmt Ihre E-Mail-Adresse?
 
 
+inline-passwordless-sync-setup-page-title = Passwort beim nächsten Mal überspringen?
+inline-passwordless-sync-setup-success-banner = Bei { -brand-firefox } angemeldet
+inline-passwordless-sync-setup-heading = Passwort beim nächsten Mal überspringen?
+inline-passwordless-sync-setup-description = Verwenden Sie diesen Zugangsschlüssel, um sich schneller anzumelden.
+inline-passwordless-sync-setup-enable-button = Zugangsschlüssel aktivieren
+inline-passwordless-sync-setup-enabling = Wird aktiviert…
+inline-passwordless-sync-setup-not-now-button = Nicht jetzt
+
+
 inline-recovery-key-setup-create-error = Hoppla! Wir konnten Ihren Kontowiederherstellungsschlüssel nicht erstellen. Bitte versuchen Sie es später erneut.
 inline-recovery-key-setup-recovery-created = Kontowiederherstellungsschlüssel erstellt
 inline-recovery-key-setup-download-header = Sichern Sie Ihr Konto
@@ -1322,10 +1331,9 @@ pair2-authority-sync-success-sync-settings-button = Synchronisationseinstellunge
 
 pair2-authority-timeout-and-cancel-timeout-heading = Möchten Sie trotzdem ein Gerät verbinden?
 pair2-authority-timeout-and-cancel-timeout-description = Anscheinend trat eine Zeitüberschreitung auf. Versuchen Sie es erneut, wenn Sie Ihr Mobilgerät weiterhin verbinden und Ihre Daten von { -brand-firefox } synchronisieren möchten.
-pair2-authority-timeout-and-cancel-canceled-heading = Abgebrochen
+pair2-authority-timeout-and-cancel-cancelled-heading = Abgesagt
 pair2-authority-timeout-and-cancel-canceled-description = Wenn Sie Ihre Meinung ändern oder ein anderes Gerät verbinden möchten, versuchen Sie es erneut.
 pair2-authority-timeout-and-cancel-try-again-button = Erneut versuchen
-pair2-authority-timeout-and-cancel-cancel-button = Abbrechen
 pair2-authority-timeout-and-cancel-sync-settings-button = Synchronisationseinstellungen
 
 
@@ -1358,7 +1366,7 @@ pair2-supplicant-sync-success-sync-settings-button = Synchronisationseinstellung
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zeitüberschreitung
 pair2-supplicant-timeout-and-cancel-timeout-description = Um Ihr Mobilgerät zu verbinden und Ihre { -brand-firefox }-Daten zu synchronisieren, besuchen Sie <b>firefox.com/pair</b> auf Ihrem Computer.
-pair2-supplicant-timeout-and-cancel-canceled-heading = Abgebrochen
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Abgesagt
 pair2-supplicant-timeout-and-cancel-canceled-description = Um jederzeit ein Gerät zu verbinden, besuchen Sie <b>firefox.com/pair</b> auf Ihrem Computer.
 
 

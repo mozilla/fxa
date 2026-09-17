@@ -1443,13 +1443,9 @@ pair2-authority-sync-success-sync-settings-button = ਸਿੰਕ ਸੈਟਿੰ
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = ਹਾਲੇ ਵੀ ਕਿਸੇ ਡਿਵਾਈਸ ਨੂੰ ਕਨੈਕਟ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ?
 pair2-authority-timeout-and-cancel-timeout-description = ਲੱਗਦਾ ਹੈ ਕਿ ਅਸੀਂ ਟਾਈਮ-ਆਉਟ ਹੋ ਗਏ ਹਨ। ਜੇ ਤੁਸੀ ਹਾਲੇ ਵੀ ਮੋਬਾਈਲ ਡਿਵਾਈਸ ਨਾਲ ਕਨੈਕਟ ਕਰਕੇ ਆਪਣੇ { -brand-firefox } ਡਾਟੇ ਨੂੰ ਸਿੰਕ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ ਤਾਂ ਫੇਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ।
-# Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-canceled-heading = ਰੱਦ ਕੀਤਾ
 pair2-authority-timeout-and-cancel-canceled-description = ਜੇ ਤੁਸੀਂ ਆਪਣਾ ਮਨ ਬਦਲਿਆ ਜਾਂ ਵੱਖਰੇ ਡਿਵਾਈਸ ਨਾਲ ਕਨੈਕਟ ਕਰਨਾ ਹੋਇਆ ਤਾਂ ਫੇਰ ਕੋਸ਼ਿਸ਼ ਕਰਿਓ।
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = ਫੇਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ
-# Abandons pairing without retrying
-pair2-authority-timeout-and-cancel-cancel-button = ਰੱਦ ਕਰੋ
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = ਸਿੰਕ ਸੈਟਿੰਗਾਂ
 
@@ -1510,15 +1506,6 @@ pair2-supplicant-sync-success-heading = ਤੁਹਾਡਾ ਡਿਵਾਈਸ �
 pair2-supplicant-sync-success-view-tabs-button = ਸਿੰਕ ਕੀਤੀਆਂ ਟੈਬਾਂ ਨੂੰ ਵੇਖੋ
 # Opens the browser's sync settings, where the user chooses what to sync
 pair2-supplicant-sync-success-sync-settings-button = ਸਿੰਕ ਸੈਟਿੰਗਾਂ
-
-## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device when pairing ends without connecting,
-## either because the attempt timed out or because it was canceled. Both states
-## are informational and offer no on-screen action, so the copy points the user
-## back to their computer to start again.
-
-# Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-canceled-heading = ਰੱਦ ਕੀਤਾ
 
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a

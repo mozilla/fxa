@@ -1031,10 +1031,8 @@ pair2-authority-sync-success-sync-settings-button = ਸਿੰਕ ਸੈਟਿੰ
 
 pair2-authority-timeout-and-cancel-timeout-heading = ਹਾਲੇ ਵੀ ਕਿਸੇ ਡਿਵਾਈਸ ਨੂੰ ਕਨੈਕਟ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ?
 pair2-authority-timeout-and-cancel-timeout-description = ਲੱਗਦਾ ਹੈ ਕਿ ਅਸੀਂ ਟਾਈਮ-ਆਉਟ ਹੋ ਗਏ ਹਨ। ਜੇ ਤੁਸੀ ਹਾਲੇ ਵੀ ਮੋਬਾਈਲ ਡਿਵਾਈਸ ਨਾਲ ਕਨੈਕਟ ਕਰਕੇ ਆਪਣੇ { -brand-firefox } ਡਾਟੇ ਨੂੰ ਸਿੰਕ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ ਤਾਂ ਫੇਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ।
-pair2-authority-timeout-and-cancel-canceled-heading = ਰੱਦ ਕੀਤਾ
 pair2-authority-timeout-and-cancel-canceled-description = ਜੇ ਤੁਸੀਂ ਆਪਣਾ ਮਨ ਬਦਲਿਆ ਜਾਂ ਵੱਖਰੇ ਡਿਵਾਈਸ ਨਾਲ ਕਨੈਕਟ ਕਰਨਾ ਹੋਇਆ ਤਾਂ ਫੇਰ ਕੋਸ਼ਿਸ਼ ਕਰਿਓ।
 pair2-authority-timeout-and-cancel-try-again-button = ਫੇਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ
-pair2-authority-timeout-and-cancel-cancel-button = ਰੱਦ ਕਰੋ
 pair2-authority-timeout-and-cancel-sync-settings-button = ਸਿੰਕ ਸੈਟਿੰਗਾਂ
 
 
@@ -1060,9 +1058,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = ਹੋਰ ਜਾਣੋ
 pair2-supplicant-sync-success-heading = ਤੁਹਾਡਾ ਡਿਵਾਈਸ ਕਨੈਕਟ ਹੈ
 pair2-supplicant-sync-success-view-tabs-button = ਸਿੰਕ ਕੀਤੀਆਂ ਟੈਬਾਂ ਨੂੰ ਵੇਖੋ
 pair2-supplicant-sync-success-sync-settings-button = ਸਿੰਕ ਸੈਟਿੰਗਾਂ
-
-
-pair2-supplicant-timeout-and-cancel-canceled-heading = ਰੱਦ ਕੀਤਾ
 
 
 set-password-heading-v2 = ਸਿੰਕ ਕਰਨ ਲਈ ਪਾਸਵਰਡ ਬਣਾਓ

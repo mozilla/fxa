@@ -1320,10 +1320,8 @@ pair2-authority-sync-success-sync-settings-button = Ajustes de sincronización
 
 pair2-authority-timeout-and-cancel-timeout-heading = ¿Aún quieres conectar un dispositivo?
 pair2-authority-timeout-and-cancel-timeout-description = Parece que se agotó el tiempo de espera. Vuelve a intentarlo si todavía quieres conectar tu dispositivo móvil y sincronizar tus datos de { -brand-firefox }.
-pair2-authority-timeout-and-cancel-canceled-heading = Cancelado
 pair2-authority-timeout-and-cancel-canceled-description = Si cambias de opinión o quieres conectar un dispositivo diferente, vuelve a intentarlo.
 pair2-authority-timeout-and-cancel-try-again-button = Volver a intentarlo
-pair2-authority-timeout-and-cancel-cancel-button = Cancelar
 pair2-authority-timeout-and-cancel-sync-settings-button = Ajustes de sincronización
 
 
@@ -1356,7 +1354,6 @@ pair2-supplicant-sync-success-sync-settings-button = Ajustes de sincronización
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que se nos acabó el tiempo
 pair2-supplicant-timeout-and-cancel-timeout-description = Para conectar tu dispositivo móvil y sincronizar tus datos de { -brand-firefox }, visita <b>firefox.com/pair</b> en tu computador.
-pair2-supplicant-timeout-and-cancel-canceled-heading = Cancelado
 pair2-supplicant-timeout-and-cancel-canceled-description = Para conectar un dispositivo en cualquier momento, visita <b>firefox.com/pair</b> desde tu computador.
 
 

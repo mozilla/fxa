@@ -1910,13 +1910,9 @@ pair2-authority-sync-success-sync-settings-button = Synchronisation settings
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Still want to connect a device?
 pair2-authority-timeout-and-cancel-timeout-description = Looks like we timed out. Try again if you still want to connect your mobile device and synchronise your { -brand-firefox } data.
-# Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-canceled-heading = Cancelled
 pair2-authority-timeout-and-cancel-canceled-description = If you change your mind or want to connect a different device, try again.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Try again
-# Abandons pairing without retrying
-pair2-authority-timeout-and-cancel-cancel-button = Cancel
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = Synchronisation settings
 
@@ -1994,8 +1990,6 @@ pair2-supplicant-sync-success-sync-settings-button = Synchronisation settings
 pair2-supplicant-timeout-and-cancel-timeout-heading = Looks like we timed out
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = To connect your mobile device and synchronise your { -brand-firefox } data, visit <b>firefox.com/pair</b> on your computer.
-# Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-canceled-heading = Cancelled
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = To connect a device at any time, visit <b>firefox.com/pair</b> on your computer.
 

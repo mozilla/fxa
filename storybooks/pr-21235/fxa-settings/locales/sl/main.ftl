@@ -1311,6 +1311,15 @@ index-account-delete-success = Račun je bil uspešno izbrisan
 index-email-bounced = Vaša potrditvena e-pošta se je pravkar vrnila. Ste se zatipkali v e-poštnem naslovu?
 
 
+inline-passwordless-sync-setup-page-title = Želite naslednjič preskočiti geslo?
+inline-passwordless-sync-setup-success-banner = Prijavljen v { -brand-firefox }
+inline-passwordless-sync-setup-heading = Želite naslednjič preskočiti geslo?
+inline-passwordless-sync-setup-description = Uporabite to geslo za hitrejšo prijavo.
+inline-passwordless-sync-setup-enable-button = Omogoči geslo
+inline-passwordless-sync-setup-enabling = Omogočanje …
+inline-passwordless-sync-setup-not-now-button = Ne zdaj
+
+
 inline-recovery-key-setup-create-error = Opla! Ključa za obnovitev računa ni bilo mogoče ustvariti. Poskusite znova pozneje.
 inline-recovery-key-setup-recovery-created = Ključ za obnovitev računa ustvarjen
 inline-recovery-key-setup-download-header = Zavarujte svoj račun
@@ -1458,10 +1467,9 @@ pair2-authority-sync-success-sync-settings-button = Nastavitve sinhronizacije
 
 pair2-authority-timeout-and-cancel-timeout-heading = Še vedno želite povezati napravo?
 pair2-authority-timeout-and-cancel-timeout-description = Kaže, da nam je potekla časovna omejitev. Poskusite znova, če še vedno želite povezati mobilno napravo in sinhronizirati podatke v storitvi { -brand-firefox }.
-pair2-authority-timeout-and-cancel-canceled-heading = Preklicano
+pair2-authority-timeout-and-cancel-cancelled-heading = Odpovedana
 pair2-authority-timeout-and-cancel-canceled-description = Če si premislite ali želite povezati drugo napravo, poskusite znova.
 pair2-authority-timeout-and-cancel-try-again-button = Poskusi znova
-pair2-authority-timeout-and-cancel-cancel-button = Prekliči
 pair2-authority-timeout-and-cancel-sync-settings-button = Nastavitve sinhronizacije
 
 
@@ -1494,7 +1502,7 @@ pair2-supplicant-sync-success-sync-settings-button = Nastavitve sinhronizacije
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Kaže, da nam je potekla časovna omejitev
 pair2-supplicant-timeout-and-cancel-timeout-description = Če želite povezati mobilno napravo in sinhronizirati podatke { -brand-firefox(sklon: "rodilnik") }, z računalnikom obiščite <b>firefox.com/pair</b>.
-pair2-supplicant-timeout-and-cancel-canceled-heading = Preklicano
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Odpovedana
 pair2-supplicant-timeout-and-cancel-canceled-description = Napravo lahko kadarkoli povežete tako, da z računalnikom obiščete <b>firefox.com/pair</b>.
 
 

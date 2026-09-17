@@ -1886,13 +1886,9 @@ pair2-authority-sync-success-sync-settings-button = Synkroniseringsinnstillinger
 
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Vil du fortsatt koble til en enhet?
-# Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-canceled-heading = Avbrutt
 pair2-authority-timeout-and-cancel-canceled-description = Hvis du ombestemmer deg eller vil koble til en annen enhet, kan du prøve på nytt.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Prøv på nytt
-# Abandons pairing without retrying
-pair2-authority-timeout-and-cancel-cancel-button = Avbryt
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = Synkroniseringsinnstillinger
 
@@ -1959,8 +1955,6 @@ pair2-supplicant-sync-success-sync-settings-button = Synkroniseringsinnstillinge
 ## are informational and offer no on-screen action, so the copy points the user
 ## back to their computer to start again.
 
-# Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-canceled-heading = Avbrutt
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = For å koble til en enhet når som helst, gå til <b>firefox.com/pair</b> på datamaskinen din.
 

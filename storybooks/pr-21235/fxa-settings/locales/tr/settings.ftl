@@ -1731,13 +1731,9 @@ pair2-authority-sync-success-sync-settings-button = Eşitleme ayarları
 
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Hâlâ cihaz bağlamak istiyor musunuz?
-# Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-canceled-heading = Vazgeçildi
 pair2-authority-timeout-and-cancel-canceled-description = Fikrinizi değiştirirseniz veya başka bir cihaz bağlamak isterseniz yeniden deneyin.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Yeniden dene
-# Abandons pairing without retrying
-pair2-authority-timeout-and-cancel-cancel-button = Vazgeç
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = Eşitleme ayarları
 
@@ -1801,8 +1797,6 @@ pair2-supplicant-sync-success-sync-settings-button = Eşitleme ayarları
 
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zaman aşımına uğradık
-# Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-canceled-heading = Vazgeçildi
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

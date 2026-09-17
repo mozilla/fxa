@@ -1466,6 +1466,15 @@ index-account-delete-success = Účet byl úspěšně smazán
 index-email-bounced = Odeslaná potvrzující e-mailová zpráva se právě vrátila zpět. Nemáte překlep v e-mailové adrese?
 
 
+inline-passwordless-sync-setup-page-title = Přeskočit heslo příště?
+inline-passwordless-sync-setup-success-banner = Přihlášení k { -brand-firefox }
+inline-passwordless-sync-setup-heading = Přeskočit heslo příště?
+inline-passwordless-sync-setup-description = Používejte tento přístupový kód pro rychlejší přihlašování.
+inline-passwordless-sync-setup-enable-button = Povolit přístupový kód
+inline-passwordless-sync-setup-enabling = Zapínání…
+inline-passwordless-sync-setup-not-now-button = Teď ne
+
+
 inline-recovery-key-setup-create-error = Jejda! Obnovovací klíč se pro váš účet nepodařilo vytvořit. Zkuste to prosím znovu později.
 inline-recovery-key-setup-recovery-created = Obnovovací klíč k účtu byl vytvořen
 inline-recovery-key-setup-download-header = Zabezpečte svůj účet
@@ -1613,10 +1622,9 @@ pair2-authority-sync-success-sync-settings-button = Nastavení synchronizace
 
 pair2-authority-timeout-and-cancel-timeout-heading = Stále chcete připojit zařízení?
 pair2-authority-timeout-and-cancel-timeout-description = Zdá se, že vypršel časový limit. Zkuste to znovu, pokud stále chcete připojit své mobilní zařízení a synchronizovat svá data { -brand-firefox(case: "gen") }.
-pair2-authority-timeout-and-cancel-canceled-heading = Zrušeno
+pair2-authority-timeout-and-cancel-cancelled-heading = Zrušeno
 pair2-authority-timeout-and-cancel-canceled-description = Pokud změníte názor nebo chcete připojit jiné zařízení, zkuste to znovu.
 pair2-authority-timeout-and-cancel-try-again-button = Zkusit znovu
-pair2-authority-timeout-and-cancel-cancel-button = Zrušit
 pair2-authority-timeout-and-cancel-sync-settings-button = Nastavení synchronizace
 
 
@@ -1649,7 +1657,7 @@ pair2-supplicant-sync-success-sync-settings-button = Nastavení synchronizace
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zdá se, že vypršel časový limit
 pair2-supplicant-timeout-and-cancel-timeout-description = Chcete-li připojit své mobilní zařízení a synchronizovat data { -brand-firefox(case: "gen") }, přejděte na svém počítači na stránku <b>firefox.com/pair</b>.
-pair2-supplicant-timeout-and-cancel-canceled-heading = Zrušeno
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Zrušeno
 pair2-supplicant-timeout-and-cancel-canceled-description = Pro připojení svého zařízení prosím navštivte <b>firefox.com/pair</b> na svém počítači.
 
 

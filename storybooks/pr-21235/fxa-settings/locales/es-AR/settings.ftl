@@ -1627,6 +1627,19 @@ index-account-delete-success = La cuenta se eliminó sin problemas
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = El correo electrónico de confirmación fue devuelto. ¿Habrá algún error en la dirección?
 
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+# Browser tab title.
+inline-passwordless-sync-setup-page-title = ¿Omitir la contraseña la próxima vez?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner = Se conectó a { -brand-firefox }
+inline-passwordless-sync-setup-heading = ¿Omitir la contraseña la próxima vez?
+inline-passwordless-sync-setup-description = Usá esta clave de acceso para iniciar sesión más rápido.
+inline-passwordless-sync-setup-enable-button = Habilitar clave de acceso
+# Button label while the passkey is stored.
+inline-passwordless-sync-setup-enabling = Habilitando…
+inline-passwordless-sync-setup-not-now-button = No ahora
+
 ## InlineRecoveryKeySetup page component
 
 inline-recovery-key-setup-create-error = ¡Epa! No pudimos crear tu clave de recuperación de cuenta. Probá de nuevo más tarde.
@@ -1910,12 +1923,10 @@ pair2-authority-sync-success-sync-settings-button = Configuración de Sync
 pair2-authority-timeout-and-cancel-timeout-heading = ¿Todavía querés conectar un dispositivo?
 pair2-authority-timeout-and-cancel-timeout-description = Parece que se agotó el tiempo. Probá de nuevo si todavía querés conectar tu dispositivo móvil y sincronizar tus datos de { -brand-firefox }.
 # Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-canceled-heading = Cancelado
+pair2-authority-timeout-and-cancel-cancelled-heading = Cancelado
 pair2-authority-timeout-and-cancel-canceled-description = Si cambiás de opinión o querés conectar un dispositivo diferente, probá de nuevo.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Intentar nuevamente
-# Abandons pairing without retrying
-pair2-authority-timeout-and-cancel-cancel-button = Cancelar
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = Configuración de Sync
 
@@ -1994,7 +2005,7 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que se agotó el ti
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = Para conectar tu dispositivo móvil y sincronizar tus datos de { -brand-firefox }, visitá <b>firefox.com/pair</b> en tu computadora.
 # Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-canceled-heading = Cancelado
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelado
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Para conectar un dispositivo en cualquier momento, visitá <b>firefox.com/pair</b> en tu computadora.
 

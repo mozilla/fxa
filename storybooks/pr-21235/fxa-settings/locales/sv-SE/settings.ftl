@@ -1628,6 +1628,19 @@ index-account-delete-success = Kontot har tagits bort
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = Ditt bekräftelsemejl har just returnerats. Har du skrivit fel e-post?
 
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+# Browser tab title.
+inline-passwordless-sync-setup-page-title = Hoppa över lösenordet nästa gång?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner = Logga in på { -brand-firefox }
+inline-passwordless-sync-setup-heading = Hoppa över lösenordet nästa gång?
+inline-passwordless-sync-setup-description = Använd denna nyckel för att logga in snabbare.
+inline-passwordless-sync-setup-enable-button = Aktivera lösenord
+# Button label while the passkey is stored.
+inline-passwordless-sync-setup-enabling = Aktiverar…
+inline-passwordless-sync-setup-not-now-button = Inte nu
+
 ## InlineRecoveryKeySetup page component
 
 inline-recovery-key-setup-create-error = Hoppsan! Vi kunde inte skapa din kontoåterställningsnyckel. Försök igen senare.
@@ -1911,12 +1924,10 @@ pair2-authority-sync-success-sync-settings-button = Synkroniseringsinställninga
 pair2-authority-timeout-and-cancel-timeout-heading = Vill du fortfarande ansluta en enhet?
 pair2-authority-timeout-and-cancel-timeout-description = Anslutningen gjorde timeout. Försök igen om du fortfarande vill ansluta din mobila enhet och synkronisera din { -brand-firefox }-data.
 # Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-canceled-heading = Avbruten
+pair2-authority-timeout-and-cancel-cancelled-heading = Avbruten
 pair2-authority-timeout-and-cancel-canceled-description = Om du ångrar dig eller vill ansluta en annan enhet, försök igen.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Försök igen
-# Abandons pairing without retrying
-pair2-authority-timeout-and-cancel-cancel-button = Avbryt
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = Synkroniseringsinställningar
 
@@ -1995,7 +2006,7 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Vi gjorde timeout
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = För att ansluta din mobila enhet och synkronisera din { -brand-firefox }-data, besök <b>firefox.com/pair</b> på din dator.
 # Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-canceled-heading = Avbruten
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Avbruten
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = När du vill ansluta en enhet besöker du <b>firefox.com/pair</b> på din dator.
 

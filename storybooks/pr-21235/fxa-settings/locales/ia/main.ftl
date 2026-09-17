@@ -1327,10 +1327,8 @@ pair2-authority-sync-success-sync-settings-button = Configurationes del synchron
 
 pair2-authority-timeout-and-cancel-timeout-heading = Ancora vole tu connecter un apparato?
 pair2-authority-timeout-and-cancel-timeout-description = Il pare que nos exiva foras tempore limite. Retenta si tu ancora vole connecter tu apparato mobile e synchronisar tu datos de { -brand-firefox }.
-pair2-authority-timeout-and-cancel-canceled-heading = Cancellate
 pair2-authority-timeout-and-cancel-canceled-description = Si tu cambia opinion o vole connecter un apparato differente, retenta.
 pair2-authority-timeout-and-cancel-try-again-button = Retentar
-pair2-authority-timeout-and-cancel-cancel-button = Cancellar
 pair2-authority-timeout-and-cancel-sync-settings-button = Configurationes del synchronisation
 
 
@@ -1363,7 +1361,6 @@ pair2-supplicant-sync-success-sync-settings-button = Configurationes del synchro
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Il pare que nos exiva foras tempore limite.
 pair2-supplicant-timeout-and-cancel-timeout-description = Pro connecter tu apparato mobile e synchronisar tu datos de { -brand-firefox }, visita <b>firefox.com/par</b> sur tu computator.
-pair2-supplicant-timeout-and-cancel-canceled-heading = Cancellate
 pair2-supplicant-timeout-and-cancel-canceled-description = Pro connecter un apparato quandocunque, visita <b>firefox.com/par</b> sur tu computator.
 
 

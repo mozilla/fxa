@@ -1310,10 +1310,8 @@ pair2-authority-sync-success-sync-settings-button = Sync ñemboheko
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = ¿Embojuajuse gueteri ne mba’e’oka?
-pair2-authority-timeout-and-cancel-canceled-heading = Hejapyre
 pair2-authority-timeout-and-cancel-canceled-description = Remoambuérõ ne remiandu térã embojoajusérõ ambue mba’e’oka, eha’ã jey.
 pair2-authority-timeout-and-cancel-try-again-button = Eha’ã jey
-pair2-authority-timeout-and-cancel-cancel-button = Eheja
 pair2-authority-timeout-and-cancel-sync-settings-button = Sync ñemboheko
 
 
@@ -1345,7 +1343,6 @@ pair2-supplicant-sync-success-sync-settings-button = Sync ñemboheko
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Ha’ete opámava ñeha’ãrõ
 pair2-supplicant-timeout-and-cancel-timeout-description = Embojoaju hag̃ua ne pumbyry ha embojuehe ne mba’ekuaarãita { -brand-firefox }, eike <b>firefox.com/pair</b> ne mohendahápe.
-pair2-supplicant-timeout-and-cancel-canceled-heading = Hejapyre
 pair2-supplicant-timeout-and-cancel-canceled-description = Eike hag̃ua mba’e’okápe eikese vove, eho <b>firefox.com/pair</b> ne mohendaha guive.
 
 

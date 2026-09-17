@@ -98,9 +98,6 @@ payment-provider-card-ending-in = <b>გადახდის საშუალ
 payment-provider-card-ending-in-card-name = <b>გადახდის საშუალება:</b> { $cardName } დაბოლოებით { $lastFour }
 subscription-charges-invoice-summary = ზედნადების შეჯამება
 
-# Variables:
-
-
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
 
@@ -381,13 +378,7 @@ subscriptionPaymentProviderCancelled-content-reason-1 = სავარაუდ
 subscriptionReactivation-subject-2 = თქვენ მიერ გამოწერილი { $productName } კვლავ ამოქმედდა
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-subject = თქვენი საცდელი { $productName } კვლავ ამოქმედდა
-# Variables:
-#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = გმადლობთ, რომ კვლავ გამოიწერეთ { $productName }!
-# Variables:
-#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-title = გმადლობთ, რომ კვლავ აამოქმედეთ საცდელად { $productName }!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

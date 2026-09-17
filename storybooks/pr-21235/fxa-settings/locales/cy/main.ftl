@@ -1199,6 +1199,15 @@ index-account-delete-success = Cyfrif wedi ei ddileu'n llwyddiannus
 index-email-bounced = Dychwelwyd eich e-bost cadarnhau. E-bost wedi'i gamdeipio?
 
 
+inline-passwordless-sync-setup-page-title = Hepgor y cyfrinair tro nesaf?
+inline-passwordless-sync-setup-success-banner = Wedi mewngofnodi i { -brand-firefox }
+inline-passwordless-sync-setup-heading = Hepgor y cyfrinair tro nesaf?
+inline-passwordless-sync-setup-description = Defnyddiwch y cyfrinair hwn i fewngofnodi'n gyflymach.
+inline-passwordless-sync-setup-enable-button = Galluogi cyfrinair
+inline-passwordless-sync-setup-enabling = Wrthi'n galluogi…
+inline-passwordless-sync-setup-not-now-button = Nid nawr
+
+
 inline-recovery-key-setup-create-error = Wps! Nid oedd modd i ni greu allwedd adfer eich cyfrif. Ceisiwch eto yn nes ymlaen.
 inline-recovery-key-setup-recovery-created = Crëwyd yr allwedd adfer cyfrif.
 inline-recovery-key-setup-download-header = Diogelwch eich cyfrif
@@ -1346,10 +1355,9 @@ pair2-authority-sync-success-sync-settings-button = Gosodiadau cydweddu
 
 pair2-authority-timeout-and-cancel-timeout-heading = Dal eisiau cysylltu dyfais?
 pair2-authority-timeout-and-cancel-timeout-description = Mae'n edrych fel bod ein amser wedi dod i ben. Ceisiwch eto os ydych dal eisiau cysylltu eich dyfais symudol a chydweddu eich data { -brand-firefox }.
-pair2-authority-timeout-and-cancel-canceled-heading = Diddymwyd
+pair2-authority-timeout-and-cancel-cancelled-heading = Wedi'i Ganslo
 pair2-authority-timeout-and-cancel-canceled-description = Os ydych chi'n newid eich meddwl neu eisiau cysylltu dyfais wahanol, ceisiwch eto.
 pair2-authority-timeout-and-cancel-try-again-button = Ceisiwch eto
-pair2-authority-timeout-and-cancel-cancel-button = Diddymu
 pair2-authority-timeout-and-cancel-sync-settings-button = Gosodiadau cydweddu
 
 
@@ -1382,7 +1390,7 @@ pair2-supplicant-sync-success-sync-settings-button = Gosodiadau cydweddu
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Mae'n edrych fel bod ein amser wedi dod i ben
 pair2-supplicant-timeout-and-cancel-timeout-description = I gysylltu eich dyfais symudol a chydweddu eich data { -brand-firefox }, ewch i <b>firefox.com/pair</b> ar eich cyfrifiadur.
-pair2-supplicant-timeout-and-cancel-canceled-heading = Diddymwyd
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Wedi'i Ganslo
 pair2-supplicant-timeout-and-cancel-canceled-description = I gysylltu dyfais unrhyw bryd, ewch i <b>firefox.com/pair</b> ar eich cyfrifiadur.
 
 

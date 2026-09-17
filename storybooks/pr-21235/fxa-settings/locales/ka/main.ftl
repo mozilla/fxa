@@ -1358,10 +1358,8 @@ pair2-authority-sync-success-sync-settings-button = სინქრონიზ�
 
 pair2-authority-timeout-and-cancel-timeout-heading = კიდევ გსურთ მოწყობილობის დაკავშირება?
 pair2-authority-timeout-and-cancel-timeout-description = როგორც ჩანს, დრო ამოიწურა. სცადეთ ხელახლა, თუ კვლავ გსურთ თქვენი მობილური მოწყობილობის დაკავშირება, რომ დაასინქრონოთ { -brand-firefox } მონაცემებიანად.
-pair2-authority-timeout-and-cancel-canceled-heading = გაუქმდა
 pair2-authority-timeout-and-cancel-canceled-description = თუ გადაიფიქრებთ ან გსურთ სხვა მოწყობილობის დაკავშირება, კვლავ სცადეთ.
 pair2-authority-timeout-and-cancel-try-again-button = ხელახლა ცდა
-pair2-authority-timeout-and-cancel-cancel-button = გაუქმება
 pair2-authority-timeout-and-cancel-sync-settings-button = სინქრონიზაციის პარამეტრები
 
 
@@ -1394,7 +1392,6 @@ pair2-supplicant-sync-success-sync-settings-button = სინქრონიზ
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = როგორც ჩანს, დრო ამოიწურა
 pair2-supplicant-timeout-and-cancel-timeout-description = მობილური მოწყობილობის დასაკავშირებლად, რომ დასინქრონდეს { -brand-firefox } მონაცემებიანად, ინახულეთ გვერდი <b>firefox.com/pair</b> თქვენს კომპიუტერში.
-pair2-supplicant-timeout-and-cancel-canceled-heading = გაუქმებული
 pair2-supplicant-timeout-and-cancel-canceled-description = მოწყობილობის დასაკავშირებლად ნებისმიერ დროს, ინახულეთ გვერდი <b>firefox.com/pair</b> თქვენს კომპიუტერში.
 
 

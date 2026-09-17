@@ -1338,10 +1338,8 @@ pair2-authority-sync-success-sync-settings-button = Nastajenja synchronizacije
 
 pair2-authority-timeout-and-cancel-timeout-heading = Chceće hišće grat zwjazać?
 pair2-authority-timeout-and-cancel-timeout-description = Zda so, zo smy čas překročili. Spytajće hišće raz, jeli hišće chceće swój mobilny grat zwjazać a swoje daty { -brand-firefox } synchronizować.
-pair2-authority-timeout-and-cancel-canceled-heading = Přetorhnjeny
 pair2-authority-timeout-and-cancel-canceled-description = Jeli swoje měnjenje měnjeće abo chceće druhi grat zwjazać, spytajće hišće raz.
 pair2-authority-timeout-and-cancel-try-again-button = Hišće raz spytać
-pair2-authority-timeout-and-cancel-cancel-button = Přetorhnyć
 pair2-authority-timeout-and-cancel-sync-settings-button = Nastajenja synchronizacije
 
 
@@ -1374,7 +1372,6 @@ pair2-supplicant-sync-success-sync-settings-button = Nastajenja synchronizacije
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zda so, zo smy čas překročili
 pair2-supplicant-timeout-and-cancel-timeout-description = Zo byšće swój mobilny grat zwjazał a swoje daty { -brand-firefox } synchronizował, wopytajće <b>firefox.com/pair</b> na swojim ličaku.
-pair2-supplicant-timeout-and-cancel-canceled-heading = Přetorhnjeny
 pair2-supplicant-timeout-and-cancel-canceled-description = Zo byšće grat kóždy čas zwjazał, wopytajće <b>firefox.com/pair</b> na swojim ličaku.
 
 

@@ -1479,10 +1479,8 @@ pair2-authority-sync-success-sync-settings-button = Nastavenia synchronizácie
 
 pair2-authority-timeout-and-cancel-timeout-heading = Stále chcete pripojiť zariadenie?
 pair2-authority-timeout-and-cancel-timeout-description = Zdá sa, že vypršal časový limit. Skúste to znova, ak stále chcete pripojiť svoje mobilné zariadenie a synchronizovať údaje { -brand-firefox(case: "gen") }.
-pair2-authority-timeout-and-cancel-canceled-heading = Zrušené
 pair2-authority-timeout-and-cancel-canceled-description = Ak si to rozmyslíte alebo chcete pripojiť iné zariadenie, skúste to znova.
 pair2-authority-timeout-and-cancel-try-again-button = Skúsiť znova
-pair2-authority-timeout-and-cancel-cancel-button = Zrušiť
 pair2-authority-timeout-and-cancel-sync-settings-button = Nastavenia synchronizácie
 
 
@@ -1515,7 +1513,6 @@ pair2-supplicant-sync-success-sync-settings-button = Nastavenia synchronizácie
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zdá sa, že nám vypršal časový limit
 pair2-supplicant-timeout-and-cancel-timeout-description = Ak chcete pripojiť svoje mobilné zariadenie a synchronizovať údaje z prehliadača { -brand-firefox }, navštívte stránku <b>firefox.com/pair</b> na svojom počítači.
-pair2-supplicant-timeout-and-cancel-canceled-heading = Zrušené
 pair2-supplicant-timeout-and-cancel-canceled-description = Ak chcete kedykoľvek pripojiť zariadenie, navštívte na svojom počítači stránku <b>firefox.com/pair</b>.
 
 
