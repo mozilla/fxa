@@ -28,6 +28,19 @@ jest.mock('google-auth-library', () => {
   };
 });
 
+// The jwksUri branches verify with jose against a remote JWKS. Tests drive
+// jwtVerify's result directly; createRemoteJWKSet only has to return something.
+// eslint-disable-next-line no-var
+var mockJwtVerify: jest.Mock = jest.fn();
+jest.mock('jose', () => {
+  const actual = jest.requireActual('jose');
+  return {
+    ...actual,
+    createRemoteJWKSet: () => 'remote-jwks',
+    jwtVerify: (...args: unknown[]) => mockJwtVerify(...args),
+  };
+});
+
 jest.mock('./utils/third-party-events', () => {
   const actual = jest.requireActual('./utils/third-party-events');
   return new Proxy(actual, {
@@ -527,6 +540,75 @@ describe('/linked_account', () => {
         expect(mockDB.createSessionToken).toHaveBeenCalledTimes(1);
         expect(result.uid).toBe(UID);
       });
+
+      // Local mock IdP: jwksUri set, id_token verified with jose instead of
+      // the google-auth-library client.
+      describe('with jwksUri configured', () => {
+        const jwksConfig = {
+          googleAuthConfig: {
+            clientId: 'OooOoo',
+            issuer: 'http://localhost:9300',
+            jwksUri: 'http://localhost:9300/jwks',
+          },
+        };
+        // Never reached when jwksUri is set; fail loudly if it is.
+        const OAuth2ClientMock = class OAuth2Client {
+          verifyIdToken() {
+            throw new Error('google-auth-library must not verify in mock mode');
+          }
+        };
+
+        beforeEach(() => {
+          mockJwtVerify.mockReset();
+          route = getRoute(
+            makeRoutes(
+              {
+                config: jwksConfig,
+                db: mockDB,
+                log: mockLog,
+                mailer: mockMailer,
+                statsd,
+              },
+              { 'google-auth-library': { OAuth2Client: OAuth2ClientMock } }
+            ),
+            '/linked_account/login'
+          );
+        });
+
+        it('verifies the id_token against the configured issuer and audience', async () => {
+          mockJwtVerify.mockResolvedValue({ payload: mockGoogleUser });
+
+          const result: any = await runTest(route, mockRequest);
+
+          expect(mockJwtVerify).toHaveBeenCalledWith(
+            'somedata',
+            'remote-jwks',
+            {
+              issuer: 'http://localhost:9300',
+              audience: 'OooOoo',
+            }
+          );
+          expect(mockDB.createLinkedAccount).toHaveBeenCalledTimes(1);
+          expect(result.uid).toBe(UID);
+        });
+
+        it.each([
+          ['signature', 'signature verification failed'],
+          ['issuer', 'unexpected "iss" claim value'],
+          ['audience', 'unexpected "aud" claim value'],
+        ])(
+          'rejects with thirdPartyAccountError when the %s check fails',
+          async (_check, message) => {
+            mockJwtVerify.mockRejectedValue(new Error(message));
+
+            await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+              errno: error.ERRNO.THIRD_PARTY_ACCOUNT_ERROR,
+            });
+            expect(mockDB.createLinkedAccount).not.toHaveBeenCalled();
+            expect(mockDB.createSessionToken).not.toHaveBeenCalled();
+          }
+        );
+      });
     });
 
     describe('apple auth', () => {
@@ -631,6 +713,76 @@ describe('/linked_account', () => {
         await expect(runTest(route, mockRequest)).rejects.toMatchObject({
           errno: error.ERRNO.THIRD_PARTY_ACCOUNT_ERROR,
         });
+      });
+
+      // Local mock IdP: jwksUri set, so no Apple signing key is required and
+      // the id_token is verified with jose instead of Apple's published keys.
+      describe('with jwksUri configured', () => {
+        beforeEach(() => {
+          mockJwtVerify.mockReset();
+          route = getRoute(
+            makeRoutes(
+              {
+                config: {
+                  appleAuthConfig: {
+                    clientId: 'OooOoo',
+                    issuer: 'http://localhost:9300',
+                    jwksUri: 'http://localhost:9300/jwks',
+                  },
+                },
+                db: mockDB,
+                log: mockLog,
+                mailer: mockMailer,
+                statsd,
+              },
+              {
+                './utils/third-party-events': {
+                  getApplePublicKey: appleGetPublicKey,
+                  validateSecurityToken: appleValidateToken,
+                },
+              }
+            ),
+            '/linked_account/login'
+          );
+        });
+
+        it('signs in without keyId, teamId, or privateKey and sends a placeholder client secret', async () => {
+          mockJwtVerify.mockResolvedValue({
+            payload: { ...mockAppleUser, email_verified: 'true' },
+          });
+
+          const result: any = await runTest(route, mockRequest);
+
+          const tokenBody = new URLSearchParams(
+            (global.fetch as jest.Mock).mock.calls[0][1].body
+          );
+          expect(tokenBody.get('client_secret')).toBe('local-mock');
+          expect(mockJwtVerify).toHaveBeenCalledWith(
+            expect.any(String),
+            'remote-jwks',
+            { issuer: 'http://localhost:9300', audience: 'OooOoo' }
+          );
+          expect(appleGetPublicKey).not.toHaveBeenCalled();
+          expect(appleValidateToken).not.toHaveBeenCalled();
+          expect(result.uid).toBe(UID);
+        });
+
+        it.each([
+          ['signature', 'signature verification failed'],
+          ['issuer', 'unexpected "iss" claim value'],
+          ['audience', 'unexpected "aud" claim value'],
+        ])(
+          'rejects with thirdPartyAccountError when the %s check fails',
+          async (_check, message) => {
+            mockJwtVerify.mockRejectedValue(new Error(message));
+
+            await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+              errno: error.ERRNO.THIRD_PARTY_ACCOUNT_ERROR,
+            });
+            expect(mockDB.createLinkedAccount).not.toHaveBeenCalled();
+            expect(mockDB.createSessionToken).not.toHaveBeenCalled();
+          }
+        );
       });
 
       it('should exchange oauth code for `id_token` and create account', async () => {

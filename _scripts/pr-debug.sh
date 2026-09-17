@@ -43,7 +43,7 @@ workflow_name="stack"
 job_name="Stack (SSH)"
 # Same-number forwards: the services advertise localhost:<port> URLs. Redis is
 # included because the Playwright fixtures reset rate limits through it.
-ports=(3030 3000 9000 9001 1111 1112 8080 8091 8095 9130 9160 6379)
+ports=(3030 3000 9000 9001 9300 1111 1112 8080 8091 8095 9130 9160 6379)
 minutes="${PR_DEBUG_MINUTES:-30}"
 [[ "${minutes}" =~ ^[0-9]+$ ]] || { echo "PR_DEBUG_MINUTES must be a whole number." >&2; exit 1; }
 # Passed as $0 to the remote shell, so it shows up in the local ssh argv and

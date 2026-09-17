@@ -44,6 +44,22 @@ describe('Config', () => {
         require('./index');
       }).not.toThrow();
     });
+
+    it.each(['GOOGLE_AUTH_JWKS_URI', 'APPLE_AUTH_JWKS_URI'])(
+      'errors when %s is set outside NODE_ENV=dev',
+      (envVar) => {
+        mockEnv('FLOW_ID_KEY', 'production secret here');
+        mockEnv('OAUTH_SERVER_SECRET_KEY', 'production secret here');
+        mockEnv(
+          'PROFILE_SERVER_AUTH_SECRET_BEARER_TOKEN',
+          'production secret here'
+        );
+        mockEnv(envVar, 'http://localhost:9300/jwks');
+        expect(() => {
+          require('./index');
+        }).toThrow(/jwksUri' may only be set when NODE_ENV=dev/);
+      }
+    );
   });
 
   describe('rate limit rules', () => {
