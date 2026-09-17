@@ -696,7 +696,7 @@ stay-subscribed-error-expired = 이 제안은 만료되었습니다.
 stay-subscribed-error-discount-used = 할인 코드가 이미 적용되었습니다.
 # $productTitle (String) - The name of the product
 stay-subscribed-error-not-current-subscriber = 현재 { $productTitle } 구독자만 할인을 적용할 수 있습니다.
-stay-subscribed-error-still-active = { $productName } 구독이 여전히 활성화되었습니다.
+stay-subscribed-error-still-active = { $productTitle } 구독이 여전히 활성화되었습니다.
 stay-subscribed-error-general = 구독을 갱신하는 데 문제가 발생했습니다.
 
 ## Manage Payment Method Error Messages
