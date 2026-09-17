@@ -837,6 +837,8 @@ recent-activity-account-passwordless-registration-complete = Enregistrement du c
 recent-activity-account-recovery-codes-set = Codes de secours définis
 recent-activity-account-passkey-wrap-created = Clé d’accès activée pour la synchronisation
 recent-activity-account-passkey-wrap-creation-failure = Échec de la configuration de la synchronisation avec une clé d’accès
+recent-activity-account-passkey-wrap-deleted = Accès à la synchronisation et à la clé d’accès supprimé
+recent-activity-account-passkey-wrap-deletion-failure = Échec de la suppression de l’accès à la synchronisation et à la clé d’accès
 recent-activity-account-passkey-wrap-invalidated = Accès à la synchronisation par clé d’accès supprimé après la réinitialisation du mot de passe
 recent-activity-unknown = Autre activité du compte
 

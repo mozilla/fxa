@@ -100,13 +100,6 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Åtgärdsvarningar för att återta internet
 
 
-pair-continue-in-firefox-heading = Fortsätt i { -brand-firefox }
-pair-continue-in-firefox-description = Parkoppling sker i { -brand-firefox }. Öppna den för att slutföra anslutningen av enheten.
-pair-continue-in-firefox-button = Fortsätt i { -brand-firefox }
-pair-continue-in-firefox-opening = Öppnar { -brand-firefox }
-pair-continue-in-firefox-get-firefox-link = Har du inte { -brand-firefox }? Hämta den nu
-
-
 dark-mode-toggle-light = Ljust
 dark-mode-toggle-dark = Mörkt
 dark-mode-toggle-system = System
@@ -1348,6 +1341,7 @@ pair2-supplicant-connect-this-device-cancel-button = Avbryt
 pair2-supplicant-download-firefox-heading = Hämta { -brand-firefox } till den här enheten
 pair2-supplicant-download-firefox-description = Hämta { -brand-firefox } för att synkronisera bokmärken, historik och mer mellan enheter. <linkExternal>Läs mer</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Fortsätt i { -brand-firefox }
+pair2-supplicant-download-firefox-opening-button = Öppnar { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = För att ansluta en enhet

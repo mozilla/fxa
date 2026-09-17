@@ -408,6 +408,22 @@ password-strength-inline-passwords-match = 비밀번호가 일치함
 
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = 나의 폰, 나의 규칙.
+# Value proposition variant. Refers to resuming browsing on another device.
+promo-qr-mobile-heading-treatment-a = 어디를 가든지 중단한 부분부터 다시 시작할 수 있습니다.
+# Value proposition variant. "tabs" are the open pages in a browser.
+promo-qr-mobile-heading-treatment-b = 탭과 다양한 기능을 휴대폰에서 바로 만나보세요
+# Value proposition variant. Refers to using the same trusted browser on a phone.
+promo-qr-mobile-heading-treatment-c = 믿고 쓰는 브라우저를 휴대폰에서도 만나보세요
+# Value proposition variant. "Different screen" refers to the phone rather than the desktop.
+promo-qr-mobile-heading-treatment-d = 동일한 { -brand-firefox }. 다른 화면입니다.
+# Value proposition variant. "stop here" means privacy protection should continue onto the phone.
+promo-qr-mobile-heading-treatment-e = 개인 정보 보호가 여기서 그치지 않아야 합니다
+# Value proposition variant. Refers to keeping browsing activity private.
+promo-qr-mobile-heading-treatment-f = 웹 탐색 기록을 더 안전하게 지켜보세요
+# Value proposition variant. "noise" refers to distractions and clutter.
+promo-qr-mobile-heading-treatment-g = 휴대폰에 불필요한 것들을 덜어보세요
+# Value proposition variant. Refers to a calmer browsing experience on the phone.
+promo-qr-mobile-heading-treatment-h = 더욱 차분하게 브라우징하세요.
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
 promo-qr-mobile-qr-alt =
     .alt = { -brand-firefox } 모바일 앱을 다운로드하는 QR 코드입니다. 스캔하려면 휴대전화의 카메라를 화면 오른쪽 하단에 두세요.
