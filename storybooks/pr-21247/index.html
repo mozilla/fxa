@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit a1a0823775395d0ec3beed1d929a24f4a18f84ae</title>
+  <title>Storybooks for commit cf6ee2ef30b969f2f3a9de2901de0d258ecdafb1</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,29 +23,30 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit a1a0823775395d0ec3beed1d929a24f4a18f84ae</h1>
+  <h1>Storybooks for commit cf6ee2ef30b969f2f3a9de2901de0d258ecdafb1</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/17/2026, 7:35:17 PM UTC</dd>
+    <dd>9/17/2026, 8:30:49 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>feat(content-server,settings): serve React for oauth/success route</pre></dd>
+    <dd><pre>fix(settings): resolve oauth/success client id from the pathname</pre></dd>
     <dt>Description</dt>
     <dd><pre>## Because
 
 - A hard load of `/oauth/success/:clientId` served the Backbone page. The React route group that owned the path had an empty `routes` list, and its flag is off in production.
-- React already mounts `PairSuccess` at `/oauth/success/:clientId/*`. On a hard load the factory built an `OAuthWebIntegration` with no `scope`, so `getPermissions()` threw errno 109 and the app rendered `OAuthDataError`.
+- React mounts `PairSuccess` at `/oauth/success/:clientId/*`. On a hard load the factory built an `OAuthWebIntegration` with no `scope`, so `getPermissions()` threw errno 109 and the app rendered `OAuthDataError`.
+- A bare hard load of the path also rendered the OAuth error page. `useClientInfoState()` read the client id only from the `client_id` and `service` query params, and a hard load has neither.
 
 ## This pull request
 
-- Adds the `oauthSuccessRoutes` React route group in `server/lib/routes/react-app/index.js`. It takes its routes from `OAUTH_SUCCESS_ROUTES`, with `featureFlagOn` and `fullProdRollout` set to true.
-- Reads the new group in `get-oauth-success.js`, so the server stops registering the Backbone route definition.
-- Removes the `oauth/success/:client_id(/)` entry from `app/scripts/lib/router.js`. The `views/ready.js` import stays, because six other entries use it.
+- Adds the `oauthSuccessRoutes` React route group in `server/lib/routes/react-app/index.js`, with `featureFlagOn` and `fullProdRollout` set to true.
+- Reads that group in `get-oauth-success.js`, so the server stops registering the Backbone route definition.
+- Removes the `oauth/success/:client_id(/)` entry from `app/scripts/lib/router.js`. The `views/ready.js` import stays, because other routes still use it.
 - Sets `integration.isOAuthSuccessFlow` in `integration-factory.ts`, and returns an empty permission list for that flow in `oauth-web-integration.ts`.
-- Matches the client id segment in `isOAuthSuccessFlow()`, so a trailing slash still resolves. Backbone accepted the trailing slash.
-- Adds unit tests for the flag, the empty scope, and the trailing slash.
+- Adds `lib/oauth/success-route.ts`. `useClientInfoState()` falls back to the pathname segment through that helper, and the integration flags use the same helper.
+- Adds unit tests for the flag, the empty scope, the trailing slash, and the pathname-only URL.
 
 ## Issue that this pull request solves
 
