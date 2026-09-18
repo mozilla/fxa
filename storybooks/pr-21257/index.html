@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 9fe31190fb538174f77987b449c1241dbc95307b</title>
+  <title>Storybooks for commit 6e1bc35af965fea4e92c4d16dc405b160a3638c7</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,27 +23,25 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 9fe31190fb538174f77987b449c1241dbc95307b</h1>
+  <h1>Storybooks for commit 6e1bc35af965fea4e92c4d16dc405b160a3638c7</h1>
   <ul>
     <li><a href="./fxa-react/">fxa-react</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/18/2026, 8:13:14 PM UTC</dd>
+    <dd>9/18/2026, 8:34:59 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(auth): type disabledAt on the passkey db and admin-panel test props</pre></dd>
+    <dd><pre>test(auth-server): stub accountDisabledAt in the remote token route spec</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-- The Build job type-checks what the unit suites transpile without
-  checking, and two of the new call sites did not compile.
+- The remote /token spec builds its own auth-db stub, which lacked the
+  method the grant handler now calls.
 
 This commit:
 
-- Adds disabledAt to the passkey route&#039;s account type so the shared
-  check accepts it.
-- Widens the DangerZone test props so disabledAt can hold a timestamp.</pre></dd>
+- Adds an accountDisabledAt stub resolving to null.</pre></dd>
   </dl>
 </body>
 </html>

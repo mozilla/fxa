@@ -1,8 +1,8 @@
 {
-  "commit": "9fe31190fb538174f77987b449c1241dbc95307b",
-  "summary": "fix(auth): type disabledAt on the passkey db and admin-panel test props",
-  "description": "Because:\n\n- The Build job type-checks what the unit suites transpile without\n  checking, and two of the new call sites did not compile.\n\nThis commit:\n\n- Adds disabledAt to the passkey route's account type so the shared\n  check accepts it.\n- Widens the DangerZone test props so disabledAt can hold a timestamp.",
-  "timestamp": 1789762394000,
+  "commit": "6e1bc35af965fea4e92c4d16dc405b160a3638c7",
+  "summary": "test(auth-server): stub accountDisabledAt in the remote token route spec",
+  "description": "Because:\n\n- The remote /token spec builds its own auth-db stub, which lacked the\n  method the grant handler now calls.\n\nThis commit:\n\n- Adds an accountDisabledAt stub resolving to null.",
+  "timestamp": 1789763699000,
   "storybooks": [
     "fxa-react",
     "fxa-settings"
