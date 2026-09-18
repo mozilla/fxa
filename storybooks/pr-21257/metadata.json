@@ -1,8 +1,8 @@
 {
-  "commit": "6e1bc35af965fea4e92c4d16dc405b160a3638c7",
-  "summary": "test(auth-server): stub accountDisabledAt in the remote token route spec",
-  "description": "Because:\n\n- The remote /token spec builds its own auth-db stub, which lacked the\n  method the grant handler now calls.\n\nThis commit:\n\n- Adds an accountDisabledAt stub resolving to null.",
-  "timestamp": 1789763699000,
+  "commit": "0b1a1333e8f1a03fb4a4a856b361c8ec19cbad88",
+  "summary": "fix(admin-server): let a repeated disable retry token revocation",
+  "description": "Because:\n\n- Refusing to re-disable an already-disabled account meant a failed\n  revocation could never be retried without enabling the account first.\n\nThis commit:\n\n- Drops the disabledAt IS NULL condition from the disable update.",
+  "timestamp": 1789767234000,
   "storybooks": [
     "fxa-react",
     "fxa-settings"
