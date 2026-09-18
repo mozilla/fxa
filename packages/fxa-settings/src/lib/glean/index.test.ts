@@ -15,6 +15,7 @@ import * as login from 'fxa-shared/metrics/glean/web/login';
 import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
 import * as passkey from 'fxa-shared/metrics/glean/web/passkey';
 import * as promoQrMobile from 'fxa-shared/metrics/glean/web/promoQrMobile';
+import * as dtmDesktop from 'fxa-shared/metrics/glean/web/dtmDesktop';
 import * as accountBanner from 'fxa-shared/metrics/glean/web/accountBanner';
 import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
 import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
@@ -907,6 +908,17 @@ describe('lib/glean', () => {
           branch: '',
           nimbus_user_id: '',
         });
+      });
+    });
+
+    describe('dtmDesktop', () => {
+      it('submits a ping with the dtm_desktop_qr_skip name', async () => {
+        const spy = sandbox.spy(dtmDesktop.qrSkip, 'record');
+        GleanMetrics.dtmDesktop.qrSkip();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'dtm_desktop_qr_skip');
+        sinon.assert.calledOnce(spy);
       });
     });
 
