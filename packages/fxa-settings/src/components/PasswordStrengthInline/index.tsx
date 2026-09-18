@@ -110,8 +110,7 @@ export const PasswordStrengthInline = ({
         )}
         {requirePasswordConfirmation &&
           isUnconfirmed !== undefined &&
-          (passwordFormType === 'signup' ||
-            passwordFormType === 'post-verify-set-password') && (
+          passwordFormType !== 'reset' && (
             <li data-testid="passwords-match" className="flex">
               <span className="w-7 h-7 text-center">
                 {(isPasswordEmpty || isConfirmedPasswordEmpty) && '•'}

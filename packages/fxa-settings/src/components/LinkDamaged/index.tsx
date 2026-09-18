@@ -53,3 +53,12 @@ export const ReportSigninLinkDamaged = () => {
     />
   );
 };
+
+export const FinishAccountSetupLinkDamaged = () => {
+  return (
+    <LinkDamaged
+      headingText="Link damaged"
+      headingTextFtlId="finish-account-setup-link-damaged-header"
+    />
+  );
+};

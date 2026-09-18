@@ -154,7 +154,10 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         // resolve through Express to the React app.
         'post_verify/set_password',
         'post_verify/third_party_auth/set_password',
-        // Both set-password routes plus service-welcome ride the
+        // The subscription "finish account setup" email link. The URL is
+        // fixed by links already sitting in inboxes.
+        'post_verify/finish_account_setup/set_password',
+        // These set-password routes plus service-welcome ride the
         // third-party-auth feature flag because they share the post-verify
         // React app surface, even though they are not strictly third-party
         // auth flows.

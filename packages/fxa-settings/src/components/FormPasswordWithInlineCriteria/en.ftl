@@ -24,3 +24,7 @@ form-password-with-inline-criteria-sr-not-email-message = Password must not cont
 form-password-with-inline-criteria-sr-not-common-message = Password must not be a commonly used password.
 form-password-with-inline-criteria-sr-requirements-met = The entered password respects all password requirements.
 form-password-with-inline-criteria-sr-passwords-match = Entered passwords match.
+
+# Submit button on the form that sets the first password for an account created
+# by a subscription purchase.
+form-password-with-inline-criteria-subscription-set-password-submit-button = Create password

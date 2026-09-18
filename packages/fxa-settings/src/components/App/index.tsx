@@ -150,6 +150,10 @@ const InlineRecoveryKeySetupContainer = lazy(
 const SetPasswordContainer = lazy(
   () => import('../../pages/PostVerify/SetPassword/container')
 );
+const FinishAccountSetupContainer = lazy(
+  () =>
+    import('../../pages/PostVerify/SetPassword/finish-account-setup-container')
+);
 const SigninRecoveryChoiceContainer = lazy(
   () => import('../../pages/Signin/SigninRecoveryChoice/container')
 );
@@ -686,6 +690,11 @@ const AuthAndAccountSetupRoutes = ({
               {...{ flowQueryParams, integration, useFxAStatusResult }}
             />
           }
+        />
+        {/* The subscription "finish account setup" email link. */}
+        <Route
+          path="/post_verify/finish_account_setup/set_password/*"
+          element={<FinishAccountSetupContainer {...{ integration }} />}
         />
         <Route
           path="/post_verify/service_welcome/*"

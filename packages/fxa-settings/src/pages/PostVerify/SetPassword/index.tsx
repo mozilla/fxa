@@ -19,12 +19,27 @@ import TermsPrivacyAgreement from '../../../components/TermsPrivacyAgreement';
 import GleanMetrics from '../../../lib/glean';
 import { useGleanView } from '../../../lib/glean/useGleanView';
 
+/** Adds a product subheading when the email link carried a `product_name`. */
+const SubscriptionHeading = ({ productName }: { productName?: string }) => (
+  <>
+    <FtlMsg id="set-password-subscription-heading">
+      <h1 className="card-header">Create a Mozilla account</h1>
+    </FtlMsg>
+    {productName && (
+      <FtlMsg id="set-password-subscription-subheading" vars={{ productName }}>
+        <p className="card-subheader">Continue to {productName}</p>
+      </FtlMsg>
+    )}
+  </>
+);
+
 export const SetPassword = ({
   email,
   createPasswordHandler,
   offeredSyncEngineConfigs,
   integration,
   passwordCreationReason = 'third_party_auth',
+  productName,
   gleanReason = passwordCreationReason,
 }: SetPasswordProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
@@ -108,6 +123,8 @@ export const SetPassword = ({
         >
           {cmsHeadline}
         </h1>
+      ) : passwordCreationReason === 'subscription' ? (
+        <SubscriptionHeading {...{ productName }} />
       ) : (
         <FtlMsg id="set-password-heading-v2">
           <h1 className="card-header">Create password to sync</h1>
@@ -128,7 +145,8 @@ export const SetPassword = ({
             or Apple account password.
           </p>
         </FtlMsg>
-      ) : (
+      ) : // The subscription heading already says what the password is for.
+      passwordCreationReason === 'subscription' ? null : (
         <FtlMsg id="set-password-passwordless-info">
           <p className="text-sm mt-6 mb-5">
             This password encrypts your synced data and keeps it secure.
@@ -154,7 +172,11 @@ export const SetPassword = ({
         isSync={integration.isSync()}
         // This form completes Sync sign up, so we want the user to confirm their new password.
         requirePasswordConfirmation={true}
-        passwordFormType="post-verify-set-password"
+        passwordFormType={
+          passwordCreationReason === 'subscription'
+            ? 'subscription-set-password'
+            : 'post-verify-set-password'
+        }
         cmsButton={cmsButton}
       />
 

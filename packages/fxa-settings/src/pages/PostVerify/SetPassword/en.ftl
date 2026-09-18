@@ -9,3 +9,11 @@ set-password-info-v2 = This encrypts your data. It needs to be different from yo
 ## SetPassword page for passwordless flow
 ## Users who signed in via passwordless OTP and need to create a password for Sync
 set-password-passwordless-info = This password encrypts your synced data and keeps it secure.
+
+## SetPassword page for the subscription flow
+## Users who bought a subscription before they had an account follow a link from
+## the "finish account setup" email to set their first password.
+
+set-password-subscription-heading = Create a { -product-mozilla-account }
+# $productName (String) - the name of the subscribed product, e.g. Mozilla VPN
+set-password-subscription-subheading = Continue to { $productName }

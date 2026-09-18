@@ -14,3 +14,7 @@ report-signin-link-damaged-header = Link damaged
 
 # The user followed a link received by email, but the link was damaged.
 reset-pwd-link-damaged-message = The link you clicked was missing characters, and may have been broken by your email client. Copy the address carefully, and try again.
+
+# The user followed a link received by email to set a password on the account
+# created for their subscription, but the link was damaged.
+finish-account-setup-link-damaged-header = Link damaged
