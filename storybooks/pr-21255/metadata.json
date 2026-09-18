@@ -1,0 +1,10 @@
+{
+  "commit": "95d798d4d63a35f252b1db3dc18a90fa6c5ebab8",
+  "summary": "fix(settings): add fxa_pairflow entrypoint to direct pair visits",
+  "description": "## Because\n\n- firefox.com/pair sends the user to `/pair` with only `service=sync` and `client_id`, so the visit carries no entrypoint.\n- The sign-in round trip then reported no entrypoint for the pair flow, and the metrics lost the attribution.\n\n## This pull request\n\n- Adds the `PAIR_FLOW_ENTRYPOINT` constant (`fxa_pairflow`) in `pairing-attribution.ts`.\n- Sets that entrypoint on the sign-in redirect in the `/pair` WebChannel bootstrap when the URL carries none. The redirect from firefox.com/pair lives in bedrock, outside this repo, so the client sets the value.\n- Keeps the entrypoint when the visit already has one.\n- Adds two tests in `Pair/Index/index.test.tsx` for the default value and for the existing value.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-14556",
+  "timestamp": 1789741978000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

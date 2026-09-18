@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 95d798d4d63a35f252b1db3dc18a90fa6c5ebab8</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 95d798d4d63a35f252b1db3dc18a90fa6c5ebab8</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/18/2026, 2:32:58 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): add fxa_pairflow entrypoint to direct pair visits</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- firefox.com/pair sends the user to `/pair` with only `service=sync` and `client_id`, so the visit carries no entrypoint.
+- The sign-in round trip then reported no entrypoint for the pair flow, and the metrics lost the attribution.
+
+## This pull request
+
+- Adds the `PAIR_FLOW_ENTRYPOINT` constant (`fxa_pairflow`) in `pairing-attribution.ts`.
+- Sets that entrypoint on the sign-in redirect in the `/pair` WebChannel bootstrap when the URL carries none. The redirect from firefox.com/pair lives in bedrock, outside this repo, so the client sets the value.
+- Keeps the entrypoint when the visit already has one.
+- Adds two tests in `Pair/Index/index.test.tsx` for the default value and for the existing value.
+
+## Issue that this pull request solves
+
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-14556</pre></dd>
+  </dl>
+</body>
+</html>
