@@ -1,8 +1,8 @@
 {
-  "commit": "9eb1641c9311bed140f3c70ece9d10b917a45cd5",
-  "summary": "Merge pull request #21264 from mozilla/fxa-14576",
-  "description": "feat(admin-panel): show session verified status in Account History",
-  "timestamp": 1789771833000,
+  "commit": "354665d3016e14a34f0af3ad6566eb975697ecde",
+  "summary": "Merge pull request #21261 from mozilla/fxa-13592",
+  "description": "fix(settings): bold email address on code verification screens",
+  "timestamp": 1789771905000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
