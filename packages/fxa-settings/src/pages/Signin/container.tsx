@@ -66,6 +66,8 @@ import {
   storeAccountData,
   StoredAccountData,
 } from '../../lib/storage-utils';
+import { rankAccounts } from '../../lib/account-switcher';
+import { getAccountData, getAllAccounts } from '../../lib/account-storage';
 import { cachedSignIn, ensureCanLinkAcountOrRedirect } from './utils';
 import { useSigninAvatar } from './useSigninAvatar';
 import OAuthDataError from '../../components/OAuthDataError';
@@ -87,11 +89,13 @@ import { AppLayout } from '../../components/AppLayout';
  * user emails to `/signup` to match content-server functionality.
  */
 
-function getAccountInfo(email?: string): {
+type AccountInfo = {
   email?: string;
   sessionToken?: string;
   uid?: string;
-} {
+};
+
+function getAccountInfo(email?: string): AccountInfo {
   const apply = (targetAccount: StoredAccountData) => {
     return {
       email: targetAccount.email,
@@ -129,6 +133,41 @@ function getAccountInfo(email?: string): {
 
   // Nothing found! Return empty account.
   return {};
+}
+
+/**
+ * Account switcher variant of the above: ranks every stored account rather than
+ * walking a fixed fallback ladder, which is what lets an account the browser is
+ * signed in as outrank the current one.
+ */
+function getRankedAccountInfo(
+  email?: string,
+  firefoxSignedInUid?: string
+): AccountInfo {
+  const [suggested] = rankAccounts({
+    accounts: getAllAccounts(),
+    requestedEmail: email,
+    firefoxSignedInUid,
+    // currentAccount() rather than getCurrentAccountUid(): it also applies a
+    // `?uid=` param, which is how "Manage account" from Sync prefs arrives.
+    currentAccountUid: currentAccount()?.uid,
+  });
+
+  // An email we were handed but have no stored account for still drives the
+  // flow — the status check downstream decides signin vs signup.
+  if (email && suggested?.email.toLowerCase() !== email.toLowerCase()) {
+    return { email };
+  }
+
+  if (!suggested) {
+    return {};
+  }
+
+  return {
+    email: suggested.email,
+    sessionToken: getAccountData(suggested.uid)?.sessionToken,
+    uid: suggested.uid,
+  };
 }
 
 const SigninContainer = ({
@@ -205,6 +244,7 @@ const SigninContainer = ({
     // Used when redirecting from passwordless flow with TOTP_REQUIRED error
     // to prevent redirect loop back to passwordless
     skipPasswordlessRedirect,
+    autoSignIn,
   } = location.state || ({} as LocationState);
 
   const { localizedSuccessBannerHeading, localizedSuccessBannerDescription } =
@@ -230,9 +270,14 @@ const SigninContainer = ({
   });
   const { hasLinkedAccount, hasPassword, hasPasskey } = accountStatus;
 
-  const { email, sessionToken, uid } = getAccountInfo(
-    emailFromLocationState || queryParamModel.email
-  );
+  const requestedEmail = emailFromLocationState || queryParamModel.email;
+  const { email, sessionToken, uid } = config.featureFlags
+    ?.accountSwitcherEnabled
+    ? getRankedAccountInfo(
+        requestedEmail,
+        useFxAStatusResult.fxaStatus?.signedInUser?.uid
+      )
+    : getAccountInfo(requestedEmail);
 
   // Handle setCurrentAccount side effect after render to avoid updating parent during child render
   useEffect(() => {
@@ -704,6 +749,7 @@ const SigninContainer = ({
         setCurrentSplitLayout,
         passwordlessSupported: accountStatus.passwordlessSupported,
         skipPasswordlessRedirect,
+        autoSignIn,
       }}
     />
   );

@@ -11,6 +11,7 @@ export * from './useFxAStatus';
 export * from './useGeoEligibilityCheck';
 export * from './useLocaleManager';
 export * from './useLocalStorageSync';
+export * from './useSwitchableAccounts';
 export * from './useMfaErrorHandler';
 export * from './useNavigateWithQuery';
 export * from './useOAuthFlowRecovery';
