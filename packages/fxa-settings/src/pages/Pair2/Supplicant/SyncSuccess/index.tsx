@@ -12,10 +12,6 @@ import {
 
 export type SyncSuccessProps = {
   /**
-   * Opens the browser's synced tabs view.
-   */
-  onViewSyncedTabs?: () => void;
-  /**
    * Opens the browser's sync settings.
    */
   onSyncSettings?: () => void;
@@ -23,48 +19,39 @@ export type SyncSuccessProps = {
 
 /**
  * The mobile screen shown once pairing has completed: the device is signed in
- * and syncing. It offers a jump to the synced tabs view and a secondary link to
- * sync settings.
+ * and syncing. It confirms that syncing has started and links to sync
+ * settings.
  */
-const SyncSuccess = ({
-  onViewSyncedTabs,
-  onSyncSettings,
-}: SyncSuccessProps) => {
-  return <AppLayout whiteBackground>
-    <div className="flex flex-col items-center text-center">
-      <FirefoxWordmarkImage className="h-8 w-24 text-black dark:text-white" />
+const SyncSuccess = ({ onSyncSettings }: SyncSuccessProps) => {
+  return (
+    <AppLayout whiteBackground>
+      <div className="flex flex-col items-center text-center">
+        <FirefoxWordmarkImage className="h-8 w-24 text-black dark:text-white" />
 
-      <SyncSuccessImage className="mt-10 h-[176px] w-auto" />
+        <SyncSuccessImage className="mt-10 h-[176px] w-auto" />
 
-      <FtlMsg id="pair2-supplicant-sync-success-heading">
-        <h1 className="card-header mt-4">Your device is connected</h1>
-      </FtlMsg>
-      <FtlMsg id="pair2-supplicant-sync-success-description">
-        <p className="mt-1 text-base">
-          Your bookmarks, tabs, and more will stay synced in Firefox.
-        </p>
-      </FtlMsg>
+        <FtlMsg id="pair2-supplicant-sync-success-heading">
+          <h1 className="card-header mt-4">Your device is connected</h1>
+        </FtlMsg>
+        <FtlMsg id="pair2-supplicant-sync-success-description-v2">
+          <p className="mt-1 text-base">
+            Syncing is underway. It may take a while for your synced data to
+            appear. Feel free to keep browsing.
+          </p>
+        </FtlMsg>
 
-      <FtlMsg id="pair2-supplicant-sync-success-view-tabs-button">
-        <button
-          type="button"
-          onClick={onViewSyncedTabs}
-          className="cta-primary cta-xl mt-6 w-full"
-        >
-          View synced tabs
-        </button>
-      </FtlMsg>
-      <FtlMsg id="pair2-supplicant-sync-success-sync-settings-button">
-        <button
-          type="button"
-          onClick={onSyncSettings}
-          className="mt-4 py-2 text-base text-grey-900 underline dark:text-grey-10"
-        >
-          Sync settings
-        </button>
-      </FtlMsg>
-    </div>
-  </AppLayout>
+        <FtlMsg id="pair2-supplicant-sync-success-sync-settings-button-v2">
+          <button
+            type="button"
+            onClick={onSyncSettings}
+            className="mt-6 py-2 text-base text-grey-900 underline dark:text-grey-10"
+          >
+            Manage sync settings
+          </button>
+        </FtlMsg>
+      </div>
+    </AppLayout>
+  );
 };
 
 export default SyncSuccess;

@@ -33,7 +33,7 @@ describe('Pair2/Supplicant/SyncSuccess page', () => {
       'Your device is connected'
     );
     screen.getByText(
-      'Your bookmarks, tabs, and more will stay synced in Firefox.'
+      'Syncing is underway. It may take a while for your synced data to appear. Feel free to keep browsing.'
     );
   });
 
@@ -52,14 +52,12 @@ describe('Pair2/Supplicant/SyncSuccess page', () => {
     ]);
   });
 
-  it('calls onViewSyncedTabs when the primary button is clicked', async () => {
-    const user = userEvent.setup();
-    const onViewSyncedTabs = jest.fn();
-    renderWithLocalizationProvider(<Subject {...{ onViewSyncedTabs }} />);
+  it('offers sync settings as the only action', () => {
+    renderWithLocalizationProvider(<Subject />);
 
-    await user.click(screen.getByRole('button', { name: 'View synced tabs' }));
-
-    expect(onViewSyncedTabs).toHaveBeenCalledTimes(1);
+    expect(
+      screen.getAllByRole('button').map((button) => button.textContent)
+    ).toEqual(['Manage sync settings']);
   });
 
   it('calls onSyncSettings when the sync settings button is clicked', async () => {
@@ -67,7 +65,9 @@ describe('Pair2/Supplicant/SyncSuccess page', () => {
     const onSyncSettings = jest.fn();
     renderWithLocalizationProvider(<Subject {...{ onSyncSettings }} />);
 
-    await user.click(screen.getByRole('button', { name: 'Sync settings' }));
+    await user.click(
+      screen.getByRole('button', { name: 'Manage sync settings' })
+    );
 
     expect(onSyncSettings).toHaveBeenCalledTimes(1);
   });

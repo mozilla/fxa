@@ -3,8 +3,7 @@
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Your device is connected
-pair2-supplicant-sync-success-description = Your bookmarks, tabs, and more will stay synced in { -brand-firefox }.
-# Opens the view listing tabs open on the user's other synced devices
-pair2-supplicant-sync-success-view-tabs-button = View synced tabs
+# "Syncing" here means copying data between the user's devices
+pair2-supplicant-sync-success-description-v2 = Syncing is underway. It may take a while for your synced data to appear. Feel free to keep browsing.
 # Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button = Sync settings
+pair2-supplicant-sync-success-sync-settings-button-v2 = Manage sync settings
