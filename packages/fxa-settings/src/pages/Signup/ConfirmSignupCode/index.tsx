@@ -432,11 +432,11 @@ const ConfirmSignupCode = ({
       <FtlMsg
         id="confirm-signup-code-instruction-v2"
         vars={{ email: email! }}
-        elems={{ email: <span className="break-all" /> }}
+        elems={{ email: <span className="font-bold break-all" /> }}
       >
         <p className="mt-2 text-sm">
           Enter the code that was sent to{' '}
-          <span className="break-all">{email}</span> within 5 minutes.
+          <span className="font-bold break-all">{email}</span> within 5 minutes.
         </p>
       </FtlMsg>
 
