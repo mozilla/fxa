@@ -1177,11 +1177,11 @@ index-account-delete-success = Conta eliminada com sucesso
 index-email-bounced = A sua mensagem de confirmação foi devolvida. Digitou mal o e-mail?
 
 
-inline-passwordless-sync-setup-page-title = Ignorar a palavra-passe da próxima vez?
-inline-passwordless-sync-setup-success-banner = Sessão iniciada em { -brand-firefox }
-inline-passwordless-sync-setup-heading = Ignorar a palavra-passe da próxima vez?
-inline-passwordless-sync-setup-description = Utilize esta chave para iniciar sessão mais rapidamente.
-inline-passwordless-sync-setup-enable-button = Ativar chave de acesso
+inline-passwordless-sync-setup-page-title = Saltar a palavra-passe da próxima vez?
+inline-passwordless-sync-setup-success-banner = Sessão iniciada no { -brand-firefox }
+inline-passwordless-sync-setup-heading = Saltar a palavra-passe da próxima vez?
+inline-passwordless-sync-setup-description = Use esta chave-passe para iniciar sessão mais rapidamente.
+inline-passwordless-sync-setup-enable-button = Ativar chave-passe
 inline-passwordless-sync-setup-enabling = A ativar…
 inline-passwordless-sync-setup-not-now-button = Agora não
 

@@ -1,8 +1,8 @@
 {
-  "commit": "d4d1db0e04c24f33f0c1da307e52098f373ffb35",
-  "summary": "Merge pull request #21189 from mozilla/FXA-14486",
-  "description": "fix(settings): wrap the scan-QR help link inside the phone frame",
-  "timestamp": 1789748679000,
+  "commit": "9791b68f896a009e9cb1b99894b2cca17a039570",
+  "summary": "Merge pull request #21214 from mozilla/FXA-14475",
+  "description": "feat(settings): Remove synced tabs CTA from pairing confirmation",
+  "timestamp": 1789749381000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
