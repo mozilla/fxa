@@ -5,7 +5,7 @@
 import React, { useEffect, useState } from 'react';
 import * as Sentry from '@sentry/browser';
 import { RemoteMetadata } from '../../../../lib/types';
-import { useLocation, useNavigate } from 'react-router';
+import { useLocation } from 'react-router';
 import {
   Integration,
   PairingSupplicantIntegration,
@@ -16,13 +16,29 @@ import AppLayout from '../../../../components/AppLayout';
 import ConnectThisDevice from '.';
 import { navigateWithQuery } from '../../../../lib/utilities';
 
+// The integration's fail() emits Failed, and the state handler routes to the
+// timeout screen from there. Only errors that bypass fail(), such as a missing
+// channel, are routed here so a failure never navigates twice.
+const leaveOnError = (
+  integration: PairingSupplicantIntegration,
+  err: unknown
+) => {
+  Sentry.captureException(err);
+  if (integration.state !== SupplicantState.Failed) {
+    navigateWithQuery(
+      '/pair/supplicant/timeout_and_cancel',
+      { state: { reason: 'timeout' } },
+      true
+    );
+  }
+};
+
 export const ConnectThisDeviceContainer = ({
   integration,
 }: {
   integration?: Integration | PairingSupplicantIntegration;
 }) => {
   const location = useLocation();
-  const navigate = useNavigate();
   const [remoteMetadata, setRemoteMetadata] = useState<RemoteMetadata | null>(
     null
   );
@@ -85,16 +101,13 @@ export const ConnectThisDeviceContainer = ({
         2
       );
       setReady(true);
-    })().catch((err) => {
-      Sentry.captureException(err);
-      navigate('/pair/supplicant/timeout_and_cancel');
-    });
+    })().catch((err) => leaveOnError(integration, err));
 
     return () => {
       // Unsubscribe only — the channel outlives this page for approve_signin.
       integration.onStateChange = null;
     };
-  }, [integration, location, navigate]);
+  }, [integration, location]);
 
   // Leave even if the channel will not close; the user asked to stop. The
   // reason rides along so the dead-end screen says "Canceled" rather than
@@ -112,16 +125,13 @@ export const ConnectThisDeviceContainer = ({
     );
   };
 
+  // Approving moves the integration to WaitingForAuthority, and the state
+  // handler above routes to approve_signin from there. Navigating here as well
+  // would push a second history entry for the same screen.
   const onConnect = () => {
     integration
       .supplicantApprove()
-      .then(() => {
-        navigate('/pair/supplicant/approve_signin');
-      })
-      .catch((err) => {
-        Sentry.captureException(err);
-        navigate('/pair/supplicant/timeout_and_cancel');
-      });
+      .catch((err) => leaveOnError(integration, err));
   };
 
   if (!ready || !remoteMetadata) {
