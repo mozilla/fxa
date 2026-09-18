@@ -62,6 +62,10 @@ test.describe('severity-1 #smoke', () => {
       ).toBe(1);
     });
 
+    // Paired with the checkout test in tests-payments-next. This one is the
+    // only one that runs on PRs, where Payments Next is never started, so it
+    // drives the client id directly and asserts the grant response. Removing
+    // it drops this coverage from every PR.
     test('RP in servicesWithEmailVerification, Payments Next, lands on signin_token_code and sends exactly one verifyLoginCode', async ({
       target,
       pages: { page, signin, signinTokenCode },
@@ -112,6 +116,68 @@ test.describe('severity-1 #smoke', () => {
           EmailType.verifyLoginCode
         )
       ).toBe(1);
+    });
+
+    // prompt=none must never interact: it either grants silently or fails back
+    // to the RP. Only the silent grant is here — it is the half a unit test
+    // cannot express, because the proof is that no mail arrived. The refusals
+    // are covered in fxa-settings pages/Signin/utils.test.ts.
+    test.describe('prompt=none', () => {
+      test('grants silently for an RP outside servicesWithEmailVerification', async ({
+        target,
+        pages: { page, relier, settings, signin, signinTokenCode },
+        testAccountTracker,
+      }) => {
+        const credentials = await testAccountTracker.signUpUnverifiedSession();
+        await target.emailClient.clear(credentials.email);
+
+        await relier.goto();
+        await relier.clickEmailFirst();
+        await signin.fillOutEmailFirstForm(credentials.email);
+        await signin.fillOutPasswordForm(credentials.password);
+        expect(await relier.isLoggedIn()).toBe(true);
+
+        // Only the relier's own session; the unverified FxA session survives
+        // and is what the silent grant below runs against. Signing out is also
+        // what puts the prompt=none button back on the page.
+        await relier.signOut();
+        // Asserted on the element rather than relier.isLoggedIn(), which waits
+        // for the logged-in marker and so can only return true. Without it the
+        // grant below could be reading the session the first sign-in left
+        // behind, and would pass even if prompt=none did nothing.
+        await expect(page.locator('#loggedin')).toBeHidden();
+
+        const query = new URLSearchParams({ login_hint: credentials.email });
+        await page.goto(`${target.relierUrl}/?${query.toString()}`);
+        await relier.signInPromptNone();
+        expect(await relier.isLoggedIn()).toBe(true);
+
+        // Settings is the barrier: it forces the code the two grants did not,
+        // and its newDeviceLogin bounds every earlier send.
+        await settings.goto();
+        await expect(signin.cachedSigninSubmitButton).toBeVisible();
+        await signin.cachedSigninSubmitButton.click();
+        await expect(page).toHaveURL(/signin_token_code/);
+        const code = await target.emailClient.waitForEmail(
+          credentials.email,
+          EmailType.verifyLoginCode,
+          EmailHeader.signinCode
+        );
+        await signinTokenCode.fillOutCodeForm(code);
+        await expect(settings.settingsHeading).toBeVisible();
+
+        await target.emailClient.waitForEmail(
+          credentials.email,
+          EmailType.newDeviceLogin
+        );
+        expect(
+          await target.emailClient.countEmailsByType(
+            credentials.email,
+            EmailType.verifyLoginCode
+          ),
+          'a silent grant must not email a code'
+        ).toBe(1);
+      });
     });
   });
 

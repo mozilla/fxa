@@ -390,6 +390,15 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
       wantsTwoStepAuthentication ||
       wantsKeys;
 
+    // prompt=none forbids interaction, and every destination behind this flag
+    // is a verification page. Fail before a code is sent, whether the container
+    // relays that to the RP or renders it. An unverified session is not an
+    // unmet authentication _level_ — that's errno 170, in
+    // getOAuthNavigationTarget.
+    if (requiresVerificationPage && navigationOptions.isPromptNoneRequest) {
+      return { error: new OAuthError('PROMPT_NONE_UNVERIFIED') };
+    }
+
     // Case 5 above: an RP flow outside servicesWithEmailVerification goes
     // straight to the grant. The server refuses it for a mustVerify session
     // (errno 138) and the destination becomes the code page instead.
@@ -411,8 +420,13 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     // login at all. /confirm_signup_code is unchanged from before — the server
     // still sends there, because this resend produces a different template
     // (`verifyShortCode`) for an unverified primary email (FXA-14109).
+    //
+    // prompt=none forbids mail as well as UI. It reaches neither page — it is
+    // failed above, or granted silently without one — and the guard keeps that
+    // true if a future destination lands here.
     const destination = oauthTarget ? oauthTarget.to : to;
     if (
+      !navigationOptions.isPromptNoneRequest &&
       (destination?.includes('signin_token_code') ||
         destination?.includes('confirm_signup_code')) &&
       navigationOptions.signinData.sessionToken &&
@@ -725,15 +739,22 @@ const getOAuthNavigationTarget = async (
       GleanMetrics.login.error({ event: { reason: error.message } });
 
       // Every destination below is interactive, which prompt=none forbids. On
-      // the caller's flag, not the integration: prompt=none can outlive the
-      // authorization route in the query string, and the RP may have opted out
-      // of error redirects. Errno 170 only — an unverified session is
-      // interaction_required, not an unmet level (FXA-14408).
+      // the caller's flags, not the integration: prompt=none can outlive the
+      // authorization route in the query string. The unmet level is errno 170
+      // only, and only when the RP takes error redirects; TOTP_REQUIRED still
+      // routes to a challenge, because the server would grant once it is
+      // answered.
       if (
-        error.errno === AuthUiErrors.INSUFFICIENT_ACR_VALUES.errno &&
-        navigationOptions.canRelayPromptNoneError
+        navigationOptions.canRelayPromptNoneError &&
+        error.errno === AuthUiErrors.INSUFFICIENT_ACR_VALUES.errno
       ) {
         return { error: new OAuthError('UNMET_AUTHENTICATION_REQUIREMENTS') };
+      }
+      if (
+        navigationOptions.isPromptNoneRequest &&
+        error.errno === AuthUiErrors.UNVERIFIED_SESSION.errno
+      ) {
+        return { error: new OAuthError('PROMPT_NONE_UNVERIFIED') };
       }
 
       const to = (() => {

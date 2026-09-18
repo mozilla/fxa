@@ -87,8 +87,9 @@ test.describe('severity-1 #smoke', () => {
       await expect(signin.cachedSigninSubmitButton).toBeVisible();
       await signin.signInButton.click();
 
-      // We get a signin code, because we are using a restmail address, and forces
-      // verification. ie Must verify will always be set on this client.
+      // Sync requests scoped keys, and the `sync` prefix separately matches
+      // forcedSyncEmailAddresses. Either one sets mustVerify, so the code page
+      // is reached here regardless of which applies.
       await expect(page).toHaveURL(/signin_token_code/);
       const signinCode = await target.emailClient.getVerifyLoginCode(
         syncCredentials.email
