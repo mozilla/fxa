@@ -47,6 +47,7 @@ import {
   planPairingHandoff,
 } from '../../../lib/pairing/handoff';
 import {
+  PAIR_FLOW_ENTRYPOINT,
   pickPairingAttribution,
   pickPairingAttributionFromData,
   stashPairingAttribution,
@@ -137,13 +138,19 @@ const Pair = ({
   // Attribution params to carry into the pairing flow (FXA-14132). Sourced from
   // the integration so it matches what this page's own Glean events report;
   // falls back to the URL when no integration is supplied (tests, stories).
-  const pairingAttribution = useMemo(
-    () =>
-      integration?.data
-        ? pickPairingAttributionFromData(integration.data)
-        : pickPairingAttribution(location.search),
-    [integration, location.search]
-  );
+  const pairingAttribution = useMemo(() => {
+    const fromUrl = pickPairingAttribution(location.search);
+    const picked = integration?.data
+      ? pickPairingAttributionFromData(integration.data)
+      : fromUrl;
+    // `IntegrationFactory` drops an `entryPoint`-only value, so fall back to the
+    // URL, which keeps it, before reaching for the default.
+    return {
+      ...picked,
+      entrypoint:
+        picked.entrypoint || fromUrl.entrypoint || PAIR_FLOW_ENTRYPOINT,
+    };
+  }, [integration, location.search]);
 
   // Focus management after view transitions
   useEffect(() => {

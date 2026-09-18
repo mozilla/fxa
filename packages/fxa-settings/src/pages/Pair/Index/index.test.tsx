@@ -105,6 +105,11 @@ const webIntegration = {
   data: { entrypoint: 'fxa_app_menu' },
 } as unknown as React.ComponentProps<typeof Pair>['integration'];
 
+/** What firefox.com/pair sends: a service and a client, no attribution. */
+const noEntrypointIntegration = {
+  data: { service: 'sync' },
+} as unknown as React.ComponentProps<typeof Pair>['integration'];
+
 describe('Pair', () => {
   // jsdom's default UA lacks "Firefox", which would trip the mount-effect UA check and redirect to /pair/unsupported.
   const realUserAgent = navigator.userAgent;
@@ -480,11 +485,63 @@ describe('Pair', () => {
           action: 'signin',
           code_challenge: 'cc',
           code_challenge_method: 'S256',
+          entrypoint: 'fxa_pairflow',
         });
       } finally {
         hardNavigateSpy.mockRestore();
       }
     });
+
+    it.each([
+      {
+        source: 'the URL',
+        search: '?entrypoint=fxa_app_menu',
+        integration: undefined,
+        expected: 'fxa_app_menu',
+      },
+      {
+        source: 'the integration',
+        search: '',
+        integration: webIntegration,
+        expected: 'fxa_app_menu',
+      },
+      {
+        source: 'a capital-P URL param',
+        search: '?entryPoint=fx-view',
+        integration: noEntrypointIntegration,
+        expected: 'fx-view',
+      },
+    ])(
+      'keeps the entrypoint $source carries',
+      async ({ search, integration, expected }) => {
+        const hardNavigateSpy = jest
+          .spyOn(ReactUtils, 'hardNavigate')
+          .mockImplementation(() => {});
+        try {
+          mockLocationSearch = search;
+          requestSignedInUserMock.mockResolvedValue(undefined);
+          fxaOAuthFlowBeginMock.mockResolvedValueOnce({
+            action: 'signin',
+            response_type: 'code',
+            access_type: 'offline',
+            scope: 'profile https://identity.mozilla.com/apps/oldsync',
+            client_id: 'cid-abc',
+            state: 'state-xyz',
+          });
+          renderWithRouter(
+            <Pair {...defaultProps} integration={integration} />
+          );
+          await waitFor(() => expect(hardNavigateSpy).toHaveBeenCalled());
+          const url = new URL(
+            hardNavigateSpy.mock.calls[0][0],
+            'http://localhost'
+          );
+          expect(url.searchParams.get('entrypoint')).toBe(expected);
+        } finally {
+          hardNavigateSpy.mockRestore();
+        }
+      }
+    );
 
     it('reveals the choice screen when WebChannel never replies', async () => {
       // The bootstrap asks twice (initial + one retry), so both replies must be
@@ -634,6 +691,20 @@ describe('Pair', () => {
 
       expect(readPairingAttribution()).toEqual({
         entrypoint: 'fxa_app_menu',
+      });
+    });
+
+    it('stashes the fxa_pairflow entrypoint for a signed-in direct visit', async () => {
+      const user = userEvent.setup();
+      await renderPair();
+
+      await user.click(
+        screen.getByLabelText(/I already have Firefox for mobile/)
+      );
+      await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+      expect(readPairingAttribution()).toEqual({
+        entrypoint: 'fxa_pairflow',
       });
     });
 
