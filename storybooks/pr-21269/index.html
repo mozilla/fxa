@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 33f89365a510823a6a95aafeab5fd04972cddc62</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 33f89365a510823a6a95aafeab5fd04972cddc62</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/18/2026, 9:36:51 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(settings): gate pairing v2 on the Firefox version per platform</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+ - Pairing v2 switched on from the pairingVersion Firefox reports in
+   fxa_status, which follows a Firefox pref default, so the rollout
+   waited on Firefox flipping the pref rather than on us.
+ - pairing.ios_handoff answered the same question, whether Firefox iOS
+   is ready for v2, a second way.
+
+This commit:
+ - Adds pairing.v2_min_version.{ios,android,desktop}; a set platform is
+   decided from the Firefox major version in the user agent, an unset one
+   still defers to fxa_status.
+ - Routes /pair and /connect_another_device through a shared
+   isPairingV2Enabled gate.
+ - Replaces pairing.ios_handoff with whether an iOS minimum is configured.
+ - Covers the gate with unit tests and both pages with wiring tests.
+ - Updates the dev-launcher and functional-test pairing notes.
+
+Closes #FXA-14582</pre></dd>
+  </dl>
+</body>
+</html>
