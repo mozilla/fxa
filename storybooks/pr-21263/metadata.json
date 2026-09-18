@@ -1,0 +1,10 @@
+{
+  "commit": "2309a44e4881e48a3d5d0d1e7d5b619d8a1629c6",
+  "summary": "fix(settings): handle invalid session token on signin token code",
+  "description": "## Because\n\n- Sentry recorded 5.7K events on https://accounts.firefox.com/signin_token_code, mostly from Firefox iOS.\n- `getTotpStatus` did not catch errors from `checkTotpTokenExists`. A 401 with errno 110 (`INVALID_TOKEN`) became an unhandled rejection.\n\n## This pull request\n\n- Wraps the `checkTotpTokenExists` call in try/catch, and adds `integration` and `navigateWithQuery` to the effect dependencies.\n- Sends the user to `/` on errno 110, the same route the missing signin state effect uses.\n- Keeps OAuth native integrations on the page, which matches the missing state branch.\n- Ignores every other error, because the TOTP status only picks a redirect. The code page still works without it.\n- Adds three container tests, and gives the auth client mock a stable `checkTotpTokenExists` that each test controls.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-13110",
+  "timestamp": 1789766080000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

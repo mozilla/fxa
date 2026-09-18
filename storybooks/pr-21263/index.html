@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 2309a44e4881e48a3d5d0d1e7d5b619d8a1629c6</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 2309a44e4881e48a3d5d0d1e7d5b619d8a1629c6</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/18/2026, 9:14:40 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): handle invalid session token on signin token code</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- Sentry recorded 5.7K events on https://accounts.firefox.com/signin_token_code, mostly from Firefox iOS.
+- `getTotpStatus` did not catch errors from `checkTotpTokenExists`. A 401 with errno 110 (`INVALID_TOKEN`) became an unhandled rejection.
+
+## This pull request
+
+- Wraps the `checkTotpTokenExists` call in try/catch, and adds `integration` and `navigateWithQuery` to the effect dependencies.
+- Sends the user to `/` on errno 110, the same route the missing signin state effect uses.
+- Keeps OAuth native integrations on the page, which matches the missing state branch.
+- Ignores every other error, because the TOTP status only picks a redirect. The code page still works without it.
+- Adds three container tests, and gives the auth client mock a stable `checkTotpTokenExists` that each test controls.
+
+## Issue that this pull request solves
+
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-13110</pre></dd>
+  </dl>
+</body>
+</html>
