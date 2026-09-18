@@ -23,6 +23,7 @@ import firefox, { buildSyncOAuthSearch } from '../../lib/channels/firefox';
 import GleanMetrics from '../../lib/glean';
 import AppLayout from '../../components/AppLayout';
 import { detectDevice, Devices } from '../../lib/utilities';
+import { isPairingV2Enabled } from '../../lib/pairing/v2-gate';
 import { UseFxAStatusResult } from '../../lib/hooks';
 
 export type ConnectAnotherDeviceProps = {
@@ -213,11 +214,17 @@ const ConnectAnotherDevice = ({
         signedInUser?.sessionToken && signedInUser.verified
       );
       if (browserSignedIn && isEligibleForPairing()) {
-        // Both FxA and Firefox have to signal that pairing v2 is enabled!
+        // The browser has to support pairing at all; which version it gets is
+        // the same gate as /pair, see isPairingV2Enabled.
         if (
-          config.pairing.version === 2 &&
           fxaStatus.fxaStatus?.capabilities?.pairing === true &&
-          fxaStatus.fxaStatus?.capabilities?.pairingVersion === 2
+          isPairingV2Enabled({
+            pairing: config.pairing,
+            device,
+            userAgent: navigator.userAgent,
+            browserPairingVersion:
+              fxaStatus.fxaStatus.capabilities.pairingVersion,
+          })
         ) {
           hardNavigate('/pair/authority/scan_qr', {}, true);
           return;

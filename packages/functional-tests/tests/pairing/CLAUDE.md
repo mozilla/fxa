@@ -76,7 +76,7 @@ IOS_PAIRING_ENABLED=1 \
 ```
 
 iOS v2 (needs the stack started with `PAIRING_VERSION=2`,
-`PAIRING_IOS_URL_SCHEME=fennec` and `PAIRING_IOS_HANDOFF=true`):
+`PAIRING_IOS_URL_SCHEME=fennec` and `PAIRING_V2_MIN_VERSION_IOS=0`):
 
 ```bash
 cd packages/functional-tests
@@ -93,12 +93,12 @@ npx playwright test pairingFlowV2iOS.spec.ts -g 'from a deep link'   # test buil
 npx playwright test pairingFlowV2iOS.spec.ts -g "page's own"         # page supplies the link
 ```
 
-`PAIRING_IOS_URL_SCHEME` and `PAIRING_IOS_HANDOFF` only matter to the hand-off
-delivery, whose link the `/pair` page builds from the served
+`PAIRING_IOS_URL_SCHEME` and `PAIRING_V2_MIN_VERSION_IOS` only matter to the
+hand-off delivery, whose link the `/pair` page builds from the served
 `pairing.iosUrlScheme`. The scheme has to name this build (`fennec`) or the link
-points at an install that is not there, and without the hand-off enabled the
-page sends an iOS browser to `/pair/unsupported` instead of offering a link at
-all. The deep-link delivery builds its own URL in `IOSSupplicant` and ignores
+points at an install that is not there, and without an iOS minimum configured
+(any value, `0` meaning every version) the page sends an iOS browser to
+`/pair/unsupported` instead of offering a link at all. The deep-link delivery builds its own URL in `IOSSupplicant` and ignores
 both.
 
 `IOS_DESTINATION` is optional; without it `IOSSupplicant` targets whichever

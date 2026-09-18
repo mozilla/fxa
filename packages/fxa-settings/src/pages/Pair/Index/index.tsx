@@ -42,6 +42,10 @@ import {
 } from '../../../lib/utilities';
 import { buildPairUrl, parsePairingHash } from '../../../lib/pairing/pair-url';
 import {
+  isPairingV2Enabled,
+  isPairingV2RolledOut,
+} from '../../../lib/pairing/v2-gate';
+import {
   getAttemptStorage,
   HandoffPlan,
   planPairingHandoff,
@@ -168,9 +172,9 @@ const Pair = ({
   // carry the flow, so we will hand the pairing URL to the Firefox app instead,
   // falling back to the app store when it is not installed.
   //
-  // iOS gets a plan only where the deployment says Firefox iOS can act on one.
-  // Without one the flow falls through to /pair/unsupported below, which is
-  // where the hand-off would have led anyway.
+  // iOS gets a plan only where the deployment has rolled pairing v2 out to
+  // Firefox iOS. Without one the flow falls through to /pair/unsupported
+  // below, which is where the hand-off would have led anyway.
   //
   // Read-only, so it is safe to evaluate during render; the auto-attempt token
   // is only spent by the download screen this routes to.
@@ -183,7 +187,7 @@ const Pair = ({
         storage: getAttemptStorage(),
         build: config.pairing.browserBuild,
         iosScheme: config.pairing.iosUrlScheme,
-        iosHandoff: config.pairing.iosHandoff,
+        iosHandoff: isPairingV2RolledOut(config.pairing, 'ios'),
       });
     }
 
@@ -214,17 +218,17 @@ const Pair = ({
       return;
     }
 
-    // Switch on pairing version 2! Both FxA and Firefox have to signal that it
-    // is enabled, same gate as ConnectAnotherDevice.
-    const pairingVersion =
-      fxaStatusResult.fxaStatus?.capabilities.pairingVersion;
+    // Switch on pairing version 2! Same gate as ConnectAnotherDevice; see
+    // isPairingV2Enabled for what decides it.
+    const pairingV2 = isPairingV2Enabled({
+      pairing: config.pairing,
+      device,
+      userAgent: navigator.userAgent,
+      browserPairingVersion:
+        fxaStatusResult.fxaStatus?.capabilities.pairingVersion,
+    });
 
-    if (
-      config.pairing.version === 2 &&
-      pairingVersion &&
-      pairingVersion === 2 &&
-      pairingChannelInfo?.version === '2'
-    ) {
+    if (pairingV2 && pairingChannelInfo?.version === '2') {
       navigateWithQuery(
         '/pair/supplicant/connect_this_device',
         { state: pairingChannelInfo },
@@ -233,12 +237,7 @@ const Pair = ({
       return;
     }
 
-    if (
-      isFirefoxDesktop &&
-      config.pairing.version === 2 &&
-      pairingVersion &&
-      pairingVersion === 2
-    ) {
+    if (isFirefoxDesktop && pairingV2) {
       // Full reload: `useIntegration` is not keyed on location, so only a
       // fresh page load rebuilds it as a PairingAuthorityIntegration.
       hardNavigate('/pair/authority/scan_qr', {}, true);
@@ -252,12 +251,10 @@ const Pair = ({
       return;
     }
 
-    // Switch on pairing version 2! Both FxA and Firefox have to signal that it
-    // is enabled, same gate as ConnectAnotherDevice.
+    // Switch on pairing version 2! Same gate as ConnectAnotherDevice; see
+    // isPairingV2Enabled for what decides it.
     if (
-      config.pairing.version === 2 &&
-      pairingVersion &&
-      pairingVersion === 2 &&
+      pairingV2 &&
       pairingChannelInfo &&
       parseInt(pairingChannelInfo?.version) === 2
     ) {
@@ -271,12 +268,7 @@ const Pair = ({
       return;
     }
 
-    if (
-      isFirefoxDesktop &&
-      config.pairing.version === 2 &&
-      pairingVersion &&
-      pairingVersion === 2
-    ) {
+    if (isFirefoxDesktop && pairingV2) {
       // Full reload: `useIntegration` is not keyed on location, so only a
       // fresh page load rebuilds it as a PairingAuthorityIntegration.
       hardNavigate('/pair/authority/scan_qr', {}, true);

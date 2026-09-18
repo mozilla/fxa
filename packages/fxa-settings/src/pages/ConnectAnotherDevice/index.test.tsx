@@ -222,6 +222,65 @@ describe('ConnectAnotherDevice', () => {
       jest.restoreAllMocks();
     });
 
+    // With a minimum configured for the browser's platform, its own version
+    // decides and the pairingVersion it reports in fxa_status does not.
+    describe('with a v2 minimum version for desktop', () => {
+      const FIREFOX_DESKTOP_147 =
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:147.0) ' +
+        'Gecko/20100101 Firefox/147.0';
+      const realUserAgent = navigator.userAgent;
+
+      beforeEach(() => {
+        Object.defineProperty(navigator, 'userAgent', {
+          value: FIREFOX_DESKTOP_147,
+          configurable: true,
+        });
+      });
+
+      afterEach(() => {
+        Object.defineProperty(navigator, 'userAgent', {
+          value: realUserAgent,
+          configurable: true,
+        });
+      });
+
+      const renderWithDesktopMinimum = (
+        fxaStatus: Parameters<typeof mockFxAStatus>[0],
+        desktop: number
+      ) =>
+        renderWithRouter(
+          <ConnectAnotherDevice fxaStatus={mockFxAStatus(fxaStatus)} />,
+          { route: MOCK_PAIRING_ELIGIBLE_ROUTE },
+          mockPairingAppContext(FXA_PAIRING_V2, { desktop })
+        );
+
+      it('navigates to the v2 flow when the browser meets the minimum but reports version 1', async () => {
+        renderWithDesktopMinimum({ pairing: true, pairingVersion: 1 }, 147);
+
+        await waitFor(() =>
+          expect(hardNavigate).toHaveBeenCalledWith(
+            '/pair/authority/scan_qr',
+            {},
+            true
+          )
+        );
+        expect(hardNavigate).not.toHaveBeenCalledWith('/pair', {}, true);
+      });
+
+      it('navigates to the v1 flow when the browser is below the minimum but reports version 2', async () => {
+        renderWithDesktopMinimum({ pairing: true, pairingVersion: 2 }, 148);
+
+        await waitFor(() =>
+          expect(hardNavigate).toHaveBeenCalledWith('/pair', {}, true)
+        );
+        expect(hardNavigate).not.toHaveBeenCalledWith(
+          '/pair/authority/scan_qr',
+          {},
+          true
+        );
+      });
+    });
+
     it('navigates to the v2 pairing flow when FxA and the browser both support version 2', async () => {
       renderPairingEligible(
         { pairing: true, pairingVersion: 2 },
