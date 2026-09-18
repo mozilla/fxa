@@ -59,7 +59,6 @@ describe('AccountController', () => {
     select: jest.Mock;
     innerJoin: jest.Mock;
     update: jest.Mock;
-    whereNull: jest.Mock;
     where: jest.Mock;
     findOne: jest.Mock;
     first: jest.Mock;
@@ -108,7 +107,6 @@ describe('AccountController', () => {
       select: jest.fn().mockReturnThis(),
       innerJoin: jest.fn().mockReturnThis(),
       update: jest.fn().mockReturnThis(),
-      whereNull: jest.fn().mockReturnThis(),
       where: jest.fn().mockReturnThis(),
       findOne: jest.fn(),
       first: jest.fn(),
@@ -316,13 +314,12 @@ describe('AccountController', () => {
     accountQuery.where.mockReturnValueOnce(Promise.resolve(rows));
 
   describe('disableAccount', () => {
-    it('sets disabledAt only on an account that is not already disabled', async () => {
+    it('sets disabledAt on the account', async () => {
       givenAccountUpdated(1);
       await controller.disableAccount(MOCK_UID, mockRequest);
       expect(accountQuery.update).toHaveBeenCalledWith({
         disabledAt: expect.any(Number),
       });
-      expect(accountQuery.whereNull).toHaveBeenCalledWith('disabledAt');
       expect(accountQuery.where).toHaveBeenCalledWith(
         'uid',
         uuidTransformer.to(MOCK_UID)

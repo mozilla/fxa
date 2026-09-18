@@ -485,7 +485,6 @@ export class AccountController {
     const result = await this.db.account
       .query()
       .update({ disabledAt: Date.now() })
-      .whereNull('disabledAt')
       .where('uid', uidBuffer);
     if (!result) {
       return false;
