@@ -61,6 +61,7 @@ jest.mock('@sentry/node', () => {
   return {
     ...actual,
     captureException: jest.fn(),
+    setTag: jest.fn(),
   };
 });
 
@@ -191,6 +192,34 @@ describe('StripeWebhookService', () => {
           mockResponse.event,
           mockResponse.eventObjectData
         );
+      });
+
+      it('should tag the event api version in Sentry', async () => {
+        const mockResponse = CustomerSubscriptionUpdatedResponseFactory();
+        jest
+          .spyOn(stripeEventManager, 'constructWebhookEventResponse')
+          .mockReturnValue(mockResponse);
+
+        await stripeWebhookService.handleWebhookEvent({}, 'signature');
+
+        expect(Sentry.setTag).toHaveBeenCalledWith(
+          'stripe_api_version',
+          mockResponse.event.api_version
+        );
+      });
+
+      it('should not tag the api version when the signature is rejected', async () => {
+        jest
+          .spyOn(stripeEventManager, 'constructWebhookEventResponse')
+          .mockImplementation(() => {
+            throw new Error('Webhook signature verification failed');
+          });
+
+        await expect(
+          stripeWebhookService.handleWebhookEvent({}, 'signature')
+        ).rejects.toThrow('Webhook signature verification failed');
+
+        expect(Sentry.setTag).not.toHaveBeenCalled();
       });
 
       it('should report exception to Sentry and throw on exception', async () => {
