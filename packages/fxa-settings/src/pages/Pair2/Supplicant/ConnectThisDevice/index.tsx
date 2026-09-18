@@ -75,6 +75,7 @@ export const ConnectThisDevice = ({
           data-testid="pair2-supp-connect-btn"
           onClick={onConnect}
           disabled={awaitingRemoteMetadata}
+          data-glean-id="dtm_mobile_connect_submit"
           className="cta-primary cta-xl mt-6 w-full"
         >
           Connect
@@ -86,6 +87,7 @@ export const ConnectThisDevice = ({
           data-testid="pair2-supp-cancel-btn"
           onClick={onCancel}
           disabled={awaitingRemoteMetadata}
+          data-glean-id="dtm_mobile_connect_cancel"
           className="link-dark-grey"
         >
           Cancel

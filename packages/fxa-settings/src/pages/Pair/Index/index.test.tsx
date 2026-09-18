@@ -21,6 +21,10 @@ import { PAIR_GLEAN_REASONS } from 'fxa-shared/metrics/glean/pair-reasons';
 import { Integration } from '../../../models';
 import { parsePairingHash } from '../../../lib/pairing/pair-url';
 import { Devices } from '../../../lib/utilities';
+import {
+  capturePairingChannelParams,
+  resetPairingChannelParamsForTest,
+} from '../../../lib/pairing-channel-params';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -742,6 +746,30 @@ describe('Pair', () => {
       config.pairing.version = 2;
       return mockAppContext({ config } as Parameters<typeof mockAppContext>[0]);
     };
+
+    afterEach(() => {
+      resetPairingChannelParamsForTest();
+      window.history.replaceState(null, '', '/');
+    });
+
+    // Startup lifts the fragment off the URL before React renders, so on a real
+    // page the router's `location.hash` is already empty when this mounts. The
+    // channel has to come from the capture, or a scanned QR never leaves /pair.
+    it('still hands off once startup has lifted the fragment off the URL', async () => {
+      window.history.replaceState(null, '', `/pair${V2_HASH}`);
+      capturePairingChannelParams();
+      expect(window.location.hash).toBe('');
+      mockLocationHash = '';
+
+      renderWithRouter(<Pair {...v2Props} />, {}, v2AppContext());
+
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/pair/supplicant/connect_this_device',
+          { state: { channelId: 'chan-1', channelKey: 'key-1', version: '2' } }
+        )
+      );
+    });
 
     it('hands the channel to the supplicant flow, dropping the hash', async () => {
       mockLocationHash = V2_HASH;

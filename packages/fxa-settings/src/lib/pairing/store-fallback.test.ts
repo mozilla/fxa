@@ -94,6 +94,7 @@ describe('armStoreFallback', () => {
     jest.advanceTimersByTime(STORE_FALLBACK_TIMEOUT_MS);
 
     expect(onFallback).toHaveBeenCalledTimes(1);
+    expect(onFallback).toHaveBeenCalledWith('timeout');
   });
 
   // The highest-value case: a dialog is on screen and the user is slow to tap
@@ -116,6 +117,7 @@ describe('armStoreFallback', () => {
     jest.advanceTimersByTime(STORE_FALLBACK_GRACE_MS);
 
     expect(onFallback).toHaveBeenCalledTimes(1);
+    expect(onFallback).toHaveBeenCalledWith('focus_grace');
   });
 
   it('does not fall back while the grace window is still open', () => {
