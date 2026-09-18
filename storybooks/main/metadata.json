@@ -1,8 +1,8 @@
 {
-  "commit": "64f5f04d524c9d7cf51048e7e45cf44cac66c4ff",
-  "summary": "Merge pull request #21268 from mozilla/fxa-14581",
-  "description": "fix(admin-panel): remove delete button from OAuth scopes page",
-  "timestamp": 1789771088000,
+  "commit": "f8c115e80600b02265a84af0941d241e27bf83f1",
+  "summary": "Merge pull request #21267 from mozilla/fxa-14578",
+  "description": "feat(admin-panel): badge connected services as device or OAuth client",
+  "timestamp": 1789771788000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
