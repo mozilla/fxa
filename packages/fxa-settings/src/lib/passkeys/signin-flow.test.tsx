@@ -10,6 +10,7 @@ import React from 'react';
 import {
   usePasskeySignIn,
   resolvePasskeyService,
+  shouldOfferPasswordlessSyncSetup,
   type PasskeySignInAuthClient,
   type PasskeySignInIntegration,
 } from './signin-flow';
@@ -130,6 +131,13 @@ const MOCK_CREDENTIAL = {
   response: {},
   clientExtensionResults: {},
 };
+/**
+ * An auth-client rejection: an `Error` carrying an errno, which is what
+ * `isAuthUiError` recognises. A bare `{ errno }` object does not qualify.
+ */
+const authError = (errno: number) =>
+  Object.assign(new Error(`errno ${errno}`), { errno });
+
 const MOCK_FLOW_QUERY_PARAMS = {
   flowId: 'f'.repeat(64),
   flowBeginTime: '1700000000000',
@@ -155,7 +163,7 @@ const buildArgs = (
   const sessionResendVerifyCode = jest.fn();
   const getPasskeyWrap = jest
     .fn()
-    .mockRejectedValue({ errno: ERRNO.PASSKEY_WRAP_NOT_FOUND });
+    .mockRejectedValue(authError(ERRNO.PASSKEY_WRAP_NOT_FOUND));
 
   const authClient = {
     beginPasskeyAuthentication,
@@ -1625,58 +1633,8 @@ describe('usePasskeySignIn password-free passkey opt-in material', () => {
     expect(sensitiveDataClient.PasskeyWrapData).toBeUndefined();
   });
 
-  it('requests no scope and holds nothing for a non-Sync Firefox service that requires keys', async () => {
-    passkeyPasswordlessSyncEnabled = true;
-    const integration = syncIntegration();
-    integration.isSync = () => false;
-    integration.isFirefoxNonSync = () => true;
-    integration.getService = () => 'vpn';
-    const { args, spies } = buildSyncArgs(integration);
-    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
-
-    await act(() => result.current.onClick());
-
-    expect(spies.beginPasskeyAuthentication).toHaveBeenCalledWith({
-      keysRequired: true,
-    });
-    expect(sensitiveDataClient.PasskeyWrapData).toBeUndefined();
-  });
-
-  it('holds nothing for a non-OAuth Sync integration', async () => {
-    passkeyPasswordlessSyncEnabled = true;
-    const integration = syncIntegration();
-    (integration as { type: IntegrationType }).type =
-      IntegrationType.SyncDesktopV3;
-    const { args, spies } = buildSyncArgs(integration);
-    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
-
-    await act(() => result.current.onClick());
-
-    expect(spies.beginPasskeyAuthentication).toHaveBeenCalledWith({
-      keysRequired: true,
-    });
-    expect(sensitiveDataClient.PasskeyWrapData).toBeUndefined();
-  });
-
   it('requests no scope and holds nothing when the flag is off', async () => {
     const { args, spies } = buildSyncArgs();
-    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
-
-    await act(() => result.current.onClick());
-
-    expect(spies.beginPasskeyAuthentication).toHaveBeenCalledWith({
-      keysRequired: true,
-    });
-    expect(sensitiveDataClient.PasskeyWrapData).toBeUndefined();
-  });
-
-  it('requests no scope and holds nothing on a mobile client', async () => {
-    passkeyPasswordlessSyncEnabled = true;
-    const integration = syncIntegration();
-    (
-      integration as { isFirefoxMobileClient: () => boolean }
-    ).isFirefoxMobileClient = () => true;
-    const { args, spies } = buildSyncArgs(integration);
     const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
 
     await act(() => result.current.onClick());
@@ -1697,7 +1655,12 @@ describe('usePasskeySignIn password-free passkey opt-in material', () => {
 
     await act(() => result.current.onClick());
 
-    expect(sensitiveDataClient.PasskeyWrapData).toBeDefined();
+    expect(sensitiveDataClient.PasskeyWrapData).toEqual({
+      uid: UID,
+      credentialId: MOCK_CREDENTIAL.id,
+      mfaToken: 'mfa-token',
+      prfOut: PRF_OUT,
+    });
   });
 
   it('holds nothing when the page is left while the wrap lookup is pending', async () => {
@@ -1719,7 +1682,7 @@ describe('usePasskeySignIn password-free passkey opt-in material', () => {
     });
     await waitFor(() => expect(spies.getPasskeyWrap).toHaveBeenCalled());
     unmount();
-    rejectLookup({ errno: ERRNO.PASSKEY_WRAP_NOT_FOUND });
+    rejectLookup(authError(ERRNO.PASSKEY_WRAP_NOT_FOUND));
     await act(() => click);
 
     expect(sensitiveDataClient.PasskeyWrapData).toBeUndefined();
@@ -1739,7 +1702,7 @@ describe('usePasskeySignIn password-free passkey opt-in material', () => {
   it('holds nothing and reports it when the wrap lookup fails for another reason', async () => {
     passkeyPasswordlessSyncEnabled = true;
     const { args, spies } = buildSyncArgs();
-    spies.getPasskeyWrap.mockRejectedValue({ errno: ERRNO.INVALID_TOKEN });
+    spies.getPasskeyWrap.mockRejectedValue(authError(ERRNO.INVALID_TOKEN));
     const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
 
     await act(() => result.current.onClick());
@@ -1757,7 +1720,7 @@ describe('usePasskeySignIn password-free passkey opt-in material', () => {
   ])('holds nothing without reporting when %s', async (_, errno) => {
     passkeyPasswordlessSyncEnabled = true;
     const { args, spies } = buildSyncArgs();
-    spies.getPasskeyWrap.mockRejectedValue({ errno });
+    spies.getPasskeyWrap.mockRejectedValue(authError(errno));
     const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
 
     await act(() => result.current.onClick());
@@ -1792,5 +1755,76 @@ describe('usePasskeySignIn password-free passkey opt-in material', () => {
     await act(() => result.current.onClick());
 
     expect(sensitiveDataClient.PasskeyWrapData).toBeUndefined();
+  });
+});
+
+describe('shouldOfferPasswordlessSyncSetup', () => {
+  const desktopSync = (
+    overrides: Partial<Record<string, unknown>> = {}
+  ): PasskeySignInIntegration =>
+    ({
+      type: IntegrationType.OAuthNative,
+      isSync: () => true,
+      isFirefoxMobileClient: () => false,
+      ...overrides,
+    }) as unknown as PasskeySignInIntegration;
+
+  const enabled = { passkeyPasswordlessSyncEnabled: true };
+
+  it('offers the setup for a desktop Sync sign-in that needs keys', () => {
+    expect(shouldOfferPasswordlessSyncSetup(desktopSync(), enabled, true)).toBe(
+      true
+    );
+  });
+
+  it('withholds it when the feature flag is off', () => {
+    expect(
+      shouldOfferPasswordlessSyncSetup(
+        desktopSync(),
+        { passkeyPasswordlessSyncEnabled: false },
+        true
+      )
+    ).toBe(false);
+    expect(
+      shouldOfferPasswordlessSyncSetup(desktopSync(), undefined, true)
+    ).toBe(false);
+  });
+
+  // No password step means no client-side kB, so there is nothing to wrap.
+  it('withholds it when the sign-in needs no keys', () => {
+    expect(
+      shouldOfferPasswordlessSyncSetup(desktopSync(), enabled, false)
+    ).toBe(false);
+  });
+
+  it('withholds it for a non-OAuth-native integration', () => {
+    expect(
+      shouldOfferPasswordlessSyncSetup(
+        desktopSync({ type: IntegrationType.SyncDesktopV3 }),
+        enabled,
+        true
+      )
+    ).toBe(false);
+  });
+
+  it('withholds it for a Firefox service that is not Sync', () => {
+    expect(
+      shouldOfferPasswordlessSyncSetup(
+        desktopSync({ isSync: () => false }),
+        enabled,
+        true
+      )
+    ).toBe(false);
+  });
+
+  // The web view closes at handoff, so the offer page would never be seen.
+  it('withholds it on a mobile client', () => {
+    expect(
+      shouldOfferPasswordlessSyncSetup(
+        desktopSync({ isFirefoxMobileClient: () => true }),
+        enabled,
+        true
+      )
+    ).toBe(false);
   });
 });

@@ -19,7 +19,7 @@ import type {
   BannerContentProps,
   ExternalLinkProps,
 } from '../../components/Banner/interfaces';
-import { AuthUiErrors } from '../auth-errors/auth-errors';
+import { AuthUiErrors, isAuthUiError } from '../auth-errors/auth-errors';
 import GleanMetrics from '../glean';
 import { useGleanView } from '../glean/useGleanView';
 import { useNavigate } from 'react-router';
@@ -201,6 +201,29 @@ export function resolvePasskeyService(
   return resolveServiceOrClientId(integration);
 }
 
+/**
+ * Whether a passkey sign-in should end in the password-free opt-in offer.
+ *
+ * Desktop Sync sign-ins need encryption keys and so end in a password step,
+ * after which a wrap can be offered: that is the only flow where `kB` is
+ * derived client-side. Mobile clients close the web view at handoff, so the
+ * page that makes the offer would never be seen there. Other Firefox services
+ * that want keys keep their own landing pages and are not offered.
+ */
+export function shouldOfferPasswordlessSyncSetup(
+  integration: PasskeySignInIntegration,
+  featureFlags: { passkeyPasswordlessSyncEnabled?: boolean } | undefined,
+  keysRequired: boolean
+): boolean {
+  return (
+    !!featureFlags?.passkeyPasswordlessSyncEnabled &&
+    keysRequired &&
+    isOAuthNativeIntegration(integration) &&
+    integration.isSync() &&
+    !integration.isFirefoxMobileClient()
+  );
+}
+
 /** Pick<> so tests can pass minimal mocks without `as any`. */
 export type PasskeySignInAuthClient = Pick<
   AuthClient,
@@ -230,23 +253,30 @@ async function hasStoredWrap(
     await authClient.getPasskeyWrap(mfaToken, credentialId);
     return true;
   } catch (err) {
-    const errno = (err as { errno?: number })?.errno;
-    if (
-      errno === ERRNO.PASSKEY_WRAP_NOT_FOUND ||
-      errno === ERRNO.PASSKEY_WRAP_STALE
-    ) {
-      return false;
-    }
-    // Expected while the server flag lags the client's, or when the probe's
-    // own rate limit trips; neither says anything is wrong.
-    if (errno === ERRNO.FEATURE_NOT_ENABLED || errno === ERRNO.THROTTLED) {
+    if (isAuthUiError(err)) {
+      if (
+        err.errno === ERRNO.PASSKEY_WRAP_NOT_FOUND ||
+        err.errno === ERRNO.PASSKEY_WRAP_STALE
+      ) {
+        return false;
+      }
+      // Expected while the server flag lags the client's, or when the probe's
+      // own rate limit trips; neither says anything is wrong.
+      if (
+        err.errno === ERRNO.FEATURE_NOT_ENABLED ||
+        err.errno === ERRNO.THROTTLED
+      ) {
+        return true;
+      }
+      // Withholding the offer is the safe outcome, but an outage would
+      // otherwise look identical to "already enrolled".
+      Sentry.captureException(new Error('passkey-wrap-probe error'), {
+        tags: { errno: String(err.errno) },
+      });
       return true;
     }
-    // Withholding the offer is the safe outcome, but an outage would
-    // otherwise look identical to "already enrolled".
-    Sentry.captureException(new Error('passkey-wrap-probe error'), {
-      tags: { errno: String(errno ?? 'none') },
-    });
+    // If the error is not an AuthUiError, or if it doesn't match any of the above cases,
+    // we conservatively assume the wrap is stored to avoid offering the opt-in incorrectly.
     return true;
   }
 }
@@ -452,18 +482,11 @@ export function usePasskeySignIn({
       supportsKeysOptionalLogin
     );
 
-    // Desktop Sync sign-ins need encryption keys and so end in a password
-    // step, after which a passkey wrap can be offered: that is the only flow
-    // where `kB` is derived client-side. Mobile clients close the web view at
-    // handoff, so the page that makes the offer would never be seen there.
-    // Other Firefox services that want keys keep their own landing pages and
-    // are not offered.
-    const offerPasswordlessSyncSetup =
-      !!config.featureFlags?.passkeyPasswordlessSyncEnabled &&
-      keysRequired &&
-      isOAuthNativeIntegration(integration) &&
-      integration.isSync() &&
-      !integration.isFirefoxMobileClient();
+    const offerPasswordlessSyncSetup = shouldOfferPasswordlessSyncSetup(
+      integration,
+      config.featureFlags,
+      keysRequired
+    );
 
     try {
       // Discoverable credentials only — the Signin page's email field is

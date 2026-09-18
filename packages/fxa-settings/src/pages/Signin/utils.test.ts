@@ -1064,7 +1064,7 @@ describe('Signin utils', () => {
 
       it('keeps the stashed wrap material when the opt-in page will be shown', async () => {
         const integration = createMockSigninOAuthNativeSyncIntegration();
-        const { sensitiveDataClient } = stashPendingWrap();
+        const { sensitiveDataClient, held } = stashPendingWrap();
         const navigationOptions = createSendTabNavigationOptions({
           integration,
           queryParams: '?service=sync',
@@ -1076,7 +1076,9 @@ describe('Signin utils', () => {
 
         const [navigatedUrl] = mockNavigate.mock.calls[0];
         expect(navigatedUrl).toContain('/inline_passwordless_sync_setup');
-        expect(sensitiveDataClient.PasskeyWrapData).toBeDefined();
+        // Same object, so the offer page receives the material unzeroed.
+        expect(sensitiveDataClient.PasskeyWrapData).toBe(held);
+        expect(held.prfOut).toEqual(new Uint8Array(32).fill(3));
       });
 
       it('clears showSignupConfirmedSync for send-tab post-verify and soft-navs with origin=post-verify-set-password', async () => {

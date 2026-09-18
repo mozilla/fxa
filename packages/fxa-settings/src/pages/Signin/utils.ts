@@ -781,8 +781,6 @@ const getOAuthNavigationTarget = async (
 
   const oauthData = { code, redirect, state, scope };
 
-  // The password-free passkey offer replaces Sync's post-sign-in landing page
-  // (/pair, Settings) and continues to Settings itself.
   if (navigationOptions.showInlinePasswordlessSyncSetup) {
     return {
       to: `/inline_passwordless_sync_setup${navigationOptions.queryParams || ''}`,

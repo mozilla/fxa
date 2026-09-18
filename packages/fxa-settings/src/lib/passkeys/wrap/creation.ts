@@ -43,12 +43,6 @@ export type CreatePasskeyWrapResult =
   | { ok: false; failure: PasskeyWrapClientFailure }
   | { ok: false; error: AuthUiError };
 
-/**
- * Zeroes `kB` and `prfOut` once sealing is attempted. The MFA token lives ten
- * minutes from the sign-in assertion and the password step can outlast it;
- * when the store is refused for that reason, one passkey step-up mints a
- * replacement and the same envelope is submitted again.
- */
 export async function createPasskeyWrap(
   authClient: WrapAuthClient,
   { credentialId, mfaToken, sessionToken, prfOut, kB }: CreatePasskeyWrapArgs
@@ -82,32 +76,60 @@ export async function createPasskeyWrap(
     Sentry.captureException(new Error('passkey-wrap-seal error'));
     return { ok: false, failure: 'platform_crypto' };
   } finally {
+    // Sealed or not, the key material does not outlive the attempt.
     kB.fill(0);
     prfOut.fill(0);
     recovered?.fill(0);
   }
 
+  return storeSealedEnvelope(
+    authClient,
+    { credentialId, mfaToken, sessionToken },
+    envelope
+  );
+}
+
+/**
+ * Submits the sealed envelope, minting a fresh MFA token once if the one from
+ * sign-in has expired. That token lives ten minutes, which the password step
+ * and the user's pause on the offer can outlast.
+ */
+async function storeSealedEnvelope(
+  authClient: WrapAuthClient,
+  {
+    credentialId,
+    mfaToken,
+    sessionToken,
+  }: Pick<CreatePasskeyWrapArgs, 'credentialId' | 'mfaToken' | 'sessionToken'>,
+  envelope: PasskeyWrapEnvelope
+): Promise<CreatePasskeyWrapResult> {
   try {
     return await store(authClient, mfaToken, credentialId, envelope);
-  } catch (err) {
+  } catch (initialStoreError) {
     if (
-      (err as AuthUiError).errno !== ERRNO.INVALID_MFA_TOKEN ||
+      (initialStoreError as AuthUiError).errno !== ERRNO.INVALID_MFA_TOKEN ||
       !sessionToken
     ) {
-      return { ok: false, error: err as AuthUiError };
+      return { ok: false, error: initialStoreError as AuthUiError };
     }
+    // `stepUp` runs another passkey assertion, so the user sees a second
+    // authenticator prompt here. Only the token is remade: the envelope is
+    // already sealed, so this needs neither `kB` nor `prfOut`, both of which
+    // the caller zeroed.
     let freshToken: string;
     try {
       freshToken = await stepUp(authClient, sessionToken, credentialId);
     } catch {
-      // A cancelled prompt or a refused step-up leaves the original refusal
-      // as the outcome to word.
-      return { ok: false, error: err as AuthUiError };
+      // The token expiry is the real failure; the step-up was only the recovery
+      // attempt, and a cancelled prompt throws a DOMException carrying no errno.
+      return { ok: false, error: initialStoreError as AuthUiError };
     }
+    // The replacement is spent here, with no user step in between, so expiry is
+    // not a second concern and this attempt is the last one.
     try {
       return await store(authClient, freshToken, credentialId, envelope);
-    } catch (retryErr) {
-      return { ok: false, error: retryErr as AuthUiError };
+    } catch (retryStoreError) {
+      return { ok: false, error: retryStoreError as AuthUiError };
     }
   }
 }

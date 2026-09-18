@@ -824,37 +824,29 @@ export class PasskeyService {
       uid,
       credentialId
     );
+    let replacedStale = false;
     if (existing) {
       if (isSameEnvelope(existing, envelope)) {
         this.metrics.increment('passkey.wrap.store.unchanged');
         return 'unchanged';
       }
-      // A non-finite keysChangedAt makes every wrap read as stale; on this
-      // path that would authorize a replacement, so it refuses instead.
-      if (
-        !Number.isFinite(keysChangedAt) ||
-        !isWrapStale(existing.createdAt, keysChangedAt)
-      ) {
+      // Without a usable keysChangedAt nothing can be judged stale, so the
+      // stored wrap is defended rather than replaced.
+      if (!Number.isFinite(keysChangedAt)) {
         throw this.wrapFailure(
           'store',
           'conflict',
           AppError.passkeyWrapConflict()
         );
       }
-      // Pinned to the row that was read: a wrap another writer stored since
-      // then was not the one judged stale and is not ours to replace.
-      const removed = await this.passkeyManager.deletePasskeyWrap(
+      // The delete carries the staleness test, so it only ever removes a wrap
+      // sealing a `kB` the account has replaced. A live wrap survives and the
+      // insert below hits the primary key, which is the conflict.
+      replacedStale = await this.passkeyManager.deletePasskeyWrap(
         uid,
         credentialId,
-        existing.createdAt
+        keysChangedAt
       );
-      if (!removed) {
-        throw this.wrapFailure(
-          'store',
-          'conflict',
-          AppError.passkeyWrapConflict()
-        );
-      }
     }
 
     try {
@@ -887,7 +879,7 @@ export class PasskeyService {
       );
     }
 
-    if (existing) {
+    if (replacedStale) {
       this.metrics.increment('passkey.wrap.store.replaced_stale');
     }
     this.metrics.increment('passkey.wrap.store.success');
