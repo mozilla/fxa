@@ -80,9 +80,14 @@ const ScanQR = ({ qrCodeValue }: ScanQRProps) => {
             {/* `FtlMsg` wraps the text rather than the link so the localized
                 string does not absorb the "opens in new window" note that
                 `LinkExternal` appends for screen readers. */}
+            {/* The phone's screen is about half the artwork wide, so the link
+                is capped just inside it: longer translations wrap onto a
+                second line on the screen rather than running past the bezel.
+                The overlay leaves room for two lines above the artwork's
+                bottom edge. */}
             <LinkExternal
               href={Constants.SYNC_SUMO_URL}
-              className="mt-2 rounded-sm text-sm text-grey-900 underline focus-visible-default hover:text-grey-700"
+              className="mt-2 max-w-[46%] rounded-sm text-sm text-grey-900 underline focus-visible-default hover:text-grey-700"
             >
               <FtlMsg id="pair2-authority-scan-qr-help-link">
                 Get help scanning
