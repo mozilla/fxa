@@ -4,6 +4,9 @@
 
 const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/;
 
+// Defence in depth for rows already stored; the map itself has a null prototype.
+const UNSAFE_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+
 function unbuffer(val: string | Buffer) {
   return Buffer.isBuffer(val) ? val.toString('hex') : val;
 }
@@ -61,10 +64,10 @@ export function aggregateNameValuePairs(
       // If the id was NULL, this row must have resulted from
       // an outer join with no match in the joined table.
       // The correct aggregated result in this case is NULL.
-      curItem[resultColumn] = row[idColumn] ? {} : null;
+      curItem[resultColumn] = row[idColumn] ? Object.create(null) : null;
       items.push(curItem);
     }
-    if (row[nameColumn]) {
+    if (row[nameColumn] && !UNSAFE_KEYS.has(row[nameColumn])) {
       curItem[resultColumn][row[nameColumn]] = row[valueColumn];
     }
     return items;
