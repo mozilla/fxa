@@ -1323,10 +1323,8 @@ pair2-authority-sync-success-sync-settings-button = Синхрондау бап�
 
 pair2-authority-timeout-and-cancel-timeout-heading = Әлі де құрылғыны қосқыңыз келе ме?
 pair2-authority-timeout-and-cancel-timeout-description = Байланыс орнатуға бөлінген уақыт өтіп кеткен сияқты. Мобильді құрылғыңызды қосып, { -brand-firefox } деректеріңізді синхрондағыңыз келсе, қайталап көріңіз.
-pair2-authority-timeout-and-cancel-canceled-heading = Бас тартылған
 pair2-authority-timeout-and-cancel-canceled-description = Егер ойыңызды өзгертсеңіз немесе басқа құрылғыны қосқыңыз келсе, қайталап көріңіз.
 pair2-authority-timeout-and-cancel-try-again-button = Қайтадан көру
-pair2-authority-timeout-and-cancel-cancel-button = Бас тарту
 pair2-authority-timeout-and-cancel-sync-settings-button = Синхрондау баптаулары
 
 
@@ -1359,7 +1357,6 @@ pair2-supplicant-sync-success-sync-settings-button = Синхрондау бап
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Бөлінген уақыт өтіп кеткен сияқты
 pair2-supplicant-timeout-and-cancel-timeout-description = Мобильді құрылғыңызды қосу және { -brand-firefox } деректеріңізді синхрондау үшін компьютеріңізден <b>firefox.com/pair</b> сайтына кіріңіз.
-pair2-supplicant-timeout-and-cancel-canceled-heading = Бас тартылған
 pair2-supplicant-timeout-and-cancel-canceled-description = Құрылғыны кез келген уақытта қосу үшін компьютеріңізден <b>firefox.com/pair</b> сайтына кіріңіз.
 
 

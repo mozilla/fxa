@@ -1281,9 +1281,7 @@ pair2-authority-sync-success-view-tabs-button = 동기화된 탭 보기
 pair2-authority-sync-success-sync-settings-button = 동기화 설정
 
 
-pair2-authority-timeout-and-cancel-canceled-heading = 취소됨
 pair2-authority-timeout-and-cancel-try-again-button = 다시 시도
-pair2-authority-timeout-and-cancel-cancel-button = 취소
 pair2-authority-timeout-and-cancel-sync-settings-button = 동기화 설정
 
 
@@ -1302,9 +1300,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = 더 알아보기
 pair2-supplicant-sync-success-heading = 기기가 연결되었습니다
 pair2-supplicant-sync-success-view-tabs-button = 동기화된 탭 보기
 pair2-supplicant-sync-success-sync-settings-button = 동기화 설정
-
-
-pair2-supplicant-timeout-and-cancel-canceled-heading = 취소됨
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } 확인됨

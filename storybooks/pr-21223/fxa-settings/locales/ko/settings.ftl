@@ -1847,12 +1847,8 @@ pair2-authority-sync-success-sync-settings-button = 동기화 설정
 ## either because it timed out or because it was canceled. Both cases offer to
 ## start pairing over again.
 
-# Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-canceled-heading = 취소됨
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = 다시 시도
-# Abandons pairing without retrying
-pair2-authority-timeout-and-cancel-cancel-button = 취소
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = 동기화 설정
 
@@ -1897,15 +1893,6 @@ pair2-supplicant-sync-success-heading = 기기가 연결되었습니다
 pair2-supplicant-sync-success-view-tabs-button = 동기화된 탭 보기
 # Opens the browser's sync settings, where the user chooses what to sync
 pair2-supplicant-sync-success-sync-settings-button = 동기화 설정
-
-## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device when pairing ends without connecting,
-## either because the attempt timed out or because it was canceled. Both states
-## are informational and offer no on-screen action, so the copy points the user
-## back to their computer to start again.
-
-# Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-canceled-heading = 취소됨
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

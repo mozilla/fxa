@@ -39,16 +39,16 @@ subplat-update-billing-plaintext = { subplat-update-billing }:
 # Variables:
 #  $email (String) - A user's primary email address
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subplat-explainer-specific-2 = Dostawaśo toś tu mejlku, dokulaž { $email } ma { -product-mozilla-account(case: "acc", capitalization: "lower") } a wy sćo za { $productName } zregistrěrowany.
+subplat-explainer-specific-2 = Dostawaśo toś tu mejlku, dokulaž { $email } ma { -product-mozilla-account(capitalization: "lower", case: "acc") } a wy sćo za { $productName } zregistrěrowany.
 # Variables:
 #  $email (String) - A user's primary email address
-subplat-explainer-reminder-form-2 = Dostawaśo toś tu mejlku, dokulaž { $email } ma { -product-mozilla-account(case: "acc", capitalization: "lower") }.
-subplat-explainer-multiple-2 = Dostawaśo toś tu mejlku, dokulaž { $email } ma { -product-mozilla-account(case: "acc", capitalization: "lower") } a sćo aboněrował někotare produkty.
-subplat-explainer-was-deleted-2 = Dostawaśo toś tu mejlku, dokulaž { $email } jo se zregistrěrowała za  { -product-mozilla-account(case: "acc", capitalization: "lower") }.
-subplat-manage-account-2 = Woglědajśo se k swójomu <a data-l10n-name="subplat-account-page">kontowem bokoju</a>, aby nastajenja swójogo { -product-mozilla-account(case: "gen", capitalization: "lower") } zastojał.
+subplat-explainer-reminder-form-2 = Dostawaśo toś tu mejlku, dokulaž { $email } ma { -product-mozilla-account(capitalization: "lower", case: "acc") }.
+subplat-explainer-multiple-2 = Dostawaśo toś tu mejlku, dokulaž { $email } ma { -product-mozilla-account(capitalization: "lower", case: "acc") } a sćo aboněrował někotare produkty.
+subplat-explainer-was-deleted-2 = Dostawaśo toś tu mejlku, dokulaž { $email } jo se zregistrěrowała za  { -product-mozilla-account(capitalization: "lower", case: "acc") }.
+subplat-manage-account-2 = Woglědajśo se k swójomu <a data-l10n-name="subplat-account-page">kontowem bokoju</a>, aby nastajenja swójogo { -product-mozilla-account(capitalization: "lower", case: "gen") } zastojał.
 # Variables:
 #  $accountSettingsUrl (String) - URL to Account Settings
-subplat-manage-account-plaintext-2 = Woglědajśo se k swójomu kontowemu bokoju, aby nastajenja swójogo { -product-mozilla-account(case: "gen", capitalization: "lower") } zastojał: { $accountSettingsUrl }
+subplat-manage-account-plaintext-2 = Woglědajśo se k swójomu kontowemu bokoju, aby nastajenja swójogo { -product-mozilla-account(capitalization: "lower", case: "gen") } zastojał: { $accountSettingsUrl }
 subplat-terms-policy = Wuměnjenja a wótwołańske pšawidła
 subplat-terms-policy-plaintext = { subplat-terms-policy }:
 subplat-cancel = Abonement wupowěźeś
@@ -57,10 +57,10 @@ subplat-reactivate = Abonement zasej aktiwěrowaś
 subplat-reactivate-plaintext = { subplat-reactivate }:
 subplat-update-billing = Płaśeńske informacije aktualizěrowaś
 subplat-privacy-policy = Pšawidła priwatnosći { -brand-mozilla }
-subplat-privacy-policy-2 = Powěźeńka priwatnosći { -product-mozilla-accounts(case: "gen", capitalization: "lowercase") }
+subplat-privacy-policy-2 = Powěźeńka priwatnosći { -product-mozilla-accounts(capitalization: "lowercase", case: "gen") }
 subplat-privacy-policy-plaintext = { subplat-privacy-policy }:
 subplat-privacy-policy-plaintext-2 = { subplat-privacy-policy-2 }:
-subplat-moz-terms = Słužbne wuměnjenja { -product-mozilla-accounts(case: "gen", capitalization: "lowercase") }
+subplat-moz-terms = Słužbne wuměnjenja { -product-mozilla-accounts(capitalization: "lowercase", case: "gen") }
 subplat-moz-terms-plaintext = { subplat-moz-terms }:
 subplat-legal = Pšawniske
 subplat-legal-plaintext = { subplat-legal }:
@@ -97,9 +97,6 @@ payment-provider-card-ending-in-plaintext = Płaśeńska metoda: Kórta se na { 
 payment-provider-card-ending-in = <b>Płaśeńska metoda:</b> Kórta se na { $lastFour } kóńcy
 payment-provider-card-ending-in-card-name = <b>Płaśeńska metoda:</b> { $cardName } se na { $lastFour } kóńcy
 subscription-charges-invoice-summary = Zespominanje zliceńki
-
-# Variables:
-
 
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
@@ -263,16 +260,16 @@ subscriptionAccountDeletion-title = Škóda, až wótejźośo
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $invoiceDateOnly (String) - The date of the next invoice, e.g. 01/20/2016
-subscriptionAccountDeletion-content-cancelled-2 = Sćo njedawno wulašował swójo { -product-mozilla-account(case: "acc", capitalization: "lower") }. Togodla smy wótskazali waš abonement { $productName }. Wašo kóńcne płaśenje { $invoiceTotal } jo se zapłaśiło dnja { $invoiceDateOnly }.
+subscriptionAccountDeletion-content-cancelled-2 = Sćo njedawno wulašował swójo { -product-mozilla-account(capitalization: "lower", case: "acc") }. Togodla smy wótskazali waš abonement { $productName }. Wašo kóńcne płaśenje { $invoiceTotal } jo se zapłaśiło dnja { $invoiceDateOnly }.
 subscriptionAccountReminderFirst-subject = Dopominanje: Dokóńcćo konfigurěrowanje swójogo konta
 subscriptionAccountReminderFirst-title = Hysći njamaśo pśistup k swójomu abonementoju
-subscriptionAccountReminderFirst-content-info-3 = Pśed někotarymi dnjami sćo załožył { -product-mozilla-account(case: "acc", capitalization: "lower") }, ale njejsćo jo ženje wobkšuśił. Naźijamy se, až konfigurěrowanje swójogo konta dokóńcyśo, aby mógał wužywaś swój nowy abonement.
+subscriptionAccountReminderFirst-content-info-3 = Pśed někotarymi dnjami sćo załožył { -product-mozilla-account(capitalization: "lower", case: "acc") }, ale njejsćo jo ženje wobkšuśił. Naźijamy se, až konfigurěrowanje swójogo konta dokóńcyśo, aby mógał wužywaś swój nowy abonement.
 subscriptionAccountReminderFirst-content-select-2 = Wubjeŕśo „Gronidło napóraś“, aby nowe gronidło nastajił a pśeglědanje swójogo konta dokóńcył.
 subscriptionAccountReminderFirst-action = Gronidło napóraś
 subscriptionAccountReminderFirst-action-plaintext = { subscriptionAccountReminderFirst-action }:
 subscriptionAccountReminderSecond-subject = Slědne dopominanje: Konfigurěrujśo swójo konto
 subscriptionAccountReminderSecond-title-2 = Witajśo k { -brand-mozilla }!
-subscriptionAccountReminderSecond-content-info-3 = Pśed někotarymi dnjami sćo załožył { -product-mozilla-account(case: "acc", capitalization: "lower") }, ale njejsćo jo ženje wobkšuśił. Naźijamy se, až konfigurěrowanje swójogo konta dokóńcyśo, aby mógał wužywaś swój nowy abonement.
+subscriptionAccountReminderSecond-content-info-3 = Pśed někotarymi dnjami sćo załožył { -product-mozilla-account(capitalization: "lower", case: "acc") }, ale njejsćo jo ženje wobkšuśił. Naźijamy se, až konfigurěrowanje swójogo konta dokóńcyśo, aby mógał wužywaś swój nowy abonement.
 subscriptionAccountReminderSecond-content-select-2 = Wubjeŕśo „Gronidło napóraś“, aby nowe gronidło nastajił a pśeglědanje swójogo konta dokóńcył.
 subscriptionAccountReminderSecond-action = Gronidło napóraś
 subscriptionAccountReminderSecond-action-plaintext = { subscriptionAccountReminderSecond-action }:
@@ -385,13 +382,7 @@ subscriptionPaymentProviderCancelled-content-reason-1 = Waša płaśeńska metod
 subscriptionReactivation-subject-2 = Waš abonement { $productName } jo se reaktiwěrował
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-subject = Waša testowa wersija { $productName } jo se reaktiwěrowała
-# Variables:
-#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = Wjeliki źěk, až sćo zasej zaktiwěrował swój abonement { $productName }!
-# Variables:
-#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-title = Wjeliki źěk, až sćo reaktiwěrował swóju testowu wersiju { $productName }!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

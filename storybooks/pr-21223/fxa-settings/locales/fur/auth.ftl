@@ -98,9 +98,6 @@ payment-provider-card-ending-in = <b>Metodi di paiament:</b> cjarte che e finìs
 payment-provider-card-ending-in-card-name = <b>Metodi di paiament:</b> { $cardName } che e finìs cun { $lastFour }
 subscription-charges-invoice-summary = Sintesi fature
 
-# Variables:
-
-
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
 

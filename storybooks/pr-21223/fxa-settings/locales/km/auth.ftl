@@ -84,9 +84,6 @@ payment-plan-next-invoice = វិក្កយបត្របន្ទាប់�
 payment-provider-card-name-ending-in-plaintext = វិធីនៃការទូទាត់: { $cardName } បញ្ចប់ក្នុងថ្ងៃ { $lastFour }
 payment-provider-card-ending-in-plaintext = វិធីនៃការទូទាត់: កាតដែលបញ្ចប់នៅថ្ងៃ { $lastFour }
 
-# Variables:
-
-
 ## $invoiceDiscountAmount (String) - The amount of the discount of the subscription invoice, including currency, e.g. $2.00
 ## $discountDuration - The duration of the discount in number of months, e.g. "3" if the discount is 3-months
 

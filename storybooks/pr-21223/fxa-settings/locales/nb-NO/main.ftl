@@ -1308,10 +1308,8 @@ pair2-authority-sync-success-sync-settings-button = Synkroniseringsinnstillinger
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Vil du fortsatt koble til en enhet?
-pair2-authority-timeout-and-cancel-canceled-heading = Avbrutt
 pair2-authority-timeout-and-cancel-canceled-description = Hvis du ombestemmer deg eller vil koble til en annen enhet, kan du prøve på nytt.
 pair2-authority-timeout-and-cancel-try-again-button = Prøv på nytt
-pair2-authority-timeout-and-cancel-cancel-button = Avbryt
 pair2-authority-timeout-and-cancel-sync-settings-button = Synkroniseringsinnstillinger
 
 
@@ -1339,7 +1337,6 @@ pair2-supplicant-sync-success-view-tabs-button = Vis synkroniserte faner
 pair2-supplicant-sync-success-sync-settings-button = Synkroniseringsinnstillinger
 
 
-pair2-supplicant-timeout-and-cancel-canceled-heading = Avbrutt
 pair2-supplicant-timeout-and-cancel-canceled-description = For å koble til en enhet når som helst, gå til <b>firefox.com/pair</b> på datamaskinen din.
 
 

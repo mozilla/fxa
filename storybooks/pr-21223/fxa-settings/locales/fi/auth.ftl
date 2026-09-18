@@ -98,9 +98,6 @@ payment-provider-card-ending-in = <b>Maksutapa:</b> Kortti, joka päättyy numer
 payment-provider-card-ending-in-card-name = <b>Maksutapa:</b> { $cardName } päättyen numeroihin { $lastFour }
 subscription-charges-invoice-summary = Laskun yhteenveto
 
-# Variables:
-
-
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
 
@@ -327,13 +324,7 @@ subscriptionPaymentProviderCancelled-content-detect = Havaitsimme ongelman { $pr
 subscriptionReactivation-subject-2 = { $productName } -tilauksesi on aktivoitu uudelleen
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-subject = { $productName } -kokeilujaksosi on aktivoitu uudelleen
-# Variables:
-#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = Kiitos että aktivoit { $productName } -tilauksen uudelleen!
-# Variables:
-#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-title = Kiitos { $productName } -kokeilujakson uudelleenaktivoinnista!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

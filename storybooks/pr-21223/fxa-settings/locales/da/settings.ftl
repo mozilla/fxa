@@ -1906,13 +1906,9 @@ pair2-authority-sync-success-sync-settings-button = Indstillinger for synkronise
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Vil du stadig forbinde en enhed?
 pair2-authority-timeout-and-cancel-timeout-description = Det ser ud til, at tidsfristen udløb. Prøv igen, hvis du stadig vil forbinde din mobile enhed og synkronisere dine { -brand-firefox }-data.
-# Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-canceled-heading = Annulleret
 pair2-authority-timeout-and-cancel-canceled-description = Hvis du ombestemmer dig eller ønsker at forbinde en anden enhed, så prøv igen.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Prøv igen
-# Abandons pairing without retrying
-pair2-authority-timeout-and-cancel-cancel-button = Annuller
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = Indstillinger for synkronisering
 
@@ -1988,8 +1984,6 @@ pair2-supplicant-sync-success-sync-settings-button = Indstillinger for synkronis
 pair2-supplicant-timeout-and-cancel-timeout-heading = Det ser ud til, at tidsfristen udløb
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = For at forbinde din mobile enhed og synkronisere dine { -brand-firefox }-data, besøg <b>firefox.com/pair</b> på din computer.
-# Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-canceled-heading = Annulleret
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = For at forbinde en enhed når som helst, besøg <b>firefox.com/pair</b> på din computer.
 

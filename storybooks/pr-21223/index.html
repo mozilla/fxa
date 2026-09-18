@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 9aa449bcfd5bb16d31890db9dc54c251f2170a71</title>
+  <title>Storybooks for commit 391d6109f60946e66525f4e72028ddf47bf7aabc</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,30 +23,28 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 9aa449bcfd5bb16d31890db9dc54c251f2170a71</h1>
+  <h1>Storybooks for commit 391d6109f60946e66525f4e72028ddf47bf7aabc</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/17/2026, 5:18:35 PM UTC</dd>
+    <dd>9/18/2026, 7:23:53 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>feat(settings): wire up the password-free passkey opt-in</pre></dd>
+    <dd><pre>refactor(settings): address review feedback on passkey wrap opt-in</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-
-- A desktop browser sign-in that needs encryption keys (Sync, for example) still requires a password after a PRF passkey until a wrap is stored; this is the one place the user can store one.
-- The proof minted at sign-in lives ten minutes and the password step can outlast it.
+* Review asked for the wrap staleness test to live in one place.
+* Branch rules were reachable only through the full sign-in hook, so each
+  case cost a renderHook and a set of auth-client mocks.
 
 This commit:
-
-- Requests the `passkey` scope on eligible sign-ins and holds the PRF output, proof and `kB` in SensitiveDataClient.
-- Routes sign-ins where the account has a password and the passkey has no wrap to /inline_passwordless_sync_setup in place of the browser&#039;s post-sign-in landing page.
-- Adds the opt-in container: stores the wrap, lands in Settings with a banner, and zeroes the held material on every exit.
-- Steps up with the passkey for a fresh proof when the sign-in one has expired, then submits the same envelope again.
-- Replaces a stored wrap that predates `keysChangedAt` on POST /passkey/wraps instead of refusing it.
-
-Closes #FXA-13151</pre></dd>
+* Pushes wrap staleness into the delete predicate as `staleBefore`.
+* Extracts the kB stash, envelope store and offer rule as named helpers
+  with direct unit tests.
+* Names the initial and retry store errors in the wrap creation path.
+* Builds auth-client test rejections as errno-bearing `Error`s.
+* Tightens held-material assertions and drops redundant hook tests.</pre></dd>
   </dl>
 </body>
 </html>

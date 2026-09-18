@@ -386,7 +386,7 @@ remember-password-signin-link = Accedi
 ## LinkUsed component
 
 # The user followed a primary email confirmation link, but that link is has been used and is no longer valid
-primary-email-confirmation-link-reused = L’indirizzo email primario è già stato confermato
+primary-email-confirmation-link-reused = L’indirizzo email principale è già stato confermato
 # The user followed a sign-in confirmation link, but that link has been used and is no longer valid
 signin-confirmation-link-reused = L’accesso è già stato confermato
 confirmation-link-reused-message = Questo link di conferma è già stato utilizzato (e può essere utilizzato una sola volta).
@@ -469,7 +469,7 @@ ready-account-ready = Il tuo account è pronto
 ready-continue = Continua
 sign-in-complete-header = Accesso confermato
 sign-up-complete-header = Account confermato
-primary-email-verified-header = Indirizzo email primario confermato
+primary-email-verified-header = Indirizzo email principale confermato
 
 ## Users see this view when they are generating a new account recovery key
 ## This screen displays the generated key and allows users to download or copy the key
@@ -1613,6 +1613,19 @@ index-account-delete-success = L’account è stato correttamente eliminato
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = L’email di conferma è stata respinta. C’è un errore di battitura nell’indirizzo email?
 
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+# Browser tab title.
+inline-passwordless-sync-setup-page-title = Accedere senza password la prossima volta?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner = Accesso effettuato a { -brand-firefox }
+inline-passwordless-sync-setup-heading = Accedere senza password la prossima volta?
+inline-passwordless-sync-setup-description = Utilizza questa passkey per accedere più velocemente.
+inline-passwordless-sync-setup-enable-button = Attiva passkey
+# Button label while the passkey is stored.
+inline-passwordless-sync-setup-enabling = Attivazione…
+inline-passwordless-sync-setup-not-now-button = Non adesso
+
 ## InlineRecoveryKeySetup page component
 
 inline-recovery-key-setup-create-error = Oops! Impossibile creare la chiave di recupero dell’account. Riprova più tardi.
@@ -1896,12 +1909,10 @@ pair2-authority-sync-success-sync-settings-button = Sincronizza impostazioni
 pair2-authority-timeout-and-cancel-timeout-heading = Vuoi ancora connettere un dispositivo?
 pair2-authority-timeout-and-cancel-timeout-description = Sembra che il tempo a disposizione sia scaduto. Riprova se vuoi ancora connettere il tuo dispositivo mobile e sincronizzare i dati di { -brand-firefox }.
 # Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-canceled-heading = Annullata
+pair2-authority-timeout-and-cancel-cancelled-heading = Annullato
 pair2-authority-timeout-and-cancel-canceled-description = Se cambi idea o vuoi connettere un altro dispositivo, riprova.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Riprova
-# Abandons pairing without retrying
-pair2-authority-timeout-and-cancel-cancel-button = Annulla
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = Sincronizza impostazioni
 
@@ -1980,7 +1991,7 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Sembra che il tempo a disp
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = Per connettere il dispositivo mobile e sincronizzare i dati di { -brand-firefox }, visita <b>firefox.com/pair</b> sul computer.
 # Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-canceled-heading = Annullata
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Annullato
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Per connettere un dispositivo in qualsiasi momento, visita <b>firefox.com/pair</b> sul computer.
 

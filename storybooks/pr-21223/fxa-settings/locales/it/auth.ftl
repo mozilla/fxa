@@ -98,9 +98,6 @@ payment-provider-card-ending-in = <b>Metodo di pagamento:</b> carta che termina 
 payment-provider-card-ending-in-card-name = <b>Metodo di pagamento:</b> { $cardName } che termina con { $lastFour }
 subscription-charges-invoice-summary = Riepilogo fattura
 
-# Variables:
-
-
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
 
@@ -202,14 +199,14 @@ fraudulentAccountDeletion-contact = Per qualsiasi domanda contatta il nostro <a 
 fraudulentAccountDeletion-contact-plaintext = Per qualsiasi domanda contatta il nostro team di supporto: { $mozillaSupportUrl }
 # Variables
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-freeTrialEndingReminder-subject = La tua prova gratuita di { $productName } scadrà a breve
+freeTrialEndingReminder-subject = La versione di prova gratuita di { $productName } scadrà a breve
 # Variables:
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 freeTrialEndingReminder-content-greeting = Gentile cliente di { $productName },
 # Variables:
 #   $serviceLastActiveDateOnly (String) - The date the free trial ends, e.g. January 20, 2016
-freeTrialEndingReminder-content-trial-ending = Il periodo di prova gratuito scade il <strong>{ $serviceLastActiveDateOnly }</strong>.
-freeTrialEndingReminder-content-trial-ending-plaintext = Il periodo di prova gratuito scade il { $serviceLastActiveDateOnly }.
+freeTrialEndingReminder-content-trial-ending = La versione di prova gratuita scade il <strong>{ $serviceLastActiveDateOnly }</strong>.
+freeTrialEndingReminder-content-trial-ending-plaintext = La versione di prova gratuita scade il { $serviceLastActiveDateOnly }.
 # Variables:
 #   $invoiceTotal (String) - The total amount that will be charged, e.g. $9.99
 #   $serviceLastActiveDateOnly (String) - The date the charge will occur, e.g. January 20, 2016
@@ -293,7 +290,7 @@ subscriptionCancellation-freeTrial-subject = La versione di prova gratuita di { 
 # Variables
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 #   $trialEndDateOnly (String) - The date when the free trial ends, e.g. 01/20/2016
-subscriptionCancellation-freeTrial-content = La tua prova gratuita di { $productName } è stata annullata. Potrai accedere al servizio fino al { $trialEndDateOnly }. Non ti verrà addebitato alcun importo.
+subscriptionCancellation-freeTrial-content = La versione di prova gratuita di { $productName } è stata annullata. Potrai accedere al servizio fino al { $trialEndDateOnly }. Non ti verrà addebitato alcun importo.
 # Variables:
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionDowngrade-subject = Sei passato a { $productName }
@@ -381,13 +378,13 @@ subscriptionPaymentProviderCancelled-content-reason-1 = È possibile che il meto
 subscriptionReactivation-subject-2 = Il tuo abbonamento a { $productName } è stato riattivato
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-subject = La versione di prova di { $productName } è stata riattivata
+subscriptionReactivation-free-trial-subject = La versione di prova gratuita di { $productName } è stata riattivata
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = Grazie per aver riattivato il tuo abbonamento a { $productName }.
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-title = Grazie per aver riattivato la tua versione di prova di { $productName }.
+subscriptionReactivation-free-trial-title = Grazie per aver riattivato la tua versione di prova gratuita di { $productName }.
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

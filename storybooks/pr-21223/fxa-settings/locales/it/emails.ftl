@@ -299,11 +299,11 @@ postChangeAccountRecovery-title = Hai modificato la chiave di recupero dell’ac
 postChangeAccountRecovery-body-part1 = Ora hai una nuova chiave di recupero dell’account. La chiave precedente è stata eliminata.
 postChangeAccountRecovery-body-part2 = Salva questa nuova chiave in un luogo sicuro: ti servirà per ripristinare i dati di navigazione crittati se dimentichi la password.
 postChangeAccountRecovery-action = Gestisci account
-postChangePrimary-subject = Indirizzo email primario aggiornato
-postChangePrimary-title = Nuovo indirizzo email primario
+postChangePrimary-subject = Indirizzo email principale aggiornato
+postChangePrimary-title = Nuovo indirizzo email principale
 # Variables:
 #  $email (String) - A user's email address
-postChangePrimary-description-2 = Hai modificato correttamente il tuo indirizzo email primario in { $email }. Da questo momento puoi utilizzare il nuovo indirizzo email per accedere all’{ -product-mozilla-account }, ricevere notifiche di sicurezza e conferme.
+postChangePrimary-description-2 = Hai modificato correttamente il tuo indirizzo email principale in { $email }. Da questo momento puoi utilizzare il nuovo indirizzo email per accedere all’{ -product-mozilla-account }, ricevere notifiche di sicurezza e conferme.
 postChangePrimary-action = Gestisci account
 postChangeRecoveryPhone-subject = Aggiornato telefono per il recupero dell’account
 postChangeRecoveryPhone-preview = Account protetto da autenticazione in due passaggi
@@ -463,9 +463,9 @@ verifyLoginCode-title-2 = Hai effettuato tu l’accesso a { $serviceName }?
 verifyLoginCode-safe = Aiutaci a mantenere il tuo account al sicuro approvando il tuo accesso su:
 verifyLoginCode-prompt-3 = In caso affermativo, questo è il tuo codice di autorizzazione:
 verifyLoginCode-expiry-notice = Il codice scade tra 5 minuti.
-verifyPrimary-title-2 = Conferma indirizzo email primario
+verifyPrimary-title-2 = Conferma indirizzo email principale
 verifyPrimary-description = Una richiesta di autorizzazione a modificare l’account è stata inviata dal seguente dispositivo:
-verifyPrimary-subject = Conferma l’indirizzo email primario
+verifyPrimary-subject = Conferma l’indirizzo email principale
 verifyPrimary-action-2 = Conferma indirizzo email
 verifyPrimary-action-plaintext-2 = { verifyPrimary-action-2 }:
 verifyPrimary-post-verify-2 = Una volta confermata la richiesta, sarà possibile modificare le impostazioni dell’account, per esempio aggiungendo un indirizzo email secondario, direttamente dal dispositivo.

@@ -1218,6 +1218,15 @@ index-account-delete-success = Fiók sikeresen törölve
 index-email-bounced = A megerősítő e-mail visszapattant. Talán elgépelte az e-mail-címét?
 
 
+inline-passwordless-sync-setup-page-title = Legközelebb kihagyja a jelszót?
+inline-passwordless-sync-setup-success-banner = Bejelentkezve itt: { -brand-firefox }
+inline-passwordless-sync-setup-heading = Legközelebb kihagyja a jelszót?
+inline-passwordless-sync-setup-description = Használja ezt a jelkulcsot a gyorsabb bejelentkezéshez.
+inline-passwordless-sync-setup-enable-button = Jelkulcs engedélyezése
+inline-passwordless-sync-setup-enabling = Engedélyezés…
+inline-passwordless-sync-setup-not-now-button = Most nem
+
+
 inline-recovery-key-setup-create-error = Hoppá! Nem tudtuk létrehozni a fiók-helyreállítási kulcsát. Próbálja újra később.
 inline-recovery-key-setup-recovery-created = Fiók-helyreállítási kulcs létrehozva
 inline-recovery-key-setup-download-header = Biztosítsa fiókját
@@ -1365,10 +1374,9 @@ pair2-authority-sync-success-sync-settings-button = Szinkronizálási beállít�
 
 pair2-authority-timeout-and-cancel-timeout-heading = Még mindig csatlakoztatni szeretne egy eszközt?
 pair2-authority-timeout-and-cancel-timeout-description = Úgy tűnik, túlléptük az időkorlátot. Próbálja újra, ha továbbra is csatlakoztatni szeretné mobileszközét, és szinkronizálni szeretné a { -brand-firefox } adatait:.
-pair2-authority-timeout-and-cancel-canceled-heading = Megszakítva
+pair2-authority-timeout-and-cancel-cancelled-heading = Lemondva
 pair2-authority-timeout-and-cancel-canceled-description = Ha meggondolja magát, vagy egy másik eszközt szeretne csatlakoztatni, próbálja újra.
 pair2-authority-timeout-and-cancel-try-again-button = Újrapróbálkozás
-pair2-authority-timeout-and-cancel-cancel-button = Mégse
 pair2-authority-timeout-and-cancel-sync-settings-button = Szinkronizálási beállítások
 
 
@@ -1401,7 +1409,7 @@ pair2-supplicant-sync-success-sync-settings-button = Szinkronizálási beállít
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Úgy tűnik, túlléptük az időkorlátot
 pair2-supplicant-timeout-and-cancel-timeout-description = A mobileszköz csatlakoztatásához és a { -brand-firefox } adatainak szinkronizálásához keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén.
-pair2-supplicant-timeout-and-cancel-canceled-heading = Megszakítva
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Lemondva
 pair2-supplicant-timeout-and-cancel-canceled-description = Eszköz csatlakoztatásához keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén.
 
 

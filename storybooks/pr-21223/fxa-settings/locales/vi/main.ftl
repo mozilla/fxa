@@ -1297,10 +1297,8 @@ pair2-authority-sync-success-sync-settings-button = Cài đặt đồng bộ ho�
 
 pair2-authority-timeout-and-cancel-timeout-heading = Bạn vẫn muốn kết nối thiết bị chứ?
 pair2-authority-timeout-and-cancel-timeout-description = Có vẻ như đã hết thời gian chờ. Hãy thử lại nếu bạn vẫn muốn kết nối thiết bị di động và đồng bộ hoá dữ liệu { -brand-firefox } của mình.
-pair2-authority-timeout-and-cancel-canceled-heading = Đã huỷ bỏ
 pair2-authority-timeout-and-cancel-canceled-description = Nếu bạn đổi ý hoặc muốn kết nối thiết bị khác, hãy thử lại.
 pair2-authority-timeout-and-cancel-try-again-button = Thử lại
-pair2-authority-timeout-and-cancel-cancel-button = Huỷ bỏ
 pair2-authority-timeout-and-cancel-sync-settings-button = Cài đặt đồng bộ hoá
 
 
@@ -1333,7 +1331,6 @@ pair2-supplicant-sync-success-sync-settings-button = Cài đặt đồng bộ ho
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Có vẻ như đã hết thời gian chờ
 pair2-supplicant-timeout-and-cancel-timeout-description = Để kết nối thiết bị di động và đồng bộ hoá dữ liệu { -brand-firefox } của bạn, hãy truy cập <b>firefox.com/pair</b> trên máy tính của bạn.
-pair2-supplicant-timeout-and-cancel-canceled-heading = Đã huỷ bỏ
 pair2-supplicant-timeout-and-cancel-canceled-description = Để kết nối thiết bị bất cứ lúc nào, hãy truy cập <b>firefox.com/pair</b> trên máy tính của bạn.
 
 

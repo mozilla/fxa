@@ -1220,10 +1220,8 @@ pair2-authority-sync-success-sync-settings-button = Eşitleme ayarları
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Hâlâ cihaz bağlamak istiyor musunuz?
-pair2-authority-timeout-and-cancel-canceled-heading = Vazgeçildi
 pair2-authority-timeout-and-cancel-canceled-description = Fikrinizi değiştirirseniz veya başka bir cihaz bağlamak isterseniz yeniden deneyin.
 pair2-authority-timeout-and-cancel-try-again-button = Yeniden dene
-pair2-authority-timeout-and-cancel-cancel-button = Vazgeç
 pair2-authority-timeout-and-cancel-sync-settings-button = Eşitleme ayarları
 
 
@@ -1248,7 +1246,6 @@ pair2-supplicant-sync-success-sync-settings-button = Eşitleme ayarları
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zaman aşımına uğradık
-pair2-supplicant-timeout-and-cancel-canceled-heading = Vazgeçildi
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } onaylandı

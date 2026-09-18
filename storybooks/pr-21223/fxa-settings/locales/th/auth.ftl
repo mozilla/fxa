@@ -98,9 +98,6 @@ payment-provider-card-ending-in = <b>วิธีการชำระเงิ�
 payment-provider-card-ending-in-card-name = <b>วิธีการชำระเงิน:</b> { $cardName } ลงท้ายด้วย { $lastFour }
 subscription-charges-invoice-summary = สรุปใบแจ้งหนี้
 
-# Variables:
-
-
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
 
@@ -373,13 +370,7 @@ subscriptionPaymentProviderCancelled-content-reason-1 = อาจเป็นไ
 subscriptionReactivation-subject-2 = การสมัครสมาชิก { $productName } ของคุณถูกเปิดใช้งานใหม่แล้ว
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-subject = การทดลองใช้ { $productName } ของคุณถูกเปิดใช้งานใหม่แล้ว
-# Variables:
-#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = ขอบคุณที่ต่ออายุการสมัครสมาชิก { $productName } ใหม่ของคุณ!
-# Variables:
-#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-title = ขอบคุณที่เปิดใช้งานการทดลองใช้ { $productName } ของคุณอีกครั้ง!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20
