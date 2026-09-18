@@ -1,0 +1,11 @@
+{
+  "commit": "8dec4edca36fd313a087044cb933615c1243ec7d",
+  "summary": "feat(auth): enforce account disabled state on every sign-in path",
+  "description": "Because:\n\n- Disabling an account only blocked the email and password login form.\n  Passkey, third-party and passwordless sign-in, password reset, and\n  existing sessions and OAuth tokens all kept working.\n- The disabled state is the containment action for fraud and abuse work,\n  so it has to hold on every path.\n\nThis commit:\n\n- Adds a shared assertAccountEnabled check to every route that signs in,\n  resets, or mints a credential for an account.\n- Joins accounts.disabledAt into the session-token lookup so every token\n  strategy rejects a disabled account's sessions.\n- Checks the account on every OAuth token grant.\n- Makes admin disable revoke sessions, tokens and OAuth grants, and record\n  the security event server-side.\n- Adds errno 240 ACCOUNT_DISABLED with the fxa-settings message.\n\nCloses FXA-14470\nCloses FXA-14462",
+  "timestamp": 1789760356000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
