@@ -386,7 +386,7 @@ remember-password-signin-link = Accedi
 ## LinkUsed component
 
 # The user followed a primary email confirmation link, but that link is has been used and is no longer valid
-primary-email-confirmation-link-reused = L’indirizzo email primario è già stato confermato
+primary-email-confirmation-link-reused = L’indirizzo email principale è già stato confermato
 # The user followed a sign-in confirmation link, but that link has been used and is no longer valid
 signin-confirmation-link-reused = L’accesso è già stato confermato
 confirmation-link-reused-message = Questo link di conferma è già stato utilizzato (e può essere utilizzato una sola volta).
@@ -469,7 +469,7 @@ ready-account-ready = Il tuo account è pronto
 ready-continue = Continua
 sign-in-complete-header = Accesso confermato
 sign-up-complete-header = Account confermato
-primary-email-verified-header = Indirizzo email primario confermato
+primary-email-verified-header = Indirizzo email principale confermato
 
 ## Users see this view when they are generating a new account recovery key
 ## This screen displays the generated key and allows users to download or copy the key

@@ -199,14 +199,14 @@ fraudulentAccountDeletion-contact = Per qualsiasi domanda contatta il nostro <a 
 fraudulentAccountDeletion-contact-plaintext = Per qualsiasi domanda contatta il nostro team di supporto: { $mozillaSupportUrl }
 # Variables
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-freeTrialEndingReminder-subject = La tua prova gratuita di { $productName } scadrà a breve
+freeTrialEndingReminder-subject = La versione di prova gratuita di { $productName } scadrà a breve
 # Variables:
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 freeTrialEndingReminder-content-greeting = Gentile cliente di { $productName },
 # Variables:
 #   $serviceLastActiveDateOnly (String) - The date the free trial ends, e.g. January 20, 2016
-freeTrialEndingReminder-content-trial-ending = Il periodo di prova gratuito scade il <strong>{ $serviceLastActiveDateOnly }</strong>.
-freeTrialEndingReminder-content-trial-ending-plaintext = Il periodo di prova gratuito scade il { $serviceLastActiveDateOnly }.
+freeTrialEndingReminder-content-trial-ending = La versione di prova gratuita scade il <strong>{ $serviceLastActiveDateOnly }</strong>.
+freeTrialEndingReminder-content-trial-ending-plaintext = La versione di prova gratuita scade il { $serviceLastActiveDateOnly }.
 # Variables:
 #   $invoiceTotal (String) - The total amount that will be charged, e.g. $9.99
 #   $serviceLastActiveDateOnly (String) - The date the charge will occur, e.g. January 20, 2016
@@ -290,7 +290,7 @@ subscriptionCancellation-freeTrial-subject = La versione di prova gratuita di { 
 # Variables
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 #   $trialEndDateOnly (String) - The date when the free trial ends, e.g. 01/20/2016
-subscriptionCancellation-freeTrial-content = La tua prova gratuita di { $productName } è stata annullata. Potrai accedere al servizio fino al { $trialEndDateOnly }. Non ti verrà addebitato alcun importo.
+subscriptionCancellation-freeTrial-content = La versione di prova gratuita di { $productName } è stata annullata. Potrai accedere al servizio fino al { $trialEndDateOnly }. Non ti verrà addebitato alcun importo.
 # Variables:
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionDowngrade-subject = Sei passato a { $productName }

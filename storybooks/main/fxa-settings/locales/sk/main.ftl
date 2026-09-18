@@ -1332,6 +1332,15 @@ index-account-delete-success = Účet bol úspešne odstránený
 index-email-bounced = Váš potvrdzujúci e‑mail sa práve vrátil. Nesprávne zadaný e‑mail?
 
 
+inline-passwordless-sync-setup-page-title = Nabudúce sa prihlásiť bez hesla?
+inline-passwordless-sync-setup-success-banner = Prihlásenie do { -brand-firefox(case: "gen") } bolo úspešné
+inline-passwordless-sync-setup-heading = Nabudúce sa prihlásiť bez hesla?
+inline-passwordless-sync-setup-description = S týmto prístupovým kľúčom sa prihlásite rýchlejšie.
+inline-passwordless-sync-setup-enable-button = Povoliť prístupový kľúč
+inline-passwordless-sync-setup-enabling = Aktivuje sa…
+inline-passwordless-sync-setup-not-now-button = Teraz nie
+
+
 inline-recovery-key-setup-create-error = Ojoj! Nepodarilo sa nám vytvoriť kľúč na obnovenie účtu. Skúste to znova neskôr.
 inline-recovery-key-setup-recovery-created = Bol vytvorený kľúč na obnovenie účtu
 inline-recovery-key-setup-download-header = Zabezpečte svoj účet
@@ -1479,6 +1488,7 @@ pair2-authority-sync-success-sync-settings-button = Nastavenia synchronizácie
 
 pair2-authority-timeout-and-cancel-timeout-heading = Stále chcete pripojiť zariadenie?
 pair2-authority-timeout-and-cancel-timeout-description = Zdá sa, že vypršal časový limit. Skúste to znova, ak stále chcete pripojiť svoje mobilné zariadenie a synchronizovať údaje { -brand-firefox(case: "gen") }.
+pair2-authority-timeout-and-cancel-cancelled-heading = Zrušené
 pair2-authority-timeout-and-cancel-canceled-description = Ak si to rozmyslíte alebo chcete pripojiť iné zariadenie, skúste to znova.
 pair2-authority-timeout-and-cancel-try-again-button = Skúsiť znova
 pair2-authority-timeout-and-cancel-sync-settings-button = Nastavenia synchronizácie
@@ -1513,6 +1523,7 @@ pair2-supplicant-sync-success-sync-settings-button = Nastavenia synchronizácie
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zdá sa, že nám vypršal časový limit
 pair2-supplicant-timeout-and-cancel-timeout-description = Ak chcete pripojiť svoje mobilné zariadenie a synchronizovať údaje z prehliadača { -brand-firefox }, navštívte stránku <b>firefox.com/pair</b> na svojom počítači.
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Zrušené
 pair2-supplicant-timeout-and-cancel-canceled-description = Ak chcete kedykoľvek pripojiť zariadenie, navštívte na svojom počítači stránku <b>firefox.com/pair</b>.
 
 
