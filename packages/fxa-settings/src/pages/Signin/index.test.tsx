@@ -81,6 +81,9 @@ jest.mock('../../lib/glean', () => ({
       engage: jest.fn(),
       lockedAccountBannerView: jest.fn(),
       alternativeAuthView: jest.fn(),
+      passkeySubmit: jest.fn(),
+      passkeySubmitFrontendError: jest.fn(),
+      passkeySubmitSuccess: jest.fn(),
     },
     cachedLogin: {
       forgotPassword: jest.fn(),
@@ -1979,6 +1982,88 @@ describe('Signin component', () => {
           screen.getByRole('heading', { name: 'Welcome back' })
         ).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('error message collisions', () => {
+    // The mock auth client has no passkey methods, so the hook surfaces its
+    // generic error banner.
+    const passkeyError =
+      'Something went wrong. Try again or choose another sign-in method.';
+    const bannerError = 'Banner error';
+    const tooltipError = 'Valid password required';
+
+    const clickPasskey = () =>
+      user.click(screen.getByRole('button', { name: 'Sign in with passkey' }));
+
+    beforeEach(() => {
+      (isWebAuthnSupported as jest.Mock).mockReturnValue(true);
+      jest.spyOn(utils, 'hardNavigate').mockImplementation(() => {});
+    });
+
+    it('clears the passkey error when the password form is submitted', async () => {
+      render({ hasPasskey: true });
+
+      await clickPasskey();
+      await screen.findByText(passkeyError);
+
+      await enterPasswordAndSubmit();
+
+      await waitFor(() =>
+        expect(screen.queryByText(passkeyError)).not.toBeInTheDocument()
+      );
+    });
+
+    it('clears the passkey error when Google sign-in is clicked', async () => {
+      render({ hasPasskey: true });
+
+      await clickPasskey();
+      await screen.findByText(passkeyError);
+
+      await user.click(
+        screen.getByRole('button', { name: /Continue with Google/ })
+      );
+
+      await waitFor(() =>
+        expect(screen.queryByText(passkeyError)).not.toBeInTheDocument()
+      );
+    });
+
+    it('clears banner and tooltip errors when the passkey button is clicked', async () => {
+      render({
+        hasPasskey: true,
+        localizedErrorFromLocationState: bannerError,
+      });
+
+      // An empty password sets the tooltip error.
+      await submit();
+      await screen.findByText(tooltipError);
+
+      await clickPasskey();
+
+      await waitFor(() =>
+        expect(screen.queryByText(bannerError)).not.toBeInTheDocument()
+      );
+      expect(screen.queryByText(tooltipError)).not.toBeInTheDocument();
+    });
+
+    it('clears banner and tooltip errors when Apple sign-in is clicked', async () => {
+      render({
+        hasPasskey: true,
+        localizedErrorFromLocationState: bannerError,
+      });
+
+      await submit();
+      await screen.findByText(tooltipError);
+
+      await user.click(
+        screen.getByRole('button', { name: /Continue with Apple/ })
+      );
+
+      await waitFor(() =>
+        expect(screen.queryByText(bannerError)).not.toBeInTheDocument()
+      );
+      expect(screen.queryByText(tooltipError)).not.toBeInTheDocument();
     });
   });
 });
