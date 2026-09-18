@@ -1,8 +1,8 @@
 {
-  "commit": "51963335af03089a6d820c65aba9fd3d9b2092d2",
+  "commit": "72890420243de11df068038283996d068982b859",
   "summary": "fix(pairing): keep a reload from landing on the timeout screen",
-  "description": "Because:\n- Firefox stops the document's network activity before it unloads, so\n  the pairing socket closes while page script still runs.\n- The authority treated that close as a failure and pushed the timeout\n  route in the dying page, which the reload sometimes committed.\n\nThis commit:\n- Ignores channel closes and errors that arrive after beforeunload or\n  pagehide; a pageshow makes the page live again.\n- Adds unit tests for the unload handling.\n\nCloses #FXA-14485",
-  "timestamp": 1789749890000,
+  "description": "Because:\n- Firefox stops the document's network activity before it unloads, so\n  the pairing socket closes while page script still runs.\n- The integrations treated that close as a failure and pushed the\n  timeout route in the dying page, which the reload sometimes committed.\n\nThis commit:\n- Ignores channel closes and errors that arrive after beforeunload or\n  pagehide; a pageshow makes the page live again.\n- Does not fail the flow when the unload cuts short a channel create or\n  open still in flight, on both the authority and the supplicant.\n- Adds unit tests for the unload handling.\n\nCloses #FXA-14485",
+  "timestamp": 1789751614000,
   "storybooks": [
     "fxa-settings"
   ],

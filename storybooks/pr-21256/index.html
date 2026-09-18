@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 51963335af03089a6d820c65aba9fd3d9b2092d2</title>
+  <title>Storybooks for commit 72890420243de11df068038283996d068982b859</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,25 +23,27 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 51963335af03089a6d820c65aba9fd3d9b2092d2</h1>
+  <h1>Storybooks for commit 72890420243de11df068038283996d068982b859</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/18/2026, 4:44:50 PM UTC</dd>
+    <dd>9/18/2026, 5:13:34 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(pairing): keep a reload from landing on the timeout screen</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 - Firefox stops the document&#039;s network activity before it unloads, so
   the pairing socket closes while page script still runs.
-- The authority treated that close as a failure and pushed the timeout
-  route in the dying page, which the reload sometimes committed.
+- The integrations treated that close as a failure and pushed the
+  timeout route in the dying page, which the reload sometimes committed.
 
 This commit:
 - Ignores channel closes and errors that arrive after beforeunload or
   pagehide; a pageshow makes the page live again.
+- Does not fail the flow when the unload cuts short a channel create or
+  open still in flight, on both the authority and the supplicant.
 - Adds unit tests for the unload handling.
 
 Closes #FXA-14485</pre></dd>

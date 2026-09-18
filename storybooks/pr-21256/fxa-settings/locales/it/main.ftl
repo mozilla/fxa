@@ -331,7 +331,7 @@ remember-password-passkey-text = Hai una passkey o ricordi la password?
 remember-password-signin-link = Accedi
 
 
-primary-email-confirmation-link-reused = L’indirizzo email primario è già stato confermato
+primary-email-confirmation-link-reused = L’indirizzo email principale è già stato confermato
 signin-confirmation-link-reused = L’accesso è già stato confermato
 confirmation-link-reused-message = Questo link di conferma è già stato utilizzato (e può essere utilizzato una sola volta).
 
@@ -387,7 +387,7 @@ ready-account-ready = Il tuo account è pronto
 ready-continue = Continua
 sign-in-complete-header = Accesso confermato
 sign-up-complete-header = Account confermato
-primary-email-verified-header = Indirizzo email primario confermato
+primary-email-verified-header = Indirizzo email principale confermato
 
 
 flow-recovery-key-download-storage-ideas-heading-v2 = Luoghi in cui conservare la chiave:
