@@ -16,6 +16,7 @@ const mockOpen = jest.fn().mockResolvedValue(undefined);
 const mockSend = jest.fn().mockResolvedValue(undefined);
 const mockClose = jest.fn().mockResolvedValue(undefined);
 const listeners: Record<string, Function[]> = {};
+let mockIsUnloading = false;
 
 // Only the client is stubbed; `toRemoteMetadata` is a pure helper the
 // integration relies on for the device details it shows the user.
@@ -25,6 +26,9 @@ jest.mock('../../lib/channels/pairing-channel', () => ({
     open: mockOpen,
     send: mockSend,
     close: mockClose,
+    get isUnloading() {
+      return mockIsUnloading;
+    },
     addEventListener: jest.fn((type: string, handler: Function) => {
       if (!listeners[type]) listeners[type] = [];
       listeners[type].push(handler);
@@ -77,6 +81,7 @@ describe('PairingSupplicantIntegration', () => {
     jest.clearAllMocks();
     Object.keys(listeners).forEach((k) => delete listeners[k]);
     sessionStorage.clear();
+    mockIsUnloading = false;
   });
 
   describe('openChannel', () => {
@@ -449,6 +454,23 @@ describe('PairingSupplicantIntegration', () => {
       expect(integration.state).toBe(SupplicantState.Connecting);
       expect(onError).not.toHaveBeenCalled();
       expect(onStateChange).not.toHaveBeenCalled();
+    });
+
+    // A reload closes the connecting socket before the page unloads; failing
+    // would navigate the page on its way out (FXA-14485).
+    it('open failure while the page unloads is ignored', async () => {
+      mockIsUnloading = true;
+      mockOpen.mockRejectedValueOnce(
+        new Error('Error while creating the pairing channel')
+      );
+      const integration = createIntegration();
+      const onError = jest.fn();
+      integration.onError = onError;
+
+      await integration.openChannel('wss://ch.example.com', 'c', 'k');
+
+      expect(integration.state).toBe(SupplicantState.Connecting);
+      expect(onError).not.toHaveBeenCalled();
     });
 
     it('allows a retry on the same channel after a failed open', async () => {

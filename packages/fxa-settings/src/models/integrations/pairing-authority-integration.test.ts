@@ -16,6 +16,7 @@ const mockChannelClose = jest.fn().mockResolvedValue(undefined);
 const mockChannelSend = jest.fn().mockResolvedValue(undefined);
 const mockRemoveEventListener = jest.fn();
 let mockListeners: Record<string, Function[]> = {};
+let mockIsUnloading = false;
 
 jest.mock('../../lib/channels/pairing-channel', () => {
   const actual = jest.requireActual('../../lib/channels/pairing-channel');
@@ -27,6 +28,9 @@ jest.mock('../../lib/channels/pairing-channel', () => {
       send: mockChannelSend,
       channelId: 'chan-1',
       channelKey: 'key-1',
+      get isUnloading() {
+        return mockIsUnloading;
+      },
       addEventListener: jest.fn((type: string, handler: Function) => {
         (mockListeners[type] ||= []).push(handler);
       }),
@@ -154,6 +158,7 @@ function createIntegration(
 describe('PairingAuthorityIntegration', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockIsUnloading = false;
     jest.useFakeTimers();
     mockListeners = {};
     mockCreate.mockResolvedValue(undefined);
@@ -474,9 +479,28 @@ describe('PairingAuthorityIntegration', () => {
         await expect(integration.createChannel()).rejects.toThrow('nope');
 
         expect(integration.hasChannel()).toBe(false);
+        expect(mockChannelClose).toHaveBeenCalledTimes(1);
 
         await integration.createChannel();
         expect(mockCreate).toHaveBeenCalledTimes(2);
+      });
+
+      // A reload closes the connecting socket before the page unloads. That is
+      // not a pairing failure, and failing would navigate the page on its way
+      // out (FXA-14485).
+      it('does not fail when the page unloads while the channel is being created', async () => {
+        mockIsUnloading = true;
+        mockCreate.mockRejectedValueOnce(
+          new Error('Error while creating the pairing channel')
+        );
+
+        await expect(integration.createChannel()).rejects.toThrow(
+          'Error while creating the pairing channel'
+        );
+
+        expect(integration.state).not.toBe(AuthorityState.Failed);
+        expect(onError).not.toHaveBeenCalled();
+        expect(integration.hasChannel()).toBe(false);
       });
     });
 

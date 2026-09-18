@@ -265,36 +265,36 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     this._channelId = channelId;
     this._version = version;
     this._canceledByAuthority = false;
-    this._channel = new PairingChannelClient();
+    const channel = new PairingChannelClient();
+    this._channel = channel;
 
     // Listen for channel events
-    this._channel.addEventListener('connected', this.handleConnected);
-    this._channel.addEventListener('close', this.handleClose);
-    this._channel.addEventListener('error', this.handleChannelError);
+    channel.addEventListener('connected', this.handleConnected);
+    channel.addEventListener('close', this.handleClose);
+    channel.addEventListener('error', this.handleChannelError);
 
     // Listen for authority messages (prefixed with 'remote:')
-    this._channel.addEventListener(
+    channel.addEventListener(
       'remote:pair:auth:metadata',
       this.handleAuthMetadata
     );
-    this._channel.addEventListener(
+    channel.addEventListener(
       'remote:pair:auth:authorize',
       this.handleAuthAuthorize
     );
-    this._channel.addEventListener(
-      'remote:pair:auth:cancel',
-      this.handleAuthCancel
-    );
+    channel.addEventListener('remote:pair:auth:cancel', this.handleAuthCancel);
 
     try {
-      await this._channel.open(channelServerUri, channelId, channelKey);
+      await channel.open(channelServerUri, channelId, channelKey);
     } catch (err: unknown) {
       // Reset _channel so a subsequent openChannel() call can retry
       this._channel = null;
+      channel.close().catch(() => {});
       // A consumed channel refusing the socket is the post-OAuth reload, not a
-      // failure. fail() still has to run for the config and already-connected
+      // failure, and neither is an open the browser cut short on the page's
+      // way out. fail() still has to run for the config and already-connected
       // errors, which reject before open() dispatches any `error` event.
-      if (!this.isPostCompletionReconnect()) {
+      if (!channel.isUnloading && !this.isPostCompletionReconnect()) {
         this.fail(err);
       }
     }
