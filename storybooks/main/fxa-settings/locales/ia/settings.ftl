@@ -1634,7 +1634,12 @@ index-email-bounced = Tu message de confirmation ha justo ora essite retornate. 
 
 ## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
 
+# Browser tab title.
+inline-passwordless-sync-setup-page-title = Saltar le contrasigno le proxime vice?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner = Connexe a { -brand-firefox }
 inline-passwordless-sync-setup-heading = Saltar le contrasigno le proxime vice??
+inline-passwordless-sync-setup-description = Usa iste clave-contrasigno pro acceder plus velocemente.
 inline-passwordless-sync-setup-enable-button = Activar clave-contrasigno
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Activation…

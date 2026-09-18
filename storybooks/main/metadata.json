@@ -1,8 +1,8 @@
 {
-  "commit": "c92708249cbfa965abbfbd69cbabd4a0fe7d7187",
-  "summary": "Merge pull request #21238 from mozilla/fxa-13153",
-  "description": "feat(admin-panel): show and remove passwordless sync per passkey",
-  "timestamp": 1789767712000,
+  "commit": "64f5f04d524c9d7cf51048e7e45cf44cac66c4ff",
+  "summary": "Merge pull request #21268 from mozilla/fxa-14581",
+  "description": "fix(admin-panel): remove delete button from OAuth scopes page",
+  "timestamp": 1789771088000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
