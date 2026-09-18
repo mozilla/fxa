@@ -25,11 +25,10 @@ const leaveOnError = (
 ) => {
   Sentry.captureException(err);
   if (integration.state !== SupplicantState.Failed) {
-    navigateWithQuery(
-      '/pair/supplicant/timeout_and_cancel',
-      { state: { reason: 'timeout' } },
-      true
-    );
+    navigateWithQuery('/pair/supplicant/timeout_and_cancel', {
+      replace: true,
+      state: { reason: 'timeout' },
+    });
   }
 };
 
@@ -72,7 +71,9 @@ export const ConnectThisDeviceContainer = ({
           });
           break;
         case SupplicantState.WaitingForAuthority:
-          navigateWithQuery('/pair/supplicant/approve_signin', {}, true);
+          navigateWithQuery('/pair/supplicant/approve_signin', {
+            replace: true,
+          });
           break;
         case SupplicantState.Failed:
           navigateWithQuery(

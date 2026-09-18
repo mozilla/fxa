@@ -159,8 +159,7 @@ describe('Pair2/Supplicant/ConnectThisDevice container', () => {
 
     expect(navigateWithQuery).toHaveBeenCalledWith(
       '/pair/supplicant/approve_signin',
-      {},
-      true
+      { replace: true }
     );
   });
 
@@ -240,8 +239,7 @@ describe('Pair2/Supplicant/ConnectThisDevice container', () => {
       await waitFor(() =>
         expect(navigateWithQuery).toHaveBeenCalledWith(
           '/pair/supplicant/approve_signin',
-          {},
-          true
+          { replace: true }
         )
       );
       expect(navigateWithQuery).toHaveBeenCalledTimes(1);
@@ -282,8 +280,7 @@ describe('Pair2/Supplicant/ConnectThisDevice container', () => {
       await waitFor(() => expect(captureException).toHaveBeenCalledWith(err));
       expect(navigateWithQuery).toHaveBeenCalledWith(
         '/pair/supplicant/timeout_and_cancel',
-        { state: { reason: 'timeout' } },
-        true
+        { replace: true, state: { reason: 'timeout' } }
       );
       expect(navigateWithQuery).toHaveBeenCalledTimes(1);
     });
