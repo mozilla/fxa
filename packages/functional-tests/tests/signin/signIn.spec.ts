@@ -128,14 +128,10 @@ test.describe('severity-2 #smoke', () => {
       pages: { page, settings, signin, signinTokenCode },
       testAccountTracker,
     }) => {
-      test.skip(
-        target.name !== 'local',
-        'depends on SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX, which only matches sync*@restmail.net locally'
-      );
-      // A "dormant" account: the primary email is verified, but the auth-server
-      // forces sign-in confirmation, so the session is created unverified and
-      // signin lands on /signin_token_code. The `sync` prefix is what matches
-      // the forced-confirmation regex.
+      // The primary email is verified, but the `sync` prefix matches
+      // forcedSyncEmailAddresses, so the auth-server forces sign-in
+      // confirmation and signin lands on /signin_token_code. The regex is
+      // configured on every target, so this is not local-only.
       const credentials = await testAccountTracker.signUpSync();
       await target.emailClient.clear(credentials.email);
 
@@ -222,7 +218,7 @@ test.describe('severity-2 #smoke', () => {
     }) => {
       test.skip(
         target.name !== 'local',
-        'depends on SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX, which only matches sync*@restmail.net locally'
+        'hardcodes the local Payments Next client id and redirect_uri'
       );
       // `32aaeb6f1c21316a` is in `servicesWithEmailVerification`, the config list
       // that makes the auth-server send the code even for RP flows that would
@@ -237,9 +233,9 @@ test.describe('severity-2 #smoke', () => {
         redirect_uri: 'http://localhost:3035/api/auth/callback/fxa',
         scope: 'https://identity.mozilla.com/account/subscriptions',
         response_type: 'code',
+        // No PKCE: this client is confidential locally, and a code_challenge
+        // makes /oauth/authorization 400 with errno 166.
         state: 'fakestate',
-        code_challenge_method: 'S256',
-        code_challenge: '2oc_C4v1qHeefWAGu5LI5oDG1oX4FV_Itc148D8_oQI',
       });
       await page.goto(`${target.contentServerUrl}/authorization?${params}`);
       await signin.fillOutEmailFirstForm(credentials.email);
