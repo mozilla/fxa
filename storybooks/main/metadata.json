@@ -1,8 +1,8 @@
 {
-  "commit": "ffc29d205cf298c200c6f64e9d38c8274ebe0b16",
-  "summary": "Merge pull request #21253 from mozilla/dependabot/github_actions/aws-actions/configure-aws-credentials-6.3.0",
-  "description": "chore(deps): bump aws-actions/configure-aws-credentials from 6.2.4 to 6.3.0",
-  "timestamp": 1789740742000,
+  "commit": "0e308275c8fd7ac9753c227948953b5e8cf74a8f",
+  "summary": "Merge pull request #21254 from mozilla/dependabot/github_actions/docker/setup-buildx-action-4.4.0",
+  "description": "chore(deps): bump docker/setup-buildx-action from 4.3.0 to 4.4.0",
+  "timestamp": 1789740799000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
