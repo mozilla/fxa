@@ -256,6 +256,15 @@ describe('models/integrations/oauth-relier', function () {
       });
     });
 
+    describe('oauth success flow', () => {
+      it('returns no permissions instead of throwing on an empty scope', () => {
+        const integration = getIntegrationWithScope('');
+        integration.isOAuthSuccessFlow = true;
+
+        expect(integration.getPermissions()).toEqual([]);
+      });
+    });
+
     describe('clientInfo fetch failed', () => {
       beforeEach(() => {
         jest.clearAllMocks();
