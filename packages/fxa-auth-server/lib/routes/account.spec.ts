@@ -728,7 +728,6 @@ describe('deleteAccountIfUnverified', () => {
   const mockConfig: any = {};
   mockConfig.oauth = {};
   mockConfig.signinConfirmation = {};
-  mockConfig.signinConfirmation.skipForEmailAddresses = [];
   mockConfig.signinConfirmation.skipForEmailRegex = /^$/;
   const emailRecord: any = {
     isPrimary: true,
@@ -2560,7 +2559,7 @@ describe('/account/login', () => {
 
   describe('sign-in confirmation', () => {
     beforeAll(() => {
-      config.signinConfirmation.forcedEmailAddresses = /.+@mozilla\.com$/;
+      config.signinConfirmation.forcedSyncEmailAddresses = /.+@mozilla\.com$/;
 
       mockDB.accountRecord = function () {
         return Promise.resolve({
@@ -2762,6 +2761,46 @@ describe('/account/login', () => {
 
         // Restore the original function
         mockDB.createSessionToken = originalCreateSessionToken;
+      });
+    });
+
+    it('creates an unverified session without mustVerify for forcedHeuristicEmailAddresses', () => {
+      const email = 'test@mozilla.com';
+      config.signinConfirmation.forcedSyncEmailAddresses = /^$/;
+      config.signinConfirmation.forcedHeuristicEmailAddresses =
+        /.+@mozilla\.com$/;
+      mockDB.accountRecord = function () {
+        return Promise.resolve({
+          authSalt: hexString(32),
+          data: hexString(32),
+          email: email,
+          emailVerified: true,
+          primaryEmail: {
+            normalizedEmail: normalizeEmail(email),
+            email: email,
+            isVerified: true,
+            isPrimary: true,
+          },
+          kA: hexString(32),
+          lastAuthAt: function () {
+            return Date.now();
+          },
+          uid: uid,
+          wrapWrapKb: hexString(32),
+        });
+      };
+
+      return runTest(route, mockRequestNoKeys, (response: any) => {
+        config.signinConfirmation.forcedSyncEmailAddresses = /.+@mozilla\.com$/;
+        config.signinConfirmation.forcedHeuristicEmailAddresses = /^$/;
+
+        expect(mockDB.createSessionToken).toHaveBeenCalledTimes(1);
+        const tokenData = mockDB.createSessionToken.mock.calls[0][0];
+        expect(tokenData.mustVerify).toBeFalsy();
+        expect(tokenData.tokenVerificationId).toBeTruthy();
+        expect(response.sessionVerified).toBeFalsy();
+        expect(response.verificationMethod).toBe('email');
+        expect(response.verificationReason).toBe('login');
       });
     });
 
