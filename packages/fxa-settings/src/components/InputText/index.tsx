@@ -51,6 +51,8 @@ export type InputTextProps = {
     | 'one-time-code'
     | 'email';
   inputMode?: 'text' | 'numeric' | 'tel' | 'email';
+  enterKeyHint?: React.InputHTMLAttributes<HTMLInputElement>['enterKeyHint'];
+  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
   required?: boolean;
   tooltipPosition?: 'top' | 'bottom';
   isPasswordInput?: boolean;
@@ -86,6 +88,8 @@ export const InputText = ({
   spellCheck,
   autoComplete,
   inputMode,
+  enterKeyHint,
+  onKeyDown,
   required,
   tooltipPosition,
   isPasswordInput = false,
@@ -226,6 +230,8 @@ export const InputText = ({
             spellCheck,
             autoComplete,
             inputMode,
+            enterKeyHint,
+            onKeyDown,
             required,
             autoCapitalize,
           }}
