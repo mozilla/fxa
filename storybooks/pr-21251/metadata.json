@@ -1,0 +1,11 @@
+{
+  "commit": "a702b64d218e345e3b7fd09712bb600b9288e60b",
+  "summary": "feat: add Glean metrics to the pair2 pairing flows",
+  "description": "Because:\n\n* The pair2 screens ship with no metrics, so the pairing funnel is invisible on\n  both devices and on the server, and nothing reported whether a QR scan reached\n  Firefox, fell back to the app store, or was swallowed by a WebView.\n* The two devices are separate sessions with separate flow ids, so their halves\n  of one pairing could not be joined.\n* Glean's automatic events report window.location.href, so the pairing channel\n  key in the URL fragment was being sent to telemetry.\n\nThis commit:\n\n* Instruments every action on the 12 Pair2 pages, adds dtm_desktop/dtm_mobile\n  view events for the interrupted and success screens, and adds four dtm_mobile\n  deeplink events to the supplicant hand-off in DownloadFirefox and PocPairInit,\n  with armStoreFallback reporting which inference sent the user to the store.\n* Adds dtm_backend.pair_success on /oauth/authorization, detected by a positive\n  test for desktop Firefox so an iPad sign-in is not counted as a pairing.\n* Captures the pairing fragment at startup and removes it from the URL, keeping\n  the channel key out of telemetry, and points the readers that parsed the live\n  hash (Pair/Index, App's v=2 bypass, UrlHashData) at the capture instead.\n* Adds session.pairing_channel_hash from a SHA-256 of the channel id, resolved\n  once at page load so every event in the flow carries the same value.\n* Bounds the ping flush before hand-off navigations with a shared helper and\n  keeps one failed ping from wedging the submit queue, so telemetry cannot\n  strand the user.",
+  "timestamp": 1789682983000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
