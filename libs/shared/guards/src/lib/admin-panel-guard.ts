@@ -50,6 +50,7 @@ export enum AdminPanelFeature {
   RateLimiting = 'RateLimiting',
   DeleteRecoveryPhone = 'DeleteRecoveryPhone',
   RemovePasskeys = 'RemovePasskeys',
+  RemovePasskeyWrap = 'RemovePasskeyWrap',
   EmailBlocklist = 'EmailBlocklist',
   ManageWafTokens = 'ManageWafTokens',
   DomainBlocklist = 'DomainBlocklist',
@@ -218,6 +219,10 @@ const defaultAdminPanelPermissions: Permissions = {
   },
   [AdminPanelFeature.RemovePasskeys]: {
     name: 'Remove Passkeys',
+    level: PermissionLevel.Admin,
+  },
+  [AdminPanelFeature.RemovePasskeyWrap]: {
+    name: 'Remove Passkey Passwordless Sync',
     level: PermissionLevel.Admin,
   },
   [AdminPanelFeature.EmailBlocklist]: {
