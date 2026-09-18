@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { FluentBundle } from '@fluent/bundle';
 import { getFtlBundle, testL10n } from 'fxa-react/lib/test-utils';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
@@ -121,10 +122,17 @@ describe('Pair2/Authority/ScanQR page', () => {
     renderWithLocalizationProvider(<Subject />);
 
     const link = screen.getByRole('link', { name: /Get help scanning/ });
-    expect(link).toHaveAttribute(
-      'href',
-      Constants.SYNC_SUMO_URL
-    );
+    expect(link).toHaveAttribute('href', Constants.SYNC_SUMO_URL);
     expect(link).toHaveAttribute('target', '_blank');
+  });
+
+  it('calls onSkip from the skip button', async () => {
+    const user = userEvent.setup();
+    const onSkip = jest.fn();
+    renderWithLocalizationProvider(<Subject {...{ onSkip }} />);
+
+    await user.click(screen.getByRole('button', { name: 'Skip for now' }));
+
+    expect(onSkip).toHaveBeenCalledTimes(1);
   });
 });

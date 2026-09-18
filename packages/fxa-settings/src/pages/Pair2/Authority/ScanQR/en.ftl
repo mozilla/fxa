@@ -9,3 +9,5 @@ pair2-authority-scan-qr-instruction = Scan the QR code with your phone or tablet
 pair2-authority-scan-qr-code-aria-label = QR code to connect your mobile device
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Get help scanning
+# Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
+pair2-authority-scan-qr-skip-button = Skip for now

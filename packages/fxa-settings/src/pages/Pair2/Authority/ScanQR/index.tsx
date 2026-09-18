@@ -18,14 +18,17 @@ export type ScanQRProps = {
    * pairing value lands with the flow wiring, and this card only renders it.
    */
   qrCodeValue?: string;
+  /** Leaves the pairing flow without scanning. */
+  onSkip?: () => void;
 };
 
 /**
  * The desktop screen that shows the pairing QR code. The user scans it with
- * their phone or tablet to start syncing; there is no button to press, so the
- * only action is the link out to scanning help.
+ * their phone or tablet to start syncing. Pairing is one of several promos a
+ * sync sign-in can land on, so the card is followed by a way out of the flow
+ * alongside the link to scanning help.
  */
-const ScanQR = ({ qrCodeValue }: ScanQRProps) => {
+const ScanQR = ({ qrCodeValue, onSkip }: ScanQRProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   // `QRCode` takes a plain string, so this is the one label on the card that
   // cannot be resolved with `FtlMsg`.
@@ -35,8 +38,11 @@ const ScanQR = ({ qrCodeValue }: ScanQRProps) => {
   );
 
   return (
-    <AppLayout>
-      <div className="text-center">
+    // The card is rendered here rather than by `AppLayout` so the skip button
+    // can sit below it: inside, the artwork is flush with the card's bottom
+    // edge and leaves no room.
+    <AppLayout wrapInCard={false}>
+      <div className="card text-center mobileLandscape:my-4">
         <FtlMsg id="pair2-authority-scan-qr-heading">
           <h1 className="card-header">Scan to connect your mobile device</h1>
         </FtlMsg>
@@ -95,6 +101,20 @@ const ScanQR = ({ qrCodeValue }: ScanQRProps) => {
             </LinkExternal>
           </div>
         </div>
+      </div>
+
+      {/* Below `mobileLandscape` the card is transparent and has no bottom
+          margin, so the gap to the artwork is set here. */}
+      <div className="mb-6 mt-6 flex justify-center mobileLandscape:mt-0">
+        <FtlMsg id="pair2-authority-scan-qr-skip-button">
+          <button
+            type="button"
+            onClick={onSkip}
+            className="cta-neutral cta-base-p w-auto"
+          >
+            Skip for now
+          </button>
+        </FtlMsg>
       </div>
     </AppLayout>
   );
