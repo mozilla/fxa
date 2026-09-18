@@ -167,9 +167,13 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
     this._createChannelPromise = channel
       .create(config.pairing.serverBaseUri)
       .catch((err) => {
+        // A create the browser cut short on the page's way out is no failure.
+        if (!channel.isUnloading) {
+          this.fail(err);
+        }
         // Reset _channel so a subsequent createChannel() call can retry.
         this._channel = null;
-        this.fail(err);
+        channel.close().catch(() => {});
         throw err;
       })
       .finally(() => {
