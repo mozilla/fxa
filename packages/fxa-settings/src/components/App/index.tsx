@@ -1058,7 +1058,11 @@ const AuthAndAccountSetupRoutes = ({
         <Route path="/pair/supp/complete/*" element={<PairSuccess />} />
         <Route
           path="/pair/supp/*"
-          element={<PairSupp integration={integration} />}
+          element={
+            <PairSupp
+              {...{ integration, fxaStatusResult: useFxAStatusResult }}
+            />
+          }
         />
         <Route
           path="/pair/auth/allow/*"
