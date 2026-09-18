@@ -41,6 +41,7 @@ ALL_PORTS=(
   3035   # Payments Next
   3000   # Settings React (webpack dev server)
   8080   # 123done
+  10139  # 321done (untrusted)
   8091   # Admin panel
   9000   # Auth server
   9001   # Mail helper

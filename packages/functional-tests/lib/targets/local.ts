@@ -8,6 +8,7 @@ import { BaseTarget, Credentials } from './base';
 import { RateLimitClient } from '../ratelimit';
 
 const RELIER_CLIENT_ID = 'dcdb5ae7add825d2';
+const UNTRUSTED_RELIER_CLIENT_ID = '325b4083e32fe8e7';
 
 /**
  * Host the local stack is reachable on.
@@ -31,6 +32,8 @@ export class LocalTarget extends BaseTarget {
   readonly paymentsTestPriceId = 'price_1NSnz3BVqmGyQTMaIkV5wjEc';
   readonly relierUrl = 'http://localhost:8080';
   readonly relierClientID = RELIER_CLIENT_ID;
+  readonly untrustedRelierUrl = 'http://localhost:10139';
+  readonly untrustedRelierClientID = UNTRUSTED_RELIER_CLIENT_ID;
   readonly rateLimitClient: RateLimitClient;
 
   constructor() {
