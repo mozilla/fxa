@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 2309a44e4881e48a3d5d0d1e7d5b619d8a1629c6</title>
+  <title>Storybooks for commit e850a33ecda2d7076f25f42be4e15b1c30619072</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,28 +23,28 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 2309a44e4881e48a3d5d0d1e7d5b619d8a1629c6</h1>
+  <h1>Storybooks for commit e850a33ecda2d7076f25f42be4e15b1c30619072</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/18/2026, 9:14:40 PM UTC</dd>
+    <dd>9/18/2026, 9:56:20 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(settings): handle invalid session token on signin token code</pre></dd>
+    <dd><pre>fix(settings): recover from invalid session token on signin token code</pre></dd>
     <dt>Description</dt>
     <dd><pre>## Because
 
-- Sentry recorded 5.7K events on https://accounts.firefox.com/signin_token_code, mostly from Firefox iOS.
-- `getTotpStatus` did not catch errors from `checkTotpTokenExists`. A 401 with errno 110 (`INVALID_TOKEN`) became an unhandled rejection.
+- Sentry issue FXA-CONTENT-QWA logged 5.7K UnhandledRejection events on https://accounts.firefox.com/signin_token_code, mostly from Firefox iOS.
+- `getTotpStatus` awaited `authClient.checkTotpTokenExists(sessionToken)` with no catch, so a stale session token turned a 401 errno 110 (`INVALID_TOKEN`) into an escaped rejection.
 
 ## This pull request
 
-- Wraps the `checkTotpTokenExists` call in try/catch, and adds `integration` and `navigateWithQuery` to the effect dependencies.
-- Sends the user to `/` on errno 110, the same route the missing signin state effect uses.
-- Keeps OAuth native integrations on the page, which matches the missing state branch.
-- Ignores every other error, because the TOTP status only picks a redirect. The code page still works without it.
-- Adds three container tests, and gives the auth client mock a stable `checkTotpTokenExists` that each test controls.
+- Catches the `checkTotpTokenExists` error in `getTotpStatus` and records a `sessionTokenInvalid` flag.
+- Feeds that flag to the existing OAuth native recovery effect, so those flows start flow recovery instead of reusing the dead token.
+- Feeds the same flag to the existing redirect-to-root effect, so other flows go to `/`.
+- Ignores every other error, because the TOTP status only picks a redirect.
+- Adds a `requiresKeys` stub to `createOAuthNativeIntegration` in `mocks.tsx`, which `useOAuthKeysCheck` calls for OAuth native integrations.
 
 ## Issue that this pull request solves
 
