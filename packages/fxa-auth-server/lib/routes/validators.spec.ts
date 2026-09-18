@@ -903,4 +903,29 @@ describe('lib/routes/validators:', () => {
       ).toBeUndefined();
     });
   });
+
+  describe('DEVICE_COMMAND_NAME:', () => {
+    it('accepts a URI style command name', () => {
+      expect(
+        validators.DEVICE_COMMAND_NAME.test(
+          'https://identity.mozilla.com/cmd/open-uri'
+        )
+      ).toBe(true);
+    });
+
+    it('rejects names that reach Object.prototype', () => {
+      expect(validators.DEVICE_COMMAND_NAME.test('__proto__')).toBe(false);
+      expect(validators.DEVICE_COMMAND_NAME.test('constructor')).toBe(false);
+      expect(validators.DEVICE_COMMAND_NAME.test('prototype')).toBe(false);
+    });
+
+    it('accepts names that only contain a blocked name', () => {
+      expect(validators.DEVICE_COMMAND_NAME.test('constructor2')).toBe(true);
+      expect(
+        validators.DEVICE_COMMAND_NAME.test(
+          'https://identity.mozilla.com/cmd/prototype'
+        )
+      ).toBe(true);
+    });
+  });
 });

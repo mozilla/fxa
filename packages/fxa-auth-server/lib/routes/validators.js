@@ -58,7 +58,9 @@ exports.E164_NUMBER = /^\+[1-9]\d{1,14}$/;
 
 exports.DIGITS = /^[0-9]+$/;
 
-exports.DEVICE_COMMAND_NAME = /^[a-zA-Z0-9._\/\-:]{1,100}$/;
+// The lookahead rejects names that reach Object.prototype when used as a key.
+exports.DEVICE_COMMAND_NAME =
+  /^(?!(?:__proto__|constructor|prototype)$)[a-zA-Z0-9._\/\-:]{1,100}$/;
 
 exports.IP_ADDRESS = isA.string().ip();
 
