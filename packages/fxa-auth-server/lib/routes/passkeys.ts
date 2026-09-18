@@ -115,6 +115,7 @@ export interface DB {
     verifierSetAt: number;
     keysChangedAt: number;
     locale?: string;
+    disabledAt?: number | null;
     primaryEmail: { email: string; emailCode: string; isVerified: boolean };
     emails: Array<{ email: string; isPrimary: boolean; isVerified: boolean }>;
   }>;

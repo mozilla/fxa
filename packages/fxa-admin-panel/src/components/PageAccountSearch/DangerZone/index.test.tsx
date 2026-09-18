@@ -75,7 +75,7 @@ const mockEmail: Email = {
 const defaultProps = {
   uid: 'test-uid-123',
   email: mockEmail,
-  disabledAt: null,
+  disabledAt: null as number | null,
   onCleared: jest.fn(),
   has2FA: true,
   hasRecoveryPhone: true,
