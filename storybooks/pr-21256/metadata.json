@@ -1,0 +1,10 @@
+{
+  "commit": "174b1d08b27760864ea64cb5159fa3f3e4563a5b",
+  "summary": "fix(pairing): keep a reload from landing on the timeout screen",
+  "description": "Because:\n- Firefox stops the document's network activity before it unloads, so\n  the pairing socket closes while page script still runs.\n- The authority treated that close as a failure and pushed the timeout\n  route in the dying page, which the reload sometimes committed.\n\nThis commit:\n- Holds channel closes that arrive after beforeunload or pagehide\n  instead of reporting them.\n- Reports a held close after a grace period if the page survives, or at\n  once on a bfcache restore.\n- Drops the held close when the client is closed deliberately.\n- Adds unit tests for the unload handling.\n\nCloses #FXA-14485",
+  "timestamp": 1789692804000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
