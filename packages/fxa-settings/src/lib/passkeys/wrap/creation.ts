@@ -3,37 +3,49 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as Sentry from '@sentry/browser';
+import { ERRNO } from '@fxa/accounts/errors';
 import type AuthClient from 'fxa-auth-client/browser';
 import type { PasskeyWrapEnvelope } from 'fxa-auth-client/browser';
 import { base64urlToBytes } from '../../base64url';
+import { getCredential } from '../webauthn';
 import type { AuthUiError } from '../../auth-errors/auth-errors';
 import { createWrapEnvelope, openWrapEnvelope } from '../../passkey-crypto';
 import { PRF_OUT_BYTES } from '../../passkey-crypto/constants';
 
-// TODO: FXA-13151 maps these to user-facing strings.
 export type PasskeyWrapClientFailure =
   | 'prf_unsupported'
   | 'proof_malformed'
   | 'key_unusable'
   | 'platform_crypto';
 
-/** `mfaToken` and `prfOut` must come from the same ceremony. */
+/**
+ * `mfaToken` and `prfOut` must come from the same ceremony. `sessionToken`
+ * lets an expired `mfaToken` be replaced by a fresh step-up; without it the
+ * expiry is reported as-is.
+ */
 export type CreatePasskeyWrapArgs = {
   credentialId: string;
   mfaToken: string;
+  sessionToken?: hexstring | null;
   prfOut?: Uint8Array;
   kB: Uint8Array;
 };
+
+type WrapAuthClient = Pick<
+  AuthClient,
+  | 'createPasskeyWrap'
+  | 'beginPasskeyVerification'
+  | 'completePasskeyVerification'
+>;
 
 export type CreatePasskeyWrapResult =
   | { ok: true; created: boolean }
   | { ok: false; failure: PasskeyWrapClientFailure }
   | { ok: false; error: AuthUiError };
 
-/** Zeroes `kB` and `prfOut` once sealing is attempted. */
 export async function createPasskeyWrap(
-  authClient: Pick<AuthClient, 'createPasskeyWrap'>,
-  { credentialId, mfaToken, prfOut, kB }: CreatePasskeyWrapArgs
+  authClient: WrapAuthClient,
+  { credentialId, mfaToken, sessionToken, prfOut, kB }: CreatePasskeyWrapArgs
 ): Promise<CreatePasskeyWrapResult> {
   if (prfOut?.length !== PRF_OUT_BYTES) {
     return { ok: false, failure: 'prf_unsupported' };
@@ -64,21 +76,95 @@ export async function createPasskeyWrap(
     Sentry.captureException(new Error('passkey-wrap-seal error'));
     return { ok: false, failure: 'platform_crypto' };
   } finally {
+    // Sealed or not, the key material does not outlive the attempt.
     kB.fill(0);
     prfOut.fill(0);
     recovered?.fill(0);
   }
 
+  return storeSealedEnvelope(
+    authClient,
+    { credentialId, mfaToken, sessionToken },
+    envelope
+  );
+}
+
+/**
+ * Submits the sealed envelope, minting a fresh MFA token once if the one from
+ * sign-in has expired. That token lives ten minutes, which the password step
+ * and the user's pause on the offer can outlast.
+ */
+async function storeSealedEnvelope(
+  authClient: WrapAuthClient,
+  {
+    credentialId,
+    mfaToken,
+    sessionToken,
+  }: Pick<CreatePasskeyWrapArgs, 'credentialId' | 'mfaToken' | 'sessionToken'>,
+  envelope: PasskeyWrapEnvelope
+): Promise<CreatePasskeyWrapResult> {
   try {
-    const { created } = await authClient.createPasskeyWrap(
-      mfaToken,
-      credentialId,
-      envelope
-    );
-    return { ok: true, created };
-  } catch (err) {
-    return { ok: false, error: err as AuthUiError };
+    return await store(authClient, mfaToken, credentialId, envelope);
+  } catch (initialStoreError) {
+    if (
+      (initialStoreError as AuthUiError).errno !== ERRNO.INVALID_MFA_TOKEN ||
+      !sessionToken
+    ) {
+      return { ok: false, error: initialStoreError as AuthUiError };
+    }
+    // `stepUp` runs another passkey assertion, so the user sees a second
+    // authenticator prompt here. Only the token is remade: the envelope is
+    // already sealed, so this needs neither `kB` nor `prfOut`, both of which
+    // the caller zeroed.
+    let freshToken: string;
+    try {
+      freshToken = await stepUp(authClient, sessionToken, credentialId);
+    } catch {
+      // The token expiry is the real failure; the step-up was only the recovery
+      // attempt, and a cancelled prompt throws a DOMException carrying no errno.
+      return { ok: false, error: initialStoreError as AuthUiError };
+    }
+    // The replacement is spent here, with no user step in between, so expiry is
+    // not a second concern and this attempt is the last one.
+    try {
+      return await store(authClient, freshToken, credentialId, envelope);
+    } catch (retryStoreError) {
+      return { ok: false, error: retryStoreError as AuthUiError };
+    }
   }
+}
+
+async function store(
+  authClient: WrapAuthClient,
+  mfaToken: string,
+  credentialId: string,
+  envelope: PasskeyWrapEnvelope
+): Promise<CreatePasskeyWrapResult> {
+  const { created } = await authClient.createPasskeyWrap(
+    mfaToken,
+    credentialId,
+    envelope
+  );
+  return { ok: true, created };
+}
+
+/** Mints an `mfa:passkey` token pinned to the passkey the wrap is for. */
+async function stepUp(
+  authClient: WrapAuthClient,
+  sessionToken: hexstring,
+  credentialId: string
+): Promise<string> {
+  const options = await authClient.beginPasskeyVerification(sessionToken, {
+    scope: 'passkey',
+    credentialId,
+  });
+  const response = await getCredential(options);
+  const { mfaToken } = await authClient.completePasskeyVerification(
+    sessionToken,
+    response,
+    options.challenge
+  );
+  return mfaToken;
 }
 
 function uidFromMfaToken(mfaToken: string): string | undefined {

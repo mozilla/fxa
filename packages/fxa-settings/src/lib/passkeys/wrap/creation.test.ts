@@ -24,6 +24,11 @@ jest.mock('../../passkey-crypto', () => ({
     mockOpenWrapEnvelope(...args),
 }));
 
+const mockGetCredential = jest.fn();
+jest.mock('../webauthn', () => ({
+  getCredential: (...args: unknown[]) => mockGetCredential(...args),
+}));
+
 const mockCaptureException = jest.fn();
 jest.mock('@sentry/browser', () => ({
   ...jest.requireActual('@sentry/browser'),
@@ -47,11 +52,20 @@ const MOCK_JWT = mfaTokenFor({ sub: MOCK_UID });
 let createPasskeyWrapApiMock: jest.MockedFunction<
   AuthClient['createPasskeyWrap']
 >;
-const authClient = () => ({ createPasskeyWrap: createPasskeyWrapApiMock });
+const beginVerificationMock = jest.fn();
+const completeVerificationMock = jest.fn();
+const authClient = () => ({
+  createPasskeyWrap: createPasskeyWrapApiMock,
+  beginPasskeyVerification: beginVerificationMock,
+  completePasskeyVerification: completeVerificationMock,
+});
+const MOCK_SESSION_TOKEN = 'deadbeef';
+const FRESH_JWT = mfaTokenFor({ sub: MOCK_UID, fresh: true });
 
 const args = () => ({
   credentialId: MOCK_CREDENTIAL_ID,
   mfaToken: MOCK_JWT,
+  sessionToken: MOCK_SESSION_TOKEN,
   prfOut: Uint8Array.from(MOCK_PRF_OUT),
   kB: Uint8Array.from(MOCK_KB),
 });
@@ -79,6 +93,9 @@ beforeEach(() => {
   createPasskeyWrapApiMock = jest.fn().mockResolvedValue({ created: true });
   mockCreateWrapEnvelope.mockImplementation(realCrypto().createWrapEnvelope);
   mockOpenWrapEnvelope.mockImplementation(realCrypto().openWrapEnvelope);
+  beginVerificationMock.mockResolvedValue({ challenge: 'chal' });
+  mockGetCredential.mockResolvedValue({ id: MOCK_CREDENTIAL_ID });
+  completeVerificationMock.mockResolvedValue({ mfaToken: FRESH_JWT });
 });
 
 describe('createPasskeyWrap', () => {
@@ -156,6 +173,70 @@ describe('createPasskeyWrap', () => {
       const outcome = await createPasskeyWrap(authClient(), args());
 
       expect(outcome).toEqual({ ok: false, error: err });
+    });
+  });
+
+  describe('expired proof', () => {
+    const expired = () => serverError(ERRNO.INVALID_MFA_TOKEN);
+
+    it('mints a fresh proof with a step-up pinned to the passkey and stores the same envelope', async () => {
+      createPasskeyWrapApiMock
+        .mockRejectedValueOnce(expired())
+        .mockResolvedValueOnce({ created: true });
+
+      const outcome = await createPasskeyWrap(authClient(), args());
+
+      expect(outcome).toEqual({ ok: true, created: true });
+      expect(beginVerificationMock).toHaveBeenCalledWith(MOCK_SESSION_TOKEN, {
+        scope: 'passkey',
+        credentialId: MOCK_CREDENTIAL_ID,
+      });
+      expect(completeVerificationMock).toHaveBeenCalledWith(
+        MOCK_SESSION_TOKEN,
+        { id: MOCK_CREDENTIAL_ID },
+        'chal'
+      );
+      const [first, second] = createPasskeyWrapApiMock.mock.calls;
+      expect(first[0]).toBe(MOCK_JWT);
+      expect(second[0]).toBe(FRESH_JWT);
+      expect(second[2]).toBe(first[2]);
+    });
+
+    it('retries once only', async () => {
+      const again = expired();
+      createPasskeyWrapApiMock.mockRejectedValue(again);
+
+      const outcome = await createPasskeyWrap(authClient(), args());
+
+      expect(outcome).toEqual({ ok: false, error: again });
+      expect(createPasskeyWrapApiMock).toHaveBeenCalledTimes(2);
+      expect(beginVerificationMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('keeps the original refusal when the step-up prompt fails', async () => {
+      const err = expired();
+      createPasskeyWrapApiMock.mockRejectedValue(err);
+      mockGetCredential.mockRejectedValue(
+        new DOMException('cancelled', 'NotAllowedError')
+      );
+
+      const outcome = await createPasskeyWrap(authClient(), args());
+
+      expect(outcome).toEqual({ ok: false, error: err });
+      expect(createPasskeyWrapApiMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not step up without a session token', async () => {
+      const err = expired();
+      createPasskeyWrapApiMock.mockRejectedValue(err);
+
+      const outcome = await createPasskeyWrap(authClient(), {
+        ...args(),
+        sessionToken: null,
+      });
+
+      expect(outcome).toEqual({ ok: false, error: err });
+      expect(beginVerificationMock).not.toHaveBeenCalled();
     });
   });
 
