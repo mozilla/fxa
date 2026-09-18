@@ -2710,8 +2710,9 @@ post_verify_set_password:
     description: |
       User viewed the PostVerify/SetPassword page.
       Renamed from `third_party_auth_set_password.view` in FXA-13475 since the
-      page now serves three sign-in flows (third-party-auth, passwordless OTP,
-      passkey). The `reason` extra carries which flow brought the user here.
+      page now serves four flows (third-party-auth, passwordless OTP, passkey,
+      and the subscription finish-account-setup email link). The `reason` extra
+      carries which flow brought the user here.
     send_in_pings:
       - events
     notification_emails:
@@ -2730,11 +2731,13 @@ post_verify_set_password:
     extra_keys:
       reason:
         description: |
-          Which sign-in flow brought the user to the set-password page:
+          Which flow brought the user to the set-password page:
           'third_party_auth' (Google/Apple OAuth), 'otp' (passwordless OTP
-          code), or — for the passkey flow — '<surface>_passkey' where surface
-          is 'emailfirst', 'signin', 'otplogin', or 'alternative_auth' (the
-          passkey entry surface, e.g. 'signin_passkey').
+          code), 'subscription' (the finish-account-setup email link sent
+          after a subscription purchase), or — for the passkey flow —
+          '<surface>_passkey' where surface is 'emailfirst', 'signin',
+          'otplogin', or 'alternative_auth' (the passkey entry surface, e.g.
+          'signin_passkey').
         type: string
   engage:
     type: event
@@ -2759,10 +2762,10 @@ post_verify_set_password:
     extra_keys:
       reason:
         description: |
-          Which sign-in flow brought the user to the set-password page:
-          'third_party_auth', 'otp', or '<surface>_passkey' for the passkey
-          flow (e.g. 'signin_passkey'; see the `view` event for the surface
-          values).
+          Which flow brought the user to the set-password page:
+          'third_party_auth', 'otp', 'subscription', or '<surface>_passkey'
+          for the passkey flow (e.g. 'signin_passkey'; see the `view` event
+          for the surface values).
         type: string
   submit:
     type: event
@@ -2786,10 +2789,10 @@ post_verify_set_password:
     extra_keys:
       reason:
         description: |
-          Which sign-in flow brought the user to the set-password page:
-          'third_party_auth', 'otp', or '<surface>_passkey' for the passkey
-          flow (e.g. 'signin_passkey'; see the `view` event for the surface
-          values).
+          Which flow brought the user to the set-password page:
+          'third_party_auth', 'otp', 'subscription', or '<surface>_passkey'
+          for the passkey flow (e.g. 'signin_passkey'; see the `view` event
+          for the surface values).
         type: string
   submit_frontend_error:
     type: event
@@ -2811,10 +2814,10 @@ post_verify_set_password:
     extra_keys:
       reason:
         description: |
-          Which sign-in flow brought the user to the set-password page:
-          'third_party_auth', 'otp', or '<surface>_passkey' for the passkey
-          flow (e.g. 'signin_passkey'; see the `view` event for the surface
-          values). Client-side validation errors prevent submission rather
+          Which flow brought the user to the set-password page:
+          'third_party_auth', 'otp', 'subscription', or '<surface>_passkey'
+          for the passkey flow (e.g. 'signin_passkey'; see the `view` event
+          for the surface values). Client-side validation errors prevent submission rather
           than emitting this event, so the captured failures are server-side
           rejections.
         type: string
@@ -2840,10 +2843,10 @@ post_verify_set_password:
     extra_keys:
       reason:
         description: |
-          Which sign-in flow brought the user to the set-password page:
-          'third_party_auth', 'otp', or '<surface>_passkey' for the passkey
-          flow (e.g. 'signin_passkey'; see the `view` event for the surface
-          values).
+          Which flow brought the user to the set-password page:
+          'third_party_auth', 'otp', 'subscription', or '<surface>_passkey'
+          for the passkey flow (e.g. 'signin_passkey'; see the `view` event
+          for the surface values).
         type: string
 
 passkey_enter_password:

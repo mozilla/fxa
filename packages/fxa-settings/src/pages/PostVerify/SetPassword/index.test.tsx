@@ -47,6 +47,40 @@ describe('SetPassword page', () => {
     expect(screen.getByText('Start syncing')).toBeInTheDocument();
   });
 
+  it('renders the subscription heading with the product name', () => {
+    renderWithLocalizationProvider(
+      <Subject
+        passwordCreationReason="subscription"
+        productName="Mozilla VPN"
+      />
+    );
+
+    expect(
+      screen.getByRole('heading', { name: 'Create a Mozilla account' })
+    ).toBeInTheDocument();
+    expect(screen.getByText('Continue to Mozilla VPN')).toBeInTheDocument();
+    expect(
+      screen.queryByText(
+        'This password encrypts your synced data and keeps it secure.'
+      )
+    ).not.toBeInTheDocument();
+    // Nothing syncs in this flow, so the shared "Start syncing" label is wrong.
+    expect(
+      screen.getByRole('button', { name: 'Create password' })
+    ).toBeInTheDocument();
+  });
+
+  it('renders the subscription heading without a product name', () => {
+    renderWithLocalizationProvider(
+      <Subject passwordCreationReason="subscription" />
+    );
+
+    expect(
+      screen.getByRole('heading', { name: 'Create a Mozilla account' })
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Continue to/)).not.toBeInTheDocument();
+  });
+
   it('renders both password inputs, including for non-Sync flows', () => {
     renderWithLocalizationProvider(
       <Subject

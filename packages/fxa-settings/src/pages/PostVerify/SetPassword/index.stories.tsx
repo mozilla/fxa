@@ -36,6 +36,15 @@ export const PasskeyDefault = storyWithProps({
   passwordCreationReason: 'passkey',
 });
 
+export const SubscriptionDefault = storyWithProps({
+  passwordCreationReason: 'subscription',
+  productName: 'Mozilla VPN',
+});
+
+export const SubscriptionWithoutProductName = storyWithProps({
+  passwordCreationReason: 'subscription',
+});
+
 export const WithCms = storyWithProps({
   integration: createMockIntegrationWithCms(),
 });

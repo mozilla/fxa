@@ -7,6 +7,7 @@ import { SetPasswordFormData } from '../../pages/PostVerify/SetPassword/interfac
 import { SignupFormData } from '../../pages/Signup/interfaces';
 import { syncEngineConfigs } from '../../lib/sync-engines';
 import { CmsButtonType } from '../CmsButtonWithFallback';
+import { PasswordFormType } from '../FormPasswordWithInlineCriteria';
 
 export type FormSetupAccountData = SignupFormData | SetPasswordFormData;
 
@@ -29,6 +30,6 @@ export type FormSetupAccountProps = {
   requirePasswordConfirmation?: boolean;
   offeredSyncEngineConfigs?: typeof syncEngineConfigs;
   submitButtonGleanId?: string;
-  passwordFormType?: 'signup' | 'post-verify-set-password';
+  passwordFormType?: PasswordFormType;
   cmsButton?: CmsButtonType;
 };

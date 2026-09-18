@@ -31,7 +31,11 @@ export type PostVerifySetPasswordIntegration = Pick<
  * `reason` extra fires under the `post_verify_set_password.*` category and
  * which info copy renders above the form.
  */
-export type PasswordCreationReason = 'third_party_auth' | 'otp' | 'passkey';
+export type PasswordCreationReason =
+  | 'third_party_auth'
+  | 'otp'
+  | 'passkey'
+  | 'subscription';
 
 export interface SetPasswordProps {
   email: string;
@@ -39,6 +43,12 @@ export interface SetPasswordProps {
   offeredSyncEngineConfigs?: typeof syncEngineConfigs;
   integration: PostVerifySetPasswordIntegration;
   passwordCreationReason?: PasswordCreationReason;
+  /**
+   * Product the subscription was bought for, from the `product_name` param on
+   * the finish-account-setup email link. Only set for `passwordCreationReason
+   * === 'subscription'`.
+   */
+  productName?: string;
   /**
    * Glean `reason` for the funnel events, composed by the container. Defaults
    * to `passwordCreationReason`; the passkey flow passes a surface-tagged
