@@ -1,8 +1,8 @@
 {
-  "commit": "1357202aca2f718fa45e05405cb6acb1e17e4b69",
+  "commit": "69f0f86b32508132d62437160cde71a2410490c3",
   "summary": "fix(settings): show blocked error on the passwordless email form",
-  "description": "## Because\n\n- The passwordless email form navigated to the code page before any code was requested, and the code page sent the first code on mount.\n- An admin blocklist hit (`REQUEST_BLOCKED`, errno 125) landed the user on the code page with no code to enter and no way forward.\n\n## This pull request\n\n- Sends the first passwordless code from the Index container before it navigates.\n- Rethrows `REQUEST_BLOCKED` into the existing `handleEmailSubmissionError` path, so the banner shows on the email form and no navigation happens.\n- Returns false for any other send failure, so the flow navigates as before and the code page sends again and reports the error.\n- Passes `codeSent: true` in location state on success, so the code page skips its mount send and the flow makes one `send_code` request.\n- Moves `GleanMetrics.emailFirst.submitSuccess` after `handleSuccessNavigation`, so a blocked send records `submitFail` only.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-13688",
-  "timestamp": 1789764516000,
+  "description": "## Because\n\n- The email form sent the user to the code page before it asked for a code. The code page then sent the first code on mount.\n- An admin blocklist hit (`REQUEST_BLOCKED`, errno 125) left the user on the code page with no code and no way forward.\n\n## This pull request\n\n- Sends the first passwordless code from the Index container before it navigates.\n- Rethrows `REQUEST_BLOCKED` into the existing `handleEmailSubmissionError` path, so the banner shows on the email form.\n- Returns false for any other send failure, so the flow navigates and the code page sends again and reports the error.\n- Passes `codeSent: true` in location state on success, so the code page skips its mount send and the flow makes one `send_code` request.\n- Moves `GleanMetrics.emailFirst.submitSuccess` after `handleSuccessNavigation`, so a blocked send records `submitFail` only.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-13688",
+  "timestamp": 1789765646000,
   "storybooks": [
     "fxa-settings"
   ],
