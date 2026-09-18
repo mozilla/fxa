@@ -1,8 +1,8 @@
 {
-  "commit": "e8432aaeecf0f8aeeccf843e9032f86560f41d84",
-  "summary": "Merge pull request #21217 from mozilla/fxa-14428-del-inactive-account-dataset-param",
-  "description": "feat(scripts): accept an active acct tables dataset id for inactive accts del",
-  "timestamp": 1789685789000,
+  "commit": "ffc29d205cf298c200c6f64e9d38c8274ebe0b16",
+  "summary": "Merge pull request #21253 from mozilla/dependabot/github_actions/aws-actions/configure-aws-credentials-6.3.0",
+  "description": "chore(deps): bump aws-actions/configure-aws-credentials from 6.2.4 to 6.3.0",
+  "timestamp": 1789740742000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

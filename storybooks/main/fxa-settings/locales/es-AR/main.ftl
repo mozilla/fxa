@@ -1176,7 +1176,7 @@ index-email-bounced = El correo electrónico de confirmación fue devuelto. ¿Ha
 
 
 inline-passwordless-sync-setup-page-title = ¿Omitir la contraseña la próxima vez?
-inline-passwordless-sync-setup-success-banner = Se conectó a { -brand-firefox }
+inline-passwordless-sync-setup-success-banner = Sesión iniciada en { -brand-firefox }
 inline-passwordless-sync-setup-heading = ¿Omitir la contraseña la próxima vez?
 inline-passwordless-sync-setup-description = Usá esta clave de acceso para iniciar sesión más rápido.
 inline-passwordless-sync-setup-enable-button = Habilitar clave de acceso

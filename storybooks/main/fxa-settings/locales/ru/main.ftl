@@ -1216,6 +1216,15 @@ index-account-delete-success = Аккаунт успешно удалён
 index-email-bounced = Ваше письмо для подтверждения только что вернулось. Опечатка в электронной почте?
 
 
+inline-passwordless-sync-setup-page-title = Пропустить пароль в следующий раз?
+inline-passwordless-sync-setup-success-banner = Произведён вход в { -brand-firefox }
+inline-passwordless-sync-setup-heading = Пропустить пароль в следующий раз?
+inline-passwordless-sync-setup-description = Используйте этот ключ доступа для более быстрого входа.
+inline-passwordless-sync-setup-enable-button = Включить ключ доступа
+inline-passwordless-sync-setup-enabling = Включаю…
+inline-passwordless-sync-setup-not-now-button = Не сейчас
+
+
 inline-recovery-key-setup-create-error = Ой! Мы не смогли создать ключ восстановления вашего аккаунта. Подождите некоторое время и попробуйте снова.
 inline-recovery-key-setup-recovery-created = Ключ восстановления аккаунта создан
 inline-recovery-key-setup-download-header = Защитите свой аккаунт
@@ -1363,6 +1372,7 @@ pair2-authority-sync-success-sync-settings-button = Настройки синх�
 
 pair2-authority-timeout-and-cancel-timeout-heading = Всё ещё хотите подключить устройство?
 pair2-authority-timeout-and-cancel-timeout-description = Похоже, у нас истекло время ожидания. Попробуйте ещё раз, если вы по-прежнему хотите подключить свое мобильное устройство и синхронизировать данные { -brand-firefox }.
+pair2-authority-timeout-and-cancel-cancelled-heading = Отменено
 pair2-authority-timeout-and-cancel-canceled-description = Если вы передумаете или захотите подключить другое устройство, попробуйте ещё раз.
 pair2-authority-timeout-and-cancel-try-again-button = Попробовать снова
 pair2-authority-timeout-and-cancel-sync-settings-button = Настройки синхронизации
@@ -1397,6 +1407,7 @@ pair2-supplicant-sync-success-sync-settings-button = Настройки синх
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Похоже, у нас истекло время ожидания
 pair2-supplicant-timeout-and-cancel-timeout-description = Чтобы подключить мобильное устройство и синхронизировать данные { -brand-firefox }, посетите <b>firefox.com/pair</b> на вашем компьютере.
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Отменено
 pair2-supplicant-timeout-and-cancel-canceled-description = Чтобы подключить устройство в любое время, посетите <b>firefox.com/pair</b> на вашем компьютере.
 
 

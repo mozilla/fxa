@@ -1177,9 +1177,9 @@ index-account-delete-success = L’account è stato correttamente eliminato
 index-email-bounced = L’email di conferma è stata respinta. C’è un errore di battitura nell’indirizzo email?
 
 
-inline-passwordless-sync-setup-page-title = Saltare la password la prossima volta?
+inline-passwordless-sync-setup-page-title = Accedere senza password la prossima volta?
 inline-passwordless-sync-setup-success-banner = Accesso effettuato a { -brand-firefox }
-inline-passwordless-sync-setup-heading = Saltare la password la prossima volta?
+inline-passwordless-sync-setup-heading = Accedere senza password la prossima volta?
 inline-passwordless-sync-setup-description = Utilizza questa passkey per accedere più velocemente.
 inline-passwordless-sync-setup-enable-button = Attiva passkey
 inline-passwordless-sync-setup-enabling = Attivazione…
@@ -1333,7 +1333,7 @@ pair2-authority-sync-success-sync-settings-button = Sincronizza impostazioni
 
 pair2-authority-timeout-and-cancel-timeout-heading = Vuoi ancora connettere un dispositivo?
 pair2-authority-timeout-and-cancel-timeout-description = Sembra che il tempo a disposizione sia scaduto. Riprova se vuoi ancora connettere il tuo dispositivo mobile e sincronizzare i dati di { -brand-firefox }.
-pair2-authority-timeout-and-cancel-cancelled-heading = Annullata
+pair2-authority-timeout-and-cancel-cancelled-heading = Annullato
 pair2-authority-timeout-and-cancel-canceled-description = Se cambi idea o vuoi connettere un altro dispositivo, riprova.
 pair2-authority-timeout-and-cancel-try-again-button = Riprova
 pair2-authority-timeout-and-cancel-sync-settings-button = Sincronizza impostazioni
@@ -1368,7 +1368,7 @@ pair2-supplicant-sync-success-sync-settings-button = Sincronizza impostazioni
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Sembra che il tempo a disposizione sia scaduto
 pair2-supplicant-timeout-and-cancel-timeout-description = Per connettere il dispositivo mobile e sincronizzare i dati di { -brand-firefox }, visita <b>firefox.com/pair</b> sul computer.
-pair2-supplicant-timeout-and-cancel-cancelled-heading = Annullata
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Annullato
 pair2-supplicant-timeout-and-cancel-canceled-description = Per connettere un dispositivo in qualsiasi momento, visita <b>firefox.com/pair</b> sul computer.
 
 

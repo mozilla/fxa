@@ -1632,6 +1632,19 @@ index-account-delete-success = Аккаунт успешно удалён
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = Ваше письмо для подтверждения только что вернулось. Опечатка в электронной почте?
 
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+# Browser tab title.
+inline-passwordless-sync-setup-page-title = Пропустить пароль в следующий раз?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner = Произведён вход в { -brand-firefox }
+inline-passwordless-sync-setup-heading = Пропустить пароль в следующий раз?
+inline-passwordless-sync-setup-description = Используйте этот ключ доступа для более быстрого входа.
+inline-passwordless-sync-setup-enable-button = Включить ключ доступа
+# Button label while the passkey is stored.
+inline-passwordless-sync-setup-enabling = Включаю…
+inline-passwordless-sync-setup-not-now-button = Не сейчас
+
 ## InlineRecoveryKeySetup page component
 
 inline-recovery-key-setup-create-error = Ой! Мы не смогли создать ключ восстановления вашего аккаунта. Подождите некоторое время и попробуйте снова.
@@ -1914,6 +1927,8 @@ pair2-authority-sync-success-sync-settings-button = Настройки синх�
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Всё ещё хотите подключить устройство?
 pair2-authority-timeout-and-cancel-timeout-description = Похоже, у нас истекло время ожидания. Попробуйте ещё раз, если вы по-прежнему хотите подключить свое мобильное устройство и синхронизировать данные { -brand-firefox }.
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-cancelled-heading = Отменено
 pair2-authority-timeout-and-cancel-canceled-description = Если вы передумаете или захотите подключить другое устройство, попробуйте ещё раз.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Попробовать снова
@@ -1994,6 +2009,8 @@ pair2-supplicant-sync-success-sync-settings-button = Настройки синх
 pair2-supplicant-timeout-and-cancel-timeout-heading = Похоже, у нас истекло время ожидания
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = Чтобы подключить мобильное устройство и синхронизировать данные { -brand-firefox }, посетите <b>firefox.com/pair</b> на вашем компьютере.
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Отменено
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Чтобы подключить устройство в любое время, посетите <b>firefox.com/pair</b> на вашем компьютере.
 

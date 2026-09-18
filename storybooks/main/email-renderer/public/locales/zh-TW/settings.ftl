@@ -1587,6 +1587,19 @@ index-account-delete-success = 已成功刪除帳號
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = 您的確認信被退了，是不是輸錯電子郵件地址了？
 
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+# Browser tab title.
+inline-passwordless-sync-setup-page-title = 下次要略過密碼嗎？
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner = 已登入 { -brand-firefox }
+inline-passwordless-sync-setup-heading = 下次要略過密碼嗎？
+inline-passwordless-sync-setup-description = 使用這把 Passkey 可以更快登入。
+inline-passwordless-sync-setup-enable-button = 啟用 Passkey
+# Button label while the passkey is stored.
+inline-passwordless-sync-setup-enabling = 啟用中…
+inline-passwordless-sync-setup-not-now-button = 現在不要
+
 ## InlineRecoveryKeySetup page component
 
 inline-recovery-key-setup-create-error = 抱歉！無法建立您的帳號救援金鑰，請稍候再試一次。
@@ -1869,6 +1882,8 @@ pair2-authority-sync-success-sync-settings-button = 同步設定
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = 還想要連結其他裝置嗎？
 pair2-authority-timeout-and-cancel-timeout-description = 看來動作超出時間限制了。若您還想要連結行動裝置，並且同步 { -brand-firefox } 資料的話，請重試。
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-cancelled-heading = 已取消
 pair2-authority-timeout-and-cancel-canceled-description = 若您改變心意，或想要連結另一台裝置，請重試。
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = 重試
@@ -1949,6 +1964,8 @@ pair2-supplicant-sync-success-sync-settings-button = 同步設定
 pair2-supplicant-timeout-and-cancel-timeout-heading = 看來超出時間限制了。
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = 若要連結您的行動裝置並同步 { -brand-firefox } 資料，請在您的電腦造訪 <b>firefox.com/pair</b>。
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-cancelled-heading = 已取消
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = 歡迎隨時在您的電腦開啟 <b>firefox.com/pair</b> 連結其他裝置。
 

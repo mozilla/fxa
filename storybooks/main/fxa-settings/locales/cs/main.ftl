@@ -628,15 +628,15 @@ password-strength-inline-passwords-match = Hesla se shodují
 
 
 promo-qr-mobile-heading = Váš telefon. Vaše pravidla.
-promo-qr-mobile-heading-treatment-a = Pokračujte, kde jste skončili, ať jste kdekoli
-promo-qr-mobile-heading-treatment-b = Vaše panely a další, připraveno ve vašem telefonu
-promo-qr-mobile-heading-treatment-c = Prohlížeč pro svůj telefon, kterému důvěřujete
-promo-qr-mobile-heading-treatment-d = To samé { -brand-firefox }. Jiná obrazovka.
-promo-qr-mobile-heading-treatment-e = Vaše soukromí by zde nemělo skončit
-promo-qr-mobile-heading-treatment-f = Nechte si více části svého prohlížení pro sebe
-promo-qr-mobile-heading-treatment-g = Váš telefon by mohl mít o něco méně šumu
-promo-qr-mobile-heading-treatment-h = Vezměte si s sebou klidnější způsob prohlížení
-promo-qr-mobile-description-v2 = Naskenujte a stáhněte si mobilní aplikaci
+promo-qr-mobile-heading-treatment-a = Pokračujte tam, kde jste přestali, ať už jste kdekoli
+promo-qr-mobile-heading-treatment-b = Vaše panely a další funkce – vše připraveno ve vašem telefonu
+promo-qr-mobile-heading-treatment-c = Prohlížeč, kterému důvěřujete, přímo ve vašem telefonu
+promo-qr-mobile-heading-treatment-d = Stejný { -brand-firefox }. Jiná obrazovka.
+promo-qr-mobile-heading-treatment-e = Vaše soukromí by tím nemělo končit
+promo-qr-mobile-heading-treatment-f = Nechte si více svého prohlížení pro sebe
+promo-qr-mobile-heading-treatment-g = Tvůj telefon by snesl trochu méně rušení
+promo-qr-mobile-heading-treatment-h = Vezměte si s sebou klidnější způsob procházení webu
+promo-qr-mobile-description-v2 = Naskenujte tento kód a stáhněte si mobilní aplikaci
 promo-qr-mobile-qr-alt =
     .alt = QR kód ke stažení mobilní aplikace { -brand-firefox }. Nasměrujte fotoaparát telefonu do pravého dolního rohu obrazovky a naskenujte jej.
 
@@ -1118,8 +1118,8 @@ recent-activity-account-passwordless-registration-complete = Registrace účtu b
 recent-activity-account-recovery-codes-set = Obnovovací kódy jsou nastaveny
 recent-activity-account-passkey-wrap-created = Přístupový klíč byl povolen pro synchronizaci
 recent-activity-account-passkey-wrap-creation-failure = Nastavení synchronizace s přístupovým klíčem selhalo
-recent-activity-account-passkey-wrap-deleted = Přístup k synchronizaci byl odebrán
-recent-activity-account-passkey-wrap-deletion-failure = Odstranění synchronizačního přístupu se nezdařilo
+recent-activity-account-passkey-wrap-deleted = Přístup k synchronizaci pomocí přístupového klíče byl odstraněn
+recent-activity-account-passkey-wrap-deletion-failure = Odstranění přístupu k synchronizaci pomocí přístupového klíče se nezdařilo
 recent-activity-account-passkey-wrap-invalidated = Po resetování hesla byl zrušen přístup k synchronizaci pomocí přístupového klíče
 recent-activity-unknown = Jiná aktivita u účtu
 
@@ -1466,11 +1466,11 @@ index-account-delete-success = Účet byl úspěšně smazán
 index-email-bounced = Odeslaná potvrzující e-mailová zpráva se právě vrátila zpět. Nemáte překlep v e-mailové adrese?
 
 
-inline-passwordless-sync-setup-page-title = Přeskočit heslo příště?
-inline-passwordless-sync-setup-success-banner = Přihlášení k { -brand-firefox }
-inline-passwordless-sync-setup-heading = Přeskočit heslo příště?
-inline-passwordless-sync-setup-description = Používejte tento přístupový kód pro rychlejší přihlašování.
-inline-passwordless-sync-setup-enable-button = Povolit přístupový kód
+inline-passwordless-sync-setup-page-title = Chcete příště přeskočit zadávání hesla?
+inline-passwordless-sync-setup-success-banner = Přihlášeno k aplikaci { -brand-firefox }
+inline-passwordless-sync-setup-heading = Chcete příště přeskočit zadávání hesla?
+inline-passwordless-sync-setup-description = Tento přístupový kód vám umožní rychlejší přihlášení.
+inline-passwordless-sync-setup-enable-button = Povolit přístupový klíč
 inline-passwordless-sync-setup-enabling = Zapínání…
 inline-passwordless-sync-setup-not-now-button = Teď ne
 
@@ -1641,7 +1641,7 @@ pair2-supplicant-connect-this-device-cancel-button = Zrušit
 pair2-supplicant-download-firefox-heading = Získejte { -brand-firefox(case: "acc") } na tomto zařízení
 pair2-supplicant-download-firefox-description = Stáhněte si { -brand-firefox(case: "acc") } pro synchronizaci záložek, historie a dalšího dat mezi zařízeními. <linkExternal>Zjistit více</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Pokračujte za { -brand-firefox(case: "gen") }
-pair2-supplicant-download-firefox-opening-button = Otevírání { -brand-firefox }…
+pair2-supplicant-download-firefox-opening-button = Spouští se { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = Pro připojení zařízení

@@ -1558,6 +1558,19 @@ index-account-delete-success = החשבון נמחק בהצלחה
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = הודעת האימות שלך לא הגיעה ליעדה. האם כתובת הדוא״ל הוקלדה בצורה שגויה?
 
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+# Browser tab title.
+inline-passwordless-sync-setup-page-title = לדלג על הססמה בפעם הבאה?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner = התחברת ל־{ -brand-firefox }
+inline-passwordless-sync-setup-heading = לדלג על הססמה בפעם הבאה?
+inline-passwordless-sync-setup-description = ניתן להשתמש במפתח גישה זה כדי להתחבר מהר יותר.
+inline-passwordless-sync-setup-enable-button = הפעלת מפתח גישה
+# Button label while the passkey is stored.
+inline-passwordless-sync-setup-enabling = בתהליך הפעלה…
+inline-passwordless-sync-setup-not-now-button = לא כעת
+
 ## InlineRecoveryKeySetup page component
 
 inline-recovery-key-setup-create-error = אופס! לא הצלחנו ליצור מפתח לשחזור החשבון שלך. נא לנסות שוב מאוחר יותר.
@@ -1840,6 +1853,8 @@ pair2-authority-sync-success-sync-settings-button = הגדרות סנכרון
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = עדיין רוצה לחבר מכשיר?
 pair2-authority-timeout-and-cancel-timeout-description = נראה שזמן הפעולה פג. יש לנסות שוב אם עדיין ברצונך לחבר את המכשיר הנייד שלך ולסנכרן את נתוני ה־{ -brand-firefox } שלך.
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-cancelled-heading = בוטל
 pair2-authority-timeout-and-cancel-canceled-description = אם תשנה את דעתך או שתרצה לחבר מכשיר אחר, ניתן לנסות שוב.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = ניסיון חוזר
@@ -1920,6 +1935,8 @@ pair2-supplicant-sync-success-sync-settings-button = הגדרות סנכרון
 pair2-supplicant-timeout-and-cancel-timeout-heading = נראה שזמן הפעולה פג
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = כדי לחבר את המכשיר הנייד שלך ולסנכרן את נתוני ה־{ -brand-firefox } שלך, יש לבקר באתר <b>firefox.com/pair</b> במחשב שלך.
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-cancelled-heading = בוטל
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = כדי לחבר מכשיר בכל עת, יש לבקר באתר <b>firefox.com/pair</b> במחשב שלך.
 

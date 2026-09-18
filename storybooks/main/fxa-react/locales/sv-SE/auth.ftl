@@ -378,13 +378,13 @@ subscriptionPaymentProviderCancelled-content-reason-1 = Det kan vara så att din
 subscriptionReactivation-subject-2 = Din prenumeration på { $productName } har återaktiverats
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-free-trial-subject = Din kostnadsfria provperiod på { $productName } har återaktiverats
+subscriptionReactivation-free-trial-subject = Din kostnadsfria provperiod för { $productName } har aktiverats igen
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = Tack för att du återaktiverade din prenumeration på { $productName }!
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-free-trial-title = Tack för att du återaktiverade din kostnadsfria provperiod på { $productName }!
+subscriptionReactivation-free-trial-title = Tack för att du har återaktiverat din kostnadsfria provperiod för { $productName }!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

@@ -1616,10 +1616,10 @@ index-email-bounced = L’email di conferma è stata respinta. C’è un errore 
 ## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
 
 # Browser tab title.
-inline-passwordless-sync-setup-page-title = Saltare la password la prossima volta?
+inline-passwordless-sync-setup-page-title = Accedere senza password la prossima volta?
 # Success banner after signing in.
 inline-passwordless-sync-setup-success-banner = Accesso effettuato a { -brand-firefox }
-inline-passwordless-sync-setup-heading = Saltare la password la prossima volta?
+inline-passwordless-sync-setup-heading = Accedere senza password la prossima volta?
 inline-passwordless-sync-setup-description = Utilizza questa passkey per accedere più velocemente.
 inline-passwordless-sync-setup-enable-button = Attiva passkey
 # Button label while the passkey is stored.
@@ -1909,7 +1909,7 @@ pair2-authority-sync-success-sync-settings-button = Sincronizza impostazioni
 pair2-authority-timeout-and-cancel-timeout-heading = Vuoi ancora connettere un dispositivo?
 pair2-authority-timeout-and-cancel-timeout-description = Sembra che il tempo a disposizione sia scaduto. Riprova se vuoi ancora connettere il tuo dispositivo mobile e sincronizzare i dati di { -brand-firefox }.
 # Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-cancelled-heading = Annullata
+pair2-authority-timeout-and-cancel-cancelled-heading = Annullato
 pair2-authority-timeout-and-cancel-canceled-description = Se cambi idea o vuoi connettere un altro dispositivo, riprova.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Riprova
@@ -1991,7 +1991,7 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Sembra che il tempo a disp
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = Per connettere il dispositivo mobile e sincronizzare i dati di { -brand-firefox }, visita <b>firefox.com/pair</b> sul computer.
 # Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-cancelled-heading = Annullata
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Annullato
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Per connettere un dispositivo in qualsiasi momento, visita <b>firefox.com/pair</b> sul computer.
 

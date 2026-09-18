@@ -1631,12 +1631,12 @@ index-email-bounced = Ditt bekräftelsemejl har just returnerats. Har du skrivit
 ## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
 
 # Browser tab title.
-inline-passwordless-sync-setup-page-title = Hoppa över lösenordet nästa gång?
+inline-passwordless-sync-setup-page-title = Slipp lösenordet nästa gång?
 # Success banner after signing in.
-inline-passwordless-sync-setup-success-banner = Logga in på { -brand-firefox }
-inline-passwordless-sync-setup-heading = Hoppa över lösenordet nästa gång?
+inline-passwordless-sync-setup-success-banner = Inloggad på { -brand-firefox }
+inline-passwordless-sync-setup-heading = Slippa lösenordet nästa gång?
 inline-passwordless-sync-setup-description = Använd denna nyckel för att logga in snabbare.
-inline-passwordless-sync-setup-enable-button = Aktivera lösenord
+inline-passwordless-sync-setup-enable-button = Aktivera lösenordsnyckel
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Aktiverar…
 inline-passwordless-sync-setup-not-now-button = Inte nu

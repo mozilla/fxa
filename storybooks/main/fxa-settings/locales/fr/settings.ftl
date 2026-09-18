@@ -1089,9 +1089,9 @@ recent-activity-account-passkey-wrap-created = Clé d’accès activée pour la 
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
 recent-activity-account-passkey-wrap-creation-failure = Échec de la configuration de la synchronisation avec une clé d’accès
 # A passkey is a sign-in method that replaces a password. This string is shown when a passkey that could unlock the user's synced browser data had that access turned off, leaving the passkey itself usable for signing in.
-recent-activity-account-passkey-wrap-deleted = Accès à la synchronisation et à la clé d’accès supprimé
+recent-activity-account-passkey-wrap-deleted = Accès à la synchronisation via clé d’accès supprimé
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to turn off a passkey's access to the user's synced browser data did not complete.
-recent-activity-account-passkey-wrap-deletion-failure = Échec de la suppression de l’accès à la synchronisation et à la clé d’accès
+recent-activity-account-passkey-wrap-deletion-failure = Échec de la suppression de l’accès à la synchronisation via la clé d’accès
 # A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
 recent-activity-account-passkey-wrap-invalidated = Accès à la synchronisation par clé d’accès supprimé après la réinitialisation du mot de passe
 # Security event was recorded, but the activity details are unknown or not shown to user
@@ -1628,7 +1628,7 @@ inline-passwordless-sync-setup-page-title = Ignorer le mot de passe la prochaine
 # Success banner after signing in.
 inline-passwordless-sync-setup-success-banner = Connecté·e à { -brand-firefox }
 inline-passwordless-sync-setup-heading = Ignorer le mot de passe la prochaine fois ?
-inline-passwordless-sync-setup-description = Utilisez cette clé pour vous connecter plus rapidement.
+inline-passwordless-sync-setup-description = Utilisez cette clé d’accès pour vous connecter plus rapidement.
 inline-passwordless-sync-setup-enable-button = Activer la clé d’accès
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Activation…

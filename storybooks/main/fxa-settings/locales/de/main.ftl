@@ -1331,7 +1331,7 @@ pair2-authority-sync-success-sync-settings-button = Synchronisationseinstellunge
 
 pair2-authority-timeout-and-cancel-timeout-heading = Möchten Sie trotzdem ein Gerät verbinden?
 pair2-authority-timeout-and-cancel-timeout-description = Anscheinend trat eine Zeitüberschreitung auf. Versuchen Sie es erneut, wenn Sie Ihr Mobilgerät weiterhin verbinden und Ihre Daten von { -brand-firefox } synchronisieren möchten.
-pair2-authority-timeout-and-cancel-cancelled-heading = Abgesagt
+pair2-authority-timeout-and-cancel-cancelled-heading = Abgebrochen
 pair2-authority-timeout-and-cancel-canceled-description = Wenn Sie Ihre Meinung ändern oder ein anderes Gerät verbinden möchten, versuchen Sie es erneut.
 pair2-authority-timeout-and-cancel-try-again-button = Erneut versuchen
 pair2-authority-timeout-and-cancel-sync-settings-button = Synchronisationseinstellungen
@@ -1366,7 +1366,7 @@ pair2-supplicant-sync-success-sync-settings-button = Synchronisationseinstellung
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zeitüberschreitung
 pair2-supplicant-timeout-and-cancel-timeout-description = Um Ihr Mobilgerät zu verbinden und Ihre { -brand-firefox }-Daten zu synchronisieren, besuchen Sie <b>firefox.com/pair</b> auf Ihrem Computer.
-pair2-supplicant-timeout-and-cancel-cancelled-heading = Abgesagt
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Abgebrochen
 pair2-supplicant-timeout-and-cancel-canceled-description = Um jederzeit ein Gerät zu verbinden, besuchen Sie <b>firefox.com/pair</b> auf Ihrem Computer.
 
 

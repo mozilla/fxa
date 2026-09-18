@@ -1178,6 +1178,10 @@ index-account-delete-success = Kontoen er no sletta
 index-email-bounced = Stadfestings e-posten din kom i retur. Feil i e-postadressa?
 
 
+inline-passwordless-sync-setup-page-title = Hoppe over passordet neste gong?
+inline-passwordless-sync-setup-not-now-button = Ikkje no
+
+
 inline-recovery-key-setup-create-error = Ops! Vi klarte ikkje å opprette kontogjenopprettingsnøkkelen din. Prøv igjen seinare.
 inline-recovery-key-setup-recovery-created = Kontogjenopprettingsnøkkel oppretta
 inline-recovery-key-setup-download-header = Sikre kontoen din
@@ -1324,6 +1328,7 @@ pair2-authority-sync-success-sync-settings-button = Synkroniseringsinnstillingar
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Vil du framleis kople til ei eining?
+pair2-authority-timeout-and-cancel-cancelled-heading = Annulert
 pair2-authority-timeout-and-cancel-canceled-description = Viss du ombestemmer deg eller vil kople til ei anna eining, kan du prøve på nytt.
 pair2-authority-timeout-and-cancel-try-again-button = Prøv igjen
 pair2-authority-timeout-and-cancel-sync-settings-button = Synkroniseringsinnstillingar
@@ -1357,6 +1362,7 @@ pair2-supplicant-sync-success-sync-settings-button = Synkroniseringsinnstillinga
 
 
 pair2-supplicant-timeout-and-cancel-timeout-description = For å kople til mobileininga di og synkronisere { -brand-firefox }-dataa dine, gå til <b>firefox.com/pair</b> på datamaskina di.
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Annulert
 pair2-supplicant-timeout-and-cancel-canceled-description = For å kople til ei eining når som helst, gå til <b>firefox.com/pair</b> på datamaskina di.
 
 
