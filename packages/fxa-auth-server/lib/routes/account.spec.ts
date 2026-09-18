@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { createMock } from '@golevelup/ts-jest';
+import { PasskeyService } from '@fxa/accounts/passkey';
 import type { Schema } from 'joi';
 import { StatsD } from 'hot-shots';
 import { AuthLogger as AuthLoggerType } from '../types';
@@ -1804,6 +1805,64 @@ describe('/account/status', () => {
       expect(response.exists).toBe(true);
       expect(response.hasLinkedAccount).toBe(true);
       expect(response.hasPassword).toBe(false);
+    });
+  });
+
+  // Key-wrap presence is scoped to /password/forgot/verify_otp, which is reached
+  // only after the emailed OTP is verified. This route is unauthenticated, so
+  // carrying the signal here would disclose per-account credential state to
+  // anyone who knows an email address.
+  describe('hasPasskeyWraps is never exposed', () => {
+    let mockPasskeyService: PasskeyService;
+
+    beforeEach(() => {
+      mockPasskeyService = createMock<PasskeyService>({
+        hasPasskey: jest.fn().mockResolvedValue(true),
+        hasPasskeyWraps: jest.fn().mockResolvedValue(true),
+      });
+      Container.set(PasskeyService, mockPasskeyService);
+    });
+
+    afterEach(() => {
+      Container.remove(PasskeyService);
+    });
+
+    const setupStatusRoute = () => {
+      const { route, mockRequest } = setup({
+        dbOptions: { linkedAccounts: [{}], verifierSetAt: 0 },
+        shouldError: false,
+        extraConfig: {
+          passkeys: { enabled: true, authenticationEnabled: true },
+          passwordlessOtp: { forcedEmailAddresses: /^$/, allowedClientIds: [] },
+        },
+      });
+      mockRequest.payload.thirdPartyAuthStatus = true;
+      return { route, mockRequest };
+    };
+
+    it('is rejected by the response schema', () => {
+      const { route } = setupStatusRoute();
+
+      const { error } = route.options.response.schema.validate({
+        exists: true,
+        hasPasskeyWraps: true,
+      });
+
+      expect(
+        error?.details.some(
+          (detail) => detail.context?.key === 'hasPasskeyWraps'
+        )
+      ).toBe(true);
+    });
+
+    it('is absent from the response, and never looked up', async () => {
+      const { route, mockRequest } = setupStatusRoute();
+
+      const response = await runTest(route, mockRequest);
+
+      expect(response.hasPasskey).toBe(true);
+      expect(response).not.toHaveProperty('hasPasskeyWraps');
+      expect(mockPasskeyService.hasPasskeyWraps).not.toHaveBeenCalled();
     });
   });
 
