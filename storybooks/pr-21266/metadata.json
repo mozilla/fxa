@@ -1,0 +1,10 @@
+{
+  "commit": "e4b0b70ac76e52cf85af050bfe42f53258c1f330",
+  "summary": "fix(oauth): refuse prompt=none, add session verification test coverage",
+  "description": "Because:\n\n* prompt=none must not render UI or send mail, but a verified email with\n  an unverified session reached /signin_token_code and emailed an OTP\n* The RP was never told its request failed, and the mail was reachable\n  repeatedly by an RP retrying in the background\n* The heuristic unverified session had no functional coverage, so neither\n  the refusal nor the pass-through it preserves was exercised end to end\n\nThis commit:\n\n* Fails prompt=none with interaction_required when an unverified session\n  would reach a verification page, and skips the code resend on that path\n* Keeps servicesWithEmailVerification authoritative: RPs outside it still\n  bypass session verification and continue on to the grant\n* Covers four prompt=none outcomes against the heuristic fixture, plus a\n  listed-RP checkout test that reaches stage and prod\n* Corrects two signin skip reasons and drops PKCE params that 400 on a\n  confidential client\n* Records why both listed-RP tests exist, in each\n\nCloses #FXA-14408\nCloses #FXA-13740",
+  "timestamp": 1789763938000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
