@@ -2,13 +2,53 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { AppError } from '@fxa/accounts/errors';
 import type { AuthLogger } from '../../types';
 
 const {
+  assertAccountEnabled,
+  assertAccountEnabledByUid,
   fetchRpCmsData,
   getOptionalCmsEmailConfig,
   notifyAttachedServicesForAccountSession,
 } = require('./account');
+
+const MOCK_DISABLED_AT = 1_700_000_000_000;
+
+describe('assertAccountEnabled', () => {
+  it('returns when disabledAt is unset', () => {
+    expect(() => assertAccountEnabled({ disabledAt: null })).not.toThrow();
+  });
+
+  it('throws ACCOUNT_DISABLED when disabledAt is set', () => {
+    expect.assertions(2);
+    try {
+      assertAccountEnabled({ disabledAt: MOCK_DISABLED_AT });
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(AppError);
+      expect(err.errno).toBe(AppError.ERRNO.ACCOUNT_DISABLED);
+    }
+  });
+});
+
+describe('assertAccountEnabledByUid', () => {
+  const uid = 'f9416ce3703e4916a4cd6b1e665a3f1a';
+
+  it('returns when the account is enabled', async () => {
+    const db = { accountDisabledAt: jest.fn().mockResolvedValue(null) };
+    await expect(assertAccountEnabledByUid(db, uid)).resolves.toBeUndefined();
+    expect(db.accountDisabledAt).toHaveBeenCalledWith(uid);
+  });
+
+  it('throws ACCOUNT_DISABLED when the account is disabled', async () => {
+    const db = {
+      accountDisabledAt: jest.fn().mockResolvedValue(MOCK_DISABLED_AT),
+    };
+    await expect(assertAccountEnabledByUid(db, uid)).rejects.toMatchObject({
+      errno: AppError.ERRNO.ACCOUNT_DISABLED,
+    });
+  });
+});
 
 describe('fetchRpCmsData', () => {
   const mockRequest = {

@@ -18,6 +18,7 @@ const validators = require('./validators');
 const { reportSentryError } = require('../sentry');
 const { emailsMatch, normalizeEmail } = require('fxa-shared').email.helpers;
 const { recordSecurityEvent } = require('./utils/security-event');
+const { assertAccountEnabled } = require('./utils/account');
 const { OAuthClientInfoServiceName } = require('../senders/oauth_client_info');
 const EMAILS_DOCS = require('../../docs/swagger/emails-api').default;
 const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
@@ -944,6 +945,7 @@ module.exports = (
          * 3) Otherwise attempt to verify code as sign-in code then account code.
          */
         const account = await db.account(uid);
+        assertAccountEnabled(account);
 
         // This endpoint is not authenticated, so we need to look up
         // the target email address before we can check it with customs.

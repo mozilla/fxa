@@ -12,7 +12,10 @@ import {
 } from '../types';
 import { signMfaToken } from './utils/mfa-token';
 import { recordSecurityEvent } from './utils/security-event';
-import { notifyAttachedServicesForAccountSession } from './utils/account';
+import {
+  assertAccountEnabled,
+  notifyAttachedServicesForAccountSession,
+} from './utils/account';
 import { schema as METRICS_CONTEXT_SCHEMA } from '../metrics/context';
 import { ConfigType } from '../../config';
 import {
@@ -613,6 +616,7 @@ export class PasskeyHandler {
     this.glean.passkey.authenticationVerificationSuccess(request);
 
     const account = await this.db.account(uid);
+    assertAccountEnabled(account);
 
     const sessionToken = await this.createPasskeySessionToken(
       { ...account, uid },

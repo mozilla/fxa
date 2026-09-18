@@ -49,7 +49,10 @@ const SUBJECT_TOKEN_HASH = crypto
 
 const noop = () => {};
 const mockLog = { debug: noop, warn: noop, info: noop, error: noop };
-const mockDb = { touchSessionToken: jest.fn() };
+const mockDb = {
+  touchSessionToken: jest.fn(),
+  accountDisabledAt: jest.fn().mockResolvedValue(null),
+};
 const mockStatsD = { increment: jest.fn() };
 const mockGlean = {
   oauth: { tokenCreated: jest.fn() },
@@ -322,6 +325,31 @@ describe('/token POST', () => {
           `"code_verifier" with value "${bad_code_verifier}" fails to match the required pattern: /^[A-Za-z0-9-_]+$/`
         );
       });
+    });
+  });
+
+  describe('disabled account', () => {
+    const request = (payload: Record<string, string>) => ({
+      app: {},
+      payload: { client_id: CLIENT_ID, ...payload },
+      emitMetricsEvent: () => {},
+    });
+
+    it.each([
+      { grant_type: 'authorization_code', code: CODE_WITH_KEYS },
+      { grant_type: 'fxa-credentials' },
+    ])('rejects a $grant_type grant with ACCOUNT_DISABLED', async (payload) => {
+      mockDb.accountDisabledAt.mockResolvedValueOnce(1_700_000_000_000);
+      await expect(
+        route.config.handler(request(payload))
+      ).rejects.toMatchObject({ errno: AuthError.ERRNO.ACCOUNT_DISABLED });
+    });
+
+    it('checks the account the grant belongs to', async () => {
+      await route.config.handler(
+        request({ grant_type: 'authorization_code', code: CODE_WITH_KEYS })
+      );
+      expect(mockDb.accountDisabledAt).toHaveBeenCalledWith(UID);
     });
   });
 

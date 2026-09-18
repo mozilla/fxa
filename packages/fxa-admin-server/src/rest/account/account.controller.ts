@@ -479,44 +479,57 @@ export class AccountController {
   @Features(AdminPanelFeature.DisableAccount)
   @AuditLog()
   @Post('disable')
-  public async disableAccount(@Body('uid') uid: string) {
+  public async disableAccount(@Body('uid') uid: string, @Req() req: Request) {
     this.eventLogging.onEvent(EventNames.DisableLogin);
-    await this.profileClient.deleteCache(uid);
-    await this.notifier.send({
-      event: 'profileDataChange',
-      data: {
-        ts: Date.now() / 1000,
-        uid,
-      },
-    });
     const uidBuffer = uuidTransformer.to(uid);
     const result = await this.db.account
       .query()
       .update({ disabledAt: Date.now() })
+      .whereNull('disabledAt')
       .where('uid', uidBuffer);
-    return !!result;
+    if (!result) {
+      return false;
+    }
+
+    await this.recordAdminSecurityEvent(uid, 'account.disable', req);
+    await this.db.revokeAccountTokens(uid);
+    await this.notifyProfileChanged(uid);
+    return true;
+  }
+
+  // Best effort: the account state is already written and audited, so a
+  // cache or notifier failure must not fail the completed action.
+  private async notifyProfileChanged(uid: string) {
+    try {
+      await this.profileClient.deleteCache(uid);
+      await this.notifier.send({
+        event: 'profileDataChange',
+        data: {
+          ts: Date.now() / 1000,
+          uid,
+        },
+      });
+    } catch (err) {
+      Sentry.captureException(err, { extra: { uid } });
+    }
   }
 
   @Features(AdminPanelFeature.EnableAccount)
   @AuditLog()
   @Post('enable')
-  public async enableAccount(@Body('uid') uid: string) {
+  public async enableAccount(@Body('uid') uid: string, @Req() req: Request) {
     const uidBuffer = uuidTransformer.to(uid);
     const result = await this.db.account
       .query()
       .update({ disabledAt: null } as any)
       .where('uid', uidBuffer);
+    if (!result) {
+      return false;
+    }
 
-    await this.profileClient.deleteCache(uid);
-    await this.notifier.send({
-      event: 'profileDataChange',
-      data: {
-        ts: Date.now() / 1000,
-        uid,
-      },
-    });
-
-    return !!result;
+    await this.recordAdminSecurityEvent(uid, 'account.enable', req);
+    await this.notifyProfileChanged(uid);
+    return true;
   }
 
   @Features(AdminPanelFeature.EditLocale)

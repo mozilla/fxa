@@ -432,6 +432,19 @@ export const createDB = (
       return account;
     }
 
+    /**
+     * Single-column read for hot paths that only need to know whether the
+     * account is disabled.
+     */
+    async accountDisabledAt(uid: string): Promise<number | null> {
+      log.trace('DB.accountDisabledAt', { uid });
+      const row = await Account.query()
+        .select('disabledAt')
+        .where('uid', uuidTransformer.to(uid))
+        .first();
+      return row?.disabledAt ?? null;
+    }
+
     async deletedAccount(uid: string): Promise<DeletedAccount> {
       const deletedAccount = await DeletedAccount.query().findById(
         uuidTransformer.to(uid)

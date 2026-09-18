@@ -379,6 +379,15 @@ export class AppError extends Error {
     });
   }
 
+  static accountDisabled() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.ACCOUNT_DISABLED,
+      message: 'Account disabled',
+    });
+  }
+
   static insufficientAal() {
     return new AppError({
       code: 400,
