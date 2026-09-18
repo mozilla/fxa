@@ -1,0 +1,10 @@
+{
+  "commit": "cfb25535e9e505e8a4e7eba31e38d6272968deeb",
+  "summary": "fix(settings): clear stale errors when another signin method starts",
+  "description": "## Because\n\n- A passkey error stayed on the card after the user started a different sign-in method.\n- A card banner or tooltip error stayed on the card after the user clicked passkey, Google or Apple.\n- Two errors at once on the email-first and sign-in pages confuse the user.\n\n## This pull request\n\n- Adds a `clearError` function to the `usePasskeySignIn` hook in `signin-flow.ts`.\n- Clears the passkey error on the Index page when the user submits the email form or clicks Google or Apple.\n- Clears the banner and tooltip errors on the Index page when the user clicks passkey, Google or Apple.\n- Applies the same two rules on the Signin page.\n- Adds 8 tests, 4 in each page test file. The Index `Subject` mock now turns the passkey feature flags on.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-14227",
+  "timestamp": 1789766329000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
