@@ -190,6 +190,34 @@ it(`constrains more than ${NUMBER_OF_SERVICES_TO_SHOW} services`, async () => {
   );
 });
 
+it('badges a service with a device ID as a device', async () => {
+  const service = CONNECTED_SERVICES.find((s) => s.deviceId)!;
+  render(<ConnectedServices services={[service]} />);
+
+  screen.getByText('Device');
+});
+
+it('badges a service with a client ID as an OAuth client', async () => {
+  const service = CONNECTED_SERVICES.find((s) => s.clientId)!;
+  render(<ConnectedServices services={[service]} />);
+
+  screen.getByText('OAuth client');
+});
+
+it('badges a service with both a device ID and a client ID as a device', async () => {
+  const service = { ...CONNECTED_SERVICES[0], clientId: 'xxxxxxxx-clid-2' };
+  render(<ConnectedServices services={[service]} />);
+
+  screen.getByText('Device');
+});
+
+it('badges a service with no device or client ID as a web session', async () => {
+  const service = CONNECTED_SERVICES.find((s) => !s.deviceId && !s.clientId)!;
+  render(<ConnectedServices services={[service]} />);
+
+  screen.getByText('Web session');
+});
+
 it('renders as expected with no connected services', async () => {
   render(<ConnectedServices services={[]} />);
 
