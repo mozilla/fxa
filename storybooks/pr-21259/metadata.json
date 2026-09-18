@@ -1,0 +1,10 @@
+{
+  "commit": "c894d319f02ea9f146187f89ed098ac9c1077ab5",
+  "summary": "fix(pairing): navigate once when the supplicant connects",
+  "description": "Because:\n\n- Tapping Connect on the v2 supplicant routed to approve_signin twice:\n  once from the WaitingForAuthority state change and again from the\n  approval promise, which pushed a duplicate entry without the query.\n- Failures on channel open and approval routed a second time from the\n  catch after the integration's own Failed state had already routed.\n\nThis commit:\n\n- Drops the then-branch navigation and lets the state handler route.\n- Routes both catch paths through navigateWithQuery with replace, and\n  only when the integration did not already fail itself.\n- Removes the now-unused useNavigate from the container.\n- Asserts exactly one navigation for the success and failure paths.\n\nFixes FXA-14566",
+  "timestamp": 1789755872000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
