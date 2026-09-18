@@ -23,6 +23,12 @@ enum EmailPrefix {
   SIGNIN = 'signin',
   SIGNUP = 'signup',
   SYNC = 'sync',
+  /**
+   * Matches the auth-server's forcedHeuristicEmailAddresses default: the
+   * session is created unverified but not `mustVerify`, the non-Sync, non-2FA
+   * heuristic state that RP redirect flows can pass through without a code.
+   */
+  UNVERIFIED_SESSION = 'unverifiedsession',
 }
 
 const SUPPORTED_SERVICE = 'smoketests';
@@ -258,6 +264,16 @@ export class TestAccountTracker {
    */
   async signUpSync(options?: any): Promise<Credentials> {
     return await this.signUp(options, EmailPrefix.SYNC);
+  }
+
+  /**
+   * Signs up an account whose sign-ins land in the heuristic unverified session
+   * state (unverified, not `mustVerify`). See EmailPrefix.UNVERIFIED_SESSION.
+   * @param options AuthClient signup options
+   * @returns Credentials
+   */
+  async signUpUnverifiedSession(options?: any): Promise<Credentials> {
+    return await this.signUp(options, EmailPrefix.UNVERIFIED_SESSION);
   }
 
   /**
