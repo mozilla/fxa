@@ -1,0 +1,10 @@
+{
+  "commit": "3a760e5126fa1449cfd42087da27975eb16e3c90",
+  "summary": "fix(settings): advance focus and set IME hints on the password form",
+  "description": "## Because\n\n- On Android, the keyboard showed \"Go\" on the new password field. The key did nothing, because the submit button stays disabled until the form is valid.\n- Pressing Enter in the new password field did not move the user to the confirm field.\n\n## This pull request\n\n- Adds an `enterKeyHint` prop and an `onKeyDown` prop to `InputText`, and forwards both through `InputPassword`.\n- Sets `enterKeyHint=\"next\"` on the new password field when the confirm field renders, and `done` when it does not.\n- Sets `enterKeyHint=\"done\"` and a DOM ref on the confirm field in `FormPasswordWithInlineCriteria`.\n- Adds an `onKeyDown` handler that moves focus to the confirm field on Enter and does not submit the form. This covers browsers that ignore `enterKeyHint`.\n- Ignores the Enter key that ends an IME composition, so the handler does not steal the key from the input method.\n- Adds tests beside each component. The form mock now accepts an injected submit handler.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-12595",
+  "timestamp": 1789763952000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 3a760e5126fa1449cfd42087da27975eb16e3c90</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 3a760e5126fa1449cfd42087da27975eb16e3c90</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/18/2026, 8:39:12 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): advance focus and set IME hints on the password form</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- On Android, the keyboard showed &quot;Go&quot; on the new password field. The key did nothing, because the submit button stays disabled until the form is valid.
+- Pressing Enter in the new password field did not move the user to the confirm field.
+
+## This pull request
+
+- Adds an `enterKeyHint` prop and an `onKeyDown` prop to `InputText`, and forwards both through `InputPassword`.
+- Sets `enterKeyHint=&quot;next&quot;` on the new password field when the confirm field renders, and `done` when it does not.
+- Sets `enterKeyHint=&quot;done&quot;` and a DOM ref on the confirm field in `FormPasswordWithInlineCriteria`.
+- Adds an `onKeyDown` handler that moves focus to the confirm field on Enter and does not submit the form. This covers browsers that ignore `enterKeyHint`.
+- Ignores the Enter key that ends an IME composition, so the handler does not steal the key from the input method.
+- Adds tests beside each component. The form mock now accepts an injected submit handler.
+
+## Issue that this pull request solves
+
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-12595</pre></dd>
+  </dl>
+</body>
+</html>
