@@ -39,6 +39,14 @@ const formatAdditionalInfo = (additionalInfo: string) => {
   }
 };
 
+// The verified column is nullable, so some events have no value.
+const formatVerified = (verified?: boolean | null) =>
+  verified == null ? (
+    <span className="text-grey-400">—</span>
+  ) : (
+    <ResultBoolean isTruthy={verified} />
+  );
+
 export type AccountProps = AccountType & {
   onCleared: () => void;
   query: string;
@@ -489,7 +497,13 @@ export const Account = ({
         {securityEvents && securityEvents.length > 0 ? (
           <>
             <TableXHeaders
-              rowHeaders={['Event', 'Timestamp', 'IP', 'Additional Info']}
+              rowHeaders={[
+                'Event',
+                'Timestamp',
+                'IP',
+                'Verified',
+                'Additional Info',
+              ]}
             >
               {(showAllSecurityEvents
                 ? securityEvents
@@ -501,6 +515,7 @@ export const Account = ({
                     <>{securityEvent.name}</>
                     <>{getFormattedDate(securityEvent.createdAt)}</>
                     <>{securityEvent.ipAddr}</>
+                    <>{formatVerified(securityEvent.verified)}</>
                     <>
                       {securityEvent.additionalInfo && (
                         <pre className="whitespace-pre-wrap">
