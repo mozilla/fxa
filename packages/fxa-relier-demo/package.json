@@ -1,0 +1,48 @@
+{
+  "name": "fxa-relier-demo",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Browser-only OAuth relying-party demo for the local FxA stack",
+  "license": "MPL-2.0",
+  "scripts": {
+    "start": "pm2 start pm2.config.js",
+    "stop": "pm2 stop pm2.config.js",
+    "restart": "pm2 restart pm2.config.js",
+    "delete": "pm2 delete pm2.config.js",
+    "dev": "node scripts/build.mjs --serve",
+    "build": "node scripts/build.mjs",
+    "test": "jest",
+    "lint": "eslint src --ext .ts,.tsx",
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'"
+  },
+  "dependencies": {
+    "jose": "^6.0.6",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@types/jest": "30.0.0",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.5",
+    "esbuild": "^0.28.1",
+    "jest": "30.0.5",
+    "pm2": "^7.0.0",
+    "ts-jest": "29.4.9",
+    "typescript": "5.5.3"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "roots": [
+      "<rootDir>/src"
+    ],
+    "transform": {
+      "^.+\\.tsx?$": [
+        "ts-jest",
+        {
+          "tsconfig": "tsconfig.json"
+        }
+      ]
+    }
+  }
+}

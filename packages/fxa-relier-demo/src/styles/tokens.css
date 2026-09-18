@@ -1,0 +1,87 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* Acorn (Firefox Nova) tokens from acorn.firefox.com, plus a brand layer
+   for the warm "fire" accents Nova uses. light-dark() pairs switch with
+   `color-scheme` on <html>. */
+:root {
+  color-scheme: light dark;
+
+  /* Interactive: Acorn blue keeps links and buttons familiar and AA-contrast */
+  --color-accent-primary: light-dark(#0062fa, #00cadb);
+  --color-accent-primary-hover: light-dark(#0053cb, #61dce9);
+  --color-accent-primary-active: light-dark(#0041a4, #a6ecf4);
+  --color-text-on-accent: light-dark(#fbfbfe, #15141a);
+
+  /* Surfaces: a faint lavender canvas in light, Nova's smoky purple in dark */
+  --color-background-canvas: light-dark(#f4f2fa, #17141f);
+  --color-background-box: light-dark(#ffffff, #221d2e);
+  --color-background-box-raised: light-dark(#faf9fd, #2a2438);
+  --color-background-critical: light-dark(#ffe8ea, #6e001f);
+  --color-background-information: light-dark(#ede9fb, #2a2450);
+  --color-background-success: light-dark(#e1ffe1, #004800);
+  --color-background-warning: light-dark(#fff4d0, #592b00);
+
+  --color-text-primary: light-dark(#15141a, #fbfbfe);
+  --color-text-deemphasized: light-dark(
+    rgba(21, 20, 26, 0.69),
+    rgba(251, 251, 254, 0.69)
+  );
+  --color-text-disabled: light-dark(
+    rgba(21, 20, 26, 0.4),
+    rgba(251, 251, 254, 0.4)
+  );
+  --color-text-error: light-dark(#b20037, #ffa0aa);
+  --color-text-success: light-dark(#0c5a2c, #b3ffb3);
+
+  --color-border: light-dark(rgba(21, 20, 26, 0.1), rgba(251, 251, 254, 0.12));
+  --color-border-strong: light-dark(
+    rgba(21, 20, 26, 0.28),
+    rgba(251, 251, 254, 0.3)
+  );
+
+  /* Brand layer: Firefox flame, orange through violet */
+  --color-brand-orange: light-dark(#ff9640, #ffb066);
+  --color-brand-red: light-dark(#ff4f5e, #ff7a87);
+  --color-brand-violet: light-dark(#9059ff, #ab71ff);
+  --gradient-brand: linear-gradient(
+    120deg,
+    var(--color-brand-orange),
+    var(--color-brand-red) 55%,
+    var(--color-brand-violet)
+  );
+
+  /* Semantic badges for the two client types */
+  --color-badge-mozilla-bg: light-dark(#ece4ff, #3a2a6b);
+  --color-badge-mozilla-text: light-dark(#3d1f8f, #ddd0ff);
+  --color-badge-thirdparty-bg: light-dark(#ffefcf, #5a3a00);
+  --color-badge-thirdparty-text: light-dark(#6b4400, #ffe1a8);
+
+  --border-radius-small: 8px;
+  --border-radius-medium: 14px;
+  --border-radius-circle: 9999px;
+
+  --space-xs: 4px;
+  --space-s: 8px;
+  --space-m: 16px;
+  --space-l: 24px;
+  --space-xl: 40px;
+
+  --font-family:
+    Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-size-small: 0.85rem;
+  --font-size-root: 15px;
+  --font-size-large: 1.15rem;
+  --font-size-xlarge: 1.9rem;
+
+  --shadow-card: light-dark(
+    0 1px 2px rgba(21, 20, 26, 0.04),
+    0 1px 2px rgba(0, 0, 0, 0.4)
+  );
+  --shadow-float: light-dark(
+    0 6px 20px rgba(61, 31, 143, 0.08),
+    0 6px 20px rgba(0, 0, 0, 0.5)
+  );
+}
