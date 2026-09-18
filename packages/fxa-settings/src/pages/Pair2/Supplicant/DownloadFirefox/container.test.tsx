@@ -115,19 +115,22 @@ describe('Pair2/Supplicant/DownloadFirefox container', () => {
     it('builds the iOS deep link from the configured URL scheme', () => {
       jest.spyOn(utilities, 'detectDevice').mockReturnValue(Devices.OTHER_IOS);
       config.pairing.iosUrlScheme = 'fennec';
-      config.pairing.iosHandoff = true;
+      config.pairing.version = 2;
+      config.pairing.v2MinVersion = { ios: 0 };
 
       renderWithLocalizationProvider(<DownloadFirefoxContainer />);
 
       expect(getCtaHref()).toContain('fennec://open-url');
     });
 
-    // The gate exists because Firefox iOS cannot yet finish a pairing that
-    // started elsewhere, so a deep link would only land the user on a dead end.
-    // Reaching this page directly must not route around it.
-    it('offers the download link on iOS while the deployment gate is off', () => {
+    // Until the deployment rolls v2 out to Firefox iOS, the app cannot finish
+    // a pairing that started elsewhere, so a deep link would only land the
+    // user on a dead end. Reaching this page directly must not route around
+    // that gate.
+    it('offers the download link on iOS while iOS is not in the v2 rollout', () => {
       jest.spyOn(utilities, 'detectDevice').mockReturnValue(Devices.OTHER_IOS);
-      config.pairing.iosHandoff = false;
+      config.pairing.version = 2;
+      config.pairing.v2MinVersion = {};
 
       renderWithLocalizationProvider(<DownloadFirefoxContainer />);
 

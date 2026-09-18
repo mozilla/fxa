@@ -58,6 +58,8 @@ For a content origin that is not `https`, `localhost`, or `127.0.0.1`, the launc
 
 Set it to `2` to opt in to the pairing v2 flow. The browser and the server must both advertise version 2, so set `PAIRING_VERSION=2` on the stack as well. Leave it unset for v1.
 
+The stack can also decide on its own from the Firefox version: with `PAIRING_V2_MIN_VERSION_DESKTOP=<major>` set alongside `PAIRING_VERSION=2`, any desktop Firefox at or above that major takes the v2 flow whatever the browser pref says (`0` means every version). `PAIRING_V2_MIN_VERSION_ANDROID` and `PAIRING_V2_MIN_VERSION_IOS` do the same for the mobile apps.
+
 ## `FIREFOX_BIN`
 
 Selects the Firefox binary:
