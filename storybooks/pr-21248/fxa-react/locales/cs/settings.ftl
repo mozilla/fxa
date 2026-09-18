@@ -424,23 +424,23 @@ password-strength-inline-passwords-match = Hesla se shodují
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Váš telefon. Vaše pravidla.
 # Value proposition variant. Refers to resuming browsing on another device.
-promo-qr-mobile-heading-treatment-a = Pokračujte, kde jste skončili, ať jste kdekoli
+promo-qr-mobile-heading-treatment-a = Pokračujte tam, kde jste přestali, ať už jste kdekoli
 # Value proposition variant. "tabs" are the open pages in a browser.
-promo-qr-mobile-heading-treatment-b = Vaše panely a další, připraveno ve vašem telefonu
+promo-qr-mobile-heading-treatment-b = Vaše panely a další funkce – vše připraveno ve vašem telefonu
 # Value proposition variant. Refers to using the same trusted browser on a phone.
-promo-qr-mobile-heading-treatment-c = Prohlížeč pro svůj telefon, kterému důvěřujete
+promo-qr-mobile-heading-treatment-c = Prohlížeč, kterému důvěřujete, přímo ve vašem telefonu
 # Value proposition variant. "Different screen" refers to the phone rather than the desktop.
-promo-qr-mobile-heading-treatment-d = To samé { -brand-firefox }. Jiná obrazovka.
+promo-qr-mobile-heading-treatment-d = Stejný { -brand-firefox }. Jiná obrazovka.
 # Value proposition variant. "stop here" means privacy protection should continue onto the phone.
-promo-qr-mobile-heading-treatment-e = Vaše soukromí by zde nemělo skončit
+promo-qr-mobile-heading-treatment-e = Vaše soukromí by tím nemělo končit
 # Value proposition variant. Refers to keeping browsing activity private.
-promo-qr-mobile-heading-treatment-f = Nechte si více části svého prohlížení pro sebe
+promo-qr-mobile-heading-treatment-f = Nechte si více svého prohlížení pro sebe
 # Value proposition variant. "noise" refers to distractions and clutter.
-promo-qr-mobile-heading-treatment-g = Váš telefon by mohl mít o něco méně šumu
+promo-qr-mobile-heading-treatment-g = Tvůj telefon by snesl trochu méně rušení
 # Value proposition variant. Refers to a calmer browsing experience on the phone.
-promo-qr-mobile-heading-treatment-h = Vezměte si s sebou klidnější způsob prohlížení
+promo-qr-mobile-heading-treatment-h = Vezměte si s sebou klidnější způsob procházení webu
 # Appears below a QR code that a user can scan to download the Firefox mobile app
-promo-qr-mobile-description-v2 = Naskenujte a stáhněte si mobilní aplikaci
+promo-qr-mobile-description-v2 = Naskenujte tento kód a stáhněte si mobilní aplikaci
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
 promo-qr-mobile-qr-alt =
     .alt = QR kód ke stažení mobilní aplikace { -brand-firefox }. Nasměrujte fotoaparát telefonu do pravého dolního rohu obrazovky a naskenujte jej.
@@ -1100,9 +1100,9 @@ recent-activity-account-passkey-wrap-created = Přístupový klíč byl povolen 
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
 recent-activity-account-passkey-wrap-creation-failure = Nastavení synchronizace s přístupovým klíčem selhalo
 # A passkey is a sign-in method that replaces a password. This string is shown when a passkey that could unlock the user's synced browser data had that access turned off, leaving the passkey itself usable for signing in.
-recent-activity-account-passkey-wrap-deleted = Přístup k synchronizaci byl odebrán
+recent-activity-account-passkey-wrap-deleted = Přístup k synchronizaci pomocí přístupového klíče byl odstraněn
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to turn off a passkey's access to the user's synced browser data did not complete.
-recent-activity-account-passkey-wrap-deletion-failure = Odstranění synchronizačního přístupu se nezdařilo
+recent-activity-account-passkey-wrap-deletion-failure = Odstranění přístupu k synchronizaci pomocí přístupového klíče se nezdařilo
 # A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
 recent-activity-account-passkey-wrap-invalidated = Po resetování hesla byl zrušen přístup k synchronizaci pomocí přístupového klíče
 # Security event was recorded, but the activity details are unknown or not shown to user
@@ -1632,6 +1632,19 @@ index-account-delete-success = Účet byl úspěšně smazán
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = Odeslaná potvrzující e-mailová zpráva se právě vrátila zpět. Nemáte překlep v e-mailové adrese?
 
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+# Browser tab title.
+inline-passwordless-sync-setup-page-title = Chcete příště přeskočit zadávání hesla?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner = Přihlášeno k aplikaci { -brand-firefox }
+inline-passwordless-sync-setup-heading = Chcete příště přeskočit zadávání hesla?
+inline-passwordless-sync-setup-description = Tento přístupový kód vám umožní rychlejší přihlášení.
+inline-passwordless-sync-setup-enable-button = Povolit přístupový klíč
+# Button label while the passkey is stored.
+inline-passwordless-sync-setup-enabling = Zapínání…
+inline-passwordless-sync-setup-not-now-button = Teď ne
+
 ## InlineRecoveryKeySetup page component
 
 inline-recovery-key-setup-create-error = Jejda! Obnovovací klíč se pro váš účet nepodařilo vytvořit. Zkuste to prosím znovu později.
@@ -1915,12 +1928,10 @@ pair2-authority-sync-success-sync-settings-button = Nastavení synchronizace
 pair2-authority-timeout-and-cancel-timeout-heading = Stále chcete připojit zařízení?
 pair2-authority-timeout-and-cancel-timeout-description = Zdá se, že vypršel časový limit. Zkuste to znovu, pokud stále chcete připojit své mobilní zařízení a synchronizovat svá data { -brand-firefox(case: "gen") }.
 # Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-canceled-heading = Zrušeno
+pair2-authority-timeout-and-cancel-cancelled-heading = Zrušeno
 pair2-authority-timeout-and-cancel-canceled-description = Pokud změníte názor nebo chcete připojit jiné zařízení, zkuste to znovu.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Zkusit znovu
-# Abandons pairing without retrying
-pair2-authority-timeout-and-cancel-cancel-button = Zrušit
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = Nastavení synchronizace
 
@@ -1963,7 +1974,7 @@ pair2-supplicant-download-firefox-description = Stáhněte si { -brand-firefox(c
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Pokračujte za { -brand-firefox(case: "gen") }
 # Replaces the button label while waiting for the Firefox app to take over
-pair2-supplicant-download-firefox-opening-button = Otevírání { -brand-firefox }…
+pair2-supplicant-download-firefox-opening-button = Spouští se { -brand-firefox }…
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -1999,7 +2010,7 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Zdá se, že vypršel čas
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = Chcete-li připojit své mobilní zařízení a synchronizovat data { -brand-firefox(case: "gen") }, přejděte na svém počítači na stránku <b>firefox.com/pair</b>.
 # Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-canceled-heading = Zrušeno
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Zrušeno
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Pro připojení svého zařízení prosím navštivte <b>firefox.com/pair</b> na svém počítači.
 

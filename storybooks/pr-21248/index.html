@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit faae1f27ede45b26ff46026ca1513f118840a3aa</title>
+  <title>Storybooks for commit 92790b09ae425824c33ee28faa1bf78026f129b5</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,33 +23,33 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit faae1f27ede45b26ff46026ca1513f118840a3aa</h1>
+  <h1>Storybooks for commit 92790b09ae425824c33ee28faa1bf78026f129b5</h1>
   <ul>
     <li><a href="./fxa-react/">fxa-react</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/17/2026, 8:56:05 PM UTC</dd>
+    <dd>9/18/2026, 8:42:49 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(content-server): keep a React route entry for finish account setup</pre></dd>
+    <dd><pre>fix(settings): split set password subscription heading in two</pre></dd>
     <dt>Description</dt>
     <dd><pre>## Because
 
-- `post_verify/finish_account_setup/set_password` was the last Backbone page behind a live subscription email link. It blocks the Backbone removal.
-- The React SetPassword page already exists, but its container needs a session. This link carries a JWT instead, so it needs its own container.
+- An l10n reviewer asked if the combined heading could be two strings.
+- `set-password-subscription-heading-with-product` held `&lt;span&gt;` markup inside one FTL string, so each translator had to keep the tag in place.
+- Screen readers read the heading and the product line as one phrase.
 
 ## This pull request
 
-- Renders the React SetPassword page at `post_verify/finish_account_setup/set_password`. The path joins the `postVerifyThirdPartyAuthRoutes` group in `react-app/index.js` and gets a route in `components/App/index.tsx`.
-- Adds `finish-account-setup-container.tsx`. It validates the email link params, calls `authClient.finishSetup` with the JWT, stores the account with `storeAccountData`, then redirects to mozilla.org.
-- Adds a `subscription` password creation reason, an optional `productName`, and a `subscription-set-password` form type, so the button reads &quot;Create password&quot;.
-- Deletes the Backbone view, its mustache template and its spec. The path stays in the `content-server-routes.js` FRONTEND_ROUTES.
-- Keeps a `createReactViewHandler` entry for the path in the Backbone router, so a flag-off environment still routes to React. The flag itself becomes unconditional in #21245.
+- Removes `set-password-subscription-heading-with-product` from `en.ftl`. No other file uses the id.
+- Adds `set-password-subscription-subheading = Continue to { $productName }` for the product line.
+- Renders two `FtlMsg` blocks in `SetPassword/index.tsx`: the `h1` with `card-header`, and a sibling `&lt;p className=&quot;card-subheader&quot;&gt;` when the link carries `product_name`.
+- Updates the tests. The `h1` name is now &quot;Create a Mozilla account&quot; alone, the subheading has its own assertion, and the case without `product_name` asserts that the subheading is absent.
 
 ## Issue that this pull request solves
 
-Closes: FXA-14380</pre></dd>
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-14380</pre></dd>
   </dl>
 </body>
 </html>

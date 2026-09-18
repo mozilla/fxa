@@ -45,10 +45,10 @@ subplat-explainer-specific-2 = Tento e‑mail ste dostali, pretože na adrese { 
 subplat-explainer-reminder-form-2 = Tento e‑mail ste dostali, pretože na adrese { $email } je registrovaný { -product-mozilla-account(capitalization: "lower") }.
 subplat-explainer-multiple-2 = Tento e‑mail ste dostali, pretože na adrese { $email } je registrovaný { -product-mozilla-account(capitalization: "lower") } a zároveň ste si zaregistrovali predplatné niekoľkých produktov.
 subplat-explainer-was-deleted-2 = Tento e‑mail ste dostali, pretože na adrese { $email } je registrovaný { -product-mozilla-account(capitalization: "lower") }.
-subplat-manage-account-2 = Spravujte svoje nastavenia { -product-mozilla-account(case: "gen", capitalization: "lower") } na <a data-l10n-name="subplat-account-page">stránke účtu</a>.
+subplat-manage-account-2 = Spravujte svoje nastavenia { -product-mozilla-account(capitalization: "lower", case: "gen") } na <a data-l10n-name="subplat-account-page">stránke účtu</a>.
 # Variables:
 #  $accountSettingsUrl (String) - URL to Account Settings
-subplat-manage-account-plaintext-2 = Spravujte nastavenia { -product-mozilla-account(case: "gen", capitalization: "lower") } na stránke svojho účtu: { $accountSettingsUrl }
+subplat-manage-account-plaintext-2 = Spravujte nastavenia { -product-mozilla-account(capitalization: "lower", case: "gen") } na stránke svojho účtu: { $accountSettingsUrl }
 subplat-terms-policy = Podmienky používania a zrušenia
 subplat-terms-policy-plaintext = { subplat-terms-policy }:
 subplat-cancel = Zrušiť predplatné
@@ -57,10 +57,10 @@ subplat-reactivate = Opätovne aktivovať predplatné
 subplat-reactivate-plaintext = { subplat-reactivate }:
 subplat-update-billing = Aktualizovať informácie o spôsobe platby
 subplat-privacy-policy = Zásady ochrany osobných údajov { -brand-mozilla(case: "gen") }
-subplat-privacy-policy-2 = Vyhlásenie o ochrane osobných údajov pre { -product-mozilla-accounts(case: "acc", capitalization: "uppercase") }
+subplat-privacy-policy-2 = Vyhlásenie o ochrane osobných údajov pre { -product-mozilla-accounts(capitalization: "uppercase", case: "acc") }
 subplat-privacy-policy-plaintext = { subplat-privacy-policy }:
 subplat-privacy-policy-plaintext-2 = { subplat-privacy-policy-2 }:
-subplat-moz-terms = Podmienky používania služby { -product-mozilla-accounts(case: "acc", capitalization: "uppercase") }
+subplat-moz-terms = Podmienky používania služby { -product-mozilla-accounts(capitalization: "uppercase", case: "acc") }
 subplat-moz-terms-plaintext = { subplat-moz-terms }:
 subplat-legal = Právne informácie
 subplat-legal-plaintext = { subplat-legal }:
@@ -97,9 +97,6 @@ payment-provider-card-ending-in-plaintext = Spôsob platby: Karta končiaca na {
 payment-provider-card-ending-in = <b>Spôsob platby:</b> Karta končiaca na { $lastFour }
 payment-provider-card-ending-in-card-name = <b>Spôsob platby:</b> { $cardName } končiaca na { $lastFour }
 subscription-charges-invoice-summary = Súhrn faktúry
-
-# Variables:
-
 
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
@@ -263,16 +260,16 @@ subscriptionAccountDeletion-title = Mrzí nás, že odchádzate
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $invoiceDateOnly (String) - The date of the next invoice, e.g. 01/20/2016
-subscriptionAccountDeletion-content-cancelled-2 = Nedávno ste odstránili svoj { -product-mozilla-account(case: "acc", capitalization: "lower") }. V dôsledku toho sme zrušili vaše predplatné produktu { $productName }. Vaša posledná platba vo výške { $invoiceTotal } bola zaplatená dňa { $invoiceDateOnly }.
+subscriptionAccountDeletion-content-cancelled-2 = Nedávno ste odstránili svoj { -product-mozilla-account(capitalization: "lower", case: "acc") }. V dôsledku toho sme zrušili vaše predplatné produktu { $productName }. Vaša posledná platba vo výške { $invoiceTotal } bola zaplatená dňa { $invoiceDateOnly }.
 subscriptionAccountReminderFirst-subject = Pripomienka: dokončite nastavenie účtu
 subscriptionAccountReminderFirst-title = Zatiaľ nemáte prístup k svojmu predplatnému
-subscriptionAccountReminderFirst-content-info-3 = Pred niekoľkými dňami ste si vytvorili { -product-mozilla-account(case: "acc", capitalization: "lower") }, no doteraz ste ho nepotvrdili. Dúfame, že dokončíte nastavenie svojho účtu, aby ste mohli používať svoje nové predplatné.
+subscriptionAccountReminderFirst-content-info-3 = Pred niekoľkými dňami ste si vytvorili { -product-mozilla-account(capitalization: "lower", case: "acc") }, no doteraz ste ho nepotvrdili. Dúfame, že dokončíte nastavenie svojho účtu, aby ste mohli používať svoje nové predplatné.
 subscriptionAccountReminderFirst-content-select-2 = Ak chcete nastaviť nové heslo a dokončiť potvrdenie účtu, kliknite na tlačidlo “Vytvoriť heslo”.
 subscriptionAccountReminderFirst-action = Vytvoriť heslo
 subscriptionAccountReminderFirst-action-plaintext = { subscriptionAccountReminderFirst-action }:
 subscriptionAccountReminderSecond-subject = Posledná pripomienka: nastavte si účet
 subscriptionAccountReminderSecond-title-2 = Víta vás { -brand-mozilla }!
-subscriptionAccountReminderSecond-content-info-3 = Pred niekoľkými dňami ste si vytvorili { -product-mozilla-account(case: "acc", capitalization: "lower") }, no doteraz ste ho nepotvrdili. Dúfame, že dokončíte nastavenie svojho účtu, aby ste mohli používať svoje nové predplatné.
+subscriptionAccountReminderSecond-content-info-3 = Pred niekoľkými dňami ste si vytvorili { -product-mozilla-account(capitalization: "lower", case: "acc") }, no doteraz ste ho nepotvrdili. Dúfame, že dokončíte nastavenie svojho účtu, aby ste mohli používať svoje nové predplatné.
 subscriptionAccountReminderSecond-content-select-2 = Ak chcete nastaviť nové heslo a dokončiť potvrdenie účtu, kliknite na tlačidlo “Vytvoriť heslo”.
 subscriptionAccountReminderSecond-action = Vytvoriť heslo
 subscriptionAccountReminderSecond-action-plaintext = { subscriptionAccountReminderSecond-action }:
@@ -385,13 +382,13 @@ subscriptionPaymentProviderCancelled-content-reason-1 = Je možné, že platnos�
 subscriptionReactivation-subject-2 = Vaše predplatné produktu { $productName } bolo znovu aktivované
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-subject = Vaša skúšobná verzia produktu { $productName } bola znovu aktivovaná
+subscriptionReactivation-free-trial-subject = Vaše bezplatné skúšobné obdobie produktu { $productName } bolo opätovne aktivované
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = Ďakujeme za opätovnú aktiváciu predplatného produktu { $productName }!
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-title = Ďakujeme za opätovnú aktiváciu skúšobnej verzie produktu { $productName }!
+subscriptionReactivation-free-trial-title = Ďakujeme, že ste si znova aktivovali bezplatnú skúšobnú verziu produktu { $productName }!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

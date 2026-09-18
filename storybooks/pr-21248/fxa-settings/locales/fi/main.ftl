@@ -1137,7 +1137,6 @@ pair2-authority-sync-success-sync-settings-button = Synkronoinnin asetukset
 
 pair2-authority-timeout-and-cancel-timeout-heading = Haluatko yhdistää lisää laitteita?
 pair2-authority-timeout-and-cancel-try-again-button = Yritä uudestaan
-pair2-authority-timeout-and-cancel-cancel-button = Peruuta
 pair2-authority-timeout-and-cancel-sync-settings-button = Synkronoinnin asetukset
 
 

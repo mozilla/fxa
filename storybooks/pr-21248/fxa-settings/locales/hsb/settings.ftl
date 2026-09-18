@@ -1643,6 +1643,19 @@ index-account-delete-success = Konto je so wuspěšnje zhašało
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = Waša wobkrućenska e-mejl je so runje wróćiła. Je e-mejlowa adresa wopak?
 
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+# Browser tab title.
+inline-passwordless-sync-setup-page-title = Hesło přichodny raz přeskočić?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner = Pola { -brand-firefox } přizjewjeny
+inline-passwordless-sync-setup-heading = Hesło přichodny raz přeskočić?
+inline-passwordless-sync-setup-description = Wužiwajće tutón hesłowy kluč, zo byšće so spěšnišo přizjewił.
+inline-passwordless-sync-setup-enable-button = Hesłowy kluč zmóžnić
+# Button label while the passkey is stored.
+inline-passwordless-sync-setup-enabling = Zmóžnja so…
+inline-passwordless-sync-setup-not-now-button = Nic nětko
+
 ## InlineRecoveryKeySetup page component
 
 inline-recovery-key-setup-create-error = Hopla! Njemóžachmy waš kontowy wobnowjenski kluč wutworić. Prošu spytajće pozdźišo hišće raz.
@@ -1926,12 +1939,10 @@ pair2-authority-sync-success-sync-settings-button = Nastajenja synchronizacije
 pair2-authority-timeout-and-cancel-timeout-heading = Chceće hišće grat zwjazać?
 pair2-authority-timeout-and-cancel-timeout-description = Zda so, zo smy čas překročili. Spytajće hišće raz, jeli hišće chceće swój mobilny grat zwjazać a swoje daty { -brand-firefox } synchronizować.
 # Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-canceled-heading = Přetorhnjeny
+pair2-authority-timeout-and-cancel-cancelled-heading = Přetorhnjeny
 pair2-authority-timeout-and-cancel-canceled-description = Jeli swoje měnjenje měnjeće abo chceće druhi grat zwjazać, spytajće hišće raz.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Hišće raz spytać
-# Abandons pairing without retrying
-pair2-authority-timeout-and-cancel-cancel-button = Přetorhnyć
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = Nastajenja synchronizacije
 
@@ -2010,7 +2021,7 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Zda so, zo smy čas překr
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = Zo byšće swój mobilny grat zwjazał a swoje daty { -brand-firefox } synchronizował, wopytajće <b>firefox.com/pair</b> na swojim ličaku.
 # Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-canceled-heading = Přetorhnjeny
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Přetorhnjeny
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Zo byšće grat kóždy čas zwjazał, wopytajće <b>firefox.com/pair</b> na swojim ličaku.
 

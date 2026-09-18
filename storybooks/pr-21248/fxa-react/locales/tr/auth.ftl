@@ -343,13 +343,7 @@ subscriptionPaymentProviderCancelled-content-detect = { $productName } ödeme y�
 subscriptionReactivation-subject-2 = { $productName } aboneliğiniz yeniden etkinleştirildi
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-subject = { $productName } denemeniz yeniden etkinleştirildi
-# Variables:
-#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = { $productName } aboneliğinizi yeniden etkinleştirdiğiniz için teşekkür ederiz!
-# Variables:
-#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-title = { $productName } deneme sürümünüzü yeniden etkinleştirdiğiniz için teşekkür ederiz!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

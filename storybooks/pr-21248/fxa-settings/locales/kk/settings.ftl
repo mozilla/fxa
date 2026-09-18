@@ -1908,13 +1908,9 @@ pair2-authority-sync-success-sync-settings-button = Синхрондау бап�
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Әлі де құрылғыны қосқыңыз келе ме?
 pair2-authority-timeout-and-cancel-timeout-description = Байланыс орнатуға бөлінген уақыт өтіп кеткен сияқты. Мобильді құрылғыңызды қосып, { -brand-firefox } деректеріңізді синхрондағыңыз келсе, қайталап көріңіз.
-# Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-canceled-heading = Бас тартылған
 pair2-authority-timeout-and-cancel-canceled-description = Егер ойыңызды өзгертсеңіз немесе басқа құрылғыны қосқыңыз келсе, қайталап көріңіз.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Қайтадан көру
-# Abandons pairing without retrying
-pair2-authority-timeout-and-cancel-cancel-button = Бас тарту
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = Синхрондау баптаулары
 
@@ -1992,8 +1988,6 @@ pair2-supplicant-sync-success-sync-settings-button = Синхрондау бап
 pair2-supplicant-timeout-and-cancel-timeout-heading = Бөлінген уақыт өтіп кеткен сияқты
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = Мобильді құрылғыңызды қосу және { -brand-firefox } деректеріңізді синхрондау үшін компьютеріңізден <b>firefox.com/pair</b> сайтына кіріңіз.
-# Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-canceled-heading = Бас тартылған
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Құрылғыны кез келген уақытта қосу үшін компьютеріңізден <b>firefox.com/pair</b> сайтына кіріңіз.
 

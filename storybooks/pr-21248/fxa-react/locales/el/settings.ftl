@@ -1912,13 +1912,9 @@ pair2-authority-sync-success-sync-settings-button = Ρυθμίσεις συγχ�
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Θέλετε ακόμα να συνδέσετε μια συσκευή;
 pair2-authority-timeout-and-cancel-timeout-description = Φαίνεται ότι το χρονικό όριο έληξε. Δοκιμάστε ξανά αν θέλετε ακόμα να συνδέσετε την κινητή συσκευή σας και να συγχρονίσετε τα δεδομένα του { -brand-firefox } σας.
-# Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-canceled-heading = Ακυρώθηκε
 pair2-authority-timeout-and-cancel-canceled-description = Εάν αλλάξετε γνώμη ή θέλετε να συνδέσετε μια άλλη συσκευή, δοκιμάστε ξανά.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Δοκιμή ξανά
-# Abandons pairing without retrying
-pair2-authority-timeout-and-cancel-cancel-button = Ακύρωση
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = Ρυθμίσεις συγχρονισμού
 
@@ -1996,8 +1992,6 @@ pair2-supplicant-sync-success-sync-settings-button = Ρυθμίσεις συγχ
 pair2-supplicant-timeout-and-cancel-timeout-heading = Φαίνεται ότι το χρονικό όριο έληξε
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = Για να συνδέσετε την κινητή σας συσκευή και να συγχρονίσετε τα δεδομένα σας από το { -brand-firefox }, επισκεφθείτε το <b>firefox.com/pair</b> από τον υπολογιστή σας.
-# Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-canceled-heading = Ακυρώθηκε
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Για να συνδέσετε μια συσκευή ανά πάσα στιγμή, επισκεφθείτε το <b>firefox.com/pair</b> από τον υπολογιστή σας.
 

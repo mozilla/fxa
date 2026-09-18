@@ -1584,7 +1584,7 @@ set-password-passwordless-info = This password encrypts your synced data and kee
 
 
 set-password-subscription-heading = Create a { -product-mozilla-account }
-set-password-subscription-heading-with-product = Create a { -product-mozilla-account } <span>Continue to { $productName }</span>
+set-password-subscription-subheading = Continue to { $productName }
 
 
 third-party-auth-callback-message = Please wait, you are being redirected to the authorized application.

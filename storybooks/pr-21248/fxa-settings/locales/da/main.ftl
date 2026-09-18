@@ -1321,10 +1321,8 @@ pair2-authority-sync-success-sync-settings-button = Indstillinger for synkronise
 
 pair2-authority-timeout-and-cancel-timeout-heading = Vil du stadig forbinde en enhed?
 pair2-authority-timeout-and-cancel-timeout-description = Det ser ud til, at tidsfristen udløb. Prøv igen, hvis du stadig vil forbinde din mobile enhed og synkronisere dine { -brand-firefox }-data.
-pair2-authority-timeout-and-cancel-canceled-heading = Annulleret
 pair2-authority-timeout-and-cancel-canceled-description = Hvis du ombestemmer dig eller ønsker at forbinde en anden enhed, så prøv igen.
 pair2-authority-timeout-and-cancel-try-again-button = Prøv igen
-pair2-authority-timeout-and-cancel-cancel-button = Annuller
 pair2-authority-timeout-and-cancel-sync-settings-button = Indstillinger for synkronisering
 
 
@@ -1356,7 +1354,6 @@ pair2-supplicant-sync-success-sync-settings-button = Indstillinger for synkronis
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Det ser ud til, at tidsfristen udløb
 pair2-supplicant-timeout-and-cancel-timeout-description = For at forbinde din mobile enhed og synkronisere dine { -brand-firefox }-data, besøg <b>firefox.com/pair</b> på din computer.
-pair2-supplicant-timeout-and-cancel-canceled-heading = Annulleret
 pair2-supplicant-timeout-and-cancel-canceled-description = For at forbinde en enhed når som helst, besøg <b>firefox.com/pair</b> på din computer.
 
 

@@ -34,7 +34,7 @@ location-banner-currency-change = Cambio valuta non supportato. Per continuare, 
 upgrade-page-payment-information = Informazioni di pagamento
 # $nextInvoiceDate (number) - The date of the next invoice
 upgrade-page-acknowledgment = Il tuo piano verrà cambiato immediatamente e ti verrà addebitato oggi un importo ripartito proporzionalmente per la parte restante del ciclo di fatturazione. A partire da { $nextInvoiceDate } ti verrà addebitato l’intero importo.
-upgrade-page-acknowledgment-from-trial = Con l’aggiornamento, il periodo di prova gratuito attivo terminerà immediatamente e il nuovo abbonamento verrà addebitato oggi stesso.
+upgrade-page-acknowledgment-from-trial = Con l’aggiornamento, la versione di prova gratuita terminerà immediatamente e il nuovo abbonamento verrà addebitato oggi stesso.
 
 ## Authentication Error page
 
@@ -69,7 +69,7 @@ checkout-error-contact-support = Contatta il supporto per ricevere assistenza.
 cart-error-currency-not-determined = Non è stato possibile determinare la valuta per questo acquisto. Riprova.
 checkout-processing-general-error = Si è verificato un errore imprevisto durante l’elaborazione del pagamento, riprova.
 cart-total-mismatch-error = L’importo della fattura è cambiato. Riprova.
-cart-free-trial-mismatch-error = La tua idoneità alla prova gratuita è cambiata. Riprova.
+cart-free-trial-mismatch-error = La tua idoneità alla versione di prova gratuita è cambiata. Riprova.
 
 ## Error pages - Payment method failure messages
 
@@ -81,7 +81,7 @@ intent-payment-error-generic = Si è verificato un errore imprevisto durante l�
 intent-payment-error-insufficient-funds = Questa carta non dispone di credito sufficiente. Prova con un’altra carta.
 general-paypal-error = Si è verificato un errore imprevisto durante l’elaborazione del pagamento, riprova.
 paypal-active-subscription-no-billing-agreement-error = Sembra che si sia verificato un problema di fatturazione con il tuo account { -brand-paypal }. Riattiva i pagamenti automatici per il tuo abbonamento.
-new-account-prepaid-card-free-trial-not-allowed = Non è possibile utilizzare carte prepagate per avviare una prova gratuita su un nuovo account. Scegli un altro metodo di pagamento.
+new-account-prepaid-card-free-trial-not-allowed = Non è possibile utilizzare carte prepagate per ottenere una versione di prova gratuita su un nuovo account. Scegli un altro metodo di pagamento.
 
 ## Processing page and Needs Input page - /checkout and /upgrade
 ## Common strings used in multiple pages
@@ -149,11 +149,11 @@ interstitial-offer-error-button-contact-support = Contatta l’assistenza
 subscription-management-page-banner-warning-title-no-payment-method = Nessun metodo di pagamento aggiunto
 subscription-management-page-banner-warning-link-no-payment-method = Aggiungi un metodo di pagamento
 subscription-management-subscriptions-heading = Abbonamenti
-subscription-management-free-trial-heading = Prove gratuite
-subscription-management-your-free-trials-aria = Le tue prove gratuite
+subscription-management-free-trial-heading = Versione di prova gratuita
+subscription-management-your-free-trials-aria = Le tue versioni di prova gratuita
 # Heading for mobile only quick links menu
 subscription-management-jump-to-heading = Vai a
-subscription-management-nav-free-trials = Prove gratuite
+subscription-management-nav-free-trials = Versione di prova gratuita
 subscription-management-nav-payment-details = Dettagli del pagamento
 subscription-management-nav-active-subscriptions = Abbonamenti attivi
 subscription-management-payment-details-heading = Dettagli del pagamento
@@ -255,7 +255,7 @@ next-payment-confirm-with-legal-links-static-3 = Autorizzo { -brand-mozilla } ad
 
 ## $endDate (Date) - The end date of the free trial
 
-checkbox-payment-required-no-charge = È necessario configurare un metodo di pagamento per iniziare la prova gratuita. Non ti verrà addebitato alcun importo fino a { $endDate }.
+checkbox-payment-required-no-charge = È necessario configurare un metodo di pagamento per ottenere una versione di prova gratuita. Non ti verrà addebitato alcun importo fino a { $endDate }.
 checkbox-confirm-free-trial-with-legal-links = Al termine del periodo di prova gratuito il { $endDate }, autorizzo { -brand-mozilla } ad addebitare l’importo visualizzato utilizzando il metodo di pagamento da me scelto, in base alle <termsOfServiceLink>condizioni di utilizzo del servizio</termsOfServiceLink> e all’<privacyNoticeLink>informativa sulla privacy</privacyNoticeLink>, fino a quando non avrò annullato il mio abbonamento.
 next-payment-confirm-checkbox-error = È necessario selezionare questa opzione per procedere
 
@@ -263,7 +263,7 @@ next-payment-confirm-checkbox-error = È necessario selezionare questa opzione p
 
 next-new-user-submit = Abbonati adesso
 next-pay-with-heading-paypal = Paga con { -brand-paypal }
-free-trial-ineligible-notice = Il tuo account non può usufruire della prova gratuita. Puoi comunque procedere con un abbonamento a pagamento.
+free-trial-ineligible-notice = Il tuo account non è idoneo per una versione di prova gratuita. Puoi comunque procedere con un abbonamento a pagamento.
 
 ## Churn flow - cancel
 
@@ -338,28 +338,22 @@ next-coupon-submit = Applica
 ## $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 ## $tax (Number) - The tax amount. It will be formatted as currency.
 
-free-trial-content-trial-expires = La tua prova gratuita scade il { $date }.
-free-trial-content-trial-cancelled = La tua prova gratuita è stata annullata.
-
-# Charge info strings - with tax, per interval
-
+free-trial-content-trial-expires = La versione di prova gratuita scade il { $date }.
+free-trial-content-trial-cancelled = La versione di prova gratuita è stata annullata.
 free-trial-content-charge-info-with-tax-day = Ti verranno addebitati { $amount } + { $tax } (tasse) al giorno al termine del periodo di prova gratuito il { $date }.
 free-trial-content-charge-info-with-tax-week = Ti verranno addebitati { $amount } + { $tax } (tasse) a settimana al termine del periodo di prova gratuito il { $date }.
 free-trial-content-charge-info-with-tax-month = Ti verranno addebitati { $amount } + { $tax } (tasse) al mese al termine del periodo di prova gratuito il { $date }.
 free-trial-content-charge-info-with-tax-halfyear = Ti verranno addebitati { $amount } + { $tax } (tasse) ogni sei mesi al termine del periodo di prova gratuito il { $date }.
 free-trial-content-charge-info-with-tax-year = Ti verranno addebitati { $amount } + { $tax } (tasse) all’anno al termine del periodo di prova gratuito il { $date }.
 free-trial-content-charge-info-with-tax-default = Ti verranno addebitati { $amount } + { $tax } (tasse) al termine del periodo di prova gratuito il { $date }.
-
-# Charge info strings - no tax, per interval
-
 free-trial-content-charge-info-no-tax-day = Ti verranno addebitati { $amount } al giorno al termine del periodo di prova gratuito il { $date }.
 free-trial-content-charge-info-no-tax-week = Ti verranno addebitati { $amount } alla settimana al termine del periodo di prova gratuito il { $date }.
 free-trial-content-charge-info-no-tax-month = Ti verranno addebitati { $amount } al mese al termine del periodo di prova gratuito il { $date }.
 free-trial-content-charge-info-no-tax-halfyear = Ti verranno addebitati { $amount } ogni sei mesi al termine del periodo di prova gratuito il { $date }.
 free-trial-content-charge-info-no-tax-year = Ti verranno addebitati { $amount } all’anno al termine del periodo di prova gratuito il { $date }.
 free-trial-content-charge-info-no-tax-default = Ti verranno addebitati { $amount } al termine del periodo di prova gratuito il { $date }.
-free-trial-content-trial-ends = La tua prova gratuita termina il { $date }. Aggiorna il tuo metodo di pagamento per mantenere l’accesso dopo la prova gratuita.
-free-trial-content-trial-active = La tua prova gratuita è attiva.
+free-trial-content-trial-ends = La versione di prova gratuita termina il { $date }. Aggiorna il tuo metodo di pagamento per mantenere l’accesso dopo la prova gratuita.
+free-trial-content-trial-active = La versione di prova gratuita è attiva.
 free-trial-content-action-error = Si è verificato un errore imprevisto. Riprova.
 free-trial-content-button-resume-trial = Riprendi il periodo di prova
 free-trial-content-button-resume-trial-aria = Riprendi il periodo di prova per { $productName }
@@ -382,20 +376,17 @@ free-trial-content-link-view-invoice = Visualizza fattura
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 free-trial-content-link-view-invoice-aria = Visualizza fattura per { $productName }
 # $date (Date) - The date the free trial ended (e.g., January 16, 2026)
-free-trial-content-trial-ended = La tua prova gratuita è terminata il <bold>{ $date }</bold>.
+free-trial-content-trial-ended = La versione di prova gratuita è terminata il <bold>{ $date }</bold>.
 free-trial-content-could-not-process-payment = Non siamo riusciti a elaborare il tuo pagamento. Aggiorna il metodo di pagamento per riottenere l’accesso. L’elaborazione può richiedere fino a 24 ore e i tempi possono variare a seconda della banca o del metodo utilizzato.
 free-trial-content-button-update-payment = Aggiorna metodo di pagamento
-
-# Component - Header
-
 payments-header-help =
-    .title = Assistenza
-    .aria-label = Assistenza
     .alt = Assistenza
+    .aria-label = Assistenza
+    .title = Assistenza
 payments-header-bento =
-    .title = Prodotti { -brand-mozilla }
-    .aria-label = Prodotti { -brand-mozilla }
     .alt = Logo { -brand-mozilla }
+    .aria-label = Prodotti { -brand-mozilla }
+    .title = Prodotti { -brand-mozilla }
 payments-header-bento-close =
     .alt = Chiudi
 payments-header-bento-tagline = Altri prodotti { -brand-mozilla } che proteggono la tua privacy
@@ -435,8 +426,8 @@ interstitial-offer-button-keep-subscription = Mantieni l’abbonamento
 ##
 
 payments-client-loading-spinner =
-    .aria-label = Caricamento…
     .alt = Caricamento…
+    .aria-label = Caricamento…
 
 ## Payment method management page - Stripe
 
@@ -468,13 +459,13 @@ next-plan-details-show-button = Mostra dettagli
 
 free-trial-start-title =
     { $trialDayLength ->
-        [one] Inizia la tua prova gratuita di { $trialDayLength } giorno
-       *[other] Inizia la tua prova gratuita di { $trialDayLength } giorni
+        [one] Inizia la versione di prova gratuita di { $trialDayLength } giorno
+       *[other] Inizia la versione di prova gratuita di { $trialDayLength } giorni
     }
 free-trial-success-title =
     { $trialDayLength ->
-        [one] La tua prova gratuita di { $trialDayLength } giorno è iniziata
-       *[other] La tua prova gratuita di { $trialDayLength } giorni è iniziata
+        [one] Il periodo di prova gratuito di { $trialDayLength } giorno è iniziato
+       *[other] Il periodo di prova gratuito di { $trialDayLength } giorni è iniziato
     }
 
 ## $firstPrice (String) - The total price of the first charge for the subscription after the free trial ends

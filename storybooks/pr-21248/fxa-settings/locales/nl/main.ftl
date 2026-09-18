@@ -825,6 +825,8 @@ recent-activity-account-passwordless-registration-complete = Wachtwoordloze acco
 recent-activity-account-recovery-codes-set = Herstelcodes ingesteld
 recent-activity-account-passkey-wrap-created = Wachtwoordsleutel voor synchronisatie ingeschakeld
 recent-activity-account-passkey-wrap-creation-failure = Synchronisatie instellen met wachtwoordsleutel mislukt
+recent-activity-account-passkey-wrap-deleted = Toegang tot wachtwoordsleutelsynchronisatie verwijderd
+recent-activity-account-passkey-wrap-deletion-failure = Verwijderen van toegang tot wachtwoordsleutelsynchronisatie mislukt
 recent-activity-account-passkey-wrap-invalidated = Wachtwoordsleutel-synchronisatietoegang verwijderd na opnieuw instellen wachtwoord
 recent-activity-unknown = Overige accountactiviteit
 
@@ -1175,6 +1177,15 @@ index-account-delete-success = Account met succes verwijderd
 index-email-bounced = Uw bevestigings-e-mailbericht is zojuist geretourneerd. Hebt u het e-mailadres verkeerd getypt?
 
 
+inline-passwordless-sync-setup-page-title = De volgende keer het wachtwoord overslaan?
+inline-passwordless-sync-setup-success-banner = Aangemeld bij { -brand-firefox }
+inline-passwordless-sync-setup-heading = De volgende keer het wachtwoord overslaan?
+inline-passwordless-sync-setup-description = Gebruik deze wachtwoordsleutel om u sneller aan te melden.
+inline-passwordless-sync-setup-enable-button = Wachtwoordsleutel inschakelen
+inline-passwordless-sync-setup-enabling = Inschakelen…
+inline-passwordless-sync-setup-not-now-button = Niet nu
+
+
 inline-recovery-key-setup-create-error = Oeps! We konden uw accountherstelsleutel niet aanmaken. Probeer het later opnieuw.
 inline-recovery-key-setup-recovery-created = Sleutel voor accountherstel aangemaakt
 inline-recovery-key-setup-download-header = Beveilig uw account
@@ -1322,10 +1333,9 @@ pair2-authority-sync-success-sync-settings-button = Synchronisatie-instellingen
 
 pair2-authority-timeout-and-cancel-timeout-heading = Wilt u toch een apparaat verbinden?
 pair2-authority-timeout-and-cancel-timeout-description = Het lijkt erop dat er een time-out is opgetreden. Probeer het opnieuw als u nog steeds verbinding wilt maken met uw mobiele apparaat en uw { -brand-firefox }-gegevens wilt synchroniseren.
-pair2-authority-timeout-and-cancel-canceled-heading = Geannuleerd
+pair2-authority-timeout-and-cancel-cancelled-heading = Geannuleerd
 pair2-authority-timeout-and-cancel-canceled-description = Als u van gedachten verandert of een ander apparaat wilt verbinden, probeer het dan opnieuw.
 pair2-authority-timeout-and-cancel-try-again-button = Opnieuw proberen
-pair2-authority-timeout-and-cancel-cancel-button = Annuleren
 pair2-authority-timeout-and-cancel-sync-settings-button = Synchronisatie-instellingen
 
 
@@ -1358,7 +1368,7 @@ pair2-supplicant-sync-success-sync-settings-button = Synchronisatie-instellingen
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Het lijkt erop dat er een time-out is opgetreden
 pair2-supplicant-timeout-and-cancel-timeout-description = Bezoek <b>firefox.com/pair</b> op uw computer om uw mobiele apparaat te verbinden en uw { -brand-firefox }-gegevens te synchroniseren.
-pair2-supplicant-timeout-and-cancel-canceled-heading = Geannuleerd
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Geannuleerd
 pair2-supplicant-timeout-and-cancel-canceled-description = Bezoek <b>firefox.com/pair</b> op uw computer om op elk gewenst moment een apparaat te verbinden.
 
 

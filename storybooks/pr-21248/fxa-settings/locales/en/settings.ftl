@@ -2261,7 +2261,7 @@ set-password-passwordless-info = This password encrypts your synced data and kee
 
 set-password-subscription-heading = Create a { -product-mozilla-account }
 # $productName (String) - the name of the subscribed product, e.g. Mozilla VPN
-set-password-subscription-heading-with-product = Create a { -product-mozilla-account } <span>Continue to { $productName }</span>
+set-password-subscription-subheading = Continue to { $productName }
 
 ## ThirdPartyAuthCallback Page
 ## This page is called after a user completes the third party authentication flow from Google or Apple.

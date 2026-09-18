@@ -98,9 +98,6 @@ payment-provider-card-ending-in = <b>Phương thức thanh toán:</b> Thẻ kế
 payment-provider-card-ending-in-card-name = <b>Phương thức thanh toán:</b> { $cardName } kết thúc bằng { $lastFour }
 subscription-charges-invoice-summary = Tóm tắt hoá đơn
 
-# Variables:
-
-
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
 
@@ -376,13 +373,7 @@ subscriptionPaymentProviderCancelled-content-reason-1 = Có thể phương thứ
 subscriptionReactivation-subject-2 = Gói đăng ký { $productName } của bạn đã được kích hoạt lại
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-subject = Dùng thử { $productName } của bạn đã được kích hoạt lại
-# Variables:
-#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = Cảm ơn bạn đã kích hoạt lại thuê bao { $productName } của bạn!
-# Variables:
-#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-title = Cảm ơn bạn đã kích hoạt lại bản dùng thử { $productName }!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

@@ -98,9 +98,6 @@ payment-provider-card-ending-in = <b>付款方式：</b>尾号为 { $lastFour } 
 payment-provider-card-ending-in-card-name = <b>付款方式：</b>尾号为 { $lastFour } 的 { $cardName } 卡
 subscription-charges-invoice-summary = 发票摘要
 
-# Variables:
-
-
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
 
@@ -373,13 +370,7 @@ subscriptionPaymentProviderCancelled-content-reason-1 = 可能是您的付款方
 subscriptionReactivation-subject-2 = 您的 { $productName } 订阅已重新生效
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-subject = 您的 { $productName } 试用已重新生效
-# Variables:
-#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = 感谢您重新开始订阅 { $productName }！
-# Variables:
-#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-title = 感谢您重新开始试用 { $productName }！
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

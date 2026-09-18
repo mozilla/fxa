@@ -1618,8 +1618,6 @@ pair2-authority-sync-success-sync-settings-button = Synkronoinnin asetukset
 pair2-authority-timeout-and-cancel-timeout-heading = Haluatko yhdistää lisää laitteita?
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Yritä uudestaan
-# Abandons pairing without retrying
-pair2-authority-timeout-and-cancel-cancel-button = Peruuta
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = Synkronoinnin asetukset
 

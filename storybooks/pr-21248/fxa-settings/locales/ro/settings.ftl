@@ -1918,13 +1918,9 @@ pair2-authority-sync-success-sync-settings-button = Setări de sincronizare
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Încă vrei să conectezi un dispozitiv?
 pair2-authority-timeout-and-cancel-timeout-description = Se pare că timpul de conectare a expirat. Încercă din nou dacă dorești în continuare să-ți conectezi dispozitivul mobil și să-ți sincronizezi datele { -brand-firefox }.
-# Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-canceled-heading = Anulat
 pair2-authority-timeout-and-cancel-canceled-description = Dacă te-ai răzgândit sau dorești să conectezi un alt dispozitiv, încercă din nou.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Încearcă din nou
-# Abandons pairing without retrying
-pair2-authority-timeout-and-cancel-cancel-button = Anulează
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = Setări de sincronizare
 
@@ -2002,8 +1998,6 @@ pair2-supplicant-sync-success-sync-settings-button = Setări de sincronizare
 pair2-supplicant-timeout-and-cancel-timeout-heading = Se pare că timpul de conectare a expirat
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = Pentru a-ți conecta dispozitivul mobil și a-ți sincroniza datele { -brand-firefox }, accesează <b>firefox.com/pair</b> pe calculator.
-# Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-canceled-heading = Anulat
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Pentru a conecta un dispozitiv oricând, accesează <b>firefox.com/pair</b> pe calculator.
 
