@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { userEvent, UserEvent } from '@testing-library/user-event';
 import { AdminPanelGroup, AdminPanelGuard, GuardEnv } from '@fxa/shared/guards';
 import { IClientConfig } from '../../../interfaces';
@@ -39,7 +39,6 @@ jest.mock('../../lib/api', () => ({
   adminApi: {
     getOAuthScopes: jest.fn(),
     createOAuthScope: jest.fn(),
-    deleteOAuthScope: jest.fn(),
   },
 }));
 
@@ -62,8 +61,6 @@ describe('PageOAuthScopes', () => {
   beforeEach(() => {
     user = userEvent.setup();
     (adminApi.getOAuthScopes as jest.Mock).mockResolvedValue([]);
-    window.confirm = jest.fn(() => true);
-    window.alert = jest.fn();
   });
 
   afterEach(() => {
@@ -324,72 +321,16 @@ describe('PageOAuthScopes', () => {
     ).not.toBeInTheDocument();
   });
 
-  describe('delete', () => {
-    it('renders the deletion warning for users who can delete', async () => {
-      render(<PageOAuthScopes />);
-      await screen.findByText('No scopes yet.');
+  // The mocked user is AdminProd, which holds every admin feature.
+  it('renders no delete control for an admin user', async () => {
+    (adminApi.getOAuthScopes as jest.Mock).mockResolvedValue(mockScopes);
 
-      const warning = screen.getByTestId('oauth-scope-delete-warning');
-      expect(warning).toHaveAttribute('role', 'alert');
-      expect(warning).toHaveTextContent(/Deleting a scope is immediate/i);
-    });
+    render(<PageOAuthScopes />);
+    await screen.findAllByTestId('oauth-scope-row');
 
-    it('deletes a scope after confirmation and removes its row', async () => {
-      (adminApi.getOAuthScopes as jest.Mock).mockResolvedValue(mockScopes);
-      (adminApi.deleteOAuthScope as jest.Mock).mockResolvedValue(true);
-
-      render(<PageOAuthScopes />);
-      const rows = await screen.findAllByTestId('oauth-scope-row');
-      expect(rows).toHaveLength(2);
-
-      const oldsyncRow = findRowByScope(
-        'https://identity.mozilla.com/apps/oldsync'
-      )!;
-      await user.click(
-        within(oldsyncRow).getByTestId('oauth-scope-delete-btn')
-      );
-
-      await waitFor(() => {
-        expect(adminApi.deleteOAuthScope).toHaveBeenCalledWith(1);
-      });
-      await waitFor(() => {
-        expect(screen.getAllByTestId('oauth-scope-row')).toHaveLength(1);
-      });
-      expect(
-        findRowByScope('https://identity.mozilla.com/apps/oldsync')
-      ).toBeUndefined();
-    });
-
-    it('does not delete when the confirmation is dismissed', async () => {
-      (window.confirm as jest.Mock).mockReturnValue(false);
-      (adminApi.getOAuthScopes as jest.Mock).mockResolvedValue(mockScopes);
-
-      render(<PageOAuthScopes />);
-      const rows = await screen.findAllByTestId('oauth-scope-row');
-
-      await user.click(within(rows[0]).getByTestId('oauth-scope-delete-btn'));
-
-      expect(adminApi.deleteOAuthScope).not.toHaveBeenCalled();
-      expect(screen.getAllByTestId('oauth-scope-row')).toHaveLength(2);
-    });
-
-    it('alerts and keeps the row when delete fails', async () => {
-      (adminApi.getOAuthScopes as jest.Mock).mockResolvedValue(mockScopes);
-      (adminApi.deleteOAuthScope as jest.Mock).mockRejectedValue(
-        new Error('API error 404: Scope with id 1 not found')
-      );
-
-      render(<PageOAuthScopes />);
-      const rows = await screen.findAllByTestId('oauth-scope-row');
-
-      await user.click(within(rows[0]).getByTestId('oauth-scope-delete-btn'));
-
-      await waitFor(() => {
-        expect(window.alert).toHaveBeenCalledWith(
-          'Error deleting scope: API error 404: Scope with id 1 not found'
-        );
-      });
-      expect(screen.getAllByTestId('oauth-scope-row')).toHaveLength(2);
-    });
+    expect(
+      screen.queryByRole('button', { name: /delete/i })
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/deleting a scope/i)).not.toBeInTheDocument();
   });
 });
