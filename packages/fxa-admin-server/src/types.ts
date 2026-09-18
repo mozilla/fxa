@@ -54,7 +54,7 @@ export interface EmailBounce {
 export interface SecurityEvents {
   uid?: string;
   nameId?: number;
-  verified?: boolean;
+  verified?: boolean | null;
   ipAddrHmac?: string;
   createdAt?: number;
   tokenVerificationId?: string;

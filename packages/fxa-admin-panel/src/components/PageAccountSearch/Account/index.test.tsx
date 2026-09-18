@@ -717,7 +717,40 @@ describe('account history', () => {
     // The empty cell must stay, or the row loses a column.
     expect(
       getByText('event-0').closest('tr')?.querySelectorAll('td')
-    ).toHaveLength(4);
+    ).toHaveLength(5);
+  });
+
+  // The column sits between IP and Additional Info.
+  const VERIFIED_CELL_INDEX = 3;
+
+  const renderVerifiedCell = (verified?: boolean | null) => {
+    const [securityEvent] = buildSecurityEvents(1);
+    const { getByText } = render(
+      <Account
+        {...accountResponse}
+        securityEvents={[{ ...securityEvent, verified }]}
+      />
+    );
+    return getByText('event-0').closest('tr')?.querySelectorAll('td')[
+      VERIFIED_CELL_INDEX
+    ];
+  };
+
+  it('labels the verified column', () => {
+    const { getByRole } = render(
+      <Account {...accountResponse} securityEvents={buildSecurityEvents(1)} />
+    );
+
+    expect(getByRole('columnheader', { name: 'Verified' })).toBeInTheDocument();
+  });
+
+  it.each([
+    { verified: true, expected: 'Yes' },
+    { verified: false, expected: 'No' },
+    { verified: undefined, expected: '\u2014' },
+    { verified: null, expected: '\u2014' },
+  ])('shows $expected when verified is $verified', ({ verified, expected }) => {
+    expect(renderVerifiedCell(verified)).toHaveTextContent(expected);
   });
 });
 

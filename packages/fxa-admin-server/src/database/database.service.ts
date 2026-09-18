@@ -37,9 +37,11 @@ import { AppConfig } from '../config';
 import { AccountAuthorization } from '../types';
 import { uuidTransformer } from './transformers';
 
-function typeCasting(field: any, next: any) {
+// A nullable TINY(1) column must stay null, or callers cannot tell "not set" from false.
+export function typeCasting(field: any, next: any) {
   if (field.type === 'TINY' && field.length === 1) {
-    return field.string() === '1';
+    const value = field.string();
+    return value === null ? null : value === '1';
   }
   return next();
 }
