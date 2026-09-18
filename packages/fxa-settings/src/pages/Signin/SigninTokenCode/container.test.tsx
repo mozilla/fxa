@@ -5,6 +5,7 @@
 import * as SigninTokenCodeModule from '.';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import * as CacheModule from '../../../lib/cache';
+import * as OAuthFlowRecoveryModule from '../../../lib/hooks/useOAuthFlowRecovery';
 
 import { SigninTokenCodeProps } from './interfaces';
 import { Integration, useSensitiveDataClient } from '../../../models';
@@ -19,8 +20,12 @@ import {
   MOCK_UNWRAP_BKEY,
 } from '../../mocks';
 import { createMockWebIntegration } from '../../../lib/integrations/mocks';
-import { createMockSigninLocationState } from './mocks';
+import {
+  createMockSigninLocationState,
+  createOAuthNativeIntegration,
+} from './mocks';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
 let integration: Integration;
 const mockSensitiveDataClient = createMockSensitiveDataClient();
@@ -39,19 +44,16 @@ function applyDefaultMocks() {
   mockSigninTokenCodeModule();
   mockCurrentAccount();
   resetMockSensitiveDataClient();
+
+  mockCheckTotpTokenExists.mockResolvedValue({ verified: false });
 }
 
-let mockHasTotpAuthClient = false;
+const mockCheckTotpTokenExists = jest.fn();
+const mockAuthClient = { checkTotpTokenExists: mockCheckTotpTokenExists };
 jest.mock('../../../models', () => {
   return {
     ...jest.requireActual('../../../models'),
-    useAuthClient: () => {
-      return {
-        checkTotpTokenExists: jest
-          .fn()
-          .mockResolvedValue({ verified: mockHasTotpAuthClient }),
-      };
-    },
+    useAuthClient: () => mockAuthClient,
     useSensitiveDataClient: jest.fn(),
   };
 });
@@ -175,7 +177,7 @@ describe('SigninTokenCode container', () => {
       });
 
       it('redirects to totp screen if user has totp enabled', async () => {
-        mockHasTotpAuthClient = true;
+        mockCheckTotpTokenExists.mockResolvedValue({ verified: true });
         render();
 
         await waitFor(() => {
@@ -186,12 +188,51 @@ describe('SigninTokenCode container', () => {
       });
 
       it('does not redirect with totp false', async () => {
-        mockHasTotpAuthClient = false;
         render();
 
         await waitFor(() => {
           expect(mockNavigate).not.toHaveBeenCalled();
         });
+      });
+
+      it('redirects to the root when the session token is invalid', async () => {
+        mockCheckTotpTokenExists.mockRejectedValue(AuthUiErrors.INVALID_TOKEN);
+        render();
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledWith('/');
+        });
+      });
+
+      it('recovers an OAuth native integration when the session token is invalid', async () => {
+        integration = createOAuthNativeIntegration() as Integration;
+        const attemptOAuthFlowRecovery = jest.fn();
+        jest
+          .spyOn(OAuthFlowRecoveryModule, 'useOAuthFlowRecovery')
+          .mockReturnValue({
+            isRecovering: false,
+            recoveryFailed: false,
+            attemptOAuthFlowRecovery,
+          });
+        mockCheckTotpTokenExists.mockRejectedValue(AuthUiErrors.INVALID_TOKEN);
+        render();
+
+        await waitFor(() => {
+          expect(attemptOAuthFlowRecovery).toHaveBeenCalledTimes(1);
+        });
+        expect(mockNavigate).not.toHaveBeenCalled();
+      });
+
+      it('does not redirect on any other error', async () => {
+        mockCheckTotpTokenExists.mockRejectedValue(
+          AuthUiErrors.UNEXPECTED_ERROR
+        );
+        render();
+
+        await waitFor(() => {
+          expect(mockCheckTotpTokenExists).toHaveBeenCalled();
+        });
+        expect(mockNavigate).not.toHaveBeenCalled();
       });
     });
   });
