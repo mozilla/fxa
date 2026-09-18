@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 1357202aca2f718fa45e05405cb6acb1e17e4b69</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 1357202aca2f718fa45e05405cb6acb1e17e4b69</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/18/2026, 8:48:36 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): show blocked error on the passwordless email form</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- The passwordless email form navigated to the code page before any code was requested, and the code page sent the first code on mount.
+- An admin blocklist hit (`REQUEST_BLOCKED`, errno 125) landed the user on the code page with no code to enter and no way forward.
+
+## This pull request
+
+- Sends the first passwordless code from the Index container before it navigates.
+- Rethrows `REQUEST_BLOCKED` into the existing `handleEmailSubmissionError` path, so the banner shows on the email form and no navigation happens.
+- Returns false for any other send failure, so the flow navigates as before and the code page sends again and reports the error.
+- Passes `codeSent: true` in location state on success, so the code page skips its mount send and the flow makes one `send_code` request.
+- Moves `GleanMetrics.emailFirst.submitSuccess` after `handleSuccessNavigation`, so a blocked send records `submitFail` only.
+
+## Issue that this pull request solves
+
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-13688</pre></dd>
+  </dl>
+</body>
+</html>
