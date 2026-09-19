@@ -112,6 +112,7 @@ export class SessionToken extends BaseToken {
   deviceCommandData?: string;
   tokenVerificationId?: string;
   metricsOptOutAt?: number;
+  disabledAt?: number;
 
   // generated
   deviceAvailableCommands!: {

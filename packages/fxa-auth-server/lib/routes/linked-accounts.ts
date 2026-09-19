@@ -18,6 +18,7 @@ import DESCRIPTION from '../../docs/swagger/shared/descriptions';
 import { AppError as error } from '@fxa/accounts/errors';
 import { schema as METRICS_CONTEXT_SCHEMA } from '../metrics/context';
 import {
+  assertAccountEnabled,
   checkBlocklists,
   notifyAttachedServicesForAccountSession,
 } from './utils/account';
@@ -461,6 +462,7 @@ export class LinkedAccountHandler {
       try {
         // This is a new third party account linking an existing FxA account
         accountRecord = await this.db.accountRecord(email);
+        assertAccountEnabled(accountRecord);
         await this.db.createLinkedAccount(accountRecord.uid, userid, provider);
 
         if (name) {
@@ -575,6 +577,7 @@ export class LinkedAccountHandler {
     } else {
       // This is an existing user and existing FxA user
       accountRecord = await this.db.account(linkedAccountRecord.uid);
+      assertAccountEnabled(accountRecord);
       if (service === 'sync') {
         request.setMetricsFlowCompleteSignal('account.signed', 'login');
       } else {

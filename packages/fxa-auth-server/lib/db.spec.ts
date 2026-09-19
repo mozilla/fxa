@@ -29,6 +29,7 @@ jest.mock('fxa-shared/db/models/auth', () => ({
   Account: {
     delete: jest.fn().mockResolvedValue(null),
     reset: jest.fn().mockResolvedValue(null),
+    query: jest.fn(),
   },
 }));
 
@@ -200,6 +201,34 @@ describe('db with redis disabled:', () => {
       {}
     );
     db = await DB.connect({});
+  });
+
+  describe('db.accountDisabledAt', () => {
+    const MOCK_UID = 'f9416ce3703e4916a4cd6b1e665a3f1a';
+    const MOCK_DISABLED_AT = 1_700_000_000_000;
+
+    function givenAccountRow(row: { disabledAt: number | null } | undefined) {
+      models.Account.query.mockReturnValue({
+        select: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        first: jest.fn().mockResolvedValue(row),
+      });
+    }
+
+    it('returns the disabledAt timestamp for a disabled account', async () => {
+      givenAccountRow({ disabledAt: MOCK_DISABLED_AT });
+      expect(await db.accountDisabledAt(MOCK_UID)).toBe(MOCK_DISABLED_AT);
+    });
+
+    it('returns null for an enabled account', async () => {
+      givenAccountRow({ disabledAt: null });
+      expect(await db.accountDisabledAt(MOCK_UID)).toBeNull();
+    });
+
+    it('returns null when the account does not exist', async () => {
+      givenAccountRow(undefined);
+      expect(await db.accountDisabledAt(MOCK_UID)).toBeNull();
+    });
   });
 
   it('db.sessions succeeds without a redis instance', async () => {

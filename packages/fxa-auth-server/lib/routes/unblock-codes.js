@@ -16,6 +16,7 @@ const { HEX_STRING, BASE_36 } = validators;
 const { Container } = require('typedi');
 const { FxaMailer } = require('../senders/fxa-mailer');
 const { FxaMailerFormat } = require('../senders/fxa-mailer-format');
+const { assertAccountEnabled } = require('./utils/account');
 
 module.exports = (log, db, mailer, config, customs) => {
   const unblockCodeLen = (config && config.codeLength) || 0;
@@ -44,6 +45,7 @@ module.exports = (log, db, mailer, config, customs) => {
         await customs.check(request, email, 'sendUnblockCode');
 
         const emailRecord = await db.accountRecord(email);
+        assertAccountEnabled(emailRecord);
         const { uid } = emailRecord;
 
         const unblockCode = await db.createUnblockCode(uid);

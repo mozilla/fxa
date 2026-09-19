@@ -380,6 +380,10 @@ const ERRORS = {
     message:
       'Sorry, we couldn’t delete your account. Please try again, or contact support if the problem persists.',
   },
+  ACCOUNT_DISABLED: {
+    errno: ERRNO.ACCOUNT_DISABLED,
+    message: 'This account has been disabled',
+  },
   USER_CANCELED_LOGIN: {
     errno: 1001,
     message: 'Login attempt cancelled',

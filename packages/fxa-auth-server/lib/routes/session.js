@@ -125,6 +125,7 @@ module.exports = function (
           error.cannotLoginWithSecondaryEmail,
           error.invalidUnblockCode,
           error.cannotLoginWithEmail,
+          error.accountDisabled,
         ],
       },
       options: {

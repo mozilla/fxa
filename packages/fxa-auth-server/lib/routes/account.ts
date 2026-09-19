@@ -36,6 +36,8 @@ import {
 import { StripeHelper } from '../payments/stripe';
 import { AuthClientInfoService, AuthLogger, AuthRequest } from '../types';
 import {
+  assertAccountEnabled,
+  assertAccountEnabledByUid,
   checkBlocklists,
   deleteAccountIfUnverified,
   fetchRpCmsData,
@@ -815,6 +817,7 @@ export class AccountHandler {
       uid = payload.uid;
       form.uid = payload.uid;
       const account = await this.db.account(uid);
+      assertAccountEnabled(account);
       await this.setPasswordOnStubAccount({
         account,
         authPW,
@@ -887,9 +890,6 @@ export class AccountHandler {
         email
       );
       accountRecord = res.accountRecord;
-      if (accountRecord.disabledAt) {
-        throw error.cannotLoginWithEmail();
-      }
       // Remember whether they did a signin-unblock,
       // because we can use it to bypass token verification.
       didSigninUnblock = res.didSigninUnblock;
@@ -1745,6 +1745,9 @@ export class AccountHandler {
       // don't delete the token on use until the account is verified
       throw error.unverifiedAccount();
     }
+    // keyFetchToken lookups don't carry disabledAt; a token minted by a
+    // sign-in that raced an admin disable must still not release keys.
+    await assertAccountEnabledByUid(this.db, keyFetchToken.uid);
     await this.db.deleteKeyFetchToken(keyFetchToken);
     await request.emitMetricsEvent('account.keyfetch', {
       uid: keyFetchToken.uid,
@@ -2057,6 +2060,7 @@ export class AccountHandler {
       return response;
     };
 
+    await assertAccountEnabledByUid(this.db, accountResetToken.uid);
     await checkRecoveryKey();
     await checkTotpToken();
     await resetAccountData();
@@ -2079,9 +2083,7 @@ export class AccountHandler {
 
     const accountRecord = await this.db.accountRecord(email);
 
-    if (accountRecord.disabledAt) {
-      throw error.cannotLoginWithEmail();
-    }
+    assertAccountEnabled(accountRecord);
 
     if (accountRecord.verifierSetAt <= 0) {
       throw error.cannotLoginWithEmail();
@@ -2649,6 +2651,7 @@ export const accountRoutes = (
           error.cannotLoginWithSecondaryEmail,
           error.invalidUnblockCode,
           error.cannotLoginWithEmail,
+          error.accountDisabled,
           error.cannotSendEmail,
         ],
       },

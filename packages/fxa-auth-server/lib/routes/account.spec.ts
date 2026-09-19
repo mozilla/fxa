@@ -138,6 +138,7 @@ const rpConfigManager = {
 };
 
 const TEST_EMAIL = 'foo@gmail.com';
+const MOCK_DISABLED_AT = 1_700_000_000_000;
 
 function hexString(bytes: number) {
   return crypto.randomBytes(bytes).toString('hex');
@@ -377,6 +378,13 @@ describe('/account/reset', () => {
     glean.resetPassword.accountReset.mockReset();
     glean.resetPassword.createNewSuccess.mockReset();
     glean.resetPassword.recoveryKeyCreatePasswordSuccess.mockReset();
+  });
+
+  it('rejects a disabled account with ACCOUNT_DISABLED', async () => {
+    mockDB.accountDisabledAt.mockResolvedValueOnce(MOCK_DISABLED_AT);
+    await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+      errno: error.ERRNO.ACCOUNT_DISABLED,
+    });
   });
 
   describe('reset account with account recovery key', () => {
@@ -741,6 +749,23 @@ describe('deleteAccountIfUnverified', () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
+  it('refuses to replace a disabled account with ACCOUNT_EXISTS', async () => {
+    mockDB.accountDisabledAt.mockResolvedValueOnce(MOCK_DISABLED_AT);
+    const mockStripeHelper = {
+      hasActiveSubscription: async () => Promise.resolve(false),
+    };
+
+    await expect(
+      deleteAccountIfUnverified(
+        mockDB,
+        mockStripeHelper,
+        mockLog,
+        mockRequest,
+        TEST_EMAIL
+      )
+    ).rejects.toMatchObject({ errno: error.ERRNO.ACCOUNT_EXISTS });
+  });
+
   it('should delete an unverified account with no linked Stripe account', async () => {
     const mockStripeHelper = {
       hasActiveSubscription: async () => Promise.resolve(false),
@@ -2047,6 +2072,7 @@ describe('/account/finish_setup', () => {
         authSalt: '',
         wrapWrapKb: 'wibble',
         verifierSetAt: options.verifierSetAt,
+        disabledAt: options.disabledAt,
       },
       {
         emailRecord: error.unknownAccount(),
@@ -2110,6 +2136,16 @@ describe('/account/finish_setup', () => {
       expect(mockDB.resetAccount).toHaveBeenCalledTimes(1);
       expect(response.sessionToken).toBeTruthy();
       expect(response.uid).toBe(uid);
+    });
+  });
+
+  it('rejects a disabled stub account with ACCOUNT_DISABLED', async () => {
+    const { route, mockRequest } = setup({
+      verifierSetAt: 0,
+      disabledAt: MOCK_DISABLED_AT,
+    });
+    await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+      errno: error.ERRNO.ACCOUNT_DISABLED,
     });
   });
 
@@ -2364,6 +2400,17 @@ describe('/account/login', () => {
       mockDB.securityEvent.mockClear();
     }
     Container.reset();
+  });
+
+  it('rejects a disabled account with ACCOUNT_DISABLED', async () => {
+    mockDB.accountRecord = jest.fn(async () => ({
+      ...(await defaultEmailAccountRecord()),
+      disabledAt: MOCK_DISABLED_AT,
+    }));
+
+    await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+      errno: error.ERRNO.ACCOUNT_DISABLED,
+    });
   });
 
   it('emits the correct series of calls and events', () => {
@@ -3879,6 +3926,53 @@ describe('/account/login', () => {
   });
 });
 
+describe('/account/credentials/status', () => {
+  const uid = 'f9416ce3703e4916a4cd6b1e665a3f1a';
+
+  beforeEach(() => {
+    mocks.mockOAuthClientInfo();
+  });
+
+  afterEach(() => {
+    Container.reset();
+  });
+
+  function makeRequest() {
+    return mocks.mockRequest({ payload: { email: TEST_EMAIL } });
+  }
+
+  function makeRoute(mockDB: any) {
+    return getRoute(
+      makeRoutes({
+        db: mockDB,
+        customs: { check: () => Promise.resolve() },
+      }),
+      '/account/credentials/status'
+    );
+  }
+
+  it('reports the credential version for an enabled account', async () => {
+    const mockDB = mocks.mockDB({ email: TEST_EMAIL, uid });
+    const response = await runTest(makeRoute(mockDB), makeRequest());
+    expect(response).toEqual({
+      currentVersion: 'v1',
+      clientSalt: undefined,
+      upgradeNeeded: true,
+    });
+  });
+
+  it('rejects a disabled account with ACCOUNT_DISABLED', async () => {
+    const mockDB = mocks.mockDB({
+      email: TEST_EMAIL,
+      uid,
+      disabledAt: MOCK_DISABLED_AT,
+    });
+    await expect(
+      runTest(makeRoute(mockDB), makeRequest())
+    ).rejects.toMatchObject({ errno: error.ERRNO.ACCOUNT_DISABLED });
+  });
+});
+
 describe('/account/keys', () => {
   const keyFetchTokenId = hexString(16);
   const uid = crypto.randomBytes(16).toString('hex');
@@ -3928,6 +4022,13 @@ describe('/account/keys', () => {
     }).then(() => {
       mockLog.activityEvent.mockClear();
       mockDB.deleteKeyFetchToken.mockClear();
+    });
+  });
+
+  it('rejects a disabled account with ACCOUNT_DISABLED', async () => {
+    mockDB.accountDisabledAt.mockResolvedValueOnce(MOCK_DISABLED_AT);
+    await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+      errno: error.ERRNO.ACCOUNT_DISABLED,
     });
   });
 

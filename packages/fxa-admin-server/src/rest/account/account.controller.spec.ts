@@ -4,6 +4,7 @@
 
 import { Firestore } from '@google-cloud/firestore';
 import { Provider } from '@nestjs/common';
+import * as Sentry from '@sentry/node';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Request } from 'express';
@@ -35,6 +36,11 @@ import { AccountController } from './account.controller';
 // AccountController imports SentryTraced from @sentry/nestjs, whose module init
 // does not run under Jest; stub the decorator to a no-op.
 jest.mock('@sentry/nestjs', () => ({ SentryTraced: () => () => undefined }));
+// The ESM namespace is not spyable, so replace captureException at the module.
+jest.mock('@sentry/node', () => ({
+  ...jest.requireActual('@sentry/node'),
+  captureException: jest.fn(),
+}));
 
 describe('AccountController', () => {
   let controller: AccountController;
@@ -52,6 +58,7 @@ describe('AccountController', () => {
   let accountQuery: {
     select: jest.Mock;
     innerJoin: jest.Mock;
+    update: jest.Mock;
     where: jest.Mock;
     findOne: jest.Mock;
     first: jest.Mock;
@@ -82,6 +89,9 @@ describe('AccountController', () => {
   const NO_ACCOUNT_LOCATOR = 'nobody@example.com';
   const MOCK_USER = 'admin@mozilla.com';
   const NOTIFICATION_EMAIL = 'notify@mozilla.com';
+  let db: DeepMocked<DatabaseService>;
+  let profileClient: DeepMocked<ProfileClient>;
+
   const mockAccount = { uid: MOCK_UID, email: EMAIL_LOCATOR } as Account;
   const mockRequest = { headers: {}, ip: '127.0.0.1' } as unknown as Request;
 
@@ -103,10 +113,12 @@ describe('AccountController', () => {
     accountQuery = {
       select: jest.fn().mockReturnThis(),
       innerJoin: jest.fn().mockReturnThis(),
+      update: jest.fn().mockReturnThis(),
       where: jest.fn().mockReturnThis(),
       findOne: jest.fn(),
       first: jest.fn(),
     };
+    profileClient = createMock<ProfileClient>();
     givenAccount(undefined); // default: no account found
 
     // Deletes resolve to a row count; default both tables to a hit.
@@ -131,7 +143,7 @@ describe('AccountController', () => {
     );
     securityEvents = { create: jest.fn().mockResolvedValue({}) };
 
-    const db = createMock<DatabaseService>({
+    db = createMock<DatabaseService>({
       account: { query: jest.fn().mockReturnValue(accountQuery) } as any,
       knex: knexMock as any,
       securityEvents: securityEvents as any,
@@ -156,7 +168,7 @@ describe('AccountController', () => {
         stub(SubscriptionsService),
         stub(BasketService),
         stub(FirestoreService),
-        stub(ProfileClient),
+        { provide: ProfileClient, useValue: profileClient },
         stub(FidoMdsService),
         { provide: Firestore, useValue: {} },
       ],
@@ -312,6 +324,132 @@ describe('AccountController', () => {
           },
         ]);
       });
+    });
+  });
+
+  // The update chain resolves to the affected row count.
+  const givenAccountUpdated = (rows: number) =>
+    accountQuery.where.mockReturnValueOnce(Promise.resolve(rows));
+
+  describe('disableAccount', () => {
+    it('sets disabledAt on the account', async () => {
+      givenAccountUpdated(1);
+      await controller.disableAccount(MOCK_UID, mockRequest);
+      expect(accountQuery.update).toHaveBeenCalledWith({
+        disabledAt: expect.any(Number),
+      });
+      expect(accountQuery.where).toHaveBeenCalledWith(
+        'uid',
+        uuidTransformer.to(MOCK_UID)
+      );
+    });
+
+    it('revokes every session and token for the account', async () => {
+      givenAccountUpdated(1);
+      await controller.disableAccount(MOCK_UID, mockRequest);
+      expect(db.revokeAccountTokens).toHaveBeenCalledWith(MOCK_UID);
+    });
+
+    it('revokes tokens before marking the account disabled', async () => {
+      givenAccountUpdated(1);
+      await controller.disableAccount(MOCK_UID, mockRequest);
+      expect(db.revokeAccountTokens.mock.invocationCallOrder[0]).toBeLessThan(
+        accountQuery.update.mock.invocationCallOrder[0]
+      );
+    });
+
+    it('rejects with the revocation error when revocation fails', async () => {
+      givenAccountUpdated(1);
+      db.revokeAccountTokens.mockRejectedValue(new Error('oauth db down'));
+
+      await expect(
+        controller.disableAccount(MOCK_UID, mockRequest)
+      ).rejects.toThrow('oauth db down');
+    });
+
+    it('clears the profile cache and notifies attached services', async () => {
+      givenAccountUpdated(1);
+      await controller.disableAccount(MOCK_UID, mockRequest);
+      expect(profileClient.deleteCache).toHaveBeenCalledWith(MOCK_UID);
+      expect(notifier.send).toHaveBeenCalledWith({
+        event: 'profileDataChange',
+        data: { ts: expect.any(Number), uid: MOCK_UID },
+      });
+    });
+
+    it('records an account.disable security event attributed to the admin request', async () => {
+      givenAccountUpdated(1);
+      await controller.disableAccount(MOCK_UID, mockRequest);
+      expect(db.securityEvents.create).toHaveBeenCalledWith({
+        uid: MOCK_UID,
+        name: 'account.disable',
+        ipAddr: '127.0.0.1',
+        ipHmacKey: 'test',
+        additionalInfo: { userAgent: undefined, adminPanelAction: true },
+      });
+    });
+
+    it('returns true when the account was disabled', async () => {
+      givenAccountUpdated(1);
+      expect(await controller.disableAccount(MOCK_UID, mockRequest)).toBe(true);
+    });
+
+    it('still reports success when the profile cache clear fails', async () => {
+      givenAccountUpdated(1);
+      profileClient.deleteCache.mockRejectedValue(
+        new Error('profile server unavailable')
+      );
+      expect(await controller.disableAccount(MOCK_UID, mockRequest)).toBe(true);
+      expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(Error), {
+        extra: { uid: MOCK_UID },
+      });
+    });
+
+    it('returns false when no account matches the uid', async () => {
+      givenAccountUpdated(0);
+      expect(await controller.disableAccount(MOCK_UID, mockRequest)).toBe(
+        false
+      );
+    });
+  });
+
+  describe('enableAccount', () => {
+    it('clears disabledAt on the account', async () => {
+      givenAccountUpdated(1);
+      await controller.enableAccount(MOCK_UID, mockRequest);
+      expect(accountQuery.update).toHaveBeenCalledWith({ disabledAt: null });
+    });
+
+    it('records an account.enable security event attributed to the admin request', async () => {
+      givenAccountUpdated(1);
+      await controller.enableAccount(MOCK_UID, mockRequest);
+      expect(db.securityEvents.create).toHaveBeenCalledWith({
+        uid: MOCK_UID,
+        name: 'account.enable',
+        ipAddr: '127.0.0.1',
+        ipHmacKey: 'test',
+        additionalInfo: { userAgent: undefined, adminPanelAction: true },
+      });
+    });
+
+    it('clears the profile cache and notifies attached services', async () => {
+      givenAccountUpdated(1);
+      await controller.enableAccount(MOCK_UID, mockRequest);
+      expect(profileClient.deleteCache).toHaveBeenCalledWith(MOCK_UID);
+      expect(notifier.send).toHaveBeenCalledWith({
+        event: 'profileDataChange',
+        data: { ts: expect.any(Number), uid: MOCK_UID },
+      });
+    });
+
+    it('returns true when the account was enabled', async () => {
+      givenAccountUpdated(1);
+      expect(await controller.enableAccount(MOCK_UID, mockRequest)).toBe(true);
+    });
+
+    it('returns false when no account matches the uid', async () => {
+      givenAccountUpdated(0);
+      expect(await controller.enableAccount(MOCK_UID, mockRequest)).toBe(false);
     });
   });
 

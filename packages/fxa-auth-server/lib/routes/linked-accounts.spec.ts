@@ -130,6 +130,7 @@ describe('/linked_account', () => {
   let originalFetch: typeof global.fetch;
 
   const UID = 'fxauid';
+  const MOCK_DISABLED_AT = 1_700_000_000_000;
 
   beforeEach(() => {
     originalFetch = global.fetch;
@@ -450,6 +451,34 @@ describe('/linked_account', () => {
         expect(glean.thirdPartyAuth.googleLoginComplete).toHaveBeenCalledWith(
           mockRequest
         );
+      });
+
+      it('rejects a disabled account that is already linked', async () => {
+        mockDB.getLinkedAccount = jest.fn(() =>
+          Promise.resolve({ id: mockGoogleUser.sub, uid: UID })
+        );
+        mockDB.account = jest.fn(() =>
+          Promise.resolve({ uid: UID, disabledAt: MOCK_DISABLED_AT })
+        );
+
+        await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+          errno: error.ERRNO.ACCOUNT_DISABLED,
+        });
+      });
+
+      it('rejects linking a new google account to a disabled account', async () => {
+        mockDB.getLinkedAccount = jest.fn(() => Promise.resolve(null));
+        mockDB.accountRecord = jest.fn(() =>
+          Promise.resolve({
+            uid: UID,
+            email: mockGoogleUser.email,
+            disabledAt: MOCK_DISABLED_AT,
+          })
+        );
+
+        await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+          errno: error.ERRNO.ACCOUNT_DISABLED,
+        });
       });
 
       it('with 2fa enabled', async () => {

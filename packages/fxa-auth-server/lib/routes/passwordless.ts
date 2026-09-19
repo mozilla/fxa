@@ -33,6 +33,7 @@ import {
 import { normalizeEmail } from 'fxa-shared/email/helpers';
 import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
 import {
+  assertAccountEnabled,
   checkBlocklists,
   getOptionalCmsEmailConfig,
   notifyAttachedServicesForAccountSession,
@@ -98,21 +99,24 @@ class PasswordlessHandler {
 
   /**
    * Look up an account by email. Returns null if the account doesn't exist.
+   * Throws if the account exists but is disabled.
    */
   private async lookupAccount(
     email: string
   ): Promise<{ account: any; isNewAccount: boolean }> {
+    let account;
     try {
-      const account = await this.db.accountRecord(email, {
+      account = await this.db.accountRecord(email, {
         linkedAccounts: true,
       });
-      return { account, isNewAccount: false };
     } catch (err: any) {
       if (err.errno !== error.ERRNO.ACCOUNT_UNKNOWN) {
         throw err;
       }
       return { account: null, isNewAccount: true };
     }
+    assertAccountEnabled(account);
+    return { account, isNewAccount: false };
   }
 
   /**

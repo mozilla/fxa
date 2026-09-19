@@ -795,6 +795,18 @@ describe('/recovery_email/verify_code', () => {
     verificationReminders.delete.mockClear();
   });
 
+  it('rejects a disabled account with ACCOUNT_DISABLED', async () => {
+    mockDB.account.mockResolvedValueOnce({
+      uid,
+      email: TEST_EMAIL,
+      disabledAt: 1_700_000_000_000,
+    });
+
+    await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+      errno: error.ERRNO.ACCOUNT_DISABLED,
+    });
+  });
+
   describe('verifyTokens rejects with INVALID_VERIFICATION_CODE', () => {
     it('without a reminder payload', () => {
       return runTest(route, mockRequest, (response: any) => {

@@ -177,6 +177,16 @@ async function create(
       return (async () => {
         const token = await dbGetFn(id);
 
+        // Only the session-token lookup returns accounts.disabledAt. The
+        // other token kinds are guarded at the routes that mint or use them.
+        if (token.disabledAt) {
+          log.info('auth.token.account_disabled', { uid: token.uid });
+          statsd.increment('auth.token.account_disabled', [
+            `kind:${token.constructor.tokenTypeID}`,
+          ]);
+          return null;
+        }
+
         if (!token.expired(Date.now())) {
           return token;
         }
