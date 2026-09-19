@@ -332,16 +332,21 @@ describe('AccountController', () => {
       expect(db.revokeAccountTokens).toHaveBeenCalledWith(MOCK_UID);
     });
 
-    it('records the security event even when revocation fails', async () => {
+    it('revokes tokens before marking the account disabled', async () => {
+      givenAccountUpdated(1);
+      await controller.disableAccount(MOCK_UID, mockRequest);
+      expect(db.revokeAccountTokens.mock.invocationCallOrder[0]).toBeLessThan(
+        accountQuery.update.mock.invocationCallOrder[0]
+      );
+    });
+
+    it('rejects with the revocation error when revocation fails', async () => {
       givenAccountUpdated(1);
       db.revokeAccountTokens.mockRejectedValue(new Error('oauth db down'));
 
       await expect(
         controller.disableAccount(MOCK_UID, mockRequest)
       ).rejects.toThrow('oauth db down');
-      expect(db.securityEvents.create).toHaveBeenCalledWith(
-        expect.objectContaining({ uid: MOCK_UID, name: 'account.disable' })
-      );
     });
 
     it('clears the profile cache and notifies attached services', async () => {

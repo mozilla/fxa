@@ -482,6 +482,10 @@ export class AccountController {
   public async disableAccount(@Body('uid') uid: string, @Req() req: Request) {
     this.eventLogging.onEvent(EventNames.DisableLogin);
     const uidBuffer = uuidTransformer.to(uid);
+    // Revoke before flagging: a revocation failure then leaves the account
+    // enabled and retryable, rather than disabled with live credentials
+    // that a later enable would reactivate.
+    await this.db.revokeAccountTokens(uid);
     const result = await this.db.account
       .query()
       .update({ disabledAt: Date.now() })
@@ -491,7 +495,6 @@ export class AccountController {
     }
 
     await this.recordAdminSecurityEvent(uid, 'account.disable', req);
-    await this.db.revokeAccountTokens(uid);
     await this.notifyProfileChanged(uid);
     return true;
   }
