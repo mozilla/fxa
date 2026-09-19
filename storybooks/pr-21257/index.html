@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 0b1a1333e8f1a03fb4a4a856b361c8ec19cbad88</title>
+  <title>Storybooks for commit 998946cf372ddf50c2d192168b9e444eb0c32ff0</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,25 +23,26 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 0b1a1333e8f1a03fb4a4a856b361c8ec19cbad88</h1>
+  <h1>Storybooks for commit 998946cf372ddf50c2d192168b9e444eb0c32ff0</h1>
   <ul>
     <li><a href="./fxa-react/">fxa-react</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/18/2026, 9:33:54 PM UTC</dd>
+    <dd>9/19/2026, 12:19:34 AM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(admin-server): let a repeated disable retry token revocation</pre></dd>
+    <dd><pre>fix(admin-server): revoke tokens before flagging an account disabled</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-- Refusing to re-disable an already-disabled account meant a failed
-  revocation could never be retried without enabling the account first.
+- Flagging first meant a failed revocation left the account disabled
+  with live credentials, which a later enable would reactivate.
 
 This commit:
 
-- Drops the disabledAt IS NULL condition from the disable update.</pre></dd>
+- Runs revokeAccountTokens before the disabledAt update so a failure
+  leaves the account enabled and the action retryable.</pre></dd>
   </dl>
 </body>
 </html>

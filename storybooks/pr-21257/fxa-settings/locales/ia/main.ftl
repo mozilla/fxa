@@ -1180,7 +1180,10 @@ index-account-delete-success = Conto delite con successo
 index-email-bounced = Tu message de confirmation ha justo ora essite retornate. Es le adresse de e-mail incorrecte?
 
 
+inline-passwordless-sync-setup-page-title = Saltar le contrasigno le proxime vice?
+inline-passwordless-sync-setup-success-banner = Connexe a { -brand-firefox }
 inline-passwordless-sync-setup-heading = Saltar le contrasigno le proxime vice??
+inline-passwordless-sync-setup-description = Usa iste clave-contrasigno pro acceder plus velocemente.
 inline-passwordless-sync-setup-enable-button = Activar clave-contrasigno
 inline-passwordless-sync-setup-enabling = Activation…
 inline-passwordless-sync-setup-not-now-button = Non ora
