@@ -1173,6 +1173,15 @@ index-account-delete-success = Cuenta eliminada exitosamente
 index-email-bounced = Tu correo de confirmación rebotó. ¿Escribiste bien tu dirección?
 
 
+inline-passwordless-sync-setup-page-title = ¿Omitir contraseña la próxima vez?
+inline-passwordless-sync-setup-success-banner = Conectado a { -brand-firefox }
+inline-passwordless-sync-setup-heading = ¿Omitir contraseña la próxima vez?
+inline-passwordless-sync-setup-description = Utilizar esta llave de acceso para conectarse más rápido.
+inline-passwordless-sync-setup-enable-button = Habilitar llave de acceso
+inline-passwordless-sync-setup-enabling = Habilitando…
+inline-passwordless-sync-setup-not-now-button = Ahora no
+
+
 inline-recovery-key-setup-create-error = ¡Chuta! No pudimos crear la clave de recuperación de tu cuenta. Por favor, vuelve a intentarlo más tarde.
 inline-recovery-key-setup-recovery-created = Clave de recuperación de cuenta creada
 inline-recovery-key-setup-download-header = Protege tu cuenta
@@ -1320,6 +1329,7 @@ pair2-authority-sync-success-sync-settings-button = Ajustes de sincronización
 
 pair2-authority-timeout-and-cancel-timeout-heading = ¿Aún quieres conectar un dispositivo?
 pair2-authority-timeout-and-cancel-timeout-description = Parece que se agotó el tiempo de espera. Vuelve a intentarlo si todavía quieres conectar tu dispositivo móvil y sincronizar tus datos de { -brand-firefox }.
+pair2-authority-timeout-and-cancel-cancelled-heading = Cancelado
 pair2-authority-timeout-and-cancel-canceled-description = Si cambias de opinión o quieres conectar un dispositivo diferente, vuelve a intentarlo.
 pair2-authority-timeout-and-cancel-try-again-button = Volver a intentarlo
 pair2-authority-timeout-and-cancel-sync-settings-button = Ajustes de sincronización
@@ -1354,6 +1364,7 @@ pair2-supplicant-sync-success-sync-settings-button = Ajustes de sincronización
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que se nos acabó el tiempo
 pair2-supplicant-timeout-and-cancel-timeout-description = Para conectar tu dispositivo móvil y sincronizar tus datos de { -brand-firefox }, visita <b>firefox.com/pair</b> en tu computador.
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelado
 pair2-supplicant-timeout-and-cancel-canceled-description = Para conectar un dispositivo en cualquier momento, visita <b>firefox.com/pair</b> desde tu computador.
 
 

@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 998946cf372ddf50c2d192168b9e444eb0c32ff0</title>
+  <title>Storybooks for commit 9fe7362dec885e8563033096a6912b261e77bf50</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,26 +23,26 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 998946cf372ddf50c2d192168b9e444eb0c32ff0</h1>
+  <h1>Storybooks for commit 9fe7362dec885e8563033096a6912b261e77bf50</h1>
   <ul>
     <li><a href="./fxa-react/">fxa-react</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/19/2026, 12:19:34 AM UTC</dd>
+    <dd>9/21/2026, 6:17:47 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(admin-server): revoke tokens before flagging an account disabled</pre></dd>
+    <dd><pre>fix(admin-server): make disable and enable follow-up steps best effort</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-- Flagging first meant a failed revocation left the account disabled
-  with live credentials, which a later enable would reactivate.
+- A failed security-event write returned an error after the account
+  state had already changed, and skipped the profile notification.
 
 This commit:
 
-- Runs revokeAccountTokens before the disabledAt update so a failure
-  leaves the account enabled and the action retryable.</pre></dd>
+- Records the security event, clears the profile cache and notifies
+  attached services independently, reporting any failure to Sentry.</pre></dd>
   </dl>
 </body>
 </html>
