@@ -71,11 +71,22 @@ export class UsageGrantsController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid request body — one or more fields failed validation',
+    description:
+      'Invalid request body — one or more fields failed validation, or a ' +
+      'currentWindow lifetime was requested on a non-calendar (sliding or ' +
+      'session) meter',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Missing, malformed, or unrecognized bearer token',
   })
   @ApiResponse({
     status: 404,
     description: 'The meter slug is not configured',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Unexpected error',
   })
   @ValidateResponse(usageGrantSchema)
   async create(
@@ -117,6 +128,14 @@ export class UsageGrantsController {
     description:
       'Invalid parameters — userIdentifier or slug failed validation',
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Missing, malformed, or unrecognized bearer token',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Unexpected error',
+  })
   @ValidateResponse(listUsageGrantsResponseSchema)
   async list(
     @Param('userIdentifier') userIdentifier: string,
@@ -153,7 +172,15 @@ export class UsageGrantsController {
     status: 400,
     description: 'Invalid parameters — grantId failed validation',
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Missing, malformed, or unrecognized bearer token',
+  })
   @ApiResponse({ status: 404, description: 'No grant exists with that id' })
+  @ApiResponse({
+    status: 500,
+    description: 'Unexpected error',
+  })
   async delete(
     @Param('grantId') grantId: string,
     @CurrentMeteringClient()

@@ -65,7 +65,26 @@ export class UsageController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid request body — one or more fields failed validation',
+    description:
+      'Invalid request body — one or more fields failed validation, or the ' +
+      'timestamp is outside the accepted range',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Missing, malformed, or unrecognized bearer token',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'The meter slug is not configured',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Unexpected error',
+  })
+  @ApiResponse({
+    status: 503,
+    description:
+      'The event could not be published — retry with the same id, which is safe',
   })
   async ingest(
     @Body() body: unknown,
@@ -102,6 +121,22 @@ export class UsageController {
     status: 400,
     description:
       'Invalid parameters — userIdentifier or slug failed validation',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Missing, malformed, or unrecognized bearer token',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'The meter slug is not configured',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Unexpected error',
+  })
+  @ApiResponse({
+    status: 503,
+    description: 'Usage data is temporarily unavailable — retry with backoff',
   })
   @ValidateResponse(usageQueryResponseSchema)
   async query(
