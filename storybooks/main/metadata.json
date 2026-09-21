@@ -1,8 +1,8 @@
 {
-  "commit": "d738763037064c74ccc5d0dac41b6e50a7e07fef",
-  "summary": "Merge pull request #21265 from mozilla/fxa-14227",
-  "description": "fix(settings): clear stale errors when another signin method starts",
-  "timestamp": 1790020638000,
+  "commit": "17ce0c3271b38b81345234a565f205fa085e8927",
+  "summary": "Merge pull request #21235 from mozilla/FXA-13740",
+  "description": "test(auth): add regex to force unverified sessions, fix stray code emails",
+  "timestamp": 1790025814000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

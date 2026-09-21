@@ -1903,18 +1903,6 @@ pair2-authority-scan-qr-code-aria-label = QR code to connect your mobile device
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Get help scanning
 
-## SyncSuccess page - Part of the desktop-to-mobile pairing flow
-## Users see this on their computer once the mobile device has been paired.
-## It confirms that sync is on and offers the follow-up actions.
-
-# "syncing" here means copying data between the user's devices
-pair2-authority-sync-success-heading = You’re synchronising
-pair2-authority-sync-success-description = Your tabs, bookmarks, passwords and more are ready across your devices.
-# Opens the tabs that are open on the user's other synced devices
-pair2-authority-sync-success-view-tabs-button = View synchronised tabs
-# Opens the browser settings that control what is synced
-pair2-authority-sync-success-sync-settings-button = Synchronisation settings
-
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
 ## either because it timed out or because it was canceled. Both cases offer to
@@ -1989,11 +1977,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Learn more
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Your device is connected
-pair2-supplicant-sync-success-description = Your bookmarks, tabs and more will stay synchronised in { -brand-firefox }.
-# Opens the view listing tabs open on the user's other synced devices
-pair2-supplicant-sync-success-view-tabs-button = View synchronised tabs
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button = Synchronisation settings
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,

@@ -1345,12 +1345,12 @@ pair2-authority-scan-qr-heading = Sganiwch i gysylltu eich dyfais symudol
 pair2-authority-scan-qr-instruction = Sganiwch y cod QR gyda'ch ffôn neu dabled i gydweddu nodau tudalen, tabiau a nodweddion eraill eich { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = Cod QR i gysylltu eich dyfais symudol
 pair2-authority-scan-qr-help-link = Cael help i sganio
+pair2-authority-scan-qr-skip-button = Hepgor am nawr
 
 
-pair2-authority-sync-success-heading = Rydych wrthi'n cydweddu
-pair2-authority-sync-success-description = Mae eich tabiau, nodau tudalen, cyfrineiriau, a mwy yn barod ar draws eich dyfeisiau.
-pair2-authority-sync-success-view-tabs-button = Gweld tabiau wedi'u cydweddu
-pair2-authority-sync-success-sync-settings-button = Gosodiadau cydweddu
+pair2-authority-sync-success-heading-v2 = Mae eich dyfais wedi'i gysylltu
+pair2-authority-sync-success-description-v2 = Mae cysoni ar y gweill. Gall gymryd peth amser i'ch data synced ymddangos. Mae croeso i chi barhau i bori.
+pair2-authority-sync-success-sync-settings-button-v2 = Rheoli gosodiadau cydweddu
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Dal eisiau cysylltu dyfais?
@@ -1383,9 +1383,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Dysgu rhagor
 
 
 pair2-supplicant-sync-success-heading = Mae eich dyfais wedi'i gysylltu
-pair2-supplicant-sync-success-description = Bydd eich nodau tudalen, tabiau a mwy yn aros wedi'u cydweddu yn { -brand-firefox }.
-pair2-supplicant-sync-success-view-tabs-button = Gweld tabiau wedi'u cydweddu
-pair2-supplicant-sync-success-sync-settings-button = Gosodiadau cydweddu
+pair2-supplicant-sync-success-description-v2 = Mae cysoni ar y gweill. Gall gymryd peth amser i'ch data synced ymddangos. Mae croeso i chi barhau i bori.
+pair2-supplicant-sync-success-sync-settings-button-v2 = Rheoli gosodiadau cydweddu
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Mae'n edrych fel bod ein amser wedi dod i ben

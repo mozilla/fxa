@@ -1423,18 +1423,6 @@ pair2-authority-scan-qr-code-aria-label = ਤੁਹਾਡੇ ਮੋਬਾਈਲ 
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = ਸਕੈਨ ਕਰਨ ਲਈ ਮਦਦ ਲਵੋ
 
-## SyncSuccess page - Part of the desktop-to-mobile pairing flow
-## Users see this on their computer once the mobile device has been paired.
-## It confirms that sync is on and offers the follow-up actions.
-
-# "syncing" here means copying data between the user's devices
-pair2-authority-sync-success-heading = ਤੁਸੀਂ ਸਿੰਕ ਕਰ ਰਹੇ ਹੋ
-pair2-authority-sync-success-description = ਤੁਹਾਡੀਆਂ ਟੈਬਾਂ , ਬੁੱਕਮਾਰਕ, ਪਾਸਵਰਡ ਅਤੇ ਹੋਰ ਚੀਜ਼ਾਂ ਤੁਹਾਡੇ ਡਿਵਾਈਸਾਂ ਲਈ ਤਿਆਰ ਹਨ।
-# Opens the tabs that are open on the user's other synced devices
-pair2-authority-sync-success-view-tabs-button = ਸਿੰਕ ਕੀਤੀਆਂ ਟੈਬਾਂ ਨੂੰ ਵੇਖੋ
-# Opens the browser settings that control what is synced
-pair2-authority-sync-success-sync-settings-button = ਸਿੰਕ ਸੈਟਿੰਗਾਂ
-
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
 ## either because it timed out or because it was canceled. Both cases offer to
@@ -1502,10 +1490,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = ਹੋਰ ਜਾਣੋ
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = ਤੁਹਾਡਾ ਡਿਵਾਈਸ ਕਨੈਕਟ ਹੈ
-# Opens the view listing tabs open on the user's other synced devices
-pair2-supplicant-sync-success-view-tabs-button = ਸਿੰਕ ਕੀਤੀਆਂ ਟੈਬਾਂ ਨੂੰ ਵੇਖੋ
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button = ਸਿੰਕ ਸੈਟਿੰਗਾਂ
 
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a

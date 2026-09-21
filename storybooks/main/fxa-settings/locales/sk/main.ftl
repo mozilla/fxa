@@ -1480,12 +1480,6 @@ pair2-authority-scan-qr-code-aria-label = QR kód na pripojenie vášho mobilné
 pair2-authority-scan-qr-help-link = Získajte pomoc so skenovaním
 
 
-pair2-authority-sync-success-heading = Synchronizujete
-pair2-authority-sync-success-description = Vaše karty, záložky, heslá a ďalšie informácie sú k dispozícii na všetkých vašich zariadeniach.
-pair2-authority-sync-success-view-tabs-button = Zobraziť synchronizované karty
-pair2-authority-sync-success-sync-settings-button = Nastavenia synchronizácie
-
-
 pair2-authority-timeout-and-cancel-timeout-heading = Stále chcete pripojiť zariadenie?
 pair2-authority-timeout-and-cancel-timeout-description = Zdá sa, že vypršal časový limit. Skúste to znova, ak stále chcete pripojiť svoje mobilné zariadenie a synchronizovať údaje { -brand-firefox(case: "gen") }.
 pair2-authority-timeout-and-cancel-cancelled-heading = Zrušené
@@ -1516,9 +1510,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Ďalšie informácie
 
 
 pair2-supplicant-sync-success-heading = Vaše zariadenie je pripojené
-pair2-supplicant-sync-success-description = Vaše záložky, karty a ďalšie položky zostanú synchronizované vo { -brand-firefox(case: "loc") }.
-pair2-supplicant-sync-success-view-tabs-button = Zobraziť synchronizované karty
-pair2-supplicant-sync-success-sync-settings-button = Nastavenia synchronizácie
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zdá sa, že nám vypršal časový limit

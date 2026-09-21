@@ -1907,18 +1907,18 @@ pair2-authority-scan-qr-instruction = Olvassa le a QR-kódot telefonjával vagy 
 pair2-authority-scan-qr-code-aria-label = QR-kód a mobileszköz csatlakoztatásához
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Segítség a leolvasáshoz
+# Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
+pair2-authority-scan-qr-skip-button = Kihagyás
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
-## It confirms that sync is on and offers the follow-up actions.
+## It confirms that sync is on and links to sync settings.
 
-# "syncing" here means copying data between the user's devices
-pair2-authority-sync-success-heading = Ön már szinkronizál
-pair2-authority-sync-success-description = Lapjai, könyvjelzői, jelszavai és egyebek készen állnak az összes eszközén.
-# Opens the tabs that are open on the user's other synced devices
-pair2-authority-sync-success-view-tabs-button = Szinkronizált lapok megtekintése
+pair2-authority-sync-success-heading-v2 = Az eszköze csatlakoztatva van
+# "Syncing" here means copying data between the user's devices
+pair2-authority-sync-success-description-v2 = A szinkronizálás folyamatban. Eltarthat egy ideig, amíg megjelennek a szinkronizált adatok. Nyugodtan böngésszen.
 # Opens the browser settings that control what is synced
-pair2-authority-sync-success-sync-settings-button = Szinkronizálási beállítások
+pair2-authority-sync-success-sync-settings-button-v2 = Szinkronizálási beállítások kezelése
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1994,11 +1994,10 @@ pair2-supplicant-ready-to-scan-learn-more-link = További tudnivalók
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Az eszköze csatlakoztatva van
-pair2-supplicant-sync-success-description = A könyvjelzői, lapjai és egyebei szinkronizálva maradnak a { -brand-firefox }ban.
-# Opens the view listing tabs open on the user's other synced devices
-pair2-supplicant-sync-success-view-tabs-button = Szinkronizált lapok megtekintése
+# "Syncing" here means copying data between the user's devices
+pair2-supplicant-sync-success-description-v2 = A szinkronizálás folyamatban. Eltarthat egy ideig, amíg megjelennek a szinkronizált adatok. Nyugodtan böngésszen.
 # Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button = Szinkronizálási beállítások
+pair2-supplicant-sync-success-sync-settings-button-v2 = Szinkronizálási beállítások kezelése
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,

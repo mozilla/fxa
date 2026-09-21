@@ -1323,12 +1323,12 @@ pair2-authority-scan-qr-heading = Scansiona per connettere il tuo dispositivo mo
 pair2-authority-scan-qr-instruction = Scansiona il codice QR con il telefono o il tablet per sincronizzare segnalibri, schede e altri dati di { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = Codice QR per connettere il tuo dispositivo mobile
 pair2-authority-scan-qr-help-link = Aiuto per la scansione
+pair2-authority-scan-qr-skip-button = Ignora per il momento
 
 
-pair2-authority-sync-success-heading = La sincronizzazione è attiva
-pair2-authority-sync-success-description = Schede, segnalibri, password e altri dati sono disponibili su tutti i tuoi dispositivi.
-pair2-authority-sync-success-view-tabs-button = Visualizza le schede sincronizzate
-pair2-authority-sync-success-sync-settings-button = Sincronizza impostazioni
+pair2-authority-sync-success-heading-v2 = Il dispositivo è connesso
+pair2-authority-sync-success-description-v2 = La sincronizzazione è in corso. La visualizzazione dei dati sincronizzati potrebbe richiedere del tempo. Continua a navigare.
+pair2-authority-sync-success-sync-settings-button-v2 = Gestisci impostazioni di sincronizzazione
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Vuoi ancora connettere un dispositivo?
@@ -1361,9 +1361,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Ulteriori informazioni
 
 
 pair2-supplicant-sync-success-heading = Il dispositivo è connesso
-pair2-supplicant-sync-success-description = I segnalibri, le schede e altri dati rimarranno sincronizzati in { -brand-firefox }.
-pair2-supplicant-sync-success-view-tabs-button = Visualizza le schede sincronizzate
-pair2-supplicant-sync-success-sync-settings-button = Sincronizza impostazioni
+pair2-supplicant-sync-success-description-v2 = La sincronizzazione è in corso. La visualizzazione dei dati sincronizzati potrebbe richiedere del tempo. Continua a navigare.
+pair2-supplicant-sync-success-sync-settings-button-v2 = Gestisci impostazioni di sincronizzazione
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Sembra che il tempo a disposizione sia scaduto

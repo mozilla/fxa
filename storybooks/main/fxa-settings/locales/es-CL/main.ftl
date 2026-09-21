@@ -1321,12 +1321,6 @@ pair2-authority-scan-qr-code-aria-label = Código QR para conectar tu dispositiv
 pair2-authority-scan-qr-help-link = Obtén ayuda para escanear
 
 
-pair2-authority-sync-success-heading = Estás sincronizando
-pair2-authority-sync-success-description = Tus pestañas, marcadores, contraseñas y mucho más están disponibles en todos tus dispositivos.
-pair2-authority-sync-success-view-tabs-button = Ver pestañas sincronizadas
-pair2-authority-sync-success-sync-settings-button = Ajustes de sincronización
-
-
 pair2-authority-timeout-and-cancel-timeout-heading = ¿Aún quieres conectar un dispositivo?
 pair2-authority-timeout-and-cancel-timeout-description = Parece que se agotó el tiempo de espera. Vuelve a intentarlo si todavía quieres conectar tu dispositivo móvil y sincronizar tus datos de { -brand-firefox }.
 pair2-authority-timeout-and-cancel-cancelled-heading = Cancelado
@@ -1357,9 +1351,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Aprender más
 
 
 pair2-supplicant-sync-success-heading = Tu dispositivo está conectado
-pair2-supplicant-sync-success-description = Tus marcadores, pestañas y más permanecerán sincronizados en { -brand-firefox }.
-pair2-supplicant-sync-success-view-tabs-button = Ver pestañas sincronizadas
-pair2-supplicant-sync-success-sync-settings-button = Ajustes de sincronización
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que se nos acabó el tiempo

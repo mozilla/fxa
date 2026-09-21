@@ -1917,18 +1917,16 @@ pair2-authority-scan-qr-instruction = Scannujśo QR-kod ze swójom telefonom abo
 pair2-authority-scan-qr-code-aria-label = QR-kod za zwězowanje z wašym mobilnym rědom
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Pomoc za scannowanje dostaś
+# Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
+pair2-authority-scan-qr-skip-button = Tuchylu pśeskócyś
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
-## It confirms that sync is on and offers the follow-up actions.
+## It confirms that sync is on and links to sync settings.
 
-# "syncing" here means copying data between the user's devices
-pair2-authority-sync-success-heading = Synchronizěrujośo
-pair2-authority-sync-success-description = Waše rejtariki, cytańske znamjenja, gronidła a wěcej su gótowe na wašych rědach.
-# Opens the tabs that are open on the user's other synced devices
-pair2-authority-sync-success-view-tabs-button = Synchronizěrowane rejtariki pokazaś
+pair2-authority-sync-success-heading-v2 = Waš rěd jo zwězany
 # Opens the browser settings that control what is synced
-pair2-authority-sync-success-sync-settings-button = Nastajenja synchronizacije
+pair2-authority-sync-success-sync-settings-button-v2 = Nastajenja synchronizacije zastojaś
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -2004,11 +2002,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Dalšne informacije
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Waš rěd jo zwězany
-pair2-supplicant-sync-success-description = Waše cytańske znamjenja, rejtariki a wěcej w { -brand-firefox } synchronizěrowane wóstanu.
-# Opens the view listing tabs open on the user's other synced devices
-pair2-supplicant-sync-success-view-tabs-button = Synchronizěrowane rejtariki pokazaś
 # Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button = Nastajenja synchronizacije
+pair2-supplicant-sync-success-sync-settings-button-v2 = Nastajenja synchronizacije zastojaś
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,

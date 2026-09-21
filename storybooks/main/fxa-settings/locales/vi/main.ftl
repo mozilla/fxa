@@ -1289,12 +1289,6 @@ pair2-authority-scan-qr-code-aria-label = Mã QR để kết nối thiết bị 
 pair2-authority-scan-qr-help-link = Nhận trợ giúp về quét
 
 
-pair2-authority-sync-success-heading = Bạn đang đồng bộ hoá
-pair2-authority-sync-success-description = Các thẻ, dấu trang, mật khẩu và nhiều thứ khác của bạn đã sẵn sàng trên tất cả các thiết bị.
-pair2-authority-sync-success-view-tabs-button = Xem các thẻ đã đồng bộ hoá
-pair2-authority-sync-success-sync-settings-button = Cài đặt đồng bộ hoá
-
-
 pair2-authority-timeout-and-cancel-timeout-heading = Bạn vẫn muốn kết nối thiết bị chứ?
 pair2-authority-timeout-and-cancel-timeout-description = Có vẻ như đã hết thời gian chờ. Hãy thử lại nếu bạn vẫn muốn kết nối thiết bị di động và đồng bộ hoá dữ liệu { -brand-firefox } của mình.
 pair2-authority-timeout-and-cancel-canceled-description = Nếu bạn đổi ý hoặc muốn kết nối thiết bị khác, hãy thử lại.
@@ -1324,9 +1318,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Tìm hiểu thêm
 
 
 pair2-supplicant-sync-success-heading = Thiết bị của bạn đã được kết nối
-pair2-supplicant-sync-success-description = Dấu trang, thẻ và nhiều nội dung khác của bạn sẽ luôn được đồng bộ hoá trong { -brand-firefox }.
-pair2-supplicant-sync-success-view-tabs-button = Xem các thẻ đã đồng bộ hoá
-pair2-supplicant-sync-success-sync-settings-button = Cài đặt đồng bộ hoá
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Có vẻ như đã hết thời gian chờ
