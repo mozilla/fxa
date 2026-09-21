@@ -1,8 +1,8 @@
 {
-  "commit": "064ee406c87cc6094ee85fdc2c2efc6117479d26",
-  "summary": "feat(settings): let the passkey opt-in retry recoverable failures",
-  "description": "Because:\n  * A dismissed prompt or a rate limit left the sealed envelope unused\n    but sent the user to Settings with no way to act on either.\n  * Sealing read key material the page could zero mid-flight, storing a\n    wrap that opens to zeroes and passes its own round-trip check.\n  * A server refusal lost its errno on the step-up path, and the\n    unexpected ones produced no telemetry at all.\n\nThis commit:\n  * Exports retryPasskeyWrapStore to resubmit an already-sealed envelope.\n  * Holds the offer behind a banner when a prompt or a limit stops it.\n  * Seals over copies, zeroing the originals once an envelope exists.\n  * Passes an errno through from the verification calls, and reports\n    unexpected authenticator errors to Sentry.\n  * Adopts the approved copy, one message for every terminal failure.",
-  "timestamp": 1789969520000,
+  "commit": "00c504682de24477fbd5e7050869d27ed4d47796",
+  "summary": "refactor(settings): clear passkey wrap material by route",
+  "description": "Because:\n\n- Four call sites each had to remember to clear the material, and the unmount-based clear needed a StrictMode workaround and a handoff flag to avoid zeroing what the next page owns.\n- The opt-in page read the client's mutable entry on every render, so a re-render during the exit transition could fire a second navigation.\n\nThis commit:\n\n- Clears the material from a pathname effect at the app root.\n- Drops the unmount hook, the handoff flag, and two per-page clears.\n- Keeps the clear at ceremony start, which no route change covers.\n- Snapshots the material at mount in the opt-in page.",
+  "timestamp": 1790010750000,
   "storybooks": [
     "fxa-settings"
   ],

@@ -117,6 +117,9 @@ device-info-browser-os = { $genericOSName } の { $browserName }
 device-info-ip-address = IP アドレス: { $ipAddress }
 
 
+firefox-promo-banner-mobile-cta = 端末を接続
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = パスワード
 form-password-with-inline-criteria-signup-confirm-password-label =
@@ -334,6 +337,7 @@ cs-cannot-disconnect = クライアントが見つからないため、切断で
 cs-logged-out-2 = { $service } からログアウトしました
 cs-refresh-button =
     .title = 接続済みサービスをリフレッシュ
+cs-connect-device-button = 端末を接続
 cs-missing-device-help = 項目が不足または重複していますか？
 cs-disconnect-sync-heading = Sync から切断
 
@@ -717,6 +721,10 @@ tfa-row-backup-phone-change-cta = 変更
 tfa-row-backup-phone-add-cta = 追加
 tfa-row-backup-phone-delete-title-v2 = 回復用電話番号を削除します
 tfa-row-backup-phone-description-v2 = 認証アプリを使用できない場合でも簡単にアカウントを回復できる方法です。
+passkey-sub-row-delete-title = パスキーを削除
+passkey-delete-modal-heading = パスキーを削除しますか？
+passkey-delete-modal-confirm-button = パスキーを削除
+passkey-delete-success = パスキーが削除されました
 
 
 switch-turn-off = オフにする
@@ -736,6 +744,7 @@ passkey-row-header = パスキー
 passkey-row-not-set = 未設定
 passkey-row-action-create = 作成
 passkey-row-description = スマートフォンなどの対応デバイスを使ってアカウントにログインすれば、より簡単で安全にログインできます。
+passkey-row-info-link-2 = 詳細情報
 
 
 rk-header-1 = アカウント回復用キー
@@ -834,6 +843,11 @@ auth-error-1032 = 登録するには有効な年齢を入力する必要があ�
 auth-error-1062 = リダイレクトが無効です
 recovery-phone-number-ending-digits = 末尾が { $lastFourPhoneNumber } の電話番号
 oauth-error-1000 = エラーが発生しました。このタブを閉じて、もう一度試してください。
+
+
+passkey-registration-canceled-link = 詳細情報
+passkey-registration-error-not-supported-link = 詳細情報
+passkey-registration-error-could-not-complete-link = 詳細情報
 
 
 connect-another-device-signed-in-header = { -brand-firefox } にログインしました
@@ -939,6 +953,10 @@ pair-wait-for-auth-heading-text = <span>他の端末から</span> の承認が�
 
 pair-unsupported-header = アプリを使用してペアリング
 pair-unsupported-message = システムカメラを使用しましたか？ { -brand-firefox } アプリ内からペアリングする必要があります。
+pair-unsupported-learn-more-link-v2 = 詳細情報
+
+
+pair2-supplicant-ready-to-scan-learn-more-link = 詳細情報
 
 
 third-party-auth-callback-message = 認証されたアプリケーションにリダイレクトしています。しばらくお待ちください。
