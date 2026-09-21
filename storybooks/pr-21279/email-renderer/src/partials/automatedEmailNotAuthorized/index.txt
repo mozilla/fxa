@@ -1,0 +1,2 @@
+automated-email-not-authorized-plaintext = "This is an automated email; if you did not authorize this action, then please change your password:"
+<%- passwordChangeLink %>

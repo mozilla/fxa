@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 8b2908d062e9b9f26fa2fc8b173f35e716e19a6c</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 8b2908d062e9b9f26fa2fc8b173f35e716e19a6c</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/21/2026, 9:02:57 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>refactor(auth-server): replace dedent with a local tagged template</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- FxA is cutting its dependency count (parent FXA-13426).
+- The `dedent` package has one job in fxa-auth-server. It is a tagged template in the swagger API docs.
+
+## This pull request
+
+- Adds `docs/swagger/shared/dedent.ts`, a local tagged template that strips the common indentation.
+- Points the 18 swagger description modules at the local helper.
+- Drops `dedent` and `@types/dedent` from the fxa-auth-server package and refreshes `yarn.lock`.
+- Adds `dedent.spec.ts`, and adds `docs/**/*.spec.ts` to the Jest unit project.
+- Adds `docs/**/*` to the tsconfig include, so the spec is type-checked.
+
+## Issue that this pull request solves
+
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-13930</pre></dd>
+  </dl>
+</body>
+</html>

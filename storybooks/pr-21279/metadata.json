@@ -1,0 +1,12 @@
+{
+  "commit": "8b2908d062e9b9f26fa2fc8b173f35e716e19a6c",
+  "summary": "refactor(auth-server): replace dedent with a local tagged template",
+  "description": "## Because\n\n- FxA is cutting its dependency count (parent FXA-13426).\n- The `dedent` package has one job in fxa-auth-server. It is a tagged template in the swagger API docs.\n\n## This pull request\n\n- Adds `docs/swagger/shared/dedent.ts`, a local tagged template that strips the common indentation.\n- Points the 18 swagger description modules at the local helper.\n- Drops `dedent` and `@types/dedent` from the fxa-auth-server package and refreshes `yarn.lock`.\n- Adds `dedent.spec.ts`, and adds `docs/**/*.spec.ts` to the Jest unit project.\n- Adds `docs/**/*` to the tsconfig include, so the spec is type-checked.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-13930",
+  "timestamp": 1790024577000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
