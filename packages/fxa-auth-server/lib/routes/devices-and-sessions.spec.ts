@@ -907,10 +907,11 @@ describe('/account/devices/invoke_command', () => {
     {
       id: 'bogusid1',
       type: 'mobile',
-      availableCommands: {
+      // The db layer builds this map with a null prototype.
+      availableCommands: Object.assign(Object.create(null), {
         bogusCommandName: 'bogusData',
         'https://identity.mozilla.com/cmd/open-uri': 'morebogusdata',
-      },
+      }),
     },
     {
       id: 'bogusid2',

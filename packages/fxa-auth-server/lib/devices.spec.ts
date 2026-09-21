@@ -780,4 +780,37 @@ describe('lib/devices:', () => {
       ).toBe('');
     });
   });
+
+  describe('schema.availableCommands:', () => {
+    const schema = devicesModule.schema.availableCommands;
+
+    it('accepts a URI style command name', () => {
+      expect(
+        schema.validate({
+          'https://identity.mozilla.com/cmd/open-uri': 'payload',
+        }).error
+      ).toBeUndefined();
+    });
+
+    it('rejects constructor and prototype command names', () => {
+      expect(schema.validate({ constructor: 'x' }).error).toBeDefined();
+      expect(schema.validate({ prototype: 'x' }).error).toBeDefined();
+    });
+
+    // The server validates with stripUnknown, so a blocked name drops out of
+    // the payload rather than failing the request. Joi also drops an own
+    // __proto__ key while it clones the object, so that name never errors.
+    it('drops blocked command names under the server stripUnknown option', () => {
+      const payload = JSON.parse(
+        '{"__proto__": "a", "constructor": "b", "prototype": "c", "https://identity.mozilla.com/cmd/open-uri": "d"}'
+      );
+
+      const { error, value } = schema.validate(payload, { stripUnknown: true });
+
+      expect(error).toBeUndefined();
+      expect(Object.getOwnPropertyNames(value)).toEqual([
+        'https://identity.mozilla.com/cmd/open-uri',
+      ]);
+    });
+  });
 });
