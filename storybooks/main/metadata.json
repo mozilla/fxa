@@ -1,8 +1,8 @@
 {
-  "commit": "c4aff9d76451f84ce88f32504da287266b240971",
-  "summary": "Merge pull request #21258 from mozilla/fxa-12595",
-  "description": "fix(settings): advance focus and set IME hints on the password form",
-  "timestamp": 1790013438000,
+  "commit": "7174322cabd21f802506a7df9cb81161b22630c5",
+  "summary": "Merge pull request #21262 from mozilla/fxa-13270",
+  "description": "fix(auth-server): reject prototype polluting device command names",
+  "timestamp": 1790014861000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
