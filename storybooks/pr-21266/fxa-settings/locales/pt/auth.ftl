@@ -328,7 +328,7 @@ subscriptionEndingReminder-churn-terms = <a data-l10n-name="subscriptionEndingRe
 subscriptionEndingReminder-churn-terms-plaintext = Aplicam-se termos limitados e restrições: { $churnTermsUrlWithUtm }
 # Variables:
 #  $subscriptionSupportUrlWithUtm (String) - URL to the subscription products support page
-subscriptionEndingReminder-content-support-plaintext = Contactar a nossa equipa de apoio: { $subscriptionSupportUrlWithUtm }
+subscriptionEndingReminder-content-support-plaintext = Contactar a nossa Equipa de Suporte: { $subscriptionSupportUrlWithUtm }
 #  Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionFailedPaymentsCancellation-subject = A sua subscrição { $productName } foi cancelada
@@ -378,13 +378,13 @@ subscriptionPaymentProviderCancelled-content-reason-1 = O seu método de pagamen
 subscriptionReactivation-subject-2 = A sua subscrição { $productName } foi reativada
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-subject = O seu teste { $productName } foi reativado
+subscriptionReactivation-free-trial-subject = O seu teste gratuito de { $productName } foi reativado
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = Obrigado por reativar a sua subscrição de { $productName }!
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-freeTrial-title = Obrigado por reativar o seu teste de { $productName }!
+subscriptionReactivation-free-trial-title = Obrigado por reativar o seu teste gratuito de { $productName }!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

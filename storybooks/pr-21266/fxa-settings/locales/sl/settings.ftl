@@ -1917,18 +1917,18 @@ pair2-authority-scan-qr-instruction = Skenirajte kodo QR s telefonom ali tablico
 pair2-authority-scan-qr-code-aria-label = Koda QR za povezavo mobilne naprave
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Pridobite pomoč pri branju
+# Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
+pair2-authority-scan-qr-skip-button = Preskoči za zdaj
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
-## It confirms that sync is on and offers the follow-up actions.
+## It confirms that sync is on and links to sync settings.
 
-# "syncing" here means copying data between the user's devices
-pair2-authority-sync-success-heading = Sinhronizacija poteka
-pair2-authority-sync-success-description = Vaši zavihki, zaznamki, gesla in drugo so pripravljeni v vaših napravah.
-# Opens the tabs that are open on the user's other synced devices
-pair2-authority-sync-success-view-tabs-button = Prikaži sinhronizirane zavihke
+pair2-authority-sync-success-heading-v2 = Vaša naprava je povezana
+# "Syncing" here means copying data between the user's devices
+pair2-authority-sync-success-description-v2 = Sinhronizacija je v teku. Lahko traja nekaj časa, preden se vaši sinhronizirani podatki pojavijo. Lahko nadaljujte z brskanjem.
 # Opens the browser settings that control what is synced
-pair2-authority-sync-success-sync-settings-button = Nastavitve sinhronizacije
+pair2-authority-sync-success-sync-settings-button-v2 = Nastavitve sinhronizacije
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -2004,11 +2004,10 @@ pair2-supplicant-ready-to-scan-learn-more-link = Več o tem
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Vaša naprava je povezana
-pair2-supplicant-sync-success-description = Vaši zaznamki, zavihki in drugo bo v { -brand-firefox } ostalo sinhronizirano.
-# Opens the view listing tabs open on the user's other synced devices
-pair2-supplicant-sync-success-view-tabs-button = Prikaži sinhronizirane zavihke
+# "Syncing" here means copying data between the user's devices
+pair2-supplicant-sync-success-description-v2 = Sinhronizacija je v teku. Lahko traja nekaj časa, preden se vaši sinhronizirani podatki pojavijo. Lahko nadaljujte z brskanjem.
 # Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button = Nastavitve sinhronizacije
+pair2-supplicant-sync-success-sync-settings-button-v2 = Nastavitve sinhronizacije
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,

@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit be6133c631cc938f7637dc52d14cc4287cdd1098</title>
+  <title>Storybooks for commit 3e6f7d81517548b7f796089317501cf3f370df1e</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit be6133c631cc938f7637dc52d14cc4287cdd1098</h1>
+  <h1>Storybooks for commit 3e6f7d81517548b7f796089317501cf3f370df1e</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/18/2026, 10:35:33 PM UTC</dd>
+    <dd>9/21/2026, 9:54:57 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(oauth): refuse prompt=none, add session verification test coverage</pre></dd>
     <dt>Description</dt>
@@ -49,8 +49,8 @@ This commit:
   and skips the code resend on that path
 * Keeps servicesWithEmailVerification authoritative: RPs outside it still
   bypass session verification and continue on to the grant
-* Covers four prompt=none outcomes against the heuristic fixture, plus a
-  listed-RP checkout test that reaches stage
+* Covers the silent grant and the refusal against the heuristic fixture,
+  plus a listed-RP checkout test that reaches stage
 * Corrects two signin skip reasons and drops PKCE params that 400 on a
   confidential client
 * Records why both listed-RP tests exist, in each

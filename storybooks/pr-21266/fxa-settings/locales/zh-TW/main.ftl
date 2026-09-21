@@ -487,7 +487,7 @@ flow-recovery-key-success-alert = 已建立帳號救援金鑰
 
 flow-recovery-key-info-header = 建立帳號救援金鑰，避免忘記密碼時資料流失
 flow-recovery-key-info-header-change-key = 更換您的帳號救援金鑰
-flow-recovery-key-info-shield-bullet-point-v2 = 我們會為您加密上網資料（密碼、書籤等等資料），對您的隱私很有保護。但要是忘記密碼，可能就會失去這些資料。
+flow-recovery-key-info-shield-bullet-point-v2 = 我們會為您加密瀏覽資料（密碼、書籤等等資料），對您的隱私很有保護。但要是忘記密碼，可能就會失去這些資料。
 flow-recovery-key-info-key-bullet-point-v2 = 所以帳號救援金鑰相當重要，萬一忘記密碼時，還可以用這把金鑰救回資料。
 flow-recovery-key-info-cta-text-v3 = 開始使用
 flow-recovery-key-info-cancel-link = 取消
@@ -1283,12 +1283,6 @@ pair2-authority-scan-qr-code-aria-label = 連結您行動裝置的 QR Code
 pair2-authority-scan-qr-help-link = 獲得掃描協助
 
 
-pair2-authority-sync-success-heading = 正在同步中
-pair2-authority-sync-success-description = 您的分頁、書籤、網站密碼與更多資料已經準備好可以同步到其他裝置。
-pair2-authority-sync-success-view-tabs-button = 檢視同步的分頁
-pair2-authority-sync-success-sync-settings-button = 同步設定
-
-
 pair2-authority-timeout-and-cancel-timeout-heading = 還想要連結其他裝置嗎？
 pair2-authority-timeout-and-cancel-timeout-description = 看來動作超出時間限制了。若您還想要連結行動裝置，並且同步 { -brand-firefox } 資料的話，請重試。
 pair2-authority-timeout-and-cancel-cancelled-heading = 已取消
@@ -1319,9 +1313,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = 更多資訊
 
 
 pair2-supplicant-sync-success-heading = 已連結您的裝置
-pair2-supplicant-sync-success-description = 您的書籤、分頁與更多資料將與 { -brand-firefox } 同步。
-pair2-supplicant-sync-success-view-tabs-button = 檢視同步的分頁
-pair2-supplicant-sync-success-sync-settings-button = 同步設定
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = 看來超出時間限制了。
@@ -1347,7 +1338,7 @@ third-party-auth-callback-message = 請稍後，將帶您前往要登入的應�
 
 
 account-recovery-confirm-key-heading = 輸入您的帳號救援金鑰
-account-recovery-confirm-key-instruction = 使用這把金鑰，可從 { -brand-firefox } 伺服器救回您加密過的密碼、書籤等上網資料。
+account-recovery-confirm-key-instruction = 使用這把金鑰，可從 { -brand-firefox } 伺服器救回您加密過的密碼、書籤等瀏覽資料。
 account-recovery-confirm-key-input-label =
     .label = 請輸入您的 32 字元帳號救援金鑰
 account-recovery-confirm-key-hint = 您當時設定的保存提示是：

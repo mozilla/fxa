@@ -1321,12 +1321,12 @@ pair2-authority-scan-qr-heading = Zum Verbinden mit Ihrem Mobilgerät scannen
 pair2-authority-scan-qr-instruction = Scannen Sie den QR-Code mit Ihrem Handy oder Tablet, um Ihre Lesezeichen, Tabs und mehr von { -brand-firefox } zu synchronisieren.
 pair2-authority-scan-qr-code-aria-label = QR-Code zum Verbinden Ihres Mobilgeräts
 pair2-authority-scan-qr-help-link = Hilfe beim Scannen
+pair2-authority-scan-qr-skip-button = Vorerst überspringen
 
 
-pair2-authority-sync-success-heading = Sie synchronisieren
-pair2-authority-sync-success-description = Ihre Tabs, Lesezeichen, Passwörter und mehr sind auf Ihren Geräten verfügbar.
-pair2-authority-sync-success-view-tabs-button = Synchronisierte Tabs anzeigen
-pair2-authority-sync-success-sync-settings-button = Synchronisationseinstellungen
+pair2-authority-sync-success-heading-v2 = Ihr Gerät ist verbunden
+pair2-authority-sync-success-description-v2 = Die Synchronisierung wird durchgeführt. Es kann eine Weile dauern, bis Ihre synchronisierten Daten angezeigt werden. Surfen Sie weiter.
+pair2-authority-sync-success-sync-settings-button-v2 = Synchronisations-Einstellungen verwalten
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Möchten Sie trotzdem ein Gerät verbinden?
@@ -1359,9 +1359,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Weitere Informationen
 
 
 pair2-supplicant-sync-success-heading = Ihr Gerät ist verbunden
-pair2-supplicant-sync-success-description = Ihre Lesezeichen, Tabs und mehr bleiben in { -brand-firefox } synchronisiert.
-pair2-supplicant-sync-success-view-tabs-button = Synchronisierte Tabs anzeigen
-pair2-supplicant-sync-success-sync-settings-button = Synchronisationseinstellungen
+pair2-supplicant-sync-success-description-v2 = Die Synchronisierung wird durchgeführt. Es kann eine Weile dauern, bis Ihre synchronisierten Daten angezeigt werden. Surfen Sie weiter.
+pair2-supplicant-sync-success-sync-settings-button-v2 = Synchronisations-Einstellungen verwalten
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zeitüberschreitung

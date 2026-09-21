@@ -1630,6 +1630,19 @@ index-account-delete-success = Επιτυχής διαγραφή λογαρια�
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = Το email επιβεβαίωσής σας μόλις επιστράφηκε. Μήπως πληκτρολογήσατε λάθος email;
 
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+# Browser tab title.
+inline-passwordless-sync-setup-page-title = Παράλειψη του κωδικού πρόσβασης την επόμενη φορά;
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner = Συνδεθήκατε στο { -brand-firefox }
+inline-passwordless-sync-setup-heading = Παράλειψη του κωδικού πρόσβασης την επόμενη φορά;
+inline-passwordless-sync-setup-description = Χρησιμοποιήστε αυτό το κλειδί πρόσβασης για ταχύτερη σύνδεση.
+inline-passwordless-sync-setup-enable-button = Ενεργοποίηση κλειδιού πρόσβασης
+# Button label while the passkey is stored.
+inline-passwordless-sync-setup-enabling = Ενεργοποίηση…
+inline-passwordless-sync-setup-not-now-button = Όχι τώρα
+
 ## InlineRecoveryKeySetup page component
 
 inline-recovery-key-setup-create-error = Ωχ! Δεν ήταν δυνατή η δημιουργία του κλειδιού ανάκτησης του λογαριασμού σας. Δοκιμάστε ξανά αργότερα.
@@ -1891,18 +1904,18 @@ pair2-authority-scan-qr-instruction = Σαρώστε τον κωδικό QR με
 pair2-authority-scan-qr-code-aria-label = Κωδικός QR για σύνδεση της κινητής σας συσκευής
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Λήψη βοήθειας με τη σάρωση
+# Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
+pair2-authority-scan-qr-skip-button = Παράλειψη για την ώρα
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
-## It confirms that sync is on and offers the follow-up actions.
+## It confirms that sync is on and links to sync settings.
 
-# "syncing" here means copying data between the user's devices
-pair2-authority-sync-success-heading = Γίνεται συγχρονισμός
-pair2-authority-sync-success-description = Οι καρτέλες, οι σελιδοδείκτες, οι κωδικοί πρόσβασης και πολλά άλλα είναι έτοιμα σε όλες τις συσκευές σας.
-# Opens the tabs that are open on the user's other synced devices
-pair2-authority-sync-success-view-tabs-button = Προβολή συγχρονισμένων καρτελών
+pair2-authority-sync-success-heading-v2 = Η συσκευή σας έχει συνδεθεί
+# "Syncing" here means copying data between the user's devices
+pair2-authority-sync-success-description-v2 = Ο συγχρονισμός βρίσκεται σε εξέλιξη. Ενδέχεται να χρειαστεί λίγος χρόνος μέχρι να εμφανιστούν τα συγχρονισμένα δεδομένα σας. Στο μεταξύ, μπορείτε να συνεχίσετε την περιήγηση.
 # Opens the browser settings that control what is synced
-pair2-authority-sync-success-sync-settings-button = Ρυθμίσεις συγχρονισμού
+pair2-authority-sync-success-sync-settings-button-v2 = Διαχείριση ρυθμίσεων συγχρονισμού
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1912,6 +1925,8 @@ pair2-authority-sync-success-sync-settings-button = Ρυθμίσεις συγχ�
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Θέλετε ακόμα να συνδέσετε μια συσκευή;
 pair2-authority-timeout-and-cancel-timeout-description = Φαίνεται ότι το χρονικό όριο έληξε. Δοκιμάστε ξανά αν θέλετε ακόμα να συνδέσετε την κινητή συσκευή σας και να συγχρονίσετε τα δεδομένα του { -brand-firefox } σας.
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-cancelled-heading = Ακυρώθηκε
 pair2-authority-timeout-and-cancel-canceled-description = Εάν αλλάξετε γνώμη ή θέλετε να συνδέσετε μια άλλη συσκευή, δοκιμάστε ξανά.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Δοκιμή ξανά
@@ -1976,11 +1991,10 @@ pair2-supplicant-ready-to-scan-learn-more-link = Μάθετε περισσότε
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Η συσκευή σας έχει συνδεθεί
-pair2-supplicant-sync-success-description = Οι σελιδοδείκτες, οι καρτέλες και πολλά άλλα θα συγχρονίζονται στο { -brand-firefox }.
-# Opens the view listing tabs open on the user's other synced devices
-pair2-supplicant-sync-success-view-tabs-button = Προβολή συγχρονισμένων καρτελών
+# "Syncing" here means copying data between the user's devices
+pair2-supplicant-sync-success-description-v2 = Ο συγχρονισμός βρίσκεται σε εξέλιξη. Ενδέχεται να χρειαστεί λίγος χρόνος μέχρι να εμφανιστούν τα συγχρονισμένα δεδομένα σας. Στο μεταξύ, μπορείτε να συνεχίσετε την περιήγηση.
 # Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button = Ρυθμίσεις συγχρονισμού
+pair2-supplicant-sync-success-sync-settings-button-v2 = Διαχείριση ρυθμίσεων συγχρονισμού
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -1992,6 +2006,8 @@ pair2-supplicant-sync-success-sync-settings-button = Ρυθμίσεις συγχ
 pair2-supplicant-timeout-and-cancel-timeout-heading = Φαίνεται ότι το χρονικό όριο έληξε
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = Για να συνδέσετε την κινητή σας συσκευή και να συγχρονίσετε τα δεδομένα σας από το { -brand-firefox }, επισκεφθείτε το <b>firefox.com/pair</b> από τον υπολογιστή σας.
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Ακυρώθηκε
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Για να συνδέσετε μια συσκευή ανά πάσα στιγμή, επισκεφθείτε το <b>firefox.com/pair</b> από τον υπολογιστή σας.
 

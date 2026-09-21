@@ -343,6 +343,7 @@ password-strength-inline-passwords-match = Passordene samsvarer
 
 
 promo-qr-mobile-heading = Din telefon. Dine regler.
+promo-qr-mobile-heading-treatment-a = Fortsett der du slapp, uansett hvor du er
 promo-qr-mobile-heading-treatment-b = Fanene dine og mer, klart på telefonen
 promo-qr-mobile-heading-treatment-c = Nettleseren du stoler på, på telefonen din
 promo-qr-mobile-heading-treatment-d = Samme { -brand-firefox }. Ulik skjerm.
@@ -827,6 +828,8 @@ recent-activity-account-recovery-codes-set = Gjenopprettingskoder satt opp
 recent-activity-account-passkey-wrap-created = Passnøkkel aktivert for synkronisering
 recent-activity-account-passkey-wrap-creation-failure = Synkroniseringsoppsett med passnøkkel mislyktes
 recent-activity-account-passkey-wrap-deleted = Tilgang til synkronisering av passnøkler er fjernet
+recent-activity-account-passkey-wrap-deletion-failure = Kunne ikke fjerne tilgang til synkronisering av passnøkler
+recent-activity-account-passkey-wrap-invalidated = Tilgang til synkronisering av passnøkler fjernet etter tilbakestilling av passord
 recent-activity-unknown = Annen kontoaktivitet
 
 
@@ -1165,6 +1168,15 @@ index-account-delete-success = Kontoen er nå slettet
 index-email-bounced = Bekreftelsesmeldingen kom i retur. Feilstavet e-postadresse?
 
 
+inline-passwordless-sync-setup-page-title = Hopp over passordet neste gang?
+inline-passwordless-sync-setup-success-banner = Logget inn på { -brand-firefox }
+inline-passwordless-sync-setup-heading = Hopp over passordet neste gang?
+inline-passwordless-sync-setup-description = Bruk denne passnøkkelen for å logge på raskere.
+inline-passwordless-sync-setup-enable-button = Aktiver passnøkkel
+inline-passwordless-sync-setup-enabling = Slår på
+inline-passwordless-sync-setup-not-now-button = Ikke nå
+
+
 inline-recovery-key-setup-create-error = Beklager! Vi kunne ikke opprette kontogjenopprettingsnøkkelen din. Prøv på nytt senere.
 inline-recovery-key-setup-recovery-created = Kontogjenopprettingsnøkkel opprettet
 inline-recovery-key-setup-download-header = Sikre kontoen din
@@ -1294,20 +1306,19 @@ pair2-authority-continue-on-mobile-cancel-button = Avbryt
 
 
 pair2-authority-download-firefox-heading = Åpne { -brand-firefox } for å synkronisere
+pair2-authority-download-firefox-instruction = For å konfigurere synkronisering på tvers av enheter, åpne { -brand-firefox } på denne enheten og gå til <b>firefox.com/pair</b>
 pair2-authority-download-firefox-cta = Last ned { -brand-firefox }
 
 
 pair2-authority-scan-qr-heading = Skann for å koble til mobilenheten din
+pair2-authority-scan-qr-instruction = Skann QR-koden med telefonen eller nettbrettet ditt for å synkronisere bokmerker, faner og mer fra { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = QR-kode for å koble til mobilenheten din
 pair2-authority-scan-qr-help-link = Få hjelp med skanning
 
 
-pair2-authority-sync-success-heading = Du synkroniserer
-pair2-authority-sync-success-view-tabs-button = Vis synkroniserte faner
-pair2-authority-sync-success-sync-settings-button = Synkroniseringsinnstillinger
-
-
 pair2-authority-timeout-and-cancel-timeout-heading = Vil du fortsatt koble til en enhet?
+pair2-authority-timeout-and-cancel-timeout-description = Det ser ut til at det oppstod et tidsavbrudd. Prøv på nytt hvis du fortsatt vil koble til mobilenheten din og synkronisere { -brand-firefox }-dataene dine.
+pair2-authority-timeout-and-cancel-cancelled-heading = Avbrutt
 pair2-authority-timeout-and-cancel-canceled-description = Hvis du ombestemmer deg eller vil koble til en annen enhet, kan du prøve på nytt.
 pair2-authority-timeout-and-cancel-try-again-button = Prøv på nytt
 pair2-authority-timeout-and-cancel-sync-settings-button = Synkroniseringsinnstillinger
@@ -1324,19 +1335,22 @@ pair2-supplicant-connect-this-device-cancel-button = Avbryt
 
 
 pair2-supplicant-download-firefox-heading = Få { -brand-firefox } på denne enheten
+pair2-supplicant-download-firefox-description = Last ned { -brand-firefox } for å synkronisere bokmerker, historikk og mer på tvers av enheter. <linkExternal>Les mer</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Fortsett i { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Åpner { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = For å koble til en enhet
+pair2-supplicant-ready-to-scan-instruction = Åpne { -brand-firefox } på datamaskinen din, gå til <b>firefox.com/pair</b> og følg instruksjonene på skjermen for å koble til denne mobile enheten.
 pair2-supplicant-ready-to-scan-learn-more-link = Les mer
 
 
 pair2-supplicant-sync-success-heading = Enheten din er tilkoblet
-pair2-supplicant-sync-success-view-tabs-button = Vis synkroniserte faner
-pair2-supplicant-sync-success-sync-settings-button = Synkroniseringsinnstillinger
 
 
+pair2-supplicant-timeout-and-cancel-timeout-heading = Det ser ut til at det oppstod et tidsavbrudd
+pair2-supplicant-timeout-and-cancel-timeout-description = For å koble til mobilenheten din og synkronisere { -brand-firefox }-dataene dine, gå til <b>firefox.com/pair</b> på datamaskinen din.
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Avbrutt
 pair2-supplicant-timeout-and-cancel-canceled-description = For å koble til en enhet når som helst, gå til <b>firefox.com/pair</b> på datamaskinen din.
 
 

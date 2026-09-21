@@ -1325,12 +1325,6 @@ pair2-authority-scan-qr-code-aria-label = QR-code om uw mobiele apparaat te verb
 pair2-authority-scan-qr-help-link = Hulp bij scannen ontvangen
 
 
-pair2-authority-sync-success-heading = U synchroniseert
-pair2-authority-sync-success-description = Uw tabbladen, bladwijzers, wachtwoorden en meer staan klaar op al uw apparaten.
-pair2-authority-sync-success-view-tabs-button = Gesynchroniseerde tabbladen bekijken
-pair2-authority-sync-success-sync-settings-button = Synchronisatie-instellingen
-
-
 pair2-authority-timeout-and-cancel-timeout-heading = Wilt u toch een apparaat verbinden?
 pair2-authority-timeout-and-cancel-timeout-description = Het lijkt erop dat er een time-out is opgetreden. Probeer het opnieuw als u nog steeds verbinding wilt maken met uw mobiele apparaat en uw { -brand-firefox }-gegevens wilt synchroniseren.
 pair2-authority-timeout-and-cancel-cancelled-heading = Geannuleerd
@@ -1361,9 +1355,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Meer info
 
 
 pair2-supplicant-sync-success-heading = Uw apparaat is verbonden
-pair2-supplicant-sync-success-description = Uw bladwijzers, tabbladen en meer blijven in { -brand-firefox } gesynchroniseerd.
-pair2-supplicant-sync-success-view-tabs-button = Gesynchroniseerde tabbladen bekijken
-pair2-supplicant-sync-success-sync-settings-button = Synchronisatie-instellingen
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Het lijkt erop dat er een time-out is opgetreden

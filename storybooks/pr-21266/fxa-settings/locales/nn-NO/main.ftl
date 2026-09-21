@@ -1321,12 +1321,6 @@ pair2-authority-scan-qr-code-aria-label = QR-kode for å kople til mobileininga 
 pair2-authority-scan-qr-help-link = Få hjelp med skanning
 
 
-pair2-authority-sync-success-heading = Du synkroniserer
-pair2-authority-sync-success-description = Faner, bokmerke, passord og meir, er klare på tvers av einingane dine.
-pair2-authority-sync-success-view-tabs-button = Vis synkroniserte faner
-pair2-authority-sync-success-sync-settings-button = Synkroniseringsinnstillingar
-
-
 pair2-authority-timeout-and-cancel-timeout-heading = Vil du framleis kople til ei eining?
 pair2-authority-timeout-and-cancel-cancelled-heading = Annulert
 pair2-authority-timeout-and-cancel-canceled-description = Viss du ombestemmer deg eller vil kople til ei anna eining, kan du prøve på nytt.
@@ -1345,7 +1339,7 @@ pair2-supplicant-connect-this-device-cancel-button = Avbryt
 
 
 pair2-supplicant-download-firefox-heading = Få { -brand-firefox } på denne eininga
-pair2-supplicant-download-firefox-description = Last ned { -brand-firefox } for å synkronisere bokmerke, historikk og meir, på tvers av eningar. <linkExternal>Lær meir</linkExternal>
+pair2-supplicant-download-firefox-description = Last ned { -brand-firefox } for å synkronisere bokmerke, historikk og meir, på tvers av eningar. <linkExternal>Les meir</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Hald fram i { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Opnar { -brand-firefox }…
 
@@ -1356,9 +1350,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Les meir
 
 
 pair2-supplicant-sync-success-heading = Eininga di er tilkopla
-pair2-supplicant-sync-success-description = Bokmerka dine, fanene, og meir, vil halde seg synkroniserte i { -brand-firefox }.
-pair2-supplicant-sync-success-view-tabs-button = Vis synkroniserte faner
-pair2-supplicant-sync-success-sync-settings-button = Synkroniseringsinnstillingar
 
 
 pair2-supplicant-timeout-and-cancel-timeout-description = For å kople til mobileininga di og synkronisere { -brand-firefox }-dataa dine, gå til <b>firefox.com/pair</b> på datamaskina di.
