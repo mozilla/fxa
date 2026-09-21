@@ -25,6 +25,8 @@
  *   inactive.
  *   5. For each inactive account, enqueue a cloud task to send the first
  *   notification email.
+ *   6. After a successful run with a state file specified and emails enabled,
+ *   save the start and end dates used, even if no accounts were found.
  */
 
 import fs from 'fs';
@@ -39,6 +41,7 @@ import { StatsD } from 'hot-shots';
 import { Container } from 'typedi';
 import PQueue from 'p-queue';
 import { BigQuery } from '@google-cloud/bigquery';
+import { google } from 'googleapis';
 
 import {
   CloudTaskOptions,
@@ -65,9 +68,16 @@ import {
   hasActiveRefreshToken,
   hasActiveSessionToken,
   IsActiveFnBuilder,
+  OLDEST_ACCOUNT_DATE,
+  parseScanDate,
   setDateToUTC,
   buildExclusionsTempTableQuery,
   getActiveAccountLists,
+  getActivityCutoffDate,
+  loadPreviousScanRange,
+  resolveScanRange,
+  savePreviousScanRange,
+  ScanStateStorage,
 } from './lib';
 
 const config = appConfig.getProperties();
@@ -79,11 +89,7 @@ const defaultDaysTilFirstEmail = 0;
 const defaultResultsLImit = 500000;
 const defaultConcurrency = 100;
 const defaultActiveAccountTablesMaxAgeDays = 14;
-const twoYearsAgo = () => {
-  const x = new Date();
-  x.setFullYear(x.getFullYear() - 2);
-  return x;
-};
+const defaultScanWindowDays = 7;
 
 const exclusionsTempTableName = 'exclusions';
 
@@ -91,7 +97,8 @@ const exclusionsTempTableName = 'exclusions';
 
 const exclusionList = collect();
 
-const init = async () => {
+export const init = async () => {
+  const invocationTimestamp = Date.now();
   const program = new Command();
   program
     .description(
@@ -137,15 +144,22 @@ const init = async () => {
       Date.parse
     )
     .option(
-      '--start-date [date]',
-      'Start of date range of account creation date, inclusive.  Optional.  Defaults to 2012-03-12.',
-      Date.parse,
-      '2012-03-12'
+      '--start-date <date>',
+      `Inclusive start of the account creation range (YYYY-MM-DD). Supply with --end-date to override the computed range. Defaults to ${OLDEST_ACCOUNT_DATE} when neither CLI dates nor --state-file are supplied.`
     )
     .option(
-      '--end-date [date]',
-      'End of date range of account creation date, inclusive.  Defaults to a day before active by date.',
-      Date.parse
+      '--end-date <date>',
+      'Inclusive end of the account creation range (YYYY-MM-DD). Supply with --start-date to override the computed range. Defaults to the day before the UTC date two years ago when neither CLI dates nor --state-file are supplied.'
+    )
+    .option(
+      '--state-file <gs://bucket/object>',
+      'Optional GCS object containing the previous scan range as JSON. Used to compute the next range and updated after a successful run.'
+    )
+    .option(
+      '--scan-window <days>',
+      `Positive integer number of days in a scan window computed from --state-file. Defaults to ${defaultScanWindowDays}.`,
+      Number,
+      defaultScanWindowDays
     )
     .option(
       '--days-til-first-email [float]',
@@ -217,22 +231,55 @@ const init = async () => {
     );
   }
 
-  const startDate = setDateToUTC(program.startDate);
-  const endDate = program.endDate
-    ? setDateToUTC(program.endDate)
-    : twoYearsAgo();
-  const activeByDate = program.activeByDate
-    ? setDateToUTC(program.activeByDate)
-    : twoYearsAgo();
-  const startDateTimestamp = startDate.valueOf();
-  const endDateTimestamp = endDate.valueOf() + 86400000; // next day for < comparisons
-  const activeByDateTimestamp = activeByDate.valueOf();
+  if (!Number.isInteger(program.scanWindow) || program.scanWindow <= 0) {
+    throw new Error('Scan window must be a positive integer number of days.');
+  }
 
-  if (endDateTimestamp <= startDateTimestamp) {
+  if ((program.startDate === undefined) !== (program.endDate === undefined)) {
+    throw new Error('Supply both --start-date and --end-date, or neither.');
+  }
+
+  const cliScanRange =
+    program.startDate === undefined
+      ? undefined
+      : {
+          start: parseScanDate(program.startDate, 'Start date'),
+          end: parseScanDate(program.endDate, 'End date'),
+        };
+
+  if (cliScanRange && cliScanRange.end < cliScanRange.start) {
     throw new Error(
       'The end date must be on the same day or later than the start date.'
     );
   }
+
+  const storageClient: ScanStateStorage | undefined =
+    program.stateFile === undefined
+      ? undefined
+      : google.storage({
+          version: 'v1',
+          auth: new google.auth.GoogleAuth({
+            scopes: ['https://www.googleapis.com/auth/devstorage.read_write'],
+          }),
+        });
+  const previousScanRange = storageClient
+    ? await loadPreviousScanRange(storageClient, program.stateFile)
+    : undefined;
+  const scanRange = resolveScanRange({
+    now: invocationTimestamp,
+    scanWindowDays: program.scanWindow,
+    cliRange: cliScanRange,
+    previousScanRange,
+  });
+
+  const startDate = new Date(scanRange.startDate);
+  const endDate = new Date(scanRange.endDate);
+  const activeByDate = program.activeByDate
+    ? setDateToUTC(program.activeByDate)
+    : new Date(getActivityCutoffDate(invocationTimestamp));
+  const startDateTimestamp = scanRange.startTimestamp;
+  const endDateTimestamp = scanRange.endTimestamp;
+  const activeByDateTimestamp = activeByDate.valueOf();
 
   const daysTilFirstEmail =
     program.daysTilFirstEmail !== undefined
@@ -265,8 +312,18 @@ const init = async () => {
   console.log(
     `Active accounts maximum age in days: ${program.activeAccountTablesMaxAgeDays}`
   );
+  console.log(`State file: ${program.stateFile ?? '(none)'}`);
+  console.log(`Scan window in days: ${program.scanWindow}`);
+  console.log(
+    `Previous scan range: ${
+      previousScanRange
+        ? `${previousScanRange.previous_start_date} to ${previousScanRange.previous_end_date}`
+        : '(none)'
+    }`
+  );
   console.log(`Start date: ${startDate.toISOString()}`);
   console.log(`End date: ${endDate.toISOString()}`);
+  console.log(`Rolled over: ${scanRange.rolledOver}`);
   console.log(`Active by date: ${activeByDate.toISOString()}`);
   console.log(`Days 'til first email: ${daysTilFirstEmail}`);
   console.log(`Per MySQL query results limit: ${program.resultsLimit}`);
@@ -681,6 +738,14 @@ const init = async () => {
   // /enqueue google tasks for sending the first notification email }}}
 
   console.log(`Number of emails queued: ${emailsQueued}`);
+
+  if (storageClient && program.enqueueEmails) {
+    await savePreviousScanRange(storageClient, program.stateFile, {
+      previous_start_date: scanRange.startDate,
+      previous_end_date: scanRange.endDate,
+    });
+    console.log(`Saved scan range to state file: ${program.stateFile}`);
+  }
 
   return 0;
 };
