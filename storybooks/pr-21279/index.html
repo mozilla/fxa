@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 8b2908d062e9b9f26fa2fc8b173f35e716e19a6c</title>
+  <title>Storybooks for commit 4999f7616a2e47baddeb976df0140b478f663667</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 8b2908d062e9b9f26fa2fc8b173f35e716e19a6c</h1>
+  <h1>Storybooks for commit 4999f7616a2e47baddeb976df0140b478f663667</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,7 +31,7 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/21/2026, 9:02:57 PM UTC</dd>
+    <dd>9/21/2026, 10:15:01 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>refactor(auth-server): replace dedent with a local tagged template</pre></dd>
     <dt>Description</dt>
@@ -39,18 +39,19 @@
 
 - FxA is cutting its dependency count (parent FXA-13426).
 - The `dedent` package has one job in fxa-auth-server. It is a tagged template in the swagger API docs.
+- One escape in the docs needs care. `docs/swagger/oauth-server-api.ts:156` writes a raw `\\n`, and the rendered output must keep a backslash before the line break.
 
 ## This pull request
 
 - Adds `docs/swagger/shared/dedent.ts`, a local tagged template that strips the common indentation.
 - Points the 18 swagger description modules at the local helper.
 - Drops `dedent` and `@types/dedent` from the fxa-auth-server package and refreshes `yarn.lock`.
-- Adds `dedent.spec.ts`, and adds `docs/**/*.spec.ts` to the Jest unit project.
-- Adds `docs/**/*` to the tsconfig include, so the spec is type-checked.
+- Adds `docs/**/*.spec.ts` to the Jest unit project and `docs/**/*` to the tsconfig include, so the spec runs and gets type-checked.
+- Adds a regression test in `docs/swagger/shared/dedent.spec.ts` for the raw `\\n` escape at `docs/swagger/oauth-server-api.ts:156`. The helper must render it as a backslash and a newline, which keeps the Markdown hard break.
 
 ## Issue that this pull request solves
 
-Closes: https://mozilla-hub.atlassian.net/browse/FXA-13930</pre></dd>
+Closes: FXA-13930 (https://mozilla-hub.atlassian.net/browse/FXA-13930)</pre></dd>
   </dl>
 </body>
 </html>
