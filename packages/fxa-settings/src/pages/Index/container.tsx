@@ -19,6 +19,7 @@ import GleanMetrics from '../../lib/glean';
 import { useValidatedQueryParams, useNavigateWithQuery } from '../../lib/hooks';
 import { ModelValidationErrors } from '../../lib/model-data';
 import { AuthError } from '../../lib/oauth';
+import { queryParamsToMetricsContext } from '../../lib/metrics';
 
 import {
   isOAuthNativeIntegration,
@@ -35,6 +36,7 @@ import { persistAccount, setCurrentAccount } from '../../lib/storage-utils';
 import Index from '.';
 import { getLocalizedEmailValidationErrorMessage } from './errorMessageMapper';
 import { IndexContainerProps, LocationState } from './interfaces';
+import { PasswordlessLocationState } from '../Signin/SigninPasswordlessCode/interfaces';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { isMobileDevice } from '../../lib/utilities';
 import AppLayout from '../../components/AppLayout';
@@ -153,8 +155,35 @@ const IndexContainer = ({
   // localStorage to avoid stale closures when checking session state.
   const cachedAccount = currentAccount() || lastStoredAccount();
 
+  // Send the first OTP code here, so a blocked request is reported on the email
+  // form instead of on the code page, which offers no way forward. Returns true
+  // when the code was sent. Other failures return false and fall through to the
+  // code page, which sends again and reports them.
+  const sendPasswordlessCode = useCallback(
+    async (email: string) => {
+      const clientId = integration.getClientId();
+      try {
+        await authClient.passwordlessSendCode(email, {
+          clientId,
+          service: integration.getService(),
+          metricsContext: {
+            ...queryParamsToMetricsContext(flowQueryParams),
+            clientId,
+          },
+        });
+        return true;
+      } catch (error: any) {
+        if (error.errno === AuthUiErrors.REQUEST_BLOCKED.errno) {
+          throw error;
+        }
+        return false;
+      }
+    },
+    [authClient, flowQueryParams, integration]
+  );
+
   const handleSuccessNavigation = useCallback(
-    (
+    async (
       exists: boolean,
       hasLinkedAccount: boolean,
       hasPassword: boolean,
@@ -185,20 +214,30 @@ const IndexContainer = ({
       const canUsePasswordlessNew =
         passwordlessEnabled && passwordlessSupported && !integration.isSync();
 
+      const goToPasswordlessCode = async (
+        extraState: Partial<PasswordlessLocationState>
+      ) => {
+        const codeSent = await sendPasswordlessCode(email);
+        navigateWithQuery(
+          isOAuth
+            ? '/oauth/signin_passwordless_code'
+            : '/signin_passwordless_code',
+          {
+            state: {
+              ...extraState,
+              email,
+              service: integration.getService(),
+              codeSent,
+            },
+          }
+        );
+      };
+
       if (exists) {
         if (canUsePasswordlessExisting) {
           // Existing passwordless account - go to passwordless code page
           // For Sync, SigninPasswordlessCode will redirect to SetPassword after OTP
-          const passwordlessRoute = isOAuth
-            ? '/oauth/signin_passwordless_code'
-            : '/signin_passwordless_code';
-          navigateWithQuery(passwordlessRoute, {
-            state: {
-              email,
-              service: integration.getService(),
-              hasPasskey,
-            },
-          });
+          await goToPasswordlessCode({ hasPasskey });
         } else {
           const signinRoute = isOAuthWebIntegration(integration)
             ? '/oauth/signin'
@@ -216,16 +255,7 @@ const IndexContainer = ({
       } else {
         if (canUsePasswordlessNew) {
           // New account with passwordless support (non-Sync only)
-          const passwordlessRoute = isOAuth
-            ? '/oauth/signin_passwordless_code'
-            : '/signin_passwordless_code';
-          navigateWithQuery(passwordlessRoute, {
-            state: {
-              email,
-              service: integration.getService(),
-              isSignup: true,
-            },
-          });
+          await goToPasswordlessCode({ isSignup: true });
         } else {
           const signupRoute = isOAuthWebIntegration(integration)
             ? '/oauth/signup'
@@ -244,6 +274,7 @@ const IndexContainer = ({
       integration,
       navigateWithQuery,
       queryParamModel,
+      sendPasswordlessCode,
       config.featureFlags?.passwordlessEnabled,
     ]
   );
@@ -345,15 +376,7 @@ const IndexContainer = ({
           canLinkAccountOk = true;
         }
 
-        GleanMetrics.emailFirst.submitSuccess({
-          event: {
-            reason: `${accountExists ? 'login' : 'registration'}${
-              isManualSubmission ? '' : '-auto'
-            }`,
-          },
-        });
-
-        handleSuccessNavigation(
+        await handleSuccessNavigation(
           exists,
           hasLinkedAccount,
           hasPassword,
@@ -362,6 +385,14 @@ const IndexContainer = ({
           passwordlessSupported,
           hasPasskey
         );
+
+        GleanMetrics.emailFirst.submitSuccess({
+          event: {
+            reason: `${accountExists ? 'login' : 'registration'}${
+              isManualSubmission ? '' : '-auto'
+            }`,
+          },
+        });
       } catch (error) {
         // If we reach the catch before accountStatusByEmail resolved (e.g. a
         // network error), accountExists is undefined and we can't attribute
