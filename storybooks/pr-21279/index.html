@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 4999f7616a2e47baddeb976df0140b478f663667</title>
+  <title>Storybooks for commit 56fae30a1120deff81e0403d9517c4f7ce9f7008</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 4999f7616a2e47baddeb976df0140b478f663667</h1>
+  <h1>Storybooks for commit 56fae30a1120deff81e0403d9517c4f7ce9f7008</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,27 +31,26 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/21/2026, 10:15:01 PM UTC</dd>
+    <dd>9/21/2026, 10:39:11 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>refactor(auth-server): replace dedent with a local tagged template</pre></dd>
     <dt>Description</dt>
     <dd><pre>## Because
 
-- FxA is cutting its dependency count (parent FXA-13426).
-- The `dedent` package has one job in fxa-auth-server. It is a tagged template in the swagger API docs.
-- One escape in the docs needs care. `docs/swagger/oauth-server-api.ts:156` writes a raw `\\n`, and the rendered output must keep a backslash before the line break.
+- The `dedent` npm package is one more dependency for one small job. FXA-13426 asks us to cut dependencies.
+- The swagger docs are the only code in `fxa-auth-server` that uses it.
 
 ## This pull request
 
-- Adds `docs/swagger/shared/dedent.ts`, a local tagged template that strips the common indentation.
-- Points the 18 swagger description modules at the local helper.
-- Drops `dedent` and `@types/dedent` from the fxa-auth-server package and refreshes `yarn.lock`.
-- Adds `docs/**/*.spec.ts` to the Jest unit project and `docs/**/*` to the tsconfig include, so the spec runs and gets type-checked.
-- Adds a regression test in `docs/swagger/shared/dedent.spec.ts` for the raw `\\n` escape at `docs/swagger/oauth-server-api.ts:156`. The helper must render it as a backslash and a newline, which keeps the Markdown hard break.
+- Adds a local tagged template at `docs/swagger/shared/dedent.ts` and drops the `dedent` dependency.
+- Points the 17 swagger API modules and `shared/descriptions.ts` at the local helper.
+- Adds `docs/swagger/shared/dedent.spec.ts` with 8 cases, and brings `docs/swagger` into `jest.config.js` and `tsconfig.json`.
+- Expands the `\n` escape per raw template segment through a placeholder, so a literal `\n` from an interpolated value stays literal. A regression test covers it.
+- Counts a non-blank line at column 0 in the indent scan, so a template that starts at column 0 keeps the indentation of the lines below it. A regression test covers it.
 
 ## Issue that this pull request solves
 
-Closes: FXA-13930 (https://mozilla-hub.atlassian.net/browse/FXA-13930)</pre></dd>
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-13930</pre></dd>
   </dl>
 </body>
 </html>
