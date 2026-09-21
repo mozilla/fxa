@@ -1,0 +1,11 @@
+{
+  "commit": "525d199814e96e5868d97d00e0b662d0e68d145c",
+  "summary": "feat(oauth): add step-up auth telemetry",
+  "description": "Because:\n\n* the RFC 9470 step-up path is unmeasured — nothing distinguishes it\n  from an ordinary sign-in\n* both rejection causes collapse into errno 170, so an unmet acr_values\n  reads identically to a stale max_age\n* tuning AMO's max_age needs the distribution of session auth age\n\nThis commit:\n\n* extracts the step-up gate into a pure evaluateStepUp, observed for\n  telemetry through an onStepUpEvaluated callback that can neither change\n  nor block the verdict\n* adds a step_up_auth Glean group — requested, satisfied, and rejected\n  with a reason\n* adds lib/metrics/step-up.ts, emitting oauth.step_up.* counters and an\n  auth_age histogram per backend, reporting their own failures\n* stashes metricsEventUid before the first Glean call so the metrics\n  opt-out resolves on the unauthenticated /authorization routes\n\nCloses #FXA-14440",
+  "timestamp": 1790025915000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
