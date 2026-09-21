@@ -1904,18 +1904,6 @@ pair2-authority-scan-qr-code-aria-label = QR-code om uw mobiele apparaat te verb
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Hulp bij scannen ontvangen
 
-## SyncSuccess page - Part of the desktop-to-mobile pairing flow
-## Users see this on their computer once the mobile device has been paired.
-## It confirms that sync is on and offers the follow-up actions.
-
-# "syncing" here means copying data between the user's devices
-pair2-authority-sync-success-heading = U synchroniseert
-pair2-authority-sync-success-description = Uw tabbladen, bladwijzers, wachtwoorden en meer staan klaar op al uw apparaten.
-# Opens the tabs that are open on the user's other synced devices
-pair2-authority-sync-success-view-tabs-button = Gesynchroniseerde tabbladen bekijken
-# Opens the browser settings that control what is synced
-pair2-authority-sync-success-sync-settings-button = Synchronisatie-instellingen
-
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
 ## either because it timed out or because it was canceled. Both cases offer to
@@ -1990,11 +1978,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Meer info
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Uw apparaat is verbonden
-pair2-supplicant-sync-success-description = Uw bladwijzers, tabbladen en meer blijven in { -brand-firefox } gesynchroniseerd.
-# Opens the view listing tabs open on the user's other synced devices
-pair2-supplicant-sync-success-view-tabs-button = Gesynchroniseerde tabbladen bekijken
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button = Synchronisatie-instellingen
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,

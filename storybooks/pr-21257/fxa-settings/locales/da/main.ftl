@@ -1313,12 +1313,6 @@ pair2-authority-scan-qr-code-aria-label = QR-kode til at forbinde din mobile enh
 pair2-authority-scan-qr-help-link = Få hjælp til at skanne
 
 
-pair2-authority-sync-success-heading = Du synkroniserer
-pair2-authority-sync-success-description = Dine faneblade, bogmærker, adgangskoder med mere er klar på tværs af dine enheder.
-pair2-authority-sync-success-view-tabs-button = Vis synkroniserede faneblade
-pair2-authority-sync-success-sync-settings-button = Indstillinger for synkronisering
-
-
 pair2-authority-timeout-and-cancel-timeout-heading = Vil du stadig forbinde en enhed?
 pair2-authority-timeout-and-cancel-timeout-description = Det ser ud til, at tidsfristen udløb. Prøv igen, hvis du stadig vil forbinde din mobile enhed og synkronisere dine { -brand-firefox }-data.
 pair2-authority-timeout-and-cancel-canceled-description = Hvis du ombestemmer dig eller ønsker at forbinde en anden enhed, så prøv igen.
@@ -1347,9 +1341,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Læs mere
 
 
 pair2-supplicant-sync-success-heading = Din enhed er forbundet
-pair2-supplicant-sync-success-description = Dine bogmærker, faneblade med mere forbliver synkroniseret i { -brand-firefox }.
-pair2-supplicant-sync-success-view-tabs-button = Vis synkroniserede faneblade
-pair2-supplicant-sync-success-sync-settings-button = Indstillinger for synkronisering
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Det ser ud til, at tidsfristen udløb

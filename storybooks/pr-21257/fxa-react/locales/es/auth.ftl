@@ -98,9 +98,6 @@ payment-provider-card-ending-in = <b>Método de pago:</b> Tarjeta que termina en
 payment-provider-card-ending-in-card-name = <b>Método de pago:</b> { $cardName } que termina en { $lastFour }
 subscription-charges-invoice-summary = Resumen de la factura
 
-# Variables:
-
-
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
 

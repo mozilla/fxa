@@ -1129,12 +1129,6 @@ pair2-authority-scan-qr-code-aria-label = QR-koodi mobiililaitteen yhdistämisek
 pair2-authority-scan-qr-help-link = Apua skannaukseen
 
 
-pair2-authority-sync-success-heading = Synkronointi on muodostettu
-pair2-authority-sync-success-description = Välilehdet, kirjanmerkit, salasanat ja paljon muuta ovat valmiina kaikilla laitteillasi.
-pair2-authority-sync-success-view-tabs-button = Näytä synkronoidut välilehdet
-pair2-authority-sync-success-sync-settings-button = Synkronoinnin asetukset
-
-
 pair2-authority-timeout-and-cancel-timeout-heading = Haluatko yhdistää lisää laitteita?
 pair2-authority-timeout-and-cancel-try-again-button = Yritä uudestaan
 pair2-authority-timeout-and-cancel-sync-settings-button = Synkronoinnin asetukset
@@ -1142,9 +1136,6 @@ pair2-authority-timeout-and-cancel-sync-settings-button = Synkronoinnin asetukse
 
 pair2-supplicant-approve-sign-in-heading = Vielä yksi vaihe ennen synkronointia
 pair2-supplicant-approve-sign-in-instruction = Hyväksy kirjautuminen tietokoneellasi.
-
-
-pair2-supplicant-sync-success-sync-settings-button = Synkronoinnin asetukset
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } vahvistettu

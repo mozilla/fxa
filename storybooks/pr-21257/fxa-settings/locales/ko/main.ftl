@@ -1299,12 +1299,6 @@ pair2-authority-scan-qr-code-aria-label = 모바일 기기와 연결하기 위�
 pair2-authority-scan-qr-help-link = 스캔 도움 받기
 
 
-pair2-authority-sync-success-heading = 동기화 중
-pair2-authority-sync-success-description = 여러 기기에서 탭, 북마크, 비밀번호 등을 사용할 준비가 되었습니다.
-pair2-authority-sync-success-view-tabs-button = 동기화된 탭 보기
-pair2-authority-sync-success-sync-settings-button = 동기화 설정
-
-
 pair2-authority-timeout-and-cancel-timeout-heading = 그래도 연결하시겠습니까?
 pair2-authority-timeout-and-cancel-timeout-description = 시간이 초과된 것 같습니다. 여전히 모바일 기기를 연결하고 { -brand-firefox } 데이터를 동기화하고 싶으시면 다시 시도하세요.
 pair2-authority-timeout-and-cancel-cancelled-heading = 취소됨
@@ -1335,9 +1329,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = 더 알아보기
 
 
 pair2-supplicant-sync-success-heading = 기기가 연결되었습니다
-pair2-supplicant-sync-success-description = 북마크, 탭 등이 { -brand-firefox }에서 동기화된 상태로 유지됩니다.
-pair2-supplicant-sync-success-view-tabs-button = 동기화된 탭 보기
-pair2-supplicant-sync-success-sync-settings-button = 동기화 설정
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = 시간이 초과된 것 같습니다

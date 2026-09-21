@@ -1833,18 +1833,6 @@ pair2-authority-scan-qr-code-aria-label = קוד QR לחיבור המכשיר ה
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = קבלת עזרה בסריקה
 
-## SyncSuccess page - Part of the desktop-to-mobile pairing flow
-## Users see this on their computer once the mobile device has been paired.
-## It confirms that sync is on and offers the follow-up actions.
-
-# "syncing" here means copying data between the user's devices
-pair2-authority-sync-success-heading = הסנכרון פעיל
-pair2-authority-sync-success-description = הלשוניות, הסימניות, הססמאות שלך ועוד מוכנים בכל המכשירים שלך.
-# Opens the tabs that are open on the user's other synced devices
-pair2-authority-sync-success-view-tabs-button = הצגת הלשוניות המסונכרנות
-# Opens the browser settings that control what is synced
-pair2-authority-sync-success-sync-settings-button = הגדרות סנכרון
-
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
 ## either because it timed out or because it was canceled. Both cases offer to
@@ -1919,11 +1907,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = מידע נוסף
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = המכשיר שלך מחובר
-pair2-supplicant-sync-success-description = הסימניות, הלשוניות ועוד שלך יישארו מסונכרנים ב־{ -brand-firefox }.
-# Opens the view listing tabs open on the user's other synced devices
-pair2-supplicant-sync-success-view-tabs-button = הצגת הלשוניות המסונכרנות
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button = הגדרות סנכרון
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,

@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 9fe7362dec885e8563033096a6912b261e77bf50</title>
+  <title>Storybooks for commit b9504f4308e1dae9395f6f49ff9d89be5b183815</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,26 +23,28 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 9fe7362dec885e8563033096a6912b261e77bf50</h1>
+  <h1>Storybooks for commit b9504f4308e1dae9395f6f49ff9d89be5b183815</h1>
   <ul>
     <li><a href="./fxa-react/">fxa-react</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/21/2026, 6:17:47 PM UTC</dd>
+    <dd>9/21/2026, 10:04:52 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(admin-server): make disable and enable follow-up steps best effort</pre></dd>
+    <dd><pre>refactor(auth-server): refuse credentials for disabled accounts in one place</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-- A failed security-event write returned an error after the account
-  state had already changed, and skipped the profile notification.
+- Checking each sign-in route separately touched nine files and left
+  future routes to remember the rule themselves.
 
 This commit:
 
-- Records the security event, clears the profile cache and notifies
-  attached services independently, reporting any failure to Sentry.</pre></dd>
+- Refuses to create any session, token or unblock code for a disabled
+  account inside the db layer, where every sign-in and reset path ends.
+- Removes the per-route checks and their route-level tests.
+- Keeps the early password-login check and the OAuth grant check.</pre></dd>
   </dl>
 </body>
 </html>

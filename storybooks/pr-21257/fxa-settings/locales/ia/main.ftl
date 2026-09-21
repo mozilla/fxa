@@ -1328,12 +1328,6 @@ pair2-authority-scan-qr-code-aria-label = Codice QR pro connecter tu apparato mo
 pair2-authority-scan-qr-help-link = Obtener auxilio per le scansion
 
 
-pair2-authority-sync-success-heading = Tu te sta a synchronisar
-pair2-authority-sync-success-description = Tu schedas, marcapaginas, contrasignos, e plus es preste a transverso tu apparatos.
-pair2-authority-sync-success-view-tabs-button = Vider schedas synchronisate
-pair2-authority-sync-success-sync-settings-button = Configurationes del synchronisation
-
-
 pair2-authority-timeout-and-cancel-timeout-heading = Ancora vole tu connecter un apparato?
 pair2-authority-timeout-and-cancel-timeout-description = Il pare que nos exiva foras tempore limite. Retenta si tu ancora vole connecter tu apparato mobile e synchronisar tu datos de { -brand-firefox }.
 pair2-authority-timeout-and-cancel-cancelled-heading = Cancellate
@@ -1364,9 +1358,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Pro saper plus
 
 
 pair2-supplicant-sync-success-heading = Tu apparato es connexe
-pair2-supplicant-sync-success-description = Tu marcapaginas, schedas, e plus stara synchronisate in { -brand-firefox }.
-pair2-supplicant-sync-success-view-tabs-button = Vider schedas synchronisate
-pair2-supplicant-sync-success-sync-settings-button = Configurationes del synchronisation
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Il pare que nos exiva foras tempore limite.

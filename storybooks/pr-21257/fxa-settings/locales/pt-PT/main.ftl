@@ -1325,12 +1325,12 @@ pair2-authority-scan-qr-heading = Digitalize para associar o seu dispositivo mó
 pair2-authority-scan-qr-instruction = Digitalize o código QR com o seu telemóvel ou tablet para sincronizar os seus { -brand-firefox } marcadores, separadores, e mais.
 pair2-authority-scan-qr-code-aria-label = Código QR para ligar o seu dispositivo móvel
 pair2-authority-scan-qr-help-link = Obter ajuda para digitalizar
+pair2-authority-scan-qr-skip-button = Ignorar por agora
 
 
-pair2-authority-sync-success-heading = Está a sincronizar
-pair2-authority-sync-success-description = Os seus separadores, marcadores, palavras-passe e muito mais estão prontos nos seus dispositivos.
-pair2-authority-sync-success-view-tabs-button = Ver separadores sincronizados
-pair2-authority-sync-success-sync-settings-button = Definições de sincronização
+pair2-authority-sync-success-heading-v2 = O seu dispositivo está ligado
+pair2-authority-sync-success-description-v2 = A sincronização está em curso. Pode demorar algum tempo para os seus dados sincronizados aparecerem. Sinta-se à vontade para continuar a navegar.
+pair2-authority-sync-success-sync-settings-button-v2 = Gerir definições de sincronização
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Ainda pretende ligar um dispositivo?
@@ -1363,9 +1363,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Saber mais
 
 
 pair2-supplicant-sync-success-heading = O seu dispositivo está ligado
-pair2-supplicant-sync-success-description = Os seus marcadores, separadores e muito mais irão ficar sincronizados em { -brand-firefox }.
-pair2-supplicant-sync-success-view-tabs-button = Ver separadores sincronizados
-pair2-supplicant-sync-success-sync-settings-button = Definições de sincronização
+pair2-supplicant-sync-success-description-v2 = A sincronização está em curso. Pode demorar algum tempo para os seus dados sincronizados aparecerem. Sinta-se à vontade para continuar a navegar.
+pair2-supplicant-sync-success-sync-settings-button-v2 = Gerir definições de sincronização
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que expirámos

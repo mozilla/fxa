@@ -1316,12 +1316,6 @@ pair2-authority-scan-qr-code-aria-label = QR-kode for å koble til mobilenheten 
 pair2-authority-scan-qr-help-link = Få hjelp med skanning
 
 
-pair2-authority-sync-success-heading = Du synkroniserer
-pair2-authority-sync-success-description = Faner, bokmerker, passord og mer er klart på alle enhetene dine.
-pair2-authority-sync-success-view-tabs-button = Vis synkroniserte faner
-pair2-authority-sync-success-sync-settings-button = Synkroniseringsinnstillinger
-
-
 pair2-authority-timeout-and-cancel-timeout-heading = Vil du fortsatt koble til en enhet?
 pair2-authority-timeout-and-cancel-timeout-description = Det ser ut til at det oppstod et tidsavbrudd. Prøv på nytt hvis du fortsatt vil koble til mobilenheten din og synkronisere { -brand-firefox }-dataene dine.
 pair2-authority-timeout-and-cancel-cancelled-heading = Avbrutt
@@ -1352,9 +1346,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Les mer
 
 
 pair2-supplicant-sync-success-heading = Enheten din er tilkoblet
-pair2-supplicant-sync-success-description = Bokmerkene dine, fanene og mer vil forbli synkronisert i { -brand-firefox }.
-pair2-supplicant-sync-success-view-tabs-button = Vis synkroniserte faner
-pair2-supplicant-sync-success-sync-settings-button = Synkroniseringsinnstillinger
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Det ser ut til at det oppstod et tidsavbrudd

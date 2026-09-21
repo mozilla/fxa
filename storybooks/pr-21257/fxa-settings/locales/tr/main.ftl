@@ -1215,10 +1215,6 @@ pair2-authority-download-firefox-heading = Eşitlemek için { -brand-firefox } t
 pair2-authority-download-firefox-cta = { -brand-firefox }’u indir
 
 
-pair2-authority-sync-success-view-tabs-button = Eşitlenen sekmeleri göster
-pair2-authority-sync-success-sync-settings-button = Eşitleme ayarları
-
-
 pair2-authority-timeout-and-cancel-timeout-heading = Hâlâ cihaz bağlamak istiyor musunuz?
 pair2-authority-timeout-and-cancel-canceled-description = Fikrinizi değiştirirseniz veya başka bir cihaz bağlamak isterseniz yeniden deneyin.
 pair2-authority-timeout-and-cancel-try-again-button = Yeniden dene
@@ -1241,8 +1237,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Daha fazla bilgi al
 
 
 pair2-supplicant-sync-success-heading = Cihazınız bağlandı
-pair2-supplicant-sync-success-view-tabs-button = Eşitlenen sekmeleri göster
-pair2-supplicant-sync-success-sync-settings-button = Eşitleme ayarları
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zaman aşımına uğradık
