@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import InputPassword from '../InputPassword';
 import PasswordValidator from '../../lib/password-validator';
@@ -108,6 +108,7 @@ export const FormPasswordWithInlineCriteria = ({
     useState<string>();
   const [srOnlyConfirmPwdFeedbackMessage, setSROnlyConfirmPwdFeedbackMessage] =
     useState<string>();
+  const confirmPasswordRef = useRef<HTMLInputElement>(null);
 
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedPasswordMatchError = ftlMsgResolver.getMsg(
@@ -175,6 +176,17 @@ export const FormPasswordWithInlineCriteria = ({
 
     if (!isValid && showConfirmPasswordInput) {
       trigger('confirmPassword');
+    }
+  };
+
+  // enterKeyHint only labels the key; Enter must advance to the confirm field.
+  const onNewPwdKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.nativeEvent.isComposing) {
+      return;
+    }
+    if (event.key === 'Enter' && showConfirmPasswordInput) {
+      event.preventDefault();
+      confirmPasswordRef.current?.focus();
     }
   };
 
@@ -281,6 +293,8 @@ export const FormPasswordWithInlineCriteria = ({
               onFocusCb={onNewPwdFocus}
               onBlurCb={onNewPwdBlur}
               onChange={() => onChangePassword('newPassword')}
+              onKeyDown={onNewPwdKeyDown}
+              enterKeyHint={showConfirmPasswordInput ? 'next' : 'done'}
               hasErrors={dirtyFields.newPassword ? errors.newPassword : false}
               registration={register('newPassword', {
                 required: true,
@@ -321,6 +335,8 @@ export const FormPasswordWithInlineCriteria = ({
                 onFocusCb={onFocusConfirmPassword}
                 onBlurCb={onBlurConfirmPassword}
                 onChange={() => onChangePassword('confirmPassword')}
+                enterKeyHint="done"
+                inputRefDOM={confirmPasswordRef}
                 hasErrors={errors.confirmPassword && passwordMatchErrorText}
                 registration={register('confirmPassword', {
                   required: true,
