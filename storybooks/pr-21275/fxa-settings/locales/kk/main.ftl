@@ -1326,12 +1326,6 @@ pair2-authority-scan-qr-code-aria-label = Мобильді құрылғыңыз�
 pair2-authority-scan-qr-help-link = Сканерлеу бойынша көмек алыңыз
 
 
-pair2-authority-sync-success-heading = Сіз синхрондаудасыз
-pair2-authority-sync-success-description = Сіздің браузер беттері, бетбелгілер, парольдер және т.б. барлық құрылғыларыңызда дайын.
-pair2-authority-sync-success-view-tabs-button = Синхрондалған беттерді қарау
-pair2-authority-sync-success-sync-settings-button = Синхрондау баптаулары
-
-
 pair2-authority-timeout-and-cancel-timeout-heading = Әлі де құрылғыны қосқыңыз келе ме?
 pair2-authority-timeout-and-cancel-timeout-description = Байланыс орнатуға бөлінген уақыт өтіп кеткен сияқты. Мобильді құрылғыңызды қосып, { -brand-firefox } деректеріңізді синхрондағыңыз келсе, қайталап көріңіз.
 pair2-authority-timeout-and-cancel-cancelled-heading = Бас тартылған
@@ -1362,9 +1356,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Көбірек білу
 
 
 pair2-supplicant-sync-success-heading = Сіздің құрылғыңыз байланысқан
-pair2-supplicant-sync-success-description = Сіздің бетбелгілер, беттер және т.б. { -brand-firefox } ішінде синхрондалған күйінде қалады.
-pair2-supplicant-sync-success-view-tabs-button = Синхрондалған беттерді қарау
-pair2-supplicant-sync-success-sync-settings-button = Синхрондау баптаулары
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Бөлінген уақыт өтіп кеткен сияқты

@@ -1278,12 +1278,6 @@ pair2-authority-scan-qr-code-aria-label = קוד QR לחיבור המכשיר ה
 pair2-authority-scan-qr-help-link = קבלת עזרה בסריקה
 
 
-pair2-authority-sync-success-heading = הסנכרון פעיל
-pair2-authority-sync-success-description = הלשוניות, הסימניות, הססמאות שלך ועוד מוכנים בכל המכשירים שלך.
-pair2-authority-sync-success-view-tabs-button = הצגת הלשוניות המסונכרנות
-pair2-authority-sync-success-sync-settings-button = הגדרות סנכרון
-
-
 pair2-authority-timeout-and-cancel-timeout-heading = עדיין רוצה לחבר מכשיר?
 pair2-authority-timeout-and-cancel-timeout-description = נראה שזמן הפעולה פג. יש לנסות שוב אם עדיין ברצונך לחבר את המכשיר הנייד שלך ולסנכרן את נתוני ה־{ -brand-firefox } שלך.
 pair2-authority-timeout-and-cancel-cancelled-heading = בוטל
@@ -1314,9 +1308,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = מידע נוסף
 
 
 pair2-supplicant-sync-success-heading = המכשיר שלך מחובר
-pair2-supplicant-sync-success-description = הסימניות, הלשוניות ועוד שלך יישארו מסונכרנים ב־{ -brand-firefox }.
-pair2-supplicant-sync-success-view-tabs-button = הצגת הלשוניות המסונכרנות
-pair2-supplicant-sync-success-sync-settings-button = הגדרות סנכרון
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = נראה שזמן הפעולה פג

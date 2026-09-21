@@ -1350,12 +1350,6 @@ pair2-authority-scan-qr-code-aria-label = QR-კოდი მობილურ 
 pair2-authority-scan-qr-help-link = დახმარება წაკითხვის ხარვეზისას
 
 
-pair2-authority-sync-success-heading = დასინქრონებულია
-pair2-authority-sync-success-description = თქვენი ჩანართები, სანიშნები, პაროლები თუ სხვ. მზადაა სარგებლობისთვის თქვენს მოწყობილობებზე.
-pair2-authority-sync-success-view-tabs-button = დასინქ. ჩანართების ნახვა
-pair2-authority-sync-success-sync-settings-button = სინქრონიზაციის პარამეტრები
-
-
 pair2-authority-timeout-and-cancel-timeout-heading = კიდევ გსურთ მოწყობილობის დაკავშირება?
 pair2-authority-timeout-and-cancel-timeout-description = როგორც ჩანს, დრო ამოიწურა. სცადეთ ხელახლა, თუ კვლავ გსურთ თქვენი მობილური მოწყობილობის დაკავშირება, რომ დაასინქრონოთ { -brand-firefox } მონაცემებიანად.
 pair2-authority-timeout-and-cancel-canceled-description = თუ გადაიფიქრებთ ან გსურთ სხვა მოწყობილობის დაკავშირება, კვლავ სცადეთ.
@@ -1385,9 +1379,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = ვრცლად
 
 
 pair2-supplicant-sync-success-heading = მოწყობილობა დაკავშირებულია
-pair2-supplicant-sync-success-description = თქვენს სანიშნებს, ჩანართებს თუ სხვა მონაცემებს ასინქრონებს { -brand-firefox }.
-pair2-supplicant-sync-success-view-tabs-button = დასინქ. ჩანართების ნახვა
-pair2-supplicant-sync-success-sync-settings-button = სინქრონიზაციის პარამეტრები
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = როგორც ჩანს, დრო ამოიწურა

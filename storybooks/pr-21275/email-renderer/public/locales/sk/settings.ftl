@@ -1913,18 +1913,6 @@ pair2-authority-scan-qr-code-aria-label = QR kód na pripojenie vášho mobilné
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Získajte pomoc so skenovaním
 
-## SyncSuccess page - Part of the desktop-to-mobile pairing flow
-## Users see this on their computer once the mobile device has been paired.
-## It confirms that sync is on and offers the follow-up actions.
-
-# "syncing" here means copying data between the user's devices
-pair2-authority-sync-success-heading = Synchronizujete
-pair2-authority-sync-success-description = Vaše karty, záložky, heslá a ďalšie informácie sú k dispozícii na všetkých vašich zariadeniach.
-# Opens the tabs that are open on the user's other synced devices
-pair2-authority-sync-success-view-tabs-button = Zobraziť synchronizované karty
-# Opens the browser settings that control what is synced
-pair2-authority-sync-success-sync-settings-button = Nastavenia synchronizácie
-
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
 ## either because it timed out or because it was canceled. Both cases offer to
@@ -1999,11 +1987,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Ďalšie informácie
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Vaše zariadenie je pripojené
-pair2-supplicant-sync-success-description = Vaše záložky, karty a ďalšie položky zostanú synchronizované vo { -brand-firefox(case: "loc") }.
-# Opens the view listing tabs open on the user's other synced devices
-pair2-supplicant-sync-success-view-tabs-button = Zobraziť synchronizované karty
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button = Nastavenia synchronizácie
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,

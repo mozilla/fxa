@@ -1364,12 +1364,12 @@ pair2-authority-scan-qr-heading = Olvassa le a mobileszköze csatlakoztatásáho
 pair2-authority-scan-qr-instruction = Olvassa le a QR-kódot telefonjával vagy táblagépével, és szinkronizálja a { -brand-firefox } könyvjelzőit, lapjait és egyebeit.
 pair2-authority-scan-qr-code-aria-label = QR-kód a mobileszköz csatlakoztatásához
 pair2-authority-scan-qr-help-link = Segítség a leolvasáshoz
+pair2-authority-scan-qr-skip-button = Kihagyás
 
 
-pair2-authority-sync-success-heading = Ön már szinkronizál
-pair2-authority-sync-success-description = Lapjai, könyvjelzői, jelszavai és egyebek készen állnak az összes eszközén.
-pair2-authority-sync-success-view-tabs-button = Szinkronizált lapok megtekintése
-pair2-authority-sync-success-sync-settings-button = Szinkronizálási beállítások
+pair2-authority-sync-success-heading-v2 = Az eszköze csatlakoztatva van
+pair2-authority-sync-success-description-v2 = A szinkronizálás folyamatban. Eltarthat egy ideig, amíg megjelennek a szinkronizált adatok. Nyugodtan böngésszen.
+pair2-authority-sync-success-sync-settings-button-v2 = Szinkronizálási beállítások kezelése
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Még mindig csatlakoztatni szeretne egy eszközt?
@@ -1402,9 +1402,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = További tudnivalók
 
 
 pair2-supplicant-sync-success-heading = Az eszköze csatlakoztatva van
-pair2-supplicant-sync-success-description = A könyvjelzői, lapjai és egyebei szinkronizálva maradnak a { -brand-firefox }ban.
-pair2-supplicant-sync-success-view-tabs-button = Szinkronizált lapok megtekintése
-pair2-supplicant-sync-success-sync-settings-button = Szinkronizálási beállítások
+pair2-supplicant-sync-success-description-v2 = A szinkronizálás folyamatban. Eltarthat egy ideig, amíg megjelennek a szinkronizált adatok. Nyugodtan böngésszen.
+pair2-supplicant-sync-success-sync-settings-button-v2 = Szinkronizálási beállítások kezelése
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Úgy tűnik, túlléptük az időkorlátot

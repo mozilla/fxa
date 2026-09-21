@@ -1715,15 +1715,6 @@ pair2-authority-download-firefox-heading = Eşitlemek için { -brand-firefox } t
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = { -brand-firefox }’u indir
 
-## SyncSuccess page - Part of the desktop-to-mobile pairing flow
-## Users see this on their computer once the mobile device has been paired.
-## It confirms that sync is on and offers the follow-up actions.
-
-# Opens the tabs that are open on the user's other synced devices
-pair2-authority-sync-success-view-tabs-button = Eşitlenen sekmeleri göster
-# Opens the browser settings that control what is synced
-pair2-authority-sync-success-sync-settings-button = Eşitleme ayarları
-
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
 ## either because it timed out or because it was canceled. Both cases offer to
@@ -1784,10 +1775,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Daha fazla bilgi al
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Cihazınız bağlandı
-# Opens the view listing tabs open on the user's other synced devices
-pair2-supplicant-sync-success-view-tabs-button = Eşitlenen sekmeleri göster
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button = Eşitleme ayarları
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,

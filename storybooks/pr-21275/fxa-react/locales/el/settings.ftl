@@ -1904,18 +1904,18 @@ pair2-authority-scan-qr-instruction = Σαρώστε τον κωδικό QR με
 pair2-authority-scan-qr-code-aria-label = Κωδικός QR για σύνδεση της κινητής σας συσκευής
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Λήψη βοήθειας με τη σάρωση
+# Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
+pair2-authority-scan-qr-skip-button = Παράλειψη για την ώρα
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
-## It confirms that sync is on and offers the follow-up actions.
+## It confirms that sync is on and links to sync settings.
 
-# "syncing" here means copying data between the user's devices
-pair2-authority-sync-success-heading = Γίνεται συγχρονισμός
-pair2-authority-sync-success-description = Οι καρτέλες, οι σελιδοδείκτες, οι κωδικοί πρόσβασης και πολλά άλλα είναι έτοιμα σε όλες τις συσκευές σας.
-# Opens the tabs that are open on the user's other synced devices
-pair2-authority-sync-success-view-tabs-button = Προβολή συγχρονισμένων καρτελών
+pair2-authority-sync-success-heading-v2 = Η συσκευή σας έχει συνδεθεί
+# "Syncing" here means copying data between the user's devices
+pair2-authority-sync-success-description-v2 = Ο συγχρονισμός βρίσκεται σε εξέλιξη. Ενδέχεται να χρειαστεί λίγος χρόνος μέχρι να εμφανιστούν τα συγχρονισμένα δεδομένα σας. Στο μεταξύ, μπορείτε να συνεχίσετε την περιήγηση.
 # Opens the browser settings that control what is synced
-pair2-authority-sync-success-sync-settings-button = Ρυθμίσεις συγχρονισμού
+pair2-authority-sync-success-sync-settings-button-v2 = Διαχείριση ρυθμίσεων συγχρονισμού
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1991,11 +1991,10 @@ pair2-supplicant-ready-to-scan-learn-more-link = Μάθετε περισσότε
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Η συσκευή σας έχει συνδεθεί
-pair2-supplicant-sync-success-description = Οι σελιδοδείκτες, οι καρτέλες και πολλά άλλα θα συγχρονίζονται στο { -brand-firefox }.
-# Opens the view listing tabs open on the user's other synced devices
-pair2-supplicant-sync-success-view-tabs-button = Προβολή συγχρονισμένων καρτελών
+# "Syncing" here means copying data between the user's devices
+pair2-supplicant-sync-success-description-v2 = Ο συγχρονισμός βρίσκεται σε εξέλιξη. Ενδέχεται να χρειαστεί λίγος χρόνος μέχρι να εμφανιστούν τα συγχρονισμένα δεδομένα σας. Στο μεταξύ, μπορείτε να συνεχίσετε την περιήγηση.
 # Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button = Ρυθμίσεις συγχρονισμού
+pair2-supplicant-sync-success-sync-settings-button-v2 = Διαχείριση ρυθμίσεων συγχρονισμού
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
