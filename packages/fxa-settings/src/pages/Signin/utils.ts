@@ -379,6 +379,28 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
       sendFxaLogin(navigationOptions);
     }
 
+    const requiresVerificationPage =
+      navigationOptions.signinData.verificationReason ===
+        VerificationReasons.SIGN_UP ||
+      navigationOptions.signinData.verificationMethod ===
+        VerificationMethods.TOTP_2FA ||
+      navigationOptions.signinData.verificationReason ===
+        VerificationReasons.CHANGE_PASSWORD ||
+      navigationOptions.isServiceWithEmailVerification ||
+      wantsTwoStepAuthentication ||
+      wantsKeys;
+
+    // Case 5 above: an RP flow outside servicesWithEmailVerification goes
+    // straight to the grant. The server refuses it for a mustVerify session
+    // (errno 138) and the destination becomes the code page instead.
+    const oauthTarget =
+      !requiresVerificationPage && isOAuthWebIntegration(integration)
+        ? await getOAuthNavigationTarget(navigationOptions)
+        : undefined;
+    if (oauthTarget?.error) {
+      return { error: oauthTarget.error };
+    }
+
     // If we are about to direct a user to an email-OTP verification page
     // (/signin_token_code for an unverified session, or /confirm_signup_code for an
     // unverified email) and we know their session isn't fully verified, then send them
@@ -389,9 +411,10 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     // login at all. /confirm_signup_code is unchanged from before — the server
     // still sends there, because this resend produces a different template
     // (`verifyShortCode`) for an unverified primary email (FXA-14109).
+    const destination = oauthTarget ? oauthTarget.to : to;
     if (
-      (to?.includes('signin_token_code') ||
-        to?.includes('confirm_signup_code')) &&
+      (destination?.includes('signin_token_code') ||
+        destination?.includes('confirm_signup_code')) &&
       navigationOptions.signinData.sessionToken &&
       navigationOptions.signinData.verificationMethod ===
         VerificationMethods.EMAIL_OTP
@@ -401,37 +424,14 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
       );
     }
 
-    if (
-      navigationOptions.signinData.verificationReason ===
-        VerificationReasons.SIGN_UP ||
-      navigationOptions.signinData.verificationMethod ===
-        VerificationMethods.TOTP_2FA ||
-      navigationOptions.signinData.verificationReason ===
-        VerificationReasons.CHANGE_PASSWORD ||
-      navigationOptions.isServiceWithEmailVerification ||
-      wantsTwoStepAuthentication ||
-      wantsKeys
-    ) {
+    if (requiresVerificationPage) {
       performNavigation({ navigate, to, locationState });
       return { error: undefined };
     }
 
-    // Check if this is a standard OAuth web flow, not a NativeOAuth flow or settings flow
-    // if so return to RP, they don't need to have a verified session
-    if (isOAuthWebIntegration(integration)) {
-      const { to, locationState, shouldHardNavigate, error } =
-        await getOAuthNavigationTarget(navigationOptions);
-      if (error) {
-        return { error };
-      }
-      if (to) {
-        performNavigation({
-          navigate,
-          to,
-          locationState,
-          shouldHardNavigate,
-          replace: true,
-        });
+    if (oauthTarget) {
+      if (oauthTarget.to) {
+        performNavigation({ navigate, ...oauthTarget, replace: true });
       }
       return { error: undefined };
     }

@@ -463,6 +463,61 @@ describe('Signin utils', () => {
         );
       });
 
+      it('does not resend the email OTP code when an OAuth RP outside servicesWithEmailVerification continues without the code page', async () => {
+        const sessionResendVerifyCode = jest.fn().mockResolvedValue({});
+        const navigationOptions = createBaseNavigationOptions({
+          signinData: {
+            ...createBaseNavigationOptions().signinData,
+            emailVerified: true,
+            sessionVerified: false,
+            verificationMethod: VerificationMethods.EMAIL_OTP,
+            verificationReason: VerificationReasons.SIGN_IN,
+          },
+          isServiceWithEmailVerification: false,
+          integration: createMockSigninOAuthIntegration(),
+          authClient: { sessionResendVerifyCode },
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(sessionResendVerifyCode).not.toHaveBeenCalled();
+        // Straight to the RP: no in-app navigation to a code page.
+        expect(mockNavigate).not.toHaveBeenCalled();
+        expect(hardNavigateSpy).toHaveBeenCalledTimes(1);
+      });
+
+      it('resends the email OTP code when the OAuth grant is refused for an unverified session and falls back to /signin_token_code', async () => {
+        const sessionResendVerifyCode = jest.fn().mockResolvedValue({});
+        const navigationOptions = createBaseNavigationOptions({
+          signinData: {
+            ...createBaseNavigationOptions().signinData,
+            emailVerified: true,
+            sessionVerified: false,
+            verificationMethod: VerificationMethods.EMAIL_OTP,
+            verificationReason: VerificationReasons.SIGN_IN,
+          },
+          isServiceWithEmailVerification: false,
+          integration: createMockSigninOAuthIntegration(),
+          authClient: { sessionResendVerifyCode },
+          finishOAuthFlowHandler: jest
+            .fn()
+            .mockResolvedValue({ error: AuthUiErrors.UNVERIFIED_SESSION }),
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(sessionResendVerifyCode).toHaveBeenCalledTimes(1);
+        expect(sessionResendVerifyCode).toHaveBeenCalledWith(
+          MOCK_SESSION_TOKEN
+        );
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/signin_token_code',
+          expect.objectContaining({ replace: true })
+        );
+      });
+
       it('does not resend the email OTP code when the verification method is not EMAIL_OTP', async () => {
         const sessionResendVerifyCode = jest.fn().mockResolvedValue({});
         const navigationOptions = createBaseNavigationOptions({
