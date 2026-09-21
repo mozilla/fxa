@@ -1,0 +1,12 @@
+{
+  "commit": "03850490d210dec65a942bf1c36eca93c6ec04fe",
+  "summary": "chore(deps): remove bluebird from profile-server and geodb",
+  "description": "## Because\n\n- The monorepo drops `bluebird` as part of the dependency reduction work.\n- `fxa-profile-server` kept a `lib/promise.js` shim that re-exported Bluebird to 14 files.\n- The shim called `onPossiblyUnhandledRejection()`, which hid floating rejections.\n\n## This pull request\n\n- Removes `bluebird` from `fxa-geodb` and `fxa-profile-server`, and deletes the `lib/promise.js` shim.\n- Replaces the Bluebird-only calls `defer`, `each`, `fulfilled`, `promisify`, `using`, `done`, `spread`, and promise `map`.\n- Adds `_withConnection` in `lib/db/mysql/index.js`, which releases the connection in a `finally` block.\n- Adds a `catch` that logs to the two unwaited `profileCache.drop` chains in `lib/events.js`.\n- Ports the three integration specs to native promises and a local `delay` helper.\n\n## Issue that this pull request solves\n\nCloses: FXA-13924",
+  "timestamp": 1790024205000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

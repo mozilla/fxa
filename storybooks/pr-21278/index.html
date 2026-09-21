@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 03850490d210dec65a942bf1c36eca93c6ec04fe</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 03850490d210dec65a942bf1c36eca93c6ec04fe</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/21/2026, 8:56:45 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>chore(deps): remove bluebird from profile-server and geodb</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- The monorepo drops `bluebird` as part of the dependency reduction work.
+- `fxa-profile-server` kept a `lib/promise.js` shim that re-exported Bluebird to 14 files.
+- The shim called `onPossiblyUnhandledRejection()`, which hid floating rejections.
+
+## This pull request
+
+- Removes `bluebird` from `fxa-geodb` and `fxa-profile-server`, and deletes the `lib/promise.js` shim.
+- Replaces the Bluebird-only calls `defer`, `each`, `fulfilled`, `promisify`, `using`, `done`, `spread`, and promise `map`.
+- Adds `_withConnection` in `lib/db/mysql/index.js`, which releases the connection in a `finally` block.
+- Adds a `catch` that logs to the two unwaited `profileCache.drop` chains in `lib/events.js`.
+- Ports the three integration specs to native promises and a local `delay` helper.
+
+## Issue that this pull request solves
+
+Closes: FXA-13924</pre></dd>
+  </dl>
+</body>
+</html>
