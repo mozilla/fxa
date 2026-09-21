@@ -1,8 +1,8 @@
 {
-  "commit": "d3ba14caa8fd8030165f88af72fafaa5bfaa28cc",
-  "summary": "Merge pull request #21270 from mozilla/FXA-14523",
-  "description": "feat(settings): add \"Skip for now\" to the v2 pairing QR page",
-  "timestamp": 1790015130000,
+  "commit": "be91fe89f9633592ef0eda73244320fc16f77289",
+  "summary": "Merge pull request #21246 from mozilla/fxa-14375",
+  "description": "refactor(content-server): remove Backbone signin views and routes",
+  "timestamp": 1790015387000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
