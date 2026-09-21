@@ -229,6 +229,8 @@ export interface UsePasskeySignInResult {
   isNavigating: boolean;
   errorBanner: React.ReactNode | undefined;
   onClick: () => Promise<void>;
+  /** Dismisses the passkey error banner. */
+  clearError: () => void;
 }
 
 /**
@@ -607,5 +609,7 @@ export function usePasskeySignIn({
     supportsKeysOptionalLogin,
   ]);
 
-  return { isLoading, isNavigating, errorBanner, onClick };
+  const clearError = useCallback(() => setBanner(undefined), []);
+
+  return { isLoading, isNavigating, errorBanner, onClick, clearError };
 }
