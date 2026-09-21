@@ -1,0 +1,12 @@
+{
+  "commit": "66880be219cf09bcfb6e1552f6bafd6eb3d8cb87",
+  "summary": "refactor(profile): replace checksum dependency with node:crypto",
+  "description": "## Because\n\n- FxA is cutting third party dependencies. The Node standard library already does this hash.\n- `checksum` is the only package that pulls `optimist` into the lockfile.\n\n## This pull request\n\n- Removes the `checksum` dependency from `fxa-profile-server`.\n- Uses `crypto.hash('sha1', value, 'hex')` for the `/profile` ETag in `profile.js` and for the `/display_name` ETag in `display_name/get.js`.\n- Updates the expected ETag in `api.in.spec.ts` the same way.\n- Drops `checksum` and `optimist` from `yarn.lock`.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-13927",
+  "timestamp": 1790024157000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

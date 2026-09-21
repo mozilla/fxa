@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 66880be219cf09bcfb6e1552f6bafd6eb3d8cb87</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 66880be219cf09bcfb6e1552f6bafd6eb3d8cb87</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/21/2026, 8:55:57 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>refactor(profile): replace checksum dependency with node:crypto</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- FxA is cutting third party dependencies. The Node standard library already does this hash.
+- `checksum` is the only package that pulls `optimist` into the lockfile.
+
+## This pull request
+
+- Removes the `checksum` dependency from `fxa-profile-server`.
+- Uses `crypto.hash(&#039;sha1&#039;, value, &#039;hex&#039;)` for the `/profile` ETag in `profile.js` and for the `/display_name` ETag in `display_name/get.js`.
+- Updates the expected ETag in `api.in.spec.ts` the same way.
+- Drops `checksum` and `optimist` from `yarn.lock`.
+
+## Issue that this pull request solves
+
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-13927</pre></dd>
+  </dl>
+</body>
+</html>

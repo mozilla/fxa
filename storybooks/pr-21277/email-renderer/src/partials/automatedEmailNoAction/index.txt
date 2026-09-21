@@ -1,0 +1,1 @@
+automated-email-no-action-plaintext = "This is an automated email. If you received it by mistake, you don’t need to do anything."
