@@ -73,6 +73,9 @@ jest.mock('./server_events', () => ({
     recordPasswordResetEmailConfirmationSuccess: mockFn(
       'recordPasswordResetEmailConfirmationSuccess'
     ),
+    recordStepUpAuthRequested: mockFn('recordStepUpAuthRequested'),
+    recordStepUpAuthSatisfied: mockFn('recordStepUpAuthSatisfied'),
+    recordStepUpAuthRejected: mockFn('recordStepUpAuthRejected'),
     recordTwoFactorAuthCodeComplete: mockFn('recordTwoFactorAuthCodeComplete'),
     recordTwoFactorAuthReplaceCodeComplete: mockFn(
       'recordTwoFactorAuthReplaceCodeComplete'
@@ -547,6 +550,41 @@ describe('Glean server side events', () => {
       const recorded =
         gleanMocks['recordAccountSessionDestroyed'].mock.calls[0][0];
       expect(recorded.platform).toBe('unknown');
+    });
+  });
+
+  describe('step up auth', () => {
+    let glean: GleanMetricsType;
+
+    beforeEach(() => {
+      glean = gleanMetrics(config);
+    });
+
+    it('logs a "step_up_auth_requested" event', async () => {
+      await glean.stepUpAuth.requested(request);
+      expect(recordMock).toHaveBeenCalledTimes(1);
+      const metrics = recordMock.mock.calls[0][0];
+      expect(metrics['event_name']).toBe('step_up_auth_requested');
+      expect(gleanMocks['recordStepUpAuthRequested']).toHaveBeenCalledTimes(1);
+    });
+
+    it('logs a "step_up_auth_satisfied" event', async () => {
+      await glean.stepUpAuth.satisfied(request);
+      expect(recordMock).toHaveBeenCalledTimes(1);
+      const metrics = recordMock.mock.calls[0][0];
+      expect(metrics['event_name']).toBe('step_up_auth_satisfied');
+      expect(gleanMocks['recordStepUpAuthSatisfied']).toHaveBeenCalledTimes(1);
+    });
+
+    it('logs a "step_up_auth_rejected" event carrying the reason', async () => {
+      await glean.stepUpAuth.rejected(request, { reason: 'max_age_stale' });
+      expect(recordMock).toHaveBeenCalledTimes(1);
+      const metrics = recordMock.mock.calls[0][0];
+      expect(metrics['event_name']).toBe('step_up_auth_rejected');
+      expect(metrics['event_reason']).toBe('max_age_stale');
+      expect(gleanMocks['recordStepUpAuthRejected']).toHaveBeenCalledWith(
+        expect.objectContaining({ reason: 'max_age_stale' })
+      );
     });
   });
 

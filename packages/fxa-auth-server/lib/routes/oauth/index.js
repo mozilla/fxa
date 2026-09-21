@@ -17,6 +17,7 @@ module.exports = (
       oauthDB,
       config,
       statsd,
+      glean,
       authServerCacheRedis,
     }),
     require('./authorized-clients/destroy')({ oauthDB }),

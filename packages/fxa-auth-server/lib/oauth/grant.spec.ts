@@ -56,7 +56,12 @@ import * as mockDBModule from './db';
 import * as mockJWTAccessTokenModule from './jwt_access_token';
 import { CapabilityService } from '../../lib/payments/capability';
 
-const { validateRequestedGrant, generateTokens, setStripeHelper } = grantModule;
+const {
+  validateRequestedGrant,
+  generateTokens,
+  setStripeHelper,
+  evaluateStepUp,
+} = grantModule;
 const mockDB = mockDBModule as unknown as Record<string, jest.Mock>;
 const mockJWTAccessToken = mockJWTAccessTokenModule as unknown as {
   create: jest.Mock;
@@ -182,10 +187,19 @@ describe('validateRequestedGrant', () => {
 
   describe('max_age (RFC 9470 freshness)', () => {
     // `fxa-lastAuthAt` is seconds since epoch, compared against Date.now()/1000.
-    const nowSeconds = () => Math.floor(Date.now() / 1000);
+    const MOCK_NOW_SECONDS = 1_700_000_000;
     const claimsAuthedAt = (secondsAgo: number) => ({
       ...CLAIMS,
-      'fxa-lastAuthAt': nowSeconds() - secondsAgo,
+      'fxa-lastAuthAt': MOCK_NOW_SECONDS - secondsAgo,
+    });
+
+    beforeEach(() => {
+      jest.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate'] });
+      jest.setSystemTime(MOCK_NOW_SECONDS * 1000);
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
     });
 
     it('requires step-up (errno 170) when the session is older than max_age', async () => {
@@ -214,6 +228,104 @@ describe('validateRequestedGrant', () => {
       ).rejects.toMatchObject({ errno: 170 });
     });
 
+    it('reports the verdict to onStepUpEvaluated on the pass path', async () => {
+      const onStepUpEvaluated = jest.fn();
+      await validateRequestedGrant(
+        claimsAuthedAt(10),
+        CLIENT,
+        { max_age: 3600 },
+        { onStepUpEvaluated }
+      );
+      expect(onStepUpEvaluated).toHaveBeenCalledWith(
+        expect.objectContaining({ requested: true, satisfied: true })
+      );
+    });
+
+    it('reports the reason to onStepUpEvaluated before throwing', async () => {
+      const onStepUpEvaluated = jest.fn();
+      await expect(
+        validateRequestedGrant(
+          claimsAuthedAt(3600),
+          CLIENT,
+          { max_age: 60 },
+          {
+            onStepUpEvaluated,
+          }
+        )
+      ).rejects.toMatchObject({ errno: 170 });
+      expect(onStepUpEvaluated).toHaveBeenCalledWith(
+        expect.objectContaining({
+          requested: true,
+          satisfied: false,
+          reason: 'max_age_stale',
+        })
+      );
+    });
+
+    it('still returns a grant when the observer throws on the pass path', async () => {
+      const grant = await validateRequestedGrant(
+        claimsAuthedAt(10),
+        CLIENT,
+        { max_age: 3600 },
+        {
+          onStepUpEvaluated: () => {
+            throw new Error('boom');
+          },
+        }
+      );
+      expect(grant.aal).toBe(1);
+    });
+
+    it('still throws errno 170, not the observer error, on the reject path', async () => {
+      await expect(
+        validateRequestedGrant(
+          claimsAuthedAt(3600),
+          CLIENT,
+          { max_age: 60 },
+          {
+            onStepUpEvaluated: () => {
+              throw new Error('boom');
+            },
+          }
+        )
+      ).rejects.toMatchObject({ errno: 170 });
+    });
+
+    it('reports the auth age to the observer, not just the verdict', async () => {
+      const onStepUpEvaluated = jest.fn();
+      await validateRequestedGrant(
+        claimsAuthedAt(42),
+        CLIENT,
+        { max_age: 3600 },
+        { onStepUpEvaluated }
+      );
+      expect(onStepUpEvaluated).toHaveBeenCalledWith({
+        requested: true,
+        satisfied: true,
+        reason: undefined,
+        authAgeSeconds: 42,
+      });
+    });
+
+    it('enforces the gate regardless of what the observer returns', async () => {
+      await expect(
+        validateRequestedGrant(
+          claimsAuthedAt(3600),
+          CLIENT,
+          { max_age: 60 },
+          {
+            onStepUpEvaluated: () => ({ requested: false, satisfied: true }),
+          }
+        )
+      ).rejects.toMatchObject({ errno: 170 });
+    });
+
+    it('enforces the gate when no observer is supplied', async () => {
+      await expect(
+        validateRequestedGrant(claimsAuthedAt(3600), CLIENT, { max_age: 60 })
+      ).rejects.toMatchObject({ errno: 170 });
+    });
+
     it('skips the freshness check entirely when max_age is absent', async () => {
       const grant = await validateRequestedGrant(
         claimsAuthedAt(99999),
@@ -222,6 +334,158 @@ describe('validateRequestedGrant', () => {
       );
       expect(grant.aal).toBe(1);
     });
+  });
+});
+
+describe('evaluateStepUp', () => {
+  // Must match MAX_AGE_LEEWAY_SECONDS in grant.js.
+  const LEEWAY_SECONDS = 5;
+  const MOCK_NOW_SECONDS = 1_700_000_000;
+  const claimsAuthedAt = (secondsAgo: number, aal = 1) => ({
+    ...CLAIMS,
+    'fxa-aal': aal,
+    'fxa-lastAuthAt': MOCK_NOW_SECONDS - secondsAgo,
+  });
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+    jest.setSystemTime(MOCK_NOW_SECONDS * 1000);
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('pins the leeway the boundary cases are written against', () => {
+    expect(grantModule.MAX_AGE_LEEWAY_SECONDS).toBe(LEEWAY_SECONDS);
+  });
+
+  it('clamps a future-dated authentication time to a zero age', () => {
+    expect(
+      evaluateStepUp(claimsAuthedAt(-600), { max_age: 3600 })
+    ).toMatchObject({ requested: true, satisfied: true, authAgeSeconds: 0 });
+  });
+
+  it('is satisfied by a just-completed challenge when max_age is 0', () => {
+    expect(evaluateStepUp(claimsAuthedAt(0), { max_age: 0 })).toMatchObject({
+      requested: true,
+      satisfied: true,
+      authAgeSeconds: 0,
+    });
+  });
+
+  it('rejects a max_age of 0 once the session is past the leeway', () => {
+    expect(
+      evaluateStepUp(claimsAuthedAt(LEEWAY_SECONDS + 1), { max_age: 0 })
+    ).toMatchObject({
+      requested: true,
+      satisfied: false,
+      reason: 'max_age_stale',
+    });
+  });
+
+  it('reports the auth age alongside a rejection', () => {
+    expect(
+      evaluateStepUp(claimsAuthedAt(9000), { max_age: 60 }).authAgeSeconds
+    ).toBe(9000);
+  });
+
+  it('reports no request when neither acr_values nor max_age is present', () => {
+    const result = evaluateStepUp(claimsAuthedAt(10), {});
+    expect(result).toMatchObject({ requested: false, satisfied: true });
+    expect(result.reason).toBeUndefined();
+  });
+
+  it('reports no request when acr_values omits AAL2', () => {
+    expect(
+      evaluateStepUp(claimsAuthedAt(10), { acr_values: 'AAL1 urn:example' })
+    ).toMatchObject({ requested: false, satisfied: true });
+  });
+
+  it('treats an explicit null max_age as absent', () => {
+    expect(
+      evaluateStepUp(claimsAuthedAt(99999), { max_age: null })
+    ).toMatchObject({ requested: false, satisfied: true });
+  });
+
+  it('reports acr_values_unmet when the session is below AAL2', () => {
+    expect(
+      evaluateStepUp(claimsAuthedAt(10, 1), { acr_values: 'AAL2' })
+    ).toMatchObject({
+      requested: true,
+      satisfied: false,
+      reason: 'acr_values_unmet',
+    });
+  });
+
+  it('is satisfied when the session already reached AAL2', () => {
+    const result = evaluateStepUp(claimsAuthedAt(10, 2), {
+      acr_values: 'AAL2',
+    });
+    expect(result).toMatchObject({ requested: true, satisfied: true });
+    expect(result.reason).toBeUndefined();
+  });
+
+  it('splits acr_values on arbitrary whitespace', () => {
+    expect(
+      evaluateStepUp(claimsAuthedAt(10, 1), { acr_values: '  AAL1 \t AAL2  ' })
+    ).toMatchObject({
+      requested: true,
+      satisfied: false,
+      reason: 'acr_values_unmet',
+    });
+  });
+
+  it('reports max_age_stale beyond the leeway', () => {
+    expect(
+      evaluateStepUp(claimsAuthedAt(60 + LEEWAY_SECONDS + 1), { max_age: 60 })
+    ).toMatchObject({
+      requested: true,
+      satisfied: false,
+      reason: 'max_age_stale',
+    });
+  });
+
+  it('is satisfied exactly on the leeway boundary', () => {
+    const result = evaluateStepUp(claimsAuthedAt(60 + LEEWAY_SECONDS), {
+      max_age: 60,
+    });
+    expect(result).toMatchObject({ requested: true, satisfied: true });
+    expect(result.reason).toBeUndefined();
+  });
+
+  it('reports auth_time_missing when the session carries no auth time', () => {
+    const claims = { ...(CLAIMS as any) };
+    delete claims['fxa-lastAuthAt'];
+    expect(evaluateStepUp(claims, { max_age: 3600 })).toMatchObject({
+      requested: true,
+      satisfied: false,
+      reason: 'auth_time_missing',
+      authAgeSeconds: undefined,
+    });
+  });
+
+  it('prefers acr_values_unmet over max_age_stale when both fail', () => {
+    expect(
+      evaluateStepUp(claimsAuthedAt(99999, 1), {
+        acr_values: 'AAL2',
+        max_age: 60,
+      })
+    ).toMatchObject({
+      requested: true,
+      satisfied: false,
+      reason: 'acr_values_unmet',
+    });
+  });
+
+  it('reports the session auth age in seconds', () => {
+    expect(
+      evaluateStepUp(claimsAuthedAt(42), { max_age: 3600 }).authAgeSeconds
+    ).toBe(42);
+  });
+
+  it('reports auth age even when step-up was not requested', () => {
+    expect(evaluateStepUp(claimsAuthedAt(42), {}).authAgeSeconds).toBe(42);
   });
 });
 

@@ -400,6 +400,9 @@ describe('/authorization POST consent write', () => {
     /** Client id on both the payload and the resolved grant. */
     clientId?: string;
     authServerCacheRedis?: any;
+    glean?: any;
+    /** Verdict handed to the route's onStepUpEvaluated observer. */
+    stepUp?: Record<string, any>;
   }) {
     // Real hapi requests always have `app`; recordAuthorizationRows stashes
     // service/firstAuthorization there. Returned so tests can assert on it.
@@ -411,12 +414,19 @@ describe('/authorization POST consent write', () => {
         jest.fn(async () => ({ uid: UID_HEX }))
       );
       jest.doMock('../../oauth/grant', () => ({
-        validateRequestedGrant: jest.fn(async (_claims, _client, payload) => ({
-          clientId: Buffer.from(clientId, 'hex'),
-          userId: Buffer.from(UID_HEX, 'hex'),
-          scope: ScopeSet.fromString(payload.scope as string),
-          offline: payload.access_type !== 'online',
-        })),
+        validateRequestedGrant: jest.fn(
+          async (_claims, _client, payload, options) => {
+            if (opts.stepUp) {
+              options?.onStepUpEvaluated?.(opts.stepUp);
+            }
+            return {
+              clientId: Buffer.from(clientId, 'hex'),
+              userId: Buffer.from(UID_HEX, 'hex'),
+              scope: ScopeSet.fromString(payload.scope as string),
+              offline: payload.access_type !== 'online',
+            };
+          }
+        ),
         generateTokens: jest.fn(async () => ({})),
       }));
       routes = require('./authorization')({
@@ -424,6 +434,7 @@ describe('/authorization POST consent write', () => {
         oauthDB: opts.oauthDB,
         config: baseConfig,
         statsd: opts.statsd,
+        glean: opts.glean,
         authServerCacheRedis: opts.authServerCacheRedis,
       });
       await routes[1].config.handler({
@@ -434,6 +445,116 @@ describe('/authorization POST consent write', () => {
     });
     return { app };
   }
+
+  describe('step-up telemetry', () => {
+    const buildGlean = () => ({
+      stepUpAuth: {
+        requested: jest.fn().mockResolvedValue(undefined),
+        satisfied: jest.fn().mockResolvedValue(undefined),
+        rejected: jest.fn().mockResolvedValue(undefined),
+      },
+    });
+
+    it('stashes the uid so the metrics opt-out resolves before Glean runs', async () => {
+      const { app } = await runHandler({
+        oauthDB: buildOauthDB(),
+        statsd: { increment: jest.fn(), histogram: jest.fn() },
+        glean: buildGlean(),
+        stepUp: { requested: true, satisfied: true, authAgeSeconds: 12 },
+      });
+
+      expect(app.metricsEventUid).toBe(UID_HEX);
+    });
+
+    it('emits the satisfied funnel when the relying party requests step-up', async () => {
+      const statsd = { increment: jest.fn(), histogram: jest.fn() };
+      const glean = buildGlean();
+
+      await runHandler({
+        oauthDB: buildOauthDB(),
+        statsd,
+        glean,
+        stepUp: { requested: true, satisfied: true, authAgeSeconds: 12 },
+      });
+
+      expect(statsd.increment).toHaveBeenCalledWith('oauth.step_up.requested', {
+        clientId: CLIENT_ID,
+      });
+      expect(statsd.increment).toHaveBeenCalledWith('oauth.step_up.satisfied', {
+        clientId: CLIENT_ID,
+      });
+      expect(statsd.histogram).toHaveBeenCalledWith(
+        'oauth.step_up.auth_age',
+        12,
+        { clientId: CLIENT_ID }
+      );
+      expect(glean.stepUpAuth.requested).toHaveBeenCalledWith(
+        expect.anything(),
+        { uid: UID_HEX }
+      );
+      expect(glean.stepUpAuth.satisfied).toHaveBeenCalledWith(
+        expect.anything(),
+        { uid: UID_HEX }
+      );
+    });
+
+    it('emits the rejection reason when step-up is unmet', async () => {
+      const statsd = { increment: jest.fn(), histogram: jest.fn() };
+      const glean = buildGlean();
+
+      await runHandler({
+        oauthDB: buildOauthDB(),
+        statsd,
+        glean,
+        stepUp: {
+          requested: true,
+          satisfied: false,
+          reason: 'max_age_stale',
+          authAgeSeconds: 9000,
+        },
+      });
+
+      expect(statsd.increment).toHaveBeenCalledWith('oauth.step_up.rejected', {
+        clientId: CLIENT_ID,
+        reason: 'max_age_stale',
+      });
+      expect(glean.stepUpAuth.rejected).toHaveBeenCalledWith(
+        expect.anything(),
+        { uid: UID_HEX, reason: 'max_age_stale' }
+      );
+    });
+
+    it('emits nothing when the relying party did not request step-up', async () => {
+      const statsd = { increment: jest.fn(), histogram: jest.fn() };
+      const glean = buildGlean();
+
+      await runHandler({
+        oauthDB: buildOauthDB(),
+        statsd,
+        glean,
+        stepUp: { requested: false, satisfied: true, authAgeSeconds: 12 },
+      });
+
+      expect(statsd.increment).not.toHaveBeenCalledWith(
+        'oauth.step_up.requested',
+        { clientId: CLIENT_ID }
+      );
+      expect(glean.stepUpAuth.requested).not.toHaveBeenCalled();
+    });
+
+    it('still issues the code when the Glean group is missing', async () => {
+      const oauthDB = buildOauthDB();
+
+      await runHandler({
+        oauthDB,
+        statsd: { increment: jest.fn(), histogram: jest.fn() },
+        glean: {},
+        stepUp: { requested: true, satisfied: true, authAgeSeconds: 12 },
+      });
+
+      expect(oauthDB.generateCode).toHaveBeenCalled();
+    });
+  });
 
   it('records every requested scope plus the service canonical in a single call and consults the allowlist', async () => {
     const oauthDB = buildOauthDB();
