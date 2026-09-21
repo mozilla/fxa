@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var P = require('./promise');
 var Poolee = require('poolee');
 
 function parseUrl(url) {
@@ -28,43 +27,42 @@ function Pool(url, options) {
 }
 
 Pool.prototype.request = function (method, path, data) {
-  var d = P.defer();
-  this.poolee.request(
-    {
-      method: method || 'GET',
-      path: path,
-      headers: {
-        'Content-Type': 'application/json',
+  var poolee = this.poolee;
+  return new Promise(function (resolve, reject) {
+    poolee.request(
+      {
+        method: method || 'GET',
+        path: path,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        data: data ? JSON.stringify(data) : undefined,
       },
-      data: data ? JSON.stringify(data) : undefined,
-    },
-    handleResponse
-  );
-  return d.promise;
+      function handleResponse(err, res, body) {
+        var parsedBody = safeParse(body);
 
-  function handleResponse(err, res, body) {
-    var parsedBody = safeParse(body);
+        if (err) {
+          return reject(err);
+        }
 
-    if (err) {
-      return d.reject(err);
-    }
+        if (res.statusCode < 200 || res.statusCode >= 300) {
+          var error = parsedBody || new Error(body);
+          error.statusCode = res.statusCode;
+          return reject(error);
+        }
 
-    if (res.statusCode < 200 || res.statusCode >= 300) {
-      var error = parsedBody || new Error(body);
-      error.statusCode = res.statusCode;
-      return d.reject(error);
-    }
+        if (!body) {
+          return resolve();
+        }
 
-    if (!body) {
-      return d.resolve();
-    }
+        if (!parsedBody) {
+          return reject(new Error('Invalid JSON'));
+        }
 
-    if (!parsedBody) {
-      return d.reject(new Error('Invalid JSON'));
-    }
-
-    d.resolve(parsedBody);
-  }
+        resolve(parsedBody);
+      }
+    );
+  });
 };
 
 Pool.prototype.post = function (path, data) {

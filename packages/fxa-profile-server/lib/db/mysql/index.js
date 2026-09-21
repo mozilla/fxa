@@ -3,12 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const mysql = require('mysql');
+const { promisify } = require('util');
 const buf = (v) => (Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex'));
 
 const AppError = require('../../error');
 const config = require('../../config');
 const logger = require('../../logging')('db.mysql');
-const P = require('../../promise');
 
 const REQUIRED_SQL_MODES = ['STRICT_ALL_TABLES', 'NO_ENGINE_SUBSTITUTION'];
 const REQUIRED_CHARSET = 'UTF8MB4_BIN';
@@ -62,17 +62,11 @@ function firstRow(rows) {
   return rows[0];
 }
 
-function releaseConn(connection) {
-  connection.release();
-}
-
 MysqlStore.prototype = {
   ping: function ping() {
     logger.debug('ping');
-    // see bluebird.using():
-    // https://github.com/petkaantonov/bluebird/blob/master/API.md#resource-management
-    return P.using(this._getConnection(), function (conn) {
-      return new P(function (resolve, reject) {
+    return this._withConnection(function (conn) {
+      return new Promise(function (resolve, reject) {
         conn.ping(function (err) {
           if (err) {
             logger.error('ping', err);
@@ -155,61 +149,61 @@ MysqlStore.prototype = {
     return this._read(sql, params).then(firstRow);
   },
 
-  _getConnection: function _getConnection() {
-    // see bluebird.using()/disposer():
-    // https://github.com/petkaantonov/bluebird/blob/master/API.md#resource-management
-    //
-    // tl;dr: using() and disposer() ensures that the dispose method will
-    // ALWAYS be called at the end of the promise stack, regardless of
-    // various errors thrown. So this should ALWAYS release the connection.
-    var pool = this._pool;
-    return new P(function (resolve, reject) {
-      pool.getConnection(function (err, conn) {
-        if (err) {
-          return reject(err);
+  _getConnection: async function _getConnection() {
+    const pool = this._pool;
+    const conn = await promisify(pool.getConnection.bind(pool))();
+    if (conn._fxa_initialized) {
+      return conn;
+    }
+    try {
+      // Enforce sane defaults on every new connection.
+      // These *should* be set by the database by default, but it's nice
+      // to have an additional layer of protection here.
+      const query = promisify(conn.query.bind(conn));
+      // Always communicate timestamps in UTC.
+      await query("SET time_zone = '+00:00'");
+      // Always use full 4-byte UTF-8 for communicating unicode.
+      await query('SET NAMES utf8mb4 COLLATE utf8mb4_bin;');
+      // Always have certain modes active. The complexity here is to
+      // preserve any extra modes active by default on the server.
+      // We also try to preserve the order of the existing mode flags,
+      // just in case the order has some obscure effect we don't know about.
+      const rows = await query('SELECT @@sql_mode AS mode');
+      const modes = rows[0]['mode'].split(',');
+      let needToSetMode = false;
+      for (const requiredMode of REQUIRED_SQL_MODES) {
+        if (modes.indexOf(requiredMode) === -1) {
+          modes.push(requiredMode);
+          needToSetMode = true;
         }
-        if (conn._fxa_initialized) {
-          return resolve(conn);
-        }
-        // Enforce sane defaults on every new connection.
-        // These *should* be set by the database by default, but it's nice
-        // to have an additional layer of protection here.
-        const query = P.promisify(conn.query, { context: conn });
-        return resolve(
-          (async () => {
-            // Always communicate timestamps in UTC.
-            await query("SET time_zone = '+00:00'");
-            // Always use full 4-byte UTF-8 for communicating unicode.
-            await query('SET NAMES utf8mb4 COLLATE utf8mb4_bin;');
-            // Always have certain modes active. The complexity here is to
-            // preserve any extra modes active by default on the server.
-            // We also try to preserve the order of the existing mode flags,
-            // just in case the order has some obscure effect we don't know about.
-            const rows = await query('SELECT @@sql_mode AS mode');
-            const modes = rows[0]['mode'].split(',');
-            let needToSetMode = false;
-            for (const requiredMode of REQUIRED_SQL_MODES) {
-              if (modes.indexOf(requiredMode) === -1) {
-                modes.push(requiredMode);
-                needToSetMode = true;
-              }
-            }
-            if (needToSetMode) {
-              const mode = modes.join(',');
-              await query("SET SESSION sql_mode = '" + mode + "'");
-            }
-            // Avoid repeating all that work for existing connections.
-            conn._fxa_initialized = true;
-            return conn;
-          })()
-        );
-      });
-    }).disposer(releaseConn);
+      }
+      if (needToSetMode) {
+        const mode = modes.join(',');
+        await query("SET SESSION sql_mode = '" + mode + "'");
+      }
+    } catch (err) {
+      // The caller never sees this connection, so it cannot release it.
+      conn.release();
+      throw err;
+    }
+    // Avoid repeating all that work for existing connections.
+    conn._fxa_initialized = true;
+    return conn;
+  },
+
+  // Release the connection once `fn` settles, whatever the outcome.
+  _withConnection: async function _withConnection(fn) {
+    const conn = await this._getConnection();
+    try {
+      return await fn(conn);
+    } finally {
+      conn.release();
+    }
   },
 
   _query: function _query(sql, params) {
-    return P.using(this._getConnection(), function (conn) {
-      return new P(function (resolve, reject) {
+    return this._withConnection(function (conn) {
+      return new Promise(function (resolve, reject) {
         conn.query(sql, params || [], function (err, results) {
           if (err) {
             reject(err);
@@ -222,7 +216,7 @@ MysqlStore.prototype = {
   },
 
   disconnect: function disconnect() {
-    return new P((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       this._pool.end((err) => {
         if (err) {
           return reject(err);
