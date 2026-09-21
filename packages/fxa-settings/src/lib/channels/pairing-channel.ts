@@ -163,6 +163,15 @@ type PairingChannelSocket = {
 export class PairingChannelClient extends EventTarget {
   private channel: PairingChannelSocket | null = null;
   private _opening = false;
+  private unloading = false;
+
+  /**
+   * Flag for if the page is in a 'unloading' state. This is based on the
+   * page's lifecycle events.
+   */
+  get isUnloading(): boolean {
+    return this.unloading;
+  }
 
   get channelKey() {
     if (this.channel?._channelKey) {
@@ -194,6 +203,7 @@ export class PairingChannelClient extends EventTarget {
     }
 
     this._opening = true;
+    this.watchPageLifecycle();
     try {
       const { PairingChannel } = await import(
         /* webpackChunkName: "fxaPairingChannel" */
@@ -202,16 +212,14 @@ export class PairingChannelClient extends EventTarget {
       const channel = await PairingChannel.create(channelServerUri);
       this.channel = channel;
 
-      // Listeners go on before `connected` so a message that arrives in the
-      // same tick as the handshake completing is not dropped.
-      channel.addEventListener('message', this.handleMessage);
-      channel.addEventListener('error', this.handleError);
-      channel.addEventListener('close', this.handleClose);
+      this.attachChannel(channel);
 
       this.dispatchEvent(new CustomEvent('connected'));
     } catch (err) {
-      sentryMetrics.captureException(err);
-      this.dispatchEvent(new CustomEvent('error', { detail: err }));
+      if (!this.unloading) {
+        sentryMetrics.captureException(err);
+        this.dispatchEvent(new CustomEvent('error', { detail: err }));
+      }
       // Rethrow so the caller can tell a failed create from a successful one.
       // Without this the authority resolves as if it had a channel and encodes
       // `channel_id=null` into a QR code the supplicant cannot join.
@@ -241,6 +249,7 @@ export class PairingChannelClient extends EventTarget {
     }
 
     this._opening = true;
+    this.watchPageLifecycle();
     try {
       const psk = base64urlToBytes(channelKey);
 
@@ -260,11 +269,7 @@ export class PairingChannelClient extends EventTarget {
 
       this.channel = channel;
 
-      // Listeners go on before `connected` so a message that arrives in the
-      // same tick as the handshake completing is not dropped.
-      channel.addEventListener('message', this.handleMessage);
-      channel.addEventListener('error', this.handleError);
-      channel.addEventListener('close', this.handleClose);
+      this.attachChannel(channel);
 
       this.dispatchEvent(new CustomEvent('connected'));
     } catch (err) {
@@ -273,7 +278,9 @@ export class PairingChannelClient extends EventTarget {
       // console breadcrumb keeps it visible in the trail of any real error
       // that follows.
       const closed = isChannelClosedError(err);
-      if (closed) {
+      if (this.unloading) {
+        // The browser dropped it on the page's way out; nothing to report.
+      } else if (closed) {
         console.warn('Pairing channel closed before it opened', channelId);
       } else {
         sentryMetrics.captureException(err);
@@ -284,7 +291,9 @@ export class PairingChannelClient extends EventTarget {
       const detail = closed
         ? new PairingChannelError('CONNECTION_CLOSED')
         : err;
-      this.dispatchEvent(new CustomEvent('error', { detail }));
+      if (!this.unloading) {
+        this.dispatchEvent(new CustomEvent('error', { detail }));
+      }
 
       // Rejecting is what lets the caller drop this instance; resolving leaves
       // a client that looks live and blocks every later reopen.
@@ -315,6 +324,7 @@ export class PairingChannelClient extends EventTarget {
   }
 
   async close(): Promise<void> {
+    this.unwatchPageLifecycle();
     if (!this.channel) {
       return; // Already closed or never opened
     }
@@ -381,6 +391,9 @@ export class PairingChannelClient extends EventTarget {
   };
 
   private handleError = (event: Event) => {
+    if (this.unloading) {
+      return;
+    }
     sentryMetrics.captureException((event as CustomEvent).detail);
     this.dispatchEvent(
       new CustomEvent('error', {
@@ -395,12 +408,43 @@ export class PairingChannelClient extends EventTarget {
       this.channel = null;
       this.removeChannelListeners(ch);
     }
+    if (this.unloading) {
+      return;
+    }
     this.dispatchEvent(new CustomEvent('close'));
   };
+
+  private attachChannel(channel: PairingChannelSocket): void {
+    channel.addEventListener('message', this.handleMessage);
+    channel.addEventListener('error', this.handleError);
+    channel.addEventListener('close', this.handleClose);
+  }
 
   private removeChannelListeners(ch: PairingChannelSocket): void {
     ch.removeEventListener('message', this.handleMessage);
     ch.removeEventListener('error', this.handleError);
     ch.removeEventListener('close', this.handleClose);
+  }
+
+  private handleUnload = () => {
+    this.unloading = true;
+  };
+
+  private handlePageShow = () => {
+    this.unloading = false;
+  };
+
+  private watchPageLifecycle(): void {
+    this.unloading = false;
+    window.addEventListener('beforeunload', this.handleUnload);
+    window.addEventListener('pagehide', this.handleUnload);
+    window.addEventListener('pageshow', this.handlePageShow);
+  }
+
+  private unwatchPageLifecycle(): void {
+    window.removeEventListener('beforeunload', this.handleUnload);
+    window.removeEventListener('pagehide', this.handleUnload);
+    window.removeEventListener('pageshow', this.handlePageShow);
+    this.unloading = false;
   }
 }

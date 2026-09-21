@@ -173,6 +173,31 @@ describe('PairingChannelClient', () => {
       expect(onError).toHaveBeenCalled();
     });
 
+    // Firefox stops network activity before unloading the page, which rejects
+    // a create still in flight. The page is leaving, so there is nothing to
+    // report and no failure for the caller to act on.
+    it('does not report a create the page unload cut short', async () => {
+      const {
+        PairingChannel,
+      } = require('fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js');
+      const sentryMetrics = require('fxa-shared/sentry/browser');
+      PairingChannel.create.mockRejectedValueOnce(
+        new Error('Error while creating the pairing channel')
+      );
+      const onError = jest.fn();
+      client.addEventListener('error', onError);
+
+      const pending = client.create(SERVER);
+      window.dispatchEvent(new Event('beforeunload'));
+
+      await expect(pending).rejects.toThrow(
+        'Error while creating the pairing channel'
+      );
+      expect(client.isUnloading).toBe(true);
+      expect(onError).not.toHaveBeenCalled();
+      expect(sentryMetrics.captureException).not.toHaveBeenCalled();
+    });
+
     it('allows a retry after a failed create', async () => {
       const {
         PairingChannel,
@@ -287,6 +312,28 @@ describe('PairingChannelClient', () => {
         PairingChannelError
       );
 
+      expect(sentryMetrics.captureException).not.toHaveBeenCalled();
+    });
+
+    it('does not report an open the page unload cut short', async () => {
+      const {
+        PairingChannel,
+      } = require('fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js');
+      const sentryMetrics = require('fxa-shared/sentry/browser');
+      PairingChannel.connect.mockRejectedValueOnce(
+        new Error('Error while creating the pairing channel')
+      );
+      const onError = jest.fn();
+      client.addEventListener('error', onError);
+
+      const pending = client.open(SERVER, CHAN, VALID_KEY);
+      window.dispatchEvent(new Event('beforeunload'));
+
+      await expect(pending).rejects.toThrow(
+        'Error while creating the pairing channel'
+      );
+      expect(client.isUnloading).toBe(true);
+      expect(onError).not.toHaveBeenCalled();
       expect(sentryMetrics.captureException).not.toHaveBeenCalled();
     });
 
@@ -438,6 +485,74 @@ describe('PairingChannelClient', () => {
 
       expect(client.isConnected).toBe(false);
       expect(onClose).toHaveBeenCalled();
+    });
+  });
+
+  // On a reload, Firefox stops the document's network activity before
+  // unloading it, so the socket closes while page script still runs. Reporting
+  // that as a failure pushes the timeout route in the page's last moments, and
+  // the reload can commit that route instead of the one the user reloaded
+  // (FXA-14485).
+  describe('page unload', () => {
+    let onError: jest.Mock;
+    let onClose: jest.Mock;
+
+    beforeEach(async () => {
+      onError = jest.fn();
+      onClose = jest.fn();
+      client.addEventListener('error', onError);
+      client.addEventListener('close', onClose);
+      await client.create(SERVER);
+    });
+
+    afterEach(async () => {
+      await client.close();
+    });
+
+    it('ignores a socket close that follows beforeunload', () => {
+      const sentryMetrics = require('fxa-shared/sentry/browser');
+      window.dispatchEvent(new Event('beforeunload'));
+
+      getMockHandler('error')(
+        new CustomEvent('error', {
+          detail: new Error('WebSocket unexpectedly closed'),
+        })
+      );
+      getMockHandler('close')(new Event('close'));
+
+      expect(onError).not.toHaveBeenCalled();
+      expect(onClose).not.toHaveBeenCalled();
+      expect(sentryMetrics.captureException).not.toHaveBeenCalled();
+      // The channel itself is gone either way.
+      expect(client.isConnected).toBe(false);
+    });
+
+    it('treats pagehide as unloading too', () => {
+      window.dispatchEvent(new Event('pagehide'));
+
+      getMockHandler('close')(new Event('close'));
+
+      expect(onClose).not.toHaveBeenCalled();
+    });
+
+    // Restored from the back-forward cache, the page is live again.
+    it('reports a close as usual after pageshow', () => {
+      window.dispatchEvent(new Event('beforeunload'));
+      window.dispatchEvent(new Event('pageshow'));
+
+      getMockHandler('close')(new Event('close'));
+
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+
+    it('stops watching the page once closed', async () => {
+      await client.close();
+      window.dispatchEvent(new Event('beforeunload'));
+
+      // Reported straight away: a closed client no longer tracks the unload.
+      getMockHandler('close')(new Event('close'));
+
+      expect(onClose).toHaveBeenCalledTimes(1);
     });
   });
 });
