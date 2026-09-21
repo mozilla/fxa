@@ -14,7 +14,6 @@
  * oauth-authenticated service, once we get more experience with using it.
  */
 
-import base64url from 'base64url';
 import { ILogger } from 'fxa-shared/log';
 import { StatsD } from 'hot-shots';
 import { performance } from 'perf_hooks';
@@ -28,11 +27,11 @@ import { PushboxDB } from './db';
 // JSON-serializable objects.
 
 function encodeForStorage(data: any) {
-  return base64url.encode(JSON.stringify(data));
+  return Buffer.from(JSON.stringify(data)).toString('base64url');
 }
 
 function decodeFromStorage(data: string) {
-  return JSON.parse(base64url.decode(data));
+  return JSON.parse(Buffer.from(data, 'base64url').toString());
 }
 
 export const pushboxApi = (

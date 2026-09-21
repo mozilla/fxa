@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import base64url from 'base64url';
 import { StatsD } from 'hot-shots';
 
 import PushboxDB from '../../lib/pushbox/db';
@@ -26,7 +25,9 @@ const pushboxDb = new PushboxDB({
   statsd,
 });
 
-const data = base64url.encode(JSON.stringify({ wibble: 'quux' }));
+const data = Buffer.from(JSON.stringify({ wibble: 'quux' })).toString(
+  'base64url'
+);
 const r = {
   uid: 'xyz',
   deviceId: 'ff9000',

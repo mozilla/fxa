@@ -3,6 +3,5 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export * as jose from 'node-jose';
-export * as base64url from 'base64url';
 export * from './deriver-utils';
 export * from './scoped-keys';

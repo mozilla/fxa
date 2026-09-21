@@ -10,7 +10,6 @@ import url from 'url';
 import crypto from 'crypto';
 
 const Client = require('../client')();
-const base64url = require('base64url');
 const mocks = require('../mocks');
 
 let server: TestServerInstance;
@@ -252,7 +251,7 @@ describe.each(testVersions)(
         type: 'mobile',
         pushCallback: 'https://updates.push.services.mozilla.com/qux',
         pushPublicKey: mocks.MOCK_PUSH_KEY,
-        pushAuthKey: base64url(crypto.randomBytes(16)),
+        pushAuthKey: crypto.randomBytes(16).toString('base64url'),
       });
 
       let devices = await client.devices();
