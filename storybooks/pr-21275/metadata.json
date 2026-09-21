@@ -1,0 +1,12 @@
+{
+  "commit": "a9b2525ef48c6778567ab5ce43eb035e148d222a",
+  "summary": "chore(admin-panel): build with webpack 5 instead of rescripts",
+  "description": "## Because\n\n- `@rescripts/cli` is unmaintained, its upstream repo is archived, and it pins the panel to `react-scripts`.\n- The rescripts webpack patch reaches into create-react-app's loader array by index. It throws if that order ever changes.\n\n## This pull request\n\n- Moves `fxa-admin-panel` off `@rescripts/cli` and `react-scripts` onto plain webpack 5 and a direct jest config.\n- Adds `config/webpack.config.js` and `config/webpackDevServer.config.js`, modeled on the `fxa-settings` pair.\n- Keeps all three `.rescriptsrc.js` behaviors: the extra JS import paths (babel-loader `include`, `TsconfigPathsPlugin`, `resolve.fallback`), the dev server overlay with `runtimeErrors` off, and the jest `moduleNameMapper` built from `tsconfig.base.json`.\n- Adds `jest.config.js`, modeled on `packages/fxa-react/jest.config.js`. `test-frontend` keeps its junit output path and its `#integration` filter.\n- Points `build-react` at `webpack` and `test-frontend` at `jest`. Adds `start-react` for `webpack serve`, which `pm2.config.js` now calls.\n- Drops the `eject` script, `react-scripts`, `@rescripts/cli` and `jest-watch-typeahead`. webpack and jest are now direct devDependencies.\n- Declares the svg and css modules in `src/react-app-env.d.ts`, which no longer references `react-scripts` types.\n- Deletes `.rescriptsrc.js` and the shared `packages/fxa-react/configs/rescripts.js` with its `package.json` export entry. No other package used them.\n- Updates the lockfile.\n\n## Issue that this pull request solves\n\nCloses: FXA-11853",
+  "timestamp": 1790022922000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

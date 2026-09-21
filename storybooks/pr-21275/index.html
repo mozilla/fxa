@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit a9b2525ef48c6778567ab5ce43eb035e148d222a</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit a9b2525ef48c6778567ab5ce43eb035e148d222a</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/21/2026, 8:35:22 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>chore(admin-panel): build with webpack 5 instead of rescripts</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- `@rescripts/cli` is unmaintained, its upstream repo is archived, and it pins the panel to `react-scripts`.
+- The rescripts webpack patch reaches into create-react-app&#039;s loader array by index. It throws if that order ever changes.
+
+## This pull request
+
+- Moves `fxa-admin-panel` off `@rescripts/cli` and `react-scripts` onto plain webpack 5 and a direct jest config.
+- Adds `config/webpack.config.js` and `config/webpackDevServer.config.js`, modeled on the `fxa-settings` pair.
+- Keeps all three `.rescriptsrc.js` behaviors: the extra JS import paths (babel-loader `include`, `TsconfigPathsPlugin`, `resolve.fallback`), the dev server overlay with `runtimeErrors` off, and the jest `moduleNameMapper` built from `tsconfig.base.json`.
+- Adds `jest.config.js`, modeled on `packages/fxa-react/jest.config.js`. `test-frontend` keeps its junit output path and its `#integration` filter.
+- Points `build-react` at `webpack` and `test-frontend` at `jest`. Adds `start-react` for `webpack serve`, which `pm2.config.js` now calls.
+- Drops the `eject` script, `react-scripts`, `@rescripts/cli` and `jest-watch-typeahead`. webpack and jest are now direct devDependencies.
+- Declares the svg and css modules in `src/react-app-env.d.ts`, which no longer references `react-scripts` types.
+- Deletes `.rescriptsrc.js` and the shared `packages/fxa-react/configs/rescripts.js` with its `package.json` export entry. No other package used them.
+- Updates the lockfile.
+
+## Issue that this pull request solves
+
+Closes: FXA-11853</pre></dd>
+  </dl>
+</body>
+</html>
