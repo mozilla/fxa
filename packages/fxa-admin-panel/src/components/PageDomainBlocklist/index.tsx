@@ -9,12 +9,18 @@ import type { DomainBlocklistEntry } from 'fxa-admin-server/src/types';
 const btnClass =
   'bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded';
 
+/** A synced list holds tens of thousands of rows; mounting them all is slow. */
+const SHOW_LIMIT = 1000;
+
 const PageDomainBlocklist = () => {
   const [entries, setEntries] = useState<DomainBlocklistEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [hasInput, setHasInput] = useState(false);
+  const [syncUrl, setSyncUrl] = useState('');
+  const [syncing, setSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -75,6 +81,25 @@ const PageDomainBlocklist = () => {
     reader.onerror = () => window.alert('Failed to read file.');
     reader.readAsText(file);
     e.target.value = '';
+  };
+
+  const handleSync = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSyncing(true);
+    setSyncResult(null);
+    try {
+      const { total, submitted } = await adminApi.syncDomainBlocklist(syncUrl);
+      setSyncResult(
+        `Read ${total} entries and sent ${submitted} unique domains to the blocklist. Entries already on the list were ignored.`
+      );
+      await loadEntries();
+    } catch (e) {
+      setSyncResult(
+        `Error: ${e instanceof Error ? e.message : 'Unknown error'}`
+      );
+    } finally {
+      setSyncing(false);
+    }
   };
 
   const handleDelete = async (domain: string) => {
@@ -169,6 +194,45 @@ const PageDomainBlocklist = () => {
 
       <hr className="my-4" />
 
+      <h2 className="header-page">Sync from a list URL</h2>
+      <p className="mb-2">
+        Fetches a newline-delimited domain list and imports it in batches.
+        Comments (<code>#</code>) and invalid entries are skipped. A large list
+        can take a minute.
+      </p>
+      <form onSubmit={handleSync}>
+        <input
+          type="url"
+          required
+          data-testid="domain-blocklist-sync-url"
+          aria-label="Domain list URL"
+          placeholder="https://…/domains.txt"
+          className="border-2 block w-full max-w-3xl p-1 font-mono text-sm"
+          value={syncUrl}
+          onChange={(e) => setSyncUrl(e.target.value)}
+        />
+        <br />
+        <button
+          type="submit"
+          data-testid="domain-blocklist-sync-btn"
+          className={`${btnClass} disabled:opacity-40 disabled:cursor-not-allowed`}
+          disabled={syncing}
+        >
+          {syncing ? '⏳ Syncing…' : '🔄 Sync from URL'}
+        </button>
+      </form>
+      {syncResult && (
+        <p
+          role="status"
+          data-testid="domain-blocklist-sync-result"
+          className="mt-2"
+        >
+          {syncResult}
+        </p>
+      )}
+
+      <hr className="my-4" />
+
       <div className="flex items-center justify-between mb-2">
         <h2 className="header-page">Current Blocklist</h2>
         {entries.length > 0 && (
@@ -186,6 +250,12 @@ const PageDomainBlocklist = () => {
       {!loading && !error && entries.length === 0 && (
         <p className="result-grey">No entries yet.</p>
       )}
+      {entries.length > SHOW_LIMIT && (
+        <p data-testid="domain-blocklist-truncated" className="result-grey">
+          Showing the first {SHOW_LIMIT.toLocaleString()} of{' '}
+          {entries.length.toLocaleString()} entries.
+        </p>
+      )}
       {entries.length > 0 && (
         <table className="w-full border-collapse text-sm">
           <thead>
@@ -196,7 +266,7 @@ const PageDomainBlocklist = () => {
             </tr>
           </thead>
           <tbody>
-            {entries.map((entry) => (
+            {entries.slice(0, SHOW_LIMIT).map((entry) => (
               <tr key={entry.domain} className="hover:bg-grey-10">
                 <td className="p-2 border border-grey-100 font-mono">
                   {entry.domain}
