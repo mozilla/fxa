@@ -1345,7 +1345,7 @@ pair2-supplicant-connect-this-device-cancel-button = Avbryt
 
 
 pair2-supplicant-download-firefox-heading = Få { -brand-firefox } på denne eininga
-pair2-supplicant-download-firefox-description = Last ned { -brand-firefox } for å synkronisere bokmerke, historikk og meir, på tvers av eningar. <linkExternal>Lær meir</linkExternal>
+pair2-supplicant-download-firefox-description = Last ned { -brand-firefox } for å synkronisere bokmerke, historikk og meir, på tvers av eningar. <linkExternal>Les meir</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Hald fram i { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Opnar { -brand-firefox }…
 

@@ -1,8 +1,8 @@
 {
-  "commit": "e850a33ecda2d7076f25f42be4e15b1c30619072",
-  "summary": "fix(settings): recover from invalid session token on signin token code",
-  "description": "## Because\n\n- Sentry issue FXA-CONTENT-QWA logged 5.7K UnhandledRejection events on https://accounts.firefox.com/signin_token_code, mostly from Firefox iOS.\n- `getTotpStatus` awaited `authClient.checkTotpTokenExists(sessionToken)` with no catch, so a stale session token turned a 401 errno 110 (`INVALID_TOKEN`) into an escaped rejection.\n\n## This pull request\n\n- Catches the `checkTotpTokenExists` error in `getTotpStatus` and records a `sessionTokenInvalid` flag.\n- Feeds that flag to the existing OAuth native recovery effect, so those flows start flow recovery instead of reusing the dead token.\n- Feeds the same flag to the existing redirect-to-root effect, so other flows go to `/`.\n- Ignores every other error, because the TOTP status only picks a redirect.\n- Adds a `requiresKeys` stub to `createOAuthNativeIntegration` in `mocks.tsx`, which `useOAuthKeysCheck` calls for OAuth native integrations.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-13110",
-  "timestamp": 1789768580000,
+  "commit": "4f3417b061ffa5c81af8d9023b29fd6c198668d7",
+  "summary": "fix(settings): stop an unhandled rejection on signin token code",
+  "description": "## Because\n\n- The catch block around `checkTotpTokenExists` reads `err.errno` directly.\n- The auth client can reject with null or undefined. The read then throws a TypeError inside the async effect, and the error escapes as an unhandled rejection on `/signin_token_code`.\n- Sentry records this error as FXA-CONTENT-QWA.\n\n## This pull request\n\n- Reads `err?.errno` in the `checkTotpTokenExists` catch block in `container.tsx`.\n- Adds a test in `container.test.tsx` for a rejection with an undefined reason.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-13110",
+  "timestamp": 1790006476000,
   "storybooks": [
     "fxa-settings"
   ],

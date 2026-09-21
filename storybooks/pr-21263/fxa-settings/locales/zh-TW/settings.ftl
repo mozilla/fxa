@@ -659,7 +659,7 @@ flow-recovery-key-info-header = 建立帳號救援金鑰，避免忘記密碼時
 # The header of the first view in the Recovery Key Create flow when replacing an existing recovery key
 flow-recovery-key-info-header-change-key = 更換您的帳號救援金鑰
 # In the first view of the PageRecoveryKeyCreate flow, this is the first of two bullet points explaining why the user should create an account recovery key
-flow-recovery-key-info-shield-bullet-point-v2 = 我們會為您加密上網資料（密碼、書籤等等資料），對您的隱私很有保護。但要是忘記密碼，可能就會失去這些資料。
+flow-recovery-key-info-shield-bullet-point-v2 = 我們會為您加密瀏覽資料（密碼、書籤等等資料），對您的隱私很有保護。但要是忘記密碼，可能就會失去這些資料。
 # In the first view of the PageRecoveryKeyCreate flow, this is the second of two bullet points explaining why the user should create an account recovery key
 flow-recovery-key-info-key-bullet-point-v2 = 所以帳號救援金鑰相當重要，萬一忘記密碼時，還可以用這把金鑰救回資料。
 # The text of the "submit" button to start creating (or changing) an account recovery key
@@ -1998,7 +1998,7 @@ third-party-auth-callback-message = 請稍後，將帶您前往要登入的應�
 ## AccountRecoveryConfirmKey page
 
 account-recovery-confirm-key-heading = 輸入您的帳號救援金鑰
-account-recovery-confirm-key-instruction = 使用這把金鑰，可從 { -brand-firefox } 伺服器救回您加密過的密碼、書籤等上網資料。
+account-recovery-confirm-key-instruction = 使用這把金鑰，可從 { -brand-firefox } 伺服器救回您加密過的密碼、書籤等瀏覽資料。
 # Prompts the user to enter their account recovery key
 # Account recovery key contains a mix of letters and numbers, no special characters
 account-recovery-confirm-key-input-label =
