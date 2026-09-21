@@ -4439,3 +4439,23 @@ promo_qr_mobile:
       branch:
         description: The value proposition experiment branch shown to the user
         type: string
+
+dtm_desktop:
+  qr_skip:
+    type: event
+    description: |
+      User clicked "Skip for now" on the desktop (authority) QR code screen,
+      leaving the pairing flow for account settings.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14523
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction

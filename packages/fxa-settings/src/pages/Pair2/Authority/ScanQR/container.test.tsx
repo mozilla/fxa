@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { MemoryRouter } from 'react-router';
 import * as Sentry from '@sentry/react';
@@ -20,6 +21,16 @@ const mockNavigate = jest.fn();
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
   useNavigate: () => mockNavigate,
+}));
+
+const mockQrSkip = jest.fn();
+jest.mock('../../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    dtmDesktop: {
+      qrSkip: (...args: unknown[]) => mockQrSkip(...args),
+    },
+  },
 }));
 
 // Stub QRCode so the test can read the encoded value without decoding an SVG.
@@ -226,6 +237,58 @@ describe('Pair2/Authority/ScanQR container', () => {
     expect(integration.onStateChange).toBeNull();
     emitState(integration, AuthorityState.WaitingForAuthorizations);
     expect(mockNavigate).not.toHaveBeenCalled();
+  });
+
+  describe('skip', () => {
+    // Waits for the QR to render so the channel is fully set up before the
+    // user leaves, as it would be in the browser.
+    const skip = async () => {
+      const user = userEvent.setup();
+      renderContainer();
+      await waitFor(() =>
+        expect(screen.getByTestId('scan-qr-code')).toHaveAttribute(
+          'data-value',
+          MOCK_PAIR_URL
+        )
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Skip for now' }));
+    };
+
+    it('records the qr_skip Glean event', async () => {
+      await skip();
+
+      expect(mockQrSkip).toHaveBeenCalledTimes(1);
+    });
+
+    // Skipping ends the flow, so unlike the other exits from this page the
+    // channel does not outlive it.
+    it('closes the channel', async () => {
+      await skip();
+
+      expect(integration.destroy).toHaveBeenCalledTimes(1);
+    });
+
+    // Every pairing promo exits to settings. The pairing query parameters stay
+    // behind: nothing in settings reads them.
+    it('navigates to settings without the pairing query', async () => {
+      await skip();
+
+      expect(mockNavigate).toHaveBeenCalledTimes(1);
+      expect(mockNavigate).toHaveBeenCalledWith('/settings');
+    });
+
+    // Leaving must not wait on the channel: one that will not close is the
+    // integration's problem to report, not a reason to hold the user here.
+    it('still navigates and reports to Sentry when the channel will not close', async () => {
+      const err = new Error('socket already gone');
+      integration.destroy.mockRejectedValue(err);
+
+      await skip();
+
+      expect(mockNavigate).toHaveBeenCalledWith('/settings');
+      await waitFor(() => expect(captureException).toHaveBeenCalledWith(err));
+    });
   });
 
   it('throws when handed an integration that is not the pairing authority', () => {
