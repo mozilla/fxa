@@ -44,7 +44,6 @@ To run integration tests, we have to make sure databases and auxillary services 
 So run:
 
 - `yarn start infrastructure`
-- `nx start fxa-customs-server`
 
 Now integration tests can be executed:
 
@@ -64,7 +63,6 @@ Notes / Tips:
 - For quick environment config, consider running tests with a .env file and the dotenv command. For example: `dotenv -- yarn workspace fxa-auth-server:test-integration remote`
 - You can use `LOG_LEVEL`, such as `LOG_LEVEL=debug` to specify the test logging level.
 - Recovery-phone tests require twilio testing credentials!
-- Recovery-phone-customs tests require that customs server is running. So run `nx start fxa-customs-server` prior to executing tests.
 - The test/remote folder contains integration tests that are not designed to be run in parallel. Use `yarn test-integration` instead of running them directly.
 
 ### Testing with non-local databases
@@ -165,9 +163,9 @@ can be overridden in two ways:
 
 ### Rate-limiting config
 
-Rate-limiting and blocking is handled by fxa-customs-server. By default, these policies are _disabled_ in dev environment via `"customsUrl":"none"` in `fxa-auth-server/config/dev.json`. Enabling the customs server allows error messages to be displayed when rate limiting occurs. Default rate-limiting values are found in `fxa-customs-server/lib/config/config.js` and can be modified with environment variables or by adding a `dev.json` file to `fxa-customs-server/config/`.
+Rate-limiting and blocking is handled in process by the `@fxa/accounts/rate-limit` library, which keeps its counters in Redis. The rules live in `fxa-auth-server/config/rate-limit-rules.txt` and can be overridden with `RATE_LIMIT__RULES`.
 
-The customs-server can be enabled for local testing by changing the dev config to `"customsUrl":"http://localhost:7000"`.
+To exempt yourself while developing, add your address to `RATE_LIMIT__IGNORE_EMAILS`, your IP to `RATE_LIMIT__IGNORE_IPS`, or your account to `RATE_LIMIT__IGNORE_UIDS`.
 
 ### Recovery Phone Config
 

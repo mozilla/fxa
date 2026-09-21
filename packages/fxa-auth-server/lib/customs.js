@@ -6,7 +6,6 @@
 
 const Sentry = require('@sentry/node');
 const { config } = require('../config');
-const { performance } = require('perf_hooks');
 const { EmailNormalization } = require('fxa-shared/email/email-normalization');
 
 const localizeTimestamp =
@@ -47,145 +46,36 @@ function toOpts(ip, email, uid) {
   return opts;
 }
 
+/**
+ * Rate limiting for the auth server. Decisions come from the rate-limit library,
+ * which works directly with Redis. Every method no-ops when that library is absent.
+ */
 class CustomsClient {
-  constructor(url, log, error, statsd, rateLimit) {
+  constructor(log, error, statsd, rateLimit) {
     this.log = log;
     this.error = error;
     this.statsd = statsd;
     this.rateLimit = rateLimit;
-
-    if (url !== 'none') {
-      this.url = url;
-      this.timeoutMs = config.get('customsClient').timeoutMs;
-    }
-  }
-
-  async makeRequest(endpoint, requestData) {
-    if (!this.url) {
-      return;
-    }
-
-    const method = endpoint.replaceAll('/', '');
-    const startTime = performance.now();
-
-    try {
-      const response = await fetch(`${this.url}${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestData),
-        signal: AbortSignal.timeout(this.timeoutMs),
-      });
-
-      // fetch does not reject on non-2xx; surface it so the catch below fails
-      // closed via backendServiceFailure rather than treating it as success.
-      if (!response.ok) {
-        throw new Error(`Customs server returned status ${response.status}`);
-      }
-
-      const result = await response.json();
-
-      if (this.statsd) {
-        this.statsd.timing(
-          `${serviceName}.${method}.success`,
-          performance.now() - startTime
-        );
-      }
-
-      return result;
-    } catch (err) {
-      if (this.statsd) {
-        this.statsd.timing(
-          `${serviceName}.${method}.failure`,
-          performance.now() - startTime
-        );
-      }
-
-      if (err.errno > -1 || (err.statusCode && err.statusCode < 500)) {
-        throw err;
-      } else {
-        throw this.error.backendServiceFailure(
-          serviceName,
-          'POST',
-          { method: 'POST', path: endpoint },
-          err
-        );
-      }
-    }
   }
 
   async check(request, email, action) {
     const opts = toOpts(request?.app?.clientAddress, email, undefined);
-    const checked = await this.checkV2(request, 'check', action, opts, email);
-    if (checked) {
-      return;
-    }
-
-    const result = await this.makeRequest('/check', {
-      ...this.sanitizePayload({
-        ip: request.app.clientAddress,
-        email: emailNormalization.normalizeEmailAliases(email),
-        action,
-
-        // Payload in this case is additional user related data (ie phone number)
-        payload: this.sanitizePayload(request.payload),
-
-        // Headers and query params are used only in the `check` endpoint to
-        // verify request is from a real user
-        query: request.query,
-        headers: request.headers,
-      }),
-    });
-
-    this.optionallyReportStatsD('request.check', action, result);
-    return this.handleCustomsResult(request, result);
+    await this.checkV2(request, 'check', action, opts, email);
   }
 
   async checkAuthenticated(request, uid, email, action) {
     const opts = toOpts(request?.app?.clientAddress, email, uid);
-    const checked = await this.checkV2(
-      request,
-      'checkAuthenticated',
-      action,
-      opts,
-      email
-    );
-    if (checked) {
-      return;
-    }
-
-    const result = await this.makeRequest('/checkAuthenticated', {
-      ...this.sanitizePayload({
-        action,
-        ip: request.app.clientAddress,
-        uid,
-      }),
-    });
-
-    this.optionallyReportStatsD('request.checkAuthenticated', action, result);
-    return this.handleCustomsResult(request, result);
+    await this.checkV2(request, 'checkAuthenticated', action, opts, email);
   }
 
   async checkIpOnly(request, action) {
     const opts = toOpts(request?.app?.clientAddress, undefined, undefined);
-    const checked = await this.checkV2(request, 'checkIpOnly', action, opts);
-    if (checked) {
-      return;
-    }
-
-    const result = await this.makeRequest('/checkIpOnly', {
-      ...this.sanitizePayload({
-        action,
-        ip: request.app.clientAddress,
-      }),
-    });
-
-    this.optionallyReportStatsD('request.checkIpOnly', action, result);
-    return this.handleCustomsResult(request, result);
+    await this.checkV2(request, 'checkIpOnly', action, opts);
   }
 
   /**
    * Rate limits on a credential hash, for actions checked before the account
-   * behind it is known. v2 only; no-ops when v2 is off.
+   * behind it is known.
    */
   async checkToken(request, action, tokenHash) {
     const opts = toOpts(request?.app?.clientAddress);
@@ -202,111 +92,23 @@ class CustomsClient {
     await this.resetV2(request, email);
   }
 
-  /**
-   * Remove sensitive fields from the payload before sending to customs.
-   *
-   * @param payload
-   * @return {*}
-   */
-  sanitizePayload(payload) {
-    if (!payload) {
-      return;
-    }
-
-    const clonePayload = { ...payload };
-    const fieldsToOmit = ['authPW', 'oldAuthPW', 'paymentToken'];
-    fieldsToOmit.forEach((name) => delete clonePayload[name]);
-
-    return clonePayload;
-  }
-
-  optionallyReportStatsD(name, action, options) {
-    if (!options) {
-      return;
-    }
-
-    if (this.statsd) {
-      const tags = { action };
-      if (options.block != null) {
-        tags.block = options.block;
-      }
-      if (options.suspect != null) {
-        tags.suspect = options.suspect;
-      }
-      if (options.unblock != null) {
-        tags.unblock = options.unblock;
-      }
-      if (options.blockReason != null) {
-        tags.blockReason = options.blockReason;
-      }
-      this.statsd.increment(`${serviceName}.${name}`, tags);
-    }
-  }
-
-  handleCustomsResult(request, result) {
-    if (!result) {
-      return;
-    }
-
-    if (result.suspect) {
-      request.app.isSuspiciousRequest = true;
-    }
-
-    if (result.block) {
-      // Log a flow event that the user got blocked.
-      request.emitMetricsEvent('customs.blocked');
-      const unblock = !!result.unblock;
-
-      if (result.retryAfter) {
-        // Legacy reports seconds; everything downstream expects ms.
-        const retryAfter = result.retryAfter * 1000;
-
-        // Create a localized retryAfterLocalized value from retryAfter.
-        // For example '713' becomes '12 minutes' in English.
-        const retryAfterLocalized = localizeTimestamp.format(
-          Date.now() + retryAfter,
-          request.headers['accept-language']
-        );
-
-        throw this.error.tooManyRequests(
-          retryAfter,
-          retryAfterLocalized,
-          unblock
-        );
-      }
-
-      throw this.error.requestBlocked(unblock);
-    }
-  }
-
-  // #region Customs V2
   v2Enabled() {
     return this.rateLimit != null;
   }
 
-  /**
-   * Version 2 Customs Approach
-   * =======================================================================================
-   * This uses a library provided by libs and works directly with Redis to make rate limiting
-   * decisions. The previous customs check to see if there is 'new' configuration for the
-   * customs action being checked. If there is, we will call into this code instead of calling
-   * the legacy customs service.
-   */
   async checkV2(request, type, action, opts, nonNormalizedEmail) {
-    // Short circuit if rate limit wasn't provided.
     if (this.rateLimit == null) {
-      return false;
+      return;
     }
 
     if (!opts) {
       throw this.error.unexpectedError('Missing parameter opts');
     }
 
-    // Fallback to the legacy customs service approach, if v2 action isn't configured
-    const actionConfigured = this.rateLimit.supportsAction(action);
-    if (!actionConfigured) {
+    // No rule for this action, and rateLimit.check throws on those.
+    if (!this.rateLimit.supportsAction(action)) {
       this.statsd?.increment(`${serviceName}.check.v1`, [`action:${action}`]);
-      return false;
+      return;
     }
 
     // The config can specify that certain ips, emails, or uids should be excluded
@@ -321,10 +123,9 @@ class CustomsClient {
         opts.email ? 'email' : '',
         opts.uid ? 'uid' : '',
       ]);
-      return true;
+      return;
     }
 
-    // Otherwise, call the new nx lib instead of the legacy service
     this.statsd?.increment(`${serviceName}.check.v2`, [`action:${action}`]);
 
     let result = null;
@@ -363,7 +164,7 @@ class CustomsClient {
 
     // If no result, we exit. Check essentially passes.
     if (result == null) {
-      return true;
+      return;
     }
 
     // We use the rate limiter to allow X number unblock attempts per day. Once
@@ -417,7 +218,6 @@ class CustomsClient {
     delete opts.ip;
     await this.rateLimit.unblock(opts);
   }
-  // #endregion
 }
 
 CustomsClient._reloadEmailNormalization = _reloadEmailNormalization;

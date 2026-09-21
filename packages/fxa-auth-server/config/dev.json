@@ -8,7 +8,6 @@
   "contentServer": {
     "url": "http://localhost:3030"
   },
-  "customsUrl": "none",
   "googleAuthConfig": {
     "tokenEndpoint": "http://localhost:9300/token",
     "issuer": "http://localhost:9300",

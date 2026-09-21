@@ -105,7 +105,7 @@ const ACCOUNT_STATUS_POST = {
   ...TAGS_ACCOUNT,
   description: '/account/status',
   notes: [
-    'Gets the status of an account without exposing user data through query params. This endpoint is rate limited by [fxa-customs-server](https://github.com/mozilla/fxa/tree/main/packages/fxa-customs-server).',
+    'Gets the status of an account without exposing user data through query params. This endpoint is rate limited.',
   ],
 };
 

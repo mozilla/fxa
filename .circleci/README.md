@@ -127,7 +127,7 @@ services advertise `localhost:<port>` URLs: 3030 content, 3000 fxa-settings
 Sign up with an `@restmail.net` address and read the mail at
 `http://localhost:9001/mail/<local-part>`; the request blocks until mail
 arrives. The stack runs `NODE_ENV=test` with the executor's forced feature
-flags and customs disabled, so it matches CI, not `yarn start`.
+flags, so it matches CI, not `yarn start`.
 
 ### Access and exposure
 
