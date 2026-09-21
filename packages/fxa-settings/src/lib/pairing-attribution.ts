@@ -54,6 +54,12 @@ export const PAIRING_ATTRIBUTION_PARAMS = [
 export const PAIRING_ATTRIBUTION_STORAGE_KEY = 'pairing_attribution';
 
 /**
+ * Entrypoint for a `/pair` visit that arrives without one: the firefox.com/pair
+ * redirect lives in bedrock and sends only `service` and `client_id`.
+ */
+export const PAIR_FLOW_ENTRYPOINT = 'fxa_pairflow';
+
+/**
  * How long a stashed hand-off stays valid. The journey is `/pair` → Firefox's
  * pairing dialog → (possibly install Firefox on the phone) → scan → approve, so
  * this needs to tolerate tens of minutes. Keeping it inside one plausible session
