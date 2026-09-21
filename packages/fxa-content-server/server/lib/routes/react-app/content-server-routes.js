@@ -53,7 +53,6 @@ const FRONTEND_ROUTES = [
   'post_verify/cad_qr/ready_to_scan',
   'post_verify/cad_qr/scan_code',
   'post_verify/cad_qr/connected',
-  'post_verify/finish_account_setup/set_password',
   'post_verify/newsletters/add_newsletters',
   'post_verify/password/force_password_change',
   'post_verify/secondary_email/add_secondary_email',

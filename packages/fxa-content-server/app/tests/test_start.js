@@ -214,7 +214,6 @@ require('./spec/views/pair/supp_wait_for_auth');
 require('./spec/views/password_strength/password_strength_balloon');
 require('./spec/views/password_strength/password_with_strength_balloon');
 require('./spec/views/permissions');
-require('./spec/views/post_verify/finish_account_setup/set_password');
 require('./spec/views/post_verify/newsletters/add_newsletters');
 require('./spec/views/post_verify/password/force_password_change');
 require('./spec/views/post_verify/secondary_email/add_secondary_email');
