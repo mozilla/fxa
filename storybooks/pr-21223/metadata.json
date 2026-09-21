@@ -1,8 +1,8 @@
 {
-  "commit": "391d6109f60946e66525f4e72028ddf47bf7aabc",
-  "summary": "refactor(settings): address review feedback on passkey wrap opt-in",
-  "description": "Because:\n* Review asked for the wrap staleness test to live in one place.\n* Branch rules were reachable only through the full sign-in hook, so each\n  case cost a renderHook and a set of auth-client mocks.\n\nThis commit:\n* Pushes wrap staleness into the delete predicate as `staleBefore`.\n* Extracts the kB stash, envelope store and offer rule as named helpers\n  with direct unit tests.\n* Names the initial and retry store errors in the wrap creation path.\n* Builds auth-client test rejections as errno-bearing `Error`s.\n* Tightens held-material assertions and drops redundant hook tests.",
-  "timestamp": 1789759433000,
+  "commit": "064ee406c87cc6094ee85fdc2c2efc6117479d26",
+  "summary": "feat(settings): let the passkey opt-in retry recoverable failures",
+  "description": "Because:\n  * A dismissed prompt or a rate limit left the sealed envelope unused\n    but sent the user to Settings with no way to act on either.\n  * Sealing read key material the page could zero mid-flight, storing a\n    wrap that opens to zeroes and passes its own round-trip check.\n  * A server refusal lost its errno on the step-up path, and the\n    unexpected ones produced no telemetry at all.\n\nThis commit:\n  * Exports retryPasskeyWrapStore to resubmit an already-sealed envelope.\n  * Holds the offer behind a banner when a prompt or a limit stops it.\n  * Seals over copies, zeroing the originals once an envelope exists.\n  * Passes an errno through from the verification calls, and reports\n    unexpected authenticator errors to Sentry.\n  * Adopts the approved copy, one message for every terminal failure.",
+  "timestamp": 1789969520000,
   "storybooks": [
     "fxa-settings"
   ],

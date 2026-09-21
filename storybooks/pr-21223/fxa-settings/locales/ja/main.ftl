@@ -79,6 +79,9 @@ button-back-title = 戻る
 recovery-key-pdf-download-error = 申し訳ありませんが、アカウント回復用キーのダウンロード中に問題が発生しました。
 
 
+button-passkey-signin = パスキーでログイン
+
+
 choose-newsletters-prompt-2 = { -brand-mozilla } からの詳細:
 choose-newsletters-option-latest-news =
     .label = 最新ニュースと製品アップデートを入手
@@ -729,6 +732,12 @@ row-defaults-action-disable = 無効化
 row-defaults-status = なし
 
 
+passkey-row-header = パスキー
+passkey-row-not-set = 未設定
+passkey-row-action-create = 作成
+passkey-row-description = スマートフォンなどの対応デバイスを使ってアカウントにログインすれば、より簡単で安全にログインできます。
+
+
 rk-header-1 = アカウント回復用キー
 rk-enabled = 有効
 rk-not-set = 未設定
@@ -1024,6 +1033,10 @@ signin-bounced-message = { $email } へ送られた確認メールが返送さ�
 signin-bounced-help = このメールアドレスが正しい場合は、<linkExternal>ご連絡<</linkExternal> いただければロック解除をお手伝いします。
 signin-bounced-create-new-account = 既にこのアドレスをお持ちでないなら、新しいアカウントを作成してください
 back = 戻る
+
+
+signin-passkey-fallback-heading = パスワードを入力して同期する
+signin-passkey-fallback-body = データを安全に保つため、このパスキーを使用する際にはパスワードを入力する必要があります。
 
 
 signin-recovery-method-header = ログイン

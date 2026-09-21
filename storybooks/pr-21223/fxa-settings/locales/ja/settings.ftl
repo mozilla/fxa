@@ -47,6 +47,10 @@ button-back-title = 戻る
 # The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = 申し訳ありませんが、アカウント回復用キーのダウンロード中に問題が発生しました。
 
+## ButtonPasskeySignin
+
+button-passkey-signin = パスキーでログイン
+
 ## ChooseNewsletters component
 ## Checklist of newsletters that the user can choose to sign up to
 
@@ -972,6 +976,13 @@ row-defaults-action-change = 変更
 row-defaults-action-disable = 無効化
 row-defaults-status = なし
 
+## UnitRowPasskey
+
+passkey-row-header = パスキー
+passkey-row-not-set = 未設定
+passkey-row-action-create = 作成
+passkey-row-description = スマートフォンなどの対応デバイスを使ってアカウントにログインすれば、より簡単で安全にログインできます。
+
 ## Account recovery key sub-section on main Settings page
 
 rk-header-1 = アカウント回復用キー
@@ -1435,6 +1446,12 @@ signin-bounced-message = { $email } へ送られた確認メールが返送さ�
 signin-bounced-help = このメールアドレスが正しい場合は、<linkExternal>ご連絡<</linkExternal> いただければロック解除をお手伝いします。
 signin-bounced-create-new-account = 既にこのアドレスをお持ちでないなら、新しいアカウントを作成してください
 back = 戻る
+
+## SigninPasskeyFallback page
+## Users who authenticate with a passkey to access Sync must also enter their password.
+
+signin-passkey-fallback-heading = パスワードを入力して同期する
+signin-passkey-fallback-body = データを安全に保つため、このパスキーを使用する際にはパスワードを入力する必要があります。
 
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with

@@ -827,6 +827,8 @@ recent-activity-account-passwordless-registration-complete = Парольсіз 
 recent-activity-account-recovery-codes-set = Қалпына келтіру кодтары орнатылды
 recent-activity-account-passkey-wrap-created = Рұқсат кілті синхрондау үшін іске қосылды
 recent-activity-account-passkey-wrap-creation-failure = Рұқсат кілтімен синхрондауды баптау сәтсіз аяқталды
+recent-activity-account-passkey-wrap-deleted = Рұқсат кілтінің синхрондауға қол жеткізу мүмкіндігі өшірілді
+recent-activity-account-passkey-wrap-deletion-failure = Рұқсат кілтінің синхрондауға қол жеткізу мүмкіндігін өшіру сәтсіз аяқталды
 recent-activity-account-passkey-wrap-invalidated = Парольді қалпына келтіруден кейін рұқсат кілтімен синхрондауға қол жеткізу өшірілген
 recent-activity-unknown = Тіркелгінің басқа белсенділігі
 
@@ -1176,6 +1178,15 @@ index-account-delete-success = Тіркелгі сәтті өшірілді
 index-email-bounced = Сіздің растау хатыңыз қайтарылды. Эл. пошта адресін қате тердіңіз бе?
 
 
+inline-passwordless-sync-setup-page-title = Келесі жолы парольді өткізіп жіберу керек пе?
+inline-passwordless-sync-setup-success-banner = { -brand-firefox } ішіне кірдіңіз
+inline-passwordless-sync-setup-heading = Келесі жолы парольді өткізіп жіберу керек пе?
+inline-passwordless-sync-setup-description = Жылдам кіру үшін осы рұқсат кілтін пайдаланыңыз.
+inline-passwordless-sync-setup-enable-button = Рұқсат кілтін іске қосу
+inline-passwordless-sync-setup-enabling = Іске қосылуда…
+inline-passwordless-sync-setup-not-now-button = Қазір емес
+
+
 inline-recovery-key-setup-create-error = Тіркелгіңізді қалпына келтіру кілтін жасай алмадық. Әрекетті кейінірек қайталап көріңіз.
 inline-recovery-key-setup-recovery-created = Тіркелгіні қалпына келтіру кілті жасалды
 inline-recovery-key-setup-download-header = Тіркелгіңізді қорғаңыз
@@ -1323,6 +1334,7 @@ pair2-authority-sync-success-sync-settings-button = Синхрондау бап�
 
 pair2-authority-timeout-and-cancel-timeout-heading = Әлі де құрылғыны қосқыңыз келе ме?
 pair2-authority-timeout-and-cancel-timeout-description = Байланыс орнатуға бөлінген уақыт өтіп кеткен сияқты. Мобильді құрылғыңызды қосып, { -brand-firefox } деректеріңізді синхрондағыңыз келсе, қайталап көріңіз.
+pair2-authority-timeout-and-cancel-cancelled-heading = Бас тартылған
 pair2-authority-timeout-and-cancel-canceled-description = Егер ойыңызды өзгертсеңіз немесе басқа құрылғыны қосқыңыз келсе, қайталап көріңіз.
 pair2-authority-timeout-and-cancel-try-again-button = Қайтадан көру
 pair2-authority-timeout-and-cancel-sync-settings-button = Синхрондау баптаулары
@@ -1357,6 +1369,7 @@ pair2-supplicant-sync-success-sync-settings-button = Синхрондау бап
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Бөлінген уақыт өтіп кеткен сияқты
 pair2-supplicant-timeout-and-cancel-timeout-description = Мобильді құрылғыңызды қосу және { -brand-firefox } деректеріңізді синхрондау үшін компьютеріңізден <b>firefox.com/pair</b> сайтына кіріңіз.
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Бас тартылған
 pair2-supplicant-timeout-and-cancel-canceled-description = Құрылғыны кез келген уақытта қосу үшін компьютеріңізден <b>firefox.com/pair</b> сайтына кіріңіз.
 
 
