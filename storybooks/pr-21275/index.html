@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 4482ba8346d437124a142f29eef060afadbfd379</title>
+  <title>Storybooks for commit c2c107eaf6b29c3ed521a779d96edb87a74c74e7</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 4482ba8346d437124a142f29eef060afadbfd379</h1>
+  <h1>Storybooks for commit c2c107eaf6b29c3ed521a779d96edb87a74c74e7</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,28 +31,27 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/21/2026, 10:08:38 PM UTC</dd>
+    <dd>9/21/2026, 10:38:22 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>chore(admin-panel): build with webpack 5 instead of rescripts</pre></dd>
     <dt>Description</dt>
     <dd><pre>## Because
 
-- `fxa-admin-panel` was the last package to build with `react-scripts` and `@rescripts/cli`. Both are unmaintained.
-- The rescripts patch found the webpack loader by array index, so any create-react-app change broke it.
-- The build needed the `--openssl-legacy-provider` flag to run on current Node versions.
+- `fxa-admin-panel` was the last React package on `react-scripts` and `@rescripts/cli`. The rest of the monorepo builds with webpack 5.
+- `@rescripts/cli` is unmaintained. It held the panel on an old toolchain, and the build needed `--openssl-legacy-provider` and `SKIP_PREFLIGHT_CHECK` to run at all.
+- `react-scripts` also pinned Jest to 27, below the peer range of `ts-jest ^29.2.3`.
 
 ## This pull request
 
-- Adds `config/webpack.config.js`, `config/webpackDevServer.config.js` and `jest.config.js` to `fxa-admin-panel`, modeled on `fxa-settings`.
-- Deletes `.rescriptsrc.js` and the shared `packages/fxa-react/configs/rescripts.js`.
-- Removes the `react-scripts`, `@rescripts/cli` and `jest-watch-typeahead` dependencies.
-- Declares the SVG and CSS module types in `src/react-app-env.d.ts`, which no longer references react-scripts types.
-- Turns on the automatic JSX runtime. `babel-preset-react-app` defaults to the classic runtime, and most components use JSX without an import of React.
-- Points the dev server websocket at port 8092. The page loads from the admin proxy on 8091, so the page origin names the wrong port.
+- Adds `config/webpack.config.js` and `config/webpackDevServer.config.js`, and points `build-react` and the new `start-react` script at them.
+- Adds `jest.config.js`. It derives the same `moduleNameMapper` from the `tsconfig.base.json` paths that the rescripts config used.
+- Deletes `.rescriptsrc.js` and `packages/fxa-react/configs/rescripts.js`, and drops the `./configs/rescripts` export from `fxa-react`.
+- Updates `pm2.config.js` for the new dev server. Declares the SVG and CSS modules in `src/react-app-env.d.ts` that the `react-scripts` types used to cover.
+- Bumps `jest` to `^29.7.0` and adds `jest-environment-jsdom ^29.7.0`. Jest 28 dropped the bundled jsdom environment, and `jest.config.js` asks for `testEnvironment: &#039;jsdom&#039;`.
 
 ## Issue that this pull request solves
 
-Closes: FXA-11853</pre></dd>
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-11853</pre></dd>
   </dl>
 </body>
 </html>

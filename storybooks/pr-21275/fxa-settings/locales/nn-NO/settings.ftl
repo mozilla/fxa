@@ -1891,6 +1891,16 @@ pair2-authority-scan-qr-instruction = Skann QR-koden med telefonen eller nettbre
 pair2-authority-scan-qr-code-aria-label = QR-kode for å kople til mobileininga di
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Få hjelp med skanning
+# Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
+pair2-authority-scan-qr-skip-button = Hopp over no
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and links to sync settings.
+
+pair2-authority-sync-success-heading-v2 = Eininga di er tilkopla
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button-v2 = Handsam synkroniseringsinnstillingar
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1965,6 +1975,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Les meir
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Eininga di er tilkopla
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button-v2 = Handsam synkroniseringsinnstillingar
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
