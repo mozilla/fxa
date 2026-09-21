@@ -434,7 +434,6 @@ FxaClientWrapper.prototype = {
    * @param {Relier} relier
    * @param {Object} [options]
    *   @param {String} [options.metricsContext] - Metrics context metadata
-   *   @param {Boolean} [options.preVerified] - is the user preVerified
    *   @param {String} [options.resume] - Resume token, passed in the
    *                   verification link if the user must verify
    *                   their email.
@@ -463,10 +462,6 @@ FxaClientWrapper.prototype = {
 
     if (relier.has('redirectTo')) {
       signUpOptions.redirectTo = relier.get('redirectTo');
-    }
-
-    if (options.preVerified) {
-      signUpOptions.preVerified = true;
     }
 
     if (options.resume) {

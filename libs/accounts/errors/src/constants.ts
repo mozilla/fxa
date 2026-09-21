@@ -276,7 +276,6 @@ export const DEBUGGABLE_PAYLOAD_KEYS = new Set([
   'messageId',
   'metricsContext',
   'name',
-  'preVerified',
   'publicKey',
   'reason',
   'redirectTo',

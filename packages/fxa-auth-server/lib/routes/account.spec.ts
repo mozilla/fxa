@@ -1001,6 +1001,12 @@ describe('/account/create', () => {
       expect(args[0].uaDeviceType).toBe('tablet');
       expect(args[0].uaFormFactor).toBe('iPad');
 
+      // New accounts are always unverified, and the session stays unverified
+      // until the user confirms with the emailed code.
+      const accountArgs = mockDB.createAccount.mock.calls[0][0];
+      expect(accountArgs.emailVerified).toBe(false);
+      expect(args[0].tokenVerificationId).toBe(accountArgs.emailCode);
+
       expect(mockLog.notifier.send).toHaveBeenCalledTimes(2);
       let eventData = mockLog.notifier.send.mock.calls[0][0];
       expect(eventData.event).toBe('login');

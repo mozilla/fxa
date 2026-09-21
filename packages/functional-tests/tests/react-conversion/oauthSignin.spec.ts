@@ -96,7 +96,7 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       const credentials = await testAccountTracker.signUp({
         lang: 'en',
-        preVerified: 'false',
+        verified: false,
       });
 
       await relier.goto();

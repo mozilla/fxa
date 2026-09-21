@@ -173,7 +173,7 @@ test.describe('severity-2 #smoke', () => {
     }) => {
       const credentials = await testAccountTracker.signUpBlocked({
         lang: 'en',
-        preVerified: 'false',
+        verified: false,
       });
 
       await page.goto(target.contentServerUrl);
@@ -260,7 +260,7 @@ test.describe('severity-2 #smoke', () => {
 
       const credentials = await testAccountTracker.signUpSync({
         lang: 'en',
-        preVerified: 'false',
+        verified: false,
       });
 
       await page.goto(target.contentServerUrl);

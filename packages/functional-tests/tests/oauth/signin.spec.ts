@@ -88,7 +88,7 @@ test.describe('severity-1 #smoke', () => {
       // Create unverified account via backend
       const credentials = await testAccountTracker.signUp({
         lang: 'en',
-        preVerified: 'false',
+        verified: false,
       });
 
       await relier.goto();
