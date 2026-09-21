@@ -1,8 +1,8 @@
 {
-  "commit": "66880be219cf09bcfb6e1552f6bafd6eb3d8cb87",
+  "commit": "420ffd29bc9026253432d5357b3dde4695562173",
   "summary": "refactor(profile): replace checksum dependency with node:crypto",
-  "description": "## Because\n\n- FxA is cutting third party dependencies. The Node standard library already does this hash.\n- `checksum` is the only package that pulls `optimist` into the lockfile.\n\n## This pull request\n\n- Removes the `checksum` dependency from `fxa-profile-server`.\n- Uses `crypto.hash('sha1', value, 'hex')` for the `/profile` ETag in `profile.js` and for the `/display_name` ETag in `display_name/get.js`.\n- Updates the expected ETag in `api.in.spec.ts` the same way.\n- Drops `checksum` and `optimist` from `yarn.lock`.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-13927",
-  "timestamp": 1790024157000,
+  "description": "## Because\n\n- `checksum@1.0.0` is a thin wrapper over node's own crypto module. Node can do this without a dependency.\n- The lockfile carried an extra copy of `optimist` (0.3.7) only for that wrapper.\n\n## This pull request\n\n- Removes `checksum` from the `fxa-profile-server` package.json and from yarn.lock.\n- Computes the `/profile` ETag with `crypto.hash('sha1', JSON.stringify(profile), 'hex')` in `profile.js`.\n- Computes the `/display_name` ETag the same way in `display_name/get.js`.\n- Pins the expected ETag in the `should return a displayName` test, so a change of hash algorithm, encoding, or header format fails.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-13927",
+  "timestamp": 1790027582000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

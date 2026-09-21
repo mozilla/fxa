@@ -1337,6 +1337,11 @@ pair2-authority-scan-qr-heading = Skenujće, zo byšće ze swojim mobilnym grato
 pair2-authority-scan-qr-instruction = Skenujće QR-kod ze swojim telefonom abo tabletom, zo byšće swoje zapołožki, rajtarki { -brand-firefox } a wjace synchronizował.
 pair2-authority-scan-qr-code-aria-label = QR-kod za zwjazowanje z wašim mobilnym gratom
 pair2-authority-scan-qr-help-link = Pomoc za skenowanje dóstać
+pair2-authority-scan-qr-skip-button = Mjeztym přeskočić
+
+
+pair2-authority-sync-success-heading-v2 = Waš grat je zwjazany
+pair2-authority-sync-success-sync-settings-button-v2 = Nastajenja synchronizacije rjadować
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Chceće hišće grat zwjazać?
@@ -1369,6 +1374,7 @@ pair2-supplicant-ready-to-scan-learn-more-link = Dalše informacije
 
 
 pair2-supplicant-sync-success-heading = Waš grat je zwjazany
+pair2-supplicant-sync-success-sync-settings-button-v2 = Nastajenja synchronizacije rjadować
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zda so, zo smy čas překročili
