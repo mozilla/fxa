@@ -250,7 +250,7 @@ passwordResetWithRecoveryKeyPrompt-cta-description = 您需要到所有同步中
 postAddAccountRecovery-subject-3 = 已建立新帳號救援金鑰
 postAddAccountRecovery-title2 = 您已產生新的帳號救援金鑰
 # Key here refers to account recovery key
-postAddAccountRecovery-body-part1 = 請將這把金鑰存放在安全的地方，未來萬一忘記密碼時，需要使用此金鑰才可以取回加密的上網資料。
+postAddAccountRecovery-body-part1 = 請將這把金鑰存放在安全的地方，未來萬一忘記密碼時，需要使用此金鑰才可以取回加密的瀏覽資料。
 # Key here refers to account recovery key
 postAddAccountRecovery-body-part2 = 這把金鑰只能使用一次，使用後我們會自動再產生一把新的金鑰。您也可以隨時到帳號設定當中更換。
 postAddAccountRecovery-action = 管理帳號
@@ -296,7 +296,7 @@ postAddTwoStepAuthentication-device-sign-out-message = 為了保護您所有的�
 postChangeAccountRecovery-subject = 已變更帳號救援金鑰
 postChangeAccountRecovery-title = 您已更換帳號救援金鑰
 postChangeAccountRecovery-body-part1 = 您已產生新的帳號救援金鑰，舊金鑰已刪除。
-postChangeAccountRecovery-body-part2 = 請將這把新的金鑰存放在安全的地方，未來萬一忘記密碼時，需要使用此金鑰才可以取回加密的上網資料。
+postChangeAccountRecovery-body-part2 = 請將這把新的金鑰存放在安全的地方，未來萬一忘記密碼時，需要使用此金鑰才可以取回加密的瀏覽資料。
 postChangeAccountRecovery-action = 管理帳號
 postChangePrimary-subject = 已更改主要電子郵件地址
 postChangePrimary-title = 新增主要電子郵件地址

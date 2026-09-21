@@ -487,7 +487,7 @@ flow-recovery-key-success-alert = 已建立帳號救援金鑰
 
 flow-recovery-key-info-header = 建立帳號救援金鑰，避免忘記密碼時資料流失
 flow-recovery-key-info-header-change-key = 更換您的帳號救援金鑰
-flow-recovery-key-info-shield-bullet-point-v2 = 我們會為您加密上網資料（密碼、書籤等等資料），對您的隱私很有保護。但要是忘記密碼，可能就會失去這些資料。
+flow-recovery-key-info-shield-bullet-point-v2 = 我們會為您加密瀏覽資料（密碼、書籤等等資料），對您的隱私很有保護。但要是忘記密碼，可能就會失去這些資料。
 flow-recovery-key-info-key-bullet-point-v2 = 所以帳號救援金鑰相當重要，萬一忘記密碼時，還可以用這把金鑰救回資料。
 flow-recovery-key-info-cta-text-v3 = 開始使用
 flow-recovery-key-info-cancel-link = 取消
@@ -1347,7 +1347,7 @@ third-party-auth-callback-message = 請稍後，將帶您前往要登入的應�
 
 
 account-recovery-confirm-key-heading = 輸入您的帳號救援金鑰
-account-recovery-confirm-key-instruction = 使用這把金鑰，可從 { -brand-firefox } 伺服器救回您加密過的密碼、書籤等上網資料。
+account-recovery-confirm-key-instruction = 使用這把金鑰，可從 { -brand-firefox } 伺服器救回您加密過的密碼、書籤等瀏覽資料。
 account-recovery-confirm-key-input-label =
     .label = 請輸入您的 32 字元帳號救援金鑰
 account-recovery-confirm-key-hint = 您當時設定的保存提示是：

@@ -1643,6 +1643,19 @@ index-account-delete-success = Konto jo se wuspěšnje wulašowało
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = Waša wobkšuśeńska mejlka jo se rowno wrośiła. Jo e-mailowa adresa wopak?
 
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+# Browser tab title.
+inline-passwordless-sync-setup-page-title = Gronidło pśiducy raz pśeskócyś?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner = Pla { -brand-firefox } pśizjawjony
+inline-passwordless-sync-setup-heading = Gronidło pśiducy raz pśeskócyś?
+inline-passwordless-sync-setup-description = Wužywajśo toś ten gronidłowy kluc, aby se malsnjej pśizjawił.
+inline-passwordless-sync-setup-enable-button = Gronidłowy kluc zmóžniś
+# Button label while the passkey is stored.
+inline-passwordless-sync-setup-enabling = Zmóžnja se…
+inline-passwordless-sync-setup-not-now-button = Nic něnto
+
 ## InlineRecoveryKeySetup page component
 
 inline-recovery-key-setup-create-error = Hopla! Njejsmy mógli waš kontowy wótnowjeński kluc napóraś. Pšosym wopytajśo pózdźej hyšći raz.
@@ -1925,6 +1938,8 @@ pair2-authority-sync-success-sync-settings-button = Nastajenja synchronizacije
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Cośo hyšći rěd zwězaś?
 pair2-authority-timeout-and-cancel-timeout-description = Zda se, až smy cas pśekšocyli. Wopytajśo hyšći raz, jolic hyšći cośo swój mobilny rěd zwězaś a swóje daty { -brand-firefox } synchronizěrowaś.
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-cancelled-heading = Anulěrowany
 pair2-authority-timeout-and-cancel-canceled-description = Jolic swójo měnjenje změnjaśo abo cośo drugi rěd zwězaś, wopytajśo hyšći raz.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Hyšći raz wopytaś
@@ -2005,6 +2020,8 @@ pair2-supplicant-sync-success-sync-settings-button = Nastajenja synchronizacije
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zda se, až smy cas pśekšocyli
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = Aby swój mobilny rěd zwězał a swóje daty { -brand-firefox } synchronizěrował, woglědajśo se k <b>firefox.com/pair</b> na swójo licadle.
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Anulěrowany
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Aby rěd kuždy cas zwězał, woglědujśo se k <b>firefox.com/pair</b> na swójom licadle.
 

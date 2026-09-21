@@ -1222,6 +1222,15 @@ index-account-delete-success = Cont șters cu succes
 index-email-bounced = Mesajul de confirmare pe e-mail tocmai a fost returnat. Ai scris corect adresa?
 
 
+inline-passwordless-sync-setup-page-title = Sari peste parolă data viitoare?
+inline-passwordless-sync-setup-success-banner = Ești autentificat(ă) în { -brand-firefox }
+inline-passwordless-sync-setup-heading = Sari peste parolă data viitoare?
+inline-passwordless-sync-setup-description = Folosește cheia de acces pentru a intra în cont mai rapid.
+inline-passwordless-sync-setup-enable-button = Activează cheia de acces
+inline-passwordless-sync-setup-enabling = Se activează…
+inline-passwordless-sync-setup-not-now-button = Nu acum
+
+
 inline-recovery-key-setup-create-error = Ups! Nu am putut crea cheia de recuperare a contului. Te rugăm să încerci din nou mai târziu.
 inline-recovery-key-setup-recovery-created = Cheia de recuperare a contului a fost creată
 inline-recovery-key-setup-download-header = Securizează-ți contul
@@ -1369,6 +1378,7 @@ pair2-authority-sync-success-sync-settings-button = Setări de sincronizare
 
 pair2-authority-timeout-and-cancel-timeout-heading = Încă vrei să conectezi un dispozitiv?
 pair2-authority-timeout-and-cancel-timeout-description = Se pare că timpul de conectare a expirat. Încercă din nou dacă dorești în continuare să-ți conectezi dispozitivul mobil și să-ți sincronizezi datele { -brand-firefox }.
+pair2-authority-timeout-and-cancel-cancelled-heading = Anulat
 pair2-authority-timeout-and-cancel-canceled-description = Dacă te-ai răzgândit sau dorești să conectezi un alt dispozitiv, încercă din nou.
 pair2-authority-timeout-and-cancel-try-again-button = Încearcă din nou
 pair2-authority-timeout-and-cancel-sync-settings-button = Setări de sincronizare
@@ -1403,6 +1413,7 @@ pair2-supplicant-sync-success-sync-settings-button = Setări de sincronizare
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Se pare că timpul de conectare a expirat
 pair2-supplicant-timeout-and-cancel-timeout-description = Pentru a-ți conecta dispozitivul mobil și a-ți sincroniza datele { -brand-firefox }, accesează <b>firefox.com/pair</b> pe calculator.
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Anulat
 pair2-supplicant-timeout-and-cancel-canceled-description = Pentru a conecta un dispozitiv oricând, accesează <b>firefox.com/pair</b> pe calculator.
 
 
