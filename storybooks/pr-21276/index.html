@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit c457001ea0adef8ed12bd84535ad86e2680f1bf8</title>
+  <title>Storybooks for commit c7149dd8025e38c985c919d0e9ec76d3901f73f5</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit c457001ea0adef8ed12bd84535ad86e2680f1bf8</h1>
+  <h1>Storybooks for commit c7149dd8025e38c985c919d0e9ec76d3901f73f5</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,22 +31,23 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/21/2026, 8:38:27 PM UTC</dd>
+    <dd>9/21/2026, 9:52:39 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>refactor(auth): remove customs server and legacy customs client</pre></dd>
     <dt>Description</dt>
     <dd><pre>## Because
 
-- The `@fxa/accounts/rate-limit` library now makes every rate-limit decision, so the customs server gets no traffic.
-- The `default` rule in `config/rate-limit-rules.txt` already catches every action, so the legacy HTTP path is unreachable in production.
+- The auth server rate-limits in process with `@fxa/accounts/rate-limit`. Nothing calls the customs service now.
+- `lib/customs.js` kept two rate-limit paths at once, the old HTTP client and the library.
+- CI still started the customs service for jobs that do not need it.
 
 ## This pull request
 
-- Deletes `packages/fxa-customs-server`.
-- Removes the legacy HTTP client from `lib/customs.js`: `this.url`, `makeRequest`, the `/check`, `/checkAuthenticated` and `/checkIpOnly` fetches, `sanitizePayload`, `optionallyReportStatsD` and `handleCustomsResult`.
-- Keeps the `check`, `checkAuthenticated` and `checkIpOnly` names. They now run the v2 `rateLimit` path only.
-- Drops `customsUrl` and `customsClient` from `config/index.ts`, `config/dev.json`, `bin/key_server.js` and four test helpers.
-- Drops the legacy HTTP tests from `lib/customs.spec.ts`, rewrites the README rate-limiting section, and refreshes `yarn.lock`.
+- Deletes the `packages/fxa-customs-server` package, about 31,000 lines.
+- Strips the HTTP client from `lib/customs.js`, so it only wraps `@fxa/accounts/rate-limit`, and trims `lib/customs.spec.ts` to match.
+- Drops the `customsUrl` and `customsClient` settings from the auth server config.
+- Removes the customs command, the job parameter and the `CUSTOMS_SERVER_URL` entries from `.circleci/config.yml`, and the customs path from `.github/.codecov.yaml`.
+- Rewrites the rate-limit section of the auth server README and points `backstage.yaml` at `resource:fxa-customs-cache`.
 
 ## Issue that this pull request solves
 

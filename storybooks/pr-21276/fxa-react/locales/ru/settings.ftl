@@ -1906,6 +1906,18 @@ pair2-authority-scan-qr-instruction = Отсканируйте QR-код сво�
 pair2-authority-scan-qr-code-aria-label = QR-код для подключения мобильного устройства
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Получите помощь по сканированию
+# Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
+pair2-authority-scan-qr-skip-button = Пока пропустить
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and links to sync settings.
+
+pair2-authority-sync-success-heading-v2 = Ваше устройство подключено
+# "Syncing" here means copying data between the user's devices
+pair2-authority-sync-success-description-v2 = Выполняется синхронизация. Прежде чем ваши синхронизированные данные появятся, может пройти некоторое время. Вы можете продолжать веб-сёрфинг.
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button-v2 = Управление настройками синхронизации
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1981,6 +1993,10 @@ pair2-supplicant-ready-to-scan-learn-more-link = Подробнее
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Ваше устройство подключено
+# "Syncing" here means copying data between the user's devices
+pair2-supplicant-sync-success-description-v2 = Выполняется синхронизация. Прежде чем ваши синхронизированные данные появятся, может пройти некоторое время. Вы можете продолжать веб-сёрфинг.
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button-v2 = Управление настройками синхронизации
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,

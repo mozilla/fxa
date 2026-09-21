@@ -1392,6 +1392,12 @@ pair2-authority-scan-qr-heading = Κάντε σάρωση για να συνδέ
 pair2-authority-scan-qr-instruction = Σαρώστε τον κωδικό QR με το τηλέφωνο ή το tablet σας για να συγχρονίσετε τους σελιδοδείκτες, τις καρτέλες και άλλα δεδομένα του { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = Κωδικός QR για σύνδεση της κινητής σας συσκευής
 pair2-authority-scan-qr-help-link = Λήψη βοήθειας με τη σάρωση
+pair2-authority-scan-qr-skip-button = Παράλειψη για την ώρα
+
+
+pair2-authority-sync-success-heading-v2 = Η συσκευή σας έχει συνδεθεί
+pair2-authority-sync-success-description-v2 = Ο συγχρονισμός βρίσκεται σε εξέλιξη. Ενδέχεται να χρειαστεί λίγος χρόνος μέχρι να εμφανιστούν τα συγχρονισμένα δεδομένα σας. Στο μεταξύ, μπορείτε να συνεχίσετε την περιήγηση.
+pair2-authority-sync-success-sync-settings-button-v2 = Διαχείριση ρυθμίσεων συγχρονισμού
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Θέλετε ακόμα να συνδέσετε μια συσκευή;
@@ -1424,6 +1430,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Μάθετε περισσότε
 
 
 pair2-supplicant-sync-success-heading = Η συσκευή σας έχει συνδεθεί
+pair2-supplicant-sync-success-description-v2 = Ο συγχρονισμός βρίσκεται σε εξέλιξη. Ενδέχεται να χρειαστεί λίγος χρόνος μέχρι να εμφανιστούν τα συγχρονισμένα δεδομένα σας. Στο μεταξύ, μπορείτε να συνεχίσετε την περιήγηση.
+pair2-supplicant-sync-success-sync-settings-button-v2 = Διαχείριση ρυθμίσεων συγχρονισμού
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Φαίνεται ότι το χρονικό όριο έληξε

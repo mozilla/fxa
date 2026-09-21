@@ -1,8 +1,8 @@
 {
-  "commit": "c457001ea0adef8ed12bd84535ad86e2680f1bf8",
+  "commit": "c7149dd8025e38c985c919d0e9ec76d3901f73f5",
   "summary": "refactor(auth): remove customs server and legacy customs client",
-  "description": "## Because\n\n- The `@fxa/accounts/rate-limit` library now makes every rate-limit decision, so the customs server gets no traffic.\n- The `default` rule in `config/rate-limit-rules.txt` already catches every action, so the legacy HTTP path is unreachable in production.\n\n## This pull request\n\n- Deletes `packages/fxa-customs-server`.\n- Removes the legacy HTTP client from `lib/customs.js`: `this.url`, `makeRequest`, the `/check`, `/checkAuthenticated` and `/checkIpOnly` fetches, `sanitizePayload`, `optionallyReportStatsD` and `handleCustomsResult`.\n- Keeps the `check`, `checkAuthenticated` and `checkIpOnly` names. They now run the v2 `rateLimit` path only.\n- Drops `customsUrl` and `customsClient` from `config/index.ts`, `config/dev.json`, `bin/key_server.js` and four test helpers.\n- Drops the legacy HTTP tests from `lib/customs.spec.ts`, rewrites the README rate-limiting section, and refreshes `yarn.lock`.\n\n## Issue that this pull request solves\n\nCloses: FXA-11635",
-  "timestamp": 1790023107000,
+  "description": "## Because\n\n- The auth server rate-limits in process with `@fxa/accounts/rate-limit`. Nothing calls the customs service now.\n- `lib/customs.js` kept two rate-limit paths at once, the old HTTP client and the library.\n- CI still started the customs service for jobs that do not need it.\n\n## This pull request\n\n- Deletes the `packages/fxa-customs-server` package, about 31,000 lines.\n- Strips the HTTP client from `lib/customs.js`, so it only wraps `@fxa/accounts/rate-limit`, and trims `lib/customs.spec.ts` to match.\n- Drops the `customsUrl` and `customsClient` settings from the auth server config.\n- Removes the customs command, the job parameter and the `CUSTOMS_SERVER_URL` entries from `.circleci/config.yml`, and the customs path from `.github/.codecov.yaml`.\n- Rewrites the rate-limit section of the auth server README and points `backstage.yaml` at `resource:fxa-customs-cache`.\n\n## Issue that this pull request solves\n\nCloses: FXA-11635",
+  "timestamp": 1790027559000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

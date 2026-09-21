@@ -1362,6 +1362,12 @@ pair2-authority-scan-qr-heading = Отсканируйте для подключ
 pair2-authority-scan-qr-instruction = Отсканируйте QR-код своим телефоном или планшетом, чтобы синхронизировать ваши закладки { -brand-firefox }, вкладки и многое другое.
 pair2-authority-scan-qr-code-aria-label = QR-код для подключения мобильного устройства
 pair2-authority-scan-qr-help-link = Получите помощь по сканированию
+pair2-authority-scan-qr-skip-button = Пока пропустить
+
+
+pair2-authority-sync-success-heading-v2 = Ваше устройство подключено
+pair2-authority-sync-success-description-v2 = Выполняется синхронизация. Прежде чем ваши синхронизированные данные появятся, может пройти некоторое время. Вы можете продолжать веб-сёрфинг.
+pair2-authority-sync-success-sync-settings-button-v2 = Управление настройками синхронизации
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Всё ещё хотите подключить устройство?
@@ -1394,6 +1400,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Подробнее
 
 
 pair2-supplicant-sync-success-heading = Ваше устройство подключено
+pair2-supplicant-sync-success-description-v2 = Выполняется синхронизация. Прежде чем ваши синхронизированные данные появятся, может пройти некоторое время. Вы можете продолжать веб-сёрфинг.
+pair2-supplicant-sync-success-sync-settings-button-v2 = Управление настройками синхронизации
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Похоже, у нас истекло время ожидания
