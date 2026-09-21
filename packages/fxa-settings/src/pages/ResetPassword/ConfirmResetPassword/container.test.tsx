@@ -89,13 +89,14 @@ describe('ConfirmResetPasswordContainer', () => {
     mockNavigate.mockReset();
   });
 
-  it('threads hasPasskey from verify_otp into navigation state', async () => {
+  it('threads the passkey signals from verify_otp into navigation state', async () => {
     mockVerifyOtp.mockResolvedValueOnce({
       code: 'the-code',
       emailToHashWith: MOCK_EMAIL,
       token: MOCK_PASSWORD_CHANGE_TOKEN,
       uid: MOCK_UID,
       hasPasskey: true,
+      hasPasskeyWraps: true,
     });
     mockRecoveryKeyStatus.mockResolvedValueOnce({
       exists: false,
@@ -113,6 +114,7 @@ describe('ConfirmResetPasswordContainer', () => {
       state: expect.objectContaining({
         uid: MOCK_UID,
         hasPasskey: true,
+        hasPasskeyWraps: true,
       }),
       replace: true,
     });
