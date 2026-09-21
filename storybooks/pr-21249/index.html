@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 264d155d2d290d319c2ac4f17327e651b2095215</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 264d155d2d290d319c2ac4f17327e651b2095215</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/21/2026, 11:26:09 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>test(settings): unit-test the passkey sign-in steps directly</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- The extracted steps can be tested without mounting the hook, and the
+  hook test was carrying their branch tables.
+
+This commit:
+- Add signin-assertion, signin-account and wrap/offer tests covering the
+  WebAuthn error banners, PRF handling, service resolution, account lookup,
+  merge gate and wrap-offer probe.
+- Trim the same cases from the usePasskeySignIn test, keeping wiring and
+  status coverage.</pre></dd>
+  </dl>
+</body>
+</html>

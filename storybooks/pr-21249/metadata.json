@@ -1,0 +1,10 @@
+{
+  "commit": "264d155d2d290d319c2ac4f17327e651b2095215",
+  "summary": "test(settings): unit-test the passkey sign-in steps directly",
+  "description": "Because:\n- The extracted steps can be tested without mounting the hook, and the\n  hook test was carrying their branch tables.\n\nThis commit:\n- Add signin-assertion, signin-account and wrap/offer tests covering the\n  WebAuthn error banners, PRF handling, service resolution, account lookup,\n  merge gate and wrap-offer probe.\n- Trim the same cases from the usePasskeySignIn test, keeping wiring and\n  status coverage.",
+  "timestamp": 1790033169000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
