@@ -1917,6 +1917,16 @@ pair2-authority-scan-qr-instruction = Skenujće QR-kod ze swojim telefonom abo t
 pair2-authority-scan-qr-code-aria-label = QR-kod za zwjazowanje z wašim mobilnym gratom
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Pomoc za skenowanje dóstać
+# Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
+pair2-authority-scan-qr-skip-button = Mjeztym přeskočić
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and links to sync settings.
+
+pair2-authority-sync-success-heading-v2 = Waš grat je zwjazany
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button-v2 = Nastajenja synchronizacije rjadować
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1992,6 +2002,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Dalše informacije
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Waš grat je zwjazany
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button-v2 = Nastajenja synchronizacije rjadować
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
