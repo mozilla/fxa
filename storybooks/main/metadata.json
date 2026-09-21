@@ -1,8 +1,8 @@
 {
-  "commit": "be91fe89f9633592ef0eda73244320fc16f77289",
-  "summary": "Merge pull request #21246 from mozilla/fxa-14375",
-  "description": "refactor(content-server): remove Backbone signin views and routes",
-  "timestamp": 1790015387000,
+  "commit": "8755a70fde70de0837dc346dd509d2ffd1619108",
+  "summary": "Merge pull request #21098 from mozilla/fxa-13674",
+  "description": "feat(admin): add domain blocklist sync from a list URL",
+  "timestamp": 1790015470000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
