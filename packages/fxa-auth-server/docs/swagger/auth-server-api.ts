@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import dedent from 'dedent';
+import swaggerText from './shared/swagger-text';
 
 export const AUTH_SERVER_API_DESCRIPTION = {
-  description: dedent`
+  description: swaggerText`
     This document provides protocol-level details of the Firefox Accounts auth server API. For a prose description of the client/server protocol and details on how each parameter is derived, see the [API design document](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol). For a reference client implementation, see [fxa-auth-client](https://github.com/mozilla/fxa/tree/main/packages/fxa-auth-client).
 
     ## URL Structure for Auth Server

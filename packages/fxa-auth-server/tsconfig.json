@@ -24,6 +24,7 @@
   "include": [
     "bin/*",
     "config/*",
+    "docs/**/*",
     "lib/*",
     "lib/**/*",
     "scripts/*",

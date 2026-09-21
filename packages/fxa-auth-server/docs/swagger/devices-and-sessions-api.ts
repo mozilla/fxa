@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import dedent from 'dedent';
+import swaggerText from './shared/swagger-text';
 import TAGS from './swagger-tags';
 
 const TAGS_DEVICES_AND_SESSIONS = {
@@ -13,7 +13,7 @@ const ACCOUNT_ATTACHED_CLIENTS_GET = {
   ...TAGS_DEVICES_AND_SESSIONS,
   description: '/account/attached_clients',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token
 
       Returns an array listing all the clients connected to the authenticated user's account, including devices, OAuth clients, and web sessions.
@@ -40,7 +40,7 @@ const ACCOUNT_ATTACHED_OAUTH_CLIENTS_GET = {
   ...TAGS_DEVICES_AND_SESSIONS,
   description: '/account/attached_oauth_clients',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token
 
       Returns an array listing all the OAuth Clients that the authenticated user has connected to their account.
@@ -56,7 +56,7 @@ const ACCOUNT_ATTACHED_CLIENT_DESTROY_POST = {
   ...TAGS_DEVICES_AND_SESSIONS,
   description: '/account/attached_client/destroy',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token
 
       Destroy all tokens held by a connected client, disconnecting it from the user's account.
@@ -70,7 +70,7 @@ const ACCOUNT_DEVICE_POST = {
   ...TAGS_DEVICES_AND_SESSIONS,
   description: '/account/device',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token or OAuth refresh token
 
       Creates or updates the [device registration](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/device_registration.md) record associated with the auth token used for this request. At least one of \`name\`, \`type\`, \`pushCallback\` or the tuple \`{ pushCallback, pushPublicKey, pushAuthKey }\` must be present. Beware that if you provide \`pushCallback\` without the pair \`{ pushPublicKey, pushAuthKey }\`, both of those keys will be reset to the empty string.
@@ -84,13 +84,13 @@ const ACCOUNT_DEVICE_POST = {
     'hapi-swagger': {
       responses: {
         400: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 107\` - Invalid parameter in request body
           `,
         },
         403: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 202\` - Feature not enabled
           `,
@@ -104,7 +104,7 @@ const ACCOUNT_DEVICE_COMMANDS_GET = {
   ...TAGS_DEVICES_AND_SESSIONS,
   description: '/account/device/commands',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token or authenticated with OAuth refresh token.
 
       Fetches commands enqueued for the current device by prior calls to [/account/devices/invoke_command](#tag/Devices-and-Sessions/operation/postAccountDevicesInvoke_command). The device can page through the enqueued commands by using the \`index\` and \`limit\` parameters.
@@ -118,7 +118,7 @@ const ACCOUNT_DEVICES_INVOKE_COMMAND_POST = {
   ...TAGS_DEVICES_AND_SESSIONS,
   description: '/account/devices/invoke_command',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token or authenticated with OAuth refresh token.
 
       Enqueues a command to be invoked on a target device.
@@ -130,7 +130,7 @@ const ACCOUNT_DEVICES_INVOKE_COMMAND_POST = {
     'hapi-swagger': {
       responses: {
         400: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 157\` - Unavailable device command
           `,
@@ -144,7 +144,7 @@ const ACCOUNT_DEVICES_NOTIFY_POST = {
   ...TAGS_DEVICES_AND_SESSIONS,
   description: '/account/devices/notify',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token or authenticated with OAuth refresh token.
 
       Notifies a set of devices associated with the user's account of an event by sending a browser push notification. A typical use case would be to send a notification to another device after sending a tab with Sync, so it can sync too and display the tab in a timely manner.
@@ -154,13 +154,13 @@ const ACCOUNT_DEVICES_NOTIFY_POST = {
     'hapi-swagger': {
       responses: {
         400: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 107\` - Invalid parameter in request body
           `,
         },
         403: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 202\` - Feature not enabled
           `,
@@ -174,7 +174,7 @@ const ACCOUNT_DEVICES_GET = {
   ...TAGS_DEVICES_AND_SESSIONS,
   description: '/account/devices',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token or authenticated with OAuth refresh token.
 
       Returns an array of registered device objects for the authenticated user.
@@ -186,7 +186,7 @@ const ACCOUNT_SESSIONS_GET = {
   ...TAGS_DEVICES_AND_SESSIONS,
   description: '/account/sessions',
   notes: [
-    dedent`
+    swaggerText`
       [**DEPRECATED**]: Please use [/account/attached_clients](#tag/Devices-and-Sessions/operation/getAccountAttached_clients) instead.
 
       🔒 Authenticated with session token.
@@ -205,7 +205,7 @@ const ACCOUNT_DEVICE_DESTROY_POST = {
   ...TAGS_DEVICES_AND_SESSIONS,
   description: '/account/device/destroy',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token or authenticated with OAuth refresh token
 
       Destroys a device record and the associated \`sessionToken\` for the authenticated user.
