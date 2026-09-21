@@ -1,8 +1,8 @@
 {
-  "commit": "d355788135401046d61cf6a8a54d27dadb743d9f",
-  "summary": "Merge pull request #21271 from mozilla/dependabot/github_actions/docker/build-push-action-7.4.0",
-  "description": "chore(deps): bump docker/build-push-action from 7.3.0 to 7.4.0",
-  "timestamp": 1789999370000,
+  "commit": "facce40be2954c5d42345e4ee62a7889853c690a",
+  "summary": "Merge pull request #21237 from mozilla/fxa-14544",
+  "description": "fix(settings): start the /pair Sync bootstrap once per mount",
+  "timestamp": 1790000995000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
