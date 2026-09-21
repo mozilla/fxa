@@ -1283,12 +1283,6 @@ pair2-authority-scan-qr-code-aria-label = 連結您行動裝置的 QR Code
 pair2-authority-scan-qr-help-link = 獲得掃描協助
 
 
-pair2-authority-sync-success-heading = 正在同步中
-pair2-authority-sync-success-description = 您的分頁、書籤、網站密碼與更多資料已經準備好可以同步到其他裝置。
-pair2-authority-sync-success-view-tabs-button = 檢視同步的分頁
-pair2-authority-sync-success-sync-settings-button = 同步設定
-
-
 pair2-authority-timeout-and-cancel-timeout-heading = 還想要連結其他裝置嗎？
 pair2-authority-timeout-and-cancel-timeout-description = 看來動作超出時間限制了。若您還想要連結行動裝置，並且同步 { -brand-firefox } 資料的話，請重試。
 pair2-authority-timeout-and-cancel-cancelled-heading = 已取消
@@ -1319,9 +1313,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = 更多資訊
 
 
 pair2-supplicant-sync-success-heading = 已連結您的裝置
-pair2-supplicant-sync-success-description = 您的書籤、分頁與更多資料將與 { -brand-firefox } 同步。
-pair2-supplicant-sync-success-view-tabs-button = 檢視同步的分頁
-pair2-supplicant-sync-success-sync-settings-button = 同步設定
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = 看來超出時間限制了。

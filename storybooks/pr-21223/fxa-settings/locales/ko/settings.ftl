@@ -1874,18 +1874,6 @@ pair2-authority-scan-qr-code-aria-label = 모바일 기기와 연결하기 위�
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = 스캔 도움 받기
 
-## SyncSuccess page - Part of the desktop-to-mobile pairing flow
-## Users see this on their computer once the mobile device has been paired.
-## It confirms that sync is on and offers the follow-up actions.
-
-# "syncing" here means copying data between the user's devices
-pair2-authority-sync-success-heading = 동기화 중
-pair2-authority-sync-success-description = 여러 기기에서 탭, 북마크, 비밀번호 등을 사용할 준비가 되었습니다.
-# Opens the tabs that are open on the user's other synced devices
-pair2-authority-sync-success-view-tabs-button = 동기화된 탭 보기
-# Opens the browser settings that control what is synced
-pair2-authority-sync-success-sync-settings-button = 동기화 설정
-
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
 ## either because it timed out or because it was canceled. Both cases offer to
@@ -1960,11 +1948,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = 더 알아보기
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = 기기가 연결되었습니다
-pair2-supplicant-sync-success-description = 북마크, 탭 등이 { -brand-firefox }에서 동기화된 상태로 유지됩니다.
-# Opens the view listing tabs open on the user's other synced devices
-pair2-supplicant-sync-success-view-tabs-button = 동기화된 탭 보기
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button = 동기화 설정
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,

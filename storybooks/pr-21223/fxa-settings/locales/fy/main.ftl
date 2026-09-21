@@ -339,6 +339,15 @@ password-strength-inline-passwords-match = Wachtwurden komme oerien
 
 
 promo-qr-mobile-heading = Jo telefoan. Jo regels.
+promo-qr-mobile-heading-treatment-a = Gean fierder wêr't jo bleaun wiene, wêr’t jo ek hinne gean
+promo-qr-mobile-heading-treatment-b = Jo ljepblêden en mear, klear op jo telefoan
+promo-qr-mobile-heading-treatment-c = De browser dy’t jo fertrouwe, op jo telefoan
+promo-qr-mobile-heading-treatment-d = Deselde { -brand-firefox }. Oar skerm.
+promo-qr-mobile-heading-treatment-e = Jo privacy moat hjir net ophâlde
+promo-qr-mobile-heading-treatment-f = Hâld mear fan jo navigaasje foar josels
+promo-qr-mobile-heading-treatment-g = Jo telefoan kin wol wat minder rûs brûke
+promo-qr-mobile-heading-treatment-h = Nim rêstiger navigearjen mei jo mei
+promo-qr-mobile-description-v2 = Scan om de mobile app te downloaden
 promo-qr-mobile-qr-alt =
     .alt = QR-koade om de mobile { -brand-firefox }-app te downloaden. Rjochtsje de kamera fan jo telefoan yn de rjochterûnderhoek fan jo skerm om de koade te scannen.
 
@@ -820,6 +829,8 @@ recent-activity-account-passwordless-registration-complete = Wachtwurdleaze acco
 recent-activity-account-recovery-codes-set = Werstelkoaden ynsteld
 recent-activity-account-passkey-wrap-created = Wachtwurdkaai foar syngronisaasje ynskeakele
 recent-activity-account-passkey-wrap-creation-failure = Syngronisaasje ynstelle mei wachtwurdkaai mislearre
+recent-activity-account-passkey-wrap-deleted = Tagong ta wachtwurdkaaisyngronisaasje fuortsmiten
+recent-activity-account-passkey-wrap-deletion-failure = Fuortsmiten fan tagong ta wachtwurdkaaisyngronisaasje is mislearre
 recent-activity-account-passkey-wrap-invalidated = Wachtwurdkaai-syngronisaasjetagong fuortsmiten nei opnij ynstellen wachtwurd
 recent-activity-unknown = Oare accountaktiviteit
 
@@ -1170,6 +1181,15 @@ index-account-delete-success = Account mei sukses fuortsmiten
 index-email-bounced = Jo befêstigings-e-mailberjocht is sakrekt weromkaam. Hawwe jo it e-mailadres ferkeard ynfierd?
 
 
+inline-passwordless-sync-setup-page-title = De folgjende kear it wachtwurd oerslaan?
+inline-passwordless-sync-setup-success-banner = Oanmeld by { -brand-firefox }
+inline-passwordless-sync-setup-heading = De folgjende kear it wachtwurd oerslaan?
+inline-passwordless-sync-setup-description = Brûk dizze wachtwurdkaai om jo flugger oan te melden.
+inline-passwordless-sync-setup-enable-button = Wachtwurdkaai ynskeakelje
+inline-passwordless-sync-setup-enabling = Ynskeakelje…
+inline-passwordless-sync-setup-not-now-button = No net
+
+
 inline-recovery-key-setup-create-error = Oeps! Wy koenen jo accountwerstelkaai net oanmeitsje. Probearje it letter nochris.
 inline-recovery-key-setup-recovery-created = Kaai foar accountwerstel oanmakke
 inline-recovery-key-setup-download-header = Befeiligje jo account
@@ -1317,10 +1337,9 @@ pair2-authority-sync-success-sync-settings-button = Syngronisaasje-ynstellingen
 
 pair2-authority-timeout-and-cancel-timeout-heading = Wolle jo dochs in apparaat ferbine?
 pair2-authority-timeout-and-cancel-timeout-description = It liket derop dat de tiid ferrûn is. Probearje it nochris as jo jo mobyl apparaat noch ferbine wolle en jo { -brand-firefox }-gegevens syngronisearje wolle.
-pair2-authority-timeout-and-cancel-canceled-heading = Annulearre
+pair2-authority-timeout-and-cancel-cancelled-heading = Annulearre
 pair2-authority-timeout-and-cancel-canceled-description = As jo fan gedachten feroarje of in oar apparaat ferbine wolle, probearje it dan opnij.
 pair2-authority-timeout-and-cancel-try-again-button = Opnij probearje
-pair2-authority-timeout-and-cancel-cancel-button = Annulearje
 pair2-authority-timeout-and-cancel-sync-settings-button = Syngronisaasje-ynstellingen
 
 
@@ -1337,6 +1356,7 @@ pair2-supplicant-connect-this-device-cancel-button = Annulearje
 pair2-supplicant-download-firefox-heading = Download { -brand-firefox } op dit apparaat
 pair2-supplicant-download-firefox-description = Download { -brand-firefox } om blêdwizers, skiednis en mear op ferskate apparaten te syngronisearjen. <linkExternal>Mear ynfo</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Trochgean yn { -brand-firefox }
+pair2-supplicant-download-firefox-opening-button = { -brand-firefox } iepenje…
 
 
 pair2-supplicant-ready-to-scan-heading = In apparaat ferbine
@@ -1352,7 +1372,7 @@ pair2-supplicant-sync-success-sync-settings-button = Syngronisaasje-ynstellingen
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = It liket derop dat der in time-out bard is
 pair2-supplicant-timeout-and-cancel-timeout-description = Besykje <b>firefox.com/pair</b> op jo kompjûter om jo mobile apparaat te ferbinen en jo { -brand-firefox }-gegevens te syngronisearjen.
-pair2-supplicant-timeout-and-cancel-canceled-heading = Annulearre
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Annulearre
 pair2-supplicant-timeout-and-cancel-canceled-description = Besykje <b>firefox.com/pair</b> op jo kompjûter om op elk winske momint in apparaat te ferbinen.
 
 

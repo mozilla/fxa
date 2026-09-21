@@ -1319,12 +1319,11 @@ pair2-authority-scan-qr-heading = Skann for å kople til mobileininga di
 pair2-authority-scan-qr-instruction = Skann QR-koden med telefonen eller nettbrettet for å synkronisere bokmerka, fanene og meir i { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = QR-kode for å kople til mobileininga di
 pair2-authority-scan-qr-help-link = Få hjelp med skanning
+pair2-authority-scan-qr-skip-button = Hopp over no
 
 
-pair2-authority-sync-success-heading = Du synkroniserer
-pair2-authority-sync-success-description = Faner, bokmerke, passord og meir, er klare på tvers av einingane dine.
-pair2-authority-sync-success-view-tabs-button = Vis synkroniserte faner
-pair2-authority-sync-success-sync-settings-button = Synkroniseringsinnstillingar
+pair2-authority-sync-success-heading-v2 = Eininga di er tilkopla
+pair2-authority-sync-success-sync-settings-button-v2 = Handsam synkroniseringsinnstillingar
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Vil du framleis kople til ei eining?
@@ -1356,9 +1355,7 @@ pair2-supplicant-ready-to-scan-learn-more-link = Les meir
 
 
 pair2-supplicant-sync-success-heading = Eininga di er tilkopla
-pair2-supplicant-sync-success-description = Bokmerka dine, fanene, og meir, vil halde seg synkroniserte i { -brand-firefox }.
-pair2-supplicant-sync-success-view-tabs-button = Vis synkroniserte faner
-pair2-supplicant-sync-success-sync-settings-button = Synkroniseringsinnstillingar
+pair2-supplicant-sync-success-sync-settings-button-v2 = Handsam synkroniseringsinnstillingar
 
 
 pair2-supplicant-timeout-and-cancel-timeout-description = For å kople til mobileininga di og synkronisere { -brand-firefox }-dataa dine, gå til <b>firefox.com/pair</b> på datamaskina di.

@@ -1303,12 +1303,6 @@ pair2-authority-scan-qr-code-aria-label = QR ayvu eike hag̃ua ne mba’e’oká
 pair2-authority-scan-qr-help-link = Eñepytyvõta emoha’ãnga hag̃ua
 
 
-pair2-authority-sync-success-heading = Embojuajuhína
-pair2-authority-sync-success-description = Nde rendayke, techaukaha, ñe’ẽñemi ha hetave ojeporukuaáma opaite mba’e’okápe.
-pair2-authority-sync-success-view-tabs-button = Ehecha tendayke mbojuajupyre
-pair2-authority-sync-success-sync-settings-button = Sync ñemboheko
-
-
 pair2-authority-timeout-and-cancel-timeout-heading = ¿Embojuajuse gueteri ne mba’e’oka?
 pair2-authority-timeout-and-cancel-canceled-description = Remoambuérõ ne remiandu térã embojoajusérõ ambue mba’e’oka, eha’ã jey.
 pair2-authority-timeout-and-cancel-try-again-button = Eha’ã jey
@@ -1336,9 +1330,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Eikuaave
 
 
 pair2-supplicant-sync-success-heading = Ne mba’e’oka ojuajuhína
-pair2-supplicant-sync-success-description = Techaukahaita, tendayke a hetave ojuehepaite { -brand-firefox } ndive.
-pair2-supplicant-sync-success-view-tabs-button = Ehecha tendayke mbojuajupyre
-pair2-supplicant-sync-success-sync-settings-button = Sync ñemboheko
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Ha’ete opámava ñeha’ãrõ

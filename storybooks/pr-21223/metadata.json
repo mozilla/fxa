@@ -1,8 +1,8 @@
 {
-  "commit": "853054ab8233e36563a31e422194564e28bc8837",
-  "summary": "refactor(settings): clear passkey wrap material by route",
-  "description": "Because:\n\n- Four call sites each had to remember to clear the material, and the unmount-based clear needed a StrictMode workaround and a handoff flag to avoid zeroing what the next page owns.\n- The opt-in page read the client's mutable entry on every render, so a re-render during the exit transition could fire a second navigation.\n\nThis commit:\n\n- Clears the material from a pathname effect at the app root.\n- Drops the unmount hook, the handoff flag, and two per-page clears.\n- Keeps the clear at ceremony start, which no route change covers.\n- Snapshots the material at mount in the opt-in page.",
-  "timestamp": 1790014047000,
+  "commit": "b0899e06f1225733dddf5558235f646a1cb2d587",
+  "summary": "feat(settings): wire up the password-free passkey opt-in",
+  "description": "Because:\n\n- A desktop browser sign-in that needs encryption keys (Sync, for example) still requires a password after a PRF passkey until a wrap is stored; this is the one place the user can store one.\n- The proof minted at sign-in lives ten minutes and the password step can outlast it.\n\nThis commit:\n\n- Requests the `passkey` scope on eligible sign-ins and holds the PRF output, proof and `kB` in SensitiveDataClient.\n- Routes sign-ins where the account has a password and the passkey has no wrap to /inline_passwordless_sync_setup in place of the browser's post-sign-in landing page.\n- Adds the opt-in container: stores the wrap, lands in Settings with a banner, and zeroes the held material on every exit.\n- Steps up with the passkey for a fresh proof when the sign-in one has expired, then submits the same envelope again.\n- Replaces a stored wrap that predates `keysChangedAt` on POST /passkey/wraps instead of refusing it.\n\nCloses #FXA-13151",
+  "timestamp": 1790031482000,
   "storybooks": [
     "fxa-settings"
   ],

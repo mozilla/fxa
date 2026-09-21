@@ -1177,6 +1177,15 @@ index-account-delete-success = Conta eliminada com sucesso
 index-email-bounced = A sua mensagem de confirmação foi devolvida. Digitou mal o e-mail?
 
 
+inline-passwordless-sync-setup-page-title = Saltar a palavra-passe da próxima vez?
+inline-passwordless-sync-setup-success-banner = Sessão iniciada no { -brand-firefox }
+inline-passwordless-sync-setup-heading = Saltar a palavra-passe da próxima vez?
+inline-passwordless-sync-setup-description = Use esta chave-passe para iniciar sessão mais rapidamente.
+inline-passwordless-sync-setup-enable-button = Ativar chave-passe
+inline-passwordless-sync-setup-enabling = A ativar…
+inline-passwordless-sync-setup-not-now-button = Agora não
+
+
 inline-recovery-key-setup-create-error = Ups! Não conseguimos criar a sua chave de recuperação da conta. Por favor, tente novamente mais tarde.
 inline-recovery-key-setup-recovery-created = Chave de recuperação da conta criada
 inline-recovery-key-setup-download-header = Proteja a sua conta
@@ -1326,10 +1335,9 @@ pair2-authority-sync-success-sync-settings-button = Definições de sincronizaç
 
 pair2-authority-timeout-and-cancel-timeout-heading = Ainda pretende ligar um dispositivo?
 pair2-authority-timeout-and-cancel-timeout-description = Parece que expirámos. Tente novamente se ainda quiser ligar o seu dispositivo móvel e sincronizar os seus { -brand-firefox } dados.
-pair2-authority-timeout-and-cancel-canceled-heading = Cancelado
+pair2-authority-timeout-and-cancel-cancelled-heading = Cancelado
 pair2-authority-timeout-and-cancel-canceled-description = Se mudar de ideias ou quiser ligar um dispositivo diferente, tente novamente.
 pair2-authority-timeout-and-cancel-try-again-button = Tentar novamente
-pair2-authority-timeout-and-cancel-cancel-button = Cancelar
 pair2-authority-timeout-and-cancel-sync-settings-button = Definições de sincronização
 
 
@@ -1362,7 +1370,7 @@ pair2-supplicant-sync-success-sync-settings-button = Definições de sincroniza�
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que expirámos
 pair2-supplicant-timeout-and-cancel-timeout-description = Para ligar o seu dispositivo móvel e sincronizar os seus dados de { -brand-firefox }, visite <b>firefox.com/pair</b> no seu computador.
-pair2-supplicant-timeout-and-cancel-canceled-heading = Cancelado
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelado
 pair2-supplicant-timeout-and-cancel-canceled-description = Para ligar um dispositivo a qualquer momento, visite <b>firefox.com/pair</b> no seu computador.
 
 
