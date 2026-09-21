@@ -1,0 +1,102 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="subscriptionRenewalReminder-title">Your subscription will be renewed soon</span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionRenewalReminder-content-greeting" data-l10n-args="<%= JSON.stringify({productName}) %>">Dear <%- productName %> customer,</span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionRenewalReminder-content-intro" data-l10n-args="<%= JSON.stringify({reminderLength}) %>">
+        Your current subscription is set to automatically renew in <%- reminderLength %> days.
+      </span>
+    </mj-text>
+
+    <% if (locals.discountEnding) { %>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionRenewalReminder-content-discount-ending">
+        Because a previous discount has ended, your subscription will renew at the standard price.
+      </span>
+    </mj-text>
+    <% } else if (locals.hasDifferentDiscount) { %>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionRenewalReminder-content-discount-change">
+        Your next invoice reflects a change in pricing, as a previous discount has ended and a new discount has been applied.
+      </span>
+    </mj-text>
+    <% } %>
+
+    <mj-text css-class="text-body">
+      <% if (showTax) { %>
+        <% if (planInterval === 'day') { %>
+        <span data-l10n-id="subscriptionRenewalReminder-content-charge-with-tax-day" data-l10n-args="<%= JSON.stringify({invoiceTotalExcludingTax, invoiceTax}) %>">
+          At that time, Mozilla will renew your daily subscription and a charge of <%- invoiceTotalExcludingTax %> + <%- invoiceTax %> tax will be applied to the payment method on your account.
+        </span>
+        <% } else if (planInterval === 'week') { %>
+        <span data-l10n-id="subscriptionRenewalReminder-content-charge-with-tax-week" data-l10n-args="<%= JSON.stringify({invoiceTotalExcludingTax, invoiceTax}) %>">
+          At that time, Mozilla will renew your weekly subscription and a charge of <%- invoiceTotalExcludingTax %> + <%- invoiceTax %> tax will be applied to the payment method on your account.
+        </span>
+        <% } else if (planInterval === 'month') { %>
+        <span data-l10n-id="subscriptionRenewalReminder-content-charge-with-tax-month" data-l10n-args="<%= JSON.stringify({invoiceTotalExcludingTax, invoiceTax}) %>">
+          At that time, Mozilla will renew your monthly subscription and a charge of <%- invoiceTotalExcludingTax %> + <%- invoiceTax %> tax will be applied to the payment method on your account.
+        </span>
+        <% } else if (planInterval === 'halfyear') { %>
+        <span data-l10n-id="subscriptionRenewalReminder-content-charge-with-tax-halfyear" data-l10n-args="<%= JSON.stringify({invoiceTotalExcludingTax, invoiceTax}) %>">
+          At that time, Mozilla will renew your six-month subscription and a charge of <%- invoiceTotalExcludingTax %> + <%- invoiceTax %> tax will be applied to the payment method on your account.
+        </span>
+        <% } else if (planInterval === 'year') { %>
+        <span data-l10n-id="subscriptionRenewalReminder-content-charge-with-tax-year" data-l10n-args="<%= JSON.stringify({invoiceTotalExcludingTax, invoiceTax}) %>">
+          At that time, Mozilla will renew your yearly subscription and a charge of <%- invoiceTotalExcludingTax %> + <%- invoiceTax %> tax will be applied to the payment method on your account.
+        </span>
+        <% } else { %>
+        <span data-l10n-id="subscriptionRenewalReminder-content-charge-with-tax-default" data-l10n-args="<%= JSON.stringify({invoiceTotalExcludingTax, invoiceTax}) %>">
+          At that time, Mozilla will renew your subscription and a charge of <%- invoiceTotalExcludingTax %> + <%- invoiceTax %> tax will be applied to the payment method on your account.
+        </span>
+        <% } %>
+      <% } else { %>
+        <% if (planInterval === 'day') { %>
+        <span data-l10n-id="subscriptionRenewalReminder-content-charge-invoice-total-day" data-l10n-args="<%= JSON.stringify({invoiceTotal}) %>">
+          At that time, Mozilla will renew your daily subscription and a charge of <%- invoiceTotal %> will be applied to the payment method on your account.
+        </span>
+        <% } else if (planInterval === 'week') { %>
+        <span data-l10n-id="subscriptionRenewalReminder-content-charge-invoice-total-week" data-l10n-args="<%= JSON.stringify({invoiceTotal}) %>">
+          At that time, Mozilla will renew your weekly subscription and a charge of <%- invoiceTotal %> will be applied to the payment method on your account.
+        </span>
+        <% } else if (planInterval === 'month') { %>
+        <span data-l10n-id="subscriptionRenewalReminder-content-charge-invoice-total-month" data-l10n-args="<%= JSON.stringify({invoiceTotal}) %>">
+          At that time, Mozilla will renew your monthly subscription and a charge of <%- invoiceTotal %> will be applied to the payment method on your account.
+        </span>
+        <% } else if (planInterval === 'halfyear') { %>
+        <span data-l10n-id="subscriptionRenewalReminder-content-charge-invoice-total-halfyear" data-l10n-args="<%= JSON.stringify({invoiceTotal}) %>">
+          At that time, Mozilla will renew your six-month subscription and a charge of <%- invoiceTotal %> will be applied to the payment method on your account.
+        </span>
+        <% } else if (planInterval === 'year') { %>
+        <span data-l10n-id="subscriptionRenewalReminder-content-charge-invoice-total-year" data-l10n-args="<%= JSON.stringify({invoiceTotal}) %>">
+          At that time, Mozilla will renew your yearly subscription and a charge of <%- invoiceTotal %> will be applied to the payment method on your account.
+        </span>
+        <% } else { %>
+        <span data-l10n-id="subscriptionRenewalReminder-content-charge-invoice-total-default" data-l10n-args="<%= JSON.stringify({invoiceTotal}) %>">
+          At that time, Mozilla will renew your subscription and a charge of <%- invoiceTotal %> will be applied to the payment method on your account.
+        </span>
+        <% } %>
+      <% } %>
+    </mj-text>
+
+    <%- include ('/partials/subscriptionUpdateBillingEnsure/index.mjml') %>
+    <%- include ('/partials/subscriptionSupportContact/index.mjml') %>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionRenewalReminder-content-closing">Sincerely,</span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionRenewalReminder-content-signature" data-l10n-args="<%= JSON.stringify({productName}) %>">The <%- productName %> team</span>
+    </mj-text>
+  </mj-column>
+</mj-section>

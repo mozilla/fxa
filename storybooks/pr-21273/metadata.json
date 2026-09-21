@@ -1,0 +1,12 @@
+{
+  "commit": "995e08842e146e1d0aab20ade3e77fa8fac468fe",
+  "summary": "refactor(crypto): replace hkdf and node-hkdf with native HKDF",
+  "description": "## Because\n\n- The `hkdf` and `node-hkdf` packages are unmaintained 0.0.2 re-implementations of RFC 5869.\n- Node and the browser both ship HKDF already, so FxA does not need either package.\n- Part of the FxA dependency reduction work in FXA-13426.\n\n## This pull request\n\n- Changes `hkdf.js` in fxa-auth-server to call the native `crypto.hkdfSync`.\n- Keeps the old null-salt behaviour with `salt || Buffer.alloc(32)`, so the output bytes do not change.\n- Changes `scoped-keys.ts` in crypto-relier to derive bits with Web Crypto HKDF.\n- Removes `hkdf` from fxa-auth-server and `node-hkdf` from the root package, and deletes the orphaned `types/node-hkdf/index.d.ts` shim.\n- Adds no new package.\n\n## Issue that this pull request solves\n\nCloses: FXA-13922",
+  "timestamp": 1790021437000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
