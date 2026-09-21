@@ -1,0 +1,10 @@
+{
+  "commit": "116c7c587cbea2e2b8be6557a6342ef733b4f8eb",
+  "summary": "refactor(auth): remove preVerified option from account creation",
+  "description": "## Because\n\n- `preVerified` was a test-only option on `POST /account/create`. It made the server create an already verified account and an already verified session.\n- The option never worked in production. Tests that used it took a path that no real user takes, so they did not cover the signup flow they claimed to cover.\n\n## This pull request\n\n- Removes the `preVerified` form field and its Joi validator from `account.ts`. New accounts are always created unverified, and the session token always gets `tokenVerificationId = emailCode`.\n- Deletes the three branches that this made dead: the `verified` attached-services notification in create, the early return in `sendVerifyCode`, and the two `if (tokenVerificationId)` guards.\n- Removes `preVerified` from `SignUpOptions` in `fxa-auth-client`.\n- Moves `createAccount` into `BaseTarget`. It signs up, then confirms the account with the code from the signup email. This is what `remote.ts` already did for production. Ten specs stop passing `preVerified`. Specs that want an unverified account now pass `verified: false`.\n- Adds an assertion in `account.spec.ts` that holds the new rule: create stores `emailVerified: false`, and the session token gets `tokenVerificationId === emailCode`.\n- Cleans up the last references in `test/client/api.js`, `test/load/loadtests.py`, two remote specs, `fxa-client.js` and `constants.ts`.\n\n## Issue that this pull request solves\n\nCloses: FXA-9550",
+  "timestamp": 1790025888000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

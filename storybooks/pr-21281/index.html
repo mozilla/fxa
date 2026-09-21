@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 116c7c587cbea2e2b8be6557a6342ef733b4f8eb</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 116c7c587cbea2e2b8be6557a6342ef733b4f8eb</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/21/2026, 9:24:48 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>refactor(auth): remove preVerified option from account creation</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- `preVerified` was a test-only option on `POST /account/create`. It made the server create an already verified account and an already verified session.
+- The option never worked in production. Tests that used it took a path that no real user takes, so they did not cover the signup flow they claimed to cover.
+
+## This pull request
+
+- Removes the `preVerified` form field and its Joi validator from `account.ts`. New accounts are always created unverified, and the session token always gets `tokenVerificationId = emailCode`.
+- Deletes the three branches that this made dead: the `verified` attached-services notification in create, the early return in `sendVerifyCode`, and the two `if (tokenVerificationId)` guards.
+- Removes `preVerified` from `SignUpOptions` in `fxa-auth-client`.
+- Moves `createAccount` into `BaseTarget`. It signs up, then confirms the account with the code from the signup email. This is what `remote.ts` already did for production. Ten specs stop passing `preVerified`. Specs that want an unverified account now pass `verified: false`.
+- Adds an assertion in `account.spec.ts` that holds the new rule: create stores `emailVerified: false`, and the session token gets `tokenVerificationId === emailCode`.
+- Cleans up the last references in `test/client/api.js`, `test/load/loadtests.py`, two remote specs, `fxa-client.js` and `constants.ts`.
+
+## Issue that this pull request solves
+
+Closes: FXA-9550</pre></dd>
+  </dl>
+</body>
+</html>
