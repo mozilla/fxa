@@ -8,6 +8,7 @@ import {
   PasskeyService,
   V1_WIDTHS,
   encodePasskeyWrapEnvelope,
+  isWrapStale,
   sameCredentialId,
   type NewPasskeyWrapData,
 } from '@fxa/accounts/passkey';
@@ -58,15 +59,6 @@ type WrapPayload = Record<keyof NewPasskeyWrapData, string>;
  */
 function isBoundTo(cid: string | undefined, credentialId: string): boolean {
   return !!cid && sameCredentialId(cid, credentialId);
-}
-
-/**
- * Whether a wrap seals a `kB` the account has since replaced.
- *
- * Inverted so a `NaN` keysChangedAt withholds rather than serves.
- */
-export function isWrapStale(createdAt: number, keysChangedAt: number): boolean {
-  return !(createdAt >= keysChangedAt);
 }
 
 /**
@@ -127,7 +119,8 @@ export class PasskeyWrapsHandler {
           ),
           hpkeSealedKb: Buffer.from(payload.hpkeSealedKb, 'base64url'),
         },
-        Date.now()
+        Date.now(),
+        account.keysChangedAt
       );
     } catch (err) {
       await this.recordEvent(request, 'account.passkey.wrap_creation_failure');
