@@ -420,6 +420,8 @@ password-strength-inline-passwords-match = Passordene samsvarer
 
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Din telefon. Dine regler.
+# Value proposition variant. Refers to resuming browsing on another device.
+promo-qr-mobile-heading-treatment-a = Fortsett der du slapp, uansett hvor du er
 # Value proposition variant. "tabs" are the open pages in a browser.
 promo-qr-mobile-heading-treatment-b = Fanene dine og mer, klart på telefonen
 # Value proposition variant. Refers to using the same trusted browser on a phone.
@@ -1090,6 +1092,10 @@ recent-activity-account-passkey-wrap-created = Passnøkkel aktivert for synkroni
 recent-activity-account-passkey-wrap-creation-failure = Synkroniseringsoppsett med passnøkkel mislyktes
 # A passkey is a sign-in method that replaces a password. This string is shown when a passkey that could unlock the user's synced browser data had that access turned off, leaving the passkey itself usable for signing in.
 recent-activity-account-passkey-wrap-deleted = Tilgang til synkronisering av passnøkler er fjernet
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to turn off a passkey's access to the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-deletion-failure = Kunne ikke fjerne tilgang til synkronisering av passnøkler
+# A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
+recent-activity-account-passkey-wrap-invalidated = Tilgang til synkronisering av passnøkler fjernet etter tilbakestilling av passord
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Annen kontoaktivitet
 
@@ -1610,6 +1616,19 @@ index-account-delete-success = Kontoen er nå slettet
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = Bekreftelsesmeldingen kom i retur. Feilstavet e-postadresse?
 
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+# Browser tab title.
+inline-passwordless-sync-setup-page-title = Hopp over passordet neste gang?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner = Logget inn på { -brand-firefox }
+inline-passwordless-sync-setup-heading = Hopp over passordet neste gang?
+inline-passwordless-sync-setup-description = Bruk denne passnøkkelen for å logge på raskere.
+inline-passwordless-sync-setup-enable-button = Aktiver passnøkkel
+# Button label while the passkey is stored.
+inline-passwordless-sync-setup-enabling = Slår på
+inline-passwordless-sync-setup-not-now-button = Ikke nå
+
 ## InlineRecoveryKeySetup page component
 
 inline-recovery-key-setup-create-error = Beklager! Vi kunne ikke opprette kontogjenopprettingsnøkkelen din. Prøv på nytt senere.
@@ -1855,6 +1874,8 @@ pair2-authority-continue-on-mobile-cancel-button = Avbryt
 
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = Åpne { -brand-firefox } for å synkronisere
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction = For å konfigurere synkronisering på tvers av enheter, åpne { -brand-firefox } på denne enheten og gå til <b>firefox.com/pair</b>
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Last ned { -brand-firefox }
 
@@ -1863,6 +1884,8 @@ pair2-authority-download-firefox-cta = Last ned { -brand-firefox }
 ## their phone or tablet to connect the two devices and start syncing.
 
 pair2-authority-scan-qr-heading = Skann for å koble til mobilenheten din
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-scan-qr-instruction = Skann QR-koden med telefonen eller nettbrettet ditt for å synkronisere bokmerker, faner og mer fra { -brand-firefox }.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR-kode for å koble til mobilenheten din
 # Link to a support article for users having trouble scanning the QR code
@@ -1874,6 +1897,7 @@ pair2-authority-scan-qr-help-link = Få hjelp med skanning
 
 # "syncing" here means copying data between the user's devices
 pair2-authority-sync-success-heading = Du synkroniserer
+pair2-authority-sync-success-description = Faner, bokmerker, passord og mer er klart på alle enhetene dine.
 # Opens the tabs that are open on the user's other synced devices
 pair2-authority-sync-success-view-tabs-button = Vis synkroniserte faner
 # Opens the browser settings that control what is synced
@@ -1886,6 +1910,9 @@ pair2-authority-sync-success-sync-settings-button = Synkroniseringsinnstillinger
 
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Vil du fortsatt koble til en enhet?
+pair2-authority-timeout-and-cancel-timeout-description = Det ser ut til at det oppstod et tidsavbrudd. Prøv på nytt hvis du fortsatt vil koble til mobilenheten din og synkronisere { -brand-firefox }-dataene dine.
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-cancelled-heading = Avbrutt
 pair2-authority-timeout-and-cancel-canceled-description = Hvis du ombestemmer deg eller vil koble til en annen enhet, kan du prøve på nytt.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Prøv på nytt
@@ -1924,6 +1951,9 @@ pair2-supplicant-connect-this-device-cancel-button = Avbryt
 ## the browser.
 
 pair2-supplicant-download-firefox-heading = Få { -brand-firefox } på denne enheten
+# "sync" is a verb here, referring to syncing data between the user's devices.
+# <linkExternal> is an anchor tag linking to a page explaining what sync does.
+pair2-supplicant-download-firefox-description = Last ned { -brand-firefox } for å synkronisere bokmerker, historikk og mer på tvers av enheter. <linkExternal>Les mer</linkExternal>
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Fortsett i { -brand-firefox }
@@ -1936,6 +1966,9 @@ pair2-supplicant-download-firefox-opening-button = Åpner { -brand-firefox }…
 ## scan with the mobile device comes from.
 
 pair2-supplicant-ready-to-scan-heading = For å koble til en enhet
+# <b> emphasises the address the user types on their computer. It is not a link,
+# and the address itself must not be translated.
+pair2-supplicant-ready-to-scan-instruction = Åpne { -brand-firefox } på datamaskinen din, gå til <b>firefox.com/pair</b> og følg instruksjonene på skjermen for å koble til denne mobile enheten.
 # Opens a Mozilla support article about setting up sync
 pair2-supplicant-ready-to-scan-learn-more-link = Les mer
 
@@ -1944,6 +1977,7 @@ pair2-supplicant-ready-to-scan-learn-more-link = Les mer
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Enheten din er tilkoblet
+pair2-supplicant-sync-success-description = Bokmerkene dine, fanene og mer vil forbli synkronisert i { -brand-firefox }.
 # Opens the view listing tabs open on the user's other synced devices
 pair2-supplicant-sync-success-view-tabs-button = Vis synkroniserte faner
 # Opens the browser's sync settings, where the user chooses what to sync
@@ -1955,6 +1989,12 @@ pair2-supplicant-sync-success-sync-settings-button = Synkroniseringsinnstillinge
 ## are informational and offer no on-screen action, so the copy points the user
 ## back to their computer to start again.
 
+# Shown when the pairing attempt expired before it completed. "we" is Firefox.
+pair2-supplicant-timeout-and-cancel-timeout-heading = Det ser ut til at det oppstod et tidsavbrudd
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-timeout-description = For å koble til mobilenheten din og synkronisere { -brand-firefox }-dataene dine, gå til <b>firefox.com/pair</b> på datamaskinen din.
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Avbrutt
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = For å koble til en enhet når som helst, gå til <b>firefox.com/pair</b> på datamaskinen din.
 

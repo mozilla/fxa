@@ -402,10 +402,10 @@ recovery-action = შექმენით ახალი პაროლი
 unblockCode-subject-2 = გამოიყენეთ { $unblockCode } შესასვლელად
 unblockCode-preview = კოდს ვადა ამოეწურება ერთ საათში
 unblockCode-title = ეს თქვენი შესვლაა?
-unblockCode-prompt = თუ კი, მაშინ გესაჭიროებათ დაშვების კოდი:
+unblockCode-prompt = თუ კი, მაშინ გესაჭიროებათ დამოწმების კოდი:
 # Variables:
 #  $unblockCode (String) - An alphanumeric code
-unblockCode-prompt-plaintext = თუ კი, მაშინ გესაჭიროებათ დაშვების კოდი: { $unblockCode }
+unblockCode-prompt-plaintext = თუ კი, მაშინ გესაჭიროებათ დამოწმების კოდი: { $unblockCode }
 unblockCode-report = თუ არა, დაგვეხმარეთ დამრღვევების გამოვლენასა და მოგერიებაში და <a data-l10n-name="reportSignInLink">გამოგზავნეთ მოხსენება.</a>
 unblockCode-report-plaintext = თუ არა, დაგვეხმარეთ დამრღვევების გამოვლენასა და მოგერიებაში და გამოგზავნეთ მოხსენება.
 verificationReminderFinal-subject = საბოლოო შეხსენება ანგარიშის დასადასტურებლად
@@ -442,7 +442,7 @@ verifyAccountChange-preview =
 verifyAccountChange-title = ცვლით თქვენი ანგარიშის მონაცემებს?
 # After the colon is a description of the device used to sign in to the service
 verifyAccountChange-safe = დაგვეხმარეთ თქვენი ანგარიშის უსაფრთხოების უზრუნველყოფაში ამ ცვლილების დამოწმებით:
-verifyAccountChange-prompt = თუ კი, მაშინ აქაა თქვენი დასამოწმებელი კოდი:
+verifyAccountChange-prompt = თუ კი, მაშინ აქაა დამოწმების კოდი:
 # Variables:
 # $expirationTime (Number) - Represents the expiration time in minutes
 verifyAccountChange-expiry-notice =
@@ -465,7 +465,7 @@ verifyLoginCode-preview = ვადა ამოეწურება 5 წუ�
 verifyLoginCode-title-2 = თქვენ გამოიყენეთ მომსახურება { $serviceName }?
 # After the colon is a description of the device used to sign in to the service
 verifyLoginCode-safe = დაგვეხმარეთ თქვენი ანგარიშის უსაფრთხოებაში შესვლის დამოწმებით:
-verifyLoginCode-prompt-3 = თუ კი, მაშინ აქაა თქვენი დასამოწმებელი კოდი:
+verifyLoginCode-prompt-3 = თუ კი, მაშინ აქაა დამოწმების კოდი:
 verifyLoginCode-expiry-notice = ვადა გაუვა 5 წუთში.
 verifyPrimary-title-2 = მთავარი ელფოსტის დადასტურება
 verifyPrimary-description = მოთხოვნა ანგარიშის შეცვლის თაობაზე, გამოგზავნილია შემდეგი მოწყობილობიდან:

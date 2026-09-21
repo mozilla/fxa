@@ -424,6 +424,8 @@ promo-qr-mobile-heading-treatment-f = 웹 탐색 기록을 더 안전하게 지�
 promo-qr-mobile-heading-treatment-g = 휴대폰에 불필요한 것들을 덜어보세요
 # Value proposition variant. Refers to a calmer browsing experience on the phone.
 promo-qr-mobile-heading-treatment-h = 더욱 차분하게 브라우징하세요.
+# Appears below a QR code that a user can scan to download the Firefox mobile app
+promo-qr-mobile-description-v2 = 스캔하여 모바일 앱 다운로드
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
 promo-qr-mobile-qr-alt =
     .alt = { -brand-firefox } 모바일 앱을 다운로드하는 QR 코드입니다. 스캔하려면 휴대전화의 카메라를 화면 오른쪽 하단에 두세요.
@@ -1068,6 +1070,10 @@ recent-activity-account-recovery-codes-set = 복구 코드 설정됨
 recent-activity-account-passkey-wrap-created = 동기화를 위한 패스키 켜짐
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
 recent-activity-account-passkey-wrap-creation-failure = 패스키로 동기화 설정 실패
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey that could unlock the user's synced browser data had that access turned off, leaving the passkey itself usable for signing in.
+recent-activity-account-passkey-wrap-deleted = 패스키 동기화 접근이 삭제됨
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to turn off a passkey's access to the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-deletion-failure = 패스키 동기화 접근 삭제 실패
 # A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
 recent-activity-account-passkey-wrap-invalidated = 비밀번호 재설정 후 패스키 동기화 접근이 제거됨
 # Security event was recorded, but the activity details are unknown or not shown to user
@@ -1593,6 +1599,19 @@ index-account-delete-success = 계정이 성공적으로 삭제됨
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = 확인 이메일이 반송되었습니다. 이메일을 잘못 입력했나요?
 
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+# Browser tab title.
+inline-passwordless-sync-setup-page-title = 다음에 비밀번호를 건너뛰시겠습니까?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner = { -brand-firefox }에 로그인됨
+inline-passwordless-sync-setup-heading = 다음에 비밀번호를 건너뛰시겠습니까?
+inline-passwordless-sync-setup-description = 이 패스키를 사용하여 더 빠르게 로그인하십시오.
+inline-passwordless-sync-setup-enable-button = 패스키 활성화
+# Button label while the passkey is stored.
+inline-passwordless-sync-setup-enabling = 활성화 중…
+inline-passwordless-sync-setup-not-now-button = 지금 안 함
+
 ## InlineRecoveryKeySetup page component
 
 inline-recovery-key-setup-create-error = 이런! 계정 복구 키를 만들지 못했습니다. 잠시 후에 다시 시도해 주세요.
@@ -1788,6 +1807,19 @@ pair-wait-for-auth-heading-text = 이제 <span>다른 기기</span>에서 승인
 
 pair-unsupported-header = 앱으로 페어링
 pair-unsupported-message = 기본 카메라를 쓰셨습니까? { -brand-firefox } 앱 안의 카메라로 페어링해야 합니다.
+# Shown as heading when a desktop user visits from a non-Firefox browser
+pair-unsupported-oops-header = 이런! { -brand-firefox }를 사용하고 있지 않은 것 같습니다.
+# Shown below the heading on desktop non-Firefox, prompting the user to switch browsers
+pair-unsupported-switch-to-firefox = { -brand-firefox }로 전환하고 이 페이지를 열어 다른 기기와 연결하세요.
+# Shown inline on mobile non-Firefox browsers before the download link
+pair-unsupported-oops-mobile = 이런! { -brand-firefox }를 사용하고 있지 않은 것 같습니다.
+# v2: Heading for the mobile instructional message, shown on all mobile devices
+# (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
+# Aligned with legacy Backbone copy (see templates/partial/unsupported-pair.mustache).
+pair-unsupported-connecting-mobile-header-v2 = { -product-mozilla-account }에 모바일 기기 연결 중
+# v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
+# URL so the domain does not wrap to a new line on narrow screens.
+pair-unsupported-connecting-mobile-instructions-v2 = 컴퓨터에서 { -brand-firefox }를 열고 <b>firefox.com/pair</b>를 방문하고, 화면의 안내에 따라 모바일 기기를 연결합니다.
 # v2: "Learn more" link below the mobile instructions; links to a Mozilla support article.
 pair-unsupported-learn-more-link-v2 = 더 알아보기
 # v2: Fallback shown to a desktop Firefox user who somehow reaches /pair/unsupported.
@@ -1805,6 +1837,9 @@ pair2-authority-approve-sign-in-heading = 로그인을 승인하시겠습니까?
 # Submit button confirming that the user started the pairing and approves the
 # other device being added to their account
 pair2-authority-approve-sign-in-confirm-button = 예, 로그인을 승인합니다.
+# "Not you?" asks whether someone other than the user started this sign-in.
+# The text inside <changePassword> links to the page for changing the password.
+pair2-authority-approve-sign-in-change-password = 본인이 아닌가요? <changePassword>비밀번호를 변경</changePassword>
 
 ## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer after scanning the pairing QR code with
@@ -1812,6 +1847,7 @@ pair2-authority-approve-sign-in-confirm-button = 예, 로그인을 승인합니�
 ## for the remaining steps to be completed there.
 
 pair2-authority-continue-on-mobile-heading = 모바일 기기에서 계속하기
+pair2-authority-continue-on-mobile-description = 스마트폰 또는 태블릿에서 단계를 따르세요.
 # Dismisses the pairing attempt
 pair2-authority-continue-on-mobile-cancel-button = 취소
 
@@ -1821,6 +1857,8 @@ pair2-authority-continue-on-mobile-cancel-button = 취소
 
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = 동기화를 위해 { -brand-firefox } 열기
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction = 기기 간 동기화를 설정하려면 이 기기에서 { -brand-firefox }를 열고 <b>firefox.com/pair</b>를 방문하세요.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = { -brand-firefox } 다운로드
 
@@ -1828,8 +1866,13 @@ pair2-authority-download-firefox-cta = { -brand-firefox } 다운로드
 ## Users see this on their computer. It shows a QR code that they scan with
 ## their phone or tablet to connect the two devices and start syncing.
 
+pair2-authority-scan-qr-heading = 스캔하여 모바일 기기 연결
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-scan-qr-instruction = 폰이나 태블릿으로 QR 코드를 스캔하여 { -brand-firefox } 북마크, 탭 등을 동기화하세요.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = 모바일 기기와 연결하기 위한 QR 코드
+# Link to a support article for users having trouble scanning the QR code
+pair2-authority-scan-qr-help-link = 스캔 도움 받기
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
@@ -1837,6 +1880,7 @@ pair2-authority-scan-qr-code-aria-label = 모바일 기기와 연결하기 위�
 
 # "syncing" here means copying data between the user's devices
 pair2-authority-sync-success-heading = 동기화 중
+pair2-authority-sync-success-description = 여러 기기에서 탭, 북마크, 비밀번호 등을 사용할 준비가 되었습니다.
 # Opens the tabs that are open on the user's other synced devices
 pair2-authority-sync-success-view-tabs-button = 동기화된 탭 보기
 # Opens the browser settings that control what is synced
@@ -1847,10 +1891,27 @@ pair2-authority-sync-success-sync-settings-button = 동기화 설정
 ## either because it timed out or because it was canceled. Both cases offer to
 ## start pairing over again.
 
+# Shown when the pairing attempt expired before it was approved
+pair2-authority-timeout-and-cancel-timeout-heading = 그래도 연결하시겠습니까?
+pair2-authority-timeout-and-cancel-timeout-description = 시간이 초과된 것 같습니다. 여전히 모바일 기기를 연결하고 { -brand-firefox } 데이터를 동기화하고 싶으시면 다시 시도하세요.
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-cancelled-heading = 취소됨
+pair2-authority-timeout-and-cancel-canceled-description = 마음을 바꾸었거나 다른 기기도 연결하고 싶다면 다시 시도하세요.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = 다시 시도
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = 동기화 설정
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-supplicant-approve-sign-in-heading = 동기화를 위한 마지막 단계
+pair2-supplicant-approve-sign-in-instruction = 컴퓨터에서 로그인을 승인하세요.
+# Dismisses the pairing attempt
+pair2-supplicant-approve-sign-in-cancel-button = 취소
 
 ## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
@@ -1861,6 +1922,8 @@ pair2-authority-timeout-and-cancel-sync-settings-button = 동기화 설정
 # "this device" is the mobile device the user is holding, not the computer
 # whose details are shown below the heading
 pair2-supplicant-connect-this-device-heading = 이 기기를 계정에 연결하시겠습니까?
+# Confirms the pairing attempt
+pair2-supplicant-connect-this-device-connect-button = 연결
 # Dismisses the pairing attempt
 pair2-supplicant-connect-this-device-cancel-button = 취소
 
@@ -1871,6 +1934,14 @@ pair2-supplicant-connect-this-device-cancel-button = 취소
 ## the browser.
 
 pair2-supplicant-download-firefox-heading = 이 기기에 { -brand-firefox } 다운로드
+# "sync" is a verb here, referring to syncing data between the user's devices.
+# <linkExternal> is an anchor tag linking to a page explaining what sync does.
+pair2-supplicant-download-firefox-description = { -brand-firefox }를 다운로드하여 북마크, 기록 등을 여러 기기에 동기화하세요. <linkExternal>더 알아보기</linkExternal>
+# Primary action. Opens the Firefox app to finish pairing, or sends the user to
+# the Firefox download page when there is no pairing link to hand over.
+pair2-supplicant-download-firefox-continue-button = { -brand-firefox }에서 계속
+# Replaces the button label while waiting for the Firefox app to take over
+pair2-supplicant-download-firefox-opening-button = { -brand-firefox } 실행 중…
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -1889,10 +1960,26 @@ pair2-supplicant-ready-to-scan-learn-more-link = 더 알아보기
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = 기기가 연결되었습니다
+pair2-supplicant-sync-success-description = 북마크, 탭 등이 { -brand-firefox }에서 동기화된 상태로 유지됩니다.
 # Opens the view listing tabs open on the user's other synced devices
 pair2-supplicant-sync-success-view-tabs-button = 동기화된 탭 보기
 # Opens the browser's sync settings, where the user chooses what to sync
 pair2-supplicant-sync-success-sync-settings-button = 동기화 설정
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing ends without connecting,
+## either because the attempt timed out or because it was canceled. Both states
+## are informational and offer no on-screen action, so the copy points the user
+## back to their computer to start again.
+
+# Shown when the pairing attempt expired before it completed. "we" is Firefox.
+pair2-supplicant-timeout-and-cancel-timeout-heading = 시간이 초과된 것 같습니다
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-timeout-description = 모바일 기기를 연결하고 { -brand-firefox } 데이터를 동기화하려면, 컴퓨터에서 <b>firefox.com/pair</b>에 접속하세요.
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-cancelled-heading = 취소됨
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-canceled-description = 언제든 기기에 연결하려면, 컴퓨터에서 <b>firefox.com/pair</b>에 접속하세요.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -1992,6 +2079,7 @@ confirm-totp-reset-password-use-different-account = 다른 계정 사용
 ## ResetPassword start page
 
 password-reset-flow-heading = 비밀번호 재설정
+password-reset-body-3 = 비밀번호를 재설정하면 동기화된 브라우저 데이터에 영향을 줄 수 있습니다.
 password-reset-email-input =
     .label = 이메일 입력
 password-reset-submit-button-2 = 계속
