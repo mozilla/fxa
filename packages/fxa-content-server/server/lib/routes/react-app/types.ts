@@ -46,7 +46,6 @@ type ShowReactApp = {
   emailFirstRoutes: boolean;
   simpleRoutes: boolean;
   oauthRoutes: boolean;
-  signInRoutes: boolean;
   signUpRoutes: boolean;
   pairRoutes: boolean;
   postVerifyOtherRoutes: boolean;
