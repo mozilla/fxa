@@ -340,18 +340,12 @@ next-coupon-submit = 套用
 
 free-trial-content-trial-expires = 您的免費試用將於 { $date } 結束。
 free-trial-content-trial-cancelled = 已取消您的免費試用。
-
-# Charge info strings - with tax, per interval
-
 free-trial-content-charge-info-with-tax-day = 免費試用於 { $date } 結束後，將向您收取每日 { $amount } + { $tax } 稅。
 free-trial-content-charge-info-with-tax-week = 免費試用於 { $date } 結束後，將向您收取每週 { $amount } + { $tax } 稅。
 free-trial-content-charge-info-with-tax-month = 免費試用於 { $date } 結束後，將向您收取每月 { $amount } + { $tax } 稅。
 free-trial-content-charge-info-with-tax-halfyear = 免費試用於 { $date } 結束後，將向您收取每 6 個月 { $amount } + { $tax } 稅。
 free-trial-content-charge-info-with-tax-year = 免費試用於 { $date } 結束後，將向您收取每年 { $amount } + { $tax } 稅。
 free-trial-content-charge-info-with-tax-default = 免費試用於 { $date } 結束後，將向您收取 { $amount } + { $tax } 稅。
-
-# Charge info strings - no tax, per interval
-
 free-trial-content-charge-info-no-tax-day = 免費試用於 { $date } 結束後，將向您收取每日 { $amount }。
 free-trial-content-charge-info-no-tax-week = 免費試用於 { $date } 結束後，將向您收取每週 { $amount }。
 free-trial-content-charge-info-no-tax-month = 免費試用於 { $date } 結束後，將向您收取每月 { $amount }。
@@ -385,17 +379,14 @@ free-trial-content-link-view-invoice-aria = 檢視 { $productName } 的請款單
 free-trial-content-trial-ended = 您的免費試用已於 <bold>{ $date }</bold> 結束。
 free-trial-content-could-not-process-payment = 無法處理您的付款，請更新付款方式以恢復使用權限。視銀行或付款方式而定，處理過程可能需要最多 24 小時。
 free-trial-content-button-update-payment = 更新付款方式
-
-# Component - Header
-
 payments-header-help =
-    .title = 說明
-    .aria-label = 說明
     .alt = 說明
+    .aria-label = 說明
+    .title = 說明
 payments-header-bento =
-    .title = { -brand-mozilla } 產品
-    .aria-label = { -brand-mozilla } 產品
     .alt = { -brand-mozilla } 圖示
+    .aria-label = { -brand-mozilla } 產品
+    .title = { -brand-mozilla } 產品
 payments-header-bento-close =
     .alt = 關閉
 payments-header-bento-tagline = { -brand-mozilla } 更多會保護您隱私的產品
@@ -435,8 +426,8 @@ interstitial-offer-button-keep-subscription = 保持訂閱
 ##
 
 payments-client-loading-spinner =
-    .aria-label = 載入中…
     .alt = 載入中…
+    .aria-label = 載入中…
 
 ## Payment method management page - Stripe
 
@@ -532,7 +523,7 @@ next-new-user-subscribe-product-assurance = 我們只會使用您的電子郵件
 ## $productName (String) - The name of the subscribed product.
 
 resubscribe-dialog-title = 想要繼續使用 { $productName } 嗎？
-stay-subscribed-access-will-continue = 將繼續保留您的 { $productName } 使用權，帳單週期與付款方式維持不變。
+stay-subscribed-access-will-continue = 將繼續保留您的 { $productName } 使用權，帳務週期與付款方式維持不變。
 subscription-content-button-resubscribe = 重新訂閱
     .aria-label = 重新訂閱 { $productName }
 resubscribe-success-dialog-title = 處理完成，感謝您！

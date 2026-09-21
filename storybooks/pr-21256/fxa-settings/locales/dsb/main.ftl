@@ -1191,6 +1191,15 @@ index-account-delete-success = Konto jo se wuspěšnje wulašowało
 index-email-bounced = Waša wobkšuśeńska mejlka jo se rowno wrośiła. Jo e-mailowa adresa wopak?
 
 
+inline-passwordless-sync-setup-page-title = Gronidło pśiducy raz pśeskócyś?
+inline-passwordless-sync-setup-success-banner = Pla { -brand-firefox } pśizjawjony
+inline-passwordless-sync-setup-heading = Gronidło pśiducy raz pśeskócyś?
+inline-passwordless-sync-setup-description = Wužywajśo toś ten gronidłowy kluc, aby se malsnjej pśizjawił.
+inline-passwordless-sync-setup-enable-button = Gronidłowy kluc zmóžniś
+inline-passwordless-sync-setup-enabling = Zmóžnja se…
+inline-passwordless-sync-setup-not-now-button = Nic něnto
+
+
 inline-recovery-key-setup-create-error = Hopla! Njejsmy mógli waš kontowy wótnowjeński kluc napóraś. Pšosym wopytajśo pózdźej hyšći raz.
 inline-recovery-key-setup-recovery-created = Kontowy wótnowjeński kluc jo se napórał
 inline-recovery-key-setup-download-header = Zawěsććo swójo konto
@@ -1338,6 +1347,7 @@ pair2-authority-sync-success-sync-settings-button = Nastajenja synchronizacije
 
 pair2-authority-timeout-and-cancel-timeout-heading = Cośo hyšći rěd zwězaś?
 pair2-authority-timeout-and-cancel-timeout-description = Zda se, až smy cas pśekšocyli. Wopytajśo hyšći raz, jolic hyšći cośo swój mobilny rěd zwězaś a swóje daty { -brand-firefox } synchronizěrowaś.
+pair2-authority-timeout-and-cancel-cancelled-heading = Anulěrowany
 pair2-authority-timeout-and-cancel-canceled-description = Jolic swójo měnjenje změnjaśo abo cośo drugi rěd zwězaś, wopytajśo hyšći raz.
 pair2-authority-timeout-and-cancel-try-again-button = Hyšći raz wopytaś
 pair2-authority-timeout-and-cancel-sync-settings-button = Nastajenja synchronizacije
@@ -1372,6 +1382,7 @@ pair2-supplicant-sync-success-sync-settings-button = Nastajenja synchronizacije
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zda se, až smy cas pśekšocyli
 pair2-supplicant-timeout-and-cancel-timeout-description = Aby swój mobilny rěd zwězał a swóje daty { -brand-firefox } synchronizěrował, woglědajśo se k <b>firefox.com/pair</b> na swójo licadle.
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Anulěrowany
 pair2-supplicant-timeout-and-cancel-canceled-description = Aby rěd kuždy cas zwězał, woglědujśo se k <b>firefox.com/pair</b> na swójom licadle.
 
 
