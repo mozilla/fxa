@@ -1,8 +1,8 @@
 {
-  "commit": "00c504682de24477fbd5e7050869d27ed4d47796",
+  "commit": "3b4f40265230294b75a486ae83c1c03884a1d72e",
   "summary": "refactor(settings): clear passkey wrap material by route",
   "description": "Because:\n\n- Four call sites each had to remember to clear the material, and the unmount-based clear needed a StrictMode workaround and a handoff flag to avoid zeroing what the next page owns.\n- The opt-in page read the client's mutable entry on every render, so a re-render during the exit transition could fire a second navigation.\n\nThis commit:\n\n- Clears the material from a pathname effect at the app root.\n- Drops the unmount hook, the handoff flag, and two per-page clears.\n- Keeps the clear at ceremony start, which no route change covers.\n- Snapshots the material at mount in the opt-in page.",
-  "timestamp": 1790010750000,
+  "timestamp": 1790011436000,
   "storybooks": [
     "fxa-settings"
   ],
