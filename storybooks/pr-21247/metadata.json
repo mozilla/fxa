@@ -1,0 +1,10 @@
+{
+  "commit": "a748ba9e7245922a40086a8ea257e52c1980ea69",
+  "summary": "refactor(content-server): rename backbone oauth/success route helper",
+  "description": "## Because\n\n- A hard load of `/oauth/success/:client_id` was still served by Backbone.\n- The React page needs the client id, but that URL has no query parameters.\n\n## This pull request\n\n- Adds an `oauthSuccessRoutes` group in `server/lib/routes/react-app/index.js`, so Express sends the route to React. The group is hardcoded on, because Backbone no longer serves the route.\n- Removes the `oauth/success/:client_id` entry from `app/scripts/lib/router.js`. `views/ready.js` stays, because six other Backbone routes use it.\n- Adds `getOAuthSuccessClientId` in `src/lib/oauth/success-route.ts`. The integration factory, `useClientInfoState`, and `OAuthWebIntegration` read the client id from the pathname. The helper also accepts a trailing slash.\n- Sets `isOAuthSuccessFlow` on `OAuthWebIntegration`. An empty scope now gives an empty permission list instead of an error.\n- Renames `getRoutesExcludingOAuthSuccessReact` to `getBackboneOAuthSuccessRouteNames` in `get-oauth-success.js`, from review feedback. The old name described an exclusion, not the route names it returns. No behaviour change.\n\n## Issue that this pull request solves\n\nCloses: FXA-6642",
+  "timestamp": 1790008911000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
