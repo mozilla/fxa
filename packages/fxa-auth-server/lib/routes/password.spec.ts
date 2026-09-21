@@ -19,7 +19,6 @@ const random = require('../../lib/crypto/random');
 const glean = mocks.mockGlean();
 
 const TEST_EMAIL = 'foo@gmail.com';
-const MOCK_DISABLED_AT = 1_700_000_000_000;
 
 function makeRoutes(options: any = {}) {
   const config = options.config || {
@@ -111,43 +110,6 @@ describe('/password', () => {
       del: jest.fn(),
     };
     const mockStatsd: DeepMocked<StatsD> = createMock<StatsD>();
-
-    it('rejects a disabled account with ACCOUNT_DISABLED', async () => {
-      const disabledDB = mocks.mockDB({
-        email: TEST_EMAIL,
-        uid,
-        emailVerified: true,
-        disabledAt: MOCK_DISABLED_AT,
-      });
-      const passwordRoutes = makeRoutes({
-        config: mockConfig,
-        customs: mockCustoms,
-        db: disabledDB,
-        mailer: mockMailer,
-        metricsContext: mockMetricsContext,
-        log: mockLog,
-        authServerCacheRedis: mockRedis,
-        statsd: mockStatsd,
-      });
-      const mockRequest = mocks.mockRequest({
-        log: mockLog,
-        payload: {
-          email: TEST_EMAIL,
-          metricsContext: {
-            deviceId: 'wibble',
-            flowId:
-              'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
-            flowBeginTime: Date.now() - 1,
-          },
-        },
-        query: {},
-        metricsContext: mockMetricsContext,
-      });
-
-      await expect(
-        runRoute(passwordRoutes, '/password/forgot/send_otp', mockRequest)
-      ).rejects.toMatchObject({ errno: error.ERRNO.ACCOUNT_DISABLED });
-    });
 
     it('sends an OTP when enabled', () => {
       const passwordRoutes = makeRoutes({
@@ -327,29 +289,6 @@ describe('/password', () => {
       },
       query: {},
       metricsContext: mockMetricsContext,
-    });
-
-    it('rejects a disabled account with ACCOUNT_DISABLED', async () => {
-      const disabledDB = mocks.mockDB({
-        email: TEST_EMAIL,
-        uid,
-        passCode: '486008',
-        disabledAt: MOCK_DISABLED_AT,
-      });
-      const passwordRoutes = makeRoutes({
-        config: mockConfig,
-        customs: mockCustoms,
-        db: disabledDB,
-        mailer: mockMailer,
-        metricsContext: mockMetricsContext,
-        log: mockLog,
-        authServerCacheRedis: mockRedis,
-        statsd: mockStatsd,
-      });
-
-      await expect(
-        runRoute(passwordRoutes, '/password/forgot/verify_otp', mockRequest)
-      ).rejects.toMatchObject({ errno: error.ERRNO.ACCOUNT_DISABLED });
     });
 
     it('verifies an OTP when enabled', () => {
@@ -536,52 +475,6 @@ describe('/password', () => {
         );
       });
     });
-  });
-
-  it('/forgot/verify_code rejects a disabled account with ACCOUNT_DISABLED', async () => {
-    const uid = crypto.randomBytes(16).toString('hex');
-    const passwordForgotTokenId = crypto.randomBytes(16).toString('hex');
-    const mockDB = mocks.mockDB({
-      accountResetToken: {
-        data: crypto.randomBytes(16).toString('hex'),
-        id: crypto.randomBytes(16).toString('hex'),
-        uid,
-      },
-      email: TEST_EMAIL,
-      passCode: 'abcdef',
-      passwordForgotTokenId,
-      uid,
-      disabledAt: MOCK_DISABLED_AT,
-    });
-    const passwordRoutes = makeRoutes({
-      customs: mocks.mockCustoms(),
-      db: mockDB,
-      mailer: mocks.mockMailer(),
-      metricsContext: mocks.mockMetricsContext(),
-    });
-    const mockRequest = mocks.mockRequest({
-      credentials: {
-        email: TEST_EMAIL,
-        id: passwordForgotTokenId,
-        passCode: Buffer.from('abcdef', 'hex'),
-        ttl: () => 17,
-        uid,
-      },
-      payload: {
-        code: 'abcdef',
-        metricsContext: {
-          deviceId: 'wibble',
-          flowId:
-            'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
-          flowBeginTime: Date.now() - 1,
-        },
-      },
-      query: {},
-    });
-
-    await expect(
-      runRoute(passwordRoutes, '/password/forgot/verify_code', mockRequest)
-    ).rejects.toMatchObject({ errno: error.ERRNO.ACCOUNT_DISABLED });
   });
 
   it('/forgot/verify_code', () => {
@@ -863,36 +756,6 @@ describe('/password', () => {
   });
 
   describe('/change/finish', () => {
-    it('rejects a disabled account with ACCOUNT_DISABLED', async () => {
-      const uid = crypto.randomBytes(16).toString('hex');
-      const mockDB = mocks.mockDB({
-        email: TEST_EMAIL,
-        uid,
-        disabledAt: MOCK_DISABLED_AT,
-      });
-      const mockLog = createMock<AuthLogger>();
-      const mockRequest = mocks.mockRequest({
-        credentials: { uid },
-        payload: {
-          authPW: crypto.randomBytes(32).toString('hex'),
-          wrapKb: crypto.randomBytes(32).toString('hex'),
-          sessionToken: crypto.randomBytes(32).toString('hex'),
-        },
-        query: { keys: 'true' },
-        log: mockLog,
-      });
-      const passwordRoutes = makeRoutes({
-        db: mockDB,
-        push: mocks.mockPush(),
-        mailer: mocks.mockMailer(),
-        log: mockLog,
-      });
-
-      await expect(
-        runRoute(passwordRoutes, '/password/change/finish', mockRequest)
-      ).rejects.toMatchObject({ errno: error.ERRNO.ACCOUNT_DISABLED });
-    });
-
     it('smoke', () => {
       const uid = crypto.randomBytes(16).toString('hex');
       const devices = [

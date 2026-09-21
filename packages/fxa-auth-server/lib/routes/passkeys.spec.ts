@@ -1199,21 +1199,6 @@ describe('passkeys routes', () => {
       });
     });
 
-    it('rejects a disabled account with ACCOUNT_DISABLED', async () => {
-      db.account.mockResolvedValueOnce({
-        uid: UID,
-        disabledAt: 1_700_000_000_000,
-      });
-
-      await expect(
-        runTest('/passkey/authentication/finish', {
-          auth: { credentials: {} },
-          app: { ua: {} },
-          payload,
-        })
-      ).rejects.toMatchObject({ errno: AppError.ERRNO.ACCOUNT_DISABLED });
-    });
-
     it('mints an mfaToken bound to the session and the asserted credential', async () => {
       mockPasskeyService.verifyAuthenticationResponse.mockResolvedValueOnce({
         uid: UID,

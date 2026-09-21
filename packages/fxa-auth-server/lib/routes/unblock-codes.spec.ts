@@ -4,7 +4,6 @@
 
 import crypto from 'node:crypto';
 import { createMock } from '@golevelup/ts-jest';
-import { AppError } from '@fxa/accounts/errors';
 import { AuthLogger } from '../types';
 import {
   installMockFxaMailer,
@@ -103,18 +102,6 @@ describe('/account/login/send_unblock_code', () => {
         expect.objectContaining({ event: 'account.login.sentUnblockCode' })
       );
       mockLog.flowEvent.mockClear();
-    });
-  });
-
-  it('rejects a disabled account with ACCOUNT_DISABLED', async () => {
-    mockDb.accountRecord.mockResolvedValueOnce({
-      uid,
-      email,
-      disabledAt: 1_700_000_000_000,
-    });
-
-    await expect(runTest(route, mockRequest)).rejects.toMatchObject({
-      errno: AppError.ERRNO.ACCOUNT_DISABLED,
     });
   });
 

@@ -182,17 +182,6 @@ function runTest(route: any, request: any, assertions?: (result: any) => void) {
 // Tests
 // ---------------------------------------------------------------------------
 
-function disabledAccountRecord(uid: string) {
-  return {
-    uid,
-    email: TEST_EMAIL,
-    primaryEmail: { email: TEST_EMAIL, isVerified: true },
-    verifierSetAt: 0,
-    disabledAt: 1_700_000_000_000,
-    emails: [{ email: TEST_EMAIL, isPrimary: true }],
-  };
-}
-
 describe('/account/passwordless/send_code', () => {
   let uid: string,
     mockLog: any,
@@ -307,16 +296,6 @@ describe('/account/passwordless/send_code', () => {
       error.requestBlocked()
     );
     (DomainBlocklist.findMatchingDomain as jest.Mock).mockResolvedValue(null);
-  });
-
-  it('rejects a disabled account with ACCOUNT_DISABLED', async () => {
-    mockDB.accountRecord = jest.fn(() =>
-      Promise.resolve(disabledAccountRecord(uid))
-    );
-
-    await expect(runTest(route, mockRequest)).rejects.toMatchObject({
-      errno: error.ERRNO.ACCOUNT_DISABLED,
-    });
   });
 
   it('should send OTP for existing passwordless account', () => {
@@ -449,16 +428,6 @@ describe('/account/passwordless/confirm_code', () => {
     mockOtpManagerCreate.mockClear();
     mockOtpManagerIsValid.mockClear();
     mockOtpManagerDelete.mockClear();
-  });
-
-  it('rejects a disabled account with ACCOUNT_DISABLED', async () => {
-    mockDB.accountRecord = jest.fn(() =>
-      Promise.resolve(disabledAccountRecord(uid))
-    );
-
-    await expect(runTest(route, mockRequest)).rejects.toMatchObject({
-      errno: error.ERRNO.ACCOUNT_DISABLED,
-    });
   });
 
   it('should create new account and session for valid code', () => {

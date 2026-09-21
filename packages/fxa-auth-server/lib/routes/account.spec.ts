@@ -380,13 +380,6 @@ describe('/account/reset', () => {
     glean.resetPassword.recoveryKeyCreatePasswordSuccess.mockReset();
   });
 
-  it('rejects a disabled account with ACCOUNT_DISABLED', async () => {
-    mockDB.accountDisabledAt.mockResolvedValueOnce(MOCK_DISABLED_AT);
-    await expect(runTest(route, mockRequest)).rejects.toMatchObject({
-      errno: error.ERRNO.ACCOUNT_DISABLED,
-    });
-  });
-
   describe('reset account with account recovery key', () => {
     let res: any;
     beforeEach(() => {
@@ -2072,7 +2065,6 @@ describe('/account/finish_setup', () => {
         authSalt: '',
         wrapWrapKb: 'wibble',
         verifierSetAt: options.verifierSetAt,
-        disabledAt: options.disabledAt,
       },
       {
         emailRecord: error.unknownAccount(),
@@ -2136,16 +2128,6 @@ describe('/account/finish_setup', () => {
       expect(mockDB.resetAccount).toHaveBeenCalledTimes(1);
       expect(response.sessionToken).toBeTruthy();
       expect(response.uid).toBe(uid);
-    });
-  });
-
-  it('rejects a disabled stub account with ACCOUNT_DISABLED', async () => {
-    const { route, mockRequest } = setup({
-      verifierSetAt: 0,
-      disabledAt: MOCK_DISABLED_AT,
-    });
-    await expect(runTest(route, mockRequest)).rejects.toMatchObject({
-      errno: error.ERRNO.ACCOUNT_DISABLED,
     });
   });
 
@@ -4022,13 +4004,6 @@ describe('/account/keys', () => {
     }).then(() => {
       mockLog.activityEvent.mockClear();
       mockDB.deleteKeyFetchToken.mockClear();
-    });
-  });
-
-  it('rejects a disabled account with ACCOUNT_DISABLED', async () => {
-    mockDB.accountDisabledAt.mockResolvedValueOnce(MOCK_DISABLED_AT);
-    await expect(runTest(route, mockRequest)).rejects.toMatchObject({
-      errno: error.ERRNO.ACCOUNT_DISABLED,
     });
   });
 

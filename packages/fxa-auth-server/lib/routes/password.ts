@@ -23,7 +23,6 @@ import { schema as METRICS_CONTEXT_SCHEMA } from '../metrics/context';
 import { gleanMetrics } from '../metrics/glean';
 import * as requestHelper from '../routes/utils/request_helper';
 import { AuthLogger, AuthRequest } from '../types';
-import { assertAccountEnabled } from './utils/account';
 import { recordSecurityEvent } from './utils/security-event';
 import * as validators from './validators';
 import { getClientServiceTags } from '../metrics/client-tags';
@@ -337,7 +336,6 @@ module.exports = function (
           const password = new Password(authPW, authSalt, verifierVersion);
           const verifyHash = await password.verifyHash();
           const account = await db.account(passwordChangeToken.uid);
-          assertAccountEnabled(account);
           const wrapWrapKb = await password.wrap(wrapKb);
 
           let isPasswordUpgrade = false;
@@ -995,7 +993,6 @@ module.exports = function (
         request.validateMetricsContext();
 
         const account = await db.accountRecord(email);
-        assertAccountEnabled(account);
 
         const isPrimaryOrVerifiedEmail =
           emailsMatch(account.primaryEmail.normalizedEmail, email) ||
@@ -1100,7 +1097,6 @@ module.exports = function (
         request.validateMetricsContext();
 
         const account = await db.accountRecord(email);
-        assertAccountEnabled(account);
         const isValidCode = await otpManager.isValid(account.uid, code);
 
         if (!isValidCode) {
@@ -1223,7 +1219,6 @@ module.exports = function (
           db.accountEmails(passwordForgotToken.uid),
           db.account(passwordForgotToken.uid),
         ]);
-        assertAccountEnabled(account);
 
         const {
           browser: uaBrowser,

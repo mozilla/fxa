@@ -29,7 +29,15 @@ jest.mock('fxa-shared/db/models/auth', () => ({
   Account: {
     delete: jest.fn().mockResolvedValue(null),
     reset: jest.fn().mockResolvedValue(null),
-    query: jest.fn(),
+    // Default query resolves no row, i.e. an account that is not disabled.
+    query: jest.fn(() => {
+      const chain: any = {
+        select: () => chain,
+        where: () => chain,
+        first: async () => undefined,
+      };
+      return chain;
+    }),
   },
 }));
 
@@ -66,6 +74,7 @@ jest.mock('fxa-shared/connected-services', () => {
 const config = require('../config').default.getProperties();
 const models: any = require('fxa-shared/db/models/auth');
 const { createDB } = require('./db');
+const { ERRNO } = require('@fxa/accounts/errors');
 
 describe('db, session tokens expire:', () => {
   const tokenLifetimes = {
@@ -208,7 +217,7 @@ describe('db with redis disabled:', () => {
     const MOCK_DISABLED_AT = 1_700_000_000_000;
 
     function givenAccountRow(row: { disabledAt: number | null } | undefined) {
-      models.Account.query.mockReturnValue({
+      models.Account.query.mockReturnValueOnce({
         select: jest.fn().mockReturnThis(),
         where: jest.fn().mockReturnThis(),
         first: jest.fn().mockResolvedValue(row),
@@ -228,6 +237,68 @@ describe('db with redis disabled:', () => {
     it('returns null when the account does not exist', async () => {
       givenAccountRow(undefined);
       expect(await db.accountDisabledAt(MOCK_UID)).toBeNull();
+    });
+  });
+
+  describe('creating credentials for a disabled account', () => {
+    const MOCK_UID = 'f9416ce3703e4916a4cd6b1e665a3f1a';
+    const MOCK_DISABLED_AT = 1_700_000_000_000;
+
+    function givenAccountDisabledAt(disabledAt: number | null) {
+      models.Account.query.mockReturnValueOnce({
+        select: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        first: jest.fn().mockResolvedValue({ disabledAt }),
+      });
+    }
+
+    it.each([
+      [
+        'createSessionToken',
+        (d: any) => d.createSessionToken({ uid: MOCK_UID }),
+      ],
+      [
+        'createPasskeyVerifiedSessionToken',
+        (d: any) => d.createPasskeyVerifiedSessionToken({ uid: MOCK_UID }),
+      ],
+      [
+        'createKeyFetchToken',
+        (d: any) => d.createKeyFetchToken({ uid: MOCK_UID }),
+      ],
+      [
+        'createPasswordForgotToken',
+        (d: any) => d.createPasswordForgotToken({ uid: MOCK_UID }),
+      ],
+      [
+        'createPasswordChangeToken',
+        (d: any) => d.createPasswordChangeToken({ uid: MOCK_UID }),
+      ],
+      ['createUnblockCode', (d: any) => d.createUnblockCode(MOCK_UID)],
+      [
+        'forgotPasswordVerified',
+        (d: any) =>
+          d.forgotPasswordVerified({
+            id: 'ab'.repeat(32),
+            uid: MOCK_UID,
+            verificationMethod: 0,
+          }),
+      ],
+    ])('%s rejects with ACCOUNT_DISABLED', async (_name, call) => {
+      givenAccountDisabledAt(MOCK_DISABLED_AT);
+      await expect(call(db)).rejects.toMatchObject({
+        errno: ERRNO.ACCOUNT_DISABLED,
+      });
+    });
+
+    it('createSessionToken succeeds for an enabled account', async () => {
+      givenAccountDisabledAt(null);
+      const token = await db.createSessionToken({
+        uid: MOCK_UID,
+        email: 'enabled@example.com',
+        emailVerified: true,
+        verifierSetAt: 1,
+      });
+      expect(token.uid).toBe(MOCK_UID);
     });
   });
 
@@ -409,10 +480,10 @@ describe('redis enabled, token-pruning enabled:', () => {
   });
 
   it('should call redis.pruneSessionTokens in db.createSessionToken', async () => {
-    await db.createSessionToken({ uid: 'wibble' });
+    await db.createSessionToken({ uid: 'f9416ce3703e4916a4cd6b1e665a3f1a' });
     expect(redis.pruneSessionTokens).toHaveBeenCalledTimes(1);
     expect(redis.pruneSessionTokens).toHaveBeenCalledWith(
-      'wibble',
+      'f9416ce3703e4916a4cd6b1e665a3f1a',
       expect.anything()
     );
   });
@@ -424,11 +495,11 @@ describe('redis enabled, token-pruning enabled:', () => {
     db.metrics = metrics;
 
     const result = await db.createPasskeyVerifiedSessionToken({
-      uid: 'wibble',
+      uid: 'f9416ce3703e4916a4cd6b1e665a3f1a',
     });
     expect(redis.pruneSessionTokens).toHaveBeenCalledTimes(1);
     expect(redis.pruneSessionTokens).toHaveBeenCalledWith(
-      'wibble',
+      'f9416ce3703e4916a4cd6b1e665a3f1a',
       expect.anything()
     );
     // Uses createVerified (the passkey proc), not the plain create
