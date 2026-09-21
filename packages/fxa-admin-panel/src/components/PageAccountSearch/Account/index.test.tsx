@@ -736,6 +736,22 @@ describe('account history', () => {
     ];
   };
 
+  it('explains the verified column once the help is opened', async () => {
+    const user = userEvent.setup();
+    const { getByText } = render(
+      <Account {...accountResponse} securityEvents={buildSecurityEvents(1)} />
+    );
+    const explanation = getByText(/already deleted when the event was recorded/);
+
+    expect(explanation).not.toBeVisible();
+
+    await user.click(getByText('What does Verified mean?'));
+
+    expect(explanation).toBeVisible();
+    expect(getByText(/still needs verification/)).toBeVisible();
+    expect(getByText(/legacy row/)).toBeVisible();
+  });
+
   it('labels the verified column', () => {
     const { getByRole } = render(
       <Account {...accountResponse} securityEvents={buildSecurityEvents(1)} />
