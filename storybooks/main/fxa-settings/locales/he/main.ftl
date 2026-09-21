@@ -1276,6 +1276,12 @@ pair2-authority-scan-qr-heading = יש לסרוק כדי לחבר את המכש�
 pair2-authority-scan-qr-instruction = יש לסרוק את קוד ה־QR באמצעות הטלפון או מחשב הלוח שלך כדי לסנכרן את הסימניות, הלשוניות שלך ועוד ב־{ -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = קוד QR לחיבור המכשיר הנייד שלך
 pair2-authority-scan-qr-help-link = קבלת עזרה בסריקה
+pair2-authority-scan-qr-skip-button = דילוג לבינתיים
+
+
+pair2-authority-sync-success-heading-v2 = המכשיר שלך מחובר
+pair2-authority-sync-success-description-v2 = הסנכרון בתהליך. ייתכן שייקח זמן מה עד שהנתונים המסונכרנים שלך יופיעו. לבינתיים אפשר להרגיש חופשי להמשיך לגלוש.
+pair2-authority-sync-success-sync-settings-button-v2 = ניהול הגדרות סנכרון
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = עדיין רוצה לחבר מכשיר?
@@ -1308,6 +1314,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = מידע נוסף
 
 
 pair2-supplicant-sync-success-heading = המכשיר שלך מחובר
+pair2-supplicant-sync-success-description-v2 = הסנכרון בתהליך. ייתכן שייקח זמן מה עד שהנתונים המסונכרנים שלך יופיעו. לבינתיים אפשר להרגיש חופשי להמשיך לגלוש.
+pair2-supplicant-sync-success-sync-settings-button-v2 = ניהול הגדרות סנכרון
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = נראה שזמן הפעולה פג

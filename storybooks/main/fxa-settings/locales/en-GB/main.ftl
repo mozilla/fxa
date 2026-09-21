@@ -1322,6 +1322,12 @@ pair2-authority-scan-qr-heading = Scan to connect your mobile device
 pair2-authority-scan-qr-instruction = Scan the QR code with your phone or tablet to synchronise your { -brand-firefox } bookmarks, tabs and more.
 pair2-authority-scan-qr-code-aria-label = QR code to connect your mobile device
 pair2-authority-scan-qr-help-link = Get help scanning
+pair2-authority-scan-qr-skip-button = Skip for now
+
+
+pair2-authority-sync-success-heading-v2 = Your device is connected
+pair2-authority-sync-success-description-v2 = Synchronisation is under way. It may take a while for your synchronised data to appear. Feel free to keep browsing.
+pair2-authority-sync-success-sync-settings-button-v2 = Manage synchronisation settings
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Still want to connect a device?
@@ -1354,6 +1360,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Learn more
 
 
 pair2-supplicant-sync-success-heading = Your device is connected
+pair2-supplicant-sync-success-description-v2 = Synchronisation is under way. It may take a while for your synchronised data to appear. Feel free to keep browsing.
+pair2-supplicant-sync-success-sync-settings-button-v2 = Manage synchronisation settings
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Looks like we timed out

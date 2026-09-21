@@ -1,8 +1,8 @@
 {
-  "commit": "63e36a9aa7483461bb77c3b11f5ce18347338ba6",
-  "summary": "Merge pull request #21155 from mozilla/FXA-14220",
-  "description": "feat(passkey): expose wrap state on the password reset flow",
-  "timestamp": 1790028676000,
+  "commit": "397dd41b09589d0f9f65fc62d1f5db30139750cc",
+  "summary": "Merge pull request #21223 from mozilla/FXA-13151",
+  "description": "feat(settings): wire up the password-free passkey opt-in",
+  "timestamp": 1790032638000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
