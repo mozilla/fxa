@@ -1094,6 +1094,10 @@ recent-activity-account-recovery-codes-set = Қалпына келтіру ко�
 recent-activity-account-passkey-wrap-created = Рұқсат кілті синхрондау үшін іске қосылды
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
 recent-activity-account-passkey-wrap-creation-failure = Рұқсат кілтімен синхрондауды баптау сәтсіз аяқталды
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey that could unlock the user's synced browser data had that access turned off, leaving the passkey itself usable for signing in.
+recent-activity-account-passkey-wrap-deleted = Рұқсат кілтінің синхрондауға қол жеткізу мүмкіндігі өшірілді
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to turn off a passkey's access to the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-deletion-failure = Рұқсат кілтінің синхрондауға қол жеткізу мүмкіндігін өшіру сәтсіз аяқталды
 # A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
 recent-activity-account-passkey-wrap-invalidated = Парольді қалпына келтіруден кейін рұқсат кілтімен синхрондауға қол жеткізу өшірілген
 # Security event was recorded, but the activity details are unknown or not shown to user
@@ -1626,6 +1630,19 @@ index-account-delete-success = Тіркелгі сәтті өшірілді
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = Сіздің растау хатыңыз қайтарылды. Эл. пошта адресін қате тердіңіз бе?
 
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+# Browser tab title.
+inline-passwordless-sync-setup-page-title = Келесі жолы парольді өткізіп жіберу керек пе?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner = { -brand-firefox } ішіне кірдіңіз
+inline-passwordless-sync-setup-heading = Келесі жолы парольді өткізіп жіберу керек пе?
+inline-passwordless-sync-setup-description = Жылдам кіру үшін осы рұқсат кілтін пайдаланыңыз.
+inline-passwordless-sync-setup-enable-button = Рұқсат кілтін іске қосу
+# Button label while the passkey is stored.
+inline-passwordless-sync-setup-enabling = Іске қосылуда…
+inline-passwordless-sync-setup-not-now-button = Қазір емес
+
 ## InlineRecoveryKeySetup page component
 
 inline-recovery-key-setup-create-error = Тіркелгіңізді қалпына келтіру кілтін жасай алмадық. Әрекетті кейінірек қайталап көріңіз.
@@ -1908,6 +1925,8 @@ pair2-authority-sync-success-sync-settings-button = Синхрондау бап�
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Әлі де құрылғыны қосқыңыз келе ме?
 pair2-authority-timeout-and-cancel-timeout-description = Байланыс орнатуға бөлінген уақыт өтіп кеткен сияқты. Мобильді құрылғыңызды қосып, { -brand-firefox } деректеріңізді синхрондағыңыз келсе, қайталап көріңіз.
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-cancelled-heading = Бас тартылған
 pair2-authority-timeout-and-cancel-canceled-description = Егер ойыңызды өзгертсеңіз немесе басқа құрылғыны қосқыңыз келсе, қайталап көріңіз.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Қайтадан көру
@@ -1988,6 +2007,8 @@ pair2-supplicant-sync-success-sync-settings-button = Синхрондау бап
 pair2-supplicant-timeout-and-cancel-timeout-heading = Бөлінген уақыт өтіп кеткен сияқты
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = Мобильді құрылғыңызды қосу және { -brand-firefox } деректеріңізді синхрондау үшін компьютеріңізден <b>firefox.com/pair</b> сайтына кіріңіз.
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Бас тартылған
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Құрылғыны кез келген уақытта қосу үшін компьютеріңізден <b>firefox.com/pair</b> сайтына кіріңіз.
 

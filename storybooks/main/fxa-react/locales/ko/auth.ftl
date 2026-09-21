@@ -370,7 +370,13 @@ subscriptionPaymentProviderCancelled-content-reason-1 = 결제 방법이 만료�
 subscriptionReactivation-subject-2 = { $productName } 구독이 재활성화됨
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-free-trial-subject = { $productName } 무료 평가판이 재활성화되었습니다
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = { $productName } 구독을 다시 활성화해 주셔서 감사합니다!
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-free-trial-title = { $productName } 무료 평가판을 다시 활성화해 주셔서 감사합니다!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

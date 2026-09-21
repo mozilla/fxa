@@ -378,7 +378,13 @@ subscriptionPaymentProviderCancelled-content-reason-1 = Η μέθοδος πλη
 subscriptionReactivation-subject-2 = Η συνδρομή σας στο { $productName } έχει ενεργοποιηθεί εκ νέου
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-free-trial-subject = Η δωρεάν δοκιμαστική περίοδος του { $productName } έχει ενεργοποιηθεί εκ νέου
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = Ευχαριστούμε για την εκ νέου ενεργοποίηση της συνδρομής σας στο { $productName }!
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-free-trial-title = Ευχαριστούμε για την εκ νέου ενεργοποίηση της δωρεάν δοκιμαστικής περιόδου του { $productName }!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

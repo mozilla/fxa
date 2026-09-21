@@ -1630,6 +1630,19 @@ index-account-delete-success = Επιτυχής διαγραφή λογαρια�
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = Το email επιβεβαίωσής σας μόλις επιστράφηκε. Μήπως πληκτρολογήσατε λάθος email;
 
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+# Browser tab title.
+inline-passwordless-sync-setup-page-title = Παράλειψη του κωδικού πρόσβασης την επόμενη φορά;
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner = Συνδεθήκατε στο { -brand-firefox }
+inline-passwordless-sync-setup-heading = Παράλειψη του κωδικού πρόσβασης την επόμενη φορά;
+inline-passwordless-sync-setup-description = Χρησιμοποιήστε αυτό το κλειδί πρόσβασης για ταχύτερη σύνδεση.
+inline-passwordless-sync-setup-enable-button = Ενεργοποίηση κλειδιού πρόσβασης
+# Button label while the passkey is stored.
+inline-passwordless-sync-setup-enabling = Ενεργοποίηση…
+inline-passwordless-sync-setup-not-now-button = Όχι τώρα
+
 ## InlineRecoveryKeySetup page component
 
 inline-recovery-key-setup-create-error = Ωχ! Δεν ήταν δυνατή η δημιουργία του κλειδιού ανάκτησης του λογαριασμού σας. Δοκιμάστε ξανά αργότερα.
@@ -1912,6 +1925,8 @@ pair2-authority-sync-success-sync-settings-button = Ρυθμίσεις συγχ�
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Θέλετε ακόμα να συνδέσετε μια συσκευή;
 pair2-authority-timeout-and-cancel-timeout-description = Φαίνεται ότι το χρονικό όριο έληξε. Δοκιμάστε ξανά αν θέλετε ακόμα να συνδέσετε την κινητή συσκευή σας και να συγχρονίσετε τα δεδομένα του { -brand-firefox } σας.
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-cancelled-heading = Ακυρώθηκε
 pair2-authority-timeout-and-cancel-canceled-description = Εάν αλλάξετε γνώμη ή θέλετε να συνδέσετε μια άλλη συσκευή, δοκιμάστε ξανά.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Δοκιμή ξανά
@@ -1992,6 +2007,8 @@ pair2-supplicant-sync-success-sync-settings-button = Ρυθμίσεις συγχ
 pair2-supplicant-timeout-and-cancel-timeout-heading = Φαίνεται ότι το χρονικό όριο έληξε
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = Για να συνδέσετε την κινητή σας συσκευή και να συγχρονίσετε τα δεδομένα σας από το { -brand-firefox }, επισκεφθείτε το <b>firefox.com/pair</b> από τον υπολογιστή σας.
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Ακυρώθηκε
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Για να συνδέσετε μια συσκευή ανά πάσα στιγμή, επισκεφθείτε το <b>firefox.com/pair</b> από τον υπολογιστή σας.
 

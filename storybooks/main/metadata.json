@@ -1,8 +1,8 @@
 {
-  "commit": "354665d3016e14a34f0af3ad6566eb975697ecde",
-  "summary": "Merge pull request #21261 from mozilla/fxa-13592",
-  "description": "fix(settings): bold email address on code verification screens",
-  "timestamp": 1789771905000,
+  "commit": "d355788135401046d61cf6a8a54d27dadb743d9f",
+  "summary": "Merge pull request #21271 from mozilla/dependabot/github_actions/docker/build-push-action-7.4.0",
+  "description": "chore(deps): bump docker/build-push-action from 7.3.0 to 7.4.0",
+  "timestamp": 1789999370000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
