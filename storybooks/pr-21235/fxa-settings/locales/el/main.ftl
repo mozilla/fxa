@@ -1246,6 +1246,15 @@ index-account-delete-success = Επιτυχής διαγραφή λογαρια�
 index-email-bounced = Το email επιβεβαίωσής σας μόλις επιστράφηκε. Μήπως πληκτρολογήσατε λάθος email;
 
 
+inline-passwordless-sync-setup-page-title = Παράλειψη του κωδικού πρόσβασης την επόμενη φορά;
+inline-passwordless-sync-setup-success-banner = Συνδεθήκατε στο { -brand-firefox }
+inline-passwordless-sync-setup-heading = Παράλειψη του κωδικού πρόσβασης την επόμενη φορά;
+inline-passwordless-sync-setup-description = Χρησιμοποιήστε αυτό το κλειδί πρόσβασης για ταχύτερη σύνδεση.
+inline-passwordless-sync-setup-enable-button = Ενεργοποίηση κλειδιού πρόσβασης
+inline-passwordless-sync-setup-enabling = Ενεργοποίηση…
+inline-passwordless-sync-setup-not-now-button = Όχι τώρα
+
+
 inline-recovery-key-setup-create-error = Ωχ! Δεν ήταν δυνατή η δημιουργία του κλειδιού ανάκτησης του λογαριασμού σας. Δοκιμάστε ξανά αργότερα.
 inline-recovery-key-setup-recovery-created = Το κλειδί ανάκτησης λογαριασμού δημιουργήθηκε
 inline-recovery-key-setup-download-header = Ασφαλίστε τον λογαριασμό σας
@@ -1383,16 +1392,17 @@ pair2-authority-scan-qr-heading = Κάντε σάρωση για να συνδέ
 pair2-authority-scan-qr-instruction = Σαρώστε τον κωδικό QR με το τηλέφωνο ή το tablet σας για να συγχρονίσετε τους σελιδοδείκτες, τις καρτέλες και άλλα δεδομένα του { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = Κωδικός QR για σύνδεση της κινητής σας συσκευής
 pair2-authority-scan-qr-help-link = Λήψη βοήθειας με τη σάρωση
+pair2-authority-scan-qr-skip-button = Παράλειψη για την ώρα
 
 
-pair2-authority-sync-success-heading = Γίνεται συγχρονισμός
-pair2-authority-sync-success-description = Οι καρτέλες, οι σελιδοδείκτες, οι κωδικοί πρόσβασης και πολλά άλλα είναι έτοιμα σε όλες τις συσκευές σας.
-pair2-authority-sync-success-view-tabs-button = Προβολή συγχρονισμένων καρτελών
-pair2-authority-sync-success-sync-settings-button = Ρυθμίσεις συγχρονισμού
+pair2-authority-sync-success-heading-v2 = Η συσκευή σας έχει συνδεθεί
+pair2-authority-sync-success-description-v2 = Ο συγχρονισμός βρίσκεται σε εξέλιξη. Ενδέχεται να χρειαστεί λίγος χρόνος μέχρι να εμφανιστούν τα συγχρονισμένα δεδομένα σας. Στο μεταξύ, μπορείτε να συνεχίσετε την περιήγηση.
+pair2-authority-sync-success-sync-settings-button-v2 = Διαχείριση ρυθμίσεων συγχρονισμού
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Θέλετε ακόμα να συνδέσετε μια συσκευή;
 pair2-authority-timeout-and-cancel-timeout-description = Φαίνεται ότι το χρονικό όριο έληξε. Δοκιμάστε ξανά αν θέλετε ακόμα να συνδέσετε την κινητή συσκευή σας και να συγχρονίσετε τα δεδομένα του { -brand-firefox } σας.
+pair2-authority-timeout-and-cancel-cancelled-heading = Ακυρώθηκε
 pair2-authority-timeout-and-cancel-canceled-description = Εάν αλλάξετε γνώμη ή θέλετε να συνδέσετε μια άλλη συσκευή, δοκιμάστε ξανά.
 pair2-authority-timeout-and-cancel-try-again-button = Δοκιμή ξανά
 pair2-authority-timeout-and-cancel-sync-settings-button = Ρυθμίσεις συγχρονισμού
@@ -1420,13 +1430,13 @@ pair2-supplicant-ready-to-scan-learn-more-link = Μάθετε περισσότε
 
 
 pair2-supplicant-sync-success-heading = Η συσκευή σας έχει συνδεθεί
-pair2-supplicant-sync-success-description = Οι σελιδοδείκτες, οι καρτέλες και πολλά άλλα θα συγχρονίζονται στο { -brand-firefox }.
-pair2-supplicant-sync-success-view-tabs-button = Προβολή συγχρονισμένων καρτελών
-pair2-supplicant-sync-success-sync-settings-button = Ρυθμίσεις συγχρονισμού
+pair2-supplicant-sync-success-description-v2 = Ο συγχρονισμός βρίσκεται σε εξέλιξη. Ενδέχεται να χρειαστεί λίγος χρόνος μέχρι να εμφανιστούν τα συγχρονισμένα δεδομένα σας. Στο μεταξύ, μπορείτε να συνεχίσετε την περιήγηση.
+pair2-supplicant-sync-success-sync-settings-button-v2 = Διαχείριση ρυθμίσεων συγχρονισμού
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Φαίνεται ότι το χρονικό όριο έληξε
 pair2-supplicant-timeout-and-cancel-timeout-description = Για να συνδέσετε την κινητή σας συσκευή και να συγχρονίσετε τα δεδομένα σας από το { -brand-firefox }, επισκεφθείτε το <b>firefox.com/pair</b> από τον υπολογιστή σας.
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Ακυρώθηκε
 pair2-supplicant-timeout-and-cancel-canceled-description = Για να συνδέσετε μια συσκευή ανά πάσα στιγμή, επισκεφθείτε το <b>firefox.com/pair</b> από τον υπολογιστή σας.
 
 

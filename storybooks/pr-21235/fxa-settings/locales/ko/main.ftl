@@ -339,6 +339,7 @@ promo-qr-mobile-heading-treatment-e = 개인 정보 보호가 여기서 그치�
 promo-qr-mobile-heading-treatment-f = 웹 탐색 기록을 더 안전하게 지켜보세요
 promo-qr-mobile-heading-treatment-g = 휴대폰에 불필요한 것들을 덜어보세요
 promo-qr-mobile-heading-treatment-h = 더욱 차분하게 브라우징하세요.
+promo-qr-mobile-description-v2 = 스캔하여 모바일 앱 다운로드
 promo-qr-mobile-qr-alt =
     .alt = { -brand-firefox } 모바일 앱을 다운로드하는 QR 코드입니다. 스캔하려면 휴대전화의 카메라를 화면 오른쪽 하단에 두세요.
 
@@ -806,6 +807,8 @@ recent-activity-account-passwordless-registration-complete = 비밀번호 없는
 recent-activity-account-recovery-codes-set = 복구 코드 설정됨
 recent-activity-account-passkey-wrap-created = 동기화를 위한 패스키 켜짐
 recent-activity-account-passkey-wrap-creation-failure = 패스키로 동기화 설정 실패
+recent-activity-account-passkey-wrap-deleted = 패스키 동기화 접근이 삭제됨
+recent-activity-account-passkey-wrap-deletion-failure = 패스키 동기화 접근 삭제 실패
 recent-activity-account-passkey-wrap-invalidated = 비밀번호 재설정 후 패스키 동기화 접근이 제거됨
 recent-activity-unknown = 기타 계정 활동
 
@@ -1148,6 +1151,15 @@ index-account-delete-success = 계정이 성공적으로 삭제됨
 index-email-bounced = 확인 이메일이 반송되었습니다. 이메일을 잘못 입력했나요?
 
 
+inline-passwordless-sync-setup-page-title = 다음에 비밀번호를 건너뛰시겠습니까?
+inline-passwordless-sync-setup-success-banner = { -brand-firefox }에 로그인됨
+inline-passwordless-sync-setup-heading = 다음에 비밀번호를 건너뛰시겠습니까?
+inline-passwordless-sync-setup-description = 이 패스키를 사용하여 더 빠르게 로그인하십시오.
+inline-passwordless-sync-setup-enable-button = 패스키 활성화
+inline-passwordless-sync-setup-enabling = 활성화 중…
+inline-passwordless-sync-setup-not-now-button = 지금 안 함
+
+
 inline-recovery-key-setup-create-error = 이런! 계정 복구 키를 만들지 못했습니다. 잠시 후에 다시 시도해 주세요.
 inline-recovery-key-setup-recovery-created = 계정 복구 키 생성됨
 inline-recovery-key-setup-download-header = 계정을 보호하세요.
@@ -1256,6 +1268,11 @@ pair-wait-for-auth-heading-text = 이제 <span>다른 기기</span>에서 승인
 
 pair-unsupported-header = 앱으로 페어링
 pair-unsupported-message = 기본 카메라를 쓰셨습니까? { -brand-firefox } 앱 안의 카메라로 페어링해야 합니다.
+pair-unsupported-oops-header = 이런! { -brand-firefox }를 사용하고 있지 않은 것 같습니다.
+pair-unsupported-switch-to-firefox = { -brand-firefox }로 전환하고 이 페이지를 열어 다른 기기와 연결하세요.
+pair-unsupported-oops-mobile = 이런! { -brand-firefox }를 사용하고 있지 않은 것 같습니다.
+pair-unsupported-connecting-mobile-header-v2 = { -product-mozilla-account }에 모바일 기기 연결 중
+pair-unsupported-connecting-mobile-instructions-v2 = 컴퓨터에서 { -brand-firefox }를 열고 <b>firefox.com/pair</b>를 방문하고, 화면의 안내에 따라 모바일 기기를 연결합니다.
 pair-unsupported-learn-more-link-v2 = 더 알아보기
 pair-unsupported-desktop-firefox-fallback-header-v2 = 앗! 무엇인가 잘못되었습니다.
 pair-unsupported-desktop-firefox-fallback-message-v2 = 이 탭을 닫고 다시 시도하세요.
@@ -1263,33 +1280,47 @@ pair-unsupported-desktop-firefox-fallback-message-v2 = 이 탭을 닫고 다시 
 
 pair2-authority-approve-sign-in-heading = 로그인을 승인하시겠습니까?
 pair2-authority-approve-sign-in-confirm-button = 예, 로그인을 승인합니다.
+pair2-authority-approve-sign-in-change-password = 본인이 아닌가요? <changePassword>비밀번호를 변경</changePassword>
 
 
 pair2-authority-continue-on-mobile-heading = 모바일 기기에서 계속하기
+pair2-authority-continue-on-mobile-description = 스마트폰 또는 태블릿에서 단계를 따르세요.
 pair2-authority-continue-on-mobile-cancel-button = 취소
 
 
 pair2-authority-download-firefox-heading = 동기화를 위해 { -brand-firefox } 열기
+pair2-authority-download-firefox-instruction = 기기 간 동기화를 설정하려면 이 기기에서 { -brand-firefox }를 열고 <b>firefox.com/pair</b>를 방문하세요.
 pair2-authority-download-firefox-cta = { -brand-firefox } 다운로드
 
 
+pair2-authority-scan-qr-heading = 스캔하여 모바일 기기 연결
+pair2-authority-scan-qr-instruction = 폰이나 태블릿으로 QR 코드를 스캔하여 { -brand-firefox } 북마크, 탭 등을 동기화하세요.
 pair2-authority-scan-qr-code-aria-label = 모바일 기기와 연결하기 위한 QR 코드
+pair2-authority-scan-qr-help-link = 스캔 도움 받기
 
 
-pair2-authority-sync-success-heading = 동기화 중
-pair2-authority-sync-success-view-tabs-button = 동기화된 탭 보기
-pair2-authority-sync-success-sync-settings-button = 동기화 설정
-
-
+pair2-authority-timeout-and-cancel-timeout-heading = 그래도 연결하시겠습니까?
+pair2-authority-timeout-and-cancel-timeout-description = 시간이 초과된 것 같습니다. 여전히 모바일 기기를 연결하고 { -brand-firefox } 데이터를 동기화하고 싶으시면 다시 시도하세요.
+pair2-authority-timeout-and-cancel-cancelled-heading = 취소됨
+pair2-authority-timeout-and-cancel-canceled-description = 마음을 바꾸었거나 다른 기기도 연결하고 싶다면 다시 시도하세요.
 pair2-authority-timeout-and-cancel-try-again-button = 다시 시도
 pair2-authority-timeout-and-cancel-sync-settings-button = 동기화 설정
 
 
+pair2-supplicant-approve-sign-in-heading = 동기화를 위한 마지막 단계
+pair2-supplicant-approve-sign-in-instruction = 컴퓨터에서 로그인을 승인하세요.
+pair2-supplicant-approve-sign-in-cancel-button = 취소
+
+
 pair2-supplicant-connect-this-device-heading = 이 기기를 계정에 연결하시겠습니까?
+pair2-supplicant-connect-this-device-connect-button = 연결
 pair2-supplicant-connect-this-device-cancel-button = 취소
 
 
 pair2-supplicant-download-firefox-heading = 이 기기에 { -brand-firefox } 다운로드
+pair2-supplicant-download-firefox-description = { -brand-firefox }를 다운로드하여 북마크, 기록 등을 여러 기기에 동기화하세요. <linkExternal>더 알아보기</linkExternal>
+pair2-supplicant-download-firefox-continue-button = { -brand-firefox }에서 계속
+pair2-supplicant-download-firefox-opening-button = { -brand-firefox } 실행 중…
 
 
 pair2-supplicant-ready-to-scan-heading = 기기를 연결하려면
@@ -1298,8 +1329,12 @@ pair2-supplicant-ready-to-scan-learn-more-link = 더 알아보기
 
 
 pair2-supplicant-sync-success-heading = 기기가 연결되었습니다
-pair2-supplicant-sync-success-view-tabs-button = 동기화된 탭 보기
-pair2-supplicant-sync-success-sync-settings-button = 동기화 설정
+
+
+pair2-supplicant-timeout-and-cancel-timeout-heading = 시간이 초과된 것 같습니다
+pair2-supplicant-timeout-and-cancel-timeout-description = 모바일 기기를 연결하고 { -brand-firefox } 데이터를 동기화하려면, 컴퓨터에서 <b>firefox.com/pair</b>에 접속하세요.
+pair2-supplicant-timeout-and-cancel-cancelled-heading = 취소됨
+pair2-supplicant-timeout-and-cancel-canceled-description = 언제든 기기에 연결하려면, 컴퓨터에서 <b>firefox.com/pair</b>에 접속하세요.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } 확인됨
@@ -1359,6 +1394,7 @@ confirm-totp-reset-password-use-different-account = 다른 계정 사용
 
 
 password-reset-flow-heading = 비밀번호 재설정
+password-reset-body-3 = 비밀번호를 재설정하면 동기화된 브라우저 데이터에 영향을 줄 수 있습니다.
 password-reset-email-input =
     .label = 이메일 입력
 password-reset-submit-button-2 = 계속

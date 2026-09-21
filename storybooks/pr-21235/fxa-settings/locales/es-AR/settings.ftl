@@ -1632,7 +1632,7 @@ index-email-bounced = El correo electrónico de confirmación fue devuelto. ¿Ha
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = ¿Omitir la contraseña la próxima vez?
 # Success banner after signing in.
-inline-passwordless-sync-setup-success-banner = Se conectó a { -brand-firefox }
+inline-passwordless-sync-setup-success-banner = Sesión iniciada en { -brand-firefox }
 inline-passwordless-sync-setup-heading = ¿Omitir la contraseña la próxima vez?
 inline-passwordless-sync-setup-description = Usá esta clave de acceso para iniciar sesión más rápido.
 inline-passwordless-sync-setup-enable-button = Habilitar clave de acceso
@@ -1901,18 +1901,18 @@ pair2-authority-scan-qr-instruction = Escaneá el código QR con tu teléfono o 
 pair2-authority-scan-qr-code-aria-label = Código QR para conectar tu dispositivo móvil
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Ayuda para escanear
+# Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
+pair2-authority-scan-qr-skip-button = Saltar por ahora
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
-## It confirms that sync is on and offers the follow-up actions.
+## It confirms that sync is on and links to sync settings.
 
-# "syncing" here means copying data between the user's devices
-pair2-authority-sync-success-heading = Estás sincronizando
-pair2-authority-sync-success-description = Tus pestañas, marcadores, contraseñas y más están listos en todos tus dispositivos.
-# Opens the tabs that are open on the user's other synced devices
-pair2-authority-sync-success-view-tabs-button = Ver pestañas sincronizadas
+pair2-authority-sync-success-heading-v2 = Tu dispositivo está conectado
+# "Syncing" here means copying data between the user's devices
+pair2-authority-sync-success-description-v2 = La sincronización está en proceso. Los datos sincronizados pueden tardar un tiempo en aparecer. Siéntase libre de seguir navegando.
 # Opens the browser settings that control what is synced
-pair2-authority-sync-success-sync-settings-button = Configuración de Sync
+pair2-authority-sync-success-sync-settings-button-v2 = Administrar configuración de sincronización
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1988,11 +1988,10 @@ pair2-supplicant-ready-to-scan-learn-more-link = Conocer más
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Tu dispositivo está conectado
-pair2-supplicant-sync-success-description = Tus marcadores, pestañas y más permanecerán sincronizados en { -brand-firefox }.
-# Opens the view listing tabs open on the user's other synced devices
-pair2-supplicant-sync-success-view-tabs-button = Ver pestañas sincronizadas
+# "Syncing" here means copying data between the user's devices
+pair2-supplicant-sync-success-description-v2 = La sincronización está en proceso. Los datos sincronizados pueden tardar un tiempo en aparecer. Siéntase libre de seguir navegando.
 # Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button = Configuración de Sync
+pair2-supplicant-sync-success-sync-settings-button-v2 = Administrar configuración de sincronización
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,

@@ -1191,6 +1191,15 @@ index-account-delete-success = Konto je so wuspěšnje zhašało
 index-email-bounced = Waša wobkrućenska e-mejl je so runje wróćiła. Je e-mejlowa adresa wopak?
 
 
+inline-passwordless-sync-setup-page-title = Hesło přichodny raz přeskočić?
+inline-passwordless-sync-setup-success-banner = Pola { -brand-firefox } přizjewjeny
+inline-passwordless-sync-setup-heading = Hesło přichodny raz přeskočić?
+inline-passwordless-sync-setup-description = Wužiwajće tutón hesłowy kluč, zo byšće so spěšnišo přizjewił.
+inline-passwordless-sync-setup-enable-button = Hesłowy kluč zmóžnić
+inline-passwordless-sync-setup-enabling = Zmóžnja so…
+inline-passwordless-sync-setup-not-now-button = Nic nětko
+
+
 inline-recovery-key-setup-create-error = Hopla! Njemóžachmy waš kontowy wobnowjenski kluč wutworić. Prošu spytajće pozdźišo hišće raz.
 inline-recovery-key-setup-recovery-created = Kontowy wobnowjenski kluč je so wutworił
 inline-recovery-key-setup-download-header = Zawěsćće swoje konto
@@ -1328,16 +1337,16 @@ pair2-authority-scan-qr-heading = Skenujće, zo byšće ze swojim mobilnym grato
 pair2-authority-scan-qr-instruction = Skenujće QR-kod ze swojim telefonom abo tabletom, zo byšće swoje zapołožki, rajtarki { -brand-firefox } a wjace synchronizował.
 pair2-authority-scan-qr-code-aria-label = QR-kod za zwjazowanje z wašim mobilnym gratom
 pair2-authority-scan-qr-help-link = Pomoc za skenowanje dóstać
+pair2-authority-scan-qr-skip-button = Mjeztym přeskočić
 
 
-pair2-authority-sync-success-heading = Synchronizujeće
-pair2-authority-sync-success-description = Waše rajtarki, zapołožki, hesła a wjace su hotowe na wašich gratach.
-pair2-authority-sync-success-view-tabs-button = Synchronizowane rajtarki pokazać
-pair2-authority-sync-success-sync-settings-button = Nastajenja synchronizacije
+pair2-authority-sync-success-heading-v2 = Waš grat je zwjazany
+pair2-authority-sync-success-sync-settings-button-v2 = Nastajenja synchronizacije rjadować
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Chceće hišće grat zwjazać?
 pair2-authority-timeout-and-cancel-timeout-description = Zda so, zo smy čas překročili. Spytajće hišće raz, jeli hišće chceće swój mobilny grat zwjazać a swoje daty { -brand-firefox } synchronizować.
+pair2-authority-timeout-and-cancel-cancelled-heading = Přetorhnjeny
 pair2-authority-timeout-and-cancel-canceled-description = Jeli swoje měnjenje měnjeće abo chceće druhi grat zwjazać, spytajće hišće raz.
 pair2-authority-timeout-and-cancel-try-again-button = Hišće raz spytać
 pair2-authority-timeout-and-cancel-sync-settings-button = Nastajenja synchronizacije
@@ -1365,13 +1374,12 @@ pair2-supplicant-ready-to-scan-learn-more-link = Dalše informacije
 
 
 pair2-supplicant-sync-success-heading = Waš grat je zwjazany
-pair2-supplicant-sync-success-description = Waše zapołožki, rajtarki a wjace w { -brand-firefox } synchronizowane wostanu.
-pair2-supplicant-sync-success-view-tabs-button = Synchronizowane rajtarki pokazać
-pair2-supplicant-sync-success-sync-settings-button = Nastajenja synchronizacije
+pair2-supplicant-sync-success-sync-settings-button-v2 = Nastajenja synchronizacije rjadować
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zda so, zo smy čas překročili
 pair2-supplicant-timeout-and-cancel-timeout-description = Zo byšće swój mobilny grat zwjazał a swoje daty { -brand-firefox } synchronizował, wopytajće <b>firefox.com/pair</b> na swojim ličaku.
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Přetorhnjeny
 pair2-supplicant-timeout-and-cancel-canceled-description = Zo byšće grat kóždy čas zwjazał, wopytajće <b>firefox.com/pair</b> na swojim ličaku.
 
 

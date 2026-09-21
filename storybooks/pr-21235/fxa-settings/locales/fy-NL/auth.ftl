@@ -378,7 +378,13 @@ subscriptionPaymentProviderCancelled-content-reason-1 = Miskien is jo betellings
 subscriptionReactivation-subject-2 = Jo abonnemint op { $productName } is opnij aktivearre
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-free-trial-subject = Jo fergeze proefperioade fan { $productName } is opnij aktivearre
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = Tank foar it opnij aktivearjen fan jo abonnemint op { $productName }!
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-free-trial-title = Tank foar it opnij aktivearjen fan jo fergeze proefperioade fan { $productName }!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

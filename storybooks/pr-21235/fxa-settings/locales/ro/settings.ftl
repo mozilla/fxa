@@ -1636,6 +1636,19 @@ index-account-delete-success = Cont șters cu succes
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = Mesajul de confirmare pe e-mail tocmai a fost returnat. Ai scris corect adresa?
 
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+# Browser tab title.
+inline-passwordless-sync-setup-page-title = Sari peste parolă data viitoare?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner = Ești autentificat(ă) în { -brand-firefox }
+inline-passwordless-sync-setup-heading = Sari peste parolă data viitoare?
+inline-passwordless-sync-setup-description = Folosește cheia de acces pentru a intra în cont mai rapid.
+inline-passwordless-sync-setup-enable-button = Activează cheia de acces
+# Button label while the passkey is stored.
+inline-passwordless-sync-setup-enabling = Se activează…
+inline-passwordless-sync-setup-not-now-button = Nu acum
+
 ## InlineRecoveryKeySetup page component
 
 inline-recovery-key-setup-create-error = Ups! Nu am putut crea cheia de recuperare a contului. Te rugăm să încerci din nou mai târziu.
@@ -1898,18 +1911,6 @@ pair2-authority-scan-qr-code-aria-label = Cod QR pentru conectarea dispozitivulu
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Obține ajutor la scanare
 
-## SyncSuccess page - Part of the desktop-to-mobile pairing flow
-## Users see this on their computer once the mobile device has been paired.
-## It confirms that sync is on and offers the follow-up actions.
-
-# "syncing" here means copying data between the user's devices
-pair2-authority-sync-success-heading = Te sincronizezi
-pair2-authority-sync-success-description = Filele, marcajele, parolele și multe altele sunt disponibile pe toate dispozitivele tale.
-# Opens the tabs that are open on the user's other synced devices
-pair2-authority-sync-success-view-tabs-button = Vezi filele sincronizate
-# Opens the browser settings that control what is synced
-pair2-authority-sync-success-sync-settings-button = Setări de sincronizare
-
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
 ## either because it timed out or because it was canceled. Both cases offer to
@@ -1918,6 +1919,8 @@ pair2-authority-sync-success-sync-settings-button = Setări de sincronizare
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Încă vrei să conectezi un dispozitiv?
 pair2-authority-timeout-and-cancel-timeout-description = Se pare că timpul de conectare a expirat. Încercă din nou dacă dorești în continuare să-ți conectezi dispozitivul mobil și să-ți sincronizezi datele { -brand-firefox }.
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-cancelled-heading = Anulat
 pair2-authority-timeout-and-cancel-canceled-description = Dacă te-ai răzgândit sau dorești să conectezi un alt dispozitiv, încercă din nou.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Încearcă din nou
@@ -1982,11 +1985,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Află mai multe
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Dispozitivul tău este conectat
-pair2-supplicant-sync-success-description = Marcajele, filele și altele vor rămâne sincronizate în { -brand-firefox }.
-# Opens the view listing tabs open on the user's other synced devices
-pair2-supplicant-sync-success-view-tabs-button = Vezi filele sincronizate
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button = Setări de sincronizare
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -1998,6 +1996,8 @@ pair2-supplicant-sync-success-sync-settings-button = Setări de sincronizare
 pair2-supplicant-timeout-and-cancel-timeout-heading = Se pare că timpul de conectare a expirat
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = Pentru a-ți conecta dispozitivul mobil și a-ți sincroniza datele { -brand-firefox }, accesează <b>firefox.com/pair</b> pe calculator.
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Anulat
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Pentru a conecta un dispozitiv oricând, accesează <b>firefox.com/pair</b> pe calculator.
 

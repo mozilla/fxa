@@ -386,7 +386,7 @@ remember-password-signin-link = Accedi
 ## LinkUsed component
 
 # The user followed a primary email confirmation link, but that link is has been used and is no longer valid
-primary-email-confirmation-link-reused = L’indirizzo email primario è già stato confermato
+primary-email-confirmation-link-reused = L’indirizzo email principale è già stato confermato
 # The user followed a sign-in confirmation link, but that link has been used and is no longer valid
 signin-confirmation-link-reused = L’accesso è già stato confermato
 confirmation-link-reused-message = Questo link di conferma è già stato utilizzato (e può essere utilizzato una sola volta).
@@ -469,7 +469,7 @@ ready-account-ready = Il tuo account è pronto
 ready-continue = Continua
 sign-in-complete-header = Accesso confermato
 sign-up-complete-header = Account confermato
-primary-email-verified-header = Indirizzo email primario confermato
+primary-email-verified-header = Indirizzo email principale confermato
 
 ## Users see this view when they are generating a new account recovery key
 ## This screen displays the generated key and allows users to download or copy the key
@@ -1616,10 +1616,10 @@ index-email-bounced = L’email di conferma è stata respinta. C’è un errore 
 ## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
 
 # Browser tab title.
-inline-passwordless-sync-setup-page-title = Saltare la password la prossima volta?
+inline-passwordless-sync-setup-page-title = Accedere senza password la prossima volta?
 # Success banner after signing in.
 inline-passwordless-sync-setup-success-banner = Accesso effettuato a { -brand-firefox }
-inline-passwordless-sync-setup-heading = Saltare la password la prossima volta?
+inline-passwordless-sync-setup-heading = Accedere senza password la prossima volta?
 inline-passwordless-sync-setup-description = Utilizza questa passkey per accedere più velocemente.
 inline-passwordless-sync-setup-enable-button = Attiva passkey
 # Button label while the passkey is stored.
@@ -1887,18 +1887,18 @@ pair2-authority-scan-qr-instruction = Scansiona il codice QR con il telefono o i
 pair2-authority-scan-qr-code-aria-label = Codice QR per connettere il tuo dispositivo mobile
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Aiuto per la scansione
+# Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
+pair2-authority-scan-qr-skip-button = Ignora per il momento
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
-## It confirms that sync is on and offers the follow-up actions.
+## It confirms that sync is on and links to sync settings.
 
-# "syncing" here means copying data between the user's devices
-pair2-authority-sync-success-heading = La sincronizzazione è attiva
-pair2-authority-sync-success-description = Schede, segnalibri, password e altri dati sono disponibili su tutti i tuoi dispositivi.
-# Opens the tabs that are open on the user's other synced devices
-pair2-authority-sync-success-view-tabs-button = Visualizza le schede sincronizzate
+pair2-authority-sync-success-heading-v2 = Il dispositivo è connesso
+# "Syncing" here means copying data between the user's devices
+pair2-authority-sync-success-description-v2 = La sincronizzazione è in corso. La visualizzazione dei dati sincronizzati potrebbe richiedere del tempo. Continua a navigare.
 # Opens the browser settings that control what is synced
-pair2-authority-sync-success-sync-settings-button = Sincronizza impostazioni
+pair2-authority-sync-success-sync-settings-button-v2 = Gestisci impostazioni di sincronizzazione
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1909,7 +1909,7 @@ pair2-authority-sync-success-sync-settings-button = Sincronizza impostazioni
 pair2-authority-timeout-and-cancel-timeout-heading = Vuoi ancora connettere un dispositivo?
 pair2-authority-timeout-and-cancel-timeout-description = Sembra che il tempo a disposizione sia scaduto. Riprova se vuoi ancora connettere il tuo dispositivo mobile e sincronizzare i dati di { -brand-firefox }.
 # Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-cancelled-heading = Annullata
+pair2-authority-timeout-and-cancel-cancelled-heading = Annullato
 pair2-authority-timeout-and-cancel-canceled-description = Se cambi idea o vuoi connettere un altro dispositivo, riprova.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Riprova
@@ -1974,11 +1974,10 @@ pair2-supplicant-ready-to-scan-learn-more-link = Ulteriori informazioni
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Il dispositivo è connesso
-pair2-supplicant-sync-success-description = I segnalibri, le schede e altri dati rimarranno sincronizzati in { -brand-firefox }.
-# Opens the view listing tabs open on the user's other synced devices
-pair2-supplicant-sync-success-view-tabs-button = Visualizza le schede sincronizzate
+# "Syncing" here means copying data between the user's devices
+pair2-supplicant-sync-success-description-v2 = La sincronizzazione è in corso. La visualizzazione dei dati sincronizzati potrebbe richiedere del tempo. Continua a navigare.
 # Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button = Sincronizza impostazioni
+pair2-supplicant-sync-success-sync-settings-button-v2 = Gestisci impostazioni di sincronizzazione
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -1991,7 +1990,7 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Sembra che il tempo a disp
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = Per connettere il dispositivo mobile e sincronizzare i dati di { -brand-firefox }, visita <b>firefox.com/pair</b> sul computer.
 # Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-cancelled-heading = Annullata
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Annullato
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Per connettere un dispositivo in qualsiasi momento, visita <b>firefox.com/pair</b> sul computer.
 

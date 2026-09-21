@@ -1176,6 +1176,15 @@ index-account-delete-success = Account deleted successfully
 index-email-bounced = Your confirmation email was just returned. Mistyped email?
 
 
+inline-passwordless-sync-setup-page-title = Skip the password next time?
+inline-passwordless-sync-setup-success-banner = Signed in to { -brand-firefox }
+inline-passwordless-sync-setup-heading = Skip the password next time?
+inline-passwordless-sync-setup-description = Use this passkey to sign in faster.
+inline-passwordless-sync-setup-enable-button = Enable passkey
+inline-passwordless-sync-setup-enabling = Enabling…
+inline-passwordless-sync-setup-not-now-button = Not now
+
+
 inline-recovery-key-setup-create-error = Oops! We couldn’t create your account recovery key. Please try again later.
 inline-recovery-key-setup-recovery-created = Account recovery key created
 inline-recovery-key-setup-download-header = Secure your account
@@ -1315,14 +1324,9 @@ pair2-authority-scan-qr-code-aria-label = QR code to connect your mobile device
 pair2-authority-scan-qr-help-link = Get help scanning
 
 
-pair2-authority-sync-success-heading = You’re synchronising
-pair2-authority-sync-success-description = Your tabs, bookmarks, passwords and more are ready across your devices.
-pair2-authority-sync-success-view-tabs-button = View synchronised tabs
-pair2-authority-sync-success-sync-settings-button = Synchronisation settings
-
-
 pair2-authority-timeout-and-cancel-timeout-heading = Still want to connect a device?
 pair2-authority-timeout-and-cancel-timeout-description = Looks like we timed out. Try again if you still want to connect your mobile device and synchronise your { -brand-firefox } data.
+pair2-authority-timeout-and-cancel-cancelled-heading = Cancelled
 pair2-authority-timeout-and-cancel-canceled-description = If you change your mind or want to connect a different device, try again.
 pair2-authority-timeout-and-cancel-try-again-button = Try again
 pair2-authority-timeout-and-cancel-sync-settings-button = Synchronisation settings
@@ -1350,13 +1354,11 @@ pair2-supplicant-ready-to-scan-learn-more-link = Learn more
 
 
 pair2-supplicant-sync-success-heading = Your device is connected
-pair2-supplicant-sync-success-description = Your bookmarks, tabs and more will stay synchronised in { -brand-firefox }.
-pair2-supplicant-sync-success-view-tabs-button = View synchronised tabs
-pair2-supplicant-sync-success-sync-settings-button = Synchronisation settings
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Looks like we timed out
 pair2-supplicant-timeout-and-cancel-timeout-description = To connect your mobile device and synchronise your { -brand-firefox } data, visit <b>firefox.com/pair</b> on your computer.
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelled
 pair2-supplicant-timeout-and-cancel-canceled-description = To connect a device at any time, visit <b>firefox.com/pair</b> on your computer.
 
 

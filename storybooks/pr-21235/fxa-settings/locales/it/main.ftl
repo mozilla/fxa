@@ -331,7 +331,7 @@ remember-password-passkey-text = Hai una passkey o ricordi la password?
 remember-password-signin-link = Accedi
 
 
-primary-email-confirmation-link-reused = L’indirizzo email primario è già stato confermato
+primary-email-confirmation-link-reused = L’indirizzo email principale è già stato confermato
 signin-confirmation-link-reused = L’accesso è già stato confermato
 confirmation-link-reused-message = Questo link di conferma è già stato utilizzato (e può essere utilizzato una sola volta).
 
@@ -387,7 +387,7 @@ ready-account-ready = Il tuo account è pronto
 ready-continue = Continua
 sign-in-complete-header = Accesso confermato
 sign-up-complete-header = Account confermato
-primary-email-verified-header = Indirizzo email primario confermato
+primary-email-verified-header = Indirizzo email principale confermato
 
 
 flow-recovery-key-download-storage-ideas-heading-v2 = Luoghi in cui conservare la chiave:
@@ -1177,9 +1177,9 @@ index-account-delete-success = L’account è stato correttamente eliminato
 index-email-bounced = L’email di conferma è stata respinta. C’è un errore di battitura nell’indirizzo email?
 
 
-inline-passwordless-sync-setup-page-title = Saltare la password la prossima volta?
+inline-passwordless-sync-setup-page-title = Accedere senza password la prossima volta?
 inline-passwordless-sync-setup-success-banner = Accesso effettuato a { -brand-firefox }
-inline-passwordless-sync-setup-heading = Saltare la password la prossima volta?
+inline-passwordless-sync-setup-heading = Accedere senza password la prossima volta?
 inline-passwordless-sync-setup-description = Utilizza questa passkey per accedere più velocemente.
 inline-passwordless-sync-setup-enable-button = Attiva passkey
 inline-passwordless-sync-setup-enabling = Attivazione…
@@ -1323,17 +1323,17 @@ pair2-authority-scan-qr-heading = Scansiona per connettere il tuo dispositivo mo
 pair2-authority-scan-qr-instruction = Scansiona il codice QR con il telefono o il tablet per sincronizzare segnalibri, schede e altri dati di { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = Codice QR per connettere il tuo dispositivo mobile
 pair2-authority-scan-qr-help-link = Aiuto per la scansione
+pair2-authority-scan-qr-skip-button = Ignora per il momento
 
 
-pair2-authority-sync-success-heading = La sincronizzazione è attiva
-pair2-authority-sync-success-description = Schede, segnalibri, password e altri dati sono disponibili su tutti i tuoi dispositivi.
-pair2-authority-sync-success-view-tabs-button = Visualizza le schede sincronizzate
-pair2-authority-sync-success-sync-settings-button = Sincronizza impostazioni
+pair2-authority-sync-success-heading-v2 = Il dispositivo è connesso
+pair2-authority-sync-success-description-v2 = La sincronizzazione è in corso. La visualizzazione dei dati sincronizzati potrebbe richiedere del tempo. Continua a navigare.
+pair2-authority-sync-success-sync-settings-button-v2 = Gestisci impostazioni di sincronizzazione
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Vuoi ancora connettere un dispositivo?
 pair2-authority-timeout-and-cancel-timeout-description = Sembra che il tempo a disposizione sia scaduto. Riprova se vuoi ancora connettere il tuo dispositivo mobile e sincronizzare i dati di { -brand-firefox }.
-pair2-authority-timeout-and-cancel-cancelled-heading = Annullata
+pair2-authority-timeout-and-cancel-cancelled-heading = Annullato
 pair2-authority-timeout-and-cancel-canceled-description = Se cambi idea o vuoi connettere un altro dispositivo, riprova.
 pair2-authority-timeout-and-cancel-try-again-button = Riprova
 pair2-authority-timeout-and-cancel-sync-settings-button = Sincronizza impostazioni
@@ -1361,14 +1361,13 @@ pair2-supplicant-ready-to-scan-learn-more-link = Ulteriori informazioni
 
 
 pair2-supplicant-sync-success-heading = Il dispositivo è connesso
-pair2-supplicant-sync-success-description = I segnalibri, le schede e altri dati rimarranno sincronizzati in { -brand-firefox }.
-pair2-supplicant-sync-success-view-tabs-button = Visualizza le schede sincronizzate
-pair2-supplicant-sync-success-sync-settings-button = Sincronizza impostazioni
+pair2-supplicant-sync-success-description-v2 = La sincronizzazione è in corso. La visualizzazione dei dati sincronizzati potrebbe richiedere del tempo. Continua a navigare.
+pair2-supplicant-sync-success-sync-settings-button-v2 = Gestisci impostazioni di sincronizzazione
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Sembra che il tempo a disposizione sia scaduto
 pair2-supplicant-timeout-and-cancel-timeout-description = Per connettere il dispositivo mobile e sincronizzare i dati di { -brand-firefox }, visita <b>firefox.com/pair</b> sul computer.
-pair2-supplicant-timeout-and-cancel-cancelled-heading = Annullata
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Annullato
 pair2-supplicant-timeout-and-cancel-canceled-description = Per connettere un dispositivo in qualsiasi momento, visita <b>firefox.com/pair</b> sul computer.
 
 

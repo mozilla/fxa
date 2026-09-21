@@ -1180,6 +1180,15 @@ index-account-delete-success = Conto delite con successo
 index-email-bounced = Tu message de confirmation ha justo ora essite retornate. Es le adresse de e-mail incorrecte?
 
 
+inline-passwordless-sync-setup-page-title = Saltar le contrasigno le proxime vice?
+inline-passwordless-sync-setup-success-banner = Connexe a { -brand-firefox }
+inline-passwordless-sync-setup-heading = Saltar le contrasigno le proxime vice??
+inline-passwordless-sync-setup-description = Usa iste clave-contrasigno pro acceder plus velocemente.
+inline-passwordless-sync-setup-enable-button = Activar clave-contrasigno
+inline-passwordless-sync-setup-enabling = Activation…
+inline-passwordless-sync-setup-not-now-button = Non ora
+
+
 inline-recovery-key-setup-create-error = Oops! Impossibile crear le clave de recuperation del conto. Retenta plus tarde.
 inline-recovery-key-setup-recovery-created = Clave de recuperation del conto create
 inline-recovery-key-setup-download-header = Protege tu conto
@@ -1319,14 +1328,9 @@ pair2-authority-scan-qr-code-aria-label = Codice QR pro connecter tu apparato mo
 pair2-authority-scan-qr-help-link = Obtener auxilio per le scansion
 
 
-pair2-authority-sync-success-heading = Tu te sta a synchronisar
-pair2-authority-sync-success-description = Tu schedas, marcapaginas, contrasignos, e plus es preste a transverso tu apparatos.
-pair2-authority-sync-success-view-tabs-button = Vider schedas synchronisate
-pair2-authority-sync-success-sync-settings-button = Configurationes del synchronisation
-
-
 pair2-authority-timeout-and-cancel-timeout-heading = Ancora vole tu connecter un apparato?
 pair2-authority-timeout-and-cancel-timeout-description = Il pare que nos exiva foras tempore limite. Retenta si tu ancora vole connecter tu apparato mobile e synchronisar tu datos de { -brand-firefox }.
+pair2-authority-timeout-and-cancel-cancelled-heading = Cancellate
 pair2-authority-timeout-and-cancel-canceled-description = Si tu cambia opinion o vole connecter un apparato differente, retenta.
 pair2-authority-timeout-and-cancel-try-again-button = Retentar
 pair2-authority-timeout-and-cancel-sync-settings-button = Configurationes del synchronisation
@@ -1354,13 +1358,11 @@ pair2-supplicant-ready-to-scan-learn-more-link = Pro saper plus
 
 
 pair2-supplicant-sync-success-heading = Tu apparato es connexe
-pair2-supplicant-sync-success-description = Tu marcapaginas, schedas, e plus stara synchronisate in { -brand-firefox }.
-pair2-supplicant-sync-success-view-tabs-button = Vider schedas synchronisate
-pair2-supplicant-sync-success-sync-settings-button = Configurationes del synchronisation
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Il pare que nos exiva foras tempore limite.
 pair2-supplicant-timeout-and-cancel-timeout-description = Pro connecter tu apparato mobile e synchronisar tu datos de { -brand-firefox }, visita <b>firefox.com/par</b> sur tu computator.
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancellate
 pair2-supplicant-timeout-and-cancel-canceled-description = Pro connecter un apparato quandocunque, visita <b>firefox.com/par</b> sur tu computator.
 
 

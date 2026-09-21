@@ -837,8 +837,8 @@ recent-activity-account-passwordless-registration-complete = Enregistrement du c
 recent-activity-account-recovery-codes-set = Codes de secours définis
 recent-activity-account-passkey-wrap-created = Clé d’accès activée pour la synchronisation
 recent-activity-account-passkey-wrap-creation-failure = Échec de la configuration de la synchronisation avec une clé d’accès
-recent-activity-account-passkey-wrap-deleted = Accès à la synchronisation et à la clé d’accès supprimé
-recent-activity-account-passkey-wrap-deletion-failure = Échec de la suppression de l’accès à la synchronisation et à la clé d’accès
+recent-activity-account-passkey-wrap-deleted = Accès à la synchronisation via clé d’accès supprimé
+recent-activity-account-passkey-wrap-deletion-failure = Échec de la suppression de l’accès à la synchronisation via la clé d’accès
 recent-activity-account-passkey-wrap-invalidated = Accès à la synchronisation par clé d’accès supprimé après la réinitialisation du mot de passe
 recent-activity-unknown = Autre activité du compte
 
@@ -1188,7 +1188,7 @@ index-email-bounced = Votre message de confirmation nous a été renvoyé. Véri
 inline-passwordless-sync-setup-page-title = Ignorer le mot de passe la prochaine fois ?
 inline-passwordless-sync-setup-success-banner = Connecté·e à { -brand-firefox }
 inline-passwordless-sync-setup-heading = Ignorer le mot de passe la prochaine fois ?
-inline-passwordless-sync-setup-description = Utilisez cette clé pour vous connecter plus rapidement.
+inline-passwordless-sync-setup-description = Utilisez cette clé d’accès pour vous connecter plus rapidement.
 inline-passwordless-sync-setup-enable-button = Activer la clé d’accès
 inline-passwordless-sync-setup-enabling = Activation…
 inline-passwordless-sync-setup-not-now-button = Plus tard
@@ -1331,12 +1331,12 @@ pair2-authority-scan-qr-heading = Scannez le code QR pour connecter votre appare
 pair2-authority-scan-qr-instruction = Scannez le code QR avec votre téléphone ou votre tablette pour synchroniser vos marque-pages, vos onglets et d’autres données de { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = Code QR pour connecter votre appareil mobile
 pair2-authority-scan-qr-help-link = Obtenir de l’aide pour scanner le code QR
+pair2-authority-scan-qr-skip-button = Passer pour le moment
 
 
-pair2-authority-sync-success-heading = La synchronisation est activée
-pair2-authority-sync-success-description = Vos onglets, marque-pages, mots de passe et autres données sont désormais disponibles sur tous vos appareils.
-pair2-authority-sync-success-view-tabs-button = Voir les onglets synchronisés
-pair2-authority-sync-success-sync-settings-button = Paramètres de synchronisation
+pair2-authority-sync-success-heading-v2 = Votre appareil est connecté
+pair2-authority-sync-success-description-v2 = Synchronisation en cours. L’affichage des données synchronisées peut prendre un certain temps. N’hésitez pas à continuer la navigation.
+pair2-authority-sync-success-sync-settings-button-v2 = Gérer les paramètres de synchronisation
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Vous souhaitez toujours connecter un appareil ?
@@ -1369,9 +1369,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = En savoir plus
 
 
 pair2-supplicant-sync-success-heading = Votre appareil est connecté
-pair2-supplicant-sync-success-description = Vos marque-pages, onglets et autres données resteront synchronisés dans { -brand-firefox }.
-pair2-supplicant-sync-success-view-tabs-button = Voir les onglets synchronisés
-pair2-supplicant-sync-success-sync-settings-button = Paramètres de synchronisation
+pair2-supplicant-sync-success-description-v2 = Synchronisation en cours. L’affichage des données synchronisées peut prendre un certain temps. N’hésitez pas à continuer la navigation.
+pair2-supplicant-sync-success-sync-settings-button-v2 = Gérer les paramètres de synchronisation
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Le délai de connexion a expiré

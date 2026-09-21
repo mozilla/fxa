@@ -1457,12 +1457,12 @@ pair2-authority-scan-qr-heading = Skenirajte za povezavo mobilne naprave
 pair2-authority-scan-qr-instruction = Skenirajte kodo QR s telefonom ali tablico za sinhronizacijo zaznamkov, zavihkov in drugih podatkov v storitvi { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = Koda QR za povezavo mobilne naprave
 pair2-authority-scan-qr-help-link = Pridobite pomoč pri branju
+pair2-authority-scan-qr-skip-button = Preskoči za zdaj
 
 
-pair2-authority-sync-success-heading = Sinhronizacija poteka
-pair2-authority-sync-success-description = Vaši zavihki, zaznamki, gesla in drugo so pripravljeni v vaših napravah.
-pair2-authority-sync-success-view-tabs-button = Prikaži sinhronizirane zavihke
-pair2-authority-sync-success-sync-settings-button = Nastavitve sinhronizacije
+pair2-authority-sync-success-heading-v2 = Vaša naprava je povezana
+pair2-authority-sync-success-description-v2 = Sinhronizacija je v teku. Lahko traja nekaj časa, preden se vaši sinhronizirani podatki pojavijo. Lahko nadaljujte z brskanjem.
+pair2-authority-sync-success-sync-settings-button-v2 = Nastavitve sinhronizacije
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Še vedno želite povezati napravo?
@@ -1495,9 +1495,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Več o tem
 
 
 pair2-supplicant-sync-success-heading = Vaša naprava je povezana
-pair2-supplicant-sync-success-description = Vaši zaznamki, zavihki in drugo bo v { -brand-firefox } ostalo sinhronizirano.
-pair2-supplicant-sync-success-view-tabs-button = Prikaži sinhronizirane zavihke
-pair2-supplicant-sync-success-sync-settings-button = Nastavitve sinhronizacije
+pair2-supplicant-sync-success-description-v2 = Sinhronizacija je v teku. Lahko traja nekaj časa, preden se vaši sinhronizirani podatki pojavijo. Lahko nadaljujte z brskanjem.
+pair2-supplicant-sync-success-sync-settings-button-v2 = Nastavitve sinhronizacije
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Kaže, da nam je potekla časovna omejitev

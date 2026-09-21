@@ -1632,6 +1632,19 @@ index-account-delete-success = Conto delite con successo
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = Tu message de confirmation ha justo ora essite retornate. Es le adresse de e-mail incorrecte?
 
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+# Browser tab title.
+inline-passwordless-sync-setup-page-title = Saltar le contrasigno le proxime vice?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner = Connexe a { -brand-firefox }
+inline-passwordless-sync-setup-heading = Saltar le contrasigno le proxime vice??
+inline-passwordless-sync-setup-description = Usa iste clave-contrasigno pro acceder plus velocemente.
+inline-passwordless-sync-setup-enable-button = Activar clave-contrasigno
+# Button label while the passkey is stored.
+inline-passwordless-sync-setup-enabling = Activation…
+inline-passwordless-sync-setup-not-now-button = Non ora
+
 ## InlineRecoveryKeySetup page component
 
 inline-recovery-key-setup-create-error = Oops! Impossibile crear le clave de recuperation del conto. Retenta plus tarde.
@@ -1894,18 +1907,6 @@ pair2-authority-scan-qr-code-aria-label = Codice QR pro connecter tu apparato mo
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Obtener auxilio per le scansion
 
-## SyncSuccess page - Part of the desktop-to-mobile pairing flow
-## Users see this on their computer once the mobile device has been paired.
-## It confirms that sync is on and offers the follow-up actions.
-
-# "syncing" here means copying data between the user's devices
-pair2-authority-sync-success-heading = Tu te sta a synchronisar
-pair2-authority-sync-success-description = Tu schedas, marcapaginas, contrasignos, e plus es preste a transverso tu apparatos.
-# Opens the tabs that are open on the user's other synced devices
-pair2-authority-sync-success-view-tabs-button = Vider schedas synchronisate
-# Opens the browser settings that control what is synced
-pair2-authority-sync-success-sync-settings-button = Configurationes del synchronisation
-
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
 ## either because it timed out or because it was canceled. Both cases offer to
@@ -1914,6 +1915,8 @@ pair2-authority-sync-success-sync-settings-button = Configurationes del synchron
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Ancora vole tu connecter un apparato?
 pair2-authority-timeout-and-cancel-timeout-description = Il pare que nos exiva foras tempore limite. Retenta si tu ancora vole connecter tu apparato mobile e synchronisar tu datos de { -brand-firefox }.
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-cancelled-heading = Cancellate
 pair2-authority-timeout-and-cancel-canceled-description = Si tu cambia opinion o vole connecter un apparato differente, retenta.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Retentar
@@ -1978,11 +1981,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Pro saper plus
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Tu apparato es connexe
-pair2-supplicant-sync-success-description = Tu marcapaginas, schedas, e plus stara synchronisate in { -brand-firefox }.
-# Opens the view listing tabs open on the user's other synced devices
-pair2-supplicant-sync-success-view-tabs-button = Vider schedas synchronisate
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button = Configurationes del synchronisation
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -1994,6 +1992,8 @@ pair2-supplicant-sync-success-sync-settings-button = Configurationes del synchro
 pair2-supplicant-timeout-and-cancel-timeout-heading = Il pare que nos exiva foras tempore limite.
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = Pro connecter tu apparato mobile e synchronisar tu datos de { -brand-firefox }, visita <b>firefox.com/par</b> sur tu computator.
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancellate
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Pro connecter un apparato quandocunque, visita <b>firefox.com/par</b> sur tu computator.
 

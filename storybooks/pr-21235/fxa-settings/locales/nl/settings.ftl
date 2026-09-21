@@ -1092,6 +1092,10 @@ recent-activity-account-recovery-codes-set = Herstelcodes ingesteld
 recent-activity-account-passkey-wrap-created = Wachtwoordsleutel voor synchronisatie ingeschakeld
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
 recent-activity-account-passkey-wrap-creation-failure = Synchronisatie instellen met wachtwoordsleutel mislukt
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey that could unlock the user's synced browser data had that access turned off, leaving the passkey itself usable for signing in.
+recent-activity-account-passkey-wrap-deleted = Toegang tot wachtwoordsleutelsynchronisatie verwijderd
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to turn off a passkey's access to the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-deletion-failure = Verwijderen van toegang tot wachtwoordsleutelsynchronisatie mislukt
 # A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
 recent-activity-account-passkey-wrap-invalidated = Wachtwoordsleutel-synchronisatietoegang verwijderd na opnieuw instellen wachtwoord
 # Security event was recorded, but the activity details are unknown or not shown to user
@@ -1625,6 +1629,19 @@ index-account-delete-success = Account met succes verwijderd
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = Uw bevestigings-e-mailbericht is zojuist geretourneerd. Hebt u het e-mailadres verkeerd getypt?
 
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+# Browser tab title.
+inline-passwordless-sync-setup-page-title = De volgende keer het wachtwoord overslaan?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner = Aangemeld bij { -brand-firefox }
+inline-passwordless-sync-setup-heading = De volgende keer het wachtwoord overslaan?
+inline-passwordless-sync-setup-description = Gebruik deze wachtwoordsleutel om u sneller aan te melden.
+inline-passwordless-sync-setup-enable-button = Wachtwoordsleutel inschakelen
+# Button label while the passkey is stored.
+inline-passwordless-sync-setup-enabling = Inschakelen…
+inline-passwordless-sync-setup-not-now-button = Niet nu
+
 ## InlineRecoveryKeySetup page component
 
 inline-recovery-key-setup-create-error = Oeps! We konden uw accountherstelsleutel niet aanmaken. Probeer het later opnieuw.
@@ -1887,18 +1904,6 @@ pair2-authority-scan-qr-code-aria-label = QR-code om uw mobiele apparaat te verb
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Hulp bij scannen ontvangen
 
-## SyncSuccess page - Part of the desktop-to-mobile pairing flow
-## Users see this on their computer once the mobile device has been paired.
-## It confirms that sync is on and offers the follow-up actions.
-
-# "syncing" here means copying data between the user's devices
-pair2-authority-sync-success-heading = U synchroniseert
-pair2-authority-sync-success-description = Uw tabbladen, bladwijzers, wachtwoorden en meer staan klaar op al uw apparaten.
-# Opens the tabs that are open on the user's other synced devices
-pair2-authority-sync-success-view-tabs-button = Gesynchroniseerde tabbladen bekijken
-# Opens the browser settings that control what is synced
-pair2-authority-sync-success-sync-settings-button = Synchronisatie-instellingen
-
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
 ## either because it timed out or because it was canceled. Both cases offer to
@@ -1907,6 +1912,8 @@ pair2-authority-sync-success-sync-settings-button = Synchronisatie-instellingen
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Wilt u toch een apparaat verbinden?
 pair2-authority-timeout-and-cancel-timeout-description = Het lijkt erop dat er een time-out is opgetreden. Probeer het opnieuw als u nog steeds verbinding wilt maken met uw mobiele apparaat en uw { -brand-firefox }-gegevens wilt synchroniseren.
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-cancelled-heading = Geannuleerd
 pair2-authority-timeout-and-cancel-canceled-description = Als u van gedachten verandert of een ander apparaat wilt verbinden, probeer het dan opnieuw.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Opnieuw proberen
@@ -1971,11 +1978,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Meer info
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Uw apparaat is verbonden
-pair2-supplicant-sync-success-description = Uw bladwijzers, tabbladen en meer blijven in { -brand-firefox } gesynchroniseerd.
-# Opens the view listing tabs open on the user's other synced devices
-pair2-supplicant-sync-success-view-tabs-button = Gesynchroniseerde tabbladen bekijken
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button = Synchronisatie-instellingen
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -1987,6 +1989,8 @@ pair2-supplicant-sync-success-sync-settings-button = Synchronisatie-instellingen
 pair2-supplicant-timeout-and-cancel-timeout-heading = Het lijkt erop dat er een time-out is opgetreden
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = Bezoek <b>firefox.com/pair</b> op uw computer om uw mobiele apparaat te verbinden en uw { -brand-firefox }-gegevens te synchroniseren.
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Geannuleerd
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Bezoek <b>firefox.com/pair</b> op uw computer om op elk gewenst moment een apparaat te verbinden.
 

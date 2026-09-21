@@ -1321,17 +1321,17 @@ pair2-authority-scan-qr-heading = Zum Verbinden mit Ihrem Mobilgerät scannen
 pair2-authority-scan-qr-instruction = Scannen Sie den QR-Code mit Ihrem Handy oder Tablet, um Ihre Lesezeichen, Tabs und mehr von { -brand-firefox } zu synchronisieren.
 pair2-authority-scan-qr-code-aria-label = QR-Code zum Verbinden Ihres Mobilgeräts
 pair2-authority-scan-qr-help-link = Hilfe beim Scannen
+pair2-authority-scan-qr-skip-button = Vorerst überspringen
 
 
-pair2-authority-sync-success-heading = Sie synchronisieren
-pair2-authority-sync-success-description = Ihre Tabs, Lesezeichen, Passwörter und mehr sind auf Ihren Geräten verfügbar.
-pair2-authority-sync-success-view-tabs-button = Synchronisierte Tabs anzeigen
-pair2-authority-sync-success-sync-settings-button = Synchronisationseinstellungen
+pair2-authority-sync-success-heading-v2 = Ihr Gerät ist verbunden
+pair2-authority-sync-success-description-v2 = Die Synchronisierung wird durchgeführt. Es kann eine Weile dauern, bis Ihre synchronisierten Daten angezeigt werden. Surfen Sie weiter.
+pair2-authority-sync-success-sync-settings-button-v2 = Synchronisations-Einstellungen verwalten
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Möchten Sie trotzdem ein Gerät verbinden?
 pair2-authority-timeout-and-cancel-timeout-description = Anscheinend trat eine Zeitüberschreitung auf. Versuchen Sie es erneut, wenn Sie Ihr Mobilgerät weiterhin verbinden und Ihre Daten von { -brand-firefox } synchronisieren möchten.
-pair2-authority-timeout-and-cancel-cancelled-heading = Abgesagt
+pair2-authority-timeout-and-cancel-cancelled-heading = Abgebrochen
 pair2-authority-timeout-and-cancel-canceled-description = Wenn Sie Ihre Meinung ändern oder ein anderes Gerät verbinden möchten, versuchen Sie es erneut.
 pair2-authority-timeout-and-cancel-try-again-button = Erneut versuchen
 pair2-authority-timeout-and-cancel-sync-settings-button = Synchronisationseinstellungen
@@ -1359,14 +1359,13 @@ pair2-supplicant-ready-to-scan-learn-more-link = Weitere Informationen
 
 
 pair2-supplicant-sync-success-heading = Ihr Gerät ist verbunden
-pair2-supplicant-sync-success-description = Ihre Lesezeichen, Tabs und mehr bleiben in { -brand-firefox } synchronisiert.
-pair2-supplicant-sync-success-view-tabs-button = Synchronisierte Tabs anzeigen
-pair2-supplicant-sync-success-sync-settings-button = Synchronisationseinstellungen
+pair2-supplicant-sync-success-description-v2 = Die Synchronisierung wird durchgeführt. Es kann eine Weile dauern, bis Ihre synchronisierten Daten angezeigt werden. Surfen Sie weiter.
+pair2-supplicant-sync-success-sync-settings-button-v2 = Synchronisations-Einstellungen verwalten
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zeitüberschreitung
 pair2-supplicant-timeout-and-cancel-timeout-description = Um Ihr Mobilgerät zu verbinden und Ihre { -brand-firefox }-Daten zu synchronisieren, besuchen Sie <b>firefox.com/pair</b> auf Ihrem Computer.
-pair2-supplicant-timeout-and-cancel-cancelled-heading = Abgesagt
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Abgebrochen
 pair2-supplicant-timeout-and-cancel-canceled-description = Um jederzeit ein Gerät zu verbinden, besuchen Sie <b>firefox.com/pair</b> auf Ihrem Computer.
 
 

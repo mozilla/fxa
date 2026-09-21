@@ -1130,6 +1130,15 @@ index-account-delete-success = החשבון נמחק בהצלחה
 index-email-bounced = הודעת האימות שלך לא הגיעה ליעדה. האם כתובת הדוא״ל הוקלדה בצורה שגויה?
 
 
+inline-passwordless-sync-setup-page-title = לדלג על הססמה בפעם הבאה?
+inline-passwordless-sync-setup-success-banner = התחברת ל־{ -brand-firefox }
+inline-passwordless-sync-setup-heading = לדלג על הססמה בפעם הבאה?
+inline-passwordless-sync-setup-description = ניתן להשתמש במפתח גישה זה כדי להתחבר מהר יותר.
+inline-passwordless-sync-setup-enable-button = הפעלת מפתח גישה
+inline-passwordless-sync-setup-enabling = בתהליך הפעלה…
+inline-passwordless-sync-setup-not-now-button = לא כעת
+
+
 inline-recovery-key-setup-create-error = אופס! לא הצלחנו ליצור מפתח לשחזור החשבון שלך. נא לנסות שוב מאוחר יותר.
 inline-recovery-key-setup-recovery-created = נוצר מפתח לשחזור החשבון
 inline-recovery-key-setup-download-header = אבטחת החשבון שלך
@@ -1269,14 +1278,9 @@ pair2-authority-scan-qr-code-aria-label = קוד QR לחיבור המכשיר ה
 pair2-authority-scan-qr-help-link = קבלת עזרה בסריקה
 
 
-pair2-authority-sync-success-heading = הסנכרון פעיל
-pair2-authority-sync-success-description = הלשוניות, הסימניות, הססמאות שלך ועוד מוכנים בכל המכשירים שלך.
-pair2-authority-sync-success-view-tabs-button = הצגת הלשוניות המסונכרנות
-pair2-authority-sync-success-sync-settings-button = הגדרות סנכרון
-
-
 pair2-authority-timeout-and-cancel-timeout-heading = עדיין רוצה לחבר מכשיר?
 pair2-authority-timeout-and-cancel-timeout-description = נראה שזמן הפעולה פג. יש לנסות שוב אם עדיין ברצונך לחבר את המכשיר הנייד שלך ולסנכרן את נתוני ה־{ -brand-firefox } שלך.
+pair2-authority-timeout-and-cancel-cancelled-heading = בוטל
 pair2-authority-timeout-and-cancel-canceled-description = אם תשנה את דעתך או שתרצה לחבר מכשיר אחר, ניתן לנסות שוב.
 pair2-authority-timeout-and-cancel-try-again-button = ניסיון חוזר
 pair2-authority-timeout-and-cancel-sync-settings-button = הגדרות סנכרון
@@ -1304,13 +1308,11 @@ pair2-supplicant-ready-to-scan-learn-more-link = מידע נוסף
 
 
 pair2-supplicant-sync-success-heading = המכשיר שלך מחובר
-pair2-supplicant-sync-success-description = הסימניות, הלשוניות ועוד שלך יישארו מסונכרנים ב־{ -brand-firefox }.
-pair2-supplicant-sync-success-view-tabs-button = הצגת הלשוניות המסונכרנות
-pair2-supplicant-sync-success-sync-settings-button = הגדרות סנכרון
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = נראה שזמן הפעולה פג
 pair2-supplicant-timeout-and-cancel-timeout-description = כדי לחבר את המכשיר הנייד שלך ולסנכרן את נתוני ה־{ -brand-firefox } שלך, יש לבקר באתר <b>firefox.com/pair</b> במחשב שלך.
+pair2-supplicant-timeout-and-cancel-cancelled-heading = בוטל
 pair2-supplicant-timeout-and-cancel-canceled-description = כדי לחבר מכשיר בכל עת, יש לבקר באתר <b>firefox.com/pair</b> במחשב שלך.
 
 
