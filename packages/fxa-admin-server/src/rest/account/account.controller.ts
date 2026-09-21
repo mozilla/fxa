@@ -494,25 +494,32 @@ export class AccountController {
       return false;
     }
 
-    await this.recordAdminSecurityEvent(uid, 'account.disable', req);
-    await this.notifyProfileChanged(uid);
+    await this.recordAccountStateChange(uid, 'account.disable', req);
     return true;
   }
 
-  // Best effort: the account state is already written and audited, so a
-  // cache or notifier failure must not fail the completed action.
-  private async notifyProfileChanged(uid: string) {
-    try {
-      await this.profileClient.deleteCache(uid);
-      await this.notifier.send({
+  // Best effort: the account state is already written, so a failed audit
+  // event, cache clear or notification must not fail the completed action.
+  private async recordAccountStateChange(
+    uid: string,
+    event: SecurityEventNames,
+    req: Request
+  ) {
+    const results = await Promise.allSettled([
+      this.recordAdminSecurityEvent(uid, event, req),
+      this.profileClient.deleteCache(uid),
+      this.notifier.send({
         event: 'profileDataChange',
         data: {
           ts: Date.now() / 1000,
           uid,
         },
-      });
-    } catch (err) {
-      Sentry.captureException(err, { extra: { uid } });
+      }),
+    ]);
+    for (const result of results) {
+      if (result.status === 'rejected') {
+        Sentry.captureException(result.reason, { extra: { uid, event } });
+      }
     }
   }
 
@@ -529,8 +536,7 @@ export class AccountController {
       return false;
     }
 
-    await this.recordAdminSecurityEvent(uid, 'account.enable', req);
-    await this.notifyProfileChanged(uid);
+    await this.recordAccountStateChange(uid, 'account.enable', req);
     return true;
   }
 

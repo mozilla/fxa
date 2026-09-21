@@ -376,6 +376,22 @@ describe('AccountController', () => {
       expect(await controller.disableAccount(MOCK_UID, mockRequest)).toBe(true);
     });
 
+    it('still reports success and notifies when the security event write fails', async () => {
+      givenAccountUpdated(1);
+      (db.securityEvents.create as jest.Mock).mockRejectedValue(
+        new Error('events table down')
+      );
+
+      expect(await controller.disableAccount(MOCK_UID, mockRequest)).toBe(true);
+      expect(notifier.send).toHaveBeenCalledWith({
+        event: 'profileDataChange',
+        data: { ts: expect.any(Number), uid: MOCK_UID },
+      });
+      expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(Error), {
+        extra: { uid: MOCK_UID, event: 'account.disable' },
+      });
+    });
+
     it('still reports success when the profile cache clear fails', async () => {
       givenAccountUpdated(1);
       profileClient.deleteCache.mockRejectedValue(
@@ -383,7 +399,7 @@ describe('AccountController', () => {
       );
       expect(await controller.disableAccount(MOCK_UID, mockRequest)).toBe(true);
       expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(Error), {
-        extra: { uid: MOCK_UID },
+        extra: { uid: MOCK_UID, event: 'account.disable' },
       });
     });
 
