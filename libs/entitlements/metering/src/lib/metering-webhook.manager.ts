@@ -60,7 +60,7 @@ export class MeteringWebhookManager {
 
     const body = JSON.stringify({
       slug: params.slug,
-      userIdentifier: params.subject,
+      subject: params.subject,
       threshold: params.threshold,
       currentUsage: params.currentUsage,
       limit: params.limit,
