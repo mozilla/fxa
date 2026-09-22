@@ -378,7 +378,13 @@ subscriptionPaymentProviderCancelled-content-reason-1 = Det kan være, at dit be
 subscriptionReactivation-subject-2 = Dit abonnement på { $productName } er blevet fornyet
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-free-trial-subject = Din gratis prøveperiode på { $productName } er blevet fornyet
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = Tak fordi du har fornyet dit abonnement på { $productName }!
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-free-trial-title = Tak fordi du har fornyet din gratis prøveperiode på { $productName }!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20
