@@ -26,7 +26,7 @@ import Banner from '../../components/Banner';
 import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
 import CmsLogo from '../../components/CmsLogo';
 import { useNavigateWithQuery } from '../../lib/hooks';
-import { usePasskeySignIn } from '../../lib/passkeys/signin-flow';
+import { usePasskeySignIn } from '../../lib/hooks/usePasskeySignIn';
 import { passkeySigninFeatureEnabled } from '../../lib/passkeys';
 
 export const Index = ({
@@ -265,7 +265,11 @@ export const Index = ({
             ? { isLoading: passkey.isLoading, onClick: handlePasskeyClick }
             : undefined
         }
-        errorBanner={showPasskeySignin ? passkey.errorBanner : undefined}
+        errorBanner={
+          showPasskeySignin && passkey.banner ? (
+            <Banner {...passkey.banner} />
+          ) : undefined
+        }
         onContinueWithGoogle={clearErrors}
         onContinueWithApple={clearErrors}
         disabled={authInProgress}
