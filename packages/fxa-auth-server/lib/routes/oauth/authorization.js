@@ -14,6 +14,7 @@ const {
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const validators = require('../../oauth/validators');
 const { validateRequestedGrant, generateTokens } = require('../../oauth/grant');
+const { recordStepUpMetrics } = require('../../metrics/step-up');
 const { makeAssertionJWT } = require('../../oauth/util');
 const verifyAssertion = require('../../oauth/assertion');
 const { isFirstAuthorization } = require('../../oauth/first-authorization');
@@ -48,7 +49,14 @@ function isLocalHost(url) {
   return LOOPBACK_HOSTS.has(host);
 }
 
-module.exports = ({ log, oauthDB, config, statsd, authServerCacheRedis }) => {
+module.exports = ({
+  log,
+  oauthDB,
+  config,
+  statsd,
+  glean,
+  authServerCacheRedis,
+}) => {
   if (!config) {
     config = require('../../../config').default.getProperties();
   }
@@ -364,7 +372,25 @@ module.exports = ({ log, oauthDB, config, statsd, authServerCacheRedis }) => {
       throw OauthError.unknownClient(payload.client_id);
     }
     validateClientDetails(client, payload);
-    const grant = await validateRequestedGrant(claims, client, payload);
+    // `request.app.isMetricsEnabled` memoizes on first read, and this handler also
+    // serves the unauthenticated /authorization routes, where there are no
+    // credentials to resolve a uid from. Stash it before the first Glean call or
+    // an opted-out account caches as opted in.
+    req.app.metricsEventUid = claims.uid;
+    // Resolved outside the observer: anything thrown in here would be swallowed
+    // by the gate's catch and take the funnel down silently.
+    const stepUpMetricsDeps = {
+      request: req,
+      uid: claims.uid,
+      clientId: hex(client.id),
+      statsd,
+      glean,
+      log,
+    };
+    const grant = await validateRequestedGrant(claims, client, payload, {
+      onStepUpEvaluated: (stepUp) =>
+        recordStepUpMetrics(stepUp, stepUpMetricsDeps),
+    });
     // Set before recordAuthorizationRows so the decision survives its early
     // returns and its swallow-all catch — the token is minted either way.
     grant.excludeDau = shouldExcludeSyncDau(req, grant);

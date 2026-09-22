@@ -1871,3 +1871,78 @@ passkey:
     expires: never
     data_sensitivity:
       - interaction
+
+step_up_auth:
+  requested:
+    type: event
+    description: |
+      An RFC 9470 step-up authentication requirement was evaluated by the OAuth
+      authorization gate, because the relying party sent acr_values=AAL2 and/or
+      max_age. Emitted from the shared authorization handler, so it covers both
+      POST /authorization and POST /oauth/authorization. Emitted for every such
+      request whether or not the requirement was met, so it is the denominator
+      of the step-up funnel.
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14440
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+  satisfied:
+    type: event
+    description: |
+      A step-up authentication requirement was met by the session as it stood,
+      so no second-factor challenge was required. The surrounding authorization
+      may still be refused for an unrelated reason, such as a disallowed scope.
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14440
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+  rejected:
+    type: event
+    description: |
+      A step-up authentication requirement was not met, so the authorization
+      was refused with errno 170. The user is normally routed to a
+      second-factor challenge; a prompt=none request cannot be challenged and
+      instead fails back to the relying party with
+      unmet_authentication_requirements. Pairs with step_up_auth.requested and
+      step_up_auth.satisfied: requested equals satisfied plus rejected.
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14440
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Why the requirement was not met. Values are "acr_values_unmet" (the
+          relying party asked for AAL2 and the session was below it),
+          "max_age_stale" (the session's authentication event was older than
+          the requested max_age), and "auth_time_missing" (the session carried
+          no authentication time, which fails closed).
+        type: string
