@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 822abca91dac9955d464f5e65909eea2279ceb2e</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 822abca91dac9955d464f5e65909eea2279ceb2e</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/22/2026, 7:47:05 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(oauth): deauthorize account authorizations on disconnect</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+- Withdrawing an authorization meant deleting the row, which also
+  discards the ToS record Product needs kept until account deletion.
+- The token-exchange gate could not tell &quot;has ever authorized&quot; apart
+  from &quot;is authorized now&quot;; both answers came from row presence.
+- Nothing retired an authorization when a client was disconnected, so a
+  withdrawn grant kept working.
+
+This commit:
+
+- Adds a nullable deauthorizedAt column, fxa_oauth 039 to 040, appended
+  and unindexed so the ALTER is INSTANT on the live table. The
+  accountAuthorizations_v2 shadow table is left unfiltered: it is being
+  removed.
+- Filters the sign-in and token-exchange reads on deauthorizedAt IS
+  NULL, leaving the first-authorization checks unfiltered by design.
+  Re-authorizing through /authorization clears it. prompt=none and token
+  exchange write nothing, as before: the user sees no ToS.
+- Adds deauthorizeAccountAuthorizations, guarded on the
+  lastAuthorizedTosAt the caller read so a racing re-auth survives.
+- On Connected Services and device disconnect, evaluates every row of
+  the user&#039;s. A row survives while a covering refresh token is held by
+  its own client or any client on its service&#039;s allowlist, so a browser
+  that reached VPN via token exchange (which writes no row) keeps the
+  consent alive. Tokens lost any other way (password reset, RFC 7009
+  destroy, pruning) trigger nothing: the user agreed to the ToS and
+  never opted out. The allowlist default now matches the prod override.
+- Exempts Firefox Desktop, which holds no refresh token until
+  bz2053654 and signs out by session token. A session carries no client
+  or scope identity, so we cannot tell which services it authorized;
+  its rows stay active.
+
+Closes FXA-14015</pre></dd>
+  </dl>
+</body>
+</html>
