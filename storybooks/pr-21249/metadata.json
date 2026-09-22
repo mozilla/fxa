@@ -1,8 +1,8 @@
 {
-  "commit": "9f7d7a33a11648075e30d00f155165ee30c4eb9f",
+  "commit": "bc032f2f27d7609bdbdc2935683505f2ad9cae4c",
   "summary": "fix(settings): zero passkey PRF output on every non-stash exit",
   "description": "Because:\n- signin-passkey-auth.ts states that a caller zeroes prfOut once the\n  assertion returns; no caller did, so the bytes stayed readable whenever\n  the material was not held.\n\nThis commit:\n- Zero prfOut when the interim wrap-offer stash does not hold it.\n- Zero it on the merge-decline exit and in the sign-in catch.",
-  "timestamp": 1790111335000,
+  "timestamp": 1790112470000,
   "storybooks": [
     "fxa-settings"
   ],
