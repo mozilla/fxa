@@ -1903,6 +1903,16 @@ pair2-authority-scan-qr-instruction = Scan de QR-code met uw telefoon of tablet 
 pair2-authority-scan-qr-code-aria-label = QR-code om uw mobiele apparaat te verbinden
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Hulp bij scannen ontvangen
+# Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
+pair2-authority-scan-qr-skip-button = Voorlopig overslaan
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and links to sync settings.
+
+pair2-authority-sync-success-heading-v2 = Uw apparaat is verbonden
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button-v2 = Synchronisatie-instellingen beheren
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1978,6 +1988,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Meer info
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Uw apparaat is verbonden
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button-v2 = Synchronisatie-instellingen beheren
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,

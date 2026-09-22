@@ -1,8 +1,8 @@
 {
-  "commit": "264d155d2d290d319c2ac4f17327e651b2095215",
-  "summary": "test(settings): unit-test the passkey sign-in steps directly",
-  "description": "Because:\n- The extracted steps can be tested without mounting the hook, and the\n  hook test was carrying their branch tables.\n\nThis commit:\n- Add signin-assertion, signin-account and wrap/offer tests covering the\n  WebAuthn error banners, PRF handling, service resolution, account lookup,\n  merge gate and wrap-offer probe.\n- Trim the same cases from the usePasskeySignIn test, keeping wiring and\n  status coverage.",
-  "timestamp": 1790033169000,
+  "commit": "9f7d7a33a11648075e30d00f155165ee30c4eb9f",
+  "summary": "fix(settings): zero passkey PRF output on every non-stash exit",
+  "description": "Because:\n- signin-passkey-auth.ts states that a caller zeroes prfOut once the\n  assertion returns; no caller did, so the bytes stayed readable whenever\n  the material was not held.\n\nThis commit:\n- Zero prfOut when the interim wrap-offer stash does not hold it.\n- Zero it on the merge-decline exit and in the sign-in catch.",
+  "timestamp": 1790111335000,
   "storybooks": [
     "fxa-settings"
   ],

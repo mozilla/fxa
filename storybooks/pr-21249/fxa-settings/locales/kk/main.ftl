@@ -1324,6 +1324,12 @@ pair2-authority-scan-qr-heading = Мобильді құрылғыңызды ба
 pair2-authority-scan-qr-instruction = { -brand-firefox } бетбелгілер, беттер және т.б. синхрондау үшін QR кодын телефоныңызбен немесе планшетіңізбен сканерлеңіз.
 pair2-authority-scan-qr-code-aria-label = Мобильді құрылғыңызды байланыстыру үшін QR коды
 pair2-authority-scan-qr-help-link = Сканерлеу бойынша көмек алыңыз
+pair2-authority-scan-qr-skip-button = Әзірше өткізіп жіберу
+
+
+pair2-authority-sync-success-heading-v2 = Сіздің құрылғыңыз байланысқан
+pair2-authority-sync-success-description-v2 = Синхрондау жүріп жатыр. Синхрондалған деректеріңіздің пайда болуы үшін біраз уақыт кетуі мүмкін. Шолуды жалғастырсаңыз болады.
+pair2-authority-sync-success-sync-settings-button-v2 = Синхрондау баптауларын басқару
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Әлі де құрылғыны қосқыңыз келе ме?
@@ -1356,6 +1362,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Көбірек білу
 
 
 pair2-supplicant-sync-success-heading = Сіздің құрылғыңыз байланысқан
+pair2-supplicant-sync-success-description-v2 = Синхрондау жүріп жатыр. Синхрондалған деректеріңіздің пайда болуы үшін біраз уақыт кетуі мүмкін. Шолуды жалғастырсаңыз болады.
+pair2-supplicant-sync-success-sync-settings-button-v2 = Синхрондау баптауларын басқару
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Бөлінген уақыт өтіп кеткен сияқты
