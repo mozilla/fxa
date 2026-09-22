@@ -378,7 +378,13 @@ subscriptionPaymentProviderCancelled-content-reason-1 = სავარაუდ
 subscriptionReactivation-subject-2 = თქვენ მიერ გამოწერილი { $productName } კვლავ ამოქმედდა
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-free-trial-subject = თქვენი უფასო საცდელი { $productName } კვლავ ამოქმედდა
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = გმადლობთ, რომ კვლავ გამოიწერეთ { $productName }!
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-free-trial-title = გმადლობთ, რომ კვლავ აამოქმედეთ უფასო საცდელი დროით { $productName }!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20
