@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 31a85e52be6b9278179ecad0480f785fe019a8cb</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 31a85e52be6b9278179ecad0480f785fe019a8cb</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/22/2026, 5:34:21 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): harden the passkey wrap opt-in</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- Wrap material could outlive the sign-in on unverified, non-OAuth and
+  other-account exits.
+- The kB stash threw from inside its own catch when no ceremony was pending.
+- The opt-in&#039;s Enable button could re-enter while its buffers were being
+  zeroed.
+
+This commit:
+- Gate the opt-in on a uid match, OAuth Sync and a verified session so the
+  existing clear covers every other exit.
+- Move the kB stash onto SensitiveDataClient as a method that cannot throw.
+- Add a synchronous re-entry guard to the opt-in Enable button.
+- Narrow caught store errors to AuthUiError; share the AAD uid derivation.
+- Add a useMounted hook and use it in the opt-in container.
+
+Issue: FXA-13151</pre></dd>
+  </dl>
+</body>
+</html>
