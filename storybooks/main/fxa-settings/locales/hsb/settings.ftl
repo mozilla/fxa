@@ -1925,6 +1925,8 @@ pair2-authority-scan-qr-skip-button = Mjeztym přeskočić
 ## It confirms that sync is on and links to sync settings.
 
 pair2-authority-sync-success-heading-v2 = Waš grat je zwjazany
+# "Syncing" here means copying data between the user's devices
+pair2-authority-sync-success-description-v2 = Synchronizacija je po puću. Móže chwilku trać, doniž so waše synchronizowane daty njejewja. Móžeće woměrnje dale přehladować.
 # Opens the browser settings that control what is synced
 pair2-authority-sync-success-sync-settings-button-v2 = Nastajenja synchronizacije rjadować
 
@@ -2002,6 +2004,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Dalše informacije
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Waš grat je zwjazany
+# "Syncing" here means copying data between the user's devices
+pair2-supplicant-sync-success-description-v2 = Synchronizacija je po puću. Móže chwilku trać, doniž so waše synchronizowane daty njejewja. Móžeće woměrnje dale přehladować.
 # Opens the browser's sync settings, where the user chooses what to sync
 pair2-supplicant-sync-success-sync-settings-button-v2 = Nastajenja synchronizacije rjadować
 

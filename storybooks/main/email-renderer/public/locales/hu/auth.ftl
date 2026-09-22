@@ -378,13 +378,13 @@ subscriptionPaymentProviderCancelled-content-reason-1 = Előfordulhat, hogy a fi
 subscriptionReactivation-subject-2 = A(z) { $productName } előfizetését újraaktiváltuk
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-free-trial-subject = A(z) { $productName } ingyenes próbaidőszak újra lett aktiválva
+subscriptionReactivation-free-trial-subject = A(z) { $productName } ingyenes próbaidőszaka újra lett aktiválva
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = Köszönjük, hogy újraaktiválta a { $productName } előfizetését.
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-subscriptionReactivation-free-trial-title = Köszönjük, hogy újraaktiválta a(z) { $productName } ingyenes próbaidőszakot!
+subscriptionReactivation-free-trial-title = Köszönjük, hogy újraaktiválta a(z) { $productName } ingyenes próbaidőszakát!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20
