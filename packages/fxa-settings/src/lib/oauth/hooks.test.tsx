@@ -5,7 +5,7 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 import AuthClient from 'fxa-auth-client/browser';
-import { stashKbForPendingWrap, useFinishOAuthFlowHandler } from './hooks';
+import { useFinishOAuthFlowHandler } from './hooks';
 import { AppContext, IntegrationType } from '../../models';
 import type { AppContextValue, Integration } from '../../models';
 import { mockAppContext } from '../../models/mocks';
@@ -16,9 +16,8 @@ jest.mock('../crypto/scoped-keys', () => ({
 }));
 
 const UID = '11111111222222223333333344444444';
-const OTHER_UID = 'ffffffff222222223333333344444444';
 const KB_HEX = '0a'.repeat(32);
-const KB_BYTES = new Uint8Array(32).fill(0x0a);
+const KB_BUFFER = new Uint8Array(32).fill(0x0a);
 
 const authClient = {
   accountKeys: jest.fn(),
@@ -84,48 +83,9 @@ beforeEach(() => {
   });
 });
 
-describe('stashKbForPendingWrap', () => {
-  it('adds kB as bytes to a pending wrap for the same account', () => {
-    sensitiveDataClient.PasskeyWrapData = pendingWrap();
-
-    stashKbForPendingWrap(sensitiveDataClient, UID, KB_HEX);
-
-    expect(sensitiveDataClient.PasskeyWrapData).toEqual({
-      ...pendingWrap(),
-      kB: KB_BYTES,
-    });
-  });
-
-  it('zeroes a kB already held before replacing it', () => {
-    const superseded = new Uint8Array(32).fill(7);
-    sensitiveDataClient.PasskeyWrapData = {
-      ...pendingWrap(),
-      kB: superseded,
-    };
-
-    stashKbForPendingWrap(sensitiveDataClient, UID, KB_HEX);
-
-    expect(superseded).toEqual(new Uint8Array(32));
-    expect(sensitiveDataClient.PasskeyWrapData?.kB).toEqual(KB_BYTES);
-  });
-
-  it('leaves a pending wrap for a different account untouched', () => {
-    sensitiveDataClient.PasskeyWrapData = pendingWrap(OTHER_UID);
-
-    stashKbForPendingWrap(sensitiveDataClient, UID, KB_HEX);
-
-    expect(sensitiveDataClient.PasskeyWrapData).toEqual(pendingWrap(OTHER_UID));
-  });
-
-  it('stores nothing when no ceremony asked for kB', () => {
-    stashKbForPendingWrap(sensitiveDataClient, UID, KB_HEX);
-
-    expect(sensitiveDataClient.PasskeyWrapData).toBeUndefined();
-  });
-});
-
-// Wiring only: the branches live in the block above. Without this, deleting the
-// call from the hook leaves `kB` unstashed and every test above still passing.
+// Wiring only: the branches live in sensitive-data-client.test.ts. Without
+// this, deleting the call from the hook leaves `kB` unstashed and every test
+// above still passing.
 describe('useFinishOAuthFlowHandler password-free passkey opt-in material', () => {
   it('hands kB to a ceremony waiting on this account', async () => {
     sensitiveDataClient.PasskeyWrapData = pendingWrap();
@@ -133,6 +93,6 @@ describe('useFinishOAuthFlowHandler password-free passkey opt-in material', () =
     const result = await finish();
 
     expect(result.error).toBeUndefined();
-    expect(sensitiveDataClient.PasskeyWrapData?.kB).toEqual(KB_BYTES);
+    expect(sensitiveDataClient.PasskeyWrapData?.kB).toEqual(KB_BUFFER);
   });
 });

@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import AuthClient from 'fxa-auth-client/browser';
-import { hexToUint8 } from 'fxa-auth-client/lib/utils';
 import { useCallback } from 'react';
 import {
   OAuthIntegration,
@@ -18,7 +17,6 @@ import { createEncryptedBundle } from '../crypto/scoped-keys';
 import { Constants } from '../constants';
 import { AuthError, OAUTH_ERRORS, OAuthError } from './oauth-errors';
 import { AuthUiErrors } from '../auth-errors/auth-errors';
-import type { SensitiveDataClient } from '../sensitive-data-client';
 
 export type OAuthData = {
   code: string;
@@ -242,7 +240,9 @@ export function useFinishOAuthFlowHandler(
             keyFetchToken,
             unwrapBKey
           );
-          stashKbForPendingWrap(sensitiveDataClient, accountUid, kB);
+          // The only point in a keys-bearing sign-in where `kB` exists
+          // client-side.
+          sensitiveDataClient.captureKbForPendingWrap(accountUid, kB);
           keys = await constructKeysJwe(
             authClient,
             oAuthIntegration,
@@ -336,27 +336,6 @@ export function useFinishOAuthFlowHandler(
     return { oAuthDataError, finishOAuthFlowHandler };
   }
   return { oAuthDataError: null, finishOAuthFlowHandler };
-}
-
-/**
- * Hands `kB` to a passkey ceremony that asked for it, when that ceremony was
- * for this same account. A keys-bearing sign-in is the only point where `kB`
- * exists client-side, so the password-free passkey opt-in collects it here.
- *
- * Overwrites any `kB` already held rather than dropping the reference, which
- * would leave the earlier bytes readable until garbage collection.
- */
-export function stashKbForPendingWrap(
-  sensitiveDataClient: SensitiveDataClient,
-  accountUid: string,
-  kBHex: string
-) {
-  const pendingWrap = sensitiveDataClient.PasskeyWrapData;
-  if (pendingWrap?.uid !== accountUid) {
-    return;
-  }
-  pendingWrap.kB?.fill(0);
-  pendingWrap.kB = hexToUint8(kBHex);
 }
 
 /**

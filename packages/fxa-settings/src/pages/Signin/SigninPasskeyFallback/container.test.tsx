@@ -110,6 +110,10 @@ jest.mock('../utils', () => ({
   handleNavigation: jest.fn(),
 }));
 
+afterEach(() => {
+  jest.restoreAllMocks();
+});
+
 function applyDefaultMocks(): void {
   jest.resetAllMocks();
   mockLocationState = MOCK_LOCATION_STATE;

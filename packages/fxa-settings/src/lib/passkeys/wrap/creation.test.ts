@@ -171,13 +171,15 @@ describe('createPasskeyWrap', () => {
       expect(beginVerificationMock).not.toHaveBeenCalled();
     });
 
-    it('hands an error without server fields back untouched', async () => {
-      const err = new Error('network down');
-      createPasskeyWrapApiMock.mockRejectedValue(err);
+    it('words a throw without an errno as the unexpected error', async () => {
+      createPasskeyWrapApiMock.mockRejectedValue(new TypeError('network down'));
 
       const outcome = await createPasskeyWrap(authClient(), args());
 
-      expect(outcome).toEqual({ ok: false, error: err });
+      expect(outcome).toEqual({
+        ok: false,
+        error: AuthUiErrors.UNEXPECTED_ERROR,
+      });
     });
   });
 
@@ -502,6 +504,15 @@ describe('retryPasskeyWrapStore', () => {
     createPasskeyWrapApiMock.mockRejectedValue(err);
 
     expect(await retry()).toEqual({ ok: false, error: err });
+  });
+
+  it('words a network failure on the retry store as the generic error', async () => {
+    createPasskeyWrapApiMock.mockRejectedValue(new TypeError('network down'));
+
+    expect(await retry()).toEqual({
+      ok: false,
+      error: AuthUiErrors.UNEXPECTED_ERROR,
+    });
   });
 
   it('keeps the envelope when the verification call is rate limited', async () => {
