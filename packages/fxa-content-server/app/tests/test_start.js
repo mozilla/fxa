@@ -213,7 +213,6 @@ require('./spec/views/post_verify/newsletters/add_newsletters');
 require('./spec/views/post_verify/password/force_password_change');
 require('./spec/views/post_verify/secondary_email/add_secondary_email');
 require('./spec/views/post_verify/secondary_email/confirm_secondary_email');
-require('./spec/views/post_verify/third_party_auth/set_password');
 require('./spec/views/progress_indicator');
 require('./spec/views/ready');
 require('./spec/views/sign_up_password');

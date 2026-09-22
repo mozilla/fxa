@@ -67,7 +67,6 @@
     "simpleRoutes": true,
     "signUpRoutes": true,
     "emailFirstRoutes": true,
-    "postVerifyThirdPartyAuthRoutes": true,
     "pairRoutes": true
   },
   "featureFlags": {

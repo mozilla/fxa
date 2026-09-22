@@ -15,8 +15,6 @@ import PermissionsView from '../views/permissions';
 import ReadyView from '../views/ready';
 import RedirectAuthView from '../views/authorization';
 import SignUpPasswordView from '../views/sign_up_password';
-import ThirdPartyAuthSetPasswordView from '../views/post_verify/third_party_auth/set_password';
-import ThirdPartyAuthCallbackView from '../views/post_verify/third_party_auth/callback';
 import Storage from './storage';
 import SubscriptionsProductRedirectView from '../views/subscriptions_product_redirect';
 import SubscriptionsManagementRedirectView from '../views/subscriptions_management_redirect';
@@ -284,17 +282,16 @@ Router = Router.extend({
         type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
       }
     ),
+    // Forward the OAuth and Sync params; the React pages need them.
     'post_verify/third_party_auth/callback(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'post_verify/third_party_auth/callback',
-        ThirdPartyAuthCallbackView
-      );
+      this.createReactViewHandler('post_verify/third_party_auth/callback', {
+        ...Url.searchParams(this.window.location.search),
+      });
     },
     'post_verify/third_party_auth/set_password(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'post_verify/third_party_auth/set_password',
-        ThirdPartyAuthSetPasswordView
-      );
+      this.createReactViewHandler('post_verify/third_party_auth/set_password', {
+        ...Url.searchParams(this.window.location.search),
+      });
     },
 
     'primary_email_verified(/)': function () {
