@@ -2,12 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { screen, act } from '@testing-library/react';
+import type { ReactNode } from 'react';
+import { screen, act, render } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 import Supp from '.';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { Integration } from '../../../models/integrations/integration';
+import { mockUseFxAStatus } from '../../../lib/hooks/useFxAStatus/mocks';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -63,10 +66,13 @@ jest.mock('../../../lib/config', () => {
       pairing: {
         serverBaseUri: 'wss://test.example.com',
         clients: [],
+        version: 1,
       },
     },
   };
 });
+
+const mockConfig = jest.requireMock('../../../lib/config').default;
 
 const mockNavigateWithQuery = jest.fn();
 jest.mock('../../../lib/hooks/useNavigateWithQuery', () => ({
@@ -75,18 +81,24 @@ jest.mock('../../../lib/hooks/useNavigateWithQuery', () => ({
 
 describe('Pair/Supp page', () => {
   it('renders the default loading state as expected', () => {
-    renderWithLocalizationProvider(<Supp />);
+    renderWithLocalizationProvider(
+      <Supp fxaStatusResult={mockUseFxAStatus()} />
+    );
 
     screen.queryByTestId('loading-spinner');
   });
 
   it('renders as expected when component mounts', () => {
-    renderWithLocalizationProvider(<Supp />);
+    renderWithLocalizationProvider(
+      <Supp fxaStatusResult={mockUseFxAStatus()} />
+    );
     // Supp is now self-contained, no error prop
   });
 
   it('emits the expected metrics event on render', () => {
-    renderWithLocalizationProvider(<Supp />);
+    renderWithLocalizationProvider(
+      <Supp fxaStatusResult={mockUseFxAStatus()} />
+    );
 
     expect(usePageViewEvent).toHaveBeenCalledWith(
       'pair.supp',
@@ -111,6 +123,7 @@ describe('Pair/Supp page', () => {
       mockIntegration = new PSI();
       mockNavigateWithQuery.mockClear();
       sessionStorage.clear();
+      mockConfig.pairing.version = 1;
       window.location.hash = '#channel_id=test-chan&channel_key=dGVzdA';
     });
 
@@ -119,11 +132,28 @@ describe('Pair/Supp page', () => {
       sessionStorage.clear();
     });
 
+    // Defaults to a browser that answered fxa_status reporting v1 pairing.
+    const renderSupp = (fxaStatusResult = mockUseFxAStatus()) =>
+      renderWithLocalizationProvider(
+        <Supp
+          integration={mockIntegration as unknown as Integration}
+          {...{ fxaStatusResult }}
+        />
+      );
+
+    // The v1 flow's signature: this page opens the channel itself and stays put.
+    const expectV1Flow = () => {
+      expect(mockIntegration.openChannel).toHaveBeenCalledWith(
+        'wss://test.example.com',
+        'test-chan',
+        'dGVzdA'
+      );
+      expect(mockNavigateWithQuery).not.toHaveBeenCalled();
+    };
+
     it('shows error when hash params are missing', () => {
       window.location.hash = '';
-      renderWithLocalizationProvider(
-        <Supp integration={mockIntegration as unknown as Integration} />
-      );
+      renderSupp();
       expect(
         screen.getByText('Invalid pairing configuration')
       ).toBeInTheDocument();
@@ -131,16 +161,12 @@ describe('Pair/Supp page', () => {
 
     it('shows error when pairing client is invalid', () => {
       mockIntegration.validatePairingClient.mockReturnValue(false);
-      renderWithLocalizationProvider(
-        <Supp integration={mockIntegration as unknown as Integration} />
-      );
+      renderSupp();
       expect(screen.getByText('Invalid pairing client')).toBeInTheDocument();
     });
 
     it('calls openChannel with params from hash', () => {
-      renderWithLocalizationProvider(
-        <Supp integration={mockIntegration as unknown as Integration} />
-      );
+      renderSupp();
       expect(mockIntegration.openChannel).toHaveBeenCalledWith(
         'wss://test.example.com',
         'test-chan',
@@ -149,9 +175,7 @@ describe('Pair/Supp page', () => {
     });
 
     it('navigates on WaitingForAuthorizations', () => {
-      renderWithLocalizationProvider(
-        <Supp integration={mockIntegration as unknown as Integration} />
-      );
+      renderSupp();
       act(() => {
         mockIntegration.onStateChange?.('waiting_for_authorizations');
       });
@@ -160,9 +184,7 @@ describe('Pair/Supp page', () => {
 
     it('redirects to success when completion marker is set for this channel', () => {
       sessionStorage.setItem('fxa.pair.complete.test-chan', '1');
-      renderWithLocalizationProvider(
-        <Supp integration={mockIntegration as unknown as Integration} />
-      );
+      renderSupp();
       expect(mockIntegration.openChannel).not.toHaveBeenCalled();
       expect(mockNavigateWithQuery).toHaveBeenCalledWith(
         '/oauth/success/test-client'
@@ -172,11 +194,127 @@ describe('Pair/Supp page', () => {
 
     it('ignores completion marker for a different channel', () => {
       sessionStorage.setItem('fxa.pair.complete.other-chan', '1');
-      renderWithLocalizationProvider(
-        <Supp integration={mockIntegration as unknown as Integration} />
-      );
+      renderSupp();
       expect(mockIntegration.openChannel).toHaveBeenCalled();
       expect(mockNavigateWithQuery).not.toHaveBeenCalled();
+    });
+
+    it('runs the v1 flow when the fragment has no version', () => {
+      mockConfig.pairing.version = 2;
+      renderSupp(mockUseFxAStatus({ pairingVersion: 2 }));
+      expectV1Flow();
+    });
+
+    // An app that scanned the QR with its own camera opens this page with the
+    // authority's fragment copied over, so a v2 authority's `v=2` arrives here.
+    describe('with a v2 fragment', () => {
+      // A browser that answered fxa_status reporting v2 pairing support.
+      const v2Browser = mockUseFxAStatus({ pairingVersion: 2 });
+
+      beforeEach(() => {
+        window.location.hash = '#channel_id=test-chan&channel_key=dGVzdA&v=2';
+        mockConfig.pairing.version = 2;
+      });
+
+      it('hands off to the v2 supplicant flow, without the hash', () => {
+        renderSupp(v2Browser);
+        expect(mockNavigateWithQuery).toHaveBeenCalledWith(
+          '/pair/supplicant/connect_this_device',
+          {
+            state: {
+              channelId: 'test-chan',
+              channelKey: 'dGVzdA',
+              version: '2',
+            },
+          },
+          false
+        );
+      });
+
+      it('leaves the channel for the v2 flow to open', () => {
+        renderSupp(v2Browser);
+        expect(mockIntegration.openChannel).not.toHaveBeenCalled();
+      });
+
+      it('redirects to the v2 success screen when the channel is complete', () => {
+        sessionStorage.setItem('fxa.pair.complete.test-chan', '1');
+        renderSupp(v2Browser);
+        expect(mockNavigateWithQuery).toHaveBeenCalledWith(
+          '/pair/supplicant/sync_success',
+          {},
+          false
+        );
+        expect(
+          sessionStorage.getItem('fxa.pair.complete.test-chan')
+        ).toBeNull();
+      });
+
+      it('runs the v1 flow when the browser does not report v2 pairing', () => {
+        renderSupp(mockUseFxAStatus({ pairingVersion: 1 }));
+        expectV1Flow();
+      });
+
+      it('runs the v1 flow when the browser never answered fxa_status', () => {
+        renderSupp(
+          mockUseFxAStatus({ fxaStatusState: 'unanswered', pairingVersion: 1 })
+        );
+        expectV1Flow();
+      });
+
+      // useFxAStatus settles on 'unanswered' at its deadline but still lets a
+      // reply that lands later win, so the page sees both in turn.
+      it('stays on v1 when a late fxa_status reply reports v2', () => {
+        const suppFor = (
+          fxaStatusResult: ReturnType<typeof mockUseFxAStatus>
+        ) => (
+          <Supp
+            integration={mockIntegration as unknown as Integration}
+            {...{ fxaStatusResult }}
+          />
+        );
+        const wrapper = ({ children }: { children: ReactNode }) => (
+          <AppLocalizationProvider
+            messages={{ en: ['testo: lol'] }}
+            reportError={() => {}}
+          >
+            {children}
+          </AppLocalizationProvider>
+        );
+        const { rerender } = render(
+          suppFor(
+            mockUseFxAStatus({
+              fxaStatusState: 'unanswered',
+              pairingVersion: 1,
+            })
+          ),
+          { wrapper }
+        );
+        expectV1Flow();
+
+        // The rerun re-requests the channel, which the integration no-ops on;
+        // what matters is that it never asks for v2 or leaves the page.
+        rerender(suppFor(v2Browser));
+        expectV1Flow();
+        expect(mockIntegration.openChannel).toHaveBeenLastCalledWith(
+          'wss://test.example.com',
+          'test-chan',
+          'dGVzdA'
+        );
+      });
+
+      it('chooses no flow while fxa_status is still pending', () => {
+        renderSupp(
+          mockUseFxAStatus({ fxaStatusState: 'pending', pairingVersion: 2 })
+        );
+        expect(mockIntegration.openChannel).not.toHaveBeenCalled();
+        expect(mockNavigateWithQuery).not.toHaveBeenCalled();
+      });
+
+      it('runs the v1 flow when FxA has v2 disabled', () => {
+        mockConfig.pairing.version = 1;
+        renderSupp(v2Browser);
+        expectV1Flow();
+      });
     });
   });
 });
