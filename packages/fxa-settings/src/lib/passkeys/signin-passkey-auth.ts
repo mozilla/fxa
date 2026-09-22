@@ -27,7 +27,7 @@ import {
   type PasskeySignInSurface,
 } from './signin-flow';
 
-type PasskeyAssertionArgs = {
+type PasskeyAuthenticationArgs = {
   authClient: Pick<
     PasskeySignInAuthClient,
     'beginPasskeyAuthentication' | 'completePasskeyAuthentication'
@@ -45,7 +45,7 @@ type PasskeyAssertionArgs = {
   metricsContext: ReturnType<typeof queryParamsToMetricsContext>;
 };
 
-type PasskeyAssertionResult =
+type PasskeyAuthenticationResult =
   | {
       ok: true;
       completion: PasskeyAuthCompletion;
@@ -60,7 +60,7 @@ type PasskeyAssertionResult =
  * back as the banner to show; server errors are thrown for the caller's
  * generic handling.
  */
-export async function runPasskeyAssertion({
+export async function authenticateWithPasskey({
   authClient,
   integration,
   surface,
@@ -68,7 +68,7 @@ export async function runPasskeyAssertion({
   keysRequired,
   withWrapMaterial,
   metricsContext,
-}: PasskeyAssertionArgs): Promise<PasskeyAssertionResult> {
+}: PasskeyAuthenticationArgs): Promise<PasskeyAuthenticationResult> {
   const { glean } = PASSKEY_SIGNIN_SURFACES[surface];
 
   // Discoverable credentials only — the Signin page's email field is

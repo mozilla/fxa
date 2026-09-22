@@ -18,19 +18,16 @@ import { handleNavigation } from '../../../pages/Signin/utils';
 import { queryParamsToMetricsContext } from '../../metrics';
 import type { QueryParams } from '../../..';
 import { isWebAuthnSupported } from '../../passkeys';
-import { runPasskeyAssertion } from '../../passkeys/signin-assertion';
+import { authenticateWithPasskey } from '../../passkeys/signin-passkey-auth';
 import { resolveSignedInAccount } from '../../passkeys/signin-account';
-import {
-  isOAuthNativeIntegration,
-  useConfig,
-  useSensitiveDataClient,
-} from '../../../models';
+import { useConfig, useSensitiveDataClient } from '../../../models';
 import {
   PASSKEY_SIGNIN_SURFACES,
   toPasskeyMetricsSurface,
   buildPasskeyAuthSuccessReason,
   passkeyErrorBanner,
   passkeyUnexpectedBanner,
+  shouldRequestWrapMaterial,
   type PasskeySignInAuthClient,
   type PasskeySignInBanner,
   type PasskeySignInIntegration,
@@ -139,20 +136,20 @@ export function usePasskeySignIn({
       supportsKeysOptionalLogin
     );
 
-    const offerPasswordlessSyncSetup = shouldOfferPasswordlessSyncSetup(
+    const wrapMaterialRequested = shouldRequestWrapMaterial(
       integration,
       config.featureFlags,
       keysRequired
     );
 
     try {
-      const assertion = await runPasskeyAssertion({
+      const assertion = await authenticateWithPasskey({
         authClient,
         integration,
         surface,
         ftlMsgResolver,
         keysRequired,
-        withWrapMaterial: offerPasswordlessSyncSetup,
+        withWrapMaterial: wrapMaterialRequested,
         metricsContext: queryParamsToMetricsContext(flowQueryParams),
       });
       if (!assertion.ok) {
@@ -299,29 +296,6 @@ export function usePasskeySignIn({
     onClick,
     clearError,
   };
-}
-
-/**
- * Whether a passkey sign-in should end in the password-free opt-in offer.
- *
- * Desktop Sync sign-ins need encryption keys and so end in a password step,
- * after which a wrap can be offered: that is the only flow where `kB` is
- * derived client-side. Mobile clients close the web view at handoff, so the
- * page that makes the offer would never be seen there. Other Firefox services
- * that want keys keep their own landing pages and are not offered.
- */
-export function shouldOfferPasswordlessSyncSetup(
-  integration: PasskeySignInIntegration,
-  featureFlags: { passkeyPasswordlessSyncEnabled?: boolean } | undefined,
-  keysRequired: boolean
-): boolean {
-  return (
-    !!featureFlags?.passkeyPasswordlessSyncEnabled &&
-    keysRequired &&
-    isOAuthNativeIntegration(integration) &&
-    integration.isSync() &&
-    !integration.isFirefoxMobileClient()
-  );
 }
 
 /**

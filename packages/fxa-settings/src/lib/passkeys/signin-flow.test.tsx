@@ -4,6 +4,7 @@
 
 import {
   resolvePasskeyService,
+  shouldRequestWrapMaterial,
   type PasskeySignInIntegration,
 } from './signin-flow';
 import { IntegrationType } from '../../models';
@@ -72,5 +73,74 @@ describe('resolvePasskeyService', () => {
         })
       )
     ).toBeUndefined();
+  });
+});
+
+describe('shouldRequestWrapMaterial', () => {
+  const desktopSync = (
+    overrides: Partial<Record<string, unknown>> = {}
+  ): PasskeySignInIntegration =>
+    ({
+      type: IntegrationType.OAuthNative,
+      isSync: () => true,
+      isFirefoxMobileClient: () => false,
+      ...overrides,
+    }) as unknown as PasskeySignInIntegration;
+
+  const enabled = { passkeyPasswordlessSyncEnabled: true };
+
+  it('requests it for a desktop Sync sign-in that needs keys', () => {
+    expect(shouldRequestWrapMaterial(desktopSync(), enabled, true)).toBe(true);
+  });
+
+  it('withholds it when the feature flag is off', () => {
+    expect(
+      shouldRequestWrapMaterial(
+        desktopSync(),
+        { passkeyPasswordlessSyncEnabled: false },
+        true
+      )
+    ).toBe(false);
+    expect(shouldRequestWrapMaterial(desktopSync(), undefined, true)).toBe(
+      false
+    );
+  });
+
+  // No password step means no client-side kB, so there is nothing to wrap.
+  it('withholds it when the sign-in needs no keys', () => {
+    expect(shouldRequestWrapMaterial(desktopSync(), enabled, false)).toBe(
+      false
+    );
+  });
+
+  it('withholds it for a non-OAuth-native integration', () => {
+    expect(
+      shouldRequestWrapMaterial(
+        desktopSync({ type: IntegrationType.SyncDesktopV3 }),
+        enabled,
+        true
+      )
+    ).toBe(false);
+  });
+
+  it('withholds it for a Firefox service that is not Sync', () => {
+    expect(
+      shouldRequestWrapMaterial(
+        desktopSync({ isSync: () => false }),
+        enabled,
+        true
+      )
+    ).toBe(false);
+  });
+
+  // The web view closes at handoff, so the offer page would never be seen.
+  it('withholds it on a mobile client', () => {
+    expect(
+      shouldRequestWrapMaterial(
+        desktopSync({ isFirefoxMobileClient: () => true }),
+        enabled,
+        true
+      )
+    ).toBe(false);
   });
 });

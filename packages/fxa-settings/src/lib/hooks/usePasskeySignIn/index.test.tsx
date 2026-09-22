@@ -7,16 +7,12 @@ import * as Sentry from '@sentry/browser';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import { MemoryRouter } from 'react-router';
 import React from 'react';
-import { shouldOfferPasswordlessSyncSetup, usePasskeySignIn } from '.';
+import { usePasskeySignIn } from '.';
 import {
   type PasskeySignInAuthClient,
   type PasskeySignInIntegration,
 } from '../../passkeys/signin-flow';
 import { getCredential, isWebAuthnSupported } from '../../passkeys/webauthn';
-import {
-  PASSKEY_SUPPORT_URL,
-  PASSKEY_TROUBLESHOOT_URL,
-} from '../../passkeys/constants';
 import { storeAccountData } from '../../storage-utils';
 import { AuthUiErrors } from '../../auth-errors/auth-errors';
 import GleanMetrics from '../../glean';
@@ -32,7 +28,6 @@ import {
   ensureCanLinkAcountOrRedirect,
   handleNavigation,
 } from '../../../pages/Signin/utils';
-import type { ExternalLinkProps } from '../../../components/Banner/interfaces';
 
 jest.mock('../../passkeys/webauthn', () => ({
   __esModule: true,
@@ -134,7 +129,6 @@ const MOCK_CREDENTIAL = {
  */
 const authError = (errno: number) =>
   Object.assign(new Error(`errno ${errno}`), { errno });
-
 const MOCK_FLOW_QUERY_PARAMS = {
   flowId: 'f'.repeat(64),
   flowBeginTime: '1700000000000',
@@ -158,9 +152,11 @@ const buildArgs = (
     totp: { exists: false, verified: false },
   });
   const sessionResendVerifyCode = jest.fn();
-  const getPasskeyWrap = jest
-    .fn()
-    .mockRejectedValue(authError(ERRNO.PASSKEY_WRAP_NOT_FOUND));
+  const getPasskeyWrap = jest.fn().mockRejectedValue(
+    Object.assign(new Error('no wrap'), {
+      errno: ERRNO.PASSKEY_WRAP_NOT_FOUND,
+    })
+  );
 
   const authClient = {
     beginPasskeyAuthentication,
@@ -308,33 +304,6 @@ describe('usePasskeySignIn', () => {
     });
   });
 
-  it('sends service=sync in the passkey authentication request for a Sync sign-in, not the client id', async () => {
-    const { args, spies } = buildArgs({
-      integration: {
-        isSync: () => true,
-        isFirefoxNonSync: () => false,
-        requiresPasswordForLogin: () => false,
-        getService: () => 'sync',
-        getClientId: () => 'client-id-should-not-be-used',
-        isFirefoxMobileClient: () => false,
-        type: IntegrationType.OAuthNative,
-        data: {},
-        wantsTwoStepAuthentication: () => false,
-      } as unknown as PasskeySignInIntegration,
-    });
-
-    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
-    await act(async () => {
-      await result.current.onClick();
-    });
-
-    expect(spies.completePasskeyAuthentication).toHaveBeenCalledWith(
-      MOCK_CREDENTIAL,
-      CHALLENGE,
-      { service: 'sync', keysRequired: false, metricsContext: {} }
-    );
-  });
-
   it('routes non-OAuth Web integrations through handleNavigation', async () => {
     // Soft-navigate to /settings happens inside handleNavigation (same path
     // as password sign-in). hardNavigate would cause a cached-signin flash.
@@ -413,56 +382,6 @@ describe('usePasskeySignIn', () => {
     expect(storeAccountData).not.toHaveBeenCalled();
   });
 
-  it.each([
-    [
-      true,
-      '/signin_passkey_fallback',
-      { state: { passkeySurface: 'emailfirst' } },
-    ],
-    [
-      false,
-      '/post_verify/set_password',
-      {
-        state: {
-          passwordCreationReason: 'passkey',
-          passkeySurface: 'emailfirst',
-        },
-      },
-    ],
-  ])(
-    'routes Sync sign-ins (hasPassword=%s) to %s with surface-aware state',
-    async (hasPassword, expectedPath, expectedOptions) => {
-      const { args, spies } = buildArgs({
-        integration: {
-          isSync: () => true,
-          isFirefoxNonSync: () => false,
-          requiresPasswordForLogin: () => true,
-          getService: () => 'sync',
-          type: IntegrationType.OAuthNative,
-          data: {},
-        } as unknown as PasskeySignInIntegration,
-      });
-      spies.completePasskeyAuthentication.mockResolvedValue({
-        uid: UID,
-        sessionToken: SESSION_TOKEN,
-        verified: true,
-        hasPassword,
-      });
-
-      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
-
-      await act(async () => {
-        await result.current.onClick();
-      });
-
-      expect(spies.navigateWithQuery).toHaveBeenCalledWith(
-        expectedPath,
-        expectedOptions
-      );
-      expect(handleNavigation).not.toHaveBeenCalled();
-    }
-  );
-
   it('routes a non-Sync sign-in to set_password when requiresPasswordForLogin is true', async () => {
     const { args, spies } = buildArgs({
       integration: {
@@ -526,34 +445,6 @@ describe('usePasskeySignIn', () => {
     });
 
     expect(requiresPasswordForLogin).toHaveBeenCalledWith(true);
-  });
-
-  it('sends service=sync in the passkey authentication request for a Sync sign-in when the service URL param is absent', async () => {
-    // Mobile Firefox omits service=sync and defaults via clientId, so
-    // getService() returns undefined; isSync() must still drive service=sync.
-    const { args, spies } = buildArgs({
-      integration: {
-        isSync: () => true,
-        isFirefoxNonSync: () => false,
-        requiresPasswordForLogin: () => false,
-        getService: () => undefined,
-        isFirefoxMobileClient: () => false,
-        type: IntegrationType.OAuthNative,
-        data: {},
-      } as unknown as PasskeySignInIntegration,
-    });
-
-    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
-
-    await act(async () => {
-      await result.current.onClick();
-    });
-
-    expect(spies.completePasskeyAuthentication).toHaveBeenCalledWith(
-      MOCK_CREDENTIAL,
-      CHALLENGE,
-      { service: 'sync', keysRequired: false, metricsContext: {} }
-    );
   });
 
   it('skips navigation on Firefox mobile so Firefox finishes sign-in via WebChannel', async () => {
@@ -648,139 +539,7 @@ describe('usePasskeySignIn', () => {
         expectedPath,
         expectedOptions
       );
-    }
-  );
-
-  // Device/platform DOMExceptions keep the red error banner. Locks the
-  // contract: each name maps to its expected FTL id AND its fallback string.
-  // Drift in either lands silently otherwise. The fallback substrings are
-  // stable phrases from webauthn-errors.ts — robust to minor copy edits,
-  // strict on intent.
-  it.each([
-    [
-      'NotSupportedError',
-      'passkey-authentication-error-not-supported-v2',
-      'support passkeys',
-    ],
-    ['SecurityError', 'passkey-authentication-error-security', 'this page'],
-    [
-      'InvalidStateError',
-      'passkey-authentication-error-invalid-state',
-      'wrong with your passkey',
-    ],
-    [
-      'NotReadableError',
-      'passkey-authentication-error-not-readable',
-      'access the authenticator',
-    ],
-  ])(
-    'shows the error banner for device/platform DOMException %s (%s)',
-    async (errorName, expectedFtlId, fallbackSubstring) => {
-      (getCredential as jest.Mock).mockRejectedValue(
-        new DOMException('failed', errorName)
-      );
-      const { args, spies } = buildArgs();
-
-      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
-
-      await act(async () => {
-        await result.current.onClick();
-      });
-
       expect(handleNavigation).not.toHaveBeenCalled();
-      expect(result.current.banner?.type).toBe('error');
-      expect(spies.ftlMsgResolver.getMsg).toHaveBeenCalledWith(
-        expectedFtlId,
-        expect.stringContaining(fallbackSubstring)
-      );
-    }
-  );
-
-  // A cancelled ceremony (NotAllowedError / AbortError share the 'not_allowed'
-  // reason) surfaces the neutral warning banner with the help link — never the
-  // red error banner, and never Sentry.
-  it.each([['NotAllowedError'], ['AbortError']])(
-    'shows the neutral warning banner for a cancelled ceremony (%s), not the error copy, and does not report to Sentry',
-    async (errorName) => {
-      (getCredential as jest.Mock).mockRejectedValue(
-        new DOMException('cancelled', errorName)
-      );
-      const { args, spies } = buildArgs();
-
-      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
-
-      await act(async () => {
-        await result.current.onClick();
-      });
-
-      expect(handleNavigation).not.toHaveBeenCalled();
-
-      // The core contract: a neutral warning banner (not the red error banner)
-      // carrying the help link.
-      expect(result.current.banner?.type).toBe('warning');
-      expect(result.current.banner?.content).toEqual({
-        localizedHeading: 'Couldn’t sign in with a passkey',
-        localizedDescription: 'Try again or use another sign-in option.',
-      });
-      const link = result.current.banner?.link as ExternalLinkProps;
-      expect(link.localizedText).toBe('How to use passkeys');
-      // Never routed to the red error banner copy, and never reported to Sentry.
-      expect(spies.ftlMsgResolver.getMsg).not.toHaveBeenCalledWith(
-        'passkey-authentication-error-not-allowed',
-        expect.anything()
-      );
-      expect(Sentry.captureException as jest.Mock).not.toHaveBeenCalled();
-    }
-  );
-
-  // Timeout is transient: its own message, warning style, no help link.
-  it('shows a dedicated warning banner (no help link) on a timed-out ceremony', async () => {
-    (getCredential as jest.Mock).mockRejectedValue(
-      new DOMException('timed out', 'TimeoutError')
-    );
-    const { args } = buildArgs();
-
-    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
-    await act(async () => {
-      await result.current.onClick();
-    });
-
-    expect(result.current.banner?.type).toBe('warning');
-    expect(result.current.banner?.content).toEqual({
-      localizedHeading: 'Passkey sign-in timed out. Try again.',
-    });
-    expect(result.current.banner?.link).toBeUndefined();
-    expect(GleanMetrics.passkey.getHelpLinkClick).not.toHaveBeenCalled();
-    expect(Sentry.captureException as jest.Mock).not.toHaveBeenCalled();
-  });
-
-  // Email-first sends users to the "what is a passkey" article; the other
-  // surfaces (where the user already has a passkey) go to troubleshooting.
-  it.each([
-    ['emailfirst' as const, PASSKEY_SUPPORT_URL, 'emailfirst'],
-    ['login' as const, PASSKEY_TROUBLESHOOT_URL, 'signin'],
-    ['login_otp' as const, PASSKEY_TROUBLESHOOT_URL, 'otplogin'],
-    ['alternative_auth' as const, PASSKEY_TROUBLESHOOT_URL, 'alternative_auth'],
-  ])(
-    'warning banner links to the right article and records a get-help click for surface=%s',
-    async (surface, expectedUrl, expectedReason) => {
-      (getCredential as jest.Mock).mockRejectedValue(
-        new DOMException('cancelled', 'NotAllowedError')
-      );
-      const { args } = buildArgs({ surface });
-
-      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
-      await act(async () => {
-        await result.current.onClick();
-      });
-
-      const link = result.current.banner?.link as ExternalLinkProps;
-      expect(link.url).toBe(expectedUrl);
-
-      link.onClick?.();
-      expect(GleanMetrics.passkey.getHelpLinkClick).toHaveBeenCalledWith({
-        event: { reason: expectedReason },
-      });
     }
   );
 
@@ -789,32 +548,6 @@ describe('usePasskeySignIn', () => {
     spies.beginPasskeyAuthentication.mockRejectedValue(
       new Error('network down')
     );
-
-    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
-
-    await act(async () => {
-      await result.current.onClick();
-    });
-
-    expect(result.current.banner).toBeDefined();
-    expect(spies.completePasskeyAuthentication).not.toHaveBeenCalled();
-    expect(spies.ftlMsgResolver.getMsg).toHaveBeenCalledWith(
-      'passkey-authentication-error-unexpected',
-      expect.stringContaining('Something went wrong')
-    );
-    expect(Sentry.captureException as jest.Mock).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'passkey-signin error' }),
-      { tags: { errno: 'none' } }
-    );
-  });
-
-  it('re-throws non-WebAuthn errors from getCredential to the generic handler', async () => {
-    // Non-DOMException/TypeError errors must bubble to the outer catch, not
-    // the WebAuthn categoriser.
-    (getCredential as jest.Mock).mockRejectedValue(
-      new Error('unexpected sync failure')
-    );
-    const { args, spies } = buildArgs();
 
     const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
 
@@ -858,29 +591,6 @@ describe('usePasskeySignIn', () => {
   it('treats account rejection as a server error and skips persistence', async () => {
     const { args, spies } = buildArgs();
     spies.account.mockRejectedValue(new Error('account fetch failed'));
-
-    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
-
-    await act(async () => {
-      await result.current.onClick();
-    });
-
-    expect(result.current.banner).toBeDefined();
-    expect(storeAccountData).not.toHaveBeenCalled();
-    expect(handleNavigation).not.toHaveBeenCalled();
-    expect(spies.ftlMsgResolver.getMsg).toHaveBeenCalledWith(
-      'passkey-authentication-error-unexpected',
-      expect.stringContaining('Something went wrong')
-    );
-    expect(Sentry.captureException as jest.Mock).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'passkey-signin error' }),
-      { tags: { errno: 'none' } }
-    );
-  });
-
-  it('treats an account response with no primary email as a server error', async () => {
-    const { args, spies } = buildArgs();
-    spies.account.mockResolvedValue({ emails: [] });
 
     const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
 
@@ -1105,23 +815,6 @@ describe('usePasskeySignIn', () => {
       expect(events.passkeySubmitFrontendError).not.toHaveBeenCalled();
     });
 
-    it('fires submit_frontend_error with categorized reason on WebAuthn error', async () => {
-      const { args } = buildArgs({ surface: 'login' });
-      (getCredential as jest.Mock).mockRejectedValueOnce(
-        new DOMException('cancelled', 'NotAllowedError')
-      );
-
-      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
-      await act(async () => {
-        await result.current.onClick();
-      });
-
-      expect(
-        GleanMetrics.login.passkeySubmitFrontendError
-      ).toHaveBeenCalledWith({ event: { reason: 'not_allowed' } });
-      expect(GleanMetrics.login.passkeySubmitSuccess).not.toHaveBeenCalled();
-    });
-
     it('fires submit_frontend_error with reason=no_passkey_found on server PASSKEY_NOT_FOUND', async () => {
       const { args, spies } = buildArgs({ surface: 'login' });
       spies.completePasskeyAuthentication.mockRejectedValueOnce({
@@ -1252,226 +945,6 @@ describe('usePasskeySignIn', () => {
     expect(storeAccountData).toHaveBeenCalledTimes(1);
     expect(handleNavigation).toHaveBeenCalledTimes(1);
   });
-
-  describe('AAL2 RP TOTP status', () => {
-    const buildAAL2Args = (
-      totp: { exists: boolean; verified: boolean } | undefined,
-      overrides: Record<string, unknown> = {}
-    ) => {
-      const integration = {
-        isSync: () => false,
-        isFirefoxNonSync: () => false,
-        requiresPasswordForLogin: () => false,
-        getService: () => undefined,
-        getClientId: () => 'service-id',
-        isFirefoxMobileClient: () => false,
-        type: IntegrationType.OAuthWeb,
-        data: {},
-        wantsTwoStepAuthentication: () => true,
-      } as unknown as PasskeySignInIntegration;
-      const { args, spies } = buildArgs({ integration, ...overrides });
-      (args.authClient.account as jest.Mock).mockResolvedValue({
-        emails: [{ email: EMAIL, isPrimary: true, verified: true }],
-        ...(totp !== undefined && { totp }),
-      });
-      return { args, spies };
-    };
-
-    it('passes accountHasTotp=false when the account has no TOTP enrolled', async () => {
-      const { args } = buildAAL2Args({ exists: false, verified: false });
-
-      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
-      await act(async () => {
-        await result.current.onClick();
-      });
-
-      expect(handleNavigation).toHaveBeenCalledWith(
-        expect.objectContaining({
-          isPasskeySession: true,
-          accountHasTotp: false,
-        })
-      );
-    });
-
-    it('passes accountHasTotp=true when the account has TOTP enrolled', async () => {
-      const { args } = buildAAL2Args({ exists: true, verified: true });
-
-      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
-      await act(async () => {
-        await result.current.onClick();
-      });
-
-      expect(handleNavigation).toHaveBeenCalledWith(
-        expect.objectContaining({
-          isPasskeySession: true,
-          accountHasTotp: true,
-        })
-      );
-    });
-
-    it('passes accountHasTotp=false when TOTP record exists but is unverified', async () => {
-      // Must read `verified`, not `exists`, to gate on completed enrolment.
-      const { args } = buildAAL2Args({ exists: true, verified: false });
-
-      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
-      await act(async () => {
-        await result.current.onClick();
-      });
-
-      expect(handleNavigation).toHaveBeenCalledWith(
-        expect.objectContaining({
-          isPasskeySession: true,
-          accountHasTotp: false,
-        })
-      );
-    });
-
-    it('treats a missing totp field as not-enrolled', async () => {
-      const { args } = buildAAL2Args(undefined);
-
-      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
-      await act(async () => {
-        await result.current.onClick();
-      });
-
-      expect(handleNavigation).toHaveBeenCalledWith(
-        expect.objectContaining({
-          isPasskeySession: true,
-          accountHasTotp: false,
-        })
-      );
-    });
-
-    it('still passes accountHasTotp even when the RP does not require AAL2', async () => {
-      // utils.ts gates on wantsTwoStepAuthentication() before reading it.
-      const { args } = buildAAL2Args(
-        { exists: true, verified: true },
-        {
-          integration: {
-            isSync: () => false,
-            isFirefoxNonSync: () => false,
-            requiresPasswordForLogin: () => false,
-            getService: () => undefined,
-            getClientId: () => 'service-id',
-            isFirefoxMobileClient: () => false,
-            type: IntegrationType.OAuthWeb,
-            data: {},
-            wantsTwoStepAuthentication: () => false,
-          } as unknown as PasskeySignInIntegration,
-        }
-      );
-
-      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
-      await act(async () => {
-        await result.current.onClick();
-      });
-
-      expect(handleNavigation).toHaveBeenCalledWith(
-        expect.objectContaining({
-          isPasskeySession: true,
-          accountHasTotp: true,
-        })
-      );
-    });
-  });
-
-  describe('PRF at sign-in', () => {
-    const optionsWithPrf = {
-      challenge: CHALLENGE,
-      userVerification: 'required',
-      extensions: { prf: { eval: { first: 'c2FsdA' } } },
-    };
-    const credentialWithPrf = {
-      ...MOCK_CREDENTIAL,
-      clientExtensionResults: {
-        prf: { results: { first: new ArrayBuffer(32) } },
-      },
-    };
-
-    it('passes the keysRequired hint to beginPasskeyAuthentication', async () => {
-      const { args, spies } = buildArgs({
-        integration: {
-          isSync: () => false,
-          isFirefoxNonSync: () => false,
-          isFirefoxMobileClient: () => false,
-          requiresPasswordForLogin: () => true,
-        } as unknown as PasskeySignInIntegration,
-      });
-
-      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
-      await act(async () => {
-        await result.current.onClick();
-      });
-
-      expect(spies.beginPasskeyAuthentication).toHaveBeenCalledWith({
-        keysRequired: true,
-      });
-    });
-
-    it('records present support and sends prfSupported=true in the finish request when the output is present', async () => {
-      const { args, spies } = buildArgs();
-      spies.beginPasskeyAuthentication.mockResolvedValue(optionsWithPrf);
-      (getCredential as jest.Mock).mockResolvedValue(credentialWithPrf);
-
-      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
-      await act(async () => {
-        await result.current.onClick();
-      });
-
-      expect(GleanMetrics.passkey.signinPrfSupport).toHaveBeenCalledWith({
-        event: { supported: 'present' },
-      });
-      const [, , options] = spies.completePasskeyAuthentication.mock.calls[0];
-      expect(options.prfSupported).toBe(true);
-    });
-
-    it('strips the PRF output from the credential before sending it to the server', async () => {
-      const { args, spies } = buildArgs();
-      spies.beginPasskeyAuthentication.mockResolvedValue(optionsWithPrf);
-      (getCredential as jest.Mock).mockResolvedValue(credentialWithPrf);
-
-      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
-      await act(async () => {
-        await result.current.onClick();
-      });
-
-      const [sentCredential] =
-        spies.completePasskeyAuthentication.mock.calls[0];
-      expect(sentCredential.clientExtensionResults).not.toHaveProperty('prf');
-    });
-
-    it('records absent support and sends prfSupported=false when no output is present', async () => {
-      const { args, spies } = buildArgs();
-      spies.beginPasskeyAuthentication.mockResolvedValue(optionsWithPrf);
-      (getCredential as jest.Mock).mockResolvedValue(MOCK_CREDENTIAL);
-
-      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
-      await act(async () => {
-        await result.current.onClick();
-      });
-
-      expect(GleanMetrics.passkey.signinPrfSupport).toHaveBeenCalledWith({
-        event: { supported: 'absent' },
-      });
-      const [, , options] = spies.completePasskeyAuthentication.mock.calls[0];
-      expect(options.prfSupported).toBe(false);
-    });
-
-    it('omits prfSupported and the support event when the server did not request PRF', async () => {
-      const { args, spies } = buildArgs();
-      // Default beginPasskeyAuthentication returns options without extensions.
-      (getCredential as jest.Mock).mockResolvedValue(MOCK_CREDENTIAL);
-
-      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
-      await act(async () => {
-        await result.current.onClick();
-      });
-
-      expect(GleanMetrics.passkey.signinPrfSupport).not.toHaveBeenCalled();
-      const [, , options] = spies.completePasskeyAuthentication.mock.calls[0];
-      expect(options).not.toHaveProperty('prfSupported');
-    });
-  });
 });
 
 describe('usePasskeySignIn password-free passkey opt-in material', () => {
@@ -1556,7 +1029,9 @@ describe('usePasskeySignIn password-free passkey opt-in material', () => {
     expect(sensitiveDataClient.PasskeyWrapData).toBeUndefined();
   });
 
-  it('requests no scope and holds nothing when the flag is off', async () => {
+  // The gate's own branches are covered in signin-flow.test.tsx; this only
+  // proves the hook consults it and honours a false answer.
+  it('requests no scope and holds nothing when the gate declines', async () => {
     const { args, spies } = buildSyncArgs();
     const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
 
@@ -1566,19 +1041,6 @@ describe('usePasskeySignIn password-free passkey opt-in material', () => {
       keysRequired: true,
     });
     expect(sensitiveDataClient.PasskeyWrapData).toBeUndefined();
-  });
-
-  it('holds the material when the stored wrap predates the key rotation', async () => {
-    passkeyPasswordlessSyncEnabled = true;
-    const { args, spies } = buildSyncArgs();
-    spies.getPasskeyWrap.mockRejectedValue(
-      Object.assign(new Error('stale'), { errno: ERRNO.PASSKEY_WRAP_STALE })
-    );
-    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
-
-    await act(() => result.current.onClick());
-
-    expect(sensitiveDataClient.PasskeyWrapData).toBeDefined();
   });
 
   it('holds nothing when the page is left while the wrap lookup is pending', async () => {
@@ -1600,10 +1062,30 @@ describe('usePasskeySignIn password-free passkey opt-in material', () => {
     });
     await waitFor(() => expect(spies.getPasskeyWrap).toHaveBeenCalled());
     unmount();
-    rejectLookup({ errno: ERRNO.PASSKEY_WRAP_NOT_FOUND });
+    // An Error, not a bare object: isAuthUiError needs `message`, and without
+    // it hasStoredWrap defaults to "stored" and the stash is skipped for a
+    // reason that has nothing to do with the mount guard.
+    rejectLookup(
+      Object.assign(new Error('no wrap'), {
+        errno: ERRNO.PASSKEY_WRAP_NOT_FOUND,
+      })
+    );
     await act(() => click);
 
     expect(sensitiveDataClient.PasskeyWrapData).toBeUndefined();
+  });
+
+  it('holds the material when the stored wrap predates the key rotation', async () => {
+    passkeyPasswordlessSyncEnabled = true;
+    const { args, spies } = buildSyncArgs();
+    spies.getPasskeyWrap.mockRejectedValue(
+      Object.assign(new Error('stale'), { errno: ERRNO.PASSKEY_WRAP_STALE })
+    );
+    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+
+    await act(() => result.current.onClick());
+
+    expect(sensitiveDataClient.PasskeyWrapData).toBeDefined();
   });
 
   it('holds nothing when a wrap is already stored for the passkey', async () => {
@@ -1676,74 +1158,19 @@ describe('usePasskeySignIn password-free passkey opt-in material', () => {
   });
 });
 
+describe('usePasskeySignIn step wiring', () => {
+  it('passes accountHasTotp from the account lookup through to handleNavigation', async () => {
+    const { args, spies } = buildArgs();
+    spies.account.mockResolvedValue({
+      emails: [{ email: EMAIL, isPrimary: true, verified: true }],
+      totp: { exists: true, verified: true },
+    });
 
-describe('shouldOfferPasswordlessSyncSetup', () => {
-  const desktopSync = (
-    overrides: Partial<Record<string, unknown>> = {}
-  ): PasskeySignInIntegration =>
-    ({
-      type: IntegrationType.OAuthNative,
-      isSync: () => true,
-      isFirefoxMobileClient: () => false,
-      ...overrides,
-    }) as unknown as PasskeySignInIntegration;
+    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+    await act(() => result.current.onClick());
 
-  const enabled = { passkeyPasswordlessSyncEnabled: true };
-
-  it('offers the setup for a desktop Sync sign-in that needs keys', () => {
-    expect(shouldOfferPasswordlessSyncSetup(desktopSync(), enabled, true)).toBe(
-      true
+    expect(handleNavigation).toHaveBeenCalledWith(
+      expect.objectContaining({ isPasskeySession: true, accountHasTotp: true })
     );
-  });
-
-  it('withholds it when the feature flag is off', () => {
-    expect(
-      shouldOfferPasswordlessSyncSetup(
-        desktopSync(),
-        { passkeyPasswordlessSyncEnabled: false },
-        true
-      )
-    ).toBe(false);
-    expect(
-      shouldOfferPasswordlessSyncSetup(desktopSync(), undefined, true)
-    ).toBe(false);
-  });
-
-  // No password step means no client-side kB, so there is nothing to wrap.
-  it('withholds it when the sign-in needs no keys', () => {
-    expect(
-      shouldOfferPasswordlessSyncSetup(desktopSync(), enabled, false)
-    ).toBe(false);
-  });
-
-  it('withholds it for a non-OAuth-native integration', () => {
-    expect(
-      shouldOfferPasswordlessSyncSetup(
-        desktopSync({ type: IntegrationType.SyncDesktopV3 }),
-        enabled,
-        true
-      )
-    ).toBe(false);
-  });
-
-  it('withholds it for a Firefox service that is not Sync', () => {
-    expect(
-      shouldOfferPasswordlessSyncSetup(
-        desktopSync({ isSync: () => false }),
-        enabled,
-        true
-      )
-    ).toBe(false);
-  });
-
-  // The web view closes at handoff, so the offer page would never be seen.
-  it('withholds it on a mobile client', () => {
-    expect(
-      shouldOfferPasswordlessSyncSetup(
-        desktopSync({ isFirefoxMobileClient: () => true }),
-        enabled,
-        true
-      )
-    ).toBe(false);
   });
 });

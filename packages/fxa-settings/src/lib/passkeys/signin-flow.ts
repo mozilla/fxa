@@ -8,6 +8,7 @@ import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import type { BannerProps } from '../../components/Banner/interfaces';
 import GleanMetrics from '../glean';
 import { NavigationOptions } from '../../pages/Signin/interfaces';
+import { isOAuthNativeIntegration } from '../../models';
 import { resolveServiceOrClientId } from '../../models/integrations/utils';
 import type { PasskeySignInGleanReason } from './webauthn-errors';
 import { PASSKEY_SUPPORT_URL, PASSKEY_TROUBLESHOOT_URL } from './constants';
@@ -143,6 +144,30 @@ export function resolvePasskeyService(
     return 'sync';
   }
   return resolveServiceOrClientId(integration);
+}
+
+/**
+ * Whether the assertion should ask for the material a passkey wrap needs: the
+ * `mfa:passkey` scope and the PRF output.
+ *
+ * Desktop Sync sign-ins need encryption keys and so end in a password step,
+ * which is the only flow where `kB` is derived client-side. Mobile clients
+ * close the web view at handoff, so the page that makes the offer would never
+ * be seen there. Other Firefox services that want keys keep their own landing
+ * pages and are not offered.
+ */
+export function shouldRequestWrapMaterial(
+  integration: PasskeySignInIntegration,
+  featureFlags: { passkeyPasswordlessSyncEnabled?: boolean } | undefined,
+  keysRequired: boolean
+): boolean {
+  return (
+    !!featureFlags?.passkeyPasswordlessSyncEnabled &&
+    keysRequired &&
+    isOAuthNativeIntegration(integration) &&
+    integration.isSync() &&
+    !integration.isFirefoxMobileClient()
+  );
 }
 
 /** Banner state the hook returns; the page renders it with `<Banner {...banner} />`. */
