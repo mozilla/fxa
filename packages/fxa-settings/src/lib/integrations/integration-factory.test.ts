@@ -24,6 +24,7 @@ import { Constants } from '../constants';
 
 type IntegrationFlagOverrides = {
   isDevicePairingAsAuthority?: boolean;
+  isDevicePairingAsV2Authority?: boolean;
   isDevicePairingAsSupplicant?: boolean;
   isOAuth?: boolean;
   isServiceSync?: boolean;
@@ -63,6 +64,9 @@ describe('lib/integrations/integration-factory', () => {
     sandbox
       .stub(flags, 'isDevicePairingAsAuthority')
       .returns(!!flagOverrides.isDevicePairingAsAuthority);
+    sandbox
+      .stub(flags, 'isDevicePairingAsV2Authority')
+      .returns(!!flagOverrides.isDevicePairingAsV2Authority);
     sandbox
       .stub(flags, 'isDevicePairingAsSupplicant')
       .returns(!!flagOverrides.isDevicePairingAsSupplicant);
@@ -411,6 +415,19 @@ describe('lib/integrations/integration-factory', () => {
       expect(integration.isSync()).toBeFalsy();
       expect(integration.wantsKeys()).toBeFalsy();
       expect(integration.isTrusted()).toBeFalsy();
+      expect(integration.pairingVersion).toEqual(1);
+    });
+
+    it('is version 2 when the v2 authority flag is set', async () => {
+      const v2 = await setup<PairingAuthorityIntegration>(
+        {
+          isDevicePairingAsAuthority: true,
+          isDevicePairingAsV2Authority: true,
+        },
+        { initIntegration: 1, initClientInfo: 1, initOAuthIntegration: 1 },
+        (i: Integration) => i instanceof PairingAuthorityIntegration
+      );
+      expect(v2.pairingVersion).toEqual(2);
     });
   });
 });

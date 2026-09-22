@@ -23,6 +23,7 @@ import { AuthError } from '../../lib/oauth';
 import {
   isOAuthNativeIntegration,
   isProbablyFirefox,
+  PairingAuthorityIntegration,
   useAuthClient,
   useConfig,
   useFtlMsgResolver,
@@ -400,10 +401,20 @@ const IndexContainer = ({
   const shouldTrySuggestedEmail = suggestedEmail && !prefillEmail;
 
   useEffect(() => {
-    // Pairing authority flow: redirect to /pair/auth/allow
-    // (Backbone equivalent: app-start.js isDevicePairingAsAuthority() → 'pair/auth/allow')
+    // Pairing authority flow: each protocol version has its own first screen.
+    // Version 2 lives entirely under /pair/authority, so an authority that
+    // lands here mid-flow restarts at the QR rather than dropping into the
+    // legacy v1 screens. Version 1 mirrors Backbone's app-start.js
+    // isDevicePairingAsAuthority() → 'pair/auth/allow'.
     if (integration.type === IntegrationType.PairingAuthority) {
-      navigateWithQuery('/pair/auth/allow');
+      if (
+        integration instanceof PairingAuthorityIntegration &&
+        integration.pairingVersion === 2
+      ) {
+        navigateWithQuery('/pair/authority/scan_qr', { replace: true });
+      } else {
+        navigateWithQuery('/pair/auth/allow');
+      }
       return;
     }
 
