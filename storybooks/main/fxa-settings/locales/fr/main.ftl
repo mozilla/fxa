@@ -1331,11 +1331,11 @@ pair2-authority-scan-qr-heading = Scannez le code QR pour connecter votre appare
 pair2-authority-scan-qr-instruction = Scannez le code QR avec votre téléphone ou votre tablette pour synchroniser vos marque-pages, vos onglets et d’autres données de { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = Code QR pour connecter votre appareil mobile
 pair2-authority-scan-qr-help-link = Obtenir de l’aide pour scanner le code QR
-pair2-authority-scan-qr-skip-button = Passer pour le moment
+pair2-authority-scan-qr-skip-button = Ignorer pour l’instant
 
 
 pair2-authority-sync-success-heading-v2 = Votre appareil est connecté
-pair2-authority-sync-success-description-v2 = Synchronisation en cours. L’affichage des données synchronisées peut prendre un certain temps. N’hésitez pas à continuer la navigation.
+pair2-authority-sync-success-description-v2 = Synchronisation en cours. L’affichage des données synchronisées peut prendre un certain temps. Vous pouvez continuer à naviguer.
 pair2-authority-sync-success-sync-settings-button-v2 = Gérer les paramètres de synchronisation
 
 
@@ -1369,7 +1369,7 @@ pair2-supplicant-ready-to-scan-learn-more-link = En savoir plus
 
 
 pair2-supplicant-sync-success-heading = Votre appareil est connecté
-pair2-supplicant-sync-success-description-v2 = Synchronisation en cours. L’affichage des données synchronisées peut prendre un certain temps. N’hésitez pas à continuer la navigation.
+pair2-supplicant-sync-success-description-v2 = Synchronisation en cours. L’affichage des données synchronisées peut prendre un certain temps. Vous pouvez continuer à naviguer.
 pair2-supplicant-sync-success-sync-settings-button-v2 = Gérer les paramètres de synchronisation
 
 

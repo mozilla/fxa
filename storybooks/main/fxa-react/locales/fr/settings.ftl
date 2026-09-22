@@ -1896,7 +1896,7 @@ pair2-authority-scan-qr-code-aria-label = Code QR pour connecter votre appareil 
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Obtenir de l’aide pour scanner le code QR
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
-pair2-authority-scan-qr-skip-button = Passer pour le moment
+pair2-authority-scan-qr-skip-button = Ignorer pour l’instant
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
@@ -1904,7 +1904,7 @@ pair2-authority-scan-qr-skip-button = Passer pour le moment
 
 pair2-authority-sync-success-heading-v2 = Votre appareil est connecté
 # "Syncing" here means copying data between the user's devices
-pair2-authority-sync-success-description-v2 = Synchronisation en cours. L’affichage des données synchronisées peut prendre un certain temps. N’hésitez pas à continuer la navigation.
+pair2-authority-sync-success-description-v2 = Synchronisation en cours. L’affichage des données synchronisées peut prendre un certain temps. Vous pouvez continuer à naviguer.
 # Opens the browser settings that control what is synced
 pair2-authority-sync-success-sync-settings-button-v2 = Gérer les paramètres de synchronisation
 
@@ -1983,7 +1983,7 @@ pair2-supplicant-ready-to-scan-learn-more-link = En savoir plus
 
 pair2-supplicant-sync-success-heading = Votre appareil est connecté
 # "Syncing" here means copying data between the user's devices
-pair2-supplicant-sync-success-description-v2 = Synchronisation en cours. L’affichage des données synchronisées peut prendre un certain temps. N’hésitez pas à continuer la navigation.
+pair2-supplicant-sync-success-description-v2 = Synchronisation en cours. L’affichage des données synchronisées peut prendre un certain temps. Vous pouvez continuer à naviguer.
 # Opens the browser's sync settings, where the user chooses what to sync
 pair2-supplicant-sync-success-sync-settings-button-v2 = Gérer les paramètres de synchronisation
 
