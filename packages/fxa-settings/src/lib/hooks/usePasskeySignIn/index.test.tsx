@@ -1099,6 +1099,24 @@ describe('usePasskeySignIn password-free passkey opt-in material', () => {
     expect(sensitiveDataClient.PasskeyWrapData).toBeUndefined();
   });
 
+  it('zeroes the PRF output when it does not hold it', async () => {
+    passkeyPasswordlessSyncEnabled = true;
+    const { args, spies } = buildSyncArgs();
+    spies.getPasskeyWrap.mockResolvedValue({ createdAt: 1_700_000_000_000 });
+    // The extracted output is a view over this buffer, so zeroing it is
+    // observable here.
+    const prfBuffer = PRF_OUT.slice().buffer;
+    (getCredential as jest.Mock).mockResolvedValue({
+      ...MOCK_CREDENTIAL,
+      clientExtensionResults: { prf: { results: { first: prfBuffer } } },
+    });
+    const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+
+    await act(() => result.current.onClick());
+
+    expect(new Uint8Array(prfBuffer)).toEqual(new Uint8Array(PRF_OUT.length));
+  });
+
   it('holds nothing and reports it when the wrap lookup fails for another reason', async () => {
     passkeyPasswordlessSyncEnabled = true;
     const { args, spies } = buildSyncArgs();

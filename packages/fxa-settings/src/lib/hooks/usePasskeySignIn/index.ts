@@ -142,6 +142,10 @@ export function usePasskeySignIn({
       keysRequired
     );
 
+    // Declared outside the try so the catch below can zero it: between the
+    // assertion and the stash, these bytes have no other owner.
+    let prfOut: Uint8Array | undefined;
+
     try {
       const assertion = await authenticateWithPasskey({
         authClient,
@@ -157,7 +161,8 @@ export function usePasskeySignIn({
         finish();
         return;
       }
-      const { completion, credentialId, prfOut } = assertion;
+      const { completion, credentialId } = assertion;
+      prfOut = assertion.prfOut;
 
       const account = await resolveSignedInAccount({
         authClient,
@@ -167,6 +172,8 @@ export function usePasskeySignIn({
         navigateWithQuery,
       });
       if (!account) {
+        // Nothing downstream can reach these bytes once this returns.
+        prfOut?.fill(0);
         // Defensive finish() — the merge gate navigates away, but Index →
         // Index with prefill keeps this component mounted and the button
         // needs to be clickable again.
@@ -193,6 +200,8 @@ export function usePasskeySignIn({
           mfaToken: completion.mfaToken,
           prfOut,
         };
+      } else {
+        prfOut?.fill(0);
       }
 
       if (keysRequired) {
@@ -261,6 +270,7 @@ export function usePasskeySignIn({
         },
       });
     } catch (err) {
+      prfOut?.fill(0);
       const errno = (err as { errno?: number })?.errno;
       if (errno === AuthUiErrors.PASSKEY_NOT_FOUND.errno) {
         // Expected divergence between server state and authenticator state
