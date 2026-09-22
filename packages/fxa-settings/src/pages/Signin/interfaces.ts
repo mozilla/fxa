@@ -313,6 +313,13 @@ export interface NavigationOptions {
   // does. Failing the request in those cases would dead-end the user instead of
   // letting the interactive fallback complete the flow.
   canRelayPromptNoneError?: boolean;
+  // Set by the Authorization container for every prompt=none request, whatever
+  // the RP asked for on error. prompt=none forbids a page and an email outright,
+  // so the request has to fail either way; the container decides whether the
+  // failure is redirected to the RP or rendered here. Distinct from
+  // canRelayPromptNoneError, which answers the narrower question of who sees
+  // the error, and which an unmet authentication level still turns on.
+  isPromptNoneRequest?: boolean;
   authClient: Pick<AuthClient, 'sessionResendVerifyCode'>;
 }
 
