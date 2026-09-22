@@ -1,8 +1,8 @@
 {
-  "commit": "7307e612de577098ae01d60c090f9bd6623d19e3",
-  "summary": "Merge pull request #21245 from mozilla/fxa-14377",
-  "description": "refactor(content-server): remove dead Backbone third-party-auth views",
-  "timestamp": 1790092191000,
+  "commit": "9cf1eabc4e21df2ce14c1eb43afcb103310fec07",
+  "summary": "Merge pull request #21282 from mozilla/fxa-14440-stepup-tele",
+  "description": "feat(oauth): add step-up auth telemetry",
+  "timestamp": 1790101123000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

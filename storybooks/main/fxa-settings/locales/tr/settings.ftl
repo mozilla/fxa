@@ -137,6 +137,9 @@ device-info-block-location-unknown = Bilinmeyen konum
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $browserName } - { $genericOSName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $browserName } - { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP adresi: { $ipAddress }
@@ -145,7 +148,10 @@ device-info-ip-address = IP adresi: { $ipAddress }
 ## Shown at the top of settings to promote installing Firefox on mobile (when
 ## the user is on Firefox) or switching to Firefox (on other browsers).
 
+firefox-promo-banner-mobile-heading = Nerede olursanız olun { -brand-firefox } yanınızda
+firefox-promo-banner-mobile-description = Sekmelerinizi, yer imlerinizi ve parolalarınızı tüm cihazlarınız arasında eşitleyin. Üstelik tüm verileriniz güvenle şifrelenmiş olarak saklanır.
 firefox-promo-banner-mobile-cta = Cihaz bağlayın
+firefox-promo-banner-switch-description = { -brand-firefox }’a geçtiğinizde yer imlerinizi, parolalarınızı, geçmişinizi ve diğer verilerinizi aktararak hiç ara vermeden gezinmeye devam edebilirsiniz.
 firefox-promo-banner-switch-cta = { -brand-firefox }’a geçin
 
 ## FormPasswordInlineCriteria
@@ -239,6 +245,9 @@ checkmark-success-icon-aria-label =
 # Used to indicate a check mark for an enabled state/option
 checkmark-enabled-icon-aria-label =
     .aria-label = Etkin
+# Used to indicate that an action will navigate forward or open a detail view
+chevron-right-icon-aria-label =
+    .aria-label = Sağ ok
 # Used on X icon to dismiss a message such as an alert or banner
 close-icon-aria-label =
     .aria-label = Mesajı kapat
@@ -405,6 +414,19 @@ password-strength-inline-passwords-match = Parolalar eşleşiyor
 
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Sizin telefonunuz, sizin kurallarınız.
+# Value proposition variant. Refers to resuming browsing on another device.
+promo-qr-mobile-heading-treatment-a = Nereye giderseniz gidin, kaldığınız yerden devam edin
+# Value proposition variant. "tabs" are the open pages in a browser.
+promo-qr-mobile-heading-treatment-b = Sekmeleriniz ve diğer verileriniz telefonunuzda sizi bekliyor
+# Value proposition variant. Refers to using the same trusted browser on a phone.
+promo-qr-mobile-heading-treatment-c = Güvendiğiniz tarayıcı artık telefonunuzda
+# Value proposition variant. "Different screen" refers to the phone rather than the desktop.
+promo-qr-mobile-heading-treatment-d = Aynı { -brand-firefox }, başka ekran.
+# Appears below a QR code that a user can scan to download the Firefox mobile app
+promo-qr-mobile-description-v2 = Mobil uygulamayı indirmek için okutun
+# Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
+promo-qr-mobile-qr-alt =
+    .alt = { -brand-firefox } mobil uygulamasını indirmek için QR kodu. Kodu okutmak için telefonunuzun kamerasını ekranınızın sağ alt köşesine doğrultun.
 
 ## Notification Promo Banner component
 
@@ -1035,6 +1057,14 @@ recent-activity-account-passkey-registration-failure = Geçiş anahtarı kaydı 
 recent-activity-account-passkey-removed = Geçiş anahtarı kaldırıldı
 recent-activity-account-passkey-authentication-success = Geçiş anahtarıyla giriş tamamlandı
 recent-activity-account-passkey-authentication-failure = Geçiş anahtarıyla giriş başarısız oldu
+recent-activity-account-passwordless-login-otp-sent = Parolasız giriş kodu gönderildi
+recent-activity-account-passwordless-login-otp-verified = Parolasız giriş kodu doğrulandı
+recent-activity-account-passwordless-registration-complete = Parolasız hesap kaydı tamamlandı
+recent-activity-account-recovery-codes-set = Kurtarma kodları ayarlandı
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
+recent-activity-account-passkey-wrap-created = Eşitleme için geçiş anahtarı etkinleştirildi
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-creation-failure = Geçiş anahtarıyla eşitleme kurulamadı
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Diğer hesap etkinlikleri
 
@@ -1211,8 +1241,15 @@ passkey-delete-modal-cancel-button = Vazgeç
 passkey-delete-modal-confirm-button = Geçiş anahtarını sil
 passkey-delete-success = Geçiş anahtarı silindi
 passkey-delete-error = Geçiş anahtarınız silinirken bir sorun oluştu. Birkaç dakika sonra yeniden deneyin.
+passkey-sub-row-rename-title = Geçiş anahtarını yeniden adlandır
+passkey-rename-modal-heading = Geçiş anahtarını yeniden adlandır
+passkey-rename-modal-description = Bu geçiş anahtarına yeni bir ad verin.
+passkey-rename-input-label = Geçiş anahtarı adı
 passkey-rename-save-button = Kaydet
 passkey-rename-cancel-button = Vazgeç
+passkey-rename-error-empty = Bu geçiş anahtarına bir ad verin
+passkey-rename-error-too-long = Ad 256 karakterden kısa olmalıdır.
+passkey-rename-error-invalid = Yalnızca harfler, rakamlar, noktalama işaretleri ve simgeler kullanılabilir.
 
 ## Switch component
 
@@ -1486,6 +1523,17 @@ index-account-delete-success = Hesap başarıyla silindi
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = Onay e-postanız geri döndü. E-posta adresinizi yanlış yazmış olabilir misiniz?
 
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner = { -brand-firefox }’a giriş yapıldı
+inline-passwordless-sync-setup-heading = Bir dahaki sefere parolayı atlamak ister misiniz?
+inline-passwordless-sync-setup-description = Daha hızlı giriş yapmak için bu geçiş anahtarını kullanın.
+inline-passwordless-sync-setup-enable-button = Geçiş anahtarını etkinleştir
+# Button label while the passkey is stored.
+inline-passwordless-sync-setup-enabling = Etkinleştiriliyor…
+inline-passwordless-sync-setup-not-now-button = Şimdi değil
+
 ## InlineRecoveryKeySetup page component
 
 inline-recovery-key-setup-create-error = Hesap kurtarma anahtarınızı oluşturamadık. Lütfen daha sonra yeniden deneyin.
@@ -1556,6 +1604,9 @@ pair-auth-complete-manage-devices-link = Cihazları yönet
 
 # Heading
 pair-auth-complete-send-tab-heading = Sekme göndermeye hazırsınız
+# Variable { $deviceFamily } is generally a browser name, for example "Firefox"
+# Variable { $deviceOS } is an operating system short name, for example "iOS", "Android"
+pair-auth-complete-send-tab-device-connected = { $deviceOS } - { $deviceFamily } bağlandı.
 pair-auth-complete-send-tab-benefits = Açık sekmeleri, parolaları ve yer imlerini cihazlarınız arasında anında gönderebilirsiniz.
 
 ## AuthTotp page
@@ -1614,6 +1665,8 @@ pair-qr-code-aria-label = QR Kodu
 
 # Subheader shown on the choice screen
 pair-choice-subheader = { -brand-firefox } deneyiminizi eşitleyin
+# Description shown on the choice screen
+pair-choice-description = Kayıtlı parolalarınızı, sekmelerinizi, gezinti geçmişinizi ve daha fazlasını tüm cihazlarınızda görüntüleyin.
 # Heading shown on the choice screen when the user arrived via a Send Tab entrypoint
 pair-choice-header-send-tab = Sekmeleri göndermek istediğiniz cihazda { -brand-firefox }’u indirin veya açın
 # Legend for the radio button fieldset
@@ -1696,6 +1749,20 @@ pair-unsupported-learn-more-link-v2 = Daha fazla bilgi al
 pair-unsupported-desktop-firefox-fallback-header-v2 = Ne yazık ki bir hata oluştu.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Lütfen bu sekmeyi kapatıp yeniden deneyin.
 
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer, which is already signed in, after their
+## mobile device scans the pairing QR code. It asks them to approve the
+## sign-in, and shows the requesting device's details so they can verify it.
+
+# Asks the user to confirm the sign-in that another one of their devices just started
+pair2-authority-approve-sign-in-heading = Giriş onaylansın mı?
+# Submit button confirming that the user started the pairing and approves the
+# other device being added to their account
+pair2-authority-approve-sign-in-confirm-button = Evet, girişi onayla
+# "Not you?" asks whether someone other than the user started this sign-in.
+# The text inside <changePassword> links to the page for changing the password.
+pair2-authority-approve-sign-in-change-password = Siz değil misiniz? <changePassword>Parolanızı değiştirin</changePassword>
+
 ## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer after scanning the pairing QR code with
 ## their phone. It confirms the flow has moved to the mobile device and waits
@@ -1712,8 +1779,34 @@ pair2-authority-continue-on-mobile-cancel-button = Vazgeç
 
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = Eşitlemek için { -brand-firefox } tarayıcısını açın
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction = Cihazlar arasında eşitlemeyi kurmak için bu cihazda { -brand-firefox }’u açıp <b>firefox.com/pair</b> adresine gidin
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = { -brand-firefox }’u indir
+
+## ScanQR page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer. It shows a QR code that they scan with
+## their phone or tablet to connect the two devices and start syncing.
+
+pair2-authority-scan-qr-heading = Mobil cihazınızı bağlamak için okutun
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-scan-qr-instruction = { -brand-firefox } yer imlerinizi, sekmelerinizi ve daha fazlasını eşitlemek için telefonunuz veya tabletinizle QR kodunu okutun.
+# Accessible label describing the QR code image shown on this page
+pair2-authority-scan-qr-code-aria-label = Mobil cihazınızı bağlamak için QR kodu
+# Link to a support article for users having trouble scanning the QR code
+pair2-authority-scan-qr-help-link = Okutma konusunda yardım alın
+# Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
+pair2-authority-scan-qr-skip-button = Şimdilik geç
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and links to sync settings.
+
+pair2-authority-sync-success-heading-v2 = Cihazınız bağlandı
+# "Syncing" here means copying data between the user's devices
+pair2-authority-sync-success-description-v2 = Eşitleme sürüyor. Eşitlenen verilerinizin görünmesi biraz zaman alabilir. Bu sırada gezinmeye devam edebilirsiniz.
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button-v2 = Eşitleme ayarlarını yönet
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1722,6 +1815,8 @@ pair2-authority-download-firefox-cta = { -brand-firefox }’u indir
 
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Hâlâ cihaz bağlamak istiyor musunuz?
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-cancelled-heading = Vazgeçildi
 pair2-authority-timeout-and-cancel-canceled-description = Fikrinizi değiştirirseniz veya başka bir cihaz bağlamak isterseniz yeniden deneyin.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Yeniden dene
@@ -1735,6 +1830,7 @@ pair2-authority-timeout-and-cancel-sync-settings-button = Eşitleme ayarları
 
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-supplicant-approve-sign-in-heading = Eşitlemek için son bir adım
+pair2-supplicant-approve-sign-in-instruction = Girişi bilgisayarınızdan onaylayın.
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = Vazgeç
 
@@ -1761,12 +1857,15 @@ pair2-supplicant-connect-this-device-cancel-button = Vazgeç
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = { -brand-firefox } ile devam et
+# Replaces the button label while waiting for the Firefox app to take over
+pair2-supplicant-download-firefox-opening-button = { -brand-firefox } açılıyor…
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
 ## to open firefox.com/pair on their computer, which is where the QR code they
 ## scan with the mobile device comes from.
 
+pair2-supplicant-ready-to-scan-heading = Cihaz bağlamak için
 # Opens a Mozilla support article about setting up sync
 pair2-supplicant-ready-to-scan-learn-more-link = Daha fazla bilgi al
 
@@ -1775,6 +1874,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Daha fazla bilgi al
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Cihazınız bağlandı
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button-v2 = Eşitleme ayarlarını yönet
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -1784,6 +1885,8 @@ pair2-supplicant-sync-success-heading = Cihazınız bağlandı
 
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zaman aşımına uğradık
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Vazgeçildi
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

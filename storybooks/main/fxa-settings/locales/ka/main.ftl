@@ -1348,6 +1348,12 @@ pair2-authority-scan-qr-heading = წააკითხეთ მობილუ
 pair2-authority-scan-qr-instruction = წააკითხეთ QR-კოდი ტელეფონით ან პლანშეტით, რომ დაასინქრონოთ { -brand-firefox } არსებული სანიშნებით, ჩანართებითა თუ სხვ.
 pair2-authority-scan-qr-code-aria-label = QR-კოდი მობილურ მოწყობილობასთან დასაკავშირებლად
 pair2-authority-scan-qr-help-link = დახმარება წაკითხვის ხარვეზისას
+pair2-authority-scan-qr-skip-button = ამჟამად გამოტოვება
+
+
+pair2-authority-sync-success-heading-v2 = მოწყობილობა დაკავშირებულია
+pair2-authority-sync-success-description-v2 = სინქრონიზაცია მიმდინარეობს. დასინქრონებული მონაცემების გამოჩენამ შეიძლება გარკვეულ ხანს გასტანოს. ამასობაში შეგიძლიათ განაგრძოთ გვერდების მონახულება.
+pair2-authority-sync-success-sync-settings-button-v2 = სინქრონიზაციის პარამეტრების მართვა
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = კიდევ გსურთ მოწყობილობის დაკავშირება?
@@ -1379,6 +1385,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = ვრცლად
 
 
 pair2-supplicant-sync-success-heading = მოწყობილობა დაკავშირებულია
+pair2-supplicant-sync-success-description-v2 = სინქრონიზაცია მიმდინარეობს. დასინქრონებული მონაცემების გამოჩენამ შეიძლება გარკვეულ ხანს გასტანოს. ამასობაში შეგიძლიათ განაგრძოთ გვერდების მონახულება.
+pair2-supplicant-sync-success-sync-settings-button-v2 = სინქრონიზაციის პარამეტრების მართვა
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = როგორც ჩანს, დრო ამოიწურა
