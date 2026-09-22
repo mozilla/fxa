@@ -20,6 +20,12 @@ apps.push({
     NODE_OPTIONS: `${process.env.NODE_OPTIONS || ''} --openssl-legacy-provider --dns-result-order=ipv4first`.trim(),
     CONFIG_FILES: 'server/config/local.json',
     PORT: 3030,
+    // Local mock IdP (packages/fxa-auth-server/test/mock-idp); the auth-server
+    // dev config points its token endpoints and JWKS at the same service.
+    GOOGLE_AUTH_AUTHORIZATION_ENDPOINT: 'http://localhost:9300/authorize',
+    APPLE_AUTH_AUTHORIZATION_ENDPOINT: 'http://localhost:9300/authorize',
+    APPLE_AUTH_REDIRECT_URI:
+      'http://localhost:3030/post_verify/third_party_auth/callback',
     PATH,
     SENTRY_ENV: 'local',
     SENTRY_DSN: process.env.SENTRY_DSN_CONTENT,

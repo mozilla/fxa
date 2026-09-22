@@ -506,7 +506,9 @@ describe('AuthAndAccountSetupRoutes', () => {
     });
 
     expect(useFxAStatus).toHaveBeenCalledTimes(1);
-    expect(useFxAStatus).toHaveBeenCalledWith(mockIntegration);
+    expect(useFxAStatus).toHaveBeenCalledWith(mockIntegration, {
+      pathname: '/',
+    });
   });
 });
 

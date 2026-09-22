@@ -39,6 +39,14 @@ const formatAdditionalInfo = (additionalInfo: string) => {
   }
 };
 
+// The verified column is nullable, so some events have no value.
+const formatVerified = (verified?: boolean | null) =>
+  verified == null ? (
+    <span className="text-grey-400">—</span>
+  ) : (
+    <ResultBoolean isTruthy={verified} />
+  );
+
 export type AccountProps = AccountType & {
   onCleared: () => void;
   query: string;
@@ -138,7 +146,7 @@ export const Account = ({
   const handleRemovePasskey = async (credentialId: string, name: string) => {
     if (
       !window.confirm(
-        `Remove the passkey "${name}" for "${primaryEmail.email}"? This cannot be undone.`
+        `Remove the passkey "${name}" for "${primaryEmail.email}"? This also removes its passwordless sync access. This cannot be undone.`
       )
     ) {
       return;
@@ -156,6 +164,30 @@ export const Account = ({
       onCleared();
     } catch {
       window.alert('Error removing passkey.');
+    }
+  };
+
+  const handleRemovePasskeyWrap = async (
+    credentialId: string,
+    name: string
+  ) => {
+    if (
+      !window.confirm(
+        `Remove passwordless sync for the passkey "${name}" on "${primaryEmail.email}"? The passkey stays and still signs in; the user will need their password to unlock sync.`
+      )
+    ) {
+      return;
+    }
+    try {
+      const removed = await adminApi.removePasskeyWrap(uid, credentialId);
+      if (!removed) {
+        window.alert('This passkey has no passwordless sync to remove.');
+        return;
+      }
+      window.alert('Passwordless sync has been removed for this passkey.');
+      onCleared();
+    } catch {
+      window.alert('Error removing passwordless sync.');
     }
   };
 
@@ -356,55 +388,116 @@ export const Account = ({
 
         <h3 className="header-lg">Passkeys</h3>
         {passkeys && passkeys.length > 0 ? (
-          <TableXHeaders
-            rowHeaders={[
-              'Name',
-              'Created',
-              'Last Used',
-              'Backup State',
-              'PRF Enabled',
-              'Authenticator',
-              'Action',
-            ]}
-          >
-            {passkeys.map((passkey: PasskeyType) => (
-              <TableRowXHeader key={passkey.credentialId}>
-                <td data-testid="passkey-name">{passkey.name}</td>
-                <td data-testid="passkey-created-at">
-                  {getFormattedDate(passkey.createdAt)}
-                </td>
-                <td data-testid="passkey-last-used-at">
-                  {passkey.lastUsedAt == null
-                    ? 'Never'
-                    : getFormattedDate(passkey.lastUsedAt)}
-                </td>
-                <td data-testid="passkey-backup-state">
-                  <ResultBoolean isTruthy={passkey.backupState} />
-                </td>
-                <td data-testid="passkey-prf-enabled">
-                  <ResultBoolean isTruthy={passkey.prfEnabled} />
-                </td>
-                <td data-testid="passkey-authenticator-name">
-                  {passkey.authenticatorName || 'Unknown'}
-                </td>
-                <td>
-                  <Guard features={[AdminPanelFeature.RemovePasskeys]}>
-                    <button
-                      className="p-1 text-red-700 border-2 rounded border-grey-100 bg-grey-10 hover:border-grey-10 hover:bg-grey-50 hover:text-red-700"
-                      type="button"
-                      data-testid={`remove-passkey-${passkey.credentialId}`}
-                      aria-label={`Remove passkey ${passkey.name}`}
-                      onClick={() =>
-                        handleRemovePasskey(passkey.credentialId, passkey.name)
-                      }
-                    >
-                      Remove
-                    </button>
-                  </Guard>
-                </td>
-              </TableRowXHeader>
-            ))}
-          </TableXHeaders>
+          <>
+            <Guard
+              features={[
+                AdminPanelFeature.RemovePasskeys,
+                AdminPanelFeature.RemovePasskeyWrap,
+              ]}
+            >
+              <div
+                className="border-l-2 border-red-600 mb-4 pl-4"
+                data-testid="passkeys-note"
+              >
+                <p>
+                  <strong>Remove</strong> deletes the passkey entirely. The user
+                  can no longer sign in with it, and any ability it had to sign
+                  into sync without a password is removed with it.
+                </p>
+                <p className="mt-2">
+                  <strong>Remove sync</strong> only removes the ability for the
+                  passkey to sign into sync without a password. The passkey
+                  stays and still signs the user in, but they will need their
+                  password to unlock sync.
+                </p>
+              </div>
+            </Guard>
+            <TableXHeaders
+              rowHeaders={[
+                'Name',
+                'Created',
+                'Last Used',
+                'Backup State',
+                'PRF Enabled',
+                'Passwordless sync',
+                'Authenticator',
+                'Actions',
+              ]}
+            >
+              {passkeys.map((passkey: PasskeyType) => (
+                <TableRowXHeader key={passkey.credentialId}>
+                  <td data-testid="passkey-name">{passkey.name}</td>
+                  <td data-testid="passkey-created-at">
+                    {getFormattedDate(passkey.createdAt)}
+                  </td>
+                  <td data-testid="passkey-last-used-at">
+                    {passkey.lastUsedAt == null
+                      ? 'Never'
+                      : getFormattedDate(passkey.lastUsedAt)}
+                  </td>
+                  <td data-testid="passkey-backup-state">
+                    <ResultBoolean isTruthy={passkey.backupState} />
+                  </td>
+                  <td data-testid="passkey-prf-enabled">
+                    <ResultBoolean isTruthy={passkey.prfEnabled} />
+                  </td>
+                  <td data-testid="passkey-passwordless-sync">
+                    {passkey.passwordlessSyncStale ? (
+                      <span
+                        className="font-semibold text-orange-600"
+                        title="This passkey's passwordless sync no longer works because the account's keys changed after it was set up, for example by a password reset. The user must set it up again."
+                      >
+                        Stale
+                      </span>
+                    ) : (
+                      <ResultBoolean isTruthy={passkey.hasPasswordlessSync} />
+                    )}
+                  </td>
+                  <td data-testid="passkey-authenticator-name">
+                    {passkey.authenticatorName || 'Unknown'}
+                  </td>
+                  <td>
+                    <div className="flex flex-col items-start gap-2 whitespace-nowrap">
+                      <Guard features={[AdminPanelFeature.RemovePasskeys]}>
+                        <button
+                          className="p-1 text-red-700 border-2 rounded border-grey-100 bg-grey-10 hover:border-grey-10 hover:bg-grey-50 hover:text-red-700"
+                          type="button"
+                          data-testid={`remove-passkey-${passkey.credentialId}`}
+                          aria-label={`Remove passkey ${passkey.name}`}
+                          onClick={() =>
+                            handleRemovePasskey(
+                              passkey.credentialId,
+                              passkey.name
+                            )
+                          }
+                        >
+                          Remove
+                        </button>
+                      </Guard>
+                      {passkey.hasPasswordlessSync && (
+                        <Guard features={[AdminPanelFeature.RemovePasskeyWrap]}>
+                          <button
+                            className="p-1 text-red-700 border-2 rounded border-grey-100 bg-grey-10 hover:border-grey-10 hover:bg-grey-50 hover:text-red-700"
+                            type="button"
+                            data-testid={`remove-passkey-wrap-${passkey.credentialId}`}
+                            aria-label={`Remove passwordless sync for passkey ${passkey.name}`}
+                            onClick={() =>
+                              handleRemovePasskeyWrap(
+                                passkey.credentialId,
+                                passkey.name
+                              )
+                            }
+                          >
+                            Remove sync
+                          </button>
+                        </Guard>
+                      )}
+                    </div>
+                  </td>
+                </TableRowXHeader>
+              ))}
+            </TableXHeaders>
+          </>
         ) : (
           <p className="result-none" data-testid="passkeys-none">
             This account doesn't have any passkeys.
@@ -489,7 +582,13 @@ export const Account = ({
         {securityEvents && securityEvents.length > 0 ? (
           <>
             <TableXHeaders
-              rowHeaders={['Event', 'Timestamp', 'IP', 'Additional Info']}
+              rowHeaders={[
+                'Event',
+                'Timestamp',
+                'IP',
+                'Verified',
+                'Additional Info',
+              ]}
             >
               {(showAllSecurityEvents
                 ? securityEvents
@@ -501,6 +600,7 @@ export const Account = ({
                     <>{securityEvent.name}</>
                     <>{getFormattedDate(securityEvent.createdAt)}</>
                     <>{securityEvent.ipAddr}</>
+                    <>{formatVerified(securityEvent.verified)}</>
                     <>
                       {securityEvent.additionalInfo && (
                         <pre className="whitespace-pre-wrap">

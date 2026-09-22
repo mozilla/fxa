@@ -57,17 +57,24 @@ describe('AccountController', () => {
     first: jest.Mock;
   };
 
-  // The passkeys-table query mock (removePasskeys/removePasskey). db.knex
-  // returns it, and it is awaited directly (no terminal call), so it is
-  // thenable and resolves to `passkeyDeleteCount`.
+  // Table query mocks. db.knex(table) returns the mock for that table, and
+  // each is awaited directly (no terminal call), so it is thenable and
+  // resolves to the table's `*Result` value.
   let knexMock: jest.Mock;
   let passkeyQuery: {
+    select: jest.Mock;
     delete: jest.Mock;
+    join: jest.Mock;
+    leftJoin: jest.Mock;
     where: jest.Mock;
     andWhere: jest.Mock;
+    orderBy: jest.Mock;
     then: jest.Mock;
   };
-  let passkeyDeleteCount: number;
+  let passkeyWrapQuery: typeof passkeyQuery;
+  let passkeyResult: unknown;
+  let passkeyWrapResult: unknown;
+  let securityEvents: { create: jest.Mock };
 
   const MOCK_UID = 'f9416ce3703e4916a4cd6b1e665a3f1a';
   const MOCK_CREDENTIAL_ID = 'AQIDBAUGBwgJCg';
@@ -102,21 +109,32 @@ describe('AccountController', () => {
     };
     givenAccount(undefined); // default: no account found
 
-    // Passkey deletes go through db.knex('passkeys'); default to a hit.
-    passkeyDeleteCount = 2;
-    passkeyQuery = {
+    // Deletes resolve to a row count; default both tables to a hit.
+    passkeyResult = 2;
+    passkeyWrapResult = 1;
+    const tableQuery = (result: () => unknown) => ({
+      select: jest.fn().mockReturnThis(),
       delete: jest.fn().mockReturnThis(),
+      join: jest.fn().mockReturnThis(),
+      leftJoin: jest.fn().mockReturnThis(),
       where: jest.fn().mockReturnThis(),
       andWhere: jest.fn().mockReturnThis(),
-      then: jest.fn((resolve) =>
-        Promise.resolve(passkeyDeleteCount).then(resolve)
+      orderBy: jest.fn().mockReturnThis(),
+      then: jest.fn((resolve, reject) =>
+        Promise.resolve().then(result).then(resolve, reject)
       ),
-    };
-    knexMock = jest.fn().mockReturnValue(passkeyQuery);
+    });
+    passkeyQuery = tableQuery(() => passkeyResult);
+    passkeyWrapQuery = tableQuery(() => passkeyWrapResult);
+    knexMock = jest.fn((table: string) =>
+      table === 'passkeyWraps' ? passkeyWrapQuery : passkeyQuery
+    );
+    securityEvents = { create: jest.fn().mockResolvedValue({}) };
 
     const db = createMock<DatabaseService>({
       account: { query: jest.fn().mockReturnValue(accountQuery) } as any,
       knex: knexMock as any,
+      securityEvents: securityEvents as any,
     });
 
     const stub = (provide: any): Provider => ({ provide, useValue: {} });
@@ -328,12 +346,12 @@ describe('AccountController', () => {
     });
 
     it('returns false when the account has no passkeys', async () => {
-      passkeyDeleteCount = 0;
+      passkeyResult = 0;
       expect(await controller.removePasskeys(MOCK_UID)).toBe(false);
     });
 
     it('does not notify when the account has no passkeys', async () => {
-      passkeyDeleteCount = 0;
+      passkeyResult = 0;
       await controller.removePasskeys(MOCK_UID);
       expect(notifier.send).not.toHaveBeenCalled();
     });
@@ -368,11 +386,246 @@ describe('AccountController', () => {
     });
 
     it('returns false and skips notification when no matching passkey exists', async () => {
-      passkeyDeleteCount = 0;
+      passkeyResult = 0;
       expect(await controller.removePasskey(MOCK_UID, MOCK_CREDENTIAL_ID)).toBe(
         false
       );
       expect(notifier.send).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('removePasskeyWrap', () => {
+    it('deletes only the wrap row scoped to uid and credentialId', async () => {
+      await controller.removePasskeyWrap(
+        MOCK_UID,
+        MOCK_CREDENTIAL_ID,
+        mockRequest
+      );
+      expect(knexMock).toHaveBeenCalledWith('passkeyWraps');
+      expect(knexMock).not.toHaveBeenCalledWith('passkeys');
+      expect(passkeyWrapQuery.delete).toHaveBeenCalled();
+      expect(passkeyWrapQuery.where).toHaveBeenCalledWith(
+        'uid',
+        uuidTransformer.to(MOCK_UID)
+      );
+      expect(passkeyWrapQuery.andWhere).toHaveBeenCalledWith(
+        'credentialId',
+        Buffer.from(MOCK_CREDENTIAL_ID, 'base64url')
+      );
+    });
+
+    it('logs the admin-panel event', async () => {
+      await controller.removePasskeyWrap(
+        MOCK_UID,
+        MOCK_CREDENTIAL_ID,
+        mockRequest
+      );
+      expect(eventLogging.onEvent).toHaveBeenCalledWith(
+        EventNames.RemovePasskeyWrap
+      );
+    });
+
+    it('returns true when the wrap was removed', async () => {
+      expect(
+        await controller.removePasskeyWrap(
+          MOCK_UID,
+          MOCK_CREDENTIAL_ID,
+          mockRequest
+        )
+      ).toBe(true);
+    });
+
+    it('records the wrap-deleted security event on delete', async () => {
+      await controller.removePasskeyWrap(
+        MOCK_UID,
+        MOCK_CREDENTIAL_ID,
+        mockRequest
+      );
+      expect(securityEvents.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          uid: MOCK_UID,
+          name: 'account.passkey.wrap_deleted',
+          additionalInfo: expect.objectContaining({ adminPanelAction: true }),
+        })
+      );
+    });
+
+    it('still returns true when the security event write fails', async () => {
+      securityEvents.create.mockRejectedValue(new Error('db down'));
+      expect(
+        await controller.removePasskeyWrap(
+          MOCK_UID,
+          MOCK_CREDENTIAL_ID,
+          mockRequest
+        )
+      ).toBe(true);
+    });
+
+    it('does not send profileDataChange since the passkey is unchanged', async () => {
+      await controller.removePasskeyWrap(
+        MOCK_UID,
+        MOCK_CREDENTIAL_ID,
+        mockRequest
+      );
+      expect(notifier.send).not.toHaveBeenCalled();
+    });
+
+    it('returns false and records no event when no wrap exists', async () => {
+      passkeyWrapResult = 0;
+      expect(
+        await controller.removePasskeyWrap(
+          MOCK_UID,
+          MOCK_CREDENTIAL_ID,
+          mockRequest
+        )
+      ).toBe(false);
+      expect(securityEvents.create).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('passkeys', () => {
+    const KEYS_CHANGED_AT = 1000;
+    // All-zero AAGUID skips the FIDO MDS lookup, which is stubbed out here.
+    const passkeyRow = (
+      credentialId: string,
+      overrides: Partial<{
+        prfEnabled: boolean;
+        wrapCreatedAt: number | null;
+        keysChangedAt: number | null;
+        verifierSetAt: number;
+      }> = {}
+    ) => ({
+      name: `key-${credentialId}`,
+      credentialId: Buffer.from(credentialId, 'base64url'),
+      createdAt: 1,
+      lastUsedAt: null,
+      aaguid: Buffer.alloc(16),
+      backupState: false,
+      prfEnabled: true,
+      wrapCreatedAt: null,
+      keysChangedAt: KEYS_CHANGED_AT,
+      verifierSetAt: 1,
+      accountCreatedAt: 1,
+      ...overrides,
+    });
+    const wrapRow = (credentialId: string, createdAt = KEYS_CHANGED_AT) =>
+      passkeyRow(credentialId, { wrapCreatedAt: createdAt });
+
+    it('marks passwordless sync from the joined wrap per passkey', async () => {
+      passkeyResult = [wrapRow('AAAA'), passkeyRow('BBBB')];
+
+      const result = await controller.passkeys(mockAccount);
+
+      expect(
+        result.map((p) => [p.credentialId, p.hasPasswordlessSync])
+      ).toEqual([
+        ['AAAA', true],
+        ['BBBB', false],
+      ]);
+    });
+
+    it('loads passkeys, wraps, and account timestamps in one query', async () => {
+      passkeyResult = [wrapRow('AAAA')];
+
+      await controller.passkeys(mockAccount);
+
+      expect(knexMock).toHaveBeenCalledTimes(1);
+      expect(passkeyQuery.leftJoin).toHaveBeenCalledWith(
+        'passkeyWraps',
+        expect.any(Function)
+      );
+      expect(passkeyQuery.select).toHaveBeenCalledWith(
+        'passkeys.name',
+        'passkeys.credentialId',
+        'passkeys.createdAt',
+        'passkeys.lastUsedAt',
+        'passkeys.aaguid',
+        'passkeys.backupState',
+        'passkeys.prfEnabled',
+        'passkeyWraps.createdAt as wrapCreatedAt',
+        'accounts.keysChangedAt',
+        'accounts.verifierSetAt',
+        'accounts.createdAt as accountCreatedAt'
+      );
+    });
+
+    it('falls back to verifierSetAt when keysChangedAt is null', async () => {
+      passkeyResult = [
+        passkeyRow('AAAA', {
+          wrapCreatedAt: 5,
+          keysChangedAt: null,
+          verifierSetAt: 10,
+        }),
+      ];
+
+      const [passkey] = await controller.passkeys(mockAccount);
+
+      expect(passkey.passwordlessSyncStale).toBe(true);
+    });
+
+    it('flags a wrap sealed before the account keys last changed as stale', async () => {
+      passkeyResult = [wrapRow('AAAA', KEYS_CHANGED_AT - 1)];
+
+      const [passkey] = await controller.passkeys(mockAccount);
+
+      expect(passkey.hasPasswordlessSync).toBe(true);
+      expect(passkey.passwordlessSyncStale).toBe(true);
+    });
+
+    it('does not flag a fresh wrap as stale', async () => {
+      passkeyResult = [wrapRow('AAAA')];
+
+      const [passkey] = await controller.passkeys(mockAccount);
+
+      expect(passkey.passwordlessSyncStale).toBe(false);
+    });
+
+    it('does not flag a passkey without a wrap as stale', async () => {
+      passkeyResult = [passkeyRow('AAAA')];
+
+      const [passkey] = await controller.passkeys(mockAccount);
+
+      expect(passkey.passwordlessSyncStale).toBe(false);
+    });
+
+    it('returns an empty list when the account has no passkeys', async () => {
+      passkeyResult = [];
+
+      expect(await controller.passkeys(mockAccount)).toEqual([]);
+    });
+
+    it('reports passwordless sync when a wrap exists even if prfEnabled is stale', async () => {
+      // prfEnabled is written best-effort after an assertion and can lag
+      // behind a wrap that was already stored.
+      passkeyResult = [
+        passkeyRow('AAAA', {
+          prfEnabled: false,
+          wrapCreatedAt: KEYS_CHANGED_AT,
+        }),
+      ];
+
+      const [passkey] = await controller.passkeys(mockAccount);
+
+      expect(passkey.hasPasswordlessSync).toBe(true);
+    });
+
+    it('does not expose wrap data beyond the two flags', async () => {
+      passkeyResult = [wrapRow('AAAA')];
+
+      const [passkey] = await controller.passkeys(mockAccount);
+
+      expect(Object.keys(passkey).sort()).toEqual([
+        'aaguid',
+        'authenticatorName',
+        'backupState',
+        'createdAt',
+        'credentialId',
+        'hasPasswordlessSync',
+        'lastUsedAt',
+        'name',
+        'passwordlessSyncStale',
+        'prfEnabled',
+      ]);
     });
   });
 });

@@ -45,7 +45,6 @@ export interface AddRoutes {
 type ShowReactApp = {
   emailFirstRoutes: boolean;
   simpleRoutes: boolean;
-  signInRoutes: boolean;
   signUpRoutes: boolean;
   pairRoutes: boolean;
   postVerifyOtherRoutes: boolean;

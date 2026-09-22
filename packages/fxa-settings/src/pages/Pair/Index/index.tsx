@@ -47,6 +47,7 @@ import {
   planPairingHandoff,
 } from '../../../lib/pairing/handoff';
 import {
+  PAIR_FLOW_ENTRYPOINT,
   pickPairingAttribution,
   pickPairingAttributionFromData,
   stashPairingAttribution,
@@ -137,13 +138,19 @@ const Pair = ({
   // Attribution params to carry into the pairing flow (FXA-14132). Sourced from
   // the integration so it matches what this page's own Glean events report;
   // falls back to the URL when no integration is supplied (tests, stories).
-  const pairingAttribution = useMemo(
-    () =>
-      integration?.data
-        ? pickPairingAttributionFromData(integration.data)
-        : pickPairingAttribution(location.search),
-    [integration, location.search]
-  );
+  const pairingAttribution = useMemo(() => {
+    const fromUrl = pickPairingAttribution(location.search);
+    const picked = integration?.data
+      ? pickPairingAttributionFromData(integration.data)
+      : fromUrl;
+    // `IntegrationFactory` drops an `entryPoint`-only value, so fall back to the
+    // URL, which keeps it, before reaching for the default.
+    return {
+      ...picked,
+      entrypoint:
+        picked.entrypoint || fromUrl.entrypoint || PAIR_FLOW_ENTRYPOINT,
+    };
+  }, [integration, location.search]);
 
   // Focus management after view transitions
   useEffect(() => {
@@ -191,7 +198,22 @@ const Pair = ({
     return { kind: 'none' };
   }, [pairingChannelInfo, fxaStatusResult.fxaStatusState, device, config]);
 
+  // The bootstrap ends in a hard navigation that nothing can undo, so it starts
+  // at most once per mount. `abortBootstrapRef` stands an in-flight run down on
+  // unmount, and when a later pass of the effect below routes somewhere else.
+  const bootstrapStartedRef = useRef(false);
+  const abortBootstrapRef = useRef(false);
   useEffect(() => {
+    return () => {
+      abortBootstrapRef.current = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    // Lowered again below, after the last branch that routes elsewhere, so
+    // such a branch leaves an in-flight bootstrap standing down.
+    abortBootstrapRef.current = true;
+
     // This is a signal that the initial fxa_status message is still pending.
     // Don't move forwards with other evaluations until we have a definitive
     // answer here. 'unanswered' is a definitive answer: no reply is coming.
@@ -288,7 +310,12 @@ const Pair = ({
       return;
     }
 
-    let cancelled = false;
+    abortBootstrapRef.current = false;
+    if (bootstrapStartedRef.current) {
+      return;
+    }
+    bootstrapStartedRef.current = true;
+
     (async () => {
       const askFirefox = () =>
         firefox
@@ -304,14 +331,14 @@ const Pair = ({
       let signedInUser = await askFirefox();
       for (
         let attempt = 0;
-        !cancelled &&
+        !abortBootstrapRef.current &&
         attempt < MAX_RETRIES &&
         (!signedInUser?.sessionToken || !signedInUser?.verified);
         attempt++
       ) {
         signedInUser = await askFirefox();
       }
-      if (cancelled) return;
+      if (abortBootstrapRef.current) return;
 
       if (signedInUser?.sessionToken && signedInUser.verified) {
         setBootstrapping(false);
@@ -320,7 +347,7 @@ const Pair = ({
       const oauthParams = await firefox
         .fxaOAuthFlowBegin(['profile', Constants.OAUTH_OLDSYNC_SCOPE])
         .catch(() => null);
-      if (cancelled) return;
+      if (abortBootstrapRef.current) return;
       if (oauthParams) {
         // buildSyncOAuthSearch emits OAuth params only, so the attribution
         // params would be lost across the sign-in round trip and /pair would
@@ -335,15 +362,16 @@ const Pair = ({
       // WebChannel didn't reply; reveal the page so the user isn't stuck.
       setBootstrapping(false);
     })();
-
-    return () => {
-      cancelled = true;
-    };
-    // Run-once bootstrap: `pairingAttribution` and `navigateWithQuery` are
-    // intentionally captured at mount. Re-running on a new attribution value
-    // would re-ask the WebChannel and could double-navigate.
+    // `pairingAttribution` is captured at mount on purpose; re-running on a new
+    // attribution value would re-ask the WebChannel.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pairingChannelInfo, fxaStatusResult, handoffPlan, navigateWithQuery]);
+  }, [
+    pairingChannelInfo,
+    fxaStatusResult.fxaStatusState,
+    fxaStatusResult.fxaStatus?.capabilities.pairingVersion,
+    handoffPlan,
+    navigateWithQuery,
+  ]);
 
   // Banner variant is driven by router state from getSyncNavigate.
   const { origin: pairOrigin } = (location.state ?? {}) as Pick<

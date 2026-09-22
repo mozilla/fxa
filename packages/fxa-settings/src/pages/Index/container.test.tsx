@@ -15,6 +15,7 @@ import IndexContainer from './container';
 import { MozServices } from '../../lib/types';
 import AuthClient from 'fxa-auth-client/browser';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import { SensitiveDataClient } from '../../lib/sensitive-data-client';
 import { IndexProps } from './interfaces';
 import { MOCK_EMAIL } from '../mocks';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
@@ -46,12 +47,14 @@ jest.mock('../../lib/hooks/useValidate', () => ({
   useValidatedQueryParams: jest.fn(),
 }));
 
+const mockSensitiveDataClient = new SensitiveDataClient();
 jest.mock('../../models', () => {
   const originalModule = jest.requireActual('../../models');
   return {
     __esModule: true,
     ...originalModule,
     useAuthClient: jest.fn(),
+    useSensitiveDataClient: () => mockSensitiveDataClient,
   };
 });
 

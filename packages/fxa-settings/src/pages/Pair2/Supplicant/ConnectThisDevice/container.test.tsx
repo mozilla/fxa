@@ -16,8 +16,6 @@ import {
 } from '../../../../models';
 import { navigateWithQuery } from '../../../../lib/utilities';
 
-const mockNavigate = jest.fn();
-
 // The channel credentials reach this page in router state rather than the URL,
 // so the location is mocked instead of driving a real router entry.
 let mockLocationState: unknown = {
@@ -27,7 +25,6 @@ let mockLocationState: unknown = {
 };
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
-  useNavigate: () => mockNavigate,
   useLocation: () => ({ state: mockLocationState }),
 }));
 
@@ -40,6 +37,8 @@ type MockSupplicantIntegration = PairingSupplicantIntegration & {
   openChannel: jest.Mock;
   supplicantApprove: jest.Mock;
   destroy: jest.Mock;
+  /** Mirrors the real fail(): moves to Failed, then emits the state change. */
+  mockFail: () => void;
 };
 
 /**
@@ -54,7 +53,10 @@ function mockSupplicantIntegration({
     PairingSupplicantIntegration.prototype
   ) as MockSupplicantIntegration;
 
-  // All three are getters on the prototype, so they cannot be assigned.
+  let state = SupplicantState.WaitingForAuthorizations;
+
+  // All four are getters on the prototype, so they cannot be assigned.
+  Object.defineProperty(integration, 'state', { get: () => state });
   Object.defineProperty(integration, 'remoteMetadata', {
     get: () => MOCK_METADATA_WITH_DEVICE_NAME,
   });
@@ -68,6 +70,10 @@ function mockSupplicantIntegration({
     supplicantApprove: jest.fn().mockResolvedValue(undefined),
     destroy: jest.fn().mockResolvedValue(undefined),
     onStateChange: null,
+    mockFail: () => {
+      state = SupplicantState.Failed;
+      integration.onStateChange?.(SupplicantState.Failed);
+    },
   });
 }
 
@@ -153,8 +159,7 @@ describe('Pair2/Supplicant/ConnectThisDevice container', () => {
 
     expect(navigateWithQuery).toHaveBeenCalledWith(
       '/pair/supplicant/approve_signin',
-      {},
-      true
+      { replace: true }
     );
   });
 
@@ -189,16 +194,24 @@ describe('Pair2/Supplicant/ConnectThisDevice container', () => {
 
   // A channel that never opens leaves the user on a spinner forever, so the
   // failure has to route rather than disappear into an unhandled rejection.
-  it('reports and leaves the screen when the channel cannot be opened', async () => {
+  // The integration fails itself before rejecting, and that state change is
+  // the one navigation; the rejection handler must not add a second.
+  it('reports and leaves the screen once when the channel cannot be opened', async () => {
     const err = new Error('channel server unreachable');
-    integration.openChannel.mockRejectedValue(err);
+    integration.openChannel.mockImplementation(async () => {
+      integration.mockFail();
+      throw err;
+    });
 
     renderContainer();
 
     await waitFor(() => expect(captureException).toHaveBeenCalledWith(err));
-    expect(mockNavigate).toHaveBeenCalledWith(
-      '/pair/supplicant/timeout_and_cancel'
+    expect(navigateWithQuery).toHaveBeenCalledWith(
+      '/pair/supplicant/timeout_and_cancel',
+      { state: { reason: 'timeout' } },
+      true
     );
+    expect(navigateWithQuery).toHaveBeenCalledTimes(1);
   });
 
   describe('once the user can act', () => {
@@ -210,18 +223,66 @@ describe('Pair2/Supplicant/ConnectThisDevice container', () => {
       return result;
     };
 
-    it('approves on the pairing channel when the user connects', async () => {
+    // The integration emits WaitingForAuthority once the approval is sent, so
+    // that state change is the one navigation. A second one from the connect
+    // handler pushed a duplicate history entry without the query string.
+    it('navigates to approve_signin exactly once when the user connects', async () => {
       const user = userEvent.setup();
+      integration.supplicantApprove.mockImplementation(async () => {
+        emitState(integration, SupplicantState.WaitingForAuthority);
+      });
       await renderReady();
 
       await user.click(screen.getByRole('button', { name: 'Connect' }));
 
       expect(integration.supplicantApprove).toHaveBeenCalledTimes(1);
       await waitFor(() =>
-        expect(mockNavigate).toHaveBeenCalledWith(
-          '/pair/supplicant/approve_signin'
+        expect(navigateWithQuery).toHaveBeenCalledWith(
+          '/pair/supplicant/approve_signin',
+          { replace: true }
         )
       );
+      expect(navigateWithQuery).toHaveBeenCalledTimes(1);
+    });
+
+    // Sending the approval fails the integration before it rejects, so the
+    // Failed state change already routed; the handler must not route again.
+    it('leaves for the timeout screen once when the approval cannot be sent', async () => {
+      const user = userEvent.setup();
+      const err = new Error('channel server unreachable');
+      integration.supplicantApprove.mockImplementation(async () => {
+        integration.mockFail();
+        throw err;
+      });
+      await renderReady();
+
+      await user.click(screen.getByRole('button', { name: 'Connect' }));
+
+      await waitFor(() => expect(captureException).toHaveBeenCalledWith(err));
+      expect(navigateWithQuery).toHaveBeenCalledWith(
+        '/pair/supplicant/timeout_and_cancel',
+        { state: { reason: 'timeout' } },
+        true
+      );
+      expect(navigateWithQuery).toHaveBeenCalledTimes(1);
+    });
+
+    // A rejection that bypasses fail(), such as the channel having been torn
+    // down, emits no state change, so the handler is the only way off the page.
+    it('leaves for the timeout screen when the approval rejects without failing the channel', async () => {
+      const user = userEvent.setup();
+      const err = new Error('Missing channel!');
+      integration.supplicantApprove.mockRejectedValue(err);
+      await renderReady();
+
+      await user.click(screen.getByRole('button', { name: 'Connect' }));
+
+      await waitFor(() => expect(captureException).toHaveBeenCalledWith(err));
+      expect(navigateWithQuery).toHaveBeenCalledWith(
+        '/pair/supplicant/timeout_and_cancel',
+        { replace: true, state: { reason: 'timeout' } }
+      );
+      expect(navigateWithQuery).toHaveBeenCalledTimes(1);
     });
 
     // The reason has to travel with the navigation: without it the dead-end

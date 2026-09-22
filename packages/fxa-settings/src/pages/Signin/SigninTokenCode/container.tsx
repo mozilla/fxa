@@ -22,6 +22,7 @@ import { getSigninState } from '../utils';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { useEffect, useState } from 'react';
 import { tryFinalizeUpgrade } from '../../../lib/auth-key-stretch-upgrade';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
 // The email with token code (verifyLoginCodeEmail) is sent on `/signin`
 // submission if conditions are met.
@@ -60,13 +61,18 @@ const SigninTokenCodeContainer = ({
 
   const [totpVerified, setTotpVerified] = useState<boolean>(false);
   const [recoveryAttempted, setRecoveryAttempted] = useState<boolean>(false);
+  const [sessionTokenInvalid, setSessionTokenInvalid] =
+    useState<boolean>(false);
 
   // Attempt OAuth flow recovery for Sync when state is missing or keys are lost
   useEffect(() => {
     const shouldAttemptRecovery =
       !recoveryAttempted &&
       isOAuthNativeIntegration(integration) &&
-      (!signinState || !signinState.sessionToken || oAuthKeysCheckError);
+      (!signinState ||
+        !signinState.sessionToken ||
+        oAuthKeysCheckError ||
+        sessionTokenInvalid);
 
     if (shouldAttemptRecovery) {
       setRecoveryAttempted(true);
@@ -77,6 +83,7 @@ const SigninTokenCodeContainer = ({
     integration,
     signinState,
     oAuthKeysCheckError,
+    sessionTokenInvalid,
     attemptOAuthFlowRecovery,
   ]);
 
@@ -103,23 +110,31 @@ const SigninTokenCodeContainer = ({
       // because "exists" only tells us that totp setup was started.
       // Prior to using Redis during setup, tokens were directly stored in the database,
       // but may never be marked as enabled/verified if setup is aborted or unsuccessful.
-      const { verified } = await authClient.checkTotpTokenExists(
-        signinState.sessionToken
-      );
-      setTotpVerified(verified);
+      try {
+        const { verified } = await authClient.checkTotpTokenExists(
+          signinState.sessionToken
+        );
+        setTotpVerified(verified);
+      } catch (err) {
+        // An invalid token means the session is dead. The OAuth recovery
+        // effect and the redirect-to-root effect act on this flag.
+        if (err?.errno === AuthUiErrors.INVALID_TOKEN.errno) {
+          setSessionTokenInvalid(true);
+        }
+      }
     };
     getTotpStatus();
   }, [authClient, signinState]);
 
-  // For non-OAuth Native flows, redirect to root when state is missing
+  // For non-OAuth Native flows, redirect to root when state is missing or dead
   useEffect(() => {
     if (
-      (!signinState || !signinState.sessionToken) &&
+      (!signinState || !signinState.sessionToken || sessionTokenInvalid) &&
       !isOAuthNativeIntegration(integration)
     ) {
       navigateWithQuery('/');
     }
-  }, [signinState, integration, navigateWithQuery]);
+  }, [signinState, sessionTokenInvalid, integration, navigateWithQuery]);
 
   // Redirect if 2FA is set up for the account but session is not TOTP verified
   useEffect(() => {

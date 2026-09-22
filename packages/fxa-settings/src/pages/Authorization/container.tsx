@@ -125,6 +125,8 @@ const AuthorizationContainer = ({
             isOAuthWebIntegration(integration) &&
             integration.wantsPromptNone() &&
             integration.returnOnError(),
+          isPromptNoneRequest:
+            isOAuthWebIntegration(integration) && integration.wantsPromptNone(),
         };
 
         const { error: navError } = await handleNavigation(navigationOptions);

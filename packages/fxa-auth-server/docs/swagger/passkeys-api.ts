@@ -262,12 +262,13 @@ const PASSKEYS_API_DOCS = {
         - \`hpkeSealedKb\` (string, required) — base64url, 48 bytes
 
         **Response:** \`{ created: boolean }\` — false when an identical wrap was
-        already stored.
+        already stored. A different wrap that predates the account's
+        \`keysChangedAt\` seals a \`kB\` the account no longer has and is replaced.
 
         **Errors:**
         - \`401\` errno 223 — the token is invalid, or is not bound to \`credentialId\`
         - \`404\` errno 224 — the passkey was deleted after the assertion
-        - \`409\` errno 235 — a different wrap already exists for this credential
+        - \`409\` errno 235 — a different wrap from the current key epoch already exists for this credential
 
         **Security events:** \`account.passkey.wrap_created\` on a new wrap;
         \`account.passkey.wrap_creation_failure\` on any failure to store one.

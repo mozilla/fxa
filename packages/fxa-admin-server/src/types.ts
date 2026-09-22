@@ -54,7 +54,7 @@ export interface EmailBounce {
 export interface SecurityEvents {
   uid?: string;
   nameId?: number;
-  verified?: boolean;
+  verified?: boolean | null;
   ipAddrHmac?: string;
   createdAt?: number;
   tokenVerificationId?: string;
@@ -110,6 +110,18 @@ export interface Passkey {
   authenticatorName?: string;
   backupState: boolean;
   prfEnabled: boolean;
+  /**
+   * True when a wrap row exists for the credential. Deleting the wrap
+   * leaves the passkey usable for sign-in. See `passwordlessSyncStale`
+   * for whether the wrap still works.
+   */
+  hasPasswordlessSync: boolean;
+  /**
+   * True when the wrap predates the account's last key change. The
+   * auth-server rejects such a wrap, so the passkey cannot unlock Sync
+   * without a password until the user re-enrols.
+   */
+  passwordlessSyncStale: boolean;
 }
 
 export interface AccountAuthorization {
@@ -318,6 +330,14 @@ export interface WafBypassTokenCreateDto {
 export interface DomainBlocklistEntry {
   domain: string;
   createdAt: number;
+}
+
+export interface DomainBlocklistSyncResult {
+  ok: boolean;
+  /** non-empty, non-comment lines read from the list */
+  total: number;
+  /** unique valid domains sent to the database; already-blocked ones are ignored there */
+  submitted: number;
 }
 
 export interface OAuthScopeDto {

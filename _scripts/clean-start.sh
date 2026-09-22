@@ -44,6 +44,7 @@ ALL_PORTS=(
   8091   # Admin panel
   9000   # Auth server
   9001   # Mail helper
+  9300   # Mock third-party IdP
   9999   # MailDev SMTP
   1111   # Profile server
   1112   # Profile static

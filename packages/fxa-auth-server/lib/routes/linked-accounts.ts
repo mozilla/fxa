@@ -307,12 +307,24 @@ export class LinkedAccountHandler {
             // See https://developers.google.com/identity/protocols/oauth2/openid-connect#exchangecode
             rawIdToken = tokenResponse['id_token'];
 
-            const verifiedToken = await this.googleAuthClient.verifyIdToken({
-              idToken: rawIdToken,
-              audience: clientId,
-            });
+            const { issuer, jwksUri } = this.config.googleAuthConfig;
+            if (jwksUri) {
+              // Local mock IdP. Production leaves jwksUri empty and verifies
+              // against Google's published certs below.
+              const { payload } = await jose.jwtVerify(
+                rawIdToken,
+                jose.createRemoteJWKSet(new URL(jwksUri)),
+                { issuer, audience: clientId }
+              );
+              idToken = payload;
+            } else {
+              const verifiedToken = await this.googleAuthClient.verifyIdToken({
+                idToken: rawIdToken,
+                audience: clientId,
+              });
 
-            idToken = verifiedToken.getPayload();
+              idToken = verifiedToken.getPayload();
+            }
           } catch (err) {
             this.log.error('linked_account.code_exchange_error', err);
             throw error.thirdPartyAccountError();
@@ -321,20 +333,24 @@ export class LinkedAccountHandler {
         break;
       }
       case 'apple': {
-        const { clientId, keyId, privateKey, teamId } =
+        const { clientId, keyId, privateKey, teamId, issuer, jwksUri } =
           this.config.appleAuthConfig;
 
-        if (!clientId || !keyId || !privateKey || !teamId) {
+        if (!clientId || (!jwksUri && (!keyId || !privateKey || !teamId))) {
           throw error.thirdPartyAccountError();
         }
 
         let rawIdToken;
-        const clientSecret = await this.generateAppleClientSecret(
-          clientId,
-          keyId,
-          privateKey,
-          teamId
-        );
+        // The local mock IdP ignores the client secret, so the dev stack does
+        // not need an Apple signing key.
+        const clientSecret = jwksUri
+          ? 'local-mock'
+          : await this.generateAppleClientSecret(
+              clientId,
+              keyId,
+              privateKey,
+              teamId
+            );
         const code = requestPayload.code;
         if (code) {
           const data = {
@@ -360,20 +376,31 @@ export class LinkedAccountHandler {
             const tokenResponse = await res.json();
             rawIdToken = tokenResponse['id_token'];
 
-            // Verify the id_token signature against Apple's published keys
-            // instead of trusting an unverified decode. Reuses the same JWKS
-            // fetch + verify helpers as the Apple SET webhook handler.
-            const applePublicKey = await getApplePublicKey(
-              rawIdToken,
-              this.statsd
-            );
-            idToken = await validateSecurityToken(
-              rawIdToken,
-              [clientId],
-              applePublicKey.pem,
-              APPLE_ISSUER,
-              this.statsd
-            );
+            if (jwksUri) {
+              // Local mock IdP. Production leaves jwksUri empty and verifies
+              // against Apple's published keys below.
+              const { payload } = await jose.jwtVerify(
+                rawIdToken,
+                jose.createRemoteJWKSet(new URL(jwksUri)),
+                { issuer, audience: clientId }
+              );
+              idToken = payload;
+            } else {
+              // Verify the id_token signature against Apple's published keys
+              // instead of trusting an unverified decode. Reuses the same JWKS
+              // fetch + verify helpers as the Apple SET webhook handler.
+              const applePublicKey = await getApplePublicKey(
+                rawIdToken,
+                this.statsd
+              );
+              idToken = await validateSecurityToken(
+                rawIdToken,
+                [clientId],
+                applePublicKey.pem,
+                APPLE_ISSUER,
+                this.statsd
+              );
+            }
           } catch (err) {
             this.log.error('linked_account.code_exchange_error', err);
             throw error.thirdPartyAccountError();

@@ -11,18 +11,9 @@ import ConfirmView from '../views/confirm';
 import ConfirmSignupCodeView from '../views/confirm_signup_code';
 import ConnectAnotherDeviceView from '../views/connect_another_device';
 import IndexView from '../views/index';
-import InlineTotpSetupView from '../views/inline_totp_setup';
-import InlineRecoverySetupView from '../views/inline_recovery_setup';
 import PermissionsView from '../views/permissions';
 import ReadyView from '../views/ready';
 import RedirectAuthView from '../views/authorization';
-import ReportSignInView from '../views/report_sign_in';
-import SignInBouncedView from '../views/sign_in_bounced';
-import SignInRecoveryCodeView from '../views/sign_in_recovery_code';
-import SignInReportedView from '../views/sign_in_reported';
-import SignInTokenCodeView from '../views/sign_in_token_code';
-import SignInTotpCodeView from '../views/sign_in_totp_code';
-import SignInUnblockView from '../views/sign_in_unblock';
 import SignUpPasswordView from '../views/sign_up_password';
 import Storage from './storage';
 import SubscriptionsProductRedirectView from '../views/subscriptions_product_redirect';
@@ -120,24 +111,6 @@ Router = Router.extend({
     'clear(/)': function () {
       this.createReactViewHandler('clear');
     },
-    // NOTE - complete_signin must be maintained for backwards compatibility with FF <122
-    // With the react conversion, we should only land on the /complete_signin view
-    // from signin to sync from version of Firefox <122, when clicking on "resend verification"
-    // from Sync Settings.
-    // When Extended Service Release is updated to a version >=122, we could consider an alternate experience,
-    // such as prompting to update the browser or redirecting to the start of the signin flow so the user can use a code instead.
-    'complete_signin(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'complete_signin',
-        CompleteSignUpView,
-        {
-          ...Url.searchParams(this.window.location.search),
-        },
-        {
-          type: VerificationReasons.SIGN_IN,
-        }
-      );
-    },
     // We will not be porting the Confirm view to React, see FXA-9054
     'confirm(/)': createViewHandler(ConfirmView, {
       type: VerificationReasons.SIGN_UP,
@@ -221,16 +194,7 @@ Router = Router.extend({
       });
     },
     'inline_totp_setup(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'inline_totp_setup',
-        InlineTotpSetupView
-      );
-    },
-    'inline_recovery_setup(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'inline_recovery_setup',
-        InlineRecoverySetupView
-      );
+      this.createReactViewHandler('inline_totp_setup');
     },
     'oauth(/)': function () {
       this.createReactOrBackboneViewHandler('oauth', IndexView);
@@ -288,9 +252,6 @@ Router = Router.extend({
     'pair/supp/allow(/)': createViewHandler('pair/supp_allow'),
     'pair/supp/wait_for_auth(/)': createViewHandler('pair/supp_wait_for_auth'),
     'pair/unsupported(/)': createViewHandler('pair/unsupported'),
-    'post_verify/finish_account_setup/set_password': createViewHandler(
-      'post_verify/finish_account_setup/set_password'
-    ),
     'post_verify/cad_qr/get_started': createViewHandler(
       'post_verify/cad_qr/get_started'
     ),
@@ -342,11 +303,6 @@ Router = Router.extend({
           type: VerificationReasons.PRIMARY_EMAIL_VERIFIED,
         }
       );
-    },
-    'report_signin(/)': function () {
-      this.createReactOrBackboneViewHandler('report_signin', ReportSignInView, {
-        ...Url.searchParams(this.window.location.search),
-      });
     },
 
     // The Backbone view is gone, but Backbone views still link here.
@@ -413,93 +369,43 @@ Router = Router.extend({
       });
     },
     'signin_bounced(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'signin_bounced',
-        SignInBouncedView
-      );
+      this.createReactViewHandler('signin_bounced');
     },
     'signin_confirmed(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'signin_confirmed',
-        ReadyView,
-        null,
-        {
-          type: VerificationReasons.SIGN_IN,
-        }
-      );
+      this.createReactViewHandler('signin_confirmed');
     },
     'signin_permissions(/)': createViewHandler(PermissionsView, {
       type: VerificationReasons.SIGN_IN,
     }),
-    'signin_recovery_choice(/)': function () {
-      this.createReactViewHandler('signin_recovery_choice');
-    },
-    'signin_recovery_code(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'signin_recovery_code',
-        SignInRecoveryCodeView
-      );
-    },
-    'signin_recovery_phone(/)': function () {
-      this.createReactViewHandler('signin_recovery_phone');
-    },
-    'signin_reported(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'signin_reported',
-        SignInReportedView
-      );
-    },
     'signin_token_code(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'signin_token_code',
-        SignInTokenCodeView,
-        {
-          ...Url.searchParams(this.window.location.search),
-          // for subplat redirect only
-          ...(this.relier.get('redirectTo') && {
-            redirect_to: this.relier.get('redirectTo'),
-          }),
-        },
-        {
-          type: VerificationReasons.SIGN_IN,
-        }
-      );
+      this.createReactViewHandler('signin_token_code', {
+        ...Url.searchParams(this.window.location.search),
+        // for subplat redirect only
+        ...(this.relier.get('redirectTo') && {
+          redirect_to: this.relier.get('redirectTo'),
+        }),
+      });
     },
     'signin_totp_code(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'signin_totp_code',
-        SignInTotpCodeView,
-        {
-          ...Url.searchParams(this.window.location.search),
-          // for subplat redirect only
-          ...(this.relier.get('redirectTo') && {
-            redirect_to: this.relier.get('redirectTo'),
-          }),
-        }
-      );
+      this.createReactViewHandler('signin_totp_code', {
+        ...Url.searchParams(this.window.location.search),
+        // for subplat redirect only
+        ...(this.relier.get('redirectTo') && {
+          redirect_to: this.relier.get('redirectTo'),
+        }),
+      });
     },
     'signin_unblock(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'signin_unblock',
-        SignInUnblockView,
-        {
-          ...Url.searchParams(this.window.location.search),
-          // for subplat redirect only
-          ...(this.relier.get('redirectTo') && {
-            redirect_to: this.relier.get('redirectTo'),
-          }),
-        }
-      );
+      this.createReactViewHandler('signin_unblock', {
+        ...Url.searchParams(this.window.location.search),
+        // for subplat redirect only
+        ...(this.relier.get('redirectTo') && {
+          redirect_to: this.relier.get('redirectTo'),
+        }),
+      });
     },
     'signin_verified(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'signin_verified',
-        ReadyView,
-        null,
-        {
-          type: VerificationReasons.SIGN_IN,
-        }
-      );
+      this.createReactViewHandler('signin_verified');
     },
     'signup(/)': function () {
       this.createReactOrBackboneViewHandler('signup', SignUpPasswordView, {

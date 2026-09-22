@@ -89,7 +89,7 @@ describe('Pair2/Supplicant/TimeoutAndCancel page', () => {
         expect(screen.getByText('firefox.com/pair').tagName).toEqual('B');
       });
 
-      it('exposes the brand lockup and illustration to assistive technology', () => {
+      it('exposes the brand lockups, keeping the illustration decorative', () => {
         renderWithLocalizationProvider(<Subject {...{ reason }} />);
 
         expect(
@@ -99,7 +99,8 @@ describe('Pair2/Supplicant/TimeoutAndCancel page', () => {
               (img) => img.getAttribute('alt') ?? img.getAttribute('aria-label')
             )
         ).toEqual([
-          // AppLayout's page header, then the two images this card renders.
+          // AppLayout's page header, then this card's Firefox lockup. The
+          // illustration is decorative — the copy beside it says the same.
           'Mozilla logo',
           'Firefox logo',
         ]);

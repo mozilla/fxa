@@ -233,6 +233,18 @@ const convictConf = convict({
       format: String,
       doc: 'Apple auth token endpoint',
     },
+    issuer: {
+      default: 'https://appleid.apple.com',
+      env: 'APPLE_AUTH_ISSUER',
+      format: String,
+      doc: 'Expected id_token issuer when jwksUri is set',
+    },
+    jwksUri: {
+      default: '',
+      env: 'APPLE_AUTH_JWKS_URI',
+      format: String,
+      doc: 'When set, verify id_tokens against this JWKS instead of Apple-published keys and skip the client-secret JWT. Local mock IdP only.',
+    },
     securityEventsClientIds: {
       default: ['com.mozilla.firefox.accounts.auth'],
       env: 'APPLE_AUTH_SECURITY_EVENTS_CLIENT_IDS',
@@ -265,6 +277,18 @@ const convictConf = convict({
       env: 'GOOGLE_AUTH_TOKEN_ENDPOINT',
       format: String,
       doc: 'Google auth token endpoint',
+    },
+    issuer: {
+      default: 'https://accounts.google.com',
+      env: 'GOOGLE_AUTH_ISSUER',
+      format: String,
+      doc: 'Expected id_token issuer when jwksUri is set',
+    },
+    jwksUri: {
+      default: '',
+      env: 'GOOGLE_AUTH_JWKS_URI',
+      format: String,
+      doc: 'When set, verify id_tokens against this JWKS instead of Google-published certs. Local mock IdP only.',
     },
     securityEventsClientIds: {
       default: [
@@ -1809,22 +1833,33 @@ const convictConf = convict({
     env: 'REMOTE_ADDRESS_CHAIN_OVERRIDE',
     default: '',
   },
+  // Sign-in confirmation is decided in this order: a suspicious request,
+  // forceGlobally, forcedSyncEmailAddresses and forcedHeuristicEmailAddresses
+  // each force it and skip every bypass; otherwise a recognized device, a
+  // recently verified IP, a new account, and skipForEmailRegex each bypass it.
+  // TOTP is required regardless.
   signinConfirmation: {
-    forcedEmailAddresses: {
-      doc: 'Force sign-in confirmation for email addresses matching this regex for those that do not request scoped keys. Sets "mustVerify: 0" on created session tokens but creates an entry in unverifiedTokens, simulating a non-Sync non-2FA unverified session state',
+    forcedSyncEmailAddresses: {
+      doc: 'Force Sync-style sign-in confirmation (mustVerify: 1) for matching emails. The session cannot complete an OAuth grant until the emailed code is entered, as when scoped keys are requested. Overrides the skip settings below.',
       format: RegExp,
       default: /.+@mozilla\.com$/,
       env: 'SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX',
     },
+    forcedHeuristicEmailAddresses: {
+      doc: 'Force the heuristic (non-Sync non-2FA) unverified session state for matching emails: sign-in confirmation with mustVerify: 0. The session is created unverified, RP redirect flows outside servicesWithEmailVerification continue without a code, and Settings asks for it later. This is the state the heuristics produce for older accounts.',
+      format: RegExp,
+      default: /^unverifiedsession.*@restmail\.net$/,
+      env: 'SIGNIN_CONFIRMATION_FORCE_HEURISTIC_EMAIL_REGEX',
+    },
     skipForEmailRegex: {
-      doc: 'Regex pattern for email addresses that will always skip any non-TOTP sign-in confirmation.',
+      doc: 'Skip sign-in confirmation for matching emails even when scoped keys are requested. A customs suspect verdict, the forced regexes above, and TOTP still apply.',
       format: RegExp,
       default: /^$/,
       env: 'SIGNIN_CONFIRMATION_SKIP_FOR_EMAIL_REGEX',
     },
     skipForNewAccounts: {
       enabled: {
-        doc: 'Skip all sign-in email confirmations for newly-created accounts',
+        doc: 'Skip all sign-in email confirmations for newly-created accounts. Set false locally to put any account into the heuristic (non-Sync non-2FA) unverified session state.',
         default: true,
         env: 'SIGNIN_CONFIRMATION_SKIP_FOR_NEW_ACCOUNTS',
       },
@@ -1849,7 +1884,7 @@ const convictConf = convict({
       },
     },
     forceGlobally: {
-      doc: 'Force sign-in confirmation for all accounts. Sets "mustVerify: 1" on created session tokens and creates an entry in unverifiedTokens, simulating a suspicious request or requesting scoped keys',
+      doc: 'Force the Sync-style state (mustVerify: 1) for every account, as a suspicious request or a scoped-key request would. Per-email equivalent: forcedSyncEmailAddresses.',
       format: Boolean,
       default: false,
       env: 'SIGNIN_CONFIRMATION_FORCE_GLOBALLY',
@@ -3159,6 +3194,16 @@ if (convictConf.get('isProduction')) {
   for (const key of SECRET_SETTINGS) {
     if (convictConf.get(key) === convictConf.default(key)) {
       throw new Error(`Config '${key}' must be set in production`);
+    }
+  }
+}
+
+// A JWKS override redirects id_token trust away from the real provider. It
+// exists for the local mock IdP and must never reach a deployed environment.
+if (convictConf.get('env') !== 'dev') {
+  for (const key of ['googleAuthConfig.jwksUri', 'appleAuthConfig.jwksUri']) {
+    if (convictConf.get(key)) {
+      throw new Error(`Config '${key}' may only be set when NODE_ENV=dev`);
     }
   }
 }

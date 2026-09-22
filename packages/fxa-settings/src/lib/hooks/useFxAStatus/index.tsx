@@ -53,14 +53,37 @@ const DEFAULT_FXA_STATUS: FxAStatusResponse = {
 };
 
 /**
- * If integration.isSync or integration is OAuthNative, sends firefox.fxaStatus to retrieve
- * available sync engines from the browser and checks Fx capabilities.
+ * Pages that choose between the v1 and v2 pairing flows on the browser's
+ * capabilities. Their integration is whatever the URL built — a plain /pair
+ * with no context is a Web integration — so the pathname, not the integration,
+ * says the browser has to be asked. Guessing a version instead sends a v2
+ * browser down the v1 flow.
  */
-export function useFxAStatus(integration: FxAStatusIntegration) {
+const PAIRING_ENTRY_PATHNAME = /^\/(pair|connect_another_device)\/?$/;
+
+export function isPairingEntryPathname(pathname: string | undefined) {
+  return !!pathname && PAIRING_ENTRY_PATHNAME.test(pathname);
+}
+
+export type UseFxAStatusOptions = {
+  /** Current route; pairing entry pages always query the browser. */
+  pathname?: string;
+};
+
+/**
+ * If the integration is Sync, OAuthNative or pairing, or the page is a pairing
+ * entry, sends firefox.fxaStatus to retrieve available sync engines from the
+ * browser and checks Fx capabilities.
+ */
+export function useFxAStatus(
+  integration: FxAStatusIntegration,
+  { pathname }: UseFxAStatusOptions = {}
+) {
   const isSyncOAuth = isOAuthIntegration(integration) && integration.isSync();
   const isSyncDesktopV3 = isSyncDesktopV3Integration(integration);
   const isSync = integration.isSync();
-  const isPairing = integration.isPairing();
+  const isPairing =
+    integration.isPairing() || isPairingEntryPathname(pathname);
   const isOAuthNative = isOAuthNativeIntegration(integration);
   const [webChannelEngines, setWebChannelEngines] = useState<string[]>();
   const [offeredSyncEngineConfigs, setOfferedSyncEngineConfigs] =

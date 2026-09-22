@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { mockAppContext, renderWithRouter } from '../../../models/mocks';
 import userEvent from '@testing-library/user-event';
 import { readPairingAttribution } from '../../../lib/pairing-attribution';
@@ -16,6 +16,7 @@ import { MOCK_ERROR } from './mocks';
 import { MOCK_CMS_INFO } from '../../mocks';
 import Pair, { viewName } from '.';
 import { mockUseFxAStatus } from '../../../lib/hooks/useFxAStatus/mocks';
+import type { FxAStatusState } from '../../../lib/hooks/useFxAStatus';
 import { getDefault } from '../../../lib/config';
 import { PAIR_GLEAN_REASONS } from 'fxa-shared/metrics/glean/pair-reasons';
 import { Integration } from '../../../models';
@@ -97,12 +98,29 @@ const MOCK_SYNC_SIGNED_IN_USER: SignedInUser = {
   verified: true,
 };
 
+/** The OAuth params Firefox hands back from fxaOAuthFlowBegin. */
+const MOCK_OAUTH_PARAMS = {
+  action: 'signin',
+  response_type: 'code',
+  access_type: 'offline',
+  scope: 'profile https://identity.mozilla.com/apps/oldsync',
+  client_id: 'cid-abc',
+  state: 'state-xyz',
+  code_challenge: 'cc',
+  code_challenge_method: 'S256',
+};
+
 const sendTabIntegration = {
   data: { entrypoint: 'send-tab-toolbar-icon' },
 } as unknown as React.ComponentProps<typeof Pair>['integration'];
 
 const webIntegration = {
   data: { entrypoint: 'fxa_app_menu' },
+} as unknown as React.ComponentProps<typeof Pair>['integration'];
+
+/** What firefox.com/pair sends: a service and a client, no attribution. */
+const noEntrypointIntegration = {
+  data: { service: 'sync' },
 } as unknown as React.ComponentProps<typeof Pair>['integration'];
 
 describe('Pair', () => {
@@ -480,7 +498,125 @@ describe('Pair', () => {
           action: 'signin',
           code_challenge: 'cc',
           code_challenge_method: 'S256',
+          entrypoint: 'fxa_pairflow',
         });
+      } finally {
+        hardNavigateSpy.mockRestore();
+      }
+    });
+
+    it.each([
+      {
+        source: 'the URL',
+        search: '?entrypoint=fxa_app_menu',
+        integration: undefined,
+        expected: 'fxa_app_menu',
+      },
+      {
+        source: 'the integration',
+        search: '',
+        integration: webIntegration,
+        expected: 'fxa_app_menu',
+      },
+      {
+        source: 'a capital-P URL param',
+        search: '?entryPoint=fx-view',
+        integration: noEntrypointIntegration,
+        expected: 'fx-view',
+      },
+    ])(
+      'keeps the entrypoint $source carries',
+      async ({ search, integration, expected }) => {
+        const hardNavigateSpy = jest
+          .spyOn(ReactUtils, 'hardNavigate')
+          .mockImplementation(() => {});
+        try {
+          mockLocationSearch = search;
+          requestSignedInUserMock.mockResolvedValue(undefined);
+          fxaOAuthFlowBeginMock.mockResolvedValueOnce({
+            action: 'signin',
+            response_type: 'code',
+            access_type: 'offline',
+            scope: 'profile https://identity.mozilla.com/apps/oldsync',
+            client_id: 'cid-abc',
+            state: 'state-xyz',
+          });
+          renderWithRouter(
+            <Pair {...defaultProps} integration={integration} />
+          );
+          await waitFor(() => expect(hardNavigateSpy).toHaveBeenCalled());
+          const url = new URL(
+            hardNavigateSpy.mock.calls[0][0],
+            'http://localhost'
+          );
+          expect(url.searchParams.get('entrypoint')).toBe(expected);
+        } finally {
+          hardNavigateSpy.mockRestore();
+        }
+      }
+    );
+
+    it('starts the OAuth flow once when the parent re-renders', async () => {
+      const hardNavigateSpy = jest
+        .spyOn(ReactUtils, 'hardNavigate')
+        .mockImplementation(() => {});
+      try {
+        requestSignedInUserMock.mockResolvedValue(undefined);
+        fxaOAuthFlowBeginMock.mockResolvedValue(MOCK_OAUTH_PARAMS);
+
+        // App hands Pair a fresh fxaStatusResult object on every render, so the
+        // parent here does the same. The app context keeps `config` stable, so
+        // the object identity is the only thing that changes.
+        let rerenderParent = () => {};
+        const PairParent = () => {
+          const [, setTick] = React.useState(0);
+          React.useEffect(() => {
+            rerenderParent = () => setTick((tick) => tick + 1);
+          }, []);
+          return <Pair fxaStatusResult={mockUseFxAStatus()} />;
+        };
+
+        renderWithRouter(<PairParent />, {}, mockAppContext());
+        await waitFor(() => expect(hardNavigateSpy).toHaveBeenCalled());
+        await act(async () => {
+          rerenderParent();
+        });
+
+        expect(fxaOAuthFlowBeginMock).toHaveBeenCalledTimes(1);
+        expect(hardNavigateSpy).toHaveBeenCalledTimes(1);
+      } finally {
+        hardNavigateSpy.mockRestore();
+      }
+    });
+
+    it('starts the OAuth flow once when fxa_status answers late', async () => {
+      const hardNavigateSpy = jest
+        .spyOn(ReactUtils, 'hardNavigate')
+        .mockImplementation(() => {});
+      try {
+        requestSignedInUserMock.mockResolvedValue(undefined);
+        fxaOAuthFlowBeginMock.mockResolvedValue(MOCK_OAUTH_PARAMS);
+
+        // A reply that lands after the pairing timeout takes fxaStatusState
+        // from 'unanswered' to 'answered' once the bootstrap has navigated.
+        let answerLate = () => {};
+        const PairAwaitingReply = () => {
+          const [fxaStatusState, setFxaStatusState] =
+            React.useState<FxAStatusState>('unanswered');
+          React.useEffect(() => {
+            answerLate = () => setFxaStatusState('answered');
+          }, []);
+          return <Pair fxaStatusResult={mockUseFxAStatus({ fxaStatusState })} />;
+        };
+
+        renderWithRouter(<PairAwaitingReply />);
+        await waitFor(() => expect(hardNavigateSpy).toHaveBeenCalled());
+        await act(async () => {
+          answerLate();
+        });
+
+        expect(fxaOAuthFlowBeginMock).toHaveBeenCalledTimes(1);
+        expect(hardNavigateSpy).toHaveBeenCalledTimes(1);
       } finally {
         hardNavigateSpy.mockRestore();
       }
@@ -634,6 +770,20 @@ describe('Pair', () => {
 
       expect(readPairingAttribution()).toEqual({
         entrypoint: 'fxa_app_menu',
+      });
+    });
+
+    it('stashes the fxa_pairflow entrypoint for a signed-in direct visit', async () => {
+      const user = userEvent.setup();
+      await renderPair();
+
+      await user.click(
+        screen.getByLabelText(/I already have Firefox for mobile/)
+      );
+      await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+      expect(readPairingAttribution()).toEqual({
+        entrypoint: 'fxa_pairflow',
       });
     });
 
@@ -791,6 +941,63 @@ describe('Pair', () => {
         expect.anything()
       );
       hardNavigateSpy.mockRestore();
+    });
+
+    it('stands the bootstrap down when a late v2 answer reaches the scanner', async () => {
+      const hardNavigateSpy = jest
+        .spyOn(ReactUtils, 'hardNavigate')
+        .mockImplementation(() => {});
+      try {
+        // Hold the WebChannel reply open so the late answer lands while the
+        // bootstrap is still in flight.
+        let releaseSignedInUser = () => {};
+        jest.mocked(firefox.requestSignedInUser).mockReturnValue(
+          new Promise((resolve) => {
+            releaseSignedInUser = () => resolve(undefined);
+          })
+        );
+        jest
+          .mocked(firefox.fxaOAuthFlowBegin)
+          .mockResolvedValue(MOCK_OAUTH_PARAMS);
+
+        let answerV2 = () => {};
+        const PairAwaitingV2 = () => {
+          const [answered, setAnswered] = React.useState(false);
+          React.useEffect(() => {
+            answerV2 = () => setAnswered(true);
+          }, []);
+          return (
+            <Pair
+              fxaStatusResult={mockUseFxAStatus(
+                answered
+                  ? { pairingVersion: 2 }
+                  : { pairingVersion: 1, fxaStatusState: 'unanswered' }
+              )}
+            />
+          );
+        };
+
+        renderWithRouter(<PairAwaitingV2 />, {}, v2AppContext());
+        await waitFor(() =>
+          expect(firefox.requestSignedInUser).toHaveBeenCalled()
+        );
+        await act(async () => {
+          answerV2();
+        });
+        await act(async () => {
+          releaseSignedInUser();
+        });
+
+        expect(hardNavigateSpy).toHaveBeenCalledTimes(1);
+        expect(hardNavigateSpy).toHaveBeenCalledWith(
+          '/pair/authority/scan_qr',
+          {},
+          true
+        );
+        expect(firefox.fxaOAuthFlowBegin).not.toHaveBeenCalled();
+      } finally {
+        hardNavigateSpy.mockRestore();
+      }
     });
 
     it('falls through to the normal flow when the browser reports v1', async () => {

@@ -6,8 +6,6 @@ import React, { useEffect, useState } from 'react';
 import { AdminPanelFeature } from '@fxa/shared/guards';
 import { adminApi } from '../../lib/api';
 import Guard from '../Guard';
-import { useUserContext } from '../../hooks/UserContext';
-import { useGuardContext } from '../../hooks/GuardContext';
 import type { OAuthScopeDto } from 'fxa-admin-server/src/types';
 
 const submitBtnClass =
@@ -17,10 +15,6 @@ const byScopeAsc = (a: OAuthScopeDto, b: OAuthScopeDto) =>
   a.scope.localeCompare(b.scope);
 
 const PageOAuthScopes = () => {
-  const { user } = useUserContext();
-  const { guard } = useGuardContext();
-  const canDelete = guard.allow(AdminPanelFeature.DeleteOAuthScope, user.group);
-
   const [scopes, setScopes] = useState<OAuthScopeDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +22,6 @@ const PageOAuthScopes = () => {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [newScope, setNewScope] = useState('');
   const [newHasScopedKeys, setNewHasScopedKeys] = useState(false);
-  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -64,40 +57,11 @@ const PageOAuthScopes = () => {
     }
   };
 
-  const handleDelete = async (scope: OAuthScopeDto) => {
-    if (deletingId !== null) return;
-    if (
-      !window.confirm(
-        `Delete the scope "${scope.scope}" (id ${scope.id})?\n\n` +
-          'This takes effect immediately on every auth-server pod — there is ' +
-          'no cache and no restart. Removing a row that gates a key-bearing ' +
-          'scope can break Sync-style grants and any client that requests it. ' +
-          'Only proceed if you are certain this scope is no longer needed.'
-      )
-    ) {
-      return;
-    }
-
-    setDeletingId(scope.id);
-    try {
-      await adminApi.deleteOAuthScope(scope.id);
-      setScopes((prev) => prev.filter((s) => s.id !== scope.id));
-    } catch (err) {
-      window.alert(
-        `Error deleting scope: ${
-          err instanceof Error ? err.message : 'Unknown error'
-        }`
-      );
-    } finally {
-      setDeletingId(null);
-    }
-  };
-
   return (
     <>
       <h2 className="header-page">OAuth Scopes</h2>
       <ul className="list-disc list-inside mb-4">
-        <li>Manage creation and deletion of OAuth Scopes.</li>
+        <li>Manage creation of OAuth Scopes.</li>
         <li>
           For URL-format scopes, the presence of a row gates that scope behind a
           client&rsquo;s <code>allowedScopes</code> at grant time. Clients
@@ -113,25 +77,11 @@ const PageOAuthScopes = () => {
           page.
         </li>
         <li>
-          Scopes cannot be edited once created. They can be deleted, but a
-          scope&rsquo;s value is its identity. Delete and re-create rather than
-          rename.
+          Scopes cannot be edited or deleted once created, because a
+          user&rsquo;s authorizations reference them. Add a new scope rather
+          than rename an existing one.
         </li>
       </ul>
-
-      {canDelete && (
-        <div
-          role="alert"
-          data-testid="oauth-scope-delete-warning"
-          className="border-2 border-red-300 bg-red-50 text-red-800 rounded p-3 mb-4"
-        >
-          <strong>⚠️ Deleting a scope is immediate.</strong> Dropping a row that
-          gates a key-bearing (<code>hasScopedKeys</code>) or URL-format scope
-          can break Sync-style grants and reject any client that still requests
-          it. Be <strong>absolutely certain</strong> the scope is no longer in
-          use before deleting.
-        </div>
-      )}
 
       <Guard features={[AdminPanelFeature.CreateOAuthScope]}>
         <h3 className="header-page text-base mt-4">Add Scope</h3>
@@ -208,11 +158,6 @@ const PageOAuthScopes = () => {
               <th className="text-left p-2 border border-grey-100">
                 hasScopedKeys
               </th>
-              {canDelete && (
-                <th className="text-left p-2 border border-grey-100">
-                  Actions
-                </th>
-              )}
             </tr>
           </thead>
           <tbody>
@@ -234,19 +179,6 @@ const PageOAuthScopes = () => {
                 <td className="p-2 border border-grey-100 whitespace-nowrap">
                   {s.hasScopedKeys ? '✅ true' : 'false'}
                 </td>
-                {canDelete && (
-                  <td className="p-2 border border-grey-100 whitespace-nowrap">
-                    <button
-                      type="button"
-                      data-testid="oauth-scope-delete-btn"
-                      onClick={() => handleDelete(s)}
-                      disabled={deletingId !== null}
-                      className="text-red-700 border-2 border-red-300 rounded p-1 disabled:opacity-40 disabled:cursor-not-allowed"
-                    >
-                      🗑️ Delete
-                    </button>
-                  </td>
-                )}
               </tr>
             ))}
           </tbody>

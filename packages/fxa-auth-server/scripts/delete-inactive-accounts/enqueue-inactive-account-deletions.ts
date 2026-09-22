@@ -67,6 +67,7 @@ import {
   IsActiveFnBuilder,
   setDateToUTC,
   buildExclusionsTempTableQuery,
+  getActiveAccountLists,
 } from './lib';
 
 const config = appConfig.getProperties();
@@ -77,6 +78,7 @@ const statsd = new StatsD({ ...config.statsd });
 const defaultDaysTilFirstEmail = 0;
 const defaultResultsLImit = 500000;
 const defaultConcurrency = 100;
+const defaultActiveAccountTablesMaxAgeDays = 14;
 const twoYearsAgo = () => {
   const x = new Date();
   x.setFullYear(x.getFullYear() - 2);
@@ -170,6 +172,16 @@ const init = async () => {
       parseInt
     )
     .option(
+      '--active-accounts-dataset <project.dataset>',
+      'Exclude UIDs from every table in this BigQuery dataset. Combined with --exclusion-list values. Optional.'
+    )
+    .option(
+      '--active-account-tables-max-age-days <number>',
+      'Maximum age in days since an active account table was last modified. Defaults to 14.',
+      Number,
+      defaultActiveAccountTablesMaxAgeDays
+    )
+    .option(
       '--exclusion-list [string]',
       'A fully qualified name down to the column name of a exclusion list in BigQuery, e.g. "proj_A.dataset_B.table_C.uid".  Repeatable.',
       exclusionList,
@@ -183,6 +195,26 @@ const init = async () => {
 
   if (!program.bqDataset) {
     throw new Error('BigQuery dataset ID is required.');
+  }
+
+  if (
+    program.activeAccountsDataset !== undefined &&
+    !/^[a-z][a-z0-9-]{2,28}[a-z0-9]\.[a-zA-Z0-9_]{1,1024}$/.test(
+      program.activeAccountsDataset
+    )
+  ) {
+    throw new Error(
+      'Active accounts dataset ID must have the form project.dataset.'
+    );
+  }
+
+  if (
+    !Number.isFinite(program.activeAccountTablesMaxAgeDays) ||
+    program.activeAccountTablesMaxAgeDays <= 0
+  ) {
+    throw new Error(
+      'Active account tables maximum age must be a positive number of days.'
+    );
   }
 
   const startDate = setDateToUTC(program.startDate);
@@ -227,6 +259,12 @@ const init = async () => {
 
   console.log(`Save inactive account UIDs: ${program.saveUids}`);
   console.log(`Enqueue emails: ${program.enqueueEmails}`);
+  console.log(
+    `Active accounts dataset: ${program.activeAccountsDataset || '(none)'}`
+  );
+  console.log(
+    `Active accounts maximum age in days: ${program.activeAccountTablesMaxAgeDays}`
+  );
   console.log(`Start date: ${startDate.toISOString()}`);
   console.log(`End date: ${endDate.toISOString()}`);
   console.log(`Active by date: ${activeByDate.toISOString()}`);
@@ -313,9 +351,17 @@ const init = async () => {
   // {{{ build exclusions temp table in BQ and start a session
 
   const bq = new BigQuery();
+  const activeAccountLists = program.activeAccountsDataset
+    ? await getActiveAccountLists(
+        bq,
+        program.activeAccountsDataset,
+        program.activeAccountTablesMaxAgeDays,
+        statsd
+      )
+    : [];
   const exclusionsTempTableQuery = buildExclusionsTempTableQuery(
     exclusionsTempTableName,
-    program.exclusionList
+    [...program.exclusionList, ...activeAccountLists]
   );
   const [exclusionsTableJob] = await bq.createQueryJob({
     query: exclusionsTempTableQuery,

@@ -34,24 +34,20 @@ describe('Pair2/Authority/TimeoutAndCancel page', () => {
     }
   );
 
-  it.each(REASONS)(
-    'exposes the illustration to assistive technology (%s)',
-    (reason) => {
-      renderWithLocalizationProvider(<Subject {...{ reason }} />);
+  it.each(REASONS)('keeps the illustration decorative (%s)', (reason) => {
+    renderWithLocalizationProvider(<Subject {...{ reason }} />);
 
-      expect(
-        screen
-          .getAllByRole('img')
-          .map(
-            (img) => img.getAttribute('alt') ?? img.getAttribute('aria-label')
-          )
-      ).toEqual([
-        // AppLayout's page header, then the single image this card renders.
-        // Desktop cards have no Firefox lockup.
-        'Mozilla logo',
-      ]);
-    }
-  );
+    expect(
+      screen
+        .getAllByRole('img')
+        .map((img) => img.getAttribute('alt') ?? img.getAttribute('aria-label'))
+    ).toEqual([
+      // AppLayout's page header alone. The illustration is decorative —
+      // the copy above it says the same — and desktop cards have no Firefox
+      // lockup.
+      'Mozilla logo',
+    ]);
+  });
 
   describe('timeout', () => {
     it('renders the heading and description', () => {

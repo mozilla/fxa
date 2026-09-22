@@ -369,8 +369,8 @@ module.exports = (
 
         const targetDevice = await db.device(uid, target);
 
-        // eslint-disable-next-line no-prototype-builtins
-        if (!targetDevice.availableCommands.hasOwnProperty(command)) {
+        // availableCommands can have a null prototype, so no inherited hasOwnProperty.
+        if (!Object.hasOwn(targetDevice.availableCommands, command)) {
           throw error.unavailableDeviceCommand();
         }
 

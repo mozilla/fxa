@@ -107,7 +107,6 @@ const settingsConfig = {
   redirectAllowlist: config.get('redirect_check.allow_list'),
   showReactApp: {
     signUpRoutes: config.get('showReactApp.signUpRoutes'),
-    signInRoutes: config.get('showReactApp.signInRoutes'),
     emailFirstRoutes: config.get('showReactApp.emailFirstRoutes'),
     pairRoutes: config.get('showReactApp.pairRoutes'),
   },

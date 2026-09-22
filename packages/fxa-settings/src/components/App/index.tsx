@@ -33,7 +33,9 @@ import {
   isProbablyFirefox,
   useDefaultCmsState,
   isWebIntegration,
+  useSensitiveDataClient,
 } from '../../models';
+import { useClearPasskeyWrapOffRoute } from '../../lib/passkeys/use-clear-wrap-off-route';
 import {
   initializeSettingsContext,
   SettingsContext,
@@ -147,6 +149,9 @@ const SignoutSync = lazy(() => import('../Settings/SignoutSync'));
 const InlineRecoveryKeySetupContainer = lazy(
   () => import('../../pages/InlineRecoveryKeySetup/container')
 );
+const InlinePasswordlessSyncSetupContainer = lazy(
+  () => import('../../pages/InlinePasswordlessSyncSetup/container')
+);
 const SetPasswordContainer = lazy(
   () => import('../../pages/PostVerify/SetPassword/container')
 );
@@ -245,6 +250,8 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
   const session = useSession();
   const integration = useIntegration();
   const navigate = useNavigate();
+
+  useClearPasskeyWrapOffRoute(useSensitiveDataClient());
 
   // Register navigate so out-of-component code (e.g. AppContext errorHandler)
   // can perform client-side navigations with state.
@@ -594,7 +601,9 @@ const AuthAndAccountSetupRoutes = ({
     gleanEnabled && GleanMetrics.pageLoad(location.pathname);
   }, [location.pathname, gleanEnabled]);
 
-  const useFxAStatusResult = useFxAStatus(integration);
+  const useFxAStatusResult = useFxAStatus(integration, {
+    pathname: location.pathname,
+  });
   const defaultCmsState = useDefaultCmsState({
     enabled: isWebIntegration(integration) || integration.isDesktopSync(),
   });
@@ -957,6 +966,10 @@ const AuthAndAccountSetupRoutes = ({
               cmsInfo={integration.getCmsInfo()}
             />
           }
+        />
+        <Route
+          path="/inline_passwordless_sync_setup/*"
+          element={<InlinePasswordlessSyncSetupContainer />}
         />
 
         {/* Signup */}

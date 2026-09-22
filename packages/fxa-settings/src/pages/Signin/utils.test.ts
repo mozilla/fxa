@@ -29,6 +29,7 @@ import config from '../../lib/config';
 import { OAuthNativeServices } from '@fxa/accounts/oauth';
 import { OAUTH_ERRORS, OAuthError } from '../../lib/oauth';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import { SensitiveDataClient } from '../../lib/sensitive-data-client';
 
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
@@ -66,6 +67,18 @@ describe('Signin utils', () => {
   });
 
   describe('handleNavigation', () => {
+    const stashPendingWrap = () => {
+      const sensitiveDataClient = new SensitiveDataClient();
+      const held = {
+        uid: MOCK_UID,
+        credentialId: 'cred',
+        mfaToken: 'mfa-token',
+        prfOut: new Uint8Array(32).fill(3),
+      };
+      sensitiveDataClient.PasskeyWrapData = held;
+      return { sensitiveDataClient, held };
+    };
+
     const createBaseNavigationOptions = (
       overrides: Partial<NavigationOptions> = {}
     ): NavigationOptions =>
@@ -463,6 +476,61 @@ describe('Signin utils', () => {
         );
       });
 
+      it('does not resend the email OTP code when an OAuth RP outside servicesWithEmailVerification continues without the code page', async () => {
+        const sessionResendVerifyCode = jest.fn().mockResolvedValue({});
+        const navigationOptions = createBaseNavigationOptions({
+          signinData: {
+            ...createBaseNavigationOptions().signinData,
+            emailVerified: true,
+            sessionVerified: false,
+            verificationMethod: VerificationMethods.EMAIL_OTP,
+            verificationReason: VerificationReasons.SIGN_IN,
+          },
+          isServiceWithEmailVerification: false,
+          integration: createMockSigninOAuthIntegration(),
+          authClient: { sessionResendVerifyCode },
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(sessionResendVerifyCode).not.toHaveBeenCalled();
+        // Straight to the RP: no in-app navigation to a code page.
+        expect(mockNavigate).not.toHaveBeenCalled();
+        expect(hardNavigateSpy).toHaveBeenCalledTimes(1);
+      });
+
+      it('resends the email OTP code when the OAuth grant is refused for an unverified session and falls back to /signin_token_code', async () => {
+        const sessionResendVerifyCode = jest.fn().mockResolvedValue({});
+        const navigationOptions = createBaseNavigationOptions({
+          signinData: {
+            ...createBaseNavigationOptions().signinData,
+            emailVerified: true,
+            sessionVerified: false,
+            verificationMethod: VerificationMethods.EMAIL_OTP,
+            verificationReason: VerificationReasons.SIGN_IN,
+          },
+          isServiceWithEmailVerification: false,
+          integration: createMockSigninOAuthIntegration(),
+          authClient: { sessionResendVerifyCode },
+          finishOAuthFlowHandler: jest
+            .fn()
+            .mockResolvedValue({ error: AuthUiErrors.UNVERIFIED_SESSION }),
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(sessionResendVerifyCode).toHaveBeenCalledTimes(1);
+        expect(sessionResendVerifyCode).toHaveBeenCalledWith(
+          MOCK_SESSION_TOKEN
+        );
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/signin_token_code',
+          expect.objectContaining({ replace: true })
+        );
+      });
+
       it('does not resend the email OTP code when the verification method is not EMAIL_OTP', async () => {
         const sessionResendVerifyCode = jest.fn().mockResolvedValue({});
         const navigationOptions = createBaseNavigationOptions({
@@ -808,6 +876,7 @@ describe('Signin utils', () => {
             integration,
             queryParams: '?client_id=abc',
             canRelayPromptNoneError: true,
+            isPromptNoneRequest: true,
             ...overrides,
           });
         };
@@ -839,7 +908,7 @@ describe('Signin utils', () => {
 
         it('does not reclassify an unverified session as an unmet level', async () => {
           // Same errno branch, different meaning — interaction_required, not an
-          // unmet level. Pins that it is not mislabelled (FXA-14408).
+          // unmet level. Pins that it is not mislabelled.
           const finishOAuthFlowHandler = jest.fn().mockResolvedValue({
             error: AuthUiErrors.UNVERIFIED_SESSION,
           });
@@ -850,11 +919,133 @@ describe('Signin utils', () => {
 
           const result = await handleNavigation(navigationOptions);
 
-          expect(result.error).toBeUndefined();
-          expect(mockNavigate).toHaveBeenCalledWith(
-            '/signin_token_code?client_id=abc',
-            expect.objectContaining({ replace: true })
+          expect(result.error).toEqual(
+            expect.objectContaining({
+              errno: OAUTH_ERRORS.PROMPT_NONE_UNVERIFIED.errno,
+              response_error_code: 'interaction_required',
+            })
           );
+          expect(mockNavigate).not.toHaveBeenCalled();
+        });
+
+        describe('unverified session', () => {
+          const unverifiedSessionData = {
+            uid: MOCK_UID,
+            sessionToken: MOCK_SESSION_TOKEN,
+            emailVerified: true,
+            sessionVerified: false,
+            verificationMethod: VerificationMethods.EMAIL_OTP,
+            verificationReason: VerificationReasons.SIGN_IN,
+          };
+
+          // The Authorization container never forwards
+          // `isServiceWithEmailVerification`, so `acr_values` is the trigger a
+          // prompt=none request can actually reach the challenge branch with.
+          const buildOptions = (
+            overrides: Partial<NavigationOptions> = {},
+            wantsTwoStepAuthentication = false
+          ) => {
+            const integration = createMockSigninOAuthIntegration();
+            integration.wantsTwoStepAuthentication = jest
+              .fn()
+              .mockReturnValue(wantsTwoStepAuthentication);
+            return createBaseNavigationOptions({
+              integration,
+              queryParams: '?client_id=abc',
+              signinData: unverifiedSessionData,
+              ...overrides,
+            });
+          };
+
+          it('grants silently without requesting a code when the server accepts the session', async () => {
+            // The pass-through an RP outside servicesWithEmailVerification
+            // relies on.
+            const authClient = { sessionResendVerifyCode: jest.fn() };
+            const navigationOptions = buildOptions({
+              isPromptNoneRequest: true,
+              authClient,
+            });
+
+            const result = await handleNavigation(navigationOptions);
+
+            expect(result.error).toBeUndefined();
+            expect(authClient.sessionResendVerifyCode).not.toHaveBeenCalled();
+            expect(hardNavigateSpy).toHaveBeenCalledWith(
+              MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
+              undefined,
+              undefined,
+              true
+            );
+          });
+
+          it('fails the request without requesting a code when the RP requires two-step authentication', async () => {
+            const authClient = { sessionResendVerifyCode: jest.fn() };
+            const finishOAuthFlowHandler = jest.fn();
+            const navigationOptions = buildOptions(
+              {
+                isPromptNoneRequest: true,
+                authClient,
+                finishOAuthFlowHandler,
+              },
+              true
+            );
+
+            const result = await handleNavigation(navigationOptions);
+
+            expect(result.error).toBeInstanceOf(OAuthError);
+            expect(result.error).toEqual(
+              expect.objectContaining({
+                errno: OAUTH_ERRORS.PROMPT_NONE_UNVERIFIED.errno,
+                response_error_code: 'interaction_required',
+              })
+            );
+            expect(authClient.sessionResendVerifyCode).not.toHaveBeenCalled();
+            expect(finishOAuthFlowHandler).not.toHaveBeenCalled();
+            expect(mockNavigate).not.toHaveBeenCalled();
+            expect(hardNavigateSpy).not.toHaveBeenCalled();
+          });
+
+          it('fails the request without requesting a code when the RP refuses error redirects', async () => {
+            // return_on_error=false only decides who sees the failure. The
+            // container renders it in FxA; prompt=none still forbids the page
+            // and the code that would otherwise precede it.
+            const authClient = { sessionResendVerifyCode: jest.fn() };
+            const navigationOptions = buildOptions(
+              {
+                isPromptNoneRequest: true,
+                canRelayPromptNoneError: false,
+                authClient,
+              },
+              true
+            );
+
+            const result = await handleNavigation(navigationOptions);
+
+            expect(result.error).toEqual(
+              expect.objectContaining({
+                errno: OAUTH_ERRORS.PROMPT_NONE_UNVERIFIED.errno,
+                response_error_code: 'interaction_required',
+              })
+            );
+            expect(authClient.sessionResendVerifyCode).not.toHaveBeenCalled();
+            expect(mockNavigate).not.toHaveBeenCalled();
+          });
+
+          it('requests the code and challenges for the same session without prompt=none', async () => {
+            const authClient = { sessionResendVerifyCode: jest.fn() };
+            const navigationOptions = buildOptions({ authClient }, true);
+
+            const result = await handleNavigation(navigationOptions);
+
+            expect(result.error).toBeUndefined();
+            expect(authClient.sessionResendVerifyCode).toHaveBeenCalledWith(
+              MOCK_SESSION_TOKEN
+            );
+            expect(mockNavigate).toHaveBeenCalledWith(
+              '/signin_token_code?client_id=abc',
+              expect.anything()
+            );
+          });
         });
 
         it('still diverts to enrolment when the account has no TOTP', async () => {
@@ -879,25 +1070,6 @@ describe('Signin utils', () => {
           // return_on_error=false means the container renders in-FxA rather than
           // redirecting, so failing here would dead-end the user instead of
           // letting enrolment complete the flow.
-          const finishOAuthFlowHandler = jest.fn().mockResolvedValue({
-            error: AuthUiErrors.INSUFFICIENT_ACR_VALUES,
-          });
-          const navigationOptions = buildPromptNoneOptions({
-            accountHasTotp: true,
-            canRelayPromptNoneError: false,
-            finishOAuthFlowHandler,
-          });
-
-          const result = await handleNavigation(navigationOptions);
-
-          expect(result.error).toBeUndefined();
-          expect(mockNavigate).toHaveBeenCalledWith(
-            '/inline_totp_setup?client_id=abc',
-            expect.objectContaining({ replace: true })
-          );
-        });
-
-        it('does not fail the request for callers that cannot relay it to the RP', async () => {
           const finishOAuthFlowHandler = jest.fn().mockResolvedValue({
             error: AuthUiErrors.INSUFFICIENT_ACR_VALUES,
           });
@@ -1005,6 +1177,63 @@ describe('Signin utils', () => {
         expect(
           (options as unknown as { state: { origin: string } }).state.origin
         ).toBe('signin');
+      });
+
+      it('withdraws the password-free offer for send-tab sign-in', async () => {
+        const integration = createMockSigninOAuthNativeSyncIntegration();
+        integration.data.entrypoint = 'send-tab-toolbar-icon';
+        const { sensitiveDataClient } = stashPendingWrap();
+        const navigationOptions = createSendTabNavigationOptions({
+          integration,
+          queryParams: '?service=sync',
+          handleFxaLogin: true,
+          sensitiveDataClient,
+        });
+
+        await handleNavigation(navigationOptions);
+
+        const [navigatedUrl] = mockNavigate.mock.calls[0];
+        expect(navigatedUrl).toContain('/pair?');
+        expect(navigatedUrl).not.toContain('inline_passwordless_sync_setup');
+      });
+
+      it('withdraws the password-free offer when the CMS hides promos after login', async () => {
+        const integration = createMockSigninOAuthNativeSyncIntegration();
+        integration.getCmsInfo = () =>
+          ({
+            shared: { featureFlags: { syncHidePromoAfterLogin: true } },
+          }) as ReturnType<typeof integration.getCmsInfo>;
+        const { sensitiveDataClient } = stashPendingWrap();
+        const navigationOptions = createSendTabNavigationOptions({
+          integration,
+          queryParams: '?service=sync',
+          handleFxaLogin: true,
+          sensitiveDataClient,
+        });
+
+        await handleNavigation(navigationOptions);
+
+        const [navigatedUrl] = mockNavigate.mock.calls[0];
+        expect(navigatedUrl).toContain('/settings');
+      });
+
+      it('keeps the stashed wrap material when the opt-in page will be shown', async () => {
+        const integration = createMockSigninOAuthNativeSyncIntegration();
+        const { sensitiveDataClient, held } = stashPendingWrap();
+        const navigationOptions = createSendTabNavigationOptions({
+          integration,
+          queryParams: '?service=sync',
+          handleFxaLogin: true,
+          sensitiveDataClient,
+        });
+
+        await handleNavigation(navigationOptions);
+
+        const [navigatedUrl] = mockNavigate.mock.calls[0];
+        expect(navigatedUrl).toContain('/inline_passwordless_sync_setup');
+        // Same object, so the offer page receives the material unzeroed.
+        expect(sensitiveDataClient.PasskeyWrapData).toBe(held);
+        expect(held.prfOut).toEqual(new Uint8Array(32).fill(3));
       });
 
       it('clears showSignupConfirmedSync for send-tab post-verify and soft-navs with origin=post-verify-set-password', async () => {

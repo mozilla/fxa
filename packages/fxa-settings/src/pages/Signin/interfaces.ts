@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import type { SensitiveDataClient } from '../../lib/sensitive-data-client';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { AuthUiError } from '../../lib/auth-errors/auth-errors';
@@ -269,6 +270,12 @@ export interface NavigationOptions {
   // include when there's a condition based on what page it originated from
   origin?: 'post-verify-set-password' | 'signup' | 'signin';
   showInlineRecoveryKeySetup?: boolean;
+  // Passed by the password step after a passkey sign-in. Wrap material held
+  // here turns on the password-free offer; it is cleared when the offer is
+  // withdrawn.
+  sensitiveDataClient?: SensitiveDataClient;
+  // Derived from sensitiveDataClient inside handleNavigation.
+  showInlinePasswordlessSyncSetup?: boolean;
   isSignInWithThirdPartyAuth?: boolean;
   showSignupConfirmedSync?: boolean;
   syncHidePromoAfterLogin?: boolean;
@@ -306,6 +313,13 @@ export interface NavigationOptions {
   // does. Failing the request in those cases would dead-end the user instead of
   // letting the interactive fallback complete the flow.
   canRelayPromptNoneError?: boolean;
+  // Set by the Authorization container for every prompt=none request, whatever
+  // the RP asked for on error. prompt=none forbids a page and an email outright,
+  // so the request has to fail either way; the container decides whether the
+  // failure is redirected to the RP or rendered here. Distinct from
+  // canRelayPromptNoneError, which answers the narrower question of who sees
+  // the error, and which an unmet authentication level still turns on.
+  isPromptNoneRequest?: boolean;
   authClient: Pick<AuthClient, 'sessionResendVerifyCode'>;
 }
 

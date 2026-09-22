@@ -238,7 +238,7 @@ export const AUTH_SERVER_API_DESCRIPTION = {
     - \`recoveryData\`: \`string, regex(/[a-zA-Z0-9.]/), max(1024), required\`
     - \`E164_NUMBER\`: \`/^\+[1-9]\d{1,14}$/\`
     - \`DIGITS\`: \`/^[0-9]+$/\`
-    - \`DEVICE_COMMAND_NAME\`: \`/^[a-zA-Z0-9._\/\-:]{1,100}$/\`
+    - \`DEVICE_COMMAND_NAME\`: \`/^(?!(?:__proto__|constructor|prototype)$)[a-zA-Z0-9._\/\-:]{1,100}$/\`
     - \`IP_ADDRESS\`: \`string, ip\`
 
 

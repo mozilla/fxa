@@ -18,6 +18,7 @@ import type {
   WafBypassTokenDto,
   WafBypassTokenCreateDto,
   DomainBlocklistEntry,
+  DomainBlocklistSyncResult,
   OAuthScopeDto,
   OAuthScopeCreateDto,
 } from 'fxa-admin-server/src/types';
@@ -150,6 +151,13 @@ export const adminApi = {
 
   removePasskey(uid: string, credentialId: string): Promise<boolean> {
     return apiFetch('/api/account/remove-passkey', {
+      method: 'POST',
+      body: JSON.stringify({ uid, credentialId }),
+    });
+  },
+
+  removePasskeyWrap(uid: string, credentialId: string): Promise<boolean> {
+    return apiFetch('/api/account/remove-passkey-wrap', {
       method: 'POST',
       body: JSON.stringify({ uid, credentialId }),
     });
@@ -341,6 +349,13 @@ export const adminApi = {
 
   deleteAllDomainBlocklistEntries(): Promise<{ ok: boolean }> {
     return apiFetch('/api/domain-blocklist/all', { method: 'DELETE' });
+  },
+
+  syncDomainBlocklist(url: string): Promise<DomainBlocklistSyncResult> {
+    return apiFetch('/api/domain-blocklist/sync', {
+      method: 'POST',
+      body: JSON.stringify({ url }),
+    });
   },
 
   // ---- OAuth scopes ----

@@ -361,4 +361,8 @@ export const eventsMap = {
   promoQrMobile: {
     view: 'promo_qr_mobile_view',
   },
+
+  dtmDesktop: {
+    qrSkip: 'dtm_desktop_qr_skip',
+  },
 } as const;
