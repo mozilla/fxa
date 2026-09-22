@@ -1519,6 +1519,7 @@ pair2-authority-scan-qr-heading = Scan to connect your mobile device
 pair2-authority-scan-qr-instruction = Scan the QR code with your phone or tablet to sync your { -brand-firefox } bookmarks, tabs, and more.
 pair2-authority-scan-qr-code-aria-label = QR code to connect your mobile device
 pair2-authority-scan-qr-help-link = Get help scanning
+pair2-authority-scan-qr-skip-button = Skip for now
 
 
 pair2-authority-sync-success-heading-v2 = Your device is connected
