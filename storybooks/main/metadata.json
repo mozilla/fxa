@@ -1,8 +1,8 @@
 {
-  "commit": "f601f2ea1a44982779bb8de7872944346b21f0a9",
-  "summary": "Merge pull request #21284 from mozilla/FXA-passkey-wrap-harden",
-  "description": "fix(settings): harden the passkey wrap opt-in",
-  "timestamp": 1790109614000,
+  "commit": "dcc42bea5e3b739aeb3993713ca37d5f8b855315",
+  "summary": "Merge pull request #21197 from mozilla/adr-0049-addendum",
+  "description": "docs(adr): accept ADR 0049 and add a post-review addendum",
+  "timestamp": 1790115814000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
