@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit de2f302d8069061c2fd897500e69b92b047ad0c6</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit de2f302d8069061c2fd897500e69b92b047ad0c6</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/22/2026, 4:09:47 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(oauth): add an untrusted-client consent screen and restore 321done</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+ - 321done could not complete a sign-in: one environment variable served
+   both demo clients, and the shared secrets file overrode the
+   per-instance config, so the untrusted app sent the wrong secret.
+ - An untrusted client&#039;s sign-in redirected straight back to the relying
+   party, telling the user nothing about the profile information it reads.
+ - No functional test drove the untrusted client, so both gaps were
+   invisible.
+
+This commit:
+ - Loads the per-instance 123done config after the shared secrets file,
+   so each client resolves its own secret.
+ - Adds a React consent screen at /signin_permissions that lists the
+   email and display name an untrusted client can read, recording what
+   it showed in the `permissions` field Backbone also writes.
+ - Gates the screen on a new isUntrusted(), so an unresolved client
+   lookup never describes a trusted client as untrusted.
+ - Badges the untrusted demo app and reports the flag on
+   /api/auth_status.
+ - Adds untrusted relier and permissions page objects, seven Playwright
+   tests, and unit tests for the scope and consent rules.</pre></dd>
+  </dl>
+</body>
+</html>
