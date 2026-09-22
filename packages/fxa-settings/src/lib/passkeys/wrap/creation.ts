@@ -6,7 +6,6 @@ import * as Sentry from '@sentry/browser';
 import { ERRNO } from '@fxa/accounts/errors';
 import type AuthClient from 'fxa-auth-client/browser';
 import type { PasskeyWrapEnvelope } from 'fxa-auth-client/browser';
-import { base64urlToBytes } from '../../base64url';
 import { getCredential } from '../webauthn';
 import {
   categorizeWebAuthnError,
@@ -17,6 +16,7 @@ import {
   isAuthUiError,
   type AuthUiError,
 } from '../../auth-errors/auth-errors';
+import { uidFromMfaToken } from '../../mfa-guard-utils';
 import { createWrapEnvelope, openWrapEnvelope } from '../../passkey-crypto';
 import { PRF_OUT_BYTES } from '../../passkey-crypto/constants';
 
@@ -81,8 +81,6 @@ export async function createPasskeyWrap(
     return { ok: false, failure: 'key_unusable' };
   }
 
-  // The server files the wrap under the proof's `sub`;
-  // any other uid would result in sealing an envelope that never opens.
   const uid = uidFromMfaToken(mfaToken);
   if (!uid) {
     return { ok: false, failure: 'proof_malformed' };
@@ -131,19 +129,14 @@ async function storeSealedEnvelope(
   try {
     return await store(authClient, mfaToken, credentialId, envelope);
   } catch (initialStoreError) {
-    const errno = (initialStoreError as AuthUiError).errno;
+    const error = toAuthUiError(initialStoreError);
     // A rate limit lapses, so the offer stays up with the envelope to
     // resubmit once it has.
-    if (errno === ERRNO.THROTTLED) {
-      return {
-        ok: false,
-        retryable: true,
-        envelope,
-        error: initialStoreError as AuthUiError,
-      };
+    if (error.errno === ERRNO.THROTTLED) {
+      return { ok: false, retryable: true, envelope, error };
     }
-    if (errno !== ERRNO.INVALID_MFA_TOKEN || !sessionToken) {
-      return { ok: false, error: initialStoreError as AuthUiError };
+    if (error.errno !== ERRNO.INVALID_MFA_TOKEN || !sessionToken) {
+      return { ok: false, error };
     }
     return retryPasskeyWrapStore(
       authClient,
@@ -198,7 +191,7 @@ export async function retryPasskeyWrapStore(
   try {
     return await store(authClient, freshToken, credentialId, envelope);
   } catch (retryStoreError) {
-    const error = retryStoreError as AuthUiError;
+    const error = toAuthUiError(retryStoreError);
     // The limit lapses and the envelope outlives it, so the offer can stay up
     // to resubmit rather than spending the prompt this step-up just cost.
     return error.errno === ERRNO.THROTTLED
@@ -240,18 +233,9 @@ async function stepUp(
   return mfaToken;
 }
 
-function uidFromMfaToken(mfaToken: string): string | undefined {
-  try {
-    const payload = mfaToken.split('.')[1];
-    const { sub } = JSON.parse(
-      new TextDecoder().decode(base64urlToBytes(payload))
-    );
-    return typeof sub === 'string' && /^[0-9a-f]{32}$/.test(sub)
-      ? sub
-      : undefined;
-  } catch {
-    return undefined;
-  }
+/** A network TypeError or other non-auth throw has no errno to word. */
+function toAuthUiError(err: unknown): AuthUiError {
+  return isAuthUiError(err) ? err : AuthUiErrors.UNEXPECTED_ERROR;
 }
 
 function isZeroed(bytes: Uint8Array): boolean {

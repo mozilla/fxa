@@ -5,6 +5,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import * as Sentry from '@sentry/browser';
 import { useLocation, useNavigate } from 'react-router';
+import { useMounted } from '../../lib/hooks/useMounted';
 import InlinePasswordlessSyncSetup from '.';
 import AppLayout from '../../components/AppLayout';
 import { ERRNO } from '@fxa/accounts/errors';
@@ -66,13 +67,7 @@ const InlinePasswordlessSyncSetupContainer = () => {
 
   // Guards the continuations below: the seal and the step-up prompt both
   // await, and by the time they resolve the user may have left.
-  const mounted = useRef(true);
-  useEffect(() => {
-    mounted.current = true;
-    return () => {
-      mounted.current = false;
-    };
-  }, []);
+  const mounted = useMounted();
 
   // Leaving the route zeroes the material, so this only has to pick the exit.
   const continueToSettings = useCallback(() => {
@@ -87,12 +82,19 @@ const InlinePasswordlessSyncSetupContainer = () => {
     }
   }, [isMissingWrapData, continueToSettings]);
 
+  // Synchronous re-entry guard: `createPasskeyWrap` zeroes the buffers in
+  // place, so a second click before `isEnabling` renders would seal zeros.
+  const inFlight = useRef(false);
   const onEnable = useCallback(async () => {
+    if (inFlight.current) {
+      return;
+    }
     if (!pendingWrap?.kB) {
       continueToSettings();
       return;
     }
     setError(undefined);
+    inFlight.current = true;
     setIsEnabling(true);
     const retry = pendingRetry.current;
     const session = sessionToken();
@@ -117,7 +119,10 @@ const InlinePasswordlessSyncSetupContainer = () => {
               kB: new Uint8Array(pendingWrap.kB),
             });
     } catch (err) {
-      Sentry.captureException(err);
+      // Synthetic Error: backend error bodies may carry identifiers.
+      Sentry.captureException(new Error('passkey-wrap-store error'), {
+        tags: { errno: String((err as { errno?: number })?.errno ?? 'none') },
+      });
       result = { ok: false, error: AuthUiErrors.UNEXPECTED_ERROR };
     }
     // The user left during the store or the step-up prompt. Everything below
@@ -172,6 +177,9 @@ const InlinePasswordlessSyncSetupContainer = () => {
               },
             }
       );
+      // The only outcome that keeps the offer on screen, so the re-entry
+      // guard has to reopen for the retry click.
+      inFlight.current = false;
       setIsEnabling(false);
       return;
     }
@@ -215,7 +223,7 @@ const InlinePasswordlessSyncSetupContainer = () => {
   return (
     <InlinePasswordlessSyncSetup
       onEnable={onEnable}
-      onNotNow={() => continueToSettings()}
+      onNotNow={continueToSettings}
       isEnabling={isEnabling}
       error={error}
     />

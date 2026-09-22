@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useState } from 'react';
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { MemoryRouter } from 'react-router';
@@ -19,17 +19,18 @@ jest.mock('react-router', () => ({
 
 const mockSensitiveDataClient = new SensitiveDataClient();
 const mockAlertBar = { success: jest.fn(), error: jest.fn() };
+const mockAuthClient = {};
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
   useSensitiveDataClient: () => mockSensitiveDataClient,
-  useAuthClient: () => ({}),
+  useAuthClient: () => mockAuthClient,
   useAlertBar: () => mockAlertBar,
 }));
 
 const mockCreateWrap = jest.fn();
 const mockRetryStore = jest.fn();
 jest.mock('../../lib/passkeys/wrap/creation', () => ({
-  createPasskeyWrap: (...args: unknown[]) => mockCreateWrap(args[1]),
+  createPasskeyWrap: (...args: unknown[]) => mockCreateWrap(...args),
   retryPasskeyWrapStore: (...args: unknown[]) =>
     mockRetryStore(args[1], args[2]),
 }));
@@ -135,7 +136,7 @@ describe('InlinePasswordlessSyncSetupContainer', () => {
       'This passkey is ready for sync sign-in'
     );
     expect(mockAlertBar.error).not.toHaveBeenCalled();
-    expect(mockCreateWrap).toHaveBeenCalledWith({
+    expect(mockCreateWrap).toHaveBeenCalledWith(mockAuthClient, {
       credentialId: held.credentialId,
       mfaToken: held.mfaToken,
       sessionToken: 'session-token',
@@ -149,7 +150,10 @@ describe('InlinePasswordlessSyncSetupContainer', () => {
     const held = mockSensitiveDataClient.PasskeyWrapData!;
     let sealed: { prfOut: Uint8Array; kB: Uint8Array } | undefined;
     mockCreateWrap.mockImplementation(
-      async (args: { prfOut: Uint8Array; kB: Uint8Array }) => {
+      async (
+        _authClient: unknown,
+        args: { prfOut: Uint8Array; kB: Uint8Array }
+      ) => {
         // Stands in for the route cleanup arriving while sealing awaits
         // key generation, before it has read either buffer.
         mockSensitiveDataClient.clearPasskeyWrapData();
@@ -238,9 +242,27 @@ describe('InlinePasswordlessSyncSetupContainer', () => {
     expect(mockNavigate).toHaveBeenCalledTimes(1);
   });
 
+  it('seals once when two clicks land in the same tick, before the button disables', async () => {
+    mockCreateWrap.mockResolvedValue({ ok: true, created: true });
+    render();
+    const button = screen.getByRole('button', { name: 'Enable passkey' });
+
+    // Raw clicks inside one act(): fireEvent/userEvent each flush a render
+    // between them, which disables the button and hides the guard.
+    await act(async () => {
+      button.click();
+      button.click();
+    });
+
+    await waitFor(() =>
+      expect(mockNavigate).toHaveBeenCalledWith(...SETTINGS_NAV)
+    );
+    expect(mockCreateWrap).toHaveBeenCalledTimes(1);
+  });
+
   it('continues to Settings with the generic copy when the wrap call throws', async () => {
     const user = userEvent.setup();
-    const thrown = new Error('boom');
+    const thrown = Object.assign(new Error('boom'), { errno: 999 });
     mockCreateWrap.mockRejectedValue(thrown);
     render();
 
@@ -250,7 +272,11 @@ describe('InlinePasswordlessSyncSetupContainer', () => {
       expect(mockNavigate).toHaveBeenCalledWith(...SETTINGS_NAV)
     );
     expect(mockAlertBar.error).toHaveBeenCalledWith(GENERIC);
-    expect(mockCaptureException).toHaveBeenCalledWith(thrown);
+    // Scrubbed: a backend error body may carry identifiers.
+    expect(mockCaptureException).toHaveBeenCalledWith(
+      new Error('passkey-wrap-store error'),
+      { tags: { errno: '999' } }
+    );
   });
 
   it('does nothing once the user has left during the store', async () => {

@@ -289,6 +289,28 @@ export const cachedSignIn = async (
   }
 };
 
+/**
+ * Whether the password-free passkey opt-in may follow this sign-in: the wrap
+ * material has to belong to the account that just signed in, and the offer only
+ * makes sense on the OAuth Sync destination it enrols for.
+ */
+export function shouldShowPasswordlessSyncSetup(
+  pendingWrap: { uid: hexstring } | undefined,
+  signinData: Pick<
+    NavigationOptions['signinData'],
+    'uid' | 'emailVerified' | 'sessionVerified'
+  >,
+  integration: NavigationOptions['integration']
+): boolean {
+  return (
+    pendingWrap?.uid === signinData.uid &&
+    isOAuthIntegration(integration) &&
+    integration.isSync() &&
+    signinData.emailVerified &&
+    signinData.sessionVerified
+  );
+}
+
 // In Backbone and React, 'confirm_signup_code' and 'signin_token_code' send key
 // and token data up to Sync with fxa_login and then the CAD/pair page (currently
 // Backbone) completes the signin with fxa_status.
@@ -323,7 +345,11 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
   // A passkey ceremony leaves wrap material only when the password-free
   // offer should follow; the overrides below may still withdraw it.
   navigationOptions.showInlinePasswordlessSyncSetup =
-    !!navigationOptions.sensitiveDataClient?.PasskeyWrapData;
+    shouldShowPasswordlessSyncSetup(
+      navigationOptions.sensitiveDataClient?.PasskeyWrapData,
+      navigationOptions.signinData,
+      integration
+    );
 
   // Check CMS fleature flags to determine if we should hide promos, the
   // default is to navigate to settings

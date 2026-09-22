@@ -22,6 +22,7 @@ import {
   handleNavigation,
   ensureCanLinkAcountOrRedirect,
   getSyncNavigate,
+  shouldShowPasswordlessSyncSetup,
 } from './utils';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import firefox from '../../lib/channels/firefox';
@@ -1532,5 +1533,53 @@ describe('Signin utils', () => {
         });
       });
     });
+  });
+});
+
+describe('shouldShowPasswordlessSyncSetup', () => {
+  const signinData = {
+    uid: MOCK_UID,
+    emailVerified: true,
+    sessionVerified: true,
+  };
+
+  const check = (
+    wrapUid: hexstring | undefined,
+    signin: Partial<typeof signinData> = {},
+    integration = createMockSigninOAuthNativeSyncIntegration()
+  ) =>
+    shouldShowPasswordlessSyncSetup(
+      wrapUid === undefined ? undefined : { uid: wrapUid },
+      { ...signinData, ...signin },
+      integration
+    );
+
+  it('offers the opt-in for a verified account on OAuth Sync', () => {
+    expect(check(MOCK_UID)).toBe(true);
+  });
+
+  it.each([
+    ['no wrap material', () => check(undefined)],
+    ['wrap material for another account', () => check('f'.repeat(32))],
+    ['an unverified email', () => check(MOCK_UID, { emailVerified: false })],
+    [
+      'an unverified session',
+      () => check(MOCK_UID, { sessionVerified: false }),
+    ],
+    [
+      'a non-OAuth integration',
+      () => check(MOCK_UID, {}, createMockSigninWebIntegration()),
+    ],
+    [
+      'an OAuth integration that is not Sync',
+      () =>
+        check(
+          MOCK_UID,
+          {},
+          createMockSigninOAuthNativeIntegration({ isSync: false })
+        ),
+    ],
+  ])('withholds it for %s', (_label, evaluate) => {
+    expect(evaluate()).toBe(false);
   });
 });
