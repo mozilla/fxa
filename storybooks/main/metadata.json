@@ -1,8 +1,8 @@
 {
-  "commit": "dcc42bea5e3b739aeb3993713ca37d5f8b855315",
-  "summary": "Merge pull request #21197 from mozilla/adr-0049-addendum",
-  "description": "docs(adr): accept ADR 0049 and add a post-review addendum",
-  "timestamp": 1790115814000,
+  "commit": "27d2ff7ce5c79553befde43d5b36f7df51526a25",
+  "summary": "Merge pull request #21286 from mozilla/FXA-14015-v2",
+  "description": "feat(oauth): deauthorize account authorizations on disconnect",
+  "timestamp": 1790117693000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
