@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 822abca91dac9955d464f5e65909eea2279ceb2e</title>
+  <title>Storybooks for commit 5be3a28f8a0f4570efc354ffd4d3d7024f725360</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 822abca91dac9955d464f5e65909eea2279ceb2e</h1>
+  <h1>Storybooks for commit 5be3a28f8a0f4570efc354ffd4d3d7024f725360</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/22/2026, 7:47:05 PM UTC</dd>
+    <dd>9/22/2026, 9:21:25 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(oauth): deauthorize account authorizations on disconnect</pre></dd>
     <dt>Description</dt>
@@ -53,14 +53,18 @@ This commit:
   Re-authorizing through /authorization clears it. prompt=none and token
   exchange write nothing, as before: the user sees no ToS.
 - Adds deauthorizeAccountAuthorizations, guarded on the
-  lastAuthorizedTosAt the caller read so a racing re-auth survives.
-- On Connected Services and device disconnect, evaluates every row of
-  the user&#039;s. A row survives while a covering refresh token is held by
-  its own client or any client on its service&#039;s allowlist, so a browser
+  lastAuthorizedTosAt the caller read so a racing re-auth survives. The
+  upsert advances that timestamp on every completion, so the guard holds
+  for a re-auth in the same millisecond or on a slow clock.
+- On Connected Services and device disconnect, judges the rows the
+  disconnected client could have been sustaining: its own, plus any
+  whose service allowlists it. A row survives while a covering refresh
+  token is held by its own client or an allowlisted one, so a browser
   that reached VPN via token exchange (which writes no row) keeps the
   consent alive. Tokens lost any other way (password reset, RFC 7009
-  destroy, pruning) trigger nothing: the user agreed to the ToS and
-  never opted out. The allowlist default now matches the prod override.
+  destroy, pruning) never deauthorize a row. The pass runs even when the
+  disconnect errors, since the token delete commits before its Redis
+  cleanup. The allowlist default now matches the prod override.
 - Exempts Firefox Desktop, which holds no refresh token until
   bz2053654 and signs out by session token. A session carries no client
   or scope identity, so we cannot tell which services it authorized;
