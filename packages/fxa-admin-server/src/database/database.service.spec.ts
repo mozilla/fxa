@@ -27,6 +27,7 @@ describe('#integration - DatabaseService', () => {
         '`clientId` BINARY(8) NOT NULL,' +
         '`firstAuthorizedTosAt` BIGINT UNSIGNED NOT NULL,' +
         '`lastAuthorizedTosAt` BIGINT UNSIGNED NOT NULL,' +
+        '`deauthorizedAt` BIGINT UNSIGNED DEFAULT NULL,' +
         'PRIMARY KEY (`uid`, `scope`, `service`, `clientId`)' +
         ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4'
     );
@@ -124,6 +125,7 @@ describe('#integration - DatabaseService', () => {
         clientId: Buffer.from(relayClientId, 'hex'),
         firstAuthorizedTosAt: now - 2000,
         lastAuthorizedTosAt: now,
+        deauthorizedAt: now - 500,
       },
     ]);
 
@@ -136,6 +138,7 @@ describe('#integration - DatabaseService', () => {
         clientId: relayClientId,
         firstAuthorizedTosAt: now - 2000,
         lastAuthorizedTosAt: now,
+        deauthorizedAt: now - 500,
       },
       {
         scope: 'https://identity.mozilla.com/apps/oldsync',
@@ -143,6 +146,7 @@ describe('#integration - DatabaseService', () => {
         clientId: syncClientId,
         firstAuthorizedTosAt: now - 5000,
         lastAuthorizedTosAt: now - 1000,
+        deauthorizedAt: null,
       },
     ]);
   });

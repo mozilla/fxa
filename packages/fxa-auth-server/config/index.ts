@@ -1540,10 +1540,27 @@ const convictConf = convict({
         env: 'OAUTH_EXCHANGE_BYPASS_CONSENT_FOR_SERVICES',
       },
       allowedClientsForService: {
-        doc: 'Per-service allowlist of OAuth client_ids permitted to write an accountAuthorizations row. A service absent from this map has no restriction; a service present with an empty list rejects all writes. Prevents a non-Mozilla RP from forging consent for a privileged service (e.g. claiming VPN consent on the user behalf).',
+        doc: "Per-service allowlist of OAuth client_ids permitted to write an accountAuthorizations row. A service absent from this map has no restriction; a service present with an empty list rejects all writes. Prevents a non-Mozilla RP from forging consent for a privileged service (e.g. claiming VPN consent on the user behalf). Deauthorization reads it too: a covering refresh token from any listed client sustains the service's rows, so a browser that reached VPN via token exchange keeps the consent alive after the app that showed the ToS disconnects. A service with no entry falls back to own-client only.",
         format: Object,
         default: {
           vpn: [
+            '5882386c6d801776',
+            '1b1a3e44c54fbb58',
+            '3332a18d142636cb',
+            'a2270f727f45f648',
+            '3c49430b43dfba77',
+            'e6eb0d1e856335fc',
+          ],
+          relay: [
+            '5882386c6d801776',
+            '1b1a3e44c54fbb58',
+            '3332a18d142636cb',
+            'a2270f727f45f648',
+            '3c49430b43dfba77',
+            '9ebfe2c2f9ea3c58',
+          ],
+          smartwindow: ['5882386c6d801776'],
+          sync: [
             '5882386c6d801776',
             '1b1a3e44c54fbb58',
             '3332a18d142636cb',
