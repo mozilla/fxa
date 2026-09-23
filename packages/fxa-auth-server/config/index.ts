@@ -3115,10 +3115,6 @@ convictConf.set(
   'smtp.verifyPrimaryEmailUrl',
   `${baseUri}/verify_primary_email`
 );
-convictConf.set(
-  'smtp.verifySecondaryEmailUrl',
-  `${baseUri}/verify_secondary_email`
-);
 convictConf.set('smtp.syncUrl', `${baseUri}/connect_another_device`);
 
 convictConf.set('isProduction', convictConf.get('env') === 'prod');

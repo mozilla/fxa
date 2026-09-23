@@ -522,25 +522,6 @@ FxaClientWrapper.prototype = {
   }),
 
   /**
-   * Sends a verification code to the account's recovery email address
-   * that will verify the current session.
-   *
-   * @param {String} sessionToken sessionToken obtained from signIn
-   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
-   */
-  sessionVerifyResend: withClient((client, sessionToken, options = {}) => {
-    const clientOptions = {
-      type: 'upgradeSession',
-    };
-
-    if (options.redirectTo) {
-      clientOptions.redirectTo = options.redirectTo;
-    }
-
-    return client.recoveryEmailResendCode(sessionToken, clientOptions);
-  }),
-
-  /**
    * Destroy the user's current or custom session
    *
    * @param {String} sessionToken

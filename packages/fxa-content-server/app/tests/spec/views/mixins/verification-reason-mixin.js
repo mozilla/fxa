@@ -82,18 +82,6 @@ describe('views/mixins/verification-reason-mixin', () => {
     });
   });
 
-  describe('isSecondaryEmail', () => {
-    it('returns `true` for SECONDARY_EMAIL_VERIFIED type', () => {
-      view.model.set('type', VerificationReasons.SECONDARY_EMAIL_VERIFIED);
-      assert.isTrue(view.isSecondaryEmail());
-    });
-
-    it('returns `false` for other types', () => {
-      view.model.set('type', VerificationReasons.SIGN_IN);
-      assert.isFalse(view.isSecondaryEmail());
-    });
-  });
-
   describe('keyOfType', () => {
     it('returns the correct value', () => {
       assert.equal(
