@@ -14,7 +14,7 @@ import StringMetricType from '@mozilla/glean/private/metrics/string';
 export const userId = new StringMetricType({
   category: 'account',
   name: 'user_id',
-  sendInPings: ['accounts-events', 'events'],
+  sendInPings: ['events'],
   lifetime: 'application',
   disabled: false,
 });
@@ -27,7 +27,7 @@ export const userId = new StringMetricType({
 export const userIdSha256 = new StringMetricType({
   category: 'account',
   name: 'user_id_sha256',
-  sendInPings: ['accounts-events', 'events'],
+  sendInPings: ['events'],
   lifetime: 'application',
   disabled: false,
 });
