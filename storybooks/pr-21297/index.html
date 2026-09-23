@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 803163d418d1fc9ee0ff033acf37dab2b07bd5c5</title>
+  <title>Storybooks for commit d1c1e30a3c13799e87e72576d989bf3b6344c707</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 803163d418d1fc9ee0ff033acf37dab2b07bd5c5</h1>
+  <h1>Storybooks for commit d1c1e30a3c13799e87e72576d989bf3b6344c707</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,27 +31,21 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/23/2026, 9:38:30 PM UTC</dd>
+    <dd>9/23/2026, 10:01:10 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>chore(deps): upgrade commander to 13.1 and migrate CLI scripts</pre></dd>
     <dt>Description</dt>
     <dd><pre>## Because
 
-- FxA used commander 2.18.0 in fxa-auth-server and 9.3.0 in fxa-profile-server, both old.
-- fxa-admin-server imported commander but had no direct dependency on it. It used the hoisted 2.18 copy, which this upgrade removes.
-- Since commander 7, options live on `program.opts()`, not on the command object. A read like `program.delay` gives `undefined` after the upgrade, and the script silently uses its fallback.
+- The FxA CLI scripts used old commander versions (2.18.0 in fxa-auth-server, 9.3.0 in fxa-profile-server).
+- Commander 7 and later no longer stores options as properties on `program`. Reads such as `program.delay`, `program.batchsize`, `program.delimiter` and `program.emailPattern` silently fell back to their defaults.
 
 ## This pull request
 
-- Bumps commander to `^13.1.0` in fxa-auth-server and fxa-profile-server.
-- Adds commander `^13.1.0` as a direct dependency of fxa-admin-server.
-- Changes 38 scripts to named imports (`{ program }` or `new Command()`).
-- Reads all options through `opts()`. Without this, bulk-mailer would ignore `--delay` and `--batchsize`, and clean-up-old-ci-stripe-customers would ignore `--emailPattern`.
-- Changes numeric option defaults to strings, because the commander 13 typings reject numbers. Every consumer already calls `parseInt` or coerces the value. Values from the CLI were always strings.
-- Writes exponent literals such as `100e3` as plain digits, because `parseInt(&#039;100e3&#039;)` is `100`.
-- Adds `.allowExcessArguments()` to delete-unverified-accounts.ts and clean-up-partial-account-customer.ts. Their `--limit` flag takes no value, and v13 stops on the stray value. This keeps the 2.x behaviour.
-- Changes `&lt;events...&gt;` to `&lt;events&gt;` in google-events-cli.js. In v13 the variadic form gives an array, and `.split(&#039;,&#039;)` would throw.
-- yarn.lock only removes the 2.18.0 and 9.3.0 entries.
+- Upgrades `commander` to `^13.1.0` in fxa-auth-server and fxa-profile-server, and adds it to fxa-admin-server.
+- Changes the CLI scripts to use the named `program` or `Command` import and to read options with `program.opts()`.
+- Adds `.allowExcessArguments()` where a value-less `--limit` flag can leave a positional arg.
+- Renames the action-handler parameter `cmdObj` to `options` in `google-events-cli.js`. In commander 13 the handler gets `(args..., options, command)`, so this value is already the options object.
 
 ## Issue that this pull request solves
 
