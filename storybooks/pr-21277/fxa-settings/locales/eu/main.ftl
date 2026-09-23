@@ -944,7 +944,19 @@ pair-unsupported-header = Parekatzea aplikazioa erabiliz
 pair-unsupported-message = Sistemako kamera darabilzu? { -brand-firefox } aplikazio batetik parekatu behar duzu.
 
 
+pair2-authority-scan-qr-skip-button = Saltatu oraingoz
+
+
+pair2-authority-sync-success-heading-v2 = Zure gailua konektatuta dago
+pair2-authority-sync-success-description-v2 = Sinkronizazioa lanean ari da. Denbora pixka bat har lezake sinkronizatutako datuak agertu arte. Jarraitu nabigatzen lasai.
+pair2-authority-sync-success-sync-settings-button-v2 = Kudeatu sinkronizazio-ezarpenak
+
+
 pair2-supplicant-download-firefox-opening-button = { -brand-firefox } irekitzen…
+
+
+pair2-supplicant-sync-success-description-v2 = Sinkronizazioa lanean ari da. Denbora pixka bat har lezake sinkronizatutako datuak agertu arte. Jarraitu nabigatzen lasai.
+pair2-supplicant-sync-success-sync-settings-button-v2 = Kudeatu sinkronizazio-ezarpenak
 
 
 third-party-auth-callback-message = Mesedez, itxaron, baimendutako aplikaziora birbideratzen ari zara.

@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 420ffd29bc9026253432d5357b3dde4695562173</title>
+  <title>Storybooks for commit 3d9970668ff24efac3bb543a0e630a03d248d15c</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 420ffd29bc9026253432d5357b3dde4695562173</h1>
+  <h1>Storybooks for commit 3d9970668ff24efac3bb543a0e630a03d248d15c</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,23 +31,17 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/21/2026, 9:53:02 PM UTC</dd>
+    <dd>9/23/2026, 5:33:14 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>refactor(profile): replace checksum dependency with node:crypto</pre></dd>
     <dt>Description</dt>
-    <dd><pre>## Because
-
-- `checksum@1.0.0` is a thin wrapper over node&#039;s own crypto module. Node can do this without a dependency.
+    <dd><pre>- `checksum@1.0.0` is a thin wrapper over node&#039;s own crypto module. Node can do this without a dependency.
 - The lockfile carried an extra copy of `optimist` (0.3.7) only for that wrapper.
-
-## This pull request
 
 - Removes `checksum` from the `fxa-profile-server` package.json and from yarn.lock.
 - Computes the `/profile` ETag with `crypto.hash(&#039;sha1&#039;, JSON.stringify(profile), &#039;hex&#039;)` in `profile.js`.
 - Computes the `/display_name` ETag the same way in `display_name/get.js`.
 - Pins the expected ETag in the `should return a displayName` test, so a change of hash algorithm, encoding, or header format fails.
-
-## Issue that this pull request solves
 
 Closes: https://mozilla-hub.atlassian.net/browse/FXA-13927</pre></dd>
   </dl>

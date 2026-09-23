@@ -1325,7 +1325,7 @@ pair2-authority-scan-qr-heading = Digitalize para associar o seu dispositivo mó
 pair2-authority-scan-qr-instruction = Digitalize o código QR com o seu telemóvel ou tablet para sincronizar os seus { -brand-firefox } marcadores, separadores, e mais.
 pair2-authority-scan-qr-code-aria-label = Código QR para ligar o seu dispositivo móvel
 pair2-authority-scan-qr-help-link = Obter ajuda para digitalizar
-pair2-authority-scan-qr-skip-button = Ignorar por agora
+pair2-authority-scan-qr-skip-button = Saltar por agora
 
 
 pair2-authority-sync-success-heading-v2 = O seu dispositivo está ligado
