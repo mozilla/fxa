@@ -1836,6 +1836,13 @@ inline-passwordless-sync-setup-enable-button = Enable passkey
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Enabling…
 inline-passwordless-sync-setup-not-now-button = Not now
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = This passkey is ready for sync sign-in
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = Passkey confirmation didn’t finish
+inline-passwordless-sync-setup-error-cancelled-description = Confirm with your passkey to skip the password next time.
+# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+inline-passwordless-sync-setup-error-generic = Something went wrong, you’ll still need to enter your password next time
 
 ## InlineRecoveryKeySetup page component
 
@@ -2119,18 +2126,18 @@ pair2-authority-scan-qr-instruction = Scan the QR code with your phone or tablet
 pair2-authority-scan-qr-code-aria-label = QR code to connect your mobile device
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Get help scanning
+# Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
+pair2-authority-scan-qr-skip-button = Skip for now
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
-## It confirms that sync is on and offers the follow-up actions.
+## It confirms that sync is on and links to sync settings.
 
-# "syncing" here means copying data between the user's devices
-pair2-authority-sync-success-heading = You’re syncing
-pair2-authority-sync-success-description = Your tabs, bookmarks, passwords, and more are ready across your devices.
-# Opens the tabs that are open on the user's other synced devices
-pair2-authority-sync-success-view-tabs-button = View synced tabs
+pair2-authority-sync-success-heading-v2 = Your device is connected
+# "Syncing" here means copying data between the user's devices
+pair2-authority-sync-success-description-v2 = Syncing is underway. It may take a while for your synced data to appear. Feel free to keep browsing.
 # Opens the browser settings that control what is synced
-pair2-authority-sync-success-sync-settings-button = Sync settings
+pair2-authority-sync-success-sync-settings-button-v2 = Manage sync settings
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -2206,11 +2213,10 @@ pair2-supplicant-ready-to-scan-learn-more-link = Learn more
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Your device is connected
-pair2-supplicant-sync-success-description = Your bookmarks, tabs, and more will stay synced in { -brand-firefox }.
-# Opens the view listing tabs open on the user's other synced devices
-pair2-supplicant-sync-success-view-tabs-button = View synced tabs
+# "Syncing" here means copying data between the user's devices
+pair2-supplicant-sync-success-description-v2 = Syncing is underway. It may take a while for your synced data to appear. Feel free to keep browsing.
 # Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button = Sync settings
+pair2-supplicant-sync-success-sync-settings-button-v2 = Manage sync settings
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,

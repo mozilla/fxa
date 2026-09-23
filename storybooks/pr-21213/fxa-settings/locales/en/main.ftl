@@ -1359,6 +1359,10 @@ inline-passwordless-sync-setup-description = Use this passkey to sign in faster.
 inline-passwordless-sync-setup-enable-button = Enable passkey
 inline-passwordless-sync-setup-enabling = Enabling…
 inline-passwordless-sync-setup-not-now-button = Not now
+inline-passwordless-sync-setup-success-alert = This passkey is ready for sync sign-in
+inline-passwordless-sync-setup-error-cancelled = Passkey confirmation didn’t finish
+inline-passwordless-sync-setup-error-cancelled-description = Confirm with your passkey to skip the password next time.
+inline-passwordless-sync-setup-error-generic = Something went wrong, you’ll still need to enter your password next time
 
 
 inline-recovery-key-setup-create-error = Oops! We couldn’t create your account recovery key. Please try again later.
@@ -1519,12 +1523,12 @@ pair2-authority-scan-qr-heading = Scan to connect your mobile device
 pair2-authority-scan-qr-instruction = Scan the QR code with your phone or tablet to sync your { -brand-firefox } bookmarks, tabs, and more.
 pair2-authority-scan-qr-code-aria-label = QR code to connect your mobile device
 pair2-authority-scan-qr-help-link = Get help scanning
+pair2-authority-scan-qr-skip-button = Skip for now
 
 
-pair2-authority-sync-success-heading = You’re syncing
-pair2-authority-sync-success-description = Your tabs, bookmarks, passwords, and more are ready across your devices.
-pair2-authority-sync-success-view-tabs-button = View synced tabs
-pair2-authority-sync-success-sync-settings-button = Sync settings
+pair2-authority-sync-success-heading-v2 = Your device is connected
+pair2-authority-sync-success-description-v2 = Syncing is underway. It may take a while for your synced data to appear. Feel free to keep browsing.
+pair2-authority-sync-success-sync-settings-button-v2 = Manage sync settings
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Still want to connect a device?
@@ -1557,9 +1561,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Learn more
 
 
 pair2-supplicant-sync-success-heading = Your device is connected
-pair2-supplicant-sync-success-description = Your bookmarks, tabs, and more will stay synced in { -brand-firefox }.
-pair2-supplicant-sync-success-view-tabs-button = View synced tabs
-pair2-supplicant-sync-success-sync-settings-button = Sync settings
+pair2-supplicant-sync-success-description-v2 = Syncing is underway. It may take a while for your synced data to appear. Feel free to keep browsing.
+pair2-supplicant-sync-success-sync-settings-button-v2 = Manage sync settings
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Looks like we timed out
