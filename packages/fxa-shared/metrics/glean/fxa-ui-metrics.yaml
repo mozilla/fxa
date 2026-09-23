@@ -2,154 +2,6 @@
 # Schema
 $schema: moz://mozilla.org/schemas/glean/metrics/2-0-0
 
-event:
-  name:
-    type: string
-    description: |
-      The name of the event
-    lifetime: ping
-    send_in_pings:
-      - accounts-events
-    notification_emails:
-      - vzare@mozilla.com
-      - fxa-staff@mozilla.com
-    bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-7265
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
-    expires: never
-    data_sensitivity:
-      - interaction
-
-  reason:
-    description: additional context-dependent (on event.name) info, e.g. the cause of an error
-    type: string
-    lifetime: ping
-    send_in_pings:
-      - accounts-events
-    notification_emails:
-      - vzare@mozilla.com
-      - fxa-staff@mozilla.com
-    bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-7265
-      - https://mozilla-hub.atlassian.net/browse/FXA-7271
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
-    expires: never
-    data_sensitivity:
-      - interaction
-
-  outcome:
-    description: |
-      Context-dependent (on event.name) result of an operation, e.g. "success"
-      or "failure" for the passkey PRF-less registration retry.
-    type: string
-    lifetime: ping
-    send_in_pings:
-      - accounts-events
-    notification_emails:
-      - vzare@mozilla.com
-      - fxa-staff@mozilla.com
-    bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-13991
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
-    expires: never
-    data_sensitivity:
-      - interaction
-
-  choice:
-    description: the choice made by the user in a given event
-    type: string
-    lifetime: ping
-    send_in_pings:
-      - accounts-events
-    notification_emails:
-      - vzare@mozilla.com
-      - fxa-staff@mozilla.com
-    bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-10235
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
-    expires: never
-    data_sensitivity:
-      - interaction
-
-  third_party_links:
-    description: boolean, additional context-dependent (on event.name) info related to third party auth links
-    type: boolean
-    lifetime: ping
-    send_in_pings:
-      - accounts-events
-    notification_emails:
-      - vzare@mozilla.com
-      - fxa-staff@mozilla.com
-    bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-10119
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
-    expires: never
-    data_sensitivity:
-      - interaction
-
-  nimbus_user_id:
-    type: string
-    description: |
-      The name of the client ID for Nimbus experiments.
-    lifetime: ping
-    send_in_pings:
-      - accounts-events
-    notification_emails:
-      - vzare@mozilla.com
-      - fxa-staff@mozilla.com
-    bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-11216
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
-    expires: never
-    data_sensitivity:
-      - interaction
-
-  app_framework:
-    type: string
-    description: |
-      The name of the framework used by the app (ie React or Backbone).
-    lifetime: ping
-    send_in_pings:
-      - accounts-events
-    notification_emails:
-      - vzare@mozilla.com
-      - fxa-staff@mozilla.com
-    bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-11870
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
-    expires: never
-    data_sensitivity:
-      - interaction
-
-  cms_customization_enrollment:
-    type: boolean
-    description: |
-      Whether the user has been enrolled in a CMS customization.
-    lifetime: ping
-    send_in_pings:
-      - accounts-events
-    notification_emails:
-      - vzare@mozilla.com
-      - fxa-staff@mozilla.com
-    bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-12242
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
-    expires: never
-    data_sensitivity:
-      - interaction
-
 account:
   user_id:
     type: string
@@ -157,7 +9,6 @@ account:
       The firefox/mozilla account id
     lifetime: application
     send_in_pings:
-      - accounts-events
       - events
     notification_emails:
       - vzare@mozilla.com
@@ -177,7 +28,6 @@ account:
       A hex string of a sha256 hash of the account's uid
     lifetime: application
     send_in_pings:
-      - accounts-events
       - events
     notification_emails:
       - vzare@mozilla.com
@@ -197,7 +47,6 @@ relying_party:
       The service name of the relying party
     lifetime: application
     send_in_pings:
-      - accounts-events
       - events
     notification_emails:
       - vzare@mozilla.com
@@ -216,7 +65,6 @@ relying_party:
       The client id of the relying party
     lifetime: application
     send_in_pings:
-      - accounts-events
       - events
     notification_emails:
       - vzare@mozilla.com
@@ -235,7 +83,6 @@ session:
     description: an ID generated by FxA for its flow metrics
     lifetime: application
     send_in_pings:
-      - accounts-events
       - events
     notification_emails:
       - vzare@mozilla.com
@@ -254,7 +101,6 @@ session:
     description: one of 'mobile', 'tablet', or 'desktop'
     lifetime: application
     send_in_pings:
-      - accounts-events
       - events
     notification_emails:
       - vzare@mozilla.com
@@ -272,7 +118,6 @@ session:
     description: entrypoint to the service
     lifetime: application
     send_in_pings:
-      - accounts-events
       - events
     notification_emails:
       - vzare@mozilla.com
@@ -298,7 +143,6 @@ utm:
     type: string
     lifetime: application
     send_in_pings:
-      - accounts-events
       - events
     notification_emails:
       - vzare@mozilla.com
@@ -323,7 +167,6 @@ utm:
     type: string
     lifetime: application
     send_in_pings:
-      - accounts-events
       - events
     notification_emails:
       - vzare@mozilla.com
@@ -347,7 +190,6 @@ utm:
     type: string
     lifetime: application
     send_in_pings:
-      - accounts-events
       - events
     notification_emails:
       - vzare@mozilla.com
@@ -371,7 +213,6 @@ utm:
     type: string
     lifetime: application
     send_in_pings:
-      - accounts-events
       - events
     notification_emails:
       - vzare@mozilla.com
@@ -396,7 +237,6 @@ utm:
     type: string
     lifetime: application
     send_in_pings:
-      - accounts-events
       - events
     notification_emails:
       - vzare@mozilla.com
@@ -418,7 +258,6 @@ entrypoint:
     type: string
     lifetime: application
     send_in_pings:
-      - accounts-events
       - events
     notification_emails:
       - vzare@mozilla.com
@@ -438,7 +277,6 @@ entrypoint:
     type: string
     lifetime: application
     send_in_pings:
-      - accounts-events
       - events
     notification_emails:
       - vzare@mozilla.com

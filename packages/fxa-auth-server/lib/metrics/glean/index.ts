@@ -3,10 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ConfigType } from '../../../config';
-import {
-  createAccountsEventsEvent,
-  createEventsServerEventLogger,
-} from './server_events';
+import { createEventsServerEventLogger } from './server_events';
 import { version } from '../../../package.json';
 import { createHash } from 'crypto';
 import { AuthRequest } from '../../types';
@@ -52,7 +49,6 @@ type ErrorLoggerFnParams = {
 };
 
 let appConfig: ConfigType;
-let gleanEventLogger: ReturnType<typeof createAccountsEventsEvent>;
 let gleanServerEventLogger: ReturnType<typeof createEventsServerEventLogger>;
 
 const isEnabled = async (request: MetricsRequest) =>
@@ -169,9 +165,6 @@ const createEventFn =
         scopes: metricsData?.scopes || '',
       };
 
-      // reason is sent in access_token_created, login_submit_backend_error, and reg_submit_error
-      const eventReason = metricsData?.reason || '';
-
       // uid needs extra handling because we need to hash the value
       const uid = findUid(request, metricsData);
       if (uid !== '') {
@@ -187,12 +180,6 @@ const createEventFn =
           })
         : {};
       method.call(gleanServerEventLogger, { ...commonMetrics, ...moreMetrics });
-
-      gleanEventLogger.record({
-        ...commonMetrics,
-        event_name: eventName,
-        event_reason: eventReason,
-      });
     };
   };
 
@@ -229,12 +216,6 @@ const extraKeySignoutCb = (metrics: Record<string, any>) => ({
 
 export function gleanMetrics(config: ConfigType) {
   appConfig = config;
-  gleanEventLogger = createAccountsEventsEvent({
-    applicationId: config.gleanMetrics.applicationId,
-    appDisplayVersion: version,
-    channel: config.gleanMetrics.channel,
-    logger_options: { app: config.gleanMetrics.loggerAppName },
-  });
   gleanServerEventLogger = createEventsServerEventLogger({
     applicationId: config.gleanMetrics.applicationId,
     appDisplayVersion: version,

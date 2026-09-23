@@ -15,7 +15,7 @@ import StringMetricType from '@mozilla/glean/private/metrics/string';
 export const experiment = new StringMetricType({
   category: 'entrypoint',
   name: 'experiment',
-  sendInPings: ['accounts-events', 'events'],
+  sendInPings: ['events'],
   lifetime: 'application',
   disabled: false,
 });
@@ -29,7 +29,7 @@ export const experiment = new StringMetricType({
 export const variation = new StringMetricType({
   category: 'entrypoint',
   name: 'variation',
-  sendInPings: ['accounts-events', 'events'],
+  sendInPings: ['events'],
   lifetime: 'application',
   disabled: false,
 });
