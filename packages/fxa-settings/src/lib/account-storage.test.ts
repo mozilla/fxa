@@ -11,6 +11,7 @@ import {
   getCurrentAccountUid,
   setCurrentAccountUid,
   removeAccount,
+  forgetLastAccountForClients,
   clearExtendedAccountState,
   isSignedIn,
   getSessionVerified,
@@ -51,7 +52,9 @@ function mockStore(
 
 /** Returns the account object from the most recent store.set('accounts', ...) call. */
 function savedAccount() {
-  const calls = store.set.mock.calls.filter((c: [string, unknown]) => c[0] === 'accounts');
+  const calls = store.set.mock.calls.filter(
+    (c: [string, unknown]) => c[0] === 'accounts'
+  );
   return calls[calls.length - 1][1][UID];
 }
 
@@ -142,9 +145,35 @@ describe('account-storage', () => {
     expect(store.remove).toHaveBeenCalledWith('currentAccountUid');
   });
 
+  it('removeAccount forgets the account for every client it was last used for', () => {
+    mockStore({ [UID]: base });
+    const get = store.get.getMockImplementation()!;
+    store.get.mockImplementation((key: string) =>
+      key === 'lastAccountByClient'
+        ? { sumo: UID, monitor: UID, relay: 'other' }
+        : get(key)
+    );
+    removeAccount(UID);
+    expect(store.set).toHaveBeenCalledWith('lastAccountByClient', {
+      relay: 'other',
+    });
+  });
+
+  it('forgetLastAccountForClients leaves storage alone when nothing matches', () => {
+    store.get.mockImplementation((key: string) =>
+      key === 'lastAccountByClient' ? { relay: 'other' } : null
+    );
+    forgetLastAccountForClients(UID);
+    expect(store.set).not.toHaveBeenCalled();
+  });
+
   it('clearExtendedAccountState resets extended data, keeps identity', () => {
     mockStore({
-      [UID]: { ...base, displayName: 'Old', totp: { exists: true, verified: true } },
+      [UID]: {
+        ...base,
+        displayName: 'Old',
+        totp: { exists: true, verified: true },
+      },
     });
     clearExtendedAccountState(UID);
     const saved = savedAccount();

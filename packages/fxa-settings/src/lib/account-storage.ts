@@ -419,6 +419,7 @@ export function removeAccount(uid?: string): void {
     storage().remove('currentAccountUid');
   }
   storage().remove(getLegacyExtendedStateKey(accountUid));
+  forgetLastAccountForClients(accountUid);
   dispatchStorageEvent();
 }
 
@@ -465,5 +466,21 @@ export function setLastAccountForClient(clientId: string, uid: string): void {
     ...lastAccountByClient,
     [clientId]: uid,
   });
+  dispatchStorageEvent('lastAccountByClient');
+}
+
+/** Drops a signed-out account from every client's last-used entry. */
+export function forgetLastAccountForClients(uid: string): void {
+  const lastAccountByClient: Record<string, string> =
+    storage().get('lastAccountByClient') || {};
+  const remaining = Object.fromEntries(
+    Object.entries(lastAccountByClient).filter(([, value]) => value !== uid)
+  );
+  if (
+    Object.keys(remaining).length === Object.keys(lastAccountByClient).length
+  ) {
+    return;
+  }
+  storage().set('lastAccountByClient', remaining);
   dispatchStorageEvent('lastAccountByClient');
 }
