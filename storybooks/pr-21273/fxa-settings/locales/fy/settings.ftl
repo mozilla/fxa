@@ -420,6 +420,24 @@ password-strength-inline-passwords-match = Wachtwurden komme oerien
 
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Jo telefoan. Jo regels.
+# Value proposition variant. Refers to resuming browsing on another device.
+promo-qr-mobile-heading-treatment-a = Gean fierder wêr't jo bleaun wiene, wêr’t jo ek hinne gean
+# Value proposition variant. "tabs" are the open pages in a browser.
+promo-qr-mobile-heading-treatment-b = Jo ljepblêden en mear, klear op jo telefoan
+# Value proposition variant. Refers to using the same trusted browser on a phone.
+promo-qr-mobile-heading-treatment-c = De browser dy’t jo fertrouwe, op jo telefoan
+# Value proposition variant. "Different screen" refers to the phone rather than the desktop.
+promo-qr-mobile-heading-treatment-d = Deselde { -brand-firefox }. Oar skerm.
+# Value proposition variant. "stop here" means privacy protection should continue onto the phone.
+promo-qr-mobile-heading-treatment-e = Jo privacy moat hjir net ophâlde
+# Value proposition variant. Refers to keeping browsing activity private.
+promo-qr-mobile-heading-treatment-f = Hâld mear fan jo navigaasje foar josels
+# Value proposition variant. "noise" refers to distractions and clutter.
+promo-qr-mobile-heading-treatment-g = Jo telefoan kin wol wat minder rûs brûke
+# Value proposition variant. Refers to a calmer browsing experience on the phone.
+promo-qr-mobile-heading-treatment-h = Nim rêstiger navigearjen mei jo mei
+# Appears below a QR code that a user can scan to download the Firefox mobile app
+promo-qr-mobile-description-v2 = Scan om de mobile app te downloaden
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
 promo-qr-mobile-qr-alt =
     .alt = QR-koade om de mobile { -brand-firefox }-app te downloaden. Rjochtsje de kamera fan jo telefoan yn de rjochterûnderhoek fan jo skerm om de koade te scannen.
@@ -1078,6 +1096,10 @@ recent-activity-account-recovery-codes-set = Werstelkoaden ynsteld
 recent-activity-account-passkey-wrap-created = Wachtwurdkaai foar syngronisaasje ynskeakele
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
 recent-activity-account-passkey-wrap-creation-failure = Syngronisaasje ynstelle mei wachtwurdkaai mislearre
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey that could unlock the user's synced browser data had that access turned off, leaving the passkey itself usable for signing in.
+recent-activity-account-passkey-wrap-deleted = Tagong ta wachtwurdkaaisyngronisaasje fuortsmiten
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to turn off a passkey's access to the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-deletion-failure = Fuortsmiten fan tagong ta wachtwurdkaaisyngronisaasje is mislearre
 # A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
 recent-activity-account-passkey-wrap-invalidated = Wachtwurdkaai-syngronisaasjetagong fuortsmiten nei opnij ynstellen wachtwurd
 # Security event was recorded, but the activity details are unknown or not shown to user
@@ -1611,6 +1633,19 @@ index-account-delete-success = Account mei sukses fuortsmiten
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = Jo befêstigings-e-mailberjocht is sakrekt weromkaam. Hawwe jo it e-mailadres ferkeard ynfierd?
 
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+# Browser tab title.
+inline-passwordless-sync-setup-page-title = De folgjende kear it wachtwurd oerslaan?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner = Oanmeld by { -brand-firefox }
+inline-passwordless-sync-setup-heading = De folgjende kear it wachtwurd oerslaan?
+inline-passwordless-sync-setup-description = Brûk dizze wachtwurdkaai om jo flugger oan te melden.
+inline-passwordless-sync-setup-enable-button = Wachtwurdkaai ynskeakelje
+# Button label while the passkey is stored.
+inline-passwordless-sync-setup-enabling = Ynskeakelje…
+inline-passwordless-sync-setup-not-now-button = No net
+
 ## InlineRecoveryKeySetup page component
 
 inline-recovery-key-setup-create-error = Oeps! Wy koenen jo accountwerstelkaai net oanmeitsje. Probearje it letter nochris.
@@ -1894,12 +1929,10 @@ pair2-authority-sync-success-sync-settings-button = Syngronisaasje-ynstellingen
 pair2-authority-timeout-and-cancel-timeout-heading = Wolle jo dochs in apparaat ferbine?
 pair2-authority-timeout-and-cancel-timeout-description = It liket derop dat de tiid ferrûn is. Probearje it nochris as jo jo mobyl apparaat noch ferbine wolle en jo { -brand-firefox }-gegevens syngronisearje wolle.
 # Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-canceled-heading = Annulearre
+pair2-authority-timeout-and-cancel-cancelled-heading = Annulearre
 pair2-authority-timeout-and-cancel-canceled-description = As jo fan gedachten feroarje of in oar apparaat ferbine wolle, probearje it dan opnij.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Opnij probearje
-# Abandons pairing without retrying
-pair2-authority-timeout-and-cancel-cancel-button = Annulearje
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = Syngronisaasje-ynstellingen
 
@@ -1941,6 +1974,8 @@ pair2-supplicant-download-firefox-description = Download { -brand-firefox } om b
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Trochgean yn { -brand-firefox }
+# Replaces the button label while waiting for the Firefox app to take over
+pair2-supplicant-download-firefox-opening-button = { -brand-firefox } iepenje…
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -1976,7 +2011,7 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = It liket derop dat der in 
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = Besykje <b>firefox.com/pair</b> op jo kompjûter om jo mobile apparaat te ferbinen en jo { -brand-firefox }-gegevens te syngronisearjen.
 # Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-canceled-heading = Annulearre
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Annulearre
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Besykje <b>firefox.com/pair</b> op jo kompjûter om op elk winske momint in apparaat te ferbinen.
 

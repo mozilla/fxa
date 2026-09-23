@@ -866,8 +866,8 @@ recent-activity-account-passwordless-registration-complete = Jelszó nélküli f
 recent-activity-account-recovery-codes-set = Helyreállítási kódok beállítva
 recent-activity-account-passkey-wrap-created = A jelkulcs engedélyezve a szinkronizáláshoz
 recent-activity-account-passkey-wrap-creation-failure = A jelkulcsos szinkronizálás beállítása sikertelen
-recent-activity-account-passkey-wrap-deleted = A jelszószinkronizálási hozzáférés eltávolítva
-recent-activity-account-passkey-wrap-deletion-failure = A jelszószinkronizálási hozzáférés eltávolítása nem sikerült
+recent-activity-account-passkey-wrap-deleted = A jelkulcs-szinkronizálás hozzáférése eltávolítva
+recent-activity-account-passkey-wrap-deletion-failure = Nem sikerült a jelkulcs-szinkronizálási hozzáférés eltávolítása
 recent-activity-account-passkey-wrap-invalidated = A jelkulcsos szinkronizálás hozzáférése eltávolítva a jelszó-visszaállítás után
 recent-activity-unknown = Egyéb fióktevékenység
 
@@ -1219,7 +1219,7 @@ index-email-bounced = A megerősítő e-mail visszapattant. Talán elgépelte az
 
 
 inline-passwordless-sync-setup-page-title = Legközelebb kihagyja a jelszót?
-inline-passwordless-sync-setup-success-banner = Bejelentkezve itt: { -brand-firefox }
+inline-passwordless-sync-setup-success-banner = Bejelentkezve a { -brand-firefox }ba
 inline-passwordless-sync-setup-heading = Legközelebb kihagyja a jelszót?
 inline-passwordless-sync-setup-description = Használja ezt a jelkulcsot a gyorsabb bejelentkezéshez.
 inline-passwordless-sync-setup-enable-button = Jelkulcs engedélyezése
@@ -1364,17 +1364,17 @@ pair2-authority-scan-qr-heading = Olvassa le a mobileszköze csatlakoztatásáho
 pair2-authority-scan-qr-instruction = Olvassa le a QR-kódot telefonjával vagy táblagépével, és szinkronizálja a { -brand-firefox } könyvjelzőit, lapjait és egyebeit.
 pair2-authority-scan-qr-code-aria-label = QR-kód a mobileszköz csatlakoztatásához
 pair2-authority-scan-qr-help-link = Segítség a leolvasáshoz
+pair2-authority-scan-qr-skip-button = Kihagyás
 
 
-pair2-authority-sync-success-heading = Ön már szinkronizál
-pair2-authority-sync-success-description = Lapjai, könyvjelzői, jelszavai és egyebek készen állnak az összes eszközén.
-pair2-authority-sync-success-view-tabs-button = Szinkronizált lapok megtekintése
-pair2-authority-sync-success-sync-settings-button = Szinkronizálási beállítások
+pair2-authority-sync-success-heading-v2 = Az eszköze csatlakoztatva van
+pair2-authority-sync-success-description-v2 = A szinkronizálás folyamatban. Eltarthat egy ideig, amíg megjelennek a szinkronizált adatok. Nyugodtan böngésszen.
+pair2-authority-sync-success-sync-settings-button-v2 = Szinkronizálási beállítások kezelése
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Még mindig csatlakoztatni szeretne egy eszközt?
 pair2-authority-timeout-and-cancel-timeout-description = Úgy tűnik, túlléptük az időkorlátot. Próbálja újra, ha továbbra is csatlakoztatni szeretné mobileszközét, és szinkronizálni szeretné a { -brand-firefox } adatait:.
-pair2-authority-timeout-and-cancel-cancelled-heading = Lemondva
+pair2-authority-timeout-and-cancel-cancelled-heading = Megszakítva
 pair2-authority-timeout-and-cancel-canceled-description = Ha meggondolja magát, vagy egy másik eszközt szeretne csatlakoztatni, próbálja újra.
 pair2-authority-timeout-and-cancel-try-again-button = Újrapróbálkozás
 pair2-authority-timeout-and-cancel-sync-settings-button = Szinkronizálási beállítások
@@ -1402,14 +1402,13 @@ pair2-supplicant-ready-to-scan-learn-more-link = További tudnivalók
 
 
 pair2-supplicant-sync-success-heading = Az eszköze csatlakoztatva van
-pair2-supplicant-sync-success-description = A könyvjelzői, lapjai és egyebei szinkronizálva maradnak a { -brand-firefox }ban.
-pair2-supplicant-sync-success-view-tabs-button = Szinkronizált lapok megtekintése
-pair2-supplicant-sync-success-sync-settings-button = Szinkronizálási beállítások
+pair2-supplicant-sync-success-description-v2 = A szinkronizálás folyamatban. Eltarthat egy ideig, amíg megjelennek a szinkronizált adatok. Nyugodtan böngésszen.
+pair2-supplicant-sync-success-sync-settings-button-v2 = Szinkronizálási beállítások kezelése
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Úgy tűnik, túlléptük az időkorlátot
 pair2-supplicant-timeout-and-cancel-timeout-description = A mobileszköz csatlakoztatásához és a { -brand-firefox } adatainak szinkronizálásához keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén.
-pair2-supplicant-timeout-and-cancel-cancelled-heading = Lemondva
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Megszakítva
 pair2-supplicant-timeout-and-cancel-canceled-description = Eszköz csatlakoztatásához keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén.
 
 

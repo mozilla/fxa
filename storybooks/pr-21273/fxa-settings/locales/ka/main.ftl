@@ -863,6 +863,8 @@ recent-activity-account-passwordless-registration-complete = უპაროლ�
 recent-activity-account-recovery-codes-set = აღდგენის კოდთა ნაკრები
 recent-activity-account-passkey-wrap-created = საშვი ამოქმედებულია დასინქრონებისთვის
 recent-activity-account-passkey-wrap-creation-failure = დასინქრონების გამართვა საშვით ვერ მოხერხდა
+recent-activity-account-passkey-wrap-deleted = საშვით სინქრონიზაციასთან წვდომა მოცილებულია
+recent-activity-account-passkey-wrap-deletion-failure = საშვით სინქრონიზაციასთან წვდომა ვერ მოხერხდა
 recent-activity-account-passkey-wrap-invalidated = საშვით დასინქრონებასთან წვდომა გაუქმებულია პაროლის განულების შემდეგ
 recent-activity-unknown = სხვა მოქმედებები ანგარიშზე
 
@@ -1211,6 +1213,15 @@ index-account-delete-success = ანგარიში წარმატებ
 index-email-bounced = დადასტურების გამოგზავნილი წერილი ელფოსტაზე უარყოფილია. მისამართი მცდარბეჭდილი ხომ არაა?
 
 
+inline-passwordless-sync-setup-page-title = გსურთ პაროლის არიდება შემდეგ ჯერზე?
+inline-passwordless-sync-setup-success-banner = შესულია { -brand-firefox }-ში
+inline-passwordless-sync-setup-heading = გსურთ პაროლის არიდება შემდეგ ჯერზე?
+inline-passwordless-sync-setup-description = გამოიყენეთ ეს საშვი ანგარიშზე უფრო სწრაფი შესვლისთვის.
+inline-passwordless-sync-setup-enable-button = საშვის ჩართვა
+inline-passwordless-sync-setup-enabling = ირთვება…
+inline-passwordless-sync-setup-not-now-button = ახლა არა
+
+
 inline-recovery-key-setup-create-error = უჰ! ანგარიშის აღდგენის გასაღების შექმნა ვერ ხერხდება. მოგვიანებით სცადეთ.
 inline-recovery-key-setup-recovery-created = ანგარიშის აღდგენის გასაღები შექმნილია
 inline-recovery-key-setup-download-header = დაიცავით თქვენი ანგარიში
@@ -1348,16 +1359,17 @@ pair2-authority-scan-qr-heading = წააკითხეთ მობილუ
 pair2-authority-scan-qr-instruction = წააკითხეთ QR-კოდი ტელეფონით ან პლანშეტით, რომ დაასინქრონოთ { -brand-firefox } არსებული სანიშნებით, ჩანართებითა თუ სხვ.
 pair2-authority-scan-qr-code-aria-label = QR-კოდი მობილურ მოწყობილობასთან დასაკავშირებლად
 pair2-authority-scan-qr-help-link = დახმარება წაკითხვის ხარვეზისას
+pair2-authority-scan-qr-skip-button = ამჟამად გამოტოვება
 
 
-pair2-authority-sync-success-heading = დასინქრონებულია
-pair2-authority-sync-success-description = თქვენი ჩანართები, სანიშნები, პაროლები თუ სხვ. მზადაა სარგებლობისთვის თქვენს მოწყობილობებზე.
-pair2-authority-sync-success-view-tabs-button = დასინქ. ჩანართების ნახვა
-pair2-authority-sync-success-sync-settings-button = სინქრონიზაციის პარამეტრები
+pair2-authority-sync-success-heading-v2 = მოწყობილობა დაკავშირებულია
+pair2-authority-sync-success-description-v2 = სინქრონიზაცია მიმდინარეობს. დასინქრონებული მონაცემების გამოჩენამ შეიძლება გარკვეულ ხანს გასტანოს. ამასობაში შეგიძლიათ განაგრძოთ გვერდების მონახულება.
+pair2-authority-sync-success-sync-settings-button-v2 = სინქრონიზაციის პარამეტრების მართვა
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = კიდევ გსურთ მოწყობილობის დაკავშირება?
 pair2-authority-timeout-and-cancel-timeout-description = როგორც ჩანს, დრო ამოიწურა. სცადეთ ხელახლა, თუ კვლავ გსურთ თქვენი მობილური მოწყობილობის დაკავშირება, რომ დაასინქრონოთ { -brand-firefox } მონაცემებიანად.
+pair2-authority-timeout-and-cancel-cancelled-heading = გაუქმებულია
 pair2-authority-timeout-and-cancel-canceled-description = თუ გადაიფიქრებთ ან გსურთ სხვა მოწყობილობის დაკავშირება, კვლავ სცადეთ.
 pair2-authority-timeout-and-cancel-try-again-button = ხელახლა ცდა
 pair2-authority-timeout-and-cancel-sync-settings-button = სინქრონიზაციის პარამეტრები
@@ -1385,13 +1397,13 @@ pair2-supplicant-ready-to-scan-learn-more-link = ვრცლად
 
 
 pair2-supplicant-sync-success-heading = მოწყობილობა დაკავშირებულია
-pair2-supplicant-sync-success-description = თქვენს სანიშნებს, ჩანართებს თუ სხვა მონაცემებს ასინქრონებს { -brand-firefox }.
-pair2-supplicant-sync-success-view-tabs-button = დასინქ. ჩანართების ნახვა
-pair2-supplicant-sync-success-sync-settings-button = სინქრონიზაციის პარამეტრები
+pair2-supplicant-sync-success-description-v2 = სინქრონიზაცია მიმდინარეობს. დასინქრონებული მონაცემების გამოჩენამ შეიძლება გარკვეულ ხანს გასტანოს. ამასობაში შეგიძლიათ განაგრძოთ გვერდების მონახულება.
+pair2-supplicant-sync-success-sync-settings-button-v2 = სინქრონიზაციის პარამეტრების მართვა
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = როგორც ჩანს, დრო ამოიწურა
 pair2-supplicant-timeout-and-cancel-timeout-description = მობილური მოწყობილობის დასაკავშირებლად, რომ დასინქრონდეს { -brand-firefox } მონაცემებიანად, ინახულეთ გვერდი <b>firefox.com/pair</b> თქვენს კომპიუტერში.
+pair2-supplicant-timeout-and-cancel-cancelled-heading = გაუქმებულია
 pair2-supplicant-timeout-and-cancel-canceled-description = მოწყობილობის დასაკავშირებლად ნებისმიერ დროს, ინახულეთ გვერდი <b>firefox.com/pair</b> თქვენს კომპიუტერში.
 
 

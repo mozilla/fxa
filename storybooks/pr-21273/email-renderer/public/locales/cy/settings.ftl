@@ -1658,8 +1658,8 @@ inline-passwordless-sync-setup-page-title = Hepgor y cyfrinair tro nesaf?
 # Success banner after signing in.
 inline-passwordless-sync-setup-success-banner = Wedi mewngofnodi i { -brand-firefox }
 inline-passwordless-sync-setup-heading = Hepgor y cyfrinair tro nesaf?
-inline-passwordless-sync-setup-description = Defnyddiwch y cyfrinair hwn i fewngofnodi'n gyflymach.
-inline-passwordless-sync-setup-enable-button = Galluogi cyfrinair
+inline-passwordless-sync-setup-description = Defnyddiwch y cyfrinallwedd hwn i fewngofnodi'n gyflymach.
+inline-passwordless-sync-setup-enable-button = Galluogi cyfrinallwedd
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Wrthi'n galluogi…
 inline-passwordless-sync-setup-not-now-button = Nid nawr
@@ -1925,18 +1925,18 @@ pair2-authority-scan-qr-instruction = Sganiwch y cod QR gyda'ch ffôn neu dabled
 pair2-authority-scan-qr-code-aria-label = Cod QR i gysylltu eich dyfais symudol
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Cael help i sganio
+# Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
+pair2-authority-scan-qr-skip-button = Hepgor am nawr
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
-## It confirms that sync is on and offers the follow-up actions.
+## It confirms that sync is on and links to sync settings.
 
-# "syncing" here means copying data between the user's devices
-pair2-authority-sync-success-heading = Rydych wrthi'n cydweddu
-pair2-authority-sync-success-description = Mae eich tabiau, nodau tudalen, cyfrineiriau, a mwy yn barod ar draws eich dyfeisiau.
-# Opens the tabs that are open on the user's other synced devices
-pair2-authority-sync-success-view-tabs-button = Gweld tabiau wedi'u cydweddu
+pair2-authority-sync-success-heading-v2 = Mae eich dyfais wedi'i gysylltu
+# "Syncing" here means copying data between the user's devices
+pair2-authority-sync-success-description-v2 = Wrthi'n cydweddu. Gall gymryd peth amser i'ch data wedi'i gydweddu ymddangos. Mae croeso i chi barhau i bori.
 # Opens the browser settings that control what is synced
-pair2-authority-sync-success-sync-settings-button = Gosodiadau cydweddu
+pair2-authority-sync-success-sync-settings-button-v2 = Rheoli gosodiadau cydweddu
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1947,7 +1947,7 @@ pair2-authority-sync-success-sync-settings-button = Gosodiadau cydweddu
 pair2-authority-timeout-and-cancel-timeout-heading = Dal eisiau cysylltu dyfais?
 pair2-authority-timeout-and-cancel-timeout-description = Mae'n edrych fel bod ein amser wedi dod i ben. Ceisiwch eto os ydych dal eisiau cysylltu eich dyfais symudol a chydweddu eich data { -brand-firefox }.
 # Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-cancelled-heading = Wedi'i Ganslo
+pair2-authority-timeout-and-cancel-cancelled-heading = Wedi'i Ddiddymu
 pair2-authority-timeout-and-cancel-canceled-description = Os ydych chi'n newid eich meddwl neu eisiau cysylltu dyfais wahanol, ceisiwch eto.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Ceisiwch eto
@@ -2012,11 +2012,10 @@ pair2-supplicant-ready-to-scan-learn-more-link = Dysgu rhagor
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Mae eich dyfais wedi'i gysylltu
-pair2-supplicant-sync-success-description = Bydd eich nodau tudalen, tabiau a mwy yn aros wedi'u cydweddu yn { -brand-firefox }.
-# Opens the view listing tabs open on the user's other synced devices
-pair2-supplicant-sync-success-view-tabs-button = Gweld tabiau wedi'u cydweddu
+# "Syncing" here means copying data between the user's devices
+pair2-supplicant-sync-success-description-v2 = Wrthi'n cydweddu. Gall gymryd peth amser i'ch data wedi'i gydweddu ymddangos. Mae croeso i chi barhau i bori.
 # Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button = Gosodiadau cydweddu
+pair2-supplicant-sync-success-sync-settings-button-v2 = Rheoli gosodiadau cydweddu
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2029,7 +2028,7 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Mae'n edrych fel bod ein a
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = I gysylltu eich dyfais symudol a chydweddu eich data { -brand-firefox }, ewch i <b>firefox.com/pair</b> ar eich cyfrifiadur.
 # Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-cancelled-heading = Wedi'i Ganslo
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Wedi'i Ddiddymu
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = I gysylltu dyfais unrhyw bryd, ewch i <b>firefox.com/pair</b> ar eich cyfrifiadur.
 

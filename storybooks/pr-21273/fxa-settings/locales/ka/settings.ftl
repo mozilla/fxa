@@ -1094,6 +1094,10 @@ recent-activity-account-recovery-codes-set = აღდგენის კოდ�
 recent-activity-account-passkey-wrap-created = საშვი ამოქმედებულია დასინქრონებისთვის
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
 recent-activity-account-passkey-wrap-creation-failure = დასინქრონების გამართვა საშვით ვერ მოხერხდა
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey that could unlock the user's synced browser data had that access turned off, leaving the passkey itself usable for signing in.
+recent-activity-account-passkey-wrap-deleted = საშვით სინქრონიზაციასთან წვდომა მოცილებულია
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to turn off a passkey's access to the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-deletion-failure = საშვით სინქრონიზაციასთან წვდომა ვერ მოხერხდა
 # A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
 recent-activity-account-passkey-wrap-invalidated = საშვით დასინქრონებასთან წვდომა გაუქმებულია პაროლის განულების შემდეგ
 # Security event was recorded, but the activity details are unknown or not shown to user
@@ -1625,6 +1629,19 @@ index-account-delete-success = ანგარიში წარმატებ
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = დადასტურების გამოგზავნილი წერილი ელფოსტაზე უარყოფილია. მისამართი მცდარბეჭდილი ხომ არაა?
 
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+# Browser tab title.
+inline-passwordless-sync-setup-page-title = გსურთ პაროლის არიდება შემდეგ ჯერზე?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner = შესულია { -brand-firefox }-ში
+inline-passwordless-sync-setup-heading = გსურთ პაროლის არიდება შემდეგ ჯერზე?
+inline-passwordless-sync-setup-description = გამოიყენეთ ეს საშვი ანგარიშზე უფრო სწრაფი შესვლისთვის.
+inline-passwordless-sync-setup-enable-button = საშვის ჩართვა
+# Button label while the passkey is stored.
+inline-passwordless-sync-setup-enabling = ირთვება…
+inline-passwordless-sync-setup-not-now-button = ახლა არა
+
 ## InlineRecoveryKeySetup page component
 
 inline-recovery-key-setup-create-error = უჰ! ანგარიშის აღდგენის გასაღების შექმნა ვერ ხერხდება. მოგვიანებით სცადეთ.
@@ -1886,18 +1903,18 @@ pair2-authority-scan-qr-instruction = წააკითხეთ QR-კოდ�
 pair2-authority-scan-qr-code-aria-label = QR-კოდი მობილურ მოწყობილობასთან დასაკავშირებლად
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = დახმარება წაკითხვის ხარვეზისას
+# Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
+pair2-authority-scan-qr-skip-button = ამჟამად გამოტოვება
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
-## It confirms that sync is on and offers the follow-up actions.
+## It confirms that sync is on and links to sync settings.
 
-# "syncing" here means copying data between the user's devices
-pair2-authority-sync-success-heading = დასინქრონებულია
-pair2-authority-sync-success-description = თქვენი ჩანართები, სანიშნები, პაროლები თუ სხვ. მზადაა სარგებლობისთვის თქვენს მოწყობილობებზე.
-# Opens the tabs that are open on the user's other synced devices
-pair2-authority-sync-success-view-tabs-button = დასინქ. ჩანართების ნახვა
+pair2-authority-sync-success-heading-v2 = მოწყობილობა დაკავშირებულია
+# "Syncing" here means copying data between the user's devices
+pair2-authority-sync-success-description-v2 = სინქრონიზაცია მიმდინარეობს. დასინქრონებული მონაცემების გამოჩენამ შეიძლება გარკვეულ ხანს გასტანოს. ამასობაში შეგიძლიათ განაგრძოთ გვერდების მონახულება.
 # Opens the browser settings that control what is synced
-pair2-authority-sync-success-sync-settings-button = სინქრონიზაციის პარამეტრები
+pair2-authority-sync-success-sync-settings-button-v2 = სინქრონიზაციის პარამეტრების მართვა
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1907,6 +1924,8 @@ pair2-authority-sync-success-sync-settings-button = სინქრონიზ�
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = კიდევ გსურთ მოწყობილობის დაკავშირება?
 pair2-authority-timeout-and-cancel-timeout-description = როგორც ჩანს, დრო ამოიწურა. სცადეთ ხელახლა, თუ კვლავ გსურთ თქვენი მობილური მოწყობილობის დაკავშირება, რომ დაასინქრონოთ { -brand-firefox } მონაცემებიანად.
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-cancelled-heading = გაუქმებულია
 pair2-authority-timeout-and-cancel-canceled-description = თუ გადაიფიქრებთ ან გსურთ სხვა მოწყობილობის დაკავშირება, კვლავ სცადეთ.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = ხელახლა ცდა
@@ -1971,11 +1990,10 @@ pair2-supplicant-ready-to-scan-learn-more-link = ვრცლად
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = მოწყობილობა დაკავშირებულია
-pair2-supplicant-sync-success-description = თქვენს სანიშნებს, ჩანართებს თუ სხვა მონაცემებს ასინქრონებს { -brand-firefox }.
-# Opens the view listing tabs open on the user's other synced devices
-pair2-supplicant-sync-success-view-tabs-button = დასინქ. ჩანართების ნახვა
+# "Syncing" here means copying data between the user's devices
+pair2-supplicant-sync-success-description-v2 = სინქრონიზაცია მიმდინარეობს. დასინქრონებული მონაცემების გამოჩენამ შეიძლება გარკვეულ ხანს გასტანოს. ამასობაში შეგიძლიათ განაგრძოთ გვერდების მონახულება.
 # Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button = სინქრონიზაციის პარამეტრები
+pair2-supplicant-sync-success-sync-settings-button-v2 = სინქრონიზაციის პარამეტრების მართვა
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -1987,6 +2005,8 @@ pair2-supplicant-sync-success-sync-settings-button = სინქრონიზ
 pair2-supplicant-timeout-and-cancel-timeout-heading = როგორც ჩანს, დრო ამოიწურა
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = მობილური მოწყობილობის დასაკავშირებლად, რომ დასინქრონდეს { -brand-firefox } მონაცემებიანად, ინახულეთ გვერდი <b>firefox.com/pair</b> თქვენს კომპიუტერში.
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-cancelled-heading = გაუქმებულია
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = მოწყობილობის დასაკავშირებლად ნებისმიერ დროს, ინახულეთ გვერდი <b>firefox.com/pair</b> თქვენს კომპიუტერში.
 

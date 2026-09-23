@@ -1281,12 +1281,12 @@ pair2-authority-scan-qr-heading = 掃描後即可連結您的行動裝置
 pair2-authority-scan-qr-instruction = 使用您的手機或平板電腦掃描 QR Code，即可同步您的 { -brand-firefox } 書籤、分頁與更多資料。
 pair2-authority-scan-qr-code-aria-label = 連結您行動裝置的 QR Code
 pair2-authority-scan-qr-help-link = 獲得掃描協助
+pair2-authority-scan-qr-skip-button = 先略過
 
 
-pair2-authority-sync-success-heading = 正在同步中
-pair2-authority-sync-success-description = 您的分頁、書籤、網站密碼與更多資料已經準備好可以同步到其他裝置。
-pair2-authority-sync-success-view-tabs-button = 檢視同步的分頁
-pair2-authority-sync-success-sync-settings-button = 同步設定
+pair2-authority-sync-success-heading-v2 = 已連結您的裝置
+pair2-authority-sync-success-description-v2 = 正在同步中。可能需要一些時間才會顯示同步過來的資料，請繼續上網。
+pair2-authority-sync-success-sync-settings-button-v2 = 管理同步設定
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = 還想要連結其他裝置嗎？
@@ -1319,9 +1319,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = 更多資訊
 
 
 pair2-supplicant-sync-success-heading = 已連結您的裝置
-pair2-supplicant-sync-success-description = 您的書籤、分頁與更多資料將與 { -brand-firefox } 同步。
-pair2-supplicant-sync-success-view-tabs-button = 檢視同步的分頁
-pair2-supplicant-sync-success-sync-settings-button = 同步設定
+pair2-supplicant-sync-success-description-v2 = 正在同步中。可能需要一些時間才會顯示同步過來的資料，請繼續上網。
+pair2-supplicant-sync-success-sync-settings-button-v2 = 管理同步設定
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = 看來超出時間限制了。

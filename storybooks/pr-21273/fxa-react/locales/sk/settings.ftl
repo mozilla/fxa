@@ -1912,18 +1912,18 @@ pair2-authority-scan-qr-instruction = Naskenujte QR kód telefónom alebo tablet
 pair2-authority-scan-qr-code-aria-label = QR kód na pripojenie vášho mobilného zariadenia
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Získajte pomoc so skenovaním
+# Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
+pair2-authority-scan-qr-skip-button = Teraz preskočiť
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
-## It confirms that sync is on and offers the follow-up actions.
+## It confirms that sync is on and links to sync settings.
 
-# "syncing" here means copying data between the user's devices
-pair2-authority-sync-success-heading = Synchronizujete
-pair2-authority-sync-success-description = Vaše karty, záložky, heslá a ďalšie informácie sú k dispozícii na všetkých vašich zariadeniach.
-# Opens the tabs that are open on the user's other synced devices
-pair2-authority-sync-success-view-tabs-button = Zobraziť synchronizované karty
+pair2-authority-sync-success-heading-v2 = Vaše zariadenie je pripojené
+# "Syncing" here means copying data between the user's devices
+pair2-authority-sync-success-description-v2 = Synchronizácia prebieha. Môže chvíľu trvať, kým sa zobrazia synchronizované údaje. Zatiaľ môžete pokračovať v prehliadaní.
 # Opens the browser settings that control what is synced
-pair2-authority-sync-success-sync-settings-button = Nastavenia synchronizácie
+pair2-authority-sync-success-sync-settings-button-v2 = Spravovať nastavenia synchronizácie
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1999,11 +1999,10 @@ pair2-supplicant-ready-to-scan-learn-more-link = Ďalšie informácie
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Vaše zariadenie je pripojené
-pair2-supplicant-sync-success-description = Vaše záložky, karty a ďalšie položky zostanú synchronizované vo { -brand-firefox(case: "loc") }.
-# Opens the view listing tabs open on the user's other synced devices
-pair2-supplicant-sync-success-view-tabs-button = Zobraziť synchronizované karty
+# "Syncing" here means copying data between the user's devices
+pair2-supplicant-sync-success-description-v2 = Synchronizácia prebieha. Môže chvíľu trvať, kým sa zobrazia synchronizované údaje. Zatiaľ môžete pokračovať v prehliadaní.
 # Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button = Nastavenia synchronizácie
+pair2-supplicant-sync-success-sync-settings-button-v2 = Spravovať nastavenia synchronizácie
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,

@@ -1092,6 +1092,10 @@ recent-activity-account-recovery-codes-set = Genoprettelseskoder angivet
 recent-activity-account-passkey-wrap-created = Adgangsnøgle aktiveret til synkronisering
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
 recent-activity-account-passkey-wrap-creation-failure = Opsætning af synkronisering med adgangsnøgle mislykkedes
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey that could unlock the user's synced browser data had that access turned off, leaving the passkey itself usable for signing in.
+recent-activity-account-passkey-wrap-deleted = Adgang til synkronisering af adgangsnøgler fjernet
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to turn off a passkey's access to the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-deletion-failure = Fjernelse af adgang til synkronisering af adgangsnøgle mislykkedes
 # A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
 recent-activity-account-passkey-wrap-invalidated = Adgang til synkronisering med adgangsnøgle fjernet efter nulstilling af adgangskode
 # Security event was recorded, but the activity details are unknown or not shown to user
@@ -1624,6 +1628,19 @@ index-account-delete-success = Kontoen er slettet
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = Din bekræftelsesmail kom retur. Forkert indtastet mailadresse?
 
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+# Browser tab title.
+inline-passwordless-sync-setup-page-title = Spring adgangskoden over næste gang?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner = Logget ind på { -brand-firefox }
+inline-passwordless-sync-setup-heading = Spring adgangskoden over næste gang?
+inline-passwordless-sync-setup-description = Brug denne adgangsnøgle til at logge ind hurtigere.
+inline-passwordless-sync-setup-enable-button = Aktiver adgangsnøgle
+# Button label while the passkey is stored.
+inline-passwordless-sync-setup-enabling = Aktiverer…
+inline-passwordless-sync-setup-not-now-button = Ikke nu
+
 ## InlineRecoveryKeySetup page component
 
 inline-recovery-key-setup-create-error = Vi kunne ikke oprette din genoprettelsesnøgle til kontoen. Prøv igen senere.
@@ -1885,18 +1902,18 @@ pair2-authority-scan-qr-instruction = Skan QR-koden med din telefon eller tablet
 pair2-authority-scan-qr-code-aria-label = QR-kode til at forbinde din mobile enhed
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Få hjælp til at skanne
+# Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
+pair2-authority-scan-qr-skip-button = Hop over indtil videre
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
-## It confirms that sync is on and offers the follow-up actions.
+## It confirms that sync is on and links to sync settings.
 
-# "syncing" here means copying data between the user's devices
-pair2-authority-sync-success-heading = Du synkroniserer
-pair2-authority-sync-success-description = Dine faneblade, bogmærker, adgangskoder med mere er klar på tværs af dine enheder.
-# Opens the tabs that are open on the user's other synced devices
-pair2-authority-sync-success-view-tabs-button = Vis synkroniserede faneblade
+pair2-authority-sync-success-heading-v2 = Din enhed er forbundet
+# "Syncing" here means copying data between the user's devices
+pair2-authority-sync-success-description-v2 = Synkronisering er i gang. Det kan tage et stykke tid, før dine synkroniserede data vises. Du er velkommen til at fortsætte med at browse.
 # Opens the browser settings that control what is synced
-pair2-authority-sync-success-sync-settings-button = Indstillinger for synkronisering
+pair2-authority-sync-success-sync-settings-button-v2 = Håndter indstillinger for synkronisering
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1906,6 +1923,8 @@ pair2-authority-sync-success-sync-settings-button = Indstillinger for synkronise
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Vil du stadig forbinde en enhed?
 pair2-authority-timeout-and-cancel-timeout-description = Det ser ud til, at tidsfristen udløb. Prøv igen, hvis du stadig vil forbinde din mobile enhed og synkronisere dine { -brand-firefox }-data.
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-cancelled-heading = Annulleret
 pair2-authority-timeout-and-cancel-canceled-description = Hvis du ombestemmer dig eller ønsker at forbinde en anden enhed, så prøv igen.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Prøv igen
@@ -1950,6 +1969,8 @@ pair2-supplicant-download-firefox-description = Hent { -brand-firefox } for at s
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Fortsæt i { -brand-firefox }
+# Replaces the button label while waiting for the Firefox app to take over
+pair2-supplicant-download-firefox-opening-button = Åbner { -brand-firefox }…
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -1968,11 +1989,10 @@ pair2-supplicant-ready-to-scan-learn-more-link = Læs mere
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Din enhed er forbundet
-pair2-supplicant-sync-success-description = Dine bogmærker, faneblade med mere forbliver synkroniseret i { -brand-firefox }.
-# Opens the view listing tabs open on the user's other synced devices
-pair2-supplicant-sync-success-view-tabs-button = Vis synkroniserede faneblade
+# "Syncing" here means copying data between the user's devices
+pair2-supplicant-sync-success-description-v2 = Synkronisering er i gang. Det kan tage et stykke tid, før dine synkroniserede data vises. Du er velkommen til at fortsætte med at browse.
 # Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button = Indstillinger for synkronisering
+pair2-supplicant-sync-success-sync-settings-button-v2 = Håndter indstillinger for synkronisering
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -1984,6 +2004,8 @@ pair2-supplicant-sync-success-sync-settings-button = Indstillinger for synkronis
 pair2-supplicant-timeout-and-cancel-timeout-heading = Det ser ud til, at tidsfristen udløb
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = For at forbinde din mobile enhed og synkronisere dine { -brand-firefox }-data, besøg <b>firefox.com/pair</b> på din computer.
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Annulleret
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = For at forbinde en enhed når som helst, besøg <b>firefox.com/pair</b> på din computer.
 

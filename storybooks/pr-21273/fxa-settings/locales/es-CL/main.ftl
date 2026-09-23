@@ -1319,12 +1319,12 @@ pair2-authority-scan-qr-heading = Escanea para conectar tu dispositivo móvil
 pair2-authority-scan-qr-instruction = Escanea el código QR con tu teléfono o tablet para sincronizar tus marcadores, pestañas y más de { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = Código QR para conectar tu dispositivo móvil
 pair2-authority-scan-qr-help-link = Obtén ayuda para escanear
+pair2-authority-scan-qr-skip-button = Saltar por ahora
 
 
-pair2-authority-sync-success-heading = Estás sincronizando
-pair2-authority-sync-success-description = Tus pestañas, marcadores, contraseñas y mucho más están disponibles en todos tus dispositivos.
-pair2-authority-sync-success-view-tabs-button = Ver pestañas sincronizadas
-pair2-authority-sync-success-sync-settings-button = Ajustes de sincronización
+pair2-authority-sync-success-heading-v2 = Tu dispositivo está conectado
+pair2-authority-sync-success-description-v2 = La sincronización está en curso. Puede que tarde un poco en aparecer la información sincronizada. Puedes seguir navegando sin problemas.
+pair2-authority-sync-success-sync-settings-button-v2 = Administrar ajustes de sincronización
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = ¿Aún quieres conectar un dispositivo?
@@ -1357,9 +1357,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Aprender más
 
 
 pair2-supplicant-sync-success-heading = Tu dispositivo está conectado
-pair2-supplicant-sync-success-description = Tus marcadores, pestañas y más permanecerán sincronizados en { -brand-firefox }.
-pair2-supplicant-sync-success-view-tabs-button = Ver pestañas sincronizadas
-pair2-supplicant-sync-success-sync-settings-button = Ajustes de sincronización
+pair2-supplicant-sync-success-description-v2 = La sincronización está en curso. Puede que tarde un poco en aparecer la información sincronizada. Puedes seguir navegando sin problemas.
+pair2-supplicant-sync-success-sync-settings-button-v2 = Administrar ajustes de sincronización
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que se nos acabó el tiempo

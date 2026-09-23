@@ -1176,6 +1176,15 @@ index-account-delete-success = Kontot har tagits bort
 index-email-bounced = Ditt bekräftelsemejl har just returnerats. Har du skrivit fel e-post?
 
 
+inline-passwordless-sync-setup-page-title = Slipp lösenordet nästa gång?
+inline-passwordless-sync-setup-success-banner = Inloggad på { -brand-firefox }
+inline-passwordless-sync-setup-heading = Slippa lösenordet nästa gång?
+inline-passwordless-sync-setup-description = Använd denna nyckel för att logga in snabbare.
+inline-passwordless-sync-setup-enable-button = Aktivera lösenordsnyckel
+inline-passwordless-sync-setup-enabling = Aktiverar…
+inline-passwordless-sync-setup-not-now-button = Inte nu
+
+
 inline-recovery-key-setup-create-error = Hoppsan! Vi kunde inte skapa din kontoåterställningsnyckel. Försök igen senare.
 inline-recovery-key-setup-recovery-created = Kontoåterställningsnyckel skapad
 inline-recovery-key-setup-download-header = Säkra ditt konto
@@ -1323,10 +1332,9 @@ pair2-authority-sync-success-sync-settings-button = Synkroniseringsinställninga
 
 pair2-authority-timeout-and-cancel-timeout-heading = Vill du fortfarande ansluta en enhet?
 pair2-authority-timeout-and-cancel-timeout-description = Anslutningen gjorde timeout. Försök igen om du fortfarande vill ansluta din mobila enhet och synkronisera din { -brand-firefox }-data.
-pair2-authority-timeout-and-cancel-canceled-heading = Avbruten
+pair2-authority-timeout-and-cancel-cancelled-heading = Avbruten
 pair2-authority-timeout-and-cancel-canceled-description = Om du ångrar dig eller vill ansluta en annan enhet, försök igen.
 pair2-authority-timeout-and-cancel-try-again-button = Försök igen
-pair2-authority-timeout-and-cancel-cancel-button = Avbryt
 pair2-authority-timeout-and-cancel-sync-settings-button = Synkroniseringsinställningar
 
 
@@ -1359,7 +1367,7 @@ pair2-supplicant-sync-success-sync-settings-button = Synkroniseringsinställning
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Vi gjorde timeout
 pair2-supplicant-timeout-and-cancel-timeout-description = För att ansluta din mobila enhet och synkronisera din { -brand-firefox }-data, besök <b>firefox.com/pair</b> på din dator.
-pair2-supplicant-timeout-and-cancel-canceled-heading = Avbruten
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Avbruten
 pair2-supplicant-timeout-and-cancel-canceled-description = När du vill ansluta en enhet besöker du <b>firefox.com/pair</b> på din dator.
 
 

@@ -1326,12 +1326,12 @@ pair2-authority-scan-qr-heading = Scande pro connecter tu apparato mobile
 pair2-authority-scan-qr-instruction = Scande le codice QR con tu telephono o tabletta pro synchronisar marcapaginas, schedas, e plus de tu { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = Codice QR pro connecter tu apparato mobile
 pair2-authority-scan-qr-help-link = Obtener auxilio per le scansion
+pair2-authority-scan-qr-skip-button = Saltar pro iste momento
 
 
-pair2-authority-sync-success-heading = Tu te sta a synchronisar
-pair2-authority-sync-success-description = Tu schedas, marcapaginas, contrasignos, e plus es preste a transverso tu apparatos.
-pair2-authority-sync-success-view-tabs-button = Vider schedas synchronisate
-pair2-authority-sync-success-sync-settings-button = Configurationes del synchronisation
+pair2-authority-sync-success-heading-v2 = Tu apparato es connexe
+pair2-authority-sync-success-description-v2 = Le synchronisation es in curso. Il pote passar un poco pro apparer tu datos synchronisate. Senti te libere de continuar a navigar.
+pair2-authority-sync-success-sync-settings-button-v2 = Gerer configurationes del synchronisation
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Ancora vole tu connecter un apparato?
@@ -1364,9 +1364,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Pro saper plus
 
 
 pair2-supplicant-sync-success-heading = Tu apparato es connexe
-pair2-supplicant-sync-success-description = Tu marcapaginas, schedas, e plus stara synchronisate in { -brand-firefox }.
-pair2-supplicant-sync-success-view-tabs-button = Vider schedas synchronisate
-pair2-supplicant-sync-success-sync-settings-button = Configurationes del synchronisation
+pair2-supplicant-sync-success-description-v2 = Le synchronisation es in curso. Il pote passar un poco pro apparer tu datos synchronisate. Senti te libere de continuar a navigar.
+pair2-supplicant-sync-success-sync-settings-button-v2 = Gerer parametros de synchronisation
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Il pare que nos exiva foras tempore limite.

@@ -1202,8 +1202,8 @@ index-email-bounced = Dychwelwyd eich e-bost cadarnhau. E-bost wedi'i gamdeipio?
 inline-passwordless-sync-setup-page-title = Hepgor y cyfrinair tro nesaf?
 inline-passwordless-sync-setup-success-banner = Wedi mewngofnodi i { -brand-firefox }
 inline-passwordless-sync-setup-heading = Hepgor y cyfrinair tro nesaf?
-inline-passwordless-sync-setup-description = Defnyddiwch y cyfrinair hwn i fewngofnodi'n gyflymach.
-inline-passwordless-sync-setup-enable-button = Galluogi cyfrinair
+inline-passwordless-sync-setup-description = Defnyddiwch y cyfrinallwedd hwn i fewngofnodi'n gyflymach.
+inline-passwordless-sync-setup-enable-button = Galluogi cyfrinallwedd
 inline-passwordless-sync-setup-enabling = Wrthi'n galluogi…
 inline-passwordless-sync-setup-not-now-button = Nid nawr
 
@@ -1345,17 +1345,17 @@ pair2-authority-scan-qr-heading = Sganiwch i gysylltu eich dyfais symudol
 pair2-authority-scan-qr-instruction = Sganiwch y cod QR gyda'ch ffôn neu dabled i gydweddu nodau tudalen, tabiau a nodweddion eraill eich { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = Cod QR i gysylltu eich dyfais symudol
 pair2-authority-scan-qr-help-link = Cael help i sganio
+pair2-authority-scan-qr-skip-button = Hepgor am nawr
 
 
-pair2-authority-sync-success-heading = Rydych wrthi'n cydweddu
-pair2-authority-sync-success-description = Mae eich tabiau, nodau tudalen, cyfrineiriau, a mwy yn barod ar draws eich dyfeisiau.
-pair2-authority-sync-success-view-tabs-button = Gweld tabiau wedi'u cydweddu
-pair2-authority-sync-success-sync-settings-button = Gosodiadau cydweddu
+pair2-authority-sync-success-heading-v2 = Mae eich dyfais wedi'i gysylltu
+pair2-authority-sync-success-description-v2 = Wrthi'n cydweddu. Gall gymryd peth amser i'ch data wedi'i gydweddu ymddangos. Mae croeso i chi barhau i bori.
+pair2-authority-sync-success-sync-settings-button-v2 = Rheoli gosodiadau cydweddu
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Dal eisiau cysylltu dyfais?
 pair2-authority-timeout-and-cancel-timeout-description = Mae'n edrych fel bod ein amser wedi dod i ben. Ceisiwch eto os ydych dal eisiau cysylltu eich dyfais symudol a chydweddu eich data { -brand-firefox }.
-pair2-authority-timeout-and-cancel-cancelled-heading = Wedi'i Ganslo
+pair2-authority-timeout-and-cancel-cancelled-heading = Wedi'i Ddiddymu
 pair2-authority-timeout-and-cancel-canceled-description = Os ydych chi'n newid eich meddwl neu eisiau cysylltu dyfais wahanol, ceisiwch eto.
 pair2-authority-timeout-and-cancel-try-again-button = Ceisiwch eto
 pair2-authority-timeout-and-cancel-sync-settings-button = Gosodiadau cydweddu
@@ -1383,14 +1383,13 @@ pair2-supplicant-ready-to-scan-learn-more-link = Dysgu rhagor
 
 
 pair2-supplicant-sync-success-heading = Mae eich dyfais wedi'i gysylltu
-pair2-supplicant-sync-success-description = Bydd eich nodau tudalen, tabiau a mwy yn aros wedi'u cydweddu yn { -brand-firefox }.
-pair2-supplicant-sync-success-view-tabs-button = Gweld tabiau wedi'u cydweddu
-pair2-supplicant-sync-success-sync-settings-button = Gosodiadau cydweddu
+pair2-supplicant-sync-success-description-v2 = Wrthi'n cydweddu. Gall gymryd peth amser i'ch data wedi'i gydweddu ymddangos. Mae croeso i chi barhau i bori.
+pair2-supplicant-sync-success-sync-settings-button-v2 = Rheoli gosodiadau cydweddu
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Mae'n edrych fel bod ein amser wedi dod i ben
 pair2-supplicant-timeout-and-cancel-timeout-description = I gysylltu eich dyfais symudol a chydweddu eich data { -brand-firefox }, ewch i <b>firefox.com/pair</b> ar eich cyfrifiadur.
-pair2-supplicant-timeout-and-cancel-cancelled-heading = Wedi'i Ganslo
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Wedi'i Ddiddymu
 pair2-supplicant-timeout-and-cancel-canceled-description = I gysylltu dyfais unrhyw bryd, ewch i <b>firefox.com/pair</b> ar eich cyfrifiadur.
 
 

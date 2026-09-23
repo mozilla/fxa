@@ -1337,12 +1337,12 @@ pair2-authority-scan-qr-heading = Za zwězowanje ze swójom rědom scannowaś
 pair2-authority-scan-qr-instruction = Scannujśo QR-kod ze swójom telefonom abo tabletom, aby swóje cytańske znamjenja, rejtariki { -brand-firefox } a wěcej synchronizěrował.
 pair2-authority-scan-qr-code-aria-label = QR-kod za zwězowanje z wašym mobilnym rědom
 pair2-authority-scan-qr-help-link = Pomoc za scannowanje dostaś
+pair2-authority-scan-qr-skip-button = Tuchylu pśeskócyś
 
 
-pair2-authority-sync-success-heading = Synchronizěrujośo
-pair2-authority-sync-success-description = Waše rejtariki, cytańske znamjenja, gronidła a wěcej su gótowe na wašych rědach.
-pair2-authority-sync-success-view-tabs-button = Synchronizěrowane rejtariki pokazaś
-pair2-authority-sync-success-sync-settings-button = Nastajenja synchronizacije
+pair2-authority-sync-success-heading-v2 = Waš rěd jo zwězany
+pair2-authority-sync-success-description-v2 = Synchronizacija jo pó droze. Móžo chylku traś, daniž se waše synchronizěrowane daty njezjawiju. Móžośo ga dalej pśeglědowaś.
+pair2-authority-sync-success-sync-settings-button-v2 = Nastajenja synchronizacije zastojaś
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Cośo hyšći rěd zwězaś?
@@ -1375,9 +1375,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Dalšne informacije
 
 
 pair2-supplicant-sync-success-heading = Waš rěd jo zwězany
-pair2-supplicant-sync-success-description = Waše cytańske znamjenja, rejtariki a wěcej w { -brand-firefox } synchronizěrowane wóstanu.
-pair2-supplicant-sync-success-view-tabs-button = Synchronizěrowane rejtariki pokazaś
-pair2-supplicant-sync-success-sync-settings-button = Nastajenja synchronizacije
+pair2-supplicant-sync-success-description-v2 = Synchronizacija jo pó droze. Móžo chylku traś, daniž se waše synchronizěrowane daty njezjawiju. Móžośo ga dalej pśeglědowaś.
+pair2-supplicant-sync-success-sync-settings-button-v2 = Nastajenja synchronizacije zastojaś
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zda se, až smy cas pśekšocyli

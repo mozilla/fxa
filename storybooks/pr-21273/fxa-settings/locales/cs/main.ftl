@@ -1612,12 +1612,12 @@ pair2-authority-scan-qr-heading = Naskenujte a připojte své mobilní zařízen
 pair2-authority-scan-qr-instruction = Naskenujte QR kód svým telefonem nebo tabletem a synchronizujte své záložky, panely a další data ve { -brand-firefox(case: "loc") }.
 pair2-authority-scan-qr-code-aria-label = QR kód pro připojení vašeho mobilního zařízení
 pair2-authority-scan-qr-help-link = Získat pomoc se skenováním
+pair2-authority-scan-qr-skip-button = Nyní přeskočit
 
 
-pair2-authority-sync-success-heading = Probíhá synchronizace
-pair2-authority-sync-success-description = Vaše panely, záložky, hesla a další budete mít po ruce na všech zařízeních.
-pair2-authority-sync-success-view-tabs-button = Zobrazit synchronizované panely
-pair2-authority-sync-success-sync-settings-button = Nastavení synchronizace
+pair2-authority-sync-success-heading-v2 = Vaše zařízení je připojeno
+pair2-authority-sync-success-description-v2 = Probíhá synchronizace. Zobrazení synchronizovaných dat může chvíli trvat. Mezitím můžete klidně pokračovat v prohlížení.
+pair2-authority-sync-success-sync-settings-button-v2 = Spravovat nastavení synchronizace
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Stále chcete připojit zařízení?
@@ -1650,9 +1650,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Zjistit více
 
 
 pair2-supplicant-sync-success-heading = Vaše zařízení je připojeno
-pair2-supplicant-sync-success-description = Vaše záložky, panely a další obsah zůstanou synchronizované i ve { -brand-firefox(case: "loc") }.
-pair2-supplicant-sync-success-view-tabs-button = Zobrazit synchronizované panely
-pair2-supplicant-sync-success-sync-settings-button = Nastavení synchronizace
+pair2-supplicant-sync-success-description-v2 = Probíhá synchronizace. Zobrazení synchronizovaných dat může chvíli trvat. Mezitím můžete klidně pokračovat v prohlížení.
+pair2-supplicant-sync-success-sync-settings-button-v2 = Spravovat nastavení synchronizace
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zdá se, že vypršel časový limit

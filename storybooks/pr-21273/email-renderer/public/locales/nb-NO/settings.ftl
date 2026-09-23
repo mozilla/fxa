@@ -1890,18 +1890,18 @@ pair2-authority-scan-qr-instruction = Skann QR-koden med telefonen eller nettbre
 pair2-authority-scan-qr-code-aria-label = QR-kode for å koble til mobilenheten din
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Få hjelp med skanning
+# Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
+pair2-authority-scan-qr-skip-button = Hopp over foreløpig
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
-## It confirms that sync is on and offers the follow-up actions.
+## It confirms that sync is on and links to sync settings.
 
-# "syncing" here means copying data between the user's devices
-pair2-authority-sync-success-heading = Du synkroniserer
-pair2-authority-sync-success-description = Faner, bokmerker, passord og mer er klart på alle enhetene dine.
-# Opens the tabs that are open on the user's other synced devices
-pair2-authority-sync-success-view-tabs-button = Vis synkroniserte faner
+pair2-authority-sync-success-heading-v2 = Enheten din er tilkoblet
+# "Syncing" here means copying data between the user's devices
+pair2-authority-sync-success-description-v2 = Synkronisering pågår. Det kan ta litt tid før dine synkroniserte data vises. Du kan gjerne fortsette å surfe.
 # Opens the browser settings that control what is synced
-pair2-authority-sync-success-sync-settings-button = Synkroniseringsinnstillinger
+pair2-authority-sync-success-sync-settings-button-v2 = Behandle synkroniseringsinnstillinger
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1977,11 +1977,10 @@ pair2-supplicant-ready-to-scan-learn-more-link = Les mer
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Enheten din er tilkoblet
-pair2-supplicant-sync-success-description = Bokmerkene dine, fanene og mer vil forbli synkronisert i { -brand-firefox }.
-# Opens the view listing tabs open on the user's other synced devices
-pair2-supplicant-sync-success-view-tabs-button = Vis synkroniserte faner
+# "Syncing" here means copying data between the user's devices
+pair2-supplicant-sync-success-description-v2 = Synkronisering pågår. Det kan ta litt tid før dine synkroniserte data vises. Du kan gjerne fortsette å surfe.
 # Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button = Synkroniseringsinnstillinger
+pair2-supplicant-sync-success-sync-settings-button-v2 = Behandle synkroniseringsinnstillinger
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,

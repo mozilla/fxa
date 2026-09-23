@@ -1832,18 +1832,18 @@ pair2-authority-scan-qr-instruction = יש לסרוק את קוד ה־QR באמ�
 pair2-authority-scan-qr-code-aria-label = קוד QR לחיבור המכשיר הנייד שלך
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = קבלת עזרה בסריקה
+# Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
+pair2-authority-scan-qr-skip-button = דילוג לבינתיים
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
-## It confirms that sync is on and offers the follow-up actions.
+## It confirms that sync is on and links to sync settings.
 
-# "syncing" here means copying data between the user's devices
-pair2-authority-sync-success-heading = הסנכרון פעיל
-pair2-authority-sync-success-description = הלשוניות, הסימניות, הססמאות שלך ועוד מוכנים בכל המכשירים שלך.
-# Opens the tabs that are open on the user's other synced devices
-pair2-authority-sync-success-view-tabs-button = הצגת הלשוניות המסונכרנות
+pair2-authority-sync-success-heading-v2 = המכשיר שלך מחובר
+# "Syncing" here means copying data between the user's devices
+pair2-authority-sync-success-description-v2 = הסנכרון בתהליך. ייתכן שייקח זמן מה עד שהנתונים המסונכרנים שלך יופיעו. לבינתיים אפשר להרגיש חופשי להמשיך לגלוש.
 # Opens the browser settings that control what is synced
-pair2-authority-sync-success-sync-settings-button = הגדרות סנכרון
+pair2-authority-sync-success-sync-settings-button-v2 = ניהול הגדרות סנכרון
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1919,11 +1919,10 @@ pair2-supplicant-ready-to-scan-learn-more-link = מידע נוסף
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = המכשיר שלך מחובר
-pair2-supplicant-sync-success-description = הסימניות, הלשוניות ועוד שלך יישארו מסונכרנים ב־{ -brand-firefox }.
-# Opens the view listing tabs open on the user's other synced devices
-pair2-supplicant-sync-success-view-tabs-button = הצגת הלשוניות המסונכרנות
+# "Syncing" here means copying data between the user's devices
+pair2-supplicant-sync-success-description-v2 = הסנכרון בתהליך. ייתכן שייקח זמן מה עד שהנתונים המסונכרנים שלך יופיעו. לבינתיים אפשר להרגיש חופשי להמשיך לגלוש.
 # Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button = הגדרות סנכרון
+pair2-supplicant-sync-success-sync-settings-button-v2 = ניהול הגדרות סנכרון
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,

@@ -1321,12 +1321,12 @@ pair2-authority-scan-qr-heading = Escanear para conectar tu dispositivo móvil
 pair2-authority-scan-qr-instruction = Escaneá el código QR con tu teléfono o tablet para sincronizar tus marcadores de{ -brand-firefox }, pestañas y más.
 pair2-authority-scan-qr-code-aria-label = Código QR para conectar tu dispositivo móvil
 pair2-authority-scan-qr-help-link = Ayuda para escanear
+pair2-authority-scan-qr-skip-button = Saltar por ahora
 
 
-pair2-authority-sync-success-heading = Estás sincronizando
-pair2-authority-sync-success-description = Tus pestañas, marcadores, contraseñas y más están listos en todos tus dispositivos.
-pair2-authority-sync-success-view-tabs-button = Ver pestañas sincronizadas
-pair2-authority-sync-success-sync-settings-button = Configuración de Sync
+pair2-authority-sync-success-heading-v2 = Tu dispositivo está conectado
+pair2-authority-sync-success-description-v2 = La sincronización está en curso. Es posible que los datos sincronizados tarden un poco en aparecer. Mientras tanto, podés seguir navegando.
+pair2-authority-sync-success-sync-settings-button-v2 = Administrar configuración de sincronización
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = ¿Todavía querés conectar un dispositivo?
@@ -1359,9 +1359,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Conocer más
 
 
 pair2-supplicant-sync-success-heading = Tu dispositivo está conectado
-pair2-supplicant-sync-success-description = Tus marcadores, pestañas y más permanecerán sincronizados en { -brand-firefox }.
-pair2-supplicant-sync-success-view-tabs-button = Ver pestañas sincronizadas
-pair2-supplicant-sync-success-sync-settings-button = Configuración de Sync
+pair2-supplicant-sync-success-description-v2 = La sincronización está en curso. Es posible que los datos sincronizados tarden un poco en aparecer. Mientras tanto, podés seguir navegando.
+pair2-supplicant-sync-success-sync-settings-button-v2 = Administrar configuración de sincronización
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que se agotó el tiempo de espera

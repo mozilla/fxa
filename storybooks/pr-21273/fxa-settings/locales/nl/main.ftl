@@ -1323,12 +1323,12 @@ pair2-authority-scan-qr-heading = Scan om uw mobiele apparaat te verbinden
 pair2-authority-scan-qr-instruction = Scan de QR-code met uw telefoon of tablet om uw { -brand-firefox }-bladwijzers, tabbladen en meer te synchroniseren.
 pair2-authority-scan-qr-code-aria-label = QR-code om uw mobiele apparaat te verbinden
 pair2-authority-scan-qr-help-link = Hulp bij scannen ontvangen
+pair2-authority-scan-qr-skip-button = Voorlopig overslaan
 
 
-pair2-authority-sync-success-heading = U synchroniseert
-pair2-authority-sync-success-description = Uw tabbladen, bladwijzers, wachtwoorden en meer staan klaar op al uw apparaten.
-pair2-authority-sync-success-view-tabs-button = Gesynchroniseerde tabbladen bekijken
-pair2-authority-sync-success-sync-settings-button = Synchronisatie-instellingen
+pair2-authority-sync-success-heading-v2 = Uw apparaat is verbonden
+pair2-authority-sync-success-description-v2 = De synchronisatie is gestart. Het kan even duren voordat uw gesynchroniseerde gegevens verschijnen. U kunt ondertussen gewoon verder surfen.
+pair2-authority-sync-success-sync-settings-button-v2 = Synchronisatie-instellingen beheren
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Wilt u toch een apparaat verbinden?
@@ -1361,9 +1361,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Meer info
 
 
 pair2-supplicant-sync-success-heading = Uw apparaat is verbonden
-pair2-supplicant-sync-success-description = Uw bladwijzers, tabbladen en meer blijven in { -brand-firefox } gesynchroniseerd.
-pair2-supplicant-sync-success-view-tabs-button = Gesynchroniseerde tabbladen bekijken
-pair2-supplicant-sync-success-sync-settings-button = Synchronisatie-instellingen
+pair2-supplicant-sync-success-description-v2 = De synchronisatie is gestart. Het kan even duren voordat uw gesynchroniseerde gegevens verschijnen. U kunt ondertussen gewoon verder surfen.
+pair2-supplicant-sync-success-sync-settings-button-v2 = Synchronisatie-instellingen beheren
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Het lijkt erop dat er een time-out is opgetreden
