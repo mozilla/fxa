@@ -51,7 +51,7 @@ export class UsageService {
       id: ingestUsageRequest.id,
       clientId,
       slug: meter.slug,
-      userIdentifier: ingestUsageRequest.userIdentifier,
+      subject: ingestUsageRequest.subject,
       amount: ingestUsageRequest.amount,
       timestamp: ingestUsageRequest.timestamp ?? now.toISOString(),
     });
@@ -81,12 +81,12 @@ export class UsageService {
       this.meteringEventsManager.sumUsage({
         clientId,
         slug: params.slug,
-        subject: params.userIdentifier,
+        subject: params.subject,
         from: windowStart,
         to: windowEnd,
       }),
       this.usageGrantsManager.getActiveGrantedAmount(
-        params.userIdentifier,
+        params.subject,
         params.slug,
         now
       ),
@@ -109,8 +109,8 @@ export class UsageService {
     const starts = await this.meteringSweepManager.findSessionStarts({
       clientId,
       slug: params.slug,
-      subjects: [params.userIdentifier],
+      subjects: [params.subject],
     });
-    return starts.get(params.userIdentifier);
+    return starts.get(params.subject);
   }
 }

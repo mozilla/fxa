@@ -22,7 +22,7 @@ import {
 import { isUsageGrantActive } from './utils/isUsageGrantActive';
 
 export interface CreateUsageGrantData {
-  userIdentifier: string;
+  subject: string;
   slug: string;
   amount: number;
   grantedBy: string;
@@ -45,7 +45,7 @@ export class UsageGrantsManager {
 
   async createGrant(data: CreateUsageGrantData): Promise<UsageGrantRecord> {
     const record: NewUsageGrant = {
-      userIdentifier: data.userIdentifier,
+      subject: data.subject,
       slug: data.slug,
       amount: data.amount,
       grantedBy: data.grantedBy,
@@ -57,10 +57,10 @@ export class UsageGrantsManager {
   }
 
   async listGrants(
-    userIdentifier: string,
+    subject: string,
     slug?: string
   ): Promise<UsageGrantRecord[]> {
-    const grants = await getUsageGrants(this.collectionRef, userIdentifier);
+    const grants = await getUsageGrants(this.collectionRef, subject);
     return slug === undefined
       ? grants
       : grants.filter((grant) => grant.slug === slug);
@@ -71,11 +71,11 @@ export class UsageGrantsManager {
   }
 
   async getActiveGrantedAmount(
-    userIdentifier: string,
+    subject: string,
     slug: string,
     date: Date
   ): Promise<number> {
-    const grants = await getUsageGrants(this.collectionRef, userIdentifier);
+    const grants = await getUsageGrants(this.collectionRef, subject);
     return grants
       .filter(
         (grant) =>

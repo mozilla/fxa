@@ -58,9 +58,9 @@ export class UsageGrantsController {
   @Post()
   @HttpCode(201)
   @ApiOperation({
-    summary: 'Grant additional usage to a user',
+    summary: 'Grant additional usage to a subject',
     description:
-      'Grants additional usage against a meter for a user, raising the effective limit ' +
+      'Grants additional usage against a meter for a subject, raising the effective limit ' +
       'reported by usage queries. Requires a valid metering service credential.',
   })
   @ApiBody({ schema: zodToOpenApi(createUsageGrantRequestSchema) })
@@ -100,18 +100,19 @@ export class UsageGrantsController {
     });
   }
 
-  @Get(':userIdentifier')
+  @Get(':subject')
   @ApiOperation({
-    summary: 'List a user’s usage grants',
+    summary: 'List a subject’s usage grants',
     description:
-      'Returns all usage grants for a user, optionally filtered by meter slug. ' +
+      'Returns all usage grants for a subject, optionally filtered by meter slug. ' +
       'Each grant includes an active flag reflecting whether it currently applies. ' +
       'Requires a valid metering service credential. Metering clients are mutually ' +
       'trusted: any authenticated client may read grants created by any other client.',
   })
   @ApiParam({
-    name: 'userIdentifier',
-    description: 'Unique identifier for the user whose grants are listed',
+    name: 'subject',
+    description:
+      'Subject whose grants are listed: a user id, device id, or any other key the relying party meters by',
   })
   @ApiQuery({
     name: 'slug',
@@ -120,13 +121,12 @@ export class UsageGrantsController {
   })
   @ApiResponse({
     status: 200,
-    description: 'The user’s usage grants',
+    description: 'The subject’s usage grants',
     schema: zodToOpenApi(listUsageGrantsResponseSchema),
   })
   @ApiResponse({
     status: 400,
-    description:
-      'Invalid parameters — userIdentifier or slug failed validation',
+    description: 'Invalid parameters — subject or slug failed validation',
   })
   @ApiResponse({
     status: 401,
@@ -138,17 +138,17 @@ export class UsageGrantsController {
   })
   @ValidateResponse(listUsageGrantsResponseSchema)
   async list(
-    @Param('userIdentifier') userIdentifier: string,
+    @Param('subject') subject: string,
     @Query('slug') slug: string | undefined,
     @CurrentMeteringClient()
     authenticatedMeteringClient: AuthenticatedMeteringClient
   ): Promise<ListUsageGrantsResponse> {
     const params = parseRequest(listUsageGrantsParamsSchema, {
-      userIdentifier,
+      subject,
       slug,
     });
     const grants = await this.usageGrantsService.listGrants(
-      params.userIdentifier,
+      params.subject,
       params.slug
     );
     return { grants };

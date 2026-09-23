@@ -24,7 +24,7 @@ export const IngestUsageRequestFactory = (
   override?: Partial<IngestUsageRequest>
 ): IngestUsageRequest => ({
   id: faker.string.uuid(),
-  userIdentifier: faker.string.uuid(),
+  subject: faker.string.uuid(),
   slug: faker.lorem.slug(),
   amount: faker.number.int({ min: 1, max: 1000 }),
   timestamp: '2026-05-15T11:00:00.000Z',
@@ -37,7 +37,7 @@ export const MeteringWireEventFactory = (
   id: faker.string.uuid(),
   clientId: faker.string.alphanumeric(8).toLowerCase(),
   slug: faker.lorem.slug(),
-  userIdentifier: faker.string.uuid(),
+  subject: faker.string.uuid(),
   amount: faker.number.int({ min: 1, max: 1000 }),
   timestamp: '2026-05-15T11:00:00.000Z',
   ...override,
@@ -70,7 +70,7 @@ export const SweepCandidateFactory = (
 export const UsageQueryParamsFactory = (
   override?: Partial<UsageQueryParams>
 ): UsageQueryParams => ({
-  userIdentifier: faker.string.uuid(),
+  subject: faker.string.uuid(),
   slug: faker.lorem.slug(),
   ...override,
 });
@@ -90,7 +90,7 @@ export const UsageQueryResponseFactory = (
 export const CreateUsageGrantRequestFactory = (
   override?: Partial<CreateUsageGrantRequest>
 ): CreateUsageGrantRequest => ({
-  userIdentifier: faker.string.uuid(),
+  subject: faker.string.uuid(),
   slug: faker.lorem.slug(),
   amount: faker.number.int({ min: 1, max: 1000 }),
   lifetime: { type: 'unending' },
@@ -101,7 +101,7 @@ export const UsageGrantRecordFactory = (
   override?: Partial<UsageGrantRecord>
 ): UsageGrantRecord => ({
   id: faker.string.uuid(),
-  userIdentifier: faker.string.uuid(),
+  subject: faker.string.uuid(),
   slug: faker.lorem.slug(),
   amount: faker.number.int({ min: 1, max: 1000 }),
   grantedBy: faker.string.uuid(),
@@ -114,7 +114,7 @@ export const UsageGrantFactory = (
   override?: Partial<UsageGrant>
 ): UsageGrant => ({
   id: faker.string.uuid(),
-  userIdentifier: faker.string.uuid(),
+  subject: faker.string.uuid(),
   slug: faker.lorem.slug(),
   amount: faker.number.int({ min: 1, max: 1000 }),
   grantedBy: faker.string.uuid(),

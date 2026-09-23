@@ -41,7 +41,7 @@ describe('UsageGrantsManager', () => {
       );
 
       await manager.createGrant({
-        userIdentifier: 'user-1',
+        subject: 'user-1',
         slug: 'tokens',
         amount: 500,
         grantedBy: 'rp-1',
@@ -59,7 +59,7 @@ describe('UsageGrantsManager', () => {
       const expiresAt = new Date('2026-06-01T00:00:00.000Z');
 
       await manager.createGrant({
-        userIdentifier: 'user-1',
+        subject: 'user-1',
         slug: 'tokens',
         amount: 500,
         grantedBy: 'rp-1',
@@ -77,7 +77,7 @@ describe('UsageGrantsManager', () => {
 
       await expect(
         manager.createGrant({
-          userIdentifier: 'user-1',
+          subject: 'user-1',
           slug: 'tokens',
           amount: 500,
           grantedBy: 'rp-1',
@@ -88,7 +88,7 @@ describe('UsageGrantsManager', () => {
   });
 
   describe('listGrants', () => {
-    it('queries by userIdentifier alone and returns all grants when no slug is given', async () => {
+    it('queries by subject alone and returns all grants when no slug is given', async () => {
       const grants = [
         UsageGrantRecordFactory({ slug: 'tokens' }),
         UsageGrantRecordFactory({ slug: 'seats' }),
@@ -180,7 +180,7 @@ describe('UsageGrantsManager', () => {
       expect(total).toBe(150);
     });
 
-    it('returns zero when the user has no grants', async () => {
+    it('returns zero when the subject has no grants', async () => {
       (getUsageGrants as jest.Mock).mockResolvedValue([]);
 
       const total = await manager.getActiveGrantedAmount(
