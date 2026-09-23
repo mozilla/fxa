@@ -1,8 +1,8 @@
 {
-  "commit": "256fc9894d6c85f6352415cd4f4e9472f5bb0315",
+  "commit": "dc8be85f7a7deb262e313cffea7d90d37fc106ec",
   "summary": "feat: add Glean metrics to the pair2 pairing flows",
   "description": "Because:\n\n* The pair2 screens ship with no metrics, so the pairing funnel is invisible on\n  both devices and on the server.\n* Nothing reported whether a QR scan reached Firefox, fell back to the app\n  store, or was swallowed by an embedded WebView.\n* Glean's automatic events report window.location.href, so the pairing channel\n  key in the URL fragment was being sent to telemetry.\n\nThis commit:\n\n* Adds data-glean-id to every action on the 12 Pair2 pages, plus\n  dtm_desktop/dtm_mobile view events carrying the interrupted-screen state that\n  the automatic view event cannot split.\n* Adds four dtm_mobile deeplink events, wired into PocPairInit, flushing pings\n  before the navigations that abandon the page.\n* Adds dtm_backend.pair_success on /oauth/authorization, which pair2 only\n  reaches once both devices have confirmed, detected by a positive test for\n  desktop Firefox so an iPad sign-in is not counted as a pairing.\n* Captures the pairing fragment at startup and removes it from the URL, keeping\n  the channel key out of telemetry while surviving the post-OAuth reload.\n* Adds session.pairing_channel_hash, sent in both the accounts-events and events\n  pings so it rides on the automatic page-load and click events too.\n* Derives it in initMetrics from a SHA-256 of the channel id, reusing the digest\n  helper the uid hash already used.\n* Resolves the channel id once at page load, from the query param on the\n  authority and the captured fragment on the supplicant, rather than reading the\n  URL live, which would repeat the FXA-14093 flow-id mismatch.\n\n  feat(settings): join pair2 metrics across devices with a hashed channel id",
-  "timestamp": 1790127402000,
+  "timestamp": 1790183350000,
   "storybooks": [
     "fxa-react",
     "fxa-settings"
