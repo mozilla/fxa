@@ -24858,17 +24858,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"checksum@npm:1.0.0":
-  version: 1.0.0
-  resolution: "checksum@npm:1.0.0"
-  dependencies:
-    optimist: "npm:~0.3.5"
-  bin:
-    checksum: bin/checksum-cli.js
-  checksum: 10c0/21b9af863d30a6bc9e9a9e0f09863a02f9b4bce1d6be442a4aa527968d3de29777480187e990bc655f8f88eeca8e70c9fbd8ab7d441f786dffe4aac17aec3687
-  languageName: node
-  linkType: hard
-
 "cheerio-select@npm:^2.1.0":
   version: 2.1.0
   resolution: "cheerio-select@npm:2.1.0"
@@ -31961,7 +31950,6 @@ __metadata:
     "@hapi/inert": "npm:7.1.1"
     "@types/sharp": "npm:^0"
     "@types/sinon": "npm:^17.0.0"
-    checksum: "npm:1.0.0"
     commander: "npm:9.3.0"
     compute-cluster: "npm:0.0.9"
     convict: "npm:^6.2.5"
@@ -42734,15 +42722,6 @@ __metadata:
     minimist: "npm:~0.0.1"
     wordwrap: "npm:~0.0.2"
   checksum: 10c0/8cb417328121e732dbfb4d94d53bb39b1406446b55323ed4ce787decc52394927e051ba879eb3ffa3171fe22a35ce13b460114b60effcead77443ee87c2f9b0f
-  languageName: node
-  linkType: hard
-
-"optimist@npm:~0.3.5":
-  version: 0.3.7
-  resolution: "optimist@npm:0.3.7"
-  dependencies:
-    wordwrap: "npm:~0.0.2"
-  checksum: 10c0/510175b89c4a2410ae0df38ce505a9a1bd4a3a4698006d976da208cd745f1fe9ac081a6f89202b4c99f9efd7a2efd84f356c28ef010921ec5f7416fef22a8a7e
   languageName: node
   linkType: hard
 
