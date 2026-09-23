@@ -10,6 +10,8 @@ export * from './lib/metering.types';
 
 export * from './lib/clickhouse.client';
 export * from './lib/clickhouse.config';
+export * from './lib/metering-firestore.config';
+export * from './lib/metering-firestore.provider';
 export * from './lib/metering-pubsub.config';
 export * from './lib/metering-pubsub.provider';
 export * from './lib/metering-redis.config';

@@ -29,6 +29,7 @@ export function setupFirestore(config: FirebaseFirestore.Settings) {
         Authorization: 'Bearer owner',
       },
       port: 9090,
+      // databaseId is omitted: the local firebase-tools emulator only serves the (default) database.
       projectId: 'demo-fxa',
       servicePath: 'localhost',
       sslCreds: grpc.credentials.createInsecure(),
@@ -43,22 +44,24 @@ export function setupFirestore(config: FirebaseFirestore.Settings) {
  */
 export const FirestoreService = Symbol('FIRESTORE');
 
+export function createFirestore(config: FirestoreConfig) {
+  const credentials =
+    config.credentials?.clientEmail && config.credentials?.privateKey
+      ? {
+          client_email: config.credentials?.clientEmail,
+          private_key: config.credentials?.privateKey,
+        }
+      : undefined;
+  const firestoreConfig: FirebaseFirestore.Settings = {
+    ...config,
+    credentials,
+  };
+  return setupFirestore(firestoreConfig);
+}
+
 export const FirestoreProvider: Provider<Firestore> = {
   provide: FirestoreService,
-  useFactory: (config: FirestoreConfig) => {
-    const credentials =
-      config.credentials?.clientEmail && config.credentials?.privateKey
-        ? {
-            client_email: config.credentials?.clientEmail,
-            private_key: config.credentials?.privateKey,
-          }
-        : undefined;
-    const firestoreConfig: FirebaseFirestore.Settings = {
-      ...config,
-      credentials,
-    };
-    return setupFirestore(firestoreConfig);
-  },
+  useFactory: createFirestore,
   inject: [FirestoreConfig],
 };
 

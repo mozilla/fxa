@@ -9,9 +9,8 @@ import {
   type Firestore,
 } from '@google-cloud/firestore';
 
-import { FirestoreService } from '@fxa/shared/db/firestore';
-
 import { MeteringConfig } from './metering.config';
+import { MeteringFirestore } from './metering-firestore.provider';
 import {
   deleteUsageGrant,
   getUsageGrants,
@@ -34,7 +33,7 @@ export interface CreateUsageGrantData {
 export class UsageGrantsManager {
   constructor(
     private readonly meteringConfig: MeteringConfig,
-    @Inject(FirestoreService) private readonly firestore: Firestore
+    @Inject(MeteringFirestore) private readonly firestore: Firestore
   ) {}
 
   get collectionRef(): CollectionReference {
