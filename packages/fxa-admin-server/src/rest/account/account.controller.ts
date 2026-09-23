@@ -521,44 +521,65 @@ export class AccountController {
   @Features(AdminPanelFeature.DisableAccount)
   @AuditLog()
   @Post('disable')
-  public async disableAccount(@Body('uid') uid: string) {
+  public async disableAccount(@Body('uid') uid: string, @Req() req: Request) {
     this.eventLogging.onEvent(EventNames.DisableLogin);
-    await this.profileClient.deleteCache(uid);
-    await this.notifier.send({
-      event: 'profileDataChange',
-      data: {
-        ts: Date.now() / 1000,
-        uid,
-      },
-    });
     const uidBuffer = uuidTransformer.to(uid);
+    // Revoke before flagging: a revocation failure then leaves the account
+    // enabled and retryable, rather than disabled with live credentials
+    // that a later enable would reactivate.
+    await this.db.revokeAccountTokens(uid);
     const result = await this.db.account
       .query()
       .update({ disabledAt: Date.now() })
       .where('uid', uidBuffer);
-    return !!result;
+    if (!result) {
+      return false;
+    }
+
+    await this.recordAccountStateChange(uid, 'account.disable', req);
+    return true;
+  }
+
+  // Best effort: the account state is already written, so a failed audit
+  // event, cache clear or notification must not fail the completed action.
+  private async recordAccountStateChange(
+    uid: string,
+    event: SecurityEventNames,
+    req: Request
+  ) {
+    const results = await Promise.allSettled([
+      this.recordAdminSecurityEvent(uid, event, req),
+      this.profileClient.deleteCache(uid),
+      this.notifier.send({
+        event: 'profileDataChange',
+        data: {
+          ts: Date.now() / 1000,
+          uid,
+        },
+      }),
+    ]);
+    for (const result of results) {
+      if (result.status === 'rejected') {
+        Sentry.captureException(result.reason, { extra: { uid, event } });
+      }
+    }
   }
 
   @Features(AdminPanelFeature.EnableAccount)
   @AuditLog()
   @Post('enable')
-  public async enableAccount(@Body('uid') uid: string) {
+  public async enableAccount(@Body('uid') uid: string, @Req() req: Request) {
     const uidBuffer = uuidTransformer.to(uid);
     const result = await this.db.account
       .query()
       .update({ disabledAt: null } as any)
       .where('uid', uidBuffer);
+    if (!result) {
+      return false;
+    }
 
-    await this.profileClient.deleteCache(uid);
-    await this.notifier.send({
-      event: 'profileDataChange',
-      data: {
-        ts: Date.now() / 1000,
-        uid,
-      },
-    });
-
-    return !!result;
+    await this.recordAccountStateChange(uid, 'account.enable', req);
+    return true;
   }
 
   @Features(AdminPanelFeature.EditLocale)

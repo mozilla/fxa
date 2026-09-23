@@ -561,6 +561,77 @@ describe('#integration - auth', () => {
       assert.equal(unverifiedAccounts.length, 3);
     });
   });
+  describe('Account.revokeTokens', () => {
+    const uid = USER_1.uid;
+    const OTHER_UID = '0123456789abcdef0123456789abcdef';
+    const SESSION_TOKEN_ID = 'aa'.repeat(32);
+    const OTHER_SESSION_TOKEN_ID = 'bb'.repeat(32);
+    const KEY_FETCH_TOKEN_ID = 'cc'.repeat(32);
+    const DEVICE_ID = 'dd'.repeat(16);
+    const revokedTables = [
+      'sessionTokens',
+      'keyFetchTokens',
+      'devices',
+      'unverifiedTokens',
+      'unblockCodes',
+    ];
+
+    async function countRows(table: string, forUid: string) {
+      const [rows] = await knex.raw(
+        `SELECT COUNT(*) AS count FROM ${table} WHERE uid = UNHEX(?)`,
+        [forUid]
+      );
+      return Number(rows[0].count);
+    }
+
+    beforeEach(async () => {
+      for (const table of revokedTables) {
+        await knex.raw(`DELETE FROM ${table}`);
+      }
+      await knex.raw(
+        'INSERT INTO sessionTokens (tokenId, tokenData, uid, createdAt) VALUES (UNHEX(?), UNHEX(?), UNHEX(?), ?)',
+        [SESSION_TOKEN_ID, SESSION_TOKEN_ID, uid, Date.now()]
+      );
+      await knex.raw(
+        'INSERT INTO sessionTokens (tokenId, tokenData, uid, createdAt) VALUES (UNHEX(?), UNHEX(?), UNHEX(?), ?)',
+        [OTHER_SESSION_TOKEN_ID, OTHER_SESSION_TOKEN_ID, OTHER_UID, Date.now()]
+      );
+      await knex.raw(
+        'INSERT INTO keyFetchTokens (tokenId, authKey, uid, keyBundle, createdAt) VALUES (UNHEX(?), UNHEX(?), UNHEX(?), UNHEX(?), ?)',
+        [KEY_FETCH_TOKEN_ID, 'ee'.repeat(32), uid, 'ff'.repeat(96), Date.now()]
+      );
+      await knex.raw(
+        "INSERT INTO devices (uid, id, sessionTokenId, nameUtf8, type, createdAt) VALUES (UNHEX(?), UNHEX(?), UNHEX(?), 'Test Device', 'mobile', ?)",
+        [uid, DEVICE_ID, SESSION_TOKEN_ID, Date.now()]
+      );
+      await knex.raw(
+        'INSERT INTO unverifiedTokens (tokenId, tokenVerificationId, uid) VALUES (UNHEX(?), UNHEX(?), UNHEX(?))',
+        [SESSION_TOKEN_ID, '11'.repeat(16), uid]
+      );
+      await knex.raw(
+        'INSERT INTO unblockCodes (uid, unblockCodeHash, createdAt) VALUES (UNHEX(?), UNHEX(?), ?)',
+        [uid, '22'.repeat(32), Date.now()]
+      );
+    });
+
+    for (const table of revokedTables) {
+      it(`deletes the account's ${table} rows`, async () => {
+        await Account.revokeTokens(uid);
+        assert.equal(await countRows(table, uid), 0);
+      });
+    }
+
+    it('leaves the account row in place', async () => {
+      await Account.revokeTokens(uid);
+      assert.isNotNull(await Account.findByUid(uid));
+    });
+
+    it("leaves other accounts' sessions untouched", async () => {
+      await Account.revokeTokens(uid);
+      assert.equal(await countRows('sessionTokens', OTHER_UID), 1);
+    });
+  });
+
   describe('Device.findByUidAndRefreshTokenId', () => {
     beforeEach(async () => {
       const testTables = [

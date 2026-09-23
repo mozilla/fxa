@@ -36,6 +36,7 @@ import {
 import { StripeHelper } from '../payments/stripe';
 import { AuthClientInfoService, AuthLogger, AuthRequest } from '../types';
 import {
+  assertAccountEnabled,
   checkBlocklists,
   deleteAccountIfUnverified,
   fetchRpCmsData,
@@ -887,9 +888,6 @@ export class AccountHandler {
         email
       );
       accountRecord = res.accountRecord;
-      if (accountRecord.disabledAt) {
-        throw error.cannotLoginWithEmail();
-      }
       // Remember whether they did a signin-unblock,
       // because we can use it to bypass token verification.
       didSigninUnblock = res.didSigninUnblock;
@@ -2090,9 +2088,7 @@ export class AccountHandler {
 
     const accountRecord = await this.db.accountRecord(email);
 
-    if (accountRecord.disabledAt) {
-      throw error.cannotLoginWithEmail();
-    }
+    assertAccountEnabled(accountRecord);
 
     if (accountRecord.verifierSetAt <= 0) {
       throw error.cannotLoginWithEmail();
@@ -2660,6 +2656,7 @@ export const accountRoutes = (
           error.cannotLoginWithSecondaryEmail,
           error.invalidUnblockCode,
           error.cannotLoginWithEmail,
+          error.accountDisabled,
           error.cannotSendEmail,
         ],
       },

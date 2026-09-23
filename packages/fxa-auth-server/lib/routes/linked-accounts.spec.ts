@@ -130,7 +130,6 @@ describe('/linked_account', () => {
   let originalFetch: typeof global.fetch;
 
   const UID = 'fxauid';
-
   beforeEach(() => {
     originalFetch = global.fetch;
   });
