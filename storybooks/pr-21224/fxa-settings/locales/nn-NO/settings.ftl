@@ -1094,6 +1094,8 @@ recent-activity-account-passkey-wrap-creation-failure = Synkroniseringsoppsett m
 recent-activity-account-passkey-wrap-deleted = Tilgang til synkronisering av passnøklar er fjerna
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to turn off a passkey's access to the user's synced browser data did not complete.
 recent-activity-account-passkey-wrap-deletion-failure = Fjerning av tilgang til synkronisering av passnøklar mislykkast
+# A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
+recent-activity-account-passkey-wrap-invalidated = Tilgang til synkronisering av passnøklar er fjerna etter tilbakestilling av passord
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Annan kontoaktivitet
 
@@ -1628,6 +1630,11 @@ index-email-bounced = Stadfestings e-posten din kom i retur. Feil i e-postadress
 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = Hoppe over passordet neste gong?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner = Logga inn på { -brand-firefox }
+inline-passwordless-sync-setup-heading = Hoppe over passordet neste gong?
+inline-passwordless-sync-setup-description = Bruk denne passnøkkelen for å logge på raskare.
+inline-passwordless-sync-setup-enable-button = Slå på passnøkkel
 inline-passwordless-sync-setup-not-now-button = Ikkje no
 
 ## InlineRecoveryKeySetup page component

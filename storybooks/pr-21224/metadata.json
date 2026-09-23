@@ -1,8 +1,8 @@
 {
-  "commit": "0ae79f5d59ee789e12d5c875222f2aec0c359d63",
+  "commit": "0c3f104856da16536a9b68480fec2653a464c17a",
   "summary": "feat(settings): delete a passkey wrap that will not open",
   "description": "Because:\n- A current wrap that will not open fails every sign-in, and a store cannot replace it.\n\nThis commit:\n- Returns dead_end for a wrap that will not open, and adds discardPasskeyWrap.\n- Deletes a dead-end wrap on desktop and stashes the opt-in material.\n- Caps it at one delete per run of dead ends per device, reporting a heal loop after that.\n- Makes no offer when the delete fails, since the store would return 235.\n\nCloses #FXA-13152",
-  "timestamp": 1790183990000,
+  "timestamp": 1790188106000,
   "storybooks": [
     "fxa-react",
     "fxa-settings"

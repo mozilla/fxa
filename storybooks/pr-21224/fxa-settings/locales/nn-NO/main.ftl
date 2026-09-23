@@ -830,6 +830,7 @@ recent-activity-account-passkey-wrap-created = Passnøkkel aktivert for synkroni
 recent-activity-account-passkey-wrap-creation-failure = Synkroniseringsoppsett med passnøkkel mislykkast
 recent-activity-account-passkey-wrap-deleted = Tilgang til synkronisering av passnøklar er fjerna
 recent-activity-account-passkey-wrap-deletion-failure = Fjerning av tilgang til synkronisering av passnøklar mislykkast
+recent-activity-account-passkey-wrap-invalidated = Tilgang til synkronisering av passnøklar er fjerna etter tilbakestilling av passord
 recent-activity-unknown = Annan kontoaktivitet
 
 
@@ -1179,6 +1180,10 @@ index-email-bounced = Stadfestings e-posten din kom i retur. Feil i e-postadress
 
 
 inline-passwordless-sync-setup-page-title = Hoppe over passordet neste gong?
+inline-passwordless-sync-setup-success-banner = Logga inn på { -brand-firefox }
+inline-passwordless-sync-setup-heading = Hoppe over passordet neste gong?
+inline-passwordless-sync-setup-description = Bruk denne passnøkkelen for å logge på raskare.
+inline-passwordless-sync-setup-enable-button = Slå på passnøkkel
 inline-passwordless-sync-setup-not-now-button = Ikkje no
 
 

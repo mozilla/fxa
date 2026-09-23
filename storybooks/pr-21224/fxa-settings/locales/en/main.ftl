@@ -1244,6 +1244,7 @@ auth-error-228 = Passkey registration failed
 auth-error-233 = To create a passkey, set up a screen lock, PIN, fingerprint, or face recognition on your device or security key. Then try again.
 auth-error-238 = Passkey challenge failed
 auth-error-239 = Sorry, we couldn’t delete your account. Please try again, or contact support if the problem persists.
+auth-error-240 = This account has been disabled
 auth-error-999 = Unexpected error
 auth-error-1001 = Login attempt cancelled
 auth-error-1002 = Session expired. Sign in to continue.
@@ -1569,6 +1570,13 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Looks like we timed out
 pair2-supplicant-timeout-and-cancel-timeout-description = To connect your mobile device and sync your { -brand-firefox } data, visit <b>firefox.com/pair</b> on your computer.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelled
 pair2-supplicant-timeout-and-cancel-canceled-description = To connect a device anytime, visit <b>firefox.com/pair</b> on your computer.
+
+
+permissions-heading = { $serviceName } wants access to:
+permissions-label-email = Email address
+permissions-label-display-name = Display name
+permissions-continue-button = Continue
+permissions-cancel-button = Cancel
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmed
 service-welcome-signin-success-banner = Signed in successfully!
