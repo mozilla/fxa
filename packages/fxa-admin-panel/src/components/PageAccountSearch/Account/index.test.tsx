@@ -588,7 +588,7 @@ it('shows "no authorizations" message when authorizations list is empty', () => 
   expect(getByTestId('account-authorizations-none')).toBeInTheDocument();
 });
 
-it('displays authorized browser services', () => {
+it('collapses authorized browser services until the summary is clicked', async () => {
   const withAuthorizations = {
     ...accountResponse,
     accountAuthorizations: [
@@ -610,14 +610,18 @@ it('displays authorized browser services', () => {
       },
     ],
   };
-  const { getAllByTestId, getByRole } = render(
-    <Account {...withAuthorizations} />
+  const user = userEvent.setup();
+  const { getByRole } = render(<Account {...withAuthorizations} />);
+
+  const sync = getByRole('cell', { name: 'sync' });
+  expect(getByRole('cell', { name: 'relay' })).toBeInTheDocument();
+  expect(sync).not.toBeVisible();
+
+  await user.click(
+    getByRole('heading', { name: /authorized browser services/i })
   );
 
-  expect(
-    getByRole('heading', { name: /authorized browser services/i })
-  ).toBeInTheDocument();
-  expect(getAllByTestId('account-authorization-service')).toHaveLength(2);
+  expect(sync).toBeVisible();
 });
 
 it('displays key-stretch-version', async () => {
