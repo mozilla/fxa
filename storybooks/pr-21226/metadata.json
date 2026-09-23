@@ -1,0 +1,10 @@
+{
+  "commit": "a5d50be3dceaa8e435fc2aa2657bf70179321df7",
+  "summary": "feat(fxa-settings): forget last-used client entries on sign-out",
+  "description": "Because:\n\n* A signed-out account should not regain its \"Last used for\" label if it signs in on the same device later\n\nThis commit:\n\n* Drops the account from every client's last-used entry in removeAccount and clearSignedInAccountUid",
+  "timestamp": 1790206165000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
