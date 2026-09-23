@@ -1,8 +1,8 @@
 {
-  "commit": "a07855962d40d2be12a538aa834c61af6dea24f4",
-  "summary": "Merge pull request #21213 from mozilla/FXA-14427",
-  "description": "fix(pair): route in-app camera v2 scans to the v2 supplicant screens",
-  "timestamp": 1790126923000,
+  "commit": "bb898bb51300e2a8b857dfa39dfbe113d3c01d6f",
+  "summary": "Merge pull request #21257 from mozilla/fxa-14470-disabled-account-enforcement",
+  "description": "feat(auth): enforce account disabled state on every sign-in path",
+  "timestamp": 1790130461000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
