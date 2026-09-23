@@ -2234,6 +2234,19 @@ pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelled
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = To connect a device anytime, visit <b>firefox.com/pair</b> on your computer.
 
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } wants access to:
+permissions-label-email = Email address
+permissions-label-display-name = Display name
+permissions-continue-button = Continue
+permissions-cancel-button = Cancel
+
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmed

@@ -1571,6 +1571,13 @@ pair2-supplicant-timeout-and-cancel-timeout-description = To connect your mobile
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelled
 pair2-supplicant-timeout-and-cancel-canceled-description = To connect a device anytime, visit <b>firefox.com/pair</b> on your computer.
 
+
+permissions-heading = { $serviceName } wants access to:
+permissions-label-email = Email address
+permissions-label-display-name = Display name
+permissions-continue-button = Continue
+permissions-cancel-button = Cancel
+
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmed
 service-welcome-signin-success-banner = Signed in successfully!
 service-welcome-vpn-heading = Next: Turn on VPN
