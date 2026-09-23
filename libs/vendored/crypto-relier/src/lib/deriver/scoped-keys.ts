@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import HKDF from 'node-hkdf';
-
 const KEY_LENGTH = 48;
 
 // The browser bundle's Buffer polyfill rejects the 'base64url' encoding name.
@@ -186,13 +184,22 @@ export class ScopedKeys {
     info: Buffer,
     keyLength: number
   ): Promise<Buffer> {
-    return new Promise((resolve) => {
-      // Safari doesn't have HKDF yet in their Web Crypto API
-      const hkdf = new HKDF('sha256', salt, initialKeyingMaterial);
+    // Web Crypto, not crypto.hkdfSync: the browser bundles map `crypto` to
+    // crypto-browserify, which has no hkdfSync. fxa-auth-client already needs
+    // subtle HKDF in the browser, so this adds no new requirement.
+    const key = await crypto.subtle.importKey(
+      'raw',
+      initialKeyingMaterial,
+      'HKDF',
+      false,
+      ['deriveBits']
+    );
+    const bits = await crypto.subtle.deriveBits(
+      { name: 'HKDF', hash: 'SHA-256', salt, info },
+      key,
+      keyLength * 8
+    );
 
-      hkdf.derive(info, keyLength, (key: any) => {
-        return resolve(key);
-      });
-    });
+    return Buffer.from(bits);
   }
 }
