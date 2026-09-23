@@ -1,8 +1,8 @@
 {
-  "commit": "df2f24ef442184f4a02f97062c98533f34cef0da",
-  "summary": "Merge pull request #21269 from mozilla/FXA-14582",
-  "description": "feat(settings): gate pairing v2 on the Firefox version per platform",
-  "timestamp": 1790181917000,
+  "commit": "605f00741b5650533d5d1e3a0d434f48365f3b9b",
+  "summary": "Merge pull request #21278 from mozilla/fxa-13924",
+  "description": "chore(deps): remove bluebird from profile-server and geodb",
+  "timestamp": 1790184394000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
