@@ -30,7 +30,6 @@
   },
   "homepage": "https://github.com/mozilla/fxa/tree/main/packages/fxa-geodb",
   "dependencies": {
-    "bluebird": "^3.7.2",
     "cron": "4.1.3",
     "mozlog": "^3.0.2"
   },

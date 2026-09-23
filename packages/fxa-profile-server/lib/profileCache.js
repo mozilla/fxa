@@ -4,7 +4,6 @@
 
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
-const P = require('./promise');
 const batch = require('./batch');
 
 // The returned profile info can vary depending on the scopes
@@ -91,11 +90,11 @@ module.exports = function profileCache(server, options) {
   );
 
   // Drop any cached profile data for the given user.
-  server.method('profileCache.drop', (uid) => {
+  server.method('profileCache.drop', async (uid) => {
     // To work transparently with hapi's caching and `getProfileCacheKey` above,
     // we make a bunch of synthetic request objects on which to drop the
     // cache, one for each possible set of scopes in the cache.
-    return P.each(CACHEABLE_SCOPES, (scope) => {
+    for (const scope of CACHEABLE_SCOPES) {
       const req = {
         auth: {
           credentials: {
@@ -104,7 +103,9 @@ module.exports = function profileCache(server, options) {
           },
         },
       };
-      return server.methods.profileCache.get.cache.drop(req);
-    });
+      await server.methods.profileCache.get.cache.drop(req);
+    }
+    // `DELETE /cache/{uid}` answers with this array.
+    return [...CACHEABLE_SCOPES];
   });
 };
