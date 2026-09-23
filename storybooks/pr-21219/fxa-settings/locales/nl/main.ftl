@@ -1327,6 +1327,7 @@ pair2-authority-scan-qr-skip-button = Voorlopig overslaan
 
 
 pair2-authority-sync-success-heading-v2 = Uw apparaat is verbonden
+pair2-authority-sync-success-description-v2 = De synchronisatie is gestart. Het kan even duren voordat uw gesynchroniseerde gegevens verschijnen. U kunt ondertussen gewoon verder surfen.
 pair2-authority-sync-success-sync-settings-button-v2 = Synchronisatie-instellingen beheren
 
 
@@ -1360,6 +1361,7 @@ pair2-supplicant-ready-to-scan-learn-more-link = Meer info
 
 
 pair2-supplicant-sync-success-heading = Uw apparaat is verbonden
+pair2-supplicant-sync-success-description-v2 = De synchronisatie is gestart. Het kan even duren voordat uw gesynchroniseerde gegevens verschijnen. U kunt ondertussen gewoon verder surfen.
 pair2-supplicant-sync-success-sync-settings-button-v2 = Synchronisatie-instellingen beheren
 
 

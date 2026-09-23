@@ -141,10 +141,14 @@ device-info-block-location-city-country = { $city }, { $country } (tahmini)
 device-info-block-location-country = { $country } (tahmini)
 device-info-block-location-unknown = Bilinmeyen konum
 device-info-browser-os = { $browserName } - { $genericOSName }
+device-info-browser-device = { $browserName } - { $deviceName }
 device-info-ip-address = IP adresi: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = Nerede olursanız olun { -brand-firefox } yanınızda
+firefox-promo-banner-mobile-description = Sekmelerinizi, yer imlerinizi ve parolalarınızı tüm cihazlarınız arasında eşitleyin. Üstelik tüm verileriniz güvenle şifrelenmiş olarak saklanır.
 firefox-promo-banner-mobile-cta = Cihaz bağlayın
+firefox-promo-banner-switch-description = { -brand-firefox }’a geçtiğinizde yer imlerinizi, parolalarınızı, geçmişinizi ve diğer verilerinizi aktararak hiç ara vermeden gezinmeye devam edebilirsiniz.
 firefox-promo-banner-switch-cta = { -brand-firefox }’a geçin
 
 
@@ -214,6 +218,8 @@ checkmark-success-icon-aria-label =
     .aria-label = Başarılı
 checkmark-enabled-icon-aria-label =
     .aria-label = Etkin
+chevron-right-icon-aria-label =
+    .aria-label = Sağ ok
 close-icon-aria-label =
     .aria-label = Mesajı kapat
 code-icon-aria-label =
@@ -328,6 +334,13 @@ password-strength-inline-passwords-match = Parolalar eşleşiyor
 
 
 promo-qr-mobile-heading = Sizin telefonunuz, sizin kurallarınız.
+promo-qr-mobile-heading-treatment-a = Nereye giderseniz gidin, kaldığınız yerden devam edin
+promo-qr-mobile-heading-treatment-b = Sekmeleriniz ve diğer verileriniz telefonunuzda sizi bekliyor
+promo-qr-mobile-heading-treatment-c = Güvendiğiniz tarayıcı artık telefonunuzda
+promo-qr-mobile-heading-treatment-d = Aynı { -brand-firefox }, başka ekran.
+promo-qr-mobile-description-v2 = Mobil uygulamayı indirmek için okutun
+promo-qr-mobile-qr-alt =
+    .alt = { -brand-firefox } mobil uygulamasını indirmek için QR kodu. Kodu okutmak için telefonunuzun kamerasını ekranınızın sağ alt köşesine doğrultun.
 
 
 account-recovery-notification-cta = Oluştur
@@ -789,6 +802,12 @@ recent-activity-account-passkey-registration-failure = Geçiş anahtarı kaydı 
 recent-activity-account-passkey-removed = Geçiş anahtarı kaldırıldı
 recent-activity-account-passkey-authentication-success = Geçiş anahtarıyla giriş tamamlandı
 recent-activity-account-passkey-authentication-failure = Geçiş anahtarıyla giriş başarısız oldu
+recent-activity-account-passwordless-login-otp-sent = Parolasız giriş kodu gönderildi
+recent-activity-account-passwordless-login-otp-verified = Parolasız giriş kodu doğrulandı
+recent-activity-account-passwordless-registration-complete = Parolasız hesap kaydı tamamlandı
+recent-activity-account-recovery-codes-set = Kurtarma kodları ayarlandı
+recent-activity-account-passkey-wrap-created = Eşitleme için geçiş anahtarı etkinleştirildi
+recent-activity-account-passkey-wrap-creation-failure = Geçiş anahtarıyla eşitleme kurulamadı
 recent-activity-unknown = Diğer hesap etkinlikleri
 
 
@@ -899,8 +918,15 @@ passkey-delete-modal-cancel-button = Vazgeç
 passkey-delete-modal-confirm-button = Geçiş anahtarını sil
 passkey-delete-success = Geçiş anahtarı silindi
 passkey-delete-error = Geçiş anahtarınız silinirken bir sorun oluştu. Birkaç dakika sonra yeniden deneyin.
+passkey-sub-row-rename-title = Geçiş anahtarını yeniden adlandır
+passkey-rename-modal-heading = Geçiş anahtarını yeniden adlandır
+passkey-rename-modal-description = Bu geçiş anahtarına yeni bir ad verin.
+passkey-rename-input-label = Geçiş anahtarı adı
 passkey-rename-save-button = Kaydet
 passkey-rename-cancel-button = Vazgeç
+passkey-rename-error-empty = Bu geçiş anahtarına bir ad verin
+passkey-rename-error-too-long = Ad 256 karakterden kısa olmalıdır.
+passkey-rename-error-invalid = Yalnızca harfler, rakamlar, noktalama işaretleri ve simgeler kullanılabilir.
 
 
 switch-turn-off = Kapat
@@ -1090,6 +1116,14 @@ index-account-delete-success = Hesap başarıyla silindi
 index-email-bounced = Onay e-postanız geri döndü. E-posta adresinizi yanlış yazmış olabilir misiniz?
 
 
+inline-passwordless-sync-setup-success-banner = { -brand-firefox }’a giriş yapıldı
+inline-passwordless-sync-setup-heading = Bir dahaki sefere parolayı atlamak ister misiniz?
+inline-passwordless-sync-setup-description = Daha hızlı giriş yapmak için bu geçiş anahtarını kullanın.
+inline-passwordless-sync-setup-enable-button = Geçiş anahtarını etkinleştir
+inline-passwordless-sync-setup-enabling = Etkinleştiriliyor…
+inline-passwordless-sync-setup-not-now-button = Şimdi değil
+
+
 inline-recovery-key-setup-create-error = Hesap kurtarma anahtarınızı oluşturamadık. Lütfen daha sonra yeniden deneyin.
 inline-recovery-key-setup-recovery-created = Hesap kurtarma anahtarı oluşturuldu
 inline-recovery-key-setup-download-header = Hesabınızın güvenliğini sağlayın
@@ -1130,6 +1164,7 @@ pair-auth-complete-manage-devices-link = Cihazları yönet
 
 
 pair-auth-complete-send-tab-heading = Sekme göndermeye hazırsınız
+pair-auth-complete-send-tab-device-connected = { $deviceOS } - { $deviceFamily } bağlandı.
 pair-auth-complete-send-tab-benefits = Açık sekmeleri, parolaları ve yer imlerini cihazlarınız arasında anında gönderebilirsiniz.
 
 
@@ -1162,6 +1197,7 @@ pair-qr-code-aria-label = QR Kodu
 
 
 pair-choice-subheader = { -brand-firefox } deneyiminizi eşitleyin
+pair-choice-description = Kayıtlı parolalarınızı, sekmelerinizi, gezinti geçmişinizi ve daha fazlasını tüm cihazlarınızda görüntüleyin.
 pair-choice-header-send-tab = Sekmeleri göndermek istediğiniz cihazda { -brand-firefox }’u indirin veya açın
 pair-choice-legend = Devam etmek için bir seçenek seçin:
 pair-choice-has-mobile-title = Mobil cihazımda { -brand-firefox } zaten yüklü
@@ -1206,22 +1242,42 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Ne yazık ki bir hata olu�
 pair-unsupported-desktop-firefox-fallback-message-v2 = Lütfen bu sekmeyi kapatıp yeniden deneyin.
 
 
+pair2-authority-approve-sign-in-heading = Giriş onaylansın mı?
+pair2-authority-approve-sign-in-confirm-button = Evet, girişi onayla
+pair2-authority-approve-sign-in-change-password = Siz değil misiniz? <changePassword>Parolanızı değiştirin</changePassword>
+
+
 pair2-authority-continue-on-mobile-heading = Mobil cihazınızdan devam edin
 pair2-authority-continue-on-mobile-description = Telefonunuzda veya tabletinizde gösterilen adımları izleyin.
 pair2-authority-continue-on-mobile-cancel-button = Vazgeç
 
 
 pair2-authority-download-firefox-heading = Eşitlemek için { -brand-firefox } tarayıcısını açın
+pair2-authority-download-firefox-instruction = Cihazlar arasında eşitlemeyi kurmak için bu cihazda { -brand-firefox }’u açıp <b>firefox.com/pair</b> adresine gidin
 pair2-authority-download-firefox-cta = { -brand-firefox }’u indir
 
 
+pair2-authority-scan-qr-heading = Mobil cihazınızı bağlamak için okutun
+pair2-authority-scan-qr-instruction = { -brand-firefox } yer imlerinizi, sekmelerinizi ve daha fazlasını eşitlemek için telefonunuz veya tabletinizle QR kodunu okutun.
+pair2-authority-scan-qr-code-aria-label = Mobil cihazınızı bağlamak için QR kodu
+pair2-authority-scan-qr-help-link = Okutma konusunda yardım alın
+pair2-authority-scan-qr-skip-button = Şimdilik geç
+
+
+pair2-authority-sync-success-heading-v2 = Cihazınız bağlandı
+pair2-authority-sync-success-description-v2 = Eşitleme sürüyor. Eşitlenen verilerinizin görünmesi biraz zaman alabilir. Bu sırada gezinmeye devam edebilirsiniz.
+pair2-authority-sync-success-sync-settings-button-v2 = Eşitleme ayarlarını yönet
+
+
 pair2-authority-timeout-and-cancel-timeout-heading = Hâlâ cihaz bağlamak istiyor musunuz?
+pair2-authority-timeout-and-cancel-cancelled-heading = Vazgeçildi
 pair2-authority-timeout-and-cancel-canceled-description = Fikrinizi değiştirirseniz veya başka bir cihaz bağlamak isterseniz yeniden deneyin.
 pair2-authority-timeout-and-cancel-try-again-button = Yeniden dene
 pair2-authority-timeout-and-cancel-sync-settings-button = Eşitleme ayarları
 
 
 pair2-supplicant-approve-sign-in-heading = Eşitlemek için son bir adım
+pair2-supplicant-approve-sign-in-instruction = Girişi bilgisayarınızdan onaylayın.
 pair2-supplicant-approve-sign-in-cancel-button = Vazgeç
 
 
@@ -1231,15 +1287,19 @@ pair2-supplicant-connect-this-device-cancel-button = Vazgeç
 
 
 pair2-supplicant-download-firefox-continue-button = { -brand-firefox } ile devam et
+pair2-supplicant-download-firefox-opening-button = { -brand-firefox } açılıyor…
 
 
+pair2-supplicant-ready-to-scan-heading = Cihaz bağlamak için
 pair2-supplicant-ready-to-scan-learn-more-link = Daha fazla bilgi al
 
 
 pair2-supplicant-sync-success-heading = Cihazınız bağlandı
+pair2-supplicant-sync-success-sync-settings-button-v2 = Eşitleme ayarlarını yönet
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zaman aşımına uğradık
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Vazgeçildi
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } onaylandı
