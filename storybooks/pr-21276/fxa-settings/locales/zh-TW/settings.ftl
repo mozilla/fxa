@@ -1861,6 +1861,18 @@ pair2-authority-scan-qr-instruction = 使用您的手機或平板電腦掃描 QR
 pair2-authority-scan-qr-code-aria-label = 連結您行動裝置的 QR Code
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = 獲得掃描協助
+# Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
+pair2-authority-scan-qr-skip-button = 先略過
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and links to sync settings.
+
+pair2-authority-sync-success-heading-v2 = 已連結您的裝置
+# "Syncing" here means copying data between the user's devices
+pair2-authority-sync-success-description-v2 = 正在同步中。可能需要一些時間才會顯示同步過來的資料，請繼續上網。
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button-v2 = 管理同步設定
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1936,6 +1948,10 @@ pair2-supplicant-ready-to-scan-learn-more-link = 更多資訊
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = 已連結您的裝置
+# "Syncing" here means copying data between the user's devices
+pair2-supplicant-sync-success-description-v2 = 正在同步中。可能需要一些時間才會顯示同步過來的資料，請繼續上網。
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button-v2 = 管理同步設定
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,

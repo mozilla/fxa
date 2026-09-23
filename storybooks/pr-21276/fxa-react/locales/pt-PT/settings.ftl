@@ -1902,7 +1902,7 @@ pair2-authority-scan-qr-code-aria-label = Código QR para ligar o seu dispositiv
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Obter ajuda para digitalizar
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
-pair2-authority-scan-qr-skip-button = Ignorar por agora
+pair2-authority-scan-qr-skip-button = Saltar por agora
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.

@@ -1244,6 +1244,7 @@ auth-error-228 = Passkey registration failed
 auth-error-233 = To create a passkey, set up a screen lock, PIN, fingerprint, or face recognition on your device or security key. Then try again.
 auth-error-238 = Passkey challenge failed
 auth-error-239 = Sorry, we couldn’t delete your account. Please try again, or contact support if the problem persists.
+auth-error-240 = This account has been disabled
 auth-error-999 = Unexpected error
 auth-error-1001 = Login attempt cancelled
 auth-error-1002 = Session expired. Sign in to continue.
@@ -1359,6 +1360,10 @@ inline-passwordless-sync-setup-description = Use this passkey to sign in faster.
 inline-passwordless-sync-setup-enable-button = Enable passkey
 inline-passwordless-sync-setup-enabling = Enabling…
 inline-passwordless-sync-setup-not-now-button = Not now
+inline-passwordless-sync-setup-success-alert = This passkey is ready for sync sign-in
+inline-passwordless-sync-setup-error-cancelled = Passkey confirmation didn’t finish
+inline-passwordless-sync-setup-error-cancelled-description = Confirm with your passkey to skip the password next time.
+inline-passwordless-sync-setup-error-generic = Something went wrong, you’ll still need to enter your password next time
 
 
 inline-recovery-key-setup-create-error = Oops! We couldn’t create your account recovery key. Please try again later.
