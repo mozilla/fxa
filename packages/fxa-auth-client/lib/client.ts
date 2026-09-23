@@ -1105,6 +1105,7 @@ export default class AuthClient {
     token: string;
     uid: string;
     hasPasskey?: boolean;
+    hasPasskeyWraps?: boolean;
   }> {
     const payload = {
       email,

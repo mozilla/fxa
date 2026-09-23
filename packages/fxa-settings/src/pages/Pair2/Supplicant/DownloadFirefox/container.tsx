@@ -18,6 +18,7 @@ import {
   HandoffPlan,
   planPairingHandoff,
 } from '../../../../lib/pairing/handoff';
+import { isPairingV2RolledOut } from '../../../../lib/pairing/v2-gate';
 import DownloadFirefox from '.';
 
 export const viewName = 'pair-supplicant-download-firefox';
@@ -59,7 +60,7 @@ export const DownloadFirefoxContainer = () => {
       // A pasted link or a restored history entry reaches this page without
       // passing through `Pair/Index`, so the gate is re-read here rather than
       // assumed from the fact we arrived.
-      iosHandoff: config.pairing.iosHandoff,
+      iosHandoff: isPairingV2RolledOut(config.pairing, 'ios'),
     });
 
     // `none` means this device has no Firefox app to open — desktop, or Firefox

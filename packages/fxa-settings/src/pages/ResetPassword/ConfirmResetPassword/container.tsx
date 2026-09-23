@@ -33,8 +33,8 @@ const ConfirmResetPasswordContainer = ({
   const ftlMsgResolver = useFtlMsgResolver();
 
   // The account isn't known until the OTP is verified, so the footer is shown
-  // unconditionally when the feature is on — except for an active Sync sign-in,
-  // where a passkey can't recover Sync data in Phase 1.
+  // unconditionally when the feature is on — except for a Sync sign-in, which
+  // needs the account's wrap status to know a passkey can recover Sync data.
   const showPasskeyOption = shouldShowPasskeyResetOption(config, {
     serviceRequiresKeys: integration.isSync(),
   });
@@ -61,6 +61,7 @@ const ConfirmResetPasswordContainer = ({
     recoveryKeyHint,
     totpExists,
     hasPasskey,
+    hasPasskeyWraps,
   }: {
     code: string;
     emailToHashWith: string;
@@ -71,6 +72,10 @@ const ConfirmResetPasswordContainer = ({
     recoveryKeyHint?: string;
     totpExists?: boolean;
   } & PasskeyResetSignals) => {
+    // Built once and spread, so a new signal is one edit rather than one per
+    // navigate target — an omission arrives undefined and fails closed silently.
+    const passkeySignals: PasskeyResetSignals = { hasPasskey, hasPasskeyWraps };
+
     if (totpExists && recoveryKeyExists === false) {
       navigateWithQuery('/confirm_totp_reset_password', {
         state: {
@@ -82,7 +87,7 @@ const ConfirmResetPasswordContainer = ({
           recoveryKeyHint,
           token,
           uid,
-          hasPasskey,
+          ...passkeySignals,
         },
         replace: true,
       });
@@ -98,7 +103,7 @@ const ConfirmResetPasswordContainer = ({
           token,
           uid,
           totpExists,
-          hasPasskey,
+          ...passkeySignals,
         },
         replace: true,
       });
@@ -112,7 +117,7 @@ const ConfirmResetPasswordContainer = ({
           recoveryKeyExists,
           token,
           uid,
-          hasPasskey,
+          ...passkeySignals,
         },
         replace: true,
       });
@@ -148,7 +153,7 @@ const ConfirmResetPasswordContainer = ({
     const options = { metricsContext };
     try {
       GleanMetrics.passwordReset.emailConfirmationSubmit();
-      const { code, emailToHashWith, token, uid, hasPasskey } =
+      const { code, emailToHashWith, token, uid, hasPasskey, hasPasskeyWraps } =
         await authClient.passwordForgotVerifyOtp(email, otpCode, options);
       const {
         exists: recoveryKeyExists,
@@ -168,6 +173,7 @@ const ConfirmResetPasswordContainer = ({
         recoveryKeyHint,
         totpExists,
         hasPasskey,
+        hasPasskeyWraps,
       });
     } catch (error) {
       // return custom error for expired or incorrect code

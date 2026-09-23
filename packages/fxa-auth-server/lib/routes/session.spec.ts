@@ -898,7 +898,7 @@ describe('/session/duplicate', () => {
 
       expect(db.createSessionToken).toHaveBeenCalledTimes(1);
       const sessionTokenOptions = db.createSessionToken.mock.calls[0][0];
-      expect(Object.keys(sessionTokenOptions).length).toBe(37);
+      expect(Object.keys(sessionTokenOptions).length).toBe(38);
       expect(sessionTokenOptions.uid).toBe('foo');
       expect(sessionTokenOptions.createdAt).toBeTruthy();
       expect(sessionTokenOptions.email).toBe('foo@example.org');
@@ -933,7 +933,7 @@ describe('/session/duplicate', () => {
 
       expect(db.createSessionToken).toHaveBeenCalledTimes(1);
       const sessionTokenOptions = db.createSessionToken.mock.calls[0][0];
-      expect(Object.keys(sessionTokenOptions).length).toBe(37);
+      expect(Object.keys(sessionTokenOptions).length).toBe(38);
       expect(sessionTokenOptions.uid).toBe('foo');
       expect(sessionTokenOptions.createdAt).toBeTruthy();
       expect(sessionTokenOptions.email).toBe('foo@example.org');

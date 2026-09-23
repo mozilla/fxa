@@ -10,7 +10,7 @@ import type { Customs, DB } from './passkeys';
 import { AuthLogger } from '../types';
 import { AppError, ERRNO } from '@fxa/accounts/errors';
 import { recordSecurityEvent } from './utils/security-event';
-import { isWrapStale, passkeyWrapsRoutes } from './passkey-wraps';
+import { passkeyWrapsRoutes } from './passkey-wraps';
 import { ConfigType } from '../../config';
 
 jest.mock('./utils/security-event', () => ({
@@ -139,7 +139,8 @@ describe('passkey wraps routes', () => {
           ),
           hpkeSealedKb: Buffer.alloc(V1_WIDTHS.hpkeSealedKb, 0x44),
         },
-        expect.any(Number)
+        expect.any(Number),
+        KEYS_CHANGED_AT
       );
     });
 
@@ -637,24 +638,6 @@ describe('passkey wraps routes', () => {
       expect(() =>
         buildDeleteRoute(disabledConfig).options.pre[0].method()
       ).toThrow();
-    });
-  });
-
-  describe('isWrapStale', () => {
-    it('is not stale when the wrap is newer than the keys', () => {
-      expect(isWrapStale(1_000, 500)).toBe(false);
-    });
-
-    it('is not stale when the two are equal', () => {
-      expect(isWrapStale(1_000, 1_000)).toBe(false);
-    });
-
-    it('is stale when the keys are newer than the wrap', () => {
-      expect(isWrapStale(500, 1_000)).toBe(true);
-    });
-
-    it('is stale when keysChangedAt is not a number', () => {
-      expect(isWrapStale(1_000, Number.NaN)).toBe(true);
     });
   });
 

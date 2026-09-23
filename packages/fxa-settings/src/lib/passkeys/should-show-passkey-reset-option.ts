@@ -5,6 +5,7 @@
 import {
   PasskeySigninFlags,
   passkeySigninFeatureEnabled,
+  passwordlessSyncEnabled,
 } from './should-show-passkey-signin';
 
 /**
@@ -21,18 +22,26 @@ import {
  *
  * Keys guard: `serviceRequiresKeys` describes the requested service (the flow) —
  * not the account — and is currently `integration.isSync()`. When the service
- * needs the account's encryption keys (Sync), a passkey authenticates but cannot
- * derive them, so the password is still required and the passkey wording is
- * suppressed. Fails closed.
+ * needs the account's encryption keys (Sync), a passkey is only an alternative
+ * to the password if the account has a key-wrap the passkey can unwrap those
+ * keys from (`hasPasskeyWraps`) AND sign-in can actually perform that unwrap
+ * (`passkeyPasswordlessSyncEnabled`). Wrap storage and wrap consumption ship
+ * under one flag but not necessarily in one release, so without the flag the
+ * footer would send a user who has forgotten their password to a passkey
+ * sign-in that asks for it again. Fails closed, so the pre-OTP pages — which
+ * don't know the account and so can't know its wraps — never show the passkey
+ * wording for Sync.
  */
 export function shouldShowPasskeyResetOption(
   config: PasskeySigninFlags,
   {
     hasPasskey,
+    hasPasskeyWraps,
     serviceRequiresKeys = false,
     requireHasPasskey = false,
   }: {
     hasPasskey?: boolean;
+    hasPasskeyWraps?: boolean;
     serviceRequiresKeys?: boolean;
     requireHasPasskey?: boolean;
   }
@@ -43,9 +52,10 @@ export function shouldShowPasskeyResetOption(
   if (requireHasPasskey && hasPasskey !== true) {
     return false;
   }
-  // TODO(FXA-14220): re-enable for Sync once passkey key-wraps can recover the
-  // account's encryption keys without the password.
-  if (serviceRequiresKeys) {
+  if (
+    serviceRequiresKeys &&
+    !(hasPasskeyWraps === true && passwordlessSyncEnabled(config))
+  ) {
     return false;
   }
   return true;

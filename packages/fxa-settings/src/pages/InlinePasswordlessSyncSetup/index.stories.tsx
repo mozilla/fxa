@@ -23,3 +23,21 @@ const handlers = {
 export const Default = () => <Subject {...handlers} />;
 
 export const Enabling = () => <Subject isEnabling {...handlers} />;
+
+export const ConfirmationDismissed = () => (
+  <Subject
+    error={{
+      type: 'warning',
+      content: {
+        localizedHeading: 'Passkey confirmation didn’t finish',
+        localizedDescription:
+          'Confirm with your passkey to skip the password next time.',
+      },
+      link: {
+        url: 'https://support.mozilla.org/kb/troubleshoot-passkey-mozilla-account',
+        localizedText: 'How to use passkeys',
+      },
+    }}
+    {...handlers}
+  />
+);

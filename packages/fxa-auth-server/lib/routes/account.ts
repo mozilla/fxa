@@ -36,6 +36,7 @@ import {
 import { StripeHelper } from '../payments/stripe';
 import { AuthClientInfoService, AuthLogger, AuthRequest } from '../types';
 import {
+  assertAccountEnabled,
   checkBlocklists,
   deleteAccountIfUnverified,
   fetchRpCmsData,
@@ -887,9 +888,6 @@ export class AccountHandler {
         email
       );
       accountRecord = res.accountRecord;
-      if (accountRecord.disabledAt) {
-        throw error.cannotLoginWithEmail();
-      }
       // Remember whether they did a signin-unblock,
       // because we can use it to bypass token verification.
       didSigninUnblock = res.didSigninUnblock;
@@ -1007,11 +1005,22 @@ export class AccountHandler {
       // If it's an email address used for testing etc,
       // we should force token verification.
       if (
-        this.config.signinConfirmation?.forcedEmailAddresses?.test(
+        this.config.signinConfirmation?.forcedSyncEmailAddresses?.test(
           account.primaryEmail.email
         )
       ) {
-        return 'email';
+        return 'syncEmail';
+      }
+      // Same forced confirmation, but the session is not `mustVerify`, so RP
+      // redirect flows outside `servicesWithEmailVerification` pass through
+      // without a code. This is the heuristic (non-Sync non-2FA) state that
+      // `skipTokenVerification` would otherwise pre-verify for new accounts.
+      if (
+        this.config.signinConfirmation?.forcedHeuristicEmailAddresses?.test(
+          account.primaryEmail.email
+        )
+      ) {
+        return 'heuristicEmail';
       }
 
       return false;
@@ -1202,7 +1211,7 @@ export class AccountHandler {
         needsVerificationId &&
         (verificationForced === 'suspect' ||
           verificationForced === 'global' ||
-          verificationForced === 'email' ||
+          verificationForced === 'syncEmail' ||
           requestHelper.wantsKeys(request));
 
       // For accounts with TOTP, we always force verifying a session.
@@ -2079,9 +2088,7 @@ export class AccountHandler {
 
     const accountRecord = await this.db.accountRecord(email);
 
-    if (accountRecord.disabledAt) {
-      throw error.cannotLoginWithEmail();
-    }
+    assertAccountEnabled(accountRecord);
 
     if (accountRecord.verifierSetAt <= 0) {
       throw error.cannotLoginWithEmail();
@@ -2649,6 +2656,7 @@ export const accountRoutes = (
           error.cannotLoginWithSecondaryEmail,
           error.invalidUnblockCode,
           error.cannotLoginWithEmail,
+          error.accountDisabled,
           error.cannotSendEmail,
         ],
       },

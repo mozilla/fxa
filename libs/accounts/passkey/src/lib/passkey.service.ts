@@ -124,6 +124,15 @@ const DISPLAY_SAFE_UNICODE_WITH_NON_BMP =
 type WrapOperation = 'store' | 'get' | 'delete';
 
 /**
+ * Whether a wrap seals a `kB` the account has since replaced.
+ *
+ * Inverted so a `NaN` keysChangedAt withholds rather than serves.
+ */
+export function isWrapStale(createdAt: number, keysChangedAt: number): boolean {
+  return !(createdAt >= keysChangedAt);
+}
+
+/**
  * Whether a stored wrap already holds exactly this envelope, which makes a
  * repeated POST idempotent rather than a conflict.
  *
@@ -789,12 +798,16 @@ export class PasskeyService {
    *
    * Idempotent: an identical payload is a no-op reported as `unchanged`, so the
    * route answers 200 without emitting an event. A different payload is a
-   * conflict and nothing is replaced, so a stale wrap is resolved by deleting it.
+   * conflict and nothing is replaced, unless the stored wrap predates
+   * `keysChangedAt`: it seals a `kB` the account no longer has and can never
+   * open again, so it is replaced.
    *
    * Does not gate on `passkeys.prfEnabled`. That column is written best-effort
    * after an assertion, so a stale `false` would reject a legitimate upgrade.
    * The route that saw the ceremony is the one that can check it.
    *
+   * @param keysChangedAt - When the account's `kB` last changed; a stored wrap
+   *   older than this is replaced rather than defended
    * @returns `created` when a row was inserted, `unchanged` when one already
    *   matched
    */
@@ -802,7 +815,8 @@ export class PasskeyService {
     uid: string,
     credentialId: string,
     envelope: PasskeyWrapEnvelope,
-    now: number
+    now: number,
+    keysChangedAt: number
   ): Promise<'created' | 'unchanged'> {
     await this.requireOwnedPasskey(uid, credentialId, 'store');
 
@@ -810,16 +824,29 @@ export class PasskeyService {
       uid,
       credentialId
     );
+    let replacedStale = false;
     if (existing) {
-      if (!isSameEnvelope(existing, envelope)) {
+      if (isSameEnvelope(existing, envelope)) {
+        this.metrics.increment('passkey.wrap.store.unchanged');
+        return 'unchanged';
+      }
+      // Without a usable keysChangedAt nothing can be judged stale, so the
+      // stored wrap is defended rather than replaced.
+      if (!Number.isFinite(keysChangedAt)) {
         throw this.wrapFailure(
           'store',
           'conflict',
           AppError.passkeyWrapConflict()
         );
       }
-      this.metrics.increment('passkey.wrap.store.unchanged');
-      return 'unchanged';
+      // The delete carries the staleness test, so it only ever removes a wrap
+      // sealing a `kB` the account has replaced. A live wrap survives and the
+      // insert below hits the primary key, which is the conflict.
+      replacedStale = await this.passkeyManager.deletePasskeyWrap(
+        uid,
+        credentialId,
+        keysChangedAt
+      );
     }
 
     try {
@@ -852,6 +879,9 @@ export class PasskeyService {
       );
     }
 
+    if (replacedStale) {
+      this.metrics.increment('passkey.wrap.store.replaced_stale');
+    }
     this.metrics.increment('passkey.wrap.store.success');
     this.log?.log('passkey.wrap.stored', { uid });
 

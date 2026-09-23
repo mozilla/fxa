@@ -145,6 +145,7 @@ export const ERRNO = {
   // Jump to 238 to leave room for future passkey errors
   PASSKEY_CHALLENGE_EXPIRED: 238,
   ACCOUNT_DELETION_FAILED: 239,
+  ACCOUNT_DISABLED: 240,
   INTERNAL_VALIDATION_ERROR: 998,
   UNEXPECTED_ERROR: 999,
 };

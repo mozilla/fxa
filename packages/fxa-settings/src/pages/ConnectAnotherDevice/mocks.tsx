@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ENTRYPOINTS } from '../../constants';
-import { getDefault } from '../../lib/config';
+import { Config, getDefault } from '../../lib/config';
 import { SignedInUser } from '../../lib/channels/firefox';
 import { AppContextValue } from '../../models';
 import { UseFxAStatusResult } from '../../lib/hooks';
@@ -86,13 +86,19 @@ export const MOCK_BROWSER_SIGNED_IN_USER: SignedInUser = {
   verified: true,
 };
 
-/** App context with the FxA-side pairing version pinned to `version`. */
-export function mockPairingAppContext(version: number): AppContextValue {
+/**
+ * App context with the FxA-side pairing version pinned to `version`, and the
+ * per-platform v2 minimums to `v2MinVersion` (none by default).
+ */
+export function mockPairingAppContext(
+  version: number,
+  v2MinVersion: Config['pairing']['v2MinVersion'] = {}
+): AppContextValue {
   const config = getDefault();
   return mockAppContext({
     config: {
       ...config,
-      pairing: { ...config.pairing, version },
+      pairing: { ...config.pairing, version, v2MinVersion },
     },
   } as AppContextValue);
 }

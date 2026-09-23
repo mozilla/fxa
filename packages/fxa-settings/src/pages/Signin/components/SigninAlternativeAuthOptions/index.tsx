@@ -21,7 +21,7 @@ import {
   useConfig,
   useFtlMsgResolver,
 } from '../../../../models';
-import { usePasskeySignIn } from '../../../../lib/passkeys/signin-flow';
+import { usePasskeySignIn } from '../../../../lib/hooks/usePasskeySignIn';
 import { shouldShowPasskeySignin } from '../../../../lib/passkeys';
 import { isWebAuthnSupported } from '../../../../lib/passkeys/webauthn';
 
@@ -152,7 +152,11 @@ const SigninAlternativeAuthOptions = ({
             ? { isLoading: passkey.isLoading, onClick: passkey.onClick }
             : undefined
         }
-        errorBanner={showPasskeySignin ? passkey.errorBanner : undefined}
+        errorBanner={
+          showPasskeySignin && passkey.banner ? (
+            <Banner {...passkey.banner} />
+          ) : undefined
+        }
         disabled={authInProgress}
         {...{ viewName, flowQueryParams }}
       />

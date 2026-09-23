@@ -23,7 +23,7 @@ import {
   useAuthClient,
   useConfig,
 } from '../../models';
-import { usePasskeySignIn } from '../../lib/passkeys/signin-flow';
+import { usePasskeySignIn } from '../../lib/hooks/usePasskeySignIn';
 import { shouldShowPasskeySignin } from '../../lib/passkeys';
 import { isWebAuthnSupported } from '../../lib/passkeys/webauthn';
 import { SigninFormData, SigninProps } from './interfaces';
@@ -85,6 +85,8 @@ const Signin = ({
     isButtonVisible: showPasskeySignin,
     supportsKeysOptionalLogin,
   });
+
+  const { clearError: clearPasskeyError } = passkey;
 
   const [localizedBannerError, setLocalizedBannerError] = useState(
     localizedErrorFromLocationState || ''
@@ -310,14 +312,30 @@ const Signin = ({
 
   const onSubmit = useCallback(
     async ({ password }: { password: string }) => {
+      clearPasskeyError();
       if (password === '') {
         setPasswordTooltipErrorText(localizedValidPasswordError);
         return;
       }
       signInWithPassword(password);
     },
-    [signInWithPassword, localizedValidPasswordError]
+    [signInWithPassword, localizedValidPasswordError, clearPasskeyError]
   );
+
+  // Only one error belongs on the card at a time: starting a sign-in method
+  // dismisses the error left by the previous one.
+  const clearErrors = () => {
+    setLocalizedBannerError('');
+    setLocalizedBannerErrorDescription('');
+    setLocalizedBannerErrorLink(undefined);
+    setPasswordTooltipErrorText('');
+    clearPasskeyError();
+  };
+
+  const handlePasskeyClick = () => {
+    clearErrors();
+    passkey.onClick();
+  };
 
   const cmsInfo = integration.getCmsInfo();
   const signinPageCms = cmsInfo?.SigninPage;
@@ -421,10 +439,16 @@ const Signin = ({
         showPasskeySignin={showPasskeySignin}
         passkeySignIn={
           showPasskeySignin
-            ? { isLoading: passkey.isLoading, onClick: passkey.onClick }
+            ? { isLoading: passkey.isLoading, onClick: handlePasskeyClick }
             : undefined
         }
-        errorBanner={showPasskeySignin ? passkey.errorBanner : undefined}
+        errorBanner={
+          showPasskeySignin && passkey.banner ? (
+            <Banner {...passkey.banner} />
+          ) : undefined
+        }
+        onContinueWithGoogle={clearErrors}
+        onContinueWithApple={clearErrors}
         disabled={alternativesLocked}
         {...{ viewName, flowQueryParams }}
       />

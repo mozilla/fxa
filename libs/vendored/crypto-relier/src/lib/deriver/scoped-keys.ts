@@ -2,10 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import base64url from 'base64url';
 import HKDF from 'node-hkdf';
 
 const KEY_LENGTH = 48;
+
+// The browser bundle's Buffer polyfill rejects the 'base64url' encoding name.
+const toBase64Url = (input: Buffer) =>
+  input
+    .toString('base64')
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
+
 const SYNC_SCOPES = [
   'https://identity.mozilla.com/apps/oldsync',
   'https://identity.thunderbird.net/apps/sync',
@@ -107,8 +115,8 @@ export class ScopedKeys {
     const k = key.slice(16, 48);
     const keyTimestamp = Math.round(options.keyRotationTimestamp / 1000);
 
-    scopedKey.k = base64url.encode(k);
-    scopedKey.kid = keyTimestamp + '-' + base64url.encode(kid);
+    scopedKey.k = toBase64Url(k);
+    scopedKey.kid = keyTimestamp + '-' + toBase64Url(kid);
 
     return scopedKey;
   }
@@ -148,7 +156,7 @@ export class ScopedKeys {
       contextBuf,
       64
     );
-    scopedKey.k = base64url.encode(Buffer.from(key));
+    scopedKey.k = toBase64Url(Buffer.from(key));
 
     const kHash = await crypto.subtle.digest(
       'SHA-256',
@@ -157,7 +165,7 @@ export class ScopedKeys {
     scopedKey.kid =
       options.keyRotationTimestamp +
       '-' +
-      base64url.encode(Buffer.from(kHash.slice(0, 16)));
+      toBase64Url(Buffer.from(kHash.slice(0, 16)));
     return scopedKey;
   }
 

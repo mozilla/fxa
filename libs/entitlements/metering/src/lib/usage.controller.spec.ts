@@ -111,7 +111,7 @@ describe('UsageController', () => {
       usageService.queryUsage.mockResolvedValue(expected);
 
       const result = await usageController.query(
-        params.userIdentifier,
+        params.subject,
         params.slug,
         authenticatedMeteringClient
       );
@@ -145,7 +145,7 @@ describe('UsageController', () => {
 
       await expect(
         usageController.query(
-          params.userIdentifier,
+          params.subject,
           params.slug,
           authenticatedMeteringClient
         )

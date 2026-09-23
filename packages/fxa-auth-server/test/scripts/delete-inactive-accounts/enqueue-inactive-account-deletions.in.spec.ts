@@ -5,6 +5,7 @@
 import childProcess from 'child_process';
 import util from 'util';
 import path from 'path';
+import { DateTime } from 'luxon';
 
 const exec = util.promisify(childProcess.exec);
 const ROOT_DIR = '../../..';
@@ -30,21 +31,29 @@ describe('enqueue inactive account deletions script', () => {
       return line?.split(': ')[1];
     };
 
+    const beforeRun = DateTime.utc();
     const cmd = [...command, '--bq-dataset fxa-dev.inactives-testo'];
     const { stdout } = await exec(cmd.join(' '), execOptions);
+    const afterRun = DateTime.utc();
     const outputLines = stdout.split('\n');
 
     expect(stdout).toContain('Dry run mode is on.');
 
-    const now = new Date();
     const activeByDateString = getOutputValue(outputLines, 'Active by');
-    const activeByDate = new Date(activeByDateString || '');
-    const nowish = activeByDate.setFullYear(activeByDate.getFullYear() + 2);
-    const diff = Math.abs(now.valueOf() - nowish.valueOf());
-    expect(diff).toBeLessThanOrEqual(1000);
+    const possibleCutoffs = [beforeRun, afterRun].map((now) =>
+      now.minus({ years: 2 }).startOf('day')
+    );
+    expect(possibleCutoffs.map((cutoff) => cutoff.toISO())).toContain(
+      activeByDateString
+    );
 
     const startDateString = getOutputValue(outputLines, 'Start date');
-    expect(startDateString?.startsWith('2012-03-12')).toBe(true);
+    expect(startDateString).toBe('2014-01-18T00:00:00.000Z');
+
+    const endDateString = getOutputValue(outputLines, 'End date');
+    expect(
+      possibleCutoffs.map((cutoff) => cutoff.minus({ days: 1 }).toISO())
+    ).toContain(endDateString);
 
     const daysTilFirstEmailString = getOutputValue(outputLines, "Days 'til");
     expect(daysTilFirstEmailString).toBe('0');
@@ -54,6 +63,10 @@ describe('enqueue inactive account deletions script', () => {
     expect(
       getOutputValue(outputLines, 'Active accounts maximum age in days')
     ).toBe('14');
+    expect(getOutputValue(outputLines, 'State file')).toBe('(none)');
+    expect(getOutputValue(outputLines, 'Scan window in days')).toBe('7');
+    expect(getOutputValue(outputLines, 'Previous scan range')).toBe('(none)');
+    expect(getOutputValue(outputLines, 'Rolled over')).toBe('false');
   });
 
   it('requires an BQ dataset id', async () => {
@@ -126,6 +139,122 @@ describe('enqueue inactive account deletions script', () => {
       code: 1,
       stderr: expect.stringContaining(
         'Active accounts dataset ID must have the form project.dataset.'
+      ),
+    });
+  });
+
+  it.each(['--start-date', '--end-date'])(
+    'rejects %s without the other date',
+    async (flag) => {
+      const cmd = [
+        ...command,
+        '--bq-dataset fxa-dev.inactives-testo',
+        `${flag} 2024-09-01`,
+      ];
+      await expect(exec(cmd.join(' '), execOptions)).rejects.toMatchObject({
+        code: 1,
+        stderr: expect.stringContaining(
+          'Supply both --start-date and --end-date, or neither.'
+        ),
+      });
+    }
+  );
+
+  it.each(['2024-09-01', '2024-09-08'])(
+    'accepts a complete range ending on %s in dry-run mode',
+    async (endDate) => {
+      const cmd = [
+        ...command,
+        '--bq-dataset fxa-dev.inactives-testo',
+        '--start-date 2024-09-01',
+        `--end-date ${endDate}`,
+      ];
+      const { stdout } = await exec(cmd.join(' '), execOptions);
+      expect(stdout).toContain('Start date: 2024-09-01T00:00:00.000Z');
+      expect(stdout).toContain(`End date: ${endDate}T00:00:00.000Z`);
+      expect(stdout).toContain('Dry run mode is on.');
+    }
+  );
+
+  it.each([
+    [
+      '2024-9-01',
+      '2024-09-18',
+      'Start date must be a date in YYYY-MM-DD format.',
+    ],
+    [
+      '2024-09-01',
+      '2024-09-18T00:00:00Z',
+      'End date must be a date in YYYY-MM-DD format.',
+    ],
+    [
+      '2024-02-30',
+      '2024-03-01',
+      'Start date is not a valid calendar date: 2024-02-30',
+    ],
+    [
+      '2024-02-01',
+      '2024-02-30',
+      'End date is not a valid calendar date: 2024-02-30',
+    ],
+  ])(
+    'rejects invalid CLI dates (%p, %p)',
+    async (startDate, endDate, error) => {
+      const cmd = [
+        ...command,
+        '--bq-dataset fxa-dev.inactives-testo',
+        `--start-date ${startDate}`,
+        `--end-date ${endDate}`,
+      ];
+      await expect(exec(cmd.join(' '), execOptions)).rejects.toMatchObject({
+        code: 1,
+        stderr: expect.stringContaining(error),
+      });
+    }
+  );
+
+  it('reports the explicit scan-window size during a dry run', async () => {
+    const cmd = [
+      ...command,
+      '--bq-dataset fxa-dev.inactives-testo',
+      '--scan-window 3',
+    ];
+    const { stdout } = await exec(cmd.join(' '), execOptions);
+    expect(stdout).toContain('Scan window in days: 3');
+    expect(stdout).toContain('Dry run mode is on.');
+  });
+
+  it.each(['0', '-7', '1.5', 'NaN', '7days'])(
+    'rejects scan-window value %j when it is not a positive integer',
+    async (scanWindowValue) => {
+      const cmd = [
+        ...command,
+        '--bq-dataset fxa-dev.inactives-testo',
+        `--scan-window '${scanWindowValue}'`,
+      ];
+      await expect(exec(cmd.join(' '), execOptions)).rejects.toMatchObject({
+        code: 1,
+        stderr: expect.stringContaining(
+          'Scan window must be a positive integer number of days.'
+        ),
+      });
+    }
+  );
+
+  it.each([
+    'https://fxa-state/state.json',
+    'gs://fxa-state',
+    'gs://fxa-state/',
+  ])('rejects malformed state-file URL %j', async (stateFileUrl) => {
+    const cmd = [
+      ...command,
+      '--bq-dataset fxa-dev.inactives-testo',
+      `--state-file '${stateFileUrl}'`,
+    ];
+    await expect(exec(cmd.join(' '), execOptions)).rejects.toMatchObject({
+      code: 1,
+      stderr: expect.stringContaining(
+        `State file must be a gs://bucket/object URL: ${stateFileUrl}`
       ),
     });
   });

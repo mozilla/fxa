@@ -97,16 +97,17 @@ export class UsageController {
     );
   }
 
-  @Get(':userIdentifier/:slug')
+  @Get(':subject/:slug')
   @ApiOperation({
-    summary: 'Query usage data for a user and meter',
+    summary: 'Query usage data for a subject and meter',
     description:
-      'Returns the current usage, limit, and metering window for a specific user and meter slug. ' +
+      'Returns the current usage, limit, and metering window for a specific subject and meter slug. ' +
       'Requires a valid metering service credential.',
   })
   @ApiParam({
-    name: 'userIdentifier',
-    description: 'Unique identifier for the user being queried',
+    name: 'subject',
+    description:
+      'Subject to query usage for: a user id, device id, or any other key the relying party meters by',
   })
   @ApiParam({
     name: 'slug',
@@ -114,13 +115,12 @@ export class UsageController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Current usage data for the requested meter and user',
+    description: 'Current usage data for the requested meter and subject',
     schema: zodToOpenApi(usageQueryResponseSchema),
   })
   @ApiResponse({
     status: 400,
-    description:
-      'Invalid parameters — userIdentifier or slug failed validation',
+    description: 'Invalid parameters — subject or slug failed validation',
   })
   @ApiResponse({
     status: 401,
@@ -140,14 +140,14 @@ export class UsageController {
   })
   @ValidateResponse(usageQueryResponseSchema)
   async query(
-    @Param('userIdentifier') userIdentifier: string,
+    @Param('subject') subject: string,
     @Param('slug') slug: string,
     @CurrentMeteringClient()
     authenticatedMeteringClient: AuthenticatedMeteringClient
   ): Promise<UsageQueryResponse> {
     return this.usageService.queryUsage(
       authenticatedMeteringClient.clientId,
-      parseRequest(usageQueryParamsSchema, { userIdentifier, slug })
+      parseRequest(usageQueryParamsSchema, { subject, slug })
     );
   }
 }

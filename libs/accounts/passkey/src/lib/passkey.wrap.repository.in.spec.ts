@@ -198,6 +198,44 @@ describe('PasskeyWrapRepository (Integration)', () => {
       ).resolves.toBeDefined();
     });
 
+    it('deletes a wrap stored before the given staleBefore', async () => {
+      const { uid, credentialId } = await createAccountWithPasskey();
+      await insertPasskeyWrap(db, uid, envelope(credentialId), NOW);
+
+      await expect(
+        deletePasskeyWrap(db, uid, credentialId, NOW + 1)
+      ).resolves.toBe(true);
+      await expect(
+        findPasskeyWrap(db, uid, credentialId)
+      ).resolves.toBeUndefined();
+    });
+
+    // The boundary `isWrapStale` draws: a wrap stored at the instant the keys
+    // changed still seals the current kB, so it is not stale.
+    it('leaves a wrap stored exactly at staleBefore in place', async () => {
+      const { uid, credentialId } = await createAccountWithPasskey();
+      await insertPasskeyWrap(db, uid, envelope(credentialId), NOW);
+
+      await expect(deletePasskeyWrap(db, uid, credentialId, NOW)).resolves.toBe(
+        false
+      );
+      await expect(
+        findPasskeyWrap(db, uid, credentialId)
+      ).resolves.toBeDefined();
+    });
+
+    it('leaves a wrap stored after staleBefore in place', async () => {
+      const { uid, credentialId } = await createAccountWithPasskey();
+      await insertPasskeyWrap(db, uid, envelope(credentialId), NOW);
+
+      await expect(
+        deletePasskeyWrap(db, uid, credentialId, NOW - 1)
+      ).resolves.toBe(false);
+      await expect(
+        findPasskeyWrap(db, uid, credentialId)
+      ).resolves.toBeDefined();
+    });
+
     it('reports false for a credential that has no wrap', async () => {
       const { uid, credentialId } = await createAccountWithPasskey();
 
@@ -245,7 +283,6 @@ describe('PasskeyWrapRepository (Integration)', () => {
         findPasskeyWrap(db, uid, secondCredentialId)
       ).resolves.toBeDefined();
     });
-
   });
 
   describe('deleteAllPasskeyWrapsForUser', () => {

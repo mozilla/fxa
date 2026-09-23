@@ -10,11 +10,18 @@ import * as cache from '../../lib/cache';
 import { act, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { useValidatedQueryParams } from '../../lib/hooks';
-import { Integration, IntegrationType, WebIntegration } from '../../models';
+import {
+  Integration,
+  IntegrationType,
+  PairingAuthorityIntegration,
+  PairingVersion,
+  WebIntegration,
+} from '../../models';
 import IndexContainer from './container';
 import { MozServices } from '../../lib/types';
 import AuthClient from 'fxa-auth-client/browser';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import { SensitiveDataClient } from '../../lib/sensitive-data-client';
 import { IndexProps } from './interfaces';
 import { MOCK_EMAIL } from '../mocks';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
@@ -46,12 +53,14 @@ jest.mock('../../lib/hooks/useValidate', () => ({
   useValidatedQueryParams: jest.fn(),
 }));
 
+const mockSensitiveDataClient = new SensitiveDataClient();
 jest.mock('../../models', () => {
   const originalModule = jest.requireActual('../../models');
   return {
     __esModule: true,
     ...originalModule,
     useAuthClient: jest.fn(),
+    useSensitiveDataClient: () => mockSensitiveDataClient,
   };
 });
 
@@ -143,6 +152,27 @@ describe('IndexContainer', () => {
     expect(integration.wantsKeys()).toBeFalsy();
     expect(integration.isDesktopSync()).toBeFalsy();
     expect(integration.isFirefoxClientServiceRelay()).toBeFalsy();
+  }
+
+  function mockPairingAuthorityIntegration(pairingVersion: PairingVersion) {
+    integration = new PairingAuthorityIntegration(
+      new GenericData({
+        client_id: '3c49430b43dfba77',
+        scope: 'profile',
+        code_challenge: 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM',
+        code_challenge_method: 'S256',
+      }),
+      new GenericData({}),
+      new GenericData({}),
+      {
+        scopedKeysEnabled: true,
+        scopedKeysValidation: {},
+        isPromptNoneEnabled: true,
+        isPromptNoneEnabledClientIds: [],
+      },
+      pairingVersion
+    );
+    expect(integration.type).toEqual(IntegrationType.PairingAuthority);
   }
 
   function mockOAuthNativeIntegration() {
@@ -343,6 +373,45 @@ describe('IndexContainer', () => {
   });
 
   describe('redirections', () => {
+    const renderIndex = () =>
+      renderWithLocalizationProvider(
+        <MemoryRouter>
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        </MemoryRouter>
+      );
+
+    it('sends a pairing v1 authority to the legacy allow screen', async () => {
+      mockPairingAuthorityIntegration(1);
+
+      renderIndex();
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/pair/auth/allow');
+      });
+    });
+
+    // The v2 flow never routes here on its own, so arriving means it was left
+    // mid-way. Restarting at the QR keeps it out of the v1 screens, and
+    // replacing the entry keeps Back from landing here again.
+    it('restarts a pairing v2 authority at the QR screen', async () => {
+      mockPairingAuthorityIntegration(2);
+
+      renderIndex();
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/pair/authority/scan_qr', {
+          replace: true,
+        });
+      });
+      expect(mockNavigate).not.toHaveBeenCalledWith('/pair/auth/allow');
+    });
+
     it('should prioritize prefillEmail over email and prevent redirection', async () => {
       mockLocationState = { prefillEmail: MOCK_EMAIL };
       mockUseValidatedQueryParams.mockReturnValue({
@@ -1220,6 +1289,7 @@ describe('IndexContainer', () => {
             hasPassword: false,
             passwordlessSupported: true,
           }),
+          passwordlessSendCode: jest.fn().mockResolvedValue({}),
         });
 
         renderWithLocalizationProvider(
@@ -1243,6 +1313,233 @@ describe('IndexContainer', () => {
         });
         const [calledUrl] = mockNavigate.mock.calls[0];
         expect(calledUrl).toMatch(/signin_passwordless_code$/);
+      });
+
+      it('sends the code once and passes codeSent before navigating', async () => {
+        const passwordlessSendCode = jest.fn().mockResolvedValue({});
+        mockUseAuthClient.mockReturnValue({
+          accountStatusByEmail: jest.fn().mockResolvedValue({
+            exists: true,
+            hasLinkedAccount: false,
+            hasPassword: false,
+            passwordlessSupported: true,
+          }),
+          passwordlessSendCode,
+        });
+
+        renderWithLocalizationProvider(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+        });
+
+        await act(async () => {
+          await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+        });
+
+        expect(passwordlessSendCode).toHaveBeenCalledTimes(1);
+        expect(passwordlessSendCode).toHaveBeenCalledWith(MOCK_EMAIL, {
+          clientId: integration.getClientId(),
+          service: integration.getService(),
+          metricsContext: expect.objectContaining({
+            clientId: integration.getClientId(),
+          }),
+        });
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledTimes(1);
+        });
+        const [calledUrl, options] = mockNavigate.mock.calls[0];
+        expect(calledUrl).toMatch(/signin_passwordless_code$/);
+        expect(options.state.codeSent).toBe(true);
+      });
+
+      it('navigates with codeSent false when the send fails for another reason', async () => {
+        const passwordlessSendCode = jest
+          .fn()
+          .mockRejectedValue(AuthUiErrors.THROTTLED);
+        mockUseAuthClient.mockReturnValue({
+          accountStatusByEmail: jest.fn().mockResolvedValue({
+            exists: true,
+            hasLinkedAccount: false,
+            hasPassword: false,
+            passwordlessSupported: true,
+          }),
+          passwordlessSendCode,
+        });
+
+        renderWithLocalizationProvider(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+        });
+
+        await act(async () => {
+          await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+        });
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledTimes(1);
+        });
+        const [calledUrl, options] = mockNavigate.mock.calls[0];
+        expect(calledUrl).toMatch(/signin_passwordless_code$/);
+        expect(options.state.codeSent).toBe(false);
+      });
+
+      it('shows the block error and stays on the email form when the send is blocked', async () => {
+        const passwordlessSendCode = jest
+          .fn()
+          .mockRejectedValue(AuthUiErrors.REQUEST_BLOCKED);
+        mockUseAuthClient.mockReturnValue({
+          accountStatusByEmail: jest.fn().mockResolvedValue({
+            exists: true,
+            hasLinkedAccount: false,
+            hasPassword: false,
+            passwordlessSupported: true,
+          }),
+          passwordlessSendCode,
+        });
+
+        renderWithLocalizationProvider(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+        });
+
+        await act(async () => {
+          await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+        });
+
+        expect(passwordlessSendCode).toHaveBeenCalledTimes(1);
+        expect(mockNavigate).not.toHaveBeenCalled();
+        expect(currentIndexProps?.errorBannerMessage).toEqual(
+          AuthUiErrors.REQUEST_BLOCKED.message
+        );
+        expect(gleanSubmitSuccessSpy).not.toHaveBeenCalled();
+        expect(gleanSubmitFailSpy).toHaveBeenCalledTimes(1);
+        expect(gleanSubmitFailSpy).toHaveBeenCalledWith({
+          event: { reason: 'login' },
+        });
+      });
+
+      it('sends the code and flags signup when a new account uses passwordless', async () => {
+        const passwordlessSendCode = jest.fn().mockResolvedValue({});
+        mockUseValidatedQueryParams.mockReturnValue({
+          queryParamModel: { forcePasswordless: true },
+          validationError: null,
+        });
+        mockUseAuthClient.mockReturnValue({
+          accountStatusByEmail: jest.fn().mockResolvedValue({
+            exists: false,
+            hasLinkedAccount: false,
+            hasPassword: false,
+            passwordlessSupported: true,
+          }),
+          passwordlessSendCode,
+        });
+
+        renderWithLocalizationProvider(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+        });
+
+        await act(async () => {
+          await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+        });
+
+        expect(passwordlessSendCode).toHaveBeenCalledTimes(1);
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledTimes(1);
+        });
+        const [calledUrl, options] = mockNavigate.mock.calls[0];
+        expect(calledUrl).toMatch(/signin_passwordless_code$/);
+        expect(options.state.isSignup).toBe(true);
+        expect(options.state.codeSent).toBe(true);
+        expect(gleanSubmitSuccessSpy).toHaveBeenCalledWith({
+          event: { reason: 'registration' },
+        });
+      });
+
+      it('shows the block error and stays on the email form when a new account send is blocked', async () => {
+        const passwordlessSendCode = jest
+          .fn()
+          .mockRejectedValue(AuthUiErrors.REQUEST_BLOCKED);
+        mockUseValidatedQueryParams.mockReturnValue({
+          queryParamModel: { forcePasswordless: true },
+          validationError: null,
+        });
+        mockUseAuthClient.mockReturnValue({
+          accountStatusByEmail: jest.fn().mockResolvedValue({
+            exists: false,
+            hasLinkedAccount: false,
+            hasPassword: false,
+            passwordlessSupported: true,
+          }),
+          passwordlessSendCode,
+        });
+
+        renderWithLocalizationProvider(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+        });
+
+        await act(async () => {
+          await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+        });
+
+        expect(passwordlessSendCode).toHaveBeenCalledTimes(1);
+        expect(mockNavigate).not.toHaveBeenCalled();
+        expect(currentIndexProps?.errorBannerMessage).toEqual(
+          AuthUiErrors.REQUEST_BLOCKED.message
+        );
+        expect(gleanSubmitSuccessSpy).not.toHaveBeenCalled();
+        expect(gleanSubmitFailSpy).toHaveBeenCalledTimes(1);
+        expect(gleanSubmitFailSpy).toHaveBeenCalledWith({
+          event: { reason: 'registration' },
+        });
       });
 
       it('does not redirect password account to passwordless even when passwordlessSupported is false', async () => {

@@ -23,7 +23,7 @@ describe('Usage Grants Repository', () => {
   let mockDoc: jest.Mocked<DocumentReference>;
 
   const newGrant: NewUsageGrant = {
-    userIdentifier: 'user-1',
+    subject: 'user-1',
     slug: 'tokens',
     amount: 500,
     grantedBy: 'rp-1',
@@ -56,7 +56,7 @@ describe('Usage Grants Repository', () => {
       const result = await insertUsageGrant(mockDb, newGrant);
 
       expect(mockDb.add).toHaveBeenCalledWith({
-        userIdentifier: 'user-1',
+        subject: 'user-1',
         slug: 'tokens',
         amount: 500,
         grantedBy: 'rp-1',
@@ -91,17 +91,13 @@ describe('Usage Grants Repository', () => {
   });
 
   describe('getUsageGrants', () => {
-    it('queries Firestore by userIdentifier alone (slug is filtered in memory by callers)', async () => {
+    it('queries Firestore by subject alone (slug is filtered in memory by callers)', async () => {
       (mockDb.get as jest.Mock).mockResolvedValue(querySnapshot([]));
 
       await getUsageGrants(mockDb, 'user-1');
 
       expect(mockDb.where).toHaveBeenCalledTimes(1);
-      expect(mockDb.where).toHaveBeenCalledWith(
-        'userIdentifier',
-        '==',
-        'user-1'
-      );
+      expect(mockDb.where).toHaveBeenCalledWith('subject', '==', 'user-1');
     });
 
     it('propagates a Firestore read failure', async () => {
@@ -124,7 +120,7 @@ describe('Usage Grants Repository', () => {
           {
             id: 'grant-1',
             data: {
-              userIdentifier: 'user-1',
+              subject: 'user-1',
               slug: 'tokens',
               amount: 500,
               grantedBy: 'rp-1',
@@ -136,7 +132,7 @@ describe('Usage Grants Repository', () => {
           {
             id: 'grant-2',
             data: {
-              userIdentifier: 'user-1',
+              subject: 'user-1',
               slug: 'tokens',
               amount: 100,
               grantedBy: 'rp-1',
@@ -151,7 +147,7 @@ describe('Usage Grants Repository', () => {
       expect(result).toEqual([
         {
           id: 'grant-1',
-          userIdentifier: 'user-1',
+          subject: 'user-1',
           slug: 'tokens',
           amount: 500,
           grantedBy: 'rp-1',
@@ -161,7 +157,7 @@ describe('Usage Grants Repository', () => {
         },
         {
           id: 'grant-2',
-          userIdentifier: 'user-1',
+          subject: 'user-1',
           slug: 'tokens',
           amount: 100,
           grantedBy: 'rp-1',

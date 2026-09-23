@@ -11,6 +11,7 @@ import {
   isOAuthIntegration,
   isSyncDesktopV3Integration,
   Integration,
+  useSensitiveDataClient,
 } from '../../models';
 import { createEncryptedBundle } from '../crypto/scoped-keys';
 import { Constants } from '../constants';
@@ -222,6 +223,7 @@ export function useFinishOAuthFlowHandler(
 ): UseFinishOAuthFlowHandlerResult {
   const isSyncOAuth = isOAuthNativeIntegrationSync(integration);
   const oAuthIntegration = isOAuthIntegration(integration) ? integration : null;
+  const sensitiveDataClient = useSensitiveDataClient();
 
   const finishOAuthFlowHandler: FinishOAuthFlowHandler = useCallback(
     async (accountUid, sessionToken, keyFetchToken, unwrapBKey) => {
@@ -238,6 +240,9 @@ export function useFinishOAuthFlowHandler(
             keyFetchToken,
             unwrapBKey
           );
+          // The only point in a keys-bearing sign-in where `kB` exists
+          // client-side.
+          sensitiveDataClient.captureKbForPendingWrap(accountUid, kB);
           keys = await constructKeysJwe(
             authClient,
             oAuthIntegration,
@@ -304,7 +309,7 @@ export function useFinishOAuthFlowHandler(
         scope: oAuthData.scope,
       };
     },
-    [authClient, oAuthIntegration, isSyncOAuth]
+    [authClient, oAuthIntegration, isSyncOAuth, sensitiveDataClient]
   );
 
   /* TODO: Probably remove 'isOAuthVerificationDifferentBrowser' and

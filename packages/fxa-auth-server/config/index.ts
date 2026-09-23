@@ -1528,10 +1528,27 @@ const convictConf = convict({
         env: 'OAUTH_EXCHANGE_BYPASS_CONSENT_FOR_SERVICES',
       },
       allowedClientsForService: {
-        doc: 'Per-service allowlist of OAuth client_ids permitted to write an accountAuthorizations row. A service absent from this map has no restriction; a service present with an empty list rejects all writes. Prevents a non-Mozilla RP from forging consent for a privileged service (e.g. claiming VPN consent on the user behalf).',
+        doc: "Per-service allowlist of OAuth client_ids permitted to write an accountAuthorizations row. A service absent from this map has no restriction; a service present with an empty list rejects all writes. Prevents a non-Mozilla RP from forging consent for a privileged service (e.g. claiming VPN consent on the user behalf). Deauthorization reads it too: a covering refresh token from any listed client sustains the service's rows, so a browser that reached VPN via token exchange keeps the consent alive after the app that showed the ToS disconnects. A service with no entry falls back to own-client only.",
         format: Object,
         default: {
           vpn: [
+            '5882386c6d801776',
+            '1b1a3e44c54fbb58',
+            '3332a18d142636cb',
+            'a2270f727f45f648',
+            '3c49430b43dfba77',
+            'e6eb0d1e856335fc',
+          ],
+          relay: [
+            '5882386c6d801776',
+            '1b1a3e44c54fbb58',
+            '3332a18d142636cb',
+            'a2270f727f45f648',
+            '3c49430b43dfba77',
+            '9ebfe2c2f9ea3c58',
+          ],
+          smartwindow: ['5882386c6d801776'],
+          sync: [
             '5882386c6d801776',
             '1b1a3e44c54fbb58',
             '3332a18d142636cb',
@@ -1821,22 +1838,33 @@ const convictConf = convict({
     env: 'REMOTE_ADDRESS_CHAIN_OVERRIDE',
     default: '',
   },
+  // Sign-in confirmation is decided in this order: a suspicious request,
+  // forceGlobally, forcedSyncEmailAddresses and forcedHeuristicEmailAddresses
+  // each force it and skip every bypass; otherwise a recognized device, a
+  // recently verified IP, a new account, and skipForEmailRegex each bypass it.
+  // TOTP is required regardless.
   signinConfirmation: {
-    forcedEmailAddresses: {
-      doc: 'Force sign-in confirmation for email addresses matching this regex for those that do not request scoped keys. Sets "mustVerify: 0" on created session tokens but creates an entry in unverifiedTokens, simulating a non-Sync non-2FA unverified session state',
+    forcedSyncEmailAddresses: {
+      doc: 'Force Sync-style sign-in confirmation (mustVerify: 1) for matching emails. The session cannot complete an OAuth grant until the emailed code is entered, as when scoped keys are requested. Overrides the skip settings below.',
       format: RegExp,
       default: /.+@mozilla\.com$/,
       env: 'SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX',
     },
+    forcedHeuristicEmailAddresses: {
+      doc: 'Force the heuristic (non-Sync non-2FA) unverified session state for matching emails: sign-in confirmation with mustVerify: 0. The session is created unverified, RP redirect flows outside servicesWithEmailVerification continue without a code, and Settings asks for it later. This is the state the heuristics produce for older accounts.',
+      format: RegExp,
+      default: /^unverifiedsession.*@restmail\.net$/,
+      env: 'SIGNIN_CONFIRMATION_FORCE_HEURISTIC_EMAIL_REGEX',
+    },
     skipForEmailRegex: {
-      doc: 'Regex pattern for email addresses that will always skip any non-TOTP sign-in confirmation.',
+      doc: 'Skip sign-in confirmation for matching emails even when scoped keys are requested. A customs suspect verdict, the forced regexes above, and TOTP still apply.',
       format: RegExp,
       default: /^$/,
       env: 'SIGNIN_CONFIRMATION_SKIP_FOR_EMAIL_REGEX',
     },
     skipForNewAccounts: {
       enabled: {
-        doc: 'Skip all sign-in email confirmations for newly-created accounts',
+        doc: 'Skip all sign-in email confirmations for newly-created accounts. Set false locally to put any account into the heuristic (non-Sync non-2FA) unverified session state.',
         default: true,
         env: 'SIGNIN_CONFIRMATION_SKIP_FOR_NEW_ACCOUNTS',
       },
@@ -1861,7 +1889,7 @@ const convictConf = convict({
       },
     },
     forceGlobally: {
-      doc: 'Force sign-in confirmation for all accounts. Sets "mustVerify: 1" on created session tokens and creates an entry in unverifiedTokens, simulating a suspicious request or requesting scoped keys',
+      doc: 'Force the Sync-style state (mustVerify: 1) for every account, as a suspicious request or a scoped-key request would. Per-email equivalent: forcedSyncEmailAddresses.',
       format: Boolean,
       default: false,
       env: 'SIGNIN_CONFIRMATION_FORCE_GLOBALLY',

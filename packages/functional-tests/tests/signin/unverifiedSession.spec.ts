@@ -1,0 +1,222 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import { EmailHeader, EmailType } from '../../lib/email';
+import { expect, test } from '../../lib/fixtures/standard';
+
+// The non-Sync, non-2FA unverified session: the primary email is verified, the
+// session is unverified, and `mustVerify` is unset. Real users reach it when the
+// auth-server's sign-in heuristics decline to pre-verify (account must be older
+// than `skipForNewAccounts.maxAge`). Test accounts are always new, so the
+// auth-server's `forcedHeuristicEmailAddresses` default forces it for the
+// `unverifiedsession` prefix instead. The `sync` prefix is a different state:
+// `forcedSyncEmailAddresses` sets `mustVerify`, which blocks OAuth grants until
+// the code is entered.
+test.describe('severity-1 #smoke', () => {
+  test.describe('heuristic unverified session', () => {
+    test('RP outside servicesWithEmailVerification grants without a code; Settings then asks for it and only one verifyLoginCode is sent', async ({
+      target,
+      pages: { page, relier, settings, signin, signinTokenCode },
+      testAccountTracker,
+    }) => {
+      const credentials = await testAccountTracker.signUpUnverifiedSession();
+      await target.emailClient.clear(credentials.email);
+
+      await relier.goto();
+      await relier.clickEmailFirst();
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+
+      // Straight to the RP: no code page, and the session stays unverified.
+      expect(await relier.isLoggedIn()).toBe(true);
+
+      // The unverified session cannot use Settings, which bounces to the
+      // cached sign-in and from there to the code page.
+      await settings.goto();
+      await expect(signin.cachedSigninSubmitButton).toBeVisible();
+      await signin.cachedSigninSubmitButton.click();
+      await expect(page).toHaveURL(/signin_token_code/);
+
+      const code = await target.emailClient.waitForEmail(
+        credentials.email,
+        EmailType.verifyLoginCode,
+        EmailHeader.signinCode
+      );
+      await signinTokenCode.fillOutCodeForm(code);
+      await expect(settings.settingsHeading).toBeVisible();
+
+      // The local inbox blocks reads on an empty mailbox, so the RP step
+      // cannot be counted on its own. `newDeviceLogin` follows verification
+      // and bounds both possible senders of the code email, on both steps.
+      await target.emailClient.waitForEmail(
+        credentials.email,
+        EmailType.newDeviceLogin
+      );
+      expect(
+        await target.emailClient.countEmailsByType(
+          credentials.email,
+          EmailType.verifyLoginCode
+        ),
+        'the RP pass-through must not email a code no one is asked for'
+      ).toBe(1);
+    });
+
+    // Paired with the checkout test in tests-payments-next. This one is the
+    // only one that runs on PRs, where Payments Next is never started, so it
+    // drives the client id directly and asserts the grant response. Removing
+    // it drops this coverage from every PR.
+    test('RP in servicesWithEmailVerification, Payments Next, lands on signin_token_code and sends exactly one verifyLoginCode', async ({
+      target,
+      pages: { page, signin, signinTokenCode },
+      testAccountTracker,
+    }) => {
+      test.skip(
+        target.name !== 'local',
+        'uses the local Payments Next client id and redirect_uri'
+      );
+      const credentials = await testAccountTracker.signUpUnverifiedSession();
+      await target.emailClient.clear(credentials.email);
+
+      const params = new URLSearchParams({
+        client_id: '32aaeb6f1c21316a',
+        redirect_uri: 'http://localhost:3035/api/auth/callback/fxa',
+        scope: 'https://identity.mozilla.com/account/subscriptions',
+        response_type: 'code',
+        state: 'fakestate',
+      });
+      await page.goto(`${target.contentServerUrl}/authorization?${params}`);
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+      await expect(page).toHaveURL(/signin_token_code/);
+
+      const code = await target.emailClient.waitForEmail(
+        credentials.email,
+        EmailType.verifyLoginCode,
+        EmailHeader.signinCode
+      );
+      // The backend guard for listed services releases the session once the
+      // code is accepted. The grant response is the assertion; the redirect
+      // to Payments Next then fails locally because it is not running.
+      const grant = page.waitForResponse(
+        (response) =>
+          response.url().endsWith('/v1/oauth/authorization') &&
+          response.status() === 200
+      );
+      await signinTokenCode.fillOutCodeForm(code);
+      await grant;
+
+      await target.emailClient.waitForEmail(
+        credentials.email,
+        EmailType.newDeviceLogin
+      );
+      expect(
+        await target.emailClient.countEmailsByType(
+          credentials.email,
+          EmailType.verifyLoginCode
+        )
+      ).toBe(1);
+    });
+
+    // prompt=none must never interact: it either grants silently or fails back
+    // to the RP. Only the silent grant is here — it is the half a unit test
+    // cannot express, because the proof is that no mail arrived. The refusals
+    // are covered in fxa-settings pages/Signin/utils.test.ts.
+    test.describe('prompt=none', () => {
+      test('grants silently for an RP outside servicesWithEmailVerification', async ({
+        target,
+        pages: { page, relier, settings, signin, signinTokenCode },
+        testAccountTracker,
+      }) => {
+        const credentials = await testAccountTracker.signUpUnverifiedSession();
+        await target.emailClient.clear(credentials.email);
+
+        await relier.goto();
+        await relier.clickEmailFirst();
+        await signin.fillOutEmailFirstForm(credentials.email);
+        await signin.fillOutPasswordForm(credentials.password);
+        expect(await relier.isLoggedIn()).toBe(true);
+
+        // Only the relier's own session; the unverified FxA session survives
+        // and is what the silent grant below runs against. Signing out is also
+        // what puts the prompt=none button back on the page.
+        await relier.signOut();
+        // Asserted on the element rather than relier.isLoggedIn(), which waits
+        // for the logged-in marker and so can only return true. Without it the
+        // grant below could be reading the session the first sign-in left
+        // behind, and would pass even if prompt=none did nothing.
+        await expect(page.locator('#loggedin')).toBeHidden();
+
+        const query = new URLSearchParams({ login_hint: credentials.email });
+        await page.goto(`${target.relierUrl}/?${query.toString()}`);
+        await relier.signInPromptNone();
+        expect(await relier.isLoggedIn()).toBe(true);
+
+        // Settings is the barrier: it forces the code the two grants did not,
+        // and its newDeviceLogin bounds every earlier send.
+        await settings.goto();
+        await expect(signin.cachedSigninSubmitButton).toBeVisible();
+        await signin.cachedSigninSubmitButton.click();
+        await expect(page).toHaveURL(/signin_token_code/);
+        const code = await target.emailClient.waitForEmail(
+          credentials.email,
+          EmailType.verifyLoginCode,
+          EmailHeader.signinCode
+        );
+        await signinTokenCode.fillOutCodeForm(code);
+        await expect(settings.settingsHeading).toBeVisible();
+
+        await target.emailClient.waitForEmail(
+          credentials.email,
+          EmailType.newDeviceLogin
+        );
+        expect(
+          await target.emailClient.countEmailsByType(
+            credentials.email,
+            EmailType.verifyLoginCode
+          ),
+          'a silent grant must not email a code'
+        ).toBe(1);
+      });
+    });
+  });
+
+  // The Sync-style state: the same forced confirmation, but `mustVerify` is
+  // set (the `sync` prefix), so the server refuses the OAuth grant and the
+  // front end falls back to the code page. The code email must follow it.
+  test.describe('mustVerify unverified session (scoped keys)', () => {
+    test('RP outside servicesWithEmailVerification is still forced to verify', async ({
+      target,
+      pages: { page, relier, signin, signinTokenCode },
+      testAccountTracker,
+    }) => {
+      const credentials = await testAccountTracker.signUpSync();
+      await target.emailClient.clear(credentials.email);
+
+      await relier.goto();
+      await relier.clickEmailFirst();
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+      await expect(page).toHaveURL(/signin_token_code/);
+
+      const code = await target.emailClient.waitForEmail(
+        credentials.email,
+        EmailType.verifyLoginCode,
+        EmailHeader.signinCode
+      );
+      await signinTokenCode.fillOutCodeForm(code);
+      expect(await relier.isLoggedIn()).toBe(true);
+
+      await target.emailClient.waitForEmail(
+        credentials.email,
+        EmailType.newDeviceLogin
+      );
+      expect(
+        await target.emailClient.countEmailsByType(
+          credentials.email,
+          EmailType.verifyLoginCode
+        )
+      ).toBe(1);
+    });
+  });
+});

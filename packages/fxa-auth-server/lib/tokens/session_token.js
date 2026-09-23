@@ -53,6 +53,7 @@ module.exports = (log, Token, config) => {
       this.verifiedAt = details.verifiedAt || null;
       this.metricsOptOutAt = details.metricsOptOutAt || null;
       this.providerId = details.providerId || null;
+      this.disabledAt = details.disabledAt || null;
     }
 
     static create(details) {

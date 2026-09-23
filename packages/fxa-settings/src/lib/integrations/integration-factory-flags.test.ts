@@ -44,6 +44,26 @@ describe('lib/integrations/integration-factory-flags', function () {
     expect(integrationFlags.isDevicePairingAsAuthority()).toBeTruthy();
   });
 
+  it('isDevicePairingAsV2Authority', () => {
+    expect(integrationFlags.isDevicePairingAsV2Authority()).toBeFalsy();
+    sandbox.replaceGetter(
+      queryData,
+      'pathName',
+      () => '/pair/authority/scan_qr'
+    );
+    expect(integrationFlags.isDevicePairingAsV2Authority()).toBeTruthy();
+  });
+
+  // The v1 redirect URI makes an authority, but not a v2 one.
+  it('isDevicePairingAsV2Authority ignores the v1 redirect_uri', () => {
+    queryData.set(
+      'redirect_uri',
+      Constants.DEVICE_PAIRING_AUTHORITY_REDIRECT_URI
+    );
+    expect(integrationFlags.isDevicePairingAsAuthority()).toBeTruthy();
+    expect(integrationFlags.isDevicePairingAsV2Authority()).toBeFalsy();
+  });
+
   it('isDevicePairingAsSupplicant', () => {
     expect(integrationFlags.isDevicePairingAsSupplicant()).toBeFalsy();
     sandbox.replaceGetter(queryData, 'pathName', () => '/pair/supplicant');

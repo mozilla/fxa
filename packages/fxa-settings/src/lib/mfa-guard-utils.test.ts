@@ -3,9 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { JwtTokenCache, MfaOtpRequestCache } from './cache';
+import { bytesToBase64url } from './base64url';
 import {
   clearMfaAndJwtCacheOnInvalidJwt,
   isInvalidJwtError,
+  uidFromMfaToken,
 } from './mfa-guard-utils';
 
 const defaultSessionToken = 'you-get-a-session-token';
@@ -134,5 +136,45 @@ describe('mfa-guard-utils', () => {
       expect(removeOtpSpy).toHaveBeenCalledWith(defaultSessionToken, scope);
       expect(removeJwtSpy).toHaveBeenCalledWith(defaultSessionToken, scope);
     });
+  });
+});
+
+const UID = 'a'.repeat(32);
+const tokenFor = (claims: unknown) =>
+  [
+    'header',
+    bytesToBase64url(new TextEncoder().encode(JSON.stringify(claims))),
+    'signature',
+  ].join('.');
+
+describe('uidFromMfaToken', () => {
+  it('reads the uid the proof names', () => {
+    expect(uidFromMfaToken(tokenFor({ sub: UID }))).toBe(UID);
+  });
+
+  it.each([
+    ['no dot-separated payload', 'not-a-jwt'],
+    ['a payload that is not base64url', 'header.!!!.signature'],
+    [
+      'a payload that is not JSON',
+      [
+        'header',
+        bytesToBase64url(new TextEncoder().encode('{oops')),
+        'signature',
+      ].join('.'),
+    ],
+  ])('is undefined for %s', (_label, token) => {
+    expect(uidFromMfaToken(token)).toBeUndefined();
+  });
+
+  it.each([
+    ['sub is absent', {}],
+    ['sub is not a string', { sub: 42 }],
+    ['sub is null', { sub: null }],
+    ['sub is not 32 hex characters', { sub: 'abc' }],
+    ['sub carries non-hex characters', { sub: 'z'.repeat(32) }],
+    ['the claims are not an object', 'a string'],
+  ])('is undefined when %s', (_label, claims) => {
+    expect(uidFromMfaToken(tokenFor(claims))).toBeUndefined();
   });
 });

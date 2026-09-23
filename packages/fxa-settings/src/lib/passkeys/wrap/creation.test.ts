@@ -4,7 +4,9 @@
 
 import { ERRNO } from '@fxa/accounts/errors';
 import type AuthClient from 'fxa-auth-client/browser';
-import { createPasskeyWrap } from './creation';
+import type { PasskeyWrapEnvelope } from 'fxa-auth-client/browser';
+import { createPasskeyWrap, retryPasskeyWrapStore } from './creation';
+import { AuthUiErrors } from '../../auth-errors/auth-errors';
 import { bytesToBase64url } from '../../base64url';
 import type {
   createWrapEnvelope,
@@ -22,6 +24,11 @@ jest.mock('../../passkey-crypto', () => ({
     mockCreateWrapEnvelope(...args),
   openWrapEnvelope: (...args: Parameters<typeof openWrapEnvelope>) =>
     mockOpenWrapEnvelope(...args),
+}));
+
+const mockGetCredential = jest.fn();
+jest.mock('../webauthn', () => ({
+  getCredential: (...args: unknown[]) => mockGetCredential(...args),
 }));
 
 const mockCaptureException = jest.fn();
@@ -47,11 +54,20 @@ const MOCK_JWT = mfaTokenFor({ sub: MOCK_UID });
 let createPasskeyWrapApiMock: jest.MockedFunction<
   AuthClient['createPasskeyWrap']
 >;
-const authClient = () => ({ createPasskeyWrap: createPasskeyWrapApiMock });
+const beginVerificationMock = jest.fn();
+const completeVerificationMock = jest.fn();
+const authClient = () => ({
+  createPasskeyWrap: createPasskeyWrapApiMock,
+  beginPasskeyVerification: beginVerificationMock,
+  completePasskeyVerification: completeVerificationMock,
+});
+const MOCK_SESSION_TOKEN = 'deadbeef';
+const FRESH_JWT = mfaTokenFor({ sub: MOCK_UID, fresh: true });
 
 const args = () => ({
   credentialId: MOCK_CREDENTIAL_ID,
   mfaToken: MOCK_JWT,
+  sessionToken: MOCK_SESSION_TOKEN,
   prfOut: Uint8Array.from(MOCK_PRF_OUT),
   kB: Uint8Array.from(MOCK_KB),
 });
@@ -79,6 +95,9 @@ beforeEach(() => {
   createPasskeyWrapApiMock = jest.fn().mockResolvedValue({ created: true });
   mockCreateWrapEnvelope.mockImplementation(realCrypto().createWrapEnvelope);
   mockOpenWrapEnvelope.mockImplementation(realCrypto().openWrapEnvelope);
+  beginVerificationMock.mockResolvedValue({ challenge: 'chal' });
+  mockGetCredential.mockResolvedValue({ id: MOCK_CREDENTIAL_ID });
+  completeVerificationMock.mockResolvedValue({ mfaToken: FRESH_JWT });
 });
 
 describe('createPasskeyWrap', () => {
@@ -125,7 +144,6 @@ describe('createPasskeyWrap', () => {
       ERRNO.INVALID_TOKEN,
       ERRNO.PASSKEY_NOT_FOUND,
       ERRNO.PASSKEY_WRAP_CONFLICT,
-      ERRNO.THROTTLED,
       ERRNO.REQUEST_BLOCKED,
       ERRNO.FEATURE_NOT_ENABLED,
     ])('hands errno %i back as the error the UI can word', async (errno) => {
@@ -137,25 +155,132 @@ describe('createPasskeyWrap', () => {
       expect(outcome).toEqual({ ok: false, error: err });
     });
 
-    it('carries retryAfter through on a throttle so callers can back off', async () => {
-      createPasskeyWrapApiMock.mockRejectedValue(
-        serverError(ERRNO.THROTTLED, { code: 429, retryAfter: 900 })
-      );
-
-      const outcome = await createPasskeyWrap(authClient(), args());
-
-      expect(outcome).toMatchObject({
-        error: { errno: ERRNO.THROTTLED, retryAfter: 900 },
-      });
-    });
-
-    it('hands an error without server fields back untouched', async () => {
-      const err = new Error('network down');
+    it('offers the sealed envelope back on a throttle, with its retryAfter', async () => {
+      const err = serverError(ERRNO.THROTTLED, { code: 429, retryAfter: 900 });
       createPasskeyWrapApiMock.mockRejectedValue(err);
 
       const outcome = await createPasskeyWrap(authClient(), args());
 
+      expect(outcome).toEqual({
+        ok: false,
+        retryable: true,
+        envelope: storedEnvelope(),
+        error: err,
+      });
+      // A rate limit is not an expired proof, so it must not burn the step-up.
+      expect(beginVerificationMock).not.toHaveBeenCalled();
+    });
+
+    it('words a throw without an errno as the unexpected error', async () => {
+      createPasskeyWrapApiMock.mockRejectedValue(new TypeError('network down'));
+
+      const outcome = await createPasskeyWrap(authClient(), args());
+
+      expect(outcome).toEqual({
+        ok: false,
+        error: AuthUiErrors.UNEXPECTED_ERROR,
+      });
+    });
+  });
+
+  describe('expired proof', () => {
+    const expired = () => serverError(ERRNO.INVALID_MFA_TOKEN);
+
+    it('mints a fresh proof with a step-up pinned to the passkey and stores the same envelope', async () => {
+      createPasskeyWrapApiMock
+        .mockRejectedValueOnce(expired())
+        .mockResolvedValueOnce({ created: true });
+
+      const outcome = await createPasskeyWrap(authClient(), args());
+
+      expect(outcome).toEqual({ ok: true, created: true });
+      expect(beginVerificationMock).toHaveBeenCalledWith(MOCK_SESSION_TOKEN, {
+        scope: 'passkey',
+        credentialId: MOCK_CREDENTIAL_ID,
+      });
+      expect(completeVerificationMock).toHaveBeenCalledWith(
+        MOCK_SESSION_TOKEN,
+        { id: MOCK_CREDENTIAL_ID },
+        'chal'
+      );
+      const [first, second] = createPasskeyWrapApiMock.mock.calls;
+      expect(first[0]).toBe(MOCK_JWT);
+      expect(second[0]).toBe(FRESH_JWT);
+      expect(second[2]).toBe(first[2]);
+    });
+
+    it('retries once only', async () => {
+      const again = expired();
+      createPasskeyWrapApiMock.mockRejectedValue(again);
+
+      const outcome = await createPasskeyWrap(authClient(), args());
+
+      expect(outcome).toEqual({ ok: false, error: again });
+      expect(createPasskeyWrapApiMock).toHaveBeenCalledTimes(2);
+      expect(beginVerificationMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('hands the sealed envelope back when the step-up prompt is dismissed', async () => {
+      createPasskeyWrapApiMock.mockRejectedValue(expired());
+      mockGetCredential.mockRejectedValue(
+        new DOMException('cancelled', 'NotAllowedError')
+      );
+
+      const outcome = await createPasskeyWrap(authClient(), args());
+
+      expect(outcome).toEqual({
+        ok: false,
+        retryable: true,
+        envelope: storedEnvelope(),
+      });
+      expect(createPasskeyWrapApiMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('offers the envelope back when the store is throttled after the step-up', async () => {
+      const throttled = serverError(ERRNO.THROTTLED, {
+        code: 429,
+        retryAfter: 900,
+      });
+      createPasskeyWrapApiMock
+        .mockRejectedValueOnce(expired())
+        .mockRejectedValueOnce(throttled);
+
+      const outcome = await createPasskeyWrap(authClient(), args());
+
+      expect(outcome).toEqual({
+        ok: false,
+        retryable: true,
+        envelope: storedEnvelope(),
+        error: throttled,
+      });
+      expect(beginVerificationMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('reports a failed store when the step-up prompt errors', async () => {
+      createPasskeyWrapApiMock.mockRejectedValue(expired());
+      mockGetCredential.mockRejectedValue(
+        new DOMException('no', 'NotSupportedError')
+      );
+
+      const outcome = await createPasskeyWrap(authClient(), args());
+
+      expect(outcome).toEqual({
+        ok: false,
+        error: AuthUiErrors.UNEXPECTED_ERROR,
+      });
+    });
+
+    it('does not step up without a session token', async () => {
+      const err = expired();
+      createPasskeyWrapApiMock.mockRejectedValue(err);
+
+      const outcome = await createPasskeyWrap(authClient(), {
+        ...args(),
+        sessionToken: null,
+      });
+
       expect(outcome).toEqual({ ok: false, error: err });
+      expect(beginVerificationMock).not.toHaveBeenCalled();
     });
   });
 
@@ -322,6 +447,83 @@ describe('createPasskeyWrap', () => {
       await createPasskeyWrap(authClient(), input);
 
       expect(atRequest).toEqual({ kB: ZEROED, prfOut: ZEROED });
+    });
+  });
+});
+
+describe('retryPasskeyWrapStore', () => {
+  const envelope: PasskeyWrapEnvelope = {
+    pkR: Uint8Array.of(1),
+    prfWrappedSkR: Uint8Array.of(2),
+    keyWrapIv: Uint8Array.of(3),
+    hpkeEncapsulatedSecret: Uint8Array.of(4),
+    hpkeSealedKb: Uint8Array.of(5),
+  };
+  const retry = () =>
+    retryPasskeyWrapStore(
+      authClient(),
+      { credentialId: MOCK_CREDENTIAL_ID, sessionToken: MOCK_SESSION_TOKEN },
+      envelope
+    );
+
+  it('stores the envelope it was given under a fresh proof', async () => {
+    const outcome = await retry();
+
+    expect(outcome).toEqual({ ok: true, created: true });
+    expect(beginVerificationMock).toHaveBeenCalledTimes(1);
+    expect(createPasskeyWrapApiMock).toHaveBeenCalledWith(
+      FRESH_JWT,
+      MOCK_CREDENTIAL_ID,
+      envelope
+    );
+  });
+
+  it('passes a refusal from the verification calls through with its errno', async () => {
+    const err = serverError(ERRNO.INVALID_TOKEN);
+    beginVerificationMock.mockRejectedValue(err);
+
+    expect(await retry()).toEqual({ ok: false, error: err });
+    expect(mockGetCredential).not.toHaveBeenCalled();
+  });
+
+  it('offers the same envelope again when the prompt is dismissed', async () => {
+    mockGetCredential.mockRejectedValue(
+      new DOMException('cancelled', 'NotAllowedError')
+    );
+
+    expect(await retry()).toEqual({
+      ok: false,
+      retryable: true,
+      envelope,
+    });
+    expect(createPasskeyWrapApiMock).not.toHaveBeenCalled();
+  });
+
+  it('hands a server refusal back untouched', async () => {
+    const err = serverError(ERRNO.PASSKEY_NOT_FOUND);
+    createPasskeyWrapApiMock.mockRejectedValue(err);
+
+    expect(await retry()).toEqual({ ok: false, error: err });
+  });
+
+  it('words a network failure on the retry store as the generic error', async () => {
+    createPasskeyWrapApiMock.mockRejectedValue(new TypeError('network down'));
+
+    expect(await retry()).toEqual({
+      ok: false,
+      error: AuthUiErrors.UNEXPECTED_ERROR,
+    });
+  });
+
+  it('keeps the envelope when the verification call is rate limited', async () => {
+    const err = serverError(ERRNO.THROTTLED, { retryAfter: 30 });
+    beginVerificationMock.mockRejectedValue(err);
+
+    expect(await retry()).toEqual({
+      ok: false,
+      retryable: true,
+      envelope,
+      error: err,
     });
   });
 });
