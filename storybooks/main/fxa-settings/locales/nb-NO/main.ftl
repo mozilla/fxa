@@ -1170,10 +1170,10 @@ index-email-bounced = Bekreftelsesmeldingen kom i retur. Feilstavet e-postadress
 
 inline-passwordless-sync-setup-page-title = Hopp over passordet neste gang?
 inline-passwordless-sync-setup-success-banner = Logget inn på { -brand-firefox }
-inline-passwordless-sync-setup-heading = Hopp over passordet neste gang?
+inline-passwordless-sync-setup-heading = Hoppe over passordet neste gang?
 inline-passwordless-sync-setup-description = Bruk denne passnøkkelen for å logge på raskere.
-inline-passwordless-sync-setup-enable-button = Aktiver passnøkkel
-inline-passwordless-sync-setup-enabling = Slår på
+inline-passwordless-sync-setup-enable-button = Slå på passnøkkel
+inline-passwordless-sync-setup-enabling = Slår på…
 inline-passwordless-sync-setup-not-now-button = Ikke nå
 
 

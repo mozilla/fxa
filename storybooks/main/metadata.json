@@ -1,8 +1,8 @@
 {
-  "commit": "05491e712a0c40d21e2140546f7abaf845f333b1",
-  "summary": "Merge pull request #21219 from mozilla/fxa-14505",
-  "description": "feat(oauth): add an untrusted-client consent screen and restore 321done",
-  "timestamp": 1790187369000,
+  "commit": "b882bed55ce6e17822d339659fb5ed793370fe26",
+  "summary": "Merge pull request #21292 from mozilla/feat-add-firestore-db-id",
+  "description": "feat(metering): use entitlements Firestore database for usage grants",
+  "timestamp": 1790190686000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
