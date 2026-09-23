@@ -907,6 +907,50 @@ describe('Signin utils', () => {
           expect(hardNavigateSpy).not.toHaveBeenCalled();
         });
 
+        it('fails the request instead of showing the consent screen', async () => {
+          const integration = createMockSigninOAuthIntegration();
+          integration.isUntrusted = jest.fn().mockReturnValue(true);
+          Object.assign(integration.data, { scope: 'profile:email' });
+          const finishOAuthFlowHandler = jest.fn();
+          const navigationOptions = createBaseNavigationOptions({
+            integration,
+            queryParams: '?client_id=abc',
+            canRelayPromptNoneError: true,
+            finishOAuthFlowHandler,
+          });
+
+          const result = await handleNavigation(navigationOptions);
+
+          expect(result.error).toBeInstanceOf(OAuthError);
+          expect(result.error).toEqual(
+            expect.objectContaining({
+              errno: OAUTH_ERRORS.PROMPT_NONE_CONSENT_REQUIRED.errno,
+              response_error_code: 'consent_required',
+            })
+          );
+          expect(finishOAuthFlowHandler).not.toHaveBeenCalled();
+          expect(mockNavigate).not.toHaveBeenCalled();
+        });
+
+        it('leaves the consent screen to the finish handler when the RP takes no error redirect', async () => {
+          const integration = createMockSigninOAuthIntegration();
+          integration.isUntrusted = jest.fn().mockReturnValue(true);
+          Object.assign(integration.data, { scope: 'profile:email' });
+          const finishOAuthFlowHandler = jest
+            .fn()
+            .mockResolvedValue({ redirect: '/signin_permissions' });
+          const navigationOptions = createBaseNavigationOptions({
+            integration,
+            canRelayPromptNoneError: false,
+            finishOAuthFlowHandler,
+          });
+
+          const result = await handleNavigation(navigationOptions);
+
+          expect(result.error).toBeUndefined();
+          expect(finishOAuthFlowHandler).toHaveBeenCalled();
+        });
+
         it('does not reclassify an unverified session as an unmet level', async () => {
           // Same errno branch, different meaning — interaction_required, not an
           // unmet level. Pins that it is not mislabelled.

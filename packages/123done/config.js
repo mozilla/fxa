@@ -64,6 +64,12 @@ const conf = convict({
     format: Number,
     env: 'PORT',
   },
+  untrusted: {
+    doc: 'Is this instance the untrusted OAuth client (321done)?',
+    default: false,
+    format: Boolean,
+    env: 'UNTRUSTED',
+  },
   step_up_max_age: {
     doc: 'Default max_age (seconds) requested by the step-up auth flow',
     default: 300,
@@ -75,7 +81,9 @@ const conf = convict({
 const configTarget = process.env.CONFIG_123DONE || './config.json';
 const configFile = path.resolve(__dirname, configTarget);
 const secretsFile = path.resolve(__dirname, './secrets.json');
-const file = [configFile, secretsFile].filter(fs.existsSync);
+// Convict lets a later file override an earlier one, so the per-instance config
+// wins over the shared secrets file. Each client needs its own secret.
+const file = [secretsFile, configFile].filter(fs.existsSync);
 conf.loadFile(file);
 
 conf.validate();

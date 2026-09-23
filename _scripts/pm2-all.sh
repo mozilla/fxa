@@ -69,10 +69,10 @@ fi
 end=`date +%s`
 runtime=$((end-start))
 
-# Map a started project to the URL that proves it is serving. Projects without
-# an HTTP endpoint (libs, workers) return nothing and are skipped. Using a
-# function + case keeps this compatible with the macOS system bash (3.2, no
-# associative arrays).
+# Map a started project to the URLs that prove it is serving, space separated.
+# Projects without an HTTP endpoint (libs, workers) return nothing and are
+# skipped. Using a function + case keeps this compatible with the macOS system
+# bash (3.2, no associative arrays).
 service_url() {
   case "$1" in
     fxa-content-server) echo "http://localhost:3030" ;;
@@ -81,7 +81,8 @@ service_url() {
     fxa-profile-server) echo "http://localhost:1111/__heartbeat__" ;;
     fxa-admin-server)   echo "http://localhost:8090/__heartbeat__" ;;
     fxa-admin-panel)    echo "http://localhost:8091" ;;
-    123done)            echo "http://localhost:8080" ;;
+    # One nx project runs two pm2 apps: 123done (trusted) and 321done (untrusted).
+    123done)            echo "http://localhost:8080 http://localhost:10139" ;;
     *)                  echo "" ;;
   esac
 }
@@ -105,16 +106,18 @@ echo -e "  📍 Verifying started services:"
 set +e
 all_ok=true
 for project in $STARTED; do
-  url=$(service_url "$project")
-  [ -z "$url" ] && continue
-  code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 2 "$url" 2>/dev/null)
-  [[ "$code" =~ ^[0-9]+$ ]] || code="000"
-  if [ "$code" -ge 200 ] && [ "$code" -lt 400 ]; then
-    printf "     %-20s %s  OK\n" "$project" "$url"
-  else
-    printf "     %-20s %s  NOT READY (HTTP %s)\n" "$project" "$url" "$code"
-    all_ok=false
-  fi
+  urls=$(service_url "$project")
+  [ -z "$urls" ] && continue
+  for url in $urls; do
+    code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 2 "$url" 2>/dev/null)
+    [[ "$code" =~ ^[0-9]+$ ]] || code="000"
+    if [ "$code" -ge 200 ] && [ "$code" -lt 400 ]; then
+      printf "     %-20s %s  OK\n" "$project" "$url"
+    else
+      printf "     %-20s %s  NOT READY (HTTP %s)\n" "$project" "$url" "$code"
+      all_ok=false
+    fi
+  done
 done
 set -e
 
