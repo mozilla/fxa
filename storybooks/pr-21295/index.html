@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit c53a38a6cc7b628c0878170a7382dd2e87acb7d6</title>
+  <title>Storybooks for commit 29e33cbd1aad1c0f5ed24b23be9bfc2218c05b3d</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,37 +23,31 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit c53a38a6cc7b628c0878170a7382dd2e87acb7d6</h1>
+  <h1>Storybooks for commit 29e33cbd1aad1c0f5ed24b23be9bfc2218c05b3d</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/23/2026, 9:00:36 PM UTC</dd>
+    <dd>9/23/2026, 9:19:06 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(settings): serve /subscriptions redirects from React</pre></dd>
     <dt>Description</dt>
     <dd><pre>## Because
 
-- The `/subscriptions` and `/subscriptions/products/:productId` redirects still run only in the Backbone content-server app.
-- These routes must move to fxa-settings before Backbone can go away.
+- The `/subscriptions` and `/subscriptions/products/:productId` redirects still come from the Backbone content-server views.
+- The Jira comments planned to keep these routes in Backbone until FXA-6117 (Decommission Backbone). The owner decided to move them to React now.
 
 ## This pull request
 
-- Serves `/subscriptions` and `/subscriptions/products/:productId` from a new redirect-only `SubscriptionsRedirect` page in fxa-settings. The page shows a spinner only. `App` registers both routes.
-- Gates both routes with the `postVerifyOtherRoutes` React route group (`fullProdRollout: false`). Backbone still serves them until the flag is on.
-- Exposes the content-server `subscriptions` config to the settings app config.
-- Keeps parity with the Backbone views:
-  - `allowUnauthenticatedRedirects` sends signed-out users to checkout.
-  - `?signin=` forces sign-in through `/?redirect_to=`.
-  - `usePaymentsNextSubscriptionManagement` picks the payments-next `subscriptions/landing` page.
-  - Signed-in users get a management OAuth token in `#accessToken`.
-  - It drops flow params when `metricsEnabled` is false.
-- Adds unit tests for signed-in, signed-out, `?signin=`, both `usePaymentsNextSubscriptionManagement` values, and a token failure.
+- Adds the `SubscriptionsRedirect` page in fxa-settings for both routes, behind the `postVerifyOtherRoutes` feature flag.
+- Keeps parity with the Backbone views: `allowUnauthenticatedRedirects`, `?signin=` to force sign-in first, and `usePaymentsNextSubscriptionManagement` to choose `subscriptions/landing`.
+- Passes the `subscriptions` config from content-server to fxa-settings (`beta-settings.js`, `config.ts`).
+- Keeps a literal `+` in forwarded query params. `URLSearchParams` reads `?plan=a+b` as &quot;a b&quot;, but the Backbone parser keeps the `+`.
 
 ## Issue that this pull request solves
 
-Closes: [FXA-6661](https://mozilla-hub.atlassian.net/browse/FXA-6661)</pre></dd>
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-6661</pre></dd>
   </dl>
 </body>
 </html>
