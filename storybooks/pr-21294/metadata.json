@@ -1,0 +1,10 @@
+{
+  "commit": "e0ac3ab795e031cb4400451661d340c11dc6efd2",
+  "summary": "feat(settings): add React page for /update_firefox",
+  "description": "## Because\n\n- The \"Firefox update required\" page at `/update_firefox` exists only as a server-rendered content-server page. It needs a React version in fxa-settings.\n- The ticket dropped the no-JS requirement, so the page can be served by React.\n\n## This pull request\n\n- Adds the React page `pages/UpdateFirefox`, with Fluent strings in `en.ftl`, a story, mocks, and a unit test. `App/index.tsx` registers it at `/update_firefox`.\n- The \"Download latest\" button links to `/download_firefox`. It forwards only allowlisted query params because that route's Joi schema rejects unknown keys. It also adds `deviceId`, `flowBeginTime` and `flowId` from the metrics flow.\n- Adds `update_firefox` to `postVerifyOtherRoutes` through the new `UPDATE_FIREFOX_ROUTES` in `content-server-routes.js`. `react-route-client` accepts it. `react-route-server` maps it to the existing `get-update-firefox` definition as the non-React fallback.\n- `routes.js` does not register `get-update-firefox` early when the flag is on. That registration comes before the React handlers and would otherwise always win.\n- With the flag off, nothing changes. The server-rendered page, `/download_firefox`, and the hard navigations to `/update_firefox` from the Index and Signin containers all work as before.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-6657",
+  "timestamp": 1790197229000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
