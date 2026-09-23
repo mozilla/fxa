@@ -902,6 +902,14 @@ describe('Pair', () => {
         pairingVersion: 2,
       }),
     };
+    // What Firefox answers for a signed-in account: fxa_status carries the user.
+    const withSignedInUser = (result: ReturnType<typeof mockUseFxAStatus>) => ({
+      ...result,
+      fxaStatus: {
+        ...result.fxaStatus,
+        signedInUser: MOCK_SYNC_SIGNED_IN_USER,
+      },
+    });
     // v2 routing is gated on the deployment config as well as the browser, so
     // the suite has to opt in on both sides.
     const v2AppContext = () => {
@@ -960,6 +968,56 @@ describe('Pair', () => {
       hardNavigateSpy.mockRestore();
     });
 
+    it('reloads into the QR scanner without a second ask when fxa_status carries the user', async () => {
+      const hardNavigateSpy = jest
+        .spyOn(ReactUtils, 'hardNavigate')
+        .mockImplementation(() => {});
+      try {
+        renderWithRouter(
+          <Pair fxaStatusResult={withSignedInUser(v2Props.fxaStatusResult)} />,
+          {},
+          v2AppContext()
+        );
+
+        await waitFor(() =>
+          expect(hardNavigateSpy).toHaveBeenCalledWith(
+            '/pair/authority/scan_qr',
+            {},
+            true
+          )
+        );
+        expect(firefox.requestSignedInUser).not.toHaveBeenCalled();
+      } finally {
+        hardNavigateSpy.mockRestore();
+      }
+    });
+
+    it('sends a signed-out desktop to sign-in instead of the QR scanner', async () => {
+      const hardNavigateSpy = jest
+        .spyOn(ReactUtils, 'hardNavigate')
+        .mockImplementation(() => {});
+      try {
+        jest.mocked(firefox.requestSignedInUser).mockResolvedValue(undefined);
+        jest
+          .mocked(firefox.fxaOAuthFlowBegin)
+          .mockResolvedValue(MOCK_OAUTH_PARAMS);
+        renderWithRouter(<Pair {...v2Props} />, {}, v2AppContext());
+
+        await waitFor(() =>
+          expect(hardNavigateSpy).toHaveBeenCalledWith(
+            expect.stringMatching(/^\/\?.*client_id=cid-abc/)
+          )
+        );
+        expect(hardNavigateSpy).not.toHaveBeenCalledWith(
+          '/pair/authority/scan_qr',
+          {},
+          true
+        );
+      } finally {
+        hardNavigateSpy.mockRestore();
+      }
+    });
+
     it('stands the bootstrap down when a late v2 answer reaches the scanner', async () => {
       const hardNavigateSpy = jest
         .spyOn(ReactUtils, 'hardNavigate')
@@ -976,6 +1034,61 @@ describe('Pair', () => {
         jest
           .mocked(firefox.fxaOAuthFlowBegin)
           .mockResolvedValue(MOCK_OAUTH_PARAMS);
+
+        let answerV2 = () => {};
+        const PairAwaitingV2 = () => {
+          const [answered, setAnswered] = React.useState(false);
+          React.useEffect(() => {
+            answerV2 = () => setAnswered(true);
+          }, []);
+          return (
+            <Pair
+              fxaStatusResult={
+                answered
+                  ? withSignedInUser(mockUseFxAStatus({ pairingVersion: 2 }))
+                  : mockUseFxAStatus({
+                      pairingVersion: 1,
+                      fxaStatusState: 'unanswered',
+                    })
+              }
+            />
+          );
+        };
+
+        renderWithRouter(<PairAwaitingV2 />, {}, v2AppContext());
+        await waitFor(() =>
+          expect(firefox.requestSignedInUser).toHaveBeenCalled()
+        );
+        await act(async () => {
+          answerV2();
+        });
+        await act(async () => {
+          releaseSignedInUser();
+        });
+
+        expect(hardNavigateSpy).toHaveBeenCalledTimes(1);
+        expect(hardNavigateSpy).toHaveBeenCalledWith(
+          '/pair/authority/scan_qr',
+          {},
+          true
+        );
+        expect(firefox.fxaOAuthFlowBegin).not.toHaveBeenCalled();
+      } finally {
+        hardNavigateSpy.mockRestore();
+      }
+    });
+
+    it('reloads into the QR scanner when the bootstrap settles signed in after a late v2 answer', async () => {
+      const hardNavigateSpy = jest
+        .spyOn(ReactUtils, 'hardNavigate')
+        .mockImplementation(() => {});
+      try {
+        let releaseSignedInUser = () => {};
+        jest.mocked(firefox.requestSignedInUser).mockReturnValue(
+          new Promise((resolve) => {
+            releaseSignedInUser = () => resolve(MOCK_SYNC_SIGNED_IN_USER);
+          })
+        );
 
         let answerV2 = () => {};
         const PairAwaitingV2 = () => {
@@ -1005,7 +1118,6 @@ describe('Pair', () => {
           releaseSignedInUser();
         });
 
-        expect(hardNavigateSpy).toHaveBeenCalledTimes(1);
         expect(hardNavigateSpy).toHaveBeenCalledWith(
           '/pair/authority/scan_qr',
           {},
