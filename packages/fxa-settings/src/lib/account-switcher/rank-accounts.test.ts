@@ -158,6 +158,77 @@ describe('rankAccounts', () => {
     });
   });
 
+  describe('last used for the requesting client', () => {
+    const accounts = {
+      firefox: account({ email: 'firefox@example.com', lastLogin: 3 }),
+      sumo: account({ email: 'sumo@example.com', lastLogin: 1 }),
+      monitor: account({ email: 'monitor@example.com', lastLogin: 2 }),
+    };
+
+    it('puts the last-used account ahead of the browser account', () => {
+      const ranked = rankAccounts({
+        accounts,
+        firefoxSignedInUid: 'firefox',
+        lastUsedForClientUid: 'sumo',
+      });
+
+      expect(emails(ranked)).toEqual([
+        'sumo@example.com',
+        'firefox@example.com',
+        'monitor@example.com',
+      ]);
+      expect(ranked[0].isLastUsedForClient).toBe(true);
+    });
+
+    it('promotes a requested email that matches the last-used account', () => {
+      const ranked = rankAccounts({
+        accounts,
+        requestedEmail: 'sumo@example.com',
+        firefoxSignedInUid: 'firefox',
+        lastUsedForClientUid: 'sumo',
+      });
+
+      expect(ranked[0].email).toBe('sumo@example.com');
+    });
+
+    it('lets a requested browser account outrank the last-used account', () => {
+      const ranked = rankAccounts({
+        accounts,
+        requestedEmail: 'firefox@example.com',
+        firefoxSignedInUid: 'firefox',
+        lastUsedForClientUid: 'sumo',
+      });
+
+      expect(emails(ranked)).toEqual([
+        'firefox@example.com',
+        'sumo@example.com',
+        'monitor@example.com',
+      ]);
+    });
+
+    it('still ignores a requested email with no history for the client', () => {
+      const ranked = rankAccounts({
+        accounts,
+        requestedEmail: 'monitor@example.com',
+        firefoxSignedInUid: 'firefox',
+        lastUsedForClientUid: 'sumo',
+      });
+
+      expect(ranked[0].email).toBe('sumo@example.com');
+    });
+
+    it('ignores a last-used uid that is no longer stored', () => {
+      const ranked = rankAccounts({
+        accounts,
+        firefoxSignedInUid: 'firefox',
+        lastUsedForClientUid: 'removed',
+      });
+
+      expect(ranked[0].email).toBe('firefox@example.com');
+      expect(ranked.some((a) => a.isLastUsedForClient)).toBe(false);
+    });
+  });
+
   describe('accounts needing re-authentication', () => {
     it('sorts a session-less account below one with a session', () => {
       const ranked = rankAccounts({

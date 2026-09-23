@@ -14,6 +14,8 @@ export interface SwitchableAccount {
   hasSession: boolean;
   isCurrent: boolean;
   isFirefoxSignedIn: boolean;
+  /** Last account to finish an OAuth sign-in to the requesting client here. */
+  isLastUsedForClient: boolean;
   lastLogin?: number;
 }
 
@@ -21,21 +23,24 @@ export interface RankAccountsInput {
   accounts: Record<string, Partial<UnifiedAccountData>>;
   /**
    * Email an RP asked for, when there is one. Only promotes an account that is
-   * already current or signed in to the browser: the param is attacker
-   * controllable, so on a shared device it must not make someone else's cached
-   * account the one-click default.
+   * already current, signed in to the browser, or last used for this client:
+   * the param is attacker controllable, so on a shared device it must not make
+   * an unrelated cached account the one-click default.
    */
   requestedEmail?: string;
   firefoxSignedInUid?: string | null;
   currentAccountUid?: string | null;
+  /** Uid last used to sign in to the requesting OAuth client on this device. */
+  lastUsedForClientUid?: string | null;
 }
 
 /** Tiers, highest first. Within a tier, most recent login wins. */
 enum Rank {
   RequestedEmail = 0,
-  FirefoxSignedIn = 1,
-  Current = 2,
-  Other = 3,
+  LastUsedForClient = 1,
+  FirefoxSignedIn = 2,
+  Current = 3,
+  Other = 4,
 }
 
 function normalizeEmail(email?: string | null): string {
@@ -51,6 +56,7 @@ export function rankAccounts({
   requestedEmail,
   firefoxSignedInUid,
   currentAccountUid,
+  lastUsedForClientUid,
 }: RankAccountsInput): SwitchableAccount[] {
   const wanted = normalizeEmail(requestedEmail);
 
@@ -66,6 +72,8 @@ export function rankAccounts({
       hasSession: !!account.sessionToken,
       isCurrent: uid === currentAccountUid,
       isFirefoxSignedIn: !!firefoxSignedInUid && uid === firefoxSignedInUid,
+      isLastUsedForClient:
+        !!lastUsedForClientUid && uid === lastUsedForClientUid,
       lastLogin: account.lastLogin,
     }));
 
@@ -73,9 +81,14 @@ export function rankAccounts({
     if (
       wanted &&
       normalizeEmail(account.email) === wanted &&
-      (account.isCurrent || account.isFirefoxSignedIn)
+      (account.isCurrent ||
+        account.isFirefoxSignedIn ||
+        account.isLastUsedForClient)
     ) {
       return Rank.RequestedEmail;
+    }
+    if (account.isLastUsedForClient) {
+      return Rank.LastUsedForClient;
     }
     if (account.isFirefoxSignedIn) {
       return Rank.FirefoxSignedIn;

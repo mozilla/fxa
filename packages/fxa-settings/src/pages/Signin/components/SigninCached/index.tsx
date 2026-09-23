@@ -65,7 +65,12 @@ const SigninCached = ({
   const [signinLoading, setSigninLoading] = useState<boolean>(false);
 
   const accountSwitcherEnabled = !!config.featureFlags?.accountSwitcherEnabled;
-  const switchableAccounts = useSwitchableAccounts({ firefoxSignedInUid });
+  const switchableAccounts = useSwitchableAccounts({
+    firefoxSignedInUid,
+    clientId: integration.isFirefoxClient()
+      ? undefined
+      : integration.getClientId(),
+  });
 
   // Passwordless accounts that need keys (Sync, or a non-Sync Firefox service
   // when Sync is not decoupled) need to defer the browser login/OAuth messages
@@ -359,7 +364,7 @@ const SigninCached = ({
             onUseAnotherAccount={useAnotherAccount}
             disabled={signinLoading}
             gleanIdPrefix="cached_login_account_switcher"
-            {...{ primaryAccount }}
+            {...{ primaryAccount, serviceName }}
           />
         </form>
       ) : (

@@ -18,6 +18,8 @@ export interface UseSwitchableAccountsOptions {
    * and should pass it rather than read the mirror.
    */
   firefoxSignedInUid?: string | null;
+  /** OAuth client asking for the sign-in, to suggest its last-used account. */
+  clientId?: string;
 }
 
 /**
@@ -26,12 +28,16 @@ export interface UseSwitchableAccountsOptions {
 export function useSwitchableAccounts({
   requestedEmail,
   firefoxSignedInUid,
+  clientId,
 }: UseSwitchableAccountsOptions = {}): SwitchableAccount[] {
   const accounts = useLocalStorageSync('accounts') as
     | Record<string, Partial<UnifiedAccountData>>
     | undefined;
   const currentAccountUid = useLocalStorageSync('currentAccountUid') as
     | string
+    | undefined;
+  const lastAccountByClient = useLocalStorageSync('lastAccountByClient') as
+    | Record<string, string>
     | undefined;
   const mirroredFirefoxUid = useLocalStorageSync('firefoxSignedInUid') as
     | string
@@ -47,8 +53,16 @@ export function useSwitchableAccounts({
         requestedEmail,
         firefoxSignedInUid: resolvedFirefoxUid,
         currentAccountUid,
+        lastUsedForClientUid: clientId && lastAccountByClient?.[clientId],
       }),
-    [accounts, requestedEmail, resolvedFirefoxUid, currentAccountUid]
+    [
+      accounts,
+      requestedEmail,
+      resolvedFirefoxUid,
+      currentAccountUid,
+      clientId,
+      lastAccountByClient,
+    ]
   );
 }
 

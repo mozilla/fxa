@@ -18,6 +18,7 @@ import { Constants } from '../constants';
 import { AuthError, OAUTH_ERRORS, OAuthError } from './oauth-errors';
 import { AuthUiErrors } from '../auth-errors/auth-errors';
 import { integrationNeedsPermissions } from './permissions';
+import { setLastAccountForClient } from '../account-storage';
 
 export type OAuthData = {
   code: string;
@@ -303,6 +304,12 @@ export function useFinishOAuthFlowHandler(
           return { error };
         }
         return tryAgainError();
+      }
+
+      // Lets the account switcher suggest this account next time this client
+      // asks for a sign-in on this device.
+      if (oAuthIntegration.data.clientId) {
+        setLastAccountForClient(oAuthIntegration.data.clientId, accountUid);
       }
 
       const redirect = isSyncOAuth

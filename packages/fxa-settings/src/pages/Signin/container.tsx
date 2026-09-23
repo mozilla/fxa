@@ -67,7 +67,11 @@ import {
   StoredAccountData,
 } from '../../lib/storage-utils';
 import { rankAccounts } from '../../lib/account-switcher';
-import { getAccountData, getAllAccounts } from '../../lib/account-storage';
+import {
+  getAccountData,
+  getAllAccounts,
+  getLastAccountForClient,
+} from '../../lib/account-storage';
 import { cachedSignIn, ensureCanLinkAcountOrRedirect } from './utils';
 import { useSigninAvatar } from './useSigninAvatar';
 import OAuthDataError from '../../components/OAuthDataError';
@@ -142,7 +146,8 @@ function getAccountInfo(email?: string): AccountInfo {
  */
 function getRankedAccountInfo(
   email?: string,
-  firefoxSignedInUid?: string
+  firefoxSignedInUid?: string,
+  clientId?: string
 ): AccountInfo {
   const [suggested] = rankAccounts({
     accounts: getAllAccounts(),
@@ -151,6 +156,7 @@ function getRankedAccountInfo(
     // currentAccount() rather than getCurrentAccountUid(): it also applies a
     // `?uid=` param, which is how "Manage account" from Sync prefs arrives.
     currentAccountUid: currentAccount()?.uid,
+    lastUsedForClientUid: getLastAccountForClient(clientId),
   });
 
   // An email we were handed but have no stored account for still drives the
@@ -275,7 +281,9 @@ const SigninContainer = ({
     ?.accountSwitcherEnabled
     ? getRankedAccountInfo(
         requestedEmail,
-        useFxAStatusResult.fxaStatus?.signedInUser?.uid
+        useFxAStatusResult.fxaStatus?.signedInUser?.uid,
+        // The browser's own account must lead Firefox flows (merge stop).
+        integration.isFirefoxClient() ? undefined : integration.getClientId()
       )
     : getAccountInfo(requestedEmail);
 

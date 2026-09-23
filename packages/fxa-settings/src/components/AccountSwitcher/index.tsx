@@ -39,6 +39,8 @@ export interface AccountSwitcherProps {
   gleanIdPrefix?: string;
   /** Locks every row while the chosen account's sign-in is in flight. */
   disabled?: boolean;
+  /** Names the service in the last-used label. Omit outside OAuth sign-in. */
+  serviceName?: string;
 }
 
 export const AccountSwitcher = ({
@@ -50,6 +52,7 @@ export const AccountSwitcher = ({
   localizedLabel,
   gleanIdPrefix,
   disabled = false,
+  serviceName,
 }: AccountSwitcherProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const isChooser = variant === 'chooser';
@@ -69,6 +72,7 @@ export const AccountSwitcher = ({
     onSelect,
     disabled,
     variant,
+    serviceName,
     gleanId: gleanIdPrefix && `${gleanIdPrefix}_select`,
   };
 

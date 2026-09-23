@@ -108,6 +108,29 @@ describe('AccountSwitcher', () => {
       ).not.toBeInTheDocument();
     });
 
+    it('names the service an account was last used for', () => {
+      renderSwitcher(
+        [
+          mockSwitchableAccount({
+            hasSession: false,
+            isLastUsedForClient: true,
+          }),
+        ],
+        { serviceName: 'Mozilla Monitor' }
+      );
+
+      expect(
+        screen.getByText('Last used for Mozilla Monitor')
+      ).toBeInTheDocument();
+      expect(screen.queryByText('Signed out')).not.toBeInTheDocument();
+    });
+
+    it('omits the last-used label without a service name', () => {
+      renderSwitcher([mockSwitchableAccount({ isLastUsedForClient: true })]);
+
+      expect(screen.queryByText(/Last used for/)).not.toBeInTheDocument();
+    });
+
     it('says nothing extra for an account with a session', () => {
       renderSwitcher([mockSwitchableAccount({ isCurrent: true })]);
 

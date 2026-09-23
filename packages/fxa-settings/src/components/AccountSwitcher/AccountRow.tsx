@@ -53,6 +53,7 @@ export interface AccountRowProps {
    */
   isSubmit?: boolean;
   disabled?: boolean;
+  serviceName?: string;
   'data-testid'?: string;
 }
 
@@ -64,9 +65,11 @@ export const AccountRow = ({
   gleanId,
   isSubmit = false,
   disabled = false,
+  serviceName,
   'data-testid': testId,
 }: AccountRowProps) => {
-  const { email, avatar, hasSession, isFirefoxSignedIn } = account;
+  const { email, avatar, hasSession, isFirefoxSignedIn, isLastUsedForClient } =
+    account;
   const isChooser = variant === 'chooser';
 
   // Line 1 is always the email, line 2 always account state. Display names are
@@ -79,15 +82,25 @@ export const AccountRow = ({
   const stateClasses =
     'block truncate text-xs text-grey-500 dark:text-grey-200';
 
-  const stateLine = !hasSession ? (
-    <FtlMsg id="account-switcher-signed-out">
-      <span className={stateClasses}>Signed out</span>
-    </FtlMsg>
-  ) : isFirefoxSignedIn ? (
-    <FtlMsg id="account-switcher-signed-into-firefox">
-      <span className={stateClasses}>Signed in to Firefox</span>
-    </FtlMsg>
-  ) : null;
+  // Last-used wins over signed out: it explains why the row leads, and choosing
+  // it prompts for credentials either way.
+  const stateLine =
+    isLastUsedForClient && serviceName ? (
+      <FtlMsg
+        id="account-switcher-last-used-for-service"
+        vars={{ serviceName }}
+      >
+        <span className={stateClasses}>Last used for {serviceName}</span>
+      </FtlMsg>
+    ) : !hasSession ? (
+      <FtlMsg id="account-switcher-signed-out">
+        <span className={stateClasses}>Signed out</span>
+      </FtlMsg>
+    ) : isFirefoxSignedIn ? (
+      <FtlMsg id="account-switcher-signed-into-firefox">
+        <span className={stateClasses}>Signed in to Firefox</span>
+      </FtlMsg>
+    ) : null;
 
   const label = (
     <span className="block leading-5">

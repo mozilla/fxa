@@ -449,3 +449,21 @@ export function setFirefoxSignedInUid(uid: string | null): void {
   }
   dispatchStorageEvent('firefoxSignedInUid');
 }
+
+/**
+ * The uid that last finished an OAuth sign-in to each client on this device,
+ * keyed by client id. Its own key for the same reason as `firefoxSignedInUid`.
+ */
+export function getLastAccountForClient(clientId?: string): string | null {
+  if (!clientId) return null;
+  return storage().get('lastAccountByClient')?.[clientId] || null;
+}
+
+export function setLastAccountForClient(clientId: string, uid: string): void {
+  const lastAccountByClient = storage().get('lastAccountByClient') || {};
+  storage().set('lastAccountByClient', {
+    ...lastAccountByClient,
+    [clientId]: uid,
+  });
+  dispatchStorageEvent('lastAccountByClient');
+}

@@ -7,6 +7,10 @@ account-switcher-group-label = Choose an account
 # menu. Note this reflects being signed in to the browser, which is not the same
 # as having Sync turned on.
 account-switcher-signed-into-firefox = Signed in to { -brand-firefox }
+# Shown under the account last used on this device to sign in to the service
+# being signed in to now.
+# $serviceName (String) - The name of the service, e.g. "Mozilla Monitor"
+account-switcher-last-used-for-service = Last used for { $serviceName }
 # Shown under an account that has no active session, so choosing it means
 # entering a password or other credentials again.
 account-switcher-signed-out = Signed out

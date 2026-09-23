@@ -28,6 +28,7 @@ export const mockSwitchableAccount = (
   hasSession: true,
   isCurrent: false,
   isFirefoxSignedIn: false,
+  isLastUsedForClient: false,
   lastLogin: 1000,
   ...overrides,
 });
