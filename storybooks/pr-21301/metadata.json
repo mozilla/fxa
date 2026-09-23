@@ -1,0 +1,10 @@
+{
+  "commit": "44d68bb99ca40e1d4181df01294d3bf04344b8f7",
+  "summary": "fix(settings): send signed-out v2 desktop to sign-in before pairing QR",
+  "description": "## Because\n\n- On desktop Firefox with pairing v2, `/pair` sent the user to `/pair/authority/scan_qr` before it checked for a signed-in account.\n- The authority channel needs no account, so a signed-out user got a working QR code. After the scan, `ApproveSignIn` crashed with \"Account data not loaded from localStorage\".\n\n## This pull request\n\n- Removes the early scan_qr redirect in `Pair/Index/index.tsx` that ran before the `fxa_status` guard. The second redirect now has a signed-in check.\n- Sends a v2 desktop straight to scan_qr only when `fxa_status` already has a verified `signedInUser`. This fast path skips a second round trip to Firefox (open question 1 on the ticket).\n- In all other cases, runs the existing bootstrap (`requestSignedInUser`, then `fxaOAuthFlowBegin` and sign-in). When the bootstrap gets a verified user and v2 is on, it goes to scan_qr.\n- Adds `pairingV2Ref` to hold the latest v2 gate. A late `fxa_status` answer can change the gate while the bootstrap runs.\n- Changes behavior: a v2 desktop with a `sessionToken` on an unverified account now goes to sign-in, the same as v1.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-14591",
+  "timestamp": 1790203402000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

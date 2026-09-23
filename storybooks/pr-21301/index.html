@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 44d68bb99ca40e1d4181df01294d3bf04344b8f7</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 44d68bb99ca40e1d4181df01294d3bf04344b8f7</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/23/2026, 10:43:22 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): send signed-out v2 desktop to sign-in before pairing QR</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- On desktop Firefox with pairing v2, `/pair` sent the user to `/pair/authority/scan_qr` before it checked for a signed-in account.
+- The authority channel needs no account, so a signed-out user got a working QR code. After the scan, `ApproveSignIn` crashed with &quot;Account data not loaded from localStorage&quot;.
+
+## This pull request
+
+- Removes the early scan_qr redirect in `Pair/Index/index.tsx` that ran before the `fxa_status` guard. The second redirect now has a signed-in check.
+- Sends a v2 desktop straight to scan_qr only when `fxa_status` already has a verified `signedInUser`. This fast path skips a second round trip to Firefox (open question 1 on the ticket).
+- In all other cases, runs the existing bootstrap (`requestSignedInUser`, then `fxaOAuthFlowBegin` and sign-in). When the bootstrap gets a verified user and v2 is on, it goes to scan_qr.
+- Adds `pairingV2Ref` to hold the latest v2 gate. A late `fxa_status` answer can change the gate while the bootstrap runs.
+- Changes behavior: a v2 desktop with a `sessionToken` on an unverified account now goes to sign-in, the same as v1.
+
+## Issue that this pull request solves
+
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-14591</pre></dd>
+  </dl>
+</body>
+</html>
