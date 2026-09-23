@@ -31,6 +31,7 @@ export class LocalTarget extends BaseTarget {
   readonly paymentsTestPriceId = 'price_1NSnz3BVqmGyQTMaIkV5wjEc';
   readonly relierUrl = 'http://localhost:8080';
   readonly relierClientID = RELIER_CLIENT_ID;
+  readonly untrustedRelierUrl = 'http://localhost:10139';
   readonly rateLimitClient: RateLimitClient;
 
   constructor() {

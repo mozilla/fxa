@@ -25,6 +25,7 @@ import { hardNavigate } from 'fxa-react/lib/utils';
 import { currentAccount, discardSessionToken } from '../../lib/cache';
 import firefox from '../../lib/channels/firefox';
 import { AuthError, OAuthError } from '../../lib/oauth';
+import { integrationNeedsPermissions } from '../../lib/oauth/permissions';
 import GleanMetrics from '../../lib/glean';
 import { OAuthData } from '../../lib/oauth/hooks';
 import AuthenticationMethods from '../../constants/authentication-methods';
@@ -752,6 +753,18 @@ const getOAuthNavigationTarget = async (
       to: `/inline_totp_setup${navigationOptions.queryParams || ''}`,
       locationState,
     };
+  }
+
+  // The permissions screen is interactive, which prompt=none forbids. The RP
+  // gets an error redirect instead, so a silent flow fails rather than hangs.
+  if (
+    navigationOptions.canRelayPromptNoneError &&
+    integrationNeedsPermissions(
+      navigationOptions.integration,
+      navigationOptions.signinData.uid
+    )
+  ) {
+    return { error: new OAuthError('PROMPT_NONE_CONSENT_REQUIRED') };
   }
 
   // `scope` is the server-resolved scope per ADR 0049, only forwarded

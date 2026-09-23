@@ -10,7 +10,11 @@ import { AppContext, IntegrationType } from '../../models';
 import type { AppContextValue, Integration } from '../../models';
 import { mockAppContext } from '../../models/mocks';
 import { SensitiveDataClient } from '../sensitive-data-client';
+import { integrationNeedsPermissions } from './permissions';
 
+jest.mock('./permissions', () => ({
+  integrationNeedsPermissions: jest.fn(),
+}));
 jest.mock('../crypto/scoped-keys', () => ({
   createEncryptedBundle: jest.fn().mockResolvedValue('keys-jwe'),
 }));
@@ -94,5 +98,49 @@ describe('useFinishOAuthFlowHandler password-free passkey opt-in material', () =
 
     expect(result.error).toBeUndefined();
     expect(sensitiveDataClient.PasskeyWrapData?.kB).toEqual(KB_BUFFER);
+  });
+});
+
+describe('useFinishOAuthFlowHandler permissions gate', () => {
+  const mockIntegrationNeedsPermissions =
+    integrationNeedsPermissions as jest.Mock;
+
+  const finishWebFlow = (options?: { skipPermissions?: boolean }) => {
+    const integration = {
+      type: IntegrationType.OAuthWeb,
+      data: { clientId: '325b4083e32fe8e7', state: 'state' },
+      clientInfo: { redirectUri: 'https://rp.example/callback' },
+      wantsKeys: () => false,
+      getNormalizedScope: () => 'profile',
+    } as unknown as Integration;
+    const { result } = renderHook(
+      () => useFinishOAuthFlowHandler(authClient, integration, options),
+      { wrapper }
+    );
+    return result.current.finishOAuthFlowHandler(UID, 'session-token');
+  };
+
+  beforeEach(() => {
+    mockIntegrationNeedsPermissions.mockReturnValue(true);
+    window.history.replaceState({}, '', '/signup?client_id=325b4083e32fe8e7');
+  });
+
+  it('diverts to the permissions screen without creating a code', async () => {
+    const result = await finishWebFlow();
+
+    expect(result.error).toBeUndefined();
+    expect(result.redirect).toBe(
+      '/signin_permissions?client_id=325b4083e32fe8e7'
+    );
+    expect(authClient.createOAuthCode).not.toHaveBeenCalled();
+  });
+
+  it('completes the flow when the screen has shown the permissions', async () => {
+    const result = await finishWebFlow({ skipPermissions: true });
+
+    expect(authClient.createOAuthCode).toHaveBeenCalled();
+    expect(result.redirect).toBe(
+      'https://rp.example/callback?code=code&state=state'
+    );
   });
 });

@@ -14,6 +14,9 @@ const PAYMENTS_NEXT_DOMAIN =
 const RELIER_DOMAIN =
   process.env.RELIER_DOMAIN || 'stage-123done.herokuapp.com';
 const RELIER_CLIENT_ID = 'dcdb5ae7add825d2';
+const UNTRUSTED_RELIER_DOMAIN =
+  process.env.UNTRUSTED_RELIER_DOMAIN ||
+  'stage-123done-untrusted.herokuapp.com';
 
 export class StageTarget extends RemoteTarget {
   static readonly target = 'stage';
@@ -24,6 +27,7 @@ export class StageTarget extends RemoteTarget {
   readonly paymentsTestPriceId = 'price_1QACG5Kb9q6OnNsLtEpM8dbm';
   readonly relierUrl = `https://${RELIER_DOMAIN}`;
   readonly relierClientID = RELIER_CLIENT_ID;
+  readonly untrustedRelierUrl = `https://${UNTRUSTED_RELIER_DOMAIN}`;
 
   constructor() {
     super(`https://${ACCOUNTS_API_DOMAIN}`);

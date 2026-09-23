@@ -17,6 +17,7 @@ import { createEncryptedBundle } from '../crypto/scoped-keys';
 import { Constants } from '../constants';
 import { AuthError, OAUTH_ERRORS, OAuthError } from './oauth-errors';
 import { AuthUiErrors } from '../auth-errors/auth-errors';
+import { integrationNeedsPermissions } from './permissions';
 
 export type OAuthData = {
   code: string;
@@ -219,7 +220,9 @@ export function tryAgainError() {
  */
 export function useFinishOAuthFlowHandler(
   authClient: AuthClient,
-  integration: Pick<Integration, 'type' | 'data'>
+  integration: Pick<Integration, 'type' | 'data'>,
+  // Only the permissions screen sets this, as it is what the gate diverts to.
+  { skipPermissions = false }: { skipPermissions?: boolean } = {}
 ): UseFinishOAuthFlowHandlerResult {
   const isSyncOAuth = isOAuthNativeIntegrationSync(integration);
   const oAuthIntegration = isOAuthIntegration(integration) ? integration : null;
@@ -231,6 +234,22 @@ export function useFinishOAuthFlowHandler(
       // Went very sideways.
       if (oAuthIntegration == null) {
         throw new OAuthError('UNEXPECTED_ERROR');
+      }
+
+      // Web OAuth callers hard navigate to `redirect`; the screen resumes from
+      // the stored account. Untrusted RPs get no key-bearing scope, so losing
+      // the in-memory key material is safe.
+      if (
+        !skipPermissions &&
+        integrationNeedsPermissions(oAuthIntegration, accountUid)
+      ) {
+        return {
+          redirect: `/signin_permissions${window.location.search}`,
+          code: '',
+          state: '',
+          scope: '',
+          error: undefined,
+        };
       }
 
       let keys;
@@ -309,7 +328,13 @@ export function useFinishOAuthFlowHandler(
         scope: oAuthData.scope,
       };
     },
-    [authClient, oAuthIntegration, isSyncOAuth, sensitiveDataClient]
+    [
+      authClient,
+      oAuthIntegration,
+      isSyncOAuth,
+      sensitiveDataClient,
+      skipPermissions,
+    ]
   );
 
   /* TODO: Probably remove 'isOAuthVerificationDifferentBrowser' and
