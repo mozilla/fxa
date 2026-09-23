@@ -1,8 +1,8 @@
 {
-  "commit": "7a3da226726d2dc49ad12e8e8c11849b1bc152d8",
-  "summary": "Merge pull request #21287 from mozilla/FXA-14464",
-  "description": "fix(settings): keep v2 pairing authorities off the legacy pair screens",
-  "timestamp": 1790184919000,
+  "commit": "6224a01fe3355a9ff0ec668d30e0c361ba7ece5a",
+  "summary": "Merge pull request #21275 from mozilla/fxa-11853",
+  "description": "chore(admin-panel): build with webpack 5 instead of rescripts",
+  "timestamp": 1790185090000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
