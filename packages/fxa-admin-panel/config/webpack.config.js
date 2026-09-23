@@ -33,7 +33,8 @@ module.exports = {
     publicPath,
     filename: 'static/js/[name].[contenthash:8].js',
     chunkFilename: 'static/js/[name].[contenthash:8].chunk.js',
-    clean: true,
+    // build-ts-server compiles into libs/ and packages/ here, possibly in parallel.
+    clean: { keep: /^(libs|packages)\// },
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
