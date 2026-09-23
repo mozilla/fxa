@@ -1658,8 +1658,8 @@ inline-passwordless-sync-setup-page-title = Hepgor y cyfrinair tro nesaf?
 # Success banner after signing in.
 inline-passwordless-sync-setup-success-banner = Wedi mewngofnodi i { -brand-firefox }
 inline-passwordless-sync-setup-heading = Hepgor y cyfrinair tro nesaf?
-inline-passwordless-sync-setup-description = Defnyddiwch y cyfrinair hwn i fewngofnodi'n gyflymach.
-inline-passwordless-sync-setup-enable-button = Galluogi cyfrinair
+inline-passwordless-sync-setup-description = Defnyddiwch y cyfrinallwedd hwn i fewngofnodi'n gyflymach.
+inline-passwordless-sync-setup-enable-button = Galluogi cyfrinallwedd
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Wrthi'n galluogi…
 inline-passwordless-sync-setup-not-now-button = Nid nawr
@@ -1934,7 +1934,7 @@ pair2-authority-scan-qr-skip-button = Hepgor am nawr
 
 pair2-authority-sync-success-heading-v2 = Mae eich dyfais wedi'i gysylltu
 # "Syncing" here means copying data between the user's devices
-pair2-authority-sync-success-description-v2 = Mae cysoni ar y gweill. Gall gymryd peth amser i'ch data synced ymddangos. Mae croeso i chi barhau i bori.
+pair2-authority-sync-success-description-v2 = Wrthi'n cydweddu. Gall gymryd peth amser i'ch data wedi'i gydweddu ymddangos. Mae croeso i chi barhau i bori.
 # Opens the browser settings that control what is synced
 pair2-authority-sync-success-sync-settings-button-v2 = Rheoli gosodiadau cydweddu
 
@@ -1947,7 +1947,7 @@ pair2-authority-sync-success-sync-settings-button-v2 = Rheoli gosodiadau cydwedd
 pair2-authority-timeout-and-cancel-timeout-heading = Dal eisiau cysylltu dyfais?
 pair2-authority-timeout-and-cancel-timeout-description = Mae'n edrych fel bod ein amser wedi dod i ben. Ceisiwch eto os ydych dal eisiau cysylltu eich dyfais symudol a chydweddu eich data { -brand-firefox }.
 # Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-cancelled-heading = Wedi'i Ganslo
+pair2-authority-timeout-and-cancel-cancelled-heading = Wedi'i Ddiddymu
 pair2-authority-timeout-and-cancel-canceled-description = Os ydych chi'n newid eich meddwl neu eisiau cysylltu dyfais wahanol, ceisiwch eto.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Ceisiwch eto
@@ -2013,7 +2013,7 @@ pair2-supplicant-ready-to-scan-learn-more-link = Dysgu rhagor
 
 pair2-supplicant-sync-success-heading = Mae eich dyfais wedi'i gysylltu
 # "Syncing" here means copying data between the user's devices
-pair2-supplicant-sync-success-description-v2 = Mae cysoni ar y gweill. Gall gymryd peth amser i'ch data synced ymddangos. Mae croeso i chi barhau i bori.
+pair2-supplicant-sync-success-description-v2 = Wrthi'n cydweddu. Gall gymryd peth amser i'ch data wedi'i gydweddu ymddangos. Mae croeso i chi barhau i bori.
 # Opens the browser's sync settings, where the user chooses what to sync
 pair2-supplicant-sync-success-sync-settings-button-v2 = Rheoli gosodiadau cydweddu
 
@@ -2028,7 +2028,7 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Mae'n edrych fel bod ein a
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = I gysylltu eich dyfais symudol a chydweddu eich data { -brand-firefox }, ewch i <b>firefox.com/pair</b> ar eich cyfrifiadur.
 # Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-cancelled-heading = Wedi'i Ganslo
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Wedi'i Ddiddymu
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = I gysylltu dyfais unrhyw bryd, ewch i <b>firefox.com/pair</b> ar eich cyfrifiadur.
 

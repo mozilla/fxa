@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit bfa449b043f969b1a7841b1e240b8a9b18fccef9</title>
+  <title>Storybooks for commit 43fbb8479a772348e88b74dce75b9380f53573b6</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,26 +23,25 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit bfa449b043f969b1a7841b1e240b8a9b18fccef9</h1>
+  <h1>Storybooks for commit 43fbb8479a772348e88b74dce75b9380f53573b6</h1>
   <ul>
     <li><a href="./fxa-react/">fxa-react</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/23/2026, 12:06:21 AM UTC</dd>
+    <dd>9/23/2026, 4:59:16 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>feat(settings): sign in to Sync with a PRF passkey and no password</pre></dd>
+    <dd><pre>feat(settings): delete a passkey wrap that will not open</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-- A passkey with a stored wrap can recover kB in the browser.
+- A current wrap that will not open fails every sign-in, and a store cannot replace it.
 
 This commit:
-- Fetches and opens the wrap after a PRF passkey sign-in and passes kB into the OAuth flow.
-- Sends every wrap-less or failing case to the password page.
-- Stashes opt-in material only when no usable wrap is stored.
-- Reports a wrap that will not open to Sentry, since no retry can clear it.
-- Skips the wrap path outside OAuth-native Sync and when the flag is off.
+- Returns dead_end for a wrap that will not open, and adds discardPasskeyWrap.
+- Deletes a dead-end wrap on desktop and stashes the opt-in material.
+- Caps it at one delete per run of dead ends per device, reporting a heal loop after that.
+- Makes no offer when the delete fails, since the store would return 235.
 
 Closes #FXA-13152</pre></dd>
   </dl>
