@@ -221,5 +221,6 @@ export const Constants = {
 
   STORAGE_REACT_EXPERIMENT: 'experiment.generalizedReactApp',
 
-  SYNC_SUMO_URL: 'https://support.mozilla.org/kb/how-do-i-set-sync-my-computer'
+  PAIR_WITHOUT_QR_SUMO_URL:
+    'https://support.mozilla.org/kb/connect-firefox-another-device-without-qr-code',
 };

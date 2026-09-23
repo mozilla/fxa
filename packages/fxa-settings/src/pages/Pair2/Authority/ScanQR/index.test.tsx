@@ -118,11 +118,13 @@ describe('Pair2/Authority/ScanQR page', () => {
     );
   });
 
-  it('links out to the scanning support article', () => {
+  it('links out to the support article for signing in without the QR code', () => {
     renderWithLocalizationProvider(<Subject />);
 
-    const link = screen.getByRole('link', { name: /Get help scanning/ });
-    expect(link).toHaveAttribute('href', Constants.SYNC_SUMO_URL);
+    const link = screen.getByRole('link', {
+      name: /Other ways to sign in on mobile/,
+    });
+    expect(link).toHaveAttribute('href', Constants.PAIR_WITHOUT_QR_SUMO_URL);
     expect(link).toHaveAttribute('target', '_blank');
   });
 
