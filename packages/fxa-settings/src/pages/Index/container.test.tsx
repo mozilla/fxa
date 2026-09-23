@@ -1289,6 +1289,7 @@ describe('IndexContainer', () => {
             hasPassword: false,
             passwordlessSupported: true,
           }),
+          passwordlessSendCode: jest.fn().mockResolvedValue({}),
         });
 
         renderWithLocalizationProvider(
@@ -1312,6 +1313,233 @@ describe('IndexContainer', () => {
         });
         const [calledUrl] = mockNavigate.mock.calls[0];
         expect(calledUrl).toMatch(/signin_passwordless_code$/);
+      });
+
+      it('sends the code once and passes codeSent before navigating', async () => {
+        const passwordlessSendCode = jest.fn().mockResolvedValue({});
+        mockUseAuthClient.mockReturnValue({
+          accountStatusByEmail: jest.fn().mockResolvedValue({
+            exists: true,
+            hasLinkedAccount: false,
+            hasPassword: false,
+            passwordlessSupported: true,
+          }),
+          passwordlessSendCode,
+        });
+
+        renderWithLocalizationProvider(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+        });
+
+        await act(async () => {
+          await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+        });
+
+        expect(passwordlessSendCode).toHaveBeenCalledTimes(1);
+        expect(passwordlessSendCode).toHaveBeenCalledWith(MOCK_EMAIL, {
+          clientId: integration.getClientId(),
+          service: integration.getService(),
+          metricsContext: expect.objectContaining({
+            clientId: integration.getClientId(),
+          }),
+        });
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledTimes(1);
+        });
+        const [calledUrl, options] = mockNavigate.mock.calls[0];
+        expect(calledUrl).toMatch(/signin_passwordless_code$/);
+        expect(options.state.codeSent).toBe(true);
+      });
+
+      it('navigates with codeSent false when the send fails for another reason', async () => {
+        const passwordlessSendCode = jest
+          .fn()
+          .mockRejectedValue(AuthUiErrors.THROTTLED);
+        mockUseAuthClient.mockReturnValue({
+          accountStatusByEmail: jest.fn().mockResolvedValue({
+            exists: true,
+            hasLinkedAccount: false,
+            hasPassword: false,
+            passwordlessSupported: true,
+          }),
+          passwordlessSendCode,
+        });
+
+        renderWithLocalizationProvider(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+        });
+
+        await act(async () => {
+          await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+        });
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledTimes(1);
+        });
+        const [calledUrl, options] = mockNavigate.mock.calls[0];
+        expect(calledUrl).toMatch(/signin_passwordless_code$/);
+        expect(options.state.codeSent).toBe(false);
+      });
+
+      it('shows the block error and stays on the email form when the send is blocked', async () => {
+        const passwordlessSendCode = jest
+          .fn()
+          .mockRejectedValue(AuthUiErrors.REQUEST_BLOCKED);
+        mockUseAuthClient.mockReturnValue({
+          accountStatusByEmail: jest.fn().mockResolvedValue({
+            exists: true,
+            hasLinkedAccount: false,
+            hasPassword: false,
+            passwordlessSupported: true,
+          }),
+          passwordlessSendCode,
+        });
+
+        renderWithLocalizationProvider(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+        });
+
+        await act(async () => {
+          await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+        });
+
+        expect(passwordlessSendCode).toHaveBeenCalledTimes(1);
+        expect(mockNavigate).not.toHaveBeenCalled();
+        expect(currentIndexProps?.errorBannerMessage).toEqual(
+          AuthUiErrors.REQUEST_BLOCKED.message
+        );
+        expect(gleanSubmitSuccessSpy).not.toHaveBeenCalled();
+        expect(gleanSubmitFailSpy).toHaveBeenCalledTimes(1);
+        expect(gleanSubmitFailSpy).toHaveBeenCalledWith({
+          event: { reason: 'login' },
+        });
+      });
+
+      it('sends the code and flags signup when a new account uses passwordless', async () => {
+        const passwordlessSendCode = jest.fn().mockResolvedValue({});
+        mockUseValidatedQueryParams.mockReturnValue({
+          queryParamModel: { forcePasswordless: true },
+          validationError: null,
+        });
+        mockUseAuthClient.mockReturnValue({
+          accountStatusByEmail: jest.fn().mockResolvedValue({
+            exists: false,
+            hasLinkedAccount: false,
+            hasPassword: false,
+            passwordlessSupported: true,
+          }),
+          passwordlessSendCode,
+        });
+
+        renderWithLocalizationProvider(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+        });
+
+        await act(async () => {
+          await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+        });
+
+        expect(passwordlessSendCode).toHaveBeenCalledTimes(1);
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledTimes(1);
+        });
+        const [calledUrl, options] = mockNavigate.mock.calls[0];
+        expect(calledUrl).toMatch(/signin_passwordless_code$/);
+        expect(options.state.isSignup).toBe(true);
+        expect(options.state.codeSent).toBe(true);
+        expect(gleanSubmitSuccessSpy).toHaveBeenCalledWith({
+          event: { reason: 'registration' },
+        });
+      });
+
+      it('shows the block error and stays on the email form when a new account send is blocked', async () => {
+        const passwordlessSendCode = jest
+          .fn()
+          .mockRejectedValue(AuthUiErrors.REQUEST_BLOCKED);
+        mockUseValidatedQueryParams.mockReturnValue({
+          queryParamModel: { forcePasswordless: true },
+          validationError: null,
+        });
+        mockUseAuthClient.mockReturnValue({
+          accountStatusByEmail: jest.fn().mockResolvedValue({
+            exists: false,
+            hasLinkedAccount: false,
+            hasPassword: false,
+            passwordlessSupported: true,
+          }),
+          passwordlessSendCode,
+        });
+
+        renderWithLocalizationProvider(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+        });
+
+        await act(async () => {
+          await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+        });
+
+        expect(passwordlessSendCode).toHaveBeenCalledTimes(1);
+        expect(mockNavigate).not.toHaveBeenCalled();
+        expect(currentIndexProps?.errorBannerMessage).toEqual(
+          AuthUiErrors.REQUEST_BLOCKED.message
+        );
+        expect(gleanSubmitSuccessSpy).not.toHaveBeenCalled();
+        expect(gleanSubmitFailSpy).toHaveBeenCalledTimes(1);
+        expect(gleanSubmitFailSpy).toHaveBeenCalledWith({
+          event: { reason: 'registration' },
+        });
       });
 
       it('does not redirect password account to passwordless even when passwordlessSupported is false', async () => {
