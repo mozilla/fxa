@@ -5,11 +5,10 @@
 import Glean from '@mozilla/glean/web';
 import * as GleanMetricsAPI from '@mozilla/glean/metrics';
 import { testResetGlean } from '@mozilla/glean/testing';
+import { InternalEventMetricType } from '@mozilla/glean/private/metrics/event';
 import sinon, { SinonStub } from 'sinon';
 
 import GleanMetrics, { GleanMetricsContext } from './index';
-import * as pings from 'fxa-shared/metrics/glean/web/pings';
-import * as event from 'fxa-shared/metrics/glean/web/event';
 import * as reg from 'fxa-shared/metrics/glean/web/reg';
 import * as login from 'fxa-shared/metrics/glean/web/login';
 import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
@@ -69,8 +68,7 @@ const mockMetricsContext: GleanMetricsContext = {
 };
 
 describe('lib/glean', () => {
-  let submitPingStub: SinonStub,
-    setDeviceTypeStub: SinonStub,
+  let setDeviceTypeStub: SinonStub,
     setEntrypointStub: SinonStub,
     setEventNameStub: SinonStub,
     setEventReasonStub: SinonStub,
@@ -109,12 +107,10 @@ describe('lib/glean', () => {
       entrypointVariation: 'earth',
     } as WebIntegrationData;
 
-    mockIntegration.getCmsInfo = jest.fn().mockResolvedValue({});
-
     setDeviceTypeStub = sandbox.stub(deviceType, 'set');
     setEntrypointStub = sandbox.stub(entrypoint, 'set');
-    setEventNameStub = sandbox.stub(event.name, 'set');
-    setEventReasonStub = sandbox.stub(event.reason, 'set');
+    setEventNameStub = sandbox.stub();
+    setEventReasonStub = sandbox.stub();
     setFlowIdStub = sandbox.stub(flowId, 'set');
     setOauthClientIdStub = sandbox.stub(oauthClientId, 'set');
     setServiceStub = sandbox.stub(service, 'set');
@@ -130,7 +126,24 @@ describe('lib/glean', () => {
       'set'
     );
     setEntrypointVariationStub = sandbox.stub(entrypointQuery.variation, 'set');
-    submitPingStub = sandbox.stub(pings.accountsEvents, 'submit');
+    // Every event metric delegates to the internal metric's `record`. The name
+    // stub receives `<category>_<name>` of that metric, which is the event
+    // name; the reason stub receives the `reason` extra when one is recorded.
+    // Glean's own `glean.*` events (e.g. `glean.restarted`) are skipped.
+    sandbox
+      .stub(InternalEventMetricType.prototype, 'record')
+      .callsFake(function (
+        this: InternalEventMetricType,
+        extra?: Record<string, unknown>
+      ) {
+        if (this.category === 'glean') {
+          return;
+        }
+        setEventNameStub(`${this.category}_${this.name}`);
+        if (extra?.reason !== undefined) {
+          setEventReasonStub(extra.reason);
+        }
+      });
     pageLoadStub = sandbox.stub(GleanMetricsAPI.default, 'pageLoad');
     handleClickEvent = sandbox.stub(
       GleanMetricsAPI.default,
@@ -159,7 +172,7 @@ describe('lib/glean', () => {
     it('does not submit a ping on an event', async () => {
       GleanMetrics.registration.view();
       await GleanMetrics.isDone();
-      sinon.assert.notCalled(submitPingStub);
+      sinon.assert.notCalled(setEventNameStub);
     });
 
     it('does not set the metrics values', async () => {
@@ -234,7 +247,7 @@ describe('lib/glean', () => {
     it('submits a ping on an event', async () => {
       GleanMetrics.registration.view();
       await GleanMetrics.isDone();
-      sinon.assert.calledOnce(submitPingStub);
+      sinon.assert.calledOnce(setEventNameStub);
     });
 
     it('sets empty strings as defaults', async () => {
@@ -602,8 +615,6 @@ describe('lib/glean', () => {
         await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(setEventNameStub, 'login_backup_choice_submit');
-        sinon.assert.calledOnce(setEventReasonStub);
-        sinon.assert.calledWith(setEventReasonStub, 'quux');
       });
 
       it('submits a ping with the login_recovery_phone_success_view event name', async () => {

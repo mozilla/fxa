@@ -12,10 +12,7 @@ const mockFn = (name: string): jest.Mock => {
   return gleanMocks[name];
 };
 
-const recordMock = jest.fn();
-
 jest.mock('./server_events', () => ({
-  createAccountsEventsEvent: () => ({ record: recordMock }),
   createEventsServerEventLogger: () => ({
     recordRegAccCreated: mockFn('recordRegAccCreated'),
     recordRegEmailSent: mockFn('recordRegEmailSent'),
@@ -228,7 +225,6 @@ const request = {
 describe('Glean server side events', () => {
   afterEach(() => {
     jest.restoreAllMocks();
-    recordMock.mockClear();
     Object.values(gleanMocks).forEach((m) => m.mockClear());
   });
 
@@ -241,7 +237,7 @@ describe('Glean server side events', () => {
       const glean = gleanMetrics(gleanConfig);
       await glean.login.success(request);
 
-      expect(recordMock).not.toHaveBeenCalled();
+      expect(gleanMocks['recordLoginSuccess']).not.toHaveBeenCalled();
     });
 
     it('can be disabled by the account', async () => {
@@ -251,13 +247,13 @@ describe('Glean server side events', () => {
         app: { ...request.app, isMetricsEnabled: false },
       } as unknown as AuthRequest);
 
-      expect(recordMock).not.toHaveBeenCalled();
+      expect(gleanMocks['recordLoginSuccess']).not.toHaveBeenCalled();
     });
 
     it('logs when enabled', async () => {
       const glean = gleanMetrics(config);
       await glean.login.success(request);
-      expect(recordMock).toHaveBeenCalledTimes(1);
+      expect(gleanMocks['recordLoginSuccess']).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -270,11 +266,10 @@ describe('Glean server side events', () => {
 
     it('defaults', async () => {
       await glean.login.success(request);
-      const metrics = recordMock.mock.calls[0][0];
+      const metrics = gleanMocks['recordLoginSuccess'].mock.calls[0][0];
       expect(metrics.user_agent).toBe(request.headers['user-agent']);
       expect(metrics.ip_address).toBe(request.app.clientAddress);
 
-      delete metrics.event_name; // there's always a name of course
       delete metrics.user_agent;
       delete metrics.ip_address;
 
@@ -285,7 +280,7 @@ describe('Glean server side events', () => {
     describe('user id', () => {
       it('uses the id from the passed in data', async () => {
         await glean.login.success(request, { uid: 'rome_georgia' });
-        const metrics = recordMock.mock.calls[0][0];
+        const metrics = gleanMocks['recordLoginSuccess'].mock.calls[0][0];
         expect(metrics['account_user_id_sha256']).toBe(
           '7c05994f542f257aac8ee13eebc711f07e480b06de5498c7e63f9b3e615ac8af'
         );
@@ -300,7 +295,7 @@ describe('Glean server side events', () => {
           },
         } as unknown as AuthRequest;
         await glean.login.success(sessionAuthedReq);
-        const metrics = recordMock.mock.calls[0][0];
+        const metrics = gleanMocks['recordLoginSuccess'].mock.calls[0][0];
         expect(metrics['account_user_id_sha256']).toBe(
           '0c1d07d948132bcec965796e16a0bef4bd8aca2bc920c26f3a6d4f46e8971fcd'
         );
@@ -318,7 +313,7 @@ describe('Glean server side events', () => {
           },
         } as unknown as AuthRequest;
         await glean.login.success(oauthReq);
-        const metrics = recordMock.mock.calls[0][0];
+        const metrics = gleanMocks['recordLoginSuccess'].mock.calls[0][0];
         expect(metrics['account_user_id_sha256']).toBe(
           'b2710dc44cb98ec552e189e48b43e460366f1ae40f922bf325e2635b098962e7'
         );
@@ -326,9 +321,10 @@ describe('Glean server side events', () => {
 
       it('uses the "reason" event property from the data argument', async () => {
         await glean.login.error(request, { reason: 'too_cool_for_school' });
-        const metrics = recordMock.mock.calls[0][0];
+        const metrics =
+          gleanMocks['recordLoginSubmitBackendError'].mock.calls[0][0];
 
-        expect(metrics['event_reason']).toBe('too_cool_for_school');
+        expect(metrics['reason']).toBe('too_cool_for_school');
       });
     });
 
@@ -345,7 +341,7 @@ describe('Glean server side events', () => {
           },
         } as unknown as AuthRequest;
         await glean.login.success(req);
-        const metrics = recordMock.mock.calls[0][0];
+        const metrics = gleanMocks['recordLoginSuccess'].mock.calls[0][0];
         expect(metrics['relying_party_oauth_client_id']).toBe('runny_eggs');
       });
 
@@ -358,13 +354,13 @@ describe('Glean server side events', () => {
           },
         } as unknown as AuthRequest;
         await glean.login.success(req);
-        const metrics = recordMock.mock.calls[0][0];
+        const metrics = gleanMocks['recordLoginSuccess'].mock.calls[0][0];
         expect(metrics['relying_party_oauth_client_id']).toBe('corny_jokes');
       });
 
       it('uses the client id from the event data', async () => {
         await glean.login.success(request, { oauthClientId: 'runny_eggs' });
-        const metrics = recordMock.mock.calls[0][0];
+        const metrics = gleanMocks['recordLoginSuccess'].mock.calls[0][0];
         expect(metrics['relying_party_oauth_client_id']).toBe('runny_eggs');
       });
 
@@ -380,7 +376,7 @@ describe('Glean server side events', () => {
           },
         } as unknown as AuthRequest;
         await glean.login.success(req);
-        const metrics = recordMock.mock.calls[0][0];
+        const metrics = gleanMocks['recordLoginSuccess'].mock.calls[0][0];
         expect(metrics['relying_party_service']).toBe('brass_monkey');
       });
 
@@ -397,7 +393,7 @@ describe('Glean server side events', () => {
           },
         } as unknown as AuthRequest;
         await glean.login.success(req);
-        const metrics = recordMock.mock.calls[0][0];
+        const metrics = gleanMocks['recordLoginSuccess'].mock.calls[0][0];
         expect(metrics['relying_party_oauth_client_id']).toBe(
           '7f1a38488a0df47b'
         );
@@ -417,7 +413,7 @@ describe('Glean server side events', () => {
           },
         } as unknown as AuthRequest;
         await glean.login.success(req);
-        const metrics = recordMock.mock.calls[0][0];
+        const metrics = gleanMocks['recordLoginSuccess'].mock.calls[0][0];
         expect(metrics['session_device_type']).toBe('phablet');
       });
 
@@ -433,7 +429,7 @@ describe('Glean server side events', () => {
           },
         } as unknown as AuthRequest;
         await glean.login.success(req);
-        const metrics = recordMock.mock.calls[0][0];
+        const metrics = gleanMocks['recordLoginSuccess'].mock.calls[0][0];
         expect(metrics['session_entrypoint']).toBe('homepage');
       });
 
@@ -449,7 +445,7 @@ describe('Glean server side events', () => {
           },
         } as unknown as AuthRequest;
         await glean.login.success(req);
-        const metrics = recordMock.mock.calls[0][0];
+        const metrics = gleanMocks['recordLoginSuccess'].mock.calls[0][0];
         expect(metrics['session_flow_id']).toBe('101');
       });
     });
@@ -473,7 +469,7 @@ describe('Glean server side events', () => {
           },
         } as unknown as AuthRequest;
         await glean.login.success(req);
-        metrics = recordMock.mock.calls[0][0];
+        metrics = gleanMocks['recordLoginSuccess'].mock.calls[0][0];
       });
 
       it('sets the campaign', () => {
@@ -507,17 +503,11 @@ describe('Glean server side events', () => {
 
     it('logs a "account_password_reset" event', async () => {
       await glean.resetPassword.accountReset(request);
-      expect(recordMock).toHaveBeenCalledTimes(1);
-      const metrics = recordMock.mock.calls[0][0];
-      expect(metrics['event_name']).toBe('account_password_reset');
       expect(gleanMocks['recordAccountPasswordReset']).toHaveBeenCalledTimes(1);
     });
 
     it('logs a "account_delete_complete" event', async () => {
       await glean.account.deleteComplete(request);
-      expect(recordMock).toHaveBeenCalledTimes(1);
-      const metrics = recordMock.mock.calls[0][0];
-      expect(metrics['event_name']).toBe('account_delete_complete');
       expect(gleanMocks['recordAccountDeleteComplete']).toHaveBeenCalledTimes(
         1
       );
@@ -527,10 +517,6 @@ describe('Glean server side events', () => {
       await glean.account.deviceDisconnected(request, {
         platform: 'ios',
       });
-      expect(recordMock).toHaveBeenCalledTimes(1);
-      expect(recordMock.mock.calls[0][0]['event_name']).toBe(
-        'account_device_disconnected'
-      );
       expect(
         gleanMocks['recordAccountDeviceDisconnected']
       ).toHaveBeenCalledTimes(1);
@@ -559,9 +545,6 @@ describe('Glean server side events', () => {
 
     it('logs a "two_factor_auth_code_complete" event', async () => {
       await glean.twoFactorAuth.codeComplete(request);
-      expect(recordMock).toHaveBeenCalledTimes(1);
-      const metrics = recordMock.mock.calls[0][0];
-      expect(metrics['event_name']).toBe('two_factor_auth_code_complete');
       expect(
         gleanMocks['recordTwoFactorAuthCodeComplete']
       ).toHaveBeenCalledTimes(1);
@@ -569,11 +552,6 @@ describe('Glean server side events', () => {
 
     it('logs a "two_factor_auth_replace_code_complete" event', async () => {
       await glean.twoFactorAuth.replaceCodeComplete(request);
-      expect(recordMock).toHaveBeenCalledTimes(1);
-      const metrics = recordMock.mock.calls[0][0];
-      expect(metrics['event_name']).toBe(
-        'two_factor_auth_replace_code_complete'
-      );
       expect(
         gleanMocks['recordTwoFactorAuthReplaceCodeComplete']
       ).toHaveBeenCalledTimes(1);
@@ -581,11 +559,6 @@ describe('Glean server side events', () => {
 
     it('logs a "two_factor_auth_setup_invalid_code_error" event', async () => {
       await glean.twoFactorAuth.setupInvalidCodeError(request);
-      expect(recordMock).toHaveBeenCalledTimes(1);
-      const metrics = recordMock.mock.calls[0][0];
-      expect(metrics['event_name']).toBe(
-        'two_factor_auth_setup_invalid_code_error'
-      );
       expect(
         gleanMocks['recordTwoFactorAuthSetupInvalidCodeError']
       ).toHaveBeenCalledTimes(1);
@@ -593,9 +566,6 @@ describe('Glean server side events', () => {
 
     it('logs a "two_factor_auth_replace_success" event', async () => {
       await glean.twoFactorAuth.replaceSuccess(request);
-      expect(recordMock).toHaveBeenCalledTimes(1);
-      const metrics = recordMock.mock.calls[0][0];
-      expect(metrics['event_name']).toBe('two_factor_auth_replace_success');
       expect(
         gleanMocks['recordTwoFactorAuthReplaceSuccess']
       ).toHaveBeenCalledTimes(1);
@@ -603,9 +573,6 @@ describe('Glean server side events', () => {
 
     it('logs a "two_factor_auth_replace_failure" event', async () => {
       await glean.twoFactorAuth.replaceFailure(request);
-      expect(recordMock).toHaveBeenCalledTimes(1);
-      const metrics = recordMock.mock.calls[0][0];
-      expect(metrics['event_name']).toBe('two_factor_auth_replace_failure');
       expect(
         gleanMocks['recordTwoFactorAuthReplaceFailure']
       ).toHaveBeenCalledTimes(1);
@@ -622,9 +589,6 @@ describe('Glean server side events', () => {
     describe('accountCreated', () => {
       it('logs a "reg_acc_created" event', async () => {
         await glean.registration.accountCreated(request);
-        expect(recordMock).toHaveBeenCalledTimes(1);
-        const metrics = recordMock.mock.calls[0][0];
-        expect(metrics['event_name']).toBe('reg_acc_created');
         expect(gleanMocks['recordRegAccCreated']).toHaveBeenCalledTimes(1);
       });
     });
@@ -632,9 +596,6 @@ describe('Glean server side events', () => {
     describe('confirmationEmailSent', () => {
       it('logs a "reg_email_sent" event', async () => {
         await glean.registration.confirmationEmailSent(request);
-        expect(recordMock).toHaveBeenCalledTimes(1);
-        const metrics = recordMock.mock.calls[0][0];
-        expect(metrics['event_name']).toBe('reg_email_sent');
         expect(gleanMocks['recordRegEmailSent']).toHaveBeenCalledTimes(1);
       });
     });
@@ -643,9 +604,6 @@ describe('Glean server side events', () => {
       it('logs a "reg_acc_verified" event', async () => {
         const glean = gleanMetrics(config);
         await glean.registration.accountVerified(request);
-        expect(recordMock).toHaveBeenCalledTimes(1);
-        const metrics = recordMock.mock.calls[0][0];
-        expect(metrics['event_name']).toBe('reg_acc_verified');
         expect(gleanMocks['recordRegAccVerified']).toHaveBeenCalledTimes(1);
       });
     });
@@ -654,11 +612,10 @@ describe('Glean server side events', () => {
       it('logs a "reg_complete" event with reason', async () => {
         const glean = gleanMetrics(config);
         await glean.registration.complete(request, { reason: 'otp' });
-        expect(recordMock).toHaveBeenCalledTimes(1);
-        const metrics = recordMock.mock.calls[0][0];
-        expect(metrics['event_name']).toBe('reg_complete');
-        expect(metrics['event_reason']).toBe('otp');
         expect(gleanMocks['recordRegComplete']).toHaveBeenCalledTimes(1);
+        expect(
+          gleanMocks['recordRegComplete'].mock.calls[0][0].reason
+        ).toBe('otp');
       });
     });
 
@@ -666,9 +623,6 @@ describe('Glean server side events', () => {
       it('logs a "reg_submit_error" event', async () => {
         const glean = gleanMetrics(config);
         await glean.registration.error(request);
-        expect(recordMock).toHaveBeenCalledTimes(1);
-        const metrics = recordMock.mock.calls[0][0];
-        expect(metrics['event_name']).toBe('reg_submit_error');
         expect(gleanMocks['recordRegSubmitError']).toHaveBeenCalledTimes(1);
       });
     });
@@ -684,50 +638,48 @@ describe('Glean server side events', () => {
     describe('success', () => {
       it('logs a "login_success" event', async () => {
         await glean.login.success(request);
-        expect(recordMock).toHaveBeenCalledTimes(1);
-        const metrics = recordMock.mock.calls[0][0];
-        expect(metrics['event_name']).toBe('login_success');
+        expect(gleanMocks['recordLoginSuccess']).toHaveBeenCalledTimes(1);
       });
     });
 
     describe('error', () => {
       it('logs a "login_submit_backend_error" event', async () => {
         await glean.login.error(request);
-        expect(recordMock).toHaveBeenCalledTimes(1);
-        const metrics = recordMock.mock.calls[0][0];
-        expect(metrics['event_name']).toBe('login_submit_backend_error');
+        expect(
+          gleanMocks['recordLoginSubmitBackendError']
+        ).toHaveBeenCalledTimes(1);
       });
     });
 
     describe('totp', () => {
       it('logs a "login_totp_code_success" event', async () => {
         await glean.login.totpSuccess(request);
-        expect(recordMock).toHaveBeenCalledTimes(1);
-        const metrics = recordMock.mock.calls[0][0];
-        expect(metrics['event_name']).toBe('login_totp_code_success');
+        expect(
+          gleanMocks['recordLoginTotpCodeSuccess']
+        ).toHaveBeenCalledTimes(1);
       });
 
       it('logs a "login_totp_code_failure" event', async () => {
         await glean.login.totpFailure(request);
-        expect(recordMock).toHaveBeenCalledTimes(1);
-        const metrics = recordMock.mock.calls[0][0];
-        expect(metrics['event_name']).toBe('login_totp_code_failure');
+        expect(
+          gleanMocks['recordLoginTotpCodeFailure']
+        ).toHaveBeenCalledTimes(1);
       });
     });
 
     describe('verifyCodeEmail', () => {
       it('logs a "login_email_confirmation_sent" event', async () => {
         await glean.login.verifyCodeEmailSent(request);
-        expect(recordMock).toHaveBeenCalledTimes(1);
-        const metrics = recordMock.mock.calls[0][0];
-        expect(metrics['event_name']).toBe('login_email_confirmation_sent');
+        expect(
+          gleanMocks['recordLoginEmailConfirmationSent']
+        ).toHaveBeenCalledTimes(1);
       });
 
       it('logs a "login_email_confirmation_success" event', async () => {
         await glean.login.verifyCodeConfirmed(request);
-        expect(recordMock).toHaveBeenCalledTimes(1);
-        const metrics = recordMock.mock.calls[0][0];
-        expect(metrics['event_name']).toBe('login_email_confirmation_success');
+        expect(
+          gleanMocks['recordLoginEmailConfirmationSuccess']
+        ).toHaveBeenCalledTimes(1);
       });
     });
   });
@@ -795,8 +747,8 @@ describe('Glean server side events', () => {
       it('sends an empty ip address', async () => {
         const glean = gleanMetrics(config);
         await glean.oauth.tokenChecked(request);
-        expect(recordMock).toHaveBeenCalledTimes(1);
-        const metrics = recordMock.mock.calls[0][0];
+        expect(gleanMocks['recordAccessTokenChecked']).toHaveBeenCalledTimes(1);
+        const metrics = gleanMocks['recordAccessTokenChecked'].mock.calls[0][0];
         expect(metrics['ip_address']).toBe('');
       });
 
@@ -849,12 +801,6 @@ describe('Glean server side events', () => {
         await glean.thirdPartyAuth.googleLoginComplete(request, {
           reason: 'linking',
         });
-        expect(recordMock).toHaveBeenCalledTimes(1);
-        const metrics = recordMock.mock.calls[0][0];
-        expect(metrics['event_name']).toBe(
-          'third_party_auth_google_login_complete'
-        );
-        expect(metrics['event_reason']).toBe('linking');
         expect(
           gleanMocks['recordThirdPartyAuthGoogleLoginComplete']
         ).toHaveBeenCalledTimes(1);
@@ -867,12 +813,6 @@ describe('Glean server side events', () => {
       it('log string and event metrics without account linking for Google', async () => {
         const glean = gleanMetrics(config);
         await glean.thirdPartyAuth.googleLoginComplete(request);
-        expect(recordMock).toHaveBeenCalledTimes(1);
-        const metrics = recordMock.mock.calls[0][0];
-        expect(metrics['event_name']).toBe(
-          'third_party_auth_google_login_complete'
-        );
-        expect(metrics['event_reason']).toBe('');
         expect(
           gleanMocks['recordThirdPartyAuthGoogleLoginComplete']
         ).toHaveBeenCalledTimes(1);
@@ -889,12 +829,6 @@ describe('Glean server side events', () => {
         await glean.thirdPartyAuth.appleLoginComplete(request, {
           reason: 'linking',
         });
-        expect(recordMock).toHaveBeenCalledTimes(1);
-        const metrics = recordMock.mock.calls[0][0];
-        expect(metrics['event_name']).toBe(
-          'third_party_auth_apple_login_complete'
-        );
-        expect(metrics['event_reason']).toBe('linking');
         expect(
           gleanMocks['recordThirdPartyAuthAppleLoginComplete']
         ).toHaveBeenCalledTimes(1);
@@ -907,12 +841,6 @@ describe('Glean server side events', () => {
       it('log string and event metrics without account linking for Apple', async () => {
         const glean: GleanMetricsType = gleanMetrics(config);
         await glean.thirdPartyAuth.appleLoginComplete(request);
-        expect(recordMock).toHaveBeenCalledTimes(1);
-        const metrics = recordMock.mock.calls[0][0];
-        expect(metrics['event_name']).toBe(
-          'third_party_auth_apple_login_complete'
-        );
-        expect(metrics['event_reason']).toBe('');
         expect(
           gleanMocks['recordThirdPartyAuthAppleLoginComplete']
         ).toHaveBeenCalledTimes(1);
@@ -927,11 +855,6 @@ describe('Glean server side events', () => {
       it('log string and event metrics for Google', async () => {
         const glean: GleanMetricsType = gleanMetrics(config);
         await glean.thirdPartyAuth.googleRegComplete(request);
-        expect(recordMock).toHaveBeenCalledTimes(1);
-        const metrics = recordMock.mock.calls[0][0];
-        expect(metrics['event_name']).toBe(
-          'third_party_auth_google_reg_complete'
-        );
         expect(
           gleanMocks['recordThirdPartyAuthGoogleRegComplete']
         ).toHaveBeenCalledTimes(1);
@@ -942,11 +865,6 @@ describe('Glean server side events', () => {
       it('log string and event metrics for Google', async () => {
         const glean: GleanMetricsType = gleanMetrics(config);
         await glean.thirdPartyAuth.appleRegComplete(request);
-        expect(recordMock).toHaveBeenCalledTimes(1);
-        const metrics = recordMock.mock.calls[0][0];
-        expect(metrics['event_name']).toBe(
-          'third_party_auth_apple_reg_complete'
-        );
         expect(
           gleanMocks['recordThirdPartyAuthAppleRegComplete']
         ).toHaveBeenCalledTimes(1);
@@ -957,11 +875,6 @@ describe('Glean server side events', () => {
       it('log string and event metrics with account linking', async () => {
         const glean: GleanMetricsType = gleanMetrics(config);
         await glean.thirdPartyAuth.setPasswordComplete(request);
-        expect(recordMock).toHaveBeenCalledTimes(1);
-        const metrics = recordMock.mock.calls[0][0];
-        expect(metrics['event_name']).toBe(
-          'third_party_auth_set_password_complete'
-        );
         expect(
           gleanMocks['recordThirdPartyAuthSetPasswordComplete']
         ).toHaveBeenCalledTimes(1);
