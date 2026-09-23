@@ -1,8 +1,8 @@
 {
-  "commit": "b5a784b520e75427278f93fbf040b981dae483b9",
-  "summary": "Merge pull request #21274 from mozilla/fxa-13918",
-  "description": "refactor(deps): replace base64url package with native Buffer",
-  "timestamp": 1790185244000,
+  "commit": "e79192e06e671356e2a8130d2d1309e7ba75ed67",
+  "summary": "Merge pull request #21260 from mozilla/fxa-13688",
+  "description": "fix(settings): show blocked error on the passwordless email form",
+  "timestamp": 1790185633000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
