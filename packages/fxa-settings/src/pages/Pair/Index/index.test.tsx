@@ -1024,6 +1024,59 @@ describe('Pair', () => {
         expect.anything()
       );
     });
+
+    // With a desktop minimum configured, the browser's own version decides and
+    // the pairingVersion it reports in fxa_status does not. The suite's UA is
+    // Firefox 124.
+    describe('with a v2 minimum version for desktop', () => {
+      const minVersionAppContext = (desktop: number) => {
+        const config = getDefault();
+        config.pairing.version = 2;
+        config.pairing.v2MinVersion = { desktop };
+        return mockAppContext({ config } as Parameters<
+          typeof mockAppContext
+        >[0]);
+      };
+
+      it('reloads into the QR scanner when the browser meets the minimum but reports v1', async () => {
+        const hardNavigateSpy = jest
+          .spyOn(ReactUtils, 'hardNavigate')
+          .mockImplementation(() => {});
+        renderWithRouter(
+          <Pair fxaStatusResult={mockUseFxAStatus({ pairingVersion: 1 })} />,
+          {},
+          minVersionAppContext(124)
+        );
+
+        await waitFor(() =>
+          expect(hardNavigateSpy).toHaveBeenCalledWith(
+            '/pair/authority/scan_qr',
+            {},
+            true
+          )
+        );
+        hardNavigateSpy.mockRestore();
+      });
+
+      it('stays on the v1 choice screen when the browser is below the minimum but reports v2', async () => {
+        const hardNavigateSpy = jest
+          .spyOn(ReactUtils, 'hardNavigate')
+          .mockImplementation(() => {});
+        renderWithRouter(<Pair {...v2Props} />, {}, minVersionAppContext(125));
+
+        await screen.findByLabelText(
+          /I already have Firefox for mobile/,
+          undefined,
+          { timeout: 4000 }
+        );
+        expect(hardNavigateSpy).not.toHaveBeenCalledWith(
+          '/pair/authority/scan_qr',
+          {},
+          true
+        );
+        hardNavigateSpy.mockRestore();
+      });
+    });
   });
 });
 
@@ -1082,10 +1135,12 @@ describe('parseV2PairingHash', () => {
       fxaStatusResult: mockUseFxAStatus({ fxaStatusState: 'unanswered' }),
     };
 
-    const v2AppContext = ({ iosHandoff = false } = {}) => {
+    // The iOS hand-off follows the iOS v2 rollout: any configured minimum
+    // turns it on.
+    const v2AppContext = ({ iosRolledOut = false } = {}) => {
       const config = getDefault();
       config.pairing.version = 2;
-      config.pairing.iosHandoff = iosHandoff;
+      config.pairing.v2MinVersion = iosRolledOut ? { ios: 0 } : {};
       return mockAppContext({ config } as Parameters<typeof mockAppContext>[0]);
     };
 
@@ -1103,19 +1158,19 @@ describe('parseV2PairingHash', () => {
       jest.clearAllMocks();
     });
 
-    // iOS only reaches the download screen once the deployment opts in; the
-    // case where it does not is covered below.
+    // iOS only reaches the download screen once the deployment has rolled v2
+    // out to Firefox iOS; the case where it has not is covered below.
     it.each([
       ['iOS Safari', IOS_SAFARI, true],
       ['Android Chrome', ANDROID_CHROME, false],
     ])(
       'routes to the download screen on %s',
-      async (_label, ua, iosHandoff) => {
+      async (_label, ua, iosRolledOut) => {
         setUserAgent(ua);
         renderWithRouter(
           <Pair {...unansweredProps} />,
           {},
-          v2AppContext({ iosHandoff })
+          v2AppContext({ iosRolledOut })
         );
 
         await waitFor(() =>
@@ -1129,9 +1184,10 @@ describe('parseV2PairingHash', () => {
       }
     );
 
-    // Firefox iOS cannot finish a pairing that started in another browser, so
-    // the hand-off card would only be a tap in front of the same dead end.
-    it('sends an iOS browser straight to /pair/unsupported', async () => {
+    // Before the rollout Firefox iOS cannot finish a pairing that started in
+    // another browser, so the hand-off card would only be a tap in front of
+    // the same dead end.
+    it('sends an iOS browser straight to /pair/unsupported while iOS is not in the rollout', async () => {
       setUserAgent(IOS_SAFARI);
       renderWithRouter(<Pair {...unansweredProps} />, {}, v2AppContext());
 
@@ -1153,7 +1209,7 @@ describe('parseV2PairingHash', () => {
       renderWithRouter(
         <Pair {...unansweredProps} />,
         {},
-        v2AppContext({ iosHandoff: true })
+        v2AppContext({ iosRolledOut: true })
       );
 
       await waitFor(() => expect(mockNavigate).toHaveBeenCalled());
