@@ -1,0 +1,11 @@
+{
+  "commit": "17d0a9f8b95b5eb478a63961f34e9e2685bb5010",
+  "summary": "chore(metrics): stop sending the legacy accounts-events Glean ping",
+  "description": "Because:\n- The events ping with event metric type replaced accounts-events in 2024 and every known consumer has moved to it.\n- Each frontend event cost two pings and each backend event two log entries.\n\nThis commit:\n- Drops the accounts-events ping and its event.* string metrics from the Glean YAML definitions.\n- Removes the ping submit and legacy record calls from fxa-settings, content-server and auth-server, and regenerates the Glean modules.\n- Keeps the pings and compat YAML files as schema-only stubs because probe-scraper still fetches them by path.\n- Reworks the Glean unit tests to assert on the event metrics instead of the removed string metrics.\n\nCloses: FXA-10679\nCloses: FXA-10681",
+  "timestamp": 1790171312000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

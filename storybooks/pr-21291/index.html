@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 17d0a9f8b95b5eb478a63961f34e9e2685bb5010</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 17d0a9f8b95b5eb478a63961f34e9e2685bb5010</h1>
+  <ul>
+    <li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/23/2026, 1:48:32 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>chore(metrics): stop sending the legacy accounts-events Glean ping</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- The events ping with event metric type replaced accounts-events in 2024 and every known consumer has moved to it.
+- Each frontend event cost two pings and each backend event two log entries.
+
+This commit:
+- Drops the accounts-events ping and its event.* string metrics from the Glean YAML definitions.
+- Removes the ping submit and legacy record calls from fxa-settings, content-server and auth-server, and regenerates the Glean modules.
+- Keeps the pings and compat YAML files as schema-only stubs because probe-scraper still fetches them by path.
+- Reworks the Glean unit tests to assert on the event metrics instead of the removed string metrics.
+
+Closes: FXA-10679
+Closes: FXA-10681</pre></dd>
+  </dl>
+</body>
+</html>
