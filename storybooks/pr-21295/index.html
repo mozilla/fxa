@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit c53a38a6cc7b628c0878170a7382dd2e87acb7d6</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit c53a38a6cc7b628c0878170a7382dd2e87acb7d6</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/23/2026, 9:00:36 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(settings): serve /subscriptions redirects from React</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- The `/subscriptions` and `/subscriptions/products/:productId` redirects still run only in the Backbone content-server app.
+- These routes must move to fxa-settings before Backbone can go away.
+
+## This pull request
+
+- Serves `/subscriptions` and `/subscriptions/products/:productId` from a new redirect-only `SubscriptionsRedirect` page in fxa-settings. The page shows a spinner only. `App` registers both routes.
+- Gates both routes with the `postVerifyOtherRoutes` React route group (`fullProdRollout: false`). Backbone still serves them until the flag is on.
+- Exposes the content-server `subscriptions` config to the settings app config.
+- Keeps parity with the Backbone views:
+  - `allowUnauthenticatedRedirects` sends signed-out users to checkout.
+  - `?signin=` forces sign-in through `/?redirect_to=`.
+  - `usePaymentsNextSubscriptionManagement` picks the payments-next `subscriptions/landing` page.
+  - Signed-in users get a management OAuth token in `#accessToken`.
+  - It drops flow params when `metricsEnabled` is false.
+- Adds unit tests for signed-in, signed-out, `?signin=`, both `usePaymentsNextSubscriptionManagement` values, and a token failure.
+
+## Issue that this pull request solves
+
+Closes: [FXA-6661](https://mozilla-hub.atlassian.net/browse/FXA-6661)</pre></dd>
+  </dl>
+</body>
+</html>

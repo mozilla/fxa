@@ -1,0 +1,10 @@
+{
+  "commit": "c53a38a6cc7b628c0878170a7382dd2e87acb7d6",
+  "summary": "feat(settings): serve /subscriptions redirects from React",
+  "description": "## Because\n\n- The `/subscriptions` and `/subscriptions/products/:productId` redirects still run only in the Backbone content-server app.\n- These routes must move to fxa-settings before Backbone can go away.\n\n## This pull request\n\n- Serves `/subscriptions` and `/subscriptions/products/:productId` from a new redirect-only `SubscriptionsRedirect` page in fxa-settings. The page shows a spinner only. `App` registers both routes.\n- Gates both routes with the `postVerifyOtherRoutes` React route group (`fullProdRollout: false`). Backbone still serves them until the flag is on.\n- Exposes the content-server `subscriptions` config to the settings app config.\n- Keeps parity with the Backbone views:\n  - `allowUnauthenticatedRedirects` sends signed-out users to checkout.\n  - `?signin=` forces sign-in through `/?redirect_to=`.\n  - `usePaymentsNextSubscriptionManagement` picks the payments-next `subscriptions/landing` page.\n  - Signed-in users get a management OAuth token in `#accessToken`.\n  - It drops flow params when `metricsEnabled` is false.\n- Adds unit tests for signed-in, signed-out, `?signin=`, both `usePaymentsNextSubscriptionManagement` values, and a token failure.\n\n## Issue that this pull request solves\n\nCloses: [FXA-6661](https://mozilla-hub.atlassian.net/browse/FXA-6661)",
+  "timestamp": 1790197236000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
