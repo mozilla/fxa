@@ -22,6 +22,10 @@ import { PAIR_GLEAN_REASONS } from 'fxa-shared/metrics/glean/pair-reasons';
 import { Integration } from '../../../models';
 import { parsePairingHash } from '../../../lib/pairing/pair-url';
 import { Devices } from '../../../lib/utilities';
+import {
+  capturePairingChannelParams,
+  resetPairingChannelParamsForTest,
+} from '../../../lib/pairing-channel-params';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -29,18 +33,29 @@ jest.mock('../../../lib/metrics', () => ({
 
 let mockLocationState: unknown = null;
 let mockLocationSearch = '';
-let mockLocationHash = '';
 const mockNavigate = jest.fn();
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
   useLocation: () => ({
     pathname: '/pair',
     search: mockLocationSearch,
-    hash: mockLocationHash,
+    // Startup strips the pairing fragment before the router ever sees it.
+    hash: '',
     state: mockLocationState,
   }),
   useNavigate: () => mockNavigate,
 }));
+
+/**
+ * Startup lifts the pairing fragment out of the URL so its channel key cannot
+ * reach telemetry, and the page reads that capture rather than the live hash.
+ * Tests therefore set the hash and then run the same capture production runs.
+ */
+function setPairingHash(hash: string) {
+  window.location.hash = hash;
+  resetPairingChannelParamsForTest();
+  capturePairingChannelParams();
+}
 
 jest.mock('../../../lib/channels/firefox', () => ({
   __esModule: true,
@@ -160,7 +175,7 @@ describe('Pair', () => {
     jest.clearAllMocks();
     mockLocationState = null;
     mockLocationSearch = '';
-    mockLocationHash = '';
+    setPairingHash('');
   });
 
   // Render Pair and wait for the bootstrap spinner to clear before asserting.
@@ -606,7 +621,9 @@ describe('Pair', () => {
           React.useEffect(() => {
             answerLate = () => setFxaStatusState('answered');
           }, []);
-          return <Pair fxaStatusResult={mockUseFxAStatus({ fxaStatusState })} />;
+          return (
+            <Pair fxaStatusResult={mockUseFxAStatus({ fxaStatusState })} />
+          );
         };
 
         renderWithRouter(<PairAwaitingReply />);
@@ -894,7 +911,7 @@ describe('Pair', () => {
     };
 
     it('hands the channel to the supplicant flow, dropping the hash', async () => {
-      mockLocationHash = V2_HASH;
+      setPairingHash(V2_HASH);
       renderWithRouter(<Pair {...v2Props} />, {}, v2AppContext());
 
       await waitFor(() =>
@@ -908,7 +925,7 @@ describe('Pair', () => {
     });
 
     it('does not send the browser to /pair/unsupported while handing off', async () => {
-      mockLocationHash = V2_HASH;
+      setPairingHash(V2_HASH);
       renderWithRouter(<Pair {...v2Props} />, {}, v2AppContext());
 
       await waitFor(() => expect(mockNavigate).toHaveBeenCalled());
@@ -1002,7 +1019,7 @@ describe('Pair', () => {
 
     it('falls through to the normal flow when the browser reports v1', async () => {
       const status = { pairingEnabled: true, pairingVersion: 1 };
-      mockLocationHash = V2_HASH;
+      setPairingHash(V2_HASH);
       renderWithRouter(
         <Pair fxaStatusResult={mockUseFxAStatus(status)} />,
         {},
@@ -1148,13 +1165,13 @@ describe('parseV2PairingHash', () => {
       // This describe sits outside the `Pair` block that owns the shared
       // reset, so navigation calls would otherwise accumulate across cases.
       jest.clearAllMocks();
-      mockLocationHash = V2_HASH;
+      setPairingHash(V2_HASH);
     });
 
     // This describe sits outside the one that clears between tests, so a
     // navigation recorded here would otherwise be seen by the next test.
     afterEach(() => {
-      mockLocationHash = '';
+      setPairingHash('');
       jest.clearAllMocks();
     });
 
@@ -1192,7 +1209,7 @@ describe('parseV2PairingHash', () => {
       renderWithRouter(<Pair {...unansweredProps} />, {}, v2AppContext());
 
       await waitFor(() =>
-        expect(mockNavigate).toHaveBeenCalledWith(`/pair/unsupported${V2_HASH}`)
+        expect(mockNavigate).toHaveBeenCalledWith('/pair/unsupported')
       );
       expect(mockNavigate).not.toHaveBeenCalledWith(
         '/pair/supplicant/download_firefox',
@@ -1223,10 +1240,10 @@ describe('parseV2PairingHash', () => {
       setUserAgent(DESKTOP_CHROME);
       renderWithRouter(<Pair {...unansweredProps} />, {}, v2AppContext());
 
-      // The hash rides along, which is what lets /pair/unsupported recognise a
-      // system-camera scan.
+      // No hash: /pair/unsupported recognises a system-camera scan from the
+      // captured channel, and the key must stay out of the URL.
       await waitFor(() =>
-        expect(mockNavigate).toHaveBeenCalledWith(`/pair/unsupported${V2_HASH}`)
+        expect(mockNavigate).toHaveBeenCalledWith('/pair/unsupported')
       );
       expect(mockNavigate).not.toHaveBeenCalledWith(
         '/pair/supplicant/download_firefox',
@@ -1248,7 +1265,7 @@ describe('parseV2PairingHash', () => {
     });
 
     it('does not offer the hand-off when the URL carries no pairing channel', async () => {
-      mockLocationHash = '';
+      setPairingHash('');
       setUserAgent(IOS_SAFARI);
       renderWithRouter(<Pair {...unansweredProps} />, {}, v2AppContext());
 
@@ -1295,7 +1312,7 @@ describe('device prop', () => {
     localStorage.clear();
     mockLocationState = null;
     mockLocationSearch = '';
-    mockLocationHash = '';
+    setPairingHash('');
     Object.defineProperty(navigator, 'userAgent', {
       value: DESKTOP_CHROME,
       configurable: true,

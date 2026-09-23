@@ -44,6 +44,7 @@ const SyncSuccess = ({ onSyncSettings }: SyncSuccessProps) => {
           <button
             type="button"
             onClick={onSyncSettings}
+            data-glean-id="dtm_mobile_pair_success_sync_settings"
             className="mt-6 py-2 text-base text-grey-900 underline dark:text-grey-10"
           >
             Manage sync settings

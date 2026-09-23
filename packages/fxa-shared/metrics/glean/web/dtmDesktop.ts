@@ -22,3 +22,23 @@ export const qrSkip = new EventMetricType(
   },
   []
 );
+
+/**
+ * User viewed the pairing interrupted screen on the desktop (authority)
+ * device. One route serves both the timed-out and the canceled state, so the
+ * state is in 'reason' rather than being inferable from the URL.
+ *
+ * Generated from `dtm_desktop.timeout_view`.
+ */
+export const timeoutView = new EventMetricType<{
+  reason?: string;
+}>(
+  {
+    category: 'dtm_desktop',
+    name: 'timeout_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);

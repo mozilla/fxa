@@ -52,6 +52,7 @@ import AppLayout from '../AppLayout';
 import { PromoQrMobile } from '../PromoQrMobile';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { registerNavigate } from '../../lib/utilities';
+import { getPairingChannelHashParams } from '../../lib/pairing-channel-params';
 
 // Pages
 const SignupConfirmedSync = lazy(
@@ -440,10 +441,11 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
 
   // A scanned QR drops the supplicant on `/pair#…v=2` with no client_id, so its
   // client-info fetch always fails. Failing fast there would kill the hand-off
-  // before Pair gets a chance to route it.
+  // before Pair gets a chance to route it. Startup has already lifted the
+  // fragment out of the URL, so the version comes from the capture.
   const isPairingV2Handoff = () =>
     !!window.location.pathname?.startsWith('/pair') &&
-    /\bv=2\b/.test(window.location.hash ?? '');
+    getPairingChannelHashParams()?.get('v') === '2';
 
   // Fail fast: if the OAuth client-info fetch in useClientInfoState exhausted its
   // retries, surface the user-facing error immediately rather than waiting downstream
