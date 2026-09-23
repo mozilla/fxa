@@ -1,8 +1,8 @@
 {
-  "commit": "b882bed55ce6e17822d339659fb5ed793370fe26",
-  "summary": "Merge pull request #21292 from mozilla/feat-add-firestore-db-id",
-  "description": "feat(metering): use entitlements Firestore database for usage grants",
-  "timestamp": 1790190686000,
+  "commit": "0e56416ee5ecb484f4d93678729ee1b715768fba",
+  "summary": "Merge pull request #21293 from mozilla/fxa-14600",
+  "description": "fix(admin-panel): keep compiled server output in webpack clean",
+  "timestamp": 1790195287000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
