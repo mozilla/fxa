@@ -6,6 +6,7 @@ import {
   OAuthWebIntegration,
   OAuthNativeIntegration,
   PairingAuthorityIntegration,
+  PairingVersion,
   PairingSupplicantIntegration,
   Integration,
   SyncBasicIntegration,
@@ -121,7 +122,8 @@ export class IntegrationFactory {
       return this.createPairingAuthorityIntegration(
         data,
         channelData,
-        storageData
+        storageData,
+        flags.isDevicePairingAsV2Authority() ? 2 : 1
       );
     } else if (flags.isDevicePairingAsSupplicant()) {
       return this.createPairingSupplicationIntegration(data, storageData);
@@ -150,13 +152,15 @@ export class IntegrationFactory {
   private createPairingAuthorityIntegration(
     data: ModelDataStore,
     channelData: ModelDataStore,
-    storageData: ModelDataStore
+    storageData: ModelDataStore,
+    pairingVersion: PairingVersion
   ) {
     const integration = new PairingAuthorityIntegration(
       data,
       channelData,
       storageData,
-      config.oauth
+      config.oauth,
+      pairingVersion
     );
     this.initIntegration(integration);
     return integration;

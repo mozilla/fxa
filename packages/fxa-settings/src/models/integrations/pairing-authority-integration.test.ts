@@ -6,6 +6,7 @@ import { GenericData } from '../../lib/model-data';
 import {
   AuthorityState,
   PairingAuthorityIntegration,
+  PairingVersion,
 } from './pairing-authority-integration';
 import { OAUTH_ERRORS } from '../../lib/oauth';
 
@@ -132,7 +133,8 @@ jest.mock('../../lib/config', () => ({
 
 function createIntegration(
   dataOverrides: Record<string, string> = {},
-  channelDataOverrides: Record<string, string> = {}
+  channelDataOverrides: Record<string, string> = {},
+  pairingVersion: PairingVersion = 1
 ) {
   const data = new GenericData({
     client_id: '3c49430b43dfba77',
@@ -147,12 +149,18 @@ function createIntegration(
     ...channelDataOverrides,
   });
   const storageData = new GenericData({});
-  return new PairingAuthorityIntegration(data, channelData, storageData, {
-    scopedKeysEnabled: true,
-    scopedKeysValidation: {},
-    isPromptNoneEnabled: true,
-    isPromptNoneEnabledClientIds: [],
-  });
+  return new PairingAuthorityIntegration(
+    data,
+    channelData,
+    storageData,
+    {
+      scopedKeysEnabled: true,
+      scopedKeysValidation: {},
+      isPromptNoneEnabled: true,
+      isPromptNoneEnabledClientIds: [],
+    },
+    pairingVersion
+  );
 }
 
 describe('PairingAuthorityIntegration', () => {
@@ -393,6 +401,13 @@ describe('PairingAuthorityIntegration', () => {
   describe('isPairing', () => {
     it('returns true', () => {
       expect(createIntegration().isPairing()).toBe(true);
+    });
+  });
+
+  describe('pairingVersion', () => {
+    it('reports the version it was created for', () => {
+      expect(createIntegration({}, {}, 1).pairingVersion).toBe(1);
+      expect(createIntegration({}, {}, 2).pairingVersion).toBe(2);
     });
   });
 

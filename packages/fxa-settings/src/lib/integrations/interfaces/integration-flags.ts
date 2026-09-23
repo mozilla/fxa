@@ -7,6 +7,7 @@
  */
 export interface IntegrationFlags {
   isDevicePairingAsAuthority(): boolean;
+  isDevicePairingAsV2Authority(): boolean;
   isDevicePairingAsSupplicant(): boolean;
   isOAuth(): boolean;
   isOAuthWebChannelContext(): boolean;
