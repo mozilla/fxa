@@ -1,8 +1,8 @@
 {
-  "commit": "6f31a77c3b5138640c194347a4c3d4fffd54405f",
-  "summary": "Merge pull request #21285 from mozilla/ent-51",
-  "description": "feat(ent): switch from userIdentifier to subject",
-  "timestamp": 1790133445000,
+  "commit": "f5558f9d9ac8f5f480c1317361e30d00cf87169a",
+  "summary": "Merge pull request #21280 from mozilla/fxa-14577",
+  "description": "feat(admin-panel): explain the Verified column in Account History",
+  "timestamp": 1790175513000,
   "storybooks": [
     "email-renderer",
     "fxa-react",

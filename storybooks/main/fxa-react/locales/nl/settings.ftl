@@ -1911,6 +1911,8 @@ pair2-authority-scan-qr-skip-button = Voorlopig overslaan
 ## It confirms that sync is on and links to sync settings.
 
 pair2-authority-sync-success-heading-v2 = Uw apparaat is verbonden
+# "Syncing" here means copying data between the user's devices
+pair2-authority-sync-success-description-v2 = De synchronisatie is gestart. Het kan even duren voordat uw gesynchroniseerde gegevens verschijnen. U kunt ondertussen gewoon verder surfen.
 # Opens the browser settings that control what is synced
 pair2-authority-sync-success-sync-settings-button-v2 = Synchronisatie-instellingen beheren
 
@@ -1988,6 +1990,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Meer info
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Uw apparaat is verbonden
+# "Syncing" here means copying data between the user's devices
+pair2-supplicant-sync-success-description-v2 = De synchronisatie is gestart. Het kan even duren voordat uw gesynchroniseerde gegevens verschijnen. U kunt ondertussen gewoon verder surfen.
 # Opens the browser's sync settings, where the user chooses what to sync
 pair2-supplicant-sync-success-sync-settings-button-v2 = Synchronisatie-instellingen beheren
 
