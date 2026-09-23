@@ -1331,6 +1331,7 @@ pair2-authority-scan-qr-skip-button = Foarearst oerslaan
 
 
 pair2-authority-sync-success-heading-v2 = Jo apparaat is ferbûn
+pair2-authority-sync-success-description-v2 = Syngronisaasje is start. It kin in skoftke duorje eardat jo syngronisearre gegevens ferskine. Fiel jo frij om troch te sneupen.
 pair2-authority-sync-success-sync-settings-button-v2 = Syngronisaasje-ynstellingen beheare
 
 
@@ -1364,6 +1365,7 @@ pair2-supplicant-ready-to-scan-learn-more-link = Mear ynfo
 
 
 pair2-supplicant-sync-success-heading = Jo apparaat is ferbûn
+pair2-supplicant-sync-success-description-v2 = Syngronisaasje is start. It kin in skoftke duorje eardat jo syngronisearre gegevens ferskine. Fiel jo frij om troch te sneupen.
 pair2-supplicant-sync-success-sync-settings-button-v2 = Syngronisaasje-ynstellingen beheare
 
 

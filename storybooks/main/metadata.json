@@ -1,8 +1,8 @@
 {
-  "commit": "c30915c4165d45cc1713c4b35e4d604b1d3f380f",
-  "summary": "Merge pull request #21289 from mozilla/del-inactive-accts-gcs-param-fxa-14434",
-  "description": "feat(scripts): run del-inactive-accts with GCS state file",
-  "timestamp": 1790176007000,
+  "commit": "df2f24ef442184f4a02f97062c98533f34cef0da",
+  "summary": "Merge pull request #21269 from mozilla/FXA-14582",
+  "description": "feat(settings): gate pairing v2 on the Firefox version per platform",
+  "timestamp": 1790181917000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
