@@ -1,8 +1,8 @@
 {
-  "commit": "9c3802a11ca46e4f6d909c8735a80e631c3855ec",
-  "summary": "Merge pull request #21251 from mozilla/FXA-14315-worktree",
-  "description": "feat: add Glean metrics to the pair2 pairing flows",
-  "timestamp": 1790186387000,
+  "commit": "14491a53dda3035d3e78d277ee4d7a3069e8fc12",
+  "summary": "Merge pull request #21277 from mozilla/fxa-13927",
+  "description": "refactor(profile): replace checksum dependency with node:crypto",
+  "timestamp": 1790187060000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
