@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 58f6a0f1bffadd221ab7762f929a0f0b60d0d27b</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 58f6a0f1bffadd221ab7762f929a0f0b60d0d27b</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/23/2026, 9:35:06 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(settings): serve force password change page from React</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- Only the Backbone app serves the force password change page. The `postVerifyOtherRoutes` React group has no routes yet.
+- FxA sends a user to this page when the account must get a new password before sign-in can complete.
+
+## This pull request
+
+- Adds a React `ForcePasswordChange` page to fxa-settings at `/post_verify/password/force_password_change`, with a container, page, interfaces, mocks, `en.ftl`, stories, and tests.
+- Adds the route to the `postVerifyOtherRoutes` flag group (`fullProdRollout: false`) in the content-server `react-app/index.js`. `router.js` now uses `createReactOrBackboneViewHandler` for the route and forwards the search params.
+- Sends signed-out users to `/`. On submit, the container calls `authClient.passwordChange` with `keys: integration.wantsKeys()` and stores the new session.
+- Sends `firefox.passwordChanged`, as the Backbone notifier does for `CHANGE_PASSWORD`. Then it calls `handleNavigation` as a verified sign-in, in place of the broker `afterCompleteSignInWithCode`.
+- Adds a `force-password-change` form type to `FormPasswordWithInlineCriteria`, with an &quot;Old password&quot; field and a &quot;Change password&quot; button. `PasswordStrengthInline` treats this type like reset.
+- Ports the legacy flow events `force-password-change` view, engage, and submit. This page has no Glean events.
+
+## Issue that this pull request solves
+
+Closes: FXA-6653</pre></dd>
+  </dl>
+</body>
+</html>

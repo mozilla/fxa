@@ -1,0 +1,10 @@
+{
+  "commit": "58f6a0f1bffadd221ab7762f929a0f0b60d0d27b",
+  "summary": "feat(settings): serve force password change page from React",
+  "description": "## Because\n\n- Only the Backbone app serves the force password change page. The `postVerifyOtherRoutes` React group has no routes yet.\n- FxA sends a user to this page when the account must get a new password before sign-in can complete.\n\n## This pull request\n\n- Adds a React `ForcePasswordChange` page to fxa-settings at `/post_verify/password/force_password_change`, with a container, page, interfaces, mocks, `en.ftl`, stories, and tests.\n- Adds the route to the `postVerifyOtherRoutes` flag group (`fullProdRollout: false`) in the content-server `react-app/index.js`. `router.js` now uses `createReactOrBackboneViewHandler` for the route and forwards the search params.\n- Sends signed-out users to `/`. On submit, the container calls `authClient.passwordChange` with `keys: integration.wantsKeys()` and stores the new session.\n- Sends `firefox.passwordChanged`, as the Backbone notifier does for `CHANGE_PASSWORD`. Then it calls `handleNavigation` as a verified sign-in, in place of the broker `afterCompleteSignInWithCode`.\n- Adds a `force-password-change` form type to `FormPasswordWithInlineCriteria`, with an \"Old password\" field and a \"Change password\" button. `PasswordStrengthInline` treats this type like reset.\n- Ports the legacy flow events `force-password-change` view, engage, and submit. This page has no Glean events.\n\n## Issue that this pull request solves\n\nCloses: FXA-6653",
+  "timestamp": 1790199306000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
