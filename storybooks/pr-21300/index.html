@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit cd1806c3222549f1ac2d8b93501e5a36d806e611</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit cd1806c3222549f1ac2d8b93501e5a36d806e611</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/23/2026, 10:41:56 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>refactor(content-server): remove Backbone pairing and CAD routes</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- `showReactApp.pairRoutes` is on in stage and prod. React serves all pairing, CAD, and CAD-via-QR routes, so nothing can reach the Backbone code for these routes.
+- This change is part of FXA-6117, &quot;Decommission Backbone&quot;.
+
+## This pull request
+
+- Deletes the Backbone `pair/*`, `connect_another_device`, and `post_verify/cad_qr` views, templates, mixins, models, and specs. Also deletes `sign_in_totp_code.mustache`, because FXA-14375 already landed.
+- Removes the `pair/*` and `cad_qr` routes from `router.js`. `pair` and `connect_another_device` stay as React-only handlers, because Backbone views still navigate there.
+- Sends `showSuccessMessage` and `type` as query params to React `connect_another_device`. React reads `type` from the query as a fallback, so the success banner stays after a hard nav.
+- Removes `replaceCurrentPageWithQrCadScreen` and `replaceCurrentPageWithPairScreen` from `connect-another-device-mixin.js`. Keeps `isEligibleForPairing`, because `navigateToConnectAnotherDeviceScreen` still calls it. The ticket asked to delete it.
+- Removes the `/oauth?channel_id` Backbone bypass in `add-routes.js`. Sets `pairRoutes` to `featureFlagOn: true`. `fullProdRollout` stays `true`.
+- Moves `PAIRING_ROUTES` into `FRONTEND_ROUTES`. Deletes `get-frontend-pairing.js`, `getFrontEndPairingRouteDefinition`, and the `postVerifyCADViaQRRoutes` group.
+- Removes the `showReactApp.pairRoutes` and `showReactApp.postVerifyCADViaQRRoutes` config values from content-server and fxa-settings.
+- Changes `getSyncNavigate` in fxa-settings to always soft-nav to `/pair` with location state.
+- Deletes `pairingFlowBackbone*.spec.ts`. Removes the `isPairRoutesReact` gate and the `useReact` parameter, so the React pairing specs do not skip silently. Removes the unused `SUPP_CANCEL_BACKBONE` selector and updates `tests/pairing/CLAUDE.md`.
+
+## Issue that this pull request solves
+
+Closes: FXA-14376</pre></dd>
+  </dl>
+</body>
+</html>
