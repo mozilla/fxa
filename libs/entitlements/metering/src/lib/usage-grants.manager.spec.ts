@@ -5,10 +5,9 @@
 import { Timestamp } from '@google-cloud/firestore';
 import { Test } from '@nestjs/testing';
 
-import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
-
 import { UsageGrantRecordFactory } from './metering.factories';
 import { MockMeteringConfigProvider } from './metering.config';
+import { MockMeteringFirestoreProvider } from './metering-firestore.provider';
 import { UsageGrantsManager } from './usage-grants.manager';
 import {
   deleteUsageGrant,
@@ -28,7 +27,7 @@ describe('UsageGrantsManager', () => {
       providers: [
         UsageGrantsManager,
         MockMeteringConfigProvider,
-        MockFirestoreProvider,
+        MockMeteringFirestoreProvider,
       ],
     }).compile();
     manager = moduleRef.get(UsageGrantsManager);

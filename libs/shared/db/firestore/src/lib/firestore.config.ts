@@ -25,4 +25,8 @@ export class FirestoreConfig {
   @IsString()
   @IsOptional()
   projectId?: string;
+
+  @IsString()
+  @IsOptional()
+  databaseId?: string;
 }
