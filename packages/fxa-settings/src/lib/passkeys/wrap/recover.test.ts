@@ -13,6 +13,12 @@ jest.mock('./consumption', () => ({
   unwrapPasskeyKb: jest.fn(),
 }));
 
+const mockCaptureException = jest.fn();
+jest.mock('@sentry/browser', () => ({
+  ...jest.requireActual('@sentry/browser'),
+  captureException: (...args: unknown[]) => mockCaptureException(...args),
+}));
+
 const unwrapMock = jest.mocked(unwrapPasskeyKb);
 
 const UID = 'a'.repeat(32);
@@ -37,17 +43,13 @@ const args = (
     offerOptIn?: boolean;
     mounted?: boolean;
     mfaToken?: string;
-    prfOut?: Uint8Array;
   } = {}
 ) => ({
   authClient,
   uid: UID,
   mfaToken: overrides.mfaToken ?? MFA_TOKEN,
   credentialId: 'cred',
-  prfOut:
-    'prfOut' in overrides
-      ? overrides.prfOut
-      : new Uint8Array(32).fill(PRF_FILL),
+  prfOut: new Uint8Array(32).fill(PRF_FILL),
   mounted: { current: overrides.mounted ?? true },
   offerOptIn: overrides.offerOptIn ?? true,
   sensitiveDataClient: new SensitiveDataClient(),
@@ -83,6 +85,14 @@ describe('recoverPasswordlessKb', () => {
     expect(unwrapMock).not.toHaveBeenCalled();
   });
 
+  it('reports a proof that does not name the session account', async () => {
+    await recoverPasswordlessKb(args({ mfaToken: tokenFor('b'.repeat(32)) }));
+
+    expect(mockCaptureException).toHaveBeenCalledWith(
+      new Error('passkey-wrap uid mismatch')
+    );
+  });
+
   it.each(['no_wrap', 'stale'] as const)(
     'stashes the opt-in material when the wrap is %s',
     async (reason) => {
@@ -101,16 +111,6 @@ describe('recoverPasswordlessKb', () => {
       });
     }
   );
-
-  it('makes no offer without PRF output to stash', async () => {
-    unwrapMock.mockResolvedValue({ ok: false, reason: 'no_wrap' });
-    const a = args({ prfOut: undefined });
-
-    await expect(recoverPasswordlessKb(a)).resolves.toEqual({
-      outcome: 'needs_password',
-    });
-    expect(a.sensitiveDataClient.PasskeyWrapData).toBeUndefined();
-  });
 
   it('withholds the offer on a client that cannot show it', async () => {
     unwrapMock.mockResolvedValue({ ok: false, reason: 'no_wrap' });

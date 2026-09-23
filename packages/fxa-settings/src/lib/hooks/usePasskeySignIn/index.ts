@@ -234,6 +234,7 @@ export function usePasskeySignIn({
 
         if (
           wrapMaterialRequested &&
+          prfOut &&
           completion.verified &&
           completion.mfaToken &&
           completion.hasPassword
@@ -251,7 +252,7 @@ export function usePasskeySignIn({
             sensitiveDataClient,
           });
           // Spent: zeroed now rather than after the sign-in round-trip below.
-          prfOut?.fill(0);
+          prfOut.fill(0);
           if (recovered.outcome === 'left') {
             return;
           }

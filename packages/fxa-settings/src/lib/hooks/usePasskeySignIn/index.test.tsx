@@ -1100,6 +1100,20 @@ describe('usePasskeySignIn passwordless Sync', () => {
     expect(sensitiveDataClient.PasskeyWrapData).toBeUndefined();
   });
 
+  it('sends a passkey that returned no PRF output to the password page without fetching', async () => {
+    const { result, spies } = renderSyncHook();
+    (getCredential as jest.Mock).mockResolvedValue(MOCK_CREDENTIAL);
+
+    await act(() => result.current.onClick());
+
+    expect(unwrapMock).not.toHaveBeenCalled();
+    expect(spies.navigateWithQuery).toHaveBeenCalledWith(
+      '/signin_passkey_fallback',
+      { state: { passkeySurface: 'emailfirst' } }
+    );
+    expect(sensitiveDataClient.PasskeyWrapData).toBeUndefined();
+  });
+
   it('completes the OAuth flow with the recovered kB and no password page', async () => {
     unwrapMock.mockResolvedValue({ ok: true, kB: new Uint8Array(RECOVERED) });
     const { result, spies } = renderSyncHook();

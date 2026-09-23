@@ -31,7 +31,7 @@ const CREDENTIAL_ID = 'cred';
 const KB = new Uint8Array(32).fill(0x0b);
 const prf = () => new Uint8Array(32).fill(7);
 
-const args = (prfOut?: Uint8Array) => ({
+const args = (prfOut: Uint8Array) => ({
   mfaToken: 'mfa-token',
   uid: UID,
   credentialId: CREDENTIAL_ID,
@@ -84,7 +84,6 @@ describe('unwrapPasskeyKb', () => {
   });
 
   it.each([
-    ['missing', undefined],
     ['short', new Uint8Array(4)],
     ['spent', new Uint8Array(32)],
   ])('fails without a fetch when prfOut is %s', async (_, prfOut) => {
@@ -101,8 +100,6 @@ describe('unwrapPasskeyKb', () => {
     [ERRNO.PASSKEY_WRAP_NOT_FOUND, 'no_wrap'],
     [ERRNO.PASSKEY_WRAP_STALE, 'stale'],
     [ERRNO.PASSKEY_NOT_FOUND, 'failed'],
-    [ERRNO.INVALID_MFA_TOKEN, 'failed'],
-    [ERRNO.FEATURE_NOT_ENABLED, 'failed'],
     [ERRNO.THROTTLED, 'failed'],
     [ERRNO.REQUEST_BLOCKED, 'failed'],
   ])('maps errno %i to %s without Sentry', async (errno, reason) => {
@@ -118,7 +115,12 @@ describe('unwrapPasskeyKb', () => {
   });
 
   it.each([
-    ['offline', new TypeError('Failed to fetch')],
+    ['offline in Chromium', new TypeError('Failed to fetch')],
+    [
+      'offline in Gecko',
+      new TypeError('NetworkError when attempting to fetch resource.'),
+    ],
+    ['offline in WebKit', new TypeError('Load failed')],
     ['timed out', new DOMException('aborted', 'AbortError')],
   ])('fails without Sentry when the client is %s', async (_, err) => {
     const res = await unwrapPasskeyKb(
@@ -132,10 +134,14 @@ describe('unwrapPasskeyKb', () => {
     expect(mockCaptureException).not.toHaveBeenCalled();
   });
 
-  it('fails and reports an errno it does not expect', async () => {
+  it.each([
+    ['a refused proof', ERRNO.INVALID_MFA_TOKEN],
+    ['a disabled server flag', ERRNO.FEATURE_NOT_ENABLED],
+    ['an errno it does not expect', 999],
+  ])('fails and reports %s', async (_, errno) => {
     const res = await unwrapPasskeyKb(
       client(async () => {
-        throw Object.assign(new Error('refused'), { errno: 999 });
+        throw Object.assign(new Error('refused'), { errno });
       }),
       args(prf())
     );
@@ -143,7 +149,24 @@ describe('unwrapPasskeyKb', () => {
     expect(res).toEqual({ ok: false, reason: 'failed' });
     expect(mockCaptureException).toHaveBeenCalledWith(
       new Error('passkey-wrap-fetch error'),
-      { tags: { errno: '999' } }
+      { tags: { errno: String(errno) } }
+    );
+  });
+
+  it('fails and reports a TypeError that is not a network failure', async () => {
+    const res = await unwrapPasskeyKb(
+      client(async () => {
+        throw new TypeError(
+          "Cannot read properties of undefined (reading 'replace')"
+        );
+      }),
+      args(prf())
+    );
+
+    expect(res).toEqual({ ok: false, reason: 'failed' });
+    expect(mockCaptureException).toHaveBeenCalledWith(
+      new Error('passkey-wrap-fetch error'),
+      { tags: { errno: 'none', name: 'TypeError' } }
     );
   });
 

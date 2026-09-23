@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import type { RefObject } from 'react';
+import * as Sentry from '@sentry/browser';
 import { uint8ToHex } from 'fxa-auth-client/lib/utils';
 import type { SensitiveDataClient } from '../../sensitive-data-client';
 import type AuthClient from 'fxa-auth-client/browser';
@@ -38,14 +39,16 @@ export async function recoverPasswordlessKb({
   uid: string;
   mfaToken: string;
   credentialId: string;
-  prfOut: Uint8Array | undefined;
+  prfOut: Uint8Array;
   mounted: RefObject<boolean>;
   offerOptIn: boolean;
   sensitiveDataClient: SensitiveDataClient;
 }): Promise<RecoverPasswordlessKbResult> {
   // The proof must name the session's account: the wrap is opened with that
-  // uid, and the kB it yields goes into this session's OAuth flow.
+  // uid, and the kB it yields goes into this session's OAuth flow. The server
+  // returns both together, so a mismatch is a server bug.
   if (uidFromMfaToken(mfaToken) !== uid) {
+    Sentry.captureException(new Error('passkey-wrap uid mismatch'));
     return { outcome: 'needs_password' };
   }
   let unwrapped: UnwrapPasskeyKbResult;
@@ -86,7 +89,6 @@ export async function recoverPasswordlessKb({
   // predates the key rotation: the store replaces it.
   if (
     (unwrapped.reason === 'no_wrap' || unwrapped.reason === 'stale') &&
-    prfOut &&
     offerOptIn
   ) {
     // Zeroes whatever it replaces rather than dropping the reference.
