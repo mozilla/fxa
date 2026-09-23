@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 86c9652c3581f34855955828d3f584093c9930a9</title>
+  <title>Storybooks for commit bc258622ec34f5a1a275bb1005d965fd3d204aed</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,43 +23,47 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 86c9652c3581f34855955828d3f584093c9930a9</h1>
+  <h1>Storybooks for commit bc258622ec34f5a1a275bb1005d965fd3d204aed</h1>
   <ul>
     <li><a href="./fxa-react/">fxa-react</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/21/2026, 11:02:53 PM UTC</dd>
+    <dd>9/23/2026, 12:47:21 AM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat: add Glean metrics to the pair2 pairing flows</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
 * The pair2 screens ship with no metrics, so the pairing funnel is invisible on
-  both devices and on the server, and nothing reported whether a QR scan reached
-  Firefox, fell back to the app store, or was swallowed by a WebView.
-* The two devices are separate sessions with separate flow ids, so their halves
-  of one pairing could not be joined.
+  both devices and on the server.
+* Nothing reported whether a QR scan reached Firefox, fell back to the app
+  store, or was swallowed by an embedded WebView.
 * Glean&#039;s automatic events report window.location.href, so the pairing channel
   key in the URL fragment was being sent to telemetry.
 
 This commit:
 
-* Instruments every action on the 12 Pair2 pages, adds dtm_desktop/dtm_mobile
-  view events for the interrupted and success screens, and adds four dtm_mobile
-  deeplink events to the supplicant hand-off in DownloadFirefox and PocPairInit,
-  with armStoreFallback reporting which inference sent the user to the store.
-* Adds dtm_backend.pair_success on /oauth/authorization, detected by a positive
-  test for desktop Firefox so an iPad sign-in is not counted as a pairing.
+* Adds data-glean-id to every action on the 12 Pair2 pages, plus
+  dtm_desktop/dtm_mobile view events carrying the interrupted-screen state that
+  the automatic view event cannot split.
+* Adds four dtm_mobile deeplink events, wired into PocPairInit, flushing pings
+  before the navigations that abandon the page.
+* Adds dtm_backend.pair_success on /oauth/authorization, which pair2 only
+  reaches once both devices have confirmed, detected by a positive test for
+  desktop Firefox so an iPad sign-in is not counted as a pairing.
 * Captures the pairing fragment at startup and removes it from the URL, keeping
-  the channel key out of telemetry, and points the readers that parsed the live
-  hash (Pair/Index, App&#039;s v=2 bypass, UrlHashData) at the capture instead.
-* Adds session.pairing_channel_hash from a SHA-256 of the channel id, resolved
-  once at page load so every event in the flow carries the same value.
-* Bounds the ping flush before hand-off navigations with a shared helper and
-  keeps one failed ping from wedging the submit queue, so telemetry cannot
-  strand the user.</pre></dd>
+  the channel key out of telemetry while surviving the post-OAuth reload.
+* Adds session.pairing_channel_hash, sent in both the accounts-events and events
+  pings so it rides on the automatic page-load and click events too.
+* Derives it in initMetrics from a SHA-256 of the channel id, reusing the digest
+  helper the uid hash already used.
+* Resolves the channel id once at page load, from the query param on the
+  authority and the captured fragment on the supplicant, rather than reading the
+  URL live, which would repeat the FXA-14093 flow-id mismatch.
+
+  feat(settings): join pair2 metrics across devices with a hashed channel id</pre></dd>
   </dl>
 </body>
 </html>

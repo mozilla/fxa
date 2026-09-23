@@ -1359,6 +1359,10 @@ inline-passwordless-sync-setup-description = Use this passkey to sign in faster.
 inline-passwordless-sync-setup-enable-button = Enable passkey
 inline-passwordless-sync-setup-enabling = Enabling…
 inline-passwordless-sync-setup-not-now-button = Not now
+inline-passwordless-sync-setup-success-alert = This passkey is ready for sync sign-in
+inline-passwordless-sync-setup-error-cancelled = Passkey confirmation didn’t finish
+inline-passwordless-sync-setup-error-cancelled-description = Confirm with your passkey to skip the password next time.
+inline-passwordless-sync-setup-error-generic = Something went wrong, you’ll still need to enter your password next time
 
 
 inline-recovery-key-setup-create-error = Oops! We couldn’t create your account recovery key. Please try again later.

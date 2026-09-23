@@ -1341,6 +1341,7 @@ pair2-authority-scan-qr-skip-button = Tuchylu pśeskócyś
 
 
 pair2-authority-sync-success-heading-v2 = Waš rěd jo zwězany
+pair2-authority-sync-success-description-v2 = Synchronizacija jo pó droze. Móžo chylku traś, daniž se waše synchronizěrowane daty njezjawiju. Móžośo ga dalej pśeglědowaś.
 pair2-authority-sync-success-sync-settings-button-v2 = Nastajenja synchronizacije zastojaś
 
 
@@ -1374,6 +1375,7 @@ pair2-supplicant-ready-to-scan-learn-more-link = Dalšne informacije
 
 
 pair2-supplicant-sync-success-heading = Waš rěd jo zwězany
+pair2-supplicant-sync-success-description-v2 = Synchronizacija jo pó droze. Móžo chylku traś, daniž se waše synchronizěrowane daty njezjawiju. Móžośo ga dalej pśeglědowaś.
 pair2-supplicant-sync-success-sync-settings-button-v2 = Nastajenja synchronizacije zastojaś
 
 
