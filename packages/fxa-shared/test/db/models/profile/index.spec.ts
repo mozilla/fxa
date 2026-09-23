@@ -30,7 +30,8 @@ describe('#integration - auth', () => {
   let knex: Knex;
   let avatar: Avatar;
 
-  before(async () => {
+  before(async function () {
+    this.timeout(20000);
     knex = await testDatabaseSetup({
       ...defaultOpts,
       auth: false,
@@ -55,7 +56,7 @@ describe('#integration - auth', () => {
   });
 
   after(async () => {
-    await knex.destroy();
+    await knex?.destroy();
   });
 
   describe('profileByUid', () => {

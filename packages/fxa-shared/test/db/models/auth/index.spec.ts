@@ -35,7 +35,8 @@ import { Device } from '../../../../db/models/auth';
 describe('#integration - auth', () => {
   let knex: Knex;
 
-  before(async () => {
+  before(async function () {
+    this.timeout(20000);
     knex = await testDatabaseSetup({
       ...defaultOpts,
       auth: true,
@@ -47,7 +48,7 @@ describe('#integration - auth', () => {
   });
 
   after(async () => {
-    await knex.destroy();
+    await knex?.destroy();
   });
 
   describe('accountExists', () => {
