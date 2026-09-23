@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 58f6a0f1bffadd221ab7762f929a0f0b60d0d27b</title>
+  <title>Storybooks for commit 41a244b7dd701403025e4a952452b22c544945fb</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,29 +23,31 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 58f6a0f1bffadd221ab7762f929a0f0b60d0d27b</h1>
+  <h1>Storybooks for commit 41a244b7dd701403025e4a952452b22c544945fb</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/23/2026, 9:35:06 PM UTC</dd>
+    <dd>9/23/2026, 10:52:27 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(settings): serve force password change page from React</pre></dd>
     <dt>Description</dt>
     <dd><pre>## Because
 
-- Only the Backbone app serves the force password change page. The `postVerifyOtherRoutes` React group has no routes yet.
-- FxA sends a user to this page when the account must get a new password before sign-in can complete.
+- Only the Backbone app serves the force password change page. FxA sends a user there when the account must get a new password before sign-in can complete.
+- The `postVerifyOtherRoutes` React group has no routes yet.
 
 ## This pull request
 
-- Adds a React `ForcePasswordChange` page to fxa-settings at `/post_verify/password/force_password_change`, with a container, page, interfaces, mocks, `en.ftl`, stories, and tests.
-- Adds the route to the `postVerifyOtherRoutes` flag group (`fullProdRollout: false`) in the content-server `react-app/index.js`. `router.js` now uses `createReactOrBackboneViewHandler` for the route and forwards the search params.
-- Sends signed-out users to `/`. On submit, the container calls `authClient.passwordChange` with `keys: integration.wantsKeys()` and stores the new session.
-- Sends `firefox.passwordChanged`, as the Backbone notifier does for `CHANGE_PASSWORD`. Then it calls `handleNavigation` as a verified sign-in, in place of the broker `afterCompleteSignInWithCode`.
+- Adds a React `ForcePasswordChange` page at `/post_verify/password/force_password_change`, with a container, stories, and tests. The container calls `authClient.passwordChange`, stores the new session, sends `firefox.passwordChanged`, and then calls `handleNavigation` as a verified sign-in.
+- Adds the route to the `postVerifyOtherRoutes` flag group (`fullProdRollout: false`). `router.js` uses `createReactOrBackboneViewHandler` for the route and forwards the search params.
 - Adds a `force-password-change` form type to `FormPasswordWithInlineCriteria`, with an &quot;Old password&quot; field and a &quot;Change password&quot; button. `PasswordStrengthInline` treats this type like reset.
-- Ports the legacy flow events `force-password-change` view, engage, and submit. This page has no Glean events.
+- Ports the legacy `force-password-change` flow events (view, engage, submit). The page has no Glean events.
+- Fixes the CI functional test failures:
+  - The page now uses the Backbone element ids that `postVerify.ts` looks for, through a new optional `id` prop on `InputText` and `InputPassword`. No functional test changed.
+  - `handleNavigation` now navigates in-app, with query params, for `CHANGE_PASSWORD`. The old hard navigation got a 301 to a trailing-slash URL, and that URL returned 404.
+  - The container reads `verified` from the `passwordChange` response. `/password/change/finish` returns `verified`, not `sessionVerified`, so users went back to `/signin_token_code` after the change.
 
 ## Issue that this pull request solves
 
