@@ -1,0 +1,10 @@
+{
+  "commit": "e5b61716efad0587d1ebbaf3f27907870df6e79b",
+  "summary": "fix(settings): keep v2 pairing authorities off the legacy pair screens",
+  "description": "Because:\n\n- The Index page sent every pairing-authority integration to the v1\n  /pair/auth/allow screen, so a v2 desktop flow that reached `/` landed\n  on the legacy pair screens.\n- The integration had no record of which pairing version it was built\n  for until a channel was created.\n\nThis commit:\n\n- Adds isDevicePairingAsV2Authority() to the integration flags.\n- Passes the pairing version into PairingAuthorityIntegration and\n  exposes it as pairingVersion.\n- Routes a v2 authority from Index to /pair/authority/scan_qr, replacing\n  the history entry; v1 still goes to /pair/auth/allow.\n- Adds tests for the flag, factory, model, and both Index redirects.\n\nFixes FXA-14464",
+  "timestamp": 1790039439000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
