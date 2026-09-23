@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 147e62403958168cfcc6816960659fad6d51f161</title>
+  <title>Storybooks for commit f02a895aca8aa905b4e6f45b89426ee6a55aaee4</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,28 +23,28 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 147e62403958168cfcc6816960659fad6d51f161</h1>
+  <h1>Storybooks for commit f02a895aca8aa905b4e6f45b89426ee6a55aaee4</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/23/2026, 9:22:15 PM UTC</dd>
+    <dd>9/23/2026, 9:40:38 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(settings): add React page for /update_firefox</pre></dd>
     <dt>Description</dt>
     <dd><pre>## Because
 
-- Browsers too old for a Mozilla account land on /update_firefox. Only the Backbone content server renders it today.
-- FxA is moving pages from the content server to fxa-settings.
+- Only the content-server renders the /update_firefox page.
+- FxA moves the post-verify pages to React in fxa-settings, and this page is part of that set.
 
 ## This pull request
 
-- Adds a React `UpdateFirefox` page in fxa-settings, with Fluent strings in `en.ftl`, a story, and a unit spec.
-- Serves /update_firefox from React when the `postVerifyOtherRoutes` flag is on.
-- Keeps `get-update-firefox.js` as the server fallback when the flag is off.
+- Adds an UpdateFirefox page in fxa-settings, with Fluent strings, a story, and a unit spec.
+- Serves /update_firefox from React behind the postVerifyOtherRoutes flag. get-update-firefox.js stays as the server fallback.
 - Keeps /download_firefox on the server. The button links to it with the allowed query params and the flow data.
-- Logs `flow.begin` and `flow.update-firefox.view` on mount, because the React route bypasses the server route that logged them.
+- Logs flow.begin and flow.update-firefox.view on mount.
+- Keeps a raw `+` in forwarded query values. The button links straight to https://www.mozilla.org/firefox/download/thanks/ when context, deviceId, or flow data is missing, because /download_firefox returns 400 without them.
 
 ## Issue that this pull request solves
 
