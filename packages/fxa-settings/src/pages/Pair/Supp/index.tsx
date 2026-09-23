@@ -11,6 +11,10 @@ import Banner from '../../../components/Banner';
 import { useNavigateWithQuery } from '../../../lib/hooks';
 import type { UseFxAStatusResult } from '../../../lib/hooks';
 import config from '../../../lib/config';
+import {
+  getPairingChannelHashParams,
+  getPairingChannelParams,
+} from '../../../lib/pairing-channel-params';
 import { Integration } from '../../../models';
 import {
   clearChannelComplete,
@@ -57,11 +61,13 @@ const Supp = ({
       return;
     }
 
-    // channel_id/key live in the URL hash so they're not sent to the server.
-    const hash = window.location.hash;
-    const hashParams = new URLSearchParams(hash.substring(1));
-    const channelId = hashParams.get('channel_id');
-    const channelKey = hashParams.get('channel_key');
+    // channel_id/key arrive in the URL hash so they're not sent to the server,
+    // and are lifted out of it at startup so the key cannot reach telemetry
+    // either — see lib/pairing-channel-params.
+    const { channelId, channelKey } = getPairingChannelParams() ?? {
+      channelId: null,
+      channelKey: null,
+    };
     const channelServerUri = config.pairing?.serverBaseUri;
 
     if (!channelServerUri || !channelId || !channelKey) {
@@ -78,7 +84,9 @@ const Supp = ({
     // authority encoded `v=2` into the fragment, FxA has v2 enabled, and this
     // browser reported over the web channel that it speaks v2. A supplicant
     // without the v2 commands belongs on the v1 flow, which it can complete.
-    const v2Channel = parsePairingHash(hash);
+    const v2Channel = parsePairingHash(
+      getPairingChannelHashParams()?.toString()
+    );
     const authorityWantsV2 =
       config.pairing?.version === 2 && v2Channel !== undefined;
 

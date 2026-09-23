@@ -11,6 +11,21 @@ import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { Integration } from '../../../models/integrations/integration';
 import { mockUseFxAStatus } from '../../../lib/hooks/useFxAStatus/mocks';
+import {
+  capturePairingChannelParams,
+  resetPairingChannelParamsForTest,
+} from '../../../lib/pairing-channel-params';
+
+/**
+ * Startup lifts the pairing fragment out of the URL so its channel key cannot
+ * reach telemetry, and the page reads that capture rather than the live hash.
+ * Tests therefore set the hash and then run the same capture production runs.
+ */
+function setPairingHash(hash: string) {
+  window.location.hash = hash;
+  resetPairingChannelParamsForTest();
+  capturePairingChannelParams();
+}
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -124,11 +139,11 @@ describe('Pair/Supp page', () => {
       mockNavigateWithQuery.mockClear();
       sessionStorage.clear();
       mockConfig.pairing.version = 1;
-      window.location.hash = '#channel_id=test-chan&channel_key=dGVzdA';
+      setPairingHash('#channel_id=test-chan&channel_key=dGVzdA');
     });
 
     afterEach(() => {
-      window.location.hash = '';
+      setPairingHash('');
       sessionStorage.clear();
     });
 
@@ -152,7 +167,7 @@ describe('Pair/Supp page', () => {
     };
 
     it('shows error when hash params are missing', () => {
-      window.location.hash = '';
+      setPairingHash('');
       renderSupp();
       expect(
         screen.getByText('Invalid pairing configuration')
@@ -212,7 +227,7 @@ describe('Pair/Supp page', () => {
       const v2Browser = mockUseFxAStatus({ pairingVersion: 2 });
 
       beforeEach(() => {
-        window.location.hash = '#channel_id=test-chan&channel_key=dGVzdA&v=2';
+        setPairingHash('#channel_id=test-chan&channel_key=dGVzdA&v=2');
         mockConfig.pairing.version = 2;
       });
 

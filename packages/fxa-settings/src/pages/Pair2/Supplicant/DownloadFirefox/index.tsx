@@ -49,7 +49,11 @@ export type DownloadFirefoxProps = {
 };
 
 const learnMoreLink = (
-  <LinkExternal href={LINK.FX_SYNC} className="link-dark-grey">
+  <LinkExternal
+    href={LINK.FX_SYNC}
+    gleanDataAttrs={{ id: 'dtm_mobile_download_learn_more' }}
+    className="link-dark-grey"
+  >
     Learn more
   </LinkExternal>
 );
@@ -172,6 +176,7 @@ const DownloadFirefox = ({
     <LinkExternal
       href={Constants.FIREFOX_MOBILE_DOWNLOAD_URL}
       className={ctaClassName}
+      gleanDataAttrs={{ id: 'dtm_mobile_download_submit' }}
     >
       {ctaLabel}
     </LinkExternal>

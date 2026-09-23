@@ -158,6 +158,7 @@ jest.mock('./server_events', () => ({
       'recordInactiveAccountDeletionDeletionSkipped'
     ),
     recordEmailDeliverySuccess: mockFn('recordEmailDeliverySuccess'),
+    recordDtmBackendPairSuccess: mockFn('recordDtmBackendPairSuccess'),
     recordPasswordResetRecoveryPhoneCodeSent: mockFn(
       'recordPasswordResetRecoveryPhoneCodeSent'
     ),

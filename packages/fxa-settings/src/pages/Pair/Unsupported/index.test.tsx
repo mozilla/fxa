@@ -8,6 +8,10 @@ import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { MOCK_ERROR } from './mock';
 import PairUnsupported, { viewName } from '.';
+import {
+  capturePairingChannelParams,
+  resetPairingChannelParamsForTest,
+} from '../../../lib/pairing-channel-params';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -45,6 +49,11 @@ function spoofUserAgent(ua: string, hash = '') {
   });
   const originalHash = window.location.hash;
   window.history.replaceState(null, '', window.location.pathname + hash);
+  // Startup lifts the pairing fragment out of the URL, and the component reads
+  // that capture rather than the live hash, so a spoofed hash only reaches it
+  // through the same path production uses.
+  resetPairingChannelParamsForTest();
+  capturePairingChannelParams();
   return () => {
     if (originalUa) {
       Object.defineProperty(window.navigator, 'userAgent', originalUa);
@@ -54,6 +63,7 @@ function spoofUserAgent(ua: string, hash = '') {
       '',
       window.location.pathname + originalHash
     );
+    resetPairingChannelParamsForTest();
   };
 }
 

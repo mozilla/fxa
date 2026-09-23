@@ -7,6 +7,10 @@ import { Constants } from '../constants';
 import { StorageData, UrlQueryData } from '../model-data';
 import { DefaultIntegrationFlags } from './integration-factory-flags';
 import { ReachRouterWindow } from '../window';
+import {
+  capturePairingChannelParams,
+  resetPairingChannelParamsForTest,
+} from '../pairing-channel-params';
 
 describe('lib/integrations/integration-factory-flags', function () {
   const window = new ReachRouterWindow();
@@ -96,6 +100,32 @@ describe('lib/integrations/integration-factory-flags', function () {
       expect(integrationFlags.isDevicePairingAsSupplicant()).toBe(false);
     }
   );
+
+  // A system-camera scan of a v2 QR lands on `/pair#channel_id=…&v=2`, and
+  // startup lifts that fragment out of the URL before the factory runs.
+  describe('isDevicePairingAsSupplicant for a scanned QR on /pair', () => {
+    function landOnPair(hash: string) {
+      window.location.hash = hash;
+      resetPairingChannelParamsForTest();
+      capturePairingChannelParams();
+      sandbox.replaceGetter(queryData, 'pathName', () => '/pair');
+    }
+
+    afterEach(() => {
+      window.location.hash = '';
+      resetPairingChannelParamsForTest();
+    });
+
+    it('is true for a v2 channel', () => {
+      landOnPair('#channel_id=chan-1&channel_key=key-1&v=2');
+      expect(integrationFlags.isDevicePairingAsSupplicant()).toBe(true);
+    });
+
+    it('is false for a channel without a version', () => {
+      landOnPair('#channel_id=chan-1&channel_key=key-1');
+      expect(integrationFlags.isDevicePairingAsSupplicant()).toBe(false);
+    });
+  });
 
   describe('isOAuth', () => {
     beforeEach(() => {

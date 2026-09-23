@@ -41,6 +41,7 @@ import {
   isSendTabEntrypoint,
 } from '../../../lib/utilities';
 import { buildPairUrl, parsePairingHash } from '../../../lib/pairing/pair-url';
+import { getPairingChannelHashParams } from '../../../lib/pairing-channel-params';
 import {
   isPairingV2Enabled,
   isPairingV2RolledOut,
@@ -163,11 +164,12 @@ const Pair = ({
     }
   }, [currentView]);
 
-  // A scanned QR lands here with the channel in the hash. `location.hash` is
-  // known at mount, so this is settled before the bootstrap effect below runs.
+  // A scanned QR lands here with the channel in the hash, which startup lifts
+  // out of the URL before render — see lib/pairing-channel-params. The capture
+  // is fixed by then, so this is settled before the bootstrap effect below runs.
   const pairingChannelInfo = useMemo(
-    () => parsePairingHash(location.hash),
-    [location.hash]
+    () => parsePairingHash(getPairingChannelHashParams()?.toString()),
+    []
   );
 
   const device = deviceProp ?? detectDevice();

@@ -44,6 +44,7 @@ const SyncSuccess = ({
       <FtlMsg id="pair2-authority-sync-success-sync-settings-button-v2">
         <button
           type="button"
+          data-glean-id="dtm_desktop_pair_success_sync_settings"
           onClick={onSyncSettings}
           className="link-dark-grey mt-6"
         >
