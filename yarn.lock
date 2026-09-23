@@ -32319,7 +32319,6 @@ __metadata:
     app-store-server-api: "npm:^0.16.0"
     autoprefixer: "npm:^10.4.14"
     babel-jest: "npm:30.0.5"
-    base64url: "npm:^3.0.1"
     class-transformer: "npm:^0.5.1"
     class-validator: "npm:0.14.1"
     classnames: "npm:^2.5.1"
