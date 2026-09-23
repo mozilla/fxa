@@ -5,7 +5,7 @@ not-found-page-button-terms-manage-subscriptions = Zarządzanie subskrypcjami
 
 ## Page
 
-checkout-signin-or-create = 1. Zaloguj się lub utwórz { -product-mozilla-account(case: "acc", capitalization: "lower") }
+checkout-signin-or-create = 1. Zaloguj się lub utwórz { -product-mozilla-account(capitalization: "lower", case: "acc") }
 # This string appears as a separation between the two sign-in options, "Enter your email"(signin-form-email-input) "or"(this string) "Continue with Google"(continue-signin-with-google-button) / "Continue with Apple"(continue-signin-with-apple-button)
 checkout-signin-options-or = lub
 continue-signin-with-google-button = Kontynuuj za pomocą konta { -brand-google }
@@ -18,6 +18,7 @@ next-payment-method-first-approve = Najpierw musisz zatwierdzić subskrypcję
 ## Error page
 
 error-page-account-not-found-heading = Nie odnaleziono konta
+error-page-account-not-found-continue-button = Kontynuuj
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = Wybierz swój kraj i wprowadź kod pocztowy, <p>aby przejść do zapłaty za { $productName }</p>
 location-banner-info = Nie udało nam się automatycznie wykryć Twojej lokalizacji
@@ -252,17 +253,14 @@ next-coupon-submit = Zastosuj
 
 ##
 
-
-# Component - Header
-
 payments-header-help =
-    .title = Pomoc
-    .aria-label = Pomoc
     .alt = Pomoc
+    .aria-label = Pomoc
+    .title = Pomoc
 payments-header-bento =
-    .title = Produkty { -brand-mozilla(case: "gen") }
-    .aria-label = Produkty { -brand-mozilla(case: "gen") }
     .alt = Logo { -brand-mozilla(case: "gen") }
+    .aria-label = Produkty { -brand-mozilla(case: "gen") }
+    .title = Produkty { -brand-mozilla(case: "gen") }
 payments-header-bento-close =
     .alt = Zamknij
 payments-header-bento-tagline = Więcej produktów od { -brand-mozilla(case: "gen") }, które chronią Twoją prywatność
@@ -273,17 +271,29 @@ payments-header-bento-firefox-relay = { -product-firefox-relay }
 payments-header-bento-vpn = { -product-mozilla-vpn }
 payments-header-bento-made-by-mozilla = Tworzone przez { -brand-mozilla(case: "acc") }
 payments-header-avatar =
-    .title = Menu { -product-mozilla-account(case: "gen", capitalization: "lower") }
+    .title = Menu { -product-mozilla-account(capitalization: "lower", case: "gen") }
 payments-header-avatar-icon =
     .alt = Zdjęcie profilowe konta
 payments-header-avatar-expanded-signed-in-as = Zalogowano jako
 payments-header-avatar-expanded-sign-out = Wyloguj się
 
+## Interstitial Offer
+
+interstitial-offer-cancel-subscription-button = Anuluj subskrypcję
+
+## Daily/Weekly/Monthly refers to the user's current subscription interval
+
+interstitial-offer-button-keep-current-interval-daily = Pozostań przy subskrypcji dziennej
+interstitial-offer-button-keep-current-interval-weekly = Pozostań przy subskrypcji tygodniowej
+interstitial-offer-button-keep-current-interval-halfyearly = Pozostań przy subskrypcji półrocznej
+interstitial-offer-button-keep-current-interval-monthly = Pozostań przy subskrypcji miesięcznej
+interstitial-offer-button-keep-subscription = Zachowaj subskrypcję
+
 ##
 
 payments-client-loading-spinner =
-    .aria-label = Wczytywanie…
     .alt = Wczytywanie…
+    .aria-label = Wczytywanie…
 
 ## Payment method management page - Stripe
 
@@ -310,6 +320,11 @@ purchase-details-credit-applied-label = Zastosowano środki
 purchase-details-total-due-label = Całkowita kwota do zapłaty
 next-plan-details-hide-button = Ukryj informacje
 next-plan-details-show-button = Wyświetl informacje
+
+##
+
+# $endDate (String) - The date of the first charge after the free trial ends
+free-trial-first-charge-title = Pierwsza płatność: { $endDate }
 
 ##
 
@@ -410,7 +425,7 @@ next-sub-guarantee = 30-dniowa gwarancja zwrotu pieniędzy
 
 # "Mozilla Accounts" is capitalized in this instance for title case in English
 # This heading is followed by links to Terms of Service and Privacy Notice
-next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(case: "nom", capitalization: "upper") }
+next-subplat-mozilla-accounts-legal-heading = { -product-mozilla-accounts(capitalization: "upper", case: "nom") }
 next-terms = Regulamin usługi
 next-privacy = Zasady ochrony prywatności
 terms-and-privacy-stripe-label = { -brand-mozilla } korzysta z serwisu { -brand-name-stripe } do bezpiecznego przetwarzania płatności.
