@@ -1,9 +1,10 @@
 {
-  "commit": "5a84febc511381dd8ce4c34dad2bbd3e80f2101d",
+  "commit": "bfa449b043f969b1a7841b1e240b8a9b18fccef9",
   "summary": "feat(settings): sign in to Sync with a PRF passkey and no password",
   "description": "Because:\n- A passkey with a stored wrap can recover kB in the browser.\n\nThis commit:\n- Fetches and opens the wrap after a PRF passkey sign-in and passes kB into the OAuth flow.\n- Sends every wrap-less or failing case to the password page.\n- Stashes opt-in material only when no usable wrap is stored.\n- Reports a wrap that will not open to Sentry, since no retry can clear it.\n- Skips the wrap path outside OAuth-native Sync and when the flag is off.\n\nCloses #FXA-13152",
-  "timestamp": 1790119940000,
+  "timestamp": 1790121981000,
   "storybooks": [
+    "fxa-react",
     "fxa-settings"
   ],
   "deployDir": "deploy/"
