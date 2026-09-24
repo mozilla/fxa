@@ -1133,6 +1133,7 @@ auth-error-228 = A jelkulcs regisztrációja sikertelen
 auth-error-233 = Jelkulcs létrehozásához állítson be képernyőzárat, PIN-kódot, ujjlenyomat- vagy arcfelismerést az eszközén, vagy egy biztonsági kulcsot. Ezután próbálja újra.
 auth-error-238 = A jelkulcs kihívása sikertelen
 auth-error-239 = Sajnáljuk, nem tudtuk törölni a fiókját. Próbálja újra, vagy lépjen kapcsolatba az ügyfélszolgálattal, ha a probléma továbbra is fennáll.
+auth-error-240 = Ez a fiók le lett tiltva
 auth-error-999 = Nem várt hiba
 auth-error-1001 = Bejelentkezési kísérlet megszakítva
 auth-error-1002 = A munkamenet lejárt. Jelentkezzen be a folytatáshoz.
@@ -1225,6 +1226,10 @@ inline-passwordless-sync-setup-description = Használja ezt a jelkulcsot a gyors
 inline-passwordless-sync-setup-enable-button = Jelkulcs engedélyezése
 inline-passwordless-sync-setup-enabling = Engedélyezés…
 inline-passwordless-sync-setup-not-now-button = Most nem
+inline-passwordless-sync-setup-success-alert = Ez a jelkulcs készen áll a szinkronizálási bejelentkezésre
+inline-passwordless-sync-setup-error-cancelled = A jelszó megerősítése nem fejeződött be
+inline-passwordless-sync-setup-error-cancelled-description = Erősítse meg a jelkulcsával, hogy legközelebb kihagyja a jelszót.
+inline-passwordless-sync-setup-error-generic = Hiba történt, legközelebb is meg kell adnia a jelszavát
 
 
 inline-recovery-key-setup-create-error = Hoppá! Nem tudtuk létrehozni a fiók-helyreállítási kulcsát. Próbálja újra később.
@@ -1410,6 +1415,13 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Úgy tűnik, túlléptük 
 pair2-supplicant-timeout-and-cancel-timeout-description = A mobileszköz csatlakoztatásához és a { -brand-firefox } adatainak szinkronizálásához keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Megszakítva
 pair2-supplicant-timeout-and-cancel-canceled-description = Eszköz csatlakoztatásához keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén.
+
+
+permissions-heading = { $serviceName } hozzáférést kér a következőhöz:
+permissions-label-email = E-mail cím
+permissions-label-display-name = Megjelenő név
+permissions-continue-button = Folytatás
+permissions-cancel-button = Mégse
 
 
 service-welcome-signup-success-banner = A { -product-mozilla-account } megerősítve
