@@ -10,7 +10,7 @@ import {
   FirefoxWordmarkImage,
   MobileDevicePairingImage,
 } from '../../../../components/images';
-import { SYNC_SUPPORT_URL } from '../../../../constants';
+import { PAIR_WITHOUT_QR_SUPPORT_URL } from '../../../../constants';
 
 // The list itself carries the ordering for assistive tech, so the visible
 // number is decorative.
@@ -73,7 +73,7 @@ const PairConnectHint = () => (
       </ol>
 
       <LinkExternal
-        href={SYNC_SUPPORT_URL}
+        href={PAIR_WITHOUT_QR_SUPPORT_URL}
         gleanDataAttrs={{ id: 'dtm_mobile_connect_hint_learn_more' }}
         className="link-dark-grey mt-10"
       >
