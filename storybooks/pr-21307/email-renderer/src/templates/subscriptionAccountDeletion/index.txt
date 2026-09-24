@@ -1,0 +1,7 @@
+subscriptionAccountDeletion-subject = "Your <%- productName %> subscription has been cancelled"
+
+subscriptionAccountDeletion-title = "Sorry to see you go"
+
+subscriptionAccountDeletion-content-cancelled-2 = "You recently deleted your Mozilla account. As a result, we’ve cancelled your <%- productName %> subscription. Your final payment of <%- invoiceTotal %> was paid on <%- invoiceDateOnly %>."
+
+<%- include ('/partials/cancellationSurvey/index.txt') %>

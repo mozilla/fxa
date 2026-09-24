@@ -1,0 +1,19 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<% if (locals.brandMessagingMode == 'postlaunch') { %>
+<mj-include path="<%- locals.cssPath %>/brandMessaging/index.css" type="css" css-inline="inline" />
+
+<mj-section css-class="brand-message-container">
+  <mj-column>
+    <mj-text css-class="brand-message-text">
+      <span data-l10n-id="brand-banner-message">
+        Did you know we changed our name from Firefox accounts to Mozilla accounts?
+        <a href="https://support.mozilla.org/kb/firefox-accounts-renamed-mozilla-accounts" class="link-blue" data-l10n-name="learnMore">Learn more</a>
+      </span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<% } %>
