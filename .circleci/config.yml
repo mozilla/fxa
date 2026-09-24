@@ -1105,7 +1105,7 @@ workflows:
           jest_affected_base: main
           workflow: test_pull_request
           requires:
-            - Build (PR)
+            - Init (PR)
           post-steps:
             - fail-fast
       - integration-test:
@@ -1116,7 +1116,7 @@ workflows:
           test_suite: frontends-integration
           workflow: test_pull_request
           requires:
-            - Build (PR)
+            - Init (PR)
       - integration-test:
           name: Integration Test - Servers (PR)
           nx_run: affected --base=main --head=$CIRCLE_SHA1
@@ -1124,7 +1124,7 @@ workflows:
           test_suite: servers-integration
           workflow: test_pull_request
           requires:
-            - Build (PR)
+            - Init (PR)
       - integration-test:
           name: Integration Test - Servers - Auth (PR)
           nx_run: affected --base=main --head=$CIRCLE_SHA1
@@ -1134,7 +1134,7 @@ workflows:
           test_suite: servers-auth-integration
           workflow: test_pull_request
           requires:
-            - Build (PR)
+            - Init (PR)
       - integration-test:
           name: Integration Test - Servers - Auth Scripts (PR)
           nx_run: affected --base=main --head=$CIRCLE_SHA1
@@ -1144,7 +1144,7 @@ workflows:
           test_suite: servers-auth-scripts
           workflow: test_pull_request
           requires:
-            - Build (PR)
+            - Init (PR)
       - integration-test:
           name: Integration Test - Libraries (PR)
           nx_run: affected --base=main --head=$CIRCLE_SHA1
@@ -1152,7 +1152,7 @@ workflows:
           test_suite: libraries-integration
           workflow: test_pull_request
           requires:
-            - Build (PR)
+            - Init (PR)
       # Approval step is to reduce how often we run the functional tests
       # but still allow them to be run on demand.
       # No `requires` on this job so it can be approved as soon as a PR
@@ -1173,7 +1173,7 @@ workflows:
           name: Firefox Functional Tests - Playwright (PR)
           workflow: test_pull_request
           requires:
-            - Build (PR)
+            - Init (PR)
             - Approve Functional Tests (PR)
           filters:
             branches:
@@ -1187,7 +1187,7 @@ workflows:
           name: Firefox Functional Tests - Playwright (auto)
           workflow: test_pull_request
           requires:
-            - Build (PR)
+            - Init (PR)
           filters:
             branches:
               only:
@@ -1199,6 +1199,7 @@ workflows:
           stage: Tests
           job_type: build
           requires:
+            - Build (PR)
             - Lint (PR)
             - Unit Test (PR)
             - Integration Test - Frontends (PR)
