@@ -205,7 +205,6 @@ describe('#integration - remote subscriptions (enabled)', () => {
           'test-cms-cache',
       },
     };
-    config.customsUrl = 'none';
     config.rateLimit = {
       ...config.rateLimit,
       rules: '',

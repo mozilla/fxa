@@ -20,12 +20,12 @@ spec:
   providesApis:
     - api:fxa-auth
   dependsOn:
-    - component:fxa-customs-server
     - resource:fxa-auth-database
     - resource:fxa-oauth-database
     - resource:fxa-pushbox-database
     - resource:fxa-stripe-database
     - resource:fxa-auth-cache
+    - resource:fxa-customs-cache
 ---
 apiVersion: backstage.io/v1alpha1
 kind: API

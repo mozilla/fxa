@@ -95,7 +95,6 @@ executors:
     environment:
       NODE_ENV: development
       FIRESTORE_EMULATOR_HOST: localhost:9090
-      CUSTOMS_SERVER_URL: none
       HUSKY_SKIP_INSTALL: 1
 
   # Contains minimal image for running common jobs like linting or unit tests.
@@ -111,7 +110,6 @@ executors:
     environment:
       NODE_ENV: development
       FIRESTORE_EMULATOR_HOST: localhost:9090
-      CUSTOMS_SERVER_URL: none
       HUSKY_SKIP_INSTALL: 1
 
   # A minimal image for anything job needs infrastructure. Perfect for integration tests.
@@ -133,7 +131,6 @@ executors:
     environment:
       NODE_ENV: development
       FIRESTORE_EMULATOR_HOST: localhost:9090
-      CUSTOMS_SERVER_URL: none
       HUSKY_SKIP_INSTALL: 1
       AUTH_CLOUDTASKS_USE_LOCAL_EMULATOR: true
 
@@ -189,7 +186,6 @@ executors:
       RECOVERY_PHONE__MAX_UID_PER_NUMBER: 50
       # use test mode except for smoke tests
       RECOVERY_PHONE__TWILIO__CREDENTIAL_MODE: 'test'
-      CUSTOMS_SERVER_URL: none
       HUSKY_SKIP_INSTALL: 1
       AUTH_CLOUDTASKS_USE_LOCAL_EMULATOR: true
       # passwordless otp feature
@@ -211,7 +207,6 @@ executors:
       - image: mozilla/fxa-circleci:ci-functional-test-runner-v10
     environment:
       NODE_ENV: development
-      CUSTOMS_SERVER_URL: none
       HUSKY_SKIP_INSTALL: 1
       # use apiKeys mode and real numbers for smoke tests
       RECOVERY_PHONE__TWILIO__CREDENTIAL_MODE: 'apiKeys'
@@ -321,12 +316,6 @@ commands:
       - run:
           name: Wait for firestore
           command: ./_scripts/check-url.sh localhost:9090;
-
-  wait-for-customs:
-    steps:
-      - run:
-          name: Wait for Customs
-          command: yarn workspace fxa-customs-server start
 
   lint:
     parameters:
@@ -789,9 +778,6 @@ jobs:
       resource_class:
         type: string
         default: large
-      start_customs:
-        type: boolean
-        default: false
       # Run the (slow, rate-limited) Stripe test-customer sweep. Housekeeping that
       # only needs to happen periodically, so it's enabled on nightly only; PR and
       # tag workflows leave it false so they don't pay the cost on every run.
@@ -812,12 +798,6 @@ jobs:
           # https://github.com/CircleCI-Public/gcp-cli-orb/issues/100
           version: 502.0.0
       - wait-for-infrastructure
-      - run:
-          name: Start customs
-          command: |
-            if [[ "<< parameters.start_customs >>" == "true" ]]; then
-              NODE_ENV=dev yarn workspace fxa-customs-server start
-            fi;
       - run:
           name: Gen keys
           command: |
@@ -1149,7 +1129,6 @@ workflows:
           name: Integration Test - Servers - Auth (PR)
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:server:auth'
-          start_customs: true
           resource_class: xlarge
           target: -t test-integration
           test_suite: servers-auth-integration
@@ -1406,7 +1385,6 @@ workflows:
       - integration-test:
           name: Integration Test - Servers - Auth
           projects: --exclude '*,!tag:scope:server:auth'
-          start_customs: true
           resource_class: xlarge
           target: -t test-integration
           test_suite: servers-auth-integration
@@ -1527,7 +1505,6 @@ workflows:
       - integration-test:
           name: Integration Test - Servers - Auth (nightly)
           projects: --exclude '*,!tag:scope:server:auth'
-          start_customs: true
           resource_class: xlarge
           target: -t test-integration
           test_suite: servers-auth-integration

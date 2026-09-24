@@ -391,18 +391,6 @@ const convictConf = convict({
       env: 'PORT',
     },
   },
-  customsUrl: {
-    doc: "fraud / abuse server url; set to the string 'none' to disable",
-    default: 'http://localhost:7000',
-    env: 'CUSTOMS_SERVER_URL',
-  },
-  customsClient: {
-    timeoutMs: {
-      doc: 'Request timeout in milliseconds for calls to the customs server',
-      default: 30000,
-      env: 'CUSTOMS_TIMEOUT_MS',
-    },
-  },
   contentServer: {
     url: {
       doc: 'The url of the corresponding fxa-content-server instance',
