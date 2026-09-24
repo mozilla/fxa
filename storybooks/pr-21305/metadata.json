@@ -1,8 +1,8 @@
 {
-  "commit": "6386537bd28fcd896d2902a680786bf95dafb325",
+  "commit": "a6aa29e06d233b2926990e2e42612826324d61a7",
   "summary": "fix(settings): stop code input required error on blur",
-  "description": "## Because\n\n- The shared code-entry form (`FormVerifyCode`) auto-focuses its input. If you tab away from the empty input, a \"required\" error shows before you submit anything.\n- The bug affects these pages: sign-in confirmation, unblock, recovery code, passwordless code, sign-up confirmation and pairing TOTP.\n\n## This pull request\n\n- Removes `mode: 'onBlur'` from `useForm` in `FormVerifyCode`. react-hook-form now uses its default onSubmit mode.\n- Adds a unit test that tabs away from the empty input and checks that \"This field is required\" does not show.\n- Gives the negative `findByText` in the new test a 100 ms timeout. The 1000 ms default added about 1 s to the suite.\n\n## Issue that this pull request solves\n\nCloses: FXA-14612",
-  "timestamp": 1790278575000,
+  "description": "## Because\n\n- The code input showed \"This field is required\" when the user blurred the empty field, before any submit.\n- The error showed on the signin confirm, unblock, recovery code, passwordless, signup confirm, and pair TOTP pages.\n\n## This pull request\n\n- Removes `mode: 'onBlur'` from the `useForm` call in `FormVerifyCode`. Validation now runs on submit only.\n- Adds a test that blurs the empty input and checks that no error tooltip appears.\n- Adds a test that an empty submit shows the required message and does not call `verifyCode`.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-14612",
+  "timestamp": 1790281077000,
   "storybooks": [
     "fxa-settings"
   ],

@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 6386537bd28fcd896d2902a680786bf95dafb325</title>
+  <title>Storybooks for commit a6aa29e06d233b2926990e2e42612826324d61a7</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,30 +23,30 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 6386537bd28fcd896d2902a680786bf95dafb325</h1>
+  <h1>Storybooks for commit a6aa29e06d233b2926990e2e42612826324d61a7</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/24/2026, 7:36:15 PM UTC</dd>
+    <dd>9/24/2026, 8:17:57 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(settings): stop code input required error on blur</pre></dd>
     <dt>Description</dt>
     <dd><pre>## Because
 
-- The shared code-entry form (`FormVerifyCode`) auto-focuses its input. If you tab away from the empty input, a &quot;required&quot; error shows before you submit anything.
-- The bug affects these pages: sign-in confirmation, unblock, recovery code, passwordless code, sign-up confirmation and pairing TOTP.
+- The code input showed &quot;This field is required&quot; when the user blurred the empty field, before any submit.
+- The error showed on the signin confirm, unblock, recovery code, passwordless, signup confirm, and pair TOTP pages.
 
 ## This pull request
 
-- Removes `mode: &#039;onBlur&#039;` from `useForm` in `FormVerifyCode`. react-hook-form now uses its default onSubmit mode.
-- Adds a unit test that tabs away from the empty input and checks that &quot;This field is required&quot; does not show.
-- Gives the negative `findByText` in the new test a 100 ms timeout. The 1000 ms default added about 1 s to the suite.
+- Removes `mode: &#039;onBlur&#039;` from the `useForm` call in `FormVerifyCode`. Validation now runs on submit only.
+- Adds a test that blurs the empty input and checks that no error tooltip appears.
+- Adds a test that an empty submit shows the required message and does not call `verifyCode`.
 
 ## Issue that this pull request solves
 
-Closes: FXA-14612</pre></dd>
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-14612</pre></dd>
   </dl>
 </body>
 </html>
