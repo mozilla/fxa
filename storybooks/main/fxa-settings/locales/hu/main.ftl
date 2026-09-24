@@ -596,8 +596,8 @@ flow-setup-2fa-inline-complete-backup-code-info =
         [one] { $count } kód maradt
        *[other] { $count } kód maradt
     }
-flow-setup-2fa-inline-complete-backup-code-description = Ez a legbiztonságosabb helyreállítási módszer, ha nem tud bejelentkezni mobileszközével vagy hitelesítő alkalmazással.
-flow-setup-2fa-inline-complete-backup-phone-description = Ez a legegyszerűbb helyreállítási módszer, ha nem tud bejelentkezni a hitelesítő alkalmazással.
+flow-setup-2fa-inline-complete-backup-code-description = Ez a legbiztonságosabb helyreállítási mód, ha nem tud bejelentkezni mobileszközével vagy hitelesítő alkalmazással.
+flow-setup-2fa-inline-complete-backup-phone-description = Ez a legegyszerűbb helyreállítási mód, ha nem tud bejelentkezni a hitelesítő alkalmazással.
 flow-setup-2fa-inline-complete-learn-more-link = Hogyan védi ez a fiókját
 flow-setup-2fa-inline-complete-continue-button = Tovább erre: { $serviceName }
 flow-setup-2fa-prompt-heading = Állítsa be a kétlépcsős hitelesítést
@@ -879,7 +879,7 @@ recovery-key-create-back-button-title = Vissza a beállításokhoz
 recovery-phone-remove-header = Helyreállítási telefonszám eltávolítása
 settings-recovery-phone-remove-info = Ez eltávolítja a(z) <strong>{ $formattedFullPhoneNumber }</strong> telefonszámot helyreállítási telefonszámként.
 settings-recovery-phone-remove-recommend = Javasoljuk, hogy tartsa meg ezt a módszert, mert könnyebb, mint a tartalék hitelesítési kódok elmentése.
-settings-recovery-phone-remove-recovery-methods = Ha törli, győződjön meg róla, hogy megvannak-e még az elmentett tartalék hitelesítési kódjai. <linkExternal>Helyreállítási módszerek összehasonlítása</linkExternal>
+settings-recovery-phone-remove-recovery-methods = Ha törli, győződjön meg róla, hogy megvannak-e még az elmentett tartalék hitelesítési kódjai. <linkExternal>Helyreállítási módok összehasonlítása</linkExternal>
 settings-recovery-phone-remove-button = Telefonszám eltávolítása
 settings-recovery-phone-remove-cancel = Mégse
 settings-recovery-phone-remove-success = Helyreállítási telefonszám eltávolítva
@@ -961,7 +961,7 @@ tfa-row-backup-codes-available-v2 =
     }
 tfa-row-backup-codes-get-new-cta-v2 = Új kódok létrehozása
 tfa-row-backup-codes-add-cta = Hozzáadás
-tfa-row-backup-codes-description-2 = Ez a legbiztonságosabb helyreállítási módszer, ha nem tudja használni a mobileszközét vagy a hitelesítő alkalmazást.
+tfa-row-backup-codes-description-2 = Ez a legbiztonságosabb helyreállítási mód, ha nem tudja használni a mobileszközét vagy a hitelesítő alkalmazást.
 tfa-row-backup-phone-title-v2 = Helyreállítási telefonszám
 tfa-row-backup-phone-not-available-v2 = Nincs telefonszám hozzáadva
 tfa-row-backup-phone-change-cta = Módosítás
@@ -969,7 +969,7 @@ tfa-row-backup-phone-add-cta = Hozzáadás
 tfa-row-backup-phone-delete-button = Eltávolítás
 tfa-row-backup-phone-delete-title-v2 = Helyreállítási telefonszám eltávolítása
 tfa-row-backup-phone-delete-restriction-v2 = Ha el akarja távolítani a helyreállítási telefonszámát, adjon hozzá tartalék hitelesítési kódokat vagy először kapcsolja ki a kétlépcsős hitelesítést, hogy elkerülje azt, hogy kizárja magát a fiókjából.
-tfa-row-backup-phone-description-v2 = Ez a legkönnyebb helyreállítási módszer, ha nem tudja használni a hitelesítő alkalmazást.
+tfa-row-backup-phone-description-v2 = Ez a legkönnyebb helyreállítási mód, ha nem tudja használni a hitelesítő alkalmazást.
 tfa-row-backup-phone-sim-swap-risk-link = Tudjon meg többet a SIM-csere kockázatáról
 passkey-sub-row-created-date = Létrehozva: { $createdDate }
 passkey-sub-row-last-used-date = Utoljára használva: { $lastUsedDate }
