@@ -1182,6 +1182,12 @@ index-account-delete-success = Pomyślnie usunięto konto
 index-email-bounced = Wiadomość z potwierdzeniem została zwrócona. Błąd w adresie e-mail?
 
 
+inline-passwordless-sync-setup-success-alert = Ten klucz dostępu jest gotowy do logowania do synchronizacji
+inline-passwordless-sync-setup-error-cancelled = Nie udało się potwierdzić klucza dostępu
+inline-passwordless-sync-setup-error-cancelled-description = Potwierdź za pomocą klucza dostępu, aby następnym razem nie wpisywać hasła.
+inline-passwordless-sync-setup-error-generic = Wystąpił błąd. Następnym razem nadal trzeba będzie podać hasło.
+
+
 inline-recovery-key-setup-create-error = Ups! Nie można utworzyć klucza odzyskiwania konta. Proszę spróbować ponownie później.
 inline-recovery-key-setup-recovery-created = Utworzono klucz odzyskiwania konta
 inline-recovery-key-setup-download-header = Zabezpiecz swoje konto
@@ -1317,6 +1323,13 @@ pair2-authority-timeout-and-cancel-sync-settings-button = Ustawienia synchroniza
 pair2-supplicant-connect-this-device-heading = Czy połączyć to urządzenie z Twoim kontem?
 pair2-supplicant-connect-this-device-connect-button = Połącz
 pair2-supplicant-connect-this-device-cancel-button = Anuluj
+
+
+permissions-heading = { $serviceName } prosi o dostęp do:
+permissions-label-email = Adres e-mail
+permissions-label-display-name = Wyświetlana nazwa
+permissions-continue-button = Kontynuuj
+permissions-cancel-button = Anuluj
 
 
 service-welcome-signup-success-banner = Potwierdzono { -product-mozilla-account(capitalization: "lower", case: "acc") }

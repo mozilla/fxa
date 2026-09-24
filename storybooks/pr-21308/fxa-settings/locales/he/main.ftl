@@ -1046,6 +1046,7 @@ auth-error-228 = רישום מפתח הגישה נכשל
 auth-error-233 = כדי ליצור מפתח גישה, יש להגדיר נעילת מסך, קוד סודי, טביעת אצבע או זיהוי פנים במכשיר או במפתח האבטחה שלך, ולאחר מכן לנסות שוב.
 auth-error-238 = אתגר מפתח הגישה נכשל
 auth-error-239 = לא הצלחנו למחוק את החשבון שלך, עמך הסליחה. נא לנסות שוב, או ליצור קשר עם התמיכה אם הבעיה נמשכת.
+auth-error-240 = חשבון זה הושבת
 auth-error-999 = שגיאה בלתי צפויה
 auth-error-1001 = ניסיון ההתחברות בוטל
 auth-error-1002 = פג תוקף ההפעלה. יש להתחבר כדי להמשיך.
@@ -1137,6 +1138,9 @@ inline-passwordless-sync-setup-description = ניתן להשתמש במפתח ג
 inline-passwordless-sync-setup-enable-button = הפעלת מפתח גישה
 inline-passwordless-sync-setup-enabling = בתהליך הפעלה…
 inline-passwordless-sync-setup-not-now-button = לא כעת
+inline-passwordless-sync-setup-error-cancelled = אישור מפתח הגישה לא הסתיים
+inline-passwordless-sync-setup-error-cancelled-description = ניתן לאמת באמצעות מפתח הגישה שלך כדי לדלג על הססמה בפעם הבאה.
+inline-passwordless-sync-setup-error-generic = משהו השתבש, עדיין יהיה עליך להזין את הססמה שלך בפעם הבאה
 
 
 inline-recovery-key-setup-create-error = אופס! לא הצלחנו ליצור מפתח לשחזור החשבון שלך. נא לנסות שוב מאוחר יותר.
@@ -1322,6 +1326,13 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = נראה שזמן הפעו
 pair2-supplicant-timeout-and-cancel-timeout-description = כדי לחבר את המכשיר הנייד שלך ולסנכרן את נתוני ה־{ -brand-firefox } שלך, יש לבקר באתר <b>firefox.com/pair</b> במחשב שלך.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = בוטל
 pair2-supplicant-timeout-and-cancel-canceled-description = כדי לחבר מכשיר בכל עת, יש לבקר באתר <b>firefox.com/pair</b> במחשב שלך.
+
+
+permissions-heading = ‏{ $serviceName } מבקש גישה ל:
+permissions-label-email = כתובת דוא״ל
+permissions-label-display-name = שם תצוגה
+permissions-continue-button = המשך
+permissions-cancel-button = ביטול
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account(case: "the") } אומת

@@ -1374,6 +1374,12 @@ pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancellate
 pair2-supplicant-timeout-and-cancel-canceled-description = Pro connecter un apparato quandocunque, visita <b>firefox.com/par</b> sur tu computator.
 
 
+permissions-label-email = Adresse de e-mail
+permissions-label-display-name = Nomine a monstrar
+permissions-continue-button = Continuar
+permissions-cancel-button = Cancellar
+
+
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmate
 service-welcome-signin-success-banner = Authenticate con successo!
 service-welcome-vpn-heading = Successivemente: activa le VPN
