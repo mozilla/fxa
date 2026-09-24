@@ -205,6 +205,9 @@ const PairAuthorityTimeoutAndCancel = lazy(
 const PairSupplicantApproveSignIn = lazy(
   () => import('../../pages/Pair2/Supplicant/ApproveSignIn/container')
 );
+const PairSupplicantConnectHint = lazy(
+  () => import('../../pages/Pair2/Supplicant/PairConnectHint')
+);
 const PairSupplicantConnectThisDevice = lazy(
   () => import('../../pages/Pair2/Supplicant/ConnectThisDevice/container')
 );
@@ -1130,6 +1133,10 @@ const AuthAndAccountSetupRoutes = ({
         <Route
           path="/pair/supplicant/approve_signin/*"
           element={<PairSupplicantApproveSignIn {...{ integration }} />}
+        />
+        <Route
+          path="/pair/supplicant/connect_hint/*"
+          element={<PairSupplicantConnectHint />}
         />
         <Route
           path="/pair/supplicant/connect_this_device/*"
