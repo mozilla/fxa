@@ -1327,6 +1327,12 @@ pair2-authority-scan-qr-heading = Scan om jo mobile apparaat te ferbinen
 pair2-authority-scan-qr-instruction = Scan de QR-koade mei jo telefoan of tablet om jo { -brand-firefox }-blêdwizers, ljepblêden en mear te syngronisearjen.
 pair2-authority-scan-qr-code-aria-label = QR-koade om jo mobile apparaat te ferbinen
 pair2-authority-scan-qr-help-link = Help by scannen ûntfange
+pair2-authority-scan-qr-skip-button = Foarearst oerslaan
+
+
+pair2-authority-sync-success-heading-v2 = Jo apparaat is ferbûn
+pair2-authority-sync-success-description-v2 = Syngronisaasje is start. It kin in skoftke duorje eardat jo syngronisearre gegevens ferskine. Fiel jo frij om troch te sneupen.
+pair2-authority-sync-success-sync-settings-button-v2 = Syngronisaasje-ynstellingen beheare
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Wolle jo dochs in apparaat ferbine?
@@ -1359,6 +1365,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Mear ynfo
 
 
 pair2-supplicant-sync-success-heading = Jo apparaat is ferbûn
+pair2-supplicant-sync-success-description-v2 = Syngronisaasje is start. It kin in skoftke duorje eardat jo syngronisearre gegevens ferskine. Fiel jo frij om troch te sneupen.
+pair2-supplicant-sync-success-sync-settings-button-v2 = Syngronisaasje-ynstellingen beheare
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = It liket derop dat der in time-out bard is

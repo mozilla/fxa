@@ -754,8 +754,8 @@ flow-setup-2fa-inline-complete-backup-code-info =
         [one] { $count } kód maradt
        *[other] { $count } kód maradt
     }
-flow-setup-2fa-inline-complete-backup-code-description = Ez a legbiztonságosabb helyreállítási módszer, ha nem tud bejelentkezni mobileszközével vagy hitelesítő alkalmazással.
-flow-setup-2fa-inline-complete-backup-phone-description = Ez a legegyszerűbb helyreállítási módszer, ha nem tud bejelentkezni a hitelesítő alkalmazással.
+flow-setup-2fa-inline-complete-backup-code-description = Ez a legbiztonságosabb helyreállítási mód, ha nem tud bejelentkezni mobileszközével vagy hitelesítő alkalmazással.
+flow-setup-2fa-inline-complete-backup-phone-description = Ez a legegyszerűbb helyreállítási mód, ha nem tud bejelentkezni a hitelesítő alkalmazással.
 flow-setup-2fa-inline-complete-learn-more-link = Hogyan védi ez a fiókját
 # $serviceName (String) - the name of the product that the user will be
 # redirected to.
@@ -1097,9 +1097,9 @@ recent-activity-account-passkey-wrap-created = A jelkulcs engedélyezve a szinkr
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
 recent-activity-account-passkey-wrap-creation-failure = A jelkulcsos szinkronizálás beállítása sikertelen
 # A passkey is a sign-in method that replaces a password. This string is shown when a passkey that could unlock the user's synced browser data had that access turned off, leaving the passkey itself usable for signing in.
-recent-activity-account-passkey-wrap-deleted = A jelszószinkronizálási hozzáférés eltávolítva
+recent-activity-account-passkey-wrap-deleted = A jelkulcs-szinkronizálás hozzáférése eltávolítva
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to turn off a passkey's access to the user's synced browser data did not complete.
-recent-activity-account-passkey-wrap-deletion-failure = A jelszószinkronizálási hozzáférés eltávolítása nem sikerült
+recent-activity-account-passkey-wrap-deletion-failure = Nem sikerült a jelkulcs-szinkronizálási hozzáférés eltávolítása
 # A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
 recent-activity-account-passkey-wrap-invalidated = A jelkulcsos szinkronizálás hozzáférése eltávolítva a jelszó-visszaállítás után
 # Security event was recorded, but the activity details are unknown or not shown to user
@@ -1122,7 +1122,7 @@ recovery-phone-remove-header = Helyreállítási telefonszám eltávolítása
 settings-recovery-phone-remove-info = Ez eltávolítja a(z) <strong>{ $formattedFullPhoneNumber }</strong> telefonszámot helyreállítási telefonszámként.
 settings-recovery-phone-remove-recommend = Javasoljuk, hogy tartsa meg ezt a módszert, mert könnyebb, mint a tartalék hitelesítési kódok elmentése.
 # "Saved backup authentication codes" refers to previously saved backup authentication codes
-settings-recovery-phone-remove-recovery-methods = Ha törli, győződjön meg róla, hogy megvannak-e még az elmentett tartalék hitelesítési kódjai. <linkExternal>Helyreállítási módszerek összehasonlítása</linkExternal>
+settings-recovery-phone-remove-recovery-methods = Ha törli, győződjön meg róla, hogy megvannak-e még az elmentett tartalék hitelesítési kódjai. <linkExternal>Helyreállítási módok összehasonlítása</linkExternal>
 settings-recovery-phone-remove-button = Telefonszám eltávolítása
 settings-recovery-phone-remove-cancel = Mégse
 settings-recovery-phone-remove-success = Helyreállítási telefonszám eltávolítva
@@ -1243,7 +1243,7 @@ tfa-row-backup-codes-get-new-cta-v2 = Új kódok létrehozása
 # Button to add backup authentication codes when none are configured
 tfa-row-backup-codes-add-cta = Hozzáadás
 # 'This' refers to 'backup authentication codes', used as a recovery method for two-step authentication
-tfa-row-backup-codes-description-2 = Ez a legbiztonságosabb helyreállítási módszer, ha nem tudja használni a mobileszközét vagy a hitelesítő alkalmazást.
+tfa-row-backup-codes-description-2 = Ez a legbiztonságosabb helyreállítási mód, ha nem tudja használni a mobileszközét vagy a hitelesítő alkalmazást.
 # Recovery phone is a recovery method for two-step authentication
 # A recovery code can be sent to the user's phone
 tfa-row-backup-phone-title-v2 = Helyreállítási telefonszám
@@ -1259,7 +1259,7 @@ tfa-row-backup-phone-delete-button = Eltávolítás
 tfa-row-backup-phone-delete-title-v2 = Helyreállítási telefonszám eltávolítása
 tfa-row-backup-phone-delete-restriction-v2 = Ha el akarja távolítani a helyreállítási telefonszámát, adjon hozzá tartalék hitelesítési kódokat vagy először kapcsolja ki a kétlépcsős hitelesítést, hogy elkerülje azt, hogy kizárja magát a fiókjából.
 # "this" refers to recovery phone
-tfa-row-backup-phone-description-v2 = Ez a legkönnyebb helyreállítási módszer, ha nem tudja használni a hitelesítő alkalmazást.
+tfa-row-backup-phone-description-v2 = Ez a legkönnyebb helyreállítási mód, ha nem tudja használni a hitelesítő alkalmazást.
 # A SIM swap attack is a type of identity theft where an attacker tricks or bribes a mobile carrier
 # into transferring a victim's phone number to their own SIM card, enabling access to accounts secured
 # with SMS-based two-factor authentication.
@@ -1638,7 +1638,7 @@ index-email-bounced = A megerősítő e-mail visszapattant. Talán elgépelte az
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = Legközelebb kihagyja a jelszót?
 # Success banner after signing in.
-inline-passwordless-sync-setup-success-banner = Bejelentkezve itt: { -brand-firefox }
+inline-passwordless-sync-setup-success-banner = Bejelentkezve a { -brand-firefox }ba
 inline-passwordless-sync-setup-heading = Legközelebb kihagyja a jelszót?
 inline-passwordless-sync-setup-description = Használja ezt a jelkulcsot a gyorsabb bejelentkezéshez.
 inline-passwordless-sync-setup-enable-button = Jelkulcs engedélyezése
@@ -1929,7 +1929,7 @@ pair2-authority-sync-success-sync-settings-button-v2 = Szinkronizálási beáll�
 pair2-authority-timeout-and-cancel-timeout-heading = Még mindig csatlakoztatni szeretne egy eszközt?
 pair2-authority-timeout-and-cancel-timeout-description = Úgy tűnik, túlléptük az időkorlátot. Próbálja újra, ha továbbra is csatlakoztatni szeretné mobileszközét, és szinkronizálni szeretné a { -brand-firefox } adatait:.
 # Shown when the pairing attempt was canceled, on either device
-pair2-authority-timeout-and-cancel-cancelled-heading = Lemondva
+pair2-authority-timeout-and-cancel-cancelled-heading = Megszakítva
 pair2-authority-timeout-and-cancel-canceled-description = Ha meggondolja magát, vagy egy másik eszközt szeretne csatlakoztatni, próbálja újra.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Újrapróbálkozás
@@ -2010,7 +2010,7 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Úgy tűnik, túlléptük 
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = A mobileszköz csatlakoztatásához és a { -brand-firefox } adatainak szinkronizálásához keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén.
 # Shown after the pairing attempt was canceled
-pair2-supplicant-timeout-and-cancel-cancelled-heading = Lemondva
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Megszakítva
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Eszköz csatlakoztatásához keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén.
 

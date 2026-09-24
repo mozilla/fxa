@@ -289,7 +289,7 @@ postAddTwoStepAuthentication-title-2 = Bekapcsolta a kétlépcsős hitelesítés
 postAddTwoStepAuthentication-from-device-v2 = Ezt kérte a következőtől:
 postAddTwoStepAuthentication-action = Fiók kezelése
 postAddTwoStepAuthentication-code-required-v4 = A hitelesítő alkalmazásból származó biztonsági kódok minden bejelentkezéskor szükségesek.
-postAddTwoStepAuthentication-recovery-method-codes = Emellett tartalék hitelesítési kódokat adott meg helyreállítási módszerként.
+postAddTwoStepAuthentication-recovery-method-codes = Emellett tartalék hitelesítési kódokat adott meg helyreállítási módként.
 # Variables:
 #  $maskedPhoneNumber (String) - A bullet point mask with the last four digits of the user's phone number, e.g. ••••••1234
 postAddTwoStepAuthentication-recovery-method-phone = Ezenkívül hozzáadta a(z) { $maskedPhoneNumber } helyreállítási telefonszámot.

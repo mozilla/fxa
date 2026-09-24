@@ -1341,6 +1341,7 @@ pair2-authority-scan-qr-skip-button = Mjeztym přeskočić
 
 
 pair2-authority-sync-success-heading-v2 = Waš grat je zwjazany
+pair2-authority-sync-success-description-v2 = Synchronizacija je po puću. Móže chwilku trać, doniž so waše synchronizowane daty njejewja. Móžeće woměrnje dale přehladować.
 pair2-authority-sync-success-sync-settings-button-v2 = Nastajenja synchronizacije rjadować
 
 
@@ -1374,6 +1375,7 @@ pair2-supplicant-ready-to-scan-learn-more-link = Dalše informacije
 
 
 pair2-supplicant-sync-success-heading = Waš grat je zwjazany
+pair2-supplicant-sync-success-description-v2 = Synchronizacija je po puću. Móže chwilku trać, doniž so waše synchronizowane daty njejewja. Móžeće woměrnje dale přehladować.
 pair2-supplicant-sync-success-sync-settings-button-v2 = Nastajenja synchronizacije rjadować
 
 

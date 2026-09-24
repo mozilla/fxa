@@ -1910,7 +1910,7 @@ pair2-authority-scan-qr-skip-button = Saltar por ahora
 
 pair2-authority-sync-success-heading-v2 = Tu dispositivo está conectado
 # "Syncing" here means copying data between the user's devices
-pair2-authority-sync-success-description-v2 = La sincronización está en proceso. Los datos sincronizados pueden tardar un tiempo en aparecer. Siéntase libre de seguir navegando.
+pair2-authority-sync-success-description-v2 = La sincronización está en curso. Es posible que los datos sincronizados tarden un poco en aparecer. Mientras tanto, podés seguir navegando.
 # Opens the browser settings that control what is synced
 pair2-authority-sync-success-sync-settings-button-v2 = Administrar configuración de sincronización
 
@@ -1989,7 +1989,7 @@ pair2-supplicant-ready-to-scan-learn-more-link = Conocer más
 
 pair2-supplicant-sync-success-heading = Tu dispositivo está conectado
 # "Syncing" here means copying data between the user's devices
-pair2-supplicant-sync-success-description-v2 = La sincronización está en proceso. Los datos sincronizados pueden tardar un tiempo en aparecer. Siéntase libre de seguir navegando.
+pair2-supplicant-sync-success-description-v2 = La sincronización está en curso. Es posible que los datos sincronizados tarden un poco en aparecer. Mientras tanto, podés seguir navegando.
 # Opens the browser's sync settings, where the user chooses what to sync
 pair2-supplicant-sync-success-sync-settings-button-v2 = Administrar configuración de sincronización
 

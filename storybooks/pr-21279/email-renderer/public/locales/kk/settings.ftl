@@ -1904,6 +1904,18 @@ pair2-authority-scan-qr-instruction = { -brand-firefox } бетбелгілер,
 pair2-authority-scan-qr-code-aria-label = Мобильді құрылғыңызды байланыстыру үшін QR коды
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Сканерлеу бойынша көмек алыңыз
+# Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
+pair2-authority-scan-qr-skip-button = Әзірше өткізіп жіберу
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and links to sync settings.
+
+pair2-authority-sync-success-heading-v2 = Сіздің құрылғыңыз байланысқан
+# "Syncing" here means copying data between the user's devices
+pair2-authority-sync-success-description-v2 = Синхрондау жүріп жатыр. Синхрондалған деректеріңіздің пайда болуы үшін біраз уақыт кетуі мүмкін. Шолуды жалғастырсаңыз болады.
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button-v2 = Синхрондау баптауларын басқару
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1979,6 +1991,10 @@ pair2-supplicant-ready-to-scan-learn-more-link = Көбірек білу
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Сіздің құрылғыңыз байланысқан
+# "Syncing" here means copying data between the user's devices
+pair2-supplicant-sync-success-description-v2 = Синхрондау жүріп жатыр. Синхрондалған деректеріңіздің пайда болуы үшін біраз уақыт кетуі мүмкін. Шолуды жалғастырсаңыз болады.
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button-v2 = Синхрондау баптауларын басқару
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,

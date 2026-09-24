@@ -1616,7 +1616,7 @@ pair2-authority-scan-qr-skip-button = Nyní přeskočit
 
 
 pair2-authority-sync-success-heading-v2 = Vaše zařízení je připojeno
-pair2-authority-sync-success-description-v2 = Probíhá synchronizace. Zobrazení synchronizovaných dat může chvíli trvat. Neváhejte a pokračujte v prohlížení.
+pair2-authority-sync-success-description-v2 = Probíhá synchronizace. Zobrazení synchronizovaných dat může chvíli trvat. Mezitím můžete klidně pokračovat v prohlížení.
 pair2-authority-sync-success-sync-settings-button-v2 = Spravovat nastavení synchronizace
 
 
@@ -1650,7 +1650,7 @@ pair2-supplicant-ready-to-scan-learn-more-link = Zjistit více
 
 
 pair2-supplicant-sync-success-heading = Vaše zařízení je připojeno
-pair2-supplicant-sync-success-description-v2 = Probíhá synchronizace. Zobrazení synchronizovaných dat může chvíli trvat. Neváhejte a pokračujte v prohlížení.
+pair2-supplicant-sync-success-description-v2 = Probíhá synchronizace. Zobrazení synchronizovaných dat může chvíli trvat. Mezitím můžete klidně pokračovat v prohlížení.
 pair2-supplicant-sync-success-sync-settings-button-v2 = Spravovat nastavení synchronizace
 
 
