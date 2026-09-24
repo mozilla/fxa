@@ -280,24 +280,13 @@ export class StripeClient {
     return result as StripeResponse<StripeInvoice>;
   }
 
-  /**
-   * Marks an invoice paid without collecting funds, for money already received
-   * out of band (PayPal). Does not charge a payment method -- see
-   * `invoicesPayChargeAttempt` for that.
-   */
   @CaptureTimingWithStatsD()
-  async invoicesPay(invoiceId: string) {
-    try {
-      await this.stripe.invoices.pay(invoiceId, {
-        paid_out_of_band: true,
-      });
-    } catch (err) {
-      if (err.message.includes('Invoice is already paid')) {
-        // This was already marked paid, we can ignore the error.
-        return;
-      }
-      throw err;
-    }
+  async invoicesPay(invoiceId: string, params?: Stripe.InvoicePayParams) {
+    const result = await this.stripe.invoices.pay(invoiceId, {
+      ...params,
+      expand: undefined,
+    });
+    return result as StripeResponse<StripeInvoice>;
   }
 
   @CaptureTimingWithStatsD()
@@ -311,19 +300,6 @@ export class StripeClient {
       expand: undefined,
     });
     return result as StripeApiList<StripeInvoice>;
-  }
-
-  @CaptureTimingWithStatsD()
-  async invoicesPayChargeAttempt(
-    invoiceId: string,
-    params?: Pick<Stripe.InvoicePayParams, 'payment_method'>
-  ) {
-    const result = await this.stripe.invoices.pay(invoiceId, {
-      off_session: true,
-      ...params,
-      expand: undefined,
-    });
-    return result as StripeResponse<StripeInvoice>;
   }
 
   @CaptureTimingWithStatsD()

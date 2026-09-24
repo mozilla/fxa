@@ -317,7 +317,7 @@ export class InvoiceManager {
                 paypalCharge.transactionId,
             },
           }),
-          this.stripeClient.invoicesPay(invoice.id),
+          this.markInvoicePaidOutOfBand(invoice.id),
         ]);
 
         return await this.stripeClient.invoicesRetrieve(updatedInvoice.id);
@@ -337,6 +337,24 @@ export class InvoiceManager {
   }
 
   /**
+   * Marks an invoice paid without collecting funds, for money already received
+   * out of band (PayPal). Does not charge a payment method.
+   */
+  private async markInvoicePaidOutOfBand(invoiceId: string) {
+    try {
+      await this.stripeClient.invoicesPay(invoiceId, {
+        paid_out_of_band: true,
+      });
+    } catch (err) {
+      if (err?.message?.includes('Invoice is already paid')) {
+        // This was already marked paid, we can ignore the error.
+        return;
+      }
+      throw err;
+    }
+  }
+
+  /**
    * Finalize and process a draft invoice that has no amounted owed.
    */
   async processPayPalZeroInvoice(invoiceId: string) {
@@ -349,23 +367,12 @@ export class InvoiceManager {
   /**
    * Attempt immediate payment on a customer's open invoices, so someone who
    * fixes their card does not wait for Stripe's automatic retry (24h+).
-   *
-   * `paymentMethodId` is explicit because Stripe resolves the customer default
-   * only when creating a PaymentIntent, not when re-confirming the failed one --
-   * omitting it retries the card that failed.
-   *
-   * Never throws, so a failed charge cannot fail the payment method update.
    */
   async retryPaymentForOpenInvoices(
     customerId: string,
     paymentMethodId: string
   ): Promise<void> {
     try {
-      // Safe only while every enabled payment method settles synchronously.
-      // PayPal is excluded by collection_method, but enabled methods come from
-      // the Stripe Dashboard, not from code -- add SEPA or ACH and this starts
-      // charging against payments already in flight unless it also filters on
-      // payment status.
       const invoices = await this.stripeClient.invoicesList({
         customer: customerId,
         status: 'open',
@@ -373,14 +380,13 @@ export class InvoiceManager {
       });
 
       for (const invoice of invoices.data) {
-        await this.stripeClient.invoicesPayChargeAttempt(invoice.id, {
+        await this.stripeClient.invoicesPay(invoice.id, {
+          off_session: true,
           payment_method: paymentMethodId,
         });
         this.statsd.increment('invoice_retry_payment_success');
       }
     } catch (err) {
-      // One catch for the loop, so a failure stops the rest: a decline is
-      // card-level and an API failure global, so they would fail the same way.
       this.statsd.increment('invoice_retry_payment_failure');
       this.log.warn('retryPaymentForOpenInvoices', {
         message: 'Failed to retry payment for open invoices',

@@ -510,7 +510,7 @@ describe('InvoiceManager', () => {
       jest
         .spyOn(stripeClient, 'invoicesRetrieve')
         .mockResolvedValue(mockInvoice);
-      jest.spyOn(stripeClient, 'invoicesPay').mockResolvedValue();
+      jest.spyOn(stripeClient, 'invoicesPay').mockResolvedValue(mockInvoice);
 
       const result = await invoiceManager.processPayPalNonZeroInvoice(
         mockCustomer,
@@ -552,7 +552,78 @@ describe('InvoiceManager', () => {
           },
         }
       );
-      expect(stripeClient.invoicesPay).toHaveBeenCalledWith(mockInvoice.id);
+      expect(stripeClient.invoicesPay).toHaveBeenCalledWith(mockInvoice.id, {
+        paid_out_of_band: true,
+      });
+    });
+    it('resolves when the invoice was already marked paid in Stripe', async () => {
+      const mockCustomer = StripeResponseFactory(
+        StripeCustomerFactory({
+          metadata: {
+            [STRIPE_CUSTOMER_METADATA.PaypalAgreement]: '1',
+          },
+        })
+      );
+      const mockInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({
+          status: 'open',
+          currency: 'usd',
+          customer_shipping: { address: StripeAddressFactory() },
+        })
+      );
+
+      jest
+        .spyOn(paypalClient, 'chargeCustomer')
+        .mockResolvedValue(
+          ChargeResponseFactory({ paymentStatus: 'Completed' })
+        );
+      jest
+        .spyOn(stripeClient, 'invoicesFinalizeInvoice')
+        .mockResolvedValue(mockInvoice);
+      jest.spyOn(stripeClient, 'invoicesUpdate').mockResolvedValue(mockInvoice);
+      jest
+        .spyOn(stripeClient, 'invoicesRetrieve')
+        .mockResolvedValue(mockInvoice);
+      jest
+        .spyOn(stripeClient, 'invoicesPay')
+        .mockRejectedValue(new Error('Invoice is already paid'));
+
+      await expect(
+        invoiceManager.processPayPalNonZeroInvoice(mockCustomer, mockInvoice)
+      ).resolves.toEqual(mockInvoice);
+    });
+    it('rejects when marking the invoice paid fails for another reason', async () => {
+      const mockCustomer = StripeResponseFactory(
+        StripeCustomerFactory({
+          metadata: {
+            [STRIPE_CUSTOMER_METADATA.PaypalAgreement]: '1',
+          },
+        })
+      );
+      const mockInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({
+          status: 'open',
+          currency: 'usd',
+          customer_shipping: { address: StripeAddressFactory() },
+        })
+      );
+
+      jest
+        .spyOn(paypalClient, 'chargeCustomer')
+        .mockResolvedValue(
+          ChargeResponseFactory({ paymentStatus: 'Completed' })
+        );
+      jest
+        .spyOn(stripeClient, 'invoicesFinalizeInvoice')
+        .mockResolvedValue(mockInvoice);
+      jest.spyOn(stripeClient, 'invoicesUpdate').mockResolvedValue(mockInvoice);
+      jest
+        .spyOn(stripeClient, 'invoicesPay')
+        .mockRejectedValue(new Error('Stripe is unavailable'));
+
+      await expect(
+        invoiceManager.processPayPalNonZeroInvoice(mockCustomer, mockInvoice)
+      ).rejects.toThrow('Stripe is unavailable');
     });
     it('throws an error if the customer has no paypal agreement id', async () => {
       const mockCustomer = StripeResponseFactory(
@@ -626,7 +697,7 @@ describe('InvoiceManager', () => {
         .spyOn(stripeClient, 'invoicesFinalizeInvoice')
         .mockResolvedValue(mockInvoice);
       jest.spyOn(stripeClient, 'invoicesUpdate').mockResolvedValue(mockInvoice);
-      jest.spyOn(stripeClient, 'invoicesPay').mockResolvedValue();
+      jest.spyOn(stripeClient, 'invoicesPay').mockResolvedValue(mockInvoice);
 
       const result = await invoiceManager.processPayPalNonZeroInvoice(
         mockCustomer,
@@ -693,7 +764,7 @@ describe('InvoiceManager', () => {
         .spyOn(stripeClient, 'invoicesFinalizeInvoice')
         .mockResolvedValue(mockInvoice);
       jest.spyOn(stripeClient, 'invoicesUpdate').mockResolvedValue(mockInvoice);
-      jest.spyOn(stripeClient, 'invoicesPay').mockResolvedValue();
+      jest.spyOn(stripeClient, 'invoicesPay').mockResolvedValue(mockInvoice);
 
       await expect(
         invoiceManager.processPayPalNonZeroInvoice(mockCustomer, mockInvoice)
@@ -761,7 +832,7 @@ describe('InvoiceManager', () => {
       jest
         .spyOn(stripeClient, 'invoicesRetrieve')
         .mockResolvedValue(mockInvoice);
-      jest.spyOn(stripeClient, 'invoicesPay').mockResolvedValue();
+      jest.spyOn(stripeClient, 'invoicesPay').mockResolvedValue(mockInvoice);
 
       const result = await invoiceManager.processPayPalNonZeroInvoice(
         mockCustomer,
@@ -804,7 +875,9 @@ describe('InvoiceManager', () => {
           },
         }
       );
-      expect(stripeClient.invoicesPay).toHaveBeenCalledWith(mockInvoice.id);
+      expect(stripeClient.invoicesPay).toHaveBeenCalledWith(mockInvoice.id, {
+        paid_out_of_band: true,
+      });
     });
     it('successfully handles invoices that were already finalized', async () => {
       const mockPaymentAttemptCount = 1;
@@ -838,7 +911,7 @@ describe('InvoiceManager', () => {
         })
       );
       jest.spyOn(stripeClient, 'invoicesUpdate').mockResolvedValue(mockInvoice);
-      jest.spyOn(stripeClient, 'invoicesPay').mockResolvedValue();
+      jest.spyOn(stripeClient, 'invoicesPay').mockResolvedValue(mockInvoice);
       jest
         .spyOn(stripeClient, 'invoicesRetrieve')
         .mockResolvedValue(mockInvoice);
@@ -887,7 +960,7 @@ describe('InvoiceManager', () => {
         })
       );
       jest.spyOn(stripeClient, 'invoicesUpdate').mockResolvedValue(mockInvoice);
-      jest.spyOn(stripeClient, 'invoicesPay').mockResolvedValue();
+      jest.spyOn(stripeClient, 'invoicesPay').mockResolvedValue(mockInvoice);
 
       await expect(
         invoiceManager.processPayPalNonZeroInvoice(mockCustomer, mockInvoice)
@@ -937,7 +1010,7 @@ describe('InvoiceManager', () => {
         .spyOn(paypalClient, 'chargeCustomer')
         .mockResolvedValue(mockPayPalCharge);
       jest.spyOn(stripeClient, 'invoicesUpdate').mockResolvedValue(mockInvoice);
-      jest.spyOn(stripeClient, 'invoicesPay').mockResolvedValue();
+      jest.spyOn(stripeClient, 'invoicesPay').mockResolvedValue(mockInvoice);
 
       await invoiceManager.processPayPalNonZeroInvoice(
         mockCustomer,
@@ -953,7 +1026,9 @@ describe('InvoiceManager', () => {
         countryCode: mockInvoice.customer_shipping?.address?.country,
         idempotencyKey: `${mockInvoice.id}-${mockPaymentAttemptCount}`,
       });
-      expect(stripeClient.invoicesPay).toHaveBeenCalledWith(mockInvoice.id);
+      expect(stripeClient.invoicesPay).toHaveBeenCalledWith(mockInvoice.id, {
+        paid_out_of_band: true,
+      });
     });
 
     it('finalizes the invoice before dispatching the PayPal charge', async () => {
@@ -999,7 +1074,7 @@ describe('InvoiceManager', () => {
       jest
         .spyOn(stripeClient, 'invoicesRetrieve')
         .mockResolvedValue(mockInvoice);
-      jest.spyOn(stripeClient, 'invoicesPay').mockResolvedValue();
+      jest.spyOn(stripeClient, 'invoicesPay').mockResolvedValue(mockInvoice);
 
       await invoiceManager.processPayPalNonZeroInvoice(
         mockCustomer,
@@ -1017,13 +1092,13 @@ describe('InvoiceManager', () => {
     const openInvoice = () =>
       StripeInvoiceFactory({ status: 'open', customer: mockCustomerId });
 
-    let payChargeAttemptSpy: jest.SpyInstance;
+    let invoicesPaySpy: jest.SpyInstance;
     let incrementSpy: jest.SpyInstance;
     let warnSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      payChargeAttemptSpy = jest
-        .spyOn(stripeClient, 'invoicesPayChargeAttempt')
+      invoicesPaySpy = jest
+        .spyOn(stripeClient, 'invoicesPay')
         .mockImplementation((invoiceId) =>
           Promise.resolve(
             StripeResponseFactory(StripeInvoiceFactory({ id: invoiceId }))
@@ -1063,11 +1138,13 @@ describe('InvoiceManager', () => {
         mockPaymentMethodId
       );
 
-      expect(payChargeAttemptSpy).toHaveBeenCalledTimes(2);
-      expect(payChargeAttemptSpy).toHaveBeenNthCalledWith(1, invoice1.id, {
+      expect(invoicesPaySpy).toHaveBeenCalledTimes(2);
+      expect(invoicesPaySpy).toHaveBeenNthCalledWith(1, invoice1.id, {
+        off_session: true,
         payment_method: mockPaymentMethodId,
       });
-      expect(payChargeAttemptSpy).toHaveBeenNthCalledWith(2, invoice2.id, {
+      expect(invoicesPaySpy).toHaveBeenNthCalledWith(2, invoice2.id, {
+        off_session: true,
         payment_method: mockPaymentMethodId,
       });
     });
@@ -1093,14 +1170,12 @@ describe('InvoiceManager', () => {
         mockPaymentMethodId
       );
 
-      expect(payChargeAttemptSpy).not.toHaveBeenCalled();
+      expect(invoicesPaySpy).not.toHaveBeenCalled();
     });
 
     it('does not reject when the charge attempt is declined', async () => {
       stubOpenInvoices([openInvoice()]);
-      payChargeAttemptSpy.mockRejectedValue(
-        new Error('Your card was declined')
-      );
+      invoicesPaySpy.mockRejectedValue(new Error('Your card was declined'));
 
       await expect(
         invoiceManager.retryPaymentForOpenInvoices(
@@ -1112,9 +1187,7 @@ describe('InvoiceManager', () => {
 
     it('counts and logs a failed charge attempt', async () => {
       stubOpenInvoices([openInvoice()]);
-      payChargeAttemptSpy.mockRejectedValue(
-        new Error('Your card was declined')
-      );
+      invoicesPaySpy.mockRejectedValue(new Error('Your card was declined'));
 
       await invoiceManager.retryPaymentForOpenInvoices(
         mockCustomerId,
@@ -1142,7 +1215,7 @@ describe('InvoiceManager', () => {
           mockPaymentMethodId
         )
       ).resolves.toBeUndefined();
-      expect(payChargeAttemptSpy).not.toHaveBeenCalled();
+      expect(invoicesPaySpy).not.toHaveBeenCalled();
     });
   });
 });

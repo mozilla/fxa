@@ -392,21 +392,19 @@ describe('StripeClient', () => {
     });
   });
 
-  describe('invoicesPayChargeAttempt', () => {
+  describe('invoicesPay', () => {
     it('returns the paid invoice from Stripe', async () => {
       const mockInvoice = StripeInvoiceFactory({ status: 'paid' });
       const mockResponse = StripeResponseFactory(mockInvoice);
 
       mockStripeInvoicesPay.mockResolvedValueOnce(mockResponse);
 
-      const result = await stripeClient.invoicesPayChargeAttempt(
-        mockInvoice.id
-      );
+      const result = await stripeClient.invoicesPay(mockInvoice.id);
 
       expect(result).toEqual(mockResponse);
     });
 
-    it('forwards the payment method to Stripe', async () => {
+    it('forwards the caller params to Stripe', async () => {
       const mockInvoice = StripeInvoiceFactory({ status: 'paid' });
       const mockPaymentMethodId = 'pm_charge123';
 
@@ -414,7 +412,8 @@ describe('StripeClient', () => {
         StripeResponseFactory(mockInvoice)
       );
 
-      await stripeClient.invoicesPayChargeAttempt(mockInvoice.id, {
+      await stripeClient.invoicesPay(mockInvoice.id, {
+        off_session: true,
         payment_method: mockPaymentMethodId,
       });
 
@@ -424,18 +423,16 @@ describe('StripeClient', () => {
       });
     });
 
-    it('charges off-session by default', async () => {
-      const mockInvoice = StripeInvoiceFactory({ status: 'paid' });
+    it('propagates an already-paid error instead of swallowing it', async () => {
+      const mockInvoice = StripeInvoiceFactory();
 
-      mockStripeInvoicesPay.mockResolvedValueOnce(
-        StripeResponseFactory(mockInvoice)
+      mockStripeInvoicesPay.mockRejectedValueOnce(
+        new Error('Invoice is already paid')
       );
 
-      await stripeClient.invoicesPayChargeAttempt(mockInvoice.id);
-
-      expect(mockStripeInvoicesPay).toHaveBeenCalledWith(mockInvoice.id, {
-        off_session: true,
-      });
+      await expect(stripeClient.invoicesPay(mockInvoice.id)).rejects.toThrow(
+        'Invoice is already paid'
+      );
     });
   });
 

@@ -1223,8 +1223,6 @@ export class SubscriptionManagementService {
       name: paymentMethod.billing_details.name ?? undefined,
     });
 
-    // The server-derived customer id, not setupIntent.customer, matching
-    // setDefaultStripePaymentDetails below.
     await this.invoiceManager.retryPaymentForOpenInvoices(
       accountCustomer.stripeCustomerId,
       setupIntent.payment_method
@@ -1264,14 +1262,6 @@ export class SubscriptionManagementService {
       },
     });
 
-    // This is the path taken when the payment method required authentication,
-    // since updateStripePaymentDetails returns before its own collection in
-    // that case.
-    //
-    // `paymentMethodId` is client-supplied, and the customerManager.update above
-    // is what rejects one that is not this customer's -- Stripe refuses a
-    // default payment method that is not attached to the customer. It must stay
-    // ahead of the collection, which charges with that id.
     await this.invoiceManager.retryPaymentForOpenInvoices(
       accountCustomer.stripeCustomerId,
       paymentMethodId
