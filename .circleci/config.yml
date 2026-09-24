@@ -312,7 +312,11 @@ commands:
           command: ./_scripts/check-mysql.sh
       - run:
           name: Run DB migrations
-          command: node ./packages/db-migrations/bin/patcher.mjs;
+          command: |
+            # The patcher imports fxa-shared's build output. Jobs that don't
+            # restore the Build workspace get it from the nx cache.
+            [ -d packages/fxa-shared/dist ] || npx nx build fxa-shared
+            node ./packages/db-migrations/bin/patcher.mjs;
       - run:
           name: Wait for firestore
           command: ./_scripts/check-url.sh localhost:9090;
