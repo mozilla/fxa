@@ -1090,6 +1090,7 @@ auth-error-228 = Falló el registro de la clave de acceso
 auth-error-233 = Para crear una clave de acceso, configurá un bloqueo de pantalla, PIN, huella digital o reconocimiento facial en tu dispositivo o clave de seguridad. Después de hacerlo, probá de nuevo.
 auth-error-238 = Falló la verificación de la clave de acceso
 auth-error-239 = Lo sentimos, no pudimos borrar tu cuenta. Probá de nuevo o contactá a soporte si el problema persiste.
+auth-error-240 = Esta cuenta ha sido deshabilitada
 auth-error-999 = Error inesperado
 auth-error-1001 = Intento de inicio de sesión de cancelado
 auth-error-1002 = La sesión caducó. Iniciá sesión de nuevo para conituar.
@@ -1182,6 +1183,10 @@ inline-passwordless-sync-setup-description = Usá esta clave de acceso para inic
 inline-passwordless-sync-setup-enable-button = Habilitar clave de acceso
 inline-passwordless-sync-setup-enabling = Habilitando…
 inline-passwordless-sync-setup-not-now-button = No ahora
+inline-passwordless-sync-setup-success-alert = Esta clave de acceso está lista para iniciar sesión de forma sincronizada
+inline-passwordless-sync-setup-error-cancelled = La confirmación de la clave de acceso no terminó
+inline-passwordless-sync-setup-error-cancelled-description = Confirmá con tu clave de acceso para omitir la contraseña la próxima vez.
+inline-passwordless-sync-setup-error-generic = Algo salió mal, tendrás que ingresar tu contraseña la próxima vez
 
 
 inline-recovery-key-setup-create-error = ¡Epa! No pudimos crear tu clave de recuperación de cuenta. Probá de nuevo más tarde.
@@ -1367,6 +1372,13 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que se agotó el ti
 pair2-supplicant-timeout-and-cancel-timeout-description = Para conectar tu dispositivo móvil y sincronizar tus datos de { -brand-firefox }, visitá <b>firefox.com/pair</b> en tu computadora.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelado
 pair2-supplicant-timeout-and-cancel-canceled-description = Para conectar un dispositivo en cualquier momento, visitá <b>firefox.com/pair</b> en tu computadora.
+
+
+permissions-heading = { $serviceName } quiere acceso a:
+permissions-label-email = Dirección de correo electrónico
+permissions-label-display-name = Nombre para mostrar
+permissions-continue-button = Continuar
+permissions-cancel-button = Cancelar
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmada

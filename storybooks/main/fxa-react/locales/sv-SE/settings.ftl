@@ -1480,6 +1480,7 @@ auth-error-228 = Registrering av lösenordsnyckel misslyckades
 auth-error-233 = För att skapa en lösenordsnyckel konfigurerar du ett skärmlås, PIN-kod, fingeravtryck eller ansiktsigenkänning på din enhet eller säkerhetsnyckel. Försök sedan igen.
 auth-error-238 = Utmaning för lösenordsnyckel misslyckades
 auth-error-239 = Tyvärr, vi kunde inte ta bort ditt konto. Försök igen eller kontakta supporten om problemet kvarstår.
+auth-error-240 = Detta konto har inaktiverats
 auth-error-999 = Oväntat fel
 auth-error-1001 = Inloggningsförsök avbröts
 auth-error-1002 = Sessionen upphörde. Logga in för att fortsätta.
@@ -1640,6 +1641,13 @@ inline-passwordless-sync-setup-enable-button = Aktivera lösenordsnyckel
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Aktiverar…
 inline-passwordless-sync-setup-not-now-button = Inte nu
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = Denna lösenordsnyckel är redo för synkroniserad inloggning
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = Bekräftelse av lösenordsnyckel slutfördes inte
+inline-passwordless-sync-setup-error-cancelled-description = Bekräfta med din lösenordsnyckel för att hoppa över lösenordet nästa gång.
+# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+inline-passwordless-sync-setup-error-generic = Något gick fel, du behöver fortfarande ange ditt lösenord nästa gång
 
 ## InlineRecoveryKeySetup page component
 
@@ -2008,6 +2016,19 @@ pair2-supplicant-timeout-and-cancel-timeout-description = För att ansluta din m
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Avbruten
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = När du vill ansluta en enhet besöker du <b>firefox.com/pair</b> på din dator.
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } vill ha tillgång till:
+permissions-label-email = E-postadress
+permissions-label-display-name = Visningsnamn
+permissions-continue-button = Fortsätt
+permissions-cancel-button = Avbryt
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
