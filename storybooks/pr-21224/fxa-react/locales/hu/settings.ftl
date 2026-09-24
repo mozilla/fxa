@@ -1485,6 +1485,7 @@ auth-error-228 = A jelkulcs regisztrációja sikertelen
 auth-error-233 = Jelkulcs létrehozásához állítson be képernyőzárat, PIN-kódot, ujjlenyomat- vagy arcfelismerést az eszközén, vagy egy biztonsági kulcsot. Ezután próbálja újra.
 auth-error-238 = A jelkulcs kihívása sikertelen
 auth-error-239 = Sajnáljuk, nem tudtuk törölni a fiókját. Próbálja újra, vagy lépjen kapcsolatba az ügyfélszolgálattal, ha a probléma továbbra is fennáll.
+auth-error-240 = Ez a fiók le lett tiltva
 auth-error-999 = Nem várt hiba
 auth-error-1001 = Bejelentkezési kísérlet megszakítva
 auth-error-1002 = A munkamenet lejárt. Jelentkezzen be a folytatáshoz.
@@ -1645,6 +1646,13 @@ inline-passwordless-sync-setup-enable-button = Jelkulcs engedélyezése
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Engedélyezés…
 inline-passwordless-sync-setup-not-now-button = Most nem
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = Ez a jelkulcs készen áll a szinkronizálási bejelentkezésre
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = A jelszó megerősítése nem fejeződött be
+inline-passwordless-sync-setup-error-cancelled-description = Erősítse meg a jelkulcsával, hogy legközelebb kihagyja a jelszót.
+# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+inline-passwordless-sync-setup-error-generic = Hiba történt, legközelebb is meg kell adnia a jelszavát
 
 ## InlineRecoveryKeySetup page component
 
@@ -2013,6 +2021,19 @@ pair2-supplicant-timeout-and-cancel-timeout-description = A mobileszköz csatlak
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Megszakítva
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Eszköz csatlakoztatásához keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén.
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } hozzáférést kér a következőhöz:
+permissions-label-email = E-mail cím
+permissions-label-display-name = Megjelenő név
+permissions-continue-button = Folytatás
+permissions-cancel-button = Mégse
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

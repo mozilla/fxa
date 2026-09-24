@@ -1090,6 +1090,7 @@ auth-error-228 = Registrierung des Zugangsschlüssels fehlgeschlagen
 auth-error-233 = Um einen Zugangsschlüssel zu erstellen, richten Sie eine Display-Sperre, eine PIN, einen Fingerabdruck oder eine Gesichtserkennung auf Ihrem Gerät oder Sicherheitsschlüssel ein. Versuchen Sie es dann erneut.
 auth-error-238 = Verifizierung des Zugangsschlüssels fehlgeschlagen
 auth-error-239 = Leider konnten wir Ihr Konto nicht löschen. Bitte versuchen Sie es erneut oder wenden Sie sich an den Support, wenn das Problem weiterhin besteht.
+auth-error-240 = Dieses Konto wurde deaktiviert
 auth-error-999 = Unerwarteter Fehler
 auth-error-1001 = Anmeldeversuch abgebrochen
 auth-error-1002 = Sitzung abgelaufen. Melden Sie sich an, um fortzufahren.
@@ -1182,6 +1183,10 @@ inline-passwordless-sync-setup-description = Verwenden Sie diesen Zugangsschlüs
 inline-passwordless-sync-setup-enable-button = Zugangsschlüssel aktivieren
 inline-passwordless-sync-setup-enabling = Wird aktiviert…
 inline-passwordless-sync-setup-not-now-button = Nicht jetzt
+inline-passwordless-sync-setup-success-alert = Dieser Zugangsschlüssel ist bereit für die Sync-Anmeldung
+inline-passwordless-sync-setup-error-cancelled = Zugangsschlüssel-Bestätigung wurde nicht abgeschlossen
+inline-passwordless-sync-setup-error-cancelled-description = Bestätigen Sie mit Ihrem Zugangsschlüssel, um das Passwort beim nächsten Mal zu überspringen.
+inline-passwordless-sync-setup-error-generic = Etwas ist schiefgegangen, Sie müssen beim nächsten Mal noch Ihr Passwort eingeben
 
 
 inline-recovery-key-setup-create-error = Hoppla! Wir konnten Ihren Kontowiederherstellungsschlüssel nicht erstellen. Bitte versuchen Sie es später erneut.
@@ -1367,6 +1372,13 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Zeitüberschreitung
 pair2-supplicant-timeout-and-cancel-timeout-description = Um Ihr Mobilgerät zu verbinden und Ihre { -brand-firefox }-Daten zu synchronisieren, besuchen Sie <b>firefox.com/pair</b> auf Ihrem Computer.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Abgebrochen
 pair2-supplicant-timeout-and-cancel-canceled-description = Um jederzeit ein Gerät zu verbinden, besuchen Sie <b>firefox.com/pair</b> auf Ihrem Computer.
+
+
+permissions-heading = { $serviceName } möchte Zugriff auf:
+permissions-label-email = E-Mail-Adresse
+permissions-label-display-name = Anzeigename
+permissions-continue-button = Weiter
+permissions-cancel-button = Abbrechen
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } bestätigt
