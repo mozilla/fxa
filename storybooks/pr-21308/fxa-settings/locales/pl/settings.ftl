@@ -1310,6 +1310,7 @@ auth-error-215 = Numer telefonu odzyskiwania nie istnieje
 auth-error-216 = Osiągnięto ograniczenie liczby wiadomości SMS
 auth-error-218 = Nie można usunąć telefonu odzyskiwania, brakuje zapasowych kodów uwierzytelniania.
 auth-error-219 = Ten numer telefonu został zarejestrowany na zbyt wielu kontach. Spróbuj innego numeru.
+auth-error-240 = To konto zostało wyłączone
 auth-error-999 = Nieznany błąd
 auth-error-1001 = Anulowano próbę logowania
 auth-error-1002 = Sesja wygasła. Zaloguj się, aby kontynuować.
