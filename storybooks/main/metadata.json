@@ -1,10 +1,11 @@
 {
-  "commit": "b9478e1434ccad82b20b85aed3bdc45868b2fa36",
-  "summary": "Merge pull request #21305 from mozilla/fxa-14612",
-  "description": "fix(settings): stop code input required error on blur",
-  "timestamp": 1790285939000,
+  "commit": "abaef2536e663e31fa99839567eeda7c6ac0cff4",
+  "summary": "Merge pull request #21304 from mozilla/fxa-14609",
+  "description": "feat(admin-panel): add Storybook and component stories",
+  "timestamp": 1790287735000,
   "storybooks": [
     "email-renderer",
+    "fxa-admin-panel",
     "fxa-react",
     "fxa-settings"
   ],
