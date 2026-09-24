@@ -1,9 +1,43 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { CloudTasksClient } from '@google-cloud/tasks';
+import { CloudTasksClient, v2beta3 } from '@google-cloud/tasks';
 import { CloudTaskOptions, CloudTasksConfig } from './cloud-tasks.types';
 import { FxACloudTaskHeaders } from './account-tasks.types';
+
+export function queuePath(config: CloudTasksConfig, queueName: string) {
+  return `projects/${config.cloudTasks.projectId}/locations/${config.cloudTasks.locationId}/queues/${queueName}`;
+}
+
+export type QueueCapacity = {
+  tasksCount: number;
+  maxDispatchesPerSecond: number;
+};
+
+export async function getQueueCapacity(
+  client: Pick<v2beta3.CloudTasksClient, 'getQueue'>,
+  name: string
+): Promise<QueueCapacity> {
+  const [queue] = await client.getQueue({
+    name,
+    readMask: { paths: ['rate_limits', 'stats'] },
+  });
+
+  const tasksCount = Number(queue.stats?.tasksCount ?? NaN);
+  const maxDispatchesPerSecond = Number(
+    queue.rateLimits?.maxDispatchesPerSecond ?? NaN
+  );
+
+  if (!Number.isFinite(tasksCount)) {
+    throw new Error(`Queue ${name} returned no task count.`);
+  }
+
+  if (!Number.isFinite(maxDispatchesPerSecond) || maxDispatchesPerSecond <= 0) {
+    throw new Error(`Queue ${name} returned no dispatch rate.`);
+  }
+
+  return { tasksCount, maxDispatchesPerSecond };
+}
 
 /** Base class for encapsulating common cloud task operations */
 export class CloudTasks {
@@ -14,7 +48,7 @@ export class CloudTasks {
 
   /** Returns the fully qualified path for the queue */
   protected getQueuePath(queueName: string) {
-    return `projects/${this.config.cloudTasks.projectId}/locations/${this.config.cloudTasks.locationId}/queues/${queueName}`;
+    return queuePath(this.config, queueName);
   }
 
   /**

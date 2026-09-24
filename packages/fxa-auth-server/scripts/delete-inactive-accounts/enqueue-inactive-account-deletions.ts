@@ -45,8 +45,11 @@ import { google } from 'googleapis';
 
 import {
   CloudTaskOptions,
+  CloudTasksQueueStatsClientFactory,
+  getQueueCapacity,
   InactiveAccountEmailTasksFactory,
   InactiveAccountEmailTaskPayloadParam,
+  queuePath,
 } from '@fxa/shared/cloud-tasks';
 
 import { collect, parseBooleanArg } from '../lib/args';
@@ -162,6 +165,11 @@ export const init = async () => {
       defaultScanWindowDays
     )
     .option(
+      '--threshold <days>',
+      'The number of days worth of first email cloud tasks below which triggers the scan.  Optional.',
+      Number
+    )
+    .option(
       '--days-til-first-email [float]',
       'The amount of time from now until the first email is sent, in days.  Defaults to 0.  Max allowed (GCP limit) is 30.',
       parseFloat
@@ -234,6 +242,13 @@ export const init = async () => {
 
   if (!Number.isInteger(options.scanWindow) || options.scanWindow <= 0) {
     throw new Error('Scan window must be a positive integer number of days.');
+  }
+
+  if (
+    options.threshold !== undefined &&
+    (!Number.isFinite(options.threshold) || options.threshold <= 0)
+  ) {
+    throw new Error('Threshold must be a positive number of days.');
   }
 
   if ((options.startDate === undefined) !== (options.endDate === undefined)) {
@@ -315,6 +330,7 @@ export const init = async () => {
   );
   console.log(`State file: ${options.stateFile ?? '(none)'}`);
   console.log(`Scan window in days: ${options.scanWindow}`);
+  console.log(`Threshold in days: ${options.threshold ?? '(none)'}`);
   console.log(
     `Previous scan range: ${
       previousScanRange
@@ -358,6 +374,33 @@ export const init = async () => {
     if (!options.debug) return;
     console.log(message);
   };
+
+  if (options.threshold !== undefined) {
+    const queueCapacity = await getQueueCapacity(
+      CloudTasksQueueStatsClientFactory(config),
+      queuePath(
+        config,
+        config.cloudTasks.inactiveAccountEmails.firstEmailQueueName
+      )
+    );
+    const queueDrainDays =
+      queueCapacity.tasksCount / (queueCapacity.maxDispatchesPerSecond * 86400);
+    const queueBelowThreshold = queueDrainDays < options.threshold;
+
+    debugLog(`First email queue tasks count: ${queueCapacity.tasksCount}`);
+    debugLog(
+      `First email queue max dispatches per second: ${queueCapacity.maxDispatchesPerSecond}`
+    );
+    debugLog(`First email queue days to drain: ${queueDrainDays.toFixed(2)}`);
+    debugLog(`First email queue below threshold: ${queueBelowThreshold}`);
+
+    if (!queueBelowThreshold) {
+      console.log(
+        `Skipping the scan.  The first email queue needs ${queueDrainDays.toFixed(2)} days to drain; the threshold is ${options.threshold} days.`
+      );
+      return 0;
+    }
+  }
 
   // {{{ dependencies
 

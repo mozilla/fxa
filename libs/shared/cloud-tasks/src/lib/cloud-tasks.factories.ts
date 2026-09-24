@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { CloudTasksClient } from '@google-cloud/tasks';
+import { CloudTasksClient, v2beta3 } from '@google-cloud/tasks';
 import { CloudTasksConfig } from './cloud-tasks.types';
 import { credentials } from '@grpc/grpc-js';
 
@@ -108,24 +108,27 @@ export function CloudTasksConvictConfigFactory() {
   };
 }
 
-/** Produces cloud task client. */
-export function CloudTaskClientFactory(config: CloudTasksConfig) {
-  // For dev purposes only!
+function clientOptions(config: CloudTasksConfig) {
   if (config.cloudTasks.useLocalEmulator) {
-    const client = new CloudTasksClient({
+    return {
       port: 8123,
       servicePath: 'localhost',
       sslCreds: credentials.createInsecure(),
-    });
-
-    return client;
+    };
   }
 
-  const cloudTasksClient = new CloudTasksClient({
+  return {
     projectId: config.cloudTasks.projectId,
     keyFilename: config.cloudTasks.credentials.keyFilename ?? undefined,
     fallback: true,
-  });
+  };
+}
 
-  return cloudTasksClient;
+export function CloudTaskClientFactory(config: CloudTasksConfig) {
+  return new CloudTasksClient(clientOptions(config));
+}
+
+// currently v2beta3 is the only version that returns queue stats
+export function CloudTasksQueueStatsClientFactory(config: CloudTasksConfig) {
+  return new v2beta3.CloudTasksClient(clientOptions(config));
 }
