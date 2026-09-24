@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import program from 'commander';
+import { program } from 'commander';
 import path from 'path';
 import Container from 'typedi';
 
@@ -55,15 +55,16 @@ async function init() {
       './payments-products-config-json'
     )
     .parse(process.argv);
+  const options = program.opts();
 
   const { log, stripeHelper } = await setupProcessingTaskObjects(
     'stripe-products-and-plans-to-firestore-documents'
   );
 
-  const isDryRun = parseBooleanArg(program.dryRun);
-  const target = parseTarget(program.target);
-  const targetDir = parseTargetPath(program.targetDir);
-  const productId = program.productId;
+  const isDryRun = parseBooleanArg(options.dryRun);
+  const target = parseTarget(options.target);
+  const targetDir = parseTargetPath(options.targetDir);
+  const productId = options.productId;
 
   const config = Container.get(AppConfig);
 

@@ -33,9 +33,9 @@ program
 program
   .command('setup <token> <endpoint>')
   .description('Configure event stream')
-  .option('-e, --events <events...>', 'Events requested')
-  .action(async (token, endpoint, cmdObj) => {
-    const events = cmdObj.events.split(',');
+  .option('-e, --events <events>', 'Events requested, comma separated')
+  .action(async (token, endpoint, options) => {
+    const events = options.events.split(',');
     await configureEventStream(token, endpoint, events).catch((error) => {
       console.error(`Failed: ${error}`);
     });
@@ -49,8 +49,8 @@ program
     'Nonce for the test',
     `Test token requested at ${new Date().toUTCString()}`
   )
-  .action(async (token, cmdObj) => {
-    await testEventStream(token, cmdObj.nonce).catch((error) => {
+  .action(async (token, options) => {
+    await testEventStream(token, options.nonce).catch((error) => {
       console.error(`Failed to test event stream: ${error.message}`);
     });
   });

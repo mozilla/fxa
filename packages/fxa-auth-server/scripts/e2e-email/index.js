@@ -6,7 +6,7 @@
 'use strict';
 
 const crypto = require('crypto');
-const commander = require('commander');
+const { Command } = require('commander');
 
 const Client = require('../../test/client')();
 const mailbox = require('../../test/mailbox');
@@ -16,7 +16,7 @@ const emailMessages = {};
 let program;
 
 function configure() {
-  commander
+  const options = new Command()
     .option(
       '-a, --auth-server [url]',
       'URL of FxA Auth Server',
@@ -39,18 +39,16 @@ function configure() {
         return list.split(/,/);
       }
     )
-    .parse(process.argv);
+    .parse(process.argv)
+    .opts();
 
-  commander.basename = crypto.randomBytes(8).toString('hex');
-  commander.password = crypto.randomBytes(16).toString('hex');
+  options.basename = crypto.randomBytes(8).toString('hex');
+  options.password = crypto.randomBytes(16).toString('hex');
 
-  commander.supportedLanguages =
-    commander.locale || require(commander.locales).slice(0);
+  options.supportedLanguages =
+    options.locale || require(options.locales).slice(0);
 
-  const mailserver = (commander.mailserver = mailbox(
-    commander.restmailDomain,
-    80
-  ));
+  const mailserver = (options.mailserver = mailbox(options.restmailDomain, 80));
 
   mailserver.eventEmitter.on('email:message', (email, message) => {
     emailMessages[email] = emailMessages[email] || [];
@@ -62,7 +60,7 @@ function configure() {
     emailMessages[email].push(error);
   });
 
-  return commander;
+  return options;
 }
 
 function log(level /*, rest */) {

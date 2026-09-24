@@ -206,15 +206,16 @@ export const init = async () => {
   // {{{ arguments
 
   program.parse(process.argv);
+  const options = program.opts();
 
-  if (!program.bqDataset) {
+  if (!options.bqDataset) {
     throw new Error('BigQuery dataset ID is required.');
   }
 
   if (
-    program.activeAccountsDataset !== undefined &&
+    options.activeAccountsDataset !== undefined &&
     !/^[a-z][a-z0-9-]{2,28}[a-z0-9]\.[a-zA-Z0-9_]{1,1024}$/.test(
-      program.activeAccountsDataset
+      options.activeAccountsDataset
     )
   ) {
     throw new Error(
@@ -223,28 +224,28 @@ export const init = async () => {
   }
 
   if (
-    !Number.isFinite(program.activeAccountTablesMaxAgeDays) ||
-    program.activeAccountTablesMaxAgeDays <= 0
+    !Number.isFinite(options.activeAccountTablesMaxAgeDays) ||
+    options.activeAccountTablesMaxAgeDays <= 0
   ) {
     throw new Error(
       'Active account tables maximum age must be a positive number of days.'
     );
   }
 
-  if (!Number.isInteger(program.scanWindow) || program.scanWindow <= 0) {
+  if (!Number.isInteger(options.scanWindow) || options.scanWindow <= 0) {
     throw new Error('Scan window must be a positive integer number of days.');
   }
 
-  if ((program.startDate === undefined) !== (program.endDate === undefined)) {
+  if ((options.startDate === undefined) !== (options.endDate === undefined)) {
     throw new Error('Supply both --start-date and --end-date, or neither.');
   }
 
   const cliScanRange =
-    program.startDate === undefined
+    options.startDate === undefined
       ? undefined
       : {
-          start: parseScanDate(program.startDate, 'Start date'),
-          end: parseScanDate(program.endDate, 'End date'),
+          start: parseScanDate(options.startDate, 'Start date'),
+          end: parseScanDate(options.endDate, 'End date'),
         };
 
   if (cliScanRange && cliScanRange.end < cliScanRange.start) {
@@ -254,7 +255,7 @@ export const init = async () => {
   }
 
   const storageClient: ScanStateStorage | undefined =
-    program.stateFile === undefined
+    options.stateFile === undefined
       ? undefined
       : google.storage({
           version: 'v1',
@@ -263,27 +264,27 @@ export const init = async () => {
           }),
         });
   const previousScanRange = storageClient
-    ? await loadPreviousScanRange(storageClient, program.stateFile)
+    ? await loadPreviousScanRange(storageClient, options.stateFile)
     : undefined;
   const scanRange = resolveScanRange({
     now: invocationTimestamp,
-    scanWindowDays: program.scanWindow,
+    scanWindowDays: options.scanWindow,
     cliRange: cliScanRange,
     previousScanRange,
   });
 
   const startDate = new Date(scanRange.startDate);
   const endDate = new Date(scanRange.endDate);
-  const activeByDate = program.activeByDate
-    ? setDateToUTC(program.activeByDate)
+  const activeByDate = options.activeByDate
+    ? setDateToUTC(options.activeByDate)
     : new Date(getActivityCutoffDate(invocationTimestamp));
   const startDateTimestamp = scanRange.startTimestamp;
   const endDateTimestamp = scanRange.endTimestamp;
   const activeByDateTimestamp = activeByDate.valueOf();
 
   const daysTilFirstEmail =
-    program.daysTilFirstEmail !== undefined
-      ? program.daysTilFirstEmail
+    options.daysTilFirstEmail !== undefined
+      ? options.daysTilFirstEmail
       : defaultDaysTilFirstEmail;
 
   if (daysTilFirstEmail > 30) {
@@ -294,7 +295,7 @@ export const init = async () => {
 
   const msTilFirstEmail = daysTilFirstEmail * 86400000;
   const mysqlResCsvPath =
-    program.outputPath ||
+    options.outputPath ||
     path.join(
       process.cwd(),
       `mysql-inactive-account-uids-${endDate
@@ -304,16 +305,16 @@ export const init = async () => {
 
   // /arguments }}}
 
-  console.log(`Save inactive account UIDs: ${program.saveUids}`);
-  console.log(`Enqueue emails: ${program.enqueueEmails}`);
+  console.log(`Save inactive account UIDs: ${options.saveUids}`);
+  console.log(`Enqueue emails: ${options.enqueueEmails}`);
   console.log(
-    `Active accounts dataset: ${program.activeAccountsDataset || '(none)'}`
+    `Active accounts dataset: ${options.activeAccountsDataset || '(none)'}`
   );
   console.log(
-    `Active accounts maximum age in days: ${program.activeAccountTablesMaxAgeDays}`
+    `Active accounts maximum age in days: ${options.activeAccountTablesMaxAgeDays}`
   );
-  console.log(`State file: ${program.stateFile ?? '(none)'}`);
-  console.log(`Scan window in days: ${program.scanWindow}`);
+  console.log(`State file: ${options.stateFile ?? '(none)'}`);
+  console.log(`Scan window in days: ${options.scanWindow}`);
   console.log(
     `Previous scan range: ${
       previousScanRange
@@ -326,9 +327,9 @@ export const init = async () => {
   console.log(`Rolled over: ${scanRange.rolledOver}`);
   console.log(`Active by date: ${activeByDate.toISOString()}`);
   console.log(`Days 'til first email: ${daysTilFirstEmail}`);
-  console.log(`Per MySQL query results limit: ${program.resultsLimit}`);
+  console.log(`Per MySQL query results limit: ${options.resultsLimit}`);
 
-  if (program.dryRun) {
+  if (options.dryRun) {
     console.log(
       'Dry run mode is on.  It is the default; use --dry-run=false when you are ready.'
     );
@@ -354,7 +355,7 @@ export const init = async () => {
   })();
 
   const debugLog = (message: string) => {
-    if (!program.debug) return;
+    if (!options.debug) return;
     console.log(message);
   };
 
@@ -408,17 +409,17 @@ export const init = async () => {
   // {{{ build exclusions temp table in BQ and start a session
 
   const bq = new BigQuery();
-  const activeAccountLists = program.activeAccountsDataset
+  const activeAccountLists = options.activeAccountsDataset
     ? await getActiveAccountLists(
         bq,
-        program.activeAccountsDataset,
-        program.activeAccountTablesMaxAgeDays,
+        options.activeAccountsDataset,
+        options.activeAccountTablesMaxAgeDays,
         statsd
       )
     : [];
   const exclusionsTempTableQuery = buildExclusionsTempTableQuery(
     exclusionsTempTableName,
-    [...program.exclusionList, ...activeAccountLists]
+    [...options.exclusionList, ...activeAccountLists]
   );
   const [exclusionsTableJob] = await bq.createQueryJob({
     query: exclusionsTempTableQuery,
@@ -450,7 +451,7 @@ export const init = async () => {
     fs.writeSync(fd, uids.join(os.EOL));
     fs.closeSync(fd);
 
-    const dataset = program.bqDataset.split('.')[1];
+    const dataset = options.bqDataset.split('.')[1];
     const tableName = postfixTableName(tableNamePrefix);
 
     debugLog(`BQ: loading ${filepath} into ${tableName}`);
@@ -478,7 +479,7 @@ export const init = async () => {
       activeByDateTimestamp
     )
       .select('accounts.uid')
-      .limit(program.resultsLimit);
+      .limit(options.resultsLimit);
 
   let hasMaxResultsCount = true;
   let totalRowsReturned = 0;
@@ -505,7 +506,7 @@ export const init = async () => {
       accounts.map((x) => x.uid)
     );
 
-    hasMaxResultsCount = accounts.length === program.resultsLimit;
+    hasMaxResultsCount = accounts.length === options.resultsLimit;
     totalRowsReturned += accounts.length;
   }
 
@@ -587,10 +588,10 @@ export const init = async () => {
   // candidates to process.  no need to save the results into a temp table
   // since we can run the join again if necessary.
   const inactiveCandidatesQuery = `
-    SELECT \`${program.bqDataset}.${inactivesMySqlResultsTableName}\`.uid
-    FROM \`${program.bqDataset}.${inactivesMySqlResultsTableName}\`
+    SELECT \`${options.bqDataset}.${inactivesMySqlResultsTableName}\`.uid
+    FROM \`${options.bqDataset}.${inactivesMySqlResultsTableName}\`
     LEFT JOIN ${exclusionsTempTableName}
-    ON \`${program.bqDataset}.${inactivesMySqlResultsTableName}\`.uid = ${exclusionsTempTableName}.uid
+    ON \`${options.bqDataset}.${inactivesMySqlResultsTableName}\`.uid = ${exclusionsTempTableName}.uid
     WHERE ${exclusionsTempTableName}.uid IS NULL
     `;
 
@@ -611,7 +612,7 @@ export const init = async () => {
 
   // /join exclusions and build the final list of inactive candidates }}}
 
-  const concurrency = program.concurrency || defaultConcurrency;
+  const concurrency = options.concurrency || defaultConcurrency;
   const queue = new PQueue({
     concurrency,
     interval: 1000,
@@ -655,7 +656,7 @@ export const init = async () => {
 
   // {{{ optionally save the inactive account UIDs to a BQ table
 
-  if (program.saveUids && inactiveAccountUids.length) {
+  if (options.saveUids && inactiveAccountUids.length) {
     // use the dir of the path where the CSV of MySQL results was saved since
     // we can probably write to it
     const inactiveUidsCsvPath = path.join(
@@ -676,7 +677,7 @@ export const init = async () => {
 
   // {{{ enqueue google tasks for sending the first notification email
 
-  if (program.enqueueEmails) {
+  if (options.enqueueEmails) {
     const emailCloudTasks = InactiveAccountEmailTasksFactory(config, statsd);
 
     for (const uid of inactiveAccountUids) {
@@ -739,12 +740,12 @@ export const init = async () => {
 
   console.log(`Number of emails queued: ${emailsQueued}`);
 
-  if (storageClient && program.enqueueEmails) {
-    await savePreviousScanRange(storageClient, program.stateFile, {
+  if (storageClient && options.enqueueEmails) {
+    await savePreviousScanRange(storageClient, options.stateFile, {
       previous_start_date: scanRange.startDate,
       previous_end_date: scanRange.endDate,
     });
-    console.log(`Saved scan range to state file: ${program.stateFile}`);
+    console.log(`Saved scan range to state file: ${options.stateFile}`);
   }
 
   return 0;
