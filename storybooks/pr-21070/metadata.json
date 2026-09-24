@@ -1,8 +1,8 @@
 {
-  "commit": "33b5889bac759bfbebfff3bb0ae43f982bcd1adc",
+  "commit": "d66984cf08bd7416163a33cd018f906c7e9a06a5",
   "summary": "Revised based on feedback",
   "description": "",
-  "timestamp": 1790258894000,
+  "timestamp": 1790259081000,
   "storybooks": [
     "fxa-react",
     "fxa-settings"
