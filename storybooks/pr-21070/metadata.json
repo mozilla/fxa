@@ -1,0 +1,11 @@
+{
+  "commit": "33b5889bac759bfbebfff3bb0ae43f982bcd1adc",
+  "summary": "Revised based on feedback",
+  "description": "",
+  "timestamp": 1790258894000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
