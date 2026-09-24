@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import program from 'commander';
+import { program } from 'commander';
 
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { CustomerPlanMover } from './move-customers-to-new-plan-v2/move-customers-to-new-plan-v2';
@@ -24,13 +24,19 @@ const parseExcludePlanIds = (planIds: string) => {
 const parseProratedRefundRate = (proratedRefundRate: string) => {
   if (!proratedRefundRate) return null;
   const value = parseInt(proratedRefundRate);
-  if (isNaN(value) || value <= 0) throw new Error("Invalid proratedRefundRate");
+  if (isNaN(value) || value <= 0) throw new Error('Invalid proratedRefundRate');
   return value;
 };
 
-const parseProrationBehavior = (prorationBehavior: string): 'none' | 'create_prorations' | 'always_invoice' => {
-  if (!['none', 'create_prorations', 'always_invoice'].includes(prorationBehavior)) {
-    throw new Error(`Invalid prorationBehavior: ${prorationBehavior}. Must be one of: none, create_prorations, always_invoice`);
+const parseProrationBehavior = (
+  prorationBehavior: string
+): 'none' | 'create_prorations' | 'always_invoice' => {
+  if (
+    !['none', 'create_prorations', 'always_invoice'].includes(prorationBehavior)
+  ) {
+    throw new Error(
+      `Invalid prorationBehavior: ${prorationBehavior}. Must be one of: none, create_prorations, always_invoice`
+    );
   }
   return prorationBehavior as 'none' | 'create_prorations' | 'always_invoice';
 };
@@ -46,11 +52,11 @@ async function init() {
     .option(
       '-r, --rate-limit [number]',
       'Rate limit for Stripe API calls per second',
-      20
+      '20'
     )
     .option(
       '--coupon [string]',
-      'The Stripe coupon ID to apply (_not_ promotion code!)',
+      'The Stripe coupon ID to apply (_not_ promotion code!)'
     )
     .option(
       '--proration-behavior [string]',
@@ -67,7 +73,7 @@ async function init() {
     )
     .option(
       '-p, --prorated-refund-rate [number]',
-      'The rate per day (in whole cents) at which we plan to refund their subscription where possible to their original form of payment',
+      'The rate per day (in whole cents) at which we plan to refund their subscription where possible to their original form of payment'
     )
     .option(
       '-e, --exclude-customers-having-price-ids [string]',
@@ -87,19 +93,24 @@ async function init() {
       'Reset the billing cycle anchor to now when updating subscriptions. If not set, billing cycle anchor remains unchanged.'
     )
     .parse(process.argv);
+  const options = program.opts();
 
   const { stripeHelper, log } = await setupProcessingTaskObjects(
     'move-customers-to-new-plan'
   );
 
-  const rateLimit = parseRateLimit(program.rateLimit);
-  const excludeCustomersHavingPriceIds = parseExcludePlanIds(program.excludeCustomersHavingPriceIds);
-  const proratedRefundRate = parseProratedRefundRate(program.proratedRefundRate);
-  const prorationBehavior = parseProrationBehavior(program.prorationBehavior);
+  const rateLimit = parseRateLimit(options.rateLimit);
+  const excludeCustomersHavingPriceIds = parseExcludePlanIds(
+    options.excludeCustomersHavingPriceIds
+  );
+  const proratedRefundRate = parseProratedRefundRate(
+    options.proratedRefundRate
+  );
+  const prorationBehavior = parseProrationBehavior(options.prorationBehavior);
 
-  const dryRun = !!program.dryRun;
-  const skipSubscriptionIfSetToCancel = !!program.skipSubscriptionIfSetToCancel;
-  const resetBillingCycleAnchor = !!program.resetBillingCycleAnchor;
+  const dryRun = !!options.dryRun;
+  const skipSubscriptionIfSetToCancel = !!options.skipSubscriptionIfSetToCancel;
+  const resetBillingCycleAnchor = !!options.resetBillingCycleAnchor;
 
   const statsd = {
     increment: () => {},
@@ -117,19 +128,19 @@ async function init() {
   });
 
   const customerPlanMover = new CustomerPlanMover(
-    program.sourcePriceId,
-    program.destinationPriceId,
+    options.sourcePriceId,
+    options.destinationPriceId,
     excludeCustomersHavingPriceIds,
-    program.outputFile,
+    options.outputFile,
     stripeHelper.stripe,
     dryRun,
     rateLimit,
     proratedRefundRate,
-    program.coupon,
+    options.coupon,
     prorationBehavior,
     skipSubscriptionIfSetToCancel,
     resetBillingCycleAnchor,
-    paypalHelper,
+    paypalHelper
   );
 
   await customerPlanMover.convert();

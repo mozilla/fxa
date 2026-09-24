@@ -39,7 +39,7 @@
   "devDependencies": {
     "@types/sharp": "^0",
     "@types/sinon": "^17.0.0",
-    "commander": "9.3.0",
+    "commander": "^13.1.0",
     "eslint": "^8.18.0",
     "jest-junit": "^16.0.0",
     "pm2": "^7.0.0",

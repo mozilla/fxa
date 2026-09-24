@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import program from 'commander';
+import { program } from 'commander';
 import { StatsD } from 'hot-shots';
 import * as Sentry from '@sentry/node';
 import { initSentry } from 'fxa-shared/sentry/node';
@@ -139,7 +139,7 @@ export function emitStats(name: string, result: any) {
 export function logResult(name: string, query: string, result: any) {
   log.info('result', { name, result });
 
-  if (program.verbose) {
+  if (program.opts().verbose) {
     console.log(
       `\n-- AUDIT: ${name}\n-- QUERY:\n${query}\n${resultSummary()}\n\n\n`
     );
@@ -168,7 +168,7 @@ function getSampleSize(_tableName: string) {
   // a minimum population size based on a confidence interval and current
   // std dev. Setting this to any 'large' value is probably adequate to
   // get a feel for the data at the current moment.
-  return program.maxSampleSize;
+  return program.opts().maxSampleSize;
 }
 
 /** Looks up the table size, i.e. row count on the table. */
@@ -204,19 +204,20 @@ function decorateResultWithTableStats(table: string, result: any) {
 async function audit(name: string, raw: string) {
   // Make sure query passes filter. We always run the RowCount tests since they
   // are needed by other audits.
-  const filter = program.grep ? new RegExp(program.grep) : undefined;
+  const { grep, verbose, dry } = program.opts();
+  const filter = grep ? new RegExp(grep) : undefined;
   const skip = !/RowCount/i.test(name) && filter && !filter.test(name);
   if (skip) {
     log.info('audit', { msg: `-- Excluding ${name} due to grep filter.` });
 
-    if (program.verbose) {
+    if (verbose) {
       console.log(`-- Excluding ${name} due to grep filter.`);
     }
 
     return;
   }
 
-  if (program.dry) {
+  if (dry) {
     logResult(name, raw, '');
     return '';
   }
@@ -230,7 +231,7 @@ async function audit(name: string, raw: string) {
     return formatResult(rawResult);
   } catch (err) {
     log.error('audit-tokens', err);
-    if (program.verbose) {
+    if (verbose) {
       console.log(err);
     }
   }
@@ -339,7 +340,7 @@ async function auditAll() {
   }
 
   // If requested audit the age distribution of rows in the table.
-  if (program.auditAge) {
+  if (program.opts().auditAge) {
     const set: any[] = [
       [tables.accountCustomers, 'createdAt', 'uid'],
       [tables.accountResetTokens, 'createdAt', 'tokenId'],
@@ -368,7 +369,7 @@ async function auditAll() {
   // where an implied parent key is missing. Note that we cannot audit
   // across databases... So oauth and profile tables can't be audited
   // against fxa tables.
-  if (program.auditOrphanedRows) {
+  if (program.opts().auditOrphanedRows) {
     let set = [
       tables.accountCustomers,
       tables.accountResetTokens,
@@ -447,8 +448,9 @@ export async function run() {
       )
       .option('--console', 'When defined use the console instead of mozlogger')
       .parse(process.argv);
+    const options = program.opts();
 
-    if (program.console) {
+    if (options.console) {
       log = {
         debug: console.debug,
         warn: console.warn,
@@ -458,12 +460,12 @@ export async function run() {
       };
     }
 
-    if (parseInt(program.loopInterval)) {
+    if (parseInt(options.loopInterval)) {
       // Keep polling stats. Useful to local monitoring.
       return new Promise(() => {
         setInterval(async () => {
           await auditAll();
-        }, program.loopInterval * 1000);
+        }, options.loopInterval * 1000);
       }).catch((err) => {
         throw err;
       });

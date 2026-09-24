@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import program from 'commander';
+import { program } from 'commander';
 
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { PlanCanceller } from './cancel-subscriptions-to-plan/cancel-subscriptions-to-plan';
@@ -23,19 +23,21 @@ const parseExcludePlanIds = (planIds: string) => {
 
 const parseRemainingValueMode = (
   mode: string
-): "noaction" | "refund" | "prorate" | "proratedRefund" => {
+): 'noaction' | 'refund' | 'prorate' | 'proratedRefund' => {
   const validModes = ['noaction', 'refund', 'prorate', 'proratedRefund'];
   if (!validModes.includes(mode)) {
-    throw new Error(`Invalid --mode: ${mode}. Must be one of: ${validModes.join(', ')}`);
+    throw new Error(
+      `Invalid --mode: ${mode}. Must be one of: ${validModes.join(', ')}`
+    );
   }
 
-  return mode as "noaction" | "refund" | "prorate" | "proratedRefund";
+  return mode as 'noaction' | 'refund' | 'prorate' | 'proratedRefund';
 };
 
 const parseProratedRefundRate = (proratedRefundRate: string) => {
   if (!proratedRefundRate) return null;
   const value = parseInt(proratedRefundRate);
-  if (isNaN(value) || value <= 0) throw new Error("Invalid proratedRefundRate");
+  if (isNaN(value) || value <= 0) throw new Error('Invalid proratedRefundRate');
   return value;
 };
 
@@ -47,11 +49,7 @@ async function init() {
       'Output file to write report to. Will be output in CSV format',
       'cancel-subscriptions-to-plan.csv'
     )
-    .option(
-      '-r, --rate-limit [number]',
-      'Rate limit for Stripe',
-      70
-    )
+    .option('-r, --rate-limit [number]', 'Rate limit for Stripe', '70')
     .option(
       '--price [string]',
       'Stripe plan ID. All customers on this price ID will have their subscriptions cancelled'
@@ -75,6 +73,7 @@ async function init() {
       'List the customers that would be cancelled without actually cancelling them'
     )
     .parse(process.argv);
+  const options = program.opts();
 
   const { stripeHelper, log } = await setupProcessingTaskObjects(
     'cancel-subscriptions-to-plan'
@@ -95,24 +94,28 @@ async function init() {
     log,
   });
 
-  const rateLimit = parseRateLimit(program.rateLimit);
-  const excludePlanIds = parseExcludePlanIds(program.exclude);
-  const remainingValueMode = parseRemainingValueMode(program.mode);
-  const proratedRefundRate = parseProratedRefundRate(program.proratedRefundRate);
+  const rateLimit = parseRateLimit(options.rateLimit);
+  const excludePlanIds = parseExcludePlanIds(options.exclude);
+  const remainingValueMode = parseRemainingValueMode(options.mode);
+  const proratedRefundRate = parseProratedRefundRate(
+    options.proratedRefundRate
+  );
 
-  const dryRun = !!program.dryRun;
-  if (!program.price) throw new Error('--price must be provided');
+  const dryRun = !!options.dryRun;
+  if (!options.price) throw new Error('--price must be provided');
 
   if (remainingValueMode === 'proratedRefund' && proratedRefundRate === null) {
-    throw new Error('--prorated-refund-rate must be provided when using proratedRefund mode');
+    throw new Error(
+      '--prorated-refund-rate must be provided when using proratedRefund mode'
+    );
   }
 
   const planCanceller = new PlanCanceller(
-    program.price,
+    options.price,
     remainingValueMode,
     proratedRefundRate,
     excludePlanIds,
-    program.outputFile,
+    options.outputFile,
     stripeHelper,
     paypalHelper,
     dryRun,

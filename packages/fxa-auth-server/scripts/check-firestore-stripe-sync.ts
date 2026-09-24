@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import program from 'commander';
+import { program } from 'commander';
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 
 import { FirestoreStripeSyncChecker } from './check-firestore-stripe-sync/check-firestore-stripe-sync';
@@ -15,23 +15,20 @@ const parseRateLimit = (rateLimit: string | number) => {
 async function init() {
   program
     .version(pckg.version)
-    .option(
-      '-r, --rate-limit [number]',
-      'Rate limit for Stripe',
-      30
-    )
+    .option('-r, --rate-limit [number]', 'Rate limit for Stripe', '30')
     .parse(process.argv);
+  const options = program.opts();
 
   const { stripeHelper, log } = await setupProcessingTaskObjects(
     'check-firestore-stripe-sync'
   );
 
-  const rateLimit = parseRateLimit(program.rateLimit);
+  const rateLimit = parseRateLimit(options.rateLimit);
 
   const syncChecker = new FirestoreStripeSyncChecker(
     stripeHelper,
     rateLimit,
-    log,
+    log
   );
 
   await syncChecker.run();

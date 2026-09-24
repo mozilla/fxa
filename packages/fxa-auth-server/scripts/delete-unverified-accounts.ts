@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Command } from 'commander';
+import { Command, OptionValues } from 'commander';
 import { StatsD } from 'hot-shots';
 import { Container } from 'typedi';
 import { processAccountDeletionInRange } from '../lib/routes/cloud-scheduler';
@@ -32,29 +32,29 @@ const uid = collect();
 const email = collect();
 
 const limitSpecifiedAccounts = (
-  program: Command,
+  options: OptionValues,
   limit: number
 ): { uids: string[]; emails: string[] } => {
   if (limit === Infinity) {
-    return { uids: program.uid, emails: program.email };
+    return { uids: options.uid, emails: options.email };
   }
-  if (program.uid.size >= limit) {
-    return { uids: program.uid.slice(0, limit), emails: [] };
+  if (options.uid.length >= limit) {
+    return { uids: options.uid.slice(0, limit), emails: [] };
   }
   return {
-    uids: program.uid,
-    emails: program.email.slice(0, limit - program.uid.length),
+    uids: options.uid,
+    emails: options.email.slice(0, limit - options.uid.length),
   };
 };
 
 const dryRun = (
-  program: Command,
+  options: OptionValues,
   useSpecifiedAccounts: boolean,
   useDateRange: boolean,
   limit: number
 ) => {
   if (useSpecifiedAccounts) {
-    const { uids, emails } = limitSpecifiedAccounts(program, limit);
+    const { uids, emails } = limitSpecifiedAccounts(options, limit);
     console.log(
       `When not in dry-run mode this call will enqueue ${
         uids.length + emails.length
@@ -64,8 +64,8 @@ const dryRun = (
     emails.forEach((x) => console.log(`uid: ${x}`));
   }
   if (useDateRange) {
-    const start = new Date(program.startDate);
-    const end = new Date(program.endDate);
+    const start = new Date(options.startDate);
+    const end = new Date(options.endDate);
     console.log(
       `When not in dry-run mode this call will enqueue up to ${limit} account deletions in the date range ${start.toLocaleDateString()} ${start.toLocaleTimeString()} - ${end.toLocaleDateString()} ${end.toLocaleTimeString()} inclusive.`
     );
@@ -101,7 +101,7 @@ const init = async () => {
       'End of date range of account creation date, inclusive.',
       Date.parse
     )
-    .option('--limit', 'The number of delete tasks to enqueue.')
+    .option('--limit <number>', 'The number of delete tasks to enqueue.')
     .option(
       '--dry-run [true|false]',
       'Print what the script would do instead of performing the action.  Defaults to true.',
@@ -115,19 +115,20 @@ const init = async () => {
     .option(
       '--task-enqueue-limit <number>',
       'The maximum amount of tasks to enqueue per second.',
-      200
+      '200'
     );
 
   program.parse(process.argv);
-  const isDryRun = parseBooleanArg(program.dryRun);
-  const limit = program.limit ? parseInt(program.limit) : Infinity;
-  const hasUid = program.uid.length > 0;
-  const hasEmail = program.email.length > 0;
+  const options = program.opts();
+  const isDryRun = parseBooleanArg(options.dryRun);
+  const limit = options.limit ? parseInt(options.limit) : Infinity;
+  const hasUid = options.uid.length > 0;
+  const hasEmail = options.email.length > 0;
   const hasDateRange =
-    program.startDate && program.endDate && program.endDate > program.startDate;
+    options.startDate && options.endDate && options.endDate > options.startDate;
   const reason = ReasonForDeletion.Unverified;
-  const taskLimit = program.taskEnqueueLimit
-    ? parseInt(program.taskEnqueueLimit)
+  const taskLimit = options.taskEnqueueLimit
+    ? parseInt(options.taskEnqueueLimit)
     : 200;
 
   if (!hasUid && !hasEmail && !hasDateRange) {
@@ -140,7 +141,7 @@ const init = async () => {
       'Sorry, but the script does not support uid/email arguments and a date range in the same invocation.'
     );
   }
-  if (limit <= 0) {
+  if (!(limit > 0)) {
     throw new Error('The limit should be a positive integer.');
   }
 
@@ -152,7 +153,7 @@ const init = async () => {
       'Dry run mode is on.  It is the default; use --dry-run=false when you are ready.'
     );
 
-    return dryRun(program, useSpecifiedAccounts, useDateRange, limit);
+    return dryRun(options, useSpecifiedAccounts, useDateRange, limit);
   }
 
   const config = appConfig.getProperties();
@@ -185,7 +186,7 @@ const init = async () => {
   const accountTasks = DeleteAccountTasksFactory(config, statsd);
 
   if (useSpecifiedAccounts) {
-    const { uids, emails } = limitSpecifiedAccounts(program, limit);
+    const { uids, emails } = limitSpecifiedAccounts(options, limit);
 
     for (const x of uids) {
       const acct = await fxaDb.account(x);
@@ -217,7 +218,7 @@ const init = async () => {
   }
 
   if (useDateRange) {
-    if (program.tableScan !== 'true') {
+    if (options.tableScan !== 'true') {
       console.log('Please call with --table-scan if you are sure.');
       return 0;
     }
@@ -226,8 +227,8 @@ const init = async () => {
       config,
       accountTasks,
       reason,
-      program.startDate,
-      program.endDate,
+      options.startDate,
+      options.endDate,
       taskLimit
     );
   }

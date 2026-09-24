@@ -63,7 +63,7 @@
 
 import { promisify } from 'util';
 import * as mysql from 'mysql';
-import program from 'commander';
+import { program } from 'commander';
 import { StatsD } from 'hot-shots';
 import pckg from '../../package.json';
 
@@ -605,13 +605,14 @@ export async function init() {
       '500'
     )
     .parse(process.argv);
+  const options = program.opts();
 
-  const dryRun: boolean = program.dryRun;
-  const batchSize = parseInt(program.batchSize, 10) || 1000;
-  const batchDelayMs = parseInt(program.batchDelayMs, 10) || 100;
-  const retryAttempts = parseInt(program.retryAttempts, 10) || 3;
-  const retryInitialDelayMs = parseInt(program.retryInitialDelayMs, 10) || 500;
-  const serviceFilter: string | undefined = program.service;
+  const dryRun: boolean = options.dryRun;
+  const batchSize = parseInt(options.batchSize, 10) || 1000;
+  const batchDelayMs = parseInt(options.batchDelayMs, 10) || 100;
+  const retryAttempts = parseInt(options.retryAttempts, 10) || 3;
+  const retryInitialDelayMs = parseInt(options.retryInitialDelayMs, 10) || 500;
+  const serviceFilter: string | undefined = options.service;
 
   const dbConfig = config.oauthServer.mysql;
   const exchangeCfg = config.oauthServer.exchange ?? {};
