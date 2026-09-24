@@ -1268,6 +1268,7 @@ workflows:
       - playwright-functional-tests:
           name: Firefox Functional Tests - Playwright (PR)
           deps: cache
+          parallelism: 16
           workflow: test_pull_request
           requires:
             - Approve Functional Tests (PR)
@@ -1283,6 +1284,7 @@ workflows:
       - playwright-functional-tests:
           name: Firefox Functional Tests - Playwright (auto)
           deps: cache
+          parallelism: 16
           workflow: test_pull_request
           filters:
             branches:
