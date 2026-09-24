@@ -757,8 +757,12 @@ jobs:
       nx_run:
         type: string
         default: run-many
+      # A dependency cache miss runs yarn install, which runs out of memory on small.
+      resource_class:
+        type: string
+        default: small
     executor: default-executor
-    resource_class: small
+    resource_class: << parameters.resource_class >>
     steps:
       - git-checkout
       - restore-deps:
@@ -1190,6 +1194,7 @@ workflows:
       - lint:
           name: Lint (PR)
           deps: cache
+          resource_class: medium
           filters: *pr_filters
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           post-steps:
