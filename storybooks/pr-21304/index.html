@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit a6781ca9f177c417728391add94fe02a691d193d</title>
+  <title>Storybooks for commit 3065be045e4c92cd724e75294137095888d586bd</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit a6781ca9f177c417728391add94fe02a691d193d</h1>
+  <h1>Storybooks for commit 3065be045e4c92cd724e75294137095888d586bd</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
@@ -32,26 +32,26 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/24/2026, 7:16:49 PM UTC</dd>
+    <dd>9/24/2026, 8:02:04 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(admin-panel): add Storybook and component stories</pre></dd>
     <dt>Description</dt>
     <dd><pre>## Because
 
-- The admin panel had no Storybook, so there was no way to view its components and pages without a running admin server.
+- fxa-admin-panel had no Storybook, so reviewers could not look at its components on their own.
+- Admin panel pages call `adminApi` when they render and when a user clicks an action, so they show nothing without a server.
 
 ## This pull request
 
-- Adds Storybook 8 (`@storybook/react-webpack5`) to `fxa-admin-panel`. The `.storybook/` config reuses `fxa-react/configs/storybooks`.
-- Adds a preview decorator with `MemoryRouter`, `UserContext` (AdminProd group) and `GuardContext`.
-- Adds stories for every component and page. Page stories stub `adminApi` through `src/lib/storybook.ts`.
-- Adds `mocks.tsx` files with fake data for the pages that need it.
-- Adds `storybook` (port 6011) and `build-storybook` scripts, plus an nx `build-storybook` target, so the existing deploy-storybooks workflow picks the package up.
-- Sets `dependsOn: []` on the nx `build-storybook` target instead of `^build`. The CI Storybook job no longer builds `fxa-admin-server` and the payments libraries, whose Glean tasks raced on a shared `.venv` and failed.
+- Adds Storybook 8 (react-webpack5) to fxa-admin-panel, with `storybook` and `build-storybook` scripts and an nx `build-storybook` target. The existing deploy-storybooks workflow picks up that target.
+- Adds `.storybook/main.js`, a `webpack.config.js` that reuses the fxa-react Storybook config, and `preview.tsx`. The preview wraps each story in a router, a fake admin user and the guard context.
+- Adds `stubAdminApi` and `stubAdminApiErrors` loaders in `src/lib/storybook.ts`. Page stories use them to show success and error states without a server.
+- Adds an `index.stories.tsx` for every component, plus `mocks.tsx` for Account, PageDomainBlocklist, PageEmailBlocklist, PageOAuthScopes and PageWafTokens.
+- Stubs the account-action adminApi calls in the Account, DangerZone, EmailBounces and PageAccountSearch stories, restores the real adminApi before each story, and adds the fxa-react localization decorator (review feedback).
 
 ## Issue that this pull request solves
 
-Closes: https://mozilla-hub.atlassian.net/browse/FXA-14609</pre></dd>
+Closes: FXA-14609</pre></dd>
   </dl>
 </body>
 </html>
