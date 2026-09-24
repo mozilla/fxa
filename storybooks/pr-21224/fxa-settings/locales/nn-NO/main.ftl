@@ -343,6 +343,7 @@ password-strength-inline-passwords-match = Passorda samsvarar
 
 
 promo-qr-mobile-heading = Din telefon. Dine reglar.
+promo-qr-mobile-heading-treatment-a = Hald fram der du sleppte, same kvar du er
 promo-qr-mobile-heading-treatment-b = Fanene dine og meir, klare på telefonen
 promo-qr-mobile-heading-treatment-c = Nettlesaren du stolar på, på telefonen din
 promo-qr-mobile-heading-treatment-d = Same { -brand-firefox }. Ulik skjerm.
@@ -1184,6 +1185,7 @@ inline-passwordless-sync-setup-success-banner = Logga inn på { -brand-firefox }
 inline-passwordless-sync-setup-heading = Hoppe over passordet neste gong?
 inline-passwordless-sync-setup-description = Bruk denne passnøkkelen for å logge på raskare.
 inline-passwordless-sync-setup-enable-button = Slå på passnøkkel
+inline-passwordless-sync-setup-enabling = Slår på…
 inline-passwordless-sync-setup-not-now-button = Ikkje no
 
 
@@ -1328,10 +1330,12 @@ pair2-authority-scan-qr-skip-button = Hopp over no
 
 
 pair2-authority-sync-success-heading-v2 = Eininga di er tilkopla
+pair2-authority-sync-success-description-v2 = Synkronisering er i gang. Det kan ta litt tid før dei synkroniserte dataa dine visest. Du kan gjerne halde fram med å surfe.
 pair2-authority-sync-success-sync-settings-button-v2 = Handsam synkroniseringsinnstillingar
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Vil du framleis kople til ei eining?
+pair2-authority-timeout-and-cancel-timeout-description = Det ser ut til at det oppstod eit tidsavbrot. Prøv på nytt om du framleis vil kople til mobileininga di og synkronisere { -brand-firefox }-dataa dine.
 pair2-authority-timeout-and-cancel-cancelled-heading = Annulert
 pair2-authority-timeout-and-cancel-canceled-description = Viss du ombestemmer deg eller vil kople til ei anna eining, kan du prøve på nytt.
 pair2-authority-timeout-and-cancel-try-again-button = Prøv igjen
@@ -1360,9 +1364,11 @@ pair2-supplicant-ready-to-scan-learn-more-link = Les meir
 
 
 pair2-supplicant-sync-success-heading = Eininga di er tilkopla
+pair2-supplicant-sync-success-description-v2 = Synkronisering er i gang. Det kan ta litt tid før dei synkroniserte dataa dine visest. Du kan gjerne halde fram med å surfe.
 pair2-supplicant-sync-success-sync-settings-button-v2 = Handsam synkroniseringsinnstillingar
 
 
+pair2-supplicant-timeout-and-cancel-timeout-heading = Det ser ut til at det oppstod eit tidsavbrot
 pair2-supplicant-timeout-and-cancel-timeout-description = For å kople til mobileininga di og synkronisere { -brand-firefox }-dataa dine, gå til <b>firefox.com/pair</b> på datamaskina di.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Annulert
 pair2-supplicant-timeout-and-cancel-canceled-description = For å kople til ei eining når som helst, gå til <b>firefox.com/pair</b> på datamaskina di.

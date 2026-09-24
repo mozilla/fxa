@@ -1,7 +1,7 @@
 {
-  "commit": "0c3f104856da16536a9b68480fec2653a464c17a",
-  "summary": "feat(settings): delete a passkey wrap that will not open",
-  "description": "Because:\n- A current wrap that will not open fails every sign-in, and a store cannot replace it.\n\nThis commit:\n- Returns dead_end for a wrap that will not open, and adds discardPasskeyWrap.\n- Deletes a dead-end wrap on desktop and stashes the opt-in material.\n- Caps it at one delete per run of dead ends per device, reporting a heal loop after that.\n- Makes no offer when the delete fails, since the store would return 235.\n\nCloses #FXA-13152",
+  "commit": "40fb3565b69434c64f6f2754c522512de56716c1",
+  "summary": "fix(settings): report wrap failures that need a fix",
+  "description": "Because:\n- Some wrap failures that need an engineering fix never reached Sentry.\n- A passkey with no PRF output still fetched the wrap and loaded the HPKE chunk.\n\nThis commit:\n- Reports any TypeError other than a fetch network failure, tagged with its type.\n- Reports a refused proof, a disabled server flag and a token/session uid mismatch.\n- Skips the wrap path in the hook when the passkey returned no PRF output.\n- Moves isZeroed into passkey-crypto so consumption no longer imports creation.\n- Adds a test that recovers kB through the real wrap module.\n\nCloses #FXA-13152",
   "timestamp": 1790188106000,
   "storybooks": [
     "fxa-react",

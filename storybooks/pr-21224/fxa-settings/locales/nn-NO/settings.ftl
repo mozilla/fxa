@@ -420,6 +420,8 @@ password-strength-inline-passwords-match = Passorda samsvarar
 
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Din telefon. Dine reglar.
+# Value proposition variant. Refers to resuming browsing on another device.
+promo-qr-mobile-heading-treatment-a = Hald fram der du sleppte, same kvar du er
 # Value proposition variant. "tabs" are the open pages in a browser.
 promo-qr-mobile-heading-treatment-b = Fanene dine og meir, klare på telefonen
 # Value proposition variant. Refers to using the same trusted browser on a phone.
@@ -1635,6 +1637,8 @@ inline-passwordless-sync-setup-success-banner = Logga inn på { -brand-firefox }
 inline-passwordless-sync-setup-heading = Hoppe over passordet neste gong?
 inline-passwordless-sync-setup-description = Bruk denne passnøkkelen for å logge på raskare.
 inline-passwordless-sync-setup-enable-button = Slå på passnøkkel
+# Button label while the passkey is stored.
+inline-passwordless-sync-setup-enabling = Slår på…
 inline-passwordless-sync-setup-not-now-button = Ikkje no
 
 ## InlineRecoveryKeySetup page component
@@ -1906,6 +1910,8 @@ pair2-authority-scan-qr-skip-button = Hopp over no
 ## It confirms that sync is on and links to sync settings.
 
 pair2-authority-sync-success-heading-v2 = Eininga di er tilkopla
+# "Syncing" here means copying data between the user's devices
+pair2-authority-sync-success-description-v2 = Synkronisering er i gang. Det kan ta litt tid før dei synkroniserte dataa dine visest. Du kan gjerne halde fram med å surfe.
 # Opens the browser settings that control what is synced
 pair2-authority-sync-success-sync-settings-button-v2 = Handsam synkroniseringsinnstillingar
 
@@ -1916,6 +1922,7 @@ pair2-authority-sync-success-sync-settings-button-v2 = Handsam synkroniseringsin
 
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Vil du framleis kople til ei eining?
+pair2-authority-timeout-and-cancel-timeout-description = Det ser ut til at det oppstod eit tidsavbrot. Prøv på nytt om du framleis vil kople til mobileininga di og synkronisere { -brand-firefox }-dataa dine.
 # Shown when the pairing attempt was canceled, on either device
 pair2-authority-timeout-and-cancel-cancelled-heading = Annulert
 pair2-authority-timeout-and-cancel-canceled-description = Viss du ombestemmer deg eller vil kople til ei anna eining, kan du prøve på nytt.
@@ -1982,6 +1989,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Les meir
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Eininga di er tilkopla
+# "Syncing" here means copying data between the user's devices
+pair2-supplicant-sync-success-description-v2 = Synkronisering er i gang. Det kan ta litt tid før dei synkroniserte dataa dine visest. Du kan gjerne halde fram med å surfe.
 # Opens the browser's sync settings, where the user chooses what to sync
 pair2-supplicant-sync-success-sync-settings-button-v2 = Handsam synkroniseringsinnstillingar
 
@@ -1991,6 +2000,8 @@ pair2-supplicant-sync-success-sync-settings-button-v2 = Handsam synkroniseringsi
 ## are informational and offer no on-screen action, so the copy points the user
 ## back to their computer to start again.
 
+# Shown when the pairing attempt expired before it completed. "we" is Firefox.
+pair2-supplicant-timeout-and-cancel-timeout-heading = Det ser ut til at det oppstod eit tidsavbrot
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = For å kople til mobileininga di og synkronisere { -brand-firefox }-dataa dine, gå til <b>firefox.com/pair</b> på datamaskina di.
 # Shown after the pairing attempt was canceled
