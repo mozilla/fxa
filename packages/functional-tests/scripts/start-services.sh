@@ -16,7 +16,7 @@ chmod +x node_modules/@nestjs/cli/bin/nest.js
 # email-renderer's public/locales, content-server's app/dist bundle), so
 # services would otherwise crash or hang on missing artifacts at boot. Force a
 # fresh build here so the started services have everything they need.
-NODE_OPTIONS="--max-old-space-size=7168" NODE_ENV=test npx nx run-many \
+NX_PROFILE=${CI:+artifacts/nx-profile-ft-build.json} NODE_OPTIONS="--max-old-space-size=7168" NODE_ENV=test npx nx run-many \
     -t build \
     --parallel=4 \
     -p \
@@ -27,6 +27,8 @@ NODE_OPTIONS="--max-old-space-size=7168" NODE_ENV=test npx nx run-many \
     fxa-content-server \
     fxa-profile-server \
     fxa-settings
+
+echo "[timing] build done: ${SECONDS}s"
 
 # Pre-start the pm2 daemon once. Every service's `start` script runs
 # `pm2 start`, so when several run concurrently they otherwise race to spawn
@@ -53,4 +55,5 @@ NODE_OPTIONS="--max-old-space-size=7168" NODE_ENV=test npx nx run-many \
     fxa-settings \
     | tee ~/.pm2/logs/startup.log
 
+echo "[timing] start done: ${SECONDS}s"
 npx pm2 ls
