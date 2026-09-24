@@ -2,9 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import type { LoggerService } from '@nestjs/common';
+import { StatsD } from 'hot-shots';
 import { Stripe } from 'stripe';
 
+import { StatsDService } from '@fxa/shared/metrics/statsd';
 import {
   StripeClient,
   StripeCustomer,
@@ -42,7 +45,9 @@ export class InvoiceManager {
   constructor(
     private stripeClient: StripeClient,
     private paypalClient: PayPalClient,
-    private currencyManager: CurrencyManager
+    private currencyManager: CurrencyManager,
+    @Inject(Logger) private log: LoggerService,
+    @Inject(StatsDService) private statsd: StatsD
   ) {}
 
   // Finalize an invoice, rejecting re-finalization of an invoice
@@ -312,7 +317,7 @@ export class InvoiceManager {
                 paypalCharge.transactionId,
             },
           }),
-          this.stripeClient.invoicesPay(invoice.id),
+          this.markInvoicePaidOutOfBand(invoice.id),
         ]);
 
         return await this.stripeClient.invoicesRetrieve(updatedInvoice.id);
@@ -332,6 +337,24 @@ export class InvoiceManager {
   }
 
   /**
+   * Marks an invoice paid without collecting funds, for money already received
+   * out of band (PayPal). Does not charge a payment method.
+   */
+  private async markInvoicePaidOutOfBand(invoiceId: string) {
+    try {
+      await this.stripeClient.invoicesPay(invoiceId, {
+        paid_out_of_band: true,
+      });
+    } catch (err) {
+      if (err?.message?.includes('Invoice is already paid')) {
+        // This was already marked paid, we can ignore the error.
+        return;
+      }
+      throw err;
+    }
+  }
+
+  /**
    * Finalize and process a draft invoice that has no amounted owed.
    */
   async processPayPalZeroInvoice(invoiceId: string) {
@@ -339,6 +362,38 @@ export class InvoiceManager {
     // transitions to paid automatially.
     // https://stripe.com/docs/billing/invoices/subscription#sub-invoice-lifecycle
     return this.safeFinalizeWithoutAutoAdvance(invoiceId);
+  }
+
+  /**
+   * Attempt immediate payment on a customer's open invoices, so someone who
+   * fixes their card does not wait for Stripe's automatic retry (24h+).
+   */
+  async retryPaymentForOpenInvoices(
+    customerId: string,
+    paymentMethodId: string
+  ): Promise<void> {
+    try {
+      const invoices = await this.stripeClient.invoicesList({
+        customer: customerId,
+        status: 'open',
+        collection_method: 'charge_automatically',
+      });
+
+      for (const invoice of invoices.data) {
+        await this.stripeClient.invoicesPay(invoice.id, {
+          off_session: true,
+          payment_method: paymentMethodId,
+        });
+        this.statsd.increment('invoice_retry_payment_success');
+      }
+    } catch (err) {
+      this.statsd.increment('invoice_retry_payment_failure');
+      this.log.warn('retryPaymentForOpenInvoices', {
+        message: 'Failed to retry payment for open invoices',
+        customerId,
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
   }
 
   /**
