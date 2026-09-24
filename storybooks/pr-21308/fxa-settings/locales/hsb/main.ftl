@@ -1106,6 +1106,7 @@ auth-error-228 = Registracija hesłoweho kluča njeje so poradźiła
 auth-error-233 = Zo byšće hesłowy kluč wutworił, konfigurujće zawěru wobrazowki, PIN, porstowy wotćišć abo wobličowe spóznaće na swojim graće abo wěstotnym kluču. Spytajće potom hišće raz.
 auth-error-238 = Přepruwowanje hesłoweho kluča njeje so poradźiło
 auth-error-239 = Bohužel njemóžachmy waše konto zhašeć. Prošu spytajće hišće raz abo stajće so z teamom pomocy do zwiska, jeli problem dale eksistuje.
+auth-error-240 = Konto je so znjemóžniło
 auth-error-999 = Njewočakowany zmylk
 auth-error-1001 = Přizjewjenski pospyt přetorhnjeny
 auth-error-1002 = Posedźenje jo wotběžało. Přizjewće so, zo byšće pokročował.
@@ -1198,6 +1199,10 @@ inline-passwordless-sync-setup-description = Wužiwajće tutón hesłowy kluč, 
 inline-passwordless-sync-setup-enable-button = Hesłowy kluč zmóžnić
 inline-passwordless-sync-setup-enabling = Zmóžnja so…
 inline-passwordless-sync-setup-not-now-button = Nic nětko
+inline-passwordless-sync-setup-success-alert = Hesłowy kluč je hotowy za synchronizaciske přizjewjenje
+inline-passwordless-sync-setup-error-cancelled = Wobkrućenje hesłoweho kluča so njekónči
+inline-passwordless-sync-setup-error-cancelled-description = Wobkrućće ze swojim hesłowym klučom, zo byšće hesło přichodny raz přeskočił.
+inline-passwordless-sync-setup-error-generic = Něšto je so nimokuliło, dyrbiće hišće swoje hesło přichodny raz zapodać
 
 
 inline-recovery-key-setup-create-error = Hopla! Njemóžachmy waš kontowy wobnowjenski kluč wutworić. Prošu spytajće pozdźišo hišće raz.
@@ -1383,6 +1388,13 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Zda so, zo smy čas překr
 pair2-supplicant-timeout-and-cancel-timeout-description = Zo byšće swój mobilny grat zwjazał a swoje daty { -brand-firefox } synchronizował, wopytajće <b>firefox.com/pair</b> na swojim ličaku.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Přetorhnjeny
 pair2-supplicant-timeout-and-cancel-canceled-description = Zo byšće grat kóždy čas zwjazał, wopytajće <b>firefox.com/pair</b> na swojim ličaku.
+
+
+permissions-heading = { $serviceName } chce přistup k:
+permissions-label-email = E-mejlowa adresa
+permissions-label-display-name = Pokazowane mjeno
+permissions-continue-button = Dale
+permissions-cancel-button = Přetorhnyć
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } wobkrućene
