@@ -65,6 +65,7 @@ describe('enqueue inactive account deletions script', () => {
     ).toBe('14');
     expect(getOutputValue(outputLines, 'State file')).toBe('(none)');
     expect(getOutputValue(outputLines, 'Scan window in days')).toBe('7');
+    expect(getOutputValue(outputLines, 'Threshold in days')).toBe('(none)');
     expect(getOutputValue(outputLines, 'Previous scan range')).toBe('(none)');
     expect(getOutputValue(outputLines, 'Rolled over')).toBe('false');
   });
@@ -240,6 +241,17 @@ describe('enqueue inactive account deletions script', () => {
       });
     }
   );
+
+  it('shows the threshold in dry-run output', async () => {
+    const cmd = [
+      ...command,
+      '--bq-dataset fxa-dev.inactives-testo',
+      '--threshold 3',
+    ];
+    const { stdout } = await exec(cmd.join(' '), execOptions);
+    expect(stdout).toContain('Threshold in days: 3');
+    expect(stdout).toContain('Dry run mode is on.');
+  });
 
   it.each([
     'https://fxa-state/state.json',

@@ -9,8 +9,12 @@ import os from 'os';
 import path from 'path';
 import { BigQuery } from '@google-cloud/bigquery';
 import { google } from 'googleapis';
-import { InactiveAccountEmailTasksFactory } from '@fxa/shared/cloud-tasks';
+import {
+  CloudTasksQueueStatsClientFactory,
+  InactiveAccountEmailTasksFactory,
+} from '@fxa/shared/cloud-tasks';
 
+import appConfig from '../../../config';
 import type { ScanStateStorage } from '../../../scripts/delete-inactive-accounts/lib';
 import { init } from '../../../scripts/delete-inactive-accounts/enqueue-inactive-account-deletions';
 
@@ -20,8 +24,15 @@ jest.mock('googleapis', () => ({
 }));
 jest.mock('@fxa/shared/cloud-tasks', () => ({
   ...jest.requireActual('@fxa/shared/cloud-tasks'),
+  CloudTasksQueueStatsClientFactory: jest.fn(),
   InactiveAccountEmailTasksFactory: jest.fn(),
 }));
+
+const { cloudTasks } = appConfig.getProperties();
+const firstEmailQueuePath = `projects/${cloudTasks.projectId}/locations/${cloudTasks.locationId}/queues/${cloudTasks.inactiveAccountEmails.firstEmailQueueName}`;
+const thresholdDays = 2;
+const maxDispatchesPerSecond = 10;
+const tasksPerDay = maxDispatchesPerSecond * 86400;
 
 const uid = '0123456789abcdef0123456789abcdef';
 const stateFileUrl = 'gs://fxa-state/inactive/enqueue.json';
@@ -71,6 +82,15 @@ describe('inactive-account deletion checkpoints', () => {
   let outputDirectory: string;
   let storageClient: { objects: jest.Mocked<ScanStateStorage['objects']> };
   let scheduleFirstEmail: jest.Mock;
+  let getQueue: jest.Mock;
+
+  const mockQueue = (tasksCount: number) =>
+    getQueue.mockResolvedValue([
+      {
+        stats: { tasksCount: `${tasksCount}` },
+        rateLimits: { maxDispatchesPerSecond },
+      },
+    ]);
 
   const runScript = (...args: string[]) => {
     process.argv = [
@@ -95,6 +115,11 @@ describe('inactive-account deletion checkpoints', () => {
     jest.mocked(InactiveAccountEmailTasksFactory).mockReturnValue({
       scheduleFirstEmail,
     } as unknown as ReturnType<typeof InactiveAccountEmailTasksFactory>);
+    getQueue = jest.fn();
+    mockQueue(0);
+    jest.mocked(CloudTasksQueueStatsClientFactory).mockReturnValue({
+      getQueue,
+    } as unknown as ReturnType<typeof CloudTasksQueueStatsClientFactory>);
     jest.spyOn(console, 'log').mockImplementation(() => {});
   });
 
@@ -281,6 +306,114 @@ describe('inactive-account deletion checkpoints', () => {
 
       expect(google.storage).not.toHaveBeenCalled();
       expect(storageClient.objects.get).not.toHaveBeenCalled();
+      expect(storageClient.objects.insert).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('first email queue capacity', () => {
+    const liveRun = [
+      '--dry-run',
+      'false',
+      '--enqueue-emails',
+      'true',
+      '--state-file',
+      stateFileUrl,
+      '--threshold',
+      `${thresholdDays}`,
+    ];
+
+    beforeEach(() => {
+      storageClient.objects.get.mockResolvedValue({ data: previousScanRange });
+      storageClient.objects.insert.mockResolvedValue({ data: {} });
+    });
+
+    it('does not read the queue during a dry run with a threshold', async () => {
+      await expect(
+        runScript(
+          '--state-file',
+          stateFileUrl,
+          '--threshold',
+          `${thresholdDays}`
+        )
+      ).resolves.toBe(0);
+
+      expect(CloudTasksQueueStatsClientFactory).not.toHaveBeenCalled();
+      expect(getQueue).not.toHaveBeenCalled();
+    });
+
+    it('scans without checking the queue when no threshold is supplied', async () => {
+      const bigQueryClient = mockBigQuery([{ uid }]);
+
+      await expect(
+        runScript(
+          '--dry-run',
+          'false',
+          '--enqueue-emails',
+          'true',
+          '--state-file',
+          stateFileUrl
+        )
+      ).resolves.toBe(0);
+
+      expect(CloudTasksQueueStatsClientFactory).not.toHaveBeenCalled();
+      expect(getQueue).not.toHaveBeenCalled();
+      expect(bigQueryClient.createQueryJob).toHaveBeenCalledTimes(2);
+      expect(scheduleFirstEmail).toHaveBeenCalledTimes(1);
+      expect(storageClient.objects.insert).toHaveBeenCalledTimes(1);
+    });
+
+    it('requests the configured first-email queue', async () => {
+      mockBigQuery([]);
+
+      await expect(runScript(...liveRun)).resolves.toBe(0);
+
+      expect(getQueue).toHaveBeenCalledTimes(1);
+      expect(getQueue).toHaveBeenCalledWith(
+        expect.objectContaining({ name: firstEmailQueuePath })
+      );
+    });
+
+    it('scans when estimated drain time is below the threshold', async () => {
+      mockQueue(thresholdDays * tasksPerDay - 1);
+      const bigQueryClient = mockBigQuery([{ uid }]);
+
+      await expect(runScript(...liveRun)).resolves.toBe(0);
+
+      expect(bigQueryClient.createQueryJob).toHaveBeenCalledTimes(2);
+      expect(scheduleFirstEmail).toHaveBeenCalledTimes(1);
+      expect(storageClient.objects.insert).toHaveBeenCalledTimes(1);
+    });
+
+    it.each([
+      ['equals', thresholdDays * tasksPerDay],
+      ['exceeds', thresholdDays * tasksPerDay + 1],
+    ])(
+      'skips when estimated drain time %s the threshold',
+      async (_, tasksCount) => {
+        mockQueue(tasksCount);
+        mockBigQuery([{ uid }]);
+
+        await expect(runScript(...liveRun)).resolves.toBe(0);
+
+        expect(console.log).toHaveBeenCalledWith(
+          `Skipping the scan.  The first email queue needs ${
+            (tasksCount / tasksPerDay).toFixed(2)
+          } days to drain; the threshold is ${thresholdDays} days.`
+        );
+        expect(BigQuery).not.toHaveBeenCalled();
+        expect(scheduleFirstEmail).not.toHaveBeenCalled();
+        expect(storageClient.objects.insert).not.toHaveBeenCalled();
+      }
+    );
+
+    it('does not scan when the queue lookup fails', async () => {
+      getQueue.mockRejectedValue(new Error('PERMISSION_DENIED'));
+      mockBigQuery([{ uid }]);
+
+      await expect(runScript(...liveRun)).rejects.toThrow('PERMISSION_DENIED');
+
+      expect(BigQuery).not.toHaveBeenCalled();
+      expect(scheduleFirstEmail).not.toHaveBeenCalled();
       expect(storageClient.objects.insert).not.toHaveBeenCalled();
     });
   });
