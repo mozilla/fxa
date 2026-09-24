@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit db4a634d2f7e8c756e1959d46f243918174434d9</title>
+  <title>Storybooks for commit 6386537bd28fcd896d2902a680786bf95dafb325</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,30 +23,30 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit db4a634d2f7e8c756e1959d46f243918174434d9</h1>
+  <h1>Storybooks for commit 6386537bd28fcd896d2902a680786bf95dafb325</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/24/2026, 7:03:06 PM UTC</dd>
+    <dd>9/24/2026, 7:36:15 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(settings): stop code input required error on blur</pre></dd>
     <dt>Description</dt>
     <dd><pre>## Because
 
-- The code input gets focus when the page loads. If the user clicks away before they type, the &quot;This field is required&quot; tooltip shows before they submit.
-- The cause is `mode: &#039;onBlur&#039;` together with `required: true` in `FormVerifyCode`. The form runs validation on blur.
+- The shared code-entry form (`FormVerifyCode`) auto-focuses its input. If you tab away from the empty input, a &quot;required&quot; error shows before you submit anything.
+- The bug affects these pages: sign-in confirmation, unblock, recovery code, passwordless code, sign-up confirmation and pairing TOTP.
 
 ## This pull request
 
-- Removes `mode: &#039;onBlur&#039;` from the `useForm` call in `FormVerifyCode`. The form now uses the default `onSubmit` mode.
-- Keeps `required: true`. The submit button stays disabled until the code is valid, so an empty submit is not possible.
-- Adds a unit test that blurs the empty input and checks that no &quot;required&quot; error shows. The test fails before the fix and passes after it.
+- Removes `mode: &#039;onBlur&#039;` from `useForm` in `FormVerifyCode`. react-hook-form now uses its default onSubmit mode.
+- Adds a unit test that tabs away from the empty input and checks that &quot;This field is required&quot; does not show.
+- Gives the negative `findByText` in the new test a 100 ms timeout. The 1000 ms default added about 1 s to the suite.
 
 ## Issue that this pull request solves
 
-Closes: https://mozilla-hub.atlassian.net/browse/FXA-14612</pre></dd>
+Closes: FXA-14612</pre></dd>
   </dl>
 </body>
 </html>
