@@ -1,8 +1,8 @@
 {
-  "commit": "f2c4b4ed970181fa4ba84df54358a1059943de96",
-  "summary": "feat(settings): add the PairConnectHint supplicant page",
-  "description": "Because:\n\n* iOS users who scan the v2 pairing QR with the system camera land on\n  /pair/unsupported in whatever browser opened the link.\n* FXA-14595 adds a \"continue in Firefox\" choice there, and needs a mobile\n  screen that tells a user who already has Firefox how to scan the code\n  again from inside the app.\n\nThis commit:\n\n* Adds Pair2/Supplicant/PairConnectHint with the Firefox wordmark, the\n  phone illustration, a two-step card and a \"Learn more\" link.\n* Reuses MobileDevicePairingImage; the Figma export is the same asset.\n* Tags the link with the dtm_mobile_connect_hint_learn_more Glean click id.\n* Registers a lazy import and the /pair/supplicant/connect_hint route.\n* Adds Fluent strings, a Default story and unit tests.\n\nCloses #FXA-14603",
-  "timestamp": 1790289302000,
+  "commit": "bde1002b3f365ddee9cde0b9a413ea681ec91727",
+  "summary": "fix(settings): point PairConnectHint help link to the no-QR article",
+  "description": "Because:\n\n* \"Learn more\" on the connect hint page should open the article about\n  connecting a device without a QR code, not the generic sync setup page.\n\nThis commit:\n\n* Adds PAIR_WITHOUT_QR_SUPPORT_URL, the in-product SUMO link with the\n  %VERSION%, %OS% and %LOCALE% placeholders.\n* Points the PairConnectHint link and its test at it.\n\nCloses #FXA-14603",
+  "timestamp": 1790292394000,
   "storybooks": [
     "fxa-settings"
   ],
