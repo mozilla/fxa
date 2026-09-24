@@ -8,6 +8,7 @@
     "build-ts-server": "tsc -p server/tsconfig.json && tsc-alias",
     "build-css": "npx tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/tailwind.out.css --postcss",
     "build-react": "NODE_ENV=production PUBLIC_URL=/ webpack --config config/webpack.config.js",
+    "build-storybook": "NODE_ENV=production yarn build-css && storybook build",
     "clean": "rimraf dist",
     "compile": "tsc --noEmit",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'",
@@ -15,6 +16,7 @@
     "restart": "pm2 restart pm2.config.js",
     "start": "pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
+    "storybook": "yarn build-css && storybook dev -p 6011 --no-version-updates",
     "delete": "pm2 delete pm2.config.js",
     "test": "yarn test-unit",
     "test-frontend": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-admin-panel-frontend-jest-unit-results.xml jest --coverage --verbose --ci --reporters=default --reporters=jest-junit -t '^(?!.*#integration)'",
@@ -53,6 +55,10 @@
   },
   "devDependencies": {
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
+    "@storybook/addon-essentials": "^8.0.0",
+    "@storybook/addon-links": "^8.0.0",
+    "@storybook/react": "^8.0.0",
+    "@storybook/react-webpack5": "^8.0.0",
     "@svgr/webpack": "^8.1.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^5.16.5",
@@ -90,6 +96,7 @@
     "postcss-import": "^16.1.0",
     "prettier": "^3.5.3",
     "react-refresh": "^0.16.0",
+    "storybook": "^8.0.0",
     "style-loader": "^4.0.0",
     "supertest": "^7.0.0",
     "tailwindcss": "3.4.3",
@@ -122,6 +129,9 @@
           "^build",
           "build-css"
         ]
+      },
+      "build-storybook": {
+        "dependsOn": []
       },
       "build-ts-client": {
         "dependsOn": [
