@@ -1,8 +1,8 @@
 {
-  "commit": "cd05b9700264d6899f07aa65e39d830f00fb1244",
-  "summary": "Merge pull request #21306 from mozilla/FXA-14593-blender-dismiss-critical",
-  "description": "chore(blender): let BLEnder dismiss unaffected critical alerts",
-  "timestamp": 1790283731000,
+  "commit": "b9478e1434ccad82b20b85aed3bdc45868b2fa36",
+  "summary": "Merge pull request #21305 from mozilla/fxa-14612",
+  "description": "fix(settings): stop code input required error on blur",
+  "timestamp": 1790285939000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
