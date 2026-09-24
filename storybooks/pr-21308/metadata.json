@@ -1,8 +1,8 @@
 {
-  "commit": "e7377d35123b557035cbf0837c2768674844b389",
+  "commit": "0f61f76d71974816d81bcc0e9090641723bb522a",
   "summary": "test(ci): bench touch settings",
   "description": "Changes a build input of settings so CI measures a cache-miss build.",
-  "timestamp": 1790290744000,
+  "timestamp": 1790291791000,
   "storybooks": [
     "fxa-settings"
   ],
