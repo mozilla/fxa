@@ -1,8 +1,8 @@
 {
-  "commit": "e413fd3f3b9e1e422cef7ecd477e0e9ac5616ea7",
-  "summary": "Merge pull request #21276 from mozilla/fxa-11635",
-  "description": "refactor(auth): remove customs server and legacy customs client",
-  "timestamp": 1790267733000,
+  "commit": "7199a94e44f23525283b93aa91969381201b55cf",
+  "summary": "Merge pull request #21299 from mozilla/fxa-14579",
+  "description": "feat(admin-panel): collapse Authorized Browser Services by default",
+  "timestamp": 1790271118000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
