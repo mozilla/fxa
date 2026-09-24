@@ -73,7 +73,7 @@
     "@types/ejs": "^3.0.6",
     "@types/mjml": "^4.7.4",
     "ajv": "^8.20.0",
-    "commander": "2.18.0",
+    "commander": "^13.1.0",
     "convict": "^6.2.5",
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",

@@ -15,7 +15,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const program = require('commander');
+const { program } = require('commander');
 const pbkdf2 = require('../lib/crypto/pbkdf2');
 const hkdf = require('../lib/crypto/hkdf');
 
@@ -27,8 +27,9 @@ program
     'Input filename from which to read input if not specified on the command line'
   )
   .parse(process.argv);
+const options = program.opts();
 
-if (!program.input) {
+if (!options.input) {
   console.error('input file must be specified');
   process.exit(1);
 }
@@ -147,7 +148,7 @@ class CheckUsers {
 
       // Parse the input file CSV style
       return input.split(/\n/).map((s) => {
-        const delimiter = program.delimiter || ':';
+        const delimiter = options.delimiter || ':';
         const email = s.substring(0, s.indexOf(delimiter));
         const password = s.substring(s.indexOf(delimiter) + 1, s.length);
         return new User(email, password, this.db);
@@ -199,7 +200,7 @@ class CheckUsers {
         )},${sanitizeValue(s.isPrimaryEmailVerified)}`;
       })
     );
-    const outputFile = program.output || 'stats.csv';
+    const outputFile = options.output || 'stats.csv';
     fs.writeFileSync(path.resolve(outputFile), output.join('\r\n'));
 
     console.log(`${stats.length} User Stats saved to ${outputFile}`);
@@ -208,7 +209,7 @@ class CheckUsers {
   }
 }
 
-const checkUsers = new CheckUsers(program.input);
+const checkUsers = new CheckUsers(options.input);
 
 async function main() {
   await checkUsers.load();

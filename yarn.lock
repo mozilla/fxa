@@ -25288,24 +25288,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:2.18.0":
-  version: 2.18.0
-  resolution: "commander@npm:2.18.0"
-  checksum: 10c0/34fe2c3bf52c697ba79e690f26c38163d3c68bbb60cdcc9376c3f686e12276f158113a8d15e569f9b7ea974b52963bd2fdcbdd98d659caccca14d9495ba01a6a
-  languageName: node
-  linkType: hard
-
 "commander@npm:4.1.1, commander@npm:^4.0.0, commander@npm:^4.0.1":
   version: 4.1.1
   resolution: "commander@npm:4.1.1"
   checksum: 10c0/84a76c08fe6cc08c9c93f62ac573d2907d8e79138999312c92d4155bc2325d487d64d13f669b2000c9f8caf70493c1be2dac74fec3c51d5a04f8bc3ae1830bab
-  languageName: node
-  linkType: hard
-
-"commander@npm:9.3.0":
-  version: 9.3.0
-  resolution: "commander@npm:9.3.0"
-  checksum: 10c0/4cf2f3a75358e620c3bfb515c5306b3be083463c752504788266a7ff0ed862c0fe3bf7f700154b50546c5c3eca0195f9ca99020184ff6f6128ae7ea87f24b5ba
   languageName: node
   linkType: hard
 
@@ -31283,6 +31269,7 @@ __metadata:
     "@types/supertest": "npm:^2.0.11"
     "@types/yargs": "npm:^17.0.0"
     chance: "npm:^1.1.8"
+    commander: "npm:^13.1.0"
     convict: "npm:^6.2.5"
     convict-format-with-moment: "npm:^6.2.0"
     convict-format-with-validator: "npm:^6.2.0"
@@ -31358,7 +31345,7 @@ __metadata:
     async-retry: "npm:^1.3.3"
     babel-loader: "npm:^9.1.3"
     binary-split: "npm:1.0.5"
-    commander: "npm:2.18.0"
+    commander: "npm:^13.1.0"
     convict: "npm:^6.2.5"
     convict-format-with-moment: "npm:^6.2.0"
     convict-format-with-validator: "npm:^6.2.0"
@@ -31676,7 +31663,7 @@ __metadata:
     "@hapi/inert": "npm:7.1.1"
     "@types/sharp": "npm:^0"
     "@types/sinon": "npm:^17.0.0"
-    commander: "npm:9.3.0"
+    commander: "npm:^13.1.0"
     compute-cluster: "npm:0.0.9"
     convict: "npm:^6.2.5"
     convict-format-with-moment: "npm:^6.2.0"

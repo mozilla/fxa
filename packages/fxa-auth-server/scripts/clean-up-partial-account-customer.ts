@@ -57,7 +57,7 @@ const init = async () => {
         'queue should be configured with a rate limit below the Stripe API rate limit.\n' +
         'The Stripe rate limit is 100/sec; 50/sec for cloud tasks seems reasonble.  YMMV.'
     )
-    .option('--limit', 'The number of delete tasks to enqueue.')
+    .option('--limit <number>', 'The number of delete tasks to enqueue.')
     .option(
       '--dry-run [true|false]',
       'Print what the script would do instead of performing the action.  Defaults to true.',
@@ -65,11 +65,12 @@ const init = async () => {
     );
 
   program.parse(process.argv);
-  const isDryRun = parseBooleanArg(program.dryRun);
-  const limit = program.limit ? parseInt(program.limit) : Infinity;
+  const options = program.opts();
+  const isDryRun = parseBooleanArg(options.dryRun);
+  const limit = options.limit ? parseInt(options.limit) : Infinity;
   const reason = ReasonForDeletion.Cleanup;
 
-  if (limit <= 0) {
+  if (!(limit > 0)) {
     throw new Error('The limit should be a positive integer.');
   }
 

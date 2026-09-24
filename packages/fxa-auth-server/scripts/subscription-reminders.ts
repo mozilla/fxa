@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import program from 'commander';
+import { program } from 'commander';
 import { StatsD } from 'hot-shots';
 import Container from 'typedi';
 import { promisify } from 'util';
@@ -76,6 +76,7 @@ async function init() {
       false
     )
     .parse(process.argv);
+  const options = program.opts();
 
   const { log, database, senders, stripeHelper, config } =
     await setupProcessingTaskObjects('subscription-reminders');
@@ -105,22 +106,22 @@ async function init() {
 
   const subscriptionReminders = new SubscriptionReminders(
     log,
-    parseInt(program.planLength),
-    parseInt(program.monthlyRenewalReminderLength),
+    parseInt(options.planLength),
+    parseInt(options.monthlyRenewalReminderLength),
     {
-      enabled: parseBooleanArg(program.enableEndingReminders),
+      enabled: parseBooleanArg(options.enableEndingReminders),
       paymentsNextUrl: config.smtp.subscriptionSettingsUrl,
-      dailyReminderDays: parseInt(program.endingReminderDailyLength),
-      monthlyReminderDays: parseInt(program.endingReminderMonthlyLength),
-      yearlyReminderDays: parseInt(program.endingReminderYearlyLength),
-      freeTrialReminderDays: parseInt(program.freeTrialEndingReminderLength),
+      dailyReminderDays: parseInt(options.endingReminderDailyLength),
+      monthlyReminderDays: parseInt(options.endingReminderMonthlyLength),
+      yearlyReminderDays: parseInt(options.endingReminderYearlyLength),
+      freeTrialReminderDays: parseInt(options.freeTrialEndingReminderLength),
       freeTrialEndRemindersEnabled: parseBooleanArg(
-        program.enableFreeTrialEndingReminders
+        options.enableFreeTrialEndingReminders
       ),
     },
     {
-      monthlyReminderDays: parseInt(program.monthlyRenewalReminderLength),
-      yearlyReminderDays: parseInt(program.yearlyRenewalReminderLength),
+      monthlyReminderDays: parseInt(options.monthlyRenewalReminderLength),
+      yearlyReminderDays: parseInt(options.yearlyRenewalReminderLength),
     },
     database,
     senders.email,

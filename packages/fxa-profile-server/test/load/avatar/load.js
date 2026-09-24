@@ -6,7 +6,8 @@
 
 /*jshint -W116*/ var util = require('util');
 var crypto = require('crypto');
-var options = require('commander');
+var { program } = require('commander');
+var options;
 var Avatar = require('./avatar');
 
 var transactions = {},
@@ -93,7 +94,7 @@ function startUpload() {
 }
 
 (function main() {
-  options
+  program
     .usage('[options]')
     .option(
       '-c, --concurrent <n>',
@@ -119,6 +120,7 @@ function startUpload() {
     )
     .option('-v, --verbose', 'show detailed logs for every upload/download')
     .parse(process.argv);
+  options = program.opts();
 
   if (!options.bearer) {
     log('Missing option "--bearer". Required option!');
