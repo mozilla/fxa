@@ -1,0 +1,13 @@
+{
+  "commit": "a6781ca9f177c417728391add94fe02a691d193d",
+  "summary": "feat(admin-panel): add Storybook and component stories",
+  "description": "## Because\n\n- The admin panel had no Storybook, so there was no way to view its components and pages without a running admin server.\n\n## This pull request\n\n- Adds Storybook 8 (`@storybook/react-webpack5`) to `fxa-admin-panel`. The `.storybook/` config reuses `fxa-react/configs/storybooks`.\n- Adds a preview decorator with `MemoryRouter`, `UserContext` (AdminProd group) and `GuardContext`.\n- Adds stories for every component and page. Page stories stub `adminApi` through `src/lib/storybook.ts`.\n- Adds `mocks.tsx` files with fake data for the pages that need it.\n- Adds `storybook` (port 6011) and `build-storybook` scripts, plus an nx `build-storybook` target, so the existing deploy-storybooks workflow picks the package up.\n- Sets `dependsOn: []` on the nx `build-storybook` target instead of `^build`. The CI Storybook job no longer builds `fxa-admin-server` and the payments libraries, whose Glean tasks raced on a shared `.venv` and failed.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-14609",
+  "timestamp": 1790277409000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
