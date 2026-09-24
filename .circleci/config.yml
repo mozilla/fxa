@@ -855,8 +855,14 @@ jobs:
         type: string
       workflow:
         type: string
+      # Splits the test run across nodes. Only suites that read CIRCLE_NODE_*
+      # (fxa-auth-server's test-ci.sh) shard; others run whole on every node.
+      parallelism:
+        type: integer
+        default: 1
     executor: fullstack-executor
     resource_class: << parameters.resource_class >>
+    parallelism: << parameters.parallelism >>
     steps:
       - git-checkout
       - restore-deps:
@@ -1229,6 +1235,7 @@ workflows:
       - integration-test:
           name: Integration Test - Servers - Auth (PR)
           deps: cache
+          parallelism: 3
           filters: *pr_filters
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:server:auth'
@@ -1239,6 +1246,7 @@ workflows:
       - integration-test:
           name: Integration Test - Servers - Auth Scripts (PR)
           deps: cache
+          parallelism: 2
           filters: *pr_filters
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:server:auth'
