@@ -1,0 +1,10 @@
+{
+  "commit": "f2c4b4ed970181fa4ba84df54358a1059943de96",
+  "summary": "feat(settings): add the PairConnectHint supplicant page",
+  "description": "Because:\n\n* iOS users who scan the v2 pairing QR with the system camera land on\n  /pair/unsupported in whatever browser opened the link.\n* FXA-14595 adds a \"continue in Firefox\" choice there, and needs a mobile\n  screen that tells a user who already has Firefox how to scan the code\n  again from inside the app.\n\nThis commit:\n\n* Adds Pair2/Supplicant/PairConnectHint with the Firefox wordmark, the\n  phone illustration, a two-step card and a \"Learn more\" link.\n* Reuses MobileDevicePairingImage; the Figma export is the same asset.\n* Tags the link with the dtm_mobile_connect_hint_learn_more Glean click id.\n* Registers a lazy import and the /pair/supplicant/connect_hint route.\n* Adds Fluent strings, a Default story and unit tests.\n\nCloses #FXA-14603",
+  "timestamp": 1790289302000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

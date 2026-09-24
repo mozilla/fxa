@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit f2c4b4ed970181fa4ba84df54358a1059943de96</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit f2c4b4ed970181fa4ba84df54358a1059943de96</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/24/2026, 10:35:02 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(settings): add the PairConnectHint supplicant page</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+* iOS users who scan the v2 pairing QR with the system camera land on
+  /pair/unsupported in whatever browser opened the link.
+* FXA-14595 adds a &quot;continue in Firefox&quot; choice there, and needs a mobile
+  screen that tells a user who already has Firefox how to scan the code
+  again from inside the app.
+
+This commit:
+
+* Adds Pair2/Supplicant/PairConnectHint with the Firefox wordmark, the
+  phone illustration, a two-step card and a &quot;Learn more&quot; link.
+* Reuses MobileDevicePairingImage; the Figma export is the same asset.
+* Tags the link with the dtm_mobile_connect_hint_learn_more Glean click id.
+* Registers a lazy import and the /pair/supplicant/connect_hint route.
+* Adds Fluent strings, a Default story and unit tests.
+
+Closes #FXA-14603</pre></dd>
+  </dl>
+</body>
+</html>
