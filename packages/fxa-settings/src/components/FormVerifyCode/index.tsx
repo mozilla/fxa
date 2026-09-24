@@ -103,7 +103,6 @@ const FormVerifyCode = ({
     formState: { errors },
     setValue,
   } = useForm<FormData>({
-    mode: 'onBlur',
     criteriaMode: 'all',
     defaultValues: {
       code: '',
