@@ -19,7 +19,7 @@ const base = {
     '^.+\\.[tj]sx?$': ['ts-jest', { tsconfig: { isolatedModules: true } }],
   },
   transformIgnorePatterns: [
-    '/node_modules/(?!(@fxa|fxa-shared|p-queue|p-timeout|eventemitter3)/)',
+    '/node_modules/(?!(@fxa|fxa-shared|p-queue|p-timeout|eventemitter3|uuid)/)',
   ],
   clearMocks: true,
   workerIdleMemoryLimit: '512MB',
