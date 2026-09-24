@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import dedent from 'dedent';
+import swaggerText from './shared/swagger-text';
 import TAGS from './swagger-tags';
 
 /** Shared tag configuration applied to every passkey endpoint. */
@@ -19,7 +19,7 @@ const PASSKEY_REGISTRATION_START_POST = {
   ...TAGS_PASSKEYS,
   description: '/passkey/registration/start',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with MFA JWT (scope: mfa:passkey)
 
       Initiates the WebAuthn registration ceremony by generating a challenge and
@@ -43,7 +43,7 @@ const PASSKEY_REGISTRATION_FINISH_POST = {
   ...TAGS_PASSKEYS,
   description: '/passkey/registration/finish',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with MFA JWT (scope: mfa:passkey)
 
       Completes the WebAuthn registration ceremony by verifying the attestation
@@ -68,7 +68,7 @@ const PASSKEY_AUTHENTICATION_START_POST = {
   ...TAGS_PASSKEYS,
   description: '/passkey/authentication/start',
   notes: [
-    dedent`
+    swaggerText`
       🔓 Unauthenticated
 
       Initiates the WebAuthn authentication ceremony. Returns
@@ -93,7 +93,7 @@ const PASSKEY_AUTHENTICATION_FINISH_POST = {
   ...TAGS_PASSKEYS,
   description: '/passkey/authentication/finish',
   notes: [
-    dedent`
+    swaggerText`
       🔓 Unauthenticated
 
       Completes the WebAuthn authentication ceremony. On success, returns an
@@ -120,7 +120,7 @@ const PASSKEY_VERIFICATION_START_POST = {
   ...TAGS_PASSKEYS,
   description: '/passkey/verification/start',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token (verified)
 
       Initiates an MFA step-up for the caller's session. Returns
@@ -142,7 +142,7 @@ const PASSKEY_VERIFICATION_FINISH_POST = {
   ...TAGS_PASSKEYS,
   description: '/passkey/verification/finish',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token (verified)
 
       Completes the MFA step-up ceremony. No session token is created: the
@@ -173,7 +173,7 @@ const PASSKEYS_API_DOCS = {
     ...TAGS_PASSKEYS,
     description: '/passkeys',
     notes: [
-      dedent`
+      swaggerText`
         🔒 Authenticated with session token (verified)
 
         Returns the list of passkeys registered for the authenticated user.
@@ -192,7 +192,7 @@ const PASSKEYS_API_DOCS = {
     ...TAGS_PASSKEYS,
     description: '/passkey/{credentialId}',
     notes: [
-      dedent`
+      swaggerText`
         🔒 Authenticated with MFA JWT (scope: mfa:passkey)
 
         Deletes the passkey identified by \`credentialId\` (base64url-encoded).
@@ -211,7 +211,7 @@ const PASSKEYS_API_DOCS = {
     ...TAGS_PASSKEYS,
     description: '/passkey/{credentialId}',
     notes: [
-      dedent`
+      swaggerText`
         🔒 Authenticated with MFA JWT (scope: mfa:passkey)
 
         Renames the passkey identified by \`credentialId\` (base64url-encoded).
@@ -240,7 +240,7 @@ const PASSKEYS_API_DOCS = {
     ...TAGS_PASSKEYS,
     description: '/passkey/wraps',
     notes: [
-      dedent`
+      swaggerText`
         🔒 Authenticated with MFA JWT (scope: mfa:passkey)
 
         Stores the wrap envelope for one passkey. The envelope is produced entirely
@@ -280,7 +280,7 @@ const PASSKEYS_API_DOCS = {
     ...TAGS_PASSKEYS,
     description: '/passkey/wraps/{credentialId}',
     notes: [
-      dedent`
+      swaggerText`
         🔒 Authenticated with MFA JWT (scope: mfa:passkey)
 
         Returns the wrap envelope for one passkey, as stored. Unsealing happens
@@ -322,7 +322,7 @@ const PASSKEYS_API_DOCS = {
     ...TAGS_PASSKEYS,
     description: '/passkey/wraps/{credentialId}',
     notes: [
-      dedent`
+      swaggerText`
         🔒 Authenticated with MFA JWT (scope: mfa:passkey)
 
         Deletes the wrap envelope for one passkey. The passkey itself stays

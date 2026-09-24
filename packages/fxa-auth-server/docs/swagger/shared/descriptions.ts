@@ -2,24 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import dedent from 'dedent';
+import swaggerText from './swagger-text';
 
 const DESCRIPTIONS = {
   accessToken:
     "An OAuth access token that the client can use for authorized requests to service providers to access data associated with the user's account.",
   accessType:
     'If specified, a value of `offline` will cause the connecting client to be granted a refresh token alongside its access token.',
-  acr:
-    'The authentication context class reference reached by the session that produced this grant, as a string of the form `AAL2`. Reflects the assurance level actually achieved, which may be higher than the level requested.',
+  acr: 'The authentication context class reference reached by the session that produced this grant, as a string of the form `AAL2`. Reflects the assurance level actually achieved, which may be higher than the level requested.',
   acrValues:
     'A space-separated list of ACR values specifying acceptable levels of user authentication that the token should have a claim for. Specifying `AAL2` will require the token to have an authentication assurance level >= 2, which ensures the user has completed a second factor before the requested grant is authorized. `AAL2` is the only value recognized; any other value in the list is ignored.',
-  amr:
-    'The authentication methods used for this grant, as an array of method classes (for example `["pwd","otp"]`). Method classes are coarse: TOTP, backup authentication codes, and recovery-phone codes all report as `otp`.',
+  amr: 'The authentication methods used for this grant, as an array of method classes (for example `["pwd","otp"]`). Method classes are coarse: TOTP, backup authentication codes, and recovery-phone codes all report as `otp`.',
   active: 'Boolean indicator of whether the presented token is active.',
   authTime:
-    'The time of the session\'s most recent authentication event, in seconds since the epoch. Note that `iat` and `exp` on this endpoint are in milliseconds; the difference is intentional and retained for backwards compatibility.',
+    "The time of the session's most recent authentication event, in seconds since the epoch. Note that `iat` and `exp` on this endpoint are in milliseconds; the difference is intentional and retained for backwards compatibility.",
   maxAge:
-    'The maximum permissible elapsed time in seconds since the user last authenticated. If the session is older, a fresh second-factor challenge (step-up authentication) is required before the grant is authorized. Freshness is measured against the session\'s most recent authentication event, and is evaluated with a five-second grace period so that a just-completed challenge satisfies `max_age=0`.',
+    "The maximum permissible elapsed time in seconds since the user last authenticated. If the session is older, a fresh second-factor challenge (step-up authentication) is required before the grant is authorized. Freshness is measured against the session's most recent authentication event, and is evaluated with a five-second grace period so that a just-completed challenge satisfies `max_age=0`.",
   activePrice:
     'Whether the price can be used for new purchases. Defaults to true.',
   amount:
@@ -90,7 +88,7 @@ const DESCRIPTIONS = {
   expiresIn: 'The number of seconds until the access token will expire.',
   failureCode:
     'Reason for the failure (e.g. insufficient funds, closed, frozen).',
-  failureMessage: dedent`
+  failureMessage: swaggerText`
     Message from Stripe for the client making the request to further explain the reason for top-up failure if available.
 
     For more information about failure codes and messages from Stripe to the client, see [Stripe docs](https://stripe.com/docs/api/errors). It is suggested that the [error type](https://stripe.com/docs/api/errors#errors-message) of \`type: card_error\` is shown directly to the customer.
@@ -98,7 +96,7 @@ const DESCRIPTIONS = {
   filterIdleDevicesTimestamp:
     'Filter device list to only show devices active since UTC timestamp.',
   'fxa-lastUsedAt': ' Integer time when this token is last used.',
-  grantType: dedent`
+  grantType: swaggerText`
     The type of grant flow being used. If not specified, it will default to fxa-credentials unless a code parameter is provided, in which case it will default to authorization_code. The value of this parameter determines which other parameters will be expected in the request body, as follows:
     - When \`grant_type=authorization_code\`:
       - \`code\`:  *validators.authorizationCode, required* The authorization code previously obtained through a redirect-based OAuth flow.
@@ -112,7 +110,7 @@ const DESCRIPTIONS = {
       - \`access_type\`: *string, valid(online, offline), optional* If specified, a value of offline will cause the client to be granted a refresh token alongside its access token.
     -In addition, the request must be authenticated with a sessionToken.
   `,
-  grantTypeOauth: dedent`
+  grantTypeOauth: swaggerText`
     - If \`authorization_code\`:
       - \`client_id\`: The id returned from client registration.
       - \`client_secret\`: The secret returned from client registration. Forbidden for public clients, required otherwise.
@@ -215,13 +213,13 @@ const DESCRIPTIONS = {
     'The URI at which the connecting client expects to receive the authorization code and redirect to after a successful oauth. If supplied, this must match the URL value provided during OAuth client registration.',
   refreshToken:
     'A token that can be used to grant a new access token when the current one expires, via `grant_type=refresh_token` on this endpoint.',
-  refreshTokenOauth: dedent`
+  refreshTokenOauth: swaggerText`
     A refresh token to fetch a new access token when this one expires. Only present if:
 
     - \`grant_type=authorization_code\` and the original authorization request included \`access_type=offline\`.
     - \`grant_type=fxa-credentials\` and the request included \`access_type=offline\`.
   `,
-  excludeDau: dedent`
+  excludeDau: swaggerText`
     When true, tag this access-token creation so it is excluded from the daily
     active users (DAU) signal. The \`access_token.created\` Glean event still fires,
     with its \`exclude_dau\` field set to true. Use this when the access token does
@@ -237,7 +235,7 @@ const DESCRIPTIONS = {
     ' Optional if `response_type=token`, forbidden if `response_type=code`.',
   responseType:
     "Determines the format of the response. Since we only support the authorization-code grant flow, the only permitted value is 'code'.",
-  responseTypeOauth: dedent`
+  responseTypeOauth: swaggerText`
     If supplied, must be either code or token. code is the default. token means the implicit grant is desired, and requires that the client have special permission to do so.
 
     - Note: new implementations should not use \`response_type=token\`; instead use \`grant_type=fxa-credentials\` at the [token][] endpoint.
@@ -246,7 +244,7 @@ const DESCRIPTIONS = {
     'Opaque URL-encoded string to be included in the verification link as a query parameter.',
   scope:
     'A space-separated list of scope values that the user has authorized, or is held by the granted access token that the connecting client will be granted. The requested scope will be provided by the connecting client as part of its authorization request, but may be pruned by the user in a confirmation dialog before being sent to this endpoint.',
-  sendSigninVerificationEmail: dedent`
+  sendSigninVerificationEmail: swaggerText`
     Whether the server should send the sign-in verification code email. Defaults to
     \`true\` when omitted, so clients integrating with this API directly keep receiving
     it — including those that render their own verification UI, which this send exists
@@ -295,7 +293,7 @@ const DESCRIPTIONS = {
   uid: 'The user id.',
   unblockCode: 'Alphanumeric code used to unblock certain rate-limitings.',
   user: 'The uid of the respective user.',
-  verificationMethod: dedent`
+  verificationMethod: swaggerText`
     If this param is specified, it forces the login to be verified using the specified method.
     Currently supported methods:
     - \`email\`: Sends an email with a confirmation link.

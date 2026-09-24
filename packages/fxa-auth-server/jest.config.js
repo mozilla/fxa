@@ -93,6 +93,7 @@ module.exports = {
         '<rootDir>/lib/**/*.spec.ts',
         '<rootDir>/config/**/*.spec.ts',
         '<rootDir>/scripts/**/*.spec.ts',
+        '<rootDir>/docs/**/*.spec.ts',
       ],
       testPathIgnorePatterns: ['/node_modules/', '\\.in\\.spec\\.ts$'],
       setupFiles: [
