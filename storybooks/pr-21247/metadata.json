@@ -1,0 +1,10 @@
+{
+  "commit": "cb0f487207341dda1bcec0d3e02ab6f8bc37a153",
+  "summary": "Merge remote-tracking branch 'origin/main' into HEAD",
+  "description": "# Conflicts:\n#\tpackages/fxa-content-server/server/lib/routes/get-oauth-success.js\n#\tpackages/fxa-settings/src/lib/integrations/integration-factory-flags.ts",
+  "timestamp": 1790212730000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
