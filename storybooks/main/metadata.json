@@ -1,8 +1,8 @@
 {
-  "commit": "f9612f01bbba138b6dd3e79e292679660ead1817",
-  "summary": "Merge pull request #21301 from mozilla/fxa-14591",
-  "description": "fix(settings): send signed-out v2 desktop to sign-in before pairing QR",
-  "timestamp": 1790267672000,
+  "commit": "e413fd3f3b9e1e422cef7ecd477e0e9ac5616ea7",
+  "summary": "Merge pull request #21276 from mozilla/fxa-11635",
+  "description": "refactor(auth): remove customs server and legacy customs client",
+  "timestamp": 1790267733000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
