@@ -28,6 +28,7 @@ import { Constants } from '../../../lib/constants';
 import firefox, {
   buildSyncOAuthSearch,
   FirefoxCommand,
+  SignedInUser,
 } from '../../../lib/channels/firefox';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import QRCode from '../../../components/QRCode';
@@ -107,6 +108,13 @@ type PairProps = {
   device?: Devices;
 };
 export const viewName = 'pair';
+
+const isVerifiedUser = (user?: SignedInUser) =>
+  !!(user?.sessionToken && user.verified);
+
+// Full reload: `useIntegration` is not keyed on location, so only a fresh page
+// load rebuilds it as a PairingAuthorityIntegration.
+const goToScanQr = () => hardNavigate('/pair/authority/scan_qr', {}, true);
 
 const Pair = ({
   error,
@@ -209,6 +217,8 @@ const Pair = ({
   // unmount, and when a later pass of the effect below routes somewhere else.
   const bootstrapStartedRef = useRef(false);
   const abortBootstrapRef = useRef(false);
+  // Read when the bootstrap settles; a late fxa_status answer can change it.
+  const pairingV2Ref = useRef(false);
   useEffect(() => {
     return () => {
       abortBootstrapRef.current = true;
@@ -261,13 +271,6 @@ const Pair = ({
       return;
     }
 
-    if (isFirefoxDesktop && pairingV2) {
-      // Full reload: `useIntegration` is not keyed on location, so only a
-      // fresh page load rebuilds it as a PairingAuthorityIntegration.
-      hardNavigate('/pair/authority/scan_qr', {}, true);
-      return;
-    }
-
     // This is a signal that the initial fxa_status message is still pending.
     // Don't move forwards with other evaluations until we have a definitive
     // answer here.
@@ -292,10 +295,15 @@ const Pair = ({
       return;
     }
 
-    if (isFirefoxDesktop && pairingV2) {
-      // Full reload: `useIntegration` is not keyed on location, so only a
-      // fresh page load rebuilds it as a PairingAuthorityIntegration.
-      hardNavigate('/pair/authority/scan_qr', {}, true);
+    pairingV2Ref.current = pairingV2;
+    // The authority channel needs no account, but approving a sign-in does, so
+    // a signed-out desktop takes the sign-in bootstrap below first.
+    if (
+      isFirefoxDesktop &&
+      pairingV2 &&
+      isVerifiedUser(fxaStatusResult.fxaStatus.signedInUser)
+    ) {
+      goToScanQr();
       return;
     }
 
@@ -327,15 +335,19 @@ const Pair = ({
         let attempt = 0;
         !abortBootstrapRef.current &&
         attempt < MAX_RETRIES &&
-        (!signedInUser?.sessionToken || !signedInUser?.verified);
+        !isVerifiedUser(signedInUser);
         attempt++
       ) {
         signedInUser = await askFirefox();
       }
       if (abortBootstrapRef.current) return;
 
-      if (signedInUser?.sessionToken && signedInUser.verified) {
-        setBootstrapping(false);
+      if (isVerifiedUser(signedInUser)) {
+        if (pairingV2Ref.current) {
+          goToScanQr();
+        } else {
+          setBootstrapping(false);
+        }
         return;
       }
       const oauthParams = await firefox
