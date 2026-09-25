@@ -1,8 +1,8 @@
 {
-  "commit": "3dd759079275dfbd8813a44730b15d3ac8817fd8",
-  "summary": "Merge pull request #21313 from mozilla/fxa-inactive-accts-threshold-param",
-  "description": "feat(scripts): add threshold param to inactive accts script",
-  "timestamp": 1790361736000,
+  "commit": "89a6de935419f05fb51ef58224b9bf1c471f4eb8",
+  "summary": "Merge pull request #21317 from mozilla/feat-ai-fixme-create-issue-skill",
+  "description": "feat(claude): add fxa-ai-fixme-create-issue skill",
+  "timestamp": 1790365925000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
