@@ -10,11 +10,7 @@ const validators = require('../../oauth/validators');
 const verifyAssertion = require('../../oauth/assertion');
 const { validateRequestedGrant } = require('../../oauth/grant');
 const { makeAssertionJWT } = require('../../oauth/util');
-const DESCRIPTION =
-  require('../../../docs/swagger/shared/descriptions').default;
 const OAUTH_DOCS = require('../../../docs/swagger/oauth-api').default;
-const OAUTH_SERVER_DOCS =
-  require('../../../docs/swagger/oauth-server-api').default;
 const { getClientServiceTags } = require('../../metrics/client-tags');
 
 /**
@@ -97,33 +93,6 @@ module.exports = ({ log, oauthDB, statsd }) => {
   }
 
   return [
-    {
-      method: 'POST',
-      path: '/key-data',
-      config: {
-        ...OAUTH_SERVER_DOCS.KEY_DATA_POST,
-        cors: { origin: 'ignore' },
-        validate: {
-          payload: Joi.object({
-            client_id: validators.clientId.description(DESCRIPTION.clientId),
-            assertion: validators.assertion
-              .required()
-              .description(DESCRIPTION.assertion),
-            scope: validators.scope.required().description(DESCRIPTION.scope),
-          }),
-        },
-        response: {
-          schema: Joi.object().pattern(/^/, [
-            Joi.object({
-              identifier: Joi.string().required(),
-              keyRotationSecret: Joi.string().required(),
-              keyRotationTimestamp: Joi.number().required(),
-            }),
-          ]),
-        },
-        handler: keyDataHandler,
-      },
-    },
     {
       method: 'POST',
       path: '/account/scoped-key-data',
