@@ -1,8 +1,8 @@
 {
-  "commit": "822a93e5c65a510e220d3b11b892a5ae517247fa",
-  "summary": "Merge pull request #21320 from mozilla/fxa-14616",
-  "description": "chore(auth): remove dead /account/lock and /account/unlock routes",
-  "timestamp": 1790373082000,
+  "commit": "6901da2312462a16b9e2ad46e55c08fd394c3390",
+  "summary": "Merge pull request #21326 from mozilla/FXA-14628",
+  "description": "",
+  "timestamp": 1790375833000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
