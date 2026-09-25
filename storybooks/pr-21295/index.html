@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit a95cf7f40a254f61e96d6b658d65b90edd31d4ea</title>
+  <title>Storybooks for commit e875028f02133357737356322a5c9d859ea3cf98</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit a95cf7f40a254f61e96d6b658d65b90edd31d4ea</h1>
+  <h1>Storybooks for commit e875028f02133357737356322a5c9d859ea3cf98</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/25/2026, 5:05:28 PM UTC</dd>
+    <dd>9/25/2026, 6:04:34 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(settings): serve /subscriptions redirect from React</pre></dd>
     <dt>Description</dt>
@@ -40,11 +40,9 @@
 
 ## This pull request
 
-- Adds a `SubscriptionsRedirect` page in fxa-settings for `/subscriptions`.
-- Keeps parity with Backbone: `usePaymentsNextSubscriptionManagement` picks `subscriptions/landing`.
-- Serves the route from React through `postVerifyOtherRoutes` in the content-server react-app routes, with `fullProdRollout: false`.
-- Passes the `subscriptions` config from content-server to fxa-settings.
-- Guards the redirect effect so StrictMode requests only one OAuth token.
+- Adds a `SubscriptionsRedirect` page in fxa-settings that sends `/subscriptions` to payments-next `subscriptions/landing`, with flow params.
+- Serves the route from React through `postVerifyOtherRoutes`, with `fullProdRollout: false`.
+- Hands Backbone `/subscriptions` navigations to React with `createReactOrBackboneViewHandler`.
 
 ## Issue that this pull request solves
 
