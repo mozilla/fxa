@@ -1,8 +1,8 @@
 {
-  "commit": "01eb3e0f4d6c908542002a4fa4eee20f5c1b4296",
-  "summary": "Merge pull request #21316 from mozilla/FXA-14633",
-  "description": "fix(content-server): point default tokenserver URL at local Sync",
-  "timestamp": 1790357421000,
+  "commit": "fa90046d2ff53094cf68580818b8be9a7c35178e",
+  "summary": "Merge pull request #21272 from mozilla/dependabot/github_actions/github/codeql-action/analyze-4.38.1",
+  "description": "chore(deps): bump github/codeql-action/analyze from 4.38.0 to 4.38.1",
+  "timestamp": 1790359710000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
