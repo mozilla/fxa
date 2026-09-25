@@ -34,24 +34,6 @@ module.exports = (log, config, redirectDomain) => {
     },
     {
       method: 'GET',
-      path: '/verify_email',
-      options: {
-        ...UTIL_DOCS.VERIFY_EMAIL_GET,
-        validate: {
-          query: {
-            code: isA.string().max(32).regex(HEX_STRING).required(),
-            uid: isA.string().max(32).regex(HEX_STRING).required(),
-            service: isA.string().max(16).alphanum().optional(),
-            redirectTo: validators.redirectTo(redirectDomain).optional(),
-          },
-        },
-      },
-      handler: async function (request, h) {
-        return h.redirect(config.contentServer.url + request.raw.req.url);
-      },
-    },
-    {
-      method: 'GET',
       path: '/complete_reset_password',
       options: {
         ...UTIL_DOCS.COMPLETE_RESET_PASSWORD_GET,
