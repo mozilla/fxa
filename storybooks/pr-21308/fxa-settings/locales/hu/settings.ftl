@@ -1647,7 +1647,7 @@ inline-passwordless-sync-setup-enable-button = Jelkulcs engedélyezése
 inline-passwordless-sync-setup-enabling = Engedélyezés…
 inline-passwordless-sync-setup-not-now-button = Most nem
 # Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = Ez a jelkulcs készen áll a szinkronizálási bejelentkezésre
+inline-passwordless-sync-setup-success-alert = Ez a jelkulcs készen áll a szinkronizálásba való bejelentkezéshez
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = A jelszó megerősítése nem fejeződött be
 inline-passwordless-sync-setup-error-cancelled-description = Erősítse meg a jelkulcsával, hogy legközelebb kihagyja a jelszót.
@@ -2029,9 +2029,9 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Eszköz csatlakoztat�
 ## read. It does not offer a choice.
 
 # Variable $serviceName is the name of the relying party, e.g. "321Done"
-permissions-heading = { $serviceName } hozzáférést kér a következőhöz:
-permissions-label-email = E-mail cím
-permissions-label-display-name = Megjelenő név
+permissions-heading = A(z) { $serviceName } hozzáférést kér a következőhöz:
+permissions-label-email = E-mail-cím
+permissions-label-display-name = Megjelenítendő név
 permissions-continue-button = Folytatás
 permissions-cancel-button = Mégse
 

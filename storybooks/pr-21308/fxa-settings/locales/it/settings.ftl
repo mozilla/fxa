@@ -1627,12 +1627,12 @@ inline-passwordless-sync-setup-enable-button = Attiva passkey
 inline-passwordless-sync-setup-enabling = Attivazione…
 inline-passwordless-sync-setup-not-now-button = Non adesso
 # Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = Questa passkey è pronta per l’accesso con Sync
+inline-passwordless-sync-setup-success-alert = Questa passkey è pronta per accedere e avviare la sincronizzazione
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = La conferma della passkey non è stata completata
-inline-passwordless-sync-setup-error-cancelled-description = Conferma con la tua passkey per saltare la password la prossima volta.
+inline-passwordless-sync-setup-error-cancelled-description = Conferma con la tua passkey per non dover inserire la password la prossima volta.
 # Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
-inline-passwordless-sync-setup-error-generic = Si è verificato un errore, la prossima volta dovrai comunque inserire la password
+inline-passwordless-sync-setup-error-generic = Si è verificato un problema, al prossimo accesso dovrai comunque inserire la password
 
 ## InlineRecoveryKeySetup page component
 

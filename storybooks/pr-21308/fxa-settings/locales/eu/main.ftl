@@ -812,6 +812,7 @@ auth-error-215 = Berreskuratzeko telefono-zenbakia ez dago
 auth-error-216 = Testu-mezuen mugara iritsi da
 auth-error-218 = Ezin izan da berreskuratzeko telefonoa kendu, babeskopiko autentifikazio-kodeak falta dira.
 auth-error-219 = Telefono-zenbaki hau kontu gehiegirekin erregistratu da. Mesedez, saiatu beste zenbaki batekin.
+auth-error-240 = Kontu hau desgaitu egin da
 auth-error-999 = Espero gabeko errorea
 auth-error-1001 = Saio-hasiera saiakera utzita
 auth-error-1002 = Saioa iraungita. Jarraitzeko, hasi saioa.
@@ -866,6 +867,12 @@ index-email-input =
     .label = Idatzi zure helbide elektronikoa
 index-account-delete-success = Kontua ondo ezabatu da
 index-email-bounced = Zure berrespen-mezu elektronikoa itzuli berri da. Helbide elektronikoa gaizki idatzita zegoen?
+
+
+inline-passwordless-sync-setup-success-alert = Sarbide-gakoa prest dago sinkronizazioaren saio-hasierarako
+inline-passwordless-sync-setup-error-cancelled = Sarbide-gakoaren berrespena ez da amaitu
+inline-passwordless-sync-setup-error-cancelled-description = Berretsi zure sarbide-gakoarekin pasahitza saltatzeko hurrengo aldian.
+inline-passwordless-sync-setup-error-generic = Zerbait gaizki joan da, oraindik ere zure pasahitza idatzi beharko duzu hurrengo aldian
 
 
 inline-recovery-key-setup-create-error = Oops! Ezin izan dugu sortu zure kontua berreskuratzeko gakoa. Saiatu berriro geroago.
@@ -957,6 +964,13 @@ pair2-supplicant-download-firefox-opening-button = { -brand-firefox } irekitzenâ
 
 pair2-supplicant-sync-success-description-v2 = Sinkronizazioa lanean ari da. Denbora pixka bat har lezake sinkronizatutako datuak agertu arte. Jarraitu nabigatzen lasai.
 pair2-supplicant-sync-success-sync-settings-button-v2 = Kudeatu sinkronizazio-ezarpenak
+
+
+permissions-heading = { $serviceName } zerbitzuak ondorengorako sarbidea nahi du:
+permissions-label-email = Helbide elektronikoa
+permissions-label-display-name = Bistaratzeko izena
+permissions-continue-button = Jarraitu
+permissions-cancel-button = Utzi
 
 
 third-party-auth-callback-message = Mesedez, itxaron, baimendutako aplikaziora birbideratzen ari zara.

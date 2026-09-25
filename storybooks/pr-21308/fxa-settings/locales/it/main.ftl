@@ -1185,10 +1185,10 @@ inline-passwordless-sync-setup-description = Utilizza questa passkey per acceder
 inline-passwordless-sync-setup-enable-button = Attiva passkey
 inline-passwordless-sync-setup-enabling = Attivazione…
 inline-passwordless-sync-setup-not-now-button = Non adesso
-inline-passwordless-sync-setup-success-alert = Questa passkey è pronta per l’accesso con Sync
+inline-passwordless-sync-setup-success-alert = Questa passkey è pronta per accedere e avviare la sincronizzazione
 inline-passwordless-sync-setup-error-cancelled = La conferma della passkey non è stata completata
-inline-passwordless-sync-setup-error-cancelled-description = Conferma con la tua passkey per saltare la password la prossima volta.
-inline-passwordless-sync-setup-error-generic = Si è verificato un errore, la prossima volta dovrai comunque inserire la password
+inline-passwordless-sync-setup-error-cancelled-description = Conferma con la tua passkey per non dover inserire la password la prossima volta.
+inline-passwordless-sync-setup-error-generic = Si è verificato un problema, al prossimo accesso dovrai comunque inserire la password
 
 
 inline-recovery-key-setup-create-error = Oops! Impossibile creare la chiave di recupero dell’account. Riprova più tardi.

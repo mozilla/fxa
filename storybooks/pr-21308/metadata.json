@@ -1,8 +1,8 @@
 {
-  "commit": "c114e8e44423c7f00ae544c203edc66f4d3014d8",
-  "summary": "test(ci): bench touch auth",
-  "description": "Changes a build input of auth so CI measures a cache-miss build.",
-  "timestamp": 1790297115000,
+  "commit": "5e315961be7fa0cedc7a42c0829d7764586446f1",
+  "summary": "ci(circleci): drop the stack job's duplicate fxa-shared build",
+  "description": "wait-for-infrastructure now builds fxa-shared when its dist is missing.",
+  "timestamp": 1790344353000,
   "storybooks": [
     "fxa-settings"
   ],

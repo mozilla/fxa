@@ -1226,7 +1226,7 @@ inline-passwordless-sync-setup-description = Használja ezt a jelkulcsot a gyors
 inline-passwordless-sync-setup-enable-button = Jelkulcs engedélyezése
 inline-passwordless-sync-setup-enabling = Engedélyezés…
 inline-passwordless-sync-setup-not-now-button = Most nem
-inline-passwordless-sync-setup-success-alert = Ez a jelkulcs készen áll a szinkronizálási bejelentkezésre
+inline-passwordless-sync-setup-success-alert = Ez a jelkulcs készen áll a szinkronizálásba való bejelentkezéshez
 inline-passwordless-sync-setup-error-cancelled = A jelszó megerősítése nem fejeződött be
 inline-passwordless-sync-setup-error-cancelled-description = Erősítse meg a jelkulcsával, hogy legközelebb kihagyja a jelszót.
 inline-passwordless-sync-setup-error-generic = Hiba történt, legközelebb is meg kell adnia a jelszavát
@@ -1417,9 +1417,9 @@ pair2-supplicant-timeout-and-cancel-cancelled-heading = Megszakítva
 pair2-supplicant-timeout-and-cancel-canceled-description = Eszköz csatlakoztatásához keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén.
 
 
-permissions-heading = { $serviceName } hozzáférést kér a következőhöz:
-permissions-label-email = E-mail cím
-permissions-label-display-name = Megjelenő név
+permissions-heading = A(z) { $serviceName } hozzáférést kér a következőhöz:
+permissions-label-email = E-mail-cím
+permissions-label-display-name = Megjelenítendő név
 permissions-continue-button = Folytatás
 permissions-cancel-button = Mégse
 

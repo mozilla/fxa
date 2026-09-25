@@ -1637,10 +1637,10 @@ inline-passwordless-sync-setup-not-now-button = Plus tard
 # Success message shown in the Settings alert bar after the passkey was stored.
 inline-passwordless-sync-setup-success-alert = Cette clé d’accès est prête pour la connexion synchronisée
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
-inline-passwordless-sync-setup-error-cancelled = La confirmation de la clé d’accès n’est pas terminée
-inline-passwordless-sync-setup-error-cancelled-description = Confirmez avec votre clé d’accès pour ignorer le mot de passe la prochaine fois.
+inline-passwordless-sync-setup-error-cancelled = La confirmation de la clé d’accès n’a pas abouti
+inline-passwordless-sync-setup-error-cancelled-description = Confirmez à l’aide de votre clé d’accès pour ne pas avoir à saisir votre mot de passe la prochaine fois.
 # Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
-inline-passwordless-sync-setup-error-generic = Une erreur s’est produite, vous devrez le ressaisir la prochaine fois
+inline-passwordless-sync-setup-error-generic = Une erreur s’est produite, vous devrez encore saisir votre mot de passe la prochaine fois
 
 ## InlineRecoveryKeySetup page component
 
@@ -2017,7 +2017,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Pour connecter un app
 ## read. It does not offer a choice.
 
 # Variable $serviceName is the name of the relying party, e.g. "321Done"
-permissions-heading = { $serviceName } veut accéder à :
+permissions-heading = { $serviceName } souhaite accéder à :
 permissions-label-email = Adresse e-mail
 permissions-label-display-name = Nom à afficher
 permissions-continue-button = Continuer

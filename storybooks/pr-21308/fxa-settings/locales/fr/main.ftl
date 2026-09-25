@@ -1194,9 +1194,9 @@ inline-passwordless-sync-setup-enable-button = Activer la clé d’accès
 inline-passwordless-sync-setup-enabling = Activation…
 inline-passwordless-sync-setup-not-now-button = Plus tard
 inline-passwordless-sync-setup-success-alert = Cette clé d’accès est prête pour la connexion synchronisée
-inline-passwordless-sync-setup-error-cancelled = La confirmation de la clé d’accès n’est pas terminée
-inline-passwordless-sync-setup-error-cancelled-description = Confirmez avec votre clé d’accès pour ignorer le mot de passe la prochaine fois.
-inline-passwordless-sync-setup-error-generic = Une erreur s’est produite, vous devrez le ressaisir la prochaine fois
+inline-passwordless-sync-setup-error-cancelled = La confirmation de la clé d’accès n’a pas abouti
+inline-passwordless-sync-setup-error-cancelled-description = Confirmez à l’aide de votre clé d’accès pour ne pas avoir à saisir votre mot de passe la prochaine fois.
+inline-passwordless-sync-setup-error-generic = Une erreur s’est produite, vous devrez encore saisir votre mot de passe la prochaine fois
 
 
 inline-recovery-key-setup-create-error = Oups ! Nous n’avons pas pu créer la clé de récupération de votre compte. Veuillez réessayer plus tard.
@@ -1384,7 +1384,7 @@ pair2-supplicant-timeout-and-cancel-cancelled-heading = Annulé
 pair2-supplicant-timeout-and-cancel-canceled-description = Pour connecter un appareil à tout moment, consultez <b>firefox.com/pair</b> sur votre ordinateur.
 
 
-permissions-heading = { $serviceName } veut accéder à :
+permissions-heading = { $serviceName } souhaite accéder à :
 permissions-label-email = Adresse e-mail
 permissions-label-display-name = Nom à afficher
 permissions-continue-button = Continuer
