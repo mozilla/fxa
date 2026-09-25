@@ -925,50 +925,6 @@ module.exports = (config) => {
     );
   };
 
-  ClientApi.prototype.accountLock = function (email, authPW) {
-    return this.doRequest('POST', `${this.baseURL}/account/lock`, null, {
-      email: email,
-      authPW: authPW.toString('hex'),
-    });
-  };
-
-  ClientApi.prototype.accountUnlockResendCode = function (
-    email,
-    options = {},
-    lang
-  ) {
-    let headers = {};
-    if (lang) {
-      headers = {
-        'accept-language': lang,
-      };
-    }
-    return this.doRequest(
-      'POST',
-      `${this.baseURL}/account/unlock/resend_code`,
-      null,
-      {
-        email: email,
-        service: options.service || undefined,
-        redirectTo: options.redirectTo || undefined,
-        resume: options.resume || undefined,
-      },
-      headers
-    );
-  };
-
-  ClientApi.prototype.accountUnlockVerifyCode = function (uid, code) {
-    return this.doRequest(
-      'POST',
-      `${this.baseURL}/account/unlock/verify_code`,
-      null,
-      {
-        uid: uid,
-        code: code,
-      }
-    );
-  };
-
   ClientApi.prototype.attachedClientDestroy = function (
     sessionTokenHex,
     clientData

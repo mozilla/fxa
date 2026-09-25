@@ -888,18 +888,6 @@ module.exports = (config) => {
       });
   };
 
-  Client.prototype.lockAccount = function () {
-    return this.api.accountLock(this.email, this.authPWVersion2 || this.authPW);
-  };
-
-  Client.prototype.resendAccountUnlockCode = function (lang) {
-    return this.api.accountUnlockResendCode(this.email, this.options, lang);
-  };
-
-  Client.prototype.verifyAccountUnlockCode = function (uid, code) {
-    return this.api.accountUnlockVerifyCode(uid, code);
-  };
-
   Client.prototype.accountEmails = function () {
     return this.api.accountEmails(this.sessionToken);
   };

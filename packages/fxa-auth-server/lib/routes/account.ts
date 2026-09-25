@@ -2846,34 +2846,6 @@ export const accountRoutes = (
     },
     {
       method: 'POST',
-      path: '/account/unlock/resend_code',
-      options: {
-        ...ACCOUNT_DOCS.ACCOUNT_UNLOCK_RESEND_CODE_POST,
-        validate: {
-          payload: true,
-        },
-      },
-      handler: async function (request: AuthRequest) {
-        log.error('Account.UnlockCodeResend', { request: request });
-        throw error.gone();
-      },
-    },
-    {
-      method: 'POST',
-      path: '/account/unlock/verify_code',
-      options: {
-        ...ACCOUNT_DOCS.ACCOUNT_UNLOCK_VERIFY_CODE_POST,
-        validate: {
-          payload: true,
-        },
-      },
-      handler: async function (request: AuthRequest) {
-        log.error('Account.UnlockCodeVerify', { request: request });
-        throw error.gone();
-      },
-    },
-    {
-      method: 'POST',
       path: '/account/reset',
       options: {
         ...ACCOUNT_DOCS.ACCOUNT_RESET_POST,
@@ -3108,25 +3080,6 @@ export const accountRoutes = (
       handler: (request: AuthRequest) => accountHandler.getAccount(request),
     },
   ];
-
-  if (!(config as any).isProduction) {
-    // programmatic account lockout was only available in
-    // non-production mode.
-    routes.push({
-      method: 'POST',
-      path: '/account/lock',
-      options: {
-        ...MISC_DOCS.ACCOUNT_LOCK_POST,
-        validate: {
-          payload: true,
-        },
-      } as any,
-      handler: async function (request) {
-        log.error('Account.lock', { request: request });
-        throw error.gone();
-      },
-    });
-  }
 
   return routes;
 };

@@ -175,44 +175,6 @@ const ACCOUNT_KEYS_GET = {
   },
 };
 
-const ACCOUNT_UNLOCK_RESEND_CODE_POST = {
-  ...TAGS_ACCOUNT,
-  description: '/account/unlock/resend_code',
-  notes: ['This endpoint is deprecated.'],
-  plugins: {
-    'hapi-swagger': {
-      deprecated: true,
-      responses: {
-        410: {
-          description: swaggerText`
-            Failing requests may be caused by the following errors (this is not an exhaustive list):
-            - \`errno: 116\` - This endpoint is no longer supported
-          `,
-        },
-      },
-    },
-  },
-};
-
-const ACCOUNT_UNLOCK_VERIFY_CODE_POST = {
-  ...TAGS_ACCOUNT,
-  description: '/account/unlock/verify_code',
-  notes: ['This endpoint is deprecated.'],
-  plugins: {
-    'hapi-swagger': {
-      deprecated: true,
-      responses: {
-        410: {
-          description: swaggerText`
-            Failing requests may be caused by the following errors (this is not an exhaustive list):
-            - \`errno: 116\` - This endpoint is no longer supported
-          `,
-        },
-      },
-    },
-  },
-};
-
 const ACCOUNT_RESET_POST = {
   ...TAGS_ACCOUNT,
   description: '/account/reset',
@@ -324,8 +286,6 @@ const API_DOCS = {
   ACCOUNT_STATUS_GET,
   ACCOUNT_STATUS_POST,
   ACCOUNT_STUB_POST,
-  ACCOUNT_UNLOCK_RESEND_CODE_POST,
-  ACCOUNT_UNLOCK_VERIFY_CODE_POST,
 };
 
 export default API_DOCS;
