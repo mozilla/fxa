@@ -111,7 +111,7 @@ const ScanQR = ({ qrCodeValue, onSkip }: ScanQRProps) => {
           <button
             type="button"
             onClick={onSkip}
-            className="cta-neutral w-auto px-5 py-1 text-xs"
+            className="cta-neutral min-h-8 w-auto px-5 py-1 text-xs"
           >
             Skip for now
           </button>
