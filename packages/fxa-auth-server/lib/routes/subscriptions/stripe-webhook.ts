@@ -236,6 +236,7 @@ export class StripeWebhookHandler extends StripeHandler {
         request.payload,
         request.headers['stripe-signature']
       );
+      Sentry.setTag('stripe_api_version', event.api_version);
       const firestoreHandled = await this.processEventToFirestore(event);
       await this.dispatchEventToHandler(request, event, firestoreHandled);
     } catch (error) {
