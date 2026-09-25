@@ -185,6 +185,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'pair/authority/sync_success',
         'pair/authority/timeout_and_cancel',
         'pair/supplicant/approve_signin',
+        'pair/supplicant/connect_hint',
         'pair/supplicant/connect_this_device',
         'pair/supplicant/download_firefox',
         'pair/supplicant/ready_to_scan',
