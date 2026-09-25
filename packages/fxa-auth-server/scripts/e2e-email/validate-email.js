@@ -55,7 +55,7 @@ const messageContentChecks = [
   },
   {
     subject: 'Reset your Firefox Account password',
-    pathname: '/v1/complete_reset_password',
+    pathname: '/complete_reset_password',
     args: ['code', 'email', 'token'],
     xheaders: ['x-recovery-code'],
   },
