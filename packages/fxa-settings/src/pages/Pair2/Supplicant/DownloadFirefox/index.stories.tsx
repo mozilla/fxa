@@ -6,7 +6,7 @@ import React from 'react';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import DownloadFirefox from '.';
-import { MOCK_ANDROID_PLAN, Subject } from './mocks';
+import { MOCK_ANDROID_PLAN, MOCK_IOS_SAFARI_PLAN, Subject } from './mocks';
 
 export default {
   title: 'Pages/Pair2/Supplicant/DownloadFirefox',
@@ -17,8 +17,13 @@ export default {
 // No pairing channel to hand over, so the CTA is a plain download link.
 export const Default = () => <DownloadFirefox />;
 
-// iOS requires the user to tap, so the CTA is the whole story.
+// A non-Safari iOS browser requires the user to tap, so the CTA is the whole
+// story; the store is reached through the inferred fallback.
 export const Ios = () => <Subject />;
+
+// Safari cannot infer a failed launch, so the store gets its own CTA and the
+// deep link becomes the secondary one.
+export const IosSafari = () => <Subject plan={MOCK_IOS_SAFARI_PLAN} />;
 
 // Android auto-navigates on mount, so the CTA starts in its active state and
 // only returns to rest if the intent silently no-ops.

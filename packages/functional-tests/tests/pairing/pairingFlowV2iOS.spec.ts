@@ -152,8 +152,9 @@ const DELIVERIES = [
  * Render `/pair` as a non-Firefox phone would and return the hand-off link it offers.
  *
  * The iOS descriptor makes `detectDevice` report iOS. The card renders only once `fxa_status`
- * goes unanswered, which is a timeout rather than a reply, so it is absent on first paint —
- * and only where the stack serves an iOS minimum (`PAIRING_V2_MIN_VERSION_IOS`).
+ * goes unanswered, which is a timeout rather than a reply, so it is absent on first paint.
+ * The link carries the pair URL only where the stack serves an iOS minimum
+ * (`PAIRING_V2_MIN_VERSION_IOS`); without one it opens the connect hint page instead.
  */
 async function readHandoffDeepLink(
   browser: Browser,

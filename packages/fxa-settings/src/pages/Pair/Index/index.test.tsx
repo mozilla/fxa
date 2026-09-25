@@ -1337,19 +1337,21 @@ describe('parseV2PairingHash', () => {
     );
 
     // Before the rollout Firefox iOS cannot finish a pairing that started in
-    // another browser, so the hand-off card would only be a tap in front of
-    // the same dead end.
-    it('sends an iOS browser straight to /pair/unsupported while iOS is not in the rollout', async () => {
+    // another browser, but the download screen can still open Firefox on the
+    // page that says to scan again from inside it — so the hand-off stands.
+    it('routes an iOS browser to the download screen while iOS is not in the rollout', async () => {
       setUserAgent(IOS_SAFARI);
       renderWithRouter(<Pair {...unansweredProps} />, {}, v2AppContext());
 
       await waitFor(() =>
-        expect(mockNavigate).toHaveBeenCalledWith('/pair/unsupported')
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/pair/supplicant/download_firefox',
+          {
+            state: { channelId: 'chan-1', channelKey: 'key-1', version: '2' },
+          }
+        )
       );
-      expect(mockNavigate).not.toHaveBeenCalledWith(
-        '/pair/supplicant/download_firefox',
-        expect.anything()
-      );
+      expect(mockNavigate).not.toHaveBeenCalledWith('/pair/unsupported');
     });
 
     // The channel key is the pairing PSK, and the download screen is handed it
@@ -1387,15 +1389,72 @@ describe('parseV2PairingHash', () => {
     });
 
     // firefox:// inside Firefox is a no-op, so a hand-off here would strand the
-    // user rather than help them.
-    it('does not offer the hand-off inside Firefox for Android', async () => {
+    // user rather than help them. A Firefox that did not take the v2 flow can
+    // still pair by scanning from inside the app, which is what the hint says.
+    it('sends Firefox for Android to the connect hint instead of the hand-off', async () => {
+      setUserAgent(FIREFOX_ANDROID);
+      renderWithRouter(<Pair {...unansweredProps} />, {}, v2AppContext());
+
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/pair/supplicant/connect_hint'
+        )
+      );
+      expect(mockNavigate).not.toHaveBeenCalledWith(
+        '/pair/supplicant/download_firefox',
+        expect.anything()
+      );
+      expect(mockNavigate).not.toHaveBeenCalledWith('/pair/unsupported');
+    });
+
+    // The hint page needs no channel, and the key must stay out of the URL.
+    it('does not carry the channel into the connect hint URL', async () => {
       setUserAgent(FIREFOX_ANDROID);
       renderWithRouter(<Pair {...unansweredProps} />, {}, v2AppContext());
 
       await waitFor(() => expect(mockNavigate).toHaveBeenCalled());
+      const [path, options] = mockNavigate.mock.calls[0];
+      expect(path).toBe('/pair/supplicant/connect_hint');
+      expect(options).toBeUndefined();
+    });
+
+    it('sends a Firefox iOS below the rollout minimum to the connect hint', async () => {
+      setUserAgent(
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 ' +
+          '(KHTML, like Gecko) FxiOS/124.0 Mobile/15E148 Safari/605.1.15'
+      );
+      const config = getDefault();
+      config.pairing.version = 2;
+      config.pairing.v2MinVersion = { ios: 125 };
+      renderWithRouter(
+        <Pair {...unansweredProps} />,
+        {},
+        mockAppContext({ config } as Parameters<typeof mockAppContext>[0])
+      );
+
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/pair/supplicant/connect_hint'
+        )
+      );
       expect(mockNavigate).not.toHaveBeenCalledWith(
-        '/pair/supplicant/download_firefox',
+        '/pair/supplicant/connect_this_device',
         expect.anything()
+      );
+    });
+
+    // Without a scanned channel there is nothing to rescan, so the hint would
+    // be wrong; the unsupported page explains pairing from the computer.
+    it('sends Firefox for Android with no pairing channel to /pair/unsupported', async () => {
+      setPairingHash('');
+      setUserAgent(FIREFOX_ANDROID);
+      renderWithRouter(<Pair {...unansweredProps} />, {}, v2AppContext());
+
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith('/pair/unsupported')
+      );
+      expect(mockNavigate).not.toHaveBeenCalledWith(
+        '/pair/supplicant/connect_hint'
       );
     });
 

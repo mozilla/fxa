@@ -15,6 +15,7 @@ import {
 } from '../../../../components/images';
 import { LINK } from '../../../../constants';
 import { Constants } from '../../../../lib/constants';
+import GleanMetrics from '../../../../lib/glean';
 import {
   AttemptStorage,
   claimAutoAttempt,
@@ -48,23 +49,15 @@ export type DownloadFirefoxProps = {
   storage?: AttemptStorage;
 };
 
-const learnMoreLink = (
-  <LinkExternal
-    href={LINK.FX_SYNC}
-    gleanDataAttrs={{ id: 'dtm_mobile_download_learn_more' }}
-    className="link-dark-grey"
-  >
-    Learn more
-  </LinkExternal>
-);
+const ctaClassName =
+  'cta-primary cta-xl flex items-center justify-center gap-2';
 
 /**
- * The mobile screen shown when pairing reaches a device that does not have
- * Firefox yet. It explains what syncing gets the user and sends them off to
- * the browser.
+ * The mobile screen shown when pairing reaches a browser that is not Firefox.
+ * It offers to open Firefox — installing it first when the user does not have
+ * it — so they land back in the flow instead of on a cold /pair page.
  *
- * With a `plan` it hands the pairing URL to the Firefox app, so the user lands
- * back in the flow instead of on a cold /pair page. The two platforms need
+ * With a `plan` the CTA hands a URL to the Firefox app. The two platforms need
  * genuinely different mechanics, and the reasons are recorded in
  * `lib/pairing/store-fallback.ts` (iOS) and `lib/pairing/handoff.ts` (Android).
  * In short: iOS needs the tap itself to be the navigation and has no API that
@@ -77,6 +70,13 @@ const learnMoreLink = (
  * a second tap re-arms the iOS watchdog, and Android's intent carries
  * `S.browser_fallback_url`.
  *
+ * Safari on iOS is the exception to the single CTA. An unregistered scheme
+ * raises an "address is invalid" alert there that no API reports, so the
+ * inferred fallback cannot tell "not installed" from "still deciding"
+ * (`store-fallback.ts`, finding 2). Safari therefore gets the store as an
+ * explicit primary CTA and the deep link as a secondary one, with no spinner
+ * and no watchdog.
+ *
  * Without a `plan` there is nothing to hand off, so the CTA is the shared
  * mobile download target rather than a per-platform App Store / Play Store
  * link: picking between the two needs user-agent sniffing that buys nothing
@@ -88,6 +88,7 @@ const DownloadFirefox = ({
   storage = getAttemptStorage(),
 }: DownloadFirefoxProps) => {
   const isAndroid = plan?.kind === 'android';
+  const isSafari = plan?.kind === 'ios' && plan.browser === 'safari';
   const willAutoAttempt = plan?.kind === 'android' && plan.autoAttempt;
 
   const [attempting, setAttempting] = useState(willAutoAttempt);
@@ -107,16 +108,19 @@ const DownloadFirefox = ({
       setAttempting(false);
       return;
     }
+    // Not flushed before navigating: this is the happy path, and holding the
+    // hand-off to drain a ping is a cost every successful pairing would pay.
+    GleanMetrics.dtmMobile.deeplinkAttempt({ event: { reason: 'android' } });
     assign(plan.deepLink);
 
     // WebView backstop: if the intent silently no-ops, drop the CTA back to its
     // resting state rather than spinning forever. State only — never a
     // navigation, so it cannot race S.browser_fallback_url, which unloads us
     // first when it works.
-    const restTimer = window.setTimeout(
-      () => setAttempting(false),
-      STORE_FALLBACK_TIMEOUT_MS
-    );
+    const restTimer = window.setTimeout(() => {
+      GleanMetrics.dtmMobile.deeplinkWebviewFallback();
+      setAttempting(false);
+    }, STORE_FALLBACK_TIMEOUT_MS);
     return () => window.clearTimeout(restTimer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -130,6 +134,7 @@ const DownloadFirefox = ({
       return;
     }
     setAttempting(true);
+    GleanMetrics.dtmMobile.deeplinkAttempt({ event: { reason: plan.kind } });
     // Android's intent:// carries its own store fallback via
     // S.browser_fallback_url, so it needs no JS watchdog.
     if (isAndroid) {
@@ -137,8 +142,19 @@ const DownloadFirefox = ({
     }
     teardownRef.current?.();
     teardownRef.current = armStoreFallback({
-      onFallback: () => assign(plan.storeUrl),
+      onFallback: (reason) => {
+        GleanMetrics.dtmMobile.deeplinkStoreRedirect({ event: { reason } });
+        // Flushed first: this is the event the store-fallback data rests on,
+        // and navigating in the same tick would drop it.
+        GleanMetrics.isDone().then(() => assign(plan.storeUrl));
+      },
     });
+  };
+
+  // Safari's deep link has no spinner or watchdog to arm, so the tap only
+  // needs recording as an attempt.
+  const onSafariAttempt = () => {
+    GleanMetrics.dtmMobile.deeplinkAttempt({ event: { reason: 'ios' } });
   };
 
   const ctaLabel = attempting ? (
@@ -161,48 +177,87 @@ const DownloadFirefox = ({
     </FtlMsg>
   );
 
-  const ctaClassName =
-    'cta-primary cta-xl flex items-center justify-center gap-2';
-
-  // With a plan the deep link must be a plain anchor: the tap has to be a
-  // top-level, user-initiated navigation in this tab, which is the only form
-  // iOS honours — LinkExternal's target="_blank" would break it. Without one
-  // the CTA is an ordinary outbound link to mozilla.org.
-  const cta = plan ? (
-    <a href={plan.deepLink} onClick={onAttempt} className={ctaClassName}>
-      {ctaLabel}
-    </a>
-  ) : (
-    <LinkExternal
-      href={Constants.FIREFOX_MOBILE_DOWNLOAD_URL}
-      className={ctaClassName}
-      gleanDataAttrs={{ id: 'dtm_mobile_download_submit' }}
-    >
-      {ctaLabel}
-    </LinkExternal>
-  );
+  // Every deep link is a plain anchor: the tap has to be a top-level,
+  // user-initiated navigation in this tab, which is the only form iOS honours —
+  // LinkExternal's target="_blank" would break it. The store link on Safari is
+  // an ordinary same-tab anchor too, so the App Store takes over from here.
+  // Without a plan the CTA is an ordinary outbound link to mozilla.org.
+  let cta: React.ReactNode;
+  if (plan?.kind === 'ios' && isSafari) {
+    cta = (
+      <div className="flex w-full flex-col gap-4">
+        <a
+          href={plan.storeUrl}
+          className={ctaClassName}
+          data-glean-id="dtm_mobile_download_store_submit"
+        >
+          <FtlMsg id="pair2-supplicant-download-firefox-download-button">
+            <span>Download Firefox</span>
+          </FtlMsg>
+        </a>
+        <a
+          href={plan.deepLink}
+          onClick={onSafariAttempt}
+          className="cta-neutral cta-xl flex items-center justify-center"
+          data-glean-id="dtm_mobile_download_open_firefox"
+        >
+          <FtlMsg id="pair2-supplicant-download-firefox-have-firefox-button">
+            <span>I already have Firefox</span>
+          </FtlMsg>
+        </a>
+      </div>
+    );
+  } else if (plan) {
+    cta = (
+      <a
+        href={plan.deepLink}
+        onClick={onAttempt}
+        className={ctaClassName}
+        data-glean-id="dtm_mobile_download_open_firefox"
+      >
+        {ctaLabel}
+      </a>
+    );
+  } else {
+    cta = (
+      <LinkExternal
+        href={Constants.FIREFOX_MOBILE_DOWNLOAD_URL}
+        className={ctaClassName}
+        gleanDataAttrs={{ id: 'dtm_mobile_download_submit' }}
+      >
+        {ctaLabel}
+      </LinkExternal>
+    );
+  }
 
   return (
-   <AppLayout whiteBackground>
+    <AppLayout whiteBackground>
       <div className="flex flex-col items-center text-center">
         <FirefoxWordmarkImage className="h-8 w-24 text-black dark:text-white" />
 
         <SyncDevicesImage className="mt-10 h-[120px] w-auto" />
 
-        <FtlMsg id="pair2-supplicant-download-firefox-heading">
-          <h1 className="card-header mt-4">Get Firefox on this device</h1>
+        <FtlMsg id="pair2-supplicant-download-firefox-heading-v2">
+          <h1 className="card-header mt-4">Open Firefox on this device</h1>
         </FtlMsg>
-        <FtlMsg
-          id="pair2-supplicant-download-firefox-description"
-          elems={{ linkExternal: learnMoreLink }}
-        >
+        <FtlMsg id="pair2-supplicant-download-firefox-description-v2">
           <p className="mt-1 text-base">
             Download Firefox to sync bookmarks, history, and more across
-            devices. {learnMoreLink}
+            devices.
           </p>
         </FtlMsg>
 
         <div className="mt-6 flex w-full">{cta}</div>
+
+        <LinkExternal
+          href={LINK.FX_SYNC}
+          gleanDataAttrs={{ id: 'dtm_mobile_download_learn_more' }}
+          className="link-dark-grey mt-10"
+        >
+          <FtlMsg id="pair2-supplicant-download-firefox-learn-more-link">
+            Learn more
+          </FtlMsg>
+        </LinkExternal>
       </div>
     </AppLayout>
   );
