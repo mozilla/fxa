@@ -9,9 +9,24 @@ context: fork
 
 # FXA Quick Review
 
-Review the most recent commit (or the commit specified in `$ARGUMENTS`) in a single pass, using FXA-specific knowledge.
+Review the most recent commit (or the commit specified in `$ARGUMENTS`) in a single pass, using FXA-specific knowledge. With no argument and uncommitted changes, review those changes instead.
 
-## Step 1: Get Commit Info
+## Step 1: Get the Changes
+
+With no argument and a dirty working tree, review the uncommitted work against the merge base. `HEAD` does not contain it:
+
+```bash
+if [ -z "$ARGUMENTS" ] && [ -n "$(git status --porcelain)" ]; then
+  BASE="$(git merge-base HEAD origin/main)"
+  git diff --stat "$BASE"
+  git diff "$BASE"
+  git status --short | grep '^??'
+fi
+```
+
+Read every untracked (`??`) file. A diff does not show it.
+
+Otherwise, review the commit:
 
 ```bash
 COMMIT_REF="${ARGUMENTS:-HEAD}"
