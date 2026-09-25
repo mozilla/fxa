@@ -1154,8 +1154,8 @@ describe('Pair', () => {
       );
     });
 
-    // With a desktop minimum configured, the browser's own version decides and
-    // the pairingVersion it reports in fxa_status does not. The suite's UA is
+    // With a desktop minimum configured, the browser has to report v2 in
+    // fxa_status and its own version has to meet the minimum. The suite's UA is
     // Firefox 124.
     describe('with a v2 minimum version for desktop', () => {
       const minVersionAppContext = (desktop: number) => {
@@ -1167,12 +1167,12 @@ describe('Pair', () => {
         >[0]);
       };
 
-      it('reloads into the QR scanner when the browser meets the minimum but reports v1', async () => {
+      it('reloads into the QR scanner when the browser meets the minimum and reports v2', async () => {
         const hardNavigateSpy = jest
           .spyOn(ReactUtils, 'hardNavigate')
           .mockImplementation(() => {});
         renderWithRouter(
-          <Pair fxaStatusResult={mockUseFxAStatus({ pairingVersion: 1 })} />,
+          <Pair fxaStatusResult={withSignedInUser(v2Props.fxaStatusResult)} />,
           {},
           minVersionAppContext(124)
         );
@@ -1183,6 +1183,29 @@ describe('Pair', () => {
             {},
             true
           )
+        );
+        hardNavigateSpy.mockRestore();
+      });
+
+      it('stays on the v1 choice screen when the browser meets the minimum but reports v1', async () => {
+        const hardNavigateSpy = jest
+          .spyOn(ReactUtils, 'hardNavigate')
+          .mockImplementation(() => {});
+        renderWithRouter(
+          <Pair fxaStatusResult={mockUseFxAStatus({ pairingVersion: 1 })} />,
+          {},
+          minVersionAppContext(124)
+        );
+
+        await screen.findByLabelText(
+          /I already have Firefox for mobile/,
+          undefined,
+          { timeout: 4000 }
+        );
+        expect(hardNavigateSpy).not.toHaveBeenCalledWith(
+          '/pair/authority/scan_qr',
+          {},
+          true
         );
         hardNavigateSpy.mockRestore();
       });

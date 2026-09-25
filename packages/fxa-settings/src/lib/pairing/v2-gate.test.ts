@@ -124,14 +124,18 @@ describe('isPairingV2Enabled', () => {
   describe('with a minimum for the platform', () => {
     const pairing = { version: 2, v2MinVersion: { desktop: 147 } };
 
-    it('is on at the minimum, whatever the browser reports', () => {
-      expect(desktop(pairing, 1)).toBe(true);
-      expect(desktop(pairing, undefined)).toBe(true);
+    it('is on at the minimum when the browser reports v2', () => {
+      expect(desktop(pairing, 2)).toBe(true);
+    });
+
+    it('is off at the minimum when the browser reports v1 or nothing yet', () => {
+      expect(desktop(pairing, 1)).toBe(false);
+      expect(desktop(pairing, undefined)).toBe(false);
     });
 
     it('is on above the minimum', () => {
       expect(
-        desktop(pairing, 1, FIREFOX_DESKTOP_147.replace(/147/g, '148'))
+        desktop(pairing, 2, FIREFOX_DESKTOP_147.replace(/147/g, '148'))
       ).toBe(true);
     });
 
@@ -151,7 +155,7 @@ describe('isPairingV2Enabled', () => {
           pairing: { version: 2, v2MinVersion: { ios: 147, android: 147 } },
           device: Devices.FIREFOX_IOS,
           userAgent: FIREFOX_IOS_147,
-          browserPairingVersion: 1,
+          browserPairingVersion: 2,
         })
       ).toBe(true);
       expect(
@@ -159,20 +163,23 @@ describe('isPairingV2Enabled', () => {
           pairing: { version: 2, v2MinVersion: { ios: 148, android: 147 } },
           device: Devices.FIREFOX_ANDROID,
           userAgent: FIREFOX_ANDROID_147,
-          browserPairingVersion: 1,
+          browserPairingVersion: 2,
         })
       ).toBe(true);
     });
 
-    it('lets zero enable every version of the platform', () => {
-      expect(desktop({ version: 2, v2MinVersion: { desktop: 0 } }, 1)).toBe(
+    it('lets zero admit every version of the platform that reports v2', () => {
+      expect(desktop({ version: 2, v2MinVersion: { desktop: 0 } }, 2)).toBe(
         true
+      );
+      expect(desktop({ version: 2, v2MinVersion: { desktop: 0 } }, 1)).toBe(
+        false
       );
     });
   });
 
   describe('without a minimum for the platform', () => {
-    it('defers to the version the browser reports', () => {
+    it('goes on the version the browser reports', () => {
       expect(desktop({ version: 2 }, 2)).toBe(true);
       expect(desktop({ version: 2 }, 1)).toBe(false);
       expect(desktop({ version: 2 }, undefined)).toBe(false);
@@ -199,18 +206,27 @@ describe('isPairingV2Enabled', () => {
       ).toBe(false);
     });
 
-    it('defers for a browser that is not Firefox, whatever is configured', () => {
+    it('goes on the browser report for a browser that is not Firefox, whatever is configured', () => {
+      const pairing = {
+        version: 2,
+        v2MinVersion: { ios: 0, android: 0, desktop: 0 },
+      };
       expect(
         isPairingV2Enabled({
-          pairing: {
-            version: 2,
-            v2MinVersion: { ios: 0, android: 0, desktop: 0 },
-          },
+          pairing,
           device: Devices.OTHER_IOS,
           userAgent: CHROME_DESKTOP,
           browserPairingVersion: 1,
         })
       ).toBe(false);
+      expect(
+        isPairingV2Enabled({
+          pairing,
+          device: Devices.OTHER_IOS,
+          userAgent: CHROME_DESKTOP,
+          browserPairingVersion: 2,
+        })
+      ).toBe(true);
     });
   });
 });

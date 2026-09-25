@@ -8,8 +8,8 @@ import { Devices } from '../utilities';
 export type PairingPlatform = 'ios' | 'android' | 'desktop';
 
 /**
- * Lowest Firefox major version, per platform, that takes the v2 flow. A
- * platform left out defers to the browser. See `pairing.v2_min_version`.
+ * Lowest Firefox major version, per platform, allowed onto the v2 flow. A
+ * platform left out has no floor. See `pairing.v2_min_version`.
  */
 export type PairingV2MinVersions = Partial<Record<PairingPlatform, number>>;
 
@@ -64,9 +64,9 @@ function getPairingV2MinVersion(
 
 /**
  * Whether the deployment has rolled pairing v2 out to `platform` at all, i.e.
- * some version of that Firefox takes the v2 flow on its own say-so. This is
- * what makes handing a pairing URL to the Firefox iOS app worth doing: before
- * the rollout the app can only land on /pair/unsupported.
+ * has named a Firefox version of it that may take the v2 flow. This is what
+ * makes handing a pairing URL to the Firefox iOS app worth doing: before the
+ * rollout the app can only land on /pair/unsupported.
  */
 export function isPairingV2RolledOut(
   pairing: PairingV2Config,
@@ -81,13 +81,14 @@ export function isPairingV2RolledOut(
 /**
  * Whether this browser takes the pairing v2 flow.
  *
- * `pairing.version` is the deployment-wide switch. Beneath it each Firefox
- * platform rolls out on its own: when `v2MinVersion` names the browser's
- * platform, the major version in its user agent decides, so the rollout is
- * FxA's to control and does not wait on Firefox shipping a flipped
- * `identity.fxaccounts.pairing.version` pref. A platform with no minimum, and
- * anything that is not Firefox, defers to the `pairingVersion` the browser
- * reported in fxa_status, which is how a local build opts in for testing.
+ * `pairing.version` is the deployment-wide switch. The browser then has to
+ * report `pairingVersion` 2 in fxa_status: the pairing protocol runs in the
+ * browser, so one that only speaks v1 cannot complete a v2 flow whatever FxA
+ * shows it. Beneath both, `v2MinVersion` lets each Firefox platform roll out
+ * on its own: when it names the browser's platform, the major version in the
+ * user agent has to meet it too, so FxA can hold v2 back from a Firefox that
+ * already reports it. A platform with no minimum, and anything that is not
+ * Firefox, goes on the browser's report alone.
  */
 export function isPairingV2Enabled({
   pairing,
@@ -101,7 +102,7 @@ export function isPairingV2Enabled({
   /** `capabilities.pairingVersion` from fxa_status; undefined until it answers. */
   browserPairingVersion?: number;
 }): boolean {
-  if (pairing.version !== 2) {
+  if (pairing.version !== 2 || browserPairingVersion !== 2) {
     return false;
   }
 
@@ -114,5 +115,5 @@ export function isPairingV2Enabled({
     return major !== undefined && major >= minVersion;
   }
 
-  return browserPairingVersion === 2;
+  return true;
 }

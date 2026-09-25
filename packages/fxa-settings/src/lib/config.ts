@@ -102,11 +102,12 @@ export interface Config {
     serverBaseUri: string;
     version: number;
     /**
-     * Lowest Firefox major version, per platform, that takes the v2 flow. A
-     * platform left out defers to the `pairingVersion` the browser reports in
-     * fxa_status. Setting `ios` is also what enables handing a pairing QR
-     * scanned outside Firefox on iOS to the Firefox app. See
-     * `pairing.v2_min_version`.
+     * Lowest Firefox major version, per platform, allowed onto the v2 flow.
+     * Only a browser reporting `pairingVersion` 2 in fxa_status gets there at
+     * all; a platform left out has no floor beyond that. Setting `ios` is also
+     * what lets a pairing QR scanned outside Firefox on iOS hand the pair URL
+     * itself to the Firefox app; unset, the hand-off opens the connect hint
+     * page instead. See `pairing.v2_min_version`.
      */
     v2MinVersion: {
       ios?: number;
