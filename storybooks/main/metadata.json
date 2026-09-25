@@ -1,8 +1,8 @@
 {
-  "commit": "abaef2536e663e31fa99839567eeda7c6ac0cff4",
-  "summary": "Merge pull request #21304 from mozilla/fxa-14609",
-  "description": "feat(admin-panel): add Storybook and component stories",
-  "timestamp": 1790287735000,
+  "commit": "24c794c3c230a82bc13ce68b0e17272c7f053f5c",
+  "summary": "Merge pull request #21224 from mozilla/FXA-13152",
+  "description": "feat(settings): sign in to Sync with a PRF passkey and no password",
+  "timestamp": 1790294801000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
