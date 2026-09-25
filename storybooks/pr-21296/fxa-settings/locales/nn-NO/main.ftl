@@ -1374,6 +1374,12 @@ pair2-supplicant-timeout-and-cancel-cancelled-heading = Annulert
 pair2-supplicant-timeout-and-cancel-canceled-description = For å kople til ei eining når som helst, gå til <b>firefox.com/pair</b> på datamaskina di.
 
 
+permissions-label-email = E-postadresse
+permissions-label-display-name = Visingsnamn
+permissions-continue-button = Hald fram
+permissions-cancel-button = Avbryt
+
+
 service-welcome-signup-success-banner = { -product-mozilla-account } stadfesta
 service-welcome-signin-success-banner = Innlogga!
 service-welcome-vpn-heading = Neste: Slå på VPN

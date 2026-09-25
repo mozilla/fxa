@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit bcda08b860b9cacc4501d90f6722ecf893244462</title>
+  <title>Storybooks for commit 34bb3934f5075d49b7c6c6c495f87ef78b782c44</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,28 +23,28 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit bcda08b860b9cacc4501d90f6722ecf893244462</h1>
+  <h1>Storybooks for commit 34bb3934f5075d49b7c6c6c495f87ef78b782c44</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/23/2026, 11:33:04 PM UTC</dd>
+    <dd>9/25/2026, 7:59:49 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(settings): serve force password change page from React</pre></dd>
     <dt>Description</dt>
     <dd><pre>## Because
 
-- The force password change page at `post_verify/password/force_password_change` is still a Backbone page.
-- The React sign-in flow does a hard navigation to that page, so the user leaves the React app.
+- The force password change page at `/post_verify/password/force_password_change` is still a Backbone page.
+- React sign-in does a hard navigation to that page, so the user leaves the React app.
 
 ## This pull request
 
-- Adds the React `ForcePasswordChange` page and container under `pages/PostVerify/ForcePasswordChange`, with tests and a story.
+- Adds the React `ForcePasswordChange` page and container under `pages/PostVerify/ForcePasswordChange`, with unit tests and a Storybook story.
 - Adds a `force-password-change` type to `FormPasswordWithInlineCriteria` with an old password field, and adds an `id` prop to `InputText` and `InputPassword`.
 - Adds the route to the `postVerifyOtherRoutes` group on the content server and to the Backbone router, which forwards the OAuth and Sync params.
 - Changes `handleNavigation` in `Signin/utils.ts` to soft-navigate to the React page instead of `hardNavigate`.
-- Updates the SigninTokenCode test to assert soft navigation to the force password change page instead of hardNavigate.
+- Adds the functional test &quot;force change password on signin - react&quot;. It sets a window marker before the token code step, then checks that the marker is still there on the new page. A full page load clears the marker, so the test proves a soft navigation.
 
 ## Issue that this pull request solves
 

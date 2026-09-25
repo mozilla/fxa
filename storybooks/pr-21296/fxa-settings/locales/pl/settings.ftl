@@ -1310,6 +1310,7 @@ auth-error-215 = Numer telefonu odzyskiwania nie istnieje
 auth-error-216 = Osiągnięto ograniczenie liczby wiadomości SMS
 auth-error-218 = Nie można usunąć telefonu odzyskiwania, brakuje zapasowych kodów uwierzytelniania.
 auth-error-219 = Ten numer telefonu został zarejestrowany na zbyt wielu kontach. Spróbuj innego numeru.
+auth-error-240 = To konto zostało wyłączone
 auth-error-999 = Nieznany błąd
 auth-error-1001 = Anulowano próbę logowania
 auth-error-1002 = Sesja wygasła. Zaloguj się, aby kontynuować.
@@ -1390,6 +1391,16 @@ index-email-input =
 index-account-delete-success = Pomyślnie usunięto konto
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = Wiadomość z potwierdzeniem została zwrócona. Błąd w adresie e-mail?
+
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = Ten klucz dostępu jest gotowy do logowania do synchronizacji
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = Nie udało się potwierdzić klucza dostępu
+inline-passwordless-sync-setup-error-cancelled-description = Potwierdź za pomocą klucza dostępu, aby następnym razem nie wpisywać hasła.
+# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+inline-passwordless-sync-setup-error-generic = Wystąpił błąd. Następnym razem nadal trzeba będzie podać hasło.
 
 ## InlineRecoveryKeySetup page component
 
@@ -1655,6 +1666,19 @@ pair2-supplicant-connect-this-device-heading = Czy połączyć to urządzenie z�
 pair2-supplicant-connect-this-device-connect-button = Połącz
 # Dismisses the pairing attempt
 pair2-supplicant-connect-this-device-cancel-button = Anuluj
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } prosi o dostęp do:
+permissions-label-email = Adres e-mail
+permissions-label-display-name = Wyświetlana nazwa
+permissions-continue-button = Kontynuuj
+permissions-cancel-button = Anuluj
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
