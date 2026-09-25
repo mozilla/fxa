@@ -3,19 +3,24 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Unsupported-browser pairing tests.
+ * Pairing from a browser that cannot pair on its own.
  *
- * Spoofs the user-agent to a browser that cannot pair — a non-Firefox desktop,
- * and an iPhone opening a scanned pairing URL — and verifies both land on the
- * unsupported screen.
+ * Spoofs the user-agent — a non-Firefox desktop, and iOS browsers opening a
+ * scanned pairing URL — and verifies where `/pair` sends each: desktop to the
+ * unsupported screen, phones to the download screen that hands off to the
+ * Firefox app.
  *
  * Runs on the standard Firefox project — only the UA string is faked,
  * so no extra browser binary is required.
  *
- * Works in BOTH the React and Backbone pair modes. Both stacks render
- * the same "Oops!" heading on `#pair-unsupported-header` and the same
- * "Download Firefox" anchor pointing at mozilla.org/firefox/new, so we
+ * The desktop case works in BOTH the React and Backbone pair modes. Both
+ * stacks render the same "Oops!" heading on `#pair-unsupported-header` and the
+ * same "Download Firefox" anchor pointing at mozilla.org/firefox/new, so we
  * don't gate on showReactApp.pairRoutes.
+ *
+ * The iOS cases locate CTAs by href rather than by name: Fluent wraps the
+ * brand name in BiDi isolation marks (U+2068/2069), so an accessible-name
+ * match on "Download Firefox" would not resolve.
  */
 
 import { test, expect } from '../../lib/fixtures/standard';
@@ -30,8 +35,16 @@ const IOS_SAFARI_UA =
   'AppleWebKit/605.1.15 (KHTML, like Gecko) ' +
   'Version/17.4 Mobile/15E148 Safari/604.1';
 
+const IOS_CHROME_UA =
+  'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) ' +
+  'AppleWebKit/605.1.15 (KHTML, like Gecko) ' +
+  'CriOS/124.0.6367.88 Mobile/15E148 Safari/604.1';
+
 /** What the system camera opens after scanning a v2 authority QR. */
 const PAIRING_HASH = '#channel_id=chan-1&channel_key=key-1&v=2';
+
+const DEEP_LINK = 'a[href^="firefox://open-url"]';
+const APP_STORE_LINK = 'a[href*="apps.apple.com"]';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('pairing unsupported browser', () => {
@@ -75,12 +88,14 @@ test.describe('severity-2 #smoke', () => {
     });
   });
 
-  // Firefox iOS cannot finish a pairing that started in another browser, so
-  // offering to hand off to it would only be a tap in front of this screen.
-  test.describe('pairing from the iOS system camera', () => {
+  // A phone that scanned the QR with its system camera. Safari cannot infer a
+  // failed launch of firefox://, so it gets the App Store as its own CTA next
+  // to the deep link. With no iOS minimum served, the deep link opens the
+  // connect hint page rather than the pair URL.
+  test.describe('pairing from the iOS system camera in Safari', () => {
     test.use({ userAgent: IOS_SAFARI_UA });
 
-    test('opening a scanned pairing URL on iOS redirects to /pair/unsupported', async ({
+    test('offers the App Store and a Firefox deep link to the connect hint', async ({
       target,
       page,
     }) => {
@@ -88,11 +103,45 @@ test.describe('severity-2 #smoke', () => {
         waitUntil: 'load',
       });
 
-      await page.waitForURL(/\/pair\/unsupported/, { timeout: 10_000 });
-      await expect(page.locator('#pair-unsupported-header')).toBeVisible();
+      await page.waitForURL(/\/pair\/supplicant\/download_firefox/, {
+        timeout: 10_000,
+      });
+      // The channel key is the pairing PSK and travels as router state only.
+      expect(page.url()).not.toContain('channel_key');
+
+      // Matched on the part of the heading outside the isolated brand name.
       await expect(
-        page.getByRole('heading', { name: /Continue in Firefox/i })
-      ).toBeHidden();
+        page.getByRole('heading', { name: /on this device/ })
+      ).toBeVisible();
+
+      await expect(page.locator(APP_STORE_LINK)).toBeVisible();
+
+      const deepLink = page.locator(DEEP_LINK);
+      await expect(deepLink).toBeVisible();
+      const href = (await deepLink.getAttribute('href')) ?? '';
+      const opened = new URL(href.replace('firefox://', 'https://'));
+      expect(opened.searchParams.get('url')).toBe(
+        `${target.contentServerUrl}/pair/supplicant/connect_hint`
+      );
+    });
+  });
+
+  // Any other iOS browser fails an unregistered scheme silently, so the store
+  // stays an inferred fallback behind a single CTA.
+  test.describe('pairing from the iOS system camera in Chrome', () => {
+    test.use({ userAgent: IOS_CHROME_UA });
+
+    test('offers a single Firefox deep link', async ({ target, page }) => {
+      await page.goto(`${target.contentServerUrl}/pair${PAIRING_HASH}`, {
+        waitUntil: 'load',
+      });
+
+      await page.waitForURL(/\/pair\/supplicant\/download_firefox/, {
+        timeout: 10_000,
+      });
+
+      await expect(page.locator(DEEP_LINK)).toHaveCount(1);
+      await expect(page.locator(APP_STORE_LINK)).toHaveCount(0);
     });
   });
 });

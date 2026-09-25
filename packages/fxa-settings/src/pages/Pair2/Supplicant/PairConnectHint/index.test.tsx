@@ -57,11 +57,8 @@ describe('Pair2/Supplicant/PairConnectHint page', () => {
     renderWithLocalizationProvider(<PairConnectHint />);
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      'Continue with these steps'
+      'Finish pairing in the app'
     );
-    expect(
-      screen.getByText('Use Firefox’s built-in camera to scan again')
-    ).toBeInTheDocument();
   });
 
   it('renders the two steps as a list, emphasising the control to tap', () => {

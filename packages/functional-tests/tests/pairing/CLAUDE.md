@@ -97,9 +97,10 @@ npx playwright test pairingFlowV2iOS.spec.ts -g "page's own"         # page supp
 hand-off delivery, whose link the `/pair` page builds from the served
 `pairing.iosUrlScheme`. The scheme has to name this build (`fennec`) or the link
 points at an install that is not there, and without an iOS minimum configured
-(any value, `0` meaning every version) the page sends an iOS browser to
-`/pair/unsupported` instead of offering a link at all. The deep-link delivery builds its own URL in `IOSSupplicant` and ignores
-both.
+(any value, `0` meaning every version) the link the page offers opens
+`/pair/supplicant/connect_hint` in Firefox rather than the pair URL, so the
+pairing never starts. The deep-link delivery builds its own URL in
+`IOSSupplicant` and ignores both.
 
 `IOS_DESTINATION` is optional; without it `IOSSupplicant` targets whichever
 Simulator is booted. `IOS_SIMULATOR_UDID` picks one when several are.

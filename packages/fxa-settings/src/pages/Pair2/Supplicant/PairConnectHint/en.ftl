@@ -4,8 +4,7 @@
 ## Firefox installed, so it tells them how to scan the code again from inside
 ## Firefox.
 
-pair2-supplicant-connect-hint-heading = Continue with these steps
-pair2-supplicant-connect-hint-subheading = Use { -brand-firefox }’s built-in camera to scan again
+pair2-supplicant-connect-hint-heading-v2 = Finish pairing in the app
 # <b> emphasises the name of the button the user taps in Firefox
 pair2-supplicant-connect-hint-step-app-menu = Tap the <b>app menu</b> in the toolbar
 # <b> emphasises the name of the menu item the user taps in Firefox
