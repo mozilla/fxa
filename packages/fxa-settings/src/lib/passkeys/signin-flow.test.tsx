@@ -133,14 +133,14 @@ describe('shouldRequestWrapMaterial', () => {
     ).toBe(false);
   });
 
-  // The web view closes at handoff, so the offer page would never be seen.
-  it('withholds it on a mobile client', () => {
+  // Mobile opens a stored wrap; only the offer to create one is desktop-only.
+  it('requests it on a mobile client', () => {
     expect(
       shouldRequestWrapMaterial(
         desktopSync({ isFirefoxMobileClient: () => true }),
         enabled,
         true
       )
-    ).toBe(false);
+    ).toBe(true);
   });
 });

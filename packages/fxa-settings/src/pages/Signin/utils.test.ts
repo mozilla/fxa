@@ -422,6 +422,31 @@ describe('Signin utils', () => {
       });
     });
 
+    it('forwards kB to finishOAuthFlowHandler for a passwordless Sync sign-in', async () => {
+      const finishOAuthFlowHandler = jest
+        .fn()
+        .mockResolvedValue(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
+      const navigationOptions = createBaseNavigationOptions({
+        integration: createMockSigninOAuthNativeSyncIntegration(),
+        signinData: {
+          ...createBaseNavigationOptions().signinData,
+          keyFetchToken: undefined,
+        },
+        finishOAuthFlowHandler,
+        kB: 'ab'.repeat(32),
+      });
+
+      await handleNavigation(navigationOptions);
+
+      expect(finishOAuthFlowHandler).toHaveBeenCalledWith(
+        MOCK_UID,
+        MOCK_SESSION_TOKEN,
+        undefined,
+        undefined,
+        'ab'.repeat(32)
+      );
+    });
+
     describe('email OTP resend before verification pages', () => {
       it('resends the email OTP code when navigating to /signin_token_code with an EMAIL_OTP verification method', async () => {
         const sessionResendVerifyCode = jest.fn().mockResolvedValue({});

@@ -3054,8 +3054,10 @@ passkey:
         description: |
           `<surface>_<outcome>`. Surface: 'emailfirst', 'signin',
           'otplogin', or 'alternative_auth'. Outcome: 'nopassword' (no Sync
-          password step), 'withpassword' (existing password entered), or
-          'createdpassword' (new password set). E.g. 'signin_withpassword'.
+          password step), 'withpassword' (existing password entered),
+          'createdpassword' (new password set), or 'passkeywrap' (a stored
+          passkey wrap supplied the Sync keys, so no password was asked for).
+          E.g. 'signin_withpassword'.
           'otplogin' and 'alternative_auth' are no-password surfaces, so they
           pair only with 'nopassword'/'createdpassword' (never 'withpassword').
         type: string

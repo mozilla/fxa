@@ -95,7 +95,10 @@ export const toPasskeyMetricsSurface = (
 export type PasskeyAuthSuccessOutcome =
   | 'nopassword'
   | 'withpassword'
-  | 'createdpassword';
+  | 'createdpassword'
+  // Distinct from `nopassword`: the account has a password, but a passkey
+  // wrap supplied `kB` so it was never asked for.
+  | 'passkeywrap';
 
 // `otplogin` and `alternative_auth` are no-password surfaces: they never reach
 // the existing-password fallback, so `*_withpassword` is emitted by no caller.
@@ -150,11 +153,9 @@ export function resolvePasskeyService(
  * Whether the assertion should ask for the material a passkey wrap needs: the
  * `mfa:passkey` scope and the PRF output.
  *
- * Desktop Sync sign-ins need encryption keys and so end in a password step,
- * which is the only flow where `kB` is derived client-side. Mobile clients
- * close the web view at handoff, so the page that makes the offer would never
- * be seen there. Other Firefox services that want keys keep their own landing
- * pages and are not offered.
+ * Only OAuth-native Sync can take a recovered `kB` straight into the flow;
+ * desktop v3 sends keyFetchToken/unwrapBKey over WebChannel. Other Firefox
+ * services that want keys keep their own landing pages.
  */
 export function shouldRequestWrapMaterial(
   integration: PasskeySignInIntegration,
@@ -165,8 +166,7 @@ export function shouldRequestWrapMaterial(
     !!featureFlags?.passkeyPasswordlessSyncEnabled &&
     keysRequired &&
     isOAuthNativeIntegration(integration) &&
-    integration.isSync() &&
-    !integration.isFirefoxMobileClient()
+    integration.isSync()
   );
 }
 

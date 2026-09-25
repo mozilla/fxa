@@ -200,6 +200,16 @@ async function setUpAccountWithPasskey(
 }
 
 test.describe('passkey wrap round-trip', () => {
+  // The client flag stands in for the server's, which config does not
+  // expose; the wrap routes refuse with errno 202 when it is off.
+  test.beforeEach(async ({ pages: { configPage } }) => {
+    const config = await configPage.getConfig();
+    test.skip(
+      !config.featureFlags?.passkeyPasswordlessSyncEnabled,
+      'Passwordless Sync is not enabled'
+    );
+  });
+
   test('reopens a stored wrap to the password-derived kB', async ({
     target,
     apiAccountTracker,

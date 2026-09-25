@@ -72,7 +72,6 @@ const checkOAuthData = (integration: OAuthIntegration): AuthError | null => {
  * Constructs JSON web encrypted keys
  * @param accountUid - Current account UID
  * @param sessionToken - Current Session Token
- * @param keyFetchToken - Current Key Fetch Token
  * @param kB -The encryption key for class-b data. See eco system docs for more info.
  * @returns JSON Web Ecrypted Kyes
  */
@@ -81,7 +80,6 @@ async function constructKeysJwe(
   integration: OAuthIntegration,
   accountUid: string,
   sessionToken: string,
-  keyFetchToken: string,
   kB: string
 ) {
   // The URL may omit scope= for OAuthNative flows. When that happens,
@@ -99,8 +97,7 @@ async function constructKeysJwe(
     integration.data.keysJwk &&
     integration.data.clientId &&
     sessionToken &&
-    kB &&
-    keyFetchToken
+    kB
   ) {
     const clientKeyData = await authClient.getOAuthScopedKeyData(
       sessionToken,
@@ -197,7 +194,9 @@ export type FinishOAuthFlowHandler = (
   accountUid: string,
   sessionToken: string,
   keyFetchToken?: string,
-  unwrapKB?: string
+  unwrapKB?: string,
+  /** Hex `kB` already known to the client; skips the keyFetchToken derivation. */
+  kB?: hexstring
 ) => Promise<FinishOAuthFlowHandlerResult>;
 
 type UseFinishOAuthFlowHandlerResult = {
@@ -215,6 +214,7 @@ export function tryAgainError() {
  * @param sessionToken - Current session token
  * @param keyFetchToken - Current key fetch token
  * @param unwrapBKey - Used to unwrap the account keys
+ * @param kB - Hex `kB` already recovered client-side; skips the key fetch.
  * @returns An object containing the redirect URL, that can relay the new OAuthCode.
  */
 export function useFinishOAuthFlowHandler(
@@ -226,7 +226,7 @@ export function useFinishOAuthFlowHandler(
   const sensitiveDataClient = useSensitiveDataClient();
 
   const finishOAuthFlowHandler: FinishOAuthFlowHandler = useCallback(
-    async (accountUid, sessionToken, keyFetchToken, unwrapBKey) => {
+    async (accountUid, sessionToken, keyFetchToken, unwrapBKey, knownKb) => {
       // We cannot finish the flow if we don't have an oauth integration. This indicates something
       // Went very sideways.
       if (oAuthIntegration == null) {
@@ -234,23 +234,24 @@ export function useFinishOAuthFlowHandler(
       }
 
       let keys;
-      if (oAuthIntegration.wantsKeys() && keyFetchToken && unwrapBKey) {
+      if (oAuthIntegration.wantsKeys()) {
         try {
-          const { kB } = await authClient.accountKeys(
-            keyFetchToken,
-            unwrapBKey
-          );
-          // The only point in a keys-bearing sign-in where `kB` exists
-          // client-side.
-          sensitiveDataClient.captureKbForPendingWrap(accountUid, kB);
-          keys = await constructKeysJwe(
-            authClient,
-            oAuthIntegration,
-            accountUid,
-            sessionToken,
-            keyFetchToken,
-            kB
-          );
+          let kB = knownKb;
+          if (!kB && keyFetchToken && unwrapBKey) {
+            ({ kB } = await authClient.accountKeys(keyFetchToken, unwrapBKey));
+            // The only point in a keys-bearing password sign-in where `kB`
+            // exists client-side.
+            sensitiveDataClient.captureKbForPendingWrap(accountUid, kB);
+          }
+          if (kB) {
+            keys = await constructKeysJwe(
+              authClient,
+              oAuthIntegration,
+              accountUid,
+              sessionToken,
+              kB
+            );
+          }
         } catch (e) {
           return tryAgainError();
         }
