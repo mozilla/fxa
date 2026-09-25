@@ -1,8 +1,8 @@
 {
-  "commit": "5af5419482ab4c865a2153a0e63dd4d92afb8296",
-  "summary": "Merge pull request #21327 from mozilla/FXA-14629",
-  "description": "bug(Settings): Respect browser's pairing version",
-  "timestamp": 1790369924000,
+  "commit": "31c2a89e7e7ca2042361818828502d71bfa5615c",
+  "summary": "Merge pull request #21325 from mozilla/fxa-14621",
+  "description": "chore(auth): remove legacy GET /complete_reset_password route",
+  "timestamp": 1790372723000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
