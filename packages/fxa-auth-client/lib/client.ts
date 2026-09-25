@@ -2324,25 +2324,6 @@ export default class AuthClient {
     );
   }
 
-  async mfaTestGet(
-    jwt: string,
-    headers?: Headers
-  ): Promise<{ status: string }> {
-    return this.jwtGet('/mfa/test', jwt, headers);
-  }
-
-  async mfaTestPost(
-    jwt: string,
-    payload: { message: string },
-    headers?: Headers
-  ) {
-    return this.jwtPost('/mfa/test', jwt, payload, headers);
-  }
-
-  async mfaTestPost2(jwt: string, headers?: Headers) {
-    return this.jwtPost('/mfa/test2', jwt, {}, headers);
-  }
-
   async deviceList(sessionToken: hexstring, headers?: Headers) {
     return this.sessionGet('/account/devices', sessionToken, headers);
   }
