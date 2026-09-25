@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit bde1002b3f365ddee9cde0b9a413ea681ec91727</title>
+  <title>Storybooks for commit 91bc737cc7ad1fe096917109aa15051cb4bd4f8c</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,26 +23,25 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit bde1002b3f365ddee9cde0b9a413ea681ec91727</h1>
+  <h1>Storybooks for commit 91bc737cc7ad1fe096917109aa15051cb4bd4f8c</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/24/2026, 11:26:34 PM UTC</dd>
+    <dd>9/25/2026, 1:02:38 AM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(settings): point PairConnectHint help link to the no-QR article</pre></dd>
+    <dd><pre>fix(content-server): serve the pair connect_hint route on reload</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-* &quot;Learn more&quot; on the connect hint page should open the article about
-  connecting a device without a QR code, not the generic sync setup page.
+* Reloading /pair/supplicant/connect_hint returned the content-server 404
+  because only the settings router knew about the path.
 
 This commit:
 
-* Adds PAIR_WITHOUT_QR_SUPPORT_URL, the in-product SUMO link with the
-  %VERSION%, %OS% and %LOCALE% placeholders.
-* Points the PairConnectHint link and its test at it.
+* Adds pair/supplicant/connect_hint to the content-server frontend route
+  list and to the pair2 React route group.
 
 Closes #FXA-14603</pre></dd>
   </dl>
