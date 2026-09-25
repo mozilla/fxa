@@ -1,8 +1,8 @@
 {
-  "commit": "431f9c8d8ce7797405959d388444bbf6b992cb15",
+  "commit": "a95cf7f40a254f61e96d6b658d65b90edd31d4ea",
   "summary": "feat(settings): serve /subscriptions redirect from React",
-  "description": "## Because\n\n- `/subscriptions` still runs in Backbone, so it blocks the move of post-verify routes to React.\n- The earlier plan kept this route in Backbone until FXA-6117. This PR moves it now instead, behind the staged rollout flag.\n\n## This pull request\n\n- Adds a `SubscriptionsRedirect` page in fxa-settings for `/subscriptions`.\n- Keeps parity with Backbone: `usePaymentsNextSubscriptionManagement` picks `subscriptions/landing`.\n- Serves the route from React through `postVerifyOtherRoutes` in the content-server react-app routes, with `fullProdRollout: false`.\n- Passes the `subscriptions` config from content-server to fxa-settings.\n\n## Issue that this pull request solves\n\nCloses: FXA-6661",
-  "timestamp": 1790355033000,
+  "description": "## Because\n\n- `/subscriptions` still runs in Backbone, so it blocks the move of post-verify routes to React.\n- The earlier plan kept this route in Backbone until FXA-6117. This PR moves it now instead, behind the staged rollout flag.\n\n## This pull request\n\n- Adds a `SubscriptionsRedirect` page in fxa-settings for `/subscriptions`.\n- Keeps parity with Backbone: `usePaymentsNextSubscriptionManagement` picks `subscriptions/landing`.\n- Serves the route from React through `postVerifyOtherRoutes` in the content-server react-app routes, with `fullProdRollout: false`.\n- Passes the `subscriptions` config from content-server to fxa-settings.\n- Guards the redirect effect so StrictMode requests only one OAuth token.\n\n## Issue that this pull request solves\n\nCloses: FXA-6661",
+  "timestamp": 1790355928000,
   "storybooks": [
     "fxa-settings"
   ],
