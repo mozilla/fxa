@@ -1,8 +1,8 @@
 {
-  "commit": "7ddb2795859a4b08c253f061b790a1604b8ca0e6",
-  "summary": "Merge pull request #21310 from mozilla/fxa-14603",
-  "description": "feat(settings): add the PairConnectHint supplicant page",
-  "timestamp": 1790355731000,
+  "commit": "01eb3e0f4d6c908542002a4fa4eee20f5c1b4296",
+  "summary": "Merge pull request #21316 from mozilla/FXA-14633",
+  "description": "fix(content-server): point default tokenserver URL at local Sync",
+  "timestamp": 1790357421000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
