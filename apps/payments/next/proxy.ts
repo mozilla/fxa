@@ -4,7 +4,7 @@
 import { resolvePathnameWithLocale } from '@fxa/payments/ui/utils';
 import { NextRequest, NextResponse } from 'next/server';
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   // Handle locale fallback
   const result = resolvePathnameWithLocale(
     request.nextUrl.pathname,
@@ -17,7 +17,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Read env vars directly from process.env
-  // As of 05-15-2024 its not possible to use app/config in middleware
+  // As of 05-15-2024 its not possible to use app/config in proxy
   const accountsStaticCdn = process.env.CSP__ACCOUNTS_STATIC_CDN;
   const PAYPAL_SCRIPT_URL = '*.paypal.com';
   const PAYPAL_OBJECTS = '*.paypalobjects.com';
@@ -80,7 +80,7 @@ export function middleware(request: NextRequest) {
   // If the user is not logged in, `getExperimentationId` uses the value we
   // set here to determine which experiments to show the user. We read it from
   // the `experimentationId` cookie, and initialise that cookie if it's unset.
-  // (The reason we do this in middleware, is to ensure that every call to
+  // (The reason we do this in proxy, is to ensure that every call to
   // `getExperimentationId` results in the same ID.)
   const existingExperimentationId = request.cookies.get('experimentationId');
   const experimentationId =
