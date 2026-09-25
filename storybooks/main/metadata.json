@@ -1,8 +1,8 @@
 {
-  "commit": "fa90046d2ff53094cf68580818b8be9a7c35178e",
-  "summary": "Merge pull request #21272 from mozilla/dependabot/github_actions/github/codeql-action/analyze-4.38.1",
-  "description": "chore(deps): bump github/codeql-action/analyze from 4.38.0 to 4.38.1",
-  "timestamp": 1790359710000,
+  "commit": "459e0c87b877420600eefce9d78ebb20b62d9ce0",
+  "summary": "Merge pull request #21295 from mozilla/fxa-6661",
+  "description": "feat(settings): serve /subscriptions redirects from React",
+  "timestamp": 1790360900000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
