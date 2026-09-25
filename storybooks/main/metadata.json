@@ -1,8 +1,8 @@
 {
-  "commit": "4304d002a76bbee1bb2bc19dad8bf7fd466361ff",
-  "summary": "Merge pull request #21296 from mozilla/fxa-6653",
-  "description": "feat(settings): serve force password change page from React",
-  "timestamp": 1790367912000,
+  "commit": "5af5419482ab4c865a2153a0e63dd4d92afb8296",
+  "summary": "Merge pull request #21327 from mozilla/FXA-14629",
+  "description": "bug(Settings): Respect browser's pairing version",
+  "timestamp": 1790369924000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

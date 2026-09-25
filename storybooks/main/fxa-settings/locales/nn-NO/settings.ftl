@@ -1480,6 +1480,7 @@ auth-error-228 = Mislykka registrering av passnøkkel
 auth-error-233 = For å opprette ein passnøkkel må du konfigurere skjermlås, PIN-kode, fingeravtrykk eller ansiktsgjenkjenning på eininga eller sikkerheitsnøkkelen. Prøv deretter på nytt.
 auth-error-238 = Mislykka passnøkkelutfordring
 auth-error-239 = Beklagar, vi kunne ikkje slette kontoen din. Prøv på nytt, eller kontakt brukarstøtte viss problemet held fram.
+auth-error-240 = Denne kontoen er deaktivert
 auth-error-999 = Uventa feil
 auth-error-1001 = Innloggingsforsøket avbrote
 auth-error-1002 = Økta er slutt. Logg inn for å halde fram.
@@ -2015,6 +2016,8 @@ pair2-supplicant-timeout-and-cancel-canceled-description = For å kople til ei e
 ## The page informs the user which profile information the relying party can
 ## read. It does not offer a choice.
 
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } ønskjer tilgang til:
 permissions-label-email = E-postadresse
 permissions-label-display-name = Visingsnamn
 permissions-continue-button = Hald fram
