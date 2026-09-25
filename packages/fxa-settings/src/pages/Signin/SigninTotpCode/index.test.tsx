@@ -256,12 +256,13 @@ describe('Sign in with TOTP code page', () => {
           renderAndSubmitTotpCode({}, undefined, integration)
         );
         expect(fxaLoginSpy).toHaveBeenCalled();
-        expect(hardNavigateSpy).toHaveBeenCalledWith(
-          '/pair?showSuccessMessage=true&pairReason=password_login',
-          undefined,
-          undefined,
-          true
-        );
+        expect(mockNavigate).toHaveBeenCalledWith('/pair', {
+          state: expect.objectContaining({
+            origin: 'signin',
+            pairReason: 'password_login',
+          }),
+          replace: true,
+        });
       });
       it('is not sent otherwise', async () => {
         await renderAndSubmitTotpCode({});

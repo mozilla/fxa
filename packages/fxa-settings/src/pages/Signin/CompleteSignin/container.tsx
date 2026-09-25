@@ -4,8 +4,10 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 
-import { hardNavigate } from 'fxa-react/lib/utils';
-import { useValidatedQueryParams } from '../../../lib/hooks';
+import {
+  useNavigateWithQuery,
+  useValidatedQueryParams,
+} from '../../../lib/hooks';
 import { CompleteSigninQueryParams } from '../../../models/pages/signin';
 import { SigninLinkDamaged } from '../../../components/LinkDamaged';
 import { useAuthClient, useFtlMsgResolver } from '../../../models';
@@ -29,6 +31,7 @@ const CompleteSigninContainer = () => {
 
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
+  const navigateWithQuery = useNavigateWithQuery();
 
   const [errorMessage, setErrorMessage] = useState<string>();
   const [linkExpired, setLinkExpired] = useState(false);
@@ -81,7 +84,7 @@ const CompleteSigninContainer = () => {
     // TODO in FXA-9132 - Add metrics event
     // Backbone had 'verification.success' and 'signin.success';
 
-    hardNavigate('/pair', {}, true);
+    navigateWithQuery('/pair');
   };
 
   if (validationError) {

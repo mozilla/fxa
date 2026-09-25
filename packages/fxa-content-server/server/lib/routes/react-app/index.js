@@ -27,14 +27,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       featureFlagOn: showReactApp.emailFirstRoutes,
       // the order of the routes in the array is important.  do not put '/'
       // first.
-      routes: reactRoute.getRoutes([
-        'authorization',
-        // NOTE: 'oauth' is currently a weird case because because Fx desktop uses
-        // it to initiate the pairing flow. We have logic at the Express level to
-        // handle showing React/Backbone for this route until pairing is Reactified.
-        'oauth',
-        '/',
-      ]),
+      routes: reactRoute.getRoutes(['authorization', 'oauth', '/']),
       fullProdRollout: true,
     },
     simpleRoutes: {
@@ -108,10 +101,9 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       fullProdRollout: true,
     },
 
+    // The Backbone pairing views are gone, so React is the only option.
     pairRoutes: {
-      featureFlagOn: showReactApp.pairRoutes,
-      // Note: The '/oauth?channel_id=...' route for Fx Desktop authority entry is handled
-      // separately in add-routes.js — it bypasses to Backbone unless pairRoutes is enabled.
+      featureFlagOn: true,
       routes: reactRoute.getRoutes([
         'pair',
         'pair/supp',
@@ -143,12 +135,6 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'post_verify/password/force_password_change',
         'subscriptions',
       ]),
-      fullProdRollout: false,
-    },
-
-    postVerifyCADViaQRRoutes: {
-      featureFlagOn: showReactApp.postVerifyCADViaQRRoutes,
-      routes: [],
       fullProdRollout: false,
     },
 

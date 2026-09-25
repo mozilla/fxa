@@ -66,10 +66,6 @@ export const SELECTORS = {
     '#auth-approve-btn',
     'button[type="submit"]',
   ],
-  // Backbone supplicant cancel is an anchor `<a href="#" id="cancel">` that fires
-  // a click handler calling replaceCurrentPage('pair/failure'). React uses
-  // `<Link to="/pair/failure">` with no stable id — we match it by role/text.
-  SUPP_CANCEL_BACKBONE: ['a#cancel'],
   TOTP_INPUT: [
     'input.totp-code',
     'input[name="code"]',

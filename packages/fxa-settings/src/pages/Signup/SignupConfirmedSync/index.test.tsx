@@ -16,6 +16,12 @@ function mockReactUtilsModule() {
   jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
 }
 
+const mockNavigate = jest.fn();
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useNavigate: () => mockNavigate,
+}));
+
 jest.mock('../../../lib/channels/firefox', () => ({
   ...jest.requireActual('../../../lib/channels/firefox'),
   firefox: {
@@ -66,11 +72,12 @@ describe('SignupConfirmedSync', () => {
     expect(screen.queryByText('payment methods')).not.toBeInTheDocument();
   });
 
-  it('hard navigates to /pair when "Add another device" is clicked', async () => {
+  it('navigates to /pair when "Add another device" is clicked', async () => {
     renderWithLocalizationProvider(<Subject />);
 
     await user.click(screen.getByText('Add another device'));
-    expect(ReactUtils.hardNavigate).toHaveBeenCalledWith('/pair', {}, true);
+    expect(mockNavigate).toHaveBeenCalledWith('/pair');
+    expect(ReactUtils.hardNavigate).not.toHaveBeenCalled();
   });
 
   it('calls fxaOpenSyncPreferences when "Manage sync" is clicked', async () => {

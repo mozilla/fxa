@@ -13,11 +13,6 @@
  * Runs on the standard Firefox project — only the UA string is faked,
  * so no extra browser binary is required.
  *
- * The desktop case works in BOTH the React and Backbone pair modes. Both
- * stacks render the same "Oops!" heading on `#pair-unsupported-header` and the
- * same "Download Firefox" anchor pointing at mozilla.org/firefox/new, so we
- * don't gate on showReactApp.pairRoutes.
- *
  * The iOS cases locate CTAs by href rather than by name: Fluent wraps the
  * brand name in BiDi isolation marks (U+2068/2069), so an accessible-name
  * match on "Download Firefox" would not resolve.
@@ -61,14 +56,12 @@ test.describe('severity-2 #smoke', () => {
       const ua = await page.evaluate(() => navigator.userAgent);
       expect(ua).toContain('Chrome/');
 
-      // The Pair Index page (React or Backbone) navigates to /pair/unsupported
+      // The Pair Index page navigates to /pair/unsupported
       // on mount when the browser is not Firefox desktop.
       await page.waitForURL(/\/pair\/unsupported/, { timeout: 10_000 });
 
-      // Both stacks render the "Oops!" heading on `#pair-unsupported-header`.
-      // React's Fluent wraps "Firefox" in BiDi isolation markers (U+2068/2069);
-      // Backbone uses the bare word. Use a curly-quote-tolerant prefix match
-      // and check "Firefox" separately so the same assertion works in both.
+      // Fluent wraps "Firefox" in BiDi isolation markers (U+2068/2069), so use
+      // a curly-quote-tolerant prefix match and check "Firefox" separately.
       const header = page.locator('#pair-unsupported-header');
       await expect(header).toBeVisible();
       await expect(header).toContainText(

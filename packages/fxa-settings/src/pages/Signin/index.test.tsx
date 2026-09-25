@@ -327,18 +327,19 @@ describe('Signin component', () => {
       });
 
       it('does not render third party auth for sync, emits expected Glean event', async () => {
-        const hardNavigateSpy = jest
-          .spyOn(utils, 'hardNavigate')
-          .mockImplementation(() => {});
-
         const integration = createMockSigninOAuthNativeSyncIntegration();
         render({ integration });
         await enterPasswordAndSubmit();
 
-        // There is a hardNavigate that happens in this flow, if we don't
-        // mock/spy on it then it logs an error the next time a test tries
-        // to `enterPasswordAndSubmit()` because it's wrapped in a `setTimeout`
-        expect(hardNavigateSpy).toHaveBeenCalled();
+        await waitFor(() => {
+          expect(navigate).toHaveBeenCalledWith('/pair', {
+            state: expect.objectContaining({
+              origin: 'signin',
+              pairReason: 'password_login',
+            }),
+            replace: true,
+          });
+        });
 
         thirdPartyAuthNotRendered();
         expect(GleanMetrics.login.view).toHaveBeenCalledWith({
@@ -726,12 +727,13 @@ describe('Signin component', () => {
                   unwrapBKey: MOCK_UNWRAP_BKEY,
                 });
               });
-              expect(hardNavigateSpy).toHaveBeenCalledWith(
-                '/pair?showSuccessMessage=true&pairReason=password_login',
-                undefined,
-                undefined,
-                false
-              );
+              expect(navigate).toHaveBeenCalledWith('/pair', {
+                state: expect.objectContaining({
+                  origin: 'signin',
+                  pairReason: 'password_login',
+                }),
+                replace: false,
+              });
             });
             it('is not sent if user has 2FA enabled', async () => {
               const beginSigninHandler = jest.fn().mockReturnValueOnce(
@@ -897,12 +899,13 @@ describe('Signin component', () => {
                 // Ensure fxaLogin is called first
                 expect(fxaLoginCallOrder).toBeLessThan(fxaOAuthLoginCallOrder);
 
-                expect(hardNavigateSpy).toHaveBeenCalledWith(
-                  '/pair?showSuccessMessage=true&pairReason=password_login',
-                  undefined,
-                  undefined,
-                  true
-                );
+                expect(navigate).toHaveBeenCalledWith('/pair', {
+                  state: expect.objectContaining({
+                    origin: 'signin',
+                    pairReason: 'password_login',
+                  }),
+                  replace: true,
+                });
               });
             });
 

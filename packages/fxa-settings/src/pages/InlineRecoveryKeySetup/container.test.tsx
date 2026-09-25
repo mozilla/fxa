@@ -29,6 +29,12 @@ const mockAuthClient = new AuthClient('http://localhost:9000', {
   keyStretchVersion: 1,
 });
 
+const mockNavigate = jest.fn();
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useNavigate: () => mockNavigate,
+}));
+
 jest.mock('fxa-react/lib/utils', () => ({
   ...jest.requireActual('fxa-react/lib/utils'),
   hardNavigate: jest.fn(),
@@ -111,9 +117,8 @@ describe('InlineRecoveryKeySetupContainer', () => {
       </MemoryRouter>
     );
 
-    expect(hardNavigateSpy).toHaveBeenCalledWith(
-      '/pair?showSuccessMessage=true&pairReason=password_login'
-    );
+    expect(mockNavigate).toHaveBeenCalledWith('/pair');
+    expect(hardNavigateSpy).not.toHaveBeenCalled();
     expect(InlineRecoveryKeySetupModule.default).not.toHaveBeenCalled();
   });
 

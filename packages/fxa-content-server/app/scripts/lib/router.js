@@ -9,7 +9,6 @@ import Cocktail from 'cocktail';
 import CompleteSignUpView from '../views/complete_sign_up';
 import ConfirmView from '../views/confirm';
 import ConfirmSignupCodeView from '../views/confirm_signup_code';
-import ConnectAnotherDeviceView from '../views/connect_another_device';
 import IndexView from '../views/index';
 import PermissionsView from '../views/permissions';
 import ReadyView from '../views/ready';
@@ -27,6 +26,12 @@ import ReactExperimentMixin from './generalized-react-app-experiment-mixin';
 import { getClientReactRouteGroups } from '../../../server/lib/routes/react-app/route-groups-client';
 
 const NAVIGATE_AWAY_IN_MOBILE_DELAY_MS = 75;
+
+// React's connect_another_device page names verification types differently.
+const CAD_TYPE_BY_REASON = {
+  [VerificationReasons.SIGN_UP]: 'sign_up',
+  [VerificationReasons.SIGN_IN]: 'sign_in',
+};
 
 function getView(ViewOrPath) {
   if (typeof ViewOrPath === 'string') {
@@ -162,7 +167,16 @@ Router = Router.extend({
         );
       }
     },
-    'connect_another_device(/)': createViewHandler(ConnectAnotherDeviceView),
+    // The Backbone view is gone, but Backbone views still navigate here.
+    'connect_another_device(/)': function () {
+      // A hard nav loses router state, so pass the view data as query params.
+      const viewModel = this.getCurrentViewModel();
+      this.createReactViewHandler('connect_another_device', {
+        ...Url.searchParams(this.window.location.search),
+        showSuccessMessage: viewModel?.get('showSuccessMessage'),
+        type: CAD_TYPE_BY_REASON[viewModel?.get('type')],
+      });
+    },
     'cookies_disabled(/)': function () {
       this.createReactViewHandler('cookies_disabled', {
         // HACK: this page uses the history API to navigate back and must go back one page
@@ -238,29 +252,13 @@ Router = Router.extend({
         }
       );
     },
-    'pair(/)': createViewHandler('pair/index'),
-    'pair/auth/allow(/)': createViewHandler('pair/auth_allow'),
-    'pair/auth/complete(/)': createViewHandler('pair/auth_complete'),
-    'pair/auth/totp(/)': createViewHandler('pair/auth_totp'),
-    'pair/auth/wait_for_supp(/)': createViewHandler('pair/auth_wait_for_supp'),
-    'pair/failure(/)': createViewHandler('pair/failure'),
-    'pair/success(/)': createViewHandler('pair/success'),
-    'pair/supp(/)': createViewHandler('pair/supp', { force: true }),
-    'pair/supp/allow(/)': createViewHandler('pair/supp_allow'),
-    'pair/supp/wait_for_auth(/)': createViewHandler('pair/supp_wait_for_auth'),
-    'pair/unsupported(/)': createViewHandler('pair/unsupported'),
-    'post_verify/cad_qr/get_started': createViewHandler(
-      'post_verify/cad_qr/get_started'
-    ),
-    'post_verify/cad_qr/ready_to_scan': createViewHandler(
-      'post_verify/cad_qr/ready_to_scan'
-    ),
-    'post_verify/cad_qr/scan_code': createViewHandler(
-      'post_verify/cad_qr/scan_code'
-    ),
-    'post_verify/cad_qr/connected': createViewHandler(
-      'post_verify/cad_qr/connected'
-    ),
+    // The Backbone view is gone, but Backbone views still navigate here.
+    'pair(/)': function () {
+      this.createReactViewHandler(
+        'pair',
+        Url.searchParams(this.window.location.search)
+      );
+    },
     'post_verify/newsletters/add_newsletters': createViewHandler(
       'post_verify/newsletters/add_newsletters'
     ),

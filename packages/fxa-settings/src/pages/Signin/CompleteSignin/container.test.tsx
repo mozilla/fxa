@@ -105,8 +105,9 @@ describe('CompleteSignin container', () => {
 
       expect(screen.getByText('Validating sign-in…')).toBeInTheDocument();
       await waitFor(() => {
-        expect(ReactUtils.hardNavigate).toHaveBeenCalledWith('/pair', {}, true);
+        expect(mockNavigate).toHaveBeenCalledWith('/pair');
       });
+      expect(ReactUtils.hardNavigate).not.toHaveBeenCalled();
     });
 
     // TODO in FXA-9132 - Add test for metrics event(s)
@@ -115,8 +116,9 @@ describe('CompleteSignin container', () => {
       renderInStrictMode();
 
       await waitFor(() => {
-        expect(ReactUtils.hardNavigate).toHaveBeenCalledWith('/pair', {}, true);
+        expect(mockNavigate).toHaveBeenCalledWith('/pair');
       });
+      expect(ReactUtils.hardNavigate).not.toHaveBeenCalled();
       expect(mockVerifyCode).toHaveBeenCalledTimes(1);
     });
   });
