@@ -6,7 +6,6 @@ import _ from 'underscore';
 import Backbone from 'backbone';
 import ChooseWhatToSyncView from '../views/choose_what_to_sync';
 import Cocktail from 'cocktail';
-import CompleteSignUpView from '../views/complete_sign_up';
 import ConfirmView from '../views/confirm';
 import ConfirmSignupCodeView from '../views/confirm_signup_code';
 import ConnectAnotherDeviceView from '../views/connect_another_device';
@@ -270,18 +269,6 @@ Router = Router.extend({
     'post_verify/password/force_password_change': createViewHandler(
       'post_verify/password/force_password_change'
     ),
-    'post_verify/secondary_email/add_secondary_email': createViewHandler(
-      'post_verify/secondary_email/add_secondary_email'
-    ),
-    'post_verify/secondary_email/confirm_secondary_email': createViewHandler(
-      'post_verify/secondary_email/confirm_secondary_email'
-    ),
-    'post_verify/secondary_email/verified_secondary_email': createViewHandler(
-      'post_verify/verified',
-      {
-        type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
-      }
-    ),
     // Forward the OAuth and Sync params; the React pages need them.
     'post_verify/third_party_auth/callback(/)': function () {
       this.createReactViewHandler('post_verify/third_party_auth/callback', {
@@ -312,9 +299,6 @@ Router = Router.extend({
       });
     },
 
-    'secondary_email_verified(/)': createViewHandler(ReadyView, {
-      type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
-    }),
     'settings(/)': function () {
       // Because settings is a separate js app, we need to ensure navigating
       // from the content-server app passes along flow parameters.
@@ -448,15 +432,6 @@ Router = Router.extend({
       SubscriptionsProductRedirectView
     ),
     'subscriptions(/)': createViewHandler(SubscriptionsManagementRedirectView),
-    'verify_email(/)': createViewHandler(CompleteSignUpView, {
-      type: VerificationReasons.SIGN_UP,
-    }),
-    'verify_primary_email(/)': createViewHandler(CompleteSignUpView, {
-      type: VerificationReasons.PRIMARY_EMAIL_VERIFIED,
-    }),
-    'verify_secondary_email(/)': createViewHandler(CompleteSignUpView, {
-      type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
-    }),
     'would_you_like_to_sync(/)': createViewHandler(WouldYouLikeToSync),
   },
 

@@ -65,17 +65,6 @@ export default {
     );
   },
 
-  /**
-   * Is a secondary email being verified?
-   *
-   * @returns {Boolean}
-   */
-  isSecondaryEmail() {
-    return (
-      this.model.get('type') === VerificationReasons.SECONDARY_EMAIL_VERIFIED
-    );
-  },
-
   isForcePasswordChange(account) {
     return (
       account.get('verificationReason') === VerificationReasons.CHANGE_PASSWORD
