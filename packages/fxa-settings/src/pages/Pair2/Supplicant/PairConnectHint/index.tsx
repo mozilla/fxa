@@ -38,13 +38,8 @@ const PairConnectHint = () => (
 
       <MobileDevicePairingImage className="mt-10 h-[132px] w-auto" />
 
-      <FtlMsg id="pair2-supplicant-connect-hint-heading">
-        <h1 className="card-header mt-4">Continue with these steps</h1>
-      </FtlMsg>
-      <FtlMsg id="pair2-supplicant-connect-hint-subheading">
-        <p className="mt-1 text-base">
-          Use Firefox’s built-in camera to scan again
-        </p>
+      <FtlMsg id="pair2-supplicant-connect-hint-heading-v2">
+        <h1 className="card-header mt-4">Finish pairing in the app</h1>
       </FtlMsg>
 
       <ol className="mt-4 w-full rounded-xl border border-grey-100 bg-white p-4 text-start">

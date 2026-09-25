@@ -39,9 +39,14 @@ import {
   buildPairingDownloadUrl,
   detectDevice,
   Devices,
+  isIosSafari,
   isSendTabEntrypoint,
 } from '../../../lib/utilities';
-import { buildPairUrl, parsePairingHash } from '../../../lib/pairing/pair-url';
+import {
+  buildConnectHintUrl,
+  buildPairUrl,
+  parsePairingHash,
+} from '../../../lib/pairing/pair-url';
 import { getPairingChannelHashParams } from '../../../lib/pairing-channel-params';
 import {
   isPairingV2Enabled,
@@ -182,6 +187,8 @@ const Pair = ({
 
   const device = deviceProp ?? detectDevice();
   const isFirefoxDesktop = device === Devices.FIREFOX_DESKTOP;
+  const isFirefoxMobile =
+    device === Devices.FIREFOX_IOS || device === Devices.FIREFOX_ANDROID;
 
   // A phone that scanned the QR with its system camera opens this page in
   // whatever browser it defaults to, which is might not be Firefox.
@@ -189,9 +196,9 @@ const Pair = ({
   // carry the flow, so we will hand the pairing URL to the Firefox app instead,
   // falling back to the app store when it is not installed.
   //
-  // iOS gets a plan only where the deployment has rolled pairing v2 out to
-  // Firefox iOS. Without one the flow falls through to /pair/unsupported
-  // below, which is where the hand-off would have led anyway.
+  // Until the deployment has rolled pairing v2 out to Firefox iOS, the app
+  // cannot act on the pair URL, so an iOS plan opens the connect hint page
+  // instead — it tells a user who has Firefox to scan again from inside it.
   //
   // Read-only, so it is safe to evaluate during render; the auto-attempt token
   // is only spent by the download screen this routes to.
@@ -200,11 +207,13 @@ const Pair = ({
       return planPairingHandoff({
         device,
         targetUrl: buildPairUrl(pairingChannelInfo),
+        hintUrl: buildConnectHintUrl(),
         storeLinks: config.mobileStoreLinks,
         storage: getAttemptStorage(),
         build: config.pairing.browserBuild,
         iosScheme: config.pairing.iosUrlScheme,
         iosHandoff: isPairingV2RolledOut(config.pairing, 'ios'),
+        isSafari: isIosSafari(),
       });
     }
 
@@ -304,6 +313,14 @@ const Pair = ({
       isVerifiedUser(fxaStatusResult.fxaStatus.signedInUser)
     ) {
       goToScanQr();
+      return;
+    }
+
+    // Firefox on a phone that opened a scanned v2 URL but did not take the v2
+    // flow above — too old, or its platform not rolled out. It can still pair
+    // by scanning the code from inside the app, which is what the hint says.
+    if (isFirefoxMobile && pairingChannelInfo) {
+      navigateWithQuery('/pair/supplicant/connect_hint', undefined, false);
       return;
     }
 

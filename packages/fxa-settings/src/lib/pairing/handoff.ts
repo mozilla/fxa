@@ -59,7 +59,17 @@ export enum BrowserBuild {
  */
 export type HandoffPlan =
   | { kind: 'none' }
-  | { kind: 'ios'; deepLink: string; storeUrl: string }
+  | {
+      kind: 'ios';
+      deepLink: string;
+      storeUrl: string;
+      /**
+       * Safari alone raises an "address is invalid" alert when the scheme is
+       * not registered, which defeats the inferred store fallback — so the
+       * caller renders the store as an explicit CTA there. See `store-fallback`.
+       */
+      browser: 'safari' | 'other';
+    }
   | {
       kind: 'android';
       deepLink: string;
@@ -160,22 +170,31 @@ function buildIosDeepLink(target: string, scheme: string): string {
 /**
  * Decide how — or whether — to hand `targetUrl` to the Firefox app.
  *
- * Only a non-Firefox phone gets a plan, and iOS only once `iosHandoff` says the
- * app can act on one. Inside Firefox there is nothing to hand off to and
- * `firefox://` is a no-op, and on desktop there is no app to open, so both fall
- * through to `none` and the caller keeps its existing behaviour.
+ * Only a non-Firefox phone gets a plan. Inside Firefox there is nothing to hand
+ * off to and `firefox://` is a no-op, and on desktop there is no app to open,
+ * so both fall through to `none` and the caller keeps its existing behaviour.
+ * On iOS the plan always opens Firefox; `iosHandoff` decides whether it opens
+ * the pair URL or the connect hint.
  */
 export function planPairingHandoff({
   device,
   targetUrl,
+  hintUrl,
   storeLinks,
   storage,
   build,
   iosScheme,
   iosHandoff = false,
+  isSafari = false,
 }: {
   device: Devices;
   targetUrl: string;
+  /**
+   * Where to send Firefox iOS while it cannot act on `targetUrl`: the connect
+   * hint page, which tells a user who already has Firefox to scan the code
+   * again from inside the app. See `buildConnectHintUrl`.
+   */
+  hintUrl: string;
   storeLinks: StoreLinks;
   storage?: AttemptStorage;
   build: 'firefox' | 'fenix';
@@ -184,11 +203,12 @@ export function planPairingHandoff({
   /**
    * Whether Firefox iOS can finish a pairing that started in another browser,
    * which is so once the deployment has rolled pairing v2 out to it (see
-   * `isPairingV2RolledOut`). Before that a hand-off only ever lands on
-   * /pair/unsupported, which is worse than going there directly — so off
-   * unless the caller says otherwise.
+   * `isPairingV2RolledOut`). Until then a `targetUrl` hand-off only ever lands
+   * on /pair/unsupported, so the plan opens `hintUrl` instead.
    */
   iosHandoff?: boolean;
+  /** Whether the browser is Safari itself. See `HandoffPlan['browser']`. */
+  isSafari?: boolean;
 }): HandoffPlan {
   if (!targetUrl) {
     return { kind: 'none' };
@@ -196,13 +216,11 @@ export function planPairingHandoff({
 
   switch (device) {
     case Devices.OTHER_IOS:
-      if (!iosHandoff) {
-        return { kind: 'none' };
-      }
       return {
         kind: 'ios',
-        deepLink: buildIosDeepLink(targetUrl, iosScheme),
+        deepLink: buildIosDeepLink(iosHandoff ? targetUrl : hintUrl, iosScheme),
         storeUrl: storeLinks.ios,
+        browser: isSafari ? 'safari' : 'other',
       };
     case Devices.OTHER_ANDROID:
       return {

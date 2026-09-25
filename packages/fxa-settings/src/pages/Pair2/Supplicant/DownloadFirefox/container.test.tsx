@@ -9,7 +9,10 @@ import { Constants } from '../../../../lib/constants';
 import { HANDOFF_ATTEMPT_KEY_PREFIX } from '../../../../lib/pairing/handoff';
 import * as utilities from '../../../../lib/utilities';
 import { Devices } from '../../../../lib/utilities';
-import { buildPairUrl } from '../../../../lib/pairing/pair-url';
+import {
+  buildConnectHintUrl,
+  buildPairUrl,
+} from '../../../../lib/pairing/pair-url';
 import { DownloadFirefoxContainer } from './container';
 import { MOCK_CHANNEL } from './mocks';
 
@@ -34,12 +37,20 @@ jest.mock('../../../../lib/metrics', () => ({
 }));
 
 const mockDownloadFirefoxView = jest.fn();
+// The Android plan hands off from a mount effect, which records deep-link
+// metrics on the way out, so those have to exist on the mock too.
 jest.mock('../../../../lib/glean', () => ({
   __esModule: true,
   default: {
+    isDone: () => Promise.resolve(),
     cadFireFox: {
       downloadFirefoxView: (...args: unknown[]) =>
         mockDownloadFirefoxView(...args),
+    },
+    dtmMobile: {
+      deeplinkAttempt: jest.fn(),
+      deeplinkStoreRedirect: jest.fn(),
+      deeplinkWebviewFallback: jest.fn(),
     },
   },
 }));
@@ -67,6 +78,7 @@ describe('Pair2/Supplicant/DownloadFirefox container', () => {
     jest
       .spyOn(utilities, 'detectDevice')
       .mockReturnValue(Devices.OTHER_ANDROID);
+    jest.spyOn(utilities, 'isIosSafari').mockReturnValue(false);
   });
 
   afterEach(() => {
@@ -124,17 +136,49 @@ describe('Pair2/Supplicant/DownloadFirefox container', () => {
     });
 
     // Until the deployment rolls v2 out to Firefox iOS, the app cannot finish
-    // a pairing that started elsewhere, so a deep link would only land the
-    // user on a dead end. Reaching this page directly must not route around
-    // that gate.
-    it('offers the download link on iOS while iOS is not in the v2 rollout', () => {
+    // a pairing that started elsewhere, so the deep link opens the page that
+    // says to scan again from inside Firefox. Reaching this page directly must
+    // not route around that gate.
+    it('deep-links the connect hint on iOS while iOS is not in the v2 rollout', () => {
       jest.spyOn(utilities, 'detectDevice').mockReturnValue(Devices.OTHER_IOS);
       config.pairing.version = 2;
       config.pairing.v2MinVersion = {};
 
       renderWithLocalizationProvider(<DownloadFirefoxContainer />);
 
-      expect(getCtaHref()).toBe(Constants.FIREFOX_MOBILE_DOWNLOAD_URL);
+      const href = getCtaHref();
+      expect(href).toBe(
+        `firefox://open-url?url=${encodeURIComponent(buildConnectHintUrl())}`
+      );
+      expect(href).not.toContain('channel_key');
+    });
+
+    it('offers the App Store and the deep link side by side in Safari', () => {
+      jest.spyOn(utilities, 'detectDevice').mockReturnValue(Devices.OTHER_IOS);
+      jest.spyOn(utilities, 'isIosSafari').mockReturnValue(true);
+
+      renderWithLocalizationProvider(<DownloadFirefoxContainer />);
+
+      expect(
+        screen.getByRole('link', { name: 'Download Firefox' })
+      ).toHaveAttribute('href', config.mobileStoreLinks.ios);
+      expect(
+        screen.getByRole('link', { name: 'I already have Firefox' })
+      ).toHaveAttribute(
+        'href',
+        expect.stringMatching(/^firefox:\/\/open-url\?url=/)
+      );
+    });
+
+    it('offers the single Continue in Firefox action in other iOS browsers', () => {
+      jest.spyOn(utilities, 'detectDevice').mockReturnValue(Devices.OTHER_IOS);
+
+      renderWithLocalizationProvider(<DownloadFirefoxContainer />);
+
+      expect(getCtaHref()).toMatch(/^firefox:\/\/open-url\?url=/);
+      expect(
+        screen.queryByRole('link', { name: 'I already have Firefox' })
+      ).not.toBeInTheDocument();
     });
 
     it('falls back to the download link on a device with no Firefox app', () => {

@@ -792,7 +792,7 @@ const conf = (module.exports = convict({
     v2_min_version: {
       ios: {
         default: undefined,
-        doc: 'Lowest Firefox iOS major version allowed onto the v2 flow when pairing.version is 2. Only a browser advertising pairingVersion 2 in fxa_status gets there at all; this holds v2 back from older versions that already advertise it. Unset or 0 means no floor. Setting it also lets a pairing QR scanned outside Firefox on iOS hand the pair URL itself to the Firefox app; unset, the hand-off opens /pair/supplicant/connect_hint instead.',
+        doc: 'Lowest Firefox iOS major version that takes the v2 flow when pairing.version is 2. Decided from the user agent, so the browser need not advertise pairingVersion 2 in fxa_status; unset defers to what the browser advertises. 0 enables every version. Setting it also lets a pairing QR scanned outside Firefox on iOS hand the pair URL itself to the Firefox app; unset, the hand-off opens /pair/supplicant/connect_hint instead.',
         env: 'PAIRING_V2_MIN_VERSION_IOS',
         format: Number,
       },
