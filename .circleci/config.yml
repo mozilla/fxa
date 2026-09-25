@@ -1024,14 +1024,6 @@ jobs:
       - git-checkout
       - provision
       - run:
-          # The migration patcher imports fxa-shared's build output. Other
-          # callers of wait-for-infrastructure get it from the Build workspace;
-          # this job has none, so build it first. start-services.sh reuses it.
-          name: Build fxa-shared for the migration patcher
-          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx build fxa-shared
-          environment:
-            NODE_ENV: test
-      - run:
           name: Add localhost
           command: |
             sudo tee -a /etc/hosts \<<<'127.0.0.1 localhost'
