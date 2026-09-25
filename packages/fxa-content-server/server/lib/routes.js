@@ -7,6 +7,10 @@
 const {
   getServerReactRouteGroups,
 } = require('./routes/react-app/route-groups-server');
+const { getRoutesExcludingAllReact } = require('./routes/get-frontend');
+const {
+  UPDATE_FIREFOX_ROUTES,
+} = require('./routes/react-app/content-server-routes');
 
 module.exports = function (config, i18n, statsd, glean) {
   const redirectVersionedToUnversioned = require('./routes/redirect-versioned-to-unversioned');
@@ -25,7 +29,10 @@ module.exports = function (config, i18n, statsd, glean) {
     require('./routes/get-frontend-pairing').default(reactRouteGroups),
     require('./routes/get-frontend').default(reactRouteGroups),
     require('./routes/get-oauth-success').default(reactRouteGroups),
-    require('./routes/get-update-firefox')(config),
+    // With the React flag on, add-routes.js registers it after the React handler
+    getRoutesExcludingAllReact(reactRouteGroups, UPDATE_FIREFOX_ROUTES).length
+      ? require('./routes/get-update-firefox')(config)
+      : null,
     require('./routes/get-index').default(reactRouteGroups, config),
     require('./routes/get-ver.json'),
     require('./routes/get-client.json')(i18n),
