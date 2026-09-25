@@ -1639,10 +1639,10 @@ inline-passwordless-sync-setup-enable-button = Ativar chave-passe
 inline-passwordless-sync-setup-enabling = A ativar…
 inline-passwordless-sync-setup-not-now-button = Agora não
 # Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = Esta chave está pronta para o início de sessão de sincronização
+inline-passwordless-sync-setup-success-alert = Esta palavra-chave está pronta para o início de sessão de sincronização
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
-inline-passwordless-sync-setup-error-cancelled = A confirmação da senha não foi concluída
-inline-passwordless-sync-setup-error-cancelled-description = Confirme com a sua chave de acesso para ignorar a palavra-passe da próxima vez.
+inline-passwordless-sync-setup-error-cancelled = A confirmação da palavra-chave não foi concluída
+inline-passwordless-sync-setup-error-cancelled-description = Confirme com a sua palavra-chave para saltar a palavra-passe da próxima vez.
 # Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
 inline-passwordless-sync-setup-error-generic = Algo correu mal, ainda precisará de introduzir a sua palavra-passe da próxima vez
 
@@ -2024,7 +2024,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Para ligar um disposi
 
 # Variable $serviceName is the name of the relying party, e.g. "321Done"
 permissions-heading = { $serviceName } pretende aceder a:
-permissions-label-email = Endereço de email
+permissions-label-email = Endereço de e-mail
 permissions-label-display-name = Nome de apresentação
 permissions-continue-button = Continuar
 permissions-cancel-button = Cancelar

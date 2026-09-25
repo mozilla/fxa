@@ -1641,12 +1641,12 @@ inline-passwordless-sync-setup-enable-button = Zugangsschlüssel aktivieren
 inline-passwordless-sync-setup-enabling = Wird aktiviert…
 inline-passwordless-sync-setup-not-now-button = Nicht jetzt
 # Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = Dieser Zugangsschlüssel ist bereit für die Sync-Anmeldung
+inline-passwordless-sync-setup-success-alert = Dieser Zugangsschlüssel kann jetzt für die Anmeldung zur Synchronisierung verwendet werden
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
-inline-passwordless-sync-setup-error-cancelled = Zugangsschlüssel-Bestätigung wurde nicht abgeschlossen
-inline-passwordless-sync-setup-error-cancelled-description = Bestätigen Sie mit Ihrem Zugangsschlüssel, um das Passwort beim nächsten Mal zu überspringen.
+inline-passwordless-sync-setup-error-cancelled = Bestätigung des Zugangsschlüssels nicht abgeschlossen
+inline-passwordless-sync-setup-error-cancelled-description = Bestätigen Sie Ihre Identität mit Ihrem Zugangsschlüssel, damit Sie beim nächsten Mal kein Passwort eingeben müssen.
 # Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
-inline-passwordless-sync-setup-error-generic = Etwas ist schiefgegangen, Sie müssen beim nächsten Mal noch Ihr Passwort eingeben
+inline-passwordless-sync-setup-error-generic = Ein Fehler ist aufgetreten, beim nächsten Mal müssen Sie Ihr Passwort weiterhin eingeben
 
 ## InlineRecoveryKeySetup page component
 

@@ -1079,6 +1079,7 @@ auth-error-215 = Berreskuratzeko telefono-zenbakia ez dago
 auth-error-216 = Testu-mezuen mugara iritsi da
 auth-error-218 = Ezin izan da berreskuratzeko telefonoa kendu, babeskopiko autentifikazio-kodeak falta dira.
 auth-error-219 = Telefono-zenbaki hau kontu gehiegirekin erregistratu da. Mesedez, saiatu beste zenbaki batekin.
+auth-error-240 = Kontu hau desgaitu egin da
 auth-error-999 = Espero gabeko errorea
 auth-error-1001 = Saio-hasiera saiakera utzita
 auth-error-1002 = Saioa iraungita. Jarraitzeko, hasi saioa.
@@ -1159,6 +1160,16 @@ index-email-input =
 index-account-delete-success = Kontua ondo ezabatu da
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = Zure berrespen-mezu elektronikoa itzuli berri da. Helbide elektronikoa gaizki idatzita zegoen?
+
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = Sarbide-gakoa prest dago sinkronizazioaren saio-hasierarako
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = Sarbide-gakoaren berrespena ez da amaitu
+inline-passwordless-sync-setup-error-cancelled-description = Berretsi zure sarbide-gakoarekin pasahitza saltatzeko hurrengo aldian.
+# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+inline-passwordless-sync-setup-error-generic = Zerbait gaizki joan da, oraindik ere zure pasahitza idatzi beharko duzu hurrengo aldian
 
 ## InlineRecoveryKeySetup page component
 
@@ -1331,6 +1342,19 @@ pair2-supplicant-download-firefox-opening-button = { -brand-firefox } irekitzenâ
 pair2-supplicant-sync-success-description-v2 = Sinkronizazioa lanean ari da. Denbora pixka bat har lezake sinkronizatutako datuak agertu arte. Jarraitu nabigatzen lasai.
 # Opens the browser's sync settings, where the user chooses what to sync
 pair2-supplicant-sync-success-sync-settings-button-v2 = Kudeatu sinkronizazio-ezarpenak
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } zerbitzuak ondorengorako sarbidea nahi du:
+permissions-label-email = Helbide elektronikoa
+permissions-label-display-name = Bistaratzeko izena
+permissions-continue-button = Jarraitu
+permissions-cancel-button = Utzi
 
 ## ThirdPartyAuthCallback Page
 ## This page is called after a user completes the third party authentication flow from Google or Apple.

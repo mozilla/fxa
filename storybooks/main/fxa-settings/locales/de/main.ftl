@@ -1183,10 +1183,10 @@ inline-passwordless-sync-setup-description = Verwenden Sie diesen Zugangsschlüs
 inline-passwordless-sync-setup-enable-button = Zugangsschlüssel aktivieren
 inline-passwordless-sync-setup-enabling = Wird aktiviert…
 inline-passwordless-sync-setup-not-now-button = Nicht jetzt
-inline-passwordless-sync-setup-success-alert = Dieser Zugangsschlüssel ist bereit für die Sync-Anmeldung
-inline-passwordless-sync-setup-error-cancelled = Zugangsschlüssel-Bestätigung wurde nicht abgeschlossen
-inline-passwordless-sync-setup-error-cancelled-description = Bestätigen Sie mit Ihrem Zugangsschlüssel, um das Passwort beim nächsten Mal zu überspringen.
-inline-passwordless-sync-setup-error-generic = Etwas ist schiefgegangen, Sie müssen beim nächsten Mal noch Ihr Passwort eingeben
+inline-passwordless-sync-setup-success-alert = Dieser Zugangsschlüssel kann jetzt für die Anmeldung zur Synchronisierung verwendet werden
+inline-passwordless-sync-setup-error-cancelled = Bestätigung des Zugangsschlüssels nicht abgeschlossen
+inline-passwordless-sync-setup-error-cancelled-description = Bestätigen Sie Ihre Identität mit Ihrem Zugangsschlüssel, damit Sie beim nächsten Mal kein Passwort eingeben müssen.
+inline-passwordless-sync-setup-error-generic = Ein Fehler ist aufgetreten, beim nächsten Mal müssen Sie Ihr Passwort weiterhin eingeben
 
 
 inline-recovery-key-setup-create-error = Hoppla! Wir konnten Ihren Kontowiederherstellungsschlüssel nicht erstellen. Bitte versuchen Sie es später erneut.

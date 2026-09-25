@@ -1207,10 +1207,10 @@ inline-passwordless-sync-setup-description = Defnyddiwch y cyfrinallwedd hwn i f
 inline-passwordless-sync-setup-enable-button = Galluogi cyfrinallwedd
 inline-passwordless-sync-setup-enabling = Wrthi'n galluogi…
 inline-passwordless-sync-setup-not-now-button = Nid nawr
-inline-passwordless-sync-setup-success-alert = Mae'r cyfrinair hwn yn barod ar gyfer mewngofnodi cysoni
-inline-passwordless-sync-setup-error-cancelled = Ni ddaeth cadarnhad paskey
-inline-passwordless-sync-setup-error-cancelled-description = Cadarnhewch gyda'ch cyfrinair i hepgor y cyfrinair y tro nesaf.
-inline-passwordless-sync-setup-error-generic = Aeth rhywbeth o'i le, bydd angen i chi nodi'ch cyfrinair y tro nesaf o hyd
+inline-passwordless-sync-setup-success-alert = Mae'r cyfrinallwedd hwn yn barod ar gyfer mewngofnodi cydweddu
+inline-passwordless-sync-setup-error-cancelled = Wnaeth cadarnhau'r cyfrinallwedd ddim gorffen
+inline-passwordless-sync-setup-error-cancelled-description = Cadarnhewch gyda'ch cyfrinallwedd i hepgor y cyfrinair tro nesaf.
+inline-passwordless-sync-setup-error-generic = Aeth rhywbeth o'i le, bydd dal angen i chi roi'ch cyfrinair y tro nesaf
 
 
 inline-recovery-key-setup-create-error = Wps! Nid oedd modd i ni greu allwedd adfer eich cyfrif. Ceisiwch eto yn nes ymlaen.

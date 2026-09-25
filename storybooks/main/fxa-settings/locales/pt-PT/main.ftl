@@ -32,7 +32,7 @@
 -brand-diners = Diners Club
 -brand-discover = Discover
 -brand-jcb = JCB
--brand-link = Ligação
+-brand-link = Link
 -brand-mastercard = Mastercard
 -brand-unionpay = UnionPay
 -brand-visa = Visa
@@ -1185,9 +1185,9 @@ inline-passwordless-sync-setup-description = Use esta chave-passe para iniciar s
 inline-passwordless-sync-setup-enable-button = Ativar chave-passe
 inline-passwordless-sync-setup-enabling = A ativar…
 inline-passwordless-sync-setup-not-now-button = Agora não
-inline-passwordless-sync-setup-success-alert = Esta chave está pronta para o início de sessão de sincronização
-inline-passwordless-sync-setup-error-cancelled = A confirmação da senha não foi concluída
-inline-passwordless-sync-setup-error-cancelled-description = Confirme com a sua chave de acesso para ignorar a palavra-passe da próxima vez.
+inline-passwordless-sync-setup-success-alert = Esta palavra-chave está pronta para o início de sessão de sincronização
+inline-passwordless-sync-setup-error-cancelled = A confirmação da palavra-chave não foi concluída
+inline-passwordless-sync-setup-error-cancelled-description = Confirme com a sua palavra-chave para saltar a palavra-passe da próxima vez.
 inline-passwordless-sync-setup-error-generic = Algo correu mal, ainda precisará de introduzir a sua palavra-passe da próxima vez
 
 
@@ -1379,7 +1379,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Para ligar um disposi
 
 
 permissions-heading = { $serviceName } pretende aceder a:
-permissions-label-email = Endereço de email
+permissions-label-email = Endereço de e-mail
 permissions-label-display-name = Nome de apresentação
 permissions-continue-button = Continuar
 permissions-cancel-button = Cancelar

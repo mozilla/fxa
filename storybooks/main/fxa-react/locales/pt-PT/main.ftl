@@ -32,7 +32,7 @@
 -brand-diners = Diners Club
 -brand-discover = Discover
 -brand-jcb = JCB
--brand-link = Ligação
+-brand-link = Link
 -brand-mastercard = Mastercard
 -brand-unionpay = UnionPay
 -brand-visa = Visa

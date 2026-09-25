@@ -1095,6 +1095,7 @@ auth-error-228 = Registration de clave-contrasigno fallite
 auth-error-233 = Pro crear un clave-contrasigno, configura un blocada de schermo, PIN, dactylogramma, o recognition de facie sur tu apparato o clave de securitate. Pois retenta.
 auth-error-238 = Verification de clave-contrasigno fallite
 auth-error-239 = Desolate, nos non poteva deler tu conto. Retenta, o contacta le assistentia si le problema persiste.
+auth-error-240 = Iste conto ha essite disactivate
 auth-error-999 = Error inexpectate
 auth-error-1001 = Tentativa de apertura de session cancellate
 auth-error-1002 = Session expirate. Reaperi session pro continuar.
@@ -1187,6 +1188,10 @@ inline-passwordless-sync-setup-description = Usa iste clave-contrasigno pro acce
 inline-passwordless-sync-setup-enable-button = Activar clave-contrasigno
 inline-passwordless-sync-setup-enabling = Activation…
 inline-passwordless-sync-setup-not-now-button = Non ora
+inline-passwordless-sync-setup-success-alert = Iste clave-contrasigno es preste pro acceder e synchronisar
+inline-passwordless-sync-setup-error-cancelled = Confirmation de clave-contrasigno non completate
+inline-passwordless-sync-setup-error-cancelled-description = Confirma con tu clave-contrasigno pro saltar le contrasigno le proxime vice.
+inline-passwordless-sync-setup-error-generic = Alco errate eveniva, tu ancora debera inserer tu contrasigno le proxime vice
 
 
 inline-recovery-key-setup-create-error = Oops! Impossibile crear le clave de recuperation del conto. Retenta plus tarde.
@@ -1374,6 +1379,7 @@ pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancellate
 pair2-supplicant-timeout-and-cancel-canceled-description = Pro connecter un apparato quandocunque, visita <b>firefox.com/par</b> sur tu computator.
 
 
+permissions-heading = { $serviceName } vole acceder a:
 permissions-label-email = Adresse de e-mail
 permissions-label-display-name = Nomine a monstrar
 permissions-continue-button = Continuar

@@ -1440,6 +1440,12 @@ pair2-supplicant-timeout-and-cancel-cancelled-heading = Ακυρώθηκε
 pair2-supplicant-timeout-and-cancel-canceled-description = Για να συνδέσετε μια συσκευή ανά πάσα στιγμή, επισκεφθείτε το <b>firefox.com/pair</b> από τον υπολογιστή σας.
 
 
+permissions-label-email = Διεύθυνση email
+permissions-label-display-name = Εμφανιζόμενο όνομα
+permissions-continue-button = Συνέχεια
+permissions-cancel-button = Ακύρωση
+
+
 service-welcome-signup-success-banner = Ο { -product-mozilla-account(capitalization: "lower", case: "nom") } επιβεβαιώθηκε
 service-welcome-signin-success-banner = Επιτυχής σύνδεση!
 service-welcome-vpn-heading = Επόμενο: Ενεργοποιήστε το VPN

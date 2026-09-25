@@ -2011,6 +2011,17 @@ pair2-supplicant-timeout-and-cancel-cancelled-heading = Ακυρώθηκε
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Για να συνδέσετε μια συσκευή ανά πάσα στιγμή, επισκεφθείτε το <b>firefox.com/pair</b> από τον υπολογιστή σας.
 
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+permissions-label-email = Διεύθυνση email
+permissions-label-display-name = Εμφανιζόμενο όνομα
+permissions-continue-button = Συνέχεια
+permissions-cancel-button = Ακύρωση
+
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
 

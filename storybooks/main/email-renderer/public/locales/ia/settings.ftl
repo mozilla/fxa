@@ -1484,6 +1484,7 @@ auth-error-228 = Registration de clave-contrasigno fallite
 auth-error-233 = Pro crear un clave-contrasigno, configura un blocada de schermo, PIN, dactylogramma, o recognition de facie sur tu apparato o clave de securitate. Pois retenta.
 auth-error-238 = Verification de clave-contrasigno fallite
 auth-error-239 = Desolate, nos non poteva deler tu conto. Retenta, o contacta le assistentia si le problema persiste.
+auth-error-240 = Iste conto ha essite disactivate
 auth-error-999 = Error inexpectate
 auth-error-1001 = Tentativa de apertura de session cancellate
 auth-error-1002 = Session expirate. Reaperi session pro continuar.
@@ -1644,6 +1645,13 @@ inline-passwordless-sync-setup-enable-button = Activar clave-contrasigno
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Activation…
 inline-passwordless-sync-setup-not-now-button = Non ora
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = Iste clave-contrasigno es preste pro acceder e synchronisar
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = Confirmation de clave-contrasigno non completate
+inline-passwordless-sync-setup-error-cancelled-description = Confirma con tu clave-contrasigno pro saltar le contrasigno le proxime vice.
+# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+inline-passwordless-sync-setup-error-generic = Alco errate eveniva, tu ancora debera inserer tu contrasigno le proxime vice
 
 ## InlineRecoveryKeySetup page component
 
@@ -2019,6 +2027,8 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Pro connecter un appa
 ## The page informs the user which profile information the relying party can
 ## read. It does not offer a choice.
 
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } vole acceder a:
 permissions-label-email = Adresse de e-mail
 permissions-label-display-name = Nomine a monstrar
 permissions-continue-button = Continuar
