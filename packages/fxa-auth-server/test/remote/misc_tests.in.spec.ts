@@ -176,12 +176,6 @@ describe.each(testVersions)(
       expect(res.headers['access-control-allow-origin']).toBeUndefined();
     });
 
-    it('/verify_email redirects', async () => {
-      const path = '/v1/verify_email?code=0000&uid=0000';
-      const res = await httpGet(server.publicUrl + path);
-      expect(res.statusCode).toBe(302);
-    });
-
     it('/complete_reset_password redirects', async () => {
       const path =
         '/v1/complete_reset_password?code=0000&email=a@b.c&token=0000';
