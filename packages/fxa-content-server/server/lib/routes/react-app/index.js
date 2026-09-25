@@ -130,7 +130,10 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
 
     postVerifyOtherRoutes: {
       featureFlagOn: showReactApp.postVerifyOtherRoutes,
-      routes: reactRoute.getRoutes(['subscriptions']),
+      routes: reactRoute.getRoutes([
+        'post_verify/password/force_password_change',
+        'subscriptions',
+      ]),
       fullProdRollout: false,
     },
 

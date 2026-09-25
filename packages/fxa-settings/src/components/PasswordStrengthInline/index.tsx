@@ -37,8 +37,12 @@ export const PasswordStrengthInline = ({
   passwordFormType,
   requirePasswordConfirmation,
 }: PasswordStrengthInlineProps) => {
+  const isNewPasswordForm =
+    passwordFormType === 'reset' ||
+    passwordFormType === 'force-password-change';
+
   const passwordInstruction = useMemo(() => {
-    if (passwordFormType === 'reset') {
+    if (isNewPasswordForm) {
       return (
         <FtlMsg id="password-strength-long-instruction">
           <p className="mb-2 text-start">
@@ -54,7 +58,7 @@ export const PasswordStrengthInline = ({
         <p className="mb-2 text-start">Pick a strong password:</p>
       </FtlMsg>
     );
-  }, [passwordFormType]);
+  }, [isNewPasswordForm]);
 
   return (
     <div
@@ -93,7 +97,7 @@ export const PasswordStrengthInline = ({
             <span className="ps-2">Not a commonly used password</span>
           </FtlMsg>
         </li>
-        {isUnconfirmed !== undefined && passwordFormType === 'reset' && (
+        {isUnconfirmed !== undefined && isNewPasswordForm && (
           <li data-testid="passwords-match" className="flex">
             <span className="w-7 h-7 text-center">
               {(isPasswordEmpty || isConfirmedPasswordEmpty) && '•'}
