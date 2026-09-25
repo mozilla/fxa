@@ -1,8 +1,8 @@
 {
-  "commit": "31c2a89e7e7ca2042361818828502d71bfa5615c",
-  "summary": "Merge pull request #21325 from mozilla/fxa-14621",
-  "description": "chore(auth): remove legacy GET /complete_reset_password route",
-  "timestamp": 1790372723000,
+  "commit": "42e0d8400adfb9a2d815a281b8b9b72049366a58",
+  "summary": "Merge pull request #21324 from mozilla/fxa-14622",
+  "description": "chore(auth): remove /mfa/test and /mfa/test2 scaffolding routes",
+  "timestamp": 1790372871000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
