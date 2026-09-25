@@ -55,11 +55,6 @@ test.describe('severity-2 #smoke', () => {
       syncOAuthBrowserPages: { page, signin, signinTokenCode },
       testAccountTracker,
     }) => {
-      // syncOAuthBrowserPages runs in a separate Firefox instance, so attach a
-      // helper to this page before any navigation.
-      const gleanEventsHelper = new GleanEventsHelper(page);
-      await gleanEventsHelper.start();
-
       // /pair only reveals the choice screen to a signed-in browser. The page
       // bounces through the sync OAuth flow first, carrying the entrypoint.
       const credentials = await testAccountTracker.signUpSync();
@@ -84,8 +79,14 @@ test.describe('severity-2 #smoke', () => {
       await page.getByTestId('pair-continue-btn').click({ noWaitAfter: true });
 
       // Stand in for the navigation real Firefox makes once the supplicant
-      // connects.
-      await page.goto(
+      // connects. Firefox's own hand-off navigation of this tab can win over a
+      // goto here and leave it hanging, so load the approval page in a new
+      // tab. Tabs in a context share the localStorage /pair stashed into.
+      const approvalPage = await page.context().newPage();
+      // Glean helpers must attach before the page's first navigation.
+      const gleanEventsHelper = new GleanEventsHelper(approvalPage);
+      await gleanEventsHelper.start();
+      await approvalPage.goto(
         buildAuthorityOAuthUrl(target.contentServerUrl, {
           email: credentials.email,
           uid: credentials.uid,
@@ -94,9 +95,9 @@ test.describe('severity-2 #smoke', () => {
       );
 
       await expect(
-        page.getByRole('heading', { name: /Did you just sign in to/ })
+        approvalPage.getByRole('heading', { name: /Did you just sign in to/ })
       ).toBeVisible();
-      await expect(page).toHaveURL(/entrypoint=fxa_app_menu/);
+      await expect(approvalPage).toHaveURL(/entrypoint=fxa_app_menu/);
 
       const ping = await gleanEventsHelper.waitForEvent(
         'cad_approve_device_view'

@@ -168,6 +168,14 @@
     "tags": [
       "scope:frontend",
       "type:core"
-    ]
+    ],
+    "targets": {
+      "build-fast": {
+        "outputs": [
+          "{projectRoot}/app/i18n",
+          "{projectRoot}/app/styles/tailwind.out.css"
+        ]
+      }
+    }
   }
 }

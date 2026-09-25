@@ -12,7 +12,7 @@
     "build-css": "NODE_ENV=production tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/tailwind.out.css --postcss",
     "build-storybook": "STORYBOOK_BUILD=1 yarn build-css && storybook build",
     "build-l10n": "exit 0",
-    "build-react": "yarn build-react-dev && yarn build-react-stage && yarn build-react-prod",
+    "build-react": "exit 0",
     "build-react-dev": "SKIP_PREFLIGHT_CHECK=true INLINE_RUNTIME_CHUNK=false NODE_OPTIONS=--openssl-legacy-provider BUILD_PATH=build/dev node scripts/build.js",
     "build-react-stage": "SKIP_PREFLIGHT_CHECK=true INLINE_RUNTIME_CHUNK=false NODE_OPTIONS=--openssl-legacy-provider BUILD_PATH=build/stage node scripts/build.js",
     "build-react-prod": "SKIP_PREFLIGHT_CHECK=true INLINE_RUNTIME_CHUNK=false NODE_OPTIONS=--openssl-legacy-provider BUILD_PATH=build/prod node scripts/build.js",
@@ -33,7 +33,7 @@
     "test-watch": "SKIP_PREFLIGHT_CHECK=true node scripts/test.js",
     "test-coverage": "yarn test --coverage --watchAll=false",
     "test-unit": "echo No unit tests present for $npm_package_name",
-    "test-integration": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-settings-jest-integration-results.xml SKIP_PREFLIGHT_CHECK=true node scripts/test.js --watchAll=false --ci --runInBand --reporters=default --reporters=jest-junit",
+    "test-integration": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-settings-jest-integration-results.xml SKIP_PREFLIGHT_CHECK=true node scripts/test.js --watchAll=false --ci --maxWorkers=4 --workerIdleMemoryLimit=1GB --reporters=default --reporters=jest-junit",
     "watch-ftl": "grunt watch-ftl",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
@@ -256,6 +256,7 @@
           "prebuild",
           "^build",
           "build-l10n",
+          "build-static",
           "build-css"
         ]
       },
@@ -282,7 +283,11 @@
       "build-react-dev": {
         "cache": true,
         "dependsOn": [
-          "build-static"
+          "prebuild",
+          "^build",
+          "build-l10n",
+          "build-static",
+          "build-css"
         ],
         "inputs": [
           "production",
@@ -302,50 +307,6 @@
         ]
       },
       "build-react-stage": {
-        "cache": true,
-        "dependsOn": [
-          "build-static"
-        ],
-        "inputs": [
-          "production",
-          "^production",
-          {
-            "env": "BUILD_TARGETS"
-          },
-          {
-            "env": "PUBLIC_URL"
-          },
-          {
-            "dependentTasksOutputFiles": "**/static-asset-manifest.json"
-          }
-        ],
-        "outputs": [
-          "{projectRoot}/build/stage"
-        ]
-      },
-      "build-react-prod": {
-        "cache": true,
-        "dependsOn": [
-          "build-static"
-        ],
-        "inputs": [
-          "production",
-          "^production",
-          {
-            "env": "BUILD_TARGETS"
-          },
-          {
-            "env": "PUBLIC_URL"
-          },
-          {
-            "dependentTasksOutputFiles": "**/static-asset-manifest.json"
-          }
-        ],
-        "outputs": [
-          "{projectRoot}/build/prod"
-        ]
-      },
-      "build-react": {
         "cache": true,
         "dependsOn": [
           "prebuild",
@@ -368,9 +329,40 @@
           }
         ],
         "outputs": [
-          "{projectRoot}/build/dev",
-          "{projectRoot}/build/stage",
+          "{projectRoot}/build/stage"
+        ]
+      },
+      "build-react-prod": {
+        "cache": true,
+        "dependsOn": [
+          "prebuild",
+          "^build",
+          "build-l10n",
+          "build-static",
+          "build-css"
+        ],
+        "inputs": [
+          "production",
+          "^production",
+          {
+            "env": "BUILD_TARGETS"
+          },
+          {
+            "env": "PUBLIC_URL"
+          },
+          {
+            "dependentTasksOutputFiles": "**/static-asset-manifest.json"
+          }
+        ],
+        "outputs": [
           "{projectRoot}/build/prod"
+        ]
+      },
+      "build-react": {
+        "dependsOn": [
+          "build-react-dev",
+          "build-react-stage",
+          "build-react-prod"
         ]
       },
       "build-css": {

@@ -312,7 +312,11 @@ commands:
           command: ./_scripts/check-mysql.sh
       - run:
           name: Run DB migrations
-          command: node ./packages/db-migrations/bin/patcher.mjs;
+          command: |
+            # The patcher imports fxa-shared's build output. Jobs that don't
+            # restore the Build workspace get it from the nx cache.
+            [ -d packages/fxa-shared/dist ] || npx nx build fxa-shared
+            node ./packages/db-migrations/bin/patcher.mjs;
       - run:
           name: Wait for firestore
           command: ./_scripts/check-url.sh localhost:9090;
@@ -501,6 +505,35 @@ commands:
     steps:
       - attach_workspace:
           at: /home/circleci/project
+
+  # PR jobs restore dependencies from a cache keyed on yarn.lock, so they can
+  # start without waiting on Init. Other workflows keep the Init workspace.
+  restore-deps:
+    parameters:
+      from:
+        type: enum
+        enum: [workspace, cache]
+        default: workspace
+    steps:
+      - when:
+          condition:
+            equal: [workspace, << parameters.from >>]
+          steps:
+            - restore-workspace
+      - when:
+          condition:
+            equal: [cache, << parameters.from >>]
+          steps:
+            - restore_cache:
+                keys:
+                  - fxa-deps-v1-{{ arch }}-{{ checksum "yarn.lock" }}-{{ checksum ".yarnrc.yml" }}
+            - run:
+                name: Restore or install dependencies
+                command: ./.circleci/deps-cache.sh
+            - save_cache:
+                key: fxa-deps-v1-{{ arch }}-{{ checksum "yarn.lock" }}-{{ checksum ".yarnrc.yml" }}
+                paths:
+                  - /tmp/fxa-deps.tgz
 
   fail-fast:
     steps:
@@ -693,6 +726,10 @@ jobs:
 
   build:
     parameters:
+      deps:
+        type: enum
+        enum: [workspace, cache]
+        default: workspace
       nx_run:
         type: string
         default: run-many
@@ -700,27 +737,46 @@ jobs:
     resource_class: xlarge
     steps:
       - git-checkout
-      - restore-workspace
+      - restore-deps:
+          from: << parameters.deps >>
       - build
-      - save-build-workspace
+      # Nothing downstream attaches the build workspace when deps come from the cache.
+      - when:
+          condition:
+            equal: [workspace, << parameters.deps >>]
+          steps:
+            - save-build-workspace
 
   # Runs linter on packages that have changes.
   lint:
     parameters:
+      deps:
+        type: enum
+        enum: [workspace, cache]
+        default: workspace
       nx_run:
         type: string
         default: run-many
+      # A dependency cache miss runs yarn install, which runs out of memory on small.
+      resource_class:
+        type: string
+        default: small
     executor: default-executor
-    resource_class: small
+    resource_class: << parameters.resource_class >>
     steps:
       - git-checkout
-      - restore-workspace
+      - restore-deps:
+          from: << parameters.deps >>
       - lint:
           nx_run: << parameters.nx_run >>
 
   # Runs unit tests in parallel across packages with changes.
   unit-test:
     parameters:
+      deps:
+        type: enum
+        enum: [workspace, cache]
+        default: workspace
       nx_run:
         type: string
         default: run-many
@@ -740,11 +796,18 @@ jobs:
     resource_class: << parameters.resource_class >>
     steps:
       - git-checkout
-      - restore-workspace
-      - gcp-cli/setup:
-          # Pinned; the orb's "latest" resolution flakes. Remove once resolved:
-          # https://github.com/CircleCI-Public/gcp-cli-orb/issues/100
-          version: 502.0.0
+      - restore-deps:
+          from: << parameters.deps >>
+      # Only upload_to_gcs needs gcloud, and it skips PR workflows.
+      - when:
+          condition:
+            not:
+              equal: [test_pull_request, << parameters.workflow >>]
+          steps:
+            - gcp-cli/setup:
+                # Pinned; the orb's "latest" resolution flakes. Remove once resolved:
+                # https://github.com/CircleCI-Public/gcp-cli-orb/issues/100
+                version: 502.0.0
       - run:
           name: Build shared libs
           command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --projects=tag:scope:shared:lib --parallel=2
@@ -763,6 +826,10 @@ jobs:
   #  longer to run, so this job supports splitting.
   integration-test:
     parameters:
+      deps:
+        type: enum
+        enum: [workspace, cache]
+        default: workspace
       target:
         type: string
         default: -t test-integration
@@ -788,15 +855,28 @@ jobs:
         type: string
       workflow:
         type: string
+      # Splits the test run across nodes. Only suites that read CIRCLE_NODE_*
+      # (fxa-auth-server's test-ci.sh) shard; others run whole on every node.
+      parallelism:
+        type: integer
+        default: 1
     executor: fullstack-executor
     resource_class: << parameters.resource_class >>
+    parallelism: << parameters.parallelism >>
     steps:
       - git-checkout
-      - restore-workspace
-      - gcp-cli/setup:
-          # Pinned; the orb's "latest" resolution flakes. Remove once resolved:
-          # https://github.com/CircleCI-Public/gcp-cli-orb/issues/100
-          version: 502.0.0
+      - restore-deps:
+          from: << parameters.deps >>
+      # Only upload_to_gcs needs gcloud, and it skips PR workflows.
+      - when:
+          condition:
+            not:
+              equal: [test_pull_request, << parameters.workflow >>]
+          steps:
+            - gcp-cli/setup:
+                # Pinned; the orb's "latest" resolution flakes. Remove once resolved:
+                # https://github.com/CircleCI-Public/gcp-cli-orb/issues/100
+                version: 502.0.0
       - wait-for-infrastructure
       - run:
           name: Gen keys
@@ -848,10 +928,16 @@ jobs:
     parallelism: << parameters.parallelism >>
     steps:
       - git-checkout
-      - gcp-cli/setup:
-          # Pinned; the orb's "latest" resolution flakes. Remove once resolved:
-          # https://github.com/CircleCI-Public/gcp-cli-orb/issues/100
-          version: 502.0.0
+      # Only upload_to_gcs needs gcloud, and it skips PR workflows.
+      - when:
+          condition:
+            not:
+              equal: [test_pull_request, << parameters.workflow >>]
+          steps:
+            - gcp-cli/setup:
+                # Pinned; the orb's "latest" resolution flakes. Remove once resolved:
+                # https://github.com/CircleCI-Public/gcp-cli-orb/issues/100
+                version: 502.0.0
       - provision
       - check-playwright-test-count:
           project: << parameters.project >>
@@ -870,6 +956,10 @@ jobs:
   # and parallel execution.
   playwright-functional-tests:
     parameters:
+      deps:
+        type: enum
+        enum: [workspace, cache]
+        default: workspace
       parallelism:
         type: integer
         default: 8 # this should correspond with the resource-class defined in the executor
@@ -882,11 +972,18 @@ jobs:
     parallelism: << parameters.parallelism >>
     steps:
       - git-checkout
-      - restore-workspace
-      - gcp-cli/setup:
-          # Pinned; the orb's "latest" resolution flakes. Remove once resolved:
-          # https://github.com/CircleCI-Public/gcp-cli-orb/issues/100
-          version: 502.0.0
+      - restore-deps:
+          from: << parameters.deps >>
+      # Only upload_to_gcs needs gcloud, and it skips PR workflows.
+      - when:
+          condition:
+            not:
+              equal: [test_pull_request, << parameters.workflow >>]
+          steps:
+            - gcp-cli/setup:
+                # Pinned; the orb's "latest" resolution flakes. Remove once resolved:
+                # https://github.com/CircleCI-Public/gcp-cli-orb/issues/100
+                version: 502.0.0
       - check-playwright-test-count:
           project: local
       - run:
@@ -926,14 +1023,6 @@ jobs:
     steps:
       - git-checkout
       - provision
-      - run:
-          # The migration patcher imports fxa-shared's build output. Other
-          # callers of wait-for-infrastructure get it from the Build workspace;
-          # this job has none, so build it first. start-services.sh reuses it.
-          name: Build fxa-shared for the migration patcher
-          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx build fxa-shared
-          environment:
-            NODE_ENV: test
       - run:
           name: Add localhost
           command: |
@@ -987,10 +1076,16 @@ jobs:
     steps:
       - git-checkout
       - restore-workspace
-      - gcp-cli/setup:
-          # Pinned; the orb's "latest" resolution flakes. Remove once resolved:
-          # https://github.com/CircleCI-Public/gcp-cli-orb/issues/100
-          version: 502.0.0
+      # Only upload_to_gcs needs gcloud, and it skips PR workflows.
+      - when:
+          condition:
+            not:
+              equal: [test_pull_request, << parameters.workflow >>]
+          steps:
+            - gcp-cli/setup:
+                # Pinned; the orb's "latest" resolution flakes. Remove once resolved:
+                # https://github.com/CircleCI-Public/gcp-cli-orb/issues/100
+                version: 502.0.0
       - run:
           name: Add localhost
           command: |
@@ -1037,10 +1132,16 @@ jobs:
     parallelism: << parameters.parallelism >>
     steps:
       - git-checkout
-      - gcp-cli/setup:
-          # Pinned; the orb's "latest" resolution flakes. Remove once resolved:
-          # https://github.com/CircleCI-Public/gcp-cli-orb/issues/100
-          version: 502.0.0
+      # Only upload_to_gcs needs gcloud, and it skips PR workflows.
+      - when:
+          condition:
+            not:
+              equal: [test_pull_request, << parameters.workflow >>]
+          steps:
+            - gcp-cli/setup:
+                # Pinned; the orb's "latest" resolution flakes. Remove once resolved:
+                # https://github.com/CircleCI-Public/gcp-cli-orb/issues/100
+                version: 502.0.0
       - provision
       - run-playwright-tests:
           project: << parameters.project >>
@@ -1080,79 +1181,79 @@ workflows:
     # run on PR drafts.
     when: << pipeline.parameters.enable_test_pull_request >>
     jobs:
-      - init:
-          name: Init (PR)
-          filters:
+      - build:
+          name: Build (PR)
+          deps: cache
+          filters: &pr_filters
             branches:
               ignore: /main/
             tags:
               ignore: /.*/
-      - build:
-          name: Build (PR)
-          requires:
-            - Init (PR)
       - lint:
           name: Lint (PR)
+          deps: cache
+          resource_class: medium
+          filters: *pr_filters
           nx_run: affected --base=main --head=$CIRCLE_SHA1
-          requires:
-            - Init (PR)
           post-steps:
             - fail-fast
       - unit-test:
           name: Unit Test (PR)
+          deps: cache
+          filters: *pr_filters
           resource_class: xlarge
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           jest_affected_base: main
           workflow: test_pull_request
-          requires:
-            - Build (PR)
           post-steps:
             - fail-fast
       - integration-test:
           name: Integration Test - Frontends (PR)
+          deps: cache
+          filters: *pr_filters
           resource_class: xlarge
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:frontend'
           test_suite: frontends-integration
           workflow: test_pull_request
-          requires:
-            - Build (PR)
       - integration-test:
           name: Integration Test - Servers (PR)
+          deps: cache
+          filters: *pr_filters
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:server'
           test_suite: servers-integration
           workflow: test_pull_request
-          requires:
-            - Build (PR)
       - integration-test:
           name: Integration Test - Servers - Auth (PR)
+          deps: cache
+          parallelism: 3
+          filters: *pr_filters
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:server:auth'
           resource_class: xlarge
           target: -t test-integration
           test_suite: servers-auth-integration
           workflow: test_pull_request
-          requires:
-            - Build (PR)
       - integration-test:
           name: Integration Test - Servers - Auth Scripts (PR)
+          deps: cache
+          parallelism: 2
+          filters: *pr_filters
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:server:auth'
           resource_class: xlarge
           target: -t test-scripts
           test_suite: servers-auth-scripts
           workflow: test_pull_request
-          requires:
-            - Build (PR)
       - integration-test:
           name: Integration Test - Libraries (PR)
+          deps: cache
+          filters: *pr_filters
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:shared:*'
           test_suite: libraries-integration
           workflow: test_pull_request
-          requires:
-            - Build (PR)
       # Approval step is to reduce how often we run the functional tests
       # but still allow them to be run on demand.
       # No `requires` on this job so it can be approved as soon as a PR
@@ -1171,13 +1272,15 @@ workflows:
                 - /^blender\/security-bump-.*/
       - playwright-functional-tests:
           name: Firefox Functional Tests - Playwright (PR)
+          deps: cache
+          parallelism: 16
           workflow: test_pull_request
           requires:
-            - Build (PR)
             - Approve Functional Tests (PR)
           filters:
             branches:
               ignore:
+                - /main/
                 - /^dependabot\/.*/
                 - /^func\/.*/
                 - /^blender\/security-bump-.*/
@@ -1185,9 +1288,9 @@ workflows:
       # so the check reaches a real conclusion instead of hanging pending.
       - playwright-functional-tests:
           name: Firefox Functional Tests - Playwright (auto)
+          deps: cache
+          parallelism: 16
           workflow: test_pull_request
-          requires:
-            - Build (PR)
           filters:
             branches:
               only:
@@ -1199,6 +1302,7 @@ workflows:
           stage: Tests
           job_type: build
           requires:
+            - Build (PR)
             - Lint (PR)
             - Unit Test (PR)
             - Integration Test - Frontends (PR)

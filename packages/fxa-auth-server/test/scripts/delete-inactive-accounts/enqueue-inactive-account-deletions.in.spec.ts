@@ -22,10 +22,10 @@ const command = [
   'scripts/delete-inactive-accounts/enqueue-inactive-account-deletions.ts',
 ];
 
+// Each case forks the script, which takes seconds to boot. The cases share no
+// state, so they run concurrently.
 describe('enqueue inactive account deletions script', () => {
-  // combining tests because forking a process to run the script is a little
-  // slow
-  it('has correct defaults', async () => {
+  it.concurrent('has correct defaults', async () => {
     const getOutputValue = (lines: string[], needle: string) => {
       const line = lines.find((line) => line.startsWith(needle));
       return line?.split(': ')[1];
@@ -69,7 +69,7 @@ describe('enqueue inactive account deletions script', () => {
     expect(getOutputValue(outputLines, 'Rolled over')).toBe('false');
   });
 
-  it('requires an BQ dataset id', async () => {
+  it.concurrent('requires an BQ dataset id', async () => {
     try {
       await exec(command.join(' '), execOptions);
       throw new Error('Expected script to fail without a BQ dataset id');
@@ -82,22 +82,25 @@ describe('enqueue inactive account deletions script', () => {
     await exec(cmd.join(' '), execOptions);
   });
 
-  it('accepts an active accounts dataset in dry-run mode', async () => {
-    const cmd = [
-      ...command,
-      '--bq-dataset fxa-dev.inactives-testo',
-      '--active-accounts-dataset my-project.active_accounts',
-      '--active-account-tables-max-age-days 3',
-    ];
-    const { stdout } = await exec(cmd.join(' '), execOptions);
-    expect(stdout).toContain(
-      'Active accounts dataset: my-project.active_accounts'
-    );
-    expect(stdout).toContain('Dry run mode is on.');
-    expect(stdout).toContain('Active accounts maximum age in days: 3');
-  });
+  it.concurrent(
+    'accepts an active accounts dataset in dry-run mode',
+    async () => {
+      const cmd = [
+        ...command,
+        '--bq-dataset fxa-dev.inactives-testo',
+        '--active-accounts-dataset my-project.active_accounts',
+        '--active-account-tables-max-age-days 3',
+      ];
+      const { stdout } = await exec(cmd.join(' '), execOptions);
+      expect(stdout).toContain(
+        'Active accounts dataset: my-project.active_accounts'
+      );
+      expect(stdout).toContain('Dry run mode is on.');
+      expect(stdout).toContain('Active accounts maximum age in days: 3');
+    }
+  );
 
-  it.each(['0', '-1', 'NaN', 'Infinity', '2days'])(
+  it.concurrent.each(['0', '-1', 'NaN', 'Infinity', '2days'])(
     'rejects invalid active accounts maximum age %j',
     async (maxAgeDays) => {
       const cmd = [
@@ -114,7 +117,7 @@ describe('enqueue inactive account deletions script', () => {
     }
   );
 
-  it.each([
+  it.concurrent.each([
     '',
     'dataset',
     '.dataset',
@@ -143,7 +146,7 @@ describe('enqueue inactive account deletions script', () => {
     });
   });
 
-  it.each(['--start-date', '--end-date'])(
+  it.concurrent.each(['--start-date', '--end-date'])(
     'rejects %s without the other date',
     async (flag) => {
       const cmd = [
@@ -160,7 +163,7 @@ describe('enqueue inactive account deletions script', () => {
     }
   );
 
-  it.each(['2024-09-01', '2024-09-08'])(
+  it.concurrent.each(['2024-09-01', '2024-09-08'])(
     'accepts a complete range ending on %s in dry-run mode',
     async (endDate) => {
       const cmd = [
@@ -176,7 +179,7 @@ describe('enqueue inactive account deletions script', () => {
     }
   );
 
-  it.each([
+  it.concurrent.each([
     [
       '2024-9-01',
       '2024-09-18',
@@ -213,18 +216,21 @@ describe('enqueue inactive account deletions script', () => {
     }
   );
 
-  it('reports the explicit scan-window size during a dry run', async () => {
-    const cmd = [
-      ...command,
-      '--bq-dataset fxa-dev.inactives-testo',
-      '--scan-window 3',
-    ];
-    const { stdout } = await exec(cmd.join(' '), execOptions);
-    expect(stdout).toContain('Scan window in days: 3');
-    expect(stdout).toContain('Dry run mode is on.');
-  });
+  it.concurrent(
+    'reports the explicit scan-window size during a dry run',
+    async () => {
+      const cmd = [
+        ...command,
+        '--bq-dataset fxa-dev.inactives-testo',
+        '--scan-window 3',
+      ];
+      const { stdout } = await exec(cmd.join(' '), execOptions);
+      expect(stdout).toContain('Scan window in days: 3');
+      expect(stdout).toContain('Dry run mode is on.');
+    }
+  );
 
-  it.each(['0', '-7', '1.5', 'NaN', '7days'])(
+  it.concurrent.each(['0', '-7', '1.5', 'NaN', '7days'])(
     'rejects scan-window value %j when it is not a positive integer',
     async (scanWindowValue) => {
       const cmd = [
@@ -241,7 +247,7 @@ describe('enqueue inactive account deletions script', () => {
     }
   );
 
-  it.each([
+  it.concurrent.each([
     'https://fxa-state/state.json',
     'gs://fxa-state',
     'gs://fxa-state/',
@@ -259,23 +265,26 @@ describe('enqueue inactive account deletions script', () => {
     });
   });
 
-  it('requires the end date to be the same or later than the start date', async () => {
-    try {
-      const cmd = [
-        ...command,
-        '--end-date 2020-12-22',
-        '--start-date 2021-12-22',
-        '--bq-dataset fxa-dev.inactives-testo',
-      ];
-      await exec(cmd.join(' '), execOptions);
-      throw new Error(
-        'Expected script to fail with end date before start date'
-      );
-    } catch (err: any) {
-      expect(err.code).toBe(1);
-      expect(err.stderr).toContain(
-        'The end date must be on the same day or later than the start date.'
-      );
+  it.concurrent(
+    'requires the end date to be the same or later than the start date',
+    async () => {
+      try {
+        const cmd = [
+          ...command,
+          '--end-date 2020-12-22',
+          '--start-date 2021-12-22',
+          '--bq-dataset fxa-dev.inactives-testo',
+        ];
+        await exec(cmd.join(' '), execOptions);
+        throw new Error(
+          'Expected script to fail with end date before start date'
+        );
+      } catch (err: any) {
+        expect(err.code).toBe(1);
+        expect(err.stderr).toContain(
+          'The end date must be on the same day or later than the start date.'
+        );
+      }
     }
-  });
+  );
 });

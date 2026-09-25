@@ -4,6 +4,7 @@
   "description": "FxA Admin Panel",
   "scripts": {
     "build": "exit 0",
+    "build-fast": "exit 0",
     "build-ts-client": "tsc --build",
     "build-ts-server": "tsc -p server/tsconfig.json && tsc-alias",
     "build-css": "npx tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/tailwind.out.css --postcss",
@@ -122,6 +123,11 @@
           "build-react",
           "build-ts-client",
           "build-ts-server"
+        ]
+      },
+      "build-fast": {
+        "dependsOn": [
+          "^build"
         ]
       },
       "build-react": {

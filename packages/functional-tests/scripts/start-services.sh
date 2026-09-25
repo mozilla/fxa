@@ -13,20 +13,31 @@ chmod +x node_modules/@nestjs/cli/bin/nest.js
 
 # Build the apps before starting them. `start` no longer depends on `build`
 # (#20688), and a cached `build` does not recreate gitignored outputs (e.g.
-# email-renderer's public/locales, content-server's app/dist bundle), so
-# services would otherwise crash or hang on missing artifacts at boot. Force a
-# fresh build here so the started services have everything they need.
+# email-renderer's public/locales), so services would otherwise crash or hang
+# on missing artifacts at boot.
+#
+# These apps run from source here (ts-node and webpack dev servers), so
+# build-fast is enough: it builds their dependencies and generated assets but
+# skips their own tsc and production bundles. This matches `yarn start mza`.
+NX_PROFILE=${CI:+artifacts/nx-profile-ft-build.json} NODE_OPTIONS="--max-old-space-size=7168" NODE_ENV=test npx nx run-many \
+    -t build-fast \
+    --parallel=4 \
+    -p \
+    fxa-admin-panel \
+    fxa-auth-server \
+    fxa-content-server \
+    fxa-settings
+
+# These run from build output, so they need the full build.
 NODE_OPTIONS="--max-old-space-size=7168" NODE_ENV=test npx nx run-many \
     -t build \
     --parallel=4 \
     -p \
     123done \
-    fxa-admin-panel \
     fxa-admin-server \
-    fxa-auth-server \
-    fxa-content-server \
-    fxa-profile-server \
-    fxa-settings
+    fxa-profile-server
+
+echo "[timing] build done: ${SECONDS}s"
 
 # Pre-start the pm2 daemon once. Every service's `start` script runs
 # `pm2 start`, so when several run concurrently they otherwise race to spawn
@@ -53,4 +64,5 @@ NODE_OPTIONS="--max-old-space-size=7168" NODE_ENV=test npx nx run-many \
     fxa-settings \
     | tee ~/.pm2/logs/startup.log
 
+echo "[timing] start done: ${SECONDS}s"
 npx pm2 ls
