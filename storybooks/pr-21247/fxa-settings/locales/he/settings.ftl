@@ -1411,6 +1411,7 @@ auth-error-228 = רישום מפתח הגישה נכשל
 auth-error-233 = כדי ליצור מפתח גישה, יש להגדיר נעילת מסך, קוד סודי, טביעת אצבע או זיהוי פנים במכשיר או במפתח האבטחה שלך, ולאחר מכן לנסות שוב.
 auth-error-238 = אתגר מפתח הגישה נכשל
 auth-error-239 = לא הצלחנו למחוק את החשבון שלך, עמך הסליחה. נא לנסות שוב, או ליצור קשר עם התמיכה אם הבעיה נמשכת.
+auth-error-240 = חשבון זה הושבת
 auth-error-999 = שגיאה בלתי צפויה
 auth-error-1001 = ניסיון ההתחברות בוטל
 auth-error-1002 = פג תוקף ההפעלה. יש להתחבר כדי להמשיך.
@@ -1570,6 +1571,11 @@ inline-passwordless-sync-setup-enable-button = הפעלת מפתח גישה
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = בתהליך הפעלה…
 inline-passwordless-sync-setup-not-now-button = לא כעת
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = אישור מפתח הגישה לא הסתיים
+inline-passwordless-sync-setup-error-cancelled-description = ניתן לאמת באמצעות מפתח הגישה שלך כדי לדלג על הססמה בפעם הבאה.
+# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+inline-passwordless-sync-setup-error-generic = משהו השתבש, עדיין יהיה עליך להזין את הססמה שלך בפעם הבאה
 
 ## InlineRecoveryKeySetup page component
 
@@ -1938,6 +1944,19 @@ pair2-supplicant-timeout-and-cancel-timeout-description = כדי לחבר את �
 pair2-supplicant-timeout-and-cancel-cancelled-heading = בוטל
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = כדי לחבר מכשיר בכל עת, יש לבקר באתר <b>firefox.com/pair</b> במחשב שלך.
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = ‏{ $serviceName } מבקש גישה ל:
+permissions-label-email = כתובת דוא״ל
+permissions-label-display-name = שם תצוגה
+permissions-continue-button = המשך
+permissions-cancel-button = ביטול
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

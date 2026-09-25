@@ -1381,6 +1381,7 @@ auth-error-228 = Registrace přístupového klíče selhala
 auth-error-233 = Chcete-li vytvořit přístupový klíč, nastavte na svém zařízení nebo bezpečnostním klíči zámek obrazovky, PIN, otisk prstu nebo rozpoznávání obličeje. Poté to zkuste znovu.
 auth-error-238 = Ověření pomocí přístupového klíče se nezdařilo
 auth-error-239 = Je nám líto, ale váš účet se nepodařilo smazat. Zkuste to znovu nebo kontaktujte podporu, pokud problém přetrvává.
+auth-error-240 = Tento účet byl deaktivován
 auth-error-999 = Neočekávaná chyba
 auth-error-1001 = Pokus o přihlášení zrušen
 auth-error-1002 = Relace vypršela. Pro pokračování se přihlaste.
@@ -1473,6 +1474,10 @@ inline-passwordless-sync-setup-description = Tento přístupový kód vám umož
 inline-passwordless-sync-setup-enable-button = Povolit přístupový klíč
 inline-passwordless-sync-setup-enabling = Zapínání…
 inline-passwordless-sync-setup-not-now-button = Teď ne
+inline-passwordless-sync-setup-success-alert = Tento přístupový kód je připraven pro přihlášení pomocí synchronizace
+inline-passwordless-sync-setup-error-cancelled = Potvrzení hesla nebylo dokončeno
+inline-passwordless-sync-setup-error-cancelled-description = Pro příště přeskočené heslo potvrďte svým přístupovým klíčem.
+inline-passwordless-sync-setup-error-generic = Něco se pokazilo. Příště budete muset zadat heslo
 
 
 inline-recovery-key-setup-create-error = Jejda! Obnovovací klíč se pro váš účet nepodařilo vytvořit. Zkuste to prosím znovu později.
@@ -1658,6 +1663,13 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Zdá se, že vypršel čas
 pair2-supplicant-timeout-and-cancel-timeout-description = Chcete-li připojit své mobilní zařízení a synchronizovat data { -brand-firefox(case: "gen") }, přejděte na svém počítači na stránku <b>firefox.com/pair</b>.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Zrušeno
 pair2-supplicant-timeout-and-cancel-canceled-description = Pro připojení svého zařízení prosím navštivte <b>firefox.com/pair</b> na svém počítači.
+
+
+permissions-heading = { $serviceName } požaduje přístup k:
+permissions-label-email = E-mailová adresa
+permissions-label-display-name = Zobrazované jméno
+permissions-continue-button = Pokračovat
+permissions-cancel-button = Zrušit
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } potvrzen

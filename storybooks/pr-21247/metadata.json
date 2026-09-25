@@ -1,8 +1,8 @@
 {
-  "commit": "cb0f487207341dda1bcec0d3e02ab6f8bc37a153",
-  "summary": "Merge remote-tracking branch 'origin/main' into HEAD",
-  "description": "# Conflicts:\n#\tpackages/fxa-content-server/server/lib/routes/get-oauth-success.js\n#\tpackages/fxa-settings/src/lib/integrations/integration-factory-flags.ts",
-  "timestamp": 1790212730000,
+  "commit": "76731e1bf80ffbbf3a2a52492f2fe2b4e75474e8",
+  "summary": "fix(settings): resolve oauth/success client id from the pathname",
+  "description": "- A hard load of `/oauth/success/:clientId` served the Backbone page. The React route group that owned the path had an empty `routes` list, and its flag is off in production.\n- React mounts `PairSuccess` at `/oauth/success/:clientId/*`. On a hard load the factory built an `OAuthWebIntegration` with no `scope`, so `getPermissions()` threw errno 109 and the app rendered `OAuthDataError`.\n- A bare hard load of the path also rendered the OAuth error page. `useClientInfoState()` read the client id only from the `client_id` and `service` query params, and a hard load has neither.\n\n- Adds the `oauthSuccessRoutes` React route group in `server/lib/routes/react-app/index.js`, with `featureFlagOn` and `fullProdRollout` set to true.\n- Reads that group in `get-oauth-success.js`, so the server stops registering the Backbone route definition.\n- Removes the `oauth/success/:client_id(/)` entry from `app/scripts/lib/router.js`. The `views/ready.js` import stays, because other routes still use it.\n- Sets `integration.isOAuthSuccessFlow` in `integration-factory.ts`, and returns an empty permission list for that flow in `oauth-web-integration.ts`.\n- Adds `lib/oauth/success-route.ts`. `useClientInfoState()` falls back to the pathname segment through that helper, and the integration flags use the same helper.\n- Adds unit tests for the flag, the empty scope, the trailing slash, and the pathname-only URL.\n\nCloses: FXA-6642",
+  "timestamp": 1790351007000,
   "storybooks": [
     "fxa-settings"
   ],

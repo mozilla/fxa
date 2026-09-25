@@ -1368,6 +1368,12 @@ pair2-authority-scan-qr-heading = Scanează pentru conectarea dispozitivului mob
 pair2-authority-scan-qr-instruction = Scanează codul QR cu telefonul sau tableta pentru a-ți sincroniza marcajele, filele și multe altele din { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = Cod QR pentru conectarea dispozitivului mobil
 pair2-authority-scan-qr-help-link = Obține ajutor la scanare
+pair2-authority-scan-qr-skip-button = Treci peste deocamdată
+
+
+pair2-authority-sync-success-heading-v2 = Dispozitivul este conectat
+pair2-authority-sync-success-description-v2 = Sincronizarea este în curs. Poate dura puțin până când apar datele sincronizate. Între timp, poți naviga în continuare.
+pair2-authority-sync-success-sync-settings-button-v2 = Gestionează setările de sincronizare
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Încă vrei să conectezi un dispozitiv?
@@ -1400,6 +1406,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Află mai multe
 
 
 pair2-supplicant-sync-success-heading = Dispozitivul tău este conectat
+pair2-supplicant-sync-success-description-v2 = Sincronizarea este în curs. Poate dura puțin până când apar datele sincronizate. Între timp, poți naviga în continuare.
+pair2-supplicant-sync-success-sync-settings-button-v2 = Gestionează setările de sincronizare
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Se pare că timpul de conectare a expirat

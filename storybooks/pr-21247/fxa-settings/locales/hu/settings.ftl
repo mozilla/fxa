@@ -754,8 +754,8 @@ flow-setup-2fa-inline-complete-backup-code-info =
         [one] { $count } kód maradt
        *[other] { $count } kód maradt
     }
-flow-setup-2fa-inline-complete-backup-code-description = Ez a legbiztonságosabb helyreállítási módszer, ha nem tud bejelentkezni mobileszközével vagy hitelesítő alkalmazással.
-flow-setup-2fa-inline-complete-backup-phone-description = Ez a legegyszerűbb helyreállítási módszer, ha nem tud bejelentkezni a hitelesítő alkalmazással.
+flow-setup-2fa-inline-complete-backup-code-description = Ez a legbiztonságosabb helyreállítási mód, ha nem tud bejelentkezni mobileszközével vagy hitelesítő alkalmazással.
+flow-setup-2fa-inline-complete-backup-phone-description = Ez a legegyszerűbb helyreállítási mód, ha nem tud bejelentkezni a hitelesítő alkalmazással.
 flow-setup-2fa-inline-complete-learn-more-link = Hogyan védi ez a fiókját
 # $serviceName (String) - the name of the product that the user will be
 # redirected to.
@@ -1122,7 +1122,7 @@ recovery-phone-remove-header = Helyreállítási telefonszám eltávolítása
 settings-recovery-phone-remove-info = Ez eltávolítja a(z) <strong>{ $formattedFullPhoneNumber }</strong> telefonszámot helyreállítási telefonszámként.
 settings-recovery-phone-remove-recommend = Javasoljuk, hogy tartsa meg ezt a módszert, mert könnyebb, mint a tartalék hitelesítési kódok elmentése.
 # "Saved backup authentication codes" refers to previously saved backup authentication codes
-settings-recovery-phone-remove-recovery-methods = Ha törli, győződjön meg róla, hogy megvannak-e még az elmentett tartalék hitelesítési kódjai. <linkExternal>Helyreállítási módszerek összehasonlítása</linkExternal>
+settings-recovery-phone-remove-recovery-methods = Ha törli, győződjön meg róla, hogy megvannak-e még az elmentett tartalék hitelesítési kódjai. <linkExternal>Helyreállítási módok összehasonlítása</linkExternal>
 settings-recovery-phone-remove-button = Telefonszám eltávolítása
 settings-recovery-phone-remove-cancel = Mégse
 settings-recovery-phone-remove-success = Helyreállítási telefonszám eltávolítva
@@ -1243,7 +1243,7 @@ tfa-row-backup-codes-get-new-cta-v2 = Új kódok létrehozása
 # Button to add backup authentication codes when none are configured
 tfa-row-backup-codes-add-cta = Hozzáadás
 # 'This' refers to 'backup authentication codes', used as a recovery method for two-step authentication
-tfa-row-backup-codes-description-2 = Ez a legbiztonságosabb helyreállítási módszer, ha nem tudja használni a mobileszközét vagy a hitelesítő alkalmazást.
+tfa-row-backup-codes-description-2 = Ez a legbiztonságosabb helyreállítási mód, ha nem tudja használni a mobileszközét vagy a hitelesítő alkalmazást.
 # Recovery phone is a recovery method for two-step authentication
 # A recovery code can be sent to the user's phone
 tfa-row-backup-phone-title-v2 = Helyreállítási telefonszám
@@ -1259,7 +1259,7 @@ tfa-row-backup-phone-delete-button = Eltávolítás
 tfa-row-backup-phone-delete-title-v2 = Helyreállítási telefonszám eltávolítása
 tfa-row-backup-phone-delete-restriction-v2 = Ha el akarja távolítani a helyreállítási telefonszámát, adjon hozzá tartalék hitelesítési kódokat vagy először kapcsolja ki a kétlépcsős hitelesítést, hogy elkerülje azt, hogy kizárja magát a fiókjából.
 # "this" refers to recovery phone
-tfa-row-backup-phone-description-v2 = Ez a legkönnyebb helyreállítási módszer, ha nem tudja használni a hitelesítő alkalmazást.
+tfa-row-backup-phone-description-v2 = Ez a legkönnyebb helyreállítási mód, ha nem tudja használni a hitelesítő alkalmazást.
 # A SIM swap attack is a type of identity theft where an attacker tricks or bribes a mobile carrier
 # into transferring a victim's phone number to their own SIM card, enabling access to accounts secured
 # with SMS-based two-factor authentication.
@@ -1485,6 +1485,7 @@ auth-error-228 = A jelkulcs regisztrációja sikertelen
 auth-error-233 = Jelkulcs létrehozásához állítson be képernyőzárat, PIN-kódot, ujjlenyomat- vagy arcfelismerést az eszközén, vagy egy biztonsági kulcsot. Ezután próbálja újra.
 auth-error-238 = A jelkulcs kihívása sikertelen
 auth-error-239 = Sajnáljuk, nem tudtuk törölni a fiókját. Próbálja újra, vagy lépjen kapcsolatba az ügyfélszolgálattal, ha a probléma továbbra is fennáll.
+auth-error-240 = Ez a fiók le lett tiltva
 auth-error-999 = Nem várt hiba
 auth-error-1001 = Bejelentkezési kísérlet megszakítva
 auth-error-1002 = A munkamenet lejárt. Jelentkezzen be a folytatáshoz.
@@ -1645,6 +1646,13 @@ inline-passwordless-sync-setup-enable-button = Jelkulcs engedélyezése
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Engedélyezés…
 inline-passwordless-sync-setup-not-now-button = Most nem
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = Ez a jelkulcs készen áll a szinkronizálásba való bejelentkezéshez
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = A jelszó megerősítése nem fejeződött be
+inline-passwordless-sync-setup-error-cancelled-description = Erősítse meg a jelkulcsával, hogy legközelebb kihagyja a jelszót.
+# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+inline-passwordless-sync-setup-error-generic = Hiba történt, legközelebb is meg kell adnia a jelszavát
 
 ## InlineRecoveryKeySetup page component
 
@@ -2013,6 +2021,19 @@ pair2-supplicant-timeout-and-cancel-timeout-description = A mobileszköz csatlak
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Megszakítva
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Eszköz csatlakoztatásához keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén.
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = A(z) { $serviceName } hozzáférést kér a következőhöz:
+permissions-label-email = E-mail-cím
+permissions-label-display-name = Megjelenítendő név
+permissions-continue-button = Folytatás
+permissions-cancel-button = Mégse
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

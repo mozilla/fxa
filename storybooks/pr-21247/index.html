@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit cb0f487207341dda1bcec0d3e02ab6f8bc37a153</title>
+  <title>Storybooks for commit 76731e1bf80ffbbf3a2a52492f2fe2b4e75474e8</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,19 +23,28 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit cb0f487207341dda1bcec0d3e02ab6f8bc37a153</h1>
+  <h1>Storybooks for commit 76731e1bf80ffbbf3a2a52492f2fe2b4e75474e8</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/24/2026, 1:18:50 AM UTC</dd>
+    <dd>9/25/2026, 3:43:27 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>Merge remote-tracking branch &#039;origin/main&#039; into HEAD</pre></dd>
+    <dd><pre>fix(settings): resolve oauth/success client id from the pathname</pre></dd>
     <dt>Description</dt>
-    <dd><pre># Conflicts:
-#	packages/fxa-content-server/server/lib/routes/get-oauth-success.js
-#	packages/fxa-settings/src/lib/integrations/integration-factory-flags.ts</pre></dd>
+    <dd><pre>- A hard load of `/oauth/success/:clientId` served the Backbone page. The React route group that owned the path had an empty `routes` list, and its flag is off in production.
+- React mounts `PairSuccess` at `/oauth/success/:clientId/*`. On a hard load the factory built an `OAuthWebIntegration` with no `scope`, so `getPermissions()` threw errno 109 and the app rendered `OAuthDataError`.
+- A bare hard load of the path also rendered the OAuth error page. `useClientInfoState()` read the client id only from the `client_id` and `service` query params, and a hard load has neither.
+
+- Adds the `oauthSuccessRoutes` React route group in `server/lib/routes/react-app/index.js`, with `featureFlagOn` and `fullProdRollout` set to true.
+- Reads that group in `get-oauth-success.js`, so the server stops registering the Backbone route definition.
+- Removes the `oauth/success/:client_id(/)` entry from `app/scripts/lib/router.js`. The `views/ready.js` import stays, because other routes still use it.
+- Sets `integration.isOAuthSuccessFlow` in `integration-factory.ts`, and returns an empty permission list for that flow in `oauth-web-integration.ts`.
+- Adds `lib/oauth/success-route.ts`. `useClientInfoState()` falls back to the pathname segment through that helper, and the integration flags use the same helper.
+- Adds unit tests for the flag, the empty scope, the trailing slash, and the pathname-only URL.
+
+Closes: FXA-6642</pre></dd>
   </dl>
 </body>
 </html>

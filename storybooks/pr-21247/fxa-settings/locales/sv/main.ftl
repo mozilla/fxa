@@ -1322,12 +1322,12 @@ pair2-authority-scan-qr-heading = Skanna för att ansluta din mobila enhet
 pair2-authority-scan-qr-instruction = Skanna QR-koden med din telefon eller surfplatta för att synkronisera dina { -brand-firefox }-bokmärken, flikar och mer.
 pair2-authority-scan-qr-code-aria-label = QR-kod för att ansluta din mobila enhet
 pair2-authority-scan-qr-help-link = Få hjälp med att skanna
+pair2-authority-scan-qr-skip-button = Hoppa över nu
 
 
-pair2-authority-sync-success-heading = Du synkroniserar
-pair2-authority-sync-success-description = Dina flikar, bokmärken, lösenord och mer är tillgängliga på dina enheter.
-pair2-authority-sync-success-view-tabs-button = Visa synkroniserade flikar
-pair2-authority-sync-success-sync-settings-button = Synkroniseringsinställningar
+pair2-authority-sync-success-heading-v2 = Din enhet är ansluten
+pair2-authority-sync-success-description-v2 = Synkronisering pågår. Det kan ta en stund innan din synkroniserade data visas. Fortsätt gärna surfa.
+pair2-authority-sync-success-sync-settings-button-v2 = Hantera synkroniseringsinställningar
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Vill du fortfarande ansluta en enhet?
@@ -1360,9 +1360,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Läs mer
 
 
 pair2-supplicant-sync-success-heading = Din enhet är ansluten
-pair2-supplicant-sync-success-description = Dina bokmärken, flikar och mer förblir synkroniserade i { -brand-firefox }.
-pair2-supplicant-sync-success-view-tabs-button = Visa synkroniserade flikar
-pair2-supplicant-sync-success-sync-settings-button = Synkroniseringsinställningar
+pair2-supplicant-sync-success-description-v2 = Synkronisering pågår. Det kan ta en stund innan din synkroniserade data visas. Fortsätt gärna surfa.
+pair2-supplicant-sync-success-sync-settings-button-v2 = Hantera synkroniseringsinställningar
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Vi gjorde timeout
