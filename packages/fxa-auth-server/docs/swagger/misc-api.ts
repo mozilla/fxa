@@ -20,11 +20,6 @@ const ACCOUNT_GET = {
   ],
 };
 
-const ACCOUNT_LOCK_POST = {
-  ...TAGS_MISC,
-  description: '/account/lock',
-};
-
 const ACCOUNT_SESSIONS_LOCATIONS_GET = {
   ...TAGS_MISC,
   description: '/account/sessions/locations',
@@ -81,7 +76,6 @@ const GEO_ELIGIBILITY_GET = {
 
 const API_DOCS = {
   ACCOUNT_GET,
-  ACCOUNT_LOCK_POST,
   ACCOUNT_SESSIONS_LOCATIONS_GET,
   GEO_ELIGIBILITY_GET,
   NEWSLETTERS_POST,
