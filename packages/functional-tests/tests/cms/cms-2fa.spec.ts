@@ -365,8 +365,9 @@ test.describe('severity-1 #smoke', () => {
       // Enroll TOTP out-of-band so one sign-in hits signin_totp_code (a second
       // /pair can't re-sign-in: the signed-in browser shows pairing).
       const secret = await enableTotpOnAccount(
-        target.authClient,
-        credentials.sessionToken
+        target,
+        credentials.sessionToken,
+        credentials.email
       );
       // Record the secret so account cleanup can elevate AAL to delete it.
       credentials.secret = secret;

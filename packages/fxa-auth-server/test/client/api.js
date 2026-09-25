@@ -1251,44 +1251,35 @@ module.exports = (config) => {
     return this.doRequest('POST', `${this.baseURL}/signinCodes`, token, {});
   };
 
-  ClientApi.prototype.createTotpToken = function (
-    sessionTokenHex,
-    options = {}
-  ) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
-      return this.doRequest('POST', `${this.baseURL}/totp/create`, token, {
-        metricsContext: options.metricsContext,
-      });
-    });
+  ClientApi.prototype.createTotpTokenWithJwt = function (jwt, options = {}) {
+    return this.doRequestWithBearerToken(
+      'POST',
+      `${this.baseURL}/mfa/totp/create`,
+      jwt,
+      { metricsContext: options.metricsContext }
+    );
   };
 
-  ClientApi.prototype.verifyTotpSetupCode = function (
-    sessionTokenHex,
+  ClientApi.prototype.verifyTotpSetupCodeWithJwt = function (
+    jwt,
     code,
     options = {}
   ) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
-      return this.doRequest(
-        'POST',
-        `${this.baseURL}/totp/setup/verify`,
-        token,
-        { code, metricsContext: options.metricsContext }
-      );
-    });
+    return this.doRequestWithBearerToken(
+      'POST',
+      `${this.baseURL}/mfa/totp/setup/verify`,
+      jwt,
+      { code, metricsContext: options.metricsContext }
+    );
   };
 
-  ClientApi.prototype.completeTotpSetup = function (
-    sessionTokenHex,
-    options = {}
-  ) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
-      return this.doRequest(
-        'POST',
-        `${this.baseURL}/totp/setup/complete`,
-        token,
-        { service: options.service, metricsContext: options.metricsContext }
-      );
-    });
+  ClientApi.prototype.completeTotpSetupWithJwt = function (jwt, options = {}) {
+    return this.doRequestWithBearerToken(
+      'POST',
+      `${this.baseURL}/mfa/totp/setup/complete`,
+      jwt,
+      { service: options.service, metricsContext: options.metricsContext }
+    );
   };
 
   ClientApi.prototype.deleteTotpToken = function (jwt) {
