@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 79440eb6e8063d06c51c3b413a6d02905ca83999</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 79440eb6e8063d06c51c3b413a6d02905ca83999</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/25/2026, 5:23:27 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(settings): route camera-scanned pairing links by mobile browser</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- An iOS QR scan from the system camera opens /pair in the default
+  browser, and every browser there dead-ended on /pair/unsupported.
+- Legacy pairing let the user say whether they already had Firefox;
+  v2 lost that choice.
+- Safari alerts on an unhandled firefox:// link, so the inferred store
+  fallback cannot be trusted there.
+
+This commit:
+- Sends mobile Firefox that cannot take v2 to /pair/supplicant/connect_hint,
+  and every other iOS browser to the download screen.
+- Deep-links the connect hint until iOS is in the v2 rollout, then the pair URL.
+- Adds isIosSafari; Safari gets Download Firefox plus I already have Firefox
+  in place of the single Continue in Firefox CTA.
+- Restyles the download screen to the Figma design, with new Fluent ids.
+- Updates the unit and Playwright coverage and the stale rollout comments.
+
+Closes #FXA-14595</pre></dd>
+  </dl>
+</body>
+</html>

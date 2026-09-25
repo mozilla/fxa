@@ -1,0 +1,10 @@
+{
+  "commit": "79440eb6e8063d06c51c3b413a6d02905ca83999",
+  "summary": "feat(settings): route camera-scanned pairing links by mobile browser",
+  "description": "Because:\n- An iOS QR scan from the system camera opens /pair in the default\n  browser, and every browser there dead-ended on /pair/unsupported.\n- Legacy pairing let the user say whether they already had Firefox;\n  v2 lost that choice.\n- Safari alerts on an unhandled firefox:// link, so the inferred store\n  fallback cannot be trusted there.\n\nThis commit:\n- Sends mobile Firefox that cannot take v2 to /pair/supplicant/connect_hint,\n  and every other iOS browser to the download screen.\n- Deep-links the connect hint until iOS is in the v2 rollout, then the pair URL.\n- Adds isIosSafari; Safari gets Download Firefox plus I already have Firefox\n  in place of the single Continue in Firefox CTA.\n- Restyles the download screen to the Figma design, with new Fluent ids.\n- Updates the unit and Playwright coverage and the stale rollout comments.\n\nCloses #FXA-14595",
+  "timestamp": 1790357007000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
