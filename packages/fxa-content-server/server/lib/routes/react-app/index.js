@@ -130,7 +130,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
 
     postVerifyOtherRoutes: {
       featureFlagOn: showReactApp.postVerifyOtherRoutes,
-      routes: [],
+      routes: reactRoute.getRoutes(['subscriptions']),
       fullProdRollout: false,
     },
 

@@ -447,7 +447,12 @@ Router = Router.extend({
     'subscriptions/products/:productId': createViewHandler(
       SubscriptionsProductRedirectView
     ),
-    'subscriptions(/)': createViewHandler(SubscriptionsManagementRedirectView),
+    'subscriptions(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'subscriptions',
+        SubscriptionsManagementRedirectView
+      );
+    },
     'verify_email(/)': createViewHandler(CompleteSignUpView, {
       type: VerificationReasons.SIGN_UP,
     }),

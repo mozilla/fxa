@@ -241,6 +241,9 @@ const ResetPasswordRecoveryPhoneContainer = lazy(
 );
 
 const Settings = lazy(() => import('../Settings'));
+const SubscriptionsRedirect = lazy(
+  () => import('../../pages/SubscriptionsRedirect')
+);
 
 export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
   const { data: isSignedInData } = useLocalSignedInQueryState();
@@ -675,6 +678,7 @@ const AuthAndAccountSetupRoutes = ({
           element={<PocPairStart {...{ integration }} />}
         />
         <Route path="/cookies_disabled" element={<CookiesDisabled />} />
+        <Route path="/subscriptions" element={<SubscriptionsRedirect />} />
 
         {/* Post verify */}
         <Route
