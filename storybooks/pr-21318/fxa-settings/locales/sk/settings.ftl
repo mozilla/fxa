@@ -1490,6 +1490,7 @@ auth-error-228 = Registrácia prístupového kľúča zlyhala
 auth-error-233 = Ak chcete vytvoriť prístupový kľúč, nastavte si na zariadení alebo bezpečnostnom kľúči zámok obrazovky, PIN kód, odtlačok prsta alebo rozpoznávanie tváre. Potom to skúste znova.
 auth-error-238 = Overenie pomocou prístupového kľúča sa nepodarilo
 auth-error-239 = Je nám ľúto, váš účet sa nám nepodarilo odstrániť. Skúste to znova alebo kontaktujte podporu, ak problém pretrváva.
+auth-error-240 = Tento účet je deaktivovaný
 auth-error-999 = Neočakávaná chyba
 auth-error-1001 = Pokus o prihlásenie bol zrušený
 auth-error-1002 = Platnosť relácie vypršala. Ak chcete pokračovať, prihláste sa.
@@ -1650,6 +1651,13 @@ inline-passwordless-sync-setup-enable-button = Povoliť prístupový kľúč
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Aktivuje sa…
 inline-passwordless-sync-setup-not-now-button = Teraz nie
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = Tento prístupový kľúč je pripravený na prihlásenie so synchronizáciou
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = Prístupový kľúč sa nepodarilo potvrdiť
+inline-passwordless-sync-setup-error-cancelled-description = Overte sa prístupovým kľúčom, aby ste nabudúce nemuseli zadávať heslo.
+# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+inline-passwordless-sync-setup-error-generic = Niečo sa nepodarilo, pri ďalšom prihlásení budete musieť zadať heslo
 
 ## InlineRecoveryKeySetup page component
 
@@ -2018,6 +2026,19 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Ak chcete pripojiť sv
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Zrušené
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Ak chcete kedykoľvek pripojiť zariadenie, navštívte na svojom počítači stránku <b>firefox.com/pair</b>.
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } požaduje prístup k:
+permissions-label-email = E‑mailová adresa
+permissions-label-display-name = Zobrazované meno
+permissions-continue-button = Pokračovať
+permissions-cancel-button = Zrušiť
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

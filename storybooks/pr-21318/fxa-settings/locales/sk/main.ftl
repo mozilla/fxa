@@ -1247,6 +1247,7 @@ auth-error-228 = Registrácia prístupového kľúča zlyhala
 auth-error-233 = Ak chcete vytvoriť prístupový kľúč, nastavte si na zariadení alebo bezpečnostnom kľúči zámok obrazovky, PIN kód, odtlačok prsta alebo rozpoznávanie tváre. Potom to skúste znova.
 auth-error-238 = Overenie pomocou prístupového kľúča sa nepodarilo
 auth-error-239 = Je nám ľúto, váš účet sa nám nepodarilo odstrániť. Skúste to znova alebo kontaktujte podporu, ak problém pretrváva.
+auth-error-240 = Tento účet je deaktivovaný
 auth-error-999 = Neočakávaná chyba
 auth-error-1001 = Pokus o prihlásenie bol zrušený
 auth-error-1002 = Platnosť relácie vypršala. Ak chcete pokračovať, prihláste sa.
@@ -1339,6 +1340,10 @@ inline-passwordless-sync-setup-description = S týmto prístupovým kľúčom sa
 inline-passwordless-sync-setup-enable-button = Povoliť prístupový kľúč
 inline-passwordless-sync-setup-enabling = Aktivuje sa…
 inline-passwordless-sync-setup-not-now-button = Teraz nie
+inline-passwordless-sync-setup-success-alert = Tento prístupový kľúč je pripravený na prihlásenie so synchronizáciou
+inline-passwordless-sync-setup-error-cancelled = Prístupový kľúč sa nepodarilo potvrdiť
+inline-passwordless-sync-setup-error-cancelled-description = Overte sa prístupovým kľúčom, aby ste nabudúce nemuseli zadávať heslo.
+inline-passwordless-sync-setup-error-generic = Niečo sa nepodarilo, pri ďalšom prihlásení budete musieť zadať heslo
 
 
 inline-recovery-key-setup-create-error = Ojoj! Nepodarilo sa nám vytvoriť kľúč na obnovenie účtu. Skúste to znova neskôr.
@@ -1524,6 +1529,13 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Zdá sa, že nám vypršal
 pair2-supplicant-timeout-and-cancel-timeout-description = Ak chcete pripojiť svoje mobilné zariadenie a synchronizovať údaje z prehliadača { -brand-firefox }, navštívte stránku <b>firefox.com/pair</b> na svojom počítači.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Zrušené
 pair2-supplicant-timeout-and-cancel-canceled-description = Ak chcete kedykoľvek pripojiť zariadenie, navštívte na svojom počítači stránku <b>firefox.com/pair</b>.
+
+
+permissions-heading = { $serviceName } požaduje prístup k:
+permissions-label-email = E‑mailová adresa
+permissions-label-display-name = Zobrazované meno
+permissions-continue-button = Pokračovať
+permissions-cancel-button = Zrušiť
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } potvrdený
