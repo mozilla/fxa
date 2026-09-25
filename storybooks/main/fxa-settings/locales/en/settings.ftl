@@ -183,6 +183,10 @@ form-password-with-inline-criteria-confirm-password =
   .label = Confirm password
 form-password-with-inline-criteria-reset-submit-button = Create new password
 
+form-password-with-inline-criteria-old-password-label =
+  .label = Old password
+form-password-with-inline-criteria-change-password-submit-button = Change password
+
 form-password-with-inline-criteria-set-password-new-password-label =
   .label = Password
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -2261,6 +2265,13 @@ permissions-label-email = Email address
 permissions-label-display-name = Display name
 permissions-continue-button = Continue
 permissions-cancel-button = Cancel
+
+## ForcePasswordChange page
+## Users are sent here when suspicious activity on the account requires a new password before they can continue.
+
+force-password-change-heading = Please change your password
+force-password-change-info = We detected suspicious behavior on your { -product-mozilla-account }. To protect your account, please create a new password. You’ll use this password to sign back in to all of your { -product-mozilla-account } services.
+force-password-change-data-info = Synced history, bookmarks, logins, and other personal data will not be lost.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
