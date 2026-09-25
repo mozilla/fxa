@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 64086149be75c60781cdc9c0663bd566d72782a0</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 64086149be75c60781cdc9c0663bd566d72782a0</h1>
+  <ul>
+    <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/25/2026, 6:34:44 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>chore(auth): remove /mfa/test and /mfa/test2 scaffolding routes</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- The `/mfa/test` and `/mfa/test2` routes were scaffolding from when we built the MFA auth strategy. They have no remaining callers.
+- The `test` MFA action existed only for those routes.
+
+## This pull request
+
+- Removes `GET /mfa/test`, `POST /mfa/test` and `POST /mfa/test2` from `lib/routes/mfa.ts` in `fxa-auth-server`.
+- Removes `test` from the default `mfa.actions` in the auth-server config.
+- Removes `mfaTestGet`, `mfaTestPost` and `mfaTestPost2` from `fxa-auth-client`. This is a breaking change for those three methods only.
+- Removes the `test` action from the config override in `mfa_totp.in.spec.ts`.
+- Deletes `functional-tests/tests/misc/mfa.spec.ts`, which only drove the removed routes.
+
+## Issue that this pull request solves
+
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-14622</pre></dd>
+  </dl>
+</body>
+</html>

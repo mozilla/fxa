@@ -1,0 +1,11 @@
+{
+  "commit": "64086149be75c60781cdc9c0663bd566d72782a0",
+  "summary": "chore(auth): remove /mfa/test and /mfa/test2 scaffolding routes",
+  "description": "## Because\n\n- The `/mfa/test` and `/mfa/test2` routes were scaffolding from when we built the MFA auth strategy. They have no remaining callers.\n- The `test` MFA action existed only for those routes.\n\n## This pull request\n\n- Removes `GET /mfa/test`, `POST /mfa/test` and `POST /mfa/test2` from `lib/routes/mfa.ts` in `fxa-auth-server`.\n- Removes `test` from the default `mfa.actions` in the auth-server config.\n- Removes `mfaTestGet`, `mfaTestPost` and `mfaTestPost2` from `fxa-auth-client`. This is a breaking change for those three methods only.\n- Removes the `test` action from the config override in `mfa_totp.in.spec.ts`.\n- Deletes `functional-tests/tests/misc/mfa.spec.ts`, which only drove the removed routes.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-14622",
+  "timestamp": 1790361284000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
