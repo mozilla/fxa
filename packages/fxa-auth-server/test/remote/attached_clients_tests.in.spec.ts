@@ -7,6 +7,7 @@ import { getSharedTestServer, TestServerInstance } from '../support/helpers/test
 const Client = require('../client')();
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const hashRefreshToken = require('fxa-shared/auth/encrypt').hash;
+const unique = require('../../lib/oauth/unique');
 
 const buf = (v: any) => (Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex'));
 const PUBLIC_CLIENT_ID = '3c49430b43dfba77';
@@ -227,6 +228,238 @@ describe.each(testVersions)(
         oauthClients[0].lastAccessTime - newerTimestamp.getTime()
       );
       expect(timeDiff).toBeLessThan(1000);
+    });
+  }
+);
+
+describe.each(testVersions)(
+  '#integration$tag - attached OAuth clients',
+  ({ version }) => {
+    const testOptions = { version };
+    let user1: any, user2: any, client1: any, client2: any;
+
+    async function makeAccessToken(client: any, user: any, scope: string[]) {
+      await oauthServerDb.generateAccessToken({
+        clientId: buf(client.id),
+        name: client.name,
+        canGrant: client.canGrant,
+        userId: buf(user.uid),
+        email: user.email,
+        scope: ScopeSet.fromArray(scope),
+      });
+    }
+
+    async function makeRefreshToken(client: any, user: any, scope: string[]) {
+      const token = await oauthServerDb.generateRefreshToken({
+        clientId: buf(client.id),
+        userId: buf(user.uid),
+        email: user.email,
+        scope: ScopeSet.fromArray(scope),
+      });
+      return token.tokenId.toString('hex');
+    }
+
+    // Session records have a null clientId; keep only the OAuth ones.
+    async function oauthClients(user: any) {
+      const allClients = await user.attachedClients();
+      return allClients.filter((c: any) => c.clientId !== null);
+    }
+
+    async function clientIds(user: any) {
+      return (await oauthClients(user)).map((c: any) => c.clientId);
+    }
+
+    async function registerClient(name: string) {
+      const client = {
+        name,
+        id: unique.id().toString('hex'),
+        hashedSecret: hashRefreshToken(unique.secret()),
+        redirectUri: 'https://example.domain',
+        imageUri: 'https://example.com/logo.png',
+        trusted: true,
+        canGrant: false,
+      };
+      // Copy, because registerClient overwrites `id` with a Buffer.
+      await oauthServerDb.registerClient({ ...client });
+      return client;
+    }
+
+    beforeEach(async () => {
+      [user1, user2] = await Promise.all(
+        [1, 2].map(() =>
+          Client.createAndVerify(
+            server.publicUrl,
+            server.uniqueEmail(),
+            'test password',
+            server.mailbox,
+            testOptions
+          )
+        )
+      );
+      client1 = await registerClient('test/attached-clients/bbb-one');
+      client2 = await registerClient('test/attached-clients/aaa-two');
+    });
+
+    describe('GET /account/attached_clients', () => {
+      it('lists OAuth clients in a specific order', async () => {
+        await makeAccessToken(client1, user1, ['profile']);
+        await makeAccessToken(client2, user1, ['bb_scope', 'aa_scope']);
+
+        // Sorted by last access time, then name, so client2 comes first.
+        expect(await oauthClients(user1)).toMatchObject([
+          {
+            clientId: client2.id,
+            createdTime: expect.any(Number),
+            lastAccessTime: expect.any(Number),
+            name: 'test/attached-clients/aaa-two',
+            scope: ['aa_scope', 'bb_scope'],
+          },
+          {
+            clientId: client1.id,
+            createdTime: expect.any(Number),
+            lastAccessTime: expect.any(Number),
+            name: 'test/attached-clients/bbb-one',
+            scope: ['profile'],
+          },
+        ]);
+      });
+
+      it('does not list tokens of different users', async () => {
+        await makeAccessToken(client1, user1, ['profile']);
+        await makeAccessToken(client2, user2, ['bb_scope', 'aa_scope']);
+
+        expect(await clientIds(user1)).toEqual([client1.id]);
+        expect(await clientIds(user2)).toEqual([client2.id]);
+      });
+
+      it('lists separate refresh tokens from the same client separately', async () => {
+        await makeAccessToken(client1, user1, ['profile']);
+        await makeAccessToken(client1, user1, ['other', 'scope']);
+        await makeRefreshToken(client2, user1, ['profile']);
+        await makeRefreshToken(client2, user1, [
+          'aaaSortMeFirst',
+          'other',
+          'scope',
+        ]);
+        await makeAccessToken(client2, user1, ['profile']);
+
+        const clients = await oauthClients(user1);
+        expect(clients.length).toBe(3);
+        expect(clients[0].clientId).toBe(client2.id);
+        expect(clients[0].scope).toEqual(['aaaSortMeFirst', 'other', 'scope']);
+        expect(clients[0].refreshTokenId).toBeTruthy();
+        expect(clients[1].clientId).toBe(client2.id);
+        expect(clients[1].scope).toEqual(['profile']);
+        expect(clients[1].refreshTokenId).toBeTruthy();
+        expect(clients[2].clientId).toBe(client1.id);
+        expect(clients[2].scope).toEqual(['other', 'profile', 'scope']);
+        expect(clients[2].refreshTokenId).toBeNull();
+      });
+
+      it('does not list canGrant=1 clients that only have access tokens', async () => {
+        client2.canGrant = true;
+        await oauthServerDb.updateClient(client2);
+        await makeAccessToken(client1, user1, ['profile']);
+        await makeAccessToken(client2, user1, ['profile']);
+
+        expect(await clientIds(user1)).toEqual([client1.id]);
+      });
+
+      it('lists canGrant=1 clients that have refresh tokens', async () => {
+        client2.canGrant = true;
+        await oauthServerDb.updateClient(client2);
+        await makeAccessToken(client1, user1, ['profile']);
+        await makeRefreshToken(client2, user1, ['profile']);
+
+        expect(await clientIds(user1)).toEqual([client2.id, client1.id]);
+      });
+
+      it('requires a valid session token', async () => {
+        await expect(
+          user1.api.attachedClients(unique(32).toString('hex'))
+        ).rejects.toMatchObject({ code: 401, errno: 110 });
+      });
+    });
+
+    describe('POST /account/attached_client/destroy', () => {
+      it('deletes all tokens of a target client id', async () => {
+        await makeAccessToken(client1, user1, ['profile']);
+        await makeRefreshToken(client2, user1, ['profile']);
+        await makeRefreshToken(client2, user1, ['profile']);
+
+        await user1.destroyAttachedClient({ clientId: client1.id });
+        let clients = await oauthClients(user1);
+        expect(clients.length).toBe(2);
+        expect(clients[0].clientId).toBe(client2.id);
+
+        await user1.destroyAttachedClient({ clientId: client2.id });
+        clients = await oauthClients(user1);
+        expect(clients.length).toBe(0);
+      });
+
+      it('deletes outstanding authorization codes for the client', async () => {
+        const code = await oauthServerDb.generateCode({
+          clientId: buf(client1.id),
+          userId: buf(user1.uid),
+          email: user1.email,
+          scope: ScopeSet.fromArray(['profile']),
+          authAt: 0,
+        });
+        expect(await oauthServerDb.getCode(code)).toBeTruthy();
+
+        await user1.destroyAttachedClient({ clientId: client1.id });
+        expect(await oauthServerDb.getCode(code)).toBeFalsy();
+      });
+
+      it('deletes a specific token of a target client id', async () => {
+        await makeAccessToken(client1, user1, ['profile']);
+        await makeRefreshToken(client2, user1, ['profile']);
+        const tokenId = await makeRefreshToken(client2, user1, [
+          'other',
+          'scope',
+        ]);
+
+        await user1.destroyAttachedClient({
+          clientId: client2.id,
+          refreshTokenId: tokenId,
+        });
+
+        const clients = await oauthClients(user1);
+        expect(clients.length).toBe(2);
+        expect(clients[0].clientId).toBe(client2.id);
+        expect(clients[0].scope).toEqual(['profile']);
+        expect(clients[0].refreshTokenId).not.toBe(tokenId);
+        expect(clients[1].clientId).toBe(client1.id);
+        expect(clients[1].scope).toEqual(['profile']);
+      });
+
+      it('refuses to delete a token for the wrong client id', async () => {
+        const tokenId = await makeRefreshToken(client2, user1, ['profile']);
+
+        await expect(
+          user1.destroyAttachedClient({
+            clientId: client1.id,
+            refreshTokenId: tokenId,
+          })
+        ).rejects.toMatchObject({ code: 400, errno: 182 });
+
+        const clients = await oauthClients(user1);
+        expect(clients.map((c: any) => c.refreshTokenId)).toEqual([tokenId]);
+      });
+
+      it('refuses to delete a token for the wrong user', async () => {
+        const tokenId = await makeRefreshToken(client2, user1, ['profile']);
+
+        await expect(
+          user2.destroyAttachedClient({
+            clientId: client2.id,
+            refreshTokenId: tokenId,
+          })
+        ).rejects.toMatchObject({ code: 400, errno: 182 });
+
+        const clients = await oauthClients(user1);
+        expect(clients.map((c: any) => c.refreshTokenId)).toEqual([tokenId]);
+      });
     });
   }
 );

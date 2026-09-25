@@ -20,8 +20,6 @@ module.exports = (
       glean,
       authServerCacheRedis,
     }),
-    require('./authorized-clients/destroy')({ oauthDB }),
-    require('./authorized-clients/list')({ oauthDB }),
     require('./client/get')({ log, oauthDB }),
     require('./destroy')({ log, oauthDB }),
     require('./id_token_verify')(),
