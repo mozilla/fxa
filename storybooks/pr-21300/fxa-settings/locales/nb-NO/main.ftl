@@ -1083,6 +1083,7 @@ auth-error-228 = Registrering av passnøkkel mislyktes
 auth-error-233 = For å opprette en passnøkkel må du konfigurere skjermlås, PIN-kode, fingeravtrykk eller ansiktsgjenkjenning på enheten eller sikkerhetsnøkkelen. Prøv deretter på nytt.
 auth-error-238 = Passnøkkelutfordring mislyktes
 auth-error-239 = Beklager, vi kunne ikke slette kontoen din. Prøv på nytt, eller kontakt brukerstøtte hvis problemet vedvarer.
+auth-error-240 = Denne kontoen er deaktivert
 auth-error-999 = Uventet feil
 auth-error-1001 = Innloggingsforsøk avbrutt
 auth-error-1002 = Økt utløpt. Logg inn for å fortsette.
@@ -1360,6 +1361,12 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Det ser ut til at det opps
 pair2-supplicant-timeout-and-cancel-timeout-description = For å koble til mobilenheten din og synkronisere { -brand-firefox }-dataene dine, gå til <b>firefox.com/pair</b> på datamaskinen din.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Avbrutt
 pair2-supplicant-timeout-and-cancel-canceled-description = For å koble til en enhet når som helst, gå til <b>firefox.com/pair</b> på datamaskinen din.
+
+
+permissions-label-email = E-postadresse
+permissions-label-display-name = Visningsnavn
+permissions-continue-button = Fortsett
+permissions-cancel-button = Avbryt
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } bekreftet

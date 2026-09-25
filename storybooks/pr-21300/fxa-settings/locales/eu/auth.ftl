@@ -158,6 +158,12 @@ subscriptionSupport-plaintext = Zure harpidetzari buruzko galderarik ba al duzu?
 subscriptionSupportContact = Eskarrikasko { $productName }-n harpidetzeagatik. Zure harpidetzari buruz galderarik baduzu edo { $productName }ri buruz informazio gehiago nahi baduzu, jarri harremanetan <a data-l10n-name="subscriptionSupportUrl"> gurekin</a>.
 # After the colon, there's a link to https://accounts.firefox.com/support
 subscriptionSupportContact-plaintext = Eskarrikasko { $productName }-n harpidetzeagatik. Zure harpidetzari buruz galderarik baduzu edo { $productName }-ri buruz informazio gehiago nahi baduzu, jarri harremanetan gurekin.
+subscription-support-manage-your-subscription = <a data-l10n-name="manageSubscriptionUrl">Kudeatu zure harpidetza</a>
+# After the colon, there's a link to https://payments.firefox.com/subscriptions
+subscription-support-manage-your-subscription-plaintext = Kudeatu zure harpidetza:
+subscription-support-contact-support = <a data-l10n-name="subscriptionSupportUrl">Jarri laguntzarekin harremanetan</a>
+# After the colon, there's a link to https://support.mozilla.com/products
+subscription-support-contact-support-plaintext = Jarri laguntzarekin harremanetan
 subscriptionUpdateBillingEnsure = Zure ordainketa-metodoa eta kontuaren informazioa eguneratuta daudela <a data-l10n-name="updateBillingUrl"> hemen ziurtatu dezakezu</a>.
 # After the colon, there's a link to https://accounts.firefox.com/subscriptions
 subscriptionUpdateBillingEnsure-plaintext = Zure ordainketa-metodoa eta kontuaren informazioa eguneratuta daudela hemen ziurtatu dezakezu:
@@ -167,6 +173,7 @@ subscriptionUpdateBillingTry-plaintext = Zure ordainketa egiten saiatuko gara be
 subscriptionUpdatePayment = Zure zerbitzua etenik ez izateko, mesedez <a data-l10n-name="updateBillingUrl">eguneratu zure ordainketa-informazioa</a> ahalik eta azkarren.
 # After the colon, there's a link to https://accounts.firefox.com/subscriptions
 subscriptionUpdatePayment-plaintext = Zure zerbitzua etenik ez izateko, mesedez eguneratu zure ordainketa-informazioa ahalik eta azkarren.
+view-invoice-link-action = Ikusi faktura
 # Variables:
 #  $invoiceLink (String) - The link to the invoice
 # After the colon, there's a link to https://pay.stripe.com/
@@ -187,6 +194,20 @@ fraudulentAccountDeletion-contact = Galderarik baduzu, jarri harremanetan gure <
 # Variables:
 #  $mozillaSupportUrl (String) - Link to https://support.mozilla.org
 fraudulentAccountDeletion-contact-plaintext = Galderarik baduzu, mesedez, gure laguntza taldearekin jar zaitez harremanetan: { $mozillaSupportUrl }
+# Variables
+#   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+freeTrialEndingReminder-subject = Zure { $productName } doako proba laster amaitzen da
+# Variables:
+#   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+freeTrialEndingReminder-content-greeting = { $productName } bezero agurgarria,
+# Variables:
+#   $invoiceDiscountAmount (String) - The discount amount, as a negative number, e.g. -$3.00
+freeTrialEndingReminder-content-charge-discount = Deskontua: { $invoiceDiscountAmount }
+freeTrialEndingReminder-content-charge-discount-2 = Deskontua
+# Variables:
+#   $invoiceTaxAmount (String) - The tax amount, e.g. $1.20
+freeTrialEndingReminder-content-charge-tax = Zergak: { $invoiceTaxAmount }
+freeTrialEndingReminder-content-charge-tax-2 = Zergak
 #  Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionAccountDeletion-subject = Zure { $productName } harpidetza bertan behera utzi da
@@ -314,6 +335,7 @@ subscriptionUpgrade-title = Eskerrik asko eguneratzeagatik!
 ## $paymentProrated (String) - The one time fee to reflect the higher charge for the remainder of the payment cycle, including currency, e.g. $10.00
 
 subscriptionUpgrade-auto-renew = Zure harpidetzak fakturazio-aldi bakoitza automatikoki berrituko du bertan behera uztea erabakitzen ez baduzu.
+subscriptionsPaymentExpired-title-2 = Zure ordainketa-metodoa iraungita edo iraungitzear dago
 subscriptionsPaymentProviderCancelled-subject = Ordainketa-informazioaren eguneratzea beharrezkoa da { -brand-mozilla } harpidetzetan
 subscriptionsPaymentProviderCancelled-title = Barkatu, arazoak ditugu ordainketa-metodoarekin
 subscriptionsPaymentProviderCancelled-content-detected = Arazo bat hauteman dugu zure ordainketa-metodoarekin hurrengo harpidetzetan.

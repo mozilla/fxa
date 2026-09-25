@@ -1477,6 +1477,7 @@ auth-error-228 = O registo da chave falhou
 auth-error-233 = Para criar uma chave de acesso, configure um bloqueio de ecrã, PIN, impressão digital ou reconhecimento de face no seu dispositivo ou chave de segurança. Depois, tente novamente.
 auth-error-238 = O desafio da chave de acesso falhou
 auth-error-239 = Desculpe, não conseguimos apagar a sua conta. Por favor, tente novamente ou contacte o suporte se o problema continuar.
+auth-error-240 = Esta conta foi desativada
 auth-error-999 = Erro inesperado
 auth-error-1001 = Tentativa de início de sessão cancelada
 auth-error-1002 = A sessão expirou. Inicie sessão para continuar.
@@ -1637,6 +1638,13 @@ inline-passwordless-sync-setup-enable-button = Ativar chave-passe
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = A ativar…
 inline-passwordless-sync-setup-not-now-button = Agora não
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = Esta palavra-chave está pronta para o início de sessão de sincronização
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = A confirmação da palavra-chave não foi concluída
+inline-passwordless-sync-setup-error-cancelled-description = Confirme com a sua palavra-chave para saltar a palavra-passe da próxima vez.
+# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+inline-passwordless-sync-setup-error-generic = Algo correu mal, ainda precisará de introduzir a sua palavra-passe da próxima vez
 
 ## InlineRecoveryKeySetup page component
 
@@ -2007,6 +2015,19 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Para ligar o seu dispo
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelado
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Para ligar um dispositivo a qualquer momento, visite <b>firefox.com/pair</b> no seu computador.
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } pretende aceder a:
+permissions-label-email = Endereço de e-mail
+permissions-label-display-name = Nome de apresentação
+permissions-continue-button = Continuar
+permissions-cancel-button = Cancelar
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

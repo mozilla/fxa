@@ -1503,6 +1503,7 @@ auth-error-228 = Wedi methu cofrestri'r cyfrinallwedd
 auth-error-233 = I greu cyfrinallwedd, gosodwch glo sgrin, PIN, ôl bys, neu adnabod wyneb ar eich dyfais neu allwedd ddiogelwch. Yna ceisiwch eto.
 auth-error-238 = Methodd her y cyfrinallwedd
 auth-error-239 = Ymddiheuriadau, doedd dim modd i ni allu dileu eich cyfrif. Ceisiwch eto, neu cysylltwch â'r tîm cymorth os yw'r broblem yn parhau.
+auth-error-240 = Mae'r cyfrif hwn wedi'i analluogi
 auth-error-999 = Gwall anhysbys
 auth-error-1001 = Diddymwyd yr ymgais i fewngofnodi
 auth-error-1002 = Daeth y sesiwn i ben. Mewngofnodwch i barhau.
@@ -1663,6 +1664,13 @@ inline-passwordless-sync-setup-enable-button = Galluogi cyfrinallwedd
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Wrthi'n galluogi…
 inline-passwordless-sync-setup-not-now-button = Nid nawr
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = Mae'r cyfrinallwedd hwn yn barod ar gyfer mewngofnodi cydweddu
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = Wnaeth cadarnhau'r cyfrinallwedd ddim gorffen
+inline-passwordless-sync-setup-error-cancelled-description = Cadarnhewch gyda'ch cyfrinallwedd i hepgor y cyfrinair tro nesaf.
+# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+inline-passwordless-sync-setup-error-generic = Aeth rhywbeth o'i le, bydd dal angen i chi roi'ch cyfrinair y tro nesaf
 
 ## InlineRecoveryKeySetup page component
 
@@ -2031,6 +2039,19 @@ pair2-supplicant-timeout-and-cancel-timeout-description = I gysylltu eich dyfais
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Wedi'i Ddiddymu
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = I gysylltu dyfais unrhyw bryd, ewch i <b>firefox.com/pair</b> ar eich cyfrifiadur.
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = Mae { $serviceName } eisiau mynediad i:
+permissions-label-email = Cyfeiriad e-bost
+permissions-label-display-name = Enw dangos
+permissions-continue-button = Parhau
+permissions-cancel-button = Diddymu
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
