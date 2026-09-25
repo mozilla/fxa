@@ -1,8 +1,8 @@
 {
-  "commit": "459e0c87b877420600eefce9d78ebb20b62d9ce0",
-  "summary": "Merge pull request #21295 from mozilla/fxa-6661",
-  "description": "feat(settings): serve /subscriptions redirects from React",
-  "timestamp": 1790360900000,
+  "commit": "3dd759079275dfbd8813a44730b15d3ac8817fd8",
+  "summary": "Merge pull request #21313 from mozilla/fxa-inactive-accts-threshold-param",
+  "description": "feat(scripts): add threshold param to inactive accts script",
+  "timestamp": 1790361736000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
