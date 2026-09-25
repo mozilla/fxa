@@ -1050,6 +1050,7 @@ auth-error-228 = Passkey 註冊失敗
 auth-error-233 = 要建立 Passkey，請先在您的裝置或安全金鑰設定 PIN 碼、指紋或臉孔辨識等螢幕鎖定方式，然後再試一次。
 auth-error-238 = Passkey 挑戰失敗
 auth-error-239 = 抱歉，我們無法刪除您的帳號。請再試一次，若問題持續存在請聯絡技術支援團隊。
+auth-error-240 = 已停用此帳號
 auth-error-999 = 未預期的錯誤
 auth-error-1001 = 已取消登入請求
 auth-error-1002 = 登入階段已失效，請登入以繼續。
@@ -1142,6 +1143,10 @@ inline-passwordless-sync-setup-description = 使用這把 Passkey 可以更快�
 inline-passwordless-sync-setup-enable-button = 啟用 Passkey
 inline-passwordless-sync-setup-enabling = 啟用中…
 inline-passwordless-sync-setup-not-now-button = 現在不要
+inline-passwordless-sync-setup-success-alert = 已可使用這組 Passkey 來登入 Sync 功能
+inline-passwordless-sync-setup-error-cancelled = Passkey 確認未完成
+inline-passwordless-sync-setup-error-cancelled-description = 使用 Passkey 確認後，下次即可免輸入密碼。
+inline-passwordless-sync-setup-error-generic = 有些東西不對勁，下次您仍需輸入密碼
 
 
 inline-recovery-key-setup-create-error = 抱歉！無法建立您的帳號救援金鑰，請稍候再試一次。
@@ -1327,6 +1332,13 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = 看來超出時間限制�
 pair2-supplicant-timeout-and-cancel-timeout-description = 若要連結您的行動裝置並同步 { -brand-firefox } 資料，請在您的電腦造訪 <b>firefox.com/pair</b>。
 pair2-supplicant-timeout-and-cancel-cancelled-heading = 已取消
 pair2-supplicant-timeout-and-cancel-canceled-description = 歡迎隨時在您的電腦開啟 <b>firefox.com/pair</b> 連結其他裝置。
+
+
+permissions-heading = { $serviceName } 想要存取：
+permissions-label-email = 電子郵件地址
+permissions-label-display-name = 顯示名稱
+permissions-continue-button = 繼續
+permissions-cancel-button = 取消
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } 已確認

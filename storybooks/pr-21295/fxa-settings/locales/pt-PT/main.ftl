@@ -32,7 +32,7 @@
 -brand-diners = Diners Club
 -brand-discover = Discover
 -brand-jcb = JCB
--brand-link = Ligação
+-brand-link = Link
 -brand-mastercard = Mastercard
 -brand-unionpay = UnionPay
 -brand-visa = Visa
@@ -1092,6 +1092,7 @@ auth-error-228 = O registo da chave falhou
 auth-error-233 = Para criar uma chave de acesso, configure um bloqueio de ecrã, PIN, impressão digital ou reconhecimento de face no seu dispositivo ou chave de segurança. Depois, tente novamente.
 auth-error-238 = O desafio da chave de acesso falhou
 auth-error-239 = Desculpe, não conseguimos apagar a sua conta. Por favor, tente novamente ou contacte o suporte se o problema continuar.
+auth-error-240 = Esta conta foi desativada
 auth-error-999 = Erro inesperado
 auth-error-1001 = Tentativa de início de sessão cancelada
 auth-error-1002 = A sessão expirou. Inicie sessão para continuar.
@@ -1184,6 +1185,10 @@ inline-passwordless-sync-setup-description = Use esta chave-passe para iniciar s
 inline-passwordless-sync-setup-enable-button = Ativar chave-passe
 inline-passwordless-sync-setup-enabling = A ativar…
 inline-passwordless-sync-setup-not-now-button = Agora não
+inline-passwordless-sync-setup-success-alert = Esta palavra-chave está pronta para o início de sessão de sincronização
+inline-passwordless-sync-setup-error-cancelled = A confirmação da palavra-chave não foi concluída
+inline-passwordless-sync-setup-error-cancelled-description = Confirme com a sua palavra-chave para saltar a palavra-passe da próxima vez.
+inline-passwordless-sync-setup-error-generic = Algo correu mal, ainda precisará de introduzir a sua palavra-passe da próxima vez
 
 
 inline-recovery-key-setup-create-error = Ups! Não conseguimos criar a sua chave de recuperação da conta. Por favor, tente novamente mais tarde.
@@ -1371,6 +1376,13 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que expirámos
 pair2-supplicant-timeout-and-cancel-timeout-description = Para ligar o seu dispositivo móvel e sincronizar os seus dados de { -brand-firefox }, visite <b>firefox.com/pair</b> no seu computador.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelado
 pair2-supplicant-timeout-and-cancel-canceled-description = Para ligar um dispositivo a qualquer momento, visite <b>firefox.com/pair</b> no seu computador.
+
+
+permissions-heading = { $serviceName } pretende aceder a:
+permissions-label-email = Endereço de e-mail
+permissions-label-display-name = Nome de apresentação
+permissions-continue-button = Continuar
+permissions-cancel-button = Cancelar
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmados

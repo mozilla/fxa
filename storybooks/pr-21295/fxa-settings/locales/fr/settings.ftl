@@ -1473,6 +1473,7 @@ auth-error-228 = Échec de l’enregistrement de la clé d’accès
 auth-error-233 = Pour créer une clé d’accès, configurez le verrouillage de l’écran, un code PIN, une empreinte digitale, la reconnaissance faciale sur votre appareil ou une clé de sécurité. Réessayez ensuite.
 auth-error-238 = Échec de la vérification de la clé d’accès
 auth-error-239 = Désolé, nous n’avons pas pu supprimer votre compte. Veuillez essayer à nouveau, ou contacter l’assistance si le problème persiste.
+auth-error-240 = Ce compte a été désactivé
 auth-error-999 = Erreur inattendue
 auth-error-1001 = Tentative de connexion annulée
 auth-error-1002 = Votre session a expiré. Connectez-vous pour continuer.
@@ -1633,6 +1634,13 @@ inline-passwordless-sync-setup-enable-button = Activer la clé d’accès
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Activation…
 inline-passwordless-sync-setup-not-now-button = Plus tard
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = Cette clé d’accès est prête pour la connexion synchronisée
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = La confirmation de la clé d’accès n’a pas abouti
+inline-passwordless-sync-setup-error-cancelled-description = Confirmez à l’aide de votre clé d’accès pour ne pas avoir à saisir votre mot de passe la prochaine fois.
+# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+inline-passwordless-sync-setup-error-generic = Une erreur s’est produite, vous devrez encore saisir votre mot de passe la prochaine fois
 
 ## InlineRecoveryKeySetup page component
 
@@ -2001,6 +2009,19 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Pour connecter votre a
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Annulé
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Pour connecter un appareil à tout moment, consultez <b>firefox.com/pair</b> sur votre ordinateur.
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } souhaite accéder à :
+permissions-label-email = Adresse e-mail
+permissions-label-display-name = Nom à afficher
+permissions-continue-button = Continuer
+permissions-cancel-button = Annuler
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

@@ -1106,6 +1106,7 @@ auth-error-228 = Registracija gronidłowego kluca njejo se raźiła
 auth-error-233 = Aby gronidłowy kluc napórał, konfigurěrujśo zawěru wobrazowki, PIN, palcowy wótśišć abo woblicowe spóznaśe na swójom rěźe abo wěstotnem klucu. Wopytajśo pón hyšći raz.
 auth-error-238 = Pśeglědanje gronidłowego kluca njejo se raźiło
 auth-error-239 = Bóžko njejsmy mógli wašo konto wulašowaś. Pšosym wopytajśo hyšći raz abo stajśo se z teamom pomocy do zwiska, jolic problem dalej eksistěrujo.
+auth-error-240 = Konto jo se znjemóžniło
 auth-error-999 = Njewótcakowana zmólka
 auth-error-1001 = Pśizjawjeński wopyt pśetergnjony
 auth-error-1002 = Pósejźenje jo wótběgnuło. Pśizjawśo se, aby pókšacował.
@@ -1198,6 +1199,10 @@ inline-passwordless-sync-setup-description = Wužywajśo toś ten gronidłowy kl
 inline-passwordless-sync-setup-enable-button = Gronidłowy kluc zmóžniś
 inline-passwordless-sync-setup-enabling = Zmóžnja se…
 inline-passwordless-sync-setup-not-now-button = Nic něnto
+inline-passwordless-sync-setup-success-alert = Gronidłowy kluc jo gótowy za pśizjawjenje synchronizacije
+inline-passwordless-sync-setup-error-cancelled = Wobkšuśenje gronidłowego kluca se njekóńcy
+inline-passwordless-sync-setup-error-cancelled-description = Wobkšuśćo ze swójim gronidłowym klucom, aby gronidło pśiducy raz pśeskócył.
+inline-passwordless-sync-setup-error-generic = Něco njejo se raźiło, musyśo hyšći swójo gronidło pśiducy raz zapódaś
 
 
 inline-recovery-key-setup-create-error = Hopla! Njejsmy mógli waš kontowy wótnowjeński kluc napóraś. Pšosym wopytajśo pózdźej hyšći raz.
@@ -1383,6 +1388,13 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Zda se, až smy cas pśek�
 pair2-supplicant-timeout-and-cancel-timeout-description = Aby swój mobilny rěd zwězał a swóje daty { -brand-firefox } synchronizěrował, woglědajśo se k <b>firefox.com/pair</b> na swójo licadle.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Anulěrowany
 pair2-supplicant-timeout-and-cancel-canceled-description = Aby rěd kuždy cas zwězał, woglědujśo se k <b>firefox.com/pair</b> na swójom licadle.
+
+
+permissions-heading = { $serviceName } co pśistup k:
+permissions-label-email = E-mailowa adresa
+permissions-label-display-name = Zwobraznjeńske mě
+permissions-continue-button = Dalej
+permissions-cancel-button = Pśetergnuś
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } wobkšuśone
