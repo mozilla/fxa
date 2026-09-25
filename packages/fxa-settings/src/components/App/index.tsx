@@ -156,6 +156,9 @@ const InlinePasswordlessSyncSetupContainer = lazy(
 const SetPasswordContainer = lazy(
   () => import('../../pages/PostVerify/SetPassword/container')
 );
+const ForcePasswordChangeContainer = lazy(
+  () => import('../../pages/PostVerify/ForcePasswordChange/container')
+);
 const SigninRecoveryChoiceContainer = lazy(
   () => import('../../pages/Signin/SigninRecoveryChoice/container')
 );
@@ -705,6 +708,14 @@ const AuthAndAccountSetupRoutes = ({
           element={
             <SetPasswordContainer
               {...{ flowQueryParams, integration, useFxAStatusResult }}
+            />
+          }
+        />
+        <Route
+          path="/post_verify/password/force_password_change/*"
+          element={
+            <ForcePasswordChangeContainer
+              {...{ integration, useFxAStatusResult }}
             />
           }
         />

@@ -495,8 +495,11 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     navigationOptions.signinData.verificationReason ===
     VerificationReasons.CHANGE_PASSWORD
   ) {
-    // TODO in FXA-6653: remove hardNavigate when this route is converted to React
-    hardNavigate('/post_verify/password/force_password_change', {}, true);
+    navigationOptions.navigate(
+      `/post_verify/password/force_password_change${
+        navigationOptions.queryParams || ''
+      }`
+    );
     return { error: undefined };
   }
 

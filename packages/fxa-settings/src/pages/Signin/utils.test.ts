@@ -249,6 +249,25 @@ describe('Signin utils', () => {
       );
     });
 
+    it('navigates in-app to force password change with the query params', async () => {
+      const navigationOptions = createBaseNavigationOptions({
+        integration: createMockSigninWebIntegration(),
+        signinData: {
+          ...createBaseNavigationOptions().signinData,
+          verificationReason: VerificationReasons.CHANGE_PASSWORD,
+        },
+        queryParams: '?client_id=abc',
+      });
+
+      const result = await handleNavigation(navigationOptions);
+
+      expect(result.error).toBeUndefined();
+      expect(mockNavigate).toHaveBeenCalledWith(
+        '/post_verify/password/force_password_change?client_id=abc'
+      );
+      expect(hardNavigateSpy).not.toHaveBeenCalled();
+    });
+
     describe('unverified session navigation', () => {
       it('returns early for SIGN_UP verification reason', async () => {
         const navigationOptions = createBaseNavigationOptions({

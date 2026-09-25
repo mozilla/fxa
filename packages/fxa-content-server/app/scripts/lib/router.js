@@ -267,9 +267,14 @@ Router = Router.extend({
     'post_verify/newsletters/add_newsletters': createViewHandler(
       'post_verify/newsletters/add_newsletters'
     ),
-    'post_verify/password/force_password_change': createViewHandler(
-      'post_verify/password/force_password_change'
-    ),
+    // Forward the OAuth and Sync params; the React page completes sign-in.
+    'post_verify/password/force_password_change': function () {
+      this.createReactOrBackboneViewHandler(
+        'post_verify/password/force_password_change',
+        'post_verify/password/force_password_change',
+        Url.searchParams(this.window.location.search)
+      );
+    },
     'post_verify/secondary_email/add_secondary_email': createViewHandler(
       'post_verify/secondary_email/add_secondary_email'
     ),
