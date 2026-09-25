@@ -1,0 +1,13 @@
+{
+  "commit": "0403c690a2ef713ec19da62ecddd96a23d6dc9b2",
+  "summary": "chore(payments-next): upgrade to Next.js 16 with Turbopack",
+  "description": "Because:\n\n* Next.js 16 makes Turbopack the default bundler and renames\n  middleware to proxy.\n* @next/bundle-analyzer and two Sentry build options only work with\n  webpack.\n\nThis commit:\n\n* Bumps next to 16.3.6 and builds payments-next with Turbopack.\n* Renames middleware.ts to proxy.ts and its export to proxy.\n* Replaces @next/bundle-analyzer with an nx `analyze` target, with a\n  NEXT_DIST_DIR override for its distDir bug.\n* Removes reactComponentAnnotation and disableLogger from the Sentry\n  config.\n* Removes the unused `export` target.\n\nCloses PAY-3783, PAY-3784",
+  "timestamp": 1790366128000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

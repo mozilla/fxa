@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 0403c690a2ef713ec19da62ecddd96a23d6dc9b2</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 0403c690a2ef713ec19da62ecddd96a23d6dc9b2</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/25/2026, 7:55:28 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>chore(payments-next): upgrade to Next.js 16 with Turbopack</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+* Next.js 16 makes Turbopack the default bundler and renames
+  middleware to proxy.
+* @next/bundle-analyzer and two Sentry build options only work with
+  webpack.
+
+This commit:
+
+* Bumps next to 16.3.6 and builds payments-next with Turbopack.
+* Renames middleware.ts to proxy.ts and its export to proxy.
+* Replaces @next/bundle-analyzer with an nx `analyze` target, with a
+  NEXT_DIST_DIR override for its distDir bug.
+* Removes reactComponentAnnotation and disableLogger from the Sentry
+  config.
+* Removes the unused `export` target.
+
+Closes PAY-3783, PAY-3784</pre></dd>
+  </dl>
+</body>
+</html>
