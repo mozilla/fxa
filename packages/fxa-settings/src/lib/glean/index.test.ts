@@ -615,6 +615,8 @@ describe('lib/glean', () => {
         await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(setEventNameStub, 'login_backup_choice_submit');
+        sinon.assert.calledOnce(setEventReasonStub);
+        sinon.assert.calledWith(setEventReasonStub, 'quux');
       });
 
       it('submits a ping with the login_recovery_phone_success_view event name', async () => {
@@ -1356,6 +1358,22 @@ describe('lib/glean', () => {
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(setEventNameStub, 'account_pref_bento_vpn');
         sinon.assert.calledOnce(spy);
+      });
+
+      it('submits a ping with the account_pref_two_step_auth_qr_view event name', async () => {
+        GleanMetrics.accountPref.twoStepAuthQrView({
+          event: { reason: 'quux' },
+        });
+        const spy = sandbox.spy(accountPref.twoStepAuthQrView, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_two_step_auth_qr_view'
+        );
+        sinon.assert.calledOnce(spy);
+        sinon.assert.calledOnce(setEventReasonStub);
+        sinon.assert.calledWith(setEventReasonStub, 'quux');
       });
 
       it('submits a ping with the account_pref_two_step_auth_manual_code_view event name', async () => {

@@ -287,7 +287,9 @@ const recordEventMetric = (
       login.backupChoiceView.record();
       break;
     case 'login_backup_choice_submit':
-      login.backupChoiceSubmit.record();
+      login.backupChoiceSubmit.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
     case 'login_engage':
       login.engage.record();
@@ -544,7 +546,9 @@ const recordEventMetric = (
       accountPref.twoStepAuthScanCodeLink.record();
       break;
     case 'account_pref_two_step_auth_qr_view':
-      accountPref.twoStepAuthQrView.record();
+      accountPref.twoStepAuthQrView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
     case 'account_pref_two_step_auth_qr_code_success':
       accountPref.twoStepAuthQrCodeSuccess.record();
