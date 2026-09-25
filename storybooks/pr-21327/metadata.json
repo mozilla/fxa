@@ -1,0 +1,10 @@
+{
+  "commit": "fcef4a5789051b89704a1603d5baaea9c236da50",
+  "summary": "bug(Settings): Respect browser's pairing version",
+  "description": "Because:\n- If a browser signals it supports pairing.version 1, we should not show a pairing v2 flow\n\nThis Commit:\n- Fixes the logic in v2 gate to respect the firefox desktop pref, identity.fxaccounts.pairing.version",
+  "timestamp": 1790366307000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
