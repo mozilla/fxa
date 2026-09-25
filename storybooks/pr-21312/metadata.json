@@ -1,0 +1,10 @@
+{
+  "commit": "dc9bb58f45d9ec940d8f25727f2db93749c6eaad",
+  "summary": "test(settings): cover OAuth hooks data, keys, errors and redirects",
+  "description": "## Because\n\n- `lib/oauth/hooks.tsx` finishes every OAuth sign-in in fxa-settings. Its tests covered only the passkey kB stash and the permissions gate. Its data checks, key scope choice, error mapping and redirect logic had no unit tests.\n\n## This pull request\n\n- Adds unit tests in `hooks.test.tsx` for `lib/oauth/hooks.tsx`. The tests cover:\n  - `checkOAuthData` errors, read through `oAuthDataError`.\n  - The key scope choice: the URL scope when present, or the `apps/oldsync` fallback for native flows.\n  - An `accountKeys` failure, which resolves to `TRY_AGAIN`.\n  - The errno passthrough of `UNVERIFIED_SESSION`, `TOTP_REQUIRED` and `INSUFFICIENT_ACR_VALUES`. Other errnos map to `TRY_AGAIN`.\n  - The Sync web channel redirect with the integration state. Other flows get a URL built from the relier redirect URI, with the response state.\n  - `useOAuthKeysCheck`.\n- The new `describe` blocks sit at the end of the file. This keeps the rebase simple for the open PR that changes the same file.\n- There are no source changes.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-14574",
+  "timestamp": 1790294730000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

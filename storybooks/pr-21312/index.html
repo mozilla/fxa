@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit dc9bb58f45d9ec940d8f25727f2db93749c6eaad</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit dc9bb58f45d9ec940d8f25727f2db93749c6eaad</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/25/2026, 12:05:30 AM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>test(settings): cover OAuth hooks data, keys, errors and redirects</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- `lib/oauth/hooks.tsx` finishes every OAuth sign-in in fxa-settings. Its tests covered only the passkey kB stash and the permissions gate. Its data checks, key scope choice, error mapping and redirect logic had no unit tests.
+
+## This pull request
+
+- Adds unit tests in `hooks.test.tsx` for `lib/oauth/hooks.tsx`. The tests cover:
+  - `checkOAuthData` errors, read through `oAuthDataError`.
+  - The key scope choice: the URL scope when present, or the `apps/oldsync` fallback for native flows.
+  - An `accountKeys` failure, which resolves to `TRY_AGAIN`.
+  - The errno passthrough of `UNVERIFIED_SESSION`, `TOTP_REQUIRED` and `INSUFFICIENT_ACR_VALUES`. Other errnos map to `TRY_AGAIN`.
+  - The Sync web channel redirect with the integration state. Other flows get a URL built from the relier redirect URI, with the response state.
+  - `useOAuthKeysCheck`.
+- The new `describe` blocks sit at the end of the file. This keeps the rebase simple for the open PR that changes the same file.
+- There are no source changes.
+
+## Issue that this pull request solves
+
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-14574</pre></dd>
+  </dl>
+</body>
+</html>
