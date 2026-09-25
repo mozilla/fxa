@@ -17,11 +17,19 @@
         "port": 3035
       }
     },
-    "export": {
-      "executor": "@nx/next:export",
+    "analyze": {
+      "command": "next experimental-analyze",
       "options": {
-        "buildTarget": "payments-next:build:production"
-      }
+        "cwd": "apps/payments/next",
+        "env": {
+          "NEXT_DIST_DIR": ".next"
+        }
+      },
+      "dependsOn": [
+        "l10n-bundle",
+        "glean-generate",
+        "payments-metrics:glean-generate-frontend"
+      ]
     },
     "test-unit": {
       "executor": "@nx/jest:jest",
