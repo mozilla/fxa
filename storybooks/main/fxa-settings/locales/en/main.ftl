@@ -1554,14 +1554,16 @@ pair2-supplicant-connect-this-device-connect-button = Connect
 pair2-supplicant-connect-this-device-cancel-button = Cancel
 
 
-pair2-supplicant-download-firefox-heading = Get { -brand-firefox } on this device
-pair2-supplicant-download-firefox-description = Download { -brand-firefox } to sync bookmarks, history, and more across devices. <linkExternal>Learn more</linkExternal>
+pair2-supplicant-download-firefox-heading-v2 = Open { -brand-firefox } on this device
+pair2-supplicant-download-firefox-description-v2 = Download { -brand-firefox } to sync bookmarks, history, and more across devices.
 pair2-supplicant-download-firefox-continue-button = Continue in { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Opening { -brand-firefox }…
+pair2-supplicant-download-firefox-download-button = Download { -brand-firefox }
+pair2-supplicant-download-firefox-have-firefox-button = I already have { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = Learn more
 
 
-pair2-supplicant-connect-hint-heading = Continue with these steps
-pair2-supplicant-connect-hint-subheading = Use { -brand-firefox }’s built-in camera to scan again
+pair2-supplicant-connect-hint-heading-v2 = Finish pairing in the app
 pair2-supplicant-connect-hint-step-app-menu = Tap the <b>app menu</b> in the toolbar
 pair2-supplicant-connect-hint-step-sign-in = Tap <b>sign in</b>, then scan the code
 pair2-supplicant-connect-hint-learn-more-link = Learn more

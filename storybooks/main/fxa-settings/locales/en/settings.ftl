@@ -2186,20 +2186,25 @@ pair2-supplicant-connect-this-device-connect-button = Connect
 pair2-supplicant-connect-this-device-cancel-button = Cancel
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device when pairing reaches a device that
-## does not have Firefox installed yet. It explains what syncing gets them and
-## either opens the Firefox app to finish pairing or sends them off to install
-## the browser.
+## Users see this on their mobile device when pairing reaches a browser that is
+## not Firefox. It offers to open the Firefox app to finish pairing, and to
+## install it first when the user does not have it yet.
 
-pair2-supplicant-download-firefox-heading = Get { -brand-firefox } on this device
+pair2-supplicant-download-firefox-heading-v2 = Open { -brand-firefox } on this device
 # "sync" is a verb here, referring to syncing data between the user's devices.
-# <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = Download { -brand-firefox } to sync bookmarks, history, and more across devices. <linkExternal>Learn more</linkExternal>
+pair2-supplicant-download-firefox-description-v2 = Download { -brand-firefox } to sync bookmarks, history, and more across devices.
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Continue in { -brand-firefox }
 # Replaces the button label while waiting for the Firefox app to take over
 pair2-supplicant-download-firefox-opening-button = Opening { -brand-firefox }…
+# Primary action shown in Safari on iOS. Opens the App Store page for Firefox.
+pair2-supplicant-download-firefox-download-button = Download { -brand-firefox }
+# Secondary action shown in Safari on iOS, below the download button. Opens the
+# Firefox app when it is already installed.
+pair2-supplicant-download-firefox-have-firefox-button = I already have { -brand-firefox }
+# Opens a page explaining what sync does
+pair2-supplicant-download-firefox-learn-more-link = Learn more
 
 ## PairConnectHint page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
@@ -2207,8 +2212,7 @@ pair2-supplicant-download-firefox-opening-button = Opening { -brand-firefox }…
 ## Firefox installed, so it tells them how to scan the code again from inside
 ## Firefox.
 
-pair2-supplicant-connect-hint-heading = Continue with these steps
-pair2-supplicant-connect-hint-subheading = Use { -brand-firefox }’s built-in camera to scan again
+pair2-supplicant-connect-hint-heading-v2 = Finish pairing in the app
 # <b> emphasises the name of the button the user taps in Firefox
 pair2-supplicant-connect-hint-step-app-menu = Tap the <b>app menu</b> in the toolbar
 # <b> emphasises the name of the menu item the user taps in Firefox

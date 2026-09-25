@@ -1,8 +1,8 @@
 {
-  "commit": "6901da2312462a16b9e2ad46e55c08fd394c3390",
-  "summary": "Merge pull request #21326 from mozilla/FXA-14628",
-  "description": "",
-  "timestamp": 1790375833000,
+  "commit": "439f7ddcca38f06fc454b3baa680632a06d7e3b1",
+  "summary": "Merge pull request #21318 from mozilla/fxa-14595",
+  "description": "feat(settings): Update pair unsupported behavior",
+  "timestamp": 1790377131000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
