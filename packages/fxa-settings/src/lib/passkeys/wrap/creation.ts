@@ -18,6 +18,7 @@ import {
 } from '../../auth-errors/auth-errors';
 import { uidFromMfaToken } from '../../mfa-guard-utils';
 import { createWrapEnvelope, openWrapEnvelope } from '../../passkey-crypto';
+import { isZeroed } from '../../passkey-crypto/assert';
 import { PRF_OUT_BYTES } from '../../passkey-crypto/constants';
 
 export type PasskeyWrapClientFailure =
@@ -236,10 +237,6 @@ async function stepUp(
 /** A network TypeError or other non-auth throw has no errno to word. */
 function toAuthUiError(err: unknown): AuthUiError {
   return isAuthUiError(err) ? err : AuthUiErrors.UNEXPECTED_ERROR;
-}
-
-function isZeroed(bytes: Uint8Array): boolean {
-  return bytes.every((byte) => byte === 0);
 }
 
 function bytesEqual(a: Uint8Array, b: Uint8Array): boolean {

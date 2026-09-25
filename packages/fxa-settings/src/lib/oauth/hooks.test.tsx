@@ -11,6 +11,7 @@ import type { AppContextValue, Integration } from '../../models';
 import { mockAppContext } from '../../models/mocks';
 import { SensitiveDataClient } from '../sensitive-data-client';
 import { integrationNeedsPermissions } from './permissions';
+import { createEncryptedBundle } from '../crypto/scoped-keys';
 
 jest.mock('./permissions', () => ({
   integrationNeedsPermissions: jest.fn(),
@@ -59,17 +60,25 @@ const pendingWrap = (uid = UID) => ({
   prfOut: new Uint8Array(32).fill(3),
 });
 
-const finish = async () => {
+const finish = async (knownKb?: string) => {
   const { result } = renderHook(
     () => useFinishOAuthFlowHandler(authClient, syncIntegration()),
     { wrapper }
   );
-  return result.current.finishOAuthFlowHandler(
-    UID,
-    'session-token',
-    'key-fetch-token',
-    'unwrap-b-key'
-  );
+  return knownKb
+    ? result.current.finishOAuthFlowHandler(
+        UID,
+        'session-token',
+        undefined,
+        undefined,
+        knownKb
+      )
+    : result.current.finishOAuthFlowHandler(
+        UID,
+        'session-token',
+        'key-fetch-token',
+        'unwrap-b-key'
+      );
 };
 
 beforeEach(() => {
@@ -87,60 +96,96 @@ beforeEach(() => {
   });
 });
 
-// Wiring only: the branches live in sensitive-data-client.test.ts. Without
-// this, deleting the call from the hook leaves `kB` unstashed and every test
-// above still passing.
-describe('useFinishOAuthFlowHandler password-free passkey opt-in material', () => {
-  it('hands kB to a ceremony waiting on this account', async () => {
-    sensitiveDataClient.PasskeyWrapData = pendingWrap();
+describe('useFinishOAuthFlowHandler', () => {
+  describe('password-free passkey opt-in material', () => {
+    it('hands kB to a ceremony waiting on this account', async () => {
+      sensitiveDataClient.PasskeyWrapData = pendingWrap();
 
-    const result = await finish();
+      const result = await finish();
 
-    expect(result.error).toBeUndefined();
-    expect(sensitiveDataClient.PasskeyWrapData?.kB).toEqual(KB_BUFFER);
-  });
-});
-
-describe('useFinishOAuthFlowHandler permissions gate', () => {
-  const mockIntegrationNeedsPermissions =
-    integrationNeedsPermissions as jest.Mock;
-
-  const finishWebFlow = (options?: { skipPermissions?: boolean }) => {
-    const integration = {
-      type: IntegrationType.OAuthWeb,
-      data: { clientId: '325b4083e32fe8e7', state: 'state' },
-      clientInfo: { redirectUri: 'https://rp.example/callback' },
-      wantsKeys: () => false,
-      getNormalizedScope: () => 'profile',
-    } as unknown as Integration;
-    const { result } = renderHook(
-      () => useFinishOAuthFlowHandler(authClient, integration, options),
-      { wrapper }
-    );
-    return result.current.finishOAuthFlowHandler(UID, 'session-token');
-  };
-
-  beforeEach(() => {
-    mockIntegrationNeedsPermissions.mockReturnValue(true);
-    window.history.replaceState({}, '', '/signup?client_id=325b4083e32fe8e7');
+      expect(result.error).toBeUndefined();
+      expect(sensitiveDataClient.PasskeyWrapData?.kB).toEqual(KB_BUFFER);
+    });
   });
 
-  it('diverts to the permissions screen without creating a code', async () => {
-    const result = await finishWebFlow();
+  describe('with a supplied kB', () => {
+    it('skips accountKeys and still derives keys_jwe for the OAuth code', async () => {
+      const result = await finish(KB_HEX);
 
-    expect(result.error).toBeUndefined();
-    expect(result.redirect).toBe(
-      '/signin_permissions?client_id=325b4083e32fe8e7'
-    );
-    expect(authClient.createOAuthCode).not.toHaveBeenCalled();
+      expect(result.error).toBeUndefined();
+      expect(authClient.accountKeys).not.toHaveBeenCalled();
+      expect(authClient.getOAuthScopedKeyData).toHaveBeenCalledWith(
+        'session-token',
+        'client-id',
+        'https://identity.mozilla.com/apps/oldsync'
+      );
+      expect(authClient.createOAuthCode).toHaveBeenCalledWith(
+        'session-token',
+        'client-id',
+        'state',
+        expect.objectContaining({ keys_jwe: 'keys-jwe' })
+      );
+      // The bundle mock answers the same for any input, so the supplied `kB`
+      // reaching it unaltered is the only thing separating this from a wrong
+      // or stale key sealing the same bundle.
+      expect(createEncryptedBundle).toHaveBeenCalledWith(
+        KB_HEX,
+        UID,
+        expect.anything(),
+        expect.anything()
+      );
+    });
+
+    it('leaves a pending wrap for the same account without kB', async () => {
+      sensitiveDataClient.PasskeyWrapData = pendingWrap();
+
+      await finish(KB_HEX);
+
+      expect(sensitiveDataClient.PasskeyWrapData).toEqual(pendingWrap());
+    });
   });
 
-  it('completes the flow when the screen has shown the permissions', async () => {
-    const result = await finishWebFlow({ skipPermissions: true });
+  describe('permissions gate', () => {
+    const mockIntegrationNeedsPermissions =
+      integrationNeedsPermissions as jest.Mock;
 
-    expect(authClient.createOAuthCode).toHaveBeenCalled();
-    expect(result.redirect).toBe(
-      'https://rp.example/callback?code=code&state=state'
-    );
+    const finishWebFlow = (options?: { skipPermissions?: boolean }) => {
+      const integration = {
+        type: IntegrationType.OAuthWeb,
+        data: { clientId: '325b4083e32fe8e7', state: 'state' },
+        clientInfo: { redirectUri: 'https://rp.example/callback' },
+        wantsKeys: () => false,
+        getNormalizedScope: () => 'profile',
+      } as unknown as Integration;
+      const { result } = renderHook(
+        () => useFinishOAuthFlowHandler(authClient, integration, options),
+        { wrapper }
+      );
+      return result.current.finishOAuthFlowHandler(UID, 'session-token');
+    };
+
+    beforeEach(() => {
+      mockIntegrationNeedsPermissions.mockReturnValue(true);
+      window.history.replaceState({}, '', '/signup?client_id=325b4083e32fe8e7');
+    });
+
+    it('diverts to the permissions screen without creating a code', async () => {
+      const result = await finishWebFlow();
+
+      expect(result.error).toBeUndefined();
+      expect(result.redirect).toBe(
+        '/signin_permissions?client_id=325b4083e32fe8e7'
+      );
+      expect(authClient.createOAuthCode).not.toHaveBeenCalled();
+    });
+
+    it('completes the flow when the screen has shown the permissions', async () => {
+      const result = await finishWebFlow({ skipPermissions: true });
+
+      expect(authClient.createOAuthCode).toHaveBeenCalled();
+      expect(result.redirect).toBe(
+        'https://rp.example/callback?code=code&state=state'
+      );
+    });
   });
 });
