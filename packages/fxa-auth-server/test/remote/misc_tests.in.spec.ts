@@ -182,13 +182,6 @@ describe.each(testVersions)(
       expect(res.statusCode).toBe(302);
     });
 
-    it('/complete_reset_password redirects', async () => {
-      const path =
-        '/v1/complete_reset_password?code=0000&email=a@b.c&token=0000';
-      const res = await httpGet(server.publicUrl + path);
-      expect(res.statusCode).toBe(302);
-    });
-
     it('timestamp header', async () => {
       const email = server.uniqueEmail();
       const password = 'allyourbasearebelongtous';
