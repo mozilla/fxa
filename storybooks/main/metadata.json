@@ -1,8 +1,8 @@
 {
-  "commit": "def7ff79433c276bd3393c86e954eaa0aa9972fd",
-  "summary": "Merge pull request #21314 from mozilla/fix-review-quick-working-tree",
-  "description": "fix(claude): review uncommitted changes in fxa-review-quick when no commit is given",
-  "timestamp": 1790351337000,
+  "commit": "7ddb2795859a4b08c253f061b790a1604b8ca0e6",
+  "summary": "Merge pull request #21310 from mozilla/fxa-14603",
+  "description": "feat(settings): add the PairConnectHint supplicant page",
+  "timestamp": 1790355731000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
