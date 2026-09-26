@@ -1482,6 +1482,7 @@ auth-error-228 = Αποτυχία καταχώρισης κλειδιού πρό
 auth-error-233 = Για να δημιουργήσετε ένα κλειδί πρόσβασης, ορίστε ένα κλείδωμα οθόνης, PIN, δακτυλικό αποτύπωμα ή αναγνώριση προσώπου στη συσκευή ή το κλειδί ασφαλείας σας. Έπειτα, δοκιμάστε ξανά.
 auth-error-238 = Αποτυχία ελέγχου κλειδιού πρόσβασης
 auth-error-239 = Δυστυχώς, δεν ήταν δυνατή η διαγραφή του λογαριασμού σας. Δοκιμάστε ξανά ή επικοινωνήστε με την υποστήριξη αν το πρόβλημα παραμένει.
+auth-error-240 = Αυτός ο λογαριασμός έχει απενεργοποιηθεί
 auth-error-999 = Μη αναμενόμενο σφάλμα
 auth-error-1001 = Η προσπάθεια σύνδεσης ακυρώθηκε
 auth-error-1002 = Η συνεδρία έληξε. Συνδεθείτε για να συνεχίσετε.
@@ -1642,6 +1643,13 @@ inline-passwordless-sync-setup-enable-button = Ενεργοποίηση κλει
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Ενεργοποίηση…
 inline-passwordless-sync-setup-not-now-button = Όχι τώρα
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = Αυτό το κλειδί πρόσβασης είναι έτοιμο για σύνδεση στον συγχρονισμό
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = Η επιβεβαίωση του κλειδιού πρόσβασης δεν ολοκληρώθηκε
+inline-passwordless-sync-setup-error-cancelled-description = Κάντε επιβεβαίωση με το κλειδί πρόσβασής σας για να παραλείψετε τον κωδικό πρόσβασης την επόμενη φορά.
+# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+inline-passwordless-sync-setup-error-generic = Κάτι πήγε στραβά, θα πρέπει ακόμα να εισαγάγετε τον κωδικό πρόσβασής σας την επόμενη φορά
 
 ## InlineRecoveryKeySetup page component
 
@@ -2017,6 +2025,8 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Για να συνδ�
 ## The page informs the user which profile information the relying party can
 ## read. It does not offer a choice.
 
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = Το { $serviceName } ζητά πρόσβαση σε:
 permissions-label-email = Διεύθυνση email
 permissions-label-display-name = Εμφανιζόμενο όνομα
 permissions-continue-button = Συνέχεια

@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 35fa61a7e636a8a4a938cb9c4d4f7ec2aa1d4c1b</title>
+  <title>Storybooks for commit f315d5829a5ed9f5100deb0ad6527d6ac1f3645d</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,22 +23,18 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 35fa61a7e636a8a4a938cb9c4d4f7ec2aa1d4c1b</h1>
+  <h1>Storybooks for commit f315d5829a5ed9f5100deb0ad6527d6ac1f3645d</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/25/2026, 7:53:23 PM UTC</dd>
+    <dd>9/26/2026, 12:40:25 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>refactor(content-server): remove Backbone pairing and CAD routes</pre></dd>
     <dt>Description</dt>
-    <dd><pre>## Because
-
-- React serves all of the pairing, CAD, and CAD-via-QR routes, so the Backbone versions are dead code.
+    <dd><pre>- React serves all of the pairing, CAD, and CAD-via-QR routes, so the Backbone versions are dead code.
 - The `pairRoutes` flag kept a Backbone fallback path and extra branches in fxa-settings and the functional tests.
-
-## This pull request
 
 - Removes the Backbone `pair/*`, `connect_another_device`, and `post_verify/cad_qr/*` views, templates, mixins, models, and specs from fxa-content-server.
 - Sends the Backbone `pair` and `connect_another_device` routes to React. The CAD route passes `showSuccessMessage` and `type` as query params, and the React page now reads `type` from the query.
@@ -46,8 +42,6 @@
 - Makes the `/pair` soft navigation in `Signin/utils.ts` unconditional.
 - Deletes the Backbone-only pairing functional specs and the `useReact` option in `pairing-helpers.ts`.
 - Review round 1: replaces every `hardNavigate(&#039;/pair&#039;, {}, true)` in fxa-settings with `useNavigateWithQuery()`, so `/pair` keeps the query string without a full reload. This covers `ConnectAnotherDevice`, `InlineRecoveryKeySetup`, `CompleteSignin`, and `SignupConfirmedSync`. The tests check the soft navigation and that `hardNavigate` is not called. The `/pair/authority/scan_qr` hard navigations do not change.
-
-## Issue that this pull request solves
 
 Closes: FXA-14376</pre></dd>
   </dl>

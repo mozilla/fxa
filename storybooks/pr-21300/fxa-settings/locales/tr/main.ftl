@@ -1051,6 +1051,7 @@ auth-error-225 = Geçiş anahtarı zaten kayıtlı
 auth-error-226 = Geçiş anahtarı sınırına ulaşıldı
 auth-error-227 = Geçiş anahtarı doğrulaması başarısız oldu
 auth-error-228 = Geçiş anahtarı kaydı başarısız
+auth-error-240 = Bu hesap devre dışı bırakıldı
 auth-error-999 = Beklenmeyen hata
 auth-error-1001 = Giriş denemesi iptal edildi
 auth-error-1002 = Oturum zaman aşımına uğradı. Devam etmek için giriş yapın.
@@ -1300,6 +1301,12 @@ pair2-supplicant-sync-success-sync-settings-button-v2 = Eşitleme ayarlarını y
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zaman aşımına uğradık
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Vazgeçildi
+
+
+permissions-label-email = E-posta adresi
+permissions-label-display-name = Görünen ad
+permissions-continue-button = Devam et
+permissions-cancel-button = Vazgeç
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } onaylandı
