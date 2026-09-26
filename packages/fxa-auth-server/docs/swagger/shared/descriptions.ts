@@ -44,8 +44,6 @@ const DESCRIPTIONS = {
     'The OAuth client identifier for the requesting client application (provided by the connecting client application)',
   clientIdPermission: ' asking for permission.',
   clientIdRegistration: ' returned from client registration.',
-  clientIdToDelete: ' whose tokens should be deleted.',
-  clientName: 'The string name of the client.',
   clientSalt:
     'The salt used when creating authPW. If not provided, it will be assumed that version one of the password encryption scheme was used.',
   clientSecret:
@@ -64,7 +62,6 @@ const DESCRIPTIONS = {
   command:
     "The id of the command to be invoked, as found in the device's availableCommands set.",
   createdAt: 'This is the date the subscription was created.',
-  createdTime: 'Integer time of token creation.',
   currency: 'The three-letter ISO currency code, in lowercase.',
   currencyCode: 'The three-letter ISO currency code, in uppercase.',
   currentPeriodEnd: 'This is the end date of the current billing cycle.',
@@ -152,7 +149,6 @@ const DESCRIPTIONS = {
     'Returns the JWE bundle of key material for any scopes that have keys, if `grant_type=authorization_code`',
   last: 'Indicates whether more commands and enqueued than could be returned within the specific limit.',
   last4: 'The last four digits of the card.',
-  lastAccessTime: 'Integer last-access time for the token.',
   latestInvoice:
     'The most recent invoice this subscription has generated from Stripe.',
   limit:
