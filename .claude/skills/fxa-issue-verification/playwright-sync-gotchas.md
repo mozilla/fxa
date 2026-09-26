@@ -30,7 +30,7 @@ Why Sync gets a second browser: Firefox stores `identity.fxaccounts.lastSignedIn
 ## Accounts
 
 - `testAccountTracker.signUp()` creates a verified account, no sign-in code.
-- `testAccountTracker.signUpSync({ preVerified: 'true', service: 'sync' })` makes the sign-in ask for a code: `target.emailClient.getVerifyLoginCode(email)` then `signinTokenCode.fillOutCodeForm(code)`.
+- `testAccountTracker.signUpSync({ service: 'sync' })` makes the sign-in ask for a code: `target.emailClient.getVerifyLoginCode(email)` then `signinTokenCode.fillOutCodeForm(code)`.
 - TOTP: the `totp` page object, or `enableTotpOnAccount(target.authClient, sessionToken)` from `lib/pairing-helpers`, then `getTotpCode(secret)`.
 - The tracker destroys its accounts and `target.clearRateLimits()` runs after each test. A browser you launch yourself is yours to close, in `finally`.
 

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { SaltVersion } from '../../../fxa-auth-client/lib/salt';
-import AuthClient from '../../../fxa-auth-client/lib/client';
+import AuthClient, { SignUpOptions } from '../../../fxa-auth-client/lib/client';
 import { EmailClient } from '../email';
 import { SmsClient } from '../sms';
 import { TargetName } from './index';
@@ -85,9 +85,38 @@ export abstract class BaseTarget {
 
   abstract clearRateLimits(): Promise<void>;
 
-  abstract createAccount(
+  /**
+   * Creates an account. Confirms it with the code from the signup email,
+   * unless `options.verified` is false.
+   */
+  async createAccount(
     email: string,
     password: string,
-    options?: any
-  ): Promise<Credentials>;
+    options: SignUpOptions & { verified?: boolean } = { lang: 'en' }
+  ): Promise<Credentials> {
+    const { verified = true, ...signUpOptions } = options;
+
+    await this.clearRateLimits();
+    const creds = await this.authClient.signUp(
+      email,
+      password,
+      signUpOptions,
+      this.ciHeader
+    );
+    if (verified) {
+      const code = await this.emailClient.getVerifyCode(email);
+      await this.authClient.verifyCode(creds.uid, code);
+    }
+    await this.authClient.deviceRegister(
+      creds.sessionToken,
+      'playwright',
+      'tester'
+    );
+    return {
+      email,
+      password,
+      verified,
+      ...creds,
+    };
+  }
 }

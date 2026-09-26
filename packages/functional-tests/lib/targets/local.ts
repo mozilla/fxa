@@ -2,9 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { BoolString } from '../../../fxa-auth-client/lib/client';
 import { TargetName } from '.';
-import { BaseTarget, Credentials } from './base';
+import { BaseTarget } from './base';
 import { RateLimitClient } from '../ratelimit';
 
 const RELIER_CLIENT_ID = 'dcdb5ae7add825d2';
@@ -42,32 +41,6 @@ export class LocalTarget extends BaseTarget {
   }
 
   async clearRateLimits() {
-    this.rateLimitClient.resetCounts();
-  }
-
-  async createAccount(
-    email: string,
-    password: string,
-    options = { lang: 'en', preVerified: 'true' as BoolString }
-  ) {
-    // Quick and dirty way to see if this works...
     await this.rateLimitClient.resetCounts();
-    const result = await this.authClient.signUp(
-      email,
-      password,
-      options,
-      this.ciHeader
-    );
-    await this.authClient.deviceRegister(
-      result.sessionToken,
-      'playwright',
-      'tester'
-    );
-    return {
-      email,
-      password,
-      verified: options.preVerified === 'true',
-      ...result,
-    } as Credentials;
   }
 }

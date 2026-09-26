@@ -87,7 +87,6 @@ export type SignUpOptions = {
   keys?: boolean;
   service?: string;
   redirectTo?: string;
-  preVerified?: BoolString;
   resume?: string;
   lang?: string;
   style?: string;

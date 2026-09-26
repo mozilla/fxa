@@ -175,7 +175,6 @@ module.exports = (config) => {
       {
         email: email,
         authPW: authPW.toString('hex'),
-        preVerified: options.preVerified || undefined,
         service: options.service || undefined,
         redirectTo: options.redirectTo || undefined,
         resume: options.resume || undefined,
@@ -212,7 +211,6 @@ module.exports = (config) => {
         wrapKb: wrapKb.toString('hex'),
         wrapKbVersion2: wrapKbVersion2.toString('hex'),
         clientSalt,
-        preVerified: options.preVerified || undefined,
         service: options.service || undefined,
         redirectTo: options.redirectTo || undefined,
         resume: options.resume || undefined,

@@ -168,7 +168,6 @@ export class AccountHandler {
     authSalt: string;
     email: string;
     emailCode: string;
-    preVerified: boolean;
     request: AuthRequest;
     service?: string;
     userAgentString: string;
@@ -182,7 +181,6 @@ export class AccountHandler {
       authSalt,
       email,
       emailCode,
-      preVerified,
       request,
       service,
       userAgentString,
@@ -230,7 +228,7 @@ export class AccountHandler {
       createdAt: Date.now(),
       email: email,
       emailCode: emailCode,
-      emailVerified: preVerified,
+      emailVerified: false,
       kA,
       wrapWrapKb,
       wrapWrapKbVersion2,
@@ -256,19 +254,6 @@ export class AccountHandler {
     const geoData = request.app.geo;
     const country = geoData.location && geoData.location.country;
     const countryCode = geoData.location && geoData.location.countryCode;
-    if (account.emailVerified) {
-      const { clientId } = getClientServiceTags(request);
-      await this.log.notifyAttachedServices('verified', request, {
-        email: account.email,
-        locale: account.locale,
-        service,
-        uid: account.uid,
-        userAgent: userAgentString,
-        country,
-        countryCode,
-        ...(clientId && { clientId }),
-      });
-    }
 
     await this.log.notifyAttachedServices('login', request, {
       deviceCount: 1,
@@ -352,10 +337,6 @@ export class AccountHandler {
     const form = request.payload as any;
     const query = request.query;
 
-    if (account.emailVerified) {
-      return;
-    }
-
     try {
       switch (verificationMethod) {
         case 'email-otp': {
@@ -412,16 +393,14 @@ export class AccountHandler {
         }
       }
 
-      if (tokenVerificationId) {
-        // Log server-side metrics for confirming verification rates
-        this.log.info('account.create.confirm.start', {
-          uid: account.uid,
-          tokenVerificationId,
-        });
-        this.glean.registration.confirmationEmailSent(request, {
-          uid: account.uid,
-        });
-      }
+      // Log server-side metrics for confirming verification rates
+      this.log.info('account.create.confirm.start', {
+        uid: account.uid,
+        tokenVerificationId,
+      });
+      this.glean.registration.confirmationEmailSent(request, {
+        uid: account.uid,
+      });
 
       await this.verificationReminders.create(
         account.uid,
@@ -430,14 +409,12 @@ export class AccountHandler {
       );
     } catch (err) {
       this.log.error('mailer.sendVerifyCode.1', { err });
-      if (tokenVerificationId) {
-        // Log possible email bounce, used for confirming verification rates
-        this.log.error('account.create.confirm.error', {
-          uid: account.uid,
-          err,
-          tokenVerificationId,
-        });
-      }
+      // Log possible email bounce, used for confirming verification rates
+      this.log.error('account.create.confirm.error', {
+        uid: account.uid,
+        err,
+        tokenVerificationId,
+      });
 
       // show an error to the user, the account is already created.
       // the user can come back later and try again.
@@ -549,7 +526,6 @@ export class AccountHandler {
     const clientSalt = form.clientSalt;
     const userAgentString = request.headers['user-agent'];
     const service = form.service || query.service;
-    const preVerified = !!form.preVerified;
     const verificationMethod = form.verificationMethod;
 
     request.validateMetricsContext();
@@ -590,8 +566,8 @@ export class AccountHandler {
     const { hex16: emailCode, hex32: authSalt } =
       await this.generateRandomValues();
 
-    // Verified sessions should only be created for preverified accounts.
-    const tokenVerificationId = preVerified ? undefined : emailCode;
+    // The session stays unverified until the account is confirmed with this code.
+    const tokenVerificationId = emailCode;
 
     this.setMetricsFlowCompleteSignal(request, service);
 
@@ -604,7 +580,6 @@ export class AccountHandler {
       authSalt,
       email,
       emailCode,
-      preVerified,
       request,
       service,
       userAgentString,
@@ -2580,10 +2555,6 @@ export const accountRoutes = (
               verificationMethod: validators.verificationMethod
                 .optional()
                 .description(DESCRIPTION.verificationMethod),
-              // preVerified is not available in production mode.
-              ...(!(config as any).isProduction && {
-                preVerified: isA.boolean(),
-              }),
             })
             .and('authPWVersion2', 'wrapKb', 'wrapKbVersion2', 'clientSalt'),
         },
