@@ -108,7 +108,6 @@ const settingsConfig = {
   showReactApp: {
     signUpRoutes: config.get('showReactApp.signUpRoutes'),
     emailFirstRoutes: config.get('showReactApp.emailFirstRoutes'),
-    pairRoutes: config.get('showReactApp.pairRoutes'),
   },
   pairing: {
     browserBuild: config.get('pairing.browser_build'),

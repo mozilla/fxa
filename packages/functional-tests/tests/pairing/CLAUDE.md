@@ -21,7 +21,7 @@ All are gated behind env flags (`ANDROID_PAIRING_ENABLED`,
 `IOS_PAIRING_ENABLED`, `ANDROID_PAIRING_V2_ENABLED`, `IOS_PAIRING_V2_ENABLED`)
 and skip by default, including in CI. The two v2 specs additionally skip on any
 target but `local`, since both halves run on this machine. The web-only specs
-(`pairingFlow.spec.ts`, `pairChoice.spec.ts`, the Backbone/negative variants)
+(`pairingFlow.spec.ts`, `pairChoice.spec.ts`, `pairingFlowNegative.spec.ts`)
 need no mobile device and are unaffected.
 
 The channel server is separate from the FxA stack and defaults to production

@@ -24,7 +24,7 @@ import GleanMetrics from '../../lib/glean';
 import AppLayout from '../../components/AppLayout';
 import { detectDevice, Devices } from '../../lib/utilities';
 import { isPairingV2Enabled } from '../../lib/pairing/v2-gate';
-import { UseFxAStatusResult } from '../../lib/hooks';
+import { UseFxAStatusResult, useNavigateWithQuery } from '../../lib/hooks';
 
 export type ConnectAnotherDeviceProps = {
   email?: string;
@@ -86,6 +86,7 @@ const ConnectAnotherDevice = ({
   const config = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
+  const navigateWithQuery = useNavigateWithQuery();
   const searchParams = useMemo(
     () => new URLSearchParams(location.search),
     [location.search]
@@ -102,8 +103,9 @@ const ConnectAnotherDevice = ({
     !!(
       locationState.showSuccessMessage || searchParams.get('showSuccessMessage')
     );
-  const isSignUp = isSignUpProp ?? locationState.type === 'sign_up';
-  const isSignIn = isSignInProp ?? locationState.type === 'sign_in';
+  const type = locationState.type ?? searchParams.get('type');
+  const isSignUp = isSignUpProp ?? type === 'sign_up';
+  const isSignIn = isSignInProp ?? type === 'sign_in';
   // Set when the WebChannel sign-in attempt fails so the button stops
   // rendering instead of leaving the user with a silent no-op click.
   const [oauthFlowUnavailable, setOauthFlowUnavailable] = useState(false);
@@ -237,7 +239,7 @@ const ConnectAnotherDevice = ({
           return;
         }
 
-        hardNavigate('/pair', {}, true);
+        navigateWithQuery('/pair');
         return;
       }
       if (browserSignedIn) {

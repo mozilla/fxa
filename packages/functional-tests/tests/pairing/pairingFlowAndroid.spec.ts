@@ -44,7 +44,6 @@ import {
   buildAuthorityOAuthUrl,
   extractChannelId,
   findElementBySelectors,
-  isPairRoutesReact,
   waitForUrlContaining,
   sleep,
 } from '../../lib/pairing-helpers';
@@ -95,13 +94,7 @@ test.describe.serial('Android pairing flow', () => {
   // handshake vs authority approval); retry to absorb transient divergence.
   test.describe.configure({ retries: 2 });
 
-  let useReactPairRoutes = false;
   let supplicant: AndroidSupplicant;
-
-  test.beforeAll(async ({ browser, target }) => {
-    if (!process.env.ANDROID_PAIRING_ENABLED) return;
-    useReactPairRoutes = await isPairRoutesReact(browser, target);
-  });
 
   test.beforeEach(async ({}, testInfo) => {
     if (!process.env.ANDROID_PAIRING_ENABLED) {
@@ -150,7 +143,6 @@ test.describe.serial('Android pairing flow', () => {
     marionetteAuthority,
   }) => {
     const client = marionetteAuthority.client;
-    const useReact = useReactPairRoutes;
 
     const credentials = await test.step('Create test account', async () => {
       const creds = await testAccountTracker.signUp();
@@ -164,9 +156,7 @@ test.describe.serial('Android pairing flow', () => {
           client,
           target.contentServerUrl,
           credentials.email,
-          credentials.password,
-          undefined,
-          useReact
+          credentials.password
         );
         const user = await getSignedInUser(client);
         expect(user.signedIn).toBe(true);
@@ -209,8 +199,7 @@ test.describe.serial('Android pairing flow', () => {
           email: credentials.email,
           uid: signedInUser.uid as string,
           channelId,
-        },
-        useReact
+        }
       );
 
       // Give the supplicant time to load its /pair/supp page and connect to
@@ -281,7 +270,6 @@ test.describe.serial('Android pairing flow', () => {
     marionetteAuthority,
   }) => {
     const client = marionetteAuthority.client;
-    const useReact = useReactPairRoutes;
 
     const credentials = await test.step('Create test account', async () => {
       return testAccountTracker.signUp();
@@ -292,9 +280,7 @@ test.describe.serial('Android pairing flow', () => {
         client,
         target.contentServerUrl,
         credentials.email,
-        credentials.password,
-        undefined,
-        useReact
+        credentials.password
       );
       const user = await getSignedInUser(client);
       expect(user.signedIn).toBe(true);

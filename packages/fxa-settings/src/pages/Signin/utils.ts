@@ -29,7 +29,6 @@ import { integrationNeedsPermissions } from '../../lib/oauth/permissions';
 import GleanMetrics from '../../lib/glean';
 import { OAuthData } from '../../lib/oauth/hooks';
 import AuthenticationMethods from '../../constants/authentication-methods';
-import config from '../../lib/config';
 
 interface NavigationTarget {
   to: string;
@@ -132,7 +131,7 @@ export function getSyncNavigate(
 } {
   const searchParams = new URLSearchParams(queryParams);
 
-  // This is used for pages that reach /pair via `hardNavigate('/pair', {}, true)`,
+  // This is used for pages that reach /pair via `navigateWithQuery('/pair')`,
   // which forwards the current query string — without this the reason would be lost.
   const pairReason = getPairGleanReason({
     signupSuccess,
@@ -143,9 +142,9 @@ export function getSyncNavigate(
     passwordCreationReason,
   });
 
-  // Only applied to destinations that /pair reaches by hard navigation, where
-  // router state cannot survive. The React /pair soft-nav deliberately keeps the
-  // reason out of the URL.
+  // Only applied to interstitials, which pass their query string to /pair but
+  // not router state. The direct /pair soft-nav deliberately keeps the reason
+  // out of the URL.
   const withPairReason = () => {
     if (!pairReason) {
       return searchParams;
@@ -193,31 +192,11 @@ export function getSyncNavigate(
     ? 'signup'
     : (origin ?? 'signin');
 
-  // TODO: adjust this once `pairRoutes` rollout is 100% and Backbone /pair is retired.
-  // At that point /pair is always React and we can always soft-nav with
-  // location state — no config check, no query params needed.
-  if (config.showReactApp?.pairRoutes) {
-    const to = searchParams.toString() ? `/pair?${searchParams}` : '/pair';
-    return {
-      to,
-      shouldHardNavigate: false,
-      locationState: { origin: pairOrigin, pairReason },
-    };
-  }
-
-  searchParams.set('showSuccessMessage', 'true');
-  if (signupSuccess) {
-    searchParams.set('signupSuccess', 'true');
-  }
-  if (origin === 'post-verify-set-password') {
-    searchParams.set('passwordCreated', 'true');
-  }
-  if (pairReason) {
-    searchParams.set('pairReason', pairReason);
-  }
+  const to = searchParams.toString() ? `/pair?${searchParams}` : '/pair';
   return {
-    to: `/pair?${searchParams}`,
-    shouldHardNavigate: true,
+    to,
+    shouldHardNavigate: false,
+    locationState: { origin: pairOrigin, pairReason },
   };
 }
 
