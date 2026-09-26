@@ -1,8 +1,8 @@
 {
-  "commit": "439f7ddcca38f06fc454b3baa680632a06d7e3b1",
-  "summary": "Merge pull request #21318 from mozilla/fxa-14595",
-  "description": "feat(settings): Update pair unsupported behavior",
-  "timestamp": 1790377131000,
+  "commit": "0d380593eb0c70ebf37d6c39495ec64f9d040b9b",
+  "summary": "Merge pull request #21247 from mozilla/fxa-6642",
+  "description": "feat(content-server,settings): serve React for oauth/success route",
+  "timestamp": 1790426152000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

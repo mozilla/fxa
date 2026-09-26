@@ -1161,6 +1161,7 @@ auth-error-228 = Αποτυχία καταχώρισης κλειδιού πρό
 auth-error-233 = Για να δημιουργήσετε ένα κλειδί πρόσβασης, ορίστε ένα κλείδωμα οθόνης, PIN, δακτυλικό αποτύπωμα ή αναγνώριση προσώπου στη συσκευή ή το κλειδί ασφαλείας σας. Έπειτα, δοκιμάστε ξανά.
 auth-error-238 = Αποτυχία ελέγχου κλειδιού πρόσβασης
 auth-error-239 = Δυστυχώς, δεν ήταν δυνατή η διαγραφή του λογαριασμού σας. Δοκιμάστε ξανά ή επικοινωνήστε με την υποστήριξη αν το πρόβλημα παραμένει.
+auth-error-240 = Αυτός ο λογαριασμός έχει απενεργοποιηθεί
 auth-error-999 = Μη αναμενόμενο σφάλμα
 auth-error-1001 = Η προσπάθεια σύνδεσης ακυρώθηκε
 auth-error-1002 = Η συνεδρία έληξε. Συνδεθείτε για να συνεχίσετε.
@@ -1253,6 +1254,10 @@ inline-passwordless-sync-setup-description = Χρησιμοποιήστε αυτ
 inline-passwordless-sync-setup-enable-button = Ενεργοποίηση κλειδιού πρόσβασης
 inline-passwordless-sync-setup-enabling = Ενεργοποίηση…
 inline-passwordless-sync-setup-not-now-button = Όχι τώρα
+inline-passwordless-sync-setup-success-alert = Αυτό το κλειδί πρόσβασης είναι έτοιμο για σύνδεση στον συγχρονισμό
+inline-passwordless-sync-setup-error-cancelled = Η επιβεβαίωση του κλειδιού πρόσβασης δεν ολοκληρώθηκε
+inline-passwordless-sync-setup-error-cancelled-description = Κάντε επιβεβαίωση με το κλειδί πρόσβασής σας για να παραλείψετε τον κωδικό πρόσβασης την επόμενη φορά.
+inline-passwordless-sync-setup-error-generic = Κάτι πήγε στραβά, θα πρέπει ακόμα να εισαγάγετε τον κωδικό πρόσβασής σας την επόμενη φορά
 
 
 inline-recovery-key-setup-create-error = Ωχ! Δεν ήταν δυνατή η δημιουργία του κλειδιού ανάκτησης του λογαριασμού σας. Δοκιμάστε ξανά αργότερα.
@@ -1440,6 +1445,7 @@ pair2-supplicant-timeout-and-cancel-cancelled-heading = Ακυρώθηκε
 pair2-supplicant-timeout-and-cancel-canceled-description = Για να συνδέσετε μια συσκευή ανά πάσα στιγμή, επισκεφθείτε το <b>firefox.com/pair</b> από τον υπολογιστή σας.
 
 
+permissions-heading = Το { $serviceName } ζητά πρόσβαση σε:
 permissions-label-email = Διεύθυνση email
 permissions-label-display-name = Εμφανιζόμενο όνομα
 permissions-continue-button = Συνέχεια

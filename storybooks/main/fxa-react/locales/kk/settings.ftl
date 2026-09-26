@@ -1482,6 +1482,7 @@ auth-error-228 = Рұқсат кілтін тіркеу сәтсіз аяқта�
 auth-error-233 = Рұқсат кілтін жасау үшін құрылғыңызда немесе қауіпсіздік кілтінде экран құлпын, PIN кодын, саусақ ізін немесе бетті тануды орнатыңыз. Содан кейін қайталап көріңіз.
 auth-error-238 = Рұқсат кілтін тексеру сәтсіз аяқталды
 auth-error-239 = Кешіріңіз, тіркелгіңізді өшіру мүмкін болмады. Қайталап көріңіз немесе, мәселе шешілмесе, қолдау қызметіне хабарласыңыз.
+auth-error-240 = Бұл тіркелгі сөндірілген
 auth-error-999 = Күтпеген қате
 auth-error-1001 = Кіру талабынан бас тартылды
 auth-error-1002 = Сессия мерзімі бітті. Жалғастыру үшін кіріңіз.
@@ -1642,6 +1643,13 @@ inline-passwordless-sync-setup-enable-button = Рұқсат кілтін іск�
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Іске қосылуда…
 inline-passwordless-sync-setup-not-now-button = Қазір емес
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = Бұл рұқсат кілті синхрондаумен кіруге дайын
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = Рұқсат кілтін растау аяқталмады
+inline-passwordless-sync-setup-error-cancelled-description = Келесі жолы парольді өткізіп жіберу үшін рұқсат кілтіңізбен растаңыз.
+# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+inline-passwordless-sync-setup-error-generic = Бірнәрсе дұрыс болмады, келесі жолы пароліңізді енгізуіңіз қажет болады
 
 ## InlineRecoveryKeySetup page component
 
@@ -2010,6 +2018,19 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Мобильді құ�
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Бас тартылған
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Құрылғыны кез келген уақытта қосу үшін компьютеріңізден <b>firefox.com/pair</b> сайтына кіріңіз.
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } келесіге қол жеткізуді қалайды:
+permissions-label-email = Эл. пошта адресі
+permissions-label-display-name = Көрсетілетін аты
+permissions-continue-button = Жалғастыру
+permissions-cancel-button = Бас тарту
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

@@ -1601,7 +1601,7 @@ inline-passwordless-sync-setup-enable-button = 啟用 Passkey
 inline-passwordless-sync-setup-enabling = 啟用中…
 inline-passwordless-sync-setup-not-now-button = 現在不要
 # Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = 已可使用這組 Passkey 來登入 Sync 功能
+inline-passwordless-sync-setup-success-alert = 已可使用這組 Passkey 來登入與同步
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Passkey 確認未完成
 inline-passwordless-sync-setup-error-cancelled-description = 使用 Passkey 確認後，下次即可免輸入密碼。
