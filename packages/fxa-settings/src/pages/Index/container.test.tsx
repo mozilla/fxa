@@ -32,6 +32,8 @@ import { GenericData, ModelValidationErrors } from '../../lib/model-data';
 import { mockUseFxAStatus } from '../../lib/hooks/useFxAStatus/mocks';
 import { firefox } from '../../lib/channels/firefox';
 import * as storageUtils from '../../lib/storage-utils';
+import { mockAppContext } from '../../models/mocks';
+import { getDefault } from '../../lib/config';
 
 let mockLocationState = {};
 let mockNavigate = jest.fn();
@@ -912,6 +914,87 @@ describe('IndexContainer', () => {
         expect(gleanSubmitSuccessSpy).toHaveBeenCalledTimes(1);
         expect(gleanSubmitSuccessSpy).toHaveBeenCalledWith({
           event: { reason: 'registration' },
+        });
+      });
+
+      describe('with the account switcher enabled', () => {
+        const renderWithSwitcher = () =>
+          renderWithLocalizationProvider(
+            <ModelsModule.AppContext.Provider
+              value={mockAppContext({
+                config: {
+                  ...getDefault(),
+                  featureFlags: {
+                    ...getDefault().featureFlags,
+                    accountSwitcherEnabled: true,
+                  },
+                },
+              })}
+            >
+              <IndexContainer
+                {...{
+                  integration,
+                  serviceName: MozServices.Default,
+                  useFxAStatusResult: mockUseFxAStatusResult,
+                }}
+              />
+            </ModelsModule.AppContext.Provider>
+          );
+
+        beforeEach(() => {
+          mockUseAuthClient.mockReturnValue({
+            accountStatusByEmail: jest.fn().mockResolvedValue({
+              exists: true,
+              hasLinkedAccount: false,
+              hasPassword: true,
+            }),
+          });
+        });
+
+        it('skips the cached sign-in screen when a session is already stored', async () => {
+          jest.spyOn(cache, 'findAccountByEmail').mockReturnValue({
+            uid: 'abc123',
+            email: MOCK_EMAIL,
+            sessionToken: 'cached-session-token',
+            lastLogin: Date.now(),
+          });
+          renderWithSwitcher();
+
+          await waitFor(() => {
+            expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+          });
+          await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+
+          await waitFor(() => {
+            expect(mockNavigate).toHaveBeenCalledTimes(1);
+          });
+          expect(mockNavigate.mock.calls[0][1].state.autoSignIn).toBe(true);
+        });
+
+        it('still shows it when the email was auto-submitted rather than typed', async () => {
+          // The user took no action, so the cached screen is their chance to
+          // change which account is used.
+          const cachedAccount = {
+            uid: 'abc123',
+            email: MOCK_EMAIL,
+            sessionToken: 'cached-session-token',
+            lastLogin: Date.now(),
+          };
+          jest
+            .spyOn(cache, 'findAccountByEmail')
+            .mockReturnValue(cachedAccount);
+          jest.spyOn(cache, 'currentAccount').mockReturnValue(cachedAccount);
+          jest.spyOn(cache, 'lastStoredAccount').mockReturnValue(undefined);
+          mockUseValidatedQueryParams.mockReturnValue({
+            queryParamModel: {},
+            validationError: null,
+          });
+          renderWithSwitcher();
+
+          await waitFor(() => {
+            expect(mockNavigate).toHaveBeenCalledTimes(1);
+          });
+          expect(mockNavigate.mock.calls[0][1].state.autoSignIn).toBe(false);
         });
       });
 

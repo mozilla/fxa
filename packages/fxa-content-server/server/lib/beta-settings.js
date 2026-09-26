@@ -150,6 +150,7 @@ const settingsConfig = {
       'featureFlags.passkeyPasswordlessSyncEnabled'
     ),
     passwordlessEnabled: config.get('featureFlags.passwordlessEnabled'),
+    accountSwitcherEnabled: config.get('featureFlags.accountSwitcherEnabled'),
   },
   darkMode: {
     enabled: config.get('darkMode.enabled'),

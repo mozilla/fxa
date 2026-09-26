@@ -9,7 +9,10 @@ import * as Sentry from '@sentry/browser';
 import { Constants } from './constants';
 import { MfaScope } from './types';
 import { AuthUiErrors } from './auth-errors/auth-errors';
-import { dispatchStorageEvent } from './account-storage';
+import {
+  dispatchStorageEvent,
+  forgetLastAccountForClients,
+} from './account-storage';
 
 const storage = Storage.factory('localStorage');
 
@@ -144,6 +147,7 @@ export function clearSignedInAccountUid() {
   const uid = storage.get('currentAccountUid');
   if (isValidUid(uid)) {
     delete all[uid];
+    forgetLastAccountForClients(uid);
   }
   accounts(all);
   storage.remove('currentAccountUid');

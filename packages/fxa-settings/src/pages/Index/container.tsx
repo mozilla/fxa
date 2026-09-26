@@ -12,7 +12,11 @@ import { isEmailMask } from 'fxa-shared/email/helpers';
 
 import { firefox } from '../../lib/channels/firefox';
 import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { currentAccount, lastStoredAccount } from '../../lib/cache';
+import {
+  currentAccount,
+  findAccountByEmail,
+  lastStoredAccount,
+} from '../../lib/cache';
 import { checkEmailDomain } from '../../lib/email-domain-validator';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import GleanMetrics from '../../lib/glean';
@@ -191,7 +195,8 @@ const IndexContainer = ({
       email: string,
       canLinkAccountOk: boolean | undefined = undefined,
       passwordlessSupported: boolean | undefined = undefined,
-      hasPasskey: boolean | undefined = undefined
+      hasPasskey: boolean | undefined = undefined,
+      isManualSubmission: boolean = true
     ) => {
       const isOAuth = isOAuthWebIntegration(integration);
 
@@ -250,6 +255,15 @@ const IndexContainer = ({
               hasPassword,
               hasPasskey,
               canLinkAccountOk,
+              // Submitting an email is already the instruction to sign in, so a
+              // cached session needs no second confirmation click. Auto-submitted
+              // suggestions are excluded: the user has taken no action there, and
+              // the cached screen is their chance to change accounts.
+              ...(config.featureFlags?.accountSwitcherEnabled && {
+                autoSignIn:
+                  isManualSubmission &&
+                  !!findAccountByEmail(email)?.sessionToken,
+              }),
             },
           });
         }
@@ -277,6 +291,7 @@ const IndexContainer = ({
       queryParamModel,
       sendPasswordlessCode,
       config.featureFlags?.passwordlessEnabled,
+      config.featureFlags?.accountSwitcherEnabled,
     ]
   );
 
@@ -384,7 +399,8 @@ const IndexContainer = ({
           email,
           canLinkAccountOk,
           passwordlessSupported,
-          hasPasskey
+          hasPasskey,
+          isManualSubmission
         );
 
         GleanMetrics.emailFirst.submitSuccess({

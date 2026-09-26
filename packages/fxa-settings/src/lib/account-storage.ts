@@ -419,10 +419,68 @@ export function removeAccount(uid?: string): void {
     storage().remove('currentAccountUid');
   }
   storage().remove(getLegacyExtendedStateKey(accountUid));
+  forgetLastAccountForClients(accountUid);
   dispatchStorageEvent();
 }
 
 export function setCurrentAccountUid(uid: string): void {
   storage().set('currentAccountUid', uid);
   dispatchStorageEvent('currentAccountUid');
+}
+
+/** Every stored account, keyed by uid. Rows may be sparse or invalid. */
+export function getAllAccounts(): Record<string, Partial<UnifiedAccountData>> {
+  return storage().get('accounts') || {};
+}
+
+/**
+ * The uid the browser reports as signed in, mirrored out of the fxa_status web
+ * channel reply. Its own key rather than a field on `accounts[uid]`, which
+ * content-server rewrites through its own persistence allowlist.
+ */
+export function getFirefoxSignedInUid(): string | null {
+  return storage().get('firefoxSignedInUid') || null;
+}
+
+export function setFirefoxSignedInUid(uid: string | null): void {
+  if (uid) {
+    storage().set('firefoxSignedInUid', uid);
+  } else {
+    storage().remove('firefoxSignedInUid');
+  }
+  dispatchStorageEvent('firefoxSignedInUid');
+}
+
+/**
+ * The uid that last finished an OAuth sign-in to each client on this device,
+ * keyed by client id. Its own key for the same reason as `firefoxSignedInUid`.
+ */
+export function getLastAccountForClient(clientId?: string): string | null {
+  if (!clientId) return null;
+  return storage().get('lastAccountByClient')?.[clientId] || null;
+}
+
+export function setLastAccountForClient(clientId: string, uid: string): void {
+  const lastAccountByClient = storage().get('lastAccountByClient') || {};
+  storage().set('lastAccountByClient', {
+    ...lastAccountByClient,
+    [clientId]: uid,
+  });
+  dispatchStorageEvent('lastAccountByClient');
+}
+
+/** Drops a signed-out account from every client's last-used entry. */
+export function forgetLastAccountForClients(uid: string): void {
+  const lastAccountByClient: Record<string, string> =
+    storage().get('lastAccountByClient') || {};
+  const remaining = Object.fromEntries(
+    Object.entries(lastAccountByClient).filter(([, value]) => value !== uid)
+  );
+  if (
+    Object.keys(remaining).length === Object.keys(lastAccountByClient).length
+  ) {
+    return;
+  }
+  storage().set('lastAccountByClient', remaining);
+  dispatchStorageEvent('lastAccountByClient');
 }
