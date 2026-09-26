@@ -9,8 +9,13 @@ const {
   getOAuthSuccessRouteDefinition,
 } = require('./react-app/route-definitions');
 
-function getRoutesExcludingOAuthSuccessReact(routeNames) {
-  return routeNames;
+function getBackboneOAuthSuccessRouteNames({ oauthSuccessRoutes }, routeNames) {
+  return oauthSuccessRoutes.featureFlagOn
+    ? routeNames.filter(
+        (routeName) =>
+          !oauthSuccessRoutes.routes.find((route) => routeName === route.name)
+      )
+    : routeNames;
 }
 
 /** @type {import("./react-app/types").GetBackboneRouteDefinition} */
@@ -18,14 +23,16 @@ function getOAuthSuccessRoutes(
   reactRouteGroups,
   routeNames = OAUTH_SUCCESS_ROUTES
 ) {
-  const routesExcludingOAuthSuccessReact =
-    getRoutesExcludingOAuthSuccessReact(routeNames);
-  return routesExcludingOAuthSuccessReact.length > 0
-    ? getOAuthSuccessRouteDefinition(routesExcludingOAuthSuccessReact)
+  const backboneRouteNames = getBackboneOAuthSuccessRouteNames(
+    reactRouteGroups,
+    routeNames
+  );
+  return backboneRouteNames.length > 0
+    ? getOAuthSuccessRouteDefinition(backboneRouteNames)
     : null;
 }
 
 module.exports = {
   default: getOAuthSuccessRoutes,
-  getRoutesExcludingOAuthSuccessReact, // exported for testing
+  getBackboneOAuthSuccessRouteNames, // exported for testing
 };
