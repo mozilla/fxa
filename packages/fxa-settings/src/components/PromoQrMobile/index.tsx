@@ -53,6 +53,7 @@ export const PromoQrMobile = ({
 }) => {
   const location = useLocation();
   const hasLoggedView = useRef(false);
+  const asideRef = useRef<HTMLElement>(null);
   const ftlMsgResolver = useFtlMsgResolver();
   const experiments = useExperiments();
   const { loading: nimbusLoading } = useNimbusContext();
@@ -92,13 +93,42 @@ export const PromoQrMobile = ({
     }
   }, [visible, loading, experiments, enrolled, branch.slug]);
 
+  // The promo is fixed to the viewport, so lift it above the footer once the footer scrolls into view.
+  useEffect(() => {
+    const aside = asideRef.current;
+    if (!aside) return;
+    const update = () => {
+      const footerTop = document
+        .querySelector('footer')
+        ?.getBoundingClientRect().top;
+      const overlap =
+        footerTop === undefined
+          ? 0
+          : Math.max(0, window.innerHeight - footerTop);
+      aside.style.setProperty('--footer-overlap', `${overlap}px`);
+    };
+    update();
+    const resizeObserver = new ResizeObserver(update);
+    resizeObserver.observe(document.body);
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, [visible, loading]);
+
   // Wait for Nimbus and the CMS so the control does not paint and then swap.
   if (!visible || loading) return <></>;
 
   const heading = ftlMsgResolver.getMsg(branch.ftlId, branch.heading);
 
   return (
-    <aside className="hidden desktop:fixed desktop:flex desktop:flex-col desktop:items-center desktop:bottom-8 desktop:end-12 w-60 gap-3">
+    <aside
+      ref={asideRef}
+      className="hidden desktop:fixed desktop:flex desktop:flex-col desktop:items-center desktop:bottom-[calc(2rem+var(--footer-overlap,0px))] desktop:end-12 w-60 gap-3"
+    >
       <div className="py-2 text-center">
         <h2 className="text-sm font-bold leading-snug text-grey-900 dark:text-white">
           {heading}

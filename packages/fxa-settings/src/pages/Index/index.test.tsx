@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { act, screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { createMockIndexOAuthNativeIntegration, Subject } from './mocks';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
@@ -53,7 +53,7 @@ describe('Index page', () => {
     thirdPartyAuthWithSeparatorRendered();
 
     expect(
-      screen.getByRole('link', {
+      within(screen.getByRole('main')).getByRole('link', {
         name: /Terms of Service/,
       })
     ).toHaveAttribute(
@@ -76,7 +76,7 @@ describe('Index page', () => {
     thirdPartyAuthNotRendered();
 
     expect(
-      screen.getByRole('link', {
+      within(screen.getByRole('main')).getByRole('link', {
         name: /Terms of Service/,
       })
     ).toHaveAttribute(

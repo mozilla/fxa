@@ -43,6 +43,15 @@ describe('DarkModeToggle', () => {
     expect(select).toHaveValue('light');
   });
 
+  it('shows the current theme as the visible label', () => {
+    renderWithLocalizationProvider(<DarkModeToggle />);
+
+    expect(screen.getByText('Light', { selector: 'span' })).toHaveAttribute(
+      'aria-hidden',
+      'true'
+    );
+  });
+
   it('calls setThemePreference with the selected value on change', async () => {
     const user = userEvent.setup();
     renderWithLocalizationProvider(<DarkModeToggle />);

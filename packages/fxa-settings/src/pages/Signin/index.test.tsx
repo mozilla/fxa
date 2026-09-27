@@ -164,10 +164,10 @@ function signInHeaderRendered(service: MozServices = MozServices.Default) {
 }
 
 function privacyAndTermsRendered() {
-  const terms = screen.getByRole('link', {
+  const terms = within(screen.getByRole('main')).getByRole('link', {
     name: /Terms of Service/,
   });
-  const privacy = screen.getByRole('link', {
+  const privacy = within(screen.getByRole('main')).getByRole('link', {
     name: /Privacy Notice/,
   });
   expect(terms).toHaveAttribute(

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import { FluentBundle } from '@fluent/bundle';
 import { getFtlBundle, testL10n } from 'fxa-react/lib/test-utils';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
@@ -126,8 +126,9 @@ describe('Pair2/Supplicant/TimeoutAndCancel page', () => {
         renderWithLocalizationProvider(<Subject {...{ reason }} />);
 
         expect(screen.queryByRole('button')).not.toBeInTheDocument();
-        // AppLayout's Mozilla logo is the only link on the page.
-        expect(screen.getAllByRole('link')).toHaveLength(1);
+        expect(
+          within(screen.getByRole('main')).queryByRole('link')
+        ).not.toBeInTheDocument();
       });
     }
   );

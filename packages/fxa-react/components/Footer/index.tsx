@@ -8,11 +8,13 @@ import LinkExternal from '../LinkExternal';
 import mozLogo from '@fxa/shared/assets/images/moz-logo-bw-rgb.svg';
 
 export const Footer = ({
+  showLogo = true,
   showLocaleToggle = false,
   localeToggleComponent,
   showDarkModeToggle = false,
   darkModeToggleComponent,
 }: {
+  showLogo?: boolean;
   showLocaleToggle?: boolean;
   localeToggleComponent?: React.ComponentType<{
     placement?: 'footer' | 'header';
@@ -26,27 +28,29 @@ export const Footer = ({
       className="py-4 mt-16 mx-4 flex-wrap mobileLandscape:flex-nowrap mobileLandscape:mx-8 mobileLandscape:pb-6 flex border-t border-grey-100 dark:border-grey-600 text-grey-400 dark:text-grey-300"
       data-testid="footer"
     >
-      <LinkExternal
-        href="https://www.mozilla.org/about/?utm_source=firefox-accounts&utm_medium=Referral"
-        data-testid="link-mozilla"
-        className="focus-visible-default rounded-sm outline-offset-2"
-      >
-        <img
-          src={mozLogo}
-          alt={l10n.getString(
-            'app-footer-mozilla-logo-label',
-            null,
-            'Mozilla logo'
-          )}
-          className="transition-standard w-18 h-auto opacity-75 hover:opacity-100"
-        />
-      </LinkExternal>
-      <div className="w-full mobileLandscape:w-auto flex items-center mt-3 mobileLandscape:mt-0 mobileLandscape:ml-10">
+      {showLogo && (
+        <LinkExternal
+          href="https://www.mozilla.org/about/?utm_source=firefox-accounts&utm_medium=Referral"
+          data-testid="link-mozilla"
+          className="focus-visible-default rounded-sm outline-offset-2"
+        >
+          <img
+            src={mozLogo}
+            alt={l10n.getString(
+              'app-footer-mozilla-logo-label',
+              null,
+              'Mozilla logo'
+            )}
+            className="transition-standard w-18 h-auto opacity-75 hover:opacity-100"
+          />
+        </LinkExternal>
+      )}
+      <div className="w-full mobileLandscape:w-auto flex items-center mt-3 first:mt-0 mobileLandscape:mt-0 mobileLandscape:ml-10 mobileLandscape:first:ml-0">
         <Localized id="app-footer-privacy-notice">
           <LinkExternal
             data-testid="link-privacy"
             href="https://www.mozilla.org/privacy/websites/"
-            className="transition-standard text-xs mobileLandscape:self-end hover:text-grey-500 hover:underline focus-visible-default rounded-sm"
+            className="transition-standard text-xs hover:text-grey-500 hover:underline focus-visible-default rounded-sm"
           >
             Website Privacy Notice
           </LinkExternal>
@@ -57,7 +61,7 @@ export const Footer = ({
           <LinkExternal
             data-testid="link-terms"
             href="https://www.mozilla.org/about/legal/terms/services/"
-            className="transition-standard text-xs mobileLandscape:self-end hover:text-grey-500 hover:underline focus-visible-default rounded-sm"
+            className="transition-standard text-xs hover:text-grey-500 hover:underline focus-visible-default rounded-sm"
           >
             Terms of Service
           </LinkExternal>

@@ -35,6 +35,13 @@ global.IntersectionObserver = class IntersectionObserver {
   }
 } as any;
 
+// jsdom does not implement ResizeObserver either.
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+} as any;
+
 // jsdom does not provide TextEncoder/TextDecoder; Glean and the passkey
 // WebAuthn helpers both need them.
 global.TextEncoder = TextEncoder;

@@ -64,4 +64,14 @@ describe('Footer', () => {
     // Check that LocaleToggle placeholder is NOT rendered by default
     expect(screen.queryByTestId('locale-toggle-placeholder')).not.toBeInTheDocument();
   });
+
+  it('hides the Mozilla logo but keeps the legal links when showLogo is false', () => {
+    renderWithLocalizationProvider(<Footer showLogo={false} />);
+
+    expect(
+      screen.queryByRole('link', { name: /Mozilla logo/ })
+    ).not.toBeInTheDocument();
+    screen.getByRole('link', { name: /Website Privacy Notice/ });
+    screen.getByRole('link', { name: /Terms of Service/ });
+  });
 });

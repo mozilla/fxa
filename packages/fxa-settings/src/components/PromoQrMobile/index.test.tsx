@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import { PromoQrMobile, PromoQrMobileIntegration } from '.';
 import { IntegrationType } from '../../models/integrations';
 import { renderWithRouter } from '../../models/mocks';
@@ -365,5 +365,48 @@ describe('PromoQrMobile', () => {
         expect(qrImage().src).toContain('control');
       }
     );
+  });
+
+  describe('footer overlap', () => {
+    let footerTop: number;
+    let footer: HTMLElement;
+
+    beforeEach(() => {
+      footer = document.createElement('footer');
+      footer.getBoundingClientRect = () => ({ top: footerTop }) as DOMRect;
+      document.body.appendChild(footer);
+    });
+
+    afterEach(() => {
+      footer.remove();
+    });
+
+    function footerOverlap() {
+      return screen
+        .getByRole('complementary')
+        .style.getPropertyValue('--footer-overlap');
+    }
+
+    it('lifts the promo by the height of the footer inside the viewport', () => {
+      footerTop = window.innerHeight - 50;
+      renderAtRoute('/', webIntegration);
+      expect(footerOverlap()).toBe('50px');
+    });
+
+    it('does not lift the promo while the footer is below the viewport', () => {
+      footerTop = window.innerHeight + 100;
+      renderAtRoute('/', webIntegration);
+      expect(footerOverlap()).toBe('0px');
+    });
+
+    it('lifts the promo when a scroll brings the footer into view', () => {
+      footerTop = window.innerHeight + 100;
+      renderAtRoute('/', webIntegration);
+
+      footerTop = window.innerHeight - 30;
+      fireEvent.scroll(window);
+
+      expect(footerOverlap()).toBe('30px');
+    });
   });
 });

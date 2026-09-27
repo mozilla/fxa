@@ -6,7 +6,7 @@
 
 import { Subject } from './mocks';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MOCK_EMAIL } from '../../mocks';
 import { ResendStatus } from '../../../lib/types';
@@ -56,11 +56,10 @@ describe('ConfirmResetPassword', () => {
     expect(buttons[0]).toBeDisabled();
     expect(buttons[1]).toHaveTextContent('Resend code');
 
-    const links = await screen.findAllByRole('link');
-    expect(links).toHaveLength(3);
-    expect(links[0]).toHaveAccessibleName(/Mozilla logo/);
-    expect(links[1]).toHaveTextContent('Sign in');
-    expect(links[2]).toHaveTextContent('Use a different account');
+    const links = await within(screen.getByRole('main')).findAllByRole('link');
+    expect(links).toHaveLength(2);
+    expect(links[0]).toHaveTextContent('Sign in');
+    expect(links[1]).toHaveTextContent('Use a different account');
   });
 
   it('emits the expected metrics event on render', async () => {

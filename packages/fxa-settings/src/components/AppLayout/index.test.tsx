@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import AppLayout from '.';
 import {
@@ -42,7 +42,7 @@ describe('<AppLayout />', () => {
     screen.getByText('Hello, world!');
     screen.getByRole('main');
 
-    const mozLink = screen.getByRole('link');
+    const mozLink = within(screen.getByRole('banner')).getByRole('link');
     expect(mozLink).toHaveAttribute('rel', 'author');
     expect(mozLink).toHaveAttribute(
       'href',
@@ -288,6 +288,26 @@ describe('<AppLayout />', () => {
 
     // Verify that only one logo is rendered
     expect(screen.getAllByRole('img')).toHaveLength(1);
+  });
+
+  describe('footer', () => {
+    it.each([false, true])(
+      'renders the legal links without a second Mozilla logo (splitLayout: %s)',
+      (splitLayout) => {
+        renderWithLocalizationProvider(
+          <AppLayout {...{ splitLayout }}>
+            <p>Hello, world!</p>
+          </AppLayout>
+        );
+
+        const footer = within(screen.getByRole('contentinfo'));
+        footer.getByRole('link', { name: /Website Privacy Notice/ });
+        footer.getByRole('link', { name: /Terms of Service/ });
+        expect(
+          footer.queryByRole('link', { name: /Mozilla logo/ })
+        ).not.toBeInTheDocument();
+      }
+    );
   });
 
   describe('LocaleToggle visibility', () => {

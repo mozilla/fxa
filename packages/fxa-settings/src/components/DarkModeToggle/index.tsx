@@ -28,14 +28,26 @@ export const DarkModeToggle: React.FC = () => {
   );
   const lightLabel = ftlMsgResolver.getMsg('dark-mode-toggle-light', 'Light');
   const darkLabel = ftlMsgResolver.getMsg('dark-mode-toggle-dark', 'Dark');
+  const selectedLabel = {
+    system: systemLabel,
+    light: lightLabel,
+    dark: darkLabel,
+  }[themePreference];
 
   return (
-    <div className="bg-grey-10 dark:bg-grey-600 p-1 tablet:bg-transparent dark:tablet:bg-transparent tablet:p-0 rounded-md border border-grey-50 dark:border-grey-500 tablet:border-none dark:tablet:border-none">
+    <div className="group relative bg-grey-10 dark:bg-grey-600 p-1 tablet:bg-transparent dark:tablet:bg-transparent tablet:p-0 rounded-md border border-grey-50 dark:border-grey-500 tablet:border-none dark:tablet:border-none focus-within:outline focus-within:outline-2 focus-within:outline-offset-1 focus-within:outline-blue-500">
+      {/* A native select is as wide as its longest option, so it sits invisible over this label. */}
+      <span
+        aria-hidden="true"
+        className="block whitespace-nowrap p-1 tablet:px-0 text-xs text-grey-500 dark:text-grey-200 group-hover:text-grey-600 dark:group-hover:text-grey-100"
+      >
+        {selectedLabel}
+      </span>
       <select
         id="theme-select"
         value={themePreference}
         onChange={handleChange}
-        className="text-xs text-grey-500 dark:text-grey-200 hover:text-grey-600 dark:hover:text-grey-100 p-1 focus:outline-2 focus:outline-offset-1 focus:outline-blue-500 focus:text-grey-600 bg-transparent border-0 cursor-pointer appearance-none min-w-[8ch] w-auto"
+        className="absolute inset-0 w-full opacity-0 text-xs cursor-pointer"
         data-testid="dark-mode-toggle"
         aria-label={selectLabel}
       >

@@ -5,6 +5,7 @@
 import React, { useLayoutEffect } from 'react';
 import mozLogo from '@fxa/shared/assets/images/moz-logo-bw-rgb.svg';
 import LinkExternal from 'fxa-react/components/LinkExternal';
+import Footer from 'fxa-react/components/Footer';
 import { useLocalization } from '@fluent/react';
 import Head from 'fxa-react/components/Head';
 import classNames from 'classnames';
@@ -35,8 +36,6 @@ type AppLayoutProps = {
    * transparent, so the page colour is the screen colour.
    */
   whiteBackground?: boolean;
-  /** Whether to show the locale toggle in the footer */
-  showLocaleToggle?: boolean;
   /** Whether to show a loading spinner instead of children.
    * This preserves the background styling while showing a loading state.
    */
@@ -82,6 +81,19 @@ export const AppLayout = ({
 
   const showLocaleToggle = config.featureFlags?.showLocaleToggle;
   const showDarkModeToggle = config.darkMode?.enabled;
+
+  // Wrapped so the footer spans the width inside the centered flex column.
+  const footer = (
+    <div className="w-full">
+      <Footer
+        showLogo={false}
+        showLocaleToggle={showLocaleToggle}
+        localeToggleComponent={LocaleToggle}
+        showDarkModeToggle={showDarkModeToggle}
+        darkModeToggleComponent={DarkModeToggle}
+      />
+    </div>
+  );
 
   return (
     <>
@@ -173,20 +185,7 @@ export const AppLayout = ({
                 )}
               </section>
             </main>
-            {(showLocaleToggle || showDarkModeToggle) && (
-              <footer className="w-full py-2 px-4 mobileLandscape:mx-8 mobileLandscape:pb-4 flex text-grey-400 dark:text-grey-300">
-                {showLocaleToggle && (
-                  <div className="w-full mobileLandscape:w-auto flex items-center mobileLandscape:ms-10">
-                    <LocaleToggle />
-                  </div>
-                )}
-                {showDarkModeToggle && (
-                  <div className="w-full mobileLandscape:w-auto flex items-center mobileLandscape:ms-10">
-                    <DarkModeToggle />
-                  </div>
-                )}
-              </footer>
-            )}
+            {footer}
           </>
         ) : (
           <div className="flex flex-col desktop:flex-row w-full flex-1">
@@ -223,18 +222,7 @@ export const AppLayout = ({
                   </section>
                 )}
               </main>
-              <footer className="w-full py-2 px-6 tablet:px-10 flex text-grey-400 dark:text-grey-300">
-                {showLocaleToggle && (
-                  <div className="w-full mobileLandscape:w-auto flex items-center">
-                    <LocaleToggle />
-                  </div>
-                )}
-                {showDarkModeToggle && (
-                  <div className="w-full mobileLandscape:w-auto flex items-center mobileLandscape:ms-10">
-                    <DarkModeToggle />
-                  </div>
-                )}
-              </footer>
+              {footer}
             </div>
           </div>
         )}

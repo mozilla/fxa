@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
@@ -75,8 +75,9 @@ describe('SigninAlternativeAuthOptions', () => {
     screen.getByText(MOCK_EMAIL);
     screen.getByRole('button', { name: /Continue with Google/ });
     screen.getByRole('button', { name: /Continue with Apple/ });
-    screen.getByRole('link', { name: /Terms of Service/ });
-    screen.getByRole('link', { name: /Privacy Notice/ });
+    const main = within(screen.getByRole('main'));
+    main.getByRole('link', { name: /Terms of Service/ });
+    main.getByRole('link', { name: /Privacy Notice/ });
     expect(screen.queryByLabelText('Password')).not.toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: 'Sign in' })

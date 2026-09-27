@@ -8,6 +8,7 @@ import {
   fireEvent,
   screen,
   waitFor,
+  within,
 } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { usePageViewEvent } from '../../lib/metrics';
@@ -145,10 +146,14 @@ describe('Signup page', () => {
     expect(
       screen.getByRole('button', { name: /Continue with Apple/ })
     ).toBeVisible();
-    const firefoxTermsLink: HTMLElement = screen.getByRole('link', {
+    const firefoxTermsLink: HTMLElement = within(
+      screen.getByRole('main')
+    ).getByRole('link', {
       name: /Terms of Service/,
     });
-    const firefoxPrivacyLink: HTMLElement = screen.getByRole('link', {
+    const firefoxPrivacyLink: HTMLElement = within(
+      screen.getByRole('main')
+    ).getByRole('link', {
       name: /Privacy Notice/,
     });
     // Checkboxes have their own test

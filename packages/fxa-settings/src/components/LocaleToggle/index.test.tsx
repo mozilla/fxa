@@ -166,7 +166,9 @@ describe('LocaleToggle', () => {
     let select = screen.getByRole('combobox', { name: 'Select language' });
     expect(select).toBeInTheDocument();
     expect(select.children).toHaveLength(1);
-    expect(screen.getByText('Browser default')).toBeInTheDocument();
+    expect(
+      screen.getByRole('option', { name: 'Browser default' })
+    ).toBeInTheDocument();
 
     // Test locales with missing or duplicate properties
     mockUseLocaleManager.mockReturnValue({
@@ -188,6 +190,25 @@ describe('LocaleToggle', () => {
     expect(select).toHaveTextContent('English');
     expect(select).toHaveTextContent('Español (Spanish)');
     expect(select).toHaveTextContent('French'); // Should not show duplicate
+  });
+
+  it('shows the selected locale as the visible label', () => {
+    mockUseLocaleManager.mockReturnValue({
+      currentLocale: 'es',
+      availableLocales: [
+        { code: 'en', name: 'English', nativeName: 'English', rtl: false },
+        { code: 'es', name: 'Spanish', nativeName: 'Español', rtl: false },
+      ],
+      switchLocale: mockSwitchLocale,
+      clearLocalePreference: mockClearLocalePreference,
+      isUsingBrowserDefault: false,
+      isLoading: false,
+    });
+    renderWithLocalizationProvider(<LocaleToggle />);
+
+    expect(
+      screen.getByText('Español (Spanish)', { selector: 'span' })
+    ).toHaveAttribute('aria-hidden', 'true');
   });
 
   it('shows browser default option and handles selection correctly', () => {

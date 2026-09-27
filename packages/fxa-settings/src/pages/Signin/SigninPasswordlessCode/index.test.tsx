@@ -3,7 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as ReactUtils from 'fxa-react/lib/utils';
-import { act, fireEvent, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { usePageViewEvent } from '../../../lib/metrics';
@@ -345,13 +351,17 @@ describe('SigninPasswordlessCode page', () => {
         screen.getByTestId('terms-privacy-agreement-default')
       ).toBeInTheDocument();
       expect(
-        screen.getByRole('link', { name: /Terms of Service/ })
+        within(screen.getByRole('main')).getByRole('link', {
+          name: /Terms of Service/,
+        })
       ).toHaveAttribute(
         'href',
         'https://www.mozilla.org/about/legal/terms/services/'
       );
       expect(
-        screen.getByRole('link', { name: /Privacy Notice/ })
+        within(screen.getByRole('main')).getByRole('link', {
+          name: /Privacy Notice/,
+        })
       ).toHaveAttribute(
         'href',
         'https://www.mozilla.org/privacy/mozilla-accounts/'
