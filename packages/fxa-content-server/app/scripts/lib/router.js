@@ -5,10 +5,8 @@
 import _ from 'underscore';
 import Backbone from 'backbone';
 import Cocktail from 'cocktail';
-import CompleteSignUpView from '../views/complete_sign_up';
 import IndexView from '../views/index';
 import PermissionsView from '../views/permissions';
-import ReadyView from '../views/ready';
 import RedirectAuthView from '../views/authorization';
 import Storage from './storage';
 import SubscriptionsProductRedirectView from '../views/subscriptions_product_redirect';
@@ -218,18 +216,6 @@ Router = Router.extend({
         Url.searchParams(this.window.location.search)
       );
     },
-    'post_verify/secondary_email/add_secondary_email': createViewHandler(
-      'post_verify/secondary_email/add_secondary_email'
-    ),
-    'post_verify/secondary_email/confirm_secondary_email': createViewHandler(
-      'post_verify/secondary_email/confirm_secondary_email'
-    ),
-    'post_verify/secondary_email/verified_secondary_email': createViewHandler(
-      'post_verify/verified',
-      {
-        type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
-      }
-    ),
     // Forward the OAuth and Sync params; the React pages need them.
     'post_verify/third_party_auth/callback(/)': function () {
       this.createReactViewHandler('post_verify/third_party_auth/callback', {
@@ -253,9 +239,6 @@ Router = Router.extend({
       });
     },
 
-    'secondary_email_verified(/)': createViewHandler(ReadyView, {
-      type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
-    }),
     'settings(/)': function () {
       // Because settings is a separate js app, we need to ensure navigating
       // from the content-server app passes along flow parameters.
@@ -377,15 +360,6 @@ Router = Router.extend({
         SubscriptionsManagementRedirectView
       );
     },
-    'verify_email(/)': createViewHandler(CompleteSignUpView, {
-      type: VerificationReasons.SIGN_UP,
-    }),
-    'verify_primary_email(/)': createViewHandler(CompleteSignUpView, {
-      type: VerificationReasons.PRIMARY_EMAIL_VERIFIED,
-    }),
-    'verify_secondary_email(/)': createViewHandler(CompleteSignUpView, {
-      type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
-    }),
   },
 
   /**
