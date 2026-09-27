@@ -351,26 +351,6 @@ describe('models/auth_brokers/base', function () {
     });
   });
 
-  describe('afterCompletePrimaryEmail', () => {
-    it('unpersists VerificationData, returns the expected behavior', function () {
-      sinon.spy(broker, 'unpersistVerificationData');
-      return broker.afterCompletePrimaryEmail(account).then((behavior) => {
-        assert.isTrue(broker.unpersistVerificationData.calledWith(account));
-        assert.equal(behavior.type, 'settings');
-      });
-    });
-  });
-
-  describe('afterCompleteSecondaryEmail', function () {
-    it('unpersist VerificationData, returns the expected behavior', function () {
-      sinon.spy(broker, 'unpersistVerificationData');
-      return broker.afterCompleteSecondaryEmail(account).then((behavior) => {
-        assert.isTrue(broker.unpersistVerificationData.calledWith(account));
-        assert.equal(behavior.type, 'settings');
-      });
-    });
-  });
-
   describe('afterCompleteSignIn', function () {
     it('unpersist VerificationData, returns the expected behavior', function () {
       sinon.spy(broker, 'unpersistVerificationData');

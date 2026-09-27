@@ -10,6 +10,7 @@ const {
 
 module.exports = function (config, i18n, statsd, glean) {
   const redirectVersionedToUnversioned = require('./routes/redirect-versioned-to-unversioned');
+  const redirectWithQuery = require('./routes/redirect-with-query');
   const reactRouteGroups = getServerReactRouteGroups(
     config.get('showReactApp'),
     i18n,
@@ -20,6 +21,8 @@ module.exports = function (config, i18n, statsd, glean) {
     redirectVersionedToUnversioned('complete_reset_password'),
     redirectVersionedToUnversioned('reset_password'),
     redirectVersionedToUnversioned('verify_email'),
+    redirectWithQuery('verify_email', 'confirm_signup_code'),
+    redirectWithQuery('verify_primary_email', 'settings'),
     require('./routes/get-apple-app-site-association')(),
     require('./routes/get-assetlinks-json')(),
     require('./routes/get-frontend-pairing').default(reactRouteGroups),
