@@ -122,23 +122,4 @@ export default {
 
     return false;
   },
-
-  /**
-   * Replace the current page with the new CAD via QR screen.
-   *
-   * @param {Object} account
-   */
-  replaceCurrentPageWithQrCadScreen(account) {
-    this.replaceCurrentPage('/post_verify/cad_qr/get_started', {
-      account,
-    });
-  },
-
-  /**
-   * Replace the current page with the pairing screen.
-   *
-   */
-  replaceCurrentPageWithPairScreen() {
-    this.navigate('/pair', {});
-  },
 };

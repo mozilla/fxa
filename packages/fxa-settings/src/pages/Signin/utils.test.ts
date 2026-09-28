@@ -26,7 +26,6 @@ import {
 } from './utils';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import firefox from '../../lib/channels/firefox';
-import config from '../../lib/config';
 import { OAuthNativeServices } from '@fxa/accounts/oauth';
 import { OAUTH_ERRORS, OAuthError } from '../../lib/oauth';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
@@ -44,18 +43,6 @@ jest.mock('../../lib/channels/firefox', () => ({
     fxaCanLinkAccount: jest.fn(),
   },
 }));
-
-jest.mock('../../lib/config', () => {
-  const actual = jest.requireActual('../../lib/config');
-  return {
-    ...actual,
-    __esModule: true,
-    default: {
-      ...actual.default,
-      showReactApp: { ...actual.default.showReactApp, pairRoutes: true },
-    },
-  };
-});
 
 const mockNavigate = jest.fn();
 const hardNavigateSpy = jest.spyOn(ReactUtils, 'hardNavigate');
@@ -1430,63 +1417,7 @@ describe('Signin utils', () => {
       expect(result.to).toContain('/signup_confirmed_sync?');
     });
 
-    describe('/pair redirect (Backbone path, pairRoutes=false)', () => {
-      beforeEach(() => {
-        config.showReactApp.pairRoutes = false;
-      });
-      afterEach(() => {
-        config.showReactApp.pairRoutes = true;
-      });
-
-      it('returns /pair with showSuccessMessage by default', () => {
-        const result = getSyncNavigate('?service=sync');
-        expect(result.to).toContain('/pair?');
-        expect(result.to).toContain('showSuccessMessage=true');
-        expect(result.shouldHardNavigate).toBe(true);
-        expect(result.locationState).toBeUndefined();
-      });
-
-      it('includes signupSuccess param when signupSuccess is true', () => {
-        const result = getSyncNavigate('?service=sync', {
-          signupSuccess: true,
-        });
-        expect(result.to).toContain('/pair?');
-        expect(result.to).toContain('signupSuccess=true');
-        expect(result.to).toContain('showSuccessMessage=true');
-      });
-
-      it('includes passwordCreated param when origin is post-verify-set-password', () => {
-        const result = getSyncNavigate('?service=sync', {
-          origin: 'post-verify-set-password',
-        });
-        expect(result.to).toContain('/pair?');
-        expect(result.to).toContain('passwordCreated=true');
-        expect(result.to).toContain('showSuccessMessage=true');
-      });
-
-      it('does not include passwordCreated for other origins', () => {
-        const result = getSyncNavigate('?service=sync', {
-          origin: 'signup',
-        });
-        expect(result.to).not.toContain('passwordCreated');
-      });
-
-      it('includes pairReason=password_login by default', () => {
-        const result = getSyncNavigate('?service=sync');
-        expect(result.to).toContain('pairReason=password_login');
-      });
-
-      it('includes pairReason=passkey_login for a passkey session', () => {
-        const result = getSyncNavigate('?service=sync', {
-          isPasskeySession: true,
-        });
-        expect(result.to).toContain('pairReason=passkey_login');
-      });
-    });
-
-    describe('/pair redirect (React path, pairRoutes=true)', () => {
-      // pairRoutes=true is the test-file default; no toggling needed.
-
+    describe('/pair redirect', () => {
       it('soft-navs to /pair with origin=signin by default', () => {
         const result = getSyncNavigate('?service=sync');
         expect(result.to).toContain('/pair?');
@@ -1591,7 +1522,7 @@ describe('Signin utils', () => {
         });
       });
 
-      // Interstitials reach /pair via hardNavigate('/pair', {}, true), which
+      // Interstitials reach /pair via navigateWithQuery('/pair'), which
       // forwards the current query string — so the reason has to be on their
       // URL or it is lost for every flow that stops at one (FXA-14133).
       describe('interstitial hand-off', () => {

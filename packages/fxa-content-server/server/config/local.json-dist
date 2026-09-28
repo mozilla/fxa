@@ -66,8 +66,7 @@
   "showReactApp": {
     "simpleRoutes": true,
     "signUpRoutes": true,
-    "emailFirstRoutes": true,
-    "pairRoutes": true
+    "emailFirstRoutes": true
   },
   "featureFlags": {
     "recoveryCodeSetupOnSyncSignIn": true,

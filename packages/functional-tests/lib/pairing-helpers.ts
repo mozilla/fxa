@@ -32,43 +32,6 @@ import {
 import { getTotpCode } from './totp';
 
 /**
- * Check whether React pairing routes are enabled (showReactApp.pairRoutes).
- * When enabled, the Backbone /pair/* routes are deregistered and only React
- * (fxa-settings) serves them.
- *
- * Reuses the shared ConfigPage helper, which opens a real Playwright page and
- * reads the fxa-config meta tag. This matters for stage and production,
- * which are behind Fastly's Next-Gen WAF: a plain fetch() receives the
- * JavaScript "Client Challenge" interstitial instead of the real HTML. A
- * browser page executes the challenge and then renders the real page with
- * the meta tag.
- *
- * Callers should invoke this from `test.beforeAll` so it runs once per
- * worker; pair-route rollout is stable for the lifetime of a test run.
- */
-export async function isPairRoutesReact(
-  browser: Browser,
-  target: BaseTarget
-): Promise<boolean> {
-  // Mirror playwright.config.ts's `use.extraHTTPHeaders` so requests made from
-  // this helper also carry the WAF bypass token in CI. Without this, the WAF
-  // serves its JS interstitial and the fxa-config meta tag never renders.
-  const extraHTTPHeaders: Record<string, string> = {};
-  target.ciHeader?.forEach((value, key) => {
-    extraHTTPHeaders[key] = value;
-  });
-  const context = await browser.newContext({ extraHTTPHeaders });
-  const page = await context.newPage();
-  try {
-    const configPage = new ConfigPage(page, target);
-    const config = await configPage.getConfig();
-    return config?.showReactApp?.pairRoutes === true;
-  } finally {
-    await context.close();
-  }
-}
-
-/**
  * Generic polling helper with exponential backoff.
  *
  * Starts at POLL_INTERVAL (500ms), grows by 1.5x each iteration,
@@ -196,8 +159,7 @@ export async function signInAuthorityViaMarionette(
   contentServerUrl: string,
   email: string,
   password: string,
-  totpSecret?: string,
-  useReact = false
+  totpSecret?: string
 ): Promise<void> {
   // Navigating to /pair is enough to start a Sync sign-in: the page sends
   // fxaccounts:oauth_flow_begin over the web channel, Firefox answers with the
@@ -205,7 +167,7 @@ export async function signInAuthorityViaMarionette(
   // them. Building that URL here from a chrome-context beginOAuthFlow() call
   // duplicated what the page does, and was the only part of this flow that
   // needed chrome privileges.
-  const signinUrl = `${contentServerUrl}/pair${useReact ? '?showReactApp=true' : ''}`;
+  const signinUrl = `${contentServerUrl}/pair`;
 
   try {
     await client.setContext('content');
@@ -269,10 +231,9 @@ export async function signInAuthorityViaMarionette(
     }
 
     // Handle intermediary pages (e.g. inline_recovery_key_setup).
-    // The "Do it later" button calls hardNavigate('/pair', {}, true) which
-    // navigates after a 200ms setTimeout. Use the data-glean-id selector
-    // for reliability, then fall back to direct navigation if the click
-    // doesn't trigger the React handler.
+    // The "Do it later" button soft-navigates to /pair with the current query
+    // string. Use the data-glean-id selector for reliability, then fall back to
+    // direct navigation if the click doesn't trigger the React handler.
     const postTotpUrl = await client.getUrl();
     if (postTotpUrl.includes('inline_recovery_key_setup')) {
       await client.executeScript(`
@@ -390,8 +351,7 @@ export async function startPairingFlow(
  */
 export function buildSupplicantUrl(
   contentServerUrl: string,
-  pairUrl: string,
-  useReact = false
+  pairUrl: string
 ): string {
   // Parse and validate channel params from the QR URL fragment first
   const fragment = pairUrl.split('#')[1];
@@ -438,8 +398,7 @@ export function buildSupplicantUrl(
     channel_key: channelKey,
   });
 
-  const reactSuffix = useReact ? '&showReactApp=true' : '';
-  return `${contentServerUrl}/pair/supp?${queryParams}${reactSuffix}#${hashParams}`;
+  return `${contentServerUrl}/pair/supp?${queryParams}#${hashParams}`;
 }
 
 /**
@@ -537,7 +496,7 @@ export function extractChannelIdV2(pairUrl: string): string {
  * pairing approval page.
  *
  * Centralises construction that was previously duplicated in both test
- * cases and adds optional React query params.
+ * cases.
  */
 export function buildAuthorityOAuthUrl(
   contentServerUrl: string,
@@ -545,8 +504,7 @@ export function buildAuthorityOAuthUrl(
     email: string;
     uid: string;
     channelId: string;
-  },
-  useReact = false
+  }
 ): string {
   const oauthParams = new URLSearchParams({
     client_id: PAIRING_CLIENT_ID,
@@ -556,8 +514,7 @@ export function buildAuthorityOAuthUrl(
     channel_id: params.channelId,
     redirect_uri: PAIRING_REDIRECT_URI,
   });
-  const reactSuffix = useReact ? '&showReactApp=true' : '';
-  return `${contentServerUrl}/oauth?${oauthParams}${reactSuffix}`;
+  return `${contentServerUrl}/oauth?${oauthParams}`;
 }
 
 /**
@@ -731,16 +688,14 @@ export function sleep(ms: number): Promise<void> {
  */
 export async function verifyPairChoiceScreen(
   client: MarionetteClient,
-  contentServerUrl: string,
-  useReact = false
+  contentServerUrl: string
 ): Promise<void> {
   await client.setContext('content');
 
   // Ensure we are on /pair
   const url = await client.getUrl();
   if (!url.includes('/pair')) {
-    const reactSuffix = useReact ? '?showReactApp=true' : '';
-    await client.navigate(`${contentServerUrl}/pair${reactSuffix}`);
+    await client.navigate(`${contentServerUrl}/pair`);
   }
 
   // Verify the choice screen header
@@ -876,8 +831,9 @@ export async function setPairingVersion(
  *
  * The value comes from convict (`PAIRING_VERSION`) and is baked into the page
  * at server boot, so a test cannot change it. Tests that need version 2 read
- * it to decide whether to run. Uses a real page for the same WAF reason as
- * `isPairRoutesReact`; defaults to 1 when the config omits the value.
+ * it to decide whether to run. Uses a real page, because Fastly's WAF serves
+ * a JavaScript challenge to a plain fetch(); defaults to 1 when the config
+ * omits the value.
  */
 export async function getServedPairingVersion(
   browser: Browser,

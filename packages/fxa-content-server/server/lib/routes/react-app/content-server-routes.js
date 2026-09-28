@@ -33,10 +33,16 @@ const FRONTEND_ROUTES = [
   'oauth/signin',
   'oauth/signup',
   'pair',
+  'pair/auth/allow',
+  'pair/auth/complete',
+  'pair/auth/totp',
+  'pair/auth/wait_for_supp',
   'pair/failure',
   'pair/success',
   'pair/supp',
+  'pair/supp/allow',
   'pair/supp/complete',
+  'pair/supp/wait_for_auth',
   'pair/unsupported',
   'pair/authority/approve_signin',
   'pair/authority/continue_on_mobile',
@@ -51,10 +57,6 @@ const FRONTEND_ROUTES = [
   'pair/supplicant/ready_to_scan',
   'pair/supplicant/sync_success',
   'pair/supplicant/timeout_and_cancel',
-  'post_verify/cad_qr/get_started',
-  'post_verify/cad_qr/ready_to_scan',
-  'post_verify/cad_qr/scan_code',
-  'post_verify/cad_qr/connected',
   'post_verify/newsletters/add_newsletters',
   'post_verify/password/force_password_change',
   'post_verify/secondary_email/add_secondary_email',
@@ -107,20 +109,9 @@ const FRONTEND_ROUTES = [
   'poc_pair_start', // FXA-13863 throwaway pairing-start placeholder
 ];
 
-// The array is converted into a RegExp
-const PAIRING_ROUTES = [
-  'pair/auth/allow',
-  'pair/auth/complete',
-  'pair/auth/totp',
-  'pair/auth/wait_for_supp',
-  'pair/supp/allow',
-  'pair/supp/wait_for_auth',
-];
-
 const OAUTH_SUCCESS_ROUTES = ['/oauth/success/:clientId'];
 
 module.exports = {
   FRONTEND_ROUTES,
-  PAIRING_ROUTES,
   OAUTH_SUCCESS_ROUTES,
 };

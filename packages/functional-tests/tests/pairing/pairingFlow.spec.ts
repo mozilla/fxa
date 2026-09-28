@@ -43,7 +43,6 @@ import {
   completeSupplicantApproval,
   captureDiagnostics,
   verifyPairChoiceScreen,
-  isPairRoutesReact,
 } from '../../lib/pairing-helpers';
 
 async function approveAuthorityPairing(
@@ -84,25 +83,14 @@ test.setTimeout(120_000);
 
 test.describe('severity-2 #smoke', () => {
   test.describe.serial('Firefox pairing flow', () => {
-    // Pairing tests use Marionette (Firefox-only) on a shared port. This spec
-    // covers the React pair flow — the Backbone equivalent lives in
-    // pairingFlowBackbone.spec.ts. The two are mutually exclusive at runtime
-    // because content-server reads showReactApp.pairRoutes at startup (see
-    // add-routes.js) and pair routes have fullProdRollout: true, so a single
-    // server instance only serves one stack.
-    // Runs once per worker. Pair-route rollout is env-stable.
-    test.beforeAll(async ({ browser, target }) => {
+    // Pairing tests use Marionette (Firefox-only) on a shared port.
+    test.beforeAll(async ({ target }) => {
       // Stage-only: the authority stalls on /pair/auth/wait_for_supp against the
       // nonprod stage channel server (passes locally and on prod). Fixme here in
       // beforeAll so no per-test fixtures (e.g. marionetteAuthority) run on stage.
       test.fixme(
         target.name === 'stage',
         'Pairing completion is flaky against the nonprod stage channel server'
-      );
-      const isReact = await isPairRoutesReact(browser, target);
-      test.skip(
-        !isReact,
-        'React pair specs require showReactApp.pairRoutes=true'
       );
     });
 
@@ -157,12 +145,11 @@ test.describe('severity-2 #smoke', () => {
         const suppUrl = buildSupplicantUrl(target.contentServerUrl, pairUrl);
         await page.goto(suppUrl, { waitUntil: 'load' });
 
-        // #supp-approve-btn is the supplicant Confirm button rendered by both
-        // React and Backbone /pair/supp/allow templates with the same id. It
-        // only exists once the channel handshake completes and the authority
-        // has sent pair:supp:request, so this single check proves both that
-        // the supplicant reached /pair/supp/allow and that the form is
-        // interactive.
+        // #supp-approve-btn is the supplicant Confirm button on
+        // /pair/supp/allow. It only exists once the channel handshake
+        // completes and the authority has sent pair:supp:request, so this
+        // single check proves both that the supplicant reached
+        // /pair/supp/allow and that the form is interactive.
         await expect(page.locator('#supp-approve-btn')).toBeVisible({
           timeout: TIMEOUTS.SUPPLICANT_ALLOW,
         });

@@ -92,7 +92,6 @@ export interface Config {
   showReactApp: {
     signUpRoutes: boolean;
     emailFirstRoutes: boolean;
-    pairRoutes: boolean;
   };
   pairing: {
     browserBuild: 'firefox' | 'fenix';
@@ -231,7 +230,6 @@ export function getDefault() {
     showReactApp: {
       signUpRoutes: false,
       emailFirstRoutes: false,
-      pairRoutes: false,
     },
     pairing: {
       browserBuild: 'firefox',

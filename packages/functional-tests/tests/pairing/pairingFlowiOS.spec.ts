@@ -42,7 +42,6 @@ import {
   buildAuthorityOAuthUrl,
   extractChannelId,
   findElementBySelectors,
-  isPairRoutesReact,
   waitForUrlContaining,
   captureDiagnostics,
   sleep,
@@ -212,14 +211,6 @@ test.setTimeout(240_000);
 test.describe.serial('iOS pairing flow', () => {
   test.slow();
 
-  // Captured once per worker so tests can decide whether to append the
-  // ?showReactApp=true suffix without re-reading the config per test.
-  let useReactPairRoutes = false;
-  test.beforeAll(async ({ browser, target }) => {
-    if (!process.env.IOS_PAIRING_ENABLED) return;
-    useReactPairRoutes = await isPairRoutesReact(browser, target);
-  });
-
   test.beforeEach(async ({ target }, testInfo) => {
     if (!process.env.IOS_PAIRING_ENABLED) {
       testInfo.skip(true, 'Set IOS_PAIRING_ENABLED=1 to run iOS pairing tests');
@@ -260,7 +251,6 @@ test.describe.serial('iOS pairing flow', () => {
     marionetteAuthority,
   }, testInfo) => {
     const client = marionetteAuthority.client;
-    const useReact = useReactPairRoutes;
 
     // 1. Create account + sign in authority
     const credentials = await test.step('Create test account', async () => {
@@ -275,9 +265,7 @@ test.describe.serial('iOS pairing flow', () => {
           client,
           target.contentServerUrl,
           credentials.email,
-          credentials.password,
-          undefined,
-          useReact
+          credentials.password
         );
         const user = await getSignedInUser(client);
         expect(user.signedIn).toBe(true);
@@ -320,8 +308,7 @@ test.describe.serial('iOS pairing flow', () => {
           email: credentials.email,
           uid: signedInUser.uid as string,
           channelId,
-        },
-        useReact
+        }
       );
 
       await client.setContext('content');
@@ -423,7 +410,6 @@ test.describe.serial('iOS pairing flow', () => {
     marionetteAuthority,
   }, testInfo) => {
     const client = marionetteAuthority.client;
-    const useReact = useReactPairRoutes;
 
     const credentials = await test.step('Create test account', async () => {
       const creds = await testAccountTracker.signUp();
@@ -437,9 +423,7 @@ test.describe.serial('iOS pairing flow', () => {
           client,
           target.contentServerUrl,
           credentials.email,
-          credentials.password,
-          undefined,
-          useReact
+          credentials.password
         );
         const user = await getSignedInUser(client);
         expect(user.signedIn).toBe(true);
@@ -481,8 +465,7 @@ test.describe.serial('iOS pairing flow', () => {
           email: credentials.email,
           uid: signedInUser.uid as string,
           channelId,
-        },
-        useReact
+        }
       );
 
       // Wait for the iOS app to boot and enter the pairing URL
