@@ -1379,14 +1379,6 @@ FxaClientWrapper.prototype = {
    */
   createCadReminder: createClientDelegate('createCadReminder'),
 
-  finishSetup: withClient((client, relier, token, email, password) => {
-    return client
-      .finishSetup(token, { original: email, primary: email }, password)
-      .then((accountData) => {
-        return getUpdatedSessionData(email, relier, accountData);
-      });
-  }),
-
   verifyAccountThirdParty: withClient(
     (client, relier, token, provider, metricsContext) => {
       return client

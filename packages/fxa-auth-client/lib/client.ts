@@ -1298,65 +1298,6 @@ export default class AuthClient {
     );
   }
 
-  async finishSetup(
-    token: string,
-    emailInput: EmailInput,
-    newPassword: string,
-    headers?: Headers
-  ): Promise<{
-    uid: hexstring;
-    sessionToken: hexstring;
-    verified: boolean;
-  }> {
-    const email = normalizeEmails(emailInput);
-    const credentials = await this.getCredentialSet(
-      {
-        email,
-        password: newPassword,
-      },
-      headers
-    );
-    const v2Payload = await this.getPayloadV2(credentials);
-    return this.finishSetupWithAuthPW(
-      token,
-      credentials.v1.authPW,
-      v2Payload,
-      headers
-    );
-  }
-
-  /**
-   * This function is intended for a service that will proxy the finish setup
-   * (setting a password of a stub account) request.  When setting a password
-   * from a client with access to the plaintext password, use `finishSetup`
-   * above.
-   */
-  async finishSetupWithAuthPW(
-    token: string,
-    authPW: string,
-    v2Payload:
-      | {
-          wrapKb: string;
-          authPWVersion2: string;
-          wrapKbVersion2: string;
-          clientSalt: string;
-        }
-      | {},
-    headers?: Headers
-  ) {
-    const payload = {
-      token,
-      authPW,
-      ...v2Payload,
-    };
-    return await this.request(
-      'POST',
-      '/account/finish_setup',
-      payload,
-      headers
-    );
-  }
-
   async verifyAccountThirdParty(
     code: string,
     provider: AUTH_PROVIDER = AUTH_PROVIDER.GOOGLE,

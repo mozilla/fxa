@@ -1099,12 +1099,6 @@ const Account = Backbone.Model.extend(
         .then(this.set.bind(this));
     },
 
-    finishSetup(relier, token, email, password) {
-      return this._fxaClient
-        .finishSetup(relier, token, email, password)
-        .then(this.set.bind(this));
-    },
-
     verifyAccountThirdParty(relier, code, provider) {
       return this._fxaClient
         .verifyAccountThirdParty(

@@ -4,7 +4,6 @@
 
 import crypto from 'crypto';
 
-import * as jwt from '../../lib/oauth/jwt';
 import { createTestServer, TestServerInstance } from '../support/helpers/test-server';
 import { AuthServerError, generateMetricsContext } from '../support/helpers/test-utils';
 
@@ -150,98 +149,6 @@ describe.each(testVersions)(
         const error = err as AuthServerError;
         expect(error.errno).toBe(102);
       }
-    });
-
-    it('stubs account and finishes setup', async () => {
-      const email = server.uniqueEmail();
-      const password = 'ilikepancakes';
-      const client = new Client(server.publicUrl, testOptions);
-      await client.setupCredentials(email, password);
-
-      if (testOptions.version === 'V2') {
-        await client.setupCredentialsV2(email, password);
-      }
-
-      const stubResponse = await client.stubAccount('dcdb5ae7add825d2');
-
-      const setupToken = jwt.sign(
-        { uid: stubResponse.uid, iat: Date.now() },
-        { header: { typ: 'fin+JWT' } }
-      );
-
-      const response = await client.finishAccountSetup(setupToken);
-      expect(response.uid).toBeDefined();
-      expect(response.sessionToken).toBeDefined();
-      expect(response.verified).toBe(false);
-
-      const client2 = await Client.login(
-        server.publicUrl,
-        email,
-        password,
-        testOptions
-      );
-      expect(client2.sessionToken).toBeDefined();
-    });
-
-    it('can re-stub an unverified account', async () => {
-      const email = server.uniqueEmail();
-      const password = 'ilikepancakes';
-
-      const stub = async () => {
-        const client = new Client(server.publicUrl, testOptions);
-        await client.setupCredentials(email, password);
-
-        if (testOptions.version === 'V2') {
-          await client.setupCredentialsV2(email, password);
-        }
-
-        return client.stubAccount('dcdb5ae7add825d2');
-      };
-
-      const first = await stub();
-      expect(first.uid).toBeDefined();
-
-      const second = await stub();
-      expect(second.uid).toBeDefined();
-      expect(second.uid).not.toBe(first.uid);
-    });
-
-    it('fails to create account with a corrupt setup token', async () => {
-      const email = server.uniqueEmail();
-      const password = 'ilikepancakes';
-      const client = new Client(server.publicUrl, testOptions);
-      await client.setupCredentials(email, password);
-
-      if (testOptions.version === 'V2') {
-        await client.setupCredentialsV2(email, password);
-      }
-
-      await client.stubAccount('dcdb5ae7add825d2');
-      await expect(client.finishAccountSetup('invalid-token')).rejects.toBeDefined();
-    });
-
-    it('fails to call finish setup again', async () => {
-      const email = server.uniqueEmail();
-      const password = 'ilikepancakes';
-      const client = new Client(server.publicUrl, testOptions);
-      await client.setupCredentials(email, password);
-
-      if (testOptions.version === 'V2') {
-        await client.setupCredentialsV2(email, password);
-      }
-
-      const stubResponse = await client.stubAccount('dcdb5ae7add825d2');
-
-      const setupToken = jwt.sign(
-        {
-          uid: stubResponse.uid,
-          iat: Date.now(),
-        },
-        { header: { typ: 'fin+JWT' } }
-      );
-
-      await client.finishAccountSetup(setupToken);
-      await expect(client.finishAccountSetup(setupToken)).rejects.toBeDefined();
     });
 
     it('/account/create works with proper data', async () => {
