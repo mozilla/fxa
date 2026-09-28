@@ -122,7 +122,7 @@ describe('Pair2/Authority/ScanQR page', () => {
     renderWithLocalizationProvider(<Subject />);
 
     const link = screen.getByRole('link', {
-      name: /Other ways to sign in on mobile/,
+      name: /Other ways to sign in/,
     });
     expect(link).toHaveAttribute('href', Constants.PAIR_WITHOUT_QR_SUMO_URL);
     expect(link).toHaveAttribute('target', '_blank');
