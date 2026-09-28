@@ -1138,6 +1138,7 @@ inline-passwordless-sync-setup-description = ניתן להשתמש במפתח ג
 inline-passwordless-sync-setup-enable-button = הפעלת מפתח גישה
 inline-passwordless-sync-setup-enabling = בתהליך הפעלה…
 inline-passwordless-sync-setup-not-now-button = לא כעת
+inline-passwordless-sync-setup-success-alert = מפתח גישה זה מוכן לכניסה לסנכרון
 inline-passwordless-sync-setup-error-cancelled = אישור מפתח הגישה לא הסתיים
 inline-passwordless-sync-setup-error-cancelled-description = ניתן לאמת באמצעות מפתח הגישה שלך כדי לדלג על הססמה בפעם הבאה.
 inline-passwordless-sync-setup-error-generic = משהו השתבש, עדיין יהיה עליך להזין את הססמה שלך בפעם הבאה

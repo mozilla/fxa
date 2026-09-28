@@ -1395,7 +1395,7 @@ index-email-bounced = Wiadomość z potwierdzeniem została zwrócona. Błąd w
 ## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
 
 # Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = Ten klucz dostępu jest gotowy do logowania do synchronizacji
+inline-passwordless-sync-setup-success-alert = Tym kluczem dostępu można logować się do synchronizacji
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Nie udało się potwierdzić klucza dostępu
 inline-passwordless-sync-setup-error-cancelled-description = Potwierdź za pomocą klucza dostępu, aby następnym razem nie wpisywać hasła.

@@ -1635,7 +1635,7 @@ inline-passwordless-sync-setup-enable-button = Activer la clé d’accès
 inline-passwordless-sync-setup-enabling = Activation…
 inline-passwordless-sync-setup-not-now-button = Plus tard
 # Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = Cette clé d’accès est prête pour la connexion synchronisée
+inline-passwordless-sync-setup-success-alert = Cette clé d’accès permet désormais de se connecter et de synchroniser
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = La confirmation de la clé d’accès n’a pas abouti
 inline-passwordless-sync-setup-error-cancelled-description = Confirmez à l’aide de votre clé d’accès pour ne pas avoir à saisir votre mot de passe la prochaine fois.

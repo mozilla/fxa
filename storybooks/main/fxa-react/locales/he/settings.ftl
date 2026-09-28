@@ -1571,6 +1571,8 @@ inline-passwordless-sync-setup-enable-button = הפעלת מפתח גישה
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = בתהליך הפעלה…
 inline-passwordless-sync-setup-not-now-button = לא כעת
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = מפתח גישה זה מוכן לכניסה לסנכרון
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = אישור מפתח הגישה לא הסתיים
 inline-passwordless-sync-setup-error-cancelled-description = ניתן לאמת באמצעות מפתח הגישה שלך כדי לדלג על הססמה בפעם הבאה.

@@ -1131,6 +1131,7 @@ auth-error-228 = Регистрация ключа доступа не удал�
 auth-error-233 = Чтобы создать ключ доступа, настройте блокировку экрана, PIN-код, отпечаток пальца или распознавание лица на вашем устройстве или ключе безопасности. Затем попробуйте снова.
 auth-error-238 = Проверка ключа доступа не удалась
 auth-error-239 = Извините, мы не смогли удалить ваш аккаунт. Пожалуйста, попробуйте ещё раз или обратитесь в службу поддержки, если проблема не будет устранена.
+auth-error-240 = Этот аккаунт отключён
 auth-error-999 = Непредвиденная ошибка
 auth-error-1001 = Попытка входа отменена
 auth-error-1002 = Время сессии истекло. Войдите, чтобы продолжить.
@@ -1223,6 +1224,10 @@ inline-passwordless-sync-setup-description = Используйте этот к�
 inline-passwordless-sync-setup-enable-button = Включить ключ доступа
 inline-passwordless-sync-setup-enabling = Включаю…
 inline-passwordless-sync-setup-not-now-button = Не сейчас
+inline-passwordless-sync-setup-success-alert = Этот ключ доступа готов для входа в синхронизацию
+inline-passwordless-sync-setup-error-cancelled = Подтверждение ключа доступа не завершено
+inline-passwordless-sync-setup-error-cancelled-description = Подтвердите с помощью ключа доступа, чтобы пропустить пароль в следующий раз.
+inline-passwordless-sync-setup-error-generic = Что-то пошло не так, вам всё ещё нужно будет ввести пароль в следующий раз
 
 
 inline-recovery-key-setup-create-error = Ой! Мы не смогли создать ключ восстановления вашего аккаунта. Подождите некоторое время и попробуйте снова.
@@ -1408,6 +1413,13 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Похоже, у нас и
 pair2-supplicant-timeout-and-cancel-timeout-description = Чтобы подключить мобильное устройство и синхронизировать данные { -brand-firefox }, посетите <b>firefox.com/pair</b> на вашем компьютере.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Отменено
 pair2-supplicant-timeout-and-cancel-canceled-description = Чтобы подключить устройство в любое время, посетите <b>firefox.com/pair</b> на вашем компьютере.
+
+
+permissions-heading = { $serviceName } хочет получить доступ к:
+permissions-label-email = Адрес эл. почты
+permissions-label-display-name = Отображаемое имя
+permissions-continue-button = Продолжить
+permissions-cancel-button = Отмена
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account(case: "nominative_uppercase") } подтверждён

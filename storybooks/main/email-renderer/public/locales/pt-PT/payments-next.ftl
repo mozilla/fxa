@@ -213,17 +213,17 @@ already-canceling-title = A sua subscrição está marcada para terminar
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 # $date (Date) - Last day of product access
 already-canceling-message = Irá continuar a ter acesso a { $productName } até { $date }.
-already-canceling-turn-back-on = Pode ativar novamente a sua subscrição a qualquer momento, antes desta terminar.
+already-canceling-turn-back-on = Pode ativar novamente a sua subscrição a qualquer momento antes desta terminar.
 already-canceling-button-back-to-subscriptions = Voltar para subscrições
 
 ## Navigation breadcrumbs
 
 # Link title - Account settings
-subscription-management-breadcrumb-account-home = Página inicial da conta
+subscription-management-breadcrumb-account-home = Página Inicial da Conta
 # Link title - Subscriptions management
 subscription-management-breadcrumb-subscriptions = Subscrições
 # Link title - Payment method management
-subscription-management-breadcrumb-payment-2 = Gerir métodos de pagamento
+subscription-management-breadcrumb-payment-2 = Gerir Métodos de Pagamento
 # $page refers to page titles used in the breadcrumb menu (e.g. Account Home, Subscriptions, Payment Methods)
 subscription-management-breadcrumb-back-aria = Voltar para { $page }
 
@@ -233,7 +233,7 @@ subscription-cancellation-dialog-title = Lamentamos vê-lo partir
 # $name (String) - The name of the subscribed product.
 # $date (Date) - Last day of product access
 subscription-cancellation-dialog-msg = A sua subscrição de { $name } foi cancelada. Ainda terá acesso a { $name } até { $date }.
-subscription-cancellation-dialog-aside = Tem questões? Visite o Apoio <LinkExternal>{ -brand-mozilla }</LinkExternal>.
+subscription-cancellation-dialog-aside = Tem questões? Visite o Suporte <LinkExternal>{ -brand-mozilla }</LinkExternal>.
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 cancel-subscription-heading = Cancelar { $productName } subscrição
 
@@ -241,7 +241,7 @@ cancel-subscription-heading = Cancelar { $productName } subscrição
 ## $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 
 subscription-content-no-longer-use-message = Deixará de poder utilizar { $productName } depois de { $currentPeriodEnd }, o último dia do seu ciclo de faturação.
-subscription-content-cancel-access-message = Cancelar o meu acesso e a minha informação guardada em { $productName } em { $currentPeriodEnd }
+subscription-content-cancel-access-message = Cancelar o meu acesso e a minha informação guardada no { $productName } em { $currentPeriodEnd }
 
 ## $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 
@@ -256,7 +256,7 @@ next-payment-confirm-with-legal-links-static-3 = Eu autorizo a { -brand-mozilla 
 ## $endDate (Date) - The end date of the free trial
 
 checkbox-payment-required-no-charge = É necessário um método de pagamento para iniciar o seu teste gratuito. Não será cobrado até { $endDate }.
-checkbox-confirm-free-trial-with-legal-links = Eu autorizo { -brand-mozilla } a cobrar o meu método de pagamento pelo valor mostrado após o fim do teste gratuito em { $endDate }, de acordo com os <termsOfServiceLink>Termos do serviço</termsOfServiceLink> e a <privacyNoticeLink>Aviso de privacidade</privacyNoticeLink>, até que eu cancelar a minha subscrição.
+checkbox-confirm-free-trial-with-legal-links = Eu autorizo { -brand-mozilla } a cobrar o meu método de pagamento pelo valor mostrado após o fim do teste gratuito em { $endDate }, de acordo com os <termsOfServiceLink>Termos do Serviço</termsOfServiceLink> e a <privacyNoticeLink>Aviso de Privacidade</privacyNoticeLink>, até eu cancelar a minha subscrição.
 next-payment-confirm-checkbox-error = Precisa de concluir isto antes de continuar
 
 ## Checkout Form
