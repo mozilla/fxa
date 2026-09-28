@@ -1,8 +1,8 @@
 {
-  "commit": "de0c4129917a809ee7ff2e03eb2956b157e8d4e5",
-  "summary": "Merge pull request #21300 from mozilla/fxa-14376",
-  "description": "refactor(content-server): remove Backbone pairing and CAD routes",
-  "timestamp": 1790628383000,
+  "commit": "cdebe76aa8b256a7485b40edf74f0f41ccc50de7",
+  "summary": "Merge pull request #21330 from mozilla/dependabot/github_actions/github/codeql-action/analyze-4.38.2",
+  "description": "chore(deps): bump github/codeql-action/analyze from 4.38.1 to 4.38.2",
+  "timestamp": 1790630973000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

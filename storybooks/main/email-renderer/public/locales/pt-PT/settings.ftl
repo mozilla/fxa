@@ -52,7 +52,7 @@ recovery-key-pdf-download-error = Pedimos desculpa, mas ocorreu um problema ao t
 
 ## ButtonPasskeySignin
 
-button-passkey-signin = Iniciar sessão com chave de acesso
+button-passkey-signin = Iniciar sessão com chave-passe
 # This is a loading state indicating that we are waiting for the user to
 # interact with their authenticator to approve the sign-in. They should see a
 # device prompt/pop-up with authentication options (or message indicating that

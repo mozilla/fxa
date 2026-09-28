@@ -40,7 +40,7 @@
 -google-play = Google Play
 
 app-something-went-wrong-heading = Algo correu mal
-app-something-went-wrong-message = Fomos notificados do problema. Atualize a página para tentar novamente.
+app-something-went-wrong-message = Fomos notificados do problema. Reatualize a página para tentar novamente.
 app-error-id = ID do erro: { $errorId }
 app-error-details-summary = Detalhes do erro
 app-query-parameter-err-heading = Pedido inválido: parâmetros de consulta inválidos
@@ -91,7 +91,7 @@ recovery-key-download-button-v4 = Transferir e continuar
 recovery-key-pdf-download-error = Pedimos desculpa, mas ocorreu um problema ao transferir a sua chave de recuperação da conta.
 
 
-button-passkey-signin = Iniciar sessão com chave de acesso
+button-passkey-signin = Iniciar sessão com chave-passe
 button-passkey-signin-loading = A iniciar sessão com segurança…
 
 
