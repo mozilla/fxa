@@ -1,0 +1,13 @@
+{
+  "commit": "6244f3a95457297b95a9a0e6671d181626bcb128",
+  "summary": "fix(auth): transform ESM-only uuid in auth-server Jest config",
+  "description": "Because:\n- uuid 12+ ships as ESM only, and Jest cannot parse it untransformed\n\nThis commit:\n- Adds uuid to the auth-server transformIgnorePatterns allowlist",
+  "timestamp": 1790629185000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
