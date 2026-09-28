@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import { CreateQueueCommand, ListQueuesCommand } from '@aws-sdk/client-sqs';
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -244,6 +245,106 @@ describe('QueueworkerService', () => {
       (service as any).app.start = jest.fn().mockReturnValue(null);
       await service.onApplicationBootstrap();
       expect(mockExit).toHaveBeenCalledWith(8);
+    });
+
+    it('sends CreateQueue when goaws lists the queue by its full URL', async () => {
+      (service as any).queueName =
+        'https://localhost:4100/queue.mozilla/321321321/notifications';
+      const mockSend = jest.fn().mockResolvedValue({
+        QueueUrls: [
+          'http://us-east-1.127.0.0.1:4100/000000000000/notifications',
+        ],
+      });
+      (service as any).sqs = { send: mockSend };
+      (service as any).app.start = jest.fn();
+      await service.onApplicationBootstrap();
+      // The exists check compares the bare name to full URLs, so it never matches.
+      expect(mockSend).toHaveBeenCalledTimes(2);
+      expect(mockSend.mock.calls[0][0]).toBeInstanceOf(ListQueuesCommand);
+      expect(mockSend.mock.calls[1][0]).toBeInstanceOf(CreateQueueCommand);
+      expect(mockSend.mock.calls[1][0].input).toEqual({
+        QueueName: 'notifications',
+      });
+      expect((service as any).app.start).toHaveBeenCalled();
+    });
+
+    it('stops the consumer on shutdown', () => {
+      (service as any).app.stop = jest.fn();
+      service.onApplicationShutdown();
+      expect((service as any).app.stop).toHaveBeenCalled();
+    });
+
+    it('does not start or stop the consumer when disabled', async () => {
+      (service as any).disableQueueWorker = true;
+      (service as any).app.start = jest.fn();
+      (service as any).app.stop = jest.fn();
+      await service.onApplicationBootstrap();
+      service.onApplicationShutdown();
+      expect((service as any).app.start).not.toHaveBeenCalled();
+      expect((service as any).app.stop).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('consumer', () => {
+    it('passes queue messages to the message handler', async () => {
+      await (service as any).app.handleMessage(
+        updateStubMessage(baseLoginMessage)
+      );
+      expect(firestore.storeLogin).toHaveBeenCalledWith(
+        baseLoginMessage.uid,
+        baseLoginMessage.clientId
+      );
+    });
+
+    it.each([
+      ['error', 'consumerError'],
+      ['processing_error', 'processingError'],
+    ])('logs and reports a consumer %s event', (event, logName) => {
+      const err = new Error('boom');
+      (service as any).app.emit(event, err);
+      expect(logger.error).toHaveBeenCalledWith(logName, { err });
+      expect(Sentry.captureException).toHaveBeenCalledWith(err);
+    });
+  });
+
+  describe('publishMessage on the Pub/Sub emulator', () => {
+    const clientId = '444c5d137fc34d82ae65441d7f26a504';
+    let newTopic: any;
+
+    beforeEach(() => {
+      newTopic = { createSubscription: jest.fn().mockResolvedValue([]) };
+      pubsub.isEmulator = true;
+      pubsub.createTopic = jest.fn().mockResolvedValue([newTopic]);
+    });
+
+    it('creates the topic and push subscription when they are missing', async () => {
+      pubsub.getTopics = jest
+        .fn()
+        .mockResolvedValue([[{ name: 'projects/demo-fxa/topics/rpother' }]]);
+      await (service as any).publishMessage(clientId, { uid: 'abc' });
+      expect(pubsub.createTopic).toHaveBeenCalledWith(`rp${clientId}`);
+      expect(newTopic.createSubscription).toHaveBeenCalledWith(
+        `sub-${clientId}`,
+        {
+          pushConfig: {
+            pushEndpoint: `http://host.docker.internal:8093/v1/proxy/${clientId}`,
+          },
+        }
+      );
+      expect(topic.publishMessage).toHaveBeenCalledWith({
+        json: { uid: 'abc' },
+      });
+    });
+
+    it('does not create the topic when it exists', async () => {
+      pubsub.getTopics = jest
+        .fn()
+        .mockResolvedValue([
+          [{ name: `projects/demo-fxa/topics/rp${clientId}` }],
+        ]);
+      await (service as any).publishMessage(clientId, { uid: 'abc' });
+      expect(pubsub.createTopic).not.toHaveBeenCalled();
+      expect(topic.publishMessage).toHaveBeenCalled();
     });
   });
 
