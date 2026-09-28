@@ -1,8 +1,8 @@
 {
-  "commit": "cdebe76aa8b256a7485b40edf74f0f41ccc50de7",
-  "summary": "Merge pull request #21330 from mozilla/dependabot/github_actions/github/codeql-action/analyze-4.38.2",
-  "description": "chore(deps): bump github/codeql-action/analyze from 4.38.1 to 4.38.2",
-  "timestamp": 1790630973000,
+  "commit": "7729f231ecf3a93782e5c03bb9c3459ce73d2c03",
+  "summary": "Merge pull request #21094 from mozilla/dependabot/npm_and_yarn/uuid-13.0.2",
+  "description": "chore(deps): bump uuid from 11.1.1 to 13.0.2",
+  "timestamp": 1790631203000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
