@@ -1,8 +1,8 @@
 {
-  "commit": "7729f231ecf3a93782e5c03bb9c3459ce73d2c03",
-  "summary": "Merge pull request #21094 from mozilla/dependabot/npm_and_yarn/uuid-13.0.2",
-  "description": "chore(deps): bump uuid from 11.1.1 to 13.0.2",
-  "timestamp": 1790631203000,
+  "commit": "c757fd1842646bbcf1010392fd650683d6062df9",
+  "summary": "Merge pull request #21331 from mozilla/agent-402325",
+  "description": "test(event-broker): add missing specs and set the coverage scope",
+  "timestamp": 1790637209000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
