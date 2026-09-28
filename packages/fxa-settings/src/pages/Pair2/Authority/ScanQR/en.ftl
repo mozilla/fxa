@@ -8,6 +8,6 @@ pair2-authority-scan-qr-instruction = Scan the QR code with your phone or tablet
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR code to connect your mobile device
 # Link to a support article on connecting a mobile device without scanning the QR code
-pair2-authority-scan-qr-other-ways-link = Other ways to sign in on mobile
+pair2-authority-scan-qr-other-ways-link = Other ways to sign in
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Skip for now

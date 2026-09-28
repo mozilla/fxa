@@ -26,7 +26,7 @@ export type ScanQRProps = {
  * The desktop screen that shows the pairing QR code. The user scans it with
  * their phone or tablet to start syncing. Pairing is one of several promos a
  * sync sign-in can land on, so the card is followed by a way out of the flow
- * alongside the link to scanning help.
+ * alongside a link to other ways to sign in without the QR code.
  */
 const ScanQR = ({ qrCodeValue, onSkip }: ScanQRProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
@@ -96,7 +96,7 @@ const ScanQR = ({ qrCodeValue, onSkip }: ScanQRProps) => {
               className="mt-2 max-w-[46%] rounded-sm text-sm text-grey-900 underline focus-visible-default hover:text-grey-700"
             >
               <FtlMsg id="pair2-authority-scan-qr-other-ways-link">
-                Other ways to sign in on mobile
+                Other ways to sign in
               </FtlMsg>
             </LinkExternal>
           </div>
