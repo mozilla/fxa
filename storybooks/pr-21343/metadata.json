@@ -1,0 +1,13 @@
+{
+  "commit": "730db85ecdc8ccd5922e0224de43890a2c5e11f4",
+  "summary": "chore(deps): bump adm-zip to >=0.6.1",
+  "description": "Resolves Dependabot alert #965. The bump installs the highest\nversion satisfying the dependency range; the title uses >=<min> when the\nadvisory provides a minimum patched version — see the lockfile diff for the exact resolved version.\nCreated by BLEnder (https://github.com/mozilla/blender)",
+  "timestamp": 1790710707000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
