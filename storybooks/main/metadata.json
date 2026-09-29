@@ -1,8 +1,8 @@
 {
-  "commit": "5ebac394842b56ff367b25076af4d4677dc18239",
-  "summary": "Merge pull request #21339 from mozilla/cherry-pick-fix",
-  "description": "fix(auth-server): emit opaque session-token handles, not raw sessionToken",
-  "timestamp": 1790703262000,
+  "commit": "3dfbfbf61a43c3702a677530af8701c032f8bf16",
+  "summary": "Merge pull request #21335 from mozilla/dependabot/npm_and_yarn/opentelemetry-packages-67c8a4f2b2",
+  "description": "chore(deps): bump the opentelemetry-packages group with 4 updates",
+  "timestamp": 1790707868000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
