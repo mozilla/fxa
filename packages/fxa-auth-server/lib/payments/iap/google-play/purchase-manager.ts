@@ -24,6 +24,7 @@ import { PurchaseManager as PurchaseManagerBase } from 'fxa-shared/payments/iap/
 import {
   DeveloperNotification,
   NotificationType,
+  PurchaseQueryError,
   PurchaseUpdateError,
   SkuType,
 } from './types';
@@ -157,7 +158,8 @@ export class PurchaseManager extends PurchaseManagerBase {
 
   async processDeveloperNotification(
     packageName: string,
-    notification: DeveloperNotification
+    notification: DeveloperNotification,
+    fallbackSku?: string
   ): Promise<PlayStoreSubscriptionPurchase | null> {
     // Type-guard for a real-time developer notification.
     const subscriptionNotification = notification.subscriptionNotification;
@@ -168,11 +170,20 @@ export class PurchaseManager extends PurchaseManagerBase {
       subscriptionNotification.notificationType !==
       NotificationType.SUBSCRIPTION_PURCHASED
     ) {
+      // Google Play RTDN does not always include subscriptionId.
+      const sku = subscriptionNotification.subscriptionId || fallbackSku;
+      if (!sku) {
+        const libraryError = new Error(
+          'Notification has no subscriptionId and no fallback sku'
+        );
+        libraryError.name = PurchaseQueryError.MISSING_SKU;
+        throw libraryError;
+      }
       // We can safely ignore SUBSCRIPTION_PURCHASED because with new subscription, our Android app will send the same token to server for verification
       // For other type of notification, we query Play Developer API to update our purchase record cache in Firestore
       return this.querySubscriptionPurchase(
         packageName,
-        subscriptionNotification.subscriptionId,
+        sku,
         subscriptionNotification.purchaseToken,
         subscriptionNotification.notificationType
       );
