@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 56156a0d299d24f4916a024fd6313d14e42db88c</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 56156a0d299d24f4916a024fd6313d14e42db88c</h1>
+  <ul>
+    <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/29/2026, 4:58:13 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(auth): fall back to stored sku for Play RTDN without subscriptionId</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+* Google Play RTDN messages can omit subscriptionId, which the v1
+  purchases.subscriptions.get call requires, producing an opaque 500
+
+This commit:
+
+* Uses the Firestore purchase&#039;s sku when subscriptionId is missing
+* Throws a named MISSING_SKU error when neither is available, so the
+  500 is explicit and Pub/Sub redelivers the notification
+* Adds MISSING_SKU to the Google Play PurchaseQueryError enum</pre></dd>
+  </dl>
+</body>
+</html>

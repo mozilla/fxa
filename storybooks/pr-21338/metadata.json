@@ -1,0 +1,12 @@
+{
+  "commit": "56156a0d299d24f4916a024fd6313d14e42db88c",
+  "summary": "fix(auth): fall back to stored sku for Play RTDN without subscriptionId",
+  "description": "Because:\n\n* Google Play RTDN messages can omit subscriptionId, which the v1\n  purchases.subscriptions.get call requires, producing an opaque 500\n\nThis commit:\n\n* Uses the Firestore purchase's sku when subscriptionId is missing\n* Throws a named MISSING_SKU error when neither is available, so the\n  500 is explicit and Pub/Sub redelivers the notification\n* Adds MISSING_SKU to the Google Play PurchaseQueryError enum",
+  "timestamp": 1790701093000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
