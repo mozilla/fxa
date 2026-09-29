@@ -150,7 +150,7 @@ device-info-ip-address = Endereço de IP: { $ipAddress }
 
 
 firefox-promo-banner-mobile-heading = Obtenha o { -brand-firefox } onde quer que esteja
-firefox-promo-banner-mobile-description = Sincronize os seus separadores, marcadores e palavras-passe entre os seus dispositivos. Além disso, tudo permanece encriptado com segurança.
+firefox-promo-banner-mobile-description = Sincronize os seus separadores, marcadores, e palavras-passe entre os seus dispositivos. Adicionalmente, tudo permanece encriptado com segurança.
 firefox-promo-banner-mobile-cta = Ligar um dispositivo
 firefox-promo-banner-switch-heading = Rápido para mudar. Fácil de instalar.
 firefox-promo-banner-switch-description = Ao mudar para { -brand-firefox }, pode trazer os seus marcadores, palavras-passe, histórico e muito mais, para que possa navegar sem perder o ritmo.
@@ -240,7 +240,7 @@ usa-flag-icon-aria-label =
 icon-loading-arrow-aria-label =
     .aria-label = A carregar
 icon-passkey-aria-label =
-    .aria-label = Chave de acesso
+    .aria-label = Chave-passe
 hearts-broken-image-aria-label =
     .aria-label = Um computador e um telemóvel, e a imagem de um coração quebrado em cada um
 hearts-verified-image-aria-label =
@@ -272,13 +272,13 @@ backup-authentication-codes-image-aria-label =
 sync-clouds-image-aria-label =
     .aria-label = Nuvens com um ícone de sincronização
 confetti-falling-image-aria-label =
-    .aria-label = Animação da descarga de uma rede
+    .aria-label = Animação de confetes a cair
 vpn-welcome-image-aria-label =
-    .aria-label = { -brand-firefox } janela com uma medalha circular a mostrar uma marca de verificação verde e “VPN”, a mostrar que a VPN está ativa.
+    .aria-label = Janela { -brand-firefox } com um emblema circular que apresenta uma marca de verificação verde e “VPN,” a mostrar que a VPN está ativa.
 sync-devices-image-aria-label =
     .aria-label = Uma janela de navegador de computador e um telemóvel, ambos a sincronizar, com a mascote { -brand-firefox } ao lado deles
 firefox-wordmark-image-aria-label =
-    .aria-label = Logótipo de { -brand-firefox }
+    .aria-label = Logótipo do { -brand-firefox }
 password-success-image-aria-label =
     .aria-label = Imagem para representar uma alteração de palavra-passe com sucesso.
 
@@ -315,7 +315,7 @@ link-expired-new-link-button = Receber nova ligação
 
 
 remember-password-text = Memorizar a sua palavra-passe?
-remember-password-passkey-text = Tem uma chave de acesso ou lembra-se da sua palavra-passe?
+remember-password-passkey-text = Tem uma chave-passe ou lembra-se da sua palavra-passe?
 remember-password-signin-link = Iniciar sessão
 
 
@@ -333,7 +333,7 @@ password-info-balloon-why-password-info = Precisa desta palavra-passe para acede
 password-info-balloon-reset-risk-info = Uma reposição significa a perda potencial de dados, tais como palavras-passe e marcadores.
 
 
-password-strength-long-instruction = Escolha uma palavra-passe forte que não tenha utilizado em outros sites. Certifique-se que cumpre os requisitos de segurança:
+password-strength-long-instruction = Escolha uma palavra-passe forte que não tenha utilizado noutros sites. Certifique-se que cumpre os requisitos de segurança:
 password-strength-short-instruction = Escolha uma palavra-passe forte:
 password-strength-inline-min-length = Pelo menos 8 caracteres
 password-strength-inline-not-email = Não é o seu endereço de e-mail
@@ -344,7 +344,7 @@ password-strength-inline-passwords-match = As palavras-passe coincidem
 
 promo-qr-mobile-heading = O seu telefone. As suas regras.
 promo-qr-mobile-heading-treatment-a = Continue de onde ficou, onde quer que vá
-promo-qr-mobile-heading-treatment-b = Os seus separadores e mais, prontos no seu telemóvel
+promo-qr-mobile-heading-treatment-b = Os seus separadores e muito mais, prontos no seu telemóvel
 promo-qr-mobile-heading-treatment-c = O navegador que confia, no seu telemóvel
 promo-qr-mobile-heading-treatment-d = O mesmo { -brand-firefox }. Ecrã diferente.
 promo-qr-mobile-heading-treatment-e = A sua privacidade não deve parar aqui
@@ -353,7 +353,7 @@ promo-qr-mobile-heading-treatment-g = O seu telemóvel merece ter um pouco menos
 promo-qr-mobile-heading-treatment-h = Tenha uma forma mais calma de navegar consigo
 promo-qr-mobile-description-v2 = Digitalize para transferir a app para telemóvel
 promo-qr-mobile-qr-alt =
-    .alt = Código QR para transferir a aplicação móvel { -brand-firefox }. Posicione a câmara do seu telemóvel no canto inferior direito do seu ecrã para digitalizar o mesmo.
+    .alt = Código QR para transferir a aplicação móvel { -brand-firefox }. Posicione a câmara do seu telemóvel no canto inferior direito do seu ecrã para o digitalizar.
 
 
 account-recovery-notification-cta = Criar
@@ -361,10 +361,10 @@ account-recovery-notification-header-value = Não perca os seus dados se se esqu
 account-recovery-notification-header-description = Crie uma chave de recuperação da conta para restaurar os seus dados de navegação sincronizados caso se esqueça da sua palavra-passe.
 recovery-phone-promo-cta = Adicionar telefone de recuperação
 recovery-phone-promo-heading = Adicione uma proteção adicional à sua conta, com um telefone de recuperação
-recovery-phone-promo-description = Agora pode iniciar sessão com uma palavra-passe única via SMS, se não puder utilizar a sua aplicação de autenticação de dois passos.
+recovery-phone-promo-description = Agora pode iniciar sessão com uma palavra-passe de utilização única enviada por SMS se não conseguir usar a sua app de autenticação de dois passos.
 recovery-phone-promo-info-link = Saber mais acerca da recuperação e risco de troca de SIM
 promo-banner-dismiss-button =
-    .aria-label = Ignorar banner
+    .aria-label = Dispensar banner
 
 
 ready-complete-set-up-instruction = Complete a configuração ao introduzir a sua nova palavra-passe nos seus outros dispositivos { -brand-firefox }.
@@ -399,12 +399,12 @@ password-reset-chevron-expanded = Colapsar aviso
 password-reset-chevron-collapsed = Expandir aviso
 password-reset-warning-review-sign-in-options = Rever as opções de início de sessão para manter os dados do navegador
 password-reset-warning-have-key = Tem uma chave de recuperação da conta?
-password-reset-warning-use-key-link-v2 = Utilize-o para repor a sua palavra-passe e manter os seus dados do navegador
+password-reset-warning-use-key-link-v2 = Use-o para repor a sua palavra-passe e manter os seus dados do navegador
 password-reset-warning-signed-in-device = Ainda com sessão iniciada noutro dispositivo?
-password-reset-warning-signed-in-device-description = Os dados do seu navegador podem estar disponíveis. Redefina a sua palavra-passe e inicie sessão nesse dispositivo para restaurar e sincronizar os seus dados.
+password-reset-warning-signed-in-device-description = Os dados do seu navegador podem estar disponíveis. Redefina a sua palavra-passe, depois inicie sessão nesse dispositivo para restaurar e sincronizar os seus dados.
 password-reset-warning-restore-data-link = Saiba como restaurar os dados do navegador a partir de um dispositivo autenticado
-password-reset-warning-new-device = Está a utilizar um dispositivo novo mas não pode aceder aos seus antigos?
-password-reset-warning-new-device-description = Depois de repor a sua palavra-passe, os dados encriptados do navegador em { -brand-firefox } servidores não estarão disponíveis neste dispositivo.
+password-reset-warning-new-device = Está a usar um dispositivo novo mas não pode aceder aos seus antigos?
+password-reset-warning-new-device-description = Depois de repor a sua palavra-passe, os dados encriptados do navegador nos servidores { -brand-firefox } não estarão disponíveis neste dispositivo.
 
 
 alert-bar-close-message = Fechar mensagem
@@ -429,7 +429,7 @@ bento-menu-made-by-mozilla = Criado pela { -brand-mozilla }
 connect-another-fx-mobile = Obtenha o { -brand-firefox } para telemóvel ou tablet
 connect-another-find-fx-mobile-2 = Encontre o { -brand-firefox } na { -google-play } e na { -app-store }.
 connect-another-play-store-image-2 =
-    .alt = Transfira o { -brand-firefox } do { -google-play }
+    .alt = Transfira o { -brand-firefox } da { -google-play }
 connect-another-app-store-image-3 =
     .alt = Transfira o { -brand-firefox } na { -app-store }
 
@@ -468,7 +468,7 @@ cs-disconnect-suspicious-advice-content-2 = Se o dispositivo desassociado é, de
 cs-sign-out-button = Terminar sessão
 
 
-cs-scope-firefox-vpn = VPN integrada de { -brand-firefox }
+cs-scope-firefox-vpn = VPN integrada do { -brand-firefox }
 
 
 dc-heading = Recolha e utilização de dados
@@ -512,13 +512,13 @@ flow-recovery-key-info-cancel-link = Cancelar
 
 
 flow-setup-2fa-qr-heading = Ligar à sua aplicação de autenticação
-flow-setup-2a-qr-instruction = <strong>Etapa 1:</strong> Digitalize este código QR utilizando qualquer aplicação de autenticação, como o Duo ou o Google Authenticator.
+flow-setup-2a-qr-instruction = <strong>Passo 1:</strong> Leia este código QR com qualquer app de autenticação, como o Duo ou o Google Authenticator.
 flow-setup-2fa-qr-alt-text =
-    .alt = Código QR para configurar a autenticação de dois passos. Digitalize-o ou escolha "Não é possível digitalizar o código QR?" para obter uma chave secreta de configuração.
-flow-setup-2fa-cant-scan-qr-button = Não consegue digitalizar o código QR?
-flow-setup-2fa-manual-key-heading = Introduzir o código manualmente
+    .alt = Código QR para configurar a autenticação em dois passos. Leia-o, ou selecione “Não consegue ler o QR?” para obter uma chave secreta de configuração.
+flow-setup-2fa-cant-scan-qr-button = Não consegue ler o código QR?
+flow-setup-2fa-manual-key-heading = Introduzir código manualmente
 flow-setup-2fa-manual-key-instruction = <strong>Passo 1:</strong> Insira este código na sua aplicação de autenticação preferida.
-flow-setup-2fa-scan-qr-instead-button = Digitalizar código QR?
+flow-setup-2fa-scan-qr-instead-button = Em alternativa, ler o código QR?
 flow-setup-2fa-more-info-link = Saber mais sobre aplicações de autenticação
 flow-setup-2fa-button = Continuar
 flow-setup-2fa-step-2-instruction = <strong>Passo 2:</strong> insira o código da sua aplicação de autenticação.
@@ -742,7 +742,7 @@ delete-account-chk-box-3 =
 delete-account-chk-box-4 =
     .label = Quaisquer extensões e temas que tenha publicado em addons.mozilla.org serão eliminados
 delete-account-continue-button = Continuar
-delete-account-delete-button-passwordless = Eliminar conta
+delete-account-delete-button-passwordless = Apagar conta
 delete-account-password-input =
     .label = Inserir palavra-passe
 delete-account-cancel-button = Cancelar
@@ -759,13 +759,13 @@ display-name-update-error-2 = Houve um problema ao atualizar o seu nome de apres
 display-name-success-alert-2 = Nome de apresentação atualizado
 
 
-page-passkey-add-creating-heading = A criar chave de acesso…
-page-passkey-add-follow-prompts = Siga as mensagens no seu dispositivo.
+page-passkey-add-creating-heading = A criar a chave-passe…
+page-passkey-add-follow-prompts = Siga as instruções no seu dispositivo.
 page-passkey-add-cancel = Cancelar
 
 
-page-passkey-add-success = Chave criada
-page-passkey-add-error-system-v2 = Ocorreu um problema ao criar a sua chave. Tente novamente mais tarde.
+page-passkey-add-success = Chave-passe criada
+page-passkey-add-error-system-v2 = Ocorreu um problema ao criar a sua chave-passe. Tente novamente mais tarde.
 
 
 recent-activity-title = Atividade Recente da Conta
@@ -810,16 +810,16 @@ recent-activity-account-recovery-phone-replace-failure = A substituição do tel
 recent-activity-account-two-factor-replace-success = Autenticação de dois passos substituída
 recent-activity-account-two-factor-replace-failure = Falha na substituição da autenticação de dois passos
 recent-activity-account-recovery-phone-setup-failed = A configuração do telefone de recuperação falhou
-recent-activity-account-recovery-phone-reset-password-complete = Reposição de palavra-passe com a recuperação do telefone concluída
-recent-activity-account-recovery-phone-reset-password-failed = A redefinição da palavra-passe com o telefone de recuperação falhou
+recent-activity-account-recovery-phone-reset-password-complete = Reposição da palavra-passe através do telefone de recuperação concluída
+recent-activity-account-recovery-phone-reset-password-failed = Falha na reposição da palavra-passe através do telefone de recuperação
 recent-activity-account-mfa-otp-sent = Solicitada uma autorização para alterar a conta
 recent-activity-account-mfa-otp-verified = Alteração de conta autorizada
 recent-activity-account-mfa-otp-failed = A autorização para alterar a conta falhou
-recent-activity-account-passkey-registration-success = Chave de acesso adicionada
-recent-activity-account-passkey-registration-failure = O registo da chave falhou
-recent-activity-account-passkey-removed = Chave removida
-recent-activity-account-passkey-authentication-success = Início de sessão com a chave de acesso concluído
-recent-activity-account-passkey-authentication-failure = A autenticação com a chave de acesso falhou
+recent-activity-account-passkey-registration-success = Chave-passe adicionada
+recent-activity-account-passkey-registration-failure = O registo da chave-passe falhou
+recent-activity-account-passkey-removed = Chave-passe removida
+recent-activity-account-passkey-authentication-success = Início de sessão com chave-passe concluído
+recent-activity-account-passkey-authentication-failure = Início de sessão com chave-passe falhou
 recent-activity-account-passwordless-login-otp-sent = Código de início de sessão sem palavra-passe enviado
 recent-activity-account-passwordless-login-otp-failed = O código de início de sessão sem palavra-passe falhou
 recent-activity-account-passwordless-login-otp-verified = Código de início de sessão sem palavra-passe verificado
@@ -1327,7 +1327,7 @@ pair2-authority-download-firefox-cta = Transferir { -brand-firefox }
 
 
 pair2-authority-scan-qr-heading = Digitalize para associar o seu dispositivo móvel
-pair2-authority-scan-qr-instruction = Digitalize o código QR com o seu telemóvel ou tablet para sincronizar os seus { -brand-firefox } marcadores, separadores, e mais.
+pair2-authority-scan-qr-instruction = Digitalize o código QR com o seu telemóvel ou tablet para sincronizar os seus { -brand-firefox } marcadores, separadores, e muito mais.
 pair2-authority-scan-qr-code-aria-label = Código QR para ligar o seu dispositivo móvel
 pair2-authority-scan-qr-help-link = Obter ajuda para digitalizar
 pair2-authority-scan-qr-skip-button = Saltar por agora

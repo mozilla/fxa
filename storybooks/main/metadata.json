@@ -1,8 +1,8 @@
 {
-  "commit": "c757fd1842646bbcf1010392fd650683d6062df9",
-  "summary": "Merge pull request #21331 from mozilla/agent-402325",
-  "description": "test(event-broker): add missing specs and set the coverage scope",
-  "timestamp": 1790637209000,
+  "commit": "5e55c4c52e24407cbe92c8f5d10a7cd95fa61beb",
+  "summary": "Merge pull request #21338 from mozilla/fix/play-rtdn-missing-subscription-id",
+  "description": "fix(auth): fall back to stored sku for Play RTDN without subscriptionId",
+  "timestamp": 1790702810000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
