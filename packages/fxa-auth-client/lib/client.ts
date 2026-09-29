@@ -356,6 +356,23 @@ function pathWithKeys(path: string, keys?: boolean) {
   return `${path}${keys ? '?keys=true' : ''}`;
 }
 
+// Recovery key and passkey IDs end the path under these parents. Replace
+// them to keep IDs out of Sentry tags.
+const ID_ROUTE_PARENTS = ['/recoveryKey', '/passkey', '/passkey/wraps'];
+const STATIC_ROUTES = [
+  '/recoveryKey/exists',
+  '/recoveryKey/hint',
+  '/recoveryKey/verify',
+  '/passkey/wraps',
+];
+
+export function toRouteTag(pathname: string) {
+  const parent = pathname.slice(0, pathname.lastIndexOf('/'));
+  return ID_ROUTE_PARENTS.includes(parent) && !STATIC_ROUTES.includes(pathname)
+    ? `${parent}/:id`
+    : pathname;
+}
+
 async function fetchOrTimeout(
   input: RequestInfo,
   init: RequestInit = {},
@@ -431,6 +448,7 @@ export default class AuthClient {
   private requireHeaders: boolean;
   private defaultHeaders: Record<string, string>;
   private errorHandler: (error: unknown) => Promise<void>;
+  private reportedFastlyBlocks = new Set<string>();
 
   constructor(
     authServerUri: string,
@@ -465,6 +483,25 @@ export default class AuthClient {
 
   private url(path: string) {
     return `${this.uri}${path}`;
+  }
+
+  // Report once per status and route to bound Sentry event volume.
+  private reportFastlyBlock(status: number, pathname: string) {
+    const route = toRouteTag(pathname);
+    const key = `${status} ${route}`;
+    if (this.reportedFastlyBlocks.has(key)) {
+      return;
+    }
+    this.reportedFastlyBlocks.add(key);
+    Sentry.captureMessage('Fastly blocked request', {
+      level: 'warning',
+      fingerprint: ['fastly-blocked-request'],
+      tags: {
+        fastly_blocked: true,
+        fastly_status: status,
+        fastly_route: route,
+      },
+    });
   }
 
   private async request(
@@ -557,6 +594,7 @@ export default class AuthClient {
             errno,
           },
         });
+        this.reportFastlyBlock(response.status, pathname);
         throw new AuthClientError(
           'WAF blocked',
           'Request blocked by WAF',
