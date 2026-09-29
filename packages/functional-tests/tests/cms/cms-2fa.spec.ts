@@ -366,7 +366,11 @@ test.describe('severity-1 #smoke', () => {
       // /pair can't re-sign-in: the signed-in browser shows pairing).
       const secret = await enableTotpOnAccount(
         target.authClient,
-        credentials.sessionToken
+        await testAccountTracker.getMfaJwtForScope(
+          '2fa',
+          credentials.sessionToken,
+          credentials.email
+        )
       );
       // Record the secret so account cleanup can elevate AAL to delete it.
       credentials.secret = secret;

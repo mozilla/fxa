@@ -9,18 +9,6 @@ const TAGS_TOTP = {
   tags: TAGS.TOTP,
 };
 
-const TOTP_CREATE_POST = {
-  ...TAGS_TOTP,
-  description: '/totp/create',
-  notes: [
-    swaggerText`
-      🔒 Authenticated with session token
-
-      Create a new randomly generated TOTP token for a user if they do not currently have one.
-    `,
-  ],
-};
-
 const MFA_TOTP_CREATE_POST = {
   ...TAGS_TOTP,
   description: '/mfa/totp/create',
@@ -153,18 +141,6 @@ const MFA_TOTP_REPLACE_CONFIRM_POST = {
   ],
 };
 
-const TOTP_SETUP_VERIFY_POST = {
-  ...TAGS_TOTP,
-  description: '/totp/setup/verify',
-  notes: [
-    swaggerText`
-      🔒 Authenticated with session token
-
-      Verifies an authenticator app code against the in-progress TOTP secret stored in Redis during setup. On success, marks the setup as verified in Redis and aligns TTLs.
-    `,
-  ],
-};
-
 const MFA_TOTP_SETUP_VERIFY_POST = {
   ...TAGS_TOTP,
   description: '/mfa/totp/setup/verify',
@@ -173,18 +149,6 @@ const MFA_TOTP_SETUP_VERIFY_POST = {
       🔒 Authenticated with MFA JWT (scope: mfa:2fa)
 
       Verifies an authenticator app code against the in-progress TOTP secret stored in Redis during setup, using an MFA JWT. On success, marks the setup as verified in Redis and aligns TTLs.
-    `,
-  ],
-};
-
-const TOTP_SETUP_COMPLETE_POST = {
-  ...TAGS_TOTP,
-  description: '/totp/setup/complete',
-  notes: [
-    swaggerText`
-      🔒 Authenticated with session token
-
-      Completes TOTP setup by validating the Redis verification flag for the current secret, then persisting the secret to the database as enabled and verified. Cleans up temporary Redis entries.
     `,
   ],
 };
@@ -203,7 +167,6 @@ const MFA_TOTP_SETUP_COMPLETE_POST = {
 
 const API_DOCS = {
   SESSION_VERIFY_TOTP_POST,
-  TOTP_CREATE_POST,
   MFA_TOTP_CREATE_POST,
   TOTP_DESTROY_POST,
   MFA_TOTP_DESTROY_POST,
@@ -214,9 +177,7 @@ const API_DOCS = {
   TOTP_REPLACE_CONFIRM_POST,
   MFA_TOTP_REPLACE_START_POST,
   MFA_TOTP_REPLACE_CONFIRM_POST,
-  TOTP_SETUP_VERIFY_POST,
   MFA_TOTP_SETUP_VERIFY_POST,
-  TOTP_SETUP_COMPLETE_POST,
   MFA_TOTP_SETUP_COMPLETE_POST,
 };
 

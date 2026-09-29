@@ -186,7 +186,11 @@ test.describe('severity-2 #smoke', () => {
           const creds = await testAccountTracker.signUp();
           const totpSecret = await enableTotpOnAccount(
             target.authClient,
-            creds.sessionToken
+            await testAccountTracker.getMfaJwtForScope(
+              '2fa',
+              creds.sessionToken,
+              creds.email
+            )
           );
           creds.secret = totpSecret;
           return { credentials: creds, secret: totpSecret };
