@@ -1151,12 +1151,6 @@ const convictConf = convict({
       env: 'SUBSCRIPTIONS_UNSUPPORTED_LOCATIONS',
       format: Array,
     },
-    billingPriceInfoFeature: {
-      doc: 'Display price info along with billing and subscription info in /billings-and-subscriptions api',
-      format: Boolean,
-      env: 'SUBSCRIPTIONS_BILLING_PRICE_INFO_FEATURE',
-      default: false,
-    },
     freeAccessProgramJournal: {
       collectionName: {
         doc: 'Firestore collection holding the free-access-program reconciler journal.',
