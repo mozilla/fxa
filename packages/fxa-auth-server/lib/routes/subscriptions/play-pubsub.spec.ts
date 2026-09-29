@@ -11,6 +11,7 @@ const mocks = require('../../../test/mocks');
 const { PlayPubsubHandler } = require('./play-pubsub');
 const { PlayBilling } = require('../../payments/iap/google-play');
 const { CapabilityService } = require('../../payments/capability');
+const { PurchaseQueryError } = require('../../payments/iap/google-play/types');
 
 const ACCOUNT_LOCALE = 'en-US';
 const TEST_EMAIL = 'test@email.com';
@@ -84,6 +85,30 @@ describe('PlayPubsubHandler', () => {
         mockPlayBilling.purchaseManager.processDeveloperNotification
       ).toHaveBeenCalledTimes(1);
       expect(mockCapabilityService.iapUpdate).toHaveBeenCalledTimes(1);
+    });
+
+    it('passes the stored sku as the fallback for the Play API query', async () => {
+      mockPurchase.sku = 'storedSku';
+      await playPubsubHandlerInstance.rtdn(mockRequest);
+      expect(
+        mockPlayBilling.purchaseManager.processDeveloperNotification
+      ).toHaveBeenCalledWith(
+        mockDeveloperNotification.packageName,
+        mockDeveloperNotification,
+        'storedSku'
+      );
+    });
+
+    it('propagates MISSING_SKU so Pub/Sub redelivers the notification', async () => {
+      const missingSku = new Error('missing sku');
+      missingSku.name = PurchaseQueryError.MISSING_SKU;
+      mockPlayBilling.purchaseManager.processDeveloperNotification = jest
+        .fn()
+        .mockRejectedValue(missingSku);
+      await expect(playPubsubHandlerInstance.rtdn(mockRequest)).rejects.toBe(
+        missingSku
+      );
+      expect(mockCapabilityService.iapUpdate).not.toHaveBeenCalled();
     });
 
     it('test notification', async () => {
