@@ -1,0 +1,12 @@
+{
+  "commit": "aec9dfdcdbea45949d30d28093f962618efa7640",
+  "summary": "fix(auth-server): emit opaque session-token handles, not raw sessionTokenId [FXA-14056]",
+  "description": "Because:\n - The attached-clients and devices-and-sessions endpoints returned the raw\n   sessionTokenId to clients. With server-side Hawk MAC verification no longer\n   enforced, a raw sessionTokenId is effectively a bearer credential, so\n   emitting it is a token-disclosure risk.\n\nThis commit:\n - Adds computeSessionTokenHandle (HMAC-SHA256 over \"<uid>:<sessionTokenId>\",\n   keyed by a new SESSION_TOKEN_HANDLE_KEY config) to derive a one-way,\n   uid-bound handle that cannot be recovered or replayed as a Hawk id.\n - Guards the key in production via SECRET_SETTINGS so an unset\n   SESSION_TOKEN_HANDLE_KEY cannot silently fall back to the in-repo default.\n - Returns the handle in place of the raw sessionTokenId on the attached-clients\n   and sessions endpoints; the sessions list now also requires a verified\n   session.\n - Migrates /session/destroy to accept customSessionTokenHandle, resolving it\n   back to the caller's own session token (scanning their sessions and matching\n   the recomputed handle) so no client-facing API is keyed on a raw id.\n - Updates fxa-auth-client, fxa-settings, fxa-shared factories, swagger docs,\n   and the corresponding unit and remote tests.",
+  "timestamp": 1790702185000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
