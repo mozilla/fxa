@@ -1688,23 +1688,6 @@ function trim(str) {
       });
     });
 
-    describe('createTotpToken', () => {
-      it('delegates to the fxa-auth-client', () => {
-        const resp = {
-          qrCodeUrl: 'data:image/png;base64,iVBOR:',
-          secret: 'superdupersecretcode',
-        };
-        sinon
-          .stub(realClient, 'createTotpToken')
-          .callsFake(() => Promise.resolve(resp));
-
-        return client.createTotpToken().then((_resp) => {
-          assert.strictEqual(_resp, resp);
-          assert.isTrue(realClient.createTotpToken.calledOnce);
-        });
-      });
-    });
-
     describe('checkTotpTokenExists', () => {
       it('delegates to the fxa-auth-client', () => {
         const resp = {

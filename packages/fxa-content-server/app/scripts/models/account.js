@@ -1452,17 +1452,6 @@ const Account = Backbone.Model.extend(
     },
 
     /**
-     * Creates a new TOTP token for a user.
-     *
-     * @returns {Promise}
-     */
-    createTotpToken() {
-      return this._fxaClient.createTotpToken(this.get('sessionToken'), {
-        metricsContext: this._metrics.getFlowEventMetadata(),
-      });
-    },
-
-    /**
      * Deletes the current TOTP token for a user.
      *
      * @returns {Promise}
