@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 2377fd08e61c1a87dfb6b3fcc50407a29c3d6479</title>
+  <title>Storybooks for commit b28dc424040183553baa823fc152621292b29787</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,37 +23,34 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 2377fd08e61c1a87dfb6b3fcc50407a29c3d6479</h1>
+  <h1>Storybooks for commit b28dc424040183553baa823fc152621292b29787</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/29/2026, 1:42:05 AM UTC</dd>
+    <dd>9/29/2026, 11:22:21 AM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>chore(auth): remove legacy session-token TOTP setup routes</pre></dd>
     <dt>Description</dt>
     <dd><pre>## Because
 
-- The auth server has two sets of TOTP setup routes. The legacy set accepts a session token. The `/mfa/totp/*` set requires an `mfa:2fa` JWT.
-- On `main`, the `/mfa` routes forward to the legacy handlers, so the legacy routes cannot go away on their own.
+- The `/v1/mfa/totp/*` routes replace the session-token TOTP setup routes `POST /v1/totp/create`, `/v1/totp/setup/verify` and `/v1/totp/setup/complete`.
+- The functional tests were the last callers of the old routes in the monorepo.
 
 ## This pull request
 
-- Removes `POST /v1/totp/create`, `/v1/totp/setup/verify` and `/v1/totp/setup/complete` from `totp.js`, with their Swagger entries.
-- Moves the handler bodies onto the `/mfa/totp/create`, `/mfa/totp/setup/verify` and `/mfa/totp/setup/complete` routes.
-- Removes `createTotpToken`, `verifyTotpSetupCode` and `completeTotpSetup` from `fxa-auth-client`. The `*WithJwt` methods stay.
-- Removes the unused `createTotpToken` wrapper from the content-server `fxa-client.js` and `Account`, with its spec.
-- Changes the auth-server test client to call the `/mfa` routes with a JWT from `signMfaToken`.
-- Changes `enableTotpOnAccount` to use the `*WithJwt` methods with a JWT from `testAccountTracker.getMfaJwtForScope`, which is now public. Six functional specs use it.
-- Adds an `it.each` test in `totp.spec.ts` that checks that the three legacy paths are not registered.
-
-Breaking change: external users of the three endpoints or the three removed client methods must move to `/mfa/totp/*`.
+- Removes the three legacy routes from `totp.js` and their docs from `totp-api.ts`. The `/v1/mfa/totp/*` routes now hold the handler logic.
+- Updates `totp.spec.ts` to test the MFA routes. It also checks that the old paths are not served.
+- Removes `createTotpToken`, `verifyTotpSetupCode` and `completeTotpSetup` from `fxa-auth-client`, and removes the content-server wrappers for them.
+- Moves the auth-server test client (`test/client/api.js`, `index.js`) to the MFA routes. The client signs an `mfa:2fa` JWT locally.
+- Changes `enableTotpOnAccount` in `pairing-helpers.ts` to take an MFA JWT. Its callers now pass `testAccountTracker.getMfaJwtForScope(&#039;2fa&#039;, ...)`, which is now public.
+- Fixes the CI failure in `passkeySetPassword.spec.ts:75` (401, errno 223). That call still passed a session token. `passkeyPasswordFallback.spec.ts:183` had the same bug and is fixed too.
 
 ## Issue that this pull request solves
 
-Closes: https://mozilla-hub.atlassian.net/browse/FXA-14626</pre></dd>
+Closes: FXA-14626</pre></dd>
   </dl>
 </body>
 </html>
