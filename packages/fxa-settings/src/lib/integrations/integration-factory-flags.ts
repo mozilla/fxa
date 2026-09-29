@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Constants } from '../constants';
-import { ModelDataStore, UrlQueryData } from '../model-data';
+import { ModelDataStore, RawData, UrlQueryData } from '../model-data';
 import { IntegrationFlags } from '../integrations/interfaces';
 import { getPairingChannelHashParams } from '../pairing-channel-params';
 import { getOAuthSuccessClientId } from '../oauth/success-route';
@@ -111,8 +111,7 @@ export class DefaultIntegrationFlags implements IntegrationFlags {
   }
 
   isVerification() {
-    // TODO: fix type returned from `searchParam`, forces this boolean check
-    return !!(
+    return (
       this._isSignUpVerification() ||
       this._isPasswordResetVerification() ||
       this._isReportSignIn()
@@ -120,7 +119,7 @@ export class DefaultIntegrationFlags implements IntegrationFlags {
   }
 
   private _isPasswordResetVerification() {
-    return this.searchParam('code') && this.searchParam('token');
+    return !!this.searchParam('code') && !!this.searchParam('token');
   }
 
   private _isReportSignIn() {
@@ -128,11 +127,10 @@ export class DefaultIntegrationFlags implements IntegrationFlags {
   }
 
   private _isSignUpVerification() {
-    return this.searchParam('code') && this.searchParam('uid');
+    return !!this.searchParam('code') && !!this.searchParam('uid');
   }
 
-  // TODO: fix type, return type is `unknown`
-  searchParam(key: string) {
+  searchParam(key: string): RawData {
     return this.urlQueryData.get(key);
   }
 
@@ -150,9 +148,7 @@ export class DefaultIntegrationFlags implements IntegrationFlags {
   }
 
   isServiceOAuth() {
-    const service = this.searchParam('service');
-    // TODO: fix type returned from `_searchParam`, forces this boolean check
-    return !!(service && !this.isServiceSync());
+    return !!this.searchParam('service') && !this.isServiceSync();
   }
 
   private _getSavedClientId() {

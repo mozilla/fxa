@@ -214,4 +214,61 @@ describe('lib/integrations/integration-factory-flags', function () {
     queryData.set('code', '123');
     expect(integrationFlags.isOAuthVerificationFlow()).toBeTruthy();
   });
+
+  describe('with a clean URL', () => {
+    // Query params live in the shared jsdom URL, so clear what earlier tests set.
+    beforeEach(() => {
+      globalThis.history.replaceState(null, '', '/');
+    });
+
+    describe('isVerification', () => {
+      it('is true for a sign-up verification', () => {
+        queryData.set('code', '123');
+        queryData.set('uid', '123');
+        expect(integrationFlags.isVerification()).toBe(true);
+      });
+
+      it('is true for a password reset verification', () => {
+        queryData.set('code', '123');
+        queryData.set('token', '123');
+        expect(integrationFlags.isVerification()).toBe(true);
+      });
+
+      it('is true for report sign-in', () => {
+        sandbox.replaceGetter(queryData, 'pathName', () => '/report_signin');
+        expect(integrationFlags.isVerification()).toBe(true);
+      });
+
+      it('is false for a code without a uid or token', () => {
+        queryData.set('code', '123');
+        expect(integrationFlags.isVerification()).toBe(false);
+      });
+
+      it('is false without params', () => {
+        expect(integrationFlags.isVerification()).toBe(false);
+      });
+    });
+
+    describe('isServiceOAuth', () => {
+      it('is true for a service other than Sync', () => {
+        queryData.set('service', 'foo');
+        expect(integrationFlags.isServiceOAuth()).toBe(true);
+      });
+
+      it('is false for Sync', () => {
+        queryData.set('service', Constants.SYNC_SERVICE);
+        expect(integrationFlags.isServiceOAuth()).toBe(false);
+      });
+
+      it('is false without a service', () => {
+        expect(integrationFlags.isServiceOAuth()).toBe(false);
+      });
+    });
+
+    it('searchParam returns the value, or undefined for a missing key', () => {
+      queryData.set('service', 'foo');
+      expect(integrationFlags.searchParam('service')).toBe('foo');
+      expect(integrationFlags.searchParam('missing')).toBeUndefined();
+    });
+  });
 });
