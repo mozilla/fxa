@@ -1033,9 +1033,9 @@ module.exports = (config) => {
   ClientApi.prototype.sessionDestroy = function (sessionTokenHex, options) {
     let data = null;
 
-    if (options && options.customSessionToken) {
+    if (options && options.customSessionTokenHandle) {
       data = {
-        customSessionToken: options.customSessionToken,
+        customSessionTokenHandle: options.customSessionTokenHandle,
       };
     }
 
