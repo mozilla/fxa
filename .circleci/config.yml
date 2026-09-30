@@ -777,6 +777,37 @@ jobs:
           steps:
             - save-build-workspace
 
+  # Benchmark only: a fresh (uncached) full build with memory/CPU sampling.
+  build-profile:
+    parameters:
+      parallel:
+        type: integer
+      heap_mb:
+        type: integer
+    executor: default-executor
+    resource_class: xlarge
+    steps:
+      - git-checkout
+      - restore-deps:
+          from: install
+      - run:
+          name: Sample resources
+          command: ./.circleci/sample-resources.sh
+          background: true
+      - run:
+          name: Fresh build
+          command: |
+            s=$SECONDS
+            NODE_OPTIONS="--max-old-space-size=<< parameters.heap_mb >>" npx nx run-many -t build --all --skip-nx-cache --parallel=<< parameters.parallel >> --verbose
+            echo "fresh build took $((SECONDS - s))s" | tee artifacts/build-seconds.txt
+          environment:
+            NODE_ENV: test
+            NX_PROFILE: artifacts/nx-profile-build.json
+          no_output_timeout: 30m
+      - store_artifacts:
+          path: artifacts
+          when: always
+
   # Runs linter on packages that have changes.
   lint:
     parameters:
@@ -1174,6 +1205,22 @@ workflows:
               ignore: /main/
             tags:
               ignore: /.*/
+      # Benchmark only: fresh-build resource profiles.
+      - build-profile:
+          name: Build Profile p2 7GB
+          parallel: 2
+          heap_mb: 7168
+          filters: *pr_filters
+      - build-profile:
+          name: Build Profile p4 7GB
+          parallel: 4
+          heap_mb: 7168
+          filters: *pr_filters
+      - build-profile:
+          name: Build Profile p4 4GB
+          parallel: 4
+          heap_mb: 4096
+          filters: *pr_filters
       - lint:
           name: Lint (PR)
           deps: install
