@@ -1,8 +1,8 @@
 {
-  "commit": "93e62e241c2d7edb63d069753f7b0da6a2bb1c8d",
-  "summary": "Merge pull request #21340 from mozilla/dependabot/npm_and_yarn/nodemailer-10.0.2",
-  "description": "chore(deps): bump nodemailer from 9.1.1 to 10.0.2",
-  "timestamp": 1790791894000,
+  "commit": "603df1d9fbb18cb5b23b4a1d8a162a700bcfdae2",
+  "summary": "Merge pull request #21341 from mozilla/blender/security-bump-undici",
+  "description": "chore(deps): bump undici to >=7.29.1",
+  "timestamp": 1790791995000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
