@@ -1,8 +1,8 @@
 {
-  "commit": "c7b50a9603958a6ff986f2dfb2ba46f02b44cf9e",
-  "summary": "Merge pull request #21332 from mozilla/fxa-14623",
-  "description": "refactor(auth): remove stub account and finish_setup routes",
-  "timestamp": 1790799008000,
+  "commit": "2bcb2d5d22bfb0dbe83283a1e2721aa592ff5ea7",
+  "summary": "Merge pull request #21333 from mozilla/fxa-14624",
+  "description": "refactor(auth): remove unused mozilla-subscriptions billing route",
+  "timestamp": 1790799072000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
