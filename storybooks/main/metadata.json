@@ -1,8 +1,8 @@
 {
-  "commit": "17b2b488dcdd61d14300c1c06510b3888f51bc4d",
-  "summary": "Merge pull request #21356 from mozilla/blender/security-bump-ip-address",
-  "description": "chore(deps): bump ip-address to >=10.7.1",
-  "timestamp": 1790795490000,
+  "commit": "ff43c3e049de4b20a4feb7e69f9e0d8884d70021",
+  "summary": "Merge pull request #21343 from mozilla/blender/security-bump-adm-zip",
+  "description": "chore(deps): bump adm-zip to >=0.6.1",
+  "timestamp": 1790796548000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

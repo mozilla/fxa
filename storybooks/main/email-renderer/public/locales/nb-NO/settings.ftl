@@ -1629,6 +1629,13 @@ inline-passwordless-sync-setup-enable-button = Slå på passnøkkel
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Slår på…
 inline-passwordless-sync-setup-not-now-button = Ikke nå
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = Denne passnøkkelen er klar for pålogging med synkronisering
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = Bekreftelsen med passnøkkelen ble ikke fullført
+inline-passwordless-sync-setup-error-cancelled-description = Bekreft med passnøkkelen din for å slippe å skrive inn passordet neste gang.
+# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+inline-passwordless-sync-setup-error-generic = Noe gikk galt. Du må fortsatt skrive inn passordet neste gang.
 
 ## InlineRecoveryKeySetup page component
 
@@ -2004,6 +2011,8 @@ pair2-supplicant-timeout-and-cancel-canceled-description = For å koble til en e
 ## The page informs the user which profile information the relying party can
 ## read. It does not offer a choice.
 
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } ønsker tilgang til:
 permissions-label-email = E-postadresse
 permissions-label-display-name = Visningsnavn
 permissions-continue-button = Fortsett
