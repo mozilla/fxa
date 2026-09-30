@@ -1,0 +1,12 @@
+{
+  "commit": "5e624b77138312f0c8a4e8868f5454becc57079b",
+  "summary": "feat(payments-api): allow no credential firestore",
+  "description": "Because:\n\n- Connecting to a non-test firestore instance currently requires\n  credentials, even though credentials aren't always required.\n\nThis commit:\n\n- Allows connecting to firestore instances without credentials.\n\nCloses #",
+  "timestamp": 1790777779000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
