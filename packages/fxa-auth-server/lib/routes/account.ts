@@ -23,9 +23,6 @@ import DESCRIPTION from '../../docs/swagger/shared/descriptions';
 import authMethods from '../authMethods';
 import random from '../crypto/random';
 import { AppError as error } from '@fxa/accounts/errors';
-import { getClientById } from '../oauth/client';
-import { generateAccessToken } from '../oauth/grant';
-import jwt from '../oauth/jwt';
 import { CapabilityService } from '../payments/capability';
 import { AppStoreSubscriptions } from '../payments/iap/apple-app-store/subscriptions';
 import { PlaySubscriptions } from '../payments/iap/google-play/subscriptions';
@@ -51,7 +48,6 @@ import validators from './validators';
 import { AccountEventsManager } from '../account-events';
 import { gleanMetrics } from '../metrics/glean';
 import { AccountDeleteManager } from '../account-delete';
-import { uuidTransformer } from 'fxa-shared/db/transformers';
 import { normalizeEmail } from 'fxa-shared/email/helpers';
 import { EmailNormalization } from 'fxa-shared/email/email-normalization';
 import { DeleteAccountTasks, ReasonForDeletion } from '@fxa/shared/cloud-tasks';
@@ -655,205 +651,6 @@ export class AccountHandler {
       sessionToken,
       verificationMethod,
     });
-  }
-
-  async accountStub(request: AuthRequest) {
-    this.log.begin('Account.stub', request);
-    const { email, clientId } = request.payload as any;
-    await this.customs.check(request, email, 'accountCreate');
-
-    if (this.OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS.has(clientId)) {
-      throw error.disabledClientId(clientId);
-    }
-
-    const invalidDomain = await this.checkEmailDomainValidity(email);
-    if (invalidDomain) {
-      throw error.accountCreationRejected();
-    }
-
-    if (this.config.accountDestroy.onCreateIfUnverified) {
-      await deleteAccountIfUnverified(
-        this.db,
-        this.stripeHelper,
-        this.log,
-        request,
-        email
-      );
-    } else if (await this.db.accountExists(email)) {
-      throw error.accountExists(email);
-    }
-
-    await this.checkBlocklists(normalizeEmail(email));
-
-    const client = await getClientById(clientId);
-
-    const { hex16: emailCode, hex32: authSalt } =
-      await this.generateRandomValues();
-    const [kA, wrapWrapKb] = await random.hex(32, 32);
-
-    const account = await this.db.createAccount({
-      uid: await random.hex(16),
-      createdAt: Date.now(),
-      email,
-      emailCode,
-      emailVerified: false,
-      kA,
-      wrapWrapKb,
-      wrapWrapKbVersion2: null,
-      authSalt,
-      verifierVersion: this.config.verifierVersion,
-      verifyHash: Buffer.alloc(32).toString('hex'),
-      verifyHashVersion2: null,
-      verifierSetAt: 0,
-      locale: request.app.acceptLanguage,
-      clientSalt: null,
-    });
-
-    const access = await generateAccessToken({
-      clientId: client.id,
-      name: client.name,
-      canGrant: client.canGrant,
-      publicClient: client.publicClient,
-      userId: uuidTransformer.to(account.uid),
-      scope: ScopeSet.fromString(`profile ${client.allowedScopes}`),
-      ttl: 1800,
-    });
-
-    this.setMetricsFlowCompleteSignal(request, clientId);
-    await request.stashMetricsContext({
-      uid: account.uid,
-      id: account.uid,
-    });
-
-    return {
-      uid: account.uid,
-      access_token: access.token.toString('hex'),
-    };
-  }
-
-  async setPasswordOnStubAccount({
-    account,
-    authPW,
-    authPWVersion2,
-    wrapKb,
-    wrapKbVersion2,
-    clientSalt,
-  }: {
-    account: Account;
-    authPW: string;
-    authPWVersion2: string;
-    wrapKb: string;
-    wrapKbVersion2: string;
-    clientSalt: string;
-  }) {
-    // Only set a password on an unverified stub account.
-    if (account.verifierSetAt !== 0) {
-      throw error.unauthorized('token already used');
-    }
-    const { authSalt, uid, wrapWrapKb } = account;
-    const { password, verifyHash } = await this.createPassword(
-      authPW,
-      authSalt
-    );
-
-    const v2Data = await (async () => {
-      if (authPWVersion2) {
-        const password2 = new this.Password(
-          authPWVersion2,
-          authSalt,
-          this.config.verifierVersion,
-          2
-        );
-        const verifyHashVersion2 = await password2.verifyHash();
-
-        // Important! In the case of V2, the client will determine the
-        // the kB value and provide wrapKb & wrapKbVersion2 to us. We
-        // do this to ensure that wrapWrapKb and wrapWrapKbVersion2 result
-        // in the same kB value. Something only the client would be able
-        // to do since kB is private.
-        const wrapWrapKb = await password.wrap(wrapKb);
-        const wrapWrapKbVersion2 = await password2.wrap(wrapKbVersion2);
-
-        return {
-          clientSalt,
-          wrapWrapKb,
-          verifyHashVersion2,
-          wrapWrapKbVersion2,
-        };
-      }
-      return {};
-    })();
-
-    const data = {
-      authSalt,
-      verifyHash,
-      wrapWrapKb,
-      verifierVersion: password.version,
-      keysHaveChanged: true,
-      ...v2Data,
-    };
-
-    await this.db.resetAccount({ uid }, data);
-  }
-
-  async finishSetup(request: AuthRequest) {
-    this.log.begin('Account.finishSetup', request);
-    const form = request.payload as any;
-    const {
-      authPW,
-      authPWVersion2,
-      wrapKb,
-      wrapKbVersion2,
-      clientSalt,
-      token,
-    } = form;
-    let uid;
-    try {
-      const payload = (await jwt.verify(token, {
-        typ: 'fin+JWT',
-        ignoreExpiration: true,
-      })) as any;
-      uid = payload.uid;
-      form.uid = payload.uid;
-      const account = await this.db.account(uid);
-      await this.setPasswordOnStubAccount({
-        account,
-        authPW,
-        authPWVersion2,
-        wrapKb,
-        wrapKbVersion2,
-        clientSalt,
-      });
-      await this.signupUtils.verifyAccount(request, account, {});
-      const sessionToken = await this.createSessionToken({
-        account,
-        request,
-        // this route counts as verification
-        tokenVerificationId: undefined,
-      });
-
-      await this.subscriptionAccountReminders.delete(uid);
-      return {
-        uid,
-        sessionToken: sessionToken.data,
-        verified: sessionToken.emailVerified,
-      };
-    } catch (err) {
-      this.log.error('Account.finish_setup.error', {
-        err,
-      });
-
-      // if it errored out after verifiying the account
-      // remove the uid from the list of accounts to send reminders to.
-      if (uid) {
-        const account = await this.db.account(uid);
-        if (account.verifierSetAt > 0) {
-          await this.subscriptionAccountReminders.delete(uid);
-        }
-      }
-
-      throw err;
-    }
   }
 
   async login(request: AuthRequest) {
@@ -2601,49 +2398,6 @@ export const accountRoutes = (
         },
       },
       handler: (request: AuthRequest) => accountHandler.accountCreate(request),
-    },
-    {
-      method: 'POST',
-      path: '/account/stub',
-      options: {
-        ...ACCOUNT_DOCS.ACCOUNT_STUB_POST,
-        validate: {
-          payload: isA.object({
-            email: validators.email().required(),
-            clientId: validators.clientId.required(),
-            metricsContext: METRICS_CONTEXT_SCHEMA,
-          }),
-        },
-      },
-      handler: (request: AuthRequest) => accountHandler.accountStub(request),
-    },
-    {
-      method: 'POST',
-      path: '/account/finish_setup',
-      options: {
-        ...ACCOUNT_DOCS.ACCOUNT_FINISH_SETUP_POST,
-        validate: {
-          payload: isA
-            .object({
-              token: validators.jwt,
-              authPW: validators.authPW.description(DESCRIPTION.authPW),
-              wrapKb: validators.wrapKb
-                .optional()
-                .description(DESCRIPTION.wrapKb),
-              authPWVersion2: validators.authPWVersion2
-                .optional()
-                .description(DESCRIPTION.authPWVersion2),
-              wrapKbVersion2: validators.wrapKb
-                .optional()
-                .description(DESCRIPTION.wrapKbVersion2),
-              clientSalt: validators.clientSalt
-                .optional()
-                .description(DESCRIPTION.clientSalt),
-            })
-            .and('authPWVersion2', 'wrapKbVersion2', 'clientSalt'),
-        },
-      },
-      handler: (request: AuthRequest) => accountHandler.finishSetup(request),
     },
     {
       method: 'POST',

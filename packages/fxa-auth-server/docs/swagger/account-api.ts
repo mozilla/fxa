@@ -251,16 +251,6 @@ const ACCOUNT_DESTROY_POST = {
   },
 };
 
-const ACCOUNT_FINISH_SETUP_POST = {
-  ...TAGS_ACCOUNT,
-  description: '/account/finish_setup',
-};
-
-const ACCOUNT_STUB_POST = {
-  ...TAGS_ACCOUNT,
-  description: '/account/stub',
-};
-
 const ACCOUNT_METRICS_OPT_POST = {
   ...TAGS_ACCOUNT,
   description: '/account/metrics_opt',
@@ -276,7 +266,6 @@ const API_DOCS = {
   ACCOUNT_DESTROY_POST,
   ACCOUNT_EMAIL_BOUNCE_STATUS_POST,
   ACCOUNT_EMAILS_GET,
-  ACCOUNT_FINISH_SETUP_POST,
   ACCOUNT_KEYS_GET,
   ACCOUNT_LOGIN_POST,
   ACCOUNT_METRICS_OPT_POST,
@@ -285,7 +274,6 @@ const API_DOCS = {
   ACCOUNT_CREDENTIALS_STATUS,
   ACCOUNT_STATUS_GET,
   ACCOUNT_STATUS_POST,
-  ACCOUNT_STUB_POST,
 };
 
 export default API_DOCS;
