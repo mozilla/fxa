@@ -160,6 +160,29 @@ describe('accountActivity missing scopes', () => {
   });
 });
 
+describe('accountActivity scope id lookup', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('skips the scopes table for already-resolved scopes but retries unregistered ones', async () => {
+    const uid = track(newUid());
+    await record({ uid, scopes: [OLDSYNC_SCOPE, UNREGISTERED_SCOPE], now: T0 });
+
+    const resolveSpy = jest.spyOn((db as any).mysql, '_resolveScopeRows');
+    const { missingScopes } = await record({
+      uid,
+      scopes: [OLDSYNC_SCOPE, UNREGISTERED_SCOPE],
+      now: T0,
+    });
+
+    expect(missingScopes).toEqual([UNREGISTERED_SCOPE]);
+    expect(resolveSpy).toHaveBeenCalledTimes(1);
+    expect(resolveSpy).toHaveBeenCalledWith([UNREGISTERED_SCOPE]);
+    expect(await db.listAccountActivity(uid, DESKTOP)).toHaveLength(1);
+  });
+});
+
 describe('accountActivity throttle', () => {
   it('does not advance lastSeenAt within the throttle window', async () => {
     const uid = track(newUid());

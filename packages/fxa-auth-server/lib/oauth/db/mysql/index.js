@@ -293,10 +293,10 @@ class MysqlStore extends MysqlOAuthShared {
   }
 
   // Process-lifetime scope-string -> scopes.id cache for the
-  // accountAuthorizations v2 dual-write/read paths (FXA-14169). Created lazily
-  // on first use so the module-load singleton's constructor does no work; the
-  // scope rows themselves are resolved on-miss and cached from then on. When
-  // both v2 flags are off (the default), it is never created.
+  // accountAuthorizations v2 dual-write/read paths (FXA-14169) and the
+  // accountActivity writer. Created lazily on first use so the module-load
+  // singleton's constructor does no work; the scope rows themselves are
+  // resolved on-miss and cached from then on.
   get _scopeIdCache() {
     if (!this.__scopeIdCache) {
       this.__scopeIdCache = new ScopeIdCache((scopes) =>
@@ -937,7 +937,8 @@ class MysqlStore extends MysqlOAuthShared {
    * scopeId FK) and are returned in `missingScopes` for the caller to report;
    * the scopes that do resolve are still written in a single bulk upsert.
    *
-   * One read (resolve scope ids) plus one write (bulk upsert). The write uses
+   * Scope ids come from the process-lifetime scope-id cache, so only scopes not
+   * yet cached cost a read; then one write (bulk upsert). The write uses
    * the SQL throttle in QUERY_ACCOUNT_ACTIVITY_UPSERT_SUFFIX so each scope's
    * `lastSeenAt` advances independently.
    *
@@ -955,22 +956,16 @@ class MysqlStore extends MysqlOAuthShared {
     const clientIdBuf = buf(clientId);
     const requested = scopes && scopes.length > 0 ? scopes : [''];
 
-    const inPlaceholders = requested.map(() => '?').join(', ');
-    const scopeRows = await this._read(
-      `SELECT id, scope FROM scopes WHERE scope IN (${inPlaceholders})`,
-      requested
-    );
-    const scopeById = new Map(scopeRows.map((r) => [r.scope, r.id]));
-    const missingScopes = requested.filter((scope) => !scopeById.has(scope));
-    const resolvedScopes = requested.filter((scope) => scopeById.has(scope));
+    const { resolved, missing: missingScopes } =
+      await this._scopeIdCache.resolve(requested);
 
-    if (resolvedScopes.length > 0) {
-      const placeholders = resolvedScopes
+    if (resolved.size > 0) {
+      const placeholders = [...resolved.keys()]
         .map(() => '(?, ?, ?, ?, ?)')
         .join(', ');
       const params = [];
-      for (const scope of resolvedScopes) {
-        params.push(userIdBuf, clientIdBuf, scopeById.get(scope), now, now);
+      for (const scopeId of resolved.values()) {
+        params.push(userIdBuf, clientIdBuf, scopeId, now, now);
       }
       params.push(throttleMs);
       await this._write(

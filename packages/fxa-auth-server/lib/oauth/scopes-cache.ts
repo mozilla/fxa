@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Process-lifetime cache of scope string -> scopes.id for the
-// accountAuthorizations v2 dual-write path (FXA-14169).
+// accountAuthorizations v2 dual-write path (FXA-14169) and accountActivity.
 //
 // scope -> id is immutable: ids are never reassigned and scopes are
 // effectively never deleted, so a cached hit never needs invalidation.
