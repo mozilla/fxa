@@ -1,8 +1,8 @@
 {
-  "commit": "3dfbfbf61a43c3702a677530af8701c032f8bf16",
-  "summary": "Merge pull request #21335 from mozilla/dependabot/npm_and_yarn/opentelemetry-packages-67c8a4f2b2",
-  "description": "chore(deps): bump the opentelemetry-packages group with 4 updates",
-  "timestamp": 1790707868000,
+  "commit": "1b6f07987ec29c4da3872f319e702bc2bda93100",
+  "summary": "Merge pull request #21346 from mozilla/subplat-allow-no-creds-firestore",
+  "description": "feat(payments-api): allow no credential firestore",
+  "timestamp": 1790780661000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
