@@ -1,0 +1,2 @@
+subscriptionSupport-plaintext = "Questions about your subscription? Our support team is here to help you:"
+<%- subscriptionSupportUrl %>
