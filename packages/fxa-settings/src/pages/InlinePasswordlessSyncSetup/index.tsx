@@ -47,8 +47,8 @@ const InlinePasswordlessSyncSetup = ({
           type="success"
           content={{
             localizedHeading: ftlMsgResolver.getMsg(
-              'inline-passwordless-sync-setup-success-banner',
-              'Signed in to Firefox'
+              'inline-passwordless-sync-setup-success-banner-v2',
+              'You’re signed in, and sync is on'
             ),
           }}
         />

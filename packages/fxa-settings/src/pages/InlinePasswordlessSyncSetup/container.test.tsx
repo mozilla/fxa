@@ -133,7 +133,7 @@ describe('InlinePasswordlessSyncSetupContainer', () => {
       expect(mockNavigate).toHaveBeenCalledWith(...SETTINGS_NAV)
     );
     expect(mockAlertBar.success).toHaveBeenCalledWith(
-      'This passkey is ready for sync sign-in'
+      'This passkey is enabled for sync sign-in'
     );
     expect(mockAlertBar.error).not.toHaveBeenCalled();
     expect(mockCreateWrap).toHaveBeenCalledWith(mockAuthClient, {
@@ -174,7 +174,7 @@ describe('InlinePasswordlessSyncSetupContainer', () => {
   const serverError = (errno: number) =>
     Object.assign(new Error('nope'), { errno });
   const GENERIC =
-    'Something went wrong, you’ll still need to enter your password next time';
+    'We couldn’t enable this passkey for sync sign-in. You’ll need your password next time.';
 
   it.each<[string, Record<string, unknown>, string]>([
     ['prf_unsupported', { failure: 'prf_unsupported' }, GENERIC],
