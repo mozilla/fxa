@@ -1,8 +1,8 @@
 {
-  "commit": "1b6f07987ec29c4da3872f319e702bc2bda93100",
-  "summary": "Merge pull request #21346 from mozilla/subplat-allow-no-creds-firestore",
-  "description": "feat(payments-api): allow no credential firestore",
-  "timestamp": 1790780661000,
+  "commit": "93e62e241c2d7edb63d069753f7b0da6a2bb1c8d",
+  "summary": "Merge pull request #21340 from mozilla/dependabot/npm_and_yarn/nodemailer-10.0.2",
+  "description": "chore(deps): bump nodemailer from 9.1.1 to 10.0.2",
+  "timestamp": 1790791894000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
