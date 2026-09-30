@@ -645,7 +645,7 @@ module.exports = (
         // If this request is using a session token we bump the last access time
         if (credentials.id) {
           credentials.lastAccessTime = Date.now();
-          await db.touchSessionToken(credentials, {}, true);
+          await db.touchSessionToken(credentials, request.app.geo, true);
         }
 
         const deviceArray = await request.app.devices;

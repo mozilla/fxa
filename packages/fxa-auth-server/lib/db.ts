@@ -761,24 +761,27 @@ export const createDB = (
         return;
       }
 
+      let location;
+      // A geodb miss returns all-null fields, which would replace the stored location with {}
+      if (geo && geo.location && (geo.location.city || geo.location.country)) {
+        location = {
+          city: geo.location.city,
+          country: geo.location.country,
+          countryCode: geo.location.countryCode,
+          state: geo.location.state,
+          stateCode: geo.location.stateCode,
+        };
+      }
+
       let t;
+      // Both paths write location; this one skips only the cached UA fields
       if (onlyUpdateLastAccessTime) {
         t = {
           lastAccessTime: token.lastAccessTime,
+          location,
           id,
         };
       } else {
-        let location;
-        if (geo && geo.location) {
-          location = {
-            city: geo.location.city,
-            country: geo.location.country,
-            countryCode: geo.location.countryCode,
-            state: geo.location.state,
-            stateCode: geo.location.stateCode,
-          };
-        }
-
         t = {
           lastAccessTime: token.lastAccessTime,
           location,
