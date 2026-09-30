@@ -1,8 +1,8 @@
 {
-  "commit": "603df1d9fbb18cb5b23b4a1d8a162a700bcfdae2",
-  "summary": "Merge pull request #21341 from mozilla/blender/security-bump-undici",
-  "description": "chore(deps): bump undici to >=7.29.1",
-  "timestamp": 1790791995000,
+  "commit": "96bf155d2761587bb8c2a613dcff0c6a379d54bd",
+  "summary": "Merge pull request #21342 from mozilla/blender/security-bump-morgan",
+  "description": "chore(deps): bump morgan to >=1.12.1",
+  "timestamp": 1790792056000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
