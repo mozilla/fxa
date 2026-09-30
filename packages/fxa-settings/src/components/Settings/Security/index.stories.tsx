@@ -14,6 +14,7 @@ import { Account } from '../../../models/Account';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { getDefault } from '../../../lib/config';
+import { MOCK_UID } from '../../../pages/mocks';
 
 export default {
   title: 'Components/Settings/Security',
@@ -23,7 +24,7 @@ export default {
 
 function initLocalAccount() {
   const NS = '__fxa_storage';
-  const uid = 'abc123';
+  const uid = MOCK_UID;
   const accounts = {
     [uid]: {
       uid,
