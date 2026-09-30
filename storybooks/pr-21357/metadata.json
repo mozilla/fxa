@@ -1,0 +1,13 @@
+{
+  "commit": "1593ff48e1f22bbab533e04d96746dd1af4fe079",
+  "summary": "chore(deps-dev): bump webpack-dev-middleware from 7.4.2 to 7.4.5",
+  "description": "Bumps [webpack-dev-middleware](https://github.com/webpack/webpack-dev-middleware) from 7.4.2 to 7.4.5.\n- [Release notes](https://github.com/webpack/webpack-dev-middleware/releases)\n- [Changelog](https://github.com/webpack/webpack-dev-middleware/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/webpack/webpack-dev-middleware/compare/v7.4.2...v7.4.5)\n\n---\nupdated-dependencies:\n- dependency-name: webpack-dev-middleware\n  dependency-version: 7.4.5\n  dependency-type: direct:development\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1790797271000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

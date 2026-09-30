@@ -1,0 +1,35 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="passwordChangeRequired-title-2">Reset your password</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="passwordChangeRequired-suspicious-activity-3">We locked your account to keep it safe from suspicious activity. You’ve been signed out of all your devices and any synced data has been deleted as a precaution.</span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="passwordChangeRequired-sign-in-3">To sign back in to your account, all you need to do is reset your password.</span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="passwordChangeRequired-different-password-2"><b>Important:</b> Pick a strong password that’s different from one you’ve used in the past.</span>
+    </mj-text>
+
+  </mj-column>
+</mj-section>
+
+<%- include('/partials/button/index.mjml', {
+  buttonL10nId: "passwordChangeRequired-action",
+  buttonText: "Reset password"
+}) %>
+
+<%- include('/partials/support/index.mjml') %>
