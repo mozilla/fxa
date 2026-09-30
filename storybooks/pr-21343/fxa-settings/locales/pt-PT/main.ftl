@@ -531,9 +531,9 @@ flow-setup-2fa-backup-choice-description = Isto permite que inicie sessão se n�
 flow-setup-2fa-backup-choice-phone-title = Telefone de recuperação
 flow-setup-2fa-backup-choice-phone-badge = Mais fácil
 flow-setup-2fa-backup-choice-phone-info = Obter um código de recuperação através de mensagem de texto. Atualmente disponível nos EUA e Canadá.
-flow-setup-2fa-backup-choice-code-title = Códigos de autenticação de recuperação
-flow-setup-2fa-backup-choice-code-badge = O mais seguro
-flow-setup-2fa-backup-choice-code-info = Crie e guarde códigos de autenticação de utilização única.
+flow-setup-2fa-backup-choice-code-title = Códigos de autenticação
+flow-setup-2fa-backup-choice-code-badge = Mais seguro
+flow-setup-2fa-backup-choice-code-info = Crie e guarde códigos de autenticação de uso único.
 flow-setup-2fa-backup-choice-learn-more-link = Saber mais sobre recuperação e risco de troca de SIM
 
 

@@ -6,8 +6,8 @@ fxa-header-mozilla-logo = <img data-l10n-name="mozilla-logo" alt="Logo { -brand-
 fxa-header-sync-devices-image = <img data-l10n-name="sync-devices-image" alt="Synchronizovať zariadenia">
 body-devices-image = <img data-l10n-name="devices-image" alt="Zariadenia">
 fxa-privacy-url = Zásady ochrany osobných údajov { -brand-mozilla(case: "gen") }
-moz-accounts-privacy-url-2 = Vyhlásenie o ochrane osobných údajov pre { -product-mozilla-accounts(case: "acc", capitalization: "uppercase") }
-moz-accounts-terms-url = Podmienky používania služby { -product-mozilla-accounts(case: "acc", capitalization: "uppercase") }
+moz-accounts-privacy-url-2 = Vyhlásenie o ochrane osobných údajov pre { -product-mozilla-accounts(capitalization: "uppercase", case: "acc") }
+moz-accounts-terms-url = Podmienky používania služby { -product-mozilla-accounts(capitalization: "uppercase", case: "acc") }
 account-deletion-info-block-communications = Ak je váš účet odstránený, budete naďalej dostávať e‑maily od spoločností Mozilla Corporation a Mozilla Foundation, pokiaľ <a data-l10n-name="unsubscribeLink">nepožiadate o zrušenie ich odberu</a>.
 account-deletion-info-block-support = Ak máte nejaké otázky alebo potrebujete pomoc, neváhajte kontaktovať náš <a data-l10n-name="supportLink">tím podpory</a>.
 account-deletion-info-block-communications-plaintext = Ak je váš účet odstránený, budete naďalej dostávať e‑maily od spoločností Mozilla Corporation a Mozilla Foundation, pokiaľ nepožiadate o zrušenie ich odberu:
@@ -198,7 +198,7 @@ lowRecoveryCodes-subject-2 =
 # Variables:
 # $clientName (String) - A client the user hasn't signed into before (e.g. Firefox, Sync)
 newDeviceLogin-subject = Nové prihlásenie - { $clientName }
-newDeviceLogin-subjectForMozillaAccount = Nové prihlásenie do vášho { -product-mozilla-account(case: "gen", capitalization: "lower") }
+newDeviceLogin-subjectForMozillaAccount = Nové prihlásenie do vášho { -product-mozilla-account(capitalization: "lower", case: "gen") }
 newDeviceLogin-title-3 = Na prihlásenie bol použitý váš { -product-mozilla-account(capitalization: "lower") }
 # The "Not you?" question is asking whether the recipient of the email is the
 # person who performed the action that triggered the email.
@@ -218,7 +218,7 @@ passwordChangeRequired-action = Zmeniť heslo
 passwordChangeRequired-action-plaintext = { passwordChangeRequired-action }:
 passwordChanged-subject = Heslo bolo aktualizované
 passwordChanged-title = Heslo bolo úspešne zmenené
-passwordChanged-description-2 = Heslo k vášmu { -product-mozilla-account(case: "dat", capitalization: "lower") } bolo úspešne zmenené z nasledovného zariadenia:
+passwordChanged-description-2 = Heslo k vášmu { -product-mozilla-account(capitalization: "lower", case: "dat") } bolo úspešne zmenené z nasledovného zariadenia:
 # Variables:
 #  $code (String) - The confirmation code for sign-in
 password-forgot-otp-subject-2 = Na zmenu hesla použite kód { $code }
@@ -230,11 +230,11 @@ password-forgot-otp-expiry-notice = Platnosť tohto kódu vyprší o 10 minút.
 passwordReset-subject-2 = Vaše heslo bolo zmenené
 passwordReset-title-2 = Vaše heslo bolo zmenené
 # This sentence is followed by information about the device and time of the password reset
-passwordReset-description-2 = Heslo k { -product-mozilla-account(case: "dat", capitalization: "lower") } ste zmenili na zariadení:
+passwordReset-description-2 = Heslo k { -product-mozilla-account(capitalization: "lower", case: "dat") } ste zmenili na zariadení:
 passwordResetAccountRecovery-subject-2 = Vaše heslo bolo zmenené
 passwordResetAccountRecovery-title-3 = Vaše heslo bolo zmenené
 # Followed by details on the device, location, and date/time of the password reset.
-passwordResetAccountRecovery-description-3 = Použili ste kľúč na obnovenie účtu na zmenu hesla { -product-mozilla-account(case: "dat", capitalization: "lower") } na zariadení:
+passwordResetAccountRecovery-description-3 = Použili ste kľúč na obnovenie účtu na zmenu hesla { -product-mozilla-account(capitalization: "lower", case: "dat") } na zariadení:
 passwordResetAccountRecovery-information = Odhlásili sme vás zo všetkých vašich synchronizovaných zariadení. Vytvorili sme nový kľúč na obnovenie účtu, ktorý nahradí ten, ktorý ste používali. Môžete ho zmeniť v nastaveniach účtu.
 # After the colon there is a link to account settings
 passwordResetAccountRecovery-information-txt = Odhlásili sme vás zo všetkých vašich synchronizovaných zariadení. Vytvorili sme nový kľúč na obnovenie účtu, ktorý nahradí ten, ktorý ste používali. Môžete ho zmeniť v nastaveniach účtu:
@@ -247,7 +247,7 @@ passwordResetRecoveryPhone-action = Spravovať účet
 passwordResetWithRecoveryKeyPrompt-subject = Vaše heslo bolo zmenené
 passwordResetWithRecoveryKeyPrompt-title = Vaše heslo bolo zmenené
 # Details of the device and date/time where the password was reset
-passwordResetWithRecoveryKeyPrompt-description = Heslo k { -product-mozilla-account(case: "dat", capitalization: "lower") } ste zmenili na zariadení:
+passwordResetWithRecoveryKeyPrompt-description = Heslo k { -product-mozilla-account(capitalization: "lower", case: "dat") } ste zmenili na zariadení:
 # Text for button action to create a new account recovery key
 passwordResetWithRecoveryKeyPrompt-action = Vytvoriť kľúč na obnovenie účtu
 # colon is followed by a link to create an account recovery key from the account settings page
@@ -260,22 +260,22 @@ postAddAccountRecovery-body-part1 = Uložte si tento kľúč na bezpečné miest
 # Key here refers to account recovery key
 postAddAccountRecovery-body-part2 = Tento kľúč je možné použiť iba raz. Keď ho použijete, automaticky vám vytvoríme nový. Alebo si môžete kedykoľvek vytvoriť nový v nastaveniach účtu.
 postAddAccountRecovery-action = Spravovať účet
-postAddLinkedAccount-subject-2 = Nový účet prepojený s vaším { -product-mozilla-account(case: "ins", capitalization: "lower") }
+postAddLinkedAccount-subject-2 = Nový účet prepojený s vaším { -product-mozilla-account(capitalization: "lower", case: "ins") }
 #  Variables:
 #  $providerName (String) - The name of the provider, e.g. Apple, Google
-postAddLinkedAccount-title-2 = Váš účet { $providerName } bol prepojený s vaším { -product-mozilla-account(case: "ins", capitalization: "lower") }
+postAddLinkedAccount-title-2 = Váš účet { $providerName } bol prepojený s vaším { -product-mozilla-account(capitalization: "lower", case: "ins") }
 postAddLinkedAccount-action = Spravovať účet
 postAddPasskey-subject = Prístupový kľúč vytvorený
 postAddPasskey-preview = Teraz sa môžete prihlásiť pomocou svojho zariadenia
 postAddPasskey-title = Vytvorili ste prístupový kľúč
-postAddPasskey-description = Teraz ho môžete použiť na prihlásenie do všetkých služieb vášho { -product-mozilla-account(case: "gen", capitalization: "lower") }.
+postAddPasskey-description = Teraz ho môžete použiť na prihlásenie do všetkých služieb vášho { -product-mozilla-account(capitalization: "lower", case: "gen") }.
 postAddPasskey-sync-note = Upozorňujeme, že na prístup k synchronizačným údajom { -brand-firefox(case: "gen") } bude naďalej potrebné vaše heslo.
 # Links out to a support article about passkeys and { -brand-firefox } sync
 postAddPasskey-learn-more = Ďalšie informácie
 postAddPasskey-requested-from = Požiadali ste o to z:
 postAddPasskey-action = Spravovať účet
 postAddRecoveryPhone-subject = Obnovenie pomocou telefónu bolo pridané
-postAddRecoveryPhone-preview = Účet chránený dvojstupňovou autentifikáciou
+postAddRecoveryPhone-preview = Účet chránený dvojstupňovým overením
 postAddRecoveryPhone-title-v2 = Pridali ste telefónne číslo na obnovenie účtu
 # Variables:
 #  $maskedLastFourPhoneNumber (String) - A bullet point mask with the last four digits of the user's phone number, e.g. ••••••1234
@@ -292,7 +292,7 @@ postAddTwoStepAuthentication-title-2 = Zapli ste dvojstupňové overenie
 postAddTwoStepAuthentication-from-device-v2 = Požiadali ste o to z:
 postAddTwoStepAuthentication-action = Spravovať účet
 postAddTwoStepAuthentication-code-required-v4 = Pri každom prihlásení sa teraz vyžadujú bezpečnostné kódy z vašej overovacej aplikácie.
-postAddTwoStepAuthentication-recovery-method-codes = Ako metódu obnovenia ste tiež pridali záložné overovacie kódy.
+postAddTwoStepAuthentication-recovery-method-codes = Ako spôsob obnovenia prístupu ste tiež pridali záložné overovacie kódy.
 # Variables:
 #  $maskedPhoneNumber (String) - A bullet point mask with the last four digits of the user's phone number, e.g. ••••••1234
 postAddTwoStepAuthentication-recovery-method-phone = Taktiež ste pridali { $maskedPhoneNumber } ako svoje telefónne číslo na obnovenie účtu.
@@ -308,10 +308,10 @@ postChangePrimary-subject = Hlavná e‑mailová adresa bola aktualizovaná
 postChangePrimary-title = Nová hlavná e‑mailová adresa
 # Variables:
 #  $email (String) - A user's email address
-postChangePrimary-description-2 = Úspešne ste zmenili svoju hlavnú e‑mailovú adresu na { $email }. Táto adresa bude odteraz slúžiť ako vaše prihlasovacie meno k { -product-mozilla-account(case: "dat", capitalization: "lower") } a na zasielanie bezpečnostných upozornení a potvrdení.
+postChangePrimary-description-2 = Úspešne ste zmenili svoju hlavnú e‑mailovú adresu na { $email }. Táto adresa bude odteraz slúžiť ako vaše prihlasovacie meno k { -product-mozilla-account(capitalization: "lower", case: "dat") } a na zasielanie bezpečnostných upozornení a potvrdení.
 postChangePrimary-action = Spravovať účet
 postChangeRecoveryPhone-subject = Obnovenie pomocou telefónu bolo aktualizované
-postChangeRecoveryPhone-preview = Účet chránený dvojstupňovou autentifikáciou
+postChangeRecoveryPhone-preview = Účet chránený dvojstupňovým overením
 postChangeRecoveryPhone-title = Zmenili ste si telefón na obnovenie účtu
 postChangeRecoveryPhone-description = Teraz máte nové telefónne číslo na obnovenie účtu. Vaše predchádzajúce telefónne číslo bolo odstránené.
 postChangeRecoveryPhone-requested-device = Požiadali ste o to z:
@@ -349,7 +349,7 @@ postRemovePasskey-description = Na prihlásenie budete musieť použiť iný sp�
 postRemovePasskey-requested-from = Požiadali ste o to z:
 postRemovePasskey-action = Spravovať účet
 postRemoveRecoveryPhone-subject = Obnovenie pomocou telefónu bolo zrušené
-postRemoveRecoveryPhone-preview = Účet chránený dvojstupňovou autentifikáciou
+postRemoveRecoveryPhone-preview = Účet chránený dvojstupňovým overením
 postRemoveRecoveryPhone-title = Obnovenie pomocou telefónu bolo zrušené
 postRemoveRecoveryPhone-description-v2 = Telefón na obnovenie účtu bol odstránený z nastavení dvojstupňového overenia.
 postRemoveRecoveryPhone-description-extra = Ak nemôžete použiť overovaciu aplikáciu, na prihlásenie môžete použiť svoje záložné overovacie kódy.
@@ -358,7 +358,7 @@ postRemoveSecondary-subject = Alternatívna e‑mailová adresa bola odstránen�
 postRemoveSecondary-title = Alternatívna e‑mailová adresa bola odstránená
 # Variables:
 #  $secondaryEmail (String) - A user's email address
-postRemoveSecondary-description-2 = Úspešne ste odstránili { $secondaryEmail } ako alternatívnu e‑mailovú adresu z vášho { -product-mozilla-account(case: "gen", capitalization: "lower") }. Bezpečnostné upozornenia a potvrdenia prihlásenia už nebudú odosielané na túto adresu.
+postRemoveSecondary-description-2 = Úspešne ste odstránili { $secondaryEmail } ako alternatívnu e‑mailovú adresu z vášho { -product-mozilla-account(capitalization: "lower", case: "gen") }. Bezpečnostné upozornenia a potvrdenia prihlásenia už nebudú odosielané na túto adresu.
 postRemoveSecondary-action = Spravovať účet
 postRemoveTwoStepAuthentication-subject-line-2 = Dvojstupňové overenie je vypnuté
 postRemoveTwoStepAuthentication-title-2 = Vypli ste dvojstupňové overenie
@@ -389,7 +389,7 @@ postVerifySecondary-subject = Alternatívna e‑mailová adresa bola pridaná
 postVerifySecondary-title = Alternatívna e‑mailová adresa bola pridaná
 # Variables:
 #  $secondaryEmail (String) - A user's secondary email address
-postVerifySecondary-content-3 = Úspešne ste potvrdili adresu { $secondaryEmail } ako alternatívnu e‑mailovú adresu pre váš { -product-mozilla-account(case: "acc", capitalization: "lower") }. Bezpečnostné upozornenia a potvrdenia prihlásenia budú odteraz odosielané na obe adresy.
+postVerifySecondary-content-3 = Úspešne ste potvrdili adresu { $secondaryEmail } ako alternatívnu e‑mailovú adresu pre váš { -product-mozilla-account(capitalization: "lower", case: "acc") }. Bezpečnostné upozornenia a potvrdenia prihlásenia budú odteraz odosielané na obe adresy.
 postVerifySecondary-action = Spravovať účet
 recovery-subject = Zmena hesla
 recovery-title-2 = Zabudli ste heslo?
@@ -486,7 +486,7 @@ verifySecondaryCode-title-2 = Potvrdenie alternatívnej e‑mailovej adresy
 verifySecondaryCode-action-2 = Potvrdiť e‑mailovú adresu
 # Variables:
 #  $email (string) A user's unverified secondary email address
-verifySecondaryCode-explainer-2 = Požiadavka na použitie adresy { $email } ako alternatívnej e‑mailovej adresy bola vytvorená z nasledujúceho { -product-mozilla-account(case: "gen", capitalization: "lower") }:
+verifySecondaryCode-explainer-2 = Požiadavka na použitie adresy { $email } ako alternatívnej e‑mailovej adresy bola vytvorená z nasledujúceho { -product-mozilla-account(capitalization: "lower", case: "gen") }:
 verifySecondaryCode-prompt-2 = Použite tento potvrdzovací kód:
 verifySecondaryCode-expiry-notice-2 = Jeho platnosť vyprší po 5 minútach. Po potvrdení začnete na túto e‑mailovú adresu dostávať bezpečnostné upozornenia a potvrdenia.
 # Variables:
