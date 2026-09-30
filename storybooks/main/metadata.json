@@ -1,8 +1,8 @@
 {
-  "commit": "ff43c3e049de4b20a4feb7e69f9e0d8884d70021",
-  "summary": "Merge pull request #21343 from mozilla/blender/security-bump-adm-zip",
-  "description": "chore(deps): bump adm-zip to >=0.6.1",
-  "timestamp": 1790796548000,
+  "commit": "c7b50a9603958a6ff986f2dfb2ba46f02b44cf9e",
+  "summary": "Merge pull request #21332 from mozilla/fxa-14623",
+  "description": "refactor(auth): remove stub account and finish_setup routes",
+  "timestamp": 1790799008000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

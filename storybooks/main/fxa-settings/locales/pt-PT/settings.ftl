@@ -906,7 +906,7 @@ page-2fa-setup-totpinfo-error = Ocorreu um erro ao configurar a autenticação d
 # code here refers to "backup authentication code"
 page-2fa-setup-incorrect-backup-code-error = Esse código não está correto. Tente novamente.
 page-2fa-setup-success = A autenticação de dois passos foi ativada
-page-2fa-setup-success-additional-message = Para proteger todos os seus dispositivos ligados, deve terminar sessão em todos os lugares em que estiver a utilizar esta conta e depois iniciar sessão novamente utilizando a autenticação de dois passos.
+page-2fa-setup-success-additional-message = Para proteger todos os seus dispositivos ligados, deve terminar sessão em todos os lugares em que estiver a usar esta conta, e depois iniciar sessão novamente utilizando a autenticação de dois passos.
 
 ## Avatar change page
 
@@ -1087,15 +1087,15 @@ recent-activity-account-passwordless-login-otp-verified = Código de início de 
 recent-activity-account-passwordless-registration-complete = Registo de conta sem palavra-passe concluído
 recent-activity-account-recovery-codes-set = Códigos de recuperação definidos
 # A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
-recent-activity-account-passkey-wrap-created = Chave de acesso ativada para sincronização
+recent-activity-account-passkey-wrap-created = Chave-passe ativada para sincronização
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
-recent-activity-account-passkey-wrap-creation-failure = A configuração da sincronização com a chave de acesso falhou
+recent-activity-account-passkey-wrap-creation-failure = A configuração da sincronização com a chave-passe falhou
 # A passkey is a sign-in method that replaces a password. This string is shown when a passkey that could unlock the user's synced browser data had that access turned off, leaving the passkey itself usable for signing in.
 recent-activity-account-passkey-wrap-deleted = Removido acesso da chave-passe à sincronização
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to turn off a passkey's access to the user's synced browser data did not complete.
 recent-activity-account-passkey-wrap-deletion-failure = Falha na remoção do acesso da chave-passe à sincronização
 # A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
-recent-activity-account-passkey-wrap-invalidated = Acesso à sincronização da chave removido após a reposição da palavra-passe
+recent-activity-account-passkey-wrap-invalidated = Acesso à sincronização da chave-passe removido após a reposição da palavra-passe
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Outra atividade da conta
 
@@ -1174,7 +1174,7 @@ inactive-update-status-success-alert = Sessão iniciada com sucesso. A sua { -pr
 
 product-promo-monitor =
     .alt = { -product-mozilla-monitor }
-product-promo-monitor-description-v2 = Encontre onde a sua informação privada está exposta e assuma o controlo
+product-promo-monitor-description-v2 = Descubra onde a sua informação privada está exposta e assuma o controlo
 # Links out to the Monitor site
 product-promo-monitor-cta = Obter verificação gratuita
 product-promo-vpn =
@@ -1266,25 +1266,25 @@ passkey-sub-row-created-date = Criado: { $createdDate }
 # Variables:
 #   $lastUsedDate (String) - a localized date string
 passkey-sub-row-last-used-date = Última utilização: { $lastUsedDate }
-passkey-sub-row-delete-title = Eliminar chave de acesso
-passkey-delete-modal-heading = Apagar a sua chave?
-passkey-delete-modal-content-v2 = Esta chave será removida da sua conta. Terá de iniciar sessão utilizando um método diferente (palavra-passe, outra chave de acesso ou conta associada).
+passkey-sub-row-delete-title = Apagar chave-passe
+passkey-delete-modal-heading = Apagar a sua chave-passe?
+passkey-delete-modal-content-v2 = Esta chave-passe será removida da sua conta. Terá de iniciar sessão usando um método diferente (palavra-passe, outra chave-passe, ou conta associada).
 passkey-delete-modal-cancel-button = Cancelar
-passkey-delete-modal-confirm-button = Eliminar chave de acesso
-passkey-delete-success = Chave eliminada
-passkey-delete-error = Ocorreu um problema ao eliminar a sua chave. Tente novamente dentro de alguns minutos.
-passkey-sub-row-rename-title = Renomear chave de acesso
-passkey-rename-modal-heading = Renomear chave de acesso
-passkey-rename-modal-description = Digite um novo nome para esta chave.
-passkey-rename-input-label = Nome da chave
+passkey-delete-modal-confirm-button = Apagar chave-passe
+passkey-delete-success = Chave-passe apagada
+passkey-delete-error = Ocorreu um problema ao apagar a sua chave-passe. Tente novamente dentro de alguns minutos.
+passkey-sub-row-rename-title = Renomear chave-passe
+passkey-rename-modal-heading = Renomear chave-passe
+passkey-rename-modal-description = Digite um novo nome para esta chave-passe.
+passkey-rename-input-label = Nome da chave-passe
 passkey-rename-save-button = Guardar
 passkey-rename-cancel-button = Cancelar
-passkey-rename-error-empty = Digite um nome para esta chave
+passkey-rename-error-empty = Digite um nome para esta chave-passe
 passkey-rename-error-too-long = O nome deve conter menos de 256 caracteres.
-passkey-rename-error-invalid = Apenas são permitidas letras, números, marcas de pontuação e símbolos.
-passkey-rename-error-duplicate = Já existe uma chave com este nome
-passkey-rename-success = Chave de acesso renomeada
-passkey-rename-error = Ocorreu um problema ao renomear a sua chave de acesso. Tente novamente dentro de alguns minutos.
+passkey-rename-error-invalid = Apenas letras, números, sinais de pontuação e símbolos são permitidos.
+passkey-rename-error-duplicate = Já existe uma chave-passe com este nome
+passkey-rename-success = Chave-passe renomeada
+passkey-rename-error = Ocorreu um problema ao renomear a sua chave-passe. Tente novamente dentro de alguns minutos.
 
 ## Switch component
 
@@ -1306,7 +1306,7 @@ row-defaults-status = Nenhum
 
 ## UnitRowPasskey
 
-passkey-row-header = Chaves
+passkey-row-header = Chaves-passe
 passkey-row-enabled = Ativado
 passkey-row-not-set = Não definida
 passkey-row-action-create = Criar
@@ -1511,7 +1511,7 @@ passkey-registration-error-not-allowed = A configuração da chave-passe falhou 
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
 # Firefox collapses user-cancel and duplicate-authenticator into the same error, but duplicate is
 # the far more likely cause when the user has existing passkeys, so we state it plainly.
-passkey-registration-error-not-allowed-existing = A configuração da chave-passe não está disponível neste dispositivo. Ou o dispositivo já está registado ou o processo de configuração foi cancelado.
+passkey-registration-error-not-allowed-existing = A configuração da chave-passe não está disponível com este dispositivo. Ou o dispositivo já está registado ou o processo de configuração foi cancelado.
 # The ceremony timed out before the user responded
 passkey-registration-error-timeout = A configuração da chave-passe foi cancelada. Tente novamente.
 passkey-registration-canceled-v2 = A configuração da chave-passe expirou ou foi cancelada.
@@ -1534,7 +1534,7 @@ passkey-registration-error-invalid-state = Esta chave-passe já está registada.
 # Authenticator I/O failure (e.g., security key disconnected mid-ceremony)
 passkey-registration-error-not-readable = Não conseguimos aceder ao autenticador. Tente novamente ou escolha outro método.
 # Attestation constraints or device-specific restrictions can't be met
-passkey-registration-error-constraint = A configuração por chave-passe não está disponível neste dispositivo. Tente outro método ou dispositivo.
+passkey-registration-error-constraint = A configuração por chave-passe não está disponível com este dispositivo. Tente outro método ou dispositivo.
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
 passkey-registration-error-unexpected = A configuração da chave-passe falhou. Tente novamente ou escolha outro método.
 # Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
@@ -1550,17 +1550,17 @@ passkey-authentication-trouble-link = Como utilizar chaves-passe
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = A autenticação com a chave-passe falhou ou está indisponível. Tente novamente ou escolha outro método.
 # User already registered a device
-passkey-authentication-error-not-allowed-existing = A configuração por palavra-passe não está disponível para este dispositivo. Por favor, tente novamente ou escolha outro método.
+passkey-authentication-error-not-allowed-existing = A configuração por chave-passe não está disponível com este dispositivo. Por favor tente novamente ou escolha outro método.
 # The ceremony timed out before the user responded
-passkey-authentication-error-timeout = O pedido de chave expirou. Por favor, tente novamente.
+passkey-authentication-error-timeout = O pedido de chave-passe expirou. Por favor tente novamente.
 # Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
-passkey-authentication-error-timeout-v2 = O início de sessão com a chave expirou. Tente novamente.
+passkey-authentication-error-timeout-v2 = O início de sessão com chave-passe expirou. Tente novamente.
 # Browser or platform does not support passkeys
-passkey-authentication-error-not-supported-v2 = O seu navegador ou dispositivo não suporta palavras-passe.
+passkey-authentication-error-not-supported-v2 = O seu navegador ou dispositivo não suporta chaves-passe.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
-passkey-authentication-error-security = Não podem ser utilizadas chaves de acesso nesta página. Verifique se está no site seguro correto e tente novamente.
+passkey-authentication-error-security = Não podem ser utilizadas chaves-passe nesta página. Verifique se está no site seguro correto e tente novamente.
 # Unexpected credential state during authentication
-passkey-authentication-error-invalid-state = Algo não correu bem com a sua chave. Tente novamente ou utilize outro método de início de sessão.
+passkey-authentication-error-invalid-state = Algo não correu bem com a sua chave-passe. Tente novamente ou utilize outro método de início de sessão.
 # Authenticator I/O failure (e.g., security key disconnected mid-ceremony)
 passkey-authentication-error-not-readable = Não conseguimos aceder ao autenticador. Tente novamente ou utilize outro método de início de sessão.
 # Catch-all for unexpected errors during authentication (TypeError, DataError, EncodingError, ConstraintError, OperationError, UnknownError)
@@ -1568,7 +1568,7 @@ passkey-authentication-error-unexpected = Algo correu mal. Tente novamente ou es
 # Server returned 404 PASSKEY_NOT_FOUND — the assertion was for a credential
 # that no longer exists on the account (e.g., the user deleted the passkey
 # from their account but the authenticator still has the credential).
-passkey-authentication-error-not-found = Chave não reconhecida. Utilizar outro método de início de sessão.
+passkey-authentication-error-not-found = Chave-passe não reconhecida. Use outro método de início de sessão.
 
 ## Connect Another Device page
 
@@ -1720,8 +1720,8 @@ pair-auth-complete-manage-devices-link = Gerir dispositivos
 pair-auth-complete-send-tab-heading = Está pronto para enviar alguns separadores
 # Variable { $deviceFamily } is generally a browser name, for example "Firefox"
 # Variable { $deviceOS } is an operating system short name, for example "iOS", "Android"
-pair-auth-complete-send-tab-device-connected = { $deviceFamily } para { $deviceOS } está ligado.
-pair-auth-complete-send-tab-benefits = É livre para enviar instantaneamente separadores abertos, palavras-passe e marcadores entre dispositivos.
+pair-auth-complete-send-tab-device-connected = O { $deviceFamily } para { $deviceOS } está ligado.
+pair-auth-complete-send-tab-benefits = Sinta-se livre para enviar instantaneamente separadores abertos, palavras-passe, e marcadores entre dispositivos.
 
 ## AuthTotp page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
@@ -1929,7 +1929,7 @@ pair2-authority-sync-success-sync-settings-button-v2 = Gerir definições de sin
 
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Ainda pretende ligar um dispositivo?
-pair2-authority-timeout-and-cancel-timeout-description = Parece que expirámos. Tente novamente se ainda quiser ligar o seu dispositivo móvel e sincronizar os seus { -brand-firefox } dados.
+pair2-authority-timeout-and-cancel-timeout-description = Parece que expirámos. Tente novamente se ainda quiser ligar o seu dispositivo móvel e sincronizar os seus dados do { -brand-firefox }.
 # Shown when the pairing attempt was canceled, on either device
 pair2-authority-timeout-and-cancel-cancelled-heading = Cancelado
 pair2-authority-timeout-and-cancel-canceled-description = Se mudar de ideias ou quiser ligar um dispositivo diferente, tente novamente.
@@ -1972,10 +1972,10 @@ pair2-supplicant-connect-this-device-cancel-button = Cancelar
 pair2-supplicant-download-firefox-heading = Obtenha { -brand-firefox } neste dispositivo
 # "sync" is a verb here, referring to syncing data between the user's devices.
 # <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = Transfira o { -brand-firefox } para sincronizar os marcadores, histórico e muito mais entre dispositivos. <linkExternal>Saber mais</linkExternal>
+pair2-supplicant-download-firefox-description = Transfira o { -brand-firefox } para sincronizar os marcadores, histórico, e muito mais entre dispositivos. <linkExternal>Saber mais</linkExternal>
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
-pair2-supplicant-download-firefox-continue-button = Continuar em { -brand-firefox }
+pair2-supplicant-download-firefox-continue-button = Continuar no { -brand-firefox }
 # Replaces the button label while waiting for the Firefox app to take over
 pair2-supplicant-download-firefox-opening-button = A abrir { -brand-firefox }…
 
@@ -1987,7 +1987,7 @@ pair2-supplicant-download-firefox-opening-button = A abrir { -brand-firefox }…
 pair2-supplicant-ready-to-scan-heading = Para ligar um dispositivo
 # <b> emphasises the address the user types on their computer. It is not a link,
 # and the address itself must not be translated.
-pair2-supplicant-ready-to-scan-instruction = No seu computador, abra o { -brand-firefox } e aceda a <b>firefox.com/pair</b>. Siga as instruções no ecrã para ligar este dispositivo móvel.
+pair2-supplicant-ready-to-scan-instruction = No seu computador, abra o { -brand-firefox } e aceda a <b>firefox.com/pair</b>, e siga as instruções no ecrã para ligar este dispositivo móvel.
 # Opens a Mozilla support article about setting up sync
 pair2-supplicant-ready-to-scan-learn-more-link = Saber mais
 
@@ -2010,7 +2010,7 @@ pair2-supplicant-sync-success-sync-settings-button-v2 = Gerir definições de si
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
 pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que expirámos
 # "firefox.com/pair" is a URL and should not be translated
-pair2-supplicant-timeout-and-cancel-timeout-description = Para ligar o seu dispositivo móvel e sincronizar os seus dados de { -brand-firefox }, visite <b>firefox.com/pair</b> no seu computador.
+pair2-supplicant-timeout-and-cancel-timeout-description = Para ligar o seu dispositivo móvel e sincronizar os seus dados do { -brand-firefox }, visite <b>firefox.com/pair</b> no seu computador.
 # Shown after the pairing attempt was canceled
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelado
 # "firefox.com/pair" is a URL and should not be translated
@@ -2032,7 +2032,7 @@ permissions-cancel-button = Cancelar
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
 
-service-welcome-signup-success-banner = { -product-mozilla-account } confirmados
+service-welcome-signup-success-banner = { -product-mozilla-account } confirmada
 service-welcome-signin-success-banner = Sessão iniciada com sucesso!
 # In this context, "VPN" is a VPN service built into the Firefox browser, and generally isn't localized differently than "VPN"
 service-welcome-vpn-heading = Seguinte: Ligar a VPN

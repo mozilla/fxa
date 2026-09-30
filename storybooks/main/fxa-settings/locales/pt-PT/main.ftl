@@ -662,7 +662,7 @@ page-2fa-setup-title = Autenticação de dois passos
 page-2fa-setup-totpinfo-error = Ocorreu um erro ao configurar a autenticação de dois passos. Tente novamente mais tarde.
 page-2fa-setup-incorrect-backup-code-error = Esse código não está correto. Tente novamente.
 page-2fa-setup-success = A autenticação de dois passos foi ativada
-page-2fa-setup-success-additional-message = Para proteger todos os seus dispositivos ligados, deve terminar sessão em todos os lugares em que estiver a utilizar esta conta e depois iniciar sessão novamente utilizando a autenticação de dois passos.
+page-2fa-setup-success-additional-message = Para proteger todos os seus dispositivos ligados, deve terminar sessão em todos os lugares em que estiver a usar esta conta, e depois iniciar sessão novamente utilizando a autenticação de dois passos.
 
 
 avatar-page-title =
@@ -825,11 +825,11 @@ recent-activity-account-passwordless-login-otp-failed = O código de início de 
 recent-activity-account-passwordless-login-otp-verified = Código de início de sessão sem palavra-passe verificado
 recent-activity-account-passwordless-registration-complete = Registo de conta sem palavra-passe concluído
 recent-activity-account-recovery-codes-set = Códigos de recuperação definidos
-recent-activity-account-passkey-wrap-created = Chave de acesso ativada para sincronização
-recent-activity-account-passkey-wrap-creation-failure = A configuração da sincronização com a chave de acesso falhou
+recent-activity-account-passkey-wrap-created = Chave-passe ativada para sincronização
+recent-activity-account-passkey-wrap-creation-failure = A configuração da sincronização com a chave-passe falhou
 recent-activity-account-passkey-wrap-deleted = Removido acesso da chave-passe à sincronização
 recent-activity-account-passkey-wrap-deletion-failure = Falha na remoção do acesso da chave-passe à sincronização
-recent-activity-account-passkey-wrap-invalidated = Acesso à sincronização da chave removido após a reposição da palavra-passe
+recent-activity-account-passkey-wrap-invalidated = Acesso à sincronização da chave-passe removido após a reposição da palavra-passe
 recent-activity-unknown = Outra atividade da conta
 
 
@@ -881,7 +881,7 @@ inactive-update-status-success-alert = Sessão iniciada com sucesso. A sua { -pr
 
 product-promo-monitor =
     .alt = { -product-mozilla-monitor }
-product-promo-monitor-description-v2 = Encontre onde a sua informação privada está exposta e assuma o controlo
+product-promo-monitor-description-v2 = Descubra onde a sua informação privada está exposta e assuma o controlo
 product-promo-monitor-cta = Obter verificação gratuita
 product-promo-vpn =
     .alt = { -product-mozilla-vpn }
@@ -934,25 +934,25 @@ tfa-row-backup-phone-description-v2 = Este é o método de recuperação mais f�
 tfa-row-backup-phone-sim-swap-risk-link = Saber mais sobre o risco de troca de SIM
 passkey-sub-row-created-date = Criado: { $createdDate }
 passkey-sub-row-last-used-date = Última utilização: { $lastUsedDate }
-passkey-sub-row-delete-title = Eliminar chave de acesso
-passkey-delete-modal-heading = Apagar a sua chave?
-passkey-delete-modal-content-v2 = Esta chave será removida da sua conta. Terá de iniciar sessão utilizando um método diferente (palavra-passe, outra chave de acesso ou conta associada).
+passkey-sub-row-delete-title = Apagar chave-passe
+passkey-delete-modal-heading = Apagar a sua chave-passe?
+passkey-delete-modal-content-v2 = Esta chave-passe será removida da sua conta. Terá de iniciar sessão usando um método diferente (palavra-passe, outra chave-passe, ou conta associada).
 passkey-delete-modal-cancel-button = Cancelar
-passkey-delete-modal-confirm-button = Eliminar chave de acesso
-passkey-delete-success = Chave eliminada
-passkey-delete-error = Ocorreu um problema ao eliminar a sua chave. Tente novamente dentro de alguns minutos.
-passkey-sub-row-rename-title = Renomear chave de acesso
-passkey-rename-modal-heading = Renomear chave de acesso
-passkey-rename-modal-description = Digite um novo nome para esta chave.
-passkey-rename-input-label = Nome da chave
+passkey-delete-modal-confirm-button = Apagar chave-passe
+passkey-delete-success = Chave-passe apagada
+passkey-delete-error = Ocorreu um problema ao apagar a sua chave-passe. Tente novamente dentro de alguns minutos.
+passkey-sub-row-rename-title = Renomear chave-passe
+passkey-rename-modal-heading = Renomear chave-passe
+passkey-rename-modal-description = Digite um novo nome para esta chave-passe.
+passkey-rename-input-label = Nome da chave-passe
 passkey-rename-save-button = Guardar
 passkey-rename-cancel-button = Cancelar
-passkey-rename-error-empty = Digite um nome para esta chave
+passkey-rename-error-empty = Digite um nome para esta chave-passe
 passkey-rename-error-too-long = O nome deve conter menos de 256 caracteres.
-passkey-rename-error-invalid = Apenas são permitidas letras, números, marcas de pontuação e símbolos.
-passkey-rename-error-duplicate = Já existe uma chave com este nome
-passkey-rename-success = Chave de acesso renomeada
-passkey-rename-error = Ocorreu um problema ao renomear a sua chave de acesso. Tente novamente dentro de alguns minutos.
+passkey-rename-error-invalid = Apenas letras, números, sinais de pontuação e símbolos são permitidos.
+passkey-rename-error-duplicate = Já existe uma chave-passe com este nome
+passkey-rename-success = Chave-passe renomeada
+passkey-rename-error = Ocorreu um problema ao renomear a sua chave-passe. Tente novamente dentro de alguns minutos.
 
 
 switch-turn-off = Desligar
@@ -968,7 +968,7 @@ row-defaults-action-disable = Desativar
 row-defaults-status = Nenhum
 
 
-passkey-row-header = Chaves
+passkey-row-header = Chaves-passe
 passkey-row-enabled = Ativado
 passkey-row-not-set = Não definida
 passkey-row-action-create = Criar
@@ -1115,7 +1115,7 @@ oauth-error-1000 = Ocorreu um erro. Feche este separador e tente novamente.
 
 
 passkey-registration-error-not-allowed = A configuração da chave-passe falhou ou está indisponível. Tente novamente ou escolha outro método.
-passkey-registration-error-not-allowed-existing = A configuração da chave-passe não está disponível neste dispositivo. Ou o dispositivo já está registado ou o processo de configuração foi cancelado.
+passkey-registration-error-not-allowed-existing = A configuração da chave-passe não está disponível com este dispositivo. Ou o dispositivo já está registado ou o processo de configuração foi cancelado.
 passkey-registration-error-timeout = A configuração da chave-passe foi cancelada. Tente novamente.
 passkey-registration-canceled-v2 = A configuração da chave-passe expirou ou foi cancelada.
 passkey-registration-canceled-link = Saber mais
@@ -1126,21 +1126,21 @@ passkey-registration-error-could-not-complete-link = Saber mais
 passkey-registration-error-security = Não podem ser configuradas chaves-passe nesta página. Use o site seguro e tente novamente.
 passkey-registration-error-invalid-state = Esta chave-passe já está registada. Use-a para iniciar sessão ou adicionar uma chave-passe diferente.
 passkey-registration-error-not-readable = Não conseguimos aceder ao autenticador. Tente novamente ou escolha outro método.
-passkey-registration-error-constraint = A configuração por chave-passe não está disponível neste dispositivo. Tente outro método ou dispositivo.
+passkey-registration-error-constraint = A configuração por chave-passe não está disponível com este dispositivo. Tente outro método ou dispositivo.
 passkey-registration-error-unexpected = A configuração da chave-passe falhou. Tente novamente ou escolha outro método.
 passkey-authentication-trouble-heading = Não foi possível iniciar sessão com uma chave-passe
 passkey-authentication-trouble-description = Tente novamente ou utilize outra opção de início de sessão.
 passkey-authentication-trouble-link = Como utilizar chaves-passe
 passkey-authentication-error-not-allowed = A autenticação com a chave-passe falhou ou está indisponível. Tente novamente ou escolha outro método.
-passkey-authentication-error-not-allowed-existing = A configuração por palavra-passe não está disponível para este dispositivo. Por favor, tente novamente ou escolha outro método.
-passkey-authentication-error-timeout = O pedido de chave expirou. Por favor, tente novamente.
-passkey-authentication-error-timeout-v2 = O início de sessão com a chave expirou. Tente novamente.
-passkey-authentication-error-not-supported-v2 = O seu navegador ou dispositivo não suporta palavras-passe.
-passkey-authentication-error-security = Não podem ser utilizadas chaves de acesso nesta página. Verifique se está no site seguro correto e tente novamente.
-passkey-authentication-error-invalid-state = Algo não correu bem com a sua chave. Tente novamente ou utilize outro método de início de sessão.
+passkey-authentication-error-not-allowed-existing = A configuração por chave-passe não está disponível com este dispositivo. Por favor tente novamente ou escolha outro método.
+passkey-authentication-error-timeout = O pedido de chave-passe expirou. Por favor tente novamente.
+passkey-authentication-error-timeout-v2 = O início de sessão com chave-passe expirou. Tente novamente.
+passkey-authentication-error-not-supported-v2 = O seu navegador ou dispositivo não suporta chaves-passe.
+passkey-authentication-error-security = Não podem ser utilizadas chaves-passe nesta página. Verifique se está no site seguro correto e tente novamente.
+passkey-authentication-error-invalid-state = Algo não correu bem com a sua chave-passe. Tente novamente ou utilize outro método de início de sessão.
 passkey-authentication-error-not-readable = Não conseguimos aceder ao autenticador. Tente novamente ou utilize outro método de início de sessão.
 passkey-authentication-error-unexpected = Algo correu mal. Tente novamente ou escolha outro método de início de sessão.
-passkey-authentication-error-not-found = Chave não reconhecida. Utilizar outro método de início de sessão.
+passkey-authentication-error-not-found = Chave-passe não reconhecida. Use outro método de início de sessão.
 
 
 connect-another-device-signed-in-header = Está autenticado com o { -brand-firefox }
@@ -1233,8 +1233,8 @@ pair-auth-complete-manage-devices-link = Gerir dispositivos
 
 
 pair-auth-complete-send-tab-heading = Está pronto para enviar alguns separadores
-pair-auth-complete-send-tab-device-connected = { $deviceFamily } para { $deviceOS } está ligado.
-pair-auth-complete-send-tab-benefits = É livre para enviar instantaneamente separadores abertos, palavras-passe e marcadores entre dispositivos.
+pair-auth-complete-send-tab-device-connected = O { $deviceFamily } para { $deviceOS } está ligado.
+pair-auth-complete-send-tab-benefits = Sinta-se livre para enviar instantaneamente separadores abertos, palavras-passe, e marcadores entre dispositivos.
 
 
 auth-totp-heading-w-default-service = Insira o código de autenticação <span>para continuar para as definições da conta</span>
@@ -1339,7 +1339,7 @@ pair2-authority-sync-success-sync-settings-button-v2 = Gerir definições de sin
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Ainda pretende ligar um dispositivo?
-pair2-authority-timeout-and-cancel-timeout-description = Parece que expirámos. Tente novamente se ainda quiser ligar o seu dispositivo móvel e sincronizar os seus { -brand-firefox } dados.
+pair2-authority-timeout-and-cancel-timeout-description = Parece que expirámos. Tente novamente se ainda quiser ligar o seu dispositivo móvel e sincronizar os seus dados do { -brand-firefox }.
 pair2-authority-timeout-and-cancel-cancelled-heading = Cancelado
 pair2-authority-timeout-and-cancel-canceled-description = Se mudar de ideias ou quiser ligar um dispositivo diferente, tente novamente.
 pair2-authority-timeout-and-cancel-try-again-button = Tentar novamente
@@ -1357,13 +1357,13 @@ pair2-supplicant-connect-this-device-cancel-button = Cancelar
 
 
 pair2-supplicant-download-firefox-heading = Obtenha { -brand-firefox } neste dispositivo
-pair2-supplicant-download-firefox-description = Transfira o { -brand-firefox } para sincronizar os marcadores, histórico e muito mais entre dispositivos. <linkExternal>Saber mais</linkExternal>
-pair2-supplicant-download-firefox-continue-button = Continuar em { -brand-firefox }
+pair2-supplicant-download-firefox-description = Transfira o { -brand-firefox } para sincronizar os marcadores, histórico, e muito mais entre dispositivos. <linkExternal>Saber mais</linkExternal>
+pair2-supplicant-download-firefox-continue-button = Continuar no { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = A abrir { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = Para ligar um dispositivo
-pair2-supplicant-ready-to-scan-instruction = No seu computador, abra o { -brand-firefox } e aceda a <b>firefox.com/pair</b>. Siga as instruções no ecrã para ligar este dispositivo móvel.
+pair2-supplicant-ready-to-scan-instruction = No seu computador, abra o { -brand-firefox } e aceda a <b>firefox.com/pair</b>, e siga as instruções no ecrã para ligar este dispositivo móvel.
 pair2-supplicant-ready-to-scan-learn-more-link = Saber mais
 
 
@@ -1373,7 +1373,7 @@ pair2-supplicant-sync-success-sync-settings-button-v2 = Gerir definições de si
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que expirámos
-pair2-supplicant-timeout-and-cancel-timeout-description = Para ligar o seu dispositivo móvel e sincronizar os seus dados de { -brand-firefox }, visite <b>firefox.com/pair</b> no seu computador.
+pair2-supplicant-timeout-and-cancel-timeout-description = Para ligar o seu dispositivo móvel e sincronizar os seus dados do { -brand-firefox }, visite <b>firefox.com/pair</b> no seu computador.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelado
 pair2-supplicant-timeout-and-cancel-canceled-description = Para ligar um dispositivo a qualquer momento, visite <b>firefox.com/pair</b> no seu computador.
 
@@ -1385,7 +1385,7 @@ permissions-continue-button = Continuar
 permissions-cancel-button = Cancelar
 
 
-service-welcome-signup-success-banner = { -product-mozilla-account } confirmados
+service-welcome-signup-success-banner = { -product-mozilla-account } confirmada
 service-welcome-signin-success-banner = Sessão iniciada com sucesso!
 service-welcome-vpn-heading = Seguinte: Ligar a VPN
 service-welcome-vpn-description = Mais um passo para melhorar a privacidade do seu navegador. Aceda ao painel aberto e ative-a.
