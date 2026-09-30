@@ -1,8 +1,8 @@
 {
-  "commit": "bcc7ccc817c628053601b1c7f1be6875bee03905",
+  "commit": "520294f195eb8fe213751d77bd1587fa9703f807",
   "summary": "feat(auth-client): report Fastly WAF blocks to Sentry [FXA-14054]",
   "description": "Because:\n - A WAF rule that blocks real users only leaves a Sentry breadcrumb,\n   so nothing is queryable or alertable.\n\nThis commit:\n - Captures a grouped \"Fastly blocked request\" Sentry message on\n   406/429 responses with a non-JSON body.\n - Reports each status and route once per client to bound event volume.\n - Replaces recovery key and passkey IDs in the route tag.",
-  "timestamp": 1790718057000,
+  "timestamp": 1790729393000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-settings"
