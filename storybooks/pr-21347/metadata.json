@@ -1,10 +1,11 @@
 {
-  "commit": "245215bd9c3a2f43f2e6010832744323a96dfdaa",
-  "summary": "ci(circleci): build with 4 nx workers and a 4 GB heap",
-  "description": "Because:\n\n- Fresh builds ran at --parallel=2 with room to spare on xlarge\n\nThis commit:\n\n- Raises the build command to --parallel=4 and lowers its heap limit to 4 GB",
-  "timestamp": 1790799373000,
+  "commit": "7ac67115f2f49b2097bc3cacd8ee6c291998acab",
+  "summary": "test(ci): bench touch shared-metrics-statsd",
+  "description": "Benchmark only: a comment in the library with the most dependents, to measure a low-level change.",
+  "timestamp": 1790800624000,
   "storybooks": [
     "fxa-admin-panel",
+    "fxa-react",
     "fxa-settings"
   ],
   "deployDir": "deploy/"

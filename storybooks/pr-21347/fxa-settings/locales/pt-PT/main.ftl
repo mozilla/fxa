@@ -1249,7 +1249,7 @@ pair-wait-for-supp-heading-text = A aprovação agora é obrigatória <span>do s
 
 
 pair-failure-header-v2 = O emparelhamento do dispositivo falhou
-pair-failure-message-v2 = Não foi possível concluir a configuração. Por favor, inicie sessão com o seu email.
+pair-failure-message-v2 = Não foi possível concluir a configuração. Por favor inicie sessão com o seu e-mail.
 pair-failure-try-again-link = Tentar novamente
 
 
@@ -1265,30 +1265,30 @@ pair-get-started-button = Começar
 pair-qr-code-aria-label = Código QR
 
 
-pair-choice-subheader = Sincronize a sua experiência com { -brand-firefox }
-pair-choice-description = Consulte as suas palavras-passe guardadas, separadores, histórico de navegação e muito mais — em todos os seus dispositivos.
-pair-choice-header-send-tab = Transferir ou abrir { -brand-firefox } no dispositivo para onde deseja enviar separadores
+pair-choice-subheader = Sincronize a sua experiência { -brand-firefox }
+pair-choice-description = Veja as suas palavras-passe guardadas, separadores, histórico de navegação e muito mais — em todos os seus dispositivos.
+pair-choice-header-send-tab = Transfira ou abra o { -brand-firefox } no dispositivo para onde deseja enviar separadores
 pair-choice-legend = Selecione uma opção para continuar:
-pair-choice-has-mobile-title = Eu já tenho { -brand-firefox } para dispositivos móveis
-pair-choice-has-mobile-description = Comece a sua sincronização agora se já tem { -brand-firefox } no seu dispositivo móvel.
-pair-choice-needs-mobile-title = Eu não tenho { -brand-firefox } para dispositivos móveis
-pair-choice-needs-mobile-description = Transfira o { -brand-firefox } para o seu dispositivo móvel e inicie a sua sincronização.
+pair-choice-has-mobile-title = Já tenho o { -brand-firefox } para telemóvel
+pair-choice-has-mobile-description = Comece a sua sincronização agora se já tem o { -brand-firefox } no seu dispositivo móvel.
+pair-choice-needs-mobile-title = Não tenho o { -brand-firefox } para telemóvel
+pair-choice-needs-mobile-description = Transfira o { -brand-firefox } para o seu dispositivo móvel, depois inicie a sua sincronização.
 pair-choice-continue-button = Continuar
 pair-signed-in-successfully = Sessão iniciada com sucesso!
 pair-account-created-now-syncing = Criada conta. Está agora a sincronizar.
 pair-password-created-now-syncing = Palavra-passe criada. Está agora a sincronizar.
 
 
-pair-download-subheader = Transferir o { -brand-firefox } para dispositivos móveis
-pair-download-description = Para sincronizar { -brand-firefox } no seu telefone ou tablet, primeiro precisa de transferir { -brand-firefox } para dispositivos móveis. Eis como:
-pair-download-step-scan-qr = <b>Passo { $stepNumber }</b>: Transfira { -brand-firefox } ao digitalizar este código QR com a câmara do seu dispositivo móvel:
+pair-download-subheader = Transferir o { -brand-firefox } para telemóvel
+pair-download-description = Para sincronizar o { -brand-firefox } no seu telefone ou tablet, primeiro precisa de transferir o { -brand-firefox } para telemóvel. Eis como:
+pair-download-step-scan-qr = <b>Passo { $stepNumber }</b>: Transfira o { -brand-firefox } ao digitalizar este código QR com a câmara do seu dispositivo móvel:
 pair-download-step-continue-sync = <b>Passo { $stepNumber }</b>: Selecione “Continuar para sincronizar” para sincronizar a sua experiência { -brand-firefox } no seu dispositivo móvel.
 pair-continue-to-sync-button = Continuar para sincronizar
 
 
 pair-success-header-2 = Dispositivo ligado
 pair-success-message-2 = O emparelhamento foi bem-sucedido.
-pair-success-tab-close-message = Este separador será fechado automaticamente por { -brand-firefox }.
+pair-success-tab-close-message = Este separador será fechado automaticamente pelo { -brand-firefox }.
 
 
 pair-supp-allow-heading-text = Confirme o emparelhamento <span>para { $email }</span>
@@ -1301,14 +1301,14 @@ pair-wait-for-auth-heading-text = A aprovação agora é necessária <span>do se
 
 pair-unsupported-header = Emparelhar usando uma aplicação
 pair-unsupported-message = Utilizou a câmara do sistema? Deve emparelhar a partir de uma aplicação { -brand-firefox }.
-pair-unsupported-oops-header = Ops! Parece que não está a utilizar { -brand-firefox }.
-pair-unsupported-switch-to-firefox = Mude para { -brand-firefox } e abra esta página para ligar outro dispositivo.
-pair-unsupported-oops-mobile = Ops! Parece que não está a utilizar { -brand-firefox }.
-pair-unsupported-connecting-mobile-header-v2 = A ligar o seu dispositivo móvel ao seu { -product-mozilla-account }
-pair-unsupported-connecting-mobile-instructions-v2 = Abra o { -brand-firefox } no seu computador, visite <b>firefox.com/pair</b> e siga as instruções no ecrã para ligar o seu dispositivo móvel.
+pair-unsupported-oops-header = Oops! Parece que não está a usar o { -brand-firefox }.
+pair-unsupported-switch-to-firefox = Mude para o { -brand-firefox } e abra esta página para ligar outro dispositivo.
+pair-unsupported-oops-mobile = Oops! Parece que não está a usar o { -brand-firefox }.
+pair-unsupported-connecting-mobile-header-v2 = A ligar o seu dispositivo móvel à sua { -product-mozilla-account }
+pair-unsupported-connecting-mobile-instructions-v2 = Abra o { -brand-firefox } no seu computador, visite <b>firefox.com/pair</b>, e siga as instruções no ecrã para ligar o seu dispositivo móvel.
 pair-unsupported-learn-more-link-v2 = Saber mais
-pair-unsupported-desktop-firefox-fallback-header-v2 = Ups! Algo correu mal.
-pair-unsupported-desktop-firefox-fallback-message-v2 = Por favor, feche este separador e tente novamente.
+pair-unsupported-desktop-firefox-fallback-header-v2 = Oops! Algo correu mal.
+pair-unsupported-desktop-firefox-fallback-message-v2 = Por favor feche este separador e tente novamente.
 
 
 pair2-authority-approve-sign-in-heading = Aprovar início de sessão?
@@ -1317,12 +1317,12 @@ pair2-authority-approve-sign-in-change-password = Não é você? <changePassword
 
 
 pair2-authority-continue-on-mobile-heading = Continue no seu dispositivo móvel
-pair2-authority-continue-on-mobile-description = Siga os passos no seu telemóvel ou tablet.
+pair2-authority-continue-on-mobile-description = Siga os passos no seu telefone ou tablet.
 pair2-authority-continue-on-mobile-cancel-button = Cancelar
 
 
-pair2-authority-download-firefox-heading = Abrir { -brand-firefox } para sincronizar
-pair2-authority-download-firefox-instruction = Para configurar a sincronização entre dispositivos, abra { -brand-firefox } neste dispositivo e visite <b>firefox.com/pair</b>
+pair2-authority-download-firefox-heading = Abrir o { -brand-firefox } para sincronizar
+pair2-authority-download-firefox-instruction = Para configurar a sincronização entre dispositivos, abra o { -brand-firefox } neste dispositivo e visite <b>firefox.com/pair</b>
 pair2-authority-download-firefox-cta = Transferir { -brand-firefox }
 
 
@@ -1395,7 +1395,7 @@ set-password-heading-v2 = Criar palavra-passe para sincronizar
 set-password-info-v2 = Isto encripta os seus dados. Tem de ser diferente da palavra-passe da sua conta { -brand-google } ou { -brand-apple }.
 
 
-set-password-passwordless-info = Esta palavra-passe encripta os seus dados sincronizados e os mantém seguros.
+set-password-passwordless-info = Esta palavra-passe encripta os seus dados sincronizados mantém-os seguros.
 
 
 third-party-auth-callback-message = Por favor, aguarde. Está a ser reencaminhado para uma aplicação autorizada.
@@ -1459,17 +1459,17 @@ password-reset-recovery-method-phone = Telefone de recuperação
 password-reset-recovery-method-code = Códigos de autenticação de recuperação
 password-reset-recovery-method-code-info =
     { $numBackupCodes ->
-        [one] { $numBackupCodes } código remanescente
-       *[other] { $numBackupCodes } códigos remanescentes
+        [one] { $numBackupCodes } código restante
+       *[other] { $numBackupCodes } códigos restantes
     }
 password-reset-recovery-method-send-code-error-heading = Ocorreu um problema ao enviar um código para o seu telefone de recuperação
-password-reset-recovery-method-send-code-error-description = Por favor, tente mais tarde ou utilize os seus códigos de autenticação de recuperação.
+password-reset-recovery-method-send-code-error-description = Por favor tente novamente mais tarde ou utilize os seus códigos de autenticação de recuperação.
 
 
 reset-password-recovery-phone-flow-heading = Repor a sua palavra-passe
 reset-password-recovery-phone-heading = Introduza o código de recuperação
-reset-password-recovery-phone-instruction-v3 = Foi enviado um código de 6 dígitos para o número de telefone que termina com <span>{ $lastFourPhoneDigits }</span> por mensagem de texto. Este código expira após 5 minutos. Não partilhe este código com ninguém.
-reset-password-recovery-phone-input-label = Inserir código de 6 dígitos
+reset-password-recovery-phone-instruction-v3 = Foi enviado um código de 6 dígitos para o número de telefone que termina em <span>{ $lastFourPhoneDigits }</span> por mensagem de texto. Este código expira após 5 minutos. Não partilhe este código com ninguém.
+reset-password-recovery-phone-input-label = Introduza código de 6 dígitos
 reset-password-recovery-phone-code-submit-button = Confirmar
 reset-password-recovery-phone-resend-code-button = Reenviar código
 reset-password-recovery-phone-resend-success = Código enviado
