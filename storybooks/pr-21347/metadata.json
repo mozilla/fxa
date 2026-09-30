@@ -1,8 +1,8 @@
 {
-  "commit": "732e64443ff5347cadb19369caf577996c50c137",
-  "summary": "test(ci): measure per-process heap in fresh builds; add an uncached switch",
-  "description": "Because:\n\n- We need to know how close build tasks get to their heap limit before lowering it\n\nThis commit:\n\n- Preloads a heap probe that records each Node process's peak heap, limit and RSS\n- Runs two fresh p4 builds with a 4GB limit, also probing settings' webpack builds\n- Adds a bench_uncached pipeline parameter that sets NX_SKIP_NX_CACHE in all jobs",
-  "timestamp": 1790798311000,
+  "commit": "245215bd9c3a2f43f2e6010832744323a96dfdaa",
+  "summary": "ci(circleci): build with 4 nx workers and a 4 GB heap",
+  "description": "Because:\n\n- Fresh builds ran at --parallel=2 with room to spare on xlarge\n\nThis commit:\n\n- Raises the build command to --parallel=4 and lowers its heap limit to 4 GB",
+  "timestamp": 1790799373000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-settings"

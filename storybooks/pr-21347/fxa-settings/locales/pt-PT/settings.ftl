@@ -1275,15 +1275,16 @@ passkey-delete-success = Chave-passe apagada
 passkey-delete-error = Ocorreu um problema ao apagar a sua chave-passe. Tente novamente dentro de alguns minutos.
 passkey-sub-row-rename-title = Renomear chave-passe
 passkey-rename-modal-heading = Renomear chave-passe
-passkey-rename-input-label = Nome da chave
+passkey-rename-modal-description = Digite um novo nome para esta chave-passe.
+passkey-rename-input-label = Nome da chave-passe
 passkey-rename-save-button = Guardar
 passkey-rename-cancel-button = Cancelar
-passkey-rename-error-empty = Digite um nome para esta chave
+passkey-rename-error-empty = Digite um nome para esta chave-passe
 passkey-rename-error-too-long = O nome deve conter menos de 256 caracteres.
-passkey-rename-error-invalid = Apenas são permitidas letras, números, marcas de pontuação e símbolos.
-passkey-rename-error-duplicate = Já existe uma chave com este nome
-passkey-rename-success = Chave de acesso renomeada
-passkey-rename-error = Ocorreu um problema ao renomear a sua chave de acesso. Tente novamente dentro de alguns minutos.
+passkey-rename-error-invalid = Apenas letras, números, sinais de pontuação e símbolos são permitidos.
+passkey-rename-error-duplicate = Já existe uma chave-passe com este nome
+passkey-rename-success = Chave-passe renomeada
+passkey-rename-error = Ocorreu um problema ao renomear a sua chave-passe. Tente novamente dentro de alguns minutos.
 
 ## Switch component
 
@@ -1305,7 +1306,7 @@ row-defaults-status = Nenhum
 
 ## UnitRowPasskey
 
-passkey-row-header = Chaves
+passkey-row-header = Chaves-passe
 passkey-row-enabled = Ativado
 passkey-row-not-set = Não definida
 passkey-row-action-create = Criar
@@ -1567,7 +1568,7 @@ passkey-authentication-error-unexpected = Algo correu mal. Tente novamente ou es
 # Server returned 404 PASSKEY_NOT_FOUND — the assertion was for a credential
 # that no longer exists on the account (e.g., the user deleted the passkey
 # from their account but the authenticator still has the credential).
-passkey-authentication-error-not-found = Chave não reconhecida. Utilizar outro método de início de sessão.
+passkey-authentication-error-not-found = Chave-passe não reconhecida. Use outro método de início de sessão.
 
 ## Connect Another Device page
 
@@ -1719,8 +1720,8 @@ pair-auth-complete-manage-devices-link = Gerir dispositivos
 pair-auth-complete-send-tab-heading = Está pronto para enviar alguns separadores
 # Variable { $deviceFamily } is generally a browser name, for example "Firefox"
 # Variable { $deviceOS } is an operating system short name, for example "iOS", "Android"
-pair-auth-complete-send-tab-device-connected = { $deviceFamily } para { $deviceOS } está ligado.
-pair-auth-complete-send-tab-benefits = É livre para enviar instantaneamente separadores abertos, palavras-passe e marcadores entre dispositivos.
+pair-auth-complete-send-tab-device-connected = O { $deviceFamily } para { $deviceOS } está ligado.
+pair-auth-complete-send-tab-benefits = Sinta-se livre para enviar instantaneamente separadores abertos, palavras-passe, e marcadores entre dispositivos.
 
 ## AuthTotp page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
@@ -1928,7 +1929,7 @@ pair2-authority-sync-success-sync-settings-button-v2 = Gerir definições de sin
 
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Ainda pretende ligar um dispositivo?
-pair2-authority-timeout-and-cancel-timeout-description = Parece que expirámos. Tente novamente se ainda quiser ligar o seu dispositivo móvel e sincronizar os seus { -brand-firefox } dados.
+pair2-authority-timeout-and-cancel-timeout-description = Parece que expirámos. Tente novamente se ainda quiser ligar o seu dispositivo móvel e sincronizar os seus dados do { -brand-firefox }.
 # Shown when the pairing attempt was canceled, on either device
 pair2-authority-timeout-and-cancel-cancelled-heading = Cancelado
 pair2-authority-timeout-and-cancel-canceled-description = Se mudar de ideias ou quiser ligar um dispositivo diferente, tente novamente.
@@ -1971,10 +1972,10 @@ pair2-supplicant-connect-this-device-cancel-button = Cancelar
 pair2-supplicant-download-firefox-heading = Obtenha { -brand-firefox } neste dispositivo
 # "sync" is a verb here, referring to syncing data between the user's devices.
 # <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = Transfira o { -brand-firefox } para sincronizar os marcadores, histórico e muito mais entre dispositivos. <linkExternal>Saber mais</linkExternal>
+pair2-supplicant-download-firefox-description = Transfira o { -brand-firefox } para sincronizar os marcadores, histórico, e muito mais entre dispositivos. <linkExternal>Saber mais</linkExternal>
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
-pair2-supplicant-download-firefox-continue-button = Continuar em { -brand-firefox }
+pair2-supplicant-download-firefox-continue-button = Continuar no { -brand-firefox }
 # Replaces the button label while waiting for the Firefox app to take over
 pair2-supplicant-download-firefox-opening-button = A abrir { -brand-firefox }…
 
@@ -1986,7 +1987,7 @@ pair2-supplicant-download-firefox-opening-button = A abrir { -brand-firefox }…
 pair2-supplicant-ready-to-scan-heading = Para ligar um dispositivo
 # <b> emphasises the address the user types on their computer. It is not a link,
 # and the address itself must not be translated.
-pair2-supplicant-ready-to-scan-instruction = No seu computador, abra o { -brand-firefox } e aceda a <b>firefox.com/pair</b>. Siga as instruções no ecrã para ligar este dispositivo móvel.
+pair2-supplicant-ready-to-scan-instruction = No seu computador, abra o { -brand-firefox } e aceda a <b>firefox.com/pair</b>, e siga as instruções no ecrã para ligar este dispositivo móvel.
 # Opens a Mozilla support article about setting up sync
 pair2-supplicant-ready-to-scan-learn-more-link = Saber mais
 
@@ -2009,7 +2010,7 @@ pair2-supplicant-sync-success-sync-settings-button-v2 = Gerir definições de si
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
 pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que expirámos
 # "firefox.com/pair" is a URL and should not be translated
-pair2-supplicant-timeout-and-cancel-timeout-description = Para ligar o seu dispositivo móvel e sincronizar os seus dados de { -brand-firefox }, visite <b>firefox.com/pair</b> no seu computador.
+pair2-supplicant-timeout-and-cancel-timeout-description = Para ligar o seu dispositivo móvel e sincronizar os seus dados do { -brand-firefox }, visite <b>firefox.com/pair</b> no seu computador.
 # Shown after the pairing attempt was canceled
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelado
 # "firefox.com/pair" is a URL and should not be translated
@@ -2031,7 +2032,7 @@ permissions-cancel-button = Cancelar
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
 
-service-welcome-signup-success-banner = { -product-mozilla-account } confirmados
+service-welcome-signup-success-banner = { -product-mozilla-account } confirmada
 service-welcome-signin-success-banner = Sessão iniciada com sucesso!
 # In this context, "VPN" is a VPN service built into the Firefox browser, and generally isn't localized differently than "VPN"
 service-welcome-vpn-heading = Seguinte: Ligar a VPN

@@ -943,15 +943,16 @@ passkey-delete-success = Chave-passe apagada
 passkey-delete-error = Ocorreu um problema ao apagar a sua chave-passe. Tente novamente dentro de alguns minutos.
 passkey-sub-row-rename-title = Renomear chave-passe
 passkey-rename-modal-heading = Renomear chave-passe
-passkey-rename-input-label = Nome da chave
+passkey-rename-modal-description = Digite um novo nome para esta chave-passe.
+passkey-rename-input-label = Nome da chave-passe
 passkey-rename-save-button = Guardar
 passkey-rename-cancel-button = Cancelar
-passkey-rename-error-empty = Digite um nome para esta chave
+passkey-rename-error-empty = Digite um nome para esta chave-passe
 passkey-rename-error-too-long = O nome deve conter menos de 256 caracteres.
-passkey-rename-error-invalid = Apenas são permitidas letras, números, marcas de pontuação e símbolos.
-passkey-rename-error-duplicate = Já existe uma chave com este nome
-passkey-rename-success = Chave de acesso renomeada
-passkey-rename-error = Ocorreu um problema ao renomear a sua chave de acesso. Tente novamente dentro de alguns minutos.
+passkey-rename-error-invalid = Apenas letras, números, sinais de pontuação e símbolos são permitidos.
+passkey-rename-error-duplicate = Já existe uma chave-passe com este nome
+passkey-rename-success = Chave-passe renomeada
+passkey-rename-error = Ocorreu um problema ao renomear a sua chave-passe. Tente novamente dentro de alguns minutos.
 
 
 switch-turn-off = Desligar
@@ -967,7 +968,7 @@ row-defaults-action-disable = Desativar
 row-defaults-status = Nenhum
 
 
-passkey-row-header = Chaves
+passkey-row-header = Chaves-passe
 passkey-row-enabled = Ativado
 passkey-row-not-set = Não definida
 passkey-row-action-create = Criar
@@ -1139,7 +1140,7 @@ passkey-authentication-error-security = Não podem ser utilizadas chaves-passe n
 passkey-authentication-error-invalid-state = Algo não correu bem com a sua chave-passe. Tente novamente ou utilize outro método de início de sessão.
 passkey-authentication-error-not-readable = Não conseguimos aceder ao autenticador. Tente novamente ou utilize outro método de início de sessão.
 passkey-authentication-error-unexpected = Algo correu mal. Tente novamente ou escolha outro método de início de sessão.
-passkey-authentication-error-not-found = Chave não reconhecida. Utilizar outro método de início de sessão.
+passkey-authentication-error-not-found = Chave-passe não reconhecida. Use outro método de início de sessão.
 
 
 connect-another-device-signed-in-header = Está autenticado com o { -brand-firefox }
@@ -1232,8 +1233,8 @@ pair-auth-complete-manage-devices-link = Gerir dispositivos
 
 
 pair-auth-complete-send-tab-heading = Está pronto para enviar alguns separadores
-pair-auth-complete-send-tab-device-connected = { $deviceFamily } para { $deviceOS } está ligado.
-pair-auth-complete-send-tab-benefits = É livre para enviar instantaneamente separadores abertos, palavras-passe e marcadores entre dispositivos.
+pair-auth-complete-send-tab-device-connected = O { $deviceFamily } para { $deviceOS } está ligado.
+pair-auth-complete-send-tab-benefits = Sinta-se livre para enviar instantaneamente separadores abertos, palavras-passe, e marcadores entre dispositivos.
 
 
 auth-totp-heading-w-default-service = Insira o código de autenticação <span>para continuar para as definições da conta</span>
@@ -1338,7 +1339,7 @@ pair2-authority-sync-success-sync-settings-button-v2 = Gerir definições de sin
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Ainda pretende ligar um dispositivo?
-pair2-authority-timeout-and-cancel-timeout-description = Parece que expirámos. Tente novamente se ainda quiser ligar o seu dispositivo móvel e sincronizar os seus { -brand-firefox } dados.
+pair2-authority-timeout-and-cancel-timeout-description = Parece que expirámos. Tente novamente se ainda quiser ligar o seu dispositivo móvel e sincronizar os seus dados do { -brand-firefox }.
 pair2-authority-timeout-and-cancel-cancelled-heading = Cancelado
 pair2-authority-timeout-and-cancel-canceled-description = Se mudar de ideias ou quiser ligar um dispositivo diferente, tente novamente.
 pair2-authority-timeout-and-cancel-try-again-button = Tentar novamente
@@ -1356,13 +1357,13 @@ pair2-supplicant-connect-this-device-cancel-button = Cancelar
 
 
 pair2-supplicant-download-firefox-heading = Obtenha { -brand-firefox } neste dispositivo
-pair2-supplicant-download-firefox-description = Transfira o { -brand-firefox } para sincronizar os marcadores, histórico e muito mais entre dispositivos. <linkExternal>Saber mais</linkExternal>
-pair2-supplicant-download-firefox-continue-button = Continuar em { -brand-firefox }
+pair2-supplicant-download-firefox-description = Transfira o { -brand-firefox } para sincronizar os marcadores, histórico, e muito mais entre dispositivos. <linkExternal>Saber mais</linkExternal>
+pair2-supplicant-download-firefox-continue-button = Continuar no { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = A abrir { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = Para ligar um dispositivo
-pair2-supplicant-ready-to-scan-instruction = No seu computador, abra o { -brand-firefox } e aceda a <b>firefox.com/pair</b>. Siga as instruções no ecrã para ligar este dispositivo móvel.
+pair2-supplicant-ready-to-scan-instruction = No seu computador, abra o { -brand-firefox } e aceda a <b>firefox.com/pair</b>, e siga as instruções no ecrã para ligar este dispositivo móvel.
 pair2-supplicant-ready-to-scan-learn-more-link = Saber mais
 
 
@@ -1372,7 +1373,7 @@ pair2-supplicant-sync-success-sync-settings-button-v2 = Gerir definições de si
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que expirámos
-pair2-supplicant-timeout-and-cancel-timeout-description = Para ligar o seu dispositivo móvel e sincronizar os seus dados de { -brand-firefox }, visite <b>firefox.com/pair</b> no seu computador.
+pair2-supplicant-timeout-and-cancel-timeout-description = Para ligar o seu dispositivo móvel e sincronizar os seus dados do { -brand-firefox }, visite <b>firefox.com/pair</b> no seu computador.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelado
 pair2-supplicant-timeout-and-cancel-canceled-description = Para ligar um dispositivo a qualquer momento, visite <b>firefox.com/pair</b> no seu computador.
 
@@ -1384,7 +1385,7 @@ permissions-continue-button = Continuar
 permissions-cancel-button = Cancelar
 
 
-service-welcome-signup-success-banner = { -product-mozilla-account } confirmados
+service-welcome-signup-success-banner = { -product-mozilla-account } confirmada
 service-welcome-signin-success-banner = Sessão iniciada com sucesso!
 service-welcome-vpn-heading = Seguinte: Ligar a VPN
 service-welcome-vpn-description = Mais um passo para melhorar a privacidade do seu navegador. Aceda ao painel aberto e ative-a.
