@@ -196,8 +196,8 @@ describe('/account/attached_clients', () => {
       expect.objectContaining({
         lastAccessTime: expect.any(Number),
       }),
-      expect.anything(),
-      expect.anything()
+      request.app.geo,
+      true
     );
     const touchArgs = db.touchSessionToken.mock.calls[0];
     const laterDate = Date.now() - 60 * 1000;
@@ -775,8 +775,8 @@ describe('/account/attached_oauth_clients', () => {
       expect.objectContaining({
         lastAccessTime: expect.any(Number),
       }),
-      expect.anything(),
-      expect.anything()
+      request.app.geo,
+      true
     );
     const touchArgs = db.touchSessionToken.mock.calls[0];
     const laterDate = Date.now() - 60 * 1000;

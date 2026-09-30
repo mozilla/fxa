@@ -179,7 +179,7 @@ executors:
       # Recovery phone feature flags
       FEATURE_FLAGS_ADDING_2FA_BACKUP_PHONE: true
       FEATURE_FLAGS_USING_2FA_BACKUP_PHONE: true
-      GEODB_LOCATION_OVERRIDE: '{"location": {"countryCode": "US", "postalCode": "85001"}}'
+      GEODB_LOCATION_OVERRIDE: '{"location": {"city": "Phoenix", "state": "Arizona", "stateCode": "AZ", "country": "United States", "countryCode": "US", "postalCode": "85001"}}'
       RECOVERY_PHONE__ENABLED: true
       # Every local test registers the same magic number, so the production anti-abuse
       # cap of 5 would reject them once they run in parallel. 8 nodes x 3 workers puts

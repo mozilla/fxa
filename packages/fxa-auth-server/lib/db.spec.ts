@@ -439,6 +439,80 @@ describe('redis enabled, token-pruning enabled:', () => {
     );
   });
 
+  it('passes the geo location to redis on a last-access-only touch', async () => {
+    const location = {
+      city: 'Mountain View',
+      country: 'United States',
+      countryCode: 'US',
+      state: 'California',
+      stateCode: 'CA',
+    };
+    await db.touchSessionToken(
+      { id: 'wibble', uid: 'blee', lastAccessTime: 1_700_000_000_000 },
+      { location },
+      true
+    );
+    expect(redis.touchSessionToken).toHaveBeenCalledWith('blee', {
+      id: 'wibble',
+      lastAccessTime: 1_700_000_000_000,
+      location,
+    });
+  });
+
+  it.each([
+    {
+      path: 'last-access-only',
+      onlyUpdateLastAccessTime: true,
+      expected: { id: 'wibble', lastAccessTime: 1_700_000_000_000 },
+    },
+    {
+      path: 'full',
+      onlyUpdateLastAccessTime: false,
+      expected: {
+        id: 'wibble',
+        lastAccessTime: 1_700_000_000_000,
+        uaBrowser: 'Firefox',
+        uaBrowserVersion: '130',
+        uaDeviceType: 'desktop',
+        uaFormFactor: null,
+        uaOS: 'Mac OS X',
+        uaOSVersion: '14',
+      },
+    },
+  ])(
+    'omits the location on a geodb miss in the $path touch so redis keeps the stored one',
+    async ({ onlyUpdateLastAccessTime, expected }) => {
+      const miss = {
+        location: {
+          city: null,
+          country: null,
+          countryCode: null,
+          state: null,
+          stateCode: null,
+          postalCode: null,
+        },
+        timeZone: null,
+      };
+      await db.touchSessionToken(
+        {
+          id: 'wibble',
+          uid: 'blee',
+          lastAccessTime: 1_700_000_000_000,
+          uaBrowser: 'Firefox',
+          uaBrowserVersion: '130',
+          uaDeviceType: 'desktop',
+          uaFormFactor: null,
+          uaOS: 'Mac OS X',
+          uaOSVersion: '14',
+        },
+        miss,
+        onlyUpdateLastAccessTime
+      );
+      const [, payload] = redis.touchSessionToken.mock.calls[0];
+      expect(payload).toStrictEqual({ ...expected, location: undefined });
+    }
+  );
+
   it('should call redis.pruneSessionTokens in db.pruneSessionTokens', async () => {
     const createdAt = Date.now() - tokenPruning.maxAge - 1;
     await db.pruneSessionTokens('foo', [

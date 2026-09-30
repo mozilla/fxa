@@ -957,8 +957,9 @@ describe('/oauth/token POST', () => {
 
     it('updates last access time of a session', async () => {
       const sessionToken = { uid: 'abc' };
+      const geo = { location: { city: 'Mountain View', stateCode: 'CA' } };
       const request = {
-        app: {},
+        app: { geo },
         auth: { credentials: sessionToken },
         headers: {},
         payload: {
@@ -971,7 +972,7 @@ describe('/oauth/token POST', () => {
       expect(mockDb.touchSessionToken).toHaveBeenCalledTimes(1);
       expect(mockDb.touchSessionToken).toHaveBeenCalledWith(
         sessionToken,
-        {},
+        geo,
         true
       );
     });
