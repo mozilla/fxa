@@ -1,8 +1,8 @@
 {
-  "commit": "466cee2e15885deb76edf6332a3a36e5f1695b1d",
-  "summary": "chore(deps): bump @grpc/grpc-js from 1.14.4 to 1.14.5",
-  "description": "Bumps [@grpc/grpc-js](https://github.com/grpc/grpc-node) from 1.14.4 to 1.14.5.\n- [Release notes](https://github.com/grpc/grpc-node/releases)\n- [Commits](https://github.com/grpc/grpc-node/compare/@grpc/grpc-js@1.14.4...@grpc/grpc-js@1.14.5)\n\n---\nupdated-dependencies:\n- dependency-name: \"@grpc/grpc-js\"\n  dependency-version: 1.14.5\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
-  "timestamp": 1790792634000,
+  "commit": "e507967ac6d3b3e95b719600886553b8db19dbbd",
+  "summary": "fix(deps): dedupe @grpc/grpc-js after the 1.14.5 bump",
+  "description": "Because:\n\n- The bump left two @grpc/grpc-js copies, so ChannelCredentials from one did not match ClientOptions in shared-cloud-tasks.\n\nThis commit:\n\n- Runs yarn dedupe @grpc/grpc-js so one copy resolves.",
+  "timestamp": 1790793644000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
