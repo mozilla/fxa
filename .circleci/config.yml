@@ -1,10 +1,6 @@
 version: 2.1
 
 parameters:
-  # Benchmark only: "true" makes every nx task skip the cache.
-  bench_uncached:
-    type: string
-    default: ''
   enable_test_pull_request:
     type: boolean
     default: true
@@ -112,7 +108,6 @@ executors:
     docker:
       - image: mozilla/fxa-circleci:ci-test-runner-v10
     environment:
-      NX_SKIP_NX_CACHE: << pipeline.parameters.bench_uncached >>
       NODE_ENV: development
       FIRESTORE_EMULATOR_HOST: localhost:9090
       HUSKY_SKIP_INSTALL: 1
@@ -134,7 +129,6 @@ executors:
       - image: ghcr.io/aertje/cloud-tasks-emulator:1.2.0
         command: -queue "projects/test/locations/test/queues/delete-accounts-queue"
     environment:
-      NX_SKIP_NX_CACHE: << pipeline.parameters.bench_uncached >>
       NODE_ENV: development
       FIRESTORE_EMULATOR_HOST: localhost:9090
       HUSKY_SKIP_INSTALL: 1
@@ -161,7 +155,6 @@ executors:
       - image: ghcr.io/aertje/cloud-tasks-emulator:1.2.0
         command: -queue "projects/test/locations/test/queues/delete-accounts-queue"
     environment:
-      NX_SKIP_NX_CACHE: << pipeline.parameters.bench_uncached >>
       NODE_ENV: development
       FXA_EMAIL_ENV: development
       FXA_EMAIL_LOG_LEVEL: debug
@@ -786,39 +779,6 @@ jobs:
           steps:
             - save-build-workspace
 
-  # Benchmark only: a fresh (uncached) full build with memory/CPU sampling.
-  build-profile:
-    parameters:
-      parallel:
-        type: integer
-      heap_mb:
-        type: integer
-    executor: default-executor
-    resource_class: xlarge
-    steps:
-      - git-checkout
-      - restore-deps:
-          from: install
-      - run:
-          name: Sample resources
-          command: ./.circleci/sample-resources.sh
-          background: true
-      - run:
-          name: Fresh build
-          command: |
-            s=$SECONDS
-            node -e 'console.log(Math.round(require("v8").getHeapStatistics().heap_size_limit / 2 ** 20))' > artifacts/default-heap-mb.txt
-            NODE_OPTIONS="--require $PWD/.circleci/heap-probe.js --max-old-space-size=<< parameters.heap_mb >>" npx nx run-many -t build --all --skip-nx-cache --parallel=<< parameters.parallel >> --verbose
-            echo "fresh build took $((SECONDS - s))s" | tee artifacts/build-seconds.txt
-          environment:
-            NODE_ENV: test
-            NX_PROFILE: artifacts/nx-profile-build.json
-            HEAP_PROBE_DIR: /home/circleci/project/artifacts/heap
-          no_output_timeout: 30m
-      - store_artifacts:
-          path: artifacts
-          when: always
-
   # Runs linter on packages that have changes.
   lint:
     parameters:
@@ -1216,17 +1176,6 @@ workflows:
               ignore: /main/
             tags:
               ignore: /.*/
-      # Benchmark only: fresh-build resource profiles.
-      - build-profile:
-          name: Build Profile p4 4GB a
-          parallel: 4
-          heap_mb: 4096
-          filters: *pr_filters
-      - build-profile:
-          name: Build Profile p4 4GB b
-          parallel: 4
-          heap_mb: 4096
-          filters: *pr_filters
       - lint:
           name: Lint (PR)
           deps: install
