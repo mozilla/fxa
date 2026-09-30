@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 1efbfbb7a102017956fa066310f33bd21bc5775e</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 1efbfbb7a102017956fa066310f33bd21bc5775e</h1>
+  <ul>
+    <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>9/30/2026, 3:14:56 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>ci(circleci): benchmark workspace vs nx remote cache hand-off</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+- We want to measure whether a Build workspace beats per-job installs plus the nx remote cache
+
+This commit:
+
+- Runs Build first again, installing dependencies itself, with all test jobs requiring it
+- Adds a pr_handoff pipeline parameter: install (default) or workspace
+- Saves .nx/workspace-data and root dist in the build workspace so nx can hit locally
+- Records nx profiles in Build, test and functional-test steps</pre></dd>
+  </dl>
+</body>
+</html>

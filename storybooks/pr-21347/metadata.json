@@ -1,0 +1,11 @@
+{
+  "commit": "1efbfbb7a102017956fa066310f33bd21bc5775e",
+  "summary": "ci(circleci): benchmark workspace vs nx remote cache hand-off",
+  "description": "Because:\n\n- We want to measure whether a Build workspace beats per-job installs plus the nx remote cache\n\nThis commit:\n\n- Runs Build first again, installing dependencies itself, with all test jobs requiring it\n- Adds a pr_handoff pipeline parameter: install (default) or workspace\n- Saves .nx/workspace-data and root dist in the build workspace so nx can hit locally\n- Records nx profiles in Build, test and functional-test steps",
+  "timestamp": 1790781296000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
