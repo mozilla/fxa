@@ -1249,7 +1249,7 @@ pair-wait-for-supp-heading-text = A aprovação agora é obrigatória <span>do s
 
 
 pair-failure-header-v2 = O emparelhamento do dispositivo falhou
-pair-failure-message-v2 = Não foi possível concluir a configuração. Por favor, inicie sessão com o seu email.
+pair-failure-message-v2 = Não foi possível concluir a configuração. Por favor inicie sessão com o seu e-mail.
 pair-failure-try-again-link = Tentar novamente
 
 
@@ -1395,7 +1395,7 @@ set-password-heading-v2 = Criar palavra-passe para sincronizar
 set-password-info-v2 = Isto encripta os seus dados. Tem de ser diferente da palavra-passe da sua conta { -brand-google } ou { -brand-apple }.
 
 
-set-password-passwordless-info = Esta palavra-passe encripta os seus dados sincronizados e os mantém seguros.
+set-password-passwordless-info = Esta palavra-passe encripta os seus dados sincronizados mantém-os seguros.
 
 
 third-party-auth-callback-message = Por favor, aguarde. Está a ser reencaminhado para uma aplicação autorizada.
@@ -1459,17 +1459,17 @@ password-reset-recovery-method-phone = Telefone de recuperação
 password-reset-recovery-method-code = Códigos de autenticação de recuperação
 password-reset-recovery-method-code-info =
     { $numBackupCodes ->
-        [one] { $numBackupCodes } código remanescente
-       *[other] { $numBackupCodes } códigos remanescentes
+        [one] { $numBackupCodes } código restante
+       *[other] { $numBackupCodes } códigos restantes
     }
 password-reset-recovery-method-send-code-error-heading = Ocorreu um problema ao enviar um código para o seu telefone de recuperação
-password-reset-recovery-method-send-code-error-description = Por favor, tente mais tarde ou utilize os seus códigos de autenticação de recuperação.
+password-reset-recovery-method-send-code-error-description = Por favor tente novamente mais tarde ou utilize os seus códigos de autenticação de recuperação.
 
 
 reset-password-recovery-phone-flow-heading = Repor a sua palavra-passe
 reset-password-recovery-phone-heading = Introduza o código de recuperação
-reset-password-recovery-phone-instruction-v3 = Foi enviado um código de 6 dígitos para o número de telefone que termina com <span>{ $lastFourPhoneDigits }</span> por mensagem de texto. Este código expira após 5 minutos. Não partilhe este código com ninguém.
-reset-password-recovery-phone-input-label = Inserir código de 6 dígitos
+reset-password-recovery-phone-instruction-v3 = Foi enviado um código de 6 dígitos para o número de telefone que termina em <span>{ $lastFourPhoneDigits }</span> por mensagem de texto. Este código expira após 5 minutos. Não partilhe este código com ninguém.
+reset-password-recovery-phone-input-label = Introduza código de 6 dígitos
 reset-password-recovery-phone-code-submit-button = Confirmar
 reset-password-recovery-phone-resend-code-button = Reenviar código
 reset-password-recovery-phone-resend-success = Código enviado

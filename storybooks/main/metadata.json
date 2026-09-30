@@ -1,8 +1,8 @@
 {
-  "commit": "2bcb2d5d22bfb0dbe83283a1e2721aa592ff5ea7",
-  "summary": "Merge pull request #21333 from mozilla/fxa-14624",
-  "description": "refactor(auth): remove unused mozilla-subscriptions billing route",
-  "timestamp": 1790799072000,
+  "commit": "e7ae5f9b1a3363f05204bca536814a31fb408e11",
+  "summary": "Merge pull request #21357 from mozilla/dependabot/npm_and_yarn/webpack-dev-middleware-7.4.5",
+  "description": "chore(deps-dev): bump webpack-dev-middleware from 7.4.2 to 7.4.5",
+  "timestamp": 1790799844000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

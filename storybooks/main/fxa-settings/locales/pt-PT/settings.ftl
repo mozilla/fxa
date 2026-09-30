@@ -1753,7 +1753,7 @@ pair-wait-for-supp-heading-text = A aprovação agora é obrigatória <span>do s
 
 # v2: Updated wording to align with the legacy Backbone pair/failure copy.
 pair-failure-header-v2 = O emparelhamento do dispositivo falhou
-pair-failure-message-v2 = Não foi possível concluir a configuração. Por favor, inicie sessão com o seu email.
+pair-failure-message-v2 = Não foi possível concluir a configuração. Por favor inicie sessão com o seu e-mail.
 pair-failure-try-again-link = Tentar novamente
 
 ## Pair index page
@@ -2048,7 +2048,7 @@ set-password-info-v2 = Isto encripta os seus dados. Tem de ser diferente da pala
 ## SetPassword page for passwordless flow
 ## Users who signed in via passwordless OTP and need to create a password for Sync
 
-set-password-passwordless-info = Esta palavra-passe encripta os seus dados sincronizados e os mantém seguros.
+set-password-passwordless-info = Esta palavra-passe encripta os seus dados sincronizados mantém-os seguros.
 
 ## ThirdPartyAuthCallback Page
 ## This page is called after a user completes the third party authentication flow from Google or Apple.
@@ -2150,12 +2150,12 @@ password-reset-recovery-method-code = Códigos de autenticação de recuperaçã
 # Variable: $numBackupCodes (String) - The number of backup authentication codes the user has left, e.g., 4
 password-reset-recovery-method-code-info =
     { $numBackupCodes ->
-        [one] { $numBackupCodes } código remanescente
-       *[other] { $numBackupCodes } códigos remanescentes
+        [one] { $numBackupCodes } código restante
+       *[other] { $numBackupCodes } códigos restantes
     }
 # Shown when a backend service fails and a code cannot be sent to the user's recovery phone.
 password-reset-recovery-method-send-code-error-heading = Ocorreu um problema ao enviar um código para o seu telefone de recuperação
-password-reset-recovery-method-send-code-error-description = Por favor, tente mais tarde ou utilize os seus códigos de autenticação de recuperação.
+password-reset-recovery-method-send-code-error-description = Por favor tente novamente mais tarde ou utilize os seus códigos de autenticação de recuperação.
 
 ## ResetPasswordRecoveryPhone page
 
@@ -2164,8 +2164,8 @@ reset-password-recovery-phone-flow-heading = Repor a sua palavra-passe
 reset-password-recovery-phone-heading = Introduza o código de recuperação
 # Text that explains the user should check their phone for a recovery code
 # $maskedPhoneNumber - The users masked phone number
-reset-password-recovery-phone-instruction-v3 = Foi enviado um código de 6 dígitos para o número de telefone que termina com <span>{ $lastFourPhoneDigits }</span> por mensagem de texto. Este código expira após 5 minutos. Não partilhe este código com ninguém.
-reset-password-recovery-phone-input-label = Inserir código de 6 dígitos
+reset-password-recovery-phone-instruction-v3 = Foi enviado um código de 6 dígitos para o número de telefone que termina em <span>{ $lastFourPhoneDigits }</span> por mensagem de texto. Este código expira após 5 minutos. Não partilhe este código com ninguém.
+reset-password-recovery-phone-input-label = Introduza código de 6 dígitos
 reset-password-recovery-phone-code-submit-button = Confirmar
 reset-password-recovery-phone-resend-code-button = Reenviar código
 reset-password-recovery-phone-resend-success = Código enviado
