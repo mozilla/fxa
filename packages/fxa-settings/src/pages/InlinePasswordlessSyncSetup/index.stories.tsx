@@ -8,6 +8,8 @@ import { action } from '@storybook/addon-actions';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import InlinePasswordlessSyncSetup from '.';
 import { Subject } from './mocks';
+import AlertBar from '../../components/Settings/AlertBar';
+import { alertContent, alertType, alertVisible } from '../../models';
 
 export default {
   title: 'Pages/InlinePasswordlessSyncSetup',
@@ -41,3 +43,20 @@ export const ConfirmationDismissed = () => (
     {...handlers}
   />
 );
+
+// The container shows these in the Settings alert bar after leaving the page.
+export const EnabledAlert = () => {
+  alertContent('This passkey is enabled for sync sign-in');
+  alertType('success');
+  alertVisible(true);
+  return <AlertBar />;
+};
+
+export const EnableFailedAlert = () => {
+  alertContent(
+    'We couldn’t enable this passkey for sync sign-in. You’ll need your password next time.'
+  );
+  alertType('error');
+  alertVisible(true);
+  return <AlertBar />;
+};
