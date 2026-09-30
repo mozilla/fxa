@@ -643,9 +643,9 @@ nav-email-comm = Comunicações por e-mail
 
 page-2fa-change-title = Alterar autenticação de dois passos
 page-2fa-change-success = A autenticação de dois passos foi atualizada
-page-2fa-change-success-additional-message = Para proteger todos os seus dispositivos associados, termine sessão em todos os lugares em que estiver a utilizar esta conta e depois inicie sessão novamente utilizando a sua nova autenticação de dois passos.
+page-2fa-change-success-additional-message = Para proteger todos os seus dispositivos associados, deve terminar sessão em todos os lugares em que estiver a usar esta conta, e depois inicie sessão novamente usando a sua nova autenticação de dois passos.
 page-2fa-change-totpinfo-error = Ocorreu um erro ao substituir a sua aplicação de autenticação de dois passos. Tente novamente mais tarde.
-page-2fa-change-qr-instruction = <strong>Etapa 1:</strong> Digitalize este código QR utilizando qualquer aplicação de autenticação, como o Duo ou o Google Authenticator. Isto cria uma nova ligação. Quaisquer ligações antigas deixarão de funcionar.
+page-2fa-change-qr-instruction = <strong>Passo 1:</strong> Digitalize este código QR utilizando qualquer aplicação de autenticação, como o Duo ou o Google Authenticator. Isto cria uma nova ligação, quaisquer ligações antigas deixarão de funcionar.
 
 
 tfa-backup-codes-page-title = Códigos de autenticação de recuperação
@@ -653,16 +653,16 @@ tfa-replace-code-error-3 = Ocorreu um problema ao substituir os seus códigos de
 tfa-create-code-error = Ocorreu um problema ao criar os seus códigos de autenticação de recuperação
 tfa-replace-code-success-alert-4 = Códigos de autenticação de recuperação atualizados
 tfa-create-code-success-alert = Códigos de autenticação de recuperação criados
-tfa-replace-code-download-description = Mantenha-os num local que irá memorizar. Os seus códigos antigos serão substituídos depois de concluir o próximo passo.
-tfa-replace-code-confirm-description = Confirme que guardou os seus códigos ao introduzir um. Os seus códigos de autenticação de recuperação antigos serão desativados assim que esta etapa for concluída.
+tfa-replace-code-download-description = Mantenha-os num local de que se lembre. Os seus códigos antigos serão substituídos depois de concluir o próximo passo.
+tfa-replace-code-confirm-description = Confirme que guardou os seus códigos ao introduzir um. Os seus códigos de autenticação de recuperação antigos serão desativados assim que este passo for concluído.
 tfa-incorrect-recovery-code-1 = Código de autenticação de recuperação incorreto
 
 
-page-2fa-setup-title = Autenticação de dois fatores
+page-2fa-setup-title = Autenticação de dois passos
 page-2fa-setup-totpinfo-error = Ocorreu um erro ao configurar a autenticação de dois passos. Tente novamente mais tarde.
 page-2fa-setup-incorrect-backup-code-error = Esse código não está correto. Tente novamente.
 page-2fa-setup-success = A autenticação de dois passos foi ativada
-page-2fa-setup-success-additional-message = Para proteger todos os seus dispositivos ligados, deve terminar sessão em todos os lugares em que estiver a utilizar esta conta e depois iniciar sessão novamente utilizando a autenticação de dois passos.
+page-2fa-setup-success-additional-message = Para proteger todos os seus dispositivos ligados, deve terminar sessão em todos os lugares em que estiver a usar esta conta, e depois iniciar sessão novamente utilizando a autenticação de dois passos.
 
 
 avatar-page-title =
@@ -825,11 +825,11 @@ recent-activity-account-passwordless-login-otp-failed = O código de início de 
 recent-activity-account-passwordless-login-otp-verified = Código de início de sessão sem palavra-passe verificado
 recent-activity-account-passwordless-registration-complete = Registo de conta sem palavra-passe concluído
 recent-activity-account-recovery-codes-set = Códigos de recuperação definidos
-recent-activity-account-passkey-wrap-created = Chave de acesso ativada para sincronização
-recent-activity-account-passkey-wrap-creation-failure = A configuração da sincronização com a chave de acesso falhou
+recent-activity-account-passkey-wrap-created = Chave-passe ativada para sincronização
+recent-activity-account-passkey-wrap-creation-failure = A configuração da sincronização com a chave-passe falhou
 recent-activity-account-passkey-wrap-deleted = Removido acesso da chave-passe à sincronização
 recent-activity-account-passkey-wrap-deletion-failure = Falha na remoção do acesso da chave-passe à sincronização
-recent-activity-account-passkey-wrap-invalidated = Acesso à sincronização da chave removido após a reposição da palavra-passe
+recent-activity-account-passkey-wrap-invalidated = Acesso à sincronização da chave-passe removido após a reposição da palavra-passe
 recent-activity-unknown = Outra atividade da conta
 
 
@@ -881,7 +881,7 @@ inactive-update-status-success-alert = Sessão iniciada com sucesso. A sua { -pr
 
 product-promo-monitor =
     .alt = { -product-mozilla-monitor }
-product-promo-monitor-description-v2 = Encontre onde a sua informação privada está exposta e assuma o controlo
+product-promo-monitor-description-v2 = Descubra onde a sua informação privada está exposta e assuma o controlo
 product-promo-monitor-cta = Obter verificação gratuita
 product-promo-vpn =
     .alt = { -product-mozilla-vpn }
@@ -934,16 +934,15 @@ tfa-row-backup-phone-description-v2 = Este é o método de recuperação mais f�
 tfa-row-backup-phone-sim-swap-risk-link = Saber mais sobre o risco de troca de SIM
 passkey-sub-row-created-date = Criado: { $createdDate }
 passkey-sub-row-last-used-date = Última utilização: { $lastUsedDate }
-passkey-sub-row-delete-title = Eliminar chave de acesso
-passkey-delete-modal-heading = Apagar a sua chave?
-passkey-delete-modal-content-v2 = Esta chave será removida da sua conta. Terá de iniciar sessão utilizando um método diferente (palavra-passe, outra chave de acesso ou conta associada).
+passkey-sub-row-delete-title = Apagar chave-passe
+passkey-delete-modal-heading = Apagar a sua chave-passe?
+passkey-delete-modal-content-v2 = Esta chave-passe será removida da sua conta. Terá de iniciar sessão usando um método diferente (palavra-passe, outra chave-passe, ou conta associada).
 passkey-delete-modal-cancel-button = Cancelar
-passkey-delete-modal-confirm-button = Eliminar chave de acesso
-passkey-delete-success = Chave eliminada
-passkey-delete-error = Ocorreu um problema ao eliminar a sua chave. Tente novamente dentro de alguns minutos.
-passkey-sub-row-rename-title = Renomear chave de acesso
-passkey-rename-modal-heading = Renomear chave de acesso
-passkey-rename-modal-description = Digite um novo nome para esta chave.
+passkey-delete-modal-confirm-button = Apagar chave-passe
+passkey-delete-success = Chave-passe apagada
+passkey-delete-error = Ocorreu um problema ao apagar a sua chave-passe. Tente novamente dentro de alguns minutos.
+passkey-sub-row-rename-title = Renomear chave-passe
+passkey-rename-modal-heading = Renomear chave-passe
 passkey-rename-input-label = Nome da chave
 passkey-rename-save-button = Guardar
 passkey-rename-cancel-button = Cancelar
@@ -976,10 +975,10 @@ passkey-row-description = Torne o início de sessão mais fácil e mais seguro a
 passkey-row-info-link-2 = Saber mais
 passkey-row-max-limit-banner =
     { $count ->
-        [one] Utilizou todas as { $count } palavras-passe. Elimine uma chave de acesso para criar uma nova.
-       *[other] Utilizou todas as { $count } palavras-passe. Elimine uma chave de acesso para criar uma nova.
+        [one] Usou todas as { $count } chaves-passe. Apague uma chave-passe para criar uma nova.
+       *[other] Usou todas as { $count } chaves-passe. Apague uma chave-passe para criar uma nova.
     }
-passkey-row-max-limit-disabled-reason = Atingiu o número máximo de palavras-passe.
+passkey-row-max-limit-disabled-reason = Atingiu o número máximo de chaves-passe.
 
 
 rk-header-1 = Chave de recuperação da conta
@@ -1050,8 +1049,8 @@ tfa-row-cannot-disable-2 = Não foi possível desativar a autenticação de dois
 tfa-row-verify-session-info = Precisa de confirmar a sua sessão atual para configurar a autenticação de dois passos
 
 
-terms-privacy-agreement-intro-3 = Ao proceder, concorda com o seguinte:
-terms-privacy-agreement-customized-terms = { $serviceName }: <termsLink>Termos do serviço</termsLink> e <privacyLink>Aviso de privacidade</privacyLink>
+terms-privacy-agreement-intro-3 = Ao continuar, concorda com o seguinte:
+terms-privacy-agreement-customized-terms = { $serviceName }: <termsLink>Termos do Serviço</termsLink> e <privacyLink>Aviso de Privacidade</privacyLink>
 terms-privacy-agreement-mozilla-2 = { -product-mozilla-accounts(capitalization: "uppercase") }: <mozillaAccountsTos>Termos do Serviço</mozillaAccountsTos> e <mozillaAccountsPrivacy>Informação de Privacidade</mozillaAccountsPrivacy>
 terms-privacy-agreement-default-2 = Ao continuar, concorda com os <mozillaAccountsTos>Termos do Serviço</mozillaAccountsTos> e com a <mozillaAccountsPrivacy>Informação de Privacidade</mozillaAccountsPrivacy>.
 
@@ -1068,10 +1067,10 @@ auth-error-110 = Código inválido
 auth-error-114-generic = Tentou demasiadas vezes. Por favor, tente novamente mais tarde.
 auth-error-114 = Tentou demasiadas vezes. Tente novamente { $retryAfter }.
 auth-error-125 = O pedido foi bloqueado por questões de segurança
-auth-error-129-2 = Introduziu um número de telefone inválido. Por favor, verifique e tente novamente.
+auth-error-129-2 = Introduziu um número de telefone inválido. Por favor verifique-o e tente novamente.
 auth-error-138-2 = Sessão não confirmada
 auth-error-139 = O e-mail secundário tem de ser diferente do e-mail da sua conta
-auth-error-144 = Este email está reservado para outra conta. Tente novamente mais tarde ou utilize um endereço de email diferente.
+auth-error-144 = Este e-mail está reservado por outra conta. Tente novamente mais tarde ou utilize um endereço de e-mail diferente.
 auth-error-155 = Código TOTP não encontrado
 auth-error-156 = Código de autenticação de recuperação não encontrado
 auth-error-159 = Chave de recuperação da conta inválida
@@ -1084,14 +1083,14 @@ auth-error-215 = O número de telefone de recuperação não existe
 auth-error-216 = Limite de mensagens de texto atingido
 auth-error-218 = Não foi possível remover o telefone de recuperação. Códigos de autenticação de recuperação em falta.
 auth-error-219 = Este número de telefone foi registado com demasiadas contas. Por favor, tente um número diferente.
-auth-error-224 = Chave não encontrada
-auth-error-225 = Palavra-passe já registada
-auth-error-226 = Limite de palavras-passe atingido
-auth-error-227 = Falha na autenticação da palavra-passe
-auth-error-228 = O registo da chave falhou
-auth-error-233 = Para criar uma chave de acesso, configure um bloqueio de ecrã, PIN, impressão digital ou reconhecimento de face no seu dispositivo ou chave de segurança. Depois, tente novamente.
-auth-error-238 = O desafio da chave de acesso falhou
-auth-error-239 = Desculpe, não conseguimos apagar a sua conta. Por favor, tente novamente ou contacte o suporte se o problema continuar.
+auth-error-224 = Chave-passe não encontrada
+auth-error-225 = Chave-passe já registada
+auth-error-226 = Limite de chaves-passe atingido
+auth-error-227 = Falha na autenticação da chave-passe
+auth-error-228 = O registo da chave-passe falhou
+auth-error-233 = Para criar uma chave-passe, configure um bloqueio de ecrã, PIN, impressão digital, ou reconhecimento facial no seu dispositivo ou chave de segurança. Depois tente novamente.
+auth-error-238 = Falha no desafio da chave-passe
+auth-error-239 = Desculpe, não conseguimos apagar a sua conta. Por favor tente novamente, ou contacte o suporte se o problema persistir.
 auth-error-240 = Esta conta foi desativada
 auth-error-999 = Erro inesperado
 auth-error-1001 = Tentativa de início de sessão cancelada
@@ -1114,30 +1113,30 @@ recovery-phone-number-ending-digits = Número que termina em { $lastFourPhoneNum
 oauth-error-1000 = Ocorreu um erro. Feche este separador e tente novamente.
 
 
-passkey-registration-error-not-allowed = A configuração da palavra-passe falhou ou está indisponível. Tente novamente ou escolha outro método.
-passkey-registration-error-not-allowed-existing = A configuração por palavra-passe não está disponível para este dispositivo. Ou o dispositivo já está registado ou o processo de configuração foi cancelado.
-passkey-registration-error-timeout = A configuração da chave de acesso foi cancelada. Tente novamente.
-passkey-registration-canceled-v2 = A configuração da chave de acesso expirou ou foi cancelada.
+passkey-registration-error-not-allowed = A configuração da chave-passe falhou ou está indisponível. Tente novamente ou escolha outro método.
+passkey-registration-error-not-allowed-existing = A configuração da chave-passe não está disponível com este dispositivo. Ou o dispositivo já está registado ou o processo de configuração foi cancelado.
+passkey-registration-error-timeout = A configuração da chave-passe foi cancelada. Tente novamente.
+passkey-registration-canceled-v2 = A configuração da chave-passe expirou ou foi cancelada.
 passkey-registration-canceled-link = Saber mais
-passkey-registration-error-not-supported-v2 = O seu navegador ou dispositivo não suporta palavras-passe.
+passkey-registration-error-not-supported-v2 = O seu navegador ou dispositivo não suporta chaves-passe.
 passkey-registration-error-not-supported-link = Saber mais
-passkey-registration-error-could-not-complete = Não foi possível concluir a configuração da chave de acesso. Experimente um método ou dispositivo diferente.
+passkey-registration-error-could-not-complete = Não foi possível concluir a configuração da chave-passe. Experimente um método ou dispositivo diferente.
 passkey-registration-error-could-not-complete-link = Saber mais
-passkey-registration-error-security = Não podem ser configuradas chaves de acesso nesta página. Utilize o site seguro e tente novamente.
-passkey-registration-error-invalid-state = Esta chave já está registada. Utilize-o para iniciar sessão ou adicionar uma chave diferente.
+passkey-registration-error-security = Não podem ser configuradas chaves-passe nesta página. Use o site seguro e tente novamente.
+passkey-registration-error-invalid-state = Esta chave-passe já está registada. Use-a para iniciar sessão ou adicionar uma chave-passe diferente.
 passkey-registration-error-not-readable = Não conseguimos aceder ao autenticador. Tente novamente ou escolha outro método.
-passkey-registration-error-constraint = A configuração por palavra-passe não está disponível para este dispositivo. Tente outro método ou dispositivo.
-passkey-registration-error-unexpected = A configuração da chave de acesso falhou. Tente novamente ou escolha outro método.
-passkey-authentication-trouble-heading = Não foi possível iniciar sessão com uma chave de acesso
+passkey-registration-error-constraint = A configuração por chave-passe não está disponível com este dispositivo. Tente outro método ou dispositivo.
+passkey-registration-error-unexpected = A configuração da chave-passe falhou. Tente novamente ou escolha outro método.
+passkey-authentication-trouble-heading = Não foi possível iniciar sessão com uma chave-passe
 passkey-authentication-trouble-description = Tente novamente ou utilize outra opção de início de sessão.
-passkey-authentication-trouble-link = Como utilizar chaves de acesso
-passkey-authentication-error-not-allowed = A autenticação com a chave de acesso falhou ou está indisponível. Tente novamente ou escolha outro método.
-passkey-authentication-error-not-allowed-existing = A configuração por palavra-passe não está disponível para este dispositivo. Por favor, tente novamente ou escolha outro método.
-passkey-authentication-error-timeout = O pedido de chave expirou. Por favor, tente novamente.
-passkey-authentication-error-timeout-v2 = O início de sessão com a chave expirou. Tente novamente.
-passkey-authentication-error-not-supported-v2 = O seu navegador ou dispositivo não suporta palavras-passe.
-passkey-authentication-error-security = Não podem ser utilizadas chaves de acesso nesta página. Verifique se está no site seguro correto e tente novamente.
-passkey-authentication-error-invalid-state = Algo não correu bem com a sua chave. Tente novamente ou utilize outro método de início de sessão.
+passkey-authentication-trouble-link = Como utilizar chaves-passe
+passkey-authentication-error-not-allowed = A autenticação com a chave-passe falhou ou está indisponível. Tente novamente ou escolha outro método.
+passkey-authentication-error-not-allowed-existing = A configuração por chave-passe não está disponível com este dispositivo. Por favor tente novamente ou escolha outro método.
+passkey-authentication-error-timeout = O pedido de chave-passe expirou. Por favor tente novamente.
+passkey-authentication-error-timeout-v2 = O início de sessão com chave-passe expirou. Tente novamente.
+passkey-authentication-error-not-supported-v2 = O seu navegador ou dispositivo não suporta chaves-passe.
+passkey-authentication-error-security = Não podem ser utilizadas chaves-passe nesta página. Verifique se está no site seguro correto e tente novamente.
+passkey-authentication-error-invalid-state = Algo não correu bem com a sua chave-passe. Tente novamente ou utilize outro método de início de sessão.
 passkey-authentication-error-not-readable = Não conseguimos aceder ao autenticador. Tente novamente ou utilize outro método de início de sessão.
 passkey-authentication-error-unexpected = Algo correu mal. Tente novamente ou escolha outro método de início de sessão.
 passkey-authentication-error-not-found = Chave não reconhecida. Utilizar outro método de início de sessão.

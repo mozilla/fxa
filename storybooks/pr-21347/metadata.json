@@ -1,8 +1,8 @@
 {
-  "commit": "2c6ccb70d553868587d49ec832bb44e3383f22fe",
-  "summary": "test(ci): profile fresh-build memory and CPU at different parallelism",
-  "description": "Because:\n\n- We need build headroom data before raising nx --parallel for Build\n\nThis commit:\n\n- Adds a benchmark-only build-profile job with cgroup memory/CPU sampling\n- Runs p2 with a 7GB heap, p4 with 7GB, and p4 with 4GB on separate xlarge nodes",
-  "timestamp": 1790795407000,
+  "commit": "732e64443ff5347cadb19369caf577996c50c137",
+  "summary": "test(ci): measure per-process heap in fresh builds; add an uncached switch",
+  "description": "Because:\n\n- We need to know how close build tasks get to their heap limit before lowering it\n\nThis commit:\n\n- Preloads a heap probe that records each Node process's peak heap, limit and RSS\n- Runs two fresh p4 builds with a 4GB limit, also probing settings' webpack builds\n- Adds a bench_uncached pipeline parameter that sets NX_SKIP_NX_CACHE in all jobs",
+  "timestamp": 1790798311000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-settings"

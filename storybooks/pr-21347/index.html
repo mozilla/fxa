@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 2c6ccb70d553868587d49ec832bb44e3383f22fe</title>
+  <title>Storybooks for commit 732e64443ff5347cadb19369caf577996c50c137</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,25 +23,26 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 2c6ccb70d553868587d49ec832bb44e3383f22fe</h1>
+  <h1>Storybooks for commit 732e64443ff5347cadb19369caf577996c50c137</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/30/2026, 7:10:07 PM UTC</dd>
+    <dd>9/30/2026, 7:58:31 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>test(ci): profile fresh-build memory and CPU at different parallelism</pre></dd>
+    <dd><pre>test(ci): measure per-process heap in fresh builds; add an uncached switch</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-- We need build headroom data before raising nx --parallel for Build
+- We need to know how close build tasks get to their heap limit before lowering it
 
 This commit:
 
-- Adds a benchmark-only build-profile job with cgroup memory/CPU sampling
-- Runs p2 with a 7GB heap, p4 with 7GB, and p4 with 4GB on separate xlarge nodes</pre></dd>
+- Preloads a heap probe that records each Node process&#039;s peak heap, limit and RSS
+- Runs two fresh p4 builds with a 4GB limit, also probing settings&#039; webpack builds
+- Adds a bench_uncached pipeline parameter that sets NX_SKIP_NX_CACHE in all jobs</pre></dd>
   </dl>
 </body>
 </html>
