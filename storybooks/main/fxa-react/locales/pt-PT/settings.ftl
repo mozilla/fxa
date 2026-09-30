@@ -712,9 +712,9 @@ flow-setup-2fa-backup-choice-description = Isto permite que inicie sessão se n�
 flow-setup-2fa-backup-choice-phone-title = Telefone de recuperação
 flow-setup-2fa-backup-choice-phone-badge = Mais fácil
 flow-setup-2fa-backup-choice-phone-info = Obter um código de recuperação através de mensagem de texto. Atualmente disponível nos EUA e Canadá.
-flow-setup-2fa-backup-choice-code-title = Códigos de autenticação de recuperação
-flow-setup-2fa-backup-choice-code-badge = O mais seguro
-flow-setup-2fa-backup-choice-code-info = Crie e guarde códigos de autenticação de utilização única.
+flow-setup-2fa-backup-choice-code-title = Códigos de autenticação
+flow-setup-2fa-backup-choice-code-badge = Mais seguro
+flow-setup-2fa-backup-choice-code-info = Crie e guarde códigos de autenticação de uso único.
 # This link points to https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication
 flow-setup-2fa-backup-choice-learn-more-link = Saber mais sobre recuperação e risco de troca de SIM
 
@@ -725,48 +725,48 @@ flow-setup-2fa-backup-choice-learn-more-link = Saber mais sobre recuperação e 
 flow-setup-2fa-backup-code-confirm-heading = Insira o código de autenticação de recuperação
 # codes here refers to backup authentication codes
 flow-setup-2fa-backup-code-confirm-confirm-saved = Confirme que guardou os seus códigos ao introduzir um. Sem estes códigos, poderá não conseguir iniciar sessão se não tiver a sua aplicação de autenticação.
-flow-setup-2fa-backup-code-confirm-code-input = Inserir código de 10 caracteres
+flow-setup-2fa-backup-code-confirm-code-input = Insera código de 10 caracteres
 # Clicking on this button finishes the whole flow upon success.
 flow-setup-2fa-backup-code-confirm-button-finish = Concluir
 
 ## The backup codes download step of the setup 2 factor authentication flow
 
 flow-setup-2fa-backup-code-dl-heading = Guardar códigos de autenticação de recuperação
-flow-setup-2fa-backup-code-dl-save-these-codes = Mantenha-os num local que irá memorizar. Se não tem acesso à sua aplicação de autenticação, precisará de introduzir uma para iniciar sessão.
+flow-setup-2fa-backup-code-dl-save-these-codes = Mantenha-os num local de que se lembre. Se não tem acesso à sua aplicação de autenticação precisará de introduzir um para iniciar sessão.
 flow-setup-2fa-backup-code-dl-button-continue = Continuar
 
 ##
 
-flow-setup-2fa-inline-complete-success-banner = Autenticação de dois fatores ativada
-flow-setup-2fa-inline-complete-success-banner-description = Para proteger todos os seus dispositivos associados, termine sessão em todos os lugares em que estiver a utilizar esta conta e depois inicie sessão novamente utilizando a sua nova autenticação de dois passos.
+flow-setup-2fa-inline-complete-success-banner = Autenticação de dois passos ativada
+flow-setup-2fa-inline-complete-success-banner-description = Para proteger todos os dispositivos ligados, deve terminar sessão em todos os locais onde utiliza esta conta, e depois voltar a iniciar sessão com a sua nova autenticação em dois passos.
 flow-setup-2fa-inline-complete-backup-code = Códigos de autenticação de recuperação
 flow-setup-2fa-inline-complete-backup-phone = Telefone de recuperação
 # $count (Number) - an integer representing the number of backup
 # authentication codes remaining
 flow-setup-2fa-inline-complete-backup-code-info =
     { $count ->
-        [one] { $count } código remanescente
-       *[other] { $count } códigos remanescentes
+        [one] { $count } código restante
+       *[other] { $count } códigos restantes
     }
-flow-setup-2fa-inline-complete-backup-code-description = Este é o método de recuperação mais seguro se não conseguir iniciar sessão com o seu dispositivo móvel ou a aplicação de autenticação.
+flow-setup-2fa-inline-complete-backup-code-description = Este é o método de recuperação mais seguro se não conseguir iniciar sessão com o seu dispositivo móvel ou aplicação de autenticação.
 flow-setup-2fa-inline-complete-backup-phone-description = Este é o método de recuperação mais fácil se não conseguir iniciar sessão com a sua aplicação de autenticação.
 flow-setup-2fa-inline-complete-learn-more-link = Como isto protege a sua conta
 # $serviceName (String) - the name of the product that the user will be
 # redirected to.
 flow-setup-2fa-inline-complete-continue-button = Continuar para { $serviceName }
-flow-setup-2fa-prompt-heading = Configurar autenticação em duas etapas
+flow-setup-2fa-prompt-heading = Configurar autenticação de dois passos
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
-flow-setup-2fa-prompt-description = { $serviceName } requer que configure a autenticação de dois passos para manter a sua conta segura.
+flow-setup-2fa-prompt-description = O { $serviceName } requer que configure a autenticação de dois passos para manter a sua conta segura.
 # Success banner shown at the top of the page when the user signed in with a passkey.
-flow-setup-2fa-prompt-passkey-success-banner = Sessão iniciada com sucesso com a chave
+flow-setup-2fa-prompt-passkey-success-banner = Sessão iniciada com sucesso através da chave-passe
 # Body copy shown when the user signed in with a passkey and the service still
 # requires two-step authentication setup.
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
-flow-setup-2fa-prompt-passkey-description = { $serviceName } também requer autenticação de dois passos para o seu { -product-mozilla-account }. Depois da configuração, deixará de precisar da mesma quando iniciar sessão com uma chave de acesso.
+flow-setup-2fa-prompt-passkey-description = O { $serviceName } também requer autenticação de dois passos para a sua { -product-mozilla-account }. Depois da configuração, deixará de precisar da mesma quando iniciar sessão com uma chave-passe.
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
-flow-setup-2fa-prompt-use-authenticator-apps = Pode utilizar qualquer uma das <authenticationAppsLink>estas aplicações de autenticação</authenticationAppsLink> para continuar.
+flow-setup-2fa-prompt-use-authenticator-apps = Pode utilizar qualquer uma <authenticationAppsLink>destas aplicações de autenticação</authenticationAppsLink> para continuar.
 flow-setup-2fa-prompt-continue-button = Continuar
 
 ## FlowSetupPhoneConfirmCode
