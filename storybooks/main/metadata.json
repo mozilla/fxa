@@ -1,8 +1,8 @@
 {
-  "commit": "51103a552adefcbd929a0195b3c33164a5bc512f",
-  "summary": "Merge pull request #21351 from mozilla/dependabot/npm_and_yarn/xhmikosr/decompress-10.2.2",
-  "description": "chore(deps): bump @xhmikosr/decompress from 10.2.1 to 10.2.2",
-  "timestamp": 1790794606000,
+  "commit": "36a15146907c177adacd77017feb9720fe27bdeb",
+  "summary": "Merge pull request #21352 from mozilla/dependabot/npm_and_yarn/grpc/grpc-js-1.14.5",
+  "description": "chore(deps): bump @grpc/grpc-js from 1.14.4 to 1.14.5",
+  "timestamp": 1790795397000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

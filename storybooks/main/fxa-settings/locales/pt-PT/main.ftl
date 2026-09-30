@@ -590,7 +590,7 @@ header-menu-closed = Menu de navegação do site
 header-back-to-top-link =
     .title = Ir para o topo
 header-back-to-settings-link =
-    .title = Voltar para as definições de { -product-mozilla-account }
+    .title = Voltar para as definições da { -product-mozilla-account }
 header-title-2 = { -product-mozilla-account }
 header-help = Ajuda
 
