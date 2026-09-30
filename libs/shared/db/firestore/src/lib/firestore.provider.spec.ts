@@ -51,8 +51,24 @@ describe('createFirestore', () => {
     });
   });
 
-  it('connects to the emulator default database when no credentials are configured', () => {
-    createFirestore({ databaseId: 'entitlements' });
+  it('connects to the configured database when no credentials are configured', () => {
+    createFirestore({ projectId: 'project', databaseId: 'entitlements' });
+
+    expect(Firestore).toHaveBeenCalledWith({
+      projectId: 'project',
+      databaseId: 'entitlements',
+      credentials: undefined,
+    });
+  });
+
+  it('connects to the emulator default database when FIRESTORE_EMULATOR_HOST is set', () => {
+    process.env['FIRESTORE_EMULATOR_HOST'] = 'localhost:9090';
+
+    createFirestore({
+      projectId: 'project',
+      databaseId: 'entitlements',
+      credentials: { clientEmail: 'sa@example.com', privateKey: 'key' },
+    });
 
     const [settings] = (Firestore as unknown as jest.Mock).mock.calls[0];
     expect(settings.projectId).toBe('demo-fxa');
