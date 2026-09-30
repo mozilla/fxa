@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 54cfe572c1facf04747bda86090d206b1927b320</title>
+  <title>Storybooks for commit a5dc729cda7a5c84832fb7d24f6fa4f4c7ad8984</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 54cfe572c1facf04747bda86090d206b1927b320</h1>
+  <h1>Storybooks for commit a5dc729cda7a5c84832fb7d24f6fa4f4c7ad8984</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
@@ -32,23 +32,19 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/29/2026, 6:59:56 PM UTC</dd>
+    <dd>9/30/2026, 2:57:40 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>chore(deps): bump nodemailer from 9.1.1 to 10.0.2</pre></dd>
+    <dd><pre>fix(email-sender): adapt to nodemailer 10 bundled types</pre></dd>
     <dt>Description</dt>
-    <dd><pre>Bumps [nodemailer](https://github.com/nodemailer/nodemailer) from 9.1.1 to 10.0.2.
-- [Release notes](https://github.com/nodemailer/nodemailer/releases)
-- [Changelog](https://github.com/nodemailer/nodemailer/blob/master/CHANGELOG.md)
-- [Commits](https://github.com/nodemailer/nodemailer/compare/v9.1.1...v10.0.2)
+    <dd><pre>Because:
 
----
-updated-dependencies:
-- dependency-name: nodemailer
-  dependency-version: 10.0.2
-  dependency-type: direct:production
-...
+- nodemailer 10 ships its own TypeScript types, which type SentMessageInfo.message as unknown and declare the callback overload of sendMail last.
 
-Signed-off-by: dependabot[bot] &lt;support@github.com&gt;</pre></dd>
+This commit:
+
+- Copies info.message into the send result only when it is a string.
+- Types the spec&#039;s transporter mock with the promise form of sendMail.
+- Adds the now-required envelope to the spec&#039;s mock send results.</pre></dd>
   </dl>
 </body>
 </html>
