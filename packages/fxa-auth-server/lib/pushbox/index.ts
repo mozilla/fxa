@@ -30,8 +30,10 @@ function encodeForStorage(data: any) {
   return Buffer.from(JSON.stringify(data)).toString('base64url');
 }
 
-function decodeFromStorage(data: string) {
-  return JSON.parse(Buffer.from(data, 'base64url').toString());
+// The data column is a BLOB, so mysql hands back a Buffer. Buffer.from
+// ignores the encoding for Buffer input, so stringify first.
+function decodeFromStorage(data: string | Buffer) {
+  return JSON.parse(Buffer.from(data.toString(), 'base64url').toString());
 }
 
 export const pushboxApi = (
@@ -106,7 +108,7 @@ export const pushboxApi = (
           index: result.index,
           messages: result.messages.map((msg) => ({
             index: msg.idx,
-            data: decodeFromStorage(msg.data as string),
+            data: decodeFromStorage(msg.data),
           })),
         };
       } catch (err) {
