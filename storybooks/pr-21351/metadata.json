@@ -1,0 +1,13 @@
+{
+  "commit": "e1cf9a57ed80473b38a275665b8063cf7e71f328",
+  "summary": "chore(deps): bump @xhmikosr/decompress from 10.2.1 to 10.2.2",
+  "description": "Bumps [@xhmikosr/decompress](https://github.com/XhmikosR/decompress) from 10.2.1 to 10.2.2.\n- [Release notes](https://github.com/XhmikosR/decompress/releases)\n- [Commits](https://github.com/XhmikosR/decompress/compare/v10.2.1...v10.2.2)\n\n---\nupdated-dependencies:\n- dependency-name: \"@xhmikosr/decompress\"\n  dependency-version: 10.2.2\n  dependency-type: indirect\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1790792471000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
