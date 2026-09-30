@@ -7,7 +7,7 @@ import { join } from 'path';
 import * as ts from 'typescript';
 import { Test } from '@nestjs/testing';
 import { StatsD } from 'hot-shots';
-import { DocumentNode } from 'graphql';
+import { parse } from 'graphql';
 
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { relyingPartyQuery } from '../../src';
@@ -54,10 +54,6 @@ jest.mock('@fxa/shared/db/type-cacheable', () => ({
 }));
 
 // Mock Apollo's getOperationName
-jest.mock('@apollo/client/utilities', () => ({
-  getOperationName: jest.fn().mockReturnValue('MockOperation'),
-}));
-
 /** Returns the type annotation of the `@Inject(LOGGER_PROVIDER)` constructor parameter. */
 function loggerParamType(fileName: string): string | undefined {
   const filePath = join(__dirname, fileName);
@@ -153,7 +149,7 @@ describe('RelyingPartyConfigurationManager', () => {
         elapsed: 1,
         cache: false,
         cacheType: 'method',
-        query: {} as DocumentNode,
+        query: parse('query MockOperation { __typename }'),
         error: undefined,
       };
 
