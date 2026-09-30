@@ -10,6 +10,7 @@ import { mockAppContext } from '../../../models/mocks';
 import { MfaGuard } from './index';
 import { JwtTokenCache } from '../../../lib/cache';
 import { MfaReason } from '../../../lib/types';
+import { MOCK_UID } from '../../../pages/mocks';
 
 const scope: 'test' = 'test';
 const session = 'session-xyz';
@@ -17,7 +18,7 @@ const session = 'session-xyz';
 function initLocalAccount(sessionToken: string) {
   // Match Storage fullKey logic: '__fxa_storage.' prefix
   const NS = '__fxa_storage';
-  const uid = 'abc123';
+  const uid = MOCK_UID;
   const accounts = {
     [uid]: {
       uid,

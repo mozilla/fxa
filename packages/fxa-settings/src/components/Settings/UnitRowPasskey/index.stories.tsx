@@ -15,10 +15,11 @@ import {
 import { SettingsContext } from 'fxa-settings/src/models/contexts/SettingsContext';
 import { Passkey } from 'fxa-auth-client/browser';
 import AlertBar from '../AlertBar';
+import { MOCK_UID } from '../../../pages/mocks';
 
 function initLocalAccount() {
   const NS = '__fxa_storage';
-  const uid = 'abc123';
+  const uid = MOCK_UID;
   const accounts = {
     [uid]: {
       uid,
