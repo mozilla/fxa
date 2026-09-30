@@ -1,8 +1,8 @@
 {
-  "commit": "1efbfbb7a102017956fa066310f33bd21bc5775e",
-  "summary": "ci(circleci): benchmark workspace vs nx remote cache hand-off",
-  "description": "Because:\n\n- We want to measure whether a Build workspace beats per-job installs plus the nx remote cache\n\nThis commit:\n\n- Runs Build first again, installing dependencies itself, with all test jobs requiring it\n- Adds a pr_handoff pipeline parameter: install (default) or workspace\n- Saves .nx/workspace-data and root dist in the build workspace so nx can hit locally\n- Records nx profiles in Build, test and functional-test steps",
-  "timestamp": 1790781296000,
+  "commit": "942484fc47c22550a377db0e185eeff49c6e0aaf",
+  "summary": "fix(functional-tests): run migrations when CircleCI renders the flag as 1",
+  "description": "Because:\n\n- CircleCI turned RUN_DB_MIGRATIONS: true into 1, so start-services skipped migrations\n\nThis commit:\n\n- Quotes the value in config and accepts 1 in the script",
+  "timestamp": 1790782080000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-settings"
