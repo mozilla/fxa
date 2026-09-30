@@ -5,6 +5,7 @@
 import { StatsD } from 'hot-shots';
 
 import PushboxDB from '../../lib/pushbox/db';
+import { pushboxApi } from '../../lib/pushbox';
 
 const config = require('../../config').default.getProperties();
 const statsd = {
@@ -104,6 +105,20 @@ describe('#integration - pushbox db', () => {
 
       expect(result.last).toBe(false);
       expect(result.index).toBe(insertIdx - 2);
+    });
+  });
+
+  describe('pushboxApi', () => {
+    it('retrieves what it stored', async () => {
+      const pushbox = pushboxApi(
+        log as any,
+        { ...config, pushbox: { ...config.pushbox, enabled: true } },
+        statsd
+      );
+      const payload = { command: 'open-uri', args: { url: 'https://a.b' } };
+      const { index } = await pushbox.store(r.uid, r.deviceId, payload, r.ttl);
+      const result = await pushbox.retrieve(r.uid, r.deviceId, 1, index);
+      expect(result.messages).toEqual([{ index, data: payload }]);
     });
   });
 
