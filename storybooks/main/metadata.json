@@ -1,8 +1,8 @@
 {
-  "commit": "36a15146907c177adacd77017feb9720fe27bdeb",
-  "summary": "Merge pull request #21352 from mozilla/dependabot/npm_and_yarn/grpc/grpc-js-1.14.5",
-  "description": "chore(deps): bump @grpc/grpc-js from 1.14.4 to 1.14.5",
-  "timestamp": 1790795397000,
+  "commit": "294bff99e97c5511dea5b1aec3237c494b4ef66f",
+  "summary": "Merge pull request #21353 from mozilla/dependabot/npm_and_yarn/moment-2.31.0",
+  "description": "chore(deps): bump moment from 2.30.1 to 2.31.0",
+  "timestamp": 1790795429000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
