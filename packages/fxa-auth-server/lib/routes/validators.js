@@ -577,51 +577,11 @@ module.exports.subscriptionsPlanWithProductConfigValidator = isA.object({
     .required(),
 });
 
-module.exports.customerId = isA
-  .string()
-  .optional()
-  .description(DESCRIPTIONS.customerId);
 module.exports.subscriptionsGooglePlaySubscriptionValidator =
   playStoreSubscriptionSchema;
 
 module.exports.subscriptionsAppStoreSubscriptionValidator =
   appStoreSubscriptionSchema;
-
-module.exports.subscriptionsMozillaSubscriptionsValidator = isA
-  .object({
-    customerId: module.exports.customerId,
-    billing_name: isA
-      .alternatives(isA.string(), isA.any().allow(null))
-      .optional()
-      .description(DESCRIPTIONS.billingName),
-    exp_month: isA.number().optional().description(DESCRIPTIONS.expMonth),
-    exp_year: isA.number().optional().description(DESCRIPTIONS.expYear),
-    last4: isA.string().optional().description(DESCRIPTIONS.last4),
-    payment_provider: isA
-      .string()
-      .optional()
-      .description(DESCRIPTIONS.paymentProvider),
-    payment_type: isA.string().optional().description(DESCRIPTIONS.paymentType),
-    paypal_payment_error: isA
-      .string()
-      .optional()
-      .description(DESCRIPTIONS.paypalPaymentError),
-    brand: isA.string().optional().description(DESCRIPTIONS.brand),
-    billing_agreement_id: isA
-      .alternatives(isA.string(), isA.any().allow(null))
-      .optional()
-      .description(DESCRIPTIONS.billingAgreementId),
-    subscriptions: isA
-      .array()
-      .items(
-        module.exports.subscriptionsSubscriptionValidator,
-        module.exports.subscriptionsGooglePlaySubscriptionValidator,
-        module.exports.subscriptionsAppStoreSubscriptionValidator
-      )
-      .required()
-      .description(DESCRIPTIONS.subscriptions),
-  })
-  .unknown(true);
 
 // Caps a phone number in a response at 4 digits, so one that would leak the
 // full value fails validation instead of shipping.

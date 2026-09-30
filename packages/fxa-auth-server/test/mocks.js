@@ -17,7 +17,6 @@ const { normalizeEmail } = require('fxa-shared').email.helpers;
 const { Container } = require('typedi');
 const { AccountEventsManager } = require('../lib/account-events');
 const { gleanMetrics } = require('../lib/metrics/glean');
-const { PriceManager } = require('@fxa/payments/customer');
 const { ProductConfigurationManager } = require('@fxa/shared/cms');
 
 // Patch Account.metricsEnabled before loading amplitude (replicates what
@@ -356,7 +355,6 @@ module.exports = {
   mockAppStoreSubscriptions,
   mockAccountEventsManager,
   unMockAccountEventsManager,
-  mockPriceManager,
   mockProductConfigurationManager,
   mockOAuthClientInfo,
 };
@@ -1109,14 +1107,6 @@ function mockGlean() {
   }
 
   return glean;
-}
-
-function mockPriceManager() {
-  const priceManager = {
-    retrieve: jest.fn(),
-  };
-  Container.set(PriceManager, priceManager);
-  return priceManager;
 }
 
 function mockProductConfigurationManager() {

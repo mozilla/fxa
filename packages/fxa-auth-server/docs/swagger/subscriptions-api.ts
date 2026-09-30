@@ -63,19 +63,6 @@ const OAUTH_SUBSCRIPTIONS_ACTIVE_GET = {
   ],
 };
 
-const OAUTH_MOZILLA_SUBSCRIPTIONS_CUSTOMER_BILLING_AND_SUBSCRIPTIONS_GET = {
-  ...TAGS_SUBSCRIPTIONS,
-  description:
-    '/oauth/mozilla-subscriptions/customer/billing-and-subscriptions',
-  notes: [
-    swaggerText`
-      🔒 Authenticated with OAuth bearer token
-
-      Returns a customer billing details and subscriptions.
-    `,
-  ],
-};
-
 const OAUTH_SUBSCRIPTIONS_IAP_RTDN_POST = {
   ...TAGS_SUBSCRIPTIONS,
   description: '/oauth/subscriptions/iap/rtdn',
@@ -119,7 +106,6 @@ const API_DOCS = {
   OAUTH_SUBSCRIPTIONS_IAP_APP_STORE_TRANSACTION_POST,
   OAUTH_SUBSCRIPTIONS_IAP_PLANS_APPNAME_GET,
   OAUTH_SUBSCRIPTIONS_IAP_PLAYTOKEN_APPNAME_POST,
-  OAUTH_MOZILLA_SUBSCRIPTIONS_CUSTOMER_BILLING_AND_SUBSCRIPTIONS_GET,
   OAUTH_SUBSCRIPTIONS_CLIENTS_GET,
   OAUTH_SUBSCRIPTIONS_IAP_RTDN_POST,
   OAUTH_SUBSCRIPTIONS_STRIPE_EVENT_POST,

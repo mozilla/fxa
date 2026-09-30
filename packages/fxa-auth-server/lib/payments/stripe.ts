@@ -46,9 +46,6 @@ import {
   AbbrevPlan,
   AbbrevProduct,
   MozillaSubscriptionTypes,
-  PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
-  PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
-  PaypalPaymentError,
   WebSubscription,
 } from 'fxa-shared/subscriptions/types';
 import { StatsD } from 'hot-shots';
@@ -146,13 +143,6 @@ export type BillingAddressOptions = {
   line2: string;
   postalCode: string;
   state: string;
-};
-
-export type PaymentBillingDetails = Awaited<
-  ReturnType<StripeHelper['extractBillingDetails']> // eslint-disable-line no-use-before-define
-> & {
-  paypal_payment_error?: PaypalPaymentError;
-  billing_agreement_id?: string;
 };
 
 // The countries we need region data for
@@ -1109,19 +1099,6 @@ export class StripeHelper extends StripeHelperBase {
   }
 
   /**
-   * Returns whether or not the customer has any active subscriptions that
-   * are require a payment method on file (not marked to be cancelled).
-   */
-  hasSubscriptionRequiringPaymentMethod(customer: Stripe.Customer) {
-    const subscription = customer.subscriptions?.data.find(
-      (sub) =>
-        ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status) &&
-        !sub.cancel_at_period_end
-    );
-    return !!subscription;
-  }
-
-  /**
    * Returns true if the FxA account with uid has an active subscription.
    */
   async hasActiveSubscription(uid: string): Promise<boolean> {
@@ -1137,44 +1114,6 @@ export class StripeHelper extends StripeHelperBase {
       ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status)
     );
     return !!subscription;
-  }
-
-  /**
-   * Fetches all latest invoices for all active subscriptions.
-   */
-  async getLatestInvoicesForActiveSubscriptions(
-    customer: Stripe.Customer
-  ): Promise<Stripe.Invoice[]> {
-    const invoices = customer.subscriptions?.data
-      .filter((sub) => ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status))
-      .map((sub) => sub.latest_invoice)
-      .filter(
-        (invoice): invoice is Stripe.Invoice | 'string' => invoice !== null
-      );
-    if (!invoices?.length) {
-      return [];
-    }
-    return Promise.all(
-      invoices.map((invoice) =>
-        this.expandResource<Stripe.Invoice>(invoice, INVOICES_RESOURCE)
-      )
-    );
-  }
-
-  /**
-   * Returns whether or not any of the invoices for the customer are open (payment
-   * has not been processed) and have any payment attempts.
-   */
-  async hasOpenInvoiceWithPaymentAttempts(customer: Stripe.Customer) {
-    const invoices =
-      await this.getLatestInvoicesForActiveSubscriptions(customer);
-    if (!invoices?.length) {
-      return false;
-    }
-    return invoices.some(
-      (invoice) =>
-        invoice.status === 'open' && this.getPaymentAttempts(invoice) > 0
-    );
   }
 
   /**
@@ -1617,110 +1556,6 @@ export class StripeHelper extends StripeHelperBase {
       });
     }
     return null;
-  }
-
-  async getBillingDetailsAndSubscriptions(uid: string) {
-    const customer = await this.fetchCustomer(uid, [
-      'invoice_settings.default_payment_method',
-    ]);
-
-    if (!customer) {
-      return null;
-    }
-
-    const billingDetails = await this.extractBillingDetails(customer);
-    const detailsAndSubs: {
-      customerId: string;
-      customerCurrency: string | null | undefined;
-      subscriptions: WebSubscription[];
-    } & PaymentBillingDetails = {
-      customerId: customer.id,
-      customerCurrency: customer.currency,
-      subscriptions: [],
-      ...billingDetails,
-    };
-
-    if (detailsAndSubs.payment_provider === 'paypal') {
-      detailsAndSubs.billing_agreement_id =
-        this.getCustomerPaypalAgreement(customer);
-    }
-
-    if (
-      detailsAndSubs.payment_provider === 'paypal' &&
-      this.hasSubscriptionRequiringPaymentMethod(customer)
-    ) {
-      if (!this.getCustomerPaypalAgreement(customer)) {
-        detailsAndSubs.paypal_payment_error =
-          PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT;
-      } else if (await this.hasOpenInvoiceWithPaymentAttempts(customer)) {
-        detailsAndSubs.paypal_payment_error =
-          PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE;
-      }
-    }
-
-    if (customer.subscriptions) {
-      const activeSubscriptions = customer.subscriptions.data.filter((sub) =>
-        ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status)
-      );
-
-      detailsAndSubs.subscriptions = await this.subscriptionsToResponse({
-        ...customer.subscriptions,
-        data: activeSubscriptions,
-      });
-    }
-
-    return detailsAndSubs;
-  }
-
-  /**
-   * Extracts billing details if a customer has a source on file.
-   */
-  async extractBillingDetails(customer: Stripe.Customer) {
-    const defaultPayment = customer.invoice_settings.default_payment_method;
-    const paymentProvider = await this.getPaymentProvider(customer);
-
-    if (defaultPayment) {
-      if (typeof defaultPayment === 'string') {
-        // This should always be expanded here.
-        throw error.backendServiceFailure('stripe', 'paymentExpansion');
-      }
-
-      if (defaultPayment.card) {
-        return {
-          billing_name: defaultPayment.billing_details.name,
-          payment_provider: paymentProvider,
-          payment_type: defaultPayment.card.funding,
-          last4: defaultPayment.card.last4,
-          exp_month: defaultPayment.card.exp_month,
-          exp_year: defaultPayment.card.exp_year,
-          brand: defaultPayment.card.brand,
-        };
-      }
-    }
-    if (customer.default_source) {
-      const paymentMethod = await this.expandResource<Stripe.PaymentMethod>(
-        // CustomerSource doesn't quite overlap with PaymentMethod, but in our
-        // situation, the missing type isn't one we let our customers use.
-        customer.default_source as unknown as Stripe.PaymentMethod,
-        PAYMENT_METHOD_RESOURCE
-      );
-      if (!paymentMethod.card)
-        throw new Error('Card must be present on payment method');
-      const { brand, exp_month, exp_year, funding, last4 } = paymentMethod.card;
-      return {
-        billing_name: customer.name,
-        payment_provider: paymentProvider,
-        payment_type: funding,
-        last4,
-        exp_month,
-        exp_year,
-        brand,
-      };
-    }
-
-    return {
-      payment_provider: paymentProvider,
-    };
   }
 
   /**
