@@ -1,8 +1,8 @@
 {
-  "commit": "278e8a1a7fd7cd9dcfbf72fed4a7f82266201a4b",
-  "summary": "Merge pull request #21354 from mozilla/dependabot/npm_and_yarn/fast-uri-3.1.8",
-  "description": "chore(deps): bump fast-uri from 3.1.7 to 3.1.8",
-  "timestamp": 1790794492000,
+  "commit": "51103a552adefcbd929a0195b3c33164a5bc512f",
+  "summary": "Merge pull request #21351 from mozilla/dependabot/npm_and_yarn/xhmikosr/decompress-10.2.2",
+  "description": "chore(deps): bump @xhmikosr/decompress from 10.2.1 to 10.2.2",
+  "timestamp": 1790794606000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
