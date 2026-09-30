@@ -20,10 +20,7 @@ export function setupFirestore(config: FirebaseFirestore.Settings) {
     delete fsConfig.credentials;
   }
 
-  const testing = !(fsConfig.keyFilename || fsConfig.credentials);
-
-  // Utilize the local firestore emulator when the env indicates
-  if (process.env['FIRESTORE_EMULATOR_HOST'] || testing) {
+  if (process.env['FIRESTORE_EMULATOR_HOST']) {
     return new Firestore({
       customHeaders: {
         Authorization: 'Bearer owner',
