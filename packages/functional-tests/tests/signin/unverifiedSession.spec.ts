@@ -147,8 +147,7 @@ test.describe('severity-1 #smoke', () => {
         // behind, and would pass even if prompt=none did nothing.
         await expect(page.locator('#loggedin')).toBeHidden();
 
-        const query = new URLSearchParams({ login_hint: credentials.email });
-        await page.goto(`${target.relierUrl}/?${query.toString()}`);
+        await relier.goto();
         await relier.signInPromptNone();
         expect(await relier.isLoggedIn()).toBe(true);
 
