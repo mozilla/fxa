@@ -1,10 +1,12 @@
 {
-  "commit": "942484fc47c22550a377db0e185eeff49c6e0aaf",
-  "summary": "fix(functional-tests): run migrations when CircleCI renders the flag as 1",
-  "description": "Because:\n\n- CircleCI turned RUN_DB_MIGRATIONS: true into 1, so start-services skipped migrations\n\nThis commit:\n\n- Quotes the value in config and accepts 1 in the script",
-  "timestamp": 1790782080000,
+  "commit": "eb7c123c0c6abf0ded10794d7c1e83f0299e6579",
+  "summary": "test(ci): make benchmark runs execute tests and fix the admin-server check",
+  "description": "Because:\n\n- nx replayed cached test results on reruns, understating test job times\n- The admin-server health check used port 8090; it listens on 8095\n\nThis commit:\n\n- Adds an NX_BENCH_RUN env input to test targets, set to the workflow id (benchmark only)\n- Points the admin-server health check at port 8095",
+  "timestamp": 1790783486000,
   "storybooks": [
+    "email-renderer",
     "fxa-admin-panel",
+    "fxa-react",
     "fxa-settings"
   ],
   "deployDir": "deploy/"
