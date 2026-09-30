@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "verifyLogin-subject-2",
+    "message": "Confirm sign-in"
+  },
+  "action": {
+    "id": "verifyLogin-action",
+    "message": "Confirm sign-in"
+  }
+}
