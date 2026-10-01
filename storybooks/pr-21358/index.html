@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 46c65865f5940a1fd186095b5727ac8b4bf9ef63</title>
+  <title>Storybooks for commit e0c6660d964cb275f2aecc584d57078293e69b3c</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,28 +23,29 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 46c65865f5940a1fd186095b5727ac8b4bf9ef63</h1>
+  <h1>Storybooks for commit e0c6660d964cb275f2aecc584d57078293e69b3c</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/30/2026, 7:50:02 PM UTC</dd>
+    <dd>10/1/2026, 9:48:46 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(auth,settings): keep account data usable on subscription errors</pre></dd>
     <dt>Description</dt>
     <dd><pre>## Because
 
-- GET /v1/account returned a 5xx when the Stripe, Google Play or App Store read failed, so one subscriptions error broke the whole account response.
+- GET /v1/account returned a 5xx when the Stripe, Google Play or App Store read failed. One subscriptions error broke the whole account response.
 - Settings ignored a rejected account fetch and showed default values, such as 2FA off and no recovery key. This looked like lost account data.
 - The Security section showed a password &quot;Created&quot; date of 1969 or 1970 when `passwordCreated` was 0 or missing.
 
 ## This pull request
 
-- Changes the subscriptions `catch` in the GET /v1/account handler (`account.ts`). It now returns 200 with `subscriptions: []`, logs `Account.get.subscriptions.error` with `log.error`, and sends the error to Sentry with `reportSentryError`. The response schema does not change.
-- Resets all three lists (Stripe, Google Play, App Store) on any failure. So a Play or App Store failure after a Stripe success also returns empty subscriptions. This is by design.
+- Changes the subscriptions `catch` in the GET /v1/account handler (`account.ts`). It now returns 200 with `subscriptions: []`, logs `Account.get.subscriptions.error` with `log.error`, and reports the error with `reportSentryError`. The response schema does not change.
+- Resets all three lists (Stripe, Google Play, App Store) on any failure. A Play or App Store failure after a Stripe success also returns empty subscriptions. This is by design.
 - Keeps `UNKNOWN_SUBSCRIPTION_CUSTOMER` silent, with no log and no Sentry report.
-- Makes `useAccountData` set its `error` when the account fetch is rejected for a reason other than an invalid token. Settings then shows `AppErrorDialog` (&quot;Something went wrong&quot;) instead of default values. Profile and attached-clients failures keep their soft handling.
+- Makes `useAccountData` set its `error` when the account fetch fails for a reason other than an invalid token. Settings then shows `AppErrorDialog` (&quot;Something went wrong&quot;), not default values. Profile and attached-clients failures keep their soft handling.
+- Removes the `Sentry.captureMessage` call for a failed account fetch in `useAccountData`. `SettingsError` already reports that error with `Sentry.captureException`, so the hook sent a second event.
 - Hides the &quot;Created&quot; date in the Security password row when `passwordCreated` is 0 or missing.
 - Adds the story &quot;Password set, no created date&quot;, the page-object getter `errorLoadingApp`, and the functional test `accountFetchError.spec.ts`.
 
