@@ -1,8 +1,8 @@
 {
-  "commit": "7785047d379ad9d1107af77ab47a8f0538315dbe",
-  "summary": "Merge pull request #21364 from mozilla/dependabot/npm_and_yarn/knex-3.3.0",
-  "description": "chore(deps): bump knex from 3.1.0 to 3.3.0",
-  "timestamp": 1790839782000,
+  "commit": "30836e6573089c9624b3af27f0ebc06b2d1d9ab8",
+  "summary": "Merge pull request #21360 from mozilla/fix/jwks-config-test-main",
+  "description": "fix(auth-server): set SESSION_TOKEN_HANDLE_KEY in prod jwksUri config tests",
+  "timestamp": 1790870906000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

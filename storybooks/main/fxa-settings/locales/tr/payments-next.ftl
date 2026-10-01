@@ -21,6 +21,7 @@ next-payment-method-first-approve = Öncelikle aboneliğinizi onaylamanız gerek
 ## Error page
 
 error-page-account-not-found-heading = Hesap bulunamadı
+error-page-account-not-found-message = Oturumunuza bağlı hesap bulunamadı. Abone olmak için başka bir hesap kullanın veya yeni bir hesap açın.
 error-page-account-not-found-continue-button = Devam et
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = <p>{ $productName } ödemesine devam etmek için ülkenizi seçip posta kodunuzu girin</p>

@@ -72,6 +72,12 @@ interstitial-offer-error-button-sign-in = Керү
 
 ## Page - Subscription Management
 
+subscription-management-subscriptions-heading = Язылулар
+subscription-management-nav-payment-details = Түләү нечкәлекләре
+subscription-management-payment-details-heading = Түләү нечкәлекләре
+subscription-management-email-label = Эл. почта
+subscription-management-button-manage-payment-method = Идарә итү
+subscription-management-button-support = Ярдәм алу
 page-not-found-back-button = Кире кайту
 
 ## Checkout Form
@@ -96,13 +102,10 @@ next-coupon-submit = Куллану
 
 ##
 
-
-# Component - Header
-
 payments-header-help =
-    .title = Ярдәм
-    .aria-label = Ярдәм
     .alt = Ярдәм
+    .aria-label = Ярдәм
+    .title = Ярдәм
 payments-header-bento-close =
     .alt = Ябу
 payments-header-bento-firefox-desktop = Компьютерлар өчен { -brand-firefox } браузеры
@@ -113,6 +116,7 @@ payments-header-bento-vpn = { -product-mozilla-vpn }
 payments-header-bento-made-by-mozilla = { -brand-mozilla } тарафыннан җитештерелгән
 payments-header-avatar =
     .title = { -product-mozilla-account } менюсы
+payments-header-avatar-expanded-sign-out = Чыгу
 
 ## Interstitial Offer
 
@@ -141,6 +145,9 @@ select-tax-location-save-button = Саклау
 select-tax-location-country-code-label = Ил
 select-tax-location-country-code-placeholder = Илегезне сайлагыз
 select-tax-location-postal-code-label = Почта индексы
+select-tax-location-postal-code =
+    .placeholder = Почта индексыгызны кертегез
+select-tax-location-error-missing-postal-code = Зинһар, почта индексыгызны кертегез
 signin-form-continue-button = Дәвам итү
 signin-form-email-input = Эл. почтагызны кертегез
 signin-form-email-input-missing = Зинһар, эл. почтагызны кертегез
@@ -181,6 +188,13 @@ next-terms = Куллану Шартлары
 next-privacy = Хосусыйлык сәясәте
 terms-and-privacy-paypal-link = { -brand-paypal }'ның хосусыйлык сәясәте
 terms-and-privacy-stripe-and-paypal-label = { -brand-mozilla } түләүләрне хәвефсез эшкәртү өчен { -brand-name-stripe } һәм { -brand-paypal } куллана.
+
+## Component - UpdatedPurchaseDetails
+
+upgrade-purchase-details-current-plan-label = Хәзерге план
+upgrade-purchase-details-new-plan-label = Яңа план
+upgrade-purchase-details-promo-code = Промо-код
+upgrade-purchase-details-tax-label = Салымнар һәм түләүләр
 
 ## $productName (String) - Name of the upgraded product (e.g. Mozilla VPN)
 ## Daily/Weekly/Monthly/Yearly refers to the subscription interval/amount of time between billing occurrences

@@ -137,6 +137,8 @@ icon-attention-aria-label =
 # Aria-label option for an alert symbol
 icon-warning-aria-label =
     .aria-label = Кисәтү
+authenticator-app-aria-label =
+    .aria-label = Аутентификация кушымтасы
 # Used to select Canada as country code for phone number
 canadian-flag-icon-aria-label =
     .aria-label = Канада байрагы
@@ -180,6 +182,8 @@ input-password-sr-only-now-hidden = Серсүзегез хәзер яшерел
 
 ## Phone number component
 
+# This is an aria-label available to screen readers for a selection list that includes country flags, country name and country code
+input-phone-number-country-list-aria-label = Илне сайлагыз
 input-phone-number-enter-number = Телефон номерын кертегез
 input-phone-number-country-united-states = Америка Кушма Штатлары
 input-phone-number-country-canada = Канада
@@ -230,6 +234,8 @@ password-strength-inline-not-common = Еш кулланылучы серсүз �
 ## Notification Promo Banner component
 
 account-recovery-notification-cta = Булдыру
+promo-banner-dismiss-button =
+    .aria-label = Баннерны ябу
 
 ## Ready component
 
@@ -415,6 +421,9 @@ flow-setup-phone-confirm-code-button = Раслау
 # followed by a button to resend a code
 flow-setup-phone-confirm-code-expired = Мөддәте чыккан кодмы?
 flow-setup-phone-confirm-code-resend-code-button = Кодны яңадан җибәрү
+flow-setup-phone-confirm-code-resend-code-success = Код җибәрелде
+# cliking on the button sends a code by text message to the phone number typed in by the user
+flow-setup-phone-submit-number-button = Кодны җибәрү
 
 ## HeaderLockup component, the header in account settings
 
@@ -591,6 +600,7 @@ recovery-key-create-back-button-title = Көйләүләргә кире кайт
 ## PageRecoveryPhoneRemove
 ## Users reach this page from account settings when they want to remove a backup phone number.
 
+settings-recovery-phone-remove-button = Телефон номерын бетерү
 settings-recovery-phone-remove-cancel = Баш тарту
 
 ## PageSetupRecoveryPhone
@@ -635,6 +645,8 @@ delete-account-link = Хисапны бетерү
 
 product-promo-monitor =
     .alt = { -product-mozilla-monitor }
+# Links out to the Monitor site
+product-promo-monitor-cta = Бушлай сканерлау алу
 
 ## Profile section
 
@@ -768,6 +780,9 @@ tfa-row-cannot-refresh =
 tfa-row-cannot-verify-session-4 = Гафу итегез, утырышыгызны раслаганда проблема килеп чыкты
 tfa-row-disable-modal-heading = Ике адымлы аутентификация сүндерелсенме?
 tfa-row-disable-modal-confirm = Cүндерү
+# Shown in an alert bar after two-step authentication is disabled
+tfa-row-disabled-2 = Ике адымлы аутентификация сүндерелде
+tfa-row-cannot-disable-2 = Ике адымлы аутентификацияне сүндереп булмады
 
 ## ThirdPartyAuth component
 ## This is a component that is used to display a list of third party providers (Apple, Google, etc.)
@@ -799,6 +814,7 @@ auth-error-139 = Икенчел эл. почта хисабыгызның төп
 auth-error-155 = TOTP токен табылмады
 auth-error-159 = Яраксыз хисапны коткару ачкычы
 auth-error-183-2 = Яраксыз яки вакыты чыккан раслау коды
+auth-error-202 = Функция кабызылмаган
 auth-error-999 = Көтелмәгән хата
 auth-error-1001 = Керергә тырышудан баш тартылды
 auth-error-1002 = Сессиянең мөддәте бетте. Дәвам итү өчен керегез.
@@ -847,6 +863,11 @@ cookies-disabled-learn-more = Күбрәк белү
 ## Index / home page
 
 index-header = Эл. почтагызны кертегез
+# $serviceName - the service (e.g., Pontoon) that the user is signing into with a Mozilla account
+index-subheader-with-servicename = { $serviceName } хезмәтенә күчү
+index-cta = Теркәлү яки керү
+index-email-input =
+    .label = Эл. почтагызны кертегез
 
 ## InlineRecoveryKeySetup page component
 
@@ -1051,6 +1072,7 @@ signin-passwordless-code-input-label-v2 = 6-цифрлы кодны кертег
 ## This page is shown to users when they are having trouble signing in with
 ## their password, and they previously had set up an account recovery method.
 
+signin-recovery-method-header = Керү
 # Variable: $numBackupCodes (String) - The number of backup authentication codes the user has left, e.g., 4
 signin-recovery-method-code-info-v2 =
     { $numBackupCodes ->
@@ -1071,6 +1093,17 @@ signin-recovery-code-confirm-button = Раслау
 signin-recovery-code-support-link = Хисабыгыз биклеме?
 # Error displayed in a tooltip when form is submitted witout a code
 signin-recovery-code-required-error = Резерв копия аутентификация коды кирәк
+signin-recovery-code-use-phone-failure-description = Зинһар соңрак тырышып карагыз.
+
+## SigninRecoveryPhone page
+
+signin-recovery-phone-flow-heading = Керү
+signin-recovery-phone-input-label = 6-цифрлы кодны кертегез
+signin-recovery-phone-code-submit-button = Раслау
+signin-recovery-phone-resend-code-button = Кодны яңадан җибәрү
+signin-recovery-phone-resend-success = Код җибәрелде
+# Follows the error message (e.g, "There was a problem sending a code")
+signin-recovery-phone-general-error-description = Зинһар соңрак тырышып карагыз.
 
 ## Signin reported page: this page is shown when a user receives an email notifying them of a new account signin, and the user clicks a button indicating that the signin was not them so that we know it was someone trying to break into their account.
 

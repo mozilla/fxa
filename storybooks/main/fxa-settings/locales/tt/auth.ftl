@@ -69,8 +69,14 @@ payment-plan-next-invoice = Киләсе квитанция: { $nextInvoiceDateO
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
 
+subscription-charges-invoice-number-plaintext = Квитанция номеры: { $invoiceNumber }
 # $invoiceSubtotal (String) - The amount, before discount, of the subscription invoice, including currency, e.g. $10.00
 subscriptionFirstInvoiceDiscount-content-subtotal = Моңа кадәр барлыгы: { $invoiceSubtotal }
+
+## $invoiceDiscountAmount (String) - The amount of the discount of the subscription invoice, including currency, e.g. $2.00
+## $discountDuration - The duration of the discount in number of months, e.g. "3" if the discount is 3-months
+
+subscription-charges-one-time-discount-plaintext = Бер тапкырлы ташлама: { $invoiceDiscountAmount }
 
 ##
 
