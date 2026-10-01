@@ -1,0 +1,13 @@
+{
+  "commit": "3f085bd2919c6429819f8a37c770f5c5d5c88017",
+  "summary": "chore(deps): bump knex from 3.1.0 to 3.3.0",
+  "description": "Bumps [knex](https://github.com/knex/knex) from 3.1.0 to 3.3.0.\n- [Release notes](https://github.com/knex/knex/releases)\n- [Changelog](https://github.com/knex/knex/blob/master/CHANGELOG.md)\n- [Commits](https://github.com/knex/knex/compare/3.1.0...3.3.0)\n\n---\nupdated-dependencies:\n- dependency-name: knex\n  dependency-version: 3.3.0\n  dependency-type: direct:production\n  update-type: version-update:semver-minor\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1790835773000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
