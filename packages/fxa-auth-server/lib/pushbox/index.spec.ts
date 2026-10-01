@@ -164,6 +164,27 @@ describe('pushbox', () => {
       }
     });
 
+    it('retrieve decodes Buffer data from the blob column', async () => {
+      stubDbModule.retrieve.mockResolvedValue({
+        last: true,
+        index: 15,
+        messages: [{ idx: 15, data: Buffer.from('eyJmb28iOiJiYXIifQ') }],
+      });
+      const pushbox = pushboxApi(
+        createMock<AuthLogger>(),
+        mockConfig,
+        mockStatsD,
+        stubConstructor
+      );
+      const result: RetrieveResult = await pushbox.retrieve(
+        mockUid,
+        mockDeviceIds[0],
+        50,
+        10
+      );
+      expect(result.messages).toEqual([{ index: 15, data: { foo: 'bar' } }]);
+    });
+
     it('retrieve', async () => {
       stubDbModule.retrieve.mockResolvedValue({
         last: true,

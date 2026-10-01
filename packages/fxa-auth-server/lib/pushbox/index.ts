@@ -30,8 +30,9 @@ function encodeForStorage(data: any) {
   return Buffer.from(JSON.stringify(data)).toString('base64url');
 }
 
-function decodeFromStorage(data: string) {
-  return JSON.parse(Buffer.from(data, 'base64url').toString());
+// MySQL returns the blob column as a Buffer, which Buffer.from would copy without decoding.
+function decodeFromStorage(data: string | Buffer) {
+  return JSON.parse(Buffer.from(data.toString(), 'base64url').toString());
 }
 
 export const pushboxApi = (

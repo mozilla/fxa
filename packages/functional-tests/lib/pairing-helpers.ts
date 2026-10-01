@@ -38,7 +38,7 @@ import { getTotpCode } from './totp';
  * caps at POLL_INTERVAL_MAX (2s). Includes the last error in the
  * timeout message for easier debugging.
  */
-async function pollUntil<T>(
+export async function pollUntil<T>(
   check: () => Promise<T | undefined>,
   timeoutMs: number,
   // A thunk lets the caller include state it only knows after the last poll.

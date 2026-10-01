@@ -5,6 +5,7 @@
 import { StatsD } from 'hot-shots';
 
 import PushboxDB from '../../lib/pushbox/db';
+import { pushboxApi } from '../../lib/pushbox';
 
 const config = require('../../config').default.getProperties();
 const statsd = {
@@ -116,6 +117,25 @@ describe('#integration - pushbox db', () => {
   describe('deleteAccount', () => {
     it('deletes without error', async () => {
       await pushboxDb.deleteAccount(r.uid);
+    });
+  });
+
+  describe('pushboxApi', () => {
+    it('retrieves the object it stored', async () => {
+      const pushbox = pushboxApi(
+        log as any,
+        { ...config, pushbox: { ...config.pushbox, enabled: true } },
+        statsd
+      );
+      const command = { command: 'send-tab', payload: { encrypted: 'abc' } };
+      const { index } = await pushbox.store(r.uid, r.deviceId, command, 60);
+
+      try {
+        const result = await pushbox.retrieve(r.uid, r.deviceId, 1, index);
+        expect(result.messages).toEqual([{ index, data: command }]);
+      } finally {
+        await pushboxDb.deleteDevice({ uid: r.uid, deviceId: r.deviceId });
+      }
     });
   });
 });
