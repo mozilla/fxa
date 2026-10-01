@@ -1550,10 +1550,10 @@ signin-passwordless-code-resend-error = Algo correu mal. Não foi possível envi
 signin-passwordless-code-other-account-link = Usar uma conta diferente
 
 
-signup-passwordless-code-subheading = O registo é apenas um único passo quando utiliza este código.
+signup-passwordless-code-subheading = Quando usa este código basta um único passo para se registar.
 
 
-signin-passwordless-totp-required = A autenticação de dois passos está ativada na sua conta. Por favor, inicie sessão com a sua palavra-passe.
+signin-passwordless-totp-required = A autenticação de dois passos está ativada na sua conta. Por favor inicie sessão com a sua palavra-passe.
 
 
 signin-recovery-method-header = Iniciar sessão
@@ -1610,7 +1610,7 @@ signin-token-code-code-expired = Código expirado?
 signin-token-code-resend-code-link = Enviar novo código por e-mail.
 signin-token-code-resend-code-countdown =
     { $seconds ->
-        [one] Enviar novo código por e-mail em { $seconds } segundos
+        [one] Enviar novo código por e-mail em { $seconds } segundo
        *[other] Enviar novo código por e-mail em { $seconds } segundos
     }
 signin-token-code-required-error = É necessário o código de confirmação
@@ -1622,10 +1622,10 @@ signin-totp-code-header = Iniciar sessão
 signin-totp-code-subheader-v2 = Inserir código de autenticação de dois passos
 signin-totp-code-instruction-v4 = Consulte a sua <strong>aplicação de autenticação</strong> para confirmar o seu início de sessão.
 signin-totp-code-input-label-v4 = Inserir código de 6 dígitos
-signin-totp-code-aal-banner-header = Porque lhe estão a ser pedidos para autenticar?
-signin-totp-code-aal-banner-content = configurou a autenticação de dois passos na sua conta, mas ainda não iniciou sessão com um código neste dispositivo.
+signin-totp-code-aal-banner-header = Porque lhe está a ser pedido para autenticar?
+signin-totp-code-aal-banner-content = Configurou a autenticação em dois passos na sua conta, mas ainda não iniciou sessão com um código neste dispositivo.
 signin-totp-code-aal-sign-out = Terminar sessão neste dispositivo
-signin-totp-code-aal-sign-out-error = Pedimos desculpa, mas ocorreu um problema ao terminar a sua sessão
+signin-totp-code-aal-sign-out-error = Desculpe, ocorreu um problema ao terminar a sua sessão
 signin-totp-code-confirm-button = Confirmar
 signin-totp-code-other-account-link = Utilizar uma conta diferente
 signin-totp-code-recovery-code-link = Problemas ao inserir o código?
@@ -1655,7 +1655,7 @@ confirm-signup-code-code-expired = Código expirado?
 confirm-signup-code-resend-code-link = Enviar novo código por e-mail.
 confirm-signup-code-resend-code-countdown =
     { $seconds ->
-        [one] Enviar novo código por e-mail em { $seconds } segundos
+        [one] Enviar novo código por e-mail em { $seconds } segundo
        *[other] Enviar novo código por e-mail em { $seconds } segundos
     }
 confirm-signup-code-success-alert = Conta confirmada com sucesso
@@ -1665,16 +1665,16 @@ confirm-signup-code-desktop-relay = O { -brand-firefox } vai tentar redirecionar
 
 signup-heading-v2 = Criar uma palavra-passe
 signup-relay-info = É necessária uma palavra-passe para gerir com segurança os seus e-mails mascarados e aceder às ferramentas de segurança da { -brand-mozilla }.
-signup-sync-info = Sincronize as suas palavras-passe, marcadores e mais onde quer que utilize o { -brand-firefox }.
-signup-sync-info-with-payment = Sincronize as suas palavras-passe, métodos de pagamento, marcadores e muito mais onde quer que utilize o { -brand-firefox }.
+signup-sync-info = Sincronize as suas palavras-passe, marcadores, e muito mais onde quer que use o { -brand-firefox }.
+signup-sync-info-with-payment = Sincronize as suas palavras-passe, métodos de pagamento, marcadores, e muito mais onde quer que use o { -brand-firefox }.
 signup-change-email-link = Alterar e-mail
 
 
 signup-confirmed-sync-header = A sincronização está ativada
-signup-confirmed-sync-success-banner = { -product-mozilla-account } confirmado
+signup-confirmed-sync-success-banner = { -product-mozilla-account } confirmada
 signup-confirmed-sync-button = Começar a navegar
-signup-confirmed-sync-description-with-payment-v2 = As suas palavras-passe, métodos de pagamento, endereços, marcadores, histórico e muito mais podem ser sincronizados em qualquer lugar que utilize o { -brand-firefox }.
-signup-confirmed-sync-description-v2 = As suas palavras-passe, endereços, marcadores, histórico e muito mais podem ser sincronizados em qualquer lugar que utilize o { -brand-firefox }.
+signup-confirmed-sync-description-with-payment-v2 = As suas palavras-passe, métodos de pagamento, endereços, marcadores, histórico, e muito mais podem ser sincronizados em qualquer lado onde use o { -brand-firefox }.
+signup-confirmed-sync-description-v2 = As suas palavras-passe, endereços, marcadores, histórico, e muito mais podem ser sincronizados em qualquer lado onde use o { -brand-firefox }.
 signup-confirmed-sync-add-device-link = Adicionar outro dispositivo
 signup-confirmed-sync-manage-sync-button = Gerir sincronização
-signup-confirmed-sync-set-password-success-banner = Palavra-passe criada
+signup-confirmed-sync-set-password-success-banner = Palavra-passe de sincronização criada

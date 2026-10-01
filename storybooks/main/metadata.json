@@ -1,8 +1,8 @@
 {
-  "commit": "30836e6573089c9624b3af27f0ebc06b2d1d9ab8",
-  "summary": "Merge pull request #21360 from mozilla/fix/jwks-config-test-main",
-  "description": "fix(auth-server): set SESSION_TOKEN_HANDLE_KEY in prod jwksUri config tests",
-  "timestamp": 1790870906000,
+  "commit": "ed8f07c1b3e50d9b136fa940cb370d1a5630b77f",
+  "summary": "Merge pull request #21361 from mozilla/fix-pushbox-blob-decode",
+  "description": "fix(auth-server): decode pushbox BLOB data returned as a Buffer",
+  "timestamp": 1790878963000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
