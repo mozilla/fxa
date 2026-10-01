@@ -1,8 +1,8 @@
 {
-  "commit": "ed8f07c1b3e50d9b136fa940cb370d1a5630b77f",
-  "summary": "Merge pull request #21361 from mozilla/fix-pushbox-blob-decode",
-  "description": "fix(auth-server): decode pushbox BLOB data returned as a Buffer",
-  "timestamp": 1790878963000,
+  "commit": "ca88d20c2346e1b7c093a75143c6bc5117ec5f20",
+  "summary": "Merge pull request #21365 from mozilla/agent-f8eaa9",
+  "description": "chore(settings): remove WebAuthnHelpersExample Storybook harness",
+  "timestamp": 1790880720000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
