@@ -1,8 +1,8 @@
 {
-  "commit": "ca88d20c2346e1b7c093a75143c6bc5117ec5f20",
-  "summary": "Merge pull request #21365 from mozilla/agent-f8eaa9",
-  "description": "chore(settings): remove WebAuthnHelpersExample Storybook harness",
-  "timestamp": 1790880720000,
+  "commit": "dad409c717a5d1841bf638787ed470b692bf601c",
+  "summary": "Merge pull request #21359 from mozilla/agent-31f814",
+  "description": "fix(functional-tests): drop login_hint from the prompt=none grant test",
+  "timestamp": 1790883971000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
