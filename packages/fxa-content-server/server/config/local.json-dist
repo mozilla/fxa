@@ -65,7 +65,6 @@
   },
   "showReactApp": {
     "simpleRoutes": true,
-    "signUpRoutes": true,
     "emailFirstRoutes": true
   },
   "featureFlags": {

@@ -90,7 +90,6 @@ export interface Config {
   };
   redirectAllowlist: string[];
   showReactApp: {
-    signUpRoutes: boolean;
     emailFirstRoutes: boolean;
   };
   pairing: {
@@ -228,7 +227,6 @@ export function getDefault() {
     },
     redirectAllowlist: ['localhost'],
     showReactApp: {
-      signUpRoutes: false,
       emailFirstRoutes: false,
     },
     pairing: {
