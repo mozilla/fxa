@@ -1778,21 +1778,21 @@ pair-qr-code-aria-label = Código QR
 ## Choice screen — "Do you have Firefox for mobile?"
 
 # Subheader shown on the choice screen
-pair-choice-subheader = Sincronize a sua experiência com { -brand-firefox }
+pair-choice-subheader = Sincronize a sua experiência { -brand-firefox }
 # Description shown on the choice screen
-pair-choice-description = Consulte as suas palavras-passe guardadas, separadores, histórico de navegação e muito mais — em todos os seus dispositivos.
+pair-choice-description = Veja as suas palavras-passe guardadas, separadores, histórico de navegação e muito mais — em todos os seus dispositivos.
 # Heading shown on the choice screen when the user arrived via a Send Tab entrypoint
-pair-choice-header-send-tab = Transferir ou abrir { -brand-firefox } no dispositivo para onde deseja enviar separadores
+pair-choice-header-send-tab = Transfira ou abra o { -brand-firefox } no dispositivo para onde deseja enviar separadores
 # Legend for the radio button fieldset
 pair-choice-legend = Selecione uma opção para continuar:
 # Radio option: user already has Firefox for mobile — title
-pair-choice-has-mobile-title = Eu já tenho { -brand-firefox } para dispositivos móveis
+pair-choice-has-mobile-title = Já tenho o { -brand-firefox } para telemóvel
 # Radio option: user already has Firefox for mobile — description
-pair-choice-has-mobile-description = Comece a sua sincronização agora se já tem { -brand-firefox } no seu dispositivo móvel.
+pair-choice-has-mobile-description = Comece a sua sincronização agora se já tem o { -brand-firefox } no seu dispositivo móvel.
 # Radio option: user does not have Firefox for mobile — title
-pair-choice-needs-mobile-title = Eu não tenho { -brand-firefox } para dispositivos móveis
+pair-choice-needs-mobile-title = Não tenho o { -brand-firefox } para telemóvel
 # Radio option: user does not have Firefox for mobile — description
-pair-choice-needs-mobile-description = Transfira o { -brand-firefox } para o seu dispositivo móvel e inicie a sua sincronização.
+pair-choice-needs-mobile-description = Transfira o { -brand-firefox } para o seu dispositivo móvel, depois inicie a sua sincronização.
 # Continue button on choice screen (disabled until a radio option is selected)
 pair-choice-continue-button = Continuar
 # Success banner shown after signing in
@@ -1805,11 +1805,11 @@ pair-password-created-now-syncing = Palavra-passe criada. Está agora a sincroni
 ## Download screen — shown after selecting "I don’t have Firefox for mobile"
 
 # Subheader for the download screen
-pair-download-subheader = Transferir o { -brand-firefox } para dispositivos móveis
+pair-download-subheader = Transferir o { -brand-firefox } para telemóvel
 # Description for the download screen
-pair-download-description = Para sincronizar { -brand-firefox } no seu telefone ou tablet, primeiro precisa de transferir { -brand-firefox } para dispositivos móveis. Eis como:
+pair-download-description = Para sincronizar o { -brand-firefox } no seu telefone ou tablet, primeiro precisa de transferir o { -brand-firefox } para telemóvel. Eis como:
 # Step 1: scan QR code. $stepNumber is the step number (1)
-pair-download-step-scan-qr = <b>Passo { $stepNumber }</b>: Transfira { -brand-firefox } ao digitalizar este código QR com a câmara do seu dispositivo móvel:
+pair-download-step-scan-qr = <b>Passo { $stepNumber }</b>: Transfira o { -brand-firefox } ao digitalizar este código QR com a câmara do seu dispositivo móvel:
 # Step 2: continue to sync. $stepNumber is the step number (2)
 pair-download-step-continue-sync = <b>Passo { $stepNumber }</b>: Selecione “Continuar para sincronizar” para sincronizar a sua experiência { -brand-firefox } no seu dispositivo móvel.
 # Button on the download screen that opens about:preferences for pairing
@@ -1819,7 +1819,7 @@ pair-continue-to-sync-button = Continuar para sincronizar
 
 pair-success-header-2 = Dispositivo ligado
 pair-success-message-2 = O emparelhamento foi bem-sucedido.
-pair-success-tab-close-message = Este separador será fechado automaticamente por { -brand-firefox }.
+pair-success-tab-close-message = Este separador será fechado automaticamente pelo { -brand-firefox }.
 
 ## SuppAllow page - Part of the device pairing flow
 ## Users see this page when they have started to pair a second (or more) device to their account
@@ -1844,24 +1844,24 @@ pair-wait-for-auth-heading-text = A aprovação agora é necessária <span>do se
 pair-unsupported-header = Emparelhar usando uma aplicação
 pair-unsupported-message = Utilizou a câmara do sistema? Deve emparelhar a partir de uma aplicação { -brand-firefox }.
 # Shown as heading when a desktop user visits from a non-Firefox browser
-pair-unsupported-oops-header = Ops! Parece que não está a utilizar { -brand-firefox }.
+pair-unsupported-oops-header = Oops! Parece que não está a usar o { -brand-firefox }.
 # Shown below the heading on desktop non-Firefox, prompting the user to switch browsers
-pair-unsupported-switch-to-firefox = Mude para { -brand-firefox } e abra esta página para ligar outro dispositivo.
+pair-unsupported-switch-to-firefox = Mude para o { -brand-firefox } e abra esta página para ligar outro dispositivo.
 # Shown inline on mobile non-Firefox browsers before the download link
-pair-unsupported-oops-mobile = Ops! Parece que não está a utilizar { -brand-firefox }.
+pair-unsupported-oops-mobile = Oops! Parece que não está a usar o { -brand-firefox }.
 # v2: Heading for the mobile instructional message, shown on all mobile devices
 # (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
 # Aligned with legacy Backbone copy (see templates/partial/unsupported-pair.mustache).
-pair-unsupported-connecting-mobile-header-v2 = A ligar o seu dispositivo móvel ao seu { -product-mozilla-account }
+pair-unsupported-connecting-mobile-header-v2 = A ligar o seu dispositivo móvel à sua { -product-mozilla-account }
 # v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
 # URL so the domain does not wrap to a new line on narrow screens.
-pair-unsupported-connecting-mobile-instructions-v2 = Abra o { -brand-firefox } no seu computador, visite <b>firefox.com/pair</b> e siga as instruções no ecrã para ligar o seu dispositivo móvel.
+pair-unsupported-connecting-mobile-instructions-v2 = Abra o { -brand-firefox } no seu computador, visite <b>firefox.com/pair</b>, e siga as instruções no ecrã para ligar o seu dispositivo móvel.
 # v2: "Learn more" link below the mobile instructions; links to a Mozilla support article.
 pair-unsupported-learn-more-link-v2 = Saber mais
 # v2: Fallback shown to a desktop Firefox user who somehow reaches /pair/unsupported.
 # Matches the legacy Backbone "Oops! Something went wrong." message.
-pair-unsupported-desktop-firefox-fallback-header-v2 = Ups! Algo correu mal.
-pair-unsupported-desktop-firefox-fallback-message-v2 = Por favor, feche este separador e tente novamente.
+pair-unsupported-desktop-firefox-fallback-header-v2 = Oops! Algo correu mal.
+pair-unsupported-desktop-firefox-fallback-message-v2 = Por favor feche este separador e tente novamente.
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer, which is already signed in, after their
@@ -1883,7 +1883,7 @@ pair2-authority-approve-sign-in-change-password = Não é você? <changePassword
 ## for the remaining steps to be completed there.
 
 pair2-authority-continue-on-mobile-heading = Continue no seu dispositivo móvel
-pair2-authority-continue-on-mobile-description = Siga os passos no seu telemóvel ou tablet.
+pair2-authority-continue-on-mobile-description = Siga os passos no seu telefone ou tablet.
 # Dismisses the pairing attempt
 pair2-authority-continue-on-mobile-cancel-button = Cancelar
 
@@ -1892,9 +1892,9 @@ pair2-authority-continue-on-mobile-cancel-button = Cancelar
 ## It points them at firefox.com/pair and offers a download link for Firefox.
 
 # "sync" is a verb here, referring to syncing data between the user's devices
-pair2-authority-download-firefox-heading = Abrir { -brand-firefox } para sincronizar
+pair2-authority-download-firefox-heading = Abrir o { -brand-firefox } para sincronizar
 # "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = Para configurar a sincronização entre dispositivos, abra { -brand-firefox } neste dispositivo e visite <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction = Para configurar a sincronização entre dispositivos, abra o { -brand-firefox } neste dispositivo e visite <b>firefox.com/pair</b>
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Transferir { -brand-firefox }
 
@@ -1902,7 +1902,7 @@ pair2-authority-download-firefox-cta = Transferir { -brand-firefox }
 ## Users see this on their computer. It shows a QR code that they scan with
 ## their phone or tablet to connect the two devices and start syncing.
 
-pair2-authority-scan-qr-heading = Digitalize para associar o seu dispositivo móvel
+pair2-authority-scan-qr-heading = Digitalize para ligar o seu dispositivo móvel
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-scan-qr-instruction = Digitalize o código QR com o seu telemóvel ou tablet para sincronizar os seus { -brand-firefox } marcadores, separadores, e muito mais.
 # Accessible label describing the QR code image shown on this page
@@ -1928,7 +1928,7 @@ pair2-authority-sync-success-sync-settings-button-v2 = Gerir definições de sin
 ## start pairing over again.
 
 # Shown when the pairing attempt expired before it was approved
-pair2-authority-timeout-and-cancel-timeout-heading = Ainda pretende ligar um dispositivo?
+pair2-authority-timeout-and-cancel-timeout-heading = Ainda quer ligar um dispositivo?
 pair2-authority-timeout-and-cancel-timeout-description = Parece que expirámos. Tente novamente se ainda quiser ligar o seu dispositivo móvel e sincronizar os seus dados do { -brand-firefox }.
 # Shown when the pairing attempt was canceled, on either device
 pair2-authority-timeout-and-cancel-cancelled-heading = Cancelado
@@ -2172,11 +2172,11 @@ reset-password-recovery-phone-resend-success = Código enviado
 # links to https://support.mozilla.org/kb/what-if-im-locked-out-two-step-authentication
 reset-password-recovery-phone-locked-out-link = Está bloqueado?
 reset-password-recovery-phone-send-code-error-heading = Ocorreu um problema ao enviar o código
-reset-password-recovery-phone-code-verification-error-heading = Ocorreu um problema ao confirmar o seu código
+reset-password-recovery-phone-code-verification-error-heading = Ocorreu um problema ao verificar o seu código
 # Follows the error message (e.g, "There was a problem sending a code")
 reset-password-recovery-phone-general-error-description = Por favor tente mais tarde.
 reset-password-recovery-phone-invalid-code-error-description = O código é inválido ou expirou.
-reset-password-recovery-phone-invalid-code-error-link = Em vez disso, utilizar códigos de autenticação de recuperação?
+reset-password-recovery-phone-invalid-code-error-link = Em vez disso, usar códigos de autenticação de recuperação?
 reset-password-with-recovery-key-verified-page-title = Palavra-passe redefinida com sucesso
 reset-password-complete-new-password-saved = Nova palavra-passe guardada!
 reset-password-complete-recovery-key-created = Nova chave de recuperação da conta criada. Transferir e guardar agora.
@@ -2211,9 +2211,9 @@ signin-password-button-label = Palavra-passe
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 signin-desktop-relay = O { -brand-firefox } vai tentar redirecionar para a utilização de uma máscara de e-mail após o seu início de sessão.
-signin-code-expired-error = O código expirou. Por favor, inicie novamente a sessão.
+signin-code-expired-error = O código expirou. Por favor inicie sessão novamente.
 # Error message displayed when OAuth native flow recovery fails
-signin-recovery-error = Algo correu mal. Por favor, inicie novamente a sessão.
+signin-recovery-error = Algo correu mal. Por favor inicie sessão novamente.
 signin-account-locked-banner-heading = Repor a sua palavra-passe
 signin-account-locked-banner-description = Bloqueámos a sua conta para a manter segura de atividades suspeitas.
 # This link points to https://accounts.firefox.com/reset_password
@@ -2243,7 +2243,7 @@ back = Voltar
 
 signin-passkey-fallback-header = Concluir início de sessão
 signin-passkey-fallback-heading = Introduza a sua palavra-passe para sincronizar
-signin-passkey-fallback-body = Para manter os seus dados seguros, tem de introduzir a sua palavra-passe ao utilizar esta chave de acesso.
+signin-passkey-fallback-body = Para manter os seus dados seguros, tem de introduzir a sua palavra-passe ao usar esta chave-passe.
 signin-passkey-fallback-password-label = Palavra-passe
 signin-passkey-fallback-continue = Continuar
 signin-passkey-fallback-forgot-password-link = Esqueceu-se da palavra-passe?
@@ -2251,8 +2251,8 @@ signin-passkey-fallback-forgot-password-link = Esqueceu-se da palavra-passe?
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
 
-signin-passwordless-code-heading = Inserir código de confirmação
-signin-passwordless-code-subheading = Iniciar sessão é apenas um passo quando utiliza este código.
+signin-passwordless-code-heading = Insira código de confirmação
+signin-passwordless-code-subheading = O início de sessão é feito num único passo quando se utiliza este código.
 # This string is used to show a notification to the user for them to enter
 # email confirmation code to update their multi-factor-authentication-protected
 # account settings
@@ -2264,7 +2264,7 @@ signin-passwordless-code-instruction =
         [one] Digite o código que foi enviado para <email>{ $email }</email> dentro de { $expirationMinutes } minuto.
        *[other] Digite o código que foi enviado para <email>{ $email }</email> dentro de { $expirationMinutes } minutos.
     }
-signin-passwordless-code-input-label-v2 = Inserir código de 6 dígitos
+signin-passwordless-code-input-label-v2 = Insera código de 6 dígitos
 signin-passwordless-code-confirm-button = Confirmar
 signin-passwordless-code-required-error = É necessário o código de confirmação
 signin-passwordless-code-expired = Código expirado?
@@ -2276,7 +2276,7 @@ signin-passwordless-code-resend-countdown =
     }
 signin-passwordless-code-resend-link = Enviar novo código por e-mail.
 signin-passwordless-code-resend-error = Algo correu mal. Não foi possível enviar um novo código.
-signin-passwordless-code-other-account-link = Utilizar uma conta diferente
+signin-passwordless-code-other-account-link = Usar uma conta diferente
 
 ## SignupPasswordlessCode page
 ## Users are prompted to enter a code sent to their email to create a new account without a password.

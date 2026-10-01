@@ -1,8 +1,8 @@
 {
-  "commit": "e7ae5f9b1a3363f05204bca536814a31fb408e11",
-  "summary": "Merge pull request #21357 from mozilla/dependabot/npm_and_yarn/webpack-dev-middleware-7.4.5",
-  "description": "chore(deps-dev): bump webpack-dev-middleware from 7.4.2 to 7.4.5",
-  "timestamp": 1790799844000,
+  "commit": "7785047d379ad9d1107af77ab47a8f0538315dbe",
+  "summary": "Merge pull request #21364 from mozilla/dependabot/npm_and_yarn/knex-3.3.0",
+  "description": "chore(deps): bump knex from 3.1.0 to 3.3.0",
+  "timestamp": 1790839782000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

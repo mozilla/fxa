@@ -339,6 +339,15 @@ password-strength-inline-passwords-match = Ñe’ẽñemi ojueheguáva
 
 
 promo-qr-mobile-heading = Ne pumbyry. Nde rekoguata.
+promo-qr-mobile-heading-treatment-a = Eku’ejey epytahague guive, tereime reimehápe
+promo-qr-mobile-heading-treatment-b = Ne rendaykeita ha hetave, tysýi ne pumbyrýpe
+promo-qr-mobile-heading-treatment-c = Pe kundahára ejeroviaha, ne pumbyrýpe avei
+promo-qr-mobile-heading-treatment-d = { -brand-firefox } tee. Mba’erechaha ambuéva.
+promo-qr-mobile-heading-treatment-e = Ne rekoñemi ndopakuaái ko’ápe
+promo-qr-mobile-heading-treatment-f = Eguerekove ne ñeikundaha tekoñemíme
+promo-qr-mobile-heading-treatment-g = Ne pumbyry ikatu hína hyapu’ive
+promo-qr-mobile-heading-treatment-h = Egueraha ne ñeikundaha oikóva nendive
+promo-qr-mobile-description-v2 = Emoha’ãnga emboguejy hag̃ua tembiporu’i pumbyrygua
 promo-qr-mobile-qr-alt =
     .alt = QR ayvu emboguejy hag̃ua pumbyry rembiporu’i { -brand-firefox }. Emoĩ ne pumbyry ra’ãnganohẽha iguy akatúa gotyo emoha’ãngakuaa hag̃ua.
 
@@ -1164,6 +1173,11 @@ index-account-delete-success = Mba’ete oñembogue apañuai’ỹre
 index-email-bounced = Ne ñanduti veve ñemoneĩrã ojevyjeýma. ¿Ikatu ehaivai kundaharape?
 
 
+inline-passwordless-sync-setup-enable-button = Ejora ñe’ẽ ñemi jeikeha
+inline-passwordless-sync-setup-enabling = Emyandyhína…
+inline-passwordless-sync-setup-not-now-button = Ani ko’ág̃a
+
+
 inline-recovery-key-setup-create-error = ¡Ajépa! Ndaikatúi romoheñói ne mba’ete jeguerujeyrã. Eha’ã jey ag̃amieve.
 inline-recovery-key-setup-recovery-created = Oñemoheñói mba’eñemi jeguerujeyrã
 inline-recovery-key-setup-download-header = Embojuaju ne mba’ete
@@ -1301,9 +1315,14 @@ pair2-authority-scan-qr-heading = Emoha’ãnga eike hag̃ua ambue mba’e’ok�
 pair2-authority-scan-qr-instruction = Emoha’ãnga QR ayvu ne pumbyry térã tablétape embojuehe hag̃ua { -brand-firefox } rechaukaha ha hetave.
 pair2-authority-scan-qr-code-aria-label = QR ayvu eike hag̃ua ne mba’e’okápe
 pair2-authority-scan-qr-help-link = Eñepytyvõta emoha’ãnga hag̃ua
+pair2-authority-scan-qr-skip-button = Ehasa ko’ág̃a
+
+
+pair2-authority-sync-success-sync-settings-button-v2 = Eñangareko mbojueherã ñembohekóre
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = ¿Embojuajuse gueteri ne mba’e’oka?
+pair2-authority-timeout-and-cancel-cancelled-heading = Hejapyre
 pair2-authority-timeout-and-cancel-canceled-description = Remoambuérõ ne remiandu térã embojoajusérõ ambue mba’e’oka, eha’ã jey.
 pair2-authority-timeout-and-cancel-try-again-button = Eha’ã jey
 pair2-authority-timeout-and-cancel-sync-settings-button = Sync ñemboheko
@@ -1322,6 +1341,7 @@ pair2-supplicant-connect-this-device-cancel-button = Eheja
 pair2-supplicant-download-firefox-heading = Ereko { -brand-firefox } ko mba’e’okápe
 pair2-supplicant-download-firefox-description = Emboguejy { -brand-firefox } embojuehe hag̃ua techaukaha, tembiasakue ha hetave mba’e’oka pa’ũme. <linkExternal>Eikuaave</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Eku’ejey { -brand-firefox } ndive
+pair2-supplicant-download-firefox-opening-button = Ijurujahína { -brand-firefox }…
 
 
 pair2-supplicant-ready-to-scan-heading = Embojuaju hag̃ua mba’e’oka
@@ -1330,11 +1350,19 @@ pair2-supplicant-ready-to-scan-learn-more-link = Eikuaave
 
 
 pair2-supplicant-sync-success-heading = Ne mba’e’oka ojuajuhína
+pair2-supplicant-sync-success-sync-settings-button-v2 = Eñangareko mbojueherã ñembohekóre
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Ha’ete opámava ñeha’ãrõ
 pair2-supplicant-timeout-and-cancel-timeout-description = Embojoaju hag̃ua ne pumbyry ha embojuehe ne mba’ekuaarãita { -brand-firefox }, eike <b>firefox.com/pair</b> ne mohendahápe.
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Hejapyre
 pair2-supplicant-timeout-and-cancel-canceled-description = Eike hag̃ua mba’e’okápe eikese vove, eho <b>firefox.com/pair</b> ne mohendaha guive.
+
+
+permissions-label-email = Ñanduti veve kundaharape
+permissions-label-display-name = Téra ehechauka hag̃ua
+permissions-continue-button = Eku’ejey
+permissions-cancel-button = Eheja
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } moneĩmbyre
