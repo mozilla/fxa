@@ -5,12 +5,15 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 import AuthClient from 'fxa-auth-client/browser';
-import { useFinishOAuthFlowHandler } from './hooks';
+import { useFinishOAuthFlowHandler, useOAuthKeysCheck } from './hooks';
 import { AppContext, IntegrationType } from '../../models';
 import type { AppContextValue, Integration } from '../../models';
 import { mockAppContext } from '../../models/mocks';
 import { SensitiveDataClient } from '../sensitive-data-client';
 import { integrationNeedsPermissions } from './permissions';
+import { OAUTH_ERRORS } from './oauth-errors';
+import { AuthUiErrors } from '../auth-errors/auth-errors';
+import { Constants } from '../constants';
 import { createEncryptedBundle } from '../crypto/scoped-keys';
 
 jest.mock('./permissions', () => ({
@@ -187,5 +190,195 @@ describe('useFinishOAuthFlowHandler', () => {
         'https://rp.example/callback?code=code&state=state'
       );
     });
+  });
+});
+
+const webIntegration = () =>
+  ({
+    type: IntegrationType.OAuthWeb,
+    data: { clientId: 'client-id', state: 'state' },
+    clientInfo: { redirectUri: 'https://rp.example/callback' },
+    wantsKeys: () => false,
+    getNormalizedScope: () => 'profile',
+  }) as unknown as Integration;
+
+const withData = (integration: Integration, data: object) =>
+  ({
+    ...integration,
+    data: { ...integration.data, ...data },
+  }) as Integration;
+
+const finishWith = async (integration: Integration) => {
+  (integrationNeedsPermissions as jest.Mock).mockReturnValue(false);
+  const { result } = renderHook(
+    () => useFinishOAuthFlowHandler(authClient, integration),
+    { wrapper }
+  );
+  return result.current.finishOAuthFlowHandler(
+    UID,
+    'session-token',
+    'key-fetch-token',
+    'unwrap-b-key'
+  );
+};
+
+describe('useFinishOAuthFlowHandler OAuth data check', () => {
+  const oAuthDataError = (integration: Integration) =>
+    renderHook(() => useFinishOAuthFlowHandler(authClient, integration), {
+      wrapper,
+    }).result.current.oAuthDataError;
+
+  it('reports no error for complete OAuth data', () => {
+    expect(oAuthDataError(webIntegration())).toBeNull();
+  });
+
+  it.each([
+    [
+      'redirect URI',
+      { ...webIntegration(), clientInfo: {} } as Integration,
+      OAUTH_ERRORS.INCORRECT_REDIRECT.errno,
+    ],
+    [
+      'client ID',
+      withData(webIntegration(), { clientId: undefined }),
+      OAUTH_ERRORS.UNKNOWN_CLIENT.errno,
+    ],
+    [
+      'state',
+      withData(webIntegration(), { state: undefined }),
+      OAUTH_ERRORS.INVALID_PARAMETER.errno,
+    ],
+  ])('reports a missing %s', (_, integration, errno) => {
+    expect(oAuthDataError(integration)?.errno).toBe(errno);
+  });
+});
+
+describe('useFinishOAuthFlowHandler keys', () => {
+  it('fetches key data for the URL scope when present', async () => {
+    await finishWith(withData(syncIntegration(), { scope: 'raw-scope' }));
+
+    expect(authClient.getOAuthScopedKeyData).toHaveBeenCalledWith(
+      'session-token',
+      'client-id',
+      'profile'
+    );
+  });
+
+  it('falls back to the oldsync scope for native flows without one', async () => {
+    await finishWith(syncIntegration());
+
+    expect(authClient.getOAuthScopedKeyData).toHaveBeenCalledWith(
+      'session-token',
+      'client-id',
+      Constants.OAUTH_OLDSYNC_SCOPE
+    );
+  });
+
+  it('resolves to TRY_AGAIN when the account keys fetch fails', async () => {
+    (authClient.accountKeys as jest.Mock).mockRejectedValue(new Error());
+
+    const result = await finishWith(syncIntegration());
+
+    expect(result.error?.errno).toBe(OAUTH_ERRORS.TRY_AGAIN.errno);
+    expect(authClient.createOAuthCode).not.toHaveBeenCalled();
+  });
+});
+
+describe('useFinishOAuthFlowHandler OAuth code errors', () => {
+  it.each([
+    'UNVERIFIED_SESSION',
+    'TOTP_REQUIRED',
+    'INSUFFICIENT_ACR_VALUES',
+  ] as const)('passes %s through to the caller', async (name) => {
+    const error = { errno: AuthUiErrors[name].errno };
+    (authClient.createOAuthCode as jest.Mock).mockRejectedValue(error);
+
+    const result = await finishWith(webIntegration());
+
+    expect(result.error).toBe(error);
+  });
+
+  it('maps any other error to TRY_AGAIN', async () => {
+    (authClient.createOAuthCode as jest.Mock).mockRejectedValue({
+      errno: AuthUiErrors.INCORRECT_PASSWORD.errno,
+    });
+
+    const result = await finishWith(webIntegration());
+
+    expect(result.error?.errno).toBe(OAUTH_ERRORS.TRY_AGAIN.errno);
+  });
+});
+
+describe('useFinishOAuthFlowHandler redirect and state', () => {
+  beforeEach(() => {
+    (authClient.createOAuthCode as jest.Mock).mockResolvedValue({
+      code: 'code',
+      state: 'response-state',
+      redirect: 'https://server.example/redirect',
+      scope: 'profile',
+    });
+  });
+
+  it('returns the web channel redirect and integration state for Sync', async () => {
+    const result = await finishWith(
+      withData(syncIntegration(), { state: 'integration-state' })
+    );
+
+    expect(result.redirect).toBe(Constants.OAUTH_WEBCHANNEL_REDIRECT);
+    expect(result.state).toBe('integration-state');
+  });
+
+  it('builds the redirect from the relier redirect URI for other flows', async () => {
+    const result = await finishWith(webIntegration());
+
+    expect(result.redirect).toBe(
+      'https://rp.example/callback?code=code&state=response-state'
+    );
+    expect(result.state).toBe('response-state');
+  });
+});
+
+describe('useOAuthKeysCheck', () => {
+  const integration = {
+    type: IntegrationType.OAuthNative,
+    requiresKeys: () => true,
+  };
+
+  it.each([
+    ['key fetch token', undefined, 'unwrap-b-key'],
+    ['unwrap key', 'key-fetch-token', undefined],
+  ])('errors when the %s is absent', (_, keyFetchToken, unwrapBKey) => {
+    expect(
+      useOAuthKeysCheck(integration, keyFetchToken, unwrapBKey)
+        .oAuthKeysCheckError
+    ).toBe(OAUTH_ERRORS.TRY_AGAIN);
+  });
+
+  it('passes when both tokens are present', () => {
+    expect(
+      useOAuthKeysCheck(integration, 'key-fetch-token', 'unwrap-b-key')
+        .oAuthKeysCheckError
+    ).toBeNull();
+  });
+
+  it('stays silent for third-party auth without tokens', () => {
+    expect(
+      useOAuthKeysCheck(integration, undefined, undefined, true)
+        .oAuthKeysCheckError
+    ).toBeNull();
+  });
+
+  it('errors for Sync desktop v3 when keys are required but tokens are absent', () => {
+    expect(
+      useOAuthKeysCheck({ ...integration, type: IntegrationType.SyncDesktopV3 })
+        .oAuthKeysCheckError
+    ).toBe(OAUTH_ERRORS.TRY_AGAIN);
+  });
+
+  it('stays silent without tokens when keys are not required', () => {
+    expect(
+      useOAuthKeysCheck({ ...integration, requiresKeys: () => false })
+        .oAuthKeysCheckError
+    ).toBeNull();
   });
 });
