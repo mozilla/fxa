@@ -7,7 +7,7 @@
 /* eslint-disable no-console */
 
 import crypto from 'crypto';
-import { Page, TestInfo } from '@playwright/test';
+import { BrowserContext, Page, TestInfo } from '@playwright/test';
 import { Credentials } from './targets';
 import { BaseTarget } from './targets/base';
 import { MfaScope } from 'fxa-settings/src/lib/types';
@@ -63,27 +63,33 @@ export class TestAccountTracker {
   accounts: (AccountDetails | Credentials)[];
   private target: BaseTarget;
   private testInfo: TestInfo;
-  private maybePage?: Page;
+  private context?: BrowserContext;
 
   /**
-   * `page` is optional so API-level specs can track and destroy accounts
+   * `context` is optional so API-level specs can track and destroy accounts
    * without opening a browser. The JWT-cache helpers are the only members that
-   * need it, and they throw when it is absent.
+   * need a page, and they throw when the context has none.
    */
-  constructor(target: BaseTarget, testInfo: TestInfo, page?: Page) {
+  constructor(
+    target: BaseTarget,
+    testInfo: TestInfo,
+    context?: BrowserContext
+  ) {
     this.target = target;
     this.testInfo = testInfo;
     this.accounts = [];
-    this.maybePage = page;
+    this.context = context;
   }
 
+  // The test's `page` fixture, read lazily so Sync tests do not open a blank tab.
   private get page(): Page {
-    if (!this.maybePage) {
+    const page = this.context?.pages()[0];
+    if (!page) {
       throw new Error(
-        'TestAccountTracker was constructed without a page; this helper drives localStorage and needs one.'
+        'TestAccountTracker has no page; this helper drives localStorage and needs one.'
       );
     }
-    return this.maybePage;
+    return page;
   }
 
   /**
@@ -779,8 +785,9 @@ export class TestAccountTracker {
   private registerMfaJwtOnLoadHook(
     scopeTokenKvp: { scope: MfaScope; token: string }[]
   ) {
-    this.page.on('load', async () => {
-      await this.page.evaluate(
+    const page = this.page;
+    page.on('load', async () => {
+      await page.evaluate(
         ({ scopeTokenKvp }) => {
           try {
             const fxaStorageKey = '__fxa_storage';

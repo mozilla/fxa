@@ -2,14 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  Browser,
-  Page,
-  TestInfo,
-  test as base,
-  expect,
-  firefox,
-} from '@playwright/test';
+import { Browser, Page, test as base, expect, firefox } from '@playwright/test';
 import { getFirefoxUserPrefs } from '../../lib/targets/firefoxUserPrefs';
 import { create as createPages } from '../../pages';
 import { ServerTarget, TargetName, create } from '../targets';
@@ -18,8 +11,6 @@ import { TestAccountTracker } from '../testAccountTracker';
 import { PasskeyPage } from '../../pages/passkey';
 import { GleanEventsHelper } from '../glean';
 import { addWafBypassHeader } from '../waf';
-import { existsSync, readFileSync } from 'fs';
-import { join, dirname, basename } from 'path';
 
 export { addWafBypassHeader };
 
@@ -67,17 +58,15 @@ export const test = base.extend<TestOptions, WorkerOptions>({
     }
   },
 
-  syncBrowserPages: async ({ target }, use, testInfo) => {
+  syncBrowserPages: async ({ target }, use) => {
     const syncBrowserPages = await newPagesForSync(target);
 
     await use(syncBrowserPages);
 
-    await handleSyncPagesTraceStop(syncBrowserPages, testInfo);
-
-    await syncBrowserPages.browser?.close();
+    await closeSyncBrowser(syncBrowserPages);
   },
 
-  syncOAuthBrowserPages: async ({ target }, use, testInfo) => {
+  syncOAuthBrowserPages: async ({ target }, use) => {
     const syncBrowserPages = await newPagesForSync(
       target,
       'oauth_webchannel_v1'
@@ -85,12 +74,10 @@ export const test = base.extend<TestOptions, WorkerOptions>({
 
     await use(syncBrowserPages);
 
-    await handleSyncPagesTraceStop(syncBrowserPages, testInfo);
-
-    await syncBrowserPages.browser?.close();
+    await closeSyncBrowser(syncBrowserPages);
   },
 
-  // Same tracking and teardown as `testAccountTracker`, without the `page`
+  // Same tracking and teardown as `testAccountTracker`, without the `context`
   // dependency that would launch a browser for an API-only spec.
   apiAccountTracker: async ({ target }, use, testInfo) => {
     const apiAccountTracker = new TestAccountTracker(target, testInfo);
@@ -101,8 +88,12 @@ export const test = base.extend<TestOptions, WorkerOptions>({
     await apiAccountTracker.destroyAllAccounts();
   },
 
-  testAccountTracker: async ({ target, page }, use, testInfo) => {
-    const testAccountTracker = new TestAccountTracker(target, testInfo, page);
+  testAccountTracker: async ({ target, context }, use, testInfo) => {
+    const testAccountTracker = new TestAccountTracker(
+      target,
+      testInfo,
+      context
+    );
 
     await use(testAccountTracker);
 
@@ -176,105 +167,9 @@ async function newPagesForSync(
 }
 type SyncPages = Awaited<ReturnType<typeof newPagesForSync>>;
 
-/**
- * Handles stopping and capturing the trace for Sync pages.
- * This is only done if the test has failed, retried, and failed again.
- * @param syncBrowserPages The Sync browser pages object to stop tracing on.
- * @param testInfo Standard Playwright TestInfo object.
- */
-async function handleSyncPagesTraceStop(
-  syncBrowserPages: SyncPages,
-  testInfo: TestInfo
-) {
-  const { retry, status } = testInfo;
-  const allowedTraceStatuses = ['failed', 'timedOut'];
-
-  // only capture trace IF
-  // - we are not in debug mode (trace is disabled in debug)
-  // - AND the test failed or timedOut
-  if (!DEBUG && status && allowedTraceStatuses.includes(status)) {
-    await syncBrowserPages.browser.contexts()[0].tracing.stop({
-      path: getTracePath(testInfo, retry),
-    });
-  }
-}
-
-/**
- * Gets the absolute path to the trace directory using the test title.
- * @returns {string} The absolute path to the trace directory.
- * @throws {Error} If the root package.json file cannot be found.
- */
-function getTracePath(testInfo: TestInfo, retry?: number): string {
-  const rootDir = findRootPackageJson();
-
-  // strip the .spec.ts from the test title for readability
-  const titlePath = testInfo.titlePath.map((title, index) =>
-    index === 0 ? title.replace(/\.spec\.ts$/, '') : title
-  );
-  const sanitizedTitle = titlePath
-    .join(' ')
-    .replace(/[^a-z0-9_\-.]/gi, '_') // Replace non-safe chars with _
-    .replace(/_+/g, '-') // Collapse multiple underscores
-    .replace(/^_+|_+$/g, ''); // Trim leading/trailing underscores)
-
-  const maxTitleLength = 70;
-  const truncatedTitle =
-    sanitizedTitle.length > maxTitleLength
-      ? `${sanitizedTitle.slice(0, 35)}---${sanitizedTitle.slice(-35)}`
-      : sanitizedTitle;
-
-  const tracePath = join(
-    rootDir,
-    'artifacts',
-    'functional',
-    truncatedTitle,
-    `syncTrace${retry ? `-${retry}` : ''}.zip`
-  );
-
-  return tracePath;
-}
-
-/**
- * This walks up the directory looking for a package.json
- * with `"name": "fxa"` in it. This is used to find the root of the project
- * so that we can build the correct path to the `artifacts` directory regardless
- * of running the tests locally or in CI.
- * @param startDir
- * @returns
- */
-function findRootPackageJson(startDir: string = __dirname): string {
-  const packageJsonPath = join(startDir, 'package.json');
-
-  if (existsSync(packageJsonPath) && isRootPackageJson(packageJsonPath)) {
-    return startDir;
-  }
-
-  const parentDir = dirname(startDir);
-
-  if (parentDir === startDir) {
-    // Reached the root of the filesystem
-    throw new Error('Could not find root package.json');
-  }
-
-  return findRootPackageJson(parentDir);
-}
-
-/**
- * Checks if the given file path contains a package.json file
- * and the package.json has a name of "fxa".
- * @param filePath
- * @returns {boolean} True if the file is a package.json with name "fxa", false otherwise.
- */
-function isRootPackageJson(filePath: string): boolean {
-  if (basename(filePath) !== 'package.json') {
-    return false;
-  }
-
-  try {
-    const fileContent = readFileSync(filePath, 'utf-8');
-    const json = JSON.parse(fileContent);
-    return json.name === 'fxa';
-  } catch {
-    return false;
-  }
+// browser.close() skips Playwright's trace capture, but context.close() saves
+// the context's trace into the test's trace.zip.
+async function closeSyncBrowser(syncBrowserPages: SyncPages) {
+  await syncBrowserPages.page.context().close();
+  await syncBrowserPages.browser.close();
 }
