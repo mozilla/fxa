@@ -13,17 +13,13 @@ const { version } = require('./package.json');
  * @type {import('@nx/next/plugins/with-nx').WithNxOptions}
  **/
 const nextConfig = {
-  nx: {
-    // Set this to true if you would like to use SVGR
-    // See: https://github.com/gregberge/svgr
-    svgr: false,
-  },
   env: {
     version,
     GLEAN_CONFIG__VERSION: version,
     GLEAN_CLIENT_CONFIG__VERSION: version,
   },
-  distDir: 'build',
+  // `next experimental-analyze` serves from .next regardless of distDir (vercel/next.js#86731)
+  distDir: process.env.NEXT_DIST_DIR ?? 'build',
   serverExternalPackages: [
     'axios',
     '@apollo',
@@ -124,30 +120,15 @@ const sentryOptions = {
   // Upload a larger set of source maps for prettier stack traces (increases build time)
   widenClientFileUpload: true,
 
-  // Automatically annotate React components to show their full name in breadcrumbs and session replay
-  reactComponentAnnotation: {
-    enabled: true,
-  },
-
   // Route browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
   // This can increase your server load as well as your hosting bill.
-  // Note: Check that the configured route will not match with your Next.js middleware, otherwise reporting of client-
+  // Note: Check that the configured route will not match with your Next.js proxy, otherwise reporting of client-
   // side errors will fail.
   tunnelRoute: '/monitoring',
-
-  // Hides source maps from generated client bundles
-  hideSourceMaps: true,
-
-  // Automatically tree-shake Sentry logger statements to reduce bundle size
-  disableLogger: true,
 };
 
-// Bundle Analyzer
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'true',
-});
-
 // Use withSentryConfig to wrap the next config
+/** @param {import('next').NextConfig} passedConfig */
 const sentryEnhancedConfig = (passedConfig) =>
   withSentryConfig(passedConfig, sentryOptions);
 
@@ -155,7 +136,6 @@ const plugins = [
   // Add more Next.js plugins to this list if needed.
   withNx,
   sentryEnhancedConfig,
-  withBundleAnalyzer,
 ];
 
 module.exports = composePlugins(...plugins)(nextConfig);
