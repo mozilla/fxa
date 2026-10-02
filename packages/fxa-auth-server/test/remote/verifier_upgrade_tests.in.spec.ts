@@ -48,7 +48,6 @@ describe.each(testVersions)(
 
       await Client.create(server.publicUrl, email, password, {
         ...testOptions,
-        preVerified: true,
         keys: true,
       });
 

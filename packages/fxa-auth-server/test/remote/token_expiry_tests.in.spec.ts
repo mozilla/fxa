@@ -42,10 +42,13 @@ describe.each(testVersions)(
       const email = server.uniqueEmail();
       const password = 'ok';
 
-      const client = await Client.create(server.publicUrl, email, password, {
-        ...testOptions,
-        preVerified: true,
-      });
+      const client = await Client.createAndVerify(
+        server.publicUrl,
+        email,
+        password,
+        server.mailbox,
+        testOptions
+      );
 
       try {
         await client.changePassword('hello');

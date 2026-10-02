@@ -125,7 +125,7 @@ test.describe('severity-2 #smoke', () => {
     }) => {
       const credentials = await testAccountTracker.signUpSync({
         lang: 'en',
-        preVerified: 'false',
+        verified: false,
       });
 
       // Sign in to enter cached state
