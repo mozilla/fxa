@@ -1069,14 +1069,6 @@ FxaClientWrapper.prototype = {
   ),
 
   /**
-   * Creates a new TOTP token for the current user.
-   *
-   * @param {String} sessionToken SessionToken obtained from signIn
-   * @returns {Promise} resolves when complete
-   */
-  createTotpToken: createClientDelegate('createTotpToken'),
-
-  /**
    * Deletes the current user's TOTP token.
    *
    * @param {String} sessionToken SessionToken obtained from signIn

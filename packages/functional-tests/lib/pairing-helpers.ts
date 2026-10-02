@@ -19,6 +19,7 @@ import jsQR from 'jsqr';
 import UPNG from 'upng-js';
 import { Browser, expect, Page, TestInfo } from '@playwright/test';
 import { ConfigPage } from '../pages/config';
+import AuthClient from '../../fxa-auth-client/lib/client';
 import { BaseTarget } from './targets/base';
 import { MarionetteClient } from './marionette';
 import {
@@ -625,30 +626,17 @@ export async function setInputValueByScript(
 }
 
 /**
- * Programmatically enable TOTP on an account using the auth client API.
+ * Programmatically enable TOTP on an account through the MFA JWT routes.
  * Returns the hex-encoded secret for later code generation.
  */
 export async function enableTotpOnAccount(
-  authClient: {
-    createTotpToken: (
-      sessionToken: string,
-      options: object
-    ) => Promise<{ secret: string }>;
-    verifyTotpSetupCode: (
-      sessionToken: string,
-      code: string
-    ) => Promise<{ success: boolean }>;
-    completeTotpSetup: (
-      sessionToken: string,
-      options?: object
-    ) => Promise<{ success: boolean }>;
-  },
-  sessionToken: string
+  authClient: AuthClient,
+  jwt: string
 ): Promise<string> {
-  const { secret } = await authClient.createTotpToken(sessionToken, {});
+  const { secret } = await authClient.createTotpTokenWithJwt(jwt);
   const code = await getTotpCode(secret);
-  await authClient.verifyTotpSetupCode(sessionToken, code);
-  await authClient.completeTotpSetup(sessionToken);
+  await authClient.verifyTotpSetupCodeWithJwt(jwt, code);
+  await authClient.completeTotpSetupWithJwt(jwt);
   return secret;
 }
 

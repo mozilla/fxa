@@ -184,7 +184,7 @@ describe('totp', () => {
     Container.set(RecoveryPhoneService, mockRecoveryPhoneService);
     Container.set(BackupCodeManager, mockBackupCodeManager);
 
-    // Two /totp/create tests below make removePhoneNumber reject; reset it each
+    // Two /mfa/totp/create tests below make removePhoneNumber reject; reset it each
     // test so that behavior can't leak (clearMocks does not reset implementations).
     mockRecoveryPhoneService.removePhoneNumber
       .mockReset()
@@ -197,12 +197,19 @@ describe('totp', () => {
     Container.reset();
   });
 
-  describe('/totp/create', () => {
+  it.each(['/totp/create', '/totp/setup/verify', '/totp/setup/complete'])(
+    'does not serve the removed session-token route %s',
+    (path) => {
+      expect(getRoute(makeRoutes({}), path)).toBeNull();
+    }
+  );
+
+  describe('/mfa/totp/create', () => {
     it('should create TOTP token', () => {
       return setup(
         { db: { email: TEST_EMAIL, emailVerified: true } },
         {},
-        '/totp/create',
+        '/mfa/totp/create',
         requestOptions
       ).then((response: any) => {
         expect(response.qrCodeUrl).toBeTruthy();
@@ -224,7 +231,7 @@ describe('totp', () => {
       await setup(
         { db: { email: TEST_EMAIL, emailVerified: true } },
         {},
-        '/totp/create',
+        '/mfa/totp/create',
         requestOptions
       );
       expect(mockBackupCodeManager.deleteRecoveryCodes).toHaveBeenCalledWith(
@@ -242,7 +249,7 @@ describe('totp', () => {
       const response = await setup(
         { db: { email: TEST_EMAIL, emailVerified: true } },
         {},
-        '/totp/create',
+        '/mfa/totp/create',
         requestOptions
       );
       expect(response.secret).toBeTruthy();
@@ -256,7 +263,7 @@ describe('totp', () => {
         setup(
           { db: { email: TEST_EMAIL, emailVerified: true } },
           {},
-          '/totp/create',
+          '/mfa/totp/create',
           requestOptions
         )
       ).rejects.toThrow('db unavailable');
@@ -267,7 +274,7 @@ describe('totp', () => {
       await setup(
         { db: { email: TEST_EMAIL, emailVerified: true }, redis: { secret } },
         {},
-        '/totp/create',
+        '/mfa/totp/create',
         requestOptions
       );
       expect(mockBackupCodeManager.deleteRecoveryCodes).not.toHaveBeenCalled();
@@ -296,7 +303,7 @@ describe('totp', () => {
     });
   });
 
-  // Note: this endpoint only verifies sessions; setup flow is covered by /totp/setup/* tests.
+  // Note: this endpoint only verifies sessions; setup flow is covered by /mfa/totp/setup/* tests.
   describe('/session/verify/totp', () => {
     afterEach(() => {
       glean.login.totpSuccess.mockClear();
@@ -531,7 +538,7 @@ describe('totp', () => {
   });
 
   // This endpoint is used for code verification during TOTP setup only
-  describe('/totp/setup/verify', () => {
+  describe('/mfa/totp/setup/verify', () => {
     beforeEach(() => {
       glean.twoFactorAuth.setupVerifySuccess.mockClear();
       glean.twoFactorAuth.setupInvalidCodeError.mockClear();
@@ -550,7 +557,7 @@ describe('totp', () => {
       const response = await setup(
         { db: { email: TEST_EMAIL, emailVerified: true }, redis: { secret } },
         {},
-        '/totp/setup/verify',
+        '/mfa/totp/setup/verify',
         requestOptions
       );
       expect(response.success).toBe(true);
@@ -576,7 +583,7 @@ describe('totp', () => {
         await setup(
           { db: { email: TEST_EMAIL, emailVerified: true }, redis: { secret } },
           {},
-          '/totp/setup/verify',
+          '/mfa/totp/setup/verify',
           requestOptions
         );
         throw new Error('Expected invalid code error');
@@ -598,14 +605,14 @@ describe('totp', () => {
         setup(
           { db: { email: TEST_EMAIL, emailVerified: true } },
           {},
-          '/totp/setup/verify',
+          '/mfa/totp/setup/verify',
           requestOptions
         )
       ).rejects.toMatchObject({ errno: authErrors.ERRNO.TOTP_TOKEN_NOT_FOUND });
     });
   });
 
-  describe('/totp/setup/complete', () => {
+  describe('/mfa/totp/setup/complete', () => {
     beforeEach(() => {
       glean.twoFactorAuth.codeComplete.mockClear();
     });
@@ -622,7 +629,7 @@ describe('totp', () => {
           redis: { secret, verifiedDigest },
         },
         {},
-        '/totp/setup/complete',
+        '/mfa/totp/setup/complete',
         requestOptions
       );
       expect(response.success).toBe(true);
@@ -643,7 +650,7 @@ describe('totp', () => {
         setup(
           { db: { email: TEST_EMAIL, emailVerified: true } },
           {},
-          '/totp/setup/complete',
+          '/mfa/totp/setup/complete',
           requestOptions
         )
       ).rejects.toMatchObject({ errno: authErrors.ERRNO.TOTP_TOKEN_NOT_FOUND });
@@ -657,16 +664,14 @@ describe('totp', () => {
           redis: { secret, verifiedDigest: 'mismatch' },
         },
         {},
-        '/totp/setup/complete',
+        '/mfa/totp/setup/complete',
         requestOptions
       );
       await expect(responsePromise).rejects.toThrow(
         authErrors.invalidTokenVerficationCode().message
       );
     });
-  });
 
-  describe('/mfa/totp/setup/complete', () => {
     function getPayloadSchema() {
       const builtRoutes = makeRoutes({});
       return getRoute(builtRoutes, '/mfa/totp/setup/complete').options.validate

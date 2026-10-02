@@ -650,7 +650,7 @@ export class TestAccountTracker {
    * Gets an MFA JWT for a specific scope by requesting and verifying an OTP.
    * This is used for operations that require MFA authentication.
    */
-  private async getMfaJwtForScope(
+  async getMfaJwtForScope(
     scope: MfaScope,
     sessionToken: string,
     email: string
