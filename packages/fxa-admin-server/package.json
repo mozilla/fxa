@@ -5,6 +5,7 @@
   "scripts": {
     "prebuild": "yarn clean",
     "build": "nest build && yarn copy-config && yarn copy-email-assets && yarn copy-email-l10n-assets",
+    "build-fast": "exit 0",
     "copy-config": "cp ./src/config/*.json ./dist/packages/fxa-admin-server/src/config",
     "copy-email-assets": "copyfiles --up 1 '../../libs/accounts/email-renderer/**/*.{mjml,ftl,txt,css}' dist/libs/ ",
     "copy-email-l10n-assets": "copyfiles --up 1 '../../libs/accounts/email-renderer/public/locales' dist/libs/accounts/email-render/public/locales ",
@@ -81,6 +82,13 @@
     "tags": [
       "scope:server",
       "type:admin"
-    ]
+    ],
+    "targets": {
+      "build-fast": {
+        "dependsOn": [
+          "build"
+        ]
+      }
+    }
   }
 }

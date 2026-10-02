@@ -49,6 +49,13 @@ if [ -n "$JEST_AFFECTED_BASE" ]; then
   fi
 fi
 
+# CI jobs with `parallelism` > 1 run the infra-backed suites split across
+# nodes, each with its own databases. Unit runs stay whole.
+SHARD_ARGS=()
+if [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ]; then
+  SHARD_ARGS=(--shard="$((CIRCLE_NODE_INDEX + 1))/$CIRCLE_NODE_TOTAL" --passWithNoTests)
+fi
+
 if [ "$TEST_TYPE" == 'unit' ]; then
   echo -e "\n\nRunning Jest unit tests"
   # No --forceExit: unit specs mock all DB boundaries
@@ -61,18 +68,18 @@ elif [ "$TEST_TYPE" == 'scripts' ]; then
   echo -e "\n\nRunning Jest script integration tests (test/scripts/**/*.in.spec.ts)"
   JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server-scripts" \
   JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-scripts-results.xml" \
-  npx jest --selectProjects scripts --forceExit --ci --silent --maxWorkers=8 --reporters=default --reporters=jest-junit
+  npx jest --selectProjects scripts --forceExit --ci --silent --maxWorkers=8 --reporters=default --reporters=jest-junit "${SHARD_ARGS[@]}"
 
 elif [ "$TEST_TYPE" == 'integration' ]; then
   echo -e "\n\nRunning Jest integration tests (excluding test/scripts)"
   JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
   JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-integration-results.xml" \
-  npx jest --selectProjects integration --forceExit --ci --maxWorkers=4 --reporters=default --reporters=jest-junit
+  npx jest --selectProjects integration --forceExit --ci --maxWorkers=4 --reporters=default --reporters=jest-junit "${SHARD_ARGS[@]}"
 
   echo -e "\n\nRunning Jest OAuth API integration tests (in-process server)"
   JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
   JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-oauth-api-results.xml" \
-  npx jest --selectProjects oauth-api --forceExit --ci --maxWorkers=1 --reporters=default --reporters=jest-junit
+  npx jest --selectProjects oauth-api --forceExit --ci --maxWorkers=1 --reporters=default --reporters=jest-junit "${SHARD_ARGS[@]}"
 
   # Sweeping old Stripe test customers is housekeeping, not part of the test run,
   # and the sweep is slow (paginates the test account via the rate-limited Stripe

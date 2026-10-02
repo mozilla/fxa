@@ -545,6 +545,18 @@ function convertClientToConfigFormat(client) {
   return out;
 }
 
+// Several processes can seed the same fresh database at once, e.g. parallel
+// test workers. Losing the insert race is fine: the row exists either way.
+async function ignoreDuplicate(insert) {
+  try {
+    return await insert;
+  } catch (err) {
+    if (err.code !== 'ER_DUP_ENTRY') {
+      throw err;
+    }
+  }
+}
+
 async function initDb(db) {
   await preClients(db);
   await scopes(db);
@@ -602,7 +614,7 @@ async function preClients(db) {
             return await db.updateClient(c);
           }
         } else {
-          return await db.registerClient(c);
+          return await ignoreDuplicate(db.registerClient(c));
         }
       })
     );
@@ -622,7 +634,7 @@ async function scopes(db) {
           return;
         }
 
-        return await db.registerScope(s);
+        return await ignoreDuplicate(db.registerScope(s));
       })
     );
   }
