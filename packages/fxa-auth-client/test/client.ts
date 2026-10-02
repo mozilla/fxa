@@ -4,6 +4,7 @@
 
 import * as assert from 'assert';
 import AuthClient from '../server';
+import { toRouteTag } from '../lib/client';
 import * as crypto from '../lib/crypto';
 
 // TODO: Use proper mocks when we move to jest. Not going to add sinon dep just for this...
@@ -352,6 +353,25 @@ describe('lib/client', () => {
     });
   });
 
+  describe('toRouteTag', () => {
+    const cases: Array<[string, string]> = [
+      ['/recoveryKey/0123456789abcdef', '/recoveryKey/:id'],
+      ['/passkey/Y3JlZC1pZA', '/passkey/:id'],
+      ['/passkey/wraps/Y3JlZC1pZA', '/passkey/wraps/:id'],
+      ['/passkey/exists', '/passkey/:id'],
+      ['/recoveryKey', '/recoveryKey'],
+      ['/recoveryKey/exists', '/recoveryKey/exists'],
+      ['/passkey/wraps', '/passkey/wraps'],
+      ['/passkey/registration/start', '/passkey/registration/start'],
+      ['/account/status', '/account/status'],
+    ];
+    for (const [pathname, expected] of cases) {
+      it(`maps ${pathname} to ${expected}`, () => {
+        assert.equal(toRouteTag(pathname), expected);
+      });
+    }
+  });
+
   describe('request() error handling', () => {
     let httpClient: AuthClient;
     let originalFetch: typeof globalThis.fetch;
@@ -449,6 +469,47 @@ describe('lib/client', () => {
         }
         assert.equal(caught?.errno, 114);
         assert.equal(caught?.code, 429);
+      });
+
+      it('reports each blocked status and route to Sentry once', async () => {
+        const freshClient = new AuthClient('http://localhost:9000');
+        const block = async (status: number) => {
+          globalThis.fetch = async () => new Response('Blocked', { status });
+          try {
+            await freshClient.accountStatus('0123456789abcdef');
+          } catch {}
+        };
+
+        await block(406);
+        await block(406);
+        await block(429);
+
+        assert.deepEqual(capturedMessages, [
+          {
+            message: 'Fastly blocked request',
+            context: {
+              level: 'warning',
+              fingerprint: ['fastly-blocked-request'],
+              tags: {
+                fastly_blocked: true,
+                fastly_status: 406,
+                fastly_route: '/account/status',
+              },
+            },
+          },
+          {
+            message: 'Fastly blocked request',
+            context: {
+              level: 'warning',
+              fingerprint: ['fastly-blocked-request'],
+              tags: {
+                fastly_blocked: true,
+                fastly_status: 429,
+                fastly_route: '/account/status',
+              },
+            },
+          },
+        ]);
       });
 
       it('still rethrows the parse error on non-2xx with non-JSON body and a non-WAF status', async () => {
