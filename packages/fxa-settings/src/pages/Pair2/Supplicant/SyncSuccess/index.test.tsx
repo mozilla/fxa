@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { FluentBundle } from '@fluent/bundle';
 import { getFtlBundle, testL10n } from 'fxa-react/lib/test-utils';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
@@ -52,24 +51,10 @@ describe('Pair2/Supplicant/SyncSuccess page', () => {
     ]);
   });
 
-  it('offers sync settings as the only action', () => {
+  it('offers no actions', () => {
     renderWithLocalizationProvider(<Subject />);
 
-    expect(
-      screen.getAllByRole('button').map((button) => button.textContent)
-    ).toEqual(['Manage sync settings']);
-  });
-
-  it('calls onSyncSettings when the sync settings button is clicked', async () => {
-    const user = userEvent.setup();
-    const onSyncSettings = jest.fn();
-    renderWithLocalizationProvider(<Subject {...{ onSyncSettings }} />);
-
-    await user.click(
-      screen.getByRole('button', { name: 'Manage sync settings' })
-    );
-
-    expect(onSyncSettings).toHaveBeenCalledTimes(1);
+    expect(screen.queryAllByRole('button')).toHaveLength(0);
   });
 
   it('renders the card on a white page background', () => {

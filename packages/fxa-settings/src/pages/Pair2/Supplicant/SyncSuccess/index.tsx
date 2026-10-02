@@ -10,19 +10,11 @@ import {
   SyncSuccessImage,
 } from '../../../../components/images';
 
-export type SyncSuccessProps = {
-  /**
-   * Opens the browser's sync settings.
-   */
-  onSyncSettings?: () => void;
-};
-
 /**
  * The mobile screen shown once pairing has completed: the device is signed in
- * and syncing. It confirms that syncing has started and links to sync
- * settings.
+ * and syncing. It confirms that syncing has started.
  */
-const SyncSuccess = ({ onSyncSettings }: SyncSuccessProps) => {
+const SyncSuccess = () => {
   return (
     <AppLayout whiteBackground>
       <div className="flex flex-col items-center text-center">
@@ -38,17 +30,6 @@ const SyncSuccess = ({ onSyncSettings }: SyncSuccessProps) => {
             Syncing is underway. It may take a while for your synced data to
             appear. Feel free to keep browsing.
           </p>
-        </FtlMsg>
-
-        <FtlMsg id="pair2-supplicant-sync-success-sync-settings-button-v2">
-          <button
-            type="button"
-            onClick={onSyncSettings}
-            data-glean-id="dtm_mobile_pair_success_sync_settings"
-            className="mt-6 py-2 text-base text-grey-900 underline dark:text-grey-10"
-          >
-            Manage sync settings
-          </button>
         </FtlMsg>
       </div>
     </AppLayout>
