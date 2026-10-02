@@ -1,0 +1,13 @@
+{
+  "commit": "1d40f3b8581bec5802ff5aec3f0167a54664922d",
+  "summary": "chore(deps): bump webpack-dev-server from 5.2.6 to 6.0.0",
+  "description": "Bumps [webpack-dev-server](https://github.com/webpack/webpack-dev-server) from 5.2.6 to 6.0.0.\n- [Release notes](https://github.com/webpack/webpack-dev-server/releases)\n- [Changelog](https://github.com/webpack/webpack-dev-server/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/webpack/webpack-dev-server/compare/v5.2.6...v6.0.0)\n\n---\nupdated-dependencies:\n- dependency-name: webpack-dev-server\n  dependency-version: 6.0.0\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1790921645000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
