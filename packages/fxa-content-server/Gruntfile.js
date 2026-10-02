@@ -20,8 +20,6 @@ module.exports = function (grunt) {
       requireResolution: true,
     });
   } else {
-    // show elapsed time at the end
-    require('time-grunt')(grunt);
     require('load-grunt-tasks')(grunt, { requireResolution: true });
   }
 
