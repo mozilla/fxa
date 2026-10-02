@@ -1,0 +1,13 @@
+{
+  "commit": "aea532063c90a79af6b13ae8475f8e3ec00f9d7b",
+  "summary": "chore(deps): bump mysql2 from 3.14.1 to 3.23.1",
+  "description": "Bumps [mysql2](https://github.com/sidorares/node-mysql2) from 3.14.1 to 3.23.1.\n- [Release notes](https://github.com/sidorares/node-mysql2/releases)\n- [Changelog](https://github.com/sidorares/node-mysql2/blob/master/Changelog.md)\n- [Commits](https://github.com/sidorares/node-mysql2/compare/v3.14.1...v3.23.1)\n\n---\nupdated-dependencies:\n- dependency-name: mysql2\n  dependency-version: 3.23.1\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1790948170000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
