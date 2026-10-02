@@ -1,0 +1,45 @@
+{
+  "name": "fxa-relier-demo",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/fxa-relier-demo/src",
+  "projectType": "application",
+  "tags": ["scope:frontend", "type:demo"],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": ["{projectRoot}/dist"],
+      "options": {
+        "cwd": "packages/fxa-relier-demo",
+        "command": "node scripts/build.mjs"
+      }
+    },
+    "start": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "packages/fxa-relier-demo",
+        "command": "pm2 start pm2.config.js"
+      }
+    },
+    "stop": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "packages/fxa-relier-demo",
+        "command": "pm2 stop pm2.config.js"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/fxa-relier-demo/src/**/*.{ts,tsx}"]
+      }
+    },
+    "test-unit": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "packages/fxa-relier-demo",
+        "command": "npx jest --no-coverage"
+      }
+    }
+  }
+}
