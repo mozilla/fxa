@@ -26,7 +26,7 @@ export type ScanQRProps = {
  * The desktop screen that shows the pairing QR code. The user scans it with
  * their phone or tablet to start syncing. Pairing is one of several promos a
  * sync sign-in can land on, so the card is followed by a way out of the flow
- * alongside the link to scanning help.
+ * alongside the link to other ways to sign in on mobile.
  */
 const ScanQR = ({ qrCodeValue, onSkip }: ScanQRProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
@@ -92,12 +92,12 @@ const ScanQR = ({ qrCodeValue, onSkip }: ScanQRProps) => {
                 The overlay leaves room for two lines above the artwork's
                 bottom edge. */}
             <LinkExternal
-              href={Constants.SYNC_SUMO_URL}
+              href={Constants.PAIR_WITHOUT_QR_SUMO_URL}
               className="mt-2 max-w-[46%] rounded-sm text-sm text-grey-900 underline focus-visible-default hover:text-grey-700"
               gleanDataAttrs={{ id: 'dtm_desktop_qr_help' }}
             >
-              <FtlMsg id="pair2-authority-scan-qr-help-link">
-                Get help scanning
+              <FtlMsg id="pair2-authority-scan-qr-other-ways-link">
+                Other ways to sign in
               </FtlMsg>
             </LinkExternal>
           </div>
