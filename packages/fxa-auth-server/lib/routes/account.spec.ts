@@ -4023,6 +4023,10 @@ describe('/account', () => {
     Container.set(CapabilityService, {});
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   describe('web subscriptions', () => {
     beforeEach(() => {
       mockCustomer = {
@@ -4076,20 +4080,36 @@ describe('/account', () => {
       });
     });
 
-    it('should propagate other errors from stripe.customer', async () => {
+    it('should return empty subscriptions and report other errors from stripe.customer', async () => {
+      const sentryModule = require('../sentry');
+      const reportSpy = jest
+        .spyOn(sentryModule, 'reportSentryError')
+        .mockReturnValue({});
+      const stripeError = error.unexpectedError();
       mockStripeHelper.fetchCustomer = jest.fn(() => {
-        throw error.unexpectedError();
+        throw stripeError;
       });
 
-      let failed = false;
-      try {
-        await runTest(buildRoute(), request, () => {});
-      } catch (err: any) {
-        failed = true;
-        expect(err.errno).toBe(error.ERRNO.UNEXPECTED_ERROR);
-      }
+      await runTest(buildRoute(), request, (result: any) => {
+        expect(result.subscriptions).toEqual([]);
+      });
+      expect(log.error).toHaveBeenCalledWith(
+        'Account.get.subscriptions.error',
+        { err: stripeError }
+      );
+      expect(reportSpy).toHaveBeenCalledWith(stripeError, request);
+    });
 
-      expect(failed).toBe(true);
+    it('should not log or report unknownCustomer errors', async () => {
+      const sentryModule = require('../sentry');
+      const reportSpy = jest.spyOn(sentryModule, 'reportSentryError');
+      mockStripeHelper.fetchCustomer = jest.fn(() => {
+        throw error.unknownCustomer();
+      });
+
+      await runTest(buildRoute(), request, () => {});
+      expect(log.error).not.toHaveBeenCalled();
+      expect(reportSpy).not.toHaveBeenCalled();
     });
 
     it('should not return stripe.customer result when subscriptions are disabled', () => {
@@ -4237,6 +4257,28 @@ describe('/account', () => {
           expect(result.subscriptions).toEqual([]);
         }
       );
+    });
+
+    it('should return empty subscriptions when the Play read fails after Stripe succeeds', async () => {
+      const sentryModule = require('../sentry');
+      const reportSpy = jest
+        .spyOn(sentryModule, 'reportSentryError')
+        .mockReturnValue({});
+      mockCustomer = { id: 1234, subscriptions: ['fake'] };
+      mockWebSubscriptionsResponse = [webSubscription];
+      const playError = new Error('play unavailable');
+      mockPlaySubscriptions.getSubscriptions = jest.fn(async () => {
+        throw playError;
+      });
+
+      await runTest(
+        buildRoute(subscriptionsEnabled, playSubscriptionsEnabled),
+        request,
+        (result: any) => {
+          expect(result.subscriptions).toEqual([]);
+        }
+      );
+      expect(reportSpy).toHaveBeenCalledWith(playError, request);
     });
 
     it('should not return Play subscriptions when Play subscriptions are disabled', () => {

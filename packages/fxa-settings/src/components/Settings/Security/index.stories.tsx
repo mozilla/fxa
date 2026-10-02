@@ -126,6 +126,18 @@ export const Default = storyWithAccount({
   },
 });
 
+export const PasswordWithoutCreatedDate = storyWithAccount(
+  {
+    recoveryKey: { exists: false },
+    totp: { exists: false, verified: false },
+    hasPassword: true,
+    backupCodes: {
+      hasBackupCodes: false,
+    },
+  },
+  { storyName: 'Password set, no created date' }
+);
+
 export const SecurityFeaturesEnabled = storyWithAccount(
   {
     recoveryKey: { exists: true },

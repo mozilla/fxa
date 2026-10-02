@@ -263,18 +263,12 @@ export function useAccountData({
         throw new InvalidTokenError();
       }
 
-      let accountData: Partial<AccountState> = {};
-
-      if (accountResult.status === 'fulfilled') {
-        accountData = {
-          ...accountData,
-          ...transformAccountResponse(accountResult.value),
-        };
-      } else {
-        Sentry.captureMessage(
-          `Failed to fetch account: ${accountResult.reason}`
-        );
+      // Without account data, Settings would render defaults that look like lost account state.
+      if (accountResult.status === 'rejected') {
+        throw accountResult.reason;
       }
+
+      const accountData = transformAccountResponse(accountResult.value);
 
       if (profileResult.status === 'fulfilled') {
         const { displayName, avatar } = profileResult.value;

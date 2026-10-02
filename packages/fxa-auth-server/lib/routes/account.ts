@@ -74,6 +74,7 @@ import {
   escapeLikePattern,
 } from '@fxa/accounts/email-sender';
 import { getClientServiceTags } from '../metrics/client-tags';
+import { reportSentryError } from '../sentry';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -2258,8 +2259,13 @@ export class AccountHandler {
           ).map(appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO);
         }
       } catch (err) {
+        // Subscriptions are optional here; a failed read must not fail the whole account response.
+        webSubscriptions = [];
+        iapGooglePlaySubscriptions = [];
+        iapAppStoreSubscriptions = [];
         if (err.errno !== error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER) {
-          throw err;
+          this.log.error('Account.get.subscriptions.error', { err });
+          reportSentryError(err, request);
         }
       }
     }

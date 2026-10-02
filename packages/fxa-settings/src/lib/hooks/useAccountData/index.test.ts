@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { renderHook, act } from '@testing-library/react';
+import * as Sentry from '@sentry/browser';
 import { useAccountData } from '.';
 import { sessionToken as getSessionToken } from '../../cache';
 
@@ -45,5 +46,37 @@ describe('useAccountData', () => {
     });
     expect(result.current.isLoading).toBe(false);
     expect(result.current.error?.message).toBe('No session token available');
+  });
+
+  it('sets error and keeps default account data when the account fetch fails', async () => {
+    (getSessionToken as jest.Mock).mockReturnValue('tok');
+    authClient.account.mockRejectedValue(new Error('Unexpected error'));
+    authClient.attachedClients.mockResolvedValue([]);
+    authClient.createOAuthToken.mockRejectedValue(new Error('no token'));
+
+    let result: any;
+    await act(async () => {
+      ({ result } = renderHook(() => useAccountData({ authClient })));
+    });
+    expect(result.current.isLoading).toBe(false);
+    expect(result.current.error?.message).toBe('Unexpected error');
+    expect(mockSetAccountData).not.toHaveBeenCalled();
+    expect(Sentry.captureMessage).not.toHaveBeenCalled();
+  });
+
+  it('keeps account data when only profile and attached clients fail', async () => {
+    (getSessionToken as jest.Mock).mockReturnValue('tok');
+    authClient.account.mockResolvedValue({ passwordCreatedAt: 1234 });
+    authClient.attachedClients.mockRejectedValue(new Error('clients down'));
+    authClient.createOAuthToken.mockRejectedValue(new Error('no token'));
+
+    let result: any;
+    await act(async () => {
+      ({ result } = renderHook(() => useAccountData({ authClient })));
+    });
+    expect(result.current.error).toBeNull();
+    expect(mockSetAccountData).toHaveBeenCalledWith(
+      expect.objectContaining({ passwordCreated: 1234, attachedClients: [] })
+    );
   });
 });
