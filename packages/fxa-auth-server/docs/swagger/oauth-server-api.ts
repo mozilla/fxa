@@ -61,8 +61,6 @@ const OAUTH_SERVER_API_DESCRIPTION = {
       ## API Endpoints
       - [GET /v1/authorization](#tag/OAuth-Server-API-Overview/operation/getAuthorization)
       - [POST /v1/authorization](#tag/OAuth-Server-API-Overview/operation/postAuthorization)
-      - [POST /v1/authorized-clients](#tag/OAuth-Server-API-Overview/operation/postAuthorizedclients)
-      - [POST /v1/authorized-clients/destroy](#tag/OAuth-Server-API-Overview/operation/postAuthorizedclientsDestroy)
       - [GET /v1/client/:id](#tag/OAuth-Server-API-Overview/operation/getClientClient_id)
       - [POST /v1/destroy](#tag/OAuth-Server-API-Overview/operation/postDestroy)
       - [POST /v1/introspect](#tag/OAuth-Server-API-Overview/operation/postIntrospect)
@@ -192,89 +190,6 @@ const DESTROY_POST = {
           lang: 'JavaScript',
           source:
             'curl -v \\\n -X POST \\\n -H "Content-Type: application/json" \\\n "https://oauth.accounts.firefox.com/v1/destroy" \\\n -d \'{\n  "token": "558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0"\n}\'',
-        },
-      ],
-    },
-  },
-};
-
-const AUTHORIZED_CLIENTS_DESTROY_POST = {
-  ...TAGS_OAUTH_SERVER,
-  description: '/v1/authorized-clients/destroy',
-  notes: [
-    `This endpoint revokes tokens granted to a given client. It must be authenticated with an identity assertion for the user's account.`,
-  ],
-  plugins: {
-    'hapi-swagger': {
-      responses: {
-        200: {
-          description: 'A valid 200 response will return an empty JSON object.',
-        },
-      },
-      'x-codeSamples': [
-        {
-          lang: 'JavaScript',
-          source:
-            'curl -X POST \\\n "https://oauth.accounts.firefox.com/v1/authorized-clients/destroy \\\n -H \'cache-control: no-cache\' \\\n -H \'content-type: application/json\' \\\n -d \'{\n  "client_id": "5901bd09376fadaa",\n  "refresh_token_id": "6e8c38f6a9c27dc0e4df698dc3e3e8b101ad6d79e87842b1ca96ad9b3cd8ed28",\n  "assertion": "eyJhbGciOiJSUzI1NiJ9.eyJwdWJsaWMta2V5Ijp7Imt0eSI6IlJTQSIsIm4iOiJvWmdsNkpwM0Iwcm5BVXppNThrdS1iT0RvR3ZuUGNnWU1UdXQ1WkpyQkJiazBCdWU4VUlRQ0dnYVdrYU5Xb29INkktMUZ6SXU0VFpZYnNqWGJ1c2JRRlQxOGREUkN6VVRubFlXdVZXUzhoSWhKc3lhZHJwSHJOVkI1VndmSlRKZVgwTjFpczBXcU1qdUdOc2VMLXluYnFjOVhueElncFJaai05QnZqY2ZKYXNOUTNZdHR3VHZVaFJOLVFGNWgxQkY1MnA2QmdOTVBvWmQ5MC1EU0xydlpseXp6MEh0Q2tFZnNsc013czVkR0ExTlZ1dEwtcGVDeU50VTFzOEtFaDlzcGxXeF9lQlFybTlYQU1kYXp5ZWR6VUpJU1UyMjZmQzhEUHh5c0ZreXpCbjlDQnFDQUpTNjQzTGFydUVDaS1rMGhKOWFmM2JXTmJnWmpSNVJ2NXF4THciLCJlIjoiQVFBQiJ9LCJwcmluY2lwYWwiOnsiZW1haWwiOiIwNjIxMzM0YzIwNjRjNmYzNmJlOGFkOWE0N2M1NTliY2FwaS5hY2NvdW50cy5maXJlZm94LmNvbSJ9LCJpYXQiOjE1MDY5Njk2OTU0MzksImV4cCI6MTUwNjk2OTY5NjQzOSwiZnhhLXZlcmlmaWVkRW1haWwiOiIzMjM2NzJiZUBtb3ppbGxhLmNvbSIsImlzcyI6ImFwaS5hY2NvdW50cy5maXJlZm94LmNvbSJ9.hFZd5zFheXOFrXKkJvw6Vpv2l7ctlxuBTvuh5f_jLPAjZoJ9ri-vaJjL_WYBFUvS2xHzfx3-ldxLddyTKwCDAJeB_NkOFL_WJSrMet9C7_Z1hH9HmydeXIT82xJmhrwzW-WOO4ibQvRbocEFiNujynKsg1gS8v0iiYjIX-0cXCrlkxkbVx_8EXJFKDDOGzK9v7Zq6D7gkhP-CHEaNYaTHMn65tLQtBS6snGdaXlxoGHMWmDL6STbnJzWa7sa4QwHf-AgT1rUkQQAUHNa_XLZ0FEzqiCPctMadlihiUZL2V6vxIDBS4mHUF4qj0FvIMJflivDnJVkRNijDuP-h-Lh_A~eyJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJvYXV0aC5meGEiLCJleHAiOjE1MDY5Njk2OTY0MzksImlzcyI6ImFwaS5hY2NvdW50cy5maXJlZm94LmNvbSJ9.M5xyk3RffucgaavjbUm7Eqnt47hzeGbGa2VR3jnVEIlRHfz5S25Qf3ngejwee7XECvIywbaKWeijXFOwS-EkB-7qP1gl4oNJjPmbnCk7S1lgckLWvdMIU-HLGKjrN6Mw76__LzvAbsusSeGmsvTCIVuOJ49Xs3tC1fLyB_re0QNpCcS6AUnJ1KOxIMEM3Om7ysNO5F_AqcD3PwlEti5lbwSk8iP5TWL12C2Nkb_6Hxze_mA1NZNAHOips9bF2J7oy1hqGoMYj1XYZrsyjpPWEuZQATAPlKSjbh1hq-UtDeT7DlwEmIbIUd3JA8qh1MkHKGgavd4fIMap0IPmr9rs4A",\n}\'',
-        },
-      ],
-    },
-  },
-};
-
-const AUTHORIZED_CLIENTS_POST = {
-  ...TAGS_OAUTH_SERVER,
-  description: '/v1/authorized-clients',
-  notes: [
-    "This endpoint returns a list of all OAuth client instances connected to the user's account, including the the scopes granted to each client instance and the time at which it was last active, if available. It must be authenticated with an identity assertion for the user's account.",
-  ],
-  plugins: {
-    'hapi-swagger': {
-      responses: {
-        200: {
-          description: swaggerText`
-            A valid 200 response will be a JSON array.
-
-            For clients that use refresh tokens, each refresh token is taken to represent a separate instance of that client and is returned as a separate entry in the list, with the \`refresh_token_id\` field distinguishing each.
-
-            For clients that only use access tokens, all active access tokens are combined into a single entry in the list, and the \`refresh_token_id\` field will not be present.
-
-            **Example:**
-            \`\`\` js
-                [
-                  {
-                    "client_id": "5901bd09376fadaa",
-                    "refresh_token_id": "6e8c38f6a9c27dc0e4df698dc3e3e8b101ad6d79e87842b1ca96ad9b3cd8ed28",
-                    "name": "Example Sync Client",
-                    "created_time": 1528334748000,
-                    "last_access_time": 1528334748000,
-                    "scope": ["profile", "https://identity.mozilla.com/apps/oldsync"]
-                  },
-                  {
-                    "client_id": "5901bd09376fadaa",
-                    "refresh_token_id": "eb5e17f246a6b0937356412118ea12b67a638232d6b376e2511cf38a0c4eecf9",
-                    "name": "Example Sync Client",
-                    "created_time": 1528334748000,
-                    "last_access_time": 1528334834000,
-                    "scope": ["profile", "https://identity.mozilla.com/apps/oldsync"]
-                  },
-                  {
-                    "client_id": "23d10a14f474ca41",
-                    "name": "Example Website",
-                    "created_time": 1328334748000,
-                    "last_access_time": 1476677854037,
-                    "scope": ["profile:email", "profile:uid"]
-                  }
-                ]
-            \`\`\`
-          `,
-        },
-      },
-      'x-codeSamples': [
-        {
-          lang: 'JavaScript',
-          source:
-            'curl -X POST \\\n "https://oauth.accounts.firefox.com/v1/authorized-clients" \\\n -H \'cache-control: no-cache\' \\\n -H "Content-Type: application/json" \\\n -d \'{\n  "assertion": "eyJhbGciOiJSUzI1NiJ9.eyJwdWJsaWMta2V5Ijp7Imt0eSI6IlJTQSIsIm4iOiJvWmdsNkpwM0Iwcm5BVXppNThrdS1iT0RvR3ZuUGNnWU1UdXQ1WkpyQkJiazBCdWU4VUlRQ0dnYVdrYU5Xb29INkktMUZ6SXU0VFpZYnNqWGJ1c2JRRlQxOGREUkN6VVRubFlXdVZXUzhoSWhKc3lhZHJwSHJOVkI1VndmSlRKZVgwTjFpczBXcU1qdUdOc2VMLXluYnFjOVhueElncFJaai05QnZqY2ZKYXNOUTNZdHR3VHZVaFJOLVFGNWgxQkY1MnA2QmdOTVBvWmQ5MC1EU0xydlpseXp6MEh0Q2tFZnNsc013czVkR0ExTlZ1dEwtcGVDeU50VTFzOEtFaDlzcGxXeF9lQlFybTlYQU1kYXp5ZWR6VUpJU1UyMjZmQzhEUHh5c0ZreXpCbjlDQnFDQUpTNjQzTGFydUVDaS1rMGhKOWFmM2JXTmJnWmpSNVJ2NXF4THciLCJlIjoiQVFBQiJ9LCJwcmluY2lwYWwiOnsiZW1haWwiOiIwNjIxMzM0YzIwNjRjNmYzNmJlOGFkOWE0N2M1NTliY2FwaS5hY2NvdW50cy5maXJlZm94LmNvbSJ9LCJpYXQiOjE1MDY5Njk2OTU0MzksImV4cCI6MTUwNjk2OTY5NjQzOSwiZnhhLXZlcmlmaWVkRW1haWwiOiIzMjM2NzJiZUBtb3ppbGxhLmNvbSIsImlzcyI6ImFwaS5hY2NvdW50cy5maXJlZm94LmNvbSJ9.hFZd5zFheXOFrXKkJvw6Vpv2l7ctlxuBTvuh5f_jLPAjZoJ9ri-vaJjL_WYBFUvS2xHzfx3-ldxLddyTKwCDAJeB_NkOFL_WJSrMet9C7_Z1hH9HmydeXIT82xJmhrwzW-WOO4ibQvRbocEFiNujynKsg1gS8v0iiYjIX-0cXCrlkxkbVx_8EXJFKDDOGzK9v7Zq6D7gkhP-CHEaNYaTHMn65tLQtBS6snGdaXlxoGHMWmDL6STbnJzWa7sa4QwHf-AgT1rUkQQAUHNa_XLZ0FEzqiCPctMadlihiUZL2V6vxIDBS4mHUF4qj0FvIMJflivDnJVkRNijDuP-h-Lh_A~eyJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJvYXV0aC5meGEiLCJleHAiOjE1MDY5Njk2OTY0MzksImlzcyI6ImFwaS5hY2NvdW50cy5maXJlZm94LmNvbSJ9.M5xyk3RffucgaavjbUm7Eqnt47hzeGbGa2VR3jnVEIlRHfz5S25Qf3ngejwee7XECvIywbaKWeijXFOwS-EkB-7qP1gl4oNJjPmbnCk7S1lgckLWvdMIU-HLGKjrN6Mw76__LzvAbsusSeGmsvTCIVuOJ49Xs3tC1fLyB_re0QNpCcS6AUnJ1KOxIMEM3Om7ysNO5F_AqcD3PwlEti5lbwSk8iP5TWL12C2Nkb_6Hxze_mA1NZNAHOips9bF2J7oy1hqGoMYj1XYZrsyjpPWEuZQATAPlKSjbh1hq-UtDeT7DlwEmIbIUd3JA8qh1MkHKGgavd4fIMap0IPmr9rs4A"\n}\'',
         },
       ],
     },
@@ -546,8 +461,6 @@ const API_DOCS = {
   AUTHORIZATION_GET,
   AUTHORIZATION_POST,
   DESTROY_POST,
-  AUTHORIZED_CLIENTS_DESTROY_POST,
-  AUTHORIZED_CLIENTS_POST,
   CLIENT_CLIENTID_GET,
   INTROSPECT_POST,
   JWKS_GET,
