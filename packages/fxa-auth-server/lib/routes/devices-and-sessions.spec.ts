@@ -1811,7 +1811,7 @@ describe('/account/devices', () => {
       expect(response[0].lastAccessTime > ONE_DAY_AGO).toBeTruthy();
       expect(mockDB.touchSessionToken).toHaveBeenCalledWith(
         credentials,
-        {},
+        mockRequest.app.geo,
         true
       );
     });

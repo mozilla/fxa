@@ -83,7 +83,7 @@ module.exports = (log, db, devices, clientUtils, config) => {
         const sessionToken = request.auth && request.auth.credentials;
 
         sessionToken.lastAccessTime = Date.now();
-        await db.touchSessionToken(sessionToken, {}, true);
+        await db.touchSessionToken(sessionToken, request.app.geo, true);
         const { uid, id } = sessionToken;
         const factory = new ConnectedServicesFactory({
           formatTimestamps: (...args) => {
@@ -159,7 +159,7 @@ module.exports = (log, db, devices, clientUtils, config) => {
         const sessionToken = request.auth && request.auth.credentials;
 
         sessionToken.lastAccessTime = Date.now();
-        await db.touchSessionToken(sessionToken, {}, true);
+        await db.touchSessionToken(sessionToken, request.app.geo, true);
         const factory = new ConnectedServicesFactory({
           formatTimestamps: (...args) => {
             clientUtils.formatTimestamps(...args);
