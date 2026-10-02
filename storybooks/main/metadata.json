@@ -1,8 +1,8 @@
 {
-  "commit": "615338ef28bc87ef7ad46422163fa03bea06e324",
-  "summary": "Merge pull request #21370 from mozilla/dependabot/npm_and_yarn/mysql2-3.23.1",
-  "description": "chore(deps): bump mysql2 from 3.14.1 to 3.23.1",
-  "timestamp": 1790951017000,
+  "commit": "25b557f76780a2818c6633262c9b0939d6ffcb0f",
+  "summary": "Merge pull request #21367 from mozilla/fxa-4900",
+  "description": "chore(content-server): remove deprecated time-grunt",
+  "timestamp": 1790959521000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
