@@ -67,13 +67,13 @@ resend-success-banner-description = { $accountsEmail } را به مخاطبین 
 brand-banner-dismiss-button-2 =
     .aria-label = بستن بنر
 brand-prelaunch-title = { -product-firefox-accounts } در تاریخ ۱ نوامبر به { -product-mozilla-accounts } تغییر نام خواهد یافت.
-brand-prelaunch-subtitle = شما همچنان با همان نام‌کاربری و گذرواژه وارد حساب خود خواهید شد و هیچ تغییر دیگری در محصولات استفاده‌ شده شما وجود نخواهد داشت.
-brand-postlaunch-title = ما نام { -product-firefox-accounts } را به { -product-mozilla-accounts } تغییر داده‌ایم. شما همچنان با همان نام‌کاربری و گذرواژه وارد حساب خود خواهید شد و هیچ تغییر دیگری در محصولات استفاده‌ شده شما وجود نخواهد داشت.
+brand-prelaunch-subtitle = شما همچنان با همان نام‌کاربری و گذرواژه وارد حساب خود خواهید شد و هیچ تغییر دیگری در محصولات استفاده‌شده شما وجود نخواهد داشت.
+brand-postlaunch-title = ما نام { -product-firefox-accounts } را به { -product-mozilla-accounts } تغییر داده‌ایم. شما همچنان با همان نام‌کاربری و گذرواژه وارد حساب خود خواهید شد و هیچ تغییر دیگری در محصولات استفاده‌شده شما وجود نخواهد داشت.
 brand-learn-more = بیشتر بدانید
 brand-close-banner =
     .alt = بستن بنر
 brand-m-logo =
-    .alt = { -brand-mozilla } چ آرم
+    .alt = آرم { -brand-mozilla }
 
 
 button-back-aria-label = بازگشت
@@ -90,6 +90,11 @@ choose-newsletters-option-test-pilot =
     .label = دسترسی اولیه به آزمایش محصولات جدید
 choose-newsletters-option-reclaim-the-internet =
     .label = هشدارهای عملی برای بازپس‌گیری اینترنت
+
+
+dark-mode-toggle-light = روشن
+dark-mode-toggle-dark = تیره
+dark-mode-toggle-system = سیستم
 
 
 datablock-download =
@@ -111,12 +116,12 @@ datablock-inline-copy =
     .message = رونوشت شد
 
 
-device-info-block-location-city-region-country = { $city }، { $region }، { $country } (تخمین زده‌شده)
-device-info-block-location-region-country = { $region }, { $country } (تخمین زده‌شده)
-device-info-block-location-city-country = { $city }, { $country } (تخمین زده‌شده)
-device-info-block-location-country = { $country } (تخمین زده‌شده)
+device-info-block-location-city-region-country = { $city }، { $region }، { $country } (تخمینی)
+device-info-block-location-region-country = { $region }، { $country } (تخمینی)
+device-info-block-location-city-country = { $city }، { $country } (تخمینی)
+device-info-block-location-country = { $country } (تخمینی)
 device-info-block-location-unknown = مکان ناشناخته
-device-info-browser-os = { $browserName } بر روی { $genericOSName }
+device-info-browser-os = { $browserName } روی { $genericOSName }
 device-info-ip-address = نشانی IP: { $ipAddress }
 
 
@@ -235,10 +240,13 @@ flow-recovery-key-hint-cta-text = پایان
 password-reset-warning-icon = هشدار
 
 
+alert-bar-close-message = بستن پیام
+
+
 avatar-your-avatar =
-    .alt = چهرک شما
+    .alt = تصویر نمایه شما
 avatar-default-avatar =
-    .alt = چهرک پیش‌فرض
+    .alt = تصویر نمایه پیش‌فرض
 
 
 bento-menu-title-3 = محصولات { -brand-mozilla }
@@ -250,7 +258,7 @@ bento-menu-firefox-mobile = { -brand-firefox } مرورگر برای موبای�
 bento-menu-made-by-mozilla = ساخته شده توسط { -brand-mozilla }
 
 
-connect-another-fx-mobile = { -brand-firefox } را برای موبایل یا تلبت دریافت کنید
+connect-another-fx-mobile = { -brand-firefox } را برای موبایل یا تبلت دریافت کنید
 
 
 cs-disconnect-sync-opt-duplicate = تکراری
@@ -285,7 +293,7 @@ flow-setup-2fa-backup-code-dl-button-continue = ادامه
 flow-setup-2fa-prompt-continue-button = ادامه
 
 
-flow-setup-phone-confirm-code-button = تایید
+flow-setup-phone-confirm-code-button = تأیید
 flow-setup-phone-confirm-code-resend-code-success = کد ارسال شد
 
 
@@ -304,14 +312,14 @@ nav-linked-accounts = { la-heading }
 
 modal-close-title = بستن
 modal-cancel-button = لغو
-modal-default-confirm-button = تایید
+modal-default-confirm-button = تأیید
 
 
-modal-mfa-protected-confirm-button = تایید
+modal-mfa-protected-confirm-button = تأیید
 
 
 msv-cancel-button = انصراف
-msv-submit-button-2 = تایید
+msv-submit-button-2 = تأیید
 
 
 nav-settings = تنظیمات
@@ -329,7 +337,7 @@ avatar-page-add-photo-button =
 avatar-page-take-photo = عکس گرفتن
 avatar-page-take-photo-button =
     .title = { avatar-page-take-photo }
-avatar-page-remove-photo = عکس تصویر
+avatar-page-remove-photo = حذف تصویر
 avatar-page-remove-photo-button =
     .title = { avatar-page-remove-photo }
 avatar-page-retake-photo = گرفتن دوباره تصویر
@@ -357,7 +365,7 @@ pw-change-current-password =
 pw-change-new-password =
     .label = یک گذرواژه جدید وارد کنید
 pw-change-confirm-password =
-    .label = تایید گذرواژه جدید
+    .label = تأیید گذرواژه جدید
 pw-change-success-alert-2 = گذرواژه به‌روزرسانی شد
 
 
@@ -375,7 +383,7 @@ delete-account-product-mdn-plus = { -product-mdn-plus }
 delete-account-product-mozilla-hubs = { -product-mozilla-hubs }
 delete-account-product-mozilla-monitor = { -product-mozilla-monitor }
 delete-account-product-firefox-relay = { -product-firefox-relay }
-delete-account-acknowledge = لطفا در تایید کنید که با حذف حساب کاربری خود:
+delete-account-acknowledge = لطفا در تأیید کنید که با حذف حساب کاربری خود:
 delete-account-continue-button = ادامه
 delete-account-password-input =
     .label = گذرواژه را وارد کنید

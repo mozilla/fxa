@@ -1,8 +1,8 @@
 {
-  "commit": "dad409c717a5d1841bf638787ed470b692bf601c",
-  "summary": "Merge pull request #21359 from mozilla/agent-31f814",
-  "description": "fix(functional-tests): drop login_hint from the prompt=none grant test",
-  "timestamp": 1790883971000,
+  "commit": "9d73211faf3fac1106ba07d3d9206f79a32299dc",
+  "summary": "Merge pull request #21368 from mozilla/dependabot/npm_and_yarn/webpack-dev-server-6.0.0",
+  "description": "chore(deps): bump webpack-dev-server from 5.2.6 to 6.0.0",
+  "timestamp": 1790945170000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
