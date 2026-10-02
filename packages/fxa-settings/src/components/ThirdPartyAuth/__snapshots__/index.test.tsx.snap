@@ -6,10 +6,11 @@ exports[`ThirdPartyAuthComponent buttons match snapshot: apple 1`] = `
   class="w-full min-h-14 py-3 px-4 gap-4 rounded-md inline-flex items-center
         font-header text-start break-words
         text-grey-900 dark:text-grey-10
-        bg-grey-10 dark:bg-grey-600
-        border border-grey-200 dark:border-grey-500
-        hover:bg-grey-100 hover:border-grey-300 dark:hover:bg-grey-500
-        active:bg-grey-300 active:border-grey-700
+        bg-grey-10 border border-grey-200
+               hover:bg-grey-100 hover:border-grey-300
+               active:bg-grey-300 active:border-grey-700
+               dark:bg-grey-600 dark:border-grey-500
+               dark:hover:bg-grey-500
         disabled:bg-grey-50 disabled:border-grey-100 disabled:text-grey-500
         dark:disabled:bg-grey-700 dark:disabled:border-grey-600 dark:disabled:text-grey-300
         disabled:cursor-not-allowed
@@ -72,10 +73,11 @@ exports[`ThirdPartyAuthComponent buttons match snapshot: google 1`] = `
   class="w-full min-h-14 py-3 px-4 gap-4 rounded-md inline-flex items-center
         font-header text-start break-words
         text-grey-900 dark:text-grey-10
-        bg-grey-10 dark:bg-grey-600
-        border border-grey-200 dark:border-grey-500
-        hover:bg-grey-100 hover:border-grey-300 dark:hover:bg-grey-500
-        active:bg-grey-300 active:border-grey-700
+        bg-grey-10 border border-grey-200
+               hover:bg-grey-100 hover:border-grey-300
+               active:bg-grey-300 active:border-grey-700
+               dark:bg-grey-600 dark:border-grey-500
+               dark:hover:bg-grey-500
         disabled:bg-grey-50 disabled:border-grey-100 disabled:text-grey-500
         dark:disabled:bg-grey-700 dark:disabled:border-grey-600 dark:disabled:text-grey-300
         disabled:cursor-not-allowed

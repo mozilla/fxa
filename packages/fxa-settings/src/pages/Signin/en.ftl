@@ -9,6 +9,9 @@ signin-subheader-without-logo-with-servicename = Continue to { $serviceName }
 signin-subheader-without-logo-default = Continue to account settings
 signin-button = Sign in
 signin-header = Sign in
+# Heading for the cached sign-in page when more than one account is stored on
+# the device and the user picks which one to continue with.
+signin-cached-choose-account-header = Choose an account
 signin-use-a-different-account-link = Use a different account
 signin-forgot-password-link = Forgot password?
 signin-password-button-label = Password

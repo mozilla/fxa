@@ -131,6 +131,7 @@ export interface Config {
     passkeyAuthenticationEnabled?: boolean;
     passkeyPasswordlessSyncEnabled?: boolean;
     passwordlessEnabled?: boolean;
+    accountSwitcherEnabled?: boolean;
   };
   darkMode?: {
     enabled?: boolean;
@@ -249,6 +250,7 @@ export function getDefault() {
       showLocaleToggle: false,
       paymentsNextSubscriptionManagement: false,
       passwordlessEnabled: false,
+      accountSwitcherEnabled: false,
     },
     darkMode: {
       enabled: false,

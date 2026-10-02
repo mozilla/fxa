@@ -4,6 +4,7 @@
 
 import { getSyncEngineIds, syncEngineConfigs } from '../../sync-engines';
 import type { FxAStatusState, UseFxAStatusResult } from '.';
+import type { SignedInUser } from '../../channels/firefox';
 
 export function mockUseFxAStatus({
   pairingEnabled = true,
@@ -14,6 +15,7 @@ export function mockUseFxAStatus({
   // Defaults to a browser that replied, since that is what most callers assume.
   // Pass 'unanswered' for a browser with no WebChannel.
   fxaStatusState = 'answered',
+  signedInUser,
 }: {
   pairingEnabled?: boolean;
   pairingVersion?: number;
@@ -21,6 +23,7 @@ export function mockUseFxAStatus({
   supportsKeysOptionalLogin?: boolean;
   supportsCanLinkAccountUid?: boolean | undefined;
   fxaStatusState?: FxAStatusState;
+  signedInUser?: SignedInUser;
 } = {}) {
   const offeredSyncEngineConfigs = syncEngineConfigs;
   const offeredSyncEngines =
@@ -47,6 +50,7 @@ export function mockUseFxAStatus({
     supportsCanLinkAccountUid,
     fxaStatusState,
     fxaStatus: {
+      ...(signedInUser && { signedInUser }),
       capabilities: {
         engines: [],
         multiService: true,

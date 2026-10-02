@@ -53,6 +53,7 @@ export interface SigninDeciderProps {
   /** Set in location state when redirecting away from the passwordless flow
    * (e.g. on TOTP_REQUIRED) to break the redirect loop back to passwordless. */
   skipPasswordlessRedirect?: boolean;
+  autoSignIn?: boolean;
 }
 
 /**
@@ -82,6 +83,7 @@ export const SigninDecider = ({
   setCurrentSplitLayout,
   passwordlessSupported,
   skipPasswordlessRedirect,
+  autoSignIn,
 }: SigninDeciderProps) => {
   const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
@@ -204,6 +206,8 @@ export const SigninDecider = ({
           isSignedIntoFirefox,
           setCurrentSplitLayout,
           onSessionExpired,
+          autoSignIn,
+          firefoxSignedInUid: useFxAStatusResult.fxaStatus?.signedInUser?.uid,
           supportsKeysOptionalLogin:
             useFxAStatusResult.supportsKeysOptionalLogin,
         }}

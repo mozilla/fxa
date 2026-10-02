@@ -2,11 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import Avatar from '../Avatar';
-import { useAccount, useAlertBar, useSession } from '../../../models';
+import {
+  useAccount,
+  useAlertBar,
+  useConfig,
+  useSession,
+} from '../../../models';
 import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
-import { useEscKeydownEffect } from '../../../lib/hooks';
+import {
+  useEscKeydownEffect,
+  useLocalStorageSync,
+  useNavigateWithQuery,
+  useSwitchableAccounts,
+} from '../../../lib/hooks';
+import AccountSwitcher from '../../AccountSwitcher';
+import { FirefoxIcon } from '../../Icons';
+import { SwitchableAccount } from '../../../lib/account-switcher';
+import { setCurrentAccountUid } from '../../../lib/account-storage';
 import { ReactComponent as SignOut } from './sign-out.svg';
 import { logViewEvent, settingsViewName } from '../../../lib/metrics';
 import { Localized, useLocalization } from '@fluent/react';
@@ -21,6 +35,9 @@ import {
 export const DropDownAvatarMenu = () => {
   const { displayName, primaryEmail, avatar, uid } = useAccount();
   const session = useSession();
+  const config = useConfig();
+  const navigateWithQuery = useNavigateWithQuery();
+  const allAccounts = useSwitchableAccounts();
   const [isRevealed, setRevealed] = useState(false);
   const toggleRevealed = () => setRevealed(!isRevealed);
   const avatarMenuInsideRef =
@@ -34,6 +51,53 @@ export const DropDownAvatarMenu = () => {
     null,
     'Mozilla account menu'
   );
+
+  // Rendered even with no other accounts stored: it still offers "Use another
+  // account", which is otherwise unreachable from here without signing out.
+  const showAccountSwitcher = !!config.featureFlags?.accountSwitcherEnabled;
+  // The current account heads the panel, so only offer the others.
+  const otherAccounts = allAccounts.filter((account) => account.uid !== uid);
+
+  const firefoxSignedInUid = useLocalStorageSync('firefoxSignedInUid') as
+    | string
+    | undefined;
+  const isSignedIntoFirefoxBrowser =
+    showAccountSwitcher && !!uid && firefoxSignedInUid === uid;
+  const switcherLabel = l10n.getString(
+    'account-switcher-other-accounts-label',
+    null,
+    'Other accounts'
+  );
+
+  // Email rather than display name, so this matches how the switcher below
+  // identifies the other accounts. It can wrap, so the header drops its own
+  // `truncate` and lets the email break instead.
+  const headerLabel = showAccountSwitcher
+    ? primaryEmail.email
+    : displayName || primaryEmail.email;
+
+  // A full page load, rather than swapping the account in place: the session
+  // model, the auth client's token and the MFA JWT/OTP caches are all keyed to
+  // the outgoing session token, and in-flight requests would resolve against
+  // the wrong account.
+  const switchToAccount = useCallback((account: SwitchableAccount) => {
+    if (!account.hasSession) {
+      window.location.assign(
+        `/signin?email=${encodeURIComponent(account.email)}`
+      );
+      return;
+    }
+    setCurrentAccountUid(account.uid);
+    window.location.assign(`${window.location.origin}/settings`);
+  }, []);
+
+  // Deliberately does not destroy the current session — the user is adding an
+  // account, not leaving this one. Navigated client-side so `prefillEmail` can
+  // ride along in location state; without it Index auto-submits the cached
+  // account and forwards straight back to the account being moved away from.
+  const useAnotherAccount = useCallback(() => {
+    navigateWithQuery('/', { state: { prefillEmail: primaryEmail.email } });
+  }, [navigateWithQuery, primaryEmail.email]);
 
   const signOut = async () => {
     if (session.destroy) {
@@ -101,20 +165,52 @@ export const DropDownAvatarMenu = () => {
                 <div className="ltr:mr-3 rtl:ml-3 flex-none">
                   <Avatar className="w-10" {...{ avatar }} />
                 </div>
-                <p className="leading-5 max-w-full truncate">
+                <p
+                  className={`leading-5 max-w-full ${
+                    showAccountSwitcher ? '' : 'truncate'
+                  }`}
+                >
                   <FtlMsg id="drop-down-menu-signed-in-as-v2">
                     <span className="text-grey-400 dark:text-grey-200 text-xs">
                       Signed in as
                     </span>
                   </FtlMsg>
                   <span
-                    className="font-bold block truncate"
+                    className={
+                      showAccountSwitcher
+                        ? 'font-semibold block text-sm break-all'
+                        : 'font-bold block truncate'
+                    }
                     data-testid="drop-down-name-or-email"
                   >
-                    {displayName || primaryEmail.email}
+                    {headerLabel}
                   </span>
+                  {isSignedIntoFirefoxBrowser && (
+                    <span
+                      className="flex items-center gap-1 text-xs text-grey-400 dark:text-grey-200"
+                      data-testid="drop-down-signed-into-browser"
+                    >
+                      <FirefoxIcon className="w-3.5 flex-none" />
+                      <FtlMsg id="account-switcher-signed-into-firefox">
+                        <span className="truncate">Signed in to Firefox</span>
+                      </FtlMsg>
+                    </span>
+                  )}
                 </p>
               </div>
+              {showAccountSwitcher && (
+                <div className="w-full border-t border-grey-100 dark:border-grey-600">
+                  <AccountSwitcher
+                    accounts={otherAccounts}
+                    onSelect={switchToAccount}
+                    onUseAnotherAccount={useAnotherAccount}
+                    localizedLabel={
+                      otherAccounts.length > 0 ? switcherLabel : undefined
+                    }
+                    gleanIdPrefix="account_pref_account_switcher"
+                  />
+                </div>
+              )}
               <div className="w-full">
                 <div className="bg-gradient-to-r from-blue-500 via-pink-700 to-yellow-500 h-px" />
                 <div className="px-4 py-5">

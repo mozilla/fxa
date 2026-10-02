@@ -13,7 +13,6 @@ import {
   MOCK_CMS_INFO,
 } from './mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { MOCK_SERVICE, MOCK_SESSION_TOKEN } from '../mocks';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { BeginSigninError } from '../../lib/error-utils';
 import { MozServices } from '../../lib/types';
@@ -101,118 +100,6 @@ export const NonCachedNonSyncBrowserServiceBrowserDoesNotHavePasswordlessCapabil
     name: 'Non-Cached > Non-Sync browser service > Browser does not have Sync keys optional capability',
   };
 
-export const CachedAccountHasPasswordSettings: Story = {
-  ...story({
-    sessionToken: MOCK_SESSION_TOKEN,
-  }),
-  name: 'Cached > Account has password > Settings',
-};
-
-export const CachedAccountHasPasswordRelyingParty: Story = {
-  ...story({
-    sessionToken: MOCK_SESSION_TOKEN,
-    serviceName: MOCK_SERVICE,
-    hasPassword: false,
-    integration: createMockSigninOAuthIntegration({
-      service: MOCK_SERVICE,
-    }),
-  }),
-  name: 'Cached > Passwordless account > Relying Party',
-};
-
-export const CachedSyncBrowserService: Story = {
-  ...story({
-    sessionToken: MOCK_SESSION_TOKEN,
-    integration: createMockSigninOAuthNativeSyncIntegration(),
-  }),
-  name: 'Cached > Sync browser service > Account has password',
-};
-
-export const CachedSyncBrowserServicePasswordlessAccount: Story = {
-  ...story({
-    sessionToken: MOCK_SESSION_TOKEN,
-    serviceName: MozServices.FirefoxSync,
-    hasLinkedAccount: true,
-    hasPassword: false,
-    integration: createMockSigninOAuthNativeSyncIntegration(),
-  }),
-  name: 'Cached > Sync browser service > Passwordless account (user will be taken to Set Password page)',
-};
-
-export const CachedNonSyncBrowserServiceWithoutPasswordlessCapability: Story = {
-  ...story({
-    sessionToken: MOCK_SESSION_TOKEN,
-    serviceName: MozServices.SmartWindow,
-    integration: createMockSigninOAuthNativeIntegration({
-      service: OAuthNativeServices.SmartWindow,
-      isSync: false,
-    }),
-    supportsKeysOptionalLogin: false,
-  }),
-  name: 'Cached > Non-Sync browser service > Browser does not have Sync keys optional capability',
-};
-
-export const CachedNonSyncBrowserServiceWithPasswordlessCapabilitySignedIntoDesktop: Story =
-  {
-    ...story({
-      sessionToken: MOCK_SESSION_TOKEN,
-      serviceName: MozServices.SmartWindow,
-      integration: createMockSigninOAuthNativeIntegration({
-        service: OAuthNativeServices.SmartWindow,
-        isSync: false,
-      }),
-      supportsKeysOptionalLogin: true,
-      isSignedIntoFirefox: true,
-    }),
-    name: 'Cached > Non-Sync browser service > Browser has Sync keys optional capability > Account is signed into Firefox Desktop',
-  };
-
-export const CachedNonSyncBrowserServiceWithPasswordlessCapabilityNotSignedIntoDesktop: Story =
-  {
-    ...story({
-      sessionToken: MOCK_SESSION_TOKEN,
-      serviceName: MozServices.SmartWindow,
-      hasLinkedAccount: true,
-      hasPassword: false,
-      integration: createMockSigninOAuthNativeIntegration({
-        service: OAuthNativeServices.SmartWindow,
-        isSync: false,
-      }),
-      supportsKeysOptionalLogin: true,
-    }),
-    name: 'Cached > Non-Sync browser service > Browser has Sync keys optional capability > Account is not signed into Firefox Desktop',
-  };
-
-export const CachedNonSyncBrowserServiceMobileAuthorizationFlow: Story = {
-  ...story({
-    sessionToken: MOCK_SESSION_TOKEN,
-    serviceName: MozServices.MozillaVPN,
-    integration: createMockSigninOAuthNativeIntegration({
-      service: OAuthNativeServices.Vpn,
-      isSync: false,
-      isMobile: true,
-    }),
-    supportsKeysOptionalLogin: false,
-    isSignedIntoFirefox: true,
-  }),
-  name: 'Cached > Non-Sync browser service > Browser does not have keys optional capability > Account is signed into Firefox Mobile',
-};
-
-export const CachedNonSyncBrowserServiceMobileNotSignedIn: Story = {
-  ...story({
-    sessionToken: MOCK_SESSION_TOKEN,
-    serviceName: MozServices.MozillaVPN,
-    integration: createMockSigninOAuthNativeIntegration({
-      service: OAuthNativeServices.Vpn,
-      isSync: false,
-      isMobile: true,
-    }),
-    supportsKeysOptionalLogin: false,
-    isSignedIntoFirefox: false,
-  }),
-  name: 'Cached > Non-Sync browser service > Browser does not have keys optional capability > Account is not signed into Firefox Mobile',
-};
-
 export const CmsNonCachedDefault: Story = {
   ...story({
     integration: createMockSigninOAuthIntegration({
@@ -235,71 +122,6 @@ export const CmsNonCachedSplitLayout: Story = {
     }),
   }),
   name: 'CMS > Split layout > Non-Cached',
-};
-
-export const CmsCachedSplitLayout: Story = {
-  ...story({
-    sessionToken: MOCK_SESSION_TOKEN,
-    integration: createMockSigninOAuthIntegration({
-      cmsInfo: {
-        ...MOCK_CMS_INFO,
-        SigninPage: {
-          ...MOCK_CMS_INFO.SigninPage!,
-          splitLayout: true,
-        },
-      },
-    }),
-  }),
-  name: 'CMS > Split layout > Cached',
-};
-
-export const CmsCachedCachedPage: Story = {
-  ...story({
-    sessionToken: MOCK_SESSION_TOKEN,
-    integration: createMockSigninOAuthIntegration({
-      cmsInfo: {
-        ...MOCK_CMS_INFO,
-        SigninCachedPage: {
-          headline: 'Welcome back',
-          description: 'Continue to your Mozilla account',
-          primaryButtonText: 'Continue',
-          pageTitle: 'Welcome back',
-        },
-      },
-    }),
-  }),
-  name: 'CMS > Regular layout > Cached',
-};
-
-export const CachedSignedIntoFirefoxMobileWithService: Story = {
-  ...story({
-    sessionToken: MOCK_SESSION_TOKEN,
-    isSignedIntoFirefox: true,
-    integration: createMockSigninOAuthNativeIntegration({
-      service: OAuthNativeServices.Vpn,
-      isSync: false,
-    }),
-  }),
-  name: 'Cached > Signed into Firefox + Firefox client + service > "Use a different account" link hidden',
-};
-
-export const CmsCachedNoCachedPageConfig: Story = {
-  ...story({
-    sessionToken: MOCK_SESSION_TOKEN,
-    integration: createMockSigninOAuthIntegration({
-      cmsInfo: {
-        ...MOCK_CMS_INFO,
-        SigninCachedPage: undefined,
-        SigninPage: {
-          headline: 'CMS override',
-          description: 'just for you!',
-          primaryButtonText: 'Click me',
-          pageTitle: 'I am a title',
-        },
-      },
-    }),
-  }),
-  name: 'CMS > Regular layout > Cached > No SigninCachedPage config',
 };
 
 // Passkey button alongside third-party providers, alternative to password entry.
@@ -330,14 +152,4 @@ export const NonCachedPasswordlessWithPasskey: Story = {
     hasPassword: false,
   }),
   name: 'Passkey enabled > Non-Cached > Passwordless account (routes through SigninAlternativeAuthOptions)',
-};
-
-// Cached re-auth (SigninCached) hides the passkey button regardless of flags.
-export const CachedWithPasskeyFlagOn: Story = {
-  ...story({
-    passkeyEnabled: true,
-    hasPasskey: true,
-    sessionToken: MOCK_SESSION_TOKEN,
-  }),
-  name: 'Passkey enabled > Cached > passkey button correctly hidden (SigninCached path)',
 };

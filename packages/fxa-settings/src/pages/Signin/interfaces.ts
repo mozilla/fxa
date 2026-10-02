@@ -118,6 +118,12 @@ export interface LocationState {
   };
   /** When redirecting from passwordless with TOTP_REQUIRED, skip redirect back to passwordless */
   skipPasswordlessRedirect?: boolean;
+  /**
+   * Sign in as `email` on arrival rather than waiting for another click. Only
+   * acted on if the arriving view is the cached one — an account needing
+   * credentials lands on the password step instead.
+   */
+  autoSignIn?: boolean;
 }
 
 interface SigninSharedProps {
@@ -149,6 +155,9 @@ export interface SigninCachedProps extends SigninSharedProps {
   cachedSigninHandler: CachedSigninHandler;
   onSessionExpired: (localizedErrorMessage: string) => void;
   supportsKeysOptionalLogin?: boolean;
+  /** Uid the browser reports as signed in, badged in the account switcher. */
+  firefoxSignedInUid?: string;
+  autoSignIn?: boolean;
 }
 
 export type SigninAlternativeAuthOptionsProps = SigninSharedProps & {
