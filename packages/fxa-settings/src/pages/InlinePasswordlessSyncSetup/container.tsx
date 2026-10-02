@@ -192,8 +192,8 @@ const InlinePasswordlessSyncSetupContainer = () => {
     if (result.ok || alreadyStored) {
       alertBar.success(
         ftlMsgResolver.getMsg(
-          'inline-passwordless-sync-setup-success-alert',
-          'This passkey is ready for sync sign-in'
+          'inline-passwordless-sync-setup-success-alert-v2',
+          'This passkey is enabled for sync sign-in'
         )
       );
     } else {
@@ -201,8 +201,8 @@ const InlinePasswordlessSyncSetupContainer = () => {
       // sign-in finds no wrap and offers again — whatever the cause was.
       alertBar.error(
         ftlMsgResolver.getMsg(
-          'inline-passwordless-sync-setup-error-generic',
-          'Something went wrong, you’ll still need to enter your password next time'
+          'inline-passwordless-sync-setup-error-generic-v2',
+          'We couldn’t enable this passkey for sync sign-in. You’ll need your password next time.'
         )
       );
     }
