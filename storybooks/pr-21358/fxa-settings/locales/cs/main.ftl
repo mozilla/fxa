@@ -1475,8 +1475,8 @@ inline-passwordless-sync-setup-enable-button = Povolit přístupový klíč
 inline-passwordless-sync-setup-enabling = Zapínání…
 inline-passwordless-sync-setup-not-now-button = Teď ne
 inline-passwordless-sync-setup-success-alert = Tento přístupový kód je připraven pro přihlášení pomocí synchronizace
-inline-passwordless-sync-setup-error-cancelled = Potvrzení hesla nebylo dokončeno
-inline-passwordless-sync-setup-error-cancelled-description = Pro příště přeskočené heslo potvrďte svým přístupovým klíčem.
+inline-passwordless-sync-setup-error-cancelled = Potvrzení přístupového klíče nebylo dokončeno
+inline-passwordless-sync-setup-error-cancelled-description = Potvrďte svou totožnost přístupovým klíčem, abyste příště nemuseli zadávat heslo.
 inline-passwordless-sync-setup-error-generic = Něco se pokazilo. Příště budete muset zadat heslo
 
 
@@ -1665,7 +1665,7 @@ pair2-supplicant-timeout-and-cancel-cancelled-heading = Zrušeno
 pair2-supplicant-timeout-and-cancel-canceled-description = Pro připojení svého zařízení prosím navštivte <b>firefox.com/pair</b> na svém počítači.
 
 
-permissions-heading = { $serviceName } požaduje přístup k:
+permissions-heading = Služba { $serviceName } požaduje přístup k:
 permissions-label-email = E-mailová adresa
 permissions-label-display-name = Zobrazované jméno
 permissions-continue-button = Pokračovat

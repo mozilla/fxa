@@ -20,10 +20,10 @@ brand-banner-dismiss-button-2 =
 # This message is displayed as the title element in the banner, prior to actually launching the new brand
 brand-prelaunch-title = { -product-firefox-accounts } در تاریخ ۱ نوامبر به { -product-mozilla-accounts } تغییر نام خواهد یافت.
 # This message is displayed as sub title element in the banner, giving a it more context about the brand changes.
-brand-prelaunch-subtitle = شما همچنان با همان نام‌کاربری و گذرواژه وارد حساب خود خواهید شد و هیچ تغییر دیگری در محصولات استفاده‌ شده شما وجود نخواهد داشت.
+brand-prelaunch-subtitle = شما همچنان با همان نام‌کاربری و گذرواژه وارد حساب خود خواهید شد و هیچ تغییر دیگری در محصولات استفاده‌شده شما وجود نخواهد داشت.
 # This message is displayed as title element in the banner, after the brand changes take affect letting the user know that
 # no action is required on their part
-brand-postlaunch-title = ما نام { -product-firefox-accounts } را به { -product-mozilla-accounts } تغییر داده‌ایم. شما همچنان با همان نام‌کاربری و گذرواژه وارد حساب خود خواهید شد و هیچ تغییر دیگری در محصولات استفاده‌ شده شما وجود نخواهد داشت.
+brand-postlaunch-title = ما نام { -product-firefox-accounts } را به { -product-mozilla-accounts } تغییر داده‌ایم. شما همچنان با همان نام‌کاربری و گذرواژه وارد حساب خود خواهید شد و هیچ تغییر دیگری در محصولات استفاده‌شده شما وجود نخواهد داشت.
 # This is an extra link element, that directs users to a page where they can learn more about the branding changes.
 brand-learn-more = بیشتر بدانید
 # Alt text for close banner image
@@ -31,7 +31,7 @@ brand-close-banner =
     .alt = بستن بنر
 # Alt text for 'm' logo in banner header
 brand-m-logo =
-    .alt = { -brand-mozilla } چ آرم
+    .alt = آرم { -brand-mozilla } m
 
 ## ButtonBack component
 ## Allows users to click a back arrow to navigate to the previous page
@@ -43,6 +43,9 @@ button-back-title = بازگشت
 ## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
+# Button to download the account recovery key as a plain text file and navigate to the next step
+# The next (and final) step is an optional prompt to save a storage hint
+recovery-key-download-button-v4 = بارگیری و ادامه
 # Error message shown in a banner if the account recovery key download failed.
 # The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = متاسفیم، مشکلی در بارگیری کلید بازیابی حساب شما وجود داشت.
@@ -62,6 +65,12 @@ choose-newsletters-option-test-pilot =
 # "Action alerts" can be interpreted as "Calls to action"
 choose-newsletters-option-reclaim-the-internet =
     .label = هشدارهای عملی برای بازپس‌گیری اینترنت
+
+## Dark mode toggle
+
+dark-mode-toggle-light = روشن
+dark-mode-toggle-dark = تیره
+dark-mode-toggle-system = سیستم
 
 ## Tooltip notifications for actions performed on account recovery keys or one-time use codes
 
@@ -93,21 +102,21 @@ datablock-inline-copy =
 
 # Variables { $city }, { $region }, { $country } represent the estimated location of the user's device
 # For example, 'Vancouver, British Columbia, Canada (estimated)'
-device-info-block-location-city-region-country = { $city }، { $region }، { $country } (تخمین زده‌شده)
+device-info-block-location-city-region-country = { $city }، { $region }، { $country } (تخمینی)
 # Variables { $region }, { $country } represent the estimated location of the user's device
 # For example, 'British Columbia, Canada (estimated)'
-device-info-block-location-region-country = { $region }, { $country } (تخمین زده‌شده)
+device-info-block-location-region-country = { $region }، { $country } (تخمینی)
 # Variables { $city }, { $country } represent the estimated location of the user's device
 # For example, 'Vancouver, Canada (estimated)'
-device-info-block-location-city-country = { $city }, { $country } (تخمین زده‌شده)
+device-info-block-location-city-country = { $city }، { $country } (تخمینی)
 # Variable { $country } represent the estimated location of the user's device
 # For example, 'Canada (estimated)'
-device-info-block-location-country = { $country } (تخمین زده‌شده)
+device-info-block-location-country = { $country } (تخمینی)
 # When an approximate location for the user's device could not be determined
 device-info-block-location-unknown = مکان ناشناخته
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
-device-info-browser-os = { $browserName } بر روی { $genericOSName }
+device-info-browser-os = { $browserName } روی { $genericOSName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = نشانی IP: { $ipAddress }
@@ -220,6 +229,9 @@ info-icon-aria-label =
 # Used to select United States as a country code for phone number
 usa-flag-icon-aria-label =
     .aria-label = پرچم ایالات متحده آمریکا
+# Used for loading arrow icon
+icon-loading-arrow-aria-label =
+    .aria-label = در حال بار کردن
 hearts-broken-image-aria-label =
     .aria-label = یک رایانه و یک تلفن همراه و تصویری از یک قلب شکسته روی هر کدام
 hearts-verified-image-aria-label =
@@ -273,12 +285,16 @@ flow-recovery-key-hint-cta-text = پایان
 
 password-reset-warning-icon = هشدار
 
+## Alert Bar
+
+alert-bar-close-message = بستن پیام
+
 ## User's avatar
 
 avatar-your-avatar =
-    .alt = چهرک شما
+    .alt = تصویر نمایه شما
 avatar-default-avatar =
-    .alt = چهرک پیش‌فرض
+    .alt = تصویر نمایه پیش‌فرض
 
 ##
 
@@ -292,7 +308,7 @@ bento-menu-made-by-mozilla = ساخته شده توسط { -brand-mozilla }
 
 ## Connect another device promo
 
-connect-another-fx-mobile = { -brand-firefox } را برای موبایل یا تلبت دریافت کنید
+connect-another-fx-mobile = { -brand-firefox } را برای موبایل یا تبلت دریافت کنید
 
 ## The following are the options for selecting a reason for disconnecting the
 ## device
@@ -343,7 +359,7 @@ flow-setup-2fa-prompt-continue-button = ادامه
 
 ## FlowSetupPhoneConfirmCode
 
-flow-setup-phone-confirm-code-button = تایید
+flow-setup-phone-confirm-code-button = تأیید
 flow-setup-phone-confirm-code-resend-code-success = کد ارسال شد
 
 ## HeaderLockup component, the header in account settings
@@ -365,16 +381,16 @@ nav-linked-accounts = { la-heading }
 
 modal-close-title = بستن
 modal-cancel-button = لغو
-modal-default-confirm-button = تایید
+modal-default-confirm-button = تأیید
 
 ## ModalMfaProtected
 
-modal-mfa-protected-confirm-button = تایید
+modal-mfa-protected-confirm-button = تأیید
 
 ## Modal Verify Session
 
 msv-cancel-button = انصراف
-msv-submit-button-2 = تایید
+msv-submit-button-2 = تأیید
 
 ## Settings Nav
 
@@ -394,7 +410,7 @@ avatar-page-add-photo-button =
 avatar-page-take-photo = عکس گرفتن
 avatar-page-take-photo-button =
     .title = { avatar-page-take-photo }
-avatar-page-remove-photo = عکس تصویر
+avatar-page-remove-photo = حذف تصویر
 avatar-page-remove-photo-button =
     .title = { avatar-page-remove-photo }
 avatar-page-retake-photo = گرفتن دوباره تصویر
@@ -423,7 +439,7 @@ pw-change-current-password =
 pw-change-new-password =
     .label = یک گذرواژه جدید وارد کنید
 pw-change-confirm-password =
-    .label = تایید گذرواژه جدید
+    .label = تأیید گذرواژه جدید
 pw-change-success-alert-2 = گذرواژه به‌روزرسانی شد
 
 ## Password create page
@@ -443,7 +459,7 @@ delete-account-product-mdn-plus = { -product-mdn-plus }
 delete-account-product-mozilla-hubs = { -product-mozilla-hubs }
 delete-account-product-mozilla-monitor = { -product-mozilla-monitor }
 delete-account-product-firefox-relay = { -product-firefox-relay }
-delete-account-acknowledge = لطفا در تایید کنید که با حذف حساب کاربری خود:
+delete-account-acknowledge = لطفا در تأیید کنید که با حذف حساب کاربری خود:
 delete-account-continue-button = ادامه
 delete-account-password-input =
     .label = گذرواژه را وارد کنید
