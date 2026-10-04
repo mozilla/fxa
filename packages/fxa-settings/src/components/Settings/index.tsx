@@ -40,17 +40,20 @@ import { SettingsIntegration } from './interfaces';
 // render of the error branch cannot report the same failure twice.
 const SettingsError = ({ error }: { error: Error }) => {
   const reported = useRef(false);
+  const [sentryEventId, setSentryEventId] = useState<string>();
 
   useEffect(() => {
     if (reported.current) {
       return;
     }
     reported.current = true;
-    Sentry.captureException(error, { tags: { source: 'settings' } });
+    setSentryEventId(
+      Sentry.captureException(error, { tags: { source: 'settings' } })
+    );
     GleanMetrics.error.view({ event: { reason: error.message } });
   }, [error]);
 
-  return <AppErrorDialog data-testid="error-dialog" />;
+  return <AppErrorDialog {...{ error, sentryEventId }} />;
 };
 
 export const Settings = ({

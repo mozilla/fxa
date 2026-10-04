@@ -74,6 +74,7 @@ import {
   escapeLikePattern,
 } from '@fxa/accounts/email-sender';
 import { getClientServiceTags } from '../metrics/client-tags';
+import { reportSentryError } from '../sentry';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -2232,37 +2233,65 @@ export class AccountHandler {
     let webSubscriptions: Awaited<WebSubscription[]> = [];
     let iapGooglePlaySubscriptions: Awaited<PlayStoreSubscription[]> = [];
     let iapAppStoreSubscriptions: Awaited<AppStoreSubscription[]> = [];
+    let subscriptionsReadFailed = false;
+    const onSubscriptionsError = (err: any) => {
+      if (err.errno === error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER) return;
+      subscriptionsReadFailed = true;
+      this.log.error('Account.get.subscriptions.error', { err });
+      reportSentryError(err, request);
+    };
 
     if (this.config.subscriptions?.enabled && this.stripeHelper) {
-      try {
-        const customer = await this.stripeHelper.fetchCustomer(uid as string, [
-          'subscriptions',
-        ]);
-        if (customer && customer.subscriptions) {
-          webSubscriptions = await this.stripeHelper.subscriptionsToResponse(
-            customer.subscriptions
-          );
-        }
-
-        if (this.config.subscriptions?.playApiServiceAccount?.enabled) {
-          const playSubscriptions = Container.get(PlaySubscriptions);
-          iapGooglePlaySubscriptions = (
-            await playSubscriptions.getSubscriptions(uid as string)
-          ).map(playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO);
-        }
-
-        if (this.config.subscriptions?.appStore?.enabled) {
-          const appStoreSubscriptions = Container.get(AppStoreSubscriptions);
-          iapAppStoreSubscriptions = (
-            await appStoreSubscriptions.getSubscriptions(uid as string)
-          ).map(appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO);
-        }
-      } catch (err) {
-        if (err.errno !== error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER) {
-          throw err;
-        }
-      }
+      const stripeHelper = this.stripeHelper;
+      await Promise.all([
+        (async () => {
+          try {
+            const customer = await stripeHelper.fetchCustomer(uid as string, [
+              'subscriptions',
+            ]);
+            if (customer && customer.subscriptions) {
+              webSubscriptions = await stripeHelper.subscriptionsToResponse(
+                customer.subscriptions
+              );
+            }
+          } catch (err) {
+            onSubscriptionsError(err);
+          }
+        })(),
+        (async () => {
+          if (!this.config.subscriptions?.playApiServiceAccount?.enabled) {
+            return;
+          }
+          try {
+            const playSubscriptions = Container.get(PlaySubscriptions);
+            iapGooglePlaySubscriptions = (
+              await playSubscriptions.getSubscriptions(uid as string)
+            ).map(playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO);
+          } catch (err) {
+            onSubscriptionsError(err);
+          }
+        })(),
+        (async () => {
+          if (!this.config.subscriptions?.appStore?.enabled) {
+            return;
+          }
+          try {
+            const appStoreSubscriptions = Container.get(AppStoreSubscriptions);
+            iapAppStoreSubscriptions = (
+              await appStoreSubscriptions.getSubscriptions(uid as string)
+            ).map(appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO);
+          } catch (err) {
+            onSubscriptionsError(err);
+          }
+        })(),
+      ]);
     }
+
+    const subscriptions = [
+      ...iapGooglePlaySubscriptions,
+      ...iapAppStoreSubscriptions,
+      ...webSubscriptions,
+    ];
 
     return {
       createdAt: account.createdAt,
@@ -2277,11 +2306,11 @@ export class AccountHandler {
       recoveryPhone,
       securityEvents,
       passkeys,
-      subscriptions: [
-        ...iapGooglePlaySubscriptions,
-        ...iapAppStoreSubscriptions,
-        ...webSubscriptions,
-      ],
+      // An empty list after a failed read would mean "none", so it's omitted
+      // and clients treat subscriptions as unknown.
+      ...((subscriptions.length > 0 || !subscriptionsReadFailed) && {
+        subscriptions,
+      }),
     };
   }
 }

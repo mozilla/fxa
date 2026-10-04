@@ -181,7 +181,7 @@ export interface AccountData {
     nationalFormat: string | null;
     available: boolean;
   };
-  subscriptions: Subscription[];
+  subscriptions: Subscription[] | null;
   securityEvents: SecurityEvent[];
   passkeys: Passkey[];
 }
