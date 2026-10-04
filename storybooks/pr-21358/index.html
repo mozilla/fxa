@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 6c71e45061319c28609874e59e1325f44e3ef16c</title>
+  <title>Storybooks for commit fbf15dc95d455d85f104bd8117e74ce2b067e423</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 6c71e45061319c28609874e59e1325f44e3ef16c</h1>
+  <h1>Storybooks for commit fbf15dc95d455d85f104bd8117e74ce2b067e423</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/4/2026, 2:50:04 PM UTC</dd>
+    <dd>10/4/2026, 4:05:32 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(auth,settings): keep account data usable on subscription errors</pre></dd>
     <dt>Description</dt>
@@ -48,7 +48,7 @@
 - Removes the `Sentry.captureMessage` call for a failed account fetch in `useAccountData`.
 - Hides the &quot;Created&quot; date in the Security password row when `passwordCreated` is 0 or missing.
 - Adds the story &quot;Password set, no created date&quot;, the page-object getter `errorLoadingApp`, and the functional test `accountFetchError.spec.ts`.
-- Round 2: adds the unit test &quot;should return empty subscriptions when the App Store read fails after Stripe succeeds&quot; in `account.spec.ts`. `account.ts` does not change in this round.
+- Rebase round: merges origin/main. No file had a conflict. The working tree is origin/main plus this branch&#039;s patch, with no change to the patch. `account.ts` and `account.spec.ts` changed on both sides, in different regions, and merged cleanly. `lib/routes/account.spec.ts` passes (136 tests) and ESLint passes on both files.
 
 ## Issue that this pull request solves
 
