@@ -629,6 +629,8 @@ test.describe('severity-1 #smoke', () => {
 
         await page.waitForURL(/signin_passwordless_code/);
         await expect(signinPasswordlessCode.heading).toBeVisible();
+        // Drain code #1 so the final read can't pick it up; send #2 invalidates it
+        await target.emailClient.getPasswordlessSignupCode(email);
 
         // Second attempt: go back to the RP and re-enter email (sends code #2)
         await relier.goto('force_passwordless=true');
