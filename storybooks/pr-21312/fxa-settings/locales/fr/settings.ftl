@@ -167,6 +167,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Confirmer le mot de passe
 form-password-with-inline-criteria-reset-submit-button = Créer un nouveau mot de passe
+form-password-with-inline-criteria-old-password-label =
+    .label = Ancien mot de passe
+form-password-with-inline-criteria-change-password-submit-button = Changer le mot de passe
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Mot de passe
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1635,12 +1638,12 @@ inline-passwordless-sync-setup-enable-button = Activer la clé d’accès
 inline-passwordless-sync-setup-enabling = Activation…
 inline-passwordless-sync-setup-not-now-button = Plus tard
 # Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = Cette clé d’accès est prête pour la connexion synchronisée
+inline-passwordless-sync-setup-success-alert = Cette clé d’accès permet désormais de se connecter et de synchroniser
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
-inline-passwordless-sync-setup-error-cancelled = La confirmation de la clé d’accès n’est pas terminée
-inline-passwordless-sync-setup-error-cancelled-description = Confirmez avec votre clé d’accès pour ignorer le mot de passe la prochaine fois.
+inline-passwordless-sync-setup-error-cancelled = La confirmation de la clé d’accès n’a pas abouti
+inline-passwordless-sync-setup-error-cancelled-description = Confirmez à l’aide de votre clé d’accès pour ne pas avoir à saisir votre mot de passe la prochaine fois.
 # Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
-inline-passwordless-sync-setup-error-generic = Une erreur s’est produite, vous devrez le ressaisir la prochaine fois
+inline-passwordless-sync-setup-error-generic = Une erreur s’est produite, vous devrez encore saisir votre mot de passe la prochaine fois
 
 ## InlineRecoveryKeySetup page component
 
@@ -1845,7 +1848,6 @@ pair-unsupported-switch-to-firefox = Passez à { -brand-firefox } et ouvrez cett
 pair-unsupported-oops-mobile = Oups ! Il semble que vous n’utilisez pas { -brand-firefox }.
 # v2: Heading for the mobile instructional message, shown on all mobile devices
 # (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
-# Aligned with legacy Backbone copy (see templates/partial/unsupported-pair.mustache).
 pair-unsupported-connecting-mobile-header-v2 = Connecter votre appareil mobile à votre { -product-mozilla-account }
 # v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
 # URL so the domain does not wrap to a new line on narrow screens.
@@ -1958,20 +1960,39 @@ pair2-supplicant-connect-this-device-connect-button = Connecter
 pair2-supplicant-connect-this-device-cancel-button = Annuler
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device when pairing reaches a device that
-## does not have Firefox installed yet. It explains what syncing gets them and
-## either opens the Firefox app to finish pairing or sends them off to install
-## the browser.
+## Users see this on their mobile device when pairing reaches a browser that is
+## not Firefox. It offers to open the Firefox app to finish pairing, and to
+## install it first when the user does not have it yet.
 
-pair2-supplicant-download-firefox-heading = Installer { -brand-firefox } sur cet appareil
+pair2-supplicant-download-firefox-heading-v2 = Ouvrir { -brand-firefox } sur cet appareil
 # "sync" is a verb here, referring to syncing data between the user's devices.
-# <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = Téléchargez { -brand-firefox } pour synchroniser les marque-pages, l’historique et d’autres données entre vos appareils. <linkExternal>En savoir plus</linkExternal>
+pair2-supplicant-download-firefox-description-v2 = Téléchargez { -brand-firefox } pour synchroniser les marque-pages, l’historique et d’autres informations entre vos appareils.
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Continuer dans { -brand-firefox }
 # Replaces the button label while waiting for the Firefox app to take over
 pair2-supplicant-download-firefox-opening-button = Ouverture de { -brand-firefox }…
+# Primary action shown in Safari on iOS. Opens the App Store page for Firefox.
+pair2-supplicant-download-firefox-download-button = Télécharger { -brand-firefox }
+# Secondary action shown in Safari on iOS, below the download button. Opens the
+# Firefox app when it is already installed.
+pair2-supplicant-download-firefox-have-firefox-button = J’ai déjà { -brand-firefox }
+# Opens a page explaining what sync does
+pair2-supplicant-download-firefox-learn-more-link = En savoir plus
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## with the phone's camera app instead of with Firefox. They already have
+## Firefox installed, so it tells them how to scan the code again from inside
+## Firefox.
+
+pair2-supplicant-connect-hint-heading-v2 = Terminez l’association dans l’application
+# <b> emphasises the name of the button the user taps in Firefox
+pair2-supplicant-connect-hint-step-app-menu = Appuyez sur le <b>menu de l’application</b> dans la barre d’outils
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair2-supplicant-connect-hint-step-sign-in = Appuyez sur <b>connectez-vous</b>, puis scannez le code
+# Opens a Mozilla support article about connecting a device without a QR code
+pair2-supplicant-connect-hint-learn-more-link = En savoir plus
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -2017,11 +2038,18 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Pour connecter un app
 ## read. It does not offer a choice.
 
 # Variable $serviceName is the name of the relying party, e.g. "321Done"
-permissions-heading = { $serviceName } veut accéder à :
+permissions-heading = { $serviceName } souhaite accéder à :
 permissions-label-email = Adresse e-mail
 permissions-label-display-name = Nom à afficher
 permissions-continue-button = Continuer
 permissions-cancel-button = Annuler
+
+## ForcePasswordChange page
+## Users are sent here when suspicious activity on the account requires a new password before they can continue.
+
+force-password-change-heading = Merci de changer votre mot de passe
+force-password-change-info = Nous avons détecté un comportement suspect sur votre { -product-mozilla-account }. Pour protéger votre compte, veuillez créer un nouveau mot de passe. Vous utiliserez ce mot de passe pour vous reconnecter à tous vos services { -product-mozilla-account }.
+force-password-change-data-info = Les données synchronisées ne seront pas perdues : historique, marque-pages, identifiants et autres données personnelles.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

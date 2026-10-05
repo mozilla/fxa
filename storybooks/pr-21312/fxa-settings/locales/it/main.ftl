@@ -179,6 +179,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Conferma password
 form-password-with-inline-criteria-reset-submit-button = Crea nuova password
+form-password-with-inline-criteria-old-password-label =
+    .label = Password precedente
+form-password-with-inline-criteria-change-password-submit-button = Cambia password
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Password
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1185,10 +1188,10 @@ inline-passwordless-sync-setup-description = Utilizza questa passkey per acceder
 inline-passwordless-sync-setup-enable-button = Attiva passkey
 inline-passwordless-sync-setup-enabling = Attivazione…
 inline-passwordless-sync-setup-not-now-button = Non adesso
-inline-passwordless-sync-setup-success-alert = Questa passkey è pronta per l’accesso con Sync
+inline-passwordless-sync-setup-success-alert = Questa passkey è pronta per accedere e avviare la sincronizzazione
 inline-passwordless-sync-setup-error-cancelled = La conferma della passkey non è stata completata
-inline-passwordless-sync-setup-error-cancelled-description = Conferma con la tua passkey per saltare la password la prossima volta.
-inline-passwordless-sync-setup-error-generic = Si è verificato un errore, la prossima volta dovrai comunque inserire la password
+inline-passwordless-sync-setup-error-cancelled-description = Conferma con la tua passkey per non dover inserire la password la prossima volta.
+inline-passwordless-sync-setup-error-generic = Si è verificato un problema, al prossimo accesso dovrai comunque inserire la password
 
 
 inline-recovery-key-setup-create-error = Oops! Impossibile creare la chiave di recupero dell’account. Riprova più tardi.
@@ -1354,10 +1357,19 @@ pair2-supplicant-connect-this-device-connect-button = Connetti
 pair2-supplicant-connect-this-device-cancel-button = Annulla
 
 
-pair2-supplicant-download-firefox-heading = Ottieni { -brand-firefox } su questo dispositivo
-pair2-supplicant-download-firefox-description = Scarica { -brand-firefox } per sincronizzare segnalibri, cronologia e altri dati su tutti i tuoi dispositivi. <linkExternal>Ulteriori informazioni</linkExternal>
+pair2-supplicant-download-firefox-heading-v2 = Apri { -brand-firefox } su questo dispositivo
+pair2-supplicant-download-firefox-description-v2 = Scarica { -brand-firefox } per sincronizzare segnalibri, cronologia e altro ancora tra i tuoi dispositivi.
 pair2-supplicant-download-firefox-continue-button = Continua in { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Avvio di { -brand-firefox }…
+pair2-supplicant-download-firefox-download-button = Scarica { -brand-firefox }
+pair2-supplicant-download-firefox-have-firefox-button = Ho già { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = Ulteriori informazioni
+
+
+pair2-supplicant-connect-hint-heading-v2 = Completa l’associazione nell’app
+pair2-supplicant-connect-hint-step-app-menu = Tocca il <b>menu dell’app</b> nella barra degli strumenti
+pair2-supplicant-connect-hint-step-sign-in = Tocca <b>accedi</b>, quindi scansiona il codice
+pair2-supplicant-connect-hint-learn-more-link = Ulteriori informazioni
 
 
 pair2-supplicant-ready-to-scan-heading = Per connettere un dispositivo
@@ -1381,6 +1393,11 @@ permissions-label-email = Indirizzo email
 permissions-label-display-name = Nome visualizzato
 permissions-continue-button = Continua
 permissions-cancel-button = Annulla
+
+
+force-password-change-heading = Cambia la password
+force-password-change-info = Abbiamo rilevato attività sospette sul tuo { -product-mozilla-account }. Per proteggerlo, crea una nuova password. Potrai utilizzare questa password per accedere nuovamente a tutti i servizi associati al tuo { -product-mozilla-account }.
+force-password-change-data-info = Cronologia, segnalibri, credenziali di accesso e altri dati personali sincronizzati non andranno persi.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confermato

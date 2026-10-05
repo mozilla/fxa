@@ -1468,6 +1468,7 @@ auth-error-228 = Registrering av passnøkkel mislyktes
 auth-error-233 = For å opprette en passnøkkel må du konfigurere skjermlås, PIN-kode, fingeravtrykk eller ansiktsgjenkjenning på enheten eller sikkerhetsnøkkelen. Prøv deretter på nytt.
 auth-error-238 = Passnøkkelutfordring mislyktes
 auth-error-239 = Beklager, vi kunne ikke slette kontoen din. Prøv på nytt, eller kontakt brukerstøtte hvis problemet vedvarer.
+auth-error-240 = Denne kontoen er deaktivert
 auth-error-999 = Uventet feil
 auth-error-1001 = Innloggingsforsøk avbrutt
 auth-error-1002 = Økt utløpt. Logg inn for å fortsette.
@@ -1628,6 +1629,13 @@ inline-passwordless-sync-setup-enable-button = Slå på passnøkkel
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Slår på…
 inline-passwordless-sync-setup-not-now-button = Ikke nå
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = Denne passnøkkelen er klar for pålogging med synkronisering
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = Bekreftelsen med passnøkkelen ble ikke fullført
+inline-passwordless-sync-setup-error-cancelled-description = Bekreft med passnøkkelen din for å slippe å skrive inn passordet neste gang.
+# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+inline-passwordless-sync-setup-error-generic = Noe gikk galt. Du må fortsatt skrive inn passordet neste gang.
 
 ## InlineRecoveryKeySetup page component
 
@@ -1832,7 +1840,6 @@ pair-unsupported-switch-to-firefox = Bytt til { -brand-firefox } og åpne denne 
 pair-unsupported-oops-mobile = Ups! Det ser ut som om du ikke bruker { -brand-firefox }.
 # v2: Heading for the mobile instructional message, shown on all mobile devices
 # (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
-# Aligned with legacy Backbone copy (see templates/partial/unsupported-pair.mustache).
 pair-unsupported-connecting-mobile-header-v2 = Koble din mobilenhet til din { -product-mozilla-account }
 # v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
 # URL so the domain does not wrap to a new line on narrow screens.
@@ -1945,15 +1952,10 @@ pair2-supplicant-connect-this-device-connect-button = Koble til
 pair2-supplicant-connect-this-device-cancel-button = Avbryt
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device when pairing reaches a device that
-## does not have Firefox installed yet. It explains what syncing gets them and
-## either opens the Firefox app to finish pairing or sends them off to install
-## the browser.
+## Users see this on their mobile device when pairing reaches a browser that is
+## not Firefox. It offers to open the Firefox app to finish pairing, and to
+## install it first when the user does not have it yet.
 
-pair2-supplicant-download-firefox-heading = Få { -brand-firefox } på denne enheten
-# "sync" is a verb here, referring to syncing data between the user's devices.
-# <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = Last ned { -brand-firefox } for å synkronisere bokmerker, historikk og mer på tvers av enheter. <linkExternal>Les mer</linkExternal>
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Fortsett i { -brand-firefox }
@@ -1996,6 +1998,19 @@ pair2-supplicant-timeout-and-cancel-timeout-description = For å koble til mobil
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Avbrutt
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = For å koble til en enhet når som helst, gå til <b>firefox.com/pair</b> på datamaskinen din.
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } ønsker tilgang til:
+permissions-label-email = E-postadresse
+permissions-label-display-name = Visningsnavn
+permissions-continue-button = Fortsett
+permissions-cancel-button = Avbryt
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

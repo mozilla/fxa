@@ -151,6 +151,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = 請再次輸入密碼
 form-password-with-inline-criteria-reset-submit-button = 建立新密碼
+form-password-with-inline-criteria-old-password-label =
+    .label = 舊密碼
+form-password-with-inline-criteria-change-password-submit-button = 更改密碼
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = 密碼
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1050,6 +1053,7 @@ auth-error-228 = Passkey 註冊失敗
 auth-error-233 = 要建立 Passkey，請先在您的裝置或安全金鑰設定 PIN 碼、指紋或臉孔辨識等螢幕鎖定方式，然後再試一次。
 auth-error-238 = Passkey 挑戰失敗
 auth-error-239 = 抱歉，我們無法刪除您的帳號。請再試一次，若問題持續存在請聯絡技術支援團隊。
+auth-error-240 = 已停用此帳號
 auth-error-999 = 未預期的錯誤
 auth-error-1001 = 已取消登入請求
 auth-error-1002 = 登入階段已失效，請登入以繼續。
@@ -1142,6 +1146,10 @@ inline-passwordless-sync-setup-description = 使用這把 Passkey 可以更快�
 inline-passwordless-sync-setup-enable-button = 啟用 Passkey
 inline-passwordless-sync-setup-enabling = 啟用中…
 inline-passwordless-sync-setup-not-now-button = 現在不要
+inline-passwordless-sync-setup-success-alert = 已可使用這組 Passkey 來登入與同步
+inline-passwordless-sync-setup-error-cancelled = Passkey 確認未完成
+inline-passwordless-sync-setup-error-cancelled-description = 使用 Passkey 確認後，下次即可免輸入密碼。
+inline-passwordless-sync-setup-error-generic = 有些東西不對勁，下次您仍需輸入密碼
 
 
 inline-recovery-key-setup-create-error = 抱歉！無法建立您的帳號救援金鑰，請稍候再試一次。
@@ -1307,10 +1315,19 @@ pair2-supplicant-connect-this-device-connect-button = 連線
 pair2-supplicant-connect-this-device-cancel-button = 取消
 
 
-pair2-supplicant-download-firefox-heading = 在此裝置安裝 { -brand-firefox }
-pair2-supplicant-download-firefox-description = 下載 { -brand-firefox } 即可在不同裝置間同步書籤、瀏覽紀錄與更多資料。 <linkExternal>了解更多資訊</linkExternal>
+pair2-supplicant-download-firefox-heading-v2 = 到此裝置開啟 { -brand-firefox }
+pair2-supplicant-download-firefox-description-v2 = 下載 { -brand-firefox }，即可跨裝置同步書籤、瀏覽紀錄與更多資料。
 pair2-supplicant-download-firefox-continue-button = 到 { -brand-firefox } 繼續
 pair2-supplicant-download-firefox-opening-button = 正在開啟 { -brand-firefox }…
+pair2-supplicant-download-firefox-download-button = 下載 { -brand-firefox }
+pair2-supplicant-download-firefox-have-firefox-button = 我已經安裝 { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = 更多資訊
+
+
+pair2-supplicant-connect-hint-heading-v2 = 到 App 中完成配對
+pair2-supplicant-connect-hint-step-app-menu = 點擊工具列中的<b>應用程式選單</b>
+pair2-supplicant-connect-hint-step-sign-in = 點擊<b>登入</b>，然後掃描 QR Code
+pair2-supplicant-connect-hint-learn-more-link = 更多資訊
 
 
 pair2-supplicant-ready-to-scan-heading = 連結裝置
@@ -1327,6 +1344,18 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = 看來超出時間限制�
 pair2-supplicant-timeout-and-cancel-timeout-description = 若要連結您的行動裝置並同步 { -brand-firefox } 資料，請在您的電腦造訪 <b>firefox.com/pair</b>。
 pair2-supplicant-timeout-and-cancel-cancelled-heading = 已取消
 pair2-supplicant-timeout-and-cancel-canceled-description = 歡迎隨時在您的電腦開啟 <b>firefox.com/pair</b> 連結其他裝置。
+
+
+permissions-heading = { $serviceName } 想要存取：
+permissions-label-email = 電子郵件地址
+permissions-label-display-name = 顯示名稱
+permissions-continue-button = 繼續
+permissions-cancel-button = 取消
+
+
+force-password-change-heading = 請更改密碼
+force-password-change-info = 我們偵測到您的 { -product-mozilla-account }有可疑活動。為了保護您的帳號，請更改密碼。之後必須使用這組密碼重新登入所有 { -product-mozilla-account }相關服務。
+force-password-change-data-info = 不會失去同步的瀏覽紀錄、書籤、登入資訊與其他個人資料。
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } 已確認

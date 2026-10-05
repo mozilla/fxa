@@ -175,6 +175,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Cadarnhau'r cyfrinair
 form-password-with-inline-criteria-reset-submit-button = Creu cyfrinair newydd
+form-password-with-inline-criteria-old-password-label =
+    .label = Hen gyfrinair
+form-password-with-inline-criteria-change-password-submit-button = Newid cyfrinair
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Cyfrinair
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1207,10 +1210,10 @@ inline-passwordless-sync-setup-description = Defnyddiwch y cyfrinallwedd hwn i f
 inline-passwordless-sync-setup-enable-button = Galluogi cyfrinallwedd
 inline-passwordless-sync-setup-enabling = Wrthi'n galluogi…
 inline-passwordless-sync-setup-not-now-button = Nid nawr
-inline-passwordless-sync-setup-success-alert = Mae'r cyfrinair hwn yn barod ar gyfer mewngofnodi cysoni
-inline-passwordless-sync-setup-error-cancelled = Ni ddaeth cadarnhad paskey
-inline-passwordless-sync-setup-error-cancelled-description = Cadarnhewch gyda'ch cyfrinair i hepgor y cyfrinair y tro nesaf.
-inline-passwordless-sync-setup-error-generic = Aeth rhywbeth o'i le, bydd angen i chi nodi'ch cyfrinair y tro nesaf o hyd
+inline-passwordless-sync-setup-success-alert = Mae'r cyfrinallwedd hwn yn barod ar gyfer mewngofnodi cydweddu
+inline-passwordless-sync-setup-error-cancelled = Wnaeth cadarnhau'r cyfrinallwedd ddim gorffen
+inline-passwordless-sync-setup-error-cancelled-description = Cadarnhewch gyda'ch cyfrinallwedd i hepgor y cyfrinair tro nesaf.
+inline-passwordless-sync-setup-error-generic = Aeth rhywbeth o'i le, bydd dal angen i chi roi'ch cyfrinair y tro nesaf
 
 
 inline-recovery-key-setup-create-error = Wps! Nid oedd modd i ni greu allwedd adfer eich cyfrif. Ceisiwch eto yn nes ymlaen.
@@ -1376,10 +1379,19 @@ pair2-supplicant-connect-this-device-connect-button = Cysylltu
 pair2-supplicant-connect-this-device-cancel-button = Diddymu
 
 
-pair2-supplicant-download-firefox-heading = Cael { -brand-firefox } ar y ddyfais hon
-pair2-supplicant-download-firefox-description = Llwythwch { -brand-firefox } i lawr i gydweddu nodau tudalen, hanes, a mwy ar draws dyfeisiau. <linkExternal>Dysgu rhagor</linkExternal>
+pair2-supplicant-download-firefox-heading-v2 = Agor { -brand-firefox } ar y ddyfais hon
+pair2-supplicant-download-firefox-description-v2 = Lawrlwythwch { -brand-firefox } i gysoni nodau tudalen, hanes, a mwy ar draws dyfeisiau.
 pair2-supplicant-download-firefox-continue-button = Parhau yn { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Yn agor { -brand-firefox }…
+pair2-supplicant-download-firefox-download-button = Llwytho { -brand-firefox } i lawr
+pair2-supplicant-download-firefox-have-firefox-button = Mae gen i { -brand-firefox } yn barod
+pair2-supplicant-download-firefox-learn-more-link = Dysgu rhagor
+
+
+pair2-supplicant-connect-hint-heading-v2 = Gorffen paru yn yr app
+pair2-supplicant-connect-hint-step-app-menu = Tapiwch y <b>dewislen ap</b> yn y bar offer
+pair2-supplicant-connect-hint-step-sign-in = Tapiwch <b>mewngofnodi</b>, yna sganiwch y cod
+pair2-supplicant-connect-hint-learn-more-link = Dysgu rhagor
 
 
 pair2-supplicant-ready-to-scan-heading = I gysylltu dyfais
@@ -1403,6 +1415,11 @@ permissions-label-email = Cyfeiriad e-bost
 permissions-label-display-name = Enw dangos
 permissions-continue-button = Parhau
 permissions-cancel-button = Diddymu
+
+
+force-password-change-heading = Newidiwch eich cyfrinair
+force-password-change-info = Rydym wedi canfod ymddygiad amheus ar eich { -product-mozilla-account }. I amddiffyn eich cyfrif, crewch gyfrinair newydd. Byddwch yn defnyddio'r cyfrinair hwn i fewngofnodi eto i'ch holl wasanaethau { -product-mozilla-account }.
+force-password-change-data-info = Ni fydd hanes, nodau tudalen, mewngofnodi na data personol eraill wedi'u cydweddu yn cael eu colli.
 
 
 service-welcome-signup-success-banner = Cyfrif { -product-mozilla-account } wedi'i gadarnhau

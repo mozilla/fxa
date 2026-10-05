@@ -167,6 +167,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Парольді растау
 form-password-with-inline-criteria-reset-submit-button = Жаңа парольді жасау
+form-password-with-inline-criteria-old-password-label =
+    .label = Ескі пароль
+form-password-with-inline-criteria-change-password-submit-button = Парольді өзгерту
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Пароль
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1482,6 +1485,7 @@ auth-error-228 = Рұқсат кілтін тіркеу сәтсіз аяқта�
 auth-error-233 = Рұқсат кілтін жасау үшін құрылғыңызда немесе қауіпсіздік кілтінде экран құлпын, PIN кодын, саусақ ізін немесе бетті тануды орнатыңыз. Содан кейін қайталап көріңіз.
 auth-error-238 = Рұқсат кілтін тексеру сәтсіз аяқталды
 auth-error-239 = Кешіріңіз, тіркелгіңізді өшіру мүмкін болмады. Қайталап көріңіз немесе, мәселе шешілмесе, қолдау қызметіне хабарласыңыз.
+auth-error-240 = Бұл тіркелгі сөндірілген
 auth-error-999 = Күтпеген қате
 auth-error-1001 = Кіру талабынан бас тартылды
 auth-error-1002 = Сессия мерзімі бітті. Жалғастыру үшін кіріңіз.
@@ -1642,6 +1646,13 @@ inline-passwordless-sync-setup-enable-button = Рұқсат кілтін іск�
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Іске қосылуда…
 inline-passwordless-sync-setup-not-now-button = Қазір емес
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = Бұл рұқсат кілті синхрондаумен кіруге дайын
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = Рұқсат кілтін растау аяқталмады
+inline-passwordless-sync-setup-error-cancelled-description = Келесі жолы парольді өткізіп жіберу үшін рұқсат кілтіңізбен растаңыз.
+# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+inline-passwordless-sync-setup-error-generic = Бірнәрсе дұрыс болмады, келесі жолы пароліңізді енгізуіңіз қажет болады
 
 ## InlineRecoveryKeySetup page component
 
@@ -1846,7 +1857,6 @@ pair-unsupported-switch-to-firefox = { -brand-firefox } ішіне ауысып,
 pair-unsupported-oops-mobile = Ой! Сіз { -brand-firefox } қолданбайтын сияқтысыз.
 # v2: Heading for the mobile instructional message, shown on all mobile devices
 # (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
-# Aligned with legacy Backbone copy (see templates/partial/unsupported-pair.mustache).
 pair-unsupported-connecting-mobile-header-v2 = Мобильді құрылғыңызды { -product-mozilla-account } тіркелгісіне қосу
 # v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
 # URL so the domain does not wrap to a new line on narrow screens.
@@ -1959,20 +1969,39 @@ pair2-supplicant-connect-this-device-connect-button = Байланысу
 pair2-supplicant-connect-this-device-cancel-button = Бас тарту
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device when pairing reaches a device that
-## does not have Firefox installed yet. It explains what syncing gets them and
-## either opens the Firefox app to finish pairing or sends them off to install
-## the browser.
+## Users see this on their mobile device when pairing reaches a browser that is
+## not Firefox. It offers to open the Firefox app to finish pairing, and to
+## install it first when the user does not have it yet.
 
-pair2-supplicant-download-firefox-heading = Бұл құрылғыда { -brand-firefox } алу
+pair2-supplicant-download-firefox-heading-v2 = Бұл құрылғыда { -brand-firefox } ашыңыз
 # "sync" is a verb here, referring to syncing data between the user's devices.
-# <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = Құрылғылар арасында бетбелгілерді, тарихты және т.б. синхрондау үшін { -brand-firefox } жүктеп алыңыз. <linkExternal>Көбірек білу</linkExternal>
+pair2-supplicant-download-firefox-description-v2 = Құрылғылар арасында бетбелгілерді, тарихты және т.б. синхрондау үшін { -brand-firefox } жүктеп алыңыз.
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = { -brand-firefox } ішінде жалғастыру
 # Replaces the button label while waiting for the Firefox app to take over
 pair2-supplicant-download-firefox-opening-button = { -brand-firefox } ашылуда…
+# Primary action shown in Safari on iOS. Opens the App Store page for Firefox.
+pair2-supplicant-download-firefox-download-button = { -brand-firefox } жүктеп алу
+# Secondary action shown in Safari on iOS, below the download button. Opens the
+# Firefox app when it is already installed.
+pair2-supplicant-download-firefox-have-firefox-button = Менде { -brand-firefox } бар
+# Opens a page explaining what sync does
+pair2-supplicant-download-firefox-learn-more-link = Көбірек білу
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## with the phone's camera app instead of with Firefox. They already have
+## Firefox installed, so it tells them how to scan the code again from inside
+## Firefox.
+
+pair2-supplicant-connect-hint-heading-v2 = Жұптауды қолданбада аяқтаңыз
+# <b> emphasises the name of the button the user taps in Firefox
+pair2-supplicant-connect-hint-step-app-menu = Саймандар панеліндегі <b>қолданбалар мәзірін</b> шертіңіз
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair2-supplicant-connect-hint-step-sign-in = <b>Кіру</b> шертіп, кодты сканерлеңіз
+# Opens a Mozilla support article about connecting a device without a QR code
+pair2-supplicant-connect-hint-learn-more-link = Көбірек білу
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -2010,6 +2039,26 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Мобильді құ�
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Бас тартылған
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Құрылғыны кез келген уақытта қосу үшін компьютеріңізден <b>firefox.com/pair</b> сайтына кіріңіз.
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } келесіге қол жеткізуді қалайды:
+permissions-label-email = Эл. пошта адресі
+permissions-label-display-name = Көрсетілетін аты
+permissions-continue-button = Жалғастыру
+permissions-cancel-button = Бас тарту
+
+## ForcePasswordChange page
+## Users are sent here when suspicious activity on the account requires a new password before they can continue.
+
+force-password-change-heading = Өз пароліңізді өзгертіңіз
+force-password-change-info = Біз сіздің { -product-mozilla-account } тіркелгіңізде күмәнді әрекетті анықтадық. Тіркелгіңізді қорғау үшін жаңа паролді жасаңыз. Бұл парольді барлық { -product-mozilla-account } тіркелгісі қызметтеріне қайта кіру үшін пайдаланасыз.
+force-password-change-data-info = Синхрондалған тарих, бетбелгілер, логиндер және басқа жеке деректер жоғалмайды.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

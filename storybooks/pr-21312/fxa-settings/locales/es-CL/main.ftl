@@ -163,6 +163,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Confirmar contraseña
 form-password-with-inline-criteria-reset-submit-button = Crear nueva contraseña
+form-password-with-inline-criteria-old-password-label =
+    .label = Contraseña antigua
+form-password-with-inline-criteria-change-password-submit-button = Cambiar contraseña
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Contraseña
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1088,6 +1091,7 @@ auth-error-228 = Falló el registro de la llave de acceso
 auth-error-233 = Para crear una llave de acceso, configura un bloqueo de pantalla, un PIN, la huella digital o el reconocimiento facial en tu dispositivo o llave de seguridad. Luego, vuelve a intentarlo.
 auth-error-238 = Falló el desafío de la llave de acceso
 auth-error-239 = Lo sentimos, no pudimos borrar tu cuenta. Por favor, vuelve a intentarlo o contacta al soporte si el problema persiste.
+auth-error-240 = Esta cuenta ha sido desactivada
 auth-error-999 = Error inesperado
 auth-error-1001 = Intento de conexión cancelado
 auth-error-1002 = Sesión expirada. Conéctate para continuar.
@@ -1180,6 +1184,10 @@ inline-passwordless-sync-setup-description = Utilizar esta llave de acceso para 
 inline-passwordless-sync-setup-enable-button = Habilitar llave de acceso
 inline-passwordless-sync-setup-enabling = Habilitando…
 inline-passwordless-sync-setup-not-now-button = Ahora no
+inline-passwordless-sync-setup-success-alert = Esta llave de acceso está lista para conectarse y sincronizar
+inline-passwordless-sync-setup-error-cancelled = La confirmación de la llave de acceso no finalizó
+inline-passwordless-sync-setup-error-cancelled-description = Confirma con tu llave de acceso para omitir la contraseña la próxima vez.
+inline-passwordless-sync-setup-error-generic = Algo se fue a las pailas, todavía deberás usar tu contraseña la próxima vez.
 
 
 inline-recovery-key-setup-create-error = ¡Chuta! No pudimos crear la clave de recuperación de tu cuenta. Por favor, vuelve a intentarlo más tarde.
@@ -1345,10 +1353,19 @@ pair2-supplicant-connect-this-device-connect-button = Conectar
 pair2-supplicant-connect-this-device-cancel-button = Cancelar
 
 
-pair2-supplicant-download-firefox-heading = Obtén { -brand-firefox } en este dispositivo
-pair2-supplicant-download-firefox-description = Descarga { -brand-firefox } para sincronizar marcadores, historial y más en todos tus dispositivos. <linkExternal>Más información</linkExternal>
+pair2-supplicant-download-firefox-heading-v2 = Abrir { -brand-firefox } en este dispositivo
+pair2-supplicant-download-firefox-description-v2 = Baja { -brand-firefox } para sincronizar marcadores, historial y más en todos tus dispositivos.
 pair2-supplicant-download-firefox-continue-button = Continuar en { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Abriendo { -brand-firefox }…
+pair2-supplicant-download-firefox-download-button = Bajar { -brand-firefox }
+pair2-supplicant-download-firefox-have-firefox-button = Ya tengo { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = Más información
+
+
+pair2-supplicant-connect-hint-heading-v2 = Terminar emparejamiento en la app
+pair2-supplicant-connect-hint-step-app-menu = Pulsa el <b>menú de la aplicación</b> en la barra de herramientas
+pair2-supplicant-connect-hint-step-sign-in = Toca <b>concectarse</b> y luego escanea el código
+pair2-supplicant-connect-hint-learn-more-link = Aprender más
 
 
 pair2-supplicant-ready-to-scan-heading = Para conectar un dispositivo
@@ -1365,6 +1382,18 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que se nos acabó e
 pair2-supplicant-timeout-and-cancel-timeout-description = Para conectar tu dispositivo móvil y sincronizar tus datos de { -brand-firefox }, visita <b>firefox.com/pair</b> en tu computador.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelado
 pair2-supplicant-timeout-and-cancel-canceled-description = Para conectar un dispositivo en cualquier momento, visita <b>firefox.com/pair</b> desde tu computador.
+
+
+permissions-heading = { $serviceName } quiere acceso a:
+permissions-label-email = Correo electrónico
+permissions-label-display-name = Nombre para mostrar
+permissions-continue-button = Continuar
+permissions-cancel-button = Cancelar
+
+
+force-password-change-heading = Por favor, cambia tu contraseña
+force-password-change-info = Detectamos un comportamiento sospechoso en tu { -product-mozilla-account }. Para proteger tu cuenta, crea una nueva contraseña. Utilizarás esta contraseña para volver a conectarte en todos los servicios de tu { -product-mozilla-account }.
+force-password-change-data-info = El historial, los marcadores, las credenciales y otros datos personales que estén sincronizados no se perderán.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmada

@@ -179,6 +179,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Confirmer le mot de passe
 form-password-with-inline-criteria-reset-submit-button = Créer un nouveau mot de passe
+form-password-with-inline-criteria-old-password-label =
+    .label = Ancien mot de passe
+form-password-with-inline-criteria-change-password-submit-button = Changer le mot de passe
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Mot de passe
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1193,10 +1196,10 @@ inline-passwordless-sync-setup-description = Utilisez cette clé d’accès pour
 inline-passwordless-sync-setup-enable-button = Activer la clé d’accès
 inline-passwordless-sync-setup-enabling = Activation…
 inline-passwordless-sync-setup-not-now-button = Plus tard
-inline-passwordless-sync-setup-success-alert = Cette clé d’accès est prête pour la connexion synchronisée
-inline-passwordless-sync-setup-error-cancelled = La confirmation de la clé d’accès n’est pas terminée
-inline-passwordless-sync-setup-error-cancelled-description = Confirmez avec votre clé d’accès pour ignorer le mot de passe la prochaine fois.
-inline-passwordless-sync-setup-error-generic = Une erreur s’est produite, vous devrez le ressaisir la prochaine fois
+inline-passwordless-sync-setup-success-alert = Cette clé d’accès permet désormais de se connecter et de synchroniser
+inline-passwordless-sync-setup-error-cancelled = La confirmation de la clé d’accès n’a pas abouti
+inline-passwordless-sync-setup-error-cancelled-description = Confirmez à l’aide de votre clé d’accès pour ne pas avoir à saisir votre mot de passe la prochaine fois.
+inline-passwordless-sync-setup-error-generic = Une erreur s’est produite, vous devrez encore saisir votre mot de passe la prochaine fois
 
 
 inline-recovery-key-setup-create-error = Oups ! Nous n’avons pas pu créer la clé de récupération de votre compte. Veuillez réessayer plus tard.
@@ -1362,10 +1365,19 @@ pair2-supplicant-connect-this-device-connect-button = Connecter
 pair2-supplicant-connect-this-device-cancel-button = Annuler
 
 
-pair2-supplicant-download-firefox-heading = Installer { -brand-firefox } sur cet appareil
-pair2-supplicant-download-firefox-description = Téléchargez { -brand-firefox } pour synchroniser les marque-pages, l’historique et d’autres données entre vos appareils. <linkExternal>En savoir plus</linkExternal>
+pair2-supplicant-download-firefox-heading-v2 = Ouvrir { -brand-firefox } sur cet appareil
+pair2-supplicant-download-firefox-description-v2 = Téléchargez { -brand-firefox } pour synchroniser les marque-pages, l’historique et d’autres informations entre vos appareils.
 pair2-supplicant-download-firefox-continue-button = Continuer dans { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Ouverture de { -brand-firefox }…
+pair2-supplicant-download-firefox-download-button = Télécharger { -brand-firefox }
+pair2-supplicant-download-firefox-have-firefox-button = J’ai déjà { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = En savoir plus
+
+
+pair2-supplicant-connect-hint-heading-v2 = Terminez l’association dans l’application
+pair2-supplicant-connect-hint-step-app-menu = Appuyez sur le <b>menu de l’application</b> dans la barre d’outils
+pair2-supplicant-connect-hint-step-sign-in = Appuyez sur <b>connectez-vous</b>, puis scannez le code
+pair2-supplicant-connect-hint-learn-more-link = En savoir plus
 
 
 pair2-supplicant-ready-to-scan-heading = Comment connecter un appareil
@@ -1384,11 +1396,16 @@ pair2-supplicant-timeout-and-cancel-cancelled-heading = Annulé
 pair2-supplicant-timeout-and-cancel-canceled-description = Pour connecter un appareil à tout moment, consultez <b>firefox.com/pair</b> sur votre ordinateur.
 
 
-permissions-heading = { $serviceName } veut accéder à :
+permissions-heading = { $serviceName } souhaite accéder à :
 permissions-label-email = Adresse e-mail
 permissions-label-display-name = Nom à afficher
 permissions-continue-button = Continuer
 permissions-cancel-button = Annuler
+
+
+force-password-change-heading = Merci de changer votre mot de passe
+force-password-change-info = Nous avons détecté un comportement suspect sur votre { -product-mozilla-account }. Pour protéger votre compte, veuillez créer un nouveau mot de passe. Vous utiliserez ce mot de passe pour vous reconnecter à tous vos services { -product-mozilla-account }.
+force-password-change-data-info = Les données synchronisées ne seront pas perdues : historique, marque-pages, identifiants et autres données personnelles.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account(capitalization: "uppercase") } confirmé

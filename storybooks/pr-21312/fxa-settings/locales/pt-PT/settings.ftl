@@ -52,7 +52,7 @@ recovery-key-pdf-download-error = Pedimos desculpa, mas ocorreu um problema ao t
 
 ## ButtonPasskeySignin
 
-button-passkey-signin = Iniciar sessão com chave de acesso
+button-passkey-signin = Iniciar sessão com chave-passe
 # This is a loading state indicating that we are waiting for the user to
 # interact with their authenticator to approve the sign-in. They should see a
 # device prompt/pop-up with authentication options (or message indicating that
@@ -149,7 +149,7 @@ device-info-ip-address = Endereço de IP: { $ipAddress }
 ## the user is on Firefox) or switching to Firefox (on other browsers).
 
 firefox-promo-banner-mobile-heading = Obtenha o { -brand-firefox } onde quer que esteja
-firefox-promo-banner-mobile-description = Sincronize os seus separadores, marcadores e palavras-passe entre os seus dispositivos. Além disso, tudo permanece encriptado com segurança.
+firefox-promo-banner-mobile-description = Sincronize os seus separadores, marcadores, e palavras-passe entre os seus dispositivos. Adicionalmente, tudo permanece encriptado com segurança.
 firefox-promo-banner-mobile-cta = Ligar um dispositivo
 firefox-promo-banner-switch-heading = Rápido para mudar. Fácil de instalar.
 firefox-promo-banner-switch-description = Ao mudar para { -brand-firefox }, pode trazer os seus marcadores, palavras-passe, histórico e muito mais, para que possa navegar sem perder o ritmo.
@@ -167,6 +167,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Confirmar palavra-passe
 form-password-with-inline-criteria-reset-submit-button = Criar nova palavra-passe
+form-password-with-inline-criteria-old-password-label =
+    .label = Palavra-passe antiga
+form-password-with-inline-criteria-change-password-submit-button = Alterar palavra-passe
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Palavra-passe
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -271,7 +274,7 @@ icon-loading-arrow-aria-label =
     .aria-label = A carregar
 # Used for passkey icon
 icon-passkey-aria-label =
-    .aria-label = Chave de acesso
+    .aria-label = Chave-passe
 hearts-broken-image-aria-label =
     .aria-label = Um computador e um telemóvel, e a imagem de um coração quebrado em cada um
 hearts-verified-image-aria-label =
@@ -306,15 +309,15 @@ backup-authentication-codes-image-aria-label =
 sync-clouds-image-aria-label =
     .aria-label = Nuvens com um ícone de sincronização
 confetti-falling-image-aria-label =
-    .aria-label = Animação da descarga de uma rede
+    .aria-label = Animação de confetes a cair
 # In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
 vpn-welcome-image-aria-label =
-    .aria-label = { -brand-firefox } janela com uma medalha circular a mostrar uma marca de verificação verde e “VPN”, a mostrar que a VPN está ativa.
+    .aria-label = Janela { -brand-firefox } com um emblema circular que apresenta uma marca de verificação verde e “VPN,” a mostrar que a VPN está ativa.
 sync-devices-image-aria-label =
     .aria-label = Uma janela de navegador de computador e um telemóvel, ambos a sincronizar, com a mascote { -brand-firefox } ao lado deles
 # Aria label for the Firefox logo and wordmark shown together as a brand lockup
 firefox-wordmark-image-aria-label =
-    .aria-label = Logótipo de { -brand-firefox }
+    .aria-label = Logótipo do { -brand-firefox }
 # This id is referenced by `PasswordSuccessImage` but was never added here, so
 # the aria-label has been falling back to English in every locale.
 password-success-image-aria-label =
@@ -379,7 +382,7 @@ link-expired-new-link-button = Receber nova ligação
 # immediately before remember-password-signin-link
 remember-password-text = Memorizar a sua palavra-passe?
 # shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
-remember-password-passkey-text = Tem uma chave de acesso ou lembra-se da sua palavra-passe?
+remember-password-passkey-text = Tem uma chave-passe ou lembra-se da sua palavra-passe?
 # link navigates to the sign in page
 remember-password-signin-link = Iniciar sessão
 
@@ -407,7 +410,7 @@ password-info-balloon-reset-risk-info = Uma reposição significa a perda potenc
 ## PasswordStrengthInline component
 ## These strings are conditions that need to be met to qualify as a strong password
 
-password-strength-long-instruction = Escolha uma palavra-passe forte que não tenha utilizado em outros sites. Certifique-se que cumpre os requisitos de segurança:
+password-strength-long-instruction = Escolha uma palavra-passe forte que não tenha utilizado noutros sites. Certifique-se que cumpre os requisitos de segurança:
 password-strength-short-instruction = Escolha uma palavra-passe forte:
 password-strength-inline-min-length = Pelo menos 8 caracteres
 password-strength-inline-not-email = Não é o seu endereço de e-mail
@@ -423,7 +426,7 @@ promo-qr-mobile-heading = O seu telefone. As suas regras.
 # Value proposition variant. Refers to resuming browsing on another device.
 promo-qr-mobile-heading-treatment-a = Continue de onde ficou, onde quer que vá
 # Value proposition variant. "tabs" are the open pages in a browser.
-promo-qr-mobile-heading-treatment-b = Os seus separadores e mais, prontos no seu telemóvel
+promo-qr-mobile-heading-treatment-b = Os seus separadores e muito mais, prontos no seu telemóvel
 # Value proposition variant. Refers to using the same trusted browser on a phone.
 promo-qr-mobile-heading-treatment-c = O navegador que confia, no seu telemóvel
 # Value proposition variant. "Different screen" refers to the phone rather than the desktop.
@@ -440,7 +443,7 @@ promo-qr-mobile-heading-treatment-h = Tenha uma forma mais calma de navegar cons
 promo-qr-mobile-description-v2 = Digitalize para transferir a app para telemóvel
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
 promo-qr-mobile-qr-alt =
-    .alt = Código QR para transferir a aplicação móvel { -brand-firefox }. Posicione a câmara do seu telemóvel no canto inferior direito do seu ecrã para digitalizar o mesmo.
+    .alt = Código QR para transferir a aplicação móvel { -brand-firefox }. Posicione a câmara do seu telemóvel no canto inferior direito do seu ecrã para o digitalizar.
 
 ## Notification Promo Banner component
 
@@ -449,10 +452,10 @@ account-recovery-notification-header-value = Não perca os seus dados se se esqu
 account-recovery-notification-header-description = Crie uma chave de recuperação da conta para restaurar os seus dados de navegação sincronizados caso se esqueça da sua palavra-passe.
 recovery-phone-promo-cta = Adicionar telefone de recuperação
 recovery-phone-promo-heading = Adicione uma proteção adicional à sua conta, com um telefone de recuperação
-recovery-phone-promo-description = Agora pode iniciar sessão com uma palavra-passe única via SMS, se não puder utilizar a sua aplicação de autenticação de dois passos.
+recovery-phone-promo-description = Agora pode iniciar sessão com uma palavra-passe de utilização única enviada por SMS se não conseguir usar a sua app de autenticação de dois passos.
 recovery-phone-promo-info-link = Saber mais acerca da recuperação e risco de troca de SIM
 promo-banner-dismiss-button =
-    .aria-label = Ignorar banner
+    .aria-label = Dispensar banner
 
 ## Ready component
 
@@ -516,12 +519,12 @@ password-reset-chevron-collapsed = Expandir aviso
 password-reset-warning-review-sign-in-options = Rever as opções de início de sessão para manter os dados do navegador
 password-reset-warning-have-key = Tem uma chave de recuperação da conta?
 # "it" refers to the user's account recovery key.
-password-reset-warning-use-key-link-v2 = Utilize-o para repor a sua palavra-passe e manter os seus dados do navegador
+password-reset-warning-use-key-link-v2 = Use-o para repor a sua palavra-passe e manter os seus dados do navegador
 password-reset-warning-signed-in-device = Ainda com sessão iniciada noutro dispositivo?
-password-reset-warning-signed-in-device-description = Os dados do seu navegador podem estar disponíveis. Redefina a sua palavra-passe e inicie sessão nesse dispositivo para restaurar e sincronizar os seus dados.
+password-reset-warning-signed-in-device-description = Os dados do seu navegador podem estar disponíveis. Redefina a sua palavra-passe, depois inicie sessão nesse dispositivo para restaurar e sincronizar os seus dados.
 password-reset-warning-restore-data-link = Saiba como restaurar os dados do navegador a partir de um dispositivo autenticado
-password-reset-warning-new-device = Está a utilizar um dispositivo novo mas não pode aceder aos seus antigos?
-password-reset-warning-new-device-description = Depois de repor a sua palavra-passe, os dados encriptados do navegador em { -brand-firefox } servidores não estarão disponíveis neste dispositivo.
+password-reset-warning-new-device = Está a usar um dispositivo novo mas não pode aceder aos seus antigos?
+password-reset-warning-new-device-description = Depois de repor a sua palavra-passe, os dados encriptados do navegador nos servidores { -brand-firefox } não estarão disponíveis neste dispositivo.
 
 ## Alert Bar
 
@@ -552,7 +555,7 @@ connect-another-find-fx-mobile-2 = Encontre o { -brand-firefox } na { -google-pl
 # Alt text for Google Play and Apple App store images that will be shown if the image can't be loaded.
 # These images are used to encourage users to download Firefox on their mobile devices.
 connect-another-play-store-image-2 =
-    .alt = Transfira o { -brand-firefox } do { -google-play }
+    .alt = Transfira o { -brand-firefox } da { -google-play }
 connect-another-app-store-image-3 =
     .alt = Transfira o { -brand-firefox } na { -app-store }
 
@@ -613,7 +616,7 @@ cs-sign-out-button = Terminar sessão
 # the device's refresh token is authorized for Firefox’s built-in VPN.
 # In this context, "VPN" is a VPN service built into the Firefox browser, and
 # generally isn’t localized differently than "VPN".
-cs-scope-firefox-vpn = VPN integrada de { -brand-firefox }
+cs-scope-firefox-vpn = VPN integrada do { -brand-firefox }
 
 ## Data collection section
 
@@ -687,16 +690,16 @@ flow-setup-2fa-qr-heading = Ligar à sua aplicação de autenticação
 # DEV NOTE: "2a" in the id should be "2fa". This typo is kept intentionally to
 # avoid losing existing translations; fix it when creating a new version of
 # this string.
-flow-setup-2a-qr-instruction = <strong>Etapa 1:</strong> Digitalize este código QR utilizando qualquer aplicação de autenticação, como o Duo ou o Google Authenticator.
+flow-setup-2a-qr-instruction = <strong>Passo 1:</strong> Leia este código QR com qualquer app de autenticação, como o Duo ou o Google Authenticator.
 # Alt text for the QR-code image shown during two-step authentication setup.
 # “setup secret key” refers to the long code you can copy instead of scanning.
 # Not to be confused with the 6-digit codes generated by the authenticator app.
 flow-setup-2fa-qr-alt-text =
-    .alt = Código QR para configurar a autenticação de dois passos. Digitalize-o ou escolha "Não é possível digitalizar o código QR?" para obter uma chave secreta de configuração.
-flow-setup-2fa-cant-scan-qr-button = Não consegue digitalizar o código QR?
-flow-setup-2fa-manual-key-heading = Introduzir o código manualmente
+    .alt = Código QR para configurar a autenticação em dois passos. Leia-o, ou selecione “Não consegue ler o QR?” para obter uma chave secreta de configuração.
+flow-setup-2fa-cant-scan-qr-button = Não consegue ler o código QR?
+flow-setup-2fa-manual-key-heading = Introduzir código manualmente
 flow-setup-2fa-manual-key-instruction = <strong>Passo 1:</strong> Insira este código na sua aplicação de autenticação preferida.
-flow-setup-2fa-scan-qr-instead-button = Digitalizar código QR?
+flow-setup-2fa-scan-qr-instead-button = Em alternativa, ler o código QR?
 # links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication#w_step-one
 flow-setup-2fa-more-info-link = Saber mais sobre aplicações de autenticação
 flow-setup-2fa-button = Continuar
@@ -712,9 +715,9 @@ flow-setup-2fa-backup-choice-description = Isto permite que inicie sessão se n�
 flow-setup-2fa-backup-choice-phone-title = Telefone de recuperação
 flow-setup-2fa-backup-choice-phone-badge = Mais fácil
 flow-setup-2fa-backup-choice-phone-info = Obter um código de recuperação através de mensagem de texto. Atualmente disponível nos EUA e Canadá.
-flow-setup-2fa-backup-choice-code-title = Códigos de autenticação de recuperação
-flow-setup-2fa-backup-choice-code-badge = O mais seguro
-flow-setup-2fa-backup-choice-code-info = Crie e guarde códigos de autenticação de utilização única.
+flow-setup-2fa-backup-choice-code-title = Códigos de autenticação
+flow-setup-2fa-backup-choice-code-badge = Mais seguro
+flow-setup-2fa-backup-choice-code-info = Crie e guarde códigos de autenticação de uso único.
 # This link points to https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication
 flow-setup-2fa-backup-choice-learn-more-link = Saber mais sobre recuperação e risco de troca de SIM
 
@@ -725,48 +728,48 @@ flow-setup-2fa-backup-choice-learn-more-link = Saber mais sobre recuperação e 
 flow-setup-2fa-backup-code-confirm-heading = Insira o código de autenticação de recuperação
 # codes here refers to backup authentication codes
 flow-setup-2fa-backup-code-confirm-confirm-saved = Confirme que guardou os seus códigos ao introduzir um. Sem estes códigos, poderá não conseguir iniciar sessão se não tiver a sua aplicação de autenticação.
-flow-setup-2fa-backup-code-confirm-code-input = Inserir código de 10 caracteres
+flow-setup-2fa-backup-code-confirm-code-input = Insera código de 10 caracteres
 # Clicking on this button finishes the whole flow upon success.
 flow-setup-2fa-backup-code-confirm-button-finish = Concluir
 
 ## The backup codes download step of the setup 2 factor authentication flow
 
 flow-setup-2fa-backup-code-dl-heading = Guardar códigos de autenticação de recuperação
-flow-setup-2fa-backup-code-dl-save-these-codes = Mantenha-os num local que irá memorizar. Se não tem acesso à sua aplicação de autenticação, precisará de introduzir uma para iniciar sessão.
+flow-setup-2fa-backup-code-dl-save-these-codes = Mantenha-os num local de que se lembre. Se não tem acesso à sua aplicação de autenticação precisará de introduzir um para iniciar sessão.
 flow-setup-2fa-backup-code-dl-button-continue = Continuar
 
 ##
 
-flow-setup-2fa-inline-complete-success-banner = Autenticação de dois fatores ativada
-flow-setup-2fa-inline-complete-success-banner-description = Para proteger todos os seus dispositivos associados, termine sessão em todos os lugares em que estiver a utilizar esta conta e depois inicie sessão novamente utilizando a sua nova autenticação de dois passos.
+flow-setup-2fa-inline-complete-success-banner = Autenticação de dois passos ativada
+flow-setup-2fa-inline-complete-success-banner-description = Para proteger todos os dispositivos ligados, deve terminar sessão em todos os locais onde utiliza esta conta, e depois voltar a iniciar sessão com a sua nova autenticação em dois passos.
 flow-setup-2fa-inline-complete-backup-code = Códigos de autenticação de recuperação
 flow-setup-2fa-inline-complete-backup-phone = Telefone de recuperação
 # $count (Number) - an integer representing the number of backup
 # authentication codes remaining
 flow-setup-2fa-inline-complete-backup-code-info =
     { $count ->
-        [one] { $count } código remanescente
-       *[other] { $count } códigos remanescentes
+        [one] { $count } código restante
+       *[other] { $count } códigos restantes
     }
-flow-setup-2fa-inline-complete-backup-code-description = Este é o método de recuperação mais seguro se não conseguir iniciar sessão com o seu dispositivo móvel ou a aplicação de autenticação.
+flow-setup-2fa-inline-complete-backup-code-description = Este é o método de recuperação mais seguro se não conseguir iniciar sessão com o seu dispositivo móvel ou aplicação de autenticação.
 flow-setup-2fa-inline-complete-backup-phone-description = Este é o método de recuperação mais fácil se não conseguir iniciar sessão com a sua aplicação de autenticação.
 flow-setup-2fa-inline-complete-learn-more-link = Como isto protege a sua conta
 # $serviceName (String) - the name of the product that the user will be
 # redirected to.
 flow-setup-2fa-inline-complete-continue-button = Continuar para { $serviceName }
-flow-setup-2fa-prompt-heading = Configurar autenticação em duas etapas
+flow-setup-2fa-prompt-heading = Configurar autenticação de dois passos
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
-flow-setup-2fa-prompt-description = { $serviceName } requer que configure a autenticação de dois passos para manter a sua conta segura.
+flow-setup-2fa-prompt-description = O { $serviceName } requer que configure a autenticação de dois passos para manter a sua conta segura.
 # Success banner shown at the top of the page when the user signed in with a passkey.
-flow-setup-2fa-prompt-passkey-success-banner = Sessão iniciada com sucesso com a chave
+flow-setup-2fa-prompt-passkey-success-banner = Sessão iniciada com sucesso através da chave-passe
 # Body copy shown when the user signed in with a passkey and the service still
 # requires two-step authentication setup.
 # Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
 # that requests two-step authentication setup.
-flow-setup-2fa-prompt-passkey-description = { $serviceName } também requer autenticação de dois passos para o seu { -product-mozilla-account }. Depois da configuração, deixará de precisar da mesma quando iniciar sessão com uma chave de acesso.
+flow-setup-2fa-prompt-passkey-description = O { $serviceName } também requer autenticação de dois passos para a sua { -product-mozilla-account }. Depois da configuração, deixará de precisar da mesma quando iniciar sessão com uma chave-passe.
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
-flow-setup-2fa-prompt-use-authenticator-apps = Pode utilizar qualquer uma das <authenticationAppsLink>estas aplicações de autenticação</authenticationAppsLink> para continuar.
+flow-setup-2fa-prompt-use-authenticator-apps = Pode utilizar qualquer uma <authenticationAppsLink>destas aplicações de autenticação</authenticationAppsLink> para continuar.
 flow-setup-2fa-prompt-continue-button = Continuar
 
 ## FlowSetupPhoneConfirmCode
@@ -805,7 +808,7 @@ header-menu-closed = Menu de navegação do site
 header-back-to-top-link =
     .title = Ir para o topo
 header-back-to-settings-link =
-    .title = Voltar para as definições de { -product-mozilla-account }
+    .title = Voltar para as definições da { -product-mozilla-account }
 header-title-2 = { -product-mozilla-account }
 header-help = Ajuda
 
@@ -874,9 +877,9 @@ nav-email-comm = Comunicações por e-mail
 
 page-2fa-change-title = Alterar autenticação de dois passos
 page-2fa-change-success = A autenticação de dois passos foi atualizada
-page-2fa-change-success-additional-message = Para proteger todos os seus dispositivos associados, termine sessão em todos os lugares em que estiver a utilizar esta conta e depois inicie sessão novamente utilizando a sua nova autenticação de dois passos.
+page-2fa-change-success-additional-message = Para proteger todos os seus dispositivos associados, deve terminar sessão em todos os lugares em que estiver a usar esta conta, e depois inicie sessão novamente usando a sua nova autenticação de dois passos.
 page-2fa-change-totpinfo-error = Ocorreu um erro ao substituir a sua aplicação de autenticação de dois passos. Tente novamente mais tarde.
-page-2fa-change-qr-instruction = <strong>Etapa 1:</strong> Digitalize este código QR utilizando qualquer aplicação de autenticação, como o Duo ou o Google Authenticator. Isto cria uma nova ligação. Quaisquer ligações antigas deixarão de funcionar.
+page-2fa-change-qr-instruction = <strong>Passo 1:</strong> Digitalize este código QR utilizando qualquer aplicação de autenticação, como o Duo ou o Google Authenticator. Isto cria uma nova ligação, quaisquer ligações antigas deixarão de funcionar.
 
 ## Two Step Authentication - replace backup authentication code
 
@@ -892,21 +895,21 @@ tfa-replace-code-success-alert-4 = Códigos de autenticação de recuperação a
 tfa-create-code-success-alert = Códigos de autenticação de recuperação criados
 # Custom messaging for users replacing existing backup codes - Download step (1 of 2)
 # On this step, the codes are not yet replaced in the database - the old codes are still valid until step 2 is completed.
-tfa-replace-code-download-description = Mantenha-os num local que irá memorizar. Os seus códigos antigos serão substituídos depois de concluir o próximo passo.
+tfa-replace-code-download-description = Mantenha-os num local de que se lembre. Os seus códigos antigos serão substituídos depois de concluir o próximo passo.
 # Custom messaging for users replacing existing backup codes - Confirm step (2 of 2)
 # Until this confirmation step is successfully completed, the old codes are still active and the new codes are not saved in the database.
-tfa-replace-code-confirm-description = Confirme que guardou os seus códigos ao introduzir um. Os seus códigos de autenticação de recuperação antigos serão desativados assim que esta etapa for concluída.
+tfa-replace-code-confirm-description = Confirme que guardou os seus códigos ao introduzir um. Os seus códigos de autenticação de recuperação antigos serão desativados assim que este passo for concluído.
 # Error shown when the entered backup code does not match any of the generated codes
 tfa-incorrect-recovery-code-1 = Código de autenticação de recuperação incorreto
 
 ## Page2faSetup
 
-page-2fa-setup-title = Autenticação de dois fatores
+page-2fa-setup-title = Autenticação de dois passos
 page-2fa-setup-totpinfo-error = Ocorreu um erro ao configurar a autenticação de dois passos. Tente novamente mais tarde.
 # code here refers to "backup authentication code"
 page-2fa-setup-incorrect-backup-code-error = Esse código não está correto. Tente novamente.
 page-2fa-setup-success = A autenticação de dois passos foi ativada
-page-2fa-setup-success-additional-message = Para proteger todos os seus dispositivos ligados, deve terminar sessão em todos os lugares em que estiver a utilizar esta conta e depois iniciar sessão novamente utilizando a autenticação de dois passos.
+page-2fa-setup-success-additional-message = Para proteger todos os seus dispositivos ligados, deve terminar sessão em todos os lugares em que estiver a usar esta conta, e depois iniciar sessão novamente utilizando a autenticação de dois passos.
 
 ## Avatar change page
 
@@ -991,7 +994,7 @@ delete-account-chk-box-3 =
 delete-account-chk-box-4 =
     .label = Quaisquer extensões e temas que tenha publicado em addons.mozilla.org serão eliminados
 delete-account-continue-button = Continuar
-delete-account-delete-button-passwordless = Eliminar conta
+delete-account-delete-button-passwordless = Apagar conta
 delete-account-password-input =
     .label = Inserir palavra-passe
 delete-account-cancel-button = Cancelar
@@ -1010,14 +1013,14 @@ display-name-success-alert-2 = Nome de apresentação atualizado
 
 ## PagePasskeyAdd - Loading page shown during passkey creation
 
-page-passkey-add-creating-heading = A criar chave de acesso…
-page-passkey-add-follow-prompts = Siga as mensagens no seu dispositivo.
+page-passkey-add-creating-heading = A criar a chave-passe…
+page-passkey-add-follow-prompts = Siga as instruções no seu dispositivo.
 page-passkey-add-cancel = Cancelar
 
 ## Success / Error messages (shown in alert bar after returning to settings)
 
-page-passkey-add-success = Chave criada
-page-passkey-add-error-system-v2 = Ocorreu um problema ao criar a sua chave. Tente novamente mais tarde.
+page-passkey-add-success = Chave-passe criada
+page-passkey-add-error-system-v2 = Ocorreu um problema ao criar a sua chave-passe. Tente novamente mais tarde.
 
 ## Recent account activity
 ## All strings except title indicate an event that occurred from the user's account
@@ -1068,34 +1071,34 @@ recent-activity-account-recovery-phone-replace-failure = A substituição do tel
 recent-activity-account-two-factor-replace-success = Autenticação de dois passos substituída
 recent-activity-account-two-factor-replace-failure = Falha na substituição da autenticação de dois passos
 recent-activity-account-recovery-phone-setup-failed = A configuração do telefone de recuperação falhou
-recent-activity-account-recovery-phone-reset-password-complete = Reposição de palavra-passe com a recuperação do telefone concluída
-recent-activity-account-recovery-phone-reset-password-failed = A redefinição da palavra-passe com o telefone de recuperação falhou
+recent-activity-account-recovery-phone-reset-password-complete = Reposição da palavra-passe através do telefone de recuperação concluída
+recent-activity-account-recovery-phone-reset-password-failed = Falha na reposição da palavra-passe através do telefone de recuperação
 # A code was emailed to the user to authorize a sensitive account change (e.g. removing 2FA, deleting the account).
 recent-activity-account-mfa-otp-sent = Solicitada uma autorização para alterar a conta
 # The user successfully entered the code emailed to authorize a sensitive account change.
 recent-activity-account-mfa-otp-verified = Alteração de conta autorizada
 # The user entered an incorrect or expired code when trying to authorize a sensitive account change.
 recent-activity-account-mfa-otp-failed = A autorização para alterar a conta falhou
-recent-activity-account-passkey-registration-success = Chave de acesso adicionada
-recent-activity-account-passkey-registration-failure = O registo da chave falhou
-recent-activity-account-passkey-removed = Chave removida
-recent-activity-account-passkey-authentication-success = Início de sessão com a chave de acesso concluído
-recent-activity-account-passkey-authentication-failure = A autenticação com a chave de acesso falhou
+recent-activity-account-passkey-registration-success = Chave-passe adicionada
+recent-activity-account-passkey-registration-failure = O registo da chave-passe falhou
+recent-activity-account-passkey-removed = Chave-passe removida
+recent-activity-account-passkey-authentication-success = Início de sessão com chave-passe concluído
+recent-activity-account-passkey-authentication-failure = Início de sessão com chave-passe falhou
 recent-activity-account-passwordless-login-otp-sent = Código de início de sessão sem palavra-passe enviado
 recent-activity-account-passwordless-login-otp-failed = O código de início de sessão sem palavra-passe falhou
 recent-activity-account-passwordless-login-otp-verified = Código de início de sessão sem palavra-passe verificado
 recent-activity-account-passwordless-registration-complete = Registo de conta sem palavra-passe concluído
 recent-activity-account-recovery-codes-set = Códigos de recuperação definidos
 # A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
-recent-activity-account-passkey-wrap-created = Chave de acesso ativada para sincronização
+recent-activity-account-passkey-wrap-created = Chave-passe ativada para sincronização
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
-recent-activity-account-passkey-wrap-creation-failure = A configuração da sincronização com a chave de acesso falhou
+recent-activity-account-passkey-wrap-creation-failure = A configuração da sincronização com a chave-passe falhou
 # A passkey is a sign-in method that replaces a password. This string is shown when a passkey that could unlock the user's synced browser data had that access turned off, leaving the passkey itself usable for signing in.
 recent-activity-account-passkey-wrap-deleted = Removido acesso da chave-passe à sincronização
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to turn off a passkey's access to the user's synced browser data did not complete.
 recent-activity-account-passkey-wrap-deletion-failure = Falha na remoção do acesso da chave-passe à sincronização
 # A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
-recent-activity-account-passkey-wrap-invalidated = Acesso à sincronização da chave removido após a reposição da palavra-passe
+recent-activity-account-passkey-wrap-invalidated = Acesso à sincronização da chave-passe removido após a reposição da palavra-passe
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Outra atividade da conta
 
@@ -1174,7 +1177,7 @@ inactive-update-status-success-alert = Sessão iniciada com sucesso. A sua { -pr
 
 product-promo-monitor =
     .alt = { -product-mozilla-monitor }
-product-promo-monitor-description-v2 = Encontre onde a sua informação privada está exposta e assuma o controlo
+product-promo-monitor-description-v2 = Descubra onde a sua informação privada está exposta e assuma o controlo
 # Links out to the Monitor site
 product-promo-monitor-cta = Obter verificação gratuita
 product-promo-vpn =
@@ -1266,25 +1269,25 @@ passkey-sub-row-created-date = Criado: { $createdDate }
 # Variables:
 #   $lastUsedDate (String) - a localized date string
 passkey-sub-row-last-used-date = Última utilização: { $lastUsedDate }
-passkey-sub-row-delete-title = Eliminar chave de acesso
-passkey-delete-modal-heading = Apagar a sua chave?
-passkey-delete-modal-content-v2 = Esta chave será removida da sua conta. Terá de iniciar sessão utilizando um método diferente (palavra-passe, outra chave de acesso ou conta associada).
+passkey-sub-row-delete-title = Apagar chave-passe
+passkey-delete-modal-heading = Apagar a sua chave-passe?
+passkey-delete-modal-content-v2 = Esta chave-passe será removida da sua conta. Terá de iniciar sessão usando um método diferente (palavra-passe, outra chave-passe, ou conta associada).
 passkey-delete-modal-cancel-button = Cancelar
-passkey-delete-modal-confirm-button = Eliminar chave de acesso
-passkey-delete-success = Chave eliminada
-passkey-delete-error = Ocorreu um problema ao eliminar a sua chave. Tente novamente dentro de alguns minutos.
-passkey-sub-row-rename-title = Renomear chave de acesso
-passkey-rename-modal-heading = Renomear chave de acesso
-passkey-rename-modal-description = Digite um novo nome para esta chave.
-passkey-rename-input-label = Nome da chave
+passkey-delete-modal-confirm-button = Apagar chave-passe
+passkey-delete-success = Chave-passe apagada
+passkey-delete-error = Ocorreu um problema ao apagar a sua chave-passe. Tente novamente dentro de alguns minutos.
+passkey-sub-row-rename-title = Renomear chave-passe
+passkey-rename-modal-heading = Renomear chave-passe
+passkey-rename-modal-description = Digite um novo nome para esta chave-passe.
+passkey-rename-input-label = Nome da chave-passe
 passkey-rename-save-button = Guardar
 passkey-rename-cancel-button = Cancelar
-passkey-rename-error-empty = Digite um nome para esta chave
+passkey-rename-error-empty = Digite um nome para esta chave-passe
 passkey-rename-error-too-long = O nome deve conter menos de 256 caracteres.
-passkey-rename-error-invalid = Apenas são permitidas letras, números, marcas de pontuação e símbolos.
-passkey-rename-error-duplicate = Já existe uma chave com este nome
-passkey-rename-success = Chave de acesso renomeada
-passkey-rename-error = Ocorreu um problema ao renomear a sua chave de acesso. Tente novamente dentro de alguns minutos.
+passkey-rename-error-invalid = Apenas letras, números, sinais de pontuação e símbolos são permitidos.
+passkey-rename-error-duplicate = Já existe uma chave-passe com este nome
+passkey-rename-success = Chave-passe renomeada
+passkey-rename-error = Ocorreu um problema ao renomear a sua chave-passe. Tente novamente dentro de alguns minutos.
 
 ## Switch component
 
@@ -1306,7 +1309,7 @@ row-defaults-status = Nenhum
 
 ## UnitRowPasskey
 
-passkey-row-header = Chaves
+passkey-row-header = Chaves-passe
 passkey-row-enabled = Ativado
 passkey-row-not-set = Não definida
 passkey-row-action-create = Criar
@@ -1318,11 +1321,11 @@ passkey-row-info-link-2 = Saber mais
 #   $count (Number) - the maximum number of passkeys allowed (defaults to 10 allowed)
 passkey-row-max-limit-banner =
     { $count ->
-        [one] Utilizou todas as { $count } palavras-passe. Elimine uma chave de acesso para criar uma nova.
-       *[other] Utilizou todas as { $count } palavras-passe. Elimine uma chave de acesso para criar uma nova.
+        [one] Usou todas as { $count } chaves-passe. Apague uma chave-passe para criar uma nova.
+       *[other] Usou todas as { $count } chaves-passe. Apague uma chave-passe para criar uma nova.
     }
 # Tooltip shown on the disabled Create button when the passkey limit is reached
-passkey-row-max-limit-disabled-reason = Atingiu o número máximo de palavras-passe.
+passkey-row-max-limit-disabled-reason = Atingiu o número máximo de chaves-passe.
 
 ## Account recovery key sub-section on main Settings page
 
@@ -1414,11 +1417,11 @@ tfa-row-verify-session-info = Precisa de confirmar a sua sessão atual para conf
 ## These terms are used in signin and signup for Firefox account
 
 # This message is followed by a bulleted list of <serviceName>: Terms of Service, Privacy Notice
-terms-privacy-agreement-intro-3 = Ao proceder, concorda com o seguinte:
+terms-privacy-agreement-intro-3 = Ao continuar, concorda com o seguinte:
 # This item is part of a bulleted list and follows terms-privacy-agreement-intro
 # $serviceName (String) - The name of the service (e.g., "Mozilla Subscription Services")
 # $serviceName is customizable via Strapi and will be localized separately
-terms-privacy-agreement-customized-terms = { $serviceName }: <termsLink>Termos do serviço</termsLink> e <privacyLink>Aviso de privacidade</privacyLink>
+terms-privacy-agreement-customized-terms = { $serviceName }: <termsLink>Termos do Serviço</termsLink> e <privacyLink>Aviso de Privacidade</privacyLink>
 # links to Mozilla Accounts Terms of Service and Privacy Notice, part of a bulleted list
 terms-privacy-agreement-mozilla-2 = { -product-mozilla-accounts(capitalization: "uppercase") }: <mozillaAccountsTos>Termos do Serviço</mozillaAccountsTos> e <mozillaAccountsPrivacy>Informação de Privacidade</mozillaAccountsPrivacy>
 # links to Mozilla Account's Terms of Service and Privacy Notice
@@ -1450,12 +1453,12 @@ auth-error-114-generic = Tentou demasiadas vezes. Por favor, tente novamente mai
 #                          the prefix as required by the current locale (for example, "in 15 minutes", "dans 15 minutes").
 auth-error-114 = Tentou demasiadas vezes. Tente novamente { $retryAfter }.
 auth-error-125 = O pedido foi bloqueado por questões de segurança
-auth-error-129-2 = Introduziu um número de telefone inválido. Por favor, verifique e tente novamente.
+auth-error-129-2 = Introduziu um número de telefone inválido. Por favor verifique-o e tente novamente.
 auth-error-138-2 = Sessão não confirmada
 auth-error-139 = O e-mail secundário tem de ser diferente do e-mail da sua conta
 # (Email) address has been added as a secondary email for another account and cannot be used to register a new account.
 # The reservation may be temporary. If the reservation is not confirmed before the reservation expires (~10 min), the email will become available again.
-auth-error-144 = Este email está reservado para outra conta. Tente novamente mais tarde ou utilize um endereço de email diferente.
+auth-error-144 = Este e-mail está reservado por outra conta. Tente novamente mais tarde ou utilize um endereço de e-mail diferente.
 auth-error-155 = Código TOTP não encontrado
 # Error shown when the user submits an invalid backup authentication code
 auth-error-156 = Código de autenticação de recuperação não encontrado
@@ -1469,14 +1472,14 @@ auth-error-215 = O número de telefone de recuperação não existe
 auth-error-216 = Limite de mensagens de texto atingido
 auth-error-218 = Não foi possível remover o telefone de recuperação. Códigos de autenticação de recuperação em falta.
 auth-error-219 = Este número de telefone foi registado com demasiadas contas. Por favor, tente um número diferente.
-auth-error-224 = Chave não encontrada
-auth-error-225 = Palavra-passe já registada
-auth-error-226 = Limite de palavras-passe atingido
-auth-error-227 = Falha na autenticação da palavra-passe
-auth-error-228 = O registo da chave falhou
-auth-error-233 = Para criar uma chave de acesso, configure um bloqueio de ecrã, PIN, impressão digital ou reconhecimento de face no seu dispositivo ou chave de segurança. Depois, tente novamente.
-auth-error-238 = O desafio da chave de acesso falhou
-auth-error-239 = Desculpe, não conseguimos apagar a sua conta. Por favor, tente novamente ou contacte o suporte se o problema continuar.
+auth-error-224 = Chave-passe não encontrada
+auth-error-225 = Chave-passe já registada
+auth-error-226 = Limite de chaves-passe atingido
+auth-error-227 = Falha na autenticação da chave-passe
+auth-error-228 = O registo da chave-passe falhou
+auth-error-233 = Para criar uma chave-passe, configure um bloqueio de ecrã, PIN, impressão digital, ou reconhecimento facial no seu dispositivo ou chave de segurança. Depois tente novamente.
+auth-error-238 = Falha no desafio da chave-passe
+auth-error-239 = Desculpe, não conseguimos apagar a sua conta. Por favor tente novamente, ou contacte o suporte se o problema persistir.
 auth-error-240 = Esta conta foi desativada
 auth-error-999 = Erro inesperado
 auth-error-1001 = Tentativa de início de sessão cancelada
@@ -1507,60 +1510,60 @@ oauth-error-1000 = Ocorreu um erro. Feche este separador e tente novamente.
 ## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
 
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
-passkey-registration-error-not-allowed = A configuração da palavra-passe falhou ou está indisponível. Tente novamente ou escolha outro método.
+passkey-registration-error-not-allowed = A configuração da chave-passe falhou ou está indisponível. Tente novamente ou escolha outro método.
 # Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
 # Firefox collapses user-cancel and duplicate-authenticator into the same error, but duplicate is
 # the far more likely cause when the user has existing passkeys, so we state it plainly.
-passkey-registration-error-not-allowed-existing = A configuração por palavra-passe não está disponível para este dispositivo. Ou o dispositivo já está registado ou o processo de configuração foi cancelado.
+passkey-registration-error-not-allowed-existing = A configuração da chave-passe não está disponível com este dispositivo. Ou o dispositivo já está registado ou o processo de configuração foi cancelado.
 # The ceremony timed out before the user responded
-passkey-registration-error-timeout = A configuração da chave de acesso foi cancelada. Tente novamente.
-passkey-registration-canceled-v2 = A configuração da chave de acesso expirou ou foi cancelada.
+passkey-registration-error-timeout = A configuração da chave-passe foi cancelada. Tente novamente.
+passkey-registration-canceled-v2 = A configuração da chave-passe expirou ou foi cancelada.
 # Link label appended after passkey-registration-canceled-v2, opens a SUMO support article.
 passkey-registration-canceled-link = Saber mais
 # Browser or platform does not support passkeys or the requested options (e.g., user verification, discoverable credential).
-passkey-registration-error-not-supported-v2 = O seu navegador ou dispositivo não suporta palavras-passe.
+passkey-registration-error-not-supported-v2 = O seu navegador ou dispositivo não suporta chaves-passe.
 # Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
 passkey-registration-error-not-supported-link = Saber mais
 # Generic fallback shown when passkey setup fails for an indeterminate reason.
 # Keep the tone neutral; do not imply the device is unsupported or that the user cancelled.
 # "method" here means an alternative way to create the passkey (e.g. another password manager or security key), not a different account or sign-in option.
-passkey-registration-error-could-not-complete = Não foi possível concluir a configuração da chave de acesso. Experimente um método ou dispositivo diferente.
+passkey-registration-error-could-not-complete = Não foi possível concluir a configuração da chave-passe. Experimente um método ou dispositivo diferente.
 # Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
 passkey-registration-error-could-not-complete-link = Saber mais
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe, wrong domain)
-passkey-registration-error-security = Não podem ser configuradas chaves de acesso nesta página. Utilize o site seguro e tente novamente.
+passkey-registration-error-security = Não podem ser configuradas chaves-passe nesta página. Use o site seguro e tente novamente.
 # A credential for this RP already exists on the authenticator (excludeCredentials match)
-passkey-registration-error-invalid-state = Esta chave já está registada. Utilize-o para iniciar sessão ou adicionar uma chave diferente.
+passkey-registration-error-invalid-state = Esta chave-passe já está registada. Use-a para iniciar sessão ou adicionar uma chave-passe diferente.
 # Authenticator I/O failure (e.g., security key disconnected mid-ceremony)
 passkey-registration-error-not-readable = Não conseguimos aceder ao autenticador. Tente novamente ou escolha outro método.
 # Attestation constraints or device-specific restrictions can't be met
-passkey-registration-error-constraint = A configuração por palavra-passe não está disponível para este dispositivo. Tente outro método ou dispositivo.
+passkey-registration-error-constraint = A configuração por chave-passe não está disponível com este dispositivo. Tente outro método ou dispositivo.
 # Catch-all for unexpected errors during registration (TypeError, DataError, EncodingError, OperationError, UnknownError)
-passkey-registration-error-unexpected = A configuração da chave de acesso falhou. Tente novamente ou escolha outro método.
+passkey-registration-error-unexpected = A configuração da chave-passe falhou. Tente novamente ou escolha outro método.
 # Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
 # available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
 # points the user to another way to sign in.
-passkey-authentication-trouble-heading = Não foi possível iniciar sessão com uma chave de acesso
+passkey-authentication-trouble-heading = Não foi possível iniciar sessão com uma chave-passe
 # Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
 # passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
 passkey-authentication-trouble-description = Tente novamente ou utilize outra opção de início de sessão.
 # Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
 # using passkeys.
-passkey-authentication-trouble-link = Como utilizar chaves de acesso
+passkey-authentication-trouble-link = Como utilizar chaves-passe
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
-passkey-authentication-error-not-allowed = A autenticação com a chave de acesso falhou ou está indisponível. Tente novamente ou escolha outro método.
+passkey-authentication-error-not-allowed = A autenticação com a chave-passe falhou ou está indisponível. Tente novamente ou escolha outro método.
 # User already registered a device
-passkey-authentication-error-not-allowed-existing = A configuração por palavra-passe não está disponível para este dispositivo. Por favor, tente novamente ou escolha outro método.
+passkey-authentication-error-not-allowed-existing = A configuração por chave-passe não está disponível com este dispositivo. Por favor tente novamente ou escolha outro método.
 # The ceremony timed out before the user responded
-passkey-authentication-error-timeout = O pedido de chave expirou. Por favor, tente novamente.
+passkey-authentication-error-timeout = O pedido de chave-passe expirou. Por favor tente novamente.
 # Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
-passkey-authentication-error-timeout-v2 = O início de sessão com a chave expirou. Tente novamente.
+passkey-authentication-error-timeout-v2 = O início de sessão com chave-passe expirou. Tente novamente.
 # Browser or platform does not support passkeys
-passkey-authentication-error-not-supported-v2 = O seu navegador ou dispositivo não suporta palavras-passe.
+passkey-authentication-error-not-supported-v2 = O seu navegador ou dispositivo não suporta chaves-passe.
 # RP ID / origin mismatch, or insecure context (e.g., embedded iframe)
-passkey-authentication-error-security = Não podem ser utilizadas chaves de acesso nesta página. Verifique se está no site seguro correto e tente novamente.
+passkey-authentication-error-security = Não podem ser utilizadas chaves-passe nesta página. Verifique se está no site seguro correto e tente novamente.
 # Unexpected credential state during authentication
-passkey-authentication-error-invalid-state = Algo não correu bem com a sua chave. Tente novamente ou utilize outro método de início de sessão.
+passkey-authentication-error-invalid-state = Algo não correu bem com a sua chave-passe. Tente novamente ou utilize outro método de início de sessão.
 # Authenticator I/O failure (e.g., security key disconnected mid-ceremony)
 passkey-authentication-error-not-readable = Não conseguimos aceder ao autenticador. Tente novamente ou utilize outro método de início de sessão.
 # Catch-all for unexpected errors during authentication (TypeError, DataError, EncodingError, ConstraintError, OperationError, UnknownError)
@@ -1568,7 +1571,7 @@ passkey-authentication-error-unexpected = Algo correu mal. Tente novamente ou es
 # Server returned 404 PASSKEY_NOT_FOUND — the assertion was for a credential
 # that no longer exists on the account (e.g., the user deleted the passkey
 # from their account but the authenticator still has the credential).
-passkey-authentication-error-not-found = Chave não reconhecida. Utilizar outro método de início de sessão.
+passkey-authentication-error-not-found = Chave-passe não reconhecida. Use outro método de início de sessão.
 
 ## Connect Another Device page
 
@@ -1639,10 +1642,10 @@ inline-passwordless-sync-setup-enable-button = Ativar chave-passe
 inline-passwordless-sync-setup-enabling = A ativar…
 inline-passwordless-sync-setup-not-now-button = Agora não
 # Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = Esta chave está pronta para o início de sessão de sincronização
+inline-passwordless-sync-setup-success-alert = Esta palavra-chave está pronta para o início de sessão de sincronização
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
-inline-passwordless-sync-setup-error-cancelled = A confirmação da senha não foi concluída
-inline-passwordless-sync-setup-error-cancelled-description = Confirme com a sua chave de acesso para ignorar a palavra-passe da próxima vez.
+inline-passwordless-sync-setup-error-cancelled = A confirmação da palavra-chave não foi concluída
+inline-passwordless-sync-setup-error-cancelled-description = Confirme com a sua palavra-chave para saltar a palavra-passe da próxima vez.
 # Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
 inline-passwordless-sync-setup-error-generic = Algo correu mal, ainda precisará de introduzir a sua palavra-passe da próxima vez
 
@@ -1720,8 +1723,8 @@ pair-auth-complete-manage-devices-link = Gerir dispositivos
 pair-auth-complete-send-tab-heading = Está pronto para enviar alguns separadores
 # Variable { $deviceFamily } is generally a browser name, for example "Firefox"
 # Variable { $deviceOS } is an operating system short name, for example "iOS", "Android"
-pair-auth-complete-send-tab-device-connected = { $deviceFamily } para { $deviceOS } está ligado.
-pair-auth-complete-send-tab-benefits = É livre para enviar instantaneamente separadores abertos, palavras-passe e marcadores entre dispositivos.
+pair-auth-complete-send-tab-device-connected = O { $deviceFamily } para { $deviceOS } está ligado.
+pair-auth-complete-send-tab-benefits = Sinta-se livre para enviar instantaneamente separadores abertos, palavras-passe, e marcadores entre dispositivos.
 
 ## AuthTotp page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
@@ -1753,7 +1756,7 @@ pair-wait-for-supp-heading-text = A aprovação agora é obrigatória <span>do s
 
 # v2: Updated wording to align with the legacy Backbone pair/failure copy.
 pair-failure-header-v2 = O emparelhamento do dispositivo falhou
-pair-failure-message-v2 = Não foi possível concluir a configuração. Por favor, inicie sessão com o seu email.
+pair-failure-message-v2 = Não foi possível concluir a configuração. Por favor inicie sessão com o seu e-mail.
 pair-failure-try-again-link = Tentar novamente
 
 ## Pair index page
@@ -1778,21 +1781,21 @@ pair-qr-code-aria-label = Código QR
 ## Choice screen — "Do you have Firefox for mobile?"
 
 # Subheader shown on the choice screen
-pair-choice-subheader = Sincronize a sua experiência com { -brand-firefox }
+pair-choice-subheader = Sincronize a sua experiência { -brand-firefox }
 # Description shown on the choice screen
-pair-choice-description = Consulte as suas palavras-passe guardadas, separadores, histórico de navegação e muito mais — em todos os seus dispositivos.
+pair-choice-description = Veja as suas palavras-passe guardadas, separadores, histórico de navegação e muito mais — em todos os seus dispositivos.
 # Heading shown on the choice screen when the user arrived via a Send Tab entrypoint
-pair-choice-header-send-tab = Transferir ou abrir { -brand-firefox } no dispositivo para onde deseja enviar separadores
+pair-choice-header-send-tab = Transfira ou abra o { -brand-firefox } no dispositivo para onde deseja enviar separadores
 # Legend for the radio button fieldset
 pair-choice-legend = Selecione uma opção para continuar:
 # Radio option: user already has Firefox for mobile — title
-pair-choice-has-mobile-title = Eu já tenho { -brand-firefox } para dispositivos móveis
+pair-choice-has-mobile-title = Já tenho o { -brand-firefox } para telemóvel
 # Radio option: user already has Firefox for mobile — description
-pair-choice-has-mobile-description = Comece a sua sincronização agora se já tem { -brand-firefox } no seu dispositivo móvel.
+pair-choice-has-mobile-description = Comece a sua sincronização agora se já tem o { -brand-firefox } no seu dispositivo móvel.
 # Radio option: user does not have Firefox for mobile — title
-pair-choice-needs-mobile-title = Eu não tenho { -brand-firefox } para dispositivos móveis
+pair-choice-needs-mobile-title = Não tenho o { -brand-firefox } para telemóvel
 # Radio option: user does not have Firefox for mobile — description
-pair-choice-needs-mobile-description = Transfira o { -brand-firefox } para o seu dispositivo móvel e inicie a sua sincronização.
+pair-choice-needs-mobile-description = Transfira o { -brand-firefox } para o seu dispositivo móvel, depois inicie a sua sincronização.
 # Continue button on choice screen (disabled until a radio option is selected)
 pair-choice-continue-button = Continuar
 # Success banner shown after signing in
@@ -1805,11 +1808,11 @@ pair-password-created-now-syncing = Palavra-passe criada. Está agora a sincroni
 ## Download screen — shown after selecting "I don’t have Firefox for mobile"
 
 # Subheader for the download screen
-pair-download-subheader = Transferir o { -brand-firefox } para dispositivos móveis
+pair-download-subheader = Transferir o { -brand-firefox } para telemóvel
 # Description for the download screen
-pair-download-description = Para sincronizar { -brand-firefox } no seu telefone ou tablet, primeiro precisa de transferir { -brand-firefox } para dispositivos móveis. Eis como:
+pair-download-description = Para sincronizar o { -brand-firefox } no seu telefone ou tablet, primeiro precisa de transferir o { -brand-firefox } para telemóvel. Eis como:
 # Step 1: scan QR code. $stepNumber is the step number (1)
-pair-download-step-scan-qr = <b>Passo { $stepNumber }</b>: Transfira { -brand-firefox } ao digitalizar este código QR com a câmara do seu dispositivo móvel:
+pair-download-step-scan-qr = <b>Passo { $stepNumber }</b>: Transfira o { -brand-firefox } ao digitalizar este código QR com a câmara do seu dispositivo móvel:
 # Step 2: continue to sync. $stepNumber is the step number (2)
 pair-download-step-continue-sync = <b>Passo { $stepNumber }</b>: Selecione “Continuar para sincronizar” para sincronizar a sua experiência { -brand-firefox } no seu dispositivo móvel.
 # Button on the download screen that opens about:preferences for pairing
@@ -1819,7 +1822,7 @@ pair-continue-to-sync-button = Continuar para sincronizar
 
 pair-success-header-2 = Dispositivo ligado
 pair-success-message-2 = O emparelhamento foi bem-sucedido.
-pair-success-tab-close-message = Este separador será fechado automaticamente por { -brand-firefox }.
+pair-success-tab-close-message = Este separador será fechado automaticamente pelo { -brand-firefox }.
 
 ## SuppAllow page - Part of the device pairing flow
 ## Users see this page when they have started to pair a second (or more) device to their account
@@ -1844,24 +1847,23 @@ pair-wait-for-auth-heading-text = A aprovação agora é necessária <span>do se
 pair-unsupported-header = Emparelhar usando uma aplicação
 pair-unsupported-message = Utilizou a câmara do sistema? Deve emparelhar a partir de uma aplicação { -brand-firefox }.
 # Shown as heading when a desktop user visits from a non-Firefox browser
-pair-unsupported-oops-header = Ops! Parece que não está a utilizar { -brand-firefox }.
+pair-unsupported-oops-header = Oops! Parece que não está a usar o { -brand-firefox }.
 # Shown below the heading on desktop non-Firefox, prompting the user to switch browsers
-pair-unsupported-switch-to-firefox = Mude para { -brand-firefox } e abra esta página para ligar outro dispositivo.
+pair-unsupported-switch-to-firefox = Mude para o { -brand-firefox } e abra esta página para ligar outro dispositivo.
 # Shown inline on mobile non-Firefox browsers before the download link
-pair-unsupported-oops-mobile = Ops! Parece que não está a utilizar { -brand-firefox }.
+pair-unsupported-oops-mobile = Oops! Parece que não está a usar o { -brand-firefox }.
 # v2: Heading for the mobile instructional message, shown on all mobile devices
 # (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
-# Aligned with legacy Backbone copy (see templates/partial/unsupported-pair.mustache).
-pair-unsupported-connecting-mobile-header-v2 = A ligar o seu dispositivo móvel ao seu { -product-mozilla-account }
+pair-unsupported-connecting-mobile-header-v2 = A ligar o seu dispositivo móvel à sua { -product-mozilla-account }
 # v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
 # URL so the domain does not wrap to a new line on narrow screens.
-pair-unsupported-connecting-mobile-instructions-v2 = Abra o { -brand-firefox } no seu computador, visite <b>firefox.com/pair</b> e siga as instruções no ecrã para ligar o seu dispositivo móvel.
+pair-unsupported-connecting-mobile-instructions-v2 = Abra o { -brand-firefox } no seu computador, visite <b>firefox.com/pair</b>, e siga as instruções no ecrã para ligar o seu dispositivo móvel.
 # v2: "Learn more" link below the mobile instructions; links to a Mozilla support article.
 pair-unsupported-learn-more-link-v2 = Saber mais
 # v2: Fallback shown to a desktop Firefox user who somehow reaches /pair/unsupported.
 # Matches the legacy Backbone "Oops! Something went wrong." message.
-pair-unsupported-desktop-firefox-fallback-header-v2 = Ups! Algo correu mal.
-pair-unsupported-desktop-firefox-fallback-message-v2 = Por favor, feche este separador e tente novamente.
+pair-unsupported-desktop-firefox-fallback-header-v2 = Oops! Algo correu mal.
+pair-unsupported-desktop-firefox-fallback-message-v2 = Por favor feche este separador e tente novamente.
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer, which is already signed in, after their
@@ -1883,7 +1885,7 @@ pair2-authority-approve-sign-in-change-password = Não é você? <changePassword
 ## for the remaining steps to be completed there.
 
 pair2-authority-continue-on-mobile-heading = Continue no seu dispositivo móvel
-pair2-authority-continue-on-mobile-description = Siga os passos no seu telemóvel ou tablet.
+pair2-authority-continue-on-mobile-description = Siga os passos no seu telefone ou tablet.
 # Dismisses the pairing attempt
 pair2-authority-continue-on-mobile-cancel-button = Cancelar
 
@@ -1892,9 +1894,9 @@ pair2-authority-continue-on-mobile-cancel-button = Cancelar
 ## It points them at firefox.com/pair and offers a download link for Firefox.
 
 # "sync" is a verb here, referring to syncing data between the user's devices
-pair2-authority-download-firefox-heading = Abrir { -brand-firefox } para sincronizar
+pair2-authority-download-firefox-heading = Abrir o { -brand-firefox } para sincronizar
 # "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = Para configurar a sincronização entre dispositivos, abra { -brand-firefox } neste dispositivo e visite <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction = Para configurar a sincronização entre dispositivos, abra o { -brand-firefox } neste dispositivo e visite <b>firefox.com/pair</b>
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Transferir { -brand-firefox }
 
@@ -1902,9 +1904,9 @@ pair2-authority-download-firefox-cta = Transferir { -brand-firefox }
 ## Users see this on their computer. It shows a QR code that they scan with
 ## their phone or tablet to connect the two devices and start syncing.
 
-pair2-authority-scan-qr-heading = Digitalize para associar o seu dispositivo móvel
+pair2-authority-scan-qr-heading = Digitalize para ligar o seu dispositivo móvel
 # "sync" is a verb here, referring to syncing data between the user's devices
-pair2-authority-scan-qr-instruction = Digitalize o código QR com o seu telemóvel ou tablet para sincronizar os seus { -brand-firefox } marcadores, separadores, e mais.
+pair2-authority-scan-qr-instruction = Digitalize o código QR com o seu telemóvel ou tablet para sincronizar os seus { -brand-firefox } marcadores, separadores, e muito mais.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = Código QR para ligar o seu dispositivo móvel
 # Link to a support article for users having trouble scanning the QR code
@@ -1928,8 +1930,8 @@ pair2-authority-sync-success-sync-settings-button-v2 = Gerir definições de sin
 ## start pairing over again.
 
 # Shown when the pairing attempt expired before it was approved
-pair2-authority-timeout-and-cancel-timeout-heading = Ainda pretende ligar um dispositivo?
-pair2-authority-timeout-and-cancel-timeout-description = Parece que expirámos. Tente novamente se ainda quiser ligar o seu dispositivo móvel e sincronizar os seus { -brand-firefox } dados.
+pair2-authority-timeout-and-cancel-timeout-heading = Ainda quer ligar um dispositivo?
+pair2-authority-timeout-and-cancel-timeout-description = Parece que expirámos. Tente novamente se ainda quiser ligar o seu dispositivo móvel e sincronizar os seus dados do { -brand-firefox }.
 # Shown when the pairing attempt was canceled, on either device
 pair2-authority-timeout-and-cancel-cancelled-heading = Cancelado
 pair2-authority-timeout-and-cancel-canceled-description = Se mudar de ideias ou quiser ligar um dispositivo diferente, tente novamente.
@@ -1964,20 +1966,39 @@ pair2-supplicant-connect-this-device-connect-button = Ligar
 pair2-supplicant-connect-this-device-cancel-button = Cancelar
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device when pairing reaches a device that
-## does not have Firefox installed yet. It explains what syncing gets them and
-## either opens the Firefox app to finish pairing or sends them off to install
-## the browser.
+## Users see this on their mobile device when pairing reaches a browser that is
+## not Firefox. It offers to open the Firefox app to finish pairing, and to
+## install it first when the user does not have it yet.
 
-pair2-supplicant-download-firefox-heading = Obtenha { -brand-firefox } neste dispositivo
+pair2-supplicant-download-firefox-heading-v2 = Abrir o { -brand-firefox } neste dispositivo
 # "sync" is a verb here, referring to syncing data between the user's devices.
-# <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = Transfira o { -brand-firefox } para sincronizar os marcadores, histórico e muito mais entre dispositivos. <linkExternal>Saber mais</linkExternal>
+pair2-supplicant-download-firefox-description-v2 = Transfira o { -brand-firefox } para sincronizar marcadores, histórico, e muito mais entre dispositivos.
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
-pair2-supplicant-download-firefox-continue-button = Continuar em { -brand-firefox }
+pair2-supplicant-download-firefox-continue-button = Continuar no { -brand-firefox }
 # Replaces the button label while waiting for the Firefox app to take over
 pair2-supplicant-download-firefox-opening-button = A abrir { -brand-firefox }…
+# Primary action shown in Safari on iOS. Opens the App Store page for Firefox.
+pair2-supplicant-download-firefox-download-button = Transferir o { -brand-firefox }
+# Secondary action shown in Safari on iOS, below the download button. Opens the
+# Firefox app when it is already installed.
+pair2-supplicant-download-firefox-have-firefox-button = Eu já tenho o { -brand-firefox }
+# Opens a page explaining what sync does
+pair2-supplicant-download-firefox-learn-more-link = Saber mais
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## with the phone's camera app instead of with Firefox. They already have
+## Firefox installed, so it tells them how to scan the code again from inside
+## Firefox.
+
+pair2-supplicant-connect-hint-heading-v2 = Concluir emparelhamento na aplicação
+# <b> emphasises the name of the button the user taps in Firefox
+pair2-supplicant-connect-hint-step-app-menu = Toque no <b>menu da aplicação</b> na barra de ferramentas
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair2-supplicant-connect-hint-step-sign-in = Toque em <b>iniciar sessão</b>, depois digitalize o código
+# Opens a Mozilla support article about connecting a device without a QR code
+pair2-supplicant-connect-hint-learn-more-link = Saber mais
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -1987,7 +2008,7 @@ pair2-supplicant-download-firefox-opening-button = A abrir { -brand-firefox }…
 pair2-supplicant-ready-to-scan-heading = Para ligar um dispositivo
 # <b> emphasises the address the user types on their computer. It is not a link,
 # and the address itself must not be translated.
-pair2-supplicant-ready-to-scan-instruction = No seu computador, abra o { -brand-firefox } e aceda a <b>firefox.com/pair</b>. Siga as instruções no ecrã para ligar este dispositivo móvel.
+pair2-supplicant-ready-to-scan-instruction = No seu computador, abra o { -brand-firefox } e aceda a <b>firefox.com/pair</b>, e siga as instruções no ecrã para ligar este dispositivo móvel.
 # Opens a Mozilla support article about setting up sync
 pair2-supplicant-ready-to-scan-learn-more-link = Saber mais
 
@@ -2010,7 +2031,7 @@ pair2-supplicant-sync-success-sync-settings-button-v2 = Gerir definições de si
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
 pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que expirámos
 # "firefox.com/pair" is a URL and should not be translated
-pair2-supplicant-timeout-and-cancel-timeout-description = Para ligar o seu dispositivo móvel e sincronizar os seus dados de { -brand-firefox }, visite <b>firefox.com/pair</b> no seu computador.
+pair2-supplicant-timeout-and-cancel-timeout-description = Para ligar o seu dispositivo móvel e sincronizar os seus dados do { -brand-firefox }, visite <b>firefox.com/pair</b> no seu computador.
 # Shown after the pairing attempt was canceled
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelado
 # "firefox.com/pair" is a URL and should not be translated
@@ -2024,15 +2045,22 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Para ligar um disposi
 
 # Variable $serviceName is the name of the relying party, e.g. "321Done"
 permissions-heading = { $serviceName } pretende aceder a:
-permissions-label-email = Endereço de email
+permissions-label-email = Endereço de e-mail
 permissions-label-display-name = Nome de apresentação
 permissions-continue-button = Continuar
 permissions-cancel-button = Cancelar
 
+## ForcePasswordChange page
+## Users are sent here when suspicious activity on the account requires a new password before they can continue.
+
+force-password-change-heading = Por favor altere a sua palavra-passe
+force-password-change-info = Detetámos um comportamento suspeito na sua { -product-mozilla-account }. Para proteger a sua conta, por favor crie uma nova palavra-passe. Irá utilizar esta palavra-passe para iniciar sessão novamente em todos os seus serviços da { -product-mozilla-account }.
+force-password-change-data-info = O histórico, marcadores, credenciais, e outros dados pessoais sincronizados não serão perdidos.
+
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
 
-service-welcome-signup-success-banner = { -product-mozilla-account } confirmados
+service-welcome-signup-success-banner = { -product-mozilla-account } confirmada
 service-welcome-signin-success-banner = Sessão iniciada com sucesso!
 # In this context, "VPN" is a VPN service built into the Firefox browser, and generally isn't localized differently than "VPN"
 service-welcome-vpn-heading = Seguinte: Ligar a VPN
@@ -2048,7 +2076,7 @@ set-password-info-v2 = Isto encripta os seus dados. Tem de ser diferente da pala
 ## SetPassword page for passwordless flow
 ## Users who signed in via passwordless OTP and need to create a password for Sync
 
-set-password-passwordless-info = Esta palavra-passe encripta os seus dados sincronizados e os mantém seguros.
+set-password-passwordless-info = Esta palavra-passe encripta os seus dados sincronizados mantém-os seguros.
 
 ## ThirdPartyAuthCallback Page
 ## This page is called after a user completes the third party authentication flow from Google or Apple.
@@ -2150,12 +2178,12 @@ password-reset-recovery-method-code = Códigos de autenticação de recuperaçã
 # Variable: $numBackupCodes (String) - The number of backup authentication codes the user has left, e.g., 4
 password-reset-recovery-method-code-info =
     { $numBackupCodes ->
-        [one] { $numBackupCodes } código remanescente
-       *[other] { $numBackupCodes } códigos remanescentes
+        [one] { $numBackupCodes } código restante
+       *[other] { $numBackupCodes } códigos restantes
     }
 # Shown when a backend service fails and a code cannot be sent to the user's recovery phone.
 password-reset-recovery-method-send-code-error-heading = Ocorreu um problema ao enviar um código para o seu telefone de recuperação
-password-reset-recovery-method-send-code-error-description = Por favor, tente mais tarde ou utilize os seus códigos de autenticação de recuperação.
+password-reset-recovery-method-send-code-error-description = Por favor tente novamente mais tarde ou utilize os seus códigos de autenticação de recuperação.
 
 ## ResetPasswordRecoveryPhone page
 
@@ -2164,19 +2192,19 @@ reset-password-recovery-phone-flow-heading = Repor a sua palavra-passe
 reset-password-recovery-phone-heading = Introduza o código de recuperação
 # Text that explains the user should check their phone for a recovery code
 # $maskedPhoneNumber - The users masked phone number
-reset-password-recovery-phone-instruction-v3 = Foi enviado um código de 6 dígitos para o número de telefone que termina com <span>{ $lastFourPhoneDigits }</span> por mensagem de texto. Este código expira após 5 minutos. Não partilhe este código com ninguém.
-reset-password-recovery-phone-input-label = Inserir código de 6 dígitos
+reset-password-recovery-phone-instruction-v3 = Foi enviado um código de 6 dígitos para o número de telefone que termina em <span>{ $lastFourPhoneDigits }</span> por mensagem de texto. Este código expira após 5 minutos. Não partilhe este código com ninguém.
+reset-password-recovery-phone-input-label = Introduza código de 6 dígitos
 reset-password-recovery-phone-code-submit-button = Confirmar
 reset-password-recovery-phone-resend-code-button = Reenviar código
 reset-password-recovery-phone-resend-success = Código enviado
 # links to https://support.mozilla.org/kb/what-if-im-locked-out-two-step-authentication
 reset-password-recovery-phone-locked-out-link = Está bloqueado?
 reset-password-recovery-phone-send-code-error-heading = Ocorreu um problema ao enviar o código
-reset-password-recovery-phone-code-verification-error-heading = Ocorreu um problema ao confirmar o seu código
+reset-password-recovery-phone-code-verification-error-heading = Ocorreu um problema ao verificar o seu código
 # Follows the error message (e.g, "There was a problem sending a code")
 reset-password-recovery-phone-general-error-description = Por favor tente mais tarde.
 reset-password-recovery-phone-invalid-code-error-description = O código é inválido ou expirou.
-reset-password-recovery-phone-invalid-code-error-link = Em vez disso, utilizar códigos de autenticação de recuperação?
+reset-password-recovery-phone-invalid-code-error-link = Em vez disso, usar códigos de autenticação de recuperação?
 reset-password-with-recovery-key-verified-page-title = Palavra-passe redefinida com sucesso
 reset-password-complete-new-password-saved = Nova palavra-passe guardada!
 reset-password-complete-recovery-key-created = Nova chave de recuperação da conta criada. Transferir e guardar agora.
@@ -2211,9 +2239,9 @@ signin-password-button-label = Palavra-passe
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 signin-desktop-relay = O { -brand-firefox } vai tentar redirecionar para a utilização de uma máscara de e-mail após o seu início de sessão.
-signin-code-expired-error = O código expirou. Por favor, inicie novamente a sessão.
+signin-code-expired-error = O código expirou. Por favor inicie sessão novamente.
 # Error message displayed when OAuth native flow recovery fails
-signin-recovery-error = Algo correu mal. Por favor, inicie novamente a sessão.
+signin-recovery-error = Algo correu mal. Por favor inicie sessão novamente.
 signin-account-locked-banner-heading = Repor a sua palavra-passe
 signin-account-locked-banner-description = Bloqueámos a sua conta para a manter segura de atividades suspeitas.
 # This link points to https://accounts.firefox.com/reset_password
@@ -2243,7 +2271,7 @@ back = Voltar
 
 signin-passkey-fallback-header = Concluir início de sessão
 signin-passkey-fallback-heading = Introduza a sua palavra-passe para sincronizar
-signin-passkey-fallback-body = Para manter os seus dados seguros, tem de introduzir a sua palavra-passe ao utilizar esta chave de acesso.
+signin-passkey-fallback-body = Para manter os seus dados seguros, tem de introduzir a sua palavra-passe ao usar esta chave-passe.
 signin-passkey-fallback-password-label = Palavra-passe
 signin-passkey-fallback-continue = Continuar
 signin-passkey-fallback-forgot-password-link = Esqueceu-se da palavra-passe?
@@ -2251,8 +2279,8 @@ signin-passkey-fallback-forgot-password-link = Esqueceu-se da palavra-passe?
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
 
-signin-passwordless-code-heading = Inserir código de confirmação
-signin-passwordless-code-subheading = Iniciar sessão é apenas um passo quando utiliza este código.
+signin-passwordless-code-heading = Insira código de confirmação
+signin-passwordless-code-subheading = O início de sessão é feito num único passo quando se utiliza este código.
 # This string is used to show a notification to the user for them to enter
 # email confirmation code to update their multi-factor-authentication-protected
 # account settings
@@ -2264,7 +2292,7 @@ signin-passwordless-code-instruction =
         [one] Digite o código que foi enviado para <email>{ $email }</email> dentro de { $expirationMinutes } minuto.
        *[other] Digite o código que foi enviado para <email>{ $email }</email> dentro de { $expirationMinutes } minutos.
     }
-signin-passwordless-code-input-label-v2 = Inserir código de 6 dígitos
+signin-passwordless-code-input-label-v2 = Insera código de 6 dígitos
 signin-passwordless-code-confirm-button = Confirmar
 signin-passwordless-code-required-error = É necessário o código de confirmação
 signin-passwordless-code-expired = Código expirado?
@@ -2276,18 +2304,18 @@ signin-passwordless-code-resend-countdown =
     }
 signin-passwordless-code-resend-link = Enviar novo código por e-mail.
 signin-passwordless-code-resend-error = Algo correu mal. Não foi possível enviar um novo código.
-signin-passwordless-code-other-account-link = Utilizar uma conta diferente
+signin-passwordless-code-other-account-link = Usar uma conta diferente
 
 ## SignupPasswordlessCode page
 ## Users are prompted to enter a code sent to their email to create a new account without a password.
 
-signup-passwordless-code-subheading = O registo é apenas um único passo quando utiliza este código.
+signup-passwordless-code-subheading = Quando usa este código basta um único passo para se registar.
 
 ## Error messages
 
 # Shown when a user with 2FA enabled tries to use passwordless flow
 # They are redirected to password signin instead
-signin-passwordless-totp-required = A autenticação de dois passos está ativada na sua conta. Por favor, inicie sessão com a sua palavra-passe.
+signin-passwordless-totp-required = A autenticação de dois passos está ativada na sua conta. Por favor inicie sessão com a sua palavra-passe.
 
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with
@@ -2383,7 +2411,7 @@ signin-token-code-resend-code-link = Enviar novo código por e-mail.
 # { $seconds } represents the number of seconds remaining
 signin-token-code-resend-code-countdown =
     { $seconds ->
-        [one] Enviar novo código por e-mail em { $seconds } segundos
+        [one] Enviar novo código por e-mail em { $seconds } segundo
        *[other] Enviar novo código por e-mail em { $seconds } segundos
     }
 # Error displayed in a tooltip when the form is submitted without a code
@@ -2403,10 +2431,10 @@ signin-totp-code-subheader-v2 = Inserir código de autenticação de dois passos
 signin-totp-code-instruction-v4 = Consulte a sua <strong>aplicação de autenticação</strong> para confirmar o seu início de sessão.
 signin-totp-code-input-label-v4 = Inserir código de 6 dígitos
 # Shown to users when they need to re-enter their authentication code, for their current device
-signin-totp-code-aal-banner-header = Porque lhe estão a ser pedidos para autenticar?
-signin-totp-code-aal-banner-content = configurou a autenticação de dois passos na sua conta, mas ainda não iniciou sessão com um código neste dispositivo.
+signin-totp-code-aal-banner-header = Porque lhe está a ser pedido para autenticar?
+signin-totp-code-aal-banner-content = Configurou a autenticação em dois passos na sua conta, mas ainda não iniciou sessão com um código neste dispositivo.
 signin-totp-code-aal-sign-out = Terminar sessão neste dispositivo
-signin-totp-code-aal-sign-out-error = Pedimos desculpa, mas ocorreu um problema ao terminar a sua sessão
+signin-totp-code-aal-sign-out-error = Desculpe, ocorreu um problema ao terminar a sua sessão
 # Form button to confirm if the authentication code entered by the user is valid
 signin-totp-code-confirm-button = Confirmar
 signin-totp-code-other-account-link = Utilizar uma conta diferente
@@ -2459,7 +2487,7 @@ confirm-signup-code-resend-code-link = Enviar novo código por e-mail.
 # { $seconds } represents the number of seconds remaining
 confirm-signup-code-resend-code-countdown =
     { $seconds ->
-        [one] Enviar novo código por e-mail em { $seconds } segundos
+        [one] Enviar novo código por e-mail em { $seconds } segundo
        *[other] Enviar novo código por e-mail em { $seconds } segundos
     }
 confirm-signup-code-success-alert = Conta confirmada com sucesso
@@ -2475,8 +2503,8 @@ confirm-signup-code-desktop-relay = O { -brand-firefox } vai tentar redirecionar
 
 signup-heading-v2 = Criar uma palavra-passe
 signup-relay-info = É necessária uma palavra-passe para gerir com segurança os seus e-mails mascarados e aceder às ferramentas de segurança da { -brand-mozilla }.
-signup-sync-info = Sincronize as suas palavras-passe, marcadores e mais onde quer que utilize o { -brand-firefox }.
-signup-sync-info-with-payment = Sincronize as suas palavras-passe, métodos de pagamento, marcadores e muito mais onde quer que utilize o { -brand-firefox }.
+signup-sync-info = Sincronize as suas palavras-passe, marcadores, e muito mais onde quer que use o { -brand-firefox }.
+signup-sync-info-with-payment = Sincronize as suas palavras-passe, métodos de pagamento, marcadores, e muito mais onde quer que use o { -brand-firefox }.
 # Clicking on this link returns the user to the beginning of the flow so they can enter a new email address
 signup-change-email-link = Alterar e-mail
 
@@ -2484,11 +2512,11 @@ signup-change-email-link = Alterar e-mail
 ## Shown to users when they finish confirming their account through Sync
 
 signup-confirmed-sync-header = A sincronização está ativada
-signup-confirmed-sync-success-banner = { -product-mozilla-account } confirmado
+signup-confirmed-sync-success-banner = { -product-mozilla-account } confirmada
 signup-confirmed-sync-button = Começar a navegar
 # Shown when payment methods are also synced
-signup-confirmed-sync-description-with-payment-v2 = As suas palavras-passe, métodos de pagamento, endereços, marcadores, histórico e muito mais podem ser sincronizados em qualquer lugar que utilize o { -brand-firefox }.
-signup-confirmed-sync-description-v2 = As suas palavras-passe, endereços, marcadores, histórico e muito mais podem ser sincronizados em qualquer lugar que utilize o { -brand-firefox }.
+signup-confirmed-sync-description-with-payment-v2 = As suas palavras-passe, métodos de pagamento, endereços, marcadores, histórico, e muito mais podem ser sincronizados em qualquer lado onde use o { -brand-firefox }.
+signup-confirmed-sync-description-v2 = As suas palavras-passe, endereços, marcadores, histórico, e muito mais podem ser sincronizados em qualquer lado onde use o { -brand-firefox }.
 signup-confirmed-sync-add-device-link = Adicionar outro dispositivo
 signup-confirmed-sync-manage-sync-button = Gerir sincronização
-signup-confirmed-sync-set-password-success-banner = Palavra-passe criada
+signup-confirmed-sync-set-password-success-banner = Palavra-passe de sincronização criada

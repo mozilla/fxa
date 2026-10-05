@@ -163,6 +163,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Confirmar contrasigno
 form-password-with-inline-criteria-reset-submit-button = Crear nove contrasigno
+form-password-with-inline-criteria-old-password-label =
+    .label = Contrasigno vetere
+form-password-with-inline-criteria-change-password-submit-button = Cambiar contrasigno
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Contrasigno
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1095,6 +1098,7 @@ auth-error-228 = Registration de clave-contrasigno fallite
 auth-error-233 = Pro crear un clave-contrasigno, configura un blocada de schermo, PIN, dactylogramma, o recognition de facie sur tu apparato o clave de securitate. Pois retenta.
 auth-error-238 = Verification de clave-contrasigno fallite
 auth-error-239 = Desolate, nos non poteva deler tu conto. Retenta, o contacta le assistentia si le problema persiste.
+auth-error-240 = Iste conto ha essite disactivate
 auth-error-999 = Error inexpectate
 auth-error-1001 = Tentativa de apertura de session cancellate
 auth-error-1002 = Session expirate. Reaperi session pro continuar.
@@ -1187,6 +1191,10 @@ inline-passwordless-sync-setup-description = Usa iste clave-contrasigno pro acce
 inline-passwordless-sync-setup-enable-button = Activar clave-contrasigno
 inline-passwordless-sync-setup-enabling = Activation…
 inline-passwordless-sync-setup-not-now-button = Non ora
+inline-passwordless-sync-setup-success-alert = Iste clave-contrasigno es preste pro acceder e synchronisar
+inline-passwordless-sync-setup-error-cancelled = Confirmation de clave-contrasigno non completate
+inline-passwordless-sync-setup-error-cancelled-description = Confirma con tu clave-contrasigno pro saltar le contrasigno le proxime vice.
+inline-passwordless-sync-setup-error-generic = Alco errate eveniva, tu ancora debera inserer tu contrasigno le proxime vice
 
 
 inline-recovery-key-setup-create-error = Oops! Impossibile crear le clave de recuperation del conto. Retenta plus tarde.
@@ -1352,10 +1360,19 @@ pair2-supplicant-connect-this-device-connect-button = Connecter
 pair2-supplicant-connect-this-device-cancel-button = Cancellar
 
 
-pair2-supplicant-download-firefox-heading = Installar { -brand-firefox } sur iste apparato
-pair2-supplicant-download-firefox-description = Discarga { -brand-firefox } pro synchronisar marcapaginas, chronologia, e plus a transverso apparatos. <linkExternal>Pro saper plus</linkExternal>
+pair2-supplicant-download-firefox-heading-v2 = Aperir { -brand-firefox } sur iste apparato
+pair2-supplicant-download-firefox-description-v2 = Discarga { -brand-firefox } pro synchronisar marcapaginas, chronologia, e altero inter apparatos.
 pair2-supplicant-download-firefox-continue-button = Continuar in { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Aperiente { -brand-firefox }…
+pair2-supplicant-download-firefox-download-button = Discargar { -brand-firefox }
+pair2-supplicant-download-firefox-have-firefox-button = Io jam ha { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = Pro saper plus
+
+
+pair2-supplicant-connect-hint-heading-v2 = Fini le accopulamento in le application
+pair2-supplicant-connect-hint-step-app-menu = Tocca le <b>menu del application</b> in le barra del instrumentos
+pair2-supplicant-connect-hint-step-sign-in = Tocca <b>acceder</b>, pois scande le codice
+pair2-supplicant-connect-hint-learn-more-link = Pro saper plus
 
 
 pair2-supplicant-ready-to-scan-heading = Connecter un apparato
@@ -1374,10 +1391,16 @@ pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancellate
 pair2-supplicant-timeout-and-cancel-canceled-description = Pro connecter un apparato quandocunque, visita <b>firefox.com/par</b> sur tu computator.
 
 
+permissions-heading = { $serviceName } vole acceder a:
 permissions-label-email = Adresse de e-mail
 permissions-label-display-name = Nomine a monstrar
 permissions-continue-button = Continuar
 permissions-cancel-button = Cancellar
+
+
+force-password-change-heading = Cambia tu contrasigno
+force-password-change-info = Nos detegeva comportamento suspecte sur tu { -product-mozilla-account }. Pro proteger tu conto, crea un nove contrasigno. Tu usara iste contrasigno pro re-acceder a tote tu servicios de { -product-mozilla-account }.
+force-password-change-data-info = Chronologia, marcapaginas, accessos e altere datos personal synchronisate non sera perdite.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmate

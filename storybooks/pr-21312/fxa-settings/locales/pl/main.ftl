@@ -299,6 +299,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Potwierdź hasło
 form-password-with-inline-criteria-reset-submit-button = Utwórz nowe hasło
+form-password-with-inline-criteria-old-password-label =
+    .label = Poprzednie hasło
+form-password-with-inline-criteria-change-password-submit-button = Zmień hasło
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Hasło
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1182,7 +1185,7 @@ index-account-delete-success = Pomyślnie usunięto konto
 index-email-bounced = Wiadomość z potwierdzeniem została zwrócona. Błąd w adresie e-mail?
 
 
-inline-passwordless-sync-setup-success-alert = Ten klucz dostępu jest gotowy do logowania do synchronizacji
+inline-passwordless-sync-setup-success-alert = Tym kluczem dostępu można logować się do synchronizacji
 inline-passwordless-sync-setup-error-cancelled = Nie udało się potwierdzić klucza dostępu
 inline-passwordless-sync-setup-error-cancelled-description = Potwierdź za pomocą klucza dostępu, aby następnym razem nie wpisywać hasła.
 inline-passwordless-sync-setup-error-generic = Wystąpił błąd. Następnym razem nadal trzeba będzie podać hasło.
@@ -1325,11 +1328,29 @@ pair2-supplicant-connect-this-device-connect-button = Połącz
 pair2-supplicant-connect-this-device-cancel-button = Anuluj
 
 
+pair2-supplicant-download-firefox-heading-v2 = Uruchom { -brand-firefox(case: "acc") } na tym urządzeniu
+pair2-supplicant-download-firefox-description-v2 = Pobierz { -brand-firefox(case: "acc") }, aby synchronizować zakładki, historię i inne dane między urządzeniami.
+pair2-supplicant-download-firefox-download-button = Pobierz { -brand-firefox(case: "acc") }
+pair2-supplicant-download-firefox-have-firefox-button = Mam już { -brand-firefox(case: "acc") }
+pair2-supplicant-download-firefox-learn-more-link = Więcej informacji
+
+
+pair2-supplicant-connect-hint-heading-v2 = Dokończ powiązanie w aplikacji
+pair2-supplicant-connect-hint-step-app-menu = Stuknij <b>menu aplikacji</b> na pasku narzędzi
+pair2-supplicant-connect-hint-step-sign-in = Stuknij <b>Zaloguj się</b>, a następnie zeskanuj kod
+pair2-supplicant-connect-hint-learn-more-link = Dowiedz się więcej
+
+
 permissions-heading = { $serviceName } prosi o dostęp do:
 permissions-label-email = Adres e-mail
 permissions-label-display-name = Wyświetlana nazwa
 permissions-continue-button = Kontynuuj
 permissions-cancel-button = Anuluj
+
+
+force-password-change-heading = Prosimy zmienić hasło
+force-password-change-info = Wykryliśmy podejrzane zachowanie na Twoim { -product-mozilla-account(case: "ins") }. Aby je chronić, prosimy utworzyć nowe hasło. Użyjesz tego hasła, aby zalogować się z powrotem do wszystkich używanych usług { -product-mozilla-account(case: "gen") }.
+force-password-change-data-info = Synchronizowana historia, zakładki, dane logowania i inne dane nie zostaną utracone.
 
 
 service-welcome-signup-success-banner = Potwierdzono { -product-mozilla-account(capitalization: "lower", case: "acc") }

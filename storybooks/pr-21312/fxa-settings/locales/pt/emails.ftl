@@ -96,7 +96,9 @@ automated-email-reset-pwd-two-factor = Se não executou esta ação, <a data-l10
 automated-email-reset-pwd-plaintext-v3 = Se não executou esta ação, reponha a sua palavra-passe imediatamente em:
 # Followed by link to https://accounts.firefox.com/settings#two-step-authentication
 automated-email-reset-two-factor-plaintext = Além disso, reponha a autenticação de dois passos em:
-automated-email-sign-in = Este é um email automático; se não autorizou esta ação, por favor <a data-l10n-name="securitySettingsLink">reveja as suas definições de segurança da conta</a>. Para mais informação, por favor visite o <a data-l10n-name="supportLink">{ -brand-mozilla } Apoio</a>.
+automated-email-sign-in =
+    Este é um email automático; se não autorizou esta ação, então por favor <a data-l10n-name="securitySettingsLink">verifique as definições de segurança da sua conta</a>.
+    Para mais informações, por favor visite o <a data-l10n-name="supportLink">Apoio da { -brand-mozilla }</a>.
 automated-email-sign-in-plaintext = Se não autorizou esta ação, por favor reveja as definições de segurança da sua conta em:
 brand-banner-message = Sabia que nós alterámos o nosso nome de { -product-firefox-accounts } para { -product-mozilla-accounts }? <a data-l10n-name="learnMore">Saiba mais</a>
 change-password-plaintext = Se suspeita que alguém está a tentar obter acesso à sua conta, por favor, altere a sua palavra-passe.
@@ -260,7 +262,7 @@ postAddLinkedAccount-subject-2 = Nova conta associada à sua { -product-mozilla-
 #  $providerName (String) - The name of the provider, e.g. Apple, Google
 postAddLinkedAccount-title-2 = A sua conta { $providerName } foi associada à sua { -product-mozilla-account }
 postAddLinkedAccount-action = Gerir conta
-postAddPasskey-subject = Chave criada
+postAddPasskey-subject = Chave-passe criada
 postAddPasskey-preview = Pode agora utilizar o seu dispositivo para iniciar sessão
 postAddPasskey-title = Criou uma chave-passe
 postAddPasskey-description = Agora pode utilizá-la para iniciar sessão em todos os seus serviços { -product-mozilla-account }.

@@ -1571,6 +1571,8 @@ inline-passwordless-sync-setup-enable-button = הפעלת מפתח גישה
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = בתהליך הפעלה…
 inline-passwordless-sync-setup-not-now-button = לא כעת
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = מפתח גישה זה מוכן לכניסה לסנכרון
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = אישור מפתח הגישה לא הסתיים
 inline-passwordless-sync-setup-error-cancelled-description = ניתן לאמת באמצעות מפתח הגישה שלך כדי לדלג על הססמה בפעם הבאה.
@@ -1780,7 +1782,6 @@ pair-unsupported-switch-to-firefox = יש לעבור ל־{ -brand-firefox } ול
 pair-unsupported-oops-mobile = אופס! נראה שאינכם משתמשים ב־{ -brand-firefox }.
 # v2: Heading for the mobile instructional message, shown on all mobile devices
 # (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
-# Aligned with legacy Backbone copy (see templates/partial/unsupported-pair.mustache).
 pair-unsupported-connecting-mobile-header-v2 = חיבור המכשיר הנייד שלך עם חשבון ה־{ -product-mozilla-account } שלך
 # v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
 # URL so the domain does not wrap to a new line on narrow screens.
@@ -1893,15 +1894,10 @@ pair2-supplicant-connect-this-device-connect-button = חיבור
 pair2-supplicant-connect-this-device-cancel-button = ביטול
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device when pairing reaches a device that
-## does not have Firefox installed yet. It explains what syncing gets them and
-## either opens the Firefox app to finish pairing or sends them off to install
-## the browser.
+## Users see this on their mobile device when pairing reaches a browser that is
+## not Firefox. It offers to open the Firefox app to finish pairing, and to
+## install it first when the user does not have it yet.
 
-pair2-supplicant-download-firefox-heading = קבלת { -brand-firefox } במכשיר זה
-# "sync" is a verb here, referring to syncing data between the user's devices.
-# <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = ניתן להוריד את { -brand-firefox } כדי לסנכרן סימניות, היסטוריה ועוד בין מכשירים. <linkExternal>מידע נוסף</linkExternal>
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = המשך ב־{ -brand-firefox }

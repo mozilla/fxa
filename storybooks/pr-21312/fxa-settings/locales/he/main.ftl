@@ -1138,6 +1138,7 @@ inline-passwordless-sync-setup-description = ניתן להשתמש במפתח ג
 inline-passwordless-sync-setup-enable-button = הפעלת מפתח גישה
 inline-passwordless-sync-setup-enabling = בתהליך הפעלה…
 inline-passwordless-sync-setup-not-now-button = לא כעת
+inline-passwordless-sync-setup-success-alert = מפתח גישה זה מוכן לכניסה לסנכרון
 inline-passwordless-sync-setup-error-cancelled = אישור מפתח הגישה לא הסתיים
 inline-passwordless-sync-setup-error-cancelled-description = ניתן לאמת באמצעות מפתח הגישה שלך כדי לדלג על הססמה בפעם הבאה.
 inline-passwordless-sync-setup-error-generic = משהו השתבש, עדיין יהיה עליך להזין את הססמה שלך בפעם הבאה
@@ -1306,8 +1307,6 @@ pair2-supplicant-connect-this-device-connect-button = חיבור
 pair2-supplicant-connect-this-device-cancel-button = ביטול
 
 
-pair2-supplicant-download-firefox-heading = קבלת { -brand-firefox } במכשיר זה
-pair2-supplicant-download-firefox-description = ניתן להוריד את { -brand-firefox } כדי לסנכרן סימניות, היסטוריה ועוד בין מכשירים. <linkExternal>מידע נוסף</linkExternal>
 pair2-supplicant-download-firefox-continue-button = המשך ב־{ -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = בתהליך פתיחת { -brand-firefox }…
 

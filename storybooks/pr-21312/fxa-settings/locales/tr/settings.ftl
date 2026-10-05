@@ -1424,6 +1424,7 @@ auth-error-225 = Geçiş anahtarı zaten kayıtlı
 auth-error-226 = Geçiş anahtarı sınırına ulaşıldı
 auth-error-227 = Geçiş anahtarı doğrulaması başarısız oldu
 auth-error-228 = Geçiş anahtarı kaydı başarısız
+auth-error-240 = Bu hesap devre dışı bırakıldı
 auth-error-999 = Beklenmeyen hata
 auth-error-1001 = Giriş denemesi iptal edildi
 auth-error-1002 = Oturum zaman aşımına uğradı. Devam etmek için giriş yapın.
@@ -1737,7 +1738,6 @@ pair-unsupported-switch-to-firefox = { -brand-firefox }’a geçin ve başka bir
 pair-unsupported-oops-mobile = Görünüşe göre { -brand-firefox } kullanmıyorsunuz.
 # v2: Heading for the mobile instructional message, shown on all mobile devices
 # (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
-# Aligned with legacy Backbone copy (see templates/partial/unsupported-pair.mustache).
 pair-unsupported-connecting-mobile-header-v2 = Mobil cihazınızı { -product-mozilla-account }nıza bağlama
 # v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
 # URL so the domain does not wrap to a new line on narrow screens.
@@ -1849,10 +1849,9 @@ pair2-supplicant-connect-this-device-connect-button = Bağla
 pair2-supplicant-connect-this-device-cancel-button = Vazgeç
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device when pairing reaches a device that
-## does not have Firefox installed yet. It explains what syncing gets them and
-## either opens the Firefox app to finish pairing or sends them off to install
-## the browser.
+## Users see this on their mobile device when pairing reaches a browser that is
+## not Firefox. It offers to open the Firefox app to finish pairing, and to
+## install it first when the user does not have it yet.
 
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
@@ -1887,6 +1886,17 @@ pair2-supplicant-sync-success-sync-settings-button-v2 = Eşitleme ayarlarını y
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zaman aşımına uğradık
 # Shown after the pairing attempt was canceled
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Vazgeçildi
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+permissions-label-email = E-posta adresi
+permissions-label-display-name = Görünen ad
+permissions-continue-button = Devam et
+permissions-cancel-button = Vazgeç
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

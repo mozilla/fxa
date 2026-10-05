@@ -1,8 +1,8 @@
 {
-  "commit": "fb55f1e4b94d8c14d780cfb8b0b26dcf04b323c6",
+  "commit": "968258296e20b35704374d815897400cb1297c42",
   "summary": "test(settings): cover OAuth hooks data, keys, errors and redirects",
-  "description": "## Because\n\n- The OAuth hooks in fxa-settings (`useFinishOAuthFlowHandler`, `useOAuthKeysCheck`) did not have enough unit test coverage.\n\n## This pull request\n\n- Adds unit tests for the OAuth data check, key fetch, OAuth code errors, redirect and state, and `useOAuthKeysCheck`.\n- Merges origin/main and fixes the conflict in the `hooks.test.tsx` imports. The fix keeps the branch imports (`OAUTH_ERRORS`, `AuthUiErrors`, `Constants`) and the main import (`createEncryptedBundle`) that the supplied-kB tests use.\n\n## Issue that this pull request solves\n\nCloses: FXA-14574",
-  "timestamp": 1790297898000,
+  "description": "## Because\n\n- The OAuth hooks in fxa-settings (`useFinishOAuthFlowHandler`, `useOAuthKeysCheck`) did not have enough unit test coverage.\n\n## This pull request\n\n- Adds unit tests for the OAuth data check, key fetch, OAuth code errors, redirect and state, and `useOAuthKeysCheck`.\n- Shows the parameter name instead of the errno in the missing-state OAuth error.\n- Merges origin/main and fixes the conflict in the `hooks.test.tsx` imports. The fix keeps the branch imports (`OAUTH_ERRORS`, `AuthUiErrors`, `Constants`) and the main import (`createEncryptedBundle`) that the supplied-kB tests use.\n\n## Issue that this pull request solves\n\nCloses: FXA-14574",
+  "timestamp": 1791241486000,
   "storybooks": [
     "fxa-settings"
   ],

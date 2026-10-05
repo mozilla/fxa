@@ -1092,6 +1092,7 @@ auth-error-228 = Registratie wachtwoordsleutel mislukt
 auth-error-233 = Stel een schermvergrendeling, pincode, vingerafdruk of gezichtsherkenning op uw apparaat of beveiligingssleutel in om een wachtwoordsleutel aan te maken. Probeer het daarna opnieuw.
 auth-error-238 = Wachtwoordsleutel-uitdaging mislukt
 auth-error-239 = Sorry, we konden uw account niet verwijderen. Probeer het opnieuw, of neem contact op met de ondersteuningsafdeling als het probleem aanhoudt.
+auth-error-240 = Deze account is uitgeschakeld
 auth-error-999 = Onverwachte fout
 auth-error-1001 = Aanmeldingspoging geannuleerd
 auth-error-1002 = Sessie verlopen. Meld u aan om door te gaan.
@@ -1184,6 +1185,10 @@ inline-passwordless-sync-setup-description = Gebruik deze wachtwoordsleutel om u
 inline-passwordless-sync-setup-enable-button = Wachtwoordsleutel inschakelen
 inline-passwordless-sync-setup-enabling = Inschakelen…
 inline-passwordless-sync-setup-not-now-button = Niet nu
+inline-passwordless-sync-setup-success-alert = Deze wachtwoordsleutel is klaar voor aanmelden en synchroniseren
+inline-passwordless-sync-setup-error-cancelled = Bevestiging van wachtwoordsleutel niet voltooid
+inline-passwordless-sync-setup-error-cancelled-description = Bevestig met uw wachtwoordsleutel om het wachtwoord de volgende keer over te slaan.
+inline-passwordless-sync-setup-error-generic = Er is iets misgegaan, u dient de volgende keer nog steeds uw wachtwoord in te voeren
 
 
 inline-recovery-key-setup-create-error = Oeps! We konden uw accountherstelsleutel niet aanmaken. Probeer het later opnieuw.
@@ -1349,8 +1354,6 @@ pair2-supplicant-connect-this-device-connect-button = Verbinden
 pair2-supplicant-connect-this-device-cancel-button = Annuleren
 
 
-pair2-supplicant-download-firefox-heading = Download { -brand-firefox } op dit apparaat
-pair2-supplicant-download-firefox-description = Download { -brand-firefox } om bladwijzers, geschiedenis en meer tussen apparaten te synchroniseren. <linkExternal>Meer info</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Doorgaan in { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = { -brand-firefox } openen…
 
@@ -1369,6 +1372,13 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Het lijkt erop dat er een 
 pair2-supplicant-timeout-and-cancel-timeout-description = Bezoek <b>firefox.com/pair</b> op uw computer om uw mobiele apparaat te verbinden en uw { -brand-firefox }-gegevens te synchroniseren.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Geannuleerd
 pair2-supplicant-timeout-and-cancel-canceled-description = Bezoek <b>firefox.com/pair</b> op uw computer om op elk gewenst moment een apparaat te verbinden.
+
+
+permissions-heading = { $serviceName } wil toegang tot:
+permissions-label-email = E-mailadres
+permissions-label-display-name = Weergavenaam
+permissions-continue-button = Doorgaan
+permissions-cancel-button = Annuleren
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } bevestigd

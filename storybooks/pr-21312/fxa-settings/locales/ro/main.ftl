@@ -1137,6 +1137,7 @@ auth-error-228 = Înregistrarea cheii de acces a eșuat
 auth-error-233 = Pentru crearea unei chei de acces, setează o blocare a ecranului, PIN, amprentă digitală sau recunoaștere facială pe dispozitiv sau o cheie de securitate. Apoi încearcă din nou.
 auth-error-238 = Verificarea cheii de acces a eșuat
 auth-error-239 = Ne pare rău, nu ți-am putut șterge contul. Te rugăm să încerci din nou sau să contactezi asistența dacă problema persistă.
+auth-error-240 = Contul a fost dezactivat
 auth-error-999 = Eroare neașteptată
 auth-error-1001 = Încercare de autentificare anulată
 auth-error-1002 = Sesiune expirată. Intră în cont pentru a continua.
@@ -1229,6 +1230,10 @@ inline-passwordless-sync-setup-description = Folosește cheia de acces pentru a 
 inline-passwordless-sync-setup-enable-button = Activează cheia de acces
 inline-passwordless-sync-setup-enabling = Se activează…
 inline-passwordless-sync-setup-not-now-button = Nu acum
+inline-passwordless-sync-setup-success-alert = Cheia de acces este gata pentru autentificarea pentru sincronizare
+inline-passwordless-sync-setup-error-cancelled = Confirmarea cheii de acces nu s-a finalizat
+inline-passwordless-sync-setup-error-cancelled-description = Confirmă cu cheia de acces pentru a omite parola data viitoare.
+inline-passwordless-sync-setup-error-generic = Ceva nu a funcționat, va trebui să introduci parola data viitoare
 
 
 inline-recovery-key-setup-create-error = Ups! Nu am putut crea cheia de recuperare a contului. Te rugăm să încerci din nou mai târziu.
@@ -1394,8 +1399,6 @@ pair2-supplicant-connect-this-device-connect-button = Conectează
 pair2-supplicant-connect-this-device-cancel-button = Anulează
 
 
-pair2-supplicant-download-firefox-heading = Instalează { -brand-firefox } pe acest dispozitiv
-pair2-supplicant-download-firefox-description = Descarcă { -brand-firefox } pentru a-ți sincroniza marcajele, istoricul și multe altele pe toate dispozitivele. <linkExternal>Află mai multe</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Continuă în { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Se deschide { -brand-firefox }…
 
@@ -1414,6 +1417,13 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Se pare că timpul de cone
 pair2-supplicant-timeout-and-cancel-timeout-description = Pentru a-ți conecta dispozitivul mobil și a-ți sincroniza datele { -brand-firefox }, accesează <b>firefox.com/pair</b> pe calculator.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Anulat
 pair2-supplicant-timeout-and-cancel-canceled-description = Pentru a conecta un dispozitiv oricând, accesează <b>firefox.com/pair</b> pe calculator.
+
+
+permissions-heading = { $serviceName } vrea acces la:
+permissions-label-email = Adresa de e-mail
+permissions-label-display-name = Nume afișat
+permissions-continue-button = Continuă
+permissions-cancel-button = Anulează
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmat

@@ -1348,8 +1348,6 @@ pair2-supplicant-connect-this-device-connect-button = Opret forbindelse
 pair2-supplicant-connect-this-device-cancel-button = Annuller
 
 
-pair2-supplicant-download-firefox-heading = Få { -brand-firefox } på denne enhed
-pair2-supplicant-download-firefox-description = Hent { -brand-firefox } for at synkronisere bogmærker, historik med mere på tværs af enheder. <linkExternal>Læs mere</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Fortsæt i { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Åbner { -brand-firefox }…
 

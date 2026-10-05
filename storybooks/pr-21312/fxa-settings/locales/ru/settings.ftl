@@ -1484,6 +1484,7 @@ auth-error-228 = Регистрация ключа доступа не удал�
 auth-error-233 = Чтобы создать ключ доступа, настройте блокировку экрана, PIN-код, отпечаток пальца или распознавание лица на вашем устройстве или ключе безопасности. Затем попробуйте снова.
 auth-error-238 = Проверка ключа доступа не удалась
 auth-error-239 = Извините, мы не смогли удалить ваш аккаунт. Пожалуйста, попробуйте ещё раз или обратитесь в службу поддержки, если проблема не будет устранена.
+auth-error-240 = Этот аккаунт отключён
 auth-error-999 = Непредвиденная ошибка
 auth-error-1001 = Попытка входа отменена
 auth-error-1002 = Время сессии истекло. Войдите, чтобы продолжить.
@@ -1644,6 +1645,13 @@ inline-passwordless-sync-setup-enable-button = Включить ключ дос�
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Включаю…
 inline-passwordless-sync-setup-not-now-button = Не сейчас
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = Этот ключ доступа готов для входа в синхронизацию
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = Подтверждение ключа доступа не завершено
+inline-passwordless-sync-setup-error-cancelled-description = Подтвердите с помощью ключа доступа, чтобы пропустить пароль в следующий раз.
+# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+inline-passwordless-sync-setup-error-generic = Что-то пошло не так, вам всё ещё нужно будет ввести пароль в следующий раз
 
 ## InlineRecoveryKeySetup page component
 
@@ -1848,7 +1856,6 @@ pair-unsupported-switch-to-firefox = Перейдите к { -brand-firefox } и
 pair-unsupported-oops-mobile = Ой! Похоже, вы не используете { -brand-firefox }.
 # v2: Heading for the mobile instructional message, shown on all mobile devices
 # (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
-# Aligned with legacy Backbone copy (see templates/partial/unsupported-pair.mustache).
 pair-unsupported-connecting-mobile-header-v2 = Подключение мобильного устройства к вашему { -product-mozilla-account }
 # v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
 # URL so the domain does not wrap to a new line on narrow screens.
@@ -1961,15 +1968,10 @@ pair2-supplicant-connect-this-device-connect-button = Подключить
 pair2-supplicant-connect-this-device-cancel-button = Отменить
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device when pairing reaches a device that
-## does not have Firefox installed yet. It explains what syncing gets them and
-## either opens the Firefox app to finish pairing or sends them off to install
-## the browser.
+## Users see this on their mobile device when pairing reaches a browser that is
+## not Firefox. It offers to open the Firefox app to finish pairing, and to
+## install it first when the user does not have it yet.
 
-pair2-supplicant-download-firefox-heading = Установите { -brand-firefox } на это устройство
-# "sync" is a verb here, referring to syncing data between the user's devices.
-# <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = Скачайте { -brand-firefox }, чтобы синхронизировать закладки, историю и многое другое между устройствами. <linkExternal>Подробнее</linkExternal>
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Продолжить в { -brand-firefox }
@@ -2012,6 +2014,19 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Чтобы подкл�
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Отменено
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Чтобы подключить устройство в любое время, посетите <b>firefox.com/pair</b> на вашем компьютере.
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } хочет получить доступ к:
+permissions-label-email = Адрес эл. почты
+permissions-label-display-name = Отображаемое имя
+permissions-continue-button = Продолжить
+permissions-cancel-button = Отмена
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

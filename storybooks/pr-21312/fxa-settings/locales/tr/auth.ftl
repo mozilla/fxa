@@ -225,6 +225,7 @@ freeTrialEndingReminder-content-charge-discount-2 = İndirim
 freeTrialEndingReminder-content-charge-tax = Vergi: { $invoiceTaxAmount }
 freeTrialEndingReminder-content-charge-tax-2 = Vergi
 freeTrialEndingReminder-content-account-link-plaintext = Ödeme yönteminizi ve hesap bilgilerinizi buradan inceleyebilir ve güncelleyebilirsiniz:
+freeTrialEndingReminder-content-cancel-link-plaintext = Ücret ödemek istemiyorsanız { $serviceLastActiveDateOnly } tarihinden önce iptal edin:
 freeTrialEndingReminder-content-closing = Saygılarımızla,
 # Variables:
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN

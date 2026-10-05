@@ -155,6 +155,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = 請再次輸入密碼
 form-password-with-inline-criteria-reset-submit-button = 建立新密碼
+form-password-with-inline-criteria-old-password-label =
+    .label = 舊密碼
+form-password-with-inline-criteria-change-password-submit-button = 更改密碼
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = 密碼
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1439,6 +1442,7 @@ auth-error-228 = Passkey 註冊失敗
 auth-error-233 = 要建立 Passkey，請先在您的裝置或安全金鑰設定 PIN 碼、指紋或臉孔辨識等螢幕鎖定方式，然後再試一次。
 auth-error-238 = Passkey 挑戰失敗
 auth-error-239 = 抱歉，我們無法刪除您的帳號。請再試一次，若問題持續存在請聯絡技術支援團隊。
+auth-error-240 = 已停用此帳號
 auth-error-999 = 未預期的錯誤
 auth-error-1001 = 已取消登入請求
 auth-error-1002 = 登入階段已失效，請登入以繼續。
@@ -1599,6 +1603,13 @@ inline-passwordless-sync-setup-enable-button = 啟用 Passkey
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = 啟用中…
 inline-passwordless-sync-setup-not-now-button = 現在不要
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = 已可使用這組 Passkey 來登入與同步
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = Passkey 確認未完成
+inline-passwordless-sync-setup-error-cancelled-description = 使用 Passkey 確認後，下次即可免輸入密碼。
+# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+inline-passwordless-sync-setup-error-generic = 有些東西不對勁，下次您仍需輸入密碼
 
 ## InlineRecoveryKeySetup page component
 
@@ -1803,7 +1814,6 @@ pair-unsupported-switch-to-firefox = 切換至 { -brand-firefox } 並開啟此�
 pair-unsupported-oops-mobile = 喔喔，看來您使用的不是 { -brand-firefox }。
 # v2: Heading for the mobile instructional message, shown on all mobile devices
 # (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
-# Aligned with legacy Backbone copy (see templates/partial/unsupported-pair.mustache).
 pair-unsupported-connecting-mobile-header-v2 = 使用您的 { -product-mozilla-account }連線到行動裝置
 # v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
 # URL so the domain does not wrap to a new line on narrow screens.
@@ -1916,20 +1926,39 @@ pair2-supplicant-connect-this-device-connect-button = 連線
 pair2-supplicant-connect-this-device-cancel-button = 取消
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device when pairing reaches a device that
-## does not have Firefox installed yet. It explains what syncing gets them and
-## either opens the Firefox app to finish pairing or sends them off to install
-## the browser.
+## Users see this on their mobile device when pairing reaches a browser that is
+## not Firefox. It offers to open the Firefox app to finish pairing, and to
+## install it first when the user does not have it yet.
 
-pair2-supplicant-download-firefox-heading = 在此裝置安裝 { -brand-firefox }
+pair2-supplicant-download-firefox-heading-v2 = 到此裝置開啟 { -brand-firefox }
 # "sync" is a verb here, referring to syncing data between the user's devices.
-# <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = 下載 { -brand-firefox } 即可在不同裝置間同步書籤、瀏覽紀錄與更多資料。 <linkExternal>了解更多資訊</linkExternal>
+pair2-supplicant-download-firefox-description-v2 = 下載 { -brand-firefox }，即可跨裝置同步書籤、瀏覽紀錄與更多資料。
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = 到 { -brand-firefox } 繼續
 # Replaces the button label while waiting for the Firefox app to take over
 pair2-supplicant-download-firefox-opening-button = 正在開啟 { -brand-firefox }…
+# Primary action shown in Safari on iOS. Opens the App Store page for Firefox.
+pair2-supplicant-download-firefox-download-button = 下載 { -brand-firefox }
+# Secondary action shown in Safari on iOS, below the download button. Opens the
+# Firefox app when it is already installed.
+pair2-supplicant-download-firefox-have-firefox-button = 我已經安裝 { -brand-firefox }
+# Opens a page explaining what sync does
+pair2-supplicant-download-firefox-learn-more-link = 更多資訊
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## with the phone's camera app instead of with Firefox. They already have
+## Firefox installed, so it tells them how to scan the code again from inside
+## Firefox.
+
+pair2-supplicant-connect-hint-heading-v2 = 到 App 中完成配對
+# <b> emphasises the name of the button the user taps in Firefox
+pair2-supplicant-connect-hint-step-app-menu = 點擊工具列中的<b>應用程式選單</b>
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair2-supplicant-connect-hint-step-sign-in = 點擊<b>登入</b>，然後掃描 QR Code
+# Opens a Mozilla support article about connecting a device without a QR code
+pair2-supplicant-connect-hint-learn-more-link = 更多資訊
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -1967,6 +1996,26 @@ pair2-supplicant-timeout-and-cancel-timeout-description = 若要連結您的行�
 pair2-supplicant-timeout-and-cancel-cancelled-heading = 已取消
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = 歡迎隨時在您的電腦開啟 <b>firefox.com/pair</b> 連結其他裝置。
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } 想要存取：
+permissions-label-email = 電子郵件地址
+permissions-label-display-name = 顯示名稱
+permissions-continue-button = 繼續
+permissions-cancel-button = 取消
+
+## ForcePasswordChange page
+## Users are sent here when suspicious activity on the account requires a new password before they can continue.
+
+force-password-change-heading = 請更改密碼
+force-password-change-info = 我們偵測到您的 { -product-mozilla-account }有可疑活動。為了保護您的帳號，請更改密碼。之後必須使用這組密碼重新登入所有 { -product-mozilla-account }相關服務。
+force-password-change-data-info = 不會失去同步的瀏覽紀錄、書籤、登入資訊與其他個人資料。
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

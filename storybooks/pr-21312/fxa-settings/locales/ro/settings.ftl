@@ -1488,6 +1488,7 @@ auth-error-228 = Înregistrarea cheii de acces a eșuat
 auth-error-233 = Pentru crearea unei chei de acces, setează o blocare a ecranului, PIN, amprentă digitală sau recunoaștere facială pe dispozitiv sau o cheie de securitate. Apoi încearcă din nou.
 auth-error-238 = Verificarea cheii de acces a eșuat
 auth-error-239 = Ne pare rău, nu ți-am putut șterge contul. Te rugăm să încerci din nou sau să contactezi asistența dacă problema persistă.
+auth-error-240 = Contul a fost dezactivat
 auth-error-999 = Eroare neașteptată
 auth-error-1001 = Încercare de autentificare anulată
 auth-error-1002 = Sesiune expirată. Intră în cont pentru a continua.
@@ -1648,6 +1649,13 @@ inline-passwordless-sync-setup-enable-button = Activează cheia de acces
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Se activează…
 inline-passwordless-sync-setup-not-now-button = Nu acum
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = Cheia de acces este gata pentru autentificarea pentru sincronizare
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = Confirmarea cheii de acces nu s-a finalizat
+inline-passwordless-sync-setup-error-cancelled-description = Confirmă cu cheia de acces pentru a omite parola data viitoare.
+# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+inline-passwordless-sync-setup-error-generic = Ceva nu a funcționat, va trebui să introduci parola data viitoare
 
 ## InlineRecoveryKeySetup page component
 
@@ -1852,7 +1860,6 @@ pair-unsupported-switch-to-firefox = Treci pe { -brand-firefox } și deschide ac
 pair-unsupported-oops-mobile = Ups! Se pare că nu folosești { -brand-firefox }.
 # v2: Heading for the mobile instructional message, shown on all mobile devices
 # (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
-# Aligned with legacy Backbone copy (see templates/partial/unsupported-pair.mustache).
 pair-unsupported-connecting-mobile-header-v2 = Dispozitivul tău este în curs de conectare cu { -product-mozilla-account }
 # v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
 # URL so the domain does not wrap to a new line on narrow screens.
@@ -1965,15 +1972,10 @@ pair2-supplicant-connect-this-device-connect-button = Conectează
 pair2-supplicant-connect-this-device-cancel-button = Anulează
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device when pairing reaches a device that
-## does not have Firefox installed yet. It explains what syncing gets them and
-## either opens the Firefox app to finish pairing or sends them off to install
-## the browser.
+## Users see this on their mobile device when pairing reaches a browser that is
+## not Firefox. It offers to open the Firefox app to finish pairing, and to
+## install it first when the user does not have it yet.
 
-pair2-supplicant-download-firefox-heading = Instalează { -brand-firefox } pe acest dispozitiv
-# "sync" is a verb here, referring to syncing data between the user's devices.
-# <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = Descarcă { -brand-firefox } pentru a-ți sincroniza marcajele, istoricul și multe altele pe toate dispozitivele. <linkExternal>Află mai multe</linkExternal>
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Continuă în { -brand-firefox }
@@ -2016,6 +2018,19 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Pentru a-ți conecta d
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Anulat
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Pentru a conecta un dispozitiv oricând, accesează <b>firefox.com/pair</b> pe calculator.
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } vrea acces la:
+permissions-label-email = Adresa de e-mail
+permissions-label-display-name = Nume afișat
+permissions-continue-button = Continuă
+permissions-cancel-button = Anulează
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

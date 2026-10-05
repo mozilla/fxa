@@ -1083,6 +1083,7 @@ auth-error-228 = Registrering av passnøkkel mislyktes
 auth-error-233 = For å opprette en passnøkkel må du konfigurere skjermlås, PIN-kode, fingeravtrykk eller ansiktsgjenkjenning på enheten eller sikkerhetsnøkkelen. Prøv deretter på nytt.
 auth-error-238 = Passnøkkelutfordring mislyktes
 auth-error-239 = Beklager, vi kunne ikke slette kontoen din. Prøv på nytt, eller kontakt brukerstøtte hvis problemet vedvarer.
+auth-error-240 = Denne kontoen er deaktivert
 auth-error-999 = Uventet feil
 auth-error-1001 = Innloggingsforsøk avbrutt
 auth-error-1002 = Økt utløpt. Logg inn for å fortsette.
@@ -1175,6 +1176,10 @@ inline-passwordless-sync-setup-description = Bruk denne passnøkkelen for å log
 inline-passwordless-sync-setup-enable-button = Slå på passnøkkel
 inline-passwordless-sync-setup-enabling = Slår på…
 inline-passwordless-sync-setup-not-now-button = Ikke nå
+inline-passwordless-sync-setup-success-alert = Denne passnøkkelen er klar for pålogging med synkronisering
+inline-passwordless-sync-setup-error-cancelled = Bekreftelsen med passnøkkelen ble ikke fullført
+inline-passwordless-sync-setup-error-cancelled-description = Bekreft med passnøkkelen din for å slippe å skrive inn passordet neste gang.
+inline-passwordless-sync-setup-error-generic = Noe gikk galt. Du må fortsatt skrive inn passordet neste gang.
 
 
 inline-recovery-key-setup-create-error = Beklager! Vi kunne ikke opprette kontogjenopprettingsnøkkelen din. Prøv på nytt senere.
@@ -1340,8 +1345,6 @@ pair2-supplicant-connect-this-device-connect-button = Koble til
 pair2-supplicant-connect-this-device-cancel-button = Avbryt
 
 
-pair2-supplicant-download-firefox-heading = Få { -brand-firefox } på denne enheten
-pair2-supplicant-download-firefox-description = Last ned { -brand-firefox } for å synkronisere bokmerker, historikk og mer på tvers av enheter. <linkExternal>Les mer</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Fortsett i { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Åpner { -brand-firefox }…
 
@@ -1360,6 +1363,13 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Det ser ut til at det opps
 pair2-supplicant-timeout-and-cancel-timeout-description = For å koble til mobilenheten din og synkronisere { -brand-firefox }-dataene dine, gå til <b>firefox.com/pair</b> på datamaskinen din.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Avbrutt
 pair2-supplicant-timeout-and-cancel-canceled-description = For å koble til en enhet når som helst, gå til <b>firefox.com/pair</b> på datamaskinen din.
+
+
+permissions-heading = { $serviceName } ønsker tilgang til:
+permissions-label-email = E-postadresse
+permissions-label-display-name = Visningsnavn
+permissions-continue-button = Fortsett
+permissions-cancel-button = Avbryt
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } bekreftet

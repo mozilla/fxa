@@ -163,6 +163,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Passwort bestätigen
 form-password-with-inline-criteria-reset-submit-button = Neues Passwort erstellen
+form-password-with-inline-criteria-old-password-label =
+    .label = Altes Passwort
+form-password-with-inline-criteria-change-password-submit-button = Passwort ändern
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Passwort
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1183,10 +1186,10 @@ inline-passwordless-sync-setup-description = Verwenden Sie diesen Zugangsschlüs
 inline-passwordless-sync-setup-enable-button = Zugangsschlüssel aktivieren
 inline-passwordless-sync-setup-enabling = Wird aktiviert…
 inline-passwordless-sync-setup-not-now-button = Nicht jetzt
-inline-passwordless-sync-setup-success-alert = Dieser Zugangsschlüssel ist bereit für die Sync-Anmeldung
-inline-passwordless-sync-setup-error-cancelled = Zugangsschlüssel-Bestätigung wurde nicht abgeschlossen
-inline-passwordless-sync-setup-error-cancelled-description = Bestätigen Sie mit Ihrem Zugangsschlüssel, um das Passwort beim nächsten Mal zu überspringen.
-inline-passwordless-sync-setup-error-generic = Etwas ist schiefgegangen, Sie müssen beim nächsten Mal noch Ihr Passwort eingeben
+inline-passwordless-sync-setup-success-alert = Dieser Zugangsschlüssel kann jetzt für die Anmeldung zur Synchronisierung verwendet werden
+inline-passwordless-sync-setup-error-cancelled = Bestätigung des Zugangsschlüssels nicht abgeschlossen
+inline-passwordless-sync-setup-error-cancelled-description = Bestätigen Sie Ihre Identität mit Ihrem Zugangsschlüssel, damit Sie beim nächsten Mal kein Passwort eingeben müssen.
+inline-passwordless-sync-setup-error-generic = Ein Fehler ist aufgetreten, beim nächsten Mal müssen Sie Ihr Passwort weiterhin eingeben
 
 
 inline-recovery-key-setup-create-error = Hoppla! Wir konnten Ihren Kontowiederherstellungsschlüssel nicht erstellen. Bitte versuchen Sie es später erneut.
@@ -1352,10 +1355,19 @@ pair2-supplicant-connect-this-device-connect-button = Verbinden
 pair2-supplicant-connect-this-device-cancel-button = Abbrechen
 
 
-pair2-supplicant-download-firefox-heading = Holen Sie sich { -brand-firefox } auf dieses Gerät
-pair2-supplicant-download-firefox-description = Laden Sie { -brand-firefox } herunter, um Lesezeichen, Chronik und mehr zwischen Geräten zu synchronisieren. <linkExternal>Weitere Informationen</linkExternal>
+pair2-supplicant-download-firefox-heading-v2 = { -brand-firefox } auf diesem Gerät öffnen
+pair2-supplicant-download-firefox-description-v2 = Laden Sie { -brand-firefox } herunter, um Lesezeichen, Chronik und mehr geräteübergreifend zu synchronisieren.
 pair2-supplicant-download-firefox-continue-button = Auf { -brand-firefox } fortfahren
 pair2-supplicant-download-firefox-opening-button = { -brand-firefox } wird geöffnet…
+pair2-supplicant-download-firefox-download-button = { -brand-firefox } herunterladen
+pair2-supplicant-download-firefox-have-firefox-button = { -brand-firefox } ist bereits installiert
+pair2-supplicant-download-firefox-learn-more-link = Weitere Informationen
+
+
+pair2-supplicant-connect-hint-heading-v2 = Kopplung in der App abschließen
+pair2-supplicant-connect-hint-step-app-menu = Tippen Sie in der Symbolleiste auf das <b>App-Menü</b>
+pair2-supplicant-connect-hint-step-sign-in = Tippen Sie auf <b>Anmelden</b> und scannen Sie den Code
+pair2-supplicant-connect-hint-learn-more-link = Weitere Informationen
 
 
 pair2-supplicant-ready-to-scan-heading = Um ein Gerät zu verbinden
@@ -1379,6 +1391,11 @@ permissions-label-email = E-Mail-Adresse
 permissions-label-display-name = Anzeigename
 permissions-continue-button = Weiter
 permissions-cancel-button = Abbrechen
+
+
+force-password-change-heading = Bitte ändern Sie Ihr Passwort
+force-password-change-info = Wir haben verdächtige Aktivitäten in Ihrem { -product-mozilla-account } festgestellt. Erstellen Sie zum Schutz Ihres Kontos bitte ein neues Passwort. Mit diesem Passwort können Sie sich wieder bei allen Diensten Ihres { -product-mozilla-account } anmelden.
+force-password-change-data-info = Synchronisierter Chronik, Lesezeichen, Zugangsdaten und andere persönliche Daten gehen nicht verloren.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } bestätigt

@@ -1480,6 +1480,7 @@ auth-error-228 = Mislykka registrering av passnøkkel
 auth-error-233 = For å opprette ein passnøkkel må du konfigurere skjermlås, PIN-kode, fingeravtrykk eller ansiktsgjenkjenning på eininga eller sikkerheitsnøkkelen. Prøv deretter på nytt.
 auth-error-238 = Mislykka passnøkkelutfordring
 auth-error-239 = Beklagar, vi kunne ikkje slette kontoen din. Prøv på nytt, eller kontakt brukarstøtte viss problemet held fram.
+auth-error-240 = Denne kontoen er deaktivert
 auth-error-999 = Uventa feil
 auth-error-1001 = Innloggingsforsøket avbrote
 auth-error-1002 = Økta er slutt. Logg inn for å halde fram.
@@ -1640,6 +1641,13 @@ inline-passwordless-sync-setup-enable-button = Slå på passnøkkel
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Slår på…
 inline-passwordless-sync-setup-not-now-button = Ikkje no
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = Denne passnøkkelen er klar for pålogging med synkronisering
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = Stadfestinga med passnøkkelen vart ikkje fullført
+inline-passwordless-sync-setup-error-cancelled-description = Stadfest med passnøkkelen din for å sleppe å skrive inn passordet neste gong.
+# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+inline-passwordless-sync-setup-error-generic = Noko gjekk gale. Du må framleis skrive inn passordet neste gong.
 
 ## InlineRecoveryKeySetup page component
 
@@ -1844,7 +1852,6 @@ pair-unsupported-switch-to-firefox = Byt til { -brand-firefox } og opne denne si
 pair-unsupported-oops-mobile = Ops! Det ser ut som om du ikkje brukar { -brand-firefox }.
 # v2: Heading for the mobile instructional message, shown on all mobile devices
 # (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
-# Aligned with legacy Backbone copy (see templates/partial/unsupported-pair.mustache).
 pair-unsupported-connecting-mobile-header-v2 = Kople mobileininga di til { -product-mozilla-account }en din
 # v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
 # URL so the domain does not wrap to a new line on narrow screens.
@@ -1957,15 +1964,10 @@ pair2-supplicant-connect-this-device-connect-button = Kople til
 pair2-supplicant-connect-this-device-cancel-button = Avbryt
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device when pairing reaches a device that
-## does not have Firefox installed yet. It explains what syncing gets them and
-## either opens the Firefox app to finish pairing or sends them off to install
-## the browser.
+## Users see this on their mobile device when pairing reaches a browser that is
+## not Firefox. It offers to open the Firefox app to finish pairing, and to
+## install it first when the user does not have it yet.
 
-pair2-supplicant-download-firefox-heading = Få { -brand-firefox } på denne eininga
-# "sync" is a verb here, referring to syncing data between the user's devices.
-# <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = Last ned { -brand-firefox } for å synkronisere bokmerke, historikk og meir, på tvers av eningar. <linkExternal>Les meir</linkExternal>
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Hald fram i { -brand-firefox }
@@ -2015,6 +2017,8 @@ pair2-supplicant-timeout-and-cancel-canceled-description = For å kople til ei e
 ## The page informs the user which profile information the relying party can
 ## read. It does not offer a choice.
 
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } ønskjer tilgang til:
 permissions-label-email = E-postadresse
 permissions-label-display-name = Visingsnamn
 permissions-continue-button = Hald fram
