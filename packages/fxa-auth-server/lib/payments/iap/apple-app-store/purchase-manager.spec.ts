@@ -8,7 +8,7 @@ import {
   NotificationType,
   NotificationSubtype,
   SubscriptionStatus,
-} from 'app-store-server-api/dist/cjs';
+} from 'app-store-server-api';
 
 import { AppConfig, AuthLogger } from '../../../types';
 import { PurchaseQueryError, PurchaseUpdateError } from './types';
