@@ -1509,8 +1509,6 @@ pair2-supplicant-connect-this-device-connect-button = Pripojiť
 pair2-supplicant-connect-this-device-cancel-button = Zrušiť
 
 
-pair2-supplicant-download-firefox-heading = Získajte { -brand-firefox(case: "acc") } na tomto zariadení
-pair2-supplicant-download-firefox-description = Stiahnite si { -brand-firefox(case: "acc") } a synchronizujte záložky, históriu a ďalšie údaje naprieč zariadeniami. <linkExternal>Ďalšie informácie</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Pokračujte vo { -brand-firefox(case: "loc") }
 pair2-supplicant-download-firefox-opening-button = Spúšťa sa { -brand-firefox }…
 

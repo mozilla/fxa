@@ -151,6 +151,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = 請再次輸入密碼
 form-password-with-inline-criteria-reset-submit-button = 建立新密碼
+form-password-with-inline-criteria-old-password-label =
+    .label = 舊密碼
+form-password-with-inline-criteria-change-password-submit-button = 更改密碼
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = 密碼
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1312,10 +1315,16 @@ pair2-supplicant-connect-this-device-connect-button = 連線
 pair2-supplicant-connect-this-device-cancel-button = 取消
 
 
-pair2-supplicant-download-firefox-heading = 在此裝置安裝 { -brand-firefox }
-pair2-supplicant-download-firefox-description = 下載 { -brand-firefox } 即可在不同裝置間同步書籤、瀏覽紀錄與更多資料。 <linkExternal>了解更多資訊</linkExternal>
 pair2-supplicant-download-firefox-continue-button = 到 { -brand-firefox } 繼續
 pair2-supplicant-download-firefox-opening-button = 正在開啟 { -brand-firefox }…
+pair2-supplicant-download-firefox-download-button = 下載 { -brand-firefox }
+pair2-supplicant-download-firefox-have-firefox-button = 我已經安裝 { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = 更多資訊
+
+
+pair2-supplicant-connect-hint-heading-v2 = 到 App 中完成配對
+pair2-supplicant-connect-hint-step-app-menu = 點擊工具列中的<b>應用程式選單</b>
+pair2-supplicant-connect-hint-learn-more-link = 更多資訊
 
 
 pair2-supplicant-ready-to-scan-heading = 連結裝置
@@ -1339,6 +1348,9 @@ permissions-label-email = 電子郵件地址
 permissions-label-display-name = 顯示名稱
 permissions-continue-button = 繼續
 permissions-cancel-button = 取消
+
+
+force-password-change-heading = 請更改密碼
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } 已確認

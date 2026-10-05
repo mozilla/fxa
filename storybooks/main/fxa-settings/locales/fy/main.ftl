@@ -1096,6 +1096,7 @@ auth-error-228 = Registraasje wachtwurdkaai mislearre
 auth-error-233 = Stel in skermbeskoatteling, pinkoade, fingerôfdruk of gesichtswerkenning op jo apparaat of befeiligingskaai yn om in wachtwurdkaai oan te meitsjen. Probearje it dêrnei opnij.
 auth-error-238 = Wachtwurdkaai-útdaging mislearre
 auth-error-239 = Sorry, wy koene jo account net fuortsmite. Probearje it opnij, of nim kontakt op mei de stipe as it probleem oanhâldt.
+auth-error-240 = Dizze account is útskeakele
 auth-error-999 = Unferwachte flater
 auth-error-1001 = Oanmeldbesykjen annulearre
 auth-error-1002 = Sesje ferrûn. Meld jo oan om troch te gean.
@@ -1188,6 +1189,10 @@ inline-passwordless-sync-setup-description = Brûk dizze wachtwurdkaai om jo flu
 inline-passwordless-sync-setup-enable-button = Wachtwurdkaai ynskeakelje
 inline-passwordless-sync-setup-enabling = Ynskeakelje…
 inline-passwordless-sync-setup-not-now-button = No net
+inline-passwordless-sync-setup-success-alert = Dizze wachtwurdkaai is klear foar oanmelden en syngronisearjen
+inline-passwordless-sync-setup-error-cancelled = Befêstiging fan wachtwurdkaai net foltôge
+inline-passwordless-sync-setup-error-cancelled-description = Befêstigje mei jo wachtwurdkaai om it wachtwurd de folgjende kear oer te slaan.
+inline-passwordless-sync-setup-error-generic = Der is wat misgien, jo moatte de folgjende kear noch hieltyd jo wachtwurd ynfiere
 
 
 inline-recovery-key-setup-create-error = Oeps! Wy koenen jo accountwerstelkaai net oanmeitsje. Probearje it letter nochris.
@@ -1373,6 +1378,13 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = It liket derop dat der in 
 pair2-supplicant-timeout-and-cancel-timeout-description = Besykje <b>firefox.com/pair</b> op jo kompjûter om jo mobile apparaat te ferbinen en jo { -brand-firefox }-gegevens te syngronisearjen.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Annulearre
 pair2-supplicant-timeout-and-cancel-canceled-description = Besykje <b>firefox.com/pair</b> op jo kompjûter om op elk winske momint in apparaat te ferbinen.
+
+
+permissions-heading = { $serviceName } wol tagong ta:
+permissions-label-email = E-mailadres
+permissions-label-display-name = Werjeftenamme
+permissions-continue-button = Trochgean
+permissions-cancel-button = Annulearje
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } befêstige

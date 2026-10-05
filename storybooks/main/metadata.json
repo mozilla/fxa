@@ -1,8 +1,8 @@
 {
-  "commit": "95b27ff782da29abf6d3d879450b494dbb5cae33",
-  "summary": "Merge pull request #21322 from mozilla/fxa-14617",
-  "description": "chore(auth): remove unused authorized-clients OAuth routes",
-  "timestamp": 1791214183000,
+  "commit": "fd84041d66a4b15535d3c8b61729277d09f09823",
+  "summary": "Merge pull request #21372 from mozilla/FXA-14652",
+  "description": "fix(functional-tests): drain first passwordless code before resend",
+  "timestamp": 1791219823000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
