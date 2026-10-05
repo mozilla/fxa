@@ -63,7 +63,7 @@ const checkOAuthData = (integration: OAuthIntegration): AuthError | null => {
       errno: OAUTH_ERRORS.INVALID_PARAMETER.errno,
       message: new OAuthError(OAUTH_ERRORS.INVALID_PARAMETER.errno, {
         param: 'state',
-      }).error as string,
+      }).message,
     };
   }
   return null;
@@ -384,9 +384,9 @@ export function useOAuthKeysCheck(
     (isOAuthIntegration(integration) ||
       isSyncDesktopV3Integration(integration)) &&
     integration.requiresKeys() &&
-    // If the user has 2FA enabled but chose to login to the browser via third party
-    // auth, keys are not fetched because the user didn't enter a password.
-    // For this case, skip the keys check, the browser expects them to be undefined.
+    // Third-party auth and passwordless OTP sign-ins reach the 2FA and recovery
+    // pages without a password, so there is no unwrapBKey to derive. Those pages
+    // pass either flag here; keys come once the user sets a password afterwards.
     !isSignInWithThirdPartyAuth &&
     (!keyFetchToken || !unwrapBKey)
   ) {
