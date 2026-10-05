@@ -1,8 +1,8 @@
 {
-  "commit": "c95f52acba0e53e5e35187b029ba44811c3478b3",
-  "summary": "Merge pull request #21323 from mozilla/fxa-14620",
-  "description": "chore(auth): remove legacy GET /verify_email redirect route",
-  "timestamp": 1791212134000,
+  "commit": "95b27ff782da29abf6d3d879450b494dbb5cae33",
+  "summary": "Merge pull request #21322 from mozilla/fxa-14617",
+  "description": "chore(auth): remove unused authorized-clients OAuth routes",
+  "timestamp": 1791214183000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
