@@ -1,8 +1,8 @@
 {
-  "commit": "454c5a5daf9f46a4df4b6a749f7c75ada72511ac",
+  "commit": "c0a9ae9d3a6699dbe636f65e2179f579f580bc97",
   "summary": "feat(settings): update reset password start page copy for passkeys",
-  "description": "## Because\n\n- The first password reset screen did not tell users that they can sign in with Google, Apple, or a passkey instead.\n\n## This pull request\n\n- Changes the heading to \"Forgot your password?\" with the new FTL ID `password-reset-forgot-heading`. The ID `password-reset-flow-heading` stays, because `AccountRecoveryConfirmKey`, `CompleteResetPassword`, and `ConfirmResetPassword` use it.\n- Adds a body text (`password-reset-alternatives-body`). Its first sentence links to the email-first page with the current query string (`/${location.search}`, as `LinkRememberPassword` does).\n- Adds small print below Continue (`password-reset-data-recovery-warning`) with a \"Learn more\" `LinkExternal` that opens the SUMO reset article in a new tab. Removes `password-reset-body-3`.\n- Removes `LinkRememberPassword`, its `useWatch`, and the `showPasskeyOption` prop and container computation from this page only.\n- Changes the `resetPasswordHeading` regex in the functional page object to `Forgot your password`. Adds `signInAlternativesLink` and the functional test \"body link returns to the email-first page\".\n- Replaces the footer unit tests in `index.test.tsx` with tests for the new copy, the SUMO link, the missing footer, and the kept query params.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-13258",
-  "timestamp": 1791225949000,
+  "description": "Because:\n\n* The reset password page didn't point passkey or social-login users\n  back to sign-in\n* The data recovery warning sat above the form, ahead of the main action\n\nThis commit:\n\n* Updates the heading and body copy; the body links to email-first\n  sign-in and keeps the query params\n* Moves the data recovery warning below Continue as small print with a\n  SUMO \"Learn more\" link\n* Removes the \"Sign in\" footer, its passkey props, and its Glean events\n* Adds Glean auto-click ids to both new links\n* Updates unit tests, mocks, and the functional page object; adds a\n  functional test for the body link\n\nCloses #FXA-13258",
+  "timestamp": 1791238559000,
   "storybooks": [
     "fxa-settings"
   ],
