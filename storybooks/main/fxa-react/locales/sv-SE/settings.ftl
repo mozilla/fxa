@@ -168,7 +168,7 @@ form-password-with-inline-criteria-confirm-password =
     .label = Bekräfta lösenord
 form-password-with-inline-criteria-reset-submit-button = Skapa nytt lösenord
 form-password-with-inline-criteria-old-password-label =
-    .label = Gammalt lösenord
+    .label = Tidigare lösenord
 form-password-with-inline-criteria-change-password-submit-button = Ändra lösenord
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Lösenord
@@ -1973,14 +1973,14 @@ pair2-supplicant-connect-this-device-cancel-button = Avbryt
 
 pair2-supplicant-download-firefox-heading-v2 = Öppna { -brand-firefox } på den här enheten
 # "sync" is a verb here, referring to syncing data between the user's devices.
-pair2-supplicant-download-firefox-description-v2 = Hämta { -brand-firefox } för att synkronisera bokmärken, historik och mer mellan enheter.
+pair2-supplicant-download-firefox-description-v2 = Ladda ner { -brand-firefox } och synkronisera bokmärken, historik och annat mellan dina enheter.
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Fortsätt i { -brand-firefox }
 # Replaces the button label while waiting for the Firefox app to take over
 pair2-supplicant-download-firefox-opening-button = Öppnar { -brand-firefox }…
 # Primary action shown in Safari on iOS. Opens the App Store page for Firefox.
-pair2-supplicant-download-firefox-download-button = Hämta { -brand-firefox }
+pair2-supplicant-download-firefox-download-button = Ladda ned { -brand-firefox }
 # Secondary action shown in Safari on iOS, below the download button. Opens the
 # Firefox app when it is already installed.
 pair2-supplicant-download-firefox-have-firefox-button = Jag har redan { -brand-firefox }
@@ -2055,7 +2055,7 @@ permissions-cancel-button = Avbryt
 ## Users are sent here when suspicious activity on the account requires a new password before they can continue.
 
 force-password-change-heading = Vänligen ändra ditt lösenord
-force-password-change-info = Vi upptäckte misstänkt beteende på din { -product-mozilla-account }. För att skydda ditt konto, skapa ett nytt lösenord. Du använder det här lösenordet för att logga in igen på alla dina { -product-mozilla-account }-tjänster.
+force-password-change-info = Vi har upptäckt misstänkt aktivitet på ditt { -product-mozilla-account }. Skapa ett nytt lösenord för att skydda ditt konto. Du använder det nya lösenordet för att logga in igen på alla dina tjänster från { -product-mozilla-account }.
 force-password-change-data-info = Synkroniserad historik, bokmärken, inloggningar och annan personlig information går inte förlorad.
 
 ## ServiceWelcome page

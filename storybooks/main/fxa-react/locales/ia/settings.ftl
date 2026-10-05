@@ -1975,6 +1975,9 @@ pair2-supplicant-connect-this-device-cancel-button = Cancellar
 ## not Firefox. It offers to open the Firefox app to finish pairing, and to
 ## install it first when the user does not have it yet.
 
+pair2-supplicant-download-firefox-heading-v2 = Aperir { -brand-firefox } sur iste apparato
+# "sync" is a verb here, referring to syncing data between the user's devices.
+pair2-supplicant-download-firefox-description-v2 = Discarga { -brand-firefox } pro synchronisar marcapaginas, chronologia, e altero inter apparatos.
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Continuar in { -brand-firefox }
@@ -1987,6 +1990,20 @@ pair2-supplicant-download-firefox-download-button = Discargar { -brand-firefox }
 pair2-supplicant-download-firefox-have-firefox-button = Io jam ha { -brand-firefox }
 # Opens a page explaining what sync does
 pair2-supplicant-download-firefox-learn-more-link = Pro saper plus
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## with the phone's camera app instead of with Firefox. They already have
+## Firefox installed, so it tells them how to scan the code again from inside
+## Firefox.
+
+pair2-supplicant-connect-hint-heading-v2 = Fini le accopulamento in le application
+# <b> emphasises the name of the button the user taps in Firefox
+pair2-supplicant-connect-hint-step-app-menu = Tocca le <b>menu del application</b> in le barra del instrumentos
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair2-supplicant-connect-hint-step-sign-in = Tocca <b>acceder</b>, pois scande le codice
+# Opens a Mozilla support article about connecting a device without a QR code
+pair2-supplicant-connect-hint-learn-more-link = Pro saper plus
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -2037,6 +2054,13 @@ permissions-label-email = Adresse de e-mail
 permissions-label-display-name = Nomine a monstrar
 permissions-continue-button = Continuar
 permissions-cancel-button = Cancellar
+
+## ForcePasswordChange page
+## Users are sent here when suspicious activity on the account requires a new password before they can continue.
+
+force-password-change-heading = Cambia tu contrasigno
+force-password-change-info = Nos detegeva comportamento suspecte sur tu { -product-mozilla-account }. Pro proteger tu conto, crea un nove contrasigno. Tu usara iste contrasigno pro re-acceder a tote tu servicios de { -product-mozilla-account }.
+force-password-change-data-info = Chronologia, marcapaginas, accessos e altere datos personal synchronisate non sera perdite.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

@@ -1,8 +1,8 @@
 {
-  "commit": "7582b90a8bb4f63236f1812c111df4ea2c087131",
-  "summary": "Merge pull request #21294 from mozilla/fxa-6657",
-  "description": "feat(settings): add React page for /update_firefox",
-  "timestamp": 1791222283000,
+  "commit": "cb9a1f34fbb336c4f9bc78626848c3b141c7d370",
+  "summary": "Merge pull request #21334 from mozilla/fxa-14626",
+  "description": "chore(auth): remove legacy session-token TOTP setup routes",
+  "timestamp": 1791225717000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

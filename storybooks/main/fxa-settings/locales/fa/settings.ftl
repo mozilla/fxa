@@ -133,6 +133,7 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = تأیید گذرواژه
 form-password-with-inline-criteria-reset-submit-button = ایجاد گذرواژه جدید
+form-password-with-inline-criteria-change-password-submit-button = تغییر گذرواژه
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = گذرواژه
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -518,3 +519,20 @@ row-defaults-action-change = تغییر
 
 rk-action-create = ایجاد
 rk-action-remove = برداشتن
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing reaches a browser that is
+## not Firefox. It offers to open the Firefox app to finish pairing, and to
+## install it first when the user does not have it yet.
+
+# Opens a page explaining what sync does
+pair2-supplicant-download-firefox-learn-more-link = بیش‌تر بدانید
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## with the phone's camera app instead of with Firefox. They already have
+## Firefox installed, so it tells them how to scan the code again from inside
+## Firefox.
+
+# Opens a Mozilla support article about connecting a device without a QR code
+pair2-supplicant-connect-hint-learn-more-link = بیش‌تر بدانید

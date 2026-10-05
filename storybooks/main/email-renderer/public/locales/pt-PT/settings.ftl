@@ -1970,19 +1970,19 @@ pair2-supplicant-connect-this-device-cancel-button = Cancelar
 ## not Firefox. It offers to open the Firefox app to finish pairing, and to
 ## install it first when the user does not have it yet.
 
-pair2-supplicant-download-firefox-heading-v2 = Abrir { -brand-firefox } neste dispositivo
+pair2-supplicant-download-firefox-heading-v2 = Abrir o { -brand-firefox } neste dispositivo
 # "sync" is a verb here, referring to syncing data between the user's devices.
-pair2-supplicant-download-firefox-description-v2 = Transfira o { -brand-firefox } para sincronizar os marcadores, histórico e muito mais entre dispositivos.
+pair2-supplicant-download-firefox-description-v2 = Transfira o { -brand-firefox } para sincronizar marcadores, histórico, e muito mais entre dispositivos.
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Continuar no { -brand-firefox }
 # Replaces the button label while waiting for the Firefox app to take over
 pair2-supplicant-download-firefox-opening-button = A abrir { -brand-firefox }…
 # Primary action shown in Safari on iOS. Opens the App Store page for Firefox.
-pair2-supplicant-download-firefox-download-button = Transferir { -brand-firefox }
+pair2-supplicant-download-firefox-download-button = Transferir o { -brand-firefox }
 # Secondary action shown in Safari on iOS, below the download button. Opens the
 # Firefox app when it is already installed.
-pair2-supplicant-download-firefox-have-firefox-button = Eu já tenho { -brand-firefox }
+pair2-supplicant-download-firefox-have-firefox-button = Eu já tenho o { -brand-firefox }
 # Opens a page explaining what sync does
 pair2-supplicant-download-firefox-learn-more-link = Saber mais
 
@@ -1996,7 +1996,7 @@ pair2-supplicant-connect-hint-heading-v2 = Concluir emparelhamento na aplicaçã
 # <b> emphasises the name of the button the user taps in Firefox
 pair2-supplicant-connect-hint-step-app-menu = Toque no <b>menu da aplicação</b> na barra de ferramentas
 # <b> emphasises the name of the menu item the user taps in Firefox
-pair2-supplicant-connect-hint-step-sign-in = Toque em <b>iniciar sessão</b> e digitalize o código
+pair2-supplicant-connect-hint-step-sign-in = Toque em <b>iniciar sessão</b>, depois digitalize o código
 # Opens a Mozilla support article about connecting a device without a QR code
 pair2-supplicant-connect-hint-learn-more-link = Saber mais
 
@@ -2053,9 +2053,9 @@ permissions-cancel-button = Cancelar
 ## ForcePasswordChange page
 ## Users are sent here when suspicious activity on the account requires a new password before they can continue.
 
-force-password-change-heading = Por favor, altere a sua palavra-passe
-force-password-change-info = Detetámos um comportamento suspeito no seu { -product-mozilla-account }. Para proteger a sua conta, por favor, crie uma nova palavra-passe. Irá utilizar esta palavra-passe para iniciar sessão em todos os seus serviços de { -product-mozilla-account }.
-force-password-change-data-info = O histórico, marcadores, credenciais e outros dados pessoais sincronizados não serão perdidos.
+force-password-change-heading = Por favor altere a sua palavra-passe
+force-password-change-info = Detetámos um comportamento suspeito na sua { -product-mozilla-account }. Para proteger a sua conta, por favor crie uma nova palavra-passe. Irá utilizar esta palavra-passe para iniciar sessão novamente em todos os seus serviços da { -product-mozilla-account }.
+force-password-change-data-info = O histórico, marcadores, credenciais, e outros dados pessoais sincronizados não serão perdidos.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
