@@ -902,19 +902,18 @@ describe('#integration - lifecycle: account deletion vs connected-services deaut
     expect(await db.listAccountConsentsByUid(uid)).toHaveLength(0);
   });
 
-  it('deauthorizing via authorized-clients (connected services) keeps the row and its ToS history', async () => {
+  it('deauthorizing via attached_client/destroy (connected services) keeps the row and its ToS history', async () => {
     // Disconnecting in the Settings "Connected Services" UI sweeps tokens and
     // codes, and may withdraw the active authorization, but the row itself
     // survives until account deletion: it is the ToS record. Whether deauthorizedAt
     // ends up set depends on what the client still holds, which
     // deauthorization.spec.ts covers directly.
-    const authorizedClients = require('../../lib/oauth/authorized_clients');
     const uid = testClient.uid;
     await writeConsent();
     const before = await db.listAccountConsentsByUid(uid);
     expect(before.length).toBeGreaterThan(0);
 
-    await authorizedClients.destroy(E2E_PUBLIC_CLIENT_ID, uid);
+    await testClient.destroyAttachedClient({ clientId: E2E_PUBLIC_CLIENT_ID });
 
     const after = await db.listAccountConsentsByUid(uid);
     expect(after).toHaveLength(before.length);

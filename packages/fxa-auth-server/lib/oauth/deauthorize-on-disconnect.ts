@@ -13,8 +13,8 @@
 // delete committed — which is what makes Settings' parallel sign-outs safe:
 // the last one to run sees the true final state.
 //
-// Reached from Connected Services disconnect (Settings' attached-clients
-// destroy and POST /oauth/authorized-clients/destroy) and device disconnect.
+// Reached from Connected Services disconnect (POST
+// /account/attached_client/destroy) and device disconnect.
 // Session sign-outs never reach it: deleting a session token does not touch
 // fxa_oauth.refreshTokens, so it cannot change any row's outcome.
 //
