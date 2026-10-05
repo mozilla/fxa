@@ -134,6 +134,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       routes: reactRoute.getRoutes([
         'post_verify/password/force_password_change',
         'subscriptions',
+        'update_firefox',
       ]),
       fullProdRollout: false,
     },

@@ -61,6 +61,7 @@ const SignupConfirmedSync = lazy(
 const ServiceWelcome = lazy(
   () => import('../../pages/PostVerify/ServiceWelcome')
 );
+const UpdateFirefox = lazy(() => import('../../pages/UpdateFirefox'));
 const IndexContainer = lazy(() => import('../../pages/Index/container'));
 const Clear = lazy(() => import('../../pages/Clear'));
 
@@ -722,6 +723,10 @@ const AuthAndAccountSetupRoutes = ({
         <Route
           path="/post_verify/service_welcome/*"
           element={<ServiceWelcome {...{ integration }} />}
+        />
+        <Route
+          path="/update_firefox/*"
+          element={<UpdateFirefox metricsFlow={MetricsFlow.getMetricsFlow()} />}
         />
 
         {/* Reset password */}

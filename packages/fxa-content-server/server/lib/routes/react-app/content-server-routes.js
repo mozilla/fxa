@@ -111,7 +111,11 @@ const FRONTEND_ROUTES = [
 
 const OAUTH_SUCCESS_ROUTES = ['/oauth/success/:clientId'];
 
+// Server-rendered by get-update-firefox.js when React does not serve it
+const UPDATE_FIREFOX_ROUTES = ['update_firefox'];
+
 module.exports = {
   FRONTEND_ROUTES,
   OAUTH_SUCCESS_ROUTES,
+  UPDATE_FIREFOX_ROUTES,
 };
