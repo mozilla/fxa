@@ -1,8 +1,8 @@
 {
-  "commit": "1af9852c00a870426cbfd4689ed1922df5709b30",
-  "summary": "Merge pull request #21321 from mozilla/fxa-14618",
-  "description": "refactor(auth): remove unused POST /v1/key-data route",
-  "timestamp": 1791212013000,
+  "commit": "c95f52acba0e53e5e35187b029ba44811c3478b3",
+  "summary": "Merge pull request #21323 from mozilla/fxa-14620",
+  "description": "chore(auth): remove legacy GET /verify_email redirect route",
+  "timestamp": 1791212134000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
