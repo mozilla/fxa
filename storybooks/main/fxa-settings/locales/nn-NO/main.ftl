@@ -1188,6 +1188,10 @@ inline-passwordless-sync-setup-description = Bruk denne passnøkkelen for å log
 inline-passwordless-sync-setup-enable-button = Slå på passnøkkel
 inline-passwordless-sync-setup-enabling = Slår på…
 inline-passwordless-sync-setup-not-now-button = Ikkje no
+inline-passwordless-sync-setup-success-alert = Denne passnøkkelen er klar for pålogging med synkronisering
+inline-passwordless-sync-setup-error-cancelled = Stadfestinga med passnøkkelen vart ikkje fullført
+inline-passwordless-sync-setup-error-cancelled-description = Stadfest med passnøkkelen din for å sleppe å skrive inn passordet neste gong.
+inline-passwordless-sync-setup-error-generic = Noko gjekk gale. Du må framleis skrive inn passordet neste gong.
 
 
 inline-recovery-key-setup-create-error = Ops! Vi klarte ikkje å opprette kontogjenopprettingsnøkkelen din. Prøv igjen seinare.

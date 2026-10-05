@@ -299,7 +299,7 @@ postChangeAccountRecovery-body-part1 = 您已產生新的帳號救援金鑰，�
 postChangeAccountRecovery-body-part2 = 請將這把新的金鑰存放在安全的地方，未來萬一忘記密碼時，需要使用此金鑰才可以取回加密的瀏覽資料。
 postChangeAccountRecovery-action = 管理帳號
 postChangePrimary-subject = 已更改主要電子郵件地址
-postChangePrimary-title = 新增主要電子郵件地址
+postChangePrimary-title = 已更新主要電子郵件地址
 # Variables:
 #  $email (String) - A user's email address
 postChangePrimary-description-2 = 您已成功將主要電子郵件地址更改為 { $email }。現在起，請使用此信箱來登入 { -product-mozilla-account }，也會在這個信箱中收到安全性通知、登入確認信等等。

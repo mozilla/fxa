@@ -1648,8 +1648,8 @@ inline-passwordless-sync-setup-not-now-button = Teď ne
 # Success message shown in the Settings alert bar after the passkey was stored.
 inline-passwordless-sync-setup-success-alert = Tento přístupový kód je připraven pro přihlášení pomocí synchronizace
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
-inline-passwordless-sync-setup-error-cancelled = Potvrzení hesla nebylo dokončeno
-inline-passwordless-sync-setup-error-cancelled-description = Pro příště přeskočené heslo potvrďte svým přístupovým klíčem.
+inline-passwordless-sync-setup-error-cancelled = Potvrzení přístupového klíče nebylo dokončeno
+inline-passwordless-sync-setup-error-cancelled-description = Potvrďte svou totožnost přístupovým klíčem, abyste příště nemuseli zadávat heslo.
 # Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
 inline-passwordless-sync-setup-error-generic = Něco se pokazilo. Příště budete muset zadat heslo
 
@@ -2028,7 +2028,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Pro připojení svéh
 ## read. It does not offer a choice.
 
 # Variable $serviceName is the name of the relying party, e.g. "321Done"
-permissions-heading = { $serviceName } požaduje přístup k:
+permissions-heading = Služba { $serviceName } požaduje přístup k:
 permissions-label-email = E-mailová adresa
 permissions-label-display-name = Zobrazované jméno
 permissions-continue-button = Pokračovat

@@ -1,8 +1,8 @@
 {
-  "commit": "25b557f76780a2818c6633262c9b0939d6ffcb0f",
-  "summary": "Merge pull request #21367 from mozilla/fxa-4900",
-  "description": "chore(content-server): remove deprecated time-grunt",
-  "timestamp": 1790959521000,
+  "commit": "7353ba6c61713a0b1461df6281d3268daa4ec0d3",
+  "summary": "Merge pull request #21366 from mozilla/fxa-14374",
+  "description": "refactor(content-server): remove Backbone signup views and routes",
+  "timestamp": 1791207473000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

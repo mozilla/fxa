@@ -31,7 +31,7 @@ brand-close-banner =
     .alt = بستن بنر
 # Alt text for 'm' logo in banner header
 brand-m-logo =
-    .alt = آرم { -brand-mozilla }
+    .alt = آرم { -brand-mozilla } m
 
 ## ButtonBack component
 ## Allows users to click a back arrow to navigate to the previous page
@@ -43,6 +43,9 @@ button-back-title = بازگشت
 ## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
+# Button to download the account recovery key as a plain text file and navigate to the next step
+# The next (and final) step is an optional prompt to save a storage hint
+recovery-key-download-button-v4 = بارگیری و ادامه
 # Error message shown in a banner if the account recovery key download failed.
 # The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = متاسفیم، مشکلی در بارگیری کلید بازیابی حساب شما وجود داشت.
@@ -226,6 +229,9 @@ info-icon-aria-label =
 # Used to select United States as a country code for phone number
 usa-flag-icon-aria-label =
     .aria-label = پرچم ایالات متحده آمریکا
+# Used for loading arrow icon
+icon-loading-arrow-aria-label =
+    .aria-label = در حال بار کردن
 hearts-broken-image-aria-label =
     .aria-label = یک رایانه و یک تلفن همراه و تصویری از یک قلب شکسته روی هر کدام
 hearts-verified-image-aria-label =

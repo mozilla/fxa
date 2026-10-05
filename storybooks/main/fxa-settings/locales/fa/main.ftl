@@ -73,13 +73,14 @@ brand-learn-more = بیشتر بدانید
 brand-close-banner =
     .alt = بستن بنر
 brand-m-logo =
-    .alt = آرم { -brand-mozilla }
+    .alt = آرم { -brand-mozilla } m
 
 
 button-back-aria-label = بازگشت
 button-back-title = بازگشت
 
 
+recovery-key-download-button-v4 = بارگیری و ادامه
 recovery-key-pdf-download-error = متاسفیم، مشکلی در بارگیری کلید بازیابی حساب شما وجود داشت.
 
 
@@ -203,6 +204,8 @@ info-icon-aria-label =
     .aria-label = اطلاعات
 usa-flag-icon-aria-label =
     .aria-label = پرچم ایالات متحده آمریکا
+icon-loading-arrow-aria-label =
+    .aria-label = در حال بار کردن
 hearts-broken-image-aria-label =
     .aria-label = یک رایانه و یک تلفن همراه و تصویری از یک قلب شکسته روی هر کدام
 hearts-verified-image-aria-label =
