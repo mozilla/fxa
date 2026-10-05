@@ -316,12 +316,6 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'REACT_CONVERSION_SIMPLE_ROUTES',
     },
-    signUpRoutes: {
-      default: false,
-      doc: 'Enable users to visit the React version of "signup" routes',
-      format: Boolean,
-      env: 'REACT_CONVERSION_SIGNUP_ROUTES',
-    },
     postVerifyOtherRoutes: {
       default: false,
       doc: 'Enable users to visit the React version of any other "post verify" routes',

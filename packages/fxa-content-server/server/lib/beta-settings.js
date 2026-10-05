@@ -106,7 +106,6 @@ const settingsConfig = {
   glean: { ...config.get('glean'), appDisplayVersion: config.get('version') },
   redirectAllowlist: config.get('redirect_check.allow_list'),
   showReactApp: {
-    signUpRoutes: config.get('showReactApp.signUpRoutes'),
     emailFirstRoutes: config.get('showReactApp.emailFirstRoutes'),
   },
   pairing: {
