@@ -22515,9 +22515,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"app-store-server-api@patch:app-store-server-api@npm%3A1.0.0#~/patches/app-store-server-api-npm-1.0.0.patch":
+"app-store-server-api@patch:app-store-server-api@npm%3A1.0.0#~/.yarn/patches/app-store-server-api-npm-1.0.0.patch":
   version: 1.0.0
-  resolution: "app-store-server-api@patch:app-store-server-api@npm%3A1.0.0#~/patches/app-store-server-api-npm-1.0.0.patch::version=1.0.0&hash=e40726"
+  resolution: "app-store-server-api@patch:app-store-server-api@npm%3A1.0.0#~/.yarn/patches/app-store-server-api-npm-1.0.0.patch::version=1.0.0&hash=e40726"
   dependencies:
     jose: "npm:^6.2.3"
   checksum: 10c0/b5cab409760b6c5a54a7ce95040bf6c498bad8fddadb0ef864e03f43c6535a4d5418e70fb95893ea5fd24c2a2c40e6b9e67263e44462d1cbf65be17f20db9e5e
