@@ -2644,182 +2644,159 @@ describe('#integration - /v1', function () {
         });
       });
     });
+  });
 
-    describe('POST /key-data', function () {
-      let genericRequest;
+  describe('POST /account/scoped-key-data', function () {
+    const ZERO_KEY_ROTATION_SECRET = '0'.repeat(64);
+    let genericRequest;
 
-      beforeEach(function () {
-        genericRequest = {
-          url: '/key-data',
-          payload: {
-            assertion: AN_ASSERTION,
-            client_id: SCOPED_CLIENT_ID,
-            scope: SCOPE_CAN_SCOPE_KEY,
-          },
-        };
+    // Injected credentials skip the Hawk scheme so each test controls the assertion claims.
+    function sessionCredentials(overrides = {}) {
+      return {
+        id: unique(32).toString('hex'),
+        uid: USERID,
+        email: VEMAIL,
+        emailVerified: true,
+        tokenVerified: true,
+        verifierSetAt: 123456,
+        lastAuthAt: () => AUTH_AT,
+        authenticationMethods: AMR,
+        authenticatorAssuranceLevel: AAL,
+        ...overrides,
+      };
+    }
+
+    beforeEach(function () {
+      genericRequest = {
+        url: '/account/scoped-key-data',
+        auth: { strategy: 'sessionToken', credentials: sessionCredentials() },
+        payload: {
+          client_id: SCOPED_CLIENT_ID,
+          scope: SCOPE_CAN_SCOPE_KEY,
+        },
+      };
+    });
+
+    it('works with a correct response', async () => {
+      const res = await Server.api.post(genericRequest);
+      expect(res.statusCode).toBe(200);
+      assertSecurityHeaders(res);
+      expect(res.result).toEqual({
+        [SCOPE_CAN_SCOPE_KEY]: {
+          identifier: SCOPE_CAN_SCOPE_KEY,
+          keyRotationSecret: ZERO_KEY_ROTATION_SECRET,
+          keyRotationTimestamp: 123456,
+        },
       });
+    });
 
-      it('works with a correct response', () => {
-        return Server.api.post(genericRequest).then((res) => {
-          expect(res.statusCode).toBe(200);
-          assertSecurityHeaders(res);
-          expect(Object.keys(res.result).length).toBe(1);
+    it('works with multiple scopes', async () => {
+      const ANOTHER_CAN_SCOPE_KEY =
+        'https://identity.mozilla.com/apps/another-can-scope-key';
+      genericRequest.payload.scope = `${SCOPE_CAN_SCOPE_KEY} ${ANOTHER_CAN_SCOPE_KEY}`;
 
-          const body = res.result[SCOPE_CAN_SCOPE_KEY];
-
-          expect(body.identifier).toBe(
-            'https://identity.mozilla.com/apps/sample-scope-can-scope-key'
-          );
-          expect(body.keyRotationSecret).toBe(
-            '0000000000000000000000000000000000000000000000000000000000000000'
-          );
-          expect(body.keyRotationTimestamp).toBe(123456);
-        });
+      const res = await Server.api.post(genericRequest);
+      expect(res.statusCode).toBe(200);
+      assertSecurityHeaders(res);
+      expect(res.result).toEqual({
+        [SCOPE_CAN_SCOPE_KEY]: {
+          identifier: SCOPE_CAN_SCOPE_KEY,
+          keyRotationSecret: ZERO_KEY_ROTATION_SECRET,
+          keyRotationTimestamp: 123456,
+        },
+        [ANOTHER_CAN_SCOPE_KEY]: {
+          identifier: ANOTHER_CAN_SCOPE_KEY,
+          keyRotationSecret: ZERO_KEY_ROTATION_SECRET,
+          keyRotationTimestamp: 123456,
+        },
       });
+    });
 
-      it('works with multiple scopes', () => {
-        const ANOTHER_CAN_SCOPE_KEY =
-          'https://identity.mozilla.com/apps/another-can-scope-key';
-        genericRequest.payload.scope = `${SCOPE_CAN_SCOPE_KEY} ${ANOTHER_CAN_SCOPE_KEY}`;
+    it('fails with non-existent client_id', async () => {
+      genericRequest.payload.client_id = BAD_CLIENT_ID;
+      const res = await Server.api.post(genericRequest);
+      expect(res.statusCode).toBe(400);
+      assertSecurityHeaders(res);
+      expect(res.result.errno).toBe(162);
+      expect(res.result.message).toBe('Unknown client_id');
+    });
 
-        return Server.api.post(genericRequest).then((res) => {
-          expect(res.statusCode).toBe(200);
-          assertSecurityHeaders(res);
-          expect(Object.keys(res.result).length).toBe(2);
+    it('succeeds with a non-scoped-key scope', async () => {
+      genericRequest.payload.scope =
+        'https://identity.mozilla.com/apps/sample-scope';
+      const res = await Server.api.post(genericRequest);
+      expect(res.statusCode).toBe(200);
+      assertSecurityHeaders(res);
+      expect(res.result).toEqual({});
+    });
 
-          const keyOne = res.result[SCOPE_CAN_SCOPE_KEY];
-          const keyTwo = res.result[ANOTHER_CAN_SCOPE_KEY];
+    it('succeeds with scopes that arent explicitly defined in config', async () => {
+      genericRequest.payload.scope += ' kv';
+      const res = await Server.api.post(genericRequest);
+      expect(res.statusCode).toBe(200);
+      assertSecurityHeaders(res);
+      expect(Object.keys(res.result)).toEqual([SCOPE_CAN_SCOPE_KEY]);
+    });
 
-          expect(keyOne.identifier).toBe(SCOPE_CAN_SCOPE_KEY);
-          expect(keyOne.keyRotationSecret).toBe(
-            '0000000000000000000000000000000000000000000000000000000000000000'
-          );
-          expect(keyOne.keyRotationTimestamp).toBe(123456);
+    it('fails with an invalid session token', async () => {
+      delete genericRequest.auth;
+      genericRequest.headers = { authorization: `Bearer ${'0'.repeat(64)}` };
+      const res = await Server.api.post(genericRequest);
+      expect(res.statusCode).toBe(401);
+      assertSecurityHeaders(res);
+      expect(res.result.errno).toBe(110);
+    });
 
-          expect(keyTwo.identifier).toBe(ANOTHER_CAN_SCOPE_KEY);
-          expect(keyTwo.keyRotationSecret).toBe(
-            '0000000000000000000000000000000000000000000000000000000000000000'
-          );
-          expect(keyTwo.keyRotationTimestamp).toBe(123456);
-        });
+    it.each([
+      ['are not allowed the requested scope', NO_KEY_SCOPES_CLIENT_ID],
+      ['have no allowedScopes', NO_ALLOWED_SCOPES_CLIENT_ID],
+    ])('fails for clients that %s', async (_, clientId) => {
+      genericRequest.payload.client_id = clientId;
+      const res = await Server.api.post(genericRequest);
+      expect(res.statusCode).toBe(400);
+      expect(res.result.message).toBe('Requested scopes are not allowed');
+      assertSecurityHeaders(res);
+    });
+
+    it('correctly handles authAt timestamp for newly-created accounts', async () => {
+      genericRequest.auth.credentials = sessionCredentials({
+        verifierSetAt: 1549910733629,
+        lastAuthAt: () => 1549910733,
       });
+      const res = await Server.api.post(genericRequest);
+      expect(res.statusCode).toBe(200);
+      assertSecurityHeaders(res);
+      expect(Object.keys(res.result)).toEqual([SCOPE_CAN_SCOPE_KEY]);
+    });
 
-      it('fails with non-existent client_id', () => {
-        genericRequest.payload.client_id = BAD_CLIENT_ID;
-        return Server.api.post(genericRequest).then((res) => {
-          expect(res.statusCode).toBe(400);
-          assertSecurityHeaders(res);
-          const body = res.result;
-          expect(body.errno).toBe(101);
-          expect(body.message).toBe('Unknown client');
-        });
+    it('uses fxa-keysChangedAt for the key rotation timestamp', async () => {
+      genericRequest.auth.credentials = sessionCredentials({
+        verifierSetAt: 1549910740000,
+        lastAuthAt: () => 1549910733,
+        keysChangedAt: 1549910340000,
       });
+      const res = await Server.api.post(genericRequest);
+      expect(res.statusCode).toBe(200);
+      assertSecurityHeaders(res);
+      expect(Object.keys(res.result)).toEqual([SCOPE_CAN_SCOPE_KEY]);
+      expect(res.result[SCOPE_CAN_SCOPE_KEY].keyRotationTimestamp).toBe(
+        1549910340000
+      );
+    });
 
-      it('succeeds with a non-scoped-key scope', () => {
-        genericRequest.payload.scope =
-          'https://identity.mozilla.com/apps/sample-scope';
-        return Server.api.post(genericRequest).then((res) => {
-          expect(res.statusCode).toBe(200);
-          assertSecurityHeaders(res);
-          expect(Object.keys(res.result).length).toBe(0);
-        });
+    it('falls back to fxa-generation when fxa-keysChangedAt is falsy', async () => {
+      genericRequest.auth.credentials = sessionCredentials({
+        verifierSetAt: 1549910730000,
+        lastAuthAt: () => 1549910733,
+        keysChangedAt: undefined,
       });
-
-      it('succeeds with scopes that arent explicitly defined in config', () => {
-        genericRequest.payload.scope += ' kv';
-        return Server.api.post(genericRequest).then((res) => {
-          expect(res.statusCode).toBe(200);
-          assertSecurityHeaders(res);
-          expect(Object.keys(res.result)).toEqual([SCOPE_CAN_SCOPE_KEY]);
-        });
-      });
-
-      it('fails with bad assertion', () => {
-        genericRequest.payload.assertion = AN_ASSERTION + 'invalid';
-        return Server.api.post(genericRequest).then((res) => {
-          expect(res.statusCode).toBe(401);
-          assertSecurityHeaders(res);
-          const body = res.result;
-          expect(body.message).toBe('Invalid assertion');
-        });
-      });
-
-      it('fails for clients that are not allowed the requested scope', () => {
-        genericRequest.payload.client_id = NO_KEY_SCOPES_CLIENT_ID;
-
-        return Server.api.post(genericRequest).then((res) => {
-          expect(res.statusCode).toBe(400);
-          expect(res.result.message).toBe('Requested scopes are not allowed');
-          assertSecurityHeaders(res);
-        });
-      });
-
-      it('fails for clients that have no allowedScopes', () => {
-        genericRequest.payload.client_id = NO_ALLOWED_SCOPES_CLIENT_ID;
-
-        return Server.api.post(genericRequest).then((res) => {
-          expect(res.statusCode).toBe(400);
-          expect(res.result.message).toBe('Requested scopes are not allowed');
-          assertSecurityHeaders(res);
-        });
-      });
-
-      it('correctly handles authAt timestamp for newly-created accounts', async () => {
-        genericRequest.payload.assertion = await genAssertion({
-          'fxa-generation': 1549910733629,
-          'fxa-verifiedEmail': VEMAIL,
-          'fxa-lastAuthAt': 1549910733,
-          'fxa-tokenVerified': true,
-          'fxa-amr': AMR,
-          'fxa-aal': AAL,
-          'fxa-profileChangedAt': Date.now(),
-        });
-        return Server.api.post(genericRequest).then((res) => {
-          expect(res.statusCode).toBe(200);
-          assertSecurityHeaders(res);
-          expect(Object.keys(res.result).length).toBe(1);
-        });
-      });
-
-      it('uses fxa-keysChangedAt for the key rotation timestamp', async () => {
-        genericRequest.payload.assertion = await genAssertion({
-          'fxa-generation': 1549910740000,
-          'fxa-verifiedEmail': VEMAIL,
-          'fxa-lastAuthAt': 1549910733,
-          'fxa-tokenVerified': true,
-          'fxa-amr': AMR,
-          'fxa-aal': AAL,
-          'fxa-profileChangedAt': Date.now(),
-          'fxa-keysChangedAt': 1549910340000,
-        });
-        return Server.api.post(genericRequest).then((res) => {
-          expect(res.statusCode).toBe(200);
-          assertSecurityHeaders(res);
-          expect(Object.keys(res.result).length).toBe(1);
-          const keyOne = res.result[SCOPE_CAN_SCOPE_KEY];
-          expect(keyOne.keyRotationTimestamp).toBe(1549910340000);
-        });
-      });
-
-      it('falls back to fxa-generation when fxa-keysChangedAt is falsy', async () => {
-        genericRequest.payload.assertion = await genAssertion({
-          'fxa-generation': 1549910730000,
-          'fxa-verifiedEmail': VEMAIL,
-          'fxa-lastAuthAt': 1549910733,
-          'fxa-tokenVerified': true,
-          'fxa-amr': AMR,
-          'fxa-aal': AAL,
-          'fxa-profileChangedAt': Date.now(),
-          'fxa-keysChangedAt': undefined,
-        });
-        return Server.api.post(genericRequest).then((res) => {
-          expect(res.statusCode).toBe(200);
-          assertSecurityHeaders(res);
-          expect(Object.keys(res.result).length).toBe(1);
-          const keyOne = res.result[SCOPE_CAN_SCOPE_KEY];
-          expect(keyOne.keyRotationTimestamp).toBe(1549910730000);
-        });
-      });
+      const res = await Server.api.post(genericRequest);
+      expect(res.statusCode).toBe(200);
+      assertSecurityHeaders(res);
+      expect(Object.keys(res.result)).toEqual([SCOPE_CAN_SCOPE_KEY]);
+      expect(res.result[SCOPE_CAN_SCOPE_KEY].keyRotationTimestamp).toBe(
+        1549910730000
+      );
     });
   });
 
