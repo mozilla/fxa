@@ -1,0 +1,13 @@
+{
+  "commit": "84ab2bfb246640a0afba73f8c777ce0d150a968c",
+  "summary": "chore(deps): bump app-store-server-api from 0.16.0 to 1.0.0",
+  "description": "Bumps [app-store-server-api](https://github.com/agisboye/app-store-server-api) from 0.16.0 to 1.0.0.\n- [Release notes](https://github.com/agisboye/app-store-server-api/releases)\n- [Commits](https://github.com/agisboye/app-store-server-api/compare/v0.16.0...v1.0.0)\n\n---\nupdated-dependencies:\n- dependency-name: app-store-server-api\n  dependency-version: 1.0.0\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1791181681000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
