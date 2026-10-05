@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 454c5a5daf9f46a4df4b6a749f7c75ada72511ac</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 454c5a5daf9f46a4df4b6a749f7c75ada72511ac</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/5/2026, 6:45:49 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(settings): update reset password start page copy for passkeys</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- The first password reset screen did not tell users that they can sign in with Google, Apple, or a passkey instead.
+
+## This pull request
+
+- Changes the heading to &quot;Forgot your password?&quot; with the new FTL ID `password-reset-forgot-heading`. The ID `password-reset-flow-heading` stays, because `AccountRecoveryConfirmKey`, `CompleteResetPassword`, and `ConfirmResetPassword` use it.
+- Adds a body text (`password-reset-alternatives-body`). Its first sentence links to the email-first page with the current query string (`/${location.search}`, as `LinkRememberPassword` does).
+- Adds small print below Continue (`password-reset-data-recovery-warning`) with a &quot;Learn more&quot; `LinkExternal` that opens the SUMO reset article in a new tab. Removes `password-reset-body-3`.
+- Removes `LinkRememberPassword`, its `useWatch`, and the `showPasskeyOption` prop and container computation from this page only.
+- Changes the `resetPasswordHeading` regex in the functional page object to `Forgot your password`. Adds `signInAlternativesLink` and the functional test &quot;body link returns to the email-first page&quot;.
+- Replaces the footer unit tests in `index.test.tsx` with tests for the new copy, the SUMO link, the missing footer, and the kept query params.
+
+## Issue that this pull request solves
+
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-13258</pre></dd>
+  </dl>
+</body>
+</html>
