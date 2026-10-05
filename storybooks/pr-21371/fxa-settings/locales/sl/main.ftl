@@ -289,6 +289,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Potrdite geslo
 form-password-with-inline-criteria-reset-submit-button = Ustvarite novo geslo
+form-password-with-inline-criteria-old-password-label =
+    .label = Staro geslo
+form-password-with-inline-criteria-change-password-submit-button = Spremeni geslo
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Geslo
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1488,10 +1491,19 @@ pair2-supplicant-connect-this-device-connect-button = Poveži
 pair2-supplicant-connect-this-device-cancel-button = Prekliči
 
 
-pair2-supplicant-download-firefox-heading = Prenesite { -brand-firefox(sklon: "tozilnik") } na to napravo
-pair2-supplicant-download-firefox-description = Prenesite { -brand-firefox(sklon: "tozilnik") } in sinhronizirajte zaznamke, zgodovino ter druge podatke med napravami. <linkExternal>Več o tem</linkExternal>
+pair2-supplicant-download-firefox-heading-v2 = Odprite { -brand-firefox } v tej napravi
+pair2-supplicant-download-firefox-description-v2 = Prenesite { -brand-firefox } in sinhronizirajte zaznamke, zgodovino in drugo med napravami.
 pair2-supplicant-download-firefox-continue-button = Nadaljuj v { -brand-firefox(sklon: "mestnik") }
 pair2-supplicant-download-firefox-opening-button = Odpiranje { -brand-firefox(sklon: "rodilnik") } …
+pair2-supplicant-download-firefox-download-button = Prenesi { -brand-firefox(sklon: "tozilnik") }
+pair2-supplicant-download-firefox-have-firefox-button = { -brand-firefox } že imam
+pair2-supplicant-download-firefox-learn-more-link = Več o tem
+
+
+pair2-supplicant-connect-hint-heading-v2 = Dokončajte seznanjanje v aplikaciji
+pair2-supplicant-connect-hint-step-app-menu = V orodni vrstici tapnite <b>meni aplikacij</b>
+pair2-supplicant-connect-hint-step-sign-in = Tapnite <b>prijava</b> in preberite kodo
+pair2-supplicant-connect-hint-learn-more-link = Več o tem
 
 
 pair2-supplicant-ready-to-scan-heading = Da povežete napravo
@@ -1515,6 +1527,11 @@ permissions-label-email = E-poštni naslov
 permissions-label-display-name = Prikazno ime
 permissions-continue-button = Nadaljuj
 permissions-cancel-button = Prekliči
+
+
+force-password-change-heading = Spremenite svoje geslo
+force-password-change-info = Na vaši napravi { -product-mozilla-account } smo zaznali sumljivo vedenje. Za zaščito svojega računa ustvarite novo geslo. To geslo boste uporabili za ponovno prijavo v vse svoje storitve { -product-mozilla-account }.
+force-password-change-data-info = Sinhronizirana zgodovina, zaznamki, prijave in drugi osebni podatki ne bodo izgubljeni.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account(zacetnica: "velika") } potrjen

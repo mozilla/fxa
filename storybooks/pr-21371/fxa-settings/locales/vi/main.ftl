@@ -1306,8 +1306,6 @@ pair2-supplicant-connect-this-device-connect-button = Kết nối
 pair2-supplicant-connect-this-device-cancel-button = Huỷ bỏ
 
 
-pair2-supplicant-download-firefox-heading = Tải { -brand-firefox } trên thiết bị này
-pair2-supplicant-download-firefox-description = Tải xuống { -brand-firefox } để đồng bộ dấu trang, lịch sử và nhiều hơn nữa trên các thiết bị. <linkExternal>Tìm hiểu thêm</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Tiếp tục trong { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Đang mở { -brand-firefox }…
 

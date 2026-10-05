@@ -179,6 +179,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Confirmer le mot de passe
 form-password-with-inline-criteria-reset-submit-button = Créer un nouveau mot de passe
+form-password-with-inline-criteria-old-password-label =
+    .label = Ancien mot de passe
+form-password-with-inline-criteria-change-password-submit-button = Changer le mot de passe
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Mot de passe
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1362,10 +1365,19 @@ pair2-supplicant-connect-this-device-connect-button = Connecter
 pair2-supplicant-connect-this-device-cancel-button = Annuler
 
 
-pair2-supplicant-download-firefox-heading = Installer { -brand-firefox } sur cet appareil
-pair2-supplicant-download-firefox-description = Téléchargez { -brand-firefox } pour synchroniser les marque-pages, l’historique et d’autres données entre vos appareils. <linkExternal>En savoir plus</linkExternal>
+pair2-supplicant-download-firefox-heading-v2 = Ouvrir { -brand-firefox } sur cet appareil
+pair2-supplicant-download-firefox-description-v2 = Téléchargez { -brand-firefox } pour synchroniser les marque-pages, l’historique et d’autres informations entre vos appareils.
 pair2-supplicant-download-firefox-continue-button = Continuer dans { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Ouverture de { -brand-firefox }…
+pair2-supplicant-download-firefox-download-button = Télécharger { -brand-firefox }
+pair2-supplicant-download-firefox-have-firefox-button = J’ai déjà { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = En savoir plus
+
+
+pair2-supplicant-connect-hint-heading-v2 = Terminez l’association dans l’application
+pair2-supplicant-connect-hint-step-app-menu = Appuyez sur le <b>menu de l’application</b> dans la barre d’outils
+pair2-supplicant-connect-hint-step-sign-in = Appuyez sur <b>connectez-vous</b>, puis scannez le code
+pair2-supplicant-connect-hint-learn-more-link = En savoir plus
 
 
 pair2-supplicant-ready-to-scan-heading = Comment connecter un appareil
@@ -1389,6 +1401,11 @@ permissions-label-email = Adresse e-mail
 permissions-label-display-name = Nom à afficher
 permissions-continue-button = Continuer
 permissions-cancel-button = Annuler
+
+
+force-password-change-heading = Merci de changer votre mot de passe
+force-password-change-info = Nous avons détecté un comportement suspect sur votre { -product-mozilla-account }. Pour protéger votre compte, veuillez créer un nouveau mot de passe. Vous utiliserez ce mot de passe pour vous reconnecter à tous vos services { -product-mozilla-account }.
+force-password-change-data-info = Les données synchronisées ne seront pas perdues : historique, marque-pages, identifiants et autres données personnelles.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account(capitalization: "uppercase") } confirmé

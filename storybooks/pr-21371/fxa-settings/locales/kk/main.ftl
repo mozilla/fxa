@@ -163,6 +163,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Парольді растау
 form-password-with-inline-criteria-reset-submit-button = Жаңа парольді жасау
+form-password-with-inline-criteria-old-password-label =
+    .label = Ескі пароль
+form-password-with-inline-criteria-change-password-submit-button = Парольді өзгерту
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Пароль
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1355,10 +1358,19 @@ pair2-supplicant-connect-this-device-connect-button = Байланысу
 pair2-supplicant-connect-this-device-cancel-button = Бас тарту
 
 
-pair2-supplicant-download-firefox-heading = Бұл құрылғыда { -brand-firefox } алу
-pair2-supplicant-download-firefox-description = Құрылғылар арасында бетбелгілерді, тарихты және т.б. синхрондау үшін { -brand-firefox } жүктеп алыңыз. <linkExternal>Көбірек білу</linkExternal>
+pair2-supplicant-download-firefox-heading-v2 = Бұл құрылғыда { -brand-firefox } ашыңыз
+pair2-supplicant-download-firefox-description-v2 = Құрылғылар арасында бетбелгілерді, тарихты және т.б. синхрондау үшін { -brand-firefox } жүктеп алыңыз.
 pair2-supplicant-download-firefox-continue-button = { -brand-firefox } ішінде жалғастыру
 pair2-supplicant-download-firefox-opening-button = { -brand-firefox } ашылуда…
+pair2-supplicant-download-firefox-download-button = { -brand-firefox } жүктеп алу
+pair2-supplicant-download-firefox-have-firefox-button = Менде { -brand-firefox } бар
+pair2-supplicant-download-firefox-learn-more-link = Көбірек білу
+
+
+pair2-supplicant-connect-hint-heading-v2 = Жұптауды қолданбада аяқтаңыз
+pair2-supplicant-connect-hint-step-app-menu = Саймандар панеліндегі <b>қолданбалар мәзірін</b> шертіңіз
+pair2-supplicant-connect-hint-step-sign-in = <b>Кіру</b> шертіп, кодты сканерлеңіз
+pair2-supplicant-connect-hint-learn-more-link = Көбірек білу
 
 
 pair2-supplicant-ready-to-scan-heading = Құрылғыны байланыстыру үшін
@@ -1382,6 +1394,11 @@ permissions-label-email = Эл. пошта адресі
 permissions-label-display-name = Көрсетілетін аты
 permissions-continue-button = Жалғастыру
 permissions-cancel-button = Бас тарту
+
+
+force-password-change-heading = Өз пароліңізді өзгертіңіз
+force-password-change-info = Біз сіздің { -product-mozilla-account } тіркелгіңізде күмәнді әрекетті анықтадық. Тіркелгіңізді қорғау үшін жаңа паролді жасаңыз. Бұл парольді барлық { -product-mozilla-account } тіркелгісі қызметтеріне қайта кіру үшін пайдаланасыз.
+force-password-change-data-info = Синхрондалған тарих, бетбелгілер, логиндер және басқа жеке деректер жоғалмайды.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } расталды

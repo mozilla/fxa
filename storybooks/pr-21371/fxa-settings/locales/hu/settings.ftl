@@ -167,6 +167,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Jelszó megerősítése
 form-password-with-inline-criteria-reset-submit-button = Új jelszó létrehozása
+form-password-with-inline-criteria-old-password-label =
+    .label = Régi jelszó
+form-password-with-inline-criteria-change-password-submit-button = Jelszó megváltoztatása
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Jelszó
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1857,7 +1860,6 @@ pair-unsupported-switch-to-firefox = Váltson a { -brand-firefox }ra, és nyissa
 pair-unsupported-oops-mobile = Hoppá! Úgy tűnik, hogy nem a { -brand-firefox }ot használja.
 # v2: Heading for the mobile instructional message, shown on all mobile devices
 # (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
-# Aligned with legacy Backbone copy (see templates/partial/unsupported-pair.mustache).
 pair-unsupported-connecting-mobile-header-v2 = A mobileszköze összekapcsolása a { -product-mozilla-account }jával
 # v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
 # URL so the domain does not wrap to a new line on narrow screens.
@@ -1970,20 +1972,39 @@ pair2-supplicant-connect-this-device-connect-button = Kapcsolódás
 pair2-supplicant-connect-this-device-cancel-button = Mégse
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device when pairing reaches a device that
-## does not have Firefox installed yet. It explains what syncing gets them and
-## either opens the Firefox app to finish pairing or sends them off to install
-## the browser.
+## Users see this on their mobile device when pairing reaches a browser that is
+## not Firefox. It offers to open the Firefox app to finish pairing, and to
+## install it first when the user does not have it yet.
 
-pair2-supplicant-download-firefox-heading = A { -brand-firefox } beszerzése erre az eszközre
+pair2-supplicant-download-firefox-heading-v2 = Nyissa meg a(z) { -brand-firefox } kiegészítőt ezen az eszközön
 # "sync" is a verb here, referring to syncing data between the user's devices.
-# <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = Töltse le a { -brand-firefox }ot, és szinkronizálja a könyvjelzőket, előzményeket és egyebeket az eszközök között. <linkExternal>Tudjon meg többet</linkExternal>
+pair2-supplicant-download-firefox-description-v2 = Töltse le a(z) { -brand-firefox } programot, és szinkronizálja a könyvjelzőket, előzményeket és egyebeket az eszközök között.
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Folytatás a { -brand-firefox }ban
 # Replaces the button label while waiting for the Firefox app to take over
 pair2-supplicant-download-firefox-opening-button = A { -brand-firefox } megnyitása…
+# Primary action shown in Safari on iOS. Opens the App Store page for Firefox.
+pair2-supplicant-download-firefox-download-button = A { -brand-firefox } letöltése
+# Secondary action shown in Safari on iOS, below the download button. Opens the
+# Firefox app when it is already installed.
+pair2-supplicant-download-firefox-have-firefox-button = Már van { -brand-firefox }
+# Opens a page explaining what sync does
+pair2-supplicant-download-firefox-learn-more-link = További tudnivalók
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## with the phone's camera app instead of with Firefox. They already have
+## Firefox installed, so it tells them how to scan the code again from inside
+## Firefox.
+
+pair2-supplicant-connect-hint-heading-v2 = Fejezze be a párosítást az alkalmazásban
+# <b> emphasises the name of the button the user taps in Firefox
+pair2-supplicant-connect-hint-step-app-menu = Koppintson az <b>alkalmazásmenüre</b> az eszköztárban
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair2-supplicant-connect-hint-step-sign-in = Koppintson a <b>bejelentkezés</b>re, majd olvassa le a kódot
+# Opens a Mozilla support article about connecting a device without a QR code
+pair2-supplicant-connect-hint-learn-more-link = További tudnivalók
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -2034,6 +2055,13 @@ permissions-label-email = E-mail-cím
 permissions-label-display-name = Megjelenítendő név
 permissions-continue-button = Folytatás
 permissions-cancel-button = Mégse
+
+## ForcePasswordChange page
+## Users are sent here when suspicious activity on the account requires a new password before they can continue.
+
+force-password-change-heading = Változtassa meg a jelszavát
+force-password-change-info = Gyanús viselkedést észleltünk a következőnél: { -product-mozilla-account }. Fiókja védelme érdekében hozzon létre egy új jelszót. Ezzel a jelszóval újra bejelentkezhet az összes { -product-mozilla-account } szolgáltatásba.
+force-password-change-data-info = A szinkronizált előzmények, könyvjelzők, bejelentkezések és egyéb személyes adatok nem vesznek el.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

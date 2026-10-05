@@ -1393,8 +1393,6 @@ pair2-supplicant-connect-this-device-connect-button = Подключить
 pair2-supplicant-connect-this-device-cancel-button = Отменить
 
 
-pair2-supplicant-download-firefox-heading = Установите { -brand-firefox } на это устройство
-pair2-supplicant-download-firefox-description = Скачайте { -brand-firefox }, чтобы синхронизировать закладки, историю и многое другое между устройствами. <linkExternal>Подробнее</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Продолжить в { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Открытие { -brand-firefox }…
 

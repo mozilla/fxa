@@ -200,6 +200,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Jelszó megerősítése
 form-password-with-inline-criteria-reset-submit-button = Új jelszó létrehozása
+form-password-with-inline-criteria-old-password-label =
+    .label = Régi jelszó
+form-password-with-inline-criteria-change-password-submit-button = Jelszó megváltoztatása
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Jelszó
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1395,10 +1398,19 @@ pair2-supplicant-connect-this-device-connect-button = Kapcsolódás
 pair2-supplicant-connect-this-device-cancel-button = Mégse
 
 
-pair2-supplicant-download-firefox-heading = A { -brand-firefox } beszerzése erre az eszközre
-pair2-supplicant-download-firefox-description = Töltse le a { -brand-firefox }ot, és szinkronizálja a könyvjelzőket, előzményeket és egyebeket az eszközök között. <linkExternal>Tudjon meg többet</linkExternal>
+pair2-supplicant-download-firefox-heading-v2 = Nyissa meg a(z) { -brand-firefox } kiegészítőt ezen az eszközön
+pair2-supplicant-download-firefox-description-v2 = Töltse le a(z) { -brand-firefox } programot, és szinkronizálja a könyvjelzőket, előzményeket és egyebeket az eszközök között.
 pair2-supplicant-download-firefox-continue-button = Folytatás a { -brand-firefox }ban
 pair2-supplicant-download-firefox-opening-button = A { -brand-firefox } megnyitása…
+pair2-supplicant-download-firefox-download-button = A { -brand-firefox } letöltése
+pair2-supplicant-download-firefox-have-firefox-button = Már van { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = További tudnivalók
+
+
+pair2-supplicant-connect-hint-heading-v2 = Fejezze be a párosítást az alkalmazásban
+pair2-supplicant-connect-hint-step-app-menu = Koppintson az <b>alkalmazásmenüre</b> az eszköztárban
+pair2-supplicant-connect-hint-step-sign-in = Koppintson a <b>bejelentkezés</b>re, majd olvassa le a kódot
+pair2-supplicant-connect-hint-learn-more-link = További tudnivalók
 
 
 pair2-supplicant-ready-to-scan-heading = Eszköz csatlakoztatása
@@ -1422,6 +1434,11 @@ permissions-label-email = E-mail-cím
 permissions-label-display-name = Megjelenítendő név
 permissions-continue-button = Folytatás
 permissions-cancel-button = Mégse
+
+
+force-password-change-heading = Változtassa meg a jelszavát
+force-password-change-info = Gyanús viselkedést észleltünk a következőnél: { -product-mozilla-account }. Fiókja védelme érdekében hozzon létre egy új jelszót. Ezzel a jelszóval újra bejelentkezhet az összes { -product-mozilla-account } szolgáltatásba.
+force-password-change-data-info = A szinkronizált előzmények, könyvjelzők, bejelentkezések és egyéb személyes adatok nem vesznek el.
 
 
 service-welcome-signup-success-banner = A { -product-mozilla-account } megerősítve
