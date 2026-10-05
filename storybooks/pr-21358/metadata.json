@@ -1,8 +1,8 @@
 {
-  "commit": "73d751b72a9b198de21cdacee666dd4d38b04c6f",
+  "commit": "533f55392107a86412b4018ba0e7ab8d3d150652",
   "summary": "fix(auth,settings): keep account data usable on subscription errors",
-  "description": "Because:\n\n* One failed Stripe, Play or App Store read made GET /v1/account return a 5xx.\n* Settings rendered defaults on a failed account fetch, which looked like lost account data.\n* The password row showed a 1969 \"Created\" date when `passwordCreated` was missing.\n\nThis commit:\n\n* Catches each subscriptions source separately, logs and reports the error, and omits `subscriptions` when a read failed and none loaded.\n* Treats omitted subscriptions as unknown (`null`) in Settings; Nav keeps the subscriptions link.\n* Throws on a rejected account fetch so Settings shows its error dialog with the Sentry event ID.\n* Hides the password \"Created\" date when `passwordCreated` is 0 or missing.\n* Adds unit tests per source and case, a Security story, and a functional test for the fetch-error dialog.\n\nCloses #FXA-14647",
-  "timestamp": 1791229491000,
+  "description": "Because:\n\n* One failed Stripe, Play or App Store read made GET /v1/account return a 5xx.\n* Settings rendered defaults on a failed account fetch, which looked like lost account data.\n* The password row showed a 1969 \"Created\" date when `passwordCreated` was missing.\n\nThis commit:\n\n* Reads each subscriptions source concurrently with its own catch, logs and reports the error, and omits `subscriptions` when a read failed and none loaded.\n* Treats omitted subscriptions as unknown (`null`) in Settings; Nav keeps the subscriptions link.\n* Throws on a rejected account fetch so Settings shows its error dialog with the Sentry event ID.\n* Hides the password \"Created\" date when `passwordCreated` is 0 or missing.\n* Adds unit tests per source and case, a Security story, and a functional test for the fetch-error dialog.\n\nCloses #FXA-14647",
+  "timestamp": 1791241594000,
   "storybooks": [
     "fxa-settings"
   ],
