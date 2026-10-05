@@ -404,7 +404,11 @@ async function signUpWithTotp(
   const credentials = await testAccountTracker.signUp();
   credentials.secret = await enableTotpOnAccount(
     target.authClient,
-    credentials.sessionToken
+    await testAccountTracker.getMfaJwtForScope(
+      '2fa',
+      credentials.sessionToken,
+      credentials.email
+    )
   );
   // Narrowed rather than copied: the tracker holds this same object, and helpers
   // like completeInlineSetupWithBackupCodes mutate it, so a copy could drift.

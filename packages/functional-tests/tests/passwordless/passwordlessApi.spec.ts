@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { expect, test } from '../../lib/fixtures/standard';
+import { enableTotpOnAccount } from '../../lib/pairing-helpers';
 import { getTotpCode } from '../../lib/totp';
 
 const SUPPORTED_SERVICE = 'smoketests';
@@ -264,13 +265,10 @@ test.describe('severity-2', () => {
         );
         const password = account?.password || '';
 
-        const { secret } = await target.authClient.createTotpToken(
-          sessionToken,
-          {}
+        const secret = await enableTotpOnAccount(
+          target.authClient,
+          await testAccountTracker.getMfaJwtForScope('2fa', sessionToken, email)
         );
-        const totpCode = await getTotpCode(secret);
-        await target.authClient.verifyTotpSetupCode(sessionToken, totpCode);
-        await target.authClient.completeTotpSetup(sessionToken);
 
         if (account) {
           account.secret = secret;
@@ -425,13 +423,10 @@ test.describe('severity-2', () => {
         );
         const password = account?.password || '';
 
-        const { secret } = await target.authClient.createTotpToken(
-          sessionToken,
-          {}
+        const secret = await enableTotpOnAccount(
+          target.authClient,
+          await testAccountTracker.getMfaJwtForScope('2fa', sessionToken, email)
         );
-        const totpCode = await getTotpCode(secret);
-        await target.authClient.verifyTotpSetupCode(sessionToken, totpCode);
-        await target.authClient.completeTotpSetup(sessionToken);
 
         if (account) {
           account.secret = secret;
