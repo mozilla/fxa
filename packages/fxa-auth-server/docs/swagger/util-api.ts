@@ -16,14 +16,8 @@ const GET_RANDOM_BYTES_POST = {
   ],
 };
 
-const VERIFY_EMAIL_GET = {
-  ...TAGS_UTIL,
-  description: '/verify_email',
-};
-
 const API_DOCS = {
   GET_RANDOM_BYTES_POST,
-  VERIFY_EMAIL_GET,
 };
 
 export default API_DOCS;

@@ -5,13 +5,9 @@
 'use strict';
 
 const Sentry = require('@sentry/node');
-const isA = require('joi');
 const random = require('../crypto/random');
-const validators = require('./validators');
 const UTIL_DOCS = require('../../docs/swagger/util-api').default;
 const { AppError } = require('../../../../libs/accounts/errors/src');
-
-const HEX_STRING = validators.HEX_STRING;
 
 module.exports = (log, config, redirectDomain) => {
   return [
@@ -30,24 +26,6 @@ module.exports = (log, config, redirectDomain) => {
         } catch (err) {
           throw err;
         }
-      },
-    },
-    {
-      method: 'GET',
-      path: '/verify_email',
-      options: {
-        ...UTIL_DOCS.VERIFY_EMAIL_GET,
-        validate: {
-          query: {
-            code: isA.string().max(32).regex(HEX_STRING).required(),
-            uid: isA.string().max(32).regex(HEX_STRING).required(),
-            service: isA.string().max(16).alphanum().optional(),
-            redirectTo: validators.redirectTo(redirectDomain).optional(),
-          },
-        },
-      },
-      handler: async function (request, h) {
-        return h.redirect(config.contentServer.url + request.raw.req.url);
       },
     },
     {
