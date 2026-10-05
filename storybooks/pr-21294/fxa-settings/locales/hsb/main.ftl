@@ -1368,8 +1368,6 @@ pair2-supplicant-connect-this-device-connect-button = Zwjazać
 pair2-supplicant-connect-this-device-cancel-button = Přetorhnyć
 
 
-pair2-supplicant-download-firefox-heading = Wobstarajće sej { -brand-firefox } na tutym graće
-pair2-supplicant-download-firefox-description = Sćehńće { -brand-firefox }, zo byšće zapołožki, historiju a wjace na swojich gratach synchronizował. <linkExternal>Dalše informacije</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Z { -brand-firefox } pokročować
 pair2-supplicant-download-firefox-opening-button = { -brand-firefox } so wočinja …
 

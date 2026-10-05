@@ -1040,8 +1040,6 @@ pair2-supplicant-connect-this-device-connect-button = ਕਨੈਕਟ ਕਰੋ
 pair2-supplicant-connect-this-device-cancel-button = ਰੱਦ ਕਰੋ
 
 
-pair2-supplicant-download-firefox-heading = ਇਸ ਡਿਵਾਈਸ ਲਈ { -brand-firefox } ਲਵੋ
-pair2-supplicant-download-firefox-description = ਬੁੱਕਮਾਰਕਾਂ, ਅਤੀਤ ਅਤੇ ਹੋਰ ਚੀਜ਼ਾਂ ਨੂੰ ਡਿਵਾਈਸ ਨਾਲ ਕਨੈਕਟ ਕਰਨ ਲਈ { -brand-firefox } ਨੂੰ ਡਾਊਨਲੋਡ ਕਰੋ। <linkExternal>ਹੋਰ ਜਾਣੋ</linkExternal>
 pair2-supplicant-download-firefox-continue-button = { -brand-firefox } ਨਾਲ ਜਾਰੀ ਰੱਖੋ
 
 

@@ -1354,8 +1354,6 @@ pair2-supplicant-connect-this-device-connect-button = Verbinden
 pair2-supplicant-connect-this-device-cancel-button = Annuleren
 
 
-pair2-supplicant-download-firefox-heading = Download { -brand-firefox } op dit apparaat
-pair2-supplicant-download-firefox-description = Download { -brand-firefox } om bladwijzers, geschiedenis en meer tussen apparaten te synchroniseren. <linkExternal>Meer info</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Doorgaan in { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = { -brand-firefox } openen…
 

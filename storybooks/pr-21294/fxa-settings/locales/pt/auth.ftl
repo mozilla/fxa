@@ -414,10 +414,10 @@ subscriptionRenewalReminder-content-charge-with-tax-default = Nessa altura, a { 
 #   $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 subscriptionRenewalReminder-content-charge-invoice-total-day = Nessa altura, a { -brand-mozilla } irá renovar a sua subscrição diária e será efetuado um débito de { $invoiceTotal } ao método de pagamento da sua conta.
 subscriptionRenewalReminder-content-charge-invoice-total-week = Nessa altura, a { -brand-mozilla } irá renovar a sua subscrição semanal e será efetuada um débito de { $invoiceTotal } ao método de pagamento da sua conta.
-subscriptionRenewalReminder-content-charge-invoice-total-month = Nessa altura, { -brand-mozilla } irá renovar a sua subscrição mensal e será efetuada uma cobrança de { $invoiceTotal } ao método de pagamento da sua conta.
-subscriptionRenewalReminder-content-charge-invoice-total-halfyear = Nessa altura, { -brand-mozilla } irá renovar a sua subscrição de seis meses e será efetuada uma cobrança de { $invoiceTotal } ao método de pagamento da sua conta.
-subscriptionRenewalReminder-content-charge-invoice-total-year = Nessa altura, { -brand-mozilla } irá renovar a sua subscrição anual e será efetuada uma cobrança de { $invoiceTotal } ao método de pagamento da sua conta.
-subscriptionRenewalReminder-content-charge-invoice-total-default = Nessa altura, { -brand-mozilla } irá renovar a sua subscrição e será efetuada uma cobrança de { $invoiceTotal } ao método de pagamento da sua conta.
+subscriptionRenewalReminder-content-charge-invoice-total-month = Nessa altura, a { -brand-mozilla } irá renovar a sua subscrição mensal e será efetuada uma cobrança de { $invoiceTotal } ao método de pagamento da sua conta.
+subscriptionRenewalReminder-content-charge-invoice-total-halfyear = Nessa altura, a { -brand-mozilla } irá renovar a sua subscrição de seis meses e será efetuada uma cobrança de { $invoiceTotal } ao método de pagamento da sua conta.
+subscriptionRenewalReminder-content-charge-invoice-total-year = Nessa altura, a { -brand-mozilla } irá renovar a sua subscrição anual e será efetuada uma cobrança de { $invoiceTotal } ao método de pagamento da sua conta.
+subscriptionRenewalReminder-content-charge-invoice-total-default = Nessa altura, a { -brand-mozilla } irá renovar a sua subscrição e será efetuada uma cobrança de { $invoiceTotal } ao método de pagamento da sua conta.
 subscriptionRenewalReminder-content-closing = Com os melhores cumprimentos,
 # Variables
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
@@ -457,8 +457,8 @@ subscriptionUpgrade-upgrade-info-2 = Atualizou com sucesso para { $productName }
 ## $invoiceAmountDue (String) - The total that the customer owes after all credits, discounts, and taxes have been applied
 ## $paymentProrated (String) - The one time fee to reflect the higher charge for the remainder of the payment cycle, including currency, e.g. $10.00
 
-subscriptionUpgrade-content-charge-prorated-1 = Foi cobrado uma taxa única de { $invoiceAmountDue } para refletir o preço mais alto da sua subscrição para o remanescente deste período de faturação ({ $productPaymentCycleOld }).
-subscriptionUpgrade-content-charge-credit = Recebeu um crédito em conta no valor de { $paymentProrated }.
+subscriptionUpgrade-content-charge-prorated-1 = Foi-lhe cobrada uma taxa única de { $invoiceAmountDue } para refletir o preço mais alto da sua subscrição para o remanescente deste período de faturação ({ $productPaymentCycleOld }).
+subscriptionUpgrade-content-charge-credit = Recebeu um crédito na conta no valor de { $paymentProrated }.
 subscriptionUpgrade-content-subscription-next-bill-change = A partir da sua próxima fatura, o preço da sua subscrição irá mudar.
 subscriptionUpgrade-content-old-price-day = A taxa anterior era de { $paymentAmountOld } por dia.
 subscriptionUpgrade-content-old-price-week = A taxa anterior era de { $paymentAmountOld } por semana.
@@ -466,8 +466,8 @@ subscriptionUpgrade-content-old-price-month = A taxa anterior era de { $paymentA
 subscriptionUpgrade-content-old-price-halfyear = A taxa anterior era de { $paymentAmountOld } por semestre.
 subscriptionUpgrade-content-old-price-year = A taxa anterior era de { $paymentAmountOld } por ano.
 subscriptionUpgrade-content-old-price-default = A taxa anterior era de { $paymentAmountOld } por intervalo de faturação.
-subscriptionUpgrade-content-old-price-day-tax = A taxa anterior era de { $paymentAmountOld } + { $paymentTaxOld } de impostos por dia.
-subscriptionUpgrade-content-old-price-week-tax = A taxa anterior era de { $paymentAmountOld } + { $paymentTaxOld } impostos por semana.
+subscriptionUpgrade-content-old-price-day-tax = A taxa anterior era de { $paymentAmountOld } + { $paymentTaxOld } de imposto por dia.
+subscriptionUpgrade-content-old-price-week-tax = A taxa anterior era de { $paymentAmountOld } + { $paymentTaxOld } imposto por semana.
 subscriptionUpgrade-content-old-price-month-tax = O pagamento anterior era de { $paymentAmountOld } + { $paymentTaxOld } de imposto por mês.
 subscriptionUpgrade-content-old-price-halfyear-tax = O pagamento anterior era de { $paymentAmountOld } + { $paymentTaxOld } de imposto por semestre.
 subscriptionUpgrade-content-old-price-year-tax = O pagamento anterior era de { $paymentAmountOld } + { $paymentTaxOld } de imposto por ano.
@@ -484,7 +484,7 @@ subscriptionUpgrade-content-new-price-month-tax = A partir de agora, irá ser-lh
 subscriptionUpgrade-content-new-price-halfyear-tax = De agora em diante, será cobrado { $paymentAmountNew } mais { $paymentTaxNew } de imposto a cada seis meses, excluindo descontos.
 subscriptionUpgrade-content-new-price-year-tax = De agora em diante, será cobrado { $paymentAmountNew } mais { $paymentTaxNew } de imposto por ano, excluindo descontos.
 subscriptionUpgrade-content-new-price-default-tax = De agora em diante, será cobrado { $paymentAmountNew } mais { $paymentTaxNew } de imposto por cada período de faturação, excluindo descontos.
-subscriptionUpgrade-existing = Se alguma das suas subscrições existentes se sobrepor a esta atualização, iremos gerir a mesma e enviar-lhe um e-mail separado com os detalhes. Se o seu novo plano incluir produtos que requeiram instalação, iremos enviar-lhe um e-mail separado com as instruções de configuração.
+subscriptionUpgrade-existing = Se alguma das suas subscrições existentes se sobrepuser a esta atualização, iremos gerir a mesma e enviar-lhe um e-mail separado com os detalhes. Se o seu novo plano incluir produtos que requeiram instalação, iremos enviar-lhe um e-mail separado com as instruções de configuração.
 subscriptionUpgrade-auto-renew = As sua subscrição irá ser renovada automaticamente em cada período de faturação, a menos que opte por cancelar.
 subscriptionsPaymentExpired-subject-2 = O método de pagamento para as suas subscrições expirou ou expira em breve
 subscriptionsPaymentExpired-title-2 = O seu método de pagamento expirou ou está prestes a expirar

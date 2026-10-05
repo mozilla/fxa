@@ -1111,7 +1111,6 @@ pair2-supplicant-connect-this-device-connect-button = Konektatu
 pair2-supplicant-connect-this-device-cancel-button = Utzi
 
 
-pair2-supplicant-download-firefox-heading = Eskuratu { -brand-firefox } gailu honetan
 pair2-supplicant-download-firefox-opening-button = { -brand-firefox } irekitzen…
 
 

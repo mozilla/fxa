@@ -167,6 +167,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Passwort bestätigen
 form-password-with-inline-criteria-reset-submit-button = Neues Passwort erstellen
+form-password-with-inline-criteria-old-password-label =
+    .label = Altes Passwort
+form-password-with-inline-criteria-change-password-submit-button = Passwort ändern
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Passwort
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1851,7 +1854,6 @@ pair-unsupported-switch-to-firefox = Wechseln Sie zu { -brand-firefox } und öff
 pair-unsupported-oops-mobile = Hoppla! Anscheinend verwenden Sie { -brand-firefox } nicht.
 # v2: Heading for the mobile instructional message, shown on all mobile devices
 # (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
-# Aligned with legacy Backbone copy (see templates/partial/unsupported-pair.mustache).
 pair-unsupported-connecting-mobile-header-v2 = Verbinden Ihres Mobilgerätes mit Ihrem { -product-mozilla-account }
 # v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
 # URL so the domain does not wrap to a new line on narrow screens.
@@ -1964,20 +1966,39 @@ pair2-supplicant-connect-this-device-connect-button = Verbinden
 pair2-supplicant-connect-this-device-cancel-button = Abbrechen
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device when pairing reaches a device that
-## does not have Firefox installed yet. It explains what syncing gets them and
-## either opens the Firefox app to finish pairing or sends them off to install
-## the browser.
+## Users see this on their mobile device when pairing reaches a browser that is
+## not Firefox. It offers to open the Firefox app to finish pairing, and to
+## install it first when the user does not have it yet.
 
-pair2-supplicant-download-firefox-heading = Holen Sie sich { -brand-firefox } auf dieses Gerät
+pair2-supplicant-download-firefox-heading-v2 = { -brand-firefox } auf diesem Gerät öffnen
 # "sync" is a verb here, referring to syncing data between the user's devices.
-# <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = Laden Sie { -brand-firefox } herunter, um Lesezeichen, Chronik und mehr zwischen Geräten zu synchronisieren. <linkExternal>Weitere Informationen</linkExternal>
+pair2-supplicant-download-firefox-description-v2 = Laden Sie { -brand-firefox } herunter, um Lesezeichen, Chronik und mehr geräteübergreifend zu synchronisieren.
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Auf { -brand-firefox } fortfahren
 # Replaces the button label while waiting for the Firefox app to take over
 pair2-supplicant-download-firefox-opening-button = { -brand-firefox } wird geöffnet…
+# Primary action shown in Safari on iOS. Opens the App Store page for Firefox.
+pair2-supplicant-download-firefox-download-button = { -brand-firefox } herunterladen
+# Secondary action shown in Safari on iOS, below the download button. Opens the
+# Firefox app when it is already installed.
+pair2-supplicant-download-firefox-have-firefox-button = { -brand-firefox } ist bereits installiert
+# Opens a page explaining what sync does
+pair2-supplicant-download-firefox-learn-more-link = Weitere Informationen
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## with the phone's camera app instead of with Firefox. They already have
+## Firefox installed, so it tells them how to scan the code again from inside
+## Firefox.
+
+pair2-supplicant-connect-hint-heading-v2 = Kopplung in der App abschließen
+# <b> emphasises the name of the button the user taps in Firefox
+pair2-supplicant-connect-hint-step-app-menu = Tippen Sie in der Symbolleiste auf das <b>App-Menü</b>
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair2-supplicant-connect-hint-step-sign-in = Tippen Sie auf <b>Anmelden</b> und scannen Sie den Code
+# Opens a Mozilla support article about connecting a device without a QR code
+pair2-supplicant-connect-hint-learn-more-link = Weitere Informationen
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -2028,6 +2049,13 @@ permissions-label-email = E-Mail-Adresse
 permissions-label-display-name = Anzeigename
 permissions-continue-button = Weiter
 permissions-cancel-button = Abbrechen
+
+## ForcePasswordChange page
+## Users are sent here when suspicious activity on the account requires a new password before they can continue.
+
+force-password-change-heading = Bitte ändern Sie Ihr Passwort
+force-password-change-info = Wir haben verdächtige Aktivitäten in Ihrem { -product-mozilla-account } festgestellt. Erstellen Sie zum Schutz Ihres Kontos bitte ein neues Passwort. Mit diesem Passwort können Sie sich wieder bei allen Diensten Ihres { -product-mozilla-account } anmelden.
+force-password-change-data-info = Synchronisierter Chronik, Lesezeichen, Zugangsdaten und andere persönliche Daten gehen nicht verloren.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
