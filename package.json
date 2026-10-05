@@ -92,7 +92,7 @@
     "@swc/helpers": "0.5.23",
     "@type-cacheable/core": "^14.1.0",
     "@type-cacheable/ioredis-adapter": "^10.0.4",
-    "app-store-server-api": "^0.16.0",
+    "app-store-server-api": "^1.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "0.14.1",
     "classnames": "^2.5.1",
@@ -307,6 +307,7 @@
     "underscore": ">=1.13.2",
     "intel@npm:^1.2.0": "patch:intel@npm%3A1.2.0#~/.yarn/patches/intel-npm-1.2.0-81acb313a1.patch",
     "stripe@npm:22.3.1": "patch:stripe@npm%3A22.3.1#~/.yarn/patches/stripe-npm-22.3.1-291b1ac8f8.patch",
+    "app-store-server-api@npm:^1.0.0": "patch:app-store-server-api@npm%3A1.0.0#~/.yarn/patches/app-store-server-api-npm-1.0.0.patch",
     "@hapi/content": "6.0.2",
     "undici": "7.29.1",
     "ip-address": "10.7.1"
