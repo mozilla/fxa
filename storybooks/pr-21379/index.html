@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 00f56f9b809d2bf95611f09ffe3c4b4d39f433d0</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 00f56f9b809d2bf95611f09ffe3c4b4d39f433d0</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/5/2026, 8:38:42 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): destroy the replaced web session on re-sign-in</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- A second sign-in to the same account at the same browser left the first web session live on the auth server.
+- `storeAccountData` in `storage-utils.ts` overwrote `accounts[uid].sessionToken` and did not destroy the old token. The sign-in and sign-up pages call it.
+
+## This pull request
+
+- Makes `storeAccountData` read the old token first. If the new token is different, it calls a new helper, `destroyReplacedSession`, and does not wait for it.
+- Outside Firefox, the helper calls `sessionDestroy` with the old token.
+- In Firefox, the helper first sends `fxa_status`. It keeps the old token if there is no reply, or if `signedInUser.sessionToken` matches it. Otherwise it destroys the token.
+- The helper catches every error. A failed destroy never blocks sign-in.
+- Leaves `persistAccount` unchanged, because `components/App` uses it to adopt the browser&#039;s token.
+- Uses a plain `AuthClient(config.servers.auth.url)` for `sessionDestroy`, because `storage-utils` cannot reach the AuthClient in the React app context. This also skips the app error handler. On a Settings path, that handler marks the user signed out on a 401, and the old token can give a 401.
+- Sends `fxa_status` with service `sync`. Firefox returns `signedInUser` in private browsing only for sync. Without it, the code could destroy the token that the browser holds.
+- Adds `storage-utils.test.ts` (6 tests) and a functional test in `tests/oauth/signin.spec.ts`.
+
+## Issue that this pull request solves
+
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-14614</pre></dd>
+  </dl>
+</body>
+</html>

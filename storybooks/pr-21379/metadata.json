@@ -1,0 +1,10 @@
+{
+  "commit": "00f56f9b809d2bf95611f09ffe3c4b4d39f433d0",
+  "summary": "fix(settings): destroy the replaced web session on re-sign-in",
+  "description": "## Because\n\n- A second sign-in to the same account at the same browser left the first web session live on the auth server.\n- `storeAccountData` in `storage-utils.ts` overwrote `accounts[uid].sessionToken` and did not destroy the old token. The sign-in and sign-up pages call it.\n\n## This pull request\n\n- Makes `storeAccountData` read the old token first. If the new token is different, it calls a new helper, `destroyReplacedSession`, and does not wait for it.\n- Outside Firefox, the helper calls `sessionDestroy` with the old token.\n- In Firefox, the helper first sends `fxa_status`. It keeps the old token if there is no reply, or if `signedInUser.sessionToken` matches it. Otherwise it destroys the token.\n- The helper catches every error. A failed destroy never blocks sign-in.\n- Leaves `persistAccount` unchanged, because `components/App` uses it to adopt the browser's token.\n- Uses a plain `AuthClient(config.servers.auth.url)` for `sessionDestroy`, because `storage-utils` cannot reach the AuthClient in the React app context. This also skips the app error handler. On a Settings path, that handler marks the user signed out on a 401, and the old token can give a 401.\n- Sends `fxa_status` with service `sync`. Firefox returns `signedInUser` in private browsing only for sync. Without it, the code could destroy the token that the browser holds.\n- Adds `storage-utils.test.ts` (6 tests) and a functional test in `tests/oauth/signin.spec.ts`.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-14614",
+  "timestamp": 1791232722000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
