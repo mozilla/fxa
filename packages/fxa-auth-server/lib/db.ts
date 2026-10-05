@@ -181,11 +181,7 @@ export const createDB = (
       const { id } = sessionToken;
 
       // Ensure there are no clashes with zombie tokens left behind in Redis
-      try {
-        await this.deleteSessionTokenFromRedis(uid, id);
-      } catch (unusedErr) {
-        // Ignore errors deleting the token.
-      }
+      await this.deleteSessionTokenFromRedis(uid, id);
       await RawSessionToken.create(sessionToken);
 
       this.metrics?.increment('db.sessionToken.created');
@@ -210,11 +206,7 @@ export const createDB = (
       const { id } = sessionToken;
 
       // Ensure there are no clashes with zombie tokens left behind in Redis
-      try {
-        await this.deleteSessionTokenFromRedis(uid, id);
-      } catch (unusedErr) {
-        // Ignore errors deleting the token.
-      }
+      await this.deleteSessionTokenFromRedis(uid, id);
       await RawSessionToken.createVerified(sessionToken);
 
       this.metrics?.increment('db.sessionToken.created', { method: 'passkey' });
@@ -1582,7 +1574,13 @@ export const createDB = (
         return;
       }
 
-      return this.redis.pruneSessionTokens(uid, [id]);
+      try {
+        await this.redis.pruneSessionTokens(uid, [id]);
+      } catch (err) {
+        // Redis cleanup is best-effort; sessions() ignores Redis entries without a MySQL token.
+        log.error('DB.deleteSessionTokenFromRedis', { uid, err });
+        this.metrics?.increment('db.sessionToken.redisPruneFailed');
+      }
     }
   }
 
