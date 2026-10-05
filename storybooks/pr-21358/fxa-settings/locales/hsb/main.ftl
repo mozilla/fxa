@@ -169,6 +169,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Hesło wobkrućić
 form-password-with-inline-criteria-reset-submit-button = Nowe hesło wutworić
+form-password-with-inline-criteria-old-password-label =
+    .label = Stare hesło
+form-password-with-inline-criteria-change-password-submit-button = Hesło změnić
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Hesło
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1368,10 +1371,14 @@ pair2-supplicant-connect-this-device-connect-button = Zwjazać
 pair2-supplicant-connect-this-device-cancel-button = Přetorhnyć
 
 
-pair2-supplicant-download-firefox-heading = Wobstarajće sej { -brand-firefox } na tutym graće
-pair2-supplicant-download-firefox-description = Sćehńće { -brand-firefox }, zo byšće zapołožki, historiju a wjace na swojich gratach synchronizował. <linkExternal>Dalše informacije</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Z { -brand-firefox } pokročować
 pair2-supplicant-download-firefox-opening-button = { -brand-firefox } so wočinja …
+pair2-supplicant-download-firefox-download-button = { -brand-firefox } scahnyć
+pair2-supplicant-download-firefox-have-firefox-button = Mam hižo { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = Dalše informacije
+
+
+pair2-supplicant-connect-hint-learn-more-link = Dalše informacije
 
 
 pair2-supplicant-ready-to-scan-heading = Grat zwjazać
@@ -1395,6 +1402,11 @@ permissions-label-email = E-mejlowa adresa
 permissions-label-display-name = Pokazowane mjeno
 permissions-continue-button = Dale
 permissions-cancel-button = Přetorhnyć
+
+
+force-password-change-heading = Změńće prošu swoje hesło
+force-password-change-info = Smy podhladne zadźerženje we wašim konće { -product-mozilla-account } zwěsćili. Zo byšće swoje konto škitał, wutworće prošu nowe hesło. Wužiwajće te hesło, zo byšće so zaso pola słužbow swojeho konta { -product-mozilla-account } přizjewił.
+force-password-change-data-info = Synchronizowana historija, zapołožki, přizjewjenja a druhe wosobinske daty so njezhubja.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } wobkrućene

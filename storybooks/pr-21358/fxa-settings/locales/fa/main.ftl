@@ -136,6 +136,7 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = تأیید گذرواژه
 form-password-with-inline-criteria-reset-submit-button = ایجاد گذرواژه جدید
+form-password-with-inline-criteria-change-password-submit-button = تغییر گذرواژه
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = گذرواژه
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -432,3 +433,9 @@ row-defaults-action-change = تغییر
 
 rk-action-create = ایجاد
 rk-action-remove = برداشتن
+
+
+pair2-supplicant-download-firefox-learn-more-link = بیش‌تر بدانید
+
+
+pair2-supplicant-connect-hint-learn-more-link = بیش‌تر بدانید

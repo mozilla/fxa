@@ -144,6 +144,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Berretsi pasahitza
 form-password-with-inline-criteria-reset-submit-button = Sortu pasahitz berria
+form-password-with-inline-criteria-old-password-label =
+    .label = Pasahitz zaharra
+form-password-with-inline-criteria-change-password-submit-button = Aldatu pasahitza
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Pasahitza
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1111,8 +1114,18 @@ pair2-supplicant-connect-this-device-connect-button = Konektatu
 pair2-supplicant-connect-this-device-cancel-button = Utzi
 
 
-pair2-supplicant-download-firefox-heading = Eskuratu { -brand-firefox } gailu honetan
+pair2-supplicant-download-firefox-heading-v2 = Ireki { -brand-firefox } gailu honetan
+pair2-supplicant-download-firefox-description-v2 = Deskargatu { -brand-firefox } gailuen artean laster-markak, historia eta gehiago sinkronizatzeko.
 pair2-supplicant-download-firefox-opening-button = { -brand-firefox } irekitzen…
+pair2-supplicant-download-firefox-download-button = Deskargatu { -brand-firefox }
+pair2-supplicant-download-firefox-have-firefox-button = Dagoeneko badut { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = Argibide gehiago
+
+
+pair2-supplicant-connect-hint-heading-v2 = Bukatu parekatze-prozesua aplikazioan
+pair2-supplicant-connect-hint-step-app-menu = Sakatu <b>aplikazio-menua</b> tresna-barran
+pair2-supplicant-connect-hint-step-sign-in = Sakatu <b>hasi saioa</b>, gero eskaneatu kodea
+pair2-supplicant-connect-hint-learn-more-link = Argibide gehiago
 
 
 pair2-supplicant-ready-to-scan-heading = Gailu bat konektatzeko
@@ -1132,6 +1145,11 @@ permissions-label-email = Helbide elektronikoa
 permissions-label-display-name = Bistaratzeko izena
 permissions-continue-button = Jarraitu
 permissions-cancel-button = Utzi
+
+
+force-password-change-heading = Aldatu zure pasahitza mesedez
+force-password-change-info = Portaera susmagarria antzeman dugu zure { -product-mozilla-account } kontuan. Kontua babesteko, sortu pasahitz berria mesedez. Pasahitz hau zure { -product-mozilla-account } zerbitzu guztietan saioa berriro hasteko erabiliko duzu.
+force-password-change-data-info = Sinkronizatutako historia, laster-markak, saio-hasierak eta bestelako datuak ez dira galduko.
 
 
 service-welcome-signin-success-banner = Saioa ondo hasi da!

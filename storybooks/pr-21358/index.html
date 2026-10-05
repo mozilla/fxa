@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit fbf15dc95d455d85f104bd8117e74ce2b067e423</title>
+  <title>Storybooks for commit 73d751b72a9b198de21cdacee666dd4d38b04c6f</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,36 +23,31 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit fbf15dc95d455d85f104bd8117e74ce2b067e423</h1>
+  <h1>Storybooks for commit 73d751b72a9b198de21cdacee666dd4d38b04c6f</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/4/2026, 4:05:32 PM UTC</dd>
+    <dd>10/5/2026, 7:44:51 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(auth,settings): keep account data usable on subscription errors</pre></dd>
     <dt>Description</dt>
-    <dd><pre>## Because
+    <dd><pre>Because:
 
-- GET /v1/account returned a 5xx when the Stripe, Google Play or App Store read failed. One subscriptions error broke the whole account response.
-- Settings ignored a rejected account fetch and showed default values, such as 2FA off and no recovery key. This looked like lost account data.
-- The Security section showed a password &quot;Created&quot; date of 1969 or 1970 when `passwordCreated` was 0 or missing.
+* One failed Stripe, Play or App Store read made GET /v1/account return a 5xx.
+* Settings rendered defaults on a failed account fetch, which looked like lost account data.
+* The password row showed a 1969 &quot;Created&quot; date when `passwordCreated` was missing.
 
-## This pull request
+This commit:
 
-- Changes the subscriptions `catch` in the GET /v1/account handler (`account.ts`). It now returns 200 with `subscriptions: []`, logs `Account.get.subscriptions.error`, and calls `reportSentryError`.
-- Clears all three lists (Stripe, Google Play, App Store) on any failure. A Play or App Store failure after a Stripe success also returns empty subscriptions. This is on purpose.
-- Keeps `UNKNOWN_SUBSCRIPTION_CUSTOMER` silent, with no log and no Sentry report.
-- Makes `useAccountData` throw when the account fetch is rejected, so Settings shows its load error and not default values. Profile and attached-clients failures keep their soft handling.
-- Removes the `Sentry.captureMessage` call for a failed account fetch in `useAccountData`.
-- Hides the &quot;Created&quot; date in the Security password row when `passwordCreated` is 0 or missing.
-- Adds the story &quot;Password set, no created date&quot;, the page-object getter `errorLoadingApp`, and the functional test `accountFetchError.spec.ts`.
-- Rebase round: merges origin/main. No file had a conflict. The working tree is origin/main plus this branch&#039;s patch, with no change to the patch. `account.ts` and `account.spec.ts` changed on both sides, in different regions, and merged cleanly. `lib/routes/account.spec.ts` passes (136 tests) and ESLint passes on both files.
+* Catches each subscriptions source separately, logs and reports the error, and omits `subscriptions` when a read failed and none loaded.
+* Treats omitted subscriptions as unknown (`null`) in Settings; Nav keeps the subscriptions link.
+* Throws on a rejected account fetch so Settings shows its error dialog with the Sentry event ID.
+* Hides the password &quot;Created&quot; date when `passwordCreated` is 0 or missing.
+* Adds unit tests per source and case, a Security story, and a functional test for the fetch-error dialog.
 
-## Issue that this pull request solves
-
-Closes: https://mozilla-hub.atlassian.net/browse/FXA-14647</pre></dd>
+Closes #FXA-14647</pre></dd>
   </dl>
 </body>
 </html>

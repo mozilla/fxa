@@ -1338,8 +1338,6 @@ pair2-supplicant-connect-this-device-connect-button = Jeike
 pair2-supplicant-connect-this-device-cancel-button = Eheja
 
 
-pair2-supplicant-download-firefox-heading = Ereko { -brand-firefox } ko mba’e’okápe
-pair2-supplicant-download-firefox-description = Emboguejy { -brand-firefox } embojuehe hag̃ua techaukaha, tembiasakue ha hetave mba’e’oka pa’ũme. <linkExternal>Eikuaave</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Eku’ejey { -brand-firefox } ndive
 pair2-supplicant-download-firefox-opening-button = Ijurujahína { -brand-firefox }…
 

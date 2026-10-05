@@ -452,6 +452,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Potvrdit heslo
 form-password-with-inline-criteria-reset-submit-button = Vytvořit nové heslo
+form-password-with-inline-criteria-old-password-label =
+    .label = Staré heslo
+form-password-with-inline-criteria-change-password-submit-button = Změna hesla
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Heslo
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1643,10 +1646,19 @@ pair2-supplicant-connect-this-device-connect-button = Připojit
 pair2-supplicant-connect-this-device-cancel-button = Zrušit
 
 
-pair2-supplicant-download-firefox-heading = Získejte { -brand-firefox(case: "acc") } na tomto zařízení
-pair2-supplicant-download-firefox-description = Stáhněte si { -brand-firefox(case: "acc") } pro synchronizaci záložek, historie a dalšího dat mezi zařízeními. <linkExternal>Zjistit více</linkExternal>
+pair2-supplicant-download-firefox-heading-v2 = Otevřít { -brand-firefox } na tomto zařízení
+pair2-supplicant-download-firefox-description-v2 = Stáhněte si { -brand-firefox(case: "acc") } a synchronizujte záložky, historii a další data mezi zařízeními.
 pair2-supplicant-download-firefox-continue-button = Pokračujte za { -brand-firefox(case: "gen") }
 pair2-supplicant-download-firefox-opening-button = Spouští se { -brand-firefox }…
+pair2-supplicant-download-firefox-download-button = Stáhnout { -brand-firefox }
+pair2-supplicant-download-firefox-have-firefox-button = Již mám { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = Zjistit více
+
+
+pair2-supplicant-connect-hint-heading-v2 = Dokončete párování v aplikaci
+pair2-supplicant-connect-hint-step-app-menu = Na liště klepněte na <b>nabídku aplikace</b>
+pair2-supplicant-connect-hint-step-sign-in = Klepněte na <b>Přihlásit se</b>, a poté naskenujte kód
+pair2-supplicant-connect-hint-learn-more-link = Zjistit více
 
 
 pair2-supplicant-ready-to-scan-heading = Pro připojení zařízení
@@ -1670,6 +1682,11 @@ permissions-label-email = E-mailová adresa
 permissions-label-display-name = Zobrazované jméno
 permissions-continue-button = Pokračovat
 permissions-cancel-button = Zrušit
+
+
+force-password-change-heading = Změňte si prosím heslo
+force-password-change-info = Na vašem { -product-mozilla-account(case: "gen") } jsme zaznamenali podezřelou aktivitu. Vytvořte si prosím nové heslo, abychom váš účet ochránili. Pomocí tohoto hesla se znovu přihlásíte ke všem službám svého { -product-mozilla-account(case: "gen") }.
+force-password-change-data-info = O synchronizovanou historii, záložky, přihlašovací údaje ani další osobní data nepřijdete.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } potvrzen
