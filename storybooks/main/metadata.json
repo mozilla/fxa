@@ -1,8 +1,8 @@
 {
-  "commit": "fd84041d66a4b15535d3c8b61729277d09f09823",
-  "summary": "Merge pull request #21372 from mozilla/FXA-14652",
-  "description": "fix(functional-tests): drain first passwordless code before resend",
-  "timestamp": 1791219823000,
+  "commit": "7582b90a8bb4f63236f1812c111df4ea2c087131",
+  "summary": "Merge pull request #21294 from mozilla/fxa-6657",
+  "description": "feat(settings): add React page for /update_firefox",
+  "timestamp": 1791222283000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

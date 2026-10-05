@@ -1930,6 +1930,9 @@ pair2-supplicant-connect-this-device-cancel-button = 取消
 ## not Firefox. It offers to open the Firefox app to finish pairing, and to
 ## install it first when the user does not have it yet.
 
+pair2-supplicant-download-firefox-heading-v2 = 到此裝置開啟 { -brand-firefox }
+# "sync" is a verb here, referring to syncing data between the user's devices.
+pair2-supplicant-download-firefox-description-v2 = 下載 { -brand-firefox }，即可跨裝置同步書籤、瀏覽紀錄與更多資料。
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = 到 { -brand-firefox } 繼續
@@ -1952,6 +1955,8 @@ pair2-supplicant-download-firefox-learn-more-link = 更多資訊
 pair2-supplicant-connect-hint-heading-v2 = 到 App 中完成配對
 # <b> emphasises the name of the button the user taps in Firefox
 pair2-supplicant-connect-hint-step-app-menu = 點擊工具列中的<b>應用程式選單</b>
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair2-supplicant-connect-hint-step-sign-in = 點擊<b>登入</b>，然後掃描 QR Code
 # Opens a Mozilla support article about connecting a device without a QR code
 pair2-supplicant-connect-hint-learn-more-link = 更多資訊
 
@@ -2009,6 +2014,8 @@ permissions-cancel-button = 取消
 ## Users are sent here when suspicious activity on the account requires a new password before they can continue.
 
 force-password-change-heading = 請更改密碼
+force-password-change-info = 我們偵測到您的 { -product-mozilla-account }有可疑活動。為了保護您的帳號，請更改密碼。之後必須使用這組密碼重新登入所有 { -product-mozilla-account }相關服務。
+force-password-change-data-info = 不會失去同步的瀏覽紀錄、書籤、登入資訊與其他個人資料。
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

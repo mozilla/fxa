@@ -163,6 +163,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Confirmar contrasigno
 form-password-with-inline-criteria-reset-submit-button = Crear nove contrasigno
+form-password-with-inline-criteria-old-password-label =
+    .label = Contrasigno vetere
+form-password-with-inline-criteria-change-password-submit-button = Cambiar contrasigno
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Contrasigno
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1359,6 +1362,9 @@ pair2-supplicant-connect-this-device-cancel-button = Cancellar
 
 pair2-supplicant-download-firefox-continue-button = Continuar in { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Aperiente { -brand-firefox }…
+pair2-supplicant-download-firefox-download-button = Discargar { -brand-firefox }
+pair2-supplicant-download-firefox-have-firefox-button = Io jam ha { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = Pro saper plus
 
 
 pair2-supplicant-ready-to-scan-heading = Connecter un apparato

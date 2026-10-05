@@ -1315,6 +1315,8 @@ pair2-supplicant-connect-this-device-connect-button = 連線
 pair2-supplicant-connect-this-device-cancel-button = 取消
 
 
+pair2-supplicant-download-firefox-heading-v2 = 到此裝置開啟 { -brand-firefox }
+pair2-supplicant-download-firefox-description-v2 = 下載 { -brand-firefox }，即可跨裝置同步書籤、瀏覽紀錄與更多資料。
 pair2-supplicant-download-firefox-continue-button = 到 { -brand-firefox } 繼續
 pair2-supplicant-download-firefox-opening-button = 正在開啟 { -brand-firefox }…
 pair2-supplicant-download-firefox-download-button = 下載 { -brand-firefox }
@@ -1324,6 +1326,7 @@ pair2-supplicant-download-firefox-learn-more-link = 更多資訊
 
 pair2-supplicant-connect-hint-heading-v2 = 到 App 中完成配對
 pair2-supplicant-connect-hint-step-app-menu = 點擊工具列中的<b>應用程式選單</b>
+pair2-supplicant-connect-hint-step-sign-in = 點擊<b>登入</b>，然後掃描 QR Code
 pair2-supplicant-connect-hint-learn-more-link = 更多資訊
 
 
@@ -1351,6 +1354,8 @@ permissions-cancel-button = 取消
 
 
 force-password-change-heading = 請更改密碼
+force-password-change-info = 我們偵測到您的 { -product-mozilla-account }有可疑活動。為了保護您的帳號，請更改密碼。之後必須使用這組密碼重新登入所有 { -product-mozilla-account }相關服務。
+force-password-change-data-info = 不會失去同步的瀏覽紀錄、書籤、登入資訊與其他個人資料。
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } 已確認

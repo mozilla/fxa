@@ -1992,7 +1992,7 @@ pair2-supplicant-download-firefox-learn-more-link = Weitere Informationen
 ## Firefox installed, so it tells them how to scan the code again from inside
 ## Firefox.
 
-pair2-supplicant-connect-hint-heading-v2 = Beenden Sie die Kopplung in der App
+pair2-supplicant-connect-hint-heading-v2 = Kopplung in der App abschließen
 # <b> emphasises the name of the button the user taps in Firefox
 pair2-supplicant-connect-hint-step-app-menu = Tippen Sie in der Symbolleiste auf das <b>App-Menü</b>
 # <b> emphasises the name of the menu item the user taps in Firefox
@@ -2054,7 +2054,7 @@ permissions-cancel-button = Abbrechen
 ## Users are sent here when suspicious activity on the account requires a new password before they can continue.
 
 force-password-change-heading = Bitte ändern Sie Ihr Passwort
-force-password-change-info = Wir haben auf Ihrem { -product-mozilla-account } verdächtiges Verhalten festgestellt. Um Ihr Konto zu schützen, erstellen Sie bitte ein neues Passwort. Sie verwenden dieses Passwort, um sich wieder bei allen Ihren { -product-mozilla-account }-Diensten anzumelden.
+force-password-change-info = Wir haben verdächtige Aktivitäten in Ihrem { -product-mozilla-account } festgestellt. Erstellen Sie zum Schutz Ihres Kontos bitte ein neues Passwort. Mit diesem Passwort können Sie sich wieder bei allen Diensten Ihres { -product-mozilla-account } anmelden.
 force-password-change-data-info = Synchronisierter Chronik, Lesezeichen, Zugangsdaten und andere persönliche Daten gehen nicht verloren.
 
 ## ServiceWelcome page

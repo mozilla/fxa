@@ -167,6 +167,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Confirmar contrasigno
 form-password-with-inline-criteria-reset-submit-button = Crear nove contrasigno
+form-password-with-inline-criteria-old-password-label =
+    .label = Contrasigno vetere
+form-password-with-inline-criteria-change-password-submit-button = Cambiar contrasigno
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Contrasigno
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1977,6 +1980,13 @@ pair2-supplicant-connect-this-device-cancel-button = Cancellar
 pair2-supplicant-download-firefox-continue-button = Continuar in { -brand-firefox }
 # Replaces the button label while waiting for the Firefox app to take over
 pair2-supplicant-download-firefox-opening-button = Aperiente { -brand-firefox }…
+# Primary action shown in Safari on iOS. Opens the App Store page for Firefox.
+pair2-supplicant-download-firefox-download-button = Discargar { -brand-firefox }
+# Secondary action shown in Safari on iOS, below the download button. Opens the
+# Firefox app when it is already installed.
+pair2-supplicant-download-firefox-have-firefox-button = Io jam ha { -brand-firefox }
+# Opens a page explaining what sync does
+pair2-supplicant-download-firefox-learn-more-link = Pro saper plus
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
