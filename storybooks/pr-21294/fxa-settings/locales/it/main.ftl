@@ -1092,6 +1092,7 @@ auth-error-228 = Registrazione passkey non riuscita
 auth-error-233 = Per creare una passkey, configura un blocco schermo, un PIN, l’impronta digitale o il riconoscimento facciale sul tuo dispositivo o sulla chiave di sicurezza. Poi riprova.
 auth-error-238 = Verifica passkey non riuscita
 auth-error-239 = Ci dispiace, non siamo riusciti a eliminare il tuo account. Riprova oppure contatta l’assistenza se il problema persiste.
+auth-error-240 = Questo account è stato disattivato
 auth-error-999 = Errore imprevisto
 auth-error-1001 = Tentativo di accesso annullato
 auth-error-1002 = La sessione è scaduta. Accedi per continuare.
@@ -1184,6 +1185,10 @@ inline-passwordless-sync-setup-description = Utilizza questa passkey per acceder
 inline-passwordless-sync-setup-enable-button = Attiva passkey
 inline-passwordless-sync-setup-enabling = Attivazione…
 inline-passwordless-sync-setup-not-now-button = Non adesso
+inline-passwordless-sync-setup-success-alert = Questa passkey è pronta per accedere e avviare la sincronizzazione
+inline-passwordless-sync-setup-error-cancelled = La conferma della passkey non è stata completata
+inline-passwordless-sync-setup-error-cancelled-description = Conferma con la tua passkey per non dover inserire la password la prossima volta.
+inline-passwordless-sync-setup-error-generic = Si è verificato un problema, al prossimo accesso dovrai comunque inserire la password
 
 
 inline-recovery-key-setup-create-error = Oops! Impossibile creare la chiave di recupero dell’account. Riprova più tardi.
@@ -1369,6 +1374,13 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Sembra che il tempo a disp
 pair2-supplicant-timeout-and-cancel-timeout-description = Per connettere il dispositivo mobile e sincronizzare i dati di { -brand-firefox }, visita <b>firefox.com/pair</b> sul computer.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Annullato
 pair2-supplicant-timeout-and-cancel-canceled-description = Per connettere un dispositivo in qualsiasi momento, visita <b>firefox.com/pair</b> sul computer.
+
+
+permissions-heading = { $serviceName } vuole accedere a:
+permissions-label-email = Indirizzo email
+permissions-label-display-name = Nome visualizzato
+permissions-continue-button = Continua
+permissions-cancel-button = Annulla
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confermato

@@ -1451,6 +1451,7 @@ auth-error-228 = 패스키 등록 실패
 auth-error-233 = 패스 키를 만드려면 기기에서 화면 잠금이나 PIN, 지문, 얼굴 인식, 보안 키를 설정하고 다시 시도하세요.
 auth-error-238 = 패스키 질문 실패
 auth-error-239 = 죄송합니다, 계정을 삭제할 수 없습니다. 다시 시도하거나, 문제가 계속되면 지원 팀에 문의하세요.
+auth-error-240 = 이 계정은 비활성화됨
 auth-error-999 = 알 수 없는 오류
 auth-error-1001 = 로그인 시도 취소됨
 auth-error-1002 = 세션이 만료되었습니다. 계속하려면 로그인하세요.
@@ -1611,6 +1612,13 @@ inline-passwordless-sync-setup-enable-button = 패스키 활성화
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = 활성화 중…
 inline-passwordless-sync-setup-not-now-button = 지금 안 함
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = 이 패스키는 동기화 로그인을 위해 준비되었습니다.
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = 패스키 확인이 완료되지 않음
+inline-passwordless-sync-setup-error-cancelled-description = 다음에 비밀번호를 건너 뛰려면 패스키로 확인하세요.
+# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+inline-passwordless-sync-setup-error-generic = 문제가 발생했습니다. 다음에 비밀번호를 입력해야 합니다.
 
 ## InlineRecoveryKeySetup page component
 
@@ -1873,6 +1881,18 @@ pair2-authority-scan-qr-instruction = 폰이나 태블릿으로 QR 코드를 스
 pair2-authority-scan-qr-code-aria-label = 모바일 기기와 연결하기 위한 QR 코드
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = 스캔 도움 받기
+# Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
+pair2-authority-scan-qr-skip-button = 지금은 건너뛰기
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and links to sync settings.
+
+pair2-authority-sync-success-heading-v2 = 기기가 연결됨
+# "Syncing" here means copying data between the user's devices
+pair2-authority-sync-success-description-v2 = 동기화가 진행 중입니다. 동기화된 데이터가 나타날 때까지 시간이 걸릴 수 있습니다. 계속 브라우징해도 됩니다.
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button-v2 = 동기화 설정 관리
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1948,6 +1968,10 @@ pair2-supplicant-ready-to-scan-learn-more-link = 더 알아보기
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = 기기가 연결되었습니다
+# "Syncing" here means copying data between the user's devices
+pair2-supplicant-sync-success-description-v2 = 동기화가 진행 중입니다. 동기화된 데이터가 나타날 때까지 시간이 걸릴 수 있습니다. 계속 브라우징해도 됩니다.
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button-v2 = 동기화 설정 관리
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -1963,6 +1987,19 @@ pair2-supplicant-timeout-and-cancel-timeout-description = 모바일 기기를 �
 pair2-supplicant-timeout-and-cancel-cancelled-heading = 취소됨
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = 언제든 기기에 연결하려면, 컴퓨터에서 <b>firefox.com/pair</b>에 접속하세요.
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } 접근 요청:
+permissions-label-email = 이메일 주소
+permissions-label-display-name = 표시 이름
+permissions-continue-button = 계속
+permissions-cancel-button = 취소
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

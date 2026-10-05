@@ -1095,6 +1095,7 @@ auth-error-228 = Mislykka registrering av passnøkkel
 auth-error-233 = For å opprette ein passnøkkel må du konfigurere skjermlås, PIN-kode, fingeravtrykk eller ansiktsgjenkjenning på eininga eller sikkerheitsnøkkelen. Prøv deretter på nytt.
 auth-error-238 = Mislykka passnøkkelutfordring
 auth-error-239 = Beklagar, vi kunne ikkje slette kontoen din. Prøv på nytt, eller kontakt brukarstøtte viss problemet held fram.
+auth-error-240 = Denne kontoen er deaktivert
 auth-error-999 = Uventa feil
 auth-error-1001 = Innloggingsforsøket avbrote
 auth-error-1002 = Økta er slutt. Logg inn for å halde fram.
@@ -1187,6 +1188,10 @@ inline-passwordless-sync-setup-description = Bruk denne passnøkkelen for å log
 inline-passwordless-sync-setup-enable-button = Slå på passnøkkel
 inline-passwordless-sync-setup-enabling = Slår på…
 inline-passwordless-sync-setup-not-now-button = Ikkje no
+inline-passwordless-sync-setup-success-alert = Denne passnøkkelen er klar for pålogging med synkronisering
+inline-passwordless-sync-setup-error-cancelled = Stadfestinga med passnøkkelen vart ikkje fullført
+inline-passwordless-sync-setup-error-cancelled-description = Stadfest med passnøkkelen din for å sleppe å skrive inn passordet neste gong.
+inline-passwordless-sync-setup-error-generic = Noko gjekk gale. Du må framleis skrive inn passordet neste gong.
 
 
 inline-recovery-key-setup-create-error = Ops! Vi klarte ikkje å opprette kontogjenopprettingsnøkkelen din. Prøv igjen seinare.
@@ -1372,6 +1377,13 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Det ser ut til at det opps
 pair2-supplicant-timeout-and-cancel-timeout-description = For å kople til mobileininga di og synkronisere { -brand-firefox }-dataa dine, gå til <b>firefox.com/pair</b> på datamaskina di.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Annulert
 pair2-supplicant-timeout-and-cancel-canceled-description = For å kople til ei eining når som helst, gå til <b>firefox.com/pair</b> på datamaskina di.
+
+
+permissions-heading = { $serviceName } ønskjer tilgang til:
+permissions-label-email = E-postadresse
+permissions-label-display-name = Visingsnamn
+permissions-continue-button = Hald fram
+permissions-cancel-button = Avbryt
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } stadfesta

@@ -1479,6 +1479,7 @@ auth-error-228 = Registrierung des Zugangsschlüssels fehlgeschlagen
 auth-error-233 = Um einen Zugangsschlüssel zu erstellen, richten Sie eine Display-Sperre, eine PIN, einen Fingerabdruck oder eine Gesichtserkennung auf Ihrem Gerät oder Sicherheitsschlüssel ein. Versuchen Sie es dann erneut.
 auth-error-238 = Verifizierung des Zugangsschlüssels fehlgeschlagen
 auth-error-239 = Leider konnten wir Ihr Konto nicht löschen. Bitte versuchen Sie es erneut oder wenden Sie sich an den Support, wenn das Problem weiterhin besteht.
+auth-error-240 = Dieses Konto wurde deaktiviert
 auth-error-999 = Unerwarteter Fehler
 auth-error-1001 = Anmeldeversuch abgebrochen
 auth-error-1002 = Sitzung abgelaufen. Melden Sie sich an, um fortzufahren.
@@ -1639,6 +1640,13 @@ inline-passwordless-sync-setup-enable-button = Zugangsschlüssel aktivieren
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Wird aktiviert…
 inline-passwordless-sync-setup-not-now-button = Nicht jetzt
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = Dieser Zugangsschlüssel kann jetzt für die Anmeldung zur Synchronisierung verwendet werden
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = Bestätigung des Zugangsschlüssels nicht abgeschlossen
+inline-passwordless-sync-setup-error-cancelled-description = Bestätigen Sie Ihre Identität mit Ihrem Zugangsschlüssel, damit Sie beim nächsten Mal kein Passwort eingeben müssen.
+# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+inline-passwordless-sync-setup-error-generic = Ein Fehler ist aufgetreten, beim nächsten Mal müssen Sie Ihr Passwort weiterhin eingeben
 
 ## InlineRecoveryKeySetup page component
 
@@ -2007,6 +2015,19 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Um Ihr Mobilgerät zu 
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Abgebrochen
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Um jederzeit ein Gerät zu verbinden, besuchen Sie <b>firefox.com/pair</b> auf Ihrem Computer.
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } möchte Zugriff auf:
+permissions-label-email = E-Mail-Adresse
+permissions-label-display-name = Anzeigename
+permissions-continue-button = Weiter
+permissions-cancel-button = Abbrechen
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

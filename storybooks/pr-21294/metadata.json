@@ -1,8 +1,8 @@
 {
-  "commit": "f02a895aca8aa905b4e6f45b89426ee6a55aaee4",
+  "commit": "8266016f21ad6b833b7a2e00dad24b169170d4d1",
   "summary": "feat(settings): add React page for /update_firefox",
-  "description": "## Because\n\n- Only the content-server renders the /update_firefox page.\n- FxA moves the post-verify pages to React in fxa-settings, and this page is part of that set.\n\n## This pull request\n\n- Adds an UpdateFirefox page in fxa-settings, with Fluent strings, a story, and a unit spec.\n- Serves /update_firefox from React behind the postVerifyOtherRoutes flag. get-update-firefox.js stays as the server fallback.\n- Keeps /download_firefox on the server. The button links to it with the allowed query params and the flow data.\n- Logs flow.begin and flow.update-firefox.view on mount.\n- Keeps a raw `+` in forwarded query values. The button links straight to https://www.mozilla.org/firefox/download/thanks/ when context, deviceId, or flow data is missing, because /download_firefox returns 400 without them.\n\n## Issue that this pull request solves\n\nCloses: FXA-6657",
-  "timestamp": 1790199638000,
+  "description": "- Only the content-server renders the /update_firefox page.\n- FxA moves the post-verify pages to React in fxa-settings, and this page is part of that set.\n\n- Adds an UpdateFirefox page in fxa-settings, with Fluent strings, a story, and a unit spec.\n- Serves /update_firefox from React behind the postVerifyOtherRoutes flag. get-update-firefox.js stays as the server fallback.\n- Keeps /download_firefox on the server. The button links to it with the allowed query params and the flow data.\n- Logs flow.begin and flow.update-firefox.view on mount.\n- Keeps a raw `+` in forwarded query values. The button links straight to https://www.mozilla.org/firefox/download/thanks/ when context, deviceId, or flow data is missing, because /download_firefox returns 400 without them.\n\nCloses: FXA-6657",
+  "timestamp": 1791215814000,
   "storybooks": [
     "fxa-settings"
   ],

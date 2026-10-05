@@ -1488,6 +1488,7 @@ auth-error-228 = Înregistrarea cheii de acces a eșuat
 auth-error-233 = Pentru crearea unei chei de acces, setează o blocare a ecranului, PIN, amprentă digitală sau recunoaștere facială pe dispozitiv sau o cheie de securitate. Apoi încearcă din nou.
 auth-error-238 = Verificarea cheii de acces a eșuat
 auth-error-239 = Ne pare rău, nu ți-am putut șterge contul. Te rugăm să încerci din nou sau să contactezi asistența dacă problema persistă.
+auth-error-240 = Contul a fost dezactivat
 auth-error-999 = Eroare neașteptată
 auth-error-1001 = Încercare de autentificare anulată
 auth-error-1002 = Sesiune expirată. Intră în cont pentru a continua.
@@ -1648,6 +1649,13 @@ inline-passwordless-sync-setup-enable-button = Activează cheia de acces
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Se activează…
 inline-passwordless-sync-setup-not-now-button = Nu acum
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = Cheia de acces este gata pentru autentificarea pentru sincronizare
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = Confirmarea cheii de acces nu s-a finalizat
+inline-passwordless-sync-setup-error-cancelled-description = Confirmă cu cheia de acces pentru a omite parola data viitoare.
+# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+inline-passwordless-sync-setup-error-generic = Ceva nu a funcționat, va trebui să introduci parola data viitoare
 
 ## InlineRecoveryKeySetup page component
 
@@ -1910,6 +1918,18 @@ pair2-authority-scan-qr-instruction = Scanează codul QR cu telefonul sau tablet
 pair2-authority-scan-qr-code-aria-label = Cod QR pentru conectarea dispozitivului mobil
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Obține ajutor la scanare
+# Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
+pair2-authority-scan-qr-skip-button = Treci peste deocamdată
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and links to sync settings.
+
+pair2-authority-sync-success-heading-v2 = Dispozitivul este conectat
+# "Syncing" here means copying data between the user's devices
+pair2-authority-sync-success-description-v2 = Sincronizarea este în curs. Poate dura puțin până când apar datele sincronizate. Între timp, poți naviga în continuare.
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button-v2 = Gestionează setările de sincronizare
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1985,6 +2005,10 @@ pair2-supplicant-ready-to-scan-learn-more-link = Află mai multe
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Dispozitivul tău este conectat
+# "Syncing" here means copying data between the user's devices
+pair2-supplicant-sync-success-description-v2 = Sincronizarea este în curs. Poate dura puțin până când apar datele sincronizate. Între timp, poți naviga în continuare.
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button-v2 = Gestionează setările de sincronizare
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2000,6 +2024,19 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Pentru a-ți conecta d
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Anulat
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Pentru a conecta un dispozitiv oricând, accesează <b>firefox.com/pair</b> pe calculator.
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } vrea acces la:
+permissions-label-email = Adresa de e-mail
+permissions-label-display-name = Nume afișat
+permissions-continue-button = Continuă
+permissions-cancel-button = Anulează
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

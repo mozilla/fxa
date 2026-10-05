@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit f02a895aca8aa905b4e6f45b89426ee6a55aaee4</title>
+  <title>Storybooks for commit 8266016f21ad6b833b7a2e00dad24b169170d4d1</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,30 +23,24 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit f02a895aca8aa905b4e6f45b89426ee6a55aaee4</h1>
+  <h1>Storybooks for commit 8266016f21ad6b833b7a2e00dad24b169170d4d1</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>9/23/2026, 9:40:38 PM UTC</dd>
+    <dd>10/5/2026, 3:56:54 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(settings): add React page for /update_firefox</pre></dd>
     <dt>Description</dt>
-    <dd><pre>## Because
-
-- Only the content-server renders the /update_firefox page.
+    <dd><pre>- Only the content-server renders the /update_firefox page.
 - FxA moves the post-verify pages to React in fxa-settings, and this page is part of that set.
-
-## This pull request
 
 - Adds an UpdateFirefox page in fxa-settings, with Fluent strings, a story, and a unit spec.
 - Serves /update_firefox from React behind the postVerifyOtherRoutes flag. get-update-firefox.js stays as the server fallback.
 - Keeps /download_firefox on the server. The button links to it with the allowed query params and the flow data.
 - Logs flow.begin and flow.update-firefox.view on mount.
 - Keeps a raw `+` in forwarded query values. The button links straight to https://www.mozilla.org/firefox/download/thanks/ when context, deviceId, or flow data is missing, because /download_firefox returns 400 without them.
-
-## Issue that this pull request solves
 
 Closes: FXA-6657</pre></dd>
   </dl>

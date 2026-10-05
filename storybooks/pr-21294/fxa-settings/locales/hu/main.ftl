@@ -596,8 +596,8 @@ flow-setup-2fa-inline-complete-backup-code-info =
         [one] { $count } kód maradt
        *[other] { $count } kód maradt
     }
-flow-setup-2fa-inline-complete-backup-code-description = Ez a legbiztonságosabb helyreállítási módszer, ha nem tud bejelentkezni mobileszközével vagy hitelesítő alkalmazással.
-flow-setup-2fa-inline-complete-backup-phone-description = Ez a legegyszerűbb helyreállítási módszer, ha nem tud bejelentkezni a hitelesítő alkalmazással.
+flow-setup-2fa-inline-complete-backup-code-description = Ez a legbiztonságosabb helyreállítási mód, ha nem tud bejelentkezni mobileszközével vagy hitelesítő alkalmazással.
+flow-setup-2fa-inline-complete-backup-phone-description = Ez a legegyszerűbb helyreállítási mód, ha nem tud bejelentkezni a hitelesítő alkalmazással.
 flow-setup-2fa-inline-complete-learn-more-link = Hogyan védi ez a fiókját
 flow-setup-2fa-inline-complete-continue-button = Tovább erre: { $serviceName }
 flow-setup-2fa-prompt-heading = Állítsa be a kétlépcsős hitelesítést
@@ -879,7 +879,7 @@ recovery-key-create-back-button-title = Vissza a beállításokhoz
 recovery-phone-remove-header = Helyreállítási telefonszám eltávolítása
 settings-recovery-phone-remove-info = Ez eltávolítja a(z) <strong>{ $formattedFullPhoneNumber }</strong> telefonszámot helyreállítási telefonszámként.
 settings-recovery-phone-remove-recommend = Javasoljuk, hogy tartsa meg ezt a módszert, mert könnyebb, mint a tartalék hitelesítési kódok elmentése.
-settings-recovery-phone-remove-recovery-methods = Ha törli, győződjön meg róla, hogy megvannak-e még az elmentett tartalék hitelesítési kódjai. <linkExternal>Helyreállítási módszerek összehasonlítása</linkExternal>
+settings-recovery-phone-remove-recovery-methods = Ha törli, győződjön meg róla, hogy megvannak-e még az elmentett tartalék hitelesítési kódjai. <linkExternal>Helyreállítási módok összehasonlítása</linkExternal>
 settings-recovery-phone-remove-button = Telefonszám eltávolítása
 settings-recovery-phone-remove-cancel = Mégse
 settings-recovery-phone-remove-success = Helyreállítási telefonszám eltávolítva
@@ -961,7 +961,7 @@ tfa-row-backup-codes-available-v2 =
     }
 tfa-row-backup-codes-get-new-cta-v2 = Új kódok létrehozása
 tfa-row-backup-codes-add-cta = Hozzáadás
-tfa-row-backup-codes-description-2 = Ez a legbiztonságosabb helyreállítási módszer, ha nem tudja használni a mobileszközét vagy a hitelesítő alkalmazást.
+tfa-row-backup-codes-description-2 = Ez a legbiztonságosabb helyreállítási mód, ha nem tudja használni a mobileszközét vagy a hitelesítő alkalmazást.
 tfa-row-backup-phone-title-v2 = Helyreállítási telefonszám
 tfa-row-backup-phone-not-available-v2 = Nincs telefonszám hozzáadva
 tfa-row-backup-phone-change-cta = Módosítás
@@ -969,7 +969,7 @@ tfa-row-backup-phone-add-cta = Hozzáadás
 tfa-row-backup-phone-delete-button = Eltávolítás
 tfa-row-backup-phone-delete-title-v2 = Helyreállítási telefonszám eltávolítása
 tfa-row-backup-phone-delete-restriction-v2 = Ha el akarja távolítani a helyreállítási telefonszámát, adjon hozzá tartalék hitelesítési kódokat vagy először kapcsolja ki a kétlépcsős hitelesítést, hogy elkerülje azt, hogy kizárja magát a fiókjából.
-tfa-row-backup-phone-description-v2 = Ez a legkönnyebb helyreállítási módszer, ha nem tudja használni a hitelesítő alkalmazást.
+tfa-row-backup-phone-description-v2 = Ez a legkönnyebb helyreállítási mód, ha nem tudja használni a hitelesítő alkalmazást.
 tfa-row-backup-phone-sim-swap-risk-link = Tudjon meg többet a SIM-csere kockázatáról
 passkey-sub-row-created-date = Létrehozva: { $createdDate }
 passkey-sub-row-last-used-date = Utoljára használva: { $lastUsedDate }
@@ -1133,6 +1133,7 @@ auth-error-228 = A jelkulcs regisztrációja sikertelen
 auth-error-233 = Jelkulcs létrehozásához állítson be képernyőzárat, PIN-kódot, ujjlenyomat- vagy arcfelismerést az eszközén, vagy egy biztonsági kulcsot. Ezután próbálja újra.
 auth-error-238 = A jelkulcs kihívása sikertelen
 auth-error-239 = Sajnáljuk, nem tudtuk törölni a fiókját. Próbálja újra, vagy lépjen kapcsolatba az ügyfélszolgálattal, ha a probléma továbbra is fennáll.
+auth-error-240 = Ez a fiók le lett tiltva
 auth-error-999 = Nem várt hiba
 auth-error-1001 = Bejelentkezési kísérlet megszakítva
 auth-error-1002 = A munkamenet lejárt. Jelentkezzen be a folytatáshoz.
@@ -1225,6 +1226,10 @@ inline-passwordless-sync-setup-description = Használja ezt a jelkulcsot a gyors
 inline-passwordless-sync-setup-enable-button = Jelkulcs engedélyezése
 inline-passwordless-sync-setup-enabling = Engedélyezés…
 inline-passwordless-sync-setup-not-now-button = Most nem
+inline-passwordless-sync-setup-success-alert = Ez a jelkulcs készen áll a szinkronizálásba való bejelentkezéshez
+inline-passwordless-sync-setup-error-cancelled = A jelszó megerősítése nem fejeződött be
+inline-passwordless-sync-setup-error-cancelled-description = Erősítse meg a jelkulcsával, hogy legközelebb kihagyja a jelszót.
+inline-passwordless-sync-setup-error-generic = Hiba történt, legközelebb is meg kell adnia a jelszavát
 
 
 inline-recovery-key-setup-create-error = Hoppá! Nem tudtuk létrehozni a fiók-helyreállítási kulcsát. Próbálja újra később.
@@ -1410,6 +1415,13 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Úgy tűnik, túlléptük 
 pair2-supplicant-timeout-and-cancel-timeout-description = A mobileszköz csatlakoztatásához és a { -brand-firefox } adatainak szinkronizálásához keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Megszakítva
 pair2-supplicant-timeout-and-cancel-canceled-description = Eszköz csatlakoztatásához keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén.
+
+
+permissions-heading = A(z) { $serviceName } hozzáférést kér a következőhöz:
+permissions-label-email = E-mail-cím
+permissions-label-display-name = Megjelenítendő név
+permissions-continue-button = Folytatás
+permissions-cancel-button = Mégse
 
 
 service-welcome-signup-success-banner = A { -product-mozilla-account } megerősítve

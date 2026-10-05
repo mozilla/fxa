@@ -420,6 +420,24 @@ password-strength-inline-passwords-match = Ñe’ẽñemi ojueheguáva
 
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Ne pumbyry. Nde rekoguata.
+# Value proposition variant. Refers to resuming browsing on another device.
+promo-qr-mobile-heading-treatment-a = Eku’ejey epytahague guive, tereime reimehápe
+# Value proposition variant. "tabs" are the open pages in a browser.
+promo-qr-mobile-heading-treatment-b = Ne rendaykeita ha hetave, tysýi ne pumbyrýpe
+# Value proposition variant. Refers to using the same trusted browser on a phone.
+promo-qr-mobile-heading-treatment-c = Pe kundahára ejeroviaha, ne pumbyrýpe avei
+# Value proposition variant. "Different screen" refers to the phone rather than the desktop.
+promo-qr-mobile-heading-treatment-d = { -brand-firefox } tee. Mba’erechaha ambuéva.
+# Value proposition variant. "stop here" means privacy protection should continue onto the phone.
+promo-qr-mobile-heading-treatment-e = Ne rekoñemi ndopakuaái ko’ápe
+# Value proposition variant. Refers to keeping browsing activity private.
+promo-qr-mobile-heading-treatment-f = Eguerekove ne ñeikundaha tekoñemíme
+# Value proposition variant. "noise" refers to distractions and clutter.
+promo-qr-mobile-heading-treatment-g = Ne pumbyry ikatu hína hyapu’ive
+# Value proposition variant. Refers to a calmer browsing experience on the phone.
+promo-qr-mobile-heading-treatment-h = Egueraha ne ñeikundaha oikóva nendive
+# Appears below a QR code that a user can scan to download the Firefox mobile app
+promo-qr-mobile-description-v2 = Emoha’ãnga emboguejy hag̃ua tembiporu’i pumbyrygua
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
 promo-qr-mobile-qr-alt =
     .alt = QR ayvu emboguejy hag̃ua pumbyry rembiporu’i { -brand-firefox }. Emoĩ ne pumbyry ra’ãnganohẽha iguy akatúa gotyo emoha’ãngakuaa hag̃ua.
@@ -1601,6 +1619,13 @@ index-account-delete-success = Mba’ete oñembogue apañuai’ỹre
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = Ne ñanduti veve ñemoneĩrã ojevyjeýma. ¿Ikatu ehaivai kundaharape?
 
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+inline-passwordless-sync-setup-enable-button = Ejora ñe’ẽ ñemi jeikeha
+# Button label while the passkey is stored.
+inline-passwordless-sync-setup-enabling = Emyandyhína…
+inline-passwordless-sync-setup-not-now-button = Ani ko’ág̃a
+
 ## InlineRecoveryKeySetup page component
 
 inline-recovery-key-setup-create-error = ¡Ajépa! Ndaikatúi romoheñói ne mba’ete jeguerujeyrã. Eha’ã jey ag̃amieve.
@@ -1862,6 +1887,15 @@ pair2-authority-scan-qr-instruction = Emoha’ãnga QR ayvu ne pumbyry térã ta
 pair2-authority-scan-qr-code-aria-label = QR ayvu eike hag̃ua ne mba’e’okápe
 # Link to a support article for users having trouble scanning the QR code
 pair2-authority-scan-qr-help-link = Eñepytyvõta emoha’ãnga hag̃ua
+# Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
+pair2-authority-scan-qr-skip-button = Ehasa ko’ág̃a
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and links to sync settings.
+
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button-v2 = Eñangareko mbojueherã ñembohekóre
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1870,6 +1904,8 @@ pair2-authority-scan-qr-help-link = Eñepytyvõta emoha’ãnga hag̃ua
 
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = ¿Embojuajuse gueteri ne mba’e’oka?
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-cancelled-heading = Hejapyre
 pair2-authority-timeout-and-cancel-canceled-description = Remoambuérõ ne remiandu térã embojoajusérõ ambue mba’e’oka, eha’ã jey.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Eha’ã jey
@@ -1914,6 +1950,8 @@ pair2-supplicant-download-firefox-description = Emboguejy { -brand-firefox } emb
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Eku’ejey { -brand-firefox } ndive
+# Replaces the button label while waiting for the Firefox app to take over
+pair2-supplicant-download-firefox-opening-button = Ijurujahína { -brand-firefox }…
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -1932,6 +1970,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Eikuaave
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Ne mba’e’oka ojuajuhína
+# Opens the browser's sync settings, where the user chooses what to sync
+pair2-supplicant-sync-success-sync-settings-button-v2 = Eñangareko mbojueherã ñembohekóre
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -1943,8 +1983,21 @@ pair2-supplicant-sync-success-heading = Ne mba’e’oka ojuajuhína
 pair2-supplicant-timeout-and-cancel-timeout-heading = Ha’ete opámava ñeha’ãrõ
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = Embojoaju hag̃ua ne pumbyry ha embojuehe ne mba’ekuaarãita { -brand-firefox }, eike <b>firefox.com/pair</b> ne mohendahápe.
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Hejapyre
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Eike hag̃ua mba’e’okápe eikese vove, eho <b>firefox.com/pair</b> ne mohendaha guive.
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+permissions-label-email = Ñanduti veve kundaharape
+permissions-label-display-name = Téra ehechauka hag̃ua
+permissions-continue-button = Eku’ejey
+permissions-cancel-button = Eheja
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

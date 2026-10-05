@@ -143,6 +143,8 @@ icon-attention-aria-label =
     .aria-label = Игътибар
 icon-warning-aria-label =
     .aria-label = Кисәтү
+authenticator-app-aria-label =
+    .aria-label = Аутентификация кушымтасы
 canadian-flag-icon-aria-label =
     .aria-label = Канада байрагы
 checkmark-success-icon-aria-label =
@@ -171,6 +173,7 @@ input-password-show = Серсүзне күрсәтү
 input-password-sr-only-now-hidden = Серсүзегез хәзер яшерелгән.
 
 
+input-phone-number-country-list-aria-label = Илне сайлагыз
 input-phone-number-enter-number = Телефон номерын кертегез
 input-phone-number-country-united-states = Америка Кушма Штатлары
 input-phone-number-country-canada = Канада
@@ -201,6 +204,8 @@ password-strength-inline-not-common = Еш кулланылучы серсүз �
 
 
 account-recovery-notification-cta = Булдыру
+promo-banner-dismiss-button =
+    .aria-label = Баннерны ябу
 
 
 manage-your-account-button = Хисабыгыз белән идарә итү
@@ -322,6 +327,8 @@ flow-setup-phone-confirm-code-input-label = 6-цифрлы кодны керте
 flow-setup-phone-confirm-code-button = Раслау
 flow-setup-phone-confirm-code-expired = Мөддәте чыккан кодмы?
 flow-setup-phone-confirm-code-resend-code-button = Кодны яңадан җибәрү
+flow-setup-phone-confirm-code-resend-code-success = Код җибәрелде
+flow-setup-phone-submit-number-button = Кодны җибәрү
 
 
 header-menu-open = Менюны ябу
@@ -474,6 +481,7 @@ recovery-key-create-page-title = Хисапны коткару ачкычы
 recovery-key-create-back-button-title = Көйләүләргә кире кайту
 
 
+settings-recovery-phone-remove-button = Телефон номерын бетерү
 settings-recovery-phone-remove-cancel = Баш тарту
 
 
@@ -506,6 +514,7 @@ delete-account-link = Хисапны бетерү
 
 product-promo-monitor =
     .alt = { -product-mozilla-monitor }
+product-promo-monitor-cta = Бушлай сканерлау алу
 
 
 profile-heading = Профиль
@@ -602,6 +611,8 @@ tfa-row-cannot-refresh =
 tfa-row-cannot-verify-session-4 = Гафу итегез, утырышыгызны раслаганда проблема килеп чыкты
 tfa-row-disable-modal-heading = Ике адымлы аутентификация сүндерелсенме?
 tfa-row-disable-modal-confirm = Cүндерү
+tfa-row-disabled-2 = Ике адымлы аутентификация сүндерелде
+tfa-row-cannot-disable-2 = Ике адымлы аутентификацияне сүндереп булмады
 
 
 third-party-auth-options-or = яки
@@ -620,6 +631,7 @@ auth-error-139 = Икенчел эл. почта хисабыгызның төп
 auth-error-155 = TOTP токен табылмады
 auth-error-159 = Яраксыз хисапны коткару ачкычы
 auth-error-183-2 = Яраксыз яки вакыты чыккан раслау коды
+auth-error-202 = Функция кабызылмаган
 auth-error-999 = Көтелмәгән хата
 auth-error-1001 = Керергә тырышудан баш тартылды
 auth-error-1002 = Сессиянең мөддәте бетте. Дәвам итү өчен керегез.
@@ -651,6 +663,10 @@ cookies-disabled-learn-more = Күбрәк белү
 
 
 index-header = Эл. почтагызны кертегез
+index-subheader-with-servicename = { $serviceName } хезмәтенә күчү
+index-cta = Теркәлү яки керү
+index-email-input =
+    .label = Эл. почтагызны кертегез
 
 
 inline-recovery-key-setup-recovery-created = Хисапны коткару ачкычы ясалды
@@ -775,6 +791,7 @@ back = Кире
 signin-passwordless-code-input-label-v2 = 6-цифрлы кодны кертегез
 
 
+signin-recovery-method-header = Керү
 signin-recovery-method-code-info-v2 =
     { $numBackupCodes ->
         [one] { $numBackupCodes } код калды
@@ -786,6 +803,15 @@ signin-recovery-code-heading = Керү
 signin-recovery-code-confirm-button = Раслау
 signin-recovery-code-support-link = Хисабыгыз биклеме?
 signin-recovery-code-required-error = Резерв копия аутентификация коды кирәк
+signin-recovery-code-use-phone-failure-description = Зинһар соңрак тырышып карагыз.
+
+
+signin-recovery-phone-flow-heading = Керү
+signin-recovery-phone-input-label = 6-цифрлы кодны кертегез
+signin-recovery-phone-code-submit-button = Раслау
+signin-recovery-phone-resend-code-button = Кодны яңадан җибәрү
+signin-recovery-phone-resend-success = Код җибәрелде
+signin-recovery-phone-general-error-description = Зинһар соңрак тырышып карагыз.
 
 
 signin-reported-header = Игътибарлылыгыз өчен рәхмәт

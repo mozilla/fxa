@@ -1066,6 +1066,7 @@ auth-error-228 = 패스키 등록 실패
 auth-error-233 = 패스 키를 만드려면 기기에서 화면 잠금이나 PIN, 지문, 얼굴 인식, 보안 키를 설정하고 다시 시도하세요.
 auth-error-238 = 패스키 질문 실패
 auth-error-239 = 죄송합니다, 계정을 삭제할 수 없습니다. 다시 시도하거나, 문제가 계속되면 지원 팀에 문의하세요.
+auth-error-240 = 이 계정은 비활성화됨
 auth-error-999 = 알 수 없는 오류
 auth-error-1001 = 로그인 시도 취소됨
 auth-error-1002 = 세션이 만료되었습니다. 계속하려면 로그인하세요.
@@ -1158,6 +1159,10 @@ inline-passwordless-sync-setup-description = 이 패스키를 사용하여 더 �
 inline-passwordless-sync-setup-enable-button = 패스키 활성화
 inline-passwordless-sync-setup-enabling = 활성화 중…
 inline-passwordless-sync-setup-not-now-button = 지금 안 함
+inline-passwordless-sync-setup-success-alert = 이 패스키는 동기화 로그인을 위해 준비되었습니다.
+inline-passwordless-sync-setup-error-cancelled = 패스키 확인이 완료되지 않음
+inline-passwordless-sync-setup-error-cancelled-description = 다음에 비밀번호를 건너 뛰려면 패스키로 확인하세요.
+inline-passwordless-sync-setup-error-generic = 문제가 발생했습니다. 다음에 비밀번호를 입력해야 합니다.
 
 
 inline-recovery-key-setup-create-error = 이런! 계정 복구 키를 만들지 못했습니다. 잠시 후에 다시 시도해 주세요.
@@ -1297,6 +1302,12 @@ pair2-authority-scan-qr-heading = 스캔하여 모바일 기기 연결
 pair2-authority-scan-qr-instruction = 폰이나 태블릿으로 QR 코드를 스캔하여 { -brand-firefox } 북마크, 탭 등을 동기화하세요.
 pair2-authority-scan-qr-code-aria-label = 모바일 기기와 연결하기 위한 QR 코드
 pair2-authority-scan-qr-help-link = 스캔 도움 받기
+pair2-authority-scan-qr-skip-button = 지금은 건너뛰기
+
+
+pair2-authority-sync-success-heading-v2 = 기기가 연결됨
+pair2-authority-sync-success-description-v2 = 동기화가 진행 중입니다. 동기화된 데이터가 나타날 때까지 시간이 걸릴 수 있습니다. 계속 브라우징해도 됩니다.
+pair2-authority-sync-success-sync-settings-button-v2 = 동기화 설정 관리
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = 그래도 연결하시겠습니까?
@@ -1329,12 +1340,21 @@ pair2-supplicant-ready-to-scan-learn-more-link = 더 알아보기
 
 
 pair2-supplicant-sync-success-heading = 기기가 연결되었습니다
+pair2-supplicant-sync-success-description-v2 = 동기화가 진행 중입니다. 동기화된 데이터가 나타날 때까지 시간이 걸릴 수 있습니다. 계속 브라우징해도 됩니다.
+pair2-supplicant-sync-success-sync-settings-button-v2 = 동기화 설정 관리
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = 시간이 초과된 것 같습니다
 pair2-supplicant-timeout-and-cancel-timeout-description = 모바일 기기를 연결하고 { -brand-firefox } 데이터를 동기화하려면, 컴퓨터에서 <b>firefox.com/pair</b>에 접속하세요.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = 취소됨
 pair2-supplicant-timeout-and-cancel-canceled-description = 언제든 기기에 연결하려면, 컴퓨터에서 <b>firefox.com/pair</b>에 접속하세요.
+
+
+permissions-heading = { $serviceName } 접근 요청:
+permissions-label-email = 이메일 주소
+permissions-label-display-name = 표시 이름
+permissions-continue-button = 계속
+permissions-cancel-button = 취소
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } 확인됨

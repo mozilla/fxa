@@ -1226,6 +1226,7 @@ auth-error-228 = Registracija ključa za dostop ni uspela
 auth-error-233 = Če želite ustvariti geslo, nastavite zaklepanje zaslona, PIN, prstni odtis ali prepoznavanje obraza v napravi ali varnostni ključ. Nato poskusite znova.
 auth-error-238 = Izziv gesla je spodletel
 auth-error-239 = Žal vašega računa nismo mogli izbrisati. Poskusite znova ali pa se obrnite na podporo, če težava vztraja.
+auth-error-240 = Ta račun je onemogočen
 auth-error-999 = Nepričakovana napaka
 auth-error-1001 = Poskus prijave preklican
 auth-error-1002 = Seja je potekla. Za nadaljevanje se prijavite.
@@ -1318,6 +1319,10 @@ inline-passwordless-sync-setup-description = Uporabite to geslo za hitrejšo pri
 inline-passwordless-sync-setup-enable-button = Omogoči geslo
 inline-passwordless-sync-setup-enabling = Omogočanje …
 inline-passwordless-sync-setup-not-now-button = Ne zdaj
+inline-passwordless-sync-setup-success-alert = To geslo je pripravljeno za sinhronizacijo prijavo
+inline-passwordless-sync-setup-error-cancelled = Potrjevanje gesla se ni končalo
+inline-passwordless-sync-setup-error-cancelled-description = Potrdite s svojim ključem, da naslednjič gesla izpustite.
+inline-passwordless-sync-setup-error-generic = Nekaj je šlo narobe. Geslo boste naslednjič vseeno morali vnesti
 
 
 inline-recovery-key-setup-create-error = Opla! Ključa za obnovitev računa ni bilo mogoče ustvariti. Poskusite znova pozneje.
@@ -1503,6 +1508,13 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Kaže, da nam je potekla �
 pair2-supplicant-timeout-and-cancel-timeout-description = Če želite povezati mobilno napravo in sinhronizirati podatke { -brand-firefox(sklon: "rodilnik") }, z računalnikom obiščite <b>firefox.com/pair</b>.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Odpovedana
 pair2-supplicant-timeout-and-cancel-canceled-description = Napravo lahko kadarkoli povežete tako, da z računalnikom obiščete <b>firefox.com/pair</b>.
+
+
+permissions-heading = { $serviceName } želi dostop do:
+permissions-label-email = E-poštni naslov
+permissions-label-display-name = Prikazno ime
+permissions-continue-button = Nadaljuj
+permissions-cancel-button = Prekliči
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account(zacetnica: "velika") } potrjen

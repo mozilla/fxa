@@ -1481,6 +1481,7 @@ auth-error-228 = საშვის აღნუსხვა ვერ მოხ
 auth-error-233 = საშვის შესაქმნელად დააყენეთ ეკრანის ჩამკეტი, PIN-კოდი, თითის ანაბეჭდი ან სახის ამომცნობი თქვენს მოწყობილობასა თუ უსაფრთხოების გასაღებზე. შემდეგ სცადეთ ხელახლა.
 auth-error-238 = საშვის შემოწმება ვერ მოხერხდა
 auth-error-239 = სამწუხაროდ, თქვენი ანგარიშის წაშლა ვერ მოხერხდა. გთხოვთ, კვლავ სცადოთ ან დაუკავშირდეთ მხარდაჭერის გუნდს, თუ ხარვეზი გამეორდება.
+auth-error-240 = ეს ანგარიში გათიშულია
 auth-error-999 = მოულოდნელი შეცდომა
 auth-error-1001 = შესვლის მცდელობა აღკვეთილია
 auth-error-1002 = სეანსი ამოიწურა. შედით ანგარიშზე, რომ განაგრძოთ.
@@ -1641,6 +1642,13 @@ inline-passwordless-sync-setup-enable-button = საშვის ჩართ�
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = ირთვება…
 inline-passwordless-sync-setup-not-now-button = ახლა არა
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = ეს საშვი მზადაა სინქრონიზაციისთვის
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = საშვის დადასტურება არ დასრულებულა
+inline-passwordless-sync-setup-error-cancelled-description = დაამოწმეთ თქვენი საშვი შემდეგი შესვლისას პაროლის ასარიდებლად
+# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+inline-passwordless-sync-setup-error-generic = რაღაც ხარვეზი წარმოიქმნა, შემდეგ ჯერზე ისევ პაროლის შეყვანა მოგიწევთ
 
 ## InlineRecoveryKeySetup page component
 
@@ -2009,6 +2017,19 @@ pair2-supplicant-timeout-and-cancel-timeout-description = მობილურ�
 pair2-supplicant-timeout-and-cancel-cancelled-heading = გაუქმებულია
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = მოწყობილობის დასაკავშირებლად ნებისმიერ დროს, ინახულეთ გვერდი <b>firefox.com/pair</b> თქვენს კომპიუტერში.
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } ითხოვს წვდომას:
+permissions-label-email = ელფოსტის მისამართი
+permissions-label-display-name = გამოსაჩენი სახელი
+permissions-continue-button = განაგრძეთ
+permissions-cancel-button = გაუქმება
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

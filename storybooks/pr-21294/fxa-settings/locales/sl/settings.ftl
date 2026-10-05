@@ -1495,6 +1495,7 @@ auth-error-228 = Registracija ključa za dostop ni uspela
 auth-error-233 = Če želite ustvariti geslo, nastavite zaklepanje zaslona, PIN, prstni odtis ali prepoznavanje obraza v napravi ali varnostni ključ. Nato poskusite znova.
 auth-error-238 = Izziv gesla je spodletel
 auth-error-239 = Žal vašega računa nismo mogli izbrisati. Poskusite znova ali pa se obrnite na podporo, če težava vztraja.
+auth-error-240 = Ta račun je onemogočen
 auth-error-999 = Nepričakovana napaka
 auth-error-1001 = Poskus prijave preklican
 auth-error-1002 = Seja je potekla. Za nadaljevanje se prijavite.
@@ -1655,6 +1656,13 @@ inline-passwordless-sync-setup-enable-button = Omogoči geslo
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Omogočanje …
 inline-passwordless-sync-setup-not-now-button = Ne zdaj
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = To geslo je pripravljeno za sinhronizacijo prijavo
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = Potrjevanje gesla se ni končalo
+inline-passwordless-sync-setup-error-cancelled-description = Potrdite s svojim ključem, da naslednjič gesla izpustite.
+# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+inline-passwordless-sync-setup-error-generic = Nekaj je šlo narobe. Geslo boste naslednjič vseeno morali vnesti
 
 ## InlineRecoveryKeySetup page component
 
@@ -2023,6 +2031,19 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Če želite povezati m
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Odpovedana
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Napravo lahko kadarkoli povežete tako, da z računalnikom obiščete <b>firefox.com/pair</b>.
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } želi dostop do:
+permissions-label-email = E-poštni naslov
+permissions-label-display-name = Prikazno ime
+permissions-continue-button = Nadaljuj
+permissions-cancel-button = Prekliči
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

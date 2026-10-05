@@ -189,6 +189,10 @@ form-password-with-inline-criteria-confirm-password =
   .label = Confirm password
 form-password-with-inline-criteria-reset-submit-button = Create new password
 
+form-password-with-inline-criteria-old-password-label =
+  .label = Old password
+form-password-with-inline-criteria-change-password-submit-button = Change password
+
 form-password-with-inline-criteria-set-password-new-password-label =
   .label = Password
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1550,10 +1554,19 @@ pair2-supplicant-connect-this-device-connect-button = Connect
 pair2-supplicant-connect-this-device-cancel-button = Cancel
 
 
-pair2-supplicant-download-firefox-heading = Get { -brand-firefox } on this device
-pair2-supplicant-download-firefox-description = Download { -brand-firefox } to sync bookmarks, history, and more across devices. <linkExternal>Learn more</linkExternal>
+pair2-supplicant-download-firefox-heading-v2 = Open { -brand-firefox } on this device
+pair2-supplicant-download-firefox-description-v2 = Download { -brand-firefox } to sync bookmarks, history, and more across devices.
 pair2-supplicant-download-firefox-continue-button = Continue in { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Opening { -brand-firefox }…
+pair2-supplicant-download-firefox-download-button = Download { -brand-firefox }
+pair2-supplicant-download-firefox-have-firefox-button = I already have { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = Learn more
+
+
+pair2-supplicant-connect-hint-heading-v2 = Finish pairing in the app
+pair2-supplicant-connect-hint-step-app-menu = Tap the <b>app menu</b> in the toolbar
+pair2-supplicant-connect-hint-step-sign-in = Tap <b>sign in</b>, then scan the code
+pair2-supplicant-connect-hint-learn-more-link = Learn more
 
 
 pair2-supplicant-ready-to-scan-heading = To connect a device
@@ -1577,6 +1590,11 @@ permissions-label-email = Email address
 permissions-label-display-name = Display name
 permissions-continue-button = Continue
 permissions-cancel-button = Cancel
+
+
+force-password-change-heading = Please change your password
+force-password-change-info = We detected suspicious behavior on your { -product-mozilla-account }. To protect your account, please create a new password. You’ll use this password to sign back in to all of your { -product-mozilla-account } services.
+force-password-change-data-info = Synced history, bookmarks, logins, and other personal data will not be lost.
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmed
 service-welcome-signin-success-banner = Signed in successfully!

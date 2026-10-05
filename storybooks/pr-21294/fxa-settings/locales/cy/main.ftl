@@ -1114,6 +1114,7 @@ auth-error-228 = Wedi methu cofrestri'r cyfrinallwedd
 auth-error-233 = I greu cyfrinallwedd, gosodwch glo sgrin, PIN, ôl bys, neu adnabod wyneb ar eich dyfais neu allwedd ddiogelwch. Yna ceisiwch eto.
 auth-error-238 = Methodd her y cyfrinallwedd
 auth-error-239 = Ymddiheuriadau, doedd dim modd i ni allu dileu eich cyfrif. Ceisiwch eto, neu cysylltwch â'r tîm cymorth os yw'r broblem yn parhau.
+auth-error-240 = Mae'r cyfrif hwn wedi'i analluogi
 auth-error-999 = Gwall anhysbys
 auth-error-1001 = Diddymwyd yr ymgais i fewngofnodi
 auth-error-1002 = Daeth y sesiwn i ben. Mewngofnodwch i barhau.
@@ -1206,6 +1207,10 @@ inline-passwordless-sync-setup-description = Defnyddiwch y cyfrinallwedd hwn i f
 inline-passwordless-sync-setup-enable-button = Galluogi cyfrinallwedd
 inline-passwordless-sync-setup-enabling = Wrthi'n galluogi…
 inline-passwordless-sync-setup-not-now-button = Nid nawr
+inline-passwordless-sync-setup-success-alert = Mae'r cyfrinallwedd hwn yn barod ar gyfer mewngofnodi cydweddu
+inline-passwordless-sync-setup-error-cancelled = Wnaeth cadarnhau'r cyfrinallwedd ddim gorffen
+inline-passwordless-sync-setup-error-cancelled-description = Cadarnhewch gyda'ch cyfrinallwedd i hepgor y cyfrinair tro nesaf.
+inline-passwordless-sync-setup-error-generic = Aeth rhywbeth o'i le, bydd dal angen i chi roi'ch cyfrinair y tro nesaf
 
 
 inline-recovery-key-setup-create-error = Wps! Nid oedd modd i ni greu allwedd adfer eich cyfrif. Ceisiwch eto yn nes ymlaen.
@@ -1391,6 +1396,13 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Mae'n edrych fel bod ein a
 pair2-supplicant-timeout-and-cancel-timeout-description = I gysylltu eich dyfais symudol a chydweddu eich data { -brand-firefox }, ewch i <b>firefox.com/pair</b> ar eich cyfrifiadur.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Wedi'i Ddiddymu
 pair2-supplicant-timeout-and-cancel-canceled-description = I gysylltu dyfais unrhyw bryd, ewch i <b>firefox.com/pair</b> ar eich cyfrifiadur.
+
+
+permissions-heading = Mae { $serviceName } eisiau mynediad i:
+permissions-label-email = Cyfeiriad e-bost
+permissions-label-display-name = Enw dangos
+permissions-continue-button = Parhau
+permissions-cancel-button = Diddymu
 
 
 service-welcome-signup-success-banner = Cyfrif { -product-mozilla-account } wedi'i gadarnhau

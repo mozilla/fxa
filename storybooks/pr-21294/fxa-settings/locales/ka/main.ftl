@@ -1128,6 +1128,7 @@ auth-error-228 = საშვის აღნუსხვა ვერ მოხ
 auth-error-233 = საშვის შესაქმნელად დააყენეთ ეკრანის ჩამკეტი, PIN-კოდი, თითის ანაბეჭდი ან სახის ამომცნობი თქვენს მოწყობილობასა თუ უსაფრთხოების გასაღებზე. შემდეგ სცადეთ ხელახლა.
 auth-error-238 = საშვის შემოწმება ვერ მოხერხდა
 auth-error-239 = სამწუხაროდ, თქვენი ანგარიშის წაშლა ვერ მოხერხდა. გთხოვთ, კვლავ სცადოთ ან დაუკავშირდეთ მხარდაჭერის გუნდს, თუ ხარვეზი გამეორდება.
+auth-error-240 = ეს ანგარიში გათიშულია
 auth-error-999 = მოულოდნელი შეცდომა
 auth-error-1001 = შესვლის მცდელობა აღკვეთილია
 auth-error-1002 = სეანსი ამოიწურა. შედით ანგარიშზე, რომ განაგრძოთ.
@@ -1220,6 +1221,10 @@ inline-passwordless-sync-setup-description = გამოიყენეთ ე�
 inline-passwordless-sync-setup-enable-button = საშვის ჩართვა
 inline-passwordless-sync-setup-enabling = ირთვება…
 inline-passwordless-sync-setup-not-now-button = ახლა არა
+inline-passwordless-sync-setup-success-alert = ეს საშვი მზადაა სინქრონიზაციისთვის
+inline-passwordless-sync-setup-error-cancelled = საშვის დადასტურება არ დასრულებულა
+inline-passwordless-sync-setup-error-cancelled-description = დაამოწმეთ თქვენი საშვი შემდეგი შესვლისას პაროლის ასარიდებლად
+inline-passwordless-sync-setup-error-generic = რაღაც ხარვეზი წარმოიქმნა, შემდეგ ჯერზე ისევ პაროლის შეყვანა მოგიწევთ
 
 
 inline-recovery-key-setup-create-error = უჰ! ანგარიშის აღდგენის გასაღების შექმნა ვერ ხერხდება. მოგვიანებით სცადეთ.
@@ -1405,6 +1410,13 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = როგორც ჩა�
 pair2-supplicant-timeout-and-cancel-timeout-description = მობილური მოწყობილობის დასაკავშირებლად, რომ დასინქრონდეს { -brand-firefox } მონაცემებიანად, ინახულეთ გვერდი <b>firefox.com/pair</b> თქვენს კომპიუტერში.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = გაუქმებულია
 pair2-supplicant-timeout-and-cancel-canceled-description = მოწყობილობის დასაკავშირებლად ნებისმიერ დროს, ინახულეთ გვერდი <b>firefox.com/pair</b> თქვენს კომპიუტერში.
+
+
+permissions-heading = { $serviceName } ითხოვს წვდომას:
+permissions-label-email = ელფოსტის მისამართი
+permissions-label-display-name = გამოსაჩენი სახელი
+permissions-continue-button = განაგრძეთ
+permissions-cancel-button = გაუქმება
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } დამოწმებულია
