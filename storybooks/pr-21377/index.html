@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit d46e52a976e0837591ba1d10da3d3785fd454e35</title>
+  <title>Storybooks for commit 49e4101bd4a7bf512ee1486a38b81294e33aa600</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,32 +23,35 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit d46e52a976e0837591ba1d10da3d3785fd454e35</h1>
+  <h1>Storybooks for commit 49e4101bd4a7bf512ee1486a38b81294e33aa600</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/5/2026, 8:52:50 PM UTC</dd>
+    <dd>10/5/2026, 10:09:27 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(settings): destroy the browser session token on sign-out</pre></dd>
     <dt>Description</dt>
     <dd><pre>## Because
 
-- On sign-out, `DropDownAvatarMenu` destroyed only the stored session token. Then it sent `fxaccounts:logout` to Firefox.
-- A forced web sign-in can replace the stored token without a page reload. The token that Firefox holds then stays live on the server.
+- After a forced web sign-in (`prompt=login`) replaces the stored session token, Settings sign-out destroyed only the stored token.
+- Sign-out then sent `fxaccounts:logout`, and Firefox signed out locally only. The browser&#039;s own session stayed valid on the server.
 
 ## This pull request
 
-- Adds `getBrowserSessionToken` to `DropDownAvatarMenu/index.tsx`. In Firefox only, it asks the browser for its token with `firefox.requestSignedInUser` (`fxa_status`).
-- Destroys that token with `authClient.sessionDestroy` when the uid is the same and the token is different. This runs after `session.destroy()` and before `fxaLogout`.
-- Ignores errors from that destroy, so the local sign-out and `fxaLogout` still run.
-- Adds unit tests in `DropDownAvatarMenu/index.test.tsx` and a functional test in `fxaStatus.spec.ts`.
-- Round 1: the functional test now uses the `syncOAuthBrowserPages` fixture (`oauth_webchannel_v1`). It signs in as the Sync OAuth specs do: `signUpSync`, `gotoSyncSession`, the sign-in code, `clickNotNowPair`. The assertions are the same.
+- Updates `DropDownAvatarMenu/index.tsx`. In Firefox, sign-out asks `fxa_status` for the browser&#039;s signed-in user.
+- If that user has the same uid and a different session token, the menu destroys that token with `authClient.sessionDestroy` before `fxaccounts:logout`.
+- The menu ignores errors from that destroy call, so the local sign-out and `fxaccounts:logout` still run.
+- Adds unit tests in `DropDownAvatarMenu/index.test.tsx`: token mismatch, other account, no reply, no token, same token, non-Firefox, and destroy failure.
+- Adds a functional test in `fxaStatus.spec.ts`: sign-out destroys the browser session after a web sign-in replaced the stored token.
+- What this round fixed (red CI on PR #21377):
+  - `HeaderLockup` and `SettingsLayout` tests now pass `mockAppContext()`, because `DropDownAvatarMenu` reads `authClient`.
+  - The functional test signs in to Sync with `context=fx_desktop_v3` instead of `/pair`. The `/pair` flow never reached the &quot;Not now&quot; pair link, so the test timed out.
 
 ## Issue that this pull request solves
 
-Closes: FXA-14613</pre></dd>
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-14613</pre></dd>
   </dl>
 </body>
 </html>
