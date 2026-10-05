@@ -1647,7 +1647,7 @@ pair2-supplicant-connect-this-device-cancel-button = Zrušit
 
 
 pair2-supplicant-download-firefox-heading-v2 = Otevřít { -brand-firefox } na tomto zařízení
-pair2-supplicant-download-firefox-description-v2 = Stáhněte si aplikaci { -brand-firefox } pro synchronizaci záložek, historie a dalšího data mezi zařízeními.
+pair2-supplicant-download-firefox-description-v2 = Stáhněte si { -brand-firefox(case: "acc") } a synchronizujte záložky, historii a další data mezi zařízeními.
 pair2-supplicant-download-firefox-continue-button = Pokračujte za { -brand-firefox(case: "gen") }
 pair2-supplicant-download-firefox-opening-button = Spouští se { -brand-firefox }…
 pair2-supplicant-download-firefox-download-button = Stáhnout { -brand-firefox }
@@ -1656,8 +1656,8 @@ pair2-supplicant-download-firefox-learn-more-link = Zjistit více
 
 
 pair2-supplicant-connect-hint-heading-v2 = Dokončete párování v aplikaci
-pair2-supplicant-connect-hint-step-app-menu = Klepněte na <b>nabídku aplikace</b> na liště
-pair2-supplicant-connect-hint-step-sign-in = Klepněte na <b>přihlásit se</b> a naskenujte kód
+pair2-supplicant-connect-hint-step-app-menu = Na liště klepněte na <b>nabídku aplikace</b>
+pair2-supplicant-connect-hint-step-sign-in = Klepněte na <b>Přihlásit se</b>, a poté naskenujte kód
 pair2-supplicant-connect-hint-learn-more-link = Zjistit více
 
 
@@ -1684,9 +1684,9 @@ permissions-continue-button = Pokračovat
 permissions-cancel-button = Zrušit
 
 
-force-password-change-heading = Změňte prosím své heslo
-force-password-change-info = Zjistili jsme podezřelé chování vašeho { -product-mozilla-account }. Pro ochranu vašeho účtu si prosím vytvořte nové heslo. Toto heslo budete používat pro opětovné přihlášení do všech služeb v aplikaci { -product-mozilla-account }.
-force-password-change-data-info = Synchronizovaná historie, záložky, přihlášení a další osobní údaje nebudou smazány.
+force-password-change-heading = Změňte si prosím heslo
+force-password-change-info = Na vašem { -product-mozilla-account(case: "gen") } jsme zaznamenali podezřelou aktivitu. Vytvořte si prosím nové heslo, abychom váš účet ochránili. Pomocí tohoto hesla se znovu přihlásíte ke všem službám svého { -product-mozilla-account(case: "gen") }.
+force-password-change-data-info = O synchronizovanou historii, záložky, přihlašovací údaje ani další osobní data nepřijdete.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } potvrzen

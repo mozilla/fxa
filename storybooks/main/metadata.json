@@ -1,8 +1,8 @@
 {
-  "commit": "cb9a1f34fbb336c4f9bc78626848c3b141c7d370",
-  "summary": "Merge pull request #21334 from mozilla/fxa-14626",
-  "description": "chore(auth): remove legacy session-token TOTP setup routes",
-  "timestamp": 1791225717000,
+  "commit": "a3ce3718e596c2a1875dbf6eb428cebe3d1a7d83",
+  "summary": "Merge pull request #21312 from mozilla/fxa-14574",
+  "description": "test(settings): cover OAuth hooks data, keys, errors and redirects",
+  "timestamp": 1791244274000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
