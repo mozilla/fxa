@@ -51,13 +51,15 @@ test.describe('severity-2 #smoke', () => {
     const primaryEmail1 = `${localPart}+1@${domain}`;
     const primaryEmail2 = `${localPart}+2@${domain}`;
 
-    // Create the v1 account (preVerified so the session can drive MFA right away).
-    const { sessionToken } = await client.signUp(
+    // Confirm the account so the session can drive MFA right away.
+    const { uid, sessionToken } = await client.signUp(
       signupEmail,
       password,
-      { lang: 'en', preVerified: 'true' },
+      { lang: 'en' },
       target.ciHeader
     );
+    const signupCode = await target.emailClient.getVerifyCode(signupEmail);
+    await client.verifyCode(uid, signupCode, {}, target.ciHeader);
 
     // A single `mfa:email` JWT (10 min TTL, reusable) authorizes every email
     // mutation below. The OTP is delivered to the current primary (signupEmail).
