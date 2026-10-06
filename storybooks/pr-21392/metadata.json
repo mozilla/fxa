@@ -1,0 +1,12 @@
+{
+  "commit": "2eff79541d96f07cafc8976932eb46c4b647f6eb",
+  "summary": "fix(tests): remove act() warnings in settings and react unit tests",
+  "description": "## Because\n\n- Unit runs printed 42 \"not wrapped in act(...)\" warnings: 18 from fxa-react `AppLocalizationProvider`, 12 from `ConnectThisDevice`, 9 from `SigninPasswordlessCode`, 2 from `NimbusContext` and 1 from `ScanQR`.\n- The warnings came from async test timing. They hid real warnings in the test output.\n\n## This pull request\n\n- `AppLocalizationProvider.test.tsx`: uses `waitFor` from Testing Library in place of `async-wait-until`.\n- `ConnectThisDevice/container.test.tsx`: wraps `emitState` in `act`.\n- `ScanQR/container.test.tsx` and `NimbusContext.test.tsx`: each awaits the settled state at the end of one test.\n- `SigninPasswordlessCode/container.test.tsx`: renders inside `await act(async)`.\n- This change touches test files only. No source file changes.\n\n## Issue that this pull request solves\n\nFixes FXA-14662",
+  "timestamp": 1791316025000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
