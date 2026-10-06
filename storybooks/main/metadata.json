@@ -1,8 +1,8 @@
 {
-  "commit": "eca3685053572a204ba8630b9c2a46ed41e91161",
-  "summary": "Merge pull request #21387 from mozilla/FXA-14610",
-  "description": "fix(settings): route /pair on desktop only after fxa_status answers",
-  "timestamp": 1791315544000,
+  "commit": "1714d758b754f69d917456ef5dce72fefff6cf77",
+  "summary": "Merge pull request #21373 from mozilla/fxa-13258",
+  "description": "feat(settings): update reset password start page copy for passkeys",
+  "timestamp": 1791315933000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
