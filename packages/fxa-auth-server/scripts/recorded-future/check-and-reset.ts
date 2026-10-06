@@ -46,6 +46,7 @@ import {
   createCredentialsSearchFn,
   createFindAccountFn,
   createHasTotp2faFn,
+  createRetryAfterFetch,
   createVerifyPasswordFn,
   defaultPerPageLimit,
   fetchAllCredentialSearchResults,
@@ -76,6 +77,7 @@ const statsd = new StatsD({ ...config.statsd });
 const client = createClient<paths>({
   baseUrl: 'https://api.recordedfuture.com',
   headers: { 'X-RFToken': config.recordedFuture.identityApiKey },
+  fetch: createRetryAfterFetch(),
 });
 
 Container.set(AppConfig, config);
