@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 38a46b42de733aa8c8e69f55e809d48f2862f5b2</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 38a46b42de733aa8c8e69f55e809d48f2862f5b2</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/6/2026, 2:27:19 AM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): route /pair on desktop only after fxa_status answers</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+- The 500ms pairing deadline in useFxAStatus settled Firefox desktop on pairing version 1 whenever the browser answered late, and the v1 bootstrap hard-navigated before the real reply could win
+- The web channel started its reply timeout before the message was sent, and Firefox pauses requestAnimationFrame in hidden tabs, so /pair tabs opened in the background timed out without ever asking
+
+This commit:
+
+- exempts Firefox desktop from PAIRING_FXA_STATUS_TIMEOUT_MS so it waits on firefox.fxaStatus&#039;s own retries
+- reports &#039;unanswered&#039; when firefox.fxaStatus exhausts its attempts
+- starts the web channel reply timeout inside the frame that sends the message and drops the listener on timeout
+- covers the desktop case, the exhaustion state and the frame-gated timeouts in tests</pre></dd>
+  </dl>
+</body>
+</html>
