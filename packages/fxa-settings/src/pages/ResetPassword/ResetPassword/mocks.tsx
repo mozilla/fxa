@@ -14,10 +14,11 @@ const mockRequestResetPasswordCode = (email: string) => Promise.resolve();
 export const Subject = ({
   requestResetPasswordCode = mockRequestResetPasswordCode,
   serviceName = defaultServiceName,
-}: Partial<ResetPasswordProps>) => {
+  initialEntries,
+}: Partial<ResetPasswordProps> & { initialEntries?: string[] }) => {
   const [errorMessage, setErrorMessage] = useState('');
   return (
-    <MemoryRouter>
+    <MemoryRouter {...{ initialEntries }}>
       <ResetPassword
         {...{
           errorMessage,

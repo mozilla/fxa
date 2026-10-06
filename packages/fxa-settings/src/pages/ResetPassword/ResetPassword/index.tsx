@@ -3,14 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
+import { Link, useLocation } from 'react-router';
 import { useFtlMsgResolver } from '../../../models';
 
 import { FtlMsg } from 'fxa-react/lib/utils';
+import LinkExternal from 'fxa-react/components/LinkExternal';
 
 import AppLayout from '../../../components/AppLayout';
 import { InputText } from '../../../components/InputText';
-import LinkRememberPassword from '../../../components/LinkRememberPassword';
 import { isEmailValid } from 'fxa-shared/email/helpers';
 import { ResetPasswordFormData, ResetPasswordProps } from './interfaces';
 import GleanMetrics from '../../../lib/glean';
@@ -19,6 +20,9 @@ import Banner from '../../../components/Banner';
 
 export const viewName = 'reset-password';
 
+const learnMoreUrl =
+  'https://support.mozilla.org/kb/how-change-or-reset-your-mozilla-account-password';
+
 // eslint-disable-next-line no-empty-pattern
 const ResetPassword = ({
   errorMessage,
@@ -26,36 +30,28 @@ const ResetPassword = ({
   serviceName,
   setErrorMessage,
   setCurrentSplitLayout,
-  showPasskeyOption,
 }: ResetPasswordProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const location = useLocation();
+  const signInHref = `/${location.search}`;
 
   const ftlMsgResolver = useFtlMsgResolver();
 
   useGleanView(() => GleanMetrics.passwordReset.view());
 
-  const { control, getValues, handleSubmit, register } =
-    useForm<ResetPasswordFormData>({
-      mode: 'onTouched',
-      criteriaMode: 'all',
-      defaultValues: {
-        email: '',
-      },
-    });
-
-  // Read at the top level (not an inner component) so the footer doesn't remount
-  // and re-fire its view metric on each render.
-  const rememberPasswordEmail = useWatch({
-    control,
-    name: 'email',
-    defaultValue: getValues().email,
+  const { handleSubmit, register, watch } = useForm<ResetPasswordFormData>({
+    mode: 'onTouched',
+    criteriaMode: 'all',
+    defaultValues: {
+      email: '',
+    },
   });
+  const email = watch('email').trim();
 
   const onSubmit = async () => {
     setIsSubmitting(true);
     // clear error messages
     setErrorMessage('');
-    const email = getValues('email').trim();
 
     if (!email || !isEmailValid(email)) {
       setErrorMessage(
@@ -68,19 +64,40 @@ const ResetPassword = ({
     setIsSubmitting(false);
   };
 
+  const signInLink = (
+    <Link
+      to={signInHref}
+      state={{ prefillEmail: email && isEmailValid(email) ? email : undefined }}
+      className="link-blue"
+      data-glean-id="reset_password_signin_alternatives_link"
+    >
+      Try signing in with Google, Apple, or a passkey instead.
+    </Link>
+  );
+  const learnMoreLink = (
+    <LinkExternal
+      href={learnMoreUrl}
+      className="link-blue"
+      gleanDataAttrs={{ id: 'reset_password_data_recovery_learn_more_link' }}
+    >
+      Learn more
+    </LinkExternal>
+  );
+
   return (
     <AppLayout {...{ setCurrentSplitLayout }}>
-      <FtlMsg id="password-reset-flow-heading">
-        <h1 className="card-header">Reset your password</h1>
+      <FtlMsg id="password-reset-forgot-heading">
+        <h1 className="card-header">Forgot your password?</h1>
       </FtlMsg>
 
       {errorMessage && (
         <Banner type="error" content={{ localizedHeading: errorMessage }} />
       )}
 
-      <FtlMsg id="password-reset-body-3">
-        <p className="mt-2 mb-6">
-          Resetting your password may affect synced browser data.
+      <FtlMsg id="password-reset-alternatives-body" elems={{ signInLink }}>
+        <p className="mt-1 mb-6">
+          {signInLink} Or enter your email and we’ll send you a code to reset
+          your password.
         </p>
       </FtlMsg>
 
@@ -112,12 +129,15 @@ const ResetPassword = ({
         </FtlMsg>
       </form>
 
-      <LinkRememberPassword
-        textStart
-        entrypoint="reset_password"
-        email={rememberPasswordEmail}
-        showPasskeyOption={showPasskeyOption}
-      />
+      <FtlMsg
+        id="password-reset-data-recovery-warning"
+        elems={{ learnMoreLink }}
+      >
+        <p className="text-xs text-grey-500">
+          Resetting your password may affect whether you can recover synced
+          browser data. {learnMoreLink}
+        </p>
+      </FtlMsg>
     </AppLayout>
   );
 };

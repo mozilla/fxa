@@ -10,7 +10,13 @@ export class ResetPasswordPage extends BaseLayout {
 
   get resetPasswordHeading() {
     return this.page.getByRole('heading', {
-      name: /^Reset your password/,
+      name: /^Forgot your password/,
+    });
+  }
+
+  get signInAlternativesLink() {
+    return this.page.getByRole('link', {
+      name: /^Try signing in with/,
     });
   }
 
