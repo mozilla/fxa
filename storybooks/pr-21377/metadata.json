@@ -1,8 +1,8 @@
 {
-  "commit": "9b699f04a37c54f6f6e39fa8691e43a4e7f76162",
+  "commit": "923335d2eb96fddb0c58012fb1c07b089e64c9fc",
   "summary": "fix(settings): destroy the browser session token on sign-out",
-  "description": "## Because\n\n- A web RP that forces sign-in (`prompt=login`) makes Settings store a new session token over the one it shares with Firefox.\n- Settings sign-out destroyed only the stored token and then sent `fxaccounts:logout`. Firefox signs out locally only, so the browser session, with its device record, stayed live.\n\n## This pull request\n\n- `DropDownAvatarMenu` asks the browser for its token with `fxa_status` (`requestSignedInUser`). If the uid is the same and the token differs, it calls `authClient.sessionDestroy` on that token. The call runs after `session.destroy()` and before `fxaLogout`.\n- The new call ignores errors, so sign-out still completes. The browser is not asked outside Firefox.\n- Adds unit tests in `DropDownAvatarMenu/index.test.tsx` and a functional spec in `fxaStatus.spec.ts`. `useAuthClient()` throws without `authClient` in context, so the `HeaderLockup` and `SettingsLayout` tests pass `mockAppContext()`.\n- Round 2: the ordering test now also asserts that `session.destroy` runs before `authClient.sessionDestroy`. The 12 stories that render `SettingsLayout` with no `AppContext.Provider` now get one with `mockAppContext()`, so `useAuthClient()` does not throw.\n\n## Issue that this pull request solves\n\nCloses: FXA-14613",
-  "timestamp": 1791314319000,
+  "description": "Because:\n\n* A forced web sign-in (prompt=login) can replace the stored session\n  token without a reload, so Firefox holds a different one.\n* Settings sign-out destroyed only the stored token, and Firefox handles\n  fxaccounts:logout locally, so its session and device stayed live.\n\nThis commit:\n\n* Asks Firefox for its token via fxa_status on sign-out, in Firefox only.\n* Has Session.destroy also destroy a same-uid browser token, best effort.\n* Adds Session and DropDownAvatarMenu unit tests.\n* Adds an oauth_webchannel_v1 functional spec reading Firefox's token.\n\nCloses #FXA-14613",
+  "timestamp": 1791320118000,
   "storybooks": [
     "fxa-settings"
   ],
