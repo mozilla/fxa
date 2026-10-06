@@ -1,8 +1,8 @@
 {
-  "commit": "4cc093b8ace3eeece84c68392371814b7717bf27",
-  "summary": "Merge pull request #21363 from mozilla/agent-a476c5",
-  "description": "fix(functional-tests): capture the Sync browser in the test trace",
-  "timestamp": 1791297349000,
+  "commit": "34b88a0eeb972ada475b09d70d8c7fb91112720a",
+  "summary": "Merge pull request #21380 from mozilla/fxa-14631",
+  "description": "fix(settings): stack delete account buttons on narrow screens",
+  "timestamp": 1791305506000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
