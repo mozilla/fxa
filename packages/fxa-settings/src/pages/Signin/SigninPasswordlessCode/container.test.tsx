@@ -11,7 +11,7 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import { SensitiveDataClient } from '../../../lib/sensitive-data-client';
 import { MemoryRouter } from 'react-router';
 import SigninPasswordlessCodeContainer from './container';
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import { MOCK_EMAIL, MOCK_CLIENT_ID } from '../../mocks';
 import { createMockWebIntegration } from '../../../lib/integrations/mocks';
 import { mockUseFxAStatus } from '../../../lib/hooks/useFxAStatus/mocks';
@@ -84,18 +84,21 @@ function resetMockAuthClient() {
 }
 
 async function render() {
-  renderWithLocalizationProvider(
-    <MemoryRouter>
-      <SigninPasswordlessCodeContainer
-        {...{
-          integration,
-          serviceName: 'sync',
-          flowQueryParams: {},
-          useFxAStatusResult: mockUseFxAStatus(),
-        }}
-      />
-    </MemoryRouter>
-  );
+  // The mocked code send resolves on mount, so flush its state update in act.
+  await act(async () => {
+    renderWithLocalizationProvider(
+      <MemoryRouter>
+        <SigninPasswordlessCodeContainer
+          {...{
+            integration,
+            serviceName: 'sync',
+            flowQueryParams: {},
+            useFxAStatusResult: mockUseFxAStatus(),
+          }}
+        />
+      </MemoryRouter>
+    );
+  });
 }
 
 describe('SigninPasswordlessCode container', () => {

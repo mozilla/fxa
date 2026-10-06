@@ -3,10 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, cleanup } from '@testing-library/react';
+import { render, cleanup, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import waitUntil from 'async-wait-until';
 import sinon from 'sinon';
 
 import { Localized } from '@fluent/react';
@@ -50,9 +49,9 @@ describe('<AppLocalizationProvider/>', () => {
   let warnSpy: jest.SpyInstance;
 
   function waitUntilTranslated() {
-    return waitUntil(() => {
+    return waitFor(() => {
       // @ts-ignore
-      return AppLocalizationProvider.prototype.render.callCount === 2;
+      expect(AppLocalizationProvider.prototype.render.callCount).toBe(2);
     });
   }
 
