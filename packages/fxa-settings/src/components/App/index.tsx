@@ -53,6 +53,7 @@ import { PromoQrMobile } from '../PromoQrMobile';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { registerNavigate } from '../../lib/utilities';
 import { getPairingChannelHashParams } from '../../lib/pairing-channel-params';
+import { hidesLoadingHeader } from '../../lib/pairing/loading-header';
 
 // Pages
 const SignupConfirmedSync = lazy(
@@ -460,6 +461,11 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
     !!window.location.pathname?.startsWith('/pair') &&
     getPairingChannelHashParams()?.get('v') === '2';
 
+  const hideLoadingHeader = hidesLoadingHeader(
+    window.location.pathname ?? '',
+    isPairingV2Handoff()
+  );
+
   // Fail fast: if the OAuth client-info fetch in useClientInfoState exhausted its
   // retries, surface the user-facing error immediately rather than waiting downstream
   // failures to occur.
@@ -490,7 +496,11 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
     return window.location.pathname?.includes('/settings') ? (
       <LoadingSpinner fullScreen />
     ) : (
-      <AppLayout cmsInfo={integration?.getCmsInfo()} loading />
+      <AppLayout
+        cmsInfo={integration?.getCmsInfo()}
+        loading
+        hideHeader={hideLoadingHeader}
+      />
     );
   }
 
@@ -499,7 +509,12 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
   return (
     <Suspense
       fallback={
-        <AppLayout cmsInfo={cmsInfo} loading splitLayout={currentSplitLayout} />
+        <AppLayout
+          cmsInfo={cmsInfo}
+          loading
+          splitLayout={currentSplitLayout}
+          hideHeader={hideLoadingHeader}
+        />
       }
     >
       <Routes>

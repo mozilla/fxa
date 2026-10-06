@@ -24,7 +24,7 @@ export type SyncSuccessProps = {
  */
 const SyncSuccess = ({ onSyncSettings }: SyncSuccessProps) => {
   return (
-    <AppLayout whiteBackground>
+    <AppLayout whiteBackground hideHeader>
       <div className="flex flex-col items-center text-center">
         <FirefoxWordmarkImage className="h-8 w-24 text-black dark:text-white" />
 

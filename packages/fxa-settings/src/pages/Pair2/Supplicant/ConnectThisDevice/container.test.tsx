@@ -139,6 +139,15 @@ describe('Pair2/Supplicant/ConnectThisDevice container', () => {
     expect(screen.getByRole('main')).toContainElement(spinner);
   });
 
+  it('leaves out the Mozilla logo header while the channel opens', async () => {
+    integration.openChannel.mockReturnValue(new Promise<void>(() => {}));
+
+    renderContainer();
+
+    await screen.findByRole('img', { name: 'Loading…' });
+    expect(screen.queryByAltText('Mozilla logo')).not.toBeInTheDocument();
+  });
+
   it('renders the device details once the authority metadata arrives', async () => {
     renderContainer();
     await waitFor(() => expect(integration.onStateChange).toBeTruthy());

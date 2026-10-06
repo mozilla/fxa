@@ -38,6 +38,10 @@ import { useFxAStatus } from '../../lib/hooks';
 import sentryMetrics from 'fxa-shared/sentry/browser';
 import { flushL10nErrorReports } from '../../lib/l10n-error-reporter';
 import { OAuthError, OAUTH_ERRORS } from '../../lib/oauth';
+import {
+  resetPairingChannelParamsForTest,
+  updatePairingChannelHashParams,
+} from '../../lib/pairing-channel-params';
 
 jest.mock('../../lib/hooks/useFxAStatus', () => ({
   __esModule: true,
@@ -462,6 +466,82 @@ describe('loading spinner states', () => {
     });
 
     expect(screen.getByLabelText('Loading…')).toBeInTheDocument();
+  });
+
+  describe('header while app init is pending', () => {
+    let locationBefore: Location;
+
+    const renderAtPath = async (pathname: string) => {
+      //@ts-ignore
+      delete window.location;
+      //@ts-ignore
+      window.location = { ...locationBefore, pathname };
+      (useInitialMetricsQueryState as jest.Mock).mockReturnValue({
+        loading: true,
+      });
+      (useLocalSignedInQueryState as jest.Mock).mockReturnValue({
+        data: { isSignedIn: false },
+      });
+      (useIntegration as jest.Mock).mockReturnValue({
+        isSync: jest.fn(),
+        isDesktopSync: jest.fn(),
+        isFirefoxClientServiceRelay: jest.fn(),
+        getCmsInfo: jest.fn(),
+        getLegalTerms: jest.fn(),
+        data: {},
+      });
+      await act(async () => {
+        renderWithLocalizationProvider(
+          <MemoryRouter>
+            <AppContext.Provider
+              value={{ ...mockAppContext(), ...createAppContext() }}
+            >
+              <App flowQueryParams={updatedFlowQueryParams} />
+            </AppContext.Provider>
+          </MemoryRouter>
+        );
+      });
+    };
+
+    const captureV2Scan = () =>
+      updatePairingChannelHashParams(
+        new URLSearchParams('channel_id=chan-1&channel_key=key-1&v=2')
+      );
+
+    beforeEach(() => {
+      locationBefore = window.location;
+    });
+
+    afterEach(() => {
+      //@ts-ignore
+      window.location = locationBefore;
+      resetPairingChannelParamsForTest();
+    });
+
+    it('leaves out the Mozilla logo on a mobile pairing screen', async () => {
+      await renderAtPath('/pair/supplicant/connect_this_device');
+
+      expect(screen.getByLabelText('Loading…')).toBeInTheDocument();
+      expect(screen.queryByAltText('Mozilla logo')).not.toBeInTheDocument();
+    });
+
+    it('leaves out the Mozilla logo on the page a scanned v2 QR opens', async () => {
+      captureV2Scan();
+
+      await renderAtPath('/pair');
+
+      expect(screen.getByLabelText('Loading…')).toBeInTheDocument();
+      expect(screen.queryByAltText('Mozilla logo')).not.toBeInTheDocument();
+    });
+
+    it('shows the Mozilla logo on the unsupported page after a v2 scan', async () => {
+      captureV2Scan();
+
+      await renderAtPath('/pair/unsupported');
+
+      expect(screen.getByLabelText('Loading…')).toBeInTheDocument();
+      expect(screen.getByAltText('Mozilla logo')).toBeInTheDocument();
+    });
   });
 });
 

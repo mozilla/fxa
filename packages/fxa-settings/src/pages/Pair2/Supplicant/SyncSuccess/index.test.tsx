@@ -45,9 +45,8 @@ describe('Pair2/Supplicant/SyncSuccess page', () => {
         .getAllByRole('img')
         .map((img) => img.getAttribute('alt') ?? img.getAttribute('aria-label'))
     ).toEqual([
-      // AppLayout's page header, then this card's Firefox lockup. The success
+      // This card's Firefox lockup; the page has no header. The success
       // illustration is decorative — the heading beside it says the same.
-      'Mozilla logo',
       'Firefox logo',
     ]);
   });

@@ -97,9 +97,8 @@ describe('Pair2/Supplicant/PairConnectHint page', () => {
         .getAllByRole('img')
         .map((img) => img.getAttribute('alt') ?? img.getAttribute('aria-label'))
     ).toEqual([
-      // AppLayout's page header, then this page's Firefox lockup. The phone
+      // This page's Firefox lockup; the page has no header. The phone
       // illustration is decorative — the steps beside it say the same.
-      'Mozilla logo',
       'Firefox logo',
     ]);
   });

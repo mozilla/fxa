@@ -113,9 +113,8 @@ describe('Pair2/Supplicant/TimeoutAndCancel page', () => {
               (img) => img.getAttribute('alt') ?? img.getAttribute('aria-label')
             )
         ).toEqual([
-          // AppLayout's page header, then this card's Firefox lockup. The
+          // This card's Firefox lockup; the page has no header. The
           // illustration is decorative — the copy beside it says the same.
-          'Mozilla logo',
           'Firefox logo',
         ]);
       });
@@ -126,8 +125,7 @@ describe('Pair2/Supplicant/TimeoutAndCancel page', () => {
         renderWithLocalizationProvider(<Subject {...{ reason }} />);
 
         expect(screen.queryByRole('button')).not.toBeInTheDocument();
-        // AppLayout's Mozilla logo is the only link on the page.
-        expect(screen.getAllByRole('link')).toHaveLength(1);
+        expect(screen.queryByRole('link')).not.toBeInTheDocument();
       });
     }
   );
