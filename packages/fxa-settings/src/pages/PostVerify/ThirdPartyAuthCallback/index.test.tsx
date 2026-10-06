@@ -302,6 +302,20 @@ describe('ThirdPartyAuthCallback component', () => {
     });
   });
 
+  it('navigates to signin when the stored session token is invalid', async () => {
+    (useAuthClient().checkTotpTokenExists as jest.Mock).mockRejectedValue({
+      code: 401,
+      errno: 110,
+    });
+
+    renderWith({ integration: mockWebIntegration() });
+
+    await waitFor(() => {
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/');
+    });
+    expect(handleNavigation).not.toHaveBeenCalled();
+  });
+
   it('sets handleFxaLogin and handleFxaOAuthLogin to true for non-Sync services', async () => {
     const integration = mockOAuthNativeIntegration({
       service: OAuthNativeServices.Relay,

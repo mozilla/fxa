@@ -228,13 +228,21 @@ const ThirdPartyAuthCallback = ({
 
   const navigateNext = useCallback(
     async (linkedAccount: LinkedAccountData) => {
-      const totp = await authClient.checkTotpTokenExists(
-        linkedAccount.sessionToken
-      );
+      let totp;
+      try {
+        totp = await authClient.checkTotpTokenExists(
+          linkedAccount.sessionToken
+        );
+      } catch (error) {
+        // The stored session token can be invalid by now (errno 110). Send
+        // the user back to sign in rather than leaving them on the spinner.
+        navigateWithQuery('/');
+        return;
+      }
 
       performNavigation(linkedAccount, totp.verified);
     },
-    [performNavigation, authClient]
+    [performNavigation, authClient, navigateWithQuery]
   );
 
   // Ensure we only attempt to verify third party auth creds once
