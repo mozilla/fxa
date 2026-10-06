@@ -47,14 +47,18 @@ type MockAuthorityIntegration = PairingAuthorityIntegration & {
  */
 function mockAuthorityIntegration({
   remoteMetadata = MOCK_METADATA_WITH_DEVICE_NAME as RemoteMetadata | null,
+  canceledBySupplicant = false,
 } = {}): MockAuthorityIntegration {
   const integration = Object.create(
     PairingAuthorityIntegration.prototype
   ) as MockAuthorityIntegration;
 
-  // `remoteMetadata` is a getter on the prototype, so it cannot be assigned.
+  // Both are getters on the prototype, so they cannot be assigned.
   Object.defineProperty(integration, 'remoteMetadata', {
     get: () => remoteMetadata,
+  });
+  Object.defineProperty(integration, 'canceledBySupplicant', {
+    get: () => canceledBySupplicant,
   });
 
   return Object.assign(integration, {
@@ -157,14 +161,29 @@ describe('Pair2/Authority/ApproveSignIn container', () => {
 
   // `authorize()` routes the failures it expects through `fail()`. Without a
   // Failed case the user would sit on this screen with no feedback.
-  it('navigates to the cancel screen when the flow fails', () => {
+  it('blames a timeout when the flow fails on its own', () => {
     renderContainer();
 
     emitState(integration, AuthorityState.Failed);
 
     expect(navigateWithQuery).toHaveBeenCalledWith(
       '/pair/authority/timeout_and_cancel',
-      {},
+      { state: { reason: 'timeout' } },
+      true
+    );
+  });
+
+  // The mobile user cancelling is not a wait this user ever made, so the
+  // dead-end screen has to name the cancel instead of a timeout.
+  it('names the cancel when the supplicant cancelled', () => {
+    integration = mockAuthorityIntegration({ canceledBySupplicant: true });
+    renderContainer();
+
+    emitState(integration, AuthorityState.Failed);
+
+    expect(navigateWithQuery).toHaveBeenCalledWith(
+      '/pair/authority/timeout_and_cancel',
+      { state: { reason: 'canceled' } },
       true
     );
   });

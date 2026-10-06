@@ -94,6 +94,7 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
   private _authAuthorized = false;
   private _cachedChannelId: string | null = null;
   private _supRequest: ValidatedSupplicantRequest | null = null;
+  private _canceledBySupplicant = false;
 
   public onSuppAuthorized: (() => void) | null = null;
   public onHeartbeatError: ((err: unknown) => void) | null = null;
@@ -133,6 +134,15 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
   }
 
   /**
+   * True once the supplicant has said it cancelled. The channel closing is the
+   * same event either way, so this is the only thing that separates a cancel
+   * from a pairing that ran out of time.
+   */
+  get canceledBySupplicant(): boolean {
+    return this._canceledBySupplicant;
+  }
+
+  /**
    * The URL encoded into the QR code. The supplicant reads the channel
    * credentials out of the fragment, which is never sent to the server.
    */
@@ -164,6 +174,7 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
     const channel = new PairingChannelClient();
     this._channel = channel;
     this._version = 2; // Only pairing v2 creates the authority channel
+    this._canceledBySupplicant = false;
 
     channel.addEventListener('connected', this.handleConnected);
     channel.addEventListener('close', this.handleClose);
@@ -176,6 +187,7 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
       'remote:pair:supp:authorize',
       this.handleSuppAuthorize
     );
+    channel.addEventListener('remote:pair:supp:cancel', this.handleSuppCancel);
 
     this._createChannelPromise = channel
       .create(config.pairing.serverBaseUri)
@@ -337,6 +349,16 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
         this.setState(AuthorityState.Complete);
       }
     }
+  };
+
+  /**
+   * The supplicant user cancelled. Failing here rather than waiting for the
+   * channel to close keeps the reason and the failure in the same turn, so the
+   * dead-end screen cannot be routed to before it is known.
+   */
+  private handleSuppCancel = () => {
+    this._canceledBySupplicant = true;
+    this.fail(new Error('Pairing was canceled on the other device'));
   };
 
   /**
@@ -603,6 +625,10 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
       this._channel.removeEventListener(
         'remote:pair:supp:authorize',
         this.handleSuppAuthorize
+      );
+      this._channel.removeEventListener(
+        'remote:pair:supp:cancel',
+        this.handleSuppCancel
       );
 
       try {

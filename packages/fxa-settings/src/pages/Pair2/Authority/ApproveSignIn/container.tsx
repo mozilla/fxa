@@ -4,7 +4,12 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { RemoteMetadata } from '../../../../lib/types';
-import { AuthorityState, Integration, PairingAuthorityIntegration, useAccount } from '../../../../models';
+import {
+  AuthorityState,
+  Integration,
+  PairingAuthorityIntegration,
+  useAccount,
+} from '../../../../models';
 import { useNavigate } from 'react-router';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import ApproveSignIn from '.';
@@ -12,30 +17,44 @@ import { navigateWithQuery } from '../../../../lib/utilities';
 import * as Sentry from '@sentry/browser';
 
 export const ApproveSignInContainer = ({
-  integration
-}: { integration?: Integration|PairingAuthorityIntegration }) => {
+  integration,
+}: {
+  integration?: Integration | PairingAuthorityIntegration;
+}) => {
   if (!(integration instanceof PairingAuthorityIntegration)) {
     throw new Error('Invalid integration type.');
   }
   if (!integration.hasChannel()) {
-    throw new Error('Pairing channel missing!')
+    throw new Error('Pairing channel missing!');
   }
 
   const navigate = useNavigate();
   const account = useAccount();
-  const [remoteMetadata, setRemoteMetadata] = useState<RemoteMetadata|null>(integration.remoteMetadata);
+  const [remoteMetadata, setRemoteMetadata] = useState<RemoteMetadata | null>(
+    integration.remoteMetadata
+  );
 
   useEffect(() => {
-    integration.onStateChange = (state:AuthorityState) => {
+    integration.onStateChange = (state: AuthorityState) => {
       switch (state) {
         case AuthorityState.WaitingForAuthorizations:
           setRemoteMetadata(integration.remoteMetadata);
           break;
         case AuthorityState.Complete:
-          navigateWithQuery('/pair/authority/sync_success', {}, true)
+          navigateWithQuery('/pair/authority/sync_success', {}, true);
           break;
         case AuthorityState.Failed:
-          navigateWithQuery('/pair/authority/timeout_and_cancel', {}, true);
+          navigateWithQuery(
+            '/pair/authority/timeout_and_cancel',
+            {
+              state: {
+                reason: integration.canceledBySupplicant
+                  ? 'canceled'
+                  : 'timeout',
+              },
+            },
+            true
+          );
           break;
         default:
           console.warn('Unexpected state change: ' + state);
@@ -64,17 +83,21 @@ export const ApproveSignInContainer = ({
       Sentry.captureException(err);
       navigateWithQuery('/pair/authority/timeout_and_cancel', {}, true);
     });
-  }
+  };
 
   const onChangePassword = () => {
     navigate('/settings/change_password');
-  }
+  };
 
   if (!remoteMetadata) {
-    return <LoadingSpinner />
+    return <LoadingSpinner />;
   }
 
-  return <ApproveSignIn {...{remoteMetadata, email:account.email, onApprove, onChangePassword }} />
+  return (
+    <ApproveSignIn
+      {...{ remoteMetadata, email: account.email, onApprove, onChangePassword }}
+    />
+  );
 };
 
 export default ApproveSignInContainer;

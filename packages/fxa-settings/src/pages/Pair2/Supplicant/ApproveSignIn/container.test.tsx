@@ -23,7 +23,7 @@ jest.mock('../../../../lib/utilities', () => ({
 }));
 
 type MockSupplicantIntegration = PairingSupplicantIntegration & {
-  destroy: jest.Mock;
+  cancel: jest.Mock;
 };
 
 /**
@@ -48,7 +48,7 @@ function mockSupplicantIntegration({
   });
 
   return Object.assign(integration, {
-    destroy: jest.fn().mockResolvedValue(undefined),
+    cancel: jest.fn().mockResolvedValue(undefined),
     onStateChange: null,
   });
 }
@@ -129,12 +129,14 @@ describe('Pair2/Supplicant/ApproveSignIn container', () => {
       await user.click(screen.getByRole('button', { name: 'Cancel' }));
     };
 
-    it('closes the channel before leaving for the cancel screen', async () => {
+    // The authority is left waiting on this channel, so it has to be told the
+    // pairing is over rather than left to infer it from the channel closing.
+    it('cancels the pairing before leaving for the cancel screen', async () => {
       renderContainer();
 
       await clickCancel();
 
-      await waitFor(() => expect(integration.destroy).toHaveBeenCalled());
+      await waitFor(() => expect(integration.cancel).toHaveBeenCalled());
       expect(navigateWithQuery).toHaveBeenCalledWith(
         '/pair/supplicant/timeout_and_cancel',
         { state: { reason: 'canceled' } },
@@ -146,7 +148,7 @@ describe('Pair2/Supplicant/ApproveSignIn container', () => {
     // keep them on a screen that is waiting on a pairing they cancelled.
     it('still leaves for the cancel screen when the channel cannot be closed', async () => {
       const err = new Error('channel server unreachable');
-      integration.destroy.mockRejectedValue(err);
+      integration.cancel.mockRejectedValue(err);
       renderContainer();
 
       await clickCancel();

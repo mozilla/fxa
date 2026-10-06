@@ -593,6 +593,40 @@ describe('PairingSupplicantIntegration', () => {
     });
   });
 
+  describe('cancel', () => {
+    // The authority cannot tell a closed channel from an expired one, so the
+    // notice has to get out while the channel is still up.
+    it('tells the authority before closing the channel', async () => {
+      const integration = createIntegration();
+      await integration.openChannel('wss://ch.example.com', 'c', 'k');
+
+      await integration.cancel();
+
+      expect(mockSend).toHaveBeenCalledWith('pair:supp:cancel', {});
+      expect(mockSend.mock.invocationCallOrder[0]).toBeLessThan(
+        mockClose.mock.invocationCallOrder[0]
+      );
+    });
+
+    it('closes the channel when the notice cannot be sent', async () => {
+      const integration = createIntegration();
+      await integration.openChannel('wss://ch.example.com', 'c', 'k');
+      mockSend.mockRejectedValueOnce(new Error('channel server gone'));
+
+      await integration.cancel();
+
+      expect(mockClose).toHaveBeenCalled();
+      expect(integration.hasChannel('c')).toBe(false);
+    });
+
+    it('resolves when there is no channel to cancel', async () => {
+      const integration = createIntegration();
+
+      await expect(integration.cancel()).resolves.toBeUndefined();
+      expect(mockSend).not.toHaveBeenCalled();
+    });
+  });
+
   describe('isPairing', () => {
     it('returns true', () => {
       expect(createIntegration().isPairing()).toBe(true);

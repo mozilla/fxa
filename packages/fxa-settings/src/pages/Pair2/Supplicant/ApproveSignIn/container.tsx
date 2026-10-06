@@ -65,7 +65,7 @@ export const ApproveSignInContainer = ({
   // blaming a timeout the user never waited out.
   const onCancel = async () => {
     try {
-      await integration.destroy();
+      await integration.cancel();
     } catch (err) {
       Sentry.captureException(err);
     }

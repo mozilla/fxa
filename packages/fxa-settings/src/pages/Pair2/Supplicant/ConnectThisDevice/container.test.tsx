@@ -36,7 +36,7 @@ jest.mock('../../../../lib/utilities', () => ({
 type MockSupplicantIntegration = PairingSupplicantIntegration & {
   openChannel: jest.Mock;
   supplicantApprove: jest.Mock;
-  destroy: jest.Mock;
+  cancel: jest.Mock;
   /** Mirrors the real fail(): moves to Failed, then emits the state change. */
   mockFail: () => void;
 };
@@ -68,7 +68,7 @@ function mockSupplicantIntegration({
   return Object.assign(integration, {
     openChannel: jest.fn().mockResolvedValue(undefined),
     supplicantApprove: jest.fn().mockResolvedValue(undefined),
-    destroy: jest.fn().mockResolvedValue(undefined),
+    cancel: jest.fn().mockResolvedValue(undefined),
     onStateChange: null,
     mockFail: () => {
       state = SupplicantState.Failed;
@@ -288,15 +288,17 @@ describe('Pair2/Supplicant/ConnectThisDevice container', () => {
       expect(navigateWithQuery).toHaveBeenCalledTimes(1);
     });
 
-    // The reason has to travel with the navigation: without it the dead-end
-    // screen blames a timeout for a pairing the user deliberately stopped.
-    it('closes the channel before leaving for the cancel screen', async () => {
+    // The authority is left waiting on this channel, so it has to be told the
+    // pairing is over rather than left to infer it from the channel closing.
+    // The reason travels with the navigation for the same reason: without it
+    // this dead-end screen blames a timeout for a pairing the user stopped.
+    it('cancels the pairing before leaving for the cancel screen', async () => {
       const user = userEvent.setup();
       await renderReady();
 
       await user.click(screen.getByRole('button', { name: 'Cancel' }));
 
-      await waitFor(() => expect(integration.destroy).toHaveBeenCalled());
+      await waitFor(() => expect(integration.cancel).toHaveBeenCalled());
       expect(navigateWithQuery).toHaveBeenCalledWith(
         '/pair/supplicant/timeout_and_cancel',
         { state: { reason: 'canceled' } },
@@ -309,7 +311,7 @@ describe('Pair2/Supplicant/ConnectThisDevice container', () => {
     it('still leaves for the cancel screen when the channel cannot be closed', async () => {
       const user = userEvent.setup();
       const err = new Error('channel server unreachable');
-      integration.destroy.mockRejectedValue(err);
+      integration.cancel.mockRejectedValue(err);
       await renderReady();
 
       await user.click(screen.getByRole('button', { name: 'Cancel' }));
@@ -332,7 +334,7 @@ describe('Pair2/Supplicant/ConnectThisDevice container', () => {
 
     unmount();
 
-    expect(integration.destroy).not.toHaveBeenCalled();
+    expect(integration.cancel).not.toHaveBeenCalled();
   });
 
   // The flip side: the handler must not outlive the page. The integration lasts

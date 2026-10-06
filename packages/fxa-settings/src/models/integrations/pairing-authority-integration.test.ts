@@ -847,6 +847,52 @@ describe('PairingAuthorityIntegration', () => {
         expect(onError).toHaveBeenCalledTimes(1);
       });
     });
+
+    describe('supplicant cancel', () => {
+      beforeEach(async () => {
+        await integration.createChannel();
+        emit('connected');
+      });
+
+      it('ends the flow when the supplicant cancels', () => {
+        emit('remote:pair:supp:cancel');
+
+        expect(integration.state).toBe(AuthorityState.Failed);
+      });
+
+      // The container reads the flag from inside the Failed handler, so it has
+      // to be set before the state change goes out.
+      it('records the cancel before emitting Failed', () => {
+        let canceledWhenFailed: boolean | undefined;
+        onStateChange.mockImplementation((state: AuthorityState) => {
+          if (state === AuthorityState.Failed) {
+            canceledWhenFailed = integration.canceledBySupplicant;
+          }
+        });
+
+        emit('remote:pair:supp:cancel');
+
+        expect(canceledWhenFailed).toBe(true);
+      });
+
+      // Without a notice the close is indistinguishable from the channel running
+      // out of time, which is what the dead-end screen then has to say.
+      it('does not treat a bare channel close as a cancel', () => {
+        emit('close');
+
+        expect(integration.state).toBe(AuthorityState.Failed);
+        expect(integration.canceledBySupplicant).toBe(false);
+      });
+
+      // The supplicant closes its channel right after the notice; that close
+      // must not report a second failure on top of the cancel.
+      it('ignores the close that follows the cancel', () => {
+        emit('remote:pair:supp:cancel');
+        emit('close');
+
+        expect(onError).toHaveBeenCalledTimes(1);
+      });
+    });
   });
 
   describe('cancel', () => {
@@ -933,6 +979,7 @@ describe('PairingAuthorityIntegration', () => {
         'error',
         'remote:pair:supp:request',
         'remote:pair:supp:authorize',
+        'remote:pair:supp:cancel',
       ]);
     });
 
