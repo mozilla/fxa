@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 6a91d4fdaf21e7fbe7466a09a8efece5c2830a67</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 6a91d4fdaf21e7fbe7466a09a8efece5c2830a67</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/6/2026, 1:29:27 AM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): show canceled screen on desktop when mobile cancels pairing</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+* Cancelling on mobile only closed the channel, and the desktop cannot
+  tell a closed channel from an expired one, so it showed &quot;Looks like we
+  timed out&quot; for a pairing the mobile user deliberately stopped.
+* The desktop already tells mobile when it cancels; the reverse notice
+  was missing.
+
+This commit:
+
+* Adds PairingSupplicantIntegration.cancel(), which sends pair:supp:cancel
+  before closing the channel.
+* Handles pair:supp:cancel on the authority and exposes canceledBySupplicant.
+* Routes the mobile Cancel buttons through cancel() instead of destroy().
+* Passes reason &#039;canceled&#039; or &#039;timeout&#039; from the desktop Failed handlers.
+* Covers the notice, the flag ordering, and both container reasons.
+
+Closes #FXA-14608</pre></dd>
+  </dl>
+</body>
+</html>
