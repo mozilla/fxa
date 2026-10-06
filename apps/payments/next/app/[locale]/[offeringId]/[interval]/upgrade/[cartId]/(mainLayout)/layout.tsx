@@ -72,7 +72,11 @@ export default async function UpgradeSuccessLayout({
           <SubscriptionTitle cart={cart} l10n={l10n} />
           <div className="mb-6 tablet:mt-6 tablet:min-w-[18rem] tablet:max-w-xs tablet:col-start-2 tablet:row-start-1 tablet:row-span-3">
             <PurchaseDetails
-              invoice={cart.latestInvoicePreview ?? cart.upcomingInvoicePreview}
+              invoice={
+                cart.state === CartState.SUCCESS
+                  ? (cart.latestInvoicePreview ?? cart.upcomingInvoicePreview)
+                  : cart.upcomingInvoicePreview
+              }
               offeringPrice={cart.offeringPrice}
               purchaseDetails={purchaseDetails}
               priceInterval={
@@ -88,8 +92,10 @@ export default async function UpgradeSuccessLayout({
                 <PriceInterval
                   l10n={l10n}
                   amount={
-                    cart.latestInvoicePreview?.amountDue ??
-                    cart.upcomingInvoicePreview.amountDue
+                    cart.state === CartState.SUCCESS
+                      ? (cart.latestInvoicePreview?.amountDue ??
+                        cart.upcomingInvoicePreview.amountDue)
+                      : cart.upcomingInvoicePreview.amountDue
                   }
                   currency={cart.upcomingInvoicePreview.currency}
                   interval={cart.interval}
@@ -97,6 +103,7 @@ export default async function UpgradeSuccessLayout({
                 />
               }
               locale={locale}
+              cartState={cart.state}
               showPrices={
                 cart.state === CartState.START ||
                 cart.state === CartState.PROCESSING ||
