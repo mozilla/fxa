@@ -1847,7 +1847,8 @@ inline-passwordless-sync-setup-success-alert-v2 = This passkey is enabled for sy
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Passkey confirmation didn’t finish
 inline-passwordless-sync-setup-error-cancelled-description = Confirm with your passkey to skip the password next time.
-# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+# Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
 inline-passwordless-sync-setup-error-generic-v2 = We couldn’t enable this passkey for sync sign-in. You’ll need your password next time.
 
 ## InlineRecoveryKeySetup page component
@@ -2387,12 +2388,18 @@ confirm-totp-reset-password-use-different-account = Use a different account
 
 password-reset-flow-heading = Reset your password
 
-password-reset-body-3 = Resetting your password may affect synced browser data.
+password-reset-forgot-heading = Forgot your password?
+
+# The text inside <signInLink> links to the email-first sign-in page.
+password-reset-alternatives-body = <signInLink>Try signing in with { -brand-google }, { -brand-apple }, or a passkey instead.</signInLink> Or enter your email and we’ll send you a code to reset your password.
 
 password-reset-email-input =
   .label = Enter your email
 
 password-reset-submit-button-2 = Continue
+
+# Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
+password-reset-data-recovery-warning = Resetting your password may affect whether you can recover synced browser data. <learnMoreLink>Learn more</learnMoreLink>
 
 ## ResetPasswordConfirmed
 
@@ -2802,3 +2809,10 @@ signup-confirmed-sync-description-v2 = Your passwords, addresses, bookmarks, his
 signup-confirmed-sync-add-device-link = Add another device
 signup-confirmed-sync-manage-sync-button = Manage sync
 signup-confirmed-sync-set-password-success-banner = Sync password created
+
+## UpdateFirefox page
+## Shown when the browser is too old to use a Mozilla account
+
+update-firefox-heading = { -brand-firefox } update required
+update-firefox-description = Your { -product-mozilla-account } makes use of features that are not supported in your version of { -brand-firefox }. Please download and install the latest version of { -brand-firefox } to continue.
+update-firefox-download-button = Download latest

@@ -1664,12 +1664,16 @@ confirm-totp-reset-password-use-different-account = Use a different account
 
 password-reset-flow-heading = Reset your password
 
-password-reset-body-3 = Resetting your password may affect synced browser data.
+password-reset-forgot-heading = Forgot your password?
+
+password-reset-alternatives-body = <signInLink>Try signing in with { -brand-google }, { -brand-apple }, or a passkey instead.</signInLink> Or enter your email and we’ll send you a code to reset your password.
 
 password-reset-email-input =
   .label = Enter your email
 
 password-reset-submit-button-2 = Continue
+
+password-reset-data-recovery-warning = Resetting your password may affect whether you can recover synced browser data. <learnMoreLink>Learn more</learnMoreLink>
 
 
 reset-password-complete-header = Your password has been reset
@@ -1944,3 +1948,8 @@ signup-confirmed-sync-description-v2 = Your passwords, addresses, bookmarks, his
 signup-confirmed-sync-add-device-link = Add another device
 signup-confirmed-sync-manage-sync-button = Manage sync
 signup-confirmed-sync-set-password-success-banner = Sync password created
+
+
+update-firefox-heading = { -brand-firefox } update required
+update-firefox-description = Your { -product-mozilla-account } makes use of features that are not supported in your version of { -brand-firefox }. Please download and install the latest version of { -brand-firefox } to continue.
+update-firefox-download-button = Download latest
