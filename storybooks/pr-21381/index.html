@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit d845027dcb3332267d006e44dbe372733d43f7d4</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit d845027dcb3332267d006e44dbe372733d43f7d4</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/6/2026, 8:05:03 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): compile the bundle for Firefox 95 and newer</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+- The production browserslist resolves to Firefox 121, so Babel can ship syntax 95-120 can&#039;t parse.
+- crypto.randomUUID(), called at bundle load, already sets the real floor at 95.
+
+This commit:
+
+- Adds &quot;Firefox &gt;= 95&quot; to the fxa-settings production browserslist.
+
+Closes: FXA-7397
+
+Co-Authored-By: fxa-agent[bot] &lt;334546218+fxa-agent[bot]@users.noreply.github.com&gt;</pre></dd>
+  </dl>
+</body>
+</html>

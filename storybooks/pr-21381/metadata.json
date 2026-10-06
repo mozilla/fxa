@@ -1,0 +1,10 @@
+{
+  "commit": "d845027dcb3332267d006e44dbe372733d43f7d4",
+  "summary": "fix(settings): compile the bundle for Firefox 95 and newer",
+  "description": "Because:\n\n- The production browserslist resolves to Firefox 121, so Babel can ship syntax 95-120 can't parse.\n- crypto.randomUUID(), called at bundle load, already sets the real floor at 95.\n\nThis commit:\n\n- Adds \"Firefox >= 95\" to the fxa-settings production browserslist.\n\nCloses: FXA-7397\n\nCo-Authored-By: fxa-agent[bot] <334546218+fxa-agent[bot]@users.noreply.github.com>",
+  "timestamp": 1791317103000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
