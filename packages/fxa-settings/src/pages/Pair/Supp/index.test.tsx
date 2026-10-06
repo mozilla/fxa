@@ -50,15 +50,6 @@ jest.mock('../../../models/integrations/pairing-supplicant-integration', () => {
         return false;
       }
     },
-    clearChannelComplete: (channelId: string) => {
-      try {
-        globalThis.sessionStorage.removeItem(
-          PAIR_COMPLETE_STORAGE_PREFIX + channelId
-        );
-      } catch {
-        // ignore
-      }
-    },
     PairingSupplicantIntegration: class {
       validatePairingClient = jest.fn().mockReturnValue(true);
       openChannel = jest.fn().mockResolvedValue(undefined);
@@ -204,7 +195,7 @@ describe('Pair/Supp page', () => {
       expect(mockNavigateWithQuery).toHaveBeenCalledWith(
         '/oauth/success/test-client'
       );
-      expect(sessionStorage.getItem('fxa.pair.complete.test-chan')).toBeNull();
+      expect(sessionStorage.getItem('fxa.pair.complete.test-chan')).toBe('1');
     });
 
     it('ignores completion marker for a different channel', () => {
@@ -251,17 +242,20 @@ describe('Pair/Supp page', () => {
         expect(mockIntegration.openChannel).not.toHaveBeenCalled();
       });
 
-      it('redirects to the v2 success screen when the channel is complete', () => {
+      // Firefox for Android reloads this URL after the OAuth login, sometimes
+      // more than once, so the marker has to outlive the first redirect.
+      it('redirects to the v2 success screen on every load of a complete channel', () => {
         sessionStorage.setItem('fxa.pair.complete.test-chan', '1');
+        const { unmount } = renderSupp(v2Browser);
+        unmount();
         renderSupp(v2Browser);
-        expect(mockNavigateWithQuery).toHaveBeenCalledWith(
+        expect(mockNavigateWithQuery).toHaveBeenCalledTimes(2);
+        expect(mockNavigateWithQuery).toHaveBeenLastCalledWith(
           '/pair/supplicant/sync_success',
-          {},
+          { replace: true },
           false
         );
-        expect(
-          sessionStorage.getItem('fxa.pair.complete.test-chan')
-        ).toBeNull();
+        expect(mockIntegration.openChannel).not.toHaveBeenCalled();
       });
 
       it('runs the v1 flow when the browser does not report v2 pairing', () => {

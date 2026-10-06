@@ -932,6 +932,56 @@ describe('Pair', () => {
       );
     });
 
+    // Firefox for Android reloads the supplicant's original URL after the OAuth
+    // login, by which point the channel server has consumed the channel.
+    describe('on a reload after the pairing completed', () => {
+      beforeEach(() => {
+        setPairingHash(V2_HASH);
+        sessionStorage.setItem('fxa.pair.complete.chan-1', '1');
+      });
+
+      afterEach(() => {
+        sessionStorage.removeItem('fxa.pair.complete.chan-1');
+      });
+
+      it('goes to the success screen instead of reopening the channel', async () => {
+        renderWithRouter(<Pair {...v2Props} />, {}, v2AppContext());
+
+        await waitFor(() =>
+          expect(mockNavigate).toHaveBeenCalledWith(
+            '/pair/supplicant/sync_success',
+            { replace: true }
+          )
+        );
+        expect(mockNavigate.mock.calls.map(([to]) => to)).not.toContain(
+          '/pair/supplicant/connect_this_device'
+        );
+      });
+
+      // The marker alone proves the flow finished here, so a browser that never
+      // answers fxa_status is not handed off to the Firefox app again.
+      it('does not wait for fxa_status', async () => {
+        renderWithRouter(
+          <Pair
+            {...v2Props}
+            fxaStatusResult={mockUseFxAStatus({ fxaStatusState: 'unanswered' })}
+          />,
+          {},
+          v2AppContext()
+        );
+
+        await waitFor(() =>
+          expect(mockNavigate).toHaveBeenCalledWith(
+            '/pair/supplicant/sync_success',
+            { replace: true }
+          )
+        );
+        expect(mockNavigate.mock.calls.map(([to]) => to)).not.toContain(
+          '/pair/supplicant/download_firefox'
+        );
+      });
+    });
+
     it('does not send the browser to /pair/unsupported while handing off', async () => {
       setPairingHash(V2_HASH);
       renderWithRouter(<Pair {...v2Props} />, {}, v2AppContext());
