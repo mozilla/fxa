@@ -1,0 +1,10 @@
+{
+  "commit": "a32d4cdd88c89f121c050582178b8f6064a285f8",
+  "summary": "fix(settings): handle invalid session on third-party auth callback",
+  "description": "Because:\n\n* An invalid stored session token made checkTotpTokenExists reject\n  unhandled, leaving users on the spinner and reporting 401s to Sentry\n\nThis commit:\n\n* Sends the user to sign in when the TOTP check fails\n* Adds a test for the invalid-token path\n\nFixes FXA-13110",
+  "timestamp": 1791317953000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
