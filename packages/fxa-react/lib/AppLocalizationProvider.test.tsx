@@ -14,6 +14,7 @@ import { Localized } from '@fluent/react';
 import fetchMock from 'fetch-mock';
 import AppLocalizationProvider, {
   L10N_ASSET_MAP_META,
+  isNetworkFailure,
 } from './AppLocalizationProvider';
 
 // `it` negotiates to exactly ['it', 'en'], which keeps the set of requested
@@ -27,6 +28,10 @@ const HASHED_ASSET_MAP = {
   'locales/en/greetings.ftl': 'locales/en/greetings.4d5e6f.ftl',
   'locales/it/notfound.ftl': 'locales/it/notfound.7a8b9c.ftl',
   'locales/en/notfound.ftl': 'locales/en/notfound.7a8b9c.ftl',
+  'locales/it/flaky.ftl': 'locales/it/flaky.0f0f0f.ftl',
+  'locales/en/flaky.ftl': 'locales/en/flaky.0f0f0f.ftl',
+  'locales/it/offline.ftl': 'locales/it/offline.0f0f0f.ftl',
+  'locales/en/offline.ftl': 'locales/en/offline.0f0f0f.ftl',
 };
 
 describe('<AppLocalizationProvider/>', () => {
@@ -104,6 +109,27 @@ describe('<AppLocalizationProvider/>', () => {
     );
     fetchMock.get(`${HASHED_BASE_DIR}/locales/it/notfound.7a8b9c.ftl`, 404);
     fetchMock.get(`${HASHED_BASE_DIR}/locales/en/notfound.7a8b9c.ftl`, 404);
+    // `it/flaky` drops the first request and serves the second.
+    fetchMock.get(
+      `${HASHED_BASE_DIR}/locales/it/flaky.0f0f0f.ftl`,
+      { throws: new TypeError('Load failed') },
+      { name: 'flaky-dropped', repeat: 1 }
+    );
+    fetchMock.get(
+      `${HASHED_BASE_DIR}/locales/it/flaky.0f0f0f.ftl`,
+      'hello = Ciao di nuovo\n',
+      { name: 'flaky-served' }
+    );
+    fetchMock.get(
+      `${HASHED_BASE_DIR}/locales/en/flaky.0f0f0f.ftl`,
+      'hello = Hello again\n'
+    );
+    fetchMock.get(`${HASHED_BASE_DIR}/locales/it/offline.0f0f0f.ftl`, {
+      throws: new TypeError('Load failed'),
+    });
+    fetchMock.get(`${HASHED_BASE_DIR}/locales/en/offline.0f0f0f.ftl`, {
+      throws: new TypeError('Load failed'),
+    });
 
     fetchMock.get('*', { throws: new Error() });
   });
@@ -373,6 +399,23 @@ describe('<AppLocalizationProvider/>', () => {
       ]);
     });
 
+    it('retries a bundle once after a network failure and renders it', async () => {
+      const reportBundleError = jest.fn();
+      const { getByTestId } = renderWithManifest(['flaky'], reportBundleError);
+      await waitUntilTranslated();
+
+      expect(getByTestId('result')).toHaveTextContent('Ciao di nuovo');
+      expect(reportBundleError).not.toHaveBeenCalled();
+    });
+
+    it('does not report a bundle that fails twice with a network failure', async () => {
+      const reportBundleError = jest.fn();
+      renderWithManifest(['offline'], reportBundleError);
+      await waitUntilTranslated();
+
+      expect(reportBundleError).not.toHaveBeenCalled();
+    });
+
     it('reports an unusable manifest', async () => {
       const reportBundleError = jest.fn();
       setL10nAssetMap('not-json');
@@ -391,5 +434,23 @@ describe('<AppLocalizationProvider/>', () => {
       // unusable manifest costs one report plus one per negotiated locale.
       expect(reportBundleError).toHaveBeenCalledTimes(3);
     });
+  });
+});
+
+describe('isNetworkFailure', () => {
+  it.each([
+    ['Chromium', new TypeError('Failed to fetch (cdn.example.com)')],
+    ['Gecko', new TypeError('NetworkError when attempting to fetch resource.')],
+    ['WebKit', new TypeError('Load failed (cdn.example.com)')],
+    ['an aborted fetch', new DOMException('', 'AbortError')],
+  ])('is true for %s', (_, err) => {
+    expect(isNetworkFailure(err)).toBe(true);
+  });
+
+  it.each([
+    ['a TypeError from a bug', new TypeError('x is not a function')],
+    ['a plain Error', new Error('Failed to fetch')],
+  ])('is false for %s', (_, err) => {
+    expect(isNetworkFailure(err)).toBe(false);
   });
 });
