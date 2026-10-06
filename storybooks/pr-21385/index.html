@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit f06f0298f5b2a6a48092a608090b22714fe63942</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit f06f0298f5b2a6a48092a608090b22714fe63942</h1>
+  <ul>
+    <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/6/2026, 3:30:23 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>chore(metrics): stop sending the legacy accounts-events Glean ping</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- The `events` ping with the Glean `event` metric type replaced `accounts-events`, and every known consumer uses it.
+- Each frontend event sent two pings. Each backend event wrote two log entries.
+- `login_backup_choice_submit` and `account_pref_two_step_auth_qr_view` received a `reason` from the caller but did not record it. Only the removed ping carried it.
+
+## This pull request
+
+- Removes the `accounts-events` ping and the `event.*` string metrics from the Glean YAML files.
+- Removes the ping submit and the legacy record calls from fxa-settings, content-server and auth-server. Regenerates the Glean modules.
+- Keeps `fxa-ui-pings.yaml`, `fxa-backend-pings.yaml` and the backend compat YAML as schema-only stubs. probe-scraper still fetches them by path.
+- Passes the caller&#039;s `reason` to `login.backupChoiceSubmit` and `accountPref.twoStepAuthQrView` in fxa-settings.
+- Updates the Glean unit specs and `packages/functional-tests/lib/glean.ts` to read the `events` ping.
+- Drops `accounts-events` from `pairingChannelHash` `sendInPings`.
+- Removes the legacy record assertions from the three `step_up_auth_*` auth specs.
+
+## Issue that this pull request solves
+
+Closes:</pre></dd>
+  </dl>
+</body>
+</html>
