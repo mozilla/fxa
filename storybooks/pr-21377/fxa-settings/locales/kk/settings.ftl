@@ -2526,3 +2526,10 @@ signup-confirmed-sync-description-v2 = Парольдер, адрестер, б�
 signup-confirmed-sync-add-device-link = Басқа құрылғыны қосу
 signup-confirmed-sync-manage-sync-button = Синхрондауды басқару
 signup-confirmed-sync-set-password-success-banner = Синхрондау паролі жасалды
+
+## UpdateFirefox page
+## Shown when the browser is too old to use a Mozilla account
+
+update-firefox-heading = { -brand-firefox } жаңартуы керек
+update-firefox-description = Сіздің { -product-mozilla-account } тіркелгіңіз { -brand-firefox } бұл нұсқасында қолдау көрсетілмейтін мүмкіндіктерді пайдаланады. Жалғастыру үшін { -brand-firefox } соңғы нұсқасын жүктеп алып, орнатыңыз.
+update-firefox-download-button = Соңғы нұсқасын жүктеп алу
