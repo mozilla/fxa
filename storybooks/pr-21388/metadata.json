@@ -1,0 +1,12 @@
+{
+  "commit": "2daff2035702e0ddc557f098102a6f096829c957",
+  "summary": "feat(auth): add script to bulk-create single-use Stripe promotion codes",
+  "description": "",
+  "timestamp": 1791310407000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
