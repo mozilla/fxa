@@ -12,11 +12,7 @@ import {
   EventMapKeys,
   EventsMap,
   GleanPingMetrics,
-  booleanEventPropertyNames,
-  stringEventPropertyNames,
 } from 'fxa-shared/metrics/glean/web/index';
-import { accountsEvents } from 'fxa-shared/metrics/glean/web/pings';
-import * as event from 'fxa-shared/metrics/glean/web/event';
 import * as email from 'fxa-shared/metrics/glean/web/email';
 import * as error from 'fxa-shared/metrics/glean/web/error';
 import * as promoQrMobile from 'fxa-shared/metrics/glean/web/promoQrMobile';
@@ -42,10 +38,6 @@ import * as postVerifySetPassword from 'fxa-shared/metrics/glean/web/postVerifyS
 import * as passkeyEnterPassword from 'fxa-shared/metrics/glean/web/passkeyEnterPassword';
 import * as passkey from 'fxa-shared/metrics/glean/web/passkey';
 import { userIdSha256, userId } from 'fxa-shared/metrics/glean/web/account';
-import {
-  appFramework,
-  cmsCustomizationEnrollment,
-} from 'fxa-shared/metrics/glean/web/event';
 import {
   oauthClientId,
   service,
@@ -184,31 +176,6 @@ const initMetrics = async () => {
   entrypointQuery.experiment.set(
     metricsContext.integration.data.entrypointExperiment || ''
   );
-
-  appFramework.set('react');
-
-  // If the user has any cms info, they are considered enrolled in CMS customization.
-  const cmsInfo = !!metricsContext.integration?.getCmsInfo();
-  cmsCustomizationEnrollment.set(cmsInfo);
-};
-
-const populateMetrics = async (gleanPingMetrics: GleanPingMetrics) => {
-  await initMetrics();
-
-  if (gleanPingMetrics?.event) {
-    // The event here is the Glean `event` metric type, not an "metrics event" in
-    // a more general sense
-
-    for (const name of booleanEventPropertyNames) {
-      const eventValue = gleanPingMetrics.event[name];
-      if (eventValue) {
-        event[name].set(eventValue);
-      }
-    }
-    for (const name of stringEventPropertyNames) {
-      event[name].set(gleanPingMetrics.event[name] || '');
-    }
-  }
 };
 
 const recordEventMetric = (
@@ -331,7 +298,9 @@ const recordEventMetric = (
       login.backupChoiceView.record();
       break;
     case 'login_backup_choice_submit':
-      login.backupChoiceSubmit.record();
+      login.backupChoiceSubmit.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
     case 'login_engage':
       login.engage.record();
@@ -588,7 +557,9 @@ const recordEventMetric = (
       accountPref.twoStepAuthScanCodeLink.record();
       break;
     case 'account_pref_two_step_auth_qr_view':
-      accountPref.twoStepAuthQrView.record();
+      accountPref.twoStepAuthQrView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
     case 'account_pref_two_step_auth_qr_code_success':
       accountPref.twoStepAuthQrCodeSuccess.record();
@@ -1014,13 +985,10 @@ const createEventFn =
     }
 
     const fn = async () => {
-      event.name.set(eventName);
-      await populateMetrics(gleanPingMetrics);
+      await initMetrics();
 
       // recording the event metric triggers the event ping because Glean is initialized with `maxEvents: 1`
       recordEventMetric(eventName, gleanPingMetrics);
-
-      accountsEvents.submit();
     };
 
     submitPing(fn);

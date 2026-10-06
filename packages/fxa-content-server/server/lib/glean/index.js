@@ -8,7 +8,6 @@ const remoteAddress =
   require('fxa-shared/express/remote-address').remoteAddress;
 
 let appConfig;
-let gleanEventLogger;
 let gleanServerEventLogger;
 let getRemoteAddress;
 let oauthIdToServiceMap;
@@ -62,7 +61,6 @@ const createEventFn = (eventName, options) => {
       utm_source: maybeMetrics.utm_source || '',
       utm_term: maybeMetrics.utm_term || '',
     };
-    const eventReason = metricsData.reason || '';
 
     // Glean events with event metric type
     const moreMetrics = eventOptions.additionalMetrics
@@ -72,12 +70,6 @@ const createEventFn = (eventName, options) => {
         })
       : {};
     method.call(gleanServerEventLogger, { ...commonMetrics, ...moreMetrics });
-
-    gleanEventLogger.record({
-      ...commonMetrics,
-      event_name: eventName,
-      event_reason: eventReason,
-    });
   };
 };
 
@@ -86,12 +78,6 @@ module.exports = function (config) {
   getRemoteAddress = remoteAddress(config.clientAddressDepth);
   oauthIdToServiceMap = config.oauth_client_id_map;
 
-  gleanEventLogger = serverGleanEvents.createAccountsEventsEvent({
-    applicationId: config.serverGleanMetrics.applicationId,
-    appDisplayVersion: config.version,
-    channel: config.serverGleanMetrics.channel,
-    logger_options: { app: config.serverGleanMetrics.loggerAppName },
-  });
   gleanServerEventLogger = serverGleanEvents.createEventsServerEventLogger({
     applicationId: config.serverGleanMetrics.applicationId,
     appDisplayVersion: config.version,
