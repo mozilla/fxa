@@ -14,17 +14,14 @@ import * as cadMobilePairUseApp from './cadMobilePairUseApp';
 import * as cad from './cad';
 import * as cadRedirectDesktop from './cadRedirectDesktop';
 import * as email from './email';
-import * as event from './event';
 import * as login from './login';
 import * as passwordReset from './passwordReset';
-import { accountsEvents } from './pings';
 import * as reg from './reg';
 import { oauthClientId, service } from './relyingParty';
 import { deviceType, entrypoint, flowId } from './session';
 import * as thirdPartyAuth from './thirdPartyAuth';
 import * as utm from './utm';
 import * as entrypointQuery from './entrypoint';
-import { appFramework } from './event';
 
 export type GleanMetricsConfig = {
   enabled: boolean;
@@ -120,15 +117,6 @@ const initMetrics = async () => {
 
   entrypointQuery.experiment.set(flowEventMetadata.entrypointExperiment || '');
   entrypointQuery.variation.set(flowEventMetadata.entrypointVariation || '');
-
-  appFramework.set('backbone');
-};
-
-const populateMetrics = async (properties: EventProperties = {}) => {
-  await initMetrics();
-  for (const n of eventPropertyNames) {
-    event[n].set(properties[n] || '');
-  }
 };
 
 const recordEventMetric = (eventName: string, properties: EventProperties) => {
@@ -325,13 +313,10 @@ const createEventFn =
     }
 
     const fn = async () => {
-      event.name.set(eventName);
-      await populateMetrics(properties);
+      await initMetrics();
 
       // recording the event metric triggers the event ping because Glean is initialized with `maxEvents: 1`
       recordEventMetric(eventName, properties);
-
-      accountsEvents.submit();
     };
 
     submitPing(fn);

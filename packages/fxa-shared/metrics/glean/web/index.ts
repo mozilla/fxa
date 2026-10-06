@@ -21,8 +21,6 @@ export const stringEventPropertyNames = [
   'outcome',
 ] as const;
 
-// String event extras passed to specific events but not backed by a global
-// `event`-module metric, so they are not set globally in populateMetrics.
 export const stringEventExtraPropertyNames = [
   'mobile_device_count',
   'supported',

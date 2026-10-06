@@ -59,20 +59,10 @@ export class GleanEventsHelper {
 
       try {
         const body = this.parseRequestBody(request);
-        const eventName = body?.metrics?.string?.['event.name'];
-
-        if (eventName) {
-          // FxA stores event metadata as string metrics (event.reason, etc.)
-          const stringMetrics = body?.metrics?.string ?? {};
-          const extras: Record<string, string> = {};
-          for (const [key, value] of Object.entries(stringMetrics)) {
-            if (key.startsWith('event.') && key !== 'event.name') {
-              extras[key.replace('event.', '')] = value as string;
-            }
-          }
+        for (const event of body?.events ?? []) {
           this.pings.push({
-            eventName,
-            extras,
+            eventName: `${event.category}_${event.name}`,
+            extras: event.extra ?? {},
             payload: body,
             url: request.url(),
             timestamp: Date.now(),

@@ -4,9 +4,8 @@
 
 import Glean from '@mozilla/glean/web';
 import { testResetGlean } from '@mozilla/glean/testing';
+import { InternalEventMetricType } from '@mozilla/glean/private/metrics/event';
 import GleanMetrics from '../../../scripts/lib/glean';
-import * as event from '../../../scripts/lib/glean/event';
-import * as pings from '../../../scripts/lib/glean/pings';
 import { userIdSha256, userId } from '../../../scripts/lib/glean/account';
 import {
   oauthClientId,
@@ -74,14 +73,13 @@ describe('lib/glean', () => {
     setUtmSourceStub,
     setUtmTermStub,
     setEntryExperimentStub,
-    setEntryVariationStub,
-    submitPingStub;
+    setEntryVariationStub;
 
   beforeEach(async () => {
     setDeviceTypeStub = sandbox.stub(deviceType, 'set');
     setEntrypointStub = sandbox.stub(entrypoint, 'set');
-    setEventNameStub = sandbox.stub(event.name, 'set');
-    setEventReasonStub = sandbox.stub(event.reason, 'set');
+    setEventNameStub = sandbox.stub();
+    setEventReasonStub = sandbox.stub();
     setFlowIdStub = sandbox.stub(flowId, 'set');
     setOauthClientIdStub = sandbox.stub(oauthClientId, 'set');
     setServiceStub = sandbox.stub(service, 'set');
@@ -94,7 +92,21 @@ describe('lib/glean', () => {
     setUtmTermStub = sandbox.stub(utm.term, 'set');
     setEntryExperimentStub = sandbox.stub(entrypointQuery.experiment, 'set');
     setEntryVariationStub = sandbox.stub(entrypointQuery.variation, 'set');
-    submitPingStub = sandbox.stub(pings.accountsEvents, 'submit');
+    // Every event metric delegates to the internal metric's `record`. The name
+    // stub receives `<category>_<name>` of that metric, which is the event
+    // name; the reason stub receives the `reason` extra when one is recorded.
+    // Glean's own `glean.*` events (e.g. `glean.restarted`) are skipped.
+    sandbox
+      .stub(InternalEventMetricType.prototype, 'record')
+      .callsFake(function (extra) {
+        if (this.category === 'glean') {
+          return;
+        }
+        setEventNameStub(`${this.category}_${this.name}`);
+        if (extra?.reason !== undefined) {
+          setEventReasonStub(extra.reason);
+        }
+      });
     await testResetGlean('glean-test');
   });
 
@@ -118,7 +130,7 @@ describe('lib/glean', () => {
     it('does not submit a ping on an event', async () => {
       GleanMetrics.registration.view();
       await GleanMetrics.isDone();
-      sinon.assert.notCalled(submitPingStub);
+      sinon.assert.notCalled(setEventNameStub);
     });
 
     it('does not set the metrics values', async () => {
@@ -191,7 +203,7 @@ describe('lib/glean', () => {
     it('submits a ping on an event', async () => {
       GleanMetrics.registration.view();
       await GleanMetrics.isDone();
-      sinon.assert.calledOnce(submitPingStub);
+      sinon.assert.calledOnce(setEventNameStub);
     });
 
     it('sets empty strings as defaults', async () => {
