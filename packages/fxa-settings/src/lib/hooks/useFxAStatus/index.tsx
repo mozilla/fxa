@@ -18,6 +18,7 @@ import {
 } from '../../sync-engines';
 import firefox, { FxAStatusResponse } from '../../channels/firefox';
 import { Constants } from '../../constants';
+import { detectDevice, Devices } from '../../utilities';
 
 type FxAStatusIntegration = Pick<
   Integration,
@@ -28,6 +29,14 @@ type SyncEngineConfigs = typeof syncEngineConfigs | undefined;
 
 export type FxAStatusState = 'pending' | 'unanswered' | 'answered';
 
+/**
+ * How long a pairing page on a phone waits for fxa_status before treating the
+ * browser as one that will never answer: a WebView or a spoofed user agent that
+ * only looks like Firefox. Firefox desktop never pays this deadline. It has no
+ * Firefox app to hand the flow to, so an early default buys nothing there, and
+ * a real desktop answer routinely takes longer than this when several tabs
+ * load at once. Desktop waits on `firefox.fxaStatus`'s own retries instead.
+ */
 export const PAIRING_FXA_STATUS_TIMEOUT_MS = 500;
 
 /**
@@ -84,6 +93,8 @@ export function useFxAStatus(
   const isSync = integration.isSync();
   const isPairing =
     integration.isPairing() || isPairingEntryPathname(pathname);
+  const hasPairingDeadline =
+    isPairing && detectDevice() !== Devices.FIREFOX_DESKTOP;
   const isOAuthNative = isOAuthNativeIntegration(integration);
   const [webChannelEngines, setWebChannelEngines] = useState<string[]>();
   const [offeredSyncEngineConfigs, setOfferedSyncEngineConfigs] =
@@ -116,9 +127,10 @@ export function useFxAStatus(
           service: Constants.SYNC_SERVICE,
         });
 
-        // `status` is undefined when the browser never answered, and very old
-        // versions of Firefox iOS answer without `capabilities`. Falling back to
-        // the defaults in both cases means callers settle rather than wait.
+        // `status` is undefined when the browser never answered within
+        // firefox.fxaStatus's attempts, and very old versions of Firefox iOS
+        // answer without `capabilities`. Falling back to the defaults in both
+        // cases means callers settle rather than wait.
         const capabilities = {
           ...DEFAULT_FXA_STATUS.capabilities,
           ...status?.capabilities,
@@ -137,7 +149,7 @@ export function useFxAStatus(
               DEFAULT_PAIRING_CAPABILITIES.pairingVersion,
           },
         });
-        setFxaStatusState('answered');
+        setFxaStatusState(status ? 'answered' : 'unanswered');
 
         if (!webChannelEngines && capabilities.engines) {
           // choose_what_to_sync may be disabled for mobile sync, see:
@@ -185,7 +197,7 @@ export function useFxAStatus(
   ]);
 
   // Give up waiting on a browser that looks like Firefox but never answers —
-  // an in-app WebView, or a spoofed user agent. Pairing only: see
+  // an in-app WebView, or a spoofed user agent. Pairing on a phone only: see
   // PAIRING_FXA_STATUS_TIMEOUT_MS.
   //
   // Keyed on the pending state rather than on "did we send the message", so the
@@ -194,7 +206,7 @@ export function useFxAStatus(
   // itself. A reply that lands after the deadline still wins, because the effect
   // above sets both values unconditionally.
   useEffect(() => {
-    if (!isPairing || fxaStatusState !== 'pending') {
+    if (!hasPairingDeadline || fxaStatusState !== 'pending') {
       return;
     }
     const timer = window.setTimeout(() => {
@@ -204,7 +216,7 @@ export function useFxAStatus(
       );
     }, PAIRING_FXA_STATUS_TIMEOUT_MS);
     return () => window.clearTimeout(timer);
-  }, [isPairing, fxaStatusState]);
+  }, [hasPairingDeadline, fxaStatusState]);
 
   useEffect(() => {
     if (webChannelEngines) {

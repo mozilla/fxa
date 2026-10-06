@@ -27,10 +27,30 @@ jest.mock('../../../models', () => {
   };
 });
 
+const FIREFOX_DESKTOP_UA =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:158.0) ' +
+  'Gecko/20100101 Firefox/158.0';
+const FIREFOX_ANDROID_UA =
+  'Mozilla/5.0 (Android 14; Mobile; rv:158.0) Gecko/158.0 Firefox/158.0';
+
 describe('useFxAStatus', () => {
+  // jsdom's own user agent names no Firefox flavour, so a test that depends on
+  // the device sets one and gets the real value back afterwards.
+  const realUserAgent = navigator.userAgent;
+  const withUserAgent = (value: string) => {
+    Object.defineProperty(navigator, 'userAgent', {
+      value,
+      configurable: true,
+    });
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
     (isProbablyFirefox as jest.Mock).mockImplementation(() => true);
+  });
+
+  afterEach(() => {
+    withUserAgent(realUserAgent);
   });
 
   describe('SyncDesktopV3 integration', () => {
@@ -323,6 +343,16 @@ describe('useFxAStatus', () => {
       expect(result.current.supportsKeysOptionalLogin).toBe(false);
       expect(result.current.supportsCanLinkAccountUid).toBe(false);
     });
+
+    it('reports unanswered once the attempts are exhausted', async () => {
+      (firefox.fxaStatus as jest.Mock).mockResolvedValue(undefined);
+
+      const { result } = renderHook(() => useFxAStatus(integration));
+
+      await waitFor(() => {
+        expect(result.current.fxaStatusState).toBe('unanswered');
+      });
+    });
   });
 
   describe('Web integration', () => {
@@ -540,6 +570,79 @@ describe('useFxAStatus', () => {
         });
 
         expect(result.current.fxaStatusState).toBe('pending');
+      });
+
+      it('still pays the deadline on Firefox for Android', () => {
+        withUserAgent(FIREFOX_ANDROID_UA);
+        const { result } = renderHook(() => useFxAStatus(pairingIntegration));
+
+        act(() => {
+          jest.advanceTimersByTime(PAIRING_FXA_STATUS_TIMEOUT_MS);
+        });
+
+        expect(result.current.fxaStatusState).toBe('unanswered');
+      });
+
+      // Several /pair tabs opened at once answer well after the deadline, and a
+      // default taken before then routes a v2 desktop down the v1 flow.
+      describe('on Firefox desktop', () => {
+        beforeEach(() => {
+          withUserAgent(FIREFOX_DESKTOP_UA);
+        });
+
+        it('never schedules a deadline', () => {
+          const { result } = renderHook(() => useFxAStatus(pairingIntegration));
+
+          expect(jest.getTimerCount()).toBe(0);
+
+          act(() => {
+            jest.advanceTimersByTime(PAIRING_FXA_STATUS_TIMEOUT_MS * 10);
+          });
+
+          expect(result.current.fxaStatusState).toBe('pending');
+          expect(result.current.fxaStatus).toBeUndefined();
+        });
+
+        it('settles on the reply however late it lands', async () => {
+          let reply: (value: unknown) => void = () => {};
+          (firefox.fxaStatus as jest.Mock).mockReturnValue(
+            new Promise((resolve) => {
+              reply = resolve;
+            })
+          );
+
+          const { result } = renderHook(() => useFxAStatus(pairingIntegration));
+
+          act(() => {
+            jest.advanceTimersByTime(PAIRING_FXA_STATUS_TIMEOUT_MS * 10);
+          });
+          await act(async () => {
+            reply({
+              capabilities: { engines: [], pairing: true, pairingVersion: 2 },
+            });
+          });
+
+          expect(result.current.fxaStatusState).toBe('answered');
+          expect(result.current.fxaStatus?.capabilities.pairingVersion).toBe(2);
+        });
+
+        it('settles on unanswered once firefox.fxaStatus gives up', async () => {
+          let giveUp: (value: unknown) => void = () => {};
+          (firefox.fxaStatus as jest.Mock).mockReturnValue(
+            new Promise((resolve) => {
+              giveUp = resolve;
+            })
+          );
+
+          const { result } = renderHook(() => useFxAStatus(pairingIntegration));
+
+          await act(async () => {
+            giveUp(undefined);
+          });
+
+          expect(result.current.fxaStatusState).toBe('unanswered');
+          expect(result.current.fxaStatus?.capabilities.pairingVersion).toBe(1);
+        });
       });
     });
   });
