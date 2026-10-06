@@ -105,13 +105,26 @@ describe('Renderer', () => {
       expect(result).not.toBe('Cancel subscription');
     });
 
-    it('renders EJS when "<%" is present in the localized string', async () => {
+    it('renders EJS in the fallback message when the Fluent id is missing', async () => {
       const result = await renderer.localizeAndRender(
         undefined,
         { id: 'nonexistent-key-for-ejs-test', message: 'Hello <%- "World" %>' },
         rendererContext
       );
       expect(result).toBe('Hello World');
+    });
+
+    it('does not render EJS in a Fluent value', async () => {
+      const result = await renderer.localizeAndRender(
+        undefined,
+        {
+          id: 'newDeviceLogin-subject',
+          message: 'New sign-in to <%- clientName %>',
+        },
+        { ...rendererContext, clientName: '<%= 6 * 7 %>' }
+      );
+      expect(result).toContain('<%= 6 * 7 %>');
+      expect(result).not.toContain('42');
     });
   });
 });
