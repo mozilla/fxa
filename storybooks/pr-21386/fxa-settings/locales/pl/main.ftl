@@ -235,6 +235,7 @@ button-back-aria-label = Wstecz
 button-back-title = Wstecz
 
 
+recovery-key-download-button-v4 = Pobierz i kontynuuj
 recovery-key-pdf-download-error = Przepraszamy, wystąpił problem podczas pobierania klucza odzyskiwania konta.
 
 
