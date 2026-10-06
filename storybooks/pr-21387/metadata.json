@@ -1,8 +1,8 @@
 {
-  "commit": "3e42759e1ce9ff574b2a4140cda35cac84035c81",
+  "commit": "e6cce1bc664524bfa1919661465f4f65a1494af2",
   "summary": "fix(settings): route /pair on desktop only after fxa_status answers",
   "description": "Because:\n\n- The 500ms pairing deadline in useFxAStatus settled Firefox desktop on pairing version 1 whenever the browser answered late, and the v1 bootstrap hard-navigated before the real reply could win\n- The web channel started its reply timeout before the message was sent, and Firefox pauses requestAnimationFrame in hidden tabs, so /pair tabs opened in the background timed out without ever asking\n\nThis commit:\n\n- exempts Firefox desktop from PAIRING_FXA_STATUS_TIMEOUT_MS so it waits on firefox.fxaStatus's own retries\n- reports 'unanswered' when firefox.fxaStatus exhausts its attempts\n- starts the web channel reply timeout inside the frame that sends the message and drops the listener on timeout\n- covers the desktop case, the exhaustion state and the frame-gated timeouts in tests",
-  "timestamp": 1791307734000,
+  "timestamp": 1791307758000,
   "storybooks": [
     "fxa-settings"
   ],
