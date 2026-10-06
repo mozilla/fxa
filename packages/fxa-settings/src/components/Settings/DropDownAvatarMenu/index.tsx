@@ -4,13 +4,19 @@
 
 import React, { useState } from 'react';
 import Avatar from '../Avatar';
-import { useAccount, useAlertBar, useSession } from '../../../models';
+import {
+  isProbablyFirefox,
+  useAccount,
+  useAlertBar,
+  useSession,
+} from '../../../models';
 import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
 import { useEscKeydownEffect } from '../../../lib/hooks';
 import { ReactComponent as SignOut } from './sign-out.svg';
 import { logViewEvent, settingsViewName } from '../../../lib/metrics';
 import { Localized, useLocalization } from '@fluent/react';
 import firefox from '../../../lib/channels/firefox';
+import { Constants } from '../../../lib/constants';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import {
   JwtTokenCache,
@@ -35,11 +41,27 @@ export const DropDownAvatarMenu = () => {
     'Mozilla account menu'
   );
 
+  // A forced web sign-in can replace the stored token; Firefox keeps the old one.
+  const getBrowserSessionToken = async () => {
+    if (!isProbablyFirefox()) {
+      return undefined;
+    }
+    const browserUser = await firefox.requestSignedInUser(
+      '',
+      false,
+      Constants.SYNC_SERVICE
+    );
+    return browserUser?.uid === uid &&
+      browserUser.sessionToken !== session.token
+      ? browserUser.sessionToken
+      : undefined;
+  };
+
   const signOut = async () => {
     if (session.destroy) {
       try {
         setSigningOut(true);
-        await session.destroy();
+        await session.destroy(await getBrowserSessionToken());
 
         // Send a logout event to Firefox even if the user is in a non-Sync flow.
         // If the user is signed into the browser, they need to drop the now

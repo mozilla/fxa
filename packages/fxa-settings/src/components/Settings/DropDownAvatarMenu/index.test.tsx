@@ -209,4 +209,80 @@ describe('DropDownAvatarMenu', () => {
       expect(fxaLogoutSpy).toHaveBeenCalledWith({ uid: account.uid });
     });
   });
+
+  describe('browser session token', () => {
+    const uid = 'abc123';
+    const browserSessionToken = 'b0wser';
+    let requestSignedInUserSpy: jest.SpyInstance;
+    let fxaLogoutSpy: jest.SpyInstance;
+    let session: ReturnType<typeof mockSession>;
+    const originalLocation = window.location;
+
+    beforeEach(() => {
+      jest
+        .spyOn(navigator, 'userAgent', 'get')
+        .mockReturnValue('Mozilla/5.0 Firefox/140.0');
+      requestSignedInUserSpy = jest.spyOn(firefox, 'requestSignedInUser');
+      fxaLogoutSpy = jest.spyOn(firefox, 'fxaLogout');
+      session = mockSession();
+      //@ts-ignore
+      delete window.location;
+      window.location = { ...window.location, assign: jest.fn() };
+    });
+    afterEach(() => {
+      jest.restoreAllMocks();
+      window.location = originalLocation;
+    });
+
+    async function signOut() {
+      renderWithLocalizationProvider(
+        <AppContext.Provider
+          value={mockAppContext({
+            account: { ...account, uid } as Account,
+            session,
+          })}
+        >
+          <DropDownAvatarMenu />
+        </AppContext.Provider>
+      );
+      fireEvent.click(screen.getByTestId('drop-down-avatar-menu-toggle'));
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('avatar-menu-sign-out'));
+      });
+    }
+
+    it('is passed to session.destroy before fxaLogout when it differs from the stored token', async () => {
+      requestSignedInUserSpy.mockResolvedValue({
+        uid,
+        sessionToken: browserSessionToken,
+      });
+      await signOut();
+      expect(session.destroy).toHaveBeenCalledWith(browserSessionToken);
+      expect(
+        (session.destroy as jest.Mock).mock.invocationCallOrder[0]
+      ).toBeLessThan(fxaLogoutSpy.mock.invocationCallOrder[0]);
+    });
+
+    it.each([
+      ['another account', { uid: 'other', sessionToken: browserSessionToken }],
+      ['no reply', undefined],
+      ['no session token', { uid, sessionToken: undefined }],
+      ['the stored token', { uid, sessionToken: mockSession().token }],
+    ])(
+      'is not passed to session.destroy when the browser reports %s',
+      async (_, signedInUser) => {
+        requestSignedInUserSpy.mockResolvedValue(signedInUser);
+        await signOut();
+        expect(session.destroy).toHaveBeenCalledWith(undefined);
+        expect(fxaLogoutSpy).toHaveBeenCalledWith({ uid });
+      }
+    );
+
+    it('does not ask the browser outside Firefox', async () => {
+      jest.spyOn(navigator, 'userAgent', 'get').mockReturnValue('Chrome');
+      await signOut();
+      expect(requestSignedInUserSpy).not.toHaveBeenCalled();
+      expect(session.destroy).toHaveBeenCalledWith(undefined);
+    });
+  });
 });

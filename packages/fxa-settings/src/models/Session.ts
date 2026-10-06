@@ -100,7 +100,7 @@ export class Session implements SessionData {
     );
   }
 
-  async destroy() {
+  async destroy(browserSessionToken?: string) {
     const token = sessionToken();
     if (token) {
       try {
@@ -112,6 +112,10 @@ export class Session implements SessionData {
           throw e;
         }
       }
+    }
+    if (browserSessionToken) {
+      // Best effort: a failure here must not block local sign-out.
+      await this.authClient.sessionDestroy(browserSessionToken).catch(() => {});
     }
     clearSignedInAccountUid();
     dispatchStorageEvent('isSignedIn');
