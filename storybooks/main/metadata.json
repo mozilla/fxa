@@ -1,8 +1,8 @@
 {
-  "commit": "8795a3bf4cdef2e6c15581073ba77ab7a3b7516e",
-  "summary": "Merge pull request #21358 from mozilla/fxa-14647",
-  "description": "fix(auth,settings): keep account data usable on subscription errors",
-  "timestamp": 1791311696000,
+  "commit": "2bf9414c8358deca487a0e5630f1b719257e6955",
+  "summary": "Merge pull request #21386 from mozilla/FXA-14572",
+  "description": "fix(react): retry l10n bundle fetch and skip network failures",
+  "timestamp": 1791313466000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
