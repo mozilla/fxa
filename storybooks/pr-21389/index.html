@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 76b56ad28cb92a20e1537759425c61386e7c37a8</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 76b56ad28cb92a20e1537759425c61386e7c37a8</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/6/2026, 3:17:34 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>test(functional-tests): cover passkey passwordless Sync sign-in end to end</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+* Passwordless Sync had no browser-level coverage of opting in and then
+  signing in without the password
+
+This commit:
+
+* Adds an E2E that opts in after the password fallback, then signs in to
+  Sync passwordless in a second browser
+* Lets the passkey polyfill reuse credentials minted in another browser
+* Exports newPagesForSync for tests that need a second Sync browser
+* Adds unit tests for promo order and the login-before-opt-in hand-off
+
+Fixes FXA-13154</pre></dd>
+  </dl>
+</body>
+</html>
