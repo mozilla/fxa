@@ -235,6 +235,7 @@ button-back-aria-label = Wstecz
 button-back-title = Wstecz
 
 
+recovery-key-download-button-v4 = Pobierz i kontynuuj
 recovery-key-pdf-download-error = Przepraszamy, wystąpił problem podczas pobierania klucza odzyskiwania konta.
 
 
@@ -262,6 +263,8 @@ datablock-print =
 datablock-copy-success =
     { $count ->
         [one] Skopiowano kod
+        [few] Skopiowano kody
+        [many] Skopiowano kody
        *[other] Skopiowano kody
     }
 datablock-download-success =
@@ -286,6 +289,7 @@ device-info-block-location-city-country = { $city }, { $country } (przybliżone)
 device-info-block-location-country = { $country } (przybliżone)
 device-info-block-location-unknown = Nieznane położenie
 device-info-browser-os = { $browserName } w systemie { $genericOSName }
+device-info-browser-device = { $browserName } na urządzeniu { $deviceName }
 device-info-ip-address = Adres IP: { $ipAddress }
 
 
@@ -465,6 +469,9 @@ password-strength-inline-passwords-match = Hasła są zgodne
 
 
 promo-qr-mobile-heading = Twój telefon. Twoje zasady.
+promo-qr-mobile-description-v2 = Zeskanuj, aby pobrać aplikację mobilną
+promo-qr-mobile-qr-alt =
+    .alt = Kod QR do pobrania aplikacji mobilnej { -brand-firefox }. Skieruj aparat telefonu na prawy dolny róg ekranu, aby zeskanować kod.
 
 
 account-recovery-notification-cta = Utwórz
