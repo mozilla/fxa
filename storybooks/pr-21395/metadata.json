@@ -1,0 +1,12 @@
+{
+  "commit": "d414a2a8714af5fde2edbe721f7e056050fd675c",
+  "summary": "fix(payments): Drop coupon from cart if already used to prevent page crash",
+  "description": "",
+  "timestamp": 1791319626000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
