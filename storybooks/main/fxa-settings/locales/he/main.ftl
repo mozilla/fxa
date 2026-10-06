@@ -164,6 +164,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = אימות ססמה
 form-password-with-inline-criteria-reset-submit-button = יצירת ססמה חדשה
+form-password-with-inline-criteria-old-password-label =
+    .label = ססמה ישנה
+form-password-with-inline-criteria-change-password-submit-button = שינוי ססמה
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = ססמה
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1307,8 +1310,19 @@ pair2-supplicant-connect-this-device-connect-button = חיבור
 pair2-supplicant-connect-this-device-cancel-button = ביטול
 
 
+pair2-supplicant-download-firefox-heading-v2 = יש לפתוח את { -brand-firefox } במכשיר זה
+pair2-supplicant-download-firefox-description-v2 = יש להוריד את { -brand-firefox } כדי לסנכרן סימניות, היסטוריה ועוד בין מכשירים.
 pair2-supplicant-download-firefox-continue-button = המשך ב־{ -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = בתהליך פתיחת { -brand-firefox }…
+pair2-supplicant-download-firefox-download-button = הורדת { -brand-firefox }
+pair2-supplicant-download-firefox-have-firefox-button = כבר יש לי את { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = מידע נוסף
+
+
+pair2-supplicant-connect-hint-heading-v2 = סיום הצימוד ביישומון
+pair2-supplicant-connect-hint-step-app-menu = יש להקיש על <b>תפריט היישומון</b> בסרגל הכלים
+pair2-supplicant-connect-hint-step-sign-in = יש להקיש על <b>כניסה</b>, ולאחר מכן לסרוק את הקוד
+pair2-supplicant-connect-hint-learn-more-link = מידע נוסף
 
 
 pair2-supplicant-ready-to-scan-heading = כדי לחבר מכשיר
@@ -1332,6 +1346,11 @@ permissions-label-email = כתובת דוא״ל
 permissions-label-display-name = שם תצוגה
 permissions-continue-button = המשך
 permissions-cancel-button = ביטול
+
+
+force-password-change-heading = נא לשנות את הססמה שלך
+force-password-change-info = איתרנו התנהגות חשודה ב{ -product-mozilla-account(case: "the") } שלך. כדי להגן על החשבון שלך, נא ליצור ססמה חדשה. יהיה עליך להשתמש בסיסמה זו כדי להיכנס שוב לכל שירותי { -product-mozilla-account(case: "the") } שלך.
+force-password-change-data-info = ההיסטוריה, הססמאות, הכניסות ושאר הנתונים האישיים שלך לא יאבדו.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account(case: "the") } אומת
@@ -1615,3 +1634,10 @@ signup-confirmed-sync-description-v2 = ניתן לסנכרן את הססמאות
 signup-confirmed-sync-add-device-link = הוספת מכשיר נוסף
 signup-confirmed-sync-manage-sync-button = ניהול סנכרון
 signup-confirmed-sync-set-password-success-banner = ססמת הסנכרון נוצרה
+
+
+update-firefox-heading = נדרש עדכון ל־{ -brand-firefox }
+update-firefox-description =
+    { -product-mozilla-account(case: "the") } שלך עושה שימוש בתכונות שאינן נתמכות בגרסת ה־{ -brand-firefox } שלך. נא
+    להוריד ולהתקין את הגרסה האחרונה של { -brand-firefox } כדי להמשיך.
+update-firefox-download-button = הורדת העדכני ביותר

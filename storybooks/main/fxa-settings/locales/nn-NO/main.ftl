@@ -1680,3 +1680,7 @@ signup-confirmed-sync-description-v2 = Passorda, adressene, bokmerka, historikke
 signup-confirmed-sync-add-device-link = Legg til ei anna eining
 signup-confirmed-sync-manage-sync-button = Handsam synkronisering
 signup-confirmed-sync-set-password-success-banner = Synkroniseringspassord oppretta
+
+
+update-firefox-heading = { -brand-firefox }-oppdatering påkravd
+update-firefox-download-button = Last ned den nyaste versjonen

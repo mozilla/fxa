@@ -39,6 +39,13 @@
 -app-store = App Store
 -google-play = Google Play
 
+app-something-went-wrong-heading = مشکلی پیش آمد
+app-something-went-wrong-message = ما از مشکل مطلع شدیم. برای امتحان مجدد، صفحه را تازه‌سازی کنید.
+app-error-id = شناسه خطا: { $errorId }
+app-error-details-summary = جزئیات خطا
+app-query-parameter-err-heading = درخواست نامناسب: پارامترهای پرس‌و‌جو نامعتبر است
+
+
 app-footer-mozilla-logo-label = آرم { -brand-mozilla }
 app-footer-privacy-notice = نکات حفظ محرمانگی وبگاه
 app-footer-terms-of-service = شرایط ارائهٔ خدمات
@@ -55,4 +62,4 @@ app-loading-spinner-aria-label-loading = در حال بارگیری…
 
 
 app-logo-alt-3 =
-    .alt = { -brand-mozilla } چ آرم
+    .alt = { -brand-mozilla } آرم m

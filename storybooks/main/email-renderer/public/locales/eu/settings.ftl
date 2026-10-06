@@ -1984,3 +1984,10 @@ signup-confirmed-sync-button = Hasi nabigatzen
 signup-confirmed-sync-add-device-link = Gehitu beste gailu bat
 signup-confirmed-sync-manage-sync-button = Kudeatu sinkronizazioa
 signup-confirmed-sync-set-password-success-banner = Sinkronizatzeko pasahitza sortuta
+
+## UpdateFirefox page
+## Shown when the browser is too old to use a Mozilla account
+
+update-firefox-heading = { -brand-firefox } eguneratu behar da
+update-firefox-description = Zure { -product-mozilla-account } zerbitzuak darabilzun { -brand-firefox } bertsioak onartzen ez dituen eginbideak erabiltzen ditu. Jarraitzeko, deskargatu eta instalatu { -brand-firefox }(e)n azken bertsioa mesedez.
+update-firefox-download-button = Deskargatu azkena

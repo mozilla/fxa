@@ -1,8 +1,8 @@
 {
-  "commit": "f78c86754a2e8b15479962a43e896d3be3fc7ed6",
-  "summary": "Merge pull request #21281 from mozilla/fxa-9550",
-  "description": "refactor(auth): remove preVerified option from account creation",
-  "timestamp": 1791256429000,
+  "commit": "1cd12b631bb59c5a08beed13cb333395b4d16e78",
+  "summary": "Merge pull request #21376 from mozilla/fxa-14586",
+  "description": "fix(auth): make Redis session-token prune best-effort on delete",
+  "timestamp": 1791296809000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
