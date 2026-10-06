@@ -151,7 +151,7 @@ export async function newPages(browser: Browser, target: BaseTarget) {
 // `identity.fxaccounts.lastSignedInUserHash` to the last
 // user signed in. On subsequent login to Sync, a dialog is prompted for the user
 // to confirm. Playwright does not have functionality to click browser ui.
-async function newPagesForSync(
+export async function newPagesForSync(
   target: BaseTarget,
   context: 'fx_desktop_v3' | 'oauth_webchannel_v1' = 'fx_desktop_v3'
 ) {
@@ -169,7 +169,7 @@ type SyncPages = Awaited<ReturnType<typeof newPagesForSync>>;
 
 // browser.close() skips Playwright's trace capture, but context.close() saves
 // the context's trace into the test's trace.zip.
-async function closeSyncBrowser(syncBrowserPages: SyncPages) {
+export async function closeSyncBrowser(syncBrowserPages: SyncPages) {
   await syncBrowserPages.page.context().close();
   await syncBrowserPages.browser.close();
 }

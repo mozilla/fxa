@@ -4,6 +4,7 @@
 
 import { Page } from '@playwright/test';
 import { BaseLayout } from './layout';
+import type { VirtualCredential } from '@fxa/accounts/passkey/testing';
 import { PasskeyPolyfill } from '../lib/passkeyPolyfill';
 
 /**
@@ -19,10 +20,14 @@ export abstract class PasskeyPage extends BaseLayout {
    * Install the passkey polyfill on the given page. Idempotent — safe to
    * call more than once. Applies to the current page and all subsequent
    * navigations.
+   *
+   * @param credentials - test only: passkeys minted by another browser's
+   * polyfill, so this browser can sign in with the same passkey, as a synced
+   * passkey would on a second device.
    */
-  async initPasskeys(page: Page) {
+  async initPasskeys(page: Page, credentials?: VirtualCredential[]) {
     if (this.passkeyPolyfill) return;
-    this.passkeyPolyfill = new PasskeyPolyfill();
+    this.passkeyPolyfill = new PasskeyPolyfill({ credentials });
     await this.passkeyPolyfill.install(page);
   }
 

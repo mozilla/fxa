@@ -1312,6 +1312,55 @@ describe('Signin utils', () => {
         expect(held.prfOut).toEqual(new Uint8Array(32).fill(3));
       });
 
+      it('shows the opt-in page instead of the recovery key promo when both apply', async () => {
+        const integration = createMockSigninOAuthNativeSyncIntegration();
+        const { sensitiveDataClient } = stashPendingWrap();
+        const navigationOptions = createSendTabNavigationOptions({
+          integration,
+          queryParams: '?service=sync',
+          showInlineRecoveryKeySetup: true,
+          sensitiveDataClient,
+        });
+
+        await handleNavigation(navigationOptions);
+
+        expect(mockNavigate).toHaveBeenCalledTimes(1);
+        const [navigatedUrl] = mockNavigate.mock.calls[0];
+        expect(navigatedUrl).toBe(
+          '/inline_passwordless_sync_setup?service=sync'
+        );
+      });
+
+      it('sends the Sync login to Firefox before showing the opt-in page', async () => {
+        const fxaOAuthLoginSpy = jest.spyOn(firefox, 'fxaOAuthLogin');
+        const integration = createMockSigninOAuthNativeSyncIntegration();
+        const { sensitiveDataClient } = stashPendingWrap();
+        const navigationOptions = createSendTabNavigationOptions({
+          integration,
+          queryParams: '?service=sync',
+          handleFxaOAuthLogin: true,
+          sensitiveDataClient,
+        });
+
+        await handleNavigation(navigationOptions);
+
+        // Leaving the opt-in page, including by reload, continues without
+        // the password only because Firefox already has the login.
+        expect(fxaOAuthLoginSpy).toHaveBeenCalledWith({
+          action: 'signin',
+          code: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.code,
+          redirect: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
+          state: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.state,
+          scope: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.scope,
+        });
+        expect(fxaOAuthLoginSpy.mock.invocationCallOrder[0]).toBeLessThan(
+          mockNavigate.mock.invocationCallOrder[0]
+        );
+        expect(mockNavigate.mock.calls[0][0]).toBe(
+          '/inline_passwordless_sync_setup?service=sync'
+        );
+      });
+
       it('clears showSignupConfirmedSync for send-tab post-verify and soft-navs with origin=post-verify-set-password', async () => {
         const integration = createMockSigninOAuthNativeSyncIntegration();
         integration.data.entrypoint = 'send-tab-app-menu';
