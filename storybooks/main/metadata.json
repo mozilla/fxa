@@ -1,8 +1,8 @@
 {
-  "commit": "2bf9414c8358deca487a0e5630f1b719257e6955",
-  "summary": "Merge pull request #21386 from mozilla/FXA-14572",
-  "description": "fix(react): retry l10n bundle fetch and skip network failures",
-  "timestamp": 1791313466000,
+  "commit": "eca3685053572a204ba8630b9c2a46ed41e91161",
+  "summary": "Merge pull request #21387 from mozilla/FXA-14610",
+  "description": "fix(settings): route /pair on desktop only after fxa_status answers",
+  "timestamp": 1791315544000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
