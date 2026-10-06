@@ -1,8 +1,8 @@
 {
-  "commit": "fd3c0d17b6c8cb10ca05d4ae7ce13206cc1235dc",
+  "commit": "4fc29d5e60f53e269f990afb2fd8c53c0f39d783",
   "summary": "fix(l10n): Add clear comment for \"sync sign-in\"",
   "description": "Co-authored-by: Bryan Olsson <bolsson@mozilla.com>",
-  "timestamp": 1791315741000,
+  "timestamp": 1791315730000,
   "storybooks": [
     "fxa-settings"
   ],
