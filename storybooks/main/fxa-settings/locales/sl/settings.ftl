@@ -2551,3 +2551,10 @@ signup-confirmed-sync-description-v2 = Vaša gesla, naslovi, zaznamki, zgodovina
 signup-confirmed-sync-add-device-link = Dodaj drugo napravo
 signup-confirmed-sync-manage-sync-button = Upravljanje sinhronizacije
 signup-confirmed-sync-set-password-success-banner = Geslo za sinhronizacijo ustvarjeno
+
+## UpdateFirefox page
+## Shown when the browser is too old to use a Mozilla account
+
+update-firefox-heading = Potrebna je posodobitev za { -brand-firefox }
+update-firefox-description = Vaš { -product-mozilla-account } uporablja funkcije, ki niso podprte v vaši različici { -brand-firefox }a. Za nadaljevanje prenesite in namestite najnovejšo različico { -brand-firefox }.
+update-firefox-download-button = Prenesi najnovejšo različico

@@ -2568,3 +2568,10 @@ signup-confirmed-sync-description-v2 = Gall eich cyfrineiriau, cyfeiriadau, noda
 signup-confirmed-sync-add-device-link = Ychwanegu dyfais arall
 signup-confirmed-sync-manage-sync-button = Rheoli cydweddu
 signup-confirmed-sync-set-password-success-banner = Cyfrinair cydweddu wedi'i greu
+
+## UpdateFirefox page
+## Shown when the browser is too old to use a Mozilla account
+
+update-firefox-heading = Mae angen { -brand-firefox } diweddariad
+update-firefox-description = Mae eich { -product-mozilla-account } yn defnyddio nodweddion nad ydynt yn cael eu cefnogi yn eich fersiwn chi o { -brand-firefox }. Llwythwch i lawr a gosodwch y fersiwn diweddaraf o { -brand-firefox } i barhau.
+update-firefox-download-button = Llwytho'r diweddariad diweddaraf i lawr

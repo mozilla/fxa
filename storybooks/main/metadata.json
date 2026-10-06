@@ -1,8 +1,8 @@
 {
-  "commit": "a3ce3718e596c2a1875dbf6eb428cebe3d1a7d83",
-  "summary": "Merge pull request #21312 from mozilla/fxa-14574",
-  "description": "test(settings): cover OAuth hooks data, keys, errors and redirects",
-  "timestamp": 1791244274000,
+  "commit": "f78c86754a2e8b15479962a43e896d3be3fc7ed6",
+  "summary": "Merge pull request #21281 from mozilla/fxa-9550",
+  "description": "refactor(auth): remove preVerified option from account creation",
+  "timestamp": 1791256429000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
