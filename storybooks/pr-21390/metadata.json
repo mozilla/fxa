@@ -1,0 +1,10 @@
+{
+  "commit": "5990ce695cec132a42cb5791860541ca7822a261",
+  "summary": "fix(pair): keep the pairing-complete marker across mobile reloads",
+  "description": "Because:\n- Firefox for Android reloads the supplicant's original URL after the\n  OAuth login, sometimes more than once.\n- The v2 branch cleared the completion marker on first use, so a later\n  load reopened the consumed channel and showed the timeout or the old\n  \"pair failed\" screen, depending on whether fxa_status answered in time.\n- The /pair entry never checked the marker at all.\n\nThis commit:\n- Keeps the fxa.pair.complete marker instead of clearing it.\n- Routes a completed channel to sync_success from /pair as well as\n  /pair/supp, replacing the history entry.\n- Removes the unused clearChannelComplete helper.\n- Covers repeated loads of a completed channel in both page suites.\n\nCloses #FXA-14606",
+  "timestamp": 1791249625000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
