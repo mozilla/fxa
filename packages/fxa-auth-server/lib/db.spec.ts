@@ -479,6 +479,52 @@ describe('redis enabled, token-pruning enabled:', () => {
     );
   });
 
+  describe('when redis.pruneSessionTokens rejects:', () => {
+    const err = new Error('redis timeout');
+    let metrics: any;
+
+    beforeEach(() => {
+      redis.pruneSessionTokens = jest.fn(() => Promise.reject(err));
+      metrics = { increment: jest.fn() };
+      db.metrics = metrics;
+    });
+
+    it('db.deleteSessionToken still deletes the token from the db', async () => {
+      await db.deleteSessionToken({ id: 'wibble', uid: 'blee' });
+      expect(models.SessionToken.delete).toHaveBeenCalledWith('wibble');
+      expect(log.error).toHaveBeenCalledWith('DB.deleteSessionTokenFromRedis', {
+        uid: 'blee',
+        err,
+      });
+      expect(metrics.increment).toHaveBeenCalledWith(
+        'db.sessionToken.redisPruneFailed'
+      );
+    });
+
+    it('db.createSessionToken still creates the token in the db', async () => {
+      await db.createSessionToken({ uid: 'f9416ce3703e4916a4cd6b1e665a3f1a' });
+      expect(models.SessionToken.create).toHaveBeenCalledTimes(1);
+    });
+
+    it('db.createPasskeyVerifiedSessionToken still creates the token in the db', async () => {
+      await db.createPasskeyVerifiedSessionToken({
+        uid: 'f9416ce3703e4916a4cd6b1e665a3f1a',
+      });
+      expect(models.SessionToken.createVerified).toHaveBeenCalledTimes(1);
+    });
+
+    it('db.deleteDevice returns the result and records success', async () => {
+      const result = await db.deleteDevice('wibble', 'blee');
+      expect(result).toEqual({ sessionTokenId: 'fakeSessionTokenId' });
+      expect(metrics.increment).toHaveBeenCalledWith('db.device.delete', {
+        result: 'success',
+      });
+      expect(metrics.increment).toHaveBeenCalledWith(
+        'db.sessionToken.redisPruneFailed'
+      );
+    });
+  });
+
   it('should call redis.pruneSessionTokens in db.createSessionToken', async () => {
     await db.createSessionToken({ uid: 'f9416ce3703e4916a4cd6b1e665a3f1a' });
     expect(redis.pruneSessionTokens).toHaveBeenCalledTimes(1);
