@@ -12,7 +12,7 @@ describe('InlinePasswordlessSyncSetup', () => {
     renderWithLocalizationProvider(<Subject />);
 
     expect(screen.getByRole('status')).toHaveTextContent(
-      'Signed in to Firefox'
+      'You’re signed in, and sync is on'
     );
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
       'Skip the password next time?'
@@ -68,7 +68,9 @@ describe('InlinePasswordlessSyncSetup', () => {
       screen.getByRole('link', { name: /How to use passkeys/ })
     ).toHaveAttribute('href', 'https://example.test');
     screen.getByText('Confirm with your passkey.');
-    expect(screen.queryByText('Signed in to Firefox')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('You’re signed in, and sync is on')
+    ).not.toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Enable passkey' })
     ).toBeEnabled();

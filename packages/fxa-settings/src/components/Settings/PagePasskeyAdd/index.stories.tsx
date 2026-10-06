@@ -14,6 +14,7 @@ import { mockAppContext, mockSettingsContext } from '../../../models/mocks';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import { MfaContext } from '../../../lib/hooks';
 import { getDefault } from '../../../lib/config';
+import { MOCK_UID } from '../../../pages/mocks';
 
 export default {
   title: 'Pages/Settings/PasskeyAdd',
@@ -49,7 +50,7 @@ class StoryAlertBarInfo extends AlertBarInfo {
 
 function initLocalAccount() {
   const NS = '__fxa_storage';
-  const uid = 'abc123';
+  const uid = MOCK_UID;
   const accounts = {
     [uid]: {
       uid,
