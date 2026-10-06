@@ -1088,7 +1088,7 @@ passkey-sub-row-last-used-date = Last used: { $lastUsedDate }
 
 passkey-sub-row-delete-title = Delete passkey
 passkey-delete-modal-heading = Delete your passkey?
-passkey-delete-modal-content-v2 = This passkey will be removed from your account. You’ll need to sign in using a different method (password, another passkey, or linked account).
+passkey-delete-modal-content-v3 = This passkey will be removed from your account. You’ll need to sign in using a password, another passkey, or linked account.
 passkey-delete-modal-cancel-button = Cancel
 passkey-delete-modal-confirm-button = Delete passkey
 passkey-delete-success = Passkey deleted
@@ -1358,16 +1358,16 @@ index-email-bounced = Your confirmation email was just returned. Mistyped email?
 
 
 inline-passwordless-sync-setup-page-title = Skip the password next time?
-inline-passwordless-sync-setup-success-banner = Signed in to { -brand-firefox }
+inline-passwordless-sync-setup-success-banner-v2 = You’re signed in, and sync is on
 inline-passwordless-sync-setup-heading = Skip the password next time?
 inline-passwordless-sync-setup-description = Use this passkey to sign in faster.
 inline-passwordless-sync-setup-enable-button = Enable passkey
 inline-passwordless-sync-setup-enabling = Enabling…
 inline-passwordless-sync-setup-not-now-button = Not now
-inline-passwordless-sync-setup-success-alert = This passkey is ready for sync sign-in
+inline-passwordless-sync-setup-success-alert-v2 = This passkey is enabled for sync sign-in
 inline-passwordless-sync-setup-error-cancelled = Passkey confirmation didn’t finish
 inline-passwordless-sync-setup-error-cancelled-description = Confirm with your passkey to skip the password next time.
-inline-passwordless-sync-setup-error-generic = Something went wrong, you’ll still need to enter your password next time
+inline-passwordless-sync-setup-error-generic-v2 = We couldn’t enable this passkey for sync sign-in. You’ll need your password next time.
 
 
 inline-recovery-key-setup-create-error = Oops! We couldn’t create your account recovery key. Please try again later.

@@ -1,8 +1,8 @@
 {
-  "commit": "7f6468b4d563800a1824aaa789b8289e72628a25",
-  "summary": "Merge pull request #21382 from mozilla/fxa-14608",
-  "description": "fix(settings): show canceled screen on desktop when mobile cancels pairing",
-  "timestamp": 1791320378000,
+  "commit": "4e0fb7f27aba7faf39b6dd2d7c9a354f34f19a1c",
+  "summary": "Merge pull request #21349 from mozilla/FXA-14638",
+  "description": "fix(settings): update passkey sync opt-in and delete dialog copy",
+  "timestamp": 1791329913000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
