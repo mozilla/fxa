@@ -1380,7 +1380,7 @@ pair2-supplicant-connect-this-device-cancel-button = Diddymu
 
 
 pair2-supplicant-download-firefox-heading-v2 = Agor { -brand-firefox } ar y ddyfais hon
-pair2-supplicant-download-firefox-description-v2 = Lawrlwythwch { -brand-firefox } i gysoni nodau tudalen, hanes, a mwy ar draws dyfeisiau.
+pair2-supplicant-download-firefox-description-v2 = Llwythwch { -brand-firefox } i lawr i gydweddu nodau tudalen, hanes, a mwy ar draws dyfeisiau.
 pair2-supplicant-download-firefox-continue-button = Parhau yn { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Yn agor { -brand-firefox }…
 pair2-supplicant-download-firefox-download-button = Llwytho { -brand-firefox } i lawr
@@ -1388,9 +1388,9 @@ pair2-supplicant-download-firefox-have-firefox-button = Mae gen i { -brand-firef
 pair2-supplicant-download-firefox-learn-more-link = Dysgu rhagor
 
 
-pair2-supplicant-connect-hint-heading-v2 = Gorffen paru yn yr app
-pair2-supplicant-connect-hint-step-app-menu = Tapiwch y <b>dewislen ap</b> yn y bar offer
-pair2-supplicant-connect-hint-step-sign-in = Tapiwch <b>mewngofnodi</b>, yna sganiwch y cod
+pair2-supplicant-connect-hint-heading-v2 = Gorffen paru yn yr ap
+pair2-supplicant-connect-hint-step-app-menu = Tapiwch <b>ddewislen yr ap</b> yn y bar offer
+pair2-supplicant-connect-hint-step-sign-in = Tapiwch <b>mewngofnodi</b>, yna sganio'r cod
 pair2-supplicant-connect-hint-learn-more-link = Dysgu rhagor
 
 
@@ -1418,8 +1418,8 @@ permissions-cancel-button = Diddymu
 
 
 force-password-change-heading = Newidiwch eich cyfrinair
-force-password-change-info = Rydym wedi canfod ymddygiad amheus ar eich { -product-mozilla-account }. I amddiffyn eich cyfrif, crewch gyfrinair newydd. Byddwch yn defnyddio'r cyfrinair hwn i fewngofnodi eto i'ch holl wasanaethau { -product-mozilla-account }.
-force-password-change-data-info = Ni fydd hanes, nodau tudalen, mewngofnodi na data personol eraill wedi'u cydweddu yn cael eu colli.
+force-password-change-info = Rydym wedi canfod ymddygiad amheus ar eich cyfrif { -product-mozilla-account }. I ddiogelu eich cyfrif, crëwch gyfrinair newydd. Byddwch yn defnyddio'r cyfrinair hwn i fewngofnodi eto i'ch holl wasanaethau { -product-mozilla-account }.
+force-password-change-data-info = Bydd hanes, nodau tudalen, mewngofnodi a data personol eraill sydd heb eu cydweddu'n cael eu colli.
 
 
 service-welcome-signup-success-banner = Cyfrif { -product-mozilla-account } wedi'i gadarnhau
@@ -1739,3 +1739,8 @@ signup-confirmed-sync-description-v2 = Gall eich cyfrineiriau, cyfeiriadau, noda
 signup-confirmed-sync-add-device-link = Ychwanegu dyfais arall
 signup-confirmed-sync-manage-sync-button = Rheoli cydweddu
 signup-confirmed-sync-set-password-success-banner = Cyfrinair cydweddu wedi'i greu
+
+
+update-firefox-heading = Mae angen diweddaru { -brand-firefox }
+update-firefox-description = Mae eich cyfrif { -product-mozilla-account } yn defnyddio nodweddion sydd ddim yn cael eu cefnogi yn eich fersiwn chi o { -brand-firefox }. Llwythwch i lawr a gosodwch y fersiwn diweddaraf o { -brand-firefox } i barhau.
+update-firefox-download-button = Llwytho'r diweddariad diweddaraf i lawr

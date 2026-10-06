@@ -2529,3 +2529,10 @@ signup-confirmed-sync-description-v2 = Jelszavai, címei, könyvjelzői, előzm�
 signup-confirmed-sync-add-device-link = További eszköz hozzáadása
 signup-confirmed-sync-manage-sync-button = Szinkronizálás kezelése
 signup-confirmed-sync-set-password-success-banner = Szinkronizálási jelszó létrehozva
+
+## UpdateFirefox page
+## Shown when the browser is too old to use a Mozilla account
+
+update-firefox-heading = { -brand-firefox } frissítés szükséges
+update-firefox-description = A(z) { -product-mozilla-account } olyan funkciókat használ, amelyek nem támogatottak a { -brand-firefox } Ön verziójában. A folytatáshoz töltse le és telepítse a { -brand-firefox } legfrissebb verzióját.
+update-firefox-download-button = Legfrissebb letöltése

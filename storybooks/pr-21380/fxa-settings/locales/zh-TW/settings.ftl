@@ -2456,3 +2456,10 @@ signup-confirmed-sync-description-v2 = 隨時隨地使用 { -brand-firefox } 都
 signup-confirmed-sync-add-device-link = 新增另一台裝置
 signup-confirmed-sync-manage-sync-button = 管理同步
 signup-confirmed-sync-set-password-success-banner = 已設定同步密碼
+
+## UpdateFirefox page
+## Shown when the browser is too old to use a Mozilla account
+
+update-firefox-heading = 需要更新 { -brand-firefox }
+update-firefox-description = { -product-mozilla-account }需要用到您目前版本的 { -brand-firefox } 仍不支援的功能，請下載安裝最新版 { -brand-firefox } 再繼續。
+update-firefox-download-button = 下載最新版本

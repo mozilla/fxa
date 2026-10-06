@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit e2a9d86a0797278aaa8618b99907dc01d0fdb120</title>
+  <title>Storybooks for commit a364e7b2fa3a2e1326e1f5d92cb432e91170eb1e</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,33 +23,29 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit e2a9d86a0797278aaa8618b99907dc01d0fdb120</h1>
+  <h1>Storybooks for commit a364e7b2fa3a2e1326e1f5d92cb432e91170eb1e</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/5/2026, 8:42:17 PM UTC</dd>
+    <dd>10/6/2026, 4:19:34 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(settings): stack delete account buttons on narrow screens</pre></dd>
     <dt>Description</dt>
     <dd><pre>## Because
 
-- On a 320px screen, the buttons on both delete account steps overflow the page.
-- The shared `cta-*` style sets `shrink-0`, and below 480px it sets `w-full`. Two full-width buttons that cannot shrink do not fit in a row that does not wrap. Measured at 320px: left edge -54px, right edge 374px.
-- The ticket did not name the step. Both steps were fixed.
+- The Cancel and Continue buttons on the delete account page were not mobile-responsive. They sat in one non-wrapping row with fixed side margins and wide padding.
 
 ## This pull request
 
-- Adds `flex-wrap` and `gap-4` to both button rows in `PageDeleteAccount/index.tsx`.
-- Removes `mx-2` from the buttons. The `gap-4` keeps the same 16px space between buttons.
-- Changes the step 1 buttons to `px-4 tablet:px-10`, the same as step 2.
-- Adds the Playwright test &quot;delete account buttons fit a 320px viewport on both steps&quot; in `deleteAccount.spec.ts`.
-- Behavior, test ids and l10n ids do not change.
+- Adds `flex-wrap` and `gap-4` to both button rows in `PageDeleteAccount/index.tsx`, so the buttons stack when the screen is narrow.
+- Removes the `mx-2` margins from the buttons on both steps. The gap replaces them.
+- Changes the step 1 buttons to `px-4 tablet:px-10`. The step 2 buttons already used this padding.
 
 ## Issue that this pull request solves
 
-Closes: FXA-14631</pre></dd>
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-14631</pre></dd>
   </dl>
 </body>
 </html>

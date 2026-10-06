@@ -156,6 +156,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = אימות ססמה
 form-password-with-inline-criteria-reset-submit-button = יצירת ססמה חדשה
+form-password-with-inline-criteria-old-password-label =
+    .label = ססמה ישנה
+form-password-with-inline-criteria-change-password-submit-button = שינוי ססמה
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = ססמה
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1898,11 +1901,35 @@ pair2-supplicant-connect-this-device-cancel-button = ביטול
 ## not Firefox. It offers to open the Firefox app to finish pairing, and to
 ## install it first when the user does not have it yet.
 
+pair2-supplicant-download-firefox-heading-v2 = יש לפתוח את { -brand-firefox } במכשיר זה
+# "sync" is a verb here, referring to syncing data between the user's devices.
+pair2-supplicant-download-firefox-description-v2 = יש להוריד את { -brand-firefox } כדי לסנכרן סימניות, היסטוריה ועוד בין מכשירים.
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = המשך ב־{ -brand-firefox }
 # Replaces the button label while waiting for the Firefox app to take over
 pair2-supplicant-download-firefox-opening-button = בתהליך פתיחת { -brand-firefox }…
+# Primary action shown in Safari on iOS. Opens the App Store page for Firefox.
+pair2-supplicant-download-firefox-download-button = הורדת { -brand-firefox }
+# Secondary action shown in Safari on iOS, below the download button. Opens the
+# Firefox app when it is already installed.
+pair2-supplicant-download-firefox-have-firefox-button = כבר יש לי את { -brand-firefox }
+# Opens a page explaining what sync does
+pair2-supplicant-download-firefox-learn-more-link = מידע נוסף
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## with the phone's camera app instead of with Firefox. They already have
+## Firefox installed, so it tells them how to scan the code again from inside
+## Firefox.
+
+pair2-supplicant-connect-hint-heading-v2 = סיום הצימוד ביישומון
+# <b> emphasises the name of the button the user taps in Firefox
+pair2-supplicant-connect-hint-step-app-menu = יש להקיש על <b>תפריט היישומון</b> בסרגל הכלים
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair2-supplicant-connect-hint-step-sign-in = יש להקיש על <b>כניסה</b>, ולאחר מכן לסרוק את הקוד
+# Opens a Mozilla support article about connecting a device without a QR code
+pair2-supplicant-connect-hint-learn-more-link = מידע נוסף
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -1953,6 +1980,13 @@ permissions-label-email = כתובת דוא״ל
 permissions-label-display-name = שם תצוגה
 permissions-continue-button = המשך
 permissions-cancel-button = ביטול
+
+## ForcePasswordChange page
+## Users are sent here when suspicious activity on the account requires a new password before they can continue.
+
+force-password-change-heading = נא לשנות את הססמה שלך
+force-password-change-info = איתרנו התנהגות חשודה ב{ -product-mozilla-account(case: "the") } שלך. כדי להגן על החשבון שלך, נא ליצור ססמה חדשה. יהיה עליך להשתמש בסיסמה זו כדי להיכנס שוב לכל שירותי { -product-mozilla-account(case: "the") } שלך.
+force-password-change-data-info = ההיסטוריה, הססמאות, הכניסות ושאר הנתונים האישיים שלך לא יאבדו.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -2402,3 +2436,12 @@ signup-confirmed-sync-description-v2 = ניתן לסנכרן את הססמאות
 signup-confirmed-sync-add-device-link = הוספת מכשיר נוסף
 signup-confirmed-sync-manage-sync-button = ניהול סנכרון
 signup-confirmed-sync-set-password-success-banner = ססמת הסנכרון נוצרה
+
+## UpdateFirefox page
+## Shown when the browser is too old to use a Mozilla account
+
+update-firefox-heading = נדרש עדכון ל־{ -brand-firefox }
+update-firefox-description =
+    { -product-mozilla-account(case: "the") } שלך עושה שימוש בתכונות שאינן נתמכות בגרסת ה־{ -brand-firefox } שלך. נא
+    להוריד ולהתקין את הגרסה האחרונה של { -brand-firefox } כדי להמשיך.
+update-firefox-download-button = הורדת העדכני ביותר

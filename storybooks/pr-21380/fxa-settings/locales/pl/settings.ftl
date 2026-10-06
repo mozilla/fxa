@@ -43,6 +43,9 @@ button-back-title = Wstecz
 ## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
+# Button to download the account recovery key as a plain text file and navigate to the next step
+# The next (and final) step is an optional prompt to save a storage hint
+recovery-key-download-button-v4 = Pobierz i kontynuuj
 # Error message shown in a banner if the account recovery key download failed.
 # The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Przepraszamy, wystąpił problem podczas pobierania klucza odzyskiwania konta.
@@ -87,6 +90,8 @@ datablock-print =
 datablock-copy-success =
     { $count ->
         [one] Skopiowano kod
+        [few] Skopiowano kody
+        [many] Skopiowano kody
        *[other] Skopiowano kody
     }
 datablock-download-success =
@@ -127,6 +132,9 @@ device-info-block-location-unknown = Nieznane położenie
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $browserName } w systemie { $genericOSName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $browserName } na urządzeniu { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = Adres IP: { $ipAddress }
@@ -143,6 +151,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Potwierdź hasło
 form-password-with-inline-criteria-reset-submit-button = Utwórz nowe hasło
+form-password-with-inline-criteria-old-password-label =
+    .label = Poprzednie hasło
+form-password-with-inline-criteria-change-password-submit-button = Zmień hasło
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Hasło
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -376,6 +387,11 @@ password-strength-inline-passwords-match = Hasła są zgodne
 
 # "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
 promo-qr-mobile-heading = Twój telefon. Twoje zasady.
+# Appears below a QR code that a user can scan to download the Firefox mobile app
+promo-qr-mobile-description-v2 = Zeskanuj, aby pobrać aplikację mobilną
+# Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
+promo-qr-mobile-qr-alt =
+    .alt = Kod QR do pobrania aplikacji mobilnej { -brand-firefox }. Skieruj aparat telefonu na prawy dolny róg ekranu, aby zeskanować kod.
 
 ## Notification Promo Banner component
 
@@ -1666,6 +1682,36 @@ pair2-supplicant-connect-this-device-connect-button = Połącz
 # Dismisses the pairing attempt
 pair2-supplicant-connect-this-device-cancel-button = Anuluj
 
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing reaches a browser that is
+## not Firefox. It offers to open the Firefox app to finish pairing, and to
+## install it first when the user does not have it yet.
+
+pair2-supplicant-download-firefox-heading-v2 = Uruchom { -brand-firefox(case: "acc") } na tym urządzeniu
+# "sync" is a verb here, referring to syncing data between the user's devices.
+pair2-supplicant-download-firefox-description-v2 = Pobierz { -brand-firefox(case: "acc") }, aby synchronizować zakładki, historię i inne dane między urządzeniami.
+# Primary action shown in Safari on iOS. Opens the App Store page for Firefox.
+pair2-supplicant-download-firefox-download-button = Pobierz { -brand-firefox(case: "acc") }
+# Secondary action shown in Safari on iOS, below the download button. Opens the
+# Firefox app when it is already installed.
+pair2-supplicant-download-firefox-have-firefox-button = Mam już { -brand-firefox(case: "acc") }
+# Opens a page explaining what sync does
+pair2-supplicant-download-firefox-learn-more-link = Więcej informacji
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## with the phone's camera app instead of with Firefox. They already have
+## Firefox installed, so it tells them how to scan the code again from inside
+## Firefox.
+
+pair2-supplicant-connect-hint-heading-v2 = Dokończ powiązanie w aplikacji
+# <b> emphasises the name of the button the user taps in Firefox
+pair2-supplicant-connect-hint-step-app-menu = Stuknij <b>menu aplikacji</b> na pasku narzędzi
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair2-supplicant-connect-hint-step-sign-in = Stuknij <b>Zaloguj się</b>, a następnie zeskanuj kod
+# Opens a Mozilla support article about connecting a device without a QR code
+pair2-supplicant-connect-hint-learn-more-link = Dowiedz się więcej
+
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
 ## trusted Mozilla application, or when it asks for consent explicitly.
@@ -1678,6 +1724,13 @@ permissions-label-email = Adres e-mail
 permissions-label-display-name = Wyświetlana nazwa
 permissions-continue-button = Kontynuuj
 permissions-cancel-button = Anuluj
+
+## ForcePasswordChange page
+## Users are sent here when suspicious activity on the account requires a new password before they can continue.
+
+force-password-change-heading = Prosimy zmienić hasło
+force-password-change-info = Wykryliśmy podejrzane zachowanie na Twoim { -product-mozilla-account(case: "ins") }. Aby je chronić, prosimy utworzyć nowe hasło. Użyjesz tego hasła, aby zalogować się z powrotem do wszystkich używanych usług { -product-mozilla-account(case: "gen") }.
+force-password-change-data-info = Synchronizowana historia, zakładki, dane logowania i inne dane nie zostaną utracone.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

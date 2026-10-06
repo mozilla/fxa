@@ -1358,8 +1358,6 @@ pair2-supplicant-connect-this-device-connect-button = Ferbine
 pair2-supplicant-connect-this-device-cancel-button = Annulearje
 
 
-pair2-supplicant-download-firefox-heading = Download { -brand-firefox } op dit apparaat
-pair2-supplicant-download-firefox-description = Download { -brand-firefox } om blêdwizers, skiednis en mear op ferskate apparaten te syngronisearjen. <linkExternal>Mear ynfo</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Trochgean yn { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = { -brand-firefox } iepenje…
 

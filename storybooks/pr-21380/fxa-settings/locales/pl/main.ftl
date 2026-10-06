@@ -235,6 +235,7 @@ button-back-aria-label = Wstecz
 button-back-title = Wstecz
 
 
+recovery-key-download-button-v4 = Pobierz i kontynuuj
 recovery-key-pdf-download-error = Przepraszamy, wystąpił problem podczas pobierania klucza odzyskiwania konta.
 
 
@@ -262,6 +263,8 @@ datablock-print =
 datablock-copy-success =
     { $count ->
         [one] Skopiowano kod
+        [few] Skopiowano kody
+        [many] Skopiowano kody
        *[other] Skopiowano kody
     }
 datablock-download-success =
@@ -286,6 +289,7 @@ device-info-block-location-city-country = { $city }, { $country } (przybliżone)
 device-info-block-location-country = { $country } (przybliżone)
 device-info-block-location-unknown = Nieznane położenie
 device-info-browser-os = { $browserName } w systemie { $genericOSName }
+device-info-browser-device = { $browserName } na urządzeniu { $deviceName }
 device-info-ip-address = Adres IP: { $ipAddress }
 
 
@@ -299,6 +303,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Potwierdź hasło
 form-password-with-inline-criteria-reset-submit-button = Utwórz nowe hasło
+form-password-with-inline-criteria-old-password-label =
+    .label = Poprzednie hasło
+form-password-with-inline-criteria-change-password-submit-button = Zmień hasło
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Hasło
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -462,6 +469,9 @@ password-strength-inline-passwords-match = Hasła są zgodne
 
 
 promo-qr-mobile-heading = Twój telefon. Twoje zasady.
+promo-qr-mobile-description-v2 = Zeskanuj, aby pobrać aplikację mobilną
+promo-qr-mobile-qr-alt =
+    .alt = Kod QR do pobrania aplikacji mobilnej { -brand-firefox }. Skieruj aparat telefonu na prawy dolny róg ekranu, aby zeskanować kod.
 
 
 account-recovery-notification-cta = Utwórz
@@ -1325,11 +1335,29 @@ pair2-supplicant-connect-this-device-connect-button = Połącz
 pair2-supplicant-connect-this-device-cancel-button = Anuluj
 
 
+pair2-supplicant-download-firefox-heading-v2 = Uruchom { -brand-firefox(case: "acc") } na tym urządzeniu
+pair2-supplicant-download-firefox-description-v2 = Pobierz { -brand-firefox(case: "acc") }, aby synchronizować zakładki, historię i inne dane między urządzeniami.
+pair2-supplicant-download-firefox-download-button = Pobierz { -brand-firefox(case: "acc") }
+pair2-supplicant-download-firefox-have-firefox-button = Mam już { -brand-firefox(case: "acc") }
+pair2-supplicant-download-firefox-learn-more-link = Więcej informacji
+
+
+pair2-supplicant-connect-hint-heading-v2 = Dokończ powiązanie w aplikacji
+pair2-supplicant-connect-hint-step-app-menu = Stuknij <b>menu aplikacji</b> na pasku narzędzi
+pair2-supplicant-connect-hint-step-sign-in = Stuknij <b>Zaloguj się</b>, a następnie zeskanuj kod
+pair2-supplicant-connect-hint-learn-more-link = Dowiedz się więcej
+
+
 permissions-heading = { $serviceName } prosi o dostęp do:
 permissions-label-email = Adres e-mail
 permissions-label-display-name = Wyświetlana nazwa
 permissions-continue-button = Kontynuuj
 permissions-cancel-button = Anuluj
+
+
+force-password-change-heading = Prosimy zmienić hasło
+force-password-change-info = Wykryliśmy podejrzane zachowanie na Twoim { -product-mozilla-account(case: "ins") }. Aby je chronić, prosimy utworzyć nowe hasło. Użyjesz tego hasła, aby zalogować się z powrotem do wszystkich używanych usług { -product-mozilla-account(case: "gen") }.
+force-password-change-data-info = Synchronizowana historia, zakładki, dane logowania i inne dane nie zostaną utracone.
 
 
 service-welcome-signup-success-banner = Potwierdzono { -product-mozilla-account(capitalization: "lower", case: "acc") }
