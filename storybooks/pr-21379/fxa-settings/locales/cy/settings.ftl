@@ -1996,7 +1996,7 @@ pair2-supplicant-connect-this-device-cancel-button = Diddymu
 
 pair2-supplicant-download-firefox-heading-v2 = Agor { -brand-firefox } ar y ddyfais hon
 # "sync" is a verb here, referring to syncing data between the user's devices.
-pair2-supplicant-download-firefox-description-v2 = Lawrlwythwch { -brand-firefox } i gysoni nodau tudalen, hanes, a mwy ar draws dyfeisiau.
+pair2-supplicant-download-firefox-description-v2 = Llwythwch { -brand-firefox } i lawr i gydweddu nodau tudalen, hanes, a mwy ar draws dyfeisiau.
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Parhau yn { -brand-firefox }
@@ -2016,11 +2016,11 @@ pair2-supplicant-download-firefox-learn-more-link = Dysgu rhagor
 ## Firefox installed, so it tells them how to scan the code again from inside
 ## Firefox.
 
-pair2-supplicant-connect-hint-heading-v2 = Gorffen paru yn yr app
+pair2-supplicant-connect-hint-heading-v2 = Gorffen paru yn yr ap
 # <b> emphasises the name of the button the user taps in Firefox
-pair2-supplicant-connect-hint-step-app-menu = Tapiwch y <b>dewislen ap</b> yn y bar offer
+pair2-supplicant-connect-hint-step-app-menu = Tapiwch <b>ddewislen yr ap</b> yn y bar offer
 # <b> emphasises the name of the menu item the user taps in Firefox
-pair2-supplicant-connect-hint-step-sign-in = Tapiwch <b>mewngofnodi</b>, yna sganiwch y cod
+pair2-supplicant-connect-hint-step-sign-in = Tapiwch <b>mewngofnodi</b>, yna sganio'r cod
 # Opens a Mozilla support article about connecting a device without a QR code
 pair2-supplicant-connect-hint-learn-more-link = Dysgu rhagor
 
@@ -2078,8 +2078,8 @@ permissions-cancel-button = Diddymu
 ## Users are sent here when suspicious activity on the account requires a new password before they can continue.
 
 force-password-change-heading = Newidiwch eich cyfrinair
-force-password-change-info = Rydym wedi canfod ymddygiad amheus ar eich { -product-mozilla-account }. I amddiffyn eich cyfrif, crewch gyfrinair newydd. Byddwch yn defnyddio'r cyfrinair hwn i fewngofnodi eto i'ch holl wasanaethau { -product-mozilla-account }.
-force-password-change-data-info = Ni fydd hanes, nodau tudalen, mewngofnodi na data personol eraill wedi'u cydweddu yn cael eu colli.
+force-password-change-info = Rydym wedi canfod ymddygiad amheus ar eich cyfrif { -product-mozilla-account }. I ddiogelu eich cyfrif, crëwch gyfrinair newydd. Byddwch yn defnyddio'r cyfrinair hwn i fewngofnodi eto i'ch holl wasanaethau { -product-mozilla-account }.
+force-password-change-data-info = Bydd hanes, nodau tudalen, mewngofnodi a data personol eraill sydd heb eu cydweddu'n cael eu colli.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -2568,3 +2568,10 @@ signup-confirmed-sync-description-v2 = Gall eich cyfrineiriau, cyfeiriadau, noda
 signup-confirmed-sync-add-device-link = Ychwanegu dyfais arall
 signup-confirmed-sync-manage-sync-button = Rheoli cydweddu
 signup-confirmed-sync-set-password-success-banner = Cyfrinair cydweddu wedi'i greu
+
+## UpdateFirefox page
+## Shown when the browser is too old to use a Mozilla account
+
+update-firefox-heading = Mae angen diweddaru { -brand-firefox }
+update-firefox-description = Mae eich cyfrif { -product-mozilla-account } yn defnyddio nodweddion sydd ddim yn cael eu cefnogi yn eich fersiwn chi o { -brand-firefox }. Llwythwch i lawr a gosodwch y fersiwn diweddaraf o { -brand-firefox } i barhau.
+update-firefox-download-button = Llwytho'r diweddariad diweddaraf i lawr

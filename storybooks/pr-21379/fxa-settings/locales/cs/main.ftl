@@ -1990,3 +1990,8 @@ signup-confirmed-sync-description-v2 = Vaše hesla, adresy, záložky, historie 
 signup-confirmed-sync-add-device-link = Přidat další zařízení
 signup-confirmed-sync-manage-sync-button = Správa synchronizace
 signup-confirmed-sync-set-password-success-banner = Heslo pro synchronizaci vytvořeno
+
+
+update-firefox-heading = Vyžadována aktualizace { -brand-firefox }
+update-firefox-description = Vaše { -product-mozilla-account } využívá funkce, které ve vaší verzi aplikace { -brand-firefox } nejsou. Před pokračováním si prosím stáhněte a nainstalujte nejnovější verzi aplikace { -brand-firefox }.
+update-firefox-download-button = Stáhnout aktualizaci

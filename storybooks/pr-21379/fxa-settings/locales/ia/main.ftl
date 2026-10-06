@@ -1696,3 +1696,6 @@ signup-confirmed-sync-description-v2 = Tu contrasignos, adresses, marcapaginas, 
 signup-confirmed-sync-add-device-link = Adder un altere apparato
 signup-confirmed-sync-manage-sync-button = Gerer synchronisation
 signup-confirmed-sync-set-password-success-banner = Contrasigno de synchronisation create
+
+
+update-firefox-download-button = Discargar ultime version
