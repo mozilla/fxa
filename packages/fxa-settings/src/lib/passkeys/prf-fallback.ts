@@ -69,12 +69,28 @@ export function stripPrfExtension<
 export function extractPrfSupport(
   credential: Pick<PublicKeyCredentialJSON, 'clientExtensionResults'>
 ): boolean {
-  const prf = (
-    credential.clientExtensionResults as {
-      prf?: { results?: { first?: unknown } };
-    }
-  ).prf;
-  return prf?.results?.first != null;
+  return prfFirst(credential) != null;
+}
+
+/**
+ * The PRF output (`prf.results.first`) as bytes, or undefined when the
+ * authenticator returned none. The browser hands it back as an ArrayBuffer.
+ */
+export function extractPrfOutput(
+  credential: Pick<PublicKeyCredentialJSON, 'clientExtensionResults'>
+): Uint8Array | undefined {
+  const first = prfFirst(credential);
+  if (first instanceof ArrayBuffer) {
+    return new Uint8Array(first);
+  }
+  if (ArrayBuffer.isView(first)) {
+    return new Uint8Array(
+      first.buffer,
+      first.byteOffset,
+      first.byteLength
+    ).slice();
+  }
+  return undefined;
 }
 
 /**
@@ -221,4 +237,13 @@ export async function getCredentialWithPrfFallback(
     }
     throw error;
   }
+}
+
+function prfFirst(
+  credential: Pick<PublicKeyCredentialJSON, 'clientExtensionResults'>
+): unknown {
+  const { prf } = credential.clientExtensionResults as {
+    prf?: { results?: { first?: unknown } };
+  };
+  return prf?.results?.first;
 }

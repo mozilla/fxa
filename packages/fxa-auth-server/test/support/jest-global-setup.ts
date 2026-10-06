@@ -273,7 +273,6 @@ export default async function globalSetup(): Promise<void> {
   // so we don't need to load the full base config here (which has deps
   // unavailable in the global setup process).
   const sharedOverrides = {
-    customsUrl: 'none',
     log: { level: sharedPrintLogs ? 'debug' : 'critical' },
     gleanMetrics: { enabled: false },
     rateLimit: {

@@ -12,6 +12,8 @@ module.exports = (config) => {
   const pbkdf2 = require('../../lib/crypto/pbkdf2');
   const hkdf = require('../../lib/crypto/hkdf');
   const tokens = require('../../lib/tokens')({ trace: function () {} }, config);
+  const { signMfaToken } = require('../../lib/routes/utils/mfa-token');
+  const serverConfig = require('../../config').default.getProperties();
 
   // Ensure tests generate TOTP codes using the same encoding as the server
   otplib.authenticator.options = Object.assign(
@@ -888,18 +890,6 @@ module.exports = (config) => {
       });
   };
 
-  Client.prototype.lockAccount = function () {
-    return this.api.accountLock(this.email, this.authPWVersion2 || this.authPW);
-  };
-
-  Client.prototype.resendAccountUnlockCode = function (lang) {
-    return this.api.accountUnlockResendCode(this.email, this.options, lang);
-  };
-
-  Client.prototype.verifyAccountUnlockCode = function (uid, code) {
-    return this.api.accountUnlockVerifyCode(uid, code);
-  };
-
   Client.prototype.accountEmails = function () {
     return this.api.accountEmails(this.sessionToken);
   };
@@ -922,8 +912,18 @@ module.exports = (config) => {
     return this.api.sendUnblockCode(email);
   };
 
-  Client.prototype.createTotpToken = function (options = {}) {
-    return this.api.createTotpToken(this.sessionToken, options);
+  // Signs the mfa:2fa JWT locally, so tests skip the OTP email round trip.
+  Client.prototype.mfa2faJwt = async function () {
+    const sessionToken = await tokens.SessionToken.fromHex(this.sessionToken);
+    return signMfaToken(serverConfig, {
+      uid: this.uid,
+      scope: '2fa',
+      sessionTokenId: sessionToken.id,
+    });
+  };
+
+  Client.prototype.createTotpToken = async function (options = {}) {
+    return this.api.createTotpToken(await this.mfa2faJwt(), options);
   };
 
   Client.prototype.deleteTotpToken = function (jwt) {
@@ -938,12 +938,12 @@ module.exports = (config) => {
     return this.api.verifyTotpCode(this.sessionToken, code, options);
   };
 
-  Client.prototype.verifyTotpSetupCode = function (code, options = {}) {
-    return this.api.verifyTotpSetupCode(this.sessionToken, code, options);
+  Client.prototype.verifyTotpSetupCode = async function (code, options = {}) {
+    return this.api.verifyTotpSetupCode(await this.mfa2faJwt(), code, options);
   };
 
-  Client.prototype.completeTotpSetup = function (options = {}) {
-    return this.api.completeTotpSetup(this.sessionToken, options);
+  Client.prototype.completeTotpSetup = async function (options = {}) {
+    return this.api.completeTotpSetup(await this.mfa2faJwt(), options);
   };
 
   Client.prototype.geoEligibilityCheck = async function (feature) {
@@ -1387,39 +1387,6 @@ module.exports = (config) => {
       authPW: this.authPW,
       keyFetchToken: this.keyFetchToken,
     };
-  };
-
-  Client.prototype.stubAccount = async function (clientId) {
-    return await this.api.stubAccount(this.email, clientId);
-  };
-
-  Client.prototype.finishAccountSetup = async function (token) {
-    let response;
-    if (this.options.version === 'V2') {
-      await this.generateNewWrapKb();
-      await this.deriveWrapKbVersion2FromKb();
-      response = await this.api.finishAccountSetup(
-        token,
-        this.email,
-        this.authPW.toString('hex'),
-        this.wrapKb,
-        this.authPWVersion2.toString('hex'),
-        this.wrapKbVersion2,
-        this.clientSalt
-      );
-    } else {
-      response = await this.api.finishAccountSetup(
-        token,
-        this.email,
-        this.authPW.toString('hex')
-      );
-    }
-
-    const uid = response.uid;
-    const sessionToken = response.sessionToken;
-    const verified = response.verified;
-
-    return { uid, sessionToken, verified };
   };
 
   return Client;

@@ -72,6 +72,21 @@ describe('FormVerifyCode component', () => {
     expect(verifyCode).not.toHaveBeenCalled();
   });
 
+  it('does not show a required error when the empty input is blurred', async () => {
+    const user = userEvent.setup();
+    renderWithLocalizationProvider(<Subject />);
+    const input = screen.getByRole('textbox', {
+      name: 'Enter your 4-digit code',
+    });
+    input.focus();
+    await user.tab();
+    expect(input).not.toHaveFocus();
+    // Validation errors render async; a short wait is enough, there is no delayed timer.
+    await expect(
+      screen.findByTestId('tooltip', undefined, { timeout: 100 })
+    ).rejects.toThrow(/Unable to find/);
+  });
+
   describe('Submit button state management', () => {
     it('should disable submit button initially', () => {
       renderWithLocalizationProvider(<Subject />);

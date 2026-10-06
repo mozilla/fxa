@@ -10,9 +10,13 @@ export type ResetPasswordIntegration = Pick<
 >;
 
 /**
- * Passkey-aware reset-messaging signal from the /password/forgot/verify_otp
+ * Passkey-aware reset-messaging signals from the /password/forgot/verify_otp
  * response, threaded through the reset flow.
+ *
+ * `hasPasskeyWraps` means the account holds a key-wrap, so a passkey can recover
+ * its encryption keys without the password.
  */
 export type PasskeyResetSignals = {
   hasPasskey?: boolean;
+  hasPasskeyWraps?: boolean;
 };

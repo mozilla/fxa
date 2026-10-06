@@ -3,8 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Jest transformer so components can import SVGs as a ReactComponent, the way
-// SVGR does at build time. Originally lifted from create-react-app:
-// https://github.com/facebook/create-react-app/blob/master/packages/react-scripts/config/jest/fileTransform.js
+// SVGR does at build time. Originally lifted from create-react-app.
 //
 // This lives in fxa-react because fxa-react is the library that fxa-settings
 // and fxa-admin-panel consume; those packages delegate here rather than the

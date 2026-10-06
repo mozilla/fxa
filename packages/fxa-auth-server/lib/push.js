@@ -5,7 +5,6 @@
 'use strict';
 
 const crypto = require('crypto');
-const base64url = require('base64url');
 const webpush = require('web-push');
 
 const PUSH_PAYLOAD_SCHEMA_VERSION = 1;
@@ -162,7 +161,7 @@ module.exports = function (log, db, config, statsd) {
     // Try to use the key in an ECDH agreement.
     // If the key is invalid then this will throw an error.
     try {
-      dummyCurve.computeSecret(base64url.toBuffer(publicKey));
+      dummyCurve.computeSecret(Buffer.from(publicKey, 'base64url'));
       return true;
     } catch (err) {
       log.info('push.isValidPublicKey', {

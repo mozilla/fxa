@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import dedent from 'dedent';
+import swaggerText from './shared/swagger-text';
 import TAGS from './swagger-tags';
 
 const TAGS_PASSWORDLESS = {
@@ -13,7 +13,7 @@ const PASSWORDLESS_SEND_CODE_POST = {
   ...TAGS_PASSWORDLESS,
   description: '/account/passwordless/send_code',
   notes: [
-    dedent`
+    swaggerText`
       Send a one-time password (OTP) code to the user's email for passwordless authentication.
 
       This endpoint can be used for both:
@@ -27,7 +27,7 @@ const PASSWORDLESS_SEND_CODE_POST = {
     'hapi-swagger': {
       responses: {
         400: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors:
             - \`errno: 148\` - Account has a password set, use standard login flow
           `,
@@ -44,7 +44,7 @@ const PASSWORDLESS_CONFIRM_CODE_POST = {
   ...TAGS_PASSWORDLESS,
   description: '/account/passwordless/confirm_code',
   notes: [
-    dedent`
+    swaggerText`
       Confirm the OTP code sent via \`/account/passwordless/send_code\`.
 
       On success:
@@ -58,7 +58,7 @@ const PASSWORDLESS_CONFIRM_CODE_POST = {
     'hapi-swagger': {
       responses: {
         400: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors:
             - \`errno: 183\` - Invalid OTP code
             - \`errno: 148\` - Account has a password set
@@ -76,7 +76,7 @@ const PASSWORDLESS_RESEND_CODE_POST = {
   ...TAGS_PASSWORDLESS,
   description: '/account/passwordless/resend_code',
   notes: [
-    dedent`
+    swaggerText`
       Resend the OTP code for passwordless authentication.
 
       This invalidates any previously sent code and sends a new one.
@@ -87,7 +87,7 @@ const PASSWORDLESS_RESEND_CODE_POST = {
     'hapi-swagger': {
       responses: {
         400: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors:
             - \`errno: 148\` - Account has a password set
           `,

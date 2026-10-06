@@ -160,18 +160,26 @@ export async function insertPasskeyWrap(
  * @param db - Database instance
  * @param uid - User ID as a hex string
  * @param credentialId - Credential ID, base64url-encoded
+ * @param staleBefore - When given, only a wrap stored before this timestamp is
+ *   deleted. Pass the account's `keysChangedAt` to delete a wrap only while it
+ *   seals a `kB` the account has since replaced; a fresh wrap is left alone.
  * @returns true when a wrap was deleted, false when the credential had none
+ *   or, with `staleBefore`, when its wrap is not stale
  */
 export async function deletePasskeyWrap(
   db: AccountDatabase,
   uid: string,
-  credentialId: string
+  credentialId: string,
+  staleBefore?: number
 ): Promise<boolean> {
-  const result = await db
+  let query = db
     .deleteFrom('passkeyWraps')
     .where('uid', '=', uuidTransformer.to(uid))
-    .where('credentialId', '=', base64urlToBuffer(credentialId))
-    .executeTakeFirst();
+    .where('credentialId', '=', base64urlToBuffer(credentialId));
+  if (staleBefore !== undefined) {
+    query = query.where('createdAt', '<', staleBefore);
+  }
+  const result = await query.executeTakeFirst();
 
   return result.numDeletedRows === BigInt(1);
 }

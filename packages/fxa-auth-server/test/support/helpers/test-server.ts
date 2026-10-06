@@ -241,7 +241,6 @@ export async function createTestServer(
 
   const fullOverrides = {
     ...configOverrides,
-    customsUrl: 'none',
     log: {
       ...baseConfig.log,
       level: printLogs ? 'debug' : 'critical',

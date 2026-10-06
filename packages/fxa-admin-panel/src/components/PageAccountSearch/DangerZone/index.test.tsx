@@ -75,7 +75,7 @@ const mockEmail: Email = {
 const defaultProps = {
   uid: 'test-uid-123',
   email: mockEmail,
-  disabledAt: null,
+  disabledAt: null as number | null,
   onCleared: jest.fn(),
   has2FA: true,
   hasRecoveryPhone: true,
@@ -283,6 +283,79 @@ describe('DangerZone Component', () => {
       await waitFor(() => {
         expect(mockAlert).toHaveBeenCalledWith('Error removing passkeys.');
       });
+    });
+  });
+
+  describe('Disable Account', () => {
+    it('disables the account when the admin confirms', async () => {
+      mockConfirm.mockReturnValue(true);
+      (adminApi.disableAccount as jest.Mock).mockResolvedValue(true);
+
+      renderDangerZone();
+
+      await user.click(screen.getByRole('button', { name: 'Disable' }));
+
+      await waitFor(() =>
+        expect(mockAlert).toHaveBeenCalledWith('The account has been disabled.')
+      );
+      expect(adminApi.disableAccount).toHaveBeenCalledWith('test-uid-123');
+      expect(defaultProps.onCleared).toHaveBeenCalledTimes(1);
+    });
+
+    it('shows an error alert when disableAccount fails', async () => {
+      mockConfirm.mockReturnValue(true);
+      (adminApi.disableAccount as jest.Mock).mockRejectedValue(
+        new Error('Network error')
+      );
+
+      renderDangerZone();
+
+      await user.click(screen.getByRole('button', { name: 'Disable' }));
+
+      await waitFor(() =>
+        expect(mockAlert).toHaveBeenCalledWith('Error disabling account')
+      );
+    });
+
+    it('shows when the account was disabled instead of the Disable button', () => {
+      renderDangerZone({ disabledAt: 1589467100316 });
+
+      expect(
+        screen.getByText(/This account was disabled at:/)
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: 'Disable' })
+      ).not.toBeInTheDocument();
+    });
+
+    it('enables a disabled account when the admin confirms', async () => {
+      mockConfirm.mockReturnValue(true);
+      (adminApi.enableAccount as jest.Mock).mockResolvedValue(true);
+
+      renderDangerZone({ disabledAt: 1589467100316 });
+
+      await user.click(screen.getByRole('button', { name: 'Enable' }));
+
+      await waitFor(() =>
+        expect(mockAlert).toHaveBeenCalledWith('The account has been enabled.')
+      );
+      expect(adminApi.enableAccount).toHaveBeenCalledWith('test-uid-123');
+      expect(defaultProps.onCleared).toHaveBeenCalledTimes(1);
+    });
+
+    it('shows an error alert when enableAccount fails', async () => {
+      mockConfirm.mockReturnValue(true);
+      (adminApi.enableAccount as jest.Mock).mockRejectedValue(
+        new Error('Network error')
+      );
+
+      renderDangerZone({ disabledAt: 1589467100316 });
+
+      await user.click(screen.getByRole('button', { name: 'Enable' }));
+
+      await waitFor(() =>
+        expect(mockAlert).toHaveBeenCalledWith('Error enabling account')
+      );
     });
   });
 

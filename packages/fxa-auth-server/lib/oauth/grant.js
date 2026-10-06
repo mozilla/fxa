@@ -23,6 +23,7 @@ const ACCESS_TYPE_OFFLINE = 'offline';
 // challenge satisfy the request while relaxing larger `max_age` values only
 // negligibly.
 const MAX_AGE_LEEWAY_SECONDS = 5;
+module.exports.MAX_AGE_LEEWAY_SECONDS = MAX_AGE_LEEWAY_SECONDS;
 
 const SCOPE_OPENID = ScopeSet.fromArray(['openid']);
 const { OAUTH_SCOPE_SESSION_TOKEN } = require('fxa-shared/oauth/constants');
@@ -64,6 +65,69 @@ module.exports.setStripeHelper = function (val) {
   capabilityService = Container.get(CapabilityService);
 };
 
+/**
+ * Evaluates the RFC 9470 step-up requirements of a grant request against the
+ * identity claims, without enforcing them.
+ *
+ * @param {object} verifiedClaims - verified identity assertion claims
+ * @param {object} requestedGrant - the requested grant, carrying any `acr_values` / `max_age`
+ * @returns {import('../metrics/step-up').StepUpEvaluation}
+ */
+function evaluateStepUp(verifiedClaims, requestedGrant) {
+  const authAt = verifiedClaims['fxa-lastAuthAt'];
+  // Clamped because cross-pod clock skew can put `authAt` in the future, and the
+  // value is recorded as a histogram sample.
+  const authAgeSeconds =
+    authAt == null
+      ? undefined
+      : Math.max(0, Math.floor(Date.now() / 1000) - authAt);
+
+  const acrTokens = requestedGrant.acr_values
+    ? requestedGrant.acr_values.trim().split(/\s+/g)
+    : [];
+  const wantsAal2 = acrTokens.includes(ACR_VALUE_AAL2);
+  // Both Joi schemas declare max_age as `.optional().allow(null)`, so an explicit
+  // null is an absent request, not a request for a zero-second window.
+  const wantsFreshAuth = requestedGrant.max_age != null;
+
+  if (!wantsAal2 && !wantsFreshAuth) {
+    return { requested: false, satisfied: true, authAgeSeconds };
+  }
+
+  if (wantsAal2 && !(verifiedClaims['fxa-aal'] >= 2)) {
+    return {
+      requested: true,
+      satisfied: false,
+      reason: 'acr_values_unmet',
+      authAgeSeconds,
+    };
+  }
+
+  // MAX_AGE_LEEWAY_SECONDS keeps a just-completed challenge from reading as stale.
+  // Fail closed when the session carries no authentication time.
+  if (wantsFreshAuth) {
+    if (authAgeSeconds == null) {
+      return {
+        requested: true,
+        satisfied: false,
+        reason: 'auth_time_missing',
+        authAgeSeconds,
+      };
+    }
+    if (authAgeSeconds > requestedGrant.max_age + MAX_AGE_LEEWAY_SECONDS) {
+      return {
+        requested: true,
+        satisfied: false,
+        reason: 'max_age_stale',
+        authAgeSeconds,
+      };
+    }
+  }
+
+  return { requested: true, satisfied: true, authAgeSeconds };
+}
+module.exports.evaluateStepUp = evaluateStepUp;
+
 // Given a set of verified user identity claims, can the given client
 // be granted the specified access to the user's data?
 //
@@ -74,39 +138,32 @@ module.exports.setStripeHelper = function (val) {
 // It does *not* perform any user or client authentication, assuming that the
 // authenticity of the passed-in details has been sufficiently verified by
 // calling code.
+// `onStepUpEvaluated` observes the step-up verdict for telemetry. It receives a
+// copy and its failures are swallowed, so telemetry can neither change nor block
+// the outcome of this gate.
 module.exports.validateRequestedGrant = async function validateRequestedGrant(
   verifiedClaims,
   client,
-  requestedGrant
+  requestedGrant,
+  { onStepUpEvaluated } = {}
 ) {
   requestedGrant.scope = requestedGrant.scope || ScopeSet.fromArray([]);
 
-  // If the grant request is for specific ACR values, do the identity claims support them?
-  // Throw errno 170 (INSUFFICIENT_ACR_VALUES) — the signal the frontend routes to a
-  // second-factor challenge (see pages/Signin/utils.ts, lib/oauth/hooks.tsx).
-  if (requestedGrant.acr_values) {
-    const acrTokens = requestedGrant.acr_values.trim().split(/\s+/g);
-    if (
-      acrTokens.includes(ACR_VALUE_AAL2) &&
-      !(verifiedClaims['fxa-aal'] >= 2)
-    ) {
-      throw AppError.insufficientACRValues(String(verifiedClaims['fxa-aal']));
-    }
+  const { requested, satisfied, reason, authAgeSeconds } = evaluateStepUp(
+    verifiedClaims,
+    requestedGrant
+  );
+  try {
+    onStepUpEvaluated?.({ requested, satisfied, reason, authAgeSeconds });
+  } catch (err) {
+    // The observer reports its own failures; this is the last line keeping one
+    // from surfacing as a 500 in place of errno 170.
   }
 
-  // RFC 9470 step-up: if the RP requested a maximum authentication age, require a
-  // fresh challenge when the session's authentication event is older than that.
-  // `fxa-lastAuthAt` is in seconds; MAX_AGE_LEEWAY_SECONDS keeps a just-completed
-  // challenge from being treated as stale. Fail closed if the auth time is missing.
-  if (requestedGrant.max_age != null) {
-    const authAt = verifiedClaims['fxa-lastAuthAt'];
-    const nowSeconds = Math.floor(Date.now() / 1000);
-    if (
-      authAt == null ||
-      nowSeconds - authAt > requestedGrant.max_age + MAX_AGE_LEEWAY_SECONDS
-    ) {
-      throw AppError.insufficientACRValues(String(verifiedClaims['fxa-aal']));
-    }
+  // Throws errno 170 (INSUFFICIENT_ACR_VALUES) — the signal the frontend routes to a
+  // second-factor challenge (see pages/Signin/utils.ts, lib/oauth/hooks.tsx).
+  if (requested && !satisfied) {
+    throw AppError.insufficientACRValues(String(verifiedClaims['fxa-aal']));
   }
 
   // Is an untrusted client requesting scopes that it's not allowed?

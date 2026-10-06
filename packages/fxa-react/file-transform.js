@@ -2,9 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// Jest transformer for non-JS assets, replacing react-scripts' built-in
-// version, whose hardcoded Symbol.for('react.element') is incompatible with
-// React 19's element format.
+// Jest transformer for non-JS assets.
 // http://facebook.github.io/jest/docs/en/webpack.html
 //
 // SVGs become React components (see ./svg-transform); every other asset

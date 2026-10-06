@@ -13,6 +13,9 @@ const PAYMENTS_NEXT_DOMAIN =
 const RELIER_DOMAIN =
   process.env.RELIER_DOMAIN || 'production-123done.herokuapp.com';
 const RELIER_CLIENT_ID = '3c32bf6654542211';
+const UNTRUSTED_RELIER_DOMAIN =
+  process.env.UNTRUSTED_RELIER_DOMAIN ||
+  'production-123done-untrusted.herokuapp.com';
 
 export class ProductionTarget extends RemoteTarget {
   static readonly target = 'production';
@@ -23,6 +26,7 @@ export class ProductionTarget extends RemoteTarget {
   readonly paymentsTestPriceId = '';
   readonly relierUrl = `https://${RELIER_DOMAIN}`;
   readonly relierClientID = RELIER_CLIENT_ID;
+  readonly untrustedRelierUrl = `https://${UNTRUSTED_RELIER_DOMAIN}`;
 
   constructor() {
     super(`https://${ACCOUNTS_API_DOMAIN}`);

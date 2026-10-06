@@ -34,7 +34,7 @@ beforeAll(async () => {
       signinConfirmation: { skipForNewAccounts: { enabled: false } },
       mfa: {
         enabled: true,
-        actions: ['2fa', 'test'],
+        actions: ['2fa'],
       },
     },
   });

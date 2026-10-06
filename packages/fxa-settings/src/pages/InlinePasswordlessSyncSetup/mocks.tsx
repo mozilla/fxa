@@ -10,6 +10,7 @@ export const Subject = ({
   onEnable = () => {},
   onNotNow = () => {},
   isEnabling = false,
+  error,
 }: Partial<InlinePasswordlessSyncSetupProps> = {}) => (
-  <InlinePasswordlessSyncSetup {...{ onEnable, onNotNow, isEnabling }} />
+  <InlinePasswordlessSyncSetup {...{ onEnable, onNotNow, isEnabling, error }} />
 );

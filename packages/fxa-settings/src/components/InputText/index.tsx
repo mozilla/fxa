@@ -35,6 +35,7 @@ export type InputTextProps = {
   onBlurCb?: () => void;
   onPaste?: (event: React.ClipboardEvent<HTMLInputElement>) => void;
   type?: 'text' | 'email' | 'tel' | 'number' | 'url' | 'password';
+  id?: string;
   name?: string;
   prefixDataTestId?: string;
   autoFocus?: boolean;
@@ -79,6 +80,7 @@ export const InputText = ({
   inputRefDOM,
   registration,
   type = 'text',
+  id,
   name,
   prefixDataTestId = '',
   autoFocus,
@@ -218,6 +220,7 @@ export const InputText = ({
             onBlur(e);
           }}
           {...{
+            id,
             name: effectiveName,
             disabled,
             onFocus,

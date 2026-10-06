@@ -33,7 +33,9 @@ import {
   isProbablyFirefox,
   useDefaultCmsState,
   isWebIntegration,
+  useSensitiveDataClient,
 } from '../../models';
+import { useClearPasskeyWrapOffRoute } from '../../lib/passkeys/use-clear-wrap-off-route';
 import {
   initializeSettingsContext,
   SettingsContext,
@@ -50,6 +52,7 @@ import AppLayout from '../AppLayout';
 import { PromoQrMobile } from '../PromoQrMobile';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { registerNavigate } from '../../lib/utilities';
+import { getPairingChannelHashParams } from '../../lib/pairing-channel-params';
 
 // Pages
 const SignupConfirmedSync = lazy(
@@ -58,6 +61,7 @@ const SignupConfirmedSync = lazy(
 const ServiceWelcome = lazy(
   () => import('../../pages/PostVerify/ServiceWelcome')
 );
+const UpdateFirefox = lazy(() => import('../../pages/UpdateFirefox'));
 const IndexContainer = lazy(() => import('../../pages/Index/container'));
 const Clear = lazy(() => import('../../pages/Clear'));
 
@@ -147,8 +151,14 @@ const SignoutSync = lazy(() => import('../Settings/SignoutSync'));
 const InlineRecoveryKeySetupContainer = lazy(
   () => import('../../pages/InlineRecoveryKeySetup/container')
 );
+const InlinePasswordlessSyncSetupContainer = lazy(
+  () => import('../../pages/InlinePasswordlessSyncSetup/container')
+);
 const SetPasswordContainer = lazy(
   () => import('../../pages/PostVerify/SetPassword/container')
+);
+const ForcePasswordChangeContainer = lazy(
+  () => import('../../pages/PostVerify/ForcePasswordChange/container')
 );
 const SigninRecoveryChoiceContainer = lazy(
   () => import('../../pages/Signin/SigninRecoveryChoice/container')
@@ -170,6 +180,9 @@ const PairAuthComplete = lazy(() => import('../../pages/Pair/AuthComplete'));
 const PairAuthTotp = lazy(() => import('../../pages/Pair/AuthTotp'));
 const PairAuthWaitForSupp = lazy(
   () => import('../../pages/Pair/AuthWaitForSupp')
+);
+const PermissionsContainer = lazy(
+  () => import('../../pages/Permissions/container')
 );
 const PairSupp = lazy(() => import('../../pages/Pair/Supp'));
 const PairSuppAllow = lazy(() => import('../../pages/Pair/SuppAllow'));
@@ -198,6 +211,9 @@ const PairAuthorityTimeoutAndCancel = lazy(
 
 const PairSupplicantApproveSignIn = lazy(
   () => import('../../pages/Pair2/Supplicant/ApproveSignIn/container')
+);
+const PairSupplicantConnectHint = lazy(
+  () => import('../../pages/Pair2/Supplicant/PairConnectHint')
 );
 const PairSupplicantConnectThisDevice = lazy(
   () => import('../../pages/Pair2/Supplicant/ConnectThisDevice/container')
@@ -229,6 +245,9 @@ const ResetPasswordRecoveryPhoneContainer = lazy(
 );
 
 const Settings = lazy(() => import('../Settings'));
+const SubscriptionsRedirect = lazy(
+  () => import('../../pages/SubscriptionsRedirect')
+);
 
 export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
   const { data: isSignedInData } = useLocalSignedInQueryState();
@@ -245,6 +264,8 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
   const session = useSession();
   const integration = useIntegration();
   const navigate = useNavigate();
+
+  useClearPasskeyWrapOffRoute(useSensitiveDataClient());
 
   // Register navigate so out-of-component code (e.g. AppContext errorHandler)
   // can perform client-side navigations with state.
@@ -433,10 +454,11 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
 
   // A scanned QR drops the supplicant on `/pair#…v=2` with no client_id, so its
   // client-info fetch always fails. Failing fast there would kill the hand-off
-  // before Pair gets a chance to route it.
+  // before Pair gets a chance to route it. Startup has already lifted the
+  // fragment out of the URL, so the version comes from the capture.
   const isPairingV2Handoff = () =>
     !!window.location.pathname?.startsWith('/pair') &&
-    /\bv=2\b/.test(window.location.hash ?? '');
+    getPairingChannelHashParams()?.get('v') === '2';
 
   // Fail fast: if the OAuth client-info fetch in useClientInfoState exhausted its
   // retries, surface the user-facing error immediately rather than waiting downstream
@@ -660,6 +682,7 @@ const AuthAndAccountSetupRoutes = ({
           element={<PocPairStart {...{ integration }} />}
         />
         <Route path="/cookies_disabled" element={<CookiesDisabled />} />
+        <Route path="/subscriptions" element={<SubscriptionsRedirect />} />
 
         {/* Post verify */}
         <Route
@@ -690,8 +713,20 @@ const AuthAndAccountSetupRoutes = ({
           }
         />
         <Route
+          path="/post_verify/password/force_password_change/*"
+          element={
+            <ForcePasswordChangeContainer
+              {...{ integration, useFxAStatusResult }}
+            />
+          }
+        />
+        <Route
           path="/post_verify/service_welcome/*"
           element={<ServiceWelcome {...{ integration }} />}
+        />
+        <Route
+          path="/update_firefox/*"
+          element={<UpdateFirefox metricsFlow={MetricsFlow.getMetricsFlow()} />}
         />
 
         {/* Reset password */}
@@ -960,6 +995,10 @@ const AuthAndAccountSetupRoutes = ({
             />
           }
         />
+        <Route
+          path="/inline_passwordless_sync_setup/*"
+          element={<InlinePasswordlessSyncSetupContainer />}
+        />
 
         {/* Signup */}
         <Route
@@ -1048,6 +1087,10 @@ const AuthAndAccountSetupRoutes = ({
           element={<ConnectAnotherDevice fxaStatus={useFxAStatusResult} />}
         />
         <Route
+          path="/signin_permissions/*"
+          element={<PermissionsContainer integration={integration} />}
+        />
+        <Route
           path="/pair/supp/allow/*"
           element={<PairSuppAllow integration={integration} />}
         />
@@ -1058,7 +1101,11 @@ const AuthAndAccountSetupRoutes = ({
         <Route path="/pair/supp/complete/*" element={<PairSuccess />} />
         <Route
           path="/pair/supp/*"
-          element={<PairSupp integration={integration} />}
+          element={
+            <PairSupp
+              {...{ integration, fxaStatusResult: useFxAStatusResult }}
+            />
+          }
         />
         <Route
           path="/pair/auth/allow/*"
@@ -1113,6 +1160,10 @@ const AuthAndAccountSetupRoutes = ({
         <Route
           path="/pair/supplicant/approve_signin/*"
           element={<PairSupplicantApproveSignIn {...{ integration }} />}
+        />
+        <Route
+          path="/pair/supplicant/connect_hint/*"
+          element={<PairSupplicantConnectHint />}
         />
         <Route
           path="/pair/supplicant/connect_this_device/*"

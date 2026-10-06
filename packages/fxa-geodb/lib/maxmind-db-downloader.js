@@ -8,7 +8,6 @@ var CronJob = require('cron').CronJob;
 var DEFAULTS = require('./defaults');
 var fs = require('fs');
 var mozlog = require('mozlog');
-var Promise = require('bluebird');
 var { pipeline } = require('stream/promises');
 var zlib = require('zlib');
 

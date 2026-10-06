@@ -175,7 +175,6 @@ module.exports = (config) => {
       {
         email: email,
         authPW: authPW.toString('hex'),
-        preVerified: options.preVerified || undefined,
         service: options.service || undefined,
         redirectTo: options.redirectTo || undefined,
         resume: options.resume || undefined,
@@ -212,7 +211,6 @@ module.exports = (config) => {
         wrapKb: wrapKb.toString('hex'),
         wrapKbVersion2: wrapKbVersion2.toString('hex'),
         clientSalt,
-        preVerified: options.preVerified || undefined,
         service: options.service || undefined,
         redirectTo: options.redirectTo || undefined,
         resume: options.resume || undefined,
@@ -925,50 +923,6 @@ module.exports = (config) => {
     );
   };
 
-  ClientApi.prototype.accountLock = function (email, authPW) {
-    return this.doRequest('POST', `${this.baseURL}/account/lock`, null, {
-      email: email,
-      authPW: authPW.toString('hex'),
-    });
-  };
-
-  ClientApi.prototype.accountUnlockResendCode = function (
-    email,
-    options = {},
-    lang
-  ) {
-    let headers = {};
-    if (lang) {
-      headers = {
-        'accept-language': lang,
-      };
-    }
-    return this.doRequest(
-      'POST',
-      `${this.baseURL}/account/unlock/resend_code`,
-      null,
-      {
-        email: email,
-        service: options.service || undefined,
-        redirectTo: options.redirectTo || undefined,
-        resume: options.resume || undefined,
-      },
-      headers
-    );
-  };
-
-  ClientApi.prototype.accountUnlockVerifyCode = function (uid, code) {
-    return this.doRequest(
-      'POST',
-      `${this.baseURL}/account/unlock/verify_code`,
-      null,
-      {
-        uid: uid,
-        code: code,
-      }
-    );
-  };
-
   ClientApi.prototype.attachedClientDestroy = function (
     sessionTokenHex,
     clientData
@@ -1077,9 +1031,9 @@ module.exports = (config) => {
   ClientApi.prototype.sessionDestroy = function (sessionTokenHex, options) {
     let data = null;
 
-    if (options && options.customSessionToken) {
+    if (options && options.customSessionTokenHandle) {
       data = {
-        customSessionToken: options.customSessionToken,
+        customSessionTokenHandle: options.customSessionTokenHandle,
       };
     }
 
@@ -1251,44 +1205,31 @@ module.exports = (config) => {
     return this.doRequest('POST', `${this.baseURL}/signinCodes`, token, {});
   };
 
-  ClientApi.prototype.createTotpToken = function (
-    sessionTokenHex,
-    options = {}
-  ) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
-      return this.doRequest('POST', `${this.baseURL}/totp/create`, token, {
-        metricsContext: options.metricsContext,
-      });
-    });
+  ClientApi.prototype.createTotpToken = function (jwt, options = {}) {
+    return this.doRequestWithBearerToken(
+      'POST',
+      `${this.baseURL}/mfa/totp/create`,
+      jwt,
+      { metricsContext: options.metricsContext }
+    );
   };
 
-  ClientApi.prototype.verifyTotpSetupCode = function (
-    sessionTokenHex,
-    code,
-    options = {}
-  ) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
-      return this.doRequest(
-        'POST',
-        `${this.baseURL}/totp/setup/verify`,
-        token,
-        { code, metricsContext: options.metricsContext }
-      );
-    });
+  ClientApi.prototype.verifyTotpSetupCode = function (jwt, code, options = {}) {
+    return this.doRequestWithBearerToken(
+      'POST',
+      `${this.baseURL}/mfa/totp/setup/verify`,
+      jwt,
+      { code, metricsContext: options.metricsContext }
+    );
   };
 
-  ClientApi.prototype.completeTotpSetup = function (
-    sessionTokenHex,
-    options = {}
-  ) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
-      return this.doRequest(
-        'POST',
-        `${this.baseURL}/totp/setup/complete`,
-        token,
-        { service: options.service, metricsContext: options.metricsContext }
-      );
-    });
+  ClientApi.prototype.completeTotpSetup = function (jwt, options = {}) {
+    return this.doRequestWithBearerToken(
+      'POST',
+      `${this.baseURL}/mfa/totp/setup/complete`,
+      jwt,
+      { service: options.service, metricsContext: options.metricsContext }
+    );
   };
 
   ClientApi.prototype.deleteTotpToken = function (jwt) {
@@ -1506,39 +1447,6 @@ module.exports = (config) => {
       refreshToken,
       {
         paymentToken,
-      }
-    );
-  };
-
-  ClientApi.prototype.stubAccount = function (email, clientId) {
-    return this.doRequest('POST', `${this.baseURL}/account/stub`, null, {
-      email,
-      clientId,
-      wantsSetupToken: true,
-    });
-  };
-
-  ClientApi.prototype.finishAccountSetup = async function (
-    token,
-    email,
-    authPW,
-    wrapKb,
-    authPWVersion2,
-    wrapKbVersion2,
-    clientSalt
-  ) {
-    return this.doRequest(
-      'POST',
-      `${this.baseURL}/account/finish_setup?keys=true`,
-      null,
-      {
-        token,
-        email,
-        authPW,
-        wrapKb,
-        authPWVersion2,
-        wrapKbVersion2,
-        clientSalt,
       }
     );
   };

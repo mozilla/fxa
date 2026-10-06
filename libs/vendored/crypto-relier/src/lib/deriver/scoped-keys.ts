@@ -2,10 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import base64url from 'base64url';
-import HKDF from 'node-hkdf';
-
 const KEY_LENGTH = 48;
+
+// The browser bundle's Buffer polyfill rejects the 'base64url' encoding name.
+const toBase64Url = (input: Buffer) =>
+  input
+    .toString('base64')
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
+
 const SYNC_SCOPES = [
   'https://identity.mozilla.com/apps/oldsync',
   'https://identity.thunderbird.net/apps/sync',
@@ -107,8 +113,8 @@ export class ScopedKeys {
     const k = key.slice(16, 48);
     const keyTimestamp = Math.round(options.keyRotationTimestamp / 1000);
 
-    scopedKey.k = base64url.encode(k);
-    scopedKey.kid = keyTimestamp + '-' + base64url.encode(kid);
+    scopedKey.k = toBase64Url(k);
+    scopedKey.kid = keyTimestamp + '-' + toBase64Url(kid);
 
     return scopedKey;
   }
@@ -148,7 +154,7 @@ export class ScopedKeys {
       contextBuf,
       64
     );
-    scopedKey.k = base64url.encode(Buffer.from(key));
+    scopedKey.k = toBase64Url(Buffer.from(key));
 
     const kHash = await crypto.subtle.digest(
       'SHA-256',
@@ -157,7 +163,7 @@ export class ScopedKeys {
     scopedKey.kid =
       options.keyRotationTimestamp +
       '-' +
-      base64url.encode(Buffer.from(kHash.slice(0, 16)));
+      toBase64Url(Buffer.from(kHash.slice(0, 16)));
     return scopedKey;
   }
 
@@ -178,13 +184,22 @@ export class ScopedKeys {
     info: Buffer,
     keyLength: number
   ): Promise<Buffer> {
-    return new Promise((resolve) => {
-      // Safari doesn't have HKDF yet in their Web Crypto API
-      const hkdf = new HKDF('sha256', salt, initialKeyingMaterial);
+    // Web Crypto, not crypto.hkdfSync: the browser bundles map `crypto` to
+    // crypto-browserify, which has no hkdfSync. fxa-auth-client already needs
+    // subtle HKDF in the browser, so this adds no new requirement.
+    const key = await crypto.subtle.importKey(
+      'raw',
+      initialKeyingMaterial,
+      'HKDF',
+      false,
+      ['deriveBits']
+    );
+    const bits = await crypto.subtle.deriveBits(
+      { name: 'HKDF', hash: 'SHA-256', salt, info },
+      key,
+      keyLength * 8
+    );
 
-      hkdf.derive(info, keyLength, (key: any) => {
-        return resolve(key);
-      });
-    });
+    return Buffer.from(bits);
   }
 }

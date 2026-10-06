@@ -28,6 +28,7 @@ import { Constants } from '../../../lib/constants';
 import firefox, {
   buildSyncOAuthSearch,
   FirefoxCommand,
+  SignedInUser,
 } from '../../../lib/channels/firefox';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import QRCode from '../../../components/QRCode';
@@ -38,9 +39,19 @@ import {
   buildPairingDownloadUrl,
   detectDevice,
   Devices,
+  isIosSafari,
   isSendTabEntrypoint,
 } from '../../../lib/utilities';
-import { buildPairUrl, parsePairingHash } from '../../../lib/pairing/pair-url';
+import {
+  buildConnectHintUrl,
+  buildPairUrl,
+  parsePairingHash,
+} from '../../../lib/pairing/pair-url';
+import { getPairingChannelHashParams } from '../../../lib/pairing-channel-params';
+import {
+  isPairingV2Enabled,
+  isPairingV2RolledOut,
+} from '../../../lib/pairing/v2-gate';
 import {
   getAttemptStorage,
   HandoffPlan,
@@ -103,6 +114,13 @@ type PairProps = {
 };
 export const viewName = 'pair';
 
+const isVerifiedUser = (user?: SignedInUser) =>
+  !!(user?.sessionToken && user.verified);
+
+// Full reload: `useIntegration` is not keyed on location, so only a fresh page
+// load rebuilds it as a PairingAuthorityIntegration.
+const goToScanQr = () => hardNavigate('/pair/authority/scan_qr', {}, true);
+
 const Pair = ({
   error,
   cmsInfo: cmsInfoProp,
@@ -159,15 +177,18 @@ const Pair = ({
     }
   }, [currentView]);
 
-  // A scanned QR lands here with the channel in the hash. `location.hash` is
-  // known at mount, so this is settled before the bootstrap effect below runs.
+  // A scanned QR lands here with the channel in the hash, which startup lifts
+  // out of the URL before render — see lib/pairing-channel-params. The capture
+  // is fixed by then, so this is settled before the bootstrap effect below runs.
   const pairingChannelInfo = useMemo(
-    () => parsePairingHash(location.hash),
-    [location.hash]
+    () => parsePairingHash(getPairingChannelHashParams()?.toString()),
+    []
   );
 
   const device = deviceProp ?? detectDevice();
   const isFirefoxDesktop = device === Devices.FIREFOX_DESKTOP;
+  const isFirefoxMobile =
+    device === Devices.FIREFOX_IOS || device === Devices.FIREFOX_ANDROID;
 
   // A phone that scanned the QR with its system camera opens this page in
   // whatever browser it defaults to, which is might not be Firefox.
@@ -175,9 +196,9 @@ const Pair = ({
   // carry the flow, so we will hand the pairing URL to the Firefox app instead,
   // falling back to the app store when it is not installed.
   //
-  // iOS gets a plan only where the deployment says Firefox iOS can act on one.
-  // Without one the flow falls through to /pair/unsupported below, which is
-  // where the hand-off would have led anyway.
+  // Until the deployment has rolled pairing v2 out to Firefox iOS, the app
+  // cannot act on the pair URL, so an iOS plan opens the connect hint page
+  // instead — it tells a user who has Firefox to scan again from inside it.
   //
   // Read-only, so it is safe to evaluate during render; the auto-attempt token
   // is only spent by the download screen this routes to.
@@ -186,11 +207,13 @@ const Pair = ({
       return planPairingHandoff({
         device,
         targetUrl: buildPairUrl(pairingChannelInfo),
+        hintUrl: buildConnectHintUrl(),
         storeLinks: config.mobileStoreLinks,
         storage: getAttemptStorage(),
         build: config.pairing.browserBuild,
         iosScheme: config.pairing.iosUrlScheme,
-        iosHandoff: config.pairing.iosHandoff,
+        iosHandoff: isPairingV2RolledOut(config.pairing, 'ios'),
+        isSafari: isIosSafari(),
       });
     }
 
@@ -203,6 +226,8 @@ const Pair = ({
   // unmount, and when a later pass of the effect below routes somewhere else.
   const bootstrapStartedRef = useRef(false);
   const abortBootstrapRef = useRef(false);
+  // Read when the bootstrap settles; a late fxa_status answer can change it.
+  const pairingV2Ref = useRef(false);
   useEffect(() => {
     return () => {
       abortBootstrapRef.current = true;
@@ -236,34 +261,22 @@ const Pair = ({
       return;
     }
 
-    // Switch on pairing version 2! Both FxA and Firefox have to signal that it
-    // is enabled, same gate as ConnectAnotherDevice.
-    const pairingVersion =
-      fxaStatusResult.fxaStatus?.capabilities.pairingVersion;
+    // Switch on pairing version 2! Same gate as ConnectAnotherDevice; see
+    // isPairingV2Enabled for what decides it.
+    const pairingV2 = isPairingV2Enabled({
+      pairing: config.pairing,
+      device,
+      userAgent: navigator.userAgent,
+      browserPairingVersion:
+        fxaStatusResult.fxaStatus?.capabilities.pairingVersion,
+    });
 
-    if (
-      config.pairing.version === 2 &&
-      pairingVersion &&
-      pairingVersion === 2 &&
-      pairingChannelInfo?.version === '2'
-    ) {
+    if (pairingV2 && pairingChannelInfo?.version === '2') {
       navigateWithQuery(
         '/pair/supplicant/connect_this_device',
         { state: pairingChannelInfo },
         false
       );
-      return;
-    }
-
-    if (
-      isFirefoxDesktop &&
-      config.pairing.version === 2 &&
-      pairingVersion &&
-      pairingVersion === 2
-    ) {
-      // Full reload: `useIntegration` is not keyed on location, so only a
-      // fresh page load rebuilds it as a PairingAuthorityIntegration.
-      hardNavigate('/pair/authority/scan_qr', {}, true);
       return;
     }
 
@@ -274,12 +287,10 @@ const Pair = ({
       return;
     }
 
-    // Switch on pairing version 2! Both FxA and Firefox have to signal that it
-    // is enabled, same gate as ConnectAnotherDevice.
+    // Switch on pairing version 2! Same gate as ConnectAnotherDevice; see
+    // isPairingV2Enabled for what decides it.
     if (
-      config.pairing.version === 2 &&
-      pairingVersion &&
-      pairingVersion === 2 &&
+      pairingV2 &&
       pairingChannelInfo &&
       parseInt(pairingChannelInfo?.version) === 2
     ) {
@@ -293,15 +304,23 @@ const Pair = ({
       return;
     }
 
+    pairingV2Ref.current = pairingV2;
+    // The authority channel needs no account, but approving a sign-in does, so
+    // a signed-out desktop takes the sign-in bootstrap below first.
     if (
       isFirefoxDesktop &&
-      config.pairing.version === 2 &&
-      pairingVersion &&
-      pairingVersion === 2
+      pairingV2 &&
+      isVerifiedUser(fxaStatusResult.fxaStatus.signedInUser)
     ) {
-      // Full reload: `useIntegration` is not keyed on location, so only a
-      // fresh page load rebuilds it as a PairingAuthorityIntegration.
-      hardNavigate('/pair/authority/scan_qr', {}, true);
+      goToScanQr();
+      return;
+    }
+
+    // Firefox on a phone that opened a scanned v2 URL but did not take the v2
+    // flow above — too old, or its platform not rolled out. It can still pair
+    // by scanning the code from inside the app, which is what the hint says.
+    if (isFirefoxMobile && pairingChannelInfo) {
+      navigateWithQuery('/pair/supplicant/connect_hint', undefined, false);
       return;
     }
 
@@ -333,15 +352,19 @@ const Pair = ({
         let attempt = 0;
         !abortBootstrapRef.current &&
         attempt < MAX_RETRIES &&
-        (!signedInUser?.sessionToken || !signedInUser?.verified);
+        !isVerifiedUser(signedInUser);
         attempt++
       ) {
         signedInUser = await askFirefox();
       }
       if (abortBootstrapRef.current) return;
 
-      if (signedInUser?.sessionToken && signedInUser.verified) {
-        setBootstrapping(false);
+      if (isVerifiedUser(signedInUser)) {
+        if (pairingV2Ref.current) {
+          goToScanQr();
+        } else {
+          setBootstrapping(false);
+        }
         return;
       }
       const oauthParams = await firefox

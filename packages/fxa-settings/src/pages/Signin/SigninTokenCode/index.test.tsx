@@ -408,11 +408,10 @@ describe('SigninTokenCode page', () => {
         await submitCode();
 
         await expectSuccessGleanEvents();
-        expect(hardNavigateSpy).toHaveBeenCalledWith(
-          '/post_verify/password/force_password_change',
-          {},
-          true
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/post_verify/password/force_password_change'
         );
+        expect(hardNavigateSpy).not.toHaveBeenCalled();
       });
       // it('with sync integration', () => {
       //   // TODO in FXA-9059 sync v3 desktop integration

@@ -544,7 +544,7 @@ describe('useClientInfoState', () => {
     jest.useFakeTimers();
 
     const { UrlQueryData } = require('../lib/model-data');
-    mockUrlQueryData = { get: jest.fn() };
+    mockUrlQueryData = { get: jest.fn(), pathName: '/' };
     UrlQueryData.mockImplementation(() => mockUrlQueryData);
 
     const { isHexadecimal, length } = require('class-validator');
@@ -708,6 +708,24 @@ describe('useClientInfoState', () => {
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.data?.clientInfo.trusted).toBe(true);
     expect(settledEmptyRenders).not.toContain(true);
+  });
+
+  it('resolves the clientId from an /oauth/success/:clientId pathname', async () => {
+    mockUrlQueryData.get.mockReturnValue(null);
+    mockUrlQueryData.pathName = '/oauth/success/1234567890abcdef';
+
+    const { result } = renderHook(() => useClientInfoState(), {
+      wrapper: MockAppProvider,
+    });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'http://localhost:9000/v1/oauth/client/1234567890abcdef',
+      expect.objectContaining({ method: 'GET' })
+    );
+    expect(result.current.error).toBeUndefined();
+    expect(result.current.data?.clientInfo.clientId).toBe('1234567890abcdef');
   });
 
   it('surfaces an Invalid clientId error and does not fetch when client_id is missing', async () => {

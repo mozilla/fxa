@@ -105,3 +105,15 @@ export function buildPairUrl(
     `&v=${version}`
   );
 }
+
+/**
+ * The page a non-Firefox browser hands off to while Firefox iOS cannot yet act
+ * on the pair URL itself: it tells a user who already has Firefox to scan the
+ * code again from inside the app. Carries no channel, so nothing secret rides
+ * along.
+ */
+export function buildConnectHintUrl(
+  origin: string = window.location.origin
+): string {
+  return `${origin}/pair/supplicant/connect_hint`;
+}

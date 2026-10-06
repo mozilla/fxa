@@ -18,6 +18,10 @@ export const MOZILLA_ACCOUNTS_PRIVACY_URL =
   'https://www.mozilla.org/privacy/mozilla-accounts/';
 export const SYNC_SUPPORT_URL =
   'https://support.mozilla.org/kb/how-do-i-set-sync-my-computer';
+// In-product SUMO link. Firefox substitutes the %VERSION%, %OS% and %LOCALE%
+// placeholders when it opens the URL; other browsers send them verbatim.
+export const PAIR_WITHOUT_QR_SUPPORT_URL =
+  'https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/connect-firefox-another-device-without-qr-code';
 
 export enum ENTRYPOINTS {
   FIREFOX_IOS_OAUTH_ENTRYPOINT = 'ios_settings_manage',

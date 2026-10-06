@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import program from 'commander';
+import { program } from 'commander';
 import { StatsD } from 'hot-shots';
 import * as Sentry from '@sentry/node';
 import Redis from 'ioredis';
@@ -56,11 +56,12 @@ export async function init() {
       DEFAULT_LOCK_DURATION_MS.toString()
     )
     .parse(process.argv);
+  const options = program.opts();
 
   // every arg is a string
-  const useLock = program.useLock !== 'false';
+  const useLock = options.useLock !== 'false';
   const lockDuration =
-    parseInt(`${program.lockDuration}`) || DEFAULT_LOCK_DURATION_MS;
+    parseInt(`${options.lockDuration}`) || DEFAULT_LOCK_DURATION_MS;
 
   const { log, database, senders } =
     await setupProcessingTaskObjects('paypal-processor');
@@ -93,9 +94,9 @@ export async function init() {
   const processor = new PaypalProcessor(
     log,
     config,
-    parseInt(program.grace),
-    parseInt(program.retries),
-    parseInt(program.invoiceAge),
+    parseInt(options.grace),
+    parseInt(options.retries),
+    parseInt(options.invoiceAge),
     database,
     senders.email
   );
@@ -110,7 +111,7 @@ export async function init() {
       });
 
       await redlock.using(
-        [program.lockName],
+        [options.lockName],
         lockDuration,
         async (signal: RedlockAbortSignal) => {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars

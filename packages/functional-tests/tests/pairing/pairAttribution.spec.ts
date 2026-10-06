@@ -19,10 +19,7 @@
  */
 
 import { GleanEventsHelper } from '../../lib/glean';
-import {
-  buildAuthorityOAuthUrl,
-  isPairRoutesReact,
-} from '../../lib/pairing-helpers';
+import { buildAuthorityOAuthUrl } from '../../lib/pairing-helpers';
 import { gotoSyncSession } from '../../lib/sync-helpers';
 import { test, expect } from '../../lib/fixtures/standard';
 
@@ -36,20 +33,6 @@ test.setTimeout(120_000);
 
 test.describe('severity-2 #smoke', () => {
   test.describe('Pair authority attribution', () => {
-    // isPairRoutesReact spins up its own browser context and takes a
-    // WAF-challenged page load, so resolve it once per worker.
-    let pairRoutesReact: boolean;
-    test.beforeAll(async ({ browser, target }) => {
-      pairRoutesReact = await isPairRoutesReact(browser, target);
-    });
-
-    test.beforeEach(() => {
-      test.skip(
-        !pairRoutesReact,
-        'the attribution hand-off is implemented in fxa-settings (React) only'
-      );
-    });
-
     test('carries the /pair entrypoint into the approval URL and the cad_approve_device.view ping', async ({
       target,
       syncOAuthBrowserPages: { page, signin, signinTokenCode },

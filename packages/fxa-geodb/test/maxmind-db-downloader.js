@@ -8,7 +8,6 @@ var chai = require('chai');
 var fs = require('fs');
 var MaxmindDbDownloader = require('../lib/maxmind-db-downloader');
 var path = require('path');
-var Promise = require('bluebird');
 var sinon = require('sinon');
 var assert = chai.assert;
 
@@ -31,6 +30,7 @@ describe('maxmind-db-downloader', function () {
     }
     targetDirPath = '';
     maxmindDbDownloader.stop();
+    sinon.restore();
   });
 
   describe('createTargetDir', function () {

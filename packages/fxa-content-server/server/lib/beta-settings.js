@@ -106,17 +106,19 @@ const settingsConfig = {
   glean: { ...config.get('glean'), appDisplayVersion: config.get('version') },
   redirectAllowlist: config.get('redirect_check.allow_list'),
   showReactApp: {
-    signUpRoutes: config.get('showReactApp.signUpRoutes'),
     emailFirstRoutes: config.get('showReactApp.emailFirstRoutes'),
-    pairRoutes: config.get('showReactApp.pairRoutes'),
   },
   pairing: {
     browserBuild: config.get('pairing.browser_build'),
     iosUrlScheme: config.get('pairing.ios_url_scheme'),
-    iosHandoff: config.get('pairing.ios_handoff'),
     clients: config.get('pairing.clients'),
     serverBaseUri: config.get('pairing.server_base_uri'),
     version: config.get('pairing.version'),
+    v2MinVersion: {
+      ios: config.get('pairing.v2_min_version.ios'),
+      android: config.get('pairing.v2_min_version.android'),
+      desktop: config.get('pairing.v2_min_version.desktop'),
+    },
   },
   mobileStoreLinks: {
     ios: config.get('mobileStoreLinks.ios'),

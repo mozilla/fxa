@@ -44,6 +44,7 @@ const ReadyToScan = () => (
 
       <LinkExternal
         href={SYNC_SUPPORT_URL}
+        gleanDataAttrs={{ id: 'dtm_mobile_ready_to_scan_learn_more' }}
         className="link-dark-grey"
       >
         <FtlMsg id="pair2-supplicant-ready-to-scan-learn-more-link">

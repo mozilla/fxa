@@ -44,6 +44,36 @@ describe('InlinePasswordlessSyncSetup', () => {
     expect(onNotNow).toHaveBeenCalledTimes(1);
   });
 
+  it('replaces the success banner with the error when one is given', () => {
+    renderWithLocalizationProvider(
+      <Subject
+        error={{
+          type: 'warning',
+          content: {
+            localizedHeading: 'Passkey confirmation didn’t finish',
+            localizedDescription: 'Confirm with your passkey.',
+          },
+          link: {
+            url: 'https://example.test',
+            localizedText: 'How to use passkeys',
+          },
+        }}
+      />
+    );
+
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Passkey confirmation didn’t finish'
+    );
+    expect(
+      screen.getByRole('link', { name: /How to use passkeys/ })
+    ).toHaveAttribute('href', 'https://example.test');
+    screen.getByText('Confirm with your passkey.');
+    expect(screen.queryByText('Signed in to Firefox')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Enable passkey' })
+    ).toBeEnabled();
+  });
+
   it('disables both actions while enabling', () => {
     renderWithLocalizationProvider(<Subject isEnabling />);
 

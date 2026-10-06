@@ -199,7 +199,7 @@ class OauthDB extends ConnectedServicesDb {
 
     const tokens = await (async () => {
       if (Object.keys(extraMetadata)) {
-       return await getTokens; // CALLS MYSQL
+        return await getTokens; // CALLS MYSQL
       }
       return {};
     })();
@@ -431,6 +431,28 @@ class OauthDB extends ConnectedServicesDb {
     return this.mysql._listAccountConsentsByUid(uid);
   }
 
+  // (clientId, scope) for every refresh token the user has. Deliberately not
+  // getRefreshTokensByUid: that hydrates Redis metadata and can issue a prune
+  // write, neither of which affects a deauthorization decision.
+  async getRefreshTokenScopesByUid(uid) {
+    await this.ready();
+    return this.mysql._getRefreshTokenScopesByUid(uid);
+  }
+
+  // Withdraws the given authorizations without discarding them: the rows and
+  // their ToS timestamps stay; re-authorizing reactivates the same row.
+  //
+  // Rows must carry lastAuthorizedTosAt as read, so one re-authorized in the
+  // meantime is left alone. Returns the count actually deauthorized.
+  async deauthorizeAccountAuthorizations(uid, rows, deauthorizedAt) {
+    await this.ready();
+    return this.mysql._deauthorizeAccountAuthorizations(
+      uid,
+      rows,
+      deauthorizedAt
+    );
+  }
+
   // True iff the (service, clientId) pair is permitted to record a consent
   // row. Services not configured in allowedClientsForService are
   // unrestricted. Configured services require the clientId to be on the
@@ -445,6 +467,12 @@ class OauthDB extends ConnectedServicesDb {
       return true;
     }
     return allowed.has((clientId || '').toLowerCase());
+  }
+
+  // The same list, for deauthorization: a covering token from any of these
+  // clients sustains the service's rows. Ids are lowercased at load.
+  allowedClientsForService(serviceName) {
+    return EXCHANGE_ALLOWED_CLIENTS_FOR_SERVICE.get(serviceName);
   }
 
   // True iff serviceName appears in the oauthServer.exchange.serviceScopes

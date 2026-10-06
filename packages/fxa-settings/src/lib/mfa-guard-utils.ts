@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { AuthUiErrors } from './auth-errors/auth-errors';
+import { base64urlToBytes } from './base64url';
 import {
   JwtTokenCache,
   MfaOtpRequestCache,
@@ -55,4 +56,25 @@ export const isInvalidJwtError = (e: unknown): boolean => {
     // gone (e.g. after a password change). Treat it as a stale-JWT signal too.
     errno === AuthUiErrors.INVALID_TOKEN.errno
   );
+};
+
+/**
+ * The account an MFA token names. The server files scope-bound records under
+ * this `sub`, so anything that binds data to the proof has to agree on it.
+ *
+ * @param mfaToken - The MFA JWT to read.
+ * @returns The uid, or undefined if the token is malformed.
+ */
+export const uidFromMfaToken = (mfaToken: string): string | undefined => {
+  try {
+    const payload = mfaToken.split('.')[1];
+    const { sub } = JSON.parse(
+      new TextDecoder().decode(base64urlToBytes(payload))
+    );
+    return typeof sub === 'string' && /^[0-9a-f]{32}$/.test(sub)
+      ? sub
+      : undefined;
+  } catch {
+    return undefined;
+  }
 };

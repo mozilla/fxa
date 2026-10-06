@@ -23,7 +23,8 @@ import firefox, { buildSyncOAuthSearch } from '../../lib/channels/firefox';
 import GleanMetrics from '../../lib/glean';
 import AppLayout from '../../components/AppLayout';
 import { detectDevice, Devices } from '../../lib/utilities';
-import { UseFxAStatusResult } from '../../lib/hooks';
+import { isPairingV2Enabled } from '../../lib/pairing/v2-gate';
+import { UseFxAStatusResult, useNavigateWithQuery } from '../../lib/hooks';
 
 export type ConnectAnotherDeviceProps = {
   email?: string;
@@ -85,6 +86,7 @@ const ConnectAnotherDevice = ({
   const config = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
+  const navigateWithQuery = useNavigateWithQuery();
   const searchParams = useMemo(
     () => new URLSearchParams(location.search),
     [location.search]
@@ -101,8 +103,9 @@ const ConnectAnotherDevice = ({
     !!(
       locationState.showSuccessMessage || searchParams.get('showSuccessMessage')
     );
-  const isSignUp = isSignUpProp ?? locationState.type === 'sign_up';
-  const isSignIn = isSignInProp ?? locationState.type === 'sign_in';
+  const type = locationState.type ?? searchParams.get('type');
+  const isSignUp = isSignUpProp ?? type === 'sign_up';
+  const isSignIn = isSignInProp ?? type === 'sign_in';
   // Set when the WebChannel sign-in attempt fails so the button stops
   // rendering instead of leaving the user with a silent no-op click.
   const [oauthFlowUnavailable, setOauthFlowUnavailable] = useState(false);
@@ -213,11 +216,17 @@ const ConnectAnotherDevice = ({
         signedInUser?.sessionToken && signedInUser.verified
       );
       if (browserSignedIn && isEligibleForPairing()) {
-        // Both FxA and Firefox have to signal that pairing v2 is enabled!
+        // The browser has to support pairing at all; which version it gets is
+        // the same gate as /pair, see isPairingV2Enabled.
         if (
-          config.pairing.version === 2 &&
           fxaStatus.fxaStatus?.capabilities?.pairing === true &&
-          fxaStatus.fxaStatus?.capabilities?.pairingVersion === 2
+          isPairingV2Enabled({
+            pairing: config.pairing,
+            device,
+            userAgent: navigator.userAgent,
+            browserPairingVersion:
+              fxaStatus.fxaStatus.capabilities.pairingVersion,
+          })
         ) {
           hardNavigate('/pair/authority/scan_qr', {}, true);
           return;
@@ -230,7 +239,7 @@ const ConnectAnotherDevice = ({
           return;
         }
 
-        hardNavigate('/pair', {}, true);
+        navigateWithQuery('/pair');
         return;
       }
       if (browserSignedIn) {

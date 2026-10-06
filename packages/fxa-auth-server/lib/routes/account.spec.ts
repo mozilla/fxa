@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { createMock } from '@golevelup/ts-jest';
+import { PasskeyService } from '@fxa/accounts/passkey';
 import type { Schema } from 'joi';
 import { StatsD } from 'hot-shots';
 import { AuthLogger as AuthLoggerType } from '../types';
@@ -61,46 +62,6 @@ jest.mock('fxa-shared/db/models/auth', () => {
 // Don't mock utils/otp — let it use the real implementation so hasTotpToken
 // delegates to db.totpToken and generateOtpCode uses real otplib
 
-// Mock the OAuth client module to prevent real DB connections
-jest.mock('../oauth/client', () => {
-  const actual = jest.requireActual('../oauth/client');
-  return {
-    ...actual,
-    getClientById: jest.fn().mockResolvedValue({
-      id: 'mock-client',
-      name: 'mock',
-      canGrant: false,
-      publicClient: true,
-      allowedScopes: 'profile',
-    }),
-  };
-});
-
-// Mock generateAccessToken to prevent oauth/db from connecting to MySQL
-jest.mock('../oauth/grant', () => {
-  const actual = jest.requireActual('../oauth/grant');
-  return {
-    ...actual,
-    generateAccessToken: jest.fn().mockResolvedValue({
-      token: Buffer.alloc(32),
-      type: 'bearer',
-    }),
-  };
-});
-
-// Dynamic mock for ../oauth/jwt — finish_setup tests need to stub verify()
-// eslint-disable-next-line no-var
-var oauthJwtOverride: any = null;
-jest.mock('../oauth/jwt', () => {
-  const actual = jest.requireActual('../oauth/jwt');
-  return {
-    __esModule: true,
-    get default() {
-      return oauthJwtOverride || actual.default || actual;
-    },
-  };
-});
-
 const glean = mocks.mockGlean();
 const profile = mocks.mockProfile();
 const statsd = createMock<StatsD>();
@@ -138,6 +99,7 @@ const rpConfigManager = {
 };
 
 const TEST_EMAIL = 'foo@gmail.com';
+const MOCK_DISABLED_AT = 1_700_000_000_000;
 
 function hexString(bytes: number) {
   return crypto.randomBytes(bytes).toString('hex');
@@ -191,8 +153,6 @@ const makeRoutes = function (options: any = {}, requireMocks: any = {}) {
     DomainBlocklist: { findMatchingDomain: jest.fn().mockResolvedValue(null) },
     ...((requireMocks || {})['fxa-shared/db/models/auth'] || {}),
   };
-  // Set up ../oauth/jwt mock if provided in requireMocks
-  oauthJwtOverride = (requireMocks || {})['../oauth/jwt'] || null;
 
   const signinUtils =
     options.signinUtils ||
@@ -728,7 +688,6 @@ describe('deleteAccountIfUnverified', () => {
   const mockConfig: any = {};
   mockConfig.oauth = {};
   mockConfig.signinConfirmation = {};
-  mockConfig.signinConfirmation.skipForEmailAddresses = [];
   mockConfig.signinConfirmation.skipForEmailRegex = /^$/;
   const emailRecord: any = {
     isPrimary: true,
@@ -741,6 +700,23 @@ describe('deleteAccountIfUnverified', () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
+  it('refuses to replace a disabled account with ACCOUNT_EXISTS', async () => {
+    mockDB.accountDisabledAt.mockResolvedValueOnce(MOCK_DISABLED_AT);
+    const mockStripeHelper = {
+      hasActiveSubscription: async () => Promise.resolve(false),
+    };
+
+    await expect(
+      deleteAccountIfUnverified(
+        mockDB,
+        mockStripeHelper,
+        mockLog,
+        mockRequest,
+        TEST_EMAIL
+      )
+    ).rejects.toMatchObject({ errno: error.ERRNO.ACCOUNT_EXISTS });
+  });
+
   it('should delete an unverified account with no linked Stripe account', async () => {
     const mockStripeHelper = {
       hasActiveSubscription: async () => Promise.resolve(false),
@@ -1000,6 +976,12 @@ describe('/account/create', () => {
       expect(args[0].uaOSVersion).toBe('11');
       expect(args[0].uaDeviceType).toBe('tablet');
       expect(args[0].uaFormFactor).toBe('iPad');
+
+      // New accounts are always unverified, and the session stays unverified
+      // until the user confirms with the emailed code.
+      const accountArgs = mockDB.createAccount.mock.calls[0][0];
+      expect(accountArgs.emailVerified).toBe(false);
+      expect(args[0].tokenVerificationId).toBe(accountArgs.emailCode);
 
       expect(mockLog.notifier.send).toHaveBeenCalledTimes(2);
       let eventData = mockLog.notifier.send.mock.calls[0][0];
@@ -1424,217 +1406,6 @@ describe('/account/create', () => {
   });
 });
 
-describe('/account/stub', () => {
-  function setup(extraConfig?: any) {
-    const config = {
-      securityHistory: {
-        enabled: true,
-      },
-      ...extraConfig,
-    };
-    const mockLog = log('ERROR', 'test');
-    mockLog.activityEvent = jest.fn(() => {
-      return Promise.resolve();
-    });
-    mockLog.flowEvent = jest.fn(() => {
-      return Promise.resolve();
-    });
-    mockLog.error = jest.fn();
-    mockLog.notifier.send = jest.fn();
-
-    const mockMetricsContext = mocks.mockMetricsContext();
-    const email = Math.random() + '_stub@mozilla.com';
-    const mockRequest = mocks.mockRequest({
-      locale: 'en-GB',
-      log: mockLog,
-      metricsContext: mockMetricsContext,
-      payload: {
-        email,
-        clientId: '59cceb6f8c32317c',
-      },
-      uaBrowser: 'Firefox Mobile',
-      uaBrowserVersion: '9',
-      uaOS: 'iOS',
-      uaOSVersion: '11',
-      uaDeviceType: 'tablet',
-      uaFormFactor: 'iPad',
-    });
-    const clientAddress = mockRequest.app.clientAddress;
-    const emailCode = hexString(16);
-    const uid = crypto.randomBytes(16).toString('hex');
-    const mockDB = mocks.mockDB(
-      {
-        email,
-        emailCode,
-        emailVerified: false,
-        locale: 'en',
-        uaBrowser: 'Firefox',
-        uaBrowserVersion: 52,
-        uaOS: 'Mac OS X',
-        uaOSVersion: '10.10',
-        uid,
-        wrapWrapKb: 'wibble',
-      },
-      {
-        emailRecord: error.unknownAccount(),
-      }
-    );
-    const mockMailer = mocks.mockMailer();
-    installMockFxaMailer();
-    mocks.mockOAuthClientInfo();
-    const mockPush = mocks.mockPush();
-    const verificationReminders = mocks.mockVerificationReminders();
-    const subscriptionAccountReminders = mocks.mockVerificationReminders();
-    const accountRoutes = makeRoutes({
-      config,
-      db: mockDB,
-      log: mockLog,
-      mailer: mockMailer,
-      Password: function () {
-        return {
-          unwrap: function () {
-            return Promise.resolve('wibble');
-          },
-          verifyHash: function () {
-            return Promise.resolve('wibble');
-          },
-        };
-      },
-      push: mockPush,
-      verificationReminders,
-      subscriptionAccountReminders,
-    });
-    const route = getRoute(accountRoutes, '/account/stub');
-
-    return {
-      config,
-      clientAddress,
-      email,
-      emailCode,
-      mockDB,
-      mockLog,
-      mockMailer,
-      mockMetricsContext,
-      mockRequest,
-      route,
-      uid,
-      verificationReminders,
-      subscriptionAccountReminders,
-    };
-  }
-
-  it('creates an account', () => {
-    const { route, mockRequest, uid } = setup();
-    return runTest(route, mockRequest, (response: any) => {
-      expect(response.uid).toBe(uid);
-      expect(response.access_token).toBeTruthy();
-    });
-  });
-
-  it('can refuse new account creations for selected OAuth clients', async () => {
-    const { mockRequest, route } = setup({
-      oauth: {
-        disableNewConnectionsForClients: ['d15ab1edd15ab1ed'],
-      },
-    });
-
-    mockRequest.payload.clientId = 'd15ab1edd15ab1ed';
-
-    await expect(runTest(route, mockRequest)).rejects.toMatchObject({
-      errno: error.ERRNO.DISABLED_CLIENT_ID,
-      output: { statusCode: 503 },
-    });
-  });
-
-  it('rejects creating an account with an invalid email domain', async () => {
-    const { route, mockRequest } = setup();
-    mockRequest.payload.email = 'test@bad.domain';
-
-    await expect(runTest(route, mockRequest)).rejects.toMatchObject({
-      errno: error.ERRNO.ACCOUNT_CREATION_REJECTED,
-    });
-  });
-
-  it('rejects stub account creation when email matches the regex blocklist', async () => {
-    const { mockRequest, mockLog, mockDB } = setup();
-
-    mockLog.info = jest.fn();
-
-    const blockedRegex = '@blocked\\.example\\.com$';
-    const accountRoutes = makeRoutes(
-      { log: mockLog, db: mockDB },
-      {
-        'fxa-shared/db/models/auth': {
-          EmailBlocklist: {
-            findMatchingRegex: jest.fn().mockResolvedValue(blockedRegex),
-          },
-          DomainBlocklist: {
-            findMatchingDomain: jest.fn().mockResolvedValue(null),
-          },
-        },
-      }
-    );
-    const route = getRoute(accountRoutes, '/account/stub');
-
-    statsd.increment.mockClear();
-
-    await expect(runTest(route, mockRequest)).rejects.toMatchObject({
-      errno: error.ERRNO.REQUEST_BLOCKED,
-    });
-
-    expect(statsd.increment).toHaveBeenCalledWith('account.create.blocked', {
-      blocker: 'regex',
-    });
-    expect(mockLog.info).toHaveBeenCalledWith(
-      'account.create.blocked',
-      expect.objectContaining({
-        domain: expect.any(String),
-        blockedRegex,
-        blocker: 'regex',
-      })
-    );
-  });
-
-  it('rejects stub account creation when email domain matches the domain blocklist', async () => {
-    const { mockRequest, mockLog, mockDB } = setup();
-
-    mockLog.info = jest.fn();
-
-    const blockedDomain = 'blocked.example.com';
-    const accountRoutes = makeRoutes(
-      { log: mockLog, db: mockDB },
-      {
-        'fxa-shared/db/models/auth': {
-          EmailBlocklist: {
-            findMatchingRegex: jest.fn().mockResolvedValue(null),
-          },
-          DomainBlocklist: {
-            findMatchingDomain: jest.fn().mockResolvedValue(blockedDomain),
-          },
-        },
-      }
-    );
-    const route = getRoute(accountRoutes, '/account/stub');
-
-    statsd.increment.mockClear();
-
-    await expect(runTest(route, mockRequest)).rejects.toMatchObject({
-      errno: error.ERRNO.REQUEST_BLOCKED,
-    });
-
-    expect(statsd.increment).toHaveBeenCalledWith('account.create.blocked', {
-      blocker: 'domain',
-    });
-    expect(mockLog.info).toHaveBeenCalledWith(
-      'account.create.blocked',
-      expect.objectContaining({
-        domain: blockedDomain,
-        blocker: 'domain',
-      })
-    );
-  });
-});
-
 describe('/account/status', () => {
   function setup(
     { extraConfig = {}, dbOptions = {}, shouldError = true }: any = {},
@@ -1804,6 +1575,64 @@ describe('/account/status', () => {
       expect(response.exists).toBe(true);
       expect(response.hasLinkedAccount).toBe(true);
       expect(response.hasPassword).toBe(false);
+    });
+  });
+
+  // Key-wrap presence is scoped to /password/forgot/verify_otp, which is reached
+  // only after the emailed OTP is verified. This route is unauthenticated, so
+  // carrying the signal here would disclose per-account credential state to
+  // anyone who knows an email address.
+  describe('hasPasskeyWraps is never exposed', () => {
+    let mockPasskeyService: PasskeyService;
+
+    beforeEach(() => {
+      mockPasskeyService = createMock<PasskeyService>({
+        hasPasskey: jest.fn().mockResolvedValue(true),
+        listPasskeysForUser: jest.fn().mockResolvedValue([]),
+      });
+      Container.set(PasskeyService, mockPasskeyService);
+    });
+
+    afterEach(() => {
+      Container.remove(PasskeyService);
+    });
+
+    const setupStatusRoute = () => {
+      const { route, mockRequest } = setup({
+        dbOptions: { linkedAccounts: [{}], verifierSetAt: 0 },
+        shouldError: false,
+        extraConfig: {
+          passkeys: { enabled: true, authenticationEnabled: true },
+          passwordlessOtp: { forcedEmailAddresses: /^$/, allowedClientIds: [] },
+        },
+      });
+      mockRequest.payload.thirdPartyAuthStatus = true;
+      return { route, mockRequest };
+    };
+
+    it('is rejected by the response schema', () => {
+      const { route } = setupStatusRoute();
+
+      const { error } = route.options.response.schema.validate({
+        exists: true,
+        hasPasskeyWraps: true,
+      });
+
+      expect(
+        error?.details.some(
+          (detail) => detail.context?.key === 'hasPasskeyWraps'
+        )
+      ).toBe(true);
+    });
+
+    it('is absent from the response, and never looked up', async () => {
+      const { route, mockRequest } = setupStatusRoute();
+
+      const response: any = await runTest(route, mockRequest);
+
+      expect(response.hasPasskey).toBe(true);
+      expect(response).not.toHaveProperty('hasPasskeyWraps');
+      expect(mockPasskeyService.listPasskeysForUser).not.toHaveBeenCalled();
     });
   });
 
@@ -1993,144 +1822,6 @@ describe('/account/status', () => {
       expect(response.hasPassword).toBe(false);
       expect(response.passwordlessSupported).toBe(true);
     });
-  });
-});
-
-describe('/account/finish_setup', () => {
-  function setup(options: any) {
-    const config = {
-      securityHistory: {
-        enabled: true,
-      },
-    };
-    const mockLog = log('ERROR', 'test');
-    mockLog.activityEvent = jest.fn(() => {
-      return Promise.resolve();
-    });
-    mockLog.flowEvent = jest.fn(() => {
-      return Promise.resolve();
-    });
-    mockLog.error = jest.fn();
-    mockLog.notifier.send = jest.fn();
-
-    const mockMetricsContext = mocks.mockMetricsContext();
-    const email = Math.random() + '_stub@mozilla.com';
-    const emailCode = hexString(16);
-    const uid = crypto.randomBytes(16).toString('hex');
-    const mockRequest = mocks.mockRequest({
-      locale: 'en-GB',
-      log: mockLog,
-      metricsContext: mockMetricsContext,
-      payload: {
-        token: 'a.test.token',
-        uid,
-      },
-      uaBrowser: 'Firefox Mobile',
-      uaBrowserVersion: '9',
-      uaOS: 'iOS',
-      uaOSVersion: '11',
-      uaDeviceType: 'tablet',
-      uaFormFactor: 'iPad',
-    });
-    const clientAddress = mockRequest.app.clientAddress;
-    const mockDB = mocks.mockDB(
-      {
-        email,
-        emailCode,
-        emailVerified: false,
-        locale: 'en',
-        uaBrowser: 'Firefox',
-        uaBrowserVersion: 52,
-        uaOS: 'Mac OS X',
-        uaOSVersion: '10.10',
-        uid,
-        authSalt: '',
-        wrapWrapKb: 'wibble',
-        verifierSetAt: options.verifierSetAt,
-      },
-      {
-        emailRecord: error.unknownAccount(),
-      }
-    );
-    const mockMailer = mocks.mockMailer();
-    const mockPush = mocks.mockPush();
-    const verificationReminders = mocks.mockVerificationReminders();
-    const subscriptionAccountReminders = mocks.mockVerificationReminders();
-    const accountRoutes = makeRoutes(
-      {
-        config,
-        db: mockDB,
-        log: mockLog,
-        mailer: mockMailer,
-        Password: function () {
-          return {
-            unwrap: function () {
-              return Promise.resolve('wibble');
-            },
-            verifyHash: function () {
-              return Promise.resolve('wibble');
-            },
-          };
-        },
-        push: mockPush,
-        verificationReminders,
-        subscriptionAccountReminders,
-      },
-      {
-        '../oauth/jwt': {
-          verify: jest.fn().mockReturnValue(Promise.resolve({ uid })),
-        },
-      }
-    );
-    const route = getRoute(accountRoutes, '/account/finish_setup');
-
-    return {
-      config,
-      clientAddress,
-      email,
-      emailCode,
-      mockDB,
-      mockLog,
-      mockMailer,
-      mockMetricsContext,
-      mockRequest,
-      route,
-      uid,
-      verificationReminders,
-      subscriptionAccountReminders,
-    };
-  }
-
-  it('succeeds when the account is a stub', () => {
-    const { route, mockRequest, mockDB, uid } = setup({
-      verifierSetAt: 0,
-    });
-    return runTest(route, mockRequest, (response: any) => {
-      expect(mockDB.verifyEmail).toHaveBeenCalledTimes(1);
-      expect(mockDB.resetAccount).toHaveBeenCalledTimes(1);
-      expect(response.sessionToken).toBeTruthy();
-      expect(response.uid).toBe(uid);
-    });
-  });
-
-  it('returns an unauthorized error when the account is already set up', async () => {
-    const { route, mockRequest } = setup({
-      verifierSetAt: Date.now(),
-    });
-    await expect(runTest(route, mockRequest)).rejects.toMatchObject({
-      errno: 110,
-    });
-  });
-
-  it('removes the reminder if it errors after account is verified', async () => {
-    const { route, mockRequest, subscriptionAccountReminders } = setup({
-      verifierSetAt: Date.now(),
-    });
-
-    await expect(runTest(route, mockRequest)).rejects.toMatchObject({
-      errno: 110,
-    });
-    expect(subscriptionAccountReminders.delete).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -2366,6 +2057,17 @@ describe('/account/login', () => {
     Container.reset();
   });
 
+  it('rejects a disabled account with ACCOUNT_DISABLED', async () => {
+    mockDB.accountRecord = jest.fn(async () => ({
+      ...(await defaultEmailAccountRecord()),
+      disabledAt: MOCK_DISABLED_AT,
+    }));
+
+    await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+      errno: error.ERRNO.ACCOUNT_DISABLED,
+    });
+  });
+
   it('emits the correct series of calls and events', () => {
     const now = Date.now();
     const dateNowSpy = jest.spyOn(Date, 'now').mockReturnValue(now);
@@ -2560,7 +2262,7 @@ describe('/account/login', () => {
 
   describe('sign-in confirmation', () => {
     beforeAll(() => {
-      config.signinConfirmation.forcedEmailAddresses = /.+@mozilla\.com$/;
+      config.signinConfirmation.forcedSyncEmailAddresses = /.+@mozilla\.com$/;
 
       mockDB.accountRecord = function () {
         return Promise.resolve({
@@ -2762,6 +2464,50 @@ describe('/account/login', () => {
 
         // Restore the original function
         mockDB.createSessionToken = originalCreateSessionToken;
+      });
+    });
+
+    it('creates an unverified session without mustVerify for forcedHeuristicEmailAddresses', () => {
+      const email = 'test@mozilla.com';
+      const { forcedSyncEmailAddresses, forcedHeuristicEmailAddresses } =
+        config.signinConfirmation;
+      config.signinConfirmation.forcedSyncEmailAddresses = /^$/;
+      config.signinConfirmation.forcedHeuristicEmailAddresses =
+        /.+@mozilla\.com$/;
+      mockDB.accountRecord = function () {
+        return Promise.resolve({
+          authSalt: hexString(32),
+          data: hexString(32),
+          email: email,
+          emailVerified: true,
+          primaryEmail: {
+            normalizedEmail: normalizeEmail(email),
+            email: email,
+            isVerified: true,
+            isPrimary: true,
+          },
+          kA: hexString(32),
+          lastAuthAt: function () {
+            return Date.now();
+          },
+          uid: uid,
+          wrapWrapKb: hexString(32),
+        });
+      };
+
+      return runTest(route, mockRequestNoKeys, (response: any) => {
+        expect(mockDB.createSessionToken).toHaveBeenCalledTimes(1);
+        const tokenData = mockDB.createSessionToken.mock.calls[0][0];
+        expect(tokenData.mustVerify).toBeFalsy();
+        expect(tokenData.tokenVerificationId).toBeTruthy();
+        expect(response.sessionVerified).toBeFalsy();
+        expect(response.verificationMethod).toBe('email');
+        expect(response.verificationReason).toBe('login');
+      }).finally(() => {
+        config.signinConfirmation.forcedSyncEmailAddresses =
+          forcedSyncEmailAddresses;
+        config.signinConfirmation.forcedHeuristicEmailAddresses =
+          forcedHeuristicEmailAddresses;
       });
     });
 
@@ -3876,6 +3622,53 @@ describe('/account/login', () => {
         rpCmsConfig.NewDeviceLoginEmail.description
       );
     });
+  });
+});
+
+describe('/account/credentials/status', () => {
+  const uid = 'f9416ce3703e4916a4cd6b1e665a3f1a';
+
+  beforeEach(() => {
+    mocks.mockOAuthClientInfo();
+  });
+
+  afterEach(() => {
+    Container.reset();
+  });
+
+  function makeRequest() {
+    return mocks.mockRequest({ payload: { email: TEST_EMAIL } });
+  }
+
+  function makeRoute(mockDB: any) {
+    return getRoute(
+      makeRoutes({
+        db: mockDB,
+        customs: { check: () => Promise.resolve() },
+      }),
+      '/account/credentials/status'
+    );
+  }
+
+  it('reports the credential version for an enabled account', async () => {
+    const mockDB = mocks.mockDB({ email: TEST_EMAIL, uid });
+    const response = await runTest(makeRoute(mockDB), makeRequest());
+    expect(response).toEqual({
+      currentVersion: 'v1',
+      clientSalt: undefined,
+      upgradeNeeded: true,
+    });
+  });
+
+  it('rejects a disabled account with ACCOUNT_DISABLED', async () => {
+    const mockDB = mocks.mockDB({
+      email: TEST_EMAIL,
+      uid,
+      disabledAt: MOCK_DISABLED_AT,
+    });
+    await expect(
+      runTest(makeRoute(mockDB), makeRequest())
+    ).rejects.toMatchObject({ errno: error.ERRNO.ACCOUNT_DISABLED });
   });
 });
 

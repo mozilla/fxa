@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { hexToUint8 } from 'fxa-auth-client/lib/utils';
 import { DecryptedRecoveryKeyData } from 'fxa-auth-client/lib/recoveryKey';
 import { V1Credentials, V2Credentials } from './auth-key-stretch-upgrade';
 
@@ -27,6 +28,19 @@ export namespace SensitiveData {
   };
 
   export type DecryptedRecoveryKey = Pick<DecryptedRecoveryKeyData, 'kB'>;
+
+  /**
+   * What the password-free passkey opt-in needs to seal `kB` to the passkey that just signed in. Set
+   * by the passkey ceremony; `kB` is filled in by the password step that
+   * follows.
+   */
+  export type PasskeyWrapData = {
+    uid: hexstring;
+    credentialId: string;
+    mfaToken: string;
+    prfOut: Uint8Array;
+    kB?: Uint8Array;
+  };
 }
 
 /**
@@ -57,4 +71,38 @@ export class SensitiveDataClient {
   public DecryptedRecoveryKeyData:
     | SensitiveData.DecryptedRecoveryKey
     | undefined;
+
+  public PasskeyWrapData: SensitiveData.PasskeyWrapData | undefined;
+
+  /**
+   * Zeroes and drops the material a passkey ceremony left for the
+   * password-free passkey opt-in. Replacing the entry alone would leave the
+   * PRF output and `kB` intact until garbage collection.
+   */
+  clearPasskeyWrapData() {
+    this.PasskeyWrapData?.prfOut.fill(0);
+    this.PasskeyWrapData?.kB?.fill(0);
+    this.PasskeyWrapData = undefined;
+  }
+
+  /**
+   * Hands `kB` to a passkey ceremony that asked for it, when that ceremony was
+   * for this same account. Never throws: the opt-in is optional and must not
+   * fail the sign-in that produced `kB`.
+   *
+   * Overwrites any `kB` already held rather than dropping the reference, which
+   * would leave the earlier bytes readable until garbage collection.
+   */
+  captureKbForPendingWrap(uid: string, kB: hexstring): void {
+    const pendingWrap = this.PasskeyWrapData;
+    if (!pendingWrap || pendingWrap.uid !== uid) {
+      return;
+    }
+    try {
+      pendingWrap.kB?.fill(0);
+      pendingWrap.kB = hexToUint8(kB);
+    } catch {
+      pendingWrap.kB = undefined;
+    }
+  }
 }

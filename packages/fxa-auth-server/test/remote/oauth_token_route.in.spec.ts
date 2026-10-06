@@ -14,7 +14,10 @@ const NON_DISABLED_CLIENT_ID = '98e6508e88680e1a';
 const CODE_WITH_KEYS = 'afafaf';
 const CODE_WITHOUT_KEYS = 'f0f0f0';
 
-const mockDb = { touchSessionToken: jest.fn() };
+const mockDb = {
+  touchSessionToken: jest.fn(),
+  accountDisabledAt: jest.fn().mockResolvedValue(null),
+};
 const mockStatsD = { increment: jest.fn() };
 const mockGlean = { oauth: { tokenCreated: jest.fn() } };
 const mockAuthServerCacheRedis = { get: jest.fn(), set: jest.fn() };

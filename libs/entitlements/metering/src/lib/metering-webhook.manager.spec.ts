@@ -120,7 +120,7 @@ describe('MeteringWebhookManager', () => {
       const body = JSON.parse(init.body);
       expect(body).toMatchObject({
         slug: 'vpn-bandwidth',
-        userIdentifier: 'user-1',
+        subject: 'user-1',
         threshold: 80,
         currentUsage: 85,
         limit: 100,

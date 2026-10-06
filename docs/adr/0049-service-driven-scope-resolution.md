@@ -1,7 +1,7 @@
 # Server-side scope resolution via service parameter for Firefox OAuth flows
 
-- Status: proposed
-- Deciders: Lauren Zugai, Mark Hammond
+- Status: accepted
+- Deciders: Lauren Zugai, Mark Hammond, Wil Clouser, Vijay Budhram
 - Date: 2026-04-15
 
 ## Context and Problem Statement
@@ -91,6 +91,39 @@ Firefox sends only the `service` parameter instead of `scope`. FxA resolves the 
 - Neutral, because the client loses granular control over scopes -- if two features both use the same `service` value but need different scopes, the client has no way to express that distinction. This is mitigated by using a different `service` value for each distinct scope set, or by specifying `scope` directly (which takes precedence). Using other flow context like `entrypoint` to vary scope resolution would complicate the contract and is not recommended.
 - Good, because it is compatible with per-service, per-platform client IDs -- scope resolution shifts from `service` to `client_id` with no change in approach
 - Bad, because it deviates from standard OAuth scope request patterns
+
+## Addendum -- 2026-09-14
+
+Added after review on [PR #21180](https://github.com/mozilla/fxa/pull/21180) and follow-up engineering discussion. The decision above stands.
+
+### Decision change
+
+**The service-to-scope mapping moves to Firefox.** The driver "FxA must maintain its own scope-to-service allowlist mapping regardless" no longer holds. Firefox sends the map over the `fxa_status` web channel capabilities message as `capabilities.services[service].scope`, so a Firefox version that changes its scopes, or offers a new service, tells us rather than requiring a matching config change here. FxA keeps only the product-owned decision of which optional scopes to offer in a given flow. Tracked in [FXA-14509](https://mozilla-hub.atlassian.net/browse/FXA-14509) / [bz-2066516#c4](https://bugzilla.mozilla.org/show_bug.cgi?id=2066516#c4).
+
+### Clarifications
+
+**First-party is thinly specified.** The published OAuth specs assume a third-party client, so how first-party clients are treated is largely vendor policy -- the comparisons that came up in review (Google, Okta, Auth0) are each provider's own policy, not standards. [draft-ietf-oauth-first-party-apps](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-first-party-apps-01) defines the category normatively, as "applications that are controlled by the same entity as the authorization server used by the application, and the user understands them both as the same entity", and treats `scope` as optional -- but it is a draft, and it covers flow mechanics rather than consent. We follow the specs where they speak; where they do not, being first-party gives latitude. That softens, without removing, the "Non-standard OAuth pattern" negative above.
+
+**No scope escalation.** FxA should not grant scopes the client did not request. RFC 6749 Sections 3.3 and 5.1 only require the server to report the granted set when it differs from the requested one, but every provider surveyed grants a subset, and node-oidc-provider enforces it structurally. So wherever `scope` is the source of truth, FxA cannot add optional scopes on top of it: the client cannot send only what is required and have us hand back more. Under option 3 the set FxA resolves from `service` is the request, so offering optional scopes within it is not escalation.
+
+**Option 1 can support _optional_ scopes, but they must still come from the client.** The analysis above implies optional offers require option 3; they do not. Options 1 and 2 differ in what the client sends -- required plus whatever it wants offered for that flow, or a catalog FxA narrows -- but under both, the offer set is bounded by the client's request. Strava requests its full scope set explicitly and renders a checkbox per requested scope, with `read` non-declinable by server policy. What option 3 adds is that FxA composes the offer set rather than the client. The web channel mapping is needed either way: rendering a service-labelled checkbox means grouping scopes into a bundle, and that needs the map even when the client composes the request.
+
+**A consent checkbox is a service, not a scope.** Strava's checkboxes map one-to-one onto user-legible scopes. Ours do not: a "VPN" checkbox grants the VPN scope plus `profile`, and no consent screen should display `https://identity.mozilla.com/apps/vpn`. That one-to-many relationship is why a service-to-scopes map has to exist somewhere under any option. It is clearer to think of this as service activation than as individual scope approval -- the user turns VPN on, and the scope bundle follows.
+
+**Scope hierarchy (options 1 and 2).** `profile` implies `profile:uid`, so a request carrying both is redundant, and an offered scope that a required one already implies is a checkbox that grants nothing. Where the client composes the request it has to collapse overlapping scopes to the broadest one first -- Sync needs `profile`, Smart Window needs `profile:uid`. Under option 3 FxA composes the set and normalizes it itself.
+
+### node-oidc-provider notes
+
+These notes target `oidc-provider@9.12.2`, for the [ADR 0042](0042-use-node-oidc-for-oauth.md) migration.
+
+- Granted scope is structurally bounded by the request: an authorization code's scope is `grant.getOIDCScopeFiltered(requestParamScopes)`. A scope added to the Grant but not requested is silently dropped.
+- `scope` is not a required authorization parameter. `openid` is compelled only for `id_token` response types, CIBA, a set of gated request parameters (`acr_values`, `claims`, `claims_locales`, `id_token_hint`, `max_age`, `nonce`), and clients registered with `default_acr_values`, `default_max_age`, or `require_auth_time`. Otherwise dropping `scope` is accepted by the library.
+- `service` is accepted via `extraParams`, which takes an object mapping a parameter name to an optional validator.
+- On the no-resource path, `checkResource`'s `filterStatics` rewrites `scope` to only those values in the provider's `scopes` config, so an FxA scope missing from it is silently dropped. The default is only `['openid', 'offline_access']`. With a `resource` present the filter does not run and scopes are validated against the resource server instead.
+- The requested scope set is fixed before any interaction runs, and `checkScope` is in the authorization stack but not the resume stack -- so mutating a stored `Interaction` to inject scopes bypasses `client.scope` validation. Resolution has to happen before the request reaches the provider.
+- Consent UI reads `missingOIDCScope` / `missingResourceScopes` from interaction details. `rejectOIDCScope()` persists and there is no un-reject.
+- Flows that skip consent do so by overriding `loadExistingGrant` to construct and save a Grant.
+- Worth considering separately: modelling VPN/Relay/Monitor as RFC 8707 resource indicators would yield audience-restricted tokens per service. It would sit alongside `service` rather than replace it -- `resource` names the resource server consuming the token, `service` names the product flow.
 
 ## Links
 

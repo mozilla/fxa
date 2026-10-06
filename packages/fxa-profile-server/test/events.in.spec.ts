@@ -9,7 +9,6 @@ import sinon from 'sinon';
 
 import { assertSecurityHeaders } from './lib/util';
 const db = require('../lib/db');
-const P = require('../lib/promise');
 const testServer = require('./lib/server');
 const Static = require('./lib/static');
 const img = require('../lib/img');
@@ -96,11 +95,11 @@ describe('#integration - events', () => {
         assertSecurityHeaders(res);
 
         const s3url = res.result.url;
-        const responses = await P.all(SIZE_SUFFIXES).map(function (
-          suffix: string
-        ) {
-          return Static.get(s3url + suffix);
-        });
+        const responses = await Promise.all(
+          SIZE_SUFFIXES.map(function (suffix: string) {
+            return Static.get(s3url + suffix);
+          })
+        );
         expect(responses.length).toBe(SIZE_SUFFIXES.length);
         responses.forEach(function (res: any) {
           expect(res.statusCode).toBe(200);
@@ -116,7 +115,7 @@ describe('#integration - events', () => {
               .then(function (avatar: any) {
                 expect(avatar).toBeUndefined();
               })
-              .done(done, done);
+              .then(done, done);
           })
         );
       });
@@ -148,7 +147,7 @@ describe('#integration - events', () => {
               .then(function (profile: any) {
                 expect(profile.displayName).toBe('foo bar');
               })
-              .done(done, done);
+              .then(done, done);
           })
         );
       });
@@ -172,7 +171,7 @@ describe('#integration - events', () => {
         Server.server.methods.profileCache.drop = sinon.spy(function (
           _uid: string
         ) {
-          return P.resolve([]);
+          return Promise.resolve([]);
         });
       });
 
@@ -246,7 +245,7 @@ describe('#integration - events', () => {
         Server.server.methods.profileCache.drop = sinon.spy(function (
           _uid: string
         ) {
-          return P.resolve([]);
+          return Promise.resolve([]);
         });
       });
 

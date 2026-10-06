@@ -11,7 +11,7 @@ import type {
   RegistrationResponseJSON,
 } from '@simplewebauthn/server';
 import { PasskeyConfig, MAX_PASSKEY_NAME_LENGTH } from './passkey.config';
-import { PasskeyService } from './passkey.service';
+import { PasskeyService, isWrapStale } from './passkey.service';
 import { PasskeyManager } from './passkey.manager';
 import type { PasskeyRecord } from './passkey.repository';
 import { PasskeyChallengeManager } from './passkey.challenge.manager';
@@ -76,6 +76,8 @@ describe('PasskeyService', () => {
   };
 
   const MOCK_NOW = 1_700_000_000_000;
+  // Older than every stored wrap, so staleness only fires when a test says so.
+  const MOCK_KEYS_CHANGED_AT = MOCK_NOW - 1;
 
   /**
    * Real v1 widths, so a size regression shows up here too.
@@ -89,13 +91,13 @@ describe('PasskeyService', () => {
   };
 
   const storedWrap = (
-    override: Partial<PasskeyWrapEnvelope> = {}
+    override: Partial<PasskeyWrapEnvelope> & { createdAt?: number } = {}
   ): PasskeyWrap => ({
     uid: MOCK_UID_BUFFER,
     credentialId: MOCK_CREDENTIAL_ID_BUFFER,
     ...MOCK_ENVELOPE,
-    ...override,
     createdAt: MOCK_NOW,
+    ...override,
   });
 
   /**
@@ -1374,7 +1376,8 @@ describe('PasskeyService', () => {
         MOCK_UID,
         MOCK_CREDENTIAL_ID,
         MOCK_ENVELOPE,
-        MOCK_NOW
+        MOCK_NOW,
+        MOCK_KEYS_CHANGED_AT
       );
 
       expect(result).toBe('created');
@@ -1396,7 +1399,8 @@ describe('PasskeyService', () => {
           MOCK_UID,
           MOCK_CREDENTIAL_ID,
           MOCK_ENVELOPE,
-          MOCK_NOW
+          MOCK_NOW,
+          MOCK_KEYS_CHANGED_AT
         )
       ).rejects.toMatchObject({ errno: ERRNO.PASSKEY_NOT_FOUND });
       expect(mockManager.createPasskeyWrap).not.toHaveBeenCalled();
@@ -1417,7 +1421,8 @@ describe('PasskeyService', () => {
           MOCK_UID,
           MOCK_CREDENTIAL_ID,
           MOCK_ENVELOPE,
-          MOCK_NOW
+          MOCK_NOW,
+          MOCK_KEYS_CHANGED_AT
         )
       ).resolves.toBe('created');
       expect(mockManager.createPasskeyWrap).toHaveBeenCalled();
@@ -1430,7 +1435,8 @@ describe('PasskeyService', () => {
         MOCK_UID,
         MOCK_CREDENTIAL_ID,
         MOCK_ENVELOPE,
-        MOCK_NOW
+        MOCK_NOW,
+        MOCK_KEYS_CHANGED_AT
       );
 
       expect(result).toBe('unchanged');
@@ -1444,14 +1450,16 @@ describe('PasskeyService', () => {
         MOCK_UID,
         MOCK_CREDENTIAL_ID,
         MOCK_ENVELOPE,
-        MOCK_NOW
+        MOCK_NOW,
+        MOCK_KEYS_CHANGED_AT
       );
 
       expect(mockLogger.log).not.toHaveBeenCalled();
     });
 
     // Every field is compared, so a difference in any one is a conflict rather
-    // than a silent overwrite.
+    // than a silent overwrite. These wraps are not stale, so the delete spares
+    // them and the duplicate key is what refuses the insert.
     it.each([
       'pkR',
       'prfWrappedSkR',
@@ -1466,16 +1474,23 @@ describe('PasskeyService', () => {
             [field]: Buffer.alloc(MOCK_ENVELOPE[field].length, 0xff),
           })
         );
+        mockManager.deletePasskeyWrap.mockResolvedValue(false);
+        mockManager.createPasskeyWrap.mockRejectedValue({
+          code: 'ER_DUP_ENTRY',
+        });
 
         await expect(
           service.storePasskeyWrap(
             MOCK_UID,
             MOCK_CREDENTIAL_ID,
             MOCK_ENVELOPE,
-            MOCK_NOW
+            MOCK_NOW,
+            MOCK_KEYS_CHANGED_AT
           )
         ).rejects.toMatchObject({ errno: ERRNO.PASSKEY_WRAP_CONFLICT });
-        expect(mockManager.createPasskeyWrap).not.toHaveBeenCalled();
+        expect(mockMetrics.increment).not.toHaveBeenCalledWith(
+          'passkey.wrap.store.replaced_stale'
+        );
       }
     );
 
@@ -1493,7 +1508,8 @@ describe('PasskeyService', () => {
           MOCK_UID,
           MOCK_CREDENTIAL_ID,
           MOCK_ENVELOPE,
-          MOCK_NOW
+          MOCK_NOW,
+          MOCK_KEYS_CHANGED_AT
         )
       ).rejects.toMatchObject({ errno: ERRNO.PASSKEY_WRAP_CONFLICT });
     });
@@ -1511,7 +1527,8 @@ describe('PasskeyService', () => {
           MOCK_UID,
           MOCK_CREDENTIAL_ID,
           MOCK_ENVELOPE,
-          MOCK_NOW
+          MOCK_NOW,
+          MOCK_KEYS_CHANGED_AT
         )
       ).resolves.toBe('unchanged');
     });
@@ -1525,9 +1542,126 @@ describe('PasskeyService', () => {
           MOCK_UID,
           MOCK_CREDENTIAL_ID,
           MOCK_ENVELOPE,
-          MOCK_NOW
+          MOCK_NOW,
+          MOCK_KEYS_CHANGED_AT
         )
       ).rejects.toMatchObject({ errno: ERRNO.PASSKEY_WRAP_CONFLICT });
+    });
+
+    it('replaces a differing wrap stored before keysChangedAt', async () => {
+      const KEYS_CHANGED_AT = MOCK_NOW - 1_000;
+      mockManager.createPasskeyWrap.mockResolvedValue(undefined);
+      mockManager.deletePasskeyWrap.mockResolvedValue(true);
+      mockManager.findPasskeyWrap.mockResolvedValue(
+        storedWrap({
+          hpkeSealedKb: Buffer.alloc(48, 0xff),
+          createdAt: MOCK_NOW - 5_000,
+        })
+      );
+
+      const result = await service.storePasskeyWrap(
+        MOCK_UID,
+        MOCK_CREDENTIAL_ID,
+        MOCK_ENVELOPE,
+        MOCK_NOW,
+        KEYS_CHANGED_AT
+      );
+
+      expect(result).toBe('created');
+      // The staleness test travels with the delete rather than being decided here.
+      expect(mockManager.deletePasskeyWrap).toHaveBeenCalledWith(
+        MOCK_UID,
+        MOCK_CREDENTIAL_ID,
+        KEYS_CHANGED_AT
+      );
+      expect(mockManager.createPasskeyWrap).toHaveBeenCalledWith(
+        MOCK_UID,
+        { credentialId: MOCK_CREDENTIAL_ID, ...MOCK_ENVELOPE },
+        MOCK_NOW
+      );
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'passkey.wrap.store.replaced_stale'
+      );
+    });
+
+    it('refuses to replace a differing wrap when keysChangedAt is not a number', async () => {
+      mockManager.findPasskeyWrap.mockResolvedValue(
+        storedWrap({ hpkeSealedKb: Buffer.alloc(48, 0xff) })
+      );
+
+      await expect(
+        service.storePasskeyWrap(
+          MOCK_UID,
+          MOCK_CREDENTIAL_ID,
+          MOCK_ENVELOPE,
+          MOCK_NOW,
+          Number.NaN
+        )
+      ).rejects.toMatchObject({ errno: ERRNO.PASSKEY_WRAP_CONFLICT });
+      expect(mockManager.deletePasskeyWrap).not.toHaveBeenCalled();
+    });
+
+    it('throws passkeyWrapConflict when a live wrap survives the delete', async () => {
+      const live = storedWrap({ hpkeSealedKb: Buffer.alloc(48, 0xff) });
+      // The delete spares a wrap that is not stale, so the insert below hits
+      // the primary key and that duplicate is the conflict.
+      mockManager.deletePasskeyWrap.mockResolvedValue(false);
+      mockManager.createPasskeyWrap.mockRejectedValue({ code: 'ER_DUP_ENTRY' });
+      mockManager.findPasskeyWrap.mockResolvedValue(live);
+
+      await expect(
+        service.storePasskeyWrap(
+          MOCK_UID,
+          MOCK_CREDENTIAL_ID,
+          MOCK_ENVELOPE,
+          MOCK_NOW,
+          MOCK_NOW + 1
+        )
+      ).rejects.toMatchObject({ errno: ERRNO.PASSKEY_WRAP_CONFLICT });
+      expect(mockMetrics.increment).not.toHaveBeenCalledWith(
+        'passkey.wrap.store.replaced_stale'
+      );
+    });
+
+    it('reports created without replaced_stale when another writer got there first', async () => {
+      // The row was gone before our delete ran, so nothing of ours was
+      // replaced even though a wrap was read a moment earlier.
+      mockManager.deletePasskeyWrap.mockResolvedValue(false);
+      mockManager.createPasskeyWrap.mockResolvedValue(undefined);
+      mockManager.findPasskeyWrap.mockResolvedValue(
+        storedWrap({ hpkeSealedKb: Buffer.alloc(48, 0xff) })
+      );
+
+      await expect(
+        service.storePasskeyWrap(
+          MOCK_UID,
+          MOCK_CREDENTIAL_ID,
+          MOCK_ENVELOPE,
+          MOCK_NOW,
+          MOCK_NOW + 1
+        )
+      ).resolves.toBe('created');
+      expect(mockMetrics.increment).not.toHaveBeenCalledWith(
+        'passkey.wrap.store.replaced_stale'
+      );
+    });
+
+    it('leaves an identical wrap alone even when it predates keysChangedAt', async () => {
+      mockManager.findPasskeyWrap.mockResolvedValue(storedWrap());
+
+      await expect(
+        service.storePasskeyWrap(
+          MOCK_UID,
+          MOCK_CREDENTIAL_ID,
+          MOCK_ENVELOPE,
+          MOCK_NOW,
+          MOCK_NOW + 1
+        )
+      ).resolves.toBe('unchanged');
+      expect(mockManager.deletePasskeyWrap).not.toHaveBeenCalled();
+      expect(mockMetrics.increment).not.toHaveBeenCalledWith(
+        'passkey.wrap.store.replaced_stale'
+      );
     });
 
     it('surfaces a non-duplicate write failure rather than swallowing it', async () => {
@@ -1539,7 +1673,8 @@ describe('PasskeyService', () => {
           MOCK_UID,
           MOCK_CREDENTIAL_ID,
           MOCK_ENVELOPE,
-          MOCK_NOW
+          MOCK_NOW,
+          MOCK_KEYS_CHANGED_AT
         )
       ).rejects.toThrow(dbError);
     });
@@ -2114,5 +2249,23 @@ describe('PasskeyService', () => {
         service.deletePasskeyWrap(MOCK_UID, MOCK_CREDENTIAL_ID)
       ).rejects.toThrow(dbError);
     });
+  });
+});
+
+describe('isWrapStale', () => {
+  it('is not stale when the wrap is newer than the keys', () => {
+    expect(isWrapStale(1_000, 500)).toBe(false);
+  });
+
+  it('is not stale when the two are equal', () => {
+    expect(isWrapStale(1_000, 1_000)).toBe(false);
+  });
+
+  it('is stale when the keys are newer than the wrap', () => {
+    expect(isWrapStale(500, 1_000)).toBe(true);
+  });
+
+  it('is stale when keysChangedAt is not a number', () => {
+    expect(isWrapStale(1_000, Number.NaN)).toBe(true);
   });
 });

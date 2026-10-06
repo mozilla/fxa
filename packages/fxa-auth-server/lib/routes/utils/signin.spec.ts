@@ -239,6 +239,7 @@ describe('checkCustomsAndLoadAccount', () => {
     checkCustomsAndLoadAccount: any;
 
   beforeEach(() => {
+    mocks.mockOAuthClientInfo();
     db = mocks.mockDB({
       uid: TEST_UID,
       email: TEST_EMAIL,
@@ -270,6 +271,10 @@ describe('checkCustomsAndLoadAccount', () => {
     }).checkCustomsAndLoadAccount;
   });
 
+  afterEach(() => {
+    Container.reset();
+  });
+
   it('should load the account record when customs allows the request', () => {
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then((res: any) => {
       expect(res.didSigninUnblock).toBe(false);
@@ -289,6 +294,24 @@ describe('checkCustomsAndLoadAccount', () => {
       expect(customs.check).toHaveBeenCalled();
       expect(db.accountRecord).toHaveBeenCalled();
     });
+  });
+
+  it('rejects a disabled account with ACCOUNT_DISABLED', async () => {
+    db = mocks.mockDB({
+      uid: TEST_UID,
+      email: TEST_EMAIL,
+      disabledAt: 1_700_000_000_000,
+    });
+    checkCustomsAndLoadAccount = makeSigninUtils({
+      log,
+      config,
+      db,
+      customs,
+    }).checkCustomsAndLoadAccount;
+
+    await expect(
+      checkCustomsAndLoadAccount(request, TEST_EMAIL)
+    ).rejects.toMatchObject({ errno: error.ERRNO.ACCOUNT_DISABLED });
   });
 
   it('should throw non-customs errors directly back to the caller', () => {

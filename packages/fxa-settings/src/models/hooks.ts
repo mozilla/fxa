@@ -15,6 +15,7 @@ import {
   DefaultIntegrationFlags,
   IntegrationFactory,
 } from '../lib/integrations';
+import { getOAuthSuccessClientId } from '../lib/oauth/success-route';
 import { ReachRouterWindow } from '../lib/window';
 import { StorageData, UrlHashData, UrlQueryData } from '../lib/model-data';
 import {
@@ -280,8 +281,11 @@ export function useClientInfoState() {
   }>({ loading: true });
 
   const urlQueryData = new UrlQueryData(new ReachRouterWindow());
+  // A hard load of `/oauth/success/:clientId` carries no query params.
   const clientId =
-    urlQueryData.get('client_id') || urlQueryData.get('service') || '';
+    urlQueryData.get('client_id') ||
+    urlQueryData.get('service') ||
+    getOAuthSuccessClientId(urlQueryData.pathName);
 
   const isValidClientId = isHexadecimal(clientId) && length(clientId, 16);
 

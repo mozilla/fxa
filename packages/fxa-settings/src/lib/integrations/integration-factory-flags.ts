@@ -5,12 +5,14 @@
 import { Constants } from '../constants';
 import { ModelDataStore, UrlQueryData } from '../model-data';
 import { IntegrationFlags } from '../integrations/interfaces';
+import { getPairingChannelHashParams } from '../pairing-channel-params';
+import { getOAuthSuccessClientId } from '../oauth/success-route';
 
 // The trailing separator is optional: `/pair/supp` (no slash, query and hash
 // only) is the URL the v1 QR code resolves to, so requiring one would stop the
 // supplicant integration from being built for the flow's own entry point.
 const DEVICE_PAIRING_SUPPLICANT_PATHNAME_REGEXP = /^\/pair\/supp/;
-const DEVICE_PAIRING_V2_SUPPLICANT_PATHNAME_REGEXP = /(^\/pair\/supplicant\/)|(^\/pair#.*v=2)/;
+const DEVICE_PAIRING_V2_SUPPLICANT_PATHNAME_REGEXP = /^\/pair\/supplicant\//;
 const DEVICE_PAIRING_V2_AUTHORITY_PATHNAME_REGEXP = /^\/pair\/authority\//;
 
 /**
@@ -33,8 +35,17 @@ export class DefaultIntegrationFlags implements IntegrationFlags {
     return (
       this.searchParam('redirect_uri') ===
         Constants.DEVICE_PAIRING_AUTHORITY_REDIRECT_URI ||
-      DEVICE_PAIRING_V2_AUTHORITY_PATHNAME_REGEXP.test(this.pathname)
+      this.isDevicePairingAsV2Authority()
     );
+  }
+
+  /**
+   * Pairing version 2 opens the authority at `/pair/authority/*`. Version 1
+   * announces itself with the pair-auth-webchannel redirect URI instead, so
+   * the pathname alone tells the two apart.
+   */
+  isDevicePairingAsV2Authority() {
+    return DEVICE_PAIRING_V2_AUTHORITY_PATHNAME_REGEXP.test(this.pathname);
   }
 
   isDevicePairingAsSupplicant() {
@@ -43,7 +54,20 @@ export class DefaultIntegrationFlags implements IntegrationFlags {
     // OAuth redirect (not WebChannel) for the supplicant flow.
     return (
       DEVICE_PAIRING_SUPPLICANT_PATHNAME_REGEXP.test(this.pathname) ||
-      DEVICE_PAIRING_V2_SUPPLICANT_PATHNAME_REGEXP.test(this.pathname + this.urlQueryData.hash)
+      DEVICE_PAIRING_V2_SUPPLICANT_PATHNAME_REGEXP.test(this.pathname) ||
+      this._isScannedV2PairingQr()
+    );
+  }
+
+  /**
+   * A system-camera scan of a v2 QR opens `/pair#channel_id=…&v=2`. Startup
+   * lifts that fragment out of the URL before this runs, so the version comes
+   * from the capture — see lib/pairing-channel-params.
+   */
+  private _isScannedV2PairingQr() {
+    return (
+      this.pathname === '/pair' &&
+      getPairingChannelHashParams()?.get('v') === '2'
     );
   }
 
@@ -72,17 +96,9 @@ export class DefaultIntegrationFlags implements IntegrationFlags {
   }
 
   isOAuthSuccessFlow() {
-    const status = /oauth\/success/.test(this.pathname);
-
-    let clientId = '';
-    if (status) {
-      const pathname = this.pathname.split('/');
-      clientId = pathname[pathname.length - 1];
-    }
-
     return {
-      status,
-      clientId,
+      status: /oauth\/success/.test(this.pathname),
+      clientId: getOAuthSuccessClientId(this.pathname),
     };
   }
 

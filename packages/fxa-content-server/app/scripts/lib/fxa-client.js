@@ -434,7 +434,6 @@ FxaClientWrapper.prototype = {
    * @param {Relier} relier
    * @param {Object} [options]
    *   @param {String} [options.metricsContext] - Metrics context metadata
-   *   @param {Boolean} [options.preVerified] - is the user preVerified
    *   @param {String} [options.resume] - Resume token, passed in the
    *                   verification link if the user must verify
    *                   their email.
@@ -463,10 +462,6 @@ FxaClientWrapper.prototype = {
 
     if (relier.has('redirectTo')) {
       signUpOptions.redirectTo = relier.get('redirectTo');
-    }
-
-    if (options.preVerified) {
-      signUpOptions.preVerified = true;
     }
 
     if (options.resume) {
@@ -1069,14 +1064,6 @@ FxaClientWrapper.prototype = {
   ),
 
   /**
-   * Creates a new TOTP token for the current user.
-   *
-   * @param {String} sessionToken SessionToken obtained from signIn
-   * @returns {Promise} resolves when complete
-   */
-  createTotpToken: createClientDelegate('createTotpToken'),
-
-  /**
    * Deletes the current user's TOTP token.
    *
    * @param {String} sessionToken SessionToken obtained from signIn
@@ -1378,14 +1365,6 @@ FxaClientWrapper.prototype = {
    * @returns {Promise} resolves with response when complete.
    */
   createCadReminder: createClientDelegate('createCadReminder'),
-
-  finishSetup: withClient((client, relier, token, email, password) => {
-    return client
-      .finishSetup(token, { original: email, primary: email }, password)
-      .then((accountData) => {
-        return getUpdatedSessionData(email, relier, accountData);
-      });
-  }),
 
   verifyAccountThirdParty: withClient(
     (client, relier, token, provider, metricsContext) => {

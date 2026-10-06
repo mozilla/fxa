@@ -15,6 +15,10 @@ import {
 
 import { ClickHouseConfig, MockClickHouseConfig } from './clickhouse.config';
 import {
+  MeteringFirestoreConfig,
+  MockMeteringFirestoreConfig,
+} from './metering-firestore.config';
+import {
   MeteringPubSubConfig,
   MockMeteringPubSubConfig,
 } from './metering-pubsub.config';
@@ -46,6 +50,11 @@ export class MeteringConfig {
   @IsDefined()
   public readonly usageGrants!: MeteringUsageGrantsConfig;
 
+  @Type(() => MeteringFirestoreConfig)
+  @ValidateNested()
+  @IsDefined()
+  public readonly firestore!: MeteringFirestoreConfig;
+
   @Type(() => ClickHouseConfig)
   @ValidateNested()
   @IsDefined()
@@ -72,6 +81,7 @@ export const MockMeteringConfig = {
   usageGrants: {
     firestoreCollectionName: 'test-metering-usage-grants',
   },
+  firestore: MockMeteringFirestoreConfig,
   clickhouse: MockClickHouseConfig,
   sweep: MockMeteringSweepConfig,
   pubsub: MockMeteringPubSubConfig,

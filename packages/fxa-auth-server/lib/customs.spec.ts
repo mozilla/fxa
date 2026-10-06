@@ -5,32 +5,14 @@
 const mocks = require('../test/mocks');
 const { AppError: error } = require('@fxa/accounts/errors');
 
-const CUSTOMS_URL_REAL = 'http://localhost:7000';
-
 const Customs = require('./customs');
 const configModule = require('../config');
 
-// Build a minimal fetch Response stand-in for the customs server.
-function customsResponse(body: any, status = 200) {
-  return {
-    ok: status >= 200 && status < 300,
-    status,
-    json: async () => body,
-  } as unknown as Response;
-}
-
 describe('Customs', () => {
-  let customsNoUrl: any;
-  let customsWithUrl: any;
   const statsd = {
     increment: () => {},
-    timing: () => {},
-    gauge: () => {},
   };
   const log = {
-    trace: () => {},
-    activityEvent: () => {},
-    flowEvent: () => {},
     error() {},
   };
 
@@ -40,209 +22,40 @@ describe('Customs', () => {
   let uid: string;
   let ip_uid: string;
   let ip_email: string;
-  let action: string;
-  let originalFetch: typeof global.fetch;
+  const action = 'accountCreate';
 
   beforeEach(() => {
-    originalFetch = global.fetch;
     jest.spyOn(statsd, 'increment');
-    jest.spyOn(statsd, 'timing');
-    jest.spyOn(statsd, 'gauge');
     request = newRequest();
     ip = request.app.clientAddress;
     email = newEmail();
     uid = '12345';
     ip_uid = `${ip}_${uid}`;
     ip_email = `${ip}_${email}`;
-    action = newAction();
   });
 
   afterEach(() => {
-    global.fetch = originalFetch;
     jest.restoreAllMocks();
   });
 
-  it("can create a customs object with url as 'none'", async () => {
-    customsNoUrl = new Customs('none', log, error, statsd);
-    expect(customsNoUrl).toBeTruthy();
+  it('no-ops when the rate-limit library is absent', async () => {
+    const customs = new Customs(log, error, statsd);
 
-    let result = await customsNoUrl.check(request, email, action);
-    expect(result).toBeUndefined();
-
-    result = await customsNoUrl.flag(ip, { email, uid });
-    expect(result).toBeUndefined();
-
-    result = await customsNoUrl.reset(request, email);
-    expect(result).toBeUndefined();
-
-    result = await customsNoUrl.checkIpOnly(request, action);
-    expect(result).toBeUndefined();
-  });
-
-  it('posts a sanitized /check body and passes when not blocked', async () => {
-    const customs = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
-    global.fetch = jest
-      .fn()
-      .mockResolvedValue(customsResponse({ block: false, retryAfter: 0 }));
-
-    const result = await customs.check(request, email, action);
-    expect(result).toBeUndefined();
-
-    const [url, init] = (global.fetch as jest.Mock).mock.calls[0];
-    expect(url).toBe(`${CUSTOMS_URL_REAL}/check`);
-    expect(init.method).toBe('POST');
-    expect(init.headers).toEqual({ 'Content-Type': 'application/json' });
-    expect(JSON.parse(init.body)).toEqual({
-      ip,
-      email,
-      action,
-      headers: request.headers,
-      query: request.query,
-      payload: request.payload,
-    });
-  });
-
-  it('throws tooManyRequests (429) when a check is blocked with a retryAfter', async () => {
-    const customs = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
-    global.fetch = jest
-      .fn()
-      .mockResolvedValue(customsResponse({ block: true, retryAfter: 10001 }));
-
-    let err: any;
-    try {
-      await customs.check(request, email, action);
-    } catch (e) {
-      err = e;
-    }
-    expect(err.errno).toBe(error.ERRNO.THROTTLED);
-    expect(err.message).toBe('Client has sent too many requests');
-    expect(err.isBoom).toBeTruthy();
-    expect(err.output.statusCode).toBe(429);
-    // Legacy reports seconds; payload is normalized to ms, header back to seconds.
-    expect(err.output.payload.retryAfter).toBe(10001000);
-    expect(err.output.headers['retry-after']).toBe('10001');
-  });
-
-  it('throws requestBlocked (400) when a check is blocked without a retryAfter', async () => {
-    const customs = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
-    global.fetch = jest
-      .fn()
-      .mockResolvedValue(customsResponse({ block: true }));
-
-    let err: any;
-    try {
-      await customs.check(request, email, action);
-    } catch (e) {
-      err = e;
-    }
-    expect(err.errno).toBe(error.ERRNO.REQUEST_BLOCKED);
-    expect(err.message).toBe('The request was blocked for security reasons');
-    expect(err.isBoom).toBeTruthy();
-    expect(err.output.statusCode).toBe(400);
-  });
-
-  it('does not call the legacy customs server on reset', async () => {
-    const customs = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
-    global.fetch = jest.fn().mockResolvedValue(customsResponse({}));
-
-    await customs.reset(request, email);
-
-    expect(global.fetch).not.toHaveBeenCalled();
-  });
-
-  it('posts ip and action to /checkIpOnly', async () => {
-    const customs = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
-    global.fetch = jest
-      .fn()
-      .mockResolvedValue(customsResponse({ block: false, retryAfter: 0 }));
-
-    const result = await customs.checkIpOnly(request, action);
-    expect(result).toBeUndefined();
-
-    const [url, init] = (global.fetch as jest.Mock).mock.calls[0];
-    expect(url).toBe(`${CUSTOMS_URL_REAL}/checkIpOnly`);
-    expect(JSON.parse(init.body)).toEqual({ ip, action });
+    expect(await customs.check(request, email, action)).toBeUndefined();
+    expect(
+      await customs.checkAuthenticated(request, uid, email, action)
+    ).toBeUndefined();
+    expect(await customs.checkIpOnly(request, action)).toBeUndefined();
+    expect(
+      await customs.checkToken(request, 'tokenExchange', 'a'.repeat(64))
+    ).toBeUndefined();
+    expect(await customs.reset(request, email)).toBeUndefined();
+    expect(customs.v2Enabled()).toBe(false);
   });
 
   it('treats flag() as a no-op', async () => {
-    const customs = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
+    const customs = new Customs(log, error, statsd);
     expect(await customs.flag(ip, { email, uid })).toBeUndefined();
-  });
-
-  it('fails closed (backendServiceFailure) when the request rejects', async () => {
-    const customs = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
-    global.fetch = jest.fn().mockRejectedValue(new Error('ECONNREFUSED'));
-
-    await expect(customs.check(request, email, action)).rejects.toMatchObject({
-      errno: error.ERRNO.BACKEND_SERVICE_FAILURE,
-    });
-  });
-
-  it('fails closed (backendServiceFailure) on a non-ok response', async () => {
-    const customs = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
-    global.fetch = jest.fn().mockResolvedValue(customsResponse('error', 500));
-
-    await expect(customs.check(request, email, action)).rejects.toMatchObject({
-      errno: error.ERRNO.BACKEND_SERVICE_FAILURE,
-    });
-  });
-
-  it('makes a fresh request for each check rather than caching', async () => {
-    const customs = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
-    global.fetch = jest
-      .fn()
-      .mockResolvedValueOnce(customsResponse({ block: false, retryAfter: 0 }))
-      .mockResolvedValueOnce(
-        customsResponse({ block: true, retryAfter: 10001 })
-      );
-
-    await customs.check(request, email, action);
-    await expect(customs.check(request, email, action)).rejects.toMatchObject({
-      output: { statusCode: 429 },
-    });
-    expect(global.fetch).toHaveBeenCalledTimes(2);
-  });
-
-  it('posts a sanitized /checkAuthenticated body and throws 429 when blocked', async () => {
-    const customs = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
-    const authUid = 'foo';
-    const authEmail = 'bar@mozilla.com';
-    action = 'devicesNotify';
-    global.fetch = jest
-      .fn()
-      .mockResolvedValue(customsResponse({ block: true, retryAfter: 10001 }));
-
-    let err: any;
-    try {
-      await customs.checkAuthenticated(request, authUid, authEmail, action);
-    } catch (e) {
-      err = e;
-    }
-    expect(err.output.statusCode).toBe(429);
-    expect(err.output.payload.retryAfter).toBe(10001000);
-    expect(err.output.payload.retryAfterLocalized).toBe('in 3 hours');
-
-    const [url, init] = (global.fetch as jest.Mock).mock.calls[0];
-    expect(url).toBe(`${CUSTOMS_URL_REAL}/checkAuthenticated`);
-    expect(JSON.parse(init.body)).toEqual({ action, ip, uid: authUid });
-  });
-
-  describe('sanitizePayload', () => {
-    it('strips sensitive fields (authPW, oldAuthPW, paymentToken)', () => {
-      const customs = new Customs('none', log, error, statsd);
-      const sanitized = customs.sanitizePayload({
-        authPW: 'secret',
-        oldAuthPW: 'old-secret',
-        paymentToken: 'token',
-        notThePW: 'plaintext',
-      });
-      expect(sanitized).toEqual({ notThePW: 'plaintext' });
-    });
-
-    it('returns undefined when there is no payload', () => {
-      const customs = new Customs('none', log, error, statsd);
-      expect(customs.sanitizePayload(undefined)).toBeUndefined();
-    });
   });
 
   describe('customs v2', () => {
@@ -253,13 +66,7 @@ describe('Customs', () => {
       unblock: jest.fn(),
     };
 
-    const customs = new Customs(
-      CUSTOMS_URL_REAL,
-      log,
-      error,
-      statsd,
-      mockRateLimit
-    );
+    const customs = new Customs(log, error, statsd, mockRateLimit);
 
     beforeEach(() => {
       mockRateLimit.check = jest.fn();
@@ -342,6 +149,31 @@ describe('Customs', () => {
       expect(mockRateLimit.check).toHaveBeenCalledWith(
         'unblockEmail',
         expect.objectContaining({ ip, email, ip_email })
+      );
+    });
+
+    it('passes without a check when the action has no rule', async () => {
+      mockRateLimit.supportsAction = jest.fn(() => false);
+
+      await customs.check(request, email, 'accountStatusCheck');
+
+      expect(mockRateLimit.check).toHaveBeenCalledTimes(0);
+      expect(statsd.increment).toHaveBeenCalledWith('customs.check.v1', [
+        'action:accountStatusCheck',
+      ]);
+    });
+
+    it('reports the check and its outcome to statsd', async () => {
+      mockRateLimit.check = jest.fn(async () => Promise.resolve(null));
+
+      await customs.checkIpOnly(request, 'accountStatusCheck');
+
+      expect(statsd.increment).toHaveBeenCalledWith('customs.check.v2', [
+        'action:accountStatusCheck',
+      ]);
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'customs.request.v2.checkIpOnly',
+        { action: 'accountStatusCheck', block: false, blockReason: '' }
       );
     });
 
@@ -482,15 +314,6 @@ describe('Customs', () => {
       expect(err.output.headers['retry-after']).toBe('900');
     });
 
-    it('does not call the legacy customs server on checkToken when v2 is off', async () => {
-      const customsV1Only = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
-      global.fetch = jest.fn();
-
-      await customsV1Only.checkToken(request, 'tokenExchange', 'a'.repeat(64));
-
-      expect(global.fetch).not.toHaveBeenCalled();
-    });
-
     it('unblocks the normalized email and ip_email on reset', async () => {
       const emailWithAlias = 'user+alias@mozilla.com';
       const normalizedEmail = 'user@mozilla.com';
@@ -510,101 +333,6 @@ describe('Customs', () => {
       expect(mockRateLimit.unblock).toHaveBeenCalledTimes(1);
       const opts = mockRateLimit.unblock.mock.calls[0][0];
       expect(opts).not.toHaveProperty('ip');
-    });
-  });
-
-  describe('statsd metrics', () => {
-    const tags = {
-      block: true,
-      suspect: true,
-      unblock: true,
-      blockReason: 'other',
-      retryAfter: 1111,
-    };
-    const validTags = {
-      block: true,
-      suspect: true,
-      unblock: true,
-      blockReason: 'other',
-    };
-
-    beforeEach(() => {
-      customsWithUrl = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
-    });
-
-    it('reports for /check', async () => {
-      global.fetch = jest.fn().mockResolvedValue(customsResponse(tags));
-
-      await expect(
-        customsWithUrl.check(request, email, action)
-      ).rejects.toThrow();
-      expect(statsd.increment).toHaveBeenCalledWith('customs.request.check', {
-        action,
-        ...validTags,
-      });
-      expect(statsd.timing).toHaveBeenCalledWith(
-        expect.stringContaining('customs.check.success'),
-        expect.anything()
-      );
-    });
-
-    it('reports for /checkIpOnly', async () => {
-      global.fetch = jest.fn().mockResolvedValue(customsResponse(tags));
-
-      await expect(
-        customsWithUrl.checkIpOnly(request, action)
-      ).rejects.toThrow();
-      expect(statsd.increment).toHaveBeenCalledWith(
-        'customs.request.checkIpOnly',
-        {
-          action,
-          ...validTags,
-        }
-      );
-      expect(statsd.timing).toHaveBeenCalledWith(
-        expect.stringContaining('customs.checkIpOnly.success'),
-        expect.anything()
-      );
-    });
-
-    it('reports for /checkAuthenticated', async () => {
-      global.fetch = jest
-        .fn()
-        .mockResolvedValue(
-          customsResponse({ block: true, blockReason: 'other' })
-        );
-
-      await expect(
-        customsWithUrl.checkAuthenticated(
-          request,
-          'uid',
-          'email@mozilla.com',
-          action
-        )
-      ).rejects.toThrow();
-      expect(statsd.increment).toHaveBeenCalledWith(
-        'customs.request.checkAuthenticated',
-        {
-          action,
-          block: true,
-          blockReason: 'other',
-        }
-      );
-      expect(statsd.timing).toHaveBeenCalledWith(
-        expect.stringContaining('customs.checkAuthenticated.success'),
-        expect.anything()
-      );
-    });
-
-    it('reports failure statsd timing', async () => {
-      global.fetch = jest.fn().mockResolvedValue(customsResponse(tags, 400));
-      await expect(
-        customsWithUrl.check(request, email, action)
-      ).rejects.toThrow();
-      expect(statsd.timing).toHaveBeenCalledWith(
-        expect.stringContaining('customs.check.failure'),
-        expect.anything()
-      );
     });
   });
 });
@@ -629,15 +357,4 @@ function newRequest() {
     query: {},
     payload: {},
   });
-}
-
-function newAction() {
-  const EMAIL_ACTIONS = [
-    'accountCreate',
-    'recoveryEmailResendCode',
-    'passwordForgotSendCode',
-    'passwordForgotResendCode',
-  ];
-
-  return EMAIL_ACTIONS[Math.floor(Math.random() * EMAIL_ACTIONS.length)];
 }

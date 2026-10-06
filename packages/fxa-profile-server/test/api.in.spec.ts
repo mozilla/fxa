@@ -6,8 +6,6 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import sinon from 'sinon';
-import checksum from 'checksum';
-import P from '../lib/promise';
 import config from '../lib/config';
 import { assertSecurityHeaders } from './lib/util';
 const db = require('../lib/db');
@@ -90,7 +88,7 @@ describe('#integration - api', () => {
       config.set('secretBearerToken', EXPECTED_TOKEN);
       mockProfileCacheDrop = sinon
         .stub(Server.server.methods.profileCache, 'drop')
-        .callsFake((_uid: string) => P.resolve([]));
+        .callsFake((_uid: string) => Promise.resolve([]));
     });
 
     afterEach(() => {
@@ -442,7 +440,7 @@ describe('#integration - api', () => {
       });
       expect(res.statusCode).toBe(200);
       var etag = res.headers.etag.substr(1, 40);
-      var expectedEtag = checksum(JSON.stringify(res.result));
+      var expectedEtag = crypto.hash('sha1', JSON.stringify(res.result), 'hex');
       expect(etag).toBe(expectedEtag);
       assertSecurityHeaders(res);
     });
@@ -1030,11 +1028,11 @@ describe('#integration - api', () => {
         assertSecurityHeaders(res);
 
         const s3url = res.result.url;
-        const responses = await P.all(SIZE_SUFFIXES).map(function (
-          suffix: string
-        ) {
-          return Static.get(s3url + suffix);
-        });
+        const responses = await Promise.all(
+          SIZE_SUFFIXES.map(function (suffix: string) {
+            return Static.get(s3url + suffix);
+          })
+        );
         expect(responses).toHaveLength(SIZE_SUFFIXES.length);
         responses.forEach(function (res: any) {
           expect(res.statusCode).toBe(200);
@@ -1162,11 +1160,11 @@ describe('#integration - api', () => {
         assertSecurityHeaders(res);
 
         const s3url = res.result.url;
-        const responses = await P.all(SIZE_SUFFIXES).map(function (
-          suffix: string
-        ) {
-          return Static.get(s3url + suffix);
-        });
+        const responses = await Promise.all(
+          SIZE_SUFFIXES.map(function (suffix: string) {
+            return Static.get(s3url + suffix);
+          })
+        );
         expect(responses).toHaveLength(SIZE_SUFFIXES.length);
         responses.forEach(function (res: any) {
           expect(res.statusCode).toBe(200);
@@ -1219,11 +1217,11 @@ describe('#integration - api', () => {
         assertSecurityHeaders(res);
 
         const s3url = res.result.url;
-        const responses = await P.all(SIZE_SUFFIXES).map(function (
-          suffix: string
-        ) {
-          return Static.get(s3url + suffix);
-        });
+        const responses = await Promise.all(
+          SIZE_SUFFIXES.map(function (suffix: string) {
+            return Static.get(s3url + suffix);
+          })
+        );
         expect(responses).toHaveLength(SIZE_SUFFIXES.length);
         responses.forEach(function (res: any) {
           expect(res.statusCode).toBe(200);
@@ -1329,11 +1327,11 @@ describe('#integration - api', () => {
           assertSecurityHeaders(res);
           const avatar = await db.getAvatar(id);
           expect(avatar).toBeUndefined();
-          const responses = await P.all(SIZE_SUFFIXES).map(function (
-            suffix: string
-          ) {
-            return Static.get(s3url + suffix);
-          });
+          const responses = await Promise.all(
+            SIZE_SUFFIXES.map(function (suffix: string) {
+              return Static.get(s3url + suffix);
+            })
+          );
           responses.forEach(function (res: any) {
             expect(res.statusCode).toBe(404);
           });
@@ -1355,11 +1353,11 @@ describe('#integration - api', () => {
           assertSecurityHeaders(res);
           const avatar = await db.getAvatar(id);
           expect(avatar).toBeUndefined();
-          const responses = await P.all(SIZE_SUFFIXES).map(function (
-            suffix: string
-          ) {
-            return Static.get(s3url + suffix);
-          });
+          const responses = await Promise.all(
+            SIZE_SUFFIXES.map(function (suffix: string) {
+              return Static.get(s3url + suffix);
+            })
+          );
           responses.forEach(function (res: any) {
             expect(res.statusCode).toBe(404);
           });
@@ -1400,6 +1398,10 @@ describe('#integration - api', () => {
         });
         expect(res.statusCode).toBe(200);
         expect(JSON.parse(res.payload).displayName).toBe('Spock');
+        // sha1 hex of 'Spock'. A different digest invalidates every ETag clients hold.
+        expect(res.headers.etag).toBe(
+          '"bed7a551108b230b31cd4f92a60d5434c6cf3a00"'
+        );
         assertSecurityHeaders(res);
       });
 

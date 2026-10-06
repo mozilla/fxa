@@ -19,6 +19,7 @@ const DISABLED_CLIENT_ID = 'd15ab1edd15ab1ed';
 const SERVICES_WITH_EMAIL_VERIFICATION_CLIENT = '32aaeb6f1c21316a';
 
 const mockLog = createMock<AuthLogger>();
+const mockGlean = { pairing: { success: jest.fn() } };
 
 const baseConfig = {
   oauthServer: {
@@ -34,17 +35,20 @@ const baseConfig = {
 };
 
 const route = require('./authorization')({
+  glean: mockGlean,
   log: mockLog,
   oauthDB: {},
 })[1];
 
 const configuredRoute = require('./authorization')({
+  glean: mockGlean,
   log: mockLog,
   oauthDB: {},
   config: baseConfig,
 })[1];
 
 const sessionTokenRoute = require('./authorization')({
+  glean: mockGlean,
   log: mockLog,
   oauthDB: {},
   config: {
@@ -400,6 +404,9 @@ describe('/authorization POST consent write', () => {
     /** Client id on both the payload and the resolved grant. */
     clientId?: string;
     authServerCacheRedis?: any;
+    glean?: any;
+    /** Verdict handed to the route's onStepUpEvaluated observer. */
+    stepUp?: Record<string, any>;
   }) {
     // Real hapi requests always have `app`; recordAuthorizationRows stashes
     // service/firstAuthorization there. Returned so tests can assert on it.
@@ -411,15 +418,23 @@ describe('/authorization POST consent write', () => {
         jest.fn(async () => ({ uid: UID_HEX }))
       );
       jest.doMock('../../oauth/grant', () => ({
-        validateRequestedGrant: jest.fn(async (_claims, _client, payload) => ({
-          clientId: Buffer.from(clientId, 'hex'),
-          userId: Buffer.from(UID_HEX, 'hex'),
-          scope: ScopeSet.fromString(payload.scope as string),
-          offline: payload.access_type !== 'online',
-        })),
+        validateRequestedGrant: jest.fn(
+          async (_claims, _client, payload, options) => {
+            if (opts.stepUp) {
+              options?.onStepUpEvaluated?.(opts.stepUp);
+            }
+            return {
+              clientId: Buffer.from(clientId, 'hex'),
+              userId: Buffer.from(UID_HEX, 'hex'),
+              scope: ScopeSet.fromString(payload.scope as string),
+              offline: payload.access_type !== 'online',
+            };
+          }
+        ),
         generateTokens: jest.fn(async () => ({})),
       }));
       routes = require('./authorization')({
+        glean: opts.glean ?? mockGlean,
         log: opts.log ?? mockLog,
         oauthDB: opts.oauthDB,
         config: baseConfig,
@@ -434,6 +449,116 @@ describe('/authorization POST consent write', () => {
     });
     return { app };
   }
+
+  describe('step-up telemetry', () => {
+    const buildGlean = () => ({
+      stepUpAuth: {
+        requested: jest.fn().mockResolvedValue(undefined),
+        satisfied: jest.fn().mockResolvedValue(undefined),
+        rejected: jest.fn().mockResolvedValue(undefined),
+      },
+    });
+
+    it('stashes the uid so the metrics opt-out resolves before Glean runs', async () => {
+      const { app } = await runHandler({
+        oauthDB: buildOauthDB(),
+        statsd: { increment: jest.fn(), histogram: jest.fn() },
+        glean: buildGlean(),
+        stepUp: { requested: true, satisfied: true, authAgeSeconds: 12 },
+      });
+
+      expect(app.metricsEventUid).toBe(UID_HEX);
+    });
+
+    it('emits the satisfied funnel when the relying party requests step-up', async () => {
+      const statsd = { increment: jest.fn(), histogram: jest.fn() };
+      const glean = buildGlean();
+
+      await runHandler({
+        oauthDB: buildOauthDB(),
+        statsd,
+        glean,
+        stepUp: { requested: true, satisfied: true, authAgeSeconds: 12 },
+      });
+
+      expect(statsd.increment).toHaveBeenCalledWith('oauth.step_up.requested', {
+        clientId: CLIENT_ID,
+      });
+      expect(statsd.increment).toHaveBeenCalledWith('oauth.step_up.satisfied', {
+        clientId: CLIENT_ID,
+      });
+      expect(statsd.histogram).toHaveBeenCalledWith(
+        'oauth.step_up.auth_age',
+        12,
+        { clientId: CLIENT_ID }
+      );
+      expect(glean.stepUpAuth.requested).toHaveBeenCalledWith(
+        expect.anything(),
+        { uid: UID_HEX }
+      );
+      expect(glean.stepUpAuth.satisfied).toHaveBeenCalledWith(
+        expect.anything(),
+        { uid: UID_HEX }
+      );
+    });
+
+    it('emits the rejection reason when step-up is unmet', async () => {
+      const statsd = { increment: jest.fn(), histogram: jest.fn() };
+      const glean = buildGlean();
+
+      await runHandler({
+        oauthDB: buildOauthDB(),
+        statsd,
+        glean,
+        stepUp: {
+          requested: true,
+          satisfied: false,
+          reason: 'max_age_stale',
+          authAgeSeconds: 9000,
+        },
+      });
+
+      expect(statsd.increment).toHaveBeenCalledWith('oauth.step_up.rejected', {
+        clientId: CLIENT_ID,
+        reason: 'max_age_stale',
+      });
+      expect(glean.stepUpAuth.rejected).toHaveBeenCalledWith(
+        expect.anything(),
+        { uid: UID_HEX, reason: 'max_age_stale' }
+      );
+    });
+
+    it('emits nothing when the relying party did not request step-up', async () => {
+      const statsd = { increment: jest.fn(), histogram: jest.fn() };
+      const glean = buildGlean();
+
+      await runHandler({
+        oauthDB: buildOauthDB(),
+        statsd,
+        glean,
+        stepUp: { requested: false, satisfied: true, authAgeSeconds: 12 },
+      });
+
+      expect(statsd.increment).not.toHaveBeenCalledWith(
+        'oauth.step_up.requested',
+        { clientId: CLIENT_ID }
+      );
+      expect(glean.stepUpAuth.requested).not.toHaveBeenCalled();
+    });
+
+    it('still issues the code when the Glean group is missing', async () => {
+      const oauthDB = buildOauthDB();
+
+      await runHandler({
+        oauthDB,
+        statsd: { increment: jest.fn(), histogram: jest.fn() },
+        glean: {},
+        stepUp: { requested: true, satisfied: true, authAgeSeconds: 12 },
+      });
+
+      expect(oauthDB.generateCode).toHaveBeenCalled();
+    });
+  });
 
   it('records every requested scope plus the service canonical in a single call and consults the allowlist', async () => {
     const oauthDB = buildOauthDB();
@@ -894,6 +1019,7 @@ describe('/oauth/authorization service-driven scope resolution', () => {
 
   function makeRoute(oauthDB: Record<string, any>) {
     return require('./authorization')({
+      glean: mockGlean,
       log: mockLog,
       oauthDB,
       config: baseConfig,
@@ -1141,6 +1267,103 @@ describe('isLocalHost', () => {
   });
 });
 
+describe('isPairingAuthorization', () => {
+  const { isPairingAuthorization } = require('./authorization');
+  const {
+    parseToScalars,
+  } = require('fxa-shared/lib/user-agent');
+
+  // Real user agents, captured from physical devices in FXA-10427. Driven
+  // through the actual parser rather than hand-built scalars, because the bug
+  // this guards against was an assumption about what the parser returns.
+  const UA = {
+    macFirefox:
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:132.0) Gecko/20100101 Firefox/132.0',
+    windowsFirefox:
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:132.0) Gecko/20100101 Firefox/132.0',
+    macSafari:
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15',
+    ipadFirefox:
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Safari/605.1.15',
+    ipadSafari:
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.3 Safari/605.1.15',
+    iphoneFirefox:
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_6_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/130.1 Mobile/15E148 Safari/605.1.15',
+    androidFirefox:
+      'Mozilla/5.0 (Android 13; Mobile; rv:133.0) Gecko/133.0 Firefox/133.0',
+    androidTabletFirefox:
+      'Mozilla/5.0 (Android 13; Tablet; rv:133.0) Gecko/133.0 Firefox/133.0',
+  };
+
+  const request = (userAgent: string) => ({
+    app: { ua: parseToScalars(userAgent) },
+  });
+
+  describe('a code minted for a mobile client', () => {
+    it.each([
+      ['macOS', UA.macFirefox],
+      ['Windows', UA.windowsFirefox],
+    ])('counts a desktop Firefox authority on %s', (_os, userAgent) => {
+      expect(
+        isPairingAuthorization(request(userAgent), OAuthNativeClients.Fenix)
+      ).toBe(true);
+    });
+
+    // The app signing in directly, which reaches this endpoint with the very
+    // same client_id. Only the user agent tells them apart.
+    it.each([
+      ['Firefox on Android', UA.androidFirefox],
+      ['Firefox on an Android tablet', UA.androidTabletFirefox],
+      ['Firefox on iPhone', UA.iphoneFirefox],
+    ])('ignores %s signing in for itself', (_name, userAgent) => {
+      expect(
+        isPairingAuthorization(request(userAgent), OAuthNativeClients.Fenix)
+      ).toBe(false);
+    });
+
+    // The reason this is a positive test for desktop Firefox. iPad Firefox sends
+    // a Mac UA with no FxiOS token, so it parses as neither mobile nor tablet
+    // and is indistinguishable from MacBook Safari (FXA-10427). A "not mobile"
+    // test would have counted these as pairings.
+    it.each([
+      ['iPad Firefox', UA.ipadFirefox],
+      ['iPad Safari', UA.ipadSafari],
+      ['MacBook Safari', UA.macSafari],
+    ])('ignores %s, which reads as a desktop UA', (_name, userAgent) => {
+      expect(
+        isPairingAuthorization(request(userAgent), OAuthNativeClients.FirefoxIOS)
+      ).toBe(false);
+    });
+
+    it('accepts an uppercase client id', () => {
+      expect(
+        isPairingAuthorization(
+          request(UA.macFirefox),
+          OAuthNativeClients.Fenix.toUpperCase()
+        )
+      ).toBe(true);
+    });
+
+    it('tolerates a missing user agent', () => {
+      expect(
+        isPairingAuthorization({ app: {} }, OAuthNativeClients.Fenix)
+      ).toBe(false);
+    });
+  });
+
+  describe('a code minted for any other client', () => {
+    it.each([
+      ['Firefox Desktop', OAuthNativeClients.FirefoxDesktop],
+      ['Thunderbird', OAuthNativeClients.Thunderbird],
+      ['a web relying party', 'dcdb5ae7add825d2'],
+    ])('ignores one for %s', (_name, clientId) => {
+      expect(isPairingAuthorization(request(UA.macFirefox), clientId)).toBe(
+        false
+      );
+    });
+  });
+});
+
 describe('/authorization POST redirect_uri validation', () => {
   const UID_HEX = 'a'.repeat(32);
   const REGISTERED_URI = 'https://example.com/redirect';
@@ -1164,6 +1387,7 @@ describe('/authorization POST redirect_uri validation', () => {
         generateTokens: jest.fn(async () => ({})),
       }));
       const routes = require('./authorization')({
+        glean: mockGlean,
         log: mockLog,
         oauthDB: {
           getClient: jest.fn(async () => ({

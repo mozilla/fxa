@@ -1099,12 +1099,6 @@ const Account = Backbone.Model.extend(
         .then(this.set.bind(this));
     },
 
-    finishSetup(relier, token, email, password) {
-      return this._fxaClient
-        .finishSetup(relier, token, email, password)
-        .then(this.set.bind(this));
-    },
-
     verifyAccountThirdParty(relier, code, provider) {
       return this._fxaClient
         .verifyAccountThirdParty(
@@ -1449,17 +1443,6 @@ const Account = Backbone.Model.extend(
         this.get('sessionToken'),
         email
       );
-    },
-
-    /**
-     * Creates a new TOTP token for a user.
-     *
-     * @returns {Promise}
-     */
-    createTotpToken() {
-      return this._fxaClient.createTotpToken(this.get('sessionToken'), {
-        metricsContext: this._metrics.getFlowEventMetadata(),
-      });
     },
 
     /**

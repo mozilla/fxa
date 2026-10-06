@@ -20,7 +20,8 @@ describe('#integration - SentEmail', () => {
   let knex: Knex;
   let emailTypeId: number;
 
-  before(async () => {
+  before(async function () {
+    this.timeout(20000);
     knex = await testDatabaseSetup({
       ...defaultOpts,
       auth: true,
@@ -35,7 +36,7 @@ describe('#integration - SentEmail', () => {
   });
 
   after(async () => {
-    await knex.destroy();
+    await knex?.destroy();
   });
 
   describe('createSentEmail', () => {

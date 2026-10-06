@@ -58,14 +58,14 @@ describe('UsageGrantsService', () => {
       const meter = StrapiMeterFactory({ slug: 'tokens' });
       const request = CreateUsageGrantRequestFactory({
         slug: 'tokens',
-        userIdentifier: 'user-1',
+        subject: 'user-1',
         amount: 500,
         lifetime: { type: 'unending' },
       });
       meteringConfigurationManager.getMeterBySlug.mockResolvedValue(meter);
       const record = UsageGrantRecordFactory({
         id: 'grant-1',
-        userIdentifier: 'user-1',
+        subject: 'user-1',
         slug: 'tokens',
         amount: 500,
         grantedBy: 'rp-1',
@@ -80,7 +80,7 @@ describe('UsageGrantsService', () => {
       );
 
       expect(usageGrantsManager.createGrant).toHaveBeenCalledWith({
-        userIdentifier: 'user-1',
+        subject: 'user-1',
         slug: 'tokens',
         amount: 500,
         grantedBy: 'rp-1',
@@ -89,7 +89,7 @@ describe('UsageGrantsService', () => {
       });
       expect(result).toEqual({
         id: 'grant-1',
-        userIdentifier: 'user-1',
+        subject: 'user-1',
         slug: 'tokens',
         amount: 500,
         grantedBy: 'rp-1',

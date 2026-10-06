@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import dedent from 'dedent';
+import swaggerText from './shared/swagger-text';
 import TAGS from './swagger-tags';
 
 const TAGS_OAUTH = {
@@ -13,7 +13,7 @@ const OAUTH_AUTHORIZATION_POST = {
   ...TAGS_OAUTH,
   description: '/oauth/authorization',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token
 
       Authorize a new OAuth client connection to the user's account, returning a short-lived authentication code that the client can exchange for access tokens at the OAuth token endpoint.
@@ -31,7 +31,7 @@ const OAUTH_AUTHORIZATION_POST = {
     'hapi-swagger': {
       responses: {
         400: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 170\` - Requested \`acr_values\` or \`max_age\` could not be satisfied.
           `,
@@ -45,7 +45,7 @@ const OAUTH_DESTROY_POST = {
   ...TAGS_OAUTH,
   description: '/oauth/destroy',
   notes: [
-    dedent`
+    swaggerText`
       Destroy an OAuth access token or refresh token.
 
       This is the "token revocation endpoint" as defined in RFC7009 and should be used by clients to explicitly revoke any OAuth tokens that they are no longer using.
@@ -60,13 +60,13 @@ const OAUTH_DESTROY_POST = {
           description: 'No information is returned in the response body.',
         },
         401: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 171\` - Incorrect client secret
           `,
         },
         500: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 162\` - Unknown client id.
           `,
@@ -80,7 +80,7 @@ const ACCOUNT_SCOPED_KEY_DATA_POST = {
   ...TAGS_OAUTH,
   description: '/account/scoped-key-data',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token
 
       Query for the information required to derive scoped encryption keys requested by the specified OAuth client.
@@ -92,7 +92,7 @@ const OAUTH_TOKEN_POST = {
   ...TAGS_OAUTH,
   description: '/oauth/token',
   notes: [
-    dedent`
+    swaggerText`
       🔒🔓 Optionally authenticated with session token
 
       Grant new OAuth tokens for use by a connected client, using one of the following grant types:
@@ -107,13 +107,13 @@ const OAUTH_TOKEN_POST = {
     'hapi-swagger': {
       responses: {
         401: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 110\` - Invalid authentication token in request signature
           `,
         },
         500: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 998\` - An internal validation check failed
           `,

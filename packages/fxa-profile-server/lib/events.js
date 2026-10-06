@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const Sink = require('./sink');
-const P = require('./promise');
 
 const config = require('./config').getProperties();
 const db = require('./db');
@@ -27,7 +26,7 @@ module.exports = function (server) {
 
   function deleteUser(message) {
     var userId = getUserId(message);
-    return P.all([
+    return Promise.all([
       db.getSelectedAvatar(userId).then(function (avatar) {
         if (avatar) {
           // if there is an avatar set then also delete it
@@ -44,11 +43,17 @@ module.exports = function (server) {
 
   function primaryEmailChanged(message) {
     var userId = getUserId(message);
-    return P.resolve()
+    return Promise.resolve()
       .then(() => {
-        server.methods.profileCache.drop(userId).then(() => {
-          logger.info('primaryEmailChanged:cacheCleared', { uid: userId });
-        });
+        // Nothing waits on the drop, so it has to handle its own failure.
+        server.methods.profileCache
+          .drop(userId)
+          .then(() => {
+            logger.info('primaryEmailChanged:cacheCleared', { uid: userId });
+          })
+          .catch((err) => {
+            logger.error('primaryEmailChanged:cacheClearFailed', err);
+          });
       })
       .then(function () {
         logger.info(message.event, { uid: userId });
@@ -57,11 +62,17 @@ module.exports = function (server) {
 
   function profileDataChange(message) {
     var userId = getUserId(message);
-    return P.resolve()
+    return Promise.resolve()
       .then(function () {
-        server.methods.profileCache.drop(userId).then(() => {
-          logger.info('profileDataChange:cacheCleared', { uid: userId });
-        });
+        // Nothing waits on the drop, so it has to handle its own failure.
+        server.methods.profileCache
+          .drop(userId)
+          .then(() => {
+            logger.info('profileDataChange:cacheCleared', { uid: userId });
+          })
+          .catch((err) => {
+            logger.error('profileDataChange:cacheClearFailed', err);
+          });
       })
       .then(function () {
         logger.info(message.event, { uid: userId });
@@ -71,7 +82,7 @@ module.exports = function (server) {
   function onData(message) {
     logger.verbose('data', message);
     var messageEvent = message.event;
-    return P.resolve()
+    return Promise.resolve()
       .then(function () {
         switch (messageEvent) {
           case 'delete':
@@ -84,7 +95,7 @@ module.exports = function (server) {
             return;
         }
       })
-      .done(
+      .then(
         function () {
           message.del();
         },

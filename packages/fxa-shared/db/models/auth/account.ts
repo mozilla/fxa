@@ -408,6 +408,21 @@ export class Account extends BaseAuthModel {
     }
   }
 
+  /**
+   * Deletes every session, token and device for the account while leaving
+   * the account row intact.
+   */
+  static async revokeTokens(uid: string) {
+    try {
+      await Account.callProcedure(
+        Proc.RevokeAccountTokens,
+        uuidTransformer.to(uid)
+      );
+    } catch (e: any) {
+      throw convertError(e);
+    }
+  }
+
   static async replaceRecoveryCodes(
     uid: string,
     hashes: { hash: Buffer; salt: Buffer }[]

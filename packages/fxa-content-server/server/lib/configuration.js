@@ -316,41 +316,11 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'REACT_CONVERSION_SIMPLE_ROUTES',
     },
-    oauthRoutes: {
-      default: false,
-      doc: 'Enable users to visit the React version of routes requiring oauth',
-      format: Boolean,
-      env: 'REACT_CONVERSION_OAUTH_ROUTES',
-    },
-    signUpRoutes: {
-      default: false,
-      doc: 'Enable users to visit the React version of "signup" routes',
-      format: Boolean,
-      env: 'REACT_CONVERSION_SIGNUP_ROUTES',
-    },
-    pairRoutes: {
-      default: false,
-      doc: 'Enable users to visit the React version of "pair" routes',
-      format: Boolean,
-      env: 'REACT_CONVERSION_PAIR_ROUTES',
-    },
     postVerifyOtherRoutes: {
       default: false,
       doc: 'Enable users to visit the React version of any other "post verify" routes',
       format: Boolean,
       env: 'REACT_CONVERSION_POST_VERIFY_OTHER_ROUTES',
-    },
-    postVerifyThirdPartyAuthRoutes: {
-      default: false,
-      doc: 'Enable users to visit the React version of third party auth "post verify" routes',
-      format: Boolean,
-      env: 'REACT_CONVERSION_POST_VERIFY_THIRD_PARTY_AUTH',
-    },
-    postVerifyCADViaQRRoutes: {
-      default: false,
-      doc: 'Enable users to visit the React version of "post verify CAD via QR code" routes',
-      format: Boolean,
-      env: 'REACT_CONVERSION_POST_VERIFY_CAD_VIA_QR_ROUTES',
     },
     webChannelExampleRoutes: {
       default: false,
@@ -780,12 +750,6 @@ const conf = (module.exports = convict({
       env: 'PAIRING_IOS_URL_SCHEME',
       format: ['firefox', 'fennec', 'firefox-beta', 'firefox-internal'],
     },
-    ios_handoff: {
-      default: false,
-      doc: 'Whether a pairing QR scanned outside Firefox on iOS is handed off to the Firefox app. Disabled while Firefox iOS cannot finish a pairing it did not start, since the hand-off card is then only an extra step in front of /pair/unsupported.',
-      env: 'PAIRING_IOS_HANDOFF',
-      format: Boolean,
-    },
     clients: {
       default: [
         '3c49430b43dfba77', // Reference browser
@@ -806,6 +770,26 @@ const conf = (module.exports = convict({
       doc: 'The pairing flow version to use. 1 is the legacy content-server flow, 2 is the React "pair2" rewrite.',
       env: 'PAIRING_VERSION',
       format: Number,
+    },
+    v2_min_version: {
+      ios: {
+        default: undefined,
+        doc: 'Lowest Firefox iOS major version that takes the v2 flow when pairing.version is 2. Decided from the user agent, so the browser need not advertise pairingVersion 2 in fxa_status; unset defers to what the browser advertises. 0 enables every version. Setting it also lets a pairing QR scanned outside Firefox on iOS hand the pair URL itself to the Firefox app; unset, the hand-off opens /pair/supplicant/connect_hint instead.',
+        env: 'PAIRING_V2_MIN_VERSION_IOS',
+        format: Number,
+      },
+      android: {
+        default: undefined,
+        doc: 'Lowest Firefox Android major version allowed onto the v2 flow when pairing.version is 2. See pairing.v2_min_version.ios.',
+        env: 'PAIRING_V2_MIN_VERSION_ANDROID',
+        format: Number,
+      },
+      desktop: {
+        default: undefined,
+        doc: 'Lowest Firefox desktop major version allowed onto the v2 flow when pairing.version is 2. See pairing.v2_min_version.ios.',
+        env: 'PAIRING_V2_MIN_VERSION_DESKTOP',
+        format: Number,
+      },
     },
   },
   mobileStoreLinks: {
@@ -1141,7 +1125,7 @@ const conf = (module.exports = convict({
     },
   },
   sync_tokenserver_url: {
-    default: 'http://localhost:8000/token',
+    default: 'http://localhost:8000',
     doc: 'The url of the Firefox Sync tokenserver',
     env: 'SYNC_TOKENSERVER_URL',
     format: 'url',

@@ -185,14 +185,12 @@ class LoadTest(TestCase):
             "email": email,
             "stretchpwd": self._get_stretchpwd(email),
             "keys": True,
-            "preVerified": True,
         }
         try:
             session = self.client.create_account(**kwds)
         except fxa.errors.ClientError as e:
             if e.errno != ERROR_ACCOUNT_EXISTS:
                 raise
-            kwds.pop("preVerified")
             session = self.client.login(**kwds)
         # Sometimes resend the confirmation email.
         if self._perc(PERCENT_LOGIN_CREATE_RESEND):
@@ -224,7 +222,6 @@ class LoadTest(TestCase):
         except fxa.errors.ClientError as e:
             if e.errno != ERROR_UNKNOWN_ACCOUNT:
                 raise
-            kwds["preVerified"] = True
             # Account creation might likewise fail due to a race.
             try:
                 session = self.client.create_account(**kwds)
@@ -232,7 +229,6 @@ class LoadTest(TestCase):
                 if e.errno != ERROR_ACCOUNT_EXISTS:
                     raise
                 # Assume a normal login will now succeed.
-                kwds.pop("preVerified")
                 session = self.client.login(**kwds)
         session.emailAcct = emailAcct
         return session
@@ -249,13 +245,14 @@ class LoadTest(TestCase):
             kwds = {
                 "email": email,
                 "stretchpwd": self._get_stretchpwd(email),
-                "preVerified": True,
             }
             try:
-                self.client.create_account(**kwds)
+                session = self.client.create_account(**kwds)
             except fxa.errors.ClientError as e:
                 if e.errno != ERROR_ACCOUNT_EXISTS:
                     raise
+            else:
+                self._verify_new_account(session, emailAcct)
             pft = self.client.send_reset_code(email)
         assert "tries" in pft.get_status()
         # Get the backup authentication code  and redeem it.
@@ -277,7 +274,8 @@ class LoadTest(TestCase):
                 assert False, "password forgot token should have been consumed"
 
     def test_password_change_flow(self):
-        email = self._get_existing_user_email_acct().email
+        emailAcct = self._get_existing_user_email_acct()
+        email = emailAcct.email
         stretchpwd = self._get_stretchpwd(email)
         try:
             self.client.change_password(
@@ -292,14 +290,14 @@ class LoadTest(TestCase):
             kwds = {
                 "email": email,
                 "stretchpwd": stretchpwd,
-                "preVerified": True,
             }
             try:
-                self.client.create_account(**kwds)
+                session = self.client.create_account(**kwds)
             except fxa.errors.ClientError as e:
                 if e.errno != ERROR_ACCOUNT_EXISTS:
                     raise
             else:
+                self._verify_new_account(session, emailAcct)
                 self.client.change_password(
                     email,
                     oldstretchpwd=stretchpwd,
@@ -309,6 +307,12 @@ class LoadTest(TestCase):
     def test_support_doc_flow(self):
         base_url = self.server_url[:-3]
         self.session.get(base_url + "/.well-known/public-keys")
+
+    def _verify_new_account(self, session, emailAcct):
+        # The reset flow rejects an unverified account, and the tests share a pool.
+        code = self._get_code_from_email(emailAcct, "x-verify-code")
+        assert code is not None, "failed to get verify code"
+        session.verify_email_code(code)
 
     def _get_code_from_email(self, emailAcct, header):
         # Due to possible race conditions, and previous test runs

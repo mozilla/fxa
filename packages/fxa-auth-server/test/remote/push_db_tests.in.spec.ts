@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import crypto from 'crypto';
-import base64url from 'base64url';
 import {
   createTestServer,
   TestServerInstance,
@@ -69,10 +68,11 @@ describe('#integration - remote push db', () => {
       type: 'mobile',
       availableCommands: { foo: 'bar' },
       pushCallback: 'https://foo/bar',
-      pushPublicKey: base64url(
-        Buffer.concat([Buffer.from('\x04'), crypto.randomBytes(64)])
-      ),
-      pushAuthKey: base64url(crypto.randomBytes(16)),
+      pushPublicKey: Buffer.concat([
+        Buffer.from('\x04'),
+        crypto.randomBytes(64),
+      ]).toString('base64url'),
+      pushAuthKey: crypto.randomBytes(16).toString('base64url'),
       pushEndpointExpired: false,
     };
 

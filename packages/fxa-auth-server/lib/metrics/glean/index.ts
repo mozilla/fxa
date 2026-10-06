@@ -333,6 +333,13 @@ export function gleanMetrics(config: ConfigType) {
         additionalMetrics: extraKeySignoutCb,
       }),
     },
+    stepUpAuth: {
+      requested: createEventFn('step_up_auth_requested'),
+      satisfied: createEventFn('step_up_auth_satisfied'),
+      rejected: createEventFn('step_up_auth_rejected', {
+        additionalMetrics: extraKeyReasonCb,
+      }),
+    },
     twoFactorAuth: {
       codeComplete: createEventFn('two_factor_auth_code_complete'),
       setCodesComplete: createEventFn('two_factor_auth_set_codes_complete'),
@@ -455,6 +462,9 @@ export function gleanMetrics(config: ConfigType) {
       verificationStarted: createEventFn('passkey_verification_started'),
       verificationSuccess: createEventFn('passkey_verification_success'),
     },
+    pairing: {
+      success: createEventFn('dtm_backend_pair_success'),
+    },
   };
 }
 
@@ -486,6 +496,7 @@ export const logErrorWithGlean = ({
           | 'oauth'
           | 'thirdPartyAuth'
           | 'account'
+          | 'stepUpAuth'
           | 'twoFactorAuth'
           | 'twoFactorAuthSetup'
           | 'inactiveAccountDeletion'
@@ -495,6 +506,7 @@ export const logErrorWithGlean = ({
           | 'emailDelivery'
           | 'loginConfirmSkipFor'
           | 'passkey'
+          | 'pairing'
         >
       ];
     funnelFns[event as keyof typeof funnelFns](request, {

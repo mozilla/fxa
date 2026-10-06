@@ -24,16 +24,17 @@
 // HACK: Prevent config falling over due to missing secrets
 process.env.NODE_ENV = 'dev';
 
-const commandLineOptions = require('commander');
+const { program } = require('commander');
 const fs = require('fs');
 const main = require('./must-reset/index');
 const path = require('path');
 
-commandLineOptions
+program
   .option('-e, --emails [emails]', 'Email addresses')
   .option('-u, --uids [uids]', 'User IDs')
   .option('-i, --input <filename>', 'Input filename from which to read input')
   .parse(process.argv);
+const commandLineOptions = program.opts();
 
 if (!commandLineOptions.input) {
   console.error(`-i, --input required`);

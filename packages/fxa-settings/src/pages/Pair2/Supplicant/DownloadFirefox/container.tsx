@@ -8,8 +8,9 @@ import { usePageViewEvent } from '../../../../lib/metrics';
 import GleanMetrics from '../../../../lib/glean';
 import { REACT_ENTRYPOINT } from '../../../../constants';
 import config from '../../../../lib/config';
-import { detectDevice } from '../../../../lib/utilities';
+import { detectDevice, isIosSafari } from '../../../../lib/utilities';
 import {
+  buildConnectHintUrl,
   buildPairUrl,
   isPairingChannelInfo,
 } from '../../../../lib/pairing/pair-url';
@@ -18,6 +19,7 @@ import {
   HandoffPlan,
   planPairingHandoff,
 } from '../../../../lib/pairing/handoff';
+import { isPairingV2RolledOut } from '../../../../lib/pairing/v2-gate';
 import DownloadFirefox from '.';
 
 export const viewName = 'pair-supplicant-download-firefox';
@@ -52,6 +54,7 @@ export const DownloadFirefoxContainer = () => {
     const handoffPlan: HandoffPlan = planPairingHandoff({
       device: detectDevice(),
       targetUrl: buildPairUrl(channelInfo),
+      hintUrl: buildConnectHintUrl(),
       storeLinks: config.mobileStoreLinks,
       storage: getAttemptStorage(),
       build: config.pairing.browserBuild,
@@ -59,7 +62,8 @@ export const DownloadFirefoxContainer = () => {
       // A pasted link or a restored history entry reaches this page without
       // passing through `Pair/Index`, so the gate is re-read here rather than
       // assumed from the fact we arrived.
-      iosHandoff: config.pairing.iosHandoff,
+      iosHandoff: isPairingV2RolledOut(config.pairing, 'ios'),
+      isSafari: isIosSafari(),
     });
 
     // `none` means this device has no Firefox app to open — desktop, or Firefox

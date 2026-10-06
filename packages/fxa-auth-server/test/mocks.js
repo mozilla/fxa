@@ -17,7 +17,6 @@ const { normalizeEmail } = require('fxa-shared').email.helpers;
 const { Container } = require('typedi');
 const { AccountEventsManager } = require('../lib/account-events');
 const { gleanMetrics } = require('../lib/metrics/glean');
-const { PriceManager } = require('@fxa/payments/customer');
 const { ProductConfigurationManager } = require('@fxa/shared/cms');
 
 // Patch Account.metricsEnabled before loading amplitude (replicates what
@@ -51,6 +50,7 @@ const CUSTOMS_METHOD_NAMES = [
 
 const DB_METHOD_NAMES = [
   'account',
+  'accountDisabledAt',
   'accountEmails',
   'accountRecord',
   'accountResetToken',
@@ -355,7 +355,6 @@ module.exports = {
   mockAppStoreSubscriptions,
   mockAccountEventsManager,
   unMockAccountEventsManager,
-  mockPriceManager,
   mockProductConfigurationManager,
   mockOAuthClientInfo,
 };
@@ -418,6 +417,7 @@ function mockDB(data, errors) {
         wrapWrapKb: data.wrapWrapKb || crypto.randomBytes(32),
         verifierVersion: data.verifierVersion ?? 1,
         metricsOptOutAt: data.metricsOptOutAt || null,
+        disabledAt: data.disabledAt ?? null,
       });
     }),
     accountEmails: jest.fn((uid) => {
@@ -479,6 +479,7 @@ function mockDB(data, errors) {
         wrapWrapKb: crypto.randomBytes(32),
         verifierSetAt: data.verifierSetAt ?? Date.now(),
         linkedAccounts: data.linkedAccounts,
+        disabledAt: data.disabledAt ?? null,
       });
     }),
     consumeSigninCode: jest.fn(() => {
@@ -691,10 +692,15 @@ function mockDB(data, errors) {
       return Promise.resolve([]);
     }),
     sessionToken: jest.fn(() => {
-      const res = {
+      // server.js reads token.constructor.tokenTypeID.
+      class MockSessionToken {
+        static tokenTypeID = 'sessionToken';
+      }
+      const res = Object.assign(new MockSessionToken(), {
         id: data.sessionTokenId || 'fake session token id',
         uid: data.uid || 'fake uid',
         tokenVerified: true,
+        disabledAt: data.disabledAt ?? null,
         uaBrowser: data.uaBrowser,
         uaBrowserVersion: data.uaBrowserVersion,
         uaOS: data.uaOS,
@@ -702,9 +708,7 @@ function mockDB(data, errors) {
         uaDeviceType: data.uaDeviceType,
         expired: () => data.expired || false,
         setUserAgentInfo: jest.fn(() => {}),
-      };
-      // SessionToken is a class, and tokenTypeID is a class attribute. Fake that.
-      res.constructor.tokenTypeID = 'sessionToken';
+      });
       if (data.devices && data.devices.length > 0) {
         Object.keys(data.devices[0]).forEach((key) => {
           const keyOnSession = `device${key
@@ -1103,14 +1107,6 @@ function mockGlean() {
   }
 
   return glean;
-}
-
-function mockPriceManager() {
-  const priceManager = {
-    retrieve: jest.fn(),
-  };
-  Container.set(PriceManager, priceManager);
-  return priceManager;
 }
 
 function mockProductConfigurationManager() {

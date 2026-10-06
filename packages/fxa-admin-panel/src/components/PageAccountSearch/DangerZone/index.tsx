@@ -110,7 +110,6 @@ export const DangerZone = ({
     }
     try {
       await adminApi.disableAccount(uid);
-      adminApi.recordSecurityEvent(uid, 'account.disable').catch(() => {});
       window.alert('The account has been disabled.');
       onCleared();
     } catch {
@@ -124,7 +123,6 @@ export const DangerZone = ({
     }
     try {
       await adminApi.enableAccount(uid);
-      adminApi.recordSecurityEvent(uid, 'account.enable').catch(() => {});
       window.alert('The account has been enabled.');
       onCleared();
     } catch {
@@ -224,8 +222,8 @@ export const DangerZone = ({
       </Guard>
       <Guard features={[AdminPanelFeature.DisableAccount]}>
         <DangerZoneAction
-          header="Disable Login"
-          description="Stops this account from logging in."
+          header="Disable Account"
+          description="Blocks every sign-in method, signs out all devices and revokes connected-service refresh tokens. Access tokens already issued keep working until they expire."
           buttonText="Disable"
           hideButton={!!disabledAt}
           hiddenButtonContent={`This account was disabled at: ${getFormattedDate(
@@ -238,8 +236,8 @@ export const DangerZone = ({
       {disabledAt && (
         <Guard features={[AdminPanelFeature.EnableAccount]}>
           <DangerZoneAction
-            header="Enable Login"
-            description="Allows this account to log in."
+            header="Enable Account"
+            description="Allows this account to sign in again."
             buttonHandler={handleEnable}
             buttonText="Enable"
             buttonTestId="enable-account"

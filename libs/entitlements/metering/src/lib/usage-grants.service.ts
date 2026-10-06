@@ -45,7 +45,7 @@ export class UsageGrantsService {
     const expiresAt = this.resolveExpiry(request.lifetime, meter, now);
 
     const record = await this.usageGrantsManager.createGrant({
-      userIdentifier: request.userIdentifier,
+      subject: request.subject,
       slug: request.slug,
       amount: request.amount,
       grantedBy,
@@ -57,14 +57,11 @@ export class UsageGrantsService {
   }
 
   async listGrants(
-    userIdentifier: string,
+    subject: string,
     slug?: string,
     now: Date = new Date()
   ): Promise<UsageGrant[]> {
-    const records = await this.usageGrantsManager.listGrants(
-      userIdentifier,
-      slug
-    );
+    const records = await this.usageGrantsManager.listGrants(subject, slug);
     return records.map((record) => this.toUsageGrant(record, now));
   }
 
@@ -97,7 +94,7 @@ export class UsageGrantsService {
   private toUsageGrant(record: UsageGrantRecord, now: Date): UsageGrant {
     return {
       id: record.id,
-      userIdentifier: record.userIdentifier,
+      subject: record.subject,
       slug: record.slug,
       amount: record.amount,
       grantedBy: record.grantedBy,

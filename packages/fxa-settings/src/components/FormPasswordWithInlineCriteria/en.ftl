@@ -12,6 +12,10 @@ form-password-with-inline-criteria-confirm-password =
   .label = Confirm password
 form-password-with-inline-criteria-reset-submit-button = Create new password
 
+form-password-with-inline-criteria-old-password-label =
+  .label = Old password
+form-password-with-inline-criteria-change-password-submit-button = Change password
+
 form-password-with-inline-criteria-set-password-new-password-label =
   .label = Password
 form-password-with-inline-criteria-set-password-confirm-password-label =

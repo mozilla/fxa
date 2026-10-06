@@ -566,21 +566,49 @@ export const Account = ({
           <h3 className="header-lg">Connected Services</h3>
           <ConnectedServices services={attachedClients} />
 
-          <h3 className="header-lg">Authorized Browser Services</h3>
-          <p className="mb-2">
-            OAuth consent records, not a record of active usage. A row means the
-            account has authorized the service through a Firefox flow at some
-            point. Note: a Sync row can appear for any browser-service sign-in
-            (Smart Window, Relay, VPN), because Firefox Desktop currently mints
-            a Sync-scoped refresh token on every flow even when the user did not
-            sign in to Sync.
-          </p>
-          <AccountAuthorizations authorizations={accountAuthorizations} />
+          <details>
+            <summary className="hover:cursor-pointer text-violet-900 font-semibold">
+              <h3 className="header-lg inline-block">
+                Authorized Browser Services
+              </h3>
+            </summary>
+            <p className="mb-2">
+              OAuth consent records, not a record of active usage. A row means
+              the account has authorized the service through a Firefox flow at
+              some point. Note: a Sync row can appear for any browser-service
+              sign-in (Smart Window, Relay, VPN), because Firefox Desktop
+              currently mints a Sync-scoped refresh token on every flow even
+              when the user did not sign in to Sync.
+            </p>
+            <AccountAuthorizations authorizations={accountAuthorizations} />
+          </details>
         </Guard>
 
         <h3 className="header-lg">Account History</h3>
         {securityEvents && securityEvents.length > 0 ? (
           <>
+            <details className="mb-2">
+              <summary className="hover:cursor-pointer text-violet-900 font-semibold">
+                What does Verified mean?
+              </summary>
+              <ul className="ml-5 mt-1 list-disc">
+                <li>
+                  Yes: no unverified session token was linked to the event. The
+                  token was verified, verification was skipped, the event
+                  carried no token, or the session token was already deleted
+                  when the event was recorded, as on sign-out.
+                </li>
+                <li>
+                  No: the event is linked to a session token that still needs
+                  verification. The row changes to Yes when the user confirms
+                  that session.
+                </li>
+                <li>
+                  —: no value was stored. Every event written today stores one,
+                  so treat this as a legacy row.
+                </li>
+              </ul>
+            </details>
             <TableXHeaders
               rowHeaders={[
                 'Event',

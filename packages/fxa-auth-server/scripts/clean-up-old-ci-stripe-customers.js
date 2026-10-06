@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const path = require('path');
-const program = require('commander');
+const { program } = require('commander');
 const pckg = require('../package.json');
 const { Container } = require('typedi');
 const { AppConfig, AuthFirestore, AuthLogger } = require('../lib/types');
@@ -44,11 +44,12 @@ async function init() {
       'Only request [num] customer records to process'
     )
     .parse(process.argv);
+  const options = program.opts();
 
-  process.env.NODE_ENV = program.config || 'dev';
+  process.env.NODE_ENV = options.config || 'dev';
 
-  if (program.stripeKey) {
-    process.env.SUBHUB_STRIPE_APIKEY = program.stripeKey;
+  if (options.stripeKey) {
+    process.env.SUBHUB_STRIPE_APIKEY = options.stripeKey;
   }
 
   if (!process.env.CONFIG_FILES) {
@@ -97,20 +98,20 @@ async function init() {
   const stripe = stripeHelper.stripe;
 
   const listOpts = {};
-  if (program.startingAfter) {
-    listOpts['starting_after'] = program.startingAfter;
+  if (options.startingAfter) {
+    listOpts['starting_after'] = options.startingAfter;
   }
-  if (program.endingBefore) {
-    listOpts['ending_before'] = program.endingBefore;
+  if (options.endingBefore) {
+    listOpts['ending_before'] = options.endingBefore;
   }
 
-  const dryRun = !!program.dryRun;
-  const emailPattern = program.emailPattern || 'signin.*@restmail.net';
+  const dryRun = !!options.dryRun;
+  const emailPattern = options.emailPattern || 'signin.*@restmail.net';
   const emailRegexp = new RegExp(emailPattern);
-  const maxAge = Number.parseInt(program.maxAge || 86400);
+  const maxAge = Number.parseInt(options.maxAge || 86400);
   const now = Date.now() / 1000;
 
-  const limit = program.limit ? parseInt(program.limit) : Infinity;
+  const limit = options.limit ? parseInt(options.limit) : Infinity;
   let count = 0;
   let deletedCount = 0;
 

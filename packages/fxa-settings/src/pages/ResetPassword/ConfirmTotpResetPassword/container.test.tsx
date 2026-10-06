@@ -24,6 +24,7 @@ jest.mock('../../../models', () => ({
     featureFlags: {
       passkeysEnabled: true,
       passkeyAuthenticationEnabled: true,
+      passkeyPasswordlessSyncEnabled: true,
     },
   }),
   useFtlMsgResolver: () => ({
@@ -31,8 +32,9 @@ jest.mock('../../../models', () => ({
   }),
 }));
 
+let mockIsSync = false;
 const mockIntegration: ResetPasswordIntegration = {
-  isSync: () => false,
+  isSync: () => mockIsSync,
   getCmsInfo: () => undefined,
 };
 
@@ -41,7 +43,7 @@ jest.mock('../../../lib/hooks/useNavigateWithQuery', () => ({
   useNavigateWithQuery: () => mockNavigate,
 }));
 
-let mockLocationState = {
+const BASE_LOCATION_STATE = {
   code: 'ignored',
   email: MOCK_EMAIL,
   token: MOCK_PASSWORD_CHANGE_TOKEN,
@@ -50,6 +52,8 @@ let mockLocationState = {
   estimatedSyncDeviceCount: 2,
   uid: MOCK_UID,
 };
+
+let mockLocationState: Record<string, unknown> = { ...BASE_LOCATION_STATE };
 
 jest.mock('react-router', () => {
   const actual = jest.requireActual('react-router');
@@ -79,6 +83,8 @@ async function renderComponent() {
 describe('ConfirmTotpResetPasswordContainer', () => {
   beforeEach(() => {
     capturedProps = undefined;
+    mockIsSync = false;
+    mockLocationState = { ...BASE_LOCATION_STATE };
     mockCheckTotp.mockReset();
     mockNavigate.mockReset();
     mockRecoveryPhoneGetWithPasswordForgotToken.mockReset();
@@ -124,6 +130,60 @@ describe('ConfirmTotpResetPasswordContainer', () => {
     });
 
     expect(capturedProps.codeErrorMessage).toBe('Valid code required');
+  });
+
+  describe('passkey reset footer', () => {
+    it('shows the passkey option for a Sync flow when the account has a key-wrap', async () => {
+      mockIsSync = true;
+      mockLocationState = {
+        ...BASE_LOCATION_STATE,
+        hasPasskey: true,
+        hasPasskeyWraps: true,
+      };
+
+      await renderComponent();
+
+      expect(capturedProps.showPasskeyOption).toBe(true);
+    });
+
+    it('hides the passkey option for a Sync flow when the account has no key-wrap', async () => {
+      mockIsSync = true;
+      mockLocationState = {
+        ...BASE_LOCATION_STATE,
+        hasPasskey: true,
+        hasPasskeyWraps: false,
+      };
+
+      await renderComponent();
+
+      expect(capturedProps.showPasskeyOption).toBe(false);
+    });
+
+    it('carries the passkey signals into the next page', async () => {
+      mockLocationState = {
+        ...BASE_LOCATION_STATE,
+        hasPasskey: true,
+        hasPasskeyWraps: true,
+      };
+      mockCheckTotp.mockResolvedValueOnce({ success: true });
+      mockRecoveryPhoneGetWithPasswordForgotToken.mockResolvedValueOnce({
+        exists: false,
+      });
+
+      await renderComponent();
+
+      await act(async () => {
+        await capturedProps.verifyCode('123456');
+      });
+
+      expect(mockNavigate).toHaveBeenCalledWith('/complete_reset_password', {
+        state: expect.objectContaining({
+          hasPasskey: true,
+          hasPasskeyWraps: true,
+        }),
+        replace: true,
+      });
+    });
   });
 
   it('forwards location.state when onTroubleWithCode is invoked', async () => {

@@ -38,7 +38,9 @@ module.exports = {
         PORT: '10139',
         PATH,
       },
-      filter_env: ['npm_'],
+      // CI sets 123done's secret in this var, and convict ranks env over the
+      // config file, so 321done would send the wrong secret.
+      filter_env: ['npm_', 'CLIENT_SECRET_123DONE'],
       min_uptime: '2m',
       time: true,
     },

@@ -18,20 +18,35 @@ import { Devices } from '../../../../lib/utilities';
 import DownloadFirefox from '.';
 import {
   MOCK_ANDROID_PLAN,
+  MOCK_HINT_URL,
+  MOCK_IOS_HINT_PLAN,
   MOCK_IOS_PLAN,
+  MOCK_IOS_SAFARI_PLAN,
   MOCK_STORE_LINKS,
   MOCK_TARGET,
   Subject,
 } from './mocks';
 
-// The subcopy embeds the "Learn more" link with a Fluent DOM overlay, so the
-// Fluent message carries `<linkExternal>` tags that never reach the DOM.
-const SUBCOPY_FTL_ID = 'pair2-supplicant-download-firefox-description';
+const mockDeeplinkAttempt = jest.fn();
+const mockDeeplinkStoreRedirect = jest.fn();
+const mockDeeplinkWebviewFallback = jest.fn();
+jest.mock('../../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    isDone: () => Promise.resolve(),
+    dtmMobile: {
+      deeplinkAttempt: (...args: unknown[]) => mockDeeplinkAttempt(...args),
+      deeplinkStoreRedirect: (...args: unknown[]) =>
+        mockDeeplinkStoreRedirect(...args),
+      deeplinkWebviewFallback: (...args: unknown[]) =>
+        mockDeeplinkWebviewFallback(...args),
+    },
+  },
+}));
 
-// The subcopy is not addressable by text — the inline link splits it across
-// nodes — so it is reached through the mocked FtlMsg that wraps it.
-const getSubcopy = () =>
-  screen.getAllByTestId('ftlmsg-mock').find((el) => el.id === SUBCOPY_FTL_ID);
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 function createStorage(seed: Record<string, string> = {}) {
   const values = new Map(Object.entries(seed));
@@ -54,25 +69,31 @@ describe('Pair2/Supplicant/DownloadFirefox page', () => {
       .getAllByTestId('ftlmsg-mock')
       // The jest SVG stub renders the file name as the element's text, so image
       // messages can never match. Covered by components/images/index.test.tsx.
-      .filter((el) => !el.textContent?.endsWith('.svg'))
-      // `testL10n` compares rendered text against the raw Fluent message, which
-      // an overlay message can never satisfy. Covered by its own test below.
-      .filter((el) => el.id !== SUBCOPY_FTL_ID);
+      .filter((el) => !el.textContent?.endsWith('.svg'));
 
     expect(messages.length).toBeGreaterThan(0);
     messages.forEach((el) => testL10n(el, bundle));
   };
 
   // Guards against drift between the fallback text in the component and the
-  // actual Fluent bundle.
-  it('renders every message with text matching the Fluent bundle', () => {
-    renderWithLocalizationProvider(<DownloadFirefox />);
+  // actual Fluent bundle. Each CTA set only exists for its plan, so every
+  // variant renders once.
+  it.each([
+    ['no plan', undefined],
+    ['a non-Safari iOS plan', MOCK_IOS_PLAN],
+    ['a Safari plan', MOCK_IOS_SAFARI_PLAN],
+  ])(
+    'renders every message with text matching the Fluent bundle given %s',
+    (_label, plan) => {
+      // Rendered directly: `Subject` fills in an iOS plan for `undefined`.
+      renderWithLocalizationProvider(<DownloadFirefox plan={plan} />);
 
-    expectMessagesMatchBundle();
-  });
+      expectMessagesMatchBundle();
+    }
+  );
 
   // The active label only exists while a hand-off is in flight, so the resting
-  // render above never reaches it.
+  // renders above never reach it.
   it('renders the active CTA label with text matching the Fluent bundle', () => {
     renderWithLocalizationProvider(
       <Subject plan={MOCK_ANDROID_PLAN} storage={createStorage()} />
@@ -82,34 +103,17 @@ describe('Pair2/Supplicant/DownloadFirefox page', () => {
     expectMessagesMatchBundle();
   });
 
-  it('renders the subcopy fallback matching the Fluent overlay message', () => {
-    renderWithLocalizationProvider(<DownloadFirefox />);
-
-    const message = bundle.getMessage(SUBCOPY_FTL_ID);
-    const formatted = bundle.formatPattern(message!.value!);
-
-    // The link has to be a placeable inside the sentence, not a hand-split
-    // fragment, or translators cannot move it.
-    const [sentence, placeable] = formatted.split('<linkExternal>');
-    expect(placeable).toBe('Learn more</linkExternal>');
-
-    // Both halves reach the DOM: the sentence as text, the placeable as the
-    // anchor's label.
-    expect(getSubcopy()).toHaveTextContent(sentence.trim());
-    expect(
-      screen.getByRole('link', { name: /Learn more/ })
-    ).toBeInTheDocument();
-  });
-
   it('renders the heading and subcopy', () => {
     renderWithLocalizationProvider(<DownloadFirefox />);
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      'Get Firefox on this device'
+      'Open Firefox on this device'
     );
-    expect(getSubcopy()).toHaveTextContent(
-      'Download Firefox to sync bookmarks, history, and more across devices. Learn more'
-    );
+    expect(
+      screen.getByText(
+        'Download Firefox to sync bookmarks, history, and more across devices.'
+      )
+    ).toBeInTheDocument();
   });
 
   it('exposes the brand lockup and illustration to assistive technology', () => {
@@ -127,12 +131,21 @@ describe('Pair2/Supplicant/DownloadFirefox page', () => {
     ]);
   });
 
-  it('points the inline Learn more link at the sync explainer', () => {
+  it('points the Learn more link at the sync explainer', () => {
     renderWithLocalizationProvider(<DownloadFirefox />);
 
     expect(screen.getByRole('link', { name: /Learn more/ })).toHaveAttribute(
       'href',
       LINK.FX_SYNC
+    );
+  });
+
+  it('tags the Learn more link for click metrics', () => {
+    renderWithLocalizationProvider(<DownloadFirefox />);
+
+    expect(screen.getByRole('link', { name: /Learn more/ })).toHaveAttribute(
+      'data-glean-id',
+      'dtm_mobile_download_learn_more'
     );
   });
 
@@ -157,6 +170,14 @@ describe('Pair2/Supplicant/DownloadFirefox page', () => {
       ).toHaveAttribute('href', Constants.FIREFOX_MOBILE_DOWNLOAD_URL);
     });
 
+    it('tags the primary action for click metrics', () => {
+      renderWithLocalizationProvider(<DownloadFirefox />);
+
+      expect(
+        screen.getByRole('link', { name: /Continue in Firefox/ })
+      ).toHaveAttribute('data-glean-id', 'dtm_mobile_download_submit');
+    });
+
     it('does not navigate on mount', () => {
       const assign = jest.fn();
       renderWithLocalizationProvider(<DownloadFirefox assign={assign} />);
@@ -176,7 +197,7 @@ describe('Pair2/Supplicant/DownloadFirefox page', () => {
     });
   });
 
-  describe('on iOS', () => {
+  describe('on a non-Safari iOS browser', () => {
     // Finding 1: WebKit only honours a top-level, user-initiated navigation, so
     // the deep link must be the anchor's href. A regression to a
     // <button onClick={navigate}> breaks iOS silently.
@@ -196,6 +217,58 @@ describe('Pair2/Supplicant/DownloadFirefox page', () => {
       expect(
         screen.getByRole('link', { name: 'Continue in Firefox' })
       ).not.toHaveAttribute('target');
+    });
+
+    it('tags the CTA for click metrics', () => {
+      renderWithLocalizationProvider(<Subject storage={createStorage()} />);
+
+      expect(
+        screen.getByRole('link', { name: 'Continue in Firefox' })
+      ).toHaveAttribute('data-glean-id', 'dtm_mobile_download_open_firefox');
+    });
+
+    it('records the hand-off attempt when the CTA is tapped', async () => {
+      const user = userEvent.setup();
+      renderWithLocalizationProvider(<Subject storage={createStorage()} />);
+
+      await user.click(
+        screen.getByRole('link', { name: 'Continue in Firefox' })
+      );
+
+      expect(mockDeeplinkAttempt).toHaveBeenCalledTimes(1);
+      expect(mockDeeplinkAttempt).toHaveBeenCalledWith({
+        event: { reason: 'ios' },
+      });
+    });
+
+    // The redirect event is what the store-fallback data rests on, so it is
+    // flushed before the navigation that would otherwise drop it.
+    it('records the store redirect before sending the user to the store', async () => {
+      jest.useFakeTimers();
+      try {
+        const assign = jest.fn();
+        const user = userEvent.setup({
+          advanceTimers: jest.advanceTimersByTime,
+        });
+        renderWithLocalizationProvider(
+          <Subject assign={assign} storage={createStorage()} />
+        );
+
+        await user.click(
+          screen.getByRole('link', { name: 'Continue in Firefox' })
+        );
+        jest.advanceTimersByTime(STORE_FALLBACK_TIMEOUT_MS);
+
+        expect(mockDeeplinkStoreRedirect).toHaveBeenCalledWith({
+          event: { reason: 'timeout' },
+        });
+        expect(assign).not.toHaveBeenCalled();
+        await waitFor(() =>
+          expect(assign).toHaveBeenCalledWith(MOCK_IOS_PLAN.storeUrl)
+        );
+      } finally {
+        jest.useRealTimers();
+      }
     });
 
     it('does not navigate from script when the CTA is tapped', async () => {
@@ -259,6 +332,148 @@ describe('Pair2/Supplicant/DownloadFirefox page', () => {
 
       expect(assign).not.toHaveBeenCalled();
     });
+
+    // Before the iOS rollout Firefox cannot act on the pair URL, so the same
+    // CTA opens the page that says to scan again from inside the app.
+    it('opens the connect hint when the plan targets it', () => {
+      renderWithLocalizationProvider(
+        <Subject plan={MOCK_IOS_HINT_PLAN} storage={createStorage()} />
+      );
+
+      const href = screen
+        .getByRole('link', { name: 'Continue in Firefox' })
+        .getAttribute('href');
+      expect(href).toBe(MOCK_IOS_HINT_PLAN.deepLink);
+      expect(href).toContain(encodeURIComponent(MOCK_HINT_URL));
+      expect(href).not.toContain('channel_key');
+    });
+  });
+
+  // Safari raises an alert for an unregistered scheme that the page cannot
+  // observe, so the store cannot be an inferred fallback here: it is its own
+  // CTA, and the deep link is offered alongside it.
+  describe('on iOS Safari', () => {
+    const getDownloadCta = () =>
+      screen.getByRole('link', { name: 'Download Firefox' });
+    const getOpenCta = () =>
+      screen.getByRole('link', { name: 'I already have Firefox' });
+
+    it('offers the App Store as the primary action', () => {
+      renderWithLocalizationProvider(<Subject plan={MOCK_IOS_SAFARI_PLAN} />);
+
+      expect(getDownloadCta()).toHaveAttribute(
+        'href',
+        MOCK_IOS_SAFARI_PLAN.storeUrl
+      );
+    });
+
+    it('offers the deep link as the secondary action', () => {
+      renderWithLocalizationProvider(<Subject plan={MOCK_IOS_SAFARI_PLAN} />);
+
+      expect(getOpenCta()).toHaveAttribute(
+        'href',
+        MOCK_IOS_SAFARI_PLAN.deepLink
+      );
+    });
+
+    it('renders the CTAs in that order', () => {
+      renderWithLocalizationProvider(<Subject plan={MOCK_IOS_SAFARI_PLAN} />);
+
+      const hrefs = screen
+        .getAllByRole('link')
+        .map((link) => link.getAttribute('href'));
+      expect(hrefs.indexOf(MOCK_IOS_SAFARI_PLAN.storeUrl)).toBeLessThan(
+        hrefs.indexOf(MOCK_IOS_SAFARI_PLAN.deepLink)
+      );
+    });
+
+    // Both are top-level navigations: the deep link because WebKit requires
+    // it, the store link so the App Store takes over the tab rather than
+    // leaving a blank one behind.
+    it('keeps both actions in this tab', () => {
+      renderWithLocalizationProvider(<Subject plan={MOCK_IOS_SAFARI_PLAN} />);
+
+      expect(getDownloadCta()).not.toHaveAttribute('target');
+      expect(getOpenCta()).not.toHaveAttribute('target');
+    });
+
+    // The store link gets its own id: the no-plan card also reports a download
+    // submit, and the two destinations need telling apart.
+    it('tags both actions for click metrics', () => {
+      renderWithLocalizationProvider(<Subject plan={MOCK_IOS_SAFARI_PLAN} />);
+
+      expect(getDownloadCta()).toHaveAttribute(
+        'data-glean-id',
+        'dtm_mobile_download_store_submit'
+      );
+      expect(getOpenCta()).toHaveAttribute(
+        'data-glean-id',
+        'dtm_mobile_download_open_firefox'
+      );
+    });
+
+    it('records the hand-off attempt when the deep link is tapped', async () => {
+      const user = userEvent.setup();
+      renderWithLocalizationProvider(<Subject plan={MOCK_IOS_SAFARI_PLAN} />);
+
+      await user.click(getOpenCta());
+
+      expect(mockDeeplinkAttempt).toHaveBeenCalledTimes(1);
+      expect(mockDeeplinkAttempt).toHaveBeenCalledWith({
+        event: { reason: 'ios' },
+      });
+    });
+
+    it('does not offer the single Continue in Firefox action', () => {
+      renderWithLocalizationProvider(<Subject plan={MOCK_IOS_SAFARI_PLAN} />);
+
+      expect(
+        screen.queryByRole('link', { name: /Continue in Firefox/ })
+      ).not.toBeInTheDocument();
+    });
+
+    // A user who does not have Firefox sees Safari's alert and taps OK; a
+    // spinner or an automatic store redirect would then fight the store CTA
+    // sitting right above.
+    it('leaves the deep link at rest when tapped', async () => {
+      const user = userEvent.setup();
+      renderWithLocalizationProvider(<Subject plan={MOCK_IOS_SAFARI_PLAN} />);
+
+      await user.click(getOpenCta());
+
+      expect(screen.queryByText('Opening Firefox…')).not.toBeInTheDocument();
+      expect(getOpenCta()).toBeInTheDocument();
+    });
+
+    it('never navigates from script after the deep link is tapped', async () => {
+      jest.useFakeTimers();
+      try {
+        const assign = jest.fn();
+        const user = userEvent.setup({
+          advanceTimers: jest.advanceTimersByTime,
+        });
+        renderWithLocalizationProvider(
+          <Subject plan={MOCK_IOS_SAFARI_PLAN} assign={assign} />
+        );
+
+        await user.click(getOpenCta());
+        jest.advanceTimersByTime(STORE_FALLBACK_TIMEOUT_MS * 3);
+
+        expect(assign).not.toHaveBeenCalled();
+        expect(mockDeeplinkStoreRedirect).not.toHaveBeenCalled();
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it('does not navigate on mount', () => {
+      const assign = jest.fn();
+      renderWithLocalizationProvider(
+        <Subject plan={MOCK_IOS_SAFARI_PLAN} assign={assign} />
+      );
+
+      expect(assign).not.toHaveBeenCalled();
+    });
   });
 
   describe('on Android', () => {
@@ -274,6 +489,17 @@ describe('Pair2/Supplicant/DownloadFirefox page', () => {
 
       expect(assign).toHaveBeenCalledWith(MOCK_ANDROID_PLAN.deepLink);
       expect(assign).toHaveBeenCalledTimes(1);
+    });
+
+    it('records the auto hand-off as an attempt', () => {
+      renderWithLocalizationProvider(
+        <Subject plan={MOCK_ANDROID_PLAN} storage={createStorage()} />
+      );
+
+      expect(mockDeeplinkAttempt).toHaveBeenCalledTimes(1);
+      expect(mockDeeplinkAttempt).toHaveBeenCalledWith({
+        event: { reason: 'android' },
+      });
     });
 
     it('spends the one-shot token so a Play Store round trip cannot loop', () => {
@@ -297,6 +523,7 @@ describe('Pair2/Supplicant/DownloadFirefox page', () => {
       const args = {
         device: Devices.OTHER_ANDROID,
         targetUrl: MOCK_TARGET,
+        hintUrl: MOCK_HINT_URL,
         storeLinks: MOCK_STORE_LINKS,
         storage,
         build: 'firefox' as const,
@@ -341,6 +568,7 @@ describe('Pair2/Supplicant/DownloadFirefox page', () => {
             screen.getByRole('link', { name: 'Continue in Firefox' })
           ).toBeInTheDocument()
         );
+        expect(mockDeeplinkWebviewFallback).toHaveBeenCalledTimes(1);
       } finally {
         jest.useRealTimers();
       }
@@ -382,6 +610,7 @@ describe('Pair2/Supplicant/DownloadFirefox page', () => {
         screen.getByRole('link', { name: 'Continue in Firefox' })
       ).toBeInTheDocument();
       expect(assign).not.toHaveBeenCalled();
+      expect(mockDeeplinkAttempt).not.toHaveBeenCalled();
     });
 
     // A getItem that works alongside a setItem that throws would otherwise

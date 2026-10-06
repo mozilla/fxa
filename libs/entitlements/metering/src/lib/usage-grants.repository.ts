@@ -14,7 +14,7 @@ import { UsageGrantNotFoundError } from './metering.error';
 
 export interface UsageGrantRecord {
   id: string;
-  userIdentifier: string;
+  subject: string;
   slug: string;
   amount: number;
   grantedBy: string;
@@ -30,7 +30,7 @@ export async function insertUsageGrant(
   data: NewUsageGrant
 ): Promise<UsageGrantRecord> {
   const ref = await db.add({
-    userIdentifier: data.userIdentifier,
+    subject: data.subject,
     slug: data.slug,
     amount: data.amount,
     grantedBy: data.grantedBy,
@@ -43,14 +43,14 @@ export async function insertUsageGrant(
 
 export async function getUsageGrants(
   db: CollectionReference,
-  userIdentifier: string
+  subject: string
 ): Promise<UsageGrantRecord[]> {
-  const result = await db.where('userIdentifier', '==', userIdentifier).get();
+  const result = await db.where('subject', '==', subject).get();
   return result.docs.map((doc) => {
     const data = doc.data();
     return {
       id: doc.id,
-      userIdentifier: data['userIdentifier'],
+      subject: data['subject'],
       slug: data['slug'],
       amount: data['amount'],
       grantedBy: data['grantedBy'],

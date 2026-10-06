@@ -22,7 +22,7 @@
 // HACK: Prevent config falling over due to missing secrets
 process.env.NODE_ENV = 'dev';
 
-const program = require('commander');
+const { program } = require('commander');
 const path = require('path');
 
 program
@@ -42,10 +42,11 @@ program
   .option('-w, --write [directory]', 'Directory where emails should be stored')
   .option('--send', 'Send emails, for real. *** THIS REALLY SENDS ***')
   .parse(process.argv);
+const options = program.opts();
 
 const BATCH_DELAY_MS =
-  typeof program.delay === 'undefined' ? 5000 : program.delay * 1000;
-const BATCH_SIZE = program.batchsize || 10;
+  typeof options.delay === 'undefined' ? 5000 : options.delay * 1000;
+const BATCH_SIZE = options.batchsize || 10;
 
 const requiredOptions = ['input', 'method'];
 
@@ -56,13 +57,13 @@ requiredOptions.forEach(checkRequiredOption);
 const bulkMailer = require('./bulk-mailer/index');
 
 bulkMailer(
-  path.resolve(program.input),
-  program.method,
+  path.resolve(options.input),
+  options.method,
   BATCH_SIZE,
   BATCH_DELAY_MS,
-  program.send,
-  program.write,
-  program.verbose
+  options.send,
+  options.write,
+  options.verbose
 ).then(
   () => {
     console.log('done');
@@ -70,7 +71,7 @@ bulkMailer(
   },
   (err) => {
     if (/InvalidMethodName/.test(err.message)) {
-      console.error(program.method, 'is not a valid method. Can be one of:\n');
+      console.error(options.method, 'is not a valid method. Can be one of:\n');
       console.error(` * ${err.validNames.sort().join('\n * ')}`);
     } else {
       console.error('Error', String(err));
@@ -80,7 +81,7 @@ bulkMailer(
 );
 
 function checkRequiredOption(optionName) {
-  if (!program[optionName]) {
+  if (!options[optionName]) {
     console.error(`--${optionName} is required`);
     process.exit(1);
   }

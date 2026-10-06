@@ -89,4 +89,42 @@ describe('mysql db backend', () => {
     await expect(store.ping()).rejects.toThrow('failed to set mode');
     expect(capturedQueries).toHaveLength(4);
   });
+
+  it('should release the connection when initialization fails', async () => {
+    mockResponses.push([new Error('failed to set the time zone')]);
+
+    await expect(store.ping()).rejects.toThrow('failed to set the time zone');
+    expect(mockConnection.release.callCount).toBe(1);
+  });
+
+  describe('_withConnection', () => {
+    beforeEach(() => {
+      // Responses for the three queries _getConnection runs on a new connection.
+      mockResponses.push([null, []]);
+      mockResponses.push([null, []]);
+      mockResponses.push([
+        null,
+        [{ mode: 'STRICT_ALL_TABLES,NO_ENGINE_SUBSTITUTION' }],
+      ]);
+    });
+
+    it('should release the connection when the work succeeds', async () => {
+      const result = await store._withConnection((conn: any) => {
+        expect(conn).toBe(mockConnection);
+        expect(mockConnection.release.callCount).toBe(0);
+        return Promise.resolve('work result');
+      });
+
+      expect(result).toBe('work result');
+      expect(mockConnection.release.callCount).toBe(1);
+    });
+
+    it('should release the connection when the work fails', async () => {
+      await expect(
+        store._withConnection(() => Promise.reject(new Error('query blew up')))
+      ).rejects.toThrow('query blew up');
+
+      expect(mockConnection.release.callCount).toBe(1);
+    });
+  });
 });

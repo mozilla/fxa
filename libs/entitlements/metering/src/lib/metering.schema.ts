@@ -20,11 +20,13 @@ export const meterSlugSchema = z
     'Meter slug identifier (lowercase alphanumeric, hyphens, underscores)'
   );
 
-export const userIdentifierSchema = z
+export const subjectSchema = z
   .string()
   .min(1)
   .max(256)
-  .describe('Unique identifier for the user being metered');
+  .describe(
+    'Subject the usage is attributed to: a user id, device id, or any other key the relying party meters by'
+  );
 
 /**
  * Duplicates are dropped at ingest: the first copy of an event id to reach the
@@ -40,7 +42,7 @@ export const ingestUsageRequestSchema = z.object({
     .describe(
       'Stable idempotency key for this usage event; retries with the same id will not double-count'
     ),
-  userIdentifier: userIdentifierSchema,
+  subject: subjectSchema,
   slug: meterSlugSchema,
   amount: z
     .number()
@@ -61,7 +63,7 @@ export const meteringWireEventSchema = z.object({
   id: z.string().min(1).max(256),
   clientId: z.string().min(1).max(256),
   slug: meterSlugSchema,
-  userIdentifier: userIdentifierSchema,
+  subject: subjectSchema,
   amount: z.number().int().positive(),
   timestamp: z.iso.datetime({ offset: true }),
 });
@@ -69,9 +71,7 @@ export const meteringWireEventSchema = z.object({
 export type MeteringWireEvent = z.infer<typeof meteringWireEventSchema>;
 
 export const usageQueryParamsSchema = z.object({
-  userIdentifier: userIdentifierSchema.describe(
-    'User identifier to query usage for'
-  ),
+  subject: subjectSchema.describe('Subject to query usage for'),
   slug: meterSlugSchema.describe('Meter slug to query'),
 });
 

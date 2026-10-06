@@ -59,6 +59,13 @@ export enum AuthorityState {
 }
 
 /**
+ * Which pairing protocol an authority is running. Decided by the URL Firefox
+ * opened: version 2 lands on `/pair/authority/*`, version 1 on the legacy
+ * `/pair/auth/*` screens.
+ */
+export type PairingVersion = 1 | 2;
+
+/**
  * Authority integration for the device-pairing flow.
  *
  * The "authority" is the already-signed-in Firefox browser that is
@@ -76,7 +83,7 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
 
   private _channel: PairingChannelClient | null = null;
   private _createChannelPromise: Promise<void> | null = null;
-  private _version: number | null = null;
+  private _version: PairingVersion;
   public _iid: string | null = null;
   private _state: AuthorityState | null = null;
 
@@ -97,9 +104,11 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
     data: ModelDataStore,
     private readonly channelData: ModelDataStore,
     protected readonly storageData: ModelDataStore,
-    public readonly opts: OAuthIntegrationOptions
+    public readonly opts: OAuthIntegrationOptions,
+    pairingVersion: PairingVersion
   ) {
     super(data, storageData, opts, IntegrationType.PairingAuthority);
+    this._version = pairingVersion;
     this._iid = crypto.randomUUID();
     console.info('Created new PairingAuthorityIntegration', this._iid);
   }
@@ -113,6 +122,10 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
 
   get state(): AuthorityState | null {
     return this._state;
+  }
+
+  get pairingVersion(): PairingVersion {
+    return this._version;
   }
 
   hasChannel() {

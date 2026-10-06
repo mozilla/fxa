@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import dedent from 'dedent';
+import swaggerText from './shared/swagger-text';
 import TAGS from './swagger-tags';
 
 const TAGS_RECOVERY_KEY = {
@@ -13,7 +13,7 @@ const RECOVERYKEY_POST = {
   ...TAGS_RECOVERY_KEY,
   description: '/recoveryKey',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token
 
       Creates a new account recovery key for a user. Account recovery keys are one-time-use tokens that can be used to recover the user's kB if they forget their password. For more details, see the [account recovery keys](https://mozilla.github.io/ecosystem-platform/reference/tokens#account-recovery-tokens) docs.
@@ -25,7 +25,7 @@ const MFA_RECOVERY_KEY_POST = {
   ...TAGS_RECOVERY_KEY,
   description: '/recoveryKey',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with MFA jwt
 
       Creates a new account recovery key for a user. Account recovery keys are one-time-use tokens that can be used to recover the user's kB if they forget their password. For more details, see the [account recovery keys](https://mozilla.github.io/ecosystem-platform/reference/tokens#account-recovery-tokens) docs.

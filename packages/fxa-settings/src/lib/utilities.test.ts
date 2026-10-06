@@ -8,6 +8,7 @@ import {
   deepMerge,
   formatSecret,
   isBase32Crockford,
+  isIosSafari,
   isMobileDevice,
   isMobileOrTabletDevice,
   isValidCmsUrl,
@@ -321,6 +322,72 @@ describe('isMobileOrTabletDevice', () => {
   ])('returns false for $device', ({ userAgent, platform, maxTouchPoints }) => {
     setNavigator({ userAgent, platform, maxTouchPoints });
     expect(isMobileOrTabletDevice()).toBe(false);
+  });
+});
+
+describe('isIosSafari', () => {
+  it.each([
+    [
+      'Safari on an iPhone',
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1',
+    ],
+    [
+      'Safari on an iPad requesting the mobile site',
+      'Mozilla/5.0 (iPad; CPU OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1',
+    ],
+  ])('is true for %s', (_label, userAgent) => {
+    expect(isIosSafari(userAgent)).toBe(true);
+  });
+
+  // Every iOS browser carries a `Safari/` token, so each of these passes only
+  // because the parser recognises the browser's own token first.
+  it.each([
+    [
+      'Chrome on iOS',
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/124.0.6367.88 Mobile/15E148 Safari/604.1',
+    ],
+    [
+      'Firefox on iOS',
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/125.0 Mobile/15E148 Safari/605.1.15',
+    ],
+    [
+      'Edge on iOS',
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 EdgiOS/124.0.2478.89 Mobile/15E148 Safari/605.1.15',
+    ],
+    [
+      'the Facebook in-app browser',
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 [FBAN/FBIOS;FBAV/460.0.0.36.107;FBBV/588032860;FBDV/iPhone15,2;FBMD/iPhone;FBSN/iOS;FBSV/17.4;FBSS/3;FBID/phone;FBLC/en_US;FBOP/5]',
+    ],
+    [
+      'a bare WKWebView',
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148',
+    ],
+    [
+      'Safari on macOS',
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15',
+    ],
+    [
+      'Chrome on Android',
+      'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36',
+    ],
+  ])('is false for %s', (_label, userAgent) => {
+    expect(isIosSafari(userAgent)).toBe(false);
+  });
+
+  it('reads the running browser by default', () => {
+    const original = Object.getOwnPropertyDescriptor(navigator, 'userAgent');
+    Object.defineProperty(navigator, 'userAgent', {
+      value:
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1',
+      configurable: true,
+    });
+    try {
+      expect(isIosSafari()).toBe(true);
+    } finally {
+      if (original) {
+        Object.defineProperty(navigator, 'userAgent', original);
+      }
+    }
   });
 });
 

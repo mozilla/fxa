@@ -84,7 +84,7 @@ describe('UsageGrantsController', () => {
     it('defaults a request without a lifetime to an unending grant', async () => {
       const client = AuthenticatedMeteringClientFactory({ clientId: 'rp-1' });
       const requestWithoutLifetime = {
-        userIdentifier: 'user-1',
+        subject: 'user-1',
         slug: 'tokens',
         amount: 500,
       };
@@ -121,7 +121,7 @@ describe('UsageGrantsController', () => {
   });
 
   describe('list', () => {
-    it('returns the grants for a user filtered by slug', async () => {
+    it('returns the grants for a subject filtered by slug', async () => {
       const client = AuthenticatedMeteringClientFactory();
       const grants = [UsageGrantFactory(), UsageGrantFactory()];
       usageGrantsService.listGrants.mockResolvedValue(grants);

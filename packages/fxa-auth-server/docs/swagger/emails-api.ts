@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import dedent from 'dedent';
+import swaggerText from './shared/swagger-text';
 import TAGS from './swagger-tags';
 
 const TAGS_EMAILS = {
@@ -19,7 +19,7 @@ const RECOVERY_EMAIL_STATUS_GET = {
   ...TAGS_EMAILS,
   description: '/recovery_email/status',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token
 
       Returns the 'verified' status for the account's recovery email address.
@@ -33,7 +33,7 @@ const RECOVERY_EMAIL_STATUS_GET = {
     'hapi-swagger': {
       responses: {
         401: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 110\` - Invalid authentication token in request signature
           `,
@@ -47,7 +47,7 @@ const RECOVERY_EMAIL_RESEND_CODE_POST = {
   ...TAGS_EMAILS,
   description: '/recovery_email/resend_code',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token
 
       Re-sends a verification code to the account's recovery email address. The code is first sent when the account is created, but if the user thinks the message was lost or accidentally deleted, they can request a new message to be sent via this endpoint. The new message will contain the same code as the original message. When this code is provided to \`/v1/recovery_email/verify_code\`, the email will be marked as 'verified'.
@@ -59,7 +59,7 @@ const RECOVERY_EMAIL_RESEND_CODE_POST = {
     'hapi-swagger': {
       responses: {
         400: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 150\` - Can not resend email code to an email that does not belong to this account
           `,
@@ -73,7 +73,7 @@ const RECOVERY_EMAIL_VERIFY_CODE_POST = {
   ...TAGS_EMAILS,
   description: '/recovery_email/verify_code',
   notes: [
-    dedent`
+    swaggerText`
       Verify tokens and/or recovery emails for an account. If a valid token code is detected, the account email and tokens will be set to verified. If a valid email code is detected, the email will be marked as verified.
 
       The verification code will be a random token, delivered in the fragment identifier of a URL sent to the user's email address. Navigating to the URL opens a page that extracts the code from the fragment identifier and performs a POST to \`/recovery_email/verify_code\`. The link can be clicked from any browser, not just the one being attached to the Firefox account.
@@ -83,7 +83,7 @@ const RECOVERY_EMAIL_VERIFY_CODE_POST = {
     'hapi-swagger': {
       responses: {
         400: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 105\` - Invalid verification code
           `,
@@ -97,7 +97,7 @@ const RECOVERY_EMAILS_GET = {
   ...TAGS_EMAILS,
   description: '/recovery_emails',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token
 
       Returns an array of objects containing details of the email addresses associated with the logged-in user. Currently, the primary email address is always the one from the \`accounts\` table.
@@ -109,7 +109,7 @@ const RECOVERY_EMAIL_POST = {
   ...TAGS_EMAILS,
   description: '/recovery_email',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with MFA JWT (scope: mfa:email)
       Add a secondary email address to the logged-in account. The created address will be unverified and will not replace the primary email address.
     `,
@@ -118,7 +118,7 @@ const RECOVERY_EMAIL_POST = {
     'hapi-swagger': {
       responses: {
         400: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 104\` - Unverified account
             - \`errno: 138\` - Unverified session
@@ -136,7 +136,7 @@ const RECOVERY_EMAIL_DESTROY_POST = {
   ...TAGS_EMAILS,
   description: '/recovery_email/destroy',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token
 
       Delete an email address associated with the logged-in user.
@@ -146,7 +146,7 @@ const RECOVERY_EMAIL_DESTROY_POST = {
     'hapi-swagger': {
       responses: {
         400: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 138\` - Unverified session
           `,
@@ -160,7 +160,7 @@ const MFA_RECOVERY_EMAIL_DESTROY_POST = {
   ...TAGS_EMAILS,
   description: '/mfa/recovery_email/destroy',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session MFA JWT (scope: mfa:email)
 
       Delete an email address associated with the logged-in user.
@@ -170,13 +170,13 @@ const MFA_RECOVERY_EMAIL_DESTROY_POST = {
     'hapi-swagger': {
       responses: {
         400: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 138\` - Unverified session
           `,
         },
         401: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 110\` - Invalid authentication token in request signature
           `,
@@ -190,7 +190,7 @@ const RECOVERY_EMAIL_SET_PRIMARY_POST = {
   ...TAGS_EMAILS,
   description: '/recovery_email/set_primary',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token
 
       This endpoint changes a user's primary email address. This email address must belong to the user and be verified.
@@ -200,7 +200,7 @@ const RECOVERY_EMAIL_SET_PRIMARY_POST = {
     'hapi-swagger': {
       responses: {
         400: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 138\` - Unverified session
             - \`errno: 147\` - Can not change primary email to an unverified email
@@ -216,7 +216,7 @@ const MFA_RECOVERY_EMAIL_SET_PRIMARY_POST = {
   ...TAGS_EMAILS,
   description: '/mfa/recovery_email/set_primary',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session MFA JWT (scope: mfa:email)
 
       This endpoint changes a user's primary email address. This email address must belong to the user and be verified.
@@ -226,7 +226,7 @@ const MFA_RECOVERY_EMAIL_SET_PRIMARY_POST = {
     'hapi-swagger': {
       responses: {
         400: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 138\` - Unverified session
             - \`errno: 147\` - Can not change primary email to an unverified email
@@ -234,7 +234,7 @@ const MFA_RECOVERY_EMAIL_SET_PRIMARY_POST = {
           `,
         },
         401: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 110\` - Invalid authentication token in request signature
           `,
@@ -248,7 +248,7 @@ const RECOVERY_EMAIL_SECONDARY_RESEND_CODE_POST = {
   ...TAGS_EMAILS,
   description: '/recovery_email/secondary/resend_code',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token
 
       This endpoint resend the otp verification to verify the secondary email.
@@ -258,7 +258,7 @@ const RECOVERY_EMAIL_SECONDARY_RESEND_CODE_POST = {
     'hapi-swagger': {
       responses: {
         400: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 138\` - Unverified session
             - \`errno: 150\` - Can not resend email code to an email that does not belong to this account
@@ -273,7 +273,7 @@ const RECOVERY_EMAIL_SECONDARY_VERIFY_CODE_POST = {
   ...TAGS_EMAILS,
   description: '/recovery_email/secondary/verify_code',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session MFA JWT (scope: mfa:email)
 
       This endpoint verifies a secondary email using a time based (otp) code.
@@ -283,7 +283,7 @@ const RECOVERY_EMAIL_SECONDARY_VERIFY_CODE_POST = {
     'hapi-swagger': {
       responses: {
         400: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 138\` - Unverified session
             - \`errno: 105\` - Invalid verification code

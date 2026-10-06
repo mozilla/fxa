@@ -4,7 +4,7 @@
 
 import { z } from 'zod';
 
-import { meterSlugSchema, userIdentifierSchema } from './metering.schema';
+import { meterSlugSchema, subjectSchema } from './metering.schema';
 
 export const usageGrantLifetimeSchema = z
   .discriminatedUnion('type', [
@@ -28,9 +28,7 @@ export const usageGrantLifetimeSchema = z
 export type UsageGrantLifetime = z.infer<typeof usageGrantLifetimeSchema>;
 
 export const createUsageGrantRequestSchema = z.object({
-  userIdentifier: userIdentifierSchema.describe(
-    'User identifier the grant applies to'
-  ),
+  subject: subjectSchema.describe('Subject the grant applies to'),
   slug: meterSlugSchema.describe('Meter slug the grant applies to'),
   amount: z
     .number()
@@ -54,7 +52,7 @@ export type CreateUsageGrantRequest = z.infer<
 
 export const usageGrantSchema = z.object({
   id: z.string().describe('Unique identifier for the grant'),
-  userIdentifier: userIdentifierSchema,
+  subject: subjectSchema.describe('Subject the grant was issued to'),
   slug: meterSlugSchema,
   amount: z
     .number()
@@ -81,9 +79,7 @@ export const usageGrantSchema = z.object({
 export type UsageGrant = z.infer<typeof usageGrantSchema>;
 
 export const listUsageGrantsParamsSchema = z.object({
-  userIdentifier: userIdentifierSchema.describe(
-    'User identifier to list grants for'
-  ),
+  subject: subjectSchema.describe('Subject to list grants for'),
   slug: meterSlugSchema
     .optional()
     .describe('Optional meter slug to filter the grants by'),
@@ -92,7 +88,9 @@ export const listUsageGrantsParamsSchema = z.object({
 export type ListUsageGrantsParams = z.infer<typeof listUsageGrantsParamsSchema>;
 
 export const listUsageGrantsResponseSchema = z.object({
-  grants: z.array(usageGrantSchema).describe('Grants for the requested user'),
+  grants: z
+    .array(usageGrantSchema)
+    .describe('Grants for the requested subject'),
 });
 
 export type ListUsageGrantsResponse = z.infer<

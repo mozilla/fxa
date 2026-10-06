@@ -8,7 +8,8 @@ import { createMockIndexOAuthNativeIntegration, Subject } from './mocks';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { MozServices } from '../../lib/types';
 import GleanMetrics from '../../lib/glean';
-import { MOCK_CMS_INFO } from '../mocks';
+import { MOCK_CMS_INFO, MOCK_EMAIL } from '../mocks';
+import * as utils from 'fxa-react/lib/utils';
 
 const syncText =
   'Sync your passwords, tabs, and bookmarks everywhere you use Firefox.';
@@ -282,6 +283,91 @@ describe('Index page', () => {
       });
 
       expect(screen.getByLabelText('Enter your email')).toHaveFocus();
+    });
+  });
+
+  describe('error message collisions', () => {
+    // jsdom has no WebAuthn, so a passkey click always ends in the hook's
+    // "not supported" error banner.
+    const passkeyError = 'Your browser or device doesn’t support passkeys.';
+    const bannerError = 'Banner error';
+    const tooltipError = 'Tooltip error';
+
+    let user: ReturnType<typeof userEvent.setup>;
+
+    const clickPasskey = () =>
+      user.click(screen.getByRole('button', { name: 'Sign in with passkey' }));
+
+    beforeEach(() => {
+      user = userEvent.setup();
+      jest.spyOn(utils, 'hardNavigate').mockImplementation(() => {});
+    });
+
+    it('clears the passkey error when the email form is submitted', async () => {
+      renderWithLocalizationProvider(<Subject passkeyEnabled />);
+
+      await clickPasskey();
+      await screen.findByText(passkeyError);
+
+      await user.type(screen.getByLabelText('Enter your email'), MOCK_EMAIL);
+      await user.click(
+        screen.getByRole('button', { name: 'Sign up or sign in' })
+      );
+
+      await waitFor(() =>
+        expect(screen.queryByText(passkeyError)).not.toBeInTheDocument()
+      );
+    });
+
+    it('clears the passkey error when Google sign-in is clicked', async () => {
+      renderWithLocalizationProvider(<Subject passkeyEnabled />);
+
+      await clickPasskey();
+      await screen.findByText(passkeyError);
+
+      await user.click(
+        screen.getByRole('button', { name: /Continue with Google/ })
+      );
+
+      await waitFor(() =>
+        expect(screen.queryByText(passkeyError)).not.toBeInTheDocument()
+      );
+    });
+
+    it('clears banner and tooltip errors when the passkey button is clicked', async () => {
+      renderWithLocalizationProvider(
+        <Subject
+          passkeyEnabled
+          initialErrorBanner={bannerError}
+          initialTooltipMessage={tooltipError}
+        />
+      );
+
+      await clickPasskey();
+
+      await waitFor(() =>
+        expect(screen.queryByText(bannerError)).not.toBeInTheDocument()
+      );
+      expect(screen.queryByText(tooltipError)).not.toBeInTheDocument();
+    });
+
+    it('clears banner and tooltip errors when Apple sign-in is clicked', async () => {
+      renderWithLocalizationProvider(
+        <Subject
+          passkeyEnabled
+          initialErrorBanner={bannerError}
+          initialTooltipMessage={tooltipError}
+        />
+      );
+
+      await user.click(
+        screen.getByRole('button', { name: /Continue with Apple/ })
+      );
+
+      await waitFor(() =>
+        expect(screen.queryByText(bannerError)).not.toBeInTheDocument()
+      );
+      expect(screen.queryByText(tooltipError)).not.toBeInTheDocument();
     });
   });
 });

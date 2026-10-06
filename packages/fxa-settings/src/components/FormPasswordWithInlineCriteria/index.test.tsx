@@ -30,6 +30,19 @@ describe('FormPasswordWithInlineCriteria component', () => {
     screen.getByRole('button', { name: 'Create new password' });
   });
 
+  it('renders an old password input for the force-password-change form type', async () => {
+    renderWithLocalizationProvider(
+      <Subject passwordFormType="force-password-change" />
+    );
+
+    await waitFor(() => {
+      screen.getByLabelText('Old password');
+    });
+    screen.getByLabelText('New password');
+    screen.getByLabelText('Confirm password');
+    screen.getByRole('button', { name: 'Change password' });
+  });
+
   it('renders as expected for the signup form type', async () => {
     renderWithLocalizationProvider(
       <Subject passwordFormType="signup" requirePasswordConfirmation={true} />

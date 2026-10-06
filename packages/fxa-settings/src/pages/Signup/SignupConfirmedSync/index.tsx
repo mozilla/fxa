@@ -7,7 +7,7 @@ import AppLayout from '../../../components/AppLayout';
 import Banner from '../../../components/Banner';
 import { useFtlMsgResolver } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { hardNavigate } from 'fxa-react/lib/utils';
+import { useNavigateWithQuery } from '../../../lib/hooks';
 import { firefox } from '../../../lib/channels/firefox';
 import { LocationState, SignupConfirmedSyncProps } from './interfaces';
 import {
@@ -27,6 +27,7 @@ const SignupConfirmedSync = ({
   setCurrentSplitLayout,
 }: SignupConfirmedSyncProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
+  const navigateWithQuery = useNavigateWithQuery();
   const paymentMethodsSynced = checkPaymentMethodsWillSync(offeredSyncEngines);
 
   const location = useLocation() as ReturnType<typeof useLocation> & {
@@ -126,13 +127,12 @@ const SignupConfirmedSync = ({
       {!cmsHideCTA && showPairLink && (
         <div className="flex mb-5">
           <FtlMsg id="signup-confirmed-sync-add-device-link">
-            {/* TODO: once Pair is converted to React, use `<Link>` instead */}
             <CmsButtonWithFallback
               className="cta-primary cta-xl"
               data-glean-id="signup_confirmed_sync_pair_link"
               onClick={(e) => {
                 e.preventDefault();
-                hardNavigate('/pair', {}, true);
+                navigateWithQuery('/pair');
               }}
               buttonColor={cmsButtonColor}
               buttonText={cmsButtonText}

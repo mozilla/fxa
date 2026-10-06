@@ -256,6 +256,15 @@ describe('models/integrations/oauth-relier', function () {
       });
     });
 
+    describe('oauth success flow', () => {
+      it('returns no permissions instead of throwing on an empty scope', () => {
+        const integration = getIntegrationWithScope('');
+        integration.isOAuthSuccessFlow = true;
+
+        expect(integration.getPermissions()).toEqual([]);
+      });
+    });
+
     describe('clientInfo fetch failed', () => {
       beforeEach(() => {
         jest.clearAllMocks();
@@ -354,6 +363,33 @@ describe('models/integrations/oauth-relier', function () {
 
         expect(integration.getServiceName()).toBe('Firefox Sync');
         expect(Sentry.captureException).not.toHaveBeenCalled();
+      });
+
+      it('is not untrusted when clientInfo is the empty husk', () => {
+        // isTrusted() is false here too, so the consent screen must gate on
+        // isUntrusted() instead, or a trusted client is described as untrusted
+        // whenever the client lookup has not resolved.
+        const integration = getIntegration(huskClientInfo);
+
+        expect(integration.isTrusted()).toBe(false);
+        expect(integration.isUntrusted()).toBe(false);
+      });
+
+      it('is not untrusted once clientInfo is loaded and trusted', () => {
+        const integration = getIntegration(loadedClientInfo);
+
+        expect(integration.isTrusted()).toBe(true);
+        expect(integration.isUntrusted()).toBe(false);
+      });
+
+      it('is untrusted when clientInfo says the client is not trusted', () => {
+        const integration = getIntegration({
+          ...loadedClientInfo,
+          trusted: false,
+        });
+
+        expect(integration.isTrusted()).toBe(false);
+        expect(integration.isUntrusted()).toBe(true);
       });
 
       it('throws "Invalid redirect parameter" for a keys request when clientInfo is the empty husk', () => {

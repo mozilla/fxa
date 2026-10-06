@@ -90,22 +90,27 @@ export interface Config {
   };
   redirectAllowlist: string[];
   showReactApp: {
-    signUpRoutes: boolean;
     emailFirstRoutes: boolean;
-    pairRoutes: boolean;
   };
   pairing: {
     browserBuild: 'firefox' | 'fenix';
     /** iOS URL scheme the pairing hand-off opens. See `pairing.ios_url_scheme`. */
     iosUrlScheme: string;
-    /**
-     * Whether a pairing QR scanned outside Firefox on iOS is handed off to the
-     * Firefox app. See `pairing.ios_handoff`.
-     */
-    iosHandoff: boolean;
     clients: string[];
     serverBaseUri: string;
     version: number;
+    /**
+     * Lowest Firefox major version, per platform, that takes the v2 flow. A
+     * platform left out defers to the `pairingVersion` the browser reports in
+     * fxa_status. Setting `ios` is also what lets a pairing QR scanned outside
+     * Firefox on iOS hand the pair URL itself to the Firefox app; unset, the
+     * hand-off opens the connect hint page instead. See `pairing.v2_min_version`.
+     */
+    v2MinVersion: {
+      ios?: number;
+      android?: number;
+      desktop?: number;
+    };
   };
   mobileStoreLinks: {
     ios: string;
@@ -222,17 +227,15 @@ export function getDefault() {
     },
     redirectAllowlist: ['localhost'],
     showReactApp: {
-      signUpRoutes: false,
       emailFirstRoutes: false,
-      pairRoutes: false,
     },
     pairing: {
       browserBuild: 'firefox',
       iosUrlScheme: 'firefox',
-      iosHandoff: false,
       clients: [],
       serverBaseUri: 'wss://channelserver.services.mozilla.com',
       version: 1,
+      v2MinVersion: {},
     },
     mobileStoreLinks: {
       ios: 'https://apps.apple.com/app/firefox-private-safe-browser/id989804926',

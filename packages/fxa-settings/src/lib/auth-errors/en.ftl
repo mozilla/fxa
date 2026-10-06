@@ -41,6 +41,7 @@ auth-error-228 = Passkey registration failed
 auth-error-233 = To create a passkey, set up a screen lock, PIN, fingerprint, or face recognition on your device or security key. Then try again.
 auth-error-238 = Passkey challenge failed
 auth-error-239 = Sorry, we couldn’t delete your account. Please try again, or contact support if the problem persists.
+auth-error-240 = This account has been disabled
 auth-error-999 = Unexpected error
 auth-error-1001 = Login attempt cancelled
 auth-error-1002 = Session expired. Sign in to continue.

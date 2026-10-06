@@ -9,13 +9,11 @@ import {
   useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../models';
-import { useLocation } from 'react-router';
 import InlineRecoveryKeySetup from '.';
 import { currentAccount } from '../../lib/cache';
 import { generateRecoveryKey } from 'fxa-auth-client/browser';
 import { CreateRecoveryKeyHandler } from './interfaces';
-import { getSyncNavigate } from '../Signin/utils';
-import { hardNavigate } from 'fxa-react/lib/utils';
+import { useNavigateWithQuery } from '../../lib/hooks';
 import { formatRecoveryKey } from '../../lib/utilities';
 
 const InlineRecoveryKeySetupContainer = ({
@@ -28,7 +26,7 @@ const InlineRecoveryKeySetupContainer = ({
   const ftlMsgResolver = useFtlMsgResolver();
   const authClient = useAuthClient();
 
-  const location = useLocation();
+  const navigateWithQuery = useNavigateWithQuery();
   const storedLocalAccount = currentAccount();
   const email = storedLocalAccount?.email;
   const sessionToken = storedLocalAccount?.sessionToken;
@@ -107,12 +105,10 @@ const InlineRecoveryKeySetupContainer = ({
   // concurrent root would otherwise still have sent the browser to CAD.
   useEffect(() => {
     if (isMissingSigninState) {
-      // go to CAD with success messaging, we do not want to re-prompt for password
-      const { to } = getSyncNavigate(location.search);
-      // keep hard navigate until pair routes converted to react
-      hardNavigate(to);
+      // go to CAD, we do not want to re-prompt for password
+      navigateWithQuery('/pair');
     }
-  }, [isMissingSigninState, location.search]);
+  }, [isMissingSigninState, navigateWithQuery]);
 
   if (isMissingSigninState) {
     return <></>;

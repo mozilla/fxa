@@ -21,7 +21,7 @@ All are gated behind env flags (`ANDROID_PAIRING_ENABLED`,
 `IOS_PAIRING_ENABLED`, `ANDROID_PAIRING_V2_ENABLED`, `IOS_PAIRING_V2_ENABLED`)
 and skip by default, including in CI. The two v2 specs additionally skip on any
 target but `local`, since both halves run on this machine. The web-only specs
-(`pairingFlow.spec.ts`, `pairChoice.spec.ts`, the Backbone/negative variants)
+(`pairingFlow.spec.ts`, `pairChoice.spec.ts`, `pairingFlowNegative.spec.ts`)
 need no mobile device and are unaffected.
 
 The channel server is separate from the FxA stack and defaults to production
@@ -76,7 +76,7 @@ IOS_PAIRING_ENABLED=1 \
 ```
 
 iOS v2 (needs the stack started with `PAIRING_VERSION=2`,
-`PAIRING_IOS_URL_SCHEME=fennec` and `PAIRING_IOS_HANDOFF=true`):
+`PAIRING_IOS_URL_SCHEME=fennec` and `PAIRING_V2_MIN_VERSION_IOS=0`):
 
 ```bash
 cd packages/functional-tests
@@ -93,13 +93,14 @@ npx playwright test pairingFlowV2iOS.spec.ts -g 'from a deep link'   # test buil
 npx playwright test pairingFlowV2iOS.spec.ts -g "page's own"         # page supplies the link
 ```
 
-`PAIRING_IOS_URL_SCHEME` and `PAIRING_IOS_HANDOFF` only matter to the hand-off
-delivery, whose link the `/pair` page builds from the served
+`PAIRING_IOS_URL_SCHEME` and `PAIRING_V2_MIN_VERSION_IOS` only matter to the
+hand-off delivery, whose link the `/pair` page builds from the served
 `pairing.iosUrlScheme`. The scheme has to name this build (`fennec`) or the link
-points at an install that is not there, and without the hand-off enabled the
-page sends an iOS browser to `/pair/unsupported` instead of offering a link at
-all. The deep-link delivery builds its own URL in `IOSSupplicant` and ignores
-both.
+points at an install that is not there, and without an iOS minimum configured
+(any value, `0` meaning every version) the link the page offers opens
+`/pair/supplicant/connect_hint` in Firefox rather than the pair URL, so the
+pairing never starts. The deep-link delivery builds its own URL in
+`IOSSupplicant` and ignores both.
 
 `IOS_DESTINATION` is optional; without it `IOSSupplicant` targets whichever
 Simulator is booted. `IOS_SIMULATOR_UDID` picks one when several are.

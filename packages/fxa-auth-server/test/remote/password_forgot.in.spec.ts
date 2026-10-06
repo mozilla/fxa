@@ -10,7 +10,6 @@ import url from 'url';
 import crypto from 'crypto';
 
 const Client = require('../client')();
-const base64url = require('base64url');
 const mocks = require('../mocks');
 
 let server: TestServerInstance;
@@ -113,7 +112,7 @@ describe.each(testVersions)(
       expect(client.kB.length).toBe(64);
     });
 
-    it('verify_otp reports hasPasskey=false for an account without a passkey', async () => {
+    it('verify_otp reports both passkey signals false for an account without a passkey', async () => {
       const email = server.uniqueEmail();
       const password = 'allyourbasearebelongtous';
 
@@ -135,6 +134,7 @@ describe.each(testVersions)(
       );
 
       expect(result.hasPasskey).toBe(false);
+      expect(result.hasPasskeyWraps).toBe(false);
     });
 
     it('forgot password limits verify attempts', async () => {
@@ -252,7 +252,7 @@ describe.each(testVersions)(
         type: 'mobile',
         pushCallback: 'https://updates.push.services.mozilla.com/qux',
         pushPublicKey: mocks.MOCK_PUSH_KEY,
-        pushAuthKey: base64url(crypto.randomBytes(16)),
+        pushAuthKey: crypto.randomBytes(16).toString('base64url'),
       });
 
       let devices = await client.devices();

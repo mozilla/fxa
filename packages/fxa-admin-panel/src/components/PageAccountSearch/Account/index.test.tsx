@@ -588,7 +588,7 @@ it('shows "no authorizations" message when authorizations list is empty', () => 
   expect(getByTestId('account-authorizations-none')).toBeInTheDocument();
 });
 
-it('displays authorized browser services', () => {
+it('collapses authorized browser services until the summary is clicked', async () => {
   const withAuthorizations = {
     ...accountResponse,
     accountAuthorizations: [
@@ -598,6 +598,7 @@ it('displays authorized browser services', () => {
         clientId: '5882386c6d801776',
         firstAuthorizedTosAt: 1589467100316,
         lastAuthorizedTosAt: 1589467100316,
+        deauthorizedAt: null,
       },
       {
         service: 'relay',
@@ -605,17 +606,22 @@ it('displays authorized browser services', () => {
         clientId: '9ebfe2c2f9ea3c58',
         firstAuthorizedTosAt: 1589467200000,
         lastAuthorizedTosAt: 1589467200000,
+        deauthorizedAt: null,
       },
     ],
   };
-  const { getAllByTestId, getByRole } = render(
-    <Account {...withAuthorizations} />
+  const user = userEvent.setup();
+  const { getByRole } = render(<Account {...withAuthorizations} />);
+
+  const sync = getByRole('cell', { name: 'sync' });
+  expect(getByRole('cell', { name: 'relay' })).toBeInTheDocument();
+  expect(sync).not.toBeVisible();
+
+  await user.click(
+    getByRole('heading', { name: /authorized browser services/i })
   );
 
-  expect(
-    getByRole('heading', { name: /authorized browser services/i })
-  ).toBeInTheDocument();
-  expect(getAllByTestId('account-authorization-service')).toHaveLength(2);
+  expect(sync).toBeVisible();
 });
 
 it('displays key-stretch-version', async () => {
@@ -735,6 +741,22 @@ describe('account history', () => {
       VERIFIED_CELL_INDEX
     ];
   };
+
+  it('explains the verified column once the help is opened', async () => {
+    const user = userEvent.setup();
+    const { getByText } = render(
+      <Account {...accountResponse} securityEvents={buildSecurityEvents(1)} />
+    );
+    const explanation = getByText(/already deleted when the event was recorded/);
+
+    expect(explanation).not.toBeVisible();
+
+    await user.click(getByText('What does Verified mean?'));
+
+    expect(explanation).toBeVisible();
+    expect(getByText(/still needs verification/)).toBeVisible();
+    expect(getByText(/legacy row/)).toBeVisible();
+  });
 
   it('labels the verified column', () => {
     const { getByRole } = render(

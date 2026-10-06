@@ -7,7 +7,7 @@
 const dumpUsers = require('./dump-users/index');
 const fs = require('fs');
 const path = require('path');
-const program = require('commander');
+const { program } = require('commander');
 
 program
   .option('-e, --emails [emails]', 'Email addresses to dump, comma separated')
@@ -18,11 +18,12 @@ program
   )
   .option('-p, --pretty', 'Display output in a pretty fashion')
   .parse(process.argv);
+const options = program.opts();
 
-if (!program.emails && !program.uids) {
+if (!options.emails && !options.uids) {
   console.error('One of `emails` or `uids` must be specified');
   process.exit(1);
-} else if (program.emails && program.uids) {
+} else if (options.emails && options.uids) {
   console.error('Only one of `emails` or `uids` can be specified, not both');
   process.exit(1);
 }
@@ -30,9 +31,9 @@ if (!program.emails && !program.uids) {
 let emails = [];
 let uids = [];
 
-if (program.emails) {
+if (options.emails) {
   emails = getItems('emails');
-} else if (program.uids) {
+} else if (options.uids) {
   uids = getItems('uids');
 }
 
@@ -43,18 +44,18 @@ if (!emails.length && !uids.length) {
 
 const keys = emails.length ? emails : uids;
 const dbFunc = emails.length ? 'accountRecord' : 'account';
-dumpUsers(keys, dbFunc, program.pretty);
+dumpUsers(keys, dbFunc, options.pretty);
 
 function getItems(type) {
   let input = '';
-  if (typeof program[type] === 'string') {
-    input = program[type];
-  } else if (!program.input) {
+  if (typeof options[type] === 'string') {
+    input = options[type];
+  } else if (!options.input) {
     console.error(`--input must be specified if no argument given for ${type}`);
     process.exit(1);
   } else {
     input = fs
-      .readFileSync(path.resolve(__dirname, program.input))
+      .readFileSync(path.resolve(__dirname, options.input))
       .toString('utf8');
   }
   return marshallInput(input);

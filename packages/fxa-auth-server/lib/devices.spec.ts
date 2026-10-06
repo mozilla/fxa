@@ -8,10 +8,17 @@ import { AuthLogger } from './types';
 const crypto = require('crypto');
 const mocks = require('../test/mocks');
 const { AppError: error } = require('@fxa/accounts/errors');
+const { OAuthNativeClients } = require('@fxa/accounts/oauth');
+
+const FENIX = OAuthNativeClients.Fenix;
 
 jest.mock('./oauth/db', () => ({
   getRefreshToken: jest.fn(),
   removeRefreshToken: jest.fn(),
+  listAccountConsentsByUid: jest.fn(),
+  getRefreshTokenScopesByUid: jest.fn(),
+  allowedClientsForService: jest.fn(),
+  deauthorizeAccountAuthorizations: jest.fn(),
 }));
 
 const oauthDB = require('./oauth/db');
@@ -66,6 +73,11 @@ describe('lib/devices:', () => {
       glean = mocks.mockGlean();
       oauthDB.getRefreshToken.mockReset();
       oauthDB.removeRefreshToken.mockReset();
+      // An account with nothing authorized, so deauthorization is a no-op for the
+      // tests that are not about it.
+      oauthDB.listAccountConsentsByUid.mockResolvedValue([]);
+      oauthDB.getRefreshTokenScopesByUid.mockResolvedValue([]);
+      oauthDB.deauthorizeAccountAuthorizations.mockResolvedValue(0);
       devices = devicesModule(log, db, push, pushbox, glean);
     });
 
@@ -607,7 +619,11 @@ describe('lib/devices:', () => {
       });
 
       it('should revoke the refreshToken if present', async () => {
-        oauthDB.removeRefreshToken.mockResolvedValue({});
+        oauthDB.getRefreshToken.mockResolvedValue({
+          tokenId: refreshTokenId,
+          clientId: Buffer.from(FENIX, 'hex'),
+        });
+        oauthDB.removeRefreshToken.mockResolvedValue({ affectedRows: 1 });
         device.refreshTokenId = refreshTokenId;
 
         const result = await devices.destroy(request, deviceId);
@@ -620,7 +636,62 @@ describe('lib/devices:', () => {
         expect(log.notifyAttachedServices).toHaveBeenCalledTimes(1);
       });
 
+      it('should not try to remove a refreshToken the device points at but that no longer exists', async () => {
+        // Firefox Desktop registers its device with the refresh token it was
+        // just issued and then destroys it, so refreshTokenId routinely dangles
+        // until bz2053654. Calling removeRefreshToken(undefined) throws a
+        // TypeError that reads like a routine race.
+        oauthDB.getRefreshToken.mockResolvedValue(undefined);
+        device.refreshTokenId = refreshTokenId;
+
+        await devices.destroy(request, deviceId);
+
+        expect(oauthDB.getRefreshToken).toHaveBeenCalledWith(refreshTokenId);
+        expect(oauthDB.removeRefreshToken).not.toHaveBeenCalled();
+        expect(log.error).toHaveBeenCalledTimes(0);
+      });
+
+      it('should skip deauthorization when the device’s refresh token is already gone', async () => {
+        // Nothing left fxa_oauth.refreshTokens, and the token row that would
+        // name the client is gone, so no row's outcome can have changed.
+        oauthDB.getRefreshToken.mockResolvedValue(undefined);
+        device.refreshTokenId = refreshTokenId;
+
+        await devices.destroy(request, deviceId);
+
+        expect(oauthDB.listAccountConsentsByUid).not.toHaveBeenCalled();
+      });
+
+      it('should evaluate deauthorization after removing the device’s refresh token', async () => {
+        oauthDB.getRefreshToken.mockResolvedValue({
+          tokenId: refreshTokenId,
+          clientId: Buffer.from(FENIX, 'hex'),
+        });
+        oauthDB.removeRefreshToken.mockResolvedValue({ affectedRows: 1 });
+        device.refreshTokenId = refreshTokenId;
+
+        await devices.destroy(request, deviceId);
+
+        expect(
+          oauthDB.removeRefreshToken.mock.invocationCallOrder[0]
+        ).toBeLessThan(
+          oauthDB.listAccountConsentsByUid.mock.invocationCallOrder[0]
+        );
+      });
+
+      it('should skip deauthorization for a session-backed device', async () => {
+        // No refreshTokenId, so fxa_oauth.refreshTokens was never touched and
+        // no row's outcome can have changed.
+        await devices.destroy(request, deviceId);
+
+        expect(oauthDB.listAccountConsentsByUid).not.toHaveBeenCalled();
+      });
+
       it('should ignore missing tokens when deleting the refreshToken', async () => {
+        oauthDB.getRefreshToken.mockResolvedValue({
+          tokenId: refreshTokenId,
+          clientId: Buffer.from(FENIX, 'hex'),
+        });
         oauthDB.removeRefreshToken.mockRejectedValue(error.invalidToken());
         device.refreshTokenId = refreshTokenId;
 
@@ -635,6 +706,10 @@ describe('lib/devices:', () => {
       });
 
       it('should log other errors when deleting the refreshToken, without failing', async () => {
+        oauthDB.getRefreshToken.mockResolvedValue({
+          tokenId: refreshTokenId,
+          clientId: Buffer.from(FENIX, 'hex'),
+        });
         oauthDB.removeRefreshToken.mockRejectedValue(error.unexpectedError());
         device.refreshTokenId = refreshTokenId;
 

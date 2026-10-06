@@ -94,6 +94,7 @@ const ScanQR = ({ qrCodeValue, onSkip }: ScanQRProps) => {
             <LinkExternal
               href={Constants.SYNC_SUMO_URL}
               className="mt-2 max-w-[46%] rounded-sm text-sm text-grey-900 underline focus-visible-default hover:text-grey-700"
+              gleanDataAttrs={{ id: 'dtm_desktop_qr_help' }}
             >
               <FtlMsg id="pair2-authority-scan-qr-help-link">
                 Get help scanning
@@ -110,7 +111,7 @@ const ScanQR = ({ qrCodeValue, onSkip }: ScanQRProps) => {
           <button
             type="button"
             onClick={onSkip}
-            className="cta-neutral cta-base-p w-auto"
+            className="cta-neutral min-h-8 w-auto px-5 py-1 text-xs"
           >
             Skip for now
           </button>

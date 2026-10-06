@@ -126,6 +126,11 @@ const QUERY_LIST_REFRESH_TOKENS_BY_UID =
   '  refreshTokens.scope, clients.name as clientName, clients.canGrant AS clientCanGrant ' +
   'FROM refreshTokens LEFT OUTER JOIN clients ON clients.id = refreshTokens.clientId ' +
   'WHERE refreshTokens.userId=?';
+// Just what deauthorization needs; skips the clients join and Redis metadata
+// hydration that QUERY_LIST_REFRESH_TOKENS_BY_UID drives.
+const QUERY_LIST_REFRESH_TOKEN_SCOPES_BY_UID =
+  'SELECT clientId, scope FROM refreshTokens FORCE INDEX (tokens_user_id) ' +
+  'WHERE userId=?';
 
 /**
  * Gets a unique list of refresh tokens for a given user.
@@ -162,46 +167,77 @@ const PRUNE_AUTHZ_CODES =
   'DELETE FROM codes WHERE TIMESTAMPDIFF(SECOND, createdAt, NOW()) > ? LIMIT 10000';
 
 // First insert sets both timestamps to now. Later completions for the same PK
-// preserve firstAuthorizedTosAt and bump lastAuthorizedTosAt via GREATEST,
-// guarding against clock skew or reordered writes moving it backwards.
+// preserve firstAuthorizedTosAt and advance lastAuthorizedTosAt. The +1 makes
+// every completion move it, so it can serve as the deauthorize guard's CAS
+// token even when a re-authorization lands in the same millisecond or on a
+// slow clock; GREATEST keeps it from ever moving backwards.
 // The VALUES list is built at call time so all scopes are recorded in one query.
+// Clearing deauthorizedAt makes re-authorization a reactivation rather than a
+// new grant: the row keeps its firstAuthorizedTosAt, so the ToS record spans
+// the cycle. Silent flows (prompt=none, token exchange) write nothing: the
+// user saw no ToS.
 const QUERY_ACCOUNT_CONSENT_UPSERT_PREFIX =
   'INSERT INTO accountAuthorizations ' +
   '(uid, scope, service, clientId, firstAuthorizedTosAt, lastAuthorizedTosAt) ' +
   'VALUES ';
 const QUERY_ACCOUNT_CONSENT_UPSERT_SUFFIX =
   ' ON DUPLICATE KEY UPDATE ' +
-  'lastAuthorizedTosAt = GREATEST(lastAuthorizedTosAt, VALUES(lastAuthorizedTosAt))';
+  'lastAuthorizedTosAt = GREATEST(lastAuthorizedTosAt + 1, VALUES(lastAuthorizedTosAt)), ' +
+  'deauthorizedAt = NULL';
+// Active rows only. hasConsentForSignIn has no production caller yet; the
+// filter is here so wiring one up cannot wave a deauthorized user through.
 const QUERY_ACCOUNT_CONSENT_FIND_SIGNIN =
   'SELECT uid, scope, service, clientId, firstAuthorizedTosAt, lastAuthorizedTosAt ' +
-  'FROM accountAuthorizations WHERE uid=? AND scope=? AND service=?';
+  'FROM accountAuthorizations ' +
+  'WHERE uid=? AND scope=? AND service=? AND deauthorizedAt IS NULL';
 // Direct lookup for the token-exchange gate after the caller has
 // resolved scope -> service via config. PK left-prefix on
 // (uid, scope, service); no secondary index required. The scope is
 // part of the WHERE so a consent recorded for one scope under a
 // service cannot silently authorize a different scope under the
 // same service.
+//
+// deauthorizedAt IS NULL must be in the WHERE, not applied to the result:
+// (uid, scope, service) can match one row per client, so LIMIT 1 could
+// otherwise return a deauthorized row and deny a user still authorized
+// through another client.
 const QUERY_HAS_CONSENT_FOR_SCOPE =
-  'SELECT 1 FROM accountAuthorizations WHERE uid=? AND scope=? AND service=? LIMIT 1';
+  'SELECT 1 FROM accountAuthorizations ' +
+  'WHERE uid=? AND scope=? AND service=? AND deauthorizedAt IS NULL LIMIT 1';
 // Full-PK existence check for the VPN-in-Desktop DAU bandaid (FXA-14159).
 // Adds clientId to QUERY_HAS_CONSENT_FOR_SCOPE so a VPN consent recorded for a
 // different client (e.g. Mobile or the standalone VPN app) does not count as
 // Desktop authorization. A complete PK match — the fastest lookup this table
-// supports.
+// supports. Deauthorized rows are excluded so a withdrawn authorization stops
+// counting toward VPN DAU.
 const QUERY_HAS_CONSENT_FOR_SCOPE_AND_CLIENT =
-  'SELECT 1 FROM accountAuthorizations WHERE uid=? AND scope=? AND service=? AND clientId=? LIMIT 1';
+  'SELECT 1 FROM accountAuthorizations ' +
+  'WHERE uid=? AND scope=? AND service=? AND clientId=? AND deauthorizedAt IS NULL LIMIT 1';
 // Existence checks for the first-authorization signal (FXA-13784). Bounded by
 // the user's rows (PK prefix on uid) with a LIMIT 1 early-out — cheaper than
 // fetching all of a user's consents and filtering in JS.
+//
+// Intentionally not filtered on deauthorizedAt: a user who authorized and later
+// deauthorized is not authorizing for the first time.
 const QUERY_HAS_CONSENT_FOR_SERVICE =
   'SELECT 1 FROM accountAuthorizations WHERE uid=? AND service=? LIMIT 1';
 const QUERY_HAS_CONSENT_FOR_CLIENT =
   'SELECT 1 FROM accountAuthorizations WHERE uid=? AND clientId=? LIMIT 1';
 const QUERY_ACCOUNT_CONSENT_DELETE_BY_UID =
   'DELETE FROM accountAuthorizations WHERE uid=?';
+// Unfiltered: callers decide what deauthorizedAt means to them.
 const QUERY_ACCOUNT_CONSENT_LIST_BY_UID =
-  'SELECT uid, scope, service, clientId, firstAuthorizedTosAt, lastAuthorizedTosAt ' +
+  'SELECT uid, scope, service, clientId, firstAuthorizedTosAt, lastAuthorizedTosAt, deauthorizedAt ' +
   'FROM accountAuthorizations WHERE uid=?';
+// Row-constructor IN list over the full PK plus lastAuthorizedTosAt as an
+// optimistic guard: a row re-authorized between the caller's read and this
+// write has a newer timestamp, falls out of the list, and survives.
+// deauthorizedAt IS NULL keeps the first timestamp when concurrent disconnects
+// (Settings fires one per client sharing a display name) hit the same row.
+const QUERY_DEAUTHORIZE_AUTHORIZATION_ROWS_PREFIX =
+  'UPDATE accountAuthorizations SET deauthorizedAt=? ' +
+  'WHERE uid=? AND deauthorizedAt IS NULL AND ' +
+  '(scope, service, clientId, lastAuthorizedTosAt) IN (';
 
 // accountAuthorizations_v2 shadow table (FXA-14169). Same rows as v1 but
 // `scope` is replaced by an integer `scopeId` FK to scopes(id). Written
@@ -235,7 +271,8 @@ const QUERY_SCOPES_INSERT =
   'INSERT INTO scopes (scope, hasScopedKeys) ' + 'VALUES (?, ?);';
 // Bulk scope-string -> id resolution backing the scopes cache. The IN list is
 // built at call time from the uncached scopes.
-const QUERY_SCOPES_RESOLVE_IDS_PREFIX = 'SELECT id, scope FROM scopes WHERE scope IN (';
+const QUERY_SCOPES_RESOLVE_IDS_PREFIX =
+  'SELECT id, scope FROM scopes WHERE scope IN (';
 
 const buf = (v) => (Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex'));
 
@@ -485,6 +522,16 @@ class MysqlStore extends MysqlOAuthShared {
     return refreshTokens;
   }
 
+  async _getRefreshTokenScopesByUid(uid) {
+    const rows = await this._read(QUERY_LIST_REFRESH_TOKEN_SCOPES_BY_UID, [
+      buf(uid),
+    ]);
+    return rows.map((r) => ({
+      clientId: r.clientId,
+      scope: ScopeSet.fromString(r.scope),
+    }));
+  }
+
   /**
    * Get a unique list of refresh tokens for a given user.
    * @param {String} uid
@@ -636,7 +683,14 @@ class MysqlStore extends MysqlOAuthShared {
   // keyed by scopeId. Resolve-only: scopes absent from the scopes table are
   // skipped (v1 stays authoritative, so nothing is dropped), and the v2 write
   // is isolated so a v2 failure never affects the v1 write.
-  async _upsertAccountConsents(uid, scopes, service, clientId, now, dualWriteV2) {
+  async _upsertAccountConsents(
+    uid,
+    scopes,
+    service,
+    clientId,
+    now,
+    dualWriteV2
+  ) {
     if (!Array.isArray(scopes) || scopes.length === 0) {
       return;
     }
@@ -821,6 +875,25 @@ class MysqlStore extends MysqlOAuthShared {
 
   _listAccountConsentsByUid(uid) {
     return this._read(QUERY_ACCOUNT_CONSENT_LIST_BY_UID, [buf(uid)]);
+  }
+
+  // Returns rows actually deauthorized, which can be fewer than rows.length
+  // (see the query's guards).
+  async _deauthorizeAccountAuthorizations(uid, rows, deauthorizedAt) {
+    if (rows.length === 0) {
+      return 0;
+    }
+    const params = [deauthorizedAt, buf(uid)];
+    for (const r of rows) {
+      params.push(r.scope, r.service, buf(r.clientId), r.lastAuthorizedTosAt);
+    }
+    const result = await this._write(
+      QUERY_DEAUTHORIZE_AUTHORIZATION_ROWS_PREFIX +
+        rows.map(() => '(?, ?, ?, ?)').join(', ') +
+        ')',
+      params
+    );
+    return result.affectedRows;
   }
 
   getEncodingInfo() {

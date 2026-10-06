@@ -1,7 +1,0 @@
-{
-  "redis": {
-    "customs": {
-      "enabled": true
-    }
-  }
-}

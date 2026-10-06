@@ -18,6 +18,9 @@ const PUSH_SERVER_REGEX = require('../config').default.get(
 const { synthesizeClientName } = require('fxa-shared/connected-services');
 const { platformFromOS } = require('fxa-shared/lib/user-agent');
 const { reportSentryError } = require('./sentry');
+const {
+  deauthorizeOnDisconnect,
+} = require('./oauth/deauthorize-on-disconnect');
 
 const SCHEMA = {
   id: isA.string().length(32).regex(HEX_STRING),
@@ -180,11 +183,17 @@ module.exports = (log, db, push, pushbox, glean) => {
     const uid = request.auth.credentials.uid;
     const deletedDevice = await db.deleteDevice(uid, deviceId);
     if (deletedDevice && deletedDevice.refreshTokenId) {
+      // Firefox Desktop destroys the refresh token its device was registered
+      // with, so refreshTokenId can dangle and the lookup come back empty.
+      let clientId;
       try {
         const token = await oauthDB.getRefreshToken(
           deletedDevice.refreshTokenId
         );
-        await oauthDB.removeRefreshToken(token);
+        if (token) {
+          clientId = token.clientId?.toString('hex');
+          await oauthDB.removeRefreshToken(token);
+        }
       } catch (err) {
         // The refresh token might already have been deleted, because distributed state.
         // We don't want errors here to fail the deletion request, because the caller
@@ -195,6 +204,11 @@ module.exports = (log, db, push, pushbox, glean) => {
           });
         }
       }
+
+      // Runs even if the removal above threw: the policy re-reads, so a token
+      // that survived keeps its row and one already gone releases it. An unset
+      // clientId means nothing was removed, and the pass no-ops.
+      await deauthorizeOnDisconnect({ oauthDB }, { uid, clientId });
     }
 
     // No need to await and block the notifications below.  If the records

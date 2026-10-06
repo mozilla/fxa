@@ -333,7 +333,6 @@ describe('#integration - recovery phone - customs checks', () => {
         recoveryPhone: { enabled: true },
         securityHistory: { ipProfiling: { allowedRecency: 0 } },
         signinConfirmation: { skipForNewAccounts: { enabled: false } },
-        customsUrl: 'http://127.0.0.1:7000',
       },
     });
   }, 120000);

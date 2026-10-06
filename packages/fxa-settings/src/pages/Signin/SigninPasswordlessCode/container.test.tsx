@@ -8,6 +8,7 @@ import * as ReactUtils from 'fxa-react/lib/utils';
 import { SigninPasswordlessCodeProps } from './interfaces';
 import { Integration } from '../../../models';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import { SensitiveDataClient } from '../../../lib/sensitive-data-client';
 import { MemoryRouter } from 'react-router';
 import SigninPasswordlessCodeContainer from './container';
 import { screen, waitFor } from '@testing-library/react';
@@ -34,10 +35,12 @@ function applyDefaultMocks() {
 }
 
 let mockAuthClient: any;
+const mockSensitiveDataClient = new SensitiveDataClient();
 jest.mock('../../../models', () => {
   return {
     ...jest.requireActual('../../../models'),
     useAuthClient: () => mockAuthClient,
+    useSensitiveDataClient: () => mockSensitiveDataClient,
   };
 });
 

@@ -7,7 +7,6 @@ const logger = require('../logging')('server.worker');
 
 const Hapi = require('@hapi/hapi');
 const Joi = require('joi');
-const P = require('../promise');
 
 const AppError = require('../error');
 const compute = require('../compute');
@@ -71,14 +70,14 @@ exports.create = async function () {
     path: '/a/{id}',
     config: {
       handler: async function delete_(req) {
-        return P.all(
+        return Promise.all(
           Object.keys(SIZES).map(function (name) {
             if (name === 'default') {
-              return req.params.id;
+              return img.delete(req.params.id);
             }
-            return req.params.id + '_' + name;
+            return img.delete(req.params.id + '_' + name);
           })
-        ).map(img.delete);
+        );
       },
     },
   });

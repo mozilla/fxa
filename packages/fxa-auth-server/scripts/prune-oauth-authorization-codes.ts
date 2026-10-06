@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import program from 'commander';
+import { program } from 'commander';
 import { StatsD } from 'hot-shots';
 import { promisify } from 'util';
 const pckg = require('../package.json');
@@ -31,8 +31,9 @@ export async function init() {
       console.log('\n\nPrunes up to 10000 expired OAuth authorization codes.')
     )
     .parse(process.argv);
+  const options = program.opts();
 
-  const ttlInMs = parseInt(program.ttl) || DEFAULT_TTL_MS;
+  const ttlInMs = parseInt(options.ttl) || DEFAULT_TTL_MS;
 
   log.info('OAuth codes pruning', { ttl: ttlInMs });
 

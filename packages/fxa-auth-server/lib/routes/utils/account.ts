@@ -11,6 +11,25 @@ import { getClientServiceTags } from '../../metrics/client-tags';
 import { EmailBlocklist, DomainBlocklist } from 'fxa-shared/db/models/auth';
 
 /**
+ * Throws `error.accountDisabled` when an administrator has disabled the
+ * account. Shared by every sign-in path so none can bypass the block.
+ */
+export function assertAccountEnabled(account: {
+  disabledAt?: number | null;
+}): void {
+  if (account.disabledAt) {
+    throw error.accountDisabled();
+  }
+}
+
+export async function assertAccountEnabledByUid(
+  db: DB,
+  uid: string
+): Promise<void> {
+  assertAccountEnabled({ disabledAt: await db.accountDisabledAt(uid) });
+}
+
+/**
  * Throws `error.requestBlocked` if the (normalized) email matches the
  * admin-managed regex or domain blocklist. Shared by all account-creation
  * paths so none can bypass the block.
@@ -52,11 +71,17 @@ export async function deleteAccountIfUnverified(
   try {
     const secondaryEmailRecord = await db.getSecondaryEmail(email);
     if (secondaryEmailRecord.isPrimary) {
+      const disabledAt = await db.accountDisabledAt(secondaryEmailRecord.uid);
       const hasActiveSubscription = stripeHelper
         ? await stripeHelper.hasActiveSubscription(secondaryEmailRecord.uid)
         : false;
 
-      if (secondaryEmailRecord.isVerified || hasActiveSubscription) {
+      // Re-signing up must not replace a disabled account, verified or not.
+      if (
+        secondaryEmailRecord.isVerified ||
+        hasActiveSubscription ||
+        disabledAt
+      ) {
         throw error.accountExists(secondaryEmailRecord.email);
       }
       request.app.accountRecreated = true;

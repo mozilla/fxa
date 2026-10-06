@@ -189,7 +189,7 @@ export class MeteringConsumerService
           eventIdHash: hashEventId(event.id),
           clientId: event.clientId,
           slug: event.slug,
-          subject: event.userIdentifier,
+          subject: event.subject,
           amount: event.amount,
           eventTime: new Date(event.timestamp),
           ingestedAt,

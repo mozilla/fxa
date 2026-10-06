@@ -12,6 +12,7 @@ export * from './useGeoEligibilityCheck';
 export * from './useLocaleManager';
 export * from './useLocalStorageSync';
 export * from './useMfaErrorHandler';
+export * from './useMounted';
 export * from './useNavigateWithQuery';
 export * from './useOAuthFlowRecovery';
 export * from './useTotpReplace';

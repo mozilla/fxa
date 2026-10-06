@@ -5,7 +5,6 @@
   "exports": {
     "./components/": "./components/",
     "./configs/tailwind": "./configs/tailwind.js",
-    "./configs/rescripts": "./configs/rescripts.js",
     "./configs/storybooks": "./configs/storybooks.js",
     "./images/": "./images/",
     "./extract-imported-components": "./extract-imported-components.js",

@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import program from 'commander';
+import { program } from 'commander';
 
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { SubscriptionUpdater } from './update-subscriptions-to-new-plan/update-subscriptions-to-new-plan';
@@ -53,7 +53,7 @@ async function init() {
     .option(
       '-b, --batch-size [number]',
       'Number of subscriptions to query from firestore at a time.  Defaults to 100.',
-      100
+      '100'
     )
     .option(
       '-o, --output-file [string]',
@@ -63,7 +63,7 @@ async function init() {
     .option(
       '-r, --rate-limit [number]',
       'Rate limit for Stripe. Defaults to 70',
-      70
+      '70'
     )
     .option(
       '-s, --plan-id-map-path [string]',
@@ -83,23 +83,24 @@ async function init() {
       'List the customers that would be deleted without actually deleting'
     )
     .parse(process.argv);
+  const options = program.opts();
 
   const { stripeHelper, database } = await setupProcessingTaskObjects(
     'move-customers-to-new-plan'
   );
 
-  const batchSize = parseBatchSize(program.batchSize);
-  const rateLimit = parseRateLimit(program.rateLimit);
-  const prorationBehavior = parseProrationBehavior(program.prorationBehavior);
-  const planIdMap = parsePlanIdMapPath(program.planIdMapPath);
-  const dryRun = !!program.dryRun;
-  if (!program.destination) throw new Error('--destination must be provided');
+  const batchSize = parseBatchSize(options.batchSize);
+  const rateLimit = parseRateLimit(options.rateLimit);
+  const prorationBehavior = parseProrationBehavior(options.prorationBehavior);
+  const planIdMap = parsePlanIdMapPath(options.planIdMapPath);
+  const dryRun = !!options.dryRun;
+  if (!options.destination) throw new Error('--destination must be provided');
 
   const subscriptionPlanMover = new SubscriptionUpdater(
     planIdMap,
     prorationBehavior,
     batchSize,
-    program.destination,
+    options.destination,
     stripeHelper,
     database,
     dryRun,

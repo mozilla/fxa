@@ -8,6 +8,7 @@ import LoadingSpinner, {
 import { FtlMsg } from 'fxa-react/lib/utils';
 import AppLayout from '../../components/AppLayout';
 import { Banner } from '../../components/Banner';
+import type { BannerProps } from '../../components/Banner/interfaces';
 import { SyncCloudsImage } from '../../components/images';
 import { useFtlMsgResolver } from '../../models';
 
@@ -15,6 +16,8 @@ export type InlinePasswordlessSyncSetupProps = {
   onEnable: () => void;
   onNotNow: () => void;
   isEnabling?: boolean;
+  /** Replaces the sign-in confirmation while a retryable failure stands. */
+  error?: Pick<BannerProps, 'type' | 'content' | 'link'>;
 };
 
 /** Desktop only: mobile clients close the web view before this page. */
@@ -22,6 +25,7 @@ const InlinePasswordlessSyncSetup = ({
   onEnable,
   onNotNow,
   isEnabling = false,
+  error,
 }: InlinePasswordlessSyncSetupProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
 
@@ -32,15 +36,23 @@ const InlinePasswordlessSyncSetup = ({
         'Skip the password next time?'
       )}
     >
-      <Banner
-        type="success"
-        content={{
-          localizedHeading: ftlMsgResolver.getMsg(
-            'inline-passwordless-sync-setup-success-banner',
-            'Signed in to Firefox'
-          ),
-        }}
-      />
+      {/* Keyed so swapping to the error mounts a fresh node: the two differ
+          in ARIA role, which a reconciled element would change in place
+          without re-announcing. */}
+      {error ? (
+        <Banner key="error" {...error} />
+      ) : (
+        <Banner
+          key="success"
+          type="success"
+          content={{
+            localizedHeading: ftlMsgResolver.getMsg(
+              'inline-passwordless-sync-setup-success-banner',
+              'Signed in to Firefox'
+            ),
+          }}
+        />
+      )}
 
       <SyncCloudsImage className="mx-auto mt-4 max-h-44" />
 

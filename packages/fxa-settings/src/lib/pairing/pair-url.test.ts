@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
+  buildConnectHintUrl,
   buildPairUrl,
   isPairingChannelInfo,
   parsePairingHash,
@@ -148,5 +149,25 @@ describe('buildPairUrl', () => {
   it('round-trips through parsePairingHash', () => {
     const url = new URL(buildPairUrl(MOCK_CHANNEL, MOCK_ORIGIN));
     expect(parsePairingHash(url.hash)).toEqual(MOCK_CHANNEL);
+  });
+});
+
+describe('buildConnectHintUrl', () => {
+  it('points at the connect hint page on the given origin', () => {
+    expect(buildConnectHintUrl(MOCK_ORIGIN)).toBe(
+      'https://accounts.firefox.com/pair/supplicant/connect_hint'
+    );
+  });
+
+  it('defaults to the current origin', () => {
+    expect(buildConnectHintUrl()).toBe(
+      `${window.location.origin}/pair/supplicant/connect_hint`
+    );
+  });
+
+  // The hint page needs no channel, and the deep link puts this URL back into
+  // an address bar, so the channel key must never be part of it.
+  it('carries no query string or fragment', () => {
+    expect(buildConnectHintUrl(MOCK_ORIGIN)).not.toMatch(/[?#]/);
   });
 });

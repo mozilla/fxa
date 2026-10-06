@@ -47,6 +47,54 @@ test.describe('severity-2 #smoke', () => {
       ).toBeVisible();
     });
 
+    test('force change password on signin - react', async ({
+      target,
+      pages: {
+        deleteAccount,
+        page,
+        settings,
+        signin,
+        signinTokenCode,
+        postVerify,
+      },
+      testAccountTracker,
+    }) => {
+      const credentials = await testAccountTracker.signUpForced();
+      const newPassword = testAccountTracker.generatePassword();
+
+      await page.goto(`${target.contentServerUrl}/?showReactApp=true`);
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+      await expect(page).toHaveURL(/signin_token_code/);
+      const code = await target.emailClient.getVerifyLoginCode(
+        credentials.email
+      );
+      // A full page load clears this marker, so it proves a soft navigation
+      await page.evaluate(() => {
+        (window as any).__forcePasswordChangeMarker = true;
+      });
+      await signinTokenCode.fillOutCodeForm(code);
+
+      expect(await postVerify.isForcePasswordChangeHeader()).toBe(true);
+      await expect(page).toHaveURL(
+        /\/post_verify\/password\/force_password_change/
+      );
+      expect(
+        await page.evaluate(() => (window as any).__forcePasswordChangeMarker)
+      ).toBe(true);
+
+      await postVerify.fillOutChangePassword(credentials.password, newPassword);
+      await postVerify.submit();
+
+      await settings.page.waitForURL(/settings/);
+      await expect(settings.settingsHeading).toBeVisible();
+      await settings.deleteAccountButton.click();
+      await deleteAccount.deleteAccount(newPassword);
+      await expect(
+        page.getByText('Account deleted successfully')
+      ).toBeVisible();
+    });
+
     test('force change password on signin - oauth', async ({
       target,
       pages: {

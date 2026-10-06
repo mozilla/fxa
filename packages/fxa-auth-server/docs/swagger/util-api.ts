@@ -16,20 +16,8 @@ const GET_RANDOM_BYTES_POST = {
   ],
 };
 
-const VERIFY_EMAIL_GET = {
-  ...TAGS_UTIL,
-  description: '/verify_email',
-};
-
-const COMPLETE_RESET_PASSWORD_GET = {
-  ...TAGS_UTIL,
-  description: '/complete_reset_password',
-};
-
 const API_DOCS = {
-  COMPLETE_RESET_PASSWORD_GET,
   GET_RANDOM_BYTES_POST,
-  VERIFY_EMAIL_GET,
 };
 
 export default API_DOCS;

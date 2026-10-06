@@ -4,8 +4,6 @@
 
 const { S3 } = require('@aws-sdk/client-s3');
 
-const P = require('../promise');
-
 const config = require('../config');
 const logger = require('../logging')('img.aws');
 
@@ -26,14 +24,14 @@ function AwsDriver() {
 }
 
 AwsDriver.connect = function awsConnect(options) {
-  return P.resolve(new AwsDriver(options));
+  return Promise.resolve(new AwsDriver(options));
 };
 
 AwsDriver.prototype = {
   upload: function awsUpload(key, buf, contentType) {
     var s3 = this._s3;
     var bucket = PUBLIC_BUCKET;
-    return new P(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
       logger.debug('upload.start', { bucket: bucket, key: key });
       s3.putObject(
         {
@@ -58,7 +56,7 @@ AwsDriver.prototype = {
   delete: function awsDelete(key) {
     var s3 = this._s3;
     var bucket = PUBLIC_BUCKET;
-    return new P(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
       logger.debug('delete.start', { bucket: bucket, key: key });
       s3.deleteObjects(
         {

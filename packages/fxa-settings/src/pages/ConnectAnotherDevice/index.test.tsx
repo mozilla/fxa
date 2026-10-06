@@ -5,7 +5,11 @@
 import { screen, waitFor } from '@testing-library/react';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import firefox from '../../lib/channels/firefox';
-import { MOCK_ACCOUNT, renderWithRouter } from '../../models/mocks';
+import {
+  MOCK_ACCOUNT,
+  createHistoryWithQuery,
+  renderWithRouter,
+} from '../../models/mocks';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import ConnectAnotherDevice, { viewName } from '.';
@@ -34,6 +38,12 @@ jest.mock('../../lib/channels/firefox', () => ({
     fxaOAuthFlowBegin: jest.fn().mockResolvedValue(null),
     fxaStatus: jest.fn(),
   },
+}));
+
+const mockNavigate = jest.fn();
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useNavigate: () => mockNavigate,
 }));
 
 jest.mock('../../lib/glean', () => ({
@@ -139,6 +149,24 @@ describe('ConnectAnotherDevice', () => {
     screen.getByText('Sign-in confirmed');
   });
 
+  it('reads the success message and type from query params', () => {
+    renderWithRouter(
+      <ConnectAnotherDevice
+        isSignedIn={false}
+        canSignIn
+        {...MOCK_DEFAULTS}
+        fxaStatus={mockFxAStatus()}
+      />,
+      {
+        route: createHistoryWithQuery(
+          '/',
+          '?showSuccessMessage=true&type=sign_up'
+        ),
+      }
+    );
+    screen.getByText('Email confirmed');
+  });
+
   it('prompts a signed out user to sign in', () => {
     renderWithRouter(
       <ConnectAnotherDevice
@@ -194,6 +222,11 @@ describe('ConnectAnotherDevice', () => {
     const FXA_PAIRING_V1 = 1;
     const FXA_PAIRING_V2 = 2;
 
+    const MOCK_PAIR_PATH = MOCK_PAIRING_ELIGIBLE_ROUTE.replace(
+      '/connect_another_device',
+      '/pair'
+    );
+
     const renderPairingEligible = (
       fxaStatus: Parameters<typeof mockFxAStatus>[0],
       fxaPairingVersion: number,
@@ -222,6 +255,70 @@ describe('ConnectAnotherDevice', () => {
       jest.restoreAllMocks();
     });
 
+    // With a minimum configured for the browser's platform, the browser has to
+    // report v2 in fxa_status and its own version has to meet the minimum.
+    describe('with a v2 minimum version for desktop', () => {
+      const FIREFOX_DESKTOP_147 =
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:147.0) ' +
+        'Gecko/20100101 Firefox/147.0';
+      const realUserAgent = navigator.userAgent;
+
+      beforeEach(() => {
+        Object.defineProperty(navigator, 'userAgent', {
+          value: FIREFOX_DESKTOP_147,
+          configurable: true,
+        });
+      });
+
+      afterEach(() => {
+        Object.defineProperty(navigator, 'userAgent', {
+          value: realUserAgent,
+          configurable: true,
+        });
+      });
+
+      const renderWithDesktopMinimum = (
+        fxaStatus: Parameters<typeof mockFxAStatus>[0],
+        desktop: number
+      ) =>
+        renderWithRouter(
+          <ConnectAnotherDevice fxaStatus={mockFxAStatus(fxaStatus)} />,
+          { route: MOCK_PAIRING_ELIGIBLE_ROUTE },
+          mockPairingAppContext(FXA_PAIRING_V2, { desktop })
+        );
+
+      it('navigates to the v2 flow when the browser meets the minimum and reports version 2', async () => {
+        renderWithDesktopMinimum({ pairing: true, pairingVersion: 2 }, 147);
+
+        await waitFor(() =>
+          expect(hardNavigate).toHaveBeenCalledWith(
+            '/pair/authority/scan_qr',
+            {},
+            true
+          )
+        );
+        expect(mockNavigate).not.toHaveBeenCalled();
+      });
+
+      it('navigates to the v1 flow when the browser meets the minimum but reports version 1', async () => {
+        renderWithDesktopMinimum({ pairing: true, pairingVersion: 1 }, 147);
+
+        await waitFor(() =>
+          expect(mockNavigate).toHaveBeenCalledWith(MOCK_PAIR_PATH)
+        );
+        expect(hardNavigate).not.toHaveBeenCalled();
+      });
+
+      it('navigates to the v1 flow when the browser is below the minimum but reports version 2', async () => {
+        renderWithDesktopMinimum({ pairing: true, pairingVersion: 2 }, 148);
+
+        await waitFor(() =>
+          expect(mockNavigate).toHaveBeenCalledWith(MOCK_PAIR_PATH)
+        );
+        expect(hardNavigate).not.toHaveBeenCalled();
+      });
+    });
+
     it('navigates to the v2 pairing flow when FxA and the browser both support version 2', async () => {
       renderPairingEligible(
         { pairing: true, pairingVersion: 2 },
@@ -235,7 +332,7 @@ describe('ConnectAnotherDevice', () => {
           true
         )
       );
-      expect(hardNavigate).not.toHaveBeenCalledWith('/pair', {}, true);
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
 
     it('reads the browser pairing capabilities from props instead of requesting fxaStatus', async () => {
@@ -261,13 +358,9 @@ describe('ConnectAnotherDevice', () => {
       );
 
       await waitFor(() =>
-        expect(hardNavigate).toHaveBeenCalledWith('/pair', {}, true)
+        expect(mockNavigate).toHaveBeenCalledWith(MOCK_PAIR_PATH)
       );
-      expect(hardNavigate).not.toHaveBeenCalledWith(
-        '/pair/authority/scan_qr',
-        {},
-        true
-      );
+      expect(hardNavigate).not.toHaveBeenCalled();
     });
 
     it('navigates to the v1 pairing flow when the browser has pairing disabled', async () => {
@@ -277,13 +370,9 @@ describe('ConnectAnotherDevice', () => {
       );
 
       await waitFor(() =>
-        expect(hardNavigate).toHaveBeenCalledWith('/pair', {}, true)
+        expect(mockNavigate).toHaveBeenCalledWith(MOCK_PAIR_PATH)
       );
-      expect(hardNavigate).not.toHaveBeenCalledWith(
-        '/pair/authority/scan_qr',
-        {},
-        true
-      );
+      expect(hardNavigate).not.toHaveBeenCalled();
     });
 
     it('navigates to the v1 pairing flow when FxA pairing version is 1', async () => {
@@ -293,13 +382,9 @@ describe('ConnectAnotherDevice', () => {
       );
 
       await waitFor(() =>
-        expect(hardNavigate).toHaveBeenCalledWith('/pair', {}, true)
+        expect(mockNavigate).toHaveBeenCalledWith(MOCK_PAIR_PATH)
       );
-      expect(hardNavigate).not.toHaveBeenCalledWith(
-        '/pair/authority/scan_qr',
-        {},
-        true
-      );
+      expect(hardNavigate).not.toHaveBeenCalled();
     });
 
     it('navigates to the v1 pairing flow when the browser reports no pairing capability', async () => {
@@ -309,13 +394,9 @@ describe('ConnectAnotherDevice', () => {
       );
 
       await waitFor(() =>
-        expect(hardNavigate).toHaveBeenCalledWith('/pair', {}, true)
+        expect(mockNavigate).toHaveBeenCalledWith(MOCK_PAIR_PATH)
       );
-      expect(hardNavigate).not.toHaveBeenCalledWith(
-        '/pair/authority/scan_qr',
-        {},
-        true
-      );
+      expect(hardNavigate).not.toHaveBeenCalled();
     });
 
     it('navigates to the v2 pairing flow when the v=2 query param forces it, despite a v1 browser', async () => {
@@ -332,7 +413,7 @@ describe('ConnectAnotherDevice', () => {
           true
         )
       );
-      expect(hardNavigate).not.toHaveBeenCalledWith('/pair', {}, true);
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
 
     it('renders the loading spinner while the browser capabilities are unresolved', async () => {
@@ -367,6 +448,7 @@ describe('ConnectAnotherDevice', () => {
     let hardNavigateSpy: jest.SpyInstance;
 
     beforeEach(() => {
+      mockNavigate.mockClear();
       hardNavigateSpy = jest
         .spyOn(ReactUtils, 'hardNavigate')
         .mockImplementation(() => {});
@@ -382,15 +464,18 @@ describe('ConnectAnotherDevice', () => {
       hardNavigateSpy.mockRestore();
     });
 
-    it('passes includeCurrentQueryParams when redirecting an eligible browser', async () => {
+    it('keeps the query params when redirecting an eligible browser', async () => {
       renderWithRouter(<ConnectAnotherDevice fxaStatus={mockFxAStatus()} />, {
         route:
           '/connect_another_device?context=fx_desktop_v3&entrypoint=fxa_app_menu',
       });
 
       await waitFor(() =>
-        expect(hardNavigateSpy).toHaveBeenCalledWith('/pair', {}, true)
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/pair?context=fx_desktop_v3&entrypoint=fxa_app_menu'
+        )
       );
+      expect(hardNavigateSpy).not.toHaveBeenCalled();
     });
 
     it('does not redirect to /pair when the entrypoint is not a pairing entrypoint', async () => {
@@ -400,8 +485,7 @@ describe('ConnectAnotherDevice', () => {
       });
 
       await waitFor(() => expect(requestSignedInUserMock).toHaveBeenCalled());
-      // Assert on the destination only: a regression to hardNavigate('/pair')
-      // would still satisfy a not.toHaveBeenCalledWith('/pair', {}, true).
+      expect(mockNavigate).not.toHaveBeenCalled();
       expect(hardNavigateSpy.mock.calls.map((call) => call[0])).not.toContain(
         '/pair'
       );

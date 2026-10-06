@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import program from 'commander';
+import { program } from 'commander';
 import { ConfigType } from '../config';
 import { AppConfig } from '../lib/types';
 import GeoDB from 'fxa-geodb';
@@ -26,7 +26,7 @@ async function init() {
     .option(
       '-b, --batch-size [number]',
       'Number of subscriptions to query from firestore at a time.  Defaults to 100.',
-      100
+      '100'
     )
     .option(
       '-o, --output-file [string]',
@@ -41,16 +41,17 @@ async function init() {
     .option(
       '-r, --rate-limit [number]',
       'Rate limit for Stripe. Defaults to 70',
-      70
+      '70'
     )
     .parse(process.argv);
+  const options = program.opts();
 
   const { stripeHelper, database } = await setupProcessingTaskObjects(
     'existing-customers-stripe-tax'
   );
 
-  const batchSize = parseBatchSize(program.batchSize);
-  const rateLimit = parseRateLimit(program.rateLimit);
+  const batchSize = parseBatchSize(options.batchSize);
+  const rateLimit = parseRateLimit(options.rateLimit);
 
   const config = Container.get<ConfigType>(AppConfig);
   const geodb = GeoDB(config.geodb);
@@ -58,8 +59,8 @@ async function init() {
   const stripeAutomaticTaxConverter = new StripeAutomaticTaxConverter(
     geodb,
     batchSize,
-    program.outputFile,
-    program.ipAddressMapFile,
+    options.outputFile,
+    options.ipAddressMapFile,
     stripeHelper,
     rateLimit,
     database

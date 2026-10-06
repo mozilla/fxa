@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import base32Encode from 'base32-encode';
+import UAParser from 'ua-parser-js';
 import { AttachedClient } from '../models/Account';
 import type { NavigateFunction, NavigateOptions } from 'react-router';
 import { SEND_TAB_ENTRYPOINTS } from '../constants';
@@ -362,7 +363,6 @@ export function buildPairingDownloadUrl(entrypoint?: string | null): string {
     : Constants.DOWNLOAD_LINK_PAIRING_QR_DEFAULT;
 }
 
-
 // Detect device type from user agent.
 export enum Devices {
   FIREFOX_ANDROID = 'Firefox Android',
@@ -395,4 +395,18 @@ export function detectDevice(): Devices {
     return Devices.OTHER_ANDROID;
   }
   return Devices.OTHER;
+}
+
+/**
+ * Whether this is Safari itself on iOS, as opposed to another browser or an
+ * in-app WebView on iOS. Every iOS browser carries a `Safari/` token, so the
+ * parser's negative matching (CriOS, FxiOS, EdgiOS, FBAN, …) is what makes this
+ * reliable; Brave iOS ships Safari's exact UA and cannot be told apart.
+ *
+ * Safari matters to pairing because it alone shows an "address is invalid"
+ * alert for an unhandled `firefox://` link — see `lib/pairing/store-fallback`.
+ */
+export function isIosSafari(userAgent: string = navigator.userAgent): boolean {
+  const { browser, os } = new UAParser(userAgent).getResult();
+  return os.name === 'iOS' && browser.name === 'Mobile Safari';
 }

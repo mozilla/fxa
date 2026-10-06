@@ -4,6 +4,7 @@
 
 import type { BigQuery } from '@google-cloud/bigquery';
 import type { StatsD } from 'hot-shots';
+import type { storage_v1 } from 'googleapis';
 import {
   Account,
   Email,
@@ -17,6 +18,208 @@ export const setDateToUTC = (someDate: number) => {
   const utcDate = new Date(someDate);
   utcDate.setUTCHours(0, 0, 0, 0);
   return utcDate;
+};
+
+// Creation date of the oldest verified account and the scan lower bound.
+// (This _could_ change if the oldest account is also an _inactive_ account.
+// But it's unknown at this point.)
+export const OLDEST_ACCOUNT_DATE = '2014-01-18';
+
+export type PreviousScanRange = {
+  previous_start_date: string;
+  previous_end_date: string;
+};
+
+export type ScanRangeInput = {
+  now: number;
+  scanWindowDays: number;
+
+  // Validated CLI dates timestamps in milliseconds.
+  cliRange?: { start: number; end: number };
+
+  // Undefined means no state URL is configured; null means the object is missing.
+  previousScanRange?: PreviousScanRange | null;
+};
+
+export type ScanRange = {
+  // Inclusive scan dates in YYYY-MM-DD format, for saving to the state object.
+  startDate: string;
+  endDate: string;
+
+  // UTC timestamps in milliseconds, with an inclusive start and exclusive end.
+  startTimestamp: number;
+  endTimestamp: number;
+
+  rolledOver: boolean;
+};
+
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+const DAY_IN_MS = 86400000;
+const toIsoDate = (utcMidnight: number) =>
+  new Date(utcMidnight).toISOString().substring(0, 10);
+export const getActivityCutoffDate = (timestamp: number) => {
+  const date = new Date(timestamp);
+  const year = date.getUTCFullYear() - 2;
+  const month = date.getUTCMonth();
+  // day 0 of next month is last day of current month... for leap years
+  const lastDayOfMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+  return Date.UTC(year, month, Math.min(date.getUTCDate(), lastDayOfMonth));
+};
+
+// Exclude the anniversary day so every scanned day is fully two years old.
+export const getLatestScanDate = (timestamp: number) =>
+  getActivityCutoffDate(timestamp) - DAY_IN_MS;
+
+// Parses a valid YYYY-MM-DD date as a UTC midnight timestamp in milliseconds.
+export const parseScanDate = (value: unknown, label: string) => {
+  if (typeof value !== 'string' || !ISO_DATE.test(value)) {
+    throw new Error(`${label} must be a date in YYYY-MM-DD format.`);
+  }
+  const [year, month, day] = value.split('-').map(Number);
+  const timestamp = Date.UTC(year, month - 1, day);
+  if (toIsoDate(timestamp) !== value) {
+    throw new Error(`${label} is not a valid calendar date: ${value}`);
+  }
+  return timestamp;
+};
+
+// The googleapis Storage v1 methods used to read and save scan ranges.
+export type ScanStateStorage = {
+  objects: {
+    // The response data contains object metadata, or the body when alt is 'media'.
+    get(
+      params: storage_v1.Params$Resource$Objects$Get
+    ): Promise<{ data: unknown }>;
+    insert(
+      params: storage_v1.Params$Resource$Objects$Insert
+    ): Promise<{ data: storage_v1.Schema$Object }>;
+  };
+};
+
+export const parseGcsUrl = (url: string) => {
+  const match = /^gs:\/\/([^/]+)\/(.+)$/.exec(url);
+  if (!match) {
+    throw new Error(`State file must be a gs://bucket/object URL: ${url}`);
+  }
+  return { bucket: match[1], object: match[2] };
+};
+
+export const validatePreviousScanRange = (
+  previousScanRange: unknown
+): PreviousScanRange => {
+  if (
+    !previousScanRange ||
+    typeof previousScanRange !== 'object' ||
+    Array.isArray(previousScanRange)
+  ) {
+    throw new Error('Previous scan range must be a JSON object.');
+  }
+  const { previous_start_date, previous_end_date } =
+    previousScanRange as Record<string, unknown>;
+  const start = parseScanDate(previous_start_date, 'previous_start_date');
+  const end = parseScanDate(previous_end_date, 'previous_end_date');
+  if (end < start) {
+    throw new Error(
+      'previous_end_date must be on the same day or later than previous_start_date.'
+    );
+  }
+  return {
+    previous_start_date: previous_start_date as string,
+    previous_end_date: previous_end_date as string,
+  };
+};
+
+export const loadPreviousScanRange = async (
+  storage: ScanStateStorage,
+  url: string
+): Promise<PreviousScanRange | null> => {
+  const { bucket, object } = parseGcsUrl(url);
+
+  try {
+    const { data } = await storage.objects.get({
+      bucket,
+      object,
+      alt: 'media',
+    });
+    return validatePreviousScanRange(data);
+  } catch (err) {
+    if (err?.status === 404) {
+      return null;
+    }
+    throw err;
+  }
+};
+
+export const savePreviousScanRange = async (
+  storage: ScanStateStorage,
+  url: string,
+  { previous_start_date, previous_end_date }: PreviousScanRange
+) => {
+  const { bucket, object } = parseGcsUrl(url);
+  await storage.objects.insert({
+    bucket,
+    name: object,
+    media: {
+      mimeType: 'application/json',
+      body: JSON.stringify({ previous_start_date, previous_end_date }),
+    },
+  });
+};
+
+export const resolveScanRange = ({
+  now,
+  scanWindowDays,
+  cliRange,
+  previousScanRange,
+}: ScanRangeInput): ScanRange => {
+  const oldest = parseScanDate(OLDEST_ACCOUNT_DATE, 'Oldest account date');
+  const latest = getLatestScanDate(now);
+
+  let start = oldest;
+  let end = latest;
+  let rolledOver = false;
+
+  if (previousScanRange === null) {
+    if (!cliRange) {
+      throw new Error(
+        'No previous scan range found. Supply the --start-date and --end-date CLI args, or seed the GCS object.'
+      );
+    }
+  } else if (previousScanRange) {
+    const previousStart = parseScanDate(
+      validatePreviousScanRange(previousScanRange).previous_start_date,
+      'previous_start_date'
+    );
+    start = previousStart - scanWindowDays * DAY_IN_MS;
+    end = previousStart - DAY_IN_MS;
+    if (end < oldest) {
+      end = latest;
+      start = latest - (scanWindowDays - 1) * DAY_IN_MS;
+      rolledOver = true;
+    }
+  }
+
+  if (cliRange) {
+    start = cliRange.start;
+    end = cliRange.end;
+    rolledOver = false;
+  }
+
+  if (end < oldest || start > latest) {
+    throw new Error(
+      `The date range ${toIsoDate(start)} to ${toIsoDate(end)} is outside the eligible range ${toIsoDate(oldest)} to ${toIsoDate(latest)}.`
+    );
+  }
+  const boundedStart = Math.max(start, oldest);
+  const boundedEnd = Math.min(end, latest);
+
+  return {
+    startDate: toIsoDate(boundedStart),
+    endDate: toIsoDate(boundedEnd),
+    startTimestamp: boundedStart,
+    endTimestamp: boundedEnd + DAY_IN_MS,
+    rolledOver,
+  };
 };
 
 export const emailUidsQuery = (activeByDateTimestamp) =>

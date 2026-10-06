@@ -104,7 +104,7 @@ describe('UsageService', () => {
         id: ingestUsageRequest.id,
         clientId: CLIENT_ID,
         slug: meter.slug,
-        userIdentifier: ingestUsageRequest.userIdentifier,
+        subject: ingestUsageRequest.subject,
         amount: ingestUsageRequest.amount,
         timestamp,
       });
@@ -228,12 +228,12 @@ describe('UsageService', () => {
       expect(meteringEventsManager.sumUsage).toHaveBeenCalledWith({
         clientId: CLIENT_ID,
         slug: params.slug,
-        subject: params.userIdentifier,
+        subject: params.subject,
         from: new Date('2026-05-01T00:00:00.000Z'),
         to: new Date('2026-06-01T00:00:00.000Z'),
       });
       expect(usageGrantsManager.getActiveGrantedAmount).toHaveBeenCalledWith(
-        params.userIdentifier,
+        params.subject,
         params.slug,
         NOW
       );
@@ -288,7 +288,7 @@ describe('UsageService', () => {
       const sessionStart = new Date('2026-05-15T11:50:00.000Z');
       meteringConfigurationManager.getMeterBySlug.mockResolvedValue(meter);
       meteringSweepManager.findSessionStarts.mockResolvedValue(
-        new Map([[params.userIdentifier, sessionStart]])
+        new Map([[params.subject, sessionStart]])
       );
 
       const result = await usageService.queryUsage(CLIENT_ID, params, NOW);
@@ -296,7 +296,7 @@ describe('UsageService', () => {
       expect(meteringSweepManager.findSessionStarts).toHaveBeenCalledWith({
         clientId: CLIENT_ID,
         slug: params.slug,
-        subjects: [params.userIdentifier],
+        subjects: [params.subject],
       });
       expect(meteringEventsManager.sumUsage).toHaveBeenCalledWith(
         expect.objectContaining({

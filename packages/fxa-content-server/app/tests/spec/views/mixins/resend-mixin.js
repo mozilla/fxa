@@ -9,7 +9,7 @@ import BaseView from 'views/base';
 import Cocktail from 'cocktail';
 import ResendMixin from 'views/mixins/resend-mixin';
 import sinon from 'sinon';
-import TestTemplate from 'templates/confirm.mustache';
+import TestTemplate from 'templates/post_verify/secondary_email/confirm_secondary_email.mustache';
 
 const View = BaseView.extend({
   resend: () => Promise.resolve(),

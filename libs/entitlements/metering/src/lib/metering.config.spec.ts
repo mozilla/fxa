@@ -66,6 +66,7 @@ describe('MeteringConfig', () => {
   const base = {
     clients: '{}',
     usageGrants: { firestoreCollectionName: 'metering-usage-grants' },
+    firestore: { projectId: 'entitlements-dev', databaseId: 'entitlements' },
     clickhouse: validClickHouse,
     pubsub: validPubSub,
     redis: validRedis,

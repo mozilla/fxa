@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import dedent from 'dedent';
+import swaggerText from './shared/swagger-text';
 import TAGS from './swagger-tags';
 
 const OAUTH_SERVER_API_DESCRIPTION = {
-  description: dedent`
+  description: swaggerText`
       ## URL Structure for OAuth Server
       > \`https://<server-url>/v1/<api-endpoint>\`
 
@@ -61,13 +61,10 @@ const OAUTH_SERVER_API_DESCRIPTION = {
       ## API Endpoints
       - [GET /v1/authorization](#tag/OAuth-Server-API-Overview/operation/getAuthorization)
       - [POST /v1/authorization](#tag/OAuth-Server-API-Overview/operation/postAuthorization)
-      - [POST /v1/authorized-clients](#tag/OAuth-Server-API-Overview/operation/postAuthorizedclients)
-      - [POST /v1/authorized-clients/destroy](#tag/OAuth-Server-API-Overview/operation/postAuthorizedclientsDestroy)
       - [GET /v1/client/:id](#tag/OAuth-Server-API-Overview/operation/getClientClient_id)
       - [POST /v1/destroy](#tag/OAuth-Server-API-Overview/operation/postDestroy)
       - [POST /v1/introspect](#tag/OAuth-Server-API-Overview/operation/postIntrospect)
       - [GET /v1/jwks](#tag/OAuth-Server-API-Overview/operation/getJwks)
-      - [POST /v1/key-data](#tag/OAuth-Server-API-Overview/operation/postKeydata)
       - [POST /v1/token](#tag/OAuth-Server-API-Overview/operation/postToken)
       - [POST /v1/verify](#tag/OAuth-Server-API-Overview/operation/postVerify)
   `,
@@ -81,7 +78,7 @@ const AUTHORIZATION_GET = {
   ...TAGS_OAUTH_SERVER,
   description: '/v1/authorization',
   notes: [
-    dedent`
+    swaggerText`
       This endpoint starts the OAuth flow. A client redirects the user agent to this url. This endpoint will then redirect to the appropriate content-server page.
 
       **Step-up authentication.** A client may require the user to have completed a second factor,
@@ -118,7 +115,7 @@ const AUTHORIZATION_POST = {
   ...TAGS_OAUTH_SERVER,
   description: '/v1/authorization',
   notes: [
-    dedent`
+    swaggerText`
       This endpoint should be used by the fxa-content-server, requesting that we supply a short-lived code (currently 15 minutes) that will be sent back to the client. This code will be traded for a token at the [token][] endpoint.
 
       **Step-up authentication.** A client may require the user to have completed a second factor,
@@ -142,7 +139,7 @@ const AUTHORIZATION_POST = {
     'hapi-swagger': {
       responses: {
         200: {
-          description: dedent`
+          description: swaggerText`
             A valid request will return a 200 response, with JSON containing the \`redirect\` to follow.
             <br />
             **Example:**
@@ -172,7 +169,7 @@ const DESTROY_POST = {
   ...TAGS_OAUTH_SERVER,
   description: '/v1/destroy',
   notes: [
-    dedent`
+    swaggerText`
       After a client is done using a token, the responsible thing to do is to destroy the token afterwards. A client can use this route to do so.
 
       **Request Parameters**
@@ -183,7 +180,8 @@ const DESTROY_POST = {
     'hapi-swagger': {
       responses: {
         200: {
-          description: 'A valid request will return an empty response, with a 200 status code.',
+          description:
+            'A valid request will return an empty response, with a 200 status code.',
         },
       },
       'x-codeSamples': [
@@ -197,89 +195,6 @@ const DESTROY_POST = {
   },
 };
 
-const AUTHORIZED_CLIENTS_DESTROY_POST = {
-  ...TAGS_OAUTH_SERVER,
-  description: '/v1/authorized-clients/destroy',
-  notes: [
-    `This endpoint revokes tokens granted to a given client. It must be authenticated with an identity assertion for the user's account.`,
-  ],
-  plugins: {
-    'hapi-swagger': {
-      responses: {
-        200: {
-          description: 'A valid 200 response will return an empty JSON object.'
-        }
-      },
-      'x-codeSamples': [
-        {
-          lang: 'JavaScript',
-          source:
-            'curl -X POST \\\n "https://oauth.accounts.firefox.com/v1/authorized-clients/destroy \\\n -H \'cache-control: no-cache\' \\\n -H \'content-type: application/json\' \\\n -d \'{\n  "client_id": "5901bd09376fadaa",\n  "refresh_token_id": "6e8c38f6a9c27dc0e4df698dc3e3e8b101ad6d79e87842b1ca96ad9b3cd8ed28",\n  "assertion": "eyJhbGciOiJSUzI1NiJ9.eyJwdWJsaWMta2V5Ijp7Imt0eSI6IlJTQSIsIm4iOiJvWmdsNkpwM0Iwcm5BVXppNThrdS1iT0RvR3ZuUGNnWU1UdXQ1WkpyQkJiazBCdWU4VUlRQ0dnYVdrYU5Xb29INkktMUZ6SXU0VFpZYnNqWGJ1c2JRRlQxOGREUkN6VVRubFlXdVZXUzhoSWhKc3lhZHJwSHJOVkI1VndmSlRKZVgwTjFpczBXcU1qdUdOc2VMLXluYnFjOVhueElncFJaai05QnZqY2ZKYXNOUTNZdHR3VHZVaFJOLVFGNWgxQkY1MnA2QmdOTVBvWmQ5MC1EU0xydlpseXp6MEh0Q2tFZnNsc013czVkR0ExTlZ1dEwtcGVDeU50VTFzOEtFaDlzcGxXeF9lQlFybTlYQU1kYXp5ZWR6VUpJU1UyMjZmQzhEUHh5c0ZreXpCbjlDQnFDQUpTNjQzTGFydUVDaS1rMGhKOWFmM2JXTmJnWmpSNVJ2NXF4THciLCJlIjoiQVFBQiJ9LCJwcmluY2lwYWwiOnsiZW1haWwiOiIwNjIxMzM0YzIwNjRjNmYzNmJlOGFkOWE0N2M1NTliY2FwaS5hY2NvdW50cy5maXJlZm94LmNvbSJ9LCJpYXQiOjE1MDY5Njk2OTU0MzksImV4cCI6MTUwNjk2OTY5NjQzOSwiZnhhLXZlcmlmaWVkRW1haWwiOiIzMjM2NzJiZUBtb3ppbGxhLmNvbSIsImlzcyI6ImFwaS5hY2NvdW50cy5maXJlZm94LmNvbSJ9.hFZd5zFheXOFrXKkJvw6Vpv2l7ctlxuBTvuh5f_jLPAjZoJ9ri-vaJjL_WYBFUvS2xHzfx3-ldxLddyTKwCDAJeB_NkOFL_WJSrMet9C7_Z1hH9HmydeXIT82xJmhrwzW-WOO4ibQvRbocEFiNujynKsg1gS8v0iiYjIX-0cXCrlkxkbVx_8EXJFKDDOGzK9v7Zq6D7gkhP-CHEaNYaTHMn65tLQtBS6snGdaXlxoGHMWmDL6STbnJzWa7sa4QwHf-AgT1rUkQQAUHNa_XLZ0FEzqiCPctMadlihiUZL2V6vxIDBS4mHUF4qj0FvIMJflivDnJVkRNijDuP-h-Lh_A~eyJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJvYXV0aC5meGEiLCJleHAiOjE1MDY5Njk2OTY0MzksImlzcyI6ImFwaS5hY2NvdW50cy5maXJlZm94LmNvbSJ9.M5xyk3RffucgaavjbUm7Eqnt47hzeGbGa2VR3jnVEIlRHfz5S25Qf3ngejwee7XECvIywbaKWeijXFOwS-EkB-7qP1gl4oNJjPmbnCk7S1lgckLWvdMIU-HLGKjrN6Mw76__LzvAbsusSeGmsvTCIVuOJ49Xs3tC1fLyB_re0QNpCcS6AUnJ1KOxIMEM3Om7ysNO5F_AqcD3PwlEti5lbwSk8iP5TWL12C2Nkb_6Hxze_mA1NZNAHOips9bF2J7oy1hqGoMYj1XYZrsyjpPWEuZQATAPlKSjbh1hq-UtDeT7DlwEmIbIUd3JA8qh1MkHKGgavd4fIMap0IPmr9rs4A",\n}\'',
-        },
-      ],
-    }
-  }
-};
-
-const AUTHORIZED_CLIENTS_POST = {
-  ...TAGS_OAUTH_SERVER,
-  description: '/v1/authorized-clients',
-  notes: [
-    "This endpoint returns a list of all OAuth client instances connected to the user's account, including the the scopes granted to each client instance and the time at which it was last active, if available. It must be authenticated with an identity assertion for the user's account.",
-  ],
-  plugins: {
-    'hapi-swagger': {
-      responses: {
-        200: {
-          description: dedent`
-            A valid 200 response will be a JSON array.
-
-            For clients that use refresh tokens, each refresh token is taken to represent a separate instance of that client and is returned as a separate entry in the list, with the \`refresh_token_id\` field distinguishing each.
-
-            For clients that only use access tokens, all active access tokens are combined into a single entry in the list, and the \`refresh_token_id\` field will not be present.
-
-            **Example:**
-            \`\`\` js
-                [
-                  {
-                    "client_id": "5901bd09376fadaa",
-                    "refresh_token_id": "6e8c38f6a9c27dc0e4df698dc3e3e8b101ad6d79e87842b1ca96ad9b3cd8ed28",
-                    "name": "Example Sync Client",
-                    "created_time": 1528334748000,
-                    "last_access_time": 1528334748000,
-                    "scope": ["profile", "https://identity.mozilla.com/apps/oldsync"]
-                  },
-                  {
-                    "client_id": "5901bd09376fadaa",
-                    "refresh_token_id": "eb5e17f246a6b0937356412118ea12b67a638232d6b376e2511cf38a0c4eecf9",
-                    "name": "Example Sync Client",
-                    "created_time": 1528334748000,
-                    "last_access_time": 1528334834000,
-                    "scope": ["profile", "https://identity.mozilla.com/apps/oldsync"]
-                  },
-                  {
-                    "client_id": "23d10a14f474ca41",
-                    "name": "Example Website",
-                    "created_time": 1328334748000,
-                    "last_access_time": 1476677854037,
-                    "scope": ["profile:email", "profile:uid"]
-                  }
-                ]
-            \`\`\`
-          `
-        }
-      },
-      'x-codeSamples': [
-        {
-          lang: 'JavaScript',
-          source:
-            'curl -X POST \\\n "https://oauth.accounts.firefox.com/v1/authorized-clients" \\\n -H \'cache-control: no-cache\' \\\n -H "Content-Type: application/json" \\\n -d \'{\n  "assertion": "eyJhbGciOiJSUzI1NiJ9.eyJwdWJsaWMta2V5Ijp7Imt0eSI6IlJTQSIsIm4iOiJvWmdsNkpwM0Iwcm5BVXppNThrdS1iT0RvR3ZuUGNnWU1UdXQ1WkpyQkJiazBCdWU4VUlRQ0dnYVdrYU5Xb29INkktMUZ6SXU0VFpZYnNqWGJ1c2JRRlQxOGREUkN6VVRubFlXdVZXUzhoSWhKc3lhZHJwSHJOVkI1VndmSlRKZVgwTjFpczBXcU1qdUdOc2VMLXluYnFjOVhueElncFJaai05QnZqY2ZKYXNOUTNZdHR3VHZVaFJOLVFGNWgxQkY1MnA2QmdOTVBvWmQ5MC1EU0xydlpseXp6MEh0Q2tFZnNsc013czVkR0ExTlZ1dEwtcGVDeU50VTFzOEtFaDlzcGxXeF9lQlFybTlYQU1kYXp5ZWR6VUpJU1UyMjZmQzhEUHh5c0ZreXpCbjlDQnFDQUpTNjQzTGFydUVDaS1rMGhKOWFmM2JXTmJnWmpSNVJ2NXF4THciLCJlIjoiQVFBQiJ9LCJwcmluY2lwYWwiOnsiZW1haWwiOiIwNjIxMzM0YzIwNjRjNmYzNmJlOGFkOWE0N2M1NTliY2FwaS5hY2NvdW50cy5maXJlZm94LmNvbSJ9LCJpYXQiOjE1MDY5Njk2OTU0MzksImV4cCI6MTUwNjk2OTY5NjQzOSwiZnhhLXZlcmlmaWVkRW1haWwiOiIzMjM2NzJiZUBtb3ppbGxhLmNvbSIsImlzcyI6ImFwaS5hY2NvdW50cy5maXJlZm94LmNvbSJ9.hFZd5zFheXOFrXKkJvw6Vpv2l7ctlxuBTvuh5f_jLPAjZoJ9ri-vaJjL_WYBFUvS2xHzfx3-ldxLddyTKwCDAJeB_NkOFL_WJSrMet9C7_Z1hH9HmydeXIT82xJmhrwzW-WOO4ibQvRbocEFiNujynKsg1gS8v0iiYjIX-0cXCrlkxkbVx_8EXJFKDDOGzK9v7Zq6D7gkhP-CHEaNYaTHMn65tLQtBS6snGdaXlxoGHMWmDL6STbnJzWa7sa4QwHf-AgT1rUkQQAUHNa_XLZ0FEzqiCPctMadlihiUZL2V6vxIDBS4mHUF4qj0FvIMJflivDnJVkRNijDuP-h-Lh_A~eyJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJvYXV0aC5meGEiLCJleHAiOjE1MDY5Njk2OTY0MzksImlzcyI6ImFwaS5hY2NvdW50cy5maXJlZm94LmNvbSJ9.M5xyk3RffucgaavjbUm7Eqnt47hzeGbGa2VR3jnVEIlRHfz5S25Qf3ngejwee7XECvIywbaKWeijXFOwS-EkB-7qP1gl4oNJjPmbnCk7S1lgckLWvdMIU-HLGKjrN6Mw76__LzvAbsusSeGmsvTCIVuOJ49Xs3tC1fLyB_re0QNpCcS6AUnJ1KOxIMEM3Om7ysNO5F_AqcD3PwlEti5lbwSk8iP5TWL12C2Nkb_6Hxze_mA1NZNAHOips9bF2J7oy1hqGoMYj1XYZrsyjpPWEuZQATAPlKSjbh1hq-UtDeT7DlwEmIbIUd3JA8qh1MkHKGgavd4fIMap0IPmr9rs4A"\n}\'',
-        },
-      ],
-    }
-  }
-};
-
 const CLIENT_CLIENTID_GET = {
   ...TAGS_OAUTH_SERVER,
   description: '/v1/client/{client_id}',
@@ -290,7 +205,7 @@ const CLIENT_CLIENTID_GET = {
     'hapi-swagger': {
       responses: {
         200: {
-          description: dedent`
+          description: swaggerText`
             A valid 200 response will be a JSON blob.
             <br />
             **Example:**
@@ -303,7 +218,7 @@ const CLIENT_CLIENTID_GET = {
                 }
             \`\`\`
           `,
-        }
+        },
       },
       'x-codeSamples': [
         {
@@ -320,7 +235,7 @@ const INTROSPECT_POST = {
   ...TAGS_OAUTH_SERVER,
   description: '/v1/introspect',
   notes: [
-    dedent`
+    swaggerText`
       This endpoint returns the status of the token and meta-information about this token.
 
       If the token has attribute \`active: false\`, none of the other attributes in the response will have content.
@@ -340,7 +255,7 @@ const INTROSPECT_POST = {
     'hapi-swagger': {
       responses: {
         200: {
-          description: dedent`
+          description: swaggerText`
             A valid request will return a JSON response.
             <br />
             **Example:**
@@ -383,7 +298,7 @@ const JWKS_GET = {
     'hapi-swagger': {
       responses: {
         200: {
-          description: dedent`
+          description: swaggerText`
             A valid response will return JSON of the \`keys\`.
             <br />
             **Example:**
@@ -405,43 +320,7 @@ const JWKS_GET = {
       'x-codeSamples': [
         {
           lang: 'JavaScript',
-          source:
-            'curl -v "http://oauth.accounts.firefox.com/v1/jwks"',
-        },
-      ],
-    },
-  },
-};
-
-const KEY_DATA_POST = {
-  ...TAGS_OAUTH_SERVER,
-  description: '/v1/key-data',
-  notes: ['This endpoint returns the required scoped key metadata.'],
-  plugins: {
-    'hapi-swagger': {
-      responses: {
-        200: {
-          description: dedent`
-            A valid response will return JSON the scoped key information for every scope that has scoped keys.
-            <br />
-            **Example:**
-            \`\`\` js
-                {
-                  "https://identity.mozilla.com/apps/sample-scope-can-scope-key": {
-                    "identifier": "https://identity.mozilla.com/apps/sample-scope-can-scope-key",
-                    "keyRotationSecret": "0000000000000000000000000000000000000000000000000000000000000000",
-                    "keyRotationTimestamp": 1506970363512
-                  }
-                }
-            \`\`\`
-          `
-        }
-      },
-      'x-codeSamples': [
-        {
-          lang: 'JavaScript',
-          source:
-            'curl -X POST \\\n "https://oauth.accounts.firefox.com/v1/key-data" \\\n  -H \'cache-control: no-cache\' \\\n  -H \'content-type: application/json\' \\\n  -d \'{\n   "client_id": "5901bd09376fadaa",\n   "assertion": "eyJhbGciOiJSUzI1NiJ9.eyJwdWJsaWMta2V5Ijp7Imt0eSI6IlJTQSIsIm4iOiJvWmdsNkpwM0Iwcm5BVXppNThrdS1iT0RvR3ZuUGNnWU1UdXQ1WkpyQkJiazBCdWU4VUlRQ0dnYVdrYU5Xb29INkktMUZ6SXU0VFpZYnNqWGJ1c2JRRlQxOGREUkN6VVRubFlXdVZXUzhoSWhKc3lhZHJwSHJOVkI1VndmSlRKZVgwTjFpczBXcU1qdUdOc2VMLXluYnFjOVhueElncFJaai05QnZqY2ZKYXNOUTNZdHR3VHZVaFJOLVFGNWgxQkY1MnA2QmdOTVBvWmQ5MC1EU0xydlpseXp6MEh0Q2tFZnNsc013czVkR0ExTlZ1dEwtcGVDeU50VTFzOEtFaDlzcGxXeF9lQlFybTlYQU1kYXp5ZWR6VUpJU1UyMjZmQzhEUHh5c0ZreXpCbjlDQnFDQUpTNjQzTGFydUVDaS1rMGhKOWFmM2JXTmJnWmpSNVJ2NXF4THciLCJlIjoiQVFBQiJ9LCJwcmluY2lwYWwiOnsiZW1haWwiOiIwNjIxMzM0YzIwNjRjNmYzNmJlOGFkOWE0N2M1NTliY2FwaS5hY2NvdW50cy5maXJlZm94LmNvbSJ9LCJpYXQiOjE1MDY5Njk2OTU0MzksImV4cCI6MTUwNjk2OTY5NjQzOSwiZnhhLXZlcmlmaWVkRW1haWwiOiIzMjM2NzJiZUBtb3ppbGxhLmNvbSIsImlzcyI6ImFwaS5hY2NvdW50cy5maXJlZm94LmNvbSJ9.hFZd5zFheXOFrXKkJvw6Vpv2l7ctlxuBTvuh5f_jLPAjZoJ9ri-vaJjL_WYBFUvS2xHzfx3-ldxLddyTKwCDAJeB_NkOFL_WJSrMet9C7_Z1hH9HmydeXIT82xJmhrwzW-WOO4ibQvRbocEFiNujynKsg1gS8v0iiYjIX-0cXCrlkxkbVx_8EXJFKDDOGzK9v7Zq6D7gkhP-CHEaNYaTHMn65tLQtBS6snGdaXlxoGHMWmDL6STbnJzWa7sa4QwHf-AgT1rUkQQAUHNa_XLZ0FEzqiCPctMadlihiUZL2V6vxIDBS4mHUF4qj0FvIMJflivDnJVkRNijDuP-h-Lh_A~eyJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJvYXV0aC5meGEiLCJleHAiOjE1MDY5Njk2OTY0MzksImlzcyI6ImFwaS5hY2NvdW50cy5maXJlZm94LmNvbSJ9.M5xyk3RffucgaavjbUm7Eqnt47hzeGbGa2VR3jnVEIlRHfz5S25Qf3ngejwee7XECvIywbaKWeijXFOwS-EkB-7qP1gl4oNJjPmbnCk7S1lgckLWvdMIU-HLGKjrN6Mw76__LzvAbsusSeGmsvTCIVuOJ49Xs3tC1fLyB_re0QNpCcS6AUnJ1KOxIMEM3Om7ysNO5F_AqcD3PwlEti5lbwSk8iP5TWL12C2Nkb_6Hxze_mA1NZNAHOips9bF2J7oy1hqGoMYj1XYZrsyjpPWEuZQATAPlKSjbh1hq-UtDeT7DlwEmIbIUd3JA8qh1MkHKGgavd4fIMap0IPmr9rs4A",\n   "scope": "https://identity.mozilla.com/apps/sample-scope-can-scope-key"\n}\'',
+          source: 'curl -v "http://oauth.accounts.firefox.com/v1/jwks"',
         },
       ],
     },
@@ -452,7 +331,7 @@ const TOKEN_POST = {
   ...TAGS_OAUTH_SERVER,
   description: '/v1/token',
   notes: [
-    dedent`
+    swaggerText`
       After receiving an authorization grant from the user, clients exercise that grant at this endpoint to obtain tokens that can be used to access attached services for a particular user.
 
       The following types of grant are possible:
@@ -476,7 +355,7 @@ const TOKEN_POST = {
     'hapi-swagger': {
       responses: {
         200: {
-          description: dedent`
+          description: swaggerText`
             A valid request will return a JSON response.
             <br />
             **Example:**
@@ -490,8 +369,8 @@ const TOKEN_POST = {
                   "auth_at": 1422336613
                 }
             \`\`\`
-          `
-        }
+          `,
+        },
       },
       'x-codeSamples': [
         {
@@ -514,7 +393,7 @@ const VERIFY_POST = {
     'hapi-swagger': {
       responses: {
         200: {
-          description: dedent`
+          description: swaggerText`
             A valid request will return a JSON response.
 
             - Note: \`email\` of the respective user has been **REMOVED**.
@@ -527,7 +406,7 @@ const VERIFY_POST = {
                   "scope": ["profile:email", "profile:avatar"],
                 }
             \`\`\`
-          `
+          `,
         },
       },
       'x-codeSamples': [
@@ -546,12 +425,9 @@ const API_DOCS = {
   AUTHORIZATION_GET,
   AUTHORIZATION_POST,
   DESTROY_POST,
-  AUTHORIZED_CLIENTS_DESTROY_POST,
-  AUTHORIZED_CLIENTS_POST,
   CLIENT_CLIENTID_GET,
   INTROSPECT_POST,
   JWKS_GET,
-  KEY_DATA_POST,
   TOKEN_POST,
   VERIFY_POST,
 };

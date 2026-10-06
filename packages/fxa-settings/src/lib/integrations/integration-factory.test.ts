@@ -24,6 +24,7 @@ import { Constants } from '../constants';
 
 type IntegrationFlagOverrides = {
   isDevicePairingAsAuthority?: boolean;
+  isDevicePairingAsV2Authority?: boolean;
   isDevicePairingAsSupplicant?: boolean;
   isOAuth?: boolean;
   isServiceSync?: boolean;
@@ -63,6 +64,9 @@ describe('lib/integrations/integration-factory', () => {
     sandbox
       .stub(flags, 'isDevicePairingAsAuthority')
       .returns(!!flagOverrides.isDevicePairingAsAuthority);
+    sandbox
+      .stub(flags, 'isDevicePairingAsV2Authority')
+      .returns(!!flagOverrides.isDevicePairingAsV2Authority);
     sandbox
       .stub(flags, 'isDevicePairingAsSupplicant')
       .returns(!!flagOverrides.isDevicePairingAsSupplicant);
@@ -256,11 +260,10 @@ describe('lib/integrations/integration-factory', () => {
     });
 
     describe('when clientInfo is missing but the fetch did not fail', () => {
-      // Some flows populate `data.clientId` from non-URL-query sources
-      // (e.g. the `/oauth/success/:clientId` pathname via
-      // `initOAuthIntegration`). In those flows `useClientInfoState` never
-      // ran a fetch, so the factory should not flag clientInfoLoadFailed
-      // even though `clientInfo` is undefined and `data.clientId` is set.
+      // Some flows populate `data.clientId` from non-URL-query sources without
+      // `useClientInfoState` ever running a fetch, so the factory should not
+      // flag clientInfoLoadFailed even though `clientInfo` is undefined and
+      // `data.clientId` is set.
       beforeEach(() => {
         sandbox.restore();
         sandbox.stub(flags, 'isOAuth').returns(true);
@@ -290,6 +293,11 @@ describe('lib/integrations/integration-factory', () => {
       it('does not flag clientInfoLoadFailed', () => {
         expect(integration.data.clientId).toEqual('720bc80adfa6988d');
         expect(integration.clientInfoLoadFailed).toBe(false);
+      });
+
+      it('flags isOAuthSuccessFlow so the missing scope is not an error', () => {
+        expect(integration.isOAuthSuccessFlow).toBe(true);
+        expect(() => integration.getServiceName()).not.toThrow();
       });
     });
 
@@ -411,6 +419,19 @@ describe('lib/integrations/integration-factory', () => {
       expect(integration.isSync()).toBeFalsy();
       expect(integration.wantsKeys()).toBeFalsy();
       expect(integration.isTrusted()).toBeFalsy();
+      expect(integration.pairingVersion).toEqual(1);
+    });
+
+    it('is version 2 when the v2 authority flag is set', async () => {
+      const v2 = await setup<PairingAuthorityIntegration>(
+        {
+          isDevicePairingAsAuthority: true,
+          isDevicePairingAsV2Authority: true,
+        },
+        { initIntegration: 1, initClientInfo: 1, initOAuthIntegration: 1 },
+        (i: Integration) => i instanceof PairingAuthorityIntegration
+      );
+      expect(v2.pairingVersion).toEqual(2);
     });
   });
 });

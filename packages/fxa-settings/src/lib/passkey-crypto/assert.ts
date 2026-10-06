@@ -29,3 +29,7 @@ export function assertByteLength(
     throw new Error(`${name} must be ${expected} bytes, got ${value.length}`);
   }
 }
+
+export function isZeroed(bytes: Uint8Array): boolean {
+  return bytes.every((byte) => byte === 0);
+}

@@ -107,10 +107,9 @@
     "source-map-loader": "^5.0.0",
     "stream-browserify": "^3.0.0",
     "thread-loader": "^4.0.2",
-    "time-grunt": "2.0.0",
     "ua-parser-js": "1.0.35",
     "underscore": "^1.13.8",
-    "uuid": "^11.1.1",
+    "uuid": "^13.0.2",
     "verror": "1.10.1",
     "webpack": "^5.104.1"
   },
@@ -156,7 +155,7 @@
     "typescript": "5.5.3",
     "upng-js": "2.1.0",
     "url-loader": "4.1.1",
-    "webpack-dev-middleware": "^7.4.0",
+    "webpack-dev-middleware": "^7.4.5",
     "xmlhttprequest": "^1.8.0",
     "yargs": "^17.0.1"
   },

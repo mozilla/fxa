@@ -59,6 +59,10 @@ export interface StoredAccountData {
   alertText?: string;
   displayName?: string;
   hasPassword?: boolean;
+  /** Profile scopes shown, by client id then scope. Shared with Backbone. */
+  permissions?: Record<string, Record<string, boolean>>;
+  /** Legacy form of `permissions`, still read for accounts that hold it. */
+  grantedPermissions?: Record<string, string[]>;
 }
 
 /**

@@ -20,7 +20,6 @@ import * as reg from './reg';
 import { oauthClientId, service } from './relyingParty';
 import { deviceType, entrypoint, flowId } from './session';
 import * as thirdPartyAuth from './thirdPartyAuth';
-import * as thirdPartyAuthSetPassword from './thirdPartyAuthSetPassword';
 import * as utm from './utm';
 import * as entrypointQuery from './entrypoint';
 
@@ -297,18 +296,6 @@ const recordEventMetric = (eventName: string, properties: EventProperties) => {
     case 'cad_startbrowsing_submit':
       cad.startbrowsingSubmit.record();
       break;
-    case 'third_party_auth_set_password_view':
-      thirdPartyAuthSetPassword.view.record();
-      break;
-    case 'third_party_auth_set_password_engage':
-      thirdPartyAuthSetPassword.engage.record();
-      break;
-    case 'third_party_auth_set_password_submit':
-      thirdPartyAuthSetPassword.submit.record();
-      break;
-    case 'third_party_auth_set_password_success':
-      thirdPartyAuthSetPassword.success.record();
-      break;
     case 'third_party_auth_google_deeplink':
       thirdPartyAuth.googleDeeplink.record();
       break;
@@ -473,12 +460,6 @@ export const GleanMetrics = {
   },
   cadRedirectMobile: {
     view: createEventFn('cad_redirect_mobile_view'),
-  },
-  setPasswordThirdPartyAuth: {
-    view: createEventFn('third_party_auth_set_password_view'),
-    engage: createEventFn('third_party_auth_set_password_engage'),
-    submit: createEventFn('third_party_auth_set_password_submit'),
-    success: createEventFn('third_party_auth_set_password_success'),
   },
   thirdPartyAuth: {
     googleDeeplink: createEventFn('third_party_auth_google_deeplink'),

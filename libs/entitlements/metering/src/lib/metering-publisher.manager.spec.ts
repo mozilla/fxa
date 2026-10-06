@@ -20,7 +20,7 @@ const EVENT: MeteringWireEvent = {
   id: 'event-1',
   clientId: 'vpn',
   slug: 'tokens',
-  userIdentifier: 'user-1',
+  subject: 'user-1',
   amount: 5,
   timestamp: '2026-05-07T15:23:45.123Z',
 };

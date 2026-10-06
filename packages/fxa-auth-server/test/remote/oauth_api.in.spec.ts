@@ -28,9 +28,7 @@ jest.mock('p-queue', () => ({
 
 const url = require('url');
 const nock = require('nock');
-const buf = (v) => (Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex'));
 const testServer = require('../lib/server');
-const ScopeSet = require('fxa-shared').oauth.scopes;
 const { decodeJWT } = require('../lib/util');
 
 const db = require('../../lib/oauth/db');
@@ -2644,182 +2642,159 @@ describe('#integration - /v1', function () {
         });
       });
     });
+  });
 
-    describe('POST /key-data', function () {
-      let genericRequest;
+  describe('POST /account/scoped-key-data', function () {
+    const ZERO_KEY_ROTATION_SECRET = '0'.repeat(64);
+    let genericRequest;
 
-      beforeEach(function () {
-        genericRequest = {
-          url: '/key-data',
-          payload: {
-            assertion: AN_ASSERTION,
-            client_id: SCOPED_CLIENT_ID,
-            scope: SCOPE_CAN_SCOPE_KEY,
-          },
-        };
+    // Injected credentials skip the Hawk scheme so each test controls the assertion claims.
+    function sessionCredentials(overrides = {}) {
+      return {
+        id: unique(32).toString('hex'),
+        uid: USERID,
+        email: VEMAIL,
+        emailVerified: true,
+        tokenVerified: true,
+        verifierSetAt: 123456,
+        lastAuthAt: () => AUTH_AT,
+        authenticationMethods: AMR,
+        authenticatorAssuranceLevel: AAL,
+        ...overrides,
+      };
+    }
+
+    beforeEach(function () {
+      genericRequest = {
+        url: '/account/scoped-key-data',
+        auth: { strategy: 'sessionToken', credentials: sessionCredentials() },
+        payload: {
+          client_id: SCOPED_CLIENT_ID,
+          scope: SCOPE_CAN_SCOPE_KEY,
+        },
+      };
+    });
+
+    it('works with a correct response', async () => {
+      const res = await Server.api.post(genericRequest);
+      expect(res.statusCode).toBe(200);
+      assertSecurityHeaders(res);
+      expect(res.result).toEqual({
+        [SCOPE_CAN_SCOPE_KEY]: {
+          identifier: SCOPE_CAN_SCOPE_KEY,
+          keyRotationSecret: ZERO_KEY_ROTATION_SECRET,
+          keyRotationTimestamp: 123456,
+        },
       });
+    });
 
-      it('works with a correct response', () => {
-        return Server.api.post(genericRequest).then((res) => {
-          expect(res.statusCode).toBe(200);
-          assertSecurityHeaders(res);
-          expect(Object.keys(res.result).length).toBe(1);
+    it('works with multiple scopes', async () => {
+      const ANOTHER_CAN_SCOPE_KEY =
+        'https://identity.mozilla.com/apps/another-can-scope-key';
+      genericRequest.payload.scope = `${SCOPE_CAN_SCOPE_KEY} ${ANOTHER_CAN_SCOPE_KEY}`;
 
-          const body = res.result[SCOPE_CAN_SCOPE_KEY];
-
-          expect(body.identifier).toBe(
-            'https://identity.mozilla.com/apps/sample-scope-can-scope-key'
-          );
-          expect(body.keyRotationSecret).toBe(
-            '0000000000000000000000000000000000000000000000000000000000000000'
-          );
-          expect(body.keyRotationTimestamp).toBe(123456);
-        });
+      const res = await Server.api.post(genericRequest);
+      expect(res.statusCode).toBe(200);
+      assertSecurityHeaders(res);
+      expect(res.result).toEqual({
+        [SCOPE_CAN_SCOPE_KEY]: {
+          identifier: SCOPE_CAN_SCOPE_KEY,
+          keyRotationSecret: ZERO_KEY_ROTATION_SECRET,
+          keyRotationTimestamp: 123456,
+        },
+        [ANOTHER_CAN_SCOPE_KEY]: {
+          identifier: ANOTHER_CAN_SCOPE_KEY,
+          keyRotationSecret: ZERO_KEY_ROTATION_SECRET,
+          keyRotationTimestamp: 123456,
+        },
       });
+    });
 
-      it('works with multiple scopes', () => {
-        const ANOTHER_CAN_SCOPE_KEY =
-          'https://identity.mozilla.com/apps/another-can-scope-key';
-        genericRequest.payload.scope = `${SCOPE_CAN_SCOPE_KEY} ${ANOTHER_CAN_SCOPE_KEY}`;
+    it('fails with non-existent client_id', async () => {
+      genericRequest.payload.client_id = BAD_CLIENT_ID;
+      const res = await Server.api.post(genericRequest);
+      expect(res.statusCode).toBe(400);
+      assertSecurityHeaders(res);
+      expect(res.result.errno).toBe(162);
+      expect(res.result.message).toBe('Unknown client_id');
+    });
 
-        return Server.api.post(genericRequest).then((res) => {
-          expect(res.statusCode).toBe(200);
-          assertSecurityHeaders(res);
-          expect(Object.keys(res.result).length).toBe(2);
+    it('succeeds with a non-scoped-key scope', async () => {
+      genericRequest.payload.scope =
+        'https://identity.mozilla.com/apps/sample-scope';
+      const res = await Server.api.post(genericRequest);
+      expect(res.statusCode).toBe(200);
+      assertSecurityHeaders(res);
+      expect(res.result).toEqual({});
+    });
 
-          const keyOne = res.result[SCOPE_CAN_SCOPE_KEY];
-          const keyTwo = res.result[ANOTHER_CAN_SCOPE_KEY];
+    it('succeeds with scopes that arent explicitly defined in config', async () => {
+      genericRequest.payload.scope += ' kv';
+      const res = await Server.api.post(genericRequest);
+      expect(res.statusCode).toBe(200);
+      assertSecurityHeaders(res);
+      expect(Object.keys(res.result)).toEqual([SCOPE_CAN_SCOPE_KEY]);
+    });
 
-          expect(keyOne.identifier).toBe(SCOPE_CAN_SCOPE_KEY);
-          expect(keyOne.keyRotationSecret).toBe(
-            '0000000000000000000000000000000000000000000000000000000000000000'
-          );
-          expect(keyOne.keyRotationTimestamp).toBe(123456);
+    it('fails with an invalid session token', async () => {
+      delete genericRequest.auth;
+      genericRequest.headers = { authorization: `Bearer ${'0'.repeat(64)}` };
+      const res = await Server.api.post(genericRequest);
+      expect(res.statusCode).toBe(401);
+      assertSecurityHeaders(res);
+      expect(res.result.errno).toBe(110);
+    });
 
-          expect(keyTwo.identifier).toBe(ANOTHER_CAN_SCOPE_KEY);
-          expect(keyTwo.keyRotationSecret).toBe(
-            '0000000000000000000000000000000000000000000000000000000000000000'
-          );
-          expect(keyTwo.keyRotationTimestamp).toBe(123456);
-        });
+    it.each([
+      ['are not allowed the requested scope', NO_KEY_SCOPES_CLIENT_ID],
+      ['have no allowedScopes', NO_ALLOWED_SCOPES_CLIENT_ID],
+    ])('fails for clients that %s', async (_, clientId) => {
+      genericRequest.payload.client_id = clientId;
+      const res = await Server.api.post(genericRequest);
+      expect(res.statusCode).toBe(400);
+      expect(res.result.message).toBe('Requested scopes are not allowed');
+      assertSecurityHeaders(res);
+    });
+
+    it('correctly handles authAt timestamp for newly-created accounts', async () => {
+      genericRequest.auth.credentials = sessionCredentials({
+        verifierSetAt: 1549910733629,
+        lastAuthAt: () => 1549910733,
       });
+      const res = await Server.api.post(genericRequest);
+      expect(res.statusCode).toBe(200);
+      assertSecurityHeaders(res);
+      expect(Object.keys(res.result)).toEqual([SCOPE_CAN_SCOPE_KEY]);
+    });
 
-      it('fails with non-existent client_id', () => {
-        genericRequest.payload.client_id = BAD_CLIENT_ID;
-        return Server.api.post(genericRequest).then((res) => {
-          expect(res.statusCode).toBe(400);
-          assertSecurityHeaders(res);
-          const body = res.result;
-          expect(body.errno).toBe(101);
-          expect(body.message).toBe('Unknown client');
-        });
+    it('uses fxa-keysChangedAt for the key rotation timestamp', async () => {
+      genericRequest.auth.credentials = sessionCredentials({
+        verifierSetAt: 1549910740000,
+        lastAuthAt: () => 1549910733,
+        keysChangedAt: 1549910340000,
       });
+      const res = await Server.api.post(genericRequest);
+      expect(res.statusCode).toBe(200);
+      assertSecurityHeaders(res);
+      expect(Object.keys(res.result)).toEqual([SCOPE_CAN_SCOPE_KEY]);
+      expect(res.result[SCOPE_CAN_SCOPE_KEY].keyRotationTimestamp).toBe(
+        1549910340000
+      );
+    });
 
-      it('succeeds with a non-scoped-key scope', () => {
-        genericRequest.payload.scope =
-          'https://identity.mozilla.com/apps/sample-scope';
-        return Server.api.post(genericRequest).then((res) => {
-          expect(res.statusCode).toBe(200);
-          assertSecurityHeaders(res);
-          expect(Object.keys(res.result).length).toBe(0);
-        });
+    it('falls back to fxa-generation when fxa-keysChangedAt is falsy', async () => {
+      genericRequest.auth.credentials = sessionCredentials({
+        verifierSetAt: 1549910730000,
+        lastAuthAt: () => 1549910733,
+        keysChangedAt: undefined,
       });
-
-      it('succeeds with scopes that arent explicitly defined in config', () => {
-        genericRequest.payload.scope += ' kv';
-        return Server.api.post(genericRequest).then((res) => {
-          expect(res.statusCode).toBe(200);
-          assertSecurityHeaders(res);
-          expect(Object.keys(res.result)).toEqual([SCOPE_CAN_SCOPE_KEY]);
-        });
-      });
-
-      it('fails with bad assertion', () => {
-        genericRequest.payload.assertion = AN_ASSERTION + 'invalid';
-        return Server.api.post(genericRequest).then((res) => {
-          expect(res.statusCode).toBe(401);
-          assertSecurityHeaders(res);
-          const body = res.result;
-          expect(body.message).toBe('Invalid assertion');
-        });
-      });
-
-      it('fails for clients that are not allowed the requested scope', () => {
-        genericRequest.payload.client_id = NO_KEY_SCOPES_CLIENT_ID;
-
-        return Server.api.post(genericRequest).then((res) => {
-          expect(res.statusCode).toBe(400);
-          expect(res.result.message).toBe('Requested scopes are not allowed');
-          assertSecurityHeaders(res);
-        });
-      });
-
-      it('fails for clients that have no allowedScopes', () => {
-        genericRequest.payload.client_id = NO_ALLOWED_SCOPES_CLIENT_ID;
-
-        return Server.api.post(genericRequest).then((res) => {
-          expect(res.statusCode).toBe(400);
-          expect(res.result.message).toBe('Requested scopes are not allowed');
-          assertSecurityHeaders(res);
-        });
-      });
-
-      it('correctly handles authAt timestamp for newly-created accounts', async () => {
-        genericRequest.payload.assertion = await genAssertion({
-          'fxa-generation': 1549910733629,
-          'fxa-verifiedEmail': VEMAIL,
-          'fxa-lastAuthAt': 1549910733,
-          'fxa-tokenVerified': true,
-          'fxa-amr': AMR,
-          'fxa-aal': AAL,
-          'fxa-profileChangedAt': Date.now(),
-        });
-        return Server.api.post(genericRequest).then((res) => {
-          expect(res.statusCode).toBe(200);
-          assertSecurityHeaders(res);
-          expect(Object.keys(res.result).length).toBe(1);
-        });
-      });
-
-      it('uses fxa-keysChangedAt for the key rotation timestamp', async () => {
-        genericRequest.payload.assertion = await genAssertion({
-          'fxa-generation': 1549910740000,
-          'fxa-verifiedEmail': VEMAIL,
-          'fxa-lastAuthAt': 1549910733,
-          'fxa-tokenVerified': true,
-          'fxa-amr': AMR,
-          'fxa-aal': AAL,
-          'fxa-profileChangedAt': Date.now(),
-          'fxa-keysChangedAt': 1549910340000,
-        });
-        return Server.api.post(genericRequest).then((res) => {
-          expect(res.statusCode).toBe(200);
-          assertSecurityHeaders(res);
-          expect(Object.keys(res.result).length).toBe(1);
-          const keyOne = res.result[SCOPE_CAN_SCOPE_KEY];
-          expect(keyOne.keyRotationTimestamp).toBe(1549910340000);
-        });
-      });
-
-      it('falls back to fxa-generation when fxa-keysChangedAt is falsy', async () => {
-        genericRequest.payload.assertion = await genAssertion({
-          'fxa-generation': 1549910730000,
-          'fxa-verifiedEmail': VEMAIL,
-          'fxa-lastAuthAt': 1549910733,
-          'fxa-tokenVerified': true,
-          'fxa-amr': AMR,
-          'fxa-aal': AAL,
-          'fxa-profileChangedAt': Date.now(),
-          'fxa-keysChangedAt': undefined,
-        });
-        return Server.api.post(genericRequest).then((res) => {
-          expect(res.statusCode).toBe(200);
-          assertSecurityHeaders(res);
-          expect(Object.keys(res.result).length).toBe(1);
-          const keyOne = res.result[SCOPE_CAN_SCOPE_KEY];
-          expect(keyOne.keyRotationTimestamp).toBe(1549910730000);
-        });
-      });
+      const res = await Server.api.post(genericRequest);
+      expect(res.statusCode).toBe(200);
+      assertSecurityHeaders(res);
+      expect(Object.keys(res.result)).toEqual([SCOPE_CAN_SCOPE_KEY]);
+      expect(res.result[SCOPE_CAN_SCOPE_KEY].keyRotationTimestamp).toBe(
+        1549910730000
+      );
     });
   });
 
@@ -3191,388 +3166,6 @@ describe('#integration - /v1', function () {
           expect(key.e).toBeTruthy();
           expect(key.d).toBeFalsy();
         });
-    });
-  });
-
-  describe('/authorized-clients', () => {
-    let user1, user2, client1Id, client2Id, client1, client2;
-
-    async function withMockAssertion(user, params) {
-      const assertion = await genAssertion(
-        {
-          'fxa-generation': 123456,
-          'fxa-verifiedEmail': user.email || VEMAIL,
-          'fxa-lastAuthAt': AUTH_AT,
-          'fxa-tokenVerified': true,
-          'fxa-amr': AMR,
-          'fxa-aal': AAL,
-        },
-        user.uid
-      );
-      return {
-        assertion,
-        ...params,
-      };
-    }
-
-    async function makeAccessToken(client, user, scope) {
-      const token = await db.generateAccessToken({
-        clientId: client.id,
-        name: client.name,
-        canGrant: client.canGrant,
-        userId: buf(user.uid),
-        email: user.email,
-        scope: ScopeSet.fromArray(scope),
-      });
-      return token.tokenId.toString('hex');
-    }
-
-    async function makeRefreshToken(client, user, scope) {
-      const token = await db.generateRefreshToken({
-        clientId: client.id,
-        userId: buf(user.uid),
-        email: user.email,
-        scope: ScopeSet.fromArray(scope),
-      });
-      return token.tokenId.toString('hex');
-    }
-
-    beforeEach(async () => {
-      user1 = {
-        uid: unique(16).toString('hex'),
-        email: unique(10).toString('hex') + '@example.com',
-      };
-
-      user2 = {
-        uid: unique(16).toString('hex'),
-        email: unique(10).toString('hex') + '@example.com',
-      };
-
-      client1Id = unique.id();
-      client1 = {
-        name: 'test/api/authorized-clients/bbb-one',
-        id: client1Id,
-        hashedSecret: encrypt.hash(unique.secret()),
-        redirectUri: 'https://example.domain',
-        imageUri: 'https://example.com/logo.png',
-        trusted: true,
-      };
-      await db.registerClient(client1);
-
-      client2Id = unique.id();
-      client2 = {
-        name: 'test/api/authorized-clients/aaa-two',
-        id: client2Id,
-        hashedSecret: encrypt.hash(unique.secret()),
-        redirectUri: 'https://example.domain',
-        imageUri: 'https://example.com/logo.png',
-        trusted: false,
-      };
-      await db.registerClient(client2);
-    });
-
-    describe('POST /authorized-clients', () => {
-      it('should list authorized clients in a specific order', async () => {
-        await makeAccessToken(client1, user1, ['profile']);
-        await makeAccessToken(client2, user1, ['bb_scope', 'aa_scope']);
-        const res = await Server.api.post({
-          url: '/authorized-clients',
-          payload: await withMockAssertion(user1, {}),
-        });
-        expect(res.statusCode).toBe(200);
-        assertSecurityHeaders(res);
-        const clients = res.result;
-        expect(clients.length).toBe(2);
-        // The API sorts the results by last-used time and then by name.
-        // Since we create the token for client2 after that of client1,
-        // either way we'll end up with client2 at the start of the list.
-        expect(clients[0].client_id).toBe(client2Id.toString('hex'));
-        expect(clients[0].created_time).toBeTruthy();
-        expect(clients[0].last_access_time).toBeTruthy();
-        expect(clients[0].client_name).toBe(
-          'test/api/authorized-clients/aaa-two'
-        );
-        expect(clients[0].scope).toEqual(['aa_scope', 'bb_scope']);
-
-        expect(clients[1].client_id).toBe(client1Id.toString('hex'));
-        expect(clients[1].created_time).toBeTruthy();
-        expect(clients[1].last_access_time).toBeTruthy();
-        expect(clients[1].client_name).toBe(
-          'test/api/authorized-clients/bbb-one'
-        );
-        expect(clients[1].scope).toEqual(['profile']);
-      });
-
-      it('should not list tokens of different users', async () => {
-        await makeAccessToken(client1, user1, ['profile']);
-        await makeAccessToken(client2, user2, ['bb_scope', 'aa_scope']);
-
-        const res1 = await Server.api.post({
-          url: '/authorized-clients',
-          payload: await withMockAssertion(user1, {}),
-        });
-        expect(res1.statusCode).toBe(200);
-        assertSecurityHeaders(res1);
-        const clients1 = res1.result;
-        expect(clients1.length).toBe(1);
-        expect(clients1[0].client_id).toBe(client1Id.toString('hex'));
-
-        const res2 = await Server.api.post({
-          url: '/authorized-clients',
-          payload: await withMockAssertion(user2, {}),
-        });
-        expect(res2.statusCode).toBe(200);
-        assertSecurityHeaders(res2);
-        const clients2 = res2.result;
-        expect(clients2.length).toBe(1);
-        expect(clients2[0].client_id).toBe(client2Id.toString('hex'));
-      });
-
-      it('should separately list different refresh tokens from the same client', async () => {
-        await makeAccessToken(client1, user1, ['profile']);
-        await makeAccessToken(client1, user1, ['other', 'scope']);
-        await makeRefreshToken(client2, user1, ['profile']);
-        await makeRefreshToken(client2, user1, [
-          'aaaSortMeFirst',
-          'other',
-          'scope',
-        ]);
-        await makeAccessToken(client2, user1, ['profile']);
-        const res = await Server.api.post({
-          url: '/authorized-clients',
-          payload: await withMockAssertion(user1, {}),
-        });
-        expect(res.statusCode).toBe(200);
-        assertSecurityHeaders(res);
-        const clients = res.result;
-        expect(clients.length).toBe(3);
-        expect(clients[0].client_id).toBe(client2Id.toString('hex'));
-        expect(clients[0].scope).toEqual(['aaaSortMeFirst', 'other', 'scope']);
-        expect(clients[0].refresh_token_id).toBeTruthy();
-        expect(clients[1].client_id).toBe(client2Id.toString('hex'));
-        expect(clients[1].scope).toEqual(['profile']);
-        expect(clients[1].refresh_token_id).toBeTruthy();
-        expect(clients[2].client_id).toBe(client1Id.toString('hex'));
-        expect(clients[2].scope).toEqual(['other', 'profile', 'scope']);
-        expect(clients[2].refresh_token_id).toBeFalsy();
-      });
-
-      it('should not list canGrant=1 clients that only have access tokens', async () => {
-        client2.canGrant = true;
-        await db.updateClient(client2);
-        await makeAccessToken(client1, user1, ['profile']);
-        await makeAccessToken(client2, user1, ['profile']);
-        const res = await Server.api.post({
-          url: '/authorized-clients',
-          payload: await withMockAssertion(user1, {}),
-        });
-        expect(res.statusCode).toBe(200);
-        assertSecurityHeaders(res);
-        const clients = res.result;
-        expect(clients.length).toBe(1);
-        expect(clients[0].client_id).toBe(client1Id.toString('hex'));
-      });
-
-      it('should list canGrant=1 clients that have refresh tokens', async () => {
-        await db.updateClient({
-          ...client2,
-          canGrant: true,
-        });
-        await makeAccessToken(client1, user1, ['profile']);
-        await makeRefreshToken(client2, user1, ['profile']);
-        const res = await Server.api.post({
-          url: '/authorized-clients',
-          payload: await withMockAssertion(user1, {}),
-        });
-        expect(res.statusCode).toBe(200);
-        assertSecurityHeaders(res);
-        const clients = res.result;
-        expect(clients.length).toBe(2);
-        expect(clients[0].client_id).toBe(client2Id.toString('hex'));
-        expect(clients[1].client_id).toBe(client1Id.toString('hex'));
-      });
-
-      it('requires a valid assertion', async () => {
-        await makeAccessToken(client1, user1, ['profile']);
-        let res = await Server.api.post({
-          url: '/authorized-clients',
-          payload: {
-            assertion: AN_ASSERTION + 'invalid',
-          },
-        });
-        expect(res.statusCode).toBe(401);
-        expect(res.result.message).toBe('Invalid assertion');
-        assertSecurityHeaders(res);
-
-        // Check that it didn't delete the token.
-        res = await Server.api.post({
-          url: '/authorized-clients',
-          payload: await withMockAssertion(user1, {}),
-        });
-        expect(res.statusCode).toBe(200);
-        assertSecurityHeaders(res);
-        const clients = res.result;
-        expect(clients.length).toBe(1);
-        expect(clients[0].client_id).toBe(client1Id.toString('hex'));
-      });
-    });
-
-    describe('POST /authorized-clients/destroy', function () {
-      it('can delete all tokens a target client id', async () => {
-        await makeAccessToken(client1, user1, ['profile']);
-        await makeRefreshToken(client2, user1, ['profile']);
-        await makeRefreshToken(client2, user1, ['profile']);
-
-        let res = await Server.api.post({
-          url: '/authorized-clients/destroy',
-          payload: await withMockAssertion(user1, {
-            client_id: client1Id.toString('hex'),
-          }),
-        });
-        expect(res.statusCode).toBe(200);
-        assertSecurityHeaders(res);
-
-        res = await Server.api.post({
-          url: '/authorized-clients',
-          payload: await withMockAssertion(user1, {}),
-        });
-        expect(res.statusCode).toBe(200);
-        expect(res.result.length).toBe(2);
-        expect(res.result[0].client_id).toBe(client2Id.toString('hex'));
-
-        res = await Server.api.post({
-          url: '/authorized-clients/destroy',
-          payload: await withMockAssertion(user1, {
-            client_id: client2Id.toString('hex'),
-          }),
-        });
-        expect(res.statusCode).toBe(200);
-        assertSecurityHeaders(res);
-
-        res = await Server.api.post({
-          url: '/authorized-clients',
-          payload: await withMockAssertion(user1, {}),
-        });
-        expect(res.statusCode).toBe(200);
-        expect(res.result.length).toBe(0);
-      });
-
-      it('deletes outstanding authorization codes for the client', async () => {
-        const result = await withMockAssertion(user1, {});
-        let res = await Server.api.post({
-          url: '/authorization',
-          payload: authParams({
-            assertion: result.assertion,
-            scope: 'profile',
-          }),
-        });
-        const code = res.result.code;
-        expect(code).toBeTruthy();
-        await Server.api.post({
-          url: '/authorized-clients/destroy',
-          payload: await withMockAssertion(user1, {
-            client_id: clientId,
-          }),
-        });
-        expect(res.statusCode).toBe(200);
-        res = await Server.api.post({
-          url: '/token',
-          payload: {
-            client_id: clientId,
-            client_secret: secret,
-            code,
-          },
-        });
-        expect(res.statusCode).toBe(400);
-        expect(res.result.code).toBe(400);
-        expect(res.result.errno).toBe(105);
-        expect(res.result.message).toBe('Unknown code');
-        assertSecurityHeaders(res);
-      });
-
-      it('can delete a specific token of a target client id', async () => {
-        await makeAccessToken(client1, user1, ['profile']);
-        await makeRefreshToken(client2, user1, ['profile']);
-        const tokenId = await makeRefreshToken(client2, user1, [
-          'other',
-          'scope',
-        ]);
-
-        let res = await Server.api.post({
-          url: '/authorized-clients/destroy',
-          payload: await withMockAssertion(user1, {
-            client_id: client2Id.toString('hex'),
-            refresh_token_id: tokenId,
-          }),
-        });
-        expect(res.statusCode).toBe(200);
-        assertSecurityHeaders(res);
-
-        res = await Server.api.post({
-          url: '/authorized-clients',
-          payload: await withMockAssertion(user1, {}),
-        });
-        expect(res.statusCode).toBe(200);
-        expect(res.result.length).toBe(2);
-        expect(res.result[0].client_id).toBe(client2Id.toString('hex'));
-        expect(res.result[0].scope).toEqual(['profile']);
-        expect(res.result[0].refresh_token_id).not.toBe(tokenId);
-        expect(res.result[1].client_id).toBe(client1Id.toString('hex'));
-        expect(res.result[1].scope).toEqual(['profile']);
-      });
-
-      it('refuses to delete token for wrong client_id', async () => {
-        await makeAccessToken(client1, user1, ['profile']);
-        await makeRefreshToken(client2, user1, ['profile']);
-        const tokenId = await makeRefreshToken(client2, user1, [
-          'other',
-          'scope',
-        ]);
-        const res = await Server.api.post({
-          url: '/authorized-clients/destroy',
-          payload: await withMockAssertion(user1, {
-            client_id: client1Id.toString('hex'),
-            refresh_token_id: tokenId,
-          }),
-        });
-        expect(res.statusCode).toBe(400);
-        expect(res.result.errno).toBe(122);
-        expect(res.result.message).toBe('Unknown token');
-        assertSecurityHeaders(res);
-      });
-
-      it('refuses to delete token for wrong user', async () => {
-        await makeAccessToken(client1, user1, ['profile']);
-        await makeRefreshToken(client2, user1, ['profile']);
-        const tokenId = await makeRefreshToken(client2, user1, [
-          'other',
-          'scope',
-        ]);
-        const res = await Server.api.post({
-          url: '/authorized-clients/destroy',
-          payload: await withMockAssertion(user2, {
-            client_id: client2Id.toString('hex'),
-            refresh_token_id: tokenId,
-          }),
-        });
-        expect(res.statusCode).toBe(400);
-        expect(res.result.errno).toBe(122);
-        expect(res.result.message).toBe('Unknown token');
-        assertSecurityHeaders(res);
-      });
-
-      it('requires a valid assertion', async () => {
-        const res = await Server.api.post({
-          url: '/authorized-clients/destroy',
-          payload: {
-            assertion: AN_ASSERTION + 'invalid',
-            client_id: client1Id.toString('hex'),
-          },
-        });
-        expect(res.statusCode).toBe(401);
-        expect(res.result.message).toBe('Invalid assertion');
-        assertSecurityHeaders(res);
-      });
     });
   });
 

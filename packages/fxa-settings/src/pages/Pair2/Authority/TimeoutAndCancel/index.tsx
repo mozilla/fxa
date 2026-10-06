@@ -2,10 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import AppLayout from '../../../../components/AppLayout';
 import { PairingInterruptedImage } from '../../../../components/images';
+import GleanMetrics from '../../../../lib/glean';
 
 /**
  * Why pairing stopped. Shared verbatim with the mobile twin,
@@ -27,10 +28,13 @@ type VariantContent = {
   heading: string;
   descriptionFtlId: string;
   description: string;
+  gleanId: string;
+
   /** Text link under "Try again". Absent when retrying is the only way forward. */
   secondary?: {
     ftlId: string;
     label: string;
+    gleanId: string;
   };
 };
 
@@ -41,6 +45,7 @@ const variantContent: Record<TimeoutAndCancelReason, VariantContent> = {
     descriptionFtlId: 'pair2-authority-timeout-and-cancel-timeout-description',
     description:
       'Looks like we timed out. Try again if you still want to connect your mobile device and sync your Firefox data.',
+    gleanId: 'dtm_desktop_timeout_cancel_retry',
   },
   canceled: {
     headingFtlId: 'pair2-authority-timeout-and-cancel-cancelled-heading',
@@ -48,9 +53,11 @@ const variantContent: Record<TimeoutAndCancelReason, VariantContent> = {
     descriptionFtlId: 'pair2-authority-timeout-and-cancel-canceled-description',
     description:
       'If you change your mind or want to connect a different device, try again.',
+    gleanId: 'dtm_desktop_canceled_retry',
     secondary: {
       ftlId: 'pair2-authority-timeout-and-cancel-sync-settings-button',
       label: 'Sync settings',
+      gleanId: 'dtm_desktop_canceled_sync_settings',
     },
   },
 };
@@ -69,6 +76,12 @@ const TimeoutAndCancel = ({
 }: TimeoutAndCancelProps) => {
   const content = variantContent[reason ?? 'timeout'];
 
+  // Custom view event rather than the automatic one: both states share a route,
+  // so `reason` is the only thing that tells them apart.
+  useEffect(() => {
+    GleanMetrics.dtmDesktop.timeoutView({ event: { reason } });
+  }, [reason]);
+
   return (
     <AppLayout>
       <div className="flex flex-col items-center text-center">
@@ -86,6 +99,8 @@ const TimeoutAndCancel = ({
             <button
               type="button"
               onClick={onTryAgain}
+              data-glean-id={content.gleanId}
+              data-glean-type={reason}
               className="cta-primary cta-xl"
             >
               Try again
@@ -98,6 +113,7 @@ const TimeoutAndCancel = ({
             <button
               type="button"
               onClick={onSyncSettings}
+              data-glean-id={content.secondary.gleanId}
               // `py-2` keeps the tap target comfortable, so the margin is halved
               // to land on the 16px gap the design asks for.
               className="mt-2 py-2 text-base text-grey-900 underline dark:text-grey-10"

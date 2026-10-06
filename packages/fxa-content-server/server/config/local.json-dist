@@ -65,10 +65,7 @@
   },
   "showReactApp": {
     "simpleRoutes": true,
-    "signUpRoutes": true,
-    "emailFirstRoutes": true,
-    "postVerifyThirdPartyAuthRoutes": true,
-    "pairRoutes": true
+    "emailFirstRoutes": true
   },
   "featureFlags": {
     "recoveryCodeSetupOnSyncSignIn": true,

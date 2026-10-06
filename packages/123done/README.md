@@ -8,6 +8,18 @@
 1. Visit it in your browser: `http://localhost:8080/`
 1. Hack and reload! (web resources don't require a server restart)
 
+`yarn start` runs two apps: the trusted client on port 8080, and the untrusted
+client (321done) on port 10139. `secrets.json` holds one `client_secret`, which
+belongs to the trusted client. The untrusted client keeps its own secret in
+`config-local-untrusted.json`, because that value is a local fixture for the
+demo client and the local auth server seeds its hash from
+`packages/fxa-auth-server/config/dev.json`.
+
+`config.js` loads `secrets.json` first and the per-instance config file second.
+Convict lets the later file win, so a `client_secret` in a per-instance config
+overrides `secrets.json`. If the token exchange fails with no other error, check
+that the app resolved the secret you expect.
+
 ## Step-up authentication
 
 The **Step-Up Auth** button, visible only once you are signed in, re-authorizes the

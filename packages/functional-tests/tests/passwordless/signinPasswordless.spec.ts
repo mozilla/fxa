@@ -8,6 +8,7 @@ import {
   relayDesktopOAuthQueryParams,
   syncDesktopOAuthQueryParams,
 } from '../../lib/query-params';
+import { enableTotpOnAccount } from '../../lib/pairing-helpers';
 import { getTotpCode } from '../../lib/totp';
 
 test.describe('severity-1 #smoke', () => {
@@ -155,13 +156,10 @@ test.describe('severity-1 #smoke', () => {
         );
         const password = account?.password || '';
 
-        const { secret } = await target.authClient.createTotpToken(
-          sessionToken,
-          {}
+        const secret = await enableTotpOnAccount(
+          target.authClient,
+          await testAccountTracker.getMfaJwtForScope('2fa', sessionToken, email)
         );
-        const totpCode = await getTotpCode(secret);
-        await target.authClient.verifyTotpSetupCode(sessionToken, totpCode);
-        await target.authClient.completeTotpSetup(sessionToken);
 
         if (account) {
           account.secret = secret;
@@ -267,13 +265,10 @@ test.describe('severity-1 #smoke', () => {
         );
         const password = account?.password || '';
 
-        const { secret } = await target.authClient.createTotpToken(
-          sessionToken,
-          {}
+        const secret = await enableTotpOnAccount(
+          target.authClient,
+          await testAccountTracker.getMfaJwtForScope('2fa', sessionToken, email)
         );
-        const totpCode = await getTotpCode(secret);
-        await target.authClient.verifyTotpSetupCode(sessionToken, totpCode);
-        await target.authClient.completeTotpSetup(sessionToken);
 
         account.secret = secret;
         account.sessionToken = sessionToken;
@@ -629,6 +624,8 @@ test.describe('severity-1 #smoke', () => {
 
         await page.waitForURL(/signin_passwordless_code/);
         await expect(signinPasswordlessCode.heading).toBeVisible();
+        // Drain code #1 so the final read can't pick it up; send #2 invalidates it
+        await target.emailClient.getPasswordlessSignupCode(email);
 
         // Second attempt: go back to the RP and re-enter email (sends code #2)
         await relier.goto('force_passwordless=true');
@@ -722,16 +719,11 @@ test.describe('severity-1 #smoke', () => {
         );
         const password = account?.password || '';
 
-        // Set up TOTP via API using the passwordless session token
-        const { secret } = await target.authClient.createTotpToken(
-          sessionToken,
-          {}
+        // Set up TOTP via API with an MFA JWT for the passwordless session
+        const secret = await enableTotpOnAccount(
+          target.authClient,
+          await testAccountTracker.getMfaJwtForScope('2fa', sessionToken, email)
         );
-
-        // Verify TOTP setup with a generated code
-        const totpCode = await getTotpCode(secret);
-        await target.authClient.verifyTotpSetupCode(sessionToken, totpCode);
-        await target.authClient.completeTotpSetup(sessionToken);
 
         // Store secret and sessionToken in account for cleanup
         if (account) {
@@ -1259,13 +1251,10 @@ test.describe('severity-2', () => {
       );
       const password = account?.password || '';
 
-      const { secret } = await target.authClient.createTotpToken(
-        sessionToken,
-        {}
+      const secret = await enableTotpOnAccount(
+        target.authClient,
+        await testAccountTracker.getMfaJwtForScope('2fa', sessionToken, email)
       );
-      const totpCode = await getTotpCode(secret);
-      await target.authClient.verifyTotpSetupCode(sessionToken, totpCode);
-      await target.authClient.completeTotpSetup(sessionToken);
 
       if (account) {
         account.secret = secret;
@@ -1393,13 +1382,10 @@ test.describe('severity-2', () => {
       }
       const password = account.password;
 
-      const { secret } = await target.authClient.createTotpToken(
-        sessionToken,
-        {}
+      const secret = await enableTotpOnAccount(
+        target.authClient,
+        await testAccountTracker.getMfaJwtForScope('2fa', sessionToken, email)
       );
-      const totpCode = await getTotpCode(secret);
-      await target.authClient.verifyTotpSetupCode(sessionToken, totpCode);
-      await target.authClient.completeTotpSetup(sessionToken);
 
       if (account) {
         account.secret = secret;

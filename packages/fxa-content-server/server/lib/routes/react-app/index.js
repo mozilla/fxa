@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { OAUTH_SUCCESS_ROUTES } = require('./content-server-routes');
+
 /**
  * When you're ready to serve the React version of a page, identify which feature flag
  * group object it should go in and add a new object in `routes` by calling `.getRoute`
@@ -25,14 +27,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       featureFlagOn: showReactApp.emailFirstRoutes,
       // the order of the routes in the array is important.  do not put '/'
       // first.
-      routes: reactRoute.getRoutes([
-        'authorization',
-        // NOTE: 'oauth' is currently a weird case because because Fx desktop uses
-        // it to initiate the pairing flow. We have logic at the Express level to
-        // handle showing React/Backbone for this route until pairing is Reactified.
-        'oauth',
-        '/',
-      ]),
+      routes: reactRoute.getRoutes(['authorization', 'oauth', '/']),
       fullProdRollout: true,
     },
     simpleRoutes: {
@@ -60,12 +55,6 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       fullProdRollout: true,
     },
 
-    oauthRoutes: {
-      featureFlagOn: showReactApp.oauthRoutes,
-      routes: [],
-      fullProdRollout: false,
-    },
-
     // `signin` and `force_auth` have no Backbone views, so React must serve them.
     signInRoutes: {
       featureFlagOn: true,
@@ -76,6 +65,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'signin_passkey_fallback',
         'signin_token_code',
         'signin_totp_code',
+        'signin_permissions',
         'signin_reported',
         'signin_confirmed',
         'signin_verified',
@@ -90,6 +80,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'inline_totp_setup',
         'inline_recovery_setup',
         'inline_recovery_key_setup',
+        'inline_passwordless_sync_setup',
         'signin_passwordless_code',
         'oauth/signin_passwordless_code',
       ]),
@@ -97,7 +88,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
     },
 
     signUpRoutes: {
-      featureFlagOn: showReactApp.signUpRoutes,
+      featureFlagOn: true,
       routes: reactRoute.getRoutes([
         'signup',
         'confirm_signup_code',
@@ -110,10 +101,9 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       fullProdRollout: true,
     },
 
+    // The Backbone pairing views are gone, so React is the only option.
     pairRoutes: {
-      featureFlagOn: showReactApp.pairRoutes,
-      // Note: The '/oauth?channel_id=...' route for Fx Desktop authority entry is handled
-      // separately in add-routes.js — it bypasses to Backbone unless pairRoutes is enabled.
+      featureFlagOn: true,
       routes: reactRoute.getRoutes([
         'pair',
         'pair/supp',
@@ -132,20 +122,26 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       fullProdRollout: true,
     },
 
+    // Backbone has no route for oauth/success, so React is the only option.
+    oauthSuccessRoutes: {
+      featureFlagOn: true,
+      routes: reactRoute.getRoutes(OAUTH_SUCCESS_ROUTES),
+      fullProdRollout: true,
+    },
+
     postVerifyOtherRoutes: {
       featureFlagOn: showReactApp.postVerifyOtherRoutes,
-      routes: [],
+      routes: reactRoute.getRoutes([
+        'post_verify/password/force_password_change',
+        'subscriptions',
+        'update_firefox',
+      ]),
       fullProdRollout: false,
     },
 
-    postVerifyCADViaQRRoutes: {
-      featureFlagOn: showReactApp.postVerifyCADViaQRRoutes,
-      routes: [],
-      fullProdRollout: false,
-    },
-
+    // These routes have no Backbone views, so React must serve them.
     postVerifyThirdPartyAuthRoutes: {
-      featureFlagOn: showReactApp.postVerifyThirdPartyAuthRoutes,
+      featureFlagOn: true,
       routes: reactRoute.getRoutes([
         'post_verify/third_party_auth/callback',
         // Canonical SetPassword URL going forward (FXA-13475). The legacy
@@ -154,10 +150,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         // resolve through Express to the React app.
         'post_verify/set_password',
         'post_verify/third_party_auth/set_password',
-        // Both set-password routes plus service-welcome ride the
-        // third-party-auth feature flag because they share the post-verify
-        // React app surface, even though they are not strictly third-party
-        // auth flows.
+        // service_welcome sits here because it shares the post-verify React surface.
         'post_verify/service_welcome',
       ]),
       fullProdRollout: true,
@@ -192,6 +185,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'pair/authority/sync_success',
         'pair/authority/timeout_and_cancel',
         'pair/supplicant/approve_signin',
+        'pair/supplicant/connect_hint',
         'pair/supplicant/connect_this_device',
         'pair/supplicant/download_firefox',
         'pair/supplicant/ready_to_scan',
