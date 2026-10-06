@@ -18,6 +18,7 @@ import { RemoteMetadata } from '../../lib/types';
 import config from '../../lib/config';
 import { detectDevice, Devices } from '../../lib/utilities';
 import { OAuthNativeClients } from '@fxa/accounts/oauth';
+import * as Sentry from '@sentry/browser';
 
 /** Redirect URI used by OAuth WebChannel reliers (matches Backbone Constants.OAUTH_WEBCHANNEL_REDIRECT) */
 const OAUTH_WEBCHANNEL_REDIRECT =
@@ -614,6 +615,25 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
       scope,
       state,
     };
+  }
+
+  /**
+   * Ends the flow at the supplicant user's request.
+   *
+   * A channel the user closed and one that expired look identical from the
+   * other end, so the authority is told before the channel goes away —
+   * otherwise its dead-end screen blames a timeout for a pairing this user
+   * deliberately stopped.
+   */
+  async cancel(): Promise<void> {
+    try {
+      await this._channel?.send('pair:supp:cancel', {});
+    } catch (err) {
+      // The notice is a courtesy to the other device. A channel that will not
+      // carry it still has to be torn down.
+      Sentry.captureException(err);
+    }
+    await this.destroy();
   }
 
   async destroy(): Promise<void> {
