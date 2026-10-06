@@ -1,8 +1,8 @@
 {
-  "commit": "d874e2ca7d7df84fd51e6c140a737e0e5379659d",
-  "summary": "Merge pull request #21392 from mozilla/agent-d5b4ca",
-  "description": "fix(tests): remove act() warnings in settings and react unit tests",
-  "timestamp": 1791319861000,
+  "commit": "7f6468b4d563800a1824aaa789b8289e72628a25",
+  "summary": "Merge pull request #21382 from mozilla/fxa-14608",
+  "description": "fix(settings): show canceled screen on desktop when mobile cancels pairing",
+  "timestamp": 1791320378000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
