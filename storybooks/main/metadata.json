@@ -1,8 +1,8 @@
 {
-  "commit": "1cd12b631bb59c5a08beed13cb333395b4d16e78",
-  "summary": "Merge pull request #21376 from mozilla/fxa-14586",
-  "description": "fix(auth): make Redis session-token prune best-effort on delete",
-  "timestamp": 1791296809000,
+  "commit": "4cc093b8ace3eeece84c68392371814b7717bf27",
+  "summary": "Merge pull request #21363 from mozilla/agent-a476c5",
+  "description": "fix(functional-tests): capture the Sync browser in the test trace",
+  "timestamp": 1791297349000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
