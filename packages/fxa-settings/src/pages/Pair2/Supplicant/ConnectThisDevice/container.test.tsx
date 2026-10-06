@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import * as Sentry from '@sentry/browser';
@@ -80,7 +80,10 @@ function mockSupplicantIntegration({
 const emitState = (
   integration: MockSupplicantIntegration,
   state: SupplicantState
-) => (integration as PairingSupplicantIntegration).onStateChange?.(state);
+) =>
+  act(() => {
+    (integration as PairingSupplicantIntegration).onStateChange?.(state);
+  });
 
 // This container owns the supplicant's end of the channel: it opens one from
 // the credentials the QR carried, then waits for the authority's metadata

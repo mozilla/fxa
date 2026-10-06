@@ -101,12 +101,18 @@ describe('Pair2/Authority/ScanQR container', () => {
     );
   });
 
-  it('shows the QR as loading until the channel is created', () => {
+  it('shows the QR as loading until the channel is created', async () => {
     renderContainer();
 
     expect(screen.getByTestId('scan-qr-code')).toHaveAttribute(
       'data-loading',
       'true'
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId('scan-qr-code')).toHaveAttribute(
+        'data-loading',
+        'false'
+      )
     );
   });
 
