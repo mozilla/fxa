@@ -61,7 +61,7 @@ describe('ResetPasswordWarning component', () => {
 
     expect(screen.getByRole('link')).toHaveAttribute(
       'href',
-      'https://support.mozilla.org/en-US/kb/how-change-or-reset-your-mozilla-account-password'
+      'https://support.mozilla.org/kb/how-change-or-reset-your-mozilla-account-password'
     );
   });
 

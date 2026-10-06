@@ -118,7 +118,7 @@ const ResetPasswordWarning = ({
             <div>
               <FtlMsg id="password-reset-warning-restore-data-link">
                 <a
-                  href="https://support.mozilla.org/en-US/kb/how-change-or-reset-your-mozilla-account-password"
+                  href="https://support.mozilla.org/kb/how-change-or-reset-your-mozilla-account-password"
                   className="link-blue"
                   data-glean-id="password_reset_warning_restore_data_link"
                 >

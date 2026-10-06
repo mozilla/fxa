@@ -102,6 +102,19 @@ test.describe('severity-1 #smoke', () => {
     await expect(resetPassword.resetPasswordHeading).toBeVisible();
   });
 
+  test('body link returns to the email-first page', async ({
+    pages: { resetPassword, signin },
+  }) => {
+    await resetPassword.goto();
+    await expect(resetPassword.resetPasswordHeading).toBeVisible();
+    await resetPassword.emailTextbox.fill('user@example.com');
+
+    await resetPassword.signInAlternativesLink.click();
+
+    await expect(signin.emailTextbox).toHaveValue('user@example.com');
+    await expect(resetPassword.page).not.toHaveURL(/reset_password/);
+  });
+
   test('open confirm_reset_password page, click resend', async ({
     pages: { resetPassword },
     testAccountTracker,
