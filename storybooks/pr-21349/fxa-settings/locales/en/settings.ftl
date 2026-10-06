@@ -1841,12 +1841,14 @@ inline-passwordless-sync-setup-enable-button = Enable passkey
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Enabling…
 inline-passwordless-sync-setup-not-now-button = Not now
-# Success message shown in the Settings alert bar after the passkey was stored.
+# Success message shown in the Settings alert bar after the passkey was stored with the ability to sign-in and also sync data without a password.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
 inline-passwordless-sync-setup-success-alert-v2 = This passkey is enabled for sync sign-in
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Passkey confirmation didn’t finish
 inline-passwordless-sync-setup-error-cancelled-description = Confirm with your passkey to skip the password next time.
-# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+# Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
 inline-passwordless-sync-setup-error-generic-v2 = We couldn’t enable this passkey for sync sign-in. You’ll need your password next time.
 
 ## InlineRecoveryKeySetup page component

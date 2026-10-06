@@ -163,6 +163,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Bekräfta lösenord
 form-password-with-inline-criteria-reset-submit-button = Skapa nytt lösenord
+form-password-with-inline-criteria-old-password-label =
+    .label = Tidigare lösenord
+form-password-with-inline-criteria-change-password-submit-button = Ändra lösenord
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Lösenord
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1091,6 +1094,7 @@ auth-error-228 = Registrering av lösenordsnyckel misslyckades
 auth-error-233 = För att skapa en lösenordsnyckel konfigurerar du ett skärmlås, PIN-kod, fingeravtryck eller ansiktsigenkänning på din enhet eller säkerhetsnyckel. Försök sedan igen.
 auth-error-238 = Utmaning för lösenordsnyckel misslyckades
 auth-error-239 = Tyvärr, vi kunde inte ta bort ditt konto. Försök igen eller kontakta supporten om problemet kvarstår.
+auth-error-240 = Detta konto har inaktiverats
 auth-error-999 = Oväntat fel
 auth-error-1001 = Inloggningsförsök avbröts
 auth-error-1002 = Sessionen upphörde. Logga in för att fortsätta.
@@ -1183,6 +1187,10 @@ inline-passwordless-sync-setup-description = Använd denna nyckel för att logga
 inline-passwordless-sync-setup-enable-button = Aktivera lösenordsnyckel
 inline-passwordless-sync-setup-enabling = Aktiverar…
 inline-passwordless-sync-setup-not-now-button = Inte nu
+inline-passwordless-sync-setup-success-alert = Denna lösenordsnyckel är redo för synkroniserad inloggning
+inline-passwordless-sync-setup-error-cancelled = Bekräftelse av lösenordsnyckel slutfördes inte
+inline-passwordless-sync-setup-error-cancelled-description = Bekräfta med din lösenordsnyckel för att hoppa över lösenordet nästa gång.
+inline-passwordless-sync-setup-error-generic = Något gick fel, du behöver fortfarande ange ditt lösenord nästa gång
 
 
 inline-recovery-key-setup-create-error = Hoppsan! Vi kunde inte skapa din kontoåterställningsnyckel. Försök igen senare.
@@ -1348,10 +1356,19 @@ pair2-supplicant-connect-this-device-connect-button = Anslut
 pair2-supplicant-connect-this-device-cancel-button = Avbryt
 
 
-pair2-supplicant-download-firefox-heading = Hämta { -brand-firefox } till den här enheten
-pair2-supplicant-download-firefox-description = Hämta { -brand-firefox } för att synkronisera bokmärken, historik och mer mellan enheter. <linkExternal>Läs mer</linkExternal>
+pair2-supplicant-download-firefox-heading-v2 = Öppna { -brand-firefox } på den här enheten
+pair2-supplicant-download-firefox-description-v2 = Ladda ner { -brand-firefox } och synkronisera bokmärken, historik och annat mellan dina enheter.
 pair2-supplicant-download-firefox-continue-button = Fortsätt i { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Öppnar { -brand-firefox }…
+pair2-supplicant-download-firefox-download-button = Ladda ned { -brand-firefox }
+pair2-supplicant-download-firefox-have-firefox-button = Jag har redan { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = Läs mer
+
+
+pair2-supplicant-connect-hint-heading-v2 = Avsluta parkoppling i appen
+pair2-supplicant-connect-hint-step-app-menu = Tryck på <b>appmenyn</b> i verktygsfältet
+pair2-supplicant-connect-hint-step-sign-in = Tryck på <b>logga in</b> och skanna sedan koden
+pair2-supplicant-connect-hint-learn-more-link = Läs mer
 
 
 pair2-supplicant-ready-to-scan-heading = För att ansluta en enhet
@@ -1368,6 +1385,18 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Vi gjorde timeout
 pair2-supplicant-timeout-and-cancel-timeout-description = För att ansluta din mobila enhet och synkronisera din { -brand-firefox }-data, besök <b>firefox.com/pair</b> på din dator.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Avbruten
 pair2-supplicant-timeout-and-cancel-canceled-description = När du vill ansluta en enhet besöker du <b>firefox.com/pair</b> på din dator.
+
+
+permissions-heading = { $serviceName } vill ha tillgång till:
+permissions-label-email = E-postadress
+permissions-label-display-name = Visningsnamn
+permissions-continue-button = Fortsätt
+permissions-cancel-button = Avbryt
+
+
+force-password-change-heading = Vänligen ändra ditt lösenord
+force-password-change-info = Vi har upptäckt misstänkt aktivitet på ditt { -product-mozilla-account }. Skapa ett nytt lösenord för att skydda ditt konto. Du använder det nya lösenordet för att logga in igen på alla dina tjänster från { -product-mozilla-account }.
+force-password-change-data-info = Synkroniserad historik, bokmärken, inloggningar och annan personlig information går inte förlorad.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } har bekräftats
@@ -1666,3 +1695,8 @@ signup-confirmed-sync-description-v2 = Dina lösenord, adresser, bokmärken, his
 signup-confirmed-sync-add-device-link = Lägg till en annan enhet
 signup-confirmed-sync-manage-sync-button = Hantera synkronisering
 signup-confirmed-sync-set-password-success-banner = Synkroniseringslösenord skapat
+
+
+update-firefox-heading = { -brand-firefox } uppdatering krävs
+update-firefox-description = Din { -product-mozilla-account } använder funktioner som inte stöds i din version av { -brand-firefox }. Ladda ner och installera den senaste versionen av { -brand-firefox } för att fortsätta.
+update-firefox-download-button = Ladda ner senaste

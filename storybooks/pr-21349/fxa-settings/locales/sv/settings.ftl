@@ -167,6 +167,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Bekräfta lösenord
 form-password-with-inline-criteria-reset-submit-button = Skapa nytt lösenord
+form-password-with-inline-criteria-old-password-label =
+    .label = Tidigare lösenord
+form-password-with-inline-criteria-change-password-submit-button = Ändra lösenord
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Lösenord
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1480,6 +1483,7 @@ auth-error-228 = Registrering av lösenordsnyckel misslyckades
 auth-error-233 = För att skapa en lösenordsnyckel konfigurerar du ett skärmlås, PIN-kod, fingeravtryck eller ansiktsigenkänning på din enhet eller säkerhetsnyckel. Försök sedan igen.
 auth-error-238 = Utmaning för lösenordsnyckel misslyckades
 auth-error-239 = Tyvärr, vi kunde inte ta bort ditt konto. Försök igen eller kontakta supporten om problemet kvarstår.
+auth-error-240 = Detta konto har inaktiverats
 auth-error-999 = Oväntat fel
 auth-error-1001 = Inloggningsförsök avbröts
 auth-error-1002 = Sessionen upphörde. Logga in för att fortsätta.
@@ -1640,6 +1644,13 @@ inline-passwordless-sync-setup-enable-button = Aktivera lösenordsnyckel
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Aktiverar…
 inline-passwordless-sync-setup-not-now-button = Inte nu
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = Denna lösenordsnyckel är redo för synkroniserad inloggning
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = Bekräftelse av lösenordsnyckel slutfördes inte
+inline-passwordless-sync-setup-error-cancelled-description = Bekräfta med din lösenordsnyckel för att hoppa över lösenordet nästa gång.
+# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+inline-passwordless-sync-setup-error-generic = Något gick fel, du behöver fortfarande ange ditt lösenord nästa gång
 
 ## InlineRecoveryKeySetup page component
 
@@ -1844,7 +1855,6 @@ pair-unsupported-switch-to-firefox = Byt till { -brand-firefox } och öppna den 
 pair-unsupported-oops-mobile = Hoppsan! Det ser ut som att du inte använder { -brand-firefox }.
 # v2: Heading for the mobile instructional message, shown on all mobile devices
 # (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
-# Aligned with legacy Backbone copy (see templates/partial/unsupported-pair.mustache).
 pair-unsupported-connecting-mobile-header-v2 = Ansluta din mobila enhet till ditt { -product-mozilla-account }
 # v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
 # URL so the domain does not wrap to a new line on narrow screens.
@@ -1957,20 +1967,39 @@ pair2-supplicant-connect-this-device-connect-button = Anslut
 pair2-supplicant-connect-this-device-cancel-button = Avbryt
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device when pairing reaches a device that
-## does not have Firefox installed yet. It explains what syncing gets them and
-## either opens the Firefox app to finish pairing or sends them off to install
-## the browser.
+## Users see this on their mobile device when pairing reaches a browser that is
+## not Firefox. It offers to open the Firefox app to finish pairing, and to
+## install it first when the user does not have it yet.
 
-pair2-supplicant-download-firefox-heading = Hämta { -brand-firefox } till den här enheten
+pair2-supplicant-download-firefox-heading-v2 = Öppna { -brand-firefox } på den här enheten
 # "sync" is a verb here, referring to syncing data between the user's devices.
-# <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = Hämta { -brand-firefox } för att synkronisera bokmärken, historik och mer mellan enheter. <linkExternal>Läs mer</linkExternal>
+pair2-supplicant-download-firefox-description-v2 = Ladda ner { -brand-firefox } och synkronisera bokmärken, historik och annat mellan dina enheter.
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Fortsätt i { -brand-firefox }
 # Replaces the button label while waiting for the Firefox app to take over
 pair2-supplicant-download-firefox-opening-button = Öppnar { -brand-firefox }…
+# Primary action shown in Safari on iOS. Opens the App Store page for Firefox.
+pair2-supplicant-download-firefox-download-button = Ladda ned { -brand-firefox }
+# Secondary action shown in Safari on iOS, below the download button. Opens the
+# Firefox app when it is already installed.
+pair2-supplicant-download-firefox-have-firefox-button = Jag har redan { -brand-firefox }
+# Opens a page explaining what sync does
+pair2-supplicant-download-firefox-learn-more-link = Läs mer
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## with the phone's camera app instead of with Firefox. They already have
+## Firefox installed, so it tells them how to scan the code again from inside
+## Firefox.
+
+pair2-supplicant-connect-hint-heading-v2 = Avsluta parkoppling i appen
+# <b> emphasises the name of the button the user taps in Firefox
+pair2-supplicant-connect-hint-step-app-menu = Tryck på <b>appmenyn</b> i verktygsfältet
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair2-supplicant-connect-hint-step-sign-in = Tryck på <b>logga in</b> och skanna sedan koden
+# Opens a Mozilla support article about connecting a device without a QR code
+pair2-supplicant-connect-hint-learn-more-link = Läs mer
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -2008,6 +2037,26 @@ pair2-supplicant-timeout-and-cancel-timeout-description = För att ansluta din m
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Avbruten
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = När du vill ansluta en enhet besöker du <b>firefox.com/pair</b> på din dator.
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } vill ha tillgång till:
+permissions-label-email = E-postadress
+permissions-label-display-name = Visningsnamn
+permissions-continue-button = Fortsätt
+permissions-cancel-button = Avbryt
+
+## ForcePasswordChange page
+## Users are sent here when suspicious activity on the account requires a new password before they can continue.
+
+force-password-change-heading = Vänligen ändra ditt lösenord
+force-password-change-info = Vi har upptäckt misstänkt aktivitet på ditt { -product-mozilla-account }. Skapa ett nytt lösenord för att skydda ditt konto. Du använder det nya lösenordet för att logga in igen på alla dina tjänster från { -product-mozilla-account }.
+force-password-change-data-info = Synkroniserad historik, bokmärken, inloggningar och annan personlig information går inte förlorad.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -2475,3 +2524,10 @@ signup-confirmed-sync-description-v2 = Dina lösenord, adresser, bokmärken, his
 signup-confirmed-sync-add-device-link = Lägg till en annan enhet
 signup-confirmed-sync-manage-sync-button = Hantera synkronisering
 signup-confirmed-sync-set-password-success-banner = Synkroniseringslösenord skapat
+
+## UpdateFirefox page
+## Shown when the browser is too old to use a Mozilla account
+
+update-firefox-heading = { -brand-firefox } uppdatering krävs
+update-firefox-description = Din { -product-mozilla-account } använder funktioner som inte stöds i din version av { -brand-firefox }. Ladda ner och installera den senaste versionen av { -brand-firefox } för att fortsätta.
+update-firefox-download-button = Ladda ner senaste

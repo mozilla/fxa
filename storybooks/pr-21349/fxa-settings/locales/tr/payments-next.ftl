@@ -21,6 +21,7 @@ next-payment-method-first-approve = Öncelikle aboneliğinizi onaylamanız gerek
 ## Error page
 
 error-page-account-not-found-heading = Hesap bulunamadı
+error-page-account-not-found-message = Oturumunuza bağlı hesap bulunamadı. Abone olmak için başka bir hesap kullanın veya yeni bir hesap açın.
 error-page-account-not-found-continue-button = Devam et
 # $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
 location-header = <p>{ $productName } ödemesine devam etmek için ülkenizi seçip posta kodunuzu girin</p>
@@ -67,6 +68,7 @@ checkout-error-contact-support = Size yardımcı olabilmemiz için lütfen deste
 cart-error-currency-not-determined = Bu satın alma işleminin para birimini belirleyemedik, lütfen yeniden deneyin.
 checkout-processing-general-error = Ödemeniz işlenirken beklenmedik bir hata oluştu, lütfen yeniden deneyin.
 cart-total-mismatch-error = Fatura tutarı değişti. Lütfen yeniden deneyin.
+cart-free-trial-mismatch-error = Ücretsiz denemeden yararlanma durumunuz değişti. Lütfen yeniden deneyin.
 
 ## Error pages - Payment method failure messages
 
@@ -77,6 +79,8 @@ intent-payment-error-get-in-touch = Ödemeniz onaylanırken bir sorun oluştu. K
 intent-payment-error-generic = Ödemeniz işlenirken beklenmedik bir hata oluştu, lütfen yeniden deneyin.
 intent-payment-error-insufficient-funds = Kartınızda yeterli bakiye yok gibi görünüyor. Başka bir kart deneyin.
 general-paypal-error = Ödemeniz işlenirken beklenmedik bir hata oluştu, lütfen yeniden deneyin.
+paypal-active-subscription-no-billing-agreement-error = { -brand-paypal } hesabınızdan ödeme alınırken bir sorun oluştu. Lütfen aboneliğiniz için otomatik ödemeleri yeniden etkinleştirin.
+new-account-prepaid-card-free-trial-not-allowed = Yeni hesaplarda ücretsiz deneme başlatmak için ön ödemeli kart kullanılamaz. Lütfen başka bir ödeme yöntemi deneyin.
 
 ## Processing page and Needs Input page - /checkout and /upgrade
 ## Common strings used in multiple pages
@@ -116,6 +120,7 @@ not-found-button-back-to-subscriptions = Aboneliklere dön
 ## Error page - churn cancel flow
 
 churn-cancel-flow-error-offer-expired-title = Bu teklifin süresi doldu
+churn-cancel-flow-error-offer-expired-message = Şu anda bu abonelik için sunulan bir indirim bulunmuyor. Dilerseniz iptal işlemine devam edebilirsiniz.
 churn-cancel-flow-error-button-continue-to-cancel = İptal etmeye devam et
 churn-cancel-flow-error-page-button-back-to-subscriptions = Aboneliklere dön
 
@@ -129,6 +134,8 @@ not-found-loyalty-discount-button-back-to-subscriptions = Aboneliklere dön
 
 interstitial-offer-error-subscription-not-found-heading = Etkin bir abonelik bulamadık
 interstitial-offer-error-subscription-not-found-message = Bu abonelik artık etkin olmayabilir.
+interstitial-offer-error-customer-mismatch-heading = Bu abonelik sizin hesabınıza bağlı değil
+interstitial-offer-error-customer-mismatch-message = Doğru hesapta oturum açtığınızı kontrol edin. Yardıma ihtiyacınız varsa destek ekibiyle iletişime geçin.
 interstitial-offer-error-general-heading = Teklif mevcut değil
 interstitial-offer-error-general-message = Bu teklif şu anda mevcut değil.
 interstitial-offer-error-button-back-to-subscriptions = Aboneliklere dön

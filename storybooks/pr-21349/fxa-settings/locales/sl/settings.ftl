@@ -173,6 +173,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Potrdite geslo
 form-password-with-inline-criteria-reset-submit-button = Ustvarite novo geslo
+form-password-with-inline-criteria-old-password-label =
+    .label = Staro geslo
+form-password-with-inline-criteria-change-password-submit-button = Spremeni geslo
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Geslo
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1867,7 +1870,6 @@ pair-unsupported-switch-to-firefox = Preklopite na { -brand-firefox(sklon: "tozi
 pair-unsupported-oops-mobile = Opla! Videti je, da ne uporabljate { -brand-firefox(sklon: "rodilnik") }.
 # v2: Heading for the mobile instructional message, shown on all mobile devices
 # (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
-# Aligned with legacy Backbone copy (see templates/partial/unsupported-pair.mustache).
 pair-unsupported-connecting-mobile-header-v2 = Povezovanje mobilne naprave z { -product-mozilla-account(sklon: "orodnik") }
 # v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
 # URL so the domain does not wrap to a new line on narrow screens.
@@ -1980,20 +1982,39 @@ pair2-supplicant-connect-this-device-connect-button = Poveži
 pair2-supplicant-connect-this-device-cancel-button = Prekliči
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device when pairing reaches a device that
-## does not have Firefox installed yet. It explains what syncing gets them and
-## either opens the Firefox app to finish pairing or sends them off to install
-## the browser.
+## Users see this on their mobile device when pairing reaches a browser that is
+## not Firefox. It offers to open the Firefox app to finish pairing, and to
+## install it first when the user does not have it yet.
 
-pair2-supplicant-download-firefox-heading = Prenesite { -brand-firefox(sklon: "tozilnik") } na to napravo
+pair2-supplicant-download-firefox-heading-v2 = Odprite { -brand-firefox } v tej napravi
 # "sync" is a verb here, referring to syncing data between the user's devices.
-# <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = Prenesite { -brand-firefox(sklon: "tozilnik") } in sinhronizirajte zaznamke, zgodovino ter druge podatke med napravami. <linkExternal>Več o tem</linkExternal>
+pair2-supplicant-download-firefox-description-v2 = Prenesite { -brand-firefox } in sinhronizirajte zaznamke, zgodovino in drugo med napravami.
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Nadaljuj v { -brand-firefox(sklon: "mestnik") }
 # Replaces the button label while waiting for the Firefox app to take over
 pair2-supplicant-download-firefox-opening-button = Odpiranje { -brand-firefox(sklon: "rodilnik") } …
+# Primary action shown in Safari on iOS. Opens the App Store page for Firefox.
+pair2-supplicant-download-firefox-download-button = Prenesi { -brand-firefox(sklon: "tozilnik") }
+# Secondary action shown in Safari on iOS, below the download button. Opens the
+# Firefox app when it is already installed.
+pair2-supplicant-download-firefox-have-firefox-button = { -brand-firefox } že imam
+# Opens a page explaining what sync does
+pair2-supplicant-download-firefox-learn-more-link = Več o tem
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## with the phone's camera app instead of with Firefox. They already have
+## Firefox installed, so it tells them how to scan the code again from inside
+## Firefox.
+
+pair2-supplicant-connect-hint-heading-v2 = Dokončajte seznanjanje v aplikaciji
+# <b> emphasises the name of the button the user taps in Firefox
+pair2-supplicant-connect-hint-step-app-menu = V orodni vrstici tapnite <b>meni aplikacij</b>
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair2-supplicant-connect-hint-step-sign-in = Tapnite <b>prijava</b> in preberite kodo
+# Opens a Mozilla support article about connecting a device without a QR code
+pair2-supplicant-connect-hint-learn-more-link = Več o tem
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -2044,6 +2065,13 @@ permissions-label-email = E-poštni naslov
 permissions-label-display-name = Prikazno ime
 permissions-continue-button = Nadaljuj
 permissions-cancel-button = Prekliči
+
+## ForcePasswordChange page
+## Users are sent here when suspicious activity on the account requires a new password before they can continue.
+
+force-password-change-heading = Spremenite svoje geslo
+force-password-change-info = Na vaši napravi { -product-mozilla-account } smo zaznali sumljivo vedenje. Za zaščito svojega računa ustvarite novo geslo. To geslo boste uporabili za ponovno prijavo v vse svoje storitve { -product-mozilla-account }.
+force-password-change-data-info = Sinhronizirana zgodovina, zaznamki, prijave in drugi osebni podatki ne bodo izgubljeni.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -2523,3 +2551,10 @@ signup-confirmed-sync-description-v2 = Vaša gesla, naslovi, zaznamki, zgodovina
 signup-confirmed-sync-add-device-link = Dodaj drugo napravo
 signup-confirmed-sync-manage-sync-button = Upravljanje sinhronizacije
 signup-confirmed-sync-set-password-success-banner = Geslo za sinhronizacijo ustvarjeno
+
+## UpdateFirefox page
+## Shown when the browser is too old to use a Mozilla account
+
+update-firefox-heading = Potrebna je posodobitev za { -brand-firefox }
+update-firefox-description = Vaš { -product-mozilla-account } uporablja funkcije, ki niso podprte v vaši različici { -brand-firefox }a. Za nadaljevanje prenesite in namestite najnovejšo različico { -brand-firefox }.
+update-firefox-download-button = Prenesi najnovejšo različico

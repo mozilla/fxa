@@ -231,6 +231,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Επιβεβαίωση κωδικού πρόσβασης
 form-password-with-inline-criteria-reset-submit-button = Δημιουργία νέου κωδικού πρόσβασης
+form-password-with-inline-criteria-old-password-label =
+    .label = Παλιός κωδικός πρόσβασης
+form-password-with-inline-criteria-change-password-submit-button = Αλλαγή κωδικού πρόσβασης
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Κωδικός πρόσβασης
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1423,10 +1426,19 @@ pair2-supplicant-connect-this-device-connect-button = Σύνδεση
 pair2-supplicant-connect-this-device-cancel-button = Ακύρωση
 
 
-pair2-supplicant-download-firefox-heading = Αποκτήστε το { -brand-firefox } σε αυτήν τη συσκευή
-pair2-supplicant-download-firefox-description = Κάντε λήψη του { -brand-firefox } για να συγχρονίσετε τους σελιδοδείκτες, το ιστορικό και πολλά άλλα με όλες τις συσκευές σας. <linkExternal>Μάθετε περισσότερα</linkExternal>
+pair2-supplicant-download-firefox-heading-v2 = Ανοίξτε το { -brand-firefox } σε αυτήν τη συσκευή
+pair2-supplicant-download-firefox-description-v2 = Κάντε λήψη του { -brand-firefox } για συγχρονισμό σελιδοδεικτών, ιστορικού και άλλων δεδομένων στις συσκευές σας.
 pair2-supplicant-download-firefox-continue-button = Συνέχεια στο { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Άνοιγμα του { -brand-firefox }…
+pair2-supplicant-download-firefox-download-button = Λήψη του { -brand-firefox }
+pair2-supplicant-download-firefox-have-firefox-button = Διαθέτω ήδη το { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = Μάθετε περισσότερα
+
+
+pair2-supplicant-connect-hint-heading-v2 = Ολοκλήρωση σύζευξης στην εφαρμογή
+pair2-supplicant-connect-hint-step-app-menu = Πατήστε το <b>μενού εφαρμογής</b> στη γραμμή εργαλείων
+pair2-supplicant-connect-hint-step-sign-in = Επιλέξτε <b>Σύνδεση</b> και σαρώστε τον κωδικό
+pair2-supplicant-connect-hint-learn-more-link = Μάθετε περισσότερα
 
 
 pair2-supplicant-ready-to-scan-heading = Για να συνδέσετε μια συσκευή
@@ -1450,6 +1462,11 @@ permissions-label-email = Διεύθυνση email
 permissions-label-display-name = Εμφανιζόμενο όνομα
 permissions-continue-button = Συνέχεια
 permissions-cancel-button = Ακύρωση
+
+
+force-password-change-heading = Αλλάξτε τον κωδικό πρόσβασής σας
+force-password-change-info = Ανιχνεύσαμε ύποπτη συμπεριφορά στον { -product-mozilla-account(capitalization: "lower", case: "acc") } σας. Για την προστασία του λογαριασμού σας, δημιουργήστε έναν νέο κωδικό πρόσβασης. Θα πρέπει να τον χρησιμοποιήσετε για να συνδεθείτε ξανά σε όλες τις υπηρεσίες του { -product-mozilla-account(capitalization: "lower", case: "gen") } σας.
+force-password-change-data-info = Το συγχρονισμένο ιστορικό, οι σελιδοδείκτες, οι συνδέσεις και άλλα προσωπικά δεδομένα δεν θα χαθούν.
 
 
 service-welcome-signup-success-banner = Ο { -product-mozilla-account(capitalization: "lower", case: "nom") } επιβεβαιώθηκε
@@ -1748,3 +1765,8 @@ signup-confirmed-sync-description-v2 = Οι κωδικοί πρόσβασης, �
 signup-confirmed-sync-add-device-link = Προσθήκη άλλης συσκευής
 signup-confirmed-sync-manage-sync-button = Διαχείριση συγχρονισμού
 signup-confirmed-sync-set-password-success-banner = Ο κωδικός πρόσβασης συγχρονισμού δημιουργήθηκε
+
+
+update-firefox-heading = Απαιτείται ενημέρωση του { -brand-firefox }
+update-firefox-description = O { -product-mozilla-account(capitalization: "lower", case: "nom") } σας αξιοποιεί λειτουργίες που δεν υποστηρίζονται στην έκδοση του { -brand-firefox } που χρησιμοποιείτε. Κάντε λήψη και εγκατάσταση της πιο πρόσφατης έκδοσης του { -brand-firefox } για να συνεχίσετε.
+update-firefox-download-button = Λήψη τελευταίας έκδοσης

@@ -167,6 +167,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Confirm password
 form-password-with-inline-criteria-reset-submit-button = Create new password
+form-password-with-inline-criteria-old-password-label =
+    .label = Old password
+form-password-with-inline-criteria-change-password-submit-button = Change password
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Password
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1852,7 +1855,6 @@ pair-unsupported-switch-to-firefox = Switch to { -brand-firefox } and open this 
 pair-unsupported-oops-mobile = Oops! It looks like you’re not using { -brand-firefox }.
 # v2: Heading for the mobile instructional message, shown on all mobile devices
 # (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
-# Aligned with legacy Backbone copy (see templates/partial/unsupported-pair.mustache).
 pair-unsupported-connecting-mobile-header-v2 = Connecting your mobile device with your { -product-mozilla-account }
 # v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
 # URL so the domain does not wrap to a new line on narrow screens.
@@ -1965,20 +1967,39 @@ pair2-supplicant-connect-this-device-connect-button = Connect
 pair2-supplicant-connect-this-device-cancel-button = Cancel
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device when pairing reaches a device that
-## does not have Firefox installed yet. It explains what syncing gets them and
-## either opens the Firefox app to finish pairing or sends them off to install
-## the browser.
+## Users see this on their mobile device when pairing reaches a browser that is
+## not Firefox. It offers to open the Firefox app to finish pairing, and to
+## install it first when the user does not have it yet.
 
-pair2-supplicant-download-firefox-heading = Get { -brand-firefox } on this device
+pair2-supplicant-download-firefox-heading-v2 = Open { -brand-firefox } on this device
 # "sync" is a verb here, referring to syncing data between the user's devices.
-# <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = Download { -brand-firefox } to synchronise bookmarks, history and more across devices. <linkExternal>Learn more</linkExternal>
+pair2-supplicant-download-firefox-description-v2 = Download { -brand-firefox } to synchronise bookmarks, history and more across devices.
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Continue in { -brand-firefox }
 # Replaces the button label while waiting for the Firefox app to take over
 pair2-supplicant-download-firefox-opening-button = Opening { -brand-firefox }…
+# Primary action shown in Safari on iOS. Opens the App Store page for Firefox.
+pair2-supplicant-download-firefox-download-button = Download { -brand-firefox }
+# Secondary action shown in Safari on iOS, below the download button. Opens the
+# Firefox app when it is already installed.
+pair2-supplicant-download-firefox-have-firefox-button = I already have { -brand-firefox }
+# Opens a page explaining what sync does
+pair2-supplicant-download-firefox-learn-more-link = Learn more
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## with the phone's camera app instead of with Firefox. They already have
+## Firefox installed, so it tells them how to scan the code again from inside
+## Firefox.
+
+pair2-supplicant-connect-hint-heading-v2 = Finish pairing in the app
+# <b> emphasises the name of the button the user taps in Firefox
+pair2-supplicant-connect-hint-step-app-menu = Tap the <b>app menu</b> in the toolbar
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair2-supplicant-connect-hint-step-sign-in = Tap <b>sign in</b>, then scan the code
+# Opens a Mozilla support article about connecting a device without a QR code
+pair2-supplicant-connect-hint-learn-more-link = Learn more
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -2029,6 +2050,13 @@ permissions-label-email = Email address
 permissions-label-display-name = Display name
 permissions-continue-button = Continue
 permissions-cancel-button = Cancel
+
+## ForcePasswordChange page
+## Users are sent here when suspicious activity on the account requires a new password before they can continue.
+
+force-password-change-heading = Please change your password
+force-password-change-info = We detected suspicious behaviour on your { -product-mozilla-account }. To protect your account, please create a new password. You’ll use this password to sign back in to all of your { -product-mozilla-account } services.
+force-password-change-data-info = Synchronised history, bookmarks, logins and other personal data will not be lost.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -2496,3 +2524,10 @@ signup-confirmed-sync-description-v2 = Your passwords, addresses, bookmarks, his
 signup-confirmed-sync-add-device-link = Add another device
 signup-confirmed-sync-manage-sync-button = Manage synchronisation
 signup-confirmed-sync-set-password-success-banner = Synchronisation password created
+
+## UpdateFirefox page
+## Shown when the browser is too old to use a Mozilla account
+
+update-firefox-heading = { -brand-firefox } update required
+update-firefox-description = Your { -product-mozilla-account } makes use of features that are not supported in your version of { -brand-firefox }. Please download and install the latest version of { -brand-firefox } to continue.
+update-firefox-download-button = Download latest

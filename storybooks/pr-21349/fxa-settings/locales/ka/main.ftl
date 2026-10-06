@@ -1390,8 +1390,6 @@ pair2-supplicant-connect-this-device-connect-button = დაკავშირ�
 pair2-supplicant-connect-this-device-cancel-button = გაუქმება
 
 
-pair2-supplicant-download-firefox-heading = გადმოწერეთ { -brand-firefox } ამ მოწყობილობაზე
-pair2-supplicant-download-firefox-description = ჩამოტვირთეთ { -brand-firefox } სანიშნების, ისტორიისა თუ სხვა მონაცემების დასინქრონებისთვის სხვადასხვა მოწყობილობებზე. <linkExternal>ვრცლად</linkExternal>
 pair2-supplicant-download-firefox-continue-button = გასაგრძელებლად გამოიყენეთ { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = იხსნება { -brand-firefox }…
 

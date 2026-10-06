@@ -455,7 +455,7 @@ account-recovery-notification-header-value = Ak zabudnete heslo, neprídete o sv
 account-recovery-notification-header-description = Vytvorte si kľúč na obnovenie účtu na obnovenie synchronizovaných údajov prehliadania, ak niekedy zabudnete svoje heslo.
 recovery-phone-promo-cta = Pridajte obnovenie pomocou telefónu
 recovery-phone-promo-heading = Pridajte svojmu účtu dodatočnú ochranu vďaka obnoveniu pomocou telefónu
-recovery-phone-promo-description = Ak nemôžete použiť aplikáciu na dvojstupňové overenie, teraz sa môžete prihlásiť jednorazovým heslom zaslaným prostredníctvom SMS.
+recovery-phone-promo-description = Ak nemôžete použiť overovaciu aplikáciu, teraz sa môžete prihlásiť jednorazovým heslom zaslaným cez SMS.
 recovery-phone-promo-info-link = Ďalšie informácie o obnovení a rizikách pri výmene SIM karty
 promo-banner-dismiss-button =
     .aria-label = Zavrieť banner
@@ -708,12 +708,12 @@ flow-setup-2fa-more-info-link = Ďalšie informácie o overovacích aplikáciác
 flow-setup-2fa-button = Pokračovať
 flow-setup-2fa-step-2-instruction = <strong>Krok 2:</strong> Zadajte kód z overovacej aplikácie.
 flow-setup-2fa-input-label = Zadajte šesťmiestny kód
-flow-setup-2fa-code-error = Neplatný alebo vypršaný kód. Skontrolujte si overovaciu aplikáciu a skúste to znova.
+flow-setup-2fa-code-error = Neplatný alebo vypršaný kód. Skontrolujte overovaciu aplikáciu a skúste to znova.
 
 ## The step to choose the two step authentication method in the two step
 ## authentication setup flow.
 
-flow-setup-2fa-backup-choice-heading = Vyberte spôsob obnovy
+flow-setup-2fa-backup-choice-heading = Vyberte spôsob obnovenia prístupu
 flow-setup-2fa-backup-choice-description = To vám umožní prihlásiť sa, ak nemáte prístup k mobilnému zariadeniu alebo overovacej aplikácii.
 flow-setup-2fa-backup-choice-phone-title = Obnovenie pomocou telefónu
 flow-setup-2fa-backup-choice-phone-badge = Najjednoduchšie
@@ -730,7 +730,7 @@ flow-setup-2fa-backup-choice-learn-more-link = Informácie o obnovení a riziká
 
 flow-setup-2fa-backup-code-confirm-heading = Zadajte záložný overovací kód
 # codes here refers to backup authentication codes
-flow-setup-2fa-backup-code-confirm-confirm-saved = Zadaním kódu potvrďte, že ste kódy uložili. Bez týchto kódov sa možno nebudete môcť prihlásiť, ak nemáte aplikáciu na overenie totožnosti.
+flow-setup-2fa-backup-code-confirm-confirm-saved = Zadaním kódu potvrďte, že ste kódy uložili. Bez týchto kódov sa možno nebudete môcť prihlásiť, ak nemáte overovaciu aplikáciu.
 flow-setup-2fa-backup-code-confirm-code-input = Zadajte 10‑miestny kód
 # Clicking on this button finishes the whole flow upon success.
 flow-setup-2fa-backup-code-confirm-button-finish = Dokončiť
@@ -738,7 +738,7 @@ flow-setup-2fa-backup-code-confirm-button-finish = Dokončiť
 ## The backup codes download step of the setup 2 factor authentication flow
 
 flow-setup-2fa-backup-code-dl-heading = Uložte si záložné overovacie kódy
-flow-setup-2fa-backup-code-dl-save-these-codes = Uschovajte si ich na mieste, na ktoré si nezabudnete. Ak nemáte prístup k aplikácii na overenie totožnosti, budete jeden z nich musieť zadať pri prihlásení.
+flow-setup-2fa-backup-code-dl-save-these-codes = Uschovajte si ich na mieste, na ktoré si nezabudnete. Ak nemáte prístup k overovacej aplikácii, budete jeden z nich musieť zadať pri prihlásení.
 flow-setup-2fa-backup-code-dl-button-continue = Pokračovať
 
 ##
@@ -756,8 +756,8 @@ flow-setup-2fa-inline-complete-backup-code-info =
         [many] { $count } zostávajúcich kódov
        *[other] { $count } zostávajúcich kódov
     }
-flow-setup-2fa-inline-complete-backup-code-description = Toto je najbezpečnejšia metóda obnovenia, ak sa nemôžete prihlásiť pomocou mobilného zariadenia alebo overovacej aplikácie.
-flow-setup-2fa-inline-complete-backup-phone-description = Toto je najjednoduchšia metóda obnovenia, ak sa nemôžete prihlásiť pomocou aplikácie na overenie totožnosti.
+flow-setup-2fa-inline-complete-backup-code-description = Toto je najbezpečnejší spôsob obnovenia prístupu, ak sa nemôžete prihlásiť pomocou mobilného zariadenia alebo overovacej aplikácie.
+flow-setup-2fa-inline-complete-backup-phone-description = Toto je najjednoduchší spôsob obnovenia prístupu, ak sa nemôžete prihlásiť pomocou overovacej aplikácie.
 flow-setup-2fa-inline-complete-learn-more-link = Ako to chráni váš účet
 # $serviceName (String) - the name of the product that the user will be
 # redirected to.
@@ -885,7 +885,7 @@ nav-email-comm = E‑mailová komunikácia
 page-2fa-change-title = Zmena dvojstupňového overenia
 page-2fa-change-success = Dvojstupňové overenie bolo aktualizované
 page-2fa-change-success-additional-message = Ak chcete chrániť všetky pripojené zariadenia, mali by ste sa odhlásiť všade, kde používate tento účet, a potom sa znova prihlásiť pomocou nového dvojstupňového overenia.
-page-2fa-change-totpinfo-error = Pri zmene aplikácie na dvojstupňové overenie sa vyskytla chyba. Skúste to znova neskôr.
+page-2fa-change-totpinfo-error = Pri zmene overovacej aplikácie pre dvojstupňové overenie sa vyskytla chyba. Skúste to znova neskôr.
 page-2fa-change-qr-instruction = <strong>Krok 1:</strong> Naskenujte tento QR kód pomocou ľubovoľnej overovacej aplikácie, ako je Duo alebo Google Authenticator. Týmto sa vytvorí nové pripojenie, všetky staré pripojenia už nebudú fungovať.
 
 ## Two Step Authentication - replace backup authentication code
@@ -1126,7 +1126,7 @@ recovery-phone-remove-header = Odstránenie možnosti obnovy pomocou telefónu
 settings-recovery-phone-remove-info = Týmto odstránite číslo <strong>{ $formattedFullPhoneNumber }</strong> ako telefónne číslo na obnovenie účtu.
 settings-recovery-phone-remove-recommend = Odporúčame vám ponechať si túto metódu, pretože je jednoduchšia ako ukladanie záložných overovacích kódov.
 # "Saved backup authentication codes" refers to previously saved backup authentication codes
-settings-recovery-phone-remove-recovery-methods = Ak ho vymažete, uistite sa, že máte stále uložené záložné overovacie kódy. <linkExternal>Porovnať metódy obnovenia</linkExternal>
+settings-recovery-phone-remove-recovery-methods = Ak ho vymažete, uistite sa, že máte stále uložené záložné overovacie kódy. <linkExternal>Porovnať spôsoby obnovenia prístupu</linkExternal>
 settings-recovery-phone-remove-button = Odstrániť telefónne číslo
 settings-recovery-phone-remove-cancel = Zrušiť
 settings-recovery-phone-remove-success = Obnovenie pomocou telefónu bolo zrušené
@@ -1249,7 +1249,7 @@ tfa-row-backup-codes-get-new-cta-v2 = Vytvoriť nové kódy
 # Button to add backup authentication codes when none are configured
 tfa-row-backup-codes-add-cta = Pridať
 # 'This' refers to 'backup authentication codes', used as a recovery method for two-step authentication
-tfa-row-backup-codes-description-2 = Toto je najbezpečnejšia metóda obnovy, ak nemôžete použiť svoje mobilné zariadenie alebo aplikáciu na overovanie.
+tfa-row-backup-codes-description-2 = Toto je najbezpečnejší spôsob obnovenia prístupu, ak nemôžete použiť svoje mobilné zariadenie alebo overovaciu aplikáciu.
 # Recovery phone is a recovery method for two-step authentication
 # A recovery code can be sent to the user's phone
 tfa-row-backup-phone-title-v2 = Obnovenie pomocou telefónu
@@ -1265,7 +1265,7 @@ tfa-row-backup-phone-delete-button = Odstrániť
 tfa-row-backup-phone-delete-title-v2 = Odstráni možnosť obnovy pomocou telefónu
 tfa-row-backup-phone-delete-restriction-v2 = Ak chcete odstrániť možnosť obnovy pomocou telefónu, pridajte záložné overovacie kódy alebo najskôr zakážte dvojstupňové overenie, aby ste sa vyhli zablokovaniu vášho účtu.
 # "this" refers to recovery phone
-tfa-row-backup-phone-description-v2 = Toto je najjednoduchší spôsob obnovenia, ak nemôžete použiť aplikáciu na overenie totožnosti.
+tfa-row-backup-phone-description-v2 = Toto je najjednoduchší spôsob obnovenia prístupu, ak nemôžete použiť overovaciu aplikáciu.
 # A SIM swap attack is a type of identity theft where an attacker tricks or bribes a mobile carrier
 # into transferring a victim's phone number to their own SIM card, enabling access to accounts secured
 # with SMS-based two-factor authentication.
@@ -1407,11 +1407,11 @@ tfa-row-action-change = Zmeniť
 tfa-row-button-refresh =
     .title = Obnoviť dvojstupňové overenie
 tfa-row-cannot-refresh = Je nám ľúto, ale pri obnovovaní dvojstupňového overenia sa vyskytol problém.
-tfa-row-enabled-description = Váš účet je chránený dvojstupňovou autentifikáciou. Pri prihlasovaní do svojho { -product-mozilla-account(capitalization: "lower", case: "gen") } budete musieť zadať jednorazový prístupový kód z overovacej aplikácie.
+tfa-row-enabled-description = Váš účet je chránený dvojstupňovým overením. Pri prihlasovaní do svojho { -product-mozilla-account(capitalization: "lower", case: "gen") } budete musieť zadať jednorazový prístupový kód z overovacej aplikácie.
 # "this" refers to two-step authentication
 # Link goes to https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication
 tfa-row-enabled-info-link = Ako toto chráni váš účet
-tfa-row-disabled-description-v2 = Pomôžte zabezpečiť svoj účet pomocou aplikácie na overenie totožnosti tretej strany ako druhého kroku prihlásenia.
+tfa-row-disabled-description-v2 = Pomôžte zabezpečiť svoj účet pomocou overovacej aplikácie tretej strany ako druhého kroku prihlásenia.
 tfa-row-cannot-verify-session-4 = Ľutujeme, pri potvrdení vašej relácie sa vyskytol problém
 tfa-row-disable-modal-heading = Zakázať dvojstupňové overenie?
 tfa-row-disable-modal-confirm = Zakázať
@@ -1862,7 +1862,6 @@ pair-unsupported-switch-to-firefox = Ak chcete pripojiť ďalšie zariadenie, pr
 pair-unsupported-oops-mobile = Ojoj! Zdá sa, že nepoužívate { -brand-firefox(case: "acc") }.
 # v2: Heading for the mobile instructional message, shown on all mobile devices
 # (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
-# Aligned with legacy Backbone copy (see templates/partial/unsupported-pair.mustache).
 pair-unsupported-connecting-mobile-header-v2 = Pripojenie mobilného zariadenia k { -product-mozilla-account(capitalization: "lower", case: "dat") }
 # v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
 # URL so the domain does not wrap to a new line on narrow screens.
@@ -1975,15 +1974,10 @@ pair2-supplicant-connect-this-device-connect-button = Pripojiť
 pair2-supplicant-connect-this-device-cancel-button = Zrušiť
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device when pairing reaches a device that
-## does not have Firefox installed yet. It explains what syncing gets them and
-## either opens the Firefox app to finish pairing or sends them off to install
-## the browser.
+## Users see this on their mobile device when pairing reaches a browser that is
+## not Firefox. It offers to open the Firefox app to finish pairing, and to
+## install it first when the user does not have it yet.
 
-pair2-supplicant-download-firefox-heading = Získajte { -brand-firefox(case: "acc") } na tomto zariadení
-# "sync" is a verb here, referring to syncing data between the user's devices.
-# <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = Stiahnite si { -brand-firefox(case: "acc") } a synchronizujte záložky, históriu a ďalšie údaje naprieč zariadeniami. <linkExternal>Ďalšie informácie</linkExternal>
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Pokračujte vo { -brand-firefox(case: "loc") }
@@ -2153,9 +2147,9 @@ reset-password-confirmed-cta = A pokračovať do služby { $serviceName }
 ## This page is shown to users when they are having trouble resetting their
 
 password-reset-recovery-method-header = Zmena hesla
-password-reset-recovery-method-subheader = Vyberte spôsob obnovy
+password-reset-recovery-method-subheader = Vyberte spôsob obnovenia prístupu
 # This is displayed to the user when they are choosing an alternative method to authenticate themself in the password reset process when they do not have access to their two-factor authenticator application
-password-reset-recovery-method-details = Poďme sa, že ste to vy, čo používate svoje metódy obnovy.
+password-reset-recovery-method-details = Uistime sa, že ste to vy, kto používa spôsoby obnovenia prístupu.
 password-reset-recovery-method-phone = Obnovenie pomocou telefónu
 password-reset-recovery-method-code = Záložné overovacie kódy
 # Variable: $numBackupCodes (String) - The number of backup authentication codes the user has left, e.g., 4
@@ -2313,8 +2307,8 @@ signin-passwordless-totp-required = Vo vašom účte je povolené dvojstupňové
 ## their password, and they previously had set up an account recovery method.
 
 signin-recovery-method-header = Prihlásenie
-signin-recovery-method-subheader = Vyberte spôsob obnovy
-signin-recovery-method-details = Poďme sa, že ste to vy, čo používate svoje metódy obnovy.
+signin-recovery-method-subheader = Vyberte spôsob obnovenia prístupu
+signin-recovery-method-details = Uistime sa, že ste to vy, kto používa spôsoby obnovenia prístupu.
 signin-recovery-method-phone = Obnovenie pomocou telefónu
 signin-recovery-method-code-v2 = Záložné overovacie kódy
 # Variable: $numBackupCodes (String) - The number of backup authentication codes the user has left, e.g., 4

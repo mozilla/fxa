@@ -1399,8 +1399,6 @@ pair2-supplicant-connect-this-device-connect-button = Conectează
 pair2-supplicant-connect-this-device-cancel-button = Anulează
 
 
-pair2-supplicant-download-firefox-heading = Instalează { -brand-firefox } pe acest dispozitiv
-pair2-supplicant-download-firefox-description = Descarcă { -brand-firefox } pentru a-ți sincroniza marcajele, istoricul și multe altele pe toate dispozitivele. <linkExternal>Află mai multe</linkExternal>
 pair2-supplicant-download-firefox-continue-button = Continuă în { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Se deschide { -brand-firefox }…
 

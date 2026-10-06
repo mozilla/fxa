@@ -179,6 +179,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Cadarnhau'r cyfrinair
 form-password-with-inline-criteria-reset-submit-button = Creu cyfrinair newydd
+form-password-with-inline-criteria-old-password-label =
+    .label = Hen gyfrinair
+form-password-with-inline-criteria-change-password-submit-button = Newid cyfrinair
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Cyfrinair
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1875,7 +1878,6 @@ pair-unsupported-switch-to-firefox = Newidiwch i { -brand-firefox } ac agorwch y
 pair-unsupported-oops-mobile = Wps! Mae'n edrych yn debyg nad ydych chi'n defnyddio { -brand-firefox }.
 # v2: Heading for the mobile instructional message, shown on all mobile devices
 # (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
-# Aligned with legacy Backbone copy (see templates/partial/unsupported-pair.mustache).
 pair-unsupported-connecting-mobile-header-v2 = Yn cysylltu eich dyfais symudol â'ch { -product-mozilla-account }
 # v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
 # URL so the domain does not wrap to a new line on narrow screens.
@@ -1988,20 +1990,39 @@ pair2-supplicant-connect-this-device-connect-button = Cysylltu
 pair2-supplicant-connect-this-device-cancel-button = Diddymu
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device when pairing reaches a device that
-## does not have Firefox installed yet. It explains what syncing gets them and
-## either opens the Firefox app to finish pairing or sends them off to install
-## the browser.
+## Users see this on their mobile device when pairing reaches a browser that is
+## not Firefox. It offers to open the Firefox app to finish pairing, and to
+## install it first when the user does not have it yet.
 
-pair2-supplicant-download-firefox-heading = Cael { -brand-firefox } ar y ddyfais hon
+pair2-supplicant-download-firefox-heading-v2 = Agor { -brand-firefox } ar y ddyfais hon
 # "sync" is a verb here, referring to syncing data between the user's devices.
-# <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = Llwythwch { -brand-firefox } i lawr i gydweddu nodau tudalen, hanes, a mwy ar draws dyfeisiau. <linkExternal>Dysgu rhagor</linkExternal>
+pair2-supplicant-download-firefox-description-v2 = Llwythwch { -brand-firefox } i lawr i gydweddu nodau tudalen, hanes, a mwy ar draws dyfeisiau.
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Parhau yn { -brand-firefox }
 # Replaces the button label while waiting for the Firefox app to take over
 pair2-supplicant-download-firefox-opening-button = Yn agor { -brand-firefox }…
+# Primary action shown in Safari on iOS. Opens the App Store page for Firefox.
+pair2-supplicant-download-firefox-download-button = Llwytho { -brand-firefox } i lawr
+# Secondary action shown in Safari on iOS, below the download button. Opens the
+# Firefox app when it is already installed.
+pair2-supplicant-download-firefox-have-firefox-button = Mae gen i { -brand-firefox } yn barod
+# Opens a page explaining what sync does
+pair2-supplicant-download-firefox-learn-more-link = Dysgu rhagor
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## with the phone's camera app instead of with Firefox. They already have
+## Firefox installed, so it tells them how to scan the code again from inside
+## Firefox.
+
+pair2-supplicant-connect-hint-heading-v2 = Gorffen paru yn yr ap
+# <b> emphasises the name of the button the user taps in Firefox
+pair2-supplicant-connect-hint-step-app-menu = Tapiwch <b>ddewislen yr ap</b> yn y bar offer
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair2-supplicant-connect-hint-step-sign-in = Tapiwch <b>mewngofnodi</b>, yna sganio'r cod
+# Opens a Mozilla support article about connecting a device without a QR code
+pair2-supplicant-connect-hint-learn-more-link = Dysgu rhagor
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -2052,6 +2073,13 @@ permissions-label-email = Cyfeiriad e-bost
 permissions-label-display-name = Enw dangos
 permissions-continue-button = Parhau
 permissions-cancel-button = Diddymu
+
+## ForcePasswordChange page
+## Users are sent here when suspicious activity on the account requires a new password before they can continue.
+
+force-password-change-heading = Newidiwch eich cyfrinair
+force-password-change-info = Rydym wedi canfod ymddygiad amheus ar eich cyfrif { -product-mozilla-account }. I ddiogelu eich cyfrif, crëwch gyfrinair newydd. Byddwch yn defnyddio'r cyfrinair hwn i fewngofnodi eto i'ch holl wasanaethau { -product-mozilla-account }.
+force-password-change-data-info = Bydd hanes, nodau tudalen, mewngofnodi a data personol eraill sydd heb eu cydweddu'n cael eu colli.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -2540,3 +2568,10 @@ signup-confirmed-sync-description-v2 = Gall eich cyfrineiriau, cyfeiriadau, noda
 signup-confirmed-sync-add-device-link = Ychwanegu dyfais arall
 signup-confirmed-sync-manage-sync-button = Rheoli cydweddu
 signup-confirmed-sync-set-password-success-banner = Cyfrinair cydweddu wedi'i greu
+
+## UpdateFirefox page
+## Shown when the browser is too old to use a Mozilla account
+
+update-firefox-heading = Mae angen diweddaru { -brand-firefox }
+update-firefox-description = Mae eich cyfrif { -product-mozilla-account } yn defnyddio nodweddion sydd ddim yn cael eu cefnogi yn eich fersiwn chi o { -brand-firefox }. Llwythwch i lawr a gosodwch y fersiwn diweddaraf o { -brand-firefox } i barhau.
+update-firefox-download-button = Llwytho'r diweddariad diweddaraf i lawr

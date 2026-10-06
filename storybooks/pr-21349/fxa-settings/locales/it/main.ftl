@@ -179,6 +179,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Conferma password
 form-password-with-inline-criteria-reset-submit-button = Crea nuova password
+form-password-with-inline-criteria-old-password-label =
+    .label = Password precedente
+form-password-with-inline-criteria-change-password-submit-button = Cambia password
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Password
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1354,10 +1357,19 @@ pair2-supplicant-connect-this-device-connect-button = Connetti
 pair2-supplicant-connect-this-device-cancel-button = Annulla
 
 
-pair2-supplicant-download-firefox-heading = Ottieni { -brand-firefox } su questo dispositivo
-pair2-supplicant-download-firefox-description = Scarica { -brand-firefox } per sincronizzare segnalibri, cronologia e altri dati su tutti i tuoi dispositivi. <linkExternal>Ulteriori informazioni</linkExternal>
+pair2-supplicant-download-firefox-heading-v2 = Apri { -brand-firefox } su questo dispositivo
+pair2-supplicant-download-firefox-description-v2 = Scarica { -brand-firefox } per sincronizzare segnalibri, cronologia e altro ancora tra i tuoi dispositivi.
 pair2-supplicant-download-firefox-continue-button = Continua in { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Avvio di { -brand-firefox }…
+pair2-supplicant-download-firefox-download-button = Scarica { -brand-firefox }
+pair2-supplicant-download-firefox-have-firefox-button = Ho già { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = Ulteriori informazioni
+
+
+pair2-supplicant-connect-hint-heading-v2 = Completa l’associazione nell’app
+pair2-supplicant-connect-hint-step-app-menu = Tocca il <b>menu dell’app</b> nella barra degli strumenti
+pair2-supplicant-connect-hint-step-sign-in = Tocca <b>accedi</b>, quindi scansiona il codice
+pair2-supplicant-connect-hint-learn-more-link = Ulteriori informazioni
 
 
 pair2-supplicant-ready-to-scan-heading = Per connettere un dispositivo
@@ -1381,6 +1393,11 @@ permissions-label-email = Indirizzo email
 permissions-label-display-name = Nome visualizzato
 permissions-continue-button = Continua
 permissions-cancel-button = Annulla
+
+
+force-password-change-heading = Cambia la password
+force-password-change-info = Abbiamo rilevato attività sospette sul tuo { -product-mozilla-account }. Per proteggerlo, crea una nuova password. Potrai utilizzare questa password per accedere nuovamente a tutti i servizi associati al tuo { -product-mozilla-account }.
+force-password-change-data-info = Cronologia, segnalibri, credenziali di accesso e altri dati personali sincronizzati non andranno persi.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confermato
@@ -1676,3 +1693,8 @@ signup-confirmed-sync-description-v2 = Password, indirizzi, segnalibri, cronolog
 signup-confirmed-sync-add-device-link = Aggiungi un altro dispositivo
 signup-confirmed-sync-manage-sync-button = Gestisci sincronizzazione
 signup-confirmed-sync-set-password-success-banner = Password di sincronizzazione creata
+
+
+update-firefox-heading = Aggiornamento di { -brand-firefox } necessario
+update-firefox-description = L’{ -product-mozilla-account } utilizza funzionalità che non sono supportate dalla versione di { -brand-firefox } in uso. Per continuare scarica e installa la versione di { -brand-firefox } più recente.
+update-firefox-download-button = Scarica l’ultima versione

@@ -1463,15 +1463,10 @@ pair2-supplicant-connect-this-device-connect-button = ਕਨੈਕਟ ਕਰੋ
 pair2-supplicant-connect-this-device-cancel-button = ਰੱਦ ਕਰੋ
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device when pairing reaches a device that
-## does not have Firefox installed yet. It explains what syncing gets them and
-## either opens the Firefox app to finish pairing or sends them off to install
-## the browser.
+## Users see this on their mobile device when pairing reaches a browser that is
+## not Firefox. It offers to open the Firefox app to finish pairing, and to
+## install it first when the user does not have it yet.
 
-pair2-supplicant-download-firefox-heading = ਇਸ ਡਿਵਾਈਸ ਲਈ { -brand-firefox } ਲਵੋ
-# "sync" is a verb here, referring to syncing data between the user's devices.
-# <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = ਬੁੱਕਮਾਰਕਾਂ, ਅਤੀਤ ਅਤੇ ਹੋਰ ਚੀਜ਼ਾਂ ਨੂੰ ਡਿਵਾਈਸ ਨਾਲ ਕਨੈਕਟ ਕਰਨ ਲਈ { -brand-firefox } ਨੂੰ ਡਾਊਨਲੋਡ ਕਰੋ। <linkExternal>ਹੋਰ ਜਾਣੋ</linkExternal>
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = { -brand-firefox } ਨਾਲ ਜਾਰੀ ਰੱਖੋ

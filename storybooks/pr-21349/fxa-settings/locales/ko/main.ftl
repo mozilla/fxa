@@ -1328,8 +1328,6 @@ pair2-supplicant-connect-this-device-connect-button = 연결
 pair2-supplicant-connect-this-device-cancel-button = 취소
 
 
-pair2-supplicant-download-firefox-heading = 이 기기에 { -brand-firefox } 다운로드
-pair2-supplicant-download-firefox-description = { -brand-firefox }를 다운로드하여 북마크, 기록 등을 여러 기기에 동기화하세요. <linkExternal>더 알아보기</linkExternal>
 pair2-supplicant-download-firefox-continue-button = { -brand-firefox }에서 계속
 pair2-supplicant-download-firefox-opening-button = { -brand-firefox } 실행 중…
 

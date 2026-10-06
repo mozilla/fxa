@@ -1689,7 +1689,6 @@ pair-unsupported-switch-to-firefox = Пребаците се на { -brand-firef
 pair-unsupported-oops-mobile = Упс! Чини се да не користите { -brand-firefox }.
 # v2: Heading for the mobile instructional message, shown on all mobile devices
 # (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
-# Aligned with legacy Backbone copy (see templates/partial/unsupported-pair.mustache).
 pair-unsupported-connecting-mobile-header-v2 = Повезивање вашег мобилног уређаја са вашим { -product-mozilla-account }
 # v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
 # URL so the domain does not wrap to a new line on narrow screens.

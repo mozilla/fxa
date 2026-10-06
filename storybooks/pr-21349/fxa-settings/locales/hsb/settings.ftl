@@ -173,6 +173,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Hesło wobkrućić
 form-password-with-inline-criteria-reset-submit-button = Nowe hesło wutworić
+form-password-with-inline-criteria-old-password-label =
+    .label = Stare hesło
+form-password-with-inline-criteria-change-password-submit-button = Hesło změnić
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Hesło
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1867,7 +1870,6 @@ pair-unsupported-switch-to-firefox = Wužiwajće { -brand-firefox } a wočińće
 pair-unsupported-oops-mobile = Hopla! Po wšěm zdaću { -brand-firefox } njewužiwaće.
 # v2: Heading for the mobile instructional message, shown on all mobile devices
 # (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
-# Aligned with legacy Backbone copy (see templates/partial/unsupported-pair.mustache).
 pair-unsupported-connecting-mobile-header-v2 = Waš mobilny grat z wašim kontom { -product-mozilla-account } zwjazać
 # v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
 # URL so the domain does not wrap to a new line on narrow screens.
@@ -1980,20 +1982,31 @@ pair2-supplicant-connect-this-device-connect-button = Zwjazać
 pair2-supplicant-connect-this-device-cancel-button = Přetorhnyć
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device when pairing reaches a device that
-## does not have Firefox installed yet. It explains what syncing gets them and
-## either opens the Firefox app to finish pairing or sends them off to install
-## the browser.
+## Users see this on their mobile device when pairing reaches a browser that is
+## not Firefox. It offers to open the Firefox app to finish pairing, and to
+## install it first when the user does not have it yet.
 
-pair2-supplicant-download-firefox-heading = Wobstarajće sej { -brand-firefox } na tutym graće
-# "sync" is a verb here, referring to syncing data between the user's devices.
-# <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = Sćehńće { -brand-firefox }, zo byšće zapołožki, historiju a wjace na swojich gratach synchronizował. <linkExternal>Dalše informacije</linkExternal>
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Z { -brand-firefox } pokročować
 # Replaces the button label while waiting for the Firefox app to take over
 pair2-supplicant-download-firefox-opening-button = { -brand-firefox } so wočinja …
+# Primary action shown in Safari on iOS. Opens the App Store page for Firefox.
+pair2-supplicant-download-firefox-download-button = { -brand-firefox } scahnyć
+# Secondary action shown in Safari on iOS, below the download button. Opens the
+# Firefox app when it is already installed.
+pair2-supplicant-download-firefox-have-firefox-button = Mam hižo { -brand-firefox }
+# Opens a page explaining what sync does
+pair2-supplicant-download-firefox-learn-more-link = Dalše informacije
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## with the phone's camera app instead of with Firefox. They already have
+## Firefox installed, so it tells them how to scan the code again from inside
+## Firefox.
+
+# Opens a Mozilla support article about connecting a device without a QR code
+pair2-supplicant-connect-hint-learn-more-link = Dalše informacije
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -2044,6 +2057,13 @@ permissions-label-email = E-mejlowa adresa
 permissions-label-display-name = Pokazowane mjeno
 permissions-continue-button = Dale
 permissions-cancel-button = Přetorhnyć
+
+## ForcePasswordChange page
+## Users are sent here when suspicious activity on the account requires a new password before they can continue.
+
+force-password-change-heading = Změńće prošu swoje hesło
+force-password-change-info = Smy podhladne zadźerženje we wašim konće { -product-mozilla-account } zwěsćili. Zo byšće swoje konto škitał, wutworće prošu nowe hesło. Wužiwajće te hesło, zo byšće so zaso pola słužbow swojeho konta { -product-mozilla-account } přizjewił.
+force-password-change-data-info = Synchronizowana historija, zapołožki, přizjewjenja a druhe wosobinske daty so njezhubja.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

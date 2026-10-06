@@ -1,8 +1,8 @@
 {
-  "commit": "64473de050607329d4ee9488fee8f9b1ce3d1f5f",
-  "summary": "fix(settings): seed a valid uid in MfaGuard story mocks",
-  "description": "Because:\n\n* cache.ts ignores stored accounts whose uid isn't 32 hex characters, so\n  stories seeding 'abc123' threw \"Missing sessionToken\" in MfaGuard\n\nThis commit:\n\n* Seeds MOCK_UID in the MfaGuard, Security, SubRow, PagePasskeyAdd, and\n  UnitRowPasskey story mocks\n\nCloses #FXA-14638",
-  "timestamp": 1790783387000,
+  "commit": "fd3c0d17b6c8cb10ca05d4ae7ce13206cc1235dc",
+  "summary": "fix(l10n): Add clear comment for \"sync sign-in\"",
+  "description": "Co-authored-by: Bryan Olsson <bolsson@mozilla.com>",
+  "timestamp": 1791315741000,
   "storybooks": [
     "fxa-settings"
   ],

@@ -1485,6 +1485,7 @@ auth-error-228 = Registraasje wachtwurdkaai mislearre
 auth-error-233 = Stel in skermbeskoatteling, pinkoade, fingerôfdruk of gesichtswerkenning op jo apparaat of befeiligingskaai yn om in wachtwurdkaai oan te meitsjen. Probearje it dêrnei opnij.
 auth-error-238 = Wachtwurdkaai-útdaging mislearre
 auth-error-239 = Sorry, wy koene jo account net fuortsmite. Probearje it opnij, of nim kontakt op mei de stipe as it probleem oanhâldt.
+auth-error-240 = Dizze account is útskeakele
 auth-error-999 = Unferwachte flater
 auth-error-1001 = Oanmeldbesykjen annulearre
 auth-error-1002 = Sesje ferrûn. Meld jo oan om troch te gean.
@@ -1645,6 +1646,13 @@ inline-passwordless-sync-setup-enable-button = Wachtwurdkaai ynskeakelje
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Ynskeakelje…
 inline-passwordless-sync-setup-not-now-button = No net
+# Success message shown in the Settings alert bar after the passkey was stored.
+inline-passwordless-sync-setup-success-alert = Dizze wachtwurdkaai is klear foar oanmelden en syngronisearjen
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = Befêstiging fan wachtwurdkaai net foltôge
+inline-passwordless-sync-setup-error-cancelled-description = Befêstigje mei jo wachtwurdkaai om it wachtwurd de folgjende kear oer te slaan.
+# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
+inline-passwordless-sync-setup-error-generic = Der is wat misgien, jo moatte de folgjende kear noch hieltyd jo wachtwurd ynfiere
 
 ## InlineRecoveryKeySetup page component
 
@@ -1849,7 +1857,6 @@ pair-unsupported-switch-to-firefox = Skeakelje oer nei { -brand-firefox } en iep
 pair-unsupported-oops-mobile = Oepsie! It liket derop dat jo gjin { -brand-firefox } brûke.
 # v2: Heading for the mobile instructional message, shown on all mobile devices
 # (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
-# Aligned with legacy Backbone copy (see templates/partial/unsupported-pair.mustache).
 pair-unsupported-connecting-mobile-header-v2 = Jo mobile apparaat ferbine mei jo { -product-mozilla-account }
 # v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
 # URL so the domain does not wrap to a new line on narrow screens.
@@ -1962,15 +1969,10 @@ pair2-supplicant-connect-this-device-connect-button = Ferbine
 pair2-supplicant-connect-this-device-cancel-button = Annulearje
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device when pairing reaches a device that
-## does not have Firefox installed yet. It explains what syncing gets them and
-## either opens the Firefox app to finish pairing or sends them off to install
-## the browser.
+## Users see this on their mobile device when pairing reaches a browser that is
+## not Firefox. It offers to open the Firefox app to finish pairing, and to
+## install it first when the user does not have it yet.
 
-pair2-supplicant-download-firefox-heading = Download { -brand-firefox } op dit apparaat
-# "sync" is a verb here, referring to syncing data between the user's devices.
-# <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = Download { -brand-firefox } om blêdwizers, skiednis en mear op ferskate apparaten te syngronisearjen. <linkExternal>Mear ynfo</linkExternal>
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Trochgean yn { -brand-firefox }
@@ -2013,6 +2015,19 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Besykje <b>firefox.com
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Annulearre
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Besykje <b>firefox.com/pair</b> op jo kompjûter om op elk winske momint in apparaat te ferbinen.
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } wol tagong ta:
+permissions-label-email = E-mailadres
+permissions-label-display-name = Werjeftenamme
+permissions-continue-button = Trochgean
+permissions-cancel-button = Annulearje
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN

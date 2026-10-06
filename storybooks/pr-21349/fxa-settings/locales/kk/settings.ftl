@@ -167,6 +167,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Парольді растау
 form-password-with-inline-criteria-reset-submit-button = Жаңа парольді жасау
+form-password-with-inline-criteria-old-password-label =
+    .label = Ескі пароль
+form-password-with-inline-criteria-change-password-submit-button = Парольді өзгерту
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Пароль
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1854,7 +1857,6 @@ pair-unsupported-switch-to-firefox = { -brand-firefox } ішіне ауысып,
 pair-unsupported-oops-mobile = Ой! Сіз { -brand-firefox } қолданбайтын сияқтысыз.
 # v2: Heading for the mobile instructional message, shown on all mobile devices
 # (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
-# Aligned with legacy Backbone copy (see templates/partial/unsupported-pair.mustache).
 pair-unsupported-connecting-mobile-header-v2 = Мобильді құрылғыңызды { -product-mozilla-account } тіркелгісіне қосу
 # v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
 # URL so the domain does not wrap to a new line on narrow screens.
@@ -1967,20 +1969,39 @@ pair2-supplicant-connect-this-device-connect-button = Байланысу
 pair2-supplicant-connect-this-device-cancel-button = Бас тарту
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device when pairing reaches a device that
-## does not have Firefox installed yet. It explains what syncing gets them and
-## either opens the Firefox app to finish pairing or sends them off to install
-## the browser.
+## Users see this on their mobile device when pairing reaches a browser that is
+## not Firefox. It offers to open the Firefox app to finish pairing, and to
+## install it first when the user does not have it yet.
 
-pair2-supplicant-download-firefox-heading = Бұл құрылғыда { -brand-firefox } алу
+pair2-supplicant-download-firefox-heading-v2 = Бұл құрылғыда { -brand-firefox } ашыңыз
 # "sync" is a verb here, referring to syncing data between the user's devices.
-# <linkExternal> is an anchor tag linking to a page explaining what sync does.
-pair2-supplicant-download-firefox-description = Құрылғылар арасында бетбелгілерді, тарихты және т.б. синхрондау үшін { -brand-firefox } жүктеп алыңыз. <linkExternal>Көбірек білу</linkExternal>
+pair2-supplicant-download-firefox-description-v2 = Құрылғылар арасында бетбелгілерді, тарихты және т.б. синхрондау үшін { -brand-firefox } жүктеп алыңыз.
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = { -brand-firefox } ішінде жалғастыру
 # Replaces the button label while waiting for the Firefox app to take over
 pair2-supplicant-download-firefox-opening-button = { -brand-firefox } ашылуда…
+# Primary action shown in Safari on iOS. Opens the App Store page for Firefox.
+pair2-supplicant-download-firefox-download-button = { -brand-firefox } жүктеп алу
+# Secondary action shown in Safari on iOS, below the download button. Opens the
+# Firefox app when it is already installed.
+pair2-supplicant-download-firefox-have-firefox-button = Менде { -brand-firefox } бар
+# Opens a page explaining what sync does
+pair2-supplicant-download-firefox-learn-more-link = Көбірек білу
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## with the phone's camera app instead of with Firefox. They already have
+## Firefox installed, so it tells them how to scan the code again from inside
+## Firefox.
+
+pair2-supplicant-connect-hint-heading-v2 = Жұптауды қолданбада аяқтаңыз
+# <b> emphasises the name of the button the user taps in Firefox
+pair2-supplicant-connect-hint-step-app-menu = Саймандар панеліндегі <b>қолданбалар мәзірін</b> шертіңіз
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair2-supplicant-connect-hint-step-sign-in = <b>Кіру</b> шертіп, кодты сканерлеңіз
+# Opens a Mozilla support article about connecting a device without a QR code
+pair2-supplicant-connect-hint-learn-more-link = Көбірек білу
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -2031,6 +2052,13 @@ permissions-label-email = Эл. пошта адресі
 permissions-label-display-name = Көрсетілетін аты
 permissions-continue-button = Жалғастыру
 permissions-cancel-button = Бас тарту
+
+## ForcePasswordChange page
+## Users are sent here when suspicious activity on the account requires a new password before they can continue.
+
+force-password-change-heading = Өз пароліңізді өзгертіңіз
+force-password-change-info = Біз сіздің { -product-mozilla-account } тіркелгіңізде күмәнді әрекетті анықтадық. Тіркелгіңізді қорғау үшін жаңа паролді жасаңыз. Бұл парольді барлық { -product-mozilla-account } тіркелгісі қызметтеріне қайта кіру үшін пайдаланасыз.
+force-password-change-data-info = Синхрондалған тарих, бетбелгілер, логиндер және басқа жеке деректер жоғалмайды.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -2498,3 +2526,10 @@ signup-confirmed-sync-description-v2 = Парольдер, адрестер, б�
 signup-confirmed-sync-add-device-link = Басқа құрылғыны қосу
 signup-confirmed-sync-manage-sync-button = Синхрондауды басқару
 signup-confirmed-sync-set-password-success-banner = Синхрондау паролі жасалды
+
+## UpdateFirefox page
+## Shown when the browser is too old to use a Mozilla account
+
+update-firefox-heading = { -brand-firefox } жаңартуы керек
+update-firefox-description = Сіздің { -product-mozilla-account } тіркелгіңіз { -brand-firefox } бұл нұсқасында қолдау көрсетілмейтін мүмкіндіктерді пайдаланады. Жалғастыру үшін { -brand-firefox } соңғы нұсқасын жүктеп алып, орнатыңыз.
+update-firefox-download-button = Соңғы нұсқасын жүктеп алу

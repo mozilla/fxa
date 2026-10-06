@@ -224,7 +224,17 @@ freeTrialEndingReminder-content-charge-discount-2 = İndirim
 #   $invoiceTaxAmount (String) - The tax amount, e.g. $1.20
 freeTrialEndingReminder-content-charge-tax = Vergi: { $invoiceTaxAmount }
 freeTrialEndingReminder-content-charge-tax-2 = Vergi
+# Variables:
+#   $serviceLastActiveDateOnly (String) - The date the charge will occur, e.g. January 20, 2016
+#   $invoiceTotal (String) - The total amount due, e.g. $9.99
+freeTrialEndingReminder-content-charge-total = { $serviceLastActiveDateOnly } tarihinde ödenecek toplam: { $invoiceTotal }
+freeTrialEndingReminder-content-charge-total-2 = { $serviceLastActiveDateOnly } tarihinde ödenecek toplam tutar
+freeTrialEndingReminder-content-account-link = Ödeme yönteminizi ve hesap bilgilerinizi <a data-l10n-name="freeTrialEndingReminder-update-billing">buradan</a> inceleyebilir ve güncelleyebilirsiniz.
 freeTrialEndingReminder-content-account-link-plaintext = Ödeme yönteminizi ve hesap bilgilerinizi buradan inceleyebilir ve güncelleyebilirsiniz:
+# Variables:
+#   $serviceLastActiveDateOnly (String) - The date the trial ends, e.g. January 20, 2016
+freeTrialEndingReminder-content-cancel-link = Ücret ödememek için <strong>{ $serviceLastActiveDateOnly }</strong> tarihinden önce iptal edin: <a data-l10n-name="freeTrialEndingReminder-cancel-subscription">Aboneliği iptal et</a>
+freeTrialEndingReminder-content-cancel-link-plaintext = Ücret ödemek istemiyorsanız { $serviceLastActiveDateOnly } tarihinden önce iptal edin:
 freeTrialEndingReminder-content-closing = Saygılarımızla,
 # Variables:
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
