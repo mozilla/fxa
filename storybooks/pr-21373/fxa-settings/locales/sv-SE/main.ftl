@@ -1695,3 +1695,8 @@ signup-confirmed-sync-description-v2 = Dina lösenord, adresser, bokmärken, his
 signup-confirmed-sync-add-device-link = Lägg till en annan enhet
 signup-confirmed-sync-manage-sync-button = Hantera synkronisering
 signup-confirmed-sync-set-password-success-banner = Synkroniseringslösenord skapat
+
+
+update-firefox-heading = { -brand-firefox } uppdatering krävs
+update-firefox-description = Din { -product-mozilla-account } använder funktioner som inte stöds i din version av { -brand-firefox }. Ladda ner och installera den senaste versionen av { -brand-firefox } för att fortsätta.
+update-firefox-download-button = Ladda ner senaste

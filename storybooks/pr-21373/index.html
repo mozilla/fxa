@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit c0a9ae9d3a6699dbe636f65e2179f579f580bc97</title>
+  <title>Storybooks for commit 8110ba906fb47f147d0cc8b1602f893d758f8cc0</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,34 +23,34 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit c0a9ae9d3a6699dbe636f65e2179f579f580bc97</h1>
+  <h1>Storybooks for commit 8110ba906fb47f147d0cc8b1602f893d758f8cc0</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/5/2026, 10:15:59 PM UTC</dd>
+    <dd>10/6/2026, 1:32:04 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(settings): update reset password start page copy for passkeys</pre></dd>
     <dt>Description</dt>
-    <dd><pre>Because:
+    <dd><pre>## Because
 
-* The reset password page didn&#039;t point passkey or social-login users
-  back to sign-in
-* The data recovery warning sat above the form, ahead of the main action
+- The reset password start page offered no way to sign in with Google, Apple, or a passkey instead of a reset.
+- The old footer link and its passkey props did not match the new copy.
 
-This commit:
+## This pull request
 
-* Updates the heading and body copy; the body links to email-first
-  sign-in and keeps the query params
-* Moves the data recovery warning below Continue as small print with a
-  SUMO &quot;Learn more&quot; link
-* Removes the &quot;Sign in&quot; footer, its passkey props, and its Glean events
-* Adds Glean auto-click ids to both new links
-* Updates unit tests, mocks, and the functional page object; adds a
-  functional test for the body link
+- Changes the heading to &quot;Forgot your password?&quot; and rewrites the body copy, with new FTL IDs, in `en.ftl` and `index.tsx`.
+- Adds a body link to the email-first sign-in page. It keeps the query params.
+- Passes the typed email as `state.prefillEmail` when the email is valid, as the removed footer did. It sends nothing for an invalid email. This is the round 2 change.
+- Moves the data recovery warning below Continue as small print (`text-grey-500`) with a &quot;Learn more&quot; support link.
+- Removes the footer sign-in link (`LinkRememberPassword`), the `showPasskeyOption` prop, and the footer Glean events.
+- Adds Glean auto-click ids to the two new links.
+- Updates the unit tests, `mocks.tsx`, and the functional page object. Adds a functional test for the body link.
 
-Closes #FXA-13258</pre></dd>
+## Issue that this pull request solves
+
+Closes: https://mozilla-hub.atlassian.net/browse/FXA-13258</pre></dd>
   </dl>
 </body>
 </html>

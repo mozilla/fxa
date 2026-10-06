@@ -1,8 +1,8 @@
 {
-  "commit": "c0a9ae9d3a6699dbe636f65e2179f579f580bc97",
+  "commit": "8110ba906fb47f147d0cc8b1602f893d758f8cc0",
   "summary": "feat(settings): update reset password start page copy for passkeys",
-  "description": "Because:\n\n* The reset password page didn't point passkey or social-login users\n  back to sign-in\n* The data recovery warning sat above the form, ahead of the main action\n\nThis commit:\n\n* Updates the heading and body copy; the body links to email-first\n  sign-in and keeps the query params\n* Moves the data recovery warning below Continue as small print with a\n  SUMO \"Learn more\" link\n* Removes the \"Sign in\" footer, its passkey props, and its Glean events\n* Adds Glean auto-click ids to both new links\n* Updates unit tests, mocks, and the functional page object; adds a\n  functional test for the body link\n\nCloses #FXA-13258",
-  "timestamp": 1791238559000,
+  "description": "## Because\n\n- The reset password start page offered no way to sign in with Google, Apple, or a passkey instead of a reset.\n- The old footer link and its passkey props did not match the new copy.\n\n## This pull request\n\n- Changes the heading to \"Forgot your password?\" and rewrites the body copy, with new FTL IDs, in `en.ftl` and `index.tsx`.\n- Adds a body link to the email-first sign-in page. It keeps the query params.\n- Passes the typed email as `state.prefillEmail` when the email is valid, as the removed footer did. It sends nothing for an invalid email. This is the round 2 change.\n- Moves the data recovery warning below Continue as small print (`text-grey-500`) with a \"Learn more\" support link.\n- Removes the footer sign-in link (`LinkRememberPassword`), the `showPasskeyOption` prop, and the footer Glean events.\n- Adds Glean auto-click ids to the two new links.\n- Updates the unit tests, `mocks.tsx`, and the functional page object. Adds a functional test for the body link.\n\n## Issue that this pull request solves\n\nCloses: https://mozilla-hub.atlassian.net/browse/FXA-13258",
+  "timestamp": 1791293524000,
   "storybooks": [
     "fxa-settings"
   ],

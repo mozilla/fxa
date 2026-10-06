@@ -2523,3 +2523,10 @@ signup-confirmed-sync-description-v2 = Tus contraseñas, direcciones, marcadores
 signup-confirmed-sync-add-device-link = Agregar otro dispositivo
 signup-confirmed-sync-manage-sync-button = Administrar sincronización
 signup-confirmed-sync-set-password-success-banner = Contraseña de Sync creada
+
+## UpdateFirefox page
+## Shown when the browser is too old to use a Mozilla account
+
+update-firefox-heading = Se requiere actualizar { -brand-firefox }
+update-firefox-description = Tu { -product-mozilla-account } usa funciones que no son compatibles con tu versión de { -brand-firefox }. Descargá e instalá la última versión de { -brand-firefox } para continuar.
+update-firefox-download-button = Descargar la actualización más reciente
