@@ -1,0 +1,11 @@
+{
+  "commit": "3d22e560d1333e22a540c19d56ff658f349b5d54",
+  "summary": "fix(email): render only fallback strings as EJS",
+  "description": "Because:\n- Subject, action and preview strings were passed to EJS whenever they\n  contained `<%`, including localized Fluent values\n\nThis commit:\n- Returns Fluent values as-is and runs EJS only on the template's\n  English fallback, in both email renderers\n- Leaves email output unchanged: no Fluent string in this repo or\n  fxa-content-server-l10n contains EJS syntax\n- Adds tests in both renderers that a Fluent value with an EJS-like\n  variable stays literal\n\nFixes FXA-14604",
+  "timestamp": 1791233801000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel"
+  ],
+  "deployDir": "deploy/"
+}

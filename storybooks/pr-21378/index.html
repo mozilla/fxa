@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 3d22e560d1333e22a540c19d56ff658f349b5d54</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 3d22e560d1333e22a540c19d56ff658f349b5d54</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/5/2026, 8:56:41 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(email): render only fallback strings as EJS</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- Subject, action and preview strings were passed to EJS whenever they
+  contained `&lt;%`, including localized Fluent values
+
+This commit:
+- Returns Fluent values as-is and runs EJS only on the template&#039;s
+  English fallback, in both email renderers
+- Leaves email output unchanged: no Fluent string in this repo or
+  fxa-content-server-l10n contains EJS syntax
+- Adds tests in both renderers that a Fluent value with an EJS-like
+  variable stays literal
+
+Fixes FXA-14604</pre></dd>
+  </dl>
+</body>
+</html>

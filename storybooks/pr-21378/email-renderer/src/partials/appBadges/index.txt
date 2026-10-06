@@ -1,0 +1,8 @@
+ios-download-plaintext = "Download <%- productName  %> on the App Store:"
+<%- locals.iosUrl %>
+
+android-download-plaintext = "Get <%- productName %> on Google Play:"
+<%- locals.androidUrl %>
+
+another-device-plaintext = "Install <%- productName %> on another device:"
+<%- locals.link %>
