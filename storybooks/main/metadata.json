@@ -1,8 +1,8 @@
 {
-  "commit": "1714d758b754f69d917456ef5dce72fefff6cf77",
-  "summary": "Merge pull request #21373 from mozilla/fxa-13258",
-  "description": "feat(settings): update reset password start page copy for passkeys",
-  "timestamp": 1791315933000,
+  "commit": "e9f55b5534c0239c0b876dd37b1074d96f7d5e5c",
+  "summary": "Merge pull request #21385 from mozilla/agent-bde4ad",
+  "description": "chore(metrics): stop sending the legacy accounts-events Glean ping",
+  "timestamp": 1791319006000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
