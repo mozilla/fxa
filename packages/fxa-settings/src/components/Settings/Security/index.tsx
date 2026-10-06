@@ -76,7 +76,7 @@ export const Security = forwardRef<HTMLDivElement>((_, ref) => {
             }}
           >
             {hasPassword ? (
-              <PwdDate {...{ passwordCreated }} />
+              passwordCreated > 0 && <PwdDate {...{ passwordCreated }} />
             ) : (
               <Localized id="security-set-password">
                 <p className="text-sm mt-3">

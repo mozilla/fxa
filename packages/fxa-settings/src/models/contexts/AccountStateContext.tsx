@@ -63,7 +63,7 @@ export interface ExtendedAccountState {
   recoveryPhone: RecoveryPhoneStatus | null;
   attachedClients: AttachedClient[];
   linkedAccounts: LinkedAccount[];
-  subscriptions: Subscription[];
+  subscriptions: Subscription[] | null;
   securityEvents: SecurityEvent[];
   passkeys: Passkey[];
 }

@@ -4029,6 +4029,10 @@ describe('/account', () => {
     Container.set(CapabilityService, {});
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   describe('web subscriptions', () => {
     beforeEach(() => {
       mockCustomer = {
@@ -4082,20 +4086,36 @@ describe('/account', () => {
       });
     });
 
-    it('should propagate other errors from stripe.customer', async () => {
+    it('should omit subscriptions and report other errors from stripe.customer', async () => {
+      const sentryModule = require('../sentry');
+      const reportSpy = jest
+        .spyOn(sentryModule, 'reportSentryError')
+        .mockReturnValue({});
+      const stripeError = error.unexpectedError();
       mockStripeHelper.fetchCustomer = jest.fn(() => {
-        throw error.unexpectedError();
+        throw stripeError;
       });
 
-      let failed = false;
-      try {
-        await runTest(buildRoute(), request, () => {});
-      } catch (err: any) {
-        failed = true;
-        expect(err.errno).toBe(error.ERRNO.UNEXPECTED_ERROR);
-      }
+      await runTest(buildRoute(), request, (result: any) => {
+        expect(result).not.toHaveProperty('subscriptions');
+      });
+      expect(log.error).toHaveBeenCalledWith(
+        'Account.get.subscriptions.error',
+        { err: stripeError }
+      );
+      expect(reportSpy).toHaveBeenCalledWith(stripeError, request);
+    });
 
-      expect(failed).toBe(true);
+    it('should not log or report unknownCustomer errors', async () => {
+      const sentryModule = require('../sentry');
+      const reportSpy = jest.spyOn(sentryModule, 'reportSentryError');
+      mockStripeHelper.fetchCustomer = jest.fn(() => {
+        throw error.unknownCustomer();
+      });
+
+      await runTest(buildRoute(), request, () => {});
+      expect(log.error).not.toHaveBeenCalled();
+      expect(reportSpy).not.toHaveBeenCalled();
     });
 
     it('should not return stripe.customer result when subscriptions are disabled', () => {
@@ -4241,6 +4261,86 @@ describe('/account', () => {
             1
           );
           expect(result.subscriptions).toEqual([]);
+        }
+      );
+    });
+
+    it('should return web subscriptions when the Play read fails', async () => {
+      const sentryModule = require('../sentry');
+      const reportSpy = jest
+        .spyOn(sentryModule, 'reportSentryError')
+        .mockReturnValue({});
+      mockCustomer = { id: 1234, subscriptions: ['fake'] };
+      mockWebSubscriptionsResponse = [webSubscription];
+      mockStripeHelper.fetchCustomer = jest.fn(async () => mockCustomer);
+      mockStripeHelper.subscriptionsToResponse = jest.fn(
+        async () => mockWebSubscriptionsResponse
+      );
+      const playError = new Error('play unavailable');
+      mockPlaySubscriptions.getSubscriptions = jest.fn(async () => {
+        throw playError;
+      });
+
+      await runTest(
+        buildRoute(subscriptionsEnabled, playSubscriptionsEnabled),
+        request,
+        (result: any) => {
+          expect(result.subscriptions).toEqual([webSubscription]);
+        }
+      );
+      expect(reportSpy).toHaveBeenCalledWith(playError, request);
+    });
+
+    it('should return Play subscriptions when the Stripe read fails', async () => {
+      jest.spyOn(require('../sentry'), 'reportSentryError').mockReturnValue({});
+      mockStripeHelper.fetchCustomer = jest.fn(async () => {
+        throw error.unexpectedError();
+      });
+
+      await runTest(
+        buildRoute(subscriptionsEnabled, playSubscriptionsEnabled),
+        request,
+        (result: any) => {
+          expect(result.subscriptions).toEqual([
+            mockFormattedPlayStoreSubscription,
+          ]);
+        }
+      );
+    });
+
+    it('should start the Play read without waiting for the Stripe read', async () => {
+      let stripeSettled = false;
+      let stripeSettledWhenPlayStarted: boolean | undefined;
+      mockStripeHelper.fetchCustomer = jest.fn(async () => {
+        await new Promise((resolve) => setImmediate(resolve));
+        stripeSettled = true;
+        return mockCustomer;
+      });
+      mockPlaySubscriptions.getSubscriptions = jest.fn(async () => {
+        stripeSettledWhenPlayStarted = stripeSettled;
+        return [];
+      });
+
+      await runTest(
+        buildRoute(subscriptionsEnabled, playSubscriptionsEnabled),
+        request,
+        () => {}
+      );
+      expect(stripeSettledWhenPlayStarted).toBe(false);
+    });
+
+    it('should omit subscriptions when the Stripe read fails and Play has none', async () => {
+      jest.spyOn(require('../sentry'), 'reportSentryError').mockReturnValue({});
+      mockStripeHelper.fetchCustomer = jest.fn(async () => {
+        throw error.unexpectedError();
+      });
+      mockPlaySubscriptions.getSubscriptions = jest.fn(async () => []);
+
+      await runTest(
+        buildRoute(subscriptionsEnabled, playSubscriptionsEnabled),
+        request,
+        (result: any) => {
+          expect(result).not.toHaveProperty('subscriptions');
         }
       );
     });
@@ -4399,6 +4499,32 @@ describe('/account', () => {
           expect(result.subscriptions).toEqual([]);
         }
       );
+    });
+
+    it('should return web subscriptions when the App Store read fails', async () => {
+      const sentryModule = require('../sentry');
+      const reportSpy = jest
+        .spyOn(sentryModule, 'reportSentryError')
+        .mockReturnValue({});
+      mockCustomer = { id: 1234, subscriptions: ['fake'] };
+      mockWebSubscriptionsResponse = [webSubscription];
+      mockStripeHelper.fetchCustomer = jest.fn(async () => mockCustomer);
+      mockStripeHelper.subscriptionsToResponse = jest.fn(
+        async () => mockWebSubscriptionsResponse
+      );
+      const appStoreError = new Error('app store unavailable');
+      mockAppStoreSubscriptions.getSubscriptions = jest.fn(async () => {
+        throw appStoreError;
+      });
+
+      await runTest(
+        buildRoute(subscriptionsEnabled, false, appStoreSubscriptionsEnabled),
+        request,
+        (result: any) => {
+          expect(result.subscriptions).toEqual([webSubscription]);
+        }
+      );
+      expect(reportSpy).toHaveBeenCalledWith(appStoreError, request);
     });
 
     it('should not return App Store subscriptions when App Store subscriptions are disabled', () => {

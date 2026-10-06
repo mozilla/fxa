@@ -58,7 +58,7 @@ export interface UnifiedAccountData {
   // Connected services
   attachedClients: AttachedClient[];
   linkedAccounts: LinkedAccount[];
-  subscriptions: { created: number; productName: string }[];
+  subscriptions: { created: number; productName: string }[] | null;
   securityEvents: SecurityEvent[];
 
   // UI state (transient)
@@ -349,7 +349,7 @@ export function getFullAccountData(uid?: string): {
   } | null;
   attachedClients: AttachedClient[];
   linkedAccounts: LinkedAccount[];
-  subscriptions: { created: number; productName: string }[];
+  subscriptions: { created: number; productName: string }[] | null;
   securityEvents: SecurityEvent[];
   passkeys: Passkey[];
 } | null {
