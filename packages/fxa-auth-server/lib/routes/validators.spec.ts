@@ -788,6 +788,24 @@ describe('lib/routes/validators:', () => {
     });
   });
 
+  describe('storedScope:', () => {
+    it.each([
+      '',
+      'profile:email',
+      'https://identity.mozilla.com/apps/oldsync',
+      'https://identity.mozilla.com/apps/oldsync/bookmarks#read',
+      "https://example.com/a~b!$&'()*+,;=@%",
+    ])('accepts %j', (value) => {
+      expect(validators.storedScope.validate(value).error).toBeUndefined();
+    });
+
+    it.each(['a b', 'a"b', 'a\\b', 'a\nb', 'é'])('rejects %j', (value) => {
+      expect(validators.storedScope.validate(value).error).toBeInstanceOf(
+        isA.ValidationError
+      );
+    });
+  });
+
   describe('DEVICE_COMMAND_NAME:', () => {
     it('accepts a URI style command name', () => {
       expect(

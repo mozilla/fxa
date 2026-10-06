@@ -8,6 +8,7 @@
 const { URL } = require('url');
 const punycode = require('punycode.js');
 const isA = require('joi');
+const { VALID_SCOPE_VALUE } = require('fxa-shared/oauth/scopes');
 const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
 const {
   minimalConfigSchema,
@@ -140,6 +141,13 @@ const scope = isA
   .regex(/^[a-zA-Z0-9 _\/.:-]*$/)
   .allow('');
 module.exports.scope = scope;
+// For responses only: stored scopes already passed ScopeSet when loaded, and
+// this checks characters alone, so it must not validate request input.
+module.exports.storedScope = isA
+  .string()
+  .max(256)
+  .regex(VALID_SCOPE_VALUE)
+  .allow('');
 module.exports.assertion = isA
   .string()
   .min(50)
