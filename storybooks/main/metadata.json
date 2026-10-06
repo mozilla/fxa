@@ -1,8 +1,8 @@
 {
-  "commit": "3c97d29f30762d5ce3807741e44dd3da7c548ad1",
-  "summary": "Merge pull request #21378 from mozilla/FXA-14604-2",
-  "description": "fix(email): render only fallback strings as EJS",
-  "timestamp": 1791306631000,
+  "commit": "8795a3bf4cdef2e6c15581073ba77ab7a3b7516e",
+  "summary": "Merge pull request #21358 from mozilla/fxa-14647",
+  "description": "fix(auth,settings): keep account data usable on subscription errors",
+  "timestamp": 1791311696000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
