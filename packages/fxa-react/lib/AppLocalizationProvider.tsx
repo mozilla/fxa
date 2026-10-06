@@ -17,13 +17,35 @@ function describeCause(err: unknown) {
   return err instanceof Error ? err.message : String(err);
 }
 
+// fetch rejects with a TypeError worded per engine when the network fails, and
+// current engines append the host, e.g. "Load failed (cdn.accounts.firefox.com)".
+const FETCH_NETWORK_ERROR_PREFIXES = [
+  'Failed to fetch', // Chromium
+  'NetworkError when attempting to fetch resource.', // Gecko
+  'Load failed', // WebKit
+];
+
+// A dropped connection or a page torn down mid-fetch is not actionable.
+export function isNetworkFailure(err: unknown) {
+  return (
+    (err instanceof TypeError &&
+      FETCH_NETWORK_ERROR_PREFIXES.some((prefix) =>
+        err.message.startsWith(prefix)
+      )) ||
+    (err instanceof DOMException && err.name === 'AbortError')
+  );
+}
+
+const FETCH_ATTEMPTS = 2;
+
 /**
  * Gets l10n messages from server
  * @param baseDir The root location where locales folders are held
  * @param locale The target language
  * @param bundle The target bundle (ie main)
  * @param mappings A set of mappings for static resources.
- * @param reportBundleError Receives whole-bundle load failures for this locale.
+ * @param reportBundleError Receives whole-bundle load failures for this locale,
+ * except network failures that persist after one retry.
  * @returns
  */
 async function fetchMessages(
@@ -56,32 +78,40 @@ async function fetchMessages(
 
   // Fetch the file and return the messages
   const resolvedPath = `${baseDir}/${mappedPath}`;
-  try {
-    const response = await fetch(resolvedPath);
+  for (let attempt = 1; attempt <= FETCH_ATTEMPTS; attempt++) {
+    try {
+      const response = await fetch(resolvedPath);
 
-    // A non-OK body is not FTL, and handing it to Fluent yields an empty bundle.
-    if (!response.ok) {
-      reportBundleError?.(
-        new Error(
-          `Fetching l10n bundle returned ${response.status}: ${resolvedPath}`
-        ),
-        locale
-      );
-      return '';
+      // A non-OK body is not FTL, and handing it to Fluent yields an empty bundle.
+      if (!response.ok) {
+        reportBundleError?.(
+          new Error(
+            `Fetching l10n bundle returned ${response.status}: ${resolvedPath}`
+          ),
+          locale
+        );
+        return '';
+      }
+
+      return await response.text();
+    } catch (e) {
+      if (attempt < FETCH_ATTEMPTS) {
+        continue;
+      }
+      if (!isNetworkFailure(e)) {
+        reportBundleError?.(
+          new Error(
+            `Fetching l10n bundle failed: ${resolvedPath} (${describeCause(e)})`
+          ),
+          locale
+        );
+      }
     }
-
-    return await response.text();
-  } catch (e) {
-    // We couldn't fetch any strings; just return nothing and fluent will fall
-    // back to the default locale if needed.
-    reportBundleError?.(
-      new Error(
-        `Fetching l10n bundle failed: ${resolvedPath} (${describeCause(e)})`
-      ),
-      locale
-    );
-    return '';
   }
+
+  // We couldn't fetch any strings; just return nothing and fluent will fall
+  // back to the default locale if needed.
+  return '';
 }
 
 function fetchAllMessages(
